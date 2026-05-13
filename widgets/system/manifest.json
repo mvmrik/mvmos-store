@@ -1,0 +1,24 @@
+{
+  "widgets": [
+    {
+      "id": "cpu-meter",
+      "name": "CPU Meter",
+      "icon": "⚡",
+      "category": "System",
+      "version": "1.0.0",
+      "widget_type": "taskbar",
+      "description": "Shows real-time CPU usage in the taskbar.",
+      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/system/cpu-meter"
+    },
+    {
+      "id": "ram-meter",
+      "name": "RAM Meter",
+      "icon": "🧠",
+      "category": "System",
+      "version": "1.0.0",
+      "widget_type": "taskbar",
+      "description": "Shows real-time RAM usage in the taskbar.",
+      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/system/ram-meter"
+    }
+  ]
+}
