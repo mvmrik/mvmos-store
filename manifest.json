@@ -1,42 +1,19 @@
 {
-  "version": 1,
-  "apps": [
+  "version": 2,
+  "categories": [
     {
-      "id": "calculator",
-      "name": "Calculator",
-      "icon": "🧮",
-      "category": "Utilities",
-      "version": "1.1.0",
-      "description": "Simple calculator with basic arithmetic operations. Supports keyboard input.",
-      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/calculator"
-    },
-    {
-      "id": "server-manager",
-      "name": "Server Manager",
+      "id": "administration",
+      "name": "Administration",
       "icon": "🖧",
-      "category": "Administration",
-      "version": "1.0.0",
-      "description": "Monitor and control system services — start, stop, restart web servers, databases, and more. Supports sudo for non-root users.",
-      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/server-manager"
-    }
-  ,
-    {
-      "id": "system-info",
-      "name": "System Info",
-      "icon": "🖥️",
-      "category": "Administration",
-      "version": "1.0.0",
-      "description": "Detailed hardware and system information — CPU, memory, disks, network interfaces, temperatures, uptime and more.",
-      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-info"
+      "count": 3,
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/manifest.json"
     },
     {
-      "id": "process-manager",
-      "name": "Process Manager",
-      "icon": "📊",
-      "category": "Administration",
-      "version": "1.0.0",
-      "description": "Monitor CPU, memory and disk usage in real time. View and manage running processes — filter, sort, and kill with optional sudo support.",
-      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/process-manager"
+      "id": "utilities",
+      "name": "Utilities",
+      "icon": "🔧",
+      "count": 1,
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/manifest.json"
     }
   ]
 }

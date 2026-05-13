@@ -1,0 +1,31 @@
+{
+  "apps": [
+    {
+      "id": "server-manager",
+      "name": "Server Manager",
+      "icon": "🖧",
+      "category": "Administration",
+      "version": "1.0.0",
+      "description": "Monitor and control system services — start, stop, restart web servers, databases, and more. Supports sudo for non-root users.",
+      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/server-manager"
+    },
+    {
+      "id": "process-manager",
+      "name": "Process Manager",
+      "icon": "📊",
+      "category": "Administration",
+      "version": "1.0.0",
+      "description": "Monitor CPU, memory and disk usage in real time. View and manage running processes — filter, sort, and kill with optional sudo support.",
+      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/process-manager"
+    },
+    {
+      "id": "system-info",
+      "name": "System Info",
+      "icon": "🖥️",
+      "category": "Administration",
+      "version": "1.0.0",
+      "description": "Detailed hardware and system information — CPU, memory, disks, network interfaces, temperatures, uptime and more.",
+      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/system-info"
+    }
+  ]
+}
