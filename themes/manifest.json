@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "id": "dark",
+      "name": "Dark",
+      "icon": "🌑",
+      "count": 2,
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/themes/dark/manifest.json"
+    },
+    {
+      "id": "light",
+      "name": "Light",
+      "icon": "☀️",
+      "count": 1,
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/themes/light/manifest.json"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "themes": [
+    {
+      "id": "light",
+      "name": "mvmOS Light",
+      "icon": "🤍",
+      "category": "Light",
+      "version": "1.0.0",
+      "layout": "macos",
+      "description": "Clean light theme with white surfaces and blue accent.",
+      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/themes/light"
+    }
+  ]
+}

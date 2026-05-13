@@ -1,0 +1,21 @@
+:root {
+  --bg: #1e1e2e;
+  --surface: #313244;
+  --surface2: #45475a;
+  --border: #585b70;
+  --text: #cdd6f4;
+  --text-dim: #a6adc8;
+  --accent: #89b4fa;
+  --accent-hover: #74c7ec;
+  --danger: #f38ba8;
+  --titlebar: #181825;
+  --taskbar: #11111b;
+  --shadow: 0 8px 32px rgba(0,0,0,0.6);
+  --radius: 8px;
+  --font: 'Segoe UI', system-ui, sans-serif;
+  --mono: 'Consolas', 'Menlo', monospace;
+}
+
+#desktop {
+  background: linear-gradient(135deg, #1e1e2e 0%, #181825 50%, #1e1e2e 100%);
+}
