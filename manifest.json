@@ -9,6 +9,15 @@
       "version": "1.1.0",
       "description": "Simple calculator with basic arithmetic operations. Supports keyboard input.",
       "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/calculator"
+    },
+    {
+      "id": "server-manager",
+      "name": "Server Manager",
+      "icon": "🖧",
+      "category": "Administration",
+      "version": "1.0.0",
+      "description": "Monitor and control system services — start, stop, restart web servers, databases, and more. Supports sudo for non-root users.",
+      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/server-manager"
     }
   ]
 }
