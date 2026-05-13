@@ -57,6 +57,7 @@
   inset: 0;
 }
 
+.window-controls { display: flex; }
 .wbtn-min   { order: 1; }
 .wbtn-max   { order: 2; }
 .wbtn-close { order: 3; }
