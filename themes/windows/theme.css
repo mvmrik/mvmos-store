@@ -57,6 +57,10 @@
   inset: 0;
 }
 
+.wbtn-min   { order: 1; }
+.wbtn-max   { order: 2; }
+.wbtn-close { order: 3; }
+
 .wbtn-min::after  { content: '─'; font-size: 12px; color: #1a1a1a; }
 .wbtn-max::after  { content: '□'; font-size: 12px; color: #1a1a1a; }
 .wbtn-close::after { content: '✕'; font-size: 11px; color: #1a1a1a; }
