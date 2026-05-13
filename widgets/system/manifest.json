@@ -19,6 +19,26 @@
       "widget_type": "taskbar",
       "description": "Shows real-time RAM usage in the taskbar.",
       "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/system/ram-meter"
+    },
+    {
+      "id": "cpu-monitor",
+      "name": "CPU Monitor",
+      "icon": "📈",
+      "category": "System",
+      "version": "1.0.0",
+      "widget_type": "desktop",
+      "description": "Desktop CPU usage graph with history. Drag to reposition.",
+      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/system/cpu-monitor"
+    },
+    {
+      "id": "sys-overview",
+      "name": "System Overview",
+      "icon": "🖥️",
+      "category": "System",
+      "version": "1.0.0",
+      "widget_type": "desktop",
+      "description": "Desktop widget showing CPU, RAM and disk at a glance with color-coded gauges.",
+      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/system/sys-overview"
     }
   ]
 }

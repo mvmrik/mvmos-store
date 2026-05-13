@@ -5,8 +5,7 @@
       "id": "system",
       "name": "System",
       "icon": "⚡",
-      "widget_type": "taskbar",
-      "count": 2,
+      "count": 4,
       "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/system/manifest.json"
     }
   ]

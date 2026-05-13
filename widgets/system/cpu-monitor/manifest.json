@@ -1,0 +1,10 @@
+{
+  "id": "cpu-monitor",
+  "name": "CPU Monitor",
+  "icon": "📈",
+  "category": "System",
+  "version": "1.0.0",
+  "widget_type": "desktop",
+  "description": "Desktop CPU usage graph with history. Drag to reposition.",
+  "entry": "main.js"
+}
