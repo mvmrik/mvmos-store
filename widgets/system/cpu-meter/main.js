@@ -1,4 +1,4 @@
-// mvmOS Widget: CPU Meter v1.0.0
+// mvmOS Widget: CPU Meter v1.1.0
 mvmOS.registerWidget({
   id: 'cpu-meter',
   type: 'taskbar',
@@ -13,28 +13,14 @@ mvmOS.registerWidget({
       <span id="cpu-meter-pct" style="font-size:.72rem;color:var(--text);min-width:28px;text-align:right">—</span>
     `;
 
-    let _timer = null;
-
-    async function update() {
-      try {
-        const res = await fetch('/api/system/resources');
-        const d = await res.json();
-        const pct = d.cpu_pct ?? 0;
-        const bar = document.getElementById('cpu-meter-bar');
-        const label = document.getElementById('cpu-meter-pct');
-        if (!bar) { clearInterval(_timer); return; }
-        bar.style.width = pct + '%';
-        bar.style.background = pct > 85 ? '#f38ba8' : pct > 60 ? '#f9e2af' : '#89b4fa';
-        label.textContent = pct + '%';
-      } catch (_) {}
-    }
-
-    update();
-    _timer = setInterval(update, 3000);
-
-    const observer = new MutationObserver(() => {
-      if (!document.contains(container)) { clearInterval(_timer); observer.disconnect(); }
+    mvmOS.onResources(d => {
+      const pct = d.cpu_pct ?? 0;
+      const bar = container.querySelector('#cpu-meter-bar');
+      const label = container.querySelector('#cpu-meter-pct');
+      if (!bar) return;
+      bar.style.width = pct + '%';
+      bar.style.background = pct > 85 ? '#f38ba8' : pct > 60 ? '#f9e2af' : '#89b4fa';
+      label.textContent = pct + '%';
     });
-    observer.observe(document.body, { childList: true, subtree: true });
   }
 });
