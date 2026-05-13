@@ -7,8 +7,8 @@
       "icon": "🧮",
       "category": "Utilities",
       "version": "1.1.0",
-      "description": "Simple calculator with basic arithmetic operations.",
-      "js_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/calculator.js"
+      "description": "Simple calculator with basic arithmetic operations. Supports keyboard input.",
+      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/calculator"
     }
   ]
 }
