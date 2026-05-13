@@ -21,6 +21,15 @@
     }
   ,
     {
+      "id": "system-info",
+      "name": "System Info",
+      "icon": "🖥️",
+      "category": "Administration",
+      "version": "1.0.0",
+      "description": "Detailed hardware and system information — CPU, memory, disks, network interfaces, temperatures, uptime and more.",
+      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-info"
+    },
+    {
       "id": "process-manager",
       "name": "Process Manager",
       "icon": "📊",
