@@ -23,7 +23,7 @@
       "name": "System Info",
       "icon": "🖥️",
       "category": "Administration",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Detailed hardware and system information — CPU, memory, disks, network interfaces, temperatures, uptime and more.",
       "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/system-info"
     },
@@ -32,7 +32,7 @@
       "name": "Cron Manager",
       "icon": "⏰",
       "category": "Administration",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "View, add, edit and delete cron jobs for the current user. Root also sees /etc/cron.d/ system jobs.",
       "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/cron-manager"
     }
