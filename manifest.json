@@ -5,7 +5,7 @@
       "id": "administration",
       "name": "Administration",
       "icon": "🖧",
-      "count": 3,
+      "count": 4,
       "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/manifest.json"
     },
     {
