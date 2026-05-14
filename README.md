@@ -49,7 +49,8 @@ apps/
 | `category` | ✅ | Groups apps in the start menu |
 | `version` | ✅ | Semver string |
 | `description` | ✅ | Shown in App Store |
-| `entry` | ✅ | Entry JS file (always `"main.js"`) |
+| `entry` | ✅ | Entry JS file (e.g. `"main.js"`) |
+| `css` | ☐ | Optional CSS file to inject when the app loads (e.g. `"style.css"`) |
 
 ### main.js
 
@@ -93,17 +94,26 @@ mvmOS.registerApp({
 - `body` is a plain `div` — put any HTML you want inside it.
 - The window has minimize, maximize and close buttons built in.
 - Use `var(--surface)`, `var(--text)` etc. (see [CSS Variables](#css-variables-reference)) so your app matches the active theme.
-- You can use `mvmOS.storage` to persist data across sessions.
+- Use `this.storage` inside your `registerApp` def to persist data — each app has its own isolated storage.
 
 ### Persistent storage
 
+Each app gets its own isolated storage, automatically namespaced by app id. Use `this.storage` inside the `def` object, or save a reference:
+
 ```js
-mvmOS.storage.set('key', { value: 42 });
-const data = mvmOS.storage.get('key'); // { value: 42 }
-mvmOS.storage.remove('key');
+mvmOS.registerApp({
+  id: 'my-app',
+  // ...
+  launch() {
+    const store = this.storage;
+    store.set('count', 5);
+    const count = store.get('count'); // 5
+    store.remove('count');
+  }
+});
 ```
 
-Storage is namespaced per key automatically — no collisions between apps.
+Two different apps using `storage.set('key', ...)` will never overwrite each other's data.
 
 ### Notifications
 
@@ -316,13 +326,14 @@ All variables have fallback values built into the OS, so you only need to define
 Global object available in all app and widget scripts:
 
 ```
-mvmOS.registerApp(def)          — register an app
-mvmOS.registerWidget(def)       — register a widget
-mvmOS.createWindow(options)     — open a window (call inside launch())
-mvmOS.storage.get(key)          — read from namespaced localStorage
-mvmOS.storage.set(key, value)   — write to namespaced localStorage
-mvmOS.storage.remove(key)       — delete a key
-mvmOS.notify(title, body)       — push a notification
+mvmOS.registerApp(def)               — register an app
+mvmOS.registerWidget(def)            — register a widget
+mvmOS.createWindow(options)          — open a window (call inside launch())
+mvmOS.notify(title, body)            — push a notification
 mvmOS.notify(title, body, fn, label) — notification with action button
-mvmOS.onResources(callback)     — subscribe to system resource updates
+mvmOS.onResources(callback)          — subscribe to system resource updates
+
+this.storage.get(key)        — read from app-isolated localStorage (use inside registerApp def)
+this.storage.set(key, value) — write to app-isolated localStorage
+this.storage.remove(key)     — delete a key
 ```
