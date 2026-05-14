@@ -1,6 +1,6 @@
 # mvmOS Developer Guide
 
-This repository contains apps, widgets and themes for [mvmOS](https://mvmos.mvmrik.com) — a web-based desktop OS.
+This repository contains apps, widgets and themes for [mvmOS](https://github.com/mvmrik/mvmOS) — a web-based desktop OS.
 
 ---
 
