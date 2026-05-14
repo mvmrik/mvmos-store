@@ -5,14 +5,12 @@
       "id": "administration",
       "name": "Administration",
       "icon": "🖧",
-      "count": 4,
       "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/manifest.json"
     },
     {
       "id": "utilities",
       "name": "Utilities",
       "icon": "🔧",
-      "count": 1,
       "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/manifest.json"
     }
   ]
