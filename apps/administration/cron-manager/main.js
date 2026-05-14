@@ -1,4 +1,4 @@
-// mvmOS App: Cron Manager v1.0.0
+// mvmOS App: Cron Manager v1.1.0
 mvmOS.registerApp({
   id: 'cron-manager',
   name: 'Cron Manager',
@@ -9,8 +9,8 @@ mvmOS.registerApp({
     mvmOS.createWindow({
       id: 'cron-manager',
       title: '⏰ Cron Manager',
-      width: 780,
-      height: 500,
+      width: 820,
+      height: 520,
       onMount(body) { CronManager.init(body); },
     });
   }
@@ -103,22 +103,75 @@ const CronManager = (() => {
     const wrap = document.createElement('div');
     entries.forEach(e => {
       const row = document.createElement('div');
-      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid var(--border);font-size:.8rem';
+      const disabled = e.enabled === false;
+      row.style.cssText = `display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid var(--border);font-size:.8rem;${disabled ? 'opacity:.45' : ''}`;
       row.innerHTML = `
         <div style="flex:0 0 130px;color:var(--accent);font-family:var(--mono);font-size:.75rem">${_humanSchedule(e)}</div>
         <div style="flex:1;color:var(--text);font-family:var(--mono);font-size:.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${e.command}">${e.command}</div>
         ${editable ? `
+          <button class="s-btn-sm cm-run" title="Run now" style="flex-shrink:0">▶</button>
+          <button class="s-btn-sm ${disabled ? 's-btn' : ''} cm-toggle" title="${disabled ? 'Enable' : 'Disable'}" style="flex-shrink:0">${disabled ? '○' : '●'}</button>
           <button class="s-btn s-btn-sm cm-edit" style="flex-shrink:0">✏️</button>
           <button class="s-btn-sm s-btn-danger cm-del" style="flex-shrink:0">✕</button>
         ` : ''}
       `;
       if (editable) {
+        row.querySelector('.cm-run').addEventListener('click', () => _runNow(e, row));
+        row.querySelector('.cm-toggle').addEventListener('click', () => _toggle(e));
         row.querySelector('.cm-edit').addEventListener('click', () => _showForm(e));
         row.querySelector('.cm-del').addEventListener('click', () => _delete(e));
       }
       wrap.appendChild(row);
     });
     return wrap;
+  }
+
+  async function _toggle(entry) {
+    const newEnabled = entry.enabled === false ? true : false;
+    const res = await fetch('/api/cron/toggle', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ raw: entry.raw, enabled: newEnabled })
+    });
+    const d = await res.json();
+    if (d.ok) _load();
+  }
+
+  async function _runNow(entry, row) {
+    const btn = row.querySelector('.cm-run');
+    btn.disabled = true;
+    btn.textContent = '…';
+
+    const res = await fetch('/api/cron/run', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ command: entry.command })
+    });
+    const d = await res.json();
+    btn.disabled = false;
+    btn.textContent = '▶';
+
+    // show output overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:100';
+    const box = document.createElement('div');
+    box.style.cssText = 'background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:20px;width:520px;max-width:92%;display:flex;flex-direction:column;gap:10px';
+    const output = d.output || '(no output)';
+    box.innerHTML = `
+      <div style="font-size:.85rem;font-weight:600;color:var(--text)">Run Now — Output</div>
+      <div style="font-size:.73rem;color:var(--text-dim);font-family:var(--mono)">${entry.command}</div>
+      <pre style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:10px;font-size:.75rem;color:${d.returncode===0?'var(--text)':'#f38ba8'};overflow:auto;max-height:220px;white-space:pre-wrap;margin:0">${_esc(output)}</pre>
+      <div style="font-size:.75rem;color:var(--text-dim)">Exit code: <span style="color:${d.returncode===0?'#a6e3a1':'#f38ba8'}">${d.returncode}</span></div>
+      <div style="text-align:right"><button class="s-btn">Close</button></div>
+    `;
+    box.querySelector('.s-btn').addEventListener('click', () => overlay.remove());
+    overlay.appendChild(box);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+    _body.appendChild(overlay);
+  }
+
+  function _esc(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
   function _showForm(entry) {
