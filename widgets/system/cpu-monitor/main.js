@@ -1,4 +1,4 @@
-// mvmOS Widget: CPU Monitor v1.1.0
+// mvmOS Widget: CPU Monitor v1.2.0
 mvmOS.registerWidget({
   id: 'cpu-monitor',
   type: 'desktop',
@@ -7,15 +7,15 @@ mvmOS.registerWidget({
   init(container) {
     const W = 220;
     container.innerHTML = `
-      <div style="width:${W}px;background:rgba(17,17,27,.88);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,.5)">
+      <div style="width:${W}px;background:var(--surface,rgba(17,17,27,.88));border:1px solid var(--border,rgba(255,255,255,.08));border-radius:10px;padding:12px;box-shadow:0 8px 32px rgba(0,0,0,.5)">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span style="font-size:.72rem;font-weight:700;color:#cdd6f4;letter-spacing:.06em">CPU USAGE</span>
+          <span style="font-size:.72rem;font-weight:700;color:var(--text,#cdd6f4);letter-spacing:.06em">CPU USAGE</span>
           <span id="cpu-mon-pct" style="font-size:1.1rem;font-weight:700;color:#89b4fa">—</span>
         </div>
         <canvas id="cpu-mon-canvas" width="${W - 24}" height="70" style="display:block;border-radius:4px"></canvas>
         <div style="display:flex;justify-content:space-between;margin-top:8px">
-          <span style="font-size:.68rem;color:#585b70">Load avg</span>
-          <span id="cpu-mon-load" style="font-size:.68rem;color:#a6adc8">—</span>
+          <span style="font-size:.68rem;color:var(--text-dim,#585b70)">Load avg</span>
+          <span id="cpu-mon-load" style="font-size:.68rem;color:var(--text,#a6adc8)">—</span>
         </div>
       </div>
     `;

@@ -3,7 +3,7 @@
   "name": "System Overview",
   "icon": "🖥️",
   "category": "System",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "widget_type": "desktop",
   "description": "Desktop widget showing CPU, RAM and disk at a glance with color-coded gauges.",
   "entry": "main.js"
