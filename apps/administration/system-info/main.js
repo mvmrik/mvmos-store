@@ -20,36 +20,52 @@ const SI = (() => {
   let _netPrev = null;
   let _netPrevTime = null;
 
+  const TABS = [['overview','Overview'],['cpu','CPU'],['memory','Memory'],['disks','Disks'],['network','Network'],['temps','Sensors']];
+  const mobile = () => window.innerWidth < 768;
+
   function init(body) {
     body.style.padding = '0';
+    const isMob = mobile();
     body.innerHTML = `
       <div style="display:flex;flex-direction:column;height:100%;background:var(--surface);font-size:.82rem;overflow:hidden">
-        <!-- tabs -->
+        <!-- tabs: select on mobile, tab bar on desktop -->
+        ${isMob ? `
+        <div style="padding:8px 12px;border-bottom:1px solid var(--border);background:var(--surface2)">
+          <select id="si-select" style="width:100%;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:.85rem">
+            ${TABS.map(([id,label]) => `<option value="${id}">${label}</option>`).join('')}
+          </select>
+        </div>` : `
         <div style="display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--surface2)">
-          ${[['overview','Overview'],['cpu','CPU'],['memory','Memory'],['disks','Disks'],['network','Network'],['temps','Sensors']].map(([id,label],i) => `
+          ${TABS.map(([id,label],i) => `
             <div class="si-tab${i===0?' si-tab-active':''}" data-tab="${id}"
               style="padding:8px 16px;cursor:pointer;font-size:.8rem;color:${i===0?'var(--text)':'var(--text-dim)'};border-bottom:${i===0?'2px solid var(--accent)':'2px solid transparent'};margin-bottom:-1px;white-space:nowrap">
               ${label}
             </div>`).join('')}
-        </div>
+        </div>`}
         <!-- content -->
         <div id="si-content" style="flex:1;overflow:auto;padding:16px"></div>
       </div>
     `;
 
-    body.querySelectorAll('.si-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        body.querySelectorAll('.si-tab').forEach(t => {
-          t.style.color = 'var(--text-dim)';
-          t.style.borderBottom = '2px solid transparent';
-          t.classList.remove('si-tab-active');
-        });
-        tab.style.color = 'var(--text)';
-        tab.style.borderBottom = '2px solid var(--accent)';
-        tab.classList.add('si-tab-active');
-        _render(body, tab.dataset.tab);
+    if (isMob) {
+      body.querySelector('#si-select').addEventListener('change', e => {
+        _render(body, e.target.value);
       });
-    });
+    } else {
+      body.querySelectorAll('.si-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          body.querySelectorAll('.si-tab').forEach(t => {
+            t.style.color = 'var(--text-dim)';
+            t.style.borderBottom = '2px solid transparent';
+            t.classList.remove('si-tab-active');
+          });
+          tab.style.color = 'var(--text)';
+          tab.style.borderBottom = '2px solid var(--accent)';
+          tab.classList.add('si-tab-active');
+          _render(body, tab.dataset.tab);
+        });
+      });
+    }
 
     _fetch(body);
     _timer = setInterval(() => _fetch(body), 3000);
@@ -65,7 +81,7 @@ const SI = (() => {
       const res = await fetch('/api/system/hardware');
       const data = await res.json();
       body._siData = data;
-      const activeTab = body.querySelector('.si-tab-active')?.dataset.tab || 'overview';
+      const activeTab = body.querySelector('#si-select')?.value || body.querySelector('.si-tab-active')?.dataset.tab || 'overview';
       _render(body, activeTab, data);
     } catch(e) {
       body.querySelector('#si-content').innerHTML = `<div style="color:var(--text-dim);padding:24px">Failed to load system info.</div>`;
@@ -118,7 +134,7 @@ const SI = (() => {
     const diskMain = d.disks?.[0];
     const diskPct = diskMain ? diskMain.pct : 0;
     return `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="display:grid;grid-template-columns:${mobile() ? '1fr' : '1fr 1fr'};gap:12px">
         ${_card('🖥️ System', `<table style="width:100%;border-collapse:collapse">
           ${_row('Hostname', d.hostname)}
           ${_row('OS', d.os || '—')}
