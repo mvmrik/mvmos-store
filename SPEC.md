@@ -86,6 +86,18 @@ mvmOS.createWindow({
   onMount(body) { ... },  // called with the window body element
   onResize(el) { ... },   // called on resize (optional)
 })
+```
+
+**Mobile layout:** On small screens (< 768px) windows open fullscreen automatically. If your app has a sidebar, use the class `as-sidebar` and wrap the layout in `as-wrap` + `as-main` — the sidebar will automatically hide and a ☰ button will appear in the titlebar to show it as an overlay.
+
+```html
+<div class="as-wrap">
+  <nav class="as-sidebar"><!-- sidebar items --></nav>
+  <div class="as-main"><!-- main content --></div>
+</div>
+```
+
+```js
 
 // Open Settings on a specific tab
 mvmOS.openSettings('display')   // display | regional | filemanager | users | about
