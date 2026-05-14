@@ -159,8 +159,10 @@ Good for: images, documents, exports.
 
 1. Fork [mvmrik/mvmos-store](https://github.com/mvmrik/mvmos-store)
 2. Add your app folder under `apps/your-app/`
-3. Add your app entry to the root `manifest.json`
+3. Add your app entry to the category `manifest.json` (e.g. `apps/your-category/manifest.json`)
 4. Submit a pull request
+
+> **Version must be set in two places:** `apps/your-app/manifest.json` (the app itself) and the category `manifest.json` entry. The update checker reads the version from the category manifest — if you only bump the app's own manifest, users won't see an update notification.
 
 ## Using a custom store
 
