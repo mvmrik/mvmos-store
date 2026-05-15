@@ -2,46 +2,122 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 12px 16px;
-  min-width: 160px;
+  gap: 0;
+  padding: 0;
+  min-width: 180px;
   font-family: inherit;
   color: var(--text);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
+
+.ww-header {
+  width: 100%;
+  padding: 10px 14px 8px;
+  background: linear-gradient(135deg, #1e3a5f 0%, #1a2a4a 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  box-sizing: border-box;
+}
+
 .ww-city {
-  font-size: .75rem;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  text-align: center;
-}
-.ww-icon {
-  font-size: 2.4rem;
-  line-height: 1;
-}
-.ww-temp {
-  font-size: 1.8rem;
-  font-weight: 600;
-  line-height: 1;
-}
-.ww-desc {
-  font-size: .78rem;
-  color: var(--text-dim);
-  text-align: center;
-}
-.ww-meta {
   font-size: .72rem;
-  color: var(--text-dim);
+  color: #9ab;
+  text-transform: uppercase;
+  letter-spacing: .08em;
   text-align: center;
 }
+
+.ww-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.ww-icon {
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.ww-temp-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.ww-temp {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+}
+
+.ww-desc {
+  font-size: .75rem;
+  color: #9ab;
+  margin-top: 2px;
+}
+
+.ww-body {
+  width: 100%;
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  box-sizing: border-box;
+}
+
+.ww-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: .76rem;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
+
+.ww-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.ww-row-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ww-row-val {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.ww-footer {
+  width: 100%;
+  padding: 4px 14px;
+  font-size: .62rem;
+  color: var(--text-dim);
+  opacity: .5;
+  text-align: right;
+  box-sizing: border-box;
+  border-top: 1px solid var(--border);
+}
+
 .ww-error {
   font-size: .75rem;
   color: #e55;
   text-align: center;
-  padding: 8px;
+  padding: 12px;
 }
+
 .ww-loading {
   font-size: .78rem;
   color: var(--text-dim);
-  padding: 8px;
+  padding: 12px;
 }

@@ -345,6 +345,7 @@ mvmOS.registerWidget({
 | `checkbox` | —                                                 |
 | `select`   | `options: string[]`                               |
 | `text`     | —                                                 |
+| `city`     | autocomplete via Open-Meteo Geocoding (no key)    |
 
 All fields require `key`, `label`, `type`, and `default`.
 
@@ -354,7 +355,45 @@ All fields require `key`, `label`, `type`, and `default`.
 mvmOS.widgetSetting(widgetId, key, defaultValue)
 ```
 
-Returns the saved value (from the settings panel), or `defaultValue` if the user hasn't saved anything yet. You can also use `mvmOS.storage.get('widget_' + widgetId + '_' + key)` directly.
+Returns the saved value (from localStorage), or `defaultValue` if nothing saved yet.
+
+#### Server-side settings (persist across devices)
+
+By default settings are stored in `localStorage` — per browser. If you want settings shared across all devices, add `useDb: true` to `registerWidget()` and use `mvmOS.widgetDb()` instead of `mvmOS.widgetSetting()`:
+
+```js
+mvmOS.registerWidget({
+  id: 'my-widget',
+  useDb: true,
+  settings: [ /* ... */ ],
+  init(container) {
+    const db = mvmOS.widgetDb('my-widget');
+
+    async function _init() {
+      await db.run('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)');
+    }
+
+    async function _get(key, def) {
+      const rows = await db.query('SELECT value FROM settings WHERE key=?', [key]);
+      if (rows.length) return JSON.parse(rows[0].value);
+      return def;
+    }
+
+    async function render() {
+      const city = await _get('city', null);
+      // ...
+    }
+
+    _init().then(() => render());
+
+    window.addEventListener('widget-settings-changed', e => {
+      if (e.detail?.id === 'my-widget') render();
+    });
+  }
+});
+```
+
+The database file is stored at `widgets/my-widget/data.db` on the server. The App Store settings panel reads and writes it automatically when `useDb: true` is set.
 
 #### Custom context menu items
 

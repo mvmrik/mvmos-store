@@ -56,12 +56,15 @@ function _wmoDesc(code) { return (WMO_CODES[code] || ['', 'Unknown'])[1]; }
 
 // ── Geocoding via Open-Meteo (free, no key) ──────────────────────────────────
 async function _geocode(city, country) {
-  const q = country ? `${city} ${country}` : city;
-  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=en&format=json`;
+  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=10&language=en&format=json`;
   const res = await fetch(url);
   const j = await res.json();
   if (!j.results?.length) throw new Error('City not found');
-  return { lat: j.results[0].latitude, lon: j.results[0].longitude, name: j.results[0].name, country: j.results[0].country_code };
+  // prefer result matching country code if provided
+  const cc = (country || '').toUpperCase();
+  const match = cc ? j.results.find(r => r.country_code === cc) : null;
+  const r = match || j.results[0];
+  return { lat: r.latitude, lon: r.longitude, name: r.name, country: r.country_code };
 }
 
 // ── Providers ────────────────────────────────────────────────────────────────
@@ -142,25 +145,41 @@ mvmOS.registerWidget({
   label: _wwt('label'),
   defaultX: 20,
   defaultY: 100,
+  useDb: true,
   settings: [
-    { key: 'city',     label: 'City',     type: 'text',   default: 'Sofia' },
-    { key: 'country',  label: 'Country',  type: 'text',   default: 'BG' },
+    { key: 'city',     label: 'City',     type: 'city',   default: '' },
     { key: 'provider', label: 'Provider', type: 'select',
-      options: ['Open-Meteo', 'wttr.in', '7timer'], default: 'Open-Meteo' },
+      options: ['Open-Meteo', 'wttr.in'], default: 'Open-Meteo' },
     { key: 'units',    label: 'Units',    type: 'select',
       options: ['celsius', 'fahrenheit'], default: 'celsius' },
+    { key: 'refresh',  label: 'Refresh (min)', type: 'number', default: 10, min: 1, max: 180 },
   ],
 
   init(container) {
     let _timer = null;
+    const _db = mvmOS.widgetDb('weather-widget');
 
-    function _read(key, def) { return mvmOS.widgetSetting('weather-widget', key, def); }
+    async function _dbInit() {
+      await _db.run(`CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)`);
+    }
+
+    async function _dbGet(key, def) {
+      try {
+        const rows = await _db.query('SELECT value FROM settings WHERE key=?', [key]);
+        if (rows.length) return JSON.parse(rows[0].value);
+      } catch(_) {}
+      return def;
+    }
+
+    async function _dbSet(key, value) {
+      await _db.run('INSERT OR REPLACE INTO settings (key, value) VALUES (?,?)', [key, JSON.stringify(value)]);
+    }
 
     async function render() {
-      const city     = _read('city', 'Sofia');
-      const country  = _read('country', 'BG');
-      const provider = _read('provider', 'Open-Meteo');
-      const units    = _read('units', 'celsius');
+      const city     = await _dbGet('city', null);
+      const country  = await _dbGet('country', null);
+      const provider = await _dbGet('provider', 'Open-Meteo');
+      const units    = await _dbGet('units', 'celsius');
 
       if (!city) {
         container.innerHTML = `<div class="ww-wrap"><div class="ww-error">${_wwt('no_city')}</div></div>`;
@@ -184,24 +203,49 @@ mvmOS.registerWidget({
         const cityLabel = country ? `${city}, ${country}` : city;
         container.innerHTML = `
           <div class="ww-wrap">
-            <div class="ww-city">${cityLabel}</div>
-            <div class="ww-icon">${data.icon}</div>
-            <div class="ww-temp">${data.temp}</div>
-            <div class="ww-desc">${data.desc}</div>
-            <div class="ww-meta">${_wwt('feels')}: ${data.feels}</div>
-            <div class="ww-meta">💨 ${data.wind} · 💧 ${data.humidity}</div>
-            <div class="ww-meta" style="font-size:.65rem;margin-top:2px;opacity:.6">${provider}</div>
+            <div class="ww-header">
+              <div class="ww-city">${cityLabel}</div>
+              <div class="ww-main">
+                <div class="ww-icon">${data.icon}</div>
+                <div class="ww-temp-block">
+                  <div class="ww-temp">${data.temp}</div>
+                  <div class="ww-desc">${data.desc}</div>
+                </div>
+              </div>
+            </div>
+            <div class="ww-body">
+              ${data.feels !== '—' ? `
+              <div class="ww-row">
+                <span class="ww-row-label">🌡️ ${_wwt('feels')}</span>
+                <span class="ww-row-val">${data.feels}</span>
+              </div>` : ''}
+              <div class="ww-row">
+                <span class="ww-row-label">💨 ${_wwt('wind')}</span>
+                <span class="ww-row-val">${data.wind}</span>
+              </div>
+              ${data.humidity !== '—' ? `
+              <div class="ww-row">
+                <span class="ww-row-label">💧 ${_wwt('humidity')}</span>
+                <span class="ww-row-val">${data.humidity}</span>
+              </div>` : ''}
+            </div>
+            <div class="ww-footer">${provider}</div>
           </div>`;
       } catch (err) {
         container.innerHTML = `<div class="ww-wrap"><div class="ww-error">${_wwt('error')}<br><span style="font-size:.65rem">${err.message}</span></div></div>`;
       }
     }
 
-    render();
-    _timer = setInterval(render, 10 * 60 * 1000); // refresh every 10 min
+    async function _startTimer() {
+      clearInterval(_timer);
+      const min = Math.max(1, parseInt(await _dbGet('refresh', 10)) || 10);
+      _timer = setInterval(render, min * 60 * 1000);
+    }
+
+    _dbInit().then(() => { render(); _startTimer(); });
 
     window.addEventListener('widget-settings-changed', e => {
-      if (e.detail?.id === 'weather-widget') render();
+      if (e.detail?.id === 'weather-widget') { render(); _startTimer(); }
     });
 
     window.mvmOS?.onLangChange(() => render());
