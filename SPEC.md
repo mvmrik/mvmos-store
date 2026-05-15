@@ -302,6 +302,74 @@ mvmOS.registerWidget({
 });
 ```
 
+### Widget settings
+
+Widgets can expose user-configurable settings. These appear in **App Store → My Widgets** and are accessible via a right-click / long-press context menu on the widget itself.
+
+Declare a `settings` array in `registerWidget()`:
+
+```js
+mvmOS.registerWidget({
+  id: 'my-widget',
+  type: 'desktop',
+  label: 'My Widget',
+  settings: [
+    { key: 'interval', label: 'Refresh interval (s)', type: 'number', default: 5, min: 1, max: 60 },
+    { key: 'show_label', label: 'Show label', type: 'checkbox', default: true },
+    { key: 'color', label: 'Color scheme', type: 'select', options: ['blue','green','red'], default: 'blue' },
+    { key: 'title', label: 'Custom title', type: 'text', default: '' },
+  ],
+  init(container) {
+    // Read a setting (returns saved value, or the field default, or null)
+    const interval = mvmOS.widgetSetting('my-widget', 'interval', 5);
+
+    function render() {
+      const show = mvmOS.widgetSetting('my-widget', 'show_label', true);
+      container.innerHTML = `<div>${show ? 'My Widget' : ''}</div>`;
+    }
+    render();
+
+    // Re-render when user saves settings
+    window.addEventListener('widget-settings-changed', e => {
+      if (e.detail?.id === 'my-widget') render();
+    });
+  }
+});
+```
+
+#### Setting field types
+
+| `type`     | Extra fields                                      |
+|------------|---------------------------------------------------|
+| `number`   | `min`, `max` (optional)                           |
+| `checkbox` | —                                                 |
+| `select`   | `options: string[]`                               |
+| `text`     | —                                                 |
+
+All fields require `key`, `label`, `type`, and `default`.
+
+#### Reading settings in `init`
+
+```js
+mvmOS.widgetSetting(widgetId, key, defaultValue)
+```
+
+Returns the saved value (from the settings panel), or `defaultValue` if the user hasn't saved anything yet. You can also use `mvmOS.storage.get('widget_' + widgetId + '_' + key)` directly.
+
+#### Custom context menu items
+
+You can add extra items to the right-click / long-press menu:
+
+```js
+mvmOS.registerWidget({
+  id: 'my-widget',
+  contextMenu: [
+    { label: 'Reset data', action() { /* ... */ } },
+  ],
+  // ...
+});
+```
+
 ---
 
 ## Publishing to the store
