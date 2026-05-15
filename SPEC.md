@@ -38,7 +38,7 @@ apps/
 |---------------|----------|--------------------------------------------------|
 | `id`          | ✓        | Unique identifier, lowercase, hyphens allowed    |
 | `name`        | ✓        | Display name                                     |
-| `icon`        | ✓        | Emoji or relative path to icon file              |
+| `icon`        | ✓        | Emoji, or a path/URL to an image (`/apps/your-app/icon.png`) |
 | `category`    | ✓        | Category shown in the store                      |
 | `version`     | ✓        | Semver string — bump to trigger update prompt    |
 | `description` | ✓        | Short description                                |
@@ -55,7 +55,7 @@ The entry file must call `mvmOS.registerApp()`:
 mvmOS.registerApp({
   id: 'your-app',       // must match manifest id
   name: 'Your App',
-  icon: '🚀',
+  icon: '🚀',           // emoji, or a path/URL to an image file (e.g. '/apps/your-app/icon.png')
   launch() {
     mvmOS.createWindow({
       id: 'your-app',
