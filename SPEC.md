@@ -155,6 +155,85 @@ Good for: images, documents, exports.
 
 ---
 
+## Internationalization (i18n)
+
+mvmOS has built-in multi-language support. The system loads a language file (`/i18n/en.js`, `/i18n/bg.js`, etc.) that populates `window._i18n`. Apps can read the current language and react to language changes.
+
+### Available APIs
+
+```js
+// Current language code ('en', 'bg', ...)
+window.mvmOS.lang
+
+// Promise that resolves after the first language file loads
+window.mvmOS.i18nReady
+
+// Register a callback fired on every language change
+window.mvmOS.onLangChange(callback)
+```
+
+### Recommended pattern
+
+Embed your translations directly in `main.js` — no external files needed:
+
+```js
+const _myI18n = {
+  en: { title: 'My App', hello: 'Hello', items: '{n} items' },
+  bg: { title: 'Моето приложение', hello: 'Здравей', items: '{n} елемента' },
+};
+
+function _t(key, vars) {
+  const lang = window.mvmOS?.lang || 'en';
+  let str = (_myI18n[lang] || _myI18n.en)[key] || key;
+  if (vars) str = str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
+  return str;
+}
+
+mvmOS.registerApp({
+  id: 'my-app',
+  name: _t('title'),   // evaluated at load time — will use whatever language is active
+  icon: '🚀',
+  launch() {
+    mvmOS.createWindow({
+      id: 'my-app',
+      title: '🚀 ' + _t('title'),
+      width: 600,
+      height: 400,
+      onMount(body) {
+        // Wait for i18n to be ready before rendering
+        (window.mvmOS?.i18nReady || Promise.resolve()).then(() => {
+          MyApp.init(body);
+        });
+      }
+    });
+  }
+});
+
+const MyApp = (() => {
+  function init(body) {
+    body.innerHTML = `<p>${_t('hello')}</p>`;
+
+    // Re-render when the user changes language
+    window.mvmOS?.onLangChange(() => init(body));
+  }
+  return { init };
+})();
+```
+
+### Key rules
+
+- Always call `_t()` inside your render function, **not** at the top level of the script. The language file may not be loaded yet when the script first runs.
+- The `name` field in `registerApp()` is read at load time. Since language scripts load asynchronously, the app name in the store may appear in English on first load. This is acceptable — the name is only used in the App Store listing, not inside the window.
+- Use `window.mvmOS?.i18nReady` (optional chaining) so your app works even if run outside mvmOS.
+- Call `onLangChange(() => init(body))` inside your `init` function so each new window re-registers the callback without stacking old ones.
+- Variable substitution uses `{varName}` syntax: `_t('items', { n: 5 })` → `'5 items'`.
+
+### Supported languages
+
+Currently mvmOS ships with `en` (English) and `bg` (Bulgarian). The language is selected in **Settings → Regional**. Your app does not need to support all languages — if a language is missing from your dict, `_t()` falls back to `en` automatically (via `|| _myI18n.en`).
+
+---
+
 ## Publishing to the store
 
 1. Fork [mvmrik/mvmos-store](https://github.com/mvmrik/mvmos-store)

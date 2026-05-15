@@ -3,7 +3,7 @@
   "name": "Process Manager",
   "icon": "📊",
   "category": "Administration",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Monitor CPU, memory and disk usage. View and manage running processes.",
   "entry": "main.js"
 }

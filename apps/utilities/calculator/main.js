@@ -1,13 +1,19 @@
-// mvmOS App: Calculator v1.1.0
+// mvmOS App: Calculator v1.2.0
+const _calc18n = {
+  en: { title: 'Calculator' },
+  bg: { title: 'Калкулатор' },
+};
+function _calct(key) { const lang = window.mvmOS?.lang || 'en'; return (_calc18n[lang] || _calc18n.en)[key] || key; }
+
 mvmOS.registerApp({
   id: 'calculator',
-  name: 'Calculator',
+  name: _calct('title'),
   icon: '🧮',
   category: 'Utilities',
   launch() {
     mvmOS.createWindow({
       id: 'calculator',
-      title: '🧮 Calculator',
+      title: '🧮 ' + _calct('title'),
       width: 260,
       height: 380,
       onMount(body) {
