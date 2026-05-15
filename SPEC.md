@@ -234,6 +234,76 @@ Currently mvmOS ships with `en` (English) and `bg` (Bulgarian). The language is 
 
 ---
 
+## Widgets
+
+Widgets are small UI components that live on the desktop or in the taskbar. They follow the same store structure as apps but use `mvmOS.registerWidget()` instead of `mvmOS.registerApp()`.
+
+### Widget structure
+
+```
+widgets/
+  your-widget/
+    manifest.json
+    main.js
+```
+
+### manifest.json
+
+Same fields as apps, plus:
+
+| Field         | Description                                      |
+|---------------|--------------------------------------------------|
+| `widget_type` | `"desktop"` or `"taskbar"`                       |
+
+### main.js
+
+```js
+mvmOS.registerWidget({
+  id: 'my-widget',
+  type: 'desktop',      // 'desktop' or 'taskbar'
+  label: 'My Widget',   // shown in widget store
+  defaultX: 20,         // initial desktop position (desktop widgets only)
+  defaultY: 60,
+  init(container) {
+    container.innerHTML = `<div>Hello widget</div>`;
+
+    // subscribe to system resources (CPU, RAM, disk) — called every N seconds
+    mvmOS.onResources(data => {
+      // data.cpu_pct, data.mem_used, data.mem_total, data.disk_used, data.disk_total
+      // data.disks[], data.uptime, data.hostname, data.load
+    });
+  }
+});
+```
+
+### i18n for widgets
+
+Same pattern as apps — embed translations and use `onLangChange` to re-render:
+
+```js
+const _myW18n = {
+  en: { label: 'My Widget', title: 'MY WIDGET' },
+  bg: { label: 'Моят уиджет', title: 'МОЯ УИДЖЕТ' },
+};
+function _wt(key) { const lang = window.mvmOS?.lang || 'en'; return (_myW18n[lang] || _myW18n.en)[key] || key; }
+
+mvmOS.registerWidget({
+  id: 'my-widget',
+  type: 'desktop',
+  label: _wt('label'),
+  init(container) {
+    function render() {
+      container.innerHTML = `<div>${_wt('title')}</div>`;
+      mvmOS.onResources(d => { /* update */ });
+    }
+    render();
+    window.mvmOS?.onLangChange(() => render());
+  }
+});
+```
+
+---
+
 ## Publishing to the store
 
 1. Fork [mvmrik/mvmos-store](https://github.com/mvmrik/mvmos-store)

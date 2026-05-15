@@ -1,8 +1,14 @@
-// mvmOS Widget: CPU Meter v1.1.0
+// mvmOS Widget: CPU Meter v1.2.0
+const _cpuMeter18n = {
+  en: { label: 'CPU' },
+  bg: { label: 'CPU' },
+};
+function _cpuMetert(key) { const lang = window.mvmOS?.lang || 'en'; return (_cpuMeter18n[lang] || _cpuMeter18n.en)[key] || key; }
+
 mvmOS.registerWidget({
   id: 'cpu-meter',
   type: 'taskbar',
-  label: 'CPU',
+  label: _cpuMetert('label'),
   init(container) {
     container.style.cssText = 'display:flex;align-items:center;gap:4px;padding:0 8px;cursor:default';
     container.innerHTML = `

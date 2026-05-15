@@ -3,7 +3,7 @@
   "name": "RAM Meter",
   "icon": "🧠",
   "category": "System",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "widget_type": "taskbar",
   "description": "Shows real-time RAM usage in the taskbar.",
   "entry": "main.js"

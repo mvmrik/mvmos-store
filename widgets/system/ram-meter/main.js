@@ -1,8 +1,14 @@
-// mvmOS Widget: RAM Meter v1.1.0
+// mvmOS Widget: RAM Meter v1.2.0
+const _ramMeter18n = {
+  en: { label: 'RAM' },
+  bg: { label: 'RAM' },
+};
+function _ramMetert(key) { const lang = window.mvmOS?.lang || 'en'; return (_ramMeter18n[lang] || _ramMeter18n.en)[key] || key; }
+
 mvmOS.registerWidget({
   id: 'ram-meter',
   type: 'taskbar',
-  label: 'RAM',
+  label: _ramMetert('label'),
   init(container) {
     container.style.cssText = 'display:flex;align-items:center;gap:4px;padding:0 8px;cursor:default';
     container.innerHTML = `
