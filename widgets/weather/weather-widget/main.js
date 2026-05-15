@@ -1,0 +1,209 @@
+const _ww18n = {
+  en: {
+    label:    'Weather',
+    loading:  'Loading…',
+    error:    'Could not load weather',
+    no_city:  'Set city in settings',
+    wind:     'Wind',
+    humidity: 'Humidity',
+    feels:    'Feels like',
+  },
+  bg: {
+    label:    'Времето',
+    loading:  'Зарежда…',
+    error:    'Неуспешно зареждане',
+    no_city:  'Задайте град в настройките',
+    wind:     'Вятър',
+    humidity: 'Влажност',
+    feels:    'Усеща се като',
+  },
+};
+function _wwt(key) {
+  const lang = window.mvmOS?.lang || 'en';
+  return (_ww18n[lang] || _ww18n.en)[key] || key;
+}
+
+// ── WMO weather code → emoji + description ──────────────────────────────────
+const WMO_CODES = {
+  0:  ['☀️',  'Clear sky'],
+  1:  ['🌤️', 'Mainly clear'],
+  2:  ['⛅',  'Partly cloudy'],
+  3:  ['☁️',  'Overcast'],
+  45: ['🌫️', 'Foggy'],
+  48: ['🌫️', 'Icy fog'],
+  51: ['🌦️', 'Light drizzle'],
+  53: ['🌦️', 'Drizzle'],
+  55: ['🌧️', 'Heavy drizzle'],
+  61: ['🌧️', 'Light rain'],
+  63: ['🌧️', 'Rain'],
+  65: ['🌧️', 'Heavy rain'],
+  71: ['🌨️', 'Light snow'],
+  73: ['🌨️', 'Snow'],
+  75: ['❄️',  'Heavy snow'],
+  77: ['🌨️', 'Snow grains'],
+  80: ['🌦️', 'Light showers'],
+  81: ['🌧️', 'Showers'],
+  82: ['⛈️',  'Heavy showers'],
+  85: ['🌨️', 'Snow showers'],
+  86: ['❄️',  'Heavy snow showers'],
+  95: ['⛈️',  'Thunderstorm'],
+  96: ['⛈️',  'Thunderstorm + hail'],
+  99: ['⛈️',  'Thunderstorm + heavy hail'],
+};
+
+function _wmoIcon(code) { return (WMO_CODES[code] || ['🌡️', ''])[0]; }
+function _wmoDesc(code) { return (WMO_CODES[code] || ['', 'Unknown'])[1]; }
+
+// ── Geocoding via Open-Meteo (free, no key) ──────────────────────────────────
+async function _geocode(city, country) {
+  const q = country ? `${city} ${country}` : city;
+  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=en&format=json`;
+  const res = await fetch(url);
+  const j = await res.json();
+  if (!j.results?.length) throw new Error('City not found');
+  return { lat: j.results[0].latitude, lon: j.results[0].longitude, name: j.results[0].name, country: j.results[0].country_code };
+}
+
+// ── Providers ────────────────────────────────────────────────────────────────
+async function _fetchOpenMeteo(lat, lon, units) {
+  const u = units === 'fahrenheit' ? 'fahrenheit' : 'celsius';
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&temperature_unit=${u}&wind_speed_unit=kmh&timezone=auto`;
+  const res = await fetch(url);
+  const j = await res.json();
+  const c = j.current;
+  const sym = units === 'fahrenheit' ? '°F' : '°C';
+  return {
+    icon:     _wmoIcon(c.weather_code),
+    desc:     _wmoDesc(c.weather_code),
+    temp:     Math.round(c.temperature_2m) + sym,
+    feels:    Math.round(c.apparent_temperature) + sym,
+    wind:     Math.round(c.wind_speed_10m) + ' km/h',
+    humidity: c.relative_humidity_2m + '%',
+  };
+}
+
+async function _fetchWttr(city, country, units) {
+  const q = country ? `${city},${country}` : city;
+  const url = `https://wttr.in/${encodeURIComponent(q)}?format=j1`;
+  const res = await fetch(url);
+  const j = await res.json();
+  const c = j.current_condition[0];
+  const isFahr = units === 'fahrenheit';
+  const temp = isFahr ? c.temp_F + '°F' : c.temp_C + '°C';
+  const feels = isFahr ? c.FeelsLikeF + '°F' : c.FeelsLikeC + '°C';
+  const code = parseInt(c.weatherCode);
+  return {
+    icon:     _wmoIcon(code),
+    desc:     c.weatherDesc?.[0]?.value || '',
+    temp,
+    feels,
+    wind:     c.windspeedKmph + ' km/h',
+    humidity: c.humidity + '%',
+  };
+}
+
+async function _fetch7timer(lat, lon, units) {
+  const url = `https://www.7timer.info/bin/api.pl?lon=${lon}&lat=${lat}&product=civillight&output=json`;
+  const res = await fetch(url);
+  const j = await res.json();
+  const d = j.dataseries?.[0];
+  if (!d) throw new Error('No data');
+  const isFahr = units === 'fahrenheit';
+  const toF = c => Math.round(c * 9 / 5 + 32);
+  const maxC = d.temp2m?.max ?? '?';
+  const minC = d.temp2m?.min ?? '?';
+  const sym = isFahr ? '°F' : '°C';
+  const max = isFahr ? toF(maxC) : maxC;
+  const min = isFahr ? toF(minC) : minC;
+  const WTYPE = {
+    'clear': ['☀️', 'Clear'], 'pcloudy': ['⛅', 'Partly cloudy'],
+    'mcloudy': ['🌥️', 'Mostly cloudy'], 'cloudy': ['☁️', 'Cloudy'],
+    'humid': ['🌫️', 'Humid'], 'lightrain': ['🌦️', 'Light rain'],
+    'oshower': ['🌦️', 'Occasional showers'], 'ishower': ['🌧️', 'Showers'],
+    'lightsnow': ['🌨️', 'Light snow'], 'rain': ['🌧️', 'Rain'],
+    'snow': ['❄️', 'Snow'], 'rainsnow': ['🌨️', 'Rain/snow'],
+    'ts': ['⛈️', 'Thunderstorm'], 'tsrain': ['⛈️', 'Thunderstorm+rain'],
+  };
+  const [icon, desc] = WTYPE[d.weather] || ['🌡️', d.weather];
+  return {
+    icon,
+    desc,
+    temp:     `${max}${sym} / ${min}${sym}`,
+    feels:    '—',
+    wind:     d.wind10m_max ? `${d.wind10m_max * 3.6 | 0} km/h` : '—',
+    humidity: '—',
+  };
+}
+
+// ── Main widget ──────────────────────────────────────────────────────────────
+mvmOS.registerWidget({
+  id: 'weather-widget',
+  type: 'desktop',
+  label: _wwt('label'),
+  defaultX: 20,
+  defaultY: 100,
+  settings: [
+    { key: 'city',     label: 'City',     type: 'text',   default: 'Sofia' },
+    { key: 'country',  label: 'Country',  type: 'text',   default: 'BG' },
+    { key: 'provider', label: 'Provider', type: 'select',
+      options: ['Open-Meteo', 'wttr.in', '7timer'], default: 'Open-Meteo' },
+    { key: 'units',    label: 'Units',    type: 'select',
+      options: ['celsius', 'fahrenheit'], default: 'celsius' },
+  ],
+
+  init(container) {
+    let _timer = null;
+
+    function _read(key, def) { return mvmOS.widgetSetting('weather-widget', key, def); }
+
+    async function render() {
+      const city     = _read('city', 'Sofia');
+      const country  = _read('country', 'BG');
+      const provider = _read('provider', 'Open-Meteo');
+      const units    = _read('units', 'celsius');
+
+      if (!city) {
+        container.innerHTML = `<div class="ww-wrap"><div class="ww-error">${_wwt('no_city')}</div></div>`;
+        return;
+      }
+
+      container.innerHTML = `<div class="ww-wrap"><div class="ww-loading">${_wwt('loading')}</div></div>`;
+
+      try {
+        let data;
+        if (provider === 'wttr.in') {
+          data = await _fetchWttr(city, country, units);
+        } else if (provider === '7timer') {
+          const geo = await _geocode(city, country);
+          data = await _fetch7timer(geo.lat, geo.lon, units);
+        } else {
+          const geo = await _geocode(city, country);
+          data = await _fetchOpenMeteo(geo.lat, geo.lon, units);
+        }
+
+        const cityLabel = country ? `${city}, ${country}` : city;
+        container.innerHTML = `
+          <div class="ww-wrap">
+            <div class="ww-city">${cityLabel}</div>
+            <div class="ww-icon">${data.icon}</div>
+            <div class="ww-temp">${data.temp}</div>
+            <div class="ww-desc">${data.desc}</div>
+            <div class="ww-meta">${_wwt('feels')}: ${data.feels}</div>
+            <div class="ww-meta">💨 ${data.wind} · 💧 ${data.humidity}</div>
+            <div class="ww-meta" style="font-size:.65rem;margin-top:2px;opacity:.6">${provider}</div>
+          </div>`;
+      } catch (err) {
+        container.innerHTML = `<div class="ww-wrap"><div class="ww-error">${_wwt('error')}<br><span style="font-size:.65rem">${err.message}</span></div></div>`;
+      }
+    }
+
+    render();
+    _timer = setInterval(render, 10 * 60 * 1000); // refresh every 10 min
+
+    window.addEventListener('widget-settings-changed', e => {
+      if (e.detail?.id === 'weather-widget') render();
+    });
+
+    window.mvmOS?.onLangChange(() => render());
+  },
+});

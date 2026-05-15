@@ -1,0 +1,11 @@
+{
+  "id": "weather-widget",
+  "name": "Weather",
+  "icon": "🌤️",
+  "category": "Weather",
+  "version": "1.0.0",
+  "widget_type": "desktop",
+  "description": "Current weather for any city. Choose from Open-Meteo, wttr.in or 7timer. No API key needed.",
+  "entry": "main.js",
+  "css": "style.css"
+}

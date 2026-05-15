@@ -1,0 +1,47 @@
+.ww-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  min-width: 160px;
+  font-family: inherit;
+  color: var(--text);
+}
+.ww-city {
+  font-size: .75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  text-align: center;
+}
+.ww-icon {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+.ww-temp {
+  font-size: 1.8rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.ww-desc {
+  font-size: .78rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+.ww-meta {
+  font-size: .72rem;
+  color: var(--text-dim);
+  text-align: center;
+}
+.ww-error {
+  font-size: .75rem;
+  color: #e55;
+  text-align: center;
+  padding: 8px;
+}
+.ww-loading {
+  font-size: .78rem;
+  color: var(--text-dim);
+  padding: 8px;
+}
