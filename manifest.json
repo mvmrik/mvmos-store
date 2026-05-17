@@ -12,6 +12,12 @@
       "name": "Utilities",
       "icon": "🔧",
       "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/manifest.json"
+    },
+    {
+      "id": "media",
+      "name": "Media",
+      "icon": "🎬",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/manifest.json"
     }
   ]
 }
