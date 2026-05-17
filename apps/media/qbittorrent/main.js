@@ -12,12 +12,21 @@ const _qbi18n = {
     seeds: 'Seeds', peers_lbl: 'Peers', added: 'Added', save_path: 'Save path',
     hash: 'Hash', tracker: 'Tracker', category: 'Category',
     magnet_or_url: 'Magnet link or torrent URL',
+    or_file: 'Or select a .torrent file:',
     save_path_label: 'Save to (optional)',
+    remember_path: 'Remember this path',
     category_label: 'Category (optional)',
     add_btn: 'Add', cancel: 'Cancel',
-    connecting: 'Connecting…', no_conn: 'Not connected to qBittorrent.',
-    no_conn_hint: 'Configure host/port/credentials in Settings → qBittorrent.',
+    connecting: 'Connecting…', no_conn: 'Cannot connect to qBittorrent.',
+    no_conn_hint: 'Make sure qBittorrent is running, then click Auto-detect.',
     discover_btn: 'Auto-detect', settings_btn: '⚙ Settings',
+    setup_title: 'qBittorrent not found',
+    setup_step1: 'Install qBittorrent:',
+    setup_step2: 'Enable Web UI and allow local connections:',
+    setup_step2b: 'Tools → Options → Web UI → enable "Bypass auth for localhost"',
+    setup_step3: 'Click Auto-detect below when ready.',
+    setup_step3_start: 'Start qBittorrent in background:',
+    setup_note: 'Default credentials: admin / adminadmin — change them after first login!',
     no_torrents: 'No torrents', delete_confirm: 'Remove torrent?',
     total_dl: '↓', total_ul: '↑', free_space: 'Free',
     unknown: 'Unknown', never: 'Never',
@@ -36,12 +45,21 @@ const _qbi18n = {
     seeds: 'Сийди', peers_lbl: 'Пиъри', added: 'Добавен', save_path: 'Папка',
     hash: 'Hash', tracker: 'Тракер', category: 'Категория',
     magnet_or_url: 'Magnet линк или URL към .torrent',
+    or_file: 'Или избери .torrent файл:',
     save_path_label: 'Запази в (незадължително)',
+    remember_path: 'Запомни пътя',
     category_label: 'Категория (незадължително)',
     add_btn: 'Добави', cancel: 'Отказ',
     connecting: 'Свързване…', no_conn: 'Няма връзка с qBittorrent.',
-    no_conn_hint: 'Настрой хост/порт/данни в Настройки → qBittorrent.',
+    no_conn_hint: 'Увери се, че qBittorrent е стартиран, след което натисни Автодетект.',
     discover_btn: 'Автодетект', settings_btn: '⚙ Настройки',
+    setup_title: 'qBittorrent не е открит',
+    setup_step1: 'Инсталирай qBittorrent:',
+    setup_step2: 'Включи Web UI и разреши локални връзки:',
+    setup_step2b: 'Tools → Options → Web UI → отметни "Bypass auth for localhost"',
+    setup_step3: 'Натисни Автодетект когато е готово.',
+    setup_step3_start: 'Стартирай qBittorrent в background:',
+    setup_note: 'По подразбиране: admin / adminadmin — смени паролата след първото влизане!',
     no_torrents: 'Няма торенти', delete_confirm: 'Премахни торента?',
     total_dl: '↓', total_ul: '↑', free_space: 'Свободно',
     unknown: 'Неизвестно', never: 'Никога',
@@ -57,10 +75,15 @@ mvmOS.registerApp({
   icon: '🌊',
   category: 'Media',
   settings: [
-    { key: 'host',     label: 'Host',     type: 'text',     default: 'localhost' },
-    { key: 'port',     label: 'Port',     type: 'number',   default: 8080, min: 1, max: 65535 },
-    { key: 'username', label: 'Username', type: 'text',     default: 'admin' },
-    { key: 'password', label: 'Password', type: 'password', default: '' },
+    { key: 'host',              label: 'Host',                                    type: 'text',     default: 'localhost' },
+    { key: 'port',              label: 'Port',                                    type: 'number',   default: 8080, min: 1, max: 65535 },
+    { key: 'username',          label: 'Username',                                type: 'text',     default: 'admin' },
+    { key: 'password',          label: 'Password',                                type: 'password', default: '' },
+    { key: 'auto_delete_ratio', label: 'Auto-delete at ratio (0 = off)',          type: 'number',   default: 0, min: 0, step: 0.1 },
+    { key: 'auto_delete_hours', label: 'Auto-delete after hours seeding (0 = off)', type: 'number', default: 0, min: 0, step: 0.5 },
+    { key: 'delete_files',      label: 'Delete files on auto-delete',             type: 'checkbox', default: false },
+    { key: 'dl_limit',          label: 'Download limit KB/s (0 = unlimited)',     type: 'number',   default: 0, min: 0 },
+    { key: 'ul_limit',          label: 'Upload limit KB/s (0 = unlimited)',       type: 'number',   default: 0, min: 0 },
   ],
   launch() {
     mvmOS.createWindow({
@@ -68,6 +91,8 @@ mvmOS.registerApp({
       title: '🌊 ' + _qbt('title'),
       width: 960,
       height: 600,
+      appSettings: true,
+      onAppSettings() { AppStore.openWindow({ section: 'my-apps', appId: 'qbittorrent' }); },
       onMount(body) {
         body.style.padding = '0';
         body.style.overflow = 'hidden';
@@ -81,13 +106,19 @@ mvmOS.registerApp({
 const QB = (() => {
   const _db = mvmOS.db('qbittorrent');
 
-  let _cfg = { host: 'localhost', port: 8080, username: 'admin', password: '' };
+  let _cfg = {
+    host: 'localhost', port: 8080, username: 'admin', password: '',
+    auto_delete_ratio: '', auto_delete_hours: '',
+    delete_files: false,
+    dl_limit: 0, ul_limit: 0,
+  };
   let _torrents = [];
   let _filter = 'all';
   let _selected = null;
   let _detailTab = 'info';
   let _pollTimer = null;
   let _connected = false;
+  let _pollCount = 0;
   let _root = null;
 
   // ── Settings DB ──
@@ -181,12 +212,42 @@ const QB = (() => {
     const tmp = _filter; _filter = cat; const n = _filtered().length; _filter = tmp; return n;
   }
 
+  // ── Speed limits ──
+  async function _applySpeedLimits() {
+    const dl = parseInt(_cfg.dl_limit) || 0;
+    const ul = parseInt(_cfg.ul_limit) || 0;
+    try {
+      await _api('/api/v2/transfer/setDownloadLimit', 'POST', `limit=${dl * 1024}`);
+      await _api('/api/v2/transfer/setUploadLimit',   'POST', `limit=${ul * 1024}`);
+    } catch(_) {}
+  }
+
+  // ── Auto-delete ──
+  async function _autoDelete() {
+    const ratio = parseFloat(_cfg.auto_delete_ratio);
+    const hours = parseFloat(_cfg.auto_delete_hours);
+    if (!ratio && !hours) return;
+    const now = Date.now() / 1000;
+    for (const t of _torrents) {
+      const seedingDone = ['uploading', 'forcedUP', 'stalledUP'].includes(t.state);
+      if (!seedingDone) continue;
+      const ratioHit = ratio > 0 && t.ratio >= ratio;
+      const timeHit  = hours > 0 && t.seeding_time >= hours * 3600;
+      if (ratioHit || timeHit) {
+        await _api('/api/v2/torrents/delete', 'POST',
+          `hashes=${t.hash}&deleteFiles=${_cfg.delete_files ? 'true' : 'false'}`);
+      }
+    }
+  }
+
   // ── Poll ──
   async function _poll() {
+    _pollCount++;
     try {
       const list = await _api('/api/v2/torrents/info');
       _torrents = Array.isArray(list) ? list : [];
       _connected = true;
+      await _autoDelete();
       _renderAll();
     } catch(e) {
       _connected = false;
@@ -195,6 +256,7 @@ const QB = (() => {
   }
   function _startPoll() {
     clearInterval(_pollTimer);
+    _pollCount = 0;
     _pollTimer = setInterval(_poll, 3000);
     _poll();
   }
@@ -221,7 +283,13 @@ const QB = (() => {
     _startPoll();
     window.mvmOS?.onLangChange(() => _renderAll());
     window.addEventListener('settings-changed', e => {
-      if (e.detail?.app === 'qbittorrent') { _loadCfg().then(() => { _renderAll(); _startPoll(); }); }
+      if (e.detail?.app === 'qbittorrent') {
+        _loadCfg().then(() => {
+          _renderAll();
+          _startPoll();
+          _applySpeedLimits();
+        });
+      }
     });
   }
 
@@ -229,9 +297,14 @@ const QB = (() => {
   function _renderAll() {
     const root = _root?.querySelector('#qb-root');
     if (!root) return;
+    if (root.querySelector('.qb-dialog-overlay')) return;
 
-    if (!_connected && !_cfg.password && !_cfg.host) {
-      _renderConnect(root);
+    if (!_connected && _torrents.length === 0) {
+      if (_pollCount < 2) {
+        root.innerHTML = `<div class="qb-root"><div class="qb-empty" style="flex-direction:column;gap:8px"><div style="font-size:1.4rem">🌊</div><div>${_qbt('connecting')}</div></div></div>`;
+      } else {
+        _renderConnect(root);
+      }
       return;
     }
 
@@ -264,28 +337,90 @@ const QB = (() => {
     _bindToolbar(root, sel);
   }
 
+  function _runInTerminal(cmd) {
+    // Open mvmOS terminal and run command
+    mvmOS.createWindow({
+      id: 'terminal-qbit-' + Date.now(),
+      title: '🖥 Terminal',
+      width: 600,
+      height: 340,
+      onMount(body) {
+        body.style.padding = '0';
+        // Dispatch terminal open event with pre-filled command
+        window.dispatchEvent(new CustomEvent('terminal-run', { detail: { cmd } }));
+        body.innerHTML = `<div style="padding:16px;font-family:monospace;font-size:.82rem;color:var(--text)">
+          <div style="color:var(--text-dim);margin-bottom:8px">Run this command in your terminal:</div>
+          <code style="display:block;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:8px 12px;user-select:all">${cmd}</code>
+          <div style="margin-top:12px;color:var(--text-dim);font-size:.75rem">Or open a Terminal app and paste it there.</div>
+        </div>`;
+      }
+    });
+  }
+
   function _renderConnect(root) {
     root.innerHTML = `
-      <div class="qb-root">
-        <div class="qb-connect-screen">
-          <div style="font-size:2.5rem">🌊</div>
-          <p>${!_connected && _cfg.host ? '❌ ' + _qbt('no_conn') : _qbt('no_conn')}</p>
-          <p>${_qbt('no_conn_hint')}</p>
-          <div style="display:flex;gap:8px">
-            <button class="s-btn" id="qb-disc-btn">${_qbt('discover_btn')}</button>
-            <button class="s-btn" id="qb-settings-btn">${_qbt('settings_btn')}</button>
+      <div class="qb-root" style="overflow-y:auto">
+        <div class="qb-connect-screen" style="max-width:460px;margin:auto;text-align:left;gap:0;padding:20px">
+          <div style="font-size:2rem;text-align:center;width:100%;margin-bottom:10px">🌊</div>
+          <div style="font-size:.95rem;font-weight:600;text-align:center;margin-bottom:16px">${_qbt('setup_title')}</div>
+
+          <div style="display:flex;flex-direction:column;gap:10px;font-size:.81rem">
+
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px">
+              <div style="font-weight:600;margin-bottom:6px">1. ${_qbt('setup_step1')}</div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <code style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:5px 10px;font-size:.78rem">sudo apt install qbittorrent-nox</code>
+                <button class="s-btn s-btn-sm qb-run-cmd" data-cmd="sudo apt install qbittorrent-nox" title="Run in terminal">▶</button>
+              </div>
+            </div>
+
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px">
+              <div style="font-weight:600;margin-bottom:6px">2. ${_qbt('setup_step3_start')}</div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <code style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:5px 10px;font-size:.78rem">qbittorrent-nox --daemon</code>
+                <button class="s-btn s-btn-sm qb-run-cmd" data-cmd="qbittorrent-nox --daemon" title="Run in terminal">▶</button>
+              </div>
+            </div>
+
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px">
+              <div style="font-weight:600;margin-bottom:6px">3. ${_qbt('setup_step2')}</div>
+              <div style="color:var(--text-dim);font-size:.76rem;margin-bottom:6px">${_qbt('setup_step2b')}</div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <code style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:5px 10px;font-size:.78rem">http://localhost:8090</code>
+                <button class="s-btn s-btn-sm" id="qb-open-webui" title="Open in browser">🌐</button>
+              </div>
+            </div>
+
+            <div style="background:#f1fa8c18;border:1px solid #f1fa8c44;border-radius:6px;padding:8px 12px;font-size:.74rem;color:#f1fa8c">
+              ⚠️ ${_qbt('setup_note')}
+            </div>
+
+            <div style="display:flex;gap:8px;justify-content:center;padding-top:4px">
+              <button class="s-btn" id="qb-disc-btn">${_qbt('discover_btn')}</button>
+              <button class="s-btn" id="qb-settings-btn">${_qbt('settings_btn')}</button>
+            </div>
           </div>
         </div>
       </div>
     `;
+
+    root.querySelectorAll('.qb-run-cmd').forEach(btn => {
+      btn.addEventListener('click', () => _runInTerminal(btn.dataset.cmd));
+    });
+    root.querySelector('#qb-open-webui')?.addEventListener('click', () => {
+      window.open(`http://${_cfg.host || 'localhost'}:${_cfg.port || 8090}`, '_blank');
+    });
     root.querySelector('#qb-disc-btn')?.addEventListener('click', async () => {
+      const btn = root.querySelector('#qb-disc-btn');
+      btn.disabled = true; btn.textContent = '…';
       const disc = await fetch('/api/qbit/discover').then(r => r.json()).catch(() => ({}));
       if (disc.found) {
         await _saveCfg('host', disc.host);
         await _saveCfg('port', disc.port);
         _startPoll();
       } else {
-        alert('qBittorrent not found. Please configure manually in Settings.');
+        btn.disabled = false; btn.textContent = _qbt('discover_btn');
+        _renderConnect(root);
       }
     });
     root.querySelector('#qb-settings-btn')?.addEventListener('click', () => {
@@ -441,6 +576,8 @@ const QB = (() => {
   }
 
   function _showAddDialog(root) {
+    const savedPath = _cfg.saved_dl_path || '';
+    const rememberChecked = !!_cfg.remember_dl_path;
     const ov = document.createElement('div');
     ov.className = 'qb-dialog-overlay';
     ov.innerHTML = `
@@ -448,8 +585,14 @@ const QB = (() => {
         <h3>${_qbt('add')}</h3>
         <label>${_qbt('magnet_or_url')}</label>
         <input id="qb-add-url" type="text" placeholder="magnet:?xt=..." autofocus>
+        <label>${_qbt('or_file')}</label>
+        <input id="qb-add-file" type="file" accept=".torrent" style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:4px 8px;color:var(--text);font-size:.82rem;width:100%;box-sizing:border-box">
         <label>${_qbt('save_path_label')}</label>
-        <input id="qb-add-path" type="text" placeholder="~/Downloads">
+        <input id="qb-add-path" type="text" placeholder="~/Downloads" value="${savedPath}">
+        <label style="display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--text-dim);cursor:pointer">
+          <input type="checkbox" id="qb-remember-path" ${rememberChecked ? 'checked' : ''}>
+          ${_qbt('remember_path')}
+        </label>
         <label>${_qbt('category_label')}</label>
         <input id="qb-add-cat" type="text" placeholder="">
         <div class="qb-dialog-btns">
@@ -463,17 +606,45 @@ const QB = (() => {
     ov.querySelector('#qb-add-cancel').addEventListener('click', () => ov.remove());
     ov.querySelector('#qb-add-ok').addEventListener('click', async () => {
       const url = ov.querySelector('#qb-add-url').value.trim();
+      const file = ov.querySelector('#qb-add-file').files[0];
       const path = ov.querySelector('#qb-add-path').value.trim();
+      const remember = ov.querySelector('#qb-remember-path').checked;
       const cat = ov.querySelector('#qb-add-cat').value.trim();
-      if (!url) return;
-      const data = { urls: url };
-      if (path) data.savepath = path;
-      if (cat) data.category = cat;
-      await _api('/api/v2/torrents/add', 'POST', data).catch(() => {});
+      // save/clear remembered path
+      if (remember && path) {
+        await _saveCfg('saved_dl_path', path);
+        await _saveCfg('remember_dl_path', true);
+      } else if (!remember) {
+        await _saveCfg('remember_dl_path', false);
+        await _saveCfg('saved_dl_path', '');
+      }
+      if (!url && !file) return;
+      const btn = ov.querySelector('#qb-add-ok');
+      btn.disabled = true; btn.textContent = '…';
+      try {
+        if (file) {
+          // Upload .torrent file via multipart proxy
+          const fd = new FormData();
+          fd.append('host', _cfg.host || 'localhost');
+          fd.append('port', String(_cfg.port || 8080));
+          fd.append('username', _cfg.username || '');
+          fd.append('password', _cfg.password || '');
+          if (path) fd.append('savepath', path);
+          if (cat) fd.append('category', cat);
+          fd.append('torrents', file, file.name);
+          await fetch('/api/qbit/upload', { method: 'POST', body: fd });
+        } else {
+          const data = { urls: url };
+          if (path) data.savepath = path;
+          if (cat) data.category = cat;
+          await _api('/api/v2/torrents/add', 'POST', data);
+        }
+      } catch(_) {}
       ov.remove();
       setTimeout(_poll, 500);
     });
-    ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
+    ov.querySelector('.qb-dialog').addEventListener('click', e => e.stopPropagation());
+    ov.addEventListener('click', () => ov.remove());
     ov.querySelector('#qb-add-url').focus();
   }
 

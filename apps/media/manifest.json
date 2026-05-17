@@ -5,7 +5,7 @@
       "name": "qBittorrent",
       "icon": "🌊",
       "category": "Media",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "Full-featured torrent client. Connects to a local qBittorrent instance via WebUI API. Auto-discovers running instance or configure manually.",
       "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/qbittorrent"
     }
