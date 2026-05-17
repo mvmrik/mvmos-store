@@ -3,9 +3,9 @@
   "name": "Weather",
   "icon": "🌤️",
   "category": "Weather",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "widget_type": "desktop",
-  "description": "Current weather for any city. Choose from Open-Meteo, wttr.in or 7timer. No API key needed.",
+  "description": "Current weather for any city. Three sizes: S (temp only), M (current conditions), L (hourly + 5-day forecast with rain chance and wind). No API key needed.",
   "entry": "main.js",
   "css": "style.css"
 }
