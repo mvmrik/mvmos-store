@@ -126,6 +126,37 @@ mvmOS.notify('Download ready', 'file.zip is ready.', () => {
 }, 'Open');
 ```
 
+### Server-side backend (backend.py)
+
+If your app needs to access local services (e.g. proxy to another process to avoid CORS), you can include a `backend.py` in your app folder.
+
+```
+apps/<category>/<app-id>/
+  backend.py   ← optional server-side component
+```
+
+`backend.py` must expose a FastAPI `router` at module level:
+
+```python
+import sys
+from fastapi import APIRouter, Depends
+
+router = APIRouter(prefix="/api/my-app", tags=["my-app"])
+
+# Use sys.modules to access mvmOS auth — relative imports don't work in dynamic loaders
+get_current_session = sys.modules["backend.auth"].get_current_session
+
+@router.get("/hello")
+async def hello(session=Depends(get_current_session)):
+    return {"hello": "world"}
+```
+
+**Security model:**
+- When a user installs or updates an app with `backend.py`, mvmOS shows a confirmation dialog and **requires the user's system password** before proceeding
+- The file is copied to `backend/app-backends/<app-id>.py` and loaded dynamically — no server restart needed
+- Every version bump that changes `backend.py` will trigger this confirmation dialog again on update
+- **Always bump the app version when you change `backend.py`** — otherwise users won't get the updated backend
+
 ### Fetching data
 
 Apps run in the browser — you can use `fetch()` freely. The OS backend API is available at `/api/*`.
