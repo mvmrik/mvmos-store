@@ -204,6 +204,43 @@ The OS wraps your widget automatically with:
 
 **You do not need to add any of this yourself.**
 
+### S/M/L size support
+
+Desktop widgets can declare multiple sizes. The user picks a size via right-click context menu; the chosen size is saved in the main DB and synced across devices.
+
+```js
+mvmOS.registerWidget({
+  id: 'my-widget',
+  name: 'My Widget',
+  icon: '📊',
+  type: 'desktop',
+  defaultX: 20,
+  defaultY: 60,
+  sizes: ['s', 'm', 'l'],   // declare supported sizes
+  defaultSize: 'm',          // default if user hasn't picked one
+
+  init(container, size) {
+    // `size` is 's', 'm', or 'l'
+    // Called again every time the user switches size
+    const width = { s: 180, m: 240, l: 340 }[size] || 240;
+    container.innerHTML = `
+      <div style="width:${width}px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text)">
+        Hello at size ${size}
+      </div>
+    `;
+  }
+});
+```
+
+| Field | Description |
+|-------|-------------|
+| `sizes` | Array of supported size codes — any subset of `['s', 'm', 'l']` |
+| `defaultSize` | Size used on first install. Defaults to `'m'` if omitted |
+
+- If `sizes` is not declared, `init(container)` is called without a size argument — widget is fixed size
+- The chosen size is persisted in the main DB (`widgets.size`) and is the same on all devices
+- Standard widths: S = 180 px, M = 240 px, L = 340 px (you can use any width you like)
+
 ### main.js — taskbar widget
 
 ```js
@@ -244,7 +281,7 @@ mvmOS.onResources(data => {
 
 - Use `var(--surface)` as background and `var(--border)` for borders so the widget automatically adapts to any theme.
 - Use `var(--text)` for primary text and `var(--text-dim)` for secondary/label text.
-- Keep the width fixed (e.g. `220px`) — widgets don't resize.
+- Keep the width fixed within each size — use the `sizes` + `defaultSize` fields if you want S/M/L support.
 - Avoid `backdrop-filter: blur` for performance on slower machines.
 - If you need a custom background colour (e.g. a branded widget), set it directly on the inner div — the OS wrapper `container` is transparent.
 
