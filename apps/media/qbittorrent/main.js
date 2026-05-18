@@ -1,4 +1,4 @@
-// mvmOS App: qBit Dashboard v1.0.4
+// mvmOS App: qBit Dashboard v1.0.5
 const _qbi18n = {
   en: {
     title: 'qBit Dashboard', add: '+ Add', resume: '▶ Resume', pause: '⏸ Pause',
@@ -80,6 +80,7 @@ mvmOS.registerApp({
   name: _qbt('title'),
   icon: '🌊',
   category: 'Media',
+  trayable: true,
   settings: [
     { key: 'host',     label: 'Host',     type: 'text',     default: 'localhost' },
     { key: 'port',     label: 'Port',     type: 'number',   default: 8090, min: 1, max: 65535 },
@@ -187,6 +188,7 @@ mvmOS.registerApp({
     mvmOS.createWindow({
       id: 'qbittorrent',
       title: '🌊 ' + _qbt('title'),
+      icon: '🌊',
       width: 960,
       height: 600,
       appSettings: true,
