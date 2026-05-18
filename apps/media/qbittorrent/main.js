@@ -1,9 +1,11 @@
-// mvmOS App: qBittorrent v1.0.0
+// mvmOS App: qBit Dashboard v1.0.4
 const _qbi18n = {
   en: {
-    title: 'qBittorrent', add: '+ Add', resume: '▶ Resume', pause: '⏸ Pause',
+    title: 'qBit Dashboard', add: '+ Add', resume: '▶ Resume', pause: '⏸ Pause',
     delete: '🗑 Delete', delete_files: 'Also delete files',
     resume_all: '▶ All', pause_all: '⏸ All',
+    resume_all_label: 'Resume All', pause_all_label: 'Pause All',
+    ctx_resume: 'Resume', ctx_pause: 'Pause', ctx_delete: 'Delete',
     all: 'All', downloading: 'Downloading', seeding: 'Seeding',
     paused: 'Paused', completed: 'Completed', active: 'Active', error: 'Error',
     info: 'Info', files: 'Files', peers: 'Peers',
@@ -27,6 +29,7 @@ const _qbi18n = {
     setup_step3: 'Click Auto-detect below when ready.',
     setup_step3_start: 'Start qBittorrent in background:',
     setup_note: 'Default credentials: admin / adminadmin — change them after first login!',
+    prio_skip: 'Skip', prio_normal: 'Normal', prio_high: 'High', prio_max: 'Maximum',
     no_torrents: 'No torrents', delete_confirm: 'Remove torrent?',
     total_dl: '↓', total_ul: '↑', free_space: 'Free',
     unknown: 'Unknown', never: 'Never',
@@ -34,9 +37,11 @@ const _qbi18n = {
     peer_ip: 'IP', peer_client: 'Client', peer_dl: '↓', peer_ul: '↑', peer_progress: '%',
   },
   bg: {
-    title: 'qBittorrent', add: '+ Добави', resume: '▶ Стартирай', pause: '⏸ Пауза',
+    title: 'qBit Dashboard', add: '+ Добави', resume: '▶ Стартирай', pause: '⏸ Пауза',
     delete: '🗑 Изтрий', delete_files: 'Изтрий и файловете',
     resume_all: '▶ Всички', pause_all: '⏸ Всички',
+    resume_all_label: 'Стартирай всички', pause_all_label: 'Паузирай всички',
+    ctx_resume: 'Стартирай', ctx_pause: 'Пауза', ctx_delete: 'Изтрий',
     all: 'Всички', downloading: 'Сваляне', seeding: 'Разпращане',
     paused: 'На пауза', completed: 'Завършени', active: 'Активни', error: 'Грешка',
     info: 'Инфо', files: 'Файлове', peers: 'Пиъри',
@@ -60,6 +65,7 @@ const _qbi18n = {
     setup_step3: 'Натисни Автодетект когато е готово.',
     setup_step3_start: 'Стартирай qBittorrent в background:',
     setup_note: 'По подразбиране: admin / adminadmin — смени паролата след първото влизане!',
+    prio_skip: 'Пропусни', prio_normal: 'Нормален', prio_high: 'Висок', prio_max: 'Максимален',
     no_torrents: 'Няма торенти', delete_confirm: 'Премахни торента?',
     total_dl: '↓', total_ul: '↑', free_space: 'Свободно',
     unknown: 'Неизвестно', never: 'Никога',
@@ -75,16 +81,108 @@ mvmOS.registerApp({
   icon: '🌊',
   category: 'Media',
   settings: [
-    { key: 'host',              label: 'Host',                                    type: 'text',     default: 'localhost' },
-    { key: 'port',              label: 'Port',                                    type: 'number',   default: 8080, min: 1, max: 65535 },
-    { key: 'username',          label: 'Username',                                type: 'text',     default: 'admin' },
-    { key: 'password',          label: 'Password',                                type: 'password', default: '' },
-    { key: 'auto_delete_ratio', label: 'Auto-delete at ratio (0 = off)',          type: 'number',   default: 0, min: 0, step: 0.1 },
-    { key: 'auto_delete_hours', label: 'Auto-delete after hours seeding (0 = off)', type: 'number', default: 0, min: 0, step: 0.5 },
-    { key: 'delete_files',      label: 'Delete files on auto-delete',             type: 'checkbox', default: false },
-    { key: 'dl_limit',          label: 'Download limit KB/s (0 = unlimited)',     type: 'number',   default: 0, min: 0 },
-    { key: 'ul_limit',          label: 'Upload limit KB/s (0 = unlimited)',       type: 'number',   default: 0, min: 0 },
+    { key: 'host',     label: 'Host',     type: 'text',     default: 'localhost' },
+    { key: 'port',     label: 'Port',     type: 'number',   default: 8090, min: 1, max: 65535 },
+    { key: 'username', label: 'Username', type: 'text',     default: 'admin' },
+    { key: 'password', label: 'Password', type: 'password', default: '' },
   ],
+  async renderSettingsExtra(wrap, saved) {
+    this._lastSaved = saved;
+    wrap.innerHTML = `<div style="font-size:.75rem;color:var(--text-dim);margin-top:4px">Loading qBittorrent options…</div>`;
+    try {
+      const host = saved.host || 'localhost';
+      const port = saved.port || 8080;
+      const res = await fetch('/api/qbit/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ host, port, username: saved.username || '', password: saved.password || '', path: '/api/v2/app/preferences', method: 'GET' }),
+      });
+      const prefs = await res.json();
+      wrap.innerHTML = `
+        <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:12px">
+          <div style="font-size:.8rem;font-weight:600;color:var(--text-dim);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">qBittorrent Options</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
+              <input type="checkbox" data-qbpref="dht" ${prefs.dht ? 'checked' : ''}> DHT (enable for public trackers, disable for private)
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
+              <input type="checkbox" data-qbpref="pex" ${prefs.pex ? 'checked' : ''}> Peer Exchange (PeX)
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
+              <input type="checkbox" data-qbpref="lsd" ${prefs.lsd ? 'checked' : ''}> Local Service Discovery (LSD)
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
+              <input type="checkbox" data-qbpref="anonymous_mode" ${prefs.anonymous_mode ? 'checked' : ''}> Anonymous mode
+            </label>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <label style="font-size:.8rem;color:var(--text-dim)">Encryption</label>
+              <select data-qbpref="encryption" class="s-input">
+                <option value="0" ${prefs.encryption===0?'selected':''}>Prefer encryption</option>
+                <option value="1" ${prefs.encryption===1?'selected':''}>Force encryption (recommended for private trackers)</option>
+                <option value="2" ${prefs.encryption===2?'selected':''}>Disable encryption</option>
+              </select>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
+              <input type="checkbox" data-qbpref="max_ratio_enabled" ${prefs.max_ratio_enabled ? 'checked' : ''}> Enable max ratio limit
+            </label>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <label style="font-size:.8rem;color:var(--text-dim)">Max ratio</label>
+              <input type="number" data-qbpref="max_ratio" class="s-input" value="${prefs.max_ratio ?? 1}" step="0.1" min="0">
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
+              <input type="checkbox" data-qbpref="max_seeding_time_enabled" ${prefs.max_seeding_time_enabled ? 'checked' : ''}> Enable max seeding time limit
+            </label>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <label style="font-size:.8rem;color:var(--text-dim)">Max seeding time (minutes)</label>
+              <input type="number" data-qbpref="max_seeding_time" class="s-input" value="${prefs.max_seeding_time ?? 0}" min="0">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <label style="font-size:.8rem;color:var(--text-dim)">When ratio/time limit reached</label>
+              <select data-qbpref="max_ratio_act" class="s-input">
+                <option value="0" ${(prefs.max_ratio_act??0)===0?'selected':''}>Pause torrent</option>
+                <option value="1" ${prefs.max_ratio_act===1?'selected':''}>Remove torrent</option>
+                <option value="3" ${prefs.max_ratio_act===3?'selected':''}>Remove torrent and files</option>
+              </select>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <label style="font-size:.8rem;color:var(--text-dim)">Download limit KB/s (0 = unlimited)</label>
+              <input type="number" data-qbpref="dl_limit" class="s-input" value="${Math.round((prefs.dl_limit || 0) / 1024)}" min="0">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <label style="font-size:.8rem;color:var(--text-dim)">Upload limit KB/s (0 = unlimited)</label>
+              <input type="number" data-qbpref="ul_limit" class="s-input" value="${Math.round((prefs.up_limit || 0) / 1024)}" min="0">
+            </div>
+          </div>
+        </div>
+      `;
+    } catch(_) {
+      wrap.innerHTML = `<div style="font-size:.75rem;color:var(--text-dim);margin-top:8px;border-top:1px solid var(--border);padding-top:8px">qBittorrent options unavailable (not connected)</div>`;
+    }
+  },
+
+  async saveSettingsExtra(panel) {
+    const prefs = {};
+    panel.querySelectorAll('[data-qbpref]').forEach(el => {
+      const key = el.dataset.qbpref;
+      if (el.type === 'checkbox') prefs[key] = el.checked;
+      else if (key === 'dl_limit') prefs[key] = Number(el.value) * 1024;
+      else if (key === 'ul_limit') prefs[key] = Number(el.value) * 1024;
+      else if (el.tagName === 'SELECT' || el.type === 'number') prefs[key] = Number(el.value);
+      else prefs[key] = el.value;
+    });
+    if (!Object.keys(prefs).length) return;
+    try {
+      const s = this._lastSaved || {};
+      const host = s.host || 'localhost';
+      const port = s.port || 8090;
+      await fetch('/api/qbit/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ host, port, username: s.username || '', password: s.password || '', path: '/api/v2/app/setPreferences', method: 'POST', data: { json: JSON.stringify(prefs) } }),
+      });
+    } catch(_) {}
+  },
+
   launch() {
     mvmOS.createWindow({
       id: 'qbittorrent',
@@ -107,10 +205,7 @@ const QB = (() => {
   const _db = mvmOS.db('qbittorrent');
 
   let _cfg = {
-    host: 'localhost', port: 8080, username: 'admin', password: '',
-    auto_delete_ratio: '', auto_delete_hours: '',
-    delete_files: false,
-    dl_limit: 0, ul_limit: 0,
+    host: 'localhost', port: 8090, username: 'admin', password: '',
   };
   let _torrents = [];
   let _filter = 'all';
@@ -141,7 +236,9 @@ const QB = (() => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ host: _cfg.host, port: _cfg.port, username: _cfg.username, password: _cfg.password, path, method, data }),
     });
-    const j = await res.json();
+    const text = await res.text();
+    if (!text) return {};
+    const j = JSON.parse(text);
     if (j.error) throw new Error(j.error);
     return j;
   }
@@ -159,8 +256,9 @@ const QB = (() => {
     return _fmtSize(bps) + '/s';
   }
   function _fmtEta(sec) {
-    if (!sec || sec <= 0 || sec > 8640000) return '—';
-    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+    if (!sec || sec <= 0 || sec >= 8640000) return '—';
+    const d = Math.floor(sec / 86400), h = Math.floor((sec % 86400) / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+    if (d > 0) return `${d}d ${h}h`;
     if (h > 0) return `${h}h ${m}m`;
     if (m > 0) return `${m}m ${s}s`;
     return `${s}s`;
@@ -212,34 +310,6 @@ const QB = (() => {
     const tmp = _filter; _filter = cat; const n = _filtered().length; _filter = tmp; return n;
   }
 
-  // ── Speed limits ──
-  async function _applySpeedLimits() {
-    const dl = parseInt(_cfg.dl_limit) || 0;
-    const ul = parseInt(_cfg.ul_limit) || 0;
-    try {
-      await _api('/api/v2/transfer/setDownloadLimit', 'POST', `limit=${dl * 1024}`);
-      await _api('/api/v2/transfer/setUploadLimit',   'POST', `limit=${ul * 1024}`);
-    } catch(_) {}
-  }
-
-  // ── Auto-delete ──
-  async function _autoDelete() {
-    const ratio = parseFloat(_cfg.auto_delete_ratio);
-    const hours = parseFloat(_cfg.auto_delete_hours);
-    if (!ratio && !hours) return;
-    const now = Date.now() / 1000;
-    for (const t of _torrents) {
-      const seedingDone = ['uploading', 'forcedUP', 'stalledUP'].includes(t.state);
-      if (!seedingDone) continue;
-      const ratioHit = ratio > 0 && t.ratio >= ratio;
-      const timeHit  = hours > 0 && t.seeding_time >= hours * 3600;
-      if (ratioHit || timeHit) {
-        await _api('/api/v2/torrents/delete', 'POST',
-          `hashes=${t.hash}&deleteFiles=${_cfg.delete_files ? 'true' : 'false'}`);
-      }
-    }
-  }
-
   // ── Poll ──
   async function _poll() {
     _pollCount++;
@@ -247,7 +317,6 @@ const QB = (() => {
       const list = await _api('/api/v2/torrents/info');
       _torrents = Array.isArray(list) ? list : [];
       _connected = true;
-      await _autoDelete();
       _renderAll();
     } catch(e) {
       _connected = false;
@@ -267,8 +336,19 @@ const QB = (() => {
     await _initDb();
     await _loadCfg();
 
-    body.innerHTML = `<div class="qb-root" id="qb-root"></div>`;
+    body.innerHTML = `
+      <div class="qb-root" id="qb-root" style="display:flex;flex-direction:column;height:100%">
+        <div class="qb-toolbar-wrap" id="qb-toolbar-wrap"></div>
+        <div class="qb-body" style="flex:1;overflow:hidden;display:flex">
+          <div class="qb-sidebar as-sidebar" id="qb-sidebar"></div>
+          <div style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+            <div id="qb-main-area" style="flex:1;overflow:hidden;display:flex;position:relative"></div>
+            <div class="qb-statusbar" id="qb-statusbar"></div>
+          </div>
+        </div>
+      </div>`;
     const root = body.querySelector('#qb-root');
+    mvmOS.initMobileSidebar?.(body);
 
     // try auto-discover if no password saved
     if (!_cfg.password) {
@@ -287,7 +367,6 @@ const QB = (() => {
         _loadCfg().then(() => {
           _renderAll();
           _startPoll();
-          _applySpeedLimits();
         });
       }
     });
@@ -299,42 +378,47 @@ const QB = (() => {
     if (!root) return;
     if (root.querySelector('.qb-dialog-overlay')) return;
 
+    const mainArea = root.querySelector('#qb-main-area');
+    const toolbarWrap = root.querySelector('#qb-toolbar-wrap');
+
     if (!_connected && _torrents.length === 0) {
-      if (_pollCount < 2) {
-        root.innerHTML = `<div class="qb-root"><div class="qb-empty" style="flex-direction:column;gap:8px"><div style="font-size:1.4rem">🌊</div><div>${_qbt('connecting')}</div></div></div>`;
-      } else {
-        _renderConnect(root);
+      if (toolbarWrap) toolbarWrap.innerHTML = '';
+      if (mainArea) {
+        if (_pollCount < 2) {
+          mainArea.innerHTML = `<div class="qb-empty" style="flex:1;flex-direction:column;gap:8px"><div style="font-size:1.4rem">🌊</div><div>${_qbt('connecting')}</div></div>`;
+        } else {
+          _renderConnect(mainArea);
+        }
       }
+      root.querySelector('#qb-statusbar').innerHTML = '';
       return;
     }
 
     const filtered = _filtered();
     const sel = filtered.find(t => t.hash === _selected);
 
-    root.innerHTML = `
+    toolbarWrap.innerHTML = `
       <div class="qb-toolbar">
         <button id="qb-add">${_qbt('add')}</button>
-        <button id="qb-resume" ${!sel ? 'disabled' : ''}>${_qbt('resume')}</button>
-        <button id="qb-pause" ${!sel ? 'disabled' : ''}>${_qbt('pause')}</button>
-        <button id="qb-delete" ${!sel ? 'disabled' : ''}>${_qbt('delete')}</button>
-        <button id="qb-resume-all">${_qbt('resume_all')}</button>
-        <button id="qb-pause-all">${_qbt('pause_all')}</button>
+        <button id="qb-resume-all">${_qbt('resume_all_label')}</button>
+        <button id="qb-pause-all">${_qbt('pause_all_label')}</button>
         <div class="qb-sep"></div>
         <div class="qb-speeds" id="qb-speeds"></div>
-      </div>
-      <div class="qb-body">
-        <div class="qb-sidebar" id="qb-sidebar"></div>
+      </div>`;
+
+    if (!mainArea.querySelector('#qb-list')) {
+      mainArea.innerHTML = `
         <div class="qb-list" id="qb-list"></div>
-        ${sel ? '<div class="qb-detail" id="qb-detail"></div>' : ''}
-      </div>
-      <div class="qb-statusbar" id="qb-statusbar"></div>
-    `;
+        <div class="qb-detail" id="qb-detail" style="display:none"></div>`;
+    }
+    const detail = mainArea.querySelector('#qb-detail');
+    if (detail) detail.style.display = sel ? '' : 'none';
 
     _renderSidebar(root);
     _renderList(root, filtered, sel);
     if (sel) _renderDetail(root, sel);
     _renderStatusBar(root);
-    _bindToolbar(root, sel);
+    _bindToolbar(root);
   }
 
   function _runInTerminal(cmd) {
@@ -476,7 +560,8 @@ const QB = (() => {
             <span>${pct}%</span>
             ${t.dlspeed > 0 ? `<span>↓ ${_fmtSpeed(t.dlspeed)}</span>` : ''}
             ${t.upspeed > 0 ? `<span>↑ ${_fmtSpeed(t.upspeed)}</span>` : ''}
-            ${t.dlspeed > 0 ? `<span class="qb-spacer"></span><span>ETA ${_fmtEta(t.eta)}</span>` : '<span class="qb-spacer"></span>'}
+            <span class="qb-spacer"></span>
+            ${_fmtEta(t.eta) !== '—' ? `<span>ETA ${_fmtEta(t.eta)}</span>` : ''}
             <span>⇅ ${_fmtRatio(t.ratio)}</span>
           </div>
         </div>
@@ -488,22 +573,65 @@ const QB = (() => {
         _detailTab = 'info';
         _renderAll();
       });
+      el.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        document.querySelectorAll('.qb-ctx-menu').forEach(m => m.remove());
+        const hash = el.dataset.hash;
+        const t = _torrents.find(x => x.hash === hash);
+        const menu = document.createElement('div');
+        menu.className = 'qb-ctx-menu';
+        menu.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 0;z-index:9999;min-width:140px;box-shadow:var(--shadow)`;
+        const isPaused = t?.state?.startsWith('paused');
+        const items = [
+          { label: _qbt('ctx_resume'), action: () => _api('/api/v2/torrents/resume', 'POST', { hashes: hash }).then(() => _poll()) },
+          { label: _qbt('ctx_pause'), action: () => _api('/api/v2/torrents/pause', 'POST', { hashes: hash }).then(() => _poll()) },
+          { label: _qbt('ctx_delete'), action: () => _confirmDelete(list.closest('#qb-root'), t), danger: true },
+        ];
+        items.forEach(({ label, action, danger }) => {
+          const item = document.createElement('div');
+          item.textContent = label;
+          item.style.cssText = `padding:6px 14px;font-size:.82rem;cursor:pointer;color:${danger ? '#ff5555' : 'var(--text)'}`;
+          item.onmouseenter = () => item.style.background = danger ? '#ff555522' : 'var(--surface3, rgba(255,255,255,.07))';
+          item.onmouseleave = () => item.style.background = '';
+          item.addEventListener('click', () => { menu.remove(); action(); });
+          menu.appendChild(item);
+        });
+        document.body.appendChild(menu);
+        setTimeout(() => document.addEventListener('click', () => menu.remove(), { once: true }), 0);
+      });
     });
   }
 
-  function _renderDetail(root, t) {
+  function _renderDetail(root, t, force = false) {
     const detail = root.querySelector('#qb-detail');
     if (!detail) return;
     const tabs = ['info', 'files', 'peers'];
-    detail.innerHTML = `
-      <div class="qb-detail-tabs">
-        ${tabs.map(tb => `<div class="qb-detail-tab ${_detailTab === tb ? 'active' : ''}" data-tab="${tb}">${_qbt(tb)}</div>`).join('')}
-      </div>
-      <div class="qb-detail-body" id="qb-detail-body"></div>
-    `;
-    detail.querySelectorAll('.qb-detail-tab').forEach(el => {
-      el.addEventListener('click', () => { _detailTab = el.dataset.tab; _renderDetail(root, t); });
-    });
+    const isNew = !detail.querySelector('#qb-detail-body');
+    if (isNew) {
+      detail.innerHTML = `
+        <div class="qb-detail-header">
+          <div class="qb-detail-tabs">
+            ${tabs.map(tb => `<div class="qb-detail-tab ${_detailTab === tb ? 'active' : ''}" data-tab="${tb}">${_qbt(tb)}</div>`).join('')}
+          </div>
+          <button class="qb-detail-close" id="qb-detail-close">✕</button>
+        </div>
+        <div class="qb-detail-body" id="qb-detail-body"></div>
+      `;
+      detail.querySelectorAll('.qb-detail-tab').forEach(el => {
+        el.addEventListener('click', () => { _detailTab = el.dataset.tab; _renderDetail(root, t, true); });
+      });
+      detail.querySelector('#qb-detail-close')?.addEventListener('click', () => {
+        _selected = null;
+        _renderAll();
+      });
+    } else {
+      // update active tab indicator
+      detail.querySelectorAll('.qb-detail-tab').forEach(el => {
+        el.classList.toggle('active', el.dataset.tab === _detailTab);
+      });
+      // on poll, only refresh info tab silently — skip files/peers to avoid flicker
+      if (!force && _detailTab !== 'info') return;
+    }
     const body = detail.querySelector('#qb-detail-body');
     if (_detailTab === 'info') {
       const rows = [
@@ -531,12 +659,51 @@ const QB = (() => {
       body.innerHTML = `<div style="color:var(--text-dim);font-size:.75rem;padding:8px">${_qbt('connecting')}</div>`;
       _api(`/api/v2/torrents/files?hash=${t.hash}`).then(files => {
         if (!Array.isArray(files) || !files.length) { body.innerHTML = `<div style="padding:8px;color:var(--text-dim)">${_qbt('no_torrents')}</div>`; return; }
-        body.innerHTML = files.map(f => `
-          <div class="qb-detail-row" style="flex-direction:column;gap:2px;align-items:flex-start">
-            <span class="qb-detail-label" style="max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${f.name}">${f.name.split('/').pop()}</span>
-            <span style="font-size:.7rem;color:var(--text-dim)">${_fmtSize(f.size)} · ${Math.round((f.progress || 0) * 100)}%</span>
+        const prioLabel = { 0: _qbt('prio_skip'), 1: _qbt('prio_normal'), 6: _qbt('prio_high'), 7: _qbt('prio_max') };
+        body.innerHTML = files.map((f, i) => `
+          <div class="qb-detail-row qb-file-row" data-idx="${i}" data-hash="${t.hash}" style="gap:6px;align-items:center">
+            <input type="checkbox" data-idx="${i}" data-hash="${t.hash}" ${f.priority !== 0 ? 'checked' : ''} style="flex-shrink:0;cursor:pointer">
+            <div style="flex:1;overflow:hidden">
+              <div class="qb-detail-label" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${f.name}">${f.name.split('/').pop()}</div>
+              <div style="font-size:.7rem;color:var(--text-dim)">${_fmtSize(f.size)} · ${Math.round((f.progress || 0) * 100)}% · <span class="qb-file-prio">${prioLabel[f.priority] ?? 'Normal'}</span></div>
+            </div>
           </div>
         `).join('');
+        body.querySelectorAll('input[type=checkbox]').forEach(cb => {
+          cb.addEventListener('change', () => {
+            const prio = cb.checked ? 1 : 0;
+            _api('/api/v2/torrents/filePrio', 'POST', { hash: cb.dataset.hash, id: cb.dataset.idx, priority: prio }).then(() => {
+              cb.closest('.qb-file-row').querySelector('.qb-file-prio').textContent = { 0: _qbt('prio_skip'), 1: _qbt('prio_normal') }[prio];
+            }).catch(() => {});
+          });
+        });
+        body.querySelectorAll('.qb-file-row').forEach(row => {
+          row.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            document.querySelectorAll('.qb-ctx-menu').forEach(m => m.remove());
+            const menu = document.createElement('div');
+            menu.className = 'qb-ctx-menu';
+            menu.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 0;z-index:9999;min-width:140px;box-shadow:var(--shadow)`;
+            [['Skip', 0], ['Normal', 1], ['High', 6], ['Maximum', 7]].forEach(([label, prio]) => {
+              const item = document.createElement('div');
+              item.textContent = prioLabel[prio];
+              item.style.cssText = 'padding:6px 14px;font-size:.82rem;cursor:pointer;color:var(--text)';
+              item.onmouseenter = () => item.style.background = 'var(--accent)';
+              item.onmouseleave = () => item.style.background = '';
+              item.addEventListener('click', () => {
+                _api('/api/v2/torrents/filePrio', 'POST', { hash: row.dataset.hash, id: row.dataset.idx, priority: prio }).then(() => {
+                  row.querySelector('.qb-file-prio').textContent = prioLabel[prio];
+                  const cb = row.querySelector('input[type=checkbox]');
+                  if (cb) cb.checked = prio !== 0;
+                }).catch(() => {});
+                menu.remove();
+              });
+              menu.appendChild(item);
+            });
+            document.body.appendChild(menu);
+            setTimeout(() => document.addEventListener('click', () => menu.remove(), { once: true }), 0);
+          });
+        });
       }).catch(() => { body.innerHTML = `<div style="padding:8px;color:#ff5555">Error loading files</div>`; });
     } else if (_detailTab === 'peers') {
       body.innerHTML = `<div style="color:var(--text-dim);font-size:.75rem;padding:8px">${_qbt('connecting')}</div>`;
@@ -566,11 +733,8 @@ const QB = (() => {
     `;
   }
 
-  function _bindToolbar(root, sel) {
+  function _bindToolbar(root) {
     root.querySelector('#qb-add')?.addEventListener('click', () => _showAddDialog(root));
-    root.querySelector('#qb-resume')?.addEventListener('click', () => sel && _api('/api/v2/torrents/resume', 'POST', { hashes: sel.hash }).then(() => _poll()));
-    root.querySelector('#qb-pause')?.addEventListener('click', () => sel && _api('/api/v2/torrents/pause', 'POST', { hashes: sel.hash }).then(() => _poll()));
-    root.querySelector('#qb-delete')?.addEventListener('click', () => sel && _confirmDelete(root, sel));
     root.querySelector('#qb-resume-all')?.addEventListener('click', () => _api('/api/v2/torrents/resume', 'POST', { hashes: 'all' }).then(() => _poll()));
     root.querySelector('#qb-pause-all')?.addEventListener('click', () => _api('/api/v2/torrents/pause', 'POST', { hashes: 'all' }).then(() => _poll()));
   }

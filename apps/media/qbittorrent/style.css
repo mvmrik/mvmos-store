@@ -157,18 +157,34 @@
 
 /* ── Detail panel ── */
 .qb-detail {
-  width: 280px;
-  flex-shrink: 0;
-  border-left: 1px solid var(--border);
+  position: absolute;
+  inset: 0;
   background: var(--surface2);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  z-index: 10;
 }
-.qb-detail-tabs {
+.qb-detail-header {
   display: flex;
+  align-items: center;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+}
+.qb-detail-close {
+  margin-left: auto;
+  padding: 4px 10px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: .9rem;
+  flex-shrink: 0;
+}
+.qb-detail-close:hover { color: var(--text); }
+.qb-detail-tabs {
+  display: flex;
+  flex: 1;
 }
 .qb-detail-tab {
   flex: 1;

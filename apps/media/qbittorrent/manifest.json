@@ -1,21 +1,16 @@
 {
   "id": "qbittorrent",
-  "name": "qBittorrent",
+  "name": "qBit Dashboard",
   "icon": "🌊",
   "category": "Media",
-  "version": "1.0.3",
-  "description": "Full-featured torrent client. Connects to a local qBittorrent instance via WebUI API.",
+  "version": "1.0.4",
+  "description": "Visual dashboard for qBittorrent. Connects to a local qBittorrent instance via WebUI API.",
   "entry": "main.js",
   "css": "style.css",
   "settings": [
-    { "key": "host",               "label": "Host",                        "type": "text",     "default": "localhost" },
-    { "key": "port",               "label": "Port",                        "type": "number",   "default": 8080, "min": 1, "max": 65535 },
-    { "key": "username",           "label": "Username",                    "type": "text",     "default": "admin" },
-    { "key": "password",           "label": "Password",                    "type": "password", "default": "" },
-    { "key": "auto_delete_ratio",  "label": "Auto-delete at ratio (0=off)","type": "number",   "default": 0, "min": 0, "step": 0.1 },
-    { "key": "auto_delete_hours",  "label": "Auto-delete after hours seeding (0=off)", "type": "number", "default": 0, "min": 0, "step": 0.5 },
-    { "key": "delete_files",       "label": "Delete files on auto-delete", "type": "checkbox", "default": false },
-    { "key": "dl_limit",           "label": "Download limit (KB/s, 0=unlimited)", "type": "number", "default": 0, "min": 0 },
-    { "key": "ul_limit",           "label": "Upload limit (KB/s, 0=unlimited)",   "type": "number", "default": 0, "min": 0 }
+    { "key": "host",     "label": "Host",     "type": "text",     "default": "localhost" },
+    { "key": "port",     "label": "Port",     "type": "number",   "default": 8090, "min": 1, "max": 65535 },
+    { "key": "username", "label": "Username", "type": "text",     "default": "admin" },
+    { "key": "password", "label": "Password", "type": "password", "default": "" }
   ]
 }
