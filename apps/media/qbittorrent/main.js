@@ -1,4 +1,4 @@
-// mvmOS App: qBit Dashboard v1.0.5
+// mvmOS App: qBit Dashboard v1.0.6
 const _qbi18n = {
   en: {
     title: 'qBit Dashboard', add: '+ Add', resume: '▶ Resume', pause: '⏸ Pause',
