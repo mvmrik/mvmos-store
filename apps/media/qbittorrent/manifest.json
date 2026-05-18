@@ -3,7 +3,7 @@
   "name": "qBittorrent",
   "icon": "🌊",
   "category": "Media",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Full-featured torrent client. Connects to a local qBittorrent instance via WebUI API.",
   "entry": "main.js",
   "css": "style.css",
