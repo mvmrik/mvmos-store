@@ -1,38 +1,67 @@
 import httpx
 import sys
+import time
 from fastapi import APIRouter, Depends, Request, UploadFile, File, Form
 from fastapi.responses import JSONResponse, Response
-from pydantic import BaseModel
 from typing import Optional
 
-# Loaded dynamically — use absolute import via sys.modules
 get_current_session = sys.modules["backend.auth"].get_current_session
 
 router = APIRouter(prefix="/api/qbit", tags=["qbit"])
 
 _AUTODISCOVER_PORTS = [8080, 8090, 9090, 10095, 6881]
 
-
-class QbitConfig(BaseModel):
-    host: str = "localhost"
-    port: int = 8080
-    username: str = ""
-    password: str = ""
+# Persistent client with session cookie cache: key = (host, port, username) → {client, expires}
+_sessions: dict = {}
+_SESSION_TTL = 1800  # 30 min
 
 
-async def _qbit_login(host: str, port: int, username: str, password: str) -> tuple[httpx.AsyncClient, str]:
+async def _get_client(host: str, port: int, username: str, password: str) -> httpx.AsyncClient:
+    key = (host, port, username)
+    now = time.time()
+    entry = _sessions.get(key)
+    if entry and entry["expires"] > now:
+        return entry["client"]
+    # close old client if exists
+    if entry:
+        try: await entry["client"].aclose()
+        except Exception: pass
     base = f"http://{host}:{port}"
-    client = httpx.AsyncClient(base_url=base, timeout=8)
-    r = await client.post("/api/v2/auth/login", data={"username": username, "password": password})
-    if r.text.strip() == "Ok.":
-        return client, base
-    await client.aclose()
-    raise ValueError("Login failed")
+    client = httpx.AsyncClient(base_url=base, timeout=15)
+    if username:
+        lr = await client.post("/api/v2/auth/login", data={"username": username, "password": password})
+        if lr.text.strip() not in ("Ok.", ""):
+            await client.aclose()
+            raise ValueError("Login failed")
+    _sessions[key] = {"client": client, "expires": now + _SESSION_TTL}
+    return client
+
+
+async def _proxy_request(host, port, username, password, path, method, data):
+    """Make a proxied request, retry once if session expired."""
+    for attempt in range(2):
+        try:
+            client = await _get_client(host, port, username, password)
+            if method == "GET":
+                r = await client.get(path)
+            else:
+                r = await client.post(path, data=data or {})
+            # if qBittorrent returns 403, session expired — invalidate and retry
+            if r.status_code == 403 and attempt == 0:
+                key = (host, port, username)
+                if key in _sessions:
+                    try: await _sessions[key]["client"].aclose()
+                    except Exception: pass
+                    del _sessions[key]
+                continue
+            return r
+        except httpx.ConnectError:
+            raise
+    raise ValueError("Session error after retry")
 
 
 @router.get("/discover")
 async def discover(session=Depends(get_current_session)):
-    """Try common ports and return the first responding qBittorrent WebUI."""
     for port in _AUTODISCOVER_PORTS:
         try:
             async with httpx.AsyncClient(timeout=2) as client:
@@ -46,10 +75,6 @@ async def discover(session=Depends(get_current_session)):
 
 @router.post("/proxy")
 async def proxy(request: Request, session=Depends(get_current_session)):
-    """
-    Proxy qBittorrent API calls to avoid CORS.
-    Body: { host, port, username, password, path, method, data }
-    """
     body = await request.json()
     host = body.get("host", "localhost")
     port = int(body.get("port", 8080))
@@ -58,27 +83,16 @@ async def proxy(request: Request, session=Depends(get_current_session)):
     path = body.get("path", "/api/v2/app/version")
     method = body.get("method", "GET").upper()
     data = body.get("data", None)
-
-    base = f"http://{host}:{port}"
     try:
-        async with httpx.AsyncClient(base_url=base, timeout=15) as client:
-            # login
-            lr = await client.post("/api/v2/auth/login", data={"username": username, "password": password})
-            if lr.text.strip() not in ("Ok.", ""):
-                if lr.status_code not in (200,):
-                    return JSONResponse({"error": "Login failed"}, status_code=401)
-
-            if method == "GET":
-                r = await client.get(path)
-            else:
-                r = await client.post(path, data=data or {})
-
-            try:
-                return JSONResponse(r.json())
-            except Exception:
-                return Response(content=r.content, media_type=r.headers.get("content-type", "text/plain"))
+        r = await _proxy_request(host, port, username, password, path, method, data)
+        try:
+            return JSONResponse(r.json())
+        except Exception:
+            return Response(content=r.content, media_type=r.headers.get("content-type", "text/plain"))
     except httpx.ConnectError:
         return JSONResponse({"error": "Cannot connect to qBittorrent"}, status_code=502)
+    except ValueError as e:
+        return JSONResponse({"error": str(e)}, status_code=401)
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
@@ -94,21 +108,15 @@ async def upload_torrent(
     torrents: UploadFile = File(...),
     session=Depends(get_current_session),
 ):
-    """Upload a .torrent file directly to qBittorrent."""
     content = await torrents.read()
-    base = f"http://{host}:{port}"
     try:
-        async with httpx.AsyncClient(base_url=base, timeout=15) as client:
-            lr = await client.post("/api/v2/auth/login", data={"username": username, "password": password})
-            if lr.text.strip() not in ("Ok.", ""):
-                if lr.status_code != 200:
-                    return JSONResponse({"error": "Login failed"}, status_code=401)
-            files = {"torrents": (torrents.filename, content, "application/x-bittorrent")}
-            data = {}
-            if savepath: data["savepath"] = savepath
-            if category: data["category"] = category
-            r = await client.post("/api/v2/torrents/add", files=files, data=data)
-            return JSONResponse({"ok": True, "result": r.text})
+        client = await _get_client(host, port, username, password)
+        files = {"torrents": (torrents.filename, content, "application/x-bittorrent")}
+        data = {}
+        if savepath: data["savepath"] = savepath
+        if category: data["category"] = category
+        r = await client.post("/api/v2/torrents/add", files=files, data=data)
+        return JSONResponse({"ok": True, "result": r.text})
     except httpx.ConnectError:
         return JSONResponse({"error": "Cannot connect to qBittorrent"}, status_code=502)
     except Exception as e:
