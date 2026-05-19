@@ -1,16 +1,16 @@
 {
-  "id": "qbittorrent",
+  "id": "qbit-dashboard",
   "name": "qBit Dashboard",
   "icon": "🌊",
   "category": "Media",
-  "version": "1.0.7",
-  "min_core_version": "0.5.8",
+  "version": "1.0.8",
+  "min_core_version": "0.5.12",
   "description": "Visual dashboard for qBittorrent. Connects to a local qBittorrent instance via WebUI API.",
   "entry": "main.js",
   "css": "style.css",
   "settings": [
     { "key": "host",     "label": "Host",     "type": "text",     "default": "localhost" },
-    { "key": "port",     "label": "Port",     "type": "number",   "default": 8090, "min": 1, "max": 65535 },
+    { "key": "port",     "label": "Port",     "type": "number",   "default": 8080, "min": 1, "max": 65535 },
     { "key": "username", "label": "Username", "type": "text",     "default": "admin" },
     { "key": "password", "label": "Password", "type": "password", "default": "" }
   ]

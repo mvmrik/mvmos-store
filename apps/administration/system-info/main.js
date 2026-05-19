@@ -111,8 +111,7 @@ const SI = (() => {
 
   async function _fetch(body) {
     try {
-      const res = await fetch('/api/system/hardware');
-      const data = await res.json();
+      const data = await mvmOS.system.resources();
       body._siData = data;
       const activeTab = body.querySelector('#si-select')?.value || body.querySelector('.si-tab-active')?.dataset.tab || 'overview';
       _render(body, activeTab, data);

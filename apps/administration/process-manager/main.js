@@ -103,8 +103,7 @@ const PM = (() => {
   }
 
   async function fetchAll(body) {
-    const [resR, resP] = await Promise.all([fetch('/api/system/resources'), fetch('/api/system/processes')]);
-    const resources = await resR.json(), procs = await resP.json();
+    const [resources, procs] = await Promise.all([mvmOS.system.resources(), mvmOS.system.processes()]);
     updateBar(body, 'cpu', resources.cpu_pct, 100);
     updateBar(body, 'mem', resources.mem_used, resources.mem_total, true);
     updateBar(body, 'disk', resources.disk_used, resources.disk_total, true);
@@ -162,9 +161,8 @@ const PM = (() => {
   }
 
   async function doKill(body, pid, sig, sudoPwd = '') {
-    const res = await fetch('/api/system/processes/kill', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pid, signal: sig, sudo_password: sudoPwd }) });
-    const data = await res.json();
-    if (res.status === 403 || data.error === 'permission_denied') { _pendingKill = { body, pid, sig }; showSudo(body); return; }
+    const data = await mvmOS.system.kill(pid, sig, sudoPwd);
+    if (data.error === 'permission_denied') { _pendingKill = { body, pid, sig }; showSudo(body); return; }
     if (data.error) { mvmOS.notify(_pmt('kill_failed'), data.error); return; }
     setTimeout(() => fetchAll(body), 600);
   }

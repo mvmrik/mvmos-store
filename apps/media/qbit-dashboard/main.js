@@ -207,7 +207,7 @@ const QB = (() => {
   const _db = mvmOS.db('qbittorrent');
 
   let _cfg = {
-    host: 'localhost', port: 8090, username: 'admin', password: '',
+    host: 'localhost', port: 8080, username: 'admin', password: '',
   };
   let _torrents = [];
   let _filter = 'all';

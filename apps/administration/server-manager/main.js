@@ -61,8 +61,7 @@ const SM = (() => {
   async function loadServices(body) {
     const list = body.querySelector('#sm-list');
     list.innerHTML = `<div style="padding:20px;color:var(--text-dim);font-size:.85rem">${_smt('loading')}</div>`;
-    const res = await fetch('/api/system/services');
-    const services = await res.json();
+    const services = await mvmOS.system.services();
     if (!services.length) { list.innerHTML = `<div style="padding:20px;color:var(--text-dim);font-size:.85rem">${_smt('no_services')}</div>`; return; }
     list.innerHTML = '';
     services.forEach(svc => {
@@ -100,10 +99,9 @@ const SM = (() => {
   }
 
   async function callAction(body, name, action, sudoPassword = '') {
-    const r = await fetch('/api/system/services/action', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, action, sudo_password: sudoPassword }) });
-    if (r.status === 403) return 'sudo_needed';
-    const data = await r.json();
-    if (data.error && data.error !== 'permission_denied') { mvmOS.notify(_smt('svc_error'), data.detail || data.error); return null; }
+    const data = await mvmOS.system.serviceAction(name, action, sudoPassword);
+    if (data.error === 'permission_denied') return 'sudo_needed';
+    if (data.error) { mvmOS.notify(_smt('svc_error'), data.detail || data.error); return null; }
     if (data.error === 'permission_denied') return 'sudo_needed';
     return data;
   }
