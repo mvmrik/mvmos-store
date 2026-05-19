@@ -1,4 +1,4 @@
-// mvmOS App: qBit Dashboard v1.0.7
+// mvmOS App: qBit Dashboard v1.0.9
 const _qbi18n = {
   en: {
     title: 'qBit Dashboard', add: '+ Add', resume: '▶ Resume', pause: '⏸ Pause',
@@ -83,7 +83,7 @@ mvmOS.registerApp({
   trayable: true,
   settings: [
     { key: 'host',     label: 'Host',     type: 'text',     default: 'localhost' },
-    { key: 'port',     label: 'Port',     type: 'number',   default: 8090, min: 1, max: 65535 },
+    { key: 'port',     label: 'Port',     type: 'number',   default: 8080, min: 1, max: 65535 },
     { key: 'username', label: 'Username', type: 'text',     default: 'admin' },
     { key: 'password', label: 'Password', type: 'password', default: '' },
   ],
@@ -91,12 +91,19 @@ mvmOS.registerApp({
     this._lastSaved = saved;
     wrap.innerHTML = `<div style="font-size:.75rem;color:var(--text-dim);margin-top:4px">Loading qBittorrent options…</div>`;
     try {
-      const host = saved.host || 'localhost';
-      const port = saved.port || 8080;
+      // read all connection params from DB to avoid stale/empty 'saved' values
+      const db = mvmOS.db('qbit-dashboard');
+      const rows = await db.query('SELECT key, value FROM cfg');
+      const cfg = {};
+      rows.forEach(r => { try { cfg[r.key] = JSON.parse(r.value); } catch(_) { cfg[r.key] = r.value; } });
+      const host = cfg.host || saved.host || 'localhost';
+      const port = cfg.port || saved.port || 8080;
+      const username = cfg.username || saved.username || '';
+      const password = cfg.password || saved.password || '';
       const res = await fetch('/api/qbit/proxy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ host, port, username: saved.username || '', password: saved.password || '', path: '/api/v2/app/preferences', method: 'GET' }),
+        body: JSON.stringify({ host, port, username, password, path: '/api/v2/app/preferences', method: 'GET' }),
       });
       const prefs = await res.json();
       wrap.innerHTML = `
@@ -156,8 +163,8 @@ mvmOS.registerApp({
           </div>
         </div>
       `;
-    } catch(_) {
-      wrap.innerHTML = `<div style="font-size:.75rem;color:var(--text-dim);margin-top:8px;border-top:1px solid var(--border);padding-top:8px">qBittorrent options unavailable (not connected)</div>`;
+    } catch(err) {
+      wrap.innerHTML = `<div style="font-size:.75rem;color:var(--text-dim);margin-top:8px;border-top:1px solid var(--border);padding-top:8px">qBittorrent options unavailable (${err.message || 'not connected'})</div>`;
     }
   },
 
@@ -173,13 +180,14 @@ mvmOS.registerApp({
     });
     if (!Object.keys(prefs).length) return;
     try {
-      const s = this._lastSaved || {};
-      const host = s.host || 'localhost';
-      const port = s.port || 8090;
+      const host = panel.querySelector('[data-key="host"]')?.value || this._lastSaved?.host || 'localhost';
+      const port = Number(panel.querySelector('[data-key="port"]')?.value) || this._lastSaved?.port || 8080;
+      const username = panel.querySelector('[data-key="username"]')?.value || this._lastSaved?.username || '';
+      const password = panel.querySelector('[data-key="password"]')?.value || this._lastSaved?.password || '';
       await fetch('/api/qbit/proxy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ host, port, username: s.username || '', password: s.password || '', path: '/api/v2/app/setPreferences', method: 'POST', data: { json: JSON.stringify(prefs) } }),
+        body: JSON.stringify({ host, port, username, password, path: '/api/v2/app/setPreferences', method: 'POST', data: { json: JSON.stringify(prefs) } }),
       });
     } catch(_) {}
   },
@@ -238,8 +246,9 @@ const QB = (() => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ host: _cfg.host, port: _cfg.port, username: _cfg.username, password: _cfg.password, path, method, data }),
     });
+    if (!res.ok && res.status !== 200) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
-    if (!text) return {};
+    if (!text) throw new Error('Empty response from proxy');
     const j = JSON.parse(text);
     if (j.error) throw new Error(j.error);
     return j;
@@ -352,14 +361,6 @@ const QB = (() => {
     const root = body.querySelector('#qb-root');
     mvmOS.initMobileSidebar?.(body);
 
-    // try auto-discover if no password saved
-    if (!_cfg.password) {
-      const disc = await fetch('/api/qbit/discover').then(r => r.json()).catch(() => ({}));
-      if (disc.found) {
-        _cfg.host = disc.host;
-        _cfg.port = disc.port;
-      }
-    }
 
     _renderAll();
     _startPoll();
@@ -367,6 +368,7 @@ const QB = (() => {
     window.addEventListener('settings-changed', e => {
       if (e.detail?.app === 'qbit-dashboard') {
         _loadCfg().then(() => {
+          _connected = false;
           _renderAll();
           _startPoll();
         });
@@ -482,7 +484,6 @@ const QB = (() => {
             </div>
 
             <div style="display:flex;gap:8px;justify-content:center;padding-top:4px">
-              <button class="s-btn" id="qb-disc-btn">${_qbt('discover_btn')}</button>
               <button class="s-btn" id="qb-settings-btn">${_qbt('settings_btn')}</button>
             </div>
           </div>
@@ -495,19 +496,6 @@ const QB = (() => {
     });
     root.querySelector('#qb-open-webui')?.addEventListener('click', () => {
       window.open(`http://${_cfg.host || 'localhost'}:${_cfg.port || 8090}`, '_blank');
-    });
-    root.querySelector('#qb-disc-btn')?.addEventListener('click', async () => {
-      const btn = root.querySelector('#qb-disc-btn');
-      btn.disabled = true; btn.textContent = '…';
-      const disc = await fetch('/api/qbit/discover').then(r => r.json()).catch(() => ({}));
-      if (disc.found) {
-        await _saveCfg('host', disc.host);
-        await _saveCfg('port', disc.port);
-        _startPoll();
-      } else {
-        btn.disabled = false; btn.textContent = _qbt('discover_btn');
-        _renderConnect(root);
-      }
     });
     root.querySelector('#qb-settings-btn')?.addEventListener('click', () => {
       mvmOS.openSettings?.('apps');
