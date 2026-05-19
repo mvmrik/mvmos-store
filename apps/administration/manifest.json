@@ -7,7 +7,7 @@
       "category": "Administration",
       "version": "1.1.0",
       "description": "Monitor and control system services — start, stop, restart web servers, databases, and more. Supports sudo for non-root users.",
-      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/server-manager"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/server-manager-1.1.0.zip"
     },
     {
       "id": "process-manager",
@@ -16,7 +16,7 @@
       "category": "Administration",
       "version": "1.1.0",
       "description": "Monitor CPU, memory and disk usage in real time. View and manage running processes — filter, sort, and kill with optional sudo support.",
-      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/process-manager"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/process-manager-1.1.0.zip"
     },
     {
       "id": "system-info",
@@ -25,7 +25,7 @@
       "category": "Administration",
       "version": "1.1.0",
       "description": "Detailed hardware and system information — CPU, memory, disks, network interfaces, temperatures, uptime and more.",
-      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/system-info"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/system-info-1.1.0.zip"
     },
     {
       "id": "cron-manager",
@@ -34,7 +34,7 @@
       "category": "Administration",
       "version": "1.1.0",
       "description": "View, add, edit and delete cron jobs for the current user. Root also sees /etc/cron.d/ system jobs.",
-      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/cron-manager"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/cron-manager-1.1.0.zip"
     }
   ]
 }
