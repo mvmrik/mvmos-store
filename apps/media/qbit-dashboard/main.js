@@ -233,6 +233,11 @@ const QB = (() => {
   async function _loadCfg() {
     const rows = await _db.query('SELECT key, value FROM cfg');
     rows.forEach(r => { try { _cfg[r.key] = JSON.parse(r.value); } catch(_) { _cfg[r.key] = r.value; } });
+    // apply defaults for missing keys
+    const defaults = { host: 'localhost', port: 8080, username: 'admin', password: '' };
+    for (const [k, v] of Object.entries(defaults)) {
+      if (_cfg[k] === undefined) await _saveCfg(k, v);
+    }
   }
   async function _saveCfg(key, val) {
     await _db.run('INSERT OR REPLACE INTO cfg (key,value) VALUES (?,?)', [key, JSON.stringify(val)]);
@@ -474,7 +479,7 @@ const QB = (() => {
               <div style="font-weight:600;margin-bottom:6px">3. ${_qbt('setup_step2')}</div>
               <div style="color:var(--text-dim);font-size:.76rem;margin-bottom:6px">${_qbt('setup_step2b')}</div>
               <div style="display:flex;align-items:center;gap:6px">
-                <code style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:5px 10px;font-size:.78rem">http://localhost:8090</code>
+                <code style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:5px 10px;font-size:.78rem">http://localhost:${_cfg.port || 8080}</code>
                 <button class="s-btn s-btn-sm" id="qb-open-webui" title="Open in browser">🌐</button>
               </div>
             </div>
