@@ -8,7 +8,7 @@
       "version": "1.0.0",
       "layout": "macos",
       "description": "The default dark theme. Deep blue-black surfaces with blue accent.",
-      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/themes/default"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/themes/dark/default-1.0.0.zip"
     },
     {
       "id": "catppuccin",
@@ -18,7 +18,7 @@
       "version": "1.0.0",
       "layout": "macos",
       "description": "Warm dark theme with pastel colors. Easy on the eyes.",
-      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/themes/catppuccin"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/themes/dark/catppuccin-1.0.0.zip"
     }
   ]
 }
