@@ -5,40 +5,40 @@
       "name": "CPU Meter",
       "icon": "⚡",
       "category": "System",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "widget_type": "taskbar",
       "description": "Shows real-time CPU usage in the taskbar.",
-      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/system/cpu-meter"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/releases/cpu-meter-1.2.0.zip"
     },
     {
       "id": "ram-meter",
       "name": "RAM Meter",
       "icon": "🧠",
       "category": "System",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "widget_type": "taskbar",
       "description": "Shows real-time RAM usage in the taskbar.",
-      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/system/ram-meter"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/releases/ram-meter-1.2.0.zip"
     },
     {
       "id": "cpu-monitor",
       "name": "CPU Monitor",
       "icon": "📈",
       "category": "System",
-      "version": "1.0.0",
+      "version": "1.3.0",
       "widget_type": "desktop",
       "description": "Desktop CPU usage graph with history. Drag to reposition.",
-      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/system/cpu-monitor"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/releases/cpu-monitor-1.3.0.zip"
     },
     {
       "id": "sys-overview",
       "name": "System Overview",
       "icon": "🖥️",
       "category": "System",
-      "version": "1.0.0",
+      "version": "1.3.0",
       "widget_type": "desktop",
       "description": "Desktop widget showing CPU, RAM and disk at a glance with color-coded gauges.",
-      "base_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/system/sys-overview"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/releases/sys-overview-1.3.0.zip"
     }
   ]
 }
