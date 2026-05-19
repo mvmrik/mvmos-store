@@ -76,7 +76,7 @@ const _qbi18n = {
 function _qbt(key) { const lang = window.mvmOS?.lang || 'en'; return (_qbi18n[lang] || _qbi18n.en)[key] || key; }
 
 mvmOS.registerApp({
-  id: 'qbittorrent',
+  id: 'qbit-dashboard',
   name: _qbt('title'),
   icon: '🌊',
   category: 'Media',
@@ -186,13 +186,13 @@ mvmOS.registerApp({
 
   launch() {
     mvmOS.createWindow({
-      id: 'qbittorrent',
+      id: 'qbit-dashboard',
       title: '🌊 ' + _qbt('title'),
       icon: '🌊',
       width: 960,
       height: 600,
       appSettings: true,
-      onAppSettings() { AppStore.openWindow({ section: 'my-apps', appId: 'qbittorrent' }); },
+      onAppSettings() { AppStore.openWindow({ section: 'my-apps', appId: 'qbit-dashboard' }); },
       onMount(body) {
         body.style.padding = '0';
         body.style.overflow = 'hidden';
@@ -204,7 +204,7 @@ mvmOS.registerApp({
 
 // ── Core ──────────────────────────────────────────────────────────────────────
 const QB = (() => {
-  const _db = mvmOS.db('qbittorrent');
+  const _db = mvmOS.db('qbit-dashboard');
 
   let _cfg = {
     host: 'localhost', port: 8080, username: 'admin', password: '',
@@ -365,7 +365,7 @@ const QB = (() => {
     _startPoll();
     window.mvmOS?.onLangChange(() => _renderAll());
     window.addEventListener('settings-changed', e => {
-      if (e.detail?.app === 'qbittorrent') {
+      if (e.detail?.app === 'qbit-dashboard') {
         _loadCfg().then(() => {
           _renderAll();
           _startPoll();
