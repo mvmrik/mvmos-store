@@ -5,9 +5,9 @@
       "name": "Server Manager",
       "icon": "🖧",
       "category": "Administration",
-      "version": "1.1.0",
-      "description": "Monitor and control system services — start, stop, restart web servers, databases, and more. Supports sudo for non-root users.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/server-manager-1.1.0.zip"
+      "version": "1.4.0",
+      "description": "Monitor and control system services — start, stop, restart web servers, databases, and more. Configure PHP, MySQL, Nginx, SSH and UFW firewall settings directly from the UI.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/server-manager-1.4.0.zip"
     },
     {
       "id": "process-manager",
