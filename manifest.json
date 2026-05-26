@@ -18,6 +18,12 @@
       "name": "Media",
       "icon": "🎬",
       "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/manifest.json"
+    },
+    {
+      "id": "games",
+      "name": "Games",
+      "icon": "🎮",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/manifest.json"
     }
   ]
 }
