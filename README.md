@@ -401,7 +401,159 @@ mvmOS.notify(title, body)            — push a notification
 mvmOS.notify(title, body, fn, label) — notification with action button
 mvmOS.onResources(callback)          — subscribe to system resource updates
 
+mvmOS.multiplayer.createRoom(gameId) — create a multiplayer room, returns { roomId, link }
+mvmOS.multiplayer.connect(roomId, gameId) — connect to a room via WebSocket, returns WebSocket
+
 this.storage.get(key)        — read from app-isolated localStorage (use inside registerApp def)
 this.storage.set(key, value) — write to app-isolated localStorage
 this.storage.remove(key)     — delete a key
+```
+
+---
+
+## Multiplayer
+
+mvmOS has a built-in generic multiplayer system based on WebSockets. Any game can use it — no extra server setup required.
+
+### How it works
+
+1. Player 1 calls `mvmOS.multiplayer.createRoom(gameId)` — the backend creates a room and returns a shareable link
+2. Player 1 shares the link with Player 2
+3. Player 2 opens the link in any browser (no mvmOS login needed) — the game loads in a standalone page
+4. Both players connect via WebSocket — the backend syncs moves in real time
+5. The game controls the rules — the backend only relays messages
+
+### API
+
+```js
+// Create a room and get a shareable link
+const { roomId, link } = await mvmOS.multiplayer.createRoom('my-game');
+// link → e.g. https://your-mvmos.com/api/multiplayer/play/my-game/abc12345
+
+// Connect to a room via WebSocket
+const ws = mvmOS.multiplayer.connect(roomId, 'my-game');
+```
+
+### WebSocket message protocol
+
+**Server → client:**
+
+| Message | Fields | Description |
+|---------|--------|-------------|
+| `waiting` | — | Waiting for the second player to join |
+| `joined` | `player` (0 or 1), `game_id` | You connected. `player` is your index |
+| `start` | `first`, `your_turn`, `numbers` | Both players connected. `numbers` = array of upcoming values (first 10) |
+| `move_ok` | `your_turn` (false), `next_number` | Your move was accepted. Wait for opponent |
+| `opponent_move` | `move`, `your_turn` (true), `next_number` | Opponent moved. Now it's your turn |
+| `opponent_score` | `score` | Opponent's current score |
+| `opponent_grid` | `grid` | Opponent's grid state (2D array) |
+| `opponent_game_over` | `score` | Opponent's game ended |
+| `opponent_left` | — | Opponent disconnected |
+
+**Client → server:**
+
+| Message | Fields | Description |
+|---------|--------|-------------|
+| `move` | `move: { col }` | Player placed a piece in column `col` |
+| `grid_update` | `grid` | Send your current grid so the opponent can see it |
+| `score_update` | `score` | Send your current score |
+| `game_over` | `score` | Your grid is full |
+
+### Minimal example
+
+```js
+mvmOS.registerApp({
+  id: 'my-game',
+  name: 'My Game',
+  icon: '🎮',
+  category: 'Games',
+
+  launch(opts) {
+    const isMultiplayer = opts?.multiplayer === true;
+    const roomId = opts?.roomId;
+
+    mvmOS.createWindow({
+      id: 'my-game',
+      title: '🎮 My Game',
+      width: 500, height: 600,
+      onMount(body) {
+        if (isMultiplayer && roomId) {
+          // Came from shared link — connect directly
+          startMultiplayer(body, roomId);
+          return;
+        }
+
+        // Show lobby
+        body.innerHTML = `
+          <button id="single">Single Player</button>
+          <button id="multi">Multiplayer</button>`;
+
+        body.querySelector('#single').onclick = () => startGame(body, null);
+        body.querySelector('#multi').onclick = async () => {
+          const { roomId, link } = await mvmOS.multiplayer.createRoom('my-game');
+          // Show link to share, then connect...
+          startMultiplayer(body, roomId);
+        };
+      }
+    });
+  }
+});
+
+function startMultiplayer(body, roomId) {
+  const ws = mvmOS.multiplayer.connect(roomId, 'my-game');
+  ws.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    if (msg.type === 'start') {
+      startGame(body, ws, msg);
+    }
+  };
+}
+
+function startGame(body, ws, mpState) {
+  // ws is null for single player
+  // mpState.your_turn — whether you go first
+  // mpState.numbers   — shared sequence of upcoming values
+
+  // After each move, send state to backend:
+  function sendMove(col) {
+    if (!ws) return;
+    ws.send(JSON.stringify({ type: 'move', move: { col } }));
+    ws.send(JSON.stringify({ type: 'score_update', score: myScore }));
+    ws.send(JSON.stringify({ type: 'grid_update', grid: myGrid }));
+  }
+
+  // Handle incoming messages:
+  if (ws) {
+    ws.onmessage = e => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'opponent_move') {
+        // msg.move       — what the opponent did
+        // msg.your_turn  — true, now it's your turn
+        // msg.next_number — next number in the shared sequence
+      }
+      if (msg.type === 'opponent_grid') {
+        // msg.grid — render this to show opponent's board
+      }
+    };
+  }
+}
+```
+
+### Standalone page for external players
+
+When Player 2 opens the shared link, they see the game in a standalone page (no mvmOS shell). A minimal `mvmOS` shim is injected so the app's `main.js` runs unchanged. `launch()` is called with `{ multiplayer: true, roomId }`.
+
+### i18n in apps
+
+Translations belong **inside the app's `main.js`** — do not add keys to the core `frontend/i18n/` files. Follow the pattern used in `apps/calculator/main.js`:
+
+```js
+const _mygame18n = {
+  en: { title: 'My Game', play: 'Play' },
+  bg: { title: 'Моята игра', play: 'Играй' },
+};
+function _t(key) {
+  const lang = window.mvmOS?.lang || 'en';
+  return (_mygame18n[lang] || _mygame18n.en)[key] || key;
+}
 ```
