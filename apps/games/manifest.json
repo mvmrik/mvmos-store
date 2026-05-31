@@ -5,9 +5,9 @@
       "name": "Sudofall",
       "icon": "🔢",
       "category": "Games",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "description": "A mix between Tetris and Sudoku — drop numbers into the grid, clear rows and 3x3 boxes to score points.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/sudofall-1.4.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/sudofall-1.5.0.zip"
     }
   ]
 }
