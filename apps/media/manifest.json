@@ -5,9 +5,9 @@
       "name": "qBit Dashboard",
       "icon": "🌊",
       "category": "Media",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "description": "Visual dashboard for qBittorrent. Connects to a local qBittorrent instance via WebUI API. Auto-discovers running instance or configure manually.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/qbit-dashboard-1.1.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/qbit-dashboard-1.2.0.zip"
     }
   ]
 }
