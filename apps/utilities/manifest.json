@@ -8,6 +8,15 @@
       "version": "1.2.0",
       "description": "Simple calculator with basic arithmetic operations. Supports keyboard input.",
       "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/calculator-1.2.0.zip"
+    },
+    {
+      "id": "cost-splitter",
+      "name": "Cost Splitter",
+      "icon": "💸",
+      "category": "Utilities",
+      "version": "1.0.0",
+      "description": "Split recurring costs among members. Track balances, add payments, and send monthly email summaries automatically.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/cost-splitter-1.0.0.zip"
     }
   ]
 }
