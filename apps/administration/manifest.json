@@ -41,9 +41,9 @@
       "name": "Cron Manager",
       "icon": "⏰",
       "category": "Administration",
-      "version": "1.1.0",
-      "description": "View, add, edit and delete cron jobs for the current user. Root also sees /etc/cron.d/ system jobs.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/cron-manager-1.1.0.zip"
+      "version": "1.2.0",
+      "description": "View, add, edit and delete cron jobs for the current user. Root also sees /etc/cron.d/ system jobs. Includes mvmOS Scheduler — enable background task execution for installed apps.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/cron-manager-1.2.0.zip"
     }
   ]
 }

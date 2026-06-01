@@ -1,18 +1,18 @@
 # mvmOS Developer Guide
 
-Приложенията за mvmOS се пишат на JavaScript и се регистрират чрез глобалния обект `mvmOS`. Всяко приложение е един `main.js` файл, опционален `style.css`, `manifest.json` и `db.json` (ако ползва база данни).
+Apps for mvmOS are written in JavaScript and registered via the global `mvmOS` object. Each app consists of a `main.js` file, an optional `style.css`, a `manifest.json`, and a `db.json` (if it uses a database).
 
 ---
 
-## Структура на приложение
+## App structure
 
 ```
 apps/<category>/<app-id>/
-  manifest.json   — метаданни
-  main.js         — логика
-  style.css       — стилове (опционално)
-  db.json         — схема на базата данни (опционално)
-  backend.py      — сървърен компонент (опционално, изисква потвърждение)
+  manifest.json   — metadata
+  main.js         — logic
+  style.css       — styles (optional)
+  db.json         — database schema (optional)
+  backend.py      — server-side component (optional, requires user confirmation)
 ```
 
 ---
@@ -27,7 +27,7 @@ apps/<category>/<app-id>/
   "category": "Utilities",
   "version": "1.0.0",
   "min_core_version": "0.5.12",
-  "description": "Описание на приложението.",
+  "description": "App description.",
   "entry": "main.js",
   "css": "style.css",
   "settings": [
@@ -39,24 +39,25 @@ apps/<category>/<app-id>/
 }
 ```
 
-| Поле | Задължително | Описание |
-|------|-------------|----------|
-| `id` | да | Уникален идентификатор (kebab-case) |
-| `name` | да | Показвано име |
-| `icon` | да | Emoji иконка |
-| `category` | да | Категория в App Store |
-| `version` | да | Semver версия |
-| `min_core_version` | не | Минимална версия на mvmOS core |
-| `entry` | не | JS файл (default: `main.js`) |
-| `css` | не | CSS файл |
-| `settings` | не | Настройки, показвани в App Store (⚙ бутон) |
-| `trayable` | не | `true` ако приложението поддържа System Tray |
+| Field | Required | Description |
+|-------|----------|-------------|
+| `id` | yes | Unique identifier (kebab-case) |
+| `name` | yes | Display name |
+| `icon` | yes | Emoji icon |
+| `category` | yes | App Store category |
+| `version` | yes | Semver version |
+| `min_core_version` | no | Minimum mvmOS core version required |
+| `entry` | no | JS file (default: `main.js`) |
+| `css` | no | CSS file |
+| `settings` | no | Settings shown in App Store (⚙ button) |
+| `trayable` | no | `true` if the app supports System Tray |
+| `scheduler` | no | Python file for background scheduled logic (e.g. `"scheduler.py"`) |
 
 ---
 
 ## db.json
 
-Дефинира схемата на SQLite базата данни. При инсталация и ъпдейт системата автоматично създава таблиците и добавя нови колони. Съществуващите данни не се изтриват.
+Defines the SQLite database schema. On install and update the system automatically creates tables and adds new columns. Existing data is never deleted.
 
 ```json
 {
@@ -73,17 +74,17 @@ apps/<category>/<app-id>/
 }
 ```
 
-| Поле | Описание |
-|------|----------|
-| `name` | Име на таблицата |
-| `columns[].name` | Име на колоната |
-| `columns[].type` | SQLite тип: `TEXT`, `INTEGER`, `REAL`, `BLOB` |
-| `columns[].primary` | `true` за PRIMARY KEY |
-| `columns[].default` | Default стойност (опционално) |
+| Field | Description |
+|-------|-------------|
+| `name` | Table name |
+| `columns[].name` | Column name |
+| `columns[].type` | SQLite type: `TEXT`, `INTEGER`, `REAL`, `BLOB` |
+| `columns[].primary` | `true` for PRIMARY KEY |
+| `columns[].default` | Default value (optional) |
 
 ---
 
-## main.js — регистрация
+## main.js — registration
 
 ```js
 mvmOS.registerApp({
@@ -91,8 +92,8 @@ mvmOS.registerApp({
   name: 'My App',
   icon: '🚀',
   category: 'Utilities',
-  trayable: true,           // опционално — System Tray поддръжка
-  settings: [               // трябва да съвпада с manifest.json
+  trayable: true,           // optional — System Tray support
+  settings: [               // must match manifest.json
     { key: 'host', label: 'Host', type: 'text', default: 'localhost' },
   ],
   launch() {
@@ -103,7 +104,7 @@ mvmOS.registerApp({
       width: 800,
       height: 600,
       onMount(body) {
-        // body е DOM елементът вътре в прозореца
+        // body is the DOM element inside the window
         body.innerHTML = '<p>Hello!</p>';
       },
     });
@@ -117,18 +118,18 @@ mvmOS.registerApp({
 
 ### mvmOS.createWindow(opts)
 
-Отваря прозорец.
+Opens a window.
 
 ```js
 mvmOS.createWindow({
-  id: 'my-app',           // id на приложението
-  title: 'My App',        // заглавие
-  icon: '🚀',             // emoji за tray иконка
-  width: 800,             // начална ширина (px)
-  height: 600,            // начална височина (px)
-  onMount(body) { ... },  // извиква се при отваряне — body е DOM елементът
-  appSettings: true,      // показва gear бутон в titlebar
-  onAppSettings() { ... } // извиква се при клик на gear бутона
+  id: 'my-app',           // app id
+  title: 'My App',        // title
+  icon: '🚀',             // emoji for tray icon
+  width: 800,             // initial width (px)
+  height: 600,            // initial height (px)
+  onMount(body) { ... },  // called on open — body is the DOM element
+  appSettings: true,      // show gear button in titlebar
+  onAppSettings() { ... } // called when gear button is clicked
 });
 ```
 
@@ -136,53 +137,53 @@ mvmOS.createWindow({
 
 ### mvmOS.db(appId)
 
-Връща обект за достъп до SQLite базата на приложението.
+Returns an object for accessing the app's SQLite database.
 
 ```js
 const db = mvmOS.db('my-app');
 
-// Четене
+// Read
 const rows = await db.query('SELECT value FROM cfg WHERE key = ?', ['theme']);
 
-// Запис
+// Write
 await db.run('INSERT OR REPLACE INTO cfg (key, value) VALUES (?, ?)', ['theme', 'dark']);
 ```
 
-| Метод | Описание |
-|-------|----------|
-| `db.query(sql, params)` | Изпълнява SELECT, връща масив от редове |
-| `db.run(sql, params)` | Изпълнява INSERT/UPDATE/DELETE, връща брой засегнати редове |
+| Method | Description |
+|--------|-------------|
+| `db.query(sql, params)` | Executes SELECT, returns array of rows |
+| `db.run(sql, params)` | Executes INSERT/UPDATE/DELETE, returns number of affected rows |
 
 ---
 
 ### mvmOS.notify(title, body, action?, actionLabel?)
 
-Показва известие в notification center.
+Shows a notification in the notification center.
 
 ```js
-mvmOS.notify('Готово', 'Файлът е запазен.');
+mvmOS.notify('Done', 'File saved.');
 
-// С бутон за действие
-mvmOS.notify('Нова версия', 'v1.2.0 е налична.', () => openUpdate(), 'Инсталирай');
+// With action button
+mvmOS.notify('New version', 'v1.2.0 is available.', () => openUpdate(), 'Install');
 ```
 
 ---
 
 ### mvmOS.openSettings(tab?)
 
-Отваря системните настройки.
+Opens system settings.
 
 ```js
-mvmOS.openSettings();          // начална страница
-mvmOS.openSettings('apps');    // таб Приложения
-mvmOS.openSettings('about');   // таб За системата
+mvmOS.openSettings();          // home page
+mvmOS.openSettings('apps');    // Apps tab
+mvmOS.openSettings('about');   // About tab
 ```
 
 ---
 
 ### mvmOS.initMobileSidebar(body)
 
-Автоматично добавя ☰ бутон в titlebar-а на мобилен, ако `body` съдържа елемент с клас `.as-sidebar`. На десктоп няма ефект.
+Automatically adds a ☰ button in the titlebar on mobile, if `body` contains an element with class `.as-sidebar`. No effect on desktop.
 
 ```js
 onMount(body) {
@@ -198,31 +199,31 @@ onMount(body) {
 
 ### mvmOS.system
 
-Системна информация и операции.
+System information and operations.
 
 #### mvmOS.system.resources()
 
-Връща CPU, памет, диск и хардуерна информация.
+Returns CPU, memory, disk and hardware info.
 
 ```js
 const data = await mvmOS.system.resources();
 // {
-//   cpu_pct: 12.5,          // % натоварване на CPU
-//   mem_used: 4294967296,   // използвана памет (байтове)
-//   mem_total: 8589934592,  // обща памет (байтове)
+//   cpu_pct: 12.5,          // CPU usage %
+//   mem_used: 4294967296,   // used memory (bytes)
+//   mem_total: 8589934592,  // total memory (bytes)
 //   disk_used: 107374182400,
 //   disk_total: 536870912000,
 //   cpu_model: 'Intel Core i7-...',
 //   cpu_cores: 8,
 //   cpu_freq_mhz: 3600,
 //   hostname: 'mypc',
-//   uptime: 86400,          // секунди
+//   uptime: 86400,          // seconds
 // }
 ```
 
 #### mvmOS.system.processes()
 
-Връща списък с активни процеси.
+Returns a list of running processes.
 
 ```js
 const procs = await mvmOS.system.processes();
@@ -232,24 +233,24 @@ const procs = await mvmOS.system.processes();
 
 #### mvmOS.system.kill(pid, signal?, sudo_password?)
 
-Изпраща сигнал към процес.
+Sends a signal to a process.
 
 ```js
 await mvmOS.system.kill(1234);                        // SIGTERM
 await mvmOS.system.kill(1234, 'SIGKILL');             // SIGKILL
-await mvmOS.system.kill(1234, 'SIGTERM', 'mypasswd'); // с sudo
-// → { ok: true } или { error: 'permission_denied' }
+await mvmOS.system.kill(1234, 'SIGTERM', 'mypasswd'); // with sudo
+// → { ok: true } or { error: 'permission_denied' }
 ```
 
-| Параметър | Default | Описание |
-|-----------|---------|----------|
-| `pid` | — | PID на процеса |
-| `signal` | `'SIGTERM'` | `'SIGTERM'` или `'SIGKILL'` |
-| `sudo_password` | `''` | Sudo парола (ако е нужна) |
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `pid` | — | Process PID |
+| `signal` | `'SIGTERM'` | `'SIGTERM'` or `'SIGKILL'` |
+| `sudo_password` | `''` | Sudo password (if required) |
 
 #### mvmOS.system.services()
 
-Връща списък с регистрирани systemd услуги.
+Returns a list of registered systemd services.
 
 ```js
 const services = await mvmOS.system.services();
@@ -258,31 +259,31 @@ const services = await mvmOS.system.services();
 
 #### mvmOS.system.serviceAction(name, action, sudo_password?)
 
-Управлява systemd услуга.
+Controls a systemd service.
 
 ```js
 await mvmOS.system.serviceAction('nginx', 'restart');
 await mvmOS.system.serviceAction('nginx', 'stop', 'mypasswd');
-// → { ok: true, status: 'inactive' } или { error: 'permission_denied' }
+// → { ok: true, status: 'inactive' } or { error: 'permission_denied' }
 ```
 
-| `action` | Описание |
-|----------|----------|
-| `'start'` | Стартира |
-| `'stop'` | Спира |
-| `'restart'` | Рестартира |
-| `'enable'` | Включва при старт |
-| `'disable'` | Изключва при старт |
+| `action` | Description |
+|----------|-------------|
+| `'start'` | Start |
+| `'stop'` | Stop |
+| `'restart'` | Restart |
+| `'enable'` | Enable on boot |
+| `'disable'` | Disable on boot |
 
 ---
 
 ### mvmOS.fs
 
-Файлова система.
+File system.
 
 #### mvmOS.fs.list(path)
 
-Листва съдържанието на директория.
+Lists the contents of a directory.
 
 ```js
 const entries = await mvmOS.fs.list('/home/user/Documents');
@@ -292,7 +293,7 @@ const entries = await mvmOS.fs.list('/home/user/Documents');
 
 #### mvmOS.fs.read(path)
 
-Чете текстов файл.
+Reads a text file.
 
 ```js
 const { content } = await mvmOS.fs.read('/home/user/notes.txt');
@@ -300,16 +301,16 @@ const { content } = await mvmOS.fs.read('/home/user/notes.txt');
 
 #### mvmOS.fs.write(path, content)
 
-Записва текстов файл.
+Writes a text file.
 
 ```js
-await mvmOS.fs.write('/home/user/notes.txt', 'Здравей!');
+await mvmOS.fs.write('/home/user/notes.txt', 'Hello!');
 // → { ok: true }
 ```
 
 #### mvmOS.fs.delete(path)
 
-Изтрива файл или директория.
+Deletes a file or directory.
 
 ```js
 await mvmOS.fs.delete('/home/user/old-file.txt');
@@ -318,7 +319,7 @@ await mvmOS.fs.delete('/home/user/old-file.txt');
 
 #### mvmOS.fs.mkdir(path)
 
-Създава директория (включително родителски директории).
+Creates a directory (including parent directories).
 
 ```js
 await mvmOS.fs.mkdir('/home/user/new-folder');
@@ -327,7 +328,7 @@ await mvmOS.fs.mkdir('/home/user/new-folder');
 
 #### mvmOS.fs.rename(from, to)
 
-Преименува или премества файл/директория.
+Renames or moves a file/directory.
 
 ```js
 await mvmOS.fs.rename('/home/user/old.txt', '/home/user/new.txt');
@@ -336,23 +337,23 @@ await mvmOS.fs.rename('/home/user/old.txt', '/home/user/new.txt');
 
 ---
 
-## Уиджети
+## Widgets
 
-Уиджетите се регистрират с `mvmOS.registerWidget()` и са два вида: `taskbar` (в лентата) и `desktop` (на работния плот).
+Widgets are registered with `mvmOS.registerWidget()` and come in two types: `taskbar` (in the taskbar) and `desktop` (on the desktop).
 
 ```js
 mvmOS.registerWidget({
   id: 'my-widget',
   name: 'My Widget',
   icon: '📊',
-  type: 'taskbar',        // 'taskbar' или 'desktop'
+  type: 'taskbar',        // 'taskbar' or 'desktop'
   settings: [
     { key: 'unit', label: 'Unit', type: 'select',
       options: [{ value: 'c', label: '°C' }, { value: 'f', label: '°F' }],
       default: 'c' },
   ],
   init(container) {
-    // container е DOM елементът на уиджета
+    // container is the widget's DOM element
     container.innerHTML = '<span>Hello</span>';
   },
 });
@@ -360,7 +361,7 @@ mvmOS.registerWidget({
 
 #### mvmOS.onResources(fn)
 
-Абонира се за системни ресурси (CPU, памет, диск) — обновява се на всеки 3 секунди. Използва се в уиджети за да не правят собствени заявки.
+Subscribes to system resources (CPU, memory, disk) — updated every 3 seconds. Use in widgets to avoid making individual requests.
 
 ```js
 mvmOS.onResources(data => {
@@ -370,7 +371,7 @@ mvmOS.onResources(data => {
 
 #### mvmOS.widgetSetting(id, key, default?)
 
-Чете настройка на уиджет.
+Reads a widget setting.
 
 ```js
 const unit = mvmOS.widgetSetting('my-widget', 'unit', 'c');
@@ -378,7 +379,7 @@ const unit = mvmOS.widgetSetting('my-widget', 'unit', 'c');
 
 #### mvmOS.widgetDb(widgetId)
 
-Връща DB обект за уиджет — същия интерфейс като `mvmOS.db()`.
+Returns a DB object for a widget — same interface as `mvmOS.db()`.
 
 ```js
 const db = mvmOS.widgetDb('my-widget');
@@ -389,7 +390,7 @@ await db.run('CREATE TABLE IF NOT EXISTS state (key TEXT PRIMARY KEY, value TEXT
 
 ## backend.py
 
-Ако приложението трябва да достъпва локални услуги (CORS ограничения), може да включи `backend.py`. При инсталация потребителят получава диалог за потвърждение.
+If the app needs to access local services (CORS restrictions), it can include a `backend.py`. On install the user receives a confirmation dialog.
 
 ```python
 import sys
@@ -403,17 +404,17 @@ async def get_data(session=Depends(get_current_session)):
     return {"hello": "world"}
 ```
 
-**Правила:**
-- Файлът трябва да дефинира `router` обект на модулно ниво
-- Всички endpoints трябва да изискват `session=Depends(get_current_session)` за автентикация
-- Prefix-ът трябва да е уникален — препоръчително `/api/<app-id>`
-- Само `backend.py` се инсталира — никакви други Python файлове
+**Rules:**
+- The file must define a `router` object at module level
+- All endpoints must require `session=Depends(get_current_session)` for authentication
+- The prefix must be unique — recommended `/api/<app-id>`
+- Only `backend.py` is installed — no other Python files
 
 ---
 
 ## i18n
 
-Вътре в `main.js` се дефинира собствен речник:
+Define your own dictionary inside `main.js`:
 
 ```js
 const _i18n = {
@@ -423,40 +424,100 @@ const _i18n = {
 const _t = k => _i18n[mvmOS.lang]?.[k] || _i18n.en[k] || k;
 ```
 
-Системните UI стрингове (в `frontend/i18n/`) не се пипат от приложения.
+System UI strings (in `frontend/i18n/`) are not touched by apps.
 
 ---
 
 ## System Tray
 
-За да поддържа приложението минимизиране в tray:
+To support minimizing to tray:
 
 ```js
 mvmOS.registerApp({
   id: 'my-app',
-  trayable: true,   // ← само това е нужно
+  trayable: true,   // ← this is all that's needed
   ...
 });
 
 mvmOS.createWindow({
   id: 'my-app',
-  icon: '🚀',       // ← използва се за tray иконката
+  icon: '🚀',       // ← used as the tray icon
   ...
 });
 ```
 
-Системата автоматично добавя "Close to Tray" настройка в App Store. Разработчикът не пише допълнителна логика.
+The system automatically adds a "Close to Tray" setting in App Store. No additional logic needed.
 
 ---
 
-## Версионни зависимости
+## Version requirements
 
-Ако приложението изисква функционалност от конкретна версия на mvmOS core:
+If the app requires functionality from a specific version of mvmOS core:
 
 ```json
 "min_core_version": "0.5.12"
 ```
 
-При опит за инсталация на несъвместима система потребителят получава съобщение за грешка.
+When installing on an incompatible system the user receives an error message.
 
-**Правило:** добавяй `min_core_version` при всяка промяна, която разчита на нова функционалност от core.
+**Rule:** add `min_core_version` whenever you rely on new core functionality.
+
+---
+
+## mvmOS App Scheduler
+
+Allows apps to execute background logic on a schedule — without the browser being open.
+
+### How it works
+
+1. The user installs **Cron Manager** and enables the mvmOS Scheduler (installs a system cron `* * * * *`)
+2. Every minute Linux cron calls `POST /api/scheduler/tick`
+3. Core reads the manifests of all installed apps
+4. If an app has a `"scheduler"` field → runs the specified Python file
+
+### Step 1 — add to manifest.json
+
+```json
+{
+  "id": "my-app",
+  "scheduler": "scheduler.py"
+}
+```
+
+### Step 2 — create backend/apps/\<app-id\>/scheduler.py
+
+```python
+def run(now, db_path, config):
+    """
+    now       — datetime object with the current time
+    db_path   — full path to the app's SQLite DB (may not exist yet)
+    config    — dict of app settings from the cfg table
+    """
+    # Example: runs every day at 09:00
+    if now.hour == 9 and now.minute == 0:
+        do_something()
+
+    # Example: runs on the 1st of every month at 09:00
+    if now.day == 1 and now.hour == 9 and now.minute == 0:
+        send_monthly_emails(db_path, config)
+```
+
+### Accessing the app's DB
+
+```python
+import sqlite3
+
+def run(now, db_path, config):
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    users = conn.execute("SELECT * FROM users").fetchall()
+    conn.close()
+```
+
+### Notes
+
+- `scheduler.py` goes in `backend/apps/<app-id>/scheduler.py` in the zip — yes, this is the backend folder, but **the app does not need a `backend.py`**. `backend.py` is only needed if the app has its own API endpoints (FastAPI routes). `scheduler.py` is just a plain Python function — no routes, no FastAPI.
+- If the app only needs scheduled logic → only `scheduler.py`, no `backend.py`
+- If the file is missing, core skips it silently
+- Runs every minute — the file itself decides when to act using `if now.hour == X`
+- Errors are logged in the `/api/scheduler/tick` response and do not stop other apps
