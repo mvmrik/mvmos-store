@@ -14,9 +14,9 @@
       "name": "FindYourself",
       "icon": "🌍",
       "category": "Games",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Drop into a random Street View location anywhere in the world and guess where you are on the map. Requires a Google Maps API key.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/findyourself-1.0.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/findyourself-1.1.0.zip"
     }
   ]
 }
