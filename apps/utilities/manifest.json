@@ -27,5 +27,14 @@
       "description": "Split recurring costs among members. Track balances, add payments, and send monthly email summaries automatically.",
       "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/cost-splitter-1.0.0.zip"
     }
+    ,{
+      "id": "statetracker",
+      "name": "State Tracker",
+      "icon": "📡",
+      "category": "Utilities",
+      "version": "1.0.0",
+      "description": "Track state changes of anything over time — ping, HTTP checks, API values, or manual push. Color-coded timeline.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/statetracker-1.0.0.zip"
+    }
   ]
 }
