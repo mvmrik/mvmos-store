@@ -14,9 +14,18 @@
       "name": "FindYourself",
       "icon": "🌍",
       "category": "Games",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "description": "Drop into a random Street View location anywhere in the world and guess where you are on the map. Requires a Google Maps API key.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/findyourself-1.2.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/findyourself-1.3.0.zip"
+    },
+    {
+      "id": "gamehub",
+      "name": "Game Hub",
+      "icon": "🎮",
+      "category": "Games",
+      "version": "1.1.0",
+      "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.1.0.zip"
     }
   ]
 }
