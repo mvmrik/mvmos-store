@@ -521,3 +521,100 @@ def run(now, db_path, config):
 - If the file is missing, core skips it silently
 - Runs every minute — the file itself decides when to act using `if now.hour == X`
 - Errors are logged in the `/api/scheduler/tick` response and do not stop other apps
+
+---
+
+## Game Hub integration
+
+Game Hub is the central player identity and stats system for multiplayer games. If your game supports multiplayer, integrate with Game Hub so players can use their profile, avatar, and track stats across all games.
+
+### Loading Game Hub
+
+Load only `widget.js` — there is no separate `avatar.js` anymore, everything is built into the widget:
+
+```js
+function _loadGameHub(cb) {
+  if (window.GameHub) { window.GameHub.init().then(cb); return; }
+  const s = document.createElement('script');
+  s.src = '/apps/gamehub/widget.js';
+  s.onload = () => window.GameHub?.init().then(cb) || cb();
+  s.onerror = cb;  // Game Hub not installed — continue without it
+  document.head.appendChild(s);
+}
+```
+
+Game Hub is optional — always handle the case where `window.GameHub` is `undefined` (not installed).
+
+### Login widget
+
+Show the login/register/guest form inside any container:
+
+```js
+window.GameHub.renderWidget(container, {
+  guestText: 'Play as Guest',
+  onReady(player) {
+    // player.is_guest === true → guest (no stats)
+    // otherwise → logged-in player
+  }
+});
+```
+
+### Current player and avatar
+
+```js
+const player = window.GameHub.currentPlayer();
+// player: { id, display_name, avatar_color, avatar_svg }
+
+// Render avatar at any size:
+const html = window.GameHub.renderAvatar(player, 32);
+```
+
+`renderAvatar` falls back gracefully: uses `avatar_svg` if present, otherwise generates a colored circle with the player's initial.
+
+**Never use `window.GHAvatar` — it no longer exists.**
+
+### Recording a session (stats)
+
+```js
+window.GameHub.recordSession({
+  game_id: 'my-game',
+  mode: 'singleplayer',  // or 'multiplayer'
+  players: [
+    { player_id: player.id, score: 150, is_winner: true }
+    // for guests: { guest_name: 'Name', score: 0, is_winner: false }
+  ],
+  duration_seconds: 120,
+  metadata: {},  // any extra data
+});
+```
+
+### Auth token (for multiplayer API calls)
+
+```js
+const token = window.GameHub.getToken();
+// Use in fetch headers: { 'X-GH-Token': token }
+// Required for: /api/pub/gamehub/favourites, /api/pub/gamehub/invite, etc.
+```
+
+### Avatars in multiplayer (WebSocket)
+
+When players connect, exchange `avatar_svg` in the first WebSocket message so all clients can render each other's avatars without extra API calls:
+
+```js
+// Joining player sends:
+ws.send(JSON.stringify({
+  type: 'hello',
+  name: player.display_name,
+  gh_player_id: player.id,
+  avatar_svg: player.avatar_svg || null,
+}));
+
+// Store it in your roster:
+roster[msg.from] = { name: msg.name, avatar_svg: msg.avatar_svg || null };
+
+// Render anywhere:
+const html = window.GameHub.renderAvatar(
+  { avatar_svg: roster[idx].avatar_svg, display_name: roster[idx].name },
+  28
+);
+```
