@@ -8,7 +8,7 @@
       "version": "1.2.0",
       "widget_type": "taskbar",
       "description": "Shows real-time CPU usage in the taskbar.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/system/cpu-meter-1.2.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/taskbar/system/cpu-meter-1.2.0.zip"
     },
     {
       "id": "ram-meter",
@@ -18,7 +18,7 @@
       "version": "1.2.0",
       "widget_type": "taskbar",
       "description": "Shows real-time RAM usage in the taskbar.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/system/ram-meter-1.2.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/taskbar/system/ram-meter-1.2.0.zip"
     }
   ]
 }
