@@ -5,9 +5,9 @@
       "name": "YourSQL",
       "icon": "🗄️",
       "category": "Administration",
-      "version": "1.1.4",
+      "version": "1.1.5",
       "description": "MySQL database manager — browse tables, edit rows, run SQL queries, filter & sort, import/export CSV and SQL.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/yoursql-1.1.4.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/yoursql-1.1.5.zip"
     },
     {
       "id": "server-manager",
