@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "categories": [
+    {
+      "id": "system",
+      "name": "System",
+      "icon": "⚡",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/taskbar/system/manifest.json"
+    }
+  ]
+}

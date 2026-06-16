@@ -1,17 +1,17 @@
 {
-  "version": 1,
+  "version": 2,
   "categories": [
     {
-      "id": "system",
-      "name": "System",
-      "icon": "⚡",
-      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/system/manifest.json"
+      "id": "desktop",
+      "name": "Desktop Widgets",
+      "icon": "🖥️",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/desktop/manifest.json"
     },
     {
-      "id": "weather",
-      "name": "Weather",
-      "icon": "🌤️",
-      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/weather/manifest.json"
+      "id": "taskbar",
+      "name": "Taskbar Widgets",
+      "icon": "📊",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/taskbar/manifest.json"
     }
   ]
 }

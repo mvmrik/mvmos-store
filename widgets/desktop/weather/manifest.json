@@ -1,0 +1,14 @@
+{
+  "widgets": [
+    {
+      "id": "weather-widget",
+      "name": "Weather",
+      "icon": "🌤️",
+      "category": "Weather",
+      "version": "1.2.0",
+      "widget_type": "desktop",
+      "description": "Current weather for any city. Three sizes: S (temp only), M (current conditions), L (hourly + 5-day forecast). No API key needed.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/widgets/weather/weather-widget-1.2.0.zip"
+    }
+  ]
+}
