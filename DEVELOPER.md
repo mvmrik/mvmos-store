@@ -618,3 +618,118 @@ const html = window.GameHub.renderAvatar(
   28
 );
 ```
+
+---
+
+## Publishing a site (mvmOS Studio)
+
+Projects created in mvmOS Studio can be published as public websites on a custom domain or subpath — no separate web server required.
+
+### How it works
+
+mvmOS runs on port `2052` by default. When a domain or subpath is registered for a project, the built-in middleware identifies incoming requests by the `Host` header (domain mode) or URL prefix (path mode) and serves the project's public files without requiring login.
+
+### Path mode
+
+The project is accessible as a subpath of your mvmOS URL:
+
+```
+https://your-mvmos.com/myproject/
+```
+
+No additional configuration needed. Works out of the box.
+
+### Domain mode — without nginx/Apache
+
+If no web server is installed, use the built-in **Web Server** (in the Sites panel) to listen on port 80:
+
+1. Create your project and register the domain in mvmOS Studio
+2. Start the Web Server on port 80 (Sites → Web Server button)
+3. Point your domain's DNS A record to your server's IP
+
+```
+DNS:  mysite.com  →  A  →  your.server.ip
+      ↓
+mvmOS public server :80
+      ↓
+serves your project
+```
+
+The public server only exposes project content — the admin panel, terminal, and all internal routes are blocked.
+
+### Domain mode — with nginx
+
+If nginx is already running on port 80, add a server block for your domain and proxy to mvmOS:
+
+```nginx
+server {
+    listen 80;
+    server_name mysite.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:2052;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+```
+
+Then reload nginx:
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+`proxy_set_header Host $host` is required — mvmOS uses the Host header to identify which project to serve.
+
+**With SSL (certbot):**
+
+```bash
+sudo certbot --nginx -d mysite.com
+```
+
+Certbot automatically adds the HTTPS block. mvmOS itself does not need any SSL configuration.
+
+### Domain mode — with Apache
+
+```apache
+<VirtualHost *:80>
+    ServerName mysite.com
+
+    ProxyPreserveHost On
+    ProxyPass / http://127.0.0.1:2052/
+    ProxyPassReverse / http://127.0.0.1:2052/
+</VirtualHost>
+```
+
+Enable required modules and reload:
+
+```bash
+sudo a2enmod proxy proxy_http
+sudo systemctl reload apache2
+```
+
+`ProxyPreserveHost On` is required for the same reason as `proxy_set_header Host` in nginx.
+
+**With SSL (certbot):**
+
+```bash
+sudo certbot --apache -d mysite.com
+```
+
+### Domain mode — with Cloudflare
+
+Cloudflare terminates SSL itself and talks to your origin over HTTP. Your server only needs to handle plain HTTP.
+
+**Without nginx/Apache (built-in server):**
+
+1. Start the Web Server on port 80 in mvmOS Studio
+2. In Cloudflare DNS, add an A record pointing to your server IP (orange cloud = proxied)
+3. Cloudflare handles HTTPS — your origin stays on HTTP port 80
+
+**With nginx/Apache:**
+
+Configure nginx/Apache as above (HTTP only, port 80). Cloudflare proxies HTTPS → your origin HTTP. Set SSL/TLS mode to **Full** in Cloudflare dashboard (not Full Strict, unless you add a certificate on origin too).
+
+Cloudflare supported HTTP origin ports: `80, 8080, 8880, 2052, 2082, 2086, 2095`
