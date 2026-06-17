@@ -557,3 +557,44 @@ function _t(key) {
   return (_mygame18n[lang] || _mygame18n.en)[key] || key;
 }
 ```
+
+### File uploads
+
+mvmOS has a global upload manager (`mvmOS.upload`) available to all apps. It handles chunked uploads (80 MB per chunk, no Cloudflare 100 MB limit), shows a floating OS window with progress and speed, and supports a sequential queue.
+
+```js
+mvmOS.upload.start({
+  file,                          // File object (from <input type="file"> or drag-drop)
+  chunkEndpoint: '/api/files/upload-chunk', // POST endpoint for each chunk
+  cancelEndpoint: '/api/files/upload-chunk', // DELETE endpoint to cancel (same path)
+  fields: { path: '/home/user/uploads' },    // extra FormData fields sent with every chunk
+  accept: ['.sql', '.csv'],      // optional — allowed extensions/MIME types; error shown if violated
+  noFinalize: true,              // optional — keep assembled file in /tmp/mvmos-uploads/ instead of moving to dest
+  onDone(data) {
+    // data.tmp_path — set when noFinalize is true; pass it to your backend for further processing
+  },
+  onError(msg) { /* upload failed or wrong file type */ },
+  onCancel()   { /* user clicked Stop */ },
+});
+```
+
+If your app starts a long background operation **after** the upload finishes (e.g. importing a large SQL file), update the upload window so the user knows something is still happening:
+
+```js
+onDone(data) {
+  mvmOS.upload.setStatus('⏳ Processing...', true); // true = pulsing progress bar
+  // ... start background job, poll for completion ...
+  // when done:
+  mvmOS.upload.clearStatus();
+}
+```
+
+**`accept` values** — extensions (`.sql`), exact MIME types (`image/jpeg`), or wildcard MIME (`image/*`). If the file doesn't match, an error is shown immediately without uploading.
+
+**`noFinalize`** — the assembled temp file stays in `/tmp/mvmos-uploads/<upload_id>_<filename>`. Your backend receives its path via `data.tmp_path` in `onDone`. The file is deleted once your backend is done with it. Only files older than 24 hours are auto-cleaned (to avoid deleting active slow uploads).
+
+**MySQL privileges** — if your app creates or drops MySQL databases via YourSQL or a similar app, the MySQL user needs global `CREATE` and `DROP` privileges:
+```sql
+GRANT CREATE, DROP ON *.* TO 'youruser'@'localhost';
+FLUSH PRIVILEGES;
+```
