@@ -1,31 +1,31 @@
 {
   "apps": [
     {
-      "id": "sudofall",
-      "name": "Sudofall",
-      "icon": "🔢",
-      "category": "Games",
-      "version": "1.10.0",
-      "description": "A mix between Tetris and Sudoku — drop numbers into the grid, clear rows and 3x3 boxes to score points.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/sudofall-1.10.0.zip"
-    },
-    {
       "id": "findyourself",
       "name": "FindYourself",
       "icon": "🌍",
       "category": "Games",
-      "version": "1.10.0",
+      "version": "1.11.0",
       "description": "Drop into a random Street View location anywhere in the world and guess where you are on the map. Requires a Google Maps API key.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/findyourself-1.10.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/findyourself-1.11.0.zip"
+    },
+    {
+      "id": "sudofall",
+      "name": "Sudofall",
+      "icon": "🔢",
+      "category": "Games",
+      "version": "1.11.0",
+      "description": "A mix between Tetris and Sudoku — drop numbers into the grid, clear rows and 3x3 boxes to score points.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/sudofall-1.11.0.zip"
     },
     {
       "id": "gamehub",
       "name": "Game Hub",
       "icon": "🎮",
       "category": "Games",
-      "version": "1.8.0",
+      "version": "1.9.0",
       "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.8.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.9.0.zip"
     }
   ]
 }
