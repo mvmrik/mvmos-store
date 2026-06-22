@@ -23,9 +23,9 @@
       "name": "Cost Splitter",
       "icon": "💸",
       "category": "Utilities",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "description": "Split recurring costs among members. Track balances, add payments, and send monthly email summaries automatically.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/cost-splitter-1.1.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/cost-splitter-1.2.0.zip"
     }
     ,{
       "id": "statetracker",
