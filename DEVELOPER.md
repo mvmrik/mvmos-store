@@ -339,29 +339,168 @@ await mvmOS.fs.rename('/home/user/old.txt', '/home/user/new.txt');
 
 ## Widgets
 
-Widgets are registered with `mvmOS.registerWidget()` and come in two types: `taskbar` (in the taskbar) and `desktop` (on the desktop).
+Widgets are registered with `mvmOS.registerWidget()` and come in two types:
+
+| type | Where it appears |
+|---|---|
+| `'desktop'` | Draggable overlay on the desktop, S/M/L sizes |
+| `'taskbar'` | Inline in the taskbar; on mobile shown in the clock/calendar popup |
+
+### Desktop widget
 
 ```js
 mvmOS.registerWidget({
-  id: 'my-widget',
-  name: 'My Widget',
-  icon: '📊',
-  type: 'taskbar',        // 'taskbar' or 'desktop'
-  settings: [
-    { key: 'unit', label: 'Unit', type: 'select',
-      options: [{ value: 'c', label: '°C' }, { value: 'f', label: '°F' }],
-      default: 'c' },
-  ],
-  init(container) {
-    // container is the widget's DOM element
-    container.innerHTML = '<span>Hello</span>';
+  id:          'my-widget',
+  name:        'My Widget',
+  icon:        '📊',
+  type:        'desktop',
+  defaultX:    20,
+  defaultY:    80,
+  defaultSize: 'm',
+  sizes:       ['s', 'm', 'l'],
+
+  init(container, size) {
+    // Called once on mount AND again on size change.
+    // Always set cssText = (not +=) to avoid style bleed between sizes.
+    const w = { s: 180, m: 240, l: 320 }[size] || 240;
+    container.style.cssText = `width:${w}px;background:var(--surface);border-radius:10px;color:var(--text)`;
+    container.innerHTML = `<div style="padding:12px">Hello at size ${size}</div>`;
   },
 });
 ```
 
-#### mvmOS.onResources(fn)
+### Taskbar widget
 
-Subscribes to system resources (CPU, memory, disk) — updated every 3 seconds. Use in widgets to avoid making individual requests.
+```js
+mvmOS.registerWidget({
+  id:   'my-taskbar-widget',
+  name: 'My Widget',
+  icon: '📊',
+  type: 'taskbar',
+
+  init(wrap) {
+    // wrap is a flex div, height:100%, already in the taskbar.
+    wrap.innerHTML = `<span style="padding:0 8px;font-size:.75rem;color:var(--text)">Hello</span>`;
+    // Click to open an app:
+    wrap.addEventListener('click', () => mvmOS.openApp('my-app'));
+  },
+});
+```
+
+On mobile, taskbar widgets are hidden from the bar and appear in the clock/calendar popup when the user taps the clock.
+
+### One file, two widgets
+
+An app can ship both a desktop and a taskbar widget in a single `widget.js`. Use a guard so the file is safe to reload (re-install, hot-reload):
+
+```js
+// apps/my-app/widget.js
+(function () {
+  if (window._myWidgetRegistered) return;
+  window._myWidgetRegistered = true;
+
+  let _lastData = null;   // shared cache — instant display on size change
+
+  async function refresh(container, size) {
+    const r = await fetch('/api/apps/my-app/data');
+    _lastData = await r.json();
+    render(container, _lastData, size);
+  }
+
+  mvmOS.registerWidget({
+    id: 'my-app-widget', type: 'desktop', sizes: ['s','m','l'], defaultSize: 'm',
+    init(container, size) {
+      container._built = false;                    // reset on size change
+      container.style.cssText = `width:${({s:180,m:240,l:320})[size]}px;...`;
+      if (_lastData) render(container, _lastData, size);  // instant — no flash
+      refresh(container, size);
+      if (container._timer) clearInterval(container._timer);
+      container._timer = setInterval(() => refresh(container, size), 60000);
+    },
+  });
+
+  mvmOS.registerWidget({
+    id: 'my-app-taskbar', type: 'taskbar',
+    init(wrap) {
+      wrap.innerHTML = `...`;
+      wrap.addEventListener('click', () => mvmOS.openApp('my-app'));
+      setInterval(async () => {
+        const r = await fetch('/api/apps/my-app/data');
+        _lastData = await r.json();
+        renderTaskbar(wrap, _lastData);
+      }, 60000);
+    },
+  });
+})();
+```
+
+### No-flicker pattern (desktop widgets)
+
+Split DOM building from value updates so refreshes don't recreate the DOM:
+
+```js
+function buildSkeleton(container, size) {
+  if (container._built) return;
+  container._built = true;
+  container.innerHTML = `<div id="my-val">—</div>`;
+}
+
+function updateValues(container, data) {
+  const el = container.querySelector('#my-val');
+  if (el) el.textContent = data.value;
+}
+
+// In init():
+buildSkeleton(container, size);
+if (_lastData) updateValues(container, _lastData);
+refresh(container, size);
+```
+
+Reset `container._built = false` at the top of `init()` — `init` is called again on size change with the same container.
+
+### Installing a widget from inside an app
+
+Add a button in the app UI that calls `/api/widgets/install`:
+
+```js
+await fetch('/api/widgets/install', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    id:          'my-app-widget',
+    name:        'My Widget',
+    icon:        '📊',
+    category:    'System',
+    version:     '1.0.0',
+    description: '...',
+    widget_type: 'desktop',   // or 'taskbar'
+    js_url:      location.origin + '/apps/my-app/widget.js',
+  }),
+});
+```
+
+The backend fetches `js_url`, saves it to `/widgets/<id>/main.js` and registers it in the DB. On next page load the system loads it automatically.
+
+Hot-load immediately after install (no page reload):
+
+```js
+window._myWidgetRegistered = false;
+const s = document.createElement('script');
+s.src = '/apps/my-app/widget.js?_=' + Date.now();
+document.head.appendChild(s);
+```
+
+### mvmOS.openApp(id)
+
+Opens an installed app by plugin ID. Safe to call from any widget:
+
+```js
+mvmOS.openApp('server-monitor');
+```
+
+### mvmOS.onResources(fn)
+
+Subscribes to system resources (CPU, memory, disk) — updated every 3 seconds. Use in widgets instead of making separate requests.
 
 ```js
 mvmOS.onResources(data => {
@@ -369,15 +508,15 @@ mvmOS.onResources(data => {
 });
 ```
 
-#### mvmOS.widgetSetting(id, key, default?)
+### mvmOS.widgetSetting(id, key, default?)
 
-Reads a widget setting.
+Reads a widget setting from localStorage.
 
 ```js
 const unit = mvmOS.widgetSetting('my-widget', 'unit', 'c');
 ```
 
-#### mvmOS.widgetDb(widgetId)
+### mvmOS.widgetDb(widgetId)
 
 Returns a DB object for a widget — same interface as `mvmOS.db()`.
 
