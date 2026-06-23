@@ -23,9 +23,9 @@
       "name": "Process Manager",
       "icon": "📊",
       "category": "Administration",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "description": "Monitor CPU, memory and disk usage in real time. View and manage running processes — filter, sort, and kill with optional sudo support.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/process-manager-1.1.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/process-manager-1.2.0.zip"
     },
     {
       "id": "system-info",
@@ -57,11 +57,20 @@
     {
       "id": "server-monitor",
       "name": "Server Monitor",
-      "icon": "📡",
+      "icon": "🌡️",
       "category": "Administration",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "description": "Real-time server metrics with history — CPU, RAM, disk, network. Includes Bit Garden: a plant that grows based on server health, with desktop and taskbar widgets.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/server-monitor-1.1.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/server-monitor-1.2.0.zip"
+    },
+    {
+      "id": "startup-manager",
+      "name": "Startup Manager",
+      "icon": "🚀",
+      "category": "Administration",
+      "version": "1.0.0",
+      "description": "Choose which app backends auto-start when the system starts. Only apps that define an on_startup() hook appear here.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/startup-manager-1.0.0.zip"
     }
   ]
 }

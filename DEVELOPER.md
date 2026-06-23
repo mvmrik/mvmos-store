@@ -551,6 +551,51 @@ async def get_data(session=Depends(get_current_session)):
 
 ---
 
+## Startup Manager
+
+If your app has a **background loop** that must run continuously (e.g. periodic metric collection, a WebSocket server, a polling task), define an `on_startup()` async function in `backend.py`:
+
+```python
+async def on_startup():
+    _ensure_loop()   # or any async init logic
+```
+
+When defined, the app appears in the system **Startup Manager** (Start → Applications → System → 🚀 Startup). The user can enable it with a toggle — if enabled, `on_startup()` is called automatically every time the mvmOS backend starts, even after a manual restart from the terminal.
+
+**When you need it:**
+- Your backend has a loop that runs every N seconds (monitoring, data collection)
+- You start background asyncio tasks that must always be running
+
+**When you don't need it:**
+- Your app only responds to HTTP requests — those work automatically without `on_startup()`
+- Scheduled tasks via `scheduler.py` — those are handled by the scheduler system
+
+**Pattern:**
+
+```python
+import asyncio
+
+_loop_task = None
+
+def _ensure_loop():
+    global _loop_task
+    if _loop_task is None or _loop_task.done():
+        try:
+            _loop_task = asyncio.get_event_loop().create_task(_my_loop())
+        except RuntimeError:
+            pass
+
+async def _my_loop():
+    while True:
+        await _do_work()
+        await asyncio.sleep(60)
+
+async def on_startup():
+    _ensure_loop()
+```
+
+---
+
 ## i18n
 
 Define your own dictionary inside `main.js`:
