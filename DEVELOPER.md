@@ -498,6 +498,30 @@ Opens an installed app by plugin ID. Safe to call from any widget:
 mvmOS.openApp('server-monitor');
 ```
 
+### window._vosSettings — user preferences
+
+Read-only object with the current user's regional settings. Available in all apps and widgets.
+
+```js
+window._vosSettings?.timezone      // IANA timezone, e.g. "Europe/Sofia"
+window._vosSettings?.time_format   // "24" or "12"
+window._vosSettings?.date_format   // "DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"
+window._vosSettings?.week_starts   // "monday" or "sunday"
+window._vosSettings?.language      // "en" or "bg"
+```
+
+Updates live when the user changes settings:
+```js
+window.addEventListener('settings-changed', e => {
+  const s = e.detail; // same shape as _vosSettings
+});
+```
+
+Time formatting pattern (respects user's 12/24h preference):
+```js
+date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: (window._vosSettings?.time_format === '12') })
+```
+
 ### mvmOS.onResources(fn)
 
 Subscribes to system resources (CPU, memory, disk) — updated every 3 seconds. Use in widgets instead of making separate requests.
