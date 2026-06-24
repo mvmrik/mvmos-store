@@ -62,6 +62,6 @@
       "version": "1.2.0",
       "description": "Real-time server metrics with history — CPU, RAM, disk, network. Includes Bit Garden: a plant that grows based on server health, with desktop and taskbar widgets.",
       "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/server-monitor-1.2.0.zip"
-    },
+    }
   ]
 }
