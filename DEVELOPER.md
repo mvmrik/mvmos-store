@@ -133,6 +133,10 @@ mvmOS.createWindow({
 });
 ```
 
+**`appSettings: true` without `onAppSettings`** opens the App Store settings panel for this app directly (same as clicking ⚙ in the App Store listing). This is the standard pattern — define your fields in `manifest.json` and use `appSettings: true` alone.
+
+**`appSettings: true` with `onAppSettings`** calls your custom callback instead. Use this only when you need UI that can't be expressed as manifest settings fields (e.g. dynamic lists). In that case, render the custom UI inside the app window.
+
 ---
 
 ### mvmOS.db(appId)
@@ -729,6 +733,132 @@ def run(now, db_path, config):
 - If the file is missing, core skips it silently
 - Runs every minute — the file itself decides when to act using `if now.hour == X`
 - Errors are logged in the `/api/scheduler/tick` response and do not stop other apps
+
+---
+
+## Apps Hub integration
+
+Apps Hub is the central public identity system for mvmOS. It provides user accounts that work both inside the OS and on public-facing pages of apps.
+
+### Requiring login before the app opens
+
+Add `requires_apphub: true` to `registerApp`. The OS will open Apps Hub automatically if the user is not logged in, and only open your app's window after a successful login. No additional code needed.
+
+```js
+mvmOS.registerApp({
+  id: 'my-app',
+  requires_apphub: true,   // ← one line — everything else is automatic
+  launch() {
+    mvmOS.createWindow({ ... });
+  },
+});
+```
+
+Flow:
+- User not logged in → Apps Hub opens → user logs in → your app opens
+- User already logged in → your app opens immediately
+
+### Reading the current user in your app
+
+After the window opens, the user is guaranteed to be logged in. Read the token and profile:
+
+```js
+const token = AppHub.getToken();   // string or null
+
+const me = await fetch('/api/pub/apphub/me', {
+  headers: { 'X-Pub-Token': token }
+}).then(r => r.ok ? r.json() : null);
+// me: { id, username, display_name, avatar_color, avatar_svg }
+```
+
+Pass the token to your backend via the `X-Pub-Token` header on every request.
+
+### Backend: identifying the caller
+
+```python
+import sys
+
+def _pub_user(token):
+    hub = sys.modules.get("backend.apphub")
+    if not hub or not token:
+        return None
+    return hub.get_pub_session(token)
+
+@router.get("/my-data")
+async def get_data(session=Depends(get_current_session), x_pub_token: str = Header(default=None)):
+    u = _pub_user(x_pub_token)
+    if not u:
+        return JSONResponse({"error": "login_required"}, status_code=401)
+    # u["id"] is the user's stable public ID
+    return {"user": u["id"], ...}
+```
+
+`get_pub_session` validates the token and returns `{ id, username, display_name, avatar_color }`, or `None` if invalid/expired.
+
+### Public page (optional)
+
+If your app also has a page accessible without logging into mvmOS, create `backend/apps/<app-id>/public.py`. Apps Hub admin will auto-detect it and show an enable/disable toggle.
+
+**Minimum template:**
+
+```python
+"""
+Pattern:
+1. Create this file → Apps Hub detects it and shows an admin toggle.
+2. Call hub.is_app_public(APP_ID) to guard all routes.
+3. HTML page handles auth client-side (redirect to /pub/apphub/?next=...).
+4. API endpoints validate X-Pub-Token via hub.get_pub_session().
+"""
+
+import os, sys
+from fastapi import APIRouter, Header
+from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
+from typing import Optional
+
+router = APIRouter(tags=["my-app-public"])
+APP_ID = "my-app"   # ← only thing to change
+
+_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "my-app", "public")
+
+def _hub():
+    return sys.modules.get("backend.apphub")
+
+def _pub_user(token):
+    hub = _hub()
+    return hub.get_pub_session(token) if hub and token else None
+
+def _private():
+    return HTMLResponse("<html><body>This app is private.</body></html>")
+
+@router.get("/")
+async def index():
+    hub = _hub()
+    if hub and not hub.is_app_public(APP_ID):
+        return _private()
+    return FileResponse(os.path.join(_DIR, "index.html"))
+
+@router.get("/data")
+async def get_data(x_pub_token: Optional[str] = Header(default=None)):
+    hub = _hub()
+    if hub and not hub.is_app_public(APP_ID):
+        return JSONResponse({"error": "private"}, status_code=403)
+    u = _pub_user(x_pub_token)
+    if not u:
+        return JSONResponse({"error": "login_required"}, status_code=401)
+    return {"user_id": u["id"], "data": [...]}
+```
+
+The public page is served at `/pub/<app-id>/` once the admin enables it in Apps Hub.
+
+To redirect unauthenticated visitors to login:
+
+```js
+// In your public/index.html
+const token = localStorage.getItem('apphub_token');
+if (!token) {
+  location.href = `/pub/apphub/?next=${encodeURIComponent(location.href)}`;
+}
+```
 
 ---
 
