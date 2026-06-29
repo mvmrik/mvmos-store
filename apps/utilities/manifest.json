@@ -14,18 +14,18 @@
       "name": "mvmAI",
       "icon": "🤖",
       "category": "Utilities",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "description": "AI chat assistant with shell access. Talk to any OpenAI-compatible provider (Gemini, OpenAI, Groq, OpenRouter, Qwen, DeepSeek, Mistral, Ollama, custom). The assistant can run commands on the server on your behalf, with configurable confirmation and safety levels.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/mvmai-0.3.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/mvmai-0.3.1.zip"
     },
     {
       "id": "cost-splitter",
       "name": "Cost Splitter",
       "icon": "💸",
       "category": "Utilities",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "description": "Split recurring costs among members. Track balances, add payments, and send monthly email summaries automatically.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/cost-splitter-1.2.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/cost-splitter-1.2.1.zip"
     }
     ,{
       "id": "statetracker",
@@ -59,9 +59,9 @@
       "name": "RSS Reader",
       "icon": "📰",
       "category": "Utilities",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "description": "RSS/Atom feed reader with auto-refresh, read/unread tracking, bookmarks, AI summarization via mvmAI, and optional public reading list.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/rssfeed-1.2.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/rssfeed-1.2.1.zip"
     }
   ,{
       "id": "pricecalc",
