@@ -10,6 +10,7 @@ This file only exposes settings endpoints used by the multiplayer setup UI.
 import json
 import os
 import sqlite3
+import sys
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
@@ -22,6 +23,13 @@ GH_DB_PATH = os.path.abspath(os.path.join(_BASE, "..", "gamehub", "data.db"))
 def _get_gh_player(token: str) -> dict | None:
     if not token:
         return None
+    # Try Apps Hub first (current auth system)
+    hub = sys.modules.get("backend.apphub")
+    if hub:
+        u = hub.get_pub_session(token)
+        if u:
+            return u
+    # Fallback: legacy gh_tokens table
     try:
         conn = sqlite3.connect(GH_DB_PATH)
         conn.row_factory = sqlite3.Row

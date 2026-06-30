@@ -60,6 +60,7 @@ mvmOS.registerApp({
           <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap">
             <span style="font-weight:700;font-size:15px">🎮 ${_ght('title')}</span>
             <div style="flex:1"></div>
+            <div id="gh-me-avatar" style="cursor:default;flex-shrink:0"></div>
             ${['players','games','favourites'].map(t=>`<button id="gh-t-${t}" style="${btn()}">${t==='games'?'Games':t==='favourites'?'Favourites':_ght(t)}</button>`).join('')}
             <button id="gh-t-settings" style="${btn()}" title="Settings">⚙</button>
           </div>
@@ -79,11 +80,24 @@ mvmOS.registerApp({
         }
 
         // Load GH widget silently to get current player for favourites
+        function _renderGhMeAvatar() {
+          const el = body.querySelector('#gh-me-avatar');
+          if (!el) return;
+          if (_ghMe) {
+            _avatarReady.then(() => {
+              el.innerHTML = window.GHAvatar ? window.GHAvatar.renderAvatar(_ghMe, 28) : `<div style="width:28px;height:28px;border-radius:50%;background:${_ghMe.avatar_color||'#89b4fa'};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">${(_ghMe.display_name||'?')[0].toUpperCase()}</div>`;
+              el.title = _ghMe.display_name || '';
+            });
+          } else {
+            el.innerHTML = '';
+          }
+        }
+
         (function() {
-          if (window.GameHub) { window.GameHub.init().then(() => { _ghMe = window.GameHub.currentPlayer(); }); return; }
+          if (window.GameHub) { window.GameHub.init().then(() => { _ghMe = window.GameHub.currentPlayer(); _renderGhMeAvatar(); }); return; }
           const s = document.createElement('script');
           s.src = `/apps/gamehub/widget.js?_=${Date.now()}`;
-          s.onload = () => window.GameHub?.init().then(() => { _ghMe = window.GameHub.currentPlayer(); });
+          s.onload = () => window.GameHub?.init().then(() => { _ghMe = window.GameHub.currentPlayer(); _renderGhMeAvatar(); });
           document.head.appendChild(s);
         })();
 

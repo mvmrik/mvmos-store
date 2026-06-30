@@ -42,6 +42,7 @@ import os
 import random
 import sqlite3
 import string
+import sys
 import time
 from datetime import datetime, timezone
 
@@ -80,10 +81,27 @@ def _gh_conn():
     return conn
 
 
+def _apphub():
+    return sys.modules.get("backend.apphub")
+
 def _resolve_player(token: str) -> dict | None:
-    """Game Hub token → player {id, display_name, avatar_color, avatar_svg}."""
+    """Resolve a token (apphub or legacy gh_token) to a player dict."""
     if not token:
         return None
+    # Try Apps Hub first (current auth system)
+    hub = _apphub()
+    if hub:
+        u = hub.get_pub_session(token)
+        if u:
+            with _gh_conn() as conn:
+                row = conn.execute(
+                    "SELECT id, display_name, avatar_color, avatar_svg FROM players WHERE id=?",
+                    (u["id"],)
+                ).fetchone()
+            if row:
+                return dict(row)
+            return {"id": u["id"], "display_name": u.get("display_name", ""), "avatar_color": u.get("avatar_color", "#89b4fa"), "avatar_svg": u.get("avatar_svg", "")}
+    # Fallback: legacy gh_tokens table
     try:
         now = datetime.now(timezone.utc).isoformat()
         with _gh_conn() as conn:
