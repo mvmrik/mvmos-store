@@ -68,9 +68,9 @@
       "name": "QuoteBuilder",
       "icon": "💰",
       "category": "Utilities",
-      "version": "1.1.0",
+      "version": "2.1.0",
       "description": "Project quote builder. Add services with time (hours + minutes) or fixed prices, set an hourly rate, apply discounts and deposit, and share a live public link with your client.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/pricecalc-1.1.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/pricecalc-2.1.0.zip"
     }
   ]
 }
