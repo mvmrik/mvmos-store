@@ -1,0 +1,9 @@
+{
+  "id": "calculator",
+  "name": "Calculator",
+  "icon": "🧮",
+  "category": "Utilities",
+  "version": "1.2.0",
+  "description": "Simple calculator with basic arithmetic operations. Supports keyboard input.",
+  "entry": "main.js"
+}

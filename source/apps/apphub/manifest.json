@@ -1,0 +1,8 @@
+{
+  "id": "apphub",
+  "name": "Apps Hub",
+  "icon": "🧩",
+  "category": "System",
+  "version": "1.0.0",
+  "description": "Central public identity system. Manage your public profile, see which apps are publicly accessible, and browse other users."
+}

@@ -1,0 +1,8 @@
+{
+  "id": "beambuilder",
+  "name": "Beam Builder",
+  "icon": "🏗️",
+  "category": "Utilities",
+  "version": "1.1.0",
+  "description": "3D construction planner. Draw beams and profiles in 3D space, connect them, rotate and zoom freely, and get a full material list."
+}

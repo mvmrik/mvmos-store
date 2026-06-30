@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Game Hub</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#1e1e2e;--surface1:#181825;--surface2:#313244;--border:#45475a;--fg:#cdd6f4;--fg2:#a6adc8;--accent:#89b4fa;--green:#a6e3a1;--red:#f38ba8;--yellow:#f9e2af}
+  body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg);min-height:100dvh;display:flex;flex-direction:column}
+  #app{flex:1;display:flex;flex-direction:column}
+  button{font-family:inherit;cursor:pointer}
+  input{font-family:inherit}
+  .card{background:var(--surface1);border:1px solid var(--border);border-radius:12px}
+  .btn{border:none;border-radius:8px;padding:9px 20px;font-size:.9rem;font-weight:600}
+  .btn-primary{background:var(--accent);color:#1e1e2e}
+  .btn-primary:hover{opacity:.9}
+  .btn-secondary{background:var(--surface2);color:var(--fg);border:1px solid var(--border)}
+  .btn-secondary:hover{background:var(--border)}
+  .inp{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--fg);font-size:.9rem;width:100%;outline:none}
+  .inp:focus{border-color:var(--accent)}
+  .err{color:var(--red);font-size:.82rem;min-height:18px}
+  .tab-bar{display:flex;gap:6px;border-bottom:1px solid var(--border);padding:0 16px}
+  .tab{background:none;border:none;padding:10px 14px;font-size:.88rem;color:var(--fg2);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s}
+  .tab.active{color:var(--accent);border-color:var(--accent)}
+  .tab:hover:not(.active){color:var(--fg)}
+  .section{padding:16px}
+  .stat-box{display:flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;flex-shrink:0}
+  .stat-cell{flex:1;text-align:center;padding:12px 8px;border-right:1px solid var(--border)}
+  .stat-cell:last-child{border-right:none}
+  .stat-val{font-size:20px;font-weight:700}
+  .stat-lbl{font-size:11px;color:var(--fg2);margin-top:2px}
+  .row{background:var(--surface1);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .12s}
+  .row:hover{background:var(--surface2)}
+  .avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#1e1e2e;flex-shrink:0}
+  .badge-win{font-size:11px;color:var(--green)}
+  select.inp{cursor:pointer}
+  .lb-table{width:100%;border-collapse:collapse;font-size:.85rem}
+  .lb-table th{text-align:left;color:var(--fg2);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;padding:6px 10px;border-bottom:1px solid var(--border)}
+  .lb-table td{padding:8px 10px;border-bottom:1px solid rgba(69,71,90,.4)}
+  .lb-table tr.me td{background:rgba(137,180,250,.08)}
+  .lb-table tr.me td:first-child{border-left:2px solid var(--accent)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+  var s=document.createElement('script');
+  s.src='/apps/gamehub/avatar.js?_='+Date.now();
+  document.head.appendChild(s);
+})();
+</script>
+<script>
+const BASE = '/api/pub/gamehub';
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const fmtDate = s => new Date(s).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
+const fmtDur = s => !s ? '—' : s < 60 ? s + 's' : Math.floor(s/60) + 'm' + (s%60 ? s%60+'s' : '');
+
+let _cfg = {allow_registrations:true};
+let _me = null;
+let _token = localStorage.getItem('apphub_token') || localStorage.getItem('gh_token');
+let _stats = null;
+let _invites = [];
+let _pollTimer = null;
+
+const app = document.getElementById('app');
+
+async function boot() {
+  app.innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--fg2);font-size:.9rem">Loading…</div>`;
+  try {
+    const r = await fetch(BASE + '/config');
+    _cfg = r.ok ? await r.json() : {allow_registrations:true};
+  } catch(_) {}
+
+  // Apps Hub is the source of truth. A stale local 'gh_token' (e.g. left over
+  // from a previous account) must never block a fresh apphub_token login.
+  const apphubToken = localStorage.getItem('apphub_token');
+  const ghToken      = localStorage.getItem('gh_token');
+  for (const token of [apphubToken, ghToken]) {
+    if (!token) continue;
+    try {
+      const r = await fetch(BASE + '/me', {headers:{'X-GH-Token':token}});
+      if (r.ok) { _me = await r.json(); _token = token; localStorage.setItem('gh_token', token); break; }
+    } catch(_) {}
+  }
+  if (!_me) { _token = null; localStorage.removeItem('gh_token'); }
+
+  if (!_me) { showAuth(); return; }
+  await Promise.all([loadStats(), loadInvites(), _loadFavs()]);
+  showDashboard();
+}
+
+// ── Auth ────────────────────────────────────────────────────────
+// Game Hub has no login of its own — identity comes from Apps Hub.
+// Send the user to the central Apps Hub login page and return them here after.
+function showAuth() {
+  app.innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--fg2);font-size:.9rem">Redirecting to login…</div>`;
+  const here = location.pathname + location.search;
+  location.replace('/pub/apphub/?return=' + encodeURIComponent(here));
+}
+
+// ── Stats ───────────────────────────────────────────────────────
+
+async function loadStats() {
+  try {
+    const r = await fetch(BASE + '/stats');
+    _stats = r.ok ? await r.json() : null;
+  } catch(_) { _stats = null; }
+}
+
+async function loadInvites() {
+  if (!_token) { _invites = []; return; }
+  try {
+    const r = await fetch(BASE + '/invites', {headers:{'X-GH-Token':_token}});
+    _invites = r.ok ? await r.json() : [];
+  } catch(_) { _invites = []; }
+}
+
+// ── Dashboard ───────────────────────────────────────────────────
+
+function showDashboard() {
+  let dtab = 'profile';
+  app.innerHTML = `
+    <header style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0">
+      <div style="font-weight:700;font-size:15px">🎮 Game Hub</div>
+      <div style="flex:1"></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <a href="/pub/apphub/?token=${_token}&tab=profile" target="_blank" style="display:flex;align-items:center;gap:8px;text-decoration:none;cursor:pointer" title="Edit profile in Apps Hub">
+          ${GHAvatar.renderAvatar(_me, 28)}
+          <div style="display:flex;flex-direction:column;line-height:1.2">
+            <span style="font-size:12px;color:var(--fg2)">Logged in as</span>
+            <span style="font-size:13px;font-weight:700;color:var(--accent)">${esc(_me.display_name)}</span>
+          </div>
+        </a>
+        <button id="d-logout" class="btn btn-secondary" style="padding:5px 12px;font-size:.82rem">Logout</button>
+      </div>
+    </header>
+    <div class="tab-bar">
+      <button class="tab active" data-t="profile">Profile${_invites.length?` <span style="background:var(--red);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 6px;vertical-align:middle">${_invites.length}</span>`:''}</button>
+      <button class="tab" data-t="favourites">Favourites</button>
+    </div>
+    <div id="d-body" style="flex:1;overflow-y:auto"></div>`;
+
+  app.querySelector('#d-logout').onclick = async () => {
+    await fetch(BASE + '/logout', {method:'POST',headers:{'X-GH-Token':_token}}).catch(()=>{});
+    _token = null; _me = null;
+    localStorage.removeItem('gh_token'); localStorage.removeItem('apphub_token');
+    clearInterval(_pollTimer); _pollTimer = null;
+    showAuth();
+  };
+
+  // Poll for new invites every 15s
+  clearInterval(_pollTimer);
+  _pollTimer = setInterval(async () => {
+    if (!_token) return;
+    const profileTab = app.querySelector('.tab[data-t="profile"]');
+    if (!profileTab) { clearInterval(_pollTimer); _pollTimer = null; return; }
+    await loadInvites();
+    profileTab.innerHTML = `Profile${_invites.length ? ` <span style="background:var(--red);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 6px;vertical-align:middle">${_invites.length}</span>` : ''}`;
+    const activeTab = app.querySelector('.tab.active');
+    if (activeTab?.dataset.t === 'profile' && !app.querySelector('#d-body [data-view="detail"]')) renderProfile(app.querySelector('#d-body'));
+  }, 15000);
+
+  app.querySelectorAll('.tab').forEach(t => {
+    t.onclick = () => {
+      dtab = t.dataset.t;
+      app.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      renderDashTab(dtab);
+    };
+  });
+
+  renderDashTab('profile');
+}
+
+function renderDashTab(t) {
+  const c = app.querySelector('#d-body');
+  if (t === 'profile')         renderProfile(c);
+  else if (t === 'favourites') renderFavourites(c);
+}
+
+// ── Profile tab ─────────────────────────────────────────────────
+
+function renderProfile(c) {
+  const myId = _me.id;
+  const pstats = _stats?.leaderboard
+    ? Object.values(_stats.leaderboard).flat().filter(s=>s.player_id===myId)
+    : [];
+  const totalPlayed = pstats.reduce((a,s)=>a+(s.played||0),0);
+  const totalWins   = pstats.reduce((a,s)=>a+(s.wins||0),0);
+  const winRate     = totalPlayed ? Math.round(totalWins / totalPlayed * 100) : 0;
+
+  c.innerHTML = `
+    <div class="section" style="display:flex;flex-direction:column;gap:16px;max-width:600px">
+      <a href="/pub/apphub/?token=${_token}&tab=profile" target="_blank" style="display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;cursor:pointer" title="Edit profile in Apps Hub">
+        ${GHAvatar.renderAvatar(_me, 54)}
+        <div>
+          <div style="font-weight:700;font-size:1.1rem">${esc(_me.display_name)}</div>
+          <div style="font-size:.85rem;color:var(--fg2)">@${esc(_me.username)}</div>
+        </div>
+      </a>
+      <div class="stat-box">
+        <div class="stat-cell"><div class="stat-val">${totalPlayed}</div><div class="stat-lbl">Played</div></div>
+        <div class="stat-cell"><div class="stat-val">${totalWins}</div><div class="stat-lbl">Wins</div></div>
+        <div class="stat-cell"><div class="stat-val">${winRate}%</div><div class="stat-lbl">Win rate</div></div>
+      </div>
+      <div id="prof-games"></div>
+    </div>`;
+
+  renderGames(c.querySelector('#prof-games'));
+}
+
+
+function showSessionDetail(s, myId) {
+  let meta = {}; try { meta = JSON.parse(s.metadata||'{}'); } catch(_) {}
+  const modeLabel = s.mode==='singleplayer'?'👤 Single player':'👥 Multiplayer';
+  const sorted = s.players.slice().sort((a,b)=>(b.score||0)-(a.score||0));
+  const fmtDurLocal = sec => !sec?'—':sec<60?sec+'s':Math.floor(sec/60)+'m'+(sec%60?sec%60+'s':'');
+  const metaRows = [];
+  if(meta.rounds!=null)         metaRows.push(['Rounds', meta.rounds]);
+  if(meta.time_per_round!=null) metaRows.push(['Time / round', meta.time_per_round===0?'No limit':fmtDurLocal(meta.time_per_round)]);
+  if(s.duration_seconds)        metaRows.push(['Total time', fmtDurLocal(s.duration_seconds)]);
+  metaRows.push(['Mode', modeLabel]);
+  metaRows.push(['Date', fmtDate(s.played_at)]);
+
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px';
+
+  const box = document.createElement('div');
+  box.className = 'card';
+  box.style.cssText = 'width:100%;max-width:400px;max-height:90dvh;overflow-y:auto;display:flex;flex-direction:column';
+  box.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0">
+      <span style="font-size:20px">🎮</span>
+      <div style="flex:1"><div style="font-weight:700">${esc(s.game_id)}</div><div style="font-size:12px;color:var(--fg2)">${modeLabel}</div></div>
+      <button id="det-close" class="btn btn-secondary" style="padding:4px 10px;font-size:15px;line-height:1">✕</button>
+    </div>
+    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:14px">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        ${metaRows.map(([k,v])=>`<tr><td style="color:var(--fg2);padding:3px 0;width:46%">${esc(String(k))}</td><td style="font-weight:600">${esc(String(v))}</td></tr>`).join('')}
+      </table>
+      <div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2);margin-bottom:8px">Players</div>
+        <div id="det-players"></div>
+      </div>
+    </div>`;
+
+  const playersEl = box.querySelector('#det-players');
+  sorted.forEach((p, i) => {
+    const name  = p.display_name || p.guest_name || '?';
+    const color = p.avatar_color || '#585b70';
+    const isMe  = p.player_id === myId;
+    const isOther = p.player_id && !isMe;
+    const isWin = p.is_winner;
+    const row = document.createElement('div');
+    row.style.cssText = `display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;margin-bottom:4px;background:${isWin?'rgba(166,227,161,.12)':'var(--surface2)'};${isMe?'outline:1px solid var(--accent)':''}${isOther?';cursor:pointer':''}`;
+    if (isOther) {
+      row.onmouseenter = () => row.style.opacity = '.8';
+      row.onmouseleave = () => row.style.opacity = '1';
+      row.onclick = () => {
+        const full = (_stats?.players||[]).find(pl=>pl.id===p.player_id) || p;
+        showOtherPlayerProfile(full);
+      };
+    }
+    row.innerHTML = `
+      <span style="font-size:12px;color:var(--fg2);min-width:18px;text-align:right">${i+1}.</span>
+      ${GHAvatar.renderAvatar(p.player_id ? ((_stats?.players||[]).find(pl=>pl.id===p.player_id)||p) : p, 26)}
+      <span style="flex:1;font-weight:600;font-size:13px">${esc(name)}${isMe?' <span style="font-size:10px;color:var(--accent)">(you)</span>':''}${isOther?' <span style="font-size:10px;color:var(--fg2)">›</span>':''}</span>
+      ${p.score!=null?`<span style="font-weight:700;font-size:14px">${p.score}</span>`:''}
+      ${isWin?`<span style="font-size:13px">🏆</span>`:''}`;
+    playersEl.appendChild(row);
+  });
+
+  ov.appendChild(box);
+  document.body.appendChild(ov);
+  box.querySelector('#det-close').onclick = () => ov.remove();
+  ov.addEventListener('click', e => { if(e.target===ov) ov.remove(); });
+}
+
+function showOtherPlayerProfile(p) {
+  const allSessions = (_stats?.recent||[]).filter(s => s.players.some(sp=>sp.player_id===p.id));
+  const games = [...new Set(allSessions.map(s=>s.game_id))].sort();
+
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px';
+
+  const box = document.createElement('div');
+  box.className = 'card';
+  box.style.cssText = 'width:100%;max-width:440px;max-height:90dvh;overflow-y:auto;display:flex;flex-direction:column';
+  box.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid var(--border);flex-shrink:0">
+      ${GHAvatar.renderAvatar(p, 46)}
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:16px">${esc(p.display_name||p.username||'?')}</div>
+        ${p.username?`<div style="font-size:12px;color:var(--fg2)">@${esc(p.username)}</div>`:''}
+      </div>
+      <button id="op-fav" class="btn btn-secondary" style="padding:5px 10px;font-size:12px">${_isFav(p.id)?'★ Saved':'☆ Favourite'}</button>
+      <button id="op-close" class="btn btn-secondary" style="padding:4px 10px;font-size:15px;line-height:1">✕</button>
+    </div>
+    ${games.length > 1 ? `
+    <div style="padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:8px">
+      <label style="font-size:12px;color:var(--fg2)">Game:</label>
+      <select class="inp" id="op-game" style="flex:1;max-width:220px">
+        <option value="">All games</option>
+        ${games.map(g=>`<option value="${esc(g)}">${esc(_stats?.game_meta?.[g]?.name||g)}</option>`).join('')}
+      </select>
+    </div>` : ''}
+    <div id="op-stats" style="display:flex;border-bottom:1px solid var(--border);flex-shrink:0"></div>
+    <div id="op-vs" style="border-bottom:1px solid var(--border);flex-shrink:0;display:none"></div>
+    <div id="op-sessions" style="padding:14px;display:flex;flex-direction:column;gap:6px"></div>`;
+
+  ov.appendChild(box);
+  document.body.appendChild(ov);
+  box.querySelector('#op-close').onclick = () => ov.remove();
+  ov.addEventListener('click', e => { if(e.target===ov) ov.remove(); });
+
+  const favBtn = box.querySelector('#op-fav');
+  favBtn.onclick = async () => {
+    await _toggleFav(p);
+    favBtn.textContent = _isFav(p.id) ? '★ Saved' : '☆ Favourite';
+  };
+
+  function renderProfile(gameFilter) {
+    const filteredSessions = gameFilter
+      ? allSessions.filter(s=>s.game_id===gameFilter)
+      : allSessions;
+    const pstats = _stats?.leaderboard
+      ? (gameFilter
+          ? (_stats.leaderboard[gameFilter]||[]).filter(s=>s.player_id===p.id)
+          : Object.values(_stats.leaderboard).flat().filter(s=>s.player_id===p.id))
+      : [];
+    const totalPlayed = pstats.reduce((a,s)=>a+(s.played||0),0);
+    const totalWins   = pstats.reduce((a,s)=>a+(s.wins||0),0);
+    const statsCols   = [[totalPlayed,'Played'],[totalWins,'Wins'],[filteredSessions.length,'Sessions']];
+    if (gameFilter) {
+      const best = pstats.reduce((a,s)=>Math.max(a,s.best_score||0),0);
+      statsCols.push([best||'—','Best']);
+    }
+
+    box.querySelector('#op-stats').innerHTML = statsCols.map(([v,l],i) => `
+      <div style="flex:1;text-align:center;padding:12px 8px;${i<statsCols.length-1?'border-right:1px solid var(--border)':''}">
+        <div style="font-size:20px;font-weight:700">${v}</div>
+        <div style="font-size:11px;color:var(--fg2);margin-top:2px">${l}</div>
+      </div>`).join('');
+
+    // Head-to-head vs me
+    const vsEl = box.querySelector('#op-vs');
+    if (_me && _me.id !== p.id) {
+      const sharedSessions = filteredSessions.filter(s =>
+        s.mode === 'multiplayer' &&
+        s.players.some(sp=>sp.player_id===_me.id) &&
+        s.players.some(sp=>sp.player_id===p.id)
+      );
+      if (sharedSessions.length) {
+        let myWins = 0, theirWins = 0;
+        sharedSessions.forEach(s => {
+          const me = s.players.find(sp=>sp.player_id===_me.id);
+          const them = s.players.find(sp=>sp.player_id===p.id);
+          if (me?.score != null && them?.score != null) {
+            if (me.score > them.score) myWins++;
+            else if (them.score > me.score) theirWins++;
+          } else {
+            if (me?.is_winner) myWins++;
+            else if (them?.is_winner) theirWins++;
+          }
+        });
+        vsEl.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 16px">
+            <div style="text-align:center">
+              <div style="font-size:22px;font-weight:800;color:var(--accent)">${myWins}</div>
+              <div style="font-size:11px;color:var(--fg2)">${esc(_me.display_name)}</div>
+            </div>
+            <div style="font-size:12px;color:var(--fg2);font-weight:600">vs</div>
+            <div style="text-align:center">
+              <div style="font-size:22px;font-weight:800">${theirWins}</div>
+              <div style="font-size:11px;color:var(--fg2)">${esc(p.display_name||p.username)}</div>
+            </div>
+            <div style="font-size:11px;color:var(--fg2);margin-left:4px">${sharedSessions.length} game${sharedSessions.length!==1?'s':''}</div>
+          </div>`;
+        vsEl.style.display = '';
+      } else {
+        vsEl.style.display = 'none';
+      }
+    }
+
+    const sc = box.querySelector('#op-sessions');
+    sc.innerHTML = '';
+    if (!filteredSessions.length) {
+      sc.innerHTML = `<div style="color:var(--fg2);text-align:center;padding:20px">No sessions yet.</div>`;
+      return;
+    }
+    filteredSessions.forEach(s => {
+      let meta = {}; try { meta = JSON.parse(s.metadata||'{}'); } catch(_) {}
+      const metaParts = [];
+      if(meta.rounds!=null)         metaParts.push(`${meta.rounds} rounds`);
+      if(meta.time_per_round!=null) metaParts.push(meta.time_per_round===0?'no limit':fmtDur(meta.time_per_round)+'/round');
+      const modeLabel = s.mode==='singleplayer'?'👤':'👥';
+      const pr = s.players.find(sp=>sp.player_id===p.id);
+      const { icon } = _gameMeta(s.game_id);
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `
+        <div style="font-size:18px">${icon}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600">${!gameFilter?esc(_stats?.game_meta?.[s.game_id]?.name||s.game_id)+' ':''}${modeLabel} ${fmtDate(s.played_at)}</div>
+          ${metaParts.length?`<div style="font-size:11px;color:var(--fg2)">${metaParts.join(' · ')}</div>`:''}
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          ${pr?.score!=null?`<div style="font-weight:700;font-size:14px">${pr.score} pts</div>`:''}
+          ${pr?.is_winner?`<div class="badge-win">🏆</div>`:''}
+        </div>`;
+      row.onclick = () => showSessionDetail(s, _me.id);
+      sc.appendChild(row);
+    });
+  }
+
+  renderProfile('');
+  const sel = box.querySelector('#op-game');
+  if (sel) sel.onchange = () => renderProfile(sel.value);
+}
+
+// ── Games tab ───────────────────────────────────────────────────
+
+function _gameMeta(gameId) {
+  const m = _stats?.game_meta?.[gameId];
+  return { name: m?.name || gameId, icon: m?.icon || '🎮' };
+}
+
+const MP_API = '/api/pub/gamehub/mp';
+
+async function renderGames(c) {
+  c.innerHTML = `<div style="display:flex;flex-direction:column;gap:16px"></div>`;
+  const sc = c.querySelector('div');
+  const myId = _me.id;
+
+  // ── Resume (active multiplayer room) ───────────────────────
+  try {
+    const active = JSON.parse(localStorage.getItem('gh_active_room') || 'null');
+    if (active && active.roomId && (Date.now() - active.ts) < 7200000) {
+      const { name, icon } = _gameMeta(active.gameId);
+      const sec = document.createElement('div');
+      sec.style.cssText = 'background:rgba(137,180,250,.1);border:1px solid rgba(137,180,250,.3);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px';
+      sec.innerHTML = `
+        <div style="font-size:24px">${icon}</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:14px">${esc(name)} — active game</div>
+          <div style="font-size:12px;color:var(--fg2);margin-top:2px">You were in a game. Rejoin?</div>
+        </div>
+        <a href="${esc(MP_API + '/play/' + active.roomId)}" class="btn btn-primary" style="font-size:.85rem;padding:7px 16px;text-decoration:none;flex-shrink:0">▶ Rejoin</a>
+        <button class="btn btn-secondary" id="gh-resume-close" style="padding:7px 10px;font-size:.85rem;flex-shrink:0">✕</button>`;
+      sc.appendChild(sec);
+      sec.querySelector('#gh-resume-close').onclick = () => {
+        localStorage.removeItem('gh_active_room');
+        sec.remove();
+      };
+    }
+  } catch(_) {}
+
+  // ── Invitations ───────────────────────────────────────────────
+  if (_invites.length) {
+    const invSec = document.createElement('div');
+    invSec.style.cssText = 'display:flex;flex-direction:column;gap:8px';
+    invSec.innerHTML = `<div style="font-weight:700;font-size:13px;color:var(--red)">🔔 Invitations</div>`;
+    _invites.forEach(inv => {
+      const { name: gname, icon: gicon } = _gameMeta(inv.game_id);
+      const banner = document.createElement('div');
+      banner.style.cssText = 'background:rgba(243,139,168,.1);border:1px solid rgba(243,139,168,.3);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px';
+      banner.innerHTML = `
+        <div style="font-size:22px;flex-shrink:0">${gicon}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600">${esc(gname)} — Invited by <span style="color:var(--accent)">${esc(inv.from_name)}</span></div>
+          <div style="font-size:11px;color:var(--fg2);margin-top:2px">${fmtDate(inv.created_at)}</div>
+        </div>
+        <a href="${esc(inv.room_url)}" class="btn btn-primary" style="padding:7px 16px;font-size:.85rem;text-decoration:none;flex-shrink:0">Join ▶</a>
+        <button class="btn btn-secondary" style="padding:7px 10px;font-size:.85rem;flex-shrink:0" data-inv-id="${inv.id}">✕</button>`;
+      banner.querySelector('[data-inv-id]').onclick = async () => {
+        await fetch(`${BASE}/invites/${inv.id}`, {method:'DELETE',headers:{'X-GH-Token':_token}}).catch(()=>{});
+        _invites = _invites.filter(i=>i.id!==inv.id);
+        banner.remove();
+        if (!invSec.querySelector('[data-inv-id]')) invSec.remove();
+      };
+      invSec.appendChild(banner);
+    });
+    sc.appendChild(invSec);
+  }
+
+  // ── Game grid ─────────────────────────────────────────────────
+  let mpGames = [];
+  try { const r = await fetch(MP_API + '/games'); mpGames = r.ok ? await r.json() : []; } catch(_) {}
+
+  // Merge multiplayer games with games from stats history
+  const allGameIds = [...new Set([
+    ...mpGames.map(g => g.id),
+    ...(_stats?.games || []),
+  ])];
+
+  if (!allGameIds.length) {
+    sc.appendChild(Object.assign(document.createElement('div'), {
+      style: 'color:var(--fg2);font-size:13px;padding:20px 0;text-align:center',
+      textContent: 'No games available yet.',
+    }));
+    return;
+  }
+
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px';
+  sc.appendChild(grid);
+
+  for (const gameId of allGameIds) {
+    const mpGame = mpGames.find(g => g.id === gameId);
+    const { name, icon } = _gameMeta(gameId);
+    const myLb = (_stats?.leaderboard?.[gameId] || []).find(r => r.player_id === myId);
+    const mySess = (_stats?.recent || []).filter(s => s.game_id === gameId && s.players.some(p => p.player_id === myId));
+    const hasInvite = _invites.some(inv => inv.game_id === gameId);
+
+    const card = document.createElement('div');
+    card.style.cssText = 'background:var(--surface1);border:1px solid var(--border);border-radius:14px;padding:20px 14px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;transition:background .12s;position:relative;text-align:center';
+    card.onmouseenter = () => card.style.background = 'var(--surface2)';
+    card.onmouseleave = () => card.style.background = 'var(--surface1)';
+
+    const badge = hasInvite ? `<span style="position:absolute;top:10px;right:10px;background:var(--red);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:2px 7px">!</span>` : '';
+    const subtext = myLb ? `${myLb.played} played · ${myLb.wins} wins` : mySess.length ? `${mySess.length} sessions` : mpGame ? 'Multiplayer' : '';
+
+    card.innerHTML = `
+      ${badge}
+      <div style="font-size:42px;line-height:1">${icon}</div>
+      <div style="font-weight:700;font-size:13px">${esc(name)}</div>
+      ${subtext ? `<div style="font-size:11px;color:var(--fg2)">${esc(subtext)}</div>` : ''}`;
+    card.onclick = () => renderGameDetail(c, gameId, mpGame || null);
+    grid.appendChild(card);
+  }
+}
+
+async function _createGame(btn, gameId) {
+  btn.disabled = true; btn.textContent = '⏳ Creating…';
+  try {
+    const r = await fetch(MP_API + '/rooms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-GH-Token': _token },
+      body: JSON.stringify({ game_id: gameId }),
+    });
+    if (r.ok) {
+      const d = await r.json();
+      location.href = d.play_url;
+    } else {
+      btn.disabled = false; btn.textContent = '+ New game';
+      alert('Error creating game.');
+    }
+  } catch(_) { btn.disabled = false; btn.textContent = '+ New game'; }
+}
+
+async function renderGameDetail(c, gameId, mpGame) {
+  const myId = _me.id;
+  const { name, icon } = _gameMeta(gameId);
+  c.innerHTML = `<div class="section" data-view="detail" style="display:flex;flex-direction:column;gap:16px;max-width:560px"></div>`;
+  const sc = c.querySelector('.section');
+
+  // Back button
+  const back = document.createElement('button');
+  back.className = 'btn btn-secondary';
+  back.style.cssText = 'width:fit-content;padding:6px 12px;font-size:.85rem';
+  back.textContent = '‹ Games';
+  back.onclick = () => renderGames(c);
+  sc.appendChild(back);
+
+  // Tab bar
+  const tabBar = document.createElement('div');
+  tabBar.className = 'tab-bar';
+  tabBar.style.cssText = 'margin:0 -16px;padding:0 16px';
+  tabBar.innerHTML = `
+    <button class="tab active" data-gt="play">${icon} ${esc(name)}</button>
+    <button class="tab" data-gt="history">History</button>
+    <button class="tab" data-gt="leaderboard">Leaderboard</button>`;
+  sc.appendChild(tabBar);
+
+  const tabBody = document.createElement('div');
+  tabBody.id = 'gd-tab-body';
+  sc.appendChild(tabBody);
+
+  async function renderGdTab(t) {
+    tabBar.querySelectorAll('.tab[data-gt]').forEach(x => x.classList.toggle('active', x.dataset.gt === t));
+
+    if (t === 'play') {
+      // Game info + new game + active rooms + invitations
+      tabBody.innerHTML = '';
+      const info = document.createElement('div');
+      info.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px 0 8px;text-align:center';
+      info.innerHTML = `
+        <div style="font-size:56px;line-height:1">${icon}</div>
+        <div style="font-weight:700;font-size:20px">${esc(name)}</div>
+        ${mpGame ? `<button class="btn btn-primary" id="gd-new" style="padding:9px 24px;font-size:.95rem">+ New game</button>` : ''}`;
+      tabBody.appendChild(info);
+      if (mpGame) info.querySelector('#gd-new').addEventListener('click', e => _createGame(e.target, gameId));
+
+      if (mpGame) {
+        let rooms = [];
+        try { const r = await fetch(MP_API + '/rooms?game_id=' + encodeURIComponent(gameId)); rooms = r.ok ? await r.json() : []; } catch(_) {}
+        if (rooms.length) {
+          const roomsSec = document.createElement('div');
+          roomsSec.style.cssText = 'display:flex;flex-direction:column;gap:8px;margin-top:8px';
+          roomsSec.innerHTML = `<div style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2)">Open lobbies</div>`;
+          rooms.forEach(room => {
+            const row = document.createElement('div');
+            row.style.cssText = 'background:var(--surface1);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px';
+            row.innerHTML = `
+              <div style="flex:1;min-width:0">
+                <div style="font-size:.88rem;font-weight:600">${esc(room.host_name || 'Game')}</div>
+                <div style="font-size:.75rem;color:var(--fg2);margin-top:2px">⏳ Lobby · ${room.players} player${room.players!==1?'s':''}</div>
+              </div>
+              <a href="${esc(room.play_url)}" class="btn btn-primary" style="font-size:.82rem;padding:6px 14px;text-decoration:none;flex-shrink:0">Join ▶</a>`;
+            roomsSec.appendChild(row);
+          });
+          tabBody.appendChild(roomsSec);
+        }
+      }
+
+      const gameInvites = _invites.filter(inv => inv.game_id === gameId);
+      if (gameInvites.length) {
+        const invSection = document.createElement('div');
+        invSection.style.cssText = 'display:flex;flex-direction:column;gap:8px;margin-top:8px';
+        invSection.innerHTML = `<div style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--red)">🔔 Invitations</div>`;
+        gameInvites.forEach(inv => {
+          const banner = document.createElement('div');
+          banner.style.cssText = 'background:rgba(243,139,168,.1);border:1px solid rgba(243,139,168,.3);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px';
+          banner.innerHTML = `
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600">Invited by <span style="color:var(--accent)">${esc(inv.from_name)}</span></div>
+              <div style="font-size:11px;color:var(--fg2);margin-top:2px">${fmtDate(inv.created_at)}</div>
+            </div>
+            <a href="${esc(inv.room_url)}" class="btn btn-primary" style="padding:7px 16px;font-size:.85rem;text-decoration:none;flex-shrink:0">Join ▶</a>
+            <button class="btn btn-secondary" style="padding:7px 10px;font-size:.85rem;flex-shrink:0" data-inv-id="${inv.id}">✕</button>`;
+          banner.querySelector('[data-inv-id]').onclick = async () => {
+            await fetch(`${BASE}/invites/${inv.id}`, {method:'DELETE',headers:{'X-GH-Token':_token}}).catch(()=>{});
+            _invites = _invites.filter(i=>i.id!==inv.id);
+            banner.remove();
+            if (!invSection.querySelector('[data-inv-id]')) invSection.remove();
+          };
+          invSection.appendChild(banner);
+        });
+        tabBody.appendChild(invSection);
+      }
+
+    } else if (t === 'history') {
+      tabBody.innerHTML = '';
+      const mySess = (_stats?.recent||[]).filter(s=>s.game_id===gameId && s.players.some(p=>p.player_id===myId));
+      if (!mySess.length) {
+        tabBody.innerHTML = `<div style="color:var(--fg2);font-size:13px;padding:20px 0;text-align:center">No sessions yet.</div>`;
+      } else {
+        mySess.forEach(s => {
+          let meta = {}; try { meta = JSON.parse(s.metadata||'{}'); } catch(_) {}
+          const metaParts = [];
+          if(meta.rounds!=null)         metaParts.push(`${meta.rounds} rounds`);
+          if(meta.time_per_round!=null) metaParts.push(meta.time_per_round===0?'no limit':fmtDur(meta.time_per_round)+'/round');
+          const modeLabel = s.mode==='singleplayer'?'👤':'👥';
+          const myResult = s.players.find(p=>p.player_id===myId);
+          const row = document.createElement('div');
+          row.className = 'row';
+          row.innerHTML = `
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600">${modeLabel} ${fmtDate(s.played_at)}${s.duration_seconds?' · '+fmtDur(s.duration_seconds):''}</div>
+              ${metaParts.length?`<div style="font-size:11px;color:var(--fg2)">${metaParts.join(' · ')}</div>`:''}
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              ${myResult?.score!=null?`<div style="font-weight:700;font-size:14px">${myResult.score} pts</div>`:''}
+              ${myResult?.is_winner?`<div class="badge-win">🏆</div>`:''}
+            </div>`;
+          row.onclick = () => showSessionDetail(s, myId);
+          tabBody.appendChild(row);
+        });
+      }
+
+    } else if (t === 'leaderboard') {
+      tabBody.innerHTML = '';
+
+      // Build full leaderboard from session data, normalised by rounds
+      const sessions = (_stats?.recent || []).filter(s => s.game_id === gameId);
+
+      function renderLbTable(lb) {
+        const tblWrap = tabBody.querySelector('#lb-table-wrap');
+        tblWrap.innerHTML = '';
+        if (!lb.length) {
+          tblWrap.innerHTML = `<div style="color:var(--fg2);font-size:13px;padding:20px 0;text-align:center">No data yet.</div>`;
+          return;
+        }
+        const hasSpr = lb.some(r => r.avg_spr != null);
+        const tbl = document.createElement('table');
+        tbl.className = 'lb-table';
+        tbl.innerHTML = `<thead><tr><th>#</th><th>Player</th><th>Played</th><th>Wins</th>${hasSpr?'<th>Pts/round</th>':''}</tr></thead>`;
+        const tbody = document.createElement('tbody');
+        lb.forEach((r, i) => {
+          const isMe    = r.player_id === myId;
+          const isOther = r.player_id && !isMe;
+          const tr = document.createElement('tr');
+          if (isMe) tr.className = 'me';
+          if (isOther) tr.style.cursor = 'pointer';
+          tr.innerHTML = `
+            <td style="color:var(--fg2)">${i+1}</td>
+            <td style="font-weight:600">${esc(r.display_name)}${isMe?' <span style="font-size:10px;color:var(--accent)">(you)</span>':' <span style="font-size:10px;color:var(--fg2)">›</span>'}</td>
+            <td>${r.played}</td><td>${r.wins}</td>
+            ${hasSpr?`<td style="font-weight:700">${r.avg_spr!=null?r.avg_spr.toFixed(1):'—'}</td>`:''}`;
+          if (isOther) {
+            tr.onmouseenter = () => tr.style.background = 'var(--surface2)';
+            tr.onmouseleave = () => tr.style.background = '';
+            tr.onclick = () => { const full = (_stats?.players||[]).find(pl=>pl.id===r.player_id)||r; showOtherPlayerProfile(full); };
+          }
+          tbody.appendChild(tr);
+        });
+        tbl.appendChild(tbody);
+        tblWrap.appendChild(tbl);
+      }
+
+      const ctrl = document.createElement('div');
+      ctrl.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap';
+      ctrl.innerHTML = `
+        <select class="inp" id="lb-scope" style="flex:1;min-width:140px;padding:6px 10px">
+          <option value="global">Global leaderboard</option>
+          <option value="mine">My games only</option>
+        </select>
+        <select class="inp" id="lb-period" style="flex:1;min-width:120px;padding:6px 10px">
+          <option value="all">All time</option>
+          <option value="week">This week</option>
+          <option value="month">This month</option>
+          <option value="year">This year</option>
+        </select>`;
+      tabBody.appendChild(ctrl);
+
+      const tblWrap = document.createElement('div');
+      tblWrap.id = 'lb-table-wrap';
+      tabBody.appendChild(tblWrap);
+
+      function periodStart(p) {
+        const now = new Date();
+        if (p === 'week')  { const d = new Date(now); d.setDate(d.getDate() - d.getDay()); d.setHours(0,0,0,0); return d; }
+        if (p === 'month') { return new Date(now.getFullYear(), now.getMonth(), 1); }
+        if (p === 'year')  { return new Date(now.getFullYear(), 0, 1); }
+        return null;
+      }
+
+      function refresh() {
+        const mine = ctrl.querySelector('#lb-scope').value === 'mine';
+        const period = ctrl.querySelector('#lb-period').value;
+        const since = periodStart(period);
+        const filteredSessions = since
+          ? sessions.filter(s => new Date(s.played_at) >= since)
+          : sessions;
+        renderLbTable(buildLb(mine, filteredSessions));
+      }
+
+      // Update buildLb to accept sessions param
+      function buildLb(filterMine, src) {
+        const pool = src ?? sessions;
+        const mySrcIds = new Set();
+        pool.forEach(s => { if (s.players.some(p => p.player_id === myId)) s.players.forEach(p => { if (p.player_id) mySrcIds.add(p.player_id); }); });
+        const playerMap = {};
+        const filtered = filterMine ? pool.filter(s => s.players.some(p => p.player_id === myId)) : pool;
+        filtered.forEach(s => {
+          let rounds = null;
+          try { rounds = JSON.parse(s.metadata||'{}').rounds ?? null; } catch(_) {}
+          s.players.forEach(p => {
+            if (!p.player_id) return;
+            if (filterMine && !mySrcIds.has(p.player_id)) return;
+            if (!playerMap[p.player_id]) {
+              const full = (_stats?.players||[]).find(pl=>pl.id===p.player_id) || p;
+              playerMap[p.player_id] = { player_id: p.player_id, display_name: full.display_name || p.display_name || '?', played: 0, wins: 0, spr: [] };
+            }
+            const entry = playerMap[p.player_id];
+            entry.played++;
+            if (p.is_winner) entry.wins++;
+            if (p.score != null && rounds) entry.spr.push(p.score / rounds);
+          });
+        });
+        return Object.values(playerMap)
+          .map(e => ({ ...e, avg_spr: e.spr.length ? e.spr.reduce((a,b)=>a+b,0)/e.spr.length : null }))
+          .sort((a,b) => (b.avg_spr??-1) - (a.avg_spr??-1));
+      }
+
+      refresh();
+      ctrl.querySelector('#lb-scope').onchange = refresh;
+      ctrl.querySelector('#lb-period').onchange = refresh;
+    }
+  }
+
+  tabBar.querySelectorAll('.tab[data-gt]').forEach(t => { t.onclick = () => renderGdTab(t.dataset.gt); });
+  await renderGdTab('play');
+}
+
+// ── Favourites helpers ──────────────────────────────────────────
+
+let _favs = null; // cache
+
+async function _loadFavs() {
+  if (!_token) { _favs = []; return; }
+  const r = await fetch(BASE + '/favourites', {headers:{'X-GH-Token':_token}});
+  _favs = r.ok ? await r.json() : [];
+}
+function _isFav(playerId) { return !!(_favs && _favs.some(f=>f.id===playerId)); }
+async function _toggleFav(p) {
+  if (!_token) return;
+  const isFav = _isFav(p.id);
+  await fetch(`${BASE}/favourites/${p.id}`, {method: isFav ? 'DELETE' : 'POST', headers:{'X-GH-Token':_token}});
+  if (isFav) { _favs = (_favs||[]).filter(f=>f.id!==p.id); }
+  else { _favs = [p, ...(_favs||[]).filter(f=>f.id!==p.id)]; }
+}
+
+// ── Favourites tab ──────────────────────────────────────────────
+
+async function renderFavourites(c) {
+  c.innerHTML = `<div class="section" style="display:flex;flex-direction:column;gap:14px;max-width:560px"></div>`;
+  const sc = c.querySelector('.section');
+
+  if (_favs === null) await _loadFavs();
+
+  // Search
+  const searchWrap = document.createElement('div');
+  searchWrap.innerHTML = `
+    <div style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2);margin-bottom:8px">Find a player</div>
+    <input class="inp" id="fav-search" placeholder="Search by name or username…" autocomplete="off">
+    <div id="fav-results" style="display:flex;flex-direction:column;gap:6px;margin-top:8px"></div>`;
+  sc.appendChild(searchWrap);
+
+  const resultsEl = searchWrap.querySelector('#fav-results');
+  let _searchTimer = null;
+
+  async function renderSearch(q) {
+    resultsEl.innerHTML = '';
+    if (q.length < 2) return;
+    resultsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">Searching…</div>`;
+    const r = await fetch(`/api/pub/apphub/search?q=${encodeURIComponent(q)}`);
+    const hits = r.ok ? (await r.json()).filter(p => p.id !== _me?.id) : [];
+    resultsEl.innerHTML = '';
+    if (!hits.length) {
+      resultsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">No players found.</div>`;
+      return;
+    }
+    hits.forEach(p => resultsEl.appendChild(_playerRow(p, () => renderFavourites(c))));
+  }
+
+  searchWrap.querySelector('#fav-search').oninput = e => {
+    clearTimeout(_searchTimer);
+    _searchTimer = setTimeout(() => renderSearch(e.target.value.trim()), 300);
+  };
+
+  // Saved favourites
+  const divider = document.createElement('div');
+  divider.style.cssText = 'border-top:1px solid var(--border);padding-top:14px';
+  divider.innerHTML = `<div style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2);margin-bottom:8px">Saved favourites</div>`;
+  sc.appendChild(divider);
+
+  const favsEl = document.createElement('div');
+  favsEl.style.cssText = 'display:flex;flex-direction:column;gap:6px';
+  divider.appendChild(favsEl);
+
+  function renderSavedFavs() {
+    favsEl.innerHTML = '';
+    if (!_favs || !_favs.length) {
+      favsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">No favourites yet. Search for a player above or add them from their profile.</div>`;
+      return;
+    }
+    _favs.forEach(f => favsEl.appendChild(_playerRow(f, renderSavedFavs)));
+  }
+  renderSavedFavs();
+}
+
+function _playerRow(p, onFavChange) {
+  const fav = _isFav(p.id);
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.style.cssText += ';gap:12px;justify-content:space-between';
+  row.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;cursor:pointer" id="pr-name">
+      ${GHAvatar.renderAvatar(p, 32)}
+      <div style="min-width:0">
+        <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.display_name||p.username||'?')}</div>
+        ${p.username?`<div style="font-size:11px;color:var(--fg2)">@${esc(p.username)}</div>`:''}
+      </div>
+    </div>
+    <button class="btn btn-secondary" id="pr-fav" style="padding:5px 10px;font-size:12px;flex-shrink:0">${fav?'★ Saved':'☆ Favourite'}</button>`;
+  row.querySelector('#pr-name').onclick = () => showOtherPlayerProfile(p);
+  row.querySelector('#pr-fav').onclick = async e => {
+    e.stopPropagation();
+    await _toggleFav(p);
+    if (onFavChange) onFavChange();
+    else { const b = row.querySelector('#pr-fav'); b.textContent = _isFav(p.id)?'★ Saved':'☆ Favourite'; }
+  };
+  return row;
+}
+
+boot();
+</script>
+</body>
+</html>

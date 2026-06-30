@@ -1,0 +1,30 @@
+{
+  "tables": [
+    {
+      "name": "cfg",
+      "columns": [
+        { "name": "key",   "type": "TEXT", "primary": true },
+        { "name": "value", "type": "TEXT" }
+      ]
+    },
+    {
+      "name": "sessions",
+      "columns": [
+        { "name": "id",         "type": "TEXT", "primary": true },
+        { "name": "title",      "type": "TEXT" },
+        { "name": "created_at", "type": "INTEGER" },
+        { "name": "updated_at", "type": "INTEGER" }
+      ]
+    },
+    {
+      "name": "messages",
+      "columns": [
+        { "name": "id",         "type": "INTEGER", "primary": true },
+        { "name": "session_id", "type": "TEXT" },
+        { "name": "role",       "type": "TEXT" },
+        { "name": "content",    "type": "TEXT" },
+        { "name": "created_at", "type": "INTEGER" }
+      ]
+    }
+  ]
+}

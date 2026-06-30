@@ -1,0 +1,76 @@
+{
+  "apps": [
+    {
+      "id": "calculator",
+      "name": "Calculator",
+      "icon": "🧮",
+      "category": "Utilities",
+      "version": "1.2.0",
+      "description": "Simple calculator with basic arithmetic operations. Supports keyboard input.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/calculator-1.2.0.zip"
+    },
+    {
+      "id": "mvmai",
+      "name": "mvmAI",
+      "icon": "🤖",
+      "category": "Utilities",
+      "version": "0.3.1",
+      "description": "AI chat assistant with shell access. Talk to any OpenAI-compatible provider (Gemini, OpenAI, Groq, OpenRouter, Qwen, DeepSeek, Mistral, Ollama, custom). The assistant can run commands on the server on your behalf, with configurable confirmation and safety levels.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/mvmai-0.3.1.zip"
+    },
+    {
+      "id": "cost-splitter",
+      "name": "Cost Splitter",
+      "icon": "💸",
+      "category": "Utilities",
+      "version": "1.2.1",
+      "description": "Split recurring costs among members. Track balances, add payments, and send monthly email summaries automatically.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/cost-splitter-1.2.1.zip"
+    },
+    {
+      "id": "statetracker",
+      "name": "State Tracker",
+      "icon": "📡",
+      "category": "Utilities",
+      "version": "1.0.0",
+      "description": "Track state changes of anything over time — ping, HTTP checks, API values, or manual push. Color-coded timeline.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/statetracker-1.0.0.zip"
+    },
+    {
+      "id": "beambuilder",
+      "name": "Beam Builder",
+      "icon": "🏗️",
+      "category": "Utilities",
+      "version": "1.1.0",
+      "description": "3D construction planner. Draw beams and profiles in 3D space, connect them, rotate and zoom freely, and get a full material list with costs.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/beambuilder-1.1.0.zip"
+    },
+    {
+      "id": "mvm2factor",
+      "name": "mvm2factor",
+      "icon": "🔐",
+      "category": "Utilities",
+      "version": "1.0.0",
+      "description": "TOTP two-factor authentication manager. Add accounts with a secret key and get animated 6-digit codes that refresh every 30 seconds.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/mvm2factor-1.0.0.zip"
+    },
+    {
+      "id": "rssfeed",
+      "name": "RSS Reader",
+      "icon": "📰",
+      "category": "Utilities",
+      "version": "1.2.2",
+      "description": "RSS/Atom feed reader with auto-refresh, read/unread tracking, bookmarks, AI summarization via mvmAI, and optional public reading list.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/rssfeed-1.2.2.zip"
+    },
+    {
+      "id": "pricecalc",
+      "name": "QuoteBuilder",
+      "icon": "💰",
+      "category": "Utilities",
+      "version": "2.1.2",
+      "description": "Project quote builder. Add services with time (hours + minutes) or fixed prices, set an hourly rate, apply discounts and deposit, and share a live public link with your client.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/pricecalc-2.1.2.zip"
+    }
+  ]
+}

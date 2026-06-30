@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RSS Reader</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#1e1e2e;--s1:#181825;--s2:#313244;--border:#45475a;--fg:#cdd6f4;--fg2:#a6adc8;--accent:#89b4fa;--red:#f38ba8;--yellow:#f9e2af}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg);height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+#app{flex:1;display:flex;flex-direction:column;max-width:720px;margin:0 auto;width:100%;overflow:hidden}
+button{font-family:inherit;cursor:pointer}
+input{font-family:inherit}
+
+/* Header */
+.hdr{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.hdr-title{font-weight:700;font-size:15px;flex:1}
+.hdr-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:.78rem;color:var(--fg2)}
+.hdr-btn:hover{background:var(--s2)}
+
+/* Feed chips */
+.chips-row{display:flex;gap:6px;padding:8px 12px;border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+.chips-row::-webkit-scrollbar{display:none}
+.chip{border-radius:20px;padding:4px 12px;font-size:.78rem;white-space:nowrap;border:1px solid var(--border);background:transparent;color:var(--fg2);flex-shrink:0}
+.chip.active{background:var(--accent);border-color:var(--accent);color:#1e1e2e;font-weight:600}
+.chip:hover:not(.active){background:var(--s2)}
+
+/* Filter bar */
+.filter-bar{display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+.filter-bar::-webkit-scrollbar{display:none}
+.filter-btn{border-radius:16px;padding:3px 12px;font-size:.76rem;color:var(--fg2);background:var(--s2);border:1px solid var(--border);white-space:nowrap;flex-shrink:0}
+.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#1e1e2e}
+.filter-btn:hover:not(.active){background:var(--border)}
+
+/* Articles */
+.art-wrap{flex:1;overflow-y:auto}
+.art-item{padding:12px 16px;border-bottom:1px solid rgba(69,71,90,.4);cursor:pointer;display:flex;gap:8px;align-items:flex-start}
+.art-item:hover{background:rgba(49,50,68,.5)}
+.art-item.read .art-title{opacity:.5;font-weight:400}
+.art-body{flex:1;min-width:0}
+.art-title{font-size:.87rem;font-weight:600;line-height:1.4}
+.art-excerpt{font-size:.78rem;color:var(--fg2);margin-top:3px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.art-meta{font-size:.72rem;color:var(--border);margin-top:5px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.art-feed{color:var(--accent)}
+.star-btn{background:none;border:none;font-size:1rem;padding:0 2px;flex-shrink:0;line-height:1}
+.unread-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px}
+.empty{padding:48px 16px;color:var(--fg2);font-size:.88rem;text-align:center}
+
+/* Reader */
+.reader{position:fixed;inset:0;background:var(--bg);z-index:50;overflow-y:auto;padding:20px 20px 40px}
+.reader-inner{max-width:680px;margin:0 auto}
+.reader-back{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.82rem;color:var(--fg2);margin-bottom:16px}
+.reader-back:hover{background:var(--s2)}
+.reader-feed{font-size:.72rem;color:var(--accent);margin-bottom:4px}
+.reader-title{font-size:1.1rem;font-weight:700;line-height:1.45;margin-bottom:16px}
+.reader-content{font-size:.9rem;line-height:1.8;color:var(--fg2);word-break:break-word}
+.reader-content img{max-width:100%;height:auto;border-radius:6px;margin:8px 0}
+.reader-link{margin-top:20px}
+.reader-link a{color:var(--accent);font-size:.84rem;text-decoration:none}
+.reader-link a:hover{text-decoration:underline}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+.modal{background:var(--s1);border:1px solid var(--border);border-radius:12px;width:100%;max-width:420px;max-height:calc(100dvh - 32px);overflow-y:auto}
+.modal-hdr{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)}
+.modal-hdr span{font-weight:600;font-size:.95rem;flex:1}
+.modal-hdr button{background:none;border:none;font-size:1.1rem;color:var(--fg2);padding:2px 6px}
+.modal-body{padding:16px;display:flex;flex-direction:column;gap:14px}
+.sec-label{font-size:.75rem;font-weight:600;color:var(--fg2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.inp{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--fg);font-size:.85rem;width:100%;outline:none}
+.inp:focus{border-color:var(--accent)}
+.btn-acc{background:var(--accent);color:#1e1e2e;border:none;border-radius:8px;padding:7px 14px;font-size:.85rem;font-weight:600}
+.btn-acc:hover{opacity:.9}
+.btn-ghost{background:none;color:var(--fg2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:.82rem}
+.btn-ghost:hover{background:var(--s2)}
+.feed-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(69,71,90,.4)}
+.feed-row-name{flex:1;font-size:.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.feed-row-unreads{font-size:.7rem;color:var(--accent)}
+.feed-row-del{background:none;border:none;color:var(--red);font-size:.78rem;padding:2px 6px;opacity:.6}
+.feed-row-del:hover{opacity:1}
+.err-msg{color:var(--red);font-size:.78rem;min-height:14px}
+
+/* Login gate */
+.login-gate{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-card{width:100%;max-width:340px;padding:32px;background:var(--s1);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;gap:18px;text-align:center}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="reader" class="reader" style="display:none"><div class="reader-inner" id="reader-inner"></div></div>
+<div id="modal" class="modal-overlay" style="display:none"></div>
+<script>
+const BASE    = '/pub/rssfeed';
+const HUB_URL = '/pub/apphub/';
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const stripHtml = s => { const d = document.createElement('div'); d.innerHTML = s||''; return d.textContent || ''; };
+
+const params = new URLSearchParams(location.search);
+let _token = params.get('token') || localStorage.getItem('apphub_token');
+if (_token) { localStorage.setItem('apphub_token', _token); history.replaceState(null,'',location.pathname); }
+
+let _me = null, _feeds = [], _articles = [], _activeFeed = 0, _filter = 'unread';
+let _aiSource = 'off', _aiBtns = [];
+
+const app = document.getElementById('app');
+
+function relTime(d) {
+  if (!d) return '';
+  const sec = Math.floor((Date.now() - new Date(d)) / 1000);
+  if (sec < 90) return 'just now';
+  if (sec < 3600) return Math.floor(sec/60) + 'm ago';
+  if (sec < 86400) return Math.floor(sec/3600) + 'h ago';
+  return Math.floor(sec/86400) + 'd ago';
+}
+
+async function runAI(prompt, article) {
+  const body = `${prompt}\n\n---\nTitle: ${article.title||''}\n\n${stripHtml(article.description||'').slice(0,1200)}`;
+  const messages = [{ role:'user', content: body }];
+  if (_aiSource === 'claude-cli') {
+    const r = await fetch('/api/mvmai/cli-chat', {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({provider_id:'claude-cli',messages})});
+    const d = await r.json(); if (!r.ok) throw new Error(d.error||r.statusText); return d.content||'';
+  }
+  const r = await fetch('/api/mvmai/chat', {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages,tools_enabled:false})});
+  const d = await r.json(); if (!r.ok) throw new Error(d.error||r.statusText);
+  return d.message?.content||'';
+}
+
+async function boot() {
+  app.innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--fg2);font-size:.9rem">Loading…</div>`;
+  if (_token) {
+    try {
+      const r = await fetch('/api/pub/apphub/me', {headers:{'X-Pub-Token':_token}});
+      if (r.ok) _me = await r.json();
+      else { _token = null; localStorage.removeItem('apphub_token'); }
+    } catch(_) { _token = null; }
+  }
+  if (!_me) { showLoginGate(); return; }
+  await Promise.all([loadFeeds(), loadSettings()]);
+  renderApp();
+  loadArticles().then(renderArticles);
+}
+
+async function loadSettings() {
+  try {
+    const r = await fetch('/api/apps/rssfeed/settings', {credentials:'include'});
+    if (!r.ok) return;
+    const s = await r.json();
+    _aiSource = s.ai_source || 'off';
+    if (_aiSource !== 'off') { try { _aiBtns = JSON.parse(s.ai_buttons||'[]'); } catch { _aiBtns = []; } }
+  } catch(_) {}
+}
+
+async function loadFeeds() {
+  const r = await fetch(BASE+'/feeds', {headers:{'X-Pub-Token':_token}});
+  _feeds = r.ok ? await r.json() : [];
+}
+
+async function loadArticles() {
+  const p = new URLSearchParams();
+  if (_activeFeed) p.set('feed_id', _activeFeed);
+  if (_filter==='unread') p.set('is_read',0);
+  else if (_filter==='read') p.set('is_read',1);
+  else if (_filter==='saved') p.set('is_saved',1);
+  const r = await fetch(`${BASE}/articles?${p}`, {headers:{'X-Pub-Token':_token}});
+  _articles = r.ok ? await r.json() : [];
+}
+
+function showLoginGate() {
+  app.innerHTML = `
+    <div class="login-gate">
+      <div class="login-card">
+        <div style="font-size:2.5rem">📰</div>
+        <div style="font-weight:700;font-size:1.1rem">RSS Reader</div>
+        <div style="font-size:.88rem;color:var(--fg2)">Sign in with your Apps Hub account to manage your personal feeds.</div>
+        <a href="${HUB_URL}?next=${encodeURIComponent(location.href)}" style="display:block;background:var(--accent);color:#1e1e2e;border-radius:8px;padding:10px 20px;font-weight:700;font-size:.9rem;text-decoration:none">Sign in with Apps Hub</a>
+      </div>
+    </div>`;
+  window.addEventListener('storage', e => { if (e.key==='apphub_token'&&e.newValue) { _token=e.newValue; boot(); } });
+}
+
+// ── App shell ──────────────────────────────────────────────────────────────
+
+function renderApp() {
+  const totalUnread = _feeds.reduce((s,f)=>s+(f.unread_count||0),0);
+  app.innerHTML = `
+    <div class="hdr">
+      <div class="hdr-title">📰 RSS Reader</div>
+      <span style="font-size:.78rem;color:var(--fg2)">${esc(_me.display_name)}</span>
+      <button class="hdr-btn" id="hdr-refresh">↻</button>
+      <button class="hdr-btn" id="hdr-settings">Feeds</button>
+    </div>
+    <div class="chips-row" id="chips-row"></div>
+    <div class="filter-bar" id="filter-bar"></div>
+    <div class="art-wrap" id="art-wrap"></div>`;
+
+  document.getElementById('hdr-refresh').onclick = async () => {
+    const btn = document.getElementById('hdr-refresh');
+    btn.disabled=true; btn.textContent='…';
+    await fetch(BASE+'/fetch',{method:'POST',headers:{'X-Pub-Token':_token}}).catch(()=>{});
+    await loadFeeds(); await loadArticles();
+    renderChips(); renderArticles();
+    btn.disabled=false; btn.textContent='↻';
+  };
+  document.getElementById('hdr-settings').onclick = showFeedsModal;
+
+  renderChips();
+  renderFilterBar();
+}
+
+function renderChips() {
+  const row = document.getElementById('chips-row');
+  if (!row) return;
+  const totalUnread = _feeds.reduce((s,f)=>s+(f.unread_count||0),0);
+  let html = chip(0,'All feeds',totalUnread,_activeFeed===0);
+  _feeds.forEach(f => { html += chip(f.id, f.name, f.unread_count||0, _activeFeed===f.id); });
+  row.innerHTML = html;
+  row.querySelectorAll('.chip').forEach(el => {
+    el.onclick = () => {
+      _activeFeed = parseInt(el.dataset.id)||0;
+      _filter = 'unread';
+      renderChips(); renderFilterBar();
+      loadArticles().then(renderArticles);
+    };
+  });
+}
+
+function chip(id, name, unread, active) {
+  const cnt = unread>0 ? ` <span style="background:${active?'rgba(0,0,0,.2)':'var(--accent)'};color:#1e1e2e;border-radius:99px;font-size:.65rem;padding:1px 5px">${unread}</span>` : '';
+  return `<button class="chip${active?' active':''}" data-id="${id}">${esc(name)}${cnt}</button>`;
+}
+
+function renderFilterBar() {
+  const bar = document.getElementById('filter-bar');
+  if (!bar) return;
+  const filters = [{v:'unread',l:'Unread'},{v:'read',l:'Read'},{v:'all',l:'All'},{v:'saved',l:'Saved'}];
+  bar.innerHTML = filters.map(f=>`<button class="filter-btn${_filter===f.v?' active':''}" data-f="${f.v}">${f.l}</button>`).join('')
+    + `<button id="mark-all-btn" style="margin-left:auto;background:none;border:none;font-size:.72rem;color:var(--fg2);white-space:nowrap;cursor:pointer;padding:0 4px;flex-shrink:0">✓ Mark all read</button>`;
+  bar.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.onclick = () => { _filter=btn.dataset.f; renderFilterBar(); loadArticles().then(renderArticles); };
+  });
+  document.getElementById('mark-all-btn').onclick = async () => {
+    const body = _activeFeed ? {feed_id:_activeFeed} : {};
+    await fetch(`${BASE}/articles/read-all`,{method:'POST',headers:{'Content-Type':'application/json','X-Pub-Token':_token},body:JSON.stringify(body)}).catch(()=>{});
+    await loadFeeds(); await loadArticles(); renderChips(); renderArticles();
+  };
+}
+
+// ── Article list ───────────────────────────────────────────────────────────
+
+function renderArticles() {
+  const wrap = document.getElementById('art-wrap');
+  if (!wrap) return;
+  const listBtns = _aiBtns.filter(b=>b.scope==='list'||b.scope==='both');
+  if (!_articles.length) {
+    wrap.innerHTML = `<div class="empty">No articles</div>`;
+    return;
+  }
+  wrap.innerHTML = _articles.map(a => {
+    const exc = stripHtml(a.description||'').slice(0,140);
+    const aiBtnHtml = listBtns.map((b,i)=>
+      `<button class="ai-lb" data-id="${a.id}" data-bi="${i}" onclick="event.stopPropagation()"
+        style="border:1px solid var(--border);background:none;border-radius:3px;padding:1px 7px;font-size:.7rem;cursor:pointer;color:var(--fg2);font-family:inherit">${esc(b.name)}</button>`
+    ).join('');
+    return `<div class="art-item${a.is_read?' read':''}" data-id="${a.id}">
+      ${!a.is_read?`<div class="unread-dot"></div>`:`<div style="width:7px;flex-shrink:0"></div>`}
+      <div class="art-body">
+        <div class="art-title">${esc(a.title||'(no title)')}</div>
+        ${exc?`<div class="art-excerpt">${esc(exc)}</div>`:''}
+        <div class="art-meta">
+          ${_activeFeed===0?`<span class="art-feed">${esc(a.feed_name)}</span>`:''}
+          ${relTime(a.pub_date)?`<span>${relTime(a.pub_date)}</span>`:''}
+          ${aiBtnHtml}
+        </div>
+        <div class="ai-lr" data-id="${a.id}" style="display:none;margin-top:6px;background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:8px 10px;font-size:.78rem;line-height:1.6;white-space:pre-wrap;word-break:break-word"></div>
+      </div>
+      <button class="star-btn" data-id="${a.id}" onclick="event.stopPropagation()" style="color:${a.is_saved?'#f9e2af':'var(--border)'}">${a.is_saved?'★':'☆'}</button>
+    </div>`;
+  }).join('');
+
+  wrap.querySelectorAll('.art-item').forEach(el => {
+    el.onclick = e => { if (e.target.closest('.star-btn,.ai-lb')) return; openArticle(parseInt(el.dataset.id)); };
+  });
+  wrap.querySelectorAll('.star-btn').forEach(btn => {
+    btn.onclick = async e => {
+      e.stopPropagation();
+      const id = parseInt(btn.dataset.id);
+      const r = await fetch(`${BASE}/articles/${id}/save`,{method:'POST',headers:{'X-Pub-Token':_token}});
+      const d = await r.json();
+      const a = _articles.find(x=>x.id===id);
+      if (a) a.is_saved=d.is_saved;
+      btn.textContent=d.is_saved?'★':'☆'; btn.style.color=d.is_saved?'#f9e2af':'var(--border)';
+      if (_filter==='saved'&&!d.is_saved){_articles=_articles.filter(x=>x.id!==id);renderArticles();}
+    };
+  });
+  wrap.querySelectorAll('.ai-lb').forEach(btn => {
+    btn.onclick = async e => {
+      e.stopPropagation();
+      const id=parseInt(btn.dataset.id), bi=parseInt(btn.dataset.bi);
+      const b=listBtns[bi]; if(!b) return;
+      const a=_articles.find(x=>x.id===id); if(!a) return;
+      const orig=btn.textContent; btn.disabled=true; btn.textContent='…';
+      const res=wrap.querySelector(`.ai-lr[data-id="${id}"]`);
+      try { const t=await runAI(b.prompt,a); if(res){res.textContent=t;res.style.display='';} }
+      catch(err){ if(res){res.textContent=String(err);res.style.display='';} }
+      btn.disabled=false; btn.textContent=orig;
+    };
+  });
+}
+
+// ── Article reader ─────────────────────────────────────────────────────────
+
+function openArticle(id) {
+  const a = _articles.find(x=>x.id===id); if(!a) return;
+  fetch(`${BASE}/articles/${id}/read`,{method:'POST',headers:{'X-Pub-Token':_token}});
+  if (_filter==='unread') _articles=_articles.filter(x=>x.id!==id);
+  else { const f=_articles.find(x=>x.id===id); if(f) f.is_read=1; }
+
+  const readerBtns = _aiBtns.filter(b=>b.scope==='reader'||b.scope==='both'||!b.scope);
+  const aiBtnHtml = readerBtns.length ? `
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
+      ${readerBtns.map((b,i)=>`<button class="ai-rb btn-ghost" data-bi="${i}" style="padding:5px 12px;font-size:.8rem">${esc(b.name)}</button>`).join('')}
+    </div>
+    <div id="ai-rr" style="display:none;margin-bottom:16px;background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;font-size:.85rem;line-height:1.7;white-space:pre-wrap;word-break:break-word"></div>` : '';
+
+  const inner = document.getElementById('reader-inner');
+  inner.innerHTML = `
+    <button class="reader-back" id="back-btn">← Back</button>
+    <div class="reader-feed">${esc(a.feed_name)}</div>
+    <div class="reader-title">${esc(a.title||'(no title)')}</div>
+    ${aiBtnHtml}
+    <div class="reader-content">${a.description||'—'}</div>
+    ${a.link?`<div class="reader-link"><a href="${esc(a.link)}" target="_blank" rel="noopener">Open original ↗</a></div>`:''}`;
+
+  const reader = document.getElementById('reader');
+  reader.style.display='block'; reader.scrollTop=0;
+
+  document.getElementById('back-btn').onclick = () => {
+    reader.style.display='none';
+    renderArticles();
+  };
+  inner.querySelectorAll('.ai-rb').forEach(btn => {
+    btn.onclick = async () => {
+      const b=readerBtns[parseInt(btn.dataset.bi)]; if(!b) return;
+      const orig=btn.textContent; btn.disabled=true; btn.textContent='…';
+      const res=document.getElementById('ai-rr');
+      try { const t=await runAI(b.prompt,a); if(res){res.textContent=t;res.style.display='';} }
+      catch(err){ if(res){res.textContent=String(err);res.style.display='';} }
+      btn.disabled=false; btn.textContent=orig;
+    };
+  });
+}
+
+// ── Feeds modal ────────────────────────────────────────────────────────────
+
+function showFeedsModal() {
+  const modal = document.getElementById('modal');
+  function buildModal() {
+    const feedsHtml = _feeds.length ? _feeds.map(f=>`
+      <div class="feed-row">
+        <span class="feed-row-name">${esc(f.name)}</span>
+        ${f.unread_count?`<span class="feed-row-unreads">${f.unread_count} unread</span>`:''}
+        <button class="feed-row-del" data-id="${f.id}" title="Remove">✕</button>
+      </div>`).join('') : `<div style="font-size:.84rem;color:var(--fg2)">No feeds yet.</div>`;
+
+    modal.innerHTML = `
+      <div class="modal">
+        <div class="modal-hdr"><span>Feeds</span><button id="modal-close">✕</button></div>
+        <div class="modal-body">
+          <div>
+            <div class="sec-label">Your feeds</div>
+            <div id="feeds-list">${feedsHtml}</div>
+          </div>
+          <div>
+            <div class="sec-label">Add feed</div>
+            <div style="display:flex;gap:6px">
+              <input class="inp" id="add-url" placeholder="RSS / Atom URL" style="flex:1">
+              <button class="btn-acc" id="add-btn">Add</button>
+            </div>
+            <div class="err-msg" id="add-err"></div>
+          </div>
+        </div>
+      </div>`;
+    modal.style.display='flex';
+
+    modal.querySelector('#modal-close').onclick = () => { modal.style.display='none'; };
+    modal.onclick = e => { if(e.target===modal) modal.style.display='none'; };
+
+    modal.querySelectorAll('.feed-row-del').forEach(btn => {
+      btn.onclick = async () => {
+        const id=parseInt(btn.dataset.id);
+        await fetch(`${BASE}/feeds/${id}`,{method:'DELETE',headers:{'X-Pub-Token':_token}});
+        if (_activeFeed===id) _activeFeed=0;
+        await loadFeeds(); renderChips(); buildModal();
+      };
+    });
+
+    const addBtn=modal.querySelector('#add-btn');
+    const addUrl=modal.querySelector('#add-url');
+    const addErr=modal.querySelector('#add-err');
+    addBtn.onclick = async () => {
+      const url=addUrl.value.trim(); if(!url) return;
+      addBtn.disabled=true; addErr.textContent=''; addBtn.textContent='…';
+      const r=await fetch(`${BASE}/feeds`,{method:'POST',headers:{'Content-Type':'application/json','X-Pub-Token':_token},body:JSON.stringify({url})});
+      const d=await r.json();
+      if (r.ok) {
+        addUrl.value='';
+        await loadFeeds(); renderChips(); buildModal();
+      } else { addErr.textContent=d.error||'Error'; }
+      addBtn.disabled=false; addBtn.textContent='Add';
+    };
+    addUrl.onkeydown=e=>{ if(e.key==='Enter') addBtn.click(); };
+  }
+  buildModal();
+}
+
+boot();
+</script>
+</body>
+</html>

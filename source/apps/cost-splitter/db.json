@@ -1,0 +1,34 @@
+{
+  "tables": [
+    {
+      "name": "members",
+      "columns": [
+        { "name": "id",           "type": "INTEGER", "primary": true },
+        { "name": "name",         "type": "TEXT" },
+        { "name": "email",        "type": "TEXT",    "default": "" },
+        { "name": "custom_share", "type": "REAL",    "default": null },
+        { "name": "created_at",   "type": "TEXT" }
+      ]
+    },
+    {
+      "name": "transactions",
+      "columns": [
+        { "name": "id",          "type": "INTEGER", "primary": true },
+        { "name": "member_id",   "type": "INTEGER" },
+        { "name": "amount",      "type": "REAL" },
+        { "name": "note",        "type": "TEXT",    "default": "" },
+        { "name": "created_at",  "type": "TEXT" }
+      ]
+    },
+    {
+      "name": "mail_log",
+      "columns": [
+        { "name": "id",          "type": "INTEGER", "primary": true },
+        { "name": "member_id",   "type": "INTEGER" },
+        { "name": "sent_at",     "type": "TEXT" },
+        { "name": "status",      "type": "TEXT" },
+        { "name": "error",       "type": "TEXT",    "default": "" }
+      ]
+    }
+  ]
+}

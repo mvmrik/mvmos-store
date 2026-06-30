@@ -1,0 +1,9 @@
+{
+  "id": "server-monitor",
+  "name": "Server Monitor",
+  "icon": "🌡️",
+  "category": "Administration",
+  "version": "1.2.3",
+  "description": "Real-time server metrics with history. Tracks CPU, RAM, disk, network every minute.",
+  "entry": "main.js"
+}

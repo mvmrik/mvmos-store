@@ -23,9 +23,9 @@
       "name": "Game Hub",
       "icon": "🎮",
       "category": "Games",
-      "version": "1.10.4",
+      "version": "1.10.5",
       "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.10.4.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.10.5.zip"
     }
   ]
 }

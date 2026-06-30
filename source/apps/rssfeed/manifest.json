@@ -1,0 +1,38 @@
+{
+  "id": "rssfeed",
+  "name": "RSS Reader",
+  "icon": "📰",
+  "category": "Utilities",
+  "version": "1.2.2",
+  "description": "RSS/Atom feed reader with auto-refresh, read/unread tracking, and optional public reading list.",
+  "scheduler": "scheduler.py",
+  "settings": [
+    {
+      "key": "fetch_interval",
+      "label": "Refresh interval",
+      "type": "select",
+      "default": "30",
+      "options": [
+        { "value": "5",    "label": "5 minutes" },
+        { "value": "15",   "label": "15 minutes" },
+        { "value": "30",   "label": "30 minutes" },
+        { "value": "60",   "label": "1 hour" },
+        { "value": "120",  "label": "2 hours" },
+        { "value": "360",  "label": "6 hours" },
+        { "value": "720",  "label": "12 hours" },
+        { "value": "1440", "label": "24 hours" }
+      ]
+    },
+    {
+      "key": "ai_source",
+      "label": "AI provider",
+      "type": "select",
+      "default": "off",
+      "options": [
+        { "value": "off",        "label": "Off" },
+        { "value": "mvmai",      "label": "mvmAI — configured provider" },
+        { "value": "claude-cli", "label": "mvmAI — Claude CLI" }
+      ]
+    }
+  ]
+}

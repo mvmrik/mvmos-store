@@ -1,0 +1,9 @@
+{
+  "id": "server-manager",
+  "name": "Server Manager",
+  "icon": "🖧",
+  "category": "Administration",
+  "version": "1.4.0",
+  "description": "Monitor and control system services — start, stop, restart, and check status of web servers, databases, and more. Configure PHP, MySQL, Nginx, SSH and UFW firewall settings directly from the UI.",
+  "entry": "main.js"
+}

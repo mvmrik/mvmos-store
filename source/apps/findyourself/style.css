@@ -1,0 +1,279 @@
+.fy-root { display:flex; flex-direction:column; height:100%; overflow:hidden; background:#1e1e2e; color:#cdd6f4; font-family:inherit; }
+
+/* Street View takes full screen, map overlays bottom-right */
+.fy-game { position:relative; flex:1; min-height:0; }
+.fy-sv   { width:100%; height:100%; }
+
+/* Minimap */
+.fy-map-wrap {
+  position:absolute; bottom:60px; left:8px;
+  width:190px; height:135px;
+  border:2px solid rgba(255,255,255,.3);
+  border-radius:10px; overflow:hidden;
+  box-shadow:0 4px 20px rgba(0,0,0,.5);
+  transition:width .28s, height .28s;
+  z-index:10;
+}
+.fy-map-wrap.fy-map-full { left:8px; right:8px; }
+
+/* Мобилна затворена иконка (кръгче) */
+.fy-map-wrap.fy-map-collapsed {
+  width:54px; height:54px;
+  border-radius:50%;
+  cursor:pointer;
+  background:rgba(0,0,0,.7);
+  border:2px solid rgba(255,255,255,.4);
+}
+.fy-map-wrap.fy-map-collapsed .fy-map { opacity:0; pointer-events:none; }
+
+/* Десктоп мини (затворено) — показва картата, без контроли */
+.fy-map-wrap.fy-map-mini { cursor:pointer; }
+
+.fy-map { width:100%; height:100%; }
+
+/* Thumb overlay — лови клик за отваряне, скрит когато картата е активна */
+.fy-map-thumb {
+  position:absolute; inset:0; z-index:6;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.fy-map-wrap.fy-map-active .fy-map-thumb { display:none; }
+.fy-map-thumb-ico { display:none; font-size:1.6rem; }
+.fy-map-collapsed .fy-map-thumb-ico { display:block; }
+
+/* Затваряне горе вдясно — само когато картата е активна */
+.fy-map-close-btn {
+  position:absolute; top:6px; right:6px;
+  width:26px; height:26px; border-radius:50%;
+  background:rgba(0,0,0,.7); border:1px solid rgba(255,255,255,.3);
+  color:#fff; font-size:.75rem; cursor:pointer;
+  display:none; align-items:center; justify-content:center;
+  z-index:16; touch-action:manipulation;
+}
+.fy-map-wrap.fy-map-active .fy-map-close-btn { display:flex; }
+
+/* Контроли вградени в картата (долу) — само когато е активна */
+.fy-map-inner-controls {
+  position:absolute; bottom:8px; left:8px; right:8px;
+  display:none; gap:5px; align-items:center; z-index:15;
+}
+.fy-map-wrap.fy-map-active .fy-map-inner-controls { display:flex; }
+.fy-guess-btn-map { flex:1; text-align:center; }
+.fy-map-btn {
+  width:32px; height:32px; border-radius:8px;
+  background:rgba(0,0,0,.7); border:1px solid rgba(255,255,255,.25);
+  color:#fff; font-size:.95rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  touch-action:manipulation; flex-shrink:0;
+}
+.fy-map-btn:active { background:rgba(255,255,255,.2); }
+
+/* Guess бутон вграден в картата */
+.fy-guess-btn-map {
+  padding:7px 14px; background:var(--accent,#2a6ee0);
+  border:none; border-radius:8px; color:#fff;
+  font-size:.82rem; font-weight:600; cursor:pointer;
+  touch-action:manipulation; white-space:nowrap;
+  opacity:.5;
+}
+.fy-guess-btn-map:not(:disabled) { opacity:1; }
+.fy-guess-btn-map:not(:disabled):active { background:#1a5ec0; }
+
+/* Compass */
+.fy-compass {
+  position:absolute; top:12px; right:8px;
+  width:44px; height:44px; z-index:10;
+  pointer-events:none;
+}
+.fy-compass svg { width:100%; height:100%; filter:drop-shadow(0 2px 4px rgba(0,0,0,.6)); }
+
+/* Мобилно: отворената карта е на цял екран */
+@media (max-width:600px) {
+  .fy-map-wrap.fy-map-active {
+    width:calc(100% - 16px) !important;
+    height:calc(100% - 70px) !important;
+    left:8px; right:8px;
+  }
+}
+
+
+
+/* HUD */
+.fy-hud {
+  position:absolute; top:12px; left:12px;
+  display:flex; gap:8px; z-index:10;
+}
+.fy-hud-pill {
+  background:rgba(0,0,0,.6); backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:20px; padding:5px 12px;
+  font-size:.8rem; color:#fff;
+}
+.fy-timer { color:#f1fa8c; font-weight:700; }
+.fy-timer.urgent { color:#f38ba8; }
+
+/* Timer overlay вътре в картата — видим само на мобилно когато картата е отворена */
+.fy-map-timer {
+  display:none;
+  position:absolute; top:8px; left:50%; transform:translateX(-50%);
+  background:rgba(0,0,0,.72); border:1px solid rgba(255,255,255,.2);
+  border-radius:20px; padding:4px 12px;
+  font-size:.82rem; font-weight:700; color:#f1fa8c;
+  z-index:14; pointer-events:none; white-space:nowrap;
+}
+.fy-map-timer.urgent { color:#f38ba8; }
+@media (max-width:600px) {
+  .fy-map-wrap.fy-map-active .fy-map-timer { display:block; }
+}
+
+/* Result overlay — full screen */
+.fy-result-overlay {
+  position:absolute; inset:0;
+  background:#1e1e2e;
+  display:flex; flex-direction:column;
+  z-index:20; overflow-y:auto;
+}
+.fy-result-box {
+  flex:1; display:flex; flex-direction:column;
+  padding:16px 20px; gap:10px;
+  min-height:0;
+}
+.fy-result-box h2 { margin:0; font-size:1rem; color:#a6adc8; text-align:center; }
+.fy-result-score { font-size:2rem; font-weight:700; color:var(--accent,#2a6ee0); text-align:center; }
+.fy-result-dist  { font-size:.85rem; color:#a6adc8; text-align:center; }
+.fy-result-breakdown {
+  display:flex; justify-content:center; gap:18px; flex-wrap:wrap;
+  font-size:.8rem; color:#a6adc8; text-align:center;
+}
+.fy-result-breakdown strong { color:#cdd6f4; }
+.fy-result-map   { flex:1; min-height:180px; border-radius:8px; overflow:hidden; }
+.fy-result-actions { display:flex; gap:8px; justify-content:center; padding-bottom:4px; flex-shrink:0; }
+/* MP result — same full-screen layout as single */
+.fy-mp-result { padding:10px 12px; box-sizing:border-box; width:100%; overflow-y:auto; }
+.fy-mp-result .fy-result-map { flex:1; min-height:200px; }
+.fy-mp-score-row.highlighted .fy-mp-dot { box-shadow:0 0 0 2px #fff; }
+.fy-mp-score-row.highlighted { background:rgba(255,255,255,.08); }
+
+/* Setup / end screens */
+.fy-screen {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:safe center; gap:16px; padding:24px;
+  overflow-y:auto;
+}
+.fy-screen h1 { font-size:1.6rem; margin:0; }
+.fy-screen p  { color:#a6adc8; margin:0; text-align:center; max-width:380px; font-size:.9rem; }
+.fy-screen input {
+  width:100%; max-width:340px; padding:9px 12px;
+  background:var(--surface2,#313244); border:1px solid var(--border,#45475a);
+  border-radius:6px; color:#cdd6f4; font-size:.9rem;
+}
+.fy-btn {
+  padding:10px 28px; background:var(--accent,#2a6ee0);
+  border:none; border-radius:8px; color:#fff;
+  font-size:.95rem; font-weight:600; cursor:pointer;
+}
+.fy-btn:hover { background:#1a5ec0; }
+.fy-btn.secondary {
+  background:var(--surface2,#313244);
+  border:1px solid var(--border,#45475a); color:#cdd6f4;
+}
+
+/* Setup options */
+.fy-setup-opts {
+  display:flex; gap:14px; flex-wrap:wrap; justify-content:center;
+}
+.fy-setup-field {
+  display:flex; flex-direction:column; gap:5px;
+  font-size:.78rem; color:#a6adc8; text-align:left;
+}
+.fy-setup-field input, .fy-setup-field select {
+  padding:8px 10px; min-width:120px;
+  background:var(--surface2,#313244); border:1px solid var(--border,#45475a);
+  border-radius:6px; color:#cdd6f4; font-size:.9rem;
+}
+
+/* Scoreboard */
+.fy-scores { display:flex; flex-direction:column; gap:6px; width:100%; max-width:360px; }
+.fy-score-row {
+  display:flex; align-items:center; gap:10px;
+  background:var(--surface2,#313244); border-radius:6px; padding:8px 12px;
+  font-size:.85rem;
+}
+.fy-score-row .rank { font-size:1.1rem; flex-shrink:0; }
+.fy-score-row .sname { flex:1; }
+.fy-score-row .spts { font-weight:700; color:var(--accent,#2a6ee0); }
+
+/* ── Multiplayer ──────────────────────────────────────────────────────────── */
+.fy-mp-lobby { gap:12px; }
+.fy-mp-link {
+  background:var(--surface2,#313244); border:1px solid var(--border,#45475a);
+  border-radius:8px; padding:10px 14px; font-size:.75rem; color:#89b4fa;
+  word-break:break-all; max-width:340px; text-align:center; user-select:all;
+}
+.fy-mp-name-input {
+  width:100%; max-width:280px; padding:10px 12px; text-align:center;
+  background:var(--surface2,#313244); border:1px solid var(--border,#45475a);
+  border-radius:8px; color:#cdd6f4; font-size:1rem;
+}
+.fy-mp-roster {
+  display:flex; flex-direction:column; gap:5px; width:100%; max-width:280px;
+  max-height:180px; overflow-y:auto;
+}
+.fy-mp-roster-title { font-size:.72rem; color:#a6adc8; text-transform:uppercase; letter-spacing:.5px; margin-bottom:2px; }
+.fy-mp-player {
+  display:flex; align-items:center; gap:8px;
+  background:var(--surface2,#313244); border-radius:6px; padding:6px 10px;
+  font-size:.85rem;
+}
+.fy-mp-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; box-shadow:0 0 0 1px rgba(255,255,255,.2); }
+
+/* Waiting overlay (след submit) */
+.fy-wait-overlay {
+  position:absolute; inset:0; z-index:18;
+  background:rgba(15,15,25,.6); backdrop-filter:blur(3px);
+  display:flex; align-items:center; justify-content:center;
+}
+.fy-wait-box { display:flex; flex-direction:column; align-items:center; gap:12px; color:#cdd6f4; font-size:.9rem; }
+.fy-spinner {
+  width:34px; height:34px; border-radius:50%;
+  border:3px solid rgba(255,255,255,.2); border-top-color:#89b4fa;
+  animation:fy-spin 0.8s linear infinite;
+}
+@keyframes fy-spin { to { transform:rotate(360deg); } }
+@keyframes fy-guess-pop {
+  0%   { opacity:0; transform:scale(.3); }
+  100% { opacity:1; transform:scale(1); }
+}
+@keyframes fy-guess-shrink {
+  0%   { opacity:0; transform:scale(2); }
+  100% { opacity:1; transform:scale(1); }
+}
+
+/* MP резултатна таблица */
+.fy-mp-scores { display:flex; flex-direction:column; gap:4px; width:100%; }
+.fy-mp-score-row {
+  display:flex; align-items:center; gap:8px;
+  background:var(--surface2,#313244); border-radius:6px; padding:7px 10px;
+  font-size:.82rem;
+}
+.fy-mp-score-row.me,
+.fy-mp-score-row.you { outline:1px solid var(--accent,#89b4fa); }
+.fy-mp-score-row.winner { background:rgba(166,227,161,.15); }
+.fy-mp-score-row .nm { flex:1; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.fy-mp-score-row .ds { color:#a6adc8; font-size:.75rem; min-width:56px; text-align:right; }
+.fy-mp-score-row .rs { color:#a6e3a1; font-weight:600; min-width:54px; text-align:right; }
+.fy-mp-score-row .ts { font-weight:700; min-width:54px; text-align:right; }
+.fy-mp-score-row .rank { font-size:1rem; min-width:22px; }
+.fy-mp-final .fy-mp-score-row { font-size:.9rem; padding:9px 12px; }
+.fy-mp-result-ctrl { margin-top:4px; display:flex; justify-content:center; }
+.fy-mp-waitnext { font-size:.82rem; color:#a6adc8; font-style:italic; }
+
+/* Invite section */
+.fy-invite-list {
+  display:flex; flex-direction:column; gap:4px; width:100%; max-width:320px;
+  max-height:160px; overflow-y:auto;
+}
+.fy-invite-row {
+  display:flex; align-items:center; gap:6px;
+  background:var(--surface2,#313244); border-radius:6px; padding:5px 8px;
+}

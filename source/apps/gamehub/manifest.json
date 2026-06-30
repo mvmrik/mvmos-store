@@ -1,0 +1,10 @@
+{
+  "id": "gamehub",
+  "name": "Game Hub",
+  "icon": "🎮",
+  "category": "Games",
+  "version": "1.10.5",
+  "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
+  "entry": "main.js",
+  "public_url": "/pub/gamehub/"
+}

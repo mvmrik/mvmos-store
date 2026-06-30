@@ -1,0 +1,107 @@
+.mvmai-root { display: flex; height: 100%; width: 100%; background: var(--bg); color: var(--text); font-size: .9rem; }
+
+/* ── sidebar ─────────────────────────────────────────────────────────────── */
+.mvmai-sidebar {
+  width: 230px; min-width: 230px; display: flex; flex-direction: column;
+  background: var(--surface); border-right: 1px solid var(--border); padding: 10px; gap: 8px;
+}
+.mvmai-new { width: 100%; }
+.mvmai-model-quick {
+  width: 100%; font-size: .78rem; line-height: 1.3;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); border-radius: 4px;
+  padding: 3px 6px; height: 26px; box-sizing: border-box; cursor: pointer;
+}
+.mvmai-sessions { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
+.mvmai-no-sessions { color: var(--text-dim); font-size: .8rem; padding: 8px; text-align: center; }
+.mvmai-session {
+  display: flex; align-items: center; gap: 4px; padding: 7px 8px; border-radius: var(--radius);
+  cursor: pointer; transition: background .12s;
+}
+.mvmai-session:hover { background: var(--bg); }
+.mvmai-session.active { background: var(--accent); color: #fff; }
+.mvmai-s-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .82rem; cursor: pointer; }
+.mvmai-s-del { background: none; border: none; color: inherit; opacity: 0; cursor: pointer; font-size: .75rem; padding: 2px 4px; border-radius: 4px; }
+.mvmai-session:hover .mvmai-s-del { opacity: .6; }
+.mvmai-s-del:hover { opacity: 1 !important; background: rgba(255,0,0,.15); }
+
+/* ── main / messages ─────────────────────────────────────────────────────── */
+.mvmai-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.mvmai-messages { flex: 1; overflow-y: auto; padding: 18px 18px 8px; display: flex; flex-direction: column; gap: 12px; }
+
+.mvmai-welcome { margin: auto; text-align: center; color: var(--text-dim); }
+.mvmai-welcome-icon { font-size: 3rem; }
+.mvmai-welcome h2 { margin: 8px 0 4px; color: var(--text); }
+.mvmai-welcome p { max-width: 360px; font-size: .85rem; }
+
+.mvmai-msg { display: flex; }
+.mvmai-user { justify-content: flex-end; }
+.mvmai-assistant, .mvmai-tool { justify-content: flex-start; }
+.mvmai-bubble {
+  max-width: 80%; padding: 10px 13px; border-radius: 14px; line-height: 1.5; word-wrap: break-word; overflow-wrap: anywhere;
+}
+.mvmai-user .mvmai-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+.mvmai-assistant .mvmai-bubble { background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+.mvmai-bubble h3, .mvmai-bubble h4 { margin: .4em 0 .2em; }
+.mvmai-bubble ul { margin: .3em 0; padding-left: 1.2em; }
+.mvmai-bubble a { color: var(--accent); }
+
+.mvmai-model-label { font-size: .7rem; color: var(--text-dim); margin-bottom: 4px; font-weight: 500; opacity: .7; }
+.mvmai-typing, .mvmai-running { color: var(--text-dim); font-style: italic; }
+.mvmai-typing::after { content: '▋'; animation: mvmai-blink 1s steps(2) infinite; }
+@keyframes mvmai-blink { 0%,50% { opacity: 1; } 50.01%,100% { opacity: 0; } }
+.mvmai-err { color: #e25555; }
+
+/* ── code blocks ─────────────────────────────────────────────────────────── */
+.mvmai-code {
+  background: #1e1e2e; color: #e6e6e6; border-radius: 8px; padding: 9px 11px; margin: 6px 0;
+  overflow-x: auto; font-family: 'SF Mono', Consolas, monospace; font-size: .8rem; line-height: 1.45; white-space: pre-wrap; word-break: break-word;
+}
+.mvmai-inline { background: rgba(127,127,127,.18); border-radius: 4px; padding: 1px 5px; font-family: 'SF Mono', Consolas, monospace; font-size: .85em; }
+.mvmai-stderr { color: #ffb3b3; }
+
+/* ── command card ────────────────────────────────────────────────────────── */
+.mvmai-cmdcard {
+  max-width: 88%; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: 10px; padding: 9px 11px; font-size: .85rem;
+}
+.mvmai-cmd-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+.mvmai-cmd-tag { font-size: .72rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; }
+.mvmai-cmd-reason { font-size: .78rem; color: var(--text-dim); }
+.mvmai-cmd { margin: 4px 0 !important; }
+.mvmai-cmd-actions { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.mvmai-cmd-actions:empty { display: none; }
+.mvmai-running { font-size: .8rem; }
+.mvmai-danger { color: #e0a000; font-size: .76rem; font-weight: 600; }
+.mvmai-cmd-output:empty { display: none; }
+.mvmai-out-head { font-size: .72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; margin-top: 6px; display: flex; align-items: center; gap: 8px; }
+.mvmai-exit { font-size: .7rem; padding: 1px 6px; border-radius: 6px; }
+.mvmai-exit.ok { background: rgba(60,180,90,.2); color: #4cae5a; }
+.mvmai-exit.bad { background: rgba(220,80,80,.2); color: #e25555; }
+.mvmai-blocked { color: #e0a000; font-size: .82rem; padding: 4px 0; }
+.mvmai-empty { color: var(--text-dim); }
+
+/* ── input ───────────────────────────────────────────────────────────────── */
+.mvmai-input {
+  display: flex; align-items: flex-end; gap: 8px; padding: 10px 14px 14px; border-top: 1px solid var(--border); background: var(--surface);
+}
+.mvmai-input textarea {
+  flex: 1; resize: none; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px;
+  background: var(--bg); color: var(--text); font-family: inherit; font-size: .9rem; line-height: 1.4; max-height: 160px; outline: none;
+}
+.mvmai-input textarea:focus { border-color: var(--accent); }
+.mvmai-send {
+  width: 40px; height: 40px; flex-shrink: 0; border: none; border-radius: 50%; background: var(--accent); color: #fff;
+  font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .12s;
+}
+.mvmai-send:hover { background: var(--accent-hover); }
+
+/* ── mobile ──────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .mvmai-sidebar {
+    position: absolute; left: 0; top: 0; bottom: 0; z-index: 30; transform: translateX(-100%);
+    transition: transform .2s; box-shadow: var(--shadow);
+  }
+  .mvmai-sidebar.mobile-open { transform: translateX(0); }
+  .mvmai-bubble, .mvmai-cmdcard { max-width: 92%; }
+}

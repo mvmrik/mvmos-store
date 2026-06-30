@@ -1,0 +1,10 @@
+{
+  "id": "statetracker",
+  "name": "State Tracker",
+  "icon": "📡",
+  "category": "Utilities",
+  "version": "1.0.0",
+  "description": "Track state changes of anything over time — ping, HTTP checks, API values, or manual push.",
+  "entry": "main.js",
+  "scheduler": "scheduler.py"
+}
