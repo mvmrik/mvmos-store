@@ -860,6 +860,23 @@ if (!token) {
 }
 ```
 
+**Important:** `is_app_public(APP_ID)` must be checked at the top of **every** route in your `public.py`, not just `/`. The router is mounted unconditionally at startup — nothing enforces the private/public toggle for you except this check. Forgetting it on even one route means that route stays reachable while the app is set to Private in Apps Hub.
+
+### Listing in the public directory
+
+Any app with a `public.py` is auto-detected and, once enabled (toggled Public) in Apps Hub admin, appears as a card in the public directory at `/pub/apphub/` (the "Apps" tab) linking to `/pub/<app-id>/`.
+
+This only makes sense for apps whose `/pub/<app-id>/` route is a real, generic landing page anyone can open (e.g. a reading list, a leaderboard). If your `public.py` only serves **per-resource share links** with no generic index — e.g. `/pub/<app-id>/{token}` for a single shared document, and a bare `/pub/<app-id>/` would 404 or makes no sense to browse — opt out of the directory by adding to your `manifest.json`:
+
+```json
+{
+  "id": "my-app",
+  "public_directory": false
+}
+```
+
+The app's toggle still works as usual (`is_app_public` still gates whether its share links resolve) — this flag only hides it from the generic browsable directory card grid. Default is `true` (listed) when the field is omitted.
+
 ---
 
 ## Game Hub integration
