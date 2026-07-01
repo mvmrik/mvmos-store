@@ -71,6 +71,15 @@
       "version": "2.2.0",
       "description": "Project quote builder. Add services with time (hours + minutes) or fixed prices, set an hourly rate, apply discounts and deposit, and share a live public link with your client.",
       "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/quotebuilder-2.2.0.zip"
+    },
+    {
+      "id": "queuedesk",
+      "name": "QueueDesk",
+      "icon": "🎫",
+      "category": "Utilities",
+      "version": "1.0.0",
+      "description": "Public booking and queue-ticket system. Run a weekly appointment schedule or a walk-in number queue — clients book or pull a ticket from a public page with no account needed, and you get notified and manage everything from here.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/queuedesk-1.0.0.zip"
     }
   ]
 }
