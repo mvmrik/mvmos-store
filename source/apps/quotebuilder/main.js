@@ -154,14 +154,14 @@ function _qbt(key) {
 }
 
 mvmOS.registerApp({
-  id: 'pricecalc',
+  id: 'quotebuilder',
   name: 'QuoteBuilder',
   icon: '💰',
   category: 'Utilities',
   requires_apphub: true,
   launch() {
     mvmOS.createWindow({
-      id: 'pricecalc',
+      id: 'quotebuilder',
       title: '💰 QuoteBuilder',
       width: 760,
       height: 580,
@@ -184,6 +184,7 @@ const PC = (() => {
   let _proj = null;
   let _svcs = [];
   let _pubUser = null;
+  let _tplFilterCat = null;
 
   // ── API ───────────────────────────────────────────────────────────────────────
 
@@ -195,7 +196,7 @@ const PC = (() => {
     }
     const token = typeof AppHub !== 'undefined' ? AppHub.getToken() : null;
     if (token) opts.headers['X-Pub-Token'] = token;
-    const r = await fetch(`/api/apps/pricecalc${path}`, opts);
+    const r = await fetch(`/api/apps/quotebuilder${path}`, opts);
     if (!r.ok) {
       const txt = await r.text().catch(() => '');
       throw new Error(txt || r.statusText);
@@ -540,6 +541,16 @@ const PC = (() => {
       return;
     }
     const rate = _proj.hourly_rate != null ? _proj.hourly_rate : _gs.hourly_rate;
+    const showCats = _svcs.some(sv => sv.category);
+    let rows = '', lastCat;
+    for (const sv of _svcs) {
+      const cat = sv.category || '';
+      if (showCats && cat !== lastCat) {
+        lastCat = cat;
+        rows += `<div class="pc-sv-cat" style="font-size:.7rem;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin:${rows ? '14px' : '0'} 0 6px;padding:0 2px">${_esc(cat || _t('uncategorized'))}</div>`;
+      }
+      rows += _svRowHtml(sv, rate);
+    }
     el.innerHTML = `
       <div style="display:grid;grid-template-columns:1fr 180px 82px 28px;gap:6px;align-items:center;margin-bottom:5px;padding:0 2px">
         <span style="font-size:.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em">${_t('service_col')}</span>
@@ -547,7 +558,7 @@ const PC = (() => {
         <span style="font-size:.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;text-align:right">${_t('cost_col')}</span>
         <span></span>
       </div>
-      ${_svcs.map(sv => _svRowHtml(sv, rate)).join('')}
+      ${rows}
     `;
     _bindSvcRows(el);
   }
@@ -710,7 +721,7 @@ const PC = (() => {
       _proj.public_lang  = r.public_lang;
     }
 
-    const pubUrl    = `${location.origin}/pub/pricecalc/${_proj.public_token}`;
+    const pubUrl    = `${location.origin}/pub/quotebuilder/${_proj.public_token}`;
     const showHours = _proj.show_hours !== 0;
     const showRate  = _proj.show_rate  !== 0;
     const pubLang   = _proj.public_lang || window.mvmOS?.lang || 'en';
@@ -794,6 +805,8 @@ const PC = (() => {
       data-hours="${bs.hours}"
       data-desc="${_esc(bs.description || '')}"
       data-fixed="${bs.fixed_price != null ? bs.fixed_price : ''}"
+      data-cat="${_esc(bs.category || '')}"
+      data-sort="${bs.sort_order || 0}"
       style="padding:8px 12px;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:.85rem;transition:border-color .12s">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <span>${_esc(bs.name)}</span>
@@ -810,10 +823,11 @@ const PC = (() => {
     const box = document.createElement('div');
     box.style.cssText = 'background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:20px;width:360px;max-height:82vh;overflow-y:auto;display:flex;flex-direction:column;gap:10px';
 
-    const cats = [...new Set(_baseServices.map(bs => bs.category || '').filter(Boolean))].sort();
-    const hasUncat = _baseServices.some(bs => !bs.category);
+    const cats = _categories.map(c => c.name).filter(name => _baseServices.some(bs => bs.category === name));
+    const hasUncat = _baseServices.some(bs => !bs.category || !cats.includes(bs.category));
     const chipCats = hasUncat ? [...cats, ''] : cats;
-    let _selCat = cats.length > 0 ? cats[0] : null;
+    let _selCat = chipCats.length > 0 ? chipCats[0] : null;
+    let _pickedCat = '', _pickedSort = 0;
 
     function chipsHtml() {
       if (cats.length === 0) return '';
@@ -849,6 +863,7 @@ const PC = (() => {
       <div id="pc-tpl-block">${tplListHtml()}</div>
       <input id="pc-new-name" placeholder="${_t('service_name_ph')}" style="${_iStyle('width:100%;box-sizing:border-box')}">
       <input id="pc-new-desc" placeholder="${_t('description_ph')}" style="${_iStyle('width:100%;box-sizing:border-box;font-size:.82rem')}">
+      <div id="pc-new-cat-wrap">${_catSelectHtml('', _pickedCat)}</div>
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
         <div id="pc-new-time-mode" style="display:flex;align-items:center;gap:3px">
           <input id="pc-new-h" type="number" min="0" step="1" value="1" style="${_iStyle('width:80px;text-align:center')}">
@@ -875,6 +890,7 @@ const PC = (() => {
 
     const nameEl   = box.querySelector('#pc-new-name');
     const descEl   = box.querySelector('#pc-new-desc');
+    const catEl    = box.querySelector('#pc-new-cat-wrap select');
     const hEl      = box.querySelector('#pc-new-h');
     const mEl      = box.querySelector('#pc-new-m');
     const fixedEl  = box.querySelector('#pc-new-fixed');
@@ -882,6 +898,13 @@ const PC = (() => {
     const fixedDiv = box.querySelector('#pc-new-fixed-mode');
     const togBtn   = box.querySelector('#pc-new-toggle');
     let   _fixedMode = false;
+
+    // Manually picking a category (rather than clicking a template) appends
+    // the custom service after the automatic ones already in that category.
+    catEl.addEventListener('change', () => {
+      _pickedCat  = catEl.value;
+      _pickedSort = 999999;
+    });
 
     togBtn.onclick = () => {
       _fixedMode = !_fixedMode;
@@ -897,6 +920,9 @@ const PC = (() => {
         t.onclick = () => {
           nameEl.value = t.dataset.name;
           descEl.value = t.dataset.desc || '';
+          _pickedCat  = t.dataset.cat || '';
+          _pickedSort = parseInt(t.dataset.sort) || 0;
+          catEl.value = _pickedCat;
           const tFixed = t.dataset.fixed !== '' ? parseFloat(t.dataset.fixed) : null;
           if (tFixed != null) {
             if (!_fixedMode) togBtn.onclick();
@@ -934,10 +960,10 @@ const PC = (() => {
       if (!name) { nameEl.style.borderColor = 'var(--error, #f38ba8)'; nameEl.focus(); return; }
       if (_fixedMode) {
         const fp = parseFloat(fixedEl.value) || 0;
-        await _api('POST', `/projects/${_proj.id}/services`, { name, description: desc, hours: 0, fixed_price: fp });
+        await _api('POST', `/projects/${_proj.id}/services`, { name, description: desc, hours: 0, fixed_price: fp, category: _pickedCat, sort_order: _pickedSort });
       } else {
         const hrs = _joinH(hEl.value, mEl.value);
-        await _api('POST', `/projects/${_proj.id}/services`, { name, description: desc, hours: hrs });
+        await _api('POST', `/projects/${_proj.id}/services`, { name, description: desc, hours: hrs, category: _pickedCat, sort_order: _pickedSort });
       }
       _svcs = await _api('GET', `/projects/${_proj.id}/services`);
       overlay.remove();
@@ -976,9 +1002,8 @@ const PC = (() => {
         </div>
 
         <div style="margin-top:26px;border-top:1px solid var(--border);padding-top:20px">
-          <div style="font-weight:600;font-size:.9rem;margin-bottom:10px">${_t('categories')}</div>
-          <div style="display:flex;gap:6px;margin-bottom:10px">
-            <input id="gs-new-cat" placeholder="${_t('category_name_ph')}" style="${_iStyle('flex:1')}">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-weight:600;font-size:.9rem">${_t('categories')}</div>
             <button id="gs-add-cat" style="${_btnStyle('primary')} font-size:.78rem;padding:4px 10px">${_t('add_category')}</button>
           </div>
           <div id="gs-cat-list"></div>
@@ -1005,17 +1030,13 @@ const PC = (() => {
       mvmOS.notify('QuoteBuilder', _t('settings_saved'));
     };
 
-    const addCat = async () => {
-      const inp  = w.querySelector('#gs-new-cat');
-      const name = inp.value.trim();
-      if (!name) return;
-      await _api('POST', '/categories', { name });
+    w.querySelector('#gs-add-cat').onclick = async () => {
+      const name = await mvmOS.prompt(_t('category_name_ph'), '');
+      if (!name?.trim()) return;
+      await _api('POST', '/categories', { name: name.trim() });
       await _loadCategories();
-      inp.value = '';
       _renderCatList(w.querySelector('#gs-cat-list'));
     };
-    w.querySelector('#gs-add-cat').onclick = addCat;
-    w.querySelector('#gs-new-cat').addEventListener('keydown', e => { if (e.key === 'Enter') addCat(); });
 
     w.querySelector('#gs-add-tpl').onclick = () => _showAddTplModal(w.querySelector('#gs-tpl-list'));
 
@@ -1029,17 +1050,30 @@ const PC = (() => {
       el.innerHTML = `<div style="color:var(--text-dim);font-size:.83rem">${_t('no_categories')}</div>`;
       return;
     }
-    el.innerHTML = `<div style="display:flex;gap:6px;flex-wrap:wrap">${
-      _categories.map(c => `
-        <span class="gs-cat-chip" data-id="${c.id}" style="display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:20px;padding:3px 6px 3px 12px;font-size:.8rem;color:var(--text)">
-          ${_esc(c.name)}
-          <button class="gs-cat-del" style="${_btnStyle('ghost')} font-size:.7rem;padding:1px 6px;border:none">✕</button>
-        </span>`).join('')
+    el.innerHTML = `<div style="display:flex;flex-direction:column;gap:5px">${
+      _categories.map((c, i) => `
+        <div class="gs-cat-row" data-id="${c.id}" style="display:flex;align-items:center;gap:4px;border:1px solid var(--border);border-radius:6px;padding:5px 6px 5px 12px;font-size:.83rem;color:var(--text)">
+          <span style="flex:1">${_esc(c.name)}</span>
+          <button class="gs-cat-up"   style="${_btnStyle('ghost')} font-size:.7rem;padding:1px 6px;border:none;${i === 0 ? 'opacity:.3;cursor:default' : ''}" ${i === 0 ? 'disabled' : ''}>↑</button>
+          <button class="gs-cat-down" style="${_btnStyle('ghost')} font-size:.7rem;padding:1px 6px;border:none;${i === _categories.length - 1 ? 'opacity:.3;cursor:default' : ''}" ${i === _categories.length - 1 ? 'disabled' : ''}>↓</button>
+          <button class="gs-cat-del"  style="${_btnStyle('ghost')} font-size:.7rem;padding:1px 6px;border:none">✕</button>
+        </div>`).join('')
     }</div>`;
 
-    el.querySelectorAll('.gs-cat-chip').forEach(chip => {
-      const id = parseInt(chip.dataset.id);
-      chip.querySelector('.gs-cat-del').onclick = async () => {
+    const _moveCat = async (id, dir) => {
+      const idx = _categories.findIndex(x => x.id === id);
+      const swapIdx = idx + dir;
+      if (swapIdx < 0 || swapIdx >= _categories.length) return;
+      [_categories[idx], _categories[swapIdx]] = [_categories[swapIdx], _categories[idx]];
+      await _api('POST', '/categories/reorder', { order: _categories.map(c => c.id) });
+      _renderCatList(el);
+    };
+
+    el.querySelectorAll('.gs-cat-row').forEach(row => {
+      const id = parseInt(row.dataset.id);
+      row.querySelector('.gs-cat-up').onclick   = () => _moveCat(id, -1);
+      row.querySelector('.gs-cat-down').onclick = () => _moveCat(id, 1);
+      row.querySelector('.gs-cat-del').onclick = async () => {
         const c = _categories.find(x => x.id === id);
         if (!await mvmOS.confirm(`${_t('del_category')} "${c.name}"?`)) return;
         await _api('DELETE', `/categories/${id}`);
@@ -1073,12 +1107,14 @@ const PC = (() => {
     </select>`;
   }
 
-  function _tplRowHtml(bs) {
+  function _tplRowHtml(bs, idx, len) {
     return `
       <div class="gs-tpl-row" data-id="${bs.id}" style="padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:4px">
         <div style="display:flex;align-items:center;gap:6px">
           <input class="gs-tpl-name" value="${_esc(bs.name)}" style="flex:1;background:transparent;border:none;color:var(--text);font-size:.85rem;outline:none">
           ${_tplTimeHtml(bs)}
+          <button class="gs-tpl-up"   style="${_btnStyle('ghost')} font-size:.7rem;padding:1px 6px;${idx === 0 ? 'opacity:.3;cursor:default' : ''}" ${idx === 0 ? 'disabled' : ''}>↑</button>
+          <button class="gs-tpl-down" style="${_btnStyle('ghost')} font-size:.7rem;padding:1px 6px;${idx === len - 1 ? 'opacity:.3;cursor:default' : ''}" ${idx === len - 1 ? 'disabled' : ''}>↓</button>
           <button class="gs-tpl-del" style="${_btnStyle('ghost')} font-size:.73rem;padding:2px 7px">✕</button>
         </div>
         <input class="gs-tpl-desc" value="${_esc(bs.description || '')}" placeholder="${_t('description_ph')}"
@@ -1089,6 +1125,12 @@ const PC = (() => {
       </div>`;
   }
 
+  function _tplFilterOptions() {
+    const cats = _categories.map(c => c.name);
+    const hasUncat = _baseServices.some(bs => !bs.category || !cats.includes(bs.category));
+    return hasUncat ? [...cats, ''] : cats;
+  }
+
   function _renderTplList(el) {
     if (!el) return;
     if (_baseServices.length === 0) {
@@ -1096,18 +1138,39 @@ const PC = (() => {
       return;
     }
 
-    const cats = _categories.map(c => c.name);
-    const groups = cats.map(c => ({ cat: c, items: _baseServices.filter(bs => (bs.category || '') === c) }))
-      .filter(g => g.items.length > 0);
-    const uncat = _baseServices.filter(bs => !bs.category || !cats.includes(bs.category));
-    if (uncat.length > 0) groups.push({ cat: '', items: uncat });
+    const opts = _tplFilterOptions();
+    if (_tplFilterCat === null || !opts.includes(_tplFilterCat)) _tplFilterCat = opts[0] ?? '';
 
-    el.innerHTML = groups.map(g => `
-      <div style="margin-bottom:10px">
-        ${cats.length > 0 ? `<div style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">${_esc(g.cat || _t('uncategorized'))}</div>` : ''}
-        <div style="display:flex;flex-direction:column;gap:6px">${g.items.map(_tplRowHtml).join('')}</div>
-      </div>
-    `).join('');
+    const filterHtml = opts.length > 1
+      ? `<select id="gs-tpl-cat-filter" style="${_iStyle('margin-bottom:10px;width:100%')}">
+          ${opts.map(c => `<option value="${_esc(c)}" ${c === _tplFilterCat ? 'selected' : ''}>${_esc(c || _t('uncategorized'))}</option>`).join('')}
+        </select>`
+      : '';
+
+    const items = _baseServices.filter(bs => (bs.category || '') === _tplFilterCat);
+
+    el.innerHTML = filterHtml + (items.length === 0
+      ? `<div style="color:var(--text-dim);font-size:.83rem;padding:6px 0">${_t('no_templates')}</div>`
+      : `<div style="display:flex;flex-direction:column;gap:6px">${items.map((bs, i) => _tplRowHtml(bs, i, items.length)).join('')}</div>`);
+
+    el.querySelector('#gs-tpl-cat-filter')?.addEventListener('change', e => {
+      _tplFilterCat = e.target.value;
+      _renderTplList(el);
+    });
+
+    _bindTplRows(el, items);
+  }
+
+  function _bindTplRows(el, items) {
+    const _moveTpl = async (id, dir) => {
+      const idx = items.findIndex(x => x.id === id);
+      const swapIdx = idx + dir;
+      if (swapIdx < 0 || swapIdx >= items.length) return;
+      [items[idx], items[swapIdx]] = [items[swapIdx], items[idx]];
+      await _api('POST', '/templates/reorder', { order: items.map(x => x.id) });
+      await _loadBaseServices();
+      _renderTplList(el);
+    };
 
     el.querySelectorAll('.gs-tpl-row').forEach(row => {
       const id   = parseInt(row.dataset.id);
@@ -1138,6 +1201,9 @@ const PC = (() => {
           _renderTplList(el);
         }
       });
+
+      row.querySelector('.gs-tpl-up').onclick   = () => _moveTpl(id, -1);
+      row.querySelector('.gs-tpl-down').onclick = () => _moveTpl(id, 1);
 
       const hEl    = row.querySelector('.gs-tpl-h');
       const mEl    = row.querySelector('.gs-tpl-m');
@@ -1190,7 +1256,7 @@ const PC = (() => {
       <div style="font-weight:600;font-size:.93rem">${_t('add_template')}</div>
       <input id="tpl-name" placeholder="${_t('template_name')}" style="${_iStyle('width:100%;box-sizing:border-box')}">
       <input id="tpl-desc" placeholder="${_t('description_ph')}" style="${_iStyle('width:100%;box-sizing:border-box;font-size:.82rem')}">
-      <div id="tpl-cat-wrap">${_catSelectHtml('', '')}</div>
+      <div id="tpl-cat-wrap">${_catSelectHtml('', _tplFilterCat || '')}</div>
       <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
         <div id="tpl-time-mode" style="display:flex;align-items:center;gap:3px">
           <input id="tpl-h" type="number" min="0" step="1" value="1" style="${_iStyle('width:80px;text-align:center')}">

@@ -9,10 +9,10 @@ from pydantic import BaseModel
 
 get_current_session = sys.modules["backend.auth"].get_current_session
 
-router = APIRouter(prefix="/api/apps/pricecalc")
+router = APIRouter(prefix="/api/apps/quotebuilder")
 
 _DB_PATH = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "apps", "pricecalc", "data.db"
+    os.path.dirname(__file__), "..", "..", "..", "apps", "quotebuilder", "data.db"
 )
 
 
@@ -70,6 +70,22 @@ def _init_db():
         """)
         try:
             c.execute("ALTER TABLE base_services ADD COLUMN category TEXT")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            c.execute("ALTER TABLE categories ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            c.execute("ALTER TABLE base_services ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            c.execute("ALTER TABLE project_services ADD COLUMN category TEXT")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            c.execute("ALTER TABLE project_services ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0")
         except sqlite3.OperationalError:
             pass
         c.commit()
@@ -141,7 +157,7 @@ async def list_templates(session=Depends(get_current_session), x_pub_token: Opti
     if not uid:
         return _unauthorized()
     with _conn() as c:
-        rows = c.execute("SELECT * FROM base_services WHERE public_user_id=? ORDER BY name", (uid,)).fetchall()
+        rows = c.execute("SELECT * FROM base_services WHERE public_user_id=? ORDER BY sort_order, name", (uid,)).fetchall()
     return JSONResponse([dict(r) for r in rows])
 
 
@@ -196,6 +212,22 @@ async def update_template(tid: int, body: TemplateUpdateBody, session=Depends(ge
     return JSONResponse({"ok": True})
 
 
+class ReorderBody(BaseModel):
+    order: list[int]
+
+
+@router.post("/templates/reorder")
+async def reorder_templates(body: ReorderBody, session=Depends(get_current_session), x_pub_token: Optional[str] = Header(default=None)):
+    uid = _require_user(x_pub_token)
+    if not uid:
+        return _unauthorized()
+    with _conn() as c:
+        for i, tid in enumerate(body.order):
+            c.execute("UPDATE base_services SET sort_order=? WHERE id=? AND public_user_id=?", (i, tid, uid))
+        c.commit()
+    return JSONResponse({"ok": True})
+
+
 @router.delete("/templates/{tid}")
 async def delete_template(tid: int, session=Depends(get_current_session), x_pub_token: Optional[str] = Header(default=None)):
     uid = _require_user(x_pub_token)
@@ -217,7 +249,7 @@ async def list_categories(session=Depends(get_current_session), x_pub_token: Opt
     if not uid:
         return _unauthorized()
     with _conn() as c:
-        rows = c.execute("SELECT * FROM categories WHERE public_user_id=? ORDER BY name", (uid,)).fetchall()
+        rows = c.execute("SELECT * FROM categories WHERE public_user_id=? ORDER BY sort_order, name", (uid,)).fetchall()
     return JSONResponse([dict(r) for r in rows])
 
 
@@ -241,6 +273,18 @@ async def add_category(body: CategoryBody, session=Depends(get_current_session),
         c.commit()
         row = c.execute("SELECT * FROM categories WHERE public_user_id=? AND name=?", (uid, name)).fetchone()
     return JSONResponse(dict(row))
+
+
+@router.post("/categories/reorder")
+async def reorder_categories(body: ReorderBody, session=Depends(get_current_session), x_pub_token: Optional[str] = Header(default=None)):
+    uid = _require_user(x_pub_token)
+    if not uid:
+        return _unauthorized()
+    with _conn() as c:
+        for i, cid in enumerate(body.order):
+            c.execute("UPDATE categories SET sort_order=? WHERE id=? AND public_user_id=?", (i, cid, uid))
+        c.commit()
+    return JSONResponse({"ok": True})
 
 
 @router.delete("/categories/{cid}")
@@ -371,7 +415,13 @@ async def list_project_services(pid: int, session=Depends(get_current_session), 
         owns = c.execute("SELECT 1 FROM projects WHERE id=? AND public_user_id=?", (pid, uid)).fetchone()
         if not owns:
             return _not_found()
-        rows = c.execute("SELECT * FROM project_services WHERE project_id=? ORDER BY id", (pid,)).fetchall()
+        rows = c.execute(
+            "SELECT ps.* FROM project_services ps "
+            "LEFT JOIN categories cat ON cat.public_user_id=? AND cat.name=ps.category "
+            "WHERE ps.project_id=? "
+            "ORDER BY COALESCE(cat.sort_order, 999999), ps.sort_order, ps.id",
+            (uid, pid),
+        ).fetchall()
     return JSONResponse([dict(r) for r in rows])
 
 
@@ -380,6 +430,8 @@ class ProjectServiceBody(BaseModel):
     description: str = ""
     hours: float = 0
     fixed_price: Optional[float] = None
+    category: str = ""
+    sort_order: int = 0
 
 
 @router.post("/projects/{pid}/services")
@@ -392,8 +444,8 @@ async def add_project_service(pid: int, body: ProjectServiceBody, session=Depend
         if not owns:
             return _not_found()
         cur = c.execute(
-            "INSERT INTO project_services (project_id, name, description, hours, fixed_price) VALUES (?,?,?,?,?)",
-            (pid, body.name, body.description, body.hours, body.fixed_price),
+            "INSERT INTO project_services (project_id, name, description, hours, fixed_price, category, sort_order) VALUES (?,?,?,?,?,?,?)",
+            (pid, body.name, body.description, body.hours, body.fixed_price, body.category or None, body.sort_order),
         )
         c.commit()
         row = c.execute("SELECT * FROM project_services WHERE id=?", (cur.lastrowid,)).fetchone()
