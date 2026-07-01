@@ -43,6 +43,8 @@ def _dist_score(dist_km: float, scale: int = 2000) -> int:
 
 
 class Game:
+    _TIMEOUT_GRACE = 2.5  # seconds; see _start_round
+
     def __init__(self, ctx):
         self.ctx = ctx
         self.rounds_total = 5
@@ -137,7 +139,12 @@ class Game:
         if self.time_per_round > 0:
             self._round_token += 1
             tok = self._round_token
-            self.ctx.schedule(self.time_per_round, lambda: self._timeout(r, tok))
+            # Grace period: the client fires its own local timer at the same
+            # deadline and sends the marked-but-unsubmitted guess as fy_guess,
+            # but that message still needs to cross the network. Ending the
+            # round exactly at time_per_round loses that race every time, so
+            # give it a little slack to arrive before we lock the round.
+            self.ctx.schedule(self.time_per_round + self._TIMEOUT_GRACE, lambda: self._timeout(r, tok))
 
     async def _timeout(self, r, tok):
         if self.current_round == r and tok == self._round_token and not self.result_shown:
