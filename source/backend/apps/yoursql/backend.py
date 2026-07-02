@@ -1,14 +1,20 @@
 """
-YourSQL — MySQL manager backend for mvmOS.
+YourSQL — multi-database manager backend for mvmOS.
 Routes: /api/apps/yoursql/...
-Uses the mysql CLI instead of pymysql — works on any machine without extra dependencies.
+Each connection has a db_type (mysql, mariadb, postgresql, cockroachdb,
+gcloud_postgres, greenplum). backend.py dispatches to the matching dialect
+module (dialect_mysql.py / dialect_postgres.py) based on the connection's
+dialect family — see dialect_common.py. mvmApps/mvmOS Core builtin SQLite
+connections are handled directly here, unchanged.
 """
 
 import json
 import os
+import re
 import subprocess
 import sqlite3
 import sys
+import importlib.util
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -19,6 +25,47 @@ get_current_session = sys.modules["backend.auth"].get_current_session
 
 router = APIRouter(prefix="/api/apps/yoursql")
 router._app_backend = "yoursql"
+
+_APP_DIR = os.path.dirname(os.path.realpath(__file__))
+
+
+def _load_sibling(name: str):
+    """backend/app_backends.py loads this file via exec(), not real import
+    machinery, so sibling modules can't use plain `import` — load by path."""
+    spec = importlib.util.spec_from_file_location(f"yoursql_{name}", os.path.join(_APP_DIR, f"{name}.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+dialect_common = _load_sibling("dialect_common")
+dialect_mysql = _load_sibling("dialect_mysql")
+dialect_postgres = _load_sibling("dialect_postgres")
+
+_DIALECTS = {"mysql": dialect_mysql, "postgres": dialect_postgres}
+
+
+def _dialect_for(db_type: str):
+    return _DIALECTS[dialect_common.family_of(db_type)]
+
+
+def _call(dialect, cfg, fn_name, *args, **kwargs):
+    """Call a dialect function, turning driver_missing / ValueError into clean HTTPExceptions."""
+    try:
+        return getattr(dialect, fn_name)(cfg, *args, **kwargs)
+    except HTTPException:
+        raise
+    except RuntimeError as e:
+        if str(e) == "driver_missing":
+            family = dialect_common.family_of(cfg.get("db_type"))
+            _, package = dialect_common.DRIVERS[family]
+            raise HTTPException(409, {"error": "driver_missing", "family": family, "package": package})
+        raise HTTPException(400, str(e))
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    except Exception as e:
+        raise HTTPException(400, str(e))
+
 
 # App-own SQLite DB — stored in apps/yoursql/data.db
 _DB_PATH = os.path.join(
@@ -35,6 +82,7 @@ def _app_conn():
             id TEXT PRIMARY KEY,
             user TEXT NOT NULL,
             name TEXT NOT NULL,
+            db_type TEXT NOT NULL DEFAULT 'mysql',
             host TEXT NOT NULL DEFAULT 'localhost',
             port INTEGER NOT NULL DEFAULT 3306,
             db_user TEXT NOT NULL,
@@ -43,6 +91,11 @@ def _app_conn():
             created_at INTEGER DEFAULT (strftime('%s','now'))
         )
     """)
+    try:
+        conn.execute("ALTER TABLE connections ADD COLUMN db_type TEXT NOT NULL DEFAULT 'mysql'")
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass
     conn.commit()
     return conn
 
@@ -90,164 +143,12 @@ def _sqlite_query_path(path: str, sql: str) -> dict:
 def _sqlite_query(database: str, sql: str) -> dict:
     """Run any SQL on a SQLite db. Returns {columns, rows, affected}."""
     path = _sqlite_db_path(database)
-    con = sqlite3.connect(path)
-    con.row_factory = sqlite3.Row
-    try:
-        cur = con.execute(sql)
-        sql_upper = sql.strip().upper()
-        if sql_upper.startswith(("SELECT", "PRAGMA", "EXPLAIN")):
-            rows_raw = cur.fetchall()
-            if rows_raw:
-                columns = list(rows_raw[0].keys())
-                rows = [dict(r) for r in rows_raw]
-            else:
-                columns = [d[0] for d in (cur.description or [])]
-                rows = []
-            return {"columns": columns, "rows": rows, "affected": None}
-        else:
-            con.commit()
-            return {"columns": [], "rows": [], "affected": cur.rowcount}
-    finally:
-        con.close()
+    return _sqlite_query_path(path, sql)
 
 
 def _sqlite_tables(database: str) -> list:
     res = _sqlite_query(database, "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
     return [r["name"] for r in res["rows"]]
-
-
-def _sqlite_columns(database: str, table: str) -> list:
-    res = _sqlite_query(database, f"PRAGMA table_info(`{table}`)")
-    cols = []
-    for r in res["rows"]:
-        cols.append({
-            "Field": r["name"],
-            "Type": r["type"] or "TEXT",
-            "Null": "YES" if not r["notnull"] else "NO",
-            "Key": "PRI" if r["pk"] else "",
-            "Default": r["dflt_value"],
-            "Extra": "",
-            "Collation": "",
-            "Comment": "",
-            "Privileges": "",
-        })
-    return cols
-
-
-# ── MySQL CLI helper ──────────────────────────────────────────────────────────
-
-def _mysql_args(cfg: dict, database: str = None) -> list:
-    """Build mysql CLI argument list from connection config."""
-    args = [
-        "mysql",
-        f"-h{cfg['host']}",
-        f"-P{cfg['port']}",
-        f"-u{cfg['user']}",
-        f"-p{cfg['password']}",
-        "--batch",
-        "--skip-column-names",
-        "--default-character-set=utf8mb4",
-    ]
-    if database:
-        args.append(database)
-    return args
-
-
-def _run_mysql(cfg: dict, sql: str, database: str = None) -> str:
-    """Run a SQL statement via mysql CLI and return raw output."""
-    args = _mysql_args(cfg, database)
-    r = subprocess.run(
-        args,
-        input=sql,
-        capture_output=True,
-        text=True,
-        timeout=30,
-    )
-    if r.returncode != 0:
-        err = r.stderr.strip()
-        # Strip the "mysql: [Warning] Using a password..." line
-        lines = [l for l in err.splitlines() if "Using a password" not in l]
-        raise HTTPException(400, "\n".join(lines) or err)
-    return r.stdout
-
-
-def _run_mysql_json(cfg: dict, sql: str, database: str = None) -> list:
-    """Run SQL and return list of dicts (tab-separated output with header)."""
-    args = _mysql_args(cfg, database)
-    # Use --column-names to get header row
-    args = [a for a in args if a != "--skip-column-names"]
-    r = subprocess.run(
-        args,
-        input=sql,
-        capture_output=True,
-        text=True,
-        timeout=30,
-    )
-    if r.returncode != 0:
-        err = r.stderr.strip()
-        lines = [l for l in err.splitlines() if "Using a password" not in l]
-        raise HTTPException(400, "\n".join(lines) or err)
-
-    lines = r.stdout.splitlines()
-    if not lines:
-        return []
-    columns = lines[0].split("\t")
-    rows = []
-    for line in lines[1:]:
-        if not line:
-            continue
-        values = line.split("\t")
-        row = {}
-        for i, col in enumerate(columns):
-            v = values[i] if i < len(values) else ""
-            row[col] = None if v == "NULL" else v
-        rows.append(row)
-    return rows
-
-
-def _run_mysql_write(cfg: dict, sql: str, database: str = None) -> int:
-    """Run a write SQL statement and return affected rows."""
-    args = _mysql_args(cfg, database)
-    r = subprocess.run(
-        args,
-        input=sql,
-        capture_output=True,
-        text=True,
-        timeout=30,
-    )
-    if r.returncode != 0:
-        err = r.stderr.strip()
-        lines = [l for l in err.splitlines() if "Using a password" not in l]
-        raise HTTPException(400, "\n".join(lines) or err)
-    # mysql outputs "Query OK, N rows affected"
-    for line in r.stderr.splitlines():
-        if "rows affected" in line or "row affected" in line:
-            try:
-                return int(line.split()[2])
-            except Exception:
-                pass
-    return 0
-
-
-def _escape(val) -> str:
-    """Escape a value for use in SQL string."""
-    if val is None:
-        return "NULL"
-    s = str(val).replace("\\", "\\\\").replace("'", "\\'")
-    return f"'{s}'"
-
-
-def _is_sqlite_conn(conn_id: str) -> bool:
-    return conn_id in (_MVMAPPS_CONN_ID, _CORE_CONN_ID)
-
-
-def _where_mysql(where: dict) -> str:
-    """Build a MySQL WHERE expression from a {col: value} dict (NULL-safe)."""
-    if not where:
-        raise HTTPException(400, "Empty WHERE")
-    return " AND ".join(
-        f"`{c}` IS NULL" if v is None else f"`{c}`={_escape(v)}" for c, v in where.items()
-    )
 
 
 def _where_sqlite(where: dict):
@@ -272,6 +173,43 @@ def _sqlite_write(path: str, sql: str, params: list) -> dict:
         return {"affected": cur.rowcount, "last_id": cur.lastrowid}
     finally:
         con.close()
+
+
+def _is_sqlite_conn(conn_id: str) -> bool:
+    return conn_id in (_MVMAPPS_CONN_ID, _CORE_CONN_ID)
+
+
+def _build_where_cli(filters, search=None, search_cols=None):
+    """Build a SQLite WHERE clause from the filter list (used only for the builtin SQLite connections)."""
+    def _escape(val) -> str:
+        if val is None:
+            return "NULL"
+        s = str(val).replace("\\", "\\\\").replace("'", "\\'")
+        return f"'{s}'"
+
+    parts = []
+    if search and search_cols:
+        parts.append("(" + " OR ".join([f"`{c}` LIKE '%{search}%'" for c in search_cols]) + ")")
+    OP_MAP = {
+        '=': '`{col}`={val}', '!=': '`{col}`!={val}', '<': '`{col}`<{val}', '>': '`{col}`>{val}',
+        '<=': '`{col}`<={val}', '>=': '`{col}`>={val}', 'LIKE': '`{col}` LIKE {val}',
+        'NOT LIKE': '`{col}` NOT LIKE {val}', 'LIKE %%': '`{col}` LIKE \'%{raw}%\'',
+        'REGEXP': '`{col}` REGEXP {val}', 'IS NULL': '`{col}` IS NULL', 'IS NOT NULL': '`{col}` IS NOT NULL',
+    }
+    for f in (filters or []):
+        col = f.get('col') if isinstance(f, dict) else f.col
+        op = f.get('op') if isinstance(f, dict) else f.op
+        val = f.get('val', '') if isinstance(f, dict) else getattr(f, 'val', '')
+        if op not in OP_MAP:
+            continue
+        tpl = OP_MAP[op]
+        if op == 'LIKE %%':
+            parts.append(tpl.format(col=col, raw=val.replace("'", "\\'")))
+        elif op in ('IS NULL', 'IS NOT NULL'):
+            parts.append(tpl.format(col=col))
+        else:
+            parts.append(tpl.format(col=col, val=_escape(val)))
+    return ("WHERE " + " AND ".join(parts)) if parts else ""
 
 
 # ── Connections ───────────────────────────────────────────────────────────────
@@ -300,28 +238,62 @@ def _get_conn_config(user: str, conn_id: str) -> dict:
     return c
 
 
+@router.get("/db-types")
+def db_types(session=Depends(get_current_session)):
+    return JSONResponse([
+        {"id": k, "label": v, "family": dialect_common.family_of(k), "default_port": dialect_common.default_port(k)}
+        for k, v in dialect_common.DB_TYPE_LABELS.items()
+    ])
+
+
+@router.get("/driver-status")
+def driver_status(db_type: str, session=Depends(get_current_session)):
+    family = dialect_common.family_of(db_type)
+    dialect = _DIALECTS[family]
+    _, package = dialect_common.DRIVERS[family]
+    return JSONResponse({"available": dialect.driver_available(), "package": package, "family": family})
+
+
+class InstallDriverBody(BaseModel):
+    db_type: str
+
+
+@router.post("/install-driver")
+def install_driver(body: InstallDriverBody, session=Depends(get_current_session)):
+    family = dialect_common.family_of(body.db_type)
+    _, package = dialect_common.DRIVERS[family]
+    try:
+        r = subprocess.run(
+            [sys.executable, "-m", "pip", "install", "--disable-pip-version-check", package],
+            capture_output=True, text=True, timeout=120,
+        )
+    except Exception as e:
+        raise HTTPException(400, str(e))
+    if r.returncode != 0:
+        raise HTTPException(400, (r.stderr or r.stdout or "pip install failed").strip()[-2000:])
+    # Reload the dialect module now that the package is importable in this process.
+    global dialect_mysql, dialect_postgres
+    if family == "mysql":
+        dialect_mysql = _load_sibling("dialect_mysql")
+        _DIALECTS["mysql"] = dialect_mysql
+    else:
+        dialect_postgres = _load_sibling("dialect_postgres")
+        _DIALECTS["postgres"] = dialect_postgres
+    return JSONResponse({"ok": True})
+
+
 @router.get("/connections")
 def list_connections(session=Depends(get_current_session)):
     conns = _get_connections(session["effective_user"])
     safe = [{k: v for k, v in c.items() if k != "password"} for c in conns]
     # Append built-in system connections after user connections
     safe.append({
-        "id": _MVMAPPS_CONN_ID,
-        "name": "mvmApps",
-        "host": "local",
-        "port": 0,
-        "db_user": "",
-        "database": "",
-        "builtin": True,
+        "id": _MVMAPPS_CONN_ID, "name": "mvmApps", "db_type": "sqlite",
+        "host": "local", "port": 0, "db_user": "", "database": "", "builtin": True,
     })
     safe.append({
-        "id": _CORE_CONN_ID,
-        "name": "mvmOS Core",
-        "host": "local",
-        "port": 0,
-        "db_user": "",
-        "database": "",
-        "builtin": True,
+        "id": _CORE_CONN_ID, "name": "mvmOS Core", "db_type": "sqlite",
+        "host": "local", "port": 0, "db_user": "", "database": "", "builtin": True,
     })
     return JSONResponse(safe)
 
@@ -329,6 +301,7 @@ def list_connections(session=Depends(get_current_session)):
 class ConnectionBody(BaseModel):
     id: Optional[str] = None
     name: str
+    db_type: str = "mysql"
     host: str = "localhost"
     port: int = 3306
     user: str
@@ -350,9 +323,9 @@ def save_connection(body: ConnectionBody, session=Depends(get_current_session)):
             pass
     with _app_conn() as conn:
         conn.execute("""
-            INSERT OR REPLACE INTO connections (id, user, name, host, port, db_user, password, database)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (conn_id, user, body.name, body.host, body.port, body.user, password, body.database))
+            INSERT OR REPLACE INTO connections (id, user, name, db_type, host, port, db_user, password, database)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (conn_id, user, body.name, body.db_type, body.host, body.port, body.user, password, body.database))
     return {"ok": True, "id": conn_id}
 
 
@@ -371,25 +344,25 @@ class DbNameBody(BaseModel):
 
 @router.post("/create-database")
 def create_database(body: DbNameBody, session=Depends(get_current_session)):
-    import re as _re
-    if not _re.match(r'^[a-zA-Z0-9_\-]+$', body.name.strip()):
+    if not re.match(r'^[a-zA-Z0-9_\-]+$', body.name.strip()):
         raise HTTPException(400, "Invalid database name")
     cfg = _get_conn_config(session["effective_user"], body.conn_id)
-    _run_mysql_write(cfg, f"CREATE DATABASE `{body.name.strip()}`")
+    dialect = _dialect_for(cfg["db_type"])
+    _call(dialect, cfg, "create_database", body.name.strip())
     return JSONResponse({"ok": True})
 
 
 @router.post("/drop-database")
 def drop_database(body: DbNameBody, session=Depends(get_current_session)):
-    import re as _re
-    if not _re.match(r'^[a-zA-Z0-9_\-]+$', body.name.strip()):
+    if not re.match(r'^[a-zA-Z0-9_\-]+$', body.name.strip()):
         raise HTTPException(400, "Invalid database name")
     cfg = _get_conn_config(session["effective_user"], body.conn_id)
-    _run_mysql_write(cfg, f"DROP DATABASE `{body.name.strip()}`")
+    dialect = _dialect_for(cfg["db_type"])
+    _call(dialect, cfg, "drop_database", body.name.strip())
     return JSONResponse({"ok": True})
 
 
-# ── MySQL queries ─────────────────────────────────────────────────────────────
+# ── Databases / tables ────────────────────────────────────────────────────────
 
 @router.get("/databases")
 def list_databases(conn_id: str, session=Depends(get_current_session)):
@@ -404,14 +377,9 @@ def list_databases(conn_id: str, session=Depends(get_current_session)):
                         dbs.add(entry)
         return JSONResponse(sorted(dbs))
     cfg = _get_conn_config(session["effective_user"], conn_id)
-    try:
-        output = _run_mysql(cfg, "SHOW DATABASES;")
-        dbs = [line for line in output.splitlines() if line]
-        return JSONResponse(dbs)
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+    dialect = _dialect_for(cfg["db_type"])
+    dbs = _call(dialect, cfg, "list_databases")
+    return JSONResponse(dbs)
 
 
 @router.get("/tables")
@@ -424,14 +392,9 @@ def list_tables(conn_id: str, database: str, session=Depends(get_current_session
     if conn_id == _MVMAPPS_CONN_ID:
         return JSONResponse(_sqlite_tables(database))
     cfg = _get_conn_config(session["effective_user"], conn_id)
-    try:
-        output = _run_mysql(cfg, f"SHOW TABLES;", database=database)
-        tables = [line for line in output.splitlines() if line]
-        return JSONResponse(tables)
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+    dialect = _dialect_for(cfg["db_type"])
+    tables = _call(dialect, cfg, "list_tables", database)
+    return JSONResponse(tables)
 
 
 class QueryBody(BaseModel):
@@ -454,21 +417,11 @@ def run_query(body: QueryBody, session=Depends(get_current_session)):
         except Exception as e:
             raise HTTPException(400, str(e))
     cfg = _get_conn_config(session["effective_user"], body.conn_id)
-    try:
-        sql = body.sql.strip()
-        is_select = sql.upper().startswith(("SELECT", "SHOW", "DESCRIBE", "EXPLAIN"))
-        db = body.database or None
-        if is_select:
-            rows = _run_mysql_json(cfg, sql, database=db)
-            columns = list(rows[0].keys()) if rows else []
-            return JSONResponse({"columns": columns, "rows": rows, "affected": None})
-        else:
-            affected = _run_mysql_write(cfg, sql, database=db)
-            return JSONResponse({"columns": [], "rows": [], "affected": affected})
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+    dialect = _dialect_for(cfg["db_type"])
+    res = _call(dialect, cfg, "run_query", body.database, body.sql.strip())
+    if res.get("rows"):
+        res["rows"] = dialect_common.json_safe_rows(res["rows"])
+    return JSONResponse(res)
 
 
 class UpdateRowBody(BaseModel):
@@ -481,23 +434,17 @@ class UpdateRowBody(BaseModel):
 
 @router.post("/update-row")
 def update_row(body: UpdateRowBody, session=Depends(get_current_session)):
-    try:
-        if _is_sqlite_conn(body.conn_id):
-            path = _resolve_sqlite_path(body.conn_id, body.database)
-            set_parts = [f"`{c}`=?" for c in body.updates]
-            where_sql, where_params = _where_sqlite(body.where)
-            res = _sqlite_write(path, f"UPDATE `{body.table}` SET {', '.join(set_parts)} WHERE {where_sql}",
-                                list(body.updates.values()) + where_params)
-            return {"ok": True, "affected": res["affected"]}
-        cfg = _get_conn_config(session["effective_user"], body.conn_id)
-        set_parts = [f"`{c}`={_escape(v)}" for c, v in body.updates.items()]
-        sql = f"UPDATE `{body.table}` SET {', '.join(set_parts)} WHERE {_where_mysql(body.where)};"
-        affected = _run_mysql_write(cfg, sql, database=body.database)
-        return {"ok": True, "affected": affected}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+    if _is_sqlite_conn(body.conn_id):
+        path = _resolve_sqlite_path(body.conn_id, body.database)
+        set_parts = [f"`{c}`=?" for c in body.updates]
+        where_sql, where_params = _where_sqlite(body.where)
+        res = _sqlite_write(path, f"UPDATE `{body.table}` SET {', '.join(set_parts)} WHERE {where_sql}",
+                            list(body.updates.values()) + where_params)
+        return {"ok": True, "affected": res["affected"]}
+    cfg = _get_conn_config(session["effective_user"], body.conn_id)
+    dialect = _dialect_for(cfg["db_type"])
+    affected = _call(dialect, cfg, "update_row", body.database, body.table, body.where, body.updates)
+    return {"ok": True, "affected": affected}
 
 
 class InsertRowBody(BaseModel):
@@ -509,27 +456,18 @@ class InsertRowBody(BaseModel):
 
 @router.post("/insert-row")
 def insert_row(body: InsertRowBody, session=Depends(get_current_session)):
-    try:
+    if _is_sqlite_conn(body.conn_id):
+        path = _resolve_sqlite_path(body.conn_id, body.database)
         cols = list(body.values.keys())
         col_str = ", ".join([f"`{c}`" for c in cols])
-        if _is_sqlite_conn(body.conn_id):
-            path = _resolve_sqlite_path(body.conn_id, body.database)
-            qs = ", ".join("?" for _ in cols)
-            res = _sqlite_write(path, f"INSERT INTO `{body.table}` ({col_str}) VALUES ({qs})",
-                                list(body.values.values()))
-            return {"ok": True, "id": res["last_id"]}
-        cfg = _get_conn_config(session["effective_user"], body.conn_id)
-        vals = [_escape(v) for v in body.values.values()]
-        sql = f"INSERT INTO `{body.table}` ({col_str}) VALUES ({', '.join(vals)});"
-        _run_mysql_write(cfg, sql, database=body.database)
-        # Get last insert id
-        rows = _run_mysql_json(cfg, "SELECT LAST_INSERT_ID() as id;", database=body.database)
-        last_id = rows[0]["id"] if rows else None
-        return {"ok": True, "id": last_id}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+        qs = ", ".join("?" for _ in cols)
+        res = _sqlite_write(path, f"INSERT INTO `{body.table}` ({col_str}) VALUES ({qs})",
+                            list(body.values.values()))
+        return {"ok": True, "id": res["last_id"]}
+    cfg = _get_conn_config(session["effective_user"], body.conn_id)
+    dialect = _dialect_for(cfg["db_type"])
+    last_id = _call(dialect, cfg, "insert_row", body.database, body.table, body.values)
+    return {"ok": True, "id": last_id}
 
 
 class BulkDeleteBody(BaseModel):
@@ -542,29 +480,20 @@ class BulkDeleteBody(BaseModel):
 
 @router.post("/bulk-delete")
 def bulk_delete(body: BulkDeleteBody, session=Depends(get_current_session)):
-    try:
+    if _is_sqlite_conn(body.conn_id):
+        path = _resolve_sqlite_path(body.conn_id, body.database)
         deleted = 0
-        if _is_sqlite_conn(body.conn_id):
-            path = _resolve_sqlite_path(body.conn_id, body.database)
-            if body.mode == "all":
-                deleted = _sqlite_write(path, f"DELETE FROM `{body.table}`", [])["affected"]
-            elif body.where_rows:
-                for where_dict in body.where_rows:
-                    where_sql, params = _where_sqlite(where_dict)
-                    deleted += _sqlite_write(path, f"DELETE FROM `{body.table}` WHERE {where_sql}", params)["affected"]
-            return {"ok": True, "affected": deleted}
-        cfg = _get_conn_config(session["effective_user"], body.conn_id)
         if body.mode == "all":
-            deleted = _run_mysql_write(cfg, f"DELETE FROM `{body.table}`;", database=body.database)
+            deleted = _sqlite_write(path, f"DELETE FROM `{body.table}`", [])["affected"]
         elif body.where_rows:
             for where_dict in body.where_rows:
-                sql = f"DELETE FROM `{body.table}` WHERE {_where_mysql(where_dict)};"
-                deleted += _run_mysql_write(cfg, sql, database=body.database)
+                where_sql, params = _where_sqlite(where_dict)
+                deleted += _sqlite_write(path, f"DELETE FROM `{body.table}` WHERE {where_sql}", params)["affected"]
         return {"ok": True, "affected": deleted}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+    cfg = _get_conn_config(session["effective_user"], body.conn_id)
+    dialect = _dialect_for(cfg["db_type"])
+    deleted = _call(dialect, cfg, "bulk_delete", body.database, body.table, body.mode, body.where_rows)
+    return {"ok": True, "affected": deleted}
 
 
 class BulkUpdateBody(BaseModel):
@@ -578,98 +507,38 @@ class BulkUpdateBody(BaseModel):
 
 @router.post("/bulk-update")
 def bulk_update(body: BulkUpdateBody, session=Depends(get_current_session)):
-    try:
-        if _is_sqlite_conn(body.conn_id):
-            path = _resolve_sqlite_path(body.conn_id, body.database)
-            set_parts, set_params = [], []
-            for col, op_dict in body.updates.items():
-                operation = op_dict.get("op", "set") if isinstance(op_dict, dict) else "set"
-                val = op_dict.get("value") if isinstance(op_dict, dict) else op_dict
-                if operation == "set_null" or (operation == "set" and val is None):
-                    set_parts.append(f"`{col}`=NULL")
-                elif operation == "set":
-                    set_parts.append(f"`{col}`=?")
-                    set_params.append(val)
-                elif operation == "increment":
-                    set_parts.append(f"`{col}`=`{col}`+?")
-                    set_params.append(val)
-                elif operation == "decrement":
-                    set_parts.append(f"`{col}`=`{col}`-?")
-                    set_params.append(val)
-            if not set_parts:
-                raise HTTPException(400, "No operations")
-            total_affected = 0
-            if body.mode == "all":
-                total_affected = _sqlite_write(path, f"UPDATE `{body.table}` SET {', '.join(set_parts)}", set_params)["affected"]
-            elif body.where_rows:
-                for where_dict in body.where_rows:
-                    where_sql, wparams = _where_sqlite(where_dict)
-                    total_affected += _sqlite_write(path, f"UPDATE `{body.table}` SET {', '.join(set_parts)} WHERE {where_sql}",
-                                                    set_params + wparams)["affected"]
-            return {"ok": True, "affected": total_affected}
-        cfg = _get_conn_config(session["effective_user"], body.conn_id)
-        set_parts = []
+    if _is_sqlite_conn(body.conn_id):
+        path = _resolve_sqlite_path(body.conn_id, body.database)
+        set_parts, set_params = [], []
         for col, op_dict in body.updates.items():
             operation = op_dict.get("op", "set") if isinstance(op_dict, dict) else "set"
             val = op_dict.get("value") if isinstance(op_dict, dict) else op_dict
             if operation == "set_null" or (operation == "set" and val is None):
                 set_parts.append(f"`{col}`=NULL")
             elif operation == "set":
-                set_parts.append(f"`{col}`={_escape(val)}")
+                set_parts.append(f"`{col}`=?")
+                set_params.append(val)
             elif operation == "increment":
-                set_parts.append(f"`{col}`=`{col}`+{_escape(val)}")
+                set_parts.append(f"`{col}`=`{col}`+?")
+                set_params.append(val)
             elif operation == "decrement":
-                set_parts.append(f"`{col}`=`{col}`-{_escape(val)}")
+                set_parts.append(f"`{col}`=`{col}`-?")
+                set_params.append(val)
         if not set_parts:
             raise HTTPException(400, "No operations")
         total_affected = 0
         if body.mode == "all":
-            sql = f"UPDATE `{body.table}` SET {', '.join(set_parts)};"
-            total_affected = _run_mysql_write(cfg, sql, database=body.database)
+            total_affected = _sqlite_write(path, f"UPDATE `{body.table}` SET {', '.join(set_parts)}", set_params)["affected"]
         elif body.where_rows:
             for where_dict in body.where_rows:
-                sql = f"UPDATE `{body.table}` SET {', '.join(set_parts)} WHERE {_where_mysql(where_dict)};"
-                total_affected += _run_mysql_write(cfg, sql, database=body.database)
+                where_sql, wparams = _where_sqlite(where_dict)
+                total_affected += _sqlite_write(path, f"UPDATE `{body.table}` SET {', '.join(set_parts)} WHERE {where_sql}",
+                                                set_params + wparams)["affected"]
         return {"ok": True, "affected": total_affected}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
-
-
-def _build_where_cli(filters, search=None, search_cols=None):
-    """Build WHERE clause from filter list for CLI queries."""
-    parts = []
-    if search and search_cols:
-        parts.append("(" + " OR ".join([f"`{c}` LIKE '%{search}%'" for c in search_cols]) + ")")
-    OP_MAP = {
-        '=': '`{col}`={val}',
-        '!=': '`{col}`!={val}',
-        '<': '`{col}`<{val}',
-        '>': '`{col}`>{val}',
-        '<=': '`{col}`<={val}',
-        '>=': '`{col}`>={val}',
-        'LIKE': '`{col}` LIKE {val}',
-        'NOT LIKE': '`{col}` NOT LIKE {val}',
-        'LIKE %%': '`{col}` LIKE \'%{raw}%\'',
-        'REGEXP': '`{col}` REGEXP {val}',
-        'IS NULL': '`{col}` IS NULL',
-        'IS NOT NULL': '`{col}` IS NOT NULL',
-    }
-    for f in (filters or []):
-        col = f.get('col') if isinstance(f, dict) else f.col
-        op = f.get('op') if isinstance(f, dict) else f.op
-        val = f.get('val', '') if isinstance(f, dict) else getattr(f, 'val', '')
-        if op not in OP_MAP:
-            continue
-        tpl = OP_MAP[op]
-        if op == 'LIKE %%':
-            parts.append(tpl.format(col=col, raw=val.replace("'", "\\'")))
-        elif op in ('IS NULL', 'IS NOT NULL'):
-            parts.append(tpl.format(col=col))
-        else:
-            parts.append(tpl.format(col=col, val=_escape(val)))
-    return ("WHERE " + " AND ".join(parts)) if parts else ""
+    cfg = _get_conn_config(session["effective_user"], body.conn_id)
+    dialect = _dialect_for(cfg["db_type"])
+    affected = _call(dialect, cfg, "bulk_update", body.database, body.table, body.updates, body.mode, body.where_rows)
+    return {"ok": True, "affected": affected}
 
 
 class TableDataBody(BaseModel):
@@ -707,35 +576,12 @@ def get_table_data(body: TableDataBody, session=Depends(get_current_session)):
         except Exception as e:
             raise HTTPException(400, str(e))
     cfg = _get_conn_config(session["effective_user"], body.conn_id)
-    try:
-        search_cols = []
-        if body.search:
-            cols_rows = _run_mysql_json(cfg, f"DESCRIBE `{body.table}`;", database=body.database)
-            search_cols = [c["Field"] for c in cols_rows if any(t in c["Type"].lower() for t in ["char", "text", "varchar"])]
-
-        where = _build_where_cli(body.filters, body.search, search_cols)
-
-        count_rows = _run_mysql_json(cfg, f"SELECT COUNT(*) as cnt FROM `{body.table}` {where};", database=body.database)
-        total = int(count_rows[0]["cnt"]) if count_rows else 0
-
-        order_parts = []
-        if body.sort:
-            for s in body.sort:
-                col = s.get('col') if isinstance(s, dict) else s.col
-                dir_ = "DESC" if (s.get('dir') if isinstance(s, dict) else s.dir).upper() == "DESC" else "ASC"
-                order_parts.append(f"`{col}` {dir_}")
-        elif body.order_by:
-            dir_ = "DESC" if body.order_dir.upper() == "DESC" else "ASC"
-            order_parts.append(f"`{body.order_by}` {dir_}")
-        order = ("ORDER BY " + ", ".join(order_parts)) if order_parts else ""
-
-        rows = _run_mysql_json(cfg, f"SELECT * FROM `{body.table}` {where} {order} LIMIT {body.limit} OFFSET {body.offset};", database=body.database)
-        columns = list(rows[0].keys()) if rows else []
-        return JSONResponse({"columns": columns, "rows": rows, "total": total})
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+    dialect = _dialect_for(cfg["db_type"])
+    res = _call(dialect, cfg, "get_table_data", body.database, body.table, body.limit, body.offset,
+                body.search, body.order_by, body.order_dir, body.filters, body.sort)
+    if res.get("rows"):
+        res["rows"] = dialect_common.json_safe_rows(res["rows"])
+    return JSONResponse(res)
 
 
 class UpdateCellBody(BaseModel):
@@ -749,21 +595,16 @@ class UpdateCellBody(BaseModel):
 
 @router.post("/update-cell")
 def update_cell(body: UpdateCellBody, session=Depends(get_current_session)):
-    try:
-        if _is_sqlite_conn(body.conn_id):
-            path = _resolve_sqlite_path(body.conn_id, body.database)
-            where_sql, params = _where_sqlite(body.where)
-            _sqlite_write(path, f"UPDATE `{body.table}` SET `{body.column}`=? WHERE {where_sql}",
-                          [body.value] + params)
-            return {"ok": True}
-        cfg = _get_conn_config(session["effective_user"], body.conn_id)
-        sql = f"UPDATE `{body.table}` SET `{body.column}`={_escape(body.value)} WHERE {_where_mysql(body.where)};"
-        _run_mysql_write(cfg, sql, database=body.database)
+    if _is_sqlite_conn(body.conn_id):
+        path = _resolve_sqlite_path(body.conn_id, body.database)
+        where_sql, params = _where_sqlite(body.where)
+        _sqlite_write(path, f"UPDATE `{body.table}` SET `{body.column}`=? WHERE {where_sql}",
+                      [body.value] + params)
         return {"ok": True}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+    cfg = _get_conn_config(session["effective_user"], body.conn_id)
+    dialect = _dialect_for(cfg["db_type"])
+    _call(dialect, cfg, "update_cell", body.database, body.table, body.where, body.column, body.value)
+    return {"ok": True}
 
 
 class DeleteRowBody(BaseModel):
@@ -777,26 +618,18 @@ class DeleteRowBody(BaseModel):
 
 @router.post("/delete-row")
 def delete_row(body: DeleteRowBody, session=Depends(get_current_session)):
-    try:
-        if _is_sqlite_conn(body.conn_id):
-            path = _resolve_sqlite_path(body.conn_id, body.database)
-            if body.where:
-                where_sql, params = _where_sqlite(body.where)
-            else:
-                where_sql, params = f"`{body.primary_key}`=?", [body.primary_value]
-            _sqlite_write(path, f"DELETE FROM `{body.table}` WHERE {where_sql}", params)
-            return {"ok": True}
-        cfg = _get_conn_config(session["effective_user"], body.conn_id)
+    if _is_sqlite_conn(body.conn_id):
+        path = _resolve_sqlite_path(body.conn_id, body.database)
         if body.where:
-            sql = f"DELETE FROM `{body.table}` WHERE {_where_mysql(body.where)};"
+            where_sql, params = _where_sqlite(body.where)
         else:
-            sql = f"DELETE FROM `{body.table}` WHERE `{body.primary_key}`={_escape(body.primary_value)};"
-        _run_mysql_write(cfg, sql, database=body.database)
+            where_sql, params = f"`{body.primary_key}`=?", [body.primary_value]
+        _sqlite_write(path, f"DELETE FROM `{body.table}` WHERE {where_sql}", params)
         return {"ok": True}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+    cfg = _get_conn_config(session["effective_user"], body.conn_id)
+    dialect = _dialect_for(cfg["db_type"])
+    _call(dialect, cfg, "delete_row", body.database, body.table, body.where, body.primary_key, body.primary_value)
+    return {"ok": True}
 
 
 @router.get("/table-structure")
@@ -817,41 +650,15 @@ def table_structure(conn_id: str, database: str, table: str, session=Depends(get
         except Exception as e:
             raise HTTPException(400, str(e))
     cfg = _get_conn_config(session["effective_user"], conn_id)
-    try:
-        columns = _run_mysql_json(cfg, f"SHOW FULL COLUMNS FROM `{table}`;", database=database)
-        indexes = _run_mysql_json(cfg, f"SHOW INDEX FROM `{table}`;", database=database)
-        fk_sql = """
-            SELECT kcu.CONSTRAINT_NAME AS name, kcu.COLUMN_NAME AS col,
-                   kcu.REFERENCED_TABLE_SCHEMA AS ref_db, kcu.REFERENCED_TABLE_NAME AS ref_table,
-                   kcu.REFERENCED_COLUMN_NAME AS ref_col, rc.UPDATE_RULE AS on_update, rc.DELETE_RULE AS on_delete
-            FROM information_schema.KEY_COLUMN_USAGE kcu
-            JOIN information_schema.REFERENTIAL_CONSTRAINTS rc
-                ON rc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME
-                AND rc.CONSTRAINT_SCHEMA = kcu.TABLE_SCHEMA
-                AND rc.TABLE_NAME = kcu.TABLE_NAME
-            WHERE kcu.TABLE_SCHEMA = '""" + database.replace("'", "") + """'
-              AND kcu.TABLE_NAME = '""" + table.replace("'", "") + """'
-              AND kcu.REFERENCED_TABLE_NAME IS NOT NULL
-            ORDER BY kcu.CONSTRAINT_NAME, kcu.ORDINAL_POSITION
-        """
-        fk_rows = _run_mysql_json(cfg, fk_sql)
-        fks = {}
-        for r in fk_rows:
-            n = r["name"]
-            if n not in fks:
-                fks[n] = {"name": n, "columns": [], "ref_db": r["ref_db"],
-                          "ref_table": r["ref_table"], "ref_cols": [],
-                          "on_update": r["on_update"], "on_delete": r["on_delete"]}
-            fks[n]["columns"].append(r["col"])
-            fks[n]["ref_cols"].append(r["ref_col"])
-        return JSONResponse({"columns": columns, "indexes": indexes, "foreign_keys": list(fks.values())})
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+    dialect = _dialect_for(cfg["db_type"])
+    res = _call(dialect, cfg, "table_structure", database, table)
+    return JSONResponse(res)
 
 
 # ── Create Table ─────────────────────────────────────────────────────────────
+
+_VALID_ID = re.compile(r'^[a-zA-Z0-9_\-\.]+$')
+
 
 class CreateTableBody(BaseModel):
     conn_id: str
@@ -868,85 +675,15 @@ def create_table(body: CreateTableBody, session=Depends(get_current_session)):
     cfg = _get_conn_config(session["effective_user"], body.conn_id)
     db = body.database.strip()
     tbl = body.table.strip()
-    if not _VALID_ID.match(db) or not _re.match(r'^[a-zA-Z0-9_]+$', tbl):
+    if not _VALID_ID.match(db) or not re.match(r'^[a-zA-Z0-9_]+$', tbl):
         raise HTTPException(400, "Invalid table name")
-    try:
-        col_defs = []
-        primary_cols = []
-        for col in body.columns:
-            name = (col.get("name") or "").strip()
-            if not name or not _re.match(r'^[a-zA-Z0-9_]+$', name):
-                raise HTTPException(400, f"Invalid column name: {name}")
-            base_type = (col.get("type") or "VARCHAR").strip().upper()
-            type_str = _build_type_str(base_type, col)
-            null_str = "NULL" if col.get("allowNull") else "NOT NULL"
-            default_str = ""
-            def_type = col.get("defaultType", "NULL")
-            def_val = str(col.get("defaultValue", "") or "")
-            allow_null = bool(col.get("allowNull"))
-            auto_inc = bool(col.get("autoIncrement"))
-            if not auto_inc and base_type not in _NO_DEFAULT_TYPES:
-                if def_type == "NULL":
-                    if allow_null:
-                        default_str = "DEFAULT NULL"
-                elif def_type == "EMPTY":
-                    if base_type in _STRING_TYPES:
-                        default_str = "DEFAULT ''"
-                elif def_type == "CURRENT_TIMESTAMP":
-                    default_str = "DEFAULT CURRENT_TIMESTAMP"
-                elif def_type == "VALUE" and def_val:
-                    default_str = f"DEFAULT '{def_val.replace(chr(39), chr(39)+chr(39))}'"
-            ai_str = "AUTO_INCREMENT" if auto_inc else ""
-            collation = (col.get("collation") or "").strip()
-            charset_str = ""
-            if collation and _re.match(r'^[a-zA-Z0-9_]+$', collation):
-                charset = collation.split("_")[0]
-                charset_str = f"CHARACTER SET {charset} COLLATE {collation}"
-            col_def = f"`{name}` {type_str} {charset_str} {null_str} {default_str} {ai_str}".strip()
-            col_defs.append(col_def)
-            if col.get("primary"):
-                primary_cols.append(f"`{name}`")
-        if primary_cols:
-            col_defs.append(f"PRIMARY KEY ({', '.join(primary_cols)})")
-        engine_str = f"ENGINE={body.engine}" if body.engine else "ENGINE=InnoDB"
-        collation_str = f"COLLATE={body.collation}" if body.collation else ""
-        comment_str = f"COMMENT='{body.comment.replace(chr(39), chr(39)+chr(39))}'" if body.comment else ""
-        options = " ".join(filter(None, [engine_str, collation_str, comment_str]))
-        sql = f"CREATE TABLE `{tbl}` (\n  " + ",\n  ".join(col_defs) + f"\n) {options};"
-        _run_mysql_write(cfg, sql, database=db)
-        return JSONResponse({"ok": True, "sql": sql})
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+    dialect = _dialect_for(cfg["db_type"])
+    sql = _call(dialect, cfg, "create_table", db, tbl, body.columns,
+                engine=body.engine, collation=body.collation, comment=body.comment)
+    return JSONResponse({"ok": True, "sql": sql})
 
 
 # ── Alter Table ───────────────────────────────────────────────────────────────
-
-import re as _re
-
-_VALID_ID = _re.compile(r'^[a-zA-Z0-9_\-\.]+$')
-_NO_DEFAULT_TYPES = {'TEXT','TINYTEXT','MEDIUMTEXT','LONGTEXT','BLOB','TINYBLOB','MEDIUMBLOB','LONGBLOB','JSON','GEOMETRY'}
-_STRING_TYPES = {'CHAR','VARCHAR','TINYTEXT','TEXT','MEDIUMTEXT','LONGTEXT','BINARY','VARBINARY','ENUM','SET'}
-_NEEDS_LENGTH = {'TINYINT','SMALLINT','MEDIUMINT','INT','BIGINT','FLOAT','DOUBLE','DECIMAL','NUMERIC','CHAR','VARCHAR','BINARY','VARBINARY','BIT'}
-_NEEDS_DECIMALS = {'FLOAT','DOUBLE','DECIMAL','NUMERIC'}
-_NEEDS_ENUM = {'ENUM','SET'}
-_CAN_UNSIGNED = {'TINYINT','SMALLINT','MEDIUMINT','INT','BIGINT','FLOAT','DOUBLE','DECIMAL','NUMERIC'}
-
-
-def _build_type_str(base: str, col: dict) -> str:
-    length = str(col.get("length", "") or "").strip()
-    decimals = str(col.get("decimals", "") or "").strip()
-    enum_vals = str(col.get("enumValues", "") or "").strip()
-    unsigned = bool(col.get("unsigned"))
-    if base in _NEEDS_ENUM and enum_vals:
-        return f"{base}({enum_vals})"
-    if base in _NEEDS_DECIMALS and length and decimals:
-        return f"{base}({length},{decimals})" + (" UNSIGNED" if unsigned and base in _CAN_UNSIGNED else "")
-    if base in _NEEDS_LENGTH and length:
-        return f"{base}({length})" + (" UNSIGNED" if unsigned and base in _CAN_UNSIGNED else "")
-    return base + (" UNSIGNED" if unsigned and base in _CAN_UNSIGNED else "")
-
 
 class AlterTableBody(BaseModel):
     conn_id: str
@@ -962,64 +699,11 @@ def alter_table(body: AlterTableBody, session=Depends(get_current_session)):
     tbl = body.table.strip()
     if not _VALID_ID.match(db) or not _VALID_ID.match(tbl):
         raise HTTPException(400, "Invalid identifier")
-    try:
-        existing = _run_mysql_json(cfg, f"SHOW COLUMNS FROM `{tbl}`;", database=db)
-        existing_names = [r["Field"] for r in existing]
-        clauses = []
-        prev = None
-        for col in body.columns:
-            orig_name = (col.get("originalName") or "").strip()
-            new_name = (col.get("name") or "").strip()
-            base_type = (col.get("baseType") or "VARCHAR").strip().upper()
-            if not new_name:
-                continue
-            if not _re.match(r'^[a-zA-Z0-9_]+$', new_name):
-                raise HTTPException(400, f"Invalid column name: {new_name}")
-            type_str = _build_type_str(base_type, col)
-            null_str = "NULL" if col.get("allowNull") else "NOT NULL"
-            default_str = ""
-            def_type = col.get("defaultType", "NULL")
-            def_val = str(col.get("defaultValue", "") or "")
-            allow_null = bool(col.get("allowNull"))
-            auto_inc = bool(col.get("autoIncrement"))
-            if not auto_inc and base_type not in _NO_DEFAULT_TYPES:
-                if def_type == "NULL":
-                    if allow_null:
-                        default_str = "DEFAULT NULL"
-                elif def_type == "EMPTY":
-                    if base_type in _STRING_TYPES:
-                        default_str = "DEFAULT ''"
-                elif def_type == "CURRENT_TIMESTAMP":
-                    default_str = "DEFAULT CURRENT_TIMESTAMP"
-                elif def_type == "VALUE" and def_val:
-                    escaped = def_val.replace("'", "\\'")
-                    default_str = f"DEFAULT '{escaped}'"
-            ai_str = "AUTO_INCREMENT" if auto_inc else ""
-            collation = (col.get("collation") or "").strip()
-            charset_str = ""
-            if collation and _re.match(r'^[a-zA-Z0-9_]+$', collation):
-                charset = collation.split("_")[0]
-                charset_str = f"CHARACTER SET {charset} COLLATE {collation}"
-            pos_str = "FIRST" if prev is None else f"AFTER `{prev}`"
-            col_def = f"`{new_name}` {type_str} {charset_str} {null_str} {default_str} {ai_str}".strip()
-            if orig_name and orig_name in existing_names:
-                clauses.append(f"CHANGE `{orig_name}` {col_def} {pos_str}")
-            else:
-                clauses.append(f"ADD COLUMN {col_def} {pos_str}")
-            prev = new_name
-        new_originals = [c.get("originalName", "") for c in body.columns if c.get("originalName")]
-        for ex in existing_names:
-            if ex not in new_originals:
-                clauses.append(f"DROP COLUMN `{ex}`")
-        if not clauses:
-            return JSONResponse({"success": True, "message": "No changes"})
-        sql = f"ALTER TABLE `{tbl}` " + ", ".join(clauses)
-        _run_mysql_write(cfg, sql, database=db)
-        return JSONResponse({"success": True, "sql": sql})
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+    dialect = _dialect_for(cfg["db_type"])
+    sql = _call(dialect, cfg, "alter_table", db, tbl, body.columns)
+    if not sql:
+        return JSONResponse({"success": True, "message": "No changes"})
+    return JSONResponse({"success": True, "sql": sql})
 
 
 # ── Indexes ───────────────────────────────────────────────────────────────────
@@ -1041,43 +725,10 @@ def manage_indexes(body: IndexBody, session=Depends(get_current_session)):
     tbl = body.table.strip()
     if not _VALID_ID.match(db) or not _VALID_ID.match(tbl):
         raise HTTPException(400, "Invalid identifier")
-    try:
-        if body.action == "add":
-            cols = body.columns or []
-            if not cols:
-                raise HTTPException(400, "At least one column is required")
-            idx_type = (body.type or "INDEX").strip().upper()
-            col_list = ", ".join([f"`{_re.sub(r'[^a-zA-Z0-9_]', '', c)}`" for c in cols])
-            name = (body.name or "").strip()
-            if idx_type == "PRIMARY":
-                sql = f"ALTER TABLE `{tbl}` ADD PRIMARY KEY ({col_list})"
-            elif idx_type == "UNIQUE":
-                iname = name or "_".join(cols) + "_unique"
-                sql = f"ALTER TABLE `{tbl}` ADD UNIQUE INDEX `{iname}` ({col_list})"
-            elif idx_type == "FULLTEXT":
-                iname = name or "_".join(cols) + "_fulltext"
-                sql = f"ALTER TABLE `{tbl}` ADD FULLTEXT INDEX `{iname}` ({col_list})"
-            else:
-                iname = name or "_".join(cols) + "_idx"
-                sql = f"ALTER TABLE `{tbl}` ADD INDEX `{iname}` ({col_list})"
-            _run_mysql_write(cfg, sql, database=db)
-            return JSONResponse({"success": True, "sql": sql})
-        elif body.action == "drop":
-            name = (body.name or "").strip()
-            if not name:
-                raise HTTPException(400, "Index name is required")
-            if name == "PRIMARY":
-                sql = f"ALTER TABLE `{tbl}` DROP PRIMARY KEY"
-            else:
-                sql = f"ALTER TABLE `{tbl}` DROP INDEX `{name}`"
-            _run_mysql_write(cfg, sql, database=db)
-            return JSONResponse({"success": True, "sql": sql})
-        else:
-            raise HTTPException(400, "Unknown action")
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+    dialect = _dialect_for(cfg["db_type"])
+    sql = _call(dialect, cfg, "manage_indexes", db, tbl, body.action,
+                name=body.name, type_=body.type, columns=body.columns)
+    return JSONResponse({"success": True, "sql": sql})
 
 
 # ── Foreign Keys ──────────────────────────────────────────────────────────────
@@ -1103,52 +754,11 @@ def manage_foreign_keys(body: FKBody, session=Depends(get_current_session)):
     tbl = body.table.strip()
     if not _VALID_ID.match(db) or not _VALID_ID.match(tbl):
         raise HTTPException(400, "Invalid identifier")
-    try:
-        if body.action == "add":
-            cols = body.columns or []
-            ref_db = (body.ref_db or db).strip()
-            ref_table = (body.ref_table or "").strip()
-            ref_cols = body.ref_cols or []
-            on_update = (body.on_update or "RESTRICT").strip().upper()
-            on_delete = (body.on_delete or "RESTRICT").strip().upper()
-            if not cols or not ref_table or not ref_cols:
-                raise HTTPException(400, "columns, ref_table and ref_cols are required")
-            allowed = {"RESTRICT", "CASCADE", "SET NULL", "NO ACTION", "SET DEFAULT"}
-            if on_update not in allowed:
-                on_update = "RESTRICT"
-            if on_delete not in allowed:
-                on_delete = "RESTRICT"
-            for ident in [ref_table, ref_db] + cols + ref_cols:
-                if not _VALID_ID.match(ident):
-                    raise HTTPException(400, f"Invalid identifier: {ident}")
-            engine_sql = f"SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA='{db}' AND TABLE_NAME='{tbl}'"
-            eng_rows = _run_mysql_json(cfg, engine_sql)
-            if eng_rows:
-                engine = (eng_rows[0].get("ENGINE") or "").upper()
-                if engine and engine != "INNODB":
-                    raise HTTPException(400, f"Foreign keys require InnoDB. This table uses {engine}.")
-            name = (body.name or "").strip()
-            constraint = name or f"fk_{tbl}_{'_'.join(cols)}"
-            col_list = ", ".join([f"`{c}`" for c in cols])
-            ref_col_list = ", ".join([f"`{c}`" for c in ref_cols])
-            sql = (f"ALTER TABLE `{tbl}` ADD CONSTRAINT `{constraint}` "
-                   f"FOREIGN KEY ({col_list}) REFERENCES `{ref_db}`.`{ref_table}` ({ref_col_list}) "
-                   f"ON UPDATE {on_update} ON DELETE {on_delete}")
-            _run_mysql_write(cfg, sql, database=db)
-            return JSONResponse({"success": True, "sql": sql})
-        elif body.action == "drop":
-            name = (body.name or "").strip()
-            if not name or not _re.match(r'^[a-zA-Z0-9_\-]+$', name):
-                raise HTTPException(400, "Invalid constraint name")
-            sql = f"ALTER TABLE `{tbl}` DROP FOREIGN KEY `{name}`"
-            _run_mysql_write(cfg, sql, database=db)
-            return JSONResponse({"success": True, "sql": sql})
-        else:
-            raise HTTPException(400, "Unknown action")
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+    dialect = _dialect_for(cfg["db_type"])
+    sql = _call(dialect, cfg, "manage_foreign_keys", db, tbl, body.action,
+                name=body.name, columns=body.columns, ref_db=body.ref_db, ref_table=body.ref_table,
+                ref_cols=body.ref_cols, on_update=body.on_update, on_delete=body.on_delete)
+    return JSONResponse({"success": True, "sql": sql})
 
 
 # ── Manage Tables ────────────────────────────────────────────────────────────
@@ -1165,37 +775,15 @@ def manage_tables(body: ManageTablesBody, session=Depends(get_current_session)):
     cfg = _get_conn_config(session["effective_user"], body.conn_id)
     db = body.database.strip()
     op = body.operation.strip().upper()
-    ALLOWED = {"TRUNCATE", "DROP", "ANALYZE", "OPTIMIZE", "CHECK", "REPAIR"}
-    if op not in ALLOWED:
-        raise HTTPException(400, "Invalid operation")
-    try:
-        # Validate all table names first
-        clean = []
-        for tbl in body.tables:
-            tbl = tbl.strip()
-            if not _re.match(r'^[a-zA-Z0-9_]+$', tbl):
-                raise HTTPException(400, f"Invalid table name: {tbl}")
-            clean.append(tbl)
-
-        if op == "DROP":
-            # Disable FK checks for the whole batch, re-enable after
-            drops = " ".join(f"DROP TABLE `{tbl}`;" for tbl in clean)
-            _run_mysql_write(cfg,
-                f"SET FOREIGN_KEY_CHECKS=0; {drops} SET FOREIGN_KEY_CHECKS=1;",
-                database=db)
-        else:
-            for tbl in clean:
-                if op == "TRUNCATE":
-                    sql = f"TRUNCATE TABLE `{tbl}`;"
-                else:
-                    sql = f"{op} TABLE `{tbl}`;"
-                _run_mysql_write(cfg, sql, database=db)
-
-        return JSONResponse({"ok": True, "tables": clean})
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+    clean = []
+    for tbl in body.tables:
+        tbl = tbl.strip()
+        if not re.match(r'^[a-zA-Z0-9_]+$', tbl):
+            raise HTTPException(400, f"Invalid table name: {tbl}")
+        clean.append(tbl)
+    dialect = _dialect_for(cfg["db_type"])
+    _call(dialect, cfg, "manage_tables", db, op, clean)
+    return JSONResponse({"ok": True, "tables": clean})
 
 
 # ── Export ────────────────────────────────────────────────────────────────────
@@ -1204,13 +792,8 @@ def manage_tables(body: ManageTablesBody, session=Depends(get_current_session)):
 def export_table(conn_id: str, database: str, table: str, format: str = "sql",
                  session=Depends(get_current_session)):
     cfg = _get_conn_config(session["effective_user"], conn_id)
-    try:
-        rows = _run_mysql_json(cfg, f"SELECT * FROM `{table}`;", database=database)
-        columns = list(rows[0].keys()) if rows else []
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+    dialect = _dialect_for(cfg["db_type"])
+    columns, rows = _call(dialect, cfg, "export_rows", database, table)
 
     if format == "csv":
         import csv, io
@@ -1226,10 +809,11 @@ def export_table(conn_id: str, database: str, table: str, format: str = "sql",
     else:
         lines = [f"-- YourSQL export: {database}.{table}\n"]
         lines.append(f"-- Generated by YourSQL / mvmOS\n\n")
-        col_list = ", ".join([f"`{c}`" for c in columns])
+        col_list = ", ".join([dialect.quote_ident(c) for c in columns])
+        qtable = dialect.quote_ident(table)
         for row in rows:
-            vals = [_escape(row.get(c)) for c in columns]
-            lines.append(f"INSERT INTO `{table}` ({col_list}) VALUES ({', '.join(vals)});\n")
+            vals = [dialect.escape_literal(row.get(c)) for c in columns]
+            lines.append(f"INSERT INTO {qtable} ({col_list}) VALUES ({', '.join(vals)});\n")
         content = "".join(lines).encode()
         return StreamingResponse(iter([content]),
                                  media_type="application/sql",
@@ -1243,85 +827,100 @@ def export_multi(conn_id: str, database: str, tables: str, format: str = "sql",
                  mode: str = "structure_data", zip: str = "0",
                  session=Depends(get_current_session)):
     cfg = _get_conn_config(session["effective_user"], conn_id)
+    dialect = _dialect_for(cfg["db_type"])
     table_list = [t.strip() for t in tables.split(",") if t.strip()]
     do_zip = zip == "1"
     do_structure = mode in ("structure_data", "structure")
     do_data = mode in ("structure_data", "data")
 
-    try:
-        if format == "csv":
-            import csv as _csv, io as _io, zipfile as _zf
-            if do_zip:
-                buf = _io.BytesIO()
-                with _zf.ZipFile(buf, "w", _zf.ZIP_DEFLATED) as zf:
-                    for tbl in table_list:
-                        rows = _run_mysql_json(cfg, f"SELECT * FROM `{tbl}`;", database=database)
-                        cols = list(rows[0].keys()) if rows else []
-                        out = _io.StringIO()
-                        w = _csv.writer(out)
-                        w.writerow(cols)
-                        for row in rows:
-                            w.writerow([row.get(c, "") for c in cols])
-                        zf.writestr(tbl + ".csv", out.getvalue())
-                        # CSV stays as separate files per table in zip (makes sense for CSV)
-                buf.seek(0)
-                return StreamingResponse(buf, media_type="application/zip",
-                    headers={"Content-Disposition": f"attachment; filename={database}.zip"})
-            else:
-                # single csv only for first table
-                tbl = table_list[0]
-                rows = _run_mysql_json(cfg, f"SELECT * FROM `{tbl}`;", database=database)
-                cols = list(rows[0].keys()) if rows else []
-                out = _io.StringIO()
-                w = _csv.writer(out)
-                w.writerow(cols)
-                for row in rows:
-                    w.writerow([row.get(c, "") for c in cols])
-                return StreamingResponse(iter([out.getvalue().encode()]), media_type="text/csv",
-                    headers={"Content-Disposition": f"attachment; filename={database}.csv"})
+    if format == "csv":
+        import csv as _csv, io as _io, zipfile as _zf
+        if do_zip:
+            buf = _io.BytesIO()
+            with _zf.ZipFile(buf, "w", _zf.ZIP_DEFLATED) as zf:
+                for tbl in table_list:
+                    cols, rows = _call(dialect, cfg, "export_rows", database, tbl)
+                    out = _io.StringIO()
+                    w = _csv.writer(out)
+                    w.writerow(cols)
+                    for row in rows:
+                        w.writerow([row.get(c, "") for c in cols])
+                    zf.writestr(tbl + ".csv", out.getvalue())
+            buf.seek(0)
+            return StreamingResponse(buf, media_type="application/zip",
+                headers={"Content-Disposition": f"attachment; filename={database}.zip"})
         else:
-            import io as _io, zipfile as _zf
-            def _table_sql(tbl):
-                lines = [f"-- Table: {tbl}\n"]
-                if do_structure:
-                    create_rows = _run_mysql_json(cfg, f"SHOW CREATE TABLE `{tbl}`;", database=database)
-                    if create_rows:
-                        ddl = create_rows[0].get("Create Table","")
-                        lines.append(ddl + ";\n\n")
-                if do_data:
-                    rows = _run_mysql_json(cfg, f"SELECT * FROM `{tbl}`;", database=database)
-                    if rows:
-                        cols = list(rows[0].keys())
-                        col_list = ", ".join([f"`{c}`" for c in cols])
-                        for row in rows:
-                            vals = [_escape(row.get(c)) for c in cols]
-                            lines.append(f"INSERT INTO `{tbl}` ({col_list}) VALUES ({', '.join(vals)});\n")
-                        lines.append("\n")
-                return "".join(lines)
+            tbl = table_list[0]
+            cols, rows = _call(dialect, cfg, "export_rows", database, tbl)
+            out = _io.StringIO()
+            w = _csv.writer(out)
+            w.writerow(cols)
+            for row in rows:
+                w.writerow([row.get(c, "") for c in cols])
+            return StreamingResponse(iter([out.getvalue().encode()]), media_type="text/csv",
+                headers={"Content-Disposition": f"attachment; filename={database}.csv"})
+    else:
+        import io as _io, zipfile as _zf
 
-            header = f"-- YourSQL export: {database}\n-- Generated by YourSQL / mvmOS\n\n"
-            if do_zip:
-                buf = _io.BytesIO()
-                combined = header + "\n".join([_table_sql(t) for t in table_list])
-                with _zf.ZipFile(buf, "w", _zf.ZIP_DEFLATED) as zf:
-                    zf.writestr(database + ".sql", combined)
-                buf.seek(0)
-                return StreamingResponse(buf, media_type="application/zip",
-                    headers={"Content-Disposition": f"attachment; filename={database}.zip"})
-            else:
-                header = f"-- YourSQL export: {database}\n-- Generated by YourSQL / mvmOS\n\n"
-                content = header + "\n".join([_table_sql(t) for t in table_list])
-                return StreamingResponse(iter([content.encode()]), media_type="application/sql",
-                    headers={"Content-Disposition": f"attachment; filename={database}.sql"})
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(400, str(e))
+        def _table_sql(tbl):
+            lines = [f"-- Table: {tbl}\n"]
+            if do_structure:
+                ddl = _call(dialect, cfg, "export_table_ddl", database, tbl)
+                if ddl:
+                    lines.append(ddl + "\n\n")
+            if do_data:
+                cols, rows = _call(dialect, cfg, "export_rows", database, tbl)
+                if rows:
+                    col_list = ", ".join([dialect.quote_ident(c) for c in cols])
+                    qtable = dialect.quote_ident(tbl)
+                    for row in rows:
+                        vals = [dialect.escape_literal(row.get(c)) for c in cols]
+                        lines.append(f"INSERT INTO {qtable} ({col_list}) VALUES ({', '.join(vals)});\n")
+                    lines.append("\n")
+            return "".join(lines)
+
+        header = f"-- YourSQL export: {database}\n-- Generated by YourSQL / mvmOS\n\n"
+        if do_zip:
+            buf = _io.BytesIO()
+            combined = header + "\n".join([_table_sql(t) for t in table_list])
+            with _zf.ZipFile(buf, "w", _zf.ZIP_DEFLATED) as zf:
+                zf.writestr(database + ".sql", combined)
+            buf.seek(0)
+            return StreamingResponse(buf, media_type="application/zip",
+                headers={"Content-Disposition": f"attachment; filename={database}.zip"})
+        else:
+            content = header + "\n".join([_table_sql(t) for t in table_list])
+            return StreamingResponse(iter([content.encode()]), media_type="application/sql",
+                headers={"Content-Disposition": f"attachment; filename={database}.sql"})
 
 
 # ── Import ────────────────────────────────────────────────────────────────────
 
 from fastapi import UploadFile, File, Form
+
+
+def _run_cli_import(dialect, cfg, database, path):
+    """Pipe a raw .sql file straight into the DB's own CLI client — one process, no memory load."""
+    args = dialect.cli_args(cfg, database)
+    env = dialect.cli_env(cfg)
+    try:
+        with open(path, "r", errors="replace") as f:
+            r = subprocess.run(args, stdin=f, capture_output=True, text=True, timeout=3600, env=env)
+    except FileNotFoundError:
+        raise HTTPException(400, f"'{args[0]}' CLI is not installed on the server")
+    if r.returncode != 0:
+        raise HTTPException(400, dialect.clean_cli_stderr(r.stderr.strip()))
+
+
+def _import_csv_rows(dialect, cfg, database, table, rows):
+    affected, errors = 0, []
+    for row in rows:
+        try:
+            dialect.insert_row(cfg, database, table, dict(row))
+            affected += 1
+        except Exception as e:
+            errors.append(str(e))
+    return affected, errors
 
 
 @router.post("/import")
@@ -1333,13 +932,13 @@ async def import_file(
 ):
     import tempfile
     cfg = _get_conn_config(session["effective_user"], conn_id)
+    dialect = _dialect_for(cfg["db_type"])
     filename = file.filename or ""
     errors = []
     affected = 0
 
     tmp_path = None
     try:
-        # Stream upload to temp file — no size limit, no memory load
         stmt_count = 0
         with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(filename)[1]) as tmp:
             tmp_path = tmp.name
@@ -1358,27 +957,10 @@ async def import_file(
             rows = list(reader)
             if rows:
                 table = filename.rsplit(".", 1)[0]
-                cols = list(rows[0].keys())
-                col_str = ", ".join([f"`{c}`" for c in cols])
-                for row in rows:
-                    vals = [_escape(row.get(c)) for c in cols]
-                    sql = f"INSERT INTO `{table}` ({col_str}) VALUES ({', '.join(vals)});"
-                    try:
-                        _run_mysql_write(cfg, sql, database=database)
-                        affected += 1
-                    except Exception as e:
-                        errors.append(str(e))
+                affected, errors = _import_csv_rows(dialect, cfg, database, table, rows)
         else:
-            # Feed file directly to mysql — one process, no memory load, no per-statement blocking
-            args = _mysql_args(cfg, database)
-            with open(tmp_path, "r", errors="replace") as f:
-                r = subprocess.run(args, stdin=f, capture_output=True, text=True, timeout=3600)
-            if r.returncode != 0:
-                err = r.stderr.strip()
-                lines = [l for l in err.splitlines() if "Using a password" not in l]
-                errors = ["\n".join(lines) or err]
-            else:
-                affected = stmt_count
+            _run_cli_import(dialect, cfg, database, tmp_path)
+            affected = stmt_count
 
         return JSONResponse({"ok": True, "affected": affected, "errors": errors[:10]})
     except HTTPException:
@@ -1417,6 +999,7 @@ async def import_from_path(body: ImportFromPathBody, session=Depends(get_current
         raise HTTPException(404, "File not found")
 
     cfg = _get_conn_config(session["effective_user"], body.conn_id)
+    dialect = _dialect_for(cfg["db_type"])
     filename = body.filename or os.path.basename(real)
     job_id = _uuid.uuid4().hex[:10]
     _import_jobs[job_id] = {"status": "running"}
@@ -1433,27 +1016,20 @@ async def import_from_path(body: ImportFromPathBody, session=Depends(get_current
                 rows = list(reader)
                 if rows:
                     table = filename.rsplit(".", 1)[0]
-                    cols = list(rows[0].keys())
-                    col_str = ", ".join([f"`{c}`" for c in cols])
-                    for row in rows:
-                        vals = [_escape(row.get(c)) for c in cols]
-                        sql = f"INSERT INTO `{table}` ({col_str}) VALUES ({', '.join(vals)});"
-                        try:
-                            _run_mysql_write(cfg, sql, database=body.database)
-                            affected += 1
-                        except Exception as e:
-                            errors.append(str(e))
+                    affected, errors = _import_csv_rows(dialect, cfg, body.database, table, rows)
             else:
-                args = _mysql_args(cfg, body.database)
-                with open(real, "r", errors="replace") as f:
-                    r = subprocess.run(args, stdin=f, capture_output=True, text=True, timeout=7200)
-                if r.returncode != 0:
-                    err = r.stderr.strip()
-                    lines = [l for l in err.splitlines() if "Using a password" not in l]
-                    errors = ["\n".join(lines) or err]
-                else:
-                    with open(real, "rb") as f:
-                        affected = f.read().count(b";")
+                try:
+                    args = dialect.cli_args(cfg, body.database)
+                    env = dialect.cli_env(cfg)
+                    with open(real, "r", errors="replace") as f:
+                        r = subprocess.run(args, stdin=f, capture_output=True, text=True, timeout=7200, env=env)
+                    if r.returncode != 0:
+                        errors = [dialect.clean_cli_stderr(r.stderr.strip())]
+                    else:
+                        with open(real, "rb") as f:
+                            affected = f.read().count(b";")
+                except FileNotFoundError:
+                    errors = [f"CLI client for this database type is not installed on the server"]
             _import_jobs[job_id] = {"status": "done", "ok": True, "affected": affected, "errors": errors[:10]}
         except Exception as e:
             _import_jobs[job_id] = {"status": "error", "detail": str(e)}

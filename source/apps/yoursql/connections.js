@@ -30,7 +30,7 @@ YS.connections = (() => {
           <span style="font-size:1rem">${isB ? '📦' : '🔌'}</span>
           <div style="flex:1;min-width:0">
             <div style="font-weight:500;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name}</div>
-            <div style="font-size:.75rem;color:var(--text-dim)">${isB ? 'SQLite · local apps' : c.db_user + '@' + c.host + ':' + c.port}</div>
+            <div style="font-size:.75rem;color:var(--text-dim)">${isB ? 'SQLite · local apps' : YS.dbtype.labelOf(c.db_type) + ' · ' + c.db_user + '@' + c.host + ':' + c.port}</div>
           </div>
           ${isB ? '' : `<button class="s-btn s-btn-sm ysql-edit-conn" style="font-size:.7rem;padding:2px 6px">✎</button>`}
         `;
@@ -57,7 +57,7 @@ YS.connections = (() => {
       <span style="font-size:1rem">${isBuiltin ? '📦' : '🔌'}</span>
       <div style="flex:1;min-width:0">
         <div style="font-weight:500;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${active.name}</div>
-        <div style="font-size:.75rem;color:var(--text-dim)">${isBuiltin ? 'SQLite · local apps' : active.db_user + '@' + active.host + ':' + active.port}</div>
+        <div style="font-size:.75rem;color:var(--text-dim)">${isBuiltin ? 'SQLite · local apps' : YS.dbtype.labelOf(active.db_type) + ' · ' + active.db_user + '@' + active.host + ':' + active.port}</div>
       </div>
       <span id="ysql-conn-chevron" style="font-size:.65rem;color:var(--text-dim)">▾</span>
       ${isBuiltin ? '' : `<button class="s-btn s-btn-sm ysql-create-db" title="New database" style="font-size:.7rem;padding:2px 6px">＋</button>`}
@@ -346,13 +346,20 @@ YS.connections = (() => {
   }
 
   function openDialog(container, existing = null) {
+    const dbType = existing?.db_type || 'mysql';
+    const dbTypeOptions = YS.dbtype.DB_TYPES.map(t =>
+      `<option value="${t.id}"${t.id === dbType ? ' selected' : ''}>${t.label}</option>`
+    ).join('');
+
     const modal = YS.modal(container, `
       <div style="font-weight:600;font-size:.95rem">${existing ? 'Edit Connection' : 'New Connection'}</div>
       <div style="display:flex;flex-direction:column;gap:8px">
         <input class="s-input" id="yc-name" placeholder="Name (e.g. Local MySQL)" value="${existing?.name || ''}">
+        <select class="s-input" id="yc-dbtype">${dbTypeOptions}</select>
+        <div id="yc-driver-status" style="display:none;font-size:.8rem;padding:6px 8px;border-radius:4px;align-items:center;gap:8px"></div>
         <div style="display:grid;grid-template-columns:1fr auto;gap:6px">
           <input class="s-input" id="yc-host" placeholder="Host" value="${existing?.host || 'localhost'}">
-          <input class="s-input" id="yc-port" placeholder="Port" value="${existing?.port || 3306}" style="width:70px">
+          <input class="s-input" id="yc-port" placeholder="Port" value="${existing?.port || YS.dbtype.defaultPort(dbType)}" style="width:70px">
         </div>
         <input class="s-input" id="yc-user" placeholder="Username" value="${existing?.db_user || ''}">
         <input class="s-input" id="yc-pass" type="password" placeholder="Password">
@@ -380,12 +387,21 @@ YS.connections = (() => {
       });
     }
 
+    const dbTypeSel = modal.querySelector('#yc-dbtype');
+    const portInp = modal.querySelector('#yc-port');
+    _checkDriverStatus(modal, dbTypeSel.value);
+    dbTypeSel.addEventListener('change', () => {
+      portInp.value = YS.dbtype.defaultPort(dbTypeSel.value);
+      _checkDriverStatus(modal, dbTypeSel.value);
+    });
+
     modal.querySelector('#yc-save').addEventListener('click', async () => {
       const body = {
         id: existing?.id,
         name: modal.querySelector('#yc-name').value.trim(),
+        db_type: dbTypeSel.value,
         host: modal.querySelector('#yc-host').value.trim(),
-        port: parseInt(modal.querySelector('#yc-port').value) || 3306,
+        port: parseInt(modal.querySelector('#yc-port').value) || YS.dbtype.defaultPort(dbTypeSel.value),
         user: modal.querySelector('#yc-user').value.trim(),
         password: modal.querySelector('#yc-pass').value,
         database: modal.querySelector('#yc-db').value.trim(),
@@ -399,6 +415,46 @@ YS.connections = (() => {
       // if editing and no password entered, send empty string → backend keeps existing
       const r = await YS.api('/connections', { method: 'POST', json: body });
       if (r.ok) { modal.close(); load(container); }
+    });
+  }
+
+  async function _checkDriverStatus(modal, dbType) {
+    const box = modal.querySelector('#yc-driver-status');
+    if (!box) return;
+    box.style.display = 'flex';
+    box.style.background = 'var(--surface)';
+    box.style.color = 'var(--text-dim)';
+    box.innerHTML = 'Checking driver…';
+    let res;
+    try {
+      res = await YS.api('/driver-status?db_type=' + encodeURIComponent(dbType));
+    } catch (e) {
+      box.style.display = 'none';
+      return;
+    }
+    if (res && res.available) {
+      box.style.display = 'none';
+      return;
+    }
+    box.style.background = 'rgba(243,139,168,.12)';
+    box.style.color = '#f38ba8';
+    box.innerHTML = `<span style="flex:1">⚠ Driver not installed (${res.package})</span>` +
+      `<button class="s-btn s-btn-sm" id="yc-install-driver" style="padding:2px 10px">Install</button>`;
+    box.querySelector('#yc-install-driver').addEventListener('click', async function() {
+      const btn = this;
+      const ok = await mvmOS.requireRoot('YourSQL', 'Installing a database driver requires root.');
+      if (!ok) return;
+      btn.disabled = true;
+      btn.textContent = 'Installing…';
+      try {
+        await YS.api('/install-driver', { method: 'POST', json: { db_type: dbType } });
+        YS.toast && YS.toast('Driver installed', 'success');
+        _checkDriverStatus(modal, dbType);
+      } catch (e) {
+        YS.toast ? YS.toast('Install failed: ' + e.message, 'error') : alert('Install failed: ' + e.message);
+        btn.disabled = false;
+        btn.textContent = 'Install';
+      }
     });
   }
 

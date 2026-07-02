@@ -2,22 +2,33 @@
 
 YS.manageTables = (() => {
 
-  var OPERATIONS = [
-    { group: 'OPERATION', items: [
-      { id: 'truncate', icon: '🗑', label: 'Truncate', desc: 'Delete all rows, keep structure', danger: true },
-      { id: 'drop',     icon: '💥', label: 'Drop',     desc: 'Remove tables completely',      danger: true },
-    ]},
-    { group: 'MAINTENANCE', items: [
+  function _operationsFor(family) {
+    var meta = YS.dbtype.meta(family);
+    var maintenance = [
       { id: 'analyze',  icon: '📊', label: 'Analyze',  desc: 'Update index statistics',       danger: false },
-      { id: 'optimize', icon: '⚙',  label: 'Optimize', desc: 'Defragment, reclaim space',     danger: false },
-      { id: 'check',    icon: '✔',  label: 'Check',    desc: 'Check tables for errors',       danger: false },
-      { id: 'repair',   icon: '🔧', label: 'Repair',   desc: 'Repair corrupted tables (MyISAM)', danger: false },
-    ]},
-  ];
+      { id: 'optimize', icon: '⚙',  label: meta.optimizeLabel, desc: meta.optimizeDesc,       danger: false },
+    ];
+    if (meta.hasCheckRepair) {
+      maintenance.push(
+        { id: 'check',    icon: '✔',  label: 'Check',    desc: 'Check tables for errors',       danger: false },
+        { id: 'repair',   icon: '🔧', label: 'Repair',   desc: 'Repair corrupted tables (MyISAM)', danger: false }
+      );
+    }
+    return [
+      { group: 'OPERATION', items: [
+        { id: 'truncate', icon: '🗑', label: 'Truncate', desc: 'Delete all rows, keep structure', danger: true },
+        { id: 'drop',     icon: '💥', label: 'Drop',     desc: 'Remove tables completely',      danger: true },
+      ]},
+      { group: 'MAINTENANCE', items: maintenance },
+    ];
+  }
 
   async function show(container) {
     var content = container.querySelector('#ysql-content');
     if (!content || !YS.state.activeDb) return;
+
+    var family = YS.dbtype.familyForConn(YS.state.activeConn);
+    var OPERATIONS = _operationsFor(family);
 
     var tables = [];
     try { tables = await YS.api('/tables?conn_id=' + YS.state.activeConn.id + '&database=' + encodeURIComponent(YS.state.activeDb)); } catch(e) {}

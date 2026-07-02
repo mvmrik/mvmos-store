@@ -2,21 +2,20 @@
 
 YS.createTable = (() => {
 
-  var TYPE_GROUPS = {
-    'Integer': ['TINYINT','SMALLINT','MEDIUMINT','INT','BIGINT'],
-    'Float':   ['FLOAT','DOUBLE','DECIMAL','NUMERIC'],
-    'String':  ['CHAR','VARCHAR','TINYTEXT','TEXT','MEDIUMTEXT','LONGTEXT'],
-    'Binary':  ['BINARY','VARBINARY','TINYBLOB','BLOB','MEDIUMBLOB','LONGBLOB'],
-    'Date':    ['DATE','DATETIME','TIMESTAMP','TIME','YEAR'],
-    'Other':   ['BIT','BOOLEAN','JSON','GEOMETRY','ENUM','SET'],
-  };
-  var ALL_TYPES = Object.values(TYPE_GROUPS).flat();
-  var NEEDS_LENGTH   = new Set(['TINYINT','SMALLINT','MEDIUMINT','INT','BIGINT','FLOAT','DOUBLE','DECIMAL','NUMERIC','CHAR','VARCHAR','BINARY','VARBINARY','BIT']);
-  var NEEDS_DECIMALS = new Set(['FLOAT','DOUBLE','DECIMAL','NUMERIC']);
-  var NEEDS_ENUM     = new Set(['ENUM','SET']);
-  var CAN_UNSIGNED   = new Set(['TINYINT','SMALLINT','MEDIUMINT','INT','BIGINT','FLOAT','DOUBLE','DECIMAL','NUMERIC']);
-  var NO_DEFAULT     = new Set(['TEXT','TINYTEXT','MEDIUMTEXT','LONGTEXT','BLOB','TINYBLOB','MEDIUMBLOB','LONGBLOB','JSON','GEOMETRY']);
-  var HAS_COLLATION  = new Set(['CHAR','VARCHAR','TINYTEXT','TEXT','MEDIUMTEXT','LONGTEXT','ENUM','SET']);
+  var TYPE_GROUPS, ALL_TYPES, NEEDS_LENGTH, NEEDS_DECIMALS, NEEDS_ENUM, CAN_UNSIGNED, NO_DEFAULT, HAS_COLLATION, AUTO_INC_TYPES, META;
+
+  function _applyMeta(family) {
+    META = YS.dbtype.meta(family);
+    TYPE_GROUPS = META.typeGroups;
+    ALL_TYPES = Object.values(TYPE_GROUPS).flat();
+    NEEDS_LENGTH = new Set(META.needsLength);
+    NEEDS_DECIMALS = new Set(META.needsDecimals);
+    NEEDS_ENUM = new Set(META.needsEnum);
+    CAN_UNSIGNED = new Set(META.canUnsigned);
+    NO_DEFAULT = new Set(META.noDefault);
+    HAS_COLLATION = new Set(META.hasCollation);
+    AUTO_INC_TYPES = new Set(META.autoIncrementTypes);
+  }
 
   var ENGINES = ['InnoDB','MyISAM','MEMORY','CSV','ARCHIVE','BLACKHOLE','FEDERATED'];
   var COLLATIONS = ['Default','utf8mb4_general_ci','utf8mb4_unicode_ci','utf8mb4_0900_ai_ci',
@@ -26,9 +25,12 @@ YS.createTable = (() => {
     var content = container.querySelector('#ysql-content');
     if (!content) return;
 
+    var family = YS.dbtype.familyForConn(YS.state.activeConn);
+    _applyMeta(family);
+
     var cols = [
-      { name: 'id',   type: 'INT',     length: '11', decimals: '', enumValues: '', unsigned: true,  allowNull: false, defaultType: 'NULL', defaultValue: '', autoIncrement: true,  primary: true,  collation: '' },
-      { name: 'name', type: 'VARCHAR', length: '255', decimals: '', enumValues: '', unsigned: false, allowNull: true,  defaultType: 'NULL', defaultValue: '', autoIncrement: false, primary: false, collation: '' },
+      { name: 'id',   type: META.defaultIntType,    length: '11', decimals: '', enumValues: '', unsigned: family === 'mysql',  allowNull: false, defaultType: 'NULL', defaultValue: '', autoIncrement: true,  primary: true,  collation: '' },
+      { name: 'name', type: META.defaultStringType, length: '255', decimals: '', enumValues: '', unsigned: false, allowNull: true,  defaultType: 'NULL', defaultValue: '', autoIncrement: false, primary: false, collation: '' },
     ];
 
     content.innerHTML = '';
@@ -48,10 +50,11 @@ YS.createTable = (() => {
 
     // Table options
     var optBox = document.createElement('div');
-    optBox.style.cssText = 'display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:14px;border:1px solid var(--border);border-radius:4px;flex-shrink:0';
+    optBox.style.cssText = 'display:grid;grid-template-columns:repeat(' + (META.hasEngine ? 4 : 2) + ',1fr);gap:12px;padding:14px;border:1px solid var(--border);border-radius:4px;flex-shrink:0';
     optBox.innerHTML =
       '<div><div style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">TABLE NAME</div>' +
         '<input id="ysql-ct-name" class="s-input" style="width:100%;font-size:.85rem" placeholder="table_name"></div>' +
+      (META.hasEngine ?
       '<div><div style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">ENGINE</div>' +
         '<select id="ysql-ct-engine" class="s-input" style="width:100%;font-size:.85rem">' +
           ENGINES.map(function(e){ return '<option' + (e==='InnoDB'?' selected':'') + '>' + e + '</option>'; }).join('') +
@@ -59,7 +62,7 @@ YS.createTable = (() => {
       '<div><div style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">COLLATION</div>' +
         '<select id="ysql-ct-collation" class="s-input" style="width:100%;font-size:.85rem">' +
           COLLATIONS.map(function(c){ return '<option>' + c + '</option>'; }).join('') +
-        '</select></div>' +
+        '</select></div>' : '') +
       '<div><div style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">COMMENT</div>' +
         '<input id="ysql-ct-comment" class="s-input" style="width:100%;font-size:.85rem" placeholder="optional"></div>';
     wrap.appendChild(optBox);
@@ -89,7 +92,7 @@ YS.createTable = (() => {
     addBtn.textContent = '+ Add Column';
     addBtn.style.cssText = 'align-self:flex-start;font-size:.82rem';
     addBtn.addEventListener('click', function() {
-      cols.push({ name: '', type: 'VARCHAR', length: '255', decimals: '', enumValues: '', unsigned: false, allowNull: true, defaultType: 'NULL', defaultValue: '', autoIncrement: false, primary: false, collation: '' });
+      cols.push({ name: '', type: META.defaultStringType, length: '255', decimals: '', enumValues: '', unsigned: false, allowNull: true, defaultType: 'NULL', defaultValue: '', autoIncrement: false, primary: false, collation: '' });
       _renderRows(tbody, cols);
     });
     wrap.appendChild(addBtn);
@@ -256,7 +259,7 @@ YS.createTable = (() => {
       // Auto Increment
       var aiCel = document.createElement('div');
       aiCel.style.cssText = 'text-align:center';
-      if (['TINYINT','SMALLINT','MEDIUMINT','INT','BIGINT'].includes(base)) {
+      if (AUTO_INC_TYPES.has(base)) {
         var aiCk = document.createElement('input');
         aiCk.type = 'checkbox';
         aiCk.checked = !!col.autoIncrement;

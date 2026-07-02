@@ -29,7 +29,7 @@ mvmOS.registerApp({
 
 function _ysqlInit(container) {
   const BASE = '/apps/yoursql/';
-  const MODULES = ['state.js', 'ui.js', 'connections.js', 'sidebar.js', 'browse.js', 'filters.js', 'row-edit.js', 'structure.js', 'create-table.js', 'manage-tables.js', 'query.js', 'tabs.js'];
+  const MODULES = ['state.js', 'ui.js', 'dbtype.js', 'connections.js', 'sidebar.js', 'browse.js', 'filters.js', 'row-edit.js', 'structure.js', 'create-table.js', 'manage-tables.js', 'query.js', 'tabs.js'];
 
   MODULES.reduce(function(p, mod) {
     return p.then(function() {

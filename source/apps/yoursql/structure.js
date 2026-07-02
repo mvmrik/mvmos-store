@@ -2,21 +2,20 @@
 
 YS.structure = (() => {
 
-  var TYPE_GROUPS = {
-    'Integer':  ['TINYINT','SMALLINT','MEDIUMINT','INT','BIGINT'],
-    'Float':    ['FLOAT','DOUBLE','DECIMAL','NUMERIC'],
-    'String':   ['CHAR','VARCHAR','TINYTEXT','TEXT','MEDIUMTEXT','LONGTEXT'],
-    'Binary':   ['BINARY','VARBINARY','TINYBLOB','BLOB','MEDIUMBLOB','LONGBLOB'],
-    'Date':     ['DATE','DATETIME','TIMESTAMP','TIME','YEAR'],
-    'Other':    ['BIT','BOOLEAN','JSON','GEOMETRY','ENUM','SET'],
-  };
-  var ALL_TYPES = Object.values(TYPE_GROUPS).flat();
-  var NEEDS_LENGTH   = new Set(['TINYINT','SMALLINT','MEDIUMINT','INT','BIGINT','FLOAT','DOUBLE','DECIMAL','NUMERIC','CHAR','VARCHAR','BINARY','VARBINARY','BIT']);
-  var NEEDS_DECIMALS = new Set(['FLOAT','DOUBLE','DECIMAL','NUMERIC']);
-  var NEEDS_ENUM     = new Set(['ENUM','SET']);
-  var CAN_UNSIGNED   = new Set(['TINYINT','SMALLINT','MEDIUMINT','INT','BIGINT','FLOAT','DOUBLE','DECIMAL','NUMERIC']);
-  var NO_DEFAULT     = new Set(['TEXT','TINYTEXT','MEDIUMTEXT','LONGTEXT','BLOB','TINYBLOB','MEDIUMBLOB','LONGBLOB','JSON','GEOMETRY']);
-  var HAS_COLLATION  = new Set(['CHAR','VARCHAR','TINYTEXT','TEXT','MEDIUMTEXT','LONGTEXT','ENUM','SET']);
+  var TYPE_GROUPS, ALL_TYPES, NEEDS_LENGTH, NEEDS_DECIMALS, NEEDS_ENUM, CAN_UNSIGNED, NO_DEFAULT, HAS_COLLATION, AUTO_INC_TYPES, META;
+
+  function _applyMeta(family) {
+    META = YS.dbtype.meta(family);
+    TYPE_GROUPS = META.typeGroups;
+    ALL_TYPES = Object.values(TYPE_GROUPS).flat();
+    NEEDS_LENGTH = new Set(META.needsLength);
+    NEEDS_DECIMALS = new Set(META.needsDecimals);
+    NEEDS_ENUM = new Set(META.needsEnum);
+    CAN_UNSIGNED = new Set(META.canUnsigned);
+    NO_DEFAULT = new Set(META.noDefault);
+    HAS_COLLATION = new Set(META.hasCollation);
+    AUTO_INC_TYPES = new Set(META.autoIncrementTypes);
+  }
 
   var _collations = null;
   async function _getCollations(cfg) {
@@ -107,6 +106,8 @@ YS.structure = (() => {
   async function show(container, content) {
     content.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-dim)">Loading structure…</div>';
     var esc = YS.escHtml;
+
+    _applyMeta(YS.dbtype.familyForConn(YS.state.activeConn));
 
     var data = await YS.api('/table-structure?conn_id=' + YS.state.activeConn.id +
       '&database=' + encodeURIComponent(YS.state.activeDb) +
@@ -432,7 +433,7 @@ YS.structure = (() => {
           '<div>' +
             '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">Type</div>' +
             '<select id="ys-idx-type" style="width:100%;padding:4px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem">' +
-              '<option>INDEX</option><option>UNIQUE</option><option>PRIMARY</option><option>FULLTEXT</option>' +
+              '<option>INDEX</option><option>UNIQUE</option><option>PRIMARY</option>' + (META.hasFulltext ? '<option>FULLTEXT</option>' : '') +
             '</select>' +
           '</div>' +
         '</div>' +
