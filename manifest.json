@@ -24,6 +24,12 @@
       "name": "Games",
       "icon": "🎮",
       "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/manifest.json"
+    },
+    {
+      "id": "social",
+      "name": "Social",
+      "icon": "💬",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/social/manifest.json"
     }
   ]
 }
