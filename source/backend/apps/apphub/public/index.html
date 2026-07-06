@@ -190,6 +190,7 @@ function showDashboard(activeTab) {
     </header>
     <div class="tab-bar">
       <button class="tab${activeTab==='apps'?' active':''}" data-t="apps">Apps</button>
+      <button class="tab${activeTab==='favourites'?' active':''}" data-t="favourites">Favourites</button>
       <button class="tab${activeTab==='profile'?' active':''}" data-t="profile">Profile</button>
     </div>
     <div id="d-body" style="flex:1;overflow-y:auto"></div>`;
@@ -211,8 +212,9 @@ function showDashboard(activeTab) {
 
 function renderTab(t) {
   const c = app.querySelector('#d-body');
-  if (t === 'apps')    renderApps(c);
-  if (t === 'profile') renderProfile(c);
+  if (t === 'apps')       renderApps(c);
+  if (t === 'favourites') renderFavourites(c);
+  if (t === 'profile')    renderProfile(c);
 }
 
 // ── Apps tab ────────────────────────────────────────────────────
@@ -287,6 +289,103 @@ async function renderApps(c) {
   renderGrid();
 
   c.querySelector('#apps-sort').onchange = e => { _setSortPref(e.target.value); renderGrid(); };
+}
+
+// ── Favourites tab ──────────────────────────────────────────────
+// Favourites are the single shared list used by Game Hub and Chat —
+// this is the one place to search for people and add/remove them.
+
+let _favs = null; // cache
+
+async function _loadFavs() {
+  try {
+    const r = await fetch(BASE + '/favourites', {headers:{'X-Pub-Token':_token}});
+    _favs = r.ok ? await r.json() : [];
+  } catch (_) {
+    _favs = [];
+  }
+}
+function _isFav(userId) { return !!(_favs && _favs.some(f=>f.id===userId)); }
+async function _toggleFav(p) {
+  const isFav = _isFav(p.id);
+  await fetch(`${BASE}/favourites/${p.id}`, {method: isFav ? 'DELETE' : 'POST', headers:{'X-Pub-Token':_token}});
+  if (isFav) { _favs = (_favs||[]).filter(f=>f.id!==p.id); }
+  else { _favs = [p, ...(_favs||[]).filter(f=>f.id!==p.id)]; }
+}
+
+async function renderFavourites(c) {
+  c.innerHTML = `<div class="section" style="display:flex;flex-direction:column;gap:14px;max-width:560px"></div>`;
+  const sc = c.querySelector('.section');
+
+  if (_favs === null) await _loadFavs();
+
+  const searchWrap = document.createElement('div');
+  searchWrap.innerHTML = `
+    <div style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2);margin-bottom:8px">Find people</div>
+    <input class="inp" id="fav-search" placeholder="Search by name or username…" autocomplete="off">
+    <div id="fav-results" style="display:flex;flex-direction:column;gap:6px;margin-top:8px"></div>`;
+  sc.appendChild(searchWrap);
+
+  const resultsEl = searchWrap.querySelector('#fav-results');
+  let _searchTimer = null;
+
+  async function renderSearch(q) {
+    resultsEl.innerHTML = '';
+    if (q.length < 2) return;
+    resultsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">Searching…</div>`;
+    const r = await fetch(`${BASE}/search?q=${encodeURIComponent(q)}`);
+    const hits = r.ok ? (await r.json()).filter(p => p.id !== _me?.id) : [];
+    resultsEl.innerHTML = '';
+    if (!hits.length) {
+      resultsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">No people found.</div>`;
+      return;
+    }
+    hits.forEach(p => resultsEl.appendChild(_favRow(p, () => renderFavourites(c))));
+  }
+
+  searchWrap.querySelector('#fav-search').oninput = e => {
+    clearTimeout(_searchTimer);
+    _searchTimer = setTimeout(() => renderSearch(e.target.value.trim()), 300);
+  };
+
+  const divider = document.createElement('div');
+  divider.style.cssText = 'border-top:1px solid var(--border);padding-top:14px';
+  divider.innerHTML = `<div style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2);margin-bottom:8px">Saved favourites</div>`;
+  sc.appendChild(divider);
+
+  const favsEl = document.createElement('div');
+  favsEl.style.cssText = 'display:flex;flex-direction:column;gap:6px';
+  divider.appendChild(favsEl);
+
+  function renderSavedFavs() {
+    favsEl.innerHTML = '';
+    if (!_favs || !_favs.length) {
+      favsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">No favourites yet. Search for someone above.</div>`;
+      return;
+    }
+    _favs.forEach(f => favsEl.appendChild(_favRow(f, renderSavedFavs)));
+  }
+  renderSavedFavs();
+}
+
+function _favRow(p, onFavChange) {
+  const fav = _isFav(p.id);
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;align-items:center;gap:12px;justify-content:space-between';
+  row.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+      ${renderAvatar(p, 32)}
+      <div style="min-width:0">
+        <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(p.display_name||p.username||'?')}</div>
+        ${p.username?`<div style="font-size:11px;color:var(--fg2)">@${esc(p.username)}</div>`:''}
+      </div>
+    </div>
+    <button class="btn btn-secondary" id="pr-fav" style="padding:5px 10px;font-size:12px;flex-shrink:0">${fav?'★ Saved':'☆ Favourite'}</button>`;
+  row.querySelector('#pr-fav').onclick = async () => {
+    await _toggleFav(p);
+    if (onFavChange) onFavChange();
+  };
+  return row;
 }
 
 // ── Profile tab ─────────────────────────────────────────────────

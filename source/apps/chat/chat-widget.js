@@ -5,19 +5,21 @@ const ChatWidget = (() => {
   const I18N = {
     en: {
       search: 'Search people…', empty: 'Select a conversation', noConv: 'No conversations yet — search for someone above',
+      contacts: 'Contacts', chatsTab: 'Chats', contactsTab: 'Contacts', noContacts: 'No contacts yet — add favourites in Apps Hub',
       placeholder: 'Message…', you: 'You', typing: 'typing…', edited: '(edited)',
       menuEdit: 'Edit', menuDelete: 'Delete',
       delTitle: 'Delete message?', delForMe: 'Delete for me', delForEveryone: 'Delete for everyone', cancel: 'Cancel',
     },
     bg: {
       search: 'Търси хора…', empty: 'Избери разговор', noConv: 'Все още няма разговори — потърси някого отгоре',
+      contacts: 'Контакти', chatsTab: 'Чатове', contactsTab: 'Контакти', noContacts: 'Все още няма контакти — добави любими в Apps Hub',
       placeholder: 'Съобщение…', you: 'Ти', typing: 'пише…', edited: '(редактирано)',
       menuEdit: 'Редактирай', menuDelete: 'Изтрий',
       delTitle: 'Изтриване на съобщение?', delForMe: 'Изтрий само за мен', delForEveryone: 'Изтрий за всички', cancel: 'Отказ',
     },
   };
   function t(key) {
-    const lang = (window.mvmOS && window.mvmOS.lang) || (navigator.language || 'en').slice(0, 2);
+    const lang = (window.mvmOS && window.mvmOS.lang) || 'en';
     return (I18N[lang] || I18N.en)[key] || I18N.en[key];
   }
 
@@ -57,7 +59,11 @@ const ChatWidget = (() => {
 .cw-result,.cw-conv{display:flex;align-items:center;gap:10px;padding:10px;cursor:pointer;border-bottom:1px solid #26263a}
 .cw-result:hover,.cw-conv:hover{background:#292941}
 .cw-conv.active{background:#313244}
-.cw-conv-list{flex:1;overflow-y:auto;min-height:0}
+.cw-conv-list,.cw-contacts-list{flex:1;overflow-y:auto;min-height:0}
+.cw-sidebar-tabs{display:flex;border-bottom:1px solid #313244;flex-shrink:0}
+.cw-sidebar-tab{flex:1;background:none;border:none;padding:10px 6px;font-size:.82rem;font-weight:600;color:#6c7086;cursor:pointer;border-bottom:2px solid transparent;font-family:inherit}
+.cw-sidebar-tab.active{color:#89b4fa;border-color:#89b4fa}
+.cw-sidebar-tab:hover:not(.active){color:#cdd6f4}
 .cw-conv-meta{flex:1;min-width:0}
 .cw-conv-name{font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cw-conv-last{font-size:.78rem;color:#6c7086;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -140,21 +146,44 @@ const ChatWidget = (() => {
             <input class="cw-search-input" placeholder="${esc(t('search'))}" autocomplete="off"/>
             <div class="cw-search-results"></div>
           </div>
+          <div class="cw-sidebar-tabs">
+            <button type="button" class="cw-sidebar-tab active" data-tab="chats">💬 ${esc(t('chatsTab'))}</button>
+            <button type="button" class="cw-sidebar-tab" data-tab="contacts">⭐ ${esc(t('contactsTab'))}</button>
+          </div>
           <div class="cw-conv-list"><div class="cw-empty-hint">${esc(t('noConv'))}</div></div>
+          <div class="cw-contacts-list" style="display:none"></div>
         </div>
         <div class="cw-thread">
           <div class="cw-thread-empty">${esc(t('empty'))}</div>
         </div>
       </div>`;
 
-    const cwRoot     = root.querySelector('.cw-root');
-    const searchIn   = root.querySelector('.cw-search-input');
-    const searchRes  = root.querySelector('.cw-search-results');
-    const convList   = root.querySelector('.cw-conv-list');
-    const threadPane = root.querySelector('.cw-thread');
+    const cwRoot       = root.querySelector('.cw-root');
+    const searchIn     = root.querySelector('.cw-search-input');
+    const searchRes    = root.querySelector('.cw-search-results');
+    const sidebarTabs   = root.querySelector('.cw-sidebar-tabs');
+    const contactsList = root.querySelector('.cw-contacts-list');
+    const convList     = root.querySelector('.cw-conv-list');
+    const threadPane   = root.querySelector('.cw-thread');
+
+    const SIDEBAR_TAB_KEY = 'cw_sidebar_tab';
+    let sidebarTab = localStorage.getItem(SIDEBAR_TAB_KEY) || 'chats';
+
+    function setSidebarTab(tabName) {
+      sidebarTab = tabName;
+      localStorage.setItem(SIDEBAR_TAB_KEY, tabName);
+      sidebarTabs.querySelectorAll('.cw-sidebar-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tabName));
+      convList.style.display     = tabName === 'chats'    ? '' : 'none';
+      contactsList.style.display = tabName === 'contacts' ? '' : 'none';
+    }
+    sidebarTabs.querySelectorAll('.cw-sidebar-tab').forEach(b => {
+      b.addEventListener('click', () => setSidebarTab(b.dataset.tab));
+    });
+    setSidebarTab(sidebarTab);
 
     let me = null;
     let conversations = [];
+    let contacts = [];
     let activePeer = null;
     let ws = null, retry = 0, closedByUs = false;
     const pending = [];
@@ -186,6 +215,31 @@ const ChatWidget = (() => {
       try {
         conversations = await api('/conversations');
         renderConvList();
+      } catch (_) {}
+    }
+
+    function renderContactsList() {
+      if (!contacts.length) {
+        contactsList.innerHTML = `<div class="cw-empty-hint">${esc(t('noContacts'))}</div>`;
+        return;
+      }
+      contactsList.innerHTML = contacts.map(c => `
+        <div class="cw-conv" data-peer="${esc(c.id)}">
+          ${avatarHtml(c, 38)}
+          <div class="cw-conv-meta"><div class="cw-conv-name">${esc(c.display_name || c.username)}</div></div>
+        </div>`).join('');
+      contactsList.querySelectorAll('.cw-conv').forEach(el => {
+        el.addEventListener('click', () => {
+          openThread(el.dataset.peer, contacts.find(c => c.id === el.dataset.peer) || { id: el.dataset.peer });
+          setSidebarTab('chats');
+        });
+      });
+    }
+
+    async function refreshContacts() {
+      try {
+        contacts = await fetch('/api/pub/apphub/favourites', { headers: { 'X-Pub-Token': token } }).then(r => r.ok ? r.json() : []);
+        renderContactsList();
       } catch (_) {}
     }
 
@@ -454,6 +508,7 @@ const ChatWidget = (() => {
           me = msg.user; retry = 0;
           while (pending.length) ws.send(JSON.stringify(pending.shift()));
           refreshConversations();
+          refreshContacts();
           return;
         }
         if (msg.type === 'message') { onIncoming(msg); return; }

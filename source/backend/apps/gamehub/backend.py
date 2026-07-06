@@ -139,6 +139,31 @@ def _migrate_players_to_apphub():
 
 _migrate_players_to_apphub()
 
+
+def _migrate_favourites_to_apphub():
+    """Favourites now live centrally in Apps Hub (shared with Chat and any
+    other app). Copy any pre-existing local rows over once; player_favourites
+    itself is left in place but is no longer written to."""
+    hub = _apphub()
+    if not hub:
+        return
+    try:
+        with _db() as conn:
+            rows = conn.execute("SELECT player_id, favourite_id FROM player_favourites").fetchall()
+        count = 0
+        for r in rows:
+            try:
+                hub.add_favourite(r["player_id"], r["favourite_id"])
+                count += 1
+            except ValueError:
+                pass
+        if count:
+            print(f"[gamehub] migrated {count} favourites to apphub")
+    except Exception as e:
+        print(f"[gamehub] favourites migration to apphub failed: {e}")
+
+_migrate_favourites_to_apphub()
+
 # ── Password helpers ──────────────────────────────────────────
 
 def _hash_pw(pw: str) -> str:
@@ -255,32 +280,28 @@ async def update_me(body: MeUpdateBody, x_gh_token: Optional[str] = Header(defau
 
 @_pub.get("/favourites")
 async def get_favourites(x_gh_token: Optional[str] = Header(default=None)):
+    # Favourites are now stored centrally in Apps Hub, shared with Chat and
+    # any other app — this route just proxies so Game Hub's own UI is unchanged.
     p = _resolve_token(x_gh_token)
     if not p:
         raise HTTPException(401)
-    with _db() as conn:
-        rows = conn.execute("""
-            SELECT pl.id,pl.username,pl.display_name,pl.avatar_color,pl.avatar_data,pl.avatar_svg
-            FROM player_favourites f JOIN players pl ON f.favourite_id=pl.id
-            WHERE f.player_id=? ORDER BY pl.display_name
-        """, (p["id"],)).fetchall()
-    return JSONResponse([dict(r) for r in rows])
+    hub = _apphub()
+    if not hub:
+        return JSONResponse([])
+    return JSONResponse(hub.get_favourites(p["id"]))
 
 @_pub.post("/favourites/{fav_id}")
 async def add_favourite(fav_id: str, x_gh_token: Optional[str] = Header(default=None)):
     p = _resolve_token(x_gh_token)
     if not p:
         raise HTTPException(401)
-    if fav_id == p["id"]:
-        raise HTTPException(400, detail="Cannot favourite yourself")
-    now = datetime.now(timezone.utc).isoformat()
-    with _db() as conn:
-        target = conn.execute("SELECT id FROM players WHERE id=?", (fav_id,)).fetchone()
-        if not target:
-            raise HTTPException(404, detail="Player not found")
-        conn.execute("INSERT OR IGNORE INTO player_favourites(player_id,favourite_id,created_at) VALUES(?,?,?)",
-                     (p["id"], fav_id, now))
-        conn.commit()
+    hub = _apphub()
+    if not hub:
+        raise HTTPException(503, detail="Apps Hub unavailable")
+    try:
+        hub.add_favourite(p["id"], fav_id)
+    except ValueError as e:
+        raise HTTPException(400, detail=str(e))
     return JSONResponse({"ok": True})
 
 @_pub.delete("/favourites/{fav_id}")
@@ -288,6 +309,9 @@ async def remove_favourite(fav_id: str, x_gh_token: Optional[str] = Header(defau
     p = _resolve_token(x_gh_token)
     if not p:
         raise HTTPException(401)
+    hub = _apphub()
+    if hub:
+        hub.remove_favourite(p["id"], fav_id)
     with _db() as conn:
         conn.execute("DELETE FROM player_favourites WHERE player_id=? AND favourite_id=?", (p["id"], fav_id))
         conn.commit()
