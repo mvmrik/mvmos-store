@@ -106,6 +106,14 @@ async def public_index():
     return FileResponse(os.path.join(_PUBLIC_DIR, "index.html"))
 
 
+@router.get("/telegram")
+async def telegram_mini_app():
+    hub = _hub()
+    if hub and not hub.is_app_public(APP_ID):
+        return _private_page()
+    return FileResponse(os.path.join(_PUBLIC_DIR, "telegram.html"))
+
+
 # ── REST ─────────────────────────────────────────────────────────────────
 
 @router.get("/conversations")
@@ -272,6 +280,13 @@ async def chat_ws(websocket: WebSocket):
                 await _push(uid, payload)
                 if to_id != uid:
                     await _push(to_id, payload)
+                    if not _conns.get(to_id):
+                        tg = sys.modules.get("app_backend_telegramhub")
+                        if tg:
+                            sender = me.get("display_name", "?")
+                            base = tg.get_public_base_url() or ""
+                            url = f"{base.rstrip('/')}/pub/chat/telegram?peer={uid}"
+                            tg.notify(to_id, "chat", f"💬 {sender}: {body}", web_app=url)
                 continue
 
             if t == "typing":

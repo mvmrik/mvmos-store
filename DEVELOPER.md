@@ -52,6 +52,7 @@ apps/<category>/<app-id>/
 | `settings` | no | Settings shown in App Store (⚙ button) |
 | `trayable` | no | `true` if the app supports System Tray |
 | `scheduler` | no | Python file for background scheduled logic (e.g. `"scheduler.py"`) |
+| `public_directory` | no | `false` to hide from the Apps Hub public directory card grid even though `public.py` exists — see [Listing in the public directory](#listing-in-the-public-directory). Default `true`. |
 
 ---
 
@@ -794,6 +795,72 @@ async def get_data(session=Depends(get_current_session), x_pub_token: str = Head
 ```
 
 `get_pub_session` validates the token and returns `{ id, username, display_name, avatar_color }`, or `None` if invalid/expired.
+
+### Looking up other users
+
+Your app will often store just a user's `id` (e.g. as the sender of a message, or a favourited contact) without holding their session token. Apps Hub exposes shared helpers so every app renders the same display name/avatar instead of re-implementing lookups:
+
+**Bulk profile lookup**, in-process from your backend:
+
+```python
+import sys
+
+def _hub():
+    return sys.modules.get("backend.apphub")
+
+hub = _hub()
+users = hub.get_users_by_ids(["uid1", "uid2", "uid3"])
+# -> [{ id, username, display_name, avatar_color, avatar_svg }, ...]
+# unknown/missing ids are silently skipped, order is not guaranteed
+```
+
+**Search by username/display name**, either in-process or over REST:
+
+```python
+results = hub.search_users("joh", exclude_id=me["id"], limit=20)
+# -> same shape as get_users_by_ids; substring match, min 2 chars or returns []
+```
+
+```http
+GET /api/pub/apphub/search?q=joh
+```
+
+### Favourites
+
+Apps Hub keeps one shared favourites list per user — so "starred contacts" is the same list in Chat, Game Hub, or any other app, instead of every app tracking its own.
+
+```python
+hub.get_favourites(user_id)                 # -> list of full profile dicts, ordered by display_name
+hub.add_favourite(user_id, favourite_id)    # raises ValueError("Cannot favourite yourself" / "User not found")
+hub.remove_favourite(user_id, favourite_id)
+```
+
+REST equivalents (all require `X-Pub-Token`):
+
+```http
+GET    /api/pub/apphub/favourites
+POST   /api/pub/apphub/favourites/{fav_id}
+DELETE /api/pub/apphub/favourites/{fav_id}
+```
+
+### Syncing your own users into Apps Hub
+
+If your app keeps its own user/player accounts (its own signup, its own login) rather than requiring Apps Hub login, you can still make those users searchable, favouritable and lookup-able by other apps by syncing them in:
+
+```python
+hub.sync_user_from_backend({
+    "id": pid,                    # your own stable user id — reused as the Apps Hub id
+    "username": uname,
+    "display_name": dname,
+    "avatar_color": "#89b4fa",    # optional
+    "password_hash": phash,       # optional — only if you want it copied, e.g. during a migration
+    "avatar_data": None,          # optional
+    "avatar_svg": None,           # optional
+    "created_at": now,            # optional — defaults to now
+})
+```
+
+Safe to call repeatedly (insert-or-update): call it once when the user is created, and again any time `display_name`/`avatar_color`/etc. change. Omitted optional fields are left untouched on updates. Game Hub uses this so players created before Apps Hub existed — and any created since through Game Hub's own signup — still show up in search/favourites everywhere else.
 
 ### Public page (optional)
 

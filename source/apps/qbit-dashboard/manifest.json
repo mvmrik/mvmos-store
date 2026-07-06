@@ -3,7 +3,7 @@
   "name": "qBit Dashboard",
   "icon": "🌊",
   "category": "Media",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "min_core_version": "0.5.16",
   "description": "Visual dashboard for qBittorrent. Connects to a local qBittorrent instance via WebUI API.",
   "entry": "main.js",

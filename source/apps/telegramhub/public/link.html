@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Link Telegram — mvmOS</title>
+<style>
+  html,body{margin:0;padding:0;height:100%;background:#1e1e2e;color:#cdd6f4;
+    font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center}
+  .card{max-width:360px;padding:28px;text-align:center}
+  .icon{font-size:2.6rem;margin-bottom:8px}
+  h1{font-size:1.1rem;margin:0 0 8px}
+  p{font-size:.85rem;color:#a6adc8;margin:0 0 18px}
+  .status{font-size:.9rem;font-weight:600;padding:10px 14px;border-radius:8px}
+  .ok{background:#2b3a2f;color:#a6e3a1}
+  .err{background:#3a2b2f;color:#f38ba8}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="icon">✈️</div>
+  <h1>Link Telegram to your mvmOS account</h1>
+  <p id="msg">Checking…</p>
+  <div id="status"></div>
+</div>
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  var code = params.get('code');
+  var token = localStorage.getItem('apphub_token');
+
+  if (!code) {
+    document.getElementById('msg').textContent = 'Missing link code. Open the link from your Telegram bot again.';
+    return;
+  }
+  if (!token) {
+    location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
+    return;
+  }
+
+  fetch('/api/pub/telegramhub/link/confirm', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Pub-Token': token },
+    body: JSON.stringify({ code: code }),
+  }).then(function (r) {
+    var statusEl = document.getElementById('status');
+    var msgEl = document.getElementById('msg');
+    if (r.ok) {
+      msgEl.textContent = 'Your Telegram is now linked.';
+      statusEl.className = 'status ok';
+      statusEl.textContent = '✓ Linked — you can go back to Telegram';
+    } else {
+      msgEl.textContent = 'Could not link this code.';
+      statusEl.className = 'status err';
+      statusEl.textContent = 'The code is invalid or has expired. Ask the bot for a new /start link.';
+    }
+  }).catch(function () {
+    document.getElementById('msg').textContent = 'Network error, please try again.';
+  });
+})();
+</script>
+</body>
+</html>

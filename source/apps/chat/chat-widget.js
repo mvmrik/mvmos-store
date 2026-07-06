@@ -129,6 +129,7 @@ const ChatWidget = (() => {
     return r.json();
   }
 
+  // opts.onNeedLogin, opts.openPeer (peer_id to auto-open on first load, e.g. from a deep link)
   function mount(root, opts) {
     opts = opts || {};
     injectStyles();
@@ -507,7 +508,12 @@ const ChatWidget = (() => {
         if (msg.type === 'joined') {
           me = msg.user; retry = 0;
           while (pending.length) ws.send(JSON.stringify(pending.shift()));
-          refreshConversations();
+          refreshConversations().then(() => {
+            if (opts.openPeer && activePeer === null) {
+              const conv = conversations.find(c => c.peer_id === opts.openPeer);
+              openThread(opts.openPeer, conv ? peerFromConv(conv) : { id: opts.openPeer });
+            }
+          });
           refreshContacts();
           return;
         }
