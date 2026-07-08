@@ -14,6 +14,31 @@ router = APIRouter(prefix="/api/apps/quotebuilder")
 _DB_PATH = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "apps", "quotebuilder", "data.db"
 )
+_CORE_DB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "..", "data.db")
+
+# Fixed list — symbol-only display, never real FX conversion. Kept in sync
+# manually with frontend/settings.js's own copy (no shared module across surfaces).
+ALLOWED_CURRENCIES = {
+    "EUR", "USD", "GBP", "CHF", "JPY", "CNY", "TRY", "UAH", "PLN",
+    "RON", "CZK", "HUF", "CAD", "AUD", "SEK", "NOK", "DKK", "RUB", "INR",
+}
+
+
+def _system_currency():
+    try:
+        conn = sqlite3.connect(_CORE_DB_PATH)
+        try:
+            row = conn.execute("SELECT value FROM settings WHERE key='main'").fetchone()
+        finally:
+            conn.close()
+        if row:
+            import json
+            cur = json.loads(row[0]).get("currency")
+            if cur in ALLOWED_CURRENCIES:
+                return cur
+    except sqlite3.Error:
+        pass
+    return "EUR"
 
 
 def _conn():
@@ -130,7 +155,7 @@ async def get_settings(session=Depends(get_current_session), x_pub_token: Option
 
 class SettingsBody(BaseModel):
     hourly_rate: float = 50
-    currency: str = "€"
+    currency: Optional[str] = None  # ISO code, or None = use system default
     deposit_percent: float = 0
 
 
@@ -139,11 +164,13 @@ async def save_settings(body: SettingsBody, session=Depends(get_current_session)
     uid = _require_user(x_pub_token)
     if not uid:
         return _unauthorized()
+    if body.currency is not None and body.currency not in ALLOWED_CURRENCIES:
+        return JSONResponse({"error": "invalid currency"}, status_code=400)
     with _conn() as c:
         for key, value in body.model_dump().items():
             c.execute(
                 "INSERT OR REPLACE INTO settings (public_user_id, key, value) VALUES (?,?,?)",
-                (uid, key, str(value)),
+                (uid, key, "" if value is None else str(value)),
             )
         c.commit()
     return JSONResponse({"ok": True})

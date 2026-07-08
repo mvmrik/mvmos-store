@@ -3,7 +3,7 @@
   "name": "QuoteBuilder",
   "icon": "💰",
   "category": "Utilities",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Project quote builder. Add services with time (hours + minutes) or fixed prices, set an hourly rate, apply discounts and deposit, and share a live public link with your client.",
   "public_directory": false
 }

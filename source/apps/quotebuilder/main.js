@@ -37,7 +37,8 @@ const _qbi18n = {
     add:                 'Add',
     global_settings:     'Global Settings',
     default_rate:        'Default hourly rate',
-    currency_hint:       'Currency (text, e.g. €, лв., USD)',
+    currency_hint:       'Currency',
+    system_default:      'System default',
     default_deposit:     'Default deposit %',
     save_settings:       'Save Settings',
     service_templates:   'Service Templates',
@@ -110,7 +111,8 @@ const _qbi18n = {
     add:                 'Добави',
     global_settings:     'Общи настройки',
     default_rate:        'Цена на час по подразбиране',
-    currency_hint:       'Валута (текст, напр. €, лв., USD)',
+    currency_hint:       'Валута',
+    system_default:      'Системна по подразбиране',
     default_deposit:     'Капаро % по подразбиране',
     save_settings:       'Запази настройките',
     service_templates:   'Шаблони за услуги',
@@ -177,7 +179,22 @@ mvmOS.registerApp({
 const PC = (() => {
   let _root = null;
   let _view = 'projects';
-  let _gs = { hourly_rate: 50, currency: '€', deposit_percent: 30 };
+  let _gs = { hourly_rate: 50, currency: null, deposit_percent: 30 };
+
+  // Fixed list — symbol-only display, never real FX conversion. Kept in sync
+  // manually with frontend/settings.js's own copy (this app can't import core JS).
+  const _qbCurrencies = [
+    { value: 'EUR', symbol: '€' }, { value: 'USD', symbol: '$' }, { value: 'GBP', symbol: '£' },
+    { value: 'CHF', symbol: 'CHF' }, { value: 'JPY', symbol: '¥' }, { value: 'CNY', symbol: '¥' },
+    { value: 'TRY', symbol: '₺' }, { value: 'UAH', symbol: '₴' }, { value: 'PLN', symbol: 'zł' },
+    { value: 'RON', symbol: 'lei' }, { value: 'CZK', symbol: 'Kč' }, { value: 'HUF', symbol: 'Ft' },
+    { value: 'CAD', symbol: '$' }, { value: 'AUD', symbol: '$' }, { value: 'SEK', symbol: 'kr' },
+    { value: 'NOK', symbol: 'kr' }, { value: 'DKK', symbol: 'kr' }, { value: 'RUB', symbol: '₽' },
+    { value: 'INR', symbol: '₹' },
+  ];
+  function _qbCurrencySymbol(code) {
+    return (_qbCurrencies.find(c => c.value === code) || {}).symbol || code || '€';
+  }
   let _baseServices = [];
   let _categories = [];
   let _projects = [];
@@ -210,7 +227,7 @@ const PC = (() => {
     const raw = await _api('GET', '/settings');
     _gs = {
       hourly_rate:     raw.hourly_rate     !== undefined ? parseFloat(raw.hourly_rate)     : 50,
-      currency:        raw.currency        !== undefined ? raw.currency                    : '€',
+      currency:        raw.currency ? raw.currency : null,
       deposit_percent: raw.deposit_percent !== undefined ? parseFloat(raw.deposit_percent) : 30,
     };
   }
@@ -268,7 +285,7 @@ const PC = (() => {
   // ── Helpers ───────────────────────────────────────────────────────────────────
 
   const _t   = _qbt;
-  function _cur()      { return _gs.currency || '€'; }
+  function _cur()      { return _qbCurrencySymbol(_gs.currency || window._vosSettings?.currency || 'EUR'); }
   function _fmtAmt(n)  { return n.toFixed(2) + ' ' + _cur(); }
   function _esc(str)   { return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function _iStyle(ex) { return `padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:.85rem;outline:none;${ex||''}`; }
@@ -992,7 +1009,10 @@ const PC = (() => {
           </label>
           <label style="${_lblStyle()}">
             <span style="color:var(--text-dim)">${_t('currency_hint')}</span>
-            <input id="gs-cur" type="text" maxlength="12" value="${_esc(_gs.currency || '€')}" style="${_iStyle('')}">
+            <select id="gs-cur" style="${_iStyle('')}">
+              <option value="">${_t('system_default')}</option>
+              ${_qbCurrencies.map(c => `<option value="${c.value}" ${_gs.currency === c.value ? 'selected' : ''}>${c.symbol} ${c.value}</option>`).join('')}
+            </select>
           </label>
           <label style="${_lblStyle()}">
             <span style="color:var(--text-dim)">${_t('default_deposit')}</span>
@@ -1023,7 +1043,7 @@ const PC = (() => {
 
     w.querySelector('#gs-save').onclick = async () => {
       const hourly_rate     = parseFloat(w.querySelector('#gs-rate').value) || 50;
-      const currency        = w.querySelector('#gs-cur').value.trim() || '€';
+      const currency        = w.querySelector('#gs-cur').value || null;
       const deposit_percent = parseFloat(w.querySelector('#gs-dep').value) || 0;
       await _api('PUT', '/settings', { hourly_rate, currency, deposit_percent });
       _gs = { hourly_rate, currency, deposit_percent };

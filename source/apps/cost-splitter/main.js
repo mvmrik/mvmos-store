@@ -51,6 +51,21 @@ const _csi18n = {
 };
 function _cst(key) { const lang = window.mvmOS?.lang || 'en'; return (_csi18n[lang] || _csi18n.en)[key] || key; }
 
+// Fixed list — symbol-only display, never real FX conversion. Kept in sync
+// manually with frontend/settings.js's own copy (this app can't import core JS).
+const _csCurrencies = [
+  { value: 'EUR', symbol: '€' }, { value: 'USD', symbol: '$' }, { value: 'GBP', symbol: '£' },
+  { value: 'CHF', symbol: 'CHF' }, { value: 'JPY', symbol: '¥' }, { value: 'CNY', symbol: '¥' },
+  { value: 'TRY', symbol: '₺' }, { value: 'UAH', symbol: '₴' }, { value: 'PLN', symbol: 'zł' },
+  { value: 'RON', symbol: 'lei' }, { value: 'CZK', symbol: 'Kč' }, { value: 'HUF', symbol: 'Ft' },
+  { value: 'CAD', symbol: '$' }, { value: 'AUD', symbol: '$' }, { value: 'SEK', symbol: 'kr' },
+  { value: 'NOK', symbol: 'kr' }, { value: 'DKK', symbol: 'kr' }, { value: 'RUB', symbol: '₽' },
+  { value: 'INR', symbol: '₹' },
+];
+function _csCurrencySymbol(code) {
+  return (_csCurrencies.find(c => c.value === code) || {}).symbol || code || '€';
+}
+
 mvmOS.registerApp({
   id: 'cost-splitter',
   name: 'Cost Splitter',
@@ -58,8 +73,16 @@ mvmOS.registerApp({
   category: 'Utilities',
   trayable: false,
   settings: [
-    { key: 'currency_prefix', label: 'Currency prefix (e.g. $, £)', type: 'text',     default: '' },
-    { key: 'currency_suffix', label: 'Currency suffix (e.g. €, lv)', type: 'text',     default: '€' },
+    { key: 'currency', label: 'Currency', type: 'select', options: [
+        {value:'',label:'System default'},
+        {value:'EUR',label:'€ EUR'}, {value:'USD',label:'$ USD'}, {value:'GBP',label:'£ GBP'},
+        {value:'CHF',label:'CHF'}, {value:'JPY',label:'¥ JPY'}, {value:'CNY',label:'¥ CNY'},
+        {value:'TRY',label:'₺ TRY'}, {value:'UAH',label:'₴ UAH'}, {value:'PLN',label:'zł PLN'},
+        {value:'RON',label:'lei RON'}, {value:'CZK',label:'Kč CZK'}, {value:'HUF',label:'Ft HUF'},
+        {value:'CAD',label:'$ CAD'}, {value:'AUD',label:'$ AUD'}, {value:'SEK',label:'kr SEK'},
+        {value:'NOK',label:'kr NOK'}, {value:'DKK',label:'kr DKK'}, {value:'RUB',label:'₽ RUB'},
+        {value:'INR',label:'₹ INR'},
+      ], default: '' },
     { key: 'total_cost',      label: 'Total monthly cost',           type: 'number',   default: 0, min: 0 },
     { key: 'mail_language',   label: 'Email language',               type: 'select',   options: [{value:'en',label:'English'},{value:'bg',label:'Български'}], default: 'en' },
     { key: 'mail_provider',   label: 'Email provider',               type: 'select',   options: [{value:'mailjet',label:'Mailjet'},{value:'brevo',label:'Brevo'}], default: 'mailjet' },
@@ -139,8 +162,7 @@ const CS = (() => {
     const saved = {};
     rows.forEach(r => { try { saved[r.key] = JSON.parse(r.value); } catch(_) { saved[r.key] = r.value; } });
     _cfg = {
-      currency_prefix: saved.currency_prefix ?? '',
-      currency_suffix: saved.currency_suffix ?? '€',
+      currency:        saved.currency || (window._vosSettings?.currency || 'EUR'),
       total_cost:      parseFloat(saved.total_cost) || 0,
       mail_provider:   saved.mail_provider || 'mailjet',
       mail_api_key:    saved.mail_api_key || '',
@@ -158,7 +180,7 @@ const CS = (() => {
 
   function _fmt(amount) {
     const val = Math.abs(amount).toFixed(2);
-    return _cfg.currency_prefix + val + _cfg.currency_suffix;
+    return val + ' ' + _csCurrencySymbol(_cfg.currency);
   }
 
   function _fmtSigned(amount) {

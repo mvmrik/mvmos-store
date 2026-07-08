@@ -12,17 +12,31 @@ _CORE_DB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "..", "data.
 
 _DATE_DEFAULTS = {"date_format": "DD/MM/YYYY"}
 
-def _get_date_format():
+# Fixed list — symbol-only display, never real FX conversion. Kept in sync
+# manually with frontend/settings.js's own copy (no shared module across surfaces).
+_CURRENCY_SYMBOLS = {
+    "EUR": "€", "USD": "$", "GBP": "£", "CHF": "CHF", "JPY": "¥", "CNY": "¥",
+    "TRY": "₺", "UAH": "₴", "PLN": "zł", "RON": "lei", "CZK": "Kč", "HUF": "Ft",
+    "CAD": "$", "AUD": "$", "SEK": "kr", "NOK": "kr", "DKK": "kr", "RUB": "₽", "INR": "₹",
+}
+
+def _get_core_settings():
     try:
         conn = sqlite3.connect(_CORE_DB_PATH)
         row = conn.execute("SELECT value FROM settings WHERE key='main'").fetchone()
         conn.close()
         if row:
-            s = _json.loads(row[0])
-            return s.get("date_format", "DD/MM/YYYY")
+            return _json.loads(row[0])
     except Exception:
         pass
-    return "DD/MM/YYYY"
+    return {}
+
+def _get_date_format():
+    return _get_core_settings().get("date_format", "DD/MM/YYYY")
+
+def _currency_symbol(config):
+    code = config.get("currency") or _get_core_settings().get("currency", "EUR")
+    return _CURRENCY_SYMBOLS.get(code, code)
 
 def _fmt_date(iso_str, date_format):
     d = iso_str[:10]  # YYYY-MM-DD
@@ -83,8 +97,7 @@ async def test_email(body: TestEmailRequest):
 
     members      = conn.execute("SELECT * FROM members").fetchall()
     total_cost   = float(config.get("total_cost") or 0)
-    prefix       = str(config.get("currency_prefix", "") or "")
-    suffix       = str(config.get("currency_suffix", "€") or "€")
+    symbol       = _currency_symbol(config)
     subject      = str(config.get("mail_subject", "Monthly cost summary") or "Monthly cost summary")
     body_tpl     = str(config.get("mail_body", "Hi {name}, your share of {share} has been charged.") or "")
     provider     = str(config.get("mail_provider", "mailjet") or "mailjet")
@@ -118,7 +131,7 @@ async def test_email(body: TestEmailRequest):
     balance     = old_balance - per_member
 
     def fmt(a):
-        return f"{prefix}{abs(float(a)):.2f}{suffix}"
+        return f"{abs(float(a)):.2f} {symbol}"
     def fmt_signed(a):
         a = float(a)
         return ("-" if a < 0 else "") + fmt(a)

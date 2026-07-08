@@ -28,18 +28,32 @@ _i18n = {
 }
 
 
-def _get_date_format(db_path):
+# Fixed list — symbol-only display, never real FX conversion. Kept in sync
+# manually with frontend/settings.js's own copy (no shared module across surfaces).
+_CURRENCY_SYMBOLS = {
+    "EUR": "€", "USD": "$", "GBP": "£", "CHF": "CHF", "JPY": "¥", "CNY": "¥",
+    "TRY": "₺", "UAH": "₴", "PLN": "zł", "RON": "lei", "CZK": "Kč", "HUF": "Ft",
+    "CAD": "$", "AUD": "$", "SEK": "kr", "NOK": "kr", "DKK": "kr", "RUB": "₽", "INR": "₹",
+}
+
+def _get_core_settings(db_path):
     try:
         core_db = os.path.join(os.path.dirname(db_path), "..", "..", "..", "data.db")
         conn = sqlite3.connect(core_db)
         row = conn.execute("SELECT value FROM settings WHERE key='main'").fetchone()
         conn.close()
         if row:
-            s = json.loads(row[0])
-            return s.get("date_format", "DD/MM/YYYY")
+            return json.loads(row[0])
     except Exception:
         pass
-    return "DD/MM/YYYY"
+    return {}
+
+def _get_date_format(db_path):
+    return _get_core_settings(db_path).get("date_format", "DD/MM/YYYY")
+
+def _currency_symbol(db_path, config):
+    code = config.get("currency") or _get_core_settings(db_path).get("currency", "EUR")
+    return _CURRENCY_SYMBOLS.get(code, code)
 
 def _fmt_date(iso_str, date_format):
     d = iso_str[:10]
@@ -77,8 +91,7 @@ def run(now: datetime, db_path: str, config: dict):
              sent_at TEXT, status TEXT, error TEXT DEFAULT '')''')
 
         total_cost   = float(config.get('total_cost') or 0)
-        prefix       = config.get('currency_prefix', '')
-        suffix       = config.get('currency_suffix', '€')
+        symbol       = _currency_symbol(db_path, config)
         subject      = config.get('mail_subject', 'Monthly cost summary')
         body_tpl     = config.get('mail_body', 'Hi {name}, your share of {share} has been charged. Previous balance: {old_balance}, current balance: {new_balance}.')
         provider     = config.get('mail_provider', 'mailjet')
@@ -102,7 +115,7 @@ def run(now: datetime, db_path: str, config: dict):
             return float(m['custom_share']) if m['custom_share'] is not None else auto_share
 
         def fmt(amount):
-            return f"{prefix}{abs(amount):.2f}{suffix}"
+            return f"{abs(amount):.2f} {symbol}"
 
         def fmt_signed(amount):
             return ('-' if amount < 0 else '') + fmt(amount)

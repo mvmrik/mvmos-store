@@ -9,6 +9,32 @@ router = APIRouter()
 APP_ID = "quotebuilder"
 
 _DB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "quotebuilder", "data.db")
+_CORE_DB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "..", "data.db")
+
+# Fixed list — symbol-only display, never real FX conversion. Kept in sync
+# manually with frontend/settings.js's own copy (no shared module across surfaces).
+_CURRENCY_SYMBOLS = {
+    "EUR": "€", "USD": "$", "GBP": "£", "CHF": "CHF", "JPY": "¥", "CNY": "¥",
+    "TRY": "₺", "UAH": "₴", "PLN": "zł", "RON": "lei", "CZK": "Kč", "HUF": "Ft",
+    "CAD": "$", "AUD": "$", "SEK": "kr", "NOK": "kr", "DKK": "kr", "RUB": "₽", "INR": "₹",
+}
+
+
+def _system_currency():
+    try:
+        conn = sqlite3.connect(_CORE_DB_PATH)
+        try:
+            row = conn.execute("SELECT value FROM settings WHERE key='main'").fetchone()
+        finally:
+            conn.close()
+        if row:
+            import json
+            cur = json.loads(row[0]).get("currency")
+            if cur in _CURRENCY_SYMBOLS:
+                return cur
+    except sqlite3.Error:
+        pass
+    return "EUR"
 
 
 def _hub():
@@ -103,7 +129,7 @@ async def public_quote(token: str):
     ).fetchall()
     conn.close()
 
-    gs = {"hourly_rate": 50, "currency": "€", "deposit_percent": 30}
+    gs = {"hourly_rate": 50, "currency": "", "deposit_percent": 30}
     for r in settings_rows:
         if r["key"] in ("hourly_rate", "deposit_percent"):
             try:
@@ -117,7 +143,7 @@ async def public_quote(token: str):
     rate         = proj["hourly_rate"]     if proj["hourly_rate"]     is not None else gs["hourly_rate"]
     deposit_pct  = proj["deposit_percent"] if proj["deposit_percent"] is not None else gs["deposit_percent"]
     discount_pct = proj["discount_percent"] or 0
-    currency     = gs.get("currency", "€")
+    currency     = _CURRENCY_SYMBOLS.get(gs.get("currency") or _system_currency(), "€")
     show_hours   = bool(proj["show_hours"]) if "show_hours" in keys else True
     show_rate    = bool(proj["show_rate"])  if "show_rate"  in keys else True
     lang         = (proj["public_lang"] if "public_lang" in keys else None) or "en"
