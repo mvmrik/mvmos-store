@@ -163,7 +163,7 @@ await db.run('INSERT OR REPLACE INTO cfg (key, value) VALUES (?, ?)', ['theme', 
 
 ### mvmOS.notify(title, body, action?, actionLabel?)
 
-Shows a notification in the notification center.
+Shows a notification in the notification center, for the current user, from the frontend.
 
 ```js
 mvmOS.notify('Done', 'File saved.');
@@ -171,6 +171,22 @@ mvmOS.notify('Done', 'File saved.');
 // With action button
 mvmOS.notify('New version', 'v1.2.0 is available.', () => openUpdate(), 'Install');
 ```
+
+The `action` callback only fires within the browser session that created the notification (it isn't persisted) — it won't run if the user reloads the page and clicks the notification later. If you need the action to survive a reload, notify from the backend instead (see below) and pass `action_app`.
+
+To notify a **different** user (e.g. "someone sent you a message"), or to have the notification survive a page reload, create it from your `backend.py` instead — see [Notifications from your backend](#notifications-from-your-backend) below.
+
+### mvmOS.markNotifsRead(source, ref)
+
+Clears your app's own unread notifications for the current user, matched by `source` + `ref` — the same two values your backend passed to `create_notification()` when it created them. Call this when the user views the underlying content directly, so the notification disappears without them having to open it from the bell icon.
+
+```js
+// user opened the conversation with peerId — any pending
+// "new message" notification from that specific sender is now stale
+mvmOS.markNotifsRead('chat', peerId);
+```
+
+This only marks read; it doesn't delete or need to know the notification's id — one call clears every unread notification matching that `source`/`ref` for the current user, which also covers the case where several arrived before the user looked.
 
 ---
 
@@ -577,6 +593,47 @@ async def get_data(session=Depends(get_current_session)):
 - All endpoints must require `session=Depends(get_current_session)` for authentication
 - The prefix must be unique — recommended `/api/<app-id>`
 - Only `backend.py` is installed — no other Python files
+
+---
+
+## Notifications from your backend
+
+`mvmOS.notify()` (above) only posts for the current session's user. To notify a **different** user — e.g. "someone sent you a message" — or to make a notification survive a page reload (via a real action app instead of an in-memory callback), create it from `backend.py` using the shared `backend.notifications` module, the same `sys.modules` pattern used for Apps Hub:
+
+```python
+import sys
+
+def _notify(username, title, body, ref=None):
+    notif = sys.modules.get("backend.notifications")
+    if not notif:
+        return
+    notif.create_notification(
+        username, title, body,
+        kind="push",            # "push" = toast + auto-hides; "persistent" = stays until dismissed
+        source="my-app",        # your app id — namespaces `ref` so it can't collide with other apps
+        action_app="my-app",    # optional: clicking the notification launches this app
+        ref=None,               # optional: an id for the exact thing this is about (see below)
+    )
+```
+
+If your app only knows a recipient's user `id` (not their `username`), resolve it first via Apps Hub's [`get_users_by_ids`](#looking-up-other-users):
+
+```python
+hub = sys.modules.get("backend.apphub")
+users = hub.get_users_by_ids([recipient_id])
+if users and users[0].get("username"):
+    _notify(users[0]["username"], "New message", body, ref=sender_id)
+```
+
+### The `ref` field — precise "mark read on view"
+
+`ref` is an opaque string you choose — it means whatever you want it to mean (a conversation partner's user id, a document id, an order id...). It exists so your app's frontend can clear *exactly* the notifications about one specific thing, the moment the user looks at that thing directly, instead of making them dig through the bell icon:
+
+1. Backend creates the notification with `source="my-app"` and e.g. `ref=sender_id`.
+2. Later, when the user opens that specific conversation/document/order in your app, your frontend calls `mvmOS.markNotifsRead('my-app', sender_id)`.
+3. Only notifications matching *both* `source` and `ref` for the current user flip to read — notifications about other conversations stay unread, so the user still sees they have something new elsewhere.
+
+If you don't need this precision, just omit `ref` (or leave it `None`) — the notification then only clears via the bell icon / Notifications app, same as a plain `mvmOS.notify()` call. Chat uses this exact pattern: `ref` is the sender's user id, and opening that sender's thread clears just their pending notification.
 
 ---
 

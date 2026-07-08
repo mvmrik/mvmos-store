@@ -26,9 +26,10 @@
   .tab:hover:not(.active){color:var(--fg)}
   .section{padding:16px}
   .app-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;padding:16px}
-  .app-card{background:var(--surface1);border:1px solid var(--border);border-radius:12px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:background .12s,border-color .12s;text-decoration:none;color:var(--fg)}
+  .app-card{position:relative;background:var(--surface1);border:1px solid var(--border);border-radius:12px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:background .12s,border-color .12s;text-decoration:none;color:var(--fg)}
   .app-card:hover{background:var(--surface2);border-color:var(--accent)}
-  .app-icon{font-size:2.2rem;line-height:1}
+  .app-icon{font-size:2.2rem;line-height:1;position:relative}
+  .app-badge{position:absolute;top:-2px;right:-4px;width:10px;height:10px;border-radius:50%;background:var(--red);border:2px solid var(--surface1)}
   .app-name{font-size:.85rem;font-weight:600;text-align:center}
   .app-desc{font-size:.72rem;color:var(--fg2);text-align:center;line-height:1.4}
   .avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#1e1e2e;flex-shrink:0}
@@ -211,6 +212,7 @@ function showDashboard(activeTab) {
 }
 
 function renderTab(t) {
+  clearInterval(_badgePoll);
   const c = app.querySelector('#d-body');
   if (t === 'apps')       renderApps(c);
   if (t === 'favourites') renderFavourites(c);
@@ -246,6 +248,20 @@ function _sortApps(apps, mode) {
   return sorted;
 }
 
+async function _loadBadges() {
+  if (!_token) return {};
+  try {
+    const r = await fetch('/api/notifications/badges', {headers:{'X-Pub-Token':_token}});
+    return r.ok ? await r.json() : {};
+  } catch(_) { return {}; }
+}
+
+// This is a static page with no websocket/live-push channel of its own, so
+// badge state (which apps have unread notifications) can only go stale —
+// poll it periodically while the Apps tab is open instead of requiring a
+// full page reload to see a badge appear or disappear.
+let _badgePoll = null;
+
 async function renderApps(c) {
   c.innerHTML = `<div style="padding:32px;text-align:center;color:var(--fg2);font-size:.9rem">Loading apps…</div>`;
   let apps = [];
@@ -253,6 +269,7 @@ async function renderApps(c) {
     const r = await fetch(BASE + '/apps');
     if (r.ok) apps = await r.json();
   } catch(_) {}
+  let badges = await _loadBadges();
 
   if (!apps.length) {
     c.innerHTML = `<div style="padding:40px;text-align:center;color:var(--fg2)">
@@ -278,7 +295,7 @@ async function renderApps(c) {
     const sorted = _sortApps(apps, _getSortPref());
     c.querySelector('#apps-grid').innerHTML = sorted.map(a => `
       <a class="app-card" href="${esc(a.public_url)}" target="_blank" data-id="${esc(a.id)}">
-        <div class="app-icon">${esc(a.icon)}</div>
+        <div class="app-icon">${esc(a.icon)}${badges[a.id] ? '<span class="app-badge"></span>' : ''}</div>
         <div class="app-name">${esc(a.name)}</div>
         ${a.description ? `<div class="app-desc">${esc(a.description.slice(0,60))}${a.description.length>60?'…':''}</div>` : ''}
       </a>`).join('');
@@ -289,6 +306,19 @@ async function renderApps(c) {
   renderGrid();
 
   c.querySelector('#apps-sort').onchange = e => { _setSortPref(e.target.value); renderGrid(); };
+
+  clearInterval(_badgePoll);
+  _badgePoll = setInterval(async () => {
+    if (!c.isConnected) { clearInterval(_badgePoll); return; }
+    badges = await _loadBadges();
+    c.querySelectorAll('.app-card').forEach(el => {
+      const icon = el.querySelector('.app-icon');
+      const dot = icon.querySelector('.app-badge');
+      const shouldShow = !!badges[el.dataset.id];
+      if (shouldShow && !dot) icon.insertAdjacentHTML('beforeend', '<span class="app-badge"></span>');
+      if (!shouldShow && dot) dot.remove();
+    });
+  }, 8000);
 }
 
 // ── Favourites tab ──────────────────────────────────────────────

@@ -84,6 +84,30 @@ def _resolve(token):
     return hub.get_pub_session(token)
 
 
+def _notify_recipient(to_id: str, from_id: str, sender_name: str, body: str):
+    """Create an in-app push notification for the recipient's mvmOS session.
+    Separate from the Telegram fallback below, which only fires when the
+    recipient has no open chat connection at all.
+
+    ref=from_id lets the recipient's own client clear just this sender's
+    notification when they open that specific conversation (see
+    /api/notifications/read-by-ref), instead of every chat notification
+    being cleared only via the bell icon."""
+    hub = _hub()
+    if not hub:
+        return
+    users = hub.get_users_by_ids([to_id])
+    if not users or not users[0].get("username"):
+        return
+    notif = sys.modules.get("backend.notifications")
+    if not notif:
+        return
+    notif.create_notification(
+        users[0]["username"], sender_name, body[:200], kind="push", source="chat",
+        action_app="chat", ref=from_id,
+    )
+
+
 def _private_page():
     return HTMLResponse("""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>mvmOS Chat</title>
@@ -280,6 +304,7 @@ async def chat_ws(websocket: WebSocket):
                 await _push(uid, payload)
                 if to_id != uid:
                     await _push(to_id, payload)
+                    _notify_recipient(to_id, uid, me.get("display_name", "?"), body)
                     if not _conns.get(to_id):
                         tg = sys.modules.get("app_backend_telegramhub")
                         if tg:

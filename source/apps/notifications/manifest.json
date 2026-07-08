@@ -1,0 +1,17 @@
+{
+  "id": "notifications",
+  "name": "Notifications",
+  "icon": "🔔",
+  "category": "System",
+  "version": "1.0.0",
+  "description": "History of all mvmOS notifications, read/unread status and push notification settings.",
+  "settings": [
+    { "key": "push_duration", "label": "Push notification duration (seconds)", "type": "number", "default": 5, "min": 1, "max": 30 },
+    { "key": "push_position", "label": "Push notification position", "type": "select", "default": "top-right", "options": [
+      { "value": "top-right", "label": "Top right" },
+      { "value": "top-left", "label": "Top left" },
+      { "value": "bottom-right", "label": "Bottom right" },
+      { "value": "bottom-left", "label": "Bottom left" }
+    ] }
+  ]
+}

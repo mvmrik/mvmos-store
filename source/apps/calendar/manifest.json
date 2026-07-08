@@ -1,0 +1,13 @@
+{
+  "id": "calendar",
+  "name": "Calendar",
+  "icon": "📅",
+  "category": "Productivity",
+  "version": "1.1.0",
+  "description": "Calendar with events and reminders, a public web page for Apps Hub accounts, and a Telegram mini-app.",
+  "entry": "main.js",
+  "public_url": "/pub/calendar/",
+  "public_directory": true,
+  "scheduler": "reminder_scheduler.py",
+  "replaces_widget": "calendar"
+}

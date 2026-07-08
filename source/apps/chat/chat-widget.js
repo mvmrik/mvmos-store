@@ -120,6 +120,23 @@ const ChatWidget = (() => {
 
   function apiBase() { return '/pub/chat'; }
 
+  // Clears the shared core notification for this sender (source='chat',
+  // ref=peerId — see backend/apps/chat/public.py's _notify_recipient) by
+  // hitting the core API directly with our own Apps Hub token. Must not go
+  // through window.mvmOS — this widget also runs standalone on the public
+  // chat page (apps/chat/public/index.html), which has no desktop shell, so
+  // window.mvmOS is undefined there and that call would silently no-op,
+  // leaving the notification (and any badge derived from it) stuck unread.
+  function markNotifRead(peerId) {
+    const token = localStorage.getItem('apphub_token');
+    if (!token) return;
+    fetch('/api/notifications/read-by-ref', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Pub-Token': token },
+      body: JSON.stringify({ source: 'chat', ref: String(peerId) }),
+    }).then(() => window.mvmOS?._refreshNotifs?.()).catch(() => {});
+  }
+
   async function api(path, opts) {
     opts = opts || {};
     const token = localStorage.getItem('apphub_token');
@@ -354,6 +371,10 @@ const ChatWidget = (() => {
       activePeer = peerId;
       cwRoot.classList.add('cw-show-thread');
       renderConvList();
+      // clear any pending "new message" push notification from this sender —
+      // the user is looking at the conversation now, no need to wait for the
+      // bell icon (see backend/apps/chat/public.py's _notify_recipient ref=from_id)
+      markNotifRead(peerId);
 
       threadPane.innerHTML = `
         <div class="cw-thread-active">
@@ -463,6 +484,13 @@ const ChatWidget = (() => {
         } else if (msg.from !== me.id) {
           msgsEl.insertAdjacentHTML('beforeend', bubbleHtml(msg));
           scrollBottom(msgsEl);
+          // Backend creates a notification for every message regardless of
+          // whether the recipient is actively viewing the thread live — clear
+          // it immediately here too, otherwise the badge/bell stays stuck
+          // "unread" forever for messages the user already saw in real time
+          // (openThread()'s markNotifRead only fires when a thread is opened,
+          // not for messages that arrive while it's already open).
+          markNotifRead(peerId);
         }
       }
       refreshConversations();

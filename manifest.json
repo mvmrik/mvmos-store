@@ -30,6 +30,12 @@
       "name": "Social",
       "icon": "💬",
       "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/social/manifest.json"
+    },
+    {
+      "id": "productivity",
+      "name": "Productivity",
+      "icon": "🗓️",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/manifest.json"
     }
   ]
 }

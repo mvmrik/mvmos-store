@@ -399,6 +399,7 @@ mvmOS.registerWidget(def)            — register a widget
 mvmOS.createWindow(options)          — open a window (call inside launch())
 mvmOS.notify(title, body)            — push a notification
 mvmOS.notify(title, body, fn, label) — notification with action button
+mvmOS.markNotifsRead(source, ref)    — clear your own notifications when the user views the content (see DEVELOPER.md)
 mvmOS.onResources(callback)          — subscribe to system resource updates
 
 mvmOS.multiplayer.createRoom(gameId) — create a multiplayer room, returns { roomId, link }
