@@ -85,12 +85,15 @@ YS.tabs = (() => {
     // Save current tab's browse state before switching
     var prev = _activeTab();
     if (prev && prev.type === 'browse') {
+      var wrap = _container && _container.querySelector('#ysql-table-wrap');
       prev.browseState = {
         filters: YS.state.filters,
         sort: YS.state.sort,
         page: YS.state.page,
         pageSize: YS.state.pageSize,
         colMeta: YS.state.colMeta,
+        scrollLeft: wrap ? wrap.scrollLeft : 0,
+        scrollTop: wrap ? wrap.scrollTop : 0,
       };
     }
     _active = id;

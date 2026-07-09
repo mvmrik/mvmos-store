@@ -324,6 +324,10 @@ function _ysqlRenderApp(container) {
       var ext = zip ? 'zip' : fmt;
       var filename = YS.state.activeDb + '.' + ext;
       modal.close();
+      // Exporting a large database can take a while before the browser's own
+      // save dialog appears (fetch+blob only resolves once the whole body has
+      // been received) — without this, the UI looks frozen/dead in between.
+      var progressToast = YS.toast('Exporting ' + filename + '…', 'info', { sticky: true, spinner: true });
       fetch(url, { credentials: 'include' }).then(function(r) {
         if (!r.ok) { r.text().then(function(t){ YS.toast('Export failed: ' + t, 'error'); }); return; }
         return r.blob();
@@ -334,7 +338,8 @@ function _ysqlRenderApp(container) {
         a.download = filename;
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
-      }).catch(function(e){ YS.toast('Export failed: ' + e.message, 'error'); });
+      }).catch(function(e){ YS.toast('Export failed: ' + e.message, 'error'); })
+        .finally(function(){ progressToast && progressToast.close && progressToast.close(); });
     });
     bottomRow.appendChild(dlBtn);
     m.appendChild(bottomRow);

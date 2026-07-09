@@ -9,6 +9,7 @@ Python package.
 
 import re
 import subprocess
+import xml.etree.ElementTree as ET
 
 DRIVER_MODULE = None
 DRIVER_PACKAGE = None
@@ -63,26 +64,34 @@ def _run(cfg, sql, database=None, timeout=30):
 
 
 def _run_json(cfg, sql, database=None, timeout=30):
-    """Run SQL via mysql CLI with column headers, return list of dicts."""
-    args = [a for a in _mysql_args(cfg, database) if a != "--skip-column-names"]
+    """Run SQL via mysql CLI with column headers, return list of dicts.
+
+    Uses --xml rather than --batch's tab/newline-separated text: a value
+    with an embedded CR (e.g. Windows-style CRLF pasted into a text column)
+    comes back from --batch as an extra *real* newline byte in the stream
+    (only the LF half gets escaped to a literal backslash-n), which is
+    indistinguishable from an actual row boundary once split — silently
+    shredding one real row into several bogus ones. XML's tags mark field/row
+    boundaries unambiguously regardless of what whitespace the value itself
+    contains, so this holds even with arbitrary embedded newlines or tabs.
+    """
+    args = [a for a in _mysql_args(cfg, database) if a not in ("--batch", "--skip-column-names")]
+    args.insert(1, "--xml")
     r = subprocess.run(args, input=sql, capture_output=True, text=True, timeout=timeout)
     if r.returncode != 0:
         err = r.stderr.strip()
         lines = [l for l in err.splitlines() if "Using a password" not in l]
         raise RuntimeError("\n".join(lines) or err)
-    lines = r.stdout.splitlines()
-    if not lines:
+    if not r.stdout.strip():
         return []
-    columns = lines[0].split("\t")
+    root = ET.fromstring(r.stdout)
+    nil_attr = "{http://www.w3.org/2001/XMLSchema-instance}nil"
     rows = []
-    for line in lines[1:]:
-        if not line:
-            continue
-        values = line.split("\t")
+    for row_el in root.findall("row"):
         row = {}
-        for i, col in enumerate(columns):
-            v = values[i] if i < len(values) else ""
-            row[col] = None if v == "NULL" else v
+        for field_el in row_el.findall("field"):
+            name = field_el.get("name")
+            row[name] = None if field_el.get(nil_attr) == "true" else (field_el.text or "")
         rows.append(row)
     return rows
 

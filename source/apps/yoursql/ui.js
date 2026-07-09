@@ -26,8 +26,9 @@ YS.escHtml = function(s) {
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 };
 
-YS.toast = function(msg, type) {
+YS.toast = function(msg, type, opts) {
   type = type || 'info';
+  opts = opts || {};
   var container = document.getElementById('ysql-toasts');
   if (!container) {
     container = document.createElement('div');
@@ -37,10 +38,25 @@ YS.toast = function(msg, type) {
   }
   var t = document.createElement('div');
   var colors = { success:'#50fa7b', error:'#f38ba8', info:'var(--accent)' };
-  t.style.cssText = 'background:var(--surface);border:1px solid ' + (colors[type]||colors.info) + ';color:var(--text);padding:8px 14px;border-radius:var(--radius);font-size:.83rem;box-shadow:var(--shadow);pointer-events:auto;max-width:300px';
-  t.textContent = msg;
+  t.style.cssText = 'background:var(--surface);border:1px solid ' + (colors[type]||colors.info) + ';color:var(--text);padding:8px 14px;border-radius:var(--radius);font-size:.83rem;box-shadow:var(--shadow);pointer-events:auto;max-width:300px;display:flex;align-items:center;gap:8px';
+  if (opts.spinner) {
+    var sp = document.createElement('span');
+    sp.style.cssText = 'width:12px;height:12px;border:2px solid ' + (colors[type]||colors.info) + ';border-top-color:transparent;border-radius:50%;display:inline-block;flex:none;animation:ysql-toast-spin .7s linear infinite';
+    t.appendChild(sp);
+    if (!document.getElementById('ysql-toast-spin-kf')) {
+      var style = document.createElement('style');
+      style.id = 'ysql-toast-spin-kf';
+      style.textContent = '@keyframes ysql-toast-spin{to{transform:rotate(360deg)}}';
+      document.head.appendChild(style);
+    }
+  }
+  var label = document.createElement('span');
+  label.textContent = msg;
+  t.appendChild(label);
   container.appendChild(t);
-  setTimeout(function() { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(function(){t.remove();},300); }, 3000);
+  var close = function() { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(function(){t.remove();},300); };
+  if (!opts.sticky) setTimeout(close, 3000);
+  return { close: close, el: t };
 };
 
 YS.api = async function(path, opts) {

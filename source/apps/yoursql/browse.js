@@ -40,6 +40,14 @@ YS.browse = (() => {
 
     _renderBrowse(container, content);
     await _loadData(container, content);
+
+    if (savedState) {
+      var wrap = content.querySelector('#ysql-table-wrap');
+      if (wrap) {
+        wrap.scrollLeft = savedState.scrollLeft || 0;
+        wrap.scrollTop = savedState.scrollTop || 0;
+      }
+    }
   }
 
   function _renderBrowse(container, content) {
@@ -411,7 +419,11 @@ YS.browse = (() => {
     } else if (YS.isDateType(base)) {
       td.style.color = 'var(--color-date, #f1fa8c)';
     }
-    td.textContent = s;
+    // Some columns hold text with real embedded newlines (e.g. pasted-in
+    // multi-line values) — left as-is a <td> just wraps onto extra visual
+    // rows that look like separate table rows. Collapse to one line for
+    // display only; title/edit still see the real, unmodified value.
+    td.textContent = /[\r\n]/.test(s) ? s.replace(/\r\n|\r|\n/g, ' ↵ ') : s;
     td.title = s;
   }
 
