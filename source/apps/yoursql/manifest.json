@@ -3,7 +3,7 @@
   "name": "YourSQL",
   "icon": "🗄️",
   "category": "Administration",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL and Greenplum database manager — browse databases, edit data, run queries, import and export.",
   "entry": "main.js",
   "min_core_version": "0.7.4"
