@@ -5,9 +5,9 @@
       "name": "YourSQL",
       "icon": "🗄️",
       "category": "Administration",
-      "version": "2.0.0",
+      "version": "2.0.1",
       "description": "MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL and Greenplum database manager — browse tables, edit rows, run SQL queries, filter & sort, import/export CSV and SQL, create and drop databases.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/yoursql-2.0.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/yoursql-2.0.1.zip"
     },
     {
       "id": "server-manager",

@@ -90,9 +90,9 @@ def run(now, db_path, config):
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
 
-    feeds = conn.execute("SELECT id, url FROM feeds").fetchall()
     ts = now.strftime("%Y-%m-%dT%H:%M:%SZ")
 
+    feeds = conn.execute("SELECT id, url FROM feeds").fetchall()
     for feed in feeds:
         try:
             articles = _fetch_feed(feed["url"])
@@ -109,6 +109,28 @@ def run(now, db_path, config):
             conn.execute("UPDATE feeds SET last_fetched=?, error=NULL WHERE id=?", (ts, feed["id"]))
         except Exception as e:
             conn.execute("UPDATE feeds SET error=? WHERE id=?", (str(e), feed["id"]))
+
+    # Apps Hub / public-profile feeds — same fetch, separate per-user tables,
+    # so every user's own feed list (not just the token-less legacy one above)
+    # gets picked up automatically by this same minute-tick instead of only
+    # refreshing when that user happens to open the app.
+    user_feeds = conn.execute("SELECT id, url FROM user_feeds").fetchall()
+    for feed in user_feeds:
+        try:
+            articles = _fetch_feed(feed["url"])
+            for a in articles:
+                guid = a["guid"] or a["link"]
+                if not guid:
+                    continue
+                conn.execute(
+                    "INSERT OR IGNORE INTO user_articles "
+                    "(user_feed_id, title, link, description, pub_date, guid) "
+                    "VALUES (?,?,?,?,?,?)",
+                    (feed["id"], a["title"], a["link"], a["description"], a["pub_date"], guid),
+                )
+            conn.execute("UPDATE user_feeds SET last_fetched=?, error=NULL WHERE id=?", (ts, feed["id"]))
+        except Exception as e:
+            conn.execute("UPDATE user_feeds SET error=? WHERE id=?", (str(e), feed["id"]))
 
     conn.execute("INSERT OR REPLACE INTO cfg (key,value) VALUES ('last_fetch_time',?)", (ts,))
     conn.commit()
