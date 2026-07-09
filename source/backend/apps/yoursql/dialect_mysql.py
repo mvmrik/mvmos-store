@@ -519,6 +519,37 @@ def export_table_ddl(cfg, database, table) -> str:
     return ""
 
 
+def dump_stream(cfg, database, tables, do_structure, do_data):
+    """Stream mysqldump's own output straight through, one process for the
+    whole multi-table export instead of one SELECT + Python-side INSERT
+    formatting per table. mysqldump talks to the server directly and writes
+    its output incrementally as it goes, so the first bytes reach the caller
+    almost immediately regardless of table size — unlike _run_json, which
+    waits for the whole subprocess to exit before returning anything."""
+    args = [
+        "mysqldump", f"-h{cfg['host']}", f"-P{cfg['port']}", f"-u{cfg['user']}", f"-p{cfg.get('password', '')}",
+        "--default-character-set=utf8mb4", "--skip-comments", "--compact",
+    ]
+    if not do_structure:
+        args.append("--no-create-info")
+    if not do_data:
+        args.append("--no-data")
+    args.append(database)
+    args.extend(tables)
+    proc = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    try:
+        for chunk in iter(lambda: proc.stdout.read(65536), ""):
+            yield chunk
+    finally:
+        proc.stdout.close()
+        err = proc.stderr.read()
+        proc.stderr.close()
+        code = proc.wait()
+        if code != 0:
+            lines = [l for l in err.splitlines() if "Using a password" not in l]
+            raise RuntimeError("\n".join(lines) or err.strip())
+
+
 # ── CLI passthrough (for raw .sql import — piping is more robust than parsing) ─
 
 def cli_args(cfg: dict, database: str = None) -> list:
