@@ -1,21 +1,17 @@
 """
-YourSQL — MySQL / MariaDB dialect (pymysql-based DB-API driver).
+YourSQL — MySQL / MariaDB dialect (mysql CLI-based, no extra Python driver).
 Implements the common dialect interface used by backend.py. Every function
 here mirrors a function of the same name/signature in dialect_postgres.py.
+Uses the `mysql` client binary via subprocess — it ships wherever MySQL
+itself is installed, so this dialect never needs a separately-installed
+Python package.
 """
 
 import re
+import subprocess
 
-try:
-    import pymysql
-    import pymysql.cursors
-    _AVAILABLE = True
-except ImportError:
-    pymysql = None
-    _AVAILABLE = False
-
-DRIVER_MODULE = "pymysql"
-DRIVER_PACKAGE = "pymysql"
+DRIVER_MODULE = None
+DRIVER_PACKAGE = None
 
 _VALID_ID = re.compile(r'^[a-zA-Z0-9_\-\.]+$')
 _PLAIN_ID = re.compile(r'^[a-zA-Z0-9_]+$')
@@ -34,12 +30,78 @@ OP_MAP = {
 
 
 def driver_available() -> bool:
-    return _AVAILABLE
+    return True
 
 
-def _require_driver():
-    if not _AVAILABLE:
-        raise RuntimeError("driver_missing")
+# ── mysql CLI helpers ────────────────────────────────────────────────────────
+
+def _mysql_args(cfg: dict, database: str = None) -> list:
+    args = [
+        "mysql",
+        f"-h{cfg['host']}",
+        f"-P{cfg['port']}",
+        f"-u{cfg['user']}",
+        f"-p{cfg.get('password', '')}",
+        "--batch",
+        "--skip-column-names",
+        "--default-character-set=utf8mb4",
+    ]
+    if database:
+        args.append(database)
+    return args
+
+
+def _run(cfg, sql, database=None, timeout=30):
+    """Run SQL via mysql CLI, return raw stdout. Raises RuntimeError on failure."""
+    args = _mysql_args(cfg, database)
+    r = subprocess.run(args, input=sql, capture_output=True, text=True, timeout=timeout)
+    if r.returncode != 0:
+        err = r.stderr.strip()
+        lines = [l for l in err.splitlines() if "Using a password" not in l]
+        raise RuntimeError("\n".join(lines) or err)
+    return r.stdout
+
+
+def _run_json(cfg, sql, database=None, timeout=30):
+    """Run SQL via mysql CLI with column headers, return list of dicts."""
+    args = [a for a in _mysql_args(cfg, database) if a != "--skip-column-names"]
+    r = subprocess.run(args, input=sql, capture_output=True, text=True, timeout=timeout)
+    if r.returncode != 0:
+        err = r.stderr.strip()
+        lines = [l for l in err.splitlines() if "Using a password" not in l]
+        raise RuntimeError("\n".join(lines) or err)
+    lines = r.stdout.splitlines()
+    if not lines:
+        return []
+    columns = lines[0].split("\t")
+    rows = []
+    for line in lines[1:]:
+        if not line:
+            continue
+        values = line.split("\t")
+        row = {}
+        for i, col in enumerate(columns):
+            v = values[i] if i < len(values) else ""
+            row[col] = None if v == "NULL" else v
+        rows.append(row)
+    return rows
+
+
+def _run_write(cfg, sql, database=None, timeout=30):
+    """Run a write statement, return affected-row count."""
+    args = _mysql_args(cfg, database)
+    r = subprocess.run(args, input=sql, capture_output=True, text=True, timeout=timeout)
+    if r.returncode != 0:
+        err = r.stderr.strip()
+        lines = [l for l in err.splitlines() if "Using a password" not in l]
+        raise RuntimeError("\n".join(lines) or err)
+    for line in r.stderr.splitlines():
+        if "rows affected" in line or "row affected" in line:
+            try:
+                return int(line.split()[2])
+            except Exception:
+                pass
+    return 0
 
 
 def quote_ident(name: str) -> str:
@@ -53,117 +115,67 @@ def escape_literal(val) -> str:
     return f"'{s}'"
 
 
-def connect(cfg: dict, database: str = None):
-    _require_driver()
-    return pymysql.connect(
-        host=cfg['host'], port=int(cfg['port']), user=cfg['user'], password=cfg.get('password', ''),
-        database=database or None, charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor,
-        autocommit=True, connect_timeout=10,
-    )
-
-
-def _exec(cfg, database, sql, params=None):
-    conn = connect(cfg, database)
-    try:
-        with conn.cursor() as cur:
-            cur.execute(sql, params or ())
-            return cur
-    finally:
-        conn.close()
-
-
-def _fetch_all(cfg, database, sql, params=None):
-    conn = connect(cfg, database)
-    try:
-        with conn.cursor() as cur:
-            cur.execute(sql, params or ())
-            return cur.fetchall()
-    finally:
-        conn.close()
-
-
-def _write(cfg, database, sql, params=None):
-    conn = connect(cfg, database)
-    try:
-        with conn.cursor() as cur:
-            cur.execute(sql, params or ())
-            return {"affected": cur.rowcount, "last_id": cur.lastrowid}
-    finally:
-        conn.close()
-
-
 # ── Databases / tables ───────────────────────────────────────────────────────
 
 def list_databases(cfg) -> list:
-    rows = _fetch_all(cfg, None, "SHOW DATABASES")
-    return [list(r.values())[0] for r in rows]
+    out = _run(cfg, "SHOW DATABASES;")
+    return [line for line in out.splitlines() if line]
 
 
 def create_database(cfg, name: str):
-    _write(cfg, None, f"CREATE DATABASE {quote_ident(name)}")
+    _run_write(cfg, f"CREATE DATABASE {quote_ident(name)}")
 
 
 def drop_database(cfg, name: str):
-    _write(cfg, None, f"DROP DATABASE {quote_ident(name)}")
+    _run_write(cfg, f"DROP DATABASE {quote_ident(name)}")
 
 
 def list_tables(cfg, database: str) -> list:
-    rows = _fetch_all(cfg, database, "SHOW TABLES")
-    return [list(r.values())[0] for r in rows]
+    out = _run(cfg, "SHOW TABLES;", database=database)
+    return [line for line in out.splitlines() if line]
 
 
 # ── Free-form query ──────────────────────────────────────────────────────────
 
 def run_query(cfg, database, sql: str) -> dict:
-    is_select = sql.strip().upper().startswith(("SELECT", "SHOW", "DESCRIBE", "EXPLAIN"))
-    conn = connect(cfg, database or None)
-    try:
-        with conn.cursor() as cur:
-            cur.execute(sql)
-            if is_select:
-                rows = cur.fetchall() or []
-                columns = list(rows[0].keys()) if rows else ([d[0] for d in cur.description] if cur.description else [])
-                return {"columns": columns, "rows": rows, "affected": None}
-            return {"columns": [], "rows": [], "affected": cur.rowcount}
-    finally:
-        conn.close()
+    sql = sql.strip()
+    is_select = sql.upper().startswith(("SELECT", "SHOW", "DESCRIBE", "EXPLAIN"))
+    db = database or None
+    if is_select:
+        rows = _run_json(cfg, sql, database=db)
+        columns = list(rows[0].keys()) if rows else []
+        return {"columns": columns, "rows": rows, "affected": None}
+    affected = _run_write(cfg, sql, database=db)
+    return {"columns": [], "rows": [], "affected": affected}
 
 
-# ── WHERE builder ────────────────────────────────────────────────────────────
+# ── WHERE builder (string-escaped, mirrors old CLI-era builder) ──────────────
 
 def _build_where(filters, search=None, search_cols=None):
-    parts, params = [], []
+    parts = []
     if search and search_cols:
-        sub = " OR ".join(f"{quote_ident(c)} LIKE %s" for c in search_cols)
-        parts.append("(" + sub + ")")
-        params.extend([f"%{search}%"] * len(search_cols))
+        parts.append("(" + " OR ".join([f"{quote_ident(c)} LIKE '%{search}%'" for c in search_cols]) + ")")
     for f in (filters or []):
         col = f.get('col') if isinstance(f, dict) else f.col
         op = f.get('op') if isinstance(f, dict) else f.op
         val = f.get('val', '') if isinstance(f, dict) else getattr(f, 'val', '')
         qcol = quote_ident(col)
         if op == 'LIKE %%':
-            parts.append(f"{qcol} LIKE %s")
-            params.append(f"%{val}%")
+            parts.append(f"{qcol} LIKE '%{val.replace(chr(39), chr(92)+chr(39))}%'")
         elif op in ('IS NULL', 'IS NOT NULL'):
             parts.append(f"{qcol} {op}")
         elif op in OP_MAP:
-            parts.append(f"{qcol} {OP_MAP[op]} %s")
-            params.append(val)
-    return (" AND ".join(parts) if parts else ""), params
+            parts.append(f"{qcol} {OP_MAP[op]} {escape_literal(val)}")
+    return " AND ".join(parts)
 
 
-def _where_from_dict(where: dict):
+def _where_from_dict(where: dict) -> str:
     if not where:
         raise ValueError("Empty WHERE")
-    parts, params = [], []
-    for c, v in where.items():
-        if v is None:
-            parts.append(f"{quote_ident(c)} IS NULL")
-        else:
-            parts.append(f"{quote_ident(c)}=%s")
-            params.append(v)
-    return " AND ".join(parts), params
+    return " AND ".join(
+        f"{quote_ident(c)} IS NULL" if v is None else f"{quote_ident(c)}={escape_literal(v)}"
+        for c, v in where.items()
+    )
 
 
 # ── Row CRUD ─────────────────────────────────────────────────────────────────
@@ -171,13 +183,13 @@ def _where_from_dict(where: dict):
 def get_table_data(cfg, database, table, limit, offset, search, order_by, order_dir, filters, sort):
     search_cols = []
     if search:
-        cols_rows = _fetch_all(cfg, database, f"SHOW FULL COLUMNS FROM {quote_ident(table)}")
+        cols_rows = _run_json(cfg, f"DESCRIBE {quote_ident(table)};", database=database)
         search_cols = [c["Field"] for c in cols_rows if any(t in (c["Type"] or "").lower() for t in ("char", "text", "varchar"))]
 
-    where_sql, where_params = _build_where(filters, search, search_cols)
+    where_sql = _build_where(filters, search, search_cols)
     where = f"WHERE {where_sql}" if where_sql else ""
 
-    count_rows = _fetch_all(cfg, database, f"SELECT COUNT(*) as cnt FROM {quote_ident(table)} {where}", where_params)
+    count_rows = _run_json(cfg, f"SELECT COUNT(*) as cnt FROM {quote_ident(table)} {where};", database=database)
     total = int(count_rows[0]["cnt"]) if count_rows else 0
 
     order_parts = []
@@ -191,41 +203,40 @@ def get_table_data(cfg, database, table, limit, offset, search, order_by, order_
         order_parts.append(f"{quote_ident(order_by)} {dir_}")
     order = ("ORDER BY " + ", ".join(order_parts)) if order_parts else ""
 
-    sql = f"SELECT * FROM {quote_ident(table)} {where} {order} LIMIT %s OFFSET %s"
-    rows = _fetch_all(cfg, database, sql, where_params + [int(limit), int(offset)])
+    rows = _run_json(cfg, f"SELECT * FROM {quote_ident(table)} {where} {order} LIMIT {int(limit)} OFFSET {int(offset)};", database=database)
     columns = list(rows[0].keys()) if rows else []
     return {"columns": columns, "rows": rows, "total": total}
 
 
 def update_row(cfg, database, table, where: dict, updates: dict) -> int:
-    set_parts = [f"{quote_ident(c)}=%s" for c in updates]
-    where_sql, where_params = _where_from_dict(where)
-    sql = f"UPDATE {quote_ident(table)} SET {', '.join(set_parts)} WHERE {where_sql}"
-    res = _write(cfg, database, sql, list(updates.values()) + where_params)
-    return res["affected"]
+    set_parts = [f"{quote_ident(c)}={escape_literal(v)}" for c, v in updates.items()]
+    where_sql = _where_from_dict(where)
+    sql = f"UPDATE {quote_ident(table)} SET {', '.join(set_parts)} WHERE {where_sql};"
+    return _run_write(cfg, sql, database=database)
 
 
 def insert_row(cfg, database, table, values: dict):
     cols = list(values.keys())
     col_str = ", ".join(quote_ident(c) for c in cols)
-    placeholders = ", ".join(["%s"] * len(cols))
-    sql = f"INSERT INTO {quote_ident(table)} ({col_str}) VALUES ({placeholders})"
-    res = _write(cfg, database, sql, list(values.values()))
-    return res["last_id"]
+    vals = [escape_literal(v) for v in values.values()]
+    sql = f"INSERT INTO {quote_ident(table)} ({col_str}) VALUES ({', '.join(vals)});"
+    _run_write(cfg, sql, database=database)
+    rows = _run_json(cfg, "SELECT LAST_INSERT_ID() as id;", database=database)
+    return rows[0]["id"] if rows else None
 
 
 def bulk_delete(cfg, database, table, mode, where_rows) -> int:
     if mode == "all":
-        return _write(cfg, database, f"DELETE FROM {quote_ident(table)}")["affected"]
+        return _run_write(cfg, f"DELETE FROM {quote_ident(table)};", database=database)
     deleted = 0
     for where_dict in (where_rows or []):
-        where_sql, params = _where_from_dict(where_dict)
-        deleted += _write(cfg, database, f"DELETE FROM {quote_ident(table)} WHERE {where_sql}", params)["affected"]
+        where_sql = _where_from_dict(where_dict)
+        deleted += _run_write(cfg, f"DELETE FROM {quote_ident(table)} WHERE {where_sql};", database=database)
     return deleted
 
 
 def _build_set_ops(updates: dict):
-    set_parts, params = [], []
+    set_parts = []
     for col, op_dict in updates.items():
         operation = op_dict.get("op", "set") if isinstance(op_dict, dict) else "set"
         val = op_dict.get("value") if isinstance(op_dict, dict) else op_dict
@@ -233,52 +244,49 @@ def _build_set_ops(updates: dict):
         if operation == "set_null" or (operation == "set" and val is None):
             set_parts.append(f"{qcol}=NULL")
         elif operation == "set":
-            set_parts.append(f"{qcol}=%s")
-            params.append(val)
+            set_parts.append(f"{qcol}={escape_literal(val)}")
         elif operation == "increment":
-            set_parts.append(f"{qcol}={qcol}+%s")
-            params.append(val)
+            set_parts.append(f"{qcol}={qcol}+{escape_literal(val)}")
         elif operation == "decrement":
-            set_parts.append(f"{qcol}={qcol}-%s")
-            params.append(val)
-    return set_parts, params
+            set_parts.append(f"{qcol}={qcol}-{escape_literal(val)}")
+    return set_parts
 
 
 def bulk_update(cfg, database, table, updates: dict, mode, where_rows) -> int:
-    set_parts, set_params = _build_set_ops(updates)
+    set_parts = _build_set_ops(updates)
     if not set_parts:
         raise ValueError("No operations")
     if mode == "all":
-        sql = f"UPDATE {quote_ident(table)} SET {', '.join(set_parts)}"
-        return _write(cfg, database, sql, set_params)["affected"]
+        sql = f"UPDATE {quote_ident(table)} SET {', '.join(set_parts)};"
+        return _run_write(cfg, sql, database=database)
     total = 0
     for where_dict in (where_rows or []):
-        where_sql, wparams = _where_from_dict(where_dict)
-        sql = f"UPDATE {quote_ident(table)} SET {', '.join(set_parts)} WHERE {where_sql}"
-        total += _write(cfg, database, sql, set_params + wparams)["affected"]
+        where_sql = _where_from_dict(where_dict)
+        sql = f"UPDATE {quote_ident(table)} SET {', '.join(set_parts)} WHERE {where_sql};"
+        total += _run_write(cfg, sql, database=database)
     return total
 
 
 def update_cell(cfg, database, table, where: dict, column, value):
-    where_sql, where_params = _where_from_dict(where)
-    sql = f"UPDATE {quote_ident(table)} SET {quote_ident(column)}=%s WHERE {where_sql}"
-    _write(cfg, database, sql, [value] + where_params)
+    where_sql = _where_from_dict(where)
+    sql = f"UPDATE {quote_ident(table)} SET {quote_ident(column)}={escape_literal(value)} WHERE {where_sql};"
+    _run_write(cfg, sql, database=database)
 
 
 def delete_row(cfg, database, table, where: dict, primary_key=None, primary_value=None):
     if where:
-        where_sql, params = _where_from_dict(where)
+        where_sql = _where_from_dict(where)
     else:
-        where_sql, params = f"{quote_ident(primary_key)}=%s", [primary_value]
-    _write(cfg, database, f"DELETE FROM {quote_ident(table)} WHERE {where_sql}", params)
+        where_sql = f"{quote_ident(primary_key)}={escape_literal(primary_value)}"
+    _run_write(cfg, f"DELETE FROM {quote_ident(table)} WHERE {where_sql};", database=database)
 
 
 # ── Table structure ──────────────────────────────────────────────────────────
 
 def table_structure(cfg, database, table) -> dict:
-    columns = _fetch_all(cfg, database, f"SHOW FULL COLUMNS FROM {quote_ident(table)}")
-    indexes = _fetch_all(cfg, database, f"SHOW INDEX FROM {quote_ident(table)}")
-    fk_sql = """
+    columns = _run_json(cfg, f"SHOW FULL COLUMNS FROM {quote_ident(table)};", database=database)
+    indexes = _run_json(cfg, f"SHOW INDEX FROM {quote_ident(table)};", database=database)
+    fk_sql = f"""
         SELECT kcu.CONSTRAINT_NAME AS name, kcu.COLUMN_NAME AS col,
                kcu.REFERENCED_TABLE_SCHEMA AS ref_db, kcu.REFERENCED_TABLE_NAME AS ref_table,
                kcu.REFERENCED_COLUMN_NAME AS ref_col, rc.UPDATE_RULE AS on_update, rc.DELETE_RULE AS on_delete
@@ -287,11 +295,12 @@ def table_structure(cfg, database, table) -> dict:
             ON rc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME
             AND rc.CONSTRAINT_SCHEMA = kcu.TABLE_SCHEMA
             AND rc.TABLE_NAME = kcu.TABLE_NAME
-        WHERE kcu.TABLE_SCHEMA = %s AND kcu.TABLE_NAME = %s
+        WHERE kcu.TABLE_SCHEMA = '{database.replace(chr(39), "")}'
+          AND kcu.TABLE_NAME = '{table.replace(chr(39), "")}'
           AND kcu.REFERENCED_TABLE_NAME IS NOT NULL
         ORDER BY kcu.CONSTRAINT_NAME, kcu.ORDINAL_POSITION
     """
-    fk_rows = _fetch_all(cfg, None, fk_sql, [database, table])
+    fk_rows = _run_json(cfg, fk_sql)
     fks = {}
     for r in fk_rows:
         n = r["name"]
@@ -365,12 +374,12 @@ def create_table(cfg, database, table, columns, engine="InnoDB", collation="", c
     comment_str = f"COMMENT='{comment.replace(chr(39), chr(39) * 2)}'" if comment else ""
     options = " ".join(filter(None, [engine_str, collation_str, comment_str]))
     sql = f"CREATE TABLE {quote_ident(table)} (\n  " + ",\n  ".join(col_defs) + f"\n) {options};"
-    _write(cfg, database, sql)
+    _run_write(cfg, sql, database=database)
     return sql
 
 
 def alter_table(cfg, database, table, columns) -> str:
-    existing = _fetch_all(cfg, database, f"SHOW COLUMNS FROM {quote_ident(table)}")
+    existing = _run_json(cfg, f"SHOW COLUMNS FROM {quote_ident(table)};", database=database)
     existing_names = [r["Field"] for r in existing]
     clauses = []
     prev = None
@@ -392,8 +401,8 @@ def alter_table(cfg, database, table, columns) -> str:
             clauses.append(f"DROP COLUMN {quote_ident(ex)}")
     if not clauses:
         return ""
-    sql = f"ALTER TABLE {quote_ident(table)} " + ", ".join(clauses)
-    _write(cfg, database, sql)
+    sql = f"ALTER TABLE {quote_ident(table)} " + ", ".join(clauses) + ";"
+    _run_write(cfg, sql, database=database)
     return sql
 
 
@@ -418,7 +427,7 @@ def manage_indexes(cfg, database, table, action, name=None, type_=None, columns=
         else:
             iname = name or "_".join(cols) + "_idx"
             sql = f"ALTER TABLE {quote_ident(table)} ADD INDEX {quote_ident(iname)} ({col_list})"
-        _write(cfg, database, sql)
+        _run_write(cfg, sql, database=database)
         return sql
     elif action == "drop":
         name = (name or "").strip()
@@ -426,7 +435,7 @@ def manage_indexes(cfg, database, table, action, name=None, type_=None, columns=
             raise ValueError("Index name is required")
         sql = (f"ALTER TABLE {quote_ident(table)} DROP PRIMARY KEY" if name == "PRIMARY"
                else f"ALTER TABLE {quote_ident(table)} DROP INDEX {quote_ident(name)}")
-        _write(cfg, database, sql)
+        _run_write(cfg, sql, database=database)
         return sql
     raise ValueError("Unknown action")
 
@@ -452,9 +461,8 @@ def manage_foreign_keys(cfg, database, table, action, name=None, columns=None, r
         for ident in [ref_table, ref_db] + cols + ref_cols:
             if not _VALID_ID.match(ident):
                 raise ValueError(f"Invalid identifier: {ident}")
-        eng_rows = _fetch_all(cfg, None,
-            "SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA=%s AND TABLE_NAME=%s",
-            [database, table])
+        eng_rows = _run_json(cfg,
+            f"SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA='{database.replace(chr(39),'')}' AND TABLE_NAME='{table.replace(chr(39),'')}';")
         if eng_rows:
             engine = (eng_rows[0].get("ENGINE") or "").upper()
             if engine and engine != "INNODB":
@@ -466,14 +474,14 @@ def manage_foreign_keys(cfg, database, table, action, name=None, columns=None, r
         sql = (f"ALTER TABLE {quote_ident(table)} ADD CONSTRAINT {quote_ident(constraint)} "
                f"FOREIGN KEY ({col_list}) REFERENCES {quote_ident(ref_db)}.{quote_ident(ref_table)} ({ref_col_list}) "
                f"ON UPDATE {on_update} ON DELETE {on_delete}")
-        _write(cfg, database, sql)
+        _run_write(cfg, sql, database=database)
         return sql
     elif action == "drop":
         name = (name or "").strip()
         if not name or not re.match(r'^[a-zA-Z0-9_\-]+$', name):
             raise ValueError("Invalid constraint name")
         sql = f"ALTER TABLE {quote_ident(table)} DROP FOREIGN KEY {quote_ident(name)}"
-        _write(cfg, database, sql)
+        _run_write(cfg, sql, database=database)
         return sql
     raise ValueError("Unknown action")
 
@@ -488,33 +496,24 @@ def manage_tables(cfg, database, operation, tables):
     if op not in SUPPORTED_OPS:
         raise ValueError("Invalid operation")
     if op == "DROP":
-        # pymysql doesn't run multiple ;-separated statements in one execute() call
-        # (needs CLIENT.MULTI_STATEMENTS) — issue each as its own statement instead.
-        conn = connect(cfg, database)
-        try:
-            with conn.cursor() as cur:
-                cur.execute("SET FOREIGN_KEY_CHECKS=0")
-                for t in tables:
-                    cur.execute(f"DROP TABLE {quote_ident(t)}")
-                cur.execute("SET FOREIGN_KEY_CHECKS=1")
-        finally:
-            conn.close()
+        drops = " ".join(f"DROP TABLE {quote_ident(t)};" for t in tables)
+        _run_write(cfg, f"SET FOREIGN_KEY_CHECKS=0; {drops} SET FOREIGN_KEY_CHECKS=1;", database=database)
     else:
         for t in tables:
             sql = f"TRUNCATE TABLE {quote_ident(t)};" if op == "TRUNCATE" else f"{op} TABLE {quote_ident(t)};"
-            _write(cfg, database, sql)
+            _run_write(cfg, sql, database=database)
 
 
-# ── Export ───────────────────────────────────────────────────────────────────
+# ── Export (streamed table-by-table by backend.py's export-multi route) ─────
 
 def export_rows(cfg, database, table):
-    rows = _fetch_all(cfg, database, f"SELECT * FROM {quote_ident(table)}")
+    rows = _run_json(cfg, f"SELECT * FROM {quote_ident(table)};", database=database, timeout=300)
     columns = list(rows[0].keys()) if rows else []
     return columns, rows
 
 
 def export_table_ddl(cfg, database, table) -> str:
-    rows = _fetch_all(cfg, database, f"SHOW CREATE TABLE {quote_ident(table)}")
+    rows = _run_json(cfg, f"SHOW CREATE TABLE {quote_ident(table)};", database=database)
     if rows:
         return rows[0].get("Create Table", "") + ";"
     return ""

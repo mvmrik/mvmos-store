@@ -64,7 +64,12 @@ YS.api = async function(path, opts) {
     throw new Error('Server error ' + r.status);
   }
   if (!r.ok) {
-    const msg = data?.detail || data?.error || JSON.stringify(data);
+    let msg = data?.detail || data?.error || data;
+    if (msg && typeof msg === 'object') {
+      msg = msg.error === 'driver_missing'
+        ? `Missing Python package "${msg.package}" on the server for ${msg.family} — install it with: pip install ${msg.package}`
+        : JSON.stringify(msg);
+    }
     throw new Error(msg);
   }
   return data;
