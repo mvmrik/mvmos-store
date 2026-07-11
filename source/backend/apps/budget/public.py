@@ -488,6 +488,119 @@ async def list_transactions(category_id: str, x_pub_token: str = Header(default=
     return JSONResponse(result)
 
 
+def _leaf_categories_for(conn, user_id) -> dict:
+    """Categories visible to a user, resolved to their leaves (subcategories
+    inherit sharing from the parent, so we never store category_members rows
+    for them — see _owning_category_id). Shared by /history and /stats."""
+    owning_rows = conn.execute(
+        "SELECT c.id, c.title FROM categories c JOIN category_members cm ON cm.category_id=c.id "
+        "WHERE cm.user_id=? AND c.archived=0",
+        (user_id,),
+    ).fetchall()
+    leaf_cats = {}
+    for r in owning_rows:
+        children = conn.execute(
+            "SELECT id, title FROM categories WHERE parent_id=? AND archived=0", (r["id"],)
+        ).fetchall()
+        if children:
+            for c in children:
+                leaf_cats[c["id"]] = {"title": c["title"], "parent_title": r["title"]}
+        else:
+            leaf_cats[r["id"]] = {"title": r["title"], "parent_title": None}
+    return leaf_cats
+
+
+@router.get("/history")
+async def full_history(x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    with _db() as conn:
+        leaf_cats = _leaf_categories_for(conn, me["id"])
+        if not leaf_cats:
+            return JSONResponse([])
+
+        placeholders = ",".join("?" for _ in leaf_cats)
+        rows = conn.execute(
+            f"SELECT * FROM transactions WHERE category_id IN ({placeholders}) "
+            "ORDER BY created_at DESC LIMIT 500",
+            tuple(leaf_cats.keys()),
+        ).fetchall()
+
+    hub = _hub()
+    ids = {r["user_id"] for r in rows} | {r["deleted_by"] for r in rows if r["deleted_by"]}
+    profiles = {p["id"]: p for p in hub.get_users_by_ids(list(ids))} if hub and ids else {}
+
+    result = []
+    for r in rows:
+        d = dict(r)
+        cat = leaf_cats[r["category_id"]]
+        d["category_title"] = cat["title"]
+        d["parent_title"] = cat["parent_title"]
+        d["added_by"] = _profile_brief(profiles.get(r["user_id"], {}))
+        d["deleted_by_user"] = _profile_brief(profiles.get(r["deleted_by"], {})) if r["deleted_by"] else None
+        result.append(d)
+    return JSONResponse(result)
+
+
+_PERIOD_FMT = {
+    "week": "%Y-W%W",
+    "month": "%Y-%m",
+    "year": "%Y",
+}
+
+
+@router.get("/stats")
+async def stats(period: str = "month", count: int = 6, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    if period not in _PERIOD_FMT:
+        return JSONResponse({"error": "invalid period"}, status_code=400)
+    count = max(1, min(count, 24))
+    fmt = _PERIOD_FMT[period]
+
+    with _db() as conn:
+        leaf_cats = _leaf_categories_for(conn, me["id"])
+        if not leaf_cats:
+            return JSONResponse({"periods": [], "by_category": []})
+
+        placeholders = ",".join("?" for _ in leaf_cats)
+        rows = conn.execute(
+            f"SELECT category_id, amount, created_at, strftime('{fmt}', created_at) AS period "
+            f"FROM transactions WHERE category_id IN ({placeholders}) AND deleted_at IS NULL",
+            tuple(leaf_cats.keys()),
+        ).fetchall()
+
+    periods_map = {}
+    cat_totals = {}
+    for r in rows:
+        p = periods_map.setdefault(r["period"], {"period": r["period"], "income": 0.0, "expense": 0.0})
+        if r["amount"] >= 0:
+            p["income"] += r["amount"]
+        else:
+            p["expense"] += -r["amount"]
+        cat = leaf_cats[r["category_id"]]
+        label = f'{cat["parent_title"]} / {cat["title"]}' if cat["parent_title"] else cat["title"]
+        cat_totals[label] = cat_totals.get(label, 0.0) + r["amount"]
+
+    all_periods = sorted(periods_map.keys())[-count:]
+    result_periods = [
+        {
+            "period": p,
+            "income": round(periods_map[p]["income"], 2),
+            "expense": round(periods_map[p]["expense"], 2),
+            "net": round(periods_map[p]["income"] - periods_map[p]["expense"], 2),
+        }
+        for p in all_periods
+    ]
+    by_category = sorted(
+        ({"title": k, "net": round(v, 2)} for k, v in cat_totals.items()),
+        key=lambda x: abs(x["net"]), reverse=True,
+    )
+    return JSONResponse({"periods": result_periods, "by_category": by_category})
+
+
 @router.post("/categories/{category_id}/transactions")
 async def add_transaction(category_id: str, body: TransactionBody, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
@@ -512,6 +625,28 @@ async def add_transaction(category_id: str, body: TransactionBody, x_pub_token: 
         return JSONResponse({**dict(row), "balance": _balance(conn, category_id)})
 
 
+@router.put("/transactions/{transaction_id}")
+async def edit_transaction(transaction_id: str, body: TransactionBody, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    if body.amount == 0:
+        return JSONResponse({"error": "amount must be non-zero"}, status_code=400)
+    with _db() as conn:
+        row = conn.execute("SELECT * FROM transactions WHERE id=?", (transaction_id,)).fetchone()
+        if not row or row["deleted_at"] or not _my_role(conn, row["category_id"], me["id"]):
+            return JSONResponse({"error": "not found"}, status_code=404)
+        if row["user_id"] != me["id"]:
+            return JSONResponse({"error": "only the person who added this can edit it"}, status_code=403)
+        conn.execute(
+            "UPDATE transactions SET amount=?, note=? WHERE id=?",
+            (body.amount, body.note.strip()[:300], transaction_id),
+        )
+        conn.commit()
+        row = conn.execute("SELECT * FROM transactions WHERE id=?", (transaction_id,)).fetchone()
+        return JSONResponse({**dict(row), "balance": _balance(conn, row["category_id"])})
+
+
 @router.delete("/transactions/{transaction_id}")
 async def delete_transaction(transaction_id: str, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
@@ -521,6 +656,8 @@ async def delete_transaction(transaction_id: str, x_pub_token: str = Header(defa
         row = conn.execute("SELECT * FROM transactions WHERE id=?", (transaction_id,)).fetchone()
         if not row or row["deleted_at"] or not _my_role(conn, row["category_id"], me["id"]):
             return JSONResponse({"error": "not found"}, status_code=404)
+        if row["user_id"] != me["id"]:
+            return JSONResponse({"error": "only the person who added this can delete it"}, status_code=403)
         conn.execute(
             "UPDATE transactions SET deleted_by=?, deleted_at=? WHERE id=?",
             (me["id"], _now(), transaction_id),

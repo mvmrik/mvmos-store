@@ -32,13 +32,18 @@
       currency_mismatch_error: "Can't share — that person uses a different currency.",
       added_by: 'Added by', removed_by: 'Removed by', leave_category: 'Leave category',
       settings: 'Settings', default_sign: 'Default sign for new amounts', deposit: 'Deposit (+)', withdrawal: 'Withdrawal (-)',
-      total_balance: 'Total balance (all categories)',
+      total_balance: 'Total balance (all categories, incl. subcategories)',
       subcategories: 'Subcategories', add_subcategory: '+ Subcategory', no_subcategories: 'No subcategories yet.',
       new_subcategory: 'New subcategory', confirm_delete_subcategory: 'Delete this subcategory and all its transactions? This cannot be undone.',
       manage_subcategories: 'Subcategories',
       parent_has_own_tx: "Can't add subcategories — this category already has its own transactions.",
       is_parent_category: 'Main category (holds subcategories, no amounts of its own)',
       parent_locked_hint: 'This category has subcategories — delete them first to change this.',
+      menu: 'Menu', categories: 'Categories', full_history: 'History', back: 'Back',
+      no_history: 'No transactions yet.',
+      stats: 'Statistics', stats_period_week: 'Weekly', stats_period_month: 'Monthly', stats_period_year: 'Yearly',
+      stats_income: 'Income', stats_expense: 'Expense', stats_net: 'Net', no_stats: 'No data for this period yet.',
+      stats_by_category: 'By category',
     },
     bg: {
       title: 'Бюджет', add_category: '+ Категория', mass_add: 'Разпредели сума',
@@ -65,13 +70,18 @@
       currency_mismatch_error: 'Не може да споделиш — човекът ползва друга валута.',
       added_by: 'Добавено от', removed_by: 'Премахнато от', leave_category: 'Напусни категорията',
       settings: 'Настройки', default_sign: 'Знак по подразбиране за нови суми', deposit: 'Внасяне (+)', withdrawal: 'Теглене (-)',
-      total_balance: 'Общ баланс (всички категории)',
+      total_balance: 'Общ баланс (всички категории, вкл. подкатегории)',
       subcategories: 'Подкатегории', add_subcategory: '+ Подкатегория', no_subcategories: 'Все още няма подкатегории.',
       new_subcategory: 'Нова подкатегория', confirm_delete_subcategory: 'Да се изтрие ли подкатегорията заедно с всички транзакции? Не може да се отмени.',
       manage_subcategories: 'Подкатегории',
       parent_has_own_tx: 'Не може да добавиш подкатегории — тази категория вече има собствени транзакции.',
       is_parent_category: 'Главна категория (съдържа подкатегории, без собствени суми)',
       parent_locked_hint: 'Тази категория има подкатегории — първо ги изтрий, за да смениш това.',
+      menu: 'Меню', categories: 'Категории', full_history: 'История', back: 'Назад',
+      no_history: 'Все още няма транзакции.',
+      stats: 'Статистики', stats_period_week: 'Седмично', stats_period_month: 'Месечно', stats_period_year: 'Годишно',
+      stats_income: 'Приходи', stats_expense: 'Разходи', stats_net: 'Нето', no_stats: 'Все още няма данни за този период.',
+      stats_by_category: 'По категории',
     },
   };
   function t(key) {
@@ -157,13 +167,15 @@
       .bw-error{color:#f38ba8;font-size:.78rem}
       .bw-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
       .bw-tx-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
-      .bw-tx-row{display:flex;align-items:center;gap:8px;background:#313244;border-radius:6px;padding:6px 9px}
-      .bw-tx-amount{font-weight:700;min-width:80px}
+      .bw-tx-row{display:flex;flex-direction:column;gap:2px;background:#313244;border-radius:6px;padding:6px 9px}
+      .bw-tx-row-top{display:flex;align-items:center;gap:8px}
+      .bw-tx-amount{font-weight:700;flex:0 0 auto;white-space:nowrap}
       .bw-tx-pos{color:#a6e3a1}
       .bw-tx-neg{color:#f38ba8}
-      .bw-tx-note{flex:1;color:#a6adc8;font-size:.78rem;word-break:break-word}
-      .bw-tx-meta{font-size:.68rem;color:#6c7086;white-space:nowrap}
-      .bw-tx-date{font-size:.7rem;color:#6c7086;white-space:nowrap}
+      .bw-tx-note{flex:1;min-width:0;color:#a6adc8;font-size:.78rem;word-break:break-word}
+      .bw-tx-row-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px}
+      .bw-tx-meta{font-size:.68rem;color:#6c7086;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .bw-tx-date{font-size:.68rem;color:#6c7086;white-space:nowrap;flex:0 0 auto}
       .bw-tx-deleted{opacity:.5}
       .bw-tx-deleted .bw-tx-amount,.bw-tx-deleted .bw-tx-note{text-decoration:line-through}
       .bw-add-row{display:flex;gap:6px;align-items:flex-end}
@@ -182,6 +194,43 @@
       .bw-member-name{flex:1;font-size:.82rem}
       .bw-member-role{font-size:.68rem;color:#a6adc8}
       .bw-section-label{font-size:.72rem;color:#a6adc8;text-transform:uppercase;letter-spacing:.4px;margin-top:6px}
+      .bw-menu-wrap{position:relative}
+      .bw-menu-dropdown{position:absolute;top:calc(100% + 4px);left:0;background:#313244;border:1px solid #45475a;
+        border-radius:8px;padding:4px;min-width:170px;box-shadow:0 4px 16px rgba(0,0,0,.35);z-index:60}
+      .bw-menu-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:.85rem;color:#cdd6f4}
+      .bw-menu-item:hover{background:#45475a}
+      .bw-menu-item.active{color:#89b4fa}
+      .bw-history-toolbar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #313244;flex-shrink:0}
+      .bw-history-toolbar h2{margin:0;font-size:1rem;flex:1}
+      .bw-history-list{display:flex;flex-direction:column;gap:6px}
+      .bw-htx-row{display:flex;flex-direction:column;gap:2px;background:#313244;border-radius:8px;padding:8px 10px}
+      .bw-htx-row-top{display:flex;align-items:center;gap:8px}
+      .bw-htx-cat{font-weight:600;font-size:.82rem;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .bw-htx-row-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px}
+      .bw-stats-toolbar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #313244;flex-shrink:0;flex-wrap:wrap}
+      .bw-stats-toolbar h2{margin:0;font-size:1rem;flex:1}
+      .bw-period-tabs{display:flex;gap:4px;background:#313244;border-radius:6px;padding:2px}
+      .bw-period-tab{background:none;border:none;color:#a6adc8;padding:5px 10px;border-radius:5px;cursor:pointer;font-size:.78rem}
+      .bw-period-tab.active{background:#89b4fa;color:#1e1e2e;font-weight:600}
+      .bw-chart-wrap{background:#313244;border-radius:10px;padding:14px;margin-bottom:14px}
+      .bw-chart-legend{display:flex;gap:14px;margin-bottom:10px;font-size:.75rem}
+      .bw-legend-item{display:flex;align-items:center;gap:5px}
+      .bw-legend-dot{width:9px;height:9px;border-radius:2px;display:inline-block}
+      .bw-bars{display:flex;align-items:flex-end;gap:10px;height:150px;overflow-x:auto;padding-top:6px}
+      .bw-bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:44px;height:100%;justify-content:flex-end}
+      .bw-bar-pair{display:flex;align-items:flex-end;gap:2px;height:100%;width:100%;justify-content:center}
+      .bw-bar{width:14px;border-radius:3px 3px 0 0;min-height:2px}
+      .bw-bar-income{background:#a6e3a1}
+      .bw-bar-expense{background:#f38ba8}
+      .bw-bar-label{font-size:.66rem;color:#6c7086;white-space:nowrap}
+      .bw-cat-stat-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #313244;font-size:.82rem}
+      .bw-cat-stat-row:last-child{border-bottom:none}
+      @media (max-width:520px){
+        .bw-grid{grid-template-columns:1fr}
+        .bw-toolbar,.bw-history-toolbar{flex-wrap:wrap}
+        .bw-toolbar h2,.bw-history-toolbar h2{flex:1 1 100%}
+        .bw-dialog{max-width:100%}
+      }
     `;
     document.head.appendChild(style);
   }
@@ -202,15 +251,164 @@
     root.style.position = 'relative';
     root.innerHTML = `<div class="bw-widget">
       <div class="bw-toolbar">
+        <div class="bw-menu-wrap">
+          <button class="bw-btn-icon" id="bw-menu-btn" title="${esc(t('menu'))}">☰</button>
+        </div>
         <h2>💰 ${esc(t('title'))}</h2>
         <button class="bw-btn-icon" id="bw-settings-btn" title="${esc(t('settings'))}">⚙️</button>
         <button class="bw-btn" id="bw-mass-add">${esc(t('mass_add'))}</button>
         <button class="bw-btn bw-btn-primary" id="bw-add-cat">${esc(t('add_category'))}</button>
       </div>
-      <div class="bw-body"><div class="bw-grid" id="bw-grid"></div></div>
+      <div class="bw-body">
+        <div class="bw-grid" id="bw-grid"></div>
+        <div id="bw-history-view" style="display:none"></div>
+        <div id="bw-stats-view" style="display:none"></div>
+      </div>
     </div>`;
     const widgetEl = root.querySelector('.bw-widget');
     const gridEl = root.querySelector('#bw-grid');
+    const historyViewEl = root.querySelector('#bw-history-view');
+    const statsViewEl = root.querySelector('#bw-stats-view');
+    const addCatBtn = root.querySelector('#bw-add-cat');
+    const massAddBtn = root.querySelector('#bw-mass-add');
+
+    function _showView(name) {
+      gridEl.style.display = name === 'categories' ? '' : 'none';
+      historyViewEl.style.display = name === 'history' ? '' : 'none';
+      statsViewEl.style.display = name === 'stats' ? '' : 'none';
+      addCatBtn.style.display = name === 'categories' ? '' : 'none';
+      massAddBtn.style.display = name === 'categories' ? '' : 'none';
+    }
+
+    function showCategoriesView() { _showView('categories'); refresh(); }
+    function showHistoryView() { _showView('history'); loadFullHistory(); }
+    function showStatsView() { _showView('stats'); loadStats(statsPeriod); }
+
+    function _htxWho(p) { return p && (p.display_name || p.username) || ''; }
+    function _htxDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: '2-digit' }) +
+        ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+
+    async function loadFullHistory() {
+      historyViewEl.innerHTML = `<div class="bw-empty">…</div>`;
+      let rows;
+      try { rows = await api('/history'); } catch (e) { rows = []; }
+      if (!rows.length) { historyViewEl.innerHTML = `<div class="bw-empty">${esc(t('no_history'))}</div>`; return; }
+      historyViewEl.innerHTML = `<div class="bw-history-list">${rows.map(r => {
+        const who = _htxWho(r.added_by);
+        const deletedWho = r.deleted_by_user ? _htxWho(r.deleted_by_user) : '';
+        const catLabel = r.parent_title ? `${r.parent_title} / ${r.category_title}` : r.category_title;
+        const mine = r.user_id === myId;
+        return `
+        <div class="bw-htx-row ${r.deleted_at ? 'bw-tx-deleted' : ''}" data-id="${esc(r.id)}">
+          <div class="bw-htx-row-top">
+            <span class="bw-htx-cat">${esc(catLabel)}</span>
+            <span class="bw-tx-amount ${r.amount >= 0 ? 'bw-tx-pos' : 'bw-tx-neg'}">${r.amount >= 0 ? '+' : ''}${fmtMoney(r.amount)}</span>
+            ${(!r.deleted_at && mine) ? `<button class="bw-btn-icon" data-action="edit-htx">✎</button>` : ''}
+            ${(!r.deleted_at && mine) ? `<button class="bw-btn-icon" data-action="del-htx">🗑</button>` : ''}
+          </div>
+          ${r.note ? `<div class="bw-tx-note">${esc(r.note)}</div>` : ''}
+          <div class="bw-htx-row-bottom">
+            <span class="bw-tx-meta">
+              ${who ? esc(who) : ''}
+              ${r.deleted_at ? ` · ${esc(deletedWho || '?')}` : ''}
+            </span>
+            <span class="bw-tx-date">${esc(_htxDate(r.created_at))}</span>
+          </div>
+        </div>`;
+      }).join('')}</div>`;
+
+      historyViewEl.querySelectorAll('[data-action="del-htx"]').forEach(btn => {
+        btn.onclick = async () => {
+          if (!confirm(t('confirm_delete_tx'))) return;
+          const id = btn.closest('.bw-htx-row').dataset.id;
+          await api(`/transactions/${id}`, { method: 'DELETE' });
+          loadFullHistory();
+        };
+      });
+      historyViewEl.querySelectorAll('[data-action="edit-htx"]').forEach(btn => {
+        btn.onclick = () => {
+          const id = btn.closest('.bw-htx-row').dataset.id;
+          const row = rows.find(r => r.id === id);
+          openEditTxGeneric(row, () => loadFullHistory());
+        };
+      });
+    }
+
+    let statsPeriod = 'month';
+
+    function _periodLabel(p, period) {
+      if (period === 'year') return p;
+      if (period === 'week') {
+        const [y, w] = p.split('-W');
+        return 'W' + w + " '" + y.slice(2);
+      }
+      const [y, m] = p.split('-');
+      const d = new Date(Number(y), Number(m) - 1, 1);
+      return d.toLocaleDateString(undefined, { month: 'short', year: '2-digit' });
+    }
+
+    async function loadStats(period) {
+      statsPeriod = period;
+      statsViewEl.innerHTML = `
+        <div class="bw-stats-toolbar">
+          <h2>📊 ${esc(t('stats'))}</h2>
+          <div class="bw-period-tabs" id="bw-period-tabs">
+            <button class="bw-period-tab ${period === 'week' ? 'active' : ''}" data-p="week">${esc(t('stats_period_week'))}</button>
+            <button class="bw-period-tab ${period === 'month' ? 'active' : ''}" data-p="month">${esc(t('stats_period_month'))}</button>
+            <button class="bw-period-tab ${period === 'year' ? 'active' : ''}" data-p="year">${esc(t('stats_period_year'))}</button>
+          </div>
+        </div>
+        <div style="padding:14px" id="bw-stats-body"><div class="bw-empty">…</div></div>
+      `;
+      statsViewEl.querySelectorAll('.bw-period-tab').forEach(btn => {
+        btn.onclick = () => loadStats(btn.dataset.p);
+      });
+
+      const count = period === 'week' ? 8 : period === 'year' ? 6 : 6;
+      let data;
+      try { data = await api(`/stats?period=${period}&count=${count}`); } catch (e) { data = { periods: [], by_category: [] }; }
+      const bodyEl = statsViewEl.querySelector('#bw-stats-body');
+      if (!data.periods.length) { bodyEl.innerHTML = `<div class="bw-empty">${esc(t('no_stats'))}</div>`; return; }
+
+      const maxVal = Math.max(1, ...data.periods.map(p => Math.max(p.income, p.expense)));
+      const bars = data.periods.map(p => {
+        const incH = Math.round((p.income / maxVal) * 130);
+        const expH = Math.round((p.expense / maxVal) * 130);
+        return `<div class="bw-bar-col">
+          <div class="bw-bar-pair">
+            <div class="bw-bar bw-bar-income" style="height:${incH}px" title="${esc(t('stats_income'))}: ${fmtMoney(p.income)}"></div>
+            <div class="bw-bar bw-bar-expense" style="height:${expH}px" title="${esc(t('stats_expense'))}: ${fmtMoney(p.expense)}"></div>
+          </div>
+          <div class="bw-bar-label">${esc(_periodLabel(p.period, period))}</div>
+        </div>`;
+      }).join('');
+
+      const totalIncome = data.periods.reduce((s, p) => s + p.income, 0);
+      const totalExpense = data.periods.reduce((s, p) => s + p.expense, 0);
+      const totalNet = totalIncome - totalExpense;
+
+      const catRows = data.by_category.slice(0, 12).map(c => `
+        <div class="bw-cat-stat-row">
+          <span>${esc(c.title)}</span>
+          <span class="${c.net >= 0 ? 'bw-tx-pos' : 'bw-tx-neg'}">${c.net >= 0 ? '+' : ''}${fmtMoney(c.net)}</span>
+        </div>`).join('');
+
+      bodyEl.innerHTML = `
+        <div class="bw-chart-wrap">
+          <div class="bw-chart-legend">
+            <span class="bw-legend-item"><span class="bw-legend-dot" style="background:#a6e3a1"></span>${esc(t('stats_income'))}: ${fmtMoney(totalIncome)}</span>
+            <span class="bw-legend-item"><span class="bw-legend-dot" style="background:#f38ba8"></span>${esc(t('stats_expense'))}: ${fmtMoney(totalExpense)}</span>
+            <span class="bw-legend-item">${esc(t('stats_net'))}: <span class="${totalNet >= 0 ? 'bw-tx-pos' : 'bw-tx-neg'}">${totalNet >= 0 ? '+' : ''}${fmtMoney(totalNet)}</span></span>
+          </div>
+          <div class="bw-bars">${bars}</div>
+        </div>
+        <div class="bw-section-label">${esc(t('stats_by_category'))}</div>
+        ${catRows || `<div class="bw-empty">${esc(t('no_stats'))}</div>`}
+      `;
+    }
 
     async function api(path, o) {
       o = o || {};
@@ -257,8 +455,9 @@
       _currencySymbol = currencySymbol(me.effective_currency);
     }
 
-    function openSettingsModal() {
-      const total = categories.reduce((sum, c) => sum + c.balance, 0);
+    async function openSettingsModal() {
+      const freshCategories = await api('/categories');
+      const total = freshCategories.reduce((sum, c) => sum + c.balance, 0);
       const ov = overlay(`<div class="bw-dialog">
         <h3>${esc(t('settings'))}</h3>
         <div class="bw-field"><label>${esc(t('total_balance'))}</label>
@@ -428,6 +627,47 @@
       catch (e) { alert(t('save_failed')); }
     }
 
+    function openEditTxGeneric(row, onSaved) {
+      const sign = row.amount >= 0 ? 1 : -1;
+      const eov = overlay(`<div class="bw-dialog">
+        <h3>${esc(t('edit'))}</h3>
+        <div class="bw-add-row">
+          <div class="bw-field"><label>${esc(t('amount'))}</label>
+            <div class="bw-amount-group">
+              <select id="bw-edit-sign">
+                <option value="1" ${sign === 1 ? 'selected' : ''}>+</option>
+                <option value="-1" ${sign === -1 ? 'selected' : ''}>−</option>
+              </select>
+              <input type="number" id="bw-edit-amount" step="0.01" min="0" value="${Math.abs(row.amount)}">
+            </div>
+          </div>
+          <div class="bw-field"><label>${esc(t('note'))}</label>
+            <input type="text" id="bw-edit-note" maxlength="300" value="${esc(row.note || '')}"></div>
+        </div>
+        <div class="bw-error" id="bw-edit-err" style="display:none"></div>
+        <div class="bw-dialog-actions">
+          <button class="bw-btn" id="bw-edit-cancel">${esc(t('cancel'))}</button>
+          <button class="bw-btn bw-btn-primary" id="bw-edit-save">${esc(t('save'))}</button>
+        </div>
+      </div>`);
+      const errEl2 = eov.querySelector('#bw-edit-err');
+      eov.querySelector('#bw-edit-cancel').onclick = () => eov.remove();
+      eov.querySelector('#bw-edit-save').onclick = async () => {
+        const raw = parseFloat(eov.querySelector('#bw-edit-amount').value);
+        const s = parseInt(eov.querySelector('#bw-edit-sign').value, 10);
+        if (isNaN(raw) || raw <= 0) { errEl2.textContent = t('invalid_allocation'); errEl2.style.display = 'block'; return; }
+        const note = eov.querySelector('#bw-edit-note').value.trim();
+        try {
+          await api(`/transactions/${row.id}`, { method: 'PUT', body: JSON.stringify({ amount: raw * s, note }) });
+          eov.remove();
+          onSaved();
+        } catch (e) {
+          errEl2.textContent = e.message || t('mass_add_failed');
+          errEl2.style.display = 'block';
+        }
+      };
+    }
+
     async function openHistory(cat, onClose) {
       markNotifRead(cat.id);
       const ov = overlay(`<div class="bw-dialog">
@@ -461,6 +701,12 @@
 
       function _txWho(p) { return p && (p.display_name || p.username) || ''; }
 
+      function _txDate(iso) {
+        const d = new Date(iso);
+        return d.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: '2-digit' }) +
+          ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+      }
+
       async function loadTx() {
         const rows = await api(`/categories/${cat.id}/transactions`);
         const listEl = ov.querySelector('#bw-tx-list');
@@ -468,16 +714,22 @@
         listEl.innerHTML = rows.map(r => {
           const who = _txWho(r.added_by);
           const deletedWho = r.deleted_by_user ? _txWho(r.deleted_by_user) : '';
+          const mine = r.user_id === myId;
           return `
           <div class="bw-tx-row ${r.deleted_at ? 'bw-tx-deleted' : ''}" data-id="${esc(r.id)}">
-            <span class="bw-tx-amount ${r.amount >= 0 ? 'bw-tx-pos' : 'bw-tx-neg'}">${r.amount >= 0 ? '+' : ''}${fmtMoney(r.amount)}</span>
-            <span class="bw-tx-note">${esc(r.note)}</span>
-            <span class="bw-tx-meta">
-              ${who ? esc(who) : ''}
-              ${r.deleted_at ? ` · ${esc(deletedWho || '?')}` : ''}
-            </span>
-            <span class="bw-tx-date">${esc(new Date(r.created_at).toLocaleString())}</span>
-            ${r.deleted_at ? '' : '<button class="bw-btn-icon" data-action="del-tx">🗑</button>'}
+            <div class="bw-tx-row-top">
+              <span class="bw-tx-amount ${r.amount >= 0 ? 'bw-tx-pos' : 'bw-tx-neg'}">${r.amount >= 0 ? '+' : ''}${fmtMoney(r.amount)}</span>
+              <span class="bw-tx-note">${esc(r.note)}</span>
+              ${(!r.deleted_at && mine) ? `<button class="bw-btn-icon" data-action="edit-tx">✎</button>` : ''}
+              ${(!r.deleted_at && mine) ? `<button class="bw-btn-icon" data-action="del-tx">🗑</button>` : ''}
+            </div>
+            <div class="bw-tx-row-bottom">
+              <span class="bw-tx-meta">
+                ${who ? esc(who) : ''}
+                ${r.deleted_at ? ` · ${esc(deletedWho || '?')}` : ''}
+              </span>
+              <span class="bw-tx-date">${esc(_txDate(r.created_at))}</span>
+            </div>
           </div>`;
         }).join('');
         listEl.querySelectorAll('[data-action="del-tx"]').forEach(btn => {
@@ -488,6 +740,17 @@
             cat.balance = (await fetchFreshBalance()) ?? cat.balance;
             ov.querySelector('.bw-card-balance').textContent = fmtMoney(cat.balance);
             loadTx();
+          };
+        });
+        listEl.querySelectorAll('[data-action="edit-tx"]').forEach(btn => {
+          btn.onclick = () => {
+            const id = btn.closest('.bw-tx-row').dataset.id;
+            const row = rows.find(r => r.id === id);
+            openEditTxGeneric(row, async () => {
+              cat.balance = (await fetchFreshBalance()) ?? cat.balance;
+              ov.querySelector('.bw-card-balance').textContent = fmtMoney(cat.balance);
+              loadTx();
+            });
           };
         });
       }
@@ -710,6 +973,27 @@
     root.querySelector('#bw-add-cat').onclick = () => openCategoryForm(null);
     root.querySelector('#bw-mass-add').onclick = () => openMassAdd();
     root.querySelector('#bw-settings-btn').onclick = () => openSettingsModal();
+
+    let currentView = 'categories';
+    const menuWrap = root.querySelector('.bw-menu-wrap');
+    root.querySelector('#bw-menu-btn').onclick = (e) => {
+      e.stopPropagation();
+      const existing = menuWrap.querySelector('.bw-menu-dropdown');
+      if (existing) { existing.remove(); return; }
+      const dd = document.createElement('div');
+      dd.className = 'bw-menu-dropdown';
+      dd.innerHTML = `
+        <div class="bw-menu-item ${currentView === 'categories' ? 'active' : ''}" data-view="categories">📁 ${esc(t('categories'))}</div>
+        <div class="bw-menu-item ${currentView === 'history' ? 'active' : ''}" data-view="history">🕘 ${esc(t('full_history'))}</div>
+        <div class="bw-menu-item ${currentView === 'stats' ? 'active' : ''}" data-view="stats">📊 ${esc(t('stats'))}</div>
+      `;
+      dd.querySelector('[data-view="categories"]').onclick = () => { dd.remove(); currentView = 'categories'; showCategoriesView(); };
+      dd.querySelector('[data-view="history"]').onclick = () => { dd.remove(); currentView = 'history'; showHistoryView(); };
+      dd.querySelector('[data-view="stats"]').onclick = () => { dd.remove(); currentView = 'stats'; showStatsView(); };
+      menuWrap.appendChild(dd);
+      const closeOnOutside = (ev) => { if (!menuWrap.contains(ev.target)) { dd.remove(); document.removeEventListener('click', closeOnOutside); } };
+      setTimeout(() => document.addEventListener('click', closeOnOutside), 0);
+    };
 
     loadMyCurrency().then(() => refresh()).then(() => {
       if (opts.openCategory) {

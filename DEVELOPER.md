@@ -986,6 +986,35 @@ if (!token) {
 
 **Important:** `is_app_public(APP_ID)` must be checked at the top of **every** route in your `public.py`, not just `/`. The router is mounted unconditionally at startup — nothing enforces the private/public toggle for you except this check. Forgetting it on even one route means that route stays reachable while the app is set to Private in Apps Hub.
 
+### Window footer
+
+Every window (desktop, not mobile-fullscreen) gets a shared footer, rendered centrally by `Desktop.createWindow`. You don't add anything for the "mvmOS" branding on the left — that's automatic — but you can put your own content in it.
+
+**Your own content:**
+
+`createWindow` returns the window element with a `.footer` handle:
+
+```js
+const win = await mvmOS.createWindow({ id: 'my-app', title: 'My App', onMount(body) { ... } });
+win.footer.setContent('3 items · last synced 2m ago');
+// win.footer.clear() to remove it again
+```
+
+`setContent(html)` replaces only your slot in the footer — it's safe to call repeatedly (e.g. on every status update), the same way File Manager updates its own status bar, except this one is shared chrome instead of app-owned space. It accepts HTML, so links/icons work too; escape any user-controlled text yourself.
+
+**Public page link:**
+
+The right side also shows a "🔗 Public page" link, but only if your `manifest.json` declares `public_url`:
+
+```json
+{
+  "id": "my-app",
+  "public_url": "/pub/my-app/"
+}
+```
+
+This only makes sense if your app has a `public.py` (see above) with a real generic landing page at `/pub/<app-id>/` — the footer link doesn't check `is_app_public`/enable state itself, it just links there. If you don't have a public page, omit the field and the link simply doesn't appear.
+
 ### Listing in the public directory
 
 Any app with a `public.py` is auto-detected and, once enabled (toggled Public) in Apps Hub admin, appears as a card in the public directory at `/pub/apphub/` (the "Apps" tab) linking to `/pub/<app-id>/`.
