@@ -177,18 +177,6 @@ function renderRegForm() {
 function showDashboard(activeTab) {
   activeTab = activeTab || 'apps';
   app.innerHTML = `
-    <header style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0">
-      <div style="font-weight:700;font-size:15px">🧩 Apps Hub</div>
-      <div style="flex:1"></div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span id="hdr-avatar">${renderAvatar(_me, 28)}</span>
-        <div style="display:flex;flex-direction:column;line-height:1.2">
-          <span style="font-size:11px;color:var(--fg2)">Logged in as</span>
-          <span style="font-size:13px;font-weight:700;color:var(--accent)">${esc(_me.display_name)}</span>
-        </div>
-        <button id="d-logout" class="btn btn-secondary" style="padding:5px 12px;font-size:.82rem">Logout</button>
-      </div>
-    </header>
     <div class="tab-bar">
       <button class="tab${activeTab==='apps'?' active':''}" data-t="apps">Apps</button>
       <button class="tab${activeTab==='favourites'?' active':''}" data-t="favourites">Favourites</button>
@@ -196,11 +184,7 @@ function showDashboard(activeTab) {
     </div>
     <div id="d-body" style="flex:1;overflow-y:auto"></div>`;
 
-  app.querySelector('#d-logout').onclick = async () => {
-    await fetch(BASE + '/logout', {method:'POST',headers:{'X-Pub-Token':_token}}).catch(()=>{});
-    _token = null; _me = null; localStorage.removeItem('apphub_token');
-    showAuth();
-  };
+  window.MvmLayout && MvmLayout.refresh();
   app.querySelectorAll('.tab').forEach(t => {
     t.onclick = () => {
       app.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
@@ -294,7 +278,7 @@ async function renderApps(c) {
   const renderGrid = () => {
     const sorted = _sortApps(apps, _getSortPref());
     c.querySelector('#apps-grid').innerHTML = sorted.map(a => `
-      <a class="app-card" href="${esc(a.public_url)}" target="_blank" data-id="${esc(a.id)}">
+      <a class="app-card" href="${esc(a.public_url)}" data-id="${esc(a.id)}">
         <div class="app-icon">${esc(a.icon)}${badges[a.id] ? '<span class="app-badge"></span>' : ''}</div>
         <div class="app-name">${esc(a.name)}</div>
         ${a.description ? `<div class="app-desc">${esc(a.description.slice(0,60))}${a.description.length>60?'…':''}</div>` : ''}
@@ -489,8 +473,7 @@ function renderProfile(c) {
       _me.display_name = dn;
       _me.avatar_data  = _pendingAvatarData;
       _me.avatar_svg   = svgStr;
-      // refresh header avatar
-      app.querySelector('#hdr-avatar').innerHTML = renderAvatar(_me, 28);
+      window.MvmLayout && MvmLayout.refresh();
       errEl.style.color = 'var(--green)';
       errEl.textContent = 'Saved!';
       setTimeout(() => { if(errEl) errEl.textContent=''; }, 2000);

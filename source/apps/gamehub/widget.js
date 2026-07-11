@@ -125,7 +125,7 @@
     const p = _player || {};
     const hdr = document.createElement('header');
     hdr.style.cssText = 'display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border,#45475a);flex-shrink:0';
-    hdr.innerHTML = '<a href="/apps/gamehub/public/" style="font-weight:700;font-size:15px;color:inherit;text-decoration:none">🎮 Game Hub</a>'
+    hdr.innerHTML = '<a href="/pub/gamehub/" style="font-weight:700;font-size:15px;color:inherit;text-decoration:none">🎮 Game Hub</a>'
       + '<div style="flex:1"></div>'
       + '<div style="display:flex;align-items:center;gap:8px">'
       + renderAvatar(p, 28)
@@ -137,7 +137,7 @@
       + '</div>';
     hdr.querySelector('#gh-hdr-logout').onclick = async () => {
       await window.GameHub.logout();
-      location.href = '/apps/gamehub/public/';
+      location.href = '/pub/gamehub/';
     };
     container.prepend(hdr);
     return hdr;
@@ -158,14 +158,19 @@
     if (!container) return;
     if (!_token) { container.innerHTML = ''; return; }
     try {
-      const r = await fetch(BASE + '/players');
+      const r = await fetch(BASE + '/favourites', { headers: { 'X-GH-Token': _token } });
       if (!r.ok) { container.innerHTML = ''; return; }
-      const players = await r.json();
-      const myId    = _player?.id;
-      const list    = players.filter(p => p.id !== myId);
-      if (!list.length) { container.innerHTML = ''; return; }
+      const list = await r.json();
 
       _ensureStyle();
+      if (!list.length) {
+        container.innerHTML = `
+          <div class="gh-w" style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-size:.72rem;color:#a6adc8;text-transform:uppercase;letter-spacing:.5px">Invite players</div>
+            <div style="font-size:.8rem;color:#a6adc8">No favourites yet — add some in Game Hub to invite them here.</div>
+          </div>`;
+        return;
+      }
       container.innerHTML = `
         <div class="gh-w" style="display:flex;flex-direction:column;gap:6px">
           <div style="font-size:.72rem;color:#a6adc8;text-transform:uppercase;letter-spacing:.5px">Invite players</div>

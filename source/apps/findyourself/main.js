@@ -417,7 +417,7 @@ const FY = (() => {
     // Multiplayer now lives entirely in the Game Hub. The button opens the
     // public hub, where games are created, players invited and matches played.
     _root.querySelector('#fy-start-mp')?.addEventListener('click', () => {
-      window.open('/apps/gamehub/public/', '_blank');
+      window.open('/pub/gamehub/', '_blank');
     });
   }
 

@@ -623,7 +623,7 @@
               <span class="nm">${_esc(s.display_name)}</span><span class="ts">${s.total}</span>
             </div>`).join('')}
         </div>
-        <a href="/apps/gamehub/public/" class="fy-btn" style="text-decoration:none;display:inline-block">← Game Hub</a>
+        <a href="/pub/gamehub/" class="fy-btn" style="text-decoration:none;display:inline-block">← Game Hub</a>
       </div></div>`;
   }
 

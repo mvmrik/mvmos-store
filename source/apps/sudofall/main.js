@@ -992,7 +992,7 @@ if (msg.type === 'joined') _mp.playerIndex = msg.player;
     });
 
     body.querySelector('#sf-btn-multi').addEventListener('click', () => {
-      window.open('/apps/gamehub/public/', '_blank');
+      window.open('/pub/gamehub/', '_blank');
     });
     if (false) { // dead code kept for reference only — no longer used
       let roomData;

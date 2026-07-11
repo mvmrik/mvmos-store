@@ -451,7 +451,7 @@ async def play_page(room_id: str):
     <div class="icon">🔗</div>
     <h2>Стаята не съществува или е изтекла</h2>
     <p>Играта може да е приключила или линкът е невалиден. Върни се в Game Hub и създай нова игра.</p>
-    <a href="/apps/gamehub/public/">← Game Hub</a>
+    <a href="/pub/gamehub/">← Game Hub</a>
   </div>
 </body>
 </html>""", status_code=404)

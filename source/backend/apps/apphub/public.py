@@ -39,3 +39,9 @@ async def public_index():
 async def avatar_js():
     return FileResponse(os.path.join(_DIR, "avatar.js"),
                         media_type="application/javascript")
+
+
+@router.get("/layout.js")
+async def layout_js():
+    return FileResponse(os.path.join(_DIR, "layout.js"),
+                        media_type="application/javascript")

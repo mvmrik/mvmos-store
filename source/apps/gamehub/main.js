@@ -812,7 +812,7 @@ mvmOS.registerApp({
               <div id="gh-set-publink">
                 <div style="font-size:12px;color:var(--fg2);margin-bottom:8px">Direct link (no domain mapping needed):</div>
                 <div style="display:flex;align-items:center;gap:8px">
-                  <code style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--accent);user-select:all">/apps/gamehub/public/</code>
+                  <code style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--accent);user-select:all">/pub/gamehub/</code>
                   <button id="gh-set-open" style="${btn()};padding:5px 12px;font-size:12px">Open ↗</button>
                 </div>
                 <div style="font-size:11px;color:var(--fg2);margin-top:6px">For a cleaner URL, map a domain or subpath to this app in mvmOS Domains settings.</div>
@@ -840,7 +840,7 @@ mvmOS.registerApp({
             };
           }
 
-          c.querySelector('#gh-set-open')?.addEventListener('click', () => window.open('/apps/gamehub/public/', '_blank'));
+          c.querySelector('#gh-set-open')?.addEventListener('click', () => window.open('/pub/gamehub/', '_blank'));
         }
 
         reload();
