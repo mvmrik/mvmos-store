@@ -43,6 +43,28 @@ const _qbi18n = {
     unknown: 'Unknown', never: 'Never',
     file_name: 'Name', file_size: 'Size', file_progress: 'Progress', file_prio: 'Priority',
     peer_ip: 'IP', peer_client: 'Client', peer_dl: '↓', peer_ul: '↑', peer_progress: '%',
+    opts_loading: 'Loading qBittorrent options…',
+    opts_title: 'qBittorrent Options',
+    opts_dht: 'DHT (enable for public trackers, disable for private)',
+    opts_pex: 'Peer Exchange (PeX)',
+    opts_lsd: 'Local Service Discovery (LSD)',
+    opts_anonymous: 'Anonymous mode',
+    opts_encryption: 'Encryption',
+    opts_encryption_prefer: 'Prefer encryption',
+    opts_encryption_force: 'Force encryption (recommended for private trackers)',
+    opts_encryption_disable: 'Disable encryption',
+    opts_max_ratio_enabled: 'Enable max ratio limit',
+    opts_max_ratio: 'Max ratio',
+    opts_max_seeding_time_enabled: 'Enable max seeding time limit',
+    opts_max_seeding_time: 'Max seeding time (minutes)',
+    opts_max_ratio_act: 'When ratio/time limit reached',
+    opts_action_pause: 'Pause torrent',
+    opts_action_remove: 'Remove torrent',
+    opts_action_remove_files: 'Remove torrent and files',
+    opts_dl_limit: 'Download limit KB/s (0 = unlimited)',
+    opts_ul_limit: 'Upload limit KB/s (0 = unlimited)',
+    opts_unavailable: 'qBittorrent options unavailable',
+    opts_not_connected: 'not connected',
   },
   bg: {
     title: 'qBit Dashboard', add: '+ Добави', resume: '▶ Стартирай', pause: '⏸ Пауза',
@@ -87,6 +109,28 @@ const _qbi18n = {
     unknown: 'Неизвестно', never: 'Никога',
     file_name: 'Файл', file_size: 'Размер', file_progress: 'Прогрес', file_prio: 'Приоритет',
     peer_ip: 'IP', peer_client: 'Клиент', peer_dl: '↓', peer_ul: '↑', peer_progress: '%',
+    opts_loading: 'Зареждане на настройки на qBittorrent…',
+    opts_title: 'Настройки на qBittorrent',
+    opts_dht: 'DHT (включи за публични тракери, изключи за частни)',
+    opts_pex: 'Peer Exchange (PeX)',
+    opts_lsd: 'Local Service Discovery (LSD)',
+    opts_anonymous: 'Анонимен режим',
+    opts_encryption: 'Криптиране',
+    opts_encryption_prefer: 'Предпочитано криптиране',
+    opts_encryption_force: 'Задължително криптиране (препоръчително за частни тракери)',
+    opts_encryption_disable: 'Без криптиране',
+    opts_max_ratio_enabled: 'Включи лимит за максимално рацио',
+    opts_max_ratio: 'Максимално рацио',
+    opts_max_seeding_time_enabled: 'Включи лимит за максимално време на разпращане',
+    opts_max_seeding_time: 'Максимално време на разпращане (минути)',
+    opts_max_ratio_act: 'При достигане на лимита за рацио/време',
+    opts_action_pause: 'Паузирай торента',
+    opts_action_remove: 'Премахни торента',
+    opts_action_remove_files: 'Премахни торента и файловете',
+    opts_dl_limit: 'Лимит за сваляне KB/s (0 = неограничено)',
+    opts_ul_limit: 'Лимит за качване KB/s (0 = неограничено)',
+    opts_unavailable: 'Настройките на qBittorrent са недостъпни',
+    opts_not_connected: 'няма връзка',
   },
 };
 function _qbt(key) { const lang = window.mvmOS?.lang || 'en'; return (_qbi18n[lang] || _qbi18n.en)[key] || key; }
@@ -108,7 +152,7 @@ mvmOS.registerApp({
   ],
   async renderSettingsExtra(wrap, saved) {
     this._lastSaved = saved;
-    wrap.innerHTML = `<div style="font-size:.75rem;color:var(--text-dim);margin-top:4px">Loading qBittorrent options…</div>`;
+    wrap.innerHTML = `<div style="font-size:.75rem;color:var(--text-dim);margin-top:4px">${_qbt('opts_loading')}</div>`;
     try {
       // read all connection params from DB to avoid stale/empty 'saved' values
       const db = mvmOS.db('qbit-dashboard');
@@ -127,63 +171,63 @@ mvmOS.registerApp({
       const prefs = await res.json();
       wrap.innerHTML = `
         <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:12px">
-          <div style="font-size:.8rem;font-weight:600;color:var(--text-dim);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">qBittorrent Options</div>
+          <div style="font-size:.8rem;font-weight:600;color:var(--text-dim);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em">${_qbt('opts_title')}</div>
           <div style="display:flex;flex-direction:column;gap:8px">
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
-              <input type="checkbox" data-qbpref="dht" ${prefs.dht ? 'checked' : ''}> DHT (enable for public trackers, disable for private)
+              <input type="checkbox" data-qbpref="dht" ${prefs.dht ? 'checked' : ''}> ${_qbt('opts_dht')}
             </label>
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
-              <input type="checkbox" data-qbpref="pex" ${prefs.pex ? 'checked' : ''}> Peer Exchange (PeX)
+              <input type="checkbox" data-qbpref="pex" ${prefs.pex ? 'checked' : ''}> ${_qbt('opts_pex')}
             </label>
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
-              <input type="checkbox" data-qbpref="lsd" ${prefs.lsd ? 'checked' : ''}> Local Service Discovery (LSD)
+              <input type="checkbox" data-qbpref="lsd" ${prefs.lsd ? 'checked' : ''}> ${_qbt('opts_lsd')}
             </label>
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
-              <input type="checkbox" data-qbpref="anonymous_mode" ${prefs.anonymous_mode ? 'checked' : ''}> Anonymous mode
+              <input type="checkbox" data-qbpref="anonymous_mode" ${prefs.anonymous_mode ? 'checked' : ''}> ${_qbt('opts_anonymous')}
             </label>
             <div style="display:flex;flex-direction:column;gap:4px">
-              <label style="font-size:.8rem;color:var(--text-dim)">Encryption</label>
+              <label style="font-size:.8rem;color:var(--text-dim)">${_qbt('opts_encryption')}</label>
               <select data-qbpref="encryption" class="s-input">
-                <option value="0" ${prefs.encryption===0?'selected':''}>Prefer encryption</option>
-                <option value="1" ${prefs.encryption===1?'selected':''}>Force encryption (recommended for private trackers)</option>
-                <option value="2" ${prefs.encryption===2?'selected':''}>Disable encryption</option>
+                <option value="0" ${prefs.encryption===0?'selected':''}>${_qbt('opts_encryption_prefer')}</option>
+                <option value="1" ${prefs.encryption===1?'selected':''}>${_qbt('opts_encryption_force')}</option>
+                <option value="2" ${prefs.encryption===2?'selected':''}>${_qbt('opts_encryption_disable')}</option>
               </select>
             </div>
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
-              <input type="checkbox" data-qbpref="max_ratio_enabled" ${prefs.max_ratio_enabled ? 'checked' : ''}> Enable max ratio limit
+              <input type="checkbox" data-qbpref="max_ratio_enabled" ${prefs.max_ratio_enabled ? 'checked' : ''}> ${_qbt('opts_max_ratio_enabled')}
             </label>
             <div style="display:flex;flex-direction:column;gap:4px">
-              <label style="font-size:.8rem;color:var(--text-dim)">Max ratio</label>
+              <label style="font-size:.8rem;color:var(--text-dim)">${_qbt('opts_max_ratio')}</label>
               <input type="number" data-qbpref="max_ratio" class="s-input" value="${prefs.max_ratio ?? 1}" step="0.1" min="0">
             </div>
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
-              <input type="checkbox" data-qbpref="max_seeding_time_enabled" ${prefs.max_seeding_time_enabled ? 'checked' : ''}> Enable max seeding time limit
+              <input type="checkbox" data-qbpref="max_seeding_time_enabled" ${prefs.max_seeding_time_enabled ? 'checked' : ''}> ${_qbt('opts_max_seeding_time_enabled')}
             </label>
             <div style="display:flex;flex-direction:column;gap:4px">
-              <label style="font-size:.8rem;color:var(--text-dim)">Max seeding time (minutes)</label>
+              <label style="font-size:.8rem;color:var(--text-dim)">${_qbt('opts_max_seeding_time')}</label>
               <input type="number" data-qbpref="max_seeding_time" class="s-input" value="${prefs.max_seeding_time ?? 0}" min="0">
             </div>
             <div style="display:flex;flex-direction:column;gap:4px">
-              <label style="font-size:.8rem;color:var(--text-dim)">When ratio/time limit reached</label>
+              <label style="font-size:.8rem;color:var(--text-dim)">${_qbt('opts_max_ratio_act')}</label>
               <select data-qbpref="max_ratio_act" class="s-input">
-                <option value="0" ${(prefs.max_ratio_act??0)===0?'selected':''}>Pause torrent</option>
-                <option value="1" ${prefs.max_ratio_act===1?'selected':''}>Remove torrent</option>
-                <option value="3" ${prefs.max_ratio_act===3?'selected':''}>Remove torrent and files</option>
+                <option value="0" ${(prefs.max_ratio_act??0)===0?'selected':''}>${_qbt('opts_action_pause')}</option>
+                <option value="1" ${prefs.max_ratio_act===1?'selected':''}>${_qbt('opts_action_remove')}</option>
+                <option value="3" ${prefs.max_ratio_act===3?'selected':''}>${_qbt('opts_action_remove_files')}</option>
               </select>
             </div>
             <div style="display:flex;flex-direction:column;gap:4px">
-              <label style="font-size:.8rem;color:var(--text-dim)">Download limit KB/s (0 = unlimited)</label>
+              <label style="font-size:.8rem;color:var(--text-dim)">${_qbt('opts_dl_limit')}</label>
               <input type="number" data-qbpref="dl_limit" class="s-input" value="${Math.round((prefs.dl_limit || 0) / 1024)}" min="0">
             </div>
             <div style="display:flex;flex-direction:column;gap:4px">
-              <label style="font-size:.8rem;color:var(--text-dim)">Upload limit KB/s (0 = unlimited)</label>
+              <label style="font-size:.8rem;color:var(--text-dim)">${_qbt('opts_ul_limit')}</label>
               <input type="number" data-qbpref="ul_limit" class="s-input" value="${Math.round((prefs.up_limit || 0) / 1024)}" min="0">
             </div>
           </div>
         </div>
       `;
     } catch(err) {
-      wrap.innerHTML = `<div style="font-size:.75rem;color:var(--text-dim);margin-top:8px;border-top:1px solid var(--border);padding-top:8px">qBittorrent options unavailable (${err.message || 'not connected'})</div>`;
+      wrap.innerHTML = `<div style="font-size:.75rem;color:var(--text-dim);margin-top:8px;border-top:1px solid var(--border);padding-top:8px">${_qbt('opts_unavailable')} (${err.message || _qbt('opts_not_connected')})</div>`;
     }
   },
 

@@ -2,6 +2,8 @@
 
 (function() {
 
+var t = window.t || function(k) { return k; };
+
 var GM = {
   state: { repos: [], activeRepo: null, currentUser: '' },
   body: null,
@@ -19,7 +21,7 @@ GM.api = async function(path, opts) {
     body: opts.json != null ? JSON.stringify(opts.json) : undefined,
   });
   var data = await res.json().catch(function() { return {}; });
-  if (!res.ok) throw new Error(data.detail || 'Error ' + res.status);
+  if (!res.ok) throw new Error(data.detail || t('gm_error_status', { status: res.status }));
   return data;
 };
 
@@ -28,8 +30,8 @@ GM.api = async function(path, opts) {
 GM.writeApi = async function(path, json, repo) {
   if (repo && repo.owner && repo.owner !== GM.state.currentUser) {
     var ok = await mvmOS.requireRoot(
-      'Git Manager',
-      'Репото <strong>' + repo.name + '</strong> е собственост на <strong>' + repo.owner + '</strong>.'
+      t('gm_title'),
+      t('gm_owned_by_msg', { name: repo.name, owner: repo.owner })
     );
     if (!ok) throw new Error('cancelled');
   }
@@ -45,14 +47,14 @@ GM.init = function(body) {
   body.innerHTML = '<div id="gm-root" style="display:flex;height:100%;overflow:hidden;font-size:.85rem;position:relative">'
     + '<div id="gm-sidebar" class="as-sidebar" style="width:215px;min-width:180px;display:flex;flex-direction:column;border-right:1px solid var(--border);overflow:hidden;flex-shrink:0;background:var(--surface)">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px 8px 12px;border-bottom:1px solid var(--border);flex-shrink:0">'
-        + '<span style="font-size:.72rem;font-weight:600;color:var(--text-dim);letter-spacing:.05em">REPOSITORIES</span>'
-        + '<button id="gm-refresh" title="Refresh" style="background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:1rem;line-height:1;padding:2px 4px;border-radius:4px">&#x27F3;</button>'
+        + '<span style="font-size:.72rem;font-weight:600;color:var(--text-dim);letter-spacing:.05em">' + t('gm_repositories') + '</span>'
+        + '<button id="gm-refresh" title="' + t('gm_refresh') + '" style="background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:1rem;line-height:1;padding:2px 4px;border-radius:4px">&#x27F3;</button>'
       + '</div>'
       + '<div id="gm-repo-list" style="flex:1;overflow-y:auto"></div>'
       + '<div style="display:flex;gap:6px;padding:8px;border-top:1px solid var(--border);flex-shrink:0">'
-        + '<button id="gm-clone-btn" class="s-btn s-btn-sm" style="flex:1">&#x2295; Clone</button>'
-        + '<button id="gm-init-btn" class="s-btn s-btn-sm" style="flex:1">&#x25CE; Init</button>'
-        + '<button id="gm-ssh-btn" class="s-btn s-btn-sm" title="SSH Keys">&#x1F511;</button>'
+        + '<button id="gm-clone-btn" class="s-btn s-btn-sm" style="flex:1">&#x2295; ' + t('gm_clone') + '</button>'
+        + '<button id="gm-init-btn" class="s-btn s-btn-sm" style="flex:1">&#x25CE; ' + t('gm_init') + '</button>'
+        + '<button id="gm-ssh-btn" class="s-btn s-btn-sm" title="' + t('gm_ssh_keys') + '">&#x1F511;</button>'
       + '</div>'
     + '</div>'
     + '<div id="gm-content" style="flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative;min-width:0">'
@@ -86,16 +88,16 @@ GM.init = function(body) {
 GM.showWelcome = function() {
   GM.contentEl.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:var(--text-dim)">'
     + '<div style="font-size:2.5rem;opacity:.4">&#x1F500;</div>'
-    + '<div style="font-size:.85rem;opacity:.5">Select a repository</div>'
+    + '<div style="font-size:.85rem;opacity:.5">' + t('gm_select_repo') + '</div>'
     + '</div>';
 };
 
 GM.showLoading = function(msg) {
-  GM.listEl.innerHTML = '<div style="padding:14px 10px;color:var(--text-dim);font-size:.8rem;text-align:center;opacity:.7">' + (msg || 'Scanning...') + '</div>';
+  GM.listEl.innerHTML = '<div style="padding:14px 10px;color:var(--text-dim);font-size:.8rem;text-align:center;opacity:.7">' + (msg || t('gm_scanning')) + '</div>';
 };
 
 GM.loadRepos = async function() {
-  GM.showLoading('Scanning...');
+  GM.showLoading(t('gm_scanning'));
   try {
     var _reposData = await GM.api('/repos');
     GM.state.currentUser = _reposData.current_user || '';
@@ -114,7 +116,7 @@ GM.renderSidebar = function() {
   var list = GM.listEl;
   list.innerHTML = '';
   if (!GM.state.repos.length) {
-    list.innerHTML = '<div style="padding:14px 10px;color:var(--text-dim);font-size:.8rem;text-align:center;opacity:.7">No repositories found.<br>Try Clone to add one.</div>';
+    list.innerHTML = '<div style="padding:14px 10px;color:var(--text-dim);font-size:.8rem;text-align:center;opacity:.7">' + t('gm_no_repos') + '</div>';
     return;
   }
   GM.state.repos.forEach(function(repo) {
@@ -148,15 +150,15 @@ GM.showClone = function() {
   var overlay = document.createElement('div');
   overlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:99';
   overlay.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;width:380px;display:flex;flex-direction:column;gap:12px">'
-    + '<div style="font-weight:600;font-size:.95rem">Clone Repository</div>'
-    + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">Repository URL</div>'
+    + '<div style="font-weight:600;font-size:.95rem">' + t('gm_clone_repo_title') + '</div>'
+    + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_repo_url') + '</div>'
     + '<input class="s-input" id="gm-clone-url" placeholder="git@github.com:user/repo.git" style="width:100%;box-sizing:border-box"></div>'
-    + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">Destination directory</div>'
+    + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_dest_dir') + '</div>'
     + '<input class="s-input" id="gm-clone-dest" value="/var/www" style="width:100%;box-sizing:border-box"></div>'
     + '<div id="gm-clone-err" style="color:#f38ba8;font-size:.82rem;display:none"></div>'
     + '<div style="display:flex;gap:8px;justify-content:flex-end">'
-    + '<button class="s-btn" id="gm-clone-cancel">Cancel</button>'
-    + '<button class="s-btn" id="gm-clone-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">Clone</button>'
+    + '<button class="s-btn" id="gm-clone-cancel">' + t('gm_cancel') + '</button>'
+    + '<button class="s-btn" id="gm-clone-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_clone') + '</button>'
     + '</div></div>';
   GM.contentEl.appendChild(overlay);
   overlay.querySelector('#gm-clone-url').focus();
@@ -167,16 +169,16 @@ GM.showClone = function() {
     var dest = overlay.querySelector('#gm-clone-dest').value.trim();
     var errEl = overlay.querySelector('#gm-clone-err');
     var btn = overlay.querySelector('#gm-clone-ok');
-    if (!url) { errEl.textContent = 'URL is required'; errEl.style.display = 'block'; return; }
-    btn.textContent = 'Cloning...'; btn.disabled = true;
+    if (!url) { errEl.textContent = t('gm_url_required'); errEl.style.display = 'block'; return; }
+    btn.textContent = t('gm_cloning'); btn.disabled = true;
     try {
       var r = await GM.api('/repo/clone', { method: 'POST', json: { url: url, dest: dest } });
       overlay.remove();
       GM.loadRepos();
-      mvmOS.notify('Git Manager', r.output || 'Cloned successfully');
+      mvmOS.notify(t('gm_title'), r.output || t('gm_cloned_ok'));
     } catch(e) {
       errEl.textContent = e.message; errEl.style.display = 'block';
-      btn.textContent = 'Clone'; btn.disabled = false;
+      btn.textContent = t('gm_clone'); btn.disabled = false;
     }
   };
 
@@ -190,15 +192,15 @@ GM.showInit = function() {
   var overlay = document.createElement('div');
   overlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:99';
   overlay.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;width:380px;display:flex;flex-direction:column;gap:12px">'
-    + '<div style="font-weight:600;font-size:.95rem">&#x25CE; Initialize Repository</div>'
-    + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">Directory path</div>'
+    + '<div style="font-weight:600;font-size:.95rem">&#x25CE; ' + t('gm_init_repo_title') + '</div>'
+    + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_dir_path') + '</div>'
     + '<input class="s-input" id="gm-init-path" placeholder="/var/www/my-project" style="width:100%;box-sizing:border-box"></div>'
-    + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">Remote URL <span style="opacity:.6">(optional)</span></div>'
+    + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_remote_url') + ' <span style="opacity:.6">' + t('gm_optional') + '</span></div>'
     + '<input class="s-input" id="gm-init-remote" placeholder="git@github.com:user/repo.git" style="width:100%;box-sizing:border-box"></div>'
     + '<div id="gm-init-err" style="color:#f38ba8;font-size:.82rem;display:none"></div>'
     + '<div style="display:flex;gap:8px;justify-content:flex-end">'
-    + '<button class="s-btn" id="gm-init-cancel">Cancel</button>'
-    + '<button class="s-btn" id="gm-init-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">Init</button>'
+    + '<button class="s-btn" id="gm-init-cancel">' + t('gm_cancel') + '</button>'
+    + '<button class="s-btn" id="gm-init-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_init') + '</button>'
     + '</div></div>';
   GM.contentEl.appendChild(overlay);
   overlay.querySelector('#gm-init-path').focus();
@@ -209,16 +211,16 @@ GM.showInit = function() {
     var remote = overlay.querySelector('#gm-init-remote').value.trim();
     var errEl = overlay.querySelector('#gm-init-err');
     var btn = overlay.querySelector('#gm-init-ok');
-    if (!path) { errEl.textContent = 'Directory path is required'; errEl.style.display = 'block'; return; }
-    btn.textContent = 'Initializing...'; btn.disabled = true;
+    if (!path) { errEl.textContent = t('gm_dir_path_required'); errEl.style.display = 'block'; return; }
+    btn.textContent = t('gm_initializing'); btn.disabled = true;
     try {
       var r = await GM.api('/repo/init', { method: 'POST', json: { path: path, remote: remote } });
       overlay.remove();
       GM.loadRepos();
-      mvmOS.notify('Git Manager', r.output || 'Initialized ' + path);
+      mvmOS.notify(t('gm_title'), r.output || t('gm_initialized_ok', { path: path }));
     } catch(e) {
       errEl.textContent = e.message; errEl.style.display = 'block';
-      btn.textContent = 'Init'; btn.disabled = false;
+      btn.textContent = t('gm_init'); btn.disabled = false;
     }
   };
 
@@ -236,17 +238,17 @@ GM.showRepoView = function(container, repo) {
     + '<div style="font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + repo.name + '</div>'
     + '<div style="font-size:.72rem;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px">' + (repo.remote || '') + '</div>'
     + '</div>'
-    + '<span id="gm-branch-btn" style="font-size:.75rem;background:var(--surface2,#313244);border-radius:12px;padding:2px 9px;white-space:nowrap;flex-shrink:0;cursor:pointer;user-select:none" title="Switch branch">&#x1F33F; ' + repo.branch + ' &#x25BE;</span>'
+    + '<span id="gm-branch-btn" style="font-size:.75rem;background:var(--surface2,#313244);border-radius:12px;padding:2px 9px;white-space:nowrap;flex-shrink:0;cursor:pointer;user-select:none" title="' + t('gm_switch_branch') + '">&#x1F33F; ' + repo.branch + ' &#x25BE;</span>'
     + '</div>'
     + '<div style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);flex-shrink:0">'
-    + '<button id="gm-pull" class="s-btn s-btn-sm">&#x2B07; Pull</button>'
-    + '<button id="gm-push" class="s-btn s-btn-sm">&#x2B06; Push</button>'
-    + '<button id="gm-fetch" class="s-btn s-btn-sm">&#x27F3; Fetch</button>'
+    + '<button id="gm-pull" class="s-btn s-btn-sm">&#x2B07; ' + t('gm_pull') + '</button>'
+    + '<button id="gm-push" class="s-btn s-btn-sm">&#x2B06; ' + t('gm_push') + '</button>'
+    + '<button id="gm-fetch" class="s-btn s-btn-sm">&#x27F3; ' + t('gm_fetch') + '</button>'
     + '<div id="gm-sync-info" style="font-size:.75rem;color:var(--text-dim);margin-left:4px"></div>'
     + '<div style="flex:1"></div>'
     + '<div style="display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden">'
-    + '<button id="gm-tab-status" style="border:none;padding:3px 10px;cursor:pointer;font-size:.78rem;background:var(--accent);color:#fff">Status</button>'
-    + '<button id="gm-tab-log" style="border:none;padding:3px 10px;cursor:pointer;font-size:.78rem;background:none;color:var(--text-dim)">Log</button>'
+    + '<button id="gm-tab-status" style="border:none;padding:3px 10px;cursor:pointer;font-size:.78rem;background:var(--accent);color:#fff">' + t('gm_status') + '</button>'
+    + '<button id="gm-tab-log" style="border:none;padding:3px 10px;cursor:pointer;font-size:.78rem;background:none;color:var(--text-dim)">' + t('gm_log') + '</button>'
     + '</div></div>'
     + '<div id="gm-tab-content" style="flex:1;overflow-y:auto;padding:12px 14px"></div>'
     + '<div id="gm-action-output" style="display:none;padding:8px 14px;font-size:.78rem;font-family:monospace;background:var(--surface);border-top:1px solid var(--border);max-height:100px;overflow-y:auto;white-space:pre-wrap"></div>';
@@ -264,15 +266,17 @@ GM.showRepoView = function(container, repo) {
     else loadLog();
   }
 
+  var ACTION_ING_KEYS = { pull: 'gm_pulling', push: 'gm_pushing', fetch: 'gm_fetching' };
+
   async function doAction(action) {
     var btn = container.querySelector('#gm-' + action);
     var out = container.querySelector('#gm-action-output');
     btn.disabled = true; btn.style.opacity = '.5';
     out.style.display = 'block'; out.style.color = 'var(--text-dim)';
-    out.textContent = action + 'ing...';
+    out.textContent = t(ACTION_ING_KEYS[action] || action);
     try {
       var r = await GM.api('/repo/' + action, { method: 'POST', json: { path: repo.path } });
-      out.textContent = r.output || 'Done';
+      out.textContent = r.output || t('gm_done');
       out.style.color = '#a6e3a1';
       if (action === 'pull' || action === 'fetch') { loadStatus(); GM.loadRepos(); }
     } catch(e) {
@@ -288,7 +292,7 @@ GM.showRepoView = function(container, repo) {
     var btn = container.querySelector('#gm-commit-btn');
     var out = container.querySelector('#gm-action-output');
     btn.disabled = true;
-    if (out) { out.style.display = 'block'; out.textContent = 'Committing...'; out.style.color = 'var(--text-dim)'; }
+    if (out) { out.style.display = 'block'; out.textContent = t('gm_committing'); out.style.color = 'var(--text-dim)'; }
     try {
       var r = await GM.api('/repo/commit', { method: 'POST', json: { path: repo.path, message: msg } });
       msgInput.value = '';
@@ -303,40 +307,40 @@ GM.showRepoView = function(container, repo) {
   async function loadStatus() {
     var tc = container.querySelector('#gm-tab-content');
     if (!tc) return;
-    tc.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem;opacity:.7">Loading...</div>';
+    tc.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem;opacity:.7">' + t('gm_loading') + '</div>';
     try {
       var s = await GM.api('/repo/status?path=' + encodeURIComponent(repo.path));
 
       var syncInfo = container.querySelector('#gm-sync-info');
       if (syncInfo) {
         var parts = [];
-        if (s.ahead > 0) parts.push('&#x2191; ' + s.ahead + ' ahead');
-        if (s.behind > 0) parts.push('&#x2193; ' + s.behind + ' behind');
+        if (s.ahead > 0) parts.push('&#x2191; ' + t('gm_ahead', { n: s.ahead }));
+        if (s.behind > 0) parts.push('&#x2193; ' + t('gm_behind', { n: s.behind }));
         syncInfo.innerHTML = parts.join('&nbsp;&nbsp;');
         syncInfo.style.color = s.behind > 0 ? '#f38ba8' : 'var(--text-dim)';
       }
 
       var commitHtml = '<div style="border-top:1px solid var(--border);padding-top:12px;display:flex;flex-direction:column;gap:8px">'
-        + '<div style="font-size:.75rem;color:var(--text-dim)">Commit message <span style="opacity:.6">(Ctrl+Enter)</span></div>'
-        + '<textarea id="gm-commit-msg" class="s-input" rows="2" placeholder="Describe your changes..." style="resize:vertical;font-family:inherit;font-size:.83rem;width:100%;box-sizing:border-box"></textarea>'
-        + '<div><button id="gm-commit-btn" class="s-btn s-btn-sm" ' + (s.files.length ? 'style="background:var(--accent);color:#fff;border-color:var(--accent)"' : 'disabled') + '>&#x2713; Commit all changes</button></div>'
+        + '<div style="font-size:.75rem;color:var(--text-dim)">' + t('gm_commit_message') + ' <span style="opacity:.6">' + t('gm_ctrl_enter') + '</span></div>'
+        + '<textarea id="gm-commit-msg" class="s-input" rows="2" placeholder="' + t('gm_describe_changes') + '" style="resize:vertical;font-family:inherit;font-size:.83rem;width:100%;box-sizing:border-box"></textarea>'
+        + '<div><button id="gm-commit-btn" class="s-btn s-btn-sm" ' + (s.files.length ? 'style="background:var(--accent);color:#fff;border-color:var(--accent)"' : 'disabled') + '>&#x2713; ' + t('gm_commit_all') + '</button></div>'
         + '</div>';
 
       if (!s.files.length) {
-        tc.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;opacity:.7;padding:20px 0;text-align:center">Nothing to commit — working tree clean</div>' + commitHtml;
+        tc.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;opacity:.7;padding:20px 0;text-align:center">' + t('gm_nothing_to_commit') + '</div>' + commitHtml;
       } else {
         tc.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
-          + '<span style="font-size:.75rem;color:var(--text-dim)">' + s.files.length + ' changed file' + (s.files.length !== 1 ? 's' : '') + '</span>'
-          + '<button id="gm-discard-all" class="s-btn s-btn-sm" style="font-size:.72rem;color:#f38ba8;border-color:#f38ba8">&#x21BA; Discard all</button>'
+          + '<span style="font-size:.75rem;color:var(--text-dim)">' + t('gm_changed_files', { n: s.files.length, s: s.files.length !== 1 ? 's' : '' }) + '</span>'
+          + '<button id="gm-discard-all" class="s-btn s-btn-sm" style="font-size:.72rem;color:#f38ba8;border-color:#f38ba8">&#x21BA; ' + t('gm_discard_all') + '</button>'
           + '</div>'
           + '<div id="gm-file-list" style="display:flex;flex-direction:column;gap:2px;margin-bottom:14px"></div>'
           + commitHtml;
 
         tc.querySelector('#gm-discard-all').addEventListener('click', async function() {
-          if (!await mvmOS.confirm('Отхвърли всички промени в <strong>' + repo.name + '</strong>?')) return;
+          if (!await mvmOS.confirm(t('gm_discard_all_confirm', { name: repo.name }))) return;
           GM.writeApi('/repo/discard', { path: repo.path }, repo)
             .then(function() { loadStatus(); })
-            .catch(function(e) { if (e.message !== 'cancelled') mvmOS.notify('Git Manager', e.message); });
+            .catch(function(e) { if (e.message !== 'cancelled') mvmOS.notify(t('gm_title'), e.message); });
         });
 
         var fl = tc.querySelector('#gm-file-list');
@@ -354,7 +358,7 @@ GM.showRepoView = function(container, repo) {
             + (canDiff ? 'cursor:pointer;' : '');
           fileRow.innerHTML = '<span style="color:' + color + ';width:20px;flex-shrink:0">' + f.code + '</span>'
             + '<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + f.file + '</span>'
-            + (canDiscard ? '<button class="gm-discard-file s-btn s-btn-sm" style="font-size:.68rem;padding:1px 6px;opacity:.7" title="Discard">&#x21BA;</button>' : '');
+            + (canDiscard ? '<button class="gm-discard-file s-btn s-btn-sm" style="font-size:.68rem;padding:1px 6px;opacity:.7" title="' + t('gm_discard') + '">&#x21BA;</button>' : '');
 
           if (canDiff) {
             fileRow.addEventListener('mouseenter', function() { this.style.background = 'var(--surface2,#313244)'; });
@@ -366,11 +370,11 @@ GM.showRepoView = function(container, repo) {
               var panel = document.createElement('div');
               panel.className = 'gm-diff-panel';
               panel.style.cssText = 'font-family:monospace;font-size:.74rem;padding:6px 8px;background:var(--bg,#1e1e2e);border-top:1px solid var(--border);max-height:260px;overflow-y:auto;white-space:pre';
-              panel.textContent = 'Loading...';
+              panel.textContent = t('gm_loading');
               row.appendChild(panel);
               GM.api('/repo/diff?path=' + encodeURIComponent(repo.path) + '&file=' + encodeURIComponent(f.file))
                 .then(function(d) {
-                  if (!d.diff) { panel.textContent = '(no diff — new or binary file)'; return; }
+                  if (!d.diff) { panel.textContent = t('gm_no_diff'); return; }
                   panel.innerHTML = '';
                   d.diff.split('\n').forEach(function(line) {
                     var span = document.createElement('div');
@@ -389,10 +393,10 @@ GM.showRepoView = function(container, repo) {
           if (canDiscard) {
             fileRow.querySelector('.gm-discard-file').addEventListener('click', async function(e) {
               e.stopPropagation();
-              if (!await mvmOS.confirm('Отхвърли промените в <strong>' + f.file + '</strong>?')) return;
+              if (!await mvmOS.confirm(t('gm_discard_file_confirm', { file: f.file }))) return;
               GM.writeApi('/repo/discard', { path: repo.path, file: f.file }, repo)
                 .then(function() { loadStatus(); })
-                .catch(function(e) { if (e.message !== 'cancelled') mvmOS.notify('Git Manager', e.message); });
+                .catch(function(e) { if (e.message !== 'cancelled') mvmOS.notify(t('gm_title'), e.message); });
             });
           }
 
@@ -415,11 +419,11 @@ GM.showRepoView = function(container, repo) {
   async function loadLog() {
     var tc = container.querySelector('#gm-tab-content');
     if (!tc) return;
-    tc.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem;opacity:.7">Loading...</div>';
+    tc.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem;opacity:.7">' + t('gm_loading') + '</div>';
     try {
       var entries = await GM.api('/repo/log?path=' + encodeURIComponent(repo.path));
       if (!entries.length) {
-        tc.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;opacity:.7;padding:20px 0;text-align:center">No commits yet</div>';
+        tc.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;opacity:.7;padding:20px 0;text-align:center">' + t('gm_no_commits') + '</div>';
         return;
       }
       tc.innerHTML = '';
@@ -454,14 +458,14 @@ GM.showRepoView = function(container, repo) {
     var dd = document.createElement('div');
     dd.id = 'gm-branch-dropdown';
     dd.style.cssText = 'position:fixed;z-index:999;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.4);min-width:180px;overflow:hidden;top:' + (rect.bottom + 4) + 'px;left:' + rect.left + 'px';
-    dd.innerHTML = '<div style="padding:6px 10px;font-size:.72rem;color:var(--text-dim);border-bottom:1px solid var(--border)">Loading branches...</div>';
+    dd.innerHTML = '<div style="padding:6px 10px;font-size:.72rem;color:var(--text-dim);border-bottom:1px solid var(--border)">' + t('gm_loading_branches') + '</div>';
     document.body.appendChild(dd);
 
     GM.api('/repo/branches?path=' + encodeURIComponent(repo.path)).then(function(data) {
       dd.innerHTML = '';
       data.branches.forEach(function(b) {
         var isRemote = b.startsWith('origin/');
-        var label = isRemote ? b.replace('origin/', '') + ' <span style="font-size:.68rem;opacity:.6">remote</span>' : b;
+        var label = isRemote ? b.replace('origin/', '') + ' <span style="font-size:.68rem;opacity:.6">' + t('gm_remote_badge') + '</span>' : b;
         var row = document.createElement('div');
         var isCurrent = b === data.current || (isRemote && b.replace('origin/', '') === data.current);
         row.style.cssText = 'padding:7px 12px;cursor:pointer;font-size:.82rem;display:flex;align-items:center;gap:6px;'
@@ -473,11 +477,11 @@ GM.showRepoView = function(container, repo) {
           row.addEventListener('click', function() {
             dd.remove();
             var out = container.querySelector('#gm-action-output');
-            if (out) { out.style.display = 'block'; out.style.color = 'var(--text-dim)'; out.textContent = 'Switching to ' + b + '...'; }
+            if (out) { out.style.display = 'block'; out.style.color = 'var(--text-dim)'; out.textContent = t('gm_switching_to', { branch: b }); }
             GM.api('/repo/checkout', { method: 'POST', json: { path: repo.path, branch: b } }).then(function(r) {
               repo.branch = r.branch;
               btn.innerHTML = '&#x1F33F; ' + r.branch + ' &#x25BE;';
-              if (out) { out.textContent = r.output || 'Switched to ' + r.branch; out.style.color = '#a6e3a1'; }
+              if (out) { out.textContent = r.output || t('gm_switched_to', { branch: r.branch }); out.style.color = '#a6e3a1'; }
               GM.loadRepos();
               loadStatus();
             }).catch(function(e) {
@@ -502,8 +506,8 @@ GM.showRepoView = function(container, repo) {
 
 GM.showSSH = function(container) {
   container.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)">'
-    + '<div style="font-weight:600;font-size:.9rem">SSH Keys</div>'
-    + '<button id="gm-ssh-gen" class="s-btn s-btn-sm">&#xFF0B; Generate new key</button>'
+    + '<div style="font-weight:600;font-size:.9rem">' + t('gm_ssh_keys') + '</div>'
+    + '<button id="gm-ssh-gen" class="s-btn s-btn-sm">&#xFF0B; ' + t('gm_generate_new_key') + '</button>'
     + '</div>'
     + '<div id="gm-ssh-content" style="flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:14px"></div>';
   container.style.display = 'flex';
@@ -514,11 +518,11 @@ GM.showSSH = function(container) {
 
   function loadKeys(container) {
     var c = container.querySelector('#gm-ssh-content');
-    c.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem;opacity:.7">Loading...</div>';
+    c.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem;opacity:.7">' + t('gm_loading') + '</div>';
     GM.api('/ssh').then(function(keys) {
       c.innerHTML = '';
       if (!keys.length) {
-        c.innerHTML = '<div style="color:var(--text-dim);font-size:.85rem;text-align:center;padding:24px 0;opacity:.7">No SSH keys found.<br>Generate one to connect to GitHub, GitLab and others.</div>';
+        c.innerHTML = '<div style="color:var(--text-dim);font-size:.85rem;text-align:center;padding:24px 0;opacity:.7">' + t('gm_no_ssh_keys') + '</div>';
         return;
       }
       keys.forEach(function(key) {
@@ -530,22 +534,22 @@ GM.showSSH = function(container) {
           + '<span style="font-size:1.1rem">&#x1F511;</span>'
           + '<div style="flex:1"><div style="font-weight:600;font-size:.85rem">' + key.type + '</div>'
           + (comment ? '<div style="font-size:.75rem;color:var(--text-dim)">' + comment + '</div>' : '')
-          + '</div><span style="font-size:.7rem;background:#a6e3a1;color:#1e1e2e;border-radius:10px;padding:2px 8px;font-weight:600">Active</span></div>'
+          + '</div><span style="font-size:.7rem;background:#a6e3a1;color:#1e1e2e;border-radius:10px;padding:2px 8px;font-weight:600">' + t('gm_active') + '</span></div>'
           + '<div style="font-family:monospace;font-size:.72rem;color:var(--text-dim);background:var(--surface);border-radius:5px;padding:7px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'
           + key.public_key.substring(0, key.type.length + 49) + '...</div>'
           + '<div style="display:flex;gap:6px;flex-wrap:wrap">'
-          + '<button class="s-btn s-btn-sm gm-copy-key">&#x1F4CB; Copy public key</button>'
-          + '<button class="s-btn s-btn-sm gm-test-gh">Test GitHub</button>'
-          + '<button class="s-btn s-btn-sm gm-test-gl">Test GitLab</button>'
-          + '<button class="s-btn s-btn-sm gm-test-custom">Test other...</button>'
+          + '<button class="s-btn s-btn-sm gm-copy-key">&#x1F4CB; ' + t('gm_copy_public_key') + '</button>'
+          + '<button class="s-btn s-btn-sm gm-test-gh">' + t('gm_test_github') + '</button>'
+          + '<button class="s-btn s-btn-sm gm-test-gl">' + t('gm_test_gitlab') + '</button>'
+          + '<button class="s-btn s-btn-sm gm-test-custom">' + t('gm_test_other') + '</button>'
           + '</div>'
           + '<div class="gm-test-result" style="display:none;font-size:.78rem;padding:6px 10px;border-radius:5px;font-family:monospace"></div>';
 
         card.querySelector('.gm-copy-key').addEventListener('click', function() {
           var btn = this;
           navigator.clipboard.writeText(key.public_key).then(function() {
-            btn.textContent = '✓ Copied!';
-            setTimeout(function() { btn.textContent = '📋 Copy public key'; }, 2000);
+            btn.textContent = '✓ ' + t('gm_copied');
+            setTimeout(function() { btn.textContent = '📋 ' + t('gm_copy_public_key'); }, 2000);
           });
         });
 
@@ -554,9 +558,9 @@ GM.showSSH = function(container) {
           result.style.display = 'block';
           result.style.background = 'var(--surface)';
           result.style.color = 'var(--text-dim)';
-          result.textContent = 'Testing git@' + host + '...';
+          result.textContent = t('gm_testing_host', { host: host });
           GM.api('/ssh/test', { method: 'POST', json: { host: host } }).then(function(r) {
-            result.textContent = r.output || (r.ok ? 'Connection successful' : 'Connection failed');
+            result.textContent = r.output || (r.ok ? t('gm_connection_ok') : t('gm_connection_failed'));
             result.style.color = r.ok ? '#a6e3a1' : '#f38ba8';
             result.style.background = r.ok ? 'rgba(166,227,161,.1)' : 'rgba(243,139,168,.1)';
           }).catch(function(e) {
@@ -567,7 +571,7 @@ GM.showSSH = function(container) {
         card.querySelector('.gm-test-gh').addEventListener('click', function() { testSSH('github.com'); });
         card.querySelector('.gm-test-gl').addEventListener('click', function() { testSSH('gitlab.com'); });
         card.querySelector('.gm-test-custom').addEventListener('click', async function() {
-          var host = await mvmOS.prompt('Hostname:', 'git.myserver.com');
+          var host = await mvmOS.prompt(t('gm_hostname_prompt'), t('gm_hostname_placeholder'));
           if (host) testSSH(host);
         });
         c.appendChild(card);
@@ -575,7 +579,7 @@ GM.showSSH = function(container) {
 
       var note = document.createElement('div');
       note.style.cssText = 'font-size:.78rem;color:var(--text-dim);padding:4px 0;opacity:.8';
-      note.innerHTML = '<strong>Tip:</strong> Copy your public key and add it to GitHub &rarr; Settings &rarr; SSH Keys.';
+      note.innerHTML = t('gm_ssh_tip');
       c.appendChild(note);
     }).catch(function(e) {
       c.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + e.message + '</div>';
@@ -586,14 +590,14 @@ GM.showSSH = function(container) {
     var overlay = document.createElement('div');
     overlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:99';
     overlay.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;width:360px;display:flex;flex-direction:column;gap:12px">'
-      + '<div style="font-weight:600;font-size:.95rem">Generate SSH Key</div>'
-      + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">Comment (optional)</div>'
-      + '<input class="s-input" id="gm-gen-comment" placeholder="e.g. your@email.com" style="width:100%;box-sizing:border-box"></div>'
-      + '<div style="font-size:.78rem;color:var(--text-dim);background:var(--surface2,#313244);border-radius:6px;padding:8px 10px">Will generate <strong>ed25519</strong> key in <code>~/.ssh/id_ed25519</code></div>'
+      + '<div style="font-weight:600;font-size:.95rem">' + t('gm_generate_ssh_key_title') + '</div>'
+      + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_comment_optional') + '</div>'
+      + '<input class="s-input" id="gm-gen-comment" placeholder="' + t('gm_comment_placeholder') + '" style="width:100%;box-sizing:border-box"></div>'
+      + '<div style="font-size:.78rem;color:var(--text-dim);background:var(--surface2,#313244);border-radius:6px;padding:8px 10px">' + t('gm_gen_key_note') + '</div>'
       + '<div id="gm-gen-err" style="color:#f38ba8;font-size:.82rem;display:none"></div>'
       + '<div style="display:flex;gap:8px;justify-content:flex-end">'
-      + '<button class="s-btn" id="gm-gen-cancel">Cancel</button>'
-      + '<button class="s-btn" id="gm-gen-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">Generate</button>'
+      + '<button class="s-btn" id="gm-gen-cancel">' + t('gm_cancel') + '</button>'
+      + '<button class="s-btn" id="gm-gen-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_generate') + '</button>'
       + '</div></div>';
     container.style.position = 'relative';
     container.appendChild(overlay);
@@ -603,13 +607,13 @@ GM.showSSH = function(container) {
       var comment = overlay.querySelector('#gm-gen-comment').value.trim();
       var errEl = overlay.querySelector('#gm-gen-err');
       var btn = overlay.querySelector('#gm-gen-ok');
-      btn.textContent = 'Generating...'; btn.disabled = true;
+      btn.textContent = t('gm_generating'); btn.disabled = true;
       GM.api('/ssh/generate', { method: 'POST', json: { comment: comment } }).then(function() {
         overlay.remove();
         loadKeys(container);
       }).catch(function(e) {
         errEl.textContent = e.message; errEl.style.display = 'block';
-        btn.textContent = 'Generate'; btn.disabled = false;
+        btn.textContent = t('gm_generate'); btn.disabled = false;
       });
     });
   }
@@ -619,7 +623,7 @@ GM.showSSH = function(container) {
 
 mvmOS.registerApp({
   id: 'git-manager',
-  name: 'Git Manager',
+  name: t('gm_title'),
   icon: '🔀',
   category: 'Administration',
   width: 900,
@@ -628,7 +632,7 @@ mvmOS.registerApp({
   launch: function() {
     mvmOS.createWindow({
       id: 'git-manager',
-      title: '🔀 Git Manager',
+      title: '🔀 ' + t('gm_title'),
       icon: '🔀',
       width: 900,
       height: 580,

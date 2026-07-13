@@ -1,5 +1,7 @@
 // YourSQL — shared UI helpers
 
+const _ysqlT = window.t || (k => k);
+
 YS.modal = function(container, html, opts) {
   opts = opts || {};
   const ov = document.createElement('div');
@@ -71,19 +73,19 @@ YS.api = async function(path, opts) {
     body = opts.form;
   }
   const r = await fetch('/api/apps/yoursql' + path, { method, headers, body });
-  if (r.status === 413) throw new Error('Файлът е твърде голям — намали го или го раздели на части.');
+  if (r.status === 413) throw new Error(_ysqlT('ysql_file_too_large'));
   const text = await r.text();
   let data;
   try { data = JSON.parse(text); }
   catch(e) {
     console.error('[YourSQL] non-JSON response:', r.status, text.slice(0,200));
-    throw new Error('Server error ' + r.status);
+    throw new Error(_ysqlT('ysql_server_error', { status: r.status }));
   }
   if (!r.ok) {
     let msg = data?.detail || data?.error || data;
     if (msg && typeof msg === 'object') {
       msg = msg.error === 'driver_missing'
-        ? `Missing Python package "${msg.package}" on the server for ${msg.family} — install it with: pip install ${msg.package}`
+        ? _ysqlT('ysql_driver_missing', { package: msg.package, family: msg.family })
         : JSON.stringify(msg);
     }
     throw new Error(msg);

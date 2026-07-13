@@ -1,15 +1,17 @@
 // YourSQL — Table browser
 
+const _ysqlBrT = window.t || (k => k);
+
 YS.browse = (() => {
 
   function showWelcome(container) {
     const content = container.querySelector('#ysql-content');
     if (!content) return;
     if (!YS.state.activeDb) {
-      content.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-dim);flex-direction:column;gap:8px"><div style="font-size:2rem">🗄️</div><div>Select a database to get started</div></div>';
+      content.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-dim);flex-direction:column;gap:8px"><div style="font-size:2rem">🗄️</div><div>' + _ysqlBrT('ysql_select_db_to_start') + '</div></div>';
       return;
     }
-    content.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-dim);flex-direction:column;gap:8px"><div style="font-size:2rem">📋</div><div>Select a table from the sidebar</div></div>';
+    content.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-dim);flex-direction:column;gap:8px"><div style="font-size:2rem">📋</div><div>' + _ysqlBrT('ysql_select_table_from_sidebar') + '</div></div>';
   }
 
   async function show(container, savedState) {
@@ -29,7 +31,7 @@ YS.browse = (() => {
       YS.state.sort = [];
       YS.state.selection = { mode: 'none', pageRows: [], indexSet: new Set() };
 
-      content.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-dim)">Loading…</div>';
+      content.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-dim)">' + _ysqlBrT('ysql_loading_dots') + '</div>';
       try {
         const struct = await YS.api('/table-structure?conn_id=' + YS.state.activeConn.id +
           '&database=' + encodeURIComponent(YS.state.activeDb) +
@@ -56,7 +58,7 @@ YS.browse = (() => {
         '<div id="ysql-browse-toolbar" style="display:flex;align-items:center;gap:6px;padding:6px 8px;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap"></div>' +
         '<div id="ysql-sql-panel" style="display:none;flex-shrink:0;border-bottom:1px solid var(--border)">' +
           '<div id="ysql-sql-bar" contenteditable="true" spellcheck="false" style="width:100%;box-sizing:border-box;padding:6px 10px;font-family:monospace;font-size:.78rem;background:var(--surface);white-space:pre;overflow-x:auto;line-height:1.5;outline:none"></div>' +
-          '<div style="padding:4px 10px 6px;background:var(--surface)"><button class="s-btn s-btn-sm" id="ysql-btn-run-sql">▶ Run</button></div>' +
+          '<div style="padding:4px 10px 6px;background:var(--surface)"><button class="s-btn s-btn-sm" id="ysql-btn-run-sql">' + _ysqlBrT('ysql_run') + '</button></div>' +
         '</div>' +
         '<div id="ysql-filter-bar" style="flex-shrink:0"></div>' +
         '<div style="overflow:auto;flex:1" id="ysql-table-wrap">' +
@@ -74,12 +76,12 @@ YS.browse = (() => {
   function _renderToolbar(container, content) {
     var tb = content.querySelector('#ysql-browse-toolbar');
     tb.innerHTML =
-      '<button class="s-btn s-btn-sm" id="ysql-btn-filter" style="flex-shrink:0">⊟ Filter</button>' +
-      '<button class="s-btn s-btn-sm" id="ysql-btn-sql" style="flex-shrink:0">SQL</button>' +
-      '<button class="s-btn s-btn-sm" id="ysql-btn-refresh" style="flex-shrink:0" title="Refresh (right-click for auto-refresh)">↻</button>' +
+      '<button class="s-btn s-btn-sm" id="ysql-btn-filter" style="flex-shrink:0">' + _ysqlBrT('ysql_filter') + '</button>' +
+      '<button class="s-btn s-btn-sm" id="ysql-btn-sql" style="flex-shrink:0">' + _ysqlBrT('ysql_sql') + '</button>' +
+      '<button class="s-btn s-btn-sm" id="ysql-btn-refresh" style="flex-shrink:0" title="' + _ysqlBrT('ysql_refresh_tt') + '">↻</button>' +
       '<span style="flex:1"></span>' +
       '<span id="ysql-selection-info" style="font-size:.78rem;color:var(--text-dim);flex-shrink:0"></span>' +
-      '<button class="s-btn s-btn-sm" id="ysql-btn-bulk" style="display:none;flex-shrink:0">Edit selected</button>';
+      '<button class="s-btn s-btn-sm" id="ysql-btn-bulk" style="display:none;flex-shrink:0">' + _ysqlBrT('ysql_edit_selected') + '</button>';
 
     var refreshBtn = tb.querySelector('#ysql-btn-refresh');
     var _autoTimer = null;
@@ -111,8 +113,8 @@ YS.browse = (() => {
       menu.style.top = e.clientY + 'px';
 
       var items = isActive
-        ? [{ label: '⏹ Stop', sec: 0 }]
-        : [{ label: '1 second', sec: 1 }, { label: '5 seconds', sec: 5 }, { label: '30 seconds', sec: 30 }, { label: '60 seconds', sec: 60 }];
+        ? [{ label: _ysqlBrT('ysql_stop'), sec: 0 }]
+        : [{ label: _ysqlBrT('ysql_1_second'), sec: 1 }, { label: _ysqlBrT('ysql_n_seconds', { n: 5 }), sec: 5 }, { label: _ysqlBrT('ysql_n_seconds', { n: 30 }), sec: 30 }, { label: _ysqlBrT('ysql_n_seconds', { n: 60 }), sec: 60 }];
 
       items.forEach(function(item) {
         var el = document.createElement('div');
@@ -153,7 +155,7 @@ YS.browse = (() => {
   async function _loadData(container, content) {
     const tbody = content.querySelector('#ysql-tbody');
     if (!tbody) return;
-    tbody.innerHTML = '<tr><td colspan="99" style="padding:20px;text-align:center;color:var(--text-dim)">Loading…</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="99" style="padding:20px;text-align:center;color:var(--text-dim)">' + _ysqlBrT('ysql_loading_dots') + '</td></tr>';
 
     var res;
 
@@ -248,7 +250,7 @@ YS.browse = (() => {
     const selAllCk = document.createElement('input');
     selAllCk.type = 'checkbox';
     selAllCk.id = 'ysql-sel-all';
-    selAllCk.title = 'Select';
+    selAllCk.title = _ysqlBrT('ysql_select');
     thCk.appendChild(selAllCk);
     tr.appendChild(thCk);
 
@@ -259,7 +261,7 @@ YS.browse = (() => {
     const addBtn = document.createElement('button');
     addBtn.id = 'ysql-add-btn';
     addBtn.textContent = '+';
-    addBtn.title = 'Insert row';
+    addBtn.title = _ysqlBrT('ysql_insert_row');
     addBtn.style.cssText = 'background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:.95rem;padding:0 2px;line-height:1';
     addBtn.addEventListener('click', function() {
       var sel = YS.state.selection;
@@ -340,7 +342,7 @@ YS.browse = (() => {
     if (!rows.length) {
       selAllCk.style.display = 'none';
       addBtn.style.display = 'none';
-      tbody.innerHTML = '<tr><td colspan="' + (columns.length + 2) + '" style="padding:20px;text-align:center;color:var(--text-dim)">No rows</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="' + (columns.length + 2) + '" style="padding:20px;text-align:center;color:var(--text-dim)">' + _ysqlBrT('ysql_no_rows') + '</td></tr>';
       return;
     }
 
@@ -380,7 +382,7 @@ YS.browse = (() => {
       const editBtn = document.createElement('button');
       editBtn.style.cssText = 'background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:.82rem;padding:1px 3px;transition:color .1s';
       editBtn.textContent = '✎';
-      editBtn.title = 'Edit row';
+      editBtn.title = _ysqlBrT('ysql_edit_row_tt');
       editBtn.addEventListener('click', function() { YS.rowEdit.open(row, columns, colMeta, content); });
       editBtn.addEventListener('mouseenter', function() { editBtn.style.color = 'var(--accent)'; });
       editBtn.addEventListener('mouseleave', function() { editBtn.style.color = 'var(--text-dim)'; });
@@ -450,7 +452,7 @@ YS.browse = (() => {
         conn_id: snapConn.id, database: snapDb,
         table: snapTable, where: where, column: col, value: val
       }}).catch(function(){return {};});
-      if (!r.ok) { _renderCellValue(td, isNull ? null : orig, meta); YS.toast('Update failed', 'error'); }
+      if (!r.ok) { _renderCellValue(td, isNull ? null : orig, meta); YS.toast(_ysqlBrT('ysql_update_failed'), 'error'); }
       else { row[col] = val; if (YS.tabs) YS.tabs.markDirty(); }
     }
 
@@ -477,18 +479,18 @@ YS.browse = (() => {
     var pageCount = rows.length;
 
     var items = [
-      { label: 'Select this page', action: function() {
+      { label: _ysqlBrT('ysql_select_this_page'), action: function() {
         var idxSet = new Set(); rows.forEach(function(_, i){ idxSet.add(i); });
         YS.state.selection = { mode: 'page', pageRows: rows.slice(), indexSet: idxSet };
         _updateSelectionUI(content);
       }},
-      { label: 'Deselect all', action: function() {
+      { label: _ysqlBrT('ysql_deselect_all'), action: function() {
         YS.state.selection = { mode: 'none', pageRows: [], indexSet: new Set() };
         _updateSelectionUI(content);
       }},
     ];
     if (total > pageCount) {
-      items.push({ label: 'Select whole result \xa0' + total, action: function() {
+      items.push({ label: _ysqlBrT('ysql_select_whole_result', { n: total }), action: function() {
         var idxSet = new Set(); rows.forEach(function(_, i){ idxSet.add(i); });
         YS.state.selection = { mode: 'all', pageRows: rows.slice(), indexSet: idxSet };
         _updateSelectionUI(content);
@@ -528,19 +530,19 @@ YS.browse = (() => {
       bulkBtn.style.display = 'none';
       if (selAll) selAll.checked = false;
       if (selAll) selAll.indeterminate = false;
-      if (addBtn) { addBtn.textContent = '+'; addBtn.title = 'Insert row'; }
+      if (addBtn) { addBtn.textContent = '+'; addBtn.title = _ysqlBrT('ysql_insert_row'); }
     } else if (sel.mode === 'page') {
-      info.textContent = sel.pageRows.length + ' selected';
+      info.textContent = _ysqlBrT('ysql_n_selected', { n: sel.pageRows.length });
       bulkBtn.style.display = '';
       if (selAll) selAll.indeterminate = true;
       if (selAll) selAll.checked = false;
-      if (addBtn) { addBtn.textContent = '⧉'; addBtn.title = 'Duplicate selected rows'; }
+      if (addBtn) { addBtn.textContent = '⧉'; addBtn.title = _ysqlBrT('ysql_duplicate_selected_rows'); }
     } else {
-      info.textContent = 'All ' + YS.state.totalRows + ' rows selected';
+      info.textContent = _ysqlBrT('ysql_all_n_rows_selected', { n: YS.state.totalRows });
       bulkBtn.style.display = '';
       if (selAll) selAll.checked = true;
       if (selAll) selAll.indeterminate = false;
-      if (addBtn) { addBtn.textContent = '⧉'; addBtn.title = 'Duplicate selected rows'; }
+      if (addBtn) { addBtn.textContent = '⧉'; addBtn.title = _ysqlBrT('ysql_duplicate_selected_rows'); }
     }
 
     // sync row checkboxes and highlight
@@ -564,12 +566,12 @@ YS.browse = (() => {
 
     pag.innerHTML =
       '<button class="s-btn s-btn-sm" id="ysql-prev"' + (page<=1?' disabled':'') + '>‹</button>' +
-      '<span>Page <input id="ysql-page-inp" type="number" min="1" max="' + pages + '" value="' + page + '" style="width:46px;text-align:center" class="s-input"> / ' + pages + '</span>' +
+      '<span>' + _ysqlBrT('ysql_page') + ' <input id="ysql-page-inp" type="number" min="1" max="' + pages + '" value="' + page + '" style="width:46px;text-align:center" class="s-input"> ' + _ysqlBrT('ysql_of') + ' ' + pages + '</span>' +
       '<button class="s-btn s-btn-sm" id="ysql-next"' + (to>=total?' disabled':'') + '>›</button>' +
       '<span style="flex:1"></span>' +
-      '<span>' + (total ? from+'–'+to+' of '+total : 'No rows') + '</span>' +
+      '<span>' + (total ? from+'–'+to+' '+_ysqlBrT('ysql_of')+' '+total : _ysqlBrT('ysql_no_rows')) + '</span>' +
       (YS.state.selection.mode !== 'none' && pages > 1 ?
-        '<button class="s-btn s-btn-sm" id="ysql-sel-all-pages">Select all ' + total + ' rows</button>' : '');
+        '<button class="s-btn s-btn-sm" id="ysql-sel-all-pages">' + _ysqlBrT('ysql_select_all_n_rows', { n: total }) + '</button>' : '');
 
     pag.querySelector('#ysql-prev').addEventListener('click', function() {
       YS.state.page--; _loadData(container, content);
@@ -603,7 +605,7 @@ YS.browse = (() => {
     }}).catch(function(e) { return { error: e.message }; });
     if (r.error || r.detail) { YS.toast(r.error || r.detail, 'error'); return; }
     if (r.affected !== null && r.affected !== undefined) {
-      YS.toast('OK — ' + r.affected + ' row(s) affected', 'success');
+      YS.toast(_ysqlBrT('ysql_ok_n_rows_affected', { n: r.affected }), 'success');
       _loadData(container, content);
       return;
     }
@@ -688,10 +690,10 @@ YS.browse = (() => {
     fd.append('file', file);
     var r = await YS.api('/import', { method: 'POST', form: fd }).catch(function(e){return{error:e.message};});
     if (r.ok) {
-      YS.toast('Imported ' + r.affected + ' rows' + (r.errors && r.errors.length ? ' (' + r.errors.length + ' errors)' : ''), 'success');
+      YS.toast(_ysqlBrT('ysql_imported_n_rows', { n: r.affected, errors: (r.errors && r.errors.length ? _ysqlBrT('ysql_n_errors', { n: r.errors.length }) : '') }), 'success');
       _loadData(container, content);
     } else {
-      YS.toast('Import failed: ' + (r.detail || r.error), 'error');
+      YS.toast(_ysqlBrT('ysql_import_failed_detail', { msg: r.detail || r.error }), 'error');
     }
     e.target.value = '';
   }
@@ -722,7 +724,7 @@ YS.browse = (() => {
 
       // separator row
       var sepTr = document.createElement('tr');
-      sepTr.innerHTML = '<td colspan="99" style="padding:3px 10px;background:var(--accent-dim,rgba(99,102,241,.12));font-size:.72rem;color:var(--accent);font-weight:600;letter-spacing:.05em">NEW ROWS (DUPLICATE)</td>';
+      sepTr.innerHTML = '<td colspan="99" style="padding:3px 10px;background:var(--accent-dim,rgba(99,102,241,.12));font-size:.72rem;color:var(--accent);font-weight:600;letter-spacing:.05em">' + _ysqlBrT('ysql_new_rows_duplicate') + '</td>';
       section.appendChild(sepTr);
 
       pendingRows.forEach(function(vals, ri) {
@@ -757,7 +759,7 @@ YS.browse = (() => {
 
           if (isAI) {
             td.style.cssText += ';color:var(--text-dim);font-size:.78rem;font-style:italic;padding:5px 10px';
-            td.textContent = 'auto';
+            td.textContent = _ysqlBrT('ysql_auto');
           } else {
             var inp = YS.buildCellInput(meta, vals[col], false);
             inp.style.cssText += ';width:100%;min-width:80px;box-sizing:border-box;font-size:.8rem';
@@ -784,7 +786,7 @@ YS.browse = (() => {
 
       var cancelBtn = document.createElement('button');
       cancelBtn.className = 's-btn s-btn-sm';
-      cancelBtn.textContent = 'Cancel all';
+      cancelBtn.textContent = _ysqlBrT('ysql_cancel_all');
       cancelBtn.style.cssText = 'margin-right:8px';
       cancelBtn.addEventListener('click', function() {
         section.remove();
@@ -794,10 +796,10 @@ YS.browse = (() => {
 
       var saveBtn = document.createElement('button');
       saveBtn.className = 's-btn s-btn-sm';
-      saveBtn.textContent = 'Save all';
+      saveBtn.textContent = _ysqlBrT('ysql_save_all');
       saveBtn.style.cssText = 'background:var(--accent);color:#fff;border-color:var(--accent)';
       saveBtn.addEventListener('click', async function() {
-        saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
+        saveBtn.disabled = true; saveBtn.textContent = _ysqlBrT('ysql_saving');
         var errors = 0;
         for (var i = 0; i < pendingRows.length; i++) {
           var values = {};
@@ -813,8 +815,8 @@ YS.browse = (() => {
           }}).catch(function(){ return {}; });
           if (!r.ok) errors++;
         }
-        if (errors) YS.toast(errors + ' row(s) failed to insert', 'error');
-        else YS.toast('Inserted ' + pendingRows.length + ' row(s)', 'success');
+        if (errors) YS.toast(_ysqlBrT('ysql_n_rows_failed_insert', { n: errors }), 'error');
+        else YS.toast(_ysqlBrT('ysql_inserted_n_rows', { n: pendingRows.length }), 'success');
         if (YS.tabs) YS.tabs.markDirty();
         section.remove();
         YS.state.selection = { mode: 'none', pageRows: [], indexSet: new Set() };

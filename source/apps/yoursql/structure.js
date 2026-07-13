@@ -1,5 +1,7 @@
 // YourSQL — Table structure view with edit support
 
+const _ysqlStT = window.t || (k => k);
+
 YS.structure = (() => {
 
   var TYPE_GROUPS, ALL_TYPES, NEEDS_LENGTH, NEEDS_DECIMALS, NEEDS_ENUM, CAN_UNSIGNED, NO_DEFAULT, HAS_COLLATION, AUTO_INC_TYPES, META;
@@ -104,7 +106,7 @@ YS.structure = (() => {
   var _state = {};
 
   async function show(container, content) {
-    content.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-dim)">Loading structure…</div>';
+    content.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-dim)">' + _ysqlStT('ysql_loading_structure') + '</div>';
     var esc = YS.escHtml;
 
     _applyMeta(YS.dbtype.familyForConn(YS.state.activeConn));
@@ -127,15 +129,15 @@ YS.structure = (() => {
     content.innerHTML =
       '<div style="display:flex;flex-direction:column;width:100%;height:100%;overflow:hidden">' +
         '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0">' +
-          '<span style="font-size:.82rem;font-weight:500">⚙ Structure — ' + esc(YS.state.activeTable) + '</span>' +
+          '<span style="font-size:.82rem;font-weight:500">' + _ysqlStT('ysql_structure_title', { table: esc(YS.state.activeTable) }) + '</span>' +
           '<span style="flex:1"></span>' +
-          '<button class="s-btn s-btn-sm" id="ys-struct-edit" style="background:var(--accent);color:#fff;border-color:var(--accent)">✎ Edit</button>' +
-          '<button class="s-btn s-btn-sm" id="ys-struct-back">← Back to Data</button>' +
+          '<button class="s-btn s-btn-sm" id="ys-struct-edit" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlStT('ysql_edit_btn') + '</button>' +
+          '<button class="s-btn s-btn-sm" id="ys-struct-back">' + _ysqlStT('ysql_back_to_data') + '</button>' +
         '</div>' +
         '<div style="display:flex;gap:0;border-bottom:1px solid var(--border);flex-shrink:0">' +
-          '<button class="s-btn s-btn-sm ys-stab active" data-tab="cols" style="border-radius:0;border:none;border-bottom:2px solid var(--accent)">Columns</button>' +
-          '<button class="s-btn s-btn-sm ys-stab" data-tab="idx" style="border-radius:0;border:none;border-bottom:2px solid transparent">Indexes</button>' +
-          '<button class="s-btn s-btn-sm ys-stab" data-tab="fk" style="border-radius:0;border:none;border-bottom:2px solid transparent">Foreign Keys</button>' +
+          '<button class="s-btn s-btn-sm ys-stab active" data-tab="cols" style="border-radius:0;border:none;border-bottom:2px solid var(--accent)">' + _ysqlStT('ysql_columns_tab') + '</button>' +
+          '<button class="s-btn s-btn-sm ys-stab" data-tab="idx" style="border-radius:0;border:none;border-bottom:2px solid transparent">' + _ysqlStT('ysql_indexes_tab') + '</button>' +
+          '<button class="s-btn s-btn-sm ys-stab" data-tab="fk" style="border-radius:0;border:none;border-bottom:2px solid transparent">' + _ysqlStT('ysql_foreign_keys_tab') + '</button>' +
         '</div>' +
         '<div id="ys-struct-body" style="overflow:auto;flex:1;padding:8px 10px"></div>' +
       '</div>';
@@ -146,7 +148,7 @@ YS.structure = (() => {
 
     content.querySelector('#ys-struct-edit').addEventListener('click', function() {
       _state.editMode = !_state.editMode;
-      this.textContent = _state.editMode ? '✕ Cancel' : '✎ Edit';
+      this.textContent = _state.editMode ? _ysqlStT('ysql_cancel_edit_btn') : _ysqlStT('ysql_edit_btn');
       this.style.background = _state.editMode ? 'var(--danger,#e74c3c)' : 'var(--accent)';
       this.style.borderColor = _state.editMode ? 'var(--danger,#e74c3c)' : 'var(--accent)';
       var activeTab = content.querySelector('.ys-stab.active');
@@ -177,10 +179,10 @@ YS.structure = (() => {
     if (editMode) {
       _renderColsEditor(body, cols);
     } else {
-      if (!cols.length) { body.innerHTML = '<div style="color:var(--text-dim);padding:10px">No columns</div>'; return; }
+      if (!cols.length) { body.innerHTML = '<div style="color:var(--text-dim);padding:10px">' + _ysqlStT('ysql_no_columns') + '</div>'; return; }
       var html = '<div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;font-size:.82rem;white-space:nowrap">' +
         '<thead><tr style="background:var(--surface)">' +
-        ['Field','Type','Null','Key','Default','Extra','Collation','Comment'].map(function(h){
+        [_ysqlStT('ysql_col_field'),_ysqlStT('ysql_col_type'),_ysqlStT('ysql_col_null'),_ysqlStT('ysql_col_key'),_ysqlStT('ysql_col_default'),_ysqlStT('ysql_col_extra'),_ysqlStT('ysql_col_collation'),_ysqlStT('ysql_col_comment')].map(function(h){
           return '<th style="padding:6px 10px;border-bottom:2px solid var(--border);text-align:left">' + h + '</th>';
         }).join('') + '</tr></thead><tbody>';
       cols.forEach(function(c) {
@@ -189,7 +191,7 @@ YS.structure = (() => {
         html += '<tr style="border-bottom:1px solid var(--border)">' +
           '<td style="padding:5px 10px;font-weight:' + (isPK?'600':'400') + ';color:' + (isPK?'var(--accent)':'') + '">' + esc(c.name) + '</td>' +
           '<td style="padding:5px 10px;color:var(--color-num,#8be9fd)">' + esc(typeDisp) + '</td>' +
-          '<td style="padding:5px 10px">' + (c.allowNull ? 'YES' : 'NO') + '</td>' +
+          '<td style="padding:5px 10px">' + (c.allowNull ? _ysqlStT('ysql_yes') : _ysqlStT('ysql_no')) + '</td>' +
           '<td style="padding:5px 10px">' + (isPK ? '<span style="color:var(--accent);font-size:.75rem">PRI</span>' : esc(c.isPK ? 'PRI' : '')) + '</td>' +
           '<td style="padding:5px 10px;color:var(--text-dim)">' + esc(c.defaultType === 'NULL' ? 'NULL' : c.defaultType === 'EMPTY' ? '\'\'' : c.defaultType === 'CURRENT_TIMESTAMP' ? 'CURRENT_TIMESTAMP' : c.defaultValue || '') + '</td>' +
           '<td style="padding:5px 10px;color:var(--text-dim)">' + esc(c.autoIncrement ? 'AUTO_INCREMENT' : '') + '</td>' +
@@ -235,13 +237,13 @@ YS.structure = (() => {
 
     body.innerHTML =
       '<div style="margin-bottom:8px;display:flex;gap:6px;flex-wrap:wrap">' +
-        '<button class="s-btn s-btn-sm" id="ys-col-add" style="background:var(--accent);color:#fff;border-color:var(--accent)">+ Add Column</button>' +
-        '<button class="s-btn s-btn-sm" id="ys-col-save" style="background:#27ae60;color:#fff;border-color:#27ae60">✓ Save Structure</button>' +
+        '<button class="s-btn s-btn-sm" id="ys-col-add" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlStT('ysql_add_column') + '</button>' +
+        '<button class="s-btn s-btn-sm" id="ys-col-save" style="background:#27ae60;color:#fff;border-color:#27ae60">' + _ysqlStT('ysql_save_structure') + '</button>' +
       '</div>' +
       '<div style="overflow-x:auto">' +
       '<table id="ys-col-table" style="border-collapse:collapse;width:100%;font-size:.8rem">' +
       '<thead><tr style="background:var(--surface)">' +
-        ['','Name','Type','Length','Dec','Enum/Set','Unsigned','Null','Default','Def.Value','AI','Collation','Comment',''].map(function(h){
+        ['',_ysqlStT('ysql_editor_col_name'),_ysqlStT('ysql_col_type'),_ysqlStT('ysql_editor_col_length'),_ysqlStT('ysql_editor_col_dec'),_ysqlStT('ysql_editor_col_enumset'),_ysqlStT('ysql_editor_col_unsigned'),_ysqlStT('ysql_col_null'),_ysqlStT('ysql_col_default'),_ysqlStT('ysql_editor_col_defval'),_ysqlStT('ysql_editor_col_ai'),_ysqlStT('ysql_col_collation'),_ysqlStT('ysql_col_comment'),''].map(function(h){
           return '<th style="padding:4px 6px;border-bottom:2px solid var(--border);text-align:left;white-space:nowrap;font-weight:500">' + h + '</th>';
         }).join('') +
       '</tr></thead>' +
@@ -254,7 +256,7 @@ YS.structure = (() => {
   function _editorRow(col, i) {
     var esc = YS.escHtml;
     return '<tr data-idx="' + i + '" style="border-bottom:1px solid var(--border)">' +
-      '<td style="padding:3px 4px;cursor:grab;color:var(--text-dim)" title="Drag to reorder">⠿</td>' +
+      '<td style="padding:3px 4px;cursor:grab;color:var(--text-dim)" title="' + _ysqlStT('ysql_drag_to_reorder') + '">⠿</td>' +
       '<td style="padding:3px 4px"><input class="ys-col-name" value="' + esc(col.name) + '" style="width:90px;padding:3px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.8rem"></td>' +
       '<td style="padding:3px 4px;min-width:110px">' + _buildTypeSelect(col.baseType) + '</td>' +
       '<td style="padding:3px 4px"><input class="ys-col-len" value="' + esc(col.length) + '" style="width:50px;padding:3px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.8rem" ' + (NEEDS_LENGTH.has(col.baseType) ? '' : 'disabled') + '></td>' +
@@ -268,7 +270,7 @@ YS.structure = (() => {
       '<td style="padding:3px 4px"><input class="ys-col-coll" value="' + esc(col.collation || '') + '" style="width:100px;padding:3px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.8rem" ' + (HAS_COLLATION.has(col.baseType) ? '' : 'disabled') + '></td>' +
       '<td style="padding:3px 4px"><input class="ys-col-comment" value="' + esc(col.comment || '') + '" style="width:90px;padding:3px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.8rem"></td>' +
       '<td style="padding:3px 4px">' +
-        '<button class="s-btn s-btn-sm ys-col-del" style="padding:2px 6px;color:var(--danger,#e74c3c);border-color:var(--danger,#e74c3c);background:transparent" data-orig="' + esc(col.originalName) + '" title="Delete column">✕</button>' +
+        '<button class="s-btn s-btn-sm ys-col-del" style="padding:2px 6px;color:var(--danger,#e74c3c);border-color:var(--danger,#e74c3c);background:transparent" data-orig="' + esc(col.originalName) + '" title="' + _ysqlStT('ysql_delete_column_tt') + '">✕</button>' +
       '</td>' +
       '</tr>';
   }
@@ -298,7 +300,7 @@ YS.structure = (() => {
       if (e.target.classList.contains('ys-col-del')) {
         var tr = e.target.closest('tr');
         var origName = e.target.dataset.orig;
-        if (origName && !confirm('Drop column "' + origName + '"?')) return;
+        if (origName && !confirm(_ysqlStT('ysql_drop_column_confirm', { name: origName }))) return;
         tr.remove();
       }
     });
@@ -335,7 +337,7 @@ YS.structure = (() => {
     // Save
     body.querySelector('#ys-col-save').addEventListener('click', async function() {
       var btn = this;
-      btn.disabled = true; btn.textContent = 'Saving…';
+      btn.disabled = true; btn.textContent = _ysqlStT('ysql_saving');
       var rows = tbody.querySelectorAll('tr');
       var columns = [];
       rows.forEach(function(tr, i) {
@@ -364,18 +366,18 @@ YS.structure = (() => {
           columns: columns,
         }});
         if (res && res.success) {
-          YS.toast && YS.toast('Structure saved', 'success');
+          YS.toast && YS.toast(_ysqlStT('ysql_structure_saved'), 'success');
           if (YS.tabs) { YS.tabs.markDirty(); YS.tabs.pin(YS.tabs.activeTab() && YS.tabs.activeTab().id); }
           var contentEl = document.querySelector('.window.focused #ysql-content') || document.querySelector('#ysql-content');
           var containerEl = contentEl ? contentEl.closest('[style*="position:relative"]') || contentEl.parentElement : document.body;
           show(containerEl, contentEl || containerEl);
         } else {
-          alert('Error: ' + (res && res.error ? res.error : 'Unknown error'));
-          btn.disabled = false; btn.textContent = '✓ Save Structure';
+          alert(_ysqlStT('ysql_error_unknown', { msg: res && res.error ? res.error : _ysqlStT('ysql_import_failed_unknown') }));
+          btn.disabled = false; btn.textContent = _ysqlStT('ysql_save_structure');
         }
       } catch(e) {
-        alert('Error: ' + e.message);
-        btn.disabled = false; btn.textContent = '✓ Save Structure';
+        alert(_ysqlStT('ysql_error_unknown', { msg: e.message }));
+        btn.disabled = false; btn.textContent = _ysqlStT('ysql_save_structure');
       }
     });
   }
@@ -398,7 +400,7 @@ YS.structure = (() => {
     if (Object.keys(groups).length) {
       tableHtml = '<div style="overflow-x:auto;margin-bottom:16px"><table style="border-collapse:collapse;width:100%;font-size:.82rem;white-space:nowrap">' +
         '<thead><tr style="background:var(--surface)">' +
-        ['Name','Type','Column(s)','Unique',''].map(function(h){
+        [_ysqlStT('ysql_idx_col_name'),_ysqlStT('ysql_idx_col_type'),_ysqlStT('ysql_idx_col_columns'),_ysqlStT('ysql_idx_col_unique'),''].map(function(h){
           return '<th style="padding:6px 10px;border-bottom:2px solid var(--border);text-align:left">' + h + '</th>';
         }).join('') + '</tr></thead><tbody>';
       Object.keys(groups).forEach(function(name) {
@@ -412,50 +414,50 @@ YS.structure = (() => {
           '<td style="padding:5px 10px;font-size:.78rem">' + esc(first.Index_type || first.index_type || 'BTREE') + '</td>' +
           '<td style="padding:5px 10px">' + esc(colNames) + '</td>' +
           '<td style="padding:5px 10px">' + (isUniq ? '<span style="color:#50fa7b">✓</span>' : '') + '</td>' +
-          '<td style="padding:5px 10px">' + (isPK ? '' : '<button class="s-btn s-btn-sm ys-idx-drop" data-name="' + esc(name) + '" style="color:var(--danger,#e74c3c);border-color:var(--danger,#e74c3c);background:transparent;padding:2px 6px">Drop</button>') + '</td>' +
+          '<td style="padding:5px 10px">' + (isPK ? '' : '<button class="s-btn s-btn-sm ys-idx-drop" data-name="' + esc(name) + '" style="color:var(--danger,#e74c3c);border-color:var(--danger,#e74c3c);background:transparent;padding:2px 6px">' + _ysqlStT('ysql_drop') + '</button>') + '</td>' +
           '</tr>';
       });
       tableHtml += '</tbody></table></div>';
     } else {
-      tableHtml = '<div style="color:var(--text-dim);padding:8px 0;margin-bottom:12px">No indexes</div>';
+      tableHtml = '<div style="color:var(--text-dim);padding:8px 0;margin-bottom:12px">' + _ysqlStT('ysql_no_indexes') + '</div>';
     }
 
     var colOptions = cols.map(function(c){ return '<option value="' + esc(c.name) + '">' + esc(c.name) + '</option>'; }).join('');
 
     body.innerHTML = tableHtml +
       '<div style="border:1px solid var(--border);border-radius:4px;padding:10px;max-width:420px">' +
-        '<div style="font-size:.82rem;font-weight:500;margin-bottom:8px">Add Index</div>' +
+        '<div style="font-size:.82rem;font-weight:500;margin-bottom:8px">' + _ysqlStT('ysql_add_index') + '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">' +
           '<div>' +
-            '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">Name (optional)</div>' +
+            '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">' + _ysqlStT('ysql_name_optional') + '</div>' +
             '<input id="ys-idx-name" style="width:100%;padding:4px 6px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem;box-sizing:border-box">' +
           '</div>' +
           '<div>' +
-            '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">Type</div>' +
+            '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">' + _ysqlStT('ysql_type') + '</div>' +
             '<select id="ys-idx-type" style="width:100%;padding:4px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem">' +
               '<option>INDEX</option><option>UNIQUE</option><option>PRIMARY</option>' + (META.hasFulltext ? '<option>FULLTEXT</option>' : '') +
             '</select>' +
           '</div>' +
         '</div>' +
         '<div style="margin-bottom:8px">' +
-          '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">Columns</div>' +
+          '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">' + _ysqlStT('ysql_columns') + '</div>' +
           '<select id="ys-idx-cols" multiple style="width:100%;padding:4px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem;height:80px">' + colOptions + '</select>' +
         '</div>' +
-        '<button class="s-btn s-btn-sm" id="ys-idx-add-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)">Add Index</button>' +
+        '<button class="s-btn s-btn-sm" id="ys-idx-add-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlStT('ysql_add_index') + '</button>' +
         '<span id="ys-idx-msg" style="font-size:.78rem;margin-left:8px;color:var(--text-dim)"></span>' +
       '</div>';
 
     body.querySelectorAll('.ys-idx-drop').forEach(function(btn) {
       btn.addEventListener('click', async function() {
         var name = this.dataset.name;
-        if (!confirm('Drop index "' + name + '"?')) return;
+        if (!confirm(_ysqlStT('ysql_drop_index_confirm', { name: name }))) return;
         try {
           var res = await YS.api('/indexes', { method:'POST', json:{
             conn_id: YS.state.activeConn.id, database: YS.state.activeDb,
             table: YS.state.activeTable, action: 'drop', name: name
           }});
           if (res && res.success) { _reloadTab(content, 'idx'); }
-          else alert(res && res.error ? res.error : 'Error');
+          else alert(res && res.error ? res.error : _ysqlStT('ysql_import_failed_unknown'));
         } catch(e) { alert(e.message); }
       });
     });
@@ -465,14 +467,14 @@ YS.structure = (() => {
       var type = body.querySelector('#ys-idx-type').value;
       var sel = body.querySelector('#ys-idx-cols');
       var selectedCols = Array.from(sel.selectedOptions).map(function(o){ return o.value; });
-      if (!selectedCols.length) { body.querySelector('#ys-idx-msg').textContent = 'Select at least one column'; return; }
+      if (!selectedCols.length) { body.querySelector('#ys-idx-msg').textContent = _ysqlStT('ysql_select_at_least_one_col'); return; }
       try {
         var res = await YS.api('/indexes', { method:'POST', json:{
           conn_id: YS.state.activeConn.id, database: YS.state.activeDb,
           table: YS.state.activeTable, action: 'add', name: name, type: type, columns: selectedCols
         }});
         if (res && res.success) { _reloadTab(content, 'idx'); }
-        else { body.querySelector('#ys-idx-msg').textContent = res && res.error ? res.error : 'Error'; }
+        else { body.querySelector('#ys-idx-msg').textContent = res && res.error ? res.error : _ysqlStT('ysql_import_failed_unknown'); }
       } catch(e) { body.querySelector('#ys-idx-msg').textContent = e.message; }
     });
   }
@@ -487,7 +489,7 @@ YS.structure = (() => {
     if (fks.length) {
       tableHtml = '<div style="overflow-x:auto;margin-bottom:16px"><table style="border-collapse:collapse;width:100%;font-size:.82rem;white-space:nowrap">' +
         '<thead><tr style="background:var(--surface)">' +
-        ['Name','Column(s)','References','On Update','On Delete',''].map(function(h){
+        [_ysqlStT('ysql_fk_col_name'), _ysqlStT('ysql_fk_col_columns'), _ysqlStT('ysql_fk_col_references'), _ysqlStT('ysql_fk_col_on_update'), _ysqlStT('ysql_fk_col_on_delete'), ''].map(function(h){
           return '<th style="padding:6px 10px;border-bottom:2px solid var(--border);text-align:left">' + h + '</th>';
         }).join('') + '</tr></thead><tbody>';
       fks.forEach(function(fk) {
@@ -497,12 +499,12 @@ YS.structure = (() => {
           '<td style="padding:5px 10px">' + esc((fk.ref_db || '') + '.' + (fk.ref_table || '') + ' (' + (fk.ref_cols || []).join(', ') + ')') + '</td>' +
           '<td style="padding:5px 10px;color:var(--text-dim)">' + esc(fk.on_update || '') + '</td>' +
           '<td style="padding:5px 10px;color:var(--text-dim)">' + esc(fk.on_delete || '') + '</td>' +
-          '<td style="padding:5px 10px"><button class="s-btn s-btn-sm ys-fk-drop" data-name="' + esc(fk.name) + '" style="color:var(--danger,#e74c3c);border-color:var(--danger,#e74c3c);background:transparent;padding:2px 6px">Drop</button></td>' +
+          '<td style="padding:5px 10px"><button class="s-btn s-btn-sm ys-fk-drop" data-name="' + esc(fk.name) + '" style="color:var(--danger,#e74c3c);border-color:var(--danger,#e74c3c);background:transparent;padding:2px 6px">' + _ysqlStT('ysql_drop') + '</button></td>' +
           '</tr>';
       });
       tableHtml += '</tbody></table></div>';
     } else {
-      tableHtml = '<div style="color:var(--text-dim);padding:8px 0;margin-bottom:12px">No foreign keys</div>';
+      tableHtml = '<div style="color:var(--text-dim);padding:8px 0;margin-bottom:12px">' + _ysqlStT('ysql_no_foreign_keys') + '</div>';
     }
 
     var colOptions = cols.map(function(c){ return '<option value="' + esc(c.name) + '">' + esc(c.name) + '</option>'; }).join('');
@@ -510,48 +512,48 @@ YS.structure = (() => {
 
     body.innerHTML = tableHtml +
       '<div style="border:1px solid var(--border);border-radius:4px;padding:10px;max-width:500px">' +
-        '<div style="font-size:.82rem;font-weight:500;margin-bottom:8px">Add Foreign Key</div>' +
+        '<div style="font-size:.82rem;font-weight:500;margin-bottom:8px">' + _ysqlStT('ysql_add_foreign_key') + '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">' +
           '<div>' +
-            '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">Constraint name (optional)</div>' +
+            '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">' + _ysqlStT('ysql_constraint_name_optional') + '</div>' +
             '<input id="ys-fk-name" style="width:100%;padding:4px 6px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem;box-sizing:border-box">' +
           '</div>' +
           '<div>' +
-            '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">Ref. database</div>' +
+            '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">' + _ysqlStT('ysql_ref_database') + '</div>' +
             '<input id="ys-fk-refdb" value="' + esc(YS.state.activeDb) + '" style="width:100%;padding:4px 6px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem;box-sizing:border-box">' +
           '</div>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">' +
           '<div>' +
-            '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">Columns</div>' +
+            '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">' + _ysqlStT('ysql_columns') + '</div>' +
             '<select id="ys-fk-cols" multiple style="width:100%;height:70px;padding:4px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem">' + colOptions + '</select>' +
           '</div>' +
           '<div>' +
-            '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">Ref. table</div>' +
-            '<input id="ys-fk-reftbl" style="width:100%;padding:4px 6px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem;box-sizing:border-box;margin-bottom:4px" placeholder="table name">' +
-            '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">Ref. columns (comma-sep.)</div>' +
-            '<input id="ys-fk-refcols" style="width:100%;padding:4px 6px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem;box-sizing:border-box" placeholder="id">' +
+            '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">' + _ysqlStT('ysql_ref_table') + '</div>' +
+            '<input id="ys-fk-reftbl" style="width:100%;padding:4px 6px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem;box-sizing:border-box;margin-bottom:4px" placeholder="' + _ysqlStT('ysql_ref_table_ph') + '">' +
+            '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">' + _ysqlStT('ysql_ref_columns_comma') + '</div>' +
+            '<input id="ys-fk-refcols" style="width:100%;padding:4px 6px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem;box-sizing:border-box" placeholder="' + _ysqlStT('ysql_ref_columns_ph') + '">' +
           '</div>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">' +
-          '<div><div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">On Update</div><select id="ys-fk-onupd" style="width:100%;padding:4px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem">' + ruleOpts + '</select></div>' +
-          '<div><div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">On Delete</div><select id="ys-fk-ondel" style="width:100%;padding:4px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem">' + ruleOpts + '</select></div>' +
+          '<div><div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">' + _ysqlStT('ysql_fk_col_on_update') + '</div><select id="ys-fk-onupd" style="width:100%;padding:4px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem">' + ruleOpts + '</select></div>' +
+          '<div><div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">' + _ysqlStT('ysql_fk_col_on_delete') + '</div><select id="ys-fk-ondel" style="width:100%;padding:4px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem">' + ruleOpts + '</select></div>' +
         '</div>' +
-        '<button class="s-btn s-btn-sm" id="ys-fk-add-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)">Add Foreign Key</button>' +
+        '<button class="s-btn s-btn-sm" id="ys-fk-add-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlStT('ysql_add_foreign_key') + '</button>' +
         '<span id="ys-fk-msg" style="font-size:.78rem;margin-left:8px;color:var(--text-dim)"></span>' +
       '</div>';
 
     body.querySelectorAll('.ys-fk-drop').forEach(function(btn) {
       btn.addEventListener('click', async function() {
         var name = this.dataset.name;
-        if (!confirm('Drop foreign key "' + name + '"?')) return;
+        if (!confirm(_ysqlStT('ysql_drop_fk_confirm', { name: name }))) return;
         try {
           var res = await YS.api('/foreign-keys', { method:'POST', json:{
             conn_id: YS.state.activeConn.id, database: YS.state.activeDb,
             table: YS.state.activeTable, action: 'drop', name: name
           }});
           if (res && res.success) { _reloadTab(content, 'fk'); }
-          else alert(res && res.error ? res.error : 'Error');
+          else alert(res && res.error ? res.error : _ysqlStT('ysql_import_failed_unknown'));
         } catch(e) { alert(e.message); }
       });
     });
@@ -566,7 +568,7 @@ YS.structure = (() => {
       var sel = body.querySelector('#ys-fk-cols');
       var selCols = Array.from(sel.selectedOptions).map(function(o){ return o.value; });
       if (!selCols.length || !refTbl || !refCols.length) {
-        msg.textContent = 'Fill columns, ref. table and ref. columns'; return;
+        msg.textContent = _ysqlStT('ysql_fill_cols_ref_table'); return;
       }
       try {
         var res = await YS.api('/foreign-keys', { method:'POST', json:{
@@ -577,7 +579,7 @@ YS.structure = (() => {
           on_delete: body.querySelector('#ys-fk-ondel').value,
         }});
         if (res && res.success) { _reloadTab(content, 'fk'); }
-        else { msg.textContent = res && res.error ? res.error : 'Error'; }
+        else { msg.textContent = res && res.error ? res.error : _ysqlStT('ysql_import_failed_unknown'); }
       } catch(e) { msg.textContent = e.message; }
     });
   }
@@ -600,7 +602,7 @@ YS.structure = (() => {
     if (tab === 'cols') {
       _state.editMode = false;
       var editBtn = content.querySelector('#ys-struct-edit');
-      if (editBtn) { editBtn.textContent = '✎ Edit'; editBtn.style.background = 'var(--accent)'; editBtn.style.borderColor = 'var(--accent)'; }
+      if (editBtn) { editBtn.textContent = _ysqlStT('ysql_edit_btn'); editBtn.style.background = 'var(--accent)'; editBtn.style.borderColor = 'var(--accent)'; }
       _renderColsTab(content, _state.cols, false);
     }
     else if (tab === 'idx') _renderIndexesTab(content, indexes, _state.cols);

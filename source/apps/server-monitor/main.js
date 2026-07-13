@@ -18,6 +18,7 @@ const _sm18n = {
     boost_status: 'Boost active — {h}h left · damage blocked · growth ×2',
     archive_label: 'Archive', days_label: 'days',
     cpu: 'CPU', ram: 'RAM', swap: 'Swap', disk: 'Disk', net: 'Network', sensors: 'Sensors',
+    disk_r: 'Disk R', disk_w: 'Disk W',
     load: 'Load Avg', disk_io: 'Disk I/O', net_in: 'Network In', net_out: 'Network Out',
     read: 'Read', write: 'Write',
     prev_healthy: 'Healthy (100%)', prev_normal: 'Sick (20%)', prev_sick: 'Dying (5%)',
@@ -55,6 +56,7 @@ const _sm18n = {
     boost_status: 'Boost активен — {h}ч остават · щети блокирани · растеж ×2',
     archive_label: 'Архив', days_label: 'дни',
     cpu: 'Процесор', ram: 'Памет', swap: 'Суап', disk: 'Диск', net: 'Мрежа', sensors: 'Сензори',
+    disk_r: 'Диск Ч', disk_w: 'Диск З',
     load: 'Натоварване', disk_io: 'Диск I/O', net_in: 'Мрежа Вход', net_out: 'Мрежа Изход',
     read: 'Четене', write: 'Запис',
     prev_healthy: 'Здраво (100%)', prev_normal: 'Болно (20%)', prev_sick: 'Умира (5%)',
@@ -872,13 +874,13 @@ mvmOS.registerApp({
                     </div>
 
                     <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:4px;align-items:center">
-                      <span style="color:#64748b">Disk R</span>
+                      <span style="color:#64748b">${_smt('disk_r')}</span>
                       <span style="color:#94a3b8">${lastDiskR !== null ? lastDiskR.toFixed(2)+' MB/s' : '—'}</span>
                       <span style="font-size:.7rem;color:#334155">—</span>
                     </div>
 
                     <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:4px;align-items:center">
-                      <span style="color:#64748b">Disk W</span>
+                      <span style="color:#64748b">${_smt('disk_w')}</span>
                       <span style="color:#94a3b8">${lastDiskW !== null ? lastDiskW.toFixed(2)+' MB/s' : '—'}</span>
                       <span style="font-size:.7rem">${_weedPct > 0
                         ? `<span style="color:#ef4444">-${_weedPct.toFixed(2)}%/day</span> <span style="color:#334155">health+growth</span>`
@@ -993,7 +995,7 @@ mvmOS.registerApp({
             const diskPen   = lastDisk !== null ? (1/24) * diskMult - (1/24) : null;
             const diskLabel = lastDisk !== null
               ? 'Disk ' + lastDisk.toFixed(1) + '% (' + (lastDisk <= 50 ? 'no penalty' : '×' + diskMult.toFixed(2) + ' slowdown') + ')'
-              : 'Disk';
+              : _smt('disk');
             // Upload bonus: asymptotic, max 3%/day
             const netOutHr  = lastNetMb !== null ? lastNetMb * 60 : null;
             const ulVal     = netOutHr !== null ? (3.0 * netOutHr / (netOutHr + 50.0)) / 24 : null;

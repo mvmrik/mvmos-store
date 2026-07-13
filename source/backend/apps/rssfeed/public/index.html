@@ -89,11 +89,13 @@ input{font-family:inherit}
 <div id="app"></div>
 <div id="reader" class="reader" style="display:none"><div class="reader-inner" id="reader-inner"></div></div>
 <div id="modal" class="modal-overlay" style="display:none"></div>
+<script src="/i18n/i18n.js"></script>
 <script>
 const BASE    = '/pub/rssfeed';
 const HUB_URL = '/pub/apphub/';
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const stripHtml = s => { const d = document.createElement('div'); d.innerHTML = s||''; return d.textContent || ''; };
+const t = (key, vars) => (window.t ? window.t(key, vars) : key);
 
 const params = new URLSearchParams(location.search);
 let _token = params.get('token') || localStorage.getItem('apphub_token');
@@ -107,10 +109,10 @@ const app = document.getElementById('app');
 function relTime(d) {
   if (!d) return '';
   const sec = Math.floor((Date.now() - new Date(d)) / 1000);
-  if (sec < 90) return 'just now';
-  if (sec < 3600) return Math.floor(sec/60) + 'm ago';
-  if (sec < 86400) return Math.floor(sec/3600) + 'h ago';
-  return Math.floor(sec/86400) + 'd ago';
+  if (sec < 90) return t('rss_pub_just_now');
+  if (sec < 3600) return t('rss_pub_minutes_ago', { n: Math.floor(sec/60) });
+  if (sec < 86400) return t('rss_pub_hours_ago', { n: Math.floor(sec/3600) });
+  return t('rss_pub_days_ago', { n: Math.floor(sec/86400) });
 }
 
 async function runAI(prompt, article) {
@@ -126,7 +128,7 @@ async function runAI(prompt, article) {
 }
 
 async function boot() {
-  app.innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--fg2);font-size:.9rem">Loading…</div>`;
+  app.innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--fg2);font-size:.9rem">${t('rss_pub_loading')}</div>`;
   if (_token) {
     try {
       const r = await fetch('/api/pub/apphub/me', {headers:{'X-Pub-Token':_token}});
@@ -171,8 +173,8 @@ function showLoginGate() {
       <div class="login-card">
         <div style="font-size:2.5rem">📰</div>
         <div style="font-weight:700;font-size:1.1rem">RSS Reader</div>
-        <div style="font-size:.88rem;color:var(--fg2)">Sign in with your Apps Hub account to manage your personal feeds.</div>
-        <a href="${HUB_URL}?next=${encodeURIComponent(location.href)}" style="display:block;background:var(--accent);color:#1e1e2e;border-radius:8px;padding:10px 20px;font-weight:700;font-size:.9rem;text-decoration:none">Sign in with Apps Hub</a>
+        <div style="font-size:.88rem;color:var(--fg2)">${t('rss_pub_sign_in_tagline')}</div>
+        <a href="${HUB_URL}?next=${encodeURIComponent(location.href)}" style="display:block;background:var(--accent);color:#1e1e2e;border-radius:8px;padding:10px 20px;font-weight:700;font-size:.9rem;text-decoration:none">${t('rss_pub_sign_in_button')}</a>
       </div>
     </div>`;
   window.addEventListener('storage', e => { if (e.key==='apphub_token'&&e.newValue) { _token=e.newValue; boot(); } });
@@ -187,7 +189,7 @@ function renderApp() {
       <div class="hdr-title">📰 RSS Reader</div>
       <span style="font-size:.78rem;color:var(--fg2)">${esc(_me.display_name)}</span>
       <button class="hdr-btn" id="hdr-refresh">↻</button>
-      <button class="hdr-btn" id="hdr-settings">Feeds</button>
+      <button class="hdr-btn" id="hdr-settings">${t('rss_pub_feeds')}</button>
     </div>
     <div class="chips-row" id="chips-row"></div>
     <div class="filter-bar" id="filter-bar"></div>
@@ -211,7 +213,7 @@ function renderChips() {
   const row = document.getElementById('chips-row');
   if (!row) return;
   const totalUnread = _feeds.reduce((s,f)=>s+(f.unread_count||0),0);
-  let html = chip(0,'All feeds',totalUnread,_activeFeed===0);
+  let html = chip(0,t('rss_pub_all_feeds'),totalUnread,_activeFeed===0);
   _feeds.forEach(f => { html += chip(f.id, f.name, f.unread_count||0, _activeFeed===f.id); });
   row.innerHTML = html;
   row.querySelectorAll('.chip').forEach(el => {
@@ -232,9 +234,9 @@ function chip(id, name, unread, active) {
 function renderFilterBar() {
   const bar = document.getElementById('filter-bar');
   if (!bar) return;
-  const filters = [{v:'unread',l:'Unread'},{v:'read',l:'Read'},{v:'all',l:'All'},{v:'saved',l:'Saved'}];
+  const filters = [{v:'unread',l:t('rss_pub_filter_unread')},{v:'read',l:t('rss_pub_filter_read')},{v:'all',l:t('rss_pub_filter_all')},{v:'saved',l:t('rss_pub_filter_saved')}];
   bar.innerHTML = filters.map(f=>`<button class="filter-btn${_filter===f.v?' active':''}" data-f="${f.v}">${f.l}</button>`).join('')
-    + `<button id="mark-all-btn" style="margin-left:auto;background:none;border:none;font-size:.72rem;color:var(--fg2);white-space:nowrap;cursor:pointer;padding:0 4px;flex-shrink:0">✓ Mark all read</button>`;
+    + `<button id="mark-all-btn" style="margin-left:auto;background:none;border:none;font-size:.72rem;color:var(--fg2);white-space:nowrap;cursor:pointer;padding:0 4px;flex-shrink:0">${t('rss_pub_mark_all_read')}</button>`;
   bar.querySelectorAll('.filter-btn').forEach(btn => {
     btn.onclick = () => { _filter=btn.dataset.f; renderFilterBar(); loadArticles().then(renderArticles); };
   });
@@ -252,7 +254,7 @@ function renderArticles() {
   if (!wrap) return;
   const listBtns = _aiBtns.filter(b=>b.scope==='list'||b.scope==='both');
   if (!_articles.length) {
-    wrap.innerHTML = `<div class="empty">No articles</div>`;
+    wrap.innerHTML = `<div class="empty">${t('rss_pub_no_articles')}</div>`;
     return;
   }
   wrap.innerHTML = _articles.map(a => {
@@ -324,12 +326,12 @@ function openArticle(id) {
 
   const inner = document.getElementById('reader-inner');
   inner.innerHTML = `
-    <button class="reader-back" id="back-btn">← Back</button>
+    <button class="reader-back" id="back-btn">${t('rss_pub_back')}</button>
     <div class="reader-feed">${esc(a.feed_name)}</div>
     <div class="reader-title">${esc(a.title||'(no title)')}</div>
     ${aiBtnHtml}
     <div class="reader-content">${a.description||'—'}</div>
-    ${a.link?`<div class="reader-link"><a href="${esc(a.link)}" target="_blank" rel="noopener">Open original ↗</a></div>`:''}`;
+    ${a.link?`<div class="reader-link"><a href="${esc(a.link)}" target="_blank" rel="noopener">${t('rss_pub_open_original')}</a></div>`:''}`;
 
   const reader = document.getElementById('reader');
   reader.style.display='block'; reader.scrollTop=0;
@@ -358,23 +360,23 @@ function showFeedsModal() {
     const feedsHtml = _feeds.length ? _feeds.map(f=>`
       <div class="feed-row">
         <span class="feed-row-name">${esc(f.name)}</span>
-        ${f.unread_count?`<span class="feed-row-unreads">${f.unread_count} unread</span>`:''}
-        <button class="feed-row-del" data-id="${f.id}" title="Remove">✕</button>
-      </div>`).join('') : `<div style="font-size:.84rem;color:var(--fg2)">No feeds yet.</div>`;
+        ${f.unread_count?`<span class="feed-row-unreads">${t('rss_pub_unread_count',{count:f.unread_count})}</span>`:''}
+        <button class="feed-row-del" data-id="${f.id}" title="${t('rss_pub_remove')}">✕</button>
+      </div>`).join('') : `<div style="font-size:.84rem;color:var(--fg2)">${t('rss_pub_no_feeds_yet')}</div>`;
 
     modal.innerHTML = `
       <div class="modal">
-        <div class="modal-hdr"><span>Feeds</span><button id="modal-close">✕</button></div>
+        <div class="modal-hdr"><span>${t('rss_pub_feeds')}</span><button id="modal-close">✕</button></div>
         <div class="modal-body">
           <div>
-            <div class="sec-label">Your feeds</div>
+            <div class="sec-label">${t('rss_pub_your_feeds')}</div>
             <div id="feeds-list">${feedsHtml}</div>
           </div>
           <div>
-            <div class="sec-label">Add feed</div>
+            <div class="sec-label">${t('rss_pub_add_feed')}</div>
             <div style="display:flex;gap:6px">
-              <input class="inp" id="add-url" placeholder="RSS / Atom URL" style="flex:1">
-              <button class="btn-acc" id="add-btn">Add</button>
+              <input class="inp" id="add-url" placeholder="${t('rss_pub_add_feed_url_ph')}" style="flex:1">
+              <button class="btn-acc" id="add-btn">${t('rss_pub_add')}</button>
             </div>
             <div class="err-msg" id="add-err"></div>
           </div>
@@ -405,15 +407,15 @@ function showFeedsModal() {
       if (r.ok) {
         addUrl.value='';
         await loadFeeds(); renderChips(); buildModal();
-      } else { addErr.textContent=d.error||'Error'; }
-      addBtn.disabled=false; addBtn.textContent='Add';
+      } else { addErr.textContent=d.error||t('rss_pub_error'); }
+      addBtn.disabled=false; addBtn.textContent=t('rss_pub_add');
     };
     addUrl.onkeydown=e=>{ if(e.key==='Enter') addBtn.click(); };
   }
   buildModal();
 }
 
-boot();
+(window.mvmOS?.i18nReady || Promise.resolve()).then(boot);
 </script>
 </body>
 </html>

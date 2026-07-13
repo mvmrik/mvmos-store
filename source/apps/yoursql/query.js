@@ -1,5 +1,7 @@
 // YourSQL — SQL Query editor (standalone tab)
 
+const _ysqlQT = window.t || (k => k);
+
 YS.query = (() => {
 
   var _colors = {
@@ -59,7 +61,7 @@ YS.query = (() => {
     ta.id = 'ysql-sql-editor';
     ta.spellcheck = false;
     ta.value = prevSql;
-    ta.placeholder = 'SELECT * FROM table LIMIT 100;\n\nCtrl+Enter to run';
+    ta.placeholder = _ysqlQT('ysql_query_placeholder');
     ta.style.cssText = [
       'position:absolute;inset:0;width:100%;height:100%',
       'padding:10px;box-sizing:border-box',
@@ -101,10 +103,10 @@ YS.query = (() => {
     var toolbar = document.createElement('div');
     toolbar.style.cssText = 'display:flex;align-items:center;gap:6px;padding:5px 10px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)';
     toolbar.innerHTML =
-      '<span style="font-size:.78rem;color:var(--text-dim)">Ctrl+Enter</span>' +
+      '<span style="font-size:.78rem;color:var(--text-dim)">' + _ysqlQT('ysql_ctrl_enter_hint') + '</span>' +
       '<span style="flex:1"></span>' +
-      '<button class="s-btn s-btn-sm" id="ysql-q-clear">Clear</button>' +
-      '<button class="s-btn s-btn-sm" id="ysql-q-run" style="background:var(--accent);color:#fff;border-color:var(--accent)">▶ Run</button>';
+      '<button class="s-btn s-btn-sm" id="ysql-q-clear">' + _ysqlQT('ysql_clear') + '</button>' +
+      '<button class="s-btn s-btn-sm" id="ysql-q-run" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlQT('ysql_run') + '</button>';
 
     // ── Result container ──
     // browse.showWithSql renders directly into this div
@@ -151,7 +153,7 @@ YS.query = (() => {
     if (handled) return;
 
     // Complex SQL (JOIN, subquery, non-SELECT) — simple read-only table
-    resultDiv.innerHTML = '<div style="padding:14px;color:var(--text-dim);display:flex;align-items:center;gap:8px"><div style="width:14px;height:14px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></div> Running…</div>';
+    resultDiv.innerHTML = '<div style="padding:14px;color:var(--text-dim);display:flex;align-items:center;gap:8px"><div style="width:14px;height:14px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></div> ' + _ysqlQT('ysql_running_dots') + '</div>';
     YS.state._customSql = sql;
     YS.state._customSqlOverride = null;
 
@@ -166,11 +168,11 @@ YS.query = (() => {
       return;
     }
     if (r.affected !== null && r.affected !== undefined) {
-      resultDiv.innerHTML = '<div style="padding:14px;color:#50fa7b;font-size:.85rem">✓ Query OK — ' + r.affected + ' row(s) affected</div>';
+      resultDiv.innerHTML = '<div style="padding:14px;color:#50fa7b;font-size:.85rem">' + _ysqlQT('ysql_query_ok_affected', { n: r.affected }) + '</div>';
       return;
     }
     if (!r.columns || !r.columns.length) {
-      resultDiv.innerHTML = '<div style="padding:14px;color:var(--text-dim)">No results</div>';
+      resultDiv.innerHTML = '<div style="padding:14px;color:var(--text-dim)">' + _ysqlQT('ysql_no_results') + '</div>';
       return;
     }
 
@@ -183,7 +185,7 @@ YS.query = (() => {
 
     var info = document.createElement('div');
     info.style.cssText = 'padding:4px 10px;font-size:.75rem;color:var(--text-dim);flex-shrink:0';
-    info.textContent = rows.length + ' row(s)';
+    info.textContent = _ysqlQT('ysql_n_rows_paren', { n: rows.length });
 
     var wrap = document.createElement('div');
     wrap.style.cssText = 'overflow:auto;flex:1';
@@ -200,7 +202,7 @@ YS.query = (() => {
       return '<tr style="border-bottom:1px solid var(--border)">' +
         columns.map(function(col) {
           var v = row[col];
-          if (v === null || v === undefined) return '<td style="padding:5px 10px;color:var(--text-dim);font-style:italic">NULL</td>';
+          if (v === null || v === undefined) return '<td style="padding:5px 10px;color:var(--text-dim);font-style:italic">' + _ysqlQT('ysql_null_placeholder') + '</td>';
           var s = String(v);
           var style = 'padding:5px 10px;max-width:300px;overflow:hidden;text-overflow:ellipsis';
           if (/^-?\d+(\.\d+)?$/.test(s)) style += ';color:var(--color-num,#8be9fd)';

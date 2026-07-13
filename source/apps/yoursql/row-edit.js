@@ -1,5 +1,7 @@
 // YourSQL — Row edit modal & Insert row modal
 
+const _ysqlReT = window.t || (k => k);
+
 YS.rowEdit = (() => {
 
   function open(row, columns, colMeta, content) {
@@ -18,15 +20,15 @@ YS.rowEdit = (() => {
     modal.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:min(480px,100%);max-height:85vh;display:flex;flex-direction:column;box-shadow:var(--shadow)';
     modal.innerHTML =
       '<div style="display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0">' +
-        '<span style="font-weight:600;font-size:.9rem;flex:1">Edit Row — ' + esc(YS.state.activeTable) + '</span>' +
+        '<span style="font-weight:600;font-size:.9rem;flex:1">' + _ysqlReT('ysql_edit_row_title', { table: esc(YS.state.activeTable) }) + '</span>' +
         '<button id="ysql-rem-close" class="s-btn s-btn-sm" style="font-size:.8rem">✕</button>' +
       '</div>' +
       '<div id="ysql-rem-body" style="overflow-y:auto;flex:1;padding:12px 16px;display:flex;flex-direction:column;gap:8px"></div>' +
       '<div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid var(--border);flex-shrink:0">' +
-        '<button id="ysql-rem-delete" class="s-btn s-btn-sm" style="color:#f38ba8">Delete</button>' +
+        '<button id="ysql-rem-delete" class="s-btn s-btn-sm" style="color:#f38ba8">' + _ysqlReT('ysql_delete') + '</button>' +
         '<span style="flex:1"></span>' +
-        '<button id="ysql-rem-cancel" class="s-btn s-btn-sm">Cancel</button>' +
-        '<button id="ysql-rem-save" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">Save</button>' +
+        '<button id="ysql-rem-cancel" class="s-btn s-btn-sm">' + _ysqlReT('ysql_cancel') + '</button>' +
+        '<button id="ysql-rem-save" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlReT('ysql_save') + '</button>' +
       '</div>';
 
     overlay.appendChild(modal);
@@ -76,20 +78,20 @@ YS.rowEdit = (() => {
 
     // Delete
     modal.querySelector('#ysql-rem-delete').addEventListener('click', async function() {
-      if (!confirm('Delete this row?')) return;
-      var btn = this; btn.disabled = true; btn.textContent = 'Deleting…';
+      if (!confirm(_ysqlReT('ysql_delete_row_confirm'))) return;
+      var btn = this; btn.disabled = true; btn.textContent = _ysqlReT('ysql_deleting');
       var where = YS.buildWhereFromRow(row, colMeta);
       var r = await YS.api('/delete-row', { method: 'POST', json: {
         conn_id: snapConn.id, database: snapDb,
         table: snapTable, where: where
       }}).catch(function(){return {};});
       if (r.ok) {
-        YS.toast('Row deleted', 'success'); if (YS.tabs) YS.tabs.markDirty();
+        YS.toast(_ysqlReT('ysql_row_deleted'), 'success'); if (YS.tabs) YS.tabs.markDirty();
         doClose();
         YS.browse._reload(null, content);
       } else {
-        YS.toast('Error: ' + (r.detail || r.error || 'failed'), 'error');
-        btn.disabled = false; btn.textContent = 'Delete';
+        YS.toast(_ysqlReT('ysql_error_prefix', { msg: r.detail || r.error || _ysqlReT('ysql_error_unknown') }), 'error');
+        btn.disabled = false; btn.textContent = _ysqlReT('ysql_delete');
       }
     });
 
@@ -101,19 +103,19 @@ YS.rowEdit = (() => {
         if (nullCb && nullCb.checked) { updates[f.col] = null; }
         else { updates[f.col] = YS.getCellInputValue(f.input, f.meta); }
       });
-      var btn = this; btn.disabled = true; btn.textContent = 'Saving…';
+      var btn = this; btn.disabled = true; btn.textContent = _ysqlReT('ysql_saving');
       var where = YS.buildWhereFromRow(row, colMeta);
       var r = await YS.api('/update-row', { method: 'POST', json: {
         conn_id: snapConn.id, database: snapDb,
         table: snapTable, updates: updates, where: where
       }}).catch(function(){return {};});
       if (r.ok) {
-        YS.toast('Row updated', 'success'); if (YS.tabs) YS.tabs.markDirty();
+        YS.toast(_ysqlReT('ysql_row_updated'), 'success'); if (YS.tabs) YS.tabs.markDirty();
         doClose();
         YS.browse._reload(null, content);
       } else {
-        YS.toast('Error: ' + (r.detail || r.error || 'failed'), 'error');
-        btn.disabled = false; btn.textContent = 'Save';
+        YS.toast(_ysqlReT('ysql_error_prefix', { msg: r.detail || r.error || _ysqlReT('ysql_error_unknown') }), 'error');
+        btn.disabled = false; btn.textContent = _ysqlReT('ysql_save');
       }
     });
 
@@ -151,14 +153,14 @@ YS.rowInsert = (() => {
     modal.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:min(480px,100%);max-height:85vh;display:flex;flex-direction:column;box-shadow:var(--shadow)';
     modal.innerHTML =
       '<div style="display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0">' +
-        '<span style="font-weight:600;font-size:.9rem;flex:1">Insert Row — ' + esc(YS.state.activeTable) + '</span>' +
+        '<span style="font-weight:600;font-size:.9rem;flex:1">' + _ysqlReT('ysql_insert_row_title', { table: esc(YS.state.activeTable) }) + '</span>' +
         '<button id="ysql-ins-close" class="s-btn s-btn-sm">✕</button>' +
       '</div>' +
       '<div id="ysql-ins-body" style="overflow-y:auto;flex:1;padding:12px 16px;display:flex;flex-direction:column;gap:8px"></div>' +
       '<div id="ysql-ins-error" style="display:none;padding:6px 16px;color:#f38ba8;font-size:.82rem"></div>' +
       '<div style="display:flex;justify-content:flex-end;gap:8px;padding:10px 16px;border-top:1px solid var(--border);flex-shrink:0">' +
-        '<button id="ysql-ins-cancel" class="s-btn s-btn-sm">Cancel</button>' +
-        '<button id="ysql-ins-save" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">Insert</button>' +
+        '<button id="ysql-ins-cancel" class="s-btn s-btn-sm">' + _ysqlReT('ysql_cancel') + '</button>' +
+        '<button id="ysql-ins-save" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlReT('ysql_insert_row') + '</button>' +
       '</div>';
 
     overlay.appendChild(modal);
@@ -185,7 +187,7 @@ YS.rowInsert = (() => {
         var input = YS.buildCellInput(meta, null, false);
         input.style.cssText += ';width:100%;box-sizing:border-box';
         input.dataset.col = col;
-        input.placeholder = meta.allowNull ? 'NULL' : '';
+        input.placeholder = meta.allowNull ? _ysqlReT('ysql_null_placeholder') : '';
         field.appendChild(input);
         fields.push({ col: col, input: input, meta: meta });
       }
@@ -203,20 +205,20 @@ YS.rowInsert = (() => {
         var v = YS.getCellInputValue(f.input, f.meta);
         values[f.col] = (v === '' && f.meta.allowNull) ? null : v;
       });
-      var btn = this; btn.disabled = true; btn.textContent = 'Inserting…';
+      var btn = this; btn.disabled = true; btn.textContent = _ysqlReT('ysql_inserting');
       var r = await YS.api('/insert-row', { method: 'POST', json: {
         conn_id: snapConn.id, database: snapDb,
         table: snapTable, values: values
       }}).catch(function(){return {};});
       if (r.ok) {
-        YS.toast('Row inserted', 'success'); if (YS.tabs) YS.tabs.markDirty();
+        YS.toast(_ysqlReT('ysql_row_inserted'), 'success'); if (YS.tabs) YS.tabs.markDirty();
         doClose();
         YS.browse._reload(null, content);
       } else {
         var err = modal.querySelector('#ysql-ins-error');
-        err.textContent = r.detail || r.error || 'Insert failed';
+        err.textContent = r.detail || r.error || _ysqlReT('ysql_insert_failed');
         err.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Insert';
+        btn.disabled = false; btn.textContent = _ysqlReT('ysql_insert_row');
       }
     });
 
@@ -251,15 +253,15 @@ YS.bulkEdit = (() => {
     modal.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);width:min(480px,100%);max-height:85vh;display:flex;flex-direction:column;box-shadow:var(--shadow)';
     modal.innerHTML =
       '<div style="display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0">' +
-        '<span style="font-weight:600;font-size:.9rem;flex:1">Edit ' + count + ' row' + (count!==1?'s':'') + '</span>' +
+        '<span style="font-weight:600;font-size:.9rem;flex:1">' + _ysqlReT('ysql_edit_n_rows', { n: count, s: count!==1?'s':'' }) + '</span>' +
         '<button id="ysql-bem-close" class="s-btn s-btn-sm">✕</button>' +
       '</div>' +
       '<div id="ysql-bem-body" style="overflow-y:auto;flex:1;padding:12px 16px;display:flex;flex-direction:column;gap:6px"></div>' +
       '<div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid var(--border);flex-shrink:0">' +
-        '<button id="ysql-bem-delete" class="s-btn s-btn-sm" style="color:#f38ba8">Delete ' + count + ' row' + (count!==1?'s':'') + '</button>' +
+        '<button id="ysql-bem-delete" class="s-btn s-btn-sm" style="color:#f38ba8">' + _ysqlReT('ysql_delete_n_rows_btn', { n: count, s: count!==1?'s':'' }) + '</button>' +
         '<span style="flex:1"></span>' +
-        '<button id="ysql-bem-cancel" class="s-btn s-btn-sm">Cancel</button>' +
-        '<button id="ysql-bem-save" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">Apply</button>' +
+        '<button id="ysql-bem-cancel" class="s-btn s-btn-sm">' + _ysqlReT('ysql_cancel') + '</button>' +
+        '<button id="ysql-bem-save" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlReT('ysql_apply') + '</button>' +
       '</div>';
 
     overlay.appendChild(modal);
@@ -281,14 +283,14 @@ YS.bulkEdit = (() => {
         '<div style="display:flex;align-items:center;gap:6px">' +
           '<span style="font-size:.78rem;color:var(--text-dim);font-weight:500">' + esc(col) + '</span>' +
           '<span style="font-size:.68rem;color:var(--text-dim);background:var(--surface2,var(--border));padding:1px 5px;border-radius:3px">' + esc(meta.baseType||'') + '</span>' +
-          (isPK ? '<span style="font-size:.65rem;color:var(--text-dim)">PK — skip</span>' : '') +
+          (isPK ? '<span style="font-size:.65rem;color:var(--text-dim)">' + _ysqlReT('ysql_pk_skip') + '</span>' : '') +
         '</div>';
 
       if (!isPK) {
-        var opts = '<option value="original">— keep original —</option>' +
-          '<option value="set">Set value</option>' +
-          (isNum ? '<option value="inc">Increment +</option><option value="dec">Decrement −</option>' : '') +
-          (meta.allowNull ? '<option value="null">Set NULL</option>' : '');
+        var opts = '<option value="original">' + _ysqlReT('ysql_keep_original') + '</option>' +
+          '<option value="set">' + _ysqlReT('ysql_set_value') + '</option>' +
+          (isNum ? '<option value="inc">' + _ysqlReT('ysql_increment') + '</option><option value="dec">' + _ysqlReT('ysql_decrement') + '</option>' : '') +
+          (meta.allowNull ? '<option value="null">' + _ysqlReT('ysql_set_null') + '</option>' : '');
         var modeEl = Object.assign(document.createElement('select'), { className: 's-input bulk-mode', innerHTML: opts });
         modeEl.style.cssText = 'font-size:.8rem;margin-bottom:3px';
 
@@ -319,22 +321,22 @@ YS.bulkEdit = (() => {
 
     // Bulk delete
     modal.querySelector('#ysql-bem-delete').addEventListener('click', async function() {
-      if (!confirm('Delete ' + count + ' rows? This cannot be undone.')) return;
-      var btn = this; btn.disabled = true; btn.textContent = 'Deleting…';
+      if (!confirm(_ysqlReT('ysql_delete_n_rows_confirm', { n: count }))) return;
+      var btn = this; btn.disabled = true; btn.textContent = _ysqlReT('ysql_deleting');
       var r = await YS.api('/bulk-delete', { method: 'POST', json: {
         conn_id: snapConn.id, database: snapDb,
         table: snapTable, mode: sel.mode,
         where_rows: sel.mode === 'page' ? sel.pageRows.map(function(row){ return YS.buildWhereFromRow(row, colMeta); }) : null
       }}).catch(function(){return {};});
       if (r.ok) {
-        YS.toast('Deleted ' + (r.affected||count) + ' rows', 'success');
+        YS.toast(_ysqlReT('ysql_deleted_n_rows', { n: r.affected||count }), 'success');
         if (YS.tabs) YS.tabs.markDirty();
         doClose();
         YS.state.selection = { mode: 'none', pageRows: [], indexSet: new Set() };
         YS.browse._reload(null, content);
       } else {
-        YS.toast('Error: ' + (r.detail||r.error||'failed'), 'error');
-        btn.disabled = false; btn.textContent = 'Delete ' + count + ' rows';
+        YS.toast(_ysqlReT('ysql_error_prefix', { msg: r.detail || r.error || _ysqlReT('ysql_error_unknown') }), 'error');
+        btn.disabled = false; btn.textContent = _ysqlReT('ysql_delete_n_rows_btn', { n: count, s: count!==1?'s':'' });
       }
     });
 
@@ -353,22 +355,22 @@ YS.bulkEdit = (() => {
         else if (mode === 'dec') updates[col] = { op: 'decrement', value: parseFloat(inp && inp.value || '1') };
         else updates[col] = { op: 'set', value: inp ? YS.getCellInputValue(inp, colMeta[col]||{}) : '' };
       });
-      if (!hasChanges) { YS.toast('No changes to apply', 'error'); return; }
-      var btn = this; btn.disabled = true; btn.textContent = 'Saving…';
+      if (!hasChanges) { YS.toast(_ysqlReT('ysql_no_changes_to_apply'), 'error'); return; }
+      var btn = this; btn.disabled = true; btn.textContent = _ysqlReT('ysql_saving');
       var r = await YS.api('/bulk-update', { method: 'POST', json: {
         conn_id: snapConn.id, database: snapDb,
         table: snapTable, updates: updates, mode: sel.mode,
         where_rows: sel.mode === 'page' ? sel.pageRows.map(function(row){ return YS.buildWhereFromRow(row, colMeta); }) : null
       }}).catch(function(){return {};});
       if (r.ok) {
-        YS.toast('Updated ' + (r.affected||'') + ' rows', 'success');
+        YS.toast(_ysqlReT('ysql_updated_n_rows', { n: r.affected||'' }), 'success');
         if (YS.tabs) YS.tabs.markDirty();
         doClose();
         YS.state.selection = { mode: 'none', pageRows: [], indexSet: new Set() };
         YS.browse._reload(null, content);
       } else {
-        YS.toast('Error: ' + (r.detail||r.error||'failed'), 'error');
-        btn.disabled = false; btn.textContent = 'Apply';
+        YS.toast(_ysqlReT('ysql_error_prefix', { msg: r.detail || r.error || _ysqlReT('ysql_error_unknown') }), 'error');
+        btn.disabled = false; btn.textContent = _ysqlReT('ysql_apply');
       }
     });
   }

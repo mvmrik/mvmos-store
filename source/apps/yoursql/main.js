@@ -1,5 +1,7 @@
 // YourSQL — MySQL Manager for mvmOS v1.0.0
 
+const t = window.t || (k => k);
+
 mvmOS.registerApp({
   id: 'yoursql',
   name: 'YourSQL',
@@ -20,7 +22,7 @@ mvmOS.registerApp({
       minWidth: 700,
       minHeight: 400,
       onMount: (body) => {
-        body.innerHTML = '<div style="padding:20px">YourSQL loading...</div>';
+        body.innerHTML = '<div style="padding:20px">' + t('ysql_loading') + '</div>';
         _ysqlInit(body);
       }
     });
@@ -47,12 +49,12 @@ function _ysqlInit(container) {
     window.YS = window.YS || {};
     _ysqlRenderApp(container);
   }).catch(function(e) {
-    container.innerHTML = '<div style="padding:20px;color:red">Error: ' + e.message + '</div>';
+    container.innerHTML = '<div style="padding:20px;color:red">' + t('ysql_load_error', { msg: e.message }) + '</div>';
   });
 }
 
 function _ysqlRenderApp(container) {
-  if (!window.YS) { container.innerHTML = '<div style="padding:20px;color:red">YS modules not loaded</div>'; return; }
+  if (!window.YS) { container.innerHTML = '<div style="padding:20px;color:red">' + t('ysql_modules_not_loaded') + '</div>'; return; }
   YS.state.activeConn = null;
   YS.state.activeDb = null;
   YS.state.activeTable = null;
@@ -61,12 +63,12 @@ function _ysqlRenderApp(container) {
     '<div style="display:flex;height:100%;overflow:hidden;position:relative">',
     '  <div id="ysql-sidebar" class="as-sidebar" style="width:220px;min-width:180px;max-width:300px;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0">',
     '    <div style="padding:8px;border-bottom:1px solid var(--border);display:flex;gap:6px">',
-    '      <button class="s-btn s-btn-sm" id="ysql-add-conn" style="flex:1">＋ Connection</button>',
+    '      <button class="s-btn s-btn-sm" id="ysql-add-conn" style="flex:1">' + t('ysql_add_connection') + '</button>',
     '    </div>',
     '    <div id="ysql-conn-list" style="overflow-y:auto;flex:1"></div>',
     '    <div id="ysql-db-section" style="border-top:1px solid var(--border);padding:8px;flex-shrink:0;display:none">',
-    '      <div style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Database</div>',
-    '      <select id="ysql-db-select" class="s-input" style="width:100%;font-size:.82rem"><option value="">— select —</option></select>',
+    '      <div style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">' + t('ysql_database') + '</div>',
+    '      <select id="ysql-db-select" class="s-input" style="width:100%;font-size:.82rem"><option value="">' + t('ysql_select_dash') + '</option></select>',
     '    </div>',
     '  </div>',
     '  <div id="ysql-main" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0">',
@@ -74,19 +76,19 @@ function _ysqlRenderApp(container) {
     '      <span id="ysql-breadcrumb" style="font-size:.82rem;color:var(--text-dim);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0"></span>',
     '      <div id="ysql-db-actions" style="display:none;align-items:center;gap:4px">',
     '        <div style="position:relative">',
-    '          <button class="s-btn s-btn-sm" id="ysql-btn-actions">Actions ▾</button>',
+    '          <button class="s-btn s-btn-sm" id="ysql-btn-actions">' + t('ysql_actions') + '</button>',
     '          <div id="ysql-actions-menu" style="display:none;position:absolute;right:0;top:100%;margin-top:2px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius,4px);box-shadow:var(--shadow);z-index:200;min-width:160px;padding:4px 0">',
-    '            <div class="ys-action-item" id="ysql-action-create-table">Create Table</div>',
-    '            <div class="ys-action-item" id="ysql-action-import">Import</div>',
-    '            <div class="ys-action-item" id="ysql-action-export">Export</div>',
-    '            <div class="ys-action-item" id="ysql-action-manage-tables">Manage Tables</div>',
-    '            <div class="ys-action-item" id="ysql-action-sql-editor">SQL Editor</div>',
+    '            <div class="ys-action-item" id="ysql-action-create-table">' + t('ysql_create_table') + '</div>',
+    '            <div class="ys-action-item" id="ysql-action-import">' + t('ysql_import') + '</div>',
+    '            <div class="ys-action-item" id="ysql-action-export">' + t('ysql_export') + '</div>',
+    '            <div class="ys-action-item" id="ysql-action-manage-tables">' + t('ysql_manage_tables') + '</div>',
+    '            <div class="ys-action-item" id="ysql-action-sql-editor">' + t('ysql_sql_editor') + '</div>',
     '          </div>',
     '        </div>',
     '        <label class="s-btn s-btn-sm" style="display:none"><input type="file" id="ysql-import-file-top" accept=".csv,.sql" style="display:none"></label>',
     '      </div>',
     '      <div id="ysql-table-actions" style="display:none;align-items:center;gap:4px">',
-    '        <button class="s-btn s-btn-sm" id="ysql-btn-structure-top">Structure</button>',
+    '        <button class="s-btn s-btn-sm" id="ysql-btn-structure-top">' + t('ysql_structure') + '</button>',
     '      </div>',
     '    </div>',
     '    <div id="ysql-tabbar" style="display:none;flex-shrink:0;overflow-x:auto;overflow-y:hidden;border-bottom:1px solid var(--border);background:var(--surface);flex-wrap:nowrap;align-items:stretch;min-height:30px"></div>',
@@ -117,7 +119,7 @@ function _ysqlRenderApp(container) {
   // Structure/Data toggle button
   container.querySelector('#ysql-btn-structure-top').addEventListener('click', function() {
     if (!YS.state.activeTable) return;
-    if (this.textContent === 'Structure') {
+    if (this.textContent === t('ysql_structure')) {
       if (YS.tabs) YS.tabs.open('structure', YS.state.activeDb, YS.state.activeTable);
       else YS.structure.show(container, container.querySelector('#ysql-content'));
     } else {
@@ -175,7 +177,7 @@ function _ysqlRenderApp(container) {
       fields: { path: '/tmp' },
       noFinalize: true,
       onDone: function(data) {
-        mvmOS.upload.setStatus('⏳ Импортиране в базата...', true);
+        mvmOS.upload.setStatus(t('ysql_importing_db'), true);
         YS.sidebar.setDbSpinner(container, database, true);
         fetch('/api/apps/yoursql/import-from-path', {
           method: 'POST',
@@ -185,7 +187,7 @@ function _ysqlRenderApp(container) {
           if (!r.job_id) {
             mvmOS.upload.clearStatus();
             YS.sidebar.setDbSpinner(container, database, false);
-            YS.toast('Import failed: no job', 'error'); return;
+            YS.toast(t('ysql_import_failed_no_job'), 'error'); return;
           }
           var poll = setInterval(function() {
             fetch('/api/apps/yoursql/import-status/' + r.job_id)
@@ -196,10 +198,10 @@ function _ysqlRenderApp(container) {
                 mvmOS.upload.clearStatus();
                 YS.sidebar.setDbSpinner(container, database, false);
                 if (job.status === 'done') {
-                  YS.toast('Imported ' + job.affected + ' statements', 'success');
+                  YS.toast(t('ysql_imported_n_statements', { n: job.affected }), 'success');
                   YS.sidebar.loadTables(container);
                 } else {
-                  YS.toast('Import failed: ' + (job.detail || 'Unknown error'), 'error');
+                  YS.toast(t('ysql_import_failed', { msg: job.detail || t('ysql_import_failed_unknown') }), 'error');
                 }
               }).catch(function() {
                 clearInterval(poll);
@@ -210,11 +212,11 @@ function _ysqlRenderApp(container) {
         }).catch(function(err) {
           mvmOS.upload.clearStatus();
           YS.sidebar.setDbSpinner(container, database, false);
-          YS.toast('Import failed: ' + err.message, 'error');
+          YS.toast(t('ysql_import_failed', { msg: err.message }), 'error');
         });
       },
-      onError: function(msg) { YS.toast('Import failed: ' + msg, 'error'); },
-      onCancel: function() { YS.toast('Import cancelled', 'info'); },
+      onError: function(msg) { YS.toast(t('ysql_import_failed', { msg: msg }), 'error'); },
+      onCancel: function() { YS.toast(t('ysql_import_cancelled'), 'info'); },
     });
     e.target.value = '';
   });
@@ -232,7 +234,7 @@ function _ysqlRenderApp(container) {
     // Title
     var title = document.createElement('div');
     title.style.cssText = 'font-weight:600;font-size:.95rem';
-    title.textContent = 'Export — ' + YS.state.activeDb;
+    title.textContent = t('ysql_export_title', { db: YS.state.activeDb });
     m.appendChild(title);
 
     // Mode
@@ -240,9 +242,9 @@ function _ysqlRenderApp(container) {
     modeWrap.style.cssText = 'display:flex;flex-direction:column;gap:4px';
     var modeLabel = document.createElement('div');
     modeLabel.style.cssText = 'font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em';
-    modeLabel.textContent = 'MODE';
+    modeLabel.textContent = t('ysql_mode');
     modeWrap.appendChild(modeLabel);
-    var modes = [['structure_data','Structure + Data'],['structure','Structure only'],['data','Data only']];
+    var modes = [['structure_data', t('ysql_mode_structure_data')],['structure', t('ysql_mode_structure_only')],['data', t('ysql_mode_data_only')]];
     var modeVal = 'structure_data';
     modes.forEach(function(mo) {
       var lbl = document.createElement('label');
@@ -263,11 +265,11 @@ function _ysqlRenderApp(container) {
     tblHeader.style.cssText = 'display:flex;align-items:center;justify-content:space-between';
     var tblLabel = document.createElement('div');
     tblLabel.style.cssText = 'font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em';
-    tblLabel.textContent = 'TABLES';
+    tblLabel.textContent = t('ysql_tables');
     var allLbl = document.createElement('label');
     allLbl.style.cssText = 'display:flex;align-items:center;gap:5px;font-size:.82rem;cursor:pointer';
     var allCk = document.createElement('input'); allCk.type = 'checkbox'; allCk.checked = true;
-    allLbl.appendChild(allCk); allLbl.appendChild(document.createTextNode('All tables'));
+    allLbl.appendChild(allCk); allLbl.appendChild(document.createTextNode(t('ysql_all_tables')));
     tblHeader.appendChild(tblLabel); tblHeader.appendChild(allLbl);
     tblWrap.appendChild(tblHeader);
 
@@ -302,7 +304,7 @@ function _ysqlRenderApp(container) {
     var zipLbl = document.createElement('label');
     zipLbl.style.cssText = 'display:flex;align-items:center;gap:5px;font-size:.82rem;cursor:pointer';
     var zipCk = document.createElement('input'); zipCk.type = 'checkbox';
-    zipLbl.appendChild(zipCk); zipLbl.appendChild(document.createTextNode('ZIP'));
+    zipLbl.appendChild(zipCk); zipLbl.appendChild(document.createTextNode(t('ysql_zip')));
     bottomRow.appendChild(zipLbl);
 
     var spacer = document.createElement('span'); spacer.style.flex = '1';
@@ -311,10 +313,10 @@ function _ysqlRenderApp(container) {
     var dlBtn = document.createElement('button');
     dlBtn.className = 's-btn s-btn-sm';
     dlBtn.style.cssText = 'background:var(--accent);color:#fff;border-color:var(--accent);display:flex;align-items:center;gap:5px';
-    dlBtn.innerHTML = '⬇ Download';
+    dlBtn.innerHTML = t('ysql_download');
     dlBtn.addEventListener('click', function() {
       var selected = checkboxes.filter(function(c){ return c.checked; }).map(function(c){ return c.value; });
-      if (!selected.length) { YS.toast('Select at least one table', 'error'); return; }
+      if (!selected.length) { YS.toast(t('ysql_select_at_least_one_table'), 'error'); return; }
       var fmt = fmtSel.value;
       var zip = zipCk.checked;
       var url = '/api/apps/yoursql/export-multi?conn_id=' + YS.state.activeConn.id +
@@ -327,9 +329,9 @@ function _ysqlRenderApp(container) {
       // Exporting a large database can take a while before the browser's own
       // save dialog appears (fetch+blob only resolves once the whole body has
       // been received) — without this, the UI looks frozen/dead in between.
-      var progressToast = YS.toast('Exporting ' + filename + '…', 'info', { sticky: true, spinner: true });
+      var progressToast = YS.toast(t('ysql_exporting', { filename: filename }), 'info', { sticky: true, spinner: true });
       fetch(url, { credentials: 'include' }).then(function(r) {
-        if (!r.ok) { r.text().then(function(t){ YS.toast('Export failed: ' + t, 'error'); }); return; }
+        if (!r.ok) { r.text().then(function(txt){ YS.toast(t('ysql_export_failed', { msg: txt }), 'error'); }); return; }
         return r.blob();
       }).then(function(blob) {
         if (!blob) return;
@@ -338,7 +340,7 @@ function _ysqlRenderApp(container) {
         a.download = filename;
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
-      }).catch(function(e){ YS.toast('Export failed: ' + e.message, 'error'); })
+      }).catch(function(e){ YS.toast(t('ysql_export_failed', { msg: e.message }), 'error'); })
         .finally(function(){ progressToast && progressToast.close && progressToast.close(); });
     });
     bottomRow.appendChild(dlBtn);
@@ -364,7 +366,7 @@ function _ysqlRenderApp(container) {
       var t = YS.tabs.activeTab();
       isStructure = t && t.type === 'structure';
     }
-    structBtn.textContent = isStructure ? 'Data' : 'Structure';
+    structBtn.textContent = isStructure ? t('ysql_data') : t('ysql_structure');
   };
 
   // re-run desktop.js mobile sidebar init — our onMount is async so

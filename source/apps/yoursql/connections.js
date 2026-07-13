@@ -1,5 +1,7 @@
 // YourSQL — Connection management
 
+const _ysqlConnT = window.t || (k => k);
+
 YS.connections = (() => {
 
   async function load(container) {
@@ -14,7 +16,7 @@ YS.connections = (() => {
     list.innerHTML = '';
 
     if (!YS.state.connections.length) {
-      list.innerHTML = `<div style="padding:16px;color:var(--text-dim);font-size:.82rem;text-align:center">No connections yet.<br>Click + to add one.</div>`;
+      list.innerHTML = `<div style="padding:16px;color:var(--text-dim);font-size:.82rem;text-align:center">${_ysqlConnT('ysql_no_connections_yet')}</div>`;
       return;
     }
 
@@ -30,7 +32,7 @@ YS.connections = (() => {
           <span style="font-size:1rem">${isB ? '📦' : '🔌'}</span>
           <div style="flex:1;min-width:0">
             <div style="font-weight:500;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name}</div>
-            <div style="font-size:.75rem;color:var(--text-dim)">${isB ? 'SQLite · local apps' : YS.dbtype.labelOf(c.db_type) + ' · ' + c.db_user + '@' + c.host + ':' + c.port}</div>
+            <div style="font-size:.75rem;color:var(--text-dim)">${isB ? _ysqlConnT('ysql_sqlite_local_apps') : YS.dbtype.labelOf(c.db_type) + ' · ' + c.db_user + '@' + c.host + ':' + c.port}</div>
           </div>
           ${isB ? '' : `<button class="s-btn s-btn-sm ysql-edit-conn" style="font-size:.7rem;padding:2px 6px">✎</button>`}
         `;
@@ -57,10 +59,10 @@ YS.connections = (() => {
       <span style="font-size:1rem">${isBuiltin ? '📦' : '🔌'}</span>
       <div style="flex:1;min-width:0">
         <div style="font-weight:500;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${active.name}</div>
-        <div style="font-size:.75rem;color:var(--text-dim)">${isBuiltin ? 'SQLite · local apps' : YS.dbtype.labelOf(active.db_type) + ' · ' + active.db_user + '@' + active.host + ':' + active.port}</div>
+        <div style="font-size:.75rem;color:var(--text-dim)">${isBuiltin ? _ysqlConnT('ysql_sqlite_local_apps') : YS.dbtype.labelOf(active.db_type) + ' · ' + active.db_user + '@' + active.host + ':' + active.port}</div>
       </div>
       <span id="ysql-conn-chevron" style="font-size:.65rem;color:var(--text-dim)">▾</span>
-      ${isBuiltin ? '' : `<button class="s-btn s-btn-sm ysql-create-db" title="New database" style="font-size:.7rem;padding:2px 6px">＋</button>`}
+      ${isBuiltin ? '' : `<button class="s-btn s-btn-sm ysql-create-db" title="${_ysqlConnT('ysql_new_database')}" style="font-size:.7rem;padding:2px 6px">＋</button>`}
       ${isBuiltin ? '' : `<button class="s-btn s-btn-sm ysql-edit-conn" style="font-size:.7rem;padding:2px 6px">✎</button>`}
     `;
     if (!isBuiltin) {
@@ -124,7 +126,7 @@ YS.connections = (() => {
     if (bc) bc.textContent = c.name;
 
     if (c.builtin) {
-      const ok = await mvmOS.requireRoot('YourSQL', 'Access to system databases requires root.');
+      const ok = await mvmOS.requireRoot('YourSQL', _ysqlConnT('ysql_root_required_system_db'));
       if (!ok) { YS.state.activeConn = null; renderList(container); return; }
       if (dbSection) dbSection.style.display = 'none';
       let dbs = [];
@@ -140,7 +142,7 @@ YS.connections = (() => {
     try {
       dbs = await YS.api(`/databases?conn_id=${c.id}`);
     } catch(e) {
-      alert('Cannot connect to MySQL:\n\n' + (e?.message || e));
+      alert(_ysqlConnT('ysql_cannot_connect', { msg: (e?.message || e) }));
       return;
     }
 
@@ -284,7 +286,7 @@ YS.connections = (() => {
     const menu = document.createElement('div');
     menu.className = 'ysql-ctx-menu';
     menu.style.cssText = `position:fixed;z-index:99999;left:${x}px;top:${y}px;background:var(--surface);border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.35);min-width:150px;padding:4px 0;font-size:.83rem`;
-    menu.innerHTML = `<div class="ysql-ctx-drop" style="padding:7px 14px;cursor:pointer;color:#f38ba8">🗑 Delete database</div>`;
+    menu.innerHTML = `<div class="ysql-ctx-drop" style="padding:7px 14px;cursor:pointer;color:#f38ba8">${_ysqlConnT('ysql_delete_database_ctx')}</div>`;
     document.body.appendChild(menu);
     const close = () => menu.remove();
     setTimeout(() => document.addEventListener('click', close, { once: true }), 0);
@@ -293,12 +295,12 @@ YS.connections = (() => {
 
   function createDatabase(container, c) {
     const modal = YS.modal(container, `
-      <div style="font-weight:600;font-size:.95rem">New Database</div>
-      <input class="s-input" id="ys-newdb-name" placeholder="Database name" autofocus>
+      <div style="font-weight:600;font-size:.95rem">${_ysqlConnT('ysql_new_database_title')}</div>
+      <input class="s-input" id="ys-newdb-name" placeholder="${_ysqlConnT('ysql_database_name_ph')}" autofocus>
       <div id="ys-newdb-err" style="color:#f38ba8;font-size:.82rem;display:none"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button class="s-btn" id="ys-newdb-cancel">Cancel</button>
-        <button class="s-btn" id="ys-newdb-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">Create</button>
+        <button class="s-btn" id="ys-newdb-cancel">${_ysqlConnT('ysql_cancel')}</button>
+        <button class="s-btn" id="ys-newdb-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">${_ysqlConnT('ysql_create')}</button>
       </div>
     `);
     modal.querySelector('#ys-newdb-cancel').addEventListener('click', () => modal.close());
@@ -321,12 +323,12 @@ YS.connections = (() => {
 
   async function dropDatabase(container, c, db) {
     const modal = YS.modal(container, `
-      <div style="font-weight:600;font-size:.95rem">Delete Database</div>
-      <div style="font-size:.88rem">Сигурен ли си, че искаш да изтриеш <strong>${db}</strong>? Действието е необратимо.</div>
+      <div style="font-weight:600;font-size:.95rem">${_ysqlConnT('ysql_delete_database_title')}</div>
+      <div style="font-size:.88rem">${_ysqlConnT('ysql_delete_database_confirm', { db: '<strong>' + db + '</strong>' })}</div>
       <div id="ys-dropdb-err" style="color:#f38ba8;font-size:.82rem;display:none"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button class="s-btn" id="ys-dropdb-cancel">Cancel</button>
-        <button class="s-btn" id="ys-dropdb-ok" style="background:#f38ba8;color:#1e1e2e;border-color:#f38ba8">Delete</button>
+        <button class="s-btn" id="ys-dropdb-cancel">${_ysqlConnT('ysql_cancel')}</button>
+        <button class="s-btn" id="ys-dropdb-ok" style="background:#f38ba8;color:#1e1e2e;border-color:#f38ba8">${_ysqlConnT('ysql_delete')}</button>
       </div>
     `);
     modal.querySelector('#ys-dropdb-cancel').addEventListener('click', () => modal.close());
@@ -352,24 +354,24 @@ YS.connections = (() => {
     ).join('');
 
     const modal = YS.modal(container, `
-      <div style="font-weight:600;font-size:.95rem">${existing ? 'Edit Connection' : 'New Connection'}</div>
+      <div style="font-weight:600;font-size:.95rem">${existing ? _ysqlConnT('ysql_edit_connection') : _ysqlConnT('ysql_new_connection')}</div>
       <div style="display:flex;flex-direction:column;gap:8px">
-        <input class="s-input" id="yc-name" placeholder="Name (e.g. Local MySQL)" value="${existing?.name || ''}">
+        <input class="s-input" id="yc-name" placeholder="${_ysqlConnT('ysql_name_ph')}" value="${existing?.name || ''}">
         <select class="s-input" id="yc-dbtype">${dbTypeOptions}</select>
         <div id="yc-driver-status" style="display:none;font-size:.8rem;padding:6px 8px;border-radius:4px;align-items:center;gap:8px"></div>
         <div style="display:grid;grid-template-columns:1fr auto;gap:6px">
-          <input class="s-input" id="yc-host" placeholder="Host" value="${existing?.host || 'localhost'}">
-          <input class="s-input" id="yc-port" placeholder="Port" value="${existing?.port || YS.dbtype.defaultPort(dbType)}" style="width:70px">
+          <input class="s-input" id="yc-host" placeholder="${_ysqlConnT('ysql_host_ph')}" value="${existing?.host || 'localhost'}">
+          <input class="s-input" id="yc-port" placeholder="${_ysqlConnT('ysql_port_ph')}" value="${existing?.port || YS.dbtype.defaultPort(dbType)}" style="width:70px">
         </div>
-        <input class="s-input" id="yc-user" placeholder="Username" value="${existing?.db_user || ''}">
-        <input class="s-input" id="yc-pass" type="password" placeholder="Password">
-        <input class="s-input" id="yc-db" placeholder="Default database (optional)" value="${existing?.database || ''}">
+        <input class="s-input" id="yc-user" placeholder="${_ysqlConnT('ysql_username_ph')}" value="${existing?.db_user || ''}">
+        <input class="s-input" id="yc-pass" type="password" placeholder="${_ysqlConnT('ysql_password_ph')}">
+        <input class="s-input" id="yc-db" placeholder="${_ysqlConnT('ysql_default_database_ph')}" value="${existing?.database || ''}">
       </div>
       <div id="yc-error" style="color:#f38ba8;font-size:.82rem;display:none"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
-        ${existing ? `<button class="s-btn" id="yc-delete" style="margin-right:auto;color:#f38ba8">Delete</button>` : ''}
-        <button class="s-btn" id="yc-cancel">Cancel</button>
-        <button class="s-btn" id="yc-save" style="background:var(--accent);color:#fff;border-color:var(--accent)">Save</button>
+        ${existing ? `<button class="s-btn" id="yc-delete" style="margin-right:auto;color:#f38ba8">${_ysqlConnT('ysql_delete')}</button>` : ''}
+        <button class="s-btn" id="yc-cancel">${_ysqlConnT('ysql_cancel')}</button>
+        <button class="s-btn" id="yc-save" style="background:var(--accent);color:#fff;border-color:var(--accent)">${_ysqlConnT('ysql_save')}</button>
       </div>
     `);
 
@@ -408,7 +410,7 @@ YS.connections = (() => {
       };
       if (!body.name || !body.host || !body.user) {
         const err = modal.querySelector('#yc-error');
-        err.textContent = 'Name, host and username are required.';
+        err.textContent = _ysqlConnT('ysql_name_host_user_required');
         err.style.display = 'block';
         return;
       }
@@ -424,7 +426,7 @@ YS.connections = (() => {
     box.style.display = 'flex';
     box.style.background = 'var(--surface)';
     box.style.color = 'var(--text-dim)';
-    box.innerHTML = 'Checking driver…';
+    box.innerHTML = _ysqlConnT('ysql_checking_driver');
     let res;
     try {
       res = await YS.api('/driver-status?db_type=' + encodeURIComponent(dbType));
@@ -438,22 +440,22 @@ YS.connections = (() => {
     }
     box.style.background = 'rgba(243,139,168,.12)';
     box.style.color = '#f38ba8';
-    box.innerHTML = `<span style="flex:1">⚠ Driver not installed (${res.package})</span>` +
-      `<button class="s-btn s-btn-sm" id="yc-install-driver" style="padding:2px 10px">Install</button>`;
+    box.innerHTML = `<span style="flex:1">${_ysqlConnT('ysql_driver_not_installed', { package: res.package })}</span>` +
+      `<button class="s-btn s-btn-sm" id="yc-install-driver" style="padding:2px 10px">${_ysqlConnT('ysql_install')}</button>`;
     box.querySelector('#yc-install-driver').addEventListener('click', async function() {
       const btn = this;
-      const ok = await mvmOS.requireRoot('YourSQL', 'Installing a database driver requires root.');
+      const ok = await mvmOS.requireRoot('YourSQL', _ysqlConnT('ysql_root_required_driver'));
       if (!ok) return;
       btn.disabled = true;
-      btn.textContent = 'Installing…';
+      btn.textContent = _ysqlConnT('ysql_installing');
       try {
         await YS.api('/install-driver', { method: 'POST', json: { db_type: dbType } });
-        YS.toast && YS.toast('Driver installed', 'success');
+        YS.toast && YS.toast(_ysqlConnT('ysql_driver_installed'), 'success');
         _checkDriverStatus(modal, dbType);
       } catch (e) {
-        YS.toast ? YS.toast('Install failed: ' + e.message, 'error') : alert('Install failed: ' + e.message);
+        YS.toast ? YS.toast(_ysqlConnT('ysql_install_failed', { msg: e.message }), 'error') : alert(_ysqlConnT('ysql_install_failed', { msg: e.message }));
         btn.disabled = false;
-        btn.textContent = 'Install';
+        btn.textContent = _ysqlConnT('ysql_install');
       }
     });
   }

@@ -1,25 +1,27 @@
 // YourSQL — Manage Tables
 
+const _ysqlMtT = window.t || (k => k);
+
 YS.manageTables = (() => {
 
   function _operationsFor(family) {
     var meta = YS.dbtype.meta(family);
     var maintenance = [
-      { id: 'analyze',  icon: '📊', label: 'Analyze',  desc: 'Update index statistics',       danger: false },
+      { id: 'analyze',  icon: '📊', label: _ysqlMtT('ysql_op_analyze'),  desc: _ysqlMtT('ysql_op_analyze_desc'),       danger: false },
       { id: 'optimize', icon: '⚙',  label: meta.optimizeLabel, desc: meta.optimizeDesc,       danger: false },
     ];
     if (meta.hasCheckRepair) {
       maintenance.push(
-        { id: 'check',    icon: '✔',  label: 'Check',    desc: 'Check tables for errors',       danger: false },
-        { id: 'repair',   icon: '🔧', label: 'Repair',   desc: 'Repair corrupted tables (MyISAM)', danger: false }
+        { id: 'check',    icon: '✔',  label: _ysqlMtT('ysql_op_check'),    desc: _ysqlMtT('ysql_op_check_desc'),       danger: false },
+        { id: 'repair',   icon: '🔧', label: _ysqlMtT('ysql_op_repair'),   desc: _ysqlMtT('ysql_op_repair_desc'), danger: false }
       );
     }
     return [
-      { group: 'OPERATION', items: [
-        { id: 'truncate', icon: '🗑', label: 'Truncate', desc: 'Delete all rows, keep structure', danger: true },
-        { id: 'drop',     icon: '💥', label: 'Drop',     desc: 'Remove tables completely',      danger: true },
+      { group: _ysqlMtT('ysql_op_group_operation'), items: [
+        { id: 'truncate', icon: '🗑', label: _ysqlMtT('ysql_op_truncate'), desc: _ysqlMtT('ysql_op_truncate_desc'), danger: true },
+        { id: 'drop',     icon: '💥', label: _ysqlMtT('ysql_op_drop'),     desc: _ysqlMtT('ysql_op_drop_desc'),      danger: true },
       ]},
-      { group: 'MAINTENANCE', items: maintenance },
+      { group: _ysqlMtT('ysql_op_group_maintenance'), items: maintenance },
     ];
   }
 
@@ -84,11 +86,11 @@ YS.manageTables = (() => {
     tblHeader.style.cssText = 'display:flex;align-items:center;justify-content:space-between;flex-shrink:0';
     var tblLabel = document.createElement('div');
     tblLabel.style.cssText = 'font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em';
-    tblLabel.textContent = 'TABLES';
+    tblLabel.textContent = _ysqlMtT('ysql_tables');
     var allLbl = document.createElement('label');
     allLbl.style.cssText = 'display:flex;align-items:center;gap:5px;font-size:.82rem;cursor:pointer';
     var allCk = document.createElement('input'); allCk.type = 'checkbox';
-    allLbl.appendChild(allCk); allLbl.appendChild(document.createTextNode('All tables'));
+    allLbl.appendChild(allCk); allLbl.appendChild(document.createTextNode(_ysqlMtT('ysql_all_tables')));
     tblHeader.appendChild(tblLabel); tblHeader.appendChild(allLbl);
     right.appendChild(tblHeader);
 
@@ -124,7 +126,7 @@ YS.manageTables = (() => {
     var runBtn = document.createElement('button');
     runBtn.className = 's-btn s-btn-sm';
     runBtn.style.cssText = 'padding:5px 18px;font-size:.85rem';
-    runBtn.textContent = 'Truncate selected';
+    runBtn.textContent = _ysqlMtT('ysql_op_selected', { op: _ysqlMtT('ysql_op_truncate') });
     runBtn.disabled = true;
     runBtn.addEventListener('click', function() {
       var op = OPERATIONS.flatMap(function(g){return g.items;}).find(function(o){return o.id===selectedOp.id;});
@@ -152,7 +154,7 @@ YS.manageTables = (() => {
   function _updateBtn(btn, op, selected) {
     if (!op) return;
     btn.disabled = selected.length === 0;
-    btn.textContent = op.label + ' selected';
+    btn.textContent = _ysqlMtT('ysql_op_selected', { op: op.label });
     btn.style.background = op.danger ? '#f38ba8' : 'var(--accent)';
     btn.style.color = '#fff';
     btn.style.borderColor = op.danger ? '#f38ba8' : 'var(--accent)';
@@ -162,12 +164,12 @@ YS.manageTables = (() => {
     if (!tables.length) return;
 
     var confirmMsg = op.id === 'drop'
-      ? 'DROP ' + tables.length + ' table(s)? This cannot be undone!'
-      : op.label + ' ' + tables.length + ' table(s)?';
+      ? _ysqlMtT('ysql_drop_n_tables_confirm', { n: tables.length })
+      : _ysqlMtT('ysql_op_n_tables_confirm', { op: op.label, n: tables.length });
     if (!confirm(confirmMsg)) return;
 
     btn.disabled = true;
-    btn.textContent = 'Running…';
+    btn.textContent = _ysqlMtT('ysql_running');
 
     var r = await YS.api('/manage-tables', { method: 'POST', json: {
       conn_id: YS.state.activeConn.id,
@@ -183,7 +185,7 @@ YS.manageTables = (() => {
       return;
     }
 
-    YS.toast(op.label + ' completed — ' + tables.length + ' table(s)', 'success');
+    YS.toast(_ysqlMtT('ysql_op_completed', { op: op.label, n: tables.length }), 'success');
 
     if (op.id === 'drop') {
       await YS.sidebar.loadTables(container);

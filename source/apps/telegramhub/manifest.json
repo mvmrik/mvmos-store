@@ -3,7 +3,7 @@
   "name": "Telegram Hub",
   "icon": "✈️",
   "category": "Social",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Bridges Apps Hub public apps into a Telegram bot. Any app can opt in by adding a telegram.py adapter next to its public.py.",
   "entry": "main.js"
 }

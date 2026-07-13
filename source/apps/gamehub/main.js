@@ -11,6 +11,27 @@ const _gh18n = {
     duration:'Duration', game:'Game', score:'Score',
     username_taken:'Username already taken.',
     sec:'s', min:'m',
+    fav_login_required:'Log in to Game Hub to use favourites.',
+    fav_find_player:'Find a player',
+    fav_search_ph:'Search by name or username…',
+    fav_no_players_found:'No players found.',
+    fav_saved_header:'Saved favourites',
+    fav_none_yet:"No favourites yet. Search above or add from a player's profile.",
+    fav_profile_btn:'Profile',
+    fav_saved:'★ Saved',
+    fav_favourite:'☆ Favourite',
+    fav_login_first:'Log in to GH first',
+    prof_game_label:'Game:',
+    prof_all_games:'All games',
+    set_my_avatar:'My Avatar',
+    set_edit_avatar:'Edit Avatar',
+    set_direct_link:'Direct link (no domain mapping needed):',
+    set_open_link:'Open ↗',
+    set_domain_hint:'For a cleaner URL, map a domain or subpath to this app in mvmOS Domains settings.',
+    password_required:'Password required',
+    error:'Error',
+    prof_no_shared:'No shared sessions.',
+    prof_head_to_head:'Head to Head',
   },
   bg: {
     title:'Game Hub', players:'Играчи', sessions:'Сесии', leaderboard:'Класация',
@@ -24,6 +45,27 @@ const _gh18n = {
     duration:'Продължителност', game:'Игра', score:'Резултат',
     username_taken:'Потребителското ime вече съществува.',
     sec:'с', min:'м',
+    fav_login_required:'Влез в Game Hub, за да ползваш любими.',
+    fav_find_player:'Намери играч',
+    fav_search_ph:'Търсене по име или потребителско име…',
+    fav_no_players_found:'Няма намерени играчи.',
+    fav_saved_header:'Запазени любими',
+    fav_none_yet:'Все още няма любими. Търси отгоре или добави от профила на играч.',
+    fav_profile_btn:'Профил',
+    fav_saved:'★ Запазен',
+    fav_favourite:'☆ Любим',
+    fav_login_first:'Първо влез в GH',
+    prof_game_label:'Игра:',
+    prof_all_games:'Всички игри',
+    set_my_avatar:'Моят аватар',
+    set_edit_avatar:'Редактирай аватар',
+    set_direct_link:'Директен линк (не изисква мапване на домейн):',
+    set_open_link:'Отвори ↗',
+    set_domain_hint:'За по-чист URL, мапни домейн или подпът към това приложение в Настройки → Домейни на mvmOS.',
+    password_required:'Изисква се парола',
+    error:'Грешка',
+    prof_no_shared:'Няма общи сесии.',
+    prof_head_to_head:'Един срещу друг',
   },
 };
 function _ght(k) { const l=window.mvmOS?.lang||'en'; return (_gh18n[l]||_gh18n.en)[k]||k; }
@@ -226,14 +268,14 @@ mvmOS.registerApp({
                   <div style="font-weight:700;font-size:16px">${esc(p.display_name)}</div>
                   <div style="font-size:12px;color:var(--fg2)">@${esc(p.username)}</div>
                 </div>
-                <button id="gh-prof-fav" style="${btn()};padding:5px 10px;font-size:12px">${_ghIsFav(p.id)?'★ Saved':'☆ Favourite'}</button>
+                <button id="gh-prof-fav" style="${btn()};padding:5px 10px;font-size:12px">${_ghIsFav(p.id)?_ght('fav_saved'):_ght('fav_favourite')}</button>
                 ${hasVs ? `<button id="gh-prof-vs-btn" style="${btn()};padding:5px 10px;font-size:12px">⚔️ vs</button>` : ''}
                 <button id="gh-prof-close" style="${btn()};padding:4px 10px;font-size:16px;line-height:1">✕</button>
               </div>
               <div id="gh-prof-filter" style="padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:8px">
-                <span style="font-size:12px;color:var(--fg2)">Game:</span>
+                <span style="font-size:12px;color:var(--fg2)">${_ght('prof_game_label')}</span>
                 <select id="gh-prof-game" style="${inp('auto')};flex:1">
-                  <option value="">All games</option>
+                  <option value="">${_ght('prof_all_games')}</option>
                 </select>
               </div>
               <div id="gh-prof-stats" style="display:flex;border-bottom:1px solid var(--border);flex-shrink:0"></div>
@@ -246,9 +288,9 @@ mvmOS.registerApp({
 
           const favBtn = overlay.querySelector('#gh-prof-fav');
           favBtn.onclick = async () => {
-            if (!_ghIsLoggedIn()) { favBtn.textContent = 'Log in to GH first'; setTimeout(()=>{ favBtn.textContent = _ghIsFav(p.id)?'★ Saved':'☆ Favourite'; }, 2000); return; }
+            if (!_ghIsLoggedIn()) { favBtn.textContent = _ght('fav_login_first'); setTimeout(()=>{ favBtn.textContent = _ghIsFav(p.id)?_ght('fav_saved'):_ght('fav_favourite'); }, 2000); return; }
             await _ghToggleFav(p);
-            favBtn.textContent = _ghIsFav(p.id) ? '★ Saved' : '☆ Favourite';
+            favBtn.textContent = _ghIsFav(p.id) ? _ght('fav_saved') : _ght('fav_favourite');
           };
 
           const vsBtn = overlay.querySelector('#gh-prof-vs-btn');
@@ -265,7 +307,7 @@ mvmOS.registerApp({
             const gameFilter = sel.value;
             // Rebuild game options based on mode
             const gameList = vsMode ? vsGames : games;
-            sel.innerHTML = `<option value="">All games</option>` +
+            sel.innerHTML = `<option value="">${_ght('prof_all_games')}</option>` +
               gameList.map(g => `<option value="${esc(g)}"${sel.value===g?' selected':''}>${esc(stats?.game_meta?.[g]?.name||g)}</option>`).join('');
             overlay.querySelector('#gh-prof-filter').style.display = gameList.length > 1 ? '' : 'none';
             if (vsMode) renderVs(sel.value);
@@ -360,7 +402,7 @@ mvmOS.registerApp({
             const sc = overlay.querySelector('#gh-prof-sessions');
             sc.innerHTML = '';
             if (!filtered.length) {
-              sc.innerHTML = `<div style="color:var(--fg2);text-align:center;padding:20px">No shared sessions.</div>`;
+              sc.innerHTML = `<div style="color:var(--fg2);text-align:center;padding:20px">${_ght('prof_no_shared')}</div>`;
               return;
             }
             filtered.forEach(s => {
@@ -627,7 +669,7 @@ mvmOS.registerApp({
             if(h2hInGame.length) {
               const sec = document.createElement('div');
               sec.style.marginTop = '16px';
-              sec.innerHTML = `<div style="font-weight:600;font-size:13px;color:var(--accent);margin-bottom:8px">Head to Head</div>`;
+              sec.innerHTML = `<div style="font-weight:600;font-size:13px;color:var(--accent);margin-bottom:8px">${_ght('prof_head_to_head')}</div>`;
               h2hInGame.forEach(r => {
                 const p1 = playerMap[r.p1], p2 = playerMap[r.p2];
                 if(!p1||!p2) return;
@@ -693,7 +735,7 @@ mvmOS.registerApp({
             const uname = box.querySelector('#gh-uname').value.trim();
             const pass  = box.querySelector('#gh-pass').value;
             if(!dname||!uname) return;
-            if(isNew && !pass) { const err=box.querySelector('#gh-err'); err.textContent='Password required'; err.style.display='block'; return; }
+            if(isNew && !pass) { const err=box.querySelector('#gh-err'); err.textContent=_ght('password_required'); err.style.display='block'; return; }
             const payload = {username:uname, display_name:dname, avatar_color:selColor};
             if(pass) payload.password = pass;
             const url  = isNew ? '/api/gamehub/players' : `/api/gamehub/players/${player.id}`;
@@ -701,7 +743,7 @@ mvmOS.registerApp({
             if(!res.ok) {
               const d = await res.json().catch(()=>({}));
               const err = box.querySelector('#gh-err');
-              err.textContent = d.detail===`Username already exists` ? _ght('username_taken') : (d.detail||'Error');
+              err.textContent = d.detail===`Username already exists` ? _ght('username_taken') : (d.detail||_ght('error'));
               err.style.display='block';
               return;
             }
@@ -719,7 +761,7 @@ mvmOS.registerApp({
           c.innerHTML = '';
 
           if (!_ghIsLoggedIn()) {
-            c.innerHTML = `<div style="color:var(--fg2);text-align:center;margin-top:40px;font-size:13px">Log in to Game Hub to use favourites.</div>`;
+            c.innerHTML = `<div style="color:var(--fg2);text-align:center;margin-top:40px;font-size:13px">${_ght('fav_login_required')}</div>`;
             return;
           }
 
@@ -729,8 +771,8 @@ mvmOS.registerApp({
           const searchWrap = document.createElement('div');
           searchWrap.style.cssText = 'margin-bottom:18px';
           searchWrap.innerHTML = `
-            <div style="font-weight:600;font-size:12px;color:var(--fg2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Find a player</div>
-            <input id="gh-fav-search" placeholder="Search by name or username…" style="${inp()};margin-bottom:8px" autocomplete="off">
+            <div style="font-weight:600;font-size:12px;color:var(--fg2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${_ght('fav_find_player')}</div>
+            <input id="gh-fav-search" placeholder="${_ght('fav_search_ph')}" style="${inp()};margin-bottom:8px" autocomplete="off">
             <div id="gh-fav-results" style="display:flex;flex-direction:column;gap:6px"></div>`;
           c.appendChild(searchWrap);
 
@@ -744,13 +786,13 @@ mvmOS.registerApp({
             const hits = allPlayers.filter(p =>
               p.display_name.toLowerCase().includes(q) || p.username.toLowerCase().includes(q)
             ).slice(0, 8);
-            if (!hits.length) { resultsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">No players found.</div>`; return; }
+            if (!hits.length) { resultsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">${_ght('fav_no_players_found')}</div>`; return; }
             hits.forEach(p => resultsEl.appendChild(_ghFavRow(p)));
           };
 
           // Saved favourites
           const divider = document.createElement('div');
-          divider.innerHTML = `<div style="font-weight:600;font-size:12px;color:var(--fg2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;padding-top:14px;border-top:1px solid var(--border)">Saved favourites</div>`;
+          divider.innerHTML = `<div style="font-weight:600;font-size:12px;color:var(--fg2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;padding-top:14px;border-top:1px solid var(--border)">${_ght('fav_saved_header')}</div>`;
           c.appendChild(divider);
 
           const favsEl = document.createElement('div');
@@ -760,7 +802,7 @@ mvmOS.registerApp({
           function renderSaved() {
             favsEl.innerHTML = '';
             if (!_ghFavs || !_ghFavs.length) {
-              favsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">No favourites yet. Search above or add from a player's profile.</div>`;
+              favsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">${_ght('fav_none_yet')}</div>`;
               return;
             }
             _ghFavs.forEach(f => favsEl.appendChild(_ghFavRow(f, renderSaved)));
@@ -778,14 +820,14 @@ mvmOS.registerApp({
               <div style="font-weight:600;font-size:13px">${esc(p.display_name||p.username||'?')}</div>
               <div style="font-size:11px;color:var(--fg2)">@${esc(p.username||'')}</div>
             </div>
-            <button id="frow-prof" style="${btn()};padding:4px 10px;font-size:12px">Profile</button>
-            <button id="frow-fav" style="${btn()};padding:4px 10px;font-size:12px">${fav?'★ Saved':'☆ Favourite'}</button>`;
+            <button id="frow-prof" style="${btn()};padding:4px 10px;font-size:12px">${_ght('fav_profile_btn')}</button>
+            <button id="frow-fav" style="${btn()};padding:4px 10px;font-size:12px">${fav?_ght('fav_saved'):_ght('fav_favourite')}</button>`;
           row.querySelector('#frow-prof').onclick = () => showPlayerProfile(p);
           row.querySelector('#frow-fav').onclick = async () => {
             if (!_ghIsLoggedIn()) return;
             await _ghToggleFav(p);
             const b = row.querySelector('#frow-fav');
-            b.textContent = _ghIsFav(p.id) ? '★ Saved' : '☆ Favourite';
+            b.textContent = _ghIsFav(p.id) ? _ght('fav_saved') : _ght('fav_favourite');
             if (onFavChange) onFavChange();
           };
           return row;
@@ -797,12 +839,12 @@ mvmOS.registerApp({
           const me = _ghMe || window.GameHub?.currentPlayer();
           const avatarSection = me ? `
               <div>
-                <div style="font-weight:700;font-size:14px;margin-bottom:12px">👤 My Avatar</div>
+                <div style="font-weight:700;font-size:14px;margin-bottom:12px">👤 ${_ght('set_my_avatar')}</div>
                 <div style="background:var(--surface1);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px">
                   <div id="gh-set-av-preview">${window.GHAvatar ? window.GHAvatar.renderAvatar(me, 64) : `<div style="width:64px;height:64px;border-radius:50%;background:${esc(me.avatar_color||'#585b70')};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:28px;color:#1e1e2e">${esc((me.display_name?.[0]||'?').toUpperCase())}</div>`}</div>
                   <div style="display:flex;flex-direction:column;gap:6px">
                     <div style="font-size:13px;font-weight:600">${esc(me.display_name)}</div>
-                    <button id="gh-set-av-btn" style="${btn()};padding:6px 14px;font-size:12px">Edit Avatar</button>
+                    <button id="gh-set-av-btn" style="${btn()};padding:6px 14px;font-size:12px">${_ght('set_edit_avatar')}</button>
                   </div>
                 </div>
               </div>` : '';
@@ -810,12 +852,12 @@ mvmOS.registerApp({
             <div style="max-width:420px;display:flex;flex-direction:column;gap:20px">
               ${avatarSection}
               <div id="gh-set-publink">
-                <div style="font-size:12px;color:var(--fg2);margin-bottom:8px">Direct link (no domain mapping needed):</div>
+                <div style="font-size:12px;color:var(--fg2);margin-bottom:8px">${_ght('set_direct_link')}</div>
                 <div style="display:flex;align-items:center;gap:8px">
                   <code style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--accent);user-select:all">/pub/gamehub/</code>
-                  <button id="gh-set-open" style="${btn()};padding:5px 12px;font-size:12px">Open ↗</button>
+                  <button id="gh-set-open" style="${btn()};padding:5px 12px;font-size:12px">${_ght('set_open_link')}</button>
                 </div>
-                <div style="font-size:11px;color:var(--fg2);margin-top:6px">For a cleaner URL, map a domain or subpath to this app in mvmOS Domains settings.</div>
+                <div style="font-size:11px;color:var(--fg2);margin-top:6px">${_ght('set_domain_hint')}</div>
               </div>
             </div>`;
 

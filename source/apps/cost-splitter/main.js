@@ -23,6 +23,16 @@ const _csi18n = {
     share: 'Share', auto: 'auto', mail_log: 'Email log',
     mail_sent: 'Sent', mail_failed: 'Failed', no_mail_log: 'No emails sent yet.',
     test_email: 'Test email', test_email_ok: 'Test email sent!', test_email_fail: 'Failed to send:',
+    email_label: 'Email',
+    email_body_label: 'Email body',
+    charge_note_label: 'Charge note',
+    charge_note_hint: '(shown in transaction history — leave empty for none)',
+    show_in_summary: 'Show in email summary table:',
+    show_total_amount: 'Total amount',
+    show_prev_balance: 'Previous balance',
+    show_amount_due: 'Amount due',
+    show_current_balance: 'Current balance',
+    show_tx_history: 'Transaction history',
   },
   bg: {
     title: 'Cost Splitter',
@@ -47,6 +57,16 @@ const _csi18n = {
     mail_sent: 'Изпратен', mail_failed: 'Неуспешен', no_mail_log: 'Няма изпратени имейли.',
     settings_hint: '⚙ Настрой месечната цена и имейл настройките в App Settings.',
     test_email: 'Тест имейл', test_email_ok: 'Тест имейлът е изпратен!', test_email_fail: 'Грешка:',
+    email_label: 'Имейл',
+    email_body_label: 'Съдържание на имейла',
+    charge_note_label: 'Бележка при начисляване',
+    charge_note_hint: '(показва се в историята на транзакциите — остави празно за без бележка)',
+    show_in_summary: 'Показвай в обобщението на имейла:',
+    show_total_amount: 'Обща сума',
+    show_prev_balance: 'Предишен баланс',
+    show_amount_due: 'Дължима сума',
+    show_current_balance: 'Текущ баланс',
+    show_tx_history: 'История на транзакциите',
   },
 };
 function _cst(key) { const lang = window.mvmOS?.lang || 'en'; return (_csi18n[lang] || _csi18n.en)[key] || key; }
@@ -99,22 +119,22 @@ mvmOS.registerApp({
     const chk = (key, def=true) => saved[key] !== undefined ? saved[key] : def;
     wrap.innerHTML = `
       <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:12px;display:flex;flex-direction:column;gap:8px">
-        <label style="font-size:.8rem;color:var(--text-dim)">Email body</label>
+        <label style="font-size:.8rem;color:var(--text-dim)">${_cst('email_body_label')}</label>
         <textarea id="cs-mail-body" rows="3" style="width:100%;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:.8rem;resize:vertical;box-sizing:border-box;font-family:inherit">${val}</textarea>
         <div style="font-size:.72rem;color:var(--text-dim);line-height:1.5">
           Variables: <code>{name}</code> &nbsp;·&nbsp; <code>{share}</code> &nbsp;·&nbsp;
           <code>{old_balance}</code> &nbsp;·&nbsp; <code>{new_balance}</code> &nbsp;·&nbsp; <code>{charged}</code>
         </div>
-        <label style="font-size:.8rem;color:var(--text-dim);margin-top:4px">Charge note <span style="opacity:.6">(shown in transaction history — leave empty for none)</span></label>
+        <label style="font-size:.8rem;color:var(--text-dim);margin-top:4px">${_cst('charge_note_label')} <span style="opacity:.6">${_cst('charge_note_hint')}</span></label>
         <input id="cs-charge-note" type="text" placeholder="e.g. Monthly rent, Utilities…" value="${saved.charge_note || ''}" style="width:100%;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:.8rem;box-sizing:border-box">
         <div style="border-top:1px solid var(--border);padding-top:8px">
-          <div style="font-size:.8rem;color:var(--text-dim);margin-bottom:6px">Show in email summary table:</div>
+          <div style="font-size:.8rem;color:var(--text-dim);margin-bottom:6px">${_cst('show_in_summary')}</div>
           <div style="display:flex;flex-direction:column;gap:4px;font-size:.85rem">
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cs-show-total"    ${chk('show_total')    ? 'checked' : ''}> Total amount</label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cs-show-prev"     ${chk('show_prev')     ? 'checked' : ''}> Previous balance</label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cs-show-share"    ${chk('show_share')    ? 'checked' : ''}> Amount due</label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cs-show-balance"  ${chk('show_balance')  ? 'checked' : ''}> Current balance</label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cs-show-history"  ${chk('show_history')  ? 'checked' : ''}> Transaction history</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cs-show-total"    ${chk('show_total')    ? 'checked' : ''}> ${_cst('show_total_amount')}</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cs-show-prev"     ${chk('show_prev')     ? 'checked' : ''}> ${_cst('show_prev_balance')}</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cs-show-share"    ${chk('show_share')    ? 'checked' : ''}> ${_cst('show_amount_due')}</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cs-show-balance"  ${chk('show_balance')  ? 'checked' : ''}> ${_cst('show_current_balance')}</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cs-show-history"  ${chk('show_history')  ? 'checked' : ''}> ${_cst('show_tx_history')}</label>
           </div>
         </div>
       </div>
@@ -310,7 +330,7 @@ const CS = (() => {
           <div class="cs-card-val" style="font-size:.85rem">${shareLabel}</div>
         </div>
         ${member.email ? `<div class="cs-card">
-          <div class="cs-card-label">Email</div>
+          <div class="cs-card-label">${_cst('email_label')}</div>
           <div class="cs-card-val" style="font-size:.75rem;font-weight:400">${_esc(member.email)}</div>
         </div>` : ''}
       </div>

@@ -32,11 +32,27 @@ const _sf18n = {
     score: 'Score', drop: 'DROP', next: 'Next', time: 'Time',
     new_game: '↺ New', game_over: 'Game Over!', final_score: 'Final Score:',
     time_label: 'Time:', play_again: 'Play Again', joker_title: 'Joker — choose a number',
+    mp_waiting: 'Waiting for opponent…', mp_share_link: 'Share the link with your friend',
+    mp_link_expired: 'Link Expired',
+    mp_room_gone: 'This game room no longer exists.<br>Ask your opponent to create a new game.',
+    mp_room_ttl: 'Rooms expire after 1 hour of inactivity',
+    mp_opponent_disconnected: 'Opponent Disconnected',
+    mp_opponent_left: 'Your opponent has left the game.',
+    back_to_menu: 'Back to Menu',
+    mp_draw: 'Draw!', mp_win: '🏆 You win!', mp_lose: '😔 You lose',
   },
   bg: {
     score: 'Точки', drop: 'ПУСНИ', next: 'Следващо', time: 'Време',
     new_game: '↺ Ново', game_over: 'Край на играта!', final_score: 'Резултат:',
     time_label: 'Време:', play_again: 'Играй пак', joker_title: 'Джокер — избери число',
+    mp_waiting: 'Изчакване на опонент…', mp_share_link: 'Сподели линка с приятел',
+    mp_link_expired: 'Линкът е изтекъл',
+    mp_room_gone: 'Тази стая вече не съществува.<br>Помоли опонента си да създаде нова игра.',
+    mp_room_ttl: 'Стаите изтичат след 1 час неактивност',
+    mp_opponent_disconnected: 'Опонентът се разкачи',
+    mp_opponent_left: 'Опонентът напусна играта.',
+    back_to_menu: 'Обратно в менюто',
+    mp_draw: 'Равенство!', mp_win: '🏆 Ти печелиш!', mp_lose: '😔 Ти губиш',
   },
 };
 const SudofallGame = (() => {
@@ -912,8 +928,8 @@ if (msg.type === 'joined') _mp.playerIndex = msg.player;
     const el = document.createElement('div');
     el.id = 'sf-mp-waiting';
     el.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.8);z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border-radius:8px';
-    el.innerHTML = `<div style="font-size:1.2rem;font-weight:700;color:#cdd6f4">Waiting for opponent…</div>
-      <div style="font-size:.85rem;color:#a6adc8">Share the link with your friend</div>`;
+    el.innerHTML = `<div style="font-size:1.2rem;font-weight:700;color:#cdd6f4">${t('mp_waiting')}</div>
+      <div style="font-size:.85rem;color:#a6adc8">${t('mp_share_link')}</div>`;
     _body.appendChild(el);
   }
 
@@ -923,11 +939,11 @@ if (msg.type === 'joined') _mp.playerIndex = msg.player;
       <div style="display:flex;flex-direction:column;height:100%;align-items:center;justify-content:center;gap:20px;padding:32px;background:var(--surface,#1e1e2e)">
         <div style="width:72px;height:72px;border-radius:50%;background:rgba(243,139,168,.15);border:2px solid rgba(243,139,168,.3);display:flex;align-items:center;justify-content:center;font-size:2rem">⏰</div>
         <div style="text-align:center">
-          <div style="font-size:1.1rem;font-weight:700;color:#f38ba8;margin-bottom:8px">Link Expired</div>
-          <div style="font-size:.82rem;color:var(--text-dim,#a6adc8);line-height:1.6">This game room no longer exists.<br>Ask your opponent to create a new game.</div>
+          <div style="font-size:1.1rem;font-weight:700;color:#f38ba8;margin-bottom:8px">${t('mp_link_expired')}</div>
+          <div style="font-size:.82rem;color:var(--text-dim,#a6adc8);line-height:1.6">${t('mp_room_gone')}</div>
         </div>
         <div style="width:100%;max-width:280px;height:1px;background:var(--border,#45475a)"></div>
-        <div style="font-size:.75rem;color:#585b70;text-align:center">Rooms expire after 1 hour of inactivity</div>
+        <div style="font-size:.75rem;color:#585b70;text-align:center">${t('mp_room_ttl')}</div>
       </div>`;
   }
 
@@ -937,11 +953,11 @@ if (msg.type === 'joined') _mp.playerIndex = msg.player;
       <div style="display:flex;flex-direction:column;height:100%;align-items:center;justify-content:center;gap:20px;padding:32px;background:var(--surface,#1e1e2e)">
         <div style="width:72px;height:72px;border-radius:50%;background:rgba(243,139,168,.15);border:2px solid rgba(243,139,168,.3);display:flex;align-items:center;justify-content:center;font-size:2rem">🔌</div>
         <div style="text-align:center">
-          <div style="font-size:1.1rem;font-weight:700;color:#f38ba8;margin-bottom:8px">Opponent Disconnected</div>
-          <div style="font-size:.82rem;color:var(--text-dim,#a6adc8);line-height:1.6">Your opponent has left the game.</div>
+          <div style="font-size:1.1rem;font-weight:700;color:#f38ba8;margin-bottom:8px">${t('mp_opponent_disconnected')}</div>
+          <div style="font-size:.82rem;color:var(--text-dim,#a6adc8);line-height:1.6">${t('mp_opponent_left')}</div>
         </div>
         <div style="width:100%;max-width:280px;height:1px;background:var(--border,#45475a)"></div>
-        <button id="sf-disconnect-back" style="padding:10px 28px;background:var(--accent,#6366f1);border:none;border-radius:8px;color:#fff;font-size:.95rem;font-weight:600;cursor:pointer">Back to Menu</button>
+        <button id="sf-disconnect-back" style="padding:10px 28px;background:var(--accent,#6366f1);border:none;border-radius:8px;color:#fff;font-size:.95rem;font-weight:600;cursor:pointer">${t('back_to_menu')}</button>
       </div>`;
     _body.querySelector('#sf-disconnect-back').addEventListener('click', () => {
       _mpLeave();
@@ -954,7 +970,7 @@ if (msg.type === 'joined') _mp.playerIndex = msg.player;
     const win = myScore > oppScore;
     const draw = myScore === oppScore;
     const resultEl = _body.querySelector('#sf-mp-result');
-    if (resultEl) resultEl.textContent = draw ? 'Draw!' : win ? '🏆 You win!' : '😔 You lose';
+    if (resultEl) resultEl.textContent = draw ? t('mp_draw') : win ? t('mp_win') : t('mp_lose');
     if (_goScore) _goScore.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap"><span style="display:flex;align-items:center;gap:6px">${_myAvatarHtml(22)}<span>${_myName()}: ${myScore}</span></span><span style="color:#585b70">|</span><span style="display:flex;align-items:center;gap:6px">${_oppAvatarHtml(22)}<span>${_oppName()}: ${oppScore}</span></span></div>`;
     if (_goTime) _goTime.textContent = `${t('time_label')} ${_formatTime(elapsed)}`;
     _msgEl.style.display = 'flex';

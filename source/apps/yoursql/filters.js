@@ -1,5 +1,7 @@
 // YourSQL — Filter & Sort bar
 
+const _ysqlFiT = window.t || (k => k);
+
 YS.filters = (() => {
 
   const OPS_STR  = ['=','!=','LIKE','NOT LIKE','LIKE %%','REGEXP','IS NULL','IS NOT NULL'];
@@ -93,7 +95,7 @@ YS.filters = (() => {
 
     var sortLabel = document.createElement('span');
     sortLabel.style.cssText = 'font-size:.75rem;color:var(--text-dim);min-width:34px;flex-shrink:0';
-    sortLabel.textContent = 'SORT';
+    sortLabel.textContent = _ysqlFiT('ysql_sort');
     sortWrap.appendChild(sortLabel);
 
     var sortTags = document.createElement('div');
@@ -103,7 +105,7 @@ YS.filters = (() => {
 
     var addSortBtn = document.createElement('button');
     addSortBtn.className = 's-btn s-btn-sm';
-    addSortBtn.textContent = '+ add sort';
+    addSortBtn.textContent = _ysqlFiT('ysql_add_sort');
     addSortBtn.style.cssText = 'font-size:.75rem';
     addSortBtn.addEventListener('click', function() {
       _readFiltersFromDOM(filterRows);
@@ -123,7 +125,7 @@ YS.filters = (() => {
 
     var addFilterBtn = document.createElement('button');
     addFilterBtn.className = 's-btn s-btn-sm';
-    addFilterBtn.textContent = '+ Filter';
+    addFilterBtn.textContent = _ysqlFiT('ysql_add_filter');
     addFilterBtn.addEventListener('click', function() {
       _readFiltersFromDOM(filterRows);
       _readSortFromDOM(sortTags);
@@ -133,7 +135,7 @@ YS.filters = (() => {
 
     var limitLabel = document.createElement('span');
     limitLabel.style.cssText = 'font-size:.75rem;color:var(--text-dim);margin-left:8px';
-    limitLabel.textContent = 'LIMIT';
+    limitLabel.textContent = _ysqlFiT('ysql_limit');
     var limitInp = document.createElement('input');
     limitInp.type = 'number'; limitInp.className = 's-input';
     limitInp.style.cssText = 'width:64px;font-size:.8rem;padding:2px 6px';
@@ -144,7 +146,7 @@ YS.filters = (() => {
 
     var resetBtn = document.createElement('button');
     resetBtn.className = 's-btn s-btn-sm';
-    resetBtn.textContent = 'Reset';
+    resetBtn.textContent = _ysqlFiT('ysql_reset');
     resetBtn.style.cssText = '';
     resetBtn.addEventListener('click', function() {
       YS.state.filters = []; YS.state.sort = []; YS.state.page = 1;
@@ -154,7 +156,7 @@ YS.filters = (() => {
 
     var searchBtn = document.createElement('button');
     searchBtn.className = 's-btn s-btn-sm';
-    searchBtn.textContent = 'Search';
+    searchBtn.textContent = _ysqlFiT('ysql_search');
     searchBtn.style.cssText = 'background:var(--accent);color:#fff;border-color:var(--accent)';
     searchBtn.addEventListener('click', function() {
       _readFiltersFromDOM(filterRows);
@@ -179,7 +181,7 @@ YS.filters = (() => {
   function _renderFilterRows(container, columns, outerContainer, content) {
     container.innerHTML = '';
     if (!YS.state.filters.length) {
-      container.innerHTML = '<div style="font-size:.78rem;color:var(--text-dim);padding:2px 0">No filters — click "+ Filter" or a column header to add one</div>';
+      container.innerHTML = '<div style="font-size:.78rem;color:var(--text-dim);padding:2px 0">' + _ysqlFiT('ysql_no_filters_hint') + '</div>';
       return;
     }
     YS.state.filters.forEach(function(f, idx) {
@@ -217,7 +219,7 @@ YS.filters = (() => {
       valInp.style.cssText = 'flex:1;min-width:80px;font-size:.8rem';
       valInp.type = _inputTypeForCol(f.col);
       valInp.value = f.val || '';
-      valInp.placeholder = 'value';
+      valInp.placeholder = _ysqlFiT('ysql_value_ph');
       if (OPS_NO_VAL.has(f.op)) { valInp.style.display = 'none'; valInp.disabled = true; }
 
       colSel.addEventListener('change', function() {

@@ -19,44 +19,54 @@
 <body>
 <div class="card">
   <div class="icon">✈️</div>
-  <h1>Link Telegram to your mvmOS account</h1>
+  <h1 id="title">Link Telegram to your mvmOS account</h1>
   <p id="msg">Checking…</p>
   <div id="status"></div>
 </div>
+<script src="/i18n/i18n.js"></script>
 <script>
 (function () {
-  var params = new URLSearchParams(location.search);
-  var code = params.get('code');
-  var token = localStorage.getItem('apphub_token');
+  var t = function (key, vars) { return window.t ? window.t(key, vars) : key; };
 
-  if (!code) {
-    document.getElementById('msg').textContent = 'Missing link code. Open the link from your Telegram bot again.';
-    return;
-  }
-  if (!token) {
-    location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
-    return;
-  }
+  function boot() {
+    document.getElementById('title').textContent = t('tgh_pub_link_title');
+    document.getElementById('msg').textContent = t('tgh_pub_checking');
 
-  fetch('/api/pub/telegramhub/link/confirm', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Pub-Token': token },
-    body: JSON.stringify({ code: code }),
-  }).then(function (r) {
-    var statusEl = document.getElementById('status');
-    var msgEl = document.getElementById('msg');
-    if (r.ok) {
-      msgEl.textContent = 'Your Telegram is now linked.';
-      statusEl.className = 'status ok';
-      statusEl.textContent = '✓ Linked — you can go back to Telegram';
-    } else {
-      msgEl.textContent = 'Could not link this code.';
-      statusEl.className = 'status err';
-      statusEl.textContent = 'The code is invalid or has expired. Ask the bot for a new /start link.';
+    var params = new URLSearchParams(location.search);
+    var code = params.get('code');
+    var token = localStorage.getItem('apphub_token');
+
+    if (!code) {
+      document.getElementById('msg').textContent = t('tgh_pub_missing_code');
+      return;
     }
-  }).catch(function () {
-    document.getElementById('msg').textContent = 'Network error, please try again.';
-  });
+    if (!token) {
+      location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
+      return;
+    }
+
+    fetch('/api/pub/telegramhub/link/confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Pub-Token': token },
+      body: JSON.stringify({ code: code }),
+    }).then(function (r) {
+      var statusEl = document.getElementById('status');
+      var msgEl = document.getElementById('msg');
+      if (r.ok) {
+        msgEl.textContent = t('tgh_pub_linked');
+        statusEl.className = 'status ok';
+        statusEl.textContent = t('tgh_pub_linked_status');
+      } else {
+        msgEl.textContent = t('tgh_pub_link_failed');
+        statusEl.className = 'status err';
+        statusEl.textContent = t('tgh_pub_link_invalid');
+      }
+    }).catch(function () {
+      document.getElementById('msg').textContent = t('tgh_pub_network_error');
+    });
+  }
+
+  (window.mvmOS && window.mvmOS.i18nReady || Promise.resolve()).then(boot);
 })();
 </script>
 </body>

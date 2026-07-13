@@ -3,7 +3,7 @@
   "name": "RSS Reader",
   "icon": "📰",
   "category": "Utilities",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "RSS/Atom feed reader with auto-refresh, read/unread tracking, and optional public reading list.",
   "scheduler": "scheduler.py",
   "settings": [

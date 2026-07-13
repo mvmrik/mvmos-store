@@ -1,6 +1,8 @@
 // YourSQL — shared DB-type metadata (dialect families, labels, per-family type options)
 // Mirrors backend/apps/yoursql/dialect_common.py — keep the two in sync.
 
+const _ysqlDbtypeT = window.t || (k => k);
+
 YS.dbtype = (() => {
 
   // db_type -> { label, family, port }, same mapping/order as dialect_common.DB_TYPE_LABELS
@@ -70,8 +72,8 @@ YS.dbtype = (() => {
       hasEngine:          true,
       hasFulltext:        true,
       hasCheckRepair:     true,
-      optimizeLabel:      'Optimize',
-      optimizeDesc:       'Defragment, reclaim space',
+      optimizeLabel:      _ysqlDbtypeT('ysql_op_optimize_mysql'),
+      optimizeDesc:       _ysqlDbtypeT('ysql_op_optimize_mysql_desc'),
     },
     postgres: {
       typeGroups:        POSTGRES_TYPE_GROUPS,
@@ -87,8 +89,8 @@ YS.dbtype = (() => {
       hasEngine:          false,
       hasFulltext:        false,
       hasCheckRepair:     false,
-      optimizeLabel:      'Vacuum',
-      optimizeDesc:       'VACUUM (ANALYZE) — reclaim space, update stats',
+      optimizeLabel:      _ysqlDbtypeT('ysql_op_optimize_pg'),
+      optimizeDesc:       _ysqlDbtypeT('ysql_op_optimize_pg_desc'),
     },
   };
 

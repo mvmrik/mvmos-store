@@ -1,5 +1,7 @@
 // YourSQL — Create Table
 
+const _ysqlCtT = window.t || (k => k);
+
 YS.createTable = (() => {
 
   var TYPE_GROUPS, ALL_TYPES, NEEDS_LENGTH, NEEDS_DECIMALS, NEEDS_ENUM, CAN_UNSIGNED, NO_DEFAULT, HAS_COLLATION, AUTO_INC_TYPES, META;
@@ -40,11 +42,11 @@ YS.createTable = (() => {
     // Header
     var header = document.createElement('div');
     header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;flex-shrink:0';
-    header.innerHTML = '<h2 style="margin:0;font-size:1rem;font-weight:600">Create Table — ' + YS.escHtml(YS.state.activeDb) + '</h2>';
+    header.innerHTML = '<h2 style="margin:0;font-size:1rem;font-weight:600">' + _ysqlCtT('ysql_create_table_title', { db: YS.escHtml(YS.state.activeDb) }) + '</h2>';
     var saveBtn = document.createElement('button');
     saveBtn.className = 's-btn s-btn-sm';
     saveBtn.style.cssText = 'background:var(--accent);color:#fff;border-color:var(--accent);padding:5px 18px;font-size:.85rem';
-    saveBtn.textContent = 'Save';
+    saveBtn.textContent = _ysqlCtT('ysql_save');
     header.appendChild(saveBtn);
     wrap.appendChild(header);
 
@@ -52,19 +54,19 @@ YS.createTable = (() => {
     var optBox = document.createElement('div');
     optBox.style.cssText = 'display:grid;grid-template-columns:repeat(' + (META.hasEngine ? 4 : 2) + ',1fr);gap:12px;padding:14px;border:1px solid var(--border);border-radius:4px;flex-shrink:0';
     optBox.innerHTML =
-      '<div><div style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">TABLE NAME</div>' +
-        '<input id="ysql-ct-name" class="s-input" style="width:100%;font-size:.85rem" placeholder="table_name"></div>' +
+      '<div><div style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">' + _ysqlCtT('ysql_table_name') + '</div>' +
+        '<input id="ysql-ct-name" class="s-input" style="width:100%;font-size:.85rem" placeholder="' + _ysqlCtT('ysql_table_name_ph') + '"></div>' +
       (META.hasEngine ?
-      '<div><div style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">ENGINE</div>' +
+      '<div><div style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">' + _ysqlCtT('ysql_engine') + '</div>' +
         '<select id="ysql-ct-engine" class="s-input" style="width:100%;font-size:.85rem">' +
           ENGINES.map(function(e){ return '<option' + (e==='InnoDB'?' selected':'') + '>' + e + '</option>'; }).join('') +
         '</select></div>' +
-      '<div><div style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">COLLATION</div>' +
+      '<div><div style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">' + _ysqlCtT('ysql_collation_upper') + '</div>' +
         '<select id="ysql-ct-collation" class="s-input" style="width:100%;font-size:.85rem">' +
           COLLATIONS.map(function(c){ return '<option>' + c + '</option>'; }).join('') +
         '</select></div>' : '') +
-      '<div><div style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">COMMENT</div>' +
-        '<input id="ysql-ct-comment" class="s-input" style="width:100%;font-size:.85rem" placeholder="optional"></div>';
+      '<div><div style="font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">' + _ysqlCtT('ysql_comment_upper') + '</div>' +
+        '<input id="ysql-ct-comment" class="s-input" style="width:100%;font-size:.85rem" placeholder="' + _ysqlCtT('ysql_comment_optional_ph') + '"></div>';
     wrap.appendChild(optBox);
 
     // Columns table
@@ -73,7 +75,7 @@ YS.createTable = (() => {
 
     var thead = document.createElement('div');
     thead.style.cssText = 'display:grid;grid-template-columns:28px 1fr 120px 100px 130px 70px 80px 80px 40px 60px 36px;gap:0;background:var(--surface);border-bottom:1px solid var(--border);font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em';
-    ['','FIELD','TYPE','LENGTH / VALUES','COLLATION','UNSIGNED','ALLOW NULL','DEFAULT','A_I','PRIMARY',''].forEach(function(h) {
+    ['',_ysqlCtT('ysql_th_field'),_ysqlCtT('ysql_th_type'),_ysqlCtT('ysql_th_length_values'),_ysqlCtT('ysql_th_collation'),_ysqlCtT('ysql_th_unsigned'),_ysqlCtT('ysql_th_allow_null'),_ysqlCtT('ysql_th_default'),_ysqlCtT('ysql_th_ai'),_ysqlCtT('ysql_th_primary'),''].forEach(function(h) {
       var cell = document.createElement('div');
       cell.style.cssText = 'padding:7px 8px;text-align:center';
       cell.textContent = h;
@@ -89,7 +91,7 @@ YS.createTable = (() => {
     // Add column button
     var addBtn = document.createElement('button');
     addBtn.className = 's-btn s-btn-sm';
-    addBtn.textContent = '+ Add Column';
+    addBtn.textContent = _ysqlCtT('ysql_add_column');
     addBtn.style.cssText = 'align-self:flex-start;font-size:.82rem';
     addBtn.addEventListener('click', function() {
       cols.push({ name: '', type: META.defaultStringType, length: '255', decimals: '', enumValues: '', unsigned: false, allowNull: true, defaultType: 'NULL', defaultValue: '', autoIncrement: false, primary: false, collation: '' });
@@ -123,7 +125,7 @@ YS.createTable = (() => {
       nameInp.className = 's-input';
       nameInp.style.cssText = 'font-size:.82rem;margin:3px 4px;padding:3px 6px';
       nameInp.value = col.name;
-      nameInp.placeholder = 'column_name';
+      nameInp.placeholder = _ysqlCtT('ysql_column_name_ph');
       nameInp.addEventListener('input', function() { col.name = this.value; });
       row.appendChild(nameInp);
 
@@ -195,9 +197,9 @@ YS.createTable = (() => {
         var collSel = document.createElement('select');
         collSel.className = 's-input';
         collSel.style.cssText = 'font-size:.75rem;width:100%;padding:3px 2px';
-        ['— inherit —'].concat(COLLATIONS.slice(1)).forEach(function(c) {
+        [_ysqlCtT('ysql_inherit')].concat(COLLATIONS.slice(1)).forEach(function(c) {
           var o = document.createElement('option');
-          o.value = c === '— inherit —' ? '' : c;
+          o.value = c === _ysqlCtT('ysql_inherit') ? '' : c;
           o.textContent = c;
           if ((col.collation || '') === o.value) o.selected = true;
           collSel.appendChild(o);
@@ -299,8 +301,8 @@ YS.createTable = (() => {
   async function _save(container, content, cols) {
     var nameInp = content.querySelector('#ysql-ct-name');
     var tableName = (nameInp ? nameInp.value.trim() : '');
-    if (!tableName) { YS.toast('Table name is required', 'error'); nameInp && nameInp.focus(); return; }
-    if (!cols.length) { YS.toast('Add at least one column', 'error'); return; }
+    if (!tableName) { YS.toast(_ysqlCtT('ysql_table_name_required'), 'error'); nameInp && nameInp.focus(); return; }
+    if (!cols.length) { YS.toast(_ysqlCtT('ysql_add_at_least_one_column'), 'error'); return; }
 
     var engine = content.querySelector('#ysql-ct-engine')?.value || 'InnoDB';
     var collation = content.querySelector('#ysql-ct-collation')?.value || '';
@@ -318,7 +320,7 @@ YS.createTable = (() => {
 
     if (r.error || r.detail) { YS.toast(r.error || r.detail, 'error'); return; }
 
-    YS.toast('Table ' + tableName + ' created', 'success');
+    YS.toast(_ysqlCtT('ysql_table_created', { table: tableName }), 'success');
     // Reload sidebar tables and open browse
     await YS.sidebar.loadTables(container);
     YS.state.activeTable = tableName;

@@ -1,4 +1,5 @@
 // mvmOS App: Telegram Hub v1.0.0
+const t = window.t || (k => k);
 function _esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 
 mvmOS.registerApp({
@@ -22,8 +23,8 @@ mvmOS.registerApp({
 
 function _mount(body) {
   const tabs = [
-    { id: 'config', label: '⚙️ Bot' },
-    { id: 'apps',   label: '🔲 Apps' },
+    { id: 'config', label: t('tgh_tab_bot') },
+    { id: 'apps',   label: t('tgh_tab_apps') },
   ];
 
   body.innerHTML = `
@@ -60,36 +61,35 @@ function _mount(body) {
     c.innerHTML = `
       <div style="padding:16px;display:flex;flex-direction:column;gap:14px;max-width:420px">
         <div style="font-size:.8rem;color:var(--text-dim)">
-          Create a bot with <a href="https://t.me/BotFather" target="_blank" style="color:var(--accent)">@BotFather</a>,
-          paste its token below, then register the webhook.
+          ${t('tgh_config_intro', { botfather: '<a href="https://t.me/BotFather" target="_blank" style="color:var(--accent)">@BotFather</a>' })}
         </div>
         <label style="display:flex;flex-direction:column;gap:4px">
-          <span style="font-size:.78rem;color:var(--text-dim)">Bot token</span>
-          <input class="s-inp" id="th-token" placeholder="${cfg.bot_token_set ? cfg.bot_token_preview + ' (set — leave blank to keep)' : '123456:ABC-...'}">
+          <span style="font-size:.78rem;color:var(--text-dim)">${t('tgh_bot_token')}</span>
+          <input class="s-inp" id="th-token" placeholder="${cfg.bot_token_set ? t('tgh_bot_token_set_ph', { preview: cfg.bot_token_preview }) : t('tgh_bot_token_ph')}">
         </label>
         <label style="display:flex;flex-direction:column;gap:4px">
-          <span style="font-size:.78rem;color:var(--text-dim)">Bot username (without @, shown on the public page)</span>
-          <input class="s-inp" id="th-username" value="${_esc(cfg.bot_username||'')}" placeholder="my_mvmos_bot">
+          <span style="font-size:.78rem;color:var(--text-dim)">${t('tgh_bot_username')}</span>
+          <input class="s-inp" id="th-username" value="${_esc(cfg.bot_username||'')}" placeholder="${t('tgh_bot_username_ph')}">
         </label>
         <label style="display:flex;flex-direction:column;gap:4px">
-          <span style="font-size:.78rem;color:var(--text-dim)">Public base URL</span>
-          <input class="s-inp" id="th-base" value="${_esc(cfg.public_base_url || location.origin)}" placeholder="https://your-domain.com">
-          <span style="font-size:.72rem;color:var(--text-dim)">Must be a public HTTPS address (Telegram requires HTTPS for webhooks).</span>
+          <span style="font-size:.78rem;color:var(--text-dim)">${t('tgh_public_base_url')}</span>
+          <input class="s-inp" id="th-base" value="${_esc(cfg.public_base_url || location.origin)}" placeholder="${t('tgh_public_base_url_ph')}">
+          <span style="font-size:.72rem;color:var(--text-dim)">${t('tgh_public_base_url_hint')}</span>
         </label>
         <div style="display:flex;gap:8px">
-          <button class="s-btn" id="th-save" style="background:var(--accent);color:#1e1e2e;font-weight:600">Save</button>
-          <button class="s-btn" id="th-reg">Register webhook</button>
-          <button class="s-btn" id="th-unreg">Unregister</button>
+          <button class="s-btn" id="th-save" style="background:var(--accent);color:#1e1e2e;font-weight:600">${t('tgh_save')}</button>
+          <button class="s-btn" id="th-reg">${t('tgh_register_webhook')}</button>
+          <button class="s-btn" id="th-unreg">${t('tgh_unregister')}</button>
         </div>
         <div id="th-msg" style="font-size:.8rem;min-height:16px"></div>
         <div style="border-top:1px solid var(--border);padding-top:12px;font-size:.82rem;color:var(--text-dim)">
-          Linked Telegram chats: <b style="color:var(--text)">${stats.linked_chats}</b>
+          ${t('tgh_linked_chats')} <b style="color:var(--text)">${stats.linked_chats}</b>
         </div>
       </div>`;
 
     const msg = c.querySelector('#th-msg');
     c.querySelector('#th-save').onclick = async () => {
-      msg.style.color = 'var(--text-dim)'; msg.textContent = 'Saving…';
+      msg.style.color = 'var(--text-dim)'; msg.textContent = t('tgh_saving');
       const token    = c.querySelector('#th-token').value.trim();
       const username = c.querySelector('#th-username').value.trim();
       const base     = c.querySelector('#th-base').value.trim();
@@ -99,22 +99,22 @@ function _mount(body) {
         body: JSON.stringify({ bot_token: token || undefined, bot_username: username, public_base_url: base }),
       }).catch(()=>null);
       msg.style.color = r?.ok ? '#a6e3a1' : '#f38ba8';
-      msg.textContent = r?.ok ? 'Saved.' : 'Failed to save.';
+      msg.textContent = r?.ok ? t('tgh_saved') : t('tgh_save_failed');
       if (r?.ok) renderConfig(c);
     };
     c.querySelector('#th-reg').onclick = async () => {
-      msg.style.color = 'var(--text-dim)'; msg.textContent = 'Registering…';
+      msg.style.color = 'var(--text-dim)'; msg.textContent = t('tgh_registering');
       const r = await fetch('/api/telegramhub/webhook/register', { method: 'POST' }).catch(()=>null);
       const d = r ? await r.json().catch(()=>({})) : {};
       msg.style.color = d.ok ? '#a6e3a1' : '#f38ba8';
-      msg.textContent = d.ok ? 'Webhook registered.' : (d.detail || d.description || 'Failed to register webhook.');
+      msg.textContent = d.ok ? t('tgh_webhook_registered') : (d.detail || d.description || t('tgh_webhook_register_failed'));
     };
     c.querySelector('#th-unreg').onclick = async () => {
-      msg.style.color = 'var(--text-dim)'; msg.textContent = 'Unregistering…';
+      msg.style.color = 'var(--text-dim)'; msg.textContent = t('tgh_unregistering');
       const r = await fetch('/api/telegramhub/webhook/unregister', { method: 'POST' }).catch(()=>null);
       const d = r ? await r.json().catch(()=>({})) : {};
       msg.style.color = d.ok ? '#a6e3a1' : '#f38ba8';
-      msg.textContent = d.ok ? 'Webhook removed.' : 'Failed to unregister webhook.';
+      msg.textContent = d.ok ? t('tgh_webhook_removed') : t('tgh_webhook_unregister_failed');
     };
   }
 
@@ -125,23 +125,23 @@ function _mount(body) {
       fetch('/api/telegramhub/apps').catch(()=>null),
       fetch('/api/telegramhub/apps-sort').catch(()=>null),
     ]);
-    if (!r?.ok) { c.innerHTML = '<div style="padding:20px;color:#f38ba8;font-size:.85rem">Error loading apps</div>'; return; }
+    if (!r?.ok) { c.innerHTML = `<div style="padding:20px;color:#f38ba8;font-size:.85rem">${t('tgh_error_loading_apps')}</div>`; return; }
     const apps = await r.json();
     const sortMode = sortR?.ok ? (await sortR.json()).mode : 'alpha';
     if (!apps.length) {
-      c.innerHTML = '<div style="padding:20px;color:var(--text-dim);font-size:.85rem;text-align:center">No apps with a telegram.py adapter detected yet.</div>';
+      c.innerHTML = `<div style="padding:20px;color:var(--text-dim);font-size:.85rem;text-align:center">${t('tgh_no_apps_detected')}</div>`;
       return;
     }
     c.innerHTML = `
       <div style="padding:12px 16px;font-size:.78rem;color:var(--text-dim);border-bottom:1px solid var(--border)">
-        Apps with a <code>telegram.py</code> adapter are detected automatically. Toggle to show them in the bot's menu.
+        ${t('tgh_apps_intro', { code: '<code>telegram.py</code>' })}
       </div>
       <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:10px 16px 0">
-        <span style="font-size:.78rem;color:var(--text-dim)">Order shown in bot menu</span>
+        <span style="font-size:.78rem;color:var(--text-dim)">${t('tgh_apps_order')}</span>
         <select class="s-inp" id="th-apps-sort" style="width:auto;padding:5px 10px;font-size:.8rem">
-          <option value="alpha"${sortMode==='alpha'?' selected':''}>Alphabetical</option>
-          <option value="recent"${sortMode==='recent'?' selected':''}>Recently used</option>
-          <option value="frequent"${sortMode==='frequent'?' selected':''}>Most used</option>
+          <option value="alpha"${sortMode==='alpha'?' selected':''}>${t('tgh_sort_alpha')}</option>
+          <option value="recent"${sortMode==='recent'?' selected':''}>${t('tgh_sort_recent')}</option>
+          <option value="frequent"${sortMode==='frequent'?' selected':''}>${t('tgh_sort_frequent')}</option>
         </select>
       </div>
       <div id="th-apps-list"></div>`;
@@ -161,13 +161,13 @@ function _mount(body) {
           <div style="flex:1;min-width:0">
             <div style="font-size:.88rem;font-weight:500">${_esc(a.name)}</div>
           </div>
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex-shrink:0" title="Only visible to Telegram accounts linked to an Apps Hub admin profile">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex-shrink:0" title="${t('tgh_admin_only_title')}">
             <input type="checkbox" class="th-admin-only" data-id="${a.id}" ${a.admin_only?'checked':''} style="width:15px;height:15px;cursor:pointer">
-            <span style="font-size:.78rem;color:${a.admin_only?'var(--accent)':'var(--text-dim)'}">Admin only</span>
+            <span style="font-size:.78rem;color:${a.admin_only?'var(--accent)':'var(--text-dim)'}">${t('tgh_admin_only')}</span>
           </label>
           <label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex-shrink:0">
             <input type="checkbox" class="th-enabled" data-id="${a.id}" ${a.enabled?'checked':''} style="width:16px;height:16px;cursor:pointer">
-            <span style="font-size:.8rem;color:${a.enabled?'var(--accent)':'var(--text-dim)'}">${a.enabled?'Enabled':'Disabled'}</span>
+            <span style="font-size:.8rem;color:${a.enabled?'var(--accent)':'var(--text-dim)'}">${a.enabled?t('tgh_enabled'):t('tgh_disabled')}</span>
           </label>
         </div>`).join('');
 

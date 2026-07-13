@@ -21,22 +21,30 @@
 <div class="card">
   <div class="icon">✈️</div>
   <h1>Telegram Hub</h1>
-  <p id="msg">This app lives inside Telegram, not in the browser. Open the bot,
-  send /start and link your mvmOS account to get started.</p>
-  <a id="botLink" class="btn" href="#" style="display:none">Open bot</a>
+  <p id="msg"></p>
+  <a id="botLink" class="btn" href="#" style="display:none"></a>
   <div class="hint" id="hint"></div>
 </div>
+<script src="/i18n/i18n.js"></script>
 <script>
 (function () {
-  fetch('/api/pub/telegramhub/info').then(function (r) { return r.json(); }).then(function (data) {
-    if (data.bot_username) {
-      var a = document.getElementById('botLink');
-      a.href = 'https://t.me/' + data.bot_username;
-      a.style.display = 'inline-block';
-    } else {
-      document.getElementById('hint').textContent = 'The bot is not configured yet.';
-    }
-  }).catch(function () {});
+  var t = function (key, vars) { return window.t ? window.t(key, vars) : key; };
+
+  function boot() {
+    document.getElementById('msg').textContent = t('tgh_pub_index_intro');
+    document.getElementById('botLink').textContent = t('tgh_pub_open_bot');
+    fetch('/api/pub/telegramhub/info').then(function (r) { return r.json(); }).then(function (data) {
+      if (data.bot_username) {
+        var a = document.getElementById('botLink');
+        a.href = 'https://t.me/' + data.bot_username;
+        a.style.display = 'inline-block';
+      } else {
+        document.getElementById('hint').textContent = t('tgh_pub_not_configured');
+      }
+    }).catch(function () {});
+  }
+
+  (window.mvmOS && window.mvmOS.i18nReady || Promise.resolve()).then(boot);
 })();
 </script>
 </body>

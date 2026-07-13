@@ -33,6 +33,8 @@ const _fyi18n = {
     player_left_game: 'left the game',
     next_auto: 'Next round in',
     invite_players: 'Invite players', invite: 'Invite', invited: 'Invited ✓',
+    logout: 'Logout', back: '← Back',
+    maps_load_failed: 'Failed to load Google Maps. Check your API key.',
   },
   bg: {
     title: 'FindYourself', play: 'Играй', settings_btn: '⚙ Настройки',
@@ -67,6 +69,8 @@ const _fyi18n = {
     player_left_game: 'напусна играта',
     next_auto: 'Следващ рунд след',
     invite_players: 'Покани играчи', invite: 'Покани', invited: 'Поканен ✓',
+    logout: 'Изход', back: '← Назад',
+    maps_load_failed: 'Грешка при зареждане на Google Maps. Провери своя API ключ.',
   },
 };
 function _fyt(key) { const l = window.mvmOS?.lang || 'en'; return (_fyi18n[l] || _fyi18n.en)[key] || key; }
@@ -268,7 +272,7 @@ const FY = (() => {
         <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border-radius:8px;padding:8px 12px;width:100%;box-sizing:border-box">
           ${_avatar(p, 22)}
           <div style="flex:1;font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.display_name}</div>
-          <button id="fy-gh-out" style="border:none;background:none;color:#a6adc8;font-size:11px;cursor:pointer;padding:2px 6px;flex-shrink:0">Logout</button>
+          <button id="fy-gh-out" style="border:none;background:none;color:#a6adc8;font-size:11px;cursor:pointer;padding:2px 6px;flex-shrink:0">${_fyt('logout')}</button>
         </div>`;
       container.querySelector('#fy-gh-out').onclick = async () => {
         await window.GameHub.logout();
@@ -462,7 +466,7 @@ const FY = (() => {
     try {
       await _loadMaps(_cfg.api_key);
     } catch(e) {
-      _root.innerHTML = `<div class="fy-root"><div class="fy-screen"><p style="color:#f38ba8">Failed to load Google Maps. Check your API key.</p><button class="fy-btn secondary" id="fy-back">← Back</button></div></div>`;
+      _root.innerHTML = `<div class="fy-root"><div class="fy-screen"><p style="color:#f38ba8">${_fyt('maps_load_failed')}</p><button class="fy-btn secondary" id="fy-back">${_fyt('back')}</button></div></div>`;
       _root.querySelector('#fy-back').addEventListener('click', _showSetup);
       return;
     }

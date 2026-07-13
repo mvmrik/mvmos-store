@@ -1,5 +1,7 @@
 // YourSQL — Tab manager
 
+const _ysqlTabsT = window.t || (k => k);
+
 YS.tabs = (() => {
 
   // Each tab: { id, label, type, db, table, dirty, pinned, state }
@@ -173,7 +175,7 @@ YS.tabs = (() => {
 
       var nameEl = document.createElement('span');
       nameEl.textContent = tab.label;
-      nameEl.title = (tab.db ? tab.db + '.' : '') + tab.table + (isUnsaved ? ' (click to keep)' : '');
+      nameEl.title = (tab.db ? tab.db + '.' : '') + tab.table + (isUnsaved ? _ysqlTabsT('ysql_click_to_keep') : '');
       nameEl.style.cssText = [
         'overflow:hidden;text-overflow:ellipsis;flex:1',
         isUnsaved ? 'font-style:italic' : '',

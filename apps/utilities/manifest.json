@@ -23,9 +23,9 @@
       "name": "Cost Splitter",
       "icon": "💸",
       "category": "Utilities",
-      "version": "1.3.0",
+      "version": "1.3.1",
       "description": "Split recurring costs among members. Track balances, add payments, and send monthly email summaries automatically.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/cost-splitter-1.3.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/cost-splitter-1.3.1.zip"
     },
     {
       "id": "statetracker",
@@ -59,9 +59,9 @@
       "name": "RSS Reader",
       "icon": "📰",
       "category": "Utilities",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "description": "RSS/Atom feed reader with auto-refresh, read/unread tracking, bookmarks, AI summarization via mvmAI, and optional public reading list.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/rssfeed-1.2.2.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/rssfeed-1.2.3.zip"
     },
     {
       "id": "quotebuilder",
