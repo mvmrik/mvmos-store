@@ -1,0 +1,184 @@
+/* mvmSiteBuilder — Default theme
+   Targets the fixed class names emitted by public.py's renderer:
+   .msb-header, .msb-site-name, .msb-nav, .msb-nav-item, .msb-page,
+   .msb-block(-text|-html|-image|-spacer), .msb-footer, plus the theme's own
+   .msb-nav-toggle/.msb-nav-open hamburger (see templates/page.html).
+   Any other theme can restyle these same classes however it likes. */
+
+:root {
+  --msb-accent: #2563eb;
+  --msb-accent-dark: #1d4ed8;
+  --msb-text: #1a1f28;
+  --msb-text-dim: #5b6472;
+  --msb-border: #e6e9ef;
+  --msb-bg: #ffffff;
+  --msb-bg-soft: #f6f8fb;
+  --msb-header-bg: #ffffff;
+  --msb-footer-bg: #16202e;
+  --msb-footer-text: #aab4c2;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--msb-text);
+  background: var(--msb-bg-soft);
+  line-height: 1.65;
+}
+
+a { color: var(--msb-accent); }
+
+/* ── Header / nav ─────────────────────────────────────────────── */
+
+.msb-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--msb-header-bg);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 0 var(--msb-border);
+}
+
+.msb-header-bar {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 24px;
+}
+
+.msb-site-name {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  color: var(--msb-text);
+  text-decoration: none;
+}
+
+.msb-nav {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 0 24px 14px;
+}
+
+.msb-nav-item {
+  color: var(--msb-text-dim);
+  text-decoration: none;
+  font-size: .95rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+  transition: color .15s, background .15s;
+}
+
+.msb-nav-item:hover {
+  color: var(--msb-accent-dark);
+  background: color-mix(in srgb, var(--msb-accent) 10%, transparent);
+}
+
+.msb-nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid var(--msb-border);
+  border-radius: 8px;
+  background: var(--msb-bg-soft);
+  cursor: pointer;
+}
+
+.msb-nav-toggle span {
+  display: block;
+  width: 16px;
+  height: 2px;
+  margin: 0 auto;
+  background: var(--msb-text);
+  border-radius: 1px;
+}
+
+/* ── Page content ─────────────────────────────────────────────── */
+
+.msb-page {
+  max-width: 860px;
+  margin: 32px auto 56px;
+  padding: 48px 56px;
+  background: var(--msb-bg);
+  border: 1px solid var(--msb-border);
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, .04);
+}
+
+.msb-page h1, .msb-page h2, .msb-page h3 {
+  line-height: 1.3;
+  color: var(--msb-text);
+  margin: 1.4em 0 .5em;
+}
+.msb-page h1:first-child, .msb-page h2:first-child, .msb-page h3:first-child { margin-top: 0; }
+
+.msb-page h1 { font-size: 2rem; font-weight: 800; letter-spacing: -.02em; }
+.msb-page h2 { font-size: 1.5rem; font-weight: 700; }
+
+.msb-block { margin-bottom: 24px; }
+
+.msb-block-text p { margin: 0 0 14px; font-size: 1.02rem; color: var(--msb-text); }
+.msb-block-text p:last-child { margin-bottom: 0; }
+
+.msb-block-image { margin: 0; }
+.msb-block-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  display: block;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+}
+
+.msb-block-image figcaption {
+  font-size: .85rem;
+  color: var(--msb-text-dim);
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* ── Footer ───────────────────────────────────────────────────── */
+
+.msb-footer {
+  background: var(--msb-footer-bg);
+  color: var(--msb-footer-text);
+  margin: 0;
+  padding: 28px 24px;
+  font-size: .85rem;
+  text-align: center;
+}
+
+/* ── Mobile ───────────────────────────────────────────────────── */
+
+@media (max-width: 720px) {
+  .msb-nav-toggle { display: flex; }
+
+  .msb-nav {
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 16px 16px;
+  }
+
+  .msb-nav.msb-nav-open { display: flex; }
+
+  .msb-nav-item {
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
+
+  .msb-header-bar { padding: 16px 16px; }
+  .msb-page { margin: 16px auto 32px; padding: 28px 20px; border-radius: 12px; }
+  .msb-footer { padding: 22px 16px; }
+}

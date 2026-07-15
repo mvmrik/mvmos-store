@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{page_title}} — {{site_name}}</title>
+<link rel="stylesheet" href="{{theme_css_url}}">
+<style>{{custom_css}}</style>
+</head>
+<body>
+<div class="msb-app">
+<header class="msb-header">
+  <div class="msb-header-bar">
+    <a class="msb-site-name" href="{{home_url}}">{{site_name}}</a>
+    <button class="msb-nav-toggle" id="msb-nav-toggle" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  {{menu}}
+</header>
+<main class="msb-page">
+  {{content}}
+</main>
+<footer class="msb-footer">
+  <span>&copy; <span id="msb-year"></span> {{site_name}}</span>
+</footer>
+</div>
+<script>
+  var msbToggle = document.getElementById('msb-nav-toggle');
+  var msbNav = document.querySelector('.msb-nav');
+  if (msbToggle && msbNav) {
+    msbToggle.addEventListener('click', function () {
+      var open = msbNav.classList.toggle('msb-nav-open');
+      msbToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    msbNav.querySelectorAll('.msb-nav-item').forEach(function (link) {
+      link.addEventListener('click', function () {
+        msbNav.classList.remove('msb-nav-open');
+        msbToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+  var msbYear = document.getElementById('msb-year');
+  if (msbYear) msbYear.textContent = new Date().getFullYear();
+</script>
+<script>{{custom_js}}</script>
+</body>
+</html>
