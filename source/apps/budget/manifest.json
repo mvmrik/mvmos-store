@@ -3,7 +3,7 @@
   "name": "Budget",
   "icon": "💰",
   "category": "Productivity",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Category-based budget tracking with shared categories, goals, and mass-add, plus a public web page and Telegram mini-app.",
   "entry": "main.js",
   "public_url": "/pub/budget/",

@@ -3,7 +3,7 @@
   "name": "mvmOS Chat",
   "icon": "💬",
   "category": "Social",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Chat between mvmOS users, with a public web page for Apps Hub accounts.",
   "entry": "main.js",
   "public_url": "/pub/chat/",

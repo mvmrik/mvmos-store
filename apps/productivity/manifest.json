@@ -5,18 +5,18 @@
       "name": "Calendar",
       "icon": "📅",
       "category": "Productivity",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "description": "Calendar with events and reminders, a public web page for Apps Hub accounts, and a Telegram mini-app.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/calendar-1.1.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/calendar-1.1.1.zip"
     },
     {
       "id": "budget",
       "name": "Budget",
       "icon": "💰",
       "category": "Productivity",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "description": "Category-based budget tracking with shared categories, goals, and mass-add, plus a public web page and Telegram mini-app.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/budget-1.1.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/budget-1.1.1.zip"
     },
     {
       "id": "mvmsitebuilder",
