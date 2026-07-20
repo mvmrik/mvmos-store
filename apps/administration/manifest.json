@@ -50,9 +50,9 @@
       "name": "Git Manager",
       "icon": "🔀",
       "category": "Administration",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "description": "Manage git repositories — auto-detect repos, pull, push, fetch, commit, branch switching, diff viewer, discard changes, clone, init. SSH key setup included.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/git-manager-1.0.1.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/git-manager-1.0.2.zip"
     },
     {
       "id": "server-monitor",

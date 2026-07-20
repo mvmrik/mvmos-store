@@ -142,10 +142,11 @@
       .bw-empty{color:var(--pub-dim, #6c7086);text-align:center;padding:40px 16px}
       .bw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
       .bw-card{background:var(--pub-surface2, #313244);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
-      .bw-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:6px}
+      .bw-card-head{display:flex;flex-direction:column;gap:4px}
       .bw-card-title{font-weight:700;font-size:.95rem;word-break:break-word}
-      .bw-badge{font-size:.68rem;color:var(--pub-fg2, #a6adc8);background:var(--pub-border, #45475a);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle}
-      .bw-card-actions{display:flex;gap:2px;flex-shrink:0}
+      .bw-card-actions{display:flex;gap:2px}
+      .bw-btn-icon.bw-btn-owner{background:rgba(166,227,161,.22)}
+      .bw-btn-icon.bw-btn-owner:hover{background:rgba(166,227,161,.35)}
       .bw-card-desc{color:var(--pub-fg2, #a6adc8);font-size:.78rem;word-break:break-word}
       .bw-card-balance{font-size:1.2rem;font-weight:700;cursor:pointer}
       .bw-card-balance:hover{color:var(--pub-accent, #89b4fa)}
@@ -506,10 +507,10 @@
         ` : '';
         return `<div class="bw-card" data-id="${esc(c.id)}">
           <div class="bw-card-head">
-            <div class="bw-card-title">${esc(c.title)}${isOwner ? `<span class="bw-badge">${esc(t('owner'))}</span>` : ''}</div>
+            <div class="bw-card-title">${esc(c.title)}</div>
             <div class="bw-card-actions">
               ${isOwner ? `${canHoldSubcats ? `<button class="bw-btn-icon" data-action="subcats" title="${esc(t('manage_subcategories'))}">📂</button>` : ''}
-                           <button class="bw-btn-icon" data-action="share" title="${esc(t('share'))}">🤝</button>
+                           <button class="bw-btn-icon bw-btn-owner" data-action="share" title="${esc(t('owner'))} · ${esc(t('share'))}">🤝</button>
                            <button class="bw-btn-icon" data-action="edit" title="${esc(t('edit'))}">✎</button>
                            <button class="bw-btn-icon" data-action="delete" title="${esc(t('delete'))}">🗑</button>`
                         : `<button class="bw-btn-icon" data-action="leave" title="${esc(t('leave_category'))}">🚪</button>`}

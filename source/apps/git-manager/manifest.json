@@ -3,7 +3,7 @@
   "name": "Git Manager",
   "icon": "🔀",
   "category": "Administration",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Manage git repositories — auto-detect, pull, push, commit. SSH key setup included.",
   "entry": "main.js",
   "min_core_version": "0.9.16"

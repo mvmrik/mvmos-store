@@ -278,7 +278,7 @@ GM.showRepoView = function(container, repo) {
       var r = await GM.api('/repo/' + action, { method: 'POST', json: { path: repo.path } });
       out.textContent = r.output || t('gm_done');
       out.style.color = '#a6e3a1';
-      if (action === 'pull' || action === 'fetch') { loadStatus(); GM.loadRepos(); }
+      if (action === 'pull' || action === 'fetch' || action === 'push') { loadStatus(); GM.loadRepos(); }
     } catch(e) {
       out.textContent = e.message; out.style.color = '#f38ba8';
     } finally {

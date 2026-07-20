@@ -986,6 +986,81 @@ if (!token) {
 
 **Important:** `is_app_public(APP_ID)` must be checked at the top of **every** route in your `public.py`, not just `/`. The router is mounted unconditionally at startup — nothing enforces the private/public toggle for you except this check. Forgetting it on even one route means that route stays reachable while the app is set to Private in Apps Hub.
 
+### Theming & text size on public pages
+
+Every `/pub/<app-id>/` page automatically gets a shared header/footer (breadcrumb, avatar menu, credits, logout) injected server-side — you never add this yourself. That same injected script also applies the user's **Apps Hub appearance settings** (dark/light theme + text size) to your page, but only if your CSS is written to react to it. Two things to know:
+
+**1. Theme — use CSS custom properties, never hardcoded colors.**
+
+The injected script overrides a fixed set of CSS variables on `:root` when the user picks the light theme (dark is the default baked into your own CSS, so it does nothing). There are two naming sets — pick the one that matches how your page is structured:
+
+- `--bg`, `--fg`, `--fg2`, `--surface1`, `--surface2`, `--border`, `--accent`, `--green`, `--red`, `--yellow` — unprefixed, for a **standalone public page** with its own `:root` (a generic landing page, a leaderboard, etc.)
+- `--pub-bg`, `--pub-fg`, `--pub-fg2`, `--pub-surface1`, `--pub-surface2`, `--pub-border`, `--pub-dim`, `--pub-crust`, `--pub-accent`, `--pub-accent-hover`, `--pub-green`, `--pub-red`, `--pub-yellow`, `--pub-warning` — prefixed, for a **shared widget** that can also be mounted inside a desktop window (like Budget/Chat/Calendar's public widgets do) — the prefix keeps the public-theme override from ever leaking into the desktop shell's own unprefixed `--bg`/`--accent`/etc.
+
+Write every color in your public page's/widget's CSS as `var(--pub-fg, #cdd6f4)` (prefixed set) or `var(--fg, #cdd6f4)` (unprefixed set) — never a bare hex value — with your normal dark-theme color as the fallback. If you skip this, your page will simply ignore the user's light-theme choice; nothing errors, it just won't catch.
+
+**2. Text size — build layout with `rem`/flex-wrap, not fixed `px` assumptions.**
+
+The user can pick one of six text sizes (`sm` 90% → `xxxl` 155%), applied as `html{font-size:X%}`. Everything sized in `rem`/`em` scales with it automatically — that part is free. What's *not* free: any container width you set in fixed `px` (grid card `minmax(240px, 1fr)`, a fixed-width sidebar, etc.) stays the same physical size while the text inside it grows, so cramped layouts (icon-button rows next to a title, badges next to text) can start wrapping mid-word or overlapping at the larger sizes. When laying out anything with text next to controls:
+
+- Prefer stacking (title on its own row, actions below) over a tight `justify-content:space-between` row once more than 2-3 short items are involved.
+- Add `flex-wrap: wrap` on rows that mix text and buttons, so at large sizes the row wraps as a whole instead of squeezing.
+- Give text elements `white-space: nowrap` if they're short labels/badges that should never break mid-word — let the *layout* wrap, not the word.
+- Test your public page at the `xxxl` setting (Apps Hub → avatar menu → Settings → Text size) before shipping, the same way you'd test a narrow mobile width.
+
+**Opting out:** if your public page fully owns its own theming (e.g. it's meant to look identical regardless of the viewer's Apps Hub preferences) and doesn't use the shared chrome at all, set `"public_chrome": false` in `manifest.json` — this suppresses the header/footer/theme injection entirely (also hides the footer's "Public page" link). Most apps should *not* set this; it means your page won't follow the user's chosen theme/text size at all.
+
+### App-to-app API (optional)
+
+If your app's backend wants to let *other* apps call into it — e.g. a Tasks app crediting a reward into a Budget category — don't reach into another app's database or import its code directly. Expose a Python API instead, the same opt-in-file-plus-admin-toggle pattern as `public.py`:
+
+Create `backend/apps/<app-id>/api.py` — Apps Hub auto-detects it and shows an admin enable/disable toggle (**Apps Hub → Settings → App APIs**, off by default). No HTTP framework needed; calls happen in-process.
+
+**Minimum template:**
+
+```python
+"""
+Pattern:
+1. Create this file → Apps Hub detects it and shows an admin toggle.
+2. Export plain functions — whatever you're willing to let other apps call.
+3. Never touch another app's DB directly, and never let another app import
+   this file directly — everything goes through hub.call_app_api().
+"""
+
+def list_categories(user_id):
+    # reuse your own public.py / backend helpers here
+    ...
+    return [...]
+
+def add_to_category(user_id, category_id, amount, reason="", idempotency_key=None):
+    # validate, dedupe on idempotency_key, insert, return the new balance
+    ...
+    return {"balance": ...}
+```
+
+**Calling another app's API from your own backend:**
+
+```python
+import sys
+
+def _hub():
+    return sys.modules.get("backend.apphub")
+
+hub = _hub()
+try:
+    result = hub.call_app_api("budget", "add_to_category", user_id, category_id, 500, reason="task reward", idempotency_key=my_uuid)
+except hub.AppApiError:
+    # target app not installed, its API is disabled, or it doesn't expose this method —
+    # a normal, expected outcome, not a bug. Degrade gracefully.
+    pass
+```
+
+`call_app_api(target_app_id, method, *args, **kwargs)` is the *only* sanctioned way to reach another app — it checks the admin toggle, loads `api.py` on first use (cached after), and calls `method` with whatever args/kwargs you pass. It raises `AppApiError` if the target app has no `api.py`, its API is disabled, or it doesn't expose that method; always catch this and degrade gracefully rather than letting it bubble up, since "the other app isn't installed" is routine, not exceptional.
+
+**Never import another app's `api.py` directly** (`from backend.apps.budget import api` or similar) — always go through `hub.call_app_api()`, even though nothing currently stops a direct import. Apps are expected to become fully sandboxed from each other over time; `call_app_api()` is designed to be the one channel that keeps working after that happens, but only if it's actually used consistently everywhere, starting now.
+
+If your API method changes money, credits, or anything else where a retried call must not double-apply, accept an `idempotency_key` argument and dedupe on it (mirrors the pattern `hub.spend_credits()`/`hub.grant_credits()` already use) — a caller may legitimately retry after a timeout without knowing whether the first attempt succeeded.
+
 ### Window footer
 
 Every window (desktop, not mobile-fullscreen) gets a shared footer, rendered centrally by `Desktop.createWindow`. You don't add anything for the "mvmOS" branding on the left — that's automatic — but you can put your own content in it.

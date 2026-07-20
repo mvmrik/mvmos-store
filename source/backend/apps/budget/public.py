@@ -123,6 +123,14 @@ def _init_db():
         except sqlite3.OperationalError:
             pass
         conn.execute("CREATE INDEX IF NOT EXISTS idx_categories_parent ON categories(parent_id)")
+        try:
+            conn.execute("ALTER TABLE transactions ADD COLUMN idempotency_key TEXT")
+        except sqlite3.OperationalError:
+            pass
+        conn.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_transactions_idempotency "
+            "ON transactions(idempotency_key) WHERE idempotency_key IS NOT NULL"
+        )
         conn.commit()
 
 
