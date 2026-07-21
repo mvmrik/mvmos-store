@@ -102,7 +102,29 @@ def _init_db():
                 user_id             TEXT PRIMARY KEY,
                 budget_integration  INTEGER NOT NULL DEFAULT 0
             );
+
+            CREATE TABLE IF NOT EXISTS task_categories (
+                task_id     TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+                category_id TEXT NOT NULL,
+                PRIMARY KEY (task_id, category_id)
+            );
+            CREATE INDEX IF NOT EXISTS idx_task_categories_task ON task_categories(task_id);
+
+            CREATE TABLE IF NOT EXISTS completion_rewards (
+                id            TEXT PRIMARY KEY,
+                completion_id TEXT NOT NULL REFERENCES completions(id) ON DELETE CASCADE,
+                category_id   TEXT NOT NULL,
+                amount        REAL NOT NULL,
+                budget_ok     INTEGER NOT NULL DEFAULT 0
+            );
+            CREATE INDEX IF NOT EXISTS idx_completion_rewards_completion ON completion_rewards(completion_id);
         """)
+        # One-time-per-startup, idempotent backfill: tasks created before the
+        # move to many-to-many categories only had a single category_id column.
+        conn.execute(
+            "INSERT OR IGNORE INTO task_categories(task_id, category_id) "
+            "SELECT id, category_id FROM tasks WHERE category_id IS NOT NULL AND category_id != ''"
+        )
         conn.commit()
 
 
@@ -159,8 +181,25 @@ def _period_key(dt: datetime, period: str) -> str:
     return ""
 
 
+def _task_category_ids(conn, task_id: str) -> list:
+    rows = conn.execute(
+        "SELECT category_id FROM task_categories WHERE task_id=? ORDER BY rowid", (task_id,)
+    ).fetchall()
+    return [r["category_id"] for r in rows]
+
+
+def _set_task_categories(conn, task_id: str, category_ids: list):
+    conn.execute("DELETE FROM task_categories WHERE task_id=?", (task_id,))
+    for cid in dict.fromkeys(category_ids or []):  # dedupe, keep order
+        conn.execute(
+            "INSERT OR IGNORE INTO task_categories(task_id,category_id) VALUES(?,?)", (task_id, cid)
+        )
+
+
 def _row_to_task(conn, row, now: datetime) -> dict:
     d = dict(row)
+    d.pop("category_id", None)
+    d["category_ids"] = _task_category_ids(conn, d["id"])
     if d["type"] == "periodic":
         last = conn.execute(
             "SELECT created_at FROM completions WHERE task_id=? ORDER BY created_at DESC LIMIT 1",
@@ -180,20 +219,29 @@ def _row_to_task(conn, row, now: datetime) -> dict:
     return d
 
 
-def _apply_reward(hub, user_id: str, category_id: Optional[str], amount: Optional[float],
-                   reason: str, idempotency_key: str) -> dict:
+def _apply_reward(hub, user_id: str, category_ids: list, amount: Optional[float],
+                   reason: str, idempotency_key_base: str) -> list:
     """Best-effort: task completion always succeeds even if this fails —
-    Budget not being installed/enabled is a normal, expected outcome."""
-    if not category_id or not amount:
-        return {"budget_ok": False, "amount": 0.0}
-    if hub is None:
-        return {"budget_ok": False, "amount": amount}
-    try:
-        hub.call_app_api("budget", "add_to_category", user_id, category_id, amount,
-                          reason=reason, idempotency_key=idempotency_key)
-        return {"budget_ok": True, "amount": amount}
-    except Exception:
-        return {"budget_ok": False, "amount": amount}
+    Budget not being installed/enabled is a normal, expected outcome. The
+    full amount is applied to EACH selected category independently (not
+    split/divided among them) — each gets its own add_to_category call and
+    its own idempotency key so a retry doesn't double-charge any one of
+    them."""
+    if not category_ids or not amount:
+        return []
+    results = []
+    for category_id in category_ids:
+        if hub is None:
+            results.append({"category_id": category_id, "budget_ok": False, "amount": amount})
+            continue
+        try:
+            hub.call_app_api("budget", "add_to_category", user_id, category_id, amount,
+                              source_app="tasks", source_app_name="Задачи",
+                              reason=reason, idempotency_key=f"{idempotency_key_base}:{category_id}")
+            results.append({"category_id": category_id, "budget_ok": True, "amount": amount})
+        except Exception:
+            results.append({"category_id": category_id, "budget_ok": False, "amount": amount})
+    return results
 
 
 # ── Settings ─────────────────────────────────────────────────────
@@ -242,7 +290,11 @@ async def budget_categories(x_pub_token: str = Header(default=None)):
         return JSONResponse({"available": False, "categories": []})
     try:
         cats = hub.call_app_api("budget", "list_categories", me["id"])
-        return JSONResponse({"available": True, "categories": cats})
+        try:
+            currency = hub.call_app_api("budget", "get_currency", me["id"])
+        except Exception:
+            currency = None
+        return JSONResponse({"available": True, "categories": cats, "currency": currency})
     except Exception:
         return JSONResponse({"available": False, "categories": []})
 
@@ -255,7 +307,7 @@ class TaskBody(BaseModel):
     type:           str
     reward_mode:    str = "fixed"
     reward_amount:  Optional[float] = None
-    category_id:    Optional[str] = None
+    category_ids:   list[str] = []
     due_at:         Optional[str] = None
     period:         Optional[str] = None
 
@@ -278,7 +330,7 @@ def _validate_task(body: "TaskBody") -> Optional[str]:
             return "invalid period"
         if body.due_at:
             return "due_at not applicable to periodic tasks"
-    if body.category_id and (body.reward_amount is None or body.reward_amount == 0):
+    if body.category_ids and (body.reward_amount is None or body.reward_amount == 0):
         return "reward_amount required when a category is selected"
     if body.reward_amount is not None and body.reward_amount == 0:
         return "reward_amount must be non-zero"
@@ -316,10 +368,11 @@ async def create_task(body: TaskBody, x_pub_token: str = Header(default=None)):
     with _db() as conn:
         conn.execute(
             "INSERT INTO tasks(id,user_id,title,description,type,reward_mode,reward_amount,"
-            "category_id,due_at,period,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+            "due_at,period,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
             (tid, me["id"], title, body.description.strip()[:1000], body.type, reward_mode,
-             body.reward_amount, body.category_id, body.due_at, body.period, now, now),
+             body.reward_amount, body.due_at, body.period, now, now),
         )
+        _set_task_categories(conn, tid, body.category_ids)
         conn.commit()
         row = conn.execute("SELECT * FROM tasks WHERE id=?", (tid,)).fetchone()
         return JSONResponse(_row_to_task(conn, row, _now()))
@@ -344,10 +397,11 @@ async def update_task(task_id: str, body: TaskBody, x_pub_token: str = Header(de
             return JSONResponse({"error": "not found"}, status_code=404)
         conn.execute(
             "UPDATE tasks SET title=?, description=?, type=?, reward_mode=?, reward_amount=?, "
-            "category_id=?, due_at=?, period=?, updated_at=? WHERE id=?",
+            "due_at=?, period=?, updated_at=? WHERE id=?",
             (title, body.description.strip()[:1000], body.type, reward_mode, body.reward_amount,
-             body.category_id, body.due_at, body.period, _now_iso(), task_id),
+             body.due_at, body.period, _now_iso(), task_id),
         )
+        _set_task_categories(conn, task_id, body.category_ids)
         conn.commit()
         row = conn.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
         return JSONResponse(_row_to_task(conn, row, _now()))
@@ -390,15 +444,21 @@ async def complete_task(task_id: str, x_pub_token: str = Header(default=None)):
 
         hub = _hub()
         cid = str(uuid.uuid4())
-        reward = _apply_reward(
-            hub, me["id"], task["category_id"], task["reward_amount"],
+        rewards = _apply_reward(
+            hub, me["id"], task["category_ids"], task["reward_amount"],
             f"Задача: {task['title']}", cid,
         )
+        overall_ok = bool(rewards) and all(r["budget_ok"] for r in rewards)
         conn.execute(
             "INSERT INTO completions(id,task_id,user_id,amount,duration_hours,budget_ok,note,created_at) "
             "VALUES(?,?,?,?,NULL,?,?,?)",
-            (cid, task_id, me["id"], reward["amount"], 1 if reward["budget_ok"] else 0, "", now.isoformat()),
+            (cid, task_id, me["id"], task["reward_amount"] or 0.0, 1 if overall_ok else 0, "", now.isoformat()),
         )
+        for r in rewards:
+            conn.execute(
+                "INSERT INTO completion_rewards(id,completion_id,category_id,amount,budget_ok) VALUES(?,?,?,?,?)",
+                (str(uuid.uuid4()), cid, r["category_id"], r["amount"], 1 if r["budget_ok"] else 0),
+            )
         if task["type"] == "onetime":
             conn.execute("UPDATE tasks SET completed_at=?, updated_at=? WHERE id=?", (now.isoformat(), now.isoformat(), task_id))
         else:
@@ -407,7 +467,7 @@ async def complete_task(task_id: str, x_pub_token: str = Header(default=None)):
 
         row = conn.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
         result = _row_to_task(conn, row, now)
-        result["reward"] = reward
+        result["reward"] = {"amount": task["reward_amount"] or 0.0, "budget_ok": overall_ok, "categories": rewards}
         return JSONResponse(result)
 
 
@@ -452,19 +512,26 @@ async def stop_timer(task_id: str, x_pub_token: str = Header(default=None)):
 
         hub = _hub()
         cid = str(uuid.uuid4())
-        reward = _apply_reward(hub, me["id"], row["category_id"], amount, f"Задача: {row['title']}", cid)
+        category_ids = _task_category_ids(conn, task_id)
+        rewards = _apply_reward(hub, me["id"], category_ids, amount, f"Задача: {row['title']}", cid)
+        overall_ok = bool(rewards) and all(r["budget_ok"] for r in rewards)
         conn.execute(
             "INSERT INTO completions(id,task_id,user_id,amount,duration_hours,budget_ok,note,created_at) "
             "VALUES(?,?,?,?,?,?,?,?)",
-            (cid, task_id, me["id"], reward["amount"], round(elapsed_hours, 4),
-             1 if reward["budget_ok"] else 0, "", now.isoformat()),
+            (cid, task_id, me["id"], amount or 0.0, round(elapsed_hours, 4),
+             1 if overall_ok else 0, "", now.isoformat()),
         )
+        for r in rewards:
+            conn.execute(
+                "INSERT INTO completion_rewards(id,completion_id,category_id,amount,budget_ok) VALUES(?,?,?,?,?)",
+                (str(uuid.uuid4()), cid, r["category_id"], r["amount"], 1 if r["budget_ok"] else 0),
+            )
         conn.execute("UPDATE tasks SET timer_started_at=NULL, updated_at=? WHERE id=?", (now.isoformat(), task_id))
         conn.commit()
 
         row = conn.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
         result = _row_to_task(conn, row, now)
-        result["reward"] = reward
+        result["reward"] = {"amount": amount or 0.0, "budget_ok": overall_ok, "categories": rewards}
         result["duration_hours"] = round(elapsed_hours, 4)
         return JSONResponse(result)
 
@@ -482,4 +549,13 @@ async def history(x_pub_token: str = Header(default=None)):
             "JOIN tasks t ON t.id=c.task_id WHERE c.user_id=? ORDER BY c.created_at DESC LIMIT 200",
             (me["id"],),
         ).fetchall()
-        return JSONResponse([dict(r) for r in rows])
+        result = []
+        for r in rows:
+            d = dict(r)
+            cr = conn.execute(
+                "SELECT category_id, amount, budget_ok FROM completion_rewards WHERE completion_id=?",
+                (d["id"],),
+            ).fetchall()
+            d["categories"] = [dict(x) for x in cr]
+            result.append(d)
+        return JSONResponse(result)

@@ -13,9 +13,18 @@
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
     }[c]));
   }
-  function fmtAmount(n) {
+  const CURRENCY_SYMBOLS = {
+    EUR: '€', USD: '$', GBP: '£', CHF: 'CHF', JPY: '¥', CNY: '¥', TRY: '₺',
+    UAH: '₴', PLN: 'zł', RON: 'lei', CZK: 'Kč', HUF: 'Ft', CAD: '$', AUD: '$',
+    SEK: 'kr', NOK: 'kr', DKK: 'kr', RUB: '₽', INR: '₹',
+  };
+  function currencySymbol(code) {
+    return CURRENCY_SYMBOLS[code] || code || '';
+  }
+  function fmtAmount(n, currency) {
     n = Number(n) || 0;
-    return (n >= 0 ? '+' : '') + (Math.round((n + Number.EPSILON) * 100) / 100).toFixed(2);
+    const sign = (n >= 0 ? '+' : '') + (Math.round((n + Number.EPSILON) * 100) / 100).toFixed(2);
+    return currency ? sign + ' ' + currencySymbol(currency) : sign;
   }
   function fmtDuration(totalSeconds) {
     const s = Math.max(0, Math.floor(totalSeconds));
@@ -90,6 +99,9 @@
         width:100%;box-sizing:border-box;background:var(--pub-surface2, #313244);border:1px solid var(--pub-border, #45475a);border-radius:6px;
         color:var(--pub-fg, #cdd6f4);padding:7px 9px;font-family:inherit;font-size:.85rem}
       .tk-field textarea{resize:vertical;min-height:50px}
+      .tk-cat-list{max-height:140px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;
+        border:1px solid var(--pub-border, #45475a);border-radius:6px;padding:6px 8px;background:var(--pub-bg, #1e1e2e)}
+      .tk-cat-item{display:flex;align-items:center;gap:6px;font-size:.82rem;cursor:pointer}
       .tk-error{color:var(--pub-red, #f38ba8);font-size:.78rem}
       .tk-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
       .tk-toggle-row{display:flex;align-items:center;gap:8px}
@@ -186,7 +198,7 @@
     }
 
     function showRewardToast(result) {
-      if (!result || !result.category_id) return;
+      if (!result || !result.category_ids || !result.category_ids.length) return;
       const reward = result.reward || {};
       if (reward.budget_ok) {
         toast(reward.amount >= 0 ? t('tk_reward_applied') : t('tk_penalty_applied'), reward.amount >= 0 ? 'good' : 'bad');
@@ -249,8 +261,8 @@
         }
       }
 
-      const rewardHint = (task.category_id && task.reward_amount != null)
-        ? `<span class="tk-amount ${task.reward_amount >= 0 ? 'tk-amount-pos' : 'tk-amount-neg'}">${fmtAmount(task.reward_amount)}${task.reward_mode === 'hourly' ? '/h' : ''}</span>`
+      const rewardHint = (task.category_ids && task.category_ids.length && task.reward_amount != null)
+        ? `<span class="tk-amount ${task.reward_amount >= 0 ? 'tk-amount-pos' : 'tk-amount-neg'}">${fmtAmount(task.reward_amount, budgetCategories.currency)}${task.reward_mode === 'hourly' ? '/h' : ''}</span>`
         : '';
 
       return `<div class="tk-card" data-id="${esc(task.id)}">
@@ -347,10 +359,14 @@
       const isEdit = !!existing;
       const type = existing ? existing.type : 'persistent';
       const rewardMode = existing ? existing.reward_mode : 'fixed';
-      const hasCategory = !!(existing && existing.category_id);
+      const existingCatIds = (existing && existing.category_ids) || [];
+      const hasCategory = existingCatIds.length > 0;
 
-      const catOptions = budgetCategories.categories.map(c =>
-        `<option value="${esc(c.id)}" ${existing && existing.category_id === c.id ? 'selected' : ''}>${esc(c.title)}</option>`
+      const catItems = budgetCategories.categories.map(c => `
+        <label class="tk-cat-item">
+          <input type="checkbox" class="tk-f-cat-cb" value="${esc(c.id)}" ${existingCatIds.includes(c.id) ? 'checked' : ''}>
+          <span>${esc(c.title)}</span>
+        </label>`
       ).join('');
 
       const ov = overlay(`<div class="tk-dialog">
@@ -391,10 +407,7 @@
           ${!settings.budget_integration ? '' : !budgetCategories.available ? `
           <div class="tk-field-hint">${esc(t('tk_budget_unavailable'))}</div>` : `
           <div class="tk-field"><label>${esc(t('tk_category'))}</label>
-            <select id="tk-f-category">
-              <option value="">${esc(t('tk_category_none'))}</option>
-              ${catOptions}
-            </select>
+            <div class="tk-cat-list" id="tk-f-category-list">${catItems}</div>
             <div class="tk-field-hint">${esc(budgetCategories.categories.length ? t('tk_reward_optional_hint') : t('tk_no_categories'))}</div>
           </div>
           <div class="tk-field" id="tk-f-amount-wrap" style="display:${hasCategory ? '' : 'none'}">
@@ -416,9 +429,13 @@
       const persistentWrap = ov.querySelector('#tk-f-persistent-wrap');
       const onetimeWrap = ov.querySelector('#tk-f-onetime-wrap');
       const periodicWrap = ov.querySelector('#tk-f-periodic-wrap');
-      const categorySelect = ov.querySelector('#tk-f-category');
+      const catListEl = ov.querySelector('#tk-f-category-list');
       const amountWrap = ov.querySelector('#tk-f-amount-wrap');
       const amountHint = ov.querySelector('#tk-f-amount-hint');
+
+      function checkedCatIds() {
+        return catListEl ? Array.from(catListEl.querySelectorAll('.tk-f-cat-cb:checked')).map(cb => cb.value) : [];
+      }
 
       function syncTypeFields() {
         const val = typeSelect.value;
@@ -426,13 +443,14 @@
         onetimeWrap.style.display = val === 'onetime' ? '' : 'none';
         periodicWrap.style.display = val === 'periodic' ? '' : 'none';
         if (amountHint) {
-          amountHint.textContent = (val === 'persistent' && rewardModeSelect.value === 'hourly')
+          const base = (val === 'persistent' && rewardModeSelect.value === 'hourly')
             ? t('tk_amount_hourly_hint') : t('tk_amount_hint');
+          amountHint.textContent = budgetCategories.currency ? base + ' (' + currencySymbol(budgetCategories.currency) + ')' : base;
         }
       }
       typeSelect.onchange = syncTypeFields;
       rewardModeSelect.onchange = syncTypeFields;
-      if (categorySelect) categorySelect.onchange = () => { amountWrap.style.display = categorySelect.value ? '' : 'none'; };
+      if (catListEl) catListEl.addEventListener('change', () => { amountWrap.style.display = checkedCatIds().length ? '' : 'none'; });
       syncTypeFields();
 
       ov.querySelector('#tk-f-cancel').onclick = () => ov.remove();
@@ -446,7 +464,7 @@
           type: selType,
           reward_mode: selType === 'persistent' ? rewardModeSelect.value : 'fixed',
           reward_amount: null,
-          category_id: null,
+          category_ids: [],
           due_at: null,
           period: null,
         };
@@ -456,12 +474,12 @@
         } else if (selType === 'periodic') {
           body.period = ov.querySelector('#tk-f-period').value;
         }
-        const catVal = categorySelect.value;
-        if (catVal) {
+        const catIds = checkedCatIds();
+        if (catIds.length) {
           const amtRaw = ov.querySelector('#tk-f-amount').value;
           const amt = parseFloat(amtRaw);
           if (isNaN(amt) || amt === 0) { errEl.textContent = t('tk_amount'); errEl.style.display = 'block'; return; }
-          body.category_id = catVal;
+          body.category_ids = catIds;
           body.reward_amount = amt;
         }
         try {
@@ -486,7 +504,7 @@
         <div class="tk-htx-row">
           <div class="tk-htx-row-top">
             <span class="tk-htx-title">${esc(r.task_title)}</span>
-            <span class="tk-amount ${r.amount >= 0 ? 'tk-amount-pos' : 'tk-amount-neg'}">${fmtAmount(r.amount)}</span>
+            <span class="tk-amount ${r.amount >= 0 ? 'tk-amount-pos' : 'tk-amount-neg'}">${fmtAmount(r.amount, budgetCategories.currency)}</span>
           </div>
           <div class="tk-htx-row-bottom">
             <span class="tk-htx-meta">

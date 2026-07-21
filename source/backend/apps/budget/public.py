@@ -131,6 +131,43 @@ def _init_db():
             "CREATE UNIQUE INDEX IF NOT EXISTS idx_transactions_idempotency "
             "ON transactions(idempotency_key) WHERE idempotency_key IS NOT NULL"
         )
+        try:
+            conn.execute("ALTER TABLE transactions ADD COLUMN source TEXT NOT NULL DEFAULT 'manual'")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            conn.execute("ALTER TABLE user_settings ADD COLUMN show_external_entries INTEGER NOT NULL DEFAULT 0")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            conn.execute("ALTER TABLE transactions ADD COLUMN source_app TEXT")
+        except sqlite3.OperationalError:
+            pass
+        try:
+            conn.execute("ALTER TABLE transactions ADD COLUMN source_app_name TEXT")
+        except sqlite3.OperationalError:
+            pass
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS source_visibility (
+                user_id     TEXT NOT NULL,
+                source_app  TEXT NOT NULL,
+                visible     INTEGER NOT NULL DEFAULT 0,
+                PRIMARY KEY (user_id, source_app)
+            )
+        """)
+        # One-time backfill: transactions inserted by the BAPP reconciliation
+        # (source='external' from before per-app tracking existed) become
+        # source_app='bapp'; any user who had the old global
+        # show_external_entries=1 keeps seeing bapp entries under the new
+        # per-app model instead of losing their preference silently.
+        conn.execute(
+            "UPDATE transactions SET source_app='bapp', source_app_name='BAPP' "
+            "WHERE source='external' AND source_app IS NULL"
+        )
+        conn.execute(
+            "INSERT OR IGNORE INTO source_visibility(user_id,source_app,visible) "
+            "SELECT user_id,'bapp',1 FROM user_settings WHERE show_external_entries=1"
+        )
         conn.commit()
 
 
@@ -174,6 +211,31 @@ def _effective_currency(conn, user_id: str) -> str:
     if row and row["currency"]:
         return row["currency"]
     return _system_currency()
+
+
+def _visible_source_apps(conn, user_id: str) -> List[str]:
+    """Per-user, per-source-app display preference only — transactions from
+    other apps are always included in balances/stats regardless of this
+    setting; it only controls whether list_transactions/full_history show
+    them. Budget has no idea what any given source_app *is* — it just
+    remembers which ones this user has toggled on, keyed by whatever string
+    the writing app supplied. Unknown/never-toggled apps default to hidden,
+    matching the old show_external_entries=0 default."""
+    rows = conn.execute(
+        "SELECT source_app FROM source_visibility WHERE user_id=? AND visible=1", (user_id,)
+    ).fetchall()
+    return [r["source_app"] for r in rows]
+
+
+def _source_filter_sql(conn, user_id: str):
+    """Returns (sql_fragment, params) to AND onto a transactions query so
+    that only rows with no source_app (the user's own manual entries) or an
+    explicitly-enabled source_app are included."""
+    visible = _visible_source_apps(conn, user_id)
+    if not visible:
+        return "source_app IS NULL", ()
+    placeholders = ",".join("?" for _ in visible)
+    return f"(source_app IS NULL OR source_app IN ({placeholders}))", tuple(visible)
 
 
 def _private_page():
@@ -306,6 +368,56 @@ async def set_my_settings(body: UserSettingsBody, x_pub_token: str = Header(defa
             "effective_currency": body.currency or _system_currency(),
             "default_sign": body.default_sign,
         })
+
+
+class SourceVisibilityBody(BaseModel):
+    visible: bool
+
+
+@router.get("/me/sources")
+async def list_sources(x_pub_token: str = Header(default=None)):
+    """Every source_app that has ever written a transaction into a category
+    this user can see, with this user's current show/hide preference for it.
+    Budget doesn't know or care what these apps are — it just echoes back
+    whatever (source_app, source_app_name) each writer supplied."""
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    with _db() as conn:
+        leaf_cats = _leaf_categories_for(conn, me["id"])
+        if not leaf_cats:
+            return JSONResponse([])
+        placeholders = ",".join("?" for _ in leaf_cats)
+        rows = conn.execute(
+            f"SELECT DISTINCT source_app, source_app_name FROM transactions "
+            f"WHERE category_id IN ({placeholders}) AND source_app IS NOT NULL "
+            f"ORDER BY source_app_name",
+            tuple(leaf_cats.keys()),
+        ).fetchall()
+        visible = set(_visible_source_apps(conn, me["id"]))
+        return JSONResponse([
+            {
+                "source_app": r["source_app"],
+                "source_app_name": r["source_app_name"],
+                "visible": r["source_app"] in visible,
+            }
+            for r in rows
+        ])
+
+
+@router.put("/me/sources/{source_app}")
+async def set_source_visibility(source_app: str, body: SourceVisibilityBody, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    with _db() as conn:
+        conn.execute(
+            "INSERT INTO source_visibility(user_id,source_app,visible) VALUES(?,?,?) "
+            "ON CONFLICT(user_id,source_app) DO UPDATE SET visible=excluded.visible",
+            (me["id"], source_app, 1 if body.visible else 0),
+        )
+        conn.commit()
+    return JSONResponse({"source_app": source_app, "visible": body.visible})
 
 
 # ── Categories ───────────────────────────────────────────────────
@@ -478,10 +590,9 @@ async def list_transactions(category_id: str, x_pub_token: str = Header(default=
     with _db() as conn:
         if not _my_role(conn, category_id, me["id"]):
             return JSONResponse({"error": "not found"}, status_code=404)
-        rows = conn.execute(
-            "SELECT * FROM transactions WHERE category_id=? ORDER BY created_at DESC LIMIT 200",
-            (category_id,),
-        ).fetchall()
+        frag, params = _source_filter_sql(conn, me["id"])
+        query = f"SELECT * FROM transactions WHERE category_id=? AND {frag} ORDER BY created_at DESC LIMIT 200"
+        rows = conn.execute(query, (category_id, *params)).fetchall()
 
     hub = _hub()
     ids = {r["user_id"] for r in rows} | {r["deleted_by"] for r in rows if r["deleted_by"]}
@@ -529,11 +640,12 @@ async def full_history(x_pub_token: str = Header(default=None)):
             return JSONResponse([])
 
         placeholders = ",".join("?" for _ in leaf_cats)
-        rows = conn.execute(
-            f"SELECT * FROM transactions WHERE category_id IN ({placeholders}) "
-            "ORDER BY created_at DESC LIMIT 500",
-            tuple(leaf_cats.keys()),
-        ).fetchall()
+        frag, params = _source_filter_sql(conn, me["id"])
+        query = (
+            f"SELECT * FROM transactions WHERE category_id IN ({placeholders}) AND {frag} "
+            f"ORDER BY created_at DESC LIMIT 500"
+        )
+        rows = conn.execute(query, (*leaf_cats.keys(), *params)).fetchall()
 
     hub = _hub()
     ids = {r["user_id"] for r in rows} | {r["deleted_by"] for r in rows if r["deleted_by"]}

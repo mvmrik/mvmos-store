@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Shopping List</title>
+<style>
+  html,body{margin:0;padding:0;height:100%;background:#1e1e2e;overflow:hidden}
+  #shoppinglist-root{height:100dvh}
+</style>
+</head>
+<body>
+<div id="shoppinglist-root"></div>
+<script src="/i18n/i18n.js"></script>
+<script>
+(function () {
+  var token = localStorage.getItem('apphub_token');
+  if (!token) {
+    location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
+    return;
+  }
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = src + '?_=' + Date.now();
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+  function boot() {
+    Promise.all([loadScript('/apps/shoppinglist/i18n.js'), loadScript('/apps/shoppinglist/shoppinglist-widget.js')]).then(function () {
+      ShoppingListWidget.mount(document.getElementById('shoppinglist-root'), {
+        onNeedLogin: function () {
+          location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
+        }
+      });
+    });
+  }
+  (window.mvmOS && window.mvmOS.i18nReady ? window.mvmOS.i18nReady : Promise.resolve()).then(boot);
+})();
+</script>
+</body>
+</html>

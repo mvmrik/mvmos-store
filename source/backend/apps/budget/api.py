@@ -35,18 +35,39 @@ def list_categories(user_id: str):
         return [pub._row_to_category(conn, r, user_id) for r in rows]
 
 
+def get_currency(user_id: str):
+    """The given user's effective display currency (their own override, or
+    the system default). Not tied to any category — Budget doesn't store
+    currency per-category or per-transaction, only as a per-user display
+    setting."""
+    pub = _pub()
+    if pub is None:
+        raise RuntimeError("budget public.py not loaded")
+    with pub._db() as conn:
+        return pub._effective_currency(conn, user_id)
+
+
 def add_to_category(user_id: str, category_id: str, amount: float,
+                     source_app: str, source_app_name: str,
                      reason: str = "", idempotency_key: str = None):
     """Add (amount > 0) or withdraw (amount < 0) money in a category the user
     is a member of. Raises ValueError if the category doesn't exist, the user
     isn't a member, or it holds subcategories (same rules as the normal
     add-transaction route). Safe to retry with the same idempotency_key —
-    replaying it returns the original result instead of inserting twice."""
+    replaying it returns the original result instead of inserting twice.
+
+    source_app/source_app_name identify the calling app (e.g. "tasks" /
+    "Задачи") so Budget can label the entry and let the user show/hide it —
+    Budget stores and echoes these back verbatim but has no logic keyed on
+    any specific value; the caller is responsible for a stable id and a
+    human-readable name."""
     pub = _pub()
     if pub is None:
         raise RuntimeError("budget public.py not loaded")
     if amount == 0:
         raise ValueError("amount must be non-zero")
+    if not source_app or not source_app_name:
+        raise ValueError("source_app and source_app_name are required")
 
     with pub._db() as conn:
         if idempotency_key:
@@ -65,9 +86,11 @@ def add_to_category(user_id: str, category_id: str, amount: float,
         now = datetime.now(timezone.utc).isoformat()
         try:
             conn.execute(
-                "INSERT INTO transactions(id,category_id,user_id,amount,note,batch_id,created_at,idempotency_key) "
-                "VALUES(?,?,?,?,?,NULL,?,?)",
-                (tid, category_id, user_id, amount, (reason or "").strip()[:300], now, idempotency_key),
+                "INSERT INTO transactions(id,category_id,user_id,amount,note,batch_id,created_at,"
+                "idempotency_key,source,source_app,source_app_name) "
+                "VALUES(?,?,?,?,?,NULL,?,?,'external',?,?)",
+                (tid, category_id, user_id, amount, (reason or "").strip()[:300], now, idempotency_key,
+                 source_app, source_app_name),
             )
             conn.commit()
         except sqlite3.IntegrityError:

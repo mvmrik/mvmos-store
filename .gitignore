@@ -1,0 +1,5 @@
+# Runtime-uploaded user content (photos, attachments) lives under an app's
+# public/ dir and gets synced live -> source/ like any other file, but it is
+# user data, not app code, and must never reach this public repo.
+# make-zip.sh ships the empty directory so installs still get the folder.
+source/apps/*/public/*upload*/

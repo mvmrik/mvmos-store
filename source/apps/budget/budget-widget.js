@@ -32,6 +32,8 @@
       currency_mismatch_error: "Can't share — that person uses a different currency.",
       added_by: 'Added by', removed_by: 'Removed by', leave_category: 'Leave category',
       settings: 'Settings', default_sign: 'Default sign for new amounts', deposit: 'Deposit (+)', withdrawal: 'Withdrawal (-)',
+      sources_section: 'Entries from other apps',
+      sources_hint: 'Off by default per app — hides that app\'s entries from history lists so manual entries stay easy to scroll through. They always count toward balances and stats either way.',
       total_balance: 'Total balance (all categories, incl. subcategories)',
       subcategories: 'Subcategories', add_subcategory: '+ Subcategory', no_subcategories: 'No subcategories yet.',
       new_subcategory: 'New subcategory', confirm_delete_subcategory: 'Delete this subcategory and all its transactions? This cannot be undone.',
@@ -70,6 +72,8 @@
       currency_mismatch_error: 'Не може да споделиш — човекът ползва друга валута.',
       added_by: 'Добавено от', removed_by: 'Премахнато от', leave_category: 'Напусни категорията',
       settings: 'Настройки', default_sign: 'Знак по подразбиране за нови суми', deposit: 'Внасяне (+)', withdrawal: 'Теглене (-)',
+      sources_section: 'Записи от други приложения',
+      sources_hint: 'По подразбиране е изключено за всяко приложение — скрива неговите записи от хронологията, за да е лесно да се преглеждат ръчно добавените. Те винаги се броят в баланса и справките, независимо от настройката.',
       total_balance: 'Общ баланс (всички категории, вкл. подкатегории)',
       subcategories: 'Подкатегории', add_subcategory: '+ Подкатегория', no_subcategories: 'Все още няма подкатегории.',
       new_subcategory: 'Нова подкатегория', confirm_delete_subcategory: 'Да се изтрие ли подкатегорията заедно с всички транзакции? Не може да се отмени.',
@@ -459,6 +463,13 @@
     async function openSettingsModal() {
       const freshCategories = await api('/categories');
       const total = freshCategories.reduce((sum, c) => sum + c.balance, 0);
+      let sources = [];
+      try { sources = await api('/me/sources'); } catch (e) { sources = []; }
+      const sourcesRows = sources.map(s => `
+        <label style="display:flex;align-items:center;gap:6px;padding:3px 0">
+          <input type="checkbox" data-source-app="${esc(s.source_app)}" ${s.visible ? 'checked' : ''}>
+          ${esc(s.source_app_name)}
+        </label>`).join('');
       const ov = overlay(`<div class="bw-dialog">
         <h3>${esc(t('settings'))}</h3>
         <div class="bw-field"><label>${esc(t('total_balance'))}</label>
@@ -476,11 +487,24 @@
             <option value="-1" ${myDefaultSign === -1 ? 'selected' : ''}>${esc(t('withdrawal'))}</option>
           </select>
         </div>
+        ${sources.length ? `<div class="bw-field">
+          <label>${esc(t('sources_section'))}</label>
+          <div class="bw-field-hint">${esc(t('sources_hint'))}</div>
+          ${sourcesRows}
+        </div>` : ''}
         <div class="bw-dialog-actions">
           <button class="bw-btn" id="bw-cur-cancel">${esc(t('cancel'))}</button>
           <button class="bw-btn bw-btn-primary" id="bw-cur-save">${esc(t('save'))}</button>
         </div>
       </div>`);
+      ov.querySelectorAll('[data-source-app]').forEach(chk => {
+        chk.onchange = () => {
+          const visible = chk.checked;
+          api(`/me/sources/${encodeURIComponent(chk.dataset.sourceApp)}`, {
+            method: 'PUT', body: JSON.stringify({ visible }),
+          }).catch(() => { chk.checked = !visible; });
+        };
+      });
       ov.querySelector('#bw-cur-cancel').onclick = () => ov.remove();
       ov.querySelector('#bw-cur-save').onclick = async () => {
         const val = ov.querySelector('#bw-cur-select').value || null;

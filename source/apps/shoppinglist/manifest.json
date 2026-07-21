@@ -1,0 +1,11 @@
+{
+  "id": "shoppinglist",
+  "name": "Shopping List",
+  "icon": "🛒",
+  "category": "Productivity",
+  "version": "1.0.0",
+  "description": "Shared shopping lists with warranty tracking and optional Budget category deduction when items are marked bought, plus a public web page.",
+  "entry": "main.js",
+  "public_url": "/pub/shoppinglist/",
+  "public_directory": true
+}
