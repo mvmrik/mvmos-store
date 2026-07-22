@@ -3,7 +3,12 @@
   "name": "Calendar",
   "icon": "📅",
   "category": "Productivity",
-  "version": "1.1.1",
+  "tags": [
+    "calendar",
+    "planning",
+    "events"
+  ],
+  "version": "1.1.2",
   "description": "Calendar with events and reminders, a public web page for Apps Hub accounts, and a Telegram mini-app.",
   "entry": "main.js",
   "public_url": "/pub/calendar/",

@@ -5,45 +5,42 @@
       "name": "Calendar",
       "icon": "📅",
       "category": "Productivity",
-      "version": "1.1.1",
+      "version": "1.1.2",
       "description": "Calendar with events and reminders, a public web page for Apps Hub accounts, and a Telegram mini-app.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/calendar-1.1.1.zip"
-    },
-    {
-      "id": "budget",
-      "name": "Budget",
-      "icon": "💰",
-      "category": "Productivity",
-      "version": "1.3.0",
-      "description": "Category-based budget tracking with shared categories, goals, mass-add, and per-app source visibility for entries added by other apps, plus a public web page and Telegram mini-app.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/budget-1.3.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/calendar-1.1.2.zip",
+      "tags": [
+        "calendar",
+        "planning",
+        "events"
+      ]
     },
     {
       "id": "tasks",
       "name": "Tasks",
       "icon": "✅",
       "category": "Productivity",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "description": "Persistent, one-time and periodic tasks with multiple categories per task and optional Budget rewards/penalties on completion, plus a public web page.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/tasks-1.1.0.zip"
-    },
-    {
-      "id": "mvmsitebuilder",
-      "name": "mvmSiteBuilder",
-      "icon": "🧱",
-      "category": "Productivity",
-      "version": "1.1.0",
-      "description": "Build your own website: pages, menu, themes, custom CSS/JS.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/mvmsitebuilder-1.1.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/tasks-1.2.0.zip",
+      "tags": [
+        "tasks",
+        "planning",
+        "to-do"
+      ]
     },
     {
       "id": "shoppinglist",
       "name": "Shopping List",
       "icon": "🛒",
       "category": "Productivity",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "Shared shopping lists with warranty tracking and optional Budget category deduction when items are marked bought, plus a public web page.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/shoppinglist-1.0.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/shoppinglist-1.0.1.zip",
+      "tags": [
+        "shopping",
+        "groceries",
+        "planning"
+      ]
     }
   ]
 }

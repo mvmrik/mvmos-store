@@ -3,15 +3,38 @@
   "name": "FindYourself",
   "icon": "🌍",
   "category": "Games",
-  "version": "1.12.7",
+  "tags": [
+    "multiplayer",
+    "geography",
+    "quiz"
+  ],
+  "version": "1.12.8",
   "description": "Drop into a random Street View location and guess where you are on the map. How well do you know the world?",
   "entry": "main.js",
   "css": "style.css",
   "multiplayer": true,
   "max_players": 8,
   "settings": [
-    { "key": "api_key", "label": "Google Maps API Key", "type": "password", "default": "" },
-    { "key": "rounds",  "label": "Rounds per game",     "type": "number",  "default": 5, "min": 1, "max": 10 },
-    { "key": "time",    "label": "Time per round (sec, 0 = unlimited)", "type": "number", "default": 60, "min": 0 }
+    {
+      "key": "api_key",
+      "label": "Google Maps API Key",
+      "type": "password",
+      "default": ""
+    },
+    {
+      "key": "rounds",
+      "label": "Rounds per game",
+      "type": "number",
+      "default": 5,
+      "min": 1,
+      "max": 10
+    },
+    {
+      "key": "time",
+      "label": "Time per round (sec, 0 = unlimited)",
+      "type": "number",
+      "default": 60,
+      "min": 0
+    }
   ]
 }

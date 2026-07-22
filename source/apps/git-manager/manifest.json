@@ -2,8 +2,13 @@
   "id": "git-manager",
   "name": "Git Manager",
   "icon": "🔀",
-  "category": "Administration",
-  "version": "1.0.2",
+  "category": "Developer Tools",
+  "tags": [
+    "developer",
+    "git",
+    "source-control"
+  ],
+  "version": "1.0.3",
   "description": "Manage git repositories — auto-detect, pull, push, commit. SSH key setup included.",
   "entry": "main.js",
   "min_core_version": "0.9.16"

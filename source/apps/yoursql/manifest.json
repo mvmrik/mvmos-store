@@ -2,8 +2,13 @@
   "id": "yoursql",
   "name": "YourSQL",
   "icon": "🗄️",
-  "category": "Administration",
-  "version": "2.1.1",
+  "category": "Developer Tools",
+  "tags": [
+    "database",
+    "sql",
+    "developer"
+  ],
+  "version": "2.1.2",
   "description": "MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL and Greenplum database manager — browse databases, edit data, run queries, import and export.",
   "entry": "main.js",
   "min_core_version": "0.7.4"

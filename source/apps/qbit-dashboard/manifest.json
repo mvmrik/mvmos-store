@@ -3,18 +3,60 @@
   "name": "qBit Dashboard",
   "icon": "🌊",
   "category": "Media",
-  "version": "1.5.1",
+  "tags": [
+    "downloads",
+    "torrent",
+    "media"
+  ],
+  "version": "1.5.2",
   "min_core_version": "0.5.16",
   "description": "Visual dashboard for qBittorrent. Connects to a local qBittorrent instance via WebUI API.",
   "entry": "main.js",
   "css": "style.css",
   "settings": [
-    { "key": "host",         "label": "Host",                "type": "text",     "default": "localhost" },
-    { "key": "port",         "label": "Port",                "type": "number",   "default": 8080, "min": 1, "max": 65535 },
-    { "key": "username",     "label": "Username",            "type": "text",     "default": "admin" },
-    { "key": "password",     "label": "Password",            "type": "password", "default": "" },
-    { "key": "ipt_uid",    "label": "IPTorrents Cookie: uid",    "type": "text", "default": "" },
-    { "key": "ipt_pass",   "label": "IPTorrents Cookie: pass",   "type": "text", "default": "" },
-    { "key": "ipt_togtem", "label": "IPTorrents Cookie: togTem", "type": "text", "default": "" }
+    {
+      "key": "host",
+      "label": "Host",
+      "type": "text",
+      "default": "localhost"
+    },
+    {
+      "key": "port",
+      "label": "Port",
+      "type": "number",
+      "default": 8080,
+      "min": 1,
+      "max": 65535
+    },
+    {
+      "key": "username",
+      "label": "Username",
+      "type": "text",
+      "default": "admin"
+    },
+    {
+      "key": "password",
+      "label": "Password",
+      "type": "password",
+      "default": ""
+    },
+    {
+      "key": "ipt_uid",
+      "label": "IPTorrents Cookie: uid",
+      "type": "text",
+      "default": ""
+    },
+    {
+      "key": "ipt_pass",
+      "label": "IPTorrents Cookie: pass",
+      "type": "text",
+      "default": ""
+    },
+    {
+      "key": "ipt_togtem",
+      "label": "IPTorrents Cookie: togTem",
+      "type": "text",
+      "default": ""
+    }
   ]
 }

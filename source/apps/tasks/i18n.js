@@ -60,11 +60,16 @@
 
       tk_start_timer:               'Start',
       tk_stop_timer:                'Stop',
+      tk_pause_timer:               'Pause',
+      tk_resume_timer:              'Continue',
       tk_timer_running:             'Running…',
+      tk_timer_paused:              'Paused',
       tk_elapsed:                   'Elapsed',
 
       tk_reward_applied:             'Reward applied to Budget',
       tk_penalty_applied:            'Penalty applied to Budget',
+      tk_reward_applied_amount:      'Reward of {amount} applied to Budget',
+      tk_penalty_applied_amount:     'Penalty of {amount} applied to Budget',
       tk_reward_failed:              'Task completed, but the Budget reward could not be applied',
 
       tk_settings:                  'Settings',
@@ -132,11 +137,16 @@
 
       tk_start_timer:               'Старт',
       tk_stop_timer:                'Стоп',
+      tk_pause_timer:               'Пауза',
+      tk_resume_timer:              'Продължи',
       tk_timer_running:             'Работи…',
+      tk_timer_paused:              'На пауза',
       tk_elapsed:                   'Изминало време',
 
       tk_reward_applied:             'Наградата е добавена в Бюджета',
       tk_penalty_applied:            'Наказанието е добавено в Бюджета',
+      tk_reward_applied_amount:      'Награда от {amount} е добавена в Бюджета',
+      tk_penalty_applied_amount:     'Наказание от {amount} е добавено в Бюджета',
       tk_reward_failed:              'Задачата е изпълнена, но наградата не можа да бъде добавена в Бюджета',
 
       tk_settings:                  'Настройки',

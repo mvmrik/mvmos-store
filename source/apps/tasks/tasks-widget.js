@@ -201,7 +201,12 @@
       if (!result || !result.category_ids || !result.category_ids.length) return;
       const reward = result.reward || {};
       if (reward.budget_ok) {
-        toast(reward.amount >= 0 ? t('tk_reward_applied') : t('tk_penalty_applied'), reward.amount >= 0 ? 'good' : 'bad');
+        const total = (reward.categories || []).filter(r => r.budget_ok)
+          .reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+        const amount = fmtAmount(total || reward.amount, budgetCategories.currency);
+        toast(reward.amount >= 0
+          ? t('tk_reward_applied_amount', { amount })
+          : t('tk_penalty_applied_amount', { amount }), reward.amount >= 0 ? 'good' : 'bad');
       } else {
         toast(t('tk_reward_failed'), 'bad');
       }
@@ -236,8 +241,14 @@
         if (task.reward_mode === 'hourly') {
           if (task.timer_running) {
             badges.push(`<span class="tk-badge tk-badge-good">${esc(t('tk_timer_running'))}</span>`);
-            footHtml = `<span class="tk-timer" data-timer="${esc(task.id)}" data-started="${esc(task.timer_started_at)}">${fmtDuration(task.elapsed_seconds || 0)}</span>
-              <button class="tk-btn tk-btn-danger" data-action="stop-timer">${esc(t('tk_stop_timer'))}</button>`;
+            footHtml = `<span class="tk-timer" data-timer="${esc(task.id)}" data-started="${esc(task.timer_started_at)}" data-base="${esc(task.timer_elapsed_seconds || 0)}">${fmtDuration(task.elapsed_seconds || 0)}</span>
+              <span><button class="tk-btn" data-action="pause-timer">${esc(t('tk_pause_timer'))}</button>
+              <button class="tk-btn tk-btn-primary" data-action="complete-timer">${esc(t('tk_complete'))}</button></span>`;
+          } else if (task.timer_paused) {
+            badges.push(`<span class="tk-badge tk-badge-warn">${esc(t('tk_timer_paused'))}</span>`);
+            footHtml = `<span class="tk-timer">${fmtDuration(task.elapsed_seconds || 0)}</span>
+              <span><button class="tk-btn" data-action="start-timer">${esc(t('tk_resume_timer'))}</button>
+              <button class="tk-btn tk-btn-primary" data-action="complete-timer">${esc(t('tk_complete'))}</button></span>`;
           } else {
             footHtml = `<span></span><button class="tk-btn tk-btn-primary" data-action="start-timer">${esc(t('tk_start_timer'))}</button>`;
           }
@@ -298,8 +309,10 @@
         if (completeBtn) completeBtn.onclick = () => completeTask(task);
         const startBtn = card.querySelector('[data-action="start-timer"]');
         if (startBtn) startBtn.onclick = () => startTimer(task);
-        const stopBtn = card.querySelector('[data-action="stop-timer"]');
-        if (stopBtn) stopBtn.onclick = () => stopTimer(task);
+        const pauseBtn = card.querySelector('[data-action="pause-timer"]');
+        if (pauseBtn) pauseBtn.onclick = () => pauseTimer(task);
+        const completeTimerBtn = card.querySelector('[data-action="complete-timer"]');
+        if (completeTimerBtn) completeTimerBtn.onclick = () => completeTimer(task);
       });
       startTimerTicker();
     }
@@ -311,7 +324,7 @@
       timerInterval = setInterval(() => {
         gridEl.querySelectorAll('[data-timer]').forEach(el => {
           const started = new Date(el.dataset.started).getTime();
-          el.textContent = fmtDuration((Date.now() - started) / 1000);
+          el.textContent = fmtDuration((Number(el.dataset.base) || 0) + (Date.now() - started) / 1000);
         });
       }, 1000);
     }
@@ -336,9 +349,15 @@
       try { await api(`/tasks/${task.id}/timer/start`, { method: 'POST' }); await refreshTasks(); }
       catch (e) { toast(e.message || t('tk_error'), 'bad'); }
     }
-    async function stopTimer(task) {
+    async function pauseTimer(task) {
       try {
-        const result = await api(`/tasks/${task.id}/timer/stop`, { method: 'POST' });
+        await api(`/tasks/${task.id}/timer/pause`, { method: 'POST' });
+        await refreshTasks();
+      } catch (e) { toast(e.message || t('tk_error'), 'bad'); }
+    }
+    async function completeTimer(task) {
+      try {
+        const result = await api(`/tasks/${task.id}/timer/complete`, { method: 'POST' });
         showRewardToast(result);
         await refreshTasks();
       } catch (e) { toast(e.message || t('tk_error'), 'bad'); }

@@ -25,6 +25,7 @@ apps/<category>/<app-id>/
   "name": "My App",
   "icon": "🚀",
   "category": "Utilities",
+  "tags": ["notes", "planning"],
   "version": "1.0.0",
   "min_core_version": "0.5.12",
   "description": "App description.",
@@ -45,6 +46,7 @@ apps/<category>/<app-id>/
 | `name` | yes | Display name |
 | `icon` | yes | Emoji icon |
 | `category` | yes | App Store category |
+| `tags` | no | Array of 1–5 lowercase discovery tags (for example `["notes", "planning"]`). Use short, stable kebab-case terms; tags are for Store search/filters, not extra Start Menu categories. |
 | `version` | yes | Semver version |
 | `min_core_version` | no | Minimum mvmOS core version required |
 | `entry` | no | JS file (default: `main.js`) |
@@ -53,6 +55,12 @@ apps/<category>/<app-id>/
 | `trayable` | no | `true` if the app supports System Tray |
 | `scheduler` | no | Python file for background scheduled logic (e.g. `"scheduler.py"`) |
 | `public_directory` | no | `false` to hide from the Apps Hub public directory card grid even though `public.py` exists — see [Listing in the public directory](#listing-in-the-public-directory). Default `true`. |
+
+### Official Store categories
+
+Use one broad primary category. The official Store currently uses: `Productivity`, `Finance`, `Communication`, `Media`, `Creative`, `Business`, `AI`, `Developer Tools`, `System & Administration`, `Security & Privacy`, `Utilities`, and `Games`.
+
+Do not create a narrow category for one app. Put the app in the closest broad category and use `tags` for specific capabilities, topics, or audiences.
 
 ---
 
@@ -973,6 +981,16 @@ async def get_data(x_pub_token: Optional[str] = Header(default=None)):
 ```
 
 The public page is served at `/pub/<app-id>/` once the admin enables it in Apps Hub.
+
+### Public page PWA (automatic)
+
+Public apps do not implement their own PWA files. Once an app has `public.py`, exposes `/pub/<app-id>/`, and an Apps Hub administrator enables its public page, mvmOS core automatically supplies:
+
+- a web app manifest scoped to `/pub/<app-id>/`;
+- PNG icons generated from the app's `icon` in `manifest.json`;
+- a service worker and the browser's normal install flow.
+
+There is no `manifest.webmanifest`, service-worker file, or install button for the app author to create. The install prompt is controlled by the browser and only appears when that browser allows it. `public_directory: false` only hides the app from the Apps Hub directory; it does not disable its PWA.
 
 To redirect unauthenticated visitors to login:
 

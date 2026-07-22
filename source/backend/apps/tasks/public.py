@@ -119,6 +119,14 @@ def _init_db():
             );
             CREATE INDEX IF NOT EXISTS idx_completion_rewards_completion ON completion_rewards(completion_id);
         """)
+        # A timed task can be paused and resumed. Keep the completed segments
+        # separately from the currently running segment so a restart never
+        # turns a pause into either lost time or an accidental completion.
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(tasks)")}
+        if "timer_elapsed_seconds" not in cols:
+            conn.execute(
+                "ALTER TABLE tasks ADD COLUMN timer_elapsed_seconds REAL NOT NULL DEFAULT 0"
+            )
         # One-time-per-startup, idempotent backfill: tasks created before the
         # move to many-to-many categories only had a single category_id column.
         conn.execute(
@@ -213,9 +221,12 @@ def _row_to_task(conn, row, now: datetime) -> dict:
         d["overdue"] = bool(d.get("due_at") and not d["completed"] and d["due_at"] < now.isoformat())
     elif d["type"] == "persistent":
         d["timer_running"] = bool(d.get("timer_started_at"))
+        elapsed = float(d.get("timer_elapsed_seconds") or 0)
         if d["timer_running"]:
             started = datetime.fromisoformat(d["timer_started_at"])
-            d["elapsed_seconds"] = max(0.0, (now - started).total_seconds())
+            elapsed += max(0.0, (now - started).total_seconds())
+        d["elapsed_seconds"] = elapsed
+        d["timer_paused"] = not d["timer_running"] and elapsed > 0
     return d
 
 
@@ -491,8 +502,8 @@ async def start_timer(task_id: str, x_pub_token: str = Header(default=None)):
         return JSONResponse(_row_to_task(conn, row, _now()))
 
 
-@router.post("/tasks/{task_id}/timer/stop")
-async def stop_timer(task_id: str, x_pub_token: str = Header(default=None)):
+@router.post("/tasks/{task_id}/timer/pause")
+async def pause_timer(task_id: str, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -507,9 +518,39 @@ async def stop_timer(task_id: str, x_pub_token: str = Header(default=None)):
             return JSONResponse({"error": "timer not running"}, status_code=400)
 
         started = datetime.fromisoformat(row["timer_started_at"])
-        elapsed_hours = max(0.0, (now - started).total_seconds() / 3600)
-        amount = round(row["reward_amount"] * elapsed_hours, 2) if row["reward_amount"] else None
+        elapsed = float(row["timer_elapsed_seconds"] or 0) + max(0.0, (now - started).total_seconds())
+        conn.execute(
+            "UPDATE tasks SET timer_started_at=NULL, timer_elapsed_seconds=?, updated_at=? WHERE id=?",
+            (elapsed, now.isoformat(), task_id),
+        )
+        conn.commit()
 
+        row = conn.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
+        return JSONResponse(_row_to_task(conn, row, now))
+
+
+@router.post("/tasks/{task_id}/timer/complete")
+async def complete_timer(task_id: str, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    now = _now()
+    with _db() as conn:
+        row = conn.execute("SELECT * FROM tasks WHERE id=? AND user_id=?", (task_id, me["id"])).fetchone()
+        if not row:
+            return JSONResponse({"error": "not found"}, status_code=404)
+        if row["type"] != "persistent" or row["reward_mode"] != "hourly":
+            return JSONResponse({"error": "not an hourly task"}, status_code=400)
+
+        elapsed_seconds = float(row["timer_elapsed_seconds"] or 0)
+        if row["timer_started_at"]:
+            started = datetime.fromisoformat(row["timer_started_at"])
+            elapsed_seconds += max(0.0, (now - started).total_seconds())
+        if elapsed_seconds <= 0:
+            return JSONResponse({"error": "timer has no elapsed time"}, status_code=400)
+
+        elapsed_hours = elapsed_seconds / 3600
+        amount = round(row["reward_amount"] * elapsed_hours, 2) if row["reward_amount"] else None
         hub = _hub()
         cid = str(uuid.uuid4())
         category_ids = _task_category_ids(conn, task_id)
@@ -526,7 +567,10 @@ async def stop_timer(task_id: str, x_pub_token: str = Header(default=None)):
                 "INSERT INTO completion_rewards(id,completion_id,category_id,amount,budget_ok) VALUES(?,?,?,?,?)",
                 (str(uuid.uuid4()), cid, r["category_id"], r["amount"], 1 if r["budget_ok"] else 0),
             )
-        conn.execute("UPDATE tasks SET timer_started_at=NULL, updated_at=? WHERE id=?", (now.isoformat(), task_id))
+        conn.execute(
+            "UPDATE tasks SET timer_started_at=NULL, timer_elapsed_seconds=0, updated_at=? WHERE id=?",
+            (now.isoformat(), task_id),
+        )
         conn.commit()
 
         row = conn.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
@@ -534,6 +578,12 @@ async def stop_timer(task_id: str, x_pub_token: str = Header(default=None)):
         result["reward"] = {"amount": amount or 0.0, "budget_ok": overall_ok, "categories": rewards}
         result["duration_hours"] = round(elapsed_hours, 4)
         return JSONResponse(result)
+
+
+@router.post("/tasks/{task_id}/timer/stop")
+async def stop_timer_legacy(task_id: str, x_pub_token: str = Header(default=None)):
+    """Compatibility for older Tasks clients: their Stop still completes."""
+    return await complete_timer(task_id, x_pub_token)
 
 
 # ── History ──────────────────────────────────────────────────────

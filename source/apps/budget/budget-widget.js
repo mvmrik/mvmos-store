@@ -146,16 +146,21 @@
       .bw-empty{color:var(--pub-dim, #6c7086);text-align:center;padding:40px 16px}
       .bw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
       .bw-card{background:var(--pub-surface2, #313244);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
-      .bw-card-head{display:flex;flex-direction:column;gap:4px}
-      .bw-card-title{font-weight:700;font-size:.95rem;word-break:break-word}
-      .bw-card-actions{display:flex;gap:2px}
+      .bw-card-head{display:block}
+      .bw-card-title{font-weight:700;font-size:.95rem;word-break:break-word;min-width:0}
+      .bw-card-actions{display:flex;justify-content:flex-end;gap:2px;align-items:center;margin-top:2px}
       .bw-btn-icon.bw-btn-owner{background:rgba(166,227,161,.22)}
       .bw-btn-icon.bw-btn-owner:hover{background:rgba(166,227,161,.35)}
       .bw-card-desc{color:var(--pub-fg2, #a6adc8);font-size:.78rem;word-break:break-word}
       .bw-card-balance{font-size:1.2rem;font-weight:700;cursor:pointer}
+      .bw-card-balance.bw-balance-positive{color:var(--pub-green, #a6e3a1)}
+      .bw-card-balance.bw-balance-negative{color:var(--pub-red, #f38ba8)}
       .bw-card-balance:hover{color:var(--pub-accent, #89b4fa)}
       .bw-progress{height:6px;border-radius:3px;background:var(--pub-border, #45475a);overflow:hidden}
       .bw-progress-bar{height:100%;background:var(--pub-green, #a6e3a1);border-radius:3px}
+      .bw-progress-bar.bw-progress-low{background:var(--pub-red, #f38ba8)}
+      .bw-progress-bar.bw-progress-mid{background:var(--pub-warning, #f9e2af)}
+      .bw-progress-bar.bw-progress-high{background:var(--pub-green, #a6e3a1)}
       .bw-progress-label{font-size:.72rem;color:var(--pub-fg2, #a6adc8)}
       .bw-card-meta{font-size:.72rem;color:var(--pub-dim, #6c7086)}
       .bw-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
@@ -525,25 +530,28 @@
         const isOwner = c.role === 'owner';
         const canHoldSubcats = !c.alloc_value;
         const allocLabel = c.alloc_type === 'percent' ? `${c.alloc_value}%` : fmtMoney(c.alloc_value);
+        const balanceClass = c.balance > 0 ? 'bw-balance-positive' : c.balance < 0 ? 'bw-balance-negative' : '';
+        const progressPct = Math.max(0, Math.min(100, c.progress_pct || 0));
+        const progressClass = progressPct >= 80 ? 'bw-progress-high' : progressPct >= 50 ? 'bw-progress-mid' : 'bw-progress-low';
         const goalBlock = c.goal ? `
-          <div class="bw-progress"><div class="bw-progress-bar" style="width:${Math.max(0, Math.min(100, c.progress_pct || 0))}%"></div></div>
+          <div class="bw-progress"><div class="bw-progress-bar ${progressClass}" style="width:${progressPct}%"></div></div>
           <div class="bw-progress-label">${fmtMoney(c.balance)} / ${fmtMoney(c.goal)} (${c.progress_pct || 0}%)</div>
         ` : '';
         return `<div class="bw-card" data-id="${esc(c.id)}">
           <div class="bw-card-head">
             <div class="bw-card-title">${esc(c.title)}</div>
-            <div class="bw-card-actions">
-              ${isOwner ? `${canHoldSubcats ? `<button class="bw-btn-icon" data-action="subcats" title="${esc(t('manage_subcategories'))}">📂</button>` : ''}
-                           <button class="bw-btn-icon bw-btn-owner" data-action="share" title="${esc(t('owner'))} · ${esc(t('share'))}">🤝</button>
-                           <button class="bw-btn-icon" data-action="edit" title="${esc(t('edit'))}">✎</button>
-                           <button class="bw-btn-icon" data-action="delete" title="${esc(t('delete'))}">🗑</button>`
-                        : `<button class="bw-btn-icon" data-action="leave" title="${esc(t('leave_category'))}">🚪</button>`}
-            </div>
           </div>
           ${c.description ? `<div class="bw-card-desc">${esc(c.description)}</div>` : ''}
-          <div class="bw-card-balance" data-action="history">${fmtMoney(c.balance)}</div>
+          <div class="bw-card-balance ${balanceClass}" data-action="history">${fmtMoney(c.balance)}</div>
           ${goalBlock}
           <div class="bw-card-meta">${c.has_children ? esc(t('subcategories')) : esc(allocLabel)}${c.member_count > 1 ? ` · ${c.member_count} ${esc(t('members'))}` : ''}</div>
+          <div class="bw-card-actions">
+            ${isOwner ? `${canHoldSubcats ? `<button class="bw-btn-icon" data-action="subcats" title="${esc(t('manage_subcategories'))}">📂</button>` : ''}
+                         <button class="bw-btn-icon bw-btn-owner" data-action="share" title="${esc(t('owner'))} · ${esc(t('share'))}">🤝</button>
+                         <button class="bw-btn-icon" data-action="edit" title="${esc(t('edit'))}">✎</button>
+                         <button class="bw-btn-icon" data-action="delete" title="${esc(t('delete'))}">🗑</button>`
+                      : `<button class="bw-btn-icon" data-action="leave" title="${esc(t('leave_category'))}">🚪</button>`}
+          </div>
         </div>`;
       }).join('');
 

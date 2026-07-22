@@ -2,8 +2,13 @@
   "id": "budget",
   "name": "Budget",
   "icon": "💰",
-  "category": "Productivity",
-  "version": "1.3.0",
+  "category": "Finance",
+  "tags": [
+    "finance",
+    "money",
+    "planning"
+  ],
+  "version": "1.3.1",
   "description": "Category-based budget tracking with shared categories, goals, mass-add, and per-app source visibility for entries added by other apps, plus a public web page and Telegram mini-app.",
   "entry": "main.js",
   "public_url": "/pub/budget/",

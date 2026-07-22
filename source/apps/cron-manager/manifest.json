@@ -2,8 +2,13 @@
   "id": "cron-manager",
   "name": "Cron Manager",
   "icon": "⏰",
-  "category": "Administration",
-  "version": "1.5.0",
+  "category": "System & Administration",
+  "tags": [
+    "automation",
+    "scheduling",
+    "system"
+  ],
+  "version": "1.5.1",
   "description": "View, add, edit, enable/disable and run cron jobs for the current user. Root also sees /etc/cron.d/ system jobs.",
   "entry": "main.js"
 }

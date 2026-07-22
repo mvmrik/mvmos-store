@@ -94,12 +94,9 @@ def _resolve_player(token: str) -> dict | None:
         u = hub.get_pub_session(token)
         if u:
             with _gh_conn() as conn:
-                row = conn.execute(
-                    "SELECT id, display_name, avatar_color, avatar_svg FROM players WHERE id=?",
-                    (u["id"],)
-                ).fetchone()
-            if row:
-                return dict(row)
+                conn.execute("UPDATE players SET display_name=?,avatar_color=?,avatar_svg=? WHERE id=?",
+                             (u.get("display_name", ""), u.get("avatar_color", "#89b4fa"), u.get("avatar_svg"), u["id"]))
+                conn.commit()
             return {"id": u["id"], "display_name": u.get("display_name", ""), "avatar_color": u.get("avatar_color", "#89b4fa"), "avatar_svg": u.get("avatar_svg", "")}
     # Fallback: legacy gh_tokens table
     try:

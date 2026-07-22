@@ -1,0 +1,32 @@
+{
+  "apps": [
+    {
+      "id": "yoursql",
+      "name": "YourSQL",
+      "icon": "🗄️",
+      "category": "Developer Tools",
+      "version": "2.1.2",
+      "description": "MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL and Greenplum database manager — browse tables, edit rows, run SQL queries, filter & sort, import/export CSV and SQL, create and drop databases.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/developer-tools/yoursql-2.1.2.zip",
+      "tags": [
+        "database",
+        "sql",
+        "developer"
+      ]
+    },
+    {
+      "id": "git-manager",
+      "name": "Git Manager",
+      "icon": "🔀",
+      "category": "Developer Tools",
+      "version": "1.0.3",
+      "description": "Manage git repositories — auto-detect repos, pull, push, fetch, commit, branch switching, diff viewer, discard changes, clone, init. SSH key setup included.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/developer-tools/git-manager-1.0.3.zip",
+      "tags": [
+        "developer",
+        "git",
+        "source-control"
+      ]
+    }
+  ]
+}

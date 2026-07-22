@@ -186,17 +186,15 @@ def _resolve_token(x_gh_token: Optional[str]) -> Optional[dict]:
     u = hub.get_pub_session(x_gh_token)
     if not u:
         return None
-    # Ensure a players entry exists (needed for FK references in sessions/invites/favourites)
+    # Apps Hub owns the current profile. Keep this local row only as the
+    # relational/game-history cache, and refresh it on every authenticated use.
     with _db() as conn:
-        exists = conn.execute("SELECT id FROM players WHERE id=?", (u["id"],)).fetchone()
-        if not exists:
-            conn.execute(
-                "INSERT OR IGNORE INTO players(id,username,display_name,avatar_color,avatar_data,avatar_svg,created_at)"
-                " VALUES(?,?,?,?,?,?,?)",
-                (u["id"], u["username"], u["display_name"], u.get("avatar_color","#89b4fa"),
-                 u.get("avatar_data"), u.get("avatar_svg"), u.get("created_at",""))
-            )
-            conn.commit()
+        conn.execute(
+            "INSERT INTO players(id,username,display_name,avatar_color,avatar_data,avatar_svg,created_at) VALUES(?,?,?,?,?,?,?) "
+            "ON CONFLICT(id) DO UPDATE SET username=excluded.username,display_name=excluded.display_name,avatar_color=excluded.avatar_color,avatar_data=excluded.avatar_data,avatar_svg=excluded.avatar_svg",
+            (u["id"], u["username"], u["display_name"], u.get("avatar_color","#89b4fa"),
+             u.get("avatar_data"), u.get("avatar_svg"), u.get("created_at", "")))
+        conn.commit()
     return u
 
 def _issue_token(player_id: str) -> str:
@@ -321,7 +319,13 @@ async def remove_favourite(fav_id: str, x_gh_token: Optional[str] = Header(defau
 async def players_public():
     with _db() as conn:
         rows = conn.execute("SELECT id,username,display_name,avatar_color,avatar_data,avatar_svg FROM players ORDER BY display_name").fetchall()
-    return JSONResponse([dict(r) for r in rows])
+    cached = {r["id"]: dict(r) for r in rows}
+    hub = _apphub()
+    if hub:
+        # Current profile visuals always come from Apps Hub, not this cache.
+        for profile in hub.get_users_by_ids(list(cached)):
+            cached[profile["id"]].update(profile)
+    return JSONResponse(sorted(cached.values(), key=lambda p: p["display_name"].lower()))
 
 @_pub.get("/stats")
 async def stats_public():
@@ -496,6 +500,23 @@ async def _build_stats():
             WHERE a.player_id IS NOT NULL AND b.player_id IS NOT NULL
             GROUP BY a.player_id, b.player_id
         """).fetchall()
+
+    # App Hub is authoritative for all current profile visuals. The Game Hub
+    # rows above exist only for game/session foreign-key relationships.
+    hub = _apphub()
+    if hub:
+        profiles = {p["id"]: p for p in hub.get_users_by_ids(list(players))}
+        for player_id, player in players.items():
+            if player_id in profiles:
+                player.update(profiles[player_id])
+        for entries in leaderboard.values():
+            for entry in entries:
+                if entry["player_id"] in profiles:
+                    entry.update(profiles[entry["player_id"]])
+        for session in recent_out:
+            for player in session["players"]:
+                if player.get("player_id") in profiles:
+                    player.update(profiles[player["player_id"]])
 
     return JSONResponse({
         "games": games,

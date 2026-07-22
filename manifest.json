@@ -2,16 +2,22 @@
   "version": 2,
   "categories": [
     {
-      "id": "administration",
-      "name": "Administration",
-      "icon": "🖧",
-      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/administration/manifest.json"
+      "id": "productivity",
+      "name": "Productivity",
+      "icon": "✅",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/manifest.json"
     },
     {
-      "id": "utilities",
-      "name": "Utilities",
-      "icon": "🔧",
-      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/manifest.json"
+      "id": "finance",
+      "name": "Finance",
+      "icon": "💰",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/finance/manifest.json"
+    },
+    {
+      "id": "communication",
+      "name": "Communication",
+      "icon": "💬",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/manifest.json"
     },
     {
       "id": "media",
@@ -20,22 +26,52 @@
       "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/manifest.json"
     },
     {
+      "id": "creative",
+      "name": "Creative",
+      "icon": "🎨",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/creative/manifest.json"
+    },
+    {
+      "id": "business",
+      "name": "Business",
+      "icon": "💼",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/business/manifest.json"
+    },
+    {
+      "id": "ai",
+      "name": "AI",
+      "icon": "🤖",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/ai/manifest.json"
+    },
+    {
+      "id": "developer-tools",
+      "name": "Developer Tools",
+      "icon": "🧰",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/developer-tools/manifest.json"
+    },
+    {
+      "id": "system-administration",
+      "name": "System & Administration",
+      "icon": "🖥️",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/manifest.json"
+    },
+    {
+      "id": "security-privacy",
+      "name": "Security & Privacy",
+      "icon": "🔐",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/security-privacy/manifest.json"
+    },
+    {
+      "id": "utilities",
+      "name": "Utilities",
+      "icon": "🔧",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/manifest.json"
+    },
+    {
       "id": "games",
       "name": "Games",
       "icon": "🎮",
       "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/manifest.json"
-    },
-    {
-      "id": "social",
-      "name": "Social",
-      "icon": "💬",
-      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/social/manifest.json"
-    },
-    {
-      "id": "productivity",
-      "name": "Productivity",
-      "icon": "🗓️",
-      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/manifest.json"
     }
   ]
 }

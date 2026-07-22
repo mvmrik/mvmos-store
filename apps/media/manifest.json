@@ -5,9 +5,28 @@
       "name": "qBit Dashboard",
       "icon": "🌊",
       "category": "Media",
-      "version": "1.5.1",
+      "version": "1.5.2",
       "description": "Visual dashboard for qBittorrent. Connects to a local qBittorrent instance via WebUI API. Auto-discovers running instance or configure manually.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/qbit-dashboard-1.5.1.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/qbit-dashboard-1.5.2.zip",
+      "tags": [
+        "downloads",
+        "torrent",
+        "media"
+      ]
+    },
+    {
+      "id": "rssfeed",
+      "name": "RSS Reader",
+      "icon": "📰",
+      "category": "Media",
+      "version": "1.2.4",
+      "description": "RSS/Atom feed reader with auto-refresh, read/unread tracking, bookmarks, AI summarization via mvmAI, and optional public reading list.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/rssfeed-1.2.4.zip",
+      "tags": [
+        "news",
+        "feeds",
+        "reading"
+      ]
     }
   ]
 }

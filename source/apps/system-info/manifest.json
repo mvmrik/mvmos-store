@@ -2,8 +2,13 @@
   "id": "system-info",
   "name": "System Info",
   "icon": "🖥️",
-  "category": "Administration",
-  "version": "1.1.0",
+  "category": "System & Administration",
+  "tags": [
+    "system",
+    "diagnostics",
+    "monitoring"
+  ],
+  "version": "1.1.1",
   "description": "Detailed hardware and system information — CPU, memory, disks, network interfaces, temperatures, uptime and more.",
   "entry": "main.js"
 }

@@ -3,7 +3,12 @@
   "name": "Tasks",
   "icon": "✅",
   "category": "Productivity",
-  "version": "1.1.0",
+  "tags": [
+    "tasks",
+    "planning",
+    "to-do"
+  ],
+  "version": "1.2.0",
   "description": "Persistent, one-time and periodic tasks with multiple categories per task and optional Budget rewards/penalties on completion, plus a public web page.",
   "entry": "main.js",
   "public_url": "/pub/tasks/",

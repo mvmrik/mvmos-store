@@ -27,6 +27,7 @@ apps/
   "name": "Your App",
   "icon": "🚀",
   "category": "Utilities",
+  "tags": ["notes", "planning"],
   "version": "1.0.0",
   "description": "Short description shown in the store.",
   "entry": "main.js",
@@ -40,10 +41,13 @@ apps/
 | `name`        | ✓        | Display name                                     |
 | `icon`        | ✓        | Emoji, or a path/URL to an image (`/apps/your-app/icon.png`) |
 | `category`    | ✓        | Category shown in the store                      |
+| `tags`        |          | Array of 1–5 lowercase discovery tags, using short kebab-case terms (e.g. `["notes", "planning"]`). Used for Store search/filters, not extra Start Menu categories. |
 | `version`     | ✓        | Semver string — bump to trigger update prompt    |
 | `description` | ✓        | Short description                                |
 | `entry`       |          | Entry JS file (default: `main.js`)               |
 | `css`         |          | Optional CSS file loaded alongside the app       |
+
+For the official Store, choose one broad category: `Productivity`, `Finance`, `Communication`, `Media`, `Creative`, `Business`, `AI`, `Developer Tools`, `System & Administration`, `Security & Privacy`, `Utilities`, or `Games`. Use `tags` for more specific discovery rather than creating narrow categories.
 
 ---
 
