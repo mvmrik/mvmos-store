@@ -138,7 +138,7 @@ const CronManager = (() => {
     const apps = statusData.apps || [];
     const systemApps = statusData.system_apps || [];
     const _bkTime = (() => { const h12 = (window._vosSettings?.time_format || '24') === '12'; return new Date(2000,0,1,3,0).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',hour12:h12}); })();
-    const schedLabels = { disabled: '—', daily: _cmt('backup_sched_daily').replace('{time}',_bkTime), weekly: _cmt('backup_sched_weekly').replace('{time}',_bkTime), monthly: _cmt('backup_sched_monthly').replace('{time}',_bkTime) };
+    const schedLabels = { disabled: '—', every_minute: _cmt('every_minute'), daily: _cmt('backup_sched_daily').replace('{time}',_bkTime), weekly: _cmt('backup_sched_weekly').replace('{time}',_bkTime), monthly: _cmt('backup_sched_monthly').replace('{time}',_bkTime) };
     const allRows = [
       ...apps.map(a => `
         <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border);font-size:.82rem">
