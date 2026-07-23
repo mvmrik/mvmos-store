@@ -529,6 +529,28 @@ async def pause_timer(task_id: str, x_pub_token: str = Header(default=None)):
         return JSONResponse(_row_to_task(conn, row, now))
 
 
+@router.post("/tasks/{task_id}/timer/discard")
+async def discard_timer(task_id: str, x_pub_token: str = Header(default=None)):
+    """Throw the tracked time away — no completion, no Budget reward."""
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    now = _now()
+    with _db() as conn:
+        row = conn.execute("SELECT * FROM tasks WHERE id=? AND user_id=?", (task_id, me["id"])).fetchone()
+        if not row:
+            return JSONResponse({"error": "not found"}, status_code=404)
+        if row["type"] != "persistent" or row["reward_mode"] != "hourly":
+            return JSONResponse({"error": "not an hourly task"}, status_code=400)
+        conn.execute(
+            "UPDATE tasks SET timer_started_at=NULL, timer_elapsed_seconds=0, updated_at=? WHERE id=?",
+            (now.isoformat(), task_id),
+        )
+        conn.commit()
+        row = conn.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
+        return JSONResponse(_row_to_task(conn, row, now))
+
+
 @router.post("/tasks/{task_id}/timer/complete")
 async def complete_timer(task_id: str, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)

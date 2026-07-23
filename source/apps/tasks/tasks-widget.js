@@ -26,6 +26,15 @@
     const sign = (n >= 0 ? '+' : '') + (Math.round((n + Number.EPSILON) * 100) / 100).toFixed(2);
     return currency ? sign + ' ' + currencySymbol(currency) : sign;
   }
+  // The full amount is applied to EACH selected category (never split), so with
+  // more than one category the real Budget total is amount × count. Spell the
+  // maths out — "0.16" alone reads as if a single category got 0.16.
+  function fmtAmountBreakdown(perCategory, count, currency) {
+    const total = fmtAmount(perCategory * count, currency);
+    if (!count || count < 2) return total;
+    const per = (Math.round((Math.abs(perCategory) + Number.EPSILON) * 100) / 100).toFixed(2);
+    return `${count}×${per} = ${total}`;
+  }
   function fmtDuration(totalSeconds) {
     const s = Math.max(0, Math.floor(totalSeconds));
     const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
@@ -103,7 +112,11 @@
         border:1px solid var(--pub-border, #45475a);border-radius:6px;padding:6px 8px;background:var(--pub-bg, #1e1e2e)}
       .tk-cat-item{display:flex;align-items:center;gap:6px;font-size:.82rem;cursor:pointer}
       .tk-error{color:var(--pub-red, #f38ba8);font-size:.78rem}
-      .tk-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+      .tk-stop-summary{display:flex;flex-direction:column;gap:6px;background:var(--pub-surface2, #313244);
+        border-radius:8px;padding:10px 12px}
+      .tk-stop-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+      .tk-stop-row > span:first-child{color:var(--pub-fg2, #a6adc8);font-size:.8rem;white-space:nowrap}
+      .tk-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:6px;flex-wrap:wrap}
       .tk-toggle-row{display:flex;align-items:center;gap:8px}
       .tk-toggle-row label{font-size:.85rem}
       .tk-settings-block{max-width:420px;display:flex;flex-direction:column;gap:6px}
@@ -201,9 +214,9 @@
       if (!result || !result.category_ids || !result.category_ids.length) return;
       const reward = result.reward || {};
       if (reward.budget_ok) {
-        const total = (reward.categories || []).filter(r => r.budget_ok)
-          .reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
-        const amount = fmtAmount(total || reward.amount, budgetCategories.currency);
+        const applied = (reward.categories || []).filter(r => r.budget_ok);
+        const perCategory = applied.length ? (Number(applied[0].amount) || 0) : reward.amount;
+        const amount = fmtAmountBreakdown(perCategory, applied.length, budgetCategories.currency);
         toast(reward.amount >= 0
           ? t('tk_reward_applied_amount', { amount })
           : t('tk_penalty_applied_amount', { amount }), reward.amount >= 0 ? 'good' : 'bad');
@@ -242,13 +255,11 @@
           if (task.timer_running) {
             badges.push(`<span class="tk-badge tk-badge-good">${esc(t('tk_timer_running'))}</span>`);
             footHtml = `<span class="tk-timer" data-timer="${esc(task.id)}" data-started="${esc(task.timer_started_at)}" data-base="${esc(task.timer_elapsed_seconds || 0)}">${fmtDuration(task.elapsed_seconds || 0)}</span>
-              <span><button class="tk-btn" data-action="pause-timer">${esc(t('tk_pause_timer'))}</button>
-              <button class="tk-btn tk-btn-primary" data-action="complete-timer">${esc(t('tk_complete'))}</button></span>`;
+              <button class="tk-btn tk-btn-primary" data-action="stop-timer">${esc(t('tk_stop_timer'))}</button>`;
           } else if (task.timer_paused) {
             badges.push(`<span class="tk-badge tk-badge-warn">${esc(t('tk_timer_paused'))}</span>`);
             footHtml = `<span class="tk-timer">${fmtDuration(task.elapsed_seconds || 0)}</span>
-              <span><button class="tk-btn" data-action="start-timer">${esc(t('tk_resume_timer'))}</button>
-              <button class="tk-btn tk-btn-primary" data-action="complete-timer">${esc(t('tk_complete'))}</button></span>`;
+              <button class="tk-btn tk-btn-primary" data-action="stop-timer">${esc(t('tk_stop_timer'))}</button>`;
           } else {
             footHtml = `<span></span><button class="tk-btn tk-btn-primary" data-action="start-timer">${esc(t('tk_start_timer'))}</button>`;
           }
@@ -309,10 +320,8 @@
         if (completeBtn) completeBtn.onclick = () => completeTask(task);
         const startBtn = card.querySelector('[data-action="start-timer"]');
         if (startBtn) startBtn.onclick = () => startTimer(task);
-        const pauseBtn = card.querySelector('[data-action="pause-timer"]');
-        if (pauseBtn) pauseBtn.onclick = () => pauseTimer(task);
-        const completeTimerBtn = card.querySelector('[data-action="complete-timer"]');
-        if (completeTimerBtn) completeTimerBtn.onclick = () => completeTimer(task);
+        const stopBtn = card.querySelector('[data-action="stop-timer"]');
+        if (stopBtn) stopBtn.onclick = () => stopTimer(task);
       });
       startTimerTicker();
     }
@@ -349,9 +358,65 @@
       try { await api(`/tasks/${task.id}/timer/start`, { method: 'POST' }); await refreshTasks(); }
       catch (e) { toast(e.message || t('tk_error'), 'bad'); }
     }
-    async function pauseTimer(task) {
+    // Stop pauses the timer first (so no time accrues while the user decides),
+    // then asks what to do with the tracked time: resume, throw it away, or save it.
+    async function stopTimer(task) {
+      let paused = task;
+      if (task.timer_running) {
+        try {
+          paused = await api(`/tasks/${task.id}/timer/pause`, { method: 'POST' });
+        } catch (e) { toast(e.message || t('tk_error'), 'bad'); return; }
+      }
+      await refreshTasks();
+      openStopDialog(tasks.find(x => x.id === task.id) || paused);
+    }
+
+    function openStopDialog(task) {
+      const elapsed = task.elapsed_seconds || 0;
+      const catCount = (task.category_ids || []).length;
+      const hasAmount = catCount && task.reward_amount != null;
+      const accrued = hasAmount ? task.reward_amount * (elapsed / 3600) : null;
+
+      const ov = overlay(`<div class="tk-dialog">
+        <h3>${esc(t('tk_stop_title'))}</h3>
+        <div class="tk-card-desc">${esc(task.title)}</div>
+        <div class="tk-stop-summary">
+          <div class="tk-stop-row">
+            <span>${esc(t('tk_elapsed'))}</span>
+            <span class="tk-timer">${fmtDuration(elapsed)}</span>
+          </div>
+          ${accrued == null ? '' : `<div class="tk-stop-row">
+            <span>${esc(t('tk_stop_accrued'))}</span>
+            <span class="tk-amount ${accrued >= 0 ? 'tk-amount-pos' : 'tk-amount-neg'}">${esc(fmtAmountBreakdown(accrued, catCount, budgetCategories.currency))}</span>
+          </div>`}
+        </div>
+        <div class="tk-field-hint">${esc(t('tk_stop_hint'))}</div>
+        <div class="tk-dialog-actions">
+          <button class="tk-btn tk-btn-danger" id="tk-stop-discard">${esc(t('tk_stop_discard'))}</button>
+          <button class="tk-btn" id="tk-stop-continue">${esc(t('tk_resume_timer'))}</button>
+          <button class="tk-btn tk-btn-primary" id="tk-stop-save">${esc(t('tk_save'))}</button>
+        </div>
+      </div>`);
+
+      ov.querySelector('#tk-stop-continue').onclick = async () => {
+        ov.remove();
+        await startTimer(task);
+      };
+      ov.querySelector('#tk-stop-discard').onclick = async () => {
+        if (!confirm(t('tk_stop_discard_confirm'))) return;
+        ov.remove();
+        await discardTimer(task);
+      };
+      ov.querySelector('#tk-stop-save').onclick = async () => {
+        ov.remove();
+        await completeTimer(task);
+      };
+    }
+
+    async function discardTimer(task) {
       try {
-        await api(`/tasks/${task.id}/timer/pause`, { method: 'POST' });
+        await api(`/tasks/${task.id}/timer/discard`, { method: 'POST' });
+        toast(t('tk_stop_discarded'));
         await refreshTasks();
       } catch (e) { toast(e.message || t('tk_error'), 'bad'); }
     }
@@ -523,7 +588,7 @@
         <div class="tk-htx-row">
           <div class="tk-htx-row-top">
             <span class="tk-htx-title">${esc(r.task_title)}</span>
-            <span class="tk-amount ${r.amount >= 0 ? 'tk-amount-pos' : 'tk-amount-neg'}">${fmtAmount(r.amount, budgetCategories.currency)}</span>
+            <span class="tk-amount ${r.amount >= 0 ? 'tk-amount-pos' : 'tk-amount-neg'}">${esc(fmtAmountBreakdown(r.amount, (r.categories || []).length, budgetCategories.currency))}</span>
           </div>
           <div class="tk-htx-row-bottom">
             <span class="tk-htx-meta">
