@@ -119,7 +119,7 @@ GM.repoView = (function() {
     return `
       <div style="border-top:1px solid var(--border);padding-top:12px;display:flex;flex-direction:column;gap:8px">
         <div style="font-size:.75rem;color:var(--text-dim)">${t('gm_commit_message')} <span style="opacity:.6">${t('gm_ctrl_enter')}</span></div>
-        <textarea id="gm-commit-msg" class="s-input" rows="2" placeholder="${t('gm_describe_changes')}" style="resize:vertical;font-family:inherit;font-size:.83rem;width:100%;box-sizing:border-box"></textarea>
+        <textarea id="gm-commit-msg" class="s-input" rows="4" placeholder="${t('gm_describe_changes')}" style="resize:vertical;flex:none;max-width:none;min-height:80px;font-family:inherit;font-size:.83rem;width:100%;box-sizing:border-box"></textarea>
         <div>
           <button id="gm-commit-btn" class="s-btn s-btn-sm" ${clean ? 'disabled' : ''} style="${clean ? '' : 'background:var(--accent);color:#fff;border-color:var(--accent)'}">
             ✓ ${t('gm_commit_all')}

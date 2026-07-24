@@ -363,8 +363,8 @@ function _ysqlRenderApp(container) {
 
     var isStructure = false;
     if (YS.tabs) {
-      var t = YS.tabs.activeTab();
-      isStructure = t && t.type === 'structure';
+      var curTab = YS.tabs.activeTab();
+      isStructure = curTab && curTab.type === 'structure';
     }
     structBtn.textContent = isStructure ? t('ysql_data') : t('ysql_structure');
   };
