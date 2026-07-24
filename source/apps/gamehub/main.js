@@ -16,7 +16,7 @@ const _gh18n = {
     fav_search_ph:'Search by name or username…',
     fav_no_players_found:'No players found.',
     fav_saved_header:'Saved favourites',
-    fav_none_yet:"No favourites yet. Search above or add from a player's profile.",
+    fav_none_yet:"No favourites yet. Add favourites in Apps Hub.",
     fav_profile_btn:'Profile',
     fav_saved:'★ Saved',
     fav_favourite:'☆ Favourite',
@@ -50,7 +50,7 @@ const _gh18n = {
     fav_search_ph:'Търсене по име или потребителско име…',
     fav_no_players_found:'Няма намерени играчи.',
     fav_saved_header:'Запазени любими',
-    fav_none_yet:'Все още няма любими. Търси отгоре или добави от профила на играч.',
+    fav_none_yet:'Все още няма любими. Добави любими от Apps Hub.',
     fav_profile_btn:'Профил',
     fav_saved:'★ Запазен',
     fav_favourite:'☆ Любим',
@@ -94,7 +94,7 @@ mvmOS.registerApp({
         const fmtDur = s => !s?'—':s<60?s+_ght('sec'):Math.floor(s/60)+_ght('min')+(s%60?s%60+_ght('sec'):'');
         const fmtDate = s => new Date(s).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
 
-        let tab = 'players', players = [], stats = null;
+        let tab = 'games', stats = null;
         let _ghMe = null; // logged-in GH player for favourites
 
         // ── shell ───────────────────────────────────────────────
@@ -103,18 +103,18 @@ mvmOS.registerApp({
             <span style="font-weight:700;font-size:15px">🎮 ${_ght('title')}</span>
             <div style="flex:1"></div>
             <div id="gh-me-avatar" style="cursor:default;flex-shrink:0"></div>
-            ${['players','games','favourites'].map(t=>`<button id="gh-t-${t}" style="${btn()}">${t==='games'?'Games':t==='favourites'?'Favourites':_ght(t)}</button>`).join('')}
+            ${['games','favourites'].map(t=>`<button id="gh-t-${t}" style="${btn()}">${t==='games'?'Games':'Favourites'}</button>`).join('')}
             <button id="gh-t-settings" style="${btn()}" title="Settings">⚙</button>
           </div>
           <div id="gh-body" style="flex:1;overflow-y:auto;padding:14px"></div>
         `;
 
-        ['players','games','favourites','settings'].forEach(t => {
+        ['games','favourites','settings'].forEach(t => {
           body.querySelector(`#gh-t-${t}`).onclick = () => { tab=t; renderTabs(); render(); };
         });
 
         function renderTabs() {
-          ['players','games','favourites','settings'].forEach(t => {
+          ['games','favourites','settings'].forEach(t => {
             const b = body.querySelector(`#gh-t-${t}`); if(!b) return;
             b.style.background = tab===t ? 'var(--accent)' : 'var(--surface2)';
             b.style.color      = tab===t ? '#fff' : 'var(--fg)';
@@ -153,12 +153,10 @@ mvmOS.registerApp({
         });
 
         async function reload() {
-          const [pr, sr] = await Promise.all([
-            fetch('/api/gamehub/players'),
+          const [sr] = await Promise.all([
             fetch('/api/gamehub/stats'),
             _avatarReady,
           ]);
-          players = pr.ok ? await pr.json() : [];
           stats   = sr.ok ? await sr.json() : null;
           _ghFavs = null; // reset cache so favourites tab reloads fresh
           render();
@@ -166,57 +164,14 @@ mvmOS.registerApp({
 
         function render() {
           renderTabs();
-          if(tab==='players')         renderPlayers();
-          else if(tab==='games')      renderGames();
+          if(tab==='games')           renderGames();
           else if(tab==='favourites') renderFavourites();
           else if(tab==='settings')   renderSettings();
         }
 
-        // ── Players tab ─────────────────────────────────────────
-        function renderPlayers() {
-          const c = body.querySelector('#gh-body');
-          c.innerHTML = `<div style="display:flex;justify-content:flex-end;margin-bottom:12px"><button id="gh-add" style="${btn('var(--accent)')}">${_ght('add_player')}</button></div>`;
-          if(!players.length) { c.innerHTML += `<div style="color:var(--fg2);text-align:center;margin-top:30px">${_ght('no_players')}</div>`; }
-          else {
-            const grid = document.createElement('div');
-            grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px';
-            players.forEach(p => {
-              const card = document.createElement('div');
-              card.style.cssText = 'background:var(--surface1);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:background .15s';
-              card.onmouseenter = () => card.style.background = 'var(--surface2)';
-              card.onmouseleave = () => card.style.background = 'var(--surface1)';
-              card.addEventListener('click', e => { if(!e.target.closest('button')) showPlayerProfile(p); });
-              const pstats = stats?.leaderboard ? Object.values(stats.leaderboard).flat().filter(s=>s.player_id===p.id) : [];
-              const totalPlayed = pstats.reduce((a,s)=>a+(s.played||0),0);
-              const totalWins   = pstats.reduce((a,s)=>a+(s.wins||0),0);
-              card.innerHTML = `
-                <div style="display:flex;align-items:center;gap:10px">
-                  ${window.GHAvatar ? window.GHAvatar.renderAvatar(p, 36) : `<div style="width:36px;height:36px;border-radius:50%;background:${esc(p.avatar_color)};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#1e1e2e;flex-shrink:0">${esc(p.display_name[0]?.toUpperCase()||'?')}</div>`}
-                  <div>
-                    <div style="font-weight:600;font-size:14px">${esc(p.display_name)}</div>
-                    <div style="font-size:11px;color:var(--fg2)">@${esc(p.username)}</div>
-                  </div>
-                </div>
-                <div style="font-size:12px;color:var(--fg2)">${totalPlayed} ${_ght('played')} · ${totalWins} ${_ght('wins')}</div>
-                <div style="display:flex;gap:6px">
-                  <button class="gh-edit" data-id="${p.id}" style="${btn()};flex:1;font-size:12px">${_ght('edit')}</button>
-                  <button class="gh-del"  data-id="${p.id}" style="${btn('#f38ba8')};font-size:12px">${_ght('del')}</button>
-                </div>`;
-              grid.appendChild(card);
-            });
-            c.appendChild(grid);
-          }
-          c.querySelector('#gh-add').onclick = () => showPlayerModal(null);
-          c.querySelectorAll('.gh-edit').forEach(b => b.onclick = () => showPlayerModal(players.find(p=>p.id===b.dataset.id)));
-          c.querySelectorAll('.gh-del').forEach(b => b.onclick = async () => {
-            if(!confirm(_ght('del_confirm'))) return;
-            await fetch(`/api/gamehub/players/${b.dataset.id}`,{method:'DELETE'});
-            reload();
-          });
-        }
-
-        // ── Player profile overlay ─────────────────────────────
-        // ── Favourites helpers (admin UI) ───────────────────────
+        // ── Player profile overlay (read-only) ─────────────────
+        // ── Favourites (read-only) ──────────────────────────────
+        // Favourites are managed in Apps Hub; Game Hub only displays them.
         let _ghFavs = null; // cache: array of player objects, null = not loaded
 
         function _ghToken() { return localStorage.getItem('gh_token') || ''; }
@@ -226,22 +181,6 @@ mvmOS.registerApp({
           if (!_ghIsLoggedIn()) { _ghFavs = []; return; }
           const r = await fetch('/api/pub/gamehub/favourites', {headers:{'X-GH-Token':_ghToken()}});
           _ghFavs = r.ok ? await r.json() : [];
-        }
-
-        function _ghIsFav(pid) {
-          return !!(_ghFavs && _ghFavs.some(f => f.id === pid));
-        }
-
-        async function _ghToggleFav(p) {
-          if (!_ghIsLoggedIn()) return;
-          const isFav = _ghIsFav(p.id);
-          const method = isFav ? 'DELETE' : 'POST';
-          await fetch(`/api/pub/gamehub/favourites/${p.id}`, {method, headers:{'X-GH-Token':_ghToken()}});
-          if (isFav) {
-            _ghFavs = (_ghFavs || []).filter(f => f.id !== p.id);
-          } else {
-            _ghFavs = [p, ...(_ghFavs || []).filter(f => f.id !== p.id)];
-          }
         }
 
         function showPlayerProfile(p) {
@@ -268,7 +207,6 @@ mvmOS.registerApp({
                   <div style="font-weight:700;font-size:16px">${esc(p.display_name)}</div>
                   <div style="font-size:12px;color:var(--fg2)">@${esc(p.username)}</div>
                 </div>
-                <button id="gh-prof-fav" style="${btn()};padding:5px 10px;font-size:12px">${_ghIsFav(p.id)?_ght('fav_saved'):_ght('fav_favourite')}</button>
                 ${hasVs ? `<button id="gh-prof-vs-btn" style="${btn()};padding:5px 10px;font-size:12px">⚔️ vs</button>` : ''}
                 <button id="gh-prof-close" style="${btn()};padding:4px 10px;font-size:16px;line-height:1">✕</button>
               </div>
@@ -285,13 +223,6 @@ mvmOS.registerApp({
           body.appendChild(overlay);
           overlay.querySelector('#gh-prof-close').onclick = () => overlay.remove();
           overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
-
-          const favBtn = overlay.querySelector('#gh-prof-fav');
-          favBtn.onclick = async () => {
-            if (!_ghIsLoggedIn()) { favBtn.textContent = _ght('fav_login_first'); setTimeout(()=>{ favBtn.textContent = _ghIsFav(p.id)?_ght('fav_saved'):_ght('fav_favourite'); }, 2000); return; }
-            await _ghToggleFav(p);
-            favBtn.textContent = _ghIsFav(p.id) ? _ght('fav_saved') : _ght('fav_favourite');
-          };
 
           const vsBtn = overlay.querySelector('#gh-prof-vs-btn');
           if (vsBtn) vsBtn.onclick = () => {
@@ -692,70 +623,7 @@ mvmOS.registerApp({
           }
         }
 
-        // ── Player modal ────────────────────────────────────────
-        function showPlayerModal(player) {
-          const isNew = !player;
-          const ov = document.createElement('div');
-          ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:9999';
-          const box = document.createElement('div');
-          box.style.cssText = 'background:var(--surface1);border-radius:10px;padding:20px;width:360px;max-width:95vw;display:flex;flex-direction:column;gap:12px';
-
-          let selColor = player?.avatar_color || _GH_COLORS[players.length % _GH_COLORS.length];
-
-          box.innerHTML = `
-            <div style="font-weight:700;font-size:16px">${isNew?_ght('add_player'):_ght('edit')}</div>
-            ${fld(_ght('display_name'),`<input id="gh-dname" value="${esc(player?.display_name||'')}" style="${inp()}">`)}
-            ${fld(_ght('username'),`<input id="gh-uname" value="${esc(player?.username||'')}" style="${inp()}">`)  }
-            ${fld(isNew ? _ght('password') : _ght('password_edit'), `<input id="gh-pass" type="password" placeholder="${esc(isNew ? '' : _ght('password_edit'))}" style="${inp()}">`)}
-            <div>
-              <div style="font-size:12px;color:var(--fg2);margin-bottom:6px">${_ght('avatar_color')}</div>
-              <div id="gh-colors" style="display:flex;gap:6px;flex-wrap:wrap"></div>
-            </div>
-            <div id="gh-err" style="font-size:12px;color:#f38ba8;display:none"></div>
-            <div style="display:flex;gap:8px;justify-content:flex-end">
-              <button id="gh-cancel" style="${btn()}">${_ght('cancel')}</button>
-              <button id="gh-save"   style="${btn('var(--accent)')}">${_ght('save')}</button>
-            </div>`;
-
-          const colorsEl = box.querySelector('#gh-colors');
-          function renderColors() {
-            colorsEl.innerHTML = '';
-            _GH_COLORS.forEach(c => {
-              const dot = document.createElement('div');
-              dot.style.cssText = `width:24px;height:24px;border-radius:50%;background:${c};cursor:pointer;border:2px solid ${c===selColor?'#fff':'transparent'};transition:border .1s`;
-              dot.onclick = () => { selColor=c; renderColors(); };
-              colorsEl.appendChild(dot);
-            });
-          }
-          renderColors();
-
-          box.querySelector('#gh-cancel').onclick = () => ov.remove();
-          box.querySelector('#gh-save').onclick = async () => {
-            const dname = box.querySelector('#gh-dname').value.trim();
-            const uname = box.querySelector('#gh-uname').value.trim();
-            const pass  = box.querySelector('#gh-pass').value;
-            if(!dname||!uname) return;
-            if(isNew && !pass) { const err=box.querySelector('#gh-err'); err.textContent=_ght('password_required'); err.style.display='block'; return; }
-            const payload = {username:uname, display_name:dname, avatar_color:selColor};
-            if(pass) payload.password = pass;
-            const url  = isNew ? '/api/gamehub/players' : `/api/gamehub/players/${player.id}`;
-            const res  = await fetch(url,{method:isNew?'POST':'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-            if(!res.ok) {
-              const d = await res.json().catch(()=>({}));
-              const err = box.querySelector('#gh-err');
-              err.textContent = d.detail===`Username already exists` ? _ght('username_taken') : (d.detail||_ght('error'));
-              err.style.display='block';
-              return;
-            }
-            ov.remove(); reload();
-          };
-          ov.appendChild(box);
-          ov.onclick = e => { if(e.target===ov) ov.remove(); };
-          document.body.appendChild(ov);
-          setTimeout(()=>box.querySelector('#gh-dname')?.focus(),50);
-        }
-
-        // ── Favourites tab ──────────────────────────────────────
+        // ── Favourites tab (read-only display) ──────────────────
         async function renderFavourites() {
           const c = body.querySelector('#gh-body');
           c.innerHTML = '';
@@ -767,51 +635,22 @@ mvmOS.registerApp({
 
           if (_ghFavs === null) await _ghLoadFavs();
 
-          // Search
-          const searchWrap = document.createElement('div');
-          searchWrap.style.cssText = 'margin-bottom:18px';
-          searchWrap.innerHTML = `
-            <div style="font-weight:600;font-size:12px;color:var(--fg2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${_ght('fav_find_player')}</div>
-            <input id="gh-fav-search" placeholder="${_ght('fav_search_ph')}" style="${inp()};margin-bottom:8px" autocomplete="off">
-            <div id="gh-fav-results" style="display:flex;flex-direction:column;gap:6px"></div>`;
-          c.appendChild(searchWrap);
-
-          const allPlayers = (players || []).filter(p => p.id !== (_ghMe?.id));
-          const resultsEl = searchWrap.querySelector('#gh-fav-results');
-
-          searchWrap.querySelector('#gh-fav-search').oninput = e => {
-            const q = e.target.value.trim().toLowerCase();
-            resultsEl.innerHTML = '';
-            if (!q) return;
-            const hits = allPlayers.filter(p =>
-              p.display_name.toLowerCase().includes(q) || p.username.toLowerCase().includes(q)
-            ).slice(0, 8);
-            if (!hits.length) { resultsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">${_ght('fav_no_players_found')}</div>`; return; }
-            hits.forEach(p => resultsEl.appendChild(_ghFavRow(p)));
-          };
-
-          // Saved favourites
           const divider = document.createElement('div');
-          divider.innerHTML = `<div style="font-weight:600;font-size:12px;color:var(--fg2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;padding-top:14px;border-top:1px solid var(--border)">${_ght('fav_saved_header')}</div>`;
+          divider.innerHTML = `<div style="font-weight:600;font-size:12px;color:var(--fg2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">${_ght('fav_saved_header')}</div>`;
           c.appendChild(divider);
 
           const favsEl = document.createElement('div');
           favsEl.style.cssText = 'display:flex;flex-direction:column;gap:6px';
           divider.appendChild(favsEl);
 
-          function renderSaved() {
-            favsEl.innerHTML = '';
-            if (!_ghFavs || !_ghFavs.length) {
-              favsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">${_ght('fav_none_yet')}</div>`;
-              return;
-            }
-            _ghFavs.forEach(f => favsEl.appendChild(_ghFavRow(f, renderSaved)));
+          if (!_ghFavs || !_ghFavs.length) {
+            favsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">${_ght('fav_none_yet')}</div>`;
+          } else {
+            _ghFavs.forEach(f => favsEl.appendChild(_ghFavRow(f)));
           }
-          renderSaved();
         }
 
-        function _ghFavRow(p, onFavChange) {
-          const fav = _ghIsFav(p.id);
+        function _ghFavRow(p) {
           const row = document.createElement('div');
           row.style.cssText = 'background:var(--surface1);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:10px;transition:background .12s';
           row.innerHTML = `
@@ -820,37 +659,16 @@ mvmOS.registerApp({
               <div style="font-weight:600;font-size:13px">${esc(p.display_name||p.username||'?')}</div>
               <div style="font-size:11px;color:var(--fg2)">@${esc(p.username||'')}</div>
             </div>
-            <button id="frow-prof" style="${btn()};padding:4px 10px;font-size:12px">${_ght('fav_profile_btn')}</button>
-            <button id="frow-fav" style="${btn()};padding:4px 10px;font-size:12px">${fav?_ght('fav_saved'):_ght('fav_favourite')}</button>`;
+            <button id="frow-prof" style="${btn()};padding:4px 10px;font-size:12px">${_ght('fav_profile_btn')}</button>`;
           row.querySelector('#frow-prof').onclick = () => showPlayerProfile(p);
-          row.querySelector('#frow-fav').onclick = async () => {
-            if (!_ghIsLoggedIn()) return;
-            await _ghToggleFav(p);
-            const b = row.querySelector('#frow-fav');
-            b.textContent = _ghIsFav(p.id) ? _ght('fav_saved') : _ght('fav_favourite');
-            if (onFavChange) onFavChange();
-          };
           return row;
         }
 
         // ── Settings tab ────────────────────────────────────────
         function renderSettings() {
           const c = body.querySelector('#gh-body');
-          const me = _ghMe || window.GameHub?.currentPlayer();
-          const avatarSection = me ? `
-              <div>
-                <div style="font-weight:700;font-size:14px;margin-bottom:12px">👤 ${_ght('set_my_avatar')}</div>
-                <div style="background:var(--surface1);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px">
-                  <div id="gh-set-av-preview">${window.GHAvatar ? window.GHAvatar.renderAvatar(me, 64) : `<div style="width:64px;height:64px;border-radius:50%;background:${esc(me.avatar_color||'#585b70')};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:28px;color:#1e1e2e">${esc((me.display_name?.[0]||'?').toUpperCase())}</div>`}</div>
-                  <div style="display:flex;flex-direction:column;gap:6px">
-                    <div style="font-size:13px;font-weight:600">${esc(me.display_name)}</div>
-                    <button id="gh-set-av-btn" style="${btn()};padding:6px 14px;font-size:12px">${_ght('set_edit_avatar')}</button>
-                  </div>
-                </div>
-              </div>` : '';
           c.innerHTML = `
             <div style="max-width:420px;display:flex;flex-direction:column;gap:20px">
-              ${avatarSection}
               <div id="gh-set-publink">
                 <div style="font-size:12px;color:var(--fg2);margin-bottom:8px">${_ght('set_direct_link')}</div>
                 <div style="display:flex;align-items:center;gap:8px">
@@ -860,27 +678,6 @@ mvmOS.registerApp({
                 <div style="font-size:11px;color:var(--fg2);margin-top:6px">${_ght('set_domain_hint')}</div>
               </div>
             </div>`;
-
-          if (me) {
-            c.querySelector('#gh-set-av-btn').onclick = () => {
-              if (!window.GHAvatar) return;
-              window.GHAvatar.showBuilder(me.avatar_data, me.avatar_color, async data => {
-                const svgStr = window.GHAvatar.avatarSvg(JSON.parse(data), 80);
-                const res = await fetch('/api/pub/gamehub/me', {
-                  method: 'PUT',
-                  headers: {'Content-Type':'application/json', 'X-GH-Token': localStorage.getItem('gh_token')||''},
-                  body: JSON.stringify({avatar_data: data, avatar_svg: svgStr}),
-                });
-                if (res.ok) {
-                  me.avatar_data = data;
-                  me.avatar_svg = svgStr;
-                  if (_ghMe) { _ghMe.avatar_data = data; _ghMe.avatar_svg = svgStr; }
-                  const prev = c.querySelector('#gh-set-av-preview');
-                  if (prev) prev.innerHTML = window.GHAvatar.renderAvatar(me, 64);
-                }
-              });
-            };
-          }
 
           c.querySelector('#gh-set-open')?.addEventListener('click', () => window.open('/pub/gamehub/', '_blank'));
         }

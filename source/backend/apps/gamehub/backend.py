@@ -1,4 +1,4 @@
-import hashlib, json, os, secrets, sqlite3, sys, uuid
+import json, os, secrets, sqlite3, sys
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Header, Request
 from fastapi.responses import JSONResponse
@@ -121,63 +121,15 @@ def _db():
     conn.commit()
     return conn
 
-# ── One-time migration to apphub ─────────────────────────────
+# NOTE: Game Hub used to hold its own copy of the profiles and, on every
+# import, push that copy back into Apps Hub (the old _migrate_*_to_apphub
+# calls). That resurrected profiles deleted in Apps Hub on each backend
+# restart. Apps Hub is now the single source of truth; Game Hub never writes
+# the user list back, so those one-time migrations have been removed.
 
-def _migrate_players_to_apphub():
-    hub = _apphub()
-    if not hub:
-        return
-    try:
-        with _db() as conn:
-            players = [dict(r) for r in conn.execute("SELECT * FROM players").fetchall()]
-            tokens  = [dict(r) for r in conn.execute("SELECT * FROM gh_tokens").fetchall()]
-        count = hub.migrate_from_gamehub(players, tokens)
-        if count:
-            print(f"[gamehub] migrated {count} players to apphub")
-    except Exception as e:
-        print(f"[gamehub] migration to apphub failed: {e}")
-
-_migrate_players_to_apphub()
-
-
-def _migrate_favourites_to_apphub():
-    """Favourites now live centrally in Apps Hub (shared with Chat and any
-    other app). Copy any pre-existing local rows over once; player_favourites
-    itself is left in place but is no longer written to."""
-    hub = _apphub()
-    if not hub:
-        return
-    try:
-        with _db() as conn:
-            rows = conn.execute("SELECT player_id, favourite_id FROM player_favourites").fetchall()
-        count = 0
-        for r in rows:
-            try:
-                hub.add_favourite(r["player_id"], r["favourite_id"])
-                count += 1
-            except ValueError:
-                pass
-        if count:
-            print(f"[gamehub] migrated {count} favourites to apphub")
-    except Exception as e:
-        print(f"[gamehub] favourites migration to apphub failed: {e}")
-
-_migrate_favourites_to_apphub()
-
-# ── Password helpers ──────────────────────────────────────────
-
-def _hash_pw(pw: str) -> str:
-    salt = secrets.token_bytes(32)
-    key  = hashlib.pbkdf2_hmac('sha256', pw.encode(), salt, 100000)
-    return salt.hex() + ':' + key.hex()
-
-def _verify_pw(stored: str, pw: str) -> bool:
-    try:
-        salt_hex, key_hex = stored.split(':')
-        key = hashlib.pbkdf2_hmac('sha256', pw.encode(), bytes.fromhex(salt_hex), 100000)
-        return secrets.compare_digest(key.hex(), key_hex)
-    except Exception:
-        return False
+# ── Token / identity helpers ──────────────────────────────────
+# Profiles are managed only in Apps Hub. Game Hub keeps the local `players`
+# row purely as a game-history join cache, refreshed from Apps Hub on use.
 
 def _resolve_token(x_gh_token: Optional[str]) -> Optional[dict]:
     hub = _apphub()
@@ -238,44 +190,6 @@ async def me(x_gh_token: Optional[str] = Header(default=None)):
                          "display_name": p["display_name"], "avatar_color": p["avatar_color"],
                          "avatar_data": p["avatar_data"], "avatar_svg": p["avatar_svg"]})
 
-class MeUpdateBody(BaseModel):
-    display_name: Optional[str] = None
-    password:     Optional[str] = None
-    avatar_data:  Optional[str] = None
-    avatar_svg:   Optional[str] = None
-
-@_pub.put("/me")
-async def update_me(body: MeUpdateBody, x_gh_token: Optional[str] = Header(default=None)):
-    p = _resolve_token(x_gh_token)
-    if not p:
-        raise HTTPException(401)
-    fields, vals = [], []
-    if body.display_name is not None:
-        dn = body.display_name.strip()
-        if not dn:
-            raise HTTPException(400, detail="Display name required")
-        fields.append("display_name=?"); vals.append(dn)
-    if body.password:
-        fields.append("password_hash=?"); vals.append(_hash_pw(body.password))
-    if body.avatar_data is not None:
-        fields.append("avatar_data=?"); vals.append(body.avatar_data)
-    if body.avatar_svg is not None:
-        fields.append("avatar_svg=?"); vals.append(body.avatar_svg)
-    if fields:
-        vals_with_id = vals + [p["id"]]
-        with _db() as conn:
-            conn.execute(f"UPDATE players SET {','.join(fields)} WHERE id=?", vals_with_id)
-            conn.commit()
-        hub = _apphub()
-        if hub:
-            sync = {"id": p["id"]}
-            if body.display_name is not None: sync["display_name"] = body.display_name.strip()
-            if body.password:                  sync["password_hash"] = _hash_pw(body.password)
-            if body.avatar_data is not None:   sync["avatar_data"]   = body.avatar_data
-            if body.avatar_svg is not None:    sync["avatar_svg"]    = body.avatar_svg
-            hub.sync_user_from_backend(sync)
-    return JSONResponse({"ok": True})
-
 @_pub.get("/favourites")
 async def get_favourites(x_gh_token: Optional[str] = Header(default=None)):
     # Favourites are now stored centrally in Apps Hub, shared with Chat and
@@ -287,33 +201,6 @@ async def get_favourites(x_gh_token: Optional[str] = Header(default=None)):
     if not hub:
         return JSONResponse([])
     return JSONResponse(hub.get_favourites(p["id"]))
-
-@_pub.post("/favourites/{fav_id}")
-async def add_favourite(fav_id: str, x_gh_token: Optional[str] = Header(default=None)):
-    p = _resolve_token(x_gh_token)
-    if not p:
-        raise HTTPException(401)
-    hub = _apphub()
-    if not hub:
-        raise HTTPException(503, detail="Apps Hub unavailable")
-    try:
-        hub.add_favourite(p["id"], fav_id)
-    except ValueError as e:
-        raise HTTPException(400, detail=str(e))
-    return JSONResponse({"ok": True})
-
-@_pub.delete("/favourites/{fav_id}")
-async def remove_favourite(fav_id: str, x_gh_token: Optional[str] = Header(default=None)):
-    p = _resolve_token(x_gh_token)
-    if not p:
-        raise HTTPException(401)
-    hub = _apphub()
-    if hub:
-        hub.remove_favourite(p["id"], fav_id)
-    with _db() as conn:
-        conn.execute("DELETE FROM player_favourites WHERE player_id=? AND favourite_id=?", (p["id"], fav_id))
-        conn.commit()
-    return JSONResponse({"ok": True})
 
 @_pub.get("/players")
 async def players_public():
@@ -366,79 +253,14 @@ async def record_session(body: SessionBody):
         conn.commit()
     return JSONResponse({"ok": True, "session_id": sid})
 
-# ── Admin player management (mvmOS session required) ─────────
+# ── Admin read-only views (mvmOS session required) ──────────
+# Profiles are created/edited/deleted only in Apps Hub; Game Hub just displays.
 
 @_admin.get("/players")
 async def list_players(session=Depends(get_current_session)):
     with _db() as conn:
         rows = conn.execute("SELECT id,username,display_name,avatar_color,avatar_data,avatar_svg,created_at FROM players ORDER BY display_name").fetchall()
     return JSONResponse([dict(r) for r in rows])
-
-class PlayerBody(BaseModel):
-    username:     str
-    display_name: str
-    avatar_color: str = '#89b4fa'
-    password:     Optional[str] = None
-
-@_admin.post("/players")
-async def create_player(body: PlayerBody, session=Depends(get_current_session)):
-    pid   = str(uuid.uuid4())[:8]
-    now   = datetime.now(timezone.utc).isoformat()
-    uname = body.username.strip().lower()
-    dname = body.display_name.strip()
-    phash = _hash_pw(body.password) if body.password else None
-    try:
-        with _db() as conn:
-            conn.execute(
-                "INSERT INTO players(id,username,display_name,avatar_color,password_hash,created_at) VALUES(?,?,?,?,?,?)",
-                (pid, uname, dname, body.avatar_color, phash, now)
-            )
-            conn.commit()
-    except sqlite3.IntegrityError:
-        raise HTTPException(400, detail="Username already exists")
-    hub = _apphub()
-    if hub:
-        hub.sync_user_from_backend({"id": pid, "username": uname, "display_name": dname,
-                                    "avatar_color": body.avatar_color, "password_hash": phash, "created_at": now})
-    return JSONResponse({"id": pid})
-
-@_admin.put("/players/{pid}")
-async def update_player(pid: str, body: PlayerBody, session=Depends(get_current_session)):
-    uname = body.username.strip().lower()
-    dname = body.display_name.strip()
-    phash = _hash_pw(body.password) if body.password else None
-    try:
-        with _db() as conn:
-            if phash:
-                conn.execute("UPDATE players SET username=?,display_name=?,avatar_color=?,password_hash=? WHERE id=?",
-                             (uname, dname, body.avatar_color, phash, pid))
-            else:
-                conn.execute("UPDATE players SET username=?,display_name=?,avatar_color=? WHERE id=?",
-                             (uname, dname, body.avatar_color, pid))
-            conn.commit()
-    except sqlite3.IntegrityError:
-        raise HTTPException(400, detail="Username already exists")
-    hub = _apphub()
-    if hub:
-        sync = {"id": pid, "username": uname, "display_name": dname, "avatar_color": body.avatar_color}
-        if phash: sync["password_hash"] = phash
-        hub.sync_user_from_backend(sync)
-    return JSONResponse({"ok": True})
-
-@_admin.delete("/players/{pid}")
-async def delete_player(pid: str, session=Depends(get_current_session)):
-    with _db() as conn:
-        conn.execute("DELETE FROM players WHERE id=?", (pid,))
-        conn.commit()
-    hub = _apphub()
-    if hub:
-        try:
-            with hub._db() as conn:
-                conn.execute("DELETE FROM public_users WHERE id=?", (pid,))
-                conn.commit()
-        except Exception:
-            pass
-    return JSONResponse({"ok": True})
 
 @_admin.get("/stats")
 async def get_stats(session=Depends(get_current_session)):
