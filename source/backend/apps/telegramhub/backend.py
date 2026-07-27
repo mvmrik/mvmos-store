@@ -219,9 +219,20 @@ def is_app_enabled(app_id: str) -> bool:
 
 
 def _is_admin_only(app_id: str) -> bool:
-    with _db() as conn:
-        row = conn.execute("SELECT admin_only FROM enabled_apps WHERE app_id=?", (app_id,)).fetchone()
-    return bool(row and row["admin_only"])
+    """Whether admin_only should actually be enforced for this app.
+
+    The enabled_apps.admin_only column and the Settings checkbox always
+    exist — the base app's schema stays whole so a premium module can rely on
+    it without either side needing to know about the other's install state.
+    What's premium is the enforcement itself: it lives in
+    apps/telegramhub/premium/backend.py, downloaded only for a licensed
+    install. No premium module present means the stored value is inert and
+    every linked account sees the app, same as if it were never set.
+    """
+    mod = sys.modules["backend.premium"].load_premium_backend("telegramhub")
+    if mod is None or not hasattr(mod, "is_admin_only_enforced"):
+        return False
+    return mod.is_admin_only_enforced(app_id)
 
 
 def _can_use_app(app_id: str, user: Optional[dict]) -> bool:

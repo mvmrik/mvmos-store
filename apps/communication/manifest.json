@@ -18,9 +18,9 @@
       "name": "Telegram Hub",
       "icon": "✈️",
       "category": "Communication",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "description": "Bridges Apps Hub public apps into a Telegram bot. Any app can opt in by adding a telegram.py adapter next to its public.py.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/telegramhub-1.0.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/telegramhub-1.0.3.zip",
       "tags": [
         "messaging",
         "telegram",

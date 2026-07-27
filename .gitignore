@@ -3,3 +3,9 @@
 # user data, not app code, and must never reach this public repo.
 # make-zip.sh ships the empty directory so installs still get the folder.
 source/apps/*/public/*upload*/
+
+# Premium add-on content lives in an app's premium/ dir. It is delivered from
+# mvmos.org to subscribers only and must never reach this public repo or the
+# public zip — make-zip.sh skips it for the same reason.
+source/apps/*/premium/
+source/backend/apps/*/premium/

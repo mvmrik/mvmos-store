@@ -28,7 +28,21 @@
 (function () {
   var t = function (key, vars) { return window.t ? window.t(key, vars) : key; };
 
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = src + '?_=' + Date.now();
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
   function boot() {
+    loadScript('/apps/telegramhub/i18n.js').then(function () { bootAfterI18n(); });
+  }
+
+  function bootAfterI18n() {
     document.getElementById('title').textContent = t('tgh_pub_link_title');
     document.getElementById('msg').textContent = t('tgh_pub_checking');
 

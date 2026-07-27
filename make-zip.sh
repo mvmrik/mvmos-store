@@ -29,12 +29,14 @@ if [ -d "$SRC/backend/apps/$APP_ID" ]; then
     cp "$SRC/backend/apps/$APP_ID/"* "$TMP/backend/" 2>/dev/null
     # Copy subdirectories (e.g. public/)
     for dir in "$SRC/backend/apps/$APP_ID"/*/; do
+        [ "$(basename "$dir")" = "premium" ] && continue   # subscriber-only, served from mvmos.org
         [ -d "$dir" ] && cp -r "$dir" "$TMP/backend/"
     done
 fi
 
 # Copy frontend subdirectories (e.g. public/ in gamehub)
 for dir in "$SRC/apps/$APP_ID"/*/; do
+    [ "$(basename "$dir")" = "premium" ] && continue   # subscriber-only, served from mvmos.org
     [ -d "$dir" ] && cp -r "$dir" "$TMP/"
 done
 

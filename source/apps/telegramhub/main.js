@@ -2,6 +2,19 @@
 const t = window.t || (k => k);
 function _esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 
+function _loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src + '?_=' + Date.now();
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+function _loadTelegramHubI18n() {
+  return window.TELEGRAMHUB_I18N ? Promise.resolve() : _loadScript('/apps/telegramhub/i18n.js');
+}
+
 mvmOS.registerApp({
   id: 'telegramhub',
   name: 'Telegram Hub',
@@ -15,7 +28,7 @@ mvmOS.registerApp({
       height: 560,
       onMount(body) {
         body.style.cssText = 'padding:0;display:flex;flex-direction:column;height:100%;overflow:hidden';
-        _mount(body);
+        _loadTelegramHubI18n().then(() => _mount(body));
       },
     });
   },
@@ -189,6 +202,7 @@ function _mount(body) {
         };
       });
       list.querySelectorAll('.th-admin-only').forEach(cb => {
+        window.mvmOS.premiumGate(cb, t('tgh_admin_only_premium'));
         cb.onchange = async () => {
           const app = apps.find(x => x.id === cb.dataset.id);
           if (!app) return;
