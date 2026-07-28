@@ -78,6 +78,11 @@ def _make_id(n=10):
 def _gh_conn():
     conn = sqlite3.connect(GH_DB_PATH)
     conn.row_factory = sqlite3.Row
+    # Multiplayer writes a row per move, from several rooms at once — WAL keeps
+    # reads going during a write, and the timeout queues a simultaneous write
+    # (a few ms) instead of failing it outright with "database is locked".
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA busy_timeout=5000")
     return conn
 
 
@@ -150,10 +155,20 @@ def _record_session(game_id: str, records: list, duration: int | None, metadata:
         print(f"[gamehub-mp] record_session failed: {e}")
 
 
+def _mp_game_path(game_id: str):
+    """apps/<id>/mp_game.py in the current layout, backend/apps/<id>/mp_game.py
+    in the older one. Returns None when the game has no multiplayer logic."""
+    for d in (FRONTEND_APPS, _APPS_DIR):
+        p = os.path.join(d, game_id, "mp_game.py")
+        if os.path.isfile(p):
+            return p
+    return None
+
+
 def _load_game_class(game_id: str):
-    """Dynamically load Game from backend/apps/<game_id>/mp_game.py (by convention)."""
-    path = os.path.join(_APPS_DIR, game_id, "mp_game.py")
-    if not os.path.isfile(path):
+    """Dynamically load Game from the game's mp_game.py (by convention)."""
+    path = _mp_game_path(game_id)
+    if path is None:
         return None
     try:
         spec = importlib.util.spec_from_file_location(f"mp_game_{game_id}", path)
@@ -362,8 +377,11 @@ async def list_mp_games():
 
     games = []
     try:
-        for gid in sorted(os.listdir(_APPS_DIR)):
-            if not os.path.isfile(os.path.join(_APPS_DIR, gid, "mp_game.py")):
+        seen = set()
+        for d in (FRONTEND_APPS, _APPS_DIR):
+            seen |= set(os.listdir(d)) if os.path.isdir(d) else set()
+        for gid in sorted(seen):
+            if _mp_game_path(gid) is None:
                 continue
             max_players = 8
             mpath = os.path.join(FRONTEND_APPS, gid, "manifest.json")

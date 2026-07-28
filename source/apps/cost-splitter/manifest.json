@@ -8,7 +8,7 @@
     "sharing",
     "expenses"
   ],
-  "version": "1.3.2",
+  "version": "1.4.0",
   "min_core_version": "0.8.2",
   "description": "Split recurring costs among members. Track balances, add payments, and send monthly email summaries automatically.",
   "entry": "main.js",

@@ -34,6 +34,8 @@ _loop_task = None
 def _conn():
     c = sqlite3.connect(_DB_PATH)
     c.row_factory = sqlite3.Row
+    c.execute("PRAGMA journal_mode=WAL")
+    c.execute("PRAGMA busy_timeout=5000")
     c.execute("""
         CREATE TABLE IF NOT EXISTS server_metrics (
             ts            INTEGER PRIMARY KEY,

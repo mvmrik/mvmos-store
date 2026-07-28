@@ -8,7 +8,7 @@
     "social",
     "games"
   ],
-  "version": "1.11.3",
+  "version": "1.12.0",
   "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
   "entry": "main.js",
   "public_url": "/pub/gamehub/"

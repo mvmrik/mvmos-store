@@ -8,7 +8,7 @@
     "processes",
     "monitoring"
   ],
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Monitor CPU, memory and disk usage. View and manage running processes.",
   "entry": "main.js"
 }

@@ -47,3 +47,12 @@ rm -rf "$TMP"
 
 echo "Created: $OUT"
 unzip -l "$OUT"
+
+# The premium build is skipped above on purpose, but it still has to reach
+# mvmos.org or the change stops in source/ with nothing to signal it. Publish
+# it here so releasing an app always publishes both halves in one step.
+if [ -d "$SRC/apps/$APP_ID/premium" ] || [ -d "$SRC/backend/apps/$APP_ID/premium" ]; then
+    echo
+    echo "--- premium build found, publishing to mvmos.org ---"
+    /var/www/mvmos-store/make-premium-zip.sh "$APP_ID"
+fi

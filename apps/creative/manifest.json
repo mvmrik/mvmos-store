@@ -5,9 +5,9 @@
       "name": "mvmSiteBuilder",
       "icon": "🧱",
       "category": "Creative",
-      "version": "1.1.1",
+      "version": "1.2.0",
       "description": "Build your own website: pages, menu, themes, custom CSS/JS.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/creative/mvmsitebuilder-1.1.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/creative/mvmsitebuilder-1.2.0.zip",
       "tags": [
         "website",
         "no-code",
@@ -19,9 +19,9 @@
       "name": "Beam Builder",
       "icon": "🏗️",
       "category": "Creative",
-      "version": "1.1.1",
+      "version": "1.2.0",
       "description": "3D construction planner. Draw beams and profiles in 3D space, connect them, rotate and zoom freely, and get a full material list with costs.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/creative/beambuilder-1.1.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/creative/beambuilder-1.2.0.zip",
       "tags": [
         "3d",
         "design",

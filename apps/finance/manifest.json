@@ -5,9 +5,9 @@
       "name": "Budget",
       "icon": "💰",
       "category": "Finance",
-      "version": "1.3.1",
+      "version": "1.4.0",
       "description": "Category-based budget tracking with shared categories, goals, mass-add, and per-app source visibility for entries added by other apps, plus a public web page and Telegram mini-app.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/finance/budget-1.3.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/finance/budget-1.4.0.zip",
       "tags": [
         "finance",
         "money",
@@ -19,9 +19,9 @@
       "name": "Cost Splitter",
       "icon": "💸",
       "category": "Finance",
-      "version": "1.3.2",
+      "version": "1.4.0",
       "description": "Split recurring costs among members. Track balances, add payments, and send monthly email summaries automatically.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/finance/cost-splitter-1.3.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/finance/cost-splitter-1.4.0.zip",
       "tags": [
         "finance",
         "sharing",

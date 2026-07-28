@@ -5,9 +5,9 @@
       "name": "mvmOS Chat",
       "icon": "💬",
       "category": "Communication",
-      "version": "1.2.2",
+      "version": "1.3.0",
       "description": "Chat between mvmOS users, with a public web page for Apps Hub accounts.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/chat-1.2.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/chat-1.3.0.zip",
       "tags": [
         "messaging",
         "social"
@@ -18,9 +18,9 @@
       "name": "Telegram Hub",
       "icon": "✈️",
       "category": "Communication",
-      "version": "1.0.3",
+      "version": "1.1.0",
       "description": "Bridges Apps Hub public apps into a Telegram bot. Any app can opt in by adding a telegram.py adapter next to its public.py.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/telegramhub-1.0.3.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/telegramhub-1.1.0.zip",
       "tags": [
         "messaging",
         "telegram",

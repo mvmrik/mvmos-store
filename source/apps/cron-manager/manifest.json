@@ -8,7 +8,7 @@
     "scheduling",
     "system"
   ],
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "View, add, edit, enable/disable and run cron jobs for the current user. Root also sees /etc/cron.d/ system jobs.",
   "entry": "main.js"
 }

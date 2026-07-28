@@ -8,7 +8,7 @@
     "sql",
     "developer"
   ],
-  "version": "2.1.3",
+  "version": "2.2.0",
   "description": "MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL and Greenplum database manager — browse databases, edit data, run queries, import and export.",
   "entry": "main.js",
   "min_core_version": "0.7.4"

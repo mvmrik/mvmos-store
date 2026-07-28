@@ -7,13 +7,20 @@ Apps for mvmOS are written in JavaScript and registered via the global `mvmOS` o
 ## App structure
 
 ```
-apps/<category>/<app-id>/
+apps/<app-id>/
   manifest.json   — metadata
   main.js         — logic
   style.css       — styles (optional)
   db.json         — database schema (optional)
-  backend.py      — server-side component (optional, requires user confirmation)
+  data.db         — the app's own SQLite database (optional)
+  api.py          — server code (optional)
+  desktop.py      — desktop routes, when api.py grows too big (optional)
+  public/         — the only web-reachable folder
 ```
+
+An app lives entirely inside its own folder, and **that folder is all it can touch** — core mvmOS, other apps and the system are off limits, enforced at runtime (see [Folder isolation](#folder-isolation--enforced)). Whatever it needs from mvmOS it asks the [Platform API](#platform-api) for.
+
+The one exception is an app that must genuinely reach the system — `subprocess`, system files, a local service. That code goes in `backend/apps/<app-id>/backend.py`, and installing such an app [asks the user for their password](#backendappsapp-id--the-exception).
 
 ---
 
@@ -580,9 +587,187 @@ await db.run('CREATE TABLE IF NOT EXISTS state (key TEXT PRIMARY KEY, value TEXT
 
 ---
 
-## backend.py
+## Server code — api.py
 
-If the app needs to access local services (CORS restrictions), it can include a `backend.py`. On install the user receives a confirmation dialog.
+An app's server code lives in **`apps/<app-id>/api.py`**, alongside the rest of the app. It is loaded in-process and may declare either or both of these routers:
+
+| Object | Mounted at | Who can reach it |
+|---|---|---|
+| `router` | `/pub/<app-id>` | Public page — Apps Hub token (`X-Pub-Token`) |
+| `desktop_router` | `/api/apps/<app-id>` | Desktop window — behind the mvmOS session |
+
+```python
+import os
+import sqlite3
+import sys
+from fastapi import APIRouter, Depends
+
+current_session = sys.modules["backend.auth"].get_current_session
+
+router = APIRouter()           # optional — only if the app has a public page
+desktop_router = APIRouter()   # optional — only if the app has a desktop window
+
+_DB_PATH = os.path.join(os.path.dirname(__file__), "data.db")
+
+
+def _conn():
+    conn = sqlite3.connect(_DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+@desktop_router.get("/items")
+async def items(session=Depends(current_session)):
+    with _conn() as c:
+        rows = c.execute("SELECT * FROM items WHERE user=?",
+                         (session["effective_user"],)).fetchall()
+    return [dict(r) for r in rows]
+```
+
+If the desktop half grows large, put it in its own **`apps/<app-id>/desktop.py`** instead; its `router` is mounted at `/api/apps/<app-id>` exactly as `desktop_router` would be.
+
+### Folder isolation — enforced
+
+**An app can only touch its own folder.** While `api.py` is loading and while its routes are running, `open()` and `sqlite3.connect()` are confined to `apps/<app-id>/`. This is not a guideline — it raises `AppIsolationError`, and an app that does it at module level does not load at all.
+
+```python
+# Allowed — inside the app's own folder:
+sqlite3.connect(os.path.join(os.path.dirname(__file__), "data.db"))
+open(os.path.join(os.path.dirname(__file__), "public", "config.json"))
+
+# AppIsolationError:
+sqlite3.connect("../../data.db")        # core mvmOS database
+sqlite3.connect("../budget/data.db")    # another app's database
+open("/etc/passwd")                     # system files
+```
+
+Anything the app needs from mvmOS itself — the install's currency, who is logged in, credits, another app — goes through the **[Platform API](#platform-api)**. If something has no endpoint yet, it gets one; that is the whole point of it being a documented, shared contract rather than private access.
+
+---
+
+## Platform API
+
+The documented way an app gets anything from outside its own folder. Every endpoint is the same for every app and every third-party developer — nothing is handed to an app privately.
+
+Inside `api.py` these are plain function calls (same process — do **not** make an HTTP request to your own server):
+
+```python
+import sys
+
+cfg = sys.modules["backend.platform_api"].get_settings()
+currency    = cfg["currency"]     # "EUR"
+date_format = cfg["date_format"]  # "DD/MM/YYYY"
+```
+
+From a public page or any frontend, the same data over HTTP:
+
+| Endpoint | Returns |
+|---|---|
+| `GET /api/platform/settings` | `{currency, locale, date_format}` — install-wide settings |
+| `GET /api/platform/whoami` | `{user, pub_user_id, pub_user_name}` — who is calling |
+| `GET /api/platform/apps` | `{apps: [...]}` — installed app ids, for feature detection |
+| `POST /api/platform/apps/{id}/call` | Call another app's `api.py` (its API must be enabled in Apps Hub) |
+| `GET /api/platform/credits` | `{balance}` — Apps Hub credits for the caller |
+| `POST /api/platform/credits/spend` | Spend credits; `402` when short. Always send `idempotency_key` |
+| `POST /api/platform/notify` | Raise an mvmOS notification for the logged-in desktop user |
+| `GET /api/platform/premium` | `{premium, build}` — is this install licensed, does `?app_id=` have its build |
+
+```js
+const cfg = await fetch('/api/platform/settings').then(r => r.json());
+
+const who = await fetch('/api/platform/whoami', {
+  headers: { 'X-Pub-Token': token }   // only needed on a public page
+}).then(r => r.json());
+```
+
+Never send a user id from the client — `POST /apps/{id}/call` fills `user_id` in from the account actually making the request, so no app can act on behalf of someone else.
+
+---
+
+## Premium features
+
+A premium module is **ordinary app code**. It lives in `apps/<app-id>/premium/` and is loaded confined to the app's own folder, exactly like `api.py`. Needing premium is **not** a reason for an app to have a backend.
+
+### What actually protects it
+
+Not a check — **delivery**. `premium.zip` is hosted on mvmos.org and never travels in the public store zip (`make-zip.sh` skips any `premium/` directory). On every install and update, `sync_premium()` wipes `premium/` and re-fetches it **only** if the installation holds a valid licence. The licence key never leaves the server and is never sent to the frontend.
+
+So an unlicensed install does not have the premium code at all. There is no local decision to bypass, no flag to flip, no function to patch — the file is absent.
+
+```
+licensed install:    apps/my-app/premium/backend.py   ← fetched from mvmos.org
+unlicensed install:  (nothing)                        ← load_premium_backend() → None
+```
+
+### The base app stays whole
+
+Schema, settings, checkboxes — all of it stays in the app regardless of licence. What is premium is only **whether the control does anything**. An app with no premium build, or a lapsed licence, just leaves the control inert. It never disappears and the app never breaks.
+
+**Base app** (`api.py`) — always degrade gracefully:
+
+```python
+import sys
+
+
+def _feature_enforced(x):
+    mod = sys.modules["backend.premium"].load_premium_backend("my-app")
+    if mod is None or not hasattr(mod, "is_enforced"):
+        return False   # no premium build: the stored value stays inert
+    return mod.is_enforced(x)
+```
+
+**Premium half** (`apps/my-app/premium/backend.py`) — always re-check `is_premium()`:
+
+```python
+import sys
+
+
+def is_enforced(x):
+    # This file being here proves you were licensed when it was fetched, not
+    # that you still are: a licence that lapses after install leaves it behind.
+    # Check every time — the heartbeat keeps the answer at most 10 min stale.
+    if not sys.modules["backend.premium"].is_premium():
+        return False
+    base = sys.modules["app_public_my-app"]
+    ...
+```
+
+That runtime check exists **only** for expiry. Everything else is handled at install/update time by not delivering the code.
+
+### GET /api/platform/premium
+
+For deciding what the UI **offers** — a badge, an upsell, a disabled control — never for protecting a feature:
+
+```js
+const p = await fetch('/api/platform/premium?app_id=my-app').then(r => r.json());
+p.premium  // this installation holds a valid licence
+p.build    // this app's premium/ code is actually on disk
+```
+
+Do not gate anything real on this. Anything the frontend can read, a user can lie about — that is fine, because lying only unlocks code they were never sent.
+
+### Publishing
+
+```bash
+/var/www/mvmos-store/make-premium-zip.sh <app-id>
+```
+
+Packages `source/apps/<id>/premium/` flat into `premium.zip` on mvmos.org. Republish it in the same turn as any change to `premium/` — otherwise the old build stays live with nothing to signal it.
+
+---
+
+## backend/apps/&lt;app-id&gt;/ — the exception
+
+Work that **structurally cannot** go through an endpoint — running `subprocess`, reading system files, driving another service on the machine — goes in `backend/apps/<app-id>/backend.py`. Code there is not confined.
+
+That is exactly why **installing such an app asks the user for their password**. The bar is high, and most apps never clear it:
+
+- ✅ `yoursql` connecting to a real database server, `git-manager` running `git`, `server-monitor` reading `/proc`
+- ❌ the app's own SQLite database, a public page, an API for its own frontend — all of these belong in `api.py`
+
+If an app needs something it cannot do and no endpoint covers, the answer is a new Platform API endpoint, not a backend. A backend is the last resort.
+
+**WebSockets** belong in `backend/apps/<app-id>/` — an app using one cannot run isolated from `apps/<app-id>/`, so a backend is what it takes, same as `subprocess` or system files. A WS route in `api.py` is not supported.
 
 ```python
 import sys
@@ -600,7 +785,6 @@ async def get_data(session=Depends(get_current_session)):
 - The file must define a `router` object at module level
 - All endpoints must require `session=Depends(get_current_session)` for authentication
 - The prefix must be unique — recommended `/api/<app-id>`
-- Only `backend.py` is installed — no other Python files
 
 ---
 

@@ -52,6 +52,9 @@ API_BASE = "https://api.telegram.org/bot{token}/{method}"
 _DIR      = os.path.dirname(__file__)
 _DB_PATH  = os.path.join(_DIR, "..", "..", "..", "apps", "telegramhub", "data.db")
 _APPS_DIR = os.path.join(_DIR, "..")
+# An app that has moved to the new layout keeps its adapter at
+# apps/<id>/telegram.py; both locations are scanned.
+_LIVE_APPS_DIR = os.path.join(_DIR, "..", "..", "..", "apps")
 
 # app_id -> module, cached after first load; cleared on (re)detect
 _adapters: dict = {}
@@ -175,41 +178,23 @@ def verify_init_data(init_data: str, max_age: int = 86400) -> Optional[dict]:
 
 # ── App adapter discovery ───────────────────────────────────────
 
+def _platform():
+    return sys.modules["backend.platform_api"]
+
+
 def _detect_telegram_apps() -> list:
-    """Scan backend/apps/ for directories with telegram.py."""
-    result = []
-    if not os.path.isdir(_APPS_DIR):
-        return result
-    for app_id in sorted(os.listdir(_APPS_DIR)):
-        if app_id.startswith("_"):
-            continue
-        if os.path.isfile(os.path.join(_APPS_DIR, app_id, "telegram.py")):
-            result.append(app_id)
-    return result
+    """Apps that opt into the Telegram convention by shipping telegram.py.
+    The platform finds them — Telegram Hub never reads another app's folder."""
+    return _platform().find_app_plugins("telegram.py")
 
 
 def _load_adapter(app_id: str):
     if app_id in _adapters:
         return _adapters[app_id]
-    path = os.path.join(_APPS_DIR, app_id, "telegram.py")
-    if not os.path.isfile(path):
-        _adapters[app_id] = None
-        return None
-    import types
-    mod_name = f"telegram_adapter_{app_id}"
-    try:
-        with open(path) as f:
-            source = f.read()
-        mod = types.ModuleType(mod_name)
-        mod.__file__ = path
-        sys.modules[mod_name] = mod
-        exec(compile(source, path, "exec"), mod.__dict__)
-        _adapters[app_id] = mod
-        return mod
-    except Exception as e:
-        print(f"[telegramhub] failed to load adapter {app_id}: {e}")
-        _adapters[app_id] = None
-        return None
+    mod = _platform().load_app_plugin(app_id, "telegram.py",
+                                      f"telegram_adapter_{app_id}")
+    _adapters[app_id] = mod
+    return mod
 
 
 def is_app_enabled(app_id: str) -> bool:

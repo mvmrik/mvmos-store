@@ -8,7 +8,7 @@
     "habits",
     "wellbeing"
   ],
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Track state changes of anything over time — ping, HTTP checks, API values, or manual push.",
   "entry": "main.js",
   "scheduler": "scheduler.py"

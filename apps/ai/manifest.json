@@ -5,9 +5,9 @@
       "name": "mvmAI",
       "icon": "🤖",
       "category": "AI",
-      "version": "0.3.2",
+      "version": "0.4.0",
       "description": "AI chat assistant with shell access. Talk to any OpenAI-compatible provider (Gemini, OpenAI, Groq, OpenRouter, Qwen, DeepSeek, Mistral, Ollama, custom). The assistant can run commands on the server on your behalf, with configurable confirmation and safety levels.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/ai/mvmai-0.3.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/ai/mvmai-0.4.0.zip",
       "tags": [
         "ai",
         "assistant",

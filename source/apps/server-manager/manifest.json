@@ -8,7 +8,7 @@
     "system",
     "administration"
   ],
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "Monitor and control system services — start, stop, restart, and check status of web servers, databases, and more. Configure PHP, MySQL, Nginx, SSH and UFW firewall settings directly from the UI.",
   "entry": "main.js"
 }

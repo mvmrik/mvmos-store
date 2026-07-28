@@ -8,7 +8,7 @@
     "numbers",
     "games"
   ],
-  "version": "1.11.5",
+  "version": "1.12.0",
   "description": "A mix between Tetris and Sudoku — drop numbers into the grid, clear rows and 3x3 boxes to score points.",
   "entry": "main.js"
 }

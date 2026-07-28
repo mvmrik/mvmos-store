@@ -8,7 +8,7 @@
     "queue",
     "customers"
   ],
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Public booking and queue-ticket system. Run a weekly appointment schedule or a walk-in number queue — clients book or pull a ticket from a public page with no account needed, and you get notified and manage everything from here.",
   "public_directory": false
 }
