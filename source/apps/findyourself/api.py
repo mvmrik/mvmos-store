@@ -33,6 +33,9 @@ def _get_gh_player(token: str) -> dict | None:
 @router.get("/config")
 async def get_config(request: Request):
     """Return saved FindYourself settings (api_key, rounds, time) for authenticated GH users."""
+    hub = sys.modules.get("backend.apphub")
+    if hub and not hub.is_app_public("findyourself"):
+        return JSONResponse({"error": "private"}, status_code=403)
     token = request.headers.get("X-GH-Token", "")
     if not token or not _get_gh_player(token):
         return JSONResponse({"api_key": "", "rounds": 5, "time": 60})

@@ -8,7 +8,7 @@
     "geography",
     "quiz"
   ],
-  "version": "1.13.0",
+  "version": "1.13.1",
   "description": "Drop into a random Street View location and guess where you are on the map. How well do you know the world?",
   "entry": "main.js",
   "css": "style.css",

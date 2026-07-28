@@ -1,6 +1,6 @@
 # mvmOS Developer Guide
 
-Apps for mvmOS are written in JavaScript and registered via the global `mvmOS` object. Each app consists of a `main.js` file, an optional `style.css`, a `manifest.json`, and a `db.json` (if it uses a database).
+Apps for mvmOS are written in JavaScript and registered via the global `mvmOS` object. Each app consists of a `manifest.json`, a `public/` folder holding everything the browser loads (`main.js`, an optional `style.css`), a `db.json` (if it uses a database), and optionally server code (`api.py`) — see [App structure](#app-structure) below.
 
 ---
 
@@ -946,7 +946,7 @@ Allows apps to execute background logic on a schedule — without the browser be
 }
 ```
 
-### Step 2 — create backend/apps/\<app-id\>/scheduler.py
+### Step 2 — create apps/\<app-id\>/scheduler.py
 
 ```python
 def run(now, db_path, config):
@@ -978,8 +978,8 @@ def run(now, db_path, config):
 
 ### Notes
 
-- `scheduler.py` goes in `backend/apps/<app-id>/scheduler.py` in the zip — yes, this is the backend folder, but **the app does not need a `backend.py`**. `backend.py` is only needed if the app has its own API endpoints (FastAPI routes). `scheduler.py` is just a plain Python function — no routes, no FastAPI.
-- If the app only needs scheduled logic → only `scheduler.py`, no `backend.py`
+- `scheduler.py` goes in `apps/<app-id>/scheduler.py`, beside `api.py` — it is loaded the same confined way, and does **not** need a `backend/apps/<app-id>/` of its own. `backend/apps/<app-id>/scheduler.py` is the older location, still honoured for apps that already have an approved backend for other reasons.
+- If the app only needs scheduled logic → only `scheduler.py`, nothing in `backend/apps/<app-id>/`
 - If the file is missing, core skips it silently
 - Runs every minute — the file itself decides when to act using `if now.hour == X`
 - Errors are logged in the `/api/scheduler/tick` response and do not stop other apps
@@ -1113,15 +1113,16 @@ Safe to call repeatedly (insert-or-update): call it once when the user is create
 
 ### Public page (optional)
 
-If your app also has a page accessible without logging into mvmOS, create `backend/apps/<app-id>/public.py`. Apps Hub admin will auto-detect it and show an enable/disable toggle.
+If your app also has a page accessible without logging into mvmOS, declare a `router` in your `apps/<app-id>/api.py` (or its `desktop.py`-style companion) — the same file described in [Server code — api.py](#server-code--apipy). Apps Hub admin auto-detects any app whose `api.py` exposes a `router` and shows an enable/disable toggle. `backend/apps/<app-id>/public.py` is the older location, still honoured for apps that already have an approved backend.
 
 **Minimum template:**
 
 ```python
 """
 Pattern:
-1. Create this file → Apps Hub detects it and shows an admin toggle.
-2. Call hub.is_app_public(APP_ID) to guard all routes.
+1. Declare `router` in api.py → Apps Hub detects it and shows an admin toggle.
+2. Call hub.is_app_public(APP_ID) to guard all routes — this is not automatic,
+   core mounts the router unconditionally at startup.
 3. HTML page handles auth client-side (redirect to /pub/apphub/?next=...).
 4. API endpoints validate X-Pub-Token via hub.get_pub_session().
 """
@@ -1134,7 +1135,7 @@ from typing import Optional
 router = APIRouter(tags=["my-app-public"])
 APP_ID = "my-app"   # ← only thing to change
 
-_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "my-app", "public")
+_DIR = os.path.join(os.path.dirname(__file__), "public")
 
 def _hub():
     return sys.modules.get("backend.apphub")
@@ -1164,7 +1165,7 @@ async def get_data(x_pub_token: Optional[str] = Header(default=None)):
     return {"user_id": u["id"], "data": [...]}
 ```
 
-The public page is served at `/pub/<app-id>/` once the admin enables it in Apps Hub.
+The public page is served at `/pub/<app-id>/` once the admin enables it in Apps Hub. `_DIR` here is `apps/<app-id>/public/` — the same folder `main.js`/`index.html` already live in — not a separate location.
 
 ### Public page PWA (automatic)
 
@@ -1214,9 +1215,9 @@ The user can pick one of six text sizes (`sm` 90% → `xxxl` 155%), applied as `
 
 ### App-to-app API (optional)
 
-If your app's backend wants to let *other* apps call into it — e.g. a Tasks app crediting a reward into a Budget category — don't reach into another app's database or import its code directly. Expose a Python API instead, the same opt-in-file-plus-admin-toggle pattern as `public.py`:
+If your app's backend wants to let *other* apps call into it — e.g. a Tasks app crediting a reward into a Budget category — don't reach into another app's database or import its code directly. Expose a Python API instead, the same opt-in-file-plus-admin-toggle pattern as a public page:
 
-Create `backend/apps/<app-id>/api.py` — Apps Hub auto-detects it and shows an admin enable/disable toggle (**Apps Hub → Settings → App APIs**, off by default). No HTTP framework needed; calls happen in-process.
+Create `apps/<app-id>/app_api.py` — a separate file from `api.py`, since `api.py` already holds the app's own routes. Apps Hub auto-detects it and shows an admin enable/disable toggle (**Apps Hub → Settings → App APIs**, off by default). No HTTP framework needed; calls happen in-process. `backend/apps/<app-id>/api.py` is the older location, still honoured for apps that already have an approved backend.
 
 **Minimum template:**
 
