@@ -19,9 +19,9 @@
       "name": "Tasks",
       "icon": "✅",
       "category": "Productivity",
-      "version": "1.4.0",
+      "version": "1.4.1",
       "description": "Persistent, one-time and periodic tasks with multiple categories per task and optional Budget rewards/penalties on completion, plus a public web page.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/tasks-1.4.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/tasks-1.4.1.zip",
       "tags": [
         "tasks",
         "planning",

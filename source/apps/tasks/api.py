@@ -458,7 +458,7 @@ async def complete_task(task_id: str, x_pub_token: str = Header(default=None)):
         cid = str(uuid.uuid4())
         rewards = _apply_reward(
             hub, me["id"], task["category_ids"], task["reward_amount"],
-            f"Задача: {task['title']}", cid,
+            task["title"], cid,
         )
         overall_ok = bool(rewards) and all(r["budget_ok"] for r in rewards)
         conn.execute(
@@ -577,7 +577,7 @@ async def complete_timer(task_id: str, x_pub_token: str = Header(default=None)):
         hub = _hub()
         cid = str(uuid.uuid4())
         category_ids = _task_category_ids(conn, task_id)
-        rewards = _apply_reward(hub, me["id"], category_ids, amount, f"Задача: {row['title']}", cid)
+        rewards = _apply_reward(hub, me["id"], category_ids, amount, row["title"], cid)
         overall_ok = bool(rewards) and all(r["budget_ok"] for r in rewards)
         conn.execute(
             "INSERT INTO completions(id,task_id,user_id,amount,duration_hours,budget_ok,note,created_at) "
