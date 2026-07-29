@@ -80,6 +80,11 @@ def _hub():
     return sys.modules.get("backend.apphub")
 
 
+def _premium_widgets():
+    premium = sys.modules.get("backend.premium")
+    return premium.load_premium_backend(APP_ID) if premium else None
+
+
 def _render_404(message_en: str, message_bg: str) -> HTMLResponse:
     mod = sys.modules.get("backend.notfound")
     if not mod:
@@ -108,6 +113,7 @@ def _init_db():
                 theme       TEXT NOT NULL DEFAULT 'default',
                 custom_css  TEXT NOT NULL DEFAULT '',
                 custom_js   TEXT NOT NULL DEFAULT '',
+                app_widgets_enabled INTEGER NOT NULL DEFAULT 0,
                 created_at  TEXT NOT NULL,
                 updated_at  TEXT NOT NULL
             );
@@ -146,7 +152,14 @@ def _init_db():
                 parent_id   TEXT
             );
             CREATE INDEX IF NOT EXISTS idx_menu_items_site ON menu_items(site_id);
+            CREATE TABLE IF NOT EXISTS external_site_widgets (
+                user_id TEXT NOT NULL, source TEXT NOT NULL, widgets TEXT NOT NULL DEFAULT '[]', updated_at TEXT NOT NULL,
+                PRIMARY KEY (user_id, source)
+            );
         """)
+        cols = {r["name"] for r in conn.execute("PRAGMA table_info(sites)").fetchall()}
+        if "app_widgets_enabled" not in cols:
+            conn.execute("ALTER TABLE sites ADD COLUMN app_widgets_enabled INTEGER NOT NULL DEFAULT 0")
         conn.commit()
 
 
@@ -361,6 +374,28 @@ async def update_site(site_id: str, body: SiteBody, x_pub_token: str = Header(de
         conn.commit()
         row = conn.execute("SELECT * FROM sites WHERE id=?", (site_id,)).fetchone()
         return JSONResponse(_site_to_dict(conn, row, me["id"]))
+
+
+@router.get("/sites/{site_id}/app-widgets")
+async def list_app_widgets(site_id: str, x_pub_token: str = Header(default=None)):
+    """Discover widget providers through the shared app-API contract.
+
+    Providers opt in by exposing list_site_widgets(user_id); no provider IDs
+    are kept here, so new apps can join without changing SiteBuilder.
+    """
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    with _db() as conn:
+        if not _my_role(conn, site_id, me["id"]):
+            return JSONResponse({"error": "not found"}, status_code=404)
+        site = conn.execute("SELECT * FROM sites WHERE id=?", (site_id,)).fetchone()
+    if not site:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    mod = _premium_widgets()
+    if mod is None or not mod.is_available():
+        return JSONResponse({"enabled": False, "reason": "premium_required", "widgets": []}, status_code=403)
+    return JSONResponse({"enabled": True, "widgets": mod.list_widgets(me["id"])})
 
 
 @router.delete("/sites/{site_id}")
@@ -815,7 +850,12 @@ def _render_page(conn, site, page) -> str:
         "SELECT id, slug, is_homepage, status FROM pages WHERE site_id=?", (site["id"],)
     ).fetchall()}
     menu = _menu_data(conn, site["slug"], site["id"], pages_by_id)
-    content = render_blocks(json.loads(page["blocks"]) if page["blocks"] else [])
+    blocks = json.loads(page["blocks"]) if page["blocks"] else []
+    hub = _hub()
+    premium = _premium_widgets()
+    if not premium or not premium.is_available() or not hub or not hub.is_app_api_enabled(APP_ID):
+        blocks = [block for block in blocks if block.get("type") != "app_widget"]
+    content = render_blocks(blocks)
     theme_id = site["theme"] if theme_exists(site["theme"]) else "default"
     with open(theme_template_path(theme_id), encoding="utf-8") as f:
         template = f.read()

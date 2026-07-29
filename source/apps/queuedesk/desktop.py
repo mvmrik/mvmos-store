@@ -131,7 +131,7 @@ def _not_found():
 
 # ── Settings ──────────────────────────────────────────────────────────────────
 
-_DEFAULT_SETTINGS = {"mode": "schedule", "business_name": "", "public_lang": "en"}
+_DEFAULT_SETTINGS = {"mode": "schedule", "business_name": "", "public_lang": "en", "site_widgets_enabled": False, "public_page_enabled": False}
 
 
 @router.get("/settings")
@@ -143,6 +143,8 @@ async def get_settings(session=Depends(get_current_session), x_pub_token: Option
         rows = c.execute("SELECT key, value FROM settings WHERE public_user_id=?", (uid,)).fetchall()
     out = dict(_DEFAULT_SETTINGS)
     out.update({r["key"]: r["value"] for r in rows})
+    out["site_widgets_enabled"] = str(out["site_widgets_enabled"]).lower() in ("1", "true")
+    out["public_page_enabled"] = str(out["public_page_enabled"]).lower() in ("1", "true")
     return JSONResponse(out)
 
 
@@ -150,6 +152,8 @@ class SettingsBody(BaseModel):
     mode: str = "schedule"
     business_name: str = ""
     public_lang: str = "en"
+    site_widgets_enabled: bool = False
+    public_page_enabled: bool = False
 
 
 @router.post("/settings")
@@ -162,7 +166,7 @@ async def save_settings(body: SettingsBody, session=Depends(get_current_session)
     if body.public_lang not in ("en", "bg"):
         return JSONResponse({"error": "invalid_lang"}, status_code=400)
     with _conn() as c:
-        for k, v in (("mode", body.mode), ("business_name", body.business_name), ("public_lang", body.public_lang)):
+        for k, v in (("mode", body.mode), ("business_name", body.business_name), ("public_lang", body.public_lang), ("site_widgets_enabled", "1" if body.site_widgets_enabled else "0"), ("public_page_enabled", "1" if body.public_page_enabled else "0")):
             c.execute(
                 "INSERT INTO settings (public_user_id, key, value) VALUES (?,?,?) "
                 "ON CONFLICT (public_user_id, key) DO UPDATE SET value=excluded.value",

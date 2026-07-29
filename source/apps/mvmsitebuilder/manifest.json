@@ -2,13 +2,13 @@
   "id": "mvmsitebuilder",
   "name": "mvmSiteBuilder",
   "icon": "🧱",
-  "category": "Creative",
+  "category": "Developer Tools",
   "tags": [
     "website",
     "no-code",
     "design"
   ],
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Build your own website: pages, menu, themes, custom CSS/JS.",
   "entry": "main.js",
   "css": "style.css",

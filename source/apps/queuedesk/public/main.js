@@ -15,6 +15,9 @@ const _qdi18n = {
     mode_queue:        'Walk-in number queue',
     business_name:     'Business name',
     public_lang:       'Public page language',
+    public_page_enabled:'Enable the direct public page',
+    site_widgets:      'Offer this public page as a site widget',
+    site_widgets_error:'Could not connect the widget. Enable mvmSiteBuilder App API in Apps Hub first.',
     save_settings:     'Save Settings',
     settings_saved:    'Settings saved.',
     slug_label:        'Public page address',
@@ -93,6 +96,9 @@ const _qdi18n = {
     mode_queue:        'Номерца на място',
     business_name:     'Име на бизнеса',
     public_lang:       'Език на публичната страница',
+    public_page_enabled:'Разреши директната публична страница',
+    site_widgets:      'Предлагай публичната страница като уиджет за сайт',
+    site_widgets_error:'Уиджетът не можа да се свърже. Първо активирай App API за mvmSiteBuilder в Apps Hub.',
     save_settings:     'Запази настройките',
     settings_saved:    'Настройките са запазени.',
     slug_label:        'Адрес на публичната страница',
@@ -188,7 +194,7 @@ const QD = (() => {
   let _root = null;
   let _view = 'main';      // 'main' | 'settings'
   let _tab  = null;        // set once settings load, based on mode
-  let _settings = { mode: 'schedule', business_name: '', public_lang: 'en' };
+  let _settings = { mode: 'schedule', business_name: '', public_lang: 'en', site_widgets_enabled: false, public_page_enabled: false };
   let _slug = '';
   let _pubUser = null;
   let _rules = [];
@@ -220,6 +226,22 @@ const QD = (() => {
       throw new Error(txt || r.statusText);
     }
     return r.json();
+  }
+
+  async function _syncSiteWidget(enabled, businessName) {
+    const token = typeof AppHub !== 'undefined' ? AppHub.getToken() : null;
+    if (!token) throw new Error('Apps Hub login required');
+    if (!_slug) await _loadSlug();
+    const widgets = enabled ? [{
+      id: 'public-page', name: businessName || 'QueueDesk',
+      description: _settings.mode === 'queue' ? 'Number queue' : 'Appointment schedule',
+      embed_url: `/pub/queuedesk/${_slug}/embed`, height: 720,
+    }] : [];
+    const r = await fetch('/api/platform/apps/mvmsitebuilder/call', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Pub-Token': token },
+      body: JSON.stringify({ method: 'set_site_widgets', args: [], kwargs: { source: 'queuedesk', widgets } }),
+    });
+    if (!r.ok) throw new Error(await r.text());
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -730,6 +752,8 @@ const QD = (() => {
             <option value="bg" ${_settings.public_lang === 'bg' ? 'selected' : ''}>Български</option>
           </select>
         </label>
+        <label style="${_lblStyle()}flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="qd-s-widgets" ${_settings.site_widgets_enabled ? 'checked' : ''}><span>${_t('site_widgets')}</span></label>
+        <label style="${_lblStyle()}flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="qd-s-public-page" ${_settings.public_page_enabled ? 'checked' : ''}><span>${_t('public_page_enabled')}</span></label>
         <button id="qd-s-save" style="${_btnStyle('primary')} align-self:flex-start">${_t('save_settings')}</button>
         <div id="qd-s-saved" style="font-size:.8rem;color:var(--accent);display:none">${_t('settings_saved')}</div>
 
@@ -751,8 +775,12 @@ const QD = (() => {
       const mode = w.querySelector('#qd-s-mode').value;
       const business_name = w.querySelector('#qd-s-name').value.trim();
       const public_lang = w.querySelector('#qd-s-lang').value;
-      await _api('POST', '/settings', { mode, business_name, public_lang });
-      _settings = { mode, business_name, public_lang };
+      const site_widgets_enabled = w.querySelector('#qd-s-widgets').checked;
+      const public_page_enabled = w.querySelector('#qd-s-public-page').checked;
+      await _api('POST', '/settings', { mode, business_name, public_lang, site_widgets_enabled, public_page_enabled });
+      _settings = { mode, business_name, public_lang, site_widgets_enabled, public_page_enabled };
+      try { await _syncSiteWidget(site_widgets_enabled, business_name); }
+      catch (e) { mvmOS.notify('QueueDesk', _t('site_widgets_error')); }
       _tab = mode === 'queue' ? 'today' : 'bookings';
       const savedEl = w.querySelector('#qd-s-saved');
       savedEl.style.display = 'block';

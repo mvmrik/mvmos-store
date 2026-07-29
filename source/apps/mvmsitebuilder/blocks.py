@@ -11,13 +11,63 @@ else in public.py or main.js needs to change. This registry is the
 """
 
 import html as _html
+from html.parser import HTMLParser
 
 
 def _esc(s) -> str:
     return _html.escape(str(s or ""), quote=True)
 
 
+class _RichTextSanitizer(HTMLParser):
+    """Keep the formatting produced by the editor, not executable markup."""
+
+    allowed = {"p", "br", "strong", "b", "em", "i", "u", "s", "strike", "h2", "h3", "h4", "ul", "ol", "li", "blockquote", "a"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.out = []
+
+    def handle_starttag(self, tag, attrs):
+        tag = tag.lower()
+        if tag not in self.allowed:
+            return
+        if tag == "a":
+            href = next((value for key, value in attrs if key.lower() == "href"), "") or ""
+            if href.startswith(("https://", "http://", "mailto:", "/", "#")):
+                self.out.append(f'<a href="{_esc(href)}" rel="noopener noreferrer">')
+                return
+            self.out.append("<a>")
+            return
+        self.out.append(f"<{tag}>")
+
+    def handle_endtag(self, tag):
+        if tag.lower() in self.allowed and tag.lower() != "br":
+            self.out.append(f"</{tag.lower()}>")
+
+    def handle_data(self, data):
+        self.out.append(_esc(data))
+
+    def handle_entityref(self, name):
+        self.out.append(f"&{name};")
+
+    def handle_charref(self, name):
+        self.out.append(f"&#{name};")
+
+    def result(self):
+        return "".join(self.out)
+
+
+def _safe_rich_text(source: str) -> str:
+    parser = _RichTextSanitizer()
+    parser.feed(source)
+    parser.close()
+    return parser.result()
+
+
 def render_text(data: dict) -> str:
+    rich_html = data.get("html")
+    if isinstance(rich_html, str):
+        return f'<div class="msb-block msb-block-text">{_safe_rich_text(rich_html)}</div>'
     text = str(data.get("text", ""))
     # Escape first, then turn blank lines into paragraph breaks — keeps the
     # block trusted-input-free while still giving basic multi-paragraph text.
@@ -55,11 +105,26 @@ def render_spacer(data: dict) -> str:
     return f'<div class="msb-block msb-block-spacer" style="height:{height}px"></div>'
 
 
+def render_app_widget(data: dict) -> str:
+    src = str(data.get("embed_url", ""))
+    if not src.startswith("/pub/"):
+        return ""
+    try:
+        height = max(260, min(1200, int(data.get("height", 720))))
+    except (TypeError, ValueError):
+        height = 720
+    title = _esc(data.get("title", "App widget"))
+    return (f'<section class="msb-block msb-block-app-widget"><iframe src="{_esc(src)}" '
+            f'title="{title}" loading="lazy" sandbox="allow-forms allow-scripts" '
+            f'style="width:100%;height:{height}px;border:0"></iframe></section>')
+
+
 BLOCK_RENDERERS = {
     "text": render_text,
     "html": render_html,
     "image": render_image,
     "spacer": render_spacer,
+    "app_widget": render_app_widget,
 }
 
 

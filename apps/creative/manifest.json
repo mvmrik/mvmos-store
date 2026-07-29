@@ -1,20 +1,6 @@
 {
   "apps": [
     {
-      "id": "mvmsitebuilder",
-      "name": "mvmSiteBuilder",
-      "icon": "🧱",
-      "category": "Creative",
-      "version": "1.2.0",
-      "description": "Build your own website: pages, menu, themes, custom CSS/JS.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/creative/mvmsitebuilder-1.2.0.zip",
-      "tags": [
-        "website",
-        "no-code",
-        "design"
-      ]
-    },
-    {
       "id": "beambuilder",
       "name": "Beam Builder",
       "icon": "🏗️",

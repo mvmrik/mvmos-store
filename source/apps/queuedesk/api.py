@@ -43,17 +43,8 @@ def _conn():
 
 
 def _private_page():
-    return HTMLResponse("""<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>QueueDesk</title>
-<style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;
-height:100vh;margin:0;background:#1e1e2e;color:#a6adc8;flex-direction:column;gap:12px}
-.icon{font-size:3rem}.msg{font-size:1.1rem;font-weight:700;color:#cdd6f4}
-.sub{font-size:.9rem;color:#6c7086}</style>
-</head><body>
-<div class="icon">🔒</div>
-<div class="msg">QueueDesk is private</div>
-<div class="sub">Access is not available to the public.</div>
-</body></html>""", status_code=403)
+    notfound = sys.modules.get("backend.notfound")
+    return notfound.render_404() if notfound else _not_found()
 
 
 def _not_found():
@@ -67,7 +58,7 @@ def _owner_for_slug(c, slug):
 
 def _get_settings(c, uid):
     rows = c.execute("SELECT key, value FROM settings WHERE public_user_id=?", (uid,)).fetchall()
-    out = {"mode": "schedule", "business_name": "", "public_lang": "en"}
+    out = {"mode": "schedule", "business_name": "", "public_lang": "en", "public_page_enabled": "0"}
     out.update({r["key"]: r["value"] for r in rows})
     if out["public_lang"] not in ("en", "bg"):
         out["public_lang"] = "en"
@@ -426,8 +417,7 @@ _STRINGS = {
 }
 
 
-@router.get("/{slug}", response_class=HTMLResponse)
-async def public_page(slug: str):
+async def _public_page(slug: str, direct: bool):
     c = _conn()
     if not c or _gated(c):
         return _private_page()
@@ -435,6 +425,8 @@ async def public_page(slug: str):
     if not uid:
         return _not_found()
     s = _get_settings(c, uid)
+    if direct and str(s.get("public_page_enabled", "0")).lower() not in ("1", "true"):
+        return _private_page()
     lang = s["public_lang"]
     t = _STRINGS.get(lang, _STRINGS["en"])
     business = _esc(s["business_name"]) or "QueueDesk"
@@ -739,3 +731,13 @@ function renderQueue() {{
 </body>
 </html>"""
     return HTMLResponse(html)
+
+
+@router.get("/{slug}/embed", response_class=HTMLResponse)
+async def embed_page(slug: str):
+    return await _public_page(slug, direct=False)
+
+
+@router.get("/{slug}", response_class=HTMLResponse)
+async def public_page(slug: str):
+    return await _public_page(slug, direct=True)

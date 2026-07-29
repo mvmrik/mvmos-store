@@ -19,9 +19,9 @@
       "name": "QueueDesk",
       "icon": "🎫",
       "category": "Business",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "description": "Public booking and queue-ticket system. Run a weekly appointment schedule or a walk-in number queue — clients book or pull a ticket from a public page with no account needed, and you get notified and manage everything from here.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/business/queuedesk-1.1.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/business/queuedesk-1.2.0.zip",
       "tags": [
         "business",
         "queue",

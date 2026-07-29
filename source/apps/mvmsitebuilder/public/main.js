@@ -62,6 +62,7 @@ const MsbApp = (() => {
   let members = [];
   let tab = 'pages';
   let designSubTab = 'theme';
+  let pageEditorMode = 'blocks';
 
   async function api(path, opts) {
     opts = opts || {};
@@ -134,6 +135,7 @@ const MsbApp = (() => {
     try {
       site = await api('/sites/' + id);
       page = null;
+      pageEditorMode = 'blocks';
       tab = 'pages';
       await Promise.all([loadPages(), loadMenuItems()]);
       if (isOwner()) await loadMembers();
@@ -243,6 +245,7 @@ const MsbApp = (() => {
     if (canEdit()) content.querySelector('#msb-add-page').onclick = async () => {
       try {
         page = await api('/sites/' + site.id + '/pages', { method: 'POST', body: JSON.stringify({ title: t('msb_untitled'), blocks: [] }) });
+        pageEditorMode = 'blocks';
         pages.push(page);
         render();
       } catch (err) { notifyError(err); }
@@ -251,7 +254,7 @@ const MsbApp = (() => {
     content.querySelectorAll('.msb-page-row').forEach(row => {
       const id = row.dataset.id;
       const p = pages.find(x => x.id === id);
-      row.querySelector('[data-act="edit"]').onclick = () => { page = p; render(); };
+      row.querySelector('[data-act="edit"]').onclick = () => { page = p; pageEditorMode = 'blocks'; render(); };
       const toggleBtn = row.querySelector('[data-act="toggle"]');
       if (toggleBtn) toggleBtn.onclick = async () => {
         try {
@@ -292,8 +295,12 @@ const MsbApp = (() => {
           <input class="s-input msb-editor-slug" id="msb-page-slug" value="${esc(page.slug)}" placeholder="${t('msb_page_slug_ph')}" ${editable ? '' : 'disabled'}>
           ${editable ? `<button class="s-btn s-btn-sm" id="msb-save-page">${t('msb_save')}</button>` : ''}
         </div>
+        <div class="msb-editor-view-switch" role="tablist" aria-label="${t('msb_editor_view')}">
+          <button class="s-btn s-btn-sm ${pageEditorMode === 'blocks' ? 'active' : ''}" data-editor-mode="blocks">▦ ${t('msb_editor_blocks')}</button>
+          <button class="s-btn s-btn-sm ${pageEditorMode === 'code' ? 'active' : ''}" data-editor-mode="code">&lt;/&gt; ${t('msb_editor_code')}</button>
+        </div>
         ${editable ? `
-          <div class="msb-block-add-row">
+          <div class="msb-block-add-row" ${pageEditorMode === 'blocks' ? '' : 'hidden'}>
             ${window.MSB_BLOCK_ORDER.map(type => `<button class="s-btn s-btn-sm" data-add-block="${type}">${window.MSB_BLOCKS[type].icon} ${window.MSB_BLOCKS[type].label()}</button>`).join('')}
           </div>` : ''}
         <div class="msb-blocks" id="msb-blocks"></div>
@@ -303,6 +310,7 @@ const MsbApp = (() => {
 
     const blocksEl = content.querySelector('#msb-blocks');
     const ctx = { uploadImage, notifyError };
+    let codeEditor = null;
 
     function renderBlocks() {
       blocksEl.innerHTML = '';
@@ -342,17 +350,70 @@ const MsbApp = (() => {
       renderBlocks();
     }
 
-    renderBlocks();
+    function syncBlocksFromCode() {
+      const source = codeEditor ? codeEditor.getValue() : blocksEl.querySelector('textarea')?.value;
+      try {
+        const nextBlocks = JSON.parse(source || '[]');
+        if (!Array.isArray(nextBlocks)) throw new Error(t('msb_code_must_be_array'));
+        nextBlocks.forEach((block, index) => {
+          if (!block || typeof block !== 'object' || Array.isArray(block)) throw new Error(`${t('msb_code_invalid_block')} ${index + 1}.`);
+          if (!window.MSB_BLOCKS[block.type]) throw new Error(`${t('msb_code_unknown_type')} ${index + 1}.`);
+          if (!block.data || typeof block.data !== 'object' || Array.isArray(block.data)) throw new Error(`${t('msb_code_missing_data')} ${index + 1}.`);
+        });
+        page.blocks = nextBlocks;
+        const errorEl = content.querySelector('#msb-block-code-error');
+        if (errorEl) { errorEl.textContent = ''; errorEl.classList.remove('msb-code-error-active'); }
+        return true;
+      } catch (err) {
+        const errorEl = content.querySelector('#msb-block-code-error');
+        if (errorEl) { errorEl.textContent = err.message || String(err); errorEl.classList.add('msb-code-error-active'); }
+        return false;
+      }
+    }
+
+    function renderCode() {
+      blocksEl.innerHTML = `
+        <textarea class="msb-code-area" id="msb-block-code">${esc(JSON.stringify(page.blocks || [], null, 2))}</textarea>
+        <div class="msb-code-error" id="msb-block-code-error"></div>`;
+      const textarea = blocksEl.querySelector('#msb-block-code');
+      const update = () => syncBlocksFromCode();
+      if (!editable) textarea.disabled = true;
+      _loadCM().then(() => {
+        if (!blocksEl.isConnected) return;
+        codeEditor = CodeMirror.fromTextArea(textarea, {
+          mode: { name: 'javascript', json: true }, theme: 'dracula', lineNumbers: true,
+          indentUnit: 2, tabSize: 2, viewportMargin: Infinity, readOnly: !editable,
+        });
+        codeEditor.setSize('100%', 360);
+        codeEditor.on('change', update);
+      }).catch(() => textarea.addEventListener('input', update));
+    }
+
+    if (pageEditorMode === 'code') renderCode();
+    else renderBlocks();
+
+    content.querySelectorAll('[data-editor-mode]').forEach(button => button.onclick = () => {
+      const nextMode = button.dataset.editorMode;
+      if (nextMode === pageEditorMode) return;
+      if (pageEditorMode === 'code' && !syncBlocksFromCode()) return;
+      pageEditorMode = nextMode;
+      renderPageEditor(content);
+    });
 
     if (editable) {
       content.querySelectorAll('[data-add-block]').forEach(btn => btn.onclick = () => {
         const type = btn.dataset.addBlock;
+        if (type === 'app_widget') { openAppWidgetDialog(); return; }
         page.blocks = page.blocks || [];
         page.blocks.push({ type, data: window.MSB_BLOCKS[type].create() });
         renderBlocks();
       });
+      content.querySelectorAll('[data-add-block="app_widget"]').forEach(btn => {
+        window.mvmOS?.premiumGate(btn, t('msb_app_widgets_premium'));
+      });
       content.querySelector('#msb-save-page').onclick = async () => {
         try {
+          if (pageEditorMode === 'code' && !syncBlocksFromCode()) return;
           const title = content.querySelector('#msb-page-title').value;
           const slug = content.querySelector('#msb-page-slug').value;
           const updated = await api('/sites/' + site.id + '/pages/' + page.id, {
@@ -365,6 +426,30 @@ const MsbApp = (() => {
           render();
         } catch (err) { notifyError(err); }
       };
+    }
+
+    async function openAppWidgetDialog() {
+      const ov = document.createElement('div');
+      ov.className = 'msb-overlay';
+      ov.innerHTML = `<div class="msb-dialog"><div class="msb-dialog-title">${t('msb_app_widgets')}</div><div class="msb-f-hint">${t('msb_app_widgets_loading')}</div><div class="msb-dialog-actions"><button class="s-btn s-btn-sm" data-close>${t('msb_cancel')}</button></div></div>`;
+      document.body.appendChild(ov);
+      ov.querySelector('[data-close]').onclick = () => ov.remove();
+      try {
+        const result = await api('/sites/' + site.id + '/app-widgets');
+        const body = ov.querySelector('.msb-f-hint');
+        if (!result.enabled) {
+          body.textContent = result.reason === 'api_disabled' ? t('msb_app_widgets_api_disabled') : t('msb_error');
+          return;
+        }
+        if (!result.widgets.length) { body.textContent = t('msb_app_widgets_empty'); return; }
+        body.outerHTML = `<div class="msb-widget-picker">${result.widgets.map((widget, i) => `<button class="msb-widget-choice" data-widget="${i}"><b>${esc(widget.name || widget.id)}</b><span>${esc(widget.description || '')}</span></button>`).join('')}</div>`;
+        ov.querySelectorAll('[data-widget]').forEach(button => button.onclick = () => {
+          const widget = result.widgets[Number(button.dataset.widget)];
+          page.blocks = page.blocks || [];
+          page.blocks.push({ type: 'app_widget', data: { title: widget.name || widget.id, embed_url: widget.embed_url, height: widget.height || 720 } });
+          ov.remove(); renderBlocks();
+        });
+      } catch (err) { ov.querySelector('.msb-f-hint').textContent = t('msb_error') + ': ' + err.message; }
     }
   }
 
@@ -448,6 +533,7 @@ const MsbApp = (() => {
     if (_cmLoaded) return Promise.resolve();
     if (window.CodeMirror) { _cmLoaded = true; return Promise.resolve(); }
     const base = '/lib';
+    const appBase = '/apps/mvmsitebuilder';
     function loadScript(src) {
       return new Promise((res, rej) => {
         const s = document.createElement('script');
@@ -464,9 +550,16 @@ const MsbApp = (() => {
     loadStyle(`${base}/codemirror.min.css`);
     loadStyle(`${base}/codemirror-dracula.min.css`);
     return loadScript(`${base}/codemirror.min.js`)
-      .then(() => Promise.all([loadScript(`${base}/codemirror-css.min.js`), loadScript(`${base}/codemirror-js.min.js`)]))
+      .then(() => Promise.all([
+        loadScript(`${base}/codemirror-css.min.js`),
+        loadScript(`${base}/codemirror-js.min.js`),
+        loadScript(`${appBase}/codemirror-xml.min.js`),
+      ]))
+      .then(() => loadScript(`${appBase}/codemirror-htmlmixed.min.js`))
       .then(() => { _cmLoaded = true; });
   }
+  // Block editors reuse the same bundled CodeMirror setup as the Design tab.
+  window.MSB_loadCodeMirror = _loadCM;
 
   // Native-browser syntax checks — no extra CM lint addon/library shipped
   // (none exists in this repo for CM 5.x), just enough to catch typos.
@@ -485,7 +578,7 @@ const MsbApp = (() => {
   function _designEditor(content, elId, errId, lang, onChange) {
     const ta = content.querySelector('#' + elId);
     const cm = CodeMirror.fromTextArea(ta, {
-      mode: lang === 'css' ? 'css' : 'javascript',
+      mode: lang === 'css' ? 'css' : lang === 'html' ? 'htmlmixed' : 'javascript',
       theme: 'dracula',
       lineNumbers: true,
       indentUnit: 2,
@@ -496,7 +589,7 @@ const MsbApp = (() => {
     const errEl = content.querySelector('#' + errId);
     const check = () => {
       const src = cm.getValue();
-      const msg = lang === 'css' ? _cssError(src) : _jsError(src);
+      const msg = lang === 'css' ? _cssError(src) : lang === 'js' ? _jsError(src) : null;
       errEl.textContent = msg ? t(lang === 'css' ? 'msb_css_error' : 'msb_js_error', { msg }) : '';
       errEl.classList.toggle('msb-code-error-active', !!msg);
       onChange(src);

@@ -27,6 +27,20 @@
         "git",
         "source-control"
       ]
+    },
+    {
+      "id": "mvmsitebuilder",
+      "name": "mvmSiteBuilder",
+      "icon": "🧱",
+      "category": "Developer Tools",
+      "version": "1.3.0",
+      "description": "Build your own website: pages, menu, themes, custom CSS/JS.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/developer-tools/mvmsitebuilder-1.3.0.zip",
+      "tags": [
+        "website",
+        "no-code",
+        "design"
+      ]
     }
   ]
 }
