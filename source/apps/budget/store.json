@@ -1,0 +1,36 @@
+{
+  "tagline": "Split your money into categories and see where it goes.",
+  "description": "Budget divides your money into categories — rent, food, savings, a holiday — and tracks every deposit and withdrawal against them. A category can take a fixed amount or a percentage of the total, hold subcategories, and carry a goal you are working towards.\n\nCategories can be shared with other Apps Hub accounts, so a household budgets together and everyone sees the same balances and the same history, with each entry marked with who added it.\n\nBudget is also the place other apps put money. Tasks can pay a reward into a category when you finish something; Shopping List can deduct the cost of items you marked as bought. Entries that arrive that way are labelled with the app they came from, and you choose per app whether to see them at all.\n\nThe same budget is reachable from the desktop window, from a public web page for your Apps Hub account, and from a Telegram mini-app.",
+  "capabilities": [
+    "Categories with a fixed allocation or a percentage of your total.",
+    "Subcategories under a main category, with the parent holding no amounts of its own.",
+    "Deposits and withdrawals with notes, and a full per-category history.",
+    "Optional goal per category with progress against it.",
+    "Mass add — enter amounts for several categories at once and save them in one go.",
+    "Share a category with other Apps Hub accounts, add members from your favourites, remove members or leave a shared category.",
+    "Statistics by week, month and year: income, expense, net, and a breakdown by category.",
+    "Total balance across all categories, including subcategories.",
+    "Choose the currency, or follow the system default.",
+    "Set the default sign for new amounts, so a spending category does not need a minus every time.",
+    "Per-app visibility for entries added by other apps.",
+    "Public web page for your Apps Hub account and a Telegram mini-app, both on the same data."
+  ],
+  "integrations": [
+    {
+      "app": "",
+      "name": "Any app",
+      "kind": "app_api",
+      "direction": "provides",
+      "summary": "Budget exposes an app-to-app API: other apps can read your category list and the currency you use, and add or subtract an amount in a category on your behalf. Every entry created that way records which app made it, and you can hide any app's entries from the list.",
+      "requires": "The Budget App API has to be switched on in Apps Hub → Settings → App APIs. It is off by default."
+    },
+    {
+      "app": "telegramhub",
+      "name": "Telegram Hub",
+      "kind": "telegram",
+      "direction": "provides",
+      "summary": "Budget ships a Telegram adapter, so your categories and balances are reachable from the Telegram Hub bot.",
+      "requires": "Telegram Hub installed with a bot token configured, and your Telegram account linked to your Apps Hub account."
+    }
+  ]
+}

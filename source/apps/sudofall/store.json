@@ -1,0 +1,21 @@
+{
+  "tagline": "Tetris rules, Sudoku goal.",
+  "description": "Sudofall drops numbers into a 9×9 grid. You place them where they fall, and you clear a row, a column or a 3×3 box the moment it holds the numbers it should — Sudoku's constraint, at Tetris's speed. Jokers let you choose the number yourself when the board gets tight.\n\nPlay solo for a score, or head to head: share a link with a friend and you both play the same falling sequence, with the higher score at the end taking it.",
+  "capabilities": [
+    "9×9 grid with falling numbers and a preview of what comes next.",
+    "Clear rows, columns and 3×3 boxes for points.",
+    "Jokers you can turn into any number.",
+    "Score and elapsed time, with a final summary at game over.",
+    "Head-to-head multiplayer over a shared link, on the same sequence for both players."
+  ],
+  "integrations": [
+    {
+      "app": "gamehub",
+      "name": "Game Hub",
+      "kind": "gamehub",
+      "direction": "consumes",
+      "summary": "Your games are recorded against your Game Hub profile — sessions, scores and leaderboard position, including head-to-head results.",
+      "requires": "Game Hub installed. Single player works without it."
+    }
+  ]
+}

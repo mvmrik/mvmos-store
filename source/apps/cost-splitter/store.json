@@ -1,0 +1,19 @@
+{
+  "tagline": "One recurring bill, several people, one running balance each.",
+  "description": "Cost Splitter is for a cost that comes back every month and is shared — a server, a flat, a family subscription. You set the total, add the members, and the app works out each person's share.\n\nCharging is one click: Charge All books this month's share against every member. Payments go in as they arrive, and each member carries a running balance you can see at a glance — who is ahead, who owes, and how much.\n\nIt can also do the chasing for you. On a day and time you pick, it emails every member with an email address a summary of the month: the total, their previous balance, what they owe now, their new balance and their transaction history. Mailjet and Brevo are supported, the email can be sent in English or Bulgarian, and there is a log of what went out and what failed.",
+  "capabilities": [
+    "Members with an optional email address and an optional custom share — otherwise the total is split evenly.",
+    "Charge All: book this month's share for every member in one action.",
+    "Record payments and one-off charges with notes.",
+    "Running balance per member and a full transaction history.",
+    "Automatic monthly email summary on a day, hour and minute you choose.",
+    "Mailjet or Brevo as the sending provider, with a test-email button.",
+    "Choose which columns the email summary shows — total, previous balance, amount due, current balance, history.",
+    "Email in English or Bulgarian, independent of the desktop language.",
+    "Log of sent and failed emails.",
+    "Currency of your choice, or the system default."
+  ],
+  "requirements": [
+    "A Mailjet or Brevo account and API key, if you want the automatic monthly emails. Everything else works without one."
+  ]
+}

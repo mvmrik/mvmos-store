@@ -1,0 +1,14 @@
+{
+  "tagline": "A minute-by-minute record of how the server is doing — and a plant that lives off it.",
+  "description": "Server Monitor samples the machine every minute and keeps the history: CPU, RAM, swap, disk usage, disk read and write, network in and out, load averages and temperatures. You can look at the last hour, today, yesterday, a week or a month, with average, minimum and maximum for each metric, and click any point for the detail behind it.\n\nIt also has Bit Garden. Plant a seed and it grows on your server's health — good numbers make it grow, sustained load damages it, and you can water it for a temporary reduction in penalties. It goes from seed to sprout to tree, comes in ten varieties, and can sit on your desktop as a widget. It is a joke that turns out to be a genuinely readable at-a-glance health indicator.",
+  "capabilities": [
+    "Per-minute sampling of CPU, RAM, swap, disk usage, disk I/O, network I/O, load averages and temperatures.",
+    "History by last hour, today, yesterday, week and month.",
+    "Average, minimum and maximum per metric, with a detail view per data point.",
+    "Archive of older data.",
+    "Bit Garden: a plant whose health and growth follow the server's own metrics.",
+    "Watering for a temporary reduction in penalties, and a visible list of which metrics are currently helping or hurting.",
+    "Ten plant varieties and six growth stages.",
+    "Bit Garden as a desktop or taskbar widget."
+  ]
+}

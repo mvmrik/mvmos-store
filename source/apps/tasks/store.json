@@ -1,0 +1,24 @@
+{
+  "tagline": "Tasks that can pay you — or fine you — when you finish them.",
+  "description": "Tasks handles three kinds of work: persistent tasks that are always there, one-time tasks with a due date, and periodic tasks that come back daily, weekly or monthly. Each one can carry a description and belong to several categories at once.\n\nWhat makes it different is what happens on completion. A task can be worth an amount — positive as a reward, negative as a penalty — and that amount is written straight into a category in Budget. Tasks can also be timed: start the clock, pause it, and the reward is calculated from an hourly rate and the time you actually tracked.\n\nEverything is kept in a history of completions, and the same list is reachable from a public web page for your Apps Hub account.",
+  "capabilities": [
+    "Persistent, one-time and periodic tasks, with daily, weekly or monthly recurrence.",
+    "Several categories per task.",
+    "Due date and time, with overdue tasks marked.",
+    "One-shot completion, or a timer with start, pause, continue and stop.",
+    "Reward or penalty per completion — a fixed amount, or an hourly rate applied to the time tracked.",
+    "Discard tracked time when it should not count.",
+    "History of every completion.",
+    "Public web page for your Apps Hub account."
+  ],
+  "integrations": [
+    {
+      "app": "budget",
+      "name": "Budget",
+      "kind": "app_api",
+      "direction": "consumes",
+      "summary": "Pick a Budget category on a task and give it an amount. Completing the task pays that amount into the category — or takes it out, if the amount is negative. Timed tasks pay the hourly rate for the time actually tracked. Without Budget, the task still works; there is simply no reward.",
+      "requires": "Budget installed, and its App API enabled in Apps Hub → Settings → App APIs. The switch is off by default."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "tagline": "Price a job, send the client a live link.",
+  "description": "QuoteBuilder puts together a quote from the work it contains. Each service is either time — hours and minutes at your hourly rate — or a fixed price, and the summary adds up the hours, the subtotal, the discount, the total and what is left after the deposit.\n\nServices you quote often become templates, organised into your own categories, so the next quote is a few clicks rather than a rewrite. Rate, currency and default deposit live in the global settings and apply to every new project.\n\nEach project gets a public link you can send to the client. It updates as you edit, and you choose what it shows — hours per service, your hourly rate, or neither — and in which language.",
+  "capabilities": [
+    "Projects, each with its own list of services.",
+    "Services priced by time (hours and minutes at an hourly rate) or by fixed price.",
+    "Hourly rate, discount percentage and deposit percentage per project.",
+    "Summary with total hours, subtotal, discount, total and remaining after deposit.",
+    "Reusable service templates with a default duration and description.",
+    "Your own template categories.",
+    "Global defaults for hourly rate, currency and deposit.",
+    "Public share link per project, live as you edit.",
+    "Choose whether the client sees hours per service and your hourly rate, and in which language."
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "tagline": "Dropped somewhere on Earth. Where are you?",
+  "description": "FindYourself drops you into a random Street View location with no clues but what you can see, and asks you to point at the map where you think you are. The closer you land, the more points you score, with a bonus for answering quickly.\n\nPlay solo over a number of rounds you choose, in a region you choose — the whole world, or one of twenty countries. Or play multiplayer with up to eight people: create a room, share the link or invite Game Hub players, and everyone guesses the same location at the same time, with standings after every round and a final table at the end.",
+  "capabilities": [
+    "Random Street View locations with a map to place your guess on.",
+    "Scoring by distance, with a time bonus.",
+    "1–10 rounds per game and a per-round time limit you set (or none).",
+    "Region picker: the whole world, or one of twenty countries.",
+    "Multiplayer rooms for up to eight players, joined by shared link or Game Hub invite.",
+    "Live standings between rounds and a final leaderboard.",
+    "Round result showing your guess and the real location side by side."
+  ],
+  "requirements": [
+    "A Google Maps API key with the Maps JavaScript and Street View APIs enabled. Without one the game cannot load a location."
+  ],
+  "integrations": [
+    {
+      "app": "gamehub",
+      "name": "Game Hub",
+      "kind": "gamehub",
+      "direction": "consumes",
+      "summary": "Multiplayer runs on Game Hub accounts: your profile and avatar, invitations to other players, and your sessions and scores recorded in the Game Hub leaderboards.",
+      "requires": "Game Hub installed. Single player works without it."
+    }
+  ]
+}

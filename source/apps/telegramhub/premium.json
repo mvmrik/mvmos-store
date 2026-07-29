@@ -1,0 +1,10 @@
+{
+  "summary": "Restrict individual bot apps to admins only.",
+  "features": [
+    {
+      "title": "Admin-only apps in the bot",
+      "short": "Hide a bot app from everyone but admins",
+      "description": "Mark an app in the bot menu as admin only and it becomes visible — and usable — only to Telegram accounts linked to an Apps Hub admin profile. Useful when the same bot serves both your household and yourself. Without a subscription the checkbox is still there and still remembers its value; it simply does not restrict anything, and every app in the bot stays visible to all linked accounts."
+    }
+  ]
+}

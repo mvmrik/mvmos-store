@@ -1,0 +1,17 @@
+{
+  "tagline": "A database client for six engines, in a browser tab.",
+  "description": "YourSQL connects to MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL and Greenplum, and gives each connection the tools you expect: browse databases and tables, read and edit rows, change structure, and run SQL.\n\nBrowsing is not a read-only grid. You can filter columns, sort, page through large tables, edit a row in a form, edit many rows in bulk, and export what you are looking at. Structure work — creating tables, adding and altering columns, indexes, charsets and collations — has its own UI, and anything the UI cannot do you can type into the SQL editor with syntax highlighting.\n\nSeveral connections stay open in tabs at once, so moving between a staging and a production database is a click.",
+  "capabilities": [
+    "MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL (PostgreSQL) and Greenplum.",
+    "Several saved connections, open side by side in tabs.",
+    "Browse databases and tables with a sidebar tree.",
+    "Filter, sort, page and search table data.",
+    "Edit a row in a form, or edit many rows in bulk.",
+    "Create tables, add and alter columns, set types, charsets, collations and indexes.",
+    "SQL editor with syntax highlighting and result grids.",
+    "Import and export data."
+  ],
+  "requirements": [
+    "A reachable database server and credentials for it. YourSQL does not install one for you."
+  ]
+}

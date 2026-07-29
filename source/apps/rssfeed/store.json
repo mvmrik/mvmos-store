@@ -1,0 +1,23 @@
+{
+  "tagline": "Your feeds, fetched on a schedule, readable anywhere.",
+  "description": "RSS Reader subscribes to RSS and Atom feeds and fetches them in the background on an interval you choose, from every five minutes to once a day. Articles are tracked read and unread, filterable by feed and by status, and open in a clean reader view with a link back to the original.\n\nIt can also put AI buttons on your articles. Define your own — a name and a prompt, “Summarise this in three sentences”, “Translate this to Bulgarian” — and choose whether they show in the list, in the reader, or both. The answer comes from mvmAI, using whichever provider you configured there.\n\nYour reading list can also be published as a public page.",
+  "capabilities": [
+    "Subscribe to any RSS or Atom feed.",
+    "Background fetching every 5 minutes to 24 hours, run by the mvmOS scheduler.",
+    "Read/unread tracking, mark all read, and filtering by feed or status.",
+    "Reader view with a link to the original article.",
+    "Custom AI buttons — your own name and prompt, shown in the list, the reader or both.",
+    "Per-feed fetch status and last-fetched time, with errors surfaced.",
+    "Optional public reading list with its own URL."
+  ],
+  "integrations": [
+    {
+      "app": "mvmai",
+      "name": "mvmAI",
+      "kind": "http",
+      "direction": "consumes",
+      "summary": "The AI buttons send the article and your prompt to mvmAI, which answers using the provider you configured there — or through the Claude CLI, if you picked that. Set the AI source to Off and the buttons disappear; the reader works exactly as before.",
+      "requires": "mvmAI installed and configured with a provider and API key (or a working Claude CLI on the server)."
+    }
+  ]
+}

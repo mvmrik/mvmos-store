@@ -1,0 +1,27 @@
+{
+  "tagline": "Build and publish a website from your desktop.",
+  "description": "mvmSiteBuilder is a small site builder that runs inside mvmOS and publishes to your own server. A site is a set of pages, each built from blocks — text, raw HTML, images, spacers — with a rich-text toolbar for the text ones and a code view when you want to edit the block JSON directly.\n\nEach site gets a menu you arrange yourself, from pages or external links, a theme, and its own custom CSS and JavaScript with error reporting if either is invalid. Pages can be drafts or published, and any page can be made the homepage.\n\nSites can be shared: invite other Apps Hub accounts as editors or viewers, with a read-only mode for the latter. A site is reachable at its own address, so unlike most apps there is no single public page — every site has its own.",
+  "capabilities": [
+    "Multiple sites, each with its own pages, menu, theme and settings.",
+    "Block-based pages: text, raw HTML (scripts included), image with alt text and caption, spacer.",
+    "Rich-text toolbar — headings, bold, italic, underline, strikethrough, quotes, lists, links, clear formatting, undo and redo.",
+    "Code view for editing the page's block JSON directly, with validation.",
+    "Draft and published pages, and a homepage of your choosing.",
+    "Menu built from pages or external URLs, in your own order.",
+    "Themes, including uploading your own as a .zip.",
+    "Custom CSS and JavaScript per site, with syntax errors reported back to you.",
+    "Image upload straight into a page.",
+    "Site slug and site name you control, so the address is yours.",
+    "Share a site with other Apps Hub accounts as owner, editor or viewer."
+  ],
+  "integrations": [
+    {
+      "app": "",
+      "name": "Any app",
+      "kind": "app_api",
+      "direction": "provides",
+      "summary": "Other apps can offer a widget for embedding in your pages — QueueDesk publishes its booking page this way. mvmSiteBuilder collects what they offer and lists it as an App widget block.",
+      "requires": "The mvmSiteBuilder App API has to be switched on in Apps Hub → Settings → App APIs (off by default), and placing an app widget in a page is a Premium feature."
+    }
+  ]
+}

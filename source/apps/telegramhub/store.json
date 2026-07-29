@@ -1,0 +1,27 @@
+{
+  "tagline": "Your mvmOS apps, inside a Telegram bot.",
+  "description": "Telegram Hub puts one bot in front of all your apps. You give it a bot token and a public HTTPS address, it registers its own webhook, and any installed app that ships a Telegram adapter shows up in the bot's menu.\n\nTelegram users link themselves to their Apps Hub account once, from a link the bot sends them. After that the bot knows who they are, and each app sees the same account and the same data it would see on the desktop or on a public page.\n\nYou control which apps appear, in what order, and — with a subscription — which of them are visible only to admins.",
+  "capabilities": [
+    "One Telegram bot fronting every app that ships a telegram.py adapter.",
+    "Bot token and public base URL configured from the desktop, with webhook registration and removal built in.",
+    "Telegram accounts link themselves to an Apps Hub account from a one-time link.",
+    "Enable or disable each app in the bot menu.",
+    "Order the bot menu alphabetically, by most recently used or by most used.",
+    "See which Telegram chats are currently linked.",
+    "Apps that already ship an adapter: Budget, Calendar, mvmOS Chat and qBit Dashboard."
+  ],
+  "requirements": [
+    "A Telegram bot token from @BotFather.",
+    "A public HTTPS address for this mvmOS install — Telegram will not deliver webhooks over plain HTTP."
+  ],
+  "integrations": [
+    {
+      "app": "",
+      "name": "Any app",
+      "kind": "telegram",
+      "direction": "provides",
+      "summary": "Any app can join the bot by shipping a telegram.py adapter next to its api.py. Telegram Hub detects it automatically and offers it in the bot menu — no change to Telegram Hub itself.",
+      "requires": "Telegram Hub installed with a bot token and a public HTTPS address configured."
+    }
+  ]
+}

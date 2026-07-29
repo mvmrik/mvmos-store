@@ -1,0 +1,26 @@
+{
+  "tagline": "An AI assistant that can actually run the commands.",
+  "description": "mvmAI is a chat assistant wired to your own provider — Gemini, OpenAI, Groq, OpenRouter, DeepSeek, Qwen, Mistral, a local Ollama, or any OpenAI-compatible endpoint you point it at. You bring the API key; nothing is proxied through anyone else.\n\nWhat separates it from a chat window in a browser tab is that it is on the machine. Ask it why a service will not start and it can run the commands to find out, read the output and carry on from there. You decide how much rope it gets: ask before every command, ask only for the dangerous ones, or let it run. Commands it judges dangerous are marked, and the really destructive ones are blocked entirely unless you allow them.\n\nConversations are kept, renameable and deletable, and the system prompt is yours to rewrite.",
+  "capabilities": [
+    "Chat with any OpenAI-compatible provider: Gemini, OpenAI, Groq, OpenRouter, DeepSeek, Qwen, Mistral, Ollama or a custom base URL.",
+    "The assistant can run shell commands on the server and read their output.",
+    "Three confirmation levels: ask every time, ask only for dangerous commands, or never ask.",
+    "Dangerous commands flagged, and destructive ones (rm -rf, dd, shutdown…) blocked unless explicitly allowed.",
+    "Approve or skip each proposed command, with the command and its reason shown first.",
+    "Saved conversations you can rename and delete.",
+    "Editable system prompt and model override.",
+    "Your API key stays on your server."
+  ],
+  "requirements": [
+    "An API key for one of the supported providers, or a local Ollama install."
+  ],
+  "integrations": [
+    {
+      "app": "",
+      "name": "Any app",
+      "kind": "http",
+      "direction": "provides",
+      "summary": "mvmAI exposes its chat endpoint to other apps on the same desktop, so they can send a prompt and get an answer using your configured provider without asking you for a second API key. RSS Reader uses this for its AI buttons."
+    }
+  ]
+}

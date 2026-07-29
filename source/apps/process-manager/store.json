@@ -1,0 +1,12 @@
+{
+  "tagline": "What is running, what it costs, and how to stop it.",
+  "description": "Process Manager shows the machine's processes with PID, user, CPU and memory percentage, resident size, state and command, filterable as you type, and lets you kill one when it misbehaves — asking for the root password when the process is not yours.\n\nAlongside the system processes it also shows mvmOS itself: which apps have background services running, which windows are open, and which widgets are active, each with the action to stop, close or remove it. It is the one place to see both the Linux side and the desktop side of what is currently using the machine.",
+  "capabilities": [
+    "Process list with PID, user, CPU%, memory%, RSS, state and command.",
+    "Live filter as you type, with a count of matches.",
+    "Kill a process, with a root password prompt when required.",
+    "mvmOS background services with their running or stopped state, and a Stop action.",
+    "Open windows, including minimised and tray ones, with a Close action.",
+    "Active widgets, with a Remove action."
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "tagline": "One profile, every game, all the scores.",
+  "description": "Game Hub is the account and statistics layer the mvmOS games share. Players get a profile with a display name, a colour and an avatar they build in the app, and from then on every game they play is recorded against it.\n\nIt keeps sessions, scores, durations and winners, and turns them into leaderboards — per game or across all of them — plus head-to-head records between two players. Favourites let you keep the people you play with to hand, which is also where multiplayer invitations come from.\n\nGame Hub has its own public page, so players can check the standings without a desktop account.",
+  "capabilities": [
+    "Player profiles with username, display name, colour and password.",
+    "Avatar editor built into the app.",
+    "Session log: game, score, duration and winner.",
+    "Leaderboards per game and across all games.",
+    "Head-to-head records between two players.",
+    "Favourite players, used for multiplayer invitations.",
+    "Player search by name or username.",
+    "Public page with a direct link, no domain mapping needed."
+  ],
+  "integrations": [
+    {
+      "app": "",
+      "name": "Any game",
+      "kind": "gamehub",
+      "direction": "provides",
+      "summary": "Games use Game Hub for player identity, for recording sessions and scores, and for multiplayer rooms and invitations. FindYourself and Sudofall both do.",
+      "requires": "Game Hub installed. Games remain playable in single player without it."
+    }
+  ]
+}

@@ -7,5 +7,11 @@ source/apps/*/public/*upload*/
 # Premium add-on content lives in an app's premium/ dir. It is delivered from
 # mvmos.org to subscribers only and must never reach this public repo or the
 # public zip — make-zip.sh skips it for the same reason.
+#
+# The trailing slash is deliberate: these patterns match the *directory* only.
+# apps/<id>/premium.json is a different thing — it is the public description of
+# what a subscription adds, read from this repo by mvmos.org to build the app
+# page and the premium page, and it must stay committed. Do not turn these into
+# `source/apps/*/premium*` or the site loses every premium listing.
 source/apps/*/premium/
 source/backend/apps/*/premium/

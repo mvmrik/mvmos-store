@@ -1,0 +1,16 @@
+{
+  "tagline": "Draw a frame in 3D and get the cut list.",
+  "description": "Beam Builder is a 3D planner for anything built out of straight profiles — a timber frame, a pergola, a steel rack, a greenhouse, a bed frame. You draw beams directly in 3D space, snap them to each other's ends, and rotate and zoom around the model as it grows.\n\nEvery beam carries a material: a name, a cross-section in millimetres, a colour and a price. From that the app keeps a running material summary — total length per material and what it costs — and, if you give it the stock length you buy in, a cutting plan showing how many bars you need and which pieces come out of each.\n\nProjects are saved on the server, so you can close the window and pick the model up again later.",
+  "capabilities": [
+    "Draw beams point-to-point in a 3D scene, with orbit, pan and zoom.",
+    "Snap new beams to the ends of existing ones so joints line up exactly.",
+    "Move and rotate a selected beam by keyboard-modified drags — 45° or 1° steps, horizontal or vertical tilt, 50 cm or 1 cm moves.",
+    "Edit a beam's length numerically, duplicate it, or delete it.",
+    "Define your own materials: name, width and height in millimetres, colour, and price per metre or per square metre.",
+    "Start from templates for common profiles — beams and posts, boards, sheet materials.",
+    "Live material summary: total length and cost per material.",
+    "Cutting plan from your stock bar length — how many bars to buy and what to cut from each.",
+    "Optional floor grid for scale.",
+    "Save, reload and delete named projects."
+  ]
+}

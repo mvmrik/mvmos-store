@@ -1,0 +1,23 @@
+{
+  "tagline": "Shared shopping lists that know what they cost and how long the warranty runs.",
+  "description": "Shopping List keeps as many lists as you need, with quantities and prices per item and a running total of what is bought and what is left. Lists can be shared with other Apps Hub accounts, so a household adds to the same list from different devices.\n\nMarking an item as bought can take its cost straight out of a Budget category, and un-marking it puts the money back — useful for a household budget where the weekly shop should just book itself.\n\nItems you bought do not simply vanish. They move into a history, and anything with a warranty can be given a start and end date and photos of the receipt or the item, so when something breaks two years later you can find the proof in seconds.",
+  "capabilities": [
+    "Multiple named lists, each with its own items.",
+    "Quantity and price per product, with bought / remaining / total shown live.",
+    "Share a list with other Apps Hub accounts, add members from your favourites, remove them again.",
+    "History of everything bought, kept even after the list is deleted.",
+    "Warranty tracking with start and end dates and a countdown to expiry.",
+    "Photo attachments per warranty — receipts, serial numbers, the item itself.",
+    "Public web page for your Apps Hub account."
+  ],
+  "integrations": [
+    {
+      "app": "budget",
+      "name": "Budget",
+      "kind": "app_api",
+      "direction": "consumes",
+      "summary": "Give an item a Budget category and marking it bought withdraws its cost from that category. Un-marking it reverts the withdrawal. If Budget is unavailable the item is still marked bought and you are told the deduction did not go through.",
+      "requires": "Budget installed, and its App API enabled in Apps Hub → Settings → App APIs. The switch is off by default."
+    }
+  ]
+}

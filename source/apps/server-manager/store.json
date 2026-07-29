@@ -1,0 +1,14 @@
+{
+  "tagline": "Start, stop and configure the services your server runs on.",
+  "description": "Server Manager detects the services installed on the machine — web servers, databases, SSH — shows whether each is running, and starts, stops or restarts them on request, asking for the root password when it needs it.\n\nBeyond on and off, it edits their configuration through forms rather than files. PHP's memory limits, execution times, upload sizes, error reporting and OPcache. MySQL's connections, buffers, packet sizes, slow query log, charset and collation. Nginx's workers, keepalive, body size, gzip and logs, with a raw config editor when the form is not enough. SSH's port, root login, password and public-key authentication, allowed users and groups.\n\nIt also manages the UFW firewall: enable or disable it, and add or remove rules.",
+  "capabilities": [
+    "Detect installed services and show their status.",
+    "Start, stop and restart services, with a sudo password prompt.",
+    "PHP settings: memory limit, execution and input time, input vars, upload and POST size, file uploads, error display and reporting, charset, timezone, session lifetime, OPcache.",
+    "MySQL settings: max connections, bind address, max allowed packet, InnoDB buffer pool, key buffer, temp table size, flush log, slow query log and threshold, charset and collation.",
+    "Nginx settings: worker processes and connections, keepalive, max body size, gzip and level, sendfile, TCP nopush, access and error logs, plus a raw config editor.",
+    "SSH settings: port, root login, password and public-key auth, max auth tries, login grace time, allowed users and groups, X11 forwarding, PAM.",
+    "UFW firewall: enable or disable, list rules, add and delete rules.",
+    "Clear warning when a change needs a service restart to take effect."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "summary": "Embed other apps' widgets directly into your site pages.",
+  "features": [
+    {
+      "title": "App widgets in your pages",
+      "short": "Embed another app's widget in a site page",
+      "description": "Apps that offer a widget — QueueDesk's booking page, for example — can be placed inside a page as an App widget block, so visitors book, browse or read inside your own site instead of following a link to a separate address. Without a subscription the block is listed but cannot be added; every other block type and everything else in the app works exactly the same."
+    }
+  ]
+}

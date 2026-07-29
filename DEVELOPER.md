@@ -9,6 +9,8 @@ Apps for mvmOS are written in JavaScript and registered via the global `mvmOS` o
 ```
 apps/<app-id>/
   manifest.json   — metadata
+  store.json      — the long store listing for mvmos.org
+  premium.json    — premium feature list (only if the app has premium)
   main.js         — logic
   style.css       — styles (optional)
   db.json         — database schema (optional)
@@ -68,6 +70,95 @@ The one exception is an app that must genuinely reach the system — `subprocess
 Use one broad primary category. The official Store currently uses: `Productivity`, `Finance`, `Communication`, `Media`, `Creative`, `Business`, `AI`, `Developer Tools`, `System & Administration`, `Security & Privacy`, `Utilities`, and `Games`.
 
 Do not create a narrow category for one app. Put the app in the closest broad category and use `tags` for specific capabilities, topics, or audiences.
+
+---
+
+## store.json — the listing on mvmos.org
+
+`manifest.json`'s `description` is the one-paragraph blurb the desktop App Store shows on a card. `store.json` is the long form, and it is what [mvmos.org](https://mvmos.org/store) renders on the app's own page.
+
+The site reads it straight from this repository (`source/apps/<app-id>/store.json`) — there is no upload step and no admin form. Commit the file and the site picks it up on its next sync. It is **English only**, because the site is English.
+
+```json
+{
+  "tagline": "One short line under the app name.",
+  "description": "Two or three paragraphs, separated by blank lines.\n\nWhat the app is, who it is for, and how it is actually used.",
+  "capabilities": [
+    "One general capability per line — what the app can do, not every detail.",
+    "8–14 lines suits a full app; 3–5 is right for a small one."
+  ],
+  "requirements": [
+    "Anything external the app needs to work — an API key, a service on the machine."
+  ],
+  "integrations": [
+    {
+      "app": "budget",
+      "name": "Budget",
+      "kind": "app_api",
+      "direction": "consumes",
+      "summary": "Completing a task with a reward writes the amount into a Budget category.",
+      "requires": "Budget installed, and its App API enabled in Apps Hub → Settings → App APIs. The switch is off by default."
+    }
+  ]
+}
+```
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `tagline` | yes | One line, shown under the app name |
+| `description` | yes | The long description. `\n\n` separates paragraphs |
+| `capabilities` | yes | Array of short capability lines |
+| `requirements` | no | External prerequisites. Omit the key when there are none |
+| `integrations` | no | Array of integration objects. Omit the key when the app has none |
+
+### Writing integrations
+
+The two directions are written differently on purpose:
+
+- **`"direction": "provides"`** — the app does not know who will call it, so keep it generic: *"Lets other apps add amounts to your categories and read the category list."*
+- **`"direction": "consumes"`** — name the other app and describe the exact behaviour: *"A shopping list item marked bought is deducted from the Budget category you picked."*
+
+`kind` tells the reader which door the integration goes through, because they are not gated the same way:
+
+| `kind` | What it is | Gated by |
+|--------|------------|----------|
+| `app_api` | The Apps Hub app-to-app API — `call_app_api()` from server code, or `POST /api/platform/apps/<id>/call` from the frontend. Both end up at the same gate | **Apps Hub → Settings → App APIs, off by default** |
+| `telegram` | The app ships a `telegram.py` adapter and appears in the Telegram Hub bot | Telegram Hub installed with a configured bot |
+| `gamehub` | Game Hub profiles, sessions, leaderboards and multiplayer rooms | Game Hub installed |
+| `http` | A plain HTTP call to another app's desktop API | the other app installed and configured |
+
+Anything with `"kind": "app_api"` **must** say in `requires` that the toggle is off by default and where to switch it on. Otherwise the feature reads as broken on a fresh install.
+
+Use `"app": ""` with `"name": "Any app"` for a `provides` integration that is open to everything, rather than listing every current consumer.
+
+---
+
+## premium.json — apps with a subscription
+
+Only for apps that ship a `premium/` folder. It is a separate file, not a section of `store.json`, because the premium page on mvmos.org pulls just these — per app, without parsing anything else.
+
+```json
+{
+  "summary": "One line: what a subscription adds to this app.",
+  "features": [
+    {
+      "title": "App widgets in your pages",
+      "short": "Embed another app's widget in a site page",
+      "description": "Two or three sentences for the app page: what the feature does, and what happens without it."
+    }
+  ]
+}
+```
+
+`short` is what the premium comparison list shows; `title` and `description` are what the app's own page shows. Both forms are required for every feature — the premium page must never have to shorten a description itself.
+
+Describe what happens **without** a subscription too. The base app always stays whole: the control is present and inert, never missing, and nothing breaks. Saying so in the description is what stops the listing reading as a paywall on a broken app.
+
+### Neither file ships to an install
+
+`make-zip.sh` deletes `store.json` and `premium.json` from the archive it builds. They are listing metadata for the website, not app code — and `_install_from_zip()` routes anything it does not recognise into `apps/<id>/public/`, the one folder that *is* served over HTTP.
+
+Note also that `.gitignore` excludes `source/apps/*/premium/` **with a trailing slash**: that matches the premium *directory* (subscriber-only code, never in this repo). `premium.json` is a normal committed file and must stay one.
 
 ---
 

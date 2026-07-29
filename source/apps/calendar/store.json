@@ -1,0 +1,24 @@
+{
+  "tagline": "Events, reminders and a calendar widget on your desktop.",
+  "description": "Calendar keeps your events in month, week and day views, and replaces the core desktop calendar widget so the next few days are visible without opening anything.\n\nEvents can be timed or all-day, repeat daily, weekly or monthly until a date you set, and be ticked off as done. When you edit a recurring event it asks what you meant — just this one, this and everything after it, or all of them.\n\nA scheduler runs in the background and sends you a notification when a reminder is due, whether or not the window is open. The same calendar is reachable from a public web page for your Apps Hub account and from a Telegram mini-app.",
+  "capabilities": [
+    "Month, week and day views, plus a Today shortcut.",
+    "Timed and all-day events with a title and description.",
+    "Daily, weekly and monthly recurrence with an end date; weekly recurrence picks its own days.",
+    "Editing a recurring event applies to only this one, this and the following, or all upcoming.",
+    "Mark events done or not done.",
+    "Reminder notifications delivered by the mvmOS scheduler even with the app closed.",
+    "Replaces the core calendar widget on the desktop.",
+    "Public web page for your Apps Hub account and a Telegram mini-app."
+  ],
+  "integrations": [
+    {
+      "app": "telegramhub",
+      "name": "Telegram Hub",
+      "kind": "telegram",
+      "direction": "provides",
+      "summary": "Calendar ships a Telegram adapter, so your events are reachable from the Telegram Hub bot.",
+      "requires": "Telegram Hub installed with a bot token configured, and your Telegram account linked to your Apps Hub account."
+    }
+  ]
+}

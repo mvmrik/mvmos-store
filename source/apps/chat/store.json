@@ -1,0 +1,22 @@
+{
+  "tagline": "Direct messages between the people who use your mvmOS.",
+  "description": "mvmOS Chat is one-to-one messaging between Apps Hub accounts. Find someone by name, start a conversation, and it stays in your list. Contacts come from your Apps Hub favourites, so the people you talk to most are always at the top.\n\nMessages arrive live over a WebSocket, with typing indicators, editing and deleting — either just for you, or for everyone. The same conversations are reachable from a public web page for your Apps Hub account and from a Telegram mini-app, so you can keep talking away from the desktop.",
+  "capabilities": [
+    "One-to-one conversations between Apps Hub accounts.",
+    "Live delivery over a WebSocket, with typing indicators.",
+    "Search for people, and a contacts list built from your Apps Hub favourites.",
+    "Edit a sent message, marked as edited.",
+    "Delete a message for yourself or for everyone.",
+    "Public web page for your Apps Hub account and a Telegram mini-app."
+  ],
+  "integrations": [
+    {
+      "app": "telegramhub",
+      "name": "Telegram Hub",
+      "kind": "telegram",
+      "direction": "provides",
+      "summary": "Chat ships a Telegram adapter, so your conversations are reachable from the Telegram Hub bot.",
+      "requires": "Telegram Hub installed with a bot token configured, and your Telegram account linked to your Apps Hub account."
+    }
+  ]
+}

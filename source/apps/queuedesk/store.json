@@ -1,0 +1,26 @@
+{
+  "tagline": "Bookings and queue tickets from a public page, no account needed.",
+  "description": "QueueDesk runs the front desk. In appointment mode you define your weekly hours and slot length, and clients pick a free slot from a public page — name, phone, a message, done. In walk-in mode the same page hands out numbered tickets, and you call the next one when you are ready.\n\nClients need no account. They get a verification code with their booking or ticket; you get a notification the moment one comes in, and manage everything from the desktop: today's list, the history, days off, and cancellations.\n\nThe public page has its own address you choose, in the language you choose, and can also be offered as a widget for embedding into a site built with mvmSiteBuilder.",
+  "capabilities": [
+    "Two modes: weekly appointment schedule, or walk-in number queue.",
+    "Weekly opening hours with a slot length per day.",
+    "Days off, so a holiday closes the calendar without touching the hours.",
+    "Public booking page with name, phone, email and message — no client account required.",
+    "Verification code per booking or ticket.",
+    "Now serving, Call Next, remaining capacity and a queue reset for walk-in mode.",
+    "Today's list, a date-range history, and booking states: booked, called, served, cancelled.",
+    "Notification on every new booking or ticket.",
+    "Your own public address and public page language.",
+    "Business name shown to clients."
+  ],
+  "integrations": [
+    {
+      "app": "mvmsitebuilder",
+      "name": "mvmSiteBuilder",
+      "kind": "app_api",
+      "direction": "consumes",
+      "summary": "Turn on “Offer this public page as a site widget” and QueueDesk registers its booking page with mvmSiteBuilder, where it becomes an App widget block you can drop into a page. Clients then book from inside your own site instead of a separate link.",
+      "requires": "mvmSiteBuilder installed with its App API enabled in Apps Hub → Settings → App APIs (off by default). Placing the widget in a page is a Premium feature of mvmSiteBuilder; QueueDesk's own public page is free."
+    }
+  ]
+}

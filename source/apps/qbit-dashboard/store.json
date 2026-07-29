@@ -1,0 +1,29 @@
+{
+  "tagline": "A proper front end for the qBittorrent running on your server.",
+  "description": "qBit Dashboard talks to a local qBittorrent through its WebUI API and gives it an interface that belongs on a desktop: the torrent list with progress, speeds, ratio, ETA, seeds and peers, sortable by any of them and filterable by state.\n\nYou add torrents by magnet link, URL or .torrent file, choose where they save (and remember that path for next time), tag them with a category, and control them individually or all at once. Each torrent opens on its own detail view with files, trackers, peers and the option to move it elsewhere on disk.\n\nqBittorrent's own settings — DHT, PeX, LSD, anonymous mode, encryption, ratio and seeding limits, speed caps — are editable from here too, and if qBittorrent is not set up yet the app can install it, enable its WebUI and start it for you.",
+  "capabilities": [
+    "Torrent list with progress, download and upload speed, ratio, ETA, size, seeds and peers.",
+    "Sort by date added, name, size, progress, speed, ratio, ETA or completion date.",
+    "Filter by downloading, seeding, paused, completed, active or errored.",
+    "Add by magnet link, URL or .torrent file, with a save path you can remember and an optional category.",
+    "Pause, resume, delete (with or without files) — per torrent or for everything at once.",
+    "Detail view with files, trackers, peers and priorities.",
+    "Move a finished torrent to another location on disk.",
+    "Edit qBittorrent's own options: DHT, PeX, LSD, anonymous mode, encryption, ratio and seeding-time limits and what happens when they are hit, and global speed caps.",
+    "Auto-detect a running qBittorrent, or install and configure it from the app.",
+    "Optional IPTorrents search using your own session cookies."
+  ],
+  "requirements": [
+    "qBittorrent on the same machine with its WebUI enabled. The app can install and configure it for you if it is missing."
+  ],
+  "integrations": [
+    {
+      "app": "telegramhub",
+      "name": "Telegram Hub",
+      "kind": "telegram",
+      "direction": "provides",
+      "summary": "qBit Dashboard ships a Telegram adapter, so you can check and control your torrents from the Telegram Hub bot.",
+      "requires": "Telegram Hub installed with a bot token configured, and your Telegram account linked to your Apps Hub account."
+    }
+  ]
+}

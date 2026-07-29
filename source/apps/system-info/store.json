@@ -1,0 +1,12 @@
+{
+  "tagline": "Everything about this machine, on one screen.",
+  "description": "System Info reads the hardware and system facts and lays them out in tabs: an overview, then CPU, memory, disks, network and sensors in detail.\n\nHostname, OS, kernel and uptime; CPU model, core count, frequency and load averages; RAM and swap used, free and available; every disk with its size and free space; every network interface with bytes received and sent; and temperature sensors where the machine exposes them — which most virtual servers do not, and the app says so rather than showing nothing.",
+  "capabilities": [
+    "Overview: hostname, OS, kernel, uptime.",
+    "CPU: model, physical and logical cores, frequency, 1/5/15-minute load averages.",
+    "Memory: RAM and swap, used, free and available.",
+    "Disks: every mounted filesystem with size, used and free.",
+    "Network: every interface with bytes received and sent.",
+    "Temperature sensors, with a clear message when the machine has none to report."
+  ]
+}

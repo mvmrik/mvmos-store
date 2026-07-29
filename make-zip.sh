@@ -23,6 +23,12 @@ mkdir -p "$TMP"
 # Copy frontend files flat
 cp "$SRC/apps/$APP_ID/"* "$TMP/" 2>/dev/null
 
+# store.json and premium.json are listing metadata for mvmos.org, read straight
+# from GitHub by the site's store sync. They must never travel in the zip:
+# _install_from_zip() routes anything it does not recognise into apps/<id>/public/,
+# which is the one folder served over HTTP.
+rm -f "$TMP/store.json" "$TMP/premium.json"
+
 # Copy backend files if they exist
 if [ -d "$SRC/backend/apps/$APP_ID" ]; then
     mkdir -p "$TMP/backend"

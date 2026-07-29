@@ -1,0 +1,15 @@
+{
+  "tagline": "Your repositories on this server, without leaving the browser.",
+  "description": "Git Manager finds the git repositories on the machine and gives each one the working surface you would otherwise get from a terminal: branch switching, pull, push, fetch, a diff of what changed, and a commit box.\n\nIt also handles the part that usually blocks a fresh server — SSH keys. Generate an ed25519 key, copy the public half, paste it into GitHub or GitLab, and test the connection from the same window.",
+  "capabilities": [
+    "Auto-detect git repositories on the machine, with a sidebar to switch between them.",
+    "Clone a repository from a URL, or initialise a new one with an optional remote.",
+    "Switch branches, including remote branches.",
+    "Pull, push and fetch, with ahead/behind counts.",
+    "See changed files and the diff for each.",
+    "Commit all changes with a message (Ctrl+Enter to send).",
+    "Discard changes in one file or in the whole tree.",
+    "Commit log per repository.",
+    "Generate an ed25519 SSH key, copy the public key, and test the connection to GitHub, GitLab or any other host."
+  ]
+}

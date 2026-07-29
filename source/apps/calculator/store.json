@@ -1,0 +1,9 @@
+{
+  "tagline": "A calculator that stays out of the way.",
+  "description": "A small, fast calculator for the arithmetic you do while working on something else. It opens in a compact window, does the four operations and percentages, and takes keyboard input — digits, operators, Enter, Backspace and Escape — so you never have to reach for the mouse.",
+  "capabilities": [
+    "Addition, subtraction, multiplication, division and percentages.",
+    "Full keyboard input, including Enter to evaluate, Backspace to correct and Escape to clear.",
+    "Compact window that fits next to whatever else you have open."
+  ]
+}

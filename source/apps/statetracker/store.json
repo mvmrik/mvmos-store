@@ -1,0 +1,14 @@
+{
+  "tagline": "Track whether anything is up, down, or worth watching.",
+  "description": "State Tracker follows the state of things over time. An entity can be a host it pings, a URL it requests, a JSON API it reads a value out of, or something entirely external that pushes its own state in over HTTP.\n\nYou define the states yourself — their names, their colours and the condition that produces them — so it is not limited to up and down. A value from a JSON endpoint can be read by dot path, including array indexes, which makes it as useful for an exchange rate or a queue depth as for a server.\n\nEvery check is stored, so each entity has a history you can read back rather than just a current light.",
+  "capabilities": [
+    "Four source types: manual push over HTTP, ping, HTTP check, and HTTP fetch reading a value out of JSON.",
+    "Dot-path extraction from a JSON response, including array indexes.",
+    "Authentication for HTTP sources: none, API key header, Bearer token or Basic auth.",
+    "Custom states with your own names, colours and conditions.",
+    "Check interval per entity, in minutes, run by the mvmOS scheduler.",
+    "Test button that runs a check immediately and shows the value it got.",
+    "Full state history per entity, with a day view.",
+    "Push endpoint for external systems to report their own state."
+  ]
+}
