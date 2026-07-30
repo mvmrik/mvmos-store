@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>mvm2factor</title>
+<style>
+  html,body{margin:0;padding:0;height:100%;background:var(--pub-bg,#1e1e2e);overflow:hidden}
+  #m2f-root{height:100dvh}
+</style>
+</head>
+<body>
+<div id="m2f-root"></div>
+<script src="/i18n/i18n.js"></script>
+<script>
+(function () {
+  var token = localStorage.getItem('apphub_token');
+  if (!token) {
+    location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
+    return;
+  }
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var script = document.createElement('script');
+      script.src = src + '?_=' + Date.now();
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+  function boot() {
+    Promise.all([
+      loadScript('/apps/mvm2factor/i18n.js'),
+      loadScript('/apps/mvm2factor/mvm2factor-widget.js')
+    ]).then(function () {
+      Mvm2FactorWidget.mount(document.getElementById('m2f-root'), {
+        onNeedLogin: function () {
+          location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
+        }
+      });
+    });
+  }
+  (window.mvmOS && window.mvmOS.i18nReady ? window.mvmOS.i18nReady : Promise.resolve()).then(boot);
+})();
+</script>
+</body>
+</html>

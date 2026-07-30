@@ -1,12 +1,16 @@
 {
   "tagline": "Your 2FA codes, on the machine you are already logged into.",
-  "description": "mvm2factor is a TOTP authenticator. Add an account with the Base32 secret the service gives you, and it shows the six-digit code with a ring counting down the thirty seconds until the next one.\n\nCodes are copied with one click. Accounts can be sorted newest first or by what you used last, so the one you need is usually at the top. Secrets are validated when you add them, so a mistyped key is caught immediately rather than three failed logins later.",
+  "description": "mvm2factor is a TOTP authenticator. Add an account with the Base32 secret the service gives you, and it shows the six-digit code with a ring counting down the thirty seconds until the next one.\n\nThe desktop window and optional public page share the same Apps Hub identity, so every Apps Hub profile has its own private vault and sees the same accounts on every device where it signs in. The public page stays disabled until an administrator enables it in Apps Hub.\n\nFor browser use, mvm2factor can generate a ready-to-install Chrome or Firefox extension from the app itself. The extension opens your public vault in a compact popup, can show only accounts matching the website in the active tab, and fills a selected one-time code with one click. Its initial server address is configured automatically when you generate it and can be changed later in the extension settings.\n\nCodes are copied with one click. Accounts can be sorted newest first or by what you used last, so the one you need is usually at the top. Secrets are validated when you add them, so a mistyped key is caught immediately rather than three failed logins later.",
   "capabilities": [
     "TOTP codes for any service that issues a Base32 secret.",
     "Animated 30-second countdown, refreshing automatically.",
     "One-click copy.",
     "Account name plus an optional username or email for telling similar accounts apart.",
     "Sort by newest first or by last used.",
-    "Secret validation on entry, with a clear error for an invalid key."
+    "Secret validation on entry, with a clear error for an invalid key.",
+    "A standalone public page that an administrator can enable or disable from Apps Hub.",
+    "A separate private vault for every Apps Hub profile.",
+    "An optional website on every account for matching the current browser tab.",
+    "A generated Chrome or Firefox extension with current-site filtering and one-click autofill."
   ]
 }

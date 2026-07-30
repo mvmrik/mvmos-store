@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "enabled": true,
+  "version": "1.0.5",
+  "icon": "public/extension-icon.png",
+  "targets": [
+    "chrome",
+    "firefox"
+  ],
+  "surface": {
+    "type": "popup",
+    "width": 640,
+    "height": 660
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "clipboardWrite"
+  ],
+  "capabilities": [
+    "current-tab-context",
+    "autofill"
+  ],
+  "settings": [
+    {
+      "key": "filter_mode",
+      "type": "select",
+      "label": {
+        "en": "Accounts shown in the extension",
+        "bg": "Акаунти, показвани в разширението"
+      },
+      "default": "matching",
+      "options": [
+        {
+          "value": "matching",
+          "label": {
+            "en": "Only matching the current website",
+            "bg": "Само съвпадащите с текущия сайт"
+          }
+        },
+        {
+          "value": "all",
+          "label": {
+            "en": "Show all accounts",
+            "bg": "Показвай всички акаунти"
+          }
+        }
+      ]
+    }
+  ],
+  "distribution": {
+    "chrome_store_url": null,
+    "firefox_store_url": null
+  }
+}
