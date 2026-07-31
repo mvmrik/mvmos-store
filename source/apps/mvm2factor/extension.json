@@ -18,10 +18,7 @@
     "storage",
     "clipboardWrite"
   ],
-  "capabilities": [
-    "current-tab-context",
-    "autofill"
-  ],
+  "popup_scripts": "extension/popup.js",
   "settings": [
     {
       "key": "filter_mode",

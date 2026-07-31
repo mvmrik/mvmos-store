@@ -1,0 +1,13 @@
+{
+  "id": "mvmpasswordmanager",
+  "name": "mvmPasswordManager",
+  "icon": "🛡️",
+  "category": "Security & Privacy",
+  "tags": ["security", "passwords", "autofill"],
+  "version": "1.0.0",
+  "description": "An end-to-end encrypted password vault for your Apps Hub profile, with a public page and optional browser autofill.",
+  "entry": "main.js",
+  "min_core_version": "0.31.0-beta",
+  "public_url": "/pub/mvmpasswordmanager/",
+  "public_directory": true
+}

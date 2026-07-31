@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "enabled": true,
+  "version": "1.0.0",
+  "icon": "public/extension-icon.png",
+  "targets": [
+    "chrome",
+    "firefox"
+  ],
+  "surface": {
+    "type": "popup",
+    "width": 680,
+    "height": 700
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "popup_scripts": "extension/popup.js",
+  "background": "extension/background.js",
+  "content_scripts": [
+    {
+      "js": "extension/fields.js",
+      "matches": [
+        "<all_urls>"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "js": "extension/passkey-page.js",
+      "matches": [
+        "<all_urls>"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    },
+    {
+      "js": "extension/passkey-bridge.js",
+      "matches": [
+        "<all_urls>"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ],
+  "commands": {
+    "open-password-manager": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+L"
+      },
+      "description": "Open the password vault for the current page"
+    }
+  },
+  "min_browser_version": {
+    "firefox": "128.0"
+  },
+  "settings": [
+    {
+      "key": "autofill_mode",
+      "type": "select",
+      "label": {
+        "en": "Autofill controls",
+        "bg": "\u041a\u043e\u043d\u0442\u0440\u043e\u043b\u0438 \u0437\u0430 \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u043d\u043e \u043f\u043e\u043f\u044a\u043b\u0432\u0430\u043d\u0435"
+      },
+      "default": "off",
+      "options": [
+        {
+          "value": "off",
+          "label": {
+            "en": "Disabled \u2014 use the toolbar icon",
+            "bg": "\u0417\u0430\u0431\u0440\u0430\u043d\u0435\u043d\u043e \u2014 \u0438\u0437\u043f\u043e\u043b\u0437\u0432\u0430\u0439 \u0438\u043a\u043e\u043d\u043a\u0430\u0442\u0430 \u0432 \u0431\u0440\u0430\u0443\u0437\u044a\u0440\u0430"
+          }
+        },
+        {
+          "value": "icons",
+          "label": {
+            "en": "Show a key icon in login fields",
+            "bg": "\u041f\u043e\u043a\u0430\u0437\u0432\u0430\u0439 \u043a\u043b\u044e\u0447 \u0432 login \u043f\u043e\u043b\u0435\u0442\u0430\u0442\u0430"
+          }
+        },
+        {
+          "value": "shortcut",
+          "label": {
+            "en": "Keyboard shortcut",
+            "bg": "\u041a\u043b\u0430\u0432\u0438\u0448\u043d\u0430 \u043a\u043e\u043c\u0431\u0438\u043d\u0430\u0446\u0438\u044f"
+          }
+        }
+      ]
+    },
+    {
+      "key": "matching_mode",
+      "type": "select",
+      "label": {
+        "en": "Which logins to show for the current page",
+        "bg": "\u041a\u043e\u0438 \u0432\u0445\u043e\u0434\u043e\u0432\u0435 \u0434\u0430 \u0441\u0435 \u043f\u043e\u043a\u0430\u0437\u0432\u0430\u0442 \u0437\u0430 \u0442\u0435\u043a\u0443\u0449\u0430\u0442\u0430 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430"
+      },
+      "default": "domain",
+      "options": [
+        {
+          "value": "domain",
+          "label": {
+            "en": "Same domain",
+            "bg": "\u0421\u044a\u0449\u0438\u044f \u0434\u043e\u043c\u0435\u0439\u043d"
+          }
+        },
+        {
+          "value": "exact",
+          "label": {
+            "en": "Exact address and path",
+            "bg": "\u0422\u043e\u0447\u0435\u043d \u0430\u0434\u0440\u0435\u0441 \u0438 \u043f\u044a\u0442"
+          }
+        },
+        {
+          "value": "regex",
+          "label": {
+            "en": "Regular expression",
+            "bg": "\u0420\u0435\u0433\u0443\u043b\u044f\u0440\u0435\u043d \u0438\u0437\u0440\u0430\u0437"
+          }
+        }
+      ]
+    }
+  ],
+  "distribution": {
+    "chrome_store_url": null,
+    "firefox_store_url": null
+  }
+}

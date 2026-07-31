@@ -8,10 +8,10 @@
     "authentication",
     "2fa"
   ],
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "TOTP two-factor authentication manager. Add accounts with a secret key and get animated 6-digit codes that refresh every 30 seconds.",
   "entry": "main.js",
-  "min_core_version": "0.30.0-beta",
+  "min_core_version": "0.31.0-beta",
   "public_url": "/pub/mvm2factor/",
   "public_directory": true
 }
