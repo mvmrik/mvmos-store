@@ -1,4 +1,4 @@
-// mvmPasswordManager's half of the extension popup. The shell (popup.js in
+// mvmPasswords's half of the extension popup. The shell (popup.js in
 // core) has already sized the window, resolved the mvmOS server and loaded the
 // vault page; everything below is what this app wants done with the browser.
 //

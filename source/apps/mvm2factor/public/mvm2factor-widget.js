@@ -40,7 +40,11 @@
         border:1px solid var(--pub-border,#45475a);border-radius:.4rem;padding:.35rem .5rem;font-size:.8rem;outline:none}
       .m2f-add{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);border:0;border-radius:50%;
         width:1.8rem;height:1.8rem;cursor:pointer;font-size:1.15rem;font-weight:800;display:flex;align-items:center;justify-content:center}
-      .m2f-list{flex:1;width:100%;max-width:100%;min-width:0;overflow-x:hidden;overflow-y:auto;padding:0 .875rem .875rem}
+      /* min-height:0 is not optional here: a flex item refuses to shrink below
+         its content by default, so without it the list grows past the widget
+         instead of scrolling inside it, and the last cards are cut off by the
+         window rather than reachable. */
+      .m2f-list{flex:1;min-height:0;width:100%;max-width:100%;min-width:0;overflow-x:hidden;overflow-y:auto;padding:0 .875rem .875rem}
       .m2f-card{background:var(--pub-surface2,#313244);border-radius:.65rem;padding:.8rem .9rem .7rem;
         margin-bottom:.5rem;position:relative;border:1px solid transparent}
       .m2f-card:hover{border-color:var(--pub-border,#45475a)}
@@ -66,9 +70,17 @@
         padding:.3rem .7rem;font-size:.78rem;cursor:pointer;margin-top:.45rem;margin-left:.3rem;font-weight:700}
       .m2f-timer{display:flex;flex-direction:column;align-items:center;gap:.2rem}
       .m2f-timer span{font-size:.7rem;color:var(--pub-dim,#6c7086);font-variant-numeric:tabular-nums;font-weight:600}
+      /* overflow:auto on the overlay and the max-height/overflow pair on the
+         dialog are what keep a tall dialog reachable. Without them the dialog
+         is free to grow past the window, and because a centred box that has not
+         overflowed its parent produces no scrollbar anywhere, its lower half —
+         including the action buttons — simply ends up off-screen with no way to
+         reach it. That is unnoticeable in a desktop window and fatal in a
+         browser popup, which is only ~560px tall. */
       .m2f-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:100;display:flex;
-        align-items:center;justify-content:center;padding:1rem}
+        align-items:center;justify-content:center;padding:1rem;overflow:auto}
       .m2f-dialog{background:var(--pub-surface2,#313244);border-radius:.75rem;padding:1.3rem;width:100%;max-width:22rem;
+        max-height:100%;min-height:0;overflow:auto;flex:0 1 auto;
         box-shadow:0 .75rem 2.5rem rgba(0,0,0,.45)}
       .m2f-dialog h3{font-size:1rem;margin:0 0 1rem}
       .m2f-input{box-sizing:border-box;width:100%;background:var(--pub-bg,#1e1e2e);

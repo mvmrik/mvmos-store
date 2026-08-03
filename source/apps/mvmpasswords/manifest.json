@@ -1,0 +1,25 @@
+{
+  "id": "mvmpasswords",
+  "name": "mvmPasswords",
+  "icon": "🛡️",
+  "category": "Security & Privacy",
+  "tags": [
+    "security",
+    "passwords",
+    "autofill"
+  ],
+  "version": "1.1.0",
+  "description": "An end-to-end encrypted password vault for your Apps Hub profile, with a public page and optional browser autofill.",
+  "entry": "main.js",
+  "min_core_version": "0.31.0-beta",
+  "public_url": "/pub/mvmpasswords/",
+  "public_directory": true,
+  "settings": [
+    {
+      "key": "totp_integration",
+      "label": "Two-factor codes from mvm2factor",
+      "type": "checkbox",
+      "default": false
+    }
+  ]
+}

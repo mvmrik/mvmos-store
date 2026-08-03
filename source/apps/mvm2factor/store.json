@@ -11,6 +11,17 @@
     "A standalone public page that an administrator can enable or disable from Apps Hub.",
     "A separate private vault for every Apps Hub profile.",
     "An optional website on every account for matching the current browser tab.",
-    "A generated Chrome or Firefox extension with current-site filtering and one-click autofill."
+    "A generated Chrome or Firefox extension with current-site filtering and one-click autofill.",
+    "An app-to-app API that lets other installed apps list your accounts and request a current code, without ever receiving the shared secret."
+  ],
+  "integrations": [
+    {
+      "app": "apphub",
+      "name": "Apps Hub",
+      "kind": "app_api",
+      "direction": "provides",
+      "summary": "Lets other apps list the two-factor accounts you own and ask for the current code of one of them. Codes are always computed here and the shared secret is never handed out, so a caller can use a code but can never generate one on its own.",
+      "requires": "The mvm2factor App API enabled in Apps Hub → Settings → App APIs, which is off by default."
+    }
   ]
 }

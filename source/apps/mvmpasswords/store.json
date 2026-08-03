@@ -1,0 +1,29 @@
+{
+  "tagline": "Your passwords, encrypted before they leave your browser.",
+  "description": "mvmPasswords is a password vault for your mvmOS account. Every Apps Hub profile receives a separate vault, so multiple people using the same machine never see one another’s logins. The app works in the desktop, from its optional public page, and in a compact Chrome or Firefox extension.\n\nPasswords, usernames, notes and website addresses are encrypted in the browser with a key derived from your master password. The server stores only the encrypted vault records and the non-secret encryption salt; it never receives the master password or the readable passwords. Unlocking is local to the current page or extension session.\n\nThe generated browser extension can match the active website, open with a keyboard shortcut, and show a small key button beside supported sign-in fields. Select a vault item in the popup and it fills the username and password only into the current tab. The extension also acts as a passkey provider: when a website offers to create or use a passkey, it is stored inside the matching vault entry and stays encrypted like everything else.\n\nMoving in from another manager is a single step. The import screen reads an export from Bitwarden, KeePass, 1Password, LastPass, Dashlane, NordPass, Chrome, Firefox or Safari, in either JSON or CSV. The file is read and encrypted inside your browser, so its readable passwords never reach the server, and entries that already exist in the vault are detected and left unticked.\n\nWhen the administrator enables it and the installation is licensed, the vault also talks to mvm2factor: link a two-factor account to a login and the card gains a button that copies the current code, while filling that login puts the code on the clipboard at the same time. The shared secret never leaves mvm2factor — mvmPasswords only ever asks it for finished digits, and only when you press the button.",
+  "capabilities": [
+    "A separate encrypted vault for every Apps Hub profile.",
+    "AES-GCM encryption performed in the browser before a vault record is sent to the server.",
+    "A master password that is never transmitted or stored by mvmOS.",
+    "Logins with website, username, password and private notes.",
+    "Passkey storage: create and use website passkeys straight from the vault, in the browser extension.",
+    "Import from Bitwarden, KeePass, 1Password, LastPass, Chrome, Firefox and other managers, in JSON or CSV.",
+    "Duplicate detection on import, so re-running it does not fill the vault with copies.",
+    "Search and website matching after the vault is unlocked.",
+    "A public page enabled by an administrator through Apps Hub.",
+    "Generated Chrome and Firefox extensions configured automatically for the current mvmOS server.",
+    "Username and password autofill into the active browser tab after you choose an entry.",
+    "Optional login-field key button and Ctrl+Shift+L shortcut, configurable in extension settings.",
+    "Optional two-factor codes from mvm2factor on a linked login, copied on demand and on autofill — enabled by an administrator, with a subscription."
+  ],
+  "integrations": [
+    {
+      "app": "mvm2factor",
+      "name": "mvm2factor",
+      "kind": "app_api",
+      "direction": "consumes",
+      "summary": "A login can be linked to a mvm2factor account, and mvmPasswords then copies its current six-digit code on request — including when it fills the login, so the second step is already on the clipboard. The code is computed by mvm2factor and fetched only when the button is pressed.",
+      "requires": "A subscription, mvm2factor installed, the integration switched on by an administrator in Apps → mvmPasswords → Settings, and the mvm2factor App API enabled in Apps Hub → Settings → App APIs, which is off by default."
+    }
+  ]
+}

@@ -9,8 +9,7 @@
   ],
   "surface": {
     "type": "popup",
-    "width": 640,
-    "height": 660
+    "width": 640
   },
   "permissions": [
     "activeTab",
