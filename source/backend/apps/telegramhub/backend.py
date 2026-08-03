@@ -61,8 +61,18 @@ _adapters: dict = {}
 
 
 def _db():
+    """Telegram Hub's own data.db. May be called from inside a confined app's
+    request (e.g. notify() invoked from shoppinglist's add_member) — this is
+    hub code reading its own store on the caller's behalf, the same case as
+    backend/db.py::get_conn(), so it must run outside the caller's confinement
+    rather than being judged by it."""
     os.makedirs(os.path.dirname(_DB_PATH), exist_ok=True)
-    conn = sqlite3.connect(_DB_PATH)
+    isolation = sys.modules.get("backend.app_isolation")
+    if isolation is None:
+        conn = sqlite3.connect(_DB_PATH)
+    else:
+        with isolation.release():
+            conn = sqlite3.connect(_DB_PATH)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.executescript("""

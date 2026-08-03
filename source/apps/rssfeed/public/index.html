@@ -415,7 +415,17 @@ function showFeedsModal() {
   buildModal();
 }
 
-(window.mvmOS?.i18nReady || Promise.resolve()).then(boot);
+function _loadScript(src) {
+  return new Promise((ok, bad) => {
+    const s = document.createElement('script');
+    s.src = src + '?_=' + Date.now();
+    s.onload = ok; s.onerror = bad;
+    document.head.appendChild(s);
+  });
+}
+(window.mvmOS?.i18nReady || Promise.resolve())
+  .then(() => _loadScript('/apps/rssfeed/i18n.js'))
+  .then(boot);
 </script>
 </body>
 </html>

@@ -5,9 +5,9 @@
       "name": "Calendar",
       "icon": "📅",
       "category": "Productivity",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "description": "Calendar with events and reminders, a public web page for Apps Hub accounts, and a Telegram mini-app.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/calendar-1.2.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/calendar-1.2.1.zip",
       "tags": [
         "calendar",
         "planning",

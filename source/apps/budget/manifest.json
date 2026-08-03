@@ -8,7 +8,7 @@
     "money",
     "planning"
   ],
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Category-based budget tracking with shared categories, goals, mass-add, and per-app source visibility for entries added by other apps, plus a public web page and Telegram mini-app.",
   "entry": "main.js",
   "public_url": "/pub/budget/",

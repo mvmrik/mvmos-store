@@ -11,6 +11,7 @@
 </head>
 <body>
 <div id="budget-root"></div>
+<script src="/i18n/i18n.js"></script>
 <script>
 (function () {
   var token = localStorage.getItem('apphub_token');
@@ -18,16 +19,18 @@
     location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
     return;
   }
-  var s = document.createElement('script');
-  s.src = '/apps/budget/budget-widget.js?_=' + Date.now();
-  s.onload = function () {
-    BudgetWidget.mount(document.getElementById('budget-root'), {
-      onNeedLogin: function () {
-        location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
-      }
-    });
-  };
-  document.head.appendChild(s);
+  (window.mvmOS && window.mvmOS.i18nReady || Promise.resolve()).then(function () {
+    var s = document.createElement('script');
+    s.src = '/apps/budget/budget-widget.js?_=' + Date.now();
+    s.onload = function () {
+      BudgetWidget.mount(document.getElementById('budget-root'), {
+        onNeedLogin: function () {
+          location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
+        }
+      });
+    };
+    document.head.appendChild(s);
+  });
 })();
 </script>
 </body>

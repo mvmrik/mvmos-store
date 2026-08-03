@@ -1,6 +1,6 @@
 {
   "tagline": "One profile, every game, all the scores.",
-  "description": "Game Hub is the account and statistics layer the mvmOS games share. Players get a profile with a display name, a colour and an avatar they build in the app, and from then on every game they play is recorded against it.\n\nIt keeps sessions, scores, durations and winners, and turns them into leaderboards — per game or across all of them — plus head-to-head records between two players. Favourites let you keep the people you play with to hand, which is also where multiplayer invitations come from.\n\nGame Hub has its own public page, so players can check the standings without a desktop account.",
+  "description": "Game Hub is the account and statistics layer the mvmOS games share. Players get a profile with a display name, a colour and an avatar they build in the app, and from then on every game they play is recorded against it.\n\nIt keeps sessions, scores, durations and winners, and turns them into leaderboards — per game or across all of them — plus head-to-head records between two players. Favourites let you keep the people you play with to hand, which is also where multiplayer invitations come from.\n\nGame Hub has its own public page, so players can check the standings without a desktop account. The page is translated into English and Bulgarian and follows the language chosen on the Apps Hub account, so a player sees it in their own language from the first screen.",
   "capabilities": [
     "Player profiles with username, display name, colour and password.",
     "Avatar editor built into the app.",
@@ -9,7 +9,8 @@
     "Head-to-head records between two players.",
     "Favourite players, used for multiplayer invitations.",
     "Player search by name or username.",
-    "Public page with a direct link, no domain mapping needed."
+    "Public page with a direct link, no domain mapping needed.",
+    "Fully translated in English and Bulgarian, following the language set on the Apps Hub account."
   ],
   "integrations": [
     {

@@ -8,7 +8,8 @@
     "Reader view with a link to the original article.",
     "Custom AI buttons — your own name and prompt, shown in the list, the reader or both.",
     "Per-feed fetch status and last-fetched time, with errors surfaced.",
-    "Optional public reading list with its own URL."
+    "Optional public reading list with its own URL.",
+    "Public reading list translated in English and Bulgarian, following the language set on the Apps Hub account."
   ],
   "integrations": [
     {

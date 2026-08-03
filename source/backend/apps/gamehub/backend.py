@@ -142,6 +142,14 @@ def _resolve_token(x_gh_token: Optional[str]) -> Optional[dict]:
     # Apps Hub owns the current profile. Keep this local row only as the
     # relational/game-history cache, and refresh it on every authenticated use.
     with _db() as conn:
+        # username is UNIQUE but isn't the conflict target below (id is), so a
+        # rename in Apps Hub — or a stale cache row left behind by an id that
+        # no longer resolves — can collide on username against a *different*
+        # local id. Clear that stale row first so the upsert never 500s here
+        # and strands the whole page in a login/redirect loop.
+        conn.execute(
+            "DELETE FROM players WHERE username=? AND id<>?",
+            (u["username"], u["id"]))
         conn.execute(
             "INSERT INTO players(id,username,display_name,avatar_color,avatar_data,avatar_svg,created_at) VALUES(?,?,?,?,?,?,?) "
             "ON CONFLICT(id) DO UPDATE SET username=excluded.username,display_name=excluded.display_name,avatar_color=excluded.avatar_color,avatar_data=excluded.avatar_data,avatar_svg=excluded.avatar_svg",

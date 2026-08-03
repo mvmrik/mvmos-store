@@ -44,11 +44,19 @@
 </head>
 <body>
 <div id="app"></div>
+<script src="/i18n/i18n.js"></script>
 <script>
-(function(){
+window._ghI18nReady = new Promise(function(resolve){
   var s=document.createElement('script');
-  s.src='/apps/gamehub/avatar.js?_='+Date.now();
+  s.src='/apps/gamehub/i18n.js?_='+Date.now();
+  s.onload = resolve;
+  s.onerror = resolve;
   document.head.appendChild(s);
+});
+(function(){
+  var s2=document.createElement('script');
+  s2.src='/apps/gamehub/avatar.js?_='+Date.now();
+  document.head.appendChild(s2);
 })();
 </script>
 <script>
@@ -67,7 +75,7 @@ let _pollTimer = null;
 const app = document.getElementById('app');
 
 async function boot() {
-  app.innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--fg2);font-size:.9rem">Loading…</div>`;
+  app.innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--fg2);font-size:.9rem">${esc(t('gh_loading'))}</div>`;
   try {
     const r = await fetch(BASE + '/config');
     _cfg = r.ok ? await r.json() : {allow_registrations:true};
@@ -95,7 +103,7 @@ async function boot() {
 // Game Hub has no login of its own — identity comes from Apps Hub.
 // Send the user to the central Apps Hub login page and return them here after.
 function showAuth() {
-  app.innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--fg2);font-size:.9rem">Redirecting to login…</div>`;
+  app.innerHTML = `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--fg2);font-size:.9rem">${esc(t('gh_redirecting'))}</div>`;
   const here = location.pathname + location.search;
   location.replace('/pub/apphub/?return=' + encodeURIComponent(here));
 }
@@ -123,8 +131,8 @@ function showDashboard() {
   let dtab = 'profile';
   app.innerHTML = `
     <div class="tab-bar">
-      <button class="tab active" data-t="profile">Profile${_invites.length?` <span style="background:var(--red);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 6px;vertical-align:middle">${_invites.length}</span>`:''}</button>
-      <button class="tab" data-t="favourites">Favourites</button>
+      <button class="tab active" data-t="profile">${esc(t('gh_profile'))}${_invites.length?` <span style="background:var(--red);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 6px;vertical-align:middle">${_invites.length}</span>`:''}</button>
+      <button class="tab" data-t="favourites">${esc(t('gh_favourites'))}</button>
     </div>
     <div id="d-body" style="flex:1;overflow-y:auto"></div>`;
 
@@ -137,16 +145,16 @@ function showDashboard() {
     const profileTab = app.querySelector('.tab[data-t="profile"]');
     if (!profileTab) { clearInterval(_pollTimer); _pollTimer = null; return; }
     await loadInvites();
-    profileTab.innerHTML = `Profile${_invites.length ? ` <span style="background:var(--red);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 6px;vertical-align:middle">${_invites.length}</span>` : ''}`;
+    profileTab.innerHTML = `${esc(t('gh_profile'))}${_invites.length ? ` <span style="background:var(--red);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 6px;vertical-align:middle">${_invites.length}</span>` : ''}`;
     const activeTab = app.querySelector('.tab.active');
     if (activeTab?.dataset.t === 'profile' && !app.querySelector('#d-body [data-view="detail"]')) renderProfile(app.querySelector('#d-body'));
   }, 15000);
 
-  app.querySelectorAll('.tab').forEach(t => {
-    t.onclick = () => {
-      dtab = t.dataset.t;
+  app.querySelectorAll('.tab').forEach(btn => {
+    btn.onclick = () => {
+      dtab = btn.dataset.t;
       app.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-      t.classList.add('active');
+      btn.classList.add('active');
       renderDashTab(dtab);
     };
   });
@@ -154,10 +162,10 @@ function showDashboard() {
   renderDashTab('profile');
 }
 
-function renderDashTab(t) {
+function renderDashTab(tab) {
   const c = app.querySelector('#d-body');
-  if (t === 'profile')         renderProfile(c);
-  else if (t === 'favourites') renderFavourites(c);
+  if (tab === 'profile')         renderProfile(c);
+  else if (tab === 'favourites') renderFavourites(c);
 }
 
 // ── Profile tab ─────────────────────────────────────────────────
@@ -173,7 +181,7 @@ function renderProfile(c) {
 
   c.innerHTML = `
     <div class="section" style="display:flex;flex-direction:column;gap:16px;max-width:600px">
-      <a href="/pub/apphub/?token=${_token}&tab=profile" style="display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;cursor:pointer" title="Edit profile in Apps Hub">
+      <a href="/pub/apphub/?token=${_token}&tab=profile" style="display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;cursor:pointer" title="${esc(t('gh_edit_profile_title'))}">
         ${GHAvatar.renderAvatar(_me, 54)}
         <div>
           <div style="font-weight:700;font-size:1.1rem">${esc(_me.display_name)}</div>
@@ -181,9 +189,9 @@ function renderProfile(c) {
         </div>
       </a>
       <div class="stat-box">
-        <div class="stat-cell"><div class="stat-val">${totalPlayed}</div><div class="stat-lbl">Played</div></div>
-        <div class="stat-cell"><div class="stat-val">${totalWins}</div><div class="stat-lbl">Wins</div></div>
-        <div class="stat-cell"><div class="stat-val">${winRate}%</div><div class="stat-lbl">Win rate</div></div>
+        <div class="stat-cell"><div class="stat-val">${totalPlayed}</div><div class="stat-lbl">${esc(t('gh_played'))}</div></div>
+        <div class="stat-cell"><div class="stat-val">${totalWins}</div><div class="stat-lbl">${esc(t('gh_wins'))}</div></div>
+        <div class="stat-cell"><div class="stat-val">${winRate}%</div><div class="stat-lbl">${esc(t('gh_win_rate'))}</div></div>
       </div>
       <div id="prof-games"></div>
     </div>`;
@@ -194,15 +202,15 @@ function renderProfile(c) {
 
 function showSessionDetail(s, myId) {
   let meta = {}; try { meta = JSON.parse(s.metadata||'{}'); } catch(_) {}
-  const modeLabel = s.mode==='singleplayer'?'👤 Single player':'👥 Multiplayer';
+  const modeLabel = s.mode==='singleplayer'?t('gh_single_player_full'):t('gh_multiplayer_full');
   const sorted = s.players.slice().sort((a,b)=>(b.score||0)-(a.score||0));
   const fmtDurLocal = sec => !sec?'—':sec<60?sec+'s':Math.floor(sec/60)+'m'+(sec%60?sec%60+'s':'');
   const metaRows = [];
-  if(meta.rounds!=null)         metaRows.push(['Rounds', meta.rounds]);
-  if(meta.time_per_round!=null) metaRows.push(['Time / round', meta.time_per_round===0?'No limit':fmtDurLocal(meta.time_per_round)]);
-  if(s.duration_seconds)        metaRows.push(['Total time', fmtDurLocal(s.duration_seconds)]);
-  metaRows.push(['Mode', modeLabel]);
-  metaRows.push(['Date', fmtDate(s.played_at)]);
+  if(meta.rounds!=null)         metaRows.push([t('gh_rounds'), meta.rounds]);
+  if(meta.time_per_round!=null) metaRows.push([t('gh_time_per_round'), meta.time_per_round===0?t('gh_no_limit'):fmtDurLocal(meta.time_per_round)]);
+  if(s.duration_seconds)        metaRows.push([t('gh_total_time'), fmtDurLocal(s.duration_seconds)]);
+  metaRows.push([t('gh_mode'), modeLabel]);
+  metaRows.push([t('gh_date'), fmtDate(s.played_at)]);
 
   const ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px';
@@ -221,7 +229,7 @@ function showSessionDetail(s, myId) {
         ${metaRows.map(([k,v])=>`<tr><td style="color:var(--fg2);padding:3px 0;width:46%">${esc(String(k))}</td><td style="font-weight:600">${esc(String(v))}</td></tr>`).join('')}
       </table>
       <div>
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2);margin-bottom:8px">Players</div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2);margin-bottom:8px">${esc(t('gh_players'))}</div>
         <div id="det-players"></div>
       </div>
     </div>`;
@@ -246,7 +254,7 @@ function showSessionDetail(s, myId) {
     row.innerHTML = `
       <span style="font-size:12px;color:var(--fg2);min-width:18px;text-align:right">${i+1}.</span>
       ${GHAvatar.renderAvatar(p.player_id ? ((_stats?.players||[]).find(pl=>pl.id===p.player_id)||p) : p, 26)}
-      <span style="flex:1;font-weight:600;font-size:13px">${esc(name)}${isMe?' <span style="font-size:10px;color:var(--accent)">(you)</span>':''}${isOther?' <span style="font-size:10px;color:var(--fg2)">›</span>':''}</span>
+      <span style="flex:1;font-weight:600;font-size:13px">${esc(name)}${isMe?` <span style="font-size:10px;color:var(--accent)">(${esc(t('gh_you'))})</span>`:''}${isOther?' <span style="font-size:10px;color:var(--fg2)">›</span>':''}</span>
       ${p.score!=null?`<span style="font-weight:700;font-size:14px">${p.score}</span>`:''}
       ${isWin?`<span style="font-size:13px">🏆</span>`:''}`;
     playersEl.appendChild(row);
@@ -275,14 +283,14 @@ function showOtherPlayerProfile(p) {
         <div style="font-weight:700;font-size:16px">${esc(p.display_name||p.username||'?')}</div>
         ${p.username?`<div style="font-size:12px;color:var(--fg2)">@${esc(p.username)}</div>`:''}
       </div>
-      <button id="op-fav" class="btn btn-secondary" style="padding:5px 10px;font-size:12px">${_isFav(p.id)?'★ Saved':'☆ Favourite'}</button>
+      <button id="op-fav" class="btn btn-secondary" style="padding:5px 10px;font-size:12px">${_isFav(p.id)?esc(t('gh_fav_saved')):esc(t('gh_fav_add'))}</button>
       <button id="op-close" class="btn btn-secondary" style="padding:4px 10px;font-size:15px;line-height:1">✕</button>
     </div>
     ${games.length > 1 ? `
     <div style="padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:8px">
-      <label style="font-size:12px;color:var(--fg2)">Game:</label>
+      <label style="font-size:12px;color:var(--fg2)">${esc(t('gh_game_label'))}</label>
       <select class="inp" id="op-game" style="flex:1;max-width:220px">
-        <option value="">All games</option>
+        <option value="">${esc(t('gh_all_games'))}</option>
         ${games.map(g=>`<option value="${esc(g)}">${esc(_stats?.game_meta?.[g]?.name||g)}</option>`).join('')}
       </select>
     </div>` : ''}
@@ -298,7 +306,7 @@ function showOtherPlayerProfile(p) {
   const favBtn = box.querySelector('#op-fav');
   favBtn.onclick = async () => {
     await _toggleFav(p);
-    favBtn.textContent = _isFav(p.id) ? '★ Saved' : '☆ Favourite';
+    favBtn.textContent = _isFav(p.id) ? t('gh_fav_saved') : t('gh_fav_add');
   };
 
   function renderProfile(gameFilter) {
@@ -312,10 +320,10 @@ function showOtherPlayerProfile(p) {
       : [];
     const totalPlayed = pstats.reduce((a,s)=>a+(s.played||0),0);
     const totalWins   = pstats.reduce((a,s)=>a+(s.wins||0),0);
-    const statsCols   = [[totalPlayed,'Played'],[totalWins,'Wins'],[filteredSessions.length,'Sessions']];
+    const statsCols   = [[totalPlayed,t('gh_played')],[totalWins,t('gh_wins')],[filteredSessions.length,t('gh_sessions_suffix')]];
     if (gameFilter) {
       const best = pstats.reduce((a,s)=>Math.max(a,s.best_score||0),0);
-      statsCols.push([best||'—','Best']);
+      statsCols.push([best||'—',t('gh_best')]);
     }
 
     box.querySelector('#op-stats').innerHTML = statsCols.map(([v,l],i) => `
@@ -351,12 +359,12 @@ function showOtherPlayerProfile(p) {
               <div style="font-size:22px;font-weight:800;color:var(--accent)">${myWins}</div>
               <div style="font-size:11px;color:var(--fg2)">${esc(_me.display_name)}</div>
             </div>
-            <div style="font-size:12px;color:var(--fg2);font-weight:600">vs</div>
+            <div style="font-size:12px;color:var(--fg2);font-weight:600">${esc(t('gh_vs'))}</div>
             <div style="text-align:center">
               <div style="font-size:22px;font-weight:800">${theirWins}</div>
               <div style="font-size:11px;color:var(--fg2)">${esc(p.display_name||p.username)}</div>
             </div>
-            <div style="font-size:11px;color:var(--fg2);margin-left:4px">${sharedSessions.length} game${sharedSessions.length!==1?'s':''}</div>
+            <div style="font-size:11px;color:var(--fg2);margin-left:4px">${sharedSessions.length} ${esc(t('gh_games_suffix',{s:sharedSessions.length!==1?'s':''}))}</div>
           </div>`;
         vsEl.style.display = '';
       } else {
@@ -367,14 +375,14 @@ function showOtherPlayerProfile(p) {
     const sc = box.querySelector('#op-sessions');
     sc.innerHTML = '';
     if (!filteredSessions.length) {
-      sc.innerHTML = `<div style="color:var(--fg2);text-align:center;padding:20px">No sessions yet.</div>`;
+      sc.innerHTML = `<div style="color:var(--fg2);text-align:center;padding:20px">${esc(t('gh_no_sessions'))}</div>`;
       return;
     }
     filteredSessions.forEach(s => {
       let meta = {}; try { meta = JSON.parse(s.metadata||'{}'); } catch(_) {}
       const metaParts = [];
-      if(meta.rounds!=null)         metaParts.push(`${meta.rounds} rounds`);
-      if(meta.time_per_round!=null) metaParts.push(meta.time_per_round===0?'no limit':fmtDur(meta.time_per_round)+'/round');
+      if(meta.rounds!=null)         metaParts.push(`${meta.rounds} ${t('gh_rounds_suffix')}`);
+      if(meta.time_per_round!=null) metaParts.push(meta.time_per_round===0?t('gh_no_limit_lower'):fmtDur(meta.time_per_round)+t('gh_per_round_suffix'));
       const modeLabel = s.mode==='singleplayer'?'👤':'👥';
       const pr = s.players.find(sp=>sp.player_id===p.id);
       const { icon } = _gameMeta(s.game_id);
@@ -424,10 +432,10 @@ async function renderGames(c) {
       sec.innerHTML = `
         <div style="font-size:24px">${icon}</div>
         <div style="flex:1">
-          <div style="font-weight:700;font-size:14px">${esc(name)} — active game</div>
-          <div style="font-size:12px;color:var(--fg2);margin-top:2px">You were in a game. Rejoin?</div>
+          <div style="font-weight:700;font-size:14px">${esc(name)} ${esc(t('gh_active_game_suffix'))}</div>
+          <div style="font-size:12px;color:var(--fg2);margin-top:2px">${esc(t('gh_rejoin_prompt'))}</div>
         </div>
-        <a href="${esc(MP_API + '/play/' + active.roomId)}" class="btn btn-primary" style="font-size:.85rem;padding:7px 16px;text-decoration:none;flex-shrink:0">▶ Rejoin</a>
+        <a href="${esc(MP_API + '/play/' + active.roomId)}" class="btn btn-primary" style="font-size:.85rem;padding:7px 16px;text-decoration:none;flex-shrink:0">${esc(t('gh_rejoin'))}</a>
         <button class="btn btn-secondary" id="gh-resume-close" style="padding:7px 10px;font-size:.85rem;flex-shrink:0">✕</button>`;
       sc.appendChild(sec);
       sec.querySelector('#gh-resume-close').onclick = () => {
@@ -441,7 +449,7 @@ async function renderGames(c) {
   if (_invites.length) {
     const invSec = document.createElement('div');
     invSec.style.cssText = 'display:flex;flex-direction:column;gap:8px';
-    invSec.innerHTML = `<div style="font-weight:700;font-size:13px;color:var(--red)">🔔 Invitations</div>`;
+    invSec.innerHTML = `<div style="font-weight:700;font-size:13px;color:var(--red)">${esc(t('gh_invitations'))}</div>`;
     _invites.forEach(inv => {
       const { name: gname, icon: gicon } = _gameMeta(inv.game_id);
       const banner = document.createElement('div');
@@ -449,10 +457,10 @@ async function renderGames(c) {
       banner.innerHTML = `
         <div style="font-size:22px;flex-shrink:0">${gicon}</div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:600">${esc(gname)} — Invited by <span style="color:var(--accent)">${esc(inv.from_name)}</span></div>
+          <div style="font-size:13px;font-weight:600">${esc(gname)} — ${esc(t('gh_invited_by'))} <span style="color:var(--accent)">${esc(inv.from_name)}</span></div>
           <div style="font-size:11px;color:var(--fg2);margin-top:2px">${fmtDate(inv.created_at)}</div>
         </div>
-        <a href="${esc(inv.room_url)}" class="btn btn-primary" style="padding:7px 16px;font-size:.85rem;text-decoration:none;flex-shrink:0">Join ▶</a>
+        <a href="${esc(inv.room_url)}" class="btn btn-primary" style="padding:7px 16px;font-size:.85rem;text-decoration:none;flex-shrink:0">${esc(t('gh_join'))}</a>
         <button class="btn btn-secondary" style="padding:7px 10px;font-size:.85rem;flex-shrink:0" data-inv-id="${inv.id}">✕</button>`;
       banner.querySelector('[data-inv-id]').onclick = async () => {
         await fetch(`${BASE}/invites/${inv.id}`, {method:'DELETE',headers:{'X-GH-Token':_token}}).catch(()=>{});
@@ -478,7 +486,7 @@ async function renderGames(c) {
   if (!allGameIds.length) {
     sc.appendChild(Object.assign(document.createElement('div'), {
       style: 'color:var(--fg2);font-size:13px;padding:20px 0;text-align:center',
-      textContent: 'No games available yet.',
+      textContent: t('gh_no_games_yet'),
     }));
     return;
   }
@@ -500,7 +508,7 @@ async function renderGames(c) {
     card.onmouseleave = () => card.style.background = 'var(--surface1)';
 
     const badge = hasInvite ? `<span style="position:absolute;top:10px;right:10px;background:var(--red);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:2px 7px">!</span>` : '';
-    const subtext = myLb ? `${myLb.played} played · ${myLb.wins} wins` : mySess.length ? `${mySess.length} sessions` : mpGame ? 'Multiplayer' : '';
+    const subtext = myLb ? `${myLb.played} ${t('gh_played').toLowerCase()} · ${myLb.wins} ${t('gh_wins').toLowerCase()}` : mySess.length ? `${mySess.length} ${t('gh_sessions_suffix').toLowerCase()}` : mpGame ? t('gh_multiplayer_short') : '';
 
     card.innerHTML = `
       ${badge}
@@ -513,7 +521,7 @@ async function renderGames(c) {
 }
 
 async function _createGame(btn, gameId) {
-  btn.disabled = true; btn.textContent = '⏳ Creating…';
+  btn.disabled = true; btn.textContent = t('gh_creating');
   try {
     const r = await fetch(MP_API + '/rooms', {
       method: 'POST',
@@ -524,10 +532,10 @@ async function _createGame(btn, gameId) {
       const d = await r.json();
       location.href = d.play_url;
     } else {
-      btn.disabled = false; btn.textContent = '+ New game';
-      alert('Error creating game.');
+      btn.disabled = false; btn.textContent = t('gh_new_game');
+      alert(t('gh_error_creating'));
     }
-  } catch(_) { btn.disabled = false; btn.textContent = '+ New game'; }
+  } catch(_) { btn.disabled = false; btn.textContent = t('gh_new_game'); }
 }
 
 async function renderGameDetail(c, gameId, mpGame) {
@@ -540,7 +548,7 @@ async function renderGameDetail(c, gameId, mpGame) {
   const back = document.createElement('button');
   back.className = 'btn btn-secondary';
   back.style.cssText = 'width:fit-content;padding:6px 12px;font-size:.85rem';
-  back.textContent = '‹ Games';
+  back.textContent = t('gh_back_games');
   back.onclick = () => renderGames(c);
   sc.appendChild(back);
 
@@ -550,18 +558,20 @@ async function renderGameDetail(c, gameId, mpGame) {
   tabBar.style.cssText = 'margin:0 -16px;padding:0 16px';
   tabBar.innerHTML = `
     <button class="tab active" data-gt="play">${icon} ${esc(name)}</button>
-    <button class="tab" data-gt="history">History</button>
-    <button class="tab" data-gt="leaderboard">Leaderboard</button>`;
+    <button class="tab" data-gt="history">${esc(t('gh_history'))}</button>
+    <button class="tab" data-gt="leaderboard">${esc(t('gh_leaderboard'))}</button>`;
   sc.appendChild(tabBar);
 
   const tabBody = document.createElement('div');
   tabBody.id = 'gd-tab-body';
   sc.appendChild(tabBody);
 
-  async function renderGdTab(t) {
-    tabBar.querySelectorAll('.tab[data-gt]').forEach(x => x.classList.toggle('active', x.dataset.gt === t));
+  // NB: not named `t` — that is the global translation function, and shadowing
+  // it here made every t('gh_…') in this body throw "t is not a function".
+  async function renderGdTab(tab) {
+    tabBar.querySelectorAll('.tab[data-gt]').forEach(x => x.classList.toggle('active', x.dataset.gt === tab));
 
-    if (t === 'play') {
+    if (tab === 'play') {
       // Game info + new game + active rooms + invitations
       tabBody.innerHTML = '';
       const info = document.createElement('div');
@@ -569,7 +579,7 @@ async function renderGameDetail(c, gameId, mpGame) {
       info.innerHTML = `
         <div style="font-size:56px;line-height:1">${icon}</div>
         <div style="font-weight:700;font-size:20px">${esc(name)}</div>
-        ${mpGame ? `<button class="btn btn-primary" id="gd-new" style="padding:9px 24px;font-size:.95rem">+ New game</button>` : ''}`;
+        ${mpGame ? `<button class="btn btn-primary" id="gd-new" style="padding:9px 24px;font-size:.95rem">${esc(t('gh_new_game'))}</button>` : ''}`;
       tabBody.appendChild(info);
       if (mpGame) info.querySelector('#gd-new').addEventListener('click', e => _createGame(e.target, gameId));
 
@@ -579,16 +589,16 @@ async function renderGameDetail(c, gameId, mpGame) {
         if (rooms.length) {
           const roomsSec = document.createElement('div');
           roomsSec.style.cssText = 'display:flex;flex-direction:column;gap:8px;margin-top:8px';
-          roomsSec.innerHTML = `<div style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2)">Open lobbies</div>`;
+          roomsSec.innerHTML = `<div style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2)">${esc(t('gh_open_lobbies'))}</div>`;
           rooms.forEach(room => {
             const row = document.createElement('div');
             row.style.cssText = 'background:var(--surface1);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:12px';
             row.innerHTML = `
               <div style="flex:1;min-width:0">
-                <div style="font-size:.88rem;font-weight:600">${esc(room.host_name || 'Game')}</div>
-                <div style="font-size:.75rem;color:var(--fg2);margin-top:2px">⏳ Lobby · ${room.players} player${room.players!==1?'s':''}</div>
+                <div style="font-size:.88rem;font-weight:600">${esc(room.host_name || t('gh_game_default'))}</div>
+                <div style="font-size:.75rem;color:var(--fg2);margin-top:2px">${esc(t('gh_lobby_players',{n:room.players,s:room.players!==1?'s':''}))}</div>
               </div>
-              <a href="${esc(room.play_url)}" class="btn btn-primary" style="font-size:.82rem;padding:6px 14px;text-decoration:none;flex-shrink:0">Join ▶</a>`;
+              <a href="${esc(room.play_url)}" class="btn btn-primary" style="font-size:.82rem;padding:6px 14px;text-decoration:none;flex-shrink:0">${esc(t('gh_join'))}</a>`;
             roomsSec.appendChild(row);
           });
           tabBody.appendChild(roomsSec);
@@ -599,16 +609,16 @@ async function renderGameDetail(c, gameId, mpGame) {
       if (gameInvites.length) {
         const invSection = document.createElement('div');
         invSection.style.cssText = 'display:flex;flex-direction:column;gap:8px;margin-top:8px';
-        invSection.innerHTML = `<div style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--red)">🔔 Invitations</div>`;
+        invSection.innerHTML = `<div style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--red)">${esc(t('gh_invitations'))}</div>`;
         gameInvites.forEach(inv => {
           const banner = document.createElement('div');
           banner.style.cssText = 'background:rgba(243,139,168,.1);border:1px solid rgba(243,139,168,.3);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px';
           banner.innerHTML = `
             <div style="flex:1;min-width:0">
-              <div style="font-size:13px;font-weight:600">Invited by <span style="color:var(--accent)">${esc(inv.from_name)}</span></div>
+              <div style="font-size:13px;font-weight:600">${esc(t('gh_invited_by'))} <span style="color:var(--accent)">${esc(inv.from_name)}</span></div>
               <div style="font-size:11px;color:var(--fg2);margin-top:2px">${fmtDate(inv.created_at)}</div>
             </div>
-            <a href="${esc(inv.room_url)}" class="btn btn-primary" style="padding:7px 16px;font-size:.85rem;text-decoration:none;flex-shrink:0">Join ▶</a>
+            <a href="${esc(inv.room_url)}" class="btn btn-primary" style="padding:7px 16px;font-size:.85rem;text-decoration:none;flex-shrink:0">${esc(t('gh_join'))}</a>
             <button class="btn btn-secondary" style="padding:7px 10px;font-size:.85rem;flex-shrink:0" data-inv-id="${inv.id}">✕</button>`;
           banner.querySelector('[data-inv-id]').onclick = async () => {
             await fetch(`${BASE}/invites/${inv.id}`, {method:'DELETE',headers:{'X-GH-Token':_token}}).catch(()=>{});
@@ -621,17 +631,17 @@ async function renderGameDetail(c, gameId, mpGame) {
         tabBody.appendChild(invSection);
       }
 
-    } else if (t === 'history') {
+    } else if (tab === 'history') {
       tabBody.innerHTML = '';
       const mySess = (_stats?.recent||[]).filter(s=>s.game_id===gameId && s.players.some(p=>p.player_id===myId));
       if (!mySess.length) {
-        tabBody.innerHTML = `<div style="color:var(--fg2);font-size:13px;padding:20px 0;text-align:center">No sessions yet.</div>`;
+        tabBody.innerHTML = `<div style="color:var(--fg2);font-size:13px;padding:20px 0;text-align:center">${esc(t('gh_no_sessions'))}</div>`;
       } else {
         mySess.forEach(s => {
           let meta = {}; try { meta = JSON.parse(s.metadata||'{}'); } catch(_) {}
           const metaParts = [];
-          if(meta.rounds!=null)         metaParts.push(`${meta.rounds} rounds`);
-          if(meta.time_per_round!=null) metaParts.push(meta.time_per_round===0?'no limit':fmtDur(meta.time_per_round)+'/round');
+          if(meta.rounds!=null)         metaParts.push(`${meta.rounds} ${t('gh_rounds_suffix')}`);
+          if(meta.time_per_round!=null) metaParts.push(meta.time_per_round===0?t('gh_no_limit_lower'):fmtDur(meta.time_per_round)+t('gh_per_round_suffix'));
           const modeLabel = s.mode==='singleplayer'?'👤':'👥';
           const myResult = s.players.find(p=>p.player_id===myId);
           const row = document.createElement('div');
@@ -650,7 +660,7 @@ async function renderGameDetail(c, gameId, mpGame) {
         });
       }
 
-    } else if (t === 'leaderboard') {
+    } else if (tab === 'leaderboard') {
       tabBody.innerHTML = '';
 
       // Build full leaderboard from session data, normalised by rounds
@@ -660,13 +670,13 @@ async function renderGameDetail(c, gameId, mpGame) {
         const tblWrap = tabBody.querySelector('#lb-table-wrap');
         tblWrap.innerHTML = '';
         if (!lb.length) {
-          tblWrap.innerHTML = `<div style="color:var(--fg2);font-size:13px;padding:20px 0;text-align:center">No data yet.</div>`;
+          tblWrap.innerHTML = `<div style="color:var(--fg2);font-size:13px;padding:20px 0;text-align:center">${esc(t('gh_no_data'))}</div>`;
           return;
         }
         const hasSpr = lb.some(r => r.avg_spr != null);
         const tbl = document.createElement('table');
         tbl.className = 'lb-table';
-        tbl.innerHTML = `<thead><tr><th>#</th><th>Player</th><th>Played</th><th>Wins</th>${hasSpr?'<th>Pts/round</th>':''}</tr></thead>`;
+        tbl.innerHTML = `<thead><tr><th>${esc(t('gh_col_num'))}</th><th>${esc(t('gh_col_player'))}</th><th>${esc(t('gh_col_played'))}</th><th>${esc(t('gh_col_wins'))}</th>${hasSpr?`<th>${esc(t('gh_col_pts_round'))}</th>`:''}</tr></thead>`;
         const tbody = document.createElement('tbody');
         lb.forEach((r, i) => {
           const isMe    = r.player_id === myId;
@@ -676,7 +686,7 @@ async function renderGameDetail(c, gameId, mpGame) {
           if (isOther) tr.style.cursor = 'pointer';
           tr.innerHTML = `
             <td style="color:var(--fg2)">${i+1}</td>
-            <td style="font-weight:600">${esc(r.display_name)}${isMe?' <span style="font-size:10px;color:var(--accent)">(you)</span>':' <span style="font-size:10px;color:var(--fg2)">›</span>'}</td>
+            <td style="font-weight:600">${esc(r.display_name)}${isMe?` <span style="font-size:10px;color:var(--accent)">(${esc(t('gh_you'))})</span>`:' <span style="font-size:10px;color:var(--fg2)">›</span>'}</td>
             <td>${r.played}</td><td>${r.wins}</td>
             ${hasSpr?`<td style="font-weight:700">${r.avg_spr!=null?r.avg_spr.toFixed(1):'—'}</td>`:''}`;
           if (isOther) {
@@ -694,14 +704,14 @@ async function renderGameDetail(c, gameId, mpGame) {
       ctrl.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap';
       ctrl.innerHTML = `
         <select class="inp" id="lb-scope" style="flex:1;min-width:140px;padding:6px 10px">
-          <option value="global">Global leaderboard</option>
-          <option value="mine">My games only</option>
+          <option value="global">${esc(t('gh_global_leaderboard'))}</option>
+          <option value="mine">${esc(t('gh_my_games_only'))}</option>
         </select>
         <select class="inp" id="lb-period" style="flex:1;min-width:120px;padding:6px 10px">
-          <option value="all">All time</option>
-          <option value="week">This week</option>
-          <option value="month">This month</option>
-          <option value="year">This year</option>
+          <option value="all">${esc(t('gh_all_time'))}</option>
+          <option value="week">${esc(t('gh_this_week'))}</option>
+          <option value="month">${esc(t('gh_this_month'))}</option>
+          <option value="year">${esc(t('gh_this_year'))}</option>
         </select>`;
       tabBody.appendChild(ctrl);
 
@@ -761,7 +771,7 @@ async function renderGameDetail(c, gameId, mpGame) {
     }
   }
 
-  tabBar.querySelectorAll('.tab[data-gt]').forEach(t => { t.onclick = () => renderGdTab(t.dataset.gt); });
+  tabBar.querySelectorAll('.tab[data-gt]').forEach(btn => { btn.onclick = () => renderGdTab(btn.dataset.gt); });
   await renderGdTab('play');
 }
 
@@ -794,8 +804,8 @@ async function renderFavourites(c) {
   // Search
   const searchWrap = document.createElement('div');
   searchWrap.innerHTML = `
-    <div style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2);margin-bottom:8px">Find a player</div>
-    <input class="inp" id="fav-search" placeholder="Search by name or username…" autocomplete="off">
+    <div style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2);margin-bottom:8px">${esc(t('gh_find_player'))}</div>
+    <input class="inp" id="fav-search" placeholder="${esc(t('gh_search_placeholder'))}" autocomplete="off">
     <div id="fav-results" style="display:flex;flex-direction:column;gap:6px;margin-top:8px"></div>`;
   sc.appendChild(searchWrap);
 
@@ -805,12 +815,12 @@ async function renderFavourites(c) {
   async function renderSearch(q) {
     resultsEl.innerHTML = '';
     if (q.length < 2) return;
-    resultsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">Searching…</div>`;
+    resultsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">${esc(t('gh_searching'))}</div>`;
     const r = await fetch(`/api/pub/apphub/search?q=${encodeURIComponent(q)}`);
     const hits = r.ok ? (await r.json()).filter(p => p.id !== _me?.id) : [];
     resultsEl.innerHTML = '';
     if (!hits.length) {
-      resultsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">No players found.</div>`;
+      resultsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">${esc(t('gh_no_players_found'))}</div>`;
       return;
     }
     hits.forEach(p => resultsEl.appendChild(_playerRow(p, () => renderFavourites(c))));
@@ -824,7 +834,7 @@ async function renderFavourites(c) {
   // Saved favourites
   const divider = document.createElement('div');
   divider.style.cssText = 'border-top:1px solid var(--border);padding-top:14px';
-  divider.innerHTML = `<div style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2);margin-bottom:8px">Saved favourites</div>`;
+  divider.innerHTML = `<div style="font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2);margin-bottom:8px">${esc(t('gh_saved_favourites'))}</div>`;
   sc.appendChild(divider);
 
   const favsEl = document.createElement('div');
@@ -834,7 +844,7 @@ async function renderFavourites(c) {
   function renderSavedFavs() {
     favsEl.innerHTML = '';
     if (!_favs || !_favs.length) {
-      favsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">No favourites yet. Search for a player above or add them from their profile.</div>`;
+      favsEl.innerHTML = `<div style="color:var(--fg2);font-size:13px">${esc(t('gh_no_favourites_yet'))}</div>`;
       return;
     }
     _favs.forEach(f => favsEl.appendChild(_playerRow(f, renderSavedFavs)));
@@ -855,18 +865,18 @@ function _playerRow(p, onFavChange) {
         ${p.username?`<div style="font-size:11px;color:var(--fg2)">@${esc(p.username)}</div>`:''}
       </div>
     </div>
-    <button class="btn btn-secondary" id="pr-fav" style="padding:5px 10px;font-size:12px;flex-shrink:0">${fav?'★ Saved':'☆ Favourite'}</button>`;
+    <button class="btn btn-secondary" id="pr-fav" style="padding:5px 10px;font-size:12px;flex-shrink:0">${fav?esc(t('gh_fav_saved')):esc(t('gh_fav_add'))}</button>`;
   row.querySelector('#pr-name').onclick = () => showOtherPlayerProfile(p);
   row.querySelector('#pr-fav').onclick = async e => {
     e.stopPropagation();
     await _toggleFav(p);
     if (onFavChange) onFavChange();
-    else { const b = row.querySelector('#pr-fav'); b.textContent = _isFav(p.id)?'★ Saved':'☆ Favourite'; }
+    else { const b = row.querySelector('#pr-fav'); b.textContent = _isFav(p.id)?t('gh_fav_saved'):t('gh_fav_add'); }
   };
   return row;
 }
 
-boot();
+window._ghI18nReady.then(boot);
 </script>
 </body>
 </html>
