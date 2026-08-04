@@ -1,0 +1,23 @@
+{
+  "id": "mvmshare",
+  "name": "mvmShare",
+  "icon": "🔗",
+  "category": "Security & Privacy",
+  "tags": ["security", "sharing", "files", "encryption", "links"],
+  "version": "1.0.0",
+  "description": "Share files, a note or a link through one encrypted link. Files are encrypted in your browser before upload; images open as a gallery, while the server only stores ciphertext it cannot read. Set how long a share lives and lock it with a password.",
+  "entry": "main.js",
+  "css": "style.css",
+  "min_core_version": "0.34.0-beta",
+  "public_url": "/pub/mvmshare/",
+  "public_directory": true,
+  "scheduler": "scheduler.py",
+  "settings": [
+    { "key": "max_file_count", "label": "Maximum files in one share", "type": "number", "default": 20, "min": 1 },
+    { "key": "max_file_mb", "label": "Maximum size of one file (MB)", "type": "number", "default": 10, "min": 1 },
+    { "key": "allow_images", "label": "Allow images", "type": "checkbox", "default": true },
+    { "key": "allow_videos", "label": "Allow videos", "type": "checkbox", "default": true },
+    { "key": "allow_documents", "label": "Allow documents", "type": "checkbox", "default": true },
+    { "key": "allow_archives", "label": "Allow archives", "type": "checkbox", "default": true }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "tagline": "Share files, a note or a link — encrypted in your browser, opened with one link.",
+  "description": "mvmShare turns anything you want to pass on into a single link. Add one file or a whole collection, write a note or paste an address, and mvmShare encrypts it in your browser before a single byte is uploaded. The key that opens it is placed inside the link itself, in the part browsers never send to a server, so what is stored here is ciphertext that this server has no way to read — not the files, not the note, not even the address a short link points at.\n\nA file share is a small encrypted file manager: images appear as thumbnails and open in a gallery with next and previous controls, while documents, video and archives stay available as files. Download all creates one ZIP locally in the recipient’s browser, so the server never receives readable content. The server owner decides from App Store settings how many files a share may contain, the maximum size of each file, and whether images, video, documents and archives are accepted.\n\nEvery share follows the same rules, whichever of the three kinds it is. Choose how long it stays valid, and lock it behind a password that is asked for before anything at all is revealed — with a password set, a shortened link gives up nothing about its destination until the right one is typed. When a share expires it stays in your account, so you can extend it and have the same link work again.\n\nA shared link is just a link: it works for anyone you send it to, with or without an account on this server. If the person is already here, mvmShare can put the link straight into their Apps Hub notifications, translated into whatever language they happen to be reading in. Opening a share needs no account at all — a link opens a note on screen, offers encrypted files to view or download, or forwards straight on to the address it was hiding.",
+  "capabilities": [
+    "Share one or many files, a note or a link through one link, with the same options for all three.",
+    "An encrypted file manager with image thumbnails, a next/previous gallery and one locally created ZIP for Download all.",
+    "Everything is encrypted in your browser with AES-GCM before it is uploaded; the server only ever holds ciphertext.",
+    "The decryption key travels in the link fragment, which is never sent to the server — lose the link and nothing can open the share.",
+    "Set how long a share stays valid, from an hour to a month, or leave it open-ended.",
+    "Protect a share with a password that is checked before any content is served, so a hidden address stays hidden.",
+    "Shortened links hide where they point and forward automatically once opened.",
+    "See how many times each share has been opened, and when it was last opened.",
+    "Extend an expired share, change its password or retime it — the same link keeps working.",
+    "Send a share to your Apps Hub favourites as a notification, in each person's own language.",
+    "The server owner chooses the maximum file count, maximum size per file and allowed categories: images, video, documents and archives.",
+    "Uploaded files are stored inside the app's own database, never in a folder the web server can reach; the bytes are released only against a short-lived token issued by a successful unlock.",
+    "Delete a share at any time and its encrypted content is destroyed for good.",
+    "Works as a desktop app and as a public page — recipients need no account to open what you send."
+  ],
+  "requirements": [
+    "An Apps Hub profile to create shares. Opening a share you were sent needs no account.",
+    "A browser with Web Crypto available, which means the site must be served over HTTPS."
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "summary": "Tighter control over how long a share lives and how often it can be opened.",
+  "features": [
+    {
+      "title": "View limits",
+      "short": "Stop a share after a set number of openings",
+      "description": "Set how many times a share may be opened. Every share counts its openings either way, but with a subscription the count becomes a limit: once it is reached the link stops working, whatever time is left on it. Useful for something meant for one person, once."
+    },
+    {
+      "title": "Automatic deletion",
+      "short": "Destroy a share the moment it expires",
+      "description": "Choose what happens when a share runs out of time. Without a subscription an expired share is locked but kept, so you can extend it later. With one you can have it deleted instead — the encrypted content is destroyed on the next scheduler tick and no link brings it back."
+    }
+  ]
+}

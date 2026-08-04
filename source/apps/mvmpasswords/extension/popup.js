@@ -24,20 +24,27 @@
   // automatic fill. This build never reads it, so clear it out on startup.
   mvm.api.storage.session && mvm.session.clear('autofill_cache');
 
+  // Where the unlocked key waits depends on what was asked for. "Until the
+  // browser closes" means memory, and closing the browser must end it. A
+  // chosen span — 24 hours, a week — is a promise that outlives a restart, so
+  // it goes to storage that survives one, and the deadline inside it is what
+  // ends it instead. Only ever one of the two holds a copy.
   function sendVaultSession() {
-    mvm.session.get('vault_session').then(function (saved) {
-      if (!saved || (saved.expires && saved.expires < Date.now())) {
-        mvm.session.clear('vault_session');
-        saved = null;
-      }
+    Promise.all([mvm.persist.get('vault_session'), mvm.session.get('vault_session')]).then(function (found) {
+      var saved = found[0] || found[1];
+      if (saved && saved.expires && saved.expires < Date.now()) saved = null;
+      if (!saved) { mvm.persist.clear('vault_session'); mvm.session.clear('vault_session'); }
       mvm.postToFrame({type: 'vault-session', session: saved || null});
     });
   }
 
   mvm.onFrameMessage('vault-session-save', function (message) {
-    mvm.session.set('vault_session', message.session);
+    var saved = message.session;
+    if (saved && saved.expires) { mvm.session.clear('vault_session'); mvm.persist.set('vault_session', saved); }
+    else { mvm.persist.clear('vault_session'); mvm.session.set('vault_session', saved); }
   });
   mvm.onFrameMessage('vault-session-clear', function () {
+    mvm.persist.clear('vault_session');
     mvm.session.clear('vault_session');
   });
 

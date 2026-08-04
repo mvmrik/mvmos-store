@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mvmShare</title>
+<link rel="stylesheet" href="/apps/mvmshare/style.css?v=20260804-1400">
+<style>
+  html, body {
+    width: 100%; max-width: 100%; height: 100%; margin: 0; padding: 0;
+    overflow: hidden; background: var(--pub-bg, #1e1e2e);
+  }
+  #msh-root {
+    box-sizing: border-box; flex: 1 1 auto; width: 100%; min-width: 0;
+    min-height: 0; margin: 0; padding: 0;
+  }
+</style>
+</head>
+<body>
+<div id="msh-root"></div>
+<script src="/i18n/i18n.js"></script>
+<script>
+(function () {
+  var root = document.getElementById('msh-root');
+  // One page serves two jobs: /pub/mvmshare/ is the owner's side, and
+  // /pub/mvmshare/s/<id> is what a recipient opens. The id is in the path so
+  // the link can be forwarded like any other address — the key that actually
+  // opens it rides in the fragment, which never reaches the server.
+  var match = location.pathname.match(/\/pub\/mvmshare\/s\/([^\/?#]+)/);
+  var shareId = match ? decodeURIComponent(match[1]) : null;
+  // The owner's application is a compact workspace. A received share, on the
+  // other hand, needs the full viewport so its empty/error state is centred.
+  root.className = shareId ? 'msh-recipient-page' : 'msh-manager-page';
+
+  // Only the owner's side needs an account. A share link is opened by whoever
+  // was sent it, and asking them to sign up first would defeat the point.
+  if (!shareId && !localStorage.getItem('apphub_token')) {
+    location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
+    return;
+  }
+
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = src + '?_=' + Date.now();
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  (window.mvmOS && window.mvmOS.i18nReady || Promise.resolve()).then(function () {
+    return loadScript('/apps/mvmshare/i18n.js');
+  }).then(function () {
+    // Reuse the Apps Hub renderer so favourites look the same here as in
+    // their own profiles, rather than degrading to a coloured status dot.
+    return loadScript('/pub/apphub/avatar.js');
+  }).then(function () {
+    // The core table is assigned wholesale, so the app's own strings are
+    // merged in again here, after it has finished loading.
+    if (window.MSH_I18N) window.MSH_I18N.merge();
+    return loadScript('/apps/mvmshare/share-widget.js');
+  }).then(function () {
+    if (shareId) window.MvmShare.mountOpener(root, shareId);
+    else window.MvmShare.mountManager(root);
+  });
+})();
+</script>
+</body>
+</html>

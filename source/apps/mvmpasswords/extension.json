@@ -64,23 +64,23 @@
       "key": "autofill_mode",
       "type": "select",
       "label": {
-        "en": "Autofill controls",
-        "bg": "\u041a\u043e\u043d\u0442\u0440\u043e\u043b\u0438 \u0437\u0430 \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u043d\u043e \u043f\u043e\u043f\u044a\u043b\u0432\u0430\u043d\u0435"
+        "en": "Autofill",
+        "bg": "\u0410\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u043d\u043e \u043f\u043e\u043f\u044a\u043b\u0432\u0430\u043d\u0435"
       },
       "default": "off",
       "options": [
         {
           "value": "off",
           "label": {
-            "en": "Disabled \u2014 use the toolbar icon",
-            "bg": "\u0417\u0430\u0431\u0440\u0430\u043d\u0435\u043d\u043e \u2014 \u0438\u0437\u043f\u043e\u043b\u0437\u0432\u0430\u0439 \u0438\u043a\u043e\u043d\u043a\u0430\u0442\u0430 \u0432 \u0431\u0440\u0430\u0443\u0437\u044a\u0440\u0430"
+            "en": "No autofill",
+            "bg": "\u0411\u0435\u0437 \u0430\u0432\u0442\u043e\u043c\u0430\u0442\u0438\u0447\u043d\u043e \u043f\u043e\u043f\u044a\u043b\u0432\u0430\u043d\u0435"
           }
         },
         {
           "value": "icons",
           "label": {
-            "en": "Show a key icon in login fields",
-            "bg": "\u041f\u043e\u043a\u0430\u0437\u0432\u0430\u0439 \u043a\u043b\u044e\u0447 \u0432 login \u043f\u043e\u043b\u0435\u0442\u0430\u0442\u0430"
+            "en": "Show an icon in the fields",
+            "bg": "\u041f\u043e\u043a\u0430\u0437\u0432\u0430\u043d\u0435 \u043d\u0430 \u0438\u043a\u043e\u043d\u043a\u0430 \u0432 \u043f\u043e\u043b\u0435\u0442\u0430\u0442\u0430"
           }
         },
         {
@@ -91,6 +91,19 @@
           }
         }
       ]
+    },
+    {
+      "key": "icons_on_focus",
+      "type": "boolean",
+      "label": {
+        "en": "Show only when I click in the field",
+        "bg": "\u041f\u043e\u043a\u0430\u0437\u0432\u0430\u0439 \u0441\u0430\u043c\u043e \u043f\u0440\u0438 \u043a\u043b\u0438\u043a \u0432 \u043f\u043e\u043b\u0435\u0442\u043e"
+      },
+      "default": false,
+      "show_if": {
+        "key": "autofill_mode",
+        "value": "icons"
+      }
     },
     {
       "key": "matching_mode",

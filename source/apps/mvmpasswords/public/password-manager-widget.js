@@ -154,10 +154,20 @@
   // so the fields under it stay visible. .pm is position:relative because the
   // overlay is absolute and would otherwise anchor to an ancestor outside the
   // widget, which is what let the dialog overflow the popup in the first place.
-  function style(){if(styled)return;styled=true;var s=document.createElement('style');s.textContent='.pm,.pm *,.pm-overlay,.pm-overlay *{box-sizing:border-box}.pm{height:100%;display:flex;flex-direction:column;position:relative;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif;overflow:hidden}.pm-bar{display:flex;gap:.5rem;align-items:center;padding:.7rem .8rem;border-bottom:1px solid var(--pub-border,#45475a);flex-wrap:wrap}.pm-bar-head{width:100%;display:flex;align-items:center;gap:.5rem;min-width:0}.pm-bar-tools{width:100%;display:flex;align-items:center;gap:.4rem;min-width:0}.pm-title{font-weight:700;font-size:.9rem}.pm-search{flex:1;min-width:8rem}.pm-list{overflow:auto;flex:1;min-height:0;padding:.75rem}.pm-card{border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);border-radius:.65rem;padding:.75rem;margin-bottom:.55rem}.pm-head{display:flex;gap:.6rem;align-items:center}.pm-avatar{width:2rem;height:2rem;border-radius:.5rem;display:grid;place-items:center;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:800}.pm-name{font-weight:700}.pm-sub{font-size:.76rem;color:var(--pub-dim,#a6adc8);margin-top:.1rem;overflow-wrap:anywhere}.pm-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem}.pm-card .pm-actions{gap:.35rem;flex-wrap:nowrap}.pm-icon-btn{flex:0 0 auto;padding:.42rem 0;width:2.35rem;min-width:2.35rem;font-size:1rem;line-height:1.15;text-align:center}.pm-card .pm-actions .pm-icon-btn{flex:1 1 0;min-width:0}.pm-icon-btn.pm-danger:hover{border-color:var(--pub-red,#f38ba8)}.pm-icon-btn.pm-copied{border-color:var(--pub-green,#a6e3a1)}.pm-bar-tools .pm-search{flex:1 1 auto;min-width:0}.pm-bar-tools button{flex:0 0 auto;padding:.42rem 0;width:2.35rem;min-width:2.35rem;font-size:1rem;line-height:1.15;text-align:center}.pm button,.pm-btn,.pm-overlay button{border:0;border-radius:.45rem;padding:.48rem .75rem;cursor:pointer;font:inherit;font-size:.8rem;font-weight:600;background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4);transition:filter .15s,transform .15s}.pm button:hover,.pm-overlay button:hover{filter:brightness(1.12)}.pm button:active,.pm-overlay button:active{transform:translateY(1px)}.pm .primary,.pm-overlay .primary{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.pm input,.pm textarea,.pm select,.pm-overlay input,.pm-overlay textarea,.pm-overlay select{width:100%;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;color:var(--pub-fg,#cdd6f4);padding:.6rem .7rem;font:inherit;outline:none;transition:border-color .15s,box-shadow .15s}.pm input:focus,.pm textarea:focus,.pm select:focus,.pm-overlay input:focus,.pm-overlay textarea:focus,.pm-overlay select:focus{border-color:var(--pub-accent,#89b4fa);box-shadow:0 0 0 3px color-mix(in srgb,var(--pub-accent,#89b4fa) 18%,transparent)}.pm-duration{margin:.3rem 0 .7rem}.pm-empty,.pm-unlock{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;padding:1.5rem;color:var(--pub-fg2,#a6adc8)}.pm-unlock>div{width:100%;max-width:23rem;background:var(--pub-surface2,#313244);padding:1.25rem;border-radius:.7rem}.pm-unlock h2{font-size:1.05rem;color:var(--pub-fg,#cdd6f4)}.pm-unlock p{font-size:.82rem;line-height:1.45}.pm-unlock input{margin:.35rem 0}.pm-error{min-height:1.3rem;color:var(--pub-red,#f38ba8);font-size:.8rem}.pm-overlay{position:absolute;inset:0;background:rgba(0,0,0,.64);z-index:5;display:flex;align-items:center;justify-content:center;padding:1rem;overflow:auto;color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif}.pm-dialog{width:100%;max-width:27rem;max-height:100%;min-height:0;overflow:auto;flex:0 1 auto;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.75rem;padding:1.2rem;box-shadow:0 1.2rem 3rem rgba(0,0,0,.45)}.pm-dialog .pm-actions{position:sticky;bottom:calc(-1.2rem - 1px);margin:.8rem -1.2rem -1.2rem;padding:.8rem 1.2rem;background:var(--pub-bg,#1e1e2e);border-top:1px solid var(--pub-border,#45475a)}.pm-dialog h3{margin:0 0 .35rem;font-size:1.05rem;color:var(--pub-fg,#cdd6f4)}.pm-dialog label{display:block;font-size:.76rem;font-weight:700;color:var(--pub-fg2,#a6adc8);margin:.72rem 0 .28rem}.pm-dialog textarea{resize:vertical;min-height:5.25rem}.pm-context{font-size:.72rem;color:var(--pub-dim,#a6adc8);width:100%}.pm-match-badge{display:inline-flex;align-items:center;gap:.25rem;margin-left:.4rem;padding:.12rem .36rem;border-radius:.6rem;background:color-mix(in srgb,var(--pub-accent,#89b4fa) 20%,transparent);color:var(--pub-accent,#89b4fa);font-size:.65rem;vertical-align:middle}.pm-match-badge img{width:.78rem;height:.78rem;border-radius:.18rem}.pm-passkey-badge{display:inline-flex;align-items:center;gap:.2rem;margin-left:.4rem;padding:.12rem .36rem;border-radius:.6rem;background:color-mix(in srgb,var(--pub-green,#a6e3a1) 22%,transparent);color:var(--pub-green,#a6e3a1);font-size:.65rem;white-space:nowrap;vertical-align:middle}.pm-passkey-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}.pm-passkey-info{flex:1;min-width:8rem;font-size:.8rem;overflow-wrap:anywhere}.pm-show-all{width:100%;margin:.15rem 0 .8rem}.pm-import-info{font-size:.8rem;opacity:.85;margin:.1rem 0 .7rem;line-height:1.45}.pm-import-drop{text-align:center;padding:.9rem;border:1px dashed var(--pub-border,#45475a);border-radius:.5rem;margin-bottom:.6rem}.pm-import-formats{font-size:.72rem;opacity:.7;margin-top:.45rem}.pm-import-status{font-size:.82rem;margin-bottom:.5rem}.pm-import-note{opacity:.8;font-size:.76rem;margin-top:.2rem}.pm-import-bulk{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}.pm-import-bulk button{padding:.3rem .55rem;font-size:.74rem}.pm-import-list{max-height:min(46vh,20rem);overflow:auto;margin-bottom:.5rem}.pm-import-row{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;padding:.35rem .2rem;border-bottom:1px solid var(--pub-border,#45475a);font-size:.8rem}.pm-import-row input{flex:0 0 auto;margin:0}.pm-import-name{flex:1;min-width:6rem;overflow-wrap:anywhere}.pm-import-sub{opacity:.7;font-size:.74rem;overflow-wrap:anywhere}.pm-import-dupe{flex:0 0 auto;white-space:nowrap;font-size:.68rem;padding:.1rem .4rem;border-radius:.6rem;background:var(--pub-border,#45475a);opacity:.9}.pm-menu{position:absolute;top:3.4rem;right:.8rem;z-index:6;display:flex;flex-direction:column;gap:.3rem;background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);border-radius:.6rem;padding:.4rem;box-shadow:0 .6rem 1.6rem rgba(0,0,0,.35);min-width:9rem}.pm-menu[hidden]{display:none}.pm-menu button{text-align:left;width:100%}.pm-head-click{cursor:pointer}.pm-icon-spacer{visibility:hidden;pointer-events:none}.pm-list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:.55rem;align-content:start}.pm-list-grid .pm-card{margin-bottom:0}.pm-list-grid .pm-show-all{grid-column:1/-1}.pm-view-value{background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;padding:.6rem .7rem;font-size:.85rem;overflow-wrap:anywhere;min-height:1.3rem;color:var(--pub-fg,#cdd6f4)}.pm-view-notes{white-space:pre-wrap}.pm-dialog .pm-actions .pm-danger{background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e);margin-left:auto}.pm-web-row{display:flex;gap:.4rem;align-items:center;margin-bottom:.35rem}.pm-web-row .f-web{flex:1;min-width:0}.pm-web-del{flex:0 0 auto;padding:.5rem .6rem;line-height:1}.pm-web-del:hover{border-color:var(--pub-red,#f38ba8);color:var(--pub-red,#f38ba8)}.pm-web-add{width:100%;margin-top:.1rem}.pm-web-list{max-height:11rem;overflow-y:auto}.pm-password-field{display:flex;gap:.45rem;align-items:center}.pm-password-field>:first-child{flex:1;min-width:0}.pm-password-field .f-toggle{flex:0 0 auto;padding:.55rem .65rem;font-size:1rem}.pm-view-value+.pm-view-value{margin-top:.3rem}';document.head.appendChild(s)}
+  function style(){if(styled)return;styled=true;var s=document.createElement('style');s.textContent='.pm,.pm *,.pm-overlay,.pm-overlay *{box-sizing:border-box}.pm{height:100%;display:flex;flex-direction:column;position:relative;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif;overflow:hidden}.pm-bar{display:flex;gap:.5rem;align-items:center;padding:.7rem .8rem;border-bottom:1px solid var(--pub-border,#45475a);flex-wrap:wrap}.pm-bar-head{width:100%;display:flex;align-items:center;gap:.5rem;min-width:0}.pm-bar-tools{width:100%;display:flex;align-items:center;gap:.4rem;min-width:0}.pm-title{font-weight:700;font-size:.9rem}.pm-search{flex:1;min-width:8rem}.pm-list{overflow:auto;flex:1;min-height:0;padding:.75rem}.pm-card{border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);border-radius:.65rem;padding:.75rem;margin-bottom:.55rem}.pm-head{display:flex;gap:.6rem;align-items:center}.pm-avatar{width:2rem;height:2rem;border-radius:.5rem;display:grid;place-items:center;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:800}.pm-name{font-weight:700}.pm-sub{font-size:.76rem;color:var(--pub-dim,#a6adc8);margin-top:.1rem;overflow-wrap:anywhere}.pm-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem}.pm-card .pm-actions{gap:.35rem;flex-wrap:nowrap}.pm-icon-btn{flex:0 0 auto;padding:.42rem 0;width:2.35rem;min-width:2.35rem;font-size:1rem;line-height:1.15;text-align:center}.pm-card .pm-actions .pm-icon-btn{flex:1 1 0;min-width:0}.pm-icon-btn.pm-danger:hover{border-color:var(--pub-red,#f38ba8)}.pm-icon-btn.pm-copied{border-color:var(--pub-green,#a6e3a1)}.pm-bar-tools .pm-search{flex:1 1 auto;min-width:0}.pm-bar-tools button{flex:0 0 auto;padding:.42rem 0;width:2.35rem;min-width:2.35rem;font-size:1rem;line-height:1.15;text-align:center}.pm button,.pm-btn,.pm-overlay button{border:0;border-radius:.45rem;padding:.48rem .75rem;cursor:pointer;font:inherit;font-size:.8rem;font-weight:600;background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4);transition:filter .15s,transform .15s}.pm button:hover,.pm-overlay button:hover{filter:brightness(1.12)}.pm button:active,.pm-overlay button:active{transform:translateY(1px)}.pm .primary,.pm-overlay .primary{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.pm input,.pm textarea,.pm select,.pm-overlay input,.pm-overlay textarea,.pm-overlay select{width:100%;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;color:var(--pub-fg,#cdd6f4);padding:.6rem .7rem;font:inherit;outline:none;transition:border-color .15s,box-shadow .15s}.pm input:focus,.pm textarea:focus,.pm select:focus,.pm-overlay input:focus,.pm-overlay textarea:focus,.pm-overlay select:focus{border-color:var(--pub-accent,#89b4fa);box-shadow:0 0 0 3px color-mix(in srgb,var(--pub-accent,#89b4fa) 18%,transparent)}.pm-duration{margin:.3rem 0 .25rem}.pm-duration-hint{font-size:.72rem;opacity:.75;margin:0 0 .7rem;line-height:1.35}.pm-empty,.pm-unlock{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;padding:1.5rem;color:var(--pub-fg2,#a6adc8)}.pm-unlock>div{width:100%;max-width:23rem;background:var(--pub-surface2,#313244);padding:1.25rem;border-radius:.7rem}.pm-unlock h2{font-size:1.05rem;color:var(--pub-fg,#cdd6f4)}.pm-unlock p{font-size:.82rem;line-height:1.45}.pm-unlock input{margin:.35rem 0}.pm-error{min-height:1.3rem;color:var(--pub-red,#f38ba8);font-size:.8rem}.pm-overlay{position:absolute;inset:0;background:rgba(0,0,0,.64);z-index:5;display:flex;align-items:center;justify-content:center;padding:1rem;overflow:auto;color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif}.pm-dialog{width:100%;max-width:27rem;max-height:100%;min-height:0;overflow:auto;flex:0 1 auto;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.75rem;padding:1.2rem;box-shadow:0 1.2rem 3rem rgba(0,0,0,.45)}.pm-dialog .pm-actions{position:sticky;bottom:calc(-1.2rem - 1px);margin:.8rem -1.2rem -1.2rem;padding:.8rem 1.2rem;background:var(--pub-bg,#1e1e2e);border-top:1px solid var(--pub-border,#45475a)}.pm-dialog h3{margin:0 0 .35rem;font-size:1.05rem;color:var(--pub-fg,#cdd6f4)}.pm-dialog label{display:block;font-size:.76rem;font-weight:700;color:var(--pub-fg2,#a6adc8);margin:.72rem 0 .28rem}.pm-dialog textarea{resize:vertical;min-height:5.25rem}.pm-context{font-size:.72rem;color:var(--pub-dim,#a6adc8);width:100%}.pm-match-badge{display:inline-flex;align-items:center;gap:.25rem;margin-left:.4rem;padding:.12rem .36rem;border-radius:.6rem;background:color-mix(in srgb,var(--pub-accent,#89b4fa) 20%,transparent);color:var(--pub-accent,#89b4fa);font-size:.65rem;vertical-align:middle}.pm-match-badge img{width:.78rem;height:.78rem;border-radius:.18rem}.pm-passkey-badge{display:inline-flex;align-items:center;gap:.2rem;margin-left:.4rem;padding:.12rem .36rem;border-radius:.6rem;background:color-mix(in srgb,var(--pub-green,#a6e3a1) 22%,transparent);color:var(--pub-green,#a6e3a1);font-size:.65rem;white-space:nowrap;vertical-align:middle}.pm-passkey-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}.pm-passkey-info{flex:1;min-width:8rem;font-size:.8rem;overflow-wrap:anywhere}.pm-show-all{width:100%;margin:.15rem 0 .8rem}.pm-import-info{font-size:.8rem;opacity:.85;margin:.1rem 0 .7rem;line-height:1.45}.pm-import-drop{text-align:center;padding:.9rem;border:1px dashed var(--pub-border,#45475a);border-radius:.5rem;margin-bottom:.6rem}.pm-import-formats{font-size:.72rem;opacity:.7;margin-top:.45rem}.pm-import-status{font-size:.82rem;margin-bottom:.5rem}.pm-import-note{opacity:.8;font-size:.76rem;margin-top:.2rem}.pm-import-bulk{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}.pm-import-bulk button{padding:.3rem .55rem;font-size:.74rem}.pm-import-list{max-height:min(46vh,20rem);overflow:auto;margin-bottom:.5rem}.pm-import-row{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;padding:.35rem .2rem;border-bottom:1px solid var(--pub-border,#45475a);font-size:.8rem}.pm-import-row input{flex:0 0 auto;margin:0}.pm-import-name{flex:1;min-width:6rem;overflow-wrap:anywhere}.pm-import-sub{opacity:.7;font-size:.74rem;overflow-wrap:anywhere}.pm-import-dupe{flex:0 0 auto;white-space:nowrap;font-size:.68rem;padding:.1rem .4rem;border-radius:.6rem;background:var(--pub-border,#45475a);opacity:.9}.pm-menu{position:absolute;top:3.4rem;right:.8rem;z-index:6;display:flex;flex-direction:column;gap:.3rem;background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);border-radius:.6rem;padding:.4rem;box-shadow:0 .6rem 1.6rem rgba(0,0,0,.35);min-width:9rem}.pm-menu[hidden]{display:none}.pm-menu button{text-align:left;width:100%}.pm-head-click{cursor:pointer}.pm-icon-spacer{visibility:hidden;pointer-events:none}.pm-list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:.55rem;align-content:start}.pm-list-grid .pm-card{margin-bottom:0}.pm-list-grid .pm-show-all,.pm-list-grid .pm-folder-clear,.pm-list-grid .pm-folder-others{grid-column:1/-1}.pm-view-value{background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;padding:.6rem .7rem;font-size:.85rem;overflow-wrap:anywhere;min-height:1.3rem;color:var(--pub-fg,#cdd6f4)}.pm-view-notes{white-space:pre-wrap}.pm-dialog .pm-actions .pm-danger{background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e);margin-left:auto}.pm-web-row{display:flex;gap:.4rem;align-items:center;margin-bottom:.35rem}.pm-web-row .f-web{flex:1;min-width:0}.pm-web-del{flex:0 0 auto;padding:.5rem .6rem;line-height:1}.pm-web-del:hover{border-color:var(--pub-red,#f38ba8);color:var(--pub-red,#f38ba8)}.pm-web-add{width:100%;margin-top:.1rem}.pm-web-list{max-height:11rem;overflow-y:auto}.pm-password-field{display:flex;gap:.45rem;align-items:center}.pm-password-field>:first-child{flex:1;min-width:0}.pm-password-field .f-toggle{flex:0 0 auto;padding:.55rem .65rem;font-size:1rem}.pm-view-value+.pm-view-value{margin-top:.3rem}.pm-folders{width:100%;display:flex;align-items:center;gap:.3rem;min-width:0;position:relative}.pm-folders[hidden]{display:none}.pm-folder-row{display:flex;gap:.3rem;overflow:hidden;flex:1 1 auto;min-width:0}.pm .pm-folder-tab{flex:0 0 auto;padding:.3rem .62rem;font-size:.74rem;border-radius:.9rem;background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);white-space:nowrap;max-width:11rem;overflow:hidden;text-overflow:ellipsis}.pm-folder-tab[hidden]{display:none}.pm .pm-folder-tab.active{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);border-color:var(--pub-accent,#89b4fa)}.pm .pm-folder-more{flex:0 0 auto;padding:.3rem .5rem;font-size:.74rem;border-radius:.9rem;background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a)}.pm-folder-more[hidden]{display:none}.pm-folder-menu{position:absolute;top:calc(100% + .3rem);right:0;z-index:7;display:flex;flex-direction:column;gap:.25rem;background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);border-radius:.6rem;padding:.35rem;box-shadow:0 .6rem 1.6rem rgba(0,0,0,.35);min-width:9rem;max-width:14rem;max-height:14rem;overflow:auto}.pm-folder-menu[hidden]{display:none}.pm .pm-folder-menu button{width:100%;max-width:none;text-align:left;border-radius:.45rem;overflow:hidden;text-overflow:ellipsis}.pm-folder-edit{display:flex;gap:.4rem;align-items:center;margin-bottom:.45rem}.pm-folder-edit input{flex:1;min-width:0}.pm-folder-edit button{flex:0 0 auto;padding:.5rem .6rem;line-height:1}.pm-folder-edit .pm-danger:hover{border-color:var(--pub-red,#f38ba8);color:var(--pub-red,#f38ba8)}.pm-folder-list{max-height:min(40vh,16rem);overflow:auto}.pm-folder-empty{font-size:.8rem;opacity:.75;padding:.3rem 0 .5rem}.pm-folder-clear,.pm-folder-others{width:100%;margin:.15rem 0 .8rem}';document.head.appendChild(s)}
   function mount(root,opts){
     opts=opts||{};style();var token=localStorage.getItem('apphub_token');if(!token){root.innerHTML='<div class="pm-empty">'+esc(t('pm_login'))+'</div>';if(opts.onNeedLogin)opts.onNeedLogin();return{destroy:function(){}}}
-    var key=null,entries=[],context=null,extensionSettings={},showAll=false,parentOrigin='',destroyed=false,autoLockTimer=0,APP_ID='mvmpasswords',passkeyBusy=false,outsideClickHandler=null;
+    var SESSION_KEY='mvm_pm_vault_session',DURATION_KEY='mvm_pm_unlock_duration';
+    var key=null,entries=[],folders=[],context=null,extensionSettings={},showAll=false,otherFolders=false,parentOrigin='',destroyed=false,autoLockTimer=0,APP_ID='mvmpasswords',passkeyBusy=false,outsideClickHandler=null,folderObserver=null;
+    // Which folder the tabs are filtering by, remembered across reloads because
+    // it is a place in the vault rather than a transient view: someone who works
+    // out of "Work" all morning should not have to pick it again after every
+    // refresh. '' is the All tab and UNFILED the pseudo-folder for entries that
+    // belong to none — a sentinel rather than a real id, so it can never collide
+    // with one. FOLDER_ORDER_KEY holds the tab order, most recently used first;
+    // see folderTabs() for why that is what keeps the useful ones on screen.
+    var FOLDER_KEY='mvm_pm_folder',FOLDER_ORDER_KEY='mvm_pm_folder_order',UNFILED='~none';
+    var folder=localStorage.getItem(FOLDER_KEY)||'';
     // Whether this server offers the 2FA integration — one flag, answered by the
     // server and never decided here. It is on only when the administrator has
     // enabled it in the app's settings *and* the installation is licensed, and
@@ -180,12 +190,54 @@
     function api(path,options){options=options||{};var h=Object.assign({'X-Pub-Token':token,'Content-Type':'application/json'},options.headers||{});return fetch(API+path,Object.assign({},options,{headers:h})).then(async function(r){var d=await r.json().catch(function(){return{}});if(r.status===401&&opts.onNeedLogin)opts.onNeedLogin();if(!r.ok)throw new Error(d.error||'error');return d})}
     async function derive(password,salt,iterations){var raw=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt:bytes(salt),iterations:iterations,hash:'SHA-256'},raw,{name:'AES-GCM',length:256},true,['encrypt','decrypt'])}
     async function importKey(raw){return crypto.subtle.importKey('raw',bytes(raw),{name:'AES-GCM'},true,['encrypt','decrypt'])}
-    function expiry(value){return value==='session'?0:Date.now()+Number(value)*60000}
+    function minutesOf(value){return value==='session'?0:Number(value)||0}
+    function expiry(minutes){return minutes?Date.now()+minutes*60000:0}
     function scheduleAutoLock(expires){clearTimeout(autoLockTimer);if(!expires)return;var remaining=expires-Date.now();if(remaining<=0){lockNow();return}autoLockTimer=setTimeout(lockNow,remaining)}
-    async function cacheKey(value){var saved={key:b64(await crypto.subtle.exportKey('raw',key)),expires:expiry(value)};scheduleAutoLock(saved.expires);localStorage.setItem('mvm_pm_unlock_duration',value);if(parentOrigin)window.parent.postMessage({source:'mvmos-public-app',appId:APP_ID,action:'vault-session-save',session:saved},parentOrigin);else sessionStorage.setItem('mvm_pm_vault_session',JSON.stringify(saved))}
-    async function restoreLocalKey(){try{var saved=JSON.parse(sessionStorage.getItem('mvm_pm_vault_session')||'null');if(!saved||(saved.expires&&saved.expires<Date.now()))throw new Error();key=await importKey(saved.key);scheduleAutoLock(saved.expires);return true}catch(_){sessionStorage.removeItem('mvm_pm_vault_session');return false}}
-    function clearCachedKey(){sessionStorage.removeItem('mvm_pm_vault_session');if(parentOrigin)window.parent.postMessage({source:'mvmos-public-app',appId:APP_ID,action:'vault-session-clear'},parentOrigin)}
-    function lockNow(){clearTimeout(autoLockTimer);autoLockTimer=0;key=null;entries=[];clearCachedKey();load()}
+    // A chosen number of hours is meant to outlive the page being closed — that
+    // is the entire point of picking 24 hours on a phone, where a home-screen
+    // shortcut starts a brand new session on every launch and sessionStorage is
+    // empty before the first frame. So a timed unlock goes to localStorage, and
+    // only "until the session closes" stays in sessionStorage, where shutting
+    // the tab is what ends it.
+    //
+    // The cost is stated plainly rather than hidden: the raw key then sits in
+    // the browser profile until it expires, so anyone holding the unlocked
+    // device can read it. That is what every "keep me unlocked" switch means,
+    // and why the choice is the user's and defaults to the shortest one.
+    function sessionStore(minutes){return minutes?localStorage:sessionStorage}
+    function saveSession(saved){
+      if(parentOrigin){window.parent.postMessage({source:'mvmos-public-app',appId:APP_ID,action:'vault-session-save',session:saved},parentOrigin);return}
+      // Written to one store and cleared from the other, so switching duration
+      // can never leave a second, longer-lived copy of the key behind.
+      sessionStorage.removeItem(SESSION_KEY);localStorage.removeItem(SESSION_KEY);
+      try{sessionStore(saved.minutes).setItem(SESSION_KEY,JSON.stringify(saved))}catch(_){}
+    }
+    // Opening the vault pushes the deadline out again. Used daily it never asks
+    // for the master password; forgotten for longer than the chosen span it
+    // locks itself exactly as before. The span travels with the key because it
+    // is what the clock is restarted from.
+    function renewSession(saved){if(!saved||!saved.minutes)return saved;saved.expires=expiry(saved.minutes);saveSession(saved);return saved}
+    async function cacheKey(value){var minutes=minutesOf(value),saved={key:b64(await crypto.subtle.exportKey('raw',key)),expires:expiry(minutes),minutes:minutes};scheduleAutoLock(saved.expires);localStorage.setItem(DURATION_KEY,value);saveSession(saved)}
+    function readSession(){
+      var found=null;
+      [localStorage,sessionStorage].forEach(function(where){
+        if(found)return;
+        var raw=null;
+        try{raw=JSON.parse(where.getItem(SESSION_KEY)||'null')}catch(_){}
+        if(raw&&(!raw.expires||raw.expires>Date.now()))found=raw;else if(raw)where.removeItem(SESSION_KEY);
+      });
+      return found;
+    }
+    async function restoreLocalKey(){var saved=readSession();if(!saved)return false;try{key=await importKey(saved.key);scheduleAutoLock(renewSession(saved).expires);return true}catch(_){sessionStorage.removeItem(SESSION_KEY);localStorage.removeItem(SESSION_KEY);return false}}
+    // Returning to a page that was left in the background counts as opening it.
+    // A home-screen app on iOS is resumed rather than reloaded, so the renewal in
+    // restoreLocalKey() would never run again and a vault opened every day would
+    // still lock itself mid-week. Inside the extension this finds nothing and
+    // does nothing — there the key lives in the extension's own storage and the
+    // popup is a new document on every open, which renews it anyway.
+    function onVisible(){if(document.hidden||!key)return;var saved=readSession();if(saved)scheduleAutoLock(renewSession(saved).expires)}
+    function clearCachedKey(){sessionStorage.removeItem(SESSION_KEY);localStorage.removeItem(SESSION_KEY);if(parentOrigin)window.parent.postMessage({source:'mvmos-public-app',appId:APP_ID,action:'vault-session-clear'},parentOrigin)}
+    function lockNow(){clearTimeout(autoLockTimer);autoLockTimer=0;key=null;entries=[];folders=[];clearCachedKey();load()}
     async function encrypt(value){var iv=crypto.getRandomValues(new Uint8Array(12));var data=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},key,new TextEncoder().encode(JSON.stringify(value)));return{iv:b64(iv),ciphertext:b64(data)}}
     async function decrypt(row){var out=await crypto.subtle.decrypt({name:'AES-GCM',iv:bytes(row.iv)},key,bytes(row.ciphertext));var item=JSON.parse(new TextDecoder().decode(out));item.id=row.id;return item}
     function withoutId(item){var out=Object.assign({},item);delete out.id;return out}
@@ -199,7 +251,156 @@
     async function totpFetchCode(accountId){return api('/totp/code/'+encodeURIComponent(accountId))}
     async function loadEntries(){var data=await api('/vault');var out=[];for(var i=0;i<(data.entries||[]).length;i++)out.push(await decrypt(data.entries[i]));entries=out;return out}
     async function saveEntry(id,value){var encrypted=await encrypt(value);return id?api('/entries/'+encodeURIComponent(id),{method:'PUT',body:JSON.stringify(encrypted)}):api('/entries',{method:'POST',body:JSON.stringify(encrypted)})}
-    function unlockScreen(vault,error){if(passkeyBusy)return;var creating=!vault,duration=localStorage.getItem('mvm_pm_unlock_duration')||'session';root.innerHTML='<div class="pm pm-unlock"><div><h2>'+esc(t(creating?'pm_create_title':'pm_unlock'))+'</h2><p>'+esc(t(creating?'pm_create_info':'pm_unlock_info'))+'</p><input class="pm-master" type="password" autocomplete="new-password" placeholder="'+esc(t('pm_master'))+'">'+(creating?'<input class="pm-confirm" type="password" autocomplete="new-password" placeholder="'+esc(t('pm_confirm_master'))+'">':'')+'<label class="pm-duration-label">'+esc(t('pm_unlock_for'))+'</label><select class="pm-duration"><option value="5">'+esc(t('pm_minutes',{n:5}))+'</option><option value="15">'+esc(t('pm_minutes',{n:15}))+'</option><option value="60">'+esc(t('pm_hour'))+'</option><option value="session">'+esc(t('pm_until_closed'))+'</option></select><div class="pm-error">'+esc(error||'')+'</div><button class="primary pm-go">'+esc(t(creating?'pm_create':'pm_unlock'))+'</button></div></div>';var select=root.querySelector('.pm-duration');select.value=duration;var input=root.querySelector('.pm-master');root.querySelector('.pm-go').onclick=async function(){var pass=input.value;
+
+    // ---- folders ----------------------------------------------------------
+    // A folder is a name and nothing else, encrypted with the same key as the
+    // logins — the server stores it as one more opaque blob and can no more read
+    // "Banking" than it can read what is inside it. Which folder an entry is in
+    // travels inside that entry's own ciphertext as `folder_id`, so the server
+    // cannot even count the members of a folder, and an existing vault needs no
+    // conversion: an entry written before folders existed simply has no field.
+    async function saveFolder(id,name){var encrypted=await encrypt({name:name});return id?api('/folders/'+encodeURIComponent(id),{method:'PUT',body:JSON.stringify(encrypted)}):api('/folders',{method:'POST',body:JSON.stringify(encrypted)})}
+    function folderName(id){var found=folders.find(function(x){return x.id===id});return found?found.name:''}
+    // The folder an entry counts as being in. A `folder_id` pointing at a folder
+    // that is gone reads as unfiled rather than as a filter nothing can select,
+    // so a delete interrupted halfway leaves the vault untidy, never unusable.
+    function entryFolder(x){var id=x&&x.folder_id;return id&&folders.some(function(f){return f.id===id})?id:''}
+    function folderOrder(){try{var saved=JSON.parse(localStorage.getItem(FOLDER_ORDER_KEY)||'[]');return Array.isArray(saved)?saved:[]}catch(_){return[]}}
+    // Using a folder moves it to the front of the row. That is what makes the
+    // overflow safe to hide: the tabs that fall off the end are by definition the
+    // ones this profile reaches for least, and picking one out of the ⋯ menu
+    // brings it back into view for next time.
+    function touchFolder(id){if(!id||id===UNFILED)return;var order=folderOrder().filter(function(x){return x!==id});order.unshift(id);localStorage.setItem(FOLDER_ORDER_KEY,JSON.stringify(order.slice(0,60)))}
+    function forgetFolder(id){localStorage.setItem(FOLDER_ORDER_KEY,JSON.stringify(folderOrder().filter(function(x){return x!==id})))}
+    // All is pinned first and never rotates — it is the way back, and a way back
+    // that moves is not one. "No folder" is pinned last for the mirror-image
+    // reason: it is the leftovers, not a folder anyone organised anything into,
+    // so rotating it to the front would push a real folder out of view to make
+    // room for the pile the folders exist to empty. Only the real folders in
+    // between are ordered by last use, with the never-used ones keeping their
+    // alphabetical order behind those that were.
+    function folderTabs(){
+      var order=folderOrder();
+      var items=folders.map(function(f){return{id:f.id,name:f.name}});
+      items.sort(function(a,b){var ia=order.indexOf(a.id),ib=order.indexOf(b.id);
+        if(ia<0&&ib<0)return 0;
+        if(ia<0)return 1;
+        if(ib<0)return -1;
+        return ia-ib});
+      // Only worth a tab once something is actually outside every folder.
+      if(entries.some(function(x){return !entryFolder(x)}))items.push({id:UNFILED,name:t('pm_folder_none')});
+      return[{id:'',name:t('pm_folder_all')}].concat(items);
+    }
+    function pickFolder(id){
+      folder=id;
+      if(id)localStorage.setItem(FOLDER_KEY,id);else localStorage.removeItem(FOLDER_KEY);
+      touchFolder(id);
+      // Switching folders starts the question over, so both wideners are dropped:
+      // the page filter comes back, and the other folders go back into hiding —
+      // otherwise the new folder would open already widened by a choice made
+      // about the old one.
+      showAll=false;otherFolders=false;
+      var menu=root.querySelector('.pm-folder-menu');if(menu)menu.hidden=true;
+      renderFolders();renderList();
+    }
+    // Hides the tabs that do not fit on one line and hands them to the ⋯ button.
+    // Measured with the button already on screen, so the row is asked whether the
+    // tabs fit in the width it will actually have rather than the width it has
+    // while pretending the button is not there.
+    function layoutFolders(){
+      var wrap=root.querySelector('.pm-folders');if(!wrap||wrap.hidden)return;
+      var row=wrap.querySelector('.pm-folder-row'),more=wrap.querySelector('.pm-folder-more');
+      var tabs=Array.prototype.slice.call(row.children);
+      tabs.forEach(function(el){el.hidden=false});
+      more.hidden=false;
+      var width=row.clientWidth;
+      // Not laid out yet (a display:none ancestor, a popup still opening). Leaving
+      // every tab visible is the harmless state: the row simply clips.
+      if(!width||!tabs.length){more.hidden=true;return}
+      // Every position is read before a single tab is hidden. Hiding one inside
+      // the measuring loop would pull the rest leftwards, so a later tab could
+      // then "fit" in the space a hidden earlier one left behind — and the row
+      // would show tab 5 while tab 4 sat in the ⋯ menu, out of the order the
+      // whole most-recently-used arrangement exists to express.
+      var left=row.getBoundingClientRect().left;
+      var rights=tabs.map(function(el){return el.getBoundingClientRect().right-left});
+      var cut=-1;
+      for(var i=0;i<tabs.length;i++){if(rights[i]>width+0.5){cut=i;break}}
+      if(cut<0){more.hidden=true;return}
+      for(var j=cut;j<tabs.length;j++)tabs[j].hidden=true;
+    }
+    function renderFolders(){
+      var wrap=root.querySelector('.pm-folders');if(!wrap)return;
+      // One row of tabs over an empty set of folders is a control that filters
+      // nothing, so it stays out of the way until there is a folder to pick.
+      wrap.hidden=!folders.length;
+      if(wrap.hidden)return;
+      var row=wrap.querySelector('.pm-folder-row');
+      row.innerHTML=folderTabs().map(function(f){
+        return'<button class="pm-folder-tab'+(f.id===folder?' active':'')+'" data-folder="'+esc(f.id)+'" title="'+esc(f.name)+'">'+esc(f.name)+'</button>'}).join('');
+      layoutFolders();
+    }
+    function folderMenu(){
+      var wrap=root.querySelector('.pm-folders'),menu=wrap.querySelector('.pm-folder-menu');
+      var hiddenTabs=Array.prototype.filter.call(wrap.querySelectorAll('.pm-folder-tab'),function(el){return el.hidden});
+      menu.innerHTML=hiddenTabs.map(function(el){
+        return'<button data-folder="'+esc(el.dataset.folder)+'">'+esc(el.textContent)+'</button>'}).join('');
+      menu.hidden=false;
+    }
+    // The entries move out first and the folder is deleted only once they have.
+    // The other order would leave logins pointing at nothing for as long as the
+    // updates take, and permanently if one of them failed.
+    async function deleteFolder(id){
+      var members=entries.filter(function(x){return x.folder_id===id});
+      for(var i=0;i<members.length;i++){var value=withoutId(members[i]);delete value.folder_id;await saveEntry(members[i].id,value)}
+      await api('/folders/'+encodeURIComponent(id),{method:'DELETE'});
+      if(folder===id){folder='';localStorage.removeItem(FOLDER_KEY)}
+      forgetFolder(id);
+      await load(true);
+    }
+    function foldersDialog(){
+      var overlay=document.createElement('div');overlay.className='pm-overlay';
+      overlay.innerHTML='<div class="pm-dialog"><h3>'+esc(t('pm_folders'))+'</h3><p class="pm-import-info">'+esc(t('pm_folders_info'))+'</p><div class="pm-folder-list"></div><label>'+esc(t('pm_folder_new'))+'</label><div class="pm-folder-edit"><input class="f-new" placeholder="'+esc(t('pm_folder_new_placeholder'))+'"><button type="button" class="primary f-add" title="'+esc(t('pm_folder_add'))+'" aria-label="'+esc(t('pm_folder_add'))+'">＋</button></div><div class="pm-error"></div><div class="pm-actions"><button class="f-close">'+esc(t('pm_import_close'))+'</button></div></div>';
+      root.appendChild(overlay);
+      var list=overlay.querySelector('.pm-folder-list'),err=overlay.querySelector('.pm-error'),busy=false;
+      function taken(name,exceptId){return folders.some(function(f){return f.id!==exceptId&&f.name.toLowerCase()===name.toLowerCase()})}
+      function draw(){
+        list.innerHTML=folders.length?folders.map(function(f){
+          var n=entries.filter(function(x){return entryFolder(x)===f.id}).length;
+          return'<div class="pm-folder-edit"><input class="f-fname" data-id="'+esc(f.id)+'" value="'+esc(f.name)+'"><button type="button" class="f-frename" data-id="'+esc(f.id)+'" title="'+esc(t('pm_folder_rename'))+'" aria-label="'+esc(t('pm_folder_rename'))+'">💾</button><button type="button" class="pm-danger f-fdel" data-id="'+esc(f.id)+'" data-count="'+n+'" title="'+esc(t('pm_folder_delete'))+'" aria-label="'+esc(t('pm_folder_delete'))+'">🗑</button></div>'}).join(''):'<div class="pm-folder-empty">'+esc(t('pm_folder_empty'))+'</div>';
+      }
+      async function run(job){if(busy)return;busy=true;err.textContent='';
+        try{await job()}catch(_){err.textContent=t('pm_error')}
+        busy=false;draw()}
+      draw();
+      list.onclick=function(e){
+        var el=e.target.closest('button');if(!el)return;
+        var id=el.dataset.id;
+        if(el.classList.contains('f-frename')){
+          var input=list.querySelector('.f-fname[data-id="'+id+'"]'),name=input.value.trim();
+          if(!name){err.textContent=t('pm_folder_name_required');return}
+          if(taken(name,id)){err.textContent=t('pm_folder_exists');return}
+          run(async function(){await saveFolder(id,name);await load(true)});
+        } else if(el.classList.contains('f-fdel')){
+          var count=Number(el.dataset.count||0);
+          if(!confirm(t(count?'pm_folder_delete_confirm_n':'pm_folder_delete_confirm',{name:folderName(id),n:count})))return;
+          run(function(){return deleteFolder(id)});
+        }
+      };
+      var newInput=overlay.querySelector('.f-new');
+      function add(){var name=newInput.value.trim();
+        if(!name){err.textContent=t('pm_folder_name_required');return}
+        if(taken(name,null)){err.textContent=t('pm_folder_exists');return}
+        run(async function(){await saveFolder(null,name);newInput.value='';await load(true)})}
+      overlay.querySelector('.f-add').onclick=add;
+      newInput.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();add()}};
+      list.onkeydown=function(e){if(e.key!=='Enter'||!e.target.classList.contains('f-fname'))return;
+        e.preventDefault();
+        var button=list.querySelector('.f-frename[data-id="'+e.target.dataset.id+'"]');if(button)button.click()};
+      overlay.querySelector('.f-close').onclick=function(){if(!busy)overlay.remove()};
+      setTimeout(function(){newInput.focus()},20);
+    }
+    function unlockScreen(vault,error){if(passkeyBusy)return;var creating=!vault,duration=localStorage.getItem(DURATION_KEY)||'session';root.innerHTML='<div class="pm pm-unlock"><div><h2>'+esc(t(creating?'pm_create_title':'pm_unlock'))+'</h2><p>'+esc(t(creating?'pm_create_info':'pm_unlock_info'))+'</p><input class="pm-master" type="password" autocomplete="new-password" placeholder="'+esc(t('pm_master'))+'">'+(creating?'<input class="pm-confirm" type="password" autocomplete="new-password" placeholder="'+esc(t('pm_confirm_master'))+'">':'')+'<label class="pm-duration-label">'+esc(t('pm_unlock_for'))+'</label><select class="pm-duration"><option value="5">'+esc(t('pm_minutes',{n:5}))+'</option><option value="15">'+esc(t('pm_minutes',{n:15}))+'</option><option value="60">'+esc(t('pm_hour'))+'</option><option value="240">'+esc(t('pm_hours',{n:4}))+'</option><option value="720">'+esc(t('pm_hours',{n:12}))+'</option><option value="1440">'+esc(t('pm_hours',{n:24}))+'</option><option value="10080">'+esc(t('pm_days',{n:7}))+'</option><option value="session">'+esc(t('pm_until_closed'))+'</option></select><div class="pm-duration-hint">'+esc(t('pm_unlock_sliding'))+'</div><div class="pm-error">'+esc(error||'')+'</div><button class="primary pm-go">'+esc(t(creating?'pm_create':'pm_unlock'))+'</button></div></div>';var select=root.querySelector('.pm-duration');select.value=duration;var input=root.querySelector('.pm-master');root.querySelector('.pm-go').onclick=async function(){var pass=input.value;
       // The length rule guards the choice of a new master password, so it applies
       // only when creating a vault. Enforcing it on unlock would lock a user out
       // of a vault whose password predates the rule — the password is already
@@ -213,53 +414,101 @@
       if(mode==='exact')return websites(item).some(function(site){return normalUrl(ctx.url)===normalUrl(site)});
       if(mode==='regex')return websites(item).some(function(site){try{return new RegExp(site,'i').test(ctx.url||'')}catch(_){return false}});
       return sameHost(ctx.hostname,item)}
-    // A search is a search of the whole vault. Narrowing to the current site is
-    // a convenience for the untyped state only: the moment something is typed,
-    // the site filter is dropped, otherwise an entry that exists but does not
-    // match the open page is unfindable — you get "1 match" and no way to reach
-    // the second one you know is there.
-    function visible(){var q=((root.querySelector('.pm-search')||{}).value||'').trim().toLowerCase();
-      if(q)return entries.filter(function(x){return JSON.stringify(x).toLowerCase().indexOf(q)>=0});
-      return entries.filter(function(x){return showAll||matchesEntry(context,x)})}
+    function inFolder(x){return folder===UNFILED?!entryFolder(x):entryFolder(x)===folder}
+    // Everything the typed search or the open page asks for, before the folder is
+    // applied.
+    //
+    // A search is a search of the whole vault. Narrowing to the current site is a
+    // convenience for the untyped state only: the moment something is typed, the
+    // site filter is dropped, otherwise an entry that exists but does not match
+    // the open page is unfindable — you get "1 match" and no way to reach the
+    // second one you know is there.
+    function candidates(){
+      var q=((root.querySelector('.pm-search')||{}).value||'').trim().toLowerCase();
+      // The folder name joins the haystack, so "work" finds the logins in Work
+      // even when the word appears nowhere inside them.
+      if(q)return entries.filter(function(x){return(JSON.stringify(x)+' '+folderName(entryFolder(x))).toLowerCase().indexOf(q)>=0});
+      return entries.filter(function(x){return showAll||matchesEntry(context,x)});
+    }
+    // A folder hides, it never re-matches. What the page (or the search) selected
+    // is decided above and left alone; the folder only takes the matches sitting
+    // in another folder off the screen. Two accounts for the same site, one in
+    // Home and one in Work, with Home chosen: the Work one is hidden, not gone —
+    // hiddenCount() counts it and renderList() offers to show it.
+    //
+    // "Show the rest" lasts for this view only. Nothing is written down, so the
+    // next time the popup opens the chosen folder is hiding again, which is the
+    // whole point of choosing one.
+    function visible(){var list=candidates();return folder&&!otherFolders?list.filter(inFolder):list}
+    function hiddenCount(){if(!folder||otherFolders)return 0;var list=candidates();return list.length-list.filter(inFolder).length}
     // The bar (with the search input) is built once per unlock and never
     // replaced afterwards. Rebuilding it on every keystroke — the old
     // behaviour — destroyed and recreated the <input>, which is what threw
     // focus and the cursor position away after the very first character.
-    function renderShell(){if(!key||passkeyBusy)return;root.innerHTML='<div class="pm"><div class="pm-bar"><div class="pm-bar-head"><span class="pm-title">🛡️ '+esc(t('pm_title'))+'</span></div><div class="pm-bar-tools"><input class="pm-search" placeholder="'+esc(t('pm_search'))+'"><button class="pm-menu-btn" title="'+esc(t('pm_menu'))+'" aria-label="'+esc(t('pm_menu'))+'">☰</button></div><span class="pm-context"></span></div><div class="pm-menu" hidden><button class="pm-add">'+esc(t('pm_add'))+'</button>'+(parentOrigin?'':'<button class="pm-import">'+esc(t('pm_import_title'))+'</button>')+'<button class="pm-lock">'+esc(t('pm_lock'))+'</button></div><div class="pm-list"></div></div>';
+    function renderShell(){if(!key||passkeyBusy)return;root.innerHTML='<div class="pm"><div class="pm-bar"><div class="pm-bar-head"><span class="pm-title">🛡️ '+esc(t('pm_title'))+'</span></div><div class="pm-bar-tools"><input class="pm-search" placeholder="'+esc(t('pm_search'))+'"><button class="pm-menu-btn" title="'+esc(t('pm_menu'))+'" aria-label="'+esc(t('pm_menu'))+'">☰</button></div><div class="pm-folders" hidden><div class="pm-folder-row"></div><button class="pm-folder-more" hidden title="'+esc(t('pm_folder_more'))+'" aria-label="'+esc(t('pm_folder_more'))+'">⋯</button><div class="pm-folder-menu" hidden></div></div><span class="pm-context"></span></div><div class="pm-menu" hidden><button class="pm-add">'+esc(t('pm_add'))+'</button><button class="pm-folders-btn">'+esc(t('pm_folders'))+'</button>'+(parentOrigin?'':'<button class="pm-import">'+esc(t('pm_import_title'))+'</button>')+'<button class="pm-lock">'+esc(t('pm_lock'))+'</button></div><div class="pm-list"></div></div>';
       var search=root.querySelector('.pm-search');search.oninput=renderList;
       var menuBtn=root.querySelector('.pm-menu-btn'),menu=root.querySelector('.pm-menu');
       menuBtn.onclick=function(e){e.stopPropagation();menu.hidden=!menu.hidden};
+      var folderWrap=root.querySelector('.pm-folders'),folderMore=folderWrap.querySelector('.pm-folder-more'),overflowMenu=folderWrap.querySelector('.pm-folder-menu');
+      folderWrap.querySelector('.pm-folder-row').onclick=function(e){var el=e.target.closest('[data-folder]');if(el)pickFolder(el.dataset.folder)};
+      overflowMenu.onclick=function(e){var el=e.target.closest('[data-folder]');if(el)pickFolder(el.dataset.folder)};
+      folderMore.onclick=function(e){e.stopPropagation();if(overflowMenu.hidden)folderMenu();else overflowMenu.hidden=true};
+      // The row is re-measured whenever it changes width — a resized desktop
+      // window, a phone turned on its side — because which tabs fit is a fact
+      // about the width and nothing else, and is wrong the moment that changes.
+      if(folderObserver)folderObserver.disconnect();
+      if(window.ResizeObserver){folderObserver=new ResizeObserver(function(){layoutFolders()});folderObserver.observe(folderWrap)}
       // renderShell() replaces the whole subtree on every unlock, so the previous
       // outside-click listener (closing over now-detached elements) is removed
       // first — otherwise each unlock/lock cycle would leak one more of these.
       if(outsideClickHandler)document.removeEventListener('click',outsideClickHandler);
-      outsideClickHandler=function(e){if(!menu.hidden&&!menu.contains(e.target)&&e.target!==menuBtn)menu.hidden=true};
+      outsideClickHandler=function(e){if(!menu.hidden&&!menu.contains(e.target)&&e.target!==menuBtn)menu.hidden=true;
+        if(!overflowMenu.hidden&&!overflowMenu.contains(e.target)&&e.target!==folderMore)overflowMenu.hidden=true};
       document.addEventListener('click',outsideClickHandler);
       root.querySelector('.pm-add').onclick=function(){menu.hidden=true;dialog()};
+      root.querySelector('.pm-folders-btn').onclick=function(){menu.hidden=true;foldersDialog()};
       var importButton=root.querySelector('.pm-import');if(importButton)importButton.onclick=function(){menu.hidden=true;importDialog()};
       root.querySelector('.pm-lock').onclick=function(){menu.hidden=true;lockNow()};
-      renderList();
+      renderFolders();renderList();
     }
     function renderList(){if(!key||passkeyBusy)return;var list=visible(),hasContext=context&&context.hostname,matchCount=hasContext?entries.filter(function(x){return matchesEntry(context,x)}).length:0;if(parentOrigin&&hasContext)window.parent.postMessage({source:'mvmos-public-app',appId:APP_ID,action:'password-match-count',count:matchCount},parentOrigin);
       // While a search is active the site filter is off (see visible()), so the
       // context line and the "show all" button must not claim otherwise.
       var searching=!!((root.querySelector('.pm-search')||{}).value||'').trim();
-      var ctx=root.querySelector('.pm-context');if(ctx)ctx.textContent=hasContext&&!showAll&&!searching?t('pm_matching',{host:context.hostname}):t('pm_all');
+      // Whether the page is still narrowing the list, which is what the "show all
+      // logins" button undoes. It stays reachable with a folder chosen, because
+      // the folder no longer replaces that narrowing — without it, a folder opened
+      // on a page it does not match would be an empty list with no way to see the
+      // folder itself.
+      var siteFilter=hasContext&&!showAll&&!searching;
+      // A chosen folder is what the list is showing, so it is what the line says.
+      var ctx=root.querySelector('.pm-context');if(ctx)ctx.textContent=folder?(folder===UNFILED?t('pm_folder_none'):folderName(folder)):(siteFilter?t('pm_matching',{host:context.hostname}):t('pm_all'));
       // No pagination: the grid is just as many auto-sized columns as the
       // width allows (CSS, not JS), and the list keeps growing downward with
       // a scrollbar — a phone-width container falls back to one column,
       // which is the same single stacked list it always was.
       var el=root.querySelector('.pm-list');
       el.className='pm-list pm-list-grid';
-      el.innerHTML=(list.length?list.map(card).join(''):'<div class="pm-empty">'+esc(t('pm_empty'))+'</div>')+(hasContext&&!showAll&&!searching?'<button class="pm-show-all">'+esc(t('pm_show_all'))+'</button>':'');
+      // What the chosen folder is keeping off the screen. The count is the point
+      // of the button: it says something is there without putting it in the way.
+      var hidden=hiddenCount();
+      var others=hidden?'<button class="pm-folder-others">'+esc(t('pm_folder_others',{n:hidden}))+'</button>':'';
+      // An empty folder is a dead end unless the way out is on the screen that
+      // shows it — but only when nothing is hidden either, since the button above
+      // is already that way out and two of them side by side would just ask the
+      // same question twice.
+      var wayBack=!list.length&&folder&&!hidden?'<button class="pm-folder-clear">'+esc(t('pm_folder_show_all'))+'</button>':'';
+      el.innerHTML=(list.length?list.map(card).join(''):'<div class="pm-empty">'+esc(t(folder?'pm_folder_empty_list':'pm_empty'))+'</div>')+others+wayBack+(siteFilter?'<button class="pm-show-all">'+esc(t('pm_show_all'))+'</button>':'');
       var all=el.querySelector('.pm-show-all');if(all)all.onclick=function(){showAll=true;renderList()};
+      var clear=el.querySelector('.pm-folder-clear');if(clear)clear.onclick=function(){pickFolder('')};
+      var more=el.querySelector('.pm-folder-others');if(more)more.onclick=function(){otherFolders=true;renderList()};
       el.onclick=onClick;
     }
     // load() re-fetches after every save/delete/import while the shell is
     // already on screen; re-running renderShell() there would blow away the
     // search input (and any text mid-typed into it) for no reason, so it only
     // (re)builds the shell the first time, then always refreshes just the list.
-    function render(){root.querySelector('.pm-bar')?renderList():renderShell()}
+    function render(){if(root.querySelector('.pm-bar')){renderFolders();renderList()}else renderShell()}
     function card(x){var matched=context&&context.hostname&&matchesEntry(context,x),badge=matched?'<span class="pm-match-badge"><img src="/apps/mvmpasswords/extension-icon.png" alt="">'+esc(t('pm_match'))+'</span>':'',keyBadge=x.passkey?'<span class="pm-passkey-badge">🔑 '+esc(t('pm_passkey_field'))+'</span>':'';// Icon-only buttons keep one card's actions on a single row on a phone, but an
     // icon alone names nothing — so each carries its label as both title and
     // aria-label, which is also what a screen reader reads out.
@@ -268,7 +517,7 @@
     // website still needs that slot to hold its layout, so the open-link
     // button only renders when there is somewhere to send the click.
     var openBtn=websites(x).length?action('data-open',x.id,t('pm_open_url'),'↗️'):'<span class="pm-icon-btn pm-icon-spacer"></span>';
-    return'<div class="pm-card" data-id="'+esc(x.id)+'"><div class="pm-head pm-head-click" data-view="'+esc(x.id)+'"><div class="pm-avatar">'+esc((x.name||'?')[0].toUpperCase())+'</div><div><div class="pm-name">'+esc(x.name)+badge+keyBadge+'</div><div class="pm-sub">'+esc(host(websites(x)[0]||'')||x.username)+'</div></div></div><div class="pm-actions">'+(parentOrigin?action('data-fill',x.id,t('pm_fill'),'✒️','primary'):'')+action('data-cu',x.id,t('pm_copy_username'),'👤')+action('data-cp',x.id,t('pm_copy_password'),'🔑')+(totpReady()&&x.totp_id?action('data-ct',x.id,t('pm_copy_totp'),'🔢'):'')+action('data-edit',x.id,t('pm_edit'),'✏️')+openBtn+'</div></div>'}
+    return'<div class="pm-card" data-id="'+esc(x.id)+'"><div class="pm-head pm-head-click" data-view="'+esc(x.id)+'"><div class="pm-avatar">'+esc((x.name||'?')[0].toUpperCase())+'</div><div><div class="pm-name">'+esc(x.name)+badge+keyBadge+'</div><div class="pm-sub">'+esc(x.username||host(websites(x)[0]||''))+'</div></div></div><div class="pm-actions">'+(parentOrigin?action('data-fill',x.id,t('pm_fill'),'✒️','primary'):'')+action('data-cu',x.id,t('pm_copy_username'),'👤')+action('data-cp',x.id,t('pm_copy_password'),'🔑')+(totpReady()&&x.totp_id?action('data-ct',x.id,t('pm_copy_totp'),'🔢'):'')+action('data-edit',x.id,t('pm_edit'),'✏️')+openBtn+'</div></div>'}
     function find(id){return entries.find(function(x){return x.id===id})}
 
     // ---- import -----------------------------------------------------------
@@ -427,6 +676,7 @@
     function viewDialog(item){if(!item)return;var overlay=document.createElement('div');overlay.className='pm-overlay';
       var passkeyBlock=item.passkey?'<label>'+esc(t('pm_passkey_field'))+'</label><div class="pm-view-value">🔑 '+esc(item.passkey.userDisplayName||item.passkey.userName||item.passkey.rpId||'')+'</div>':'';
       overlay.innerHTML='<div class="pm-dialog"><h3>'+esc(item.name||'')+'</h3>'+
+        (entryFolder(item)?'<label>'+esc(t('pm_folder_field'))+'</label><div class="pm-view-value">🗂️ '+esc(folderName(entryFolder(item)))+'</div>':'')+
         '<label>'+esc(t('pm_website'))+'</label>'+(websites(item).length?websites(item).map(function(site){return'<div class="pm-view-value">'+esc(site)+'</div>'}).join(''):'<div class="pm-view-value">—</div>')+
         '<label>'+esc(t('pm_username'))+'</label><div class="pm-view-value">'+esc(item.username||'—')+'</div>'+
         '<label>'+esc(t('pm_password'))+'</label><div class="pm-password-field"><div class="pm-view-value f-pass-view">••••••••</div><button type="button" class="f-toggle" title="'+esc(t('pm_show_password'))+'">👁</button></div>'+
@@ -452,7 +702,15 @@
       overlay.querySelector('.f-close').onclick=function(){overlay.remove()};
       overlay.querySelector('.f-edit').onclick=function(){overlay.remove();dialog(item)};
     }
-    function dialog(item){item=item||{};var overlay=document.createElement('div');overlay.className='pm-overlay';overlay.innerHTML='<div class="pm-dialog"><h3>'+esc(t(item.id?'pm_edit_entry':'pm_new_entry'))+'</h3><label>'+esc(t('pm_name'))+'</label><input class="f-name" value="'+esc(item.name)+'"><label>'+esc(t('pm_website'))+'</label><div class="pm-web-list"></div><button type="button" class="pm-web-add">+ '+esc(t('pm_add_website'))+'</button><label>'+esc(t('pm_match_mode'))+'</label><select class="f-match"><option value="default">'+esc(t('pm_match_default'))+'</option><option value="domain">'+esc(t('pm_match_domain'))+'</option><option value="exact">'+esc(t('pm_match_exact'))+'</option><option value="regex">'+esc(t('pm_match_regex'))+'</option></select><label>'+esc(t('pm_username'))+'</label><input class="f-user" value="'+esc(item.username)+'"><label>'+esc(t('pm_password'))+'</label><div class="pm-password-field"><input class="f-pass" type="password" value="'+esc(item.password)+'"><button type="button" class="f-toggle" title="'+esc(t('pm_show_password'))+'">👁</button></div>'+(totpReady()?'<label>'+esc(t('pm_totp_field'))+'</label><select class="f-totp"><option value="">'+esc(t('pm_totp_none'))+'</option></select>':'')+'<label>'+esc(t('pm_notes'))+'</label><textarea class="f-notes">'+esc(item.notes)+'</textarea>'+(item.passkey?'<div class="pm-passkey-block"><label>'+esc(t('pm_passkey_field'))+'</label><div class="pm-passkey-row"><span class="pm-passkey-info">🔑 '+esc(item.passkey.userDisplayName||item.passkey.userName||item.passkey.rpId||'')+'</span><button type="button" class="f-passkey-del">'+esc(t('pm_passkey_remove'))+'</button></div></div>':'')+'<div class="pm-error"></div><div class="pm-actions"><button class="primary f-save">'+esc(t('pm_save'))+'</button><button class="f-cancel">'+esc(t('pm_cancel'))+'</button>'+(item.id?'<button class="pm-danger f-delete">'+esc(t('pm_delete'))+'</button>':'')+'</div></div>';root.appendChild(overlay);var pass=overlay.querySelector('.f-pass'),toggle=overlay.querySelector('.f-toggle'),match=overlay.querySelector('.f-match');match.value=item.match_mode||'default';
+    // The folder picker is offered only once there is a folder to pick: a select
+    // whose whole content is "No folder" asks a question with one answer. Until
+    // then the manager in the ☰ menu is where a vault gets its first folder.
+    function folderField(selected){return folders.length?'<label>'+esc(t('pm_folder_field'))+'</label><select class="f-folder"><option value="">'+esc(t('pm_folder_none'))+'</option>'+folders.map(function(f){return'<option value="'+esc(f.id)+'"'+(selected===f.id?' selected':'')+'>'+esc(f.name)+'</option>'}).join('')+'</select>':''}
+    function dialog(item){item=item||{};
+      // A login added while a folder is open starts in that folder. Anything else
+      // means filing it by hand immediately after choosing where to look.
+      var startFolder=item.id?entryFolder(item):(folder&&folder!==UNFILED?folder:'');
+      var overlay=document.createElement('div');overlay.className='pm-overlay';overlay.innerHTML='<div class="pm-dialog"><h3>'+esc(t(item.id?'pm_edit_entry':'pm_new_entry'))+'</h3><label>'+esc(t('pm_name'))+'</label><input class="f-name" value="'+esc(item.name)+'">'+folderField(startFolder)+'<label>'+esc(t('pm_website'))+'</label><div class="pm-web-list"></div><button type="button" class="pm-web-add">+ '+esc(t('pm_add_website'))+'</button><label>'+esc(t('pm_match_mode'))+'</label><select class="f-match"><option value="default">'+esc(t('pm_match_default'))+'</option><option value="domain">'+esc(t('pm_match_domain'))+'</option><option value="exact">'+esc(t('pm_match_exact'))+'</option><option value="regex">'+esc(t('pm_match_regex'))+'</option></select><label>'+esc(t('pm_username'))+'</label><input class="f-user" value="'+esc(item.username)+'"><label>'+esc(t('pm_password'))+'</label><div class="pm-password-field"><input class="f-pass" type="password" value="'+esc(item.password)+'"><button type="button" class="f-toggle" title="'+esc(t('pm_show_password'))+'">👁</button></div>'+(totpReady()?'<label>'+esc(t('pm_totp_field'))+'</label><select class="f-totp"><option value="">'+esc(t('pm_totp_none'))+'</option></select>':'')+'<label>'+esc(t('pm_notes'))+'</label><textarea class="f-notes">'+esc(item.notes)+'</textarea>'+(item.passkey?'<div class="pm-passkey-block"><label>'+esc(t('pm_passkey_field'))+'</label><div class="pm-passkey-row"><span class="pm-passkey-info">🔑 '+esc(item.passkey.userDisplayName||item.passkey.userName||item.passkey.rpId||'')+'</span><button type="button" class="f-passkey-del">'+esc(t('pm_passkey_remove'))+'</button></div></div>':'')+'<div class="pm-error"></div><div class="pm-actions"><button class="primary f-save">'+esc(t('pm_save'))+'</button><button class="f-cancel">'+esc(t('pm_cancel'))+'</button>'+(item.id?'<button class="pm-danger f-delete">'+esc(t('pm_delete'))+'</button>':'')+'</div></div>';root.appendChild(overlay);var pass=overlay.querySelector('.f-pass'),toggle=overlay.querySelector('.f-toggle'),match=overlay.querySelector('.f-match');match.value=item.match_mode||'default';
       // The address rows are built here rather than in the markup above because
       // there is no fixed number of them. A row can always be removed, including
       // the last one — an entry with no address at all is legitimate (a database
@@ -494,7 +752,15 @@
         // subscription, or the integration switched off — the existing link is
         // carried over untouched rather than dropped: turning the feature off
         // must not quietly destroy what turning it back on would restore.
-        if(totpSelect){if(totpSelect.value)value.totp_id=totpSelect.value}else if(item.totp_id)value.totp_id=item.totp_id;if(!value.name||(!value.password&&!value.passkey)){overlay.querySelector('.pm-error').textContent=t('pm_required');return}try{var out=await saveEntry(item.id,value);if(!item.id)value.id=out.id;overlay.remove();await load(true)}catch(_){overlay.querySelector('.pm-error').textContent=t('pm_error')}};setTimeout(function(){overlay.querySelector('.f-name').focus()},20)}
+        if(totpSelect){if(totpSelect.value)value.totp_id=totpSelect.value}else if(item.totp_id)value.totp_id=item.totp_id;
+        // Same rule as the 2FA link above, and for the same reason: with no picker
+        // on screen there was no chance to change this, so an existing filing is
+        // carried over rather than silently cleared. A new login started inside a
+        // folder keeps it even in the vault that has only that one.
+        var folderSelect=overlay.querySelector('.f-folder');
+        var chosenFolder=folderSelect?folderSelect.value:(item.folder_id||startFolder);
+        if(chosenFolder)value.folder_id=chosenFolder;
+        if(!value.name||(!value.password&&!value.passkey)){overlay.querySelector('.pm-error').textContent=t('pm_required');return}try{var out=await saveEntry(item.id,value);if(!item.id)value.id=out.id;overlay.remove();await load(true)}catch(_){overlay.querySelector('.pm-error').textContent=t('pm_error')}};setTimeout(function(){overlay.querySelector('.f-name').focus()},20)}
     // In the extension the key arrives from the parent only after a full
     // iframe->ready->vault-session round trip, and load() used to start its
     // /vault request from scratch afterwards — so the request queued behind the
@@ -509,7 +775,19 @@
       totpOn=!!payload.totp;if(!key&&!parentOrigin)await restoreLocalKey();if(!key){unlockScreen(payload.vault);return}
       // Every record is independent, so they decrypt concurrently. Sequential
       // awaits made this O(n) round trips through the crypto engine.
-      entries=await Promise.all((payload.entries||[]).map(decrypt));render()}catch(_){if(key)unlockScreen(null,t('pm_unlock_failed'));else root.innerHTML='<div class="pm-empty">'+esc(t('pm_error'))+'</div>'}}
+      var loaded=await Promise.all([Promise.all((payload.entries||[]).map(decrypt)),Promise.all((payload.folders||[]).map(decrypt))]);
+      entries=loaded[0];
+      // Alphabetical, and localeCompare rather than a plain sort because a vault
+      // in Bulgarian would otherwise be ordered by code point. This is the order
+      // the manager and the entry editor show, and the fallback the tab row uses
+      // for folders that have not been picked yet.
+      folders=loaded[1].map(function(f){return{id:f.id,name:String(f.name||'')}}).sort(function(a,b){return a.name.localeCompare(b.name)});
+      // A remembered folder that has since been deleted — in another tab, on
+      // another device — would filter the list down to nothing with no tab lit up
+      // to explain why. Falling back to All is the only honest state.
+      if(folder&&folder!==UNFILED&&!folders.some(function(f){return f.id===folder})){folder='';localStorage.removeItem(FOLDER_KEY)}
+      touchFolder(folder);
+      render()}catch(_){if(key)unlockScreen(null,t('pm_unlock_failed'));else root.innerHTML='<div class="pm-empty">'+esc(t('pm_error'))+'</div>'}}
     function pk(){return window.MvmPasswordManagerPasskey}
     function replyPasskey(reqId,result,error){passkeyBusy=false;if(parentOrigin)window.parent.postMessage({source:'mvmos-public-app',appId:APP_ID,action:'passkey-result',reqId:reqId,result:result,error:error},parentOrigin)}
     // A passkey is a field of an ordinary login, the way Bitwarden stores one, so
@@ -521,12 +799,12 @@
     function passkeyUnlockGate(job){return new Promise(function(resolve){if(key){resolve();return}root.innerHTML='<div class="pm pm-unlock"><div><h2>'+esc(t('pm_passkey_unlock_title'))+'</h2><p>'+esc(t('pm_unlock_info'))+'</p><input class="pm-master" type="password" autocomplete="current-password" placeholder="'+esc(t('pm_master'))+'"><div class="pm-error"></div><button class="primary pm-go">'+esc(t('pm_unlock'))+'</button></div></div>';var input=root.querySelector('.pm-master'),err=root.querySelector('.pm-error');root.querySelector('.pm-go').onclick=async function(){try{var payload=await api('/vault');if(!payload.vault)throw new Error('vault_missing');key=await derive(input.value,payload.vault.salt,payload.vault.iterations);await cacheKey(localStorage.getItem('mvm_pm_unlock_duration')||'session');resolve()}catch(_){err.textContent=t('pm_unlock_failed')}};setTimeout(function(){input.focus()},30)})}
     async function runPasskeyCreate(job){await passkeyUnlockGate(job);var opts=Object.assign({},unwrapBufs(job.options),{__origin:job.origin});var rpId=String((opts.rp&&opts.rp.id)||new URL(job.origin).hostname).toLowerCase();try{await loadEntries()}catch(_){}var targets=entries.filter(function(x){return !x.passkey&&matchesEntry({hostname:rpId,url:job.origin},x)});var account=(opts.user&&(opts.user.displayName||opts.user.name))||rpId;return new Promise(function(resolve){root.innerHTML='<div class="pm pm-unlock"><div><h2>'+esc(t('pm_passkey_create_title'))+'</h2><p>'+esc(t('pm_passkey_create_info',{host:rpId}))+'</p>'+'<label class="pm-duration-label">'+esc(t('pm_passkey_save_to'))+'</label><select class="pm-duration pm-passkey-target"><option value="">'+esc(t('pm_passkey_new_login'))+'</option>'+targets.map(function(x,i){return'<option value="'+i+'">'+esc(x.name)+'</option>'}).join('')+'</select>'+'<label class="pm-duration-label">'+esc(t('pm_passkey_name'))+'</label><input class="pm-passkey-name" value="'+esc(account)+'">'+'<div class="pm-error"></div><div class="pm-actions"><button class="primary pm-go">'+esc(t('pm_passkey_save'))+'</button><button class="pm-cancel">'+esc(t('pm_cancel'))+'</button></div></div></div>';var nameInput=root.querySelector('.pm-passkey-name'),target=root.querySelector('.pm-passkey-target'),err=root.querySelector('.pm-error');root.querySelector('.pm-cancel').onclick=function(){replyPasskey(job.reqId,null,'The operation was cancelled.');resolve()};root.querySelector('.pm-go').onclick=async function(){try{var result=await pk().createCredential(opts);var record=result.vaultRecord;record.userDisplayName=nameInput.value.trim()||record.userDisplayName||record.userName;record.signCount=1;if(target.value===''){await saveEntry(null,{name:record.rpName||rpId,website:rpId,match_mode:'default',username:record.userName||record.userDisplayName||'',password:'',notes:'',passkey:record})}else{var item=targets[Number(target.value)],value=withoutId(item);value.passkey=record;await saveEntry(item.id,value)}replyPasskey(job.reqId,{credentialId:result.credentialId,clientDataJSON:result.clientDataJSON,attestationObject:result.attestationObject,publicKeySpki:result.publicKeySpki});resolve()}catch(_){err.textContent=t('pm_error')}}})}
     async function runPasskeyGet(job){await passkeyUnlockGate(job);var opts=Object.assign({},unwrapBufs(job.options),{__origin:job.origin});var rpId=String(opts.rpId||new URL(job.origin).hostname).toLowerCase();try{await loadEntries()}catch(_){}var allow=(opts.allowCredentials||[]).map(function(c){return c&&c.id}).filter(Boolean);var candidates=passkeyOwners(rpId,job.origin,allow);if(!candidates.length){replyPasskey(job.reqId,null,'No matching passkey.');return}return new Promise(function(resolve){function pick(item){root.innerHTML='<div class="pm pm-unlock"><div><h2>'+esc(t('pm_passkey_confirm_title'))+'</h2><p>'+esc(t('pm_passkey_confirm_info',{name:passkeyLabel(item)}))+'</p><div class="pm-error"></div><div class="pm-actions"><button class="primary pm-go">'+esc(t('pm_passkey_use'))+'</button><button class="pm-cancel">'+esc(t('pm_cancel'))+'</button></div></div></div>';var err=root.querySelector('.pm-error');root.querySelector('.pm-cancel').onclick=function(){replyPasskey(job.reqId,null,'The operation was cancelled.');resolve()};root.querySelector('.pm-go').onclick=async function(){try{var assertion=await pk().getAssertion(opts,item.passkey);var value=withoutId(item);value.passkey=Object.assign({},item.passkey,{signCount:(item.passkey.signCount||0)+1});await saveEntry(item.id,value).catch(function(){});replyPasskey(job.reqId,assertion);resolve()}catch(_){err.textContent=t('pm_error')}}}if(candidates.length===1){pick(candidates[0]);return}root.innerHTML='<div class="pm"><div class="pm-bar"><span class="pm-title">🔑 '+esc(t('pm_passkey_pick_title'))+'</span></div><div class="pm-list">'+candidates.map(function(c,idx){return'<div class="pm-card"><div class="pm-head"><div class="pm-avatar">'+esc((passkeyLabel(c)||'?')[0].toUpperCase())+'</div><div><div class="pm-name">'+esc(passkeyLabel(c))+'</div><div class="pm-sub">'+esc(c.name)+' · '+esc(rpId)+'</div></div></div><div class="pm-actions"><button class="primary" data-pick="'+idx+'">'+esc(t('pm_passkey_use'))+'</button></div></div>'}).join('')+'</div></div>';root.querySelector('.pm-list').onclick=function(e){var el=e.target.closest('[data-pick]');if(!el)return;pick(candidates[Number(el.dataset.pick)])}})}
-    function onMessage(e){if(e.source!==window.parent||!/^chrome-extension:\/\/|^moz-extension:\/\//.test(e.origin))return;var m=e.data||{};if(m.source!=='mvmos-extension'||m.appId!==APP_ID)return;if(m.type==='context'){parentOrigin=e.origin;extensionSettings=m.settings||{};if(passkeyBusy)return;context=m.context||{};showAll=false;render();return}if(m.type==='vault-session'&&m.session&&(!m.session.expires||m.session.expires>Date.now()))importKey(m.session.key).then(function(v){key=v;scheduleAutoLock(m.session.expires);load()}).catch(function(){});if(m.type==='passkey-job'&&m.job&&pk()){passkeyBusy=true;try{context={hostname:new URL(m.job.origin).hostname.toLowerCase(),url:m.job.origin}}catch(_){}if(m.job.op==='create')runPasskeyCreate(m.job);else if(m.job.op==='get')runPasskeyGet(m.job);return}}
+    function onMessage(e){if(e.source!==window.parent||!/^chrome-extension:\/\/|^moz-extension:\/\//.test(e.origin))return;var m=e.data||{};if(m.source!=='mvmos-extension'||m.appId!==APP_ID)return;if(m.type==='context'){parentOrigin=e.origin;extensionSettings=m.settings||{};if(passkeyBusy)return;context=m.context||{};showAll=false;otherFolders=false;render();return}if(m.type==='vault-session'&&m.session&&(!m.session.expires||m.session.expires>Date.now()))importKey(m.session.key).then(function(v){key=v;scheduleAutoLock(renewSession(m.session).expires);load()}).catch(function(){});if(m.type==='passkey-job'&&m.job&&pk()){passkeyBusy=true;try{context={hostname:new URL(m.job.origin).hostname.toLowerCase(),url:m.job.origin}}catch(_){}if(m.job.op==='create')runPasskeyCreate(m.job);else if(m.job.op==='get')runPasskeyGet(m.job);return}}
     // Fire the vault request before announcing readiness, so it travels while
     // the extension is still deciding to send the key back instead of starting
     // only once it has: in the popup that round trip was the whole visible wait.
     fetchVault().catch(function(){});
-    window.addEventListener('message',onMessage);if(window.parent!==window)window.parent.postMessage({source:'mvmos-public-app',appId:APP_ID,action:'ready'},'*');load();return{destroy:function(){destroyed=true;clearTimeout(autoLockTimer);key=null;entries=[];window.removeEventListener('message',onMessage);if(outsideClickHandler)document.removeEventListener('click',outsideClickHandler)}}
+    window.addEventListener('message',onMessage);document.addEventListener('visibilitychange',onVisible);if(window.parent!==window)window.parent.postMessage({source:'mvmos-public-app',appId:APP_ID,action:'ready'},'*');load();return{destroy:function(){destroyed=true;clearTimeout(autoLockTimer);key=null;entries=[];folders=[];window.removeEventListener('message',onMessage);document.removeEventListener('visibilitychange',onVisible);if(outsideClickHandler)document.removeEventListener('click',outsideClickHandler);if(folderObserver){folderObserver.disconnect();folderObserver=null}}}
   }
   window.MvmPasswordManagerWidget={mount:mount};
 })();

@@ -1,0 +1,457 @@
+/* mvmShare — one stylesheet for the desktop window and the public page.
+ *
+ * Colours go through --pub-* custom properties so the theme a visitor picked in
+ * Apps Hub reaches this app too; the fallbacks are the default dark palette, so
+ * a desktop window that defines none of them still looks right. Sizes are in
+ * rem, because the public header applies text size as html{font-size:X%} — and
+ * every row that mixes text with buttons wraps rather than tearing a word in
+ * half at the largest of the six steps.
+ */
+
+.msh, .msh *, .msh *::before, .msh *::after { box-sizing: border-box; }
+
+.msh {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  background: var(--pub-bg, #1e1e2e);
+  color: var(--pub-fg, #cdd6f4);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: .85rem;
+}
+
+/* The owner-facing workspace uses all the Apps Hub content area. Recipient
+ * pages intentionally remain full-viewport as well. */
+#msh-root.msh-manager-page {
+  width: 100%;
+  margin: 0;
+}
+
+/* The `hidden` attribute is only a `display:none` in the browser's own
+ * stylesheet, so any author rule that sets a display — and every panel below
+ * sets `flex` — silently outranks it and the element stays on screen. This is
+ * what actually hides the form fields for the two kinds you did not pick, and
+ * the settings/notify panels until they are opened. */
+.msh [hidden] { display: none !important; }
+
+.msh-loading,
+.msh-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 36px 20px;
+  text-align: center;
+  color: var(--pub-fg2, #a6adc8);
+}
+
+.msh-empty-icon { font-size: 2.4rem; }
+.msh-empty-title { font-weight: 600; color: var(--pub-fg, #cdd6f4); }
+.msh-empty-sub { font-size: .82rem; }
+
+.msh-how { width: min(720px, 100%); margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+.msh-how h2 { margin: 2px 0 4px; font-size: 1.05rem; }
+.msh-how-section { display: flex; gap: 11px; padding: 11px; border: 1px solid var(--pub-border, #45475a); border-radius: 9px; background: var(--pub-surface1, #181825); }
+.msh-how-icon { width: 28px; font-size: 1.2rem; flex: 0 0 28px; text-align: center; }
+.msh-how-section h3 { margin: 0 0 3px; font-size: .88rem; }
+.msh-how-section p { margin: 0; color: var(--pub-fg2, #a6adc8); line-height: 1.45; font-size: .82rem; }
+
+/* ── tabs ───────────────────────────────────────────────────────── */
+
+.msh-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--pub-surface2, #313244);
+  flex-shrink: 0;
+}
+
+.msh-tabs h2 { margin: 0; font-size: 1rem; flex: 1; }
+
+.msh-tab {
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: var(--pub-fg2, #a6adc8);
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: .82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.msh-tab:hover { background: var(--pub-surface2, #313244); color: var(--pub-fg, #cdd6f4); }
+
+.msh-tab-on {
+  background: var(--pub-accent, #89b4fa);
+  color: var(--pub-bg, #1e1e2e);
+}
+
+.msh-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 14px;
+}
+
+/* ── form ───────────────────────────────────────────────────────── */
+
+.msh-form { display: flex; flex-direction: column; gap: 14px; max-width: 480px; }
+
+/* The desktop window is an application workspace, not the narrow public
+ * landing page. Use its available width while the public manager stays
+ * deliberately compact. */
+#mvmshare-root .msh-form { width: 100%; max-width: none; }
+
+/* The public manager has a wider application pane than the form itself.
+ * Centre the form within that pane instead of leaving a blank area only on
+ * its right. This does not apply to a recipient opening a shared link. */
+#msh-root.msh-manager-page .msh-form {
+  width: min(480px, 100%);
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+#msh-root.msh-manager-page .msh-tabs { justify-content: center; }
+
+.msh-kinds {
+  display: flex;
+  gap: 3px;
+  background: var(--pub-surface2, #313244);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.msh-kind {
+  flex: 1 1 0;
+  background: none;
+  color: var(--pub-fg2, #a6adc8);
+  border: none;
+  border-radius: 6px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-size: .82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.msh-kind:hover { color: var(--pub-fg, #cdd6f4); }
+
+.msh-kind-on {
+  background: var(--pub-accent, #89b4fa);
+  color: var(--pub-bg, #1e1e2e);
+}
+
+.msh-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+
+.msh-field > label {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: var(--pub-fg2, #a6adc8);
+}
+
+.msh-row { display: flex; gap: 10px; align-items: flex-start; }
+.msh-row > .msh-field { flex: 1 1 0; min-width: 130px; }
+
+.msh-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--pub-surface1, #181825);
+  color: var(--pub-fg, #cdd6f4);
+  border: 1px solid var(--pub-border, #45475a);
+  border-radius: 6px;
+  padding: 7px 9px;
+  font-size: .85rem;
+  font-family: inherit;
+}
+
+.msh-input:focus {
+  outline: none;
+  border-color: var(--pub-accent, #89b4fa);
+}
+
+.msh-input:disabled { opacity: .5; cursor: not-allowed; }
+
+.msh-area { resize: vertical; min-height: 100px; line-height: 1.45; }
+
+.msh-hint {
+  font-size: .74rem;
+  color: var(--pub-dim, #6c7086);
+  line-height: 1.4;
+}
+
+.msh-hint-inline { flex: 1 1 200px; }
+.msh-hint-warn { color: var(--pub-warning, #f9e2af); }
+
+.msh-check {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: .8rem;
+  color: var(--pub-fg2, #a6adc8);
+  cursor: pointer;
+}
+
+/* ── file drop ──────────────────────────────────────────────────── */
+
+.msh-drop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  border: 1px dashed var(--pub-border, #45475a);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--pub-surface1, #181825);
+}
+
+.msh-drop-on { border-color: var(--pub-accent, #89b4fa); }
+.msh-drop-hint { font-size: .78rem; color: var(--pub-dim, #6c7086); }
+
+.msh-drop-name {
+  flex-basis: 100%;
+  font-size: .8rem;
+  color: var(--pub-fg, #cdd6f4);
+  word-break: break-all;
+}
+
+/* ── premium block ──────────────────────────────────────────────── */
+
+.msh-premium {
+  border: 1px solid var(--pub-border, #45475a);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--pub-surface2, #313244);
+}
+
+.msh-premium-hd { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+.msh-badge-prem {
+  background: var(--pub-yellow, #f9e2af);
+  color: #11111b;
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: .68rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ── buttons ────────────────────────────────────────────────────── */
+
+.msh-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: .87rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  background: var(--pub-surface2, #313244);
+  color: var(--pub-fg, #cdd6f4);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.msh-btn:hover { filter: brightness(1.12); }
+.msh-btn:disabled { opacity: .6; cursor: default; filter: none; }
+
+.msh-btn-main { background: var(--pub-accent, #89b4fa); color: #11111b; }
+.msh-btn-ghost { background: transparent; border: 1px solid var(--pub-border, #45475a); }
+.msh-btn-danger { background: transparent; border: 1px solid var(--pub-red, #f38ba8); color: var(--pub-red, #f38ba8); }
+.msh-btn-sm { padding: 6px 10px; font-size: .78rem; }
+
+.msh-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── messages ───────────────────────────────────────────────────── */
+
+.msh-msg {
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: .82rem;
+  line-height: 1.4;
+}
+
+.msh-msg-ok { background: rgba(166, 227, 161, .14); color: var(--pub-green, #a6e3a1); }
+.msh-msg-bad { background: rgba(243, 139, 168, .14); color: var(--pub-red, #f38ba8); }
+
+/* ── result ─────────────────────────────────────────────────────── */
+
+.msh-result { display: flex; flex-direction: column; gap: 12px; align-items: stretch; }
+.msh-result-icon { font-size: 2rem; text-align: center; }
+.msh-result-title { font-weight: 700; font-size: 1rem; text-align: center; }
+.msh-linkbox .msh-input { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .8rem; }
+
+.msh-send {
+  border-top: 1px solid var(--pub-border, #45475a);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.msh-send-title { font-weight: 700; font-size: .9rem; }
+.msh-favs { display: flex; flex-direction: column; gap: 4px; max-height: 220px; overflow-y: auto; }
+
+.msh-fav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .85rem;
+}
+
+.msh-fav:hover { background: var(--pub-surface2, #313244); }
+.msh-fav-avatar { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.msh-fav-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+.msh-file-queue { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.msh-file-queued { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 5px 7px; border-radius: 6px; background: var(--pub-surface2, #313244); font-size: .78rem; }
+.msh-file-queued > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.msh-file-remove { border: 0; border-radius: 5px; padding: 1px 6px; color: var(--pub-fg, #cdd6f4); background: transparent; cursor: pointer; font: inherit; font-size: 1.1rem; line-height: 1; }
+.msh-file-remove:hover { background: var(--pub-red, #f38ba8); color: var(--pub-bg, #1e1e2e); }
+.msh-edit-files { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid var(--pub-border, #45475a); border-radius: 8px; }
+.msh-manage-files { display: flex; flex-direction: column; gap: 5px; max-height: 180px; overflow-y: auto; }
+
+/* ── list ───────────────────────────────────────────────────────── */
+
+.msh-list { display: flex; flex-direction: column; gap: 10px; }
+
+.msh-card {
+  background: var(--pub-surface2, #313244);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.msh-card-hd { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.msh-card-icon { font-size: 1.05rem; }
+.msh-card-title { font-weight: 600; flex: 1 1 140px; min-width: 0; word-break: break-word; }
+
+.msh-state {
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: .7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.msh-state-ok { background: rgba(166, 227, 161, .18); color: var(--pub-green, #a6e3a1); }
+.msh-state-expired { background: rgba(249, 226, 175, .18); color: var(--pub-yellow, #f9e2af); }
+.msh-state-exhausted { background: rgba(243, 139, 168, .18); color: var(--pub-red, #f38ba8); }
+
+.msh-card-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: .76rem;
+  color: var(--pub-dim, #7f849c);
+}
+
+.msh-card-meta > span { white-space: nowrap; }
+
+.msh-card-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+.msh-card-panel {
+  border-top: 1px solid var(--pub-border, #45475a);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── the open page ──────────────────────────────────────────────── */
+
+/* This is the same element as .msh (display:flex; flex-direction:column), so
+ * justify-content here only centers vertically, along the main axis — the
+ * horizontal centering of the card comes from align-items plus the card's
+ * own margin:auto. Missing align-items left the card stretched to whatever
+ * width its content forced (e.g. a long filename), pushing it past the
+ * visible edge instead of centering within it. box-sizing on the card and
+ * overflow-x guard on this wrapper make sure padding/content can never push
+ * either one wider than the viewport. */
+.msh-open {
+  align-items: center;
+  justify-content: center;
+  padding: 24px 14px;
+  overflow-x: hidden;
+}
+
+.msh-open-card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  background: var(--pub-surface1, #181825);
+  border: 1px solid var(--pub-border, #45475a);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+
+.msh-open-icon { font-size: 2.6rem; }
+.msh-open-title { font-weight: 700; font-size: 1.05rem; }
+.msh-open-label { color: var(--pub-fg2, #a6adc8); font-size: .9rem; word-break: break-word; }
+.msh-open-lock { color: var(--pub-fg2, #a6adc8); font-size: .85rem; }
+
+.msh-open-url {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: .8rem;
+  background: var(--pub-surface2, #313244);
+  border-radius: 8px;
+  padding: 10px;
+  word-break: break-all;
+  text-align: left;
+}
+
+.msh-open-file { display: flex; flex-direction: column; gap: 4px; }
+.msh-open-fname { font-weight: 600; word-break: break-all; }
+
+.msh-file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 10px; width: 100%; }
+.msh-file-card { min-width: 0; padding: 8px; border: 1px solid var(--pub-surface2, #313244); border-radius: 8px; display: flex; flex-direction: column; align-items: stretch; gap: 5px; background: var(--pub-surface1, #181825); }
+.msh-file-icon, .msh-file-thumb { width: 100%; aspect-ratio: 1.4; border: 0; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: var(--pub-surface2, #313244); color: var(--pub-fg, #cdd6f4); font-size: 2rem; overflow: hidden; cursor: default; }
+.msh-file-thumb { cursor: pointer; padding: 0; }
+.msh-file-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.msh-file-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .82rem; font-weight: 600; }
+.msh-lightbox { position: fixed; inset: 0; z-index: 10050; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.88); padding: 48px 54px; }
+.msh-lightbox-image { max-width: 100%; max-height: 100%; min-width: 100px; min-height: 80px; color: #fff; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.msh-lightbox-image img { display: block; max-width: min(100%, 1100px); max-height: calc(100dvh - 120px); object-fit: contain; }
+.msh-lightbox-close, .msh-lightbox-nav { position: absolute; border: 0; color: #fff; background: rgba(0,0,0,.45); cursor: pointer; border-radius: 50%; width: 38px; height: 38px; font-size: 28px; line-height: 1; }
+.msh-lightbox-close { top: 12px; right: 12px; }
+.msh-lightbox-prev { left: 10px; top: 50%; transform: translateY(-50%); }
+.msh-lightbox-next { right: 10px; top: 50%; transform: translateY(-50%); }
+
+.msh-note {
+  margin: 0;
+  text-align: left;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--pub-surface2, #313244);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: .85rem;
+  line-height: 1.5;
+  max-height: 45vh;
+  overflow: auto;
+  font-family: inherit;
+}

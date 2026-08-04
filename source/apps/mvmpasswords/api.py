@@ -56,6 +56,20 @@ def _init_db():
                 updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
             );
             CREATE INDEX IF NOT EXISTS idx_entries_owner ON entries(owner_id, updated_at DESC);
+            -- A folder is stored exactly like an entry, and for the same reason: a
+            -- folder name is as revealing as the login inside it, so it is one more
+            -- opaque blob rather than a readable column. Which entry belongs to
+            -- which folder is not here at all — it rides inside the entry's own
+            -- ciphertext, so this table cannot even be used to count them.
+            CREATE TABLE IF NOT EXISTS folders (
+                id TEXT PRIMARY KEY,
+                owner_id TEXT NOT NULL,
+                iv TEXT NOT NULL,
+                ciphertext TEXT NOT NULL,
+                created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+                updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+            );
+            CREATE INDEX IF NOT EXISTS idx_folders_owner ON folders(owner_id, created_at);
         """)
         conn.commit()
 
@@ -69,6 +83,11 @@ class VaultIn(BaseModel):
 
 
 class EntryIn(BaseModel):
+    iv: str
+    ciphertext: str
+
+
+class FolderIn(BaseModel):
     iv: str
     ciphertext: str
 
@@ -175,9 +194,18 @@ async def get_vault(x_pub_token: str = Header(default=None)):
             "SELECT id,iv,ciphertext,created_at,updated_at FROM entries WHERE owner_id=? ORDER BY updated_at DESC",
             (me["id"],),
         ).fetchall()
+        # No meaningful order is possible here — the names are ciphertext — so the
+        # browser sorts them once it has decrypted them. The tab row then reorders
+        # itself by how recently each folder was used, which is the browser's own
+        # record and not something the server has any business holding.
+        folders = conn.execute(
+            "SELECT id,iv,ciphertext FROM folders WHERE owner_id=? ORDER BY created_at",
+            (me["id"],),
+        ).fetchall()
     return {
         "vault": dict(vault) if vault else None,
         "entries": [dict(row) for row in rows],
+        "folders": [dict(row) for row in folders],
         # Whether this installation offers the 2FA integration at all. It rides
         # along with the vault because every surface needs it before drawing the
         # list and none of them should pay for a second round trip — and it is
@@ -245,6 +273,61 @@ async def delete_entry(entry_id: str, x_pub_token: str = Header(default=None)):
         return _private_response()
     with _conn() as conn:
         result = conn.execute("DELETE FROM entries WHERE id=? AND owner_id=?", (entry_id, me["id"]))
+        conn.commit()
+    if not result.rowcount:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    return {"ok": True}
+
+
+# --- folders ---------------------------------------------------------------
+#
+# Three routes with nothing in them but ownership and a size check, because a
+# folder is a blob this service cannot read. Deleting one does not touch a
+# single entry: the membership lives inside each entry's ciphertext, so only the
+# browser — which holds the key — can move those entries out, and it does so
+# before calling DELETE. An entry left pointing at a folder that is gone is
+# treated as unfiled when the list is drawn, so a half-finished delete is
+# untidy rather than damaging.
+
+
+@router.post("/folders")
+async def add_folder(data: FolderIn, x_pub_token: str = Header(default=None)):
+    me = _user(x_pub_token)
+    if not me:
+        return _private_response()
+    if not _valid_b64(data.iv, 12, 64) or not _valid_b64(data.ciphertext, 17, 8192):
+        return JSONResponse({"error": "invalid_encrypted_folder"}, status_code=400)
+    folder_id = str(uuid.uuid4())
+    with _conn() as conn:
+        if not conn.execute("SELECT 1 FROM vaults WHERE owner_id=?", (me["id"],)).fetchone():
+            return JSONResponse({"error": "vault_missing"}, status_code=409)
+        conn.execute("INSERT INTO folders(id,owner_id,iv,ciphertext) VALUES(?,?,?,?)", (folder_id, me["id"], data.iv.strip(), data.ciphertext.strip()))
+        conn.commit()
+    return {"id": folder_id}
+
+
+@router.put("/folders/{folder_id}")
+async def update_folder(folder_id: str, data: FolderIn, x_pub_token: str = Header(default=None)):
+    me = _user(x_pub_token)
+    if not me:
+        return _private_response()
+    if not _valid_b64(data.iv, 12, 64) or not _valid_b64(data.ciphertext, 17, 8192):
+        return JSONResponse({"error": "invalid_encrypted_folder"}, status_code=400)
+    with _conn() as conn:
+        result = conn.execute("UPDATE folders SET iv=?,ciphertext=?,updated_at=strftime('%s','now') WHERE id=? AND owner_id=?", (data.iv.strip(), data.ciphertext.strip(), folder_id, me["id"]))
+        conn.commit()
+    if not result.rowcount:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    return {"ok": True}
+
+
+@router.delete("/folders/{folder_id}")
+async def delete_folder(folder_id: str, x_pub_token: str = Header(default=None)):
+    me = _user(x_pub_token)
+    if not me:
+        return _private_response()
+    with _conn() as conn:
+        result = conn.execute("DELETE FROM folders WHERE id=? AND owner_id=?", (folder_id, me["id"]))
         conn.commit()
     if not result.rowcount:
         return JSONResponse({"error": "not_found"}, status_code=404)
