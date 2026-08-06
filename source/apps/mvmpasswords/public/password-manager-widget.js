@@ -154,7 +154,7 @@
   // so the fields under it stay visible. .pm is position:relative because the
   // overlay is absolute and would otherwise anchor to an ancestor outside the
   // widget, which is what let the dialog overflow the popup in the first place.
-  function style(){if(styled)return;styled=true;var s=document.createElement('style');s.textContent='.pm,.pm *,.pm-overlay,.pm-overlay *{box-sizing:border-box}.pm{height:100%;display:flex;flex-direction:column;position:relative;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif;overflow:hidden}.pm-bar{display:flex;gap:.5rem;align-items:center;padding:.7rem .8rem;border-bottom:1px solid var(--pub-border,#45475a);flex-wrap:wrap}.pm-bar-head{width:100%;display:flex;align-items:center;gap:.5rem;min-width:0}.pm-bar-tools{width:100%;display:flex;align-items:center;gap:.4rem;min-width:0}.pm-title{font-weight:700;font-size:.9rem}.pm-search{flex:1;min-width:8rem}.pm-list{overflow:auto;flex:1;min-height:0;padding:.75rem}.pm-card{border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);border-radius:.65rem;padding:.75rem;margin-bottom:.55rem}.pm-head{display:flex;gap:.6rem;align-items:center}.pm-avatar{width:2rem;height:2rem;border-radius:.5rem;display:grid;place-items:center;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:800}.pm-name{font-weight:700}.pm-sub{font-size:.76rem;color:var(--pub-dim,#a6adc8);margin-top:.1rem;overflow-wrap:anywhere}.pm-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem}.pm-card .pm-actions{gap:.35rem;flex-wrap:nowrap}.pm-icon-btn{flex:0 0 auto;padding:.42rem 0;width:2.35rem;min-width:2.35rem;font-size:1rem;line-height:1.15;text-align:center}.pm-card .pm-actions .pm-icon-btn{flex:1 1 0;min-width:0}.pm-icon-btn.pm-danger:hover{border-color:var(--pub-red,#f38ba8)}.pm-icon-btn.pm-copied{border-color:var(--pub-green,#a6e3a1)}.pm-bar-tools .pm-search{flex:1 1 auto;min-width:0}.pm-bar-tools button{flex:0 0 auto;padding:.42rem 0;width:2.35rem;min-width:2.35rem;font-size:1rem;line-height:1.15;text-align:center}.pm button,.pm-btn,.pm-overlay button{border:0;border-radius:.45rem;padding:.48rem .75rem;cursor:pointer;font:inherit;font-size:.8rem;font-weight:600;background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4);transition:filter .15s,transform .15s}.pm button:hover,.pm-overlay button:hover{filter:brightness(1.12)}.pm button:active,.pm-overlay button:active{transform:translateY(1px)}.pm .primary,.pm-overlay .primary{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.pm input,.pm textarea,.pm select,.pm-overlay input,.pm-overlay textarea,.pm-overlay select{width:100%;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;color:var(--pub-fg,#cdd6f4);padding:.6rem .7rem;font:inherit;outline:none;transition:border-color .15s,box-shadow .15s}.pm input:focus,.pm textarea:focus,.pm select:focus,.pm-overlay input:focus,.pm-overlay textarea:focus,.pm-overlay select:focus{border-color:var(--pub-accent,#89b4fa);box-shadow:0 0 0 3px color-mix(in srgb,var(--pub-accent,#89b4fa) 18%,transparent)}.pm-duration{margin:.3rem 0 .25rem}.pm-duration-hint{font-size:.72rem;opacity:.75;margin:0 0 .7rem;line-height:1.35}.pm-empty,.pm-unlock{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;padding:1.5rem;color:var(--pub-fg2,#a6adc8)}.pm-unlock>div{width:100%;max-width:23rem;background:var(--pub-surface2,#313244);padding:1.25rem;border-radius:.7rem}.pm-unlock h2{font-size:1.05rem;color:var(--pub-fg,#cdd6f4)}.pm-unlock p{font-size:.82rem;line-height:1.45}.pm-unlock input{margin:.35rem 0}.pm-error{min-height:1.3rem;color:var(--pub-red,#f38ba8);font-size:.8rem}.pm-overlay{position:absolute;inset:0;background:rgba(0,0,0,.64);z-index:5;display:flex;align-items:center;justify-content:center;padding:1rem;overflow:auto;color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif}.pm-dialog{width:100%;max-width:27rem;max-height:100%;min-height:0;overflow:auto;flex:0 1 auto;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.75rem;padding:1.2rem;box-shadow:0 1.2rem 3rem rgba(0,0,0,.45)}.pm-dialog .pm-actions{position:sticky;bottom:calc(-1.2rem - 1px);margin:.8rem -1.2rem -1.2rem;padding:.8rem 1.2rem;background:var(--pub-bg,#1e1e2e);border-top:1px solid var(--pub-border,#45475a)}.pm-dialog h3{margin:0 0 .35rem;font-size:1.05rem;color:var(--pub-fg,#cdd6f4)}.pm-dialog label{display:block;font-size:.76rem;font-weight:700;color:var(--pub-fg2,#a6adc8);margin:.72rem 0 .28rem}.pm-dialog textarea{resize:vertical;min-height:5.25rem}.pm-context{font-size:.72rem;color:var(--pub-dim,#a6adc8);width:100%}.pm-match-badge{display:inline-flex;align-items:center;gap:.25rem;margin-left:.4rem;padding:.12rem .36rem;border-radius:.6rem;background:color-mix(in srgb,var(--pub-accent,#89b4fa) 20%,transparent);color:var(--pub-accent,#89b4fa);font-size:.65rem;vertical-align:middle}.pm-match-badge img{width:.78rem;height:.78rem;border-radius:.18rem}.pm-passkey-badge{display:inline-flex;align-items:center;gap:.2rem;margin-left:.4rem;padding:.12rem .36rem;border-radius:.6rem;background:color-mix(in srgb,var(--pub-green,#a6e3a1) 22%,transparent);color:var(--pub-green,#a6e3a1);font-size:.65rem;white-space:nowrap;vertical-align:middle}.pm-passkey-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}.pm-passkey-info{flex:1;min-width:8rem;font-size:.8rem;overflow-wrap:anywhere}.pm-show-all{width:100%;margin:.15rem 0 .8rem}.pm-import-info{font-size:.8rem;opacity:.85;margin:.1rem 0 .7rem;line-height:1.45}.pm-import-drop{text-align:center;padding:.9rem;border:1px dashed var(--pub-border,#45475a);border-radius:.5rem;margin-bottom:.6rem}.pm-import-formats{font-size:.72rem;opacity:.7;margin-top:.45rem}.pm-import-status{font-size:.82rem;margin-bottom:.5rem}.pm-import-note{opacity:.8;font-size:.76rem;margin-top:.2rem}.pm-import-bulk{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}.pm-import-bulk button{padding:.3rem .55rem;font-size:.74rem}.pm-import-list{max-height:min(46vh,20rem);overflow:auto;margin-bottom:.5rem}.pm-import-row{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;padding:.35rem .2rem;border-bottom:1px solid var(--pub-border,#45475a);font-size:.8rem}.pm-import-row input{flex:0 0 auto;margin:0}.pm-import-name{flex:1;min-width:6rem;overflow-wrap:anywhere}.pm-import-sub{opacity:.7;font-size:.74rem;overflow-wrap:anywhere}.pm-import-dupe{flex:0 0 auto;white-space:nowrap;font-size:.68rem;padding:.1rem .4rem;border-radius:.6rem;background:var(--pub-border,#45475a);opacity:.9}.pm-menu{position:absolute;top:3.4rem;right:.8rem;z-index:6;display:flex;flex-direction:column;gap:.3rem;background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);border-radius:.6rem;padding:.4rem;box-shadow:0 .6rem 1.6rem rgba(0,0,0,.35);min-width:9rem}.pm-menu[hidden]{display:none}.pm-menu button{text-align:left;width:100%}.pm-head-click{cursor:pointer}.pm-icon-spacer{visibility:hidden;pointer-events:none}.pm-list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:.55rem;align-content:start}.pm-list-grid .pm-card{margin-bottom:0}.pm-list-grid .pm-show-all,.pm-list-grid .pm-folder-clear,.pm-list-grid .pm-folder-others{grid-column:1/-1}.pm-view-value{background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;padding:.6rem .7rem;font-size:.85rem;overflow-wrap:anywhere;min-height:1.3rem;color:var(--pub-fg,#cdd6f4)}.pm-view-notes{white-space:pre-wrap}.pm-dialog .pm-actions .pm-danger{background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e);margin-left:auto}.pm-web-row{display:flex;gap:.4rem;align-items:center;margin-bottom:.35rem}.pm-web-row .f-web{flex:1;min-width:0}.pm-web-del{flex:0 0 auto;padding:.5rem .6rem;line-height:1}.pm-web-del:hover{border-color:var(--pub-red,#f38ba8);color:var(--pub-red,#f38ba8)}.pm-web-add{width:100%;margin-top:.1rem}.pm-web-list{max-height:11rem;overflow-y:auto}.pm-password-field{display:flex;gap:.45rem;align-items:center}.pm-password-field>:first-child{flex:1;min-width:0}.pm-password-field .f-toggle{flex:0 0 auto;padding:.55rem .65rem;font-size:1rem}.pm-view-value+.pm-view-value{margin-top:.3rem}.pm-folders{width:100%;display:flex;align-items:center;gap:.3rem;min-width:0;position:relative}.pm-folders[hidden]{display:none}.pm-folder-row{display:flex;gap:.3rem;overflow:hidden;flex:1 1 auto;min-width:0}.pm .pm-folder-tab{flex:0 0 auto;padding:.3rem .62rem;font-size:.74rem;border-radius:.9rem;background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);white-space:nowrap;max-width:11rem;overflow:hidden;text-overflow:ellipsis}.pm-folder-tab[hidden]{display:none}.pm .pm-folder-tab.active{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);border-color:var(--pub-accent,#89b4fa)}.pm .pm-folder-more{flex:0 0 auto;padding:.3rem .5rem;font-size:.74rem;border-radius:.9rem;background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a)}.pm-folder-more[hidden]{display:none}.pm-folder-menu{position:absolute;top:calc(100% + .3rem);right:0;z-index:7;display:flex;flex-direction:column;gap:.25rem;background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);border-radius:.6rem;padding:.35rem;box-shadow:0 .6rem 1.6rem rgba(0,0,0,.35);min-width:9rem;max-width:14rem;max-height:14rem;overflow:auto}.pm-folder-menu[hidden]{display:none}.pm .pm-folder-menu button{width:100%;max-width:none;text-align:left;border-radius:.45rem;overflow:hidden;text-overflow:ellipsis}.pm-folder-edit{display:flex;gap:.4rem;align-items:center;margin-bottom:.45rem}.pm-folder-edit input{flex:1;min-width:0}.pm-folder-edit button{flex:0 0 auto;padding:.5rem .6rem;line-height:1}.pm-folder-edit .pm-danger:hover{border-color:var(--pub-red,#f38ba8);color:var(--pub-red,#f38ba8)}.pm-folder-list{max-height:min(40vh,16rem);overflow:auto}.pm-folder-empty{font-size:.8rem;opacity:.75;padding:.3rem 0 .5rem}.pm-folder-clear,.pm-folder-others{width:100%;margin:.15rem 0 .8rem}';document.head.appendChild(s)}
+  function style(){if(styled)return;styled=true;var s=document.createElement('style');s.textContent='.pm,.pm *,.pm-overlay,.pm-overlay *{box-sizing:border-box}.pm{height:100%;display:flex;flex-direction:column;position:relative;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif;overflow:hidden}.pm-bar{display:flex;gap:.5rem;align-items:center;padding:.7rem .8rem;border-bottom:1px solid var(--pub-border,#45475a);flex-wrap:wrap}.pm-bar-head{width:100%;display:flex;align-items:center;gap:.5rem;min-width:0}.pm-bar-tools{width:100%;display:flex;align-items:center;gap:.4rem;min-width:0}.pm-title{font-weight:700;font-size:.9rem}.pm-search{flex:1;min-width:8rem}.pm-list{overflow:auto;flex:1;min-height:0;padding:.75rem}.pm-card{border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);border-radius:.65rem;padding:.75rem;margin-bottom:.55rem}.pm-head{display:flex;gap:.6rem;align-items:center}.pm-avatar{width:2rem;height:2rem;border-radius:.5rem;display:grid;place-items:center;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:800}.pm-name{font-weight:700}.pm-sub{font-size:.76rem;color:var(--pub-dim,#a6adc8);margin-top:.1rem;overflow-wrap:anywhere}.pm-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.8rem}.pm-card .pm-actions{gap:.35rem;flex-wrap:nowrap}.pm-icon-btn{flex:0 0 auto;padding:.42rem 0;width:2.35rem;min-width:2.35rem;font-size:1rem;line-height:1.15;text-align:center}.pm-card .pm-actions .pm-icon-btn{flex:1 1 0;min-width:0}.pm-icon-btn.pm-danger:hover{border-color:var(--pub-red,#f38ba8)}.pm-icon-btn.pm-copied{border-color:var(--pub-green,#a6e3a1)}.pm-bar-tools .pm-search{flex:1 1 auto;min-width:0}.pm-bar-tools button{flex:0 0 auto;padding:.42rem 0;width:2.35rem;min-width:2.35rem;font-size:1rem;line-height:1.15;text-align:center}.pm button,.pm-btn,.pm-overlay button{border:0;border-radius:.45rem;padding:.48rem .75rem;cursor:pointer;font:inherit;font-size:.8rem;font-weight:600;background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4);transition:filter .15s,transform .15s}.pm button:hover,.pm-overlay button:hover{filter:brightness(1.12)}.pm button:active,.pm-overlay button:active{transform:translateY(1px)}.pm .primary,.pm-overlay .primary{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.pm input,.pm textarea,.pm select,.pm-overlay input,.pm-overlay textarea,.pm-overlay select{width:100%;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;color:var(--pub-fg,#cdd6f4);padding:.6rem .7rem;font:inherit;outline:none;transition:border-color .15s,box-shadow .15s}.pm input:focus,.pm textarea:focus,.pm select:focus,.pm-overlay input:focus,.pm-overlay textarea:focus,.pm-overlay select:focus{border-color:var(--pub-accent,#89b4fa);box-shadow:0 0 0 3px color-mix(in srgb,var(--pub-accent,#89b4fa) 18%,transparent)}.pm-duration{margin:.3rem 0 .25rem}.pm-duration-hint{font-size:.72rem;opacity:.75;margin:0 0 .7rem;line-height:1.35}.pm-empty,.pm-unlock{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;padding:1.5rem;color:var(--pub-fg2,#a6adc8)}.pm-unlock>div{width:100%;max-width:23rem;background:var(--pub-surface2,#313244);padding:1.25rem;border-radius:.7rem}.pm-unlock h2{font-size:1.05rem;color:var(--pub-fg,#cdd6f4)}.pm-unlock p{font-size:.82rem;line-height:1.45}.pm-unlock input{margin:.35rem 0}.pm-error{min-height:1.3rem;color:var(--pub-red,#f38ba8);font-size:.8rem}.pm-overlay{position:absolute;inset:0;background:rgba(0,0,0,.64);z-index:5;display:flex;align-items:center;justify-content:center;padding:1rem;overflow:auto;color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif}.pm-dialog{width:100%;max-width:27rem;max-height:100%;min-height:0;overflow:auto;flex:0 1 auto;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.75rem;padding:1.2rem;box-shadow:0 1.2rem 3rem rgba(0,0,0,.45)}.pm-dialog .pm-actions{position:sticky;bottom:calc(-1.2rem - 1px);margin:.8rem -1.2rem -1.2rem;padding:.8rem 1.2rem;background:var(--pub-bg,#1e1e2e);border-top:1px solid var(--pub-border,#45475a)}.pm-dialog h3{margin:0 0 .35rem;font-size:1.05rem;color:var(--pub-fg,#cdd6f4)}.pm-dialog label{display:block;font-size:.76rem;font-weight:700;color:var(--pub-fg2,#a6adc8);margin:.72rem 0 .28rem}.pm-dialog textarea{resize:vertical;min-height:5.25rem}.pm-context{font-size:.72rem;color:var(--pub-dim,#a6adc8);width:100%}.pm-match-badge{display:inline-flex;align-items:center;gap:.25rem;margin-left:.4rem;padding:.12rem .36rem;border-radius:.6rem;background:color-mix(in srgb,var(--pub-accent,#89b4fa) 20%,transparent);color:var(--pub-accent,#89b4fa);font-size:.65rem;vertical-align:middle}.pm-match-badge img{width:.78rem;height:.78rem;border-radius:.18rem}.pm-passkey-badge{display:inline-flex;align-items:center;gap:.2rem;margin-left:.4rem;padding:.12rem .36rem;border-radius:.6rem;background:color-mix(in srgb,var(--pub-green,#a6e3a1) 22%,transparent);color:var(--pub-green,#a6e3a1);font-size:.65rem;white-space:nowrap;vertical-align:middle}.pm-passkey-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}.pm-passkey-info{flex:1;min-width:8rem;font-size:.8rem;overflow-wrap:anywhere}.pm-show-all{width:100%;margin:.15rem 0 .8rem}.pm-import-info{font-size:.8rem;opacity:.85;margin:.1rem 0 .7rem;line-height:1.45}.pm-import-drop{text-align:center;padding:.9rem;border:1px dashed var(--pub-border,#45475a);border-radius:.5rem;margin-bottom:.6rem}.pm-import-formats{font-size:.72rem;opacity:.7;margin-top:.45rem}.pm-import-status{font-size:.82rem;margin-bottom:.5rem}.pm-import-note{opacity:.8;font-size:.76rem;margin-top:.2rem}.pm-import-bulk{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}.pm-import-bulk button{padding:.3rem .55rem;font-size:.74rem}.pm-import-list{max-height:min(46vh,20rem);overflow:auto;margin-bottom:.5rem}.pm-import-row{display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;padding:.35rem .2rem;border-bottom:1px solid var(--pub-border,#45475a);font-size:.8rem}.pm-import-row input{flex:0 0 auto;margin:0}.pm-import-name{flex:1;min-width:6rem;overflow-wrap:anywhere}.pm-import-sub{opacity:.7;font-size:.74rem;overflow-wrap:anywhere}.pm-import-dupe{flex:0 0 auto;white-space:nowrap;font-size:.68rem;padding:.1rem .4rem;border-radius:.6rem;background:var(--pub-border,#45475a);opacity:.9}.pm-menu{position:absolute;top:3.4rem;right:.8rem;z-index:6;display:flex;flex-direction:column;gap:.3rem;background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);border-radius:.6rem;padding:.4rem;box-shadow:0 .6rem 1.6rem rgba(0,0,0,.35);min-width:9rem}.pm-menu[hidden]{display:none}.pm-menu button{text-align:left;width:100%}.pm-head-click{cursor:pointer}.pm-icon-spacer{visibility:hidden;pointer-events:none}.pm-list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:.55rem;align-content:start}.pm-list-grid .pm-card{margin-bottom:0}.pm-list-grid .pm-show-all,.pm-list-grid .pm-folder-clear,.pm-list-grid .pm-folder-others{grid-column:1/-1}.pm-view-value{background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;padding:.6rem .7rem;font-size:.85rem;overflow-wrap:anywhere;min-height:1.3rem;color:var(--pub-fg,#cdd6f4)}.pm-view-notes{white-space:pre-wrap}.pm-dialog .pm-actions .pm-danger{background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e);margin-left:auto}.pm-web-row{display:flex;gap:.4rem;align-items:center;margin-bottom:.35rem}.pm-web-row .f-web{flex:1;min-width:0}.pm-web-del{flex:0 0 auto;padding:.5rem .6rem;line-height:1}.pm-web-del:hover{border-color:var(--pub-red,#f38ba8);color:var(--pub-red,#f38ba8)}.pm-web-add{width:100%;margin-top:.1rem}.pm-web-list{max-height:11rem;overflow-y:auto}.pm-password-field{display:flex;gap:.45rem;align-items:center}.pm-password-field>:first-child{flex:1;min-width:0}.pm-password-field .f-toggle,.pm-password-field .f-genpass,.pm-password-field .g-reroll{flex:0 0 auto;width:2.35rem;height:2.35rem;padding:0;font-size:1rem;display:inline-flex;align-items:center;justify-content:center;line-height:1}.pm-password-field .g-reroll:disabled{opacity:.5;cursor:default}.pm-gen-check{display:flex!important;align-items:center;gap:.45rem;font-weight:400!important;color:var(--pub-fg,#cdd6f4)!important;cursor:pointer}.pm-gen-check input{width:auto!important;flex:0 0 auto}.pm-view-value+.pm-view-value{margin-top:.3rem}.pm-folders{width:100%;display:flex;align-items:center;gap:.3rem;min-width:0;position:relative}.pm-folders[hidden]{display:none}.pm-folder-row{display:flex;gap:.3rem;overflow:hidden;flex:1 1 auto;min-width:0}.pm .pm-folder-tab{flex:0 0 auto;padding:.3rem .62rem;font-size:.74rem;border-radius:.9rem;background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);white-space:nowrap;max-width:11rem;overflow:hidden;text-overflow:ellipsis}.pm-folder-tab[hidden]{display:none}.pm .pm-folder-tab.active{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);border-color:var(--pub-accent,#89b4fa)}.pm .pm-folder-more{flex:0 0 auto;padding:.3rem .5rem;font-size:.74rem;border-radius:.9rem;background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a)}.pm-folder-more[hidden]{display:none}.pm-folder-menu{position:absolute;top:calc(100% + .3rem);right:0;z-index:7;display:flex;flex-direction:column;gap:.25rem;background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);border-radius:.6rem;padding:.35rem;box-shadow:0 .6rem 1.6rem rgba(0,0,0,.35);min-width:9rem;max-width:14rem;max-height:14rem;overflow:auto}.pm-folder-menu[hidden]{display:none}.pm .pm-folder-menu button{width:100%;max-width:none;text-align:left;border-radius:.45rem;overflow:hidden;text-overflow:ellipsis}.pm-folder-edit{display:flex;gap:.4rem;align-items:center;margin-bottom:.45rem}.pm-folder-edit input{flex:1;min-width:0}.pm-folder-edit button{flex:0 0 auto;padding:.5rem .6rem;line-height:1}.pm-folder-edit .pm-danger:hover{border-color:var(--pub-red,#f38ba8);color:var(--pub-red,#f38ba8)}.pm-folder-list{max-height:min(40vh,16rem);overflow:auto}.pm-folder-empty{font-size:.8rem;opacity:.75;padding:.3rem 0 .5rem}.pm-folder-clear,.pm-folder-others{width:100%;margin:.15rem 0 .8rem}.pm-audit-h{font-size:.8rem;margin:.9rem 0 .4rem;color:var(--pub-fg2,#a6adc8)}.pm-audit-h:first-child{margin-top:0}.pm-audit-group{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.5rem;padding:.5rem;border:1px solid var(--pub-red,#f38ba8);border-radius:.5rem}.pm-audit-chip{font-size:.76rem;padding:.15rem .5rem;border-radius:.8rem;background:var(--pub-surface2,#313244)}.pm-audit-row{display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--pub-border,#45475a);font-size:.82rem}.pm-audit-badge{font-size:.68rem;padding:.12rem .5rem;border-radius:.7rem;font-weight:700}.pm-audit-weak{background:color-mix(in srgb,var(--pub-red,#f38ba8) 25%,transparent);color:var(--pub-red,#f38ba8)}.pm-audit-fair{background:color-mix(in srgb,#f9e2af 25%,transparent);color:#f9e2af}.pm-audit-strong{background:color-mix(in srgb,var(--pub-green,#a6e3a1) 25%,transparent);color:var(--pub-green,#a6e3a1)}.pm-audit-ok{font-size:.85rem;line-height:1.5;text-align:center;padding:.5rem 0}';document.head.appendChild(s)}
   function mount(root,opts){
     opts=opts||{};style();var token=localStorage.getItem('apphub_token');if(!token){root.innerHTML='<div class="pm-empty">'+esc(t('pm_login'))+'</div>';if(opts.onNeedLogin)opts.onNeedLogin();return{destroy:function(){}}}
     var SESSION_KEY='mvm_pm_vault_session',DURATION_KEY='mvm_pm_unlock_duration';
@@ -176,8 +176,12 @@
     // unlocks nothing: an unlicensed install was never sent the code that talks
     // to mvm2factor, so the routes simply answer that it is unavailable.
     // `totpAccounts` is the account list, fetched lazily when a picker opens.
-    var totpOn=false,totpAccounts=null;
+    var totpOn=false,totpAccounts=null,auditOn=false;
     function totpReady(){return totpOn}
+    // The password check has no such flag on purpose. Whether its button is
+    // drawn is a question about the surface, not the licence — see renderShell
+    // — and whether it runs is answered by GET /audit.js at the moment of the
+    // click, which either carries the code or 404s.
     // The dialog overlay is absolutely positioned against this element, so its
     // height is the only thing standing between a dialog and the visible area.
     // A host that sizes the mount by content — an extension popup, an embed —
@@ -406,7 +410,7 @@
       // of a vault whose password predates the rule — the password is already
       // chosen by then, and a wrong one fails at decryption anyway.
       if(creating&&pass.length<MIN_MASTER){unlockScreen(vault,t('pm_password_short',{n:MIN_MASTER}));return}
-      if(!creating&&!pass){unlockScreen(vault,t('pm_unlock_failed'));return}if(creating&&pass!==root.querySelector('.pm-confirm').value){unlockScreen(vault,t('pm_passwords_differ'));return}try{if(creating){var salt=b64(crypto.getRandomValues(new Uint8Array(32)));await api('/vault',{method:'POST',body:JSON.stringify({salt:salt,iterations:600000})});vault={salt:salt,iterations:600000}}key=await derive(pass,vault.salt,vault.iterations);await cacheKey(select.value);await load(creating);}catch(_){key=null;unlockScreen(vault,t('pm_unlock_failed'))}};setTimeout(function(){input.focus()},30)}
+      if(!creating&&!pass){unlockScreen(vault,t('pm_unlock_failed'));return}if(creating&&pass!==root.querySelector('.pm-confirm').value){unlockScreen(vault,t('pm_passwords_differ'));return}try{if(creating){var salt=b64(crypto.getRandomValues(new Uint8Array(32)));await api('/vault',{method:'POST',body:JSON.stringify({salt:salt,iterations:600000})});vault={salt:salt,iterations:600000}}key=await derive(pass,vault.salt,vault.iterations);await load(creating);if(key)await cacheKey(select.value);}catch(_){key=null;unlockScreen(vault,t('pm_unlock_failed'))}};setTimeout(function(){input.focus()},30)}
     // An entry matches when any one of its addresses matches: the rule is the
     // same for all of them, but each is tested on its own, so a single bad
     // regex line cannot silently disqualify the addresses beside it.
@@ -445,7 +449,31 @@
     // replaced afterwards. Rebuilding it on every keystroke — the old
     // behaviour — destroyed and recreated the <input>, which is what threw
     // focus and the cursor position away after the very first character.
-    function renderShell(){if(!key||passkeyBusy)return;root.innerHTML='<div class="pm"><div class="pm-bar"><div class="pm-bar-head"><span class="pm-title">🛡️ '+esc(t('pm_title'))+'</span></div><div class="pm-bar-tools"><input class="pm-search" placeholder="'+esc(t('pm_search'))+'"><button class="pm-menu-btn" title="'+esc(t('pm_menu'))+'" aria-label="'+esc(t('pm_menu'))+'">☰</button></div><div class="pm-folders" hidden><div class="pm-folder-row"></div><button class="pm-folder-more" hidden title="'+esc(t('pm_folder_more'))+'" aria-label="'+esc(t('pm_folder_more'))+'">⋯</button><div class="pm-folder-menu" hidden></div></div><span class="pm-context"></span></div><div class="pm-menu" hidden><button class="pm-add">'+esc(t('pm_add'))+'</button><button class="pm-folders-btn">'+esc(t('pm_folders'))+'</button>'+(parentOrigin?'':'<button class="pm-import">'+esc(t('pm_import_title'))+'</button>')+'<button class="pm-lock">'+esc(t('pm_lock'))+'</button></div><div class="pm-list"></div></div>';
+    function renderShell(){if(!key||passkeyBusy)return;
+      // The surface decides, not the licence. The desktop is the only place a
+      // subscription can be activated, so it always shows the button: licensed
+      // it works, unlicensed premiumGate turns the click into the subscription
+      // dialog. A public page or extension visitor cannot activate anything and
+      // is never told the feature exists — no button, no lock, no explanation,
+      // exactly like an app that was never built with it.
+      // The desktop always shows it: unlicensed, premiumGate turns it into the
+      // upsell, which only makes sense where the person can actually buy.
+      // Everywhere else — public page, extension — it appears only when the
+      // installation is licensed, because there is nothing to sell to someone
+      // who cannot reach Settings, and no reason to hide a feature they have.
+      //
+      // premiumGate, not a bare window.mvmOS check: apphub_pub/layout.js
+      // creates a window.mvmOS on every /pub/ page to carry the language, so
+      // its existence proves nothing. Only the real desktop SDK has premiumGate.
+      var isDesktop=!!(window.mvmOS&&window.mvmOS.premiumGate);
+      // auditOn comes from the server and is the truth about the licence right
+      // now; mvmOS.premiumStatus is a desktop-side cache refreshed only when
+      // the badge redraws, so a licence removed while the desktop stayed open
+      // leaves it stale and premiumGate would wave the click through. Keep the
+      // desktop button visible either way — unlicensed it must open the
+      // subscription modal — but let the fresh answer drive the gate below.
+      var showAudit=isDesktop||auditOn;
+      root.innerHTML='<div class="pm"><div class="pm-bar"><div class="pm-bar-head"><span class="pm-title">🛡️ '+esc(t('pm_title'))+'</span></div><div class="pm-bar-tools"><input class="pm-search" placeholder="'+esc(t('pm_search'))+'"><button class="pm-menu-btn" title="'+esc(t('pm_menu'))+'" aria-label="'+esc(t('pm_menu'))+'">☰</button></div><div class="pm-folders" hidden><div class="pm-folder-row"></div><button class="pm-folder-more" hidden title="'+esc(t('pm_folder_more'))+'" aria-label="'+esc(t('pm_folder_more'))+'">⋯</button><div class="pm-folder-menu" hidden></div></div><span class="pm-context"></span></div><div class="pm-menu" hidden><button class="pm-add">'+esc(t('pm_add'))+'</button><button class="pm-folders-btn">'+esc(t('pm_folders'))+'</button>'+(showAudit?'<button class="pm-audit">'+esc(t('pm_audit_title'))+'</button>':'')+(parentOrigin?'':'<button class="pm-import">'+esc(t('pm_import_title'))+'</button>')+'<button class="pm-lock">'+esc(t('pm_lock'))+'</button></div><div class="pm-list"></div></div>';
       var search=root.querySelector('.pm-search');search.oninput=renderList;
       var menuBtn=root.querySelector('.pm-menu-btn'),menu=root.querySelector('.pm-menu');
       menuBtn.onclick=function(e){e.stopPropagation();menu.hidden=!menu.hidden};
@@ -465,8 +493,27 @@
       outsideClickHandler=function(e){if(!menu.hidden&&!menu.contains(e.target)&&e.target!==menuBtn)menu.hidden=true;
         if(!overflowMenu.hidden&&!overflowMenu.contains(e.target)&&e.target!==folderMore)overflowMenu.hidden=true};
       document.addEventListener('click',outsideClickHandler);
-      root.querySelector('.pm-add').onclick=function(){menu.hidden=true;dialog()};
+      root.querySelector('.pm-add').onclick=function(){menu.hidden=true;dialog(parentOrigin&&context&&context.hostname?{website:context.hostname}:null)};
       root.querySelector('.pm-folders-btn').onclick=function(){menu.hidden=true;foldersDialog()};
+      var auditBtn=root.querySelector('.pm-audit');
+      if(auditBtn){
+        // auditOn is the server's answer, so it is right even when the desktop
+        // has been open since before the licence changed. Without this check
+        // the click would reach auditDialog(), which then fails to load the
+        // premium script and leaves the user with a dialog that does nothing.
+        // The server's answer is authoritative, so correct the desktop's cached
+        // premiumStatus from it before premiumGate reads it. Without this a
+        // licence removed while the desktop stayed open leaves the cache saying
+        // 'premium', the gate waves the click through, and the dialog opens with
+        // no premium script behind it.
+        if(isDesktop&&!auditOn)window.mvmOS.premiumStatus='free';
+        auditBtn.onclick=function(){menu.hidden=true;auditDialog()};
+        // premiumGate intercepts the click in capture phase and shows the
+        // subscription dialog instead whenever mvmOS.premiumStatus is not
+        // 'premium', re-checked live — so this is correct both today and the
+        // moment a licence is activated or lapses without a reload.
+        if(window.mvmOS&&window.mvmOS.premiumGate)window.mvmOS.premiumGate(auditBtn,t('pm_audit_premium_info'));
+      }
       var importButton=root.querySelector('.pm-import');if(importButton)importButton.onclick=function(){menu.hidden=true;importDialog()};
       root.querySelector('.pm-lock').onclick=function(){menu.hidden=true;lockNow()};
       renderFolders();renderList();
@@ -498,10 +545,11 @@
       // is already that way out and two of them side by side would just ask the
       // same question twice.
       var wayBack=!list.length&&folder&&!hidden?'<button class="pm-folder-clear">'+esc(t('pm_folder_show_all'))+'</button>':'';
-      el.innerHTML=(list.length?list.map(card).join(''):'<div class="pm-empty">'+esc(t(folder?'pm_folder_empty_list':'pm_empty'))+'</div>')+others+wayBack+(siteFilter?'<button class="pm-show-all">'+esc(t('pm_show_all'))+'</button>':'');
+      el.innerHTML=(list.length?list.map(card).join(''):'<div class="pm-empty">'+esc(t(folder?'pm_folder_empty_list':'pm_empty'))+(!folder?' <button class="pm-empty-add">'+esc(t('pm_add'))+'</button>':'')+'</div>')+others+wayBack+(siteFilter?'<button class="pm-show-all">'+esc(t('pm_show_all'))+'</button>':'');
       var all=el.querySelector('.pm-show-all');if(all)all.onclick=function(){showAll=true;renderList()};
       var clear=el.querySelector('.pm-folder-clear');if(clear)clear.onclick=function(){pickFolder('')};
       var more=el.querySelector('.pm-folder-others');if(more)more.onclick=function(){otherFolders=true;renderList()};
+      var emptyAdd=el.querySelector('.pm-empty-add');if(emptyAdd)emptyAdd.onclick=function(){dialog(parentOrigin&&context&&context.hostname?{website:context.hostname}:null)};
       el.onclick=onClick;
     }
     // load() re-fetches after every save/delete/import while the shell is
@@ -702,15 +750,122 @@
       overlay.querySelector('.f-close').onclick=function(){overlay.remove()};
       overlay.querySelector('.f-edit').onclick=function(){overlay.remove();dialog(item)};
     }
+    // The check itself is subscriber-only by delivery, not by a flag read here:
+    // GET /pub/mvmpasswords/audit.js 404s the instant this install is not
+    // licensed, because premium/backend.py refuses to hand back the file.
+    // Deliberately fetched fresh on every open, never cached across clicks:
+    // caching "it loaded once" would let a page left open from before a
+    // licence was revoked go on running an algorithm the server would no
+    // longer send it. window.__mvmPmAudit is cleared first so a failed
+    // reload (script never runs) can't fall back to a stale definition left
+    // over from an earlier, licensed load.
+    function loadAuditScript(){
+      delete window.__mvmPmAudit;
+      return new Promise(function(resolve){
+        var el=document.createElement('script');
+        el.src=API+'/audit.js?_='+Date.now();
+        el.onload=function(){el.remove();resolve(!!window.__mvmPmAudit)};
+        el.onerror=function(){el.remove();resolve(false)};
+        document.head.appendChild(el)})}
+    function auditDialog(){
+      var overlay=document.createElement('div');overlay.className='pm-overlay';
+      overlay.innerHTML='<div class="pm-dialog"><h3>'+esc(t('pm_audit_title'))+'</h3><div class="pm-audit-body">'+esc(t('pm_loading'))+'</div><div class="pm-actions"><button class="g-cancel">'+esc(t('pm_cancel'))+'</button></div></div>';
+      root.appendChild(overlay);
+      overlay.querySelector('.g-cancel').onclick=function(){overlay.remove()};
+      var body=overlay.querySelector('.pm-audit-body');
+      loadAuditScript().then(function(ok){
+        // Reachable only by a licence lapsing between the vault load that
+        // decided this button exists and the click — routine, not an error,
+        // and never worth a paywall message: the desktop already told the
+        // one person who can act on it, everyone else was never shown the
+        // button at all.
+        if(!ok){overlay.remove();return}
+        renderAudit(body)})}
+    function renderAudit(body){
+      var result=window.__mvmPmAudit(entries),weak=result.weak,reused=result.reused;
+      if(!weak.length&&!reused.length){body.innerHTML='<p class="pm-audit-ok">✅ '+esc(t('pm_audit_all_good'))+'</p>';return}
+      var html='';
+      if(reused.length){
+        html+='<h4 class="pm-audit-h">'+esc(t('pm_audit_reused_title'))+'</h4>';
+        reused.forEach(function(group){
+          html+='<div class="pm-audit-group">'+group.map(function(e){return'<span class="pm-audit-chip pm-head-click" data-view="'+esc(e.id)+'">'+esc(e.name)+'</span>'}).join('')+'</div>'});
+      }
+      if(weak.length){
+        html+='<h4 class="pm-audit-h">'+esc(t('pm_audit_weak_title'))+'</h4>';
+        html+=weak.map(function(w){
+          return'<div class="pm-audit-row pm-head-click" data-view="'+esc(w.entry.id)+'"><span class="pm-audit-name">'+esc(w.entry.name)+'</span><span class="pm-audit-badge pm-audit-'+w.strength.level+'">'+esc(t('pm_audit_level_'+w.strength.level))+'</span></div>'}).join('')}
+      body.innerHTML=html;
+      // Same data-view/find()/viewDialog() path the main list uses on its own
+      // pm-head-click rows — clicking a flagged entry here opens the same quick
+      // view, so seeing the problem and looking at the entry is one click.
+      body.onclick=function(e){
+        var el=e.target.closest('[data-view]');if(!el)return;
+        var item=find(el.dataset.view);if(!item)return;
+        var ov=body.closest('.pm-overlay');if(ov)ov.remove();
+        viewDialog(item)}}
     // The folder picker is offered only once there is a folder to pick: a select
     // whose whole content is "No folder" asks a question with one answer. Until
     // then the manager in the ☰ menu is where a vault gets its first folder.
     function folderField(selected){return folders.length?'<label>'+esc(t('pm_folder_field'))+'</label><select class="f-folder"><option value="">'+esc(t('pm_folder_none'))+'</option>'+folders.map(function(f){return'<option value="'+esc(f.id)+'"'+(selected===f.id?' selected':'')+'>'+esc(f.name)+'</option>'}).join('')+'</select>':''}
+    // Remembered per device on purpose — the user asked for it in localStorage
+    // rather than the server so the same account can prefer different options
+    // on different machines. Never skipped: only the pre-filled defaults change.
+    var GEN_KEY='mvm_pm_gen_opts';
+    function genOpts(){
+      var out={length:10,lower:true,upper:true,digits:true,symbols:true};
+      try{var saved=JSON.parse(localStorage.getItem(GEN_KEY));if(saved&&typeof saved==='object')Object.assign(out,saved)}catch(_){}
+      return out}
+    function saveGenOpts(opts){try{localStorage.setItem(GEN_KEY,JSON.stringify(opts))}catch(_){}}
+    function generatePassword(opts){
+      var sets=[];
+      if(opts.lower)sets.push('abcdefghijklmnopqrstuvwxyz');
+      if(opts.upper)sets.push('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+      if(opts.digits)sets.push('0123456789');
+      if(opts.symbols)sets.push('!@#$%^&*()-_=+[]{};:,.<>?');
+      if(!sets.length)return'';
+      var all=sets.join(''),len=Math.max(1,opts.length|0),bytes=new Uint32Array(len);crypto.getRandomValues(bytes);
+      var out=[];for(var i=0;i<len;i++)out.push(all[bytes[i]%all.length]);
+      // Guarantee at least one character from every chosen set so a short
+      // length can't land on, say, an all-digit result by pure chance.
+      sets.forEach(function(set,i){if(i<out.length)out[i]=set[Math.floor(Math.random()*set.length)]});
+      for(var i=out.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=out[i];out[i]=out[j];out[j]=tmp}
+      return out.join('')}
+    function genDialog(onUse){
+      var opts=genOpts();
+      var overlay=document.createElement('div');overlay.className='pm-overlay';
+      overlay.innerHTML='<div class="pm-dialog"><h3>'+esc(t('pm_gen_title'))+'</h3>'+
+        '<label>'+esc(t('pm_gen_length'))+'</label><input class="g-length" type="number" min="4" max="64" value="'+esc(opts.length)+'">'+
+        '<label class="pm-gen-check"><input type="checkbox" class="g-lower"'+(opts.lower?' checked':'')+'> '+esc(t('pm_gen_lower'))+'</label>'+
+        '<label class="pm-gen-check"><input type="checkbox" class="g-upper"'+(opts.upper?' checked':'')+'> '+esc(t('pm_gen_upper'))+'</label>'+
+        '<label class="pm-gen-check"><input type="checkbox" class="g-digits"'+(opts.digits?' checked':'')+'> '+esc(t('pm_gen_digits'))+'</label>'+
+        '<label class="pm-gen-check"><input type="checkbox" class="g-symbols"'+(opts.symbols?' checked':'')+'> '+esc(t('pm_gen_symbols'))+'</label>'+
+        '<div class="pm-password-field"><div class="pm-view-value g-preview"></div><button type="button" class="g-reroll" title="'+esc(t('pm_gen_reroll'))+'">🎲</button></div>'+
+        '<div class="pm-error"></div>'+
+        '<div class="pm-actions"><button class="primary g-use">'+esc(t('pm_gen_use'))+'</button><button class="g-cancel">'+esc(t('pm_cancel'))+'</button></div></div>';
+      root.appendChild(overlay);
+      var lenInput=overlay.querySelector('.g-length'),lower=overlay.querySelector('.g-lower'),upper=overlay.querySelector('.g-upper'),
+          digits=overlay.querySelector('.g-digits'),symbols=overlay.querySelector('.g-symbols'),preview=overlay.querySelector('.g-preview'),
+          err=overlay.querySelector('.pm-error'),reroll=overlay.querySelector('.g-reroll');
+      function current(){return{length:Math.max(4,Math.min(64,parseInt(lenInput.value,10)||10)),lower:lower.checked,upper:upper.checked,digits:digits.checked,symbols:symbols.checked}}
+      function refresh(){
+        var o=current();
+        if(!o.lower&&!o.upper&&!o.digits&&!o.symbols){preview.textContent='';err.textContent=t('pm_gen_need_one');reroll.disabled=true;return}
+        reroll.disabled=false;err.textContent='';preview.textContent=generatePassword(o)}
+      [lenInput,lower,upper,digits,symbols].forEach(function(el){el.addEventListener('input',refresh)});
+      reroll.onclick=refresh;
+      refresh();
+      overlay.querySelector('.g-cancel').onclick=function(){overlay.remove()};
+      overlay.querySelector('.g-use').onclick=function(){
+        var o=current();
+        if(!o.lower&&!o.upper&&!o.digits&&!o.symbols){err.textContent=t('pm_gen_need_one');return}
+        saveGenOpts(o);
+        var value=preview.textContent||generatePassword(o);
+        overlay.remove();onUse(value)}}
     function dialog(item){item=item||{};
       // A login added while a folder is open starts in that folder. Anything else
       // means filing it by hand immediately after choosing where to look.
       var startFolder=item.id?entryFolder(item):(folder&&folder!==UNFILED?folder:'');
-      var overlay=document.createElement('div');overlay.className='pm-overlay';overlay.innerHTML='<div class="pm-dialog"><h3>'+esc(t(item.id?'pm_edit_entry':'pm_new_entry'))+'</h3><label>'+esc(t('pm_name'))+'</label><input class="f-name" value="'+esc(item.name)+'">'+folderField(startFolder)+'<label>'+esc(t('pm_website'))+'</label><div class="pm-web-list"></div><button type="button" class="pm-web-add">+ '+esc(t('pm_add_website'))+'</button><label>'+esc(t('pm_match_mode'))+'</label><select class="f-match"><option value="default">'+esc(t('pm_match_default'))+'</option><option value="domain">'+esc(t('pm_match_domain'))+'</option><option value="exact">'+esc(t('pm_match_exact'))+'</option><option value="regex">'+esc(t('pm_match_regex'))+'</option></select><label>'+esc(t('pm_username'))+'</label><input class="f-user" value="'+esc(item.username)+'"><label>'+esc(t('pm_password'))+'</label><div class="pm-password-field"><input class="f-pass" type="password" value="'+esc(item.password)+'"><button type="button" class="f-toggle" title="'+esc(t('pm_show_password'))+'">👁</button></div>'+(totpReady()?'<label>'+esc(t('pm_totp_field'))+'</label><select class="f-totp"><option value="">'+esc(t('pm_totp_none'))+'</option></select>':'')+'<label>'+esc(t('pm_notes'))+'</label><textarea class="f-notes">'+esc(item.notes)+'</textarea>'+(item.passkey?'<div class="pm-passkey-block"><label>'+esc(t('pm_passkey_field'))+'</label><div class="pm-passkey-row"><span class="pm-passkey-info">🔑 '+esc(item.passkey.userDisplayName||item.passkey.userName||item.passkey.rpId||'')+'</span><button type="button" class="f-passkey-del">'+esc(t('pm_passkey_remove'))+'</button></div></div>':'')+'<div class="pm-error"></div><div class="pm-actions"><button class="primary f-save">'+esc(t('pm_save'))+'</button><button class="f-cancel">'+esc(t('pm_cancel'))+'</button>'+(item.id?'<button class="pm-danger f-delete">'+esc(t('pm_delete'))+'</button>':'')+'</div></div>';root.appendChild(overlay);var pass=overlay.querySelector('.f-pass'),toggle=overlay.querySelector('.f-toggle'),match=overlay.querySelector('.f-match');match.value=item.match_mode||'default';
+      var overlay=document.createElement('div');overlay.className='pm-overlay';overlay.innerHTML='<div class="pm-dialog"><h3>'+esc(t(item.id?'pm_edit_entry':'pm_new_entry'))+'</h3><label>'+esc(t('pm_name'))+'</label><input class="f-name" value="'+esc(item.name)+'">'+folderField(startFolder)+'<label>'+esc(t('pm_website'))+'</label><div class="pm-web-list"></div><button type="button" class="pm-web-add">+ '+esc(t('pm_add_website'))+'</button><label>'+esc(t('pm_match_mode'))+'</label><select class="f-match"><option value="default">'+esc(t('pm_match_default'))+'</option><option value="domain">'+esc(t('pm_match_domain'))+'</option><option value="exact">'+esc(t('pm_match_exact'))+'</option><option value="regex">'+esc(t('pm_match_regex'))+'</option></select><label>'+esc(t('pm_username'))+'</label><input class="f-user" value="'+esc(item.username)+'"><label>'+esc(t('pm_password'))+'</label><div class="pm-password-field"><input class="f-pass" type="password" value="'+esc(item.password)+'"><button type="button" class="f-toggle" title="'+esc(t('pm_show_password'))+'">👁</button><button type="button" class="f-genpass" title="'+esc(t('pm_gen_title'))+'">🎲</button></div>'+(totpReady()?'<label>'+esc(t('pm_totp_field'))+'</label><select class="f-totp"><option value="">'+esc(t('pm_totp_none'))+'</option></select>':'')+'<label>'+esc(t('pm_notes'))+'</label><textarea class="f-notes">'+esc(item.notes)+'</textarea>'+(item.passkey?'<div class="pm-passkey-block"><label>'+esc(t('pm_passkey_field'))+'</label><div class="pm-passkey-row"><span class="pm-passkey-info">🔑 '+esc(item.passkey.userDisplayName||item.passkey.userName||item.passkey.rpId||'')+'</span><button type="button" class="f-passkey-del">'+esc(t('pm_passkey_remove'))+'</button></div></div>':'')+'<div class="pm-error"></div><div class="pm-actions"><button class="primary f-save">'+esc(t('pm_save'))+'</button><button class="f-cancel">'+esc(t('pm_cancel'))+'</button>'+(item.id?'<button class="pm-danger f-delete">'+esc(t('pm_delete'))+'</button>':'')+'</div></div>';root.appendChild(overlay);var pass=overlay.querySelector('.f-pass'),toggle=overlay.querySelector('.f-toggle'),match=overlay.querySelector('.f-match');match.value=item.match_mode||'default';
       // The address rows are built here rather than in the markup above because
       // there is no fixed number of them. A row can always be removed, including
       // the last one — an entry with no address at all is legitimate (a database
@@ -746,7 +901,7 @@
           if(totpSelect.isConnected)totpSelect.insertAdjacentHTML('beforeend','<option value="" disabled>'+esc(t('pm_totp_unavailable'))+'</option>');
         });
       }
-      overlay.querySelector('.pm-web-add').onclick=function(){addWebRow('').querySelector('.f-web').focus()};var keepPasskey=item.passkey||null,passkeyDel=overlay.querySelector('.f-passkey-del');if(passkeyDel)passkeyDel.onclick=function(){keepPasskey=null;overlay.querySelector('.pm-passkey-block').remove()};toggle.onclick=function(){var showing=pass.type==='text';pass.type=showing?'password':'text';toggle.textContent=showing?'👁':'🙈';toggle.title=t(showing?'pm_show_password':'pm_hide_password')};overlay.querySelector('.f-cancel').onclick=function(){overlay.remove()};var delBtn=overlay.querySelector('.f-delete');if(delBtn)delBtn.onclick=async function(){if(!confirm(t('pm_delete_confirm',{name:item.name})))return;try{await api('/entries/'+encodeURIComponent(item.id),{method:'DELETE'});overlay.remove();await load(true)}catch(_){overlay.querySelector('.pm-error').textContent=t('pm_error')}};overlay.querySelector('.f-save').onclick=async function(){var value={name:overlay.querySelector('.f-name').value.trim(),website:Array.prototype.map.call(overlay.querySelectorAll('.f-web'),function(el){return el.value.trim()}).filter(Boolean).join('\n'),match_mode:match.value,username:overlay.querySelector('.f-user').value.trim(),password:pass.value,notes:overlay.querySelector('.f-notes').value};if(keepPasskey)value.passkey=keepPasskey;
+      overlay.querySelector('.pm-web-add').onclick=function(){addWebRow('').querySelector('.f-web').focus()};var keepPasskey=item.passkey||null,passkeyDel=overlay.querySelector('.f-passkey-del');if(passkeyDel)passkeyDel.onclick=function(){keepPasskey=null;overlay.querySelector('.pm-passkey-block').remove()};toggle.onclick=function(){var showing=pass.type==='text';pass.type=showing?'password':'text';toggle.textContent=showing?'👁':'🙈';toggle.title=t(showing?'pm_show_password':'pm_hide_password')};overlay.querySelector('.f-genpass').onclick=function(){genDialog(function(generated){pass.type='text';toggle.textContent='🙈';toggle.title=t('pm_hide_password');pass.value=generated})};overlay.querySelector('.f-cancel').onclick=function(){overlay.remove()};var delBtn=overlay.querySelector('.f-delete');if(delBtn)delBtn.onclick=async function(){if(!confirm(t('pm_delete_confirm',{name:item.name})))return;try{await api('/entries/'+encodeURIComponent(item.id),{method:'DELETE'});overlay.remove();await load(true)}catch(_){overlay.querySelector('.pm-error').textContent=t('pm_error')}};overlay.querySelector('.f-save').onclick=async function(){var value={name:overlay.querySelector('.f-name').value.trim(),website:Array.prototype.map.call(overlay.querySelectorAll('.f-web'),function(el){return el.value.trim()}).filter(Boolean).join('\n'),match_mode:match.value,username:overlay.querySelector('.f-user').value.trim(),password:pass.value,notes:overlay.querySelector('.f-notes').value};if(keepPasskey)value.passkey=keepPasskey;
         // Kept inside the encrypted blob like every other field, so the server
         // never learns which entry has 2FA. When the picker is absent — no
         // subscription, or the integration switched off — the existing link is
@@ -768,11 +923,13 @@
     // The fetch is fired once at mount and both callers await the same promise.
     var vaultPromise=null;
     function fetchVault(force){if(force||!vaultPromise)vaultPromise=api('/vault').catch(function(e){vaultPromise=null;throw e});return vaultPromise}
+    var lastVault=null;
     async function load(force){try{var payload=await fetchVault(force);if(!payload.vault){unlockScreen(null);return}
+      lastVault=payload.vault;
       // Carried by the vault response, so every surface — desktop window, public
       // page, extension — learns it at the same moment it learns everything else
       // and none of them pays for an extra round trip to find out.
-      totpOn=!!payload.totp;if(!key&&!parentOrigin)await restoreLocalKey();if(!key){unlockScreen(payload.vault);return}
+      totpOn=!!payload.totp;auditOn=!!payload.audit;if(!key&&!parentOrigin)await restoreLocalKey();if(!key){unlockScreen(payload.vault);return}
       // Every record is independent, so they decrypt concurrently. Sequential
       // awaits made this O(n) round trips through the crypto engine.
       var loaded=await Promise.all([Promise.all((payload.entries||[]).map(decrypt)),Promise.all((payload.folders||[]).map(decrypt))]);
@@ -787,7 +944,7 @@
       // to explain why. Falling back to All is the only honest state.
       if(folder&&folder!==UNFILED&&!folders.some(function(f){return f.id===folder})){folder='';localStorage.removeItem(FOLDER_KEY)}
       touchFolder(folder);
-      render()}catch(_){if(key)unlockScreen(null,t('pm_unlock_failed'));else root.innerHTML='<div class="pm-empty">'+esc(t('pm_error'))+'</div>'}}
+      render()}catch(_){if(key){key=null;unlockScreen(lastVault,t('pm_unlock_failed'))}else root.innerHTML='<div class="pm-empty">'+esc(t('pm_error'))+'</div>'}}
     function pk(){return window.MvmPasswordManagerPasskey}
     function replyPasskey(reqId,result,error){passkeyBusy=false;if(parentOrigin)window.parent.postMessage({source:'mvmos-public-app',appId:APP_ID,action:'passkey-result',reqId:reqId,result:result,error:error},parentOrigin)}
     // A passkey is a field of an ordinary login, the way Bitwarden stores one, so

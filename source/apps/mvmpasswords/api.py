@@ -14,7 +14,7 @@ import uuid
 from typing import Optional
 
 from fastapi import APIRouter, Header
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -215,6 +215,11 @@ async def get_vault(x_pub_token: str = Header(default=None)):
         # administrator's switch and the licence that delivers the code behind
         # it. _totp_premium() answers for both at once.
         "totp": _totp_premium() is not None,
+        # Whether the password check is available on this installation. Same
+        # rule as totp: it is the licence of the server, not of the viewer, so
+        # every surface gets the same answer — and it is what the public page
+        # and the extension go by, since neither has window.mvmOS to ask.
+        "audit": _premium() is not None,
     }
 
 
@@ -341,6 +346,42 @@ async def delete_folder(folder_id: str, x_pub_token: str = Header(default=None))
 # unlicensed install never receives. When it is missing the answer is a plain
 # "premium_required" and the vault carries on working exactly as before — the
 # base app is never broken by the absence of a subscription, only quieter.
+
+
+# --- Password check ---------------------------------------------------------
+#
+# The vault's passwords are only ever decrypted in the browser, so unlike the
+# 2FA integration above there is nothing this route can compute server-side —
+# the analysis has to run in the visitor's own JS. What still moves behind the
+# licence is the analysis code itself: it lives in premium/public/audit.js,
+# never in the app's own public/ bundle, so an unlicensed install's request
+# for it 404s and no analysis code ever reaches that browser at all.
+
+
+def _premium():
+    premium = sys.modules.get("backend.premium")
+    return premium.load_premium_backend(APP_ID) if premium else None
+
+
+@router.get("/audit.js")
+async def audit_script():
+    module = _premium()
+    # getattr, not a plain call: premium builds are fetched from mvmos.org and
+    # are not versioned, so an install can be carrying an older one that has no
+    # such function. That is a 404 like any other missing script, never a 500.
+    getter = getattr(module, "get_audit_script", None) if module else None
+    script = getter() if getter else None
+    # no-store on both outcomes: a browser that cached a 200 from before a
+    # licence was revoked must not go on believing it still has one, and this
+    # is the one route where "was it ever allowed" is not the question — only
+    # "is it allowed right now" is.
+    if script is None:
+        return Response(status_code=404, headers={"Cache-Control": "no-store"})
+    return Response(
+        content=script,
+        media_type="application/javascript",
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 def _totp_premium():

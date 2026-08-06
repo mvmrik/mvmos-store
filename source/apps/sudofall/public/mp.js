@@ -428,10 +428,16 @@
     mp.send({ type: 'move' });
     mp.send({ type: 'grid_update', grid: _grid.map(r => [...r]) });
     mp.send({ type: 'score_update', score: _myScore });
-    _myTurn = false;
-    _updateStatus();
-    _render();
-    setTimeout(() => _showOpponentGrid(), 1000);
+    // Solo (no opponent): there is nobody to hand the turn to — keep playing.
+    if (_oppInfo) {
+      _myTurn = false;
+      _updateStatus();
+      _render();
+      setTimeout(() => _showOpponentGrid(), 1000);
+    } else {
+      _updateStatus();
+      _render();
+    }
   }
 
   function _resolveJoker() {

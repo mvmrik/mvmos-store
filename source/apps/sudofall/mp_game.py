@@ -56,7 +56,8 @@ class Game:
         if t == "sf_ready":
             self.ready.add(pid)
             players = self.ctx.all_players()
-            if len(self.ready) >= 2 and not self.started:
+            need = min(2, len(players))
+            if len(self.ready) >= need and not self.started:
                 self.started = True
                 self.seq = [random.randint(0, 9) for _ in range(500)]
                 while self.seq[0] == 0:

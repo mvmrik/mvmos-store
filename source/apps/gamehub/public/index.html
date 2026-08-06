@@ -520,19 +520,22 @@ async function renderGames(c) {
   }
 }
 
-async function _createGame(btn, gameId) {
+async function _createGame(btn, gameId, maxPlayers) {
+  const label = btn.textContent;
   btn.disabled = true; btn.textContent = t('gh_creating');
   try {
+    const body = { game_id: gameId };
+    if (maxPlayers) body.max_players = maxPlayers;
     const r = await fetch(MP_API + '/rooms', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-GH-Token': _token },
-      body: JSON.stringify({ game_id: gameId }),
+      body: JSON.stringify(body),
     });
     if (r.ok) {
       const d = await r.json();
       location.href = d.play_url;
     } else {
-      btn.disabled = false; btn.textContent = t('gh_new_game');
+      btn.disabled = false; btn.textContent = label;
       alert(t('gh_error_creating'));
     }
   } catch(_) { btn.disabled = false; btn.textContent = t('gh_new_game'); }
@@ -579,9 +582,16 @@ async function renderGameDetail(c, gameId, mpGame) {
       info.innerHTML = `
         <div style="font-size:56px;line-height:1">${icon}</div>
         <div style="font-weight:700;font-size:20px">${esc(name)}</div>
-        ${mpGame ? `<button class="btn btn-primary" id="gd-new" style="padding:9px 24px;font-size:.95rem">${esc(t('gh_new_game'))}</button>` : ''}`;
+        ${mpGame ? `
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-secondary" id="gd-solo" style="padding:9px 20px;font-size:.95rem">${esc(t('gh_play_solo'))}</button>
+          <button class="btn btn-primary" id="gd-new" style="padding:9px 20px;font-size:.95rem">${esc(t('gh_new_game'))}</button>
+        </div>` : ''}`;
       tabBody.appendChild(info);
-      if (mpGame) info.querySelector('#gd-new').addEventListener('click', e => _createGame(e.target, gameId));
+      if (mpGame) {
+        info.querySelector('#gd-new').addEventListener('click', e => _createGame(e.target, gameId));
+        info.querySelector('#gd-solo').addEventListener('click', e => _createGame(e.target, gameId, 1));
+      }
 
       if (mpGame) {
         let rooms = [];

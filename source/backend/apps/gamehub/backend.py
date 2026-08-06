@@ -303,7 +303,7 @@ async def _build_stats():
                        MAX(sp.score) as best_score, AVG(sp.score) as avg_score
                 FROM session_players sp JOIN players p ON sp.player_id=p.id
                 WHERE sp.player_id IS NOT NULL
-                  AND sp.session_id IN (SELECT id FROM game_sessions WHERE game_id=?)
+                  AND sp.session_id IN (SELECT id FROM game_sessions WHERE game_id=? AND mode='multiplayer')
                 GROUP BY sp.player_id ORDER BY wins DESC, avg_score DESC
             """, (game_id,)).fetchall()
             leaderboard[game_id] = [dict(r) for r in rows]

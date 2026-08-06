@@ -1,10 +1,15 @@
 {
-  "summary": "Extras that connect the vault to the rest of mvmOS.",
+  "summary": "Extras that watch over the vault and connect it to the rest of mvmOS.",
   "features": [
     {
       "title": "Two-factor codes in the vault",
       "short": "Link a mvm2factor account to a login and copy its code",
       "description": "Once an administrator switches the integration on in the app's settings, any login can be linked to a mvm2factor account, and mvmPasswords gains a button that copies its current six-digit code. Filling a login that has two-factor set up puts the code on the clipboard at the same time, so the second step is one paste away instead of a trip to another app. The code is always computed by mvm2factor and asked for only when you press the button, so nothing is slowed down and no shared secret ever reaches the password manager."
+    },
+    {
+      "title": "Password check",
+      "short": "Find reused and weak passwords across the vault",
+      "description": "A menu entry checks every login for two common problems: the same password used on more than one entry, and a password weak enough to guess — too short, too simple, or one of the passwords people pick most often. The check runs entirely in the browser on the passwords already decrypted for that vault, so nothing about it is sent anywhere."
     }
   ]
 }

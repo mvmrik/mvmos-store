@@ -8,7 +8,7 @@
     "passwords",
     "autofill"
   ],
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "An end-to-end encrypted password vault for your Apps Hub profile, with a public page and optional browser autofill.",
   "entry": "main.js",
   "min_core_version": "0.31.0-beta",

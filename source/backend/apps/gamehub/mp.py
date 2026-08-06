@@ -134,11 +134,12 @@ def _is_invited(room_url: str, player_id: str) -> bool:
 def _record_session(game_id: str, records: list, duration: int | None, metadata: dict):
     """Write a finished game into game_sessions / session_players."""
     try:
+        mode = "singleplayer" if len(records) < 2 else "multiplayer"
         now = datetime.now(timezone.utc).isoformat()
         with _gh_conn() as conn:
             cur = conn.execute(
                 "INSERT INTO game_sessions(game_id,mode,played_at,duration_seconds,metadata) VALUES(?,?,?,?,?)",
-                (game_id, "multiplayer", now, duration, json.dumps(metadata or {})),
+                (game_id, mode, now, duration, json.dumps(metadata or {})),
             )
             sid = cur.lastrowid
             for r in records:
@@ -321,7 +322,7 @@ async def create_room(request: Request, body: dict):
         "id":          room_id,
         "game_id":     game_id,
         "host_id":     str(player["id"]),
-        "max_players": max(2, min(12, int(body.get("max_players", 8)))),
+        "max_players": max(1, min(12, int(body.get("max_players", 8)))),
         "settings":    body.get("settings", {}) or {},
         "created_at":  time.time(),
         "started_at":  None,
@@ -342,6 +343,8 @@ async def list_rooms(game_id: str = ""):
     for room in _rooms.values():
         if room["status"] != "lobby":
             continue
+        if room["max_players"] <= 1:
+            continue  # solo room — not joinable, so never shown to others
         if game_id and room["game_id"] != game_id:
             continue
         host = room["players"].get(room["host_id"])
@@ -416,8 +419,8 @@ async def start_room(room_id: str, request: Request, body: dict):
     if room["status"] != "lobby":
         return JSONResponse({"error": "already started"}, status_code=409)
     connected = [p for p in room["players"].values() if p["connected"]]
-    if len(connected) < 2:
-        return JSONResponse({"error": "need at least 2 players"}, status_code=400)
+    if len(connected) < 1:
+        return JSONResponse({"error": "need at least 1 player"}, status_code=400)
 
     if isinstance(body.get("settings"), dict):
         room["settings"].update(body["settings"])

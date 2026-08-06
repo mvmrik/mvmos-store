@@ -326,7 +326,8 @@
       pcol.appendChild(plist);
       const btn = _root.querySelector('#gh-start-btn');
       if (btn) {
-        const canStart = connectedCount >= 2;
+        const minPlayers = _maxPlayers > 1 ? 2 : 1;
+        const canStart = connectedCount >= minPlayers;
         btn.disabled = !canStart;
         btn.style.opacity = canStart ? '1' : '.5';
         btn.textContent = canStart ? 'Start' : 'Need at least 2 players';
@@ -370,7 +371,7 @@
       pcol.appendChild(plist);
       cols.appendChild(pcol);
 
-      if (_isHost) {
+      if (_isHost && _maxPlayers > 1) {
         const icol = document.createElement('div');
         icol.id = 'gh-lobby-icol';
         icol.style.cssText = 'flex:1;min-width:240px';
@@ -392,7 +393,8 @@
         const startBtn = document.createElement('button');
         startBtn.id = 'gh-start-btn';
         startBtn.className = 'gh-btn gh-p';
-        const canStart = connectedCount >= 2;
+        const minPlayers = _maxPlayers > 1 ? 2 : 1;
+        const canStart = connectedCount >= minPlayers;
         startBtn.disabled = !canStart;
         startBtn.style.opacity = canStart ? '1' : '.5';
         startBtn.textContent = canStart ? 'Start' : 'Need at least 2 players';
