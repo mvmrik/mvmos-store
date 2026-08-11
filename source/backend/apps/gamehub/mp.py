@@ -21,6 +21,14 @@ must expose a class `Game(ctx)` with the async callbacks:
     on_leave(player)        a player disconnected
     on_message(player, msg) a move / action from a player (the game logic)
 
+and may expose one optional method, which is what makes a solo run of it
+continuable another day:
+
+    snapshot() -> dict      whatever the SERVER must remember to carry the run
+                            on; the client half of the save comes from the
+                            browser. A game with no server state does not
+                            need it at all.
+
 and may call back into the hub through `ctx`:
 
     ctx.settings                     opaque settings dict from room creation
@@ -31,12 +39,21 @@ and may call back into the hub through `ctx`:
     await ctx.send(player_id, msg)
     ctx.schedule(delay, coro_factory)   run an async fn after `delay` seconds
     await ctx.finish(records)        end game, write session, broadcast game_over
+    ctx.resume / ctx.saved_state     the save this room was started from, if any
+    ctx.save_state(player_id, data)  store a save and let the player walk away
+    await ctx.close(reason)          end the room WITHOUT recording a session
+
+Saving is framework work, not game work: every solo room answers the client's
+`__save` message the same way — collect the client blob, ask the game for
+snapshot(), write one row, close the room. No game implements the button, the
+prompt, the storage or the "new game or continue?" question.
 
 The hub never imports a specific game — it loads mp_game.py by convention.
 """
 
 import asyncio
 import importlib.util
+import inspect
 import json
 import os
 import random
@@ -57,7 +74,11 @@ GH_DB_PATH   = os.path.join(_BASE, "..", "..", "apps", "gamehub", "data.db")
 FRONTEND_APPS = os.path.join(_BASE, "..", "..", "..", "apps")  # apps/<id>/
 
 ROOM_TTL      = 7200   # 2 h — drop stale rooms
-EMPTY_GRACE   = 300    # 5 min — drop a room after everyone disconnects
+EMPTY_GRACE   = 300    # 5 min — drop an abandoned lobby once everyone leaves
+# A run already in progress is something a player means to come back to (see
+# /rooms/mine), so it waits far longer than a lobby nobody joined. ROOM_TTL
+# still caps it.
+PLAYING_GRACE = 3600   # 1 h
 HEARTBEAT     = 25     # seconds between server pings
 PLAYER_COLORS = [
     "#89b4fa", "#f38ba8", "#a6e3a1", "#f9e2af",
@@ -181,6 +202,114 @@ def _load_game_class(game_id: str):
         return None
 
 
+# ── Saved games ──────────────────────────────────────────────────────────────
+# A room is a run in progress: it lives in memory, survives a lost connection
+# and nothing more. A *save* is the other thing — the player deliberately
+# stopping, keeping where they got to, and coming back whenever. The two are
+# kept strictly apart, and a player can only be in one of the states at a time:
+#
+#   run in progress   → the hub offers Continue and refuses to start a new run
+#   saved game        → the hub asks: continue the save, or start fresh?
+#
+# Starting a run from a save consumes it, so there is never both. Everything
+# here is game-agnostic: the framework stores an opaque blob per (game, player)
+# and never looks inside it. What goes in it, and when, is the game's call.
+
+def _ensure_saves_table():
+    try:
+        with _gh_conn() as conn:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS game_saves (
+                    game_id    TEXT NOT NULL,
+                    player_id  TEXT NOT NULL,
+                    state      TEXT NOT NULL DEFAULT '{}',
+                    created_at REAL,
+                    updated_at REAL,
+                    PRIMARY KEY (game_id, player_id)
+                )""")
+            conn.commit()
+    except Exception as e:
+        print(f"[gamehub-mp] game_saves table: {e}")
+
+
+_ensure_saves_table()
+
+
+def _save_get(game_id: str, player_id: str) -> dict | None:
+    try:
+        with _gh_conn() as conn:
+            row = conn.execute(
+                "SELECT state, updated_at FROM game_saves WHERE game_id=? AND player_id=?",
+                (game_id, str(player_id)),
+            ).fetchone()
+        if not row:
+            return None
+        return {"state": json.loads(row["state"] or "{}"), "updated_at": row["updated_at"]}
+    except Exception as e:
+        print(f"[gamehub-mp] save read failed: {e}")
+        return None
+
+
+def _save_put(game_id: str, player_id: str, state: dict) -> bool:
+    now = time.time()
+    try:
+        with _gh_conn() as conn:
+            conn.execute(
+                """INSERT INTO game_saves(game_id,player_id,state,created_at,updated_at)
+                   VALUES(?,?,?,?,?)
+                   ON CONFLICT(game_id,player_id) DO UPDATE SET
+                       state=excluded.state, updated_at=excluded.updated_at""",
+                (game_id, str(player_id), json.dumps(state), now, now),
+            )
+            conn.commit()
+        return True
+    except Exception as e:
+        print(f"[gamehub-mp] save write failed: {e}")
+        return False
+
+
+def _save_del(game_id: str, player_id: str):
+    try:
+        with _gh_conn() as conn:
+            conn.execute("DELETE FROM game_saves WHERE game_id=? AND player_id=?",
+                         (game_id, str(player_id)))
+            conn.commit()
+    except Exception as e:
+        print(f"[gamehub-mp] save delete failed: {e}")
+
+
+def _saves_for(player_id: str) -> list:
+    try:
+        with _gh_conn() as conn:
+            rows = conn.execute(
+                "SELECT game_id, created_at, updated_at FROM game_saves WHERE player_id=? ORDER BY updated_at DESC",
+                (str(player_id),),
+            ).fetchall()
+        return [dict(r) for r in rows]
+    except Exception:
+        return []
+
+
+def _saved_client(room: dict) -> dict | None:
+    """The browser's half of the save this room was started from. The client
+    framework hands it to the game, which decides when in its own startup the
+    board is ready to receive it."""
+    return (room.get("saved_state") or {}).get("client")
+
+
+def _live_solo_room(game_id: str, player_id: str) -> dict | None:
+    """The player's own solo run of this game that is still going. At most one
+    can exist — create_room refuses a second, because two half-played runs of
+    the same game is a state nobody can make sense of."""
+    _cleanup()
+    pid = str(player_id)
+    for room in _rooms.values():
+        if (room["game_id"] == game_id and room["max_players"] <= 1
+                and room["status"] != "finished" and pid in room["players"]):
+            return room
+    return None
+
+
 def _cleanup():
     now = time.time()
     for rid in list(_rooms.keys()):
@@ -189,7 +318,8 @@ def _cleanup():
             _rooms.pop(rid, None)
             continue
         any_connected = any(p["connected"] for p in room["players"].values())
-        if not any_connected and room["empty_since"] and now - room["empty_since"] > EMPTY_GRACE:
+        grace = PLAYING_GRACE if room["status"] == "playing" else EMPTY_GRACE
+        if not any_connected and room["empty_since"] and now - room["empty_since"] > grace:
             _rooms.pop(rid, None)
 
 
@@ -261,6 +391,38 @@ class RoomCtx:
 
         asyncio.create_task(_runner())
 
+    # ── saves ───────────────────────────────────────────────────────────────
+    # The framework stores an opaque blob; only the game knows what belongs in
+    # it. A save has two halves — what the browser knows and what the server
+    # knows — because that split is different in every game and neither side
+    # should have to care which one this game is. `saved_state` is the server
+    # half, already loaded when on_start runs, and the row is consumed at that
+    # moment: a save is a one-shot thing, not a checkpoint to fall back to
+    # twice.
+
+    @property
+    def resume(self) -> bool:
+        """True when this room was started from a saved game."""
+        return self._room.get("saved_state") is not None
+
+    @property
+    def saved_state(self) -> dict | None:
+        return (self._room.get("saved_state") or {}).get("server")
+
+    def save_state(self, player_id: str, state: dict) -> bool:
+        return _save_put(self._room["game_id"], player_id, {"server": state})
+
+    def clear_save(self, player_id: str):
+        _save_del(self._room["game_id"], player_id)
+
+    async def close(self, reason: str = "closed"):
+        """End the room without recording a session. This is the exit a player
+        takes when they are stopping, not losing: nothing goes to the
+        leaderboard, because the run did not actually end."""
+        room = self._room
+        await _broadcast(room, {"type": "room_closed", "reason": reason})
+        _rooms.pop(room["id"], None)
+
     async def finish(self, records: list, duration: int | None = None, metadata: dict | None = None):
         room = self._room
         if room["status"] == "finished":
@@ -290,6 +452,46 @@ async def _broadcast(room: dict, msg: dict, exclude: str | None = None):
                 pass
 
 
+async def _handle_save(room: dict, pid: str, msg: dict):
+    """`__save` — the one save-and-exit path, shared by every game.
+
+    Solo only, and only the player whose run it is: a multiplayer room is other
+    people's evening, not one player's to freeze. The blob is opaque to the
+    hub — the browser's half arrives with the message, the server's half comes
+    from the game's optional snapshot(). A game that keeps nothing on the
+    server, or nothing in the browser, simply contributes one half.
+
+    Saving ends the room without recording a session: the run has not finished,
+    it has been put down, and nothing about it belongs on a leaderboard yet.
+    """
+    entry = room["players"].get(pid)
+    ws    = entry["ws"] if entry else None
+    ok    = False
+    if (room["max_players"] <= 1 and room["status"] == "playing"
+            and pid == room["host_id"] and room.get("game") is not None):
+        state  = {}
+        client = msg.get("state")
+        if isinstance(client, dict):
+            state["client"] = client
+        snap = getattr(room["game"], "snapshot", None)
+        if callable(snap):
+            try:
+                server = snap()
+                if inspect.isawaitable(server):
+                    server = await server
+                if isinstance(server, dict):
+                    state["server"] = server
+            except Exception as e:
+                print(f"[gamehub-mp] snapshot error: {e}")
+        if state:
+            ok = _save_put(room["game_id"], pid, state)
+    if ws is not None:
+        await _send(ws, {"type": "__saved", "ok": ok})
+    if ok:
+        ctx = room.get("ctx") or RoomCtx(room)
+        await ctx.close("saved")
+
+
 async def _broadcast_roster(room: dict):
     await _broadcast(room, {
         "type":        "roster",
@@ -304,7 +506,11 @@ async def _broadcast_roster(room: dict):
 
 @router.post("/rooms")
 async def create_room(request: Request, body: dict):
-    """Create a multiplayer room. Body: { game_id, settings?, max_players? } + GH token."""
+    """Create a room. Body: { game_id, settings?, max_players?, resume? } + GH token.
+
+    `resume` only means anything for a solo room and only when the player has a
+    saved game: true continues it, false throws it away and starts fresh,
+    omitted answers 409 `saved_game` so the caller has to ask the player."""
     token  = body.get("gh_token") or request.headers.get("X-GH-Token", "")
     player = _resolve_player(token)
     if not player:
@@ -317,12 +523,40 @@ async def create_room(request: Request, body: dict):
         return JSONResponse({"error": "game has no multiplayer handler"}, status_code=400)
 
     _cleanup()
+    max_players = max(1, min(12, int(body.get("max_players", 8))))
+    pid = str(player["id"])
+
+    # One run at a time, and a saved game has to be dealt with before a new run
+    # can exist. Both checks live here rather than in the hub's UI, because the
+    # UI is not the only way in.
+    #
+    # This applies to every game's solo mode, old ones included: one unfinished
+    # solo run of a game is a thing a player can hold in their head, several are
+    # not. A player who wants the run gone rather than continued deletes it
+    # (DELETE /rooms/{id}); no game has to implement anything for that.
+    if max_players <= 1:
+        live = _live_solo_room(game_id, pid)
+        if live is not None:
+            return JSONResponse({"error": "run_in_progress", "room_id": live["id"],
+                                 "play_url": _room_url(live["id"])}, status_code=409)
+        saved = _save_get(game_id, pid)
+        if saved is not None:
+            resume = body.get("resume")
+            if resume is None:
+                # Neither "continue it" nor "throw it away" — ask the player.
+                return JSONResponse({"error": "saved_game", "game_id": game_id,
+                                     "updated_at": saved["updated_at"]}, status_code=409)
+            if not resume:
+                _save_del(game_id, pid)
+
     room_id = _make_id(10)
     _rooms[room_id] = {
         "id":          room_id,
         "game_id":     game_id,
-        "host_id":     str(player["id"]),
-        "max_players": max(1, min(12, int(body.get("max_players", 8)))),
+        "host_id":     pid,
+        "max_players": max_players,
+        "resume":      bool(body.get("resume")) and max_players <= 1,
+        "saved_state": None,     # filled at start, from the save being consumed
         "settings":    body.get("settings", {}) or {},
         "created_at":  time.time(),
         "started_at":  None,
@@ -362,6 +596,79 @@ async def list_rooms(game_id: str = ""):
     return out
 
 
+@router.get("/rooms/mine")
+async def my_rooms(request: Request):
+    """The caller's own live rooms — a game they walked away from and can walk
+    back into. Not the same list as /rooms: that one is open lobbies for other
+    people, which deliberately excludes solo rooms and rooms already playing,
+    and those are exactly the ones a player wants back."""
+    player = _resolve_player(request.headers.get("X-GH-Token", ""))
+    if not player:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    _cleanup()
+    pid = str(player["id"])
+    out = []
+    for room in _rooms.values():
+        if room["status"] == "finished" or pid not in room["players"]:
+            continue
+        out.append({
+            "room_id":     room["id"],
+            "game_id":     room["game_id"],
+            "play_url":    _room_url(room["id"]),
+            "status":      room["status"],
+            "players":     len(room["players"]),
+            "max_players": room["max_players"],
+            "created_at":  room["created_at"],
+        })
+    out.sort(key=lambda r: r["created_at"], reverse=True)
+    return out
+
+
+@router.delete("/rooms/{room_id}")
+async def discard_room(room_id: str, request: Request):
+    """Throw away a run instead of continuing it. Nothing is recorded — an
+    unfinished run was never a session. This is the way out of "you already
+    have a run in progress" for a player who does not want it back, and it
+    needs nothing from the game itself."""
+    player = _resolve_player(request.headers.get("X-GH-Token", ""))
+    if not player:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    room = _rooms.get(room_id)
+    pid  = str(player["id"])
+    # Only your own room, and only a solo one: a multiplayer room is not one
+    # person's to end for everybody.
+    if not room or pid not in room["players"] or room["max_players"] > 1:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    await _broadcast(room, {"type": "room_closed", "reason": "discarded"})
+    _rooms.pop(room_id, None)
+    # And with it whatever the game wrote down while it was being played. A game
+    # that keeps the live run on disk so a reload or a restarted backend cannot
+    # eat it must not have that copy outlive the player throwing the run away —
+    # "I don't want this run" would otherwise come back as "you have a saved
+    # game" the next time they press play.
+    _save_del(room["game_id"], pid)
+    return {"ok": True}
+
+
+@router.get("/saves")
+async def my_saves(request: Request):
+    """The caller's saved games — one per game at most. The hub uses this to
+    know whether starting a game means asking a question first."""
+    player = _resolve_player(request.headers.get("X-GH-Token", ""))
+    if not player:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    return _saves_for(player["id"])
+
+
+@router.delete("/saves/{game_id}")
+async def delete_save(game_id: str, request: Request):
+    player = _resolve_player(request.headers.get("X-GH-Token", ""))
+    if not player:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    _save_del(game_id, player["id"])
+    return {"ok": True}
+
+
 @router.get("/games")
 async def list_mp_games():
     """Multiplayer-capable games, discovered by convention (presence of
@@ -387,11 +694,15 @@ async def list_mp_games():
             if _mp_game_path(gid) is None:
                 continue
             max_players = 8
+            # Absent means "as before": every game that predates this flag is
+            # multiplayer, so only an explicit false makes a game solo-only.
+            multiplayer = True
             mpath = os.path.join(FRONTEND_APPS, gid, "manifest.json")
             try:
                 with open(mpath) as f:
                     mani = json.load(f)
                 max_players = int(mani.get("max_players", 8))
+                multiplayer = mani.get("multiplayer") is not False and max_players > 1
             except Exception:
                 pass
             m = meta.get(gid, {})
@@ -400,6 +711,7 @@ async def list_mp_games():
                 "name":        m.get("name", gid),
                 "icon":        m.get("icon", "🎮"),
                 "max_players": max_players,
+                "multiplayer": multiplayer,
             })
     except Exception:
         pass
@@ -429,13 +741,22 @@ async def start_room(room_id: str, request: Request, body: dict):
     if GameCls is None:
         return JSONResponse({"error": "game handler missing"}, status_code=500)
 
+    # Starting consumes the save: from here on the run is the live thing, and
+    # there is no half-state where a player has both a run and a save of it.
+    if room.get("resume"):
+        saved = _save_get(room["game_id"], room["host_id"])
+        if saved is not None:
+            room["saved_state"] = saved["state"]
+            _save_del(room["game_id"], room["host_id"])
+
     ctx = RoomCtx(room)
     room["ctx"]        = ctx
     room["game"]       = GameCls(ctx)
     room["status"]     = "playing"
     room["started_at"] = time.time()
 
-    await _broadcast(room, {"type": "game_started", "settings": room["settings"]})
+    await _broadcast(room, {"type": "game_started", "settings": room["settings"],
+                            "saved_state": _saved_client(room)})
     try:
         await room["game"].on_start(room["settings"])
     except Exception as e:
@@ -467,8 +788,8 @@ async def play_page(room_id: str):
 <body>
   <div class="card">
     <div class="icon">🔗</div>
-    <h2>Стаята не съществува или е изтекла</h2>
-    <p>Играта може да е приключила или линкът е невалиден. Върни се в Game Hub и създай нова игра.</p>
+    <h2>Стаята вече я няма</h2>
+    <p>Играта е приключила, линкът е невалиден или стаята е изтекла. Ходът ти не е загубен, ако играта го записва — върни се в Game Hub и натисни play: ще те попита дали да продължиш оттам, докъдето беше.</p>
     <a href="/pub/gamehub/">← Game Hub</a>
   </div>
 </body>
@@ -476,26 +797,72 @@ async def play_page(room_id: str):
     return HTMLResponse(_play_html(room["game_id"], room_id))
 
 
+def _public_bootstrap(themed: bool) -> str:
+    """The theme + language bootstrap every other public page gets injected by
+    backend/main.py's /pub/<app>/ middleware. The play page lives under
+    /api/pub/… (deliberately — it must stay free of the Apps Hub chrome, this
+    is a full-screen game), so that middleware never sees it and the page used
+    to be hardcoded to the dark theme and English. Pulled in directly here so a
+    game's own i18n.js can translate it like any other app.
+
+    The language half is safe for every game: it only picks the visitor's
+    language, which a game either uses or ignores. The theme half is not —
+    it can turn the page light, and a game written when this page was always
+    dark may have baked dark colours into its own markup. So a game only gets
+    it by saying `"themed": true` in its manifest."""
+    try:
+        main = sys.modules.get("backend.main")
+        theme = (getattr(main, "_PUBLIC_THEME_BOOTSTRAP", "") or "") if themed else ""
+        lang_fn = getattr(main, "_public_lang_bootstrap", None)
+        return theme + (lang_fn() if lang_fn else "")
+    except Exception:
+        return ""
+
+
+def _game_manifest(game_id: str) -> dict:
+    for d in (FRONTEND_APPS, _APPS_DIR):
+        try:
+            with open(os.path.join(d, game_id, "manifest.json")) as f:
+                return json.load(f)
+        except Exception:
+            continue
+    return {}
+
+
 def _play_html(game_id: str, room_id: str) -> str:
     """Generic, game-agnostic play page. Loads the GameHub client + the game's
     mp.js bundle; GameHub.mp drives lobby → game."""
     def _mt(rel):
-        try:
-            return int(os.path.getmtime(os.path.join(FRONTEND_APPS, rel)))
-        except Exception:
-            return int(time.time())
+        # apps/<id>/public/<file> — the folder /apps/<id>/<file> is served from.
+        # Missing files fall back to "now", which simply means no caching.
+        app_id, _, name = rel.partition("/")
+        for d in (FRONTEND_APPS, _APPS_DIR):
+            try:
+                return int(os.path.getmtime(os.path.join(d, app_id, "public", name)))
+            except Exception:
+                continue
+        return int(time.time())
     v_widget = _mt("gamehub/widget.js")
     v_game   = _mt(f"{game_id}/mp.js")
     v_gcss   = _mt(f"{game_id}/style.css")
+    # Games ship their own string table beside mp.js, exactly like every store
+    # app does; the core table is already on the page via the bootstrap above.
+    i18n_tag = ""
+    if os.path.isfile(os.path.join(FRONTEND_APPS, game_id, "public", "i18n.js")):
+        i18n_tag = f'<script src="/apps/{game_id}/i18n.js?v={_mt(f"{game_id}/i18n.js")}"></script>'
+    themed = _game_manifest(game_id).get("themed") is True
     return f"""<!DOCTYPE html>
-<html lang="bg">
+<html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>mvmOS · Game Hub</title>
+  {_public_bootstrap(themed)}
   <style>
     *{{box-sizing:border-box;margin:0;padding:0}}
-    body{{background:#1e1e2e;color:#cdd6f4;
+    :root{{--bg:#1e1e2e;--surface1:#181825;--surface2:#313244;--border:#45475a;
+      --fg:#cdd6f4;--fg2:#a6adc8;--accent:#89b4fa;--green:#a6e3a1;--red:#f38ba8;--yellow:#f9e2af}}
+    body{{background:var(--bg);color:var(--fg);
       font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
       display:flex;flex-direction:column;height:100dvh;overflow:hidden}}
     #mp-root{{flex:1;min-height:0;display:flex;flex-direction:column}}
@@ -505,9 +872,13 @@ def _play_html(game_id: str, room_id: str) -> str:
 <body>
   <div id="mp-root"></div>
   <script>
-    window.mvmOS = {{ lang: 'en' }};
+    window.mvmOS = window.mvmOS || {{}};
+    window.mvmOS.lang = window.mvmOS.pubLang || 'en';
     window.GameHubRoom = {{ roomId: '{room_id}', gameId: '{game_id}' }};
   </script>
+  <script src="/i18n/i18n.js"></script>
+  <script src="/apps/gamehub/i18n.js?v={_mt("gamehub/i18n.js")}"></script>
+  {i18n_tag}
   <script src="/apps/gamehub/widget.js?v={v_widget}"></script>
   <script src="/apps/{game_id}/mp.js?v={v_game}"></script>
   <script>
@@ -606,6 +977,7 @@ async def room_ws(websocket: WebSocket, room_id: str):
             "host_id":     room["host_id"],
             "max_players": room["max_players"],
             "players":     _roster_public(room),
+            "saved_state": _saved_client(room) if pid == room["host_id"] else None,
         })
         await _broadcast_roster(room)
 
@@ -637,6 +1009,9 @@ async def room_ws(websocket: WebSocket, room_id: str):
             if t in ("ping", "pong"):
                 if t == "ping":
                     await _send(websocket, {"type": "pong"})
+                continue
+            if t == "__save":
+                await _handle_save(room, pid, msg)
                 continue
             # Everything else is game logic.
             if room["status"] == "playing" and room["game"] is not None:

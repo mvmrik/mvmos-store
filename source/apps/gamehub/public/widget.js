@@ -11,6 +11,14 @@
     return String(s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
   }
 
+  // The widget runs on Game Hub's own page and on every game's play page, and
+  // both now carry Game Hub's string table. Falls back to English text rather
+  // than the raw key, for any page that does not.
+  function _t(key, fallback) {
+    const s = window.t ? window.t(key) : key;
+    return (!s || s === key) ? (fallback || key) : s;
+  }
+
   function _setToken(token, player) {
     _token  = token;
     _player = player;
@@ -76,6 +84,11 @@
       .gh-w .gh-s{background:var(--surface2,#313244);color:var(--fg,#cdd6f4)}
       .gh-w .gh-err{color:#f38ba8;font-size:12px;margin-top:2px;display:none}
       .gh-w .gh-back{color:var(--accent,#89b4fa);cursor:pointer;font-size:12px;text-decoration:underline;background:none;border:none;padding:0}
+      #gh-save-exit{position:fixed;left:10px;bottom:10px;z-index:9000;background:var(--surface2,#313244);color:var(--fg,#cdd6f4);border:1px solid var(--border,#45475a);border-radius:10px;padding:8px 14px;font-size:.82rem;font-weight:600;font-family:inherit;cursor:pointer;opacity:.85}
+      #gh-save-exit:hover{opacity:1}
+      #gh-save-ov{position:fixed;inset:0;z-index:9001;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+      #gh-save-ov .gh-save-card{background:var(--surface1,#181825);border:1px solid var(--border,#45475a);border-radius:16px;padding:26px 30px;text-align:center;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 40px rgba(0,0,0,.5);max-width:90%;color:var(--fg,#cdd6f4);font-family:var(--font,system-ui,sans-serif)}
+      #gh-save-ov button{border-radius:8px;padding:9px 18px;font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit}
     `;
     document.head.appendChild(s);
   }
@@ -211,6 +224,8 @@
     let _roster = [], _you = null, _isHost = false, _hostId = null;
     let _maxPlayers = 8, _settings = {};
     let _game = null;                          // { id, name, renderSetup, renderGame }
+    let _savedClient = null;                   // browser half of the save we resumed from
+    let _saveBusy = false, _saveBtn = null, _saveOv = null, _finished = false;
     const _handlers = {};
 
     function _onEv(type, cb) { (_handlers[type] = _handlers[type] || []).push(cb); }
@@ -264,12 +279,22 @@
       switch (msg.type) {
         case 'ping': _send({ type: 'pong' }); return;
         case 'pong': return;
-        case 'error': _closedByUs = true; _renderError(msg.message); return;
+        case 'error': _closedByUs = true; _unmountSave(); _renderError(msg.message); return;
+        case 'game_over':
+          // The run ended on its own — there is nothing left to save.
+          _finished = true;
+          _unmountSave();
+          _emit(msg.type, msg);
+          return;
         case 'joined':
           _you = msg.you; _isHost = msg.is_host; _hostId = msg.host_id;
           _maxPlayers = msg.max_players; _settings = msg.settings || {};
           _roster = msg.players || [];
+          if (msg.saved_state) _savedClient = msg.saved_state;
           if (msg.status === 'playing') _enterGame(true);
+          // A finished room cannot be played again — reloading its link used to
+          // land back in the lobby, where Start only answers 409.
+          else if (msg.status === 'finished') { _state = 'finished'; _renderFinished(); }
           else { _state = 'lobby'; _renderLobby(); }
           return;
         case 'roster':
@@ -280,7 +305,28 @@
           return;
         case 'game_started':
           _settings = msg.settings || _settings;
+          if (msg.saved_state) _savedClient = msg.saved_state;
           if (_state !== 'playing') _enterGame(false);
+          return;
+        case '__saved':
+          _saveBusy = false;
+          _emit(msg.type, msg);
+          if (msg.ok) {
+            _closedByUs = true;
+            location.href = '/pub/gamehub/?saved=1' + (_gameId ? '&game=' + encodeURIComponent(_gameId) : '');
+          } else {
+            _saveFailed();
+          }
+          return;
+        case 'room_closed':
+          // The room ended without the game ending — a saved game, typically.
+          // The game gets the message first and usually navigates away itself;
+          // this is what is left if it does not.
+          _emit(msg.type, msg);
+          _closedByUs = true;
+          _state = 'finished';
+          _unmountSave();
+          _renderFinished();
           return;
         default:
           _emit(msg.type, msg);
@@ -289,11 +335,124 @@
 
     function _enterGame(isReconnect) {
       _state = 'playing';
+      _finished = false;
       _root.innerHTML = '';
       if (_game && typeof _game.renderGame === 'function') {
         try { _game.renderGame(_root, { reconnect: !!isReconnect }); } catch (e) { console.error(e); }
       }
+      _mountSave();
       _emit('enter_game', { reconnect: !!isReconnect });
+    }
+
+    // ── Stopping for now ──────────────────────────────────────────────────
+    // Every solo run in every game can be put down and picked up again, so the
+    // control, the question and the storage all live here rather than in each
+    // game. A game only says what belongs in the save (snapshot) and reads it
+    // back where its board is ready for it (savedState). Multiplayer has none
+    // of this: you cannot freeze a room other people are sitting in.
+    function canSave() {
+      return _state === 'playing' && !_finished && _maxPlayers <= 1
+             && !!_game && _game.saveable !== false;
+    }
+
+    function _mountSave() {
+      _unmountSave();
+      if (!canSave() || (_game && _game.exitButton === false)) return;
+      _ensureStyle();
+      const b = document.createElement('button');
+      b.id = 'gh-save-exit';
+      b.type = 'button';
+      b.textContent = _t('gh_save_exit', '⏸ Save & exit');
+      b.onclick = exitPrompt;
+      document.body.appendChild(b);
+      _saveBtn = b;
+    }
+
+    function _unmountSave() {
+      if (_saveBtn) { _saveBtn.remove(); _saveBtn = null; }
+      _closePrompt(false);
+    }
+
+    function _closePrompt(resumeGame) {
+      if (_saveOv) { _saveOv.remove(); _saveOv = null; }
+      if (resumeGame && _game && typeof _game.resume === 'function') {
+        try { _game.resume(); } catch (e) { console.error(e); }
+      }
+    }
+
+    function exitPrompt() {
+      if (!canSave() || _saveOv) return;
+      if (_game && typeof _game.pause === 'function') {
+        try { _game.pause(); } catch (e) { console.error(e); }
+      }
+      _ensureStyle();
+      const hub = '/pub/gamehub/' + (_gameId ? '?game=' + encodeURIComponent(_gameId) : '');
+      const ov = document.createElement('div');
+      ov.id = 'gh-save-ov';
+      ov.innerHTML =
+        '<div class="gh-save-card">'
+        + '<div style="font-size:2rem;line-height:1">⏸</div>'
+        + '<div style="font-size:1.05rem;font-weight:700">' + _esc(_t('gh_save_title', 'Stopping for now?')) + '</div>'
+        + '<div style="font-size:.82rem;color:var(--fg2,#a6adc8);max-width:290px;line-height:1.5">'
+        + _esc(_t('gh_save_body', 'Saving keeps this run for later and closes it here. Nothing is recorded — the game has not ended.')) + '</div>'
+        + '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:4px">'
+        + '<button id="gh-save-go" style="background:var(--accent,#89b4fa);color:#1e1e2e;border:none">'
+        + _esc(_t('gh_save_and_exit', '💾 Save & exit')) + '</button>'
+        + '<button id="gh-save-back" style="background:var(--surface2,#313244);color:var(--fg,#cdd6f4);border:1px solid var(--border,#45475a)">'
+        + _esc(_t('gh_keep_playing', '▶ Keep playing')) + '</button>'
+        + '</div>'
+        + '<a href="' + hub + '" style="font-size:.75rem;color:var(--fg2,#a6adc8);text-decoration:underline">'
+        + _esc(_t('gh_exit_no_save', 'Leave without saving — the run stays open for a while')) + '</a>'
+        + '</div>';
+      document.body.appendChild(ov);
+      _saveOv = ov;
+      ov.querySelector('#gh-save-back').onclick = () => _closePrompt(true);
+      ov.querySelector('#gh-save-go').onclick = (ev) => {
+        const btn = ev.currentTarget;
+        btn.disabled = true;
+        btn.textContent = _t('gh_saving', 'Saving…');
+        if (!saveAndExit()) _saveFailed();
+      };
+    }
+
+    // The save itself, without the question — a game with its own exit UI
+    // calls this (or exitPrompt) instead of building any of it again.
+    function saveAndExit() {
+      if (!canSave() || _saveBusy) return false;
+      _saveBusy = true;
+      let state = null;
+      if (_game && typeof _game.snapshot === 'function') {
+        try { state = _game.snapshot(); } catch (e) { console.error(e); }
+      }
+      _send({ type: '__save', state: state || null });
+      // The server answers __saved and closes the room. If it never does, the
+      // player is not left staring at a dead button.
+      setTimeout(() => { if (_saveBusy) { _saveBusy = false; _saveFailed(); } }, 8000);
+      return true;
+    }
+
+    function _saveFailed() {
+      const btn = _saveOv && _saveOv.querySelector('#gh-save-go');
+      if (btn) { btn.disabled = false; btn.textContent = _t('gh_save_and_exit', '💾 Save & exit'); }
+      alert(_t('gh_save_error', 'Could not save the game. Try again.'));
+    }
+
+    // Reached by reloading the link of a room whose game already ended. The
+    // run itself is gone, but the player is one click from a new one.
+    function _renderFinished() {
+      _ensureStyle();
+      const hub = '/pub/gamehub/' + (_gameId ? '?game=' + encodeURIComponent(_gameId) : '');
+      _root.innerHTML =
+        '<div style="max-width:360px;margin:60px auto;text-align:center;padding:0 16px;'
+        + 'display:flex;flex-direction:column;gap:14px;align-items:center">'
+        + '<div style="font-size:2.6rem;line-height:1">🏁</div>'
+        + '<div style="font-size:1.05rem;font-weight:700">' + _esc(_t('gh_room_finished_title', 'This game is over')) + '</div>'
+        + '<div style="font-size:.88rem;color:var(--fg2,#a6adc8);line-height:1.5">'
+        + _esc(_t('gh_room_finished_body', 'The room has closed. Start a new game from Game Hub.')) + '</div>'
+        + '<a href="' + hub + '" style="background:var(--accent,#89b4fa);color:#1e1e2e;border-radius:8px;'
+        + 'padding:9px 20px;font-weight:700;font-size:.9rem;text-decoration:none">'
+        + _esc(_t('gh_back_to_hub', '‹ Game Hub')) + '</a>'
+        + '</div>';
     }
 
     function _renderError(message) {
@@ -437,6 +596,10 @@
       roomId:   () => _roomId,
       root:     () => _root,
       renderAvatar,
+      // Saving: savedState() is the blob this run was resumed from (null for a
+      // fresh one); the rest is the exit flow, shared by every solo game.
+      savedState:  () => _savedClient,
+      canSave, exitPrompt, saveAndExit,
       leave: () => { _closedByUs = true; if (_ws) { try { _ws.close(); } catch (e) {} } },
     };
   })();

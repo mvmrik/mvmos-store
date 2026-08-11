@@ -1,0 +1,23 @@
+{
+  "tagline": "One tower in the middle. Everything else is coming for it.",
+  "description": "Tower Defense puts a single tower at the centre of the field and sends waves at it from every direction. The tower picks its own target — the closest thing in range — and fires on its own; you watch the ring fill up and count how long the walls hold. Every wave is bigger and faster than the last, and anything that reaches the tower takes a piece of it.\n\nThe game is played entirely on its public Game Hub page, so it opens full screen in its own tab and anyone with an Apps Hub account can play it and appear in the leaderboard. The window inside mvmOS is only the launcher — and it will install Game Hub for you if it isn't there yet.\n\nStop whenever you like: Exit saves the run as it stands and you continue it whenever you come back, while a run you merely closed the tab on is still there waiting. Only one run at a time, so there is never a pile of half-played games to pick through.\n\nSingle player today: your run is recorded against your Game Hub profile as a solo session, with the wave you reached, your kills and how long you survived. Multiplayer is next — the server already deals every player in a room the same wave seed, so a shared run will be the same run for everyone in it.",
+  "capabilities": [
+    "A tower at the centre that acquires and fires at the nearest enemy on its own.",
+    "Waves closing in from every side, each one larger, tougher and faster than the last.",
+    "Three difficulties — easy, normal and hard — changing enemy health, speed, wave pressure and how much tower you start with.",
+    "Live HUD: wave, score, kills and the tower's remaining integrity.",
+    "Save and exit at any point, then pick the run back up days later — and a run you simply walked away from is waiting for you too.",
+    "Runs recorded on your Game Hub profile with score, wave reached, kills and time survived.",
+    "Played full screen in its own tab, on a phone as well as a desktop, in your own language and theme."
+  ],
+  "integrations": [
+    {
+      "app": "gamehub",
+      "name": "Game Hub",
+      "kind": "gamehub",
+      "direction": "consumes",
+      "summary": "The game itself runs on its public Game Hub page. Game Hub provides the account you play under, the room the run happens in, and the leaderboard your score lands in.",
+      "requires": "Game Hub is required. The launcher window offers to install it if it's missing."
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+/* Tower Defense — the little that isn't drawn on the canvas.
+   Loaded by Game Hub's play page; the game's own colours come from the page's
+   theme variables, so there is nothing to theme here. */
+
+#td-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#td-canvas {
+  cursor: crosshair;
+  user-select: none;
+}
+
+#td-overlay {
+  pointer-events: none;
+}
+
+/* The game-over card is the only interactive thing inside the overlay. */
+#td-overlay > * {
+  pointer-events: auto;
+}
+
+@media (max-width: 640px) {
+  #td-hud > div {
+    min-width: 70px !important;
+    padding: 6px 8px !important;
+  }
+}

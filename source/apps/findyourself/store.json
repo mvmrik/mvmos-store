@@ -8,7 +8,8 @@
     "Region picker: the whole world, or one of twenty countries.",
     "Multiplayer rooms for up to eight players, joined by shared link or Game Hub invite.",
     "Live standings between rounds and a final leaderboard.",
-    "Round result showing your guess and the real location side by side."
+    "Round result showing your guess and the real location side by side.",
+    "Save and exit a solo game at any point, then pick it back up days later."
   ],
   "requirements": [
     "A Google Maps API key with the Maps JavaScript and Street View APIs enabled. Without one the game cannot load a location."

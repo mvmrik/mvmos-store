@@ -61,6 +61,36 @@
     _next    = _seq[(_idx + 1) % _seq.length];
   }
 
+  // ── Save & exit ───────────────────────────────────────────────────────────
+  // The hub owns the button, the question and the storage; the board lives
+  // here, in the browser, so this is the half Sudofall contributes. Solo only —
+  // the framework never asks in a multiplayer room.
+  function _snapshot() {
+    if (_gameOver || !_grid.length) return null;
+    return {
+      seq: _seq, idx: _idx, grid: _grid.map(r => r.slice()),
+      current: _current, next: _next, bombs: _bombs,
+      score: _myScore, elapsed: _elapsed,
+    };
+  }
+
+  // Applied right after _initState, which has just set up a fresh board from
+  // the server's sequence — the save replaces it with the one it stopped on.
+  function _applySaved() {
+    const s = window.GameHub && GameHub.mp.savedState && GameHub.mp.savedState();
+    if (!s || !Array.isArray(s.grid) || !Array.isArray(s.seq) || !s.seq.length) return false;
+    _seq  = s.seq;
+    _idx  = s.idx || 0;
+    _grid = s.grid.map(r => r.slice());
+    _current = (s.current != null) ? s.current : _seq[_idx % _seq.length];
+    _next    = (s.next    != null) ? s.next    : _seq[(_idx + 1) % _seq.length];
+    _bombs   = s.bombs || 0;
+    _myScore = s.score || 0;
+    _elapsed = s.elapsed || 0;
+    _gameStartTime = Date.now() - _elapsed * 1000;
+    return true;
+  }
+
   function _startTimer() {
     if (_timerInterval) clearInterval(_timerInterval);
     _timerInterval = setInterval(() => {
@@ -522,6 +552,7 @@
       if (lbl && _oppInfo) lbl.innerHTML = window.GameHub.renderAvatar(_oppInfo, 16) + ' ' + _esc(_oppName());
       _isHost = msg.is_host || false;
       _initState(msg.seq, 0);
+      _applySaved();
       _myTurn = msg.first_player_id === mp.youId();
       _startTimer();
       _updateStatus();
@@ -565,6 +596,7 @@
       if (!msg.started) return;
       _oppInfo = msg.opponent;
       _initState(msg.seq, 0);
+      _applySaved();
       _myTurn = msg.your_turn;
       _oppGrid = msg.opponent?.grid || null;
       _oppScore = msg.opponent?.score || 0;
@@ -578,5 +610,5 @@
 
   function _opp() { return mp.players().find(p => p.id !== mp.youId()) || null; }
 
-  mp.registerGame({ id: 'sudofall', name: 'Sudofall', renderSetup, renderGame });
+  mp.registerGame({ id: 'sudofall', name: 'Sudofall', renderSetup, renderGame, snapshot: _snapshot });
 })();

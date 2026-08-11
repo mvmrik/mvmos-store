@@ -20,6 +20,10 @@ Message protocol (all game messages are prefixed `fy_`):
     fy_round_end  {round,total,actual:{lat,lng},results:[...],host_id}
     fy_state      {...}                               full state for a (re)joiner
     fy_game_over  {standings:[...]}
+
+Save & exit is not part of this protocol: the hub asks for snapshot() and
+hands the blob back through ctx.saved_state, the same way it does for every
+other game. Solo only — see backend/apps/gamehub/mp.py.
 """
 
 import math
@@ -71,11 +75,64 @@ class Game:
         self.scale          = max(50, min(2000, int(settings.get("scale", 2000))))
         self.country_center = settings.get("country_center") or None
         self.country_zoom   = int(settings.get("country_zoom", 2))
+        # Started from a saved solo game: the locations were resolved once, at
+        # the very beginning, so there is nothing to ask the browser for — the
+        # run simply opens at the round it stopped on, standings and all.
+        saved = self.ctx.saved_state
+        if saved and await self._resume(saved):
+            return
         for p in self.ctx.all_players():
             self.totals.setdefault(p["id"], 0)
         # The host's browser resolves Street View locations and delivers them.
         await self.ctx.broadcast({"type": "fy_preparing", "rounds": self.rounds_total})
         await self.ctx.send(self.ctx.host_id, {"type": "fy_need_locations", "rounds": self.rounds_total})
+
+    async def _resume(self, saved: dict) -> bool:
+        """Put the game back where the save left it. Returns False if the save
+        is not usable, so on_start can simply carry on with a normal start."""
+        try:
+            locations = {int(k): v for k, v in (saved.get("locations") or {}).items()}
+            r = max(1, int(saved.get("round", 1)))
+            self.rounds_total   = max(1, min(50, int(saved.get("rounds", self.rounds_total))))
+            if r > self.rounds_total or not locations.get(r):
+                return False
+            self.time_per_round = max(0, int(saved.get("time", self.time_per_round)))
+            self.scale          = max(50, min(2000, int(saved.get("scale", self.scale))))
+            self.country_center = saved.get("country_center") or None
+            self.country_zoom   = int(saved.get("country_zoom", self.country_zoom))
+            self.locations      = locations
+            self.totals         = {str(k): int(v) for k, v in (saved.get("totals") or {}).items()}
+        except Exception as e:
+            print(f"[findyourself] bad save: {e}")
+            return False
+        for p in self.ctx.all_players():
+            self.totals.setdefault(p["id"], 0)
+        self.started = True
+        await self._start_round(r)
+        return True
+
+    def snapshot(self):
+        """Save & exit (framework-driven, solo only).
+
+        A round is the natural place to put the game down: an unfinished guess
+        is not worth carrying, the standings and the remaining locations are.
+        Saving while the results are on screen resumes at the next round.
+        """
+        if not self.started or self.current_round < 1:
+            return None
+        r = self.current_round + 1 if self.result_shown else self.current_round
+        if r > self.rounds_total or not self.locations.get(r):
+            return None
+        return {
+            "round":          r,
+            "rounds":         self.rounds_total,
+            "time":           self.time_per_round,
+            "scale":          self.scale,
+            "country_center": self.country_center,
+            "country_zoom":   self.country_zoom,
+            "locations":      {str(k): v for k, v in self.locations.items()},
+            "totals":         {str(k): v for k, v in self.totals.items()},
+        }
 
     async def on_join(self, player):
         # Bring a (re)connecting player up to the current state.

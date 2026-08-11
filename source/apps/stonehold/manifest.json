@@ -1,0 +1,15 @@
+{
+  "id": "stonehold",
+  "name": "Stonehold",
+  "icon": "🗿",
+  "category": "Games",
+  "tags": ["strategy", "base building", "tower defense", "games"],
+  "version": "1.0.0",
+  "min_core_version": "0.37.0",
+  "description": "A map, four enemy camps in the corners and no hold yet: you read the ground and choose where to settle before anything moves. Build, set what matters most and let your people do the rest — while all four of them arm the party they are sending at you.",
+  "entry": "main.js",
+  "multiplayer": false,
+  "max_players": 1,
+  "themed": true,
+  "public_directory": false
+}

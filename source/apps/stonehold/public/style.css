@@ -1,0 +1,513 @@
+/* Stonehold — the chrome around the canvas.
+   Loaded by Game Hub's play page; the map itself is drawn with the page's
+   theme variables, so the only colours here are those same variables. */
+
+/* The map is the page: it fills everything, and every control floats above it.
+   Nothing is boxed off, because on a phone a boxed map is a stamp. What a
+   control covers is not lost — the map moves under it. */
+#sh-hud {
+  top: 8px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.sh-cell {
+  flex: 1;
+  min-width: 74px;
+  background: var(--surface1, #181825);
+  border: 1px solid var(--border, #45475a);
+  border-radius: 10px;
+  padding: 6px 8px;
+  text-align: center;
+}
+
+.sh-val { font-size: 1rem; font-weight: 700; }
+.sh-lbl {
+  font-size: .62rem;
+  color: var(--fg2, #a6adc8);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+/* ── The four corners ────────────────────────────────────────────────────── */
+/* One chip a camp, always on screen. They are the answer to never seeing the
+   enemy: colour, corner, and the rank its keep has reached, with a tap that
+   takes the camera there. */
+.sh-facs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.sh-fac {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface1, #181825);
+  border: 1px solid var(--border, #45475a);
+  border-radius: 10px;
+  padding: 5px 7px;
+  color: var(--fg2, #a6adc8);
+  font-size: .68rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sh-fdot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--fc, #f38ba8);
+  flex: none;
+}
+
+.sh-flv {
+  color: var(--fg, #cdd6f4);
+  font-weight: 700;
+  font-size: .74rem;
+}
+
+/* Their men are on the map. The chip says which corner they came from before
+   the raid is close enough to read off the ground. */
+.sh-fac.war {
+  border-color: var(--red, #f38ba8);
+  animation: sh-war 1s ease-in-out infinite;
+}
+
+@keyframes sh-war {
+  0%, 100% { background: var(--surface1, #181825); }
+  50%      { background: rgba(243, 139, 168, .28); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-fac.war { animation: none; background: rgba(243, 139, 168, .22); }
+}
+
+.sh-btn {
+  margin-left: auto;
+  background: var(--surface2, #313244);
+  color: var(--fg, #cdd6f4);
+  border: 1px solid var(--border, #45475a);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 600;
+  font-size: .8rem;
+  cursor: pointer;
+}
+
+/* ── Map ─────────────────────────────────────────────────────────────────── */
+#sh-stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+#sh-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Darker than the map itself: what lies beyond the hold's edge is not a
+     place you can build in, and it should not look like one. */
+  background: var(--bg, #11111b);
+  /* The canvas handles its own panning and pinching, so the browser must not
+     also try to scroll or zoom the page under the finger. */
+  touch-action: none;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* The floating layers. The strips themselves let the finger through, so a drag
+   that begins on a readout still pans the map; only the controls take touches. */
+#sh-hud,
+#sh-dock {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 16px);
+  max-width: 1100px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+#sh-hud .sh-btn,
+#sh-zoom button,
+.sh-fac,
+.sh-pb,
+.sh-pbtn,
+.sh-bbtn { pointer-events: auto; }
+
+#sh-dock {
+  bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Zoom controls, for anyone not pinching: a desktop mouse, or a thumb. */
+#sh-zoom {
+  align-self: flex-end;
+  display: flex;
+  gap: 4px;
+}
+
+#sh-zoom button {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  border: 1px solid var(--border, #45475a);
+  background: var(--surface1, #181825);
+  color: var(--fg, #cdd6f4);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: .85;
+}
+
+#sh-zoom button:hover { opacity: 1; border-color: var(--accent, #89b4fa); }
+
+#sh-overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+/* ── Priorities and the build bar ────────────────────────────────────────── */
+/* The line that tells the player what the hold needs next. It sits right above
+   the buttons, because that is where the answer to it is. */
+#sh-hint {
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: var(--surface1, #181825);
+  border: 1px solid var(--border, #313244);
+  color: var(--fg2, #a6adc8);
+  font-size: .78rem;
+  line-height: 1.35;
+  text-align: center;
+}
+
+#sh-hint:empty { display: none; }
+
+/* ── What is in hand ─────────────────────────────────────────────────────── */
+/* One line above the dock, in place of the panel that used to cover the whole
+   phone the moment a building was picked up. It says what is being placed and
+   what it costs; ℹ opens the full description for anyone who wants it, ✓ puts
+   the thing down where the ghost is standing and ✕ drops it. */
+#sh-place {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px 5px 10px;
+  border-radius: 10px;
+  background: var(--surface1, #181825);
+  border: 1px solid var(--accent, #89b4fa);
+  pointer-events: auto;
+}
+
+#sh-place .sh-gl { font-size: 1.1rem; }
+.sh-pnm { font-size: .78rem; font-weight: 700; white-space: nowrap; }
+.sh-pcost { font-size: .7rem; margin-right: auto; white-space: nowrap; }
+
+.sh-pb {
+  min-width: 38px;
+  height: 34px;
+  border-radius: 9px;
+  border: 1px solid var(--border, #45475a);
+  background: var(--surface2, #313244);
+  color: var(--fg, #cdd6f4);
+  font-size: .95rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sh-pb.ok {
+  background: var(--green, #a6e3a1);
+  color: #1e1e2e;
+  border-color: transparent;
+  font-weight: 700;
+}
+
+/* Nowhere aimed yet, or the spot would be refused: the button stays where it
+   is and says so, rather than disappearing under the thumb that is reaching
+   for it. */
+.sh-pb.ok.dim { background: var(--surface2, #313244); color: var(--fg2, #a6adc8); opacity: .7; }
+
+#sh-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sh-pri { display: flex; gap: 6px; }
+
+.sh-pbtn {
+  /* Four modes now, and on a phone that is four labels in the width of one
+     thumb. They shrink and ellipsize rather than wrapping to two lines, which
+     would push the whole dock up over the map. */
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: var(--surface1, #181825);
+  color: var(--fg2, #a6adc8);
+  border: 1px solid var(--border, #45475a);
+  border-radius: 10px;
+  padding: 7px 4px;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sh-pbtn.on {
+  background: var(--accent, #89b4fa);
+  color: #1e1e2e;
+  border-color: transparent;
+}
+
+.sh-builds {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.sh-bbtn {
+  flex: 1 0 auto;
+  min-width: 84px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  background: var(--surface1, #181825);
+  color: var(--fg, #cdd6f4);
+  border: 1px solid var(--border, #45475a);
+  border-radius: 10px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.sh-bbtn.on { border-color: var(--accent, #89b4fa); background: var(--surface2, #313244); }
+
+/* What you can build should look like an offer, not like the rest of the bar.
+   Affordable buttons carry a lit edge; the ones you cannot pay for dim, but
+   only far enough to read — a button you cannot press still has to say what it
+   would cost, because that is the number the player is working towards. */
+.sh-bbtn:not(.poor) {
+  border-color: var(--green, #a6e3a1);
+  background: var(--surface2, #313244);
+}
+.sh-bbtn.poor { opacity: .72; }
+.sh-bbtn.poor .sh-gl,
+.sh-bbtn.poor .sh-nm { opacity: .6; }
+
+.sh-gl { font-size: 1.1rem; line-height: 1.1; }
+.sh-nm { font-size: .72rem; font-weight: 600; }
+.sh-cost { font-size: .64rem; color: var(--fg2, #a6adc8); white-space: nowrap; }
+/* Each material answers for itself. When one is short it turns red, so a price
+   you cannot meet names the thing that is missing instead of greying out whole
+   and leaving the player to work out which of the two it was. */
+.sh-c { color: var(--fg2, #a6adc8); font-weight: 600; }
+.sh-c.short { color: var(--red, #f38ba8); font-weight: 700; }
+
+/* ── Building panel ──────────────────────────────────────────────────────── */
+#sh-panel {
+  position: fixed;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 232px;
+  max-width: calc(100vw - 24px);
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface1, #181825);
+  border: 1px solid var(--border, #45475a);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .5);
+  z-index: 20;
+}
+
+.sh-head { display: flex; align-items: center; gap: 8px; }
+.sh-head small { display: block; font-size: .68rem; color: var(--fg2, #a6adc8); }
+.sh-x {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--fg2, #a6adc8);
+  font-size: 1rem;
+  cursor: pointer;
+}
+.sh-desc { font-size: .72rem; color: var(--fg2, #a6adc8); line-height: 1.4; }
+/* A stat line: label, what it is now, and — when there is an upgrade to weigh —
+   what it would become. The third column only takes space when a row has one,
+   so a panel with nothing to compare still reads as two columns. */
+.sh-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 10px;
+  font-size: .76rem;
+  border-top: 1px solid var(--border, #45475a);
+  padding-top: 4px;
+}
+.sh-row:has(.sh-next) { grid-template-columns: 1fr auto auto; }
+.sh-row > b { text-align: right; min-width: 2.4em; }
+
+/* The heading that names the two columns. It carries no value of its own, so
+   it is quieter than the numbers under it. */
+.sh-hdr {
+  font-size: .62rem;
+  color: var(--fg2, #a6adc8);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  border-top: none;
+}
+.sh-hdr > b { font-weight: 600; }
+
+/* What the number becomes. Accented, because it is the reason to pay for the
+   upgrade; a row that does not change shows a dot instead, dimmed away so the
+   eye lands only on what actually improves. */
+.sh-next { color: var(--accent, #89b4fa); }
+.sh-next.sh-same { color: var(--fg2, #a6adc8); opacity: .35; font-weight: 400; }
+/* Why a finished building is producing nothing. Yellow rather than red: it is
+   not damage and not a failure, it is the hold waiting on something — but it
+   has to catch the eye, because the alternative is watching a forge for five
+   minutes wondering whether it works. */
+.sh-why {
+  font-size: .72rem;
+  line-height: 1.4;
+  color: var(--yellow, #f9e2af);
+  background: rgba(249, 226, 175, .1);
+  border: 1px solid rgba(249, 226, 175, .28);
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+.sh-note {
+  font-size: .74rem;
+  color: var(--fg2, #a6adc8);
+  text-align: center;
+  padding: 6px 0;
+}
+
+.sh-go {
+  background: var(--accent, #89b4fa);
+  color: #1e1e2e;
+  border: none;
+  border-radius: 9px;
+  padding: 9px 14px;
+  font-weight: 700;
+  font-size: .82rem;
+  cursor: pointer;
+}
+/* A price written on the accent button is not the same price as one written on
+   the dark build bar: .sh-c's grey is legible against the bar and vanishes
+   against the accent. On a button the cost takes the button's own colour, and
+   what is missing turns to a dark red that still reads on it. The price also
+   gets a little ground of its own, so the number is a figure to hit rather than
+   a smudge next to a glyph. */
+.sh-go .sh-c {
+  color: inherit;
+  background: rgba(0, 0, 0, .16);
+  border-radius: 6px;
+  padding: 1px 6px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.sh-go .sh-c.short { color: var(--red, #f38ba8); background: rgba(0, 0, 0, .34); }
+
+/* A price it cannot meet must still be readable — that number is what the
+   player is saving towards — so the button dims without taking the cost with
+   it, and the cost stays at full strength on top of the dimmed ground. */
+.sh-go.poor { background: var(--surface2, #313244); color: var(--fg, #cdd6f4); }
+.sh-go.poor .sh-c { background: rgba(0, 0, 0, .28); }
+
+.sh-del {
+  background: none;
+  color: var(--red, #f38ba8);
+  border: 1px solid var(--border, #45475a);
+  border-radius: 9px;
+  padding: 6px 10px;
+  font-size: .72rem;
+  cursor: pointer;
+}
+/* What comes back out of it is not a warning, so it is not in the red the
+   button is written in: it reads as the materials it is, on the button's own
+   dark ground. */
+.sh-del .sh-c {
+  color: var(--fg, #cdd6f4);
+  background: rgba(0, 0, 0, .22);
+  border-radius: 6px;
+  padding: 1px 5px;
+  white-space: nowrap;
+}
+
+/* ── Cards (the end of a hold) ───────────────────────────────────────────── */
+.sh-card {
+  background: var(--surface1, #181825);
+  border: 1px solid var(--border, #45475a);
+  border-radius: 16px;
+  padding: 22px 26px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(420px, 90%);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .5);
+}
+
+.sh-card-t { font-size: 1.1rem; font-weight: 700; }
+.sh-card-s { font-size: .76rem; color: var(--fg2, #a6adc8); }
+.sh-card-r { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.sh-big { font-size: 2rem; font-weight: 700; color: var(--accent, #89b4fa); }
+.sh-link {
+  background: var(--surface2, #313244);
+  color: var(--fg, #cdd6f4);
+  border: 1px solid var(--border, #45475a);
+  border-radius: 9px;
+  padding: 9px 16px;
+  font-weight: 600;
+  font-size: .82rem;
+  text-decoration: none;
+}
+
+@media (max-width: 760px) {
+  .sh-cell { min-width: 46px; padding: 3px 5px; }
+  .sh-val { font-size: .82rem; }
+  .sh-lbl { font-size: .55rem; }
+  .sh-btn { padding: 6px 10px; font-size: .74rem; }
+  .sh-bbtn { min-width: 70px; padding: 4px 6px; }
+  .sh-pbtn { padding: 6px 4px; font-size: .74rem; }
+  #sh-hint { font-size: .72rem; }
+  /* A thumb, not a cursor: the zoom keys keep the size a finger can actually
+     hit, because they are how a phone gets around a map this wide. */
+  #sh-zoom button { width: 38px; height: 38px; font-size: 1.05rem; }
+  .sh-fac { font-size: .62rem; padding: 4px 5px; }
+  .sh-fnm { display: none; }        /* the colour and the rank are the chip */
+
+  /* The panel is a sheet on the dock, not a slab over the map. It used to be
+     pinned to the middle of the screen at full width, which meant that tapping
+     a building — or picking one up to build — hid the very ground the decision
+     was about. Now it rises from the dock, is never taller than half the
+     screen, and scrolls inside itself. */
+  #sh-panel {
+    right: 8px;
+    left: 8px;
+    width: auto;
+    top: auto;
+    transform: none;
+    bottom: calc(var(--sh-dock, 120px) + 14px);
+    max-height: min(46vh, 340px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 14px;
+  }
+}

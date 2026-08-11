@@ -1401,6 +1401,321 @@ The app's toggle still works as usual (`is_app_public` still gates whether its s
 
 ---
 
+## Writing a game
+
+A game is not a normal app, and it is the one app type with a fixed shape. **The game itself runs on its public Game Hub page, not in a desktop window.**
+
+The reason is accounts. An mvmOS desktop has exactly one session — the Linux user looking at it. Apps Hub accounts, which is what players are, only exist on public pages. A game played inside a window can therefore only ever be played by one person, who is scored against nobody; the same game played on its public page can be opened by anyone with an Apps Hub account, in any browser, and every run lands in the same leaderboard. A public page also opens in its own tab and gets the whole screen, which is what a game wants on a phone.
+
+So the split is:
+
+| Where | What lives there |
+|---|---|
+| `public/main.js` — the desktop window | A launcher. No game logic at all. Plus anything belonging to the *owner of the server* rather than to a player: settings, premium switches. |
+| `public/mp.js` — the public play page | The whole game, client side. |
+| `mp_game.py` — the server | The rules that must not be trusted to a browser: the wave plan, the shared seed, the scores it reports. |
+
+This holds for a solo game too. Single player is not a separate code path — it is a room with one player in it, so a game written this way becomes multiplayer by raising `max_players`, not by being rewritten.
+
+### The window: `public/main.js`
+
+Core ships `GameLauncher` (`frontend/gamelauncher.js`, mvmOS ≥ 0.37.0). A game's `main.js` is essentially this and nothing more:
+
+```js
+mvmOS.registerApp({
+  id: 'towerdefense',
+  name: 'Tower Defense',
+  icon: '🏰',
+  category: 'Games',
+  launch() {
+    window.GameLauncher.open({
+      id: 'towerdefense',
+      name: 'Tower Defense',
+      icon: '🏰',
+      tagline: () => t('td_tagline'),          // string or function
+      sections: [                              // optional, owner-side only
+        { title: t('td_settings'), render(el) { /* … */ } },
+      ],
+    });
+  },
+});
+```
+
+What the launcher does:
+
+- Checks whether Game Hub is installed (live, via `/api/plugins` — not a cached list).
+- If it is: a **Play** button that opens `/pub/gamehub/?game=<your-id>` in a new tab. That deep link skips the game grid and lands the player on your game's page.
+- If it is not: a card explaining that Game Hub is required, with an **Install** button that installs it in place (including the backend-confirmation prompt Game Hub needs) and re-renders itself.
+- Loads your `public/i18n.js` before rendering, so `t('…')` works in the window as well as on the play page.
+- Renders your `sections` underneath. This is the only place owner-side UI belongs — it never reaches the public page, and public players simply get whatever the owner configured.
+
+Any text field (`name`, `tagline`) may be a function, so it can be a `t('…')` call that only resolves after the string table is merged.
+
+Guard for older cores, which have no `GameLauncher`:
+
+```js
+if (!window.GameLauncher) { mvmOS.notify(name, 'This game needs a newer mvmOS core.'); return; }
+```
+
+**Game Hub is a hard requirement for new games.** There is no manifest dependency mechanism, so the launcher is what enforces it — never show a Play button that leads to a page that does not exist.
+
+### manifest.json
+
+```json
+{
+  "id": "towerdefense",
+  "category": "Games",
+  "min_core_version": "0.37.0",
+  "multiplayer": false,
+  "max_players": 1,
+  "themed": true,
+  "public_directory": false
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `multiplayer` | `false` = solo only. Game Hub then shows a single **Play** button instead of Solo / New game, labels the card "Single player", and hides the open-lobbies list. **Omitting it means multiplayer** — games written before this flag keep working unchanged. |
+| `max_players` | Room size cap (default `8`). `1` also hides the game's rooms from the open-lobbies list. |
+| `themed` | The play page follows the visitor's Apps Hub theme (light or dark) instead of being permanently dark. Only set it if your `mp.js` takes every colour from the page's CSS variables — a game with dark colours baked into its markup will look broken on a light page. Default is off, so older games stay dark exactly as they were. |
+| `min_core_version` | `0.37.0` or newer — that is when `GameLauncher` landed. |
+| `public_directory` | `false` — the game is reached through Game Hub, not through the generic public app directory. |
+
+### The server: `mp_game.py`
+
+Sits at `apps/<id>/mp_game.py` (next to `manifest.json`, **not** inside `public/`). Its presence is what makes the game playable in Game Hub at all — Game Hub finds it by convention. Expose a class named `Game`:
+
+```python
+class Game:
+    def __init__(self, ctx):
+        self.ctx = ctx
+
+    async def on_start(self, settings):        # host pressed Start
+    async def on_join(self, player):           # someone joined, or reconnected
+    async def on_leave(self, player):
+    async def on_message(self, player, msg):   # a client sent something
+```
+
+`ctx` gives you:
+
+```python
+ctx.settings          # what renderSetup collected
+ctx.room_id, ctx.host_id
+ctx.players()         # currently connected
+ctx.all_players()     # including the disconnected
+await ctx.broadcast(msg, exclude=None)
+await ctx.send(player_id, msg)
+ctx.schedule(delay, coro_factory)             # timers
+await ctx.finish(records, duration=None, metadata={})
+```
+
+`records` is `[{player_id, score, rank, is_winner}]`. Game Hub writes the session itself, and calls it **singleplayer** when there is one record — that is how a solo run reaches the player's history and stats. Do not mark a solo player `is_winner`: the leaderboard counts wins, and a win over nobody makes it meaningless.
+
+**Put anything that decides what the run looks like on this side.** The pattern that makes a solo game multiplayer-ready for free is to send a *seed*, not content: the server draws one seed per room, every client grows the same waves/board/sequence out of it with the same arithmetic, and a second player is then playing the identical run without a byte of per-entity traffic. Reconnects are free too — resend the same start message in `on_join`.
+
+### The game: `public/mp.js`
+
+Loaded by Game Hub's play page, together with your `public/i18n.js` and `public/style.css`. Register once, at load time:
+
+```js
+const mp = window.GameHub.mp;
+
+mp.registerGame({
+  id: 'towerdefense',
+  name: t('td_title'),
+  renderSetup(box, settings) {      // host-only, shown in the lobby
+    box.innerHTML = '<select id="diff">…</select>';
+    return () => ({ difficulty: box.querySelector('#diff').value });   // becomes ctx.settings
+  },
+  renderGame(root, { reconnect }) { /* draw the game into root */ },
+});
+
+mp.on('td_start', msg => { /* server said go */ });
+mp.send({ type: 'td_over', score, wave });
+```
+
+Also available: `mp.settings()`, `mp.players()`, `mp.me()`, `mp.isHost()`, `mp.renderAvatar(player, size)`, and `window.GameHub.getToken()`.
+
+Two things to get right:
+
+- **Register your `mp.on(...)` handlers at load time, not inside `renderGame`.** The server's first message follows `game_started` immediately, and a handler attached later misses it. If the message can arrive before the canvas exists, stash it and replay it when `renderGame` runs.
+- **A room is one run.** When the game ends it is finished, and "Play again" means asking for a new room, not resetting state:
+
+```js
+const r = await fetch('/api/pub/gamehub/mp/rooms', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', 'X-GH-Token': window.GameHub.getToken() },
+  body: JSON.stringify({ game_id: 'towerdefense', max_players: 1, settings: mp.settings() }),
+});
+location.href = (await r.json()).play_url;
+```
+
+### Surviving a reload
+
+The room outlives the socket — five minutes after everyone disconnects, two hours in total — and the framework reconnects a returning player to the same slot by their Game Hub token, then calls `on_join` again. That is the framework's whole contribution: it gets the player back into the room. **Whether the player gets their *run* back is the game's job**, because only the game knows what a run is, and in most games the browser is the thing running it.
+
+The cheap pattern, and the one `towerdefense` uses:
+
+1. The client reports a snapshot on a timer (and at every natural checkpoint) — score, level, lives, whatever the run consists of.
+2. The server keeps the last snapshot per player. It does not interpret it.
+3. `on_join` sends the start message with that snapshot attached, and the client picks up from it.
+
+```python
+async def on_join(self, player):
+    if self.started:
+        await self.ctx.send(player["id"], self._start_msg(player["id"]))   # carries "resume"
+```
+
+Two details worth copying. If the run is generated from a seed, wind the generator forward through the parts already played before resuming, or the rest of the run will not be the run the player left. And handle the player who reconnects *after* finishing — in multiplayer their room stays open while the others play on, so they must come back to their result, not to a fresh game.
+
+What you cannot restore is fine to drop. `towerdefense` resumes at the start of the wave the player was in and does not put the enemies back: the score, kills and tower are the run, the enemies in flight are not. Decide that per game.
+
+Note that a room that has already **finished** is over for good — `start` answers 409 — and the framework shows a "this game is over" panel with a link back to Game Hub. "Play again" means creating a new room.
+
+**Getting back in from the hub.** Resuming only helps if the player can find the room again, and a player who closes the tab comes back to Game Hub, not to the play URL. So the hub asks the server: `GET /api/pub/gamehub/mp/rooms/mine` (header `X-GH-Token`) returns the caller's own live rooms — every room they are in that has not finished, solo ones included. The hub turns that into a banner on the games grid and a **Continue** button on the game's own page, ahead of the buttons that start a new run. This is generic; a game gets it for free and needs to write nothing. (`GET /rooms` is a different list — open lobbies for *other* people, which deliberately skips solo rooms and rooms already playing, i.e. exactly the ones a returning player wants.)
+
+The window is the room's, not the browser's. A room that never got past the lobby is collected five minutes after the last player leaves; a room that is **playing** waits an hour, because that one is a run someone means to come back to. Two hours after it was created any room is gone regardless, and a backend restart takes every room with it — rooms are memory, not storage. Nothing is stored client-side, so the same run is offered in another browser, or on the phone, to the same Apps Hub account.
+
+For a solo game there is at most one such run at a time: `POST /rooms` refuses a second one, in **every** game — the rule is the framework's, not the game's. A player who does not want the run back throws it away with `DELETE /api/pub/gamehub/mp/rooms/{room_id}` (header `X-GH-Token`, solo rooms you are in only); the hub puts that on a 🗑 next to Continue. A player who wants to stop for longer than that window saves instead — see the next section.
+
+### Saving a game
+
+Resuming above is about *not losing* a run: the socket dropped, the tab
+reloaded, the player wandered off for twenty minutes. Saving is the other
+thing — the player deciding to stop, and expecting the run to be there tomorrow
+or next week. A room cannot do that: it lives in memory, so a backend restart
+ends it whatever the timeouts say. So a save goes to the database.
+
+**All of it is the framework's, and it is the same in every game.** The button,
+the question, the storage, the closing of the room, and the "new game or
+continue?" prompt back in the hub are written once, in Game Hub. It applies to
+**solo runs only**: a multiplayer room is other people's evening, and no single
+player gets to freeze it. The framework simply refuses `__save` there.
+
+What a game contributes is the one thing only it knows — what belongs in the
+save. A save has two halves, because in some games the run lives in the browser
+and in others on the server:
+
+```js
+// client — apps/<id>/public/mp.js
+mp.registerGame({
+  id, name, renderSetup, renderGame,
+  snapshot: () => ({ board: _grid, score: _score }),  // the browser's half, or null
+  pause:  () => { _paused = true; },                  // optional: while the prompt is up
+  resume: () => { _paused = false; },
+  exitButton: false,   // optional: the game already has its own exit control
+  saveable:   false,   // optional: this game cannot be saved at all
+});
+
+mp.savedState()   // the browser's half of the save this run resumed from, or null
+mp.exitPrompt()   // show the stop-for-now question (the built-in button calls this)
+mp.saveAndExit()  // save straight away, no question
+```
+
+```python
+# server — apps/<id>/mp_game.py
+def snapshot(self):
+    return {"round": self.current_round, "totals": self.totals}   # or None
+
+ctx.saved_state    # the server half this run was started from, or None (read in on_start)
+```
+
+Unless `exitButton: false`, Game Hub puts its own **⏸ Save & exit** control on
+every solo play page. Clicking it pauses the game, asks, and on confirm sends
+`__save` with `snapshot()`; the hub writes both halves as one row, answers
+`__saved`, closes the room and sends the player back to Game Hub. Nothing
+reaches the leaderboard — the run has not *ended*, it has been put down.
+
+Reading the save back is where the two halves differ, and both are one line:
+
+* **Server-side state** — `on_start` checks `ctx.saved_state` and rebuilds from
+  it. `findyourself` restores the round, the standings and the already-resolved
+  locations and opens straight at that round; `towerdefense` restores the wave,
+  score and tower and hands them to the same start message a reconnect gets.
+* **Browser-side state** — the game calls `mp.savedState()` at the point in its
+  own startup where the board is ready for it. `sudofall` does it right after
+  the server's `game_start` has laid out a fresh board, and replaces it with
+  the saved one.
+
+A game with no server state does not write `snapshot()` in Python; a game with
+no browser state does not write it in JS. Neither has to care which kind the
+other games are.
+
+The rest is enforced by the server in `POST /rooms`, not the UI:
+
+| The player has | `POST /rooms` (solo) does |
+|---|---|
+| nothing | creates the room |
+| a run in progress | **409** `run_in_progress` + the room to go back to |
+| a saved game, no `resume` in the body | **409** `saved_game` — ask the player |
+| a saved game, `resume: true` | creates a room that starts from the save |
+| a saved game, `resume: false` | deletes the save, starts fresh |
+
+Starting a run **consumes** the save, so there is never both a save and a run
+of the same game. Game Hub reads `GET /saves` to know which of those it is
+looking at (and `DELETE /saves/{game_id}` to drop one), and shows the question
+when it has to.
+
+Two things worth deciding per game. A resumed save is a **new run**: new room,
+new seed, new session — it just does not begin at the beginning. And a save is
+one-shot, not a checkpoint: it disappears the moment it is used, which is what
+stops a player from farming the same good position over and over. Pick a
+natural place to cut, too — `findyourself` saves at a round boundary and drops
+the guess in progress, because the standings are the run and half a guess is
+not.
+
+If the raw protocol matters to you: the client sends
+`{"type": "__save", "state": {...}|null}` and gets back
+`{"type": "__saved", "ok": true|false}`, then `room_closed`. The browser half
+comes back in the `game_started` (and `joined`) frame as `saved_state`.
+
+### Persistent progress across games
+
+Sessions, scores and leaderboards belong to Game Hub. Anything else a player accumulates — upgrades, unlocks, currency, a save file — is the **game's own data**, and belongs in the game's own database (`db.json` + `api.py`), keyed by the Apps Hub player id you already have from `GameHub.getToken()`. Do not try to hang it off Game Hub; it has no concept of it.
+
+One rule if the game also reports to a leaderboard: **apply the progress on the server**, in `mp_game.py`, by loading the player's row in `on_start`/`on_join` and folding it into the tuning it sends out. A browser that is told "you have +40% damage" is a browser that can tell itself the same thing. The seed pattern above has the same shape — the server decides, the client draws.
+
+### Translations
+
+Both halves read the same table from `apps/<id>/public/i18n.js` — the launcher window injects it, and the play page loads it. Never put game strings in core's `frontend/i18n/*.js`: those do not travel in the store zip, and the text would be missing on every other installation.
+
+```js
+(function () {
+  if (window.MYGAME_I18N) return;
+  var STRINGS = { en: { mg_title: 'My Game' }, bg: { mg_title: 'Моята игра' } };
+  function apply(lang) {
+    var table = STRINGS[lang] || STRINGS.en;
+    window._i18n = window._i18n || {};
+    for (var k in table) window._i18n[k] = table[k];
+  }
+  apply((window.mvmOS && window.mvmOS.lang) || 'en');
+  if (window.mvmOS && window.mvmOS.onLangChange) window.mvmOS.onLangChange(apply);
+  window.MYGAME_I18N = true;
+})();
+```
+
+### Full layout
+
+```
+apps/towerdefense/
+  manifest.json      — multiplayer / max_players / themed / min_core_version
+  store.json         — the mvmos.org listing
+  mp_game.py         — server: rules, seed, scoring
+  public/
+    main.js          — the launcher window (no game logic)
+    mp.js            — the game
+    i18n.js          — strings for both halves
+    style.css        — optional, loaded by the play page
+```
+
+`apps/towerdefense` is the reference implementation of every point above.
+
+### Games written before this
+
+The pattern is additive: `multiplayer` and `themed` default to the old behaviour, so a game that plays inside its window and knows nothing about `GameLauncher` keeps working exactly as it did. Migrating one is a deliberate, per-game job — it removes its in-window single player and makes Game Hub mandatory — so do it as its own release, not as a side effect of something else.
+
+---
+
 ## Game Hub integration
 
 Game Hub is the central player identity and stats system for multiplayer games. If your game supports multiplayer, integrate with Game Hub so players can use their profile, avatar, and track stats across all games.

@@ -417,33 +417,151 @@ function _gameMeta(gameId) {
 
 const MP_API = '/api/pub/gamehub/mp';
 
+// ?game=<id> — the deep link a game's desktop window opens (see core's
+// frontend/gamelauncher.js). The whole point of that window is to drop the
+// player straight into this game, so skip the grid. Consumed once: the detail
+// page's Back button re-renders the grid and must not bounce back here.
+let _deepLinkGame = new URLSearchParams(location.search).get('game');
+
+// Whether a game can be played by more than one person. Games predating this
+// flag say nothing in their manifest and stay multiplayer, as they were.
+function _isMultiplayer(mpGame) {
+  return !!mpGame && mpGame.multiplayer !== false && (mpGame.max_players == null || mpGame.max_players > 1);
+}
+
+// ── Rooms you are still in ────────────────────────────────────────
+// A run you walked away from lives on the server for a while (see
+// EMPTY_GRACE / ROOM_TTL in backend/apps/gamehub/mp.py), so coming back here
+// has to offer it — otherwise the only button in sight starts a fresh game and
+// the half-finished one is silently lost. /rooms is no help: it lists open
+// lobbies for other people and so skips solo rooms and rooms already playing,
+// which are exactly the ones you want back.
+let _myRooms = [];
+let _myRoomsLoaded = false;
+
+function _dismissed() {
+  try { return JSON.parse(localStorage.getItem('gh_dismissed_rooms') || '[]'); } catch(_) { return []; }
+}
+function _dismissRoom(roomId) {
+  const list = _dismissed().filter(id => id !== roomId);
+  list.push(roomId);
+  try { localStorage.setItem('gh_dismissed_rooms', JSON.stringify(list.slice(-20))); } catch(_) {}
+  _myRooms = _myRooms.filter(r => r.room_id !== roomId);
+}
+
+async function _loadMyRooms(force) {
+  if (_myRoomsLoaded && !force) return _myRooms;
+  _myRoomsLoaded = true;
+  try {
+    const r = await fetch(MP_API + '/rooms/mine', { headers: { 'X-GH-Token': _token } });
+    const rooms = r.ok ? await r.json() : [];
+    // A dismissed banner only hides the banner. The Continue button on the
+    // game itself keeps showing the room, because that is a deliberate ask.
+    _myRooms = Array.isArray(rooms) ? rooms : [];
+  } catch(_) { _myRooms = []; }
+  return _myRooms;
+}
+
+function _myRoomFor(gameId) {
+  return _myRooms.find(r => r.game_id === gameId) || null;
+}
+
+// Solo runs are the ones with a one-at-a-time rule, so they are worth telling
+// apart from a multiplayer room the player happens to be in.
+function _mySoloRunFor(gameId) {
+  return _myRooms.find(r => r.game_id === gameId && r.max_players <= 1) || null;
+}
+
+async function _discardRun(roomId) {
+  try {
+    const r = await fetch(MP_API + '/rooms/' + encodeURIComponent(roomId), {
+      method: 'DELETE', headers: { 'X-GH-Token': _token },
+    });
+    if (!r.ok) return false;
+    _myRooms = _myRooms.filter(x => x.room_id !== roomId);
+    return true;
+  } catch(_) { return false; }
+}
+
+// ── Saved games ───────────────────────────────────────────────────────────
+// A run in progress and a saved game are different things and a player is
+// never in both at once (the server enforces it). A run is the one you walked
+// away from and can walk back into; a save is the one you deliberately put
+// down. So starting a game is one of three: straight into a new run, back into
+// the run you left, or a question — continue the save, or throw it away?
+let _mySaves = [];
+
+async function _loadMySaves() {
+  try {
+    const r = await fetch(MP_API + '/saves', { headers: { 'X-GH-Token': _token } });
+    const s = r.ok ? await r.json() : [];
+    _mySaves = Array.isArray(s) ? s : [];
+  } catch(_) { _mySaves = []; }
+  return _mySaves;
+}
+
+function _mySaveFor(gameId) {
+  return _mySaves.find(s => s.game_id === gameId) || null;
+}
+
+// Continue the save, or start over and lose it. Resolves to true / false /
+// null (cancelled).
+function _askSavedGame(gameId, save) {
+  return new Promise(resolve => {
+    const { name, icon } = _gameMeta(gameId);
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px';
+    const box = document.createElement('div');
+    box.className = 'card';
+    box.style.cssText = 'width:100%;max-width:380px;padding:22px;text-align:center;display:flex;flex-direction:column;gap:12px';
+    box.innerHTML = `
+      <div style="font-size:34px;line-height:1">${icon}</div>
+      <div style="font-weight:700;font-size:16px">${esc(t('gh_saved_game_title'))}</div>
+      <div style="font-size:13px;color:var(--fg2)">${esc(t('gh_saved_game_body', { game: name }))}</div>
+      ${save && save.updated_at ? `<div style="font-size:11px;color:var(--fg2)">${esc(fmtDate(new Date(save.updated_at * 1000).toISOString()))}</div>` : ''}
+      <button class="btn btn-primary" data-a="resume" style="padding:9px 18px">${esc(t('gh_resume_saved'))}</button>
+      <button class="btn btn-secondary" data-a="fresh" style="padding:9px 18px">${esc(t('gh_start_fresh'))}</button>
+      <button class="btn btn-secondary" data-a="cancel" style="padding:6px 12px;font-size:.8rem;border:none;background:none;color:var(--fg2)">${esc(t('gh_cancel'))}</button>`;
+    ov.appendChild(box);
+    document.body.appendChild(ov);
+    const done = v => { ov.remove(); resolve(v); };
+    box.querySelector('[data-a="resume"]').onclick = () => done(true);
+    box.querySelector('[data-a="fresh"]').onclick  = () => {
+      if (confirm(t('gh_start_fresh_confirm'))) done(false);
+    };
+    box.querySelector('[data-a="cancel"]').onclick = () => done(null);
+    ov.onclick = e => { if (e.target === ov) done(null); };
+  });
+}
+
 async function renderGames(c) {
   c.innerHTML = `<div style="display:flex;flex-direction:column;gap:16px"></div>`;
   const sc = c.querySelector('div');
   const myId = _me.id;
 
-  // ── Resume (active multiplayer room) ───────────────────────
-  try {
-    const active = JSON.parse(localStorage.getItem('gh_active_room') || 'null');
-    if (active && active.roomId && (Date.now() - active.ts) < 7200000) {
-      const { name, icon } = _gameMeta(active.gameId);
-      const sec = document.createElement('div');
-      sec.style.cssText = 'background:rgba(137,180,250,.1);border:1px solid rgba(137,180,250,.3);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px';
-      sec.innerHTML = `
-        <div style="font-size:24px">${icon}</div>
-        <div style="flex:1">
-          <div style="font-weight:700;font-size:14px">${esc(name)} ${esc(t('gh_active_game_suffix'))}</div>
-          <div style="font-size:12px;color:var(--fg2);margin-top:2px">${esc(t('gh_rejoin_prompt'))}</div>
-        </div>
-        <a href="${esc(MP_API + '/play/' + active.roomId)}" class="btn btn-primary" style="font-size:.85rem;padding:7px 16px;text-decoration:none;flex-shrink:0">${esc(t('gh_rejoin'))}</a>
-        <button class="btn btn-secondary" id="gh-resume-close" style="padding:7px 10px;font-size:.85rem;flex-shrink:0">✕</button>`;
-      sc.appendChild(sec);
-      sec.querySelector('#gh-resume-close').onclick = () => {
-        localStorage.removeItem('gh_active_room');
-        sec.remove();
-      };
-    }
-  } catch(_) {}
+  // ── Resume: games you are still in ─────────────────────────
+  // Asked of the server, not of localStorage. The old version read a
+  // `gh_active_room` key that nothing ever wrote, so this banner never
+  // appeared — and a room you walk away from is on the server anyway, which
+  // means it also finds you in a different browser.
+  await _loadMyRooms(true);
+  await _loadMySaves();
+  const _hidden = _dismissed();
+  for (const active of _myRooms.filter(r => !_hidden.includes(r.room_id))) {
+    const { name, icon } = _gameMeta(active.game_id);
+    const sec = document.createElement('div');
+    sec.style.cssText = 'background:rgba(137,180,250,.1);border:1px solid rgba(137,180,250,.3);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px';
+    sec.innerHTML = `
+      <div style="font-size:24px">${icon}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">${esc(name)} ${esc(t('gh_active_game_suffix'))}</div>
+        <div style="font-size:12px;color:var(--fg2);margin-top:2px">${esc(t('gh_rejoin_prompt'))}</div>
+      </div>
+      <a href="${esc(active.play_url)}" class="btn btn-primary" style="font-size:.85rem;padding:7px 16px;text-decoration:none;flex-shrink:0">${esc(t('gh_rejoin'))}</a>
+      <button class="btn btn-secondary" data-dismiss style="padding:7px 10px;font-size:.85rem;flex-shrink:0">✕</button>`;
+    sc.appendChild(sec);
+    sec.querySelector('[data-dismiss]').onclick = () => { _dismissRoom(active.room_id); sec.remove(); };
+  }
 
   // ── Invitations ───────────────────────────────────────────────
   if (_invites.length) {
@@ -508,7 +626,15 @@ async function renderGames(c) {
     card.onmouseleave = () => card.style.background = 'var(--surface1)';
 
     const badge = hasInvite ? `<span style="position:absolute;top:10px;right:10px;background:var(--red);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:2px 7px">!</span>` : '';
-    const subtext = myLb ? `${myLb.played} ${t('gh_played').toLowerCase()} · ${myLb.wins} ${t('gh_wins').toLowerCase()}` : mySess.length ? `${mySess.length} ${t('gh_sessions_suffix').toLowerCase()}` : mpGame ? t('gh_multiplayer_short') : '';
+    // A game that declares "multiplayer": false in its manifest is a solo
+    // game, so it must not advertise itself as multiplayer on the card.
+    const modeLabel = mpGame ? (_isMultiplayer(mpGame) ? t('gh_multiplayer_short') : t('gh_singleplayer_short')) : '';
+    // What is waiting in this game outranks how much of it you have played —
+    // a saved game is easy to forget you have, and the card is where you look.
+    const subtext = _myRoomFor(gameId) ? t('gh_run_in_progress_short')
+      : _mySaveFor(gameId) ? t('gh_saved_game_short')
+      : myLb ? `${myLb.played} ${t('gh_played').toLowerCase()} · ${myLb.wins} ${t('gh_wins').toLowerCase()}`
+      : mySess.length ? `${mySess.length} ${t('gh_sessions_suffix').toLowerCase()}` : modeLabel;
 
     card.innerHTML = `
       ${badge}
@@ -518,14 +644,24 @@ async function renderGames(c) {
     card.onclick = () => renderGameDetail(c, gameId, mpGame || null);
     grid.appendChild(card);
   }
+
+  if (_deepLinkGame) {
+    const wanted = _deepLinkGame;
+    _deepLinkGame = null;
+    if (allGameIds.includes(wanted)) {
+      renderGameDetail(c, wanted, mpGames.find(g => g.id === wanted) || null);
+    }
+  }
 }
 
-async function _createGame(btn, gameId, maxPlayers) {
+async function _createGame(btn, gameId, maxPlayers, resume) {
   const label = btn.textContent;
   btn.disabled = true; btn.textContent = t('gh_creating');
+  const restore = () => { btn.disabled = false; btn.textContent = label; };
   try {
     const body = { game_id: gameId };
     if (maxPlayers) body.max_players = maxPlayers;
+    if (resume != null) body.resume = !!resume;
     const r = await fetch(MP_API + '/rooms', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-GH-Token': _token },
@@ -534,11 +670,24 @@ async function _createGame(btn, gameId, maxPlayers) {
     if (r.ok) {
       const d = await r.json();
       location.href = d.play_url;
-    } else {
-      btn.disabled = false; btn.textContent = label;
-      alert(t('gh_error_creating'));
+      return;
     }
-  } catch(_) { btn.disabled = false; btn.textContent = t('gh_new_game'); }
+    // The server is the one that knows a run or a save is in the way, and it
+    // says so instead of quietly making a second one.
+    if (r.status === 409) {
+      const d = await r.json().catch(() => ({}));
+      if (d.error === 'run_in_progress' && d.play_url) { location.href = d.play_url; return; }
+      if (d.error === 'saved_game') {
+        restore();
+        await _loadMySaves();
+        const answer = await _askSavedGame(gameId, _mySaveFor(gameId));
+        if (answer === null) return;
+        return _createGame(btn, gameId, maxPlayers, answer);
+      }
+    }
+    restore();
+    alert(t('gh_error_creating'));
+  } catch(_) { restore(); }
 }
 
 async function renderGameDetail(c, gameId, mpGame) {
@@ -579,21 +728,46 @@ async function renderGameDetail(c, gameId, mpGame) {
       tabBody.innerHTML = '';
       const info = document.createElement('div');
       info.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px 0 8px;text-align:center';
+      // A solo-only game gets one prominent Play button instead of a Solo /
+      // Multiplayer pair that would offer a mode it does not have.
+      const isMp = _isMultiplayer(mpGame);
+      // A run of this game you are still in. It comes first and takes the
+      // primary colour, because the alternative — starting over — is the one
+      // thing a returning player does not want to do by accident.
+      if (mpGame) { await _loadMyRooms(true); await _loadMySaves(); }
+      const mine  = mpGame ? _myRoomFor(gameId) : null;
+      const solo  = mpGame ? _mySoloRunFor(gameId) : null;
+      const saved = mpGame ? _mySaveFor(gameId) : null;
+      // An unfinished solo run leaves no way to start a second one: two
+      // half-played runs of the same game is a state nobody can make sense of,
+      // and the run is what the player came back for. Multiplayer is untouched
+      // by this — a match is not a thing you hold on to.
+      const soloBlocked = !!solo;
       info.innerHTML = `
         <div style="font-size:56px;line-height:1">${icon}</div>
         <div style="font-weight:700;font-size:20px">${esc(name)}</div>
         ${mpGame ? `
-        <div style="display:flex;gap:10px">
-          <button class="btn btn-secondary" id="gd-solo" style="padding:9px 20px;font-size:.95rem">${esc(t('gh_play_solo'))}</button>
-          <button class="btn btn-primary" id="gd-new" style="padding:9px 20px;font-size:.95rem">${esc(t('gh_new_game'))}</button>
-        </div>` : ''}`;
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+          ${mine ? `<a href="${esc(mine.play_url)}" class="btn btn-primary" style="padding:9px 20px;font-size:.95rem;text-decoration:none">▶ ${esc(t('gh_continue'))}</a>` : ''}
+          ${soloBlocked ? `<button class="btn btn-secondary" id="gd-discard" style="padding:9px 14px;font-size:.95rem" title="${esc(t('gh_discard_run'))}">🗑</button>` : ''}
+          ${soloBlocked ? '' : `<button class="btn ${isMp || mine ? 'btn-secondary' : 'btn-primary'}" id="gd-solo" style="padding:9px 20px;font-size:.95rem">${esc(isMp ? t('gh_play_solo') : saved ? t('gh_play_saved') : t('gh_play'))}</button>`}
+          ${isMp ? `<button class="btn ${mine ? 'btn-secondary' : 'btn-primary'}" id="gd-new" style="padding:9px 20px;font-size:.95rem">${esc(t('gh_new_game'))}</button>` : ''}
+        </div>
+        ${mine ? `<div style="font-size:12px;color:var(--fg2);margin-top:-4px">${esc(t(soloBlocked ? 'gh_run_in_progress_hint' : 'gh_continue_hint'))}</div>` : ''}
+        ${!mine && saved ? `<div style="font-size:12px;color:var(--fg2);margin-top:-4px">${esc(t('gh_has_saved_hint'))}</div>` : ''}` : ''}`;
       tabBody.appendChild(info);
       if (mpGame) {
-        info.querySelector('#gd-new').addEventListener('click', e => _createGame(e.target, gameId));
-        info.querySelector('#gd-solo').addEventListener('click', e => _createGame(e.target, gameId, 1));
+        info.querySelector('#gd-new')?.addEventListener('click', e => _createGame(e.target, gameId));
+        info.querySelector('#gd-solo')?.addEventListener('click', e => _createGame(e.target, gameId, 1));
+        info.querySelector('#gd-discard')?.addEventListener('click', async e => {
+          if (!confirm(t('gh_discard_run_confirm'))) return;
+          e.target.disabled = true;
+          if (await _discardRun(solo.room_id)) renderGdTab('play');
+          else { e.target.disabled = false; alert(t('gh_error_creating')); }
+        });
       }
 
-      if (mpGame) {
+      if (isMp) {
         let rooms = [];
         try { const r = await fetch(MP_API + '/rooms?game_id=' + encodeURIComponent(gameId)); rooms = r.ok ? await r.json() : []; } catch(_) {}
         if (rooms.length) {
@@ -684,9 +858,13 @@ async function renderGameDetail(c, gameId, mpGame) {
           return;
         }
         const hasSpr = lb.some(r => r.avg_spr != null);
+        // A game that never reports rounds — every solo game, for one — has no
+        // points-per-round to rank by, and wins mean nothing when nobody is
+        // being beaten. Best score is the ranking that game actually has.
+        const hasBest = !hasSpr && lb.some(r => r.best != null);
         const tbl = document.createElement('table');
         tbl.className = 'lb-table';
-        tbl.innerHTML = `<thead><tr><th>${esc(t('gh_col_num'))}</th><th>${esc(t('gh_col_player'))}</th><th>${esc(t('gh_col_played'))}</th><th>${esc(t('gh_col_wins'))}</th>${hasSpr?`<th>${esc(t('gh_col_pts_round'))}</th>`:''}</tr></thead>`;
+        tbl.innerHTML = `<thead><tr><th>${esc(t('gh_col_num'))}</th><th>${esc(t('gh_col_player'))}</th><th>${esc(t('gh_col_played'))}</th><th>${esc(t('gh_col_wins'))}</th>${hasSpr?`<th>${esc(t('gh_col_pts_round'))}</th>`:hasBest?`<th>${esc(t('gh_col_best'))}</th>`:''}</tr></thead>`;
         const tbody = document.createElement('tbody');
         lb.forEach((r, i) => {
           const isMe    = r.player_id === myId;
@@ -698,7 +876,7 @@ async function renderGameDetail(c, gameId, mpGame) {
             <td style="color:var(--fg2)">${i+1}</td>
             <td style="font-weight:600">${esc(r.display_name)}${isMe?` <span style="font-size:10px;color:var(--accent)">(${esc(t('gh_you'))})</span>`:' <span style="font-size:10px;color:var(--fg2)">›</span>'}</td>
             <td>${r.played}</td><td>${r.wins}</td>
-            ${hasSpr?`<td style="font-weight:700">${r.avg_spr!=null?r.avg_spr.toFixed(1):'—'}</td>`:''}`;
+            ${hasSpr?`<td style="font-weight:700">${r.avg_spr!=null?r.avg_spr.toFixed(1):'—'}</td>`:hasBest?`<td style="font-weight:700">${r.best!=null?r.best:'—'}</td>`:''}`;
           if (isOther) {
             tr.onmouseenter = () => tr.style.background = 'var(--surface2)';
             tr.onmouseleave = () => tr.style.background = '';
@@ -762,17 +940,22 @@ async function renderGameDetail(c, gameId, mpGame) {
             if (filterMine && !mySrcIds.has(p.player_id)) return;
             if (!playerMap[p.player_id]) {
               const full = (_stats?.players||[]).find(pl=>pl.id===p.player_id) || p;
-              playerMap[p.player_id] = { player_id: p.player_id, display_name: full.display_name || p.display_name || '?', played: 0, wins: 0, spr: [] };
+              playerMap[p.player_id] = { player_id: p.player_id, display_name: full.display_name || p.display_name || '?', played: 0, wins: 0, spr: [], best: null };
             }
             const entry = playerMap[p.player_id];
             entry.played++;
             if (p.is_winner) entry.wins++;
             if (p.score != null && rounds) entry.spr.push(p.score / rounds);
+            if (p.score != null && (entry.best == null || p.score > entry.best)) entry.best = p.score;
           });
         });
-        return Object.values(playerMap)
-          .map(e => ({ ...e, avg_spr: e.spr.length ? e.spr.reduce((a,b)=>a+b,0)/e.spr.length : null }))
-          .sort((a,b) => (b.avg_spr??-1) - (a.avg_spr??-1));
+        const lb = Object.values(playerMap)
+          .map(e => ({ ...e, avg_spr: e.spr.length ? e.spr.reduce((a,b)=>a+b,0)/e.spr.length : null }));
+        // Points per round stays the ranking wherever it exists, so nothing
+        // changes for the games that report rounds.
+        return lb.some(e => e.avg_spr != null)
+          ? lb.sort((a, b) => (b.avg_spr ?? -1) - (a.avg_spr ?? -1))
+          : lb.sort((a, b) => (b.best ?? -1) - (a.best ?? -1));
       }
 
       refresh();
