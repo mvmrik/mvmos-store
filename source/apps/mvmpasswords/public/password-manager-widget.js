@@ -3,6 +3,11 @@
   var API='/pub/mvmpasswords';
   function t(k,v){return(window.t||function(x){return x})(k,v)}
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function exportText(key){var bg=window.mvmOS&&window.mvmOS.lang==='bg';var strings={
+    backup:bg?'Изнеси mvmPasswords backup':'Export mvmPasswords backup',
+    csv:bg?'Изнеси CSV за друг мениджър':'Export CSV for another manager',
+    backupConfirm:bg?'Backup файлът не е криптиран и съдържа пароли и passkeys. Пази го лично и го изтрий след внасянето. Продължи ли?':'The backup is unencrypted and contains passwords and passkeys. Keep it private and delete it after import. Continue?',
+    csvConfirm:bg?'CSV файлът не е криптиран и съдържа пароли. Passkeys, папки и правила за съвпадение не могат да се пренесат в общ CSV. Продължи ли?':'The CSV is unencrypted and contains passwords. Passkeys, folders and matching rules cannot be carried by a generic CSV. Continue?'};return strings[key]}
   function b64(bytes){var s='';new Uint8Array(bytes).forEach(function(x){s+=String.fromCharCode(x)});return btoa(s)}
   function bytes(s){var bin=atob(s),out=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);return out}
   function host(url){try{return new URL(url.indexOf('://')<0?'https://'+url:url).hostname.replace(/^www\./,'').toLowerCase()}catch(_){return ''}}
@@ -95,6 +100,30 @@
   function fromJson(text){
     var data;
     try{data=JSON.parse(text)}catch(_){return null}
+    // This is our own portable vault format. It is deliberately plaintext: the
+    // receiving vault encrypts every record with its own master password.
+    if(data&&data.format==='mvmpasswords-backup'&&data.version===1&&Array.isArray(data.entries)){
+      var backupFolders=Array.isArray(data.folders)?data.folders.map(function(folder){
+        return folder&&typeof folder.id==='string'&&typeof folder.name==='string'?
+          {id:folder.id,name:folder.name}:null;
+      }).filter(Boolean):[];
+      var backupEntries=data.entries.map(function(item){
+        if(!item||typeof item!=='object')return null;
+        var entry=Object.assign({},item);
+        // An mvm2factor account belongs to a different app and profile. Never
+        // carry that opaque reference into another vault.
+        delete entry.id;delete entry.totp_id;
+        entry.name=String(entry.name||'').trim();
+        entry.website=String(entry.website||'');
+        entry.username=String(entry.username||'');
+        entry.password=String(entry.password||'');
+        entry.notes=String(entry.notes||'');
+        if(['default','domain','exact','regex'].indexOf(entry.match_mode)<0)entry.match_mode='default';
+        if(typeof entry.folder_id!=='string')delete entry.folder_id;
+        return entry;
+      }).filter(function(entry){return entry&&entry.name&&(entry.password||entry.username||entry.passkey)});
+      return {kind:'mvmpasswords-backup',folders:backupFolders,entries:backupEntries};
+    }
     // A Bitwarden export made with a password is itself ciphertext; importing
     // it would silently store unusable rows, so it is reported, not parsed.
     if(data&&data.encrypted===true)return 'encrypted';
@@ -139,6 +168,7 @@
     if(!parsed)return null;
     // A row with no password and no username carries nothing worth storing;
     // secure notes and folder markers in an export land here.
+    if(parsed.kind==='mvmpasswords-backup')return parsed;
     return parsed.filter(function(x){return x&&(x.password||x.username)});
   }
   window.MvmPasswordManagerImport={parse:parseImport,csvRows:csvRows};
@@ -264,6 +294,19 @@
     // cannot even count the members of a folder, and an existing vault needs no
     // conversion: an entry written before folders existed simply has no field.
     async function saveFolder(id,name){var encrypted=await encrypt({name:name});return id?api('/folders/'+encodeURIComponent(id),{method:'PUT',body:JSON.stringify(encrypted)}):api('/folders',{method:'POST',body:JSON.stringify(encrypted)})}
+    function download(filename,text,type){var blob=new Blob([text],{type:type}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=filename;document.body.appendChild(link);link.click();link.remove();setTimeout(function(){URL.revokeObjectURL(url)},0)}
+    function backupEntry(item){var out=withoutId(item);delete out.totp_id;return out}
+    function exportBackup(){
+      if(!confirm(exportText('backupConfirm')))return;
+      download('mvmpasswords-backup-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({format:'mvmpasswords-backup',version:1,exported_at:new Date().toISOString(),folders:folders.map(withoutId),entries:entries.map(backupEntry)},null,2),'application/json');
+    }
+    function csvValue(value){return '"'+String(value==null?'':value).replace(/"/g,'""')+'"'}
+    function exportCsv(){
+      if(!confirm(exportText('csvConfirm')))return;
+      var lines=['name,url,username,password,notes'];
+      entries.forEach(function(item){lines.push([item.name,item.website,item.username,item.password,item.notes].map(csvValue).join(','))});
+      download('mvmpasswords-export-'+new Date().toISOString().slice(0,10)+'.csv',lines.join('\r\n')+'\r\n','text/csv;charset=utf-8');
+    }
     function folderName(id){var found=folders.find(function(x){return x.id===id});return found?found.name:''}
     // The folder an entry counts as being in. A `folder_id` pointing at a folder
     // that is gone reads as unfiled rather than as a filter nothing can select,
@@ -515,6 +558,11 @@
         if(window.mvmOS&&window.mvmOS.premiumGate)window.mvmOS.premiumGate(auditBtn,t('pm_audit_premium_info'));
       }
       var importButton=root.querySelector('.pm-import');if(importButton)importButton.onclick=function(){menu.hidden=true;importDialog()};
+      if(!parentOrigin){
+        function exportButton(className,label,action){var button=document.createElement('button');button.className=className;button.textContent=exportText(label);button.onclick=function(){menu.hidden=true;action()};menu.insertBefore(button,root.querySelector('.pm-lock'))}
+        exportButton('pm-export-backup','backup',exportBackup);
+        exportButton('pm-export-csv','csv',exportCsv);
+      }
       root.querySelector('.pm-lock').onclick=function(){menu.hidden=true;lockNow()};
       renderFolders();renderList();
     }
@@ -587,7 +635,7 @@
       var file=overlay.querySelector('.f-file'),status=overlay.querySelector('.pm-import-status'),
           list=overlay.querySelector('.pm-import-list'),go=overlay.querySelector('.f-go'),
           error=overlay.querySelector('.pm-error'),cancel=overlay.querySelector('.f-cancel'),
-          found=[],busy=false;
+          found=[],sourceFolders=[],ownBackup=false,busy=false;
       function close(){if(!busy)overlay.remove()}
       overlay.querySelector('.f-pick').onclick=function(){file.click()};
       cancel.onclick=close;
@@ -623,6 +671,9 @@
       function handle(text,filename){
         var parsed;
         try{parsed=window.MvmPasswordManagerImport.parse(text,filename)}catch(_){parsed=null}
+        ownBackup=!!parsed&&parsed.kind==='mvmpasswords-backup';
+        sourceFolders=ownBackup?parsed.folders:[];
+        if(ownBackup)parsed=parsed.entries;
         if(parsed==='encrypted'){status.textContent='';error.textContent=t('pm_import_encrypted');return}
         if(!parsed){status.textContent='';error.textContent=t('pm_import_unreadable');return}
         if(!parsed.length){status.textContent='';error.textContent=t('pm_import_empty');return}
@@ -656,13 +707,31 @@
         if(!take.length){error.textContent=t('pm_import_nothing');return}
         busy=true;error.textContent='';list.innerHTML='';go.disabled=true;cancel.disabled=true;
         var saved=0,failed=0;
+        var folderMap={};
+        if(ownBackup){
+          var required={};take.forEach(function(item){if(item.folder_id)required[item.folder_id]=true});
+          sourceFolders.forEach(function(source){
+            if(!required[source.id])return;
+            var existing=folders.find(function(target){return target.name.toLowerCase()===source.name.toLowerCase()});
+            if(existing)folderMap[source.id]=existing.id;
+          });
+          for(var f=0;f<sourceFolders.length;f++){
+            var source=sourceFolders[f];if(!required[source.id]||folderMap[source.id])continue;
+            try{var created=await saveFolder(null,source.name);folderMap[source.id]=created.id;folders.push({id:created.id,name:source.name})}catch(_){}
+          }
+        }
         for(var i=0;i<take.length;i++){
           status.textContent=t('pm_import_working',{done:i+1,total:take.length});
           var item=take[i];
           try{
-            await saveEntry(null,{name:item.name||host(item.website)||item.username||t('pm_import_no_name'),
+            var value;
+            if(ownBackup){
+              value=withoutId(item);delete value._dupe;delete value._take;delete value.totp_id;
+              if(value.folder_id&&folderMap[value.folder_id])value.folder_id=folderMap[value.folder_id];else delete value.folder_id;
+            }else value={name:item.name||host(item.website)||item.username||t('pm_import_no_name'),
               website:item.website||'',match_mode:'default',username:item.username||'',
-              password:item.password||'',notes:item.notes||''});
+              password:item.password||'',notes:item.notes||''};
+            await saveEntry(null,value);
             saved++;
           }catch(_){failed++}
         }
