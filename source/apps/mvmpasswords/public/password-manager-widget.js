@@ -298,7 +298,7 @@
     function backupEntry(item){var out=withoutId(item);delete out.totp_id;return out}
     function exportBackup(){
       if(!confirm(exportText('backupConfirm')))return;
-      download('mvmpasswords-backup-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({format:'mvmpasswords-backup',version:1,exported_at:new Date().toISOString(),folders:folders.map(withoutId),entries:entries.map(backupEntry)},null,2),'application/json');
+      download('mvmpasswords-backup-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({format:'mvmpasswords-backup',version:1,exported_at:new Date().toISOString(),folders:folders.map(function(folder){return{id:folder.id,name:folder.name}}),entries:entries.map(backupEntry)},null,2),'application/json');
     }
     function csvValue(value){return '"'+String(value==null?'':value).replace(/"/g,'""')+'"'}
     function exportCsv(){

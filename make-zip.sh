@@ -28,6 +28,10 @@ cp "$SRC/apps/$APP_ID/"* "$TMP/" 2>/dev/null
 # _install_from_zip() routes anything it does not recognise into apps/<id>/public/,
 # which is the one folder served over HTTP.
 rm -f "$TMP/store.json" "$TMP/premium.json"
+# Runtime databases belong to a particular installation and may contain user
+# data.  A Store package must carry only schema (db.json), never a database or
+# its SQLite journal files.
+rm -f "$TMP"/*.db "$TMP"/*.db-* "$TMP"/*.sqlite "$TMP"/*.sqlite-* "$TMP"/*.sqlite3 "$TMP"/*.sqlite3-*
 
 # Copy backend files if they exist
 if [ -d "$SRC/backend/apps/$APP_ID" ]; then
