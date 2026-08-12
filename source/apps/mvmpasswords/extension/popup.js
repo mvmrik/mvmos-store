@@ -17,6 +17,32 @@
   var isPasskeyWindow = mvm.query.get('passkey') === '1';
   if (isPasskeyWindow) mvm.setFrameQuery('passkey=1');
 
+  // Changing the server address can leave this extension holding a valid
+  // unlock key for a different vault.  Give the person an escape hatch in the
+  // popup itself: it clears only this local key, never the hosted vault or the
+  // Apps Hub login, then reloads into the normal master-password screen.
+  if (!isPasskeyWindow) {
+    var clearUnlock = document.createElement('button');
+    var bg = navigator.language.toLowerCase().startsWith('bg');
+    clearUnlock.type = 'button';
+    clearUnlock.textContent = '🔒';
+    clearUnlock.setAttribute('aria-label', bg ? 'Изчисти отключването' : 'Clear saved unlock');
+    clearUnlock.title = bg ? 'Изтрива само запазения ключ за отключване на това разширение' : 'Clears only this extension’s saved unlock key';
+    clearUnlock.style.cssText = 'border:0;border-radius:4px;background:#313244;color:#cdd6f4;cursor:pointer;font:inherit;font-size:14px;line-height:1;padding:4px 6px';
+    clearUnlock.addEventListener('click', function () {
+      var key = mvm.config.appId + ':vault_session';
+      function remove(area) {
+        if (!area || !area.remove) return Promise.resolve();
+        try { return Promise.resolve(area.remove(key)); } catch (_) { return Promise.resolve(); }
+      }
+      clearUnlock.disabled = true;
+      Promise.all([remove(mvm.api.storage.local), remove(mvm.api.storage.session)]).then(function () {
+        location.reload();
+      });
+    });
+    document.getElementById('bar').insertBefore(clearUnlock, document.getElementById('settings'));
+  }
+
   var passkeyJobs = {};
 
   // ---- vault session ------------------------------------------------------

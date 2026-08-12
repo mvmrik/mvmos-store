@@ -71,6 +71,24 @@
     for (var key in table) window._i18n[key] = table[key];
   }
 
+  STRINGS.en.m2f_transfer = 'Import and export';
+  STRINGS.en.m2f_export_backup = 'Export mvm2factor backup';
+  STRINGS.en.m2f_export_csv = 'Export CSV for another authenticator';
+  STRINGS.en.m2f_import = 'Import accounts';
+  STRINGS.en.m2f_backup_warning = 'This backup is unencrypted and contains your two-factor secrets. Keep it private and delete it after importing. Continue?';
+  STRINGS.en.m2f_csv_warning = 'This CSV is unencrypted and contains your two-factor secrets. Continue?';
+  STRINGS.en.m2f_import_invalid = 'This file does not contain readable two-factor accounts.';
+  STRINGS.en.m2f_import_warning = 'Import {n} accounts? Existing accounts will not be removed.';
+  STRINGS.en.m2f_import_done = 'Imported {n} accounts.';
+  STRINGS.bg.m2f_transfer = 'Внос и износ';
+  STRINGS.bg.m2f_export_backup = 'Изнеси mvm2factor backup';
+  STRINGS.bg.m2f_export_csv = 'Изнеси CSV за друг authenticator';
+  STRINGS.bg.m2f_import = 'Внеси акаунти';
+  STRINGS.bg.m2f_backup_warning = 'Този backup не е криптиран и съдържа двуфакторните ти тайни ключове. Пази го лично и го изтрий след внасянето. Продължи ли?';
+  STRINGS.bg.m2f_csv_warning = 'Този CSV не е криптиран и съдържа двуфакторните ти тайни ключове. Продължи ли?';
+  STRINGS.bg.m2f_import_invalid = 'Във файла няма разпознаваеми двуфакторни акаунти.';
+  STRINGS.bg.m2f_import_warning = 'Да се внесат ли {n} акаунта? Съществуващите няма да бъдат изтрити.';
+  STRINGS.bg.m2f_import_done = 'Внесени са {n} акаунта.';
   var lang = (window.mvmOS && window.mvmOS.lang) || 'en';
   apply(lang);
   if (window.mvmOS && window.mvmOS.onLangChange) window.mvmOS.onLangChange(apply);

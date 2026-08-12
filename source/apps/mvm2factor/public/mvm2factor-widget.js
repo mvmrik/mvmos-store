@@ -40,6 +40,10 @@
         border:1px solid var(--pub-border,#45475a);border-radius:.4rem;padding:.35rem .5rem;font-size:.8rem;outline:none}
       .m2f-add{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);border:0;border-radius:50%;
         width:1.8rem;height:1.8rem;cursor:pointer;font-size:1.15rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+      .m2f-transfer{position:relative}.m2f-tools{background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4);border:0;border-radius:.4rem;
+        width:1.8rem;height:1.8rem;cursor:pointer;font-size:1rem}.m2f-transfer-menu{position:absolute;right:0;top:calc(100% + .3rem);z-index:10;
+        min-width:12rem;padding:.35rem;background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;box-shadow:0 .5rem 1.4rem rgba(0,0,0,.35)}
+      .m2f-transfer-menu[hidden]{display:none}.m2f-transfer-menu button{display:block;width:100%;border:0;background:none;color:var(--pub-fg,#cdd6f4);padding:.45rem;text-align:left;cursor:pointer;font:inherit;font-size:.8rem;border-radius:.3rem}.m2f-transfer-menu button:hover{background:var(--pub-border,#45475a)}
       /* min-height:0 is not optional here: a flex item refuses to shrink below
          its content by default, so without it the list grows past the widget
          instead of scrolling inside it, and the last cards are cut off by the
@@ -114,6 +118,7 @@
     var extensionContext = null;
     var extensionSettings = {};
     var extensionParentOrigin = '';
+    var canTransfer = window.parent === window;
 
     root.style.position = 'relative';
     root.innerHTML = `<div class="m2f-widget">
@@ -124,6 +129,7 @@
           <option value="last_used">${esc(t('m2f_sort_used'))}</option>
         </select>
         <button class="m2f-add" title="${esc(t('m2f_add_account'))}">+</button>
+        ${canTransfer ? `<div class="m2f-transfer"><button class="m2f-tools" title="${esc(t('m2f_transfer'))}" aria-label="${esc(t('m2f_transfer'))}">⋮</button><div class="m2f-transfer-menu" hidden><button data-transfer="backup">${esc(t('m2f_export_backup'))}</button><button data-transfer="csv">${esc(t('m2f_export_csv'))}</button><button data-transfer="import">${esc(t('m2f_import'))}</button></div></div>` : ''}
         <div class="m2f-context" style="display:none"></div>
       </div>
       <div class="m2f-list"></div>
@@ -340,7 +346,94 @@
       }
     }
 
+    function download(filename, text, type) {
+      var blob = new Blob([text], {type: type});
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.href = url; link.download = filename;
+      document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+    }
+
+    function csv(value) { return '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"'; }
+    function csvRows(text) {
+      var rows = [], row = [], value = '', quoted = false;
+      for (var i = 0; i < text.length; i++) {
+        var char = text[i];
+        if (quoted) { if (char === '"') { if (text[i + 1] === '"') { value += char; i++; } else quoted = false; } else value += char; }
+        else if (char === '"') quoted = true;
+        else if (char === ',' || char === ';' || char === '\t') { row.push(value); value = ''; }
+        else if (char === '\n' || char === '\r') { if (char === '\r' && text[i + 1] === '\n') i++; row.push(value); if (row.length > 1 || row[0]) rows.push(row); row = []; value = ''; }
+        else value += char;
+      }
+      row.push(value); if (row.length > 1 || row[0]) rows.push(row);
+      return rows;
+    }
+
+    function parseTransfer(text, filename) {
+      var parsed;
+      try { parsed = JSON.parse(text); } catch (_) { parsed = null; }
+      if (parsed && parsed.format === 'mvm2factor-backup' && parsed.version === 1 && Array.isArray(parsed.accounts)) {
+        return {accounts: parsed.accounts, preferences: parsed.preferences || {}};
+      }
+      if (Array.isArray(parsed)) return {accounts: parsed, preferences: {}};
+      var rows = csvRows(text), header = (rows.shift() || []).map(function (x) { return String(x).trim().toLowerCase(); });
+      function col(names) { for (var i = 0; i < names.length; i++) { var index = header.indexOf(names[i]); if (index >= 0) return index; } return -1; }
+      var secret = col(['secret', 'secret key', 'seed', 'token']), name = col(['name', 'account', 'label']), issuer = col(['issuer', 'username', 'email']), website = col(['website', 'url', 'site']);
+      if (secret < 0 || (name < 0 && issuer < 0)) return null;
+      return {accounts: rows.map(function (row) { return {name: String(row[name] || row[issuer] || '').trim(), issuer: issuer < 0 ? '' : String(row[issuer] || '').trim(), secret: String(row[secret] || '').trim(), website_url: website < 0 ? '' : String(row[website] || '').trim()}; }), preferences: {}};
+    }
+
+    async function exportBackup() {
+      if (!confirm(t('m2f_backup_warning'))) return;
+      var backup = await api('/backup');
+      download('mvm2factor-backup-' + new Date().toISOString().slice(0, 10) + '.json', JSON.stringify(backup, null, 2), 'application/json');
+    }
+
+    async function exportCsv() {
+      if (!confirm(t('m2f_csv_warning'))) return;
+      var backup = await api('/backup');
+      var lines = ['name,issuer,secret,website'];
+      backup.accounts.forEach(function (account) { lines.push([account.name, account.issuer, account.secret, account.website_url].map(csv).join(',')); });
+      download('mvm2factor-export-' + new Date().toISOString().slice(0, 10) + '.csv', lines.join('\r\n') + '\r\n', 'text/csv;charset=utf-8');
+    }
+
+    function importAccounts() {
+      var input = document.createElement('input'); input.type = 'file'; input.accept = '.json,.csv,text/csv,application/json';
+      input.onchange = function () {
+        var file = input.files && input.files[0]; if (!file) return;
+        var reader = new FileReader();
+        reader.onload = async function () {
+          var data = parseTransfer(String(reader.result || ''), file.name);
+          if (!data || !data.accounts.length) { alert(t('m2f_import_invalid')); return; }
+          if (!confirm(t('m2f_import_warning', {n: data.accounts.length}))) return;
+          var saved = 0;
+          for (var i = 0; i < data.accounts.length; i++) {
+            var account = data.accounts[i] || {};
+            try { await api('/accounts', {method: 'POST', body: JSON.stringify({name: account.name || account.issuer || '', issuer: account.issuer || '', secret: account.secret || '', website_url: account.website_url || account.website || ''})}); saved++; } catch (_) {}
+          }
+          if (data.preferences.sort_by === 'newest' || data.preferences.sort_by === 'last_used') { sortBy = data.preferences.sort_by; await api('/prefs', {method: 'POST', body: JSON.stringify({sort_by: sortBy})}); }
+          await load(); alert(t('m2f_import_done', {n: saved}));
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    }
+
     root.querySelector('.m2f-add').onclick = openDialog;
+    var transfer = root.querySelector('.m2f-transfer');
+    if (transfer) {
+      var transferMenu = transfer.querySelector('.m2f-transfer-menu');
+      transfer.querySelector('.m2f-tools').onclick = function (event) { event.stopPropagation(); transferMenu.hidden = !transferMenu.hidden; };
+      transfer.onclick = function (event) {
+        var action = event.target.dataset.transfer; if (!action) return;
+        transferMenu.hidden = true;
+        if (action === 'backup') exportBackup().catch(function () { alert(t('m2f_error_loading')); });
+        else if (action === 'csv') exportCsv().catch(function () { alert(t('m2f_error_loading')); });
+        else importAccounts();
+      };
+      document.addEventListener('click', function () { transferMenu.hidden = true; });
+    }
     sortEl.onchange = function () {
       sortBy = sortEl.value;
       render();

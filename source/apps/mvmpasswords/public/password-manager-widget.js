@@ -417,7 +417,7 @@
           return'<div class="pm-folder-edit"><input class="f-fname" data-id="'+esc(f.id)+'" value="'+esc(f.name)+'"><button type="button" class="f-frename" data-id="'+esc(f.id)+'" title="'+esc(t('pm_folder_rename'))+'" aria-label="'+esc(t('pm_folder_rename'))+'">💾</button><button type="button" class="pm-danger f-fdel" data-id="'+esc(f.id)+'" data-count="'+n+'" title="'+esc(t('pm_folder_delete'))+'" aria-label="'+esc(t('pm_folder_delete'))+'">🗑</button></div>'}).join(''):'<div class="pm-folder-empty">'+esc(t('pm_folder_empty'))+'</div>';
       }
       async function run(job){if(busy)return;busy=true;err.textContent='';
-        try{await job()}catch(_){err.textContent=t('pm_error')}
+        try{await job()}catch(_){err.textContent=t('pm_save_error')}
         busy=false;draw()}
       draw();
       list.onclick=function(e){
@@ -1013,7 +1013,7 @@
       // to explain why. Falling back to All is the only honest state.
       if(folder&&folder!==UNFILED&&!folders.some(function(f){return f.id===folder})){folder='';localStorage.removeItem(FOLDER_KEY)}
       touchFolder(folder);
-      render()}catch(_){if(key){key=null;unlockScreen(lastVault,t('pm_unlock_failed'))}else root.innerHTML='<div class="pm-empty">'+esc(t('pm_error'))+'</div>'}}
+      render()}catch(_){if(key){key=null;unlockScreen(lastVault,t('pm_unlock_failed'))}else root.innerHTML='<div class="pm-empty">'+esc(t('pm_load_error'))+'</div>'}}
     function pk(){return window.MvmPasswordManagerPasskey}
     function replyPasskey(reqId,result,error){passkeyBusy=false;if(parentOrigin)window.parent.postMessage({source:'mvmos-public-app',appId:APP_ID,action:'passkey-result',reqId:reqId,result:result,error:error},parentOrigin)}
     // A passkey is a field of an ordinary login, the way Bitwarden stores one, so

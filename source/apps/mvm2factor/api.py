@@ -222,6 +222,27 @@ async def public_add_account(
     return JSONResponse({"id": account_id})
 
 
+@router.get("/backup")
+async def public_backup(x_pub_token: str = Header(default=None)):
+    """Return a portable, deliberately plaintext backup for its owner only."""
+    me = _public_user(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    with _conn() as conn:
+        rows = conn.execute(
+            "SELECT name,issuer,secret,website_url FROM accounts WHERE owner_id=? ORDER BY created_at",
+            (me["id"],),
+        ).fetchall()
+        pref = conn.execute("SELECT sort_by FROM public_prefs WHERE user_id=?", (me["id"],)).fetchone()
+    return {
+        "format": "mvm2factor-backup",
+        "version": 1,
+        "exported_at": int(time.time()),
+        "preferences": {"sort_by": pref["sort_by"] if pref else "newest"},
+        "accounts": [dict(row) for row in rows],
+    }
+
+
 @router.delete("/accounts/{account_id}")
 async def public_delete_account(
     account_id: str, x_pub_token: str = Header(default=None)

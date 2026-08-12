@@ -16,6 +16,12 @@ pm_totp_field:'Двуфакторен акаунт',pm_totp_none:'Няма',pm_t
 pm_gen_title:'Генератор на парола',pm_gen_length:'Дължина',pm_gen_lower:'Малки букви',pm_gen_upper:'Главни букви',pm_gen_digits:'Цифри',pm_gen_symbols:'Специални символи',pm_gen_use:'Използвай тази парола',pm_gen_need_one:'Избери поне един вид символи.',pm_gen_reroll:'Генерирай нова'}
   };
   function apply(lang){var table=STRINGS[lang]||STRINGS.en;window._i18n=window._i18n||{};for(var key in table)window._i18n[key]=table[key]}
+  STRINGS.en.pm_save_error='Could not save this change.';
+  STRINGS.en.pm_load_error='Could not load the encrypted vault.';
+  STRINGS.bg.pm_save_error='Промяната не беше запазена.';
+  STRINGS.bg.pm_load_error='Криптираният vault не можа да се зареди.';
+  STRINGS.en.pm_error=STRINGS.en.pm_save_error;
+  STRINGS.bg.pm_error=STRINGS.bg.pm_save_error;
   var lang=(window.mvmOS&&window.mvmOS.lang)||'en';
   apply(lang);
   if(window.mvmOS&&window.mvmOS.onLangChange)window.mvmOS.onLangChange(apply);
