@@ -148,6 +148,7 @@
     msh_err_generic: 'Something went wrong. Try again.',
     msh_err_required: 'Fill this in first.',
     msh_err_too_large: 'That is too large to share.',
+    msh_err_insecure: 'This page needs to be opened over HTTPS (or on localhost) — the browser blocks encryption everywhere else.',
 
     msh_notif_url: '{name} shared a link with you',
     msh_notif_note: '{name} shared a note with you',
@@ -291,6 +292,7 @@
     msh_err_generic: 'Нещо се обърка. Опитай пак.',
     msh_err_required: 'Попълни това първо.',
     msh_err_too_large: 'Това е твърде голямо за споделяне.',
+    msh_err_insecure: 'Тази страница трябва да е отворена през HTTPS (или на localhost) — извън това браузърът блокира криптирането.',
 
     msh_notif_url: '{name} сподели линк с вас',
     msh_notif_note: '{name} сподели бележка с вас',

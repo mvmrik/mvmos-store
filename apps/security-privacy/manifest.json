@@ -36,9 +36,9 @@
       "name": "mvmShare",
       "icon": "🔗",
       "category": "Security & Privacy",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "End-to-end encrypted sharing for files, notes and links, with image galleries and password protection.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/security-privacy/mvmshare-1.0.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/security-privacy/mvmshare-1.0.1.zip",
       "tags": [
         "security",
         "sharing",

@@ -560,7 +560,7 @@ window.MvmShare = (function () {
           rememberKey(res.data.id, exported);
           renderResult(res.data, exported);
         } catch (e) {
-          toast(msg, t('msh_err_generic'), true);
+          toast(msg, window.crypto && window.crypto.subtle ? t('msh_err_generic') : t('msh_err_insecure'), true);
         } finally {
           btn.disabled = false;
           btn.textContent = t('msh_create');
