@@ -83,17 +83,19 @@ BALANCE = {
     # workshop, and a workshop pays iron for every round — which is what makes
     # digging iron worth the walk. "store" is the room in the keep at level 1
     # and it grows with the keep, so a bigger keep is a deeper magazine for the
-    # hold. keep_people is room in the keep itself: the hold starts with one
-    # person living there, and that person builds the first house. Nothing is
-    # ever built by the hold on its own — work happens where a person is
-    # standing.
-    # No rounds at the start, and no way to make one until a workshop stands:
-    # ammunition is something the hold earns — dig the iron, forge it, carry
-    # it — not something it is handed. The first raids are meant to be met by
-    # walls and distance, which is what the opening timber is for.
-    "start":  {"wood": 240, "stone": 0, "iron": 0,
-               "ammo": 0, "store": 10, "store_step": 6,
-               "keep_people": 1,
+    # hold. keep_people is room in the keep itself, and it is zero: nobody lives
+    # in a storehouse. Every person in the game comes out of a house, on both
+    # sides of the map — which is why the first house of a hold, and the first
+    # hut of a camp, cost nothing. That is the whole opening: the keep goes
+    # down, the free house goes down beside it, somebody moves in, and from
+    # there everything is worked for.
+    # Nothing in the store, no rounds and nobody standing: ammunition is
+    # something the hold earns — dig the iron, forge it, carry it — never
+    # something it is handed, and the first raids are meant to be met by walls
+    # and distance, which come out of the ground as well.
+    "start":  {"wood": 0, "stone": 0, "iron": 0,
+               "ammo": 0, "store": 10, "store_mult": 1.5,
+               "keep_people": 0,
                # The keep is the hold: it is built to outlast the towers around it.
                "keep_hp": 4.0},
     "upgrade_mult": 1.7,
@@ -113,17 +115,49 @@ BALANCE = {
     # been digging for a while.
     "tier_share": {"stone": 0.55, "iron": 0.35},
 
+    # What the second one of anything costs. Every building type carries a
+    # "repeat": the next one of that kind is priced at repeat ** (how many the
+    # hold already has), so a fourth house is not a first house.
+    #
+    # This is the other half of the same rule the multiplied stats are: a level
+    # costs upgrade_mult more and is worth about that much more, while another
+    # building of the same kind repeats what is already standing and is charged
+    # for repeating it. Without it, twenty level 1 houses beat one level 5 house
+    # on every number that matters, which made every upgrade in the game a
+    # mistake. Upgrading is never charged the repeat — the level is the thing
+    # the hold is meant to buy.
+    #
+    # Wide is still a real choice, and it is meant to be: towers cover ground
+    # that a taller tower cannot reach, and walls have no repeat charge at all.
+    # It is simply no longer the cheap one.
+
     "buildings": {
         # hp/effects below are level 1; each level multiplies hp by hp_step.
         "tower": {
             "cost": {"wood": 75}, "tier": {"stone": 2, "iron": 4},
-            "build": 14, "hp": 220, "hp_step": 1.25,
+            "repeat": 1.60,
+            "build": 14, "hp": 220, "hp_step": 1.28,
             "size": 22, "range": 300, "range_step": 14,
-            "damage": 34, "damage_step": 10,
+            # Multiplied, not stepped, and this is the whole reason: a level
+            # costs 1.7 times the level below it, so anything a level is bought
+            # for has to grow at about that rate or the level is never worth
+            # buying. A tower that gained a flat +10 was always beaten by simply
+            # putting up another tower for the price of the first.
+            "damage": 34, "damage_mult": 1.45,
             "reload": 1.10, "reload_step": -0.085, "reload_min": 0.35,
             # The magazine starts at a single round: a tower is only as useful
-            # as the people willing to walk ammunition to it.
-            "mag": 1, "mag_step": 2,
+            # as the people willing to walk ammunition to it. It is also the
+            # quietest reason to build tall — one deep tower is one place to
+            # carry rounds to, five shallow ones are five.
+            "mag": 1, "mag_step": 3,
+            # And what one volley takes out of it. A bigger tower throws a
+            # heavier round, so the magazine is not simply deeper as it grows —
+            # this is what keeps ammunition, and the people carrying it, the
+            # thing a hold actually lives or dies on. Without it a tower that
+            # had outgrown the camps killed a whole war party out of a magazine
+            # it barely dented, and nothing the four corners did afterwards
+            # mattered.
+            "ammo_per": 1, "ammo_per_step": 0.45,
             "weapons_per": 3,           # +1 barrel every 3 levels
         },
         # A house is bought once and then it is done paying: the people who move
@@ -132,34 +166,61 @@ BALANCE = {
         # the same timber the player is trying to build with, meant a growing
         # hold could never put anything aside — the wood went as fast as it came
         # in and nobody could see where.
+        # Room, and the only thing on the map that makes people. Every level
+        # adds as many tenants as the level it is: 1, then +2, then +3, then
+        # +4 — so a house holds 1, 3, 6, 10, 15. A second house is a repeat of
+        # the first and is priced as one; the level is the thing that is
+        # actually worth buying, which is what "build wide" used to be.
         "house": {
-            "cost": {"wood": 80}, "tier": {"stone": 2, "iron": 5},
-            "build": 10, "hp": 170, "hp_step": 1.2,
-            "size": 21, "workers": 2, "workers_step": 1, "spawn": 26,
+            "cost": {"wood": 80}, "tier": {"stone": 2, "iron": 4},
+            "repeat": 1.50,
+            # The first one is free, and stands the moment it is placed: there
+            # is nobody in the hold yet to raise it, and nobody arrives until it
+            # is up. It is the other half of the keep, not a building decision —
+            # the decisions start with the second house.
+            "first_free": True,
+            "build": 10, "hp": 170, "hp_step": 1.25,
+            "size": 21,
+            # People do not move in the instant the roof is on. The wait is the
+            # hold's, not the house's, and the best house in it sets the pace:
+            # somewhere good to live is somewhere people come to sooner.
+            "spawn": 26, "spawn_step": -2, "spawn_min": 12,
         },
         "workshop": {
-            "cost": {"wood": 95}, "tier": {"stone": 2, "iron": 4},
-            "build": 16, "hp": 180, "hp_step": 1.2,
+            "cost": {"wood": 95}, "tier": {"stone": 2, "iron": 3},
+            "repeat": 2.00,
+            "build": 16, "hp": 180, "hp_step": 1.25,
             # Rounds are forged, not found: every one costs the hold iron, so a
             # workshop is only ever as busy as the iron coming in. With no iron
             # left it stands idle, and the towers go quiet a raid later.
-            "size": 22, "rate": 0.10, "rate_step": 0.06,   # ammunition per second
-            "iron_per_ammo": 0.5,
+            "size": 22, "rate": 0.10, "rate_mult": 1.75,   # ammunition per second
+            # A better forge wastes less of what it is given, so iron is one of
+            # the things a level buys outright. This is also the answer to a
+            # hold whose towers have outgrown its mine: forge deeper, not wider.
+            "iron_per_ammo": 0.5, "iron_per_ammo_step": -0.03,
+            "iron_per_ammo_min": 0.25,
             # Finished rounds pile up at the workshop until somebody carries
             # them to the keep. Nothing teleports: a workshop across the map is
             # a longer supply line, and that is the cost of putting it there.
-            "stock": 8, "stock_step": 6,
+            "stock": 8, "stock_step": 8,
         },
+        # A garrison grows two ways at once: one more man per level, and each
+        # man worth more than the last. Multiplied damage and integrity are what
+        # keep a level ahead of a second barracks, which only ever repeats the
+        # men the first one already has.
         "barracks": {
             "cost": {"wood": 120}, "tier": {"stone": 2, "iron": 3},
-            "build": 18, "hp": 210, "hp_step": 1.25,
+            "repeat": 1.50,
+            "build": 18, "hp": 210, "hp_step": 1.28,
             "size": 23, "interval": 40, "interval_step": -4, "interval_min": 14,
             "soldiers": 2, "soldiers_step": 1,
-            "hp_soldier": 60, "hp_soldier_step": 18,
-            "damage": 12, "damage_step": 5,
-            # A level 1 barracks arms its people with wooden spears; from level 3
-            # it is sending out iron, and every sortie costs the hold that iron.
-            "arm": {"wood": 3}, "arm_iron_from": 3, "arm_iron": 2,
+            "hp_soldier": 60, "hp_soldier_mult": 1.22,
+            "damage": 12, "damage_mult": 1.22,
+            # Wooden spears at first; stone-headed from level 2, and iron from
+            # level 3 — every sortie is paid for out of what the hold has dug,
+            # so a deep barracks is a standing bill as well as a garrison.
+            "arm": {"wood": 3}, "arm_stone_from": 2, "arm_stone": 1.5,
+            "arm_iron_from": 3, "arm_iron": 2,
         },
         # A wall is the one building that changes material as it grows. Level 1
         # is a timber palisade — cheap, quick, and what a young hold can afford;
@@ -169,10 +230,18 @@ BALANCE = {
         # the wood is dropped and the stone line is used, which is why the jump
         # in integrity there is so much larger than a normal step.
         "wall": {
-            "cost": {"wood": 16}, "tier": {"iron": 7},
+            "cost": {"wood": 16}, "tier": {"iron": 5},
             "stone_from": 2, "stone_cost": {"stone": 22}, "stone_hp": 2.2,
-            "build": 3, "hp": 260, "hp_step": 1.35,
+            # Iron comes in later here than anywhere else, and on purpose: a
+            # wall is built by the length, so every level is paid for once per
+            # piece. Asking for iron as early as a tower does would make a
+            # ring of stone a thing nobody could afford to raise at all.
+            "build": 3, "hp": 260, "hp_step": 1.60,
             "size": 15,
+            # The one building with no repeat charge on it. A wall is meant to
+            # be built in numbers — a line of them is the point — so the second
+            # length costs what the first did, and only the level is dear.
+            "repeat": 1.0,
         },
     },
 
@@ -186,6 +255,12 @@ BALANCE = {
         # somebody is holding. There is no carry_ammo: it would only ever be 1.
         "build_rate": 1.0,
         "hp": 40,
+        # What standing on somebody else's patch is worth in walking. Picking
+        # ground is a price — there and back, plus this for every person
+        # already digging it — so a crowded patch nearby still beats empty
+        # ground across the map, and stops beating it once the crowd is real.
+        # Raise it to spread the hold out, lower it to keep everyone close.
+        "share_penalty": 300,
     },
 
     # Digging, felling and quarrying, done straight out of the ground. There is
@@ -199,21 +274,27 @@ BALANCE = {
         "iron":  {"load": 4, "time": 6.5},
     },
 
-    # What the map is made of. Every material can land anywhere, and how many of
-    # each there are is drawn fresh for every hold — so no two maps open on the
-    # same problem. Every hold on the map, the player's and the four camps
-    # alike, is given ground of its own to work; the richest patches lie in the
-    # middle ground between them, where nobody is safe.
+    # What the map is made of, and it is thrown rather than laid. Every patch
+    # lands where it lands: a material picked at random, dropped anywhere in the
+    # world, kept if there is room for it. Nobody is given ground of their own —
+    # not the camps, and not the player — so a map can open on a corner buried
+    # in timber and a corner with nothing near it, and both of those are the
+    # map you were dealt.
+    #
+    # It used to be laid out instead: a cluster of every material around each of
+    # the four corners and another in the middle, then the rest scattered in a
+    # ring between them. It read exactly like what it was — five neat piles and
+    # a fair share for everybody — and it made every map the same map. Where a
+    # hold settles is the first decision of the game, and it is only a decision
+    # if the ground is worth reading. Nothing here knows where anybody lives.
     "deposit": {
-        # A hold's own ground: the ring around it its people can work without
-        # walking into somebody else's country.
-        "near": 200,
-        "far":  700,
-        # The middle ground, measured from the centre of the world.
-        "wild_near": 950,
-        "wild_far":  1700,
-        "per_site_min": 2, "per_site_max": 3,   # of each kind, around each hold
-        "wild_min": 8, "wild_max": 14,
+        # How many patches the world is given. Rolled fresh per map, so even the
+        # amount of ground out there is something to be found out.
+        "count_min": 38, "count_max": 58,
+        # The one thing position still respects: nobody wakes up with a forest
+        # growing through their keep. This is the room left around each camp,
+        # and it is the only reason a throw is ever rejected for where it fell.
+        "clear": 120,
         # How much ground one holds. A deposit is a wood or a field of rock, not
         # a mark on the map: this is the radius a deposit of average richness
         # covers when it is untouched, scaled by how rich it rolled and closing
@@ -229,38 +310,83 @@ BALANCE = {
     },
 
     # ── The four camps ───────────────────────────────────────────────────────
-    # They are holds, not waves. Each one sits in its own corner with its own
-    # store, its own people digging its own ground, and its own buildings going
-    # up one at a time — and the player can watch all of it happen. What they
-    # never build is a tower or a wall: everything they earn goes into huts and
-    # barracks, and everything a barracks musters eventually walks at the
-    # player. Beating a war party off is therefore not just survival, it is a
-    # bill: those arms were paid for out of that camp's store and have to be
-    # earned again.
+    # They are holds, not waves — and that is meant literally: a camp is priced,
+    # housed, manned and armed off the very tables above, the ones the player
+    # plays by. Their roof is a house, their barracks is a barracks, their men
+    # are that barracks' men, and their keep costs what the hold's keep costs.
+    # There is not a number in this block that undercuts or outbids the player.
+    #
+    # ONE thing is theirs alone, and it is "pace": the fraction of the player's
+    # speed everything a camp does over time runs at. It is 1.0 — they are not
+    # slowed at all — and if the opening ever feels wrong, this is the number to
+    # move, because there is nothing else left to move.
+    #
+    # What they never build is a tower, a wall or a workshop: everything they
+    # earn goes into roofs and barracks, and everything a barracks musters
+    # eventually walks at the player. Beating a war party off is therefore not
+    # only survival, it is a bill: those arms were paid for out of that camp's
+    # store and have to be earned again.
     "faction": {
         "inset": 520,                     # how far from the corner each camp sits
         "colors": ["#f38ba8", "#fab387", "#cba6f7", "#94e2d5"],
-        "start": {"wood": 160, "stone": 40, "iron": 0},
+        # Nothing in the store, the same as the hold. They used to open with
+        # enough to pay for a second hut outright, which meant the second hut
+        # was standing before anybody had dug a single load — a camp was two
+        # roofs and two people deep while the player was still saving for the
+        # first decision of the game. Their head start is not a gift any more:
+        # it is the free hut they are given, exactly as the hold is, and
+        # everything past it is worked for at "pace".
+        "start": {"wood": 0, "stone": 0, "iron": 0},
 
-        # Their keep is their level: everything else they may build, and every
-        # soldier they arm, is measured off it.
-        "keep": {"hp": 900, "hp_step": 1.35, "size": 26,
-                 "cost": {"wood": 240, "stone": 130, "iron": 25}, "mult": 1.7},
-        "hut": {"hp": 150, "size": 20, "build": 14,
-                "cost": {"wood": 75, "stone": 15}, "workers": 2, "spawn": 22},
-        "barracks": {"hp": 230, "size": 22, "build": 18,
-                     "cost": {"wood": 140, "stone": 65},
-                     "soldiers": 3, "soldiers_step": 1},
-        # No ceiling here either, and this is the side of it that matters: a
-        # camp that has finished growing is a camp the hold eventually outgrows
-        # for good, and from that moment the game cannot be lost. They keep
-        # levelling for as long as they can pay, and everything they may keep
-        # standing is measured off that level with nothing capping it.
+        # Their keep is their level, and it is bought the way the hold buys the
+        # level of its own keep — off "tower", which is what a keep is under the
+        # skin. Their roof is "house" and their barracks is "barracks", read
+        # straight out of the tables above: same price, same repeat charge, same
+        # tier of stone and iron, same room under the roof, same men. There is
+        # nothing to list here because there is nothing of their own left.
+        #
+        # No ceiling either, and this is the side of it that matters: a camp
+        # that has finished growing is a camp the hold eventually outgrows for
+        # good, and from that moment the game cannot be lost. They keep
+        # levelling for as long as they can pay.
         "max_level": 0,
-        "huts_base": 2, "huts_per_level": 1,
-        "barracks_base": 1, "barracks_per_level": 0.5,
 
-        "worker": {"speed": 58, "load": 7, "time": 4.5, "hp": 34},
+        # The one number that is theirs. Everything a camp does over time runs
+        # at this fraction of the hold's speed: what its people carry home per
+        # trip, how fast a building goes up, how long a roof takes to fill, how
+        # long it takes to arm one more man. Nothing about them is cheaper,
+        # stronger or roomier than the player's — only slower, and by exactly
+        # this much.
+        #
+        # It is NOT 0.25, and the reason is worth writing down, because a
+        # quarter is the number anybody reaches for when there are four of
+        # them. A hold does not grow at a steady rate: people dig, digging buys
+        # roofs, roofs make people. Slow that loop to a quarter and a camp does
+        # not end up a quarter of a hold — it ends up where the hold was a
+        # quarter of the way through the game, and the gap between those two
+        # goes on widening for as long as anybody is playing. At 0.25 the four
+        # corners together hold about a third of the hold's people by the two
+        # hour mark and fall further behind every minute after it, which is a
+        # game that cannot be lost and therefore is not a game.
+        #
+        # 0.4 was the rate at which the four of them together tracked one hold
+        # instead of falling off it. It is 1.0 now, on purpose: a camp works at
+        # exactly the player's speed, and the four corners are four holds. This
+        # is the state to measure from — the hold still keeps every advantage
+        # the map gives it and the camps do not have (towers that shoot back,
+        # walls, a workshop, and the choice of where to stand), so whatever
+        # handicap they end up needing should be read off a game where the
+        # numbers themselves are level, not guessed at. When the time comes to
+        # slow them down again, the paragraph above is why the number to reach
+        # for is not a quarter.
+        "pace": 1.0,
+
+        # How far out of its corner a camp will look for a load first. It is a
+        # preference, not a fence: on a map where the ground falls where it
+        # falls, a camp with nothing inside this circle walks further rather
+        # than sitting still — the same choice the player makes when the near
+        # ground runs out.
+        "range": 1500,
 
         # Four camps that all want the same hold and none of which wants the
         # others: not one of them ever marches at a rival, because a party spent
@@ -272,18 +398,19 @@ BALANCE = {
         # drawn five times — see _meet in mp.js.
         "clash": {"reach": 18, "body": 15},
 
-        # Arming one more soldier: how often, and what it costs the camp. The
-        # wait is what one barracks takes, and every barracks arms its own men —
-        # a camp with four of them arms four times as fast. Without that a camp
-        # could raise barracks for ever and still send men at the rate of one
-        # hut, so its parties would grow while its raids grew further and
-        # further apart, which is the opposite of what a growing camp should
-        # feel like.
-        "muster": 30, "muster_step": -2.4, "muster_min": 9,
-        "arm": {"wood": 6}, "arm_iron_from": 3, "arm_iron": 1.5,
-        "soldier": {"hp": 42, "hp_step": 14,
-                    "damage": 2.6, "damage_step": 0.9,
-                    "speed": 44, "speed_step": 1.6},
+        # Arming one more man is the hold's own barracks line, slowed by "pace":
+        # the wait is "interval" at the camp's level, every barracks arms its
+        # own men so a camp with four of them arms four times as fast, and what
+        # a man costs is "arm" — wooden spears low down, stone from the second
+        # level and iron from the third. A camp's soldier is a hold's soldier:
+        # the same integrity and the same damage at the same level, out of the
+        # same table. They are not weaker men fielded in numbers; they are the
+        # player's men, mustered at a quarter of the player's speed.
+        #
+        # The one thing a hold's garrison never needs is a way to cross a map,
+        # because it never leaves the ring it patrols. A raider does, so this is
+        # the walk out to the hold and nothing else.
+        "march": {"speed": 44, "speed_step": 1.6},
 
         # A camp does not attack with what it happens to have: it fills every
         # barracks it owns and then sends the lot at once. The party is the
@@ -294,9 +421,48 @@ BALANCE = {
         # A camp used to keep most of its men at home behind a party limit,
         # which read as an army standing about watching its own raid lose.
         "ready_wait": 10,
-        # Nobody comes in the first couple of minutes: a hold has to be allowed
-        # to stand up before it is knocked down.
-        "grace": 165,
+        # Nobody marches on a hold nobody has looked at. A camp sends one man
+        # over — unarmed, and untouchable, because nothing a hold owns shoots
+        # at somebody who is not attacking it. He walks to the hold, goes round
+        # it, counts the towers he can see and walks home, and only then does
+        # the camp decide anything.
+        #
+        # What it decides on is what he counted, and nothing else. A tower
+        # fires once per level, so a tower is worth its level in men: two at
+        # level 1 and one at level 3 come to five, and a camp holding four men
+        # stays at home and keeps growing. This is the whole of their
+        # aggression — there is no timer any more, and no raid that was decided
+        # before anyone looked.
+        #
+        # The report is a snapshot and it goes stale on purpose. A tower
+        # finished after the scout turned for home is a tower nobody counted,
+        # and the party that arrives was sized for the hold as it was. That
+        # window is the player's, and it is why the minutes after a scout walks
+        # away are the wrong minutes to stop building. What they knew is spent
+        # with the party: the next raid needs a new pair of eyes.
+        "scout": {
+            "every": 120,   # from one scout coming home to the next setting out
+            "speed": 70,    # quicker than a soldier: he is carrying nothing
+            "sight": 340,   # how far he can count towers from where he walks
+            "ring": 210,    # how close to the keep he goes round it
+            "look": 14,     # seconds spent walking round before he turns back
+        },
+
+        # Nobody sets out under four, however few a camp happens to hold. This
+        # is the whole of the early game: a camp's first barracks holds three,
+        # so its first raid waits for the second level of its keep — which
+        # wants iron it is not digging for anything else yet. Without it a camp
+        # marched the moment its first three men were armed, which arrived
+        # while the hold was still one tower and a workshop. It stops mattering
+        # from level 2 on and is never felt again.
+        "party_min": 4,
+        # Nobody comes in the first minutes: a hold has to be allowed to stand
+        # up before it is knocked down. And the corners do not come at once —
+        # each camp waits "grace_step" longer than the one before it, so the
+        # map opens as a series of raids rather than four at the same instant.
+        # Being caught between two is then a thing that happens because of
+        # where you settled, not because all four share a clock.
+        "grace": 240, "grace_step": 40,
         # Raiders do not carry money, because there is nothing to spend it on.
         # They carry what their camp armed them with. Kill one and the hold
         # keeps it.
@@ -446,72 +612,75 @@ def _corners():
 
 
 def _sites():
-    """The four camps and the middle of the map. Deposits are laid around these,
-    and nothing is ever built on top of one.
-
-    The middle is nobody's any more — the player settles where they like — but it
-    is still seeded with a cluster of every material, so that the centre is one
-    honest answer to "where do I go" among the ones scattered around it rather
-    than a bare patch the map is telling you to avoid."""
-    s = BALANCE["world"]["size"]
-    return [(s / 2, s / 2)] + _corners()
+    """The four camps. Nothing is ever built on top of one, and nothing is ever
+    thrown on top of one — which is now the whole of what this is for. The
+    middle of the map is not one of them any more: it is ground like any other,
+    and it is worth settling on only if the throw happened to favour it."""
+    return _corners()
 
 
 def _lay_deposits(rnd) -> list:
-    """The ground, scattered so that every camp has some and the rest is out
-    there to be found.
+    """The ground, thrown at the map.
 
-    Each site — the four camps and the middle of the map — gets its own small
-    cluster of every material. Everything else is dropped across the middle
-    ground, which is both what the player reads before choosing where to settle
-    and where a hold that wants to grow has to go looking afterwards.
+    Every patch is a material picked at random, dropped anywhere in the world,
+    and kept if it lands clear of a camp and clear of everything already down.
+    That is the whole of it. Nothing counts what each corner ended up with,
+    nothing evens it out, and nothing is reserved for anybody — so a map can
+    open on iron piled in the north and none in the south, and the player who
+    reads that before putting the keep down is playing the game the map is for.
     """
-    dep = BALANCE["deposit"]
-    w   = BALANCE["world"]["size"]
-    out = []
-    sites = _sites()
-
-    def place(cx, cy, kind, near, far, tries=50):
-        for _ in range(tries):
-            ang  = rnd.random() * math.tau
-            dist = near + rnd.random() * (far - near)
-            x, y = cx + math.cos(ang) * dist, cy + math.sin(ang) * dist
-            amount = dep["kinds"][kind]["amount"] * (0.7 + rnd.random() * 0.8)
-            r = _dep_radius(kind, amount)
-            if not (r + 30 < x < w - r - 30 and r + 30 < y < w - r - 30):
-                continue
-            # Never on top of a hold: a camp with a forest growing through its
-            # keep is not a thing the map can mean.
-            if any(math.hypot(x - sx, y - sy) < r + 120 for sx, sy in sites):
-                continue
-            # Ground, not markers: two of them may lie side by side but never
-            # one inside the other.
-            if any(math.hypot(x - o["x"], y - o["y"])
-                   < r + _dep_radius(o["kind"], o["max"]) + 34 for o in out):
-                continue
-            out.append({"id": len(out) + 1, "x": round(x, 1), "y": round(y, 1),
-                        "kind": kind, "amount": round(amount), "max": round(amount)})
-            return True
-        return False
-
-    for cx, cy in sites:
-        for kind in dep["kinds"]:
-            for _ in range(rnd.randint(dep["per_site_min"], dep["per_site_max"])):
-                place(cx, cy, kind, dep["near"], dep["far"])
-
+    dep   = BALANCE["deposit"]
+    w     = BALANCE["world"]["size"]
     kinds = list(dep["kinds"])
-    for _ in range(rnd.randint(dep["wild_min"], dep["wild_max"])):
-        place(w / 2, w / 2, rnd.choice(kinds), dep["wild_near"], dep["wild_far"])
+    sites = _sites()
+    out   = []
+
+    want = rnd.randint(dep["count_min"], dep["count_max"])
+    # Tries, not places: a throw that lands badly is simply lost, so a crowded
+    # map ends up with fewer patches than a roomy one rather than with the same
+    # number squeezed together.
+    for _ in range(want * 6):
+        if len(out) >= want:
+            break
+        kind   = rnd.choice(kinds)
+        amount = dep["kinds"][kind]["amount"] * (0.7 + rnd.random() * 0.8)
+        r      = _dep_radius(kind, amount)
+        x = r + 30 + rnd.random() * (w - 2 * (r + 30))
+        y = r + 30 + rnd.random() * (w - 2 * (r + 30))
+        # Never on top of a hold: a camp with a forest growing through its keep
+        # is not a thing the map can mean.
+        if any(math.hypot(x - sx, y - sy) < r + dep["clear"] for sx, sy in sites):
+            continue
+        # Ground, not markers: two of them may lie side by side but never one
+        # inside the other.
+        if any(math.hypot(x - o["x"], y - o["y"])
+               < r + _dep_radius(o["kind"], o["max"]) + 34 for o in out):
+            continue
+        out.append({"id": len(out) + 1, "x": round(x, 1), "y": round(y, 1),
+                    "kind": kind, "amount": round(amount), "max": round(amount)})
     return out
 
 
 def _new_factions() -> list:
     """Four camps, one to a corner, each starting exactly where the player does:
-    a keep, a couple of people and a pile of timber. What they do with it is
-    the game."""
+    a keep, one free roof and nobody yet. People come out of the roof on both
+    sides of the map — a camp is handed no more diggers than the hold is handed
+    builders. Nothing in the store either: the first load a camp spends is a
+    load one of its own people carried home, so the second roof in a corner is
+    earned at "pace" the same way the hold earns its second house."""
     f = BALANCE["faction"]
+    size = BALANCE["world"]["size"]
+    # A camp's keep is the hold's keep and a camp's roof is the hold's house,
+    # so both are measured off the player's own table rather than a second one.
+    keep_hp = _max_hp("tower", 1, keep=True)
+    hut = BALANCE["buildings"]["house"]
+    hut_hp = _max_hp("house", 1)
     out = []
     for i, (cx, cy) in enumerate(_corners()):
+        # The free hut stands beside the keep, offset towards the middle of the
+        # map: the corners are the one direction where there is no room.
+        hx = cx + (62 if cx < size / 2 else -62)
+        hy = cy + (46 if cy < size / 2 else -46)
         out.append({
             "id": i,
             "x": cx, "y": cy,
@@ -520,26 +689,29 @@ def _new_factions() -> list:
             "iron": f["start"]["iron"],
             "lvl": 1,
             "buildings": [{"id": 1, "type": "keep", "x": cx, "y": cy, "lvl": 1,
-                           "hp": f["keep"]["hp"], "built": 1.0}],
-            "next_id": 2,
-            "workers": [{"x": cx + 20, "y": cy + 22}, {"x": cx - 22, "y": cy + 18}],
+                           "hp": keep_hp, "maxHp": keep_hp, "built": 1.0},
+                          {"id": 2, "type": "hut", "x": round(hx), "y": round(hy),
+                           "lvl": 1, "built": 1.0, "build": hut["build"],
+                           "hp": hut_hp, "maxHp": hut_hp}],
+            "next_id": 3,
+            "workers": [],
             "army": [],
             "spawn": 0.0, "muster": 0.0, "ready": 0.0,
-            "grace": f["grace"],
+            "grace": f["grace"] + i * f.get("grace_step", 0),
             "stats": {"sent": 0, "lost": 0, "built": 0},
         })
     return out
 
 
 def _new_hold(settings) -> dict:
-    """A pile of timber, four camps in the corners, the ground lying wherever the
-    map put it — and no hold yet.
+    """Four camps in the corners, the ground lying wherever the map put it — and
+    no hold yet, and nothing in the store.
 
     Nothing is placed for the player any more. The deposits are the map, and
     everything a hold becomes is decided by where they landed, so where the keep
     goes is the first decision of the game rather than the one decision it was
     never given: the map is handed over with "founding" set, and the browser
-    puts the keep and the first person down wherever the player says. Until then
+    puts the keep and its people down wherever the player says. Until then
     no time passes and the camps do not stir — see _update in mp.js.
 
     The deposits are drawn once, kept in the state and never redrawn.
@@ -564,7 +736,7 @@ def _new_hold(settings) -> dict:
         "priority": "balanced",
         "deposits": _lay_deposits(rnd),
         # Nothing stands anywhere yet. The keep — a tower that cannot be sold
-        # and whose loss ends the run — and the hold's first person are both put
+        # and whose loss ends the run — and the hold's first people are both put
         # down by the player, in one go, wherever they choose to settle.
         "founding": True,
         "buildings": [],
@@ -634,48 +806,61 @@ def _migrate(st: dict) -> dict:
         st["factions"] = _new_factions()
     # The old single enemy clock has nobody to keep time for any more.
     st.pop("enemy", None)
-    # Ground for the camps to work, since the old map was laid out for one hold.
+    # An older map was laid out around five sites; this one is thrown. Topping
+    # up cannot fix that — it would only add a sixth pile to a map that is
+    # already five piles — so what an old map gets is more of the same throw,
+    # and only if it is thin enough to be unplayable.
     _top_up_deposits(st)
     st["world"] = WORLD_VERSION
     return st
 
 
 def _top_up_deposits(st: dict) -> None:
-    """Give every camp on an older map some ground of its own to work."""
+    """Throw more ground at a map that has too little of it.
+
+    Nothing here looks at where anybody lives, so a corner that was dealt a bad
+    map stays dealt a bad map — that is the point of throwing rather than
+    laying. This only catches a world so bare that nobody could work it.
+    """
     dep = BALANCE["deposit"]
     w   = BALANCE["world"]["size"]
     rnd = random.Random(int(st.get("seed") or 1) ^ 0x5730)
     out = st.get("deposits") or []
+    want = dep["count_min"]
+    if len(out) >= want:
+        return
+    kinds = list(dep["kinds"])
+    sites = _sites()
     nid = max([int(d.get("id") or 0) for d in out] or [0])
-    for cx, cy in _corners():
-        for kind in dep["kinds"]:
-            near = [d for d in out if d.get("kind") == kind
-                    and math.hypot(d["x"] - cx, d["y"] - cy) < dep["far"] + 200]
-            for _ in range(max(0, dep["per_site_min"] - len(near))):
-                for _try in range(50):
-                    ang  = rnd.random() * math.tau
-                    dist = dep["near"] + rnd.random() * (dep["far"] - dep["near"])
-                    x, y = cx + math.cos(ang) * dist, cy + math.sin(ang) * dist
-                    amount = dep["kinds"][kind]["amount"] * (0.7 + rnd.random() * 0.8)
-                    r = _dep_radius(kind, amount)
-                    if not (r + 30 < x < w - r - 30 and r + 30 < y < w - r - 30):
-                        continue
-                    if any(math.hypot(x - sx, y - sy) < r + 120 for sx, sy in _sites()):
-                        continue
-                    if any(math.hypot(x - o["x"], y - o["y"])
-                           < r + _dep_radius(o["kind"], o.get("max", amount)) + 34
-                           for o in out):
-                        continue
-                    nid += 1
-                    out.append({"id": nid, "x": round(x, 1), "y": round(y, 1),
-                                "kind": kind, "amount": round(amount),
-                                "max": round(amount)})
-                    break
+    for _ in range((want - len(out)) * 6):
+        if len(out) >= want:
+            break
+        kind   = rnd.choice(kinds)
+        amount = dep["kinds"][kind]["amount"] * (0.7 + rnd.random() * 0.8)
+        r      = _dep_radius(kind, amount)
+        x = r + 30 + rnd.random() * (w - 2 * (r + 30))
+        y = r + 30 + rnd.random() * (w - 2 * (r + 30))
+        if any(math.hypot(x - sx, y - sy) < r + dep["clear"] for sx, sy in sites):
+            continue
+        if any(math.hypot(x - o["x"], y - o["y"])
+               < r + _dep_radius(o["kind"], o.get("max", amount)) + 34
+               for o in out):
+            continue
+        nid += 1
+        out.append({"id": nid, "x": round(x, 1), "y": round(y, 1),
+                    "kind": kind, "amount": round(amount), "max": round(amount)})
     st["deposits"] = out
 
 
 def _cost(kind: str, lvl: int) -> dict:
-    """What one level of a building costs. Mirrors _cost in mp.js."""
+    """What one level of a building costs. Mirrors _cost in mp.js.
+
+    The level price only. What a *new* building of a kind the hold already has
+    costs on top of this — "repeat" — is a decision made where the building is
+    put down, so it lives in _newCost in the browser. This is used here for the
+    refund a migrated hold is given back, and a refund is deliberately priced
+    off the level rather than off what the crowding happened to cost.
+    """
     b = BALANCE["buildings"].get(kind)
     if not b:
         # A building this version no longer has: price it as the timber it was.
@@ -684,10 +869,17 @@ def _cost(kind: str, lvl: int) -> dict:
     m = BALANCE["upgrade_mult"] ** (lvl - 1)
     base = b["stone_cost"] if (b.get("stone_from") and lvl >= b["stone_from"]) else b["cost"]
     out = {res: round(base[res] * m) for res in RESOURCES if base.get(res)}
-    wood = base.get("wood", 0) * m
+    # The tiers are a share of whatever the level is actually priced in, not of
+    # its timber. For everything but the wall that is the same thing; the wall
+    # is rebuilt in stone from level 2 and has no timber line to take a share
+    # of, so measuring off wood meant its iron tier could never come due and
+    # the one building that grows without limit was also the one that never
+    # asked for the dearest material.
+    lead = next((res for res in RESOURCES if base.get(res)), None)
+    lead_amt = base.get(lead, 0) * m if lead else 0
     for res, at in (b.get("tier") or {}).items():
-        if lvl >= at and wood:
-            out[res] = out.get(res, 0) + round(wood * BALANCE["tier_share"][res])
+        if res != lead and lvl >= at and lead_amt:
+            out[res] = out.get(res, 0) + round(lead_amt * BALANCE["tier_share"][res])
     return out
 
 

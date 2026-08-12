@@ -276,6 +276,15 @@
   gap: 6px;
   overflow-x: auto;
   padding-bottom: 2px;
+  /* The dock lets touches through to the map, but a scroller that lets them
+     through cannot be scrolled — the finger pans the world instead of the
+     strip. So this one strip takes its own touches, and pan-x leaves a
+     vertical drag to the map underneath. */
+  pointer-events: auto;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 
 .sh-bbtn {
@@ -315,6 +324,8 @@
    and leaving the player to work out which of the two it was. */
 .sh-c { color: var(--fg2, #a6adc8); font-weight: 600; }
 .sh-c.short { color: var(--red, #f38ba8); font-weight: 700; }
+/* Free, and it says so in the colour of a price that is already met. */
+.sh-c.free { color: var(--green, #a6e3a1); font-weight: 700; }
 
 /* ── Building panel ──────────────────────────────────────────────────────── */
 #sh-panel {
@@ -484,7 +495,23 @@
   .sh-val { font-size: .82rem; }
   .sh-lbl { font-size: .55rem; }
   .sh-btn { padding: 6px 10px; font-size: .74rem; }
-  .sh-bbtn { min-width: 70px; padding: 4px 6px; }
+  /* On a phone the strip stops being a strip and becomes a row of marks. The
+     names and the prices are what make a button wide, and five wide buttons do
+     not fit: sideways scrolling hides the wall behind the edge of the screen,
+     and wrapping onto a second row eats a third of the map. Without them all
+     five sit on one line, big enough for a thumb — and the price is not lost,
+     because tapping one opens the panel that names it and prices it, while a
+     building the hold cannot afford still greys itself out here. */
+  .sh-builds {
+    flex-wrap: nowrap;
+    overflow-x: visible;
+    justify-content: center;
+    touch-action: auto;
+    gap: 5px;
+  }
+  .sh-bbtn { flex: 1 1 0; min-width: 0; padding: 8px 2px; }
+  .sh-gl { font-size: 1.35rem; }
+  .sh-nm, .sh-cost { display: none; }
   .sh-pbtn { padding: 6px 4px; font-size: .74rem; }
   #sh-hint { font-size: .72rem; }
   /* A thumb, not a cursor: the zoom keys keep the size a finger can actually
