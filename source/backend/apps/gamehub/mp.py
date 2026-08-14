@@ -523,7 +523,11 @@ async def create_room(request: Request, body: dict):
         return JSONResponse({"error": "game has no multiplayer handler"}, status_code=400)
 
     _cleanup()
-    max_players = max(1, min(12, int(body.get("max_players", 8))))
+    # A room can never seat more than the game itself supports — the create
+    # endpoint is the only gate for that, since a lobby that already let a 5th
+    # player in has nowhere left to turn them away.
+    game_cap = int(_game_manifest(game_id).get("max_players", 8) or 8)
+    max_players = max(1, min(12, game_cap, int(body.get("max_players", 8))))
     pid = str(player["id"])
 
     # One run at a time, and a saved game has to be dealt with before a new run

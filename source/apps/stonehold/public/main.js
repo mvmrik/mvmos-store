@@ -25,7 +25,7 @@ function _sht(key) {
 mvmOS.registerApp({
   id: 'stonehold',
   name: _sht('title'),
-  icon: '🏯',
+  icon: '🗿',
   category: 'Games',
   launch() {
     if (!window.GameLauncher) {
@@ -35,7 +35,7 @@ mvmOS.registerApp({
     window.GameLauncher.open({
       id: 'stonehold',
       name: _sht('title'),
-      icon: '🏯',
+      icon: '🗿',
       // Resolved lazily: the launcher merges this app's string table
       // (public/i18n.js) before it renders.
       tagline: () => t('sh_tagline'),

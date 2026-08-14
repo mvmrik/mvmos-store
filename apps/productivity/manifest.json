@@ -41,6 +41,22 @@
         "groceries",
         "planning"
       ]
+    },
+    {
+      "id": "mvmcloud",
+      "name": "mvmCloud",
+      "icon": "☁️",
+      "category": "Productivity",
+      "version": "1.0.0",
+      "description": "A private folder for every Apps Hub profile, with browser file management and administrator-controlled external folder API access.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/mvmcloud-1.0.0.zip",
+      "tags": [
+        "files",
+        "cloud",
+        "storage",
+        "encrypted"
+      ],
+      "min_core_version": "0.31.0-beta"
     }
   ]
 }

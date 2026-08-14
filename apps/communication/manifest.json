@@ -26,6 +26,20 @@
         "telegram",
         "bot"
       ]
+    },
+    {
+      "id": "nostradamus",
+      "name": "Nostradamus",
+      "icon": "🔮",
+      "category": "Communication",
+      "version": "1.0.0",
+      "description": "A Nostr client: manage your relays, read your feed, and publish notes and replies from an end-to-end encrypted key vault.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/nostradamus-1.0.0.zip",
+      "tags": [
+        "nostr",
+        "social",
+        "decentralized"
+      ]
     }
   ]
 }

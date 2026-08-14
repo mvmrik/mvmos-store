@@ -54,6 +54,7 @@ AUTOSAVE_EVERY = 12.0
 
 import math
 import random
+import time
 
 # ── Balance ──────────────────────────────────────────────────────────────────
 # Shipped to the client in sh_start. Costs are for level 1 (building it); an
@@ -255,6 +256,15 @@ BALANCE = {
         # somebody is holding. There is no carry_ammo: it would only ever be 1.
         "build_rate": 1.0,
         "hp": 40,
+        # A raider who catches somebody hurts them, and there is nothing in a
+        # hold that patches a person up: no infirmary, and a digger is not a
+        # soldier with a barracks to walk back to. So they mend on their own
+        # time, as a share of full health a second, and only while there is
+        # nobody on the map to run from. Slower than a soldier is mended at his
+        # barracks, because it is nothing but time — about a minute from a bad
+        # wound to whole. Without it a scratch from the first raid was still on
+        # them at the end of the game.
+        "mend": 0.017,
         # What standing on somebody else's patch is worth in walking. Picking
         # ground is a price — there and back, plus this for every person
         # already digging it — so a crowded patch nearby still beats empty
@@ -440,12 +450,35 @@ BALANCE = {
         # window is the player's, and it is why the minutes after a scout walks
         # away are the wrong minutes to stop building. What they knew is spent
         # with the party: the next raid needs a new pair of eyes.
+        #
+        # A scout is never sent for its own sake. The first goes out once the
+        # camp holds "scout_min" men — nobody sends a man to price a fight
+        # they could not yet field a party for — and every one after that
+        # waits for the army to regrow to what a scout already told them it
+        # takes (mp.js's f.needFloor). A camp beaten with five does not walk a
+        # man over to learn it needs five again: the next scout only leaves
+        # once six are standing, and whatever he counts this time is what
+        # they wait to field before the next party goes.
         "scout": {
-            "every": 120,   # from one scout coming home to the next setting out
-            "speed": 70,    # quicker than a soldier: he is carrying nothing
-            "sight": 340,   # how far he can count towers from where he walks
-            "ring": 210,    # how close to the keep he goes round it
-            "look": 14,     # seconds spent walking round before he turns back
+            "scout_min": 3,  # men in camp before the very first scout is sent
+            "speed": 70,     # quicker than a soldier: he is carrying nothing
+            "ring": 210,     # how close to the keep he goes round it
+            "look": 14,      # seconds spent walking round before he turns back
+            # He breaks nothing, so a wall is an answer to him: he walks round
+            # what is built like everybody else, and this is how long he tries
+            # to get any nearer before he settles for pricing the hold from
+            # where he is standing. What he could not walk to he could not
+            # count — a hold that has sealed itself buys one raid sized for a
+            # place nobody saw properly, not peace, because a party that comes
+            # home beaten raises what the camp waits to field next time.
+            "patience": 6,
+            # How far past whatever is between him and the hold he can still
+            # count a tower: a wall's own depth, and twice that again — near
+            # enough to read what a wall is hiding just behind it, not enough
+            # to read the whole hold from outside the ring. Anything set back
+            # further than that is only found by walking in, which nothing
+            # stops on the "look" pass. See _facScout in mp.js.
+            # sight = wall.size * 3
         },
 
         # Nobody sets out under four, however few a camp happens to hold. This
@@ -471,122 +504,351 @@ BALANCE = {
             "stone": {"base": 1.8, "step": 0.8, "from": 2},
             "iron":  {"base": 0.7, "step": 0.4, "from": 4},
         },
+
+        # ── The champion ──────────────────────────────────────────────────
+        # The one man a camp's keep makes itself, and the only thing on the map
+        # that is not read out of the player's own tables. Everything else a
+        # camp owns is the hold under another sprite: their roof is a house,
+        # their barracks is a barracks, their men are the player's men. That
+        # left the keep with nothing to do but hold the stores and count as a
+        # level, so this is what it is for.
+        #
+        # He walks out of the keep at the camp's own level and is measured off a
+        # barracks of that level — so raising the keep is what makes him, and a
+        # camp that keeps arming men out of shallow barracks has a shallow
+        # champion however many of them it fields.
+        #
+        # At level one he is a man like any other in the party: same size, same
+        # integrity, same reach. That is the whole shape of him — he is not a
+        # monster dropped on a young hold, he is what the corner turns into if
+        # it is left alone to grow. Each level on the keep adds "hp_step" of a
+        # soldier's integrity and "dmg_step" of his damage, so he is worth two
+        # men at level 2 and better than seven at level 7, and he grows on the
+        # map at "size_step" pixels a level so the player can see it happening
+        # from across the hold without reading a number.
+        "boss": {
+            "hp_step": 1.15, "dmg_step": 0.55,
+            "size": 26, "size_step": 3,
+            # What raising him costs. Paid out of the same stores that arm
+            # everybody else, so a camp that has just lost its champion is a
+            # camp arming fewer men while it replaces him — and it only ever
+            # keeps one.
+            "arm": 2.0,
+            # And how long the keep takes over him, which is the whole of what
+            # makes him worth killing. Counted in men out of a first barracks
+            # and multiplied by the keep's level, so the level says it plainly:
+            # a third-level champion takes three times what a first-level one
+            # did, a fourth four times, and the corner that has grown the most
+            # dangerous one is the corner that goes longest without him after
+            # he falls. Kill a deep one and the camp spends the next several
+            # raids without him, which is the only way a hold ever gets ahead
+            # of a camp it cannot reach.
+            #
+            # The base is deliberately several men rather than one. He used to
+            # cost one first-level muster, and since a keep stands in every
+            # corner from the first second of the game, all four corners had a
+            # champion before the player had a house. He is now late by design
+            # — and never earlier than the corner's own first raid, so the
+            # party a hold meets first is men and nothing else. That gate is
+            # the client's rule, not this table's: see _facChampion.
+            #
+            # Measured against a first barracks on purpose, never against the
+            # camp's own level: a barracks arms quicker as it deepens, so a
+            # champion priced off the camp's own interval came back faster the
+            # bigger he got, which is the opposite of the point.
+            "muster": 3.0,
+            # And never to the second. A camp whose champion falls on a known
+            # clock is a camp whose next raid is on the same clock, so the
+            # wait is stretched or cut by up to this much each time.
+            "muster_jitter": 0.25,
+            # And what killing him is worth, counted in ordinary raiders. He is
+            # carrying what the keep spent on him.
+            "loot": 3,
+            # One power per corner, in this order: north-west, north-east,
+            # south-west, south-east. They are fixed to the corner on purpose —
+            # a player who has learned that the north-west brings the archer
+            # can prepare for the archer, and four camps that all did the same
+            # thing would be one camp drawn four times.
+            "powers": ["bolt", "breaker", "warlord", "shaman"],
+            # The archer. He throws instead of closing, at a range that grows
+            # with him but never reaches a tower's own: level seven puts him at
+            # 300, which is what a level-one tower reaches, so a hold that has
+            # been building upwards always shoots first. What he throws is
+            # worth "hit" of the damage he would have done standing there for
+            # the same seconds, which is what makes standing off worth doing.
+            "bolt": {"range": 150, "range_step": 25, "reload": 2.6, "hit": 1.2},
+            # The ram. Buildings only: he hits a wall "smash" times as hard as
+            # anybody else and never bothers walking round one, so his party
+            # arrives through the ring instead of round it. Against people he is
+            # an ordinary champion.
+            "breaker": {"smash": 4},
+            # The warlord. Everybody from his camp inside "radius" hits harder
+            # and walks quicker while he is alive — which makes him the answer
+            # to a raid that is going badly for the hold: kill him and the party
+            # is suddenly ordinary again.
+            "warlord": {"radius": 190, "damage": 1.35, "speed": 1.15},
+            # The healer. Mends his own, "heal" of a man's integrity per second
+            # inside "radius", himself included. A trickle of tower fire is
+            # undone as fast as it lands, so he has to be the one that is shot.
+            "shaman": {"radius": 170, "heal": 0.06},
+        },
     },
 }
 
 
 class Game:
+    """One hold per player, not one per room.
+
+    Stonehold's multiplayer is a race, not a shared board: everyone in the room
+    gets their own map, their own camps, their own everything, and plays it out
+    simultaneously in the same room only to compare how long it stood. A hold
+    that falls does not end the room — it ends that player's turn to watch, see
+    _player_fell — and the room itself finishes exactly once, the moment the
+    last hold left standing falls too.
+
+    Solo is not a separate code path: it is what this looks like with one
+    player in it. `_solo` only changes two things — whether a save exists to
+    resume from, and whether the autosave-on-crash write happens at all (see
+    _keep_a_copy) — everything else runs the same for one player as for four.
+    """
+
     def __init__(self, ctx):
-        self.ctx        = ctx
-        self.state      = None     # the whole world, as the browser last reported it
-        self.over       = False
-        self._written   = None     # play time at the last write-down, if any
+        self.ctx      = ctx
+        self.holds    = {}     # player_id -> world dict, exactly what _new_hold/_migrate produce
+        self.fallen   = {}     # player_id -> final stats, set once when their keep falls
+        self.over     = False  # true once ctx.finish() has actually run
+        self._written = {}     # player_id -> elapsed at last autosave (solo only)
+        # player_id -> {"real": wall-clock, "elapsed": hold.elapsed} at that
+        # moment — the baseline _plausible checks every report against.
+        self._wall    = {}
+        self._solo    = False  # decided once, in on_start
 
     # ── Framework callbacks ──────────────────────────────────────────────────
 
     async def on_start(self, settings):
-        # A saved hold is taken exactly as it was put down — same rounds in the
-        # same magazines, same people standing where they stood. No time passes
-        # for a hold nobody is playing.
-        saved = self.ctx.saved_state
-        if saved and isinstance(saved.get("state"), dict):
-            self.state = _migrate(saved["state"])
-        else:
-            self.state = _new_hold(settings)
-        await self.ctx.broadcast(self._start_msg())
+        players = self.ctx.all_players()
+        self._solo = len(players) <= 1
+        now = time.time()
+
+        if self._solo:
+            # A saved hold is taken exactly as it was put down — same rounds in
+            # the same magazines, same people standing where they stood. No time
+            # passes for a hold nobody is playing.
+            pid = self.ctx.host_id
+            saved = self.ctx.saved_state
+            if saved and isinstance(saved.get("state"), dict):
+                self.holds[pid] = _migrate(saved["state"])
+            else:
+                self.holds[pid] = _new_hold(settings)
+            self._wall[pid] = {"real": now, "elapsed": float(self.holds[pid].get("elapsed", 0))}
+            await self.ctx.send(pid, self._start_msg(pid))
+            return
+
+        # A room with more than one seat has nobody's save to resume — create_room
+        # only ever marks a room resumable when it is solo — so every hold here
+        # starts fresh, each on its own map: where the deposits and the four
+        # camps fall is thrown per hold, not shared, the same way it always has
+        # been for one player.
+        for p in players:
+            pid = p["id"]
+            self.holds[pid] = _new_hold(settings)
+            self._wall[pid] = {"real": now, "elapsed": 0.0}
+            await self.ctx.send(pid, self._start_msg(pid))
 
     def snapshot(self):
-        """Save & exit, asked for by the framework (solo only).
-
-        The browser pushes the hold one last time immediately before asking to
-        save, so the newest report is already here and this is the frame the
-        player was looking at.
-        """
-        if self.over or not self.state:
+        """Save & exit, asked for by the framework — solo only, see _keep_a_copy."""
+        if not self._solo or self.over:
             return None
-        return {"state": self.state}
+        hold = self.holds.get(self.ctx.host_id)
+        return {"state": hold} if hold else None
 
     async def on_join(self, player):
         # Reconnect: the room outlives a dropped socket, so a player coming
         # back gets the hold as it stood, not a fresh one.
-        if self.state is not None:
-            await self.ctx.send(player["id"], self._start_msg())
+        pid = player["id"]
+        hold = self.holds.get(pid)
+        if hold is None:
+            return
+        # Re-baseline here, not only in on_start: a reconnect can land minutes
+        # after the drop, and without this the real time spent disconnected
+        # would read as an impossible jump the moment the next report comes in.
+        self._wall[pid] = {"real": time.time(), "elapsed": float(hold.get("elapsed", 0))}
+        await self.ctx.send(pid, self._start_msg(pid))
+
+    async def on_leave(self, player):
+        pid = player["id"]
+        if self._solo or self.over or pid in self.fallen or pid not in self.holds:
+            return
+        await self.ctx.broadcast({"type": "sh_player_gone", "player_id": pid})
+        # A dropped socket is not a decision — reconnecting inside the window
+        # picks the hold back up exactly as on_join always has. Only a player
+        # who never comes back forfeits, so the room is not left waiting on a
+        # ghost for the rest of the match.
+        self.ctx.schedule(120.0, lambda pid=pid: self._forfeit_if_gone(pid))
+
+    async def _forfeit_if_gone(self, pid):
+        if self.over or pid in self.fallen or pid not in self.holds:
+            return
+        if any(p["id"] == pid for p in self.ctx.players()):
+            return
+        await self._player_fell(pid)
 
     async def on_message(self, player, msg):
         kind = msg.get("type", "")
+        pid  = player["id"]
+        if pid not in self.holds:
+            return
 
         if kind == "sh_state":
+            if self.over or pid in self.fallen:
+                return
             state = msg.get("state")
-            if isinstance(state, dict) and not self.over:
-                self.state = state
-                self._keep_a_copy()
+            if isinstance(state, dict):
+                self.holds[pid] = self._plausible(pid, state)
+                self._keep_a_copy(pid)
+                if not self._solo:
+                    await self._push_score(pid)
             return
 
         if kind == "sh_over":
-            if self.over:
+            if self.over or pid in self.fallen:
                 return
-            self.over = True
             state = msg.get("state")
             if isinstance(state, dict):
-                self.state = state
-            # The hold fell: there is nothing left to continue, so the save goes
-            # with it and the run becomes a session on the leaderboard.
-            self.ctx.clear_save(self.ctx.host_id)
-            await self._finish()
+                self.holds[pid] = self._plausible(pid, state)
+            await self._player_fell(pid)
+            return
+
+        if kind == "sh_peek":
+            # On demand only, never subscribed: a tap asks for one frame of
+            # somebody else's hold, not a live feed of it.
+            if self._solo:
+                return
+            target = str(msg.get("player_id") or "")
+            await self.ctx.send(pid, {
+                "type":      "sh_peek_result",
+                "player_id": target,
+                "state":     self.holds.get(target),
+            })
             return
 
     # ── Internals ────────────────────────────────────────────────────────────
 
-    def _keep_a_copy(self):
-        """Write the hold down where a lost room cannot take it.
+    def _plausible(self, pid: str, state: dict) -> dict:
+        """Clamp elapsed to what wall-clock time can actually back up.
+
+        The score is built out of survival time (see _finish/_score in mp.js),
+        so elapsed is the one number worth guarding — everything else in a hold
+        only matters through it, and this game has never been anything but
+        client-simulated, so it is not this check's job to re-derive the rest.
+        A report is never rejected outright, only refused belief past what real
+        time allows: the last plausible elapsed is kept instead.
+        """
+        now = time.time()
+        base = self._wall.get(pid)
+        reported = float(state.get("elapsed", 0) or 0)
+        if base is None:
+            self._wall[pid] = {"real": now, "elapsed": reported}
+            return state
+        real_dt = max(0.0, now - base["real"])
+        claimed_dt = reported - base["elapsed"]
+        # Some slack: pushes land roughly every 4s, not every frame (see
+        # _pushTimer in mp.js), so a burst of legitimate backlog is normal.
+        # 15% over real time plus a small flat pad covers that without opening
+        # a real window to run the clock fast.
+        if claimed_dt > real_dt * 1.15 + 2.0:
+            state["elapsed"] = base["elapsed"] + real_dt
+        self._wall[pid] = {"real": now, "elapsed": float(state["elapsed"])}
+        return state
+
+    def _keep_a_copy(self, pid: str):
+        """Write the hold down where a lost room cannot take it. Solo only:
+        a multiplayer room has no save-and-exit to protect (see manifest and
+        widget.js's canSave), and the row this would write is the very row a
+        solo save for the same player already lives in — writing it here too
+        would mean a match a player never asked to save could silently answer
+        "resume?" the next time they start a solo run.
 
         Rooms are in memory. A browser reload is survivable without this — the
-        room is still there and on_join hands the hold back — but a backend that
-        restarts takes every room with it, and the player did nothing to deserve
-        that. So the newest report is written every AUTOSAVE_EVERY seconds of
-        play, into the same one row "save & exit" writes: the run has exactly one
-        place it can be picked up from, whichever way it was put down.
-
-        Play time is what paces it, not the clock, so a paused game does not keep
-        writing the same hold over and over.
+        room is still there and on_join hands the hold back — but a backend
+        that restarts takes every room with it, and a solo player did nothing
+        to deserve that. So the newest report is written every AUTOSAVE_EVERY
+        seconds of play, into the same one row "save & exit" writes.
         """
-        if self.over:
+        if self.over or not self._solo:
             return
-        elapsed = float(self.state.get("elapsed") or 0)
-        # A resumed hold carries its elapsed on, and a fresh one starts at zero:
-        # either way, only going forwards by the interval is a new write.
-        if self._written is not None and 0 <= elapsed - self._written < AUTOSAVE_EVERY:
+        hold = self.holds[pid]
+        elapsed = float(hold.get("elapsed") or 0)
+        written = self._written.get(pid)
+        if written is not None and 0 <= elapsed - written < AUTOSAVE_EVERY:
             return
-        self._written = elapsed
-        self.ctx.save_state(self.ctx.host_id, {"state": self.state})
+        self._written[pid] = elapsed
+        self.ctx.save_state(pid, {"state": hold})
 
-    def _start_msg(self) -> dict:
+    def _start_msg(self, pid) -> dict:
         return {
             "type":    "sh_start",
             "tuning":  BALANCE,
-            "state":   self.state,
-            "resumed": bool(self.ctx.resume),
+            "state":   self.holds[pid],
+            "resumed": bool(self.ctx.resume) if self._solo else False,
+            "solo":    self._solo,
         }
 
+    async def _push_score(self, pid: str):
+        """What another player's chip shows while both are still standing —
+        the same handful of numbers _showOver already reads off a hold, pushed
+        on the client's existing report cadence rather than a new timer."""
+        hold = self.holds[pid]
+        await self.ctx.broadcast({
+            "type":      "sh_score_update",
+            "player_id": pid,
+            "score":     int((hold.get("stats") or {}).get("score", 0)),
+            "elapsed":   float(hold.get("elapsed", 0)),
+        }, exclude=pid)
+
+    async def _player_fell(self, pid: str):
+        hold = self.holds.get(pid) or {}
+        stats = hold.get("stats") or {}
+        facs = hold.get("factions") or []
+        self.fallen[pid] = {
+            "score":     int(stats.get("score", 0)),
+            "elapsed":   float(hold.get("elapsed", 0)),
+            "kills":     int(stats.get("kills", 0)),
+            "raids":     int(stats.get("raids", 0)),
+            "enemy":     max([int(f.get("lvl", 1)) for f in facs] or [1]),
+            "buildings": len(hold.get("buildings") or []),
+        }
+        # The hold fell: there is nothing left to continue, so a solo save goes
+        # with it. clear_save is a no-op for a player who never had one — every
+        # multiplayer participant, always — so this is safe to call unconditionally.
+        self.ctx.clear_save(pid)
+        await self.ctx.broadcast({"type": "sh_player_fell", "player_id": pid,
+                                   "score": self.fallen[pid]["score"]})
+        remaining = [p["id"] for p in self.ctx.all_players() if p["id"] not in self.fallen]
+        if not remaining:
+            await self._finish()
+
     async def _finish(self):
-        s = self.state or {}
-        stats = s.get("stats") or {}
-        score = int(stats.get("score", 0))
-        facs = s.get("factions") or []
-        await self.ctx.finish(
-            [{"player_id": self.ctx.host_id, "score": score, "rank": 1,
-              # A solo run has nobody to beat, so it is not a "win".
-              "is_winner": False}],
-            metadata={
-                # How long the hold stood, which is the same thing as how long
-                # it was played: it only exists while somebody is holding it.
-                "hours":    round(float(s.get("elapsed", 0)) / 3600, 1),
-                "kills":    int(stats.get("kills", 0)),
-                "raids":    int(stats.get("raids", 0)),
-                "enemy":    max([int(f.get("lvl", 1)) for f in facs] or [1]),
-                "buildings": len(s.get("buildings") or []),
-            },
+        if self.over:
+            return
+        self.over = True
+        standings = sorted(
+            [{"player_id": pid, **rec} for pid, rec in self.fallen.items()],
+            key=lambda s: (s["score"], s["elapsed"]), reverse=True,
         )
+        await self.ctx.broadcast({"type": "sh_game_over", "standings": standings})
+        records = [{
+            "player_id": s["player_id"], "score": s["score"], "rank": i + 1,
+            # A solo run has nobody to beat, so it is not a "win".
+            "is_winner": i == 0 and len(standings) > 1,
+        } for i, s in enumerate(standings)]
+        await self.ctx.finish(records, metadata={
+            "hours":     round(max((s["elapsed"] for s in standings), default=0) / 3600, 1),
+            "kills":     max((s["kills"] for s in standings), default=0),
+            "raids":     max((s["raids"] for s in standings), default=0),
+            "enemy":     max((s["enemy"] for s in standings), default=1),
+            "buildings": max((s["buildings"] for s in standings), default=0),
+        })
 
 
 # ── Laying out a world ───────────────────────────────────────────────────────

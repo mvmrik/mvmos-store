@@ -178,11 +178,15 @@
   const BUILD_ORDER = ['house', 'tower', 'workshop', 'barracks', 'wall'];
   const GLYPH = {
     keep: '🏯', tower: '🗼', house: '🏠',
-    workshop: '🔧', barracks: '⚔', wall: '▮',
+    workshop: '🔧', barracks: '⚔', wall: '▮', gate: '🚪',
     // The camps build in the same hand, so their buildings have marks too.
     hut: '🛖', fkeep: '🏕',
   };
   const JOB_GLYPH = { build: '🔨', mine: '⛏', ammo: '🎯', idle: '💤' };
+  // What a champion is carrying, over his head. A raid has to be readable
+  // before it arrives: which corner it came from is the colour, and what the
+  // big one in the middle of it does is this.
+  const BOSS_GLYPH = { bolt: '🏹', breaker: '🔨', warlord: '🚩', shaman: '✚' };
   // What one trip to a patch of this material is worth, and how long it takes.
   // Nothing stands on a deposit any more: a person walks to the ground itself,
   // works it where it lies and carries the load home.
@@ -217,10 +221,24 @@
   let _selected = null;              // building whose panel is open
   let _selFac = null;                // enemy camp whose panel is open
   let _selDep = null;                // deposit whose reach is being shown
+  // The champion whose reach is being shown. Nothing is saved about him — he is
+  // the object itself, so he goes with him when he falls.
+  let _selBoss = null;
   let _toast = 0, _toastText = '';
-  let _raidFlash = 0;
+  let _raidFlash = 0, _raidColor = '';
   let _dpr = 1;                      // canvas pixels per CSS pixel, for the insets
   let _hudH = 0, _dockH = 0;         // what the floating strips cover, in CSS pixels
+
+  // ── Multiplayer presence ─────────────────────────────────────────────────
+  // Whether anybody else is in this room. Everything below is dormant while
+  // this is true — a solo hold has nobody to show a chip for.
+  let _solo = true;
+  let _others = {};                  // player_id -> {score, elapsed, fallen}
+  let _spectating = false;           // our own hold fell, the room has not
+  let _playersOpen = false;          // the collapsed panel on a phone
+  let _players = null;               // #sh-players container
+  let _peekOverlay = null, _peekCanvas = null, _peekCtx = null;
+  let _peekFor = null, _peekTimer = null;
 
   const W = () => B.world.size;
   const _dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -252,18 +270,28 @@
       '<div id="sh-stage">' +
       '<canvas id="sh-canvas"></canvas>' +
       '<div id="sh-hud"></div>' +
+      '<div id="sh-players"></div>' +
       '<div id="sh-dock">' +
       '<div id="sh-zoom">' +
       '<button data-zoom="home">\u2302</button>' +
       '<button data-zoom="in">+</button>' +
       '<button data-zoom="out">\u2212</button>' +
       '<button data-zoom="fit">\u26f6</button>' +
+      '<button data-zoom="sound">\ud83d\udd0a</button>' +
       '</div>' +
       '<div id="sh-place"></div>' +
       '<div id="sh-hint"></div>' +
       '<div id="sh-bar"></div>' +
       '</div>' +
       '<div id="sh-overlay"></div>' +
+      '<div id="sh-peek">' +
+      '<div class="sh-peek-hd">' +
+      '<span id="sh-peek-name"></span>' +
+      '<span id="sh-peek-stats"></span>' +
+      '<button id="sh-peek-close" class="sh-btn">' + _esc(_t('sh_close')) + '</button>' +
+      '</div>' +
+      '<canvas id="sh-peek-canvas"></canvas>' +
+      '</div>' +
       '</div>';
     root.appendChild(page);
 
@@ -275,7 +303,13 @@
     _canvas  = page.querySelector('#sh-canvas');
     _overlay = page.querySelector('#sh-overlay');
     _stage   = page.querySelector('#sh-stage');
+    _players = page.querySelector('#sh-players');
     _g       = _canvas.getContext('2d');
+
+    _peekOverlay = page.querySelector('#sh-peek');
+    _peekCanvas  = page.querySelector('#sh-peek-canvas');
+    _peekCtx     = _peekCanvas.getContext('2d');
+    _peekOverlay.querySelector('#sh-peek-close').onclick = _closePeek;
     // A panel on a phone is a sheet sitting on the dock, so it has to know how
     // tall the dock is. Told rather than guessed, and re-told whenever the dock
     // changes shape.
@@ -302,6 +336,7 @@
     page.querySelectorAll('[data-zoom]').forEach(el => {
       el.onclick = () => {
         const what = el.dataset.zoom;
+        if (what === 'sound') { _soundToggle(); return; }
         // ⛶ is the whole world at once — five holds and everything between
         // them — and ⌂ is the way back from it, because on a map this wide
         // finding your own keep again is otherwise a hunt.
@@ -317,6 +352,14 @@
         _zoomAt(_cam.x, _cam.y, what === 'in' ? 1.5 : 1 / 1.5);
       };
     });
+    _soundBtn();
+    // A browser will not let a page make a noise until the player has touched
+    // it, and it hands back a dead context to anyone who asks too early — so
+    // the first touch of the map, whatever it was for, is what builds it.
+    page.addEventListener('pointerdown', _wake, true);
+    window.removeEventListener('keydown', _wake, true);
+    window.addEventListener('keydown', _wake, true);
+
     _fitCanvas();
     window.removeEventListener('resize', _fitCanvas);
     window.addEventListener('resize', _fitCanvas);
@@ -367,9 +410,13 @@
     if (!Array.isArray(_hold.raiders)) _hold.raiders = [];
     if (!Array.isArray(_hold.factions)) _hold.factions = [];
     _raiders = _hold.raiders;
-    _bullets = []; _dust = []; _floats = [];
+    _bullets = []; _shots = []; _dust = []; _floats = [];
     _over = false; _reported = false; _paused = false;
-    _placing = null; _selected = null; _selFac = null;
+    _placing = null; _selected = null; _selFac = null; _selBoss = null;
+    _solo = msg.solo !== false;
+    _others = {};
+    _spectating = false;
+    _closePeek();
     _navChanged();
     // Fields the browser needs but nobody should save: reload clocks, spawn
     // clocks, what each person is in the middle of doing.
@@ -475,6 +522,11 @@
       _soldiers(dt);
       _towers(dt);
       _projectiles(dt);
+      // Before they move, because a warlord's word and a healer's hands are
+      // read off where everybody is standing this frame, not where they were
+      // standing before the party walked on.
+      _bossPowers(dt);
+      _bossShots(dt);
       _raidersMove(dt);
     }
 
@@ -547,14 +599,59 @@
   // "hut" on the map, "house" in the table.
   const _facType = (type) => (type === 'hut' ? 'house' : type);
   const _facOf = (f, type) => f.buildings.filter(b => b.type === type);
-  const _facBuilt = (f, type) => _facOf(f, type).filter(b => b.built >= 1).length;
-  // How many men a camp can keep standing: the hold's own barracks line, so a
-  // camp's garrison grows exactly the way the player's does.
-  const _facSoldiers = (f) =>
-    _facBuilt(f, 'barracks') * _lv('barracks', f.lvl, 'soldiers');
+  // How many men a camp can keep standing: every barracks it owns, each holding
+  // what the hold's own barracks holds at the level that barracks is at. A camp
+  // used to read this off its keep, which meant a level on a barracks bought it
+  // nothing at all and the only thing worth doing with a barracks was putting
+  // another one next to it — see _facRank.
+  const _facSoldiers = (f) => f.buildings.reduce(
+    (n, b) => n + (b.type === 'barracks' && b.built >= 1
+                   ? _lv('barracks', b.lvl, 'soldiers') : 0), 0);
+  // The same sum for the hold, and it has to be the same sum: it is the ceiling
+  // _buildings musters against, one barracks at a time, so the HUD says what
+  // the barracks are actually going to do rather than a number of its own.
+  const _holdSoldiers = () => _hold.buildings.reduce(
+    (n, b) => n + (b.type === 'barracks' && b.built >= 1
+                   ? _lv('barracks', b.lvl, 'soldiers') : 0), 0);
+  // Where their men are armed: the deepest barracks in the camp. Everything a
+  // soldier is worth is read off it — integrity, damage, what the sortie costs
+  // and how long it takes — exactly as the player's man is worth what the
+  // barracks he walked out of is worth. The keep is the camp's standing on the
+  // map and what it is built to survive; it is not what arms anybody.
+  const _facRank = (f) => f.buildings.reduce(
+    (n, b) => (b.type === 'barracks' && b.built >= 1 ? Math.max(n, b.lvl || 1) : n), 1);
   // And it is what marches: a camp fills every barracks it owns and then sends
   // the lot. Nobody is left at home to watch the raid lose.
   const _facParty = (f) => _facSoldiers(f);
+
+  // ── The champion ──────────────────────────────────────────────────────────
+  // The keep's own man. Everything about him is read off the keep's level and
+  // nothing off the barracks: he is what a camp's main building is for, now
+  // that its men belong to the barracks they were armed in. At level one he is
+  // an ordinary member of the party — same size, same integrity — and every
+  // level on the keep makes him bigger on the map and worth another man or so
+  // in a fight.
+  const _bs = () => _fc().boss || {};
+  const _bossMult = (lvl, step) => 1 + Math.max(0, lvl - 1) * (step || 0);
+  const _bossHp = (lvl) =>
+    _lv('barracks', lvl, 'hp_soldier') * _bossMult(lvl, _bs().hp_step);
+  const _bossDmg = (lvl) =>
+    _lv('barracks', lvl, 'damage') * _bossMult(lvl, _bs().dmg_step);
+  const _bossSize = (lvl) =>
+    (_bs().size || 26) + Math.max(0, lvl - 1) * (_bs().size_step || 0);
+  // Which power a corner's champion carries. Fixed to the corner, so a hold
+  // learns that the north-west throws and the south-east mends rather than
+  // learning nothing at all about four camps that behave identically.
+  const _bossPower = (f) => {
+    const list = _bs().powers || [];
+    return list.length ? list[(f.id || 0) % list.length] : null;
+  };
+  // Their men, not counting him: the barracks are what hold soldiers, and a
+  // champion standing in the yard must not read as a barracks being full.
+  const _facMen = (f) => f.army.reduce((n, s) => n + (s.boss ? 0 : 1), 0);
+  // Whether the camp has one at all, at home or on the road.
+  const _facBoss = (f) =>
+    f.army.some(s => s.boss) || _raiders.some(r => r.fx === f.id && r.boss);
   // How many men a camp thinks it needs before it is worth going. It counts
   // one man per level of every tower its scout saw — a tower fires once per
   // level — and never sets out under "party_min" whatever it saw. A camp that
@@ -562,11 +659,12 @@
   // march at all.
   const _facNeed = (f) =>
     Math.max(_fc().party_min || 1, (f.known && f.known.threat) || 0);
-  // How long one more man takes: what the hold's own barracks takes at that
-  // level, divided between the barracks doing the arming — and then stretched
-  // by pace, because that is the only edge the player is given.
-  const _facMuster = (f) =>
-    _muster(f.lvl) / Math.max(1, _facBuilt(f, 'barracks')) / _pace();
+  // How long one more man takes out of this barracks: what the hold's own
+  // barracks takes at that level, stretched by pace, because that is the only
+  // edge the player is given. Every barracks in the camp arms on its own clock,
+  // exactly as the hold's do — which is also why a second barracks is worth
+  // building rather than being a slower share of the same queue.
+  const _facMuster = (b) => _muster(b.lvl) / _pace();
   // Room under a camp's roofs, counted the way the hold counts it: 1, 3, 6, 10
   // per roof by its level. The first hut is standing when the game opens and it
   // holds one person, so a camp and a hold open on the same single digger.
@@ -596,7 +694,7 @@
   // iron from the third — a camp that wants better men has to put people on the
   // rock and the seam, and everything else it is building slows down while it
   // does.
-  const _facArm = (f) => _armCost(f.lvl);
+  const _facArm = (f) => _armCost(_facRank(f));
   const _facCanPay = (f, cost) => {
     for (const res in cost) if ((f[res] || 0) < cost[res]) return false;
     return true;
@@ -608,6 +706,17 @@
   // built to outlast everything around it.
   const _facHp = (type, lvl) =>
     _maxHp(type === 'keep' ? 'tower' : _facType(type), lvl, type === 'keep');
+
+  // How many of a kind a camp has, and how deep the best of them is. The count
+  // on its own said nothing once a camp could raise a level as well as put
+  // another one down: four huts is a very different corner depending on
+  // whether they are level one or level four.
+  const _facCount = (f, type) => {
+    const all = _facOf(f, type);
+    const best = all.reduce((n, b) => Math.max(n, b.lvl || 1), 0);
+    return best > 1 ? all.length + ' · ' + _t('sh_level', { n: best })
+                    : String(all.length);
+  };
 
   // Fields a camp needs that a hold saved before it had them will not carry.
   function _facFix(f) {
@@ -624,11 +733,12 @@
     }
     for (const s of f.army) if (s.hp == null) s.hp = 1;
     // A camp saved before they started looking before they march has no report
-    // and nobody out. It starts counting from now, so the first thing it does
-    // after a load is send somebody to look rather than attack blind.
-    if (typeof f.watch !== 'number') f.watch = 0;
+    // and nobody out, and has learned nothing yet about what it takes to win.
     if (f.known === undefined) f.known = null;
     if (f.scout === undefined) f.scout = null;
+    if (typeof f.needFloor !== 'number') f.needFloor = 0;
+    if (typeof f.raidOut !== 'number') f.raidOut = 0;
+    if (typeof f.raidSize !== 'number') f.raidSize = 0;
     // Their keep used to house a digger of its own; now every head in a camp
     // comes out of a hut, and the first hut is the one they are given. A camp
     // saved before that has none, and without one it could never replace
@@ -645,6 +755,38 @@
         y: Math.round(f.y + (f.y < half ? 46 : -46)),
         hp: hp, maxHp: hp,
       });
+    }
+    // Their men used to be armed at the rank of the camp's keep, whatever the
+    // barracks they walked out of happened to be — so a camp never had any
+    // reason to raise one, and every save has a corner full of level ones. The
+    // barracks is what arms a man now, on both sides of the map, and a camp
+    // carried across unchanged would have been quietly disarmed back to the
+    // bottom of the table. So once, and only once, every barracks is lifted to
+    // the rank the camp was already fielding: they keep the men they had.
+    if (!f.ranked) {
+      for (const b of f.buildings)
+        if (b.type === 'barracks') b.lvl = Math.max(b.lvl || 1, f.lvl || 1);
+      f.ranked = 1;
+    }
+    // And once the barracks arm for themselves, every man standing has to
+    // belong to one of them. Men saved before that belong to nobody, and a
+    // barracks counting only its own would read an empty yard and arm a second
+    // camp's worth on top of the one already there. They are shared out over
+    // the barracks that exist, deepest first, up to what each can hold.
+    if (!f.mustered) {
+      const bar = _facOf(f, 'barracks').filter(b => b.built >= 1)
+        .sort((a, b) => (b.lvl || 1) - (a.lvl || 1));
+      let i = 0, room = bar.length ? _lv('barracks', bar[0].lvl, 'soldiers') : 0;
+      for (const s of f.army) {
+        while (i < bar.length && room <= 0) {
+          i++;
+          room = i < bar.length ? _lv('barracks', bar[i].lvl, 'soldiers') : 0;
+        }
+        if (i >= bar.length) break;
+        if (s.from == null) s.from = bar[i].id;
+        room--;
+      }
+      f.mustered = 1;
     }
     // A camp saved under the old table carried its own numbers into every
     // building on the ground: their own integrity, their own build time. They
@@ -689,11 +831,15 @@
     const s = f.scout;
 
     if (!s) {
-      // Nothing to look at while their own party is still out there.
-      if (_raiders.some(r => r.fx === f.id)) return;
-      f.watch = (f.watch || 0) + dt;
-      if (f.watch < (c.every || 120)) return;
-      f.watch = 0;
+      // A scout only goes out for a party actually worth pricing, and never
+      // twice for the same report. "floor" is what the camp has learned it
+      // takes: scout_min men the very first time, and — once a raid has come
+      // home short — whatever that raid needed, so a camp beaten at five
+      // does not walk a man over to learn it still needs five.
+      if (f.known) return;                            // waiting to grow into the last report
+      if (_raiders.some(r => r.fx === f.id)) return;   // their own party is still out
+      const floor = f.needFloor || c.scout_min || 1;
+      if (_facMen(f) < floor) return;
       f.scout = {
         x: f.x, y: f.y, phase: 'out', t: 0, seen: {},
         ang: Math.atan2(f.y - keep.y, f.x - keep.x),
@@ -701,9 +847,13 @@
       return;
     }
 
-    // He counts what is in front of him, wherever he happens to be: the camp
-    // decides on what one pair of eyes saw on one walk, not on what is there.
-    const sight = c.sight || 340;
+    // He counts what is in front of him, wherever he happens to be — but not
+    // through a wall by more than the wall's own depth and twice that again.
+    // Near enough to read what is standing just behind one, not far enough to
+    // read the whole hold from outside the ring: anything set back further
+    // than that is only found by walking in, which nothing stops him doing
+    // on the "look" pass below.
+    const sight = _bc('wall').size * 3;
     for (const b of _hold.buildings) {
       // The keep counts as well: it fires out of the store like any tower, and
       // its level is written on it for anybody standing close enough to look.
@@ -715,8 +865,28 @@
     const round = () => ({ x: keep.x + Math.cos(s.ang) * ring,
                            y: keep.y + Math.sin(s.ang) * ring });
 
+    // He is not a raider and he breaks nothing, so a ring of finished wall is
+    // an answer to him: he walks round what is built and, if there is no way in
+    // at all, he prices the hold from outside instead of leaning on the wall
+    // for the rest of the game. That is not a way of keeping a camp off for
+    // ever — what he could not walk to he could not count, so the party they
+    // send is sized for a hold they never saw properly, and a party that comes
+    // home beaten raises what the camp waits to field before the next one. A
+    // sealed hold buys one cheap raid, not peace.
+    //
+    // A gate is not a sealed hold. It is a door standing open, and one unarmed
+    // man strolling through it is the whole reason a hold with a road through
+    // it is a hold that can be read: everything he passes on the way in he
+    // counts. That is the price of the convenience, and it is paid only by
+    // this one — anybody who comes back with a spear finds the same gate as
+    // solid as the wall it is set in.
+    const patience = c.patience || 6;
     if (s.phase === 'out') {
-      if (_facStep(s, round(), dt, speed, 8)) {
+      // Getting there is worth working a route out for: the way in is a gap in
+      // a ring he cannot see the far side of, and feeling along the wall for it
+      // is not what a man sent to look at a place does.
+      s._straight = false;
+      if (_facStep(s, round(), dt, speed, 8, true) || (s._stall || 0) > patience) {
         s.phase = 'look'; s.t = 0;
         _say(_t('sh_scout_here', { camp: _facName(f) }));
       }
@@ -725,11 +895,21 @@
     if (s.phase === 'look') {
       s.t += dt;
       s.ang += dt * 0.45;
-      _facStep(s, round(), dt, speed, 4);
-      if (s.t >= (c.look || 14)) s.phase = 'back';
+      // Going round it is not going anywhere in particular, so this is the one
+      // walk that is not worth routing: the spot he is making for moves the
+      // whole time, and working out a fresh route to it every few paces would
+      // cost the hold's own people theirs. He follows the wall instead, which
+      // is what walking round the outside of a hold looks like anyway.
+      s._straight = true;
+      _facStep(s, round(), dt, speed, 4, true);
+      if (s.t >= (c.look || 14)) { s.phase = 'back'; s._straight = false; }
       return;
     }
-    if (_facStep(s, f, dt, speed, B.world.keep_radius + 10)) {
+    // Home, or word sent home. A man who has been built in behind a wall while
+    // he was looking would otherwise stand there for ever with a report nobody
+    // ever hears, and a camp waiting on him never marches again.
+    if (_facStep(s, { x: f.x, y: f.y }, dt, speed, B.world.keep_radius + 10, true) ||
+        (s._stall || 0) > patience * 4) {
       let threat = 0, towers = 0;
       for (const id in s.seen) { threat += Math.max(1, s.seen[id] || 1); towers++; }
       f.known = { threat: threat, towers: towers, at: _hold.elapsed || 0 };
@@ -775,6 +955,22 @@
       // Somebody with a rival's soldier in front of him is not going anywhere,
       // and the errand waits: see _meet.
       if (u._lock) continue;
+      // Ground they cannot get to. A patch that has ended up inside the hold's
+      // walls is a patch nobody from a camp will ever work, and somebody who
+      // has taken it would otherwise stand against that wall for the rest of
+      // the game. Long enough without getting any nearer and they leave that
+      // patch alone for a while and go and find other ground — the hold's own
+      // people do exactly this with work they cannot reach, and it is the same
+      // ruler: see _giveUp.
+      if (u._skipFor > 0 && (u._skipFor -= dt) <= 0) u._skipDep = null;
+      if (u.job === 'mine' && (u._stall || 0) > GIVE_UP) {
+        if (u.phase === 'walk') { u._skipDep = u.dep; u._skipFor = LEAVE_ALONE; }
+        // A load in hand is counted as home rather than dropped: timber that
+        // vanished because a wall went up behind somebody is the kind of loss
+        // nobody can see happening and everybody notices afterwards.
+        else if (u.carry && u.res) f[u.res] = (f[u.res] || 0) + u.carry;
+        u.job = null; u.dep = null; u.carry = 0; u._stall = 0;
+      }
       // Half the camp downs tools for whatever is going up, and never the last
       // person: somebody has to keep carrying or the site is never paid for.
       if (site && u.job !== 'build' && !u.carry &&
@@ -817,7 +1013,10 @@
         }
         continue;
       }
-      if (_facStep(u, f, dt, speed, reach)) {
+      // Home is a place, not a building: the camp and its huts number
+      // themselves off the same counter, and a walk judged under the same name
+      // as the last one carries the last one's tally of getting nowhere.
+      if (_facStep(u, { x: f.x, y: f.y }, dt, speed, reach)) {
         f[u.res] = (f[u.res] || 0) + (u.carry || 0);
         _float(f.x, f.y, (RES_GLYPH[u.res] || '📦') + ' ', u.carry, RES_TINT[u.res]);
         u.carry = 0; u.job = null;
@@ -836,45 +1035,79 @@
   // game to the map rather than to the player. So: near ground first, and if
   // there is none of what they need, the whole world — a long walk being its
   // own punishment, exactly as it is for the hold.
+  // The material comes first and the circle second, which is the way round it
+  // has to be: the near look used to fall through to the next material before
+  // it fell through to the rest of the map, so a corner with no timber inside
+  // its circle dug the stone next to it for ever and starved of the one thing
+  // every building it wanted was priced in. What it needs most is asked of the
+  // near ground and then of the whole world, and only then does it settle for
+  // the next material down.
   function _facPick(f, u) {
-    return _facNear(f, u, _fc().range || 1500) || _facNear(f, u, Infinity);
-  }
-
-  function _facNear(f, u, reach) {
-    const want = _facWants(f);
-    const share = B.worker.share_penalty || 300;
-    for (const res of want) {
-      let best = null, bd = Infinity;
-      for (const d of _hold.deposits) {
-        if (d.kind !== res || d.amount <= 0) continue;
-        if (_dist(f, d) > reach) continue;
-        const on = f.workers.filter(
-          x => x !== u && x.job === 'mine' && x.dep === d.id).length;
-        const cost = _dist(u || f, d) + _dist(f, d) + share * on;
-        if (cost >= bd) continue;
-        bd = cost; best = d;
-      }
-      if (best) return best;
+    const reach = _fc().range || 1500;
+    for (const res of _facWants(f)) {
+      const d = _facNear(f, u, reach, res) || _facNear(f, u, Infinity, res);
+      if (d) return d;
     }
     return null;
   }
 
-  // What a camp is short of, shortest first: everything it is saving for is
-  // one of three things, and all three are priced in the same three materials.
-  function _facWants(f) {
-    const want = { wood: 0, stone: 0, iron: 0 };
-    const add = (cost, weight) => {
-      for (const res in cost) want[res] = (want[res] || 0) + cost[res] * (weight || 1);
-    };
-    add(_facNewCost(f, 'hut'), 1);
-    add(_facNewCost(f, 'barracks'), 1);
-    add(_facKeepCost(f), 0.6);
+  function _facNear(f, u, reach, res) {
+    const share = B.worker.share_penalty || 300;
+    let best = null, bd = Infinity;
+    for (const d of _hold.deposits) {
+      if (d.kind !== res || d.amount <= 0) continue;
+      if (u && d.id === u._skipDep) continue;   // ground he has just failed to reach
+      if (_dist(f, d) > reach) continue;
+      const on = f.workers.filter(
+        x => x !== u && x.job === 'mine' && x.dep === d.id).length;
+      const cost = _dist(u || f, d) + _dist(f, d) + share * on;
+      if (cost >= bd) continue;
+      bd = cost; best = d;
+    }
+    return best;
+  }
+
+  // Everything a camp could pay for next, as a list of prices rather than one
+  // heap. The hold's own _wants under another name, and every line of it is a
+  // price out of the player's table: another roof, another barracks, a level on
+  // anything standing, the next rank on the keep, and arms.
+  function _facBills(f) {
+    const list = [{ cost: _facNewCost(f, 'hut'), w: 0.5 },
+                  { cost: _facNewCost(f, 'barracks'), w: 0.5 }];
+    if (!_atMax(f.lvl)) list.push({ cost: _facKeepCost(f), w: 0.5 });
+    for (const b of f.buildings) {
+      if (b.built < 1 || b.type === 'keep' || _atMax(b.lvl)) continue;
+      list.push({ cost: _cost(_facType(b.type), b.lvl + 1), w: 0.5 });
+    }
     // Arms are spent again at every soldier, so they weigh most: a camp that
     // cannot arm anybody is a camp that is not a threat, and it knows it.
-    add(_facArm(f), 8);
+    list.push({ cost: _facArm(f), w: 4 });
+    return list;
+  }
+
+  // What a camp is short of, worst first — and it is the hold's own _byNeed,
+  // because it has to be. Adding every price up and going after whatever came
+  // to the biggest number is a rule that answers "timber" for the rest of the
+  // game: new buildings are priced in wood alone, so wood wins that sum for
+  // ever while the corner stands on five thousand stone it cannot spend and the
+  // one roof it is actually waiting on never goes up. A price a camp can
+  // already pay is not a shortage. So each price is asked only what it is still
+  // missing, counted in journeys — see the long note on _byNeed.
+  function _facWants(f) {
+    const miss = { wood: 0, stone: 0, iron: 0 };
+    const want = { wood: 0, stone: 0, iron: 0 };
+    for (const it of _facBills(f)) {
+      for (const res in it.cost) {
+        want[res] += it.cost[res] * it.w;
+        const gap = it.cost[res] - (f[res] || 0);
+        if (gap > 0) miss[res] += (gap / (_gat(res).load || 1)) * it.w;
+      }
+    }
+    // Short of nothing: then it is the old question again, which is simply what
+    // there is most left to spend.
     return RESOURCES.slice().sort((a, b) =>
-      ((want[b] - (f[b] || 0)) / Math.max(1, want[b])) -
-      ((want[a] - (f[a] || 0)) / Math.max(1, want[a])));
+      (miss[b] - miss[a]) ||
+      ((want[b] - (f[b] || 0)) - (want[a] - (f[a] || 0))));
   }
 
   function _facIdle(f, u, dt) {
@@ -888,9 +1121,22 @@
     _facStep(u, { x: u.wx, y: u.wy }, dt, B.worker.speed * 0.5, 6);
   }
 
-  // A step towards something, in a straight line. Nothing out there to walk
-  // round: the camps build no walls, and they are the only ones who live there.
-  function _facStep(u, to, dt, speed, reach) {
+  // A step towards something. Out in the corners there is nothing to walk
+  // round — the camps build no walls and they are the only ones who live there
+  // — so out there this stays the straight line it always was, and a camp costs
+  // nothing to run.
+  //
+  // What the corners have no business ignoring is the hold. A scout strolling
+  // through a finished wall makes the wall look like scenery, and it is the one
+  // thing the player paid for with the whole of a hold's timber. So anybody
+  // from a camp whose way passes anywhere near what has been built walks it the
+  // way the hold's own people walk it: round what is standing, or not at all.
+  // `thru` is the one of them who uses a door as a door: their scout. He is
+  // unarmed, he breaks nothing, and a gate left standing open is exactly the
+  // hole in a ring that a man sent to look at a place walks in through. Their
+  // diggers and their armies never get it — see _solidAt.
+  function _facStep(u, to, dt, speed, reach, thru) {
+    if (_nearHold(u, to)) return _walk(u, to, dt, speed, reach || 6, thru);
     const dx = to.x - u.x, dy = to.y - u.y;
     const d = Math.hypot(dx, dy);
     if (d <= (reach || 6)) return true;
@@ -955,9 +1201,11 @@
     if (f.buildings.some(b => b.built < 1 || b.up != null)) return;
     // Room first, and only when the roofs they have are full — a camp does not
     // pay for an empty house any more than the player would.
-    if (f.workers.length >= _facCap(f) && _facRoom(f)) return;
-    // Then somewhere to arm men, and only when every barracks standing is full.
-    if (f.army.length >= _facSoldiers(f) && _facTry(f, 'barracks')) return;
+    if (f.workers.length >= _facCap(f) && _facWiden(f, 'hut')) return;
+    // Then somewhere to arm men, and only when every barracks standing is full
+    // — and a level on one counts as somewhere, because it is: a deeper
+    // barracks holds more men and arms better ones, on both sides of the map.
+    if (_facMen(f) >= _facSoldiers(f) && _facWiden(f, 'barracks')) return;
     // And then rank, for as long as they can pay for it. There is no last
     // level: what stops a camp is the price of the next one, not a number.
     const cost = _facKeepCost(f);
@@ -974,30 +1222,36 @@
     }
   }
 
-  // What a bill comes to, for comparing two of them. Materials are not
-  // interchangeable, but a camp choosing between a roof and a level only needs
-  // to know which of the two it can be standing under sooner.
-  const _facWeight = (cost) => RESOURCES.reduce((n, r) => n + (cost[r] || 0), 0);
+  // What a bill comes to, for comparing two of them — counted in journeys, so
+  // a level that wants iron is priced as the walking it takes rather than as a
+  // number that happens to be small. Materials are not interchangeable, but a
+  // camp choosing between another building and a level only needs to know which
+  // of the two it can be standing under sooner.
+  const _facWeight = (cost) =>
+    RESOURCES.reduce((n, r) => n + (cost[r] || 0) / (_gat(r).load || 1), 0);
 
-  // More room: another roof at the repeat price, or a level on the best one
-  // already standing — whichever is the cheaper bill today. That is the fork
-  // the player stands at every time a house fills up, and a camp reads it the
-  // same way: the repeat charge is what eventually makes the level the buy.
-  function _facRoom(f) {
-    const nu = _facNewCost(f, 'hut');
+  // Another one of these, or a level on the cheapest one already standing —
+  // whichever is the cheaper bill today. That is the fork the player stands at
+  // every time a house fills up or a barracks comes to strength, and a camp
+  // reads it the same way: the repeat charge is what eventually makes the level
+  // the buy. Nothing here is roofs-only any more, which is the whole point —
+  // a camp that could only ever put another barracks next to the last one was
+  // a camp whose soldiers stayed at the bottom of the table all game.
+  function _facWiden(f, type) {
+    const nu = _facNewCost(f, type);
     let best = null, up = null;
-    for (const b of _facOf(f, 'hut')) {
-      if (b.built < 1) continue;
-      const c = _cost('house', b.lvl + 1);
+    for (const b of _facOf(f, type)) {
+      if (b.built < 1 || _atMax(b.lvl)) continue;
+      const c = _cost(_facType(type), b.lvl + 1);
       if (!up || _facWeight(c) < _facWeight(up)) { up = c; best = b; }
     }
-    if (best && !_atMax(best.lvl) && _facWeight(up) < _facWeight(nu)) {
+    if (best && _facWeight(up) < _facWeight(nu)) {
       if (!_facCanPay(f, up)) return false;
       _facPay(f, up);
       best.up = 0;              // the people have to build it, level by level
       return true;
     }
-    return _facTry(f, 'hut');
+    return _facTry(f, type);
   }
 
   // Buying one more of something, if the store runs to it.
@@ -1036,31 +1290,100 @@
   // Arming one more man. He costs the camp materials it dug up, which is why
   // killing a war party is not only survival — it is a bill sent back to the
   // corner it came from.
-  function _facArmy(f, dt) {
-    const max = _facSoldiers(f);
-    if (f.army.length >= max) { f.muster = 0; return; }
-    f.muster = (f.muster || 0) + dt;
-    if (f.muster < _facMuster(f)) return;
-    const arm = _facArm(f);
+  // The keep raising its own man. One at a time and one at all: while he is
+  // standing — in the yard or out on a raid — the keep is done. When he falls,
+  // it takes "muster" seconds at their pace and the price of two ordinary
+  // sorties to put another one out, paid out of the same stores that arm the
+  // rest, so a camp that has just lost its champion arms fewer men while it
+  // makes the next.
+  function _facChampion(f, dt, m) {
+    if (_facBoss(f)) { f.bossAt = 0; f.bossFor = 0; return; }
+    // Never before the corner's first raid. A keep stands in every corner from
+    // the first second of the game, so a champion who only wants time arrived
+    // while the player was still choosing where to put a house. The first party
+    // out of a camp is ordinary men and nothing else — it is the raid the hold
+    // is meant to survive on a wall and two towers — and the keep only starts
+    // on him once that party has walked out. After that the gate is behind him
+    // for good: it is the first champion that is late, not every one of them,
+    // and a camp whose champion falls replaces him on the clock below.
+    //
+    // Read off what the camp has actually sent rather than a flag of its own:
+    // a scout is not a raid, and a party is counted where it sets out — see
+    // _facWar.
+    if (!(f.stats && f.stats.sent > 0)) return;
+    // What he is worth in men is what he costs in time. The wait is set once
+    // per champion rather than read every frame, so a keep raised while he is
+    // being made does not reset the clock — and it is jittered, because a
+    // champion who reappears on the tick is a champion the player can plan
+    // around.
+    if (!f.bossFor) {
+      const j = _bs().muster_jitter || 0;
+      f.bossFor = _muster(1) * (_bs().muster || 1) * Math.max(1, f.lvl) /
+                  _pace() * (1 + (Math.random() * 2 - 1) * j);
+    }
+    f.bossAt = (f.bossAt || 0) + dt;
+    if (f.bossAt < f.bossFor) return;
+    const one = _armCost(f.lvl), arm = {};
+    for (const res in one) arm[res] = Math.round(one[res] * (_bs().arm || 1));
     if (!_facCanPay(f, arm)) return;
-    f.muster = 0;
+    f.bossAt = 0;
+    f.bossFor = 0;
     _facPay(f, arm);
-    // A camp's man is a hold's man: the same integrity and the same damage a
-    // barracks of that level gives the player. They are not a weaker kind of
-    // soldier fielded in numbers — they are the player's soldier, mustered at
-    // a quarter of the player's speed.
-    const hp = _lv('barracks', f.lvl, 'hp_soldier');
-    const m = _fc().march || {};
+    const hp = _bossHp(f.lvl);
     f.army.push({
-      x: f.x + (Math.random() - 0.5) * 70, y: f.y + (Math.random() - 0.5) * 70,
+      x: f.x + (Math.random() - 0.5) * 40, y: f.y + (Math.random() - 0.5) * 40,
       hp: hp, maxHp: hp,
-      dmg: _lv('barracks', f.lvl, 'damage'),
-      // The one thing a hold's garrison has no number for, because it never
-      // leaves the ring it patrols. This is the walk out to the hold.
-      speed: ((m.speed || 44) + (m.speed_step || 0) * (f.lvl - 1)) *
-             (0.9 + Math.random() * 0.2),
+      dmg: _bossDmg(f.lvl),
+      boss: 1, blvl: f.lvl, power: _bossPower(f),
+      // He is heavier than the men he walks in with, and he arrives with them
+      // rather than behind them: a party whose champion is still on the road
+      // when it reaches the wall is a party that has already lost him.
+      speed: ((m.speed || 44) + (m.speed_step || 0) * (f.lvl - 1)),
       pa: Math.random() * Math.PI * 2,
     });
+    _burst(f.x, f.y, f.color, 20);
+    _sfx('champ', f.x, f.y);
+  }
+
+  // Their men, one barracks at a time — the hold's own rule, in the hold's own
+  // words. A man is worth what the roof he was armed under is worth: a camp
+  // with a deep barracks and a shallow one fields both kinds side by side, the
+  // shallow one keeps arming its own weaker men rather than being carried by
+  // its neighbour, and a level on any one barracks is felt by everybody who
+  // walks out of that one and by nobody else. It used to read the deepest
+  // barracks in the camp for the whole army, which made every barracks after
+  // the first a free upgrade for all of them.
+  function _facArmy(f, dt) {
+    const m = _fc().march || {};
+    _facChampion(f, dt, m);
+    for (const b of f.buildings) {
+      if (b.type !== 'barracks' || b.built < 1) continue;
+      const max  = _lv('barracks', b.lvl, 'soldiers');
+      const mine = f.army.filter(s => s.from === b.id).length;
+      if (mine >= max) { b._sp = 0; continue; }
+      b._sp = (b._sp || 0) + dt;
+      if (b._sp < _facMuster(b)) continue;
+      const arm = _armCost(b.lvl);
+      if (!_facCanPay(f, arm)) continue;
+      b._sp = 0;
+      _facPay(f, arm);
+      // A camp's man is a hold's man: the same integrity and the same damage
+      // the barracks he was armed in gives the player. They are not a weaker
+      // kind of soldier fielded in numbers — they are the player's soldier,
+      // mustered slower and armed dearer.
+      const hp = _lv('barracks', b.lvl, 'hp_soldier');
+      f.army.push({
+        x: f.x + (Math.random() - 0.5) * 70, y: f.y + (Math.random() - 0.5) * 70,
+        hp: hp, maxHp: hp,
+        dmg: _lv('barracks', b.lvl, 'damage'),
+        from: b.id,
+        // The one thing a hold's garrison has no number for, because it never
+        // leaves the ring it patrols. This is the walk out to the hold.
+        speed: ((m.speed || 44) + (m.speed_step || 0) * (f.lvl - 1)) *
+               (0.9 + Math.random() * 0.2),
+        pa: Math.random() * Math.PI * 2,
+      });
+    }
   }
 
   // Waiting, then going. A camp does not trickle men across the map one at a
@@ -1080,8 +1403,14 @@
     // Nobody marches on a hold nobody has looked at, and nobody marches under
     // what the last look said it would take.
     if (!f.known) { f.ready = 0; return; }
+    // Counted in ordinary men, and the champion is not one of them. He is
+    // whatever the keep has managed to make by the time the party is ready:
+    // sometimes he walks out with it, and sometimes — because a deep one takes
+    // several raids to replace — they go without him and the hold gets the one
+    // party it can actually beat. A camp that waited for him would have made
+    // him a thing on a timetable.
     const need = _facNeed(f);
-    if (f.army.length < need) { f.ready = 0; return; }
+    if (_facMen(f) < need) { f.ready = 0; return; }
     // A short pause once they are enough, so parties arrive in gusts rather
     // than the instant the last man is armed.
     f.ready = (f.ready || 0) + dt;
@@ -1094,16 +1423,32 @@
       _raiders.push({
         x: s.x, y: s.y, hp: s.hp, maxHp: s.maxHp, dmg: s.dmg, speed: s.speed,
         fx: f.id, lvl: f.lvl,
+        // The champion walks out as himself. A man on the road is a fresh
+        // object rather than the one that was standing in the yard, so
+        // anything that makes him what he is has to be carried across it —
+        // without this he arrived as an ordinary raider with a champion's
+        // integrity, and the camp went straight on making another.
+        boss: s.boss, blvl: s.blvl, power: s.power,
       });
     }
     // What they knew walks out with the party. The next raid needs another
     // pair of eyes, which is the player's chance to become a different hold
-    // from the one that was counted.
+    // from the one that was counted. And the size of this party is tracked
+    // against who comes home from it — see _killRaider — so a camp wiped out
+    // learns to send more next time instead of walking the same five in again.
     f.known = null;
-    f.watch = 0;
+    f.raidSize = going.length;
+    f.raidOut = going.length;
     f.stats.sent = (f.stats.sent || 0) + going.length;
     _hold.stats.raids = (_hold.stats.raids || 0) + 1;
     _raidFlash = 3;
+    // Whose party it is, kept for the warning across the top: four camps walk
+    // out of four corners and the one word that says which is on the way is
+    // worth more than the alarm being red. The colour is the same one their
+    // men, their camp and their arrows off the edge of the screen are drawn
+    // in, so the banner names them without having to be read.
+    _raidColor = f.color;
+    _sfx('raid');
     _say(_t('sh_raid_from', { camp: _facName(f), n: going.length }));
     if (keep) { /* they walk from their own corner: no spawn ring any more */ }
   }
@@ -1170,6 +1515,7 @@
     };
     const gone = outOf(_raiders) || (f && (outOf(f.army) || outOf(f.workers)));
     if (!gone) return;
+    if (_selBoss === u) _selBoss = null;
     _burst(u.x, u.y, (f && f.color) || '#f38ba8', 10);
     if (f) f.stats.lost = (f.stats.lost || 0) + 1;
   }
@@ -1192,7 +1538,7 @@
     };
     for (const w of _hold.workers)  add(w, -1, 0);
     for (const s of _hold.soldiers) add(s, -1, 0);
-    for (const r of _raiders)       add(r, r.fx, r.dmg || 0);
+    for (const r of _raiders)       add(r, r.fx, _rdmg(r));
     for (const f of _hold.factions) {
       for (const u of f.workers) add(u, f.id, 0);
       for (const s of f.army)    add(s, f.id, s.dmg || 0);
@@ -1365,8 +1711,19 @@
 
   function _people(dt) {
     const speed = B.worker.speed;
+    // Nothing in a hold attacks a digger except a raider who caught up with
+    // one, and until now nothing mended him afterwards either: a soldier has a
+    // barracks to go back to, a person has nowhere. So a scratch taken in the
+    // first raid of the game was still over his head at the end of it, which
+    // reads as somebody permanently broken rather than somebody who had a bad
+    // afternoon — and it left the player looking for a wound nobody had just
+    // taken. They mend where they stand now, on their own time, and only once
+    // the map is quiet: being chased is not when anybody gets better.
+    const mend = _raiders.length ? 0 : (B.worker.mend || 0.017) * B.worker.hp * dt;
     for (let i = _hold.workers.length - 1; i >= 0; i--) {
       const w = _hold.workers[i];
+      if (mend && w.hp != null && w.hp < B.worker.hp)
+        w.hp = Math.min(B.worker.hp, w.hp + mend);
       // Deciding comes before running. A hold under attack used to deadlock
       // here: everybody was close enough to a raider to be frightened, being
       // frightened cleared the job, and a person without a job never got as far
@@ -1531,7 +1888,7 @@
     }
     to.x = Math.max(20, Math.min(W() - 20, to.x));
     to.y = Math.max(20, Math.min(W() - 20, to.y));
-    _walk(w, to, dt, speed * 1.1, 6);
+    _walk(w, to, dt, speed * 1.1, 6, true);
     return true;
   }
 
@@ -1707,7 +2064,15 @@
       for (const b of _hold.buildings) {
         if (b.type !== 'tower' || b.built < 1 || b.keep || b.id === w._skip) continue;
         const mag = _lv('tower', b.lvl, 'mag');
-        const short = Math.floor(mag - (b.ammo || 0));
+        // What it is short by, to the nearest whole round — the same rounding
+        // the number under the tower is written with. Flooring it left every
+        // tower that had ever fired a fraction short for the rest of the game:
+        // a magazine holding 6.4 of 7 is one round short to anybody looking at
+        // it, but floor(0.6) is no errand at all, so nobody ever set out and it
+        // read 6/7 for ever. The last delivery pours in only what fits and
+        // walks the remainder back, so asking for the round that finishes it
+        // costs nothing.
+        const short = Math.round(mag - (b.ammo || 0));
         if (short < 1) continue;
         const coming = _hold.workers.filter(
           x => x !== w && x.job === 'ammo' && x.toTower && x.target === b.id).length;
@@ -1720,7 +2085,11 @@
 
     // Otherwise: a workshop with finished rounds on its floor and room for them
     // in the keep. Without this nobody ever has anything to run to a tower.
-    const room = Math.floor(_ammoCap() - (_hold.ammo || 0)) - inbound;
+    // Room in the keep, rounded for the same reason the tower's shortfall is:
+    // a store reading 22 of 23 with a fraction of a round in hand is a store
+    // with room in it, and flooring that stopped the workshops being emptied
+    // for good the first time anything was fired.
+    const room = Math.round(_ammoCap() - (_hold.ammo || 0)) - inbound;
     if (room >= 1) {
       const full = _hold.buildings.filter(b => {
         if (b.type !== 'workshop' || b.built < 1 || b.id === w._skip) return false;
@@ -1750,43 +2119,80 @@
     return b.hp < max - 0.5 ? (max - b.hp) / max : 0;
   }
 
-  // What the hold could spend next, added up per material: arms for whatever
-  // the barracks keep sending out, and the next level of everything already
-  // standing. Nobody is told to fetch wood or iron — this is how the people
-  // work out for themselves which one the hold is short of.
-  function _demand() {
-    const want = { wood: 0, stone: 0, iron: 0 };
-    const add = (cost, weight) => {
-      for (const res in cost) want[res] += cost[res] * (weight == null ? 1 : weight);
-    };
+  // Everything the hold could pay for next, as a list of prices rather than one
+  // heap: arms for whatever the barracks keep sending out, the next level of
+  // everything already standing, and the iron a workshop eats. How much of a
+  // material the hold wants and how much of it is actually standing in the way
+  // are two different questions, and the second one can only be asked of a
+  // price at a time — see _byNeed.
+  function _wants() {
+    const list = [];
     // Another house is always a thing the hold could want, and it is what
     // makes timber worth carrying before anything else is standing.
-    add(_newCost('house'), 0.5);
+    list.push({ cost: _newCost('house'), w: 0.5 });
     for (const b of _hold.buildings) {
       if (b.built < 1) continue;
-      if (!_atMax(b.lvl)) add(_cost(b.type, b.lvl + 1), 0.5);
+      if (!_atMax(b.lvl)) list.push({ cost: _cost(b.type, b.lvl + 1), w: 0.5 });
       // Arms are spent again at every sortie, so they weigh more than a
       // one-off upgrade: an army that cannot be armed is the worst shortage
       // a hold can have.
-      if (b.type === 'barracks') add(_armCost(b.lvl), 4);
+      if (b.type === 'barracks') list.push({ cost: _armCost(b.lvl), w: 4 });
       // So is the iron a workshop eats. Rounds are burned every raid and never
       // come back, so a hold that stops digging iron stops shooting — and the
       // people have to be able to see that coming, not discover it dry.
       if (b.type === 'workshop') {
         const per = _lv('workshop', b.lvl, 'iron_per_ammo');
-        add({ iron: _lv('workshop', b.lvl, 'stock') * per }, 5);
+        list.push({ cost: { iron: _lv('workshop', b.lvl, 'stock') * per }, w: 5 });
       }
     }
+    return list;
+  }
+
+  // What the hold could spend next, added up per material. This is how much
+  // there is left to want, and it is what decides whether going out is worth
+  // anybody's time at all — not which material they go out for.
+  function _demand(list) {
+    const want = { wood: 0, stone: 0, iron: 0 };
+    for (const it of (list || _wants()))
+      for (const res in it.cost) want[res] += it.cost[res] * it.w;
     return want;
   }
 
-  // The materials, shortest of first. A material nothing wants is still worth
-  // carrying home — it is simply the last one they reach for.
+  // The materials, whichever is most in the way first. Nobody is told to fetch
+  // wood or iron — this is how the people work out for themselves which one the
+  // hold is stuck for.
+  //
+  // Being in the way is not the same as being wanted, and the difference is the
+  // whole of this. Adding every price up and going after whatever came to the
+  // biggest number sent a grown hold out for timber for the rest of the game:
+  // every upgrade left on the board is priced in hundreds of wood against a
+  // hundred-odd iron, so wood wins that sum for ever — while the hold stands on
+  // nine hundred timber it cannot spend, because iron is the only thing any of
+  // it is actually waiting on. A price the hold can already pay is not a
+  // shortage. So each price is asked only what it is still missing, whatever
+  // is covered counts for nothing, and what is left is the real answer to "what
+  // is stopping us".
+  //
+  // Counted in journeys rather than in units: what being short of something
+  // costs is the walking it takes to put right, and iron comes home four at a
+  // time where timber comes eight and from further out.
   function _byNeed() {
-    const want = _demand();
+    const list = _wants();
+    const miss = { wood: 0, stone: 0, iron: 0 };
+    for (const it of list) {
+      for (const res in it.cost) {
+        const gap = it.cost[res] - (_hold[res] || 0);
+        if (gap > 0) miss[res] += (gap / (_gat(res).load || 1)) * it.w;
+      }
+    }
+    // Nothing missing anywhere — everything on the board is affordable. Then it
+    // is the old question again, which is simply what there is most left to
+    // spend, so a hold that is on top of its purchases keeps stocking up for
+    // the ones after them instead of standing on whichever pile is biggest.
+    const want = _demand(list);
     return RESOURCES.slice().sort((a, b) =>
-      ((want[b] - (_hold[b] || 0)) / Math.max(1, want[b])) -
-      ((want[a] - (_hold[a] || 0)) / Math.max(1, want[a])));
+      (miss[b] - miss[a]) ||
+      ((want[b] - (_hold[b] || 0)) - (want[a] - (_hold[a] || 0))));
   }
 
   // Work done on a site, whoever did it. Returns true when the site is finished
@@ -1803,6 +2209,7 @@
       if (b.built < 1) return false;
       _hold.stats.built = (_hold.stats.built || 0) + 1;
       _burst(b.x, b.y, '#a6e3a1', 10);
+      _sfx('build', b.x, b.y);
       return true;
     }
     if (b.up != null) {
@@ -1814,6 +2221,7 @@
       b.lvl += 1;
       b.hp = _maxHp(b.type, b.lvl, b.keep);
       _burst(b.x, b.y, '#f9e2af', 14);
+      _sfx('up', b.x, b.y);
       return true;
     }
     // Patching up what a raid chewed on. Putting a building back to new takes
@@ -1836,7 +2244,7 @@
     if (!b || (b.built >= 1 && b.up == null && !_hurt(b))) { w.job = null; return; }
     // Near enough to work on it — from the corner too, which is the only way in
     // to a wall piece with finished wall on both sides of it.
-    if (!_walk(w, b, dt, speed, _reachTo(b))) return;
+    if (!_walk(w, b, dt, speed, _reachTo(b), true)) return;
     if (_progress(b, dt * B.worker.build_rate)) w.job = null;
   }
 
@@ -1845,7 +2253,7 @@
     if (!dep || dep.amount <= 0) { w.job = null; w.dep = null; return; }
 
     if (w.phase === 'walk') {
-      if (_walk(w, dep, dt, speed, _depReach(dep))) { w.phase = 'mine'; w.t = 0; }
+      if (_walk(w, dep, dt, speed, _depReach(dep), true)) { w.phase = 'mine'; w.t = 0; }
       return;
     }
     if (w.phase === 'mine') {
@@ -1861,7 +2269,7 @@
       return;
     }
     const keep = _keep();
-    if (_walk(w, keep, dt, speed, _reachTo(keep))) {
+    if (_walk(w, keep, dt, speed, _reachTo(keep), true)) {
       const res = w.res || 'wood';
       _hold[res] = (_hold[res] || 0) + (w.carry || 0);
       _float(keep.x, keep.y, (RES_GLYPH[res] || '📦') + ' ', w.carry, RES_TINT[res]);
@@ -1879,7 +2287,7 @@
     if (!src || !dst || dst.built < 1) { w.job = null; return; }
 
     if (w.phase === 'pickup') {
-      if (!_walk(w, src, dt, speed, _reachTo(src))) return;
+      if (!_walk(w, src, dt, speed, _reachTo(src), true)) return;
       // Out of the keep's store, or off the workshop's own floor.
       const have = w.toTower ? Math.floor(_hold.ammo) : Math.floor(src.ammo || 0);
       // One round per trip, on both legs. An armful was impossible to follow:
@@ -1895,7 +2303,7 @@
       return;
     }
 
-    if (!_walk(w, dst, dt, speed, _reachTo(dst))) return;
+    if (!_walk(w, dst, dt, speed, _reachTo(dst), true)) return;
     if (w.toTower) {
       const mag  = _lv('tower', dst.lvl, 'mag');
       const room = Math.max(0, mag - (dst.ammo || 0));
@@ -1932,7 +2340,7 @@
       w.rest = 3 + Math.random() * 4;
     }
     w.rest -= dt;
-    _walk(w, { x: w.wx, y: w.wy }, dt, speed * 0.55, 8);
+    _walk(w, { x: w.wx, y: w.wy }, dt, speed * 0.55, 8, true);
   }
 
   // ── Soldiers ──────────────────────────────────────────────────────────────
@@ -2000,7 +2408,7 @@
       if (foe) {
         // Wherever the fight leaves him, his rounds start again from there.
         s.pa = null;
-        if (_walk(s, foe, dt, 78, 18)) {
+        if (_walk(s, foe, dt, 78, 18, true)) {
           foe.hp -= s.dmg * dt;
           if (foe.hp <= 0) _killRaider(foe);
         }
@@ -2009,7 +2417,7 @@
         // to the beat half mended — and a raid takes him off it at once,
         // however little of him is left.
         s.pa = null;
-        if (_walk(s, home, dt, 60, _reachTo(home))) {
+        if (_walk(s, home, dt, 60, _reachTo(home), true)) {
           s.hp = Math.min(s.maxHp, s.hp + s.maxHp * HEAL_RATE * dt);
           // Mended means mended. The last sliver is rounded off rather than
           // left there, because a man who counts as whole and still carries a
@@ -2021,7 +2429,7 @@
         if (s.pr == null) s.pr = 0.9 + Math.random() * 0.2;   // no two on one line
         const R = ring * s.pr;
         const at = { x: keep.x + Math.cos(s.pa) * R, y: keep.y + Math.sin(s.pa) * R };
-        const there = _walk(s, at, dt, 46, 14);
+        const there = _walk(s, at, dt, 46, 14, true);
         // Round he goes, one point at a time. Anything that will not let him
         // past is left behind by taking the next point instead: a patrol that a
         // hut can stop is not a patrol.
@@ -2029,7 +2437,11 @@
           s.pa += PATROL_STEP; s._stall = 0; s._near = null;
         }
       }
-      if (s.hp <= 0) { _burst(s.x, s.y, '#f38ba8', 8); _hold.soldiers.splice(i, 1); }
+      if (s.hp <= 0) {
+        _burst(s.x, s.y, '#f38ba8', 8);
+        _sfx('fallen', s.x, s.y);
+        _hold.soldiers.splice(i, 1);
+      }
     }
   }
 
@@ -2056,19 +2468,39 @@
       if (_mag(b) < takes) continue;
 
       const range = _lv('tower', b.lvl, 'range');
+      const barrels = _barrels(b.lvl);
+      const near = (p, q) => _dist(b, p) - _dist(b, q);
       const targets = _raiders
         .filter(r => _dist(b, r) <= range)
-        .sort((p, q) => _dist(b, p) - _dist(b, q))
-        .slice(0, _barrels(b.lvl));
+        .sort(near)
+        .slice(0, barrels);
+      // And then the diggers. A camp's people work whatever ground they find,
+      // and the ground they find is increasingly the hold's own — a man with a
+      // pick inside the range of a tower is carrying away what the hold was
+      // going to spend, and the hold is not obliged to watch. Never in front of
+      // a raider, though, and never with the last rounds in the magazine: a
+      // tower that emptied itself on thieves is a tower that is not there when
+      // the party arrives, so one full volley is always held back for them.
+      const fxOf = new Map();
+      if (targets.length < barrels && _mag(b) >= takes * 2) {
+        const thieves = [];
+        for (const f of _hold.factions)
+          for (const u of f.workers)
+            if (_dist(b, u) <= range) { thieves.push(u); fxOf.set(u, f.id); }
+        thieves.sort(near);
+        for (const u of thieves.slice(0, barrels - targets.length)) targets.push(u);
+      }
       if (!targets.length) continue;
 
       // One volley, however many barrels the tower has grown: the barrels are
       // about how many it can answer at once, not how much it spends.
       _spend(b, takes);
       b._rl = _reload(b.lvl);
+      _sfx('shot', b.x, b.y);
       const dmg = _lv('tower', b.lvl, 'damage');
       for (const tgt of targets) {
-        _bullets.push({ x: b.x, y: b.y, target: tgt, dmg: dmg, life: 2.5 });
+        _bullets.push({ x: b.x, y: b.y, target: tgt, dmg: dmg, life: 2.5,
+                        fx: fxOf.has(tgt) ? fxOf.get(tgt) : null });
       }
       b.angle = Math.atan2(targets[0].y - b.y, targets[0].x - b.x);
     }
@@ -2078,7 +2510,12 @@
     for (let i = _bullets.length - 1; i >= 0; i--) {
       const p = _bullets[i];
       p.life -= dt;
-      if (p.life <= 0 || _raiders.indexOf(p.target) === -1) { _bullets.splice(i, 1); continue; }
+      // A round in the air outlives nothing: whoever it was thrown at has to
+      // still be standing where he was, whether he came to fight or to dig.
+      const fac = p.fx == null ? null : _facById(p.fx);
+      const standing = fac ? fac.workers.indexOf(p.target) !== -1
+                           : _raiders.indexOf(p.target) !== -1;
+      if (p.life <= 0 || !standing) { _bullets.splice(i, 1); continue; }
       const dx = p.target.x - p.x, dy = p.target.y - p.y;
       const d = Math.hypot(dx, dy) || 1;
       const step = 640 * dt;
@@ -2090,8 +2527,130 @@
         // guesswork, and it is the number a magazine is being filled for.
         _float(p.target.x, p.target.y - 12, '−', p.dmg, '#f9e2af');
         _burst(p.target.x, p.target.y, '#f9e2af', 3);
+        _sfx('hit', p.target.x, p.target.y);
         _bullets.splice(i, 1);
-        if (p.target.hp <= 0) _killRaider(p.target);
+        if (p.target.hp <= 0) {
+          if (fac) _killThief(p.target, fac); else _killRaider(p.target);
+        }
+      } else {
+        p.x += (dx / d) * step;
+        p.y += (dy / d) * step;
+      }
+    }
+  }
+
+  // ── Champions' powers ─────────────────────────────────────────────────────
+  // What a raider actually hits for. Ordinarily his own damage; under a warlord
+  // of his own camp, more — and it is asked rather than stored, because a party
+  // that has walked out from under him, or whose champion has just fallen, is
+  // an ordinary party again from that instant.
+  const _rdmg = (r) => (r.dmg || 0) * (r._rally || 1);
+  // And the same for a wall. The ram is the only one of them that treats a
+  // building differently from a man.
+  const _rsmash = (r) =>
+    _rdmg(r) * (r.boss && r.power === 'breaker'
+                ? ((_bs().breaker || {}).smash || 1) : 1);
+
+  // Their bolts. The hold's rounds are _bullets and fly the other way; these
+  // are their own list because everything about them differs — who threw them,
+  // who they hurt, and what is left standing when they land.
+  let _shots = [];
+
+  function _bossPowers(dt) {
+    for (const r of _raiders) { r._rally = 1; r._rush = 1; }
+    for (const r of _raiders) {
+      if (!r.boss || !r.power) continue;
+      const lvl = r.blvl || 1;
+      if (r.power === 'warlord') {
+        // Men fight better with him watching. Nothing is written on them that
+        // outlives the frame — see _rdmg.
+        const c = _bs().warlord || {};
+        const rad = c.radius || 190;
+        for (const o of _raiders) {
+          if (o.fx !== r.fx || _dist(r, o) > rad) continue;
+          o._rally = Math.max(o._rally, c.damage || 1);
+          o._rush  = Math.max(o._rush,  c.speed || 1);
+        }
+      } else if (r.power === 'shaman') {
+        // Wounds closing as fast as a tower opens them. He mends himself too,
+        // which is what makes a hold that ignores him regret it.
+        const c = _bs().shaman || {};
+        const rad = c.radius || 170;
+        for (const o of _raiders) {
+          if (o.fx !== r.fx || !o.maxHp || o.hp >= o.maxHp) continue;
+          if (_dist(r, o) > rad) continue;
+          o.hp = Math.min(o.maxHp, o.hp + o.maxHp * (c.heal || 0) * dt);
+        }
+      } else if (r.power === 'bolt') {
+        const c = _bs().bolt || {};
+        r._rl = (r._rl || 0) - dt;
+        if (r._rl > 0) continue;
+        const range = (c.range || 150) + (c.range_step || 0) * (lvl - 1);
+        // People before buildings, and never a wall: a champion who could open
+        // a hold from outside its own towers' reach would be a siege engine,
+        // and the answer to a siege engine is a wall he cannot shoot.
+        const near = (list) => {
+          const in_ = list.filter(t => _dist(r, t) <= range);
+          return in_.length ? _nearest(r, in_) : null;
+        };
+        const tgt = near(_hold.soldiers) || near(_hold.workers) ||
+          near(_hold.buildings.filter(b => b.type !== 'wall' && b.built >= 1));
+        if (!tgt) continue;
+        const wait = c.reload || 2.6;
+        r._rl = wait;
+        _shots.push({ x: r.x, y: r.y, target: tgt, life: 3, fx: r.fx,
+                      dmg: _rdmg(r) * wait * (c.hit || 1) });
+        _sfx('bolt', r.x, r.y);
+      }
+    }
+  }
+
+  // Whether a thing thrown at the hold still has anything to land on.
+  const _holdHas = (t) =>
+    t.type ? _hold.buildings.indexOf(t) !== -1
+           : (_hold.soldiers.indexOf(t) !== -1 || _hold.workers.indexOf(t) !== -1);
+
+  // One of the hold's own, gone. Soldiers are cleared where they are walked —
+  // see _soldiers — so this is people, and it is said out loud: they are
+  // counted by looking at the map, and one fewer would otherwise simply have
+  // gone missing.
+  function _fallen(u) {
+    const i = _hold.workers.indexOf(u);
+    if (i === -1) return;
+    _hold.workers.splice(i, 1);
+    _burst(u.x, u.y, '#f38ba8', 10);
+    _hold.stats.people_lost = (_hold.stats.people_lost || 0) + 1;
+    _sfx('fallen', u.x, u.y);
+    _say(_t('sh_lost_person'));
+  }
+
+  // A blow landing on the hold from something that is not standing next to it.
+  // Written as one number rather than as a sliver, because it is one blow.
+  function _hurtHold(tgt, dmg) {
+    if (tgt.type) {
+      tgt.hp -= dmg;
+      _blow(tgt, tgt.x, tgt.y - 14, dmg);
+      if (tgt.hp <= 0) _lose(tgt);
+      return;
+    }
+    tgt.hp = (tgt.hp == null ? B.worker.hp : tgt.hp) - dmg;
+    _float(tgt.x, tgt.y - 12, '−', dmg, '#f38ba8');
+    if (tgt.hp <= 0) _fallen(tgt);
+  }
+
+  function _bossShots(dt) {
+    for (let i = _shots.length - 1; i >= 0; i--) {
+      const p = _shots[i];
+      p.life -= dt;
+      if (p.life <= 0 || !_holdHas(p.target)) { _shots.splice(i, 1); continue; }
+      const dx = p.target.x - p.x, dy = p.target.y - p.y;
+      const d = Math.hypot(dx, dy) || 1;
+      const step = 520 * dt;
+      if (d <= step + 10) {
+        _shots.splice(i, 1);
+        _burst(p.target.x, p.target.y, '#f38ba8', 3);
+        _sfx('hit', p.target.x, p.target.y);
+        _hurtHold(p.target, p.dmg);
       } else {
         p.x += (dx / d) * step;
         p.y += (dy / d) * step;
@@ -2138,6 +2697,10 @@
       // is for and is broken. Deciding to smash also turns the routing off:
       // somebody who has decided to come through the wall walks at the wall.
       r._routeT = (r._routeT || 0) - dt;
+      // A ram does not ask. He came for the wall and he walks at it, which is
+      // what makes him worth sending: his party arrives through the ring
+      // instead of round it, at whatever piece was in front of him.
+      if (r.boss && r.power === 'breaker') { r._straight = true; r._routeT = 1; }
       if (r._routeT <= 0) {
         const round = _routeLen(r, tgt, reach);
         if (round != null) {
@@ -2145,7 +2708,7 @@
           r._straight = round > _dist(r, tgt) * DETOUR_MAX + DETOUR_SLACK;
         }
       }
-      const there = _walk(r, tgt, dt, r.speed, reach);
+      const there = _walk(r, tgt, dt, r.speed * (r._rush || 1), reach);
       // Not there, and no nearer for a while: something is in the way and going
       // round it is not working. Only now does the wall become worth breaking —
       // and only the piece actually standing between them and where they were
@@ -2153,34 +2716,29 @@
       if (!there && (r._stall || 0) > WALL_PATIENCE) {
         const inTheWay = _blocking(r, tgt);
         if (inTheWay) {
-          inTheWay.hp -= r.dmg * dt;
-          _blow(inTheWay, inTheWay.x, inTheWay.y - 14, r.dmg * dt);
+          const hit = _rsmash(r) * dt;
+          inTheWay.hp -= hit;
+          _blow(inTheWay, inTheWay.x, inTheWay.y - 14, hit);
+          _sfx('clash', r.x, r.y);
           if (inTheWay.hp <= 0) { _lose(inTheWay); r._stall = 0; r._near = null; }
           continue;
         }
       }
       if (there) {
         if (tgt.type) {
-          tgt.hp -= r.dmg * dt;
-          _blow(tgt, tgt.x, tgt.y - 14, r.dmg * dt);
+          const hit = _rsmash(r) * dt;
+          tgt.hp -= hit;
+          _blow(tgt, tgt.x, tgt.y - 14, hit);
+          _sfx('clash', r.x, r.y);
           if (tgt.hp <= 0) _lose(tgt);
         } else if (tgt.dmg) {                 // a soldier fights back
-          tgt.hp -= r.dmg * dt;
+          tgt.hp -= _rdmg(r) * dt;
           r.hp   -= tgt.dmg * dt * 0.6;
+          _sfx('clash', r.x, r.y);
           if (r.hp <= 0) { _killRaider(r); continue; }
         } else {                              // a worker only runs
-          tgt.hp = (tgt.hp == null ? B.worker.hp : tgt.hp) - r.dmg * dt;
-          if (tgt.hp <= 0) {
-            const idx = _hold.workers.indexOf(tgt);
-            if (idx !== -1) {
-              _hold.workers.splice(idx, 1);
-              _burst(tgt.x, tgt.y, '#f38ba8', 10);
-              // People are counted by looking at the map, so one fewer has to
-              // be said out loud — otherwise they have merely gone missing.
-              _hold.stats.people_lost = (_hold.stats.people_lost || 0) + 1;
-              _say(_t('sh_lost_person'));
-            }
-          }
+          tgt.hp = (tgt.hp == null ? B.worker.hp : tgt.hp) - _rdmg(r) * dt;
+          if (tgt.hp <= 0) _fallen(tgt);
         }
       }
     }
@@ -2208,26 +2766,68 @@
     return null;
   }
 
+  // A digger shot off the hold's ground. He is not a raid and he is not scored
+  // as one — the hold's tally is about parties turned back, and a man with a
+  // pick would water it down to nothing. What he was carrying goes to the hold
+  // instead: it came out of ground the hold could have worked itself, so what
+  // is recovered is exactly what was being taken, and no more. His camp counts
+  // him among its losses, which is where the cost of sending people this far
+  // in shows up.
+  function _killThief(u, f) {
+    const i = f.workers.indexOf(u);
+    if (i === -1) return;
+    f.workers.splice(i, 1);
+    _burst(u.x, u.y, f.color || '#f38ba8', 10);
+    f.stats.lost = (f.stats.lost || 0) + 1;
+    if (u.carry > 0 && u.res) {
+      _hold[u.res] = (_hold[u.res] || 0) + u.carry;
+      _float(u.x, u.y - 12, (RES_GLYPH[u.res] || '📦') + ' ', u.carry,
+             RES_TINT[u.res]);
+    }
+  }
+
   function _killRaider(r) {
     const idx = _raiders.indexOf(r);
     if (idx === -1) return;
     _raiders.splice(idx, 1);
+    if (_selBoss === r) _selBoss = null;
     _burst(r.x, r.y, '#a6e3a1', 12);
+    _sfx('kill', r.x, r.y);
     _hold.stats.kills = (_hold.stats.kills || 0) + 1;
     // Raiders carry what they came to take, and the better they are, the better
     // it is. Killing one is the hold's only income that does not come out of
     // the ground — and it is a loss on the other side too: the camp that armed
     // him paid for those arms out of ground it dug itself, and it is one man
     // further from being able to send the next party.
+    // A champion is carrying what his keep spent on him, which is a good deal
+    // more than a spear — and he is worth saying out loud, because a party
+    // that has just lost him is a different party from the one that arrived.
     const loot = _loot(r.lvl || 1);
-    for (const res in loot) _hold[res] = (_hold[res] || 0) + loot[res];
+    const share = r.boss ? (_bs().loot || 1) : 1;
+    for (const res in loot) _hold[res] = (_hold[res] || 0) + loot[res] * share;
     const f = _facById(r.fx);
-    if (f) f.stats.lost = (f.stats.lost || 0) + 1;
+    if (r.boss) {
+      _burst(r.x, r.y, '#f9e2af', 24);
+      _sfx('slain', r.x, r.y);
+      _say(_t('sh_boss_down', { camp: f ? _facName(f) : '' }));
+    }
+    if (f) {
+      f.stats.lost = (f.stats.lost || 0) + 1;
+      // The last man down off a party that never took the keep is the camp
+      // finding out, the hard way, that the number its scout brought back
+      // was not enough — so it raises its own floor and will not walk a
+      // scout out again until it has grown past what just failed.
+      if (f.raidOut > 0) {
+        f.raidOut--;
+        if (f.raidOut === 0) f.needFloor = Math.max(f.needFloor || 0, (f.raidSize || 0) + 1);
+      }
+    }
   }
 
   function _lose(b, torn) {
     _burst(b.x, b.y, torn ? '#a6adc8' : '#f38ba8', 22);
-    if (b.keep) { _end(); return; }
+    if (b.keep) { _sfx('over'); _end(); return; }
+    _sfx('wreck', b.x, b.y);
     const idx = _hold.buildings.indexOf(b);
     if (idx !== -1) _hold.buildings.splice(idx, 1);
     _navChanged();
@@ -2279,9 +2879,16 @@
   // What is standing at this spot, if anything. `ignore` is whatever the walker
   // is walking up to: a builder has to be able to reach the site, and a raider
   // the wall it is hitting, so the thing being approached is never in the way.
-  function _solidAt(x, y, ignore) {
+  //
+  // `thru` is the hold's own people, who have keys. A gate is a wall in every
+  // other respect — same stone, same levels, same integrity, and anybody who
+  // comes to break it breaks a wall — but it is not standing in the way of the
+  // hold that built it. Nobody else is given it: a raider walks into a gate
+  // exactly as he walks into the wall it is set in.
+  function _solidAt(x, y, ignore, thru) {
     for (const b of _hold.buildings) {
       if (b === ignore) continue;
+      if (thru && b.gate) continue;
       const c = _clearance(b);
       if (b.type === 'wall') {
         // Square, because that is what a wall is: tested as the box it fills,
@@ -2295,9 +2902,9 @@
   }
 
   // One step in a direction, taken only if there is nothing standing there.
-  function _tryStep(a, dx, dy, len, ignore) {
+  function _tryStep(a, dx, dy, len, ignore, thru) {
     const nx = a.x + dx * len, ny = a.y + dy * len;
-    if (_solidAt(nx, ny, ignore)) return false;
+    if (_solidAt(nx, ny, ignore, thru)) return false;
     a.x = nx; a.y = ny;
     return true;
   }
@@ -2309,13 +2916,13 @@
   // stands at the site it is building and a raider up against the wall it is
   // hitting, and shoving them back off it would leave both of them jittering on
   // the spot for ever instead of arriving.
-  function _expel(a, ignore) {
+  function _expel(a, ignore, thru) {
     // Pushed out of one thing straight into another is how somebody wedged
     // between two buildings stands still forever, so it is done over until
     // there is nothing left to be inside of — and if four goes are not enough,
     // the way out is looked for in a ring instead of shoved at.
     for (let n = 0; n < 4; n++) {
-      const b = _solidAt(a.x, a.y, ignore);
+      const b = _solidAt(a.x, a.y, ignore, thru);
       if (!b) return;
       let dx = a.x - b.x, dy = a.y - b.y;
       if (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01) { dx = 1; dy = 0; }
@@ -2330,12 +2937,12 @@
         a.y = b.y + (dy / d) * out;
       }
     }
-    if (!_solidAt(a.x, a.y, ignore)) return;
+    if (!_solidAt(a.x, a.y, ignore, thru)) return;
     for (let ring = 24; ring <= 96; ring += 24) {
       for (let i = 0; i < 12; i++) {
         const ang = (i / 12) * Math.PI * 2;
         const x = a.x + Math.cos(ang) * ring, y = a.y + Math.sin(ang) * ring;
-        if (!_solidAt(x, y, ignore)) { a.x = x; a.y = y; return; }
+        if (!_solidAt(x, y, ignore, thru)) { a.x = x; a.y = y; return; }
       }
     }
   }
@@ -2362,21 +2969,35 @@
   const NAV_CELL = 28;
   const NAV_FIELDS = 14;          // how many destinations are remembered
   const NAV_PER_FRAME = 1;        // and how many new ones are worked out a frame
-  let _navGrid = null, _navW = 0, _navDirty = true;
+  // Two of them: the map as everybody else finds it, and the same map with the
+  // hold's own gates open. One grid cannot answer both — a route is flooded
+  // over squares, and whether a gate's square is a square depends entirely on
+  // who is asking.
+  let _navGrid = null, _navOpen = null, _navW = 0, _navDirty = true;
+  // Everything the hold has built, as one box. It is the cheap answer to "is
+  // any of this his problem at all", which is the question every man in four
+  // corners of a very wide map asks about the hold on every frame of his life.
+  let _navBox = null;
   let _navFields = new Map();
   let _navBudget = 0;
 
   // Anything that changes what stands where makes the grid a lie.
   function _navChanged() { _navDirty = true; }
 
-  function _grid() {
-    if (!_navDirty && _navGrid) return _navGrid;
+  function _grid(thru) {
+    if (!_navDirty && _navGrid) return thru ? _navOpen : _navGrid;
     _navW = Math.max(1, Math.ceil(W() / NAV_CELL));
     const g = new Uint8Array(_navW * _navW);
+    const o = new Uint8Array(_navW * _navW);
+    let bx0 = Infinity, by0 = Infinity, bx1 = -Infinity, by1 = -Infinity;
     for (const b of _hold.buildings) {
       // A shade wider than the walker's own clearance: a route that shaves a
       // corner ends with somebody scraping along it.
       const c = _clearance(b) + 2;
+      if (b.x - c < bx0) bx0 = b.x - c;
+      if (b.y - c < by0) by0 = b.y - c;
+      if (b.x + c > bx1) bx1 = b.x + c;
+      if (b.y + c > by1) by1 = b.y + c;
       const x0 = Math.max(0, Math.floor((b.x - c) / NAV_CELL));
       const x1 = Math.min(_navW - 1, Math.floor((b.x + c) / NAV_CELL));
       const y0 = Math.max(0, Math.floor((b.y - c) / NAV_CELL));
@@ -2388,12 +3009,30 @@
           const hit = b.type === 'wall'
             ? (Math.abs(dx) < c && Math.abs(dy) < c)
             : (dx * dx + dy * dy < c * c);
-          if (hit) g[gy * _navW + gx] = 1;
+          if (!hit) continue;
+          g[gy * _navW + gx] = 1;
+          if (!b.gate) o[gy * _navW + gx] = 1;
         }
       }
     }
-    _navGrid = g; _navDirty = false; _navFields.clear();
-    return g;
+    _navBox = bx1 > bx0 ? { x0: bx0, y0: by0, x1: bx1, y1: by1 } : null;
+    _navGrid = g; _navOpen = o; _navDirty = false; _navFields.clear();
+    return thru ? o : g;
+  }
+
+  // Does the way from here to there come anywhere near what the hold has built?
+  // A box against a box, so a camp working its own corner is told no in four
+  // comparisons and walks its straight line as it always did. The margin is a
+  // wall's own width: brushing past the outside of one still has to count, or
+  // the last pace of the way round would be taken through it.
+  function _nearHold(a, b) {
+    _grid();
+    if (!_navBox) return false;
+    const pad = NAV_CELL * 2;
+    return Math.min(a.x, b.x) <= _navBox.x1 + pad &&
+           Math.max(a.x, b.x) >= _navBox.x0 - pad &&
+           Math.min(a.y, b.y) <= _navBox.y1 + pad &&
+           Math.max(a.y, b.y) >= _navBox.y0 - pad;
   }
 
   const _ci = (v) => Math.max(0, Math.min(_navW - 1, Math.floor(v / NAV_CELL)));
@@ -2401,9 +3040,12 @@
   const NAV_FAR = 0xffff;
 
   // Distances to one destination, in steps, over every square a person fits in.
-  function _field(gx, gy, reach) {
-    const g = _grid();
-    const key = (gy * _navW + gx) * 32 + Math.min(31, Math.round(reach / NAV_CELL));
+  function _field(gx, gy, reach, thru) {
+    const g = _grid(thru);
+    // The two sides remember their routes apart: the same errand to the same
+    // keep is a different walk depending on whether the gates are open to you.
+    const key = ((gy * _navW + gx) * 32 + Math.min(31, Math.round(reach / NAV_CELL))) * 2 +
+                (thru ? 1 : 0);
     const had = _navFields.get(key);
     if (had) return had;
     if (_navBudget >= NAV_PER_FRAME) return null;   // next frame will do
@@ -2449,8 +3091,8 @@
   // Is there anything between these two points? The last stretch is not asked
   // about: walking up to a building means the building itself is at the end of
   // the line, and it is supposed to be.
-  function _clearLine(x0, y0, x1, y1, stopShort) {
-    const g = _grid();
+  function _clearLine(x0, y0, x1, y1, stopShort, thru) {
+    const g = _grid(thru);
     const dx = x1 - x0, dy = y1 - y0;
     const len = Math.hypot(dx, dy);
     const to = Math.max(0, len - (stopShort || 0));
@@ -2469,7 +3111,7 @@
   // stands. A square on the far side of a wall he is leaning on is a foot away
   // and a world away, and taking it for a starting point is how somebody walled
   // out of a place comes to believe he is nearly there.
-  function _startCell(f, a) {
+  function _startCell(f, a, thru) {
     const here = _ci(a.y) * _navW + _ci(a.x);
     if (f[here] !== NAV_FAR) return here;
     let best = -1, bd = NAV_FAR;
@@ -2483,7 +3125,7 @@
           const i = y * _navW + x;
           if (f[i] >= bd) continue;
           const p = _cellPoint(i);
-          if (!_clearLine(a.x, a.y, p.x, p.y, 0)) continue;
+          if (!_clearLine(a.x, a.y, p.x, p.y, 0, thru)) continue;
           bd = f[i]; best = i;
         }
       }
@@ -2507,11 +3149,11 @@
   // walked at. Null means there is no way there at all — or that this frame has
   // worked out its share of routes and this one can wait a frame, which nobody
   // will see.
-  function _waypoint(a, to, reach) {
+  function _waypoint(a, to, reach, thru) {
     _grid();
-    const f = _field(_ci(to.x), _ci(to.y), reach);
+    const f = _field(_ci(to.x), _ci(to.y), reach, thru);
     if (!f) return null;
-    let i = _startCell(f, a);
+    let i = _startCell(f, a, thru);
     if (i < 0 || f[i] === NAV_FAR) return null;
     // How much walking is left by the route, which is what "getting somewhere"
     // means while going the long way round — see _walk.
@@ -2524,7 +3166,7 @@
       if (nx < 0) break;
       i = nx;
       const p = _cellPoint(i);
-      if (aim && !_clearLine(a.x, a.y, p.x, p.y, 0)) break;
+      if (aim && !_clearLine(a.x, a.y, p.x, p.y, 0, thru)) break;
       aim = p;
       if (f[i] === 0) break;
     }
@@ -2533,11 +3175,11 @@
 
   // Roughly how far the walk actually is, as against how far the thing looks.
   // Infinity means there is no way round at all.
-  function _routeLen(a, to, reach) {
+  function _routeLen(a, to, reach, thru) {
     _grid();
-    const f = _field(_ci(to.x), _ci(to.y), reach);
+    const f = _field(_ci(to.x), _ci(to.y), reach, thru);
     if (!f) return null;                       // not worked out yet, ask later
-    const i = _startCell(f, a);
+    const i = _startCell(f, a, thru);
     if (i < 0 || f[i] === NAV_FAR) return Infinity;
     return f[i] * NAV_CELL * 1.15;             // diagonals cost a little more
   }
@@ -2549,8 +3191,8 @@
   // The side that worked is remembered, because a walker that picks a fresh
   // side every frame leans on the obstacle and shivers there instead of getting
   // anywhere.
-  function _walk(a, b, dt, speed, reach) {
-    _expel(a, b);
+  function _walk(a, b, dt, speed, reach, thru) {
+    _expel(a, b, thru);
     // Every leg of an errand is judged on its own: walking back to the keep is
     // not failing to reach the mine.
     // Buildings and deposits number themselves separately, so the leg says
@@ -2568,13 +3210,13 @@
     // squeezing past whoever else is on the same errand.
     let mx = dx, my = dy;
     a._routeD = null;
-    if (!a._straight && !_clearLine(a.x, a.y, b.x, b.y, reach + NAV_CELL)) {
-      const p = _waypoint(a, b, reach);
+    if (!a._straight && !_clearLine(a.x, a.y, b.x, b.y, reach + NAV_CELL, thru)) {
+      const p = _waypoint(a, b, reach, thru);
       if (p) { mx = p.x - a.x; my = p.y - a.y; }
     }
     const md = Math.hypot(mx, my) || 1;
     const ux = mx / md, uy = my / md;
-    if (_tryStep(a, ux, uy, step, b)) {
+    if (_tryStep(a, ux, uy, step, b, thru)) {
       a._side = 0;
     } else {
       const side = a._side || (Math.random() < 0.5 ? 1 : -1);
@@ -2588,7 +3230,7 @@
       }
       let went = 0;
       for (let i = 0; i < ways.length; i++) {
-        if (_tryStep(a, ways[i][0], ways[i][1], step, b)) { went = i < 2 ? side : -side; break; }
+        if (_tryStep(a, ways[i][0], ways[i][1], step, b, thru)) { went = i < 2 ? side : -side; break; }
       }
       a._side = went;
     }
@@ -2754,6 +3396,192 @@
       const s = 50 + Math.random() * 150;
       _dust.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0.35, color });
     }
+  }
+
+  // ── Sound ─────────────────────────────────────────────────────────────────
+  // Everything the hold says out loud is made here, on the spot. No files ship
+  // with the app: a folder of samples is a bigger archive, a licence to keep
+  // track of and one more thing that can fail to load on a slow line, and
+  // nothing here needs more than a shaped tone and a hiss. It is deliberately
+  // not music — a game that is meant to be left running in a window is a game
+  // that must not be a soundtrack; these are the events, and only the events.
+  //
+  // The context is built on the first thing the player touches, because a
+  // browser refuses one made any earlier and a refused context stays broken
+  // for the whole visit. Everything goes through one gain, so the switch is one
+  // number, and it is remembered between visits.
+  const SND_KEY = 'sh_sound';
+  let _ac = null, _acOut = null, _muted = false;
+  try { _muted = localStorage.getItem(SND_KEY) === 'off'; } catch (e) {}
+
+  function _audio() {
+    if (_ac) {
+      // A context made during a gesture can still be handed back suspended —
+      // a tab that was in the background when it was built, most often.
+      if (_ac.state === 'suspended') _ac.resume().catch(() => {});
+      return _ac;
+    }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    try { _ac = new AC(); } catch (e) { return null; }
+    _acOut = _ac.createGain();
+    _acOut.gain.value = 0.5;
+    _acOut.connect(_ac.destination);
+    return _ac;
+  }
+
+  // How loud something happening out there is in here. What is on screen is
+  // heard properly and what is off it is heard faintly: a raid three holds
+  // away hammering on somebody else's wall is not an event in this room.
+  function _near(x, y) {
+    if (x == null || !_canvas) return 1;
+    const v = _view();
+    const sx = v.tx + x * v.k, sy = v.ty + y * v.k;
+    const pad = 40 * _dpr;
+    return (sx >= -pad && sx <= v.w + pad && sy >= -pad && sy <= v.h + pad)
+      ? 1 : 0.3;
+  }
+
+  // One shaped voice: a tone that slides from one pitch to another across its
+  // own length, with the attack and the tail written into the gain. Every
+  // sound below is a handful of these, and nothing is left connected once it
+  // has finished — an oscillator that is never stopped is a leak that hums.
+  function _tone(o) {
+    const ac = _audio(); if (!ac) return;
+    const t = ac.currentTime + (o.at || 0);
+    const len = o.len || 0.12;
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.type = o.wave || 'sine';
+    osc.frequency.setValueAtTime(o.from, t);
+    if (o.to && o.to !== o.from) osc.frequency.exponentialRampToValueAtTime(Math.max(1, o.to), t + len);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, o.vol || 0.2), t + Math.min(0.02, len / 3));
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    osc.connect(gain); gain.connect(_acOut);
+    osc.start(t); osc.stop(t + len + 0.02);
+  }
+
+  // A hiss with a shape: stone giving way, a blow landing, a thing coming
+  // apart. Made once and reused, because building a noise buffer per shot is
+  // the one thing here that would actually cost anything.
+  let _noiseBuf = null;
+  function _noise(o) {
+    const ac = _audio(); if (!ac) return;
+    if (!_noiseBuf) {
+      _noiseBuf = ac.createBuffer(1, ac.sampleRate * 0.5, ac.sampleRate);
+      const d = _noiseBuf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    const t = ac.currentTime + (o.at || 0);
+    const len = o.len || 0.15;
+    const src = ac.createBufferSource();
+    src.buffer = _noiseBuf;
+    src.playbackRate.value = 0.7 + Math.random() * 0.6;
+    const flt = ac.createBiquadFilter();
+    flt.type = o.type || 'bandpass';
+    flt.frequency.setValueAtTime(o.from || 900, t);
+    if (o.to) flt.frequency.exponentialRampToValueAtTime(Math.max(20, o.to), t + len);
+    flt.Q.value = o.q == null ? 1 : o.q;
+    const gain = ac.createGain();
+    gain.gain.setValueAtTime(Math.max(0.0001, o.vol || 0.2), t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    src.connect(flt); flt.connect(gain); gain.connect(_acOut);
+    src.start(t); src.stop(t + len + 0.02);
+  }
+
+  // The voices themselves. Each takes how loud it is allowed to be, so the
+  // same shot is the same shot whether it is under the camera or across the
+  // map. Kept short on purpose: a tower firing every two seconds is a sound
+  // that will be heard some thousands of times in one hold's life.
+  const SFX = {
+    // A tower letting one go: a hard, short crack, high and falling.
+    shot:   (v) => { _tone({ from: 880, to: 240, len: 0.09, wave: 'square', vol: 0.09 * v });
+                     _noise({ from: 2200, to: 700, len: 0.07, vol: 0.06 * v }); },
+    // And that round landing on somebody.
+    hit:    (v) => { _noise({ from: 1400, to: 300, len: 0.09, vol: 0.09 * v, q: 0.7 });
+                     _tone({ from: 320, to: 150, len: 0.07, wave: 'triangle', vol: 0.05 * v }); },
+    // A champion's bolt, thrown the other way: deeper, and it takes its time.
+    bolt:   (v) => { _tone({ from: 420, to: 120, len: 0.22, wave: 'sawtooth', vol: 0.08 * v }); },
+    // Spear on shield. This is the one that happens most, so it is the
+    // quietest thing here and the most tightly rationed — see SFX_GAP.
+    clash:  (v) => { _noise({ from: 2600, to: 1200, len: 0.06, vol: 0.05 * v, q: 2 });
+                     _tone({ from: 640, to: 380, len: 0.05, wave: 'square', vol: 0.03 * v }); },
+    // A party stepping off towards the hold: a horn, two notes, and it is
+    // meant to be heard over whatever else is going on.
+    raid:   (v) => { _tone({ from: 196, to: 196, len: 0.34, wave: 'sawtooth', vol: 0.11 * v });
+                     _tone({ from: 262, to: 262, len: 0.5, wave: 'sawtooth', vol: 0.11 * v, at: 0.3 }); },
+    // Something new standing where there was ground: two notes up.
+    build:  (v) => { _tone({ from: 523, to: 523, len: 0.1, wave: 'triangle', vol: 0.09 * v });
+                     _tone({ from: 784, to: 784, len: 0.16, wave: 'triangle', vol: 0.09 * v, at: 0.09 }); },
+    // A building grown a level: the same idea, one note further.
+    up:     (v) => { _tone({ from: 523, to: 523, len: 0.09, wave: 'triangle', vol: 0.08 * v });
+                     _tone({ from: 659, to: 659, len: 0.09, wave: 'triangle', vol: 0.08 * v, at: 0.08 });
+                     _tone({ from: 988, to: 988, len: 0.2, wave: 'triangle', vol: 0.09 * v, at: 0.16 }); },
+    // Stone coming down.
+    wreck:  (v) => { _noise({ from: 900, to: 90, len: 0.55, vol: 0.16 * v, q: 0.5, type: 'lowpass' });
+                     _tone({ from: 160, to: 55, len: 0.4, wave: 'sawtooth', vol: 0.08 * v }); },
+    // One of the hold's own, gone. Low, and it does not resolve.
+    fallen: (v) => { _tone({ from: 300, to: 90, len: 0.3, wave: 'sine', vol: 0.11 * v }); },
+    // A camp's keep finishing its champion, somewhere out there.
+    champ:  (v) => { _tone({ from: 110, to: 110, len: 0.45, wave: 'sawtooth', vol: 0.1 * v });
+                     _tone({ from: 165, to: 220, len: 0.4, wave: 'square', vol: 0.06 * v, at: 0.12 }); },
+    // And that champion face down in the mud, which is worth a fanfare.
+    slain:  (v) => { _tone({ from: 784, to: 784, len: 0.1, wave: 'triangle', vol: 0.1 * v });
+                     _tone({ from: 1047, to: 1047, len: 0.1, wave: 'triangle', vol: 0.1 * v, at: 0.09 });
+                     _tone({ from: 1319, to: 660, len: 0.3, wave: 'triangle', vol: 0.1 * v, at: 0.18 }); },
+    // A raider down. Almost nothing on its own — it is the drumbeat of a
+    // battle going well, not an announcement.
+    kill:   (v) => { _noise({ from: 700, to: 200, len: 0.12, vol: 0.06 * v, q: 0.8 }); },
+    // Something put down on the map, and something the hold will not do.
+    place:  (v) => { _tone({ from: 440, to: 660, len: 0.07, wave: 'triangle', vol: 0.07 * v }); },
+    deny:   (v) => { _tone({ from: 220, to: 130, len: 0.16, wave: 'square', vol: 0.06 * v }); },
+    // The keep gone, and with it the hold.
+    over:   (v) => { _noise({ from: 700, to: 60, len: 1.1, vol: 0.2 * v, q: 0.4, type: 'lowpass' });
+                     _tone({ from: 220, to: 55, len: 1.0, wave: 'sawtooth', vol: 0.12 * v }); },
+  };
+
+  // The shortest gap between two of the same voice. Ten towers firing in the
+  // same frame are one crack, not ten stacked on top of each other — stacking
+  // is both deafening and, for a browser, expensive.
+  const SFX_GAP = { shot: 90, hit: 70, clash: 220, kill: 120, bolt: 140,
+                    fallen: 300, wreck: 200 };
+  const _sfxAt = {};
+
+  // Say it. Takes where it happened, when that is known, so the map decides
+  // how loud it is.
+  function _sfx(name, x, y) {
+    if (_muted || !_ac || _paused || document.hidden) return;
+    const v = SFX[name]; if (!v) return;
+    const now = performance.now();
+    const gap = SFX_GAP[name] || 40;
+    if (_sfxAt[name] && now - _sfxAt[name] < gap) return;
+    _sfxAt[name] = now;
+    try { v(_near(x, y)); } catch (e) {}
+  }
+
+  // The first touch of the game, whatever it was aimed at. It only ever builds
+  // the context — nothing is played here — and it keeps working after it has
+  // fired, because a context can be closed under the page by the system and
+  // asking for it again is how it comes back.
+  function _wake() { if (!_muted) _audio(); }
+
+  // The switch. The context is made here rather than at load, because this is
+  // a click and a click is what a browser wants to see before it will let
+  // anything make a noise at all.
+  function _soundToggle() {
+    _muted = !_muted;
+    try { localStorage.setItem(SND_KEY, _muted ? 'off' : 'on'); } catch (e) {}
+    if (!_muted) { _audio(); _sfx('place'); }
+    _soundBtn();
+  }
+
+  function _soundBtn() {
+    if (!_root) return;
+    const el = _root.querySelector('[data-zoom="sound"]');
+    if (!el) return;
+    el.textContent = _muted ? '🔇' : '🔊';
+    el.title = _t(_muted ? 'sh_sound_off' : 'sh_sound_on');
   }
 
   function _score() {
@@ -2925,7 +3753,7 @@
     // all. Put it down anywhere and somebody moves in.
     _placing = _freeFirst('house') ? 'house' : null;
     _ghost = null;
-    _selected = null; _selDep = null; _selFac = null;
+    _selected = null; _selDep = null; _selFac = null; _selBoss = null;
     if (_placing && !_narrow()) _previewPanel(_placing); else _closePanel();
     _navChanged();
     _lookAt({ x: x, y: y }, _homeZoom());
@@ -2939,7 +3767,7 @@
   function _place(type, x, y) {
     if (type === 'keep') return _found(x, y);
     const why = _canPlace(type, x, y);
-    if (why) return _say(_t(why));
+    if (why) { _sfx('deny'); return _say(_t(why)); }
     const cost = _newCost(type);
     _pay(cost);
     // The free first house is up the moment it is placed. Everything else is
@@ -2952,6 +3780,7 @@
       hp: _maxHp(type, 1), built: done ? 1 : 0, ammo: 0, _rl: 0, _sp: 0,
     });
     if (done) _burst(x, y, _css('--green', '#a6e3a1'), 10);
+    _sfx(done ? 'build' : 'place', x, y);
     _navChanged();          // one more thing to walk round
     // A wall is laid piece by piece and nobody ever means to lay one square, so
     // it stays in hand: put one down and the next is already picked up. Going
@@ -2973,12 +3802,49 @@
     _push();
   }
 
+  // Whether this very building could be raised right now — the same three
+  // questions _upgrade asks, in the same order, so what the map offers and what
+  // the button does can never drift apart.
+  function _canUp(b) {
+    return b.built >= 1 && b.up == null && !_atMax(b.lvl) &&
+           _canPay(_cost(b.type, b.lvl + 1));
+  }
+
+  // A doorway cut into a piece of wall the hold already owns. It is the same
+  // wall afterwards — the same stone at the same level with the same integrity,
+  // and anybody who comes to break it is breaking a wall — except that the
+  // hold's own people walk through it instead of round the whole ring. What it
+  // costs is another piece of wall's worth of materials: the frame, the hinges
+  // and the leaf, and the point of charging for it is that a hold has to decide
+  // where the way in goes rather than putting one in every square.
+  //
+  // Bricking it up again is free and gives nothing back. A hold that changes
+  // its mind about where its road runs should not be punished for it, and
+  // nobody has ever been paid for filling a hole in.
+  function _gateWay(b) {
+    if (b.type !== 'wall' || b.built < 1 || b.up != null) return;
+    if (b.gate) {
+      delete b.gate;
+    } else {
+      const cost = _newCost('wall');
+      if (!_canPay(cost)) { _sfx('deny'); return _say(_t('sh_cant_afford')); }
+      _pay(cost);
+      b.gate = 1;
+    }
+    // The ring the hold walks has changed shape, for the hold only.
+    _navChanged();
+    _sfx('place', b.x, b.y);
+    _renderPanel();
+    _push();
+  }
+
   function _upgrade(b) {
     if (_atMax(b.lvl)) return;
     if (b.up != null) return;
     const cost = _cost(b.type, b.lvl + 1);
-    if (!_canPay(cost)) return _say(_t('sh_cant_afford'));
+    if (!_canPay(cost)) { _sfx('deny'); return _say(_t('sh_cant_afford')); }
     _pay(cost);
+    _sfx('place', b.x, b.y);
     b.up = 0;                    // the people have to build it, level by level
     _renderPanel();
     _push();
@@ -3027,7 +3893,13 @@
     }
     _renderHud();
     _renderBar();
-    _showOver();
+    // Solo: this is the run, and it is over — the card says so. Multiplayer:
+    // it is only this hold's turn that is over, others may still be
+    // standing, so the map stays up and the room says when it is truly done
+    // (sh_game_over, see _showFinalStandings).
+    if (_solo) { _showOver(); return; }
+    _spectating = true;
+    _say(_t('sh_mp_spectating'));
   }
 
   // ── HUD ───────────────────────────────────────────────────────────────────
@@ -3052,28 +3924,52 @@
       // here the same number carried no ceiling and no location, and said the
       // thing twice.
       _cell('people', _t('sh_people')) +
-      _cell('hp',     _t('sh_stat_hp')) +
+      // Men standing against the men the barracks can hold. Without the second
+      // number a full army and an empty one read the same, and the answer to
+      // "why is nobody walking out" is another barracks, not more waiting.
+      _cell('army',   _t('sh_army')) +
       _cell('score',  _t('sh_score')) +
       // The four corners, always on screen. This is the answer to never seeing
       // the enemy: each one says who it is, what rank its keep has reached and
       // whether its men are on the road — and tapping it takes the camera
       // there, so "how is the north-west getting on" is one thumb away.
       '<div class="sh-facs" id="sh-facs"></div>' +
-      (_over ? '' : '<button id="sh-exit" class="sh-btn">' + _esc(_t('sh_exit')) + '</button>');
+      // Solo hides the button once the card is up — it has its own way back
+      // to the hub. Multiplayer never gets that card (see _end), so leaving
+      // while spectating needs its own door.
+      (_over && _solo ? '' : '<button id="sh-exit" class="sh-btn">' + _esc(_t('sh_exit')) + '</button>');
     const exit = _hud.querySelector('#sh-exit');
-    // The hub only opens its stop-for-now prompt while the run can actually be
-    // saved, and it says nothing when it cannot — which is indistinguishable
-    // from a dead button. It cannot when the room is gone: the backend was
-    // restarted, or the socket has been down long enough to lose it. Say that,
-    // because the hold itself is not lost — it is written down, and reloading
-    // picks it back up.
     if (exit) exit.onclick = () => {
+      if (!_solo) {
+        // No save in multiplayer — everyone plays together, so there is
+        // nothing here to hand back later, only a room to walk out of.
+        if (confirm(_t('sh_mp_leave_confirm'))) mp.leave();
+        return;
+      }
+      // The hub only opens its stop-for-now prompt while the run can actually
+      // be saved, and it says nothing when it cannot — which is
+      // indistinguishable from a dead button. It cannot when the room is
+      // gone: the backend was restarted, or the socket has been down long
+      // enough to lose it. Say that, because the hold itself is not lost —
+      // it is written down, and reloading picks it back up.
       if (typeof mp.canSave === 'function' && !mp.canSave()) return _say(_t('sh_no_room_left'));
       mp.exitPrompt();
     };
     _renderChips();
+    _renderPresence();
     _syncHud();
   }
+
+  // The number on a camp's chip. Two different things, and which one it is is
+  // decided by whether that camp has anybody on the map: while a party of
+  // theirs is out, the chip is the party — how many are still coming, counting
+  // down as the towers take them, which is the one number worth watching while
+  // it is happening. The rest of the time it is the camp itself, standing
+  // armed at home, which is how a raid is seen coming before it leaves. The
+  // chip goes red for exactly as long as it means the first of the two, and
+  // the camp's own panel always shows both.
+  const _facOut  = (f) => _raiders.filter(r => r.fx === f.id).length;
+  const _facChip = (f) => { const out = _facOut(f); return out || f.army.length; };
 
   function _renderChips() {
     const box = _hud && _hud.querySelector('#sh-facs');
@@ -3084,7 +3980,7 @@
               'style="--fc:' + f.color + '">' +
               '<span class="sh-fdot"></span>' +
               '<span class="sh-fnm">' + _esc(_facShort(f)) + '</span>' +
-              '<span class="sh-flv" data-fl="' + f.id + '">1</span></button>';
+              '<span class="sh-flv" data-fl="' + f.id + '">' + _facChip(f) + '</span></button>';
     }
     box.innerHTML = html;
     box.querySelectorAll('[data-fac]').forEach(el => {
@@ -3101,12 +3997,164 @@
     _measure();
   }
 
+  // Who else is in this room, as a row of chips a solo game never shows. On
+  // a phone the row is a single button that opens into the same list, so a
+  // panel nobody asked for never sits on top of the map.
+  function _renderPresence() {
+    if (!_players) return;
+    if (_solo || mp.players().length < 2) { _players.innerHTML = ''; return; }
+    const you = mp.youId();
+    const roster = mp.players().filter(p => p.id !== you);
+    const chip = (p) => {
+      const o = _others[p.id] || {};
+      const cls = o.fallen ? 'fallen' : (p.connected ? 'live' : 'gone');
+      const score = o.score != null ? o.score : '–';
+      return '<button class="sh-plr sh-plr-' + cls + '" data-peek="' + _esc(p.id) + '">' +
+        mp.renderAvatar(p, 22) +
+        '<span class="sh-plr-nm">' + _esc(p.display_name || '?') + '</span>' +
+        '<span class="sh-plr-sc">' + score + '</span>' +
+        '</button>';
+    };
+    if (_narrow()) {
+      _players.innerHTML =
+        '<button id="sh-plr-toggle" class="sh-plr-toggle">👥<span class="sh-plr-count">' +
+        roster.length + '</span></button>' +
+        '<div class="sh-plr-list' + (_playersOpen ? ' open' : '') + '">' +
+        roster.map(chip).join('') + '</div>';
+      _players.querySelector('#sh-plr-toggle').onclick = () => {
+        _playersOpen = !_playersOpen;
+        _renderPresence();
+      };
+    } else {
+      _players.innerHTML = '<div class="sh-plr-list open">' + roster.map(chip).join('') + '</div>';
+    }
+    _players.querySelectorAll('[data-peek]').forEach(el => {
+      el.onclick = (ev) => { ev.stopPropagation(); _peek(el.dataset.peek); };
+    });
+  }
+
+  // One frame of somebody else's hold, asked for on a tap. sh_peek_result
+  // answers once, not on a subscription — see _drawPeek — so this asks again
+  // every few seconds for as long as the sheet stays open.
+  function _peek(pid) {
+    if (!pid || pid === mp.youId() || !_peekOverlay) return;
+    _peekFor = pid;
+    _peekOverlay.classList.add('open');
+    const p = mp.players().find(pl => pl.id === pid) || {};
+    const nameEl = _peekOverlay.querySelector('#sh-peek-name');
+    if (nameEl) nameEl.textContent = p.display_name || '?';
+    const ask = () => { if (_peekFor) mp.send({ type: 'sh_peek', player_id: _peekFor }); };
+    ask();
+    clearInterval(_peekTimer);
+    _peekTimer = setInterval(ask, 4000);
+  }
+
+  function _closePeek() {
+    _peekFor = null;
+    clearInterval(_peekTimer);
+    _peekTimer = null;
+    if (_peekOverlay) _peekOverlay.classList.remove('open');
+  }
+
+  // Read-only, and drawn on a canvas of its own: nothing here may touch
+  // _hold, _cam or the render loop, or a peek could stall the very clock
+  // _plausible on the server is checking it against.
+  function _drawPeek(msg) {
+    if (!_peekOverlay || !_peekCanvas || !_peekCtx || _peekFor !== msg.player_id) return;
+    const state = msg.state;
+    const statEl = _peekOverlay.querySelector('#sh-peek-stats');
+    if (!state) {
+      if (statEl) statEl.textContent = _t('sh_peek_empty');
+      _peekCtx.clearRect(0, 0, _peekCanvas.width, _peekCanvas.height);
+      return;
+    }
+    if (statEl) {
+      statEl.textContent = ((state.stats && state.stats.score) || 0) + ' · ' +
+        _fmtSpan(Math.round(state.elapsed || 0));
+    }
+
+    const box = _peekCanvas.parentElement.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const w = Math.max(100, Math.round(box.width * dpr));
+    const h = Math.max(100, Math.round(box.height * dpr));
+    if (_peekCanvas.width !== w) _peekCanvas.width = w;
+    if (_peekCanvas.height !== h) _peekCanvas.height = h;
+
+    const buildings = state.buildings || [];
+    const keep = buildings.find(b => b.keep) || buildings[0];
+    const cx = keep ? keep.x : W() / 2, cy = keep ? keep.y : W() / 2;
+    const k = Math.min(w, h) / 1400;
+
+    // A synchronous swap, restored before this function returns — the RAF
+    // loop only ever runs between script turns, never inside one, so the
+    // real hold and its own canvas are exactly as they were the moment this
+    // returns. See the comment above: this is what keeps that true.
+    const savedG = _g, savedHold = _hold;
+    _g = _peekCtx; _hold = state;
+    try {
+      _g.setTransform(1, 0, 0, 1, 0, 0);
+      _g.fillStyle = _css('--bg', '#11111b');
+      _g.fillRect(0, 0, w, h);
+      _g.setTransform(k, 0, 0, k, w / 2 - cx * k, h / 2 - cy * k);
+      _g.fillStyle = _css('--surface1', '#181825');
+      _g.fillRect(0, 0, W(), W());
+
+      const acc = _css('--accent', '#89b4fa'), green = _css('--green', '#a6e3a1'),
+            red = _css('--red', '#f38ba8');
+      _g.textAlign = 'center'; _g.textBaseline = 'middle';
+      for (const b of buildings) _drawBuilding(b, acc, green, red);
+      for (const w2 of (state.workers || [])) _fig('worker', w2.x, w2.y, 20, acc, 1);
+      for (const s of (state.soldiers || [])) _fig('soldier', s.x, s.y, 20, green, 1);
+      for (const r of (state.raiders || [])) {
+        const f = (state.factions || []).find(f2 => f2.id === r.fx);
+        // A champion is the one thing worth picking out of somebody else's
+        // raid at this size: whether the party over there has one is most of
+        // what the player is looking at another hold to find out.
+        _fig('raider', r.x, r.y, r.boss ? _bossSize(r.blvl || 1) - 4 : 22,
+             (f && f.color) || red, 1);
+      }
+      // Somebody else's hold gets its badges put down here and now: they are
+      // collected as the buildings are drawn, and a collection left standing
+      // would come out on the next frame of this player's own map.
+      _flushBadges();
+    } finally {
+      _g = savedG; _hold = savedHold;
+    }
+  }
+
+  // The room is done: everyone's hold has fallen, ranked by score. The
+  // multiplayer counterpart to _showOver — same overlay, a ranking instead
+  // of one card, and no play-again: a room is one race, not a queue of them.
+  function _showFinalStandings(standings) {
+    _over = true;
+    _spectating = false;
+    _closePeek();
+    const you = mp.youId();
+    const rows = standings.map((s, i) => {
+      const p = mp.players().find(pl => pl.id === s.player_id) || {};
+      return '<div class="sh-rank-row' + (s.player_id === you ? ' me' : '') + '">' +
+        '<div class="sh-rank-n">' + (i + 1) + '</div>' +
+        mp.renderAvatar(p, 28) +
+        '<div class="sh-rank-nm">' + _esc(p.display_name || '?') + '</div>' +
+        '<div class="sh-rank-sc">' + (s.score || 0) + '</div>' +
+        '<div class="sh-rank-tm">' + _fmtSpan(Math.round(s.elapsed || 0)) + '</div>' +
+        '</div>';
+    }).join('');
+    _overlay.style.display = 'flex';
+    _overlay.innerHTML =
+      '<div class="sh-card sh-card-wide">' +
+      '<div style="font-size:2.4rem;line-height:1">🏯</div>' +
+      '<div class="sh-card-t">' + _esc(_t('sh_mp_over_title')) + '</div>' +
+      '<div class="sh-rank-list">' + rows + '</div>' +
+      '<div class="sh-card-r">' +
+      '<a href="/pub/gamehub/?game=' + GAME_ID + '" class="sh-link">' + _esc(_t('sh_back_to_hub')) + '</a>' +
+      '</div></div>';
+  }
+
   // Twice a second: numbers only, no markup. Everything here is a text node
   // that already exists.
   function _syncHud() {
     if (!_hud || !_hold) return;
-    const keep = _keep();
-    const hp = keep ? Math.max(0, Math.round((keep.hp / _maxHp('tower', keep.lvl, true)) * 100)) : 0;
     const put = (k, v, color) => {
       const el = _hud.querySelector('[data-k="' + k + '"]');
       if (!el) return;
@@ -3118,21 +4166,19 @@
     put('stone', Math.floor(_hold.stone || 0));
     put('iron',  Math.floor(_hold.iron || 0));
     put('people', _hold.workers.length + (_hold._cap ? ' / ' + _hold._cap : ''));
-    // Before there is a keep there is nothing to be at 0% of: a hold that has
-    // not been founded is not a hold about to fall.
-    put('hp', keep ? hp + '%' : '—',
-        !keep ? '' :
-        hp > 50 ? 'var(--green,#a6e3a1)' : hp > 20 ? 'var(--yellow,#f9e2af)' : 'var(--red,#f38ba8)');
+    put('army', _hold.soldiers.length + ' / ' + _holdSoldiers());
     put('score', _hold.stats.score || 0);
     // A chip goes red while that camp has men on the map: the raid says where
-    // it came from before it arrives.
+    // it came from before it arrives. The number on it is men, never the keep's
+    // level — a camp can be high level and thin, or low level and swarming, and
+    // the level told the player neither — and which men it counts is _facChip:
+    // the party while one is out, the camp the rest of the time.
     for (const f of _hold.factions) {
       const el = _hud.querySelector('[data-fl="' + f.id + '"]');
       if (!el) continue;
-      const s = String(f.lvl);
+      const s = String(_facChip(f));
       if (el.textContent !== s) el.textContent = s;
-      const coming = _raiders.some(r => r.fx === f.id);
-      el.parentNode.classList.toggle('war', coming);
+      el.parentNode.classList.toggle('war', _facOut(f) > 0);
     }
     _renderHint();
   }
@@ -3241,7 +4287,7 @@
       el.onclick = () => {
         _placing = (_placing === el.dataset.build) ? null : el.dataset.build;
         _ghost = null;
-        _selected = null; _selDep = null; _selFac = null;
+        _selected = null; _selDep = null; _selFac = null; _selBoss = null;
         // Picking a building up shows what it would do before a spot is chosen:
         // the same panel a finished one opens, minus everything that only a
         // standing building can answer.
@@ -3469,6 +4515,21 @@
                     clientY: (p[0].clientY + p[1].clientY) / 2 });
   }
 
+  // Whoever of them is standing under the tap and is a champion: out on the
+  // march, or still in his own corner where he can be looked at before he ever
+  // walks out.
+  function _bossAt(w, slack) {
+    const near = (u) => Math.hypot(u.x - w.x, u.y - w.y) <=
+                        _bossSize(u.blvl || 1) * 0.6 + slack;
+    const out = _raiders.find(r => r.boss && near(r));
+    if (out) return out;
+    for (const f of _hold.factions) {
+      const home = f.army.find(u => u.boss && near(u));
+      if (home) return home;
+    }
+    return null;
+  }
+
   function _tap(w) {
     if (!_hold || _over || _paused) return;
     if (_placing) {
@@ -3489,6 +4550,19 @@
     // smaller target on a map drawn whole, and a fingertip is wider than a
     // cursor whatever the zoom.
     const slack = (_touch ? 14 : 8) + 10 / _cam.z;
+
+    // A champion first. He is the one thing on the map that is worth asking a
+    // question about while it is moving — how far his power carries — and he
+    // is drawn over everything he is standing on, so a tap that landed on him
+    // meant him. Tapping him again puts the circle away.
+    const boss = _bossAt(w, slack);
+    if (boss) {
+      _selBoss = _selBoss === boss ? null : boss;
+      _draw();
+      return;
+    }
+    _selBoss = null;
+
     const hit = _hold.buildings.find(b => Math.hypot(b.x - w.x, b.y - w.y) <= _bc(b.type).size + slack);
     if (hit) { _selected = hit; _selDep = null; _selFac = null; _renderPanel(); return; }
 
@@ -3637,17 +4711,60 @@
     return html;
   }
 
-  function _renderPanel() {
-    const b = _selected;
-    if (!b || !_hold.buildings.includes(b)) { _closePanel(); return; }
+  // The panel is refreshed twice a second — hitpoints, rounds, whether the
+  // purse has caught up with the price — and every refresh used to replace the
+  // whole of it, buttons included. Press "upgrade", have the tick land between
+  // the press and the release, and the button the release belonged to no
+  // longer exists: the tap goes nowhere. It reads as the game ignoring you,
+  // and it happens more the longer the finger is down, which is exactly what
+  // a careful press is. The build bar has always known this — see the note on
+  // _markAffordable — and the panel is the same thing with the same answer.
+  //
+  // So the panel is never rewritten under a finger, and never rewritten when
+  // the markup has not actually changed.
+  let _panelHtml = '';
+  let _panelKey  = '';
+  let _panelDown = 0;
+
+  function _panel() {
     let panel = _root.querySelector('#sh-panel');
     if (!panel) {
       panel = document.createElement('div');
       panel.id = 'sh-panel';
+      panel.addEventListener('pointerdown', () => { _panelDown = Date.now(); });
+      // Let go, cancelled, or the finger has left the panel: the refresh is
+      // allowed back in on the next tick rather than in the middle of the
+      // click still being dispatched, which is what the timeout is for.
+      const free = () => setTimeout(() => { _panelDown = 0; }, 0);
+      panel.addEventListener('pointerup', free);
+      panel.addEventListener('pointercancel', free);
+      panel.addEventListener('pointerleave', free);
       _root.appendChild(panel);
     }
-    const name = b.keep ? _t('sh_b_keep') : _t('sh_b_' + b.type);
-    const desc = b.keep ? _t('sh_d_keep') : _t('sh_d_' + b.type);
+    return panel;
+  }
+
+  // Put markup in the panel, or leave it exactly as it is. The key is what the
+  // panel is about: two towers at the same level with the same rounds in them
+  // write the same markup, and swapping selection between them has to rebind
+  // the buttons even though nothing on screen moves.
+  function _panelSet(panel, key, html) {
+    if (key === _panelKey && html === _panelHtml) return false;
+    // Held no longer than a real press can last, so a pointerup that never
+    // arrives cannot leave the panel frozen.
+    if (_panelDown && Date.now() - _panelDown < 3000) return false;
+    panel.innerHTML = html;
+    _panelHtml = html;
+    _panelKey  = key;
+    return true;
+  }
+
+  function _renderPanel() {
+    const b = _selected;
+    if (!b || !_hold.buildings.includes(b)) { _closePanel(); return; }
+    const panel = _panel();
+    const name = b.keep ? _t('sh_b_keep') : _t(b.gate ? 'sh_b_gate' : 'sh_b_' + b.type);
+    const desc = b.keep ? _t('sh_d_keep') : _t(b.gate ? 'sh_d_gate' : 'sh_d_' + b.type);
     const hp   = Math.max(0, Math.round((b.hp / _maxHp(b.type, b.lvl, b.keep)) * 100));
     const max  = _atMax(b.lvl);
     const cost = _cost(b.type, b.lvl + 1);
@@ -3667,8 +4784,9 @@
                _esc(_t('sh_upgrade')) + ' · ' + _costLabel(cost, true) + '</button>';
     }
 
-    panel.innerHTML =
-      '<div class="sh-head"><span class="sh-gl">' + (b.keep ? GLYPH.keep : GLYPH[b.type]) + '</span>' +
+    const html =
+      '<div class="sh-head"><span class="sh-gl">' +
+        (b.keep ? GLYPH.keep : b.gate ? GLYPH.gate : GLYPH[b.type]) + '</span>' +
       '<span><b>' + _esc(name) + '</b><small>' + _esc(_t('sh_level', { n: b.lvl })) + '</small></span>' +
       '<button id="sh-x" class="sh-x">✕</button></div>' +
       '<div class="sh-desc">' + _esc(desc) + '</div>' +
@@ -3679,15 +4797,27 @@
       // judge: at max level, or mid-build, it would be a column of dots.
       _statTable(b.type, b.lvl, b, !max && b.built >= 1 && b.up == null) +
       action +
+      // A way through, on the wall itself: the wall is the only thing on the
+      // map with a second thing it can be, and the piece being looked at is
+      // where that decision belongs.
+      (b.type === 'wall' && b.built >= 1
+        ? '<button id="sh-gate" class="sh-go' +
+          (b.gate || _canPay(_newCost('wall')) ? '' : ' poor') + '">' +
+          _esc(_t(b.gate ? 'sh_gate_shut' : 'sh_gate_cut')) +
+          (b.gate ? '' : ' · ' + _costLabel(_newCost('wall'), true)) + '</button>'
+        : '') +
       // The refund is on the button, not in the confirmation: whether pulling
       // something down is worth it is decided while looking at it.
       (b.keep ? '' : '<button id="sh-del" class="sh-del">' + _esc(_t('sh_demolish')) +
         ' · ' + _refundLabel(b) + '</button>');
 
     panel.style.display = 'flex';
+    if (!_panelSet(panel, 'b' + b.id, html)) return;
     panel.querySelector('#sh-x').onclick = () => { _selected = null; _closePanel(); };
     const up = panel.querySelector('#sh-up');
     if (up) up.onclick = () => _upgrade(b);
+    const gate = panel.querySelector('#sh-gate');
+    if (gate) gate.onclick = () => _gateWay(b);
     const del = panel.querySelector('#sh-del');
     if (del) del.onclick = () => { if (confirm(_t('sh_demolish_ask'))) _demolish(b); };
   }
@@ -3733,18 +4863,13 @@
   // the one moment a player has no way to look any of that up, because until
   // now it could only be read off something already standing.
   function _previewPanel(type) {
-    let panel = _root.querySelector('#sh-panel');
-    if (!panel) {
-      panel = document.createElement('div');
-      panel.id = 'sh-panel';
-      _root.appendChild(panel);
-    }
+    const panel = _panel();
     // The keep is a special case: it is not built, it is where the hold begins,
     // so there is no price to show and the stat table has nothing to read a
     // level off. What matters is where it is being put down.
     const found = type === 'keep';
     const cost = found ? null : _newCost(type);
-    panel.innerHTML =
+    const html =
       '<div class="sh-head"><span class="sh-gl">' + GLYPH[type] + '</span>' +
       '<span><b>' + _esc(_t('sh_b_' + type)) + '</b>' +
       '<small>' + _esc(_t(found ? 'sh_found_free' : 'sh_preview')) + '</small></span>' +
@@ -3759,6 +4884,7 @@
       (found ? '<div class="sh-why">' + _esc(_t('sh_found_where')) + '</div>' : '');
 
     panel.style.display = 'flex';
+    if (!_panelSet(panel, 'p' + type, html)) return;
     // Closing the keep's card only puts the card away: there is nothing to give
     // up on, so the map stays in founding mode underneath it.
     panel.querySelector('#sh-x').onclick = () => { if (found) _closePanel(); else _cancelPlacing(); };
@@ -3769,15 +4895,23 @@
   // it reads what is on the map rather than telling the player a secret. How
   // many men are standing about, how many it wants before it marches, how many
   // it has already sent and how many of those never went home again.
+  // Who their champion is, in one line: what he carries and what the keep was
+  // at when it made him. He does not grow after he walks out — a keep raised
+  // behind him makes the next one better, not this one.
+  function _bossLine(f) {
+    const b = f.army.find(s => s.boss) ||
+              _raiders.find(r => r.fx === f.id && r.boss);
+    if (!b) return _t('sh_boss_none');
+    return _t('sh_boss_at', {
+      power: _t('sh_boss_' + (b.power || 'warlord')),
+      n: b.blvl || 1,
+    });
+  }
+
   function _renderFacPanel() {
     const f = _selFac;
     if (!f) { _closePanel(); return; }
-    let panel = _root.querySelector('#sh-panel');
-    if (!panel) {
-      panel = document.createElement('div');
-      panel.id = 'sh-panel';
-      _root.appendChild(panel);
-    }
+    const panel = _panel();
     const out   = _raiders.filter(r => r.fx === f.id).length;
     const need  = _facNeed(f);
     const known = f.known;
@@ -3787,14 +4921,18 @@
       // No ceiling on either of these any more, on either side of the map: a
       // camp buys what it can pay for, exactly as the hold does, so what is
       // worth showing is what is standing.
-      _statRow(_t('sh_fac_huts'), String(_facOf(f, 'hut').length)) +
-      _statRow(_t('sh_fac_barracks'), String(_facOf(f, 'barracks').length)) +
+      _statRow(_t('sh_fac_huts'), _facCount(f, 'hut')) +
+      _statRow(_t('sh_fac_barracks'), _facCount(f, 'barracks')) +
       _statRow(_t('sh_fac_army'),
-               f.army.length + ' / ' + (known ? need : '?')) +
+               _facMen(f) + ' / ' + (known ? need : '?')) +
+      // Their keep's own man, and what he does. A power the player cannot read
+      // is a power the player cannot answer.
+      _statRow(_t('sh_fac_boss'), _bossLine(f)) +
       // What their last look told them, which is the only thing they act on.
       _statRow(_t('sh_fac_scout'),
-               f.scout ? _t('sh_scout_out') : _t('sh_scout_home', { n: Math.ceil(
-                 Math.max(0, (_sc().every || 120) - (f.watch || 0))) })) +
+               f.scout ? _t('sh_scout_out')
+               : known ? _t('sh_scout_done')
+               : _t('sh_scout_home', { have: f.army.length, n: f.needFloor || _sc().scout_min || 1 })) +
       _statRow(_t('sh_fac_counted'),
                known ? _t('sh_fac_counted_at', { n: known.threat, t: known.towers })
                      : _t('sh_fac_never')) +
@@ -3812,7 +4950,7 @@
                : f.army.length >= need ? _t('sh_fac_ready')
                : _t('sh_fac_too_weak', { n: need, have: f.army.length });
 
-    panel.innerHTML =
+    const html =
       '<div class="sh-head"><span class="sh-gl" style="color:' + f.color + '">' + GLYPH.fkeep + '</span>' +
       '<span><b>' + _esc(_facName(f)) + '</b><small>' + _esc(_t('sh_fac_camp')) + '</small></span>' +
       '<button id="sh-x" class="sh-x">✕</button></div>' +
@@ -3820,12 +4958,16 @@
       rows +
       '<div class="sh-note">' + _esc(note) + '</div>';
     panel.style.display = 'flex';
+    if (!_panelSet(panel, 'f' + f.id, html)) return;
     panel.querySelector('#sh-x').onclick = () => { _selFac = null; _closePanel(); };
   }
 
   function _closePanel() {
     const panel = _root && _root.querySelector('#sh-panel');
     if (panel) panel.style.display = 'none';
+    // Shut and reopened is a fresh panel, whatever it last held: the markup it
+    // is compared against goes with it.
+    _panelHtml = ''; _panelKey = ''; _panelDown = 0;
   }
 
   // ── The placing strip ─────────────────────────────────────────────────────
@@ -4179,6 +5321,7 @@
           _g.strokeStyle = f.color; _g.globalAlpha = 0.7; _g.lineWidth = 2 / _cam.z;
           _g.strokeRect(b.x - r, b.y - r * 0.9, r * 2, r * 1.8);
           _g.globalAlpha = 1;
+          _badge(b, r);
         } else {
           _drawBody(type, b.x, b.y, r, null, null, over);
           if (b.hp < b.maxHp - 0.5) {
@@ -4186,6 +5329,13 @@
             _g.fillStyle = f.color;
             _g.fillRect(b.x - r, b.y - r - 8, r * 2 * Math.max(0, b.hp / b.maxHp), 3);
           }
+          // How deep it is, and the level going up in it — the same badge the
+          // hold wears and in the same colours, so four level-one barracks and
+          // four level-five barracks are two different corners at a glance.
+          // They raise buildings now rather than only putting more of them
+          // down, and a camp getting deeper is worth as much warning as a camp
+          // getting wider.
+          if (b.up != null || b.lvl > 1) _badge(b, r);
         }
       }
       // Their people, carrying the same marks the player's do — a camp digging
@@ -4203,10 +5353,17 @@
           // the way home. A camp working iron is a camp arming itself, and
           // that is worth seeing a walk earlier than the load arriving.
           const dep = _depById(u.dep);
-          if (!u.carry) _g.globalAlpha = 0.4;
-          _g.fillText(RES_GLYPH[(dep && dep.kind) || u.res] || '⛏',
-                      u.x, u.y - 13);
-          _g.globalAlpha = 1;
+          const gl = RES_GLYPH[(dep && dep.kind) || u.res] || '⛏';
+          if (u.carry) {
+            _g.fillText(gl, u.x, u.y - 13);
+          } else {
+            // Filling as they cut it, exactly as the hold's own do — a corner
+            // standing over a seam is a corner about to be richer, and that is
+            // worth watching happen.
+            _glyphFill(gl, u.x, u.y - 13, 11,
+                       u.phase === 'work' && dep
+                         ? (u.t || 0) / (_gat(dep.kind).time || 5) : 0);
+          }
         }
         if (u.hp != null && u.hp < B.worker.hp) {
           _g.fillStyle = 'rgba(0,0,0,.45)'; _g.fillRect(u.x - 8, u.y - 20, 16, 3);
@@ -4217,12 +5374,20 @@
       // The men who have been armed and are waiting for the rest of the party.
       // Counting them is how the player judges when the next raid is coming.
       for (const s of f.army) {
-        _fig('raider', s.x, s.y, 23, f.color);
-        if (s._lock) { _g.font = '11px serif'; _g.fillText('⚔', s.x, s.y - 14); }
+        const size = s.boss ? _bossSize(s.blvl || 1) - 3 : 23;
+        if (s.boss) _drawChampion(s, f, size);
+        _fig('raider', s.x, s.y, size, f.color);
+        if (s.boss) {
+          _g.font = '12px serif';
+          _g.fillText(BOSS_GLYPH[s.power] || '👑', s.x, s.y - size * 0.6);
+        } else if (s._lock) {
+          _g.font = '11px serif'; _g.fillText('⚔', s.x, s.y - 14);
+        }
         if (s.maxHp && s.hp < s.maxHp - 0.05) {
-          _g.fillStyle = 'rgba(0,0,0,.45)'; _g.fillRect(s.x - 9, s.y - 20, 18, 3);
+          const w = s.boss ? size * 0.6 : 9;
+          _g.fillStyle = 'rgba(0,0,0,.45)'; _g.fillRect(s.x - w, s.y - 20, w * 2, 3);
           _g.fillStyle = f.color;
-          _g.fillRect(s.x - 9, s.y - 20, 18 * Math.max(0, s.hp / s.maxHp), 3);
+          _g.fillRect(s.x - w, s.y - 20, w * 2 * Math.max(0, s.hp / s.maxHp), 3);
         }
       }
       // Their scout: one unarmed man walking to the hold and back. Nothing in
@@ -4301,6 +5466,9 @@
 
     _drawFactions(v);
     for (const b of _hold.buildings) _drawBuilding(b, acc, green, red);
+    // Over the buildings, never under them: a wall fills its whole cell, so a
+    // mark drawn before it is a mark the wall paints over.
+    if (_selected && _hold.buildings.includes(_selected)) _drawPick(_selected);
 
     // People, soldiers, raiders. They are drawn as what they are rather than as
     // coloured dots: a player has to be able to tell at a glance who is theirs,
@@ -4323,20 +5491,31 @@
       // A builder is the exception: his hammer is not a load but the work
       // itself, and it marks where the work is happening.
       _g.font = '12px serif';
-      let jg, faint = false;
+      let jg, faint = false, fill = null;
       if (w.job === 'mine') {
         const dep = _depById(w.dep);
         jg = RES_GLYPH[(dep && dep.kind) || w.res] || JOB_GLYPH.mine;
         faint = !w.carry;
+        // Digging: the load fills up over him while he cuts it, so the swing
+        // and the wait read as the same thing. On the way out there is nothing
+        // in it yet and the mark is only the ghost.
+        if (faint) {
+          fill = w.phase === 'mine' && dep
+            ? (w.t || 0) / (_gat(dep.kind).time || 5) : 0;
+        }
       } else if (w.job === 'ammo') {
         jg = JOB_GLYPH.ammo;
         faint = !w.carry;
       } else {
         jg = JOB_GLYPH[w.job] || JOB_GLYPH.idle;
       }
-      if (faint) _g.globalAlpha = 0.4;
-      _g.fillText(jg, w.x, w.y - 14);
-      _g.globalAlpha = 1;
+      if (fill != null) {
+        _glyphFill(jg, w.x, w.y - 14, 12, fill);
+      } else {
+        if (faint) _g.globalAlpha = 0.4;
+        _g.fillText(jg, w.x, w.y - 14);
+        _g.globalAlpha = 1;
+      }
       // Hurt people are shown bleeding out, so nobody is ever simply gone.
       if (w.hp != null && w.hp < B.worker.hp) {
         _g.fillStyle = 'rgba(0,0,0,.45)'; _g.fillRect(w.x - 9, w.y - 22, 18, 3);
@@ -4361,18 +5540,40 @@
       // A raider wears his own camp's colour, so a hold being hit from two
       // corners at once can tell which of them is which.
       const f = _facById(r.fx);
-      _fig('raider', r.x, r.y, 26, (f && f.color) || red);
+      const size = r.boss ? _bossSize(r.blvl || 1) : 26;
+      if (r.boss) _drawChampion(r, f, size);
+      _fig('raider', r.x, r.y, size, (f && f.color) || red);
       // Two parties that ran into each other on the way in. It is not the
       // player's fight, but it is the player's business: the ones who walk out
       // of it are the ones who arrive.
-      if (r._lock) { _g.font = '12px serif'; _g.fillText('⚔', r.x, r.y - 25); }
-      if (r.hp < r.maxHp) {
-        _g.fillStyle = 'rgba(0,0,0,.45)'; _g.fillRect(r.x - 10, r.y - 17, 20, 3);
-        _g.fillStyle = green; _g.fillRect(r.x - 10, r.y - 17, 20 * Math.max(0, r.hp / r.maxHp), 3);
+      if (r.boss) {
+        _g.font = '13px serif';
+        _g.fillText(BOSS_GLYPH[r.power] || '👑', r.x, r.y - size * 0.62);
+      } else if (r._lock) {
+        _g.font = '12px serif'; _g.fillText('⚔', r.x, r.y - 25);
       }
+      if (r.hp < r.maxHp) {
+        const w = r.boss ? size * 0.6 : 10;
+        _g.fillStyle = 'rgba(0,0,0,.45)'; _g.fillRect(r.x - w, r.y - 17, w * 2, 3);
+        _g.fillStyle = green;
+        _g.fillRect(r.x - w, r.y - 17, w * 2 * Math.max(0, r.hp / r.maxHp), 3);
+      }
+    }
+    // Their bolts, in the colour of the camp that threw them — never the
+    // hold's yellow, which is what a round of the player's own looks like.
+    for (const p of _shots) {
+      const f = _facById(p.fx);
+      _g.fillStyle = (f && f.color) || red;
+      _g.beginPath(); _g.arc(p.x, p.y, 4.5, 0, Math.PI * 2); _g.fill();
     }
     _g.fillStyle = _css('--yellow', '#f9e2af');
     for (const p of _bullets) { _g.beginPath(); _g.arc(p.x, p.y, 4, 0, Math.PI * 2); _g.fill(); }
+
+    // Every level badge on the map, over everything on it. They are labels, not
+    // things standing on the ground: a badge covered by the next wall along, or
+    // by somebody walking past, is a badge at exactly the moment it is being
+    // read — see _drawBadge.
+    _flushBadges();
 
     // The gains, last of everything on the ground: a number worth reading is
     // worth reading over the top of whoever walked it in.
@@ -4414,9 +5615,21 @@
     const bottom = v.h - _gap(_dock, v);
     if (_raidFlash > 0) {
       _g.globalAlpha = Math.min(0.8, _raidFlash / 3);
-      _g.fillStyle = red;
+      // In the colour of whoever is coming, not in alarm-red: red says only
+      // that something is happening, and with four camps on the map the one
+      // thing worth knowing is which of them. The arrows off the edges of the
+      // screen are already drawn this way — see _offscreenRaiders — so the
+      // warning and the marks it is about now agree.
+      _g.fillStyle = _raidColor || red;
       _g.font = 'bold ' + Math.round(s * 0.045) + 'px system-ui, sans-serif';
       _g.textAlign = 'center'; _g.textBaseline = 'middle';
+      // Written over its own shadow: a camp's colour is chosen to be seen on
+      // the ground, and some of them are pale enough to vanish against a hold
+      // in daylight.
+      _g.lineWidth = 4;
+      _g.strokeStyle = 'rgba(0,0,0,.55)';
+      _g.strokeText(_t('sh_raid'), v.w / 2, top + s * 0.045);
+      _g.lineWidth = 1;
       _g.fillText(_t('sh_raid'), v.w / 2, top + s * 0.045);
       _g.globalAlpha = 1;
     }
@@ -4523,6 +5736,30 @@
   // picture is ready — the first frame or two of a game, and never again — a
   // plain disc in the same colour stands in for him, so a hold is never empty
   // while the map is waiting on a drawing.
+  // A mark that fills as the work behind it does, from the bottom up: the ghost
+  // of what is coming, and as much of it in full colour as is actually done.
+  // Standing at a seam used to look exactly like standing at a seam doing
+  // nothing — the load appeared out of nowhere when the timer ran out — and a
+  // man frozen mid-swing for five seconds reads as a man who is stuck. It is
+  // the same language the level badges are written in, which is the point:
+  // filling upwards means "this is being made" wherever it appears.
+  function _glyphFill(glyph, x, y, size, p) {
+    const a = _g.globalAlpha;
+    _g.globalAlpha = a * 0.3;
+    _g.fillText(glyph, x, y);
+    _g.globalAlpha = a;
+    if (!(p > 0)) return;
+    // A shade taller than the type size: an emoji is drawn as a picture and
+    // hangs past the box the letters of the same size would fit in.
+    const h = size * 1.3;
+    _g.save();
+    _g.beginPath();
+    _g.rect(x - size, y + h / 2 - h * Math.min(1, p), size * 2, h * Math.min(1, p));
+    _g.clip();
+    _g.fillText(glyph, x, y);
+    _g.restore();
+  }
+
   function _fig(kind, x, y, size, color, alpha) {
     const img = _figure(kind, color);
     if (alpha != null && alpha < 1) _g.globalAlpha = alpha;
@@ -4544,6 +5781,39 @@
       .concat(((_hold && _hold.factions) || []).map(f => f.color));
     for (const c of cols)
       for (const k in FIGURES) _figure(k, c);
+  }
+
+  // A champion, marked as one. He is bigger than the men around him, which is
+  // most of the answer, but a big figure among thirty figures is still a figure
+  // — so he stands in a ring of his camp's colour.
+  //
+  // What his power reaches is a circle two hundred paces across, and four of
+  // them on one map is a map nobody can read: it used to be drawn all the time
+  // and it covered the ground the fight was happening on. It is drawn when he
+  // is tapped and not before — the answer to "how far does that one reach" is
+  // worth having exactly when it is asked.
+  function _drawChampion(s, f, size) {
+    const col = (f && f.color) || _css('--red', '#f38ba8');
+    const lvl = s.blvl || 1;
+    const c = _bs()[s.power] || {};
+    const reach = s === _selBoss
+      ? (s.power === 'bolt'
+          ? (c.range || 0) + (c.range_step || 0) * (lvl - 1)
+          : (c.radius || 0))
+      : 0;
+    if (reach > 0) {
+      _g.globalAlpha = 0.07;
+      _g.fillStyle = col;
+      _g.beginPath(); _g.arc(s.x, s.y, reach, 0, Math.PI * 2); _g.fill();
+      _g.globalAlpha = 1;
+      _ring(s.x, s.y, reach, col, 0.16);
+    }
+    _g.globalAlpha = 0.5;
+    _g.strokeStyle = col; _g.lineWidth = 2;
+    _g.beginPath(); _g.ellipse(s.x, s.y + size * 0.34, size * 0.42, size * 0.17,
+                               0, 0, Math.PI * 2);
+    _g.stroke();
+    _g.globalAlpha = 1; _g.lineWidth = 1;
   }
 
   function _ring(x, y, r, color, alpha) {
@@ -4613,12 +5883,16 @@
     if (b.type === 'wall') {
       // Timber while it is a palisade, stone once it has been rebuilt as one.
       const stone = c.stone_from && b.lvl >= c.stone_from;
+      const mat = stone ? _css('--fg2', '#a6adc8') : _css('--peach', '#cba06a');
       _g.globalAlpha = done ? 1 : 0.45;
-      _g.fillStyle = stone ? _css('--fg2', '#a6adc8') : _css('--peach', '#cba06a');
+      _g.fillStyle = mat;
       // A square that fills its cell, so a row of them reads as one wall
-      // rather than as a row of separate bricks.
-      _g.fillRect(b.x - r, b.y - r, r * 2, r * 2);
+      // rather than as a row of separate bricks — unless there is a way
+      // through it, which is drawn as what it is.
+      if (b.gate) _drawGate(b, r, mat);
+      else _g.fillRect(b.x - r, b.y - r, r * 2, r * 2);
       _g.globalAlpha = 1;
+      if (done) _cracks(b, r);
     } else {
       if (!done) {
         // Being built: the ground cleared for it and the shape of what is
@@ -4663,10 +5937,20 @@
       // The keep shows the store, because for the keep the store is the
       // magazine — the same rounds it will fire.
       const mag = b.keep ? _keepStore(b.lvl) : _lv('tower', b.lvl, 'mag');
-      const have = Math.floor(_mag(b));
+      // Rounded, not floored: firing spends a fractional volley (ammo_per
+      // grows in fractions of a round from level 2 on), so the true count
+      // almost never lands on a whole number again once a tower has fired.
+      // Flooring that made a magazine read one short of full forever — the
+      // number shown has to be the nearest whole round, not the last one
+      // strictly complete.
+      const have = Math.round(_mag(b));
       _g.font = 'bold 13px system-ui, sans-serif';
       _g.textAlign = 'center'; _g.textBaseline = 'middle';
-      _g.fillStyle = have >= _volley(b.lvl) ? _css('--yellow', '#f9e2af') : red;
+      // Red only once the number on screen is genuinely short of a volley —
+      // comparing the raw fractional ammo against ammo_per turned red at a
+      // threshold the player could never see, on a bar that still read as
+      // having rounds left.
+      _g.fillStyle = have >= Math.ceil(_volley(b.lvl)) ? _css('--yellow', '#f9e2af') : red;
       _g.fillText('🎯' + have + '/' + mag, b.x, b.y + r + 10);
     }
     if (b.type === 'workshop' && done && (b.ammo || 0) >= 1) {
@@ -4678,16 +5962,287 @@
       _g.fillStyle = _css('--yellow', '#f9e2af');
       _g.fillText('📦' + Math.floor(b.ammo), b.x, b.y + r + 10);
     }
-    if (!done || b.up != null) {
-      const p = !done ? b.built : b.up;
-      _g.strokeStyle = green; _g.lineWidth = 3;
-      _g.beginPath(); _g.arc(b.x, b.y, r + 5, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * p); _g.stroke();
+    // The work in hand and the level it is buying, both in the badge — see
+    // _drawBadge. The clock face that used to go round the building went with
+    // them: on a wall it was drawn across the two walls either side of it, and
+    // whichever of the three was drawn last won.
+    // A badge also appears on its own on a level one that can be raised right
+    // now: the pulse is the offer, so an affordable upgrade is something the
+    // map says rather than something found by tapping every building in turn.
+    // Never on wall — a ring of it is cheap, always affordable and dozens of
+    // pieces long, so the offer said nothing and the whole wall flickered at
+    // once. Never while peeking either: that hold is somebody else's to spend.
+    const ready = !_peekFor && b.type !== 'wall' && _canUp(b);
+    if (!done || b.up != null || b.lvl > 1 || ready) _badge(b, r, null, ready);
+  }
+
+  // Cheap, repeatable randomness. A crack has to be in the same place on the
+  // same stone every frame — a wall whose damage crawls about is a wall that
+  // shimmers — and it must not cost a stored field on something that is saved,
+  // so it is worked out from the piece's own id every time it is drawn.
+  function _seeded(n) {
+    let s = (n >>> 0) || 1;
+    return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+  }
+
+  // A wall coming apart, drawn on the wall. The bar over it says how much is
+  // left in figures; this says it in the only language a wall has. Cracks
+  // spread from the edges inwards as the piece is beaten, more of them and
+  // deeper the further down it goes, and they close again as it is repaired —
+  // the same number, read the other way. It is the whole point of drawing it:
+  // a ring of wall is thirty pieces, and which of them is the one about to go
+  // is otherwise a matter of reading thirty little bars.
+  function _cracks(b, r) {
+    const maxHp = _maxHp(b.type, b.lvl, b.keep);
+    const hurt = 1 - Math.max(0, Math.min(1, b.hp / maxHp));
+    if (hurt < 0.1) return;
+    const rnd = _seeded(b.id * 2654435761);
+    const n = Math.min(7, Math.ceil(hurt * 7));
+    const cl = (v) => Math.max(-r, Math.min(r, v));
+    _g.save();
+    _g.lineCap = 'round';
+    _g.strokeStyle = 'rgba(0,0,0,' + (0.3 + 0.4 * hurt).toFixed(2) + ')';
+    for (let i = 0; i < n; i++) {
+      // Every crack starts on an edge, because that is where a wall is hit,
+      // and works its way in.
+      const side = Math.floor(rnd() * 4);
+      const along = (rnd() * 1.7 - 0.85) * r;
+      let x = side === 0 ? along : side === 1 ? along : side === 2 ? -r : r;
+      let y = side === 0 ? -r    : side === 1 ? r     : along;
+      _g.lineWidth = 1 + rnd() * 1.4 * (0.4 + hurt);
+      _g.beginPath();
+      _g.moveTo(b.x + x, b.y + y);
+      const legs = 2 + Math.floor(rnd() * 2);
+      for (let k = 0; k < legs; k++) {
+        // Inwards, with a wander on it: a straight line reads as a scratch.
+        x = cl(x * 0.55 + (rnd() - 0.5) * r * 0.9);
+        y = cl(y * 0.55 + (rnd() - 0.5) * r * 0.9);
+        _g.lineTo(b.x + x, b.y + y);
+      }
+      _g.stroke();
     }
-    if (b.lvl > 1) {
-      _g.fillStyle = _css('--fg2', '#a6adc8');
-      _g.font = 'bold 15px system-ui, sans-serif'; _g.textAlign = 'center';
-      _g.fillText(String(b.lvl), b.x + r, b.y - r);
+    // And at the end of it, pieces missing out of the rim rather than lines on
+    // it: a wall at a tenth is a wall with holes in it.
+    if (hurt > 0.65) {
+      _g.fillStyle = 'rgba(0,0,0,.4)';
+      const bites = Math.round((hurt - 0.65) * 9);
+      for (let i = 0; i < bites; i++) {
+        const a = rnd() * Math.PI * 2, br = r * (0.25 + rnd() * 0.3);
+        _g.beginPath();
+        _g.arc(b.x + Math.cos(a) * r * 0.9, b.y + Math.sin(a) * r * 0.9, br, 0, Math.PI * 2);
+        _g.fill();
+      }
     }
+    _g.restore();
+  }
+
+  // Which way the wall runs here, so the doorway can be set in it the right way
+  // round. Read off the neighbours rather than stored: a gate at the end of a
+  // run that is later built past has to turn with the run, and a piece asked to
+  // remember which way it was facing would be answering about a wall that is no
+  // longer there. A gate with nothing either side of it is drawn across, which
+  // is what a lone doorway looks like from above.
+  function _gateAxis(b) {
+    const r = _bc('wall').size;
+    let across = 0, down = 0;
+    for (const o of _hold.buildings) {
+      if (o === b || o.type !== 'wall') continue;
+      const dx = Math.abs(o.x - b.x), dy = Math.abs(o.y - b.y);
+      if (dy < r && dx <= r * 2 + 2) across++;
+      else if (dx < r && dy <= r * 2 + 2) down++;
+    }
+    return down > across ? 'v' : 'h';
+  }
+
+  // The way in. Two posts where the wall carries on, the ground between them
+  // left open, and both leaves standing back against the wall — a gate that is
+  // open is a gate that says what it is without a single frame of animation,
+  // and this one is never shut: it is shut to everybody who does not live here
+  // whatever it looks like, and open to everybody who does.
+  function _drawGate(b, r, mat) {
+    const vert = _gateAxis(b) === 'v';
+    _g.save();
+    _g.translate(b.x, b.y);
+    if (vert) _g.rotate(Math.PI / 2);
+    const pw = r * 0.5;
+    // The posts: the wall itself, carrying on to either side of the opening.
+    _g.fillStyle = mat;
+    _g.fillRect(-r, -r, pw, r * 2);
+    _g.fillRect(r - pw, -r, pw, r * 2);
+    // The threshold. Trodden ground rather than stone, so the gap reads as a
+    // gap at any zoom the wall itself is visible at.
+    const a0 = _g.globalAlpha;
+    _g.globalAlpha = a0 * 0.3;
+    _g.fillRect(-r + pw, -r, (r - pw) * 2, r * 2);
+    _g.globalAlpha = a0;
+    // And the two leaves, swung back out of the way.
+    const len = (r - pw) * 1.15, th = Math.max(2, r * 0.26);
+    for (const s of [-1, 1]) {
+      _g.save();
+      _g.translate(s * (r - pw), 0);
+      // One leaf back against the wall on each side of the road, which is what
+      // says "through here" rather than "here is a hole".
+      _g.rotate(s < 0 ? -1.25 : Math.PI - 1.25);
+      _g.fillStyle = mat;
+      _g.fillRect(0, -th / 2, len, th);
+      _g.strokeStyle = 'rgba(0,0,0,.45)';
+      _g.lineWidth = 1;
+      _g.strokeRect(0, -th / 2, len, th);
+      _g.restore();
+    }
+    _g.restore();
+  }
+
+  // A rounded rectangle as a path, because a badge with square corners reads as
+  // part of the building rather than as a label on it.
+  function _rrect(x, y, w, h, r) {
+    const rad = Math.min(r, w / 2, h / 2);
+    _g.beginPath();
+    _g.moveTo(x + rad, y);
+    _g.arcTo(x + w, y,     x + w, y + h, rad);
+    _g.arcTo(x + w, y + h, x,     y + h, rad);
+    _g.arcTo(x,     y + h, x,     y,     rad);
+    _g.arcTo(x,     y,     x + w, y,     rad);
+    _g.closePath();
+  }
+
+  // A colour to a level, so depth is something the map says rather than
+  // something the player counts. Every badge on the screen is one of these, on
+  // both sides of the map: level four on a camp's barracks is the same colour
+  // as level four on the hold's, because the whole point of a badge is being
+  // able to compare the two without reading either.
+  //
+  // Timber, stone, and then up through the palette. Past the end of the ramp
+  // the top colour is kept — the figure in the badge is the exact answer, the
+  // colour is only ever the glance.
+  const LEVEL_TINT = [
+    ['--peach',  '#cba06a'],   // 1 — timber, only ever seen while it goes up
+    ['--fg2',    '#a6adc8'],   // 2 — stone
+    ['--accent', '#89b4fa'],   // 3
+    ['--green',  '#a6e3a1'],   // 4
+    ['--yellow', '#f9e2af'],   // 5
+    ['--peach2', '#fab387'],   // 6
+    ['--red',    '#f38ba8'],   // 7
+  ];
+  const _lvlTint = (lvl) => {
+    const t = LEVEL_TINT[Math.min(LEVEL_TINT.length, Math.max(1, lvl)) - 1];
+    return _css(t[0], t[1]);
+  };
+
+  // Badges are collected while the map is drawn and put down after all of it.
+  // A badge is a label rather than a thing on the ground: a wall raised next to
+  // another wall was drawing straight over its neighbour's, which is exactly
+  // when the number matters most.
+  let _badges = [];
+  const _badge = (b, r, tint, ready) => _badges.push({
+    ready: !!ready,
+    x: b.x + r, y: b.y - r,
+    lvl: b.lvl,
+    // What is being paid for. A building going up is working towards the level
+    // it already has; one being raised is working towards the next.
+    to: b.built < 1 ? b.lvl : (b.up != null ? b.lvl + 1 : b.lvl),
+    prog: b.built < 1 ? b.built : (b.up != null ? b.up : 1),
+    tint: tint,
+  });
+
+  // The level, as a badge rather than as a bare number — and the scaffolding
+  // with it. Grey figures over a grey wall were the one thing on the map you
+  // had to lean in to read, and the level is exactly what a ring of wall is
+  // judged on: which lengths have been rebuilt in stone and which are still
+  // the timber that went up first.
+  //
+  // The work is inside the badge and not a ring round the building, because a
+  // ring round a wall is a ring drawn over the two walls either side of it. It
+  // fills from the bottom in the colour of the level being bought, and the
+  // figure only turns over when the badge is full: what a building is now is
+  // read off the number, what it is about to be is read off the colour coming
+  // up behind it. A level one has no badge at all until somebody starts paying
+  // for the second — then it is an empty one, filling.
+  function _drawBadge(bg) {
+    const done = bg.prog >= 1;
+    const txt = done ? String(bg.lvl) : (bg.lvl > 1 ? String(bg.lvl) : '');
+    const w = 15 + (Math.max(1, txt.length) - 1) * 7;  // a circle, a pill at two figures
+    const x = bg.x, y = bg.y, h = 15;
+    const tint = bg.tint || _lvlTint(done ? bg.lvl : bg.to);
+    // Something that can be raised now breathes: a slow swell and a halo in the
+    // colour the badge is about to become. Slow and small on purpose — a map
+    // where a dozen badges twitch at once is a map nobody can read.
+    let swell = 0;
+    if (bg.ready) {
+      swell = 0.5 + 0.5 * Math.sin(performance.now() / 480);
+      _g.save();
+      _g.globalAlpha = 0.15 + 0.3 * swell;
+      _g.strokeStyle = _lvlTint(Math.min(LEVEL_TINT.length, bg.lvl + 1));
+      _g.lineWidth = 2;
+      const g = 2 + 3 * swell;
+      _rrect(x - w / 2 - g, y - h / 2 - g, w + g * 2, h + g * 2, (h + g * 2) / 2);
+      _g.stroke();
+      _g.restore();
+      const s = 1 + 0.08 * swell;
+      _g.save();
+      _g.translate(x, y);
+      _g.scale(s, s);
+      _g.translate(-x, -y);
+    }
+    _rrect(x - w / 2, y - h / 2, w, h, h / 2);
+    if (done) {
+      _g.fillStyle = tint;
+      _g.fill();
+    } else {
+      // An empty vessel with the new colour rising in it.
+      _g.fillStyle = 'rgba(0,0,0,.5)';
+      _g.fill();
+      _g.save();
+      _g.clip();
+      _g.fillStyle = tint;
+      _g.fillRect(x - w / 2, y + h / 2 - h * bg.prog, w, h * bg.prog);
+      _g.restore();
+      _rrect(x - w / 2, y - h / 2, w, h, h / 2);
+    }
+    _g.strokeStyle = 'rgba(0,0,0,.55)'; _g.lineWidth = 2;
+    _g.stroke();
+    _g.lineWidth = 1;
+    if (!txt) { if (bg.ready) _g.restore(); return; }
+    _g.font = 'bold 11px system-ui, sans-serif';
+    _g.textAlign = 'center'; _g.textBaseline = 'middle';
+    if (done) {
+      _g.fillStyle = _css('--bg', '#181825');
+    } else {
+      // Still the old level, over a badge that is half the new colour and half
+      // dark ground: outlined, so it holds up over either.
+      _g.lineWidth = 3; _g.strokeStyle = 'rgba(0,0,0,.7)';
+      _g.strokeText(txt, x, y + 0.5);
+      _g.lineWidth = 1;
+      _g.fillStyle = _lvlTint(bg.lvl);
+    }
+    _g.fillText(txt, x, y + 0.5);
+    if (bg.ready) _g.restore();
+  }
+
+  function _flushBadges() {
+    for (const bg of _badges) _drawBadge(bg);
+    _badges.length = 0;
+  }
+
+  // What is selected, marked where it stands. The panel says what you tapped;
+  // the map never did, and on a ring of identical wall lengths that is the one
+  // place it matters most — every piece looks like every other piece, so
+  // "which one am I about to upgrade" was a question the screen could not
+  // answer. Drawn over everything, twice: a dark halo under a bright line, so
+  // the mark holds up on a lit building and on bare ground both.
+  function _drawPick(b) {
+    const r = _bc(b.type).size;
+    const path = () => {
+      // A wall is a square that fills its cell and a boxed square is the only
+      // mark that fits it; everything else is a mark on the ground and is
+      // ringed.
+      if (b.type === 'wall') _rrect(b.x - r - 3, b.y - r - 3, (r + 3) * 2, (r + 3) * 2, 5);
+      else { _g.beginPath(); _g.arc(b.x, b.y, r + 6, 0, Math.PI * 2); }
+    };
+    _g.setLineDash([]);
+    _g.lineWidth = 5; _g.strokeStyle = 'rgba(0,0,0,.55)'; path(); _g.stroke();
+    _g.lineWidth = 2.5; _g.strokeStyle = _css('--yellow', '#f9e2af'); path(); _g.stroke();
+    _g.lineWidth = 1;
   }
 
   // ── Overlays ──────────────────────────────────────────────────────────────
@@ -4754,6 +6309,31 @@
     if (_root && _canvas) _begin(msg);
     else _pending = msg;
   });
+
+  // The framework re-broadcasts the roster on every join, leave and
+  // reconnect — that alone keeps a chip's connected/gone state live, with
+  // no game-specific message needed for it.
+  mp.on('roster', () => _renderPresence());
+
+  mp.on('sh_score_update', (msg) => {
+    const o = _others[msg.player_id] || (_others[msg.player_id] = {});
+    o.score = msg.score; o.elapsed = msg.elapsed;
+    _renderPresence();
+  });
+
+  mp.on('sh_player_fell', (msg) => {
+    const o = _others[msg.player_id] || (_others[msg.player_id] = {});
+    o.score = msg.score; o.fallen = true;
+    _renderPresence();
+    if (msg.player_id !== mp.youId()) {
+      const p = mp.players().find(pl => pl.id === msg.player_id) || {};
+      _say(_t('sh_mp_fell', { name: p.display_name || '?' }));
+    }
+  });
+
+  mp.on('sh_game_over', (msg) => _showFinalStandings(msg.standings || []));
+
+  mp.on('sh_peek_result', (msg) => _drawPeek(msg));
 
   mp.registerGame({
     id:   GAME_ID,

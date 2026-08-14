@@ -1,0 +1,6 @@
+{
+  "features": [
+    "Per-user storage quotas and encryption permissions.",
+    "A global switch for encrypted folders."
+  ]
+}

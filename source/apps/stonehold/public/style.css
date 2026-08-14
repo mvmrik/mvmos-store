@@ -86,6 +86,79 @@
   .sh-fac.war { animation: none; background: rgba(243, 139, 168, .22); }
 }
 
+/* ── Who else is playing ─────────────────────────────────────────────────── */
+/* Empty and untouched in a solo game — _renderPresence never fills it in
+   that case, so it takes up nothing and blocks nothing. Sits right under the
+   resource row, at the row's own right edge, the same way the exit button
+   already does. */
+#sh-players {
+  position: absolute;
+  top: calc(8px + var(--sh-hud, 60px) + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 16px);
+  max-width: 1100px;
+  z-index: 3;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.sh-plr-list {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.sh-plr {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--surface1, #181825);
+  border: 1px solid var(--border, #45475a);
+  border-radius: 999px;
+  padding: 3px 9px 3px 3px;
+  color: var(--fg, #cdd6f4);
+  font-size: .72rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sh-plr svg { border-radius: 50%; flex: none; }
+.sh-plr-nm { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sh-plr-sc { color: var(--accent, #89b4fa); font-weight: 700; }
+
+/* A hold that fell is not gone from the row — its final score stays worth
+   comparing against — it just stops reading as still in the fight. */
+.sh-plr-fallen { opacity: .55; }
+.sh-plr-fallen .sh-plr-sc { color: var(--fg2, #a6adc8); }
+.sh-plr-gone { border-style: dashed; opacity: .7; }
+
+.sh-plr-toggle {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface1, #181825);
+  border: 1px solid var(--border, #45475a);
+  border-radius: 999px;
+  padding: 6px 10px;
+  color: var(--fg, #cdd6f4);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.sh-plr-count {
+  background: var(--accent, #89b4fa);
+  color: #1e1e2e;
+  border-radius: 999px;
+  padding: 0 5px;
+  font-size: .68rem;
+  font-weight: 700;
+}
+
 .sh-btn {
   margin-left: auto;
   background: var(--surface2, #313244);
@@ -140,6 +213,10 @@
 .sh-pbtn,
 .sh-bbtn { pointer-events: auto; }
 
+#sh-players { pointer-events: none; }
+.sh-plr,
+.sh-plr-toggle { pointer-events: auto; }
+
 #sh-dock {
   bottom: 8px;
   display: flex;
@@ -177,6 +254,45 @@
   justify-content: center;
   z-index: 5;
 }
+
+/* ── Peeking at somebody else's hold ─────────────────────────────────────── */
+/* A sheet, not a card: it sits over a corner rather than the whole map, so
+   glancing at another hold never loses sight of your own for longer than
+   the glance takes. It draws to its own canvas — see _drawPeek — and never
+   opens except by a tap on a chip, so it costs nothing while closed. */
+#sh-peek {
+  display: none;
+  position: absolute;
+  right: 8px;
+  bottom: calc(var(--sh-dock, 120px) + 14px);
+  width: min(360px, calc(100% - 16px));
+  height: min(300px, 40vh);
+  background: var(--surface1, #181825);
+  border: 1px solid var(--border, #45475a);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .5);
+  overflow: hidden;
+  z-index: 4;
+  pointer-events: auto;
+  flex-direction: column;
+}
+
+#sh-peek.open { display: flex; }
+
+.sh-peek-hd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border, #45475a);
+  font-size: .78rem;
+}
+
+#sh-peek-name { font-weight: 700; }
+#sh-peek-stats { color: var(--fg2, #a6adc8); font-size: .72rem; }
+#sh-peek-close { margin-left: auto; padding: 4px 10px; font-size: .72rem; }
+
+#sh-peek-canvas { flex: 1; width: 100%; min-height: 0; }
 
 /* ── Priorities and the build bar ────────────────────────────────────────── */
 /* The line that tells the player what the hold needs next. It sits right above
@@ -490,6 +606,44 @@
   text-decoration: none;
 }
 
+/* The multiplayer card is a ranking, not a headline number, so it earns more
+   room than the solo one. */
+.sh-card-wide { max-width: min(480px, 94%); }
+
+.sh-rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 50vh;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.sh-rank-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2, #313244);
+  border-radius: 10px;
+  padding: 6px 10px;
+}
+
+/* Your own row in the ranking, picked out the same way a chip picks you out
+   of the room while everyone was still playing. */
+.sh-rank-row.me { border: 1px solid var(--accent, #89b4fa); }
+
+.sh-rank-n {
+  width: 20px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--fg2, #a6adc8);
+}
+
+.sh-rank-row svg { flex: none; border-radius: 50%; }
+.sh-rank-nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.sh-rank-sc { font-weight: 700; color: var(--accent, #89b4fa); }
+.sh-rank-tm { color: var(--fg2, #a6adc8); font-size: .74rem; min-width: 48px; text-align: right; }
+
 @media (max-width: 760px) {
   .sh-cell { min-width: 46px; padding: 3px 5px; }
   .sh-val { font-size: .82rem; }
@@ -536,5 +690,35 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     border-radius: 14px;
+  }
+
+  /* A row of chips is fine beside a mouse pointer but not beside a thumb —
+     on a map this busy it is one more thing sitting on the screen for good.
+     Collapsed to one button, it costs nothing until tapped, and the list
+     opens as a sheet under it instead of a permanent row. */
+  #sh-players { justify-content: flex-end; }
+  .sh-plr-toggle { display: flex; }
+  .sh-plr-list {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    flex-direction: column;
+    background: var(--surface1, #181825);
+    border: 1px solid var(--border, #45475a);
+    border-radius: 12px;
+    padding: 6px;
+    min-width: 160px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .45);
+  }
+  .sh-plr-list.open { display: flex; }
+  .sh-plr { justify-content: flex-start; }
+  .sh-plr-nm { max-width: 140px; }
+
+  #sh-peek {
+    right: 8px;
+    left: 8px;
+    width: auto;
+    height: min(260px, 42vh);
   }
 }

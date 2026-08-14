@@ -1,0 +1,17 @@
+{
+  "id": "nostradamus",
+  "name": "Nostradamus",
+  "icon": "🔮",
+  "category": "Communication",
+  "tags": [
+    "nostr",
+    "social",
+    "decentralized"
+  ],
+  "version": "1.0.0",
+  "min_core_version": "0.37.3-beta",
+  "description": "A Nostr client: manage your relays, read your feed, and publish notes and replies from an end-to-end encrypted key vault.",
+  "entry": "main.js",
+  "public_url": "/pub/nostradamus/",
+  "public_directory": true
+}

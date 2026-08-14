@@ -1,0 +1,27 @@
+{
+  "id": "mvmcloud",
+  "name": "mvmCloud",
+  "icon": "☁️",
+  "category": "Productivity",
+  "tags": ["files", "cloud", "storage", "encrypted"],
+  "version": "1.0.0",
+  "description": "A private folder for every Apps Hub profile, with browser file management and administrator-controlled external folder API access.",
+  "entry": "main.js",
+  "min_core_version": "0.31.0-beta",
+  "public_url": "/pub/mvmcloud/",
+  "public_directory": true,
+  "credit_features": [
+    {
+      "id": "encrypted_folder",
+      "name": "Encrypted folder",
+      "description": "Create one browser-encrypted folder",
+      "unit": "folder"
+    },
+    {
+      "id": "user_api_key",
+      "name": "User API key",
+      "description": "Create a restricted AI/API key for one mvmCloud folder",
+      "unit": "key"
+    }
+  ]
+}

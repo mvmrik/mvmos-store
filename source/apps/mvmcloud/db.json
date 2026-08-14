@@ -1,0 +1,63 @@
+{
+  "tables": [
+    {
+      "name": "settings",
+      "columns": [
+        {"name": "key", "type": "TEXT", "primary": true},
+        {"name": "value", "type": "TEXT"}
+      ]
+    },
+    {
+      "name": "user_rules",
+      "columns": [
+        {"name": "user_id", "type": "TEXT", "primary": true},
+        {"name": "quota_bytes", "type": "INTEGER"},
+        {"name": "encryption_allowed", "type": "INTEGER"}
+      ]
+    },
+    {
+      "name": "vaults",
+      "columns": [
+        {"name": "user_id", "type": "TEXT"},
+        {"name": "path", "type": "TEXT"},
+        {"name": "salt", "type": "TEXT"},
+        {"name": "created_at", "type": "INTEGER"}
+      ]
+    },
+    {
+      "name": "external_tokens",
+      "columns": [
+        {"name": "id", "type": "TEXT", "primary": true},
+        {"name": "linux_user", "type": "TEXT"},
+        {"name": "label", "type": "TEXT"},
+        {"name": "root_path", "type": "TEXT"},
+        {"name": "token_hash", "type": "TEXT"},
+        {"name": "permissions", "type": "TEXT"},
+        {"name": "enabled", "type": "INTEGER", "default": 1},
+        {"name": "expires_at", "type": "INTEGER"},
+        {"name": "created_at", "type": "INTEGER"}
+      ]
+    },
+    {
+      "name": "folder_shares",
+      "columns": [
+        {"name": "id", "type": "TEXT", "primary": true},
+        {"name": "owner_id", "type": "TEXT"},
+        {"name": "recipient_id", "type": "TEXT"},
+        {"name": "path", "type": "TEXT"},
+        {"name": "permissions", "type": "TEXT"},
+        {"name": "created_at", "type": "INTEGER"}
+      ]
+    },
+    {
+      "name": "audit_log",
+      "columns": [
+        {"name": "id", "type": "INTEGER", "primary": true},
+        {"name": "actor", "type": "TEXT"},
+        {"name": "action", "type": "TEXT"},
+        {"name": "target", "type": "TEXT"},
+        {"name": "created_at", "type": "INTEGER"}
+      ]
+    }
+  ]
+}
