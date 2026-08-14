@@ -1,6 +1,20 @@
 {
+  "summary": "Control over how much space each profile gets, who may encrypt a folder, and whether users can issue API keys of their own.",
   "features": [
-    "Per-user storage quotas and encryption permissions.",
-    "A global switch for encrypted folders."
+    {
+      "title": "Storage quotas",
+      "short": "Give each profile its own size limit",
+      "description": "Set a default size limit for every Apps Hub profile and override it for individual people. Without a subscription every folder is unlimited and no quota is applied; with one the limit is enforced on upload, so a single profile cannot fill the disk the whole installation shares."
+    },
+    {
+      "title": "Encrypted folders",
+      "short": "Decide who may create browser-encrypted folders",
+      "description": "Turn encrypted folders on for the installation and choose which profiles are allowed to create them. An encrypted folder is unlocked in the browser, so the server never holds the key — with the feature off, no profile can create one at all."
+    },
+    {
+      "title": "User API keys",
+      "short": "Let users issue their own scoped folder keys",
+      "description": "Allow profiles to create restricted Bearer tokens for their own folder, instead of every key having to be issued by the administrator. The keys give file operations inside that one folder and never shell access."
+    }
   ]
 }
