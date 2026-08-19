@@ -525,6 +525,61 @@
   padding: 6px 0;
 }
 
+/* Who this building is bringing out. The timer inside a barracks or a house is
+   real but invisible, so it is drawn as the people themselves: one figure per
+   head there is still room for, the first one filling from the feet up as its
+   share of the wait goes by and the rest standing dark behind it, waiting. */
+.sh-crib {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid var(--border, #45475a);
+  padding-top: 6px;
+}
+.sh-crib-lbl {
+  font-size: .62rem;
+  color: var(--fg2, #a6adc8);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+.sh-crib-row { display: flex; align-items: flex-end; gap: 6px; }
+/* Each figure is the same drawing twice, one over the other — the very picture
+   the map draws him with, in the colour the map draws him in: a dim copy for
+   the part not done, and a full-colour one clipped to however much of him is.
+   The clip grows from the bottom edge, so he fills the way a jar does. */
+.sh-crib-man {
+  position: relative;
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+}
+.sh-crib-man > img,
+.sh-crib-on > img { display: block; width: 26px; height: 26px; }
+.sh-crib-off { opacity: .2; filter: grayscale(1); }
+.sh-crib-on {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  overflow: hidden;
+  /* Height is set per figure, so the only thing that can be transitioned here
+     is the growth itself — and it should look like filling, not like ticking. */
+  transition: height .18s linear;
+}
+/* The full-colour copy is laid out at its whole height inside the clip and
+   pinned to the bottom of it, so what shows is the bottom of the man and not a
+   squashed whole one. */
+.sh-crib-on > img {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+/* A champion arrives bigger than the men around him, so he is drawn bigger
+   here too — the panel should not make him look like one more raider. */
+.sh-crib-big { width: 38px; height: 38px; }
+.sh-crib-big > img,
+.sh-crib-big .sh-crib-on > img { width: 38px; height: 38px; }
+
 .sh-go {
   background: var(--accent, #89b4fa);
   color: #1e1e2e;

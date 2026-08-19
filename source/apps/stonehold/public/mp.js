@@ -40,7 +40,13 @@
   // 'keep' is not a building anybody can buy: it is the hold itself, put down
   // once at the start. It is a tower under the skin, so it borrows the tower's
   // shape and nothing else — see _found.
-  const _bc = (type) => B.buildings[type === 'keep' ? 'tower' : type];
+  // A gate is priced and sized off the wall, because that is what it is made
+  // of and what it is made in: the same square, the same stone, the same
+  // materials. It is never stored under its own name — what stands on the map
+  // is a wall with `gate` on it — so this only ever answers for the thing in
+  // hand while it is being aimed.
+  const _bc = (type) => B.buildings[type === 'keep' ? 'tower' :
+                                    type === 'gate' ? 'wall' : type];
   // What one stat is worth at one level. Three shapes, because a hold has three
   // kinds of number in it:
   //   key_step  — a step per level, for anything that should grow steadily
@@ -74,6 +80,16 @@
     if (c.stone_from && l >= c.stone_from) hp *= (c.stone_hp || 1);
     return hp * (keep ? B.start.keep_hp : 1);
   }
+  // What a doorway is worth compared with the wall it was cut into. A gate is
+  // the width of two lengths of wall and the strength of one: it is a hole with
+  // timber in it, and the hold that wants a road through its ring pays for the
+  // road in stone. Without this a wall of nothing but gates is the same wall,
+  // easier to walk and no weaker, and there is no reason to build anything else.
+  const GATE_HP = 0.5;
+  // The integrity of a particular building, doorways included. Everything that
+  // asks about one thing standing on the map asks through here; _maxHp itself
+  // still answers the flat question the panels and the tables ask.
+  const _hpOf = (b) => _maxHp(b.type, b.lvl, b.keep) * (b.gate ? GATE_HP : 1);
   // Room for rounds in the keep. The keep is the hold's storehouse, so building
   // it up is how a hold stops living raid to raid. Mirrors _keep_store().
   const _keepStore = (lvl) =>
@@ -175,7 +191,10 @@
   const _muster = (lvl) =>
     Math.max(_bc('barracks').interval_min, _lv('barracks', lvl, 'interval'));
 
-  const BUILD_ORDER = ['house', 'tower', 'workshop', 'barracks', 'wall'];
+  // The gate comes after the wall, because it is a thing done to a wall: it is
+  // picked up and aimed like everything else here, and what it wants under it
+  // is two finished lengths of wall side by side rather than open ground.
+  const BUILD_ORDER = ['house', 'tower', 'workshop', 'barracks', 'wall', 'gate'];
   const GLYPH = {
     keep: '🏯', tower: '🗼', house: '🏠',
     workshop: '🔧', barracks: '⚔', wall: '▮', gate: '🚪',
@@ -220,10 +239,22 @@
   let _ghost = null;                 // where that building would go, in world units
   let _selected = null;              // building whose panel is open
   let _selFac = null;                // enemy camp whose panel is open
+  // Which of that camp's buildings was actually tapped. The panel is the camp's
+  // — one corner is one opponent, and its huts and barracks are read together —
+  // but it has to be marked and stood beside where the finger went, not at a
+  // keep that may be off the edge of the screen. Null when the camp was opened
+  // some other way, and dropped the moment that building comes down.
+  let _selFacB = null;
   let _selDep = null;                // deposit whose reach is being shown
   // The champion whose reach is being shown. Nothing is saved about him — he is
   // the object itself, so he goes with him when he falls.
   let _selBoss = null;
+  // The man whose panel is open, whoever's he is, and what he is: the object
+  // itself, exactly as with a champion, so the panel empties the moment he is
+  // killed rather than reading out a dead man's numbers. `_selManK` says which
+  // list he came from, because a soldier, a worker and a raider are three
+  // different sets of questions asked about the same kind of dot.
+  let _selMan = null, _selManK = '', _selManF = null;
   let _toast = 0, _toastText = '';
   let _raidFlash = 0, _raidColor = '';
   let _dpr = 1;                      // canvas pixels per CSS pixel, for the insets
@@ -412,7 +443,7 @@
     _raiders = _hold.raiders;
     _bullets = []; _shots = []; _dust = []; _floats = [];
     _over = false; _reported = false; _paused = false;
-    _placing = null; _selected = null; _selFac = null; _selBoss = null;
+    _placing = null; _selected = null; _selFac = null; _selFacB = null; _selBoss = null;
     _solo = msg.solo !== false;
     _others = {};
     _spectating = false;
@@ -556,6 +587,10 @@
       _markAffordable();
       if (_selected) _renderPanel();
       if (_selFac) _renderFacPanel();
+      // A man is worth watching while his panel is open: he is losing integrity
+      // to a wall or a tower while it is being read, and the moment he falls
+      // the panel has to go with him.
+      if (_selMan) _renderManPanel();
     }
 
     // The hold goes to the server on a timer, so a crashed tab loses seconds.
@@ -1655,6 +1690,7 @@
               // a garrison spreads round the hold instead of marching in file.
               pa: Math.random() * Math.PI * 2, pr: 0.9 + Math.random() * 0.2,
             });
+            _sfx('muster', b.x, b.y);
           }
         }
       }
@@ -1683,6 +1719,7 @@
         _hold.workers.push({ x: keep.x + (Math.random() - 0.5) * 40,
                              y: keep.y + (Math.random() - 0.5) * 40,
                              hp: B.worker.hp, job: null });
+        _sfx('hire', keep.x, keep.y);
       }
     } else {
       _hold._hire = 0;
@@ -1767,8 +1804,13 @@
         // Room is made sideways, never into a wall. Shoving somebody into a
         // building only to have it push them straight back out is how two
         // people end up shivering against a house for the rest of the game.
-        _nudge(a, -(dx / d) * push, -(dy / d) * push);
-        _nudge(b, (dx / d) * push, (dy / d) * push);
+        // Being shoved is not walking. Three people crowded onto one corner
+        // shove each other about all day, and every shove looked like ground
+        // covered — so nobody was ever judged wedged and nobody ever gave the
+        // errand up. What they are shifted by here is taken off the anchor they
+        // are measured against, so only their own legs count.
+        _nudge(a, -(dx / d) * push, -(dy / d) * push, true);
+        _nudge(b, (dx / d) * push, (dy / d) * push, true);
       }
     }
   }
@@ -1777,10 +1819,15 @@
   // they are already standing in does not count: a builder is meant to be at
   // its own site, and refusing to shift it there would leave two people on the
   // same pixel, which is the whole thing this is for.
-  function _nudge(p, ox, oy) {
+  // `shoved` says this was not their own doing, so it moves the mark they are
+  // measured from by the same amount: a person carried sideways by a crowd has
+  // covered no ground of their own, and counting it as ground covered is what
+  // keeps a jammed corner from ever being noticed.
+  function _nudge(p, ox, oy, shoved) {
     const here = _solidAt(p.x, p.y, null);
     if (_solidAt(p.x + ox, p.y + oy, here)) return;
     p.x += ox; p.y += oy;
+    if (shoved && p._anchorX != null) { p._anchorX += ox; p._anchorY += oy; }
   }
 
   // How long somebody keeps trying to get somewhere they are not getting any
@@ -1788,6 +1835,10 @@
   // one job alone. Long enough that walking the length of a wall to get round
   // it is never mistaken for being stuck.
   const GIVE_UP = 9, LEAVE_ALONE = 25;
+  // How many pairs of hands one site is worth putting on it. Two build it twice
+  // as fast and both can stand somewhere; the third has nowhere to stand at a
+  // corner and jams the two who could work.
+  const CREW_MAX = 2;
   // How long a person is watched before deciding they are not walking at all,
   // and how little ground they have to have covered in that time to count. Not
   // measured frame by frame: somebody wedged in a corner still shivers there a
@@ -1937,11 +1988,20 @@
     if (kind === 'build') {
       const sites = _buildSites();
       if (!sites.length) return 0;
-      const alone = (b) => !_hold.workers.some(x => x !== w && x.job === 'build' && x.target === b.id);
+      // Worth going to at all: nobody on it, or room left on it. A site with a
+      // full crew is not work this person can do, and scoring it as though it
+      // were sends them to stand behind somebody already building.
+      const on = (b) =>
+        _hold.workers.filter(x => x !== w && x.job === 'build' && x.target === b.id).length;
+      const alone = (b) => !on(b);
+      const room  = (b) => on(b) < CREW_MAX;
       // Scaffolding standing with nobody on it is the most wasteful thing in a
       // hold: it has already been paid for and it is doing nothing.
       const raw = sites.filter(b => b.built < 1 || b.up != null);
-      if (raw.length) return (raw.some(alone) ? 3.2 : 1.4) * crowding;
+      if (raw.length)
+        return raw.some(alone) ? 3.2 * crowding
+             : raw.some(room)  ? 1.4 * crowding
+             : 0;
       // Only mending left, and that is worth what is missing: a wall with a
       // scratch on it is not a reason to stop cutting timber, a keep at a third
       // of its health is a reason to stop everything.
@@ -1990,8 +2050,16 @@
       // is finished, while a damaged building is still doing its work.
       const raw = sites.filter(b => b.built < 1 || b.up != null);
       if (raw.length) sites = raw;
-      const free = sites.filter(b => !_hold.workers.some(x => x !== w && x.job === 'build' && x.target === b.id));
-      const site = _nearest(w, free.length ? free : sites);
+      // Hands on a site do add up — each one calls _progress — but the ground
+      // to stand on does not. A wall in a corner can be reached from one side,
+      // and the third body sent to it cannot get to the site, cannot give the
+      // errand up while the crowd keeps shoving him about, and jams the two who
+      // could work. So: a second pair of hands is worth having, a third is not.
+      const on = (b) =>
+        _hold.workers.filter(x => x !== w && x.job === 'build' && x.target === b.id).length;
+      const free  = sites.filter(b => !on(b));
+      const spare = sites.filter(b => on(b) < CREW_MAX);
+      const site = _nearest(w, free.length ? free : spare);
       if (!site) return false;
       w.job = 'build'; w.target = site.id; w.phase = 'walk';
       return true;
@@ -2115,7 +2183,7 @@
   // nothing: rounding at the last pixel of health would leave people patching
   // an untouched wall for ever.
   function _hurt(b) {
-    const max = _maxHp(b.type, b.lvl, b.keep);
+    const max = _hpOf(b);
     return b.hp < max - 0.5 ? (max - b.hp) / max : 0;
   }
 
@@ -2219,7 +2287,7 @@
       if (b.up < 1) return false;
       b.up = null;
       b.lvl += 1;
-      b.hp = _maxHp(b.type, b.lvl, b.keep);
+      b.hp = _hpOf(b);
       _burst(b.x, b.y, '#f9e2af', 14);
       _sfx('up', b.x, b.y);
       return true;
@@ -2229,7 +2297,7 @@
     // and the materials are already in it — this costs the hold nothing but
     // the hands. There is no keeping the damage: a hold that could never mend
     // anything is a hold that only ever gets worse.
-    const max = _maxHp(b.type, b.lvl, b.keep);
+    const max = _hpOf(b);
     if (b.hp < max - 0.5) {
       b.hp = Math.min(max, b.hp + step * max * REPAIR_RATE);
       if (b.hp < max - 0.5) return false;
@@ -2428,12 +2496,49 @@
         if (s.pa == null) s.pa = Math.atan2(s.y - keep.y, s.x - keep.x);
         if (s.pr == null) s.pr = 0.9 + Math.random() * 0.2;   // no two on one line
         const R = ring * s.pr;
-        const at = { x: keep.x + Math.cos(s.pa) * R, y: keep.y + Math.sin(s.pa) * R };
-        const there = _walk(s, at, dt, 46, 14, true);
+        // A place to walk to has to be a place a man can stand.
+        //
+        // His round is a circle drawn about the keep and his wall is a square
+        // drawn about the keep, so the two cross — and they cross at the
+        // corners, where the square reaches furthest out. A fifth of every
+        // guard's round was a point standing inside his own stonework. He
+        // cannot get to it, ever; what he does instead is walk at it, feel
+        // along the wall, and be given up on three seconds later, and the next
+        // point is in the same corner, so he is sent at the same wall again.
+        // That is the man standing at the wall shivering, and it was never
+        // about the doorway: he was not going anywhere a doorway leads.
+        //
+        // And the map has edges. The ring is only kept inside them by half the
+        // map's width, which is the right answer for a keep in the middle and
+        // the wrong one for a keep in a corner — that hold drew a good part of
+        // every round off the map, and that is where its guards went.
+        //
+        // So the point is looked at before he is sent to it. One that is in
+        // something, or off the map, is not walked to at all: he takes the next
+        // point of his beat instead, and the next, until there is ground.
+        const EDGE = 40;
+        let at = null;
+        for (let n = 0; n < 12; n++) {
+          const p = { x: keep.x + Math.cos(s.pa) * R, y: keep.y + Math.sin(s.pa) * R };
+          if (p.x > EDGE && p.y > EDGE && p.x < W() - EDGE && p.y < W() - EDGE &&
+              !_solidAt(p.x, p.y, null, true)) { at = p; break; }
+          s.pa += PATROL_STEP; s._stall = 0; s._near = null;
+        }
+        const there = at && _walk(s, at, dt, 46, 14, true);
         // Round he goes, one point at a time. Anything that will not let him
         // past is left behind by taking the next point instead: a patrol that a
         // hut can stop is not a patrol.
-        if (there || (s._stall || 0) > PATROL_GIVE) {
+        //
+        // Except a doorway, which is the one thing on his beat that he is
+        // meant to be slow at. His round is a ring outside the wall and he
+        // musters inside it, so his way onto the beat is through the gate —
+        // single file, waiting on whoever is in it, and none of that is
+        // failing to get anywhere. Giving up on the point while he is threading
+        // the opening turns him back into the yard, and the next point sends
+        // him at the same door again: that is the shivering. While a worked-out
+        // route says there is a way through, he keeps walking it.
+        const threading = at && s._routeD != null;
+        if (there || (at && !threading && (s._stall || 0) > PATROL_GIVE)) {
           s.pa += PATROL_STEP; s._stall = 0; s._near = null;
         }
       }
@@ -2451,8 +2556,15 @@
   // for the rounds that are in the keep, whether they are about to be fired or
   // about to be carried to a tower.
   const _mag   = (b) => b.keep ? (_hold.ammo || 0) : (b.ammo || 0);
-  // What one volley takes out of it.
-  const _volley = (lvl) => _lv('tower', lvl, 'ammo_per');
+  // What one volley takes out of it, in whole rounds — because a round is a
+  // thing a person carries up a ladder one at a time, and half of one is not
+  // anything. The level's figure is a curve and lands between whole numbers:
+  // 1.45 at level two, 2.35 at level four. Left as it came off the curve it
+  // meant a tower standing there with ammunition in the magazine and refusing
+  // to fire, because it wanted 2.35 and had 2 — and it spent 2.35 when it did
+  // fire, so the store was never a whole number either and the count over the
+  // tower went 2, 1, 2 as it was rounded for the eye.
+  const _volley = (lvl) => Math.max(1, Math.round(_lv('tower', lvl, 'ammo_per')));
   const _spend = (b, n) => { if (b.keep) _hold.ammo -= n; else b.ammo -= n; };
 
   function _towers(dt) {
@@ -2464,8 +2576,13 @@
       // the magazine is a property of the level as much as the damage is. It
       // is the reason a hold never outgrows the people carrying ammunition to
       // it, however deep its towers get.
-      const takes = _volley(b.lvl);
-      if (_mag(b) < takes) continue;
+      // And it fires what it has. A tower that cannot manage a full volley
+      // still shoots: the last rounds in a hold are the ones that decide
+      // whether it is still standing, and a tower holding them back for a
+      // volley it will never assemble is a tower that was not there at all.
+      // The workshop makes rounds by the tenth of one, so whole rounds only.
+      const takes = Math.min(_volley(b.lvl), Math.floor(_mag(b)));
+      if (takes < 1) continue;
 
       const range = _lv('tower', b.lvl, 'range');
       const barrels = _barrels(b.lvl);
@@ -2893,7 +3010,14 @@
       if (b.type === 'wall') {
         // Square, because that is what a wall is: tested as the box it fills,
         // so a run of them has no diagonal gap to slip through at the corners.
-        if (Math.abs(x - b.x) < c && Math.abs(y - b.y) < c) return b;
+        // A gate fills two of them, so it is tested about its middle and over
+        // the length of both — to everybody without a key it is simply a wider
+        // piece of wall.
+        if (b.gate && b.cells && b.cells.length) {
+          const mid = _gateMid(b);
+          if (Math.abs(x - mid.x) < c + mid.hx &&
+              Math.abs(y - mid.y) < c + mid.hy) return b;
+        } else if (Math.abs(x - b.x) < c && Math.abs(y - b.y) < c) return b;
       } else if ((x - b.x) * (x - b.x) + (y - b.y) * (y - b.y) < c * c) {
         return b;
       }
@@ -2967,8 +3091,13 @@
   // fits, not where a plank fits. One route a frame for the same reason: it is
   // a frame's worth of work, and the walker keeps going straight meanwhile.
   const NAV_CELL = 28;
-  const NAV_FIELDS = 14;          // how many destinations are remembered
-  const NAV_PER_FRAME = 1;        // and how many new ones are worked out a frame
+  // How many destinations are remembered, and how many new ones are worked out
+  // in a frame. A hold at work has more errands on at once than it looks: every
+  // deposit, the keep, every site going up, and a moving point for each guard
+  // on his rounds. Too few remembered and the shift spends its day queueing for
+  // a route it had a moment ago.
+  const NAV_FIELDS = 28;
+  const NAV_PER_FRAME = 2;
   // Two of them: the map as everybody else finds it, and the same map with the
   // hold's own gates open. One grid cannot answer both — a route is flooded
   // over squares, and whether a gate's square is a square depends entirely on
@@ -3015,6 +3144,42 @@
         }
       }
     }
+
+    // And now the doors are cut, after every wall has been laid down and not
+    // while it is being laid. A gate leaves its own square clear as it goes,
+    // but the two lengths of wall it sits between do not: each is widened by a
+    // walker's clearance, and a wall is only its own width from the next one,
+    // so the pair of them close over the doorway from either side. The hold's
+    // own people then read a shut door and walk the whole ring to another one.
+    // Clearing the gate's squares last is what makes the gap a gap — for them
+    // only, since `g` is the grid the raiders use and a door is a wall to
+    // anyone without a key.
+    for (const b of _hold.buildings) {
+      if (!b.gate) continue;
+      // Every square of the opening, each opened about its own middle and each
+      // reaching a full clearance out of itself. That is the whole reason a
+      // doorway is more than one square wide: half a clearance either side of a
+      // single square leaves a slot too narrow for the grid to see, which is a
+      // door the hold walks the long way round. Squares rather than the box
+      // round them, because a doorway at a corner is an L and the ground on the
+      // far side of the turn is wall, not road.
+      const c = _clearance(b);
+      const here = [[0, 0]].concat(b.cells || []);
+      for (const cell of here) {
+        const cx = b.x + cell[0], cy = b.y + cell[1];
+        const x0 = Math.max(0, Math.floor((cx - c) / NAV_CELL));
+        const x1 = Math.min(_navW - 1, Math.floor((cx + c) / NAV_CELL));
+        const y0 = Math.max(0, Math.floor((cy - c) / NAV_CELL));
+        const y1 = Math.min(_navW - 1, Math.floor((cy + c) / NAV_CELL));
+        for (let gy = y0; gy <= y1; gy++) {
+          for (let gx = x0; gx <= x1; gx++) {
+            const x = (gx + 0.5) * NAV_CELL, y = (gy + 0.5) * NAV_CELL;
+            if (Math.abs(x - cx) < c && Math.abs(y - cy) < c) o[gy * _navW + gx] = 0;
+          }
+        }
+      }
+    }
+
     _navBox = bx1 > bx0 ? { x0: bx0, y0: by0, x1: bx1, y1: by1 } : null;
     _navGrid = g; _navOpen = o; _navDirty = false; _navFields.clear();
     return thru ? o : g;
@@ -3047,7 +3212,13 @@
     const key = ((gy * _navW + gx) * 32 + Math.min(31, Math.round(reach / NAV_CELL))) * 2 +
                 (thru ? 1 : 0);
     const had = _navFields.get(key);
-    if (had) return had;
+    // Asked for again, so it goes to the back of the queue. Throwing away the
+    // oldest entry instead threw away exactly the wrong ones: the keep and the
+    // mine are the first routes a hold ever works out and the two it walks all
+    // day, while a patrol point is asked about once and never again. The
+    // rounds a guard walks were quietly evicting the road to the quarry every
+    // few seconds, and a whole shift lost its route at once.
+    if (had) { _navFields.delete(key); _navFields.set(key, had); return had; }
     if (_navBudget >= NAV_PER_FRAME) return null;   // next frame will do
     _navBudget++;
     const n = _navW * _navW;
@@ -3057,13 +3228,35 @@
     // Standing at the destination means standing near enough to touch it, so
     // everything within reach of it is where the walk ends.
     const span = Math.max(1, Math.ceil(reach / NAV_CELL));
-    for (let dy = -span; dy <= span; dy++) {
-      for (let dx = -span; dx <= span; dx++) {
-        const x = gx + dx, y = gy + dy;
-        if (x < 0 || y < 0 || x >= _navW || y >= _navW) continue;
-        const i = y * _navW + x;
-        if (g[i] || dist[i] === 0) continue;
-        dist[i] = 0; q[tail++] = i;
+    // And if the destination is standing in something, the ground nearest to it
+    // is where the walk ends instead. This is the whole of the standing at walls
+    // and shaking.
+    //
+    // A guard's round is a circle drawn about the keep, and a ring wall is a
+    // square drawn about the keep, so the two cross: a good part of every round
+    // is a point inside the player's own wall. Same for a spot to wait at, a
+    // deposit that a hut has been put up against, anything. With no free square
+    // to seed from there was no flooding at all and every square on the map read
+    // NAV_FAR — so the route was not "wait a frame", it was "there is no way
+    // there", for ever. And a walker with no way there walks at the thing
+    // itself, which is the wall, and feels along it, and is given up on, and is
+    // sent again, and stands there shaking for as long as the player watches
+    // him. The doorway was never the trouble: he was not going anywhere a
+    // doorway leads.
+    //
+    // Widened a ring at a time until there is somewhere to stand, and then the
+    // flooding is the flooding it always was. Standing as near to it as the
+    // ground allows is what a person does when told to go and stand in a wall.
+    for (let grow = span; grow <= span + 6 && tail === 0; grow++) {
+      for (let dy = -grow; dy <= grow; dy++) {
+        for (let dx = -grow; dx <= grow; dx++) {
+          if (grow > span && Math.max(Math.abs(dx), Math.abs(dy)) !== grow) continue;
+          const x = gx + dx, y = gy + dy;
+          if (x < 0 || y < 0 || x >= _navW || y >= _navW) continue;
+          const i = y * _navW + x;
+          if (g[i] || dist[i] === 0) continue;
+          dist[i] = 0; q[tail++] = i;
+        }
       }
     }
     while (head < tail) {
@@ -3115,6 +3308,14 @@
     const here = _ci(a.y) * _navW + _ci(a.x);
     if (f[here] !== NAV_FAR) return here;
     let best = -1, bd = NAV_FAR;
+    // And the best one that was only turned down for the line to it, kept
+    // aside. Somebody standing against a wall is standing in a square the grid
+    // calls solid — the grid is drawn two paces wider than a body is — and the
+    // line out of a solid square fails whichever way it is drawn. Saying "no
+    // route" to him is what sends him walking at the wall on faith. A square a
+    // pace or two off, in the right direction, is a poor start and an
+    // enormously better answer than none.
+    let loose = -1, ld = NAV_FAR;
     const cx = _ci(a.x), cy = _ci(a.y);
     for (let ring = 1; ring <= 3 && best < 0; ring++) {
       for (let dy = -ring; dy <= ring; dy++) {
@@ -3123,6 +3324,7 @@
           const x = cx + dx, y = cy + dy;
           if (x < 0 || y < 0 || x >= _navW || y >= _navW) continue;
           const i = y * _navW + x;
+          if (f[i] < ld) { ld = f[i]; loose = i; }
           if (f[i] >= bd) continue;
           const p = _cellPoint(i);
           if (!_clearLine(a.x, a.y, p.x, p.y, 0, thru)) continue;
@@ -3130,6 +3332,7 @@
         }
       }
     }
+    if (best < 0 && ld !== NAV_FAR) return loose;
     return best;
   }
 
@@ -3184,6 +3387,99 @@
     return f[i] * NAV_CELL * 1.15;             // diagonals cost a little more
   }
 
+  // ── The gate a man makes for when he has no route ─────────────────────────
+  // A worked-out route knows where the doorway is and goes through it, and that
+  // is how this is meant to work. But there are frames with no route to hand:
+  // the field for this errand has just been thrown out, or the grid has been
+  // rebuilt because somebody laid a wall, or this frame has already done its
+  // share of the flooding. In those frames the walker used to do the one thing
+  // that never gets anywhere — keep walking at the wall, slide along it, and
+  // shiver there until somebody gave up on his behalf.
+  //
+  // A person standing inside his own hold does not need a flooded grid to know
+  // where his own gate is. He looks for it and walks to it. So when the line to
+  // where he is going is shut and no route has been worked out, the doorway
+  // pulls: he makes for the nearest useful one, carries straight on through the
+  // mouth of it, and picks his own line up again on the far side.
+  const GATE_AFTER = 0.5;             // how long at a wall before it pulls
+  const GATE_KEEP  = 3;               // how long he sticks with the one he took
+  const GATE_AT    = NAV_CELL;        // near enough to be in the mouth of it
+  const GATE_OUT   = NAV_CELL * 2.5;  // and how far through it he carries on
+  const GATE_ROUND = 3.5;             // no doorway is worth this much walking
+  const GATE_COOL  = 4;               // and how long one is left alone after
+
+  const _gateById = (id) => _hold.buildings.find(b => b.id === id && b.gate) || null;
+  // Is a doorway holding him right now? Which is the difference between taking
+  // one and being at a wall: only the second is a reason to go looking.
+  const _onGate = (a) => (a._gt || 0) > 0 && (!!a._gout || a._gid != null);
+
+  // Which doorway is the way out for this errand: the one that costs least
+  // walking taken as both halves together — over to it, and on from it — and
+  // not simply the nearest, since a gate on the wrong side of the hold is a
+  // longer walk than the wall it is cut into. And no doorway at all when going
+  // by one would be a great deal further than the thing looked in the first
+  // place: what is in the way then is a hut in the yard rather than the ring
+  // wall, and a hut is walked round the way it always was.
+  function _gateFor(a, to) {
+    let best = null, bd = Infinity;
+    for (const b of _hold.buildings) {
+      if (!b.gate) continue;
+      const m = _gateMid(b);
+      const d = Math.hypot(m.x - a.x, m.y - a.y) + Math.hypot(m.x - to.x, m.y - to.y);
+      if (d < bd) { bd = d; best = b; }
+    }
+    if (!best || bd > _dist(a, to) * GATE_ROUND + NAV_CELL * 4) return null;
+    return best;
+  }
+
+  // Where he is walking while the doorway has him. Two aims, in order: the
+  // mouth of it, and then a point out the far side. The second half is what
+  // makes a door a way through rather than a place to stand — aiming at the
+  // middle of an opening and letting go of it the moment you are in it is how
+  // somebody walks into a gateway and straight back out of the side he came
+  // from. The way out is the way he came in, carried on: he was walking at a
+  // hole in a wall, so straight on is through.
+  function _gatePull(a, to, dt, thru) {
+    a._gt = (a._gt || 0) - dt;
+    if (a._gout) {
+      if (a._gt > 0 && _dist(a, a._gout) > 8) return a._gout;
+      // Out the far side, and then left alone for a while. A man who has just
+      // come through a doorway is standing next to it, so the same doorway is
+      // still the nearest one there is — and pulled at again on the spot he
+      // would walk straight back in through it and out again forever. On the
+      // far side the wall is a wall like any other and feeling along it is
+      // enough, which is what he did before there were doors at all.
+      a._gout = null; a._gid = null; a._gcd = GATE_COOL;
+      return null;
+    }
+    let g = a._gt > 0 && a._gid != null ? _gateById(a._gid) : null;
+    if (!g) {
+      g = _gateFor(a, to);
+      // No door worth taking. Asking again on the very next frame would be
+      // asking the same question of the same wall, so it is left a moment.
+      if (!g) { a._gcd = 1; return null; }
+      a._gid = g.id; a._gt = GATE_KEEP; a._gfx = a.x; a._gfy = a.y;
+    }
+    const mid = _gateMid(g);
+    if (_dist(a, mid) > GATE_AT) return mid;
+    let dx = mid.x - a._gfx, dy = mid.y - a._gfy;
+    let d = Math.hypot(dx, dy);
+    // Too short a line to point anywhere — he was standing in the mouth of it
+    // already when it took him — so the way through is the way he is going.
+    if (d < NAV_CELL) { dx = to.x - mid.x; dy = to.y - mid.y; d = Math.hypot(dx, dy); }
+    if (d < 1) { a._gid = null; return null; }
+    // Shortened rather than abandoned if the full stride out lands in
+    // something: a doorway at a corner turns, and the ground two squares past
+    // it on the line he came in on can perfectly well be the wall going the
+    // other way.
+    for (let f = 1; f >= 0.4; f -= 0.3) {
+      const p = { x: mid.x + (dx / d) * GATE_OUT * f, y: mid.y + (dy / d) * GATE_OUT * f };
+      if (!_solidAt(p.x, p.y, null, thru)) { a._gout = p; a._gt = GATE_KEEP; return p; }
+    }
+    a._gid = null;
+    return null;
+  }
+
   // Walking, for everybody who walks: people, soldiers and raiders alike.
   // Nothing goes through what is built. The step is tried straight at the
   // target first; when something is standing in the way the same step is tried
@@ -3199,7 +3495,12 @@
     // which of the two it is: 'b3' and 'd3' are different errands.
     const leg = b.id != null ? (b.kind ? 'd' : 'b') + b.id
                              : Math.round(b.x) + ',' + Math.round(b.y);
-    if (a._leg !== leg) { a._leg = leg; a._near = null; a._nearK = null; a._stall = 0; }
+    if (a._leg !== leg) {
+      a._leg = leg; a._near = null; a._nearK = null; a._stall = 0;
+      a._gid = null; a._gout = null; a._gt = 0; a._gcd = 0;   // and the door
+      a._aim = null; a._aimT = 0; a._side = 0;
+    }
+    if (a._gcd > 0) a._gcd -= dt;
     const dx = b.x - a.x, dy = b.y - a.y;
     const d = Math.hypot(dx, dy);
     if (d <= reach) { a._side = 0; a._stall = 0; a._arrived = true; return true; }
@@ -3210,14 +3511,69 @@
     // squeezing past whoever else is on the same errand.
     let mx = dx, my = dy;
     a._routeD = null;
-    if (!a._straight && !_clearLine(a.x, a.y, b.x, b.y, reach + NAV_CELL, thru)) {
+    // The blind stretch used to be the last reach + NAV_CELL — 62 paces for a
+    // wall — walked at the target on faith. That is exactly the distance a
+    // corner is decided over: a wall tucked behind a tower is a straight line
+    // through the tower, and the last thing a route would have said is which
+    // way round it. Now the route is asked right up to the reach itself, and
+    // the feeling-along below is only ever the last pace and squeezing past
+    // whoever else is on the same errand.
+    const shut = !a._straight && !_clearLine(a.x, a.y, b.x, b.y, reach, thru);
+    if (shut) {
       const p = _waypoint(a, b, reach, thru);
-      if (p) { mx = p.x - a.x; my = p.y - a.y; }
+      if (p) {
+        mx = p.x - a.x; my = p.y - a.y; a._gid = null; a._gout = null;
+        // Kept, because the next frame may have no route to give — see below.
+        a._aim = p; a._aimT = 1.5;
+      }
+      // No route this frame, and long enough leaning on whatever is there to
+      // know that feeling along it is not going to end. The hold's own doors
+      // are open to him, so one of them pulls — see _gatePull. Nobody else gets
+      // this: to a raider a gate is a wall, and walking to one is walking into
+      // the thing he was already walking into.
+      // Once a door has him it keeps him until he is out the other side of it:
+      // walking to a gate is getting somewhere, so the tally of getting
+      // nowhere resets, and a rule that only looked at that tally would drop
+      // him at the first step he took towards the thing that was working.
+      else if (thru && (_onGate(a) || ((a._stall || 0) > GATE_AFTER && !(a._gcd > 0)))) {
+        const q = _gatePull(a, b, dt, thru);
+        if (q) {
+          mx = q.x - a.x; my = q.y - a.y;
+          // Measured the way a detour is measured, exactly as a worked-out
+          // route is: over to the door and on from it. Otherwise the walk to
+          // the gate reads as walking away from the errand, and the man is
+          // given up on for doing the one thing that was going to work.
+          a._routeD = Math.hypot(mx, my) + Math.hypot(b.x - q.x, b.y - q.y);
+        }
+      }
+      // Still nothing: no route this frame, and no door taking him. What he
+      // used to do here was walk at the target — which, standing at a wall, is
+      // walking at the wall, once every few frames, forever. The last corner a
+      // route did give him is a far better guess than that: it was true a
+      // moment ago and a man walks a pace and a half in the time it keeps. The
+      // frames with no route are not rare — a route is flooded two per frame
+      // and a hold has more errands than that — so this is most of the standing
+      // at walls there ever was.
+      else if (a._aim && (a._aimT || 0) > 0) {
+        a._aimT -= dt;
+        mx = a._aim.x - a.x; my = a._aim.y - a.y;
+        if (Math.hypot(mx, my) < 4) { a._aim = null; mx = dx; my = dy; }
+      }
     }
+    else { a._aim = null; }
     const md = Math.hypot(mx, my) || 1;
     const ux = mx / md, uy = my / md;
     if (_tryStep(a, ux, uy, step, b, thru)) {
-      a._side = 0;
+      // The side he is going round on is forgotten when the way is open again,
+      // and not one moment sooner. Forgetting it on any step that happened to
+      // get through was the shivering itself: feeling along a wall is a step
+      // square to it, then a step at the target that lands beside the wall
+      // rather than in it and so goes through — and that step wiped the side,
+      // so the next blocked frame tossed a coin for it again. Left and right by
+      // turns, half a pace each, is a man standing at a wall shaking. Held, it
+      // is a man walking along the wall to the end of it, and the end of a ring
+      // wall is the doorway.
+      if (!shut) a._side = 0;
     } else {
       const side = a._side || (Math.random() < 0.5 ? 1 : -1);
       // Square to the way home first — that is walking along the obstacle —
@@ -3523,9 +3879,24 @@
                      _tone({ from: 160, to: 55, len: 0.4, wave: 'sawtooth', vol: 0.08 * v }); },
     // One of the hold's own, gone. Low, and it does not resolve.
     fallen: (v) => { _tone({ from: 300, to: 90, len: 0.3, wave: 'sine', vol: 0.11 * v }); },
-    // A camp's keep finishing its champion, somewhere out there.
-    champ:  (v) => { _tone({ from: 110, to: 110, len: 0.45, wave: 'sawtooth', vol: 0.1 * v });
-                     _tone({ from: 165, to: 220, len: 0.4, wave: 'square', vol: 0.06 * v, at: 0.12 }); },
+    // A house sees someone new to the door. Soft, and it climbs — the
+    // smallest good news the hold gets.
+    hire:   (v) => { _tone({ from: 392, to: 392, len: 0.08, wave: 'sine', vol: 0.07 * v });
+                     _tone({ from: 587, to: 587, len: 0.12, wave: 'sine', vol: 0.07 * v, at: 0.07 }); },
+    // A barracks arming one more: a knock, then a note with some iron in it.
+    muster: (v) => { _noise({ from: 500, to: 200, len: 0.05, vol: 0.06 * v, q: 1.2 });
+                     _tone({ from: 220, to: 330, len: 0.14, wave: 'square', vol: 0.07 * v, at: 0.04 }); },
+    // A camp's keep finishing its champion, somewhere out there. Rare enough
+    // to earn something uglier than build/up: a low drone that does not sit
+    // still, a flat noise breath under it, and a sour interval — not a fifth,
+    // a tritone — landing after, so it reads as a threat and not an arrival.
+    champ:  (v) => { _tone({ from: 82, to: 65, len: 0.6, wave: 'sawtooth', vol: 0.12 * v });
+                     _noise({ from: 300, to: 90, len: 0.5, vol: 0.07 * v, q: 0.6, type: 'lowpass' });
+                     _tone({ from: 98, to: 98, len: 0.35, wave: 'square', vol: 0.07 * v, at: 0.22 });
+                     _tone({ from: 139, to: 139, len: 0.35, wave: 'square', vol: 0.06 * v, at: 0.3 }); },
+    // The click of pointing at something: a tap that landed. Meant to be felt
+    // more than heard, and never rationed — it should answer every tap.
+    select: (v) => { _tone({ from: 1400, to: 1000, len: 0.03, wave: 'sine', vol: 0.05 * v }); },
     // And that champion face down in the mud, which is worth a fanfare.
     slain:  (v) => { _tone({ from: 784, to: 784, len: 0.1, wave: 'triangle', vol: 0.1 * v });
                      _tone({ from: 1047, to: 1047, len: 0.1, wave: 'triangle', vol: 0.1 * v, at: 0.09 });
@@ -3545,7 +3916,7 @@
   // same frame are one crack, not ten stacked on top of each other — stacking
   // is both deafening and, for a browser, expensive.
   const SFX_GAP = { shot: 90, hit: 70, clash: 220, kill: 120, bolt: 140,
-                    fallen: 300, wreck: 200 };
+                    fallen: 300, wreck: 200, hire: 250, muster: 250, select: 60 };
   const _sfxAt = {};
 
   // Say it. Takes where it happened, when that is known, so the map decides
@@ -3641,29 +4012,45 @@
   // Where a building actually lands when it is dropped here. Only the wall
   // moves — everything else stands where it was put.
   function _snap(type, p) {
-    if (type !== 'wall') return { x: p.x, y: p.y };
+    if (type !== 'wall' && type !== 'gate') return { x: p.x, y: p.y };
     const cell = _wallCell();
     return { x: (Math.floor(p.x / cell) + 0.5) * cell,
              y: (Math.floor(p.y / cell) + 0.5) * cell };
   }
 
+  // The piece of wall under a square, if there is one standing finished there.
+  // A gate is aimed at wall rather than at ground, so this is what the aiming
+  // asks about.
+  function _wallAt(x, y) {
+    const cell = _wallCell();
+    return _hold.buildings.find(b =>
+      b.type === 'wall' && Math.abs(b.x - x) < cell / 2 && Math.abs(b.y - y) < cell / 2) || null;
+  }
+
+  // The squares a gate aimed here would take. All of them have to be finished
+  // plain wall — a gate is cut, not built, and there is nothing to cut in a
+  // half-raised course or in a doorway that is already there.
+  const _gateAim = (x, y) => _gateParts(_wallAt(x, y));
+
   // How far apart two kinds of building have to stand. Two walls only have to
   // be in different cells: laying them against each other is the point of them,
-  // and anything more turns a wall into a fence. A wall against anything else
-  // just may not overlap it — no extra air, or a hold could never wall its own
-  // towers in. Everything else keeps the room it always kept.
+  // and anything more turns a wall into a fence. Every other pair — a wall
+  // against a tower included — has to leave a gap somebody can actually walk
+  // through.
+  //
+  // A wall used to be allowed to touch anything, so that a hold could wall its
+  // own towers in. What that bought was a tower with a wall laid against it and
+  // a corner nobody could reach: builders sent to that corner could not get to
+  // it, could not give it up while the crowd shoved them about, and stood there
+  // for the rest of the game. A tower still stands inside the wall — it is the
+  // wall's ring that encloses it, not the stones touching it — it just keeps a
+  // person's width around itself like everything else does.
   function _spacing(a, b) {
     const cell = _wallCell();
     if (a === 'wall' && b === 'wall') return cell - 1;
     const ra = a === 'wall' ? cell / 2 : _bc(a).size;
     const rb = b === 'wall' ? cell / 2 : _bc(b).size;
-    // Nothing is walked through any more, so two buildings put down next to
-    // each other are a fence. That is the wall's job and only the wall's: every
-    // other pair has to leave a gap somebody can actually get through, or a
-    // hold would seal itself in by accident and wonder why nobody is working.
-    // A wall may still touch a building — otherwise a hold could never wall its
-    // own towers in, which is the one thing walls are for.
-    return ra + rb + (a === 'wall' || b === 'wall' ? 0 : UNIT_R * 2 + 10);
+    return ra + rb + UNIT_R * 2 + 10;
   }
 
   // Why this building may not stand here, or null if it may. One answer for
@@ -3673,6 +4060,20 @@
     const c = _bc(type);
     const half = c.size + 8;
     if (x < half || y < half || x > W() - half || y > W() - half) return 'sh_no_room';
+    // A gate answers to the wall it is being cut into and to nothing else. It
+    // takes no new ground — the ground is already built on, by the hold, on
+    // purpose — so none of the spacing, deposit or neighbour questions below
+    // apply to it. What it wants is two finished lengths of plain wall lying
+    // side by side, and the price of the wall it is replacing.
+    if (type === 'gate') {
+      const at = _wallAt(x, y);
+      if (!at) return 'sh_gate_on_wall';
+      if (at.gate) return 'sh_gate_already';
+      if (at.built < 1 || at.up != null) return 'sh_gate_unfinished';
+      if (!_gateParts(at)) return 'sh_gate_needs_room';
+      if (!_canPay(_newCost('gate'))) return 'sh_cant_afford';
+      return null;
+    }
     // Founding the hold answers to its own rules: it costs nothing, there is
     // nothing standing to keep clear of, and the only thing the map insists on
     // is that a camp is not moved in on. Anywhere else is fair ground — which
@@ -3753,7 +4154,7 @@
     // all. Put it down anywhere and somebody moves in.
     _placing = _freeFirst('house') ? 'house' : null;
     _ghost = null;
-    _selected = null; _selDep = null; _selFac = null; _selBoss = null;
+    _selected = null; _selDep = null; _selFac = null; _selFacB = null; _selBoss = null;
     if (_placing && !_narrow()) _previewPanel(_placing); else _closePanel();
     _navChanged();
     _lookAt({ x: x, y: y }, _homeZoom());
@@ -3768,6 +4169,22 @@
     if (type === 'keep') return _found(x, y);
     const why = _canPlace(type, x, y);
     if (why) { _sfx('deny'); return _say(_t(why)); }
+    // A gate puts nothing new on the map: it opens a way through two lengths
+    // of wall that are already standing, and the far one is swallowed. So it
+    // goes through the cutting, not through the building.
+    if (type === 'gate') {
+      const parts = _gateAim(x, y);
+      if (!parts) { _sfx('deny'); return _say(_t('sh_gate_needs_room')); }
+      _pay(_newCost('gate'));
+      _cutGate(parts);
+      _placing = null;
+      _ghost = null;
+      _closePanel();
+      _renderBar();
+      _renderStrip();
+      _push();
+      return;
+    }
     const cost = _newCost(type);
     _pay(cost);
     // The free first house is up the moment it is placed. Everything else is
@@ -3821,20 +4238,119 @@
   // Bricking it up again is free and gives nothing back. A hold that changes
   // its mind about where its road runs should not be punished for it, and
   // nobody has ever been paid for filling a hole in.
-  function _gateWay(b) {
-    if (b.type !== 'wall' || b.built < 1 || b.up != null) return;
-    if (b.gate) {
-      delete b.gate;
-    } else {
-      const cost = _newCost('wall');
-      if (!_canPay(cost)) { _sfx('deny'); return _say(_t('sh_cant_afford')); }
-      _pay(cost);
-      b.gate = 1;
+  // The piece of wall a new gate would take in as its other half. A finished
+  // plain length, square against this one, and preferring whichever way the
+  // wall already runs — a doorway across a line of wall is a doorway that opens
+  // onto the wall itself. Nothing else will do: not a gate, not a piece still
+  // going up, and not the keep.
+  // Whether a piece of wall can be taken into a doorway: standing, finished,
+  // plain, and not already a door.
+  const _plainWall = (b) =>
+    b && b.type === 'wall' && !b.gate && b.built >= 1 && b.up == null;
+
+  // The squares a doorway cut at this piece would fill. Two along a straight
+  // run — one is not a doorway, it is a gap a man with a load turns sideways
+  // for and then gives up on.
+  //
+  // Three at a corner, and that is the whole reason this returns a list. Two
+  // squares round a corner are two squares that touch at their corner only:
+  // the opening they leave is a diagonal slot no wider than one square, which
+  // is the thing that was not walkable in the first place. The piece that turns
+  // the corner has to come out as well, and then the doorway is an honest
+  // L-shaped mouth with a straight way through it.
+  function _gateParts(b) {
+    if (!_plainWall(b)) return null;
+    const cell = _wallCell();
+    const side = [];
+    for (const o of _hold.buildings) {
+      if (o === b || !_plainWall(o)) continue;
+      const dx = o.x - b.x, dy = o.y - b.y;
+      if (Math.hypot(dx, dy) > cell + 2) continue;
+      if (Math.abs(dx) > 2 && Math.abs(dy) > 2) continue;   // no diagonals
+      side.push({ o, dx, dy });
     }
-    // The ring the hold walks has changed shape, for the hold only.
+    if (!side.length) return null;
+    // Which way the wall runs through this square, counted over the whole line
+    // rather than the neighbour alone: the piece that keeps the run going is
+    // the one to take, and a doorway across a line of wall opens onto wall.
+    const run = (s) => {
+      let n = 0;
+      for (const o2 of _hold.buildings) {
+        if (o2 === b || o2 === s.o || o2.type !== 'wall') continue;
+        if (Math.abs(s.dx) > 2 ? Math.abs(o2.y - b.y) < 2 : Math.abs(o2.x - b.x) < 2) n++;
+      }
+      return n;
+    };
+    side.sort((p, q) => run(q) - run(p));
+    const first = side[0];
+    // A corner is a neighbour square to the first one: the run comes in one way
+    // and leaves the other. Anything else is a straight length.
+    const turn = side.find(s => s !== first &&
+      (Math.abs(s.dx) > 2) !== (Math.abs(first.dx) > 2));
+    return turn ? [b, first.o, turn.o] : [b, first.o];
+  }
+
+  // Where the opening actually is, and how far it reaches from there along each
+  // axis. Everything that asks "how far to the door" has to ask about the door
+  // and not about one post of it — and at a corner the door is an L, so it is
+  // measured as the box the whole mouth fills.
+  function _gateMid(b) {
+    if (!b.gate || !b.cells || !b.cells.length) return { x: b.x, y: b.y };
+    let x0 = b.x, x1 = b.x, y0 = b.y, y1 = b.y;
+    for (const c of b.cells) {
+      x0 = Math.min(x0, b.x + c[0]); x1 = Math.max(x1, b.x + c[0]);
+      y0 = Math.min(y0, b.y + c[1]); y1 = Math.max(y1, b.y + c[1]);
+    }
+    return { x: (x0 + x1) / 2, y: (y0 + y1) / 2, hx: (x1 - x0) / 2, hy: (y1 - y0) / 2 };
+  }
+
+  // Cut the opening. The first piece stays on the map and becomes the doorway;
+  // everything else the mouth covers is swallowed, and remembered as the
+  // offsets it covers so the shape survives a reload and a raid on its
+  // neighbours alike.
+  function _cutGate(parts) {
+    const b = parts[0];
+    b.gate = 1;
+    b.cells = parts.slice(1).map(o => [o.x - b.x, o.y - b.y]);
+    for (const o of parts.slice(1)) {
+      const i = _hold.buildings.indexOf(o);
+      if (i !== -1) _hold.buildings.splice(i, 1);
+      if (_selected === o) _selected = b;
+    }
+    // Cutting the opening takes the strength out of it: what was already broken
+    // stays broken, in proportion.
+    b.hp = Math.min(b.hp, _hpOf(b));
     _navChanged();
     _sfx('place', b.x, b.y);
     _renderPanel();
+  }
+
+  // Bricking it up again is free and gives nothing back — but the wall that was
+  // swallowed to make the opening comes back with it, unbuilt, for the hold to
+  // raise again. A hold that changes its mind about where its road runs should
+  // not be punished for it; it should simply have the wall to build.
+  function _shutGate(b) {
+    const cells = b.cells || [];
+    delete b.gate;
+    delete b.cells;
+    delete b.gx;
+    delete b.gy;
+    b.hp = Math.min(b.hp, _hpOf(b));
+    for (const c of cells) {
+      _hold.buildings.push({
+        id: _hold.next_id++, type: 'wall', x: b.x + c[0], y: b.y + c[1], lvl: b.lvl,
+        hp: _maxHp('wall', b.lvl), built: 0, ammo: 0, _rl: 0, _sp: 0,
+      });
+    }
+    _navChanged();
+    _sfx('place', b.x, b.y);
+    _renderPanel();
+  }
+
+  function _gateWay(b) {
+    if (b.type !== 'wall' || b.built < 1 || b.up != null) return;
+    if (!b.gate) return;
+    _shutGate(b);
     _push();
   }
 
@@ -3987,9 +4503,18 @@
       el.onclick = () => {
         const f = _facById(+el.dataset.fac);
         if (!f) return;
-        _selFac = f; _selected = null; _selDep = null;
+        // The chip takes the camera there and nothing else. A panel that opened
+        // from up here stood beside a chip in the corner of the screen, about a
+        // camp the player had not yet looked at — it read as an answer to a
+        // question nobody had asked. Panels belong to things on the map: tap
+        // the keep, a hut or one of their men once the camera has arrived.
+        //
+        // Whatever panel was open is shut on the way: it stands beside the
+        // thing it is about, and that thing is not where the camera is going.
+        _selected = null; _selFac = null; _selFacB = null;
+        _selDep = null; _selMan = null; _selBoss = null;
+        _closePanel();
         _lookAt(f, Math.min(_cam.z, 1.4));
-        _renderFacPanel();
       };
     });
     // The chips are a row of their own, so the HUD is taller once they exist
@@ -4287,7 +4812,7 @@
       el.onclick = () => {
         _placing = (_placing === el.dataset.build) ? null : el.dataset.build;
         _ghost = null;
-        _selected = null; _selDep = null; _selFac = null; _selBoss = null;
+        _selected = null; _selDep = null; _selFac = null; _selFacB = null; _selBoss = null;
         // Picking a building up shows what it would do before a spot is chosen:
         // the same panel a finished one opens, minus everything that only a
         // standing building can answer.
@@ -4530,6 +5055,32 @@
     return null;
   }
 
+  // Whoever is standing here, on either side. A man on the map is a number the
+  // player is being asked to answer — how hard he hits, how much of him is
+  // left — and until now the only way to find out was to watch what he did to
+  // a wall. The nearest is taken rather than the first, so two dots overlapping
+  // do not hand back whichever happened to be pushed first.
+  function _manAt(w, slack) {
+    const reach = UNIT_R + slack;
+    let best = null, bd = Infinity, kind = '', fac = null;
+    const look = (list, k, f) => {
+      for (const u of list) {
+        const d = Math.hypot(u.x - w.x, u.y - w.y);
+        if (d > reach || d >= bd) continue;
+        bd = d; best = u; kind = k; fac = f || null;
+      }
+    };
+    look(_hold.soldiers, 'soldier');
+    look(_hold.workers, 'worker');
+    // Theirs: the ones on the road, then the ones still at home in the camp.
+    for (const f of _hold.factions) {
+      look(_raiders.filter(r => r.fx === f.id), 'raider', f);
+      look(f.army, 'army', f);
+      look(f.workers, 'fworker', f);
+    }
+    return best ? { man: best, kind, fac } : null;
+  }
+
   function _tap(w) {
     if (!_hold || _over || _paused) return;
     if (_placing) {
@@ -4557,14 +5108,42 @@
     // meant him. Tapping him again puts the circle away.
     const boss = _bossAt(w, slack);
     if (boss) {
-      _selBoss = _selBoss === boss ? null : boss;
+      const same = _selBoss === boss;
+      _selBoss = same ? null : boss;
+      // His numbers come up with his reach: he is the one man on the map worth
+      // asking two questions about at once, and they are the same tap.
+      _selMan = same ? null : boss;
+      _selManK = same ? '' : (boss.fx != null ? 'raider' : 'army');
+      _selManF = same ? null : _manFac(boss);
+      _selected = null; _selFac = null; _selFacB = null; _selDep = null;
+      if (_selBoss) { _sfx('select', w.x, w.y); _renderManPanel(); } else _closePanel();
       _draw();
       return;
     }
     _selBoss = null;
 
-    const hit = _hold.buildings.find(b => Math.hypot(b.x - w.x, b.y - w.y) <= _bc(b.type).size + slack);
-    if (hit) { _selected = hit; _selDep = null; _selFac = null; _renderPanel(); return; }
+    // Anybody standing here, on either side, before anything built: a man is
+    // drawn over the ground he is on, so a tap that landed on him meant him and
+    // not the wall he happens to be standing against.
+    const man = _manAt(w, slack);
+    if (man) {
+      _selMan = man.man; _selManK = man.kind; _selManF = man.fac;
+      _selected = null; _selFac = null; _selFacB = null; _selDep = null;
+      _sfx('select', w.x, w.y);
+      _renderManPanel();
+      return;
+    }
+    _selMan = null; _selManK = ''; _selManF = null;
+
+    // A doorway answers over both the squares it fills, not just the one that
+    // was clicked to cut it: the far half of a gate is part of the gate, and
+    // tapping it has to open the same panel.
+    const hit = _hold.buildings.find(b => {
+      const p = _gateMid(b);
+      return Math.hypot(p.x - w.x, p.y - w.y) <=
+             _bc(b.type).size + Math.hypot(p.hx || 0, p.hy || 0) + slack;
+    });
+    if (hit) { _selected = hit; _selDep = null; _selFac = null; _selFacB = null; _sfx('select', w.x, w.y); _renderPanel(); return; }
 
     // Anything of theirs, anywhere on the map: a camp keep, a hut, a barracks.
     // Tapping one opens the same kind of panel a building of the player's own
@@ -4573,7 +5152,9 @@
     for (const f of _hold.factions) {
       const b = f.buildings.find(x => Math.hypot(x.x - w.x, x.y - w.y) <= _facSize(x.type) + slack);
       if (b) {
-        _selFac = f; _selected = null; _selDep = null;
+        _selFac = f; _selFacB = b;
+        _selected = null; _selDep = null; _selMan = null;
+        _sfx('select', w.x, w.y);
         _renderFacPanel();
         return;
       }
@@ -4582,9 +5163,10 @@
     // Nothing built here — but a deposit under the tap answers the question
     // "how far from this can I build", which is the reason the rings came off
     // the deposits in the first place.
-    _selected = null; _selFac = null; _closePanel();
+    _selected = null; _selFac = null; _selFacB = null; _selMan = null; _closePanel();
     _selDep = _hold.deposits.find(d =>
       d.amount > 0 && Math.hypot(d.x - w.x, d.y - w.y) <= _depR(d) + slack) || null;
+    if (_selDep) _sfx('select', w.x, w.y);
   }
 
   // Put the camera on something, at a zoom. Everything that moves the view on
@@ -4634,7 +5216,7 @@
       row(_t('sh_stat_mag'), String(keep ? _keepStore(l) : _lv('tower', l, 'mag')));
       // What a volley takes out of it, which is the other half of the same
       // question: a deeper magazine that spends faster is not more shots.
-      row(_t('sh_stat_volley'), _volley(l).toFixed(2));
+      row(_t('sh_stat_volley'), String(_volley(l)));
       if (b) row(_t('sh_stat_loaded'), String(Math.floor(keep ? (_hold.ammo || 0) : (b.ammo || 0))), true);
     } else if (type === 'house') {
       // The house is paid for once and the people are what it pays out, so the
@@ -4744,6 +5326,44 @@
     return panel;
   }
 
+  // Stand the panel next to the thing it is about. On a wide screen the panel
+  // used to live pinned to the right-hand edge, which on a desktop monitor is
+  // half a metre away from the building that was clicked: the eye has to travel
+  // the whole width of the map and back to read one number about one tower.
+  // Beside it, the two are read in one glance.
+  //
+  // On a phone none of this applies — there the panel is a sheet on the dock,
+  // set in the stylesheet, and putting it over the map is what that layout was
+  // written to stop. So this only ever runs for a mouse.
+  const PANEL_GAP = 14;
+  function _panelAt(panel, wx, wy, r) {
+    if (_touch) { panel.style.left = panel.style.top = panel.style.transform = ''; return; }
+    const rect = _canvas.getBoundingClientRect();
+    const v = _view();
+    // The object's middle in page coordinates, and how wide it is there.
+    const cx = rect.left + (v.tx + wx * v.k) / (_canvas.width / (rect.width || 1));
+    const cy = rect.top  + (v.ty + wy * v.k) / (_canvas.height / (rect.height || 1));
+    const rad = (r || 0) * v.k / (_canvas.width / (rect.width || 1));
+    // Measured rather than assumed: the panel is as tall as what is in it, and
+    // a keep with an upgrade table is not a wall with two rows.
+    const pw = panel.offsetWidth || 232, ph = panel.offsetHeight || 200;
+    // To the right of it if it fits, otherwise the left — and if neither side
+    // has room, whichever has more.
+    const spaceR = window.innerWidth - (cx + rad + PANEL_GAP);
+    let x = spaceR >= pw ? cx + rad + PANEL_GAP
+                         : (cx - rad - PANEL_GAP - pw >= 0 ? cx - rad - PANEL_GAP - pw
+                                                           : (spaceR > cx ? cx + rad + PANEL_GAP
+                                                                          : cx - rad - PANEL_GAP - pw));
+    // Level with its middle, then kept on the screen.
+    let y = cy - ph / 2;
+    x = Math.max(8, Math.min(x, window.innerWidth - pw - 8));
+    y = Math.max(8, Math.min(y, window.innerHeight - ph - 8));
+    panel.style.left = x + 'px';
+    panel.style.top = y + 'px';
+    panel.style.right = 'auto';
+    panel.style.transform = 'none';
+  }
+
   // Put markup in the panel, or leave it exactly as it is. The key is what the
   // panel is about: two towers at the same level with the same rounds in them
   // write the same markup, and swapping selection between them has to rebind
@@ -4765,7 +5385,7 @@
     const panel = _panel();
     const name = b.keep ? _t('sh_b_keep') : _t(b.gate ? 'sh_b_gate' : 'sh_b_' + b.type);
     const desc = b.keep ? _t('sh_d_keep') : _t(b.gate ? 'sh_d_gate' : 'sh_d_' + b.type);
-    const hp   = Math.max(0, Math.round((b.hp / _maxHp(b.type, b.lvl, b.keep)) * 100));
+    const hp   = Math.max(0, Math.round((b.hp / _hpOf(b)) * 100));
     const max  = _atMax(b.lvl);
     const cost = _cost(b.type, b.lvl + 1);
 
@@ -4793,18 +5413,18 @@
       _stalled(b) +
       _statRow(_t('sh_stat_hp'), hp + '%') +
       _mending(b) +
+      _crib(b) +
       // The upgrade column is only worth the width when there is an upgrade to
       // judge: at max level, or mid-build, it would be a column of dots.
       _statTable(b.type, b.lvl, b, !max && b.built >= 1 && b.up == null) +
       action +
-      // A way through, on the wall itself: the wall is the only thing on the
-      // map with a second thing it can be, and the piece being looked at is
-      // where that decision belongs.
-      (b.type === 'wall' && b.built >= 1
-        ? '<button id="sh-gate" class="sh-go' +
-          (b.gate || _canPay(_newCost('wall')) ? '' : ' poor') + '">' +
-          _esc(_t(b.gate ? 'sh_gate_shut' : 'sh_gate_cut')) +
-          (b.gate ? '' : ' · ' + _costLabel(_newCost('wall'), true)) + '</button>'
+      // Bricking a doorway up again, on the doorway itself. Cutting one is not
+      // here any more: a gate is aimed and placed off the bar like everything
+      // else that goes on the map, where the squares it would take are shown
+      // before they are paid for. Closing one is not a placement — it is a
+      // thing done to a piece already standing — so it stays on the panel.
+      (b.gate
+        ? '<button id="sh-gate" class="sh-go">' + _esc(_t('sh_gate_shut')) + '</button>'
         : '') +
       // The refund is on the button, not in the confirmation: whether pulling
       // something down is worth it is decided while looking at it.
@@ -4812,7 +5432,14 @@
         ' · ' + _refundLabel(b) + '</button>');
 
     panel.style.display = 'flex';
-    if (!_panelSet(panel, 'b' + b.id, html)) return;
+    const set = _panelSet(panel, 'b' + b.id, html);
+    // Stood beside it every time, not only when the markup changed: the map
+    // moves under a panel that is standing still — a drag, a zoom, or the
+    // camera walking to a raid — and a panel that only moved when its numbers
+    // did would be left pointing at empty ground.
+    const p = _gateMid(b);
+    _panelAt(panel, p.x, p.y, _bc(b.type).size + Math.hypot(p.hx || 0, p.hy || 0));
+    if (!set) return;
     panel.querySelector('#sh-x').onclick = () => { _selected = null; _closePanel(); };
     const up = panel.querySelector('#sh-up');
     if (up) up.onclick = () => _upgrade(b);
@@ -4833,6 +5460,73 @@
     if (b.built < 1 || b.up != null || !_hurt(b)) return '';
     const on = _hold.workers.some(w => w.job === 'build' && w.target === b.id);
     return '<div class="sh-note">' + _esc(_t(on ? 'sh_mending' : 'sh_mend_wait')) + '</div>';
+  }
+
+  // Who is on the way out of this building, drawn as the people themselves.
+  // A barracks arming a soldier and a barracks arming nobody look identical
+  // from the outside — the timer is real, it is just invisible, so the player
+  // is left guessing whether the place works at all. So: one figure per head
+  // the building still has room for, filling from the feet up as its share of
+  // the wait goes by. Only the first is filling; the ones behind it are the
+  // queue, waiting their turn, because that is exactly how the building works.
+  //
+  // The picture is the man himself, in his own colour — the same drawing the
+  // map uses and the same colour it uses it in, because a worker made in a
+  // house is that worker. A tool would be a rebus: a pickaxe is what he does,
+  // not who he is, and a shield is not a soldier either.
+  function _crib(b, f) {
+    if (b.built < 1 || b.up != null) return '';
+    // Whose building this is decides both the picture and its colour: their
+    // men are drawn as raiders in their camp's colour, exactly as on the map.
+    const mine = !f;
+    let room = 0, frac = 0, kind = 'worker', color = '', label = '';
+
+    if (b.type === 'barracks') {
+      const max = _lv('barracks', b.lvl, 'soldiers');
+      const army = mine ? _hold.soldiers : f.army;
+      room = max - army.filter(s => s.from === b.id).length;
+      frac = Math.min(1, (b._sp || 0) / (mine ? _muster(b.lvl) : _facMuster(b)));
+      kind = mine ? 'soldier' : 'raider';
+      color = mine ? _css('--green', '#a6e3a1') : f.color;
+      label = _t('sh_crib_soldier');
+    } else if (b.type === 'house' || b.type === 'hut') {
+      // A roof does not hire on its own — the hold does, out of whatever room
+      // all its roofs add up to. This one's share of that room is its own cap,
+      // so the figures here are the people this roof is worth.
+      const cap = mine ? (_hold._cap || 0) : _facCap(f);
+      const have = mine ? _hold.workers.length : f.workers.length;
+      room = Math.min(_houseCap(b.lvl), Math.max(0, cap - have));
+      let best = 1;
+      const all = mine ? _hold.buildings : f.buildings;
+      for (const h of all)
+        if ((h.type === 'house' || h.type === 'hut') && h.built >= 1 && h.lvl > best)
+          best = h.lvl;
+      const every = mine ? _lv('house', best, 'spawn') : _facSpawn(f);
+      frac = Math.min(1, ((mine ? _hold._hire : f.spawn) || 0) / every);
+      kind = 'worker';
+      color = mine ? _css('--accent', '#89b4fa') : f.color;
+      label = _t('sh_crib_worker');
+    } else return '';
+
+    room = Math.floor(room);
+    if (room <= 0) return '';
+    // A hall with room for twenty would be a wall of figures. Past six the
+    // count says it better than the pictures do.
+    const show = Math.min(room, 6);
+    const src = _figure(kind, color).src;
+    let cells = '';
+    for (let i = 0; i < show; i++) {
+      // Only the head of the queue is being worked on. Everyone behind him is
+      // drawn empty: his turn has not started.
+      const fill = i === 0 ? Math.round(frac * 100) : 0;
+      cells += '<span class="sh-crib-man">' +
+               '<img class="sh-crib-off" src="' + src + '" alt="">' +
+               '<span class="sh-crib-on" style="height:' + fill + '%">' +
+               '<img src="' + src + '" alt=""></span></span>';
+    }
+    return '<div class="sh-crib"><span class="sh-crib-lbl">' + _esc(label) +
+           (room > show ? ' · ' + _t('sh_crib_more', { n: room - show }) : '') +
+           '</span><span class="sh-crib-row">' + cells + '</span></div>';
   }
 
   function _stalled(b) {
@@ -4908,6 +5602,150 @@
     });
   }
 
+  // Whose man this is, when he is theirs.
+  const _manFac = (u) => _hold.factions.find(f =>
+    f.army.includes(u) || f.workers.includes(u) || u.fx === f.id) || null;
+
+  // Is this man still on the map? He is the object itself, so a champion put
+  // down by a tower takes his own panel with him rather than leaving his
+  // numbers on the screen for the rest of the game.
+  function _manLives(u, kind, f) {
+    if (!u) return false;
+    if (kind === 'soldier') return _hold.soldiers.includes(u);
+    if (kind === 'worker') return _hold.workers.includes(u);
+    if (kind === 'raider') return _raiders.includes(u);
+    if (kind === 'army') return !!f && f.army.includes(u);
+    if (kind === 'fworker') return !!f && f.workers.includes(u);
+    return false;
+  }
+
+  // One man, whoever's he is. A dot on the map that hits a wall for damage the
+  // player cannot read is a dot the player cannot plan against — so every man
+  // answers the same three questions, and the ones with a job or a power
+  // answer that too. Nothing here is a secret kept for the camps: what their
+  // champion does is the thing worth knowing before he arrives.
+  function _renderManPanel() {
+    const u = _selMan, kind = _selManK, f = _selManF;
+    if (!_manLives(u, kind, f)) {
+      _selMan = null; _selManK = ''; _selManF = null;
+      _closePanel();
+      return;
+    }
+    const panel = _panel();
+    const mine = kind === 'soldier' || kind === 'worker';
+    const digs = kind === 'worker' || kind === 'fworker';
+    const maxHp = u.maxHp || u.hp;
+    const hp = Math.max(0, Math.round((u.hp / (maxHp || 1)) * 100));
+
+    const name = u.boss ? _t('sh_man_champion')
+               : digs ? _t('sh_man_worker')
+               : _t('sh_man_soldier');
+    const whose = mine ? _t('sh_man_yours')
+                : f ? _facName(f)
+                : _t('sh_man_theirs');
+    const glyph = u.boss ? (BOSS_GLYPH[u.power] || '👑')
+                : digs ? (JOB_GLYPH[u.job] || JOB_GLYPH.idle)
+                : GLYPH.barracks;
+
+    let rows = _statRow(_t('sh_stat_hp'), hp + '%' +
+                        (maxHp ? ' · ' + Math.round(u.hp) + '/' + Math.round(maxHp) : ''));
+    // What he does to whatever he is set against. A worker has none — his work
+    // is the thing he carries, and that is the row below.
+    if (u.dmg) rows += _statRow(_t('sh_stat_damage'), String(Math.round(u.dmg)));
+    if (u.speed) rows += _statRow(_t('sh_man_speed'), String(Math.round(u.speed)));
+    if (u.boss) {
+      rows += _statRow(_t('sh_man_power'), _t('sh_boss_' + (u.power || 'warlord')));
+      rows += _statRow(_t('sh_fac_level'), String(u.blvl || 1));
+    }
+    if (digs) {
+      rows += _statRow(_t('sh_man_job'), _t('sh_job_' + (u.job || 'idle')));
+      if (u.carry) {
+        rows += _statRow(_t('sh_man_carrying'),
+                         Math.floor(u.carry) + (u.res ? ' ' + _t('sh_' + u.res)
+                                                      : u.job === 'ammo' ? ' ' + _t('sh_ammo') : ''));
+      }
+    }
+    // Where he is from, for a man of theirs: which corner sent him is the whole
+    // of what a raid means.
+    if (!mine && f) rows += _statRow(_t('sh_man_camp'), _facName(f));
+
+    const note = u.boss ? _t('sh_man_about_champion')
+               : mine && digs ? _t('sh_man_about_worker')
+               : mine ? _t('sh_man_about_soldier')
+               : _t('sh_man_about_theirs');
+
+    const html =
+      '<div class="sh-head"><span class="sh-gl"' +
+      (!mine && f ? ' style="color:' + f.color + '"' : '') + '>' + glyph + '</span>' +
+      '<span><b>' + _esc(name) + '</b><small>' + _esc(whose) + '</small></span>' +
+      '<button id="sh-x" class="sh-x">✕</button></div>' +
+      rows +
+      '<div class="sh-note">' + _esc(note) + '</div>';
+
+    panel.style.display = 'flex';
+    // Keyed on the man himself, not on a number he has: two soldiers with the
+    // same integrity are still two soldiers, and the ✕ has to belong to the one
+    // that is open.
+    if (u._pk == null) u._pk = ++_manKey;
+    const key = 'm' + u._pk;
+    // Put down once, where he was standing when he was tapped, and left there.
+    // A building holds still and a panel that follows it is reading the map;
+    // a man walks, and a panel that walks with him cannot be read — the numbers
+    // on it are the reason it is open, and they were crossing the screen every
+    // frame. Keyed on which man it is and not on what the panel says, because
+    // his integrity and his load change constantly and none of that is a reason
+    // to move the panel: it moves when it is opened on somebody new, and never
+    // again while it is his.
+    const fresh = key !== _panelKey;
+    const set = _panelSet(panel, key, html);
+    // After the markup, not before: _panelSet can refuse — a finger is down on
+    // the panel — and moving a panel whose contents were not allowed to change
+    // would slide the old man's numbers out from under the press.
+    if (fresh && set)
+      _panelAt(panel, u.x, u.y, u.boss ? _bossSize(u.blvl || 1) * 0.6 : UNIT_R);
+    if (!set) return;
+    panel.querySelector('#sh-x').onclick = () => {
+      _selMan = null; _selManK = ''; _selManF = null; _selBoss = null; _closePanel();
+    };
+  }
+  let _manKey = 0;
+
+  // The same thing for a camp, whose panel is the camp and not one building of
+  // it: what every roof and every barracks it owns is bringing out, and the
+  // champion its keep is raising. A player watching a camp wants to know what
+  // is about to walk out of it, and the answer was a number that only moved
+  // once it had already happened.
+  function _facCrib(f) {
+    let out = '';
+    // The furthest-along roof and the furthest-along barracks speak for the
+    // camp: a column per hut would be a panel of columns.
+    let hut = null, bar = null;
+    for (const b of f.buildings) {
+      if (b.built < 1 || b.up != null) continue;
+      if (b.type === 'hut' && !hut) hut = b;
+      else if (b.type === 'barracks' &&
+               (!bar || (b._sp || 0) / _facMuster(b) > (bar._sp || 0) / _facMuster(bar)))
+        bar = b;
+    }
+    if (hut) out += _crib(hut, f);
+    if (bar) out += _crib(bar, f);
+    // Their keep's own man. He is not made in a barracks and he is worth
+    // several of the men who are, so he gets his own line whatever else is
+    // going on — and he is drawn at the size he arrives at.
+    const has = f.army.some(s => s.boss) || _raiders.some(r => r.fx === f.id && r.boss);
+    if (!has && f.bossFor) {
+      const frac = Math.min(1, (f.bossAt || 0) / f.bossFor);
+      const src = _figure('raider', f.color).src;
+      out += '<div class="sh-crib"><span class="sh-crib-lbl">' +
+             _esc(_t('sh_crib_champion')) + '</span>' +
+             '<span class="sh-crib-row"><span class="sh-crib-man sh-crib-big">' +
+             '<img class="sh-crib-off" src="' + src + '" alt="">' +
+             '<span class="sh-crib-on" style="height:' + Math.round(frac * 100) + '%">' +
+             '<img src="' + src + '" alt=""></span></span></span></div>';
+    }
+    return out;
+  }
+
   function _renderFacPanel() {
     const f = _selFac;
     if (!f) { _closePanel(); return; }
@@ -4956,10 +5794,19 @@
       '<button id="sh-x" class="sh-x">✕</button></div>' +
       '<div class="sh-desc">' + _esc(_t('sh_fac_about')) + '</div>' +
       rows +
+      _facCrib(f) +
       '<div class="sh-note">' + _esc(note) + '</div>';
     panel.style.display = 'flex';
-    if (!_panelSet(panel, 'f' + f.id, html)) return;
-    panel.querySelector('#sh-x').onclick = () => { _selFac = null; _closePanel(); };
+    const set = _panelSet(panel, 'f' + f.id, html);
+    // Beside whatever was tapped, which is not always the keep: their ground is
+    // 300 across and a hut at the near edge of it can be half a screen from the
+    // keep at the far edge — standing the panel at the keep put it off the
+    // screen and it ended up clamped to the middle, pointing at nothing.
+    const at = _selFacB && f.buildings.includes(_selFacB) ? _selFacB : f;
+    _panelAt(panel, at.x, at.y,
+             at === f ? _facSize('fkeep') : _facSize(at.type));
+    if (!set) return;
+    panel.querySelector('#sh-x').onclick = () => { _selFac = null; _selFacB = null; _closePanel(); };
   }
 
   function _closePanel() {
@@ -5338,6 +6185,12 @@
           if (b.up != null || b.lvl > 1) _badge(b, r);
         }
       }
+      // The one of theirs that was tapped, marked exactly as a building of the
+      // player's own is. Over the loop and not inside it, so the mark is not
+      // painted over by the next hut in the row.
+      if (_selFacB && f.buildings.includes(_selFacB))
+        _drawPick(_selFacB, _facSize(_selFacB.type));
+
       // Their people, carrying the same marks the player's do — a camp digging
       // iron looks like a camp digging iron.
       _g.textAlign = 'center'; _g.textBaseline = 'middle';
@@ -5854,7 +6707,18 @@
       if (keep) _ring(keep.x, keep.y, _lv('tower', keep.lvl, 'range'), dim, 0.22);
       _ring(at.x, at.y, _lv('tower', 1, 'range'), col, 0.55);
     }
-    if (_placing === 'wall') {
+    if (_placing === 'gate') {
+      // Every square the doorway would take, so what it costs in wall is seen
+      // before it is paid: two down a straight run, three at a corner. When it
+      // cannot be cut here there is nothing to show but the square under the
+      // cursor, in the colour of the refusal.
+      const parts = _gateAim(at.x, at.y);
+      _g.globalAlpha = 0.5;
+      _g.fillStyle = col;
+      if (parts) for (const p of parts) _g.fillRect(p.x - r, p.y - r, r * 2, r * 2);
+      else _g.fillRect(at.x - r, at.y - r, r * 2, r * 2);
+      _g.globalAlpha = 1;
+    } else if (_placing === 'wall') {
       _g.globalAlpha = 0.5;
       _g.fillStyle = col;
       _g.fillRect(at.x - r, at.y - r, r * 2, r * 2);
@@ -5907,7 +6771,7 @@
 
     // Integrity, and the magazine of a tower — the two things worth seeing at
     // a glance while a raid is on.
-    const maxHp = _maxHp(b.type, b.lvl, b.keep);
+    const maxHp = _hpOf(b);
     if (b.hp < maxHp) {
       const left = Math.max(0, b.hp / maxHp);
       const col = left > 0.4 ? green : red;
@@ -5937,20 +6801,17 @@
       // The keep shows the store, because for the keep the store is the
       // magazine — the same rounds it will fire.
       const mag = b.keep ? _keepStore(b.lvl) : _lv('tower', b.lvl, 'mag');
-      // Rounded, not floored: firing spends a fractional volley (ammo_per
-      // grows in fractions of a round from level 2 on), so the true count
-      // almost never lands on a whole number again once a tower has fired.
-      // Flooring that made a magazine read one short of full forever — the
-      // number shown has to be the nearest whole round, not the last one
-      // strictly complete.
-      const have = Math.round(_mag(b));
+      // Whole rounds, counted the same way the tower counts them when it
+      // decides to fire. Rounding up half a round the workshop has not
+      // finished making showed a tower with a round it could not shoot.
+      const have = Math.floor(_mag(b));
       _g.font = 'bold 13px system-ui, sans-serif';
       _g.textAlign = 'center'; _g.textBaseline = 'middle';
-      // Red only once the number on screen is genuinely short of a volley —
-      // comparing the raw fractional ammo against ammo_per turned red at a
-      // threshold the player could never see, on a bar that still read as
-      // having rounds left.
-      _g.fillStyle = have >= Math.ceil(_volley(b.lvl)) ? _css('--yellow', '#f9e2af') : red;
+      // Red means it cannot shoot, and nothing else. Any other rule puts a
+      // red number on a tower that is firing, or a calm one on a tower that
+      // is standing silent — and the player reads that number in the one
+      // moment he has no time to work out which of the two it is.
+      _g.fillStyle = have >= 1 ? _css('--yellow', '#f9e2af') : red;
       _g.fillText('🎯' + have + '/' + mag, b.x, b.y + r + 10);
     }
     if (b.type === 'workshop' && done && (b.ammo || 0) >= 1) {
@@ -5993,7 +6854,7 @@
   // a ring of wall is thirty pieces, and which of them is the one about to go
   // is otherwise a matter of reading thirty little bars.
   function _cracks(b, r) {
-    const maxHp = _maxHp(b.type, b.lvl, b.keep);
+    const maxHp = _hpOf(b);
     const hurt = 1 - Math.max(0, Math.min(1, b.hp / maxHp));
     if (hurt < 0.1) return;
     const rnd = _seeded(b.id * 2654435761);
@@ -6036,59 +6897,57 @@
     _g.restore();
   }
 
-  // Which way the wall runs here, so the doorway can be set in it the right way
-  // round. Read off the neighbours rather than stored: a gate at the end of a
-  // run that is later built past has to turn with the run, and a piece asked to
-  // remember which way it was facing would be answering about a wall that is no
-  // longer there. A gate with nothing either side of it is drawn across, which
-  // is what a lone doorway looks like from above.
-  function _gateAxis(b) {
-    const r = _bc('wall').size;
-    let across = 0, down = 0;
-    for (const o of _hold.buildings) {
-      if (o === b || o.type !== 'wall') continue;
-      const dx = Math.abs(o.x - b.x), dy = Math.abs(o.y - b.y);
-      if (dy < r && dx <= r * 2 + 2) across++;
-      else if (dx < r && dy <= r * 2 + 2) down++;
-    }
-    return down > across ? 'v' : 'h';
-  }
-
   // The way in. Two posts where the wall carries on, the ground between them
   // left open, and both leaves standing back against the wall — a gate that is
   // open is a gate that says what it is without a single frame of animation,
   // and this one is never shut: it is shut to everybody who does not live here
   // whatever it looks like, and open to everybody who does.
   function _drawGate(b, r, mat) {
-    const vert = _gateAxis(b) === 'v';
-    _g.save();
-    _g.translate(b.x, b.y);
-    if (vert) _g.rotate(Math.PI / 2);
-    const pw = r * 0.5;
-    // The posts: the wall itself, carrying on to either side of the opening.
-    _g.fillStyle = mat;
-    _g.fillRect(-r, -r, pw, r * 2);
-    _g.fillRect(r - pw, -r, pw, r * 2);
-    // The threshold. Trodden ground rather than stone, so the gap reads as a
-    // gap at any zoom the wall itself is visible at.
+    // The doorway is drawn square by square, because at a corner it is an L and
+    // there is no one rectangle that is the shape of it. Every square it covers
+    // gets trodden ground; the leaves are hung at the two ends of the mouth,
+    // which are the squares with only one other square of the doorway beside
+    // them — down a straight run that is both of them, and round a corner it is
+    // the two arms rather than the turn itself.
+    const cells = [[0, 0]].concat(b.cells || []);
     const a0 = _g.globalAlpha;
+    // The threshold, over the whole mouth. Trodden ground rather than stone, so
+    // the gap reads as a gap at any zoom the wall itself is visible at.
+    _g.save();
     _g.globalAlpha = a0 * 0.3;
-    _g.fillRect(-r + pw, -r, (r - pw) * 2, r * 2);
+    _g.fillStyle = mat;
+    for (const c of cells) _g.fillRect(b.x + c[0] - r, b.y + c[1] - r, r * 2, r * 2);
     _g.globalAlpha = a0;
-    // And the two leaves, swung back out of the way.
-    const len = (r - pw) * 1.15, th = Math.max(2, r * 0.26);
-    for (const s of [-1, 1]) {
-      _g.save();
-      _g.translate(s * (r - pw), 0);
-      // One leaf back against the wall on each side of the road, which is what
-      // says "through here" rather than "here is a hole".
-      _g.rotate(s < 0 ? -1.25 : Math.PI - 1.25);
-      _g.fillStyle = mat;
-      _g.fillRect(0, -th / 2, len, th);
-      _g.strokeStyle = 'rgba(0,0,0,.45)';
-      _g.lineWidth = 1;
-      _g.strokeRect(0, -th / 2, len, th);
-      _g.restore();
+    // The posts and the leaves, at each end of the opening. An end is a square
+    // of the doorway with wall carrying on past it: that is where a leaf hangs
+    // and where the stone of the run has to be shown carrying on.
+    const cell = _wallCell(), pw = r * 0.5, th = Math.max(2, r * 0.26);
+    for (const c of cells) {
+      const cx = b.x + c[0], cy = b.y + c[1];
+      // Which way is out of the doorway from this square: the sides with no
+      // other square of the doorway on them.
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = cx + dx * cell, ny = cy + dy * cell;
+        if (cells.some(o => Math.abs(b.x + o[0] - nx) < 2 && Math.abs(b.y + o[1] - ny) < 2)) continue;
+        // Nothing to close against unless the wall carries on that way.
+        if (!_wallAt(nx, ny)) continue;
+        _g.save();
+        _g.translate(cx + dx * (r - pw / 2), cy + dy * (r - pw / 2));
+        _g.rotate(Math.atan2(dy, dx));
+        // The post: the wall itself, carrying on into the opening.
+        _g.fillStyle = mat;
+        _g.fillRect(-pw / 2, -r, pw, r * 2);
+        // And the leaf, swung back out of the way against it — a gate that is
+        // open is a gate that says what it is without a frame of animation.
+        _g.save();
+        _g.rotate(Math.PI - 1.25);
+        _g.fillRect(0, -th / 2, (cell - pw) * 0.55, th);
+        _g.strokeStyle = 'rgba(0,0,0,.45)';
+        _g.lineWidth = 1;
+        _g.strokeRect(0, -th / 2, (cell - pw) * 0.55, th);
+        _g.restore();
+        _g.restore();
+      }
     }
     _g.restore();
   }
@@ -6230,8 +7089,12 @@
   // "which one am I about to upgrade" was a question the screen could not
   // answer. Drawn over everything, twice: a dark halo under a bright line, so
   // the mark holds up on a lit building and on bare ground both.
-  function _drawPick(b) {
-    const r = _bc(b.type).size;
+  // The mark is the same one whoever the building belongs to: what is picked is
+  // picked, and a tap on one of their huts has to answer the way a tap on a
+  // house does. Only the size is theirs — their buildings are measured off
+  // their own table — so it comes in rather than being read off the hold's.
+  function _drawPick(b, size) {
+    const r = size != null ? size : _bc(b.type).size;
     const path = () => {
       // A wall is a square that fills its cell and a boxed square is the only
       // mark that fits it; everything else is a mark on the ground and is

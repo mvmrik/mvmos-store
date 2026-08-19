@@ -234,6 +234,10 @@
     let lists = [];
     let items = [];
     let currentList = null;
+    // Identifies this widget instance to the server, so the realtime events
+    // it causes are not sent back to the tab that already refreshed itself
+    // — while the same account's other devices still get them.
+    const clientId = Math.random().toString(36).slice(2) + Date.now().toString(36);
     let settings = { budget_integration: false };
     let budgetCategories = { available: false, categories: [], currency: null };
     let lastCategoryId = null;
@@ -265,6 +269,7 @@
       </div>
     </div>`;
     const widgetEl = root.querySelector('.sl-widget');
+    const scrollEl = root.querySelector('.sl-body');
     const toolbarMain = root.querySelector('#sl-toolbar-main');
     const toolbarItems = root.querySelector('#sl-toolbar-items');
     const listsGridEl = root.querySelector('#sl-lists-grid');
@@ -280,7 +285,10 @@
 
     function api(path, o) {
       o = o || {};
-      const headers = Object.assign({ 'X-Pub-Token': token, 'Content-Type': 'application/json' }, o.headers || {});
+      const headers = Object.assign(
+        { 'X-Pub-Token': token, 'X-SL-Client': clientId, 'Content-Type': 'application/json' },
+        o.headers || {}
+      );
       return fetch(API + path, Object.assign({}, o, { headers })).then(async r => {
         const data = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(data.error || ('http_' + r.status));
@@ -357,9 +365,21 @@
       });
     }
 
+    // A remote change re-renders whatever is on screen, so both refreshers
+    // compare the fetched data with what is already drawn and skip the
+    // re-render when nothing actually moved — otherwise every event (or
+    // fallback poll) would rebuild the DOM under the user's finger.
+    let listsSig = null;
+    let itemsSig = null;
+
     async function refreshLists() {
-      try { lists = await api('/lists'); } catch (e) { lists = []; }
+      let fetched;
+      try { fetched = await api('/lists'); } catch (e) { fetched = []; }
       if (destroyed) return;
+      lists = fetched;
+      const sig = JSON.stringify(lists);
+      if (sig === listsSig) return;
+      listsSig = sig;
       renderLists();
     }
 
@@ -374,6 +394,7 @@
 
     async function openList(list) {
       currentList = list;
+      itemsSig = null;
       toolbarMain.style.display = 'none';
       toolbarItems.style.display = '';
       listsGridEl.style.display = 'none';
@@ -500,6 +521,9 @@
     }
 
     function renderItems() {
+      // Someone else ticking an item must not throw the reader's scroll
+      // position back to the top of the list.
+      const scrollTop = scrollEl.scrollTop;
       if (!items.length) {
         itemsViewEl.innerHTML = `<div class="sl-empty">${esc(t('sl_no_items'))}</div>`;
         return;
@@ -527,12 +551,26 @@
         const warrantyBtn = row.querySelector('[data-action="warranty"]');
         if (warrantyBtn) warrantyBtn.onclick = () => openWarrantyDialog(item);
       });
+      scrollEl.scrollTop = scrollTop;
     }
 
     async function refreshItems() {
       if (!currentList) return;
-      try { items = await api(`/lists/${currentList.id}/items`); } catch (e) { items = []; }
-      if (destroyed) return;
+      const listId = currentList.id;
+      let fetched;
+      try {
+        fetched = await api(`/lists/${listId}/items`);
+      } catch (e) {
+        if (destroyed) return;
+        // The list was deleted or un-shared while it was open here.
+        if (e.message === 'not found') { showLists(); return; }
+        fetched = [];
+      }
+      if (destroyed || !currentList || currentList.id !== listId) return;
+      items = fetched;
+      const sig = JSON.stringify(items);
+      if (sig === itemsSig) return;
+      itemsSig = sig;
       renderItems();
     }
 
@@ -663,7 +701,7 @@
       const fd = new FormData();
       fd.append('file', file);
       const r = await fetch(API + `/items/${itemId}/warranty/photos`, {
-        method: 'POST', headers: { 'X-Pub-Token': token }, body: fd,
+        method: 'POST', headers: { 'X-Pub-Token': token, 'X-SL-Client': clientId }, body: fd,
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(data.error || t('sl_warranty_upload_failed'));
@@ -911,6 +949,105 @@
     warrantiesBtn.onclick = () => openWarrantiesOverview();
     historyBtn.onclick = () => openHistoryDialog();
 
+    // ── Realtime ─────────────────────────────────────────────────
+    // A shared list is usually open on two devices at once (two people in
+    // the same shop), so the widget holds a websocket to
+    // /pub/shoppinglist/ws while it is on screen and refetches whatever an
+    // event touched. The socket lives only as long as the window/page: it
+    // is opened on mount and closed on destroy, and while nothing changes
+    // it costs one heartbeat frame every 25s instead of a poll.
+    //
+    // Two things the socket alone does not cover: a phone freezes it while
+    // the screen is off (so becoming visible refetches and reconnects),
+    // and a network that refuses the upgrade never gets one at all (so a
+    // slow poll runs only while the socket is down).
+
+    let ws = null, wsRetry = 0, wsTimer = null, pollTimer = null, syncTimer = null;
+
+    function scheduleSync() {
+      if (syncTimer || destroyed) return;
+      syncTimer = setTimeout(() => { syncTimer = null; syncNow(); }, 150);
+    }
+
+    function syncNow() {
+      if (destroyed || document.hidden) return;
+      return currentList ? refreshItems() : refreshLists();
+    }
+
+    function onEvent(msg) {
+      if (msg.type === 'items_changed') {
+        if (!currentList || msg.list_id === currentList.id) scheduleSync();
+        return;
+      }
+      if (msg.type === 'lists_changed') {
+        if (!currentList) scheduleSync();
+        return;
+      }
+      if (msg.type === 'list_updated') {
+        if (currentList && msg.list_id === currentList.id) {
+          currentList.title = msg.title;
+          itemsTitleEl.textContent = msg.title;
+        } else if (!currentList) scheduleSync();
+        return;
+      }
+      if (msg.type === 'list_gone') {
+        if (currentList && msg.list_id === currentList.id) showLists();
+        else if (!currentList) scheduleSync();
+      }
+    }
+
+    function startPolling() {
+      if (pollTimer || destroyed) return;
+      pollTimer = setInterval(() => syncNow(), 12000);
+    }
+
+    function stopPolling() {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
+
+    function connectWs() {
+      if (destroyed) return;
+      if (ws && ws.readyState <= 1) return;   // already connecting or connected
+      let sock;
+      try {
+        const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+        sock = new WebSocket(`${proto}://${location.host}${API}/ws`);
+      } catch (e) { startPolling(); return; }
+      ws = sock;
+      sock.onopen = () => sock.send(JSON.stringify({ type: 'join', token, client: clientId }));
+      sock.onmessage = ev => {
+        let msg;
+        try { msg = JSON.parse(ev.data); } catch (e) { return; }
+        if (msg.type === 'ping') { sock.send('{"type":"pong"}'); return; }
+        if (msg.type === 'joined') {
+          wsRetry = 0;
+          stopPolling();
+          scheduleSync();   // catch up on anything missed while disconnected
+          return;
+        }
+        onEvent(msg);
+      };
+      sock.onclose = () => {
+        if (destroyed || ws !== sock) return;
+        ws = null;
+        startPolling();
+        wsRetry = Math.min(wsRetry + 1, 6);
+        wsTimer = setTimeout(connectWs, 500 * wsRetry);
+      };
+      sock.onerror = () => {};
+    }
+
+    function onWake() {
+      if (destroyed || document.hidden) return;
+      scheduleSync();
+      clearTimeout(wsTimer);
+      wsRetry = 0;
+      connectWs();
+    }
+    document.addEventListener('visibilitychange', onWake);
+    window.addEventListener('focus', onWake);
+
     async function ensureBudgetCategories() {
       if (!settings.budget_integration) { budgetCategories = { available: false, categories: [], currency: null }; return; }
       try { budgetCategories = await api('/budget-categories'); }
@@ -925,12 +1062,19 @@
       await ensureBudgetCategories();
       if (destroyed) return;
       await refreshLists();
+      connectWs();
     }
     init();
 
     return {
       destroy() {
         destroyed = true;
+        document.removeEventListener('visibilitychange', onWake);
+        window.removeEventListener('focus', onWake);
+        clearTimeout(wsTimer);
+        clearTimeout(syncTimer);
+        stopPolling();
+        if (ws) { ws.onclose = null; ws.close(); ws = null; }
       },
     };
   }

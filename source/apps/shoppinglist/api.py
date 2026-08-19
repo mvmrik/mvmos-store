@@ -53,6 +53,13 @@ caller's lists that has a warranty set, soonest-expiring first, for the
 cross-list "Warranties" overview — including orphaned/history items (see
 below), so a warranty never disappears just because its list did.
 
+A shared list is normally open on two devices at the same time (two people
+in the same shop), so every mutating route pushes a small event to the other
+members' open websockets on /pub/shoppinglist/ws — see the "Realtime"
+section below. The events carry no item data, only what changed, and the
+client refetches; that way a client can never drift away from the database,
+which is the same trade-off apps/chat's socket makes.
+
 Deleting a list (DELETE /lists/{id}) is a soft delete for its items: every
 item gets detached (list_id -> NULL, with the list's title snapshotted onto
 list_title_snapshot for context) instead of being cascade-deleted, so
@@ -65,6 +72,8 @@ not a separate endpoint) is what actually hard-deletes an item forever,
 same as it always has for items still on a live list.
 """
 
+import asyncio
+import json
 import os
 import re
 import shutil
@@ -74,7 +83,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, File, Header, UploadFile
+from fastapi import APIRouter, File, Header, UploadFile, WebSocket
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel
 
@@ -381,6 +390,114 @@ def _row_to_item(conn, row, profiles: dict) -> dict:
     return d
 
 
+# ── Realtime ─────────────────────────────────────────────────────
+#
+# One socket per open widget (desktop window or public page), joined with
+# the Apps Hub token exactly like every HTTP route here. Events are pushed
+# to the members of the affected list and say only *what* changed, never
+# the new rows — the client refetches, so no client can end up showing
+# something the database does not have.
+#
+# The acting client is skipped: it sends its own id in X-SL-Client and in
+# the join frame, so the tab that just ticked an item is not told to
+# refetch what it already refetched, while the same user's *other* devices
+# still are.
+
+_conns: dict = {}          # user_id -> set[WebSocket]
+HEARTBEAT = 25             # seconds; keeps the proxy from closing an idle socket
+
+
+async def _send(ws: WebSocket, msg: dict):
+    try:
+        await ws.send_text(json.dumps(msg))
+    except Exception:
+        pass
+
+
+async def _push(user_ids, msg: dict, skip_client: Optional[str] = None):
+    for uid in set(user_ids):
+        for ws in list(_conns.get(uid, ())):
+            if skip_client and getattr(ws, "_sl_client", None) == skip_client:
+                continue
+            await _send(ws, msg)
+
+
+def _member_ids(conn, list_id: str) -> list:
+    return [
+        r["user_id"]
+        for r in conn.execute("SELECT user_id FROM list_members WHERE list_id=?", (list_id,))
+    ]
+
+
+async def _notify_list(list_id: Optional[str], msg: dict, skip_client: Optional[str] = None):
+    """Push to everyone on the list. Items detached from a deleted list
+    (list_id NULL) are personal history — nobody else to tell."""
+    if not list_id:
+        return
+    with _db() as conn:
+        ids = _member_ids(conn, list_id)
+    await _push(ids, msg, skip_client)
+
+
+async def _notify_items(list_id: Optional[str], skip_client: Optional[str] = None):
+    await _notify_list(list_id, {"type": "items_changed", "list_id": list_id}, skip_client)
+
+
+@router.websocket("/ws")
+async def realtime_ws(websocket: WebSocket):
+    await websocket.accept()
+    uid = None
+    hb_task = None
+    try:
+        try:
+            first = json.loads(await asyncio.wait_for(websocket.receive_text(), timeout=10.0))
+        except Exception:
+            await websocket.close()
+            return
+        if first.get("type") != "join":
+            await _send(websocket, {"type": "error", "message": "expected join"})
+            await websocket.close()
+            return
+
+        me = _resolve(first.get("token", ""))
+        if not me:
+            await _send(websocket, {"type": "error", "message": "unauthorized"})
+            await websocket.close()
+            return
+
+        uid = me["id"]
+        websocket._sl_client = str(first.get("client") or "")
+        _conns.setdefault(uid, set()).add(websocket)
+        await _send(websocket, {"type": "joined"})
+
+        async def _hb():
+            while True:
+                await asyncio.sleep(HEARTBEAT)
+                try:
+                    await websocket.send_text('{"type":"ping"}')
+                except Exception:
+                    break
+        hb_task = asyncio.create_task(_hb())
+
+        while True:
+            raw = await websocket.receive_text()
+            try:
+                msg = json.loads(raw)
+            except Exception:
+                continue
+            if msg.get("type") == "ping":
+                await _send(websocket, {"type": "pong"})
+    except Exception:
+        pass
+    finally:
+        if hb_task:
+            hb_task.cancel()
+        if uid and uid in _conns:
+            _conns[uid].discard(websocket)
+            if not _conns[uid]:
+                del _conns[uid]
+
+
 # ── Settings ─────────────────────────────────────────────────────
 
 class SettingsBody(BaseModel):
@@ -476,7 +593,11 @@ async def list_lists(x_pub_token: str = Header(default=None)):
 
 
 @router.post("/lists")
-async def create_list(body: ListBody, x_pub_token: str = Header(default=None)):
+async def create_list(
+    body: ListBody,
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -496,11 +617,20 @@ async def create_list(body: ListBody, x_pub_token: str = Header(default=None)):
         )
         conn.commit()
         row = conn.execute("SELECT * FROM lists WHERE id=?", (lid,)).fetchone()
-        return JSONResponse(_row_to_list(conn, row, me["id"]))
+        result = _row_to_list(conn, row, me["id"])
+    # Nobody else is on a brand new list yet, but the same account may have
+    # it open on another device.
+    await _push([me["id"]], {"type": "lists_changed"}, x_sl_client)
+    return JSONResponse(result)
 
 
 @router.put("/lists/{list_id}")
-async def update_list(list_id: str, body: ListBody, x_pub_token: str = Header(default=None)):
+async def update_list(
+    list_id: str,
+    body: ListBody,
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -516,11 +646,19 @@ async def update_list(list_id: str, body: ListBody, x_pub_token: str = Header(de
         conn.execute("UPDATE lists SET title=?, updated_at=? WHERE id=?", (title, _now(), list_id))
         conn.commit()
         row = conn.execute("SELECT * FROM lists WHERE id=?", (list_id,)).fetchone()
-        return JSONResponse(_row_to_list(conn, row, me["id"]))
+        result = _row_to_list(conn, row, me["id"])
+    await _notify_list(
+        list_id, {"type": "list_updated", "list_id": list_id, "title": title}, x_sl_client
+    )
+    return JSONResponse(result)
 
 
 @router.delete("/lists/{list_id}")
-async def delete_list(list_id: str, x_pub_token: str = Header(default=None)):
+async def delete_list(
+    list_id: str,
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -531,6 +669,8 @@ async def delete_list(list_id: str, x_pub_token: str = Header(default=None)):
         if role != "owner":
             return JSONResponse({"error": "forbidden"}, status_code=403)
         lst = conn.execute("SELECT title FROM lists WHERE id=?", (list_id,)).fetchone()
+        # Read the members before the delete cascades their rows away.
+        member_ids = _member_ids(conn, list_id)
         now = _now()
         # Soft delete: detach items instead of destroying them, so their
         # warranties/photos/history survive under GET /history. Only the
@@ -541,6 +681,7 @@ async def delete_list(list_id: str, x_pub_token: str = Header(default=None)):
         )
         conn.execute("DELETE FROM lists WHERE id=?", (list_id,))
         conn.commit()
+    await _push(member_ids, {"type": "list_gone", "list_id": list_id}, x_sl_client)
     return JSONResponse({"ok": True})
 
 
@@ -581,7 +722,12 @@ async def list_items(list_id: str, x_pub_token: str = Header(default=None)):
 
 
 @router.post("/lists/{list_id}/items")
-async def add_item(list_id: str, body: ItemBody, x_pub_token: str = Header(default=None)):
+async def add_item(
+    list_id: str,
+    body: ItemBody,
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -605,11 +751,18 @@ async def add_item(list_id: str, body: ItemBody, x_pub_token: str = Header(defau
         conn.commit()
         row = conn.execute("SELECT * FROM items WHERE id=?", (iid,)).fetchone()
         profiles = {me["id"]: me}
-        return JSONResponse(_row_to_item(conn, row, profiles))
+        result = _row_to_item(conn, row, profiles)
+    await _notify_items(list_id, x_sl_client)
+    return JSONResponse(result)
 
 
 @router.put("/items/{item_id}")
-async def update_item(item_id: str, body: ItemBody, x_pub_token: str = Header(default=None)):
+async def update_item(
+    item_id: str,
+    body: ItemBody,
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -635,11 +788,17 @@ async def update_item(item_id: str, body: ItemBody, x_pub_token: str = Header(de
     ids = {row["added_by"]}
     profiles = {p["id"]: p for p in hub.get_users_by_ids(list(ids))} if hub else {}
     with _db() as conn:
-        return JSONResponse(_row_to_item(conn, row, profiles))
+        result = _row_to_item(conn, row, profiles)
+    await _notify_items(row["list_id"], x_sl_client)
+    return JSONResponse(result)
 
 
 @router.delete("/items/{item_id}")
-async def delete_item(item_id: str, x_pub_token: str = Header(default=None)):
+async def delete_item(
+    item_id: str,
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -650,11 +809,16 @@ async def delete_item(item_id: str, x_pub_token: str = Header(default=None)):
         conn.execute("DELETE FROM items WHERE id=?", (item_id,))
         conn.commit()
     shutil.rmtree(os.path.join(_WARRANTY_UPLOADS_DIR, item_id), ignore_errors=True)
+    await _notify_items(row["list_id"], x_sl_client)
     return JSONResponse({"ok": True})
 
 
 @router.post("/items/{item_id}/buy")
-async def buy_item(item_id: str, x_pub_token: str = Header(default=None)):
+async def buy_item(
+    item_id: str,
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -696,11 +860,16 @@ async def buy_item(item_id: str, x_pub_token: str = Header(default=None)):
     with _db() as conn:
         d = _row_to_item(conn, row, profiles)
     d["budget_ok"] = budget_ok
+    await _notify_items(row["list_id"], x_sl_client)
     return JSONResponse(d)
 
 
 @router.post("/items/{item_id}/unbuy")
-async def unbuy_item(item_id: str, x_pub_token: str = Header(default=None)):
+async def unbuy_item(
+    item_id: str,
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -740,6 +909,7 @@ async def unbuy_item(item_id: str, x_pub_token: str = Header(default=None)):
     with _db() as conn:
         d = _row_to_item(conn, row, profiles)
     d["budget_ok"] = budget_ok
+    await _notify_items(row["list_id"], x_sl_client)
     return JSONResponse(d)
 
 
@@ -751,7 +921,12 @@ class WarrantyBody(BaseModel):
 
 
 @router.put("/items/{item_id}/warranty")
-async def set_warranty(item_id: str, body: WarrantyBody, x_pub_token: str = Header(default=None)):
+async def set_warranty(
+    item_id: str,
+    body: WarrantyBody,
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -774,11 +949,17 @@ async def set_warranty(item_id: str, body: WarrantyBody, x_pub_token: str = Head
         row = conn.execute("SELECT * FROM items WHERE id=?", (item_id,)).fetchone()
         hub = _hub()
         profiles = {p["id"]: p for p in hub.get_users_by_ids([row["added_by"]])} if hub else {}
-        return JSONResponse(_row_to_item(conn, row, profiles))
+        result = _row_to_item(conn, row, profiles)
+    await _notify_items(row["list_id"], x_sl_client)
+    return JSONResponse(result)
 
 
 @router.delete("/items/{item_id}/warranty")
-async def clear_warranty(item_id: str, x_pub_token: str = Header(default=None)):
+async def clear_warranty(
+    item_id: str,
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -793,12 +974,16 @@ async def clear_warranty(item_id: str, x_pub_token: str = Header(default=None)):
         conn.execute("DELETE FROM warranty_photos WHERE item_id=?", (item_id,))
         conn.commit()
     shutil.rmtree(os.path.join(_WARRANTY_UPLOADS_DIR, item_id), ignore_errors=True)
+    await _notify_items(row["list_id"], x_sl_client)
     return JSONResponse({"ok": True})
 
 
 @router.post("/items/{item_id}/warranty/photos")
 async def upload_warranty_photo(
-    item_id: str, file: UploadFile = File(...), x_pub_token: str = Header(default=None)
+    item_id: str,
+    file: UploadFile = File(...),
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
 ):
     me = _resolve(x_pub_token)
     if not me:
@@ -833,7 +1018,9 @@ async def upload_warranty_photo(
         row = conn.execute("SELECT * FROM items WHERE id=?", (item_id,)).fetchone()
         hub = _hub()
         profiles = {p["id"]: p for p in hub.get_users_by_ids([row["added_by"]])} if hub else {}
-        return JSONResponse(_row_to_item(conn, row, profiles))
+        result = _row_to_item(conn, row, profiles)
+    await _notify_items(row["list_id"], x_sl_client)
+    return JSONResponse(result)
 
 
 @router.get("/items/{item_id}/warranty/photos/{filename}")
@@ -847,7 +1034,12 @@ async def serve_warranty_photo(item_id: str, filename: str):
 
 
 @router.delete("/items/{item_id}/warranty/photos/{photo_id}")
-async def delete_warranty_photo(item_id: str, photo_id: str, x_pub_token: str = Header(default=None)):
+async def delete_warranty_photo(
+    item_id: str,
+    photo_id: str,
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -871,6 +1063,7 @@ async def delete_warranty_photo(item_id: str, photo_id: str, x_pub_token: str = 
         os.remove(os.path.join(_WARRANTY_UPLOADS_DIR, item_id, filename))
     except OSError:
         pass
+    await _notify_items(row["list_id"], x_sl_client)
     return JSONResponse(result)
 
 
@@ -955,7 +1148,12 @@ async def list_members(list_id: str, x_pub_token: str = Header(default=None)):
 
 
 @router.post("/lists/{list_id}/members")
-async def add_member(list_id: str, body: MemberBody, x_pub_token: str = Header(default=None)):
+async def add_member(
+    list_id: str,
+    body: MemberBody,
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -984,8 +1182,12 @@ async def add_member(list_id: str, body: MemberBody, x_pub_token: str = Header(d
             (list_id, body.user_id, now),
         )
         conn.commit()
+        member_ids = _member_ids(conn, list_id)
 
     _notify_share(hub, me, body.user_id, list_id, lst["title"] if lst else "")
+    # The new member's open widget picks the list up without a reload; the
+    # rest see the member count change.
+    await _push(member_ids, {"type": "lists_changed"}, x_sl_client)
 
     profiles = {p["id"]: p for p in hub.get_users_by_ids([body.user_id])}
     with _db() as conn:
@@ -997,7 +1199,12 @@ async def add_member(list_id: str, body: MemberBody, x_pub_token: str = Header(d
 
 
 @router.delete("/lists/{list_id}/members/{user_id}")
-async def remove_member(list_id: str, user_id: str, x_pub_token: str = Header(default=None)):
+async def remove_member(
+    list_id: str,
+    user_id: str,
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -1022,6 +1229,11 @@ async def remove_member(list_id: str, user_id: str, x_pub_token: str = Header(de
             "DELETE FROM list_members WHERE list_id=? AND user_id=?", (list_id, user_id)
         )
         conn.commit()
+        member_ids = _member_ids(conn, list_id)
+    # The removed member loses the list where they stand; the rest only need
+    # the member count refreshed.
+    await _push([user_id], {"type": "list_gone", "list_id": list_id}, x_sl_client)
+    await _push(member_ids, {"type": "lists_changed"}, x_sl_client)
     return JSONResponse({"ok": True})
 
 
