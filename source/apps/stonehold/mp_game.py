@@ -151,15 +151,15 @@ BALANCE = {
             # quietest reason to build tall — one deep tower is one place to
             # carry rounds to, five shallow ones are five.
             "mag": 1, "mag_step": 3,
-            # And what one volley takes out of it. A bigger tower throws a
-            # heavier round, so the magazine is not simply deeper as it grows —
-            # this is what keeps ammunition, and the people carrying it, the
-            # thing a hold actually lives or dies on. Without it a tower that
-            # had outgrown the camps killed a whole war party out of a magazine
-            # it barely dented, and nothing the four corners did afterwards
-            # mattered.
-            "ammo_per": 1, "ammo_per_step": 0.45,
-            "weapons_per": 3,           # +1 barrel every 3 levels
+            # A grown tower does not spend more to fire — every level answers
+            # with exactly one round, always at exactly one point. What grows
+            # instead is what that one round does when it lands: a wider
+            # blast, so whoever was standing close to the one it was aimed at
+            # goes down with him, and a faster flight, so a young tower's
+            # round can still be dodged by a step to the side while an old
+            # tower's cannot.
+            "blast": 10, "blast_step": 5,
+            "speed": 260, "speed_step": 42,
         },
         # A house is bought once and then it is done paying: the people who move
         # into it cost the hold nothing after it stands. That is what the price
@@ -182,10 +182,11 @@ BALANCE = {
             "first_free": True,
             "build": 10, "hp": 170, "hp_step": 1.25,
             "size": 21,
-            # People do not move in the instant the roof is on. The wait is the
-            # hold's, not the house's, and the best house in it sets the pace:
-            # somewhere good to live is somewhere people come to sooner.
-            "spawn": 26, "spawn_step": -2, "spawn_min": 12,
+            # People do not move in the instant the roof is on. A raised roof is
+            # a bigger place to fill, not a faster one: spawn_mult doubles the
+            # wait at every level, the same way a building or a soldier takes
+            # twice as long to raise a level up from the one below it.
+            "spawn": 26, "spawn_mult": 2,
         },
         "workshop": {
             "cost": {"wood": 95}, "tier": {"stone": 2, "iron": 3},
@@ -213,7 +214,11 @@ BALANCE = {
             "cost": {"wood": 120}, "tier": {"stone": 2, "iron": 3},
             "repeat": 1.50,
             "build": 18, "hp": 210, "hp_step": 1.28,
-            "size": 23, "interval": 40, "interval_step": -4, "interval_min": 14,
+            # interval_mult doubles the muster wait at every level, same as a
+            # house's spawn: a deeper barracks fields a better soldier, not a
+            # faster one, so the last man of one raid is not already the first
+            # man of the next.
+            "size": 23, "interval": 40, "interval_mult": 2,
             "soldiers": 2, "soldiers_step": 1,
             "hp_soldier": 60, "hp_soldier_mult": 1.22,
             "damage": 12, "damage_mult": 1.22,
@@ -431,63 +436,29 @@ BALANCE = {
         # A camp used to keep most of its men at home behind a party limit,
         # which read as an army standing about watching its own raid lose.
         "ready_wait": 10,
-        # Nobody marches on a hold nobody has looked at. A camp sends one man
-        # over — unarmed, and untouchable, because nothing a hold owns shoots
-        # at somebody who is not attacking it. He walks to the hold, goes round
-        # it, counts the towers he can see and walks home, and only then does
-        # the camp decide anything.
+        # Nobody marches on a hold nobody has garrisoned for. A camp used to
+        # send an unarmed man over first, to walk round the hold, count its
+        # towers and size the party off what he saw (mp.js's old _facScout) —
+        # that coupled a camp's aggression to the player's own defenses, so
+        # building nothing at all was the way to keep every raid small.
         #
-        # What it decides on is what he counted, and nothing else. A tower
-        # fires once per level, so a tower is worth its level in men: two at
-        # level 1 and one at level 3 come to five, and a camp holding four men
-        # stays at home and keeps growing. This is the whole of their
-        # aggression — there is no timer any more, and no raid that was decided
-        # before anyone looked.
+        # There is no scout any more. A camp simply fills every barracks it
+        # owns and marches the moment it has — see _facNeed/_facSoldiers in
+        # mp.js — whatever is standing behind the hold's walls. It grows with
+        # the barracks and with the level of each of them at the same time,
+        # so a hold that stands long enough is a hold that eventually falls.
         #
-        # The report is a snapshot and it goes stale on purpose. A tower
-        # finished after the scout turned for home is a tower nobody counted,
-        # and the party that arrives was sized for the hold as it was. That
-        # window is the player's, and it is why the minutes after a scout walks
-        # away are the wrong minutes to stop building. What they knew is spent
-        # with the party: the next raid needs a new pair of eyes.
-        #
-        # A scout is never sent for its own sake. The first goes out once the
-        # camp holds "scout_min" men — nobody sends a man to price a fight
-        # they could not yet field a party for — and every one after that
-        # waits for the army to regrow to what a scout already told them it
-        # takes (mp.js's f.needFloor). A camp beaten with five does not walk a
-        # man over to learn it needs five again: the next scout only leaves
-        # once six are standing, and whatever he counts this time is what
-        # they wait to field before the next party goes.
-        "scout": {
-            "scout_min": 3,  # men in camp before the very first scout is sent
-            "speed": 70,     # quicker than a soldier: he is carrying nothing
-            "ring": 210,     # how close to the keep he goes round it
-            "look": 14,      # seconds spent walking round before he turns back
-            # He breaks nothing, so a wall is an answer to him: he walks round
-            # what is built like everybody else, and this is how long he tries
-            # to get any nearer before he settles for pricing the hold from
-            # where he is standing. What he could not walk to he could not
-            # count — a hold that has sealed itself buys one raid sized for a
-            # place nobody saw properly, not peace, because a party that comes
-            # home beaten raises what the camp waits to field next time.
-            "patience": 6,
-            # How far past whatever is between him and the hold he can still
-            # count a tower: a wall's own depth, and twice that again — near
-            # enough to read what a wall is hiding just behind it, not enough
-            # to read the whole hold from outside the ring. Anything set back
-            # further than that is only found by walking in, which nothing
-            # stops on the "look" pass. See _facScout in mp.js.
-            # sight = wall.size * 3
-        },
+        # A camp that has not sent a first party yet waits on its keep
+        # instead: nothing marches before the keep reaches level 3 (see
+        # _facWar in mp.js). That is a deliberate exception and not a
+        # byproduct of "party_min" below — it exists so the earliest minutes
+        # of a game are never decided before a hold has any walls up at all.
 
-        # Nobody sets out under four, however few a camp happens to hold. This
-        # is the whole of the early game: a camp's first barracks holds three,
-        # so its first raid waits for the second level of its keep — which
-        # wants iron it is not digging for anything else yet. Without it a camp
-        # marched the moment its first three men were armed, which arrived
-        # while the hold was still one tower and a workshop. It stops mattering
-        # from level 2 on and is never felt again.
+        # Nobody sets out under four, however few a camp happens to hold. A
+        # camp's first barracks holds three, so on its own this used to hold
+        # the first raid back until a keep's second level, before the level-2
+        # gate above existed to say so directly. It stops mattering from
+        # level 2 on and is never felt again.
         "party_min": 4,
         # Nobody comes in the first minutes: a hold has to be allowed to stand
         # up before it is knocked down. And the corners do not come at once —
@@ -518,15 +489,17 @@ BALANCE = {
         # camp that keeps arming men out of shallow barracks has a shallow
         # champion however many of them it fields.
         #
-        # At level one he is a man like any other in the party: same size, same
-        # integrity, same reach. That is the whole shape of him — he is not a
-        # monster dropped on a young hold, he is what the corner turns into if
-        # it is left alone to grow. Each level on the keep adds "hp_step" of a
-        # soldier's integrity and "dmg_step" of his damage, so he is worth two
-        # men at level 2 and better than seven at level 7, and he grows on the
-        # map at "size_step" pixels a level so the player can see it happening
-        # from across the hold without reading a number.
+        # At level one he already fights like a small party by himself — "base"
+        # times a soldier's integrity and damage — never the bare man a young
+        # hold's first champion used to be. From there each level on the keep
+        # multiplies both again by "hp_step"/"dmg_step" of a soldier, integrity
+        # outrunning damage the same way it always did, so he is worth about
+        # nine men at level 2 and pushing thirty by level 7 — not a monster
+        # dropped on a young hold, but the corner's own man grown dangerous. He
+        # grows on the map at "size_step" pixels a level so the player can see
+        # it happening from across the hold without reading a number.
         "boss": {
+            "base": 5.0,
             "hp_step": 1.15, "dmg_step": 0.55,
             "size": 26, "size_step": 3,
             # What raising him costs. Paid out of the same stores that arm

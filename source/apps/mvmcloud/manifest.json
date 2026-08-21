@@ -4,7 +4,7 @@
   "icon": "☁️",
   "category": "Productivity",
   "tags": ["files", "cloud", "storage", "encrypted"],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A private folder for every Apps Hub profile, with browser file management and administrator-controlled external folder API access.",
   "entry": "main.js",
   "min_core_version": "0.31.0-beta",

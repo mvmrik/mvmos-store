@@ -47,9 +47,9 @@
       "name": "mvmCloud",
       "icon": "☁️",
       "category": "Productivity",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "A private folder for every Apps Hub profile, with browser file management and administrator-controlled external folder API access.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/mvmcloud-1.0.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/mvmcloud-1.0.1.zip",
       "tags": [
         "files",
         "cloud",

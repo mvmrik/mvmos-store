@@ -2,5 +2,12 @@
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>mvmCloud</title><style>html,body,#mvmcloud{height:100%;margin:0;background:var(--pub-bg,#1e1e2e)}</style></head>
 <body><div id="mvmcloud"></div><script src="/i18n/i18n.js"></script><script>
-(function(){var token=localStorage.getItem('apphub_token');if(!token){location.replace('/pub/apphub/?return='+encodeURIComponent(location.href));return}var s=document.createElement('script');s.src='/apps/mvmcloud/widget.js?v='+Date.now();s.onload=function(){MvmCloud.mount(document.getElementById('mvmcloud'),{onNeedLogin:function(){location.replace('/pub/apphub/?return='+encodeURIComponent(location.href))}})};document.head.appendChild(s)})();
+(function(){
+  var token=localStorage.getItem('apphub_token');if(!token){location.replace('/pub/apphub/?return='+encodeURIComponent(location.href));return}
+  function loadScript(src){return new Promise(function(ok,bad){var s=document.createElement('script');s.src=src+(src.indexOf('?')<0?'?v=':'&v=')+Date.now();s.onload=ok;s.onerror=bad;document.head.appendChild(s)})}
+  (window.mvmOS&&window.mvmOS.i18nReady||Promise.resolve())
+    .then(function(){return loadScript('/apps/mvmcloud/i18n.js')})
+    .then(function(){return loadScript('/apps/mvmcloud/widget.js')})
+    .then(function(){MvmCloud.mount(document.getElementById('mvmcloud'),{onNeedLogin:function(){location.replace('/pub/apphub/?return='+encodeURIComponent(location.href))}})});
+})();
 </script></body></html>

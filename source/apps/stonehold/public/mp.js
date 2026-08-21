@@ -171,7 +171,6 @@
     }
     return out;
   }
-  const _barrels = (lvl) => 1 + Math.floor((lvl - 1) / _bc('tower').weapons_per);
   const _reload  = (lvl) => Math.max(_bc('tower').reload_min, _lv('tower', lvl, 'reload'));
 
   const RESOURCES = ['wood', 'stone', 'iron'];
@@ -186,10 +185,11 @@
                      ammo: '#f9e2af' };
   // The order the buttons come in is the order a hold is built in: somewhere to
   // live, something to cut timber with, then stone, then everything stone buys.
-  // How long a barracks takes to arm and send out one more soldier. It speeds
-  // up with the level, but never below interval_min.
-  const _muster = (lvl) =>
-    Math.max(_bc('barracks').interval_min, _lv('barracks', lvl, 'interval'));
+  // How long a barracks takes to arm and send out one more soldier. It slows
+  // down with the level — interval_mult doubles it each level up, so a raid
+  // that emptied a barracks is not answered by another one the instant the
+  // fight is over.
+  const _muster = (lvl) => _lv('barracks', lvl, 'interval');
 
   // The gate comes after the wall, because it is a thing done to a wall: it is
   // picked up and aimed like everything else here, and what it wants under it
@@ -232,7 +232,7 @@
   // across the map is still halfway across it after a save — so this is the
   // same array, held here only to keep every reader short.
   let _raiders = [];
-  let _bullets = [], _dust = [], _floats = [];
+  let _bullets = [], _dust = [], _floats = [], _blasts = [];
   let _raf = 0, _last = 0, _paused = false, _over = false, _reported = false;
   let _pushTimer = 0, _hudTimer = 0;
   let _placing = null;               // building type waiting for a tap
@@ -441,7 +441,7 @@
     if (!Array.isArray(_hold.raiders)) _hold.raiders = [];
     if (!Array.isArray(_hold.factions)) _hold.factions = [];
     _raiders = _hold.raiders;
-    _bullets = []; _shots = []; _dust = []; _floats = [];
+    _bullets = []; _shots = []; _dust = []; _floats = []; _blasts = [];
     _over = false; _reported = false; _paused = false;
     _placing = null; _selected = null; _selFac = null; _selFacB = null; _selBoss = null;
     _solo = msg.solo !== false;
@@ -569,6 +569,8 @@
     }
     for (let i = _floats.length - 1; i >= 0; i--)
       if ((_floats[i].life -= dt) <= 0) _floats.splice(i, 1);
+    for (let i = _blasts.length - 1; i >= 0; i--)
+      if ((_blasts[i].life -= dt) <= 0) _blasts.splice(i, 1);
 
     if (_toast > 0) _toast -= dt;
     if (_raidFlash > 0) _raidFlash -= dt;
@@ -638,7 +640,7 @@
   // what the hold's own barracks holds at the level that barracks is at. A camp
   // used to read this off its keep, which meant a level on a barracks bought it
   // nothing at all and the only thing worth doing with a barracks was putting
-  // another one next to it — see _facRank.
+  // another one next to it.
   const _facSoldiers = (f) => f.buildings.reduce(
     (n, b) => n + (b.type === 'barracks' && b.built >= 1
                    ? _lv('barracks', b.lvl, 'soldiers') : 0), 0);
@@ -648,13 +650,6 @@
   const _holdSoldiers = () => _hold.buildings.reduce(
     (n, b) => n + (b.type === 'barracks' && b.built >= 1
                    ? _lv('barracks', b.lvl, 'soldiers') : 0), 0);
-  // Where their men are armed: the deepest barracks in the camp. Everything a
-  // soldier is worth is read off it — integrity, damage, what the sortie costs
-  // and how long it takes — exactly as the player's man is worth what the
-  // barracks he walked out of is worth. The keep is the camp's standing on the
-  // map and what it is built to survive; it is not what arms anybody.
-  const _facRank = (f) => f.buildings.reduce(
-    (n, b) => (b.type === 'barracks' && b.built >= 1 ? Math.max(n, b.lvl || 1) : n), 1);
   // And it is what marches: a camp fills every barracks it owns and then sends
   // the lot. Nobody is left at home to watch the raid lose.
   const _facParty = (f) => _facSoldiers(f);
@@ -662,12 +657,11 @@
   // ── The champion ──────────────────────────────────────────────────────────
   // The keep's own man. Everything about him is read off the keep's level and
   // nothing off the barracks: he is what a camp's main building is for, now
-  // that its men belong to the barracks they were armed in. At level one he is
-  // an ordinary member of the party — same size, same integrity — and every
-  // level on the keep makes him bigger on the map and worth another man or so
-  // in a fight.
+  // that its men belong to the barracks they were armed in. Even at level one
+  // he already stands as "base" men, not one, and every level on the keep
+  // makes him bigger on the map and worth several more in a fight.
   const _bs = () => _fc().boss || {};
-  const _bossMult = (lvl, step) => 1 + Math.max(0, lvl - 1) * (step || 0);
+  const _bossMult = (lvl, step) => (_bs().base || 1) * (1 + Math.max(0, lvl - 1) * (step || 0));
   const _bossHp = (lvl) =>
     _lv('barracks', lvl, 'hp_soldier') * _bossMult(lvl, _bs().hp_step);
   const _bossDmg = (lvl) =>
@@ -687,13 +681,12 @@
   // Whether the camp has one at all, at home or on the road.
   const _facBoss = (f) =>
     f.army.some(s => s.boss) || _raiders.some(r => r.fx === f.id && r.boss);
-  // How many men a camp thinks it needs before it is worth going. It counts
-  // one man per level of every tower its scout saw — a tower fires once per
-  // level — and never sets out under "party_min" whatever it saw. A camp that
-  // has not looked yet needs a number nobody can reach, because it does not
-  // march at all.
-  const _facNeed = (f) =>
-    Math.max(_fc().party_min || 1, (f.known && f.known.threat) || 0);
+  // How many men a camp waits for before it marches: every barracks it owns,
+  // full — the same number _facBuild waits on before it will widen one — and
+  // never under "party_min" however small that barracks still is. A camp
+  // that has not sent a first party yet waits on its keep instead; see
+  // _facWar.
+  const _facNeed = (f) => Math.max(_fc().party_min || 1, _facSoldiers(f));
   // How long one more man takes out of this barracks: what the hold's own
   // barracks takes at that level, stretched by pace, because that is the only
   // edge the player is given. Every barracks in the camp arms on its own clock,
@@ -724,12 +717,6 @@
   // both sides of the map, so this is the same bill the player is handed for
   // the level above the one they are on.
   const _facKeepCost = (f) => _cost('tower', f.lvl + 1);
-  // What arming one of their men costs: the hold's own bill for a sortie out of
-  // a barracks at that level. Wooden spears low down, stone from the second and
-  // iron from the third — a camp that wants better men has to put people on the
-  // rock and the seam, and everything else it is building slows down while it
-  // does.
-  const _facArm = (f) => _armCost(_facRank(f));
   const _facCanPay = (f, cost) => {
     for (const res in cost) if ((f[res] || 0) < cost[res]) return false;
     return true;
@@ -767,13 +754,6 @@
       if (u.hp == null) u.hp = B.worker.hp;
     }
     for (const s of f.army) if (s.hp == null) s.hp = 1;
-    // A camp saved before they started looking before they march has no report
-    // and nobody out, and has learned nothing yet about what it takes to win.
-    if (f.known === undefined) f.known = null;
-    if (f.scout === undefined) f.scout = null;
-    if (typeof f.needFloor !== 'number') f.needFloor = 0;
-    if (typeof f.raidOut !== 'number') f.raidOut = 0;
-    if (typeof f.raidSize !== 'number') f.raidSize = 0;
     // Their keep used to house a digger of its own; now every head in a camp
     // comes out of a hut, and the first hut is the one they are given. A camp
     // saved before that has none, and without one it could never replace
@@ -844,114 +824,10 @@
       _facPeople(f, dt);
       _facBuild(f, dt);
       _facArmy(f, dt);
-      _facScout(f, dt);
       _facWar(f, dt);
     }
   }
 
-  // ── What a camp knows ─────────────────────────────────────────────────────
-  // Nobody marches on a hold they have not counted. A camp sends one man over:
-  // he walks to the hold, goes round it, counts the towers he can see and
-  // walks home, and only then is there anything to decide. He is unarmed and
-  // nothing the hold owns will shoot at him — towers and soldiers answer
-  // raiders, and he is not one — so the only answer the player has is to be
-  // bigger than he reported, which means finishing a tower after he has turned
-  // for home. See the long note in mp_game.py for why it works this way.
-  const _sc = () => _fc().scout || {};
-
-  function _facScout(f, dt) {
-    const keep = _keep();
-    if (!keep || f.grace > 0) return;
-    const c = _sc();
-    const s = f.scout;
-
-    if (!s) {
-      // A scout only goes out for a party actually worth pricing, and never
-      // twice for the same report. "floor" is what the camp has learned it
-      // takes: scout_min men the very first time, and — once a raid has come
-      // home short — whatever that raid needed, so a camp beaten at five
-      // does not walk a man over to learn it still needs five.
-      if (f.known) return;                            // waiting to grow into the last report
-      if (_raiders.some(r => r.fx === f.id)) return;   // their own party is still out
-      const floor = f.needFloor || c.scout_min || 1;
-      if (_facMen(f) < floor) return;
-      f.scout = {
-        x: f.x, y: f.y, phase: 'out', t: 0, seen: {},
-        ang: Math.atan2(f.y - keep.y, f.x - keep.x),
-      };
-      return;
-    }
-
-    // He counts what is in front of him, wherever he happens to be — but not
-    // through a wall by more than the wall's own depth and twice that again.
-    // Near enough to read what is standing just behind one, not far enough to
-    // read the whole hold from outside the ring: anything set back further
-    // than that is only found by walking in, which nothing stops him doing
-    // on the "look" pass below.
-    const sight = _bc('wall').size * 3;
-    for (const b of _hold.buildings) {
-      // The keep counts as well: it fires out of the store like any tower, and
-      // its level is written on it for anybody standing close enough to look.
-      if (b.type !== 'tower' || b.built < 1) continue;
-      if (_dist(s, b) <= sight) s.seen[b.id] = b.lvl;
-    }
-
-    const ring = c.ring || 210, speed = c.speed || 70;
-    const round = () => ({ x: keep.x + Math.cos(s.ang) * ring,
-                           y: keep.y + Math.sin(s.ang) * ring });
-
-    // He is not a raider and he breaks nothing, so a ring of finished wall is
-    // an answer to him: he walks round what is built and, if there is no way in
-    // at all, he prices the hold from outside instead of leaning on the wall
-    // for the rest of the game. That is not a way of keeping a camp off for
-    // ever — what he could not walk to he could not count, so the party they
-    // send is sized for a hold they never saw properly, and a party that comes
-    // home beaten raises what the camp waits to field before the next one. A
-    // sealed hold buys one cheap raid, not peace.
-    //
-    // A gate is not a sealed hold. It is a door standing open, and one unarmed
-    // man strolling through it is the whole reason a hold with a road through
-    // it is a hold that can be read: everything he passes on the way in he
-    // counts. That is the price of the convenience, and it is paid only by
-    // this one — anybody who comes back with a spear finds the same gate as
-    // solid as the wall it is set in.
-    const patience = c.patience || 6;
-    if (s.phase === 'out') {
-      // Getting there is worth working a route out for: the way in is a gap in
-      // a ring he cannot see the far side of, and feeling along the wall for it
-      // is not what a man sent to look at a place does.
-      s._straight = false;
-      if (_facStep(s, round(), dt, speed, 8, true) || (s._stall || 0) > patience) {
-        s.phase = 'look'; s.t = 0;
-        _say(_t('sh_scout_here', { camp: _facName(f) }));
-      }
-      return;
-    }
-    if (s.phase === 'look') {
-      s.t += dt;
-      s.ang += dt * 0.45;
-      // Going round it is not going anywhere in particular, so this is the one
-      // walk that is not worth routing: the spot he is making for moves the
-      // whole time, and working out a fresh route to it every few paces would
-      // cost the hold's own people theirs. He follows the wall instead, which
-      // is what walking round the outside of a hold looks like anyway.
-      s._straight = true;
-      _facStep(s, round(), dt, speed, 4, true);
-      if (s.t >= (c.look || 14)) { s.phase = 'back'; s._straight = false; }
-      return;
-    }
-    // Home, or word sent home. A man who has been built in behind a wall while
-    // he was looking would otherwise stand there for ever with a report nobody
-    // ever hears, and a camp waiting on him never marches again.
-    if (_facStep(s, { x: f.x, y: f.y }, dt, speed, B.world.keep_radius + 10, true) ||
-        (s._stall || 0) > patience * 4) {
-      let threat = 0, towers = 0;
-      for (const id in s.seen) { threat += Math.max(1, s.seen[id] || 1); towers++; }
-      f.known = { threat: threat, towers: towers, at: _hold.elapsed || 0 };
-      f.scout = null;
-      f.ready = 0;
-    }
-  }
 
   // Their people. The same errand the player's people run — walk to the ground,
   // work it, carry it home — with none of the routing: a camp sits in an open
@@ -1102,40 +978,59 @@
     return best;
   }
 
-  // Everything a camp could pay for next, as a list of prices rather than one
-  // heap. The hold's own _wants under another name, and every line of it is a
-  // price out of the player's table: another roof, another barracks, a level on
-  // anything standing, the next rank on the keep, and arms.
-  function _facBills(f) {
-    const list = [{ cost: _facNewCost(f, 'hut'), w: 0.5 },
-                  { cost: _facNewCost(f, 'barracks'), w: 0.5 }];
-    if (!_atMax(f.lvl)) list.push({ cost: _facKeepCost(f), w: 0.5 });
-    for (const b of f.buildings) {
-      if (b.built < 1 || b.type === 'keep' || _atMax(b.lvl)) continue;
-      list.push({ cost: _cost(_facType(b.type), b.lvl + 1), w: 0.5 });
+  // Everything a camp could buy right now, priced the way the hold prices its
+  // own choices — see _facWeight below. Room and men still gate what is even
+  // on the list: nobody prices a roof or a deeper barracks they do not need
+  // yet. Past that gate there is no fixed order any more — a new hut, a level
+  // on a hut, a new barracks, a level on a barracks and a level on the keep
+  // all compete on the one thing that actually decides a queue: which is
+  // cheapest, the same arithmetic the player weighs them by. Arms are not on
+  // this list: what to arm is decided man by man in _facArmy, out of whatever
+  // the building queue below has not already spent.
+  function _facCandidates(f) {
+    const list = [];
+    if (f.workers.length >= _facCap(f)) {
+      list.push({ cost: _facNewCost(f, 'hut'), exec: () => _facTry(f, 'hut') });
+      for (const b of _facOf(f, 'hut')) {
+        if (b.built < 1 || _atMax(b.lvl)) continue;
+        const cost = _cost(_facType('hut'), b.lvl + 1);
+        list.push({ cost: cost, exec: () => { _facPay(f, cost); b.up = 0; } });
+      }
     }
-    // Arms are spent again at every soldier, so they weigh most: a camp that
-    // cannot arm anybody is a camp that is not a threat, and it knows it.
-    list.push({ cost: _facArm(f), w: 4 });
+    if (_facMen(f) >= _facSoldiers(f)) {
+      list.push({ cost: _facNewCost(f, 'barracks'), exec: () => _facTry(f, 'barracks') });
+      for (const b of _facOf(f, 'barracks')) {
+        if (b.built < 1 || _atMax(b.lvl)) continue;
+        const cost = _cost(_facType('barracks'), b.lvl + 1);
+        list.push({ cost: cost, exec: () => { _facPay(f, cost); b.up = 0; } });
+      }
+    }
+    if (!_atMax(f.lvl)) {
+      const cost = _facKeepCost(f);
+      list.push({ cost: cost, exec: () => {
+        _facPay(f, cost);
+        f.lvl += 1;
+        const keep = f.buildings.find(b => b.type === 'keep') || f.buildings[0];
+        if (keep) { keep.lvl = f.lvl; keep.maxHp = _facHp('keep', f.lvl); keep.hp = keep.maxHp; }
+        _burst(f.x, f.y, f.color, 16);
+      } });
+    }
     return list;
   }
 
   // What a camp is short of, worst first — and it is the hold's own _byNeed,
-  // because it has to be. Adding every price up and going after whatever came
-  // to the biggest number is a rule that answers "timber" for the rest of the
-  // game: new buildings are priced in wood alone, so wood wins that sum for
-  // ever while the corner stands on five thousand stone it cannot spend and the
-  // one roof it is actually waiting on never goes up. A price a camp can
-  // already pay is not a shortage. So each price is asked only what it is still
-  // missing, counted in journeys — see the long note on _byNeed.
+  // because it has to be. Read off the very same candidates _facBuild spends
+  // from, so the hands go and get what the camp is actually about to buy next
+  // rather than a heap of everything it might ever want. A price a camp can
+  // already pay is not a shortage — see the long note on _byNeed.
   function _facWants(f) {
     const miss = { wood: 0, stone: 0, iron: 0 };
     const want = { wood: 0, stone: 0, iron: 0 };
-    for (const it of _facBills(f)) {
+    for (const it of _facCandidates(f)) {
       for (const res in it.cost) {
-        want[res] += it.cost[res] * it.w;
+        want[res] += it.cost[res];
         const gap = it.cost[res] - (f[res] || 0);
-        if (gap > 0) miss[res] += (gap / (_gat(res).load || 1)) * it.w;
+        if (gap > 0) miss[res] += gap / (_gat(res).load || 1);
       }
     }
     // Short of nothing: then it is the old question again, which is simply what
@@ -1161,17 +1056,12 @@
   // — so out there this stays the straight line it always was, and a camp costs
   // nothing to run.
   //
-  // What the corners have no business ignoring is the hold. A scout strolling
-  // through a finished wall makes the wall look like scenery, and it is the one
-  // thing the player paid for with the whole of a hold's timber. So anybody
-  // from a camp whose way passes anywhere near what has been built walks it the
-  // way the hold's own people walk it: round what is standing, or not at all.
-  // `thru` is the one of them who uses a door as a door: their scout. He is
-  // unarmed, he breaks nothing, and a gate left standing open is exactly the
-  // hole in a ring that a man sent to look at a place walks in through. Their
-  // diggers and their armies never get it — see _solidAt.
-  function _facStep(u, to, dt, speed, reach, thru) {
-    if (_nearHold(u, to)) return _walk(u, to, dt, speed, reach || 6, thru);
+  // What the corners have no business ignoring is the hold: anybody from a
+  // camp whose way passes anywhere near what has been built walks it the way
+  // the hold's own people walk it, round what is standing, or not at all —
+  // see _solidAt.
+  function _facStep(u, to, dt, speed, reach) {
+    if (_nearHold(u, to)) return _walk(u, to, dt, speed, reach || 6);
     const dx = to.x - u.x, dy = to.y - u.y;
     const d = Math.hypot(dx, dy);
     if (d <= (reach || 6)) return true;
@@ -1186,10 +1076,12 @@
   // are watching, something they can read as a warning.
   // Work done on a camp's site, the hold's own _progress under another name:
   // a new building goes up, and a level on a building that is already standing
-  // goes up more slowly, because the place keeps working while they do it.
+  // goes up more slowly, because the place keeps working while they do it —
+  // and each level up doubles the wait again, same as the hold's own.
   function _facProgress(f, b, secs) {
-    const step = secs / (_bc(_facType(b.type)).build || 10);
+    const base = _bc(_facType(b.type)).build || 10;
     if (b.built < 1) {
+      const step = secs / base;
       b.built = Math.min(1, b.built + step);
       if (b.built < 1) return false;
       b.hp = b.maxHp;
@@ -1198,7 +1090,10 @@
       return true;
     }
     if (b.up != null) {
-      b.up = Math.min(1, b.up + step * 0.8);
+      // Reaching level b.lvl + 1 takes base * 2^b.lvl: level 1 to 2 doubles the
+      // fresh build, 2 to 3 doubles that again, and so on.
+      const step = secs / (base * Math.pow(2, b.lvl));
+      b.up = Math.min(1, b.up + step);
       if (b.up < 1) return false;
       b.up = null;
       b.lvl += 1;
@@ -1213,6 +1108,7 @@
     // used to leave permanent holes in the corner it came from, so one good
     // defence was the end of that camp for the rest of the game.
     if (_facHurt(b)) {
+      const step = secs / base;
       b.hp = Math.min(b.maxHp, b.hp + step * b.maxHp * REPAIR_RATE);
       if (_facHurt(b)) return false;
       b.hp = b.maxHp;
@@ -1227,34 +1123,18 @@
     return b.built >= 1 && b.up == null && b.hp < b.maxHp - 0.5;
   }
 
-  // What a camp buys next. The order is the order a hold is built in — room
-  // before soldiers before rank — and a camp with nobody digging never gets to
-  // the third of those. There is no cap on any of it: what stops a camp is the
-  // price of the next thing, exactly as it is what stops the player.
+  // What a camp buys next: whichever candidate on _facCandidates it can
+  // afford this moment, cheapest first — no fixed order any more. There is no
+  // cap on any of it: what stops a camp is the price of the next thing,
+  // exactly as it is what stops the player, and which thing is next is
+  // whichever the camp can already stand under soonest.
   function _facBuild(f, dt) {
     // Something already going up is what the hands are on: see _facPeople.
     if (f.buildings.some(b => b.built < 1 || b.up != null)) return;
-    // Room first, and only when the roofs they have are full — a camp does not
-    // pay for an empty house any more than the player would.
-    if (f.workers.length >= _facCap(f) && _facWiden(f, 'hut')) return;
-    // Then somewhere to arm men, and only when every barracks standing is full
-    // — and a level on one counts as somewhere, because it is: a deeper
-    // barracks holds more men and arms better ones, on both sides of the map.
-    if (_facMen(f) >= _facSoldiers(f) && _facWiden(f, 'barracks')) return;
-    // And then rank, for as long as they can pay for it. There is no last
-    // level: what stops a camp is the price of the next one, not a number.
-    const cost = _facKeepCost(f);
-    if (!_atMax(f.lvl) && _facCanPay(f, cost)) {
-      _facPay(f, cost);
-      f.lvl += 1;
-      const keep = f.buildings.find(b => b.type === 'keep') || f.buildings[0];
-      if (keep) {
-        keep.lvl = f.lvl;
-        keep.maxHp = _facHp('keep', f.lvl);
-        keep.hp = keep.maxHp;
-      }
-      _burst(f.x, f.y, f.color, 16);
-    }
+    const list = _facCandidates(f).filter(it => _facCanPay(f, it.cost));
+    if (!list.length) return;
+    list.sort((a, b) => _facWeight(a.cost) - _facWeight(b.cost));
+    list[0].exec();
   }
 
   // What a bill comes to, for comparing two of them — counted in journeys, so
@@ -1264,30 +1144,6 @@
   // of the two it can be standing under sooner.
   const _facWeight = (cost) =>
     RESOURCES.reduce((n, r) => n + (cost[r] || 0) / (_gat(r).load || 1), 0);
-
-  // Another one of these, or a level on the cheapest one already standing —
-  // whichever is the cheaper bill today. That is the fork the player stands at
-  // every time a house fills up or a barracks comes to strength, and a camp
-  // reads it the same way: the repeat charge is what eventually makes the level
-  // the buy. Nothing here is roofs-only any more, which is the whole point —
-  // a camp that could only ever put another barracks next to the last one was
-  // a camp whose soldiers stayed at the bottom of the table all game.
-  function _facWiden(f, type) {
-    const nu = _facNewCost(f, type);
-    let best = null, up = null;
-    for (const b of _facOf(f, type)) {
-      if (b.built < 1 || _atMax(b.lvl)) continue;
-      const c = _cost(_facType(type), b.lvl + 1);
-      if (!up || _facWeight(c) < _facWeight(up)) { up = c; best = b; }
-    }
-    if (best && _facWeight(up) < _facWeight(nu)) {
-      if (!_facCanPay(f, up)) return false;
-      _facPay(f, up);
-      best.up = 0;              // the people have to build it, level by level
-      return true;
-    }
-    return _facTry(f, type);
-  }
 
   // Buying one more of something, if the store runs to it.
   function _facTry(f, type) {
@@ -1353,7 +1209,11 @@
     // around.
     if (!f.bossFor) {
       const j = _bs().muster_jitter || 0;
-      f.bossFor = _muster(1) * (_bs().muster || 1) * Math.max(1, f.lvl) /
+      // A deeper keep raises a mightier champion, not a quicker one: the wait
+      // doubles for every level the keep has climbed, the same as everything
+      // else that is built or made.
+      f.bossFor = _muster(1) * (_bs().muster || 1) *
+                  Math.pow(2, Math.max(1, f.lvl) - 1) /
                   _pace() * (1 + (Math.random() * 2 - 1) * j);
     }
     f.bossAt = (f.bossAt || 0) + dt;
@@ -1425,27 +1285,41 @@
   // time: it musters a party and sends the lot, so a raid is one event with a
   // direction, and the direction is a corner the player can point at.
   function _facWar(f, dt) {
+    // Their own patrol beat, the same distance out from what they are
+    // guarding as the player's garrison walks — not a huddle at the keep's
+    // own doorstep.
+    const ring = _facPatrolRing(f);
     for (const s of f.army) {
       // A man with a fight on his hands stands and fights it, wherever the
       // circle he was walking had got to.
       if (s._lock) continue;
-      // Milling about outside the keep while they wait.
-      s.pa = (s.pa || 0) + dt * 0.4;
-      const r = 60 + (s.maxHp % 30);
-      _facStep(s, { x: f.x + Math.cos(s.pa) * r, y: f.y + Math.sin(s.pa) * r }, dt, 22, 4);
+      // Milling about the camp's own ground while they wait — a point on the
+      // ring that only jumps once he reaches it, the same as the player's own
+      // patrol. A point advanced every frame instead is a target moving
+      // faster than the man chasing it, so he never gets there at all.
+      if (s.pa == null) s.pa = Math.random() * Math.PI * 2;
+      const r = ring + (s.maxHp % 30);
+      const there = _facStep(s, { x: f.x + Math.cos(s.pa) * r, y: f.y + Math.sin(s.pa) * r }, dt, 22, 4);
+      if (there) s.pa += PATROL_STEP;
     }
     if (f.grace > 0) return;
-    // Nobody marches on a hold nobody has looked at, and nobody marches under
-    // what the last look said it would take.
-    if (!f.known) { f.ready = 0; return; }
+    // No first blood before the keep has grown well past its opening level: a
+    // raid while the player has barely started would land before there has
+    // been a real choice to make. f.lvl only ever goes up, so this is felt once.
+    if (f.lvl < 3) { f.ready = 0; return; }
     // Counted in ordinary men, and the champion is not one of them. He is
     // whatever the keep has managed to make by the time the party is ready:
     // sometimes he walks out with it, and sometimes — because a deep one takes
     // several raids to replace — they go without him and the hold gets the one
     // party it can actually beat. A camp that waited for him would have made
     // him a thing on a timetable.
-    const need = _facNeed(f);
-    if (_facMen(f) < need) { f.ready = 0; return; }
+    //
+    // There is no scout any more and no report to wait on: a camp marches
+    // whenever its own yard is as full as it can hold, which is _facNeed —
+    // the same "full" _facBuild waits on before it will widen a barracks. The
+    // party therefore grows with the camp's own barracks, not with anything
+    // it has read off the player.
+    if (_facMen(f) < _facNeed(f)) { f.ready = 0; return; }
     // A short pause once they are enough, so parties arrive in gusts rather
     // than the instant the last man is armed.
     f.ready = (f.ready || 0) + dt;
@@ -1466,14 +1340,6 @@
         boss: s.boss, blvl: s.blvl, power: s.power,
       });
     }
-    // What they knew walks out with the party. The next raid needs another
-    // pair of eyes, which is the player's chance to become a different hold
-    // from the one that was counted. And the size of this party is tracked
-    // against who comes home from it — see _killRaider — so a camp wiped out
-    // learns to send more next time instead of walking the same five in again.
-    f.known = null;
-    f.raidSize = going.length;
-    f.raidOut = going.length;
     f.stats.sent = (f.stats.sent || 0) + going.length;
     _hold.stats.raids = (_hold.stats.raids || 0) + 1;
     _raidFlash = 3;
@@ -1704,8 +1570,9 @@
     if (_hold.workers.length < cap) {
       // Time is banked up to one arrival and no further, so a hold that has
       // just built its first house does not fill it the same second.
-      // And the better the best house, the sooner the next arrival: a deep
-      // house is worth more than a wide one twice over, in room and in speed.
+      // The best house sets the pace, and a deeper one is a slower one: room
+      // for more people, not people who move in faster — the wait doubles
+      // with every level, same as everything else built or made.
       const every = _lv('house', best || 1, 'spawn');
       // An empty hold does not wait: there is nobody to wait with. The first
       // roof of the game is answered on the spot, and so is the roof of a hold
@@ -2017,7 +1884,7 @@
       // map this outruns everything else a person could be doing: no amount of
       // timber wins a fight, and a hold that keeps mining through a raid loses
       // the buildings it was mining for.
-      const urgent = t.toTower ? (t.tower.ammo || 0) < _volley(t.tower.lvl) : false;
+      const urgent = t.toTower ? (t.tower.ammo || 0) < 1 : false;
       let s = t.toTower ? (urgent ? 3.6 : 1.8) : 1.5;
       if (_raiders.length) s *= t.toTower ? 4 : 2.2;
       return s * crowding;
@@ -2271,8 +2138,9 @@
   const REPAIR_RATE = 1.6;
 
   function _progress(b, secs) {
-    const step = secs / _bc(b.type).build;
+    const base = _bc(b.type).build;
     if (b.built < 1) {
+      const step = secs / base;
       b.built = Math.min(1, b.built + step);
       if (b.built < 1) return false;
       _hold.stats.built = (_hold.stats.built || 0) + 1;
@@ -2281,9 +2149,11 @@
       return true;
     }
     if (b.up != null) {
-      // An upgrade is built on a building that keeps working while they do it,
-      // and it goes slower for it.
-      b.up = Math.min(1, b.up + step * 0.8);
+      // An upgrade is built on a building that keeps working while they do
+      // it, and each level up doubles the wait again: level 1 to 2 takes
+      // twice as long as the fresh build did, 2 to 3 doubles that, and so on.
+      const step = secs / (base * Math.pow(2, b.lvl));
+      b.up = Math.min(1, b.up + step);
       if (b.up < 1) return false;
       b.up = null;
       b.lvl += 1;
@@ -2297,6 +2167,7 @@
     // and the materials are already in it — this costs the hold nothing but
     // the hands. There is no keeping the damage: a hold that could never mend
     // anything is a hold that only ever gets worse.
+    const step = secs / base;
     const max = _hpOf(b);
     if (b.hp < max - 0.5) {
       b.hp = Math.min(max, b.hp + step * max * REPAIR_RATE);
@@ -2423,6 +2294,15 @@
     for (const b of _hold.buildings) far = Math.max(far, _dist(keep, b) + _bc(b.type).size);
     return Math.max(PATROL_MIN, Math.min(far + PATROL_PAD, W() / 2 - 70));
   }
+  // The same ring, for a camp's own men standing about their keep between
+  // raids — see _facWar. A camp is not smaller than a hold for this purpose:
+  // the men waiting to muster deserve the same beat outward from what they
+  // are guarding as the player's own garrison gets.
+  function _facPatrolRing(f) {
+    let far = 0;
+    for (const b of f.buildings) far = Math.max(far, _dist(f, b) + _facSize(b.type));
+    return Math.max(PATROL_MIN, Math.min(far + PATROL_PAD, W() / 2 - 70));
+  }
 
   // How far past his beat a guard will follow a raider. A raid is somebody
   // else's business only until it is inside the hold, and by then it is his
@@ -2463,6 +2343,23 @@
     return mine || other;
   }
 
+  // A camp's digger caught out on the ground a guard's beat happens to pass —
+  // the same reach a raider gets chased at, and the same rule a raider gets
+  // it under: only ever a man with nothing better to do, never one who is
+  // mid-fight or walking home hurt. A raid on the hold outranks every one of
+  // them; that is what keeps a guard from wandering off a real attack to
+  // chase somebody digging.
+  function _prey(s) {
+    let best = null, bf = null, bd = Infinity;
+    for (const f of _hold.factions)
+      for (const u of f.workers) {
+        const d = _dist(s, u);
+        if (d > CHASE_OUT || d >= bd) continue;
+        bd = d; best = u; bf = f;
+      }
+    return best ? { u: best, f: bf } : null;
+  }
+
   function _soldiers(dt) {
     const keep = _keep();
     const ring = _patrolRing();
@@ -2471,7 +2368,8 @@
       const foe = _threat(s, keep, ring);
       const hurt = s.maxHp && s.hp < s.maxHp * HEAL_UNTIL;
       const home = !foe && hurt ? _home(s) : null;
-      s.fighting = !!foe;
+      const prey = !foe && !home ? _prey(s) : null;
+      s.fighting = !!foe || !!prey;
       s.healing = !!home;
       if (foe) {
         // Wherever the fight leaves him, his rounds start again from there.
@@ -2491,6 +2389,12 @@
           // left there, because a man who counts as whole and still carries a
           // wound mark over his head is telling the player something untrue.
           if (s.hp >= s.maxHp * HEAL_UNTIL) s.hp = s.maxHp;
+        }
+      } else if (prey) {
+        s.pa = null;
+        if (_walk(s, prey.u, dt, 78, 18, true)) {
+          prey.u.hp -= s.dmg * dt;
+          if (prey.u.hp <= 0) _killThief(prey.u, prey.f);
         }
       } else if (keep) {
         if (s.pa == null) s.pa = Math.atan2(s.y - keep.y, s.x - keep.x);
@@ -2556,15 +2460,6 @@
   // for the rounds that are in the keep, whether they are about to be fired or
   // about to be carried to a tower.
   const _mag   = (b) => b.keep ? (_hold.ammo || 0) : (b.ammo || 0);
-  // What one volley takes out of it, in whole rounds — because a round is a
-  // thing a person carries up a ladder one at a time, and half of one is not
-  // anything. The level's figure is a curve and lands between whole numbers:
-  // 1.45 at level two, 2.35 at level four. Left as it came off the curve it
-  // meant a tower standing there with ammunition in the magazine and refusing
-  // to fire, because it wanted 2.35 and had 2 — and it spent 2.35 when it did
-  // fire, so the store was never a whole number either and the count over the
-  // tower went 2, 1, 2 as it was rounded for the eye.
-  const _volley = (lvl) => Math.max(1, Math.round(_lv('tower', lvl, 'ammo_per')));
   const _spend = (b, n) => { if (b.keep) _hold.ammo -= n; else b.ammo -= n; };
 
   function _towers(dt) {
@@ -2572,87 +2467,109 @@
       if (b.type !== 'tower' || b.built < 1) continue;
       b._rl = (b._rl || 0) - dt;
       if (b._rl > 0) continue;
-      // A grown tower throws a heavier round, so what one volley takes out of
-      // the magazine is a property of the level as much as the damage is. It
-      // is the reason a hold never outgrows the people carrying ammunition to
-      // it, however deep its towers get.
-      // And it fires what it has. A tower that cannot manage a full volley
-      // still shoots: the last rounds in a hold are the ones that decide
-      // whether it is still standing, and a tower holding them back for a
-      // volley it will never assemble is a tower that was not there at all.
-      // The workshop makes rounds by the tenth of one, so whole rounds only.
-      const takes = Math.min(_volley(b.lvl), Math.floor(_mag(b)));
-      if (takes < 1) continue;
+      // Every tower fires exactly one round, at exactly one point, whatever
+      // its level — what the level buys is what that round does when it
+      // lands (see _blast), never how many it costs to send. A tower that
+      // has one is a tower that can still fire.
+      if (_mag(b) < 1) continue;
 
+      // Raiders only. A tower used to snipe a camp's diggers too whenever
+      // nothing was attacking, which kept every tower in reach of a gathering
+      // ground firing round after round at people who were never coming for
+      // the hold — and every round spent on one is a magazine the garrison's
+      // own runners have to keep walking out to refill. A digger who wanders
+      // into a tower's range now simply isn't shot; the garrison is who deals
+      // with him, see _prey in _soldiers.
       const range = _lv('tower', b.lvl, 'range');
-      const barrels = _barrels(b.lvl);
       const near = (p, q) => _dist(b, p) - _dist(b, q);
-      const targets = _raiders
-        .filter(r => _dist(b, r) <= range)
-        .sort(near)
-        .slice(0, barrels);
-      // And then the diggers. A camp's people work whatever ground they find,
-      // and the ground they find is increasingly the hold's own — a man with a
-      // pick inside the range of a tower is carrying away what the hold was
-      // going to spend, and the hold is not obliged to watch. Never in front of
-      // a raider, though, and never with the last rounds in the magazine: a
-      // tower that emptied itself on thieves is a tower that is not there when
-      // the party arrives, so one full volley is always held back for them.
-      const fxOf = new Map();
-      if (targets.length < barrels && _mag(b) >= takes * 2) {
-        const thieves = [];
-        for (const f of _hold.factions)
-          for (const u of f.workers)
-            if (_dist(b, u) <= range) { thieves.push(u); fxOf.set(u, f.id); }
-        thieves.sort(near);
-        for (const u of thieves.slice(0, barrels - targets.length)) targets.push(u);
-      }
-      if (!targets.length) continue;
+      const target = _raiders.filter(r => _dist(b, r) <= range).sort(near)[0];
+      if (!target) continue;
 
-      // One volley, however many barrels the tower has grown: the barrels are
-      // about how many it can answer at once, not how much it spends.
-      _spend(b, takes);
+      _spend(b, 1);
       b._rl = _reload(b.lvl);
       _sfx('shot', b.x, b.y);
-      const dmg = _lv('tower', b.lvl, 'damage');
-      for (const tgt of targets) {
-        _bullets.push({ x: b.x, y: b.y, target: tgt, dmg: dmg, life: 2.5,
-                        fx: fxOf.has(tgt) ? fxOf.get(tgt) : null });
-      }
-      b.angle = Math.atan2(targets[0].y - b.y, targets[0].x - b.x);
+      _bullets.push({ x: b.x, y: b.y, tx: target.x, ty: target.y,
+                      dmg: _lv('tower', b.lvl, 'damage'),
+                      blast: _lv('tower', b.lvl, 'blast'),
+                      speed: _lv('tower', b.lvl, 'speed') });
+      b.angle = Math.atan2(target.y - b.y, target.x - b.x);
     }
   }
 
   function _projectiles(dt) {
     for (let i = _bullets.length - 1; i >= 0; i--) {
       const p = _bullets[i];
-      p.life -= dt;
-      // A round in the air outlives nothing: whoever it was thrown at has to
-      // still be standing where he was, whether he came to fight or to dig.
-      const fac = p.fx == null ? null : _facById(p.fx);
-      const standing = fac ? fac.workers.indexOf(p.target) !== -1
-                           : _raiders.indexOf(p.target) !== -1;
-      if (p.life <= 0 || !standing) { _bullets.splice(i, 1); continue; }
-      const dx = p.target.x - p.x, dy = p.target.y - p.y;
+      // No homing: the round flies at the point it was aimed at, not at
+      // whoever was standing there. Somebody who has stepped off that point
+      // by the time it lands is missed, or only clipped — see _blast.
+      const dx = p.tx - p.x, dy = p.ty - p.y;
       const d = Math.hypot(dx, dy) || 1;
-      const step = 640 * dt;
-      if (d <= step + 10) {
-        p.target.hp -= p.dmg;
-        // A bolt landing is a real blow and not a sliver, so it is written the
-        // moment it lands, in the tower's own yellow rather than the red the
-        // hold's losses are in: what a tower is worth per round is otherwise
-        // guesswork, and it is the number a magazine is being filled for.
-        _float(p.target.x, p.target.y - 12, '−', p.dmg, '#f9e2af');
-        _burst(p.target.x, p.target.y, '#f9e2af', 3);
-        _sfx('hit', p.target.x, p.target.y);
+      const step = p.speed * dt;
+      if (d <= step) {
+        _blast(p.tx, p.ty, p.dmg, p.blast);
         _bullets.splice(i, 1);
-        if (p.target.hp <= 0) {
-          if (fac) _killThief(p.target, fac); else _killRaider(p.target);
-        }
       } else {
         p.x += (dx / d) * step;
         p.y += (dy / d) * step;
       }
+    }
+  }
+
+  // What one round does when it lands. Dead centre always takes it in full;
+  // from there it falls off in a straight line to nothing at the edge of the
+  // blast, so who else it catches depends on who was standing close, not on
+  // a number the tower chose in advance. Raiders only — a tower never fires
+  // on a camp's diggers and a round that lands near one leaves him standing;
+  // chasing them down is the garrison's own business now. See _prey in
+  // _soldiers.
+  //
+  // The round only carries so much force, and it spends that once. Whoever
+  // is nearest draws on it first — dead centre can still take the whole
+  // thing — and only what is left over reaches the next man out, and so on
+  // outward, so a packed knot of men no longer all take the shot in full
+  // just for standing shoulder to shoulder. A round that opens on empty
+  // ground and only clips one man at the edge still only ever gives up the
+  // sliver its own falloff says that man is owed.
+  const BLAST_LIFE = 0.4;
+  // A jagged burst instead of a plain circle: alternating outer/inner spikes,
+  // each nudged by its own bit of randomness so no two rounds land looking
+  // the same, and fixed once here rather than redrawn per frame so the shape
+  // doesn't crawl while it fades.
+  function _blastSpikes(blast) {
+    const n = 12 + 2 * Math.floor(Math.random() * 3);
+    const pts = [];
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+      const outer = i % 2 === 0;
+      pts.push({ a, r: blast * (outer ? 0.85 + Math.random() * 0.3 : 0.4 + Math.random() * 0.25) });
+    }
+    return pts;
+  }
+  function _blast(x, y, dmg, blast) {
+    _blasts.push({ x: x, y: y, r: blast, life: BLAST_LIFE, pts: _blastSpikes(blast) });
+    _burst(x, y, _css('--peach', '#fab387'), 10);
+    _sfx('hit', x, y);
+    const span = Math.max(1, blast - UNIT_R);
+    const hits = [];
+    const gather = (u, kill) => {
+      const d = _dist({ x: x, y: y }, u);
+      if (d > blast) return;
+      const raw = dmg * (d <= UNIT_R ? 1 : Math.max(0, 1 - (d - UNIT_R) / span));
+      if (raw > 0) hits.push({ u: u, kill: kill, d: d, raw: raw });
+    };
+    for (const r of [..._raiders]) gather(r, () => _killRaider(r));
+
+    // Nearest spends the budget first; anyone further out only sees what
+    // that left behind.
+    hits.sort((a, b) => a.d - b.d);
+    let left = dmg;
+    for (const h of hits) {
+      if (left <= 0) break;
+      const amount = Math.min(left, h.raw);
+      left -= amount;
+      h.u.hp -= amount;
+      _float(h.u.x, h.u.y - 12, '−', amount, '#f9e2af');
+      if (h.u.hp <= 0) h.kill();
     }
   }
 
@@ -2689,12 +2606,13 @@
           o._rush  = Math.max(o._rush,  c.speed || 1);
         }
       } else if (r.power === 'shaman') {
-        // Wounds closing as fast as a tower opens them. He mends himself too,
-        // which is what makes a hold that ignores him regret it.
+        // Wounds closing as fast as a tower opens them — but not his own: a
+        // healer who could not be outraced by his own patients would never
+        // fall, no matter how much of the party is spent to reach him.
         const c = _bs().shaman || {};
         const rad = c.radius || 170;
         for (const o of _raiders) {
-          if (o.fx !== r.fx || !o.maxHp || o.hp >= o.maxHp) continue;
+          if (o === r || o.fx !== r.fx || !o.maxHp || o.hp >= o.maxHp) continue;
           if (_dist(r, o) > rad) continue;
           o.hp = Math.min(o.maxHp, o.hp + o.maxHp * (c.heal || 0) * dt);
         }
@@ -2928,17 +2846,7 @@
       _sfx('slain', r.x, r.y);
       _say(_t('sh_boss_down', { camp: f ? _facName(f) : '' }));
     }
-    if (f) {
-      f.stats.lost = (f.stats.lost || 0) + 1;
-      // The last man down off a party that never took the keep is the camp
-      // finding out, the hard way, that the number its scout brought back
-      // was not enough — so it raises its own floor and will not walk a
-      // scout out again until it has grown past what just failed.
-      if (f.raidOut > 0) {
-        f.raidOut--;
-        if (f.raidOut === 0) f.needFloor = Math.max(f.needFloor || 0, (f.raidSize || 0) + 1);
-      }
-    }
+    if (f) f.stats.lost = (f.stats.lost || 0) + 1;
   }
 
   function _lose(b, torn) {
@@ -4729,16 +4637,12 @@
     // Towers only: the keep is never dry while the store has anything in it,
     // because the store is what it fires from.
     const dry = bs.some(b => b.type === 'tower' && !b.keep && b.built >= 1 &&
-                            (b.ammo || 0) < _volley(b.lvl));
+                            (b.ammo || 0) < 1);
     if (dry && _hold.ammo >= 1 && pri !== 'ammo') return 'sh_hint_ammo';
     // A camp with its men already on the road outranks everything except a
     // raid that has arrived: this is the warning the player is meant to act on.
     const marching = _hold.factions.find(f => _raiders.some(r => r.fx === f.id));
     if (marching) return 'sh_hint_incoming';
-    // Somebody is walking round the hold counting towers. He cannot be shot and
-    // he is not an attack, but what he goes home with decides whether one comes.
-    if (_hold.factions.some(f => f.scout && f.scout.phase === 'look'))
-      return 'sh_hint_scout';
     // Nothing to work is a real dead end, and a quiet one: the hold looks
     // healthy and the people stand about because the last seam of its kind was
     // carried away and the new one has not been found yet.
@@ -5137,20 +5041,31 @@
 
     // A doorway answers over both the squares it fills, not just the one that
     // was clicked to cut it: the far half of a gate is part of the gate, and
-    // tapping it has to open the same panel.
-    const hit = _hold.buildings.find(b => {
+    // tapping it has to open the same panel. Buildings stand shoulder to
+    // shoulder around a keep, so at anything but full zoom their circles
+    // overlap — the nearest one is what a finger meant, not whichever was
+    // built first, which is why this keeps the closest match rather than the
+    // first the map happens to list.
+    let hit = null, hitD = Infinity;
+    for (const b of _hold.buildings) {
       const p = _gateMid(b);
-      return Math.hypot(p.x - w.x, p.y - w.y) <=
-             _bc(b.type).size + Math.hypot(p.hx || 0, p.hy || 0) + slack;
-    });
+      const d = Math.hypot(p.x - w.x, p.y - w.y);
+      if (d <= _bc(b.type).size + Math.hypot(p.hx || 0, p.hy || 0) + slack && d < hitD) {
+        hit = b; hitD = d;
+      }
+    }
     if (hit) { _selected = hit; _selDep = null; _selFac = null; _selFacB = null; _sfx('select', w.x, w.y); _renderPanel(); return; }
 
     // Anything of theirs, anywhere on the map: a camp keep, a hut, a barracks.
     // Tapping one opens the same kind of panel a building of the player's own
     // does, because "what is that corner up to" is the question the whole map
-    // is now built around.
+    // is now built around. Same closest-wins rule as the hold's own buildings.
     for (const f of _hold.factions) {
-      const b = f.buildings.find(x => Math.hypot(x.x - w.x, x.y - w.y) <= _facSize(x.type) + slack);
+      let b = null, bd = Infinity;
+      for (const x of f.buildings) {
+        const d = Math.hypot(x.x - w.x, x.y - w.y);
+        if (d <= _facSize(x.type) + slack && d < bd) { b = x; bd = d; }
+      }
       if (b) {
         _selFac = f; _selFacB = b;
         _selected = null; _selDep = null; _selMan = null;
@@ -5202,9 +5117,14 @@
     const row = (label, value, now) => rows.push({ label: label, value: value, now: !!now });
 
     if (type === 'tower') {
-      row(_t('sh_stat_damage'), Math.round(_lv('tower', l, 'damage')) + ' × ' + _barrels(l));
+      row(_t('sh_stat_damage'), Math.round(_lv('tower', l, 'damage')));
       row(_t('sh_stat_rate'), _reload(l).toFixed(2) + 's');
       row(_t('sh_stat_range'), Math.round(_lv('tower', l, 'range')));
+      // What one round covers when it lands, and how fast it gets there —
+      // the two things a level actually buys now, since every level still
+      // fires one round at a time. See _blast.
+      row(_t('sh_stat_blast'), Math.round(_lv('tower', l, 'blast')));
+      row(_t('sh_stat_speed'), Math.round(_lv('tower', l, 'speed')));
       // How much it holds is a property of the level and belongs in the
       // comparison; how much is in it right now is not, and would only ever
       // show a dot there. Two rows, so the upgrade can say what it widens.
@@ -5214,9 +5134,6 @@
       // own, and the hold's rounds where a tower reads what is in its rack.
       const keep = b ? b.keep : false;
       row(_t('sh_stat_mag'), String(keep ? _keepStore(l) : _lv('tower', l, 'mag')));
-      // What a volley takes out of it, which is the other half of the same
-      // question: a deeper magazine that spends faster is not more shots.
-      row(_t('sh_stat_volley'), String(_volley(l)));
       if (b) row(_t('sh_stat_loaded'), String(Math.floor(keep ? (_hold.ammo || 0) : (b.ammo || 0))), true);
     } else if (type === 'house') {
       // The house is paid for once and the people are what it pays out, so the
@@ -5487,7 +5404,7 @@
       room = max - army.filter(s => s.from === b.id).length;
       frac = Math.min(1, (b._sp || 0) / (mine ? _muster(b.lvl) : _facMuster(b)));
       kind = mine ? 'soldier' : 'raider';
-      color = mine ? _css('--green', '#a6e3a1') : f.color;
+      color = mine ? _css('--accent', '#89b4fa') : f.color;
       label = _t('sh_crib_soldier');
     } else if (b.type === 'house' || b.type === 'hut') {
       // A roof does not hire on its own — the hold does, out of whatever room
@@ -5496,13 +5413,19 @@
       const cap = mine ? (_hold._cap || 0) : _facCap(f);
       const have = mine ? _hold.workers.length : f.workers.length;
       room = Math.min(_houseCap(b.lvl), Math.max(0, cap - have));
-      let best = 1;
+      // The hold hires out of one shared clock, paced by whichever roof is
+      // best — so that is the only roof actually earning its fill; the rest
+      // would be showing someone else's wait as their own.
+      let best = 1, bestId = null, bestSeen = 0;
       const all = mine ? _hold.buildings : f.buildings;
       for (const h of all)
-        if ((h.type === 'house' || h.type === 'hut') && h.built >= 1 && h.lvl > best)
-          best = h.lvl;
+        if ((h.type === 'house' || h.type === 'hut') && h.built >= 1) {
+          if (h.lvl > best) best = h.lvl;
+          if (h.lvl > bestSeen) { bestSeen = h.lvl; bestId = h.id; }
+        }
       const every = mine ? _lv('house', best, 'spawn') : _facSpawn(f);
-      frac = Math.min(1, ((mine ? _hold._hire : f.spawn) || 0) / every);
+      frac = b.id === bestId
+        ? Math.min(1, ((mine ? _hold._hire : f.spawn) || 0) / every) : 0;
       kind = 'worker';
       color = mine ? _css('--accent', '#89b4fa') : f.color;
       label = _t('sh_crib_worker');
@@ -5669,7 +5592,7 @@
     // of what a raid means.
     if (!mine && f) rows += _statRow(_t('sh_man_camp'), _facName(f));
 
-    const note = u.boss ? _t('sh_man_about_champion')
+    const note = u.boss ? _t('sh_man_about_' + (u.power || 'champion'))
                : mine && digs ? _t('sh_man_about_worker')
                : mine ? _t('sh_man_about_soldier')
                : _t('sh_man_about_theirs');
@@ -5746,13 +5669,55 @@
     return out;
   }
 
+  // One building of theirs, not the whole camp: a hut or a barracks answers
+  // for itself now that the map lets a finger land on either one specifically.
+  // The keep still speaks for the camp as a whole below — it is the camp's
+  // storehouse and its one champion-maker, so there is nothing about it that
+  // is not already the camp's own numbers.
+  function _renderFacBuildingPanel(f, b) {
+    const panel = _panel();
+    const name = _t(b.type === 'hut' ? 'sh_b_fhut' : 'sh_b_barracks');
+    const desc = _t(b.type === 'hut' ? 'sh_d_fhut' : 'sh_d_fbarracks');
+    const hp   = Math.max(0, Math.round((b.hp / b.maxHp) * 100));
+
+    let note = '';
+    if (b.built < 1) {
+      note = '<div class="sh-note">' + _esc(_t('sh_building_up', { n: Math.round(b.built * 100) })) + '</div>';
+    } else if (b.up != null) {
+      note = '<div class="sh-note">' + _esc(_t('sh_building_up', { n: Math.round(b.up * 100) })) + '</div>';
+    }
+
+    const html =
+      '<div class="sh-head"><span class="sh-gl" style="color:' + f.color + '">' + GLYPH[b.type] + '</span>' +
+      '<span><b>' + _esc(name) + '</b><small>' +
+        _esc(_t('sh_level', { n: b.lvl })) + ' · ' + _esc(_facName(f)) + '</small></span>' +
+      '<button id="sh-x" class="sh-x">✕</button></div>' +
+      '<div class="sh-desc">' + _esc(desc) + '</div>' +
+      _statRow(_t('sh_stat_hp'), hp + '%') +
+      _crib(b, f) +
+      _statTable(_facType(b.type), b.lvl, null, false) +
+      note;
+
+    panel.style.display = 'flex';
+    const set = _panelSet(panel, 'fb' + f.id + '_' + b.id, html);
+    _panelAt(panel, b.x, b.y, _facSize(b.type));
+    if (!set) return;
+    panel.querySelector('#sh-x').onclick = () => { _selFac = null; _selFacB = null; _closePanel(); };
+  }
+
   function _renderFacPanel() {
     const f = _selFac;
     if (!f) { _closePanel(); return; }
+    // Their keep still speaks for the camp as a whole; a hut or a barracks
+    // now answers for itself, in its own panel.
+    if (_selFacB && f.buildings.includes(_selFacB) &&
+        (_selFacB.type === 'hut' || _selFacB.type === 'barracks')) {
+      _renderFacBuildingPanel(f, _selFacB);
+      return;
+    }
     const panel = _panel();
     const out   = _raiders.filter(r => r.fx === f.id).length;
     const need  = _facNeed(f);
-    const known = f.known;
     const rows =
       _statRow(_t('sh_fac_level'), String(f.lvl)) +
       _statRow(_t('sh_fac_people'), f.workers.length + ' / ' + _facCap(f)) +
@@ -5761,19 +5726,10 @@
       // worth showing is what is standing.
       _statRow(_t('sh_fac_huts'), _facCount(f, 'hut')) +
       _statRow(_t('sh_fac_barracks'), _facCount(f, 'barracks')) +
-      _statRow(_t('sh_fac_army'),
-               _facMen(f) + ' / ' + (known ? need : '?')) +
+      _statRow(_t('sh_fac_army'), _facMen(f) + ' / ' + need) +
       // Their keep's own man, and what he does. A power the player cannot read
       // is a power the player cannot answer.
       _statRow(_t('sh_fac_boss'), _bossLine(f)) +
-      // What their last look told them, which is the only thing they act on.
-      _statRow(_t('sh_fac_scout'),
-               f.scout ? _t('sh_scout_out')
-               : known ? _t('sh_scout_done')
-               : _t('sh_scout_home', { have: f.army.length, n: f.needFloor || _sc().scout_min || 1 })) +
-      _statRow(_t('sh_fac_counted'),
-               known ? _t('sh_fac_counted_at', { n: known.threat, t: known.towers })
-                     : _t('sh_fac_never')) +
       _statRow(_t('sh_fac_marching'), String(out)) +
       _statRow(_t('sh_fac_sent'), String(f.stats.sent || 0)) +
       _statRow(_t('sh_fac_killed'), String(f.stats.lost || 0)) +
@@ -5783,8 +5739,7 @@
                                        iron: Math.floor(f.iron || 0) })));
     const note = f.grace > 0 ? _t('sh_fac_quiet', { n: Math.ceil(f.grace) })
                : out ? _t('sh_fac_attacking')
-               : f.scout ? _t('sh_fac_looking')
-               : !known ? _t('sh_fac_no_report')
+               : f.lvl < 3 ? _t('sh_fac_too_young')
                : f.army.length >= need ? _t('sh_fac_ready')
                : _t('sh_fac_too_weak', { n: need, have: f.army.length });
 
@@ -6073,8 +6028,9 @@
       _box(-0.62 * r, -0.42 * r, 1.24 * r, 0.92 * r, c('stone'));
       _poly([[-0.75 * r, -0.4 * r], [0, -1 * r], [0.75 * r, -0.4 * r]], c('flag'));
       _box(-0.18 * r, 0.06 * r, 0.36 * r, 0.44 * r, c('hole'));
-      _box(-0.04 * r, -1.9 * r, 0.08 * r, 0.95 * r, c('beam'));      // the mast
-      _poly([[0.04 * r, -1.9 * r], [0.85 * r, -1.66 * r], [0.04 * r, -1.42 * r]], c('flag'));
+      // No mast, no pennant: the champion's own power mark sits on the roof
+      // itself instead, drawn over this shape in _drawFactions — a camp's
+      // threat is worth more on the roof than a flag would be.
     },
     workshop: (r, c, p) => {
       _box(-0.8 * r, -0.1 * r, 1.6 * r, 0.78 * r, c('stone'));
@@ -6171,6 +6127,15 @@
           _badge(b, r);
         } else {
           _drawBody(type, b.x, b.y, r, null, null, over);
+          if (b.type === 'keep') {
+            // The champion's own mark, floating clear above the roof peak —
+            // not a plain flag: which power a camp's keep will raise is
+            // fixed from the start, so the player can read it off the
+            // skyline before any champion walks.
+            _g.textAlign = 'center'; _g.textBaseline = 'middle';
+            _g.font = Math.round(r * 0.5) + 'px serif';
+            _g.fillText(BOSS_GLYPH[_bossPower(f)] || '👑', b.x, b.y - 1.3 * r);
+          }
           if (b.hp < b.maxHp - 0.5) {
             _g.fillStyle = 'rgba(0,0,0,.45)'; _g.fillRect(b.x - r, b.y - r - 8, r * 2, 3);
             _g.fillStyle = f.color;
@@ -6243,15 +6208,6 @@
           _g.fillRect(s.x - w, s.y - 20, w * 2 * Math.max(0, s.hp / s.maxHp), 3);
         }
       }
-      // Their scout: one unarmed man walking to the hold and back. Nothing in
-      // the hold can touch him, so he is drawn plainly and marked with his
-      // glass — what the player sees is a camp taking a look, not a raid.
-      if (f.scout) {
-        const u = f.scout;
-        _fig('scout', u.x, u.y, 22, f.color, 0.7);
-        _g.font = '11px serif';
-        _g.fillText('🔭', u.x, u.y - 13);
-      }
     }
   }
 
@@ -6317,6 +6273,32 @@
     }
     _g.globalAlpha = 1;
 
+    // Every round's blast, fading out where it landed — the only way to see
+    // how far a tower's splash actually reaches, short of reading its stats.
+    // Drawn as a jagged burst that flares outward as it fades, not a circle
+    // with a ruled edge, because that is what a blast radius looks like.
+    if (_blasts.length) {
+      const hot = _css('--yellow', '#f9e2af'), mid = _css('--peach', '#fab387'), edge = _css('--red', '#f38ba8');
+      for (const bl of _blasts) {
+        const t = Math.max(0, bl.life / BLAST_LIFE);
+        const grow = 0.5 + 0.5 * (1 - t);
+        const grad = _g.createRadialGradient(bl.x, bl.y, 0, bl.x, bl.y, bl.r * grow);
+        grad.addColorStop(0, '#fff');
+        grad.addColorStop(0.25, hot);
+        grad.addColorStop(0.6, mid);
+        grad.addColorStop(1, edge);
+        _g.globalAlpha = t;
+        _g.fillStyle = grad;
+        _g.beginPath();
+        bl.pts.forEach((p, i) => {
+          const px = bl.x + Math.cos(p.a) * p.r * grow, py = bl.y + Math.sin(p.a) * p.r * grow;
+          if (i === 0) _g.moveTo(px, py); else _g.lineTo(px, py);
+        });
+        _g.closePath(); _g.fill();
+      }
+      _g.globalAlpha = 1;
+    }
+
     _drawFactions(v);
     for (const b of _hold.buildings) _drawBuilding(b, acc, green, red);
     // Over the buildings, never under them: a wall fills its whole cell, so a
@@ -6376,11 +6358,11 @@
       }
     }
     // A soldier is one of your people too, not a floating shield: the same
-    // build as the workers, in the guard's own green with a helmet and a shield
+    // build as the workers, in your own colour, with a helmet and a shield
     // of his own, carrying what he is doing over his head — a shield while he
     // walks his rounds, crossed blades once he is in a fight.
     for (const s2 of _hold.soldiers) {
-      _fig('soldier', s2.x, s2.y, 24, green);
+      _fig('soldier', s2.x, s2.y, 24, acc);
       _g.font = '12px serif';
       _g.fillText(s2.fighting ? '⚔' : s2.healing ? '✚' : '🛡', s2.x, s2.y - 14);
       // A hair off full is full: the mark is for wounds, not for arithmetic.
@@ -6551,8 +6533,6 @@
       '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><g stroke-linejoin="round" stroke-linecap="round"><path d="M48 8 L52 18 L52 32 L44 32 L44 18 Z" fill="#cfd6dd" stroke="#141018" stroke-width="2.4"/><path d="M41 34 L55 34" stroke="#141018" stroke-width="5" fill="none"/><path d="M48 36 L48 43" stroke="#7a5a3a" stroke-width="4.5" fill="none"/><path d="M21 34 Q20 26 27 25 L37 25 Q44 26 43 34 L45 48 L39 60 L34 60 L32 50 L30 60 L25 60 L19 48 Z" fill="#ffffff" stroke="#141018" stroke-width="2.6"/><path d="M32 50 L30 60 L25 60 L19 48 L20 42 L32 42 Z" fill="#b4b4b4" stroke="none"/><path d="M40 32 L47 39" stroke="#141018" stroke-width="9.5" fill="none"/><path d="M40 32 L47 39" stroke="#ffffff" stroke-width="5" fill="none"/><ellipse cx="32" cy="17" rx="9.5" ry="8.5" fill="#ffffff" stroke="#141018" stroke-width="2.6"/><path d="M22 16 Q23 7 32 7 Q41 7 42 16 Z" fill="#cfd6dd" stroke="#141018" stroke-width="2.2"/><circle cx="15" cy="38" r="10.5" fill="#ffffff" stroke="#141018" stroke-width="2.6"/><circle cx="15" cy="38" r="4" fill="#cfd6dd" stroke="#141018" stroke-width="2"/></g></svg>',
     raider:
       '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><g stroke-linejoin="round" stroke-linecap="round"><path d="M24 48 L48 22" stroke="#141018" stroke-width="7" fill="none"/><path d="M24 48 L48 22" stroke="#7a5a3a" stroke-width="3.5" fill="none"/><path d="M44 12 Q57 17 54 29 Q47 27 43 22 Q47 18 44 12 Z" fill="#cfd6dd" stroke="#141018" stroke-width="2.4"/><path d="M19 36 Q17 27 25 25 L35 23 Q42 23 42 32 L46 46 L42 59 L37 59 L33 49 L28 60 L23 59 L18 48 Z" fill="#ffffff" stroke="#141018" stroke-width="2.6"/><path d="M33 49 L28 60 L23 59 L18 48 L19 41 L32 41 Z" fill="#b4b4b4" stroke="none"/><path d="M39 30 L32 36" stroke="#141018" stroke-width="9.5" fill="none"/><path d="M39 30 L32 36" stroke="#ffffff" stroke-width="5" fill="none"/><path d="M18 16 Q12 13 12 5 Q20 8 21 15 Z" fill="#cfd6dd" stroke="#141018" stroke-width="2.2"/><path d="M36 16 Q42 13 42 5 Q34 8 33 15 Z" fill="#cfd6dd" stroke="#141018" stroke-width="2.2"/><ellipse cx="27" cy="19" rx="9.5" ry="8.5" fill="#ffffff" stroke="#141018" stroke-width="2.6"/><path d="M18 18 Q18 10 27 10 Q36 10 36 18 Z" fill="#b4b4b4" stroke="none"/></g></svg>',
-    scout:
-      '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><g stroke-linejoin="round" stroke-linecap="round"><path d="M48 9 L45 57" stroke="#141018" stroke-width="6" fill="none"/><path d="M48 9 L45 57" stroke="#7a5a3a" stroke-width="3" fill="none"/><path d="M32 7 Q42 11 43 24 L46 47 L38 58 L34 58 L32 49 L30 58 L25 58 L18 47 L21 24 Q22 11 32 7 Z" fill="#ffffff" stroke="#141018" stroke-width="2.6"/><path d="M32 49 L30 58 L25 58 L18 47 L20 35 L32 35 Z" fill="#b4b4b4" stroke="none"/><path d="M40 30 L45 34" stroke="#141018" stroke-width="9" fill="none"/><path d="M40 30 L45 34" stroke="#ffffff" stroke-width="4.6" fill="none"/><path d="M22 22 Q22 10 32 10 Q42 10 42 22 Q32 26 22 22 Z" fill="#b4b4b4" stroke="#141018" stroke-width="2.4"/><ellipse cx="32" cy="20" rx="5" ry="2.6" fill="#141018" stroke="none"/></g></svg>',
   };
 
   // One picture per figure per colour, made once and kept. Swapping the two
