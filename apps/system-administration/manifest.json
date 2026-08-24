@@ -43,20 +43,6 @@
       ]
     },
     {
-      "id": "cron-manager",
-      "name": "Cron Manager",
-      "icon": "⏰",
-      "category": "System & Administration",
-      "version": "1.6.0",
-      "description": "View, add, edit and delete cron jobs per user with sudo confirmation for other users. Tabs for Jobs and Scheduler. Includes mvmOS Scheduler — enable background task execution for installed apps.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/cron-manager-1.6.0.zip",
-      "tags": [
-        "automation",
-        "scheduling",
-        "system"
-      ]
-    },
-    {
       "id": "server-monitor",
       "name": "Server Monitor",
       "icon": "🌡️",
