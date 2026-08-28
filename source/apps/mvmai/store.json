@@ -1,18 +1,19 @@
 {
-  "tagline": "An AI assistant that can actually run the commands.",
-  "description": "mvmAI is a chat assistant wired to your own provider — Gemini, OpenAI, Groq, OpenRouter, DeepSeek, Qwen, Mistral, a local Ollama, or any OpenAI-compatible endpoint you point it at. You bring the API key; nothing is proxied through anyone else.\n\nWhat separates it from a chat window in a browser tab is that it is on the machine. Ask it why a service will not start and it can run the commands to find out, read the output and carry on from there. You decide how much rope it gets: ask before every command, ask only for the dangerous ones, or let it run. Commands it judges dangerous are marked, and the really destructive ones are blocked entirely unless you allow them.\n\nConversations are kept, renameable and deletable, and the system prompt is yours to rewrite.",
+  "tagline": "An AI assistant that can actually run the commands — on the desktop and its own public page.",
+  "description": "mvmAI is a chat assistant wired to your own provider — Gemini, OpenAI, Groq, OpenRouter, DeepSeek, Qwen, Mistral, a local Ollama, or any OpenAI-compatible endpoint you point it at — or to a CLI tool already installed on the server, such as Claude Code, Gemini CLI, Codex CLI or Ollama. You bring the API key or the CLI; nothing is proxied through anyone else.\n\nWhat separates it from a chat window in a browser tab is that it is on the machine. Ask it why a service will not start and it can run the commands to find out, read the output and carry on from there. Command execution stays off until an administrator turns it on, and once on, every command either waits for confirmation or runs automatically, whichever the administrator picked. Commands it judges dangerous are marked, and the really destructive ones are blocked entirely.\n\nThe same assistant can also be given its own public page, for visitors who are not on the desktop at all, with its own separate switch for whether those visitors may have it run commands too — off by default, and never on by accident.\n\nConversations are kept, renameable and deletable, and the system prompt is yours to rewrite.\n\nWith a subscription, mvmAI can also act on a user's own data in their other installed apps — add a budget transaction, check a cloud folder and more — for that user only, on the desktop and on the public page.",
   "capabilities": [
-    "Chat with any OpenAI-compatible provider: Gemini, OpenAI, Groq, OpenRouter, DeepSeek, Qwen, Mistral, Ollama or a custom base URL.",
-    "The assistant can run shell commands on the server and read their output.",
-    "Three confirmation levels: ask every time, ask only for dangerous commands, or never ask.",
-    "Dangerous commands flagged, and destructive ones (rm -rf, dd, shutdown…) blocked unless explicitly allowed.",
+    "Chat with any OpenAI-compatible provider: Gemini, OpenAI, Groq, OpenRouter, DeepSeek, Qwen, Mistral, Ollama or a custom base URL, or with a local CLI tool such as Claude Code, Gemini CLI, Codex CLI or Ollama.",
+    "The assistant can run shell commands on the server and read their output, once an administrator turns command execution on.",
+    "Two ways to run commands once enabled: ask for confirmation on each one, or let them run automatically.",
+    "Dangerous commands flagged, and destructive ones (rm -rf, dd, shutdown…) blocked entirely.",
     "Approve or skip each proposed command, with the command and its reason shown first.",
+    "Optional public page so visitors can chat with the same assistant outside the desktop, with its own separate on/off switch for command execution.",
     "Saved conversations you can rename and delete.",
     "Editable system prompt and model override.",
     "Your API key stays on your server."
   ],
   "requirements": [
-    "An API key for one of the supported providers, or a local Ollama install."
+    "An API key for one of the supported providers, or a local Ollama install, or another supported CLI tool already installed on the server."
   ],
   "integrations": [
     {

@@ -8,10 +8,20 @@
     "assistant",
     "developer"
   ],
-  "version": "0.4.0",
+  "version": "0.5.0",
   "min_core_version": "0.8.0",
   "description": "AI chat assistant with shell access. Talk to any OpenAI-compatible provider (Gemini, OpenAI, Groq, OpenRouter, Qwen, DeepSeek, Mistral, Ollama, custom). The assistant can run commands on the server on your behalf, with configurable confirmation and safety levels.",
   "entry": "main.js",
   "css": "style.css",
-  "settings": []
+  "public_url": "/pub/mvmai/",
+  "public_directory": true,
+  "settings": [],
+  "credit_features": [
+    {
+      "id": "chat_message",
+      "name": "AI chat message",
+      "description": "Charged once per message sent to mvmAI from its public page.",
+      "unit": "message"
+    }
+  ]
 }

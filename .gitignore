@@ -15,3 +15,6 @@ source/apps/*/public/*upload*/
 # `source/apps/*/premium*` or the site loses every premium listing.
 source/apps/*/premium/
 source/backend/apps/*/premium/
+
+__pycache__/
+*.py[cod]

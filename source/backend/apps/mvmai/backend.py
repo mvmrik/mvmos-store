@@ -8,6 +8,7 @@ SQLite DB (apps/mvmai/data.db, cfg table) — the key is read server-side and is
 never sent back to the browser.
 """
 
+import json
 import os
 import pwd
 import re
@@ -60,7 +61,7 @@ def _is_dangerous(cmd: str) -> bool:
     return any(re.search(p, c) for p in _DANGER)
 
 
-# ── cfg helpers (read the app's own data.db) ────────────────────────────────────
+# ── cfg helpers (read/write the app's own data.db) ──────────────────────────────
 def _read_cfg() -> dict:
     cfg = {}
     if not os.path.isfile(_DB_PATH):
@@ -77,6 +78,18 @@ def _read_cfg() -> dict:
     except Exception:
         pass
     return cfg
+
+
+def _write_cfg(key: str, value) -> None:
+    """Used by the public-page router (apps/mvmai/api.py) to persist the
+    admin-only pub_exec_* toggle — the desktop app writes its own exec_* keys
+    directly via mvmOS.db('mvmai') from the frontend, bypassing this backend
+    entirely, same as every other desktop setting."""
+    conn = sqlite3.connect(_DB_PATH)
+    conn.execute("CREATE TABLE IF NOT EXISTS cfg (key TEXT PRIMARY KEY, value TEXT)")
+    conn.execute("INSERT OR REPLACE INTO cfg (key, value) VALUES (?, ?)", (key, json.dumps(value)))
+    conn.commit()
+    conn.close()
 
 
 def _resolve_provider(cfg: dict):
@@ -127,8 +140,8 @@ async def status(session=Depends(get_current_session)):
         "model": model,
         "base_url": base_url,
         "has_key": bool(api_key) or not PROVIDERS.get(pid, {}).get("needs_key", True),
-        "confirm_mode": cfg.get("confirm_mode", "always"),
-        "allow_dangerous": str(cfg.get("allow_dangerous", "0")) == "1",
+        "exec_enabled": bool(cfg.get("exec_enabled")),
+        "exec_auto": bool(cfg.get("exec_auto")),
     })
 
 
@@ -196,6 +209,9 @@ async def chat(body: ChatRequest, session=Depends(get_current_session)):
 
     url = base_url + "chat/completions"
 
+    exec_enabled = bool(cfg.get("exec_enabled"))
+    offer_tools = body.tools_enabled and exec_enabled
+
     async def _post(with_tools: bool):
         p = {"model": model, "messages": body.messages}
         if with_tools:
@@ -205,9 +221,9 @@ async def chat(body: ChatRequest, session=Depends(get_current_session)):
             return await client.post(url, headers=headers, json=p)
 
     try:
-        r = await _post(body.tools_enabled)
+        r = await _post(offer_tools)
         # some models/providers don't support tool use — retry without tools
-        if r.status_code == 404 and body.tools_enabled and "tool" in r.text.lower():
+        if r.status_code == 404 and offer_tools and "tool" in r.text.lower():
             r = await _post(False)
     except httpx.ConnectError:
         return JSONResponse({"error": f"Cannot reach provider at {base_url}"}, status_code=502)
@@ -239,21 +255,21 @@ class ExecRequest(BaseModel):
 @router.post("/exec")
 async def exec_command(body: ExecRequest, session=Depends(get_current_session)):
     cfg = _read_cfg()
-    confirm_mode = cfg.get("confirm_mode", "always")          # always | dangerous | never
-    allow_dangerous = str(cfg.get("allow_dangerous", "0")) == "1"
+    exec_enabled = bool(cfg.get("exec_enabled"))
+    exec_auto = bool(cfg.get("exec_auto"))
     cmd = body.command.strip()
     if not cmd:
         return JSONResponse({"error": "Empty command"}, status_code=400)
 
-    danger = _is_dangerous(cmd)
-    if danger and not allow_dangerous:
+    if not exec_enabled:
         return JSONResponse({
             "blocked": True,
-            "is_dangerous": True,
-            "reason": "This command is classified as dangerous and 'Allow dangerous commands' is disabled in settings.",
+            "is_dangerous": False,
+            "reason": "Command execution is turned off. Turn it on from the exec toggle in the chat sidebar.",
         })
 
-    needs_confirm = confirm_mode == "always" or (confirm_mode == "dangerous" and danger)
+    danger = _is_dangerous(cmd)
+    needs_confirm = not exec_auto
     if needs_confirm and not body.confirmed:
         return JSONResponse({"pending": True, "is_dangerous": danger})
 
@@ -293,16 +309,39 @@ async def exec_command(body: ExecRequest, session=Depends(get_current_session)):
 
 # ── CLI providers ────────────────────────────────────────────────────────────────
 CLI_PROVIDERS = [
-    {"id": "claude-cli",  "name": "Claude CLI",  "cmd": "claude",  "args": ["--print"]},
-    {"id": "gemini-cli",  "name": "Gemini CLI",  "cmd": "gemini",  "args": ["--prompt"]},
-    {"id": "ollama-cli",  "name": "Ollama CLI",  "cmd": "ollama",  "args": ["run"]},
-    {"id": "sgpt-cli",    "name": "shell-gpt",   "cmd": "sgpt",    "args": []},
-    {"id": "aichat-cli",  "name": "aichat",      "cmd": "aichat",  "args": []},
-    {"id": "llm-cli",     "name": "llm",         "cmd": "llm",     "args": []},
-    {"id": "gpt4all-cli", "name": "GPT4All CLI", "cmd": "gpt4all", "args": []},
-    {"id": "mods-cli",    "name": "mods",        "cmd": "mods",    "args": []},
-    {"id": "tgpt-cli",    "name": "tgpt",        "cmd": "tgpt",    "args": []},
+    {"id": "claude-cli",  "name": "Claude CLI",  "cmd": "claude",  "args": ["--print"], "supports_model": True,  "model_hint": "", "model_choices": ["sonnet", "opus", "fable", "claude-haiku-4-5-20251001"]},
+    {"id": "gemini-cli",  "name": "Gemini CLI",  "cmd": "gemini",  "args": ["--prompt"], "supports_model": True,  "model_hint": "", "model_choices": ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.0-flash-lite"]},
+    {"id": "ollama-cli",  "name": "Ollama CLI",  "cmd": "ollama",  "args": ["run"],      "supports_model": True,  "model_hint": "llama3.1", "model_choices": []},
+    {"id": "sgpt-cli",    "name": "shell-gpt",   "cmd": "sgpt",    "args": [],           "supports_model": False, "model_hint": "", "model_choices": []},
+    {"id": "aichat-cli",  "name": "aichat",      "cmd": "aichat",  "args": [],           "supports_model": False, "model_hint": "", "model_choices": []},
+    {"id": "llm-cli",     "name": "llm",         "cmd": "llm",     "args": [],           "supports_model": False, "model_hint": "", "model_choices": []},
+    {"id": "gpt4all-cli", "name": "GPT4All CLI", "cmd": "gpt4all", "args": [],           "supports_model": False, "model_hint": "", "model_choices": []},
+    {"id": "codex-cli",   "name": "Codex CLI",   "cmd": "codex",   "args": [],           "supports_model": True,  "model_hint": "gpt-5-codex", "model_choices": []},
+    {"id": "mods-cli",    "name": "mods",        "cmd": "mods",    "args": [],           "supports_model": False, "model_hint": "", "model_choices": []},
+    {"id": "tgpt-cli",    "name": "tgpt",        "cmd": "tgpt",    "args": [],           "supports_model": False, "model_hint": "", "model_choices": []},
 ]
+
+
+# Desktop's own direct chat turn (not the public page, which does its own
+# equivalent parsing in apps/mvmai/api.py after calling cli_chat() with
+# offer_run_command left False — see _cli_tool_instructions there). CLI
+# providers only understand plain text, so run_command is offered the same
+# way: describe it in the prompt and look for a fenced reply block naming it.
+_CLI_TOOL_CALL_RE = re.compile(r"```mvmai_tool_call\s*\n(.*?)```", re.DOTALL)
+
+
+def _cli_tool_instructions() -> str:
+    fn = _TOOLS[0]["function"]
+    props = fn["parameters"]["properties"]
+    args_desc = ", ".join(f"{k} ({v.get('type', 'string')})" for k, v in props.items())
+    return (
+        f"You can call the following tool when it helps answer the request:\n"
+        f"- {fn['name']}: {fn['description']} Arguments: {args_desc}.\n"
+        "To call it, output ONLY a fenced code block labeled mvmai_tool_call containing a JSON "
+        "object with \"name\" and \"arguments\" keys, e.g.:\n"
+        "```mvmai_tool_call\n{\"name\": \"run_command\", \"arguments\": {\"command\": \"...\", \"reason\": \"...\"}}\n```\n"
+        "Only include that block when you actually want to run a command. Otherwise just answer normally in plain text."
+    )
 
 
 def _which(cmd: str) -> str | None:
@@ -325,6 +364,20 @@ async def cli_providers(session=Depends(get_current_session)):
 class CliChatRequest(BaseModel):
     provider_id: str
     messages: list
+    # None = read the saved model from cfg (desktop chat, unchanged
+    # behavior); an explicit value (including "") lets a caller like the
+    # public-page chat pass an already-resolved model without it being
+    # silently overwritten by the desktop's own saved model for a
+    # different provider.
+    model: str | None = None
+    # Opt-in only, and only ever set by the desktop's own direct calls
+    # (apps/mvmai/public/main.js) when its exec_enabled cfg is on. The
+    # public-page router (apps/mvmai/api.py) never sets this — it already
+    # flattens its own tool instructions into `messages` before calling
+    # cli_chat() and parses the reply itself, so this must stay False there
+    # or run_command would be described twice and the tool_calls this
+    # produces would go unread by that caller.
+    offer_run_command: bool = False
 
 
 @router.post("/cli-chat")
@@ -338,6 +391,8 @@ async def cli_chat(body: CliChatRequest, session=Depends(get_current_session)):
 
     # Build conversation as a single prompt with history
     parts = []
+    if body.offer_run_command:
+        parts.append(f"[System]: {_cli_tool_instructions()}")
     for m in body.messages:
         role = m.get("role", "")
         content = m.get("content") or ""
@@ -349,18 +404,26 @@ async def cli_chat(body: CliChatRequest, session=Depends(get_current_session)):
             parts.append(f"[User]: {content}")
         elif role == "assistant":
             parts.append(f"[Assistant]: {content}")
+        elif role == "tool":
+            parts.append(f"[Tool result]: {content}")
     prompt = "\n".join(parts)
 
     pid = body.provider_id
+    model = body.model if body.model is not None else _read_cfg().get("model")
     if pid == "claude-cli":
-        cmd = [cmd_bin, "--print", prompt]
+        cmd = [cmd_bin] + (["--model", model] if model else []) + ["--print", prompt]
     elif pid == "gemini-cli":
-        cmd = [cmd_bin, "--prompt", prompt]
+        cmd = [cmd_bin] + (["--model", model] if model else []) + ["--prompt", prompt]
     elif pid == "ollama-cli":
-        # ollama run <model> needs model from cfg
-        cfg = _read_cfg()
-        model = cfg.get("model") or "llama3.1"
-        cmd = [cmd_bin, "run", model, prompt]
+        cmd = [cmd_bin, "run", model or "llama3.1", prompt]
+    elif pid == "codex-cli":
+        # Always read-only: codex exec is a single non-interactive process
+        # with no confirmation hook mvmAI could intercept, so any real
+        # file/shell access here would silently bypass confirm_mode and
+        # allow_dangerous. Command execution for every provider, including
+        # Codex, stays exclusively behind mvmAI's own run_command tool,
+        # same "text in, text out" contract as claude-cli/gemini-cli.
+        cmd = [cmd_bin, "exec", "--sandbox", "read-only"] + (["--model", model] if model else []) + [prompt]
     else:
         cmd = [cmd_bin] + provider["args"] + [prompt]
 
@@ -369,7 +432,29 @@ async def cli_chat(body: CliChatRequest, session=Depends(get_current_session)):
         if proc.returncode != 0 and not proc.stdout.strip():
             err = proc.stderr.strip() or f"exit code {proc.returncode}"
             return JSONResponse({"error": err}, status_code=502)
-        return JSONResponse({"content": proc.stdout.strip()})
+        content = proc.stdout.strip()
+        if body.offer_run_command:
+            m = _CLI_TOOL_CALL_RE.search(content)
+            if m:
+                name = ""
+                arguments = {}
+                try:
+                    parsed = json.loads(m.group(1))
+                    name = str(parsed.get("name") or "")
+                    arguments = parsed.get("arguments") or {}
+                except Exception:
+                    pass
+                if name == "run_command":
+                    rest = (content[:m.start()] + content[m.end():]).strip()
+                    return JSONResponse({
+                        "content": rest or None,
+                        "tool_calls": [{
+                            "id": "cli-call-1",
+                            "type": "function",
+                            "function": {"name": name, "arguments": json.dumps(arguments)},
+                        }],
+                    })
+        return JSONResponse({"content": content})
     except subprocess.TimeoutExpired:
         return JSONResponse({"error": "CLI timed out after 120s"}, status_code=504)
     except Exception as e:
