@@ -5,6 +5,11 @@
       "title": "Personal data bridge",
       "short": "Ask mvmAI to read or change your own data in other apps",
       "description": "mvmAI can act on the apps you have installed — add a budget transaction, check how many files are in your cloud, and anything else those apps expose to Apps Hub — but only for your own account. It automatically picks up any new action an app adds, and it can never see or touch another user's data. Without a subscription the assistant answers with a plain chat only and has no access to your data in other apps."
+    },
+    {
+      "title": "Public page AI",
+      "short": "Use a different AI provider and model for the public page",
+      "description": "mvmAI's public page can talk to a different provider and model than the desktop app — for example, a cheaper or faster model for anonymous visitors while the desktop keeps a stronger one for the administrator. Without a subscription the public page always uses the same provider and model configured for the desktop."
     }
   ]
 }
