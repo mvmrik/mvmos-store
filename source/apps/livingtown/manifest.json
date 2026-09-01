@@ -1,0 +1,15 @@
+{
+  "id": "livingtown",
+  "name": "Living Town",
+  "icon": "🏘️",
+  "category": "Games",
+  "tags": ["simulation", "city building", "transport", "people", "games"],
+  "version": "0.4.0",
+  "min_core_version": "0.37.0",
+  "description": "Guide a town that builds itself. Zone land, shape roads and public services, and follow every resident through work, travel, family and ownership.",
+  "entry": "main.js",
+  "multiplayer": false,
+  "max_players": 1,
+  "themed": true,
+  "public_directory": false
+}

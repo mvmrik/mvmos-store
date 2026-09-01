@@ -1,0 +1,26 @@
+{
+  "tagline": "Zone the land and serve the people; every home, business and journey belongs to a real resident.",
+  "description": "Living Town is an early playable foundation for a people-first town simulation. You do not place private homes and companies. You draw roads, designate residential and business land, and build the public services that make settlement possible. The residents decide what happens next.\n\nThe town begins with two partners in one small home. Each is a persistent person with an age, money, household, workplace, current destination and history. They walk through the visible world to work, return home, earn and spend money, grow older and make their own decisions. Time is deliberately accelerated in this first prototype so a life can be observed rather than merely described.\n\nPrivate construction belongs to the population. When demand and money justify it, residents claim suitable zoned land, finance a building and physically travel to its construction site. Finished homes can be occupied or rented; finished businesses publish real jobs and pay real wages. The summary numbers in the interface are derived from those people and buildings rather than replacing them.\n\nThe player controls the shared environment: roads, residential and business zones, a clinic, police station and fire station. Public buildings consume treasury funds, hire residents from the same labour market and have concrete capacity. They are the first part of a larger service system in which incidents, vehicles and response time will matter instead of passive coverage bonuses.\n\nThis version is intentionally a foundation. It establishes the persistent population model, autonomous goals, visible travel, zoning, private construction, employment, household money and municipal staffing on the same large, pannable map used by Stonehold. Transport vehicles, incidents, family growth and deeper supply-and-demand markets are the next systems to grow from it.",
+  "capabilities": [
+    "A 4200 by 4200 world with smooth pan, wheel zoom, touch drag and a home view.",
+    "Two persistent founding residents with names, ages, money, partnership, home, work, current goal and a personal event history.",
+    "Autonomous daily decisions: residents choose work, home, construction and idle goals and walk to them without direct orders.",
+    "Player-drawn roads and residential or business zones rather than direct placement of private buildings.",
+    "Resident-funded private construction on suitable zoned land, with visible progress performed by actual people.",
+    "Homes, workplaces, ownership, rent, salaries, jobs and a municipal treasury represented as connected systems.",
+    "Player-built clinic, police and fire stations that advertise jobs and work only when real residents staff them.",
+    "Click any visible resident or building to inspect exactly who they are, where they are going and why.",
+    "Continuous solo saving through Game Hub, preserving the complete town between sessions.",
+    "A deliberately accelerated calendar for observing aging and the town's early development during a normal play session."
+  ],
+  "integrations": [
+    {
+      "app": "gamehub",
+      "name": "Game Hub",
+      "kind": "gamehub",
+      "direction": "consumes",
+      "summary": "Living Town runs on its public Game Hub page, which provides the player identity, solo room and persistent save.",
+      "requires": "Game Hub is required. The launcher offers to install it when missing."
+    }
+  ]
+}

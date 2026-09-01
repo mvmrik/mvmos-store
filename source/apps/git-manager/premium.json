@@ -1,0 +1,11 @@
+{
+  "summary": "Manage repositories from every system profile without switching accounts.",
+  "features": [
+    {
+      "title": "Cross-profile repository access",
+      "short": "Unlock every repository from one profile",
+      "description": "Git Manager always shows that repositories owned by other system profiles exist, but keeps their status, history, files, remotes and actions locked. With Premium, a sudo-capable user confirms their own password once and unlocks every repository for the current mvmOS session, while each Git command still runs as the repository's real owner. Without Premium, nothing is lost: sign in to the corresponding owner profile and manage the same repository there."
+    }
+  ]
+}
+

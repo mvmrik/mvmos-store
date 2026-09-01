@@ -2,10 +2,12 @@
 
 (function() {
 
+function start() {
+
 var t = window.t || function(k) { return k; };
 
 var GM = {
-  state: { repos: [], activeRepo: null, currentUser: '' },
+  state: { repos: [], activeRepo: null, currentUser: '', foreignAccess: {} },
   body: null,
   listEl: null,
   contentEl: null,
@@ -25,18 +27,6 @@ GM.api = async function(path, opts) {
   return data;
 };
 
-
-// Write API — проверява owner преди заявката, пита requireRoot ако трябва
-GM.writeApi = async function(path, json, repo) {
-  if (repo && repo.owner && repo.owner !== GM.state.currentUser) {
-    var ok = await mvmOS.requireRoot(
-      t('gm_title'),
-      t('gm_owned_by_msg', { name: repo.name, owner: repo.owner })
-    );
-    if (!ok) throw new Error('cancelled');
-  }
-  return await GM.api(path, { method: 'POST', json: json });
-};
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
@@ -63,7 +53,6 @@ GM.init = function(body) {
     + '</div>';
 
   var sidebar = body.querySelector('#gm-sidebar');
-  var content = body.querySelector('#gm-content');
   var view = body.querySelector('#gm-view');
 
   GM.listEl = sidebar.querySelector('#gm-repo-list');
@@ -75,7 +64,7 @@ GM.init = function(body) {
   sidebar.querySelector('#gm-ssh-btn').addEventListener('click', function() {
     GM.state.activeRepo = null;
     GM.renderSidebar();
-    GM.showSSH(content);
+    GM.showSSH(GM.contentEl);
   });
 
   mvmOS.initMobileSidebar(body);
@@ -101,11 +90,16 @@ GM.loadRepos = async function() {
   try {
     var _reposData = await GM.api('/repos');
     GM.state.currentUser = _reposData.current_user || '';
+    GM.state.foreignAccess = _reposData.foreign_access || {};
     GM.state.repos = _reposData.repos || _reposData;
     GM.renderSidebar();
     if (GM.state.activeRepo) {
       var still = GM.state.repos.filter(function(r) { return r.path === GM.state.activeRepo.path; })[0];
-      if (still) GM.showRepoView(GM.contentEl, still);
+      if (still) {
+        GM.state.activeRepo = still;
+        if (still.locked) GM.showLockedRepo(GM.contentEl, still);
+        else GM.showRepoView(GM.contentEl, still);
+      }
     }
   } catch(e) {
     GM.listEl.innerHTML = '<div style="padding:14px 10px;color:#f38ba8;font-size:.8rem">' + e.message + '</div>';
@@ -122,13 +116,17 @@ GM.renderSidebar = function() {
   GM.state.repos.forEach(function(repo) {
     var active = GM.state.activeRepo && GM.state.activeRepo.path === repo.path;
     var item = document.createElement('div');
-    item.style.cssText = 'padding:7px 10px 7px 12px;cursor:pointer;border-bottom:1px solid var(--border);' + (active ? 'background:var(--accent-dim,rgba(99,102,241,.15))' : '');
+    item.style.cssText = 'padding:7px 10px 7px 12px;cursor:pointer;border-bottom:1px solid var(--border);'
+      + (repo.locked ? 'opacity:.62;' : '')
+      + (active ? 'background:var(--accent-dim,rgba(99,102,241,.15))' : '');
     item.dataset.gmPath = repo.path;
     item.innerHTML = '<div style="display:flex;align-items:center;gap:5px;pointer-events:none">'
       + '<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;font-size:.83rem">' + repo.name + '</span>'
+      + (repo.locked ? '<span style="font-size:.72rem;flex-shrink:0" title="' + t('gm_locked') + '">&#x1F512;</span>' : '')
       + (repo.changes > 0 ? '<span style="font-size:.68rem;background:var(--accent);color:#fff;border-radius:10px;padding:1px 5px;flex-shrink:0">' + repo.changes + '</span>' : '')
       + '</div>'
-      + '<div style="font-size:.72rem;color:var(--text-dim);margin-top:2px;pointer-events:none">&#x1F33F; ' + repo.branch + '</div>';
+      + '<div style="font-size:.72rem;color:var(--text-dim);margin-top:2px;pointer-events:none">'
+      + (repo.locked ? t('gm_owned_by', { owner: repo.owner }) : '&#x1F33F; ' + repo.branch) + '</div>';
     list.appendChild(item);
   });
 
@@ -140,8 +138,63 @@ GM.renderSidebar = function() {
     if (!repo) return;
     GM.state.activeRepo = repo;
     GM.renderSidebar();
-    GM.showRepoView(GM.contentEl, repo);
+    if (repo.locked) GM.showLockedRepo(GM.contentEl, repo);
+    else GM.showRepoView(GM.contentEl, repo, true);
   };
+};
+
+GM.showLockedRepo = function(container, repo) {
+  var access = GM.state.foreignAccess || {};
+  container.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface)">'
+    + '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.9rem">' + repo.name + '</div>'
+    + '<div style="font-size:.72rem;color:var(--text-dim);margin-top:1px">' + t('gm_owned_by', { owner: repo.owner }) + '</div></div>'
+    + '<span style="font-size:.75rem;background:var(--surface2,#313244);border-radius:12px;padding:3px 9px">&#x1F512; ' + t('gm_locked') + '</span></div>'
+    + '<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:24px">'
+    + '<div style="max-width:480px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px">'
+    + '<div style="font-size:2.8rem;opacity:.65">&#x1F512;</div>'
+    + '<div style="font-size:1rem;font-weight:700">' + t('gm_foreign_locked_title') + '</div>'
+    + '<div style="font-size:.84rem;line-height:1.55;color:var(--text-dim)">' + t('gm_foreign_locked_body', { owner: repo.owner }) + '</div>'
+    + (access.premium ? '' : '<div style="font-size:.78rem;line-height:1.5;color:var(--text-dim);padding:8px 12px;background:var(--surface2,#313244);border-radius:7px">' + t('gm_foreign_switch_profile', { owner: repo.owner }) + '</div>')
+    + '<div id="gm-unlock-error" style="font-size:.8rem;color:#f38ba8;min-height:18px"></div>'
+    + '<button id="gm-unlock-all" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">'
+    + (access.premium ? '&#x1F513; ' + t('gm_unlock_all') : '&#x1F48E; ' + t('gm_unlock_premium')) + '</button>'
+    + '</div></div>';
+  container.style.display = 'flex';
+  container.style.flexDirection = 'column';
+
+  var btn = container.querySelector('#gm-unlock-all');
+  var err = container.querySelector('#gm-unlock-error');
+  if (!access.premium) {
+    btn.addEventListener('click', function() {
+      window.dispatchEvent(new CustomEvent('open-subscription-settings'));
+    });
+    if (window.mvmOS && window.mvmOS.premiumGate) {
+      window.mvmOS.premiumGate(btn, t('gm_foreign_premium_info'));
+    }
+    return;
+  }
+  if (!access.can_unlock) {
+    btn.disabled = true;
+    btn.style.opacity = '.5';
+    err.textContent = t('gm_unlock_no_sudo');
+    return;
+  }
+  btn.addEventListener('click', async function() {
+    var password = await mvmOS.confirmPassword(t('gm_unlock_title'), t('gm_unlock_password_info'));
+    if (!password) return;
+    btn.disabled = true;
+    btn.textContent = t('gm_unlocking');
+    err.textContent = '';
+    try {
+      await GM.api('/repo/unlock', { method: 'POST', json: { password: password } });
+      mvmOS.notify(t('gm_title'), t('gm_unlocked_all'));
+      await GM.loadRepos();
+    } catch(e) {
+      err.textContent = e.message;
+      btn.disabled = false;
+      btn.innerHTML = '&#x1F513; ' + t('gm_unlock_all');
+    }
+  });
 };
 
 // ── Clone dialog ──────────────────────────────────────────────────────────────
@@ -230,8 +283,9 @@ GM.showInit = function() {
 
 // ── Repo view ─────────────────────────────────────────────────────────────────
 
-GM.showRepoView = function(container, repo) {
+GM.showRepoView = function(container, repo, autoFetch) {
   var tab = 'status';
+  var lastStatusSignature = null;
 
   container.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)">'
     + '<div style="flex:1;min-width:0">'
@@ -278,7 +332,8 @@ GM.showRepoView = function(container, repo) {
       var r = await GM.api('/repo/' + action, { method: 'POST', json: { path: repo.path } });
       out.textContent = r.output || t('gm_done');
       out.style.color = '#a6e3a1';
-      if (action === 'pull' || action === 'fetch' || action === 'push') { loadStatus(); GM.loadRepos(); }
+      if (action === 'fetch') loadStatus(true);
+      else if (action === 'pull' || action === 'push') { loadStatus(); GM.loadRepos(); }
     } catch(e) {
       out.textContent = e.message; out.style.color = '#f38ba8';
     } finally {
@@ -304,12 +359,15 @@ GM.showRepoView = function(container, repo) {
     }
   }
 
-  async function loadStatus() {
+  async function loadStatus(onlyIfChanged) {
     var tc = container.querySelector('#gm-tab-content');
     if (!tc) return;
-    tc.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem;opacity:.7">' + t('gm_loading') + '</div>';
+    if (!onlyIfChanged) tc.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem;opacity:.7">' + t('gm_loading') + '</div>';
     try {
       var s = await GM.api('/repo/status?path=' + encodeURIComponent(repo.path));
+      var statusSignature = JSON.stringify(s);
+      if (onlyIfChanged && statusSignature === lastStatusSignature) return;
+      lastStatusSignature = statusSignature;
 
       var syncInfo = container.querySelector('#gm-sync-info');
       if (syncInfo) {
@@ -499,7 +557,8 @@ GM.showRepoView = function(container, repo) {
     setTimeout(function() { document.addEventListener('click', close); }, 0);
   });
 
-  loadStatus();
+  var initialStatus = loadStatus();
+  if (autoFetch) initialStatus.then(function() { doAction('fetch'); });
 };
 
 // ── SSH view ──────────────────────────────────────────────────────────────────
@@ -645,5 +704,17 @@ mvmOS.registerApp({
     });
   }
 });
+
+}
+
+if (window.GIT_MANAGER_I18N) {
+  start();
+} else {
+  var i18nScript = document.createElement('script');
+  i18nScript.src = '/apps/git-manager/i18n.js?_=' + Date.now();
+  i18nScript.onload = start;
+  i18nScript.onerror = start;
+  document.head.appendChild(i18nScript);
+}
 
 })();
