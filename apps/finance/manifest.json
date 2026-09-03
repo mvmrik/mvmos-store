@@ -27,6 +27,23 @@
         "sharing",
         "expenses"
       ]
+    },
+    {
+      "id": "mvmcrypto",
+      "name": "mvmCrypto",
+      "icon": "🪙",
+      "category": "Finance",
+      "version": "1.2.0",
+      "description": "Encrypted seed phrase vault and multi-network portfolio tracker, with one-time secure sharing and a built-in Bitcoin explorer.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/finance/mvmcrypto-1.2.0.zip",
+      "tags": [
+        "bitcoin",
+        "crypto",
+        "security",
+        "wallet",
+        "encryption"
+      ],
+      "min_core_version": "0.41.0-beta"
     }
   ]
 }

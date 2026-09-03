@@ -73,6 +73,23 @@
         "games"
       ],
       "min_core_version": "0.37.0"
+    },
+    {
+      "id": "livingtown",
+      "name": "Living Town",
+      "icon": "🏘️",
+      "category": "Games",
+      "version": "0.5.0",
+      "description": "Zone land, draw roads and build public services for a town that grows itself — every resident is a persistent person with a home, a job and a life of their own.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/livingtown-0.5.0.zip",
+      "tags": [
+        "simulation",
+        "city building",
+        "transport",
+        "people",
+        "games"
+      ],
+      "min_core_version": "0.37.0"
     }
   ]
 }
