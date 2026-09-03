@@ -8,10 +8,11 @@
 
   let B, town, root, canvas, g, hud, tools, subtools, panel, toast, eventButton, eventLog;
   let unreadEvents = 0;
+  let eventPreviewTimer = 0, eventPreviewVisible = false;
   let pending = null, raf = 0, last = 0, paused = false, pushClock = 0, hudClock = 0;
   let speed = loadSpeed();
   let selected = null, mode = null, category = null, zoneStart = null, zoneHover = null;
-  let roadShape = 'straight', roadRotation = 0, roadHoverCell = null;
+  let roadShape = 'straight', roadRotation = 0, roadHoverCell = null, roadHoverPoint = null;
   let lineDraft = null;
   let pointer = null, moved = 0;
   const cam = { x: 2100, y: 2100, z: 2.4 };
@@ -20,20 +21,15 @@
   // later multi-cell buildings all speak one spatial language.
   const CELL = 70;
   const SUB = CELL / 6;
-  // A person converging exactly onto a road corner every frame would re-erase
-  // separatePedestrians()'s sideways push the moment it happens, since two
-  // housemates walking the same route recompute the same exact target and
-  // snap straight back onto it. Stopping a little short of each corner (as
-  // Stonehold's walkers already do with their own "reach" tolerance) lets the
-  // push actually stick instead of being fought every frame. Only the final
-  // step into a building still lands exactly, since that point is a door, not
-  // a shared stretch of road.
-  const ARRIVE = SUB * 0.35;
   const dpr = () => window.devicePixelRatio || 1;
   const world = () => B.world_size;
   const person = id => town.people.find(p => p.id === id);
   const building = id => town.buildings.find(b => b.id === id);
   const age = p => Math.floor((p.age_days || 0) / 365);
+  // Chance of dying at some point during each complete ten-year age band.
+  // These are cohort probabilities, not annual rolls: each person draws once
+  // on entering a band and, when selected, receives one persistent death age.
+  const MORTALITY_BANDS = [.006, .003, .007, .013, .033, .085, .18, .33, .65, .94];
   const money = n => '¤' + Math.round(n || 0).toLocaleString();
   const dayPart = () => town.day - Math.floor(town.day);
   const isWorkTime = () => {
@@ -90,7 +86,10 @@
   // their tangent is exactly perpendicular to the edge it crosses, the same
   // tangent a straight piece has crossing that edge, so the lane colouring
   // (asphalt/sidewalk/grass) lines up perfectly across the joint too.
-  const ROAD_SHAPES = { straight: ['W', 'E'], corner: ['N', 'E'], diagonal: ['N', 'E'] };
+  const ROAD_SHAPES = {
+    straight: ['W', 'E'], corner: ['N', 'E'], diagonal: ['N', 'E'],
+    tee: ['W', 'E', 'N'], cross: ['W', 'E', 'N', 'S'],
+  };
   const EDGE_CW = { N: 'E', E: 'S', S: 'W', W: 'N' };
   function rotateEdge(edge, steps) {
     let e = edge;
@@ -99,7 +98,7 @@
   }
   function pieceEdges(shape, rotation) {
     const base = ROAD_SHAPES[shape] || ROAD_SHAPES.straight;
-    return [rotateEdge(base[0], rotation), rotateEdge(base[1], rotation)];
+    return base.map(edge => rotateEdge(edge, rotation));
   }
   function edgeMidpoint(cell, edge) {
     const x0 = cell.gx * CELL, y0 = cell.gy * CELL;
@@ -133,6 +132,17 @@
       path.push({ x: c.x + Math.cos(ang) * radius, y: c.y + Math.sin(ang) * radius });
     }
     return path;
+  }
+  function roadPiecePaths(shape, rotation, cell) {
+    if (shape !== 'tee' && shape !== 'cross') return [roadPieceGeometry(shape, rotation, cell)];
+    const center = cellPoint(cell), edges = pieceEdges(shape, rotation);
+    return edges.map((edge, index) => {
+      const outer = edgeMidpoint(cell, edge);
+      // Opposite arms of one-way intersections retain a usable through-flow:
+      // west/north enter the centre and east/south leave it after rotation.
+      const inbound = index === 0 || (shape === 'cross' && index === 2);
+      return inbound ? [outer, center] : [center, outer];
+    });
   }
 
   function roadCrossesCell(road, cell) {
@@ -183,7 +193,8 @@
     panel = root.querySelector('#lt-panel'); toast = root.querySelector('#lt-toast');
     eventButton = root.querySelector('#lt-event-button'); eventLog = root.querySelector('#lt-event-log');
     eventButton.onclick = () => {
-      eventLog.classList.toggle('open'); unreadEvents = 0; renderEvents();
+      eventLog.classList.toggle('open'); unreadEvents = 0; eventPreviewVisible = false;
+      clearTimeout(eventPreviewTimer); renderEvents();
     };
     canvas.addEventListener('pointerdown', onDown);
     canvas.addEventListener('pointermove', onMove);
@@ -208,14 +219,34 @@
     B = msg.tuning; town = msg.state;
     town.busStops = town.busStops || []; town.busLines = town.busLines || [];
     town.buses = town.buses || []; town.cars = town.cars || [];
+    town.crosswalks = town.crosswalks || [];
     town.next_bus_stop = town.next_bus_stop || 1; town.next_bus_line = town.next_bus_line || 1;
     town.next_bus = town.next_bus || 1; town.next_car = town.next_car || 1;
+    town.next_crosswalk = town.next_crosswalk || 1;
     town.transit_version = town.transit_version || 0;
+    // Company cash existed in older saves but had no useful gameplay role.
+    // Move it once to the current owner; an ownerless company's stranded
+    // balance becomes public money instead of remaining inaccessible.
+    for (const b of town.buildings) {
+      if (b.type !== 'shop' || !Number.isFinite(b.cash)) continue;
+      const balance = Math.max(0, b.cash);
+      const owner = person(b.owner);
+      if (owner) owner.money += balance;
+      else town.treasury += balance;
+      delete b.cash;
+    }
     for (const r of town.roads) {
       if (r.speed_kmh == null) r.speed_kmh = roadSpec(r).speed_kmh;
       if (r.dir == null) r.dir = 1;
     }
-    for (const p of town.people) normalizePerson(p);
+    for (const p of town.people) {
+      normalizePerson(p);
+      // Commute plans are derived data. Never trust a plan saved by an older
+      // tuning/code version: movement speed may have changed while the same
+      // game day was in progress, leaving a stale departure time on reload.
+      p._commutePlan = null;
+      p._commuteDay = null;
+    }
     for (const p of town.people) {
       if (p.riding && p.riding.kind === 'car' && !town.cars.some(c => c.id === p.riding.id)) p.riding = null;
       if (p.riding && p.riding.kind === 'bus' && !town.buses.some(b => b.id === p.riding.id)) p.riding = null;
@@ -227,7 +258,8 @@
     normalizeZones();
     fillJobs();
     if (town.founding) mode = 'residential';
-    unreadEvents = 0; renderHud(); renderTools(); renderPanel(); renderEvents(); home();
+    unreadEvents = 0; eventPreviewVisible = false; clearTimeout(eventPreviewTimer);
+    renderHud(); renderTools(); renderPanel(); renderEvents(); home();
     if (town.founding) say(tr('lt_found_prompt'));
     last = performance.now(); paused = false;
     cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
@@ -271,11 +303,48 @@
     if (p.busBoardStop === undefined) p.busBoardStop = null;
     if (p.busAlightStop === undefined) p.busAlightStop = null;
     if (p.busLine === undefined) p.busLine = null;
-    p.route = null; p.routeGoal = null; p.atBuilding = null;
+    ensureMortalityPlan(p);
+    p.route = null; p.routeGoal = null; p.blockedRouteGoal = null; p.atBuilding = null;
     if (!town.roads.length && !p.inside && p.home) p.inside = p.home;
   }
+
+  function ensureMortalityPlan(p) {
+    const years = age(p);
+    if (years >= 100) return;
+    const band = Math.floor(years / 10);
+    if (p.mortality_band === band) return;
+
+    p.mortality_band = band;
+    p.death_age = null;
+    const fullBandRisk = MORTALITY_BANDS[band] || 0;
+    const bandEnd = band * 10 + 9;
+    const yearsRemaining = bandEnd - years + 1;
+    // A migrant or an old save may enter halfway through a band. Give that
+    // person only the corresponding remaining share of the band probability.
+    const remainingRisk = 1 - Math.pow(1 - fullBandRisk, yearsRemaining / 10);
+    if (Math.random() >= remainingRisk) return;
+
+    // Later ages within the remaining band carry progressively more weight.
+    // The chosen value is stored, so redraws cannot happen on frames/reloads.
+    const candidates = [];
+    let totalWeight = 0;
+    for (let deathAge = years; deathAge <= bandEnd; deathAge++) {
+      const weight = deathAge - band * 10 + 1;
+      totalWeight += weight;
+      candidates.push({ deathAge, totalWeight });
+    }
+    const roll = Math.random() * totalWeight;
+    p.death_age = candidates.find(candidate => roll < candidate.totalWeight).deathAge;
+  }
   function resetTravel(p) {
-    p.route = null; p.routeGoal = null; p.busBoardStop = null; p.busLine = null; p.busAlightStop = null;
+    p.route = null; p.routeGoal = null; p.blockedRouteGoal = null;
+    p.busBoardStop = null; p.busLine = null; p.busAlightStop = null;
+  }
+  function invalidatePedestrianRoutes() {
+    for (const p of town.people) {
+      p.blockedRouteGoal = null;
+      if (!p.riding && p.waitingAtStop == null) { p.route = null; p.routeGoal = null; }
+    }
   }
 
   function loop(now) {
@@ -294,7 +363,6 @@
     town.day += dt * B.days_per_second * speed;
     town.year = Math.floor(town.day) + 1;
     for (const p of town.people) updatePerson(p, dt);
-    separatePedestrians();
     updateBuses(dt); updateCars(dt);
     for (const b of town.buildings) if ((b.built || 0) < 1 || b.target_development) updateSite(b, dt);
     if (Math.floor(town.day) !== oldDay) newDay(oldDay);
@@ -361,8 +429,8 @@
     const deceasedToday = town.people.filter(p => {
       const years = age(p);
       if (years >= 100) return true;
-      const annualRisk = Math.max(0, Math.min(.99, years / 100));
-      return Math.random() < annualRisk;
+      ensureMortalityPlan(p);
+      return p.death_age != null && years >= p.death_age;
     });
     for (const deceased of deceasedToday) {
       const children = (deceased.children || []).map(person).filter(Boolean);
@@ -397,16 +465,13 @@
       if (b.type === 'shop') updateBusinessScale(b);
       const wage = b.wage || B.work_income;
       if (b.type === 'shop') {
-        b.cash = b.cash == null ? 250 : b.cash;
         b.total_profit = b.total_profit || 0;
         const zone = zoneAt(b), rate = zone ? zone.tax_rate : town.tax_rate;
         const revenue = workers.length * wage * (2.5 + town.people.length * .02);
-        b.cash += revenue;
         const owner = person(b.owner);
         for (const p of workers) {
           const earnsOwnerShare = owner && p.id !== owner.id;
           const employeeTax = wage * rate, ownerTax = earnsOwnerShare ? wage * rate : 0;
-          b.cash -= wage * (earnsOwnerShare ? 2 : 1);
           p.money += wage - employeeTax;
           town.treasury += employeeTax + ownerTax;
           if (earnsOwnerShare) owner.money += wage - ownerTax;
@@ -414,8 +479,9 @@
         const hiredWorkers = workers.filter(p => !owner || p.id !== owner.id).length;
         const profit = Math.max(0, revenue - workers.length * wage - hiredWorkers * wage);
         b.total_profit += profit;
-        const tax = Math.max(0, Math.min(b.cash, profit * rate));
-        b.cash -= tax; town.treasury += tax;
+        const tax = owner ? profit * rate : profit;
+        town.treasury += tax;
+        if (owner) owner.money += profit - tax;
         b.last_profit = profit; b.last_tax = tax;
         const upgradeCost = B.private_build_cost.shop * (b.development + 1);
         if (owner && !b.target_development && b.development < 10 &&
@@ -465,6 +531,7 @@
         age_days: 0, money: 0, partner: null, parents: [mother.id, partner.id], children: [],
         home: mother.home, work: null, x: mother.x, y: mother.y, inside: mother.home,
         goal: null, happiness: B.happiness_start, history: [] };
+      ensureMortalityPlan(child);
       town.people.push(child); mother.children.push(id);
       partner.children = partner.children || []; partner.children.push(id);
       const home = building(mother.home); if (home && !(home.residents || []).includes(id)) home.residents.push(id);
@@ -484,12 +551,13 @@
         age_days: (20 + id % 15) * 365, money: savings, partner: null, parents: [], children: [],
         home: null, work: null, x: arrival.x, y: arrival.y, inside: null, goal: null,
         happiness: B.happiness_start, history: ['lt_hist_founded'] };
-      const resale = vacantHomePurchase(newcomer);
+      ensureMortalityPlan(newcomer);
+      const resale = vacantHomePurchase([newcomer]);
       const purchase = resale ? null : housingOpportunity([newcomer]);
       const rental = (resale || purchase) ? null : rentalOpportunity(newcomer);
       if (!resale && !purchase && !rental) return;
       town.next_person += 1; town.people.push(newcomer);
-      if (resale) buyVacantHome(newcomer, resale);
+      if (resale) buyVacantHome([newcomer], resale);
       else if (purchase) {
         newcomer.inside = 'waiting';
         if (!createPrivate('house', purchase.at, newcomer, purchase.cost, [newcomer])) {
@@ -512,6 +580,7 @@
     }
     if (p.goal.kind === 'build' && p.atBuilding === target.id) return;
     const routeGoal = p.goal.kind + ':' + (target.id || (target.x + ':' + target.y));
+    if (p.blockedRouteGoal === routeGoal) return;
     if (p.inside) {
       if (p.inside !== target.id) {
         if (!p.route || p.routeGoal !== routeGoal) {
@@ -529,7 +598,7 @@
             route = roadRoute(origin, plan.boardStop);
             if (route) { p.busBoardStop = plan.boardStop.id; p.busAlightStop = plan.alightStop.id; p.busLine = plan.line.id; }
           }
-          if (!route) route = roadRoute(origin || p, target);
+          if (!route) route = roadRoute(origin || p, target, true);
           p.route = route; p.routeGoal = routeGoal; p.atBuilding = null;
           if (!p.route) return;
           p.x = p.route[0].x; p.y = p.route[0].y; p.route.shift();
@@ -544,6 +613,10 @@
         }
         if (p.goal.kind === 'home' && p.work) {
           if (isWorkDay() && dayPart() * 24 >= departureHourFor(p) && dayPart() * 24 < B.work_end_hour) p.goal = null;
+          // On a day off, release the persistent "stay home" goal so
+          // chooseGoal() can perform today's park roll and schedule a visit.
+          // A person who does not roll a visit simply chooses home again.
+          else if (!isWorkDay()) p.goal = null;
           return;
         }
         // Calendar time is accelerated, visible actions are not. A resident
@@ -555,29 +628,33 @@
       }
     }
     if (!p.route || p.routeGoal !== routeGoal) {
-      p.route = roadRoute(p, target); p.routeGoal = routeGoal; p.atBuilding = null;
+      p.route = roadRoute(p, target, true); p.routeGoal = routeGoal; p.atBuilding = null;
       if (!p.route) return;
       p.x = p.route[0].x; p.y = p.route[0].y; p.route.shift();
     }
-    // Someone unhappy is a little less eager to hurry - a mild effect, never
-    // more than a quarter slower, so it stays a flavor detail rather than a
-    // real obstacle.
-    const moraleFactor = p.happiness == null ? 1 : .75 + .25 * (p.happiness / 100);
+    // Use the same personal pace that commute planning uses. Otherwise an
+    // unhappy resident would leave home as if walking at full speed and
+    // inevitably arrive late.
+    const moraleFactor = travelPaceFactor(p);
     let left = B.walk_speed * dt * speed * moraleFactor, routeGuard = 0;
     while (p.route.length && left > 0 && routeGuard++ < 100) {
       const next = p.route[0];
-      const tol = p.route.length > 1 ? ARRIVE : .01;
       const dx = next.x - p.x, dy = next.y - p.y, d = Math.hypot(dx, dy);
-      const remaining = d - tol;
-      // Pedestrian separation can leave a walker a floating-point fraction
-      // outside a corner. A tiny step may not change the world coordinates,
-      // so treat it as arrival and keep a hard per-frame safety limit above.
-      if (!Number.isFinite(d) || remaining <= .01) { p.route.shift(); continue; }
-      const travel = Math.min(left, remaining);
-      p.x += dx / d * travel; p.y += dy / d * travel; left -= travel;
+      if (!Number.isFinite(d)) { p.route = []; break; }
+      if (d <= .0001) { p.x = next.x; p.y = next.y; p.route.shift(); continue; }
+      // Curves contain closely spaced samples. Consume every sample exactly;
+      // an arrival radius larger than their spacing skips a whole bend and
+      // makes the walker appear to teleport across it.
+      if (d <= left) {
+        p.x = next.x; p.y = next.y; left -= d; p.route.shift();
+      } else {
+        p.x += dx / d * left; p.y += dy / d * left; left = 0;
+      }
     }
     if (p.route.length) return;
+    const completedRoute = p.route.complete !== false;
     p.route = null; p.routeGoal = null;
+    if (!completedRoute) { p.blockedRouteGoal = routeGoal; return; }
     if (p.busBoardStop != null) { p.waitingAtStop = p.busBoardStop; return; }
     if (p.goal.kind === 'build') { p.atBuilding = target.id; return; }
     if (target.id) {
@@ -608,12 +685,212 @@
   function roadPathBetween(road, from, to) {
     const points = roadPath(road), a = projectToRoad(from, road), b = projectToRoad(to, road);
     const forward = a.t <= b.t, low = Math.min(a.t, b.t), high = Math.max(a.t, b.t);
-    const total = pathLength(points) || 1, result = [a.point]; let travelled = 0;
+    const total = pathLength(points) || 1, middle = []; let travelled = 0;
     for (let i = 1; i < points.length - 1; i++) {
       travelled += dist(points[i - 1], points[i]); const t = travelled / total;
-      if (t > low + 1e-5 && t < high - 1e-5) result.push(points[i]);
+      if (t > low + 1e-5 && t < high - 1e-5) middle.push(points[i]);
     }
-    result.push(b.point); if (!forward) result.reverse(); return result;
+    // Always preserve the requested from -> to endpoints. Reversing the old
+    // complete array also swapped those endpoints, so a walker entering a
+    // curve backwards was teleported straight to its far end.
+    if (!forward) middle.reverse();
+    return [a.point, ...middle, b.point];
+  }
+
+  function shiftedPath(points, offset) {
+    return points.map((point, i) => {
+      const before = points[Math.max(0, i - 1)], after = points[Math.min(points.length - 1, i + 1)];
+      const dx = after.x - before.x, dy = after.y - before.y, length = Math.hypot(dx, dy) || 1;
+      return { x: point.x - dy / length * offset, y: point.y + dx / length * offset };
+    });
+  }
+
+  // Pedestrians have their own graph on the two outer strips. It deliberately
+  // does not contain links across the carriageway; those will only be added
+  // later by an explicit pedestrian-crossing feature.
+  function crosswalkConnection(crossing, segments) {
+    const sidewalkOffset = SUB * 2.5, center = crosswalkCenter(crossing);
+    const vertical = (crossing.rotation || 0) % 2 === 0;
+    const axis = vertical ? { x: 0, y: 1 } : { x: 1, y: 0 };
+    const ends = [-1, 1].map(sign => ({ x: center.x + axis.x * sidewalkOffset * sign,
+      y: center.y + axis.y * sidewalkOffset * sign }));
+    const hits = ends.map(endpoint => {
+      let best = null;
+      for (const segment of segments) {
+        const hit = projectToSegment(endpoint, segment);
+        if (!best || hit.distance < best.distance) best = { segment, point: hit.point, distance: hit.distance };
+      }
+      return best;
+    });
+    if (!hits[0] || !hits[1] || hits[0].distance > SUB || hits[1].distance > SUB ||
+      hits[0].segment.id === hits[1].segment.id) return null;
+    return [hits[0].point, center, hits[1].point];
+  }
+  function crosswalkCenter(crossing) {
+    return Number.isFinite(crossing.x) && Number.isFinite(crossing.y) ?
+      { x: crossing.x, y: crossing.y } : cellPoint(crossing);
+  }
+  function crosswalkCandidate(at, rotation) {
+    let best = null;
+    for (const road of town.roads) {
+      if (roadSpec(road).pedestrian_access === false) continue;
+      const hit = projectToRoad(at, road);
+      if (!best || hit.distance < best.distance) best = hit;
+    }
+    if (!best || best.distance > CELL / 2) return null;
+    const cell = cellAt(best.point);
+    return { gx: cell.gx, gy: cell.gy, x: best.point.x, y: best.point.y, rotation: rotation % 2 };
+  }
+  function sidewalkSegments(includeCrosswalks = true) {
+    const result = [], junctionGroups = new Map(), sidewalkOffset = SUB * 2.5;
+    const add = path => { if (path && path.length > 1) result.push({ id: result.length, path }); };
+    for (const road of town.roads) {
+      if (roadSpec(road).pedestrian_access === false) continue;
+      if (road.piece_group && (road.shape === 'tee' || road.shape === 'cross')) {
+        if (!junctionGroups.has(road.piece_group)) junctionGroups.set(road.piece_group, []);
+        junctionGroups.get(road.piece_group).push(road); continue;
+      }
+      const path = roadPath(road);
+      add(shiftedPath(path, sidewalkOffset)); add(shiftedPath(path, -sidewalkOffset));
+    }
+    for (const parts of junctionGroups.values()) {
+      if (!parts.length || !parts[0].cell) continue;
+      const center = cellPoint(parts[0].cell), arms = [];
+      for (const part of parts) {
+        let path = roadPath(part).slice();
+        if (dist(path[0], center) < dist(path[path.length - 1], center)) path.reverse();
+        const outer = path[0], rayX = outer.x - center.x, rayY = outer.y - center.y;
+        const rayLength = Math.hypot(rayX, rayY) || 1;
+        // A junction arm's sidewalk must stop at the outside edge of the
+        // crossing corridor, not continue to the green centre of the cell.
+        path[path.length - 1] = {
+          x: center.x + rayX / rayLength * sidewalkOffset,
+          y: center.y + rayY / rayLength * sidewalkOffset,
+        };
+        const plus = shiftedPath(path, sidewalkOffset), minus = shiftedPath(path, -sidewalkOffset);
+        add(plus); add(minus);
+        arms.push({ angle: Math.atan2(outer.y - center.y, outer.x - center.x), plus: plus[plus.length - 1], minus: minus[minus.length - 1] });
+      }
+      arms.sort((a, b) => a.angle - b.angle);
+      for (let i = 0; i < arms.length; i++) {
+        const current = arms[i], next = arms[(i + 1) % arms.length];
+        let delta = next.angle - current.angle;
+        if (delta <= 0) delta += Math.PI * 2;
+        // Adjacent arms already meet at the same outside corner. Across the
+        // missing arm of a T they form the uninterrupted back sidewalk.
+        // At a four-way junction the four corner pairs remain disconnected
+        // until actual pedestrian crossings are introduced.
+        add([current.minus, next.plus]);
+      }
+    }
+    if (includeCrosswalks) {
+      const base = result.slice();
+      for (const crossing of town.crosswalks) {
+        const connection = crosswalkConnection(crossing, base);
+        if (connection) add(connection);
+      }
+    }
+    return result;
+  }
+
+  function projectToSegment(at, segment) { return projectToRoad(at, { path: segment.path }); }
+  function sidewalkPathBetween(segment, from, to) {
+    return roadPathBetween({ path: segment.path }, from, to);
+  }
+  function sidewalkAnchor(at, segments) {
+    let origin = at;
+    if (at && at.type && at.id != null) {
+      const access = buildingRoadAccess(at, false);
+      if (!access) return null;
+      origin = access.entrance || access.point;
+    }
+    let best = null;
+    for (const segment of segments) {
+      const hit = projectToSegment(origin, segment);
+      if (!best || hit.distance < best.distance) best = { segment, point: hit.point, distance: hit.distance };
+    }
+    return best;
+  }
+
+  function pedestrianRoute(from, to) {
+    const segments = sidewalkSegments(), start = sidewalkAnchor(from, segments), end = sidewalkAnchor(to, segments);
+    if (!start || !end) return null;
+    if (start.segment.id === end.segment.id) return sidewalkPathBetween(start.segment, start.point, end.point);
+    const nodes = new Map(), edges = new Map();
+    const addNode = point => {
+      for (const [key, existing] of nodes) if (dist(existing, point) < 1) return key;
+      const key = point.x.toFixed(4) + ':' + point.y.toFixed(4); nodes.set(key, point); return key;
+    };
+    const addEdge = (a, b, weight, segment) => {
+      if (!edges.has(a)) edges.set(a, []); if (!edges.has(b)) edges.set(b, []);
+      edges.get(a).push({ to: b, weight, segment }); edges.get(b).push({ to: a, weight, segment });
+    };
+    for (const segment of segments) {
+      const a = addNode(segment.path[0]), b = addNode(segment.path[segment.path.length - 1]);
+      addEdge(a, b, pathLength(segment.path), segment);
+    }
+    // Crosswalks attach to the middle of a sidewalk piece, not necessarily to
+    // its end. Splice every coincident segment endpoint into the carrier path
+    // so stepping off a crossing continues along the sidewalk instead of
+    // leaving the pedestrian on an isolated graph island.
+    for (const connector of segments) {
+      for (const endpoint of [connector.path[0], connector.path[connector.path.length - 1]]) {
+        const endpointKey = addNode(endpoint);
+        for (const carrier of segments) {
+          if (carrier.id === connector.id) continue;
+          const hit = projectToSegment(endpoint, carrier);
+          if (hit.distance >= 1) continue;
+          const hitKey = addNode(hit.point), a = addNode(carrier.path[0]);
+          const b = addNode(carrier.path[carrier.path.length - 1]);
+          addEdge(endpointKey, hitKey, hit.distance, carrier);
+          addEdge(hitKey, a, pathLength(sidewalkPathBetween(carrier, hit.point, carrier.path[0])), carrier);
+          addEdge(hitKey, b, pathLength(sidewalkPathBetween(carrier, hit.point, carrier.path[carrier.path.length - 1])), carrier);
+        }
+      }
+    }
+    const startKey = addNode(start.point), endKey = addNode(end.point);
+    for (const item of [[start, startKey], [end, endKey]]) {
+      const hit = item[0], hitKey = item[1], a = addNode(hit.segment.path[0]);
+      const b = addNode(hit.segment.path[hit.segment.path.length - 1]);
+      addEdge(hitKey, a, dist(hit.point, nodes.get(a)), hit.segment);
+      addEdge(hitKey, b, dist(hit.point, nodes.get(b)), hit.segment);
+    }
+    const scores = new Map([[startKey, 0]]), previous = new Map(), previousSegment = new Map(), open = new Set(nodes.keys());
+    while (open.size) {
+      let current = null, score = Infinity;
+      for (const candidate of open) {
+        const value = scores.get(candidate) ?? Infinity;
+        if (value < score) { current = candidate; score = value; }
+      }
+      if (current == null || current === endKey) break;
+      open.delete(current);
+      for (const edge of (edges.get(current) || [])) {
+        const value = score + edge.weight;
+        if (value < (scores.get(edge.to) ?? Infinity)) {
+          scores.set(edge.to, value); previous.set(edge.to, current); previousSegment.set(edge.to, edge.segment);
+        }
+      }
+    }
+    const complete = scores.has(endKey);
+    let targetKey = endKey;
+    if (!complete) {
+      targetKey = null; let closest = Infinity;
+      for (const candidate of scores.keys()) {
+        const point = nodes.get(candidate), distance = dist(point, end.point);
+        if (distance < closest) { closest = distance; targetKey = candidate; }
+      }
+      if (targetKey == null) return null;
+    }
+    const points = [], used = []; let cursor = targetKey;
+    while (cursor != null) {
+      points.unshift(nodes.get(cursor));
+      const segment = previousSegment.get(cursor); if (segment) used.unshift(segment);
+      cursor = previous.get(cursor);
+    }
+    const expanded = [points[0]];
+    for (let i = 0; i < used.length; i++) expanded.push(...sidewalkPathBetween(used[i], points[i], points[i + 1]).slice(1));
+    expanded.complete = complete;
+    return expanded;
   }
 
   function nearestRoad(at) {
@@ -767,9 +1044,9 @@
     }
     return { points: expanded, roadIds: expandedRoads };
   }
-  function roadRoute(from, to) {
-    const detail = buildRoute(from, to, false);
-    return detail ? detail.points : null;
+  function roadRoute(from, to, allowPartial) {
+    const route = pedestrianRoute(from, to);
+    return route && (route.complete !== false || allowPartial) ? route : null;
   }
   function roadRouteDetailed(from, to) {
     return buildRoute(from, to, true);
@@ -820,10 +1097,9 @@
   }
 
   // Decides whether this person should head to a park right now. Weekends
-  // (or anyone without a job) only need happiness below the "seek" threshold,
-  // since there is plenty of spare time. A workday interrupts work only when
-  // happiness is genuinely low AND the round trip plus the visit still fits
-  // in the free time left before the next work departure or bedtime.
+  // honor the daily happiness roll at its randomly selected hour. A workday
+  // interrupts work only when happiness is genuinely low AND the round trip
+  // plus the visit still fits before the next obligation.
   function considerPark(p) {
     if (!p.home || p.happiness == null) return null;
     if (p.last_park_visit === Math.floor(town.day)) return null;
@@ -843,6 +1119,10 @@
     if (!isFreeDay && p.happiness > B.happiness_urgent_park) return null;
     const trip = planTrip(home, park, p);
     if (!Number.isFinite(trip.hours)) return null;
+    // A successful weekend roll must result in an actual visit. With the
+    // slower city-scale walking speed, applying the weekday bedtime window
+    // here rejected most randomly scheduled visits to a distant park.
+    if (weekend) return park;
     const roundTrip = trip.hours * 2 + B.park_visit_duration;
     return roundTrip <= parkFreeHours(p) ? park : null;
   }
@@ -851,6 +1131,9 @@
   // walk_speed_kmh - every vehicle speed is the same ratio scaled by its own
   // km/h, so a 50 km/h road segment moves a car 10x faster than a pedestrian.
   function vehicleUnitsPerSecond(kmh) { return B.walk_speed * (kmh / B.walk_speed_kmh); }
+  function travelPaceFactor(p) {
+    return p && p.happiness != null ? .75 + .25 * (p.happiness / 100) : 1;
+  }
   // Game time and real time are both scaled by the same `speed` multiplier,
   // so it cancels out of any duration expressed in game-hours: this is the
   // same relationship the original workDepartureHour math relied on.
@@ -858,19 +1141,20 @@
   function routeLength(points) {
     let len = 0; for (let i = 1; i < points.length; i++) len += dist(points[i - 1], points[i]); return len;
   }
-  function hoursForWalk(points) {
+  function hoursForWalk(points, p) {
     if (!points || points.length < 2) return Infinity;
-    return hoursForRealSeconds(routeLength(points) / B.walk_speed);
+    return hoursForRealSeconds(routeLength(points) / (B.walk_speed * travelPaceFactor(p)));
   }
   function roadSpeedKmh(roadId) {
     const road = town.roads.find(r => r.id === roadId);
     return road ? (road.speed_kmh || roadSpec(road).speed_kmh) : B.walk_speed_kmh;
   }
-  function hoursForVehicleRoute(detail) {
+  function hoursForVehicleRoute(detail, driver) {
     if (!detail || detail.points.length < 2) return Infinity;
     let secs = 0;
+    const pace = travelPaceFactor(driver);
     for (let i = 1; i < detail.points.length; i++) {
-      secs += dist(detail.points[i - 1], detail.points[i]) / vehicleUnitsPerSecond(roadSpeedKmh(detail.roadIds[i - 1]));
+      secs += dist(detail.points[i - 1], detail.points[i]) / (vehicleUnitsPerSecond(roadSpeedKmh(detail.roadIds[i - 1])) * pace);
     }
     return hoursForRealSeconds(secs);
   }
@@ -950,7 +1234,7 @@
   // Looks at every line's stops within walking reach of both ends of the
   // trip and picks the board/alight pair with the lowest total time (walk to
   // stop + live wait for the next bus there + ride + walk from alight stop).
-  function bestBusPlan(home, workplace) {
+  function bestBusPlan(home, workplace, p) {
     let best = null;
     for (const line of town.busLines) {
       const stops = lineStops(line); if (stops.length < 2) continue;
@@ -963,8 +1247,8 @@
           const alightPos = stopPositionOnLine(line, alightStop); if (!alightPos) continue;
           const waitSecs = nextArrivalSeconds(line, boardStop); if (!Number.isFinite(waitSecs)) continue;
           const rideSecs = positionSeconds(line, boardPos.segIndex, boardPos.t, alightPos.segIndex, alightPos.t);
-          const walkToBoard = hoursForWalk(roadRoute(home, boardStop));
-          const walkFromAlight = hoursForWalk(roadRoute(alightStop, workplace));
+          const walkToBoard = hoursForWalk(roadRoute(home, boardStop), p);
+          const walkFromAlight = hoursForWalk(roadRoute(alightStop, workplace), p);
           const hours = walkToBoard + hoursForRealSeconds(waitSecs) + hoursForRealSeconds(rideSecs) + walkFromAlight;
           if (Number.isFinite(hours) && (!best || hours < best.hours)) best = { hours, line, boardStop, alightStop };
         }
@@ -977,12 +1261,12 @@
   // buying the car, not something weighed trip by trip. Everyone else always
   // takes whichever of walking or the bus is actually faster.
   function planTrip(originB, destB, p) {
-    const walkHours = hoursForWalk(roadRoute(originB, destB));
+    const walkHours = hoursForWalk(roadRoute(originB, destB), p);
     if (p.car) {
-      const carHours = hoursForVehicleRoute(roadRouteDetailed(originB, destB));
+      const carHours = hoursForVehicleRoute(roadRouteDetailed(originB, destB), p);
       if (Number.isFinite(carHours)) return { mode: 'car', hours: carHours };
     }
-    const busPlan = bestBusPlan(originB, destB);
+    const busPlan = bestBusPlan(originB, destB, p);
     if (busPlan && busPlan.hours < walkHours) return { mode: 'bus', hours: busPlan.hours, line: busPlan.line, boardStop: busPlan.boardStop, alightStop: busPlan.alightStop };
     return { mode: 'walk', hours: walkHours };
   }
@@ -1028,28 +1312,6 @@
       if (b.type === 'shop') updateBusinessScale(b);
       else { updateHomeScale(b); houseExistingResidents(); }
       addEvent('lt_event_finished', { name: b.name }); fillJobs();
-    }
-  }
-
-  function separatePedestrians() {
-    const walkers = town.people.filter(p => !p.inside);
-    const minimum = SUB * .58;
-    for (let pass = 0; pass < 2; pass++) {
-      for (let i = 0; i < walkers.length; i++) for (let j = i + 1; j < walkers.length; j++) {
-        const a = walkers[i], b = walkers[j];
-        let dx = b.x - a.x, dy = b.y - a.y, distance = Math.hypot(dx, dy);
-        if (distance >= minimum) continue;
-        const overlapping = distance < .001;
-        if (overlapping) {
-          const next = b.route && b.route[0];
-          const tx = next ? next.x - b.x : 1, ty = next ? next.y - b.y : 0;
-          const length = Math.hypot(tx, ty) || 1;
-          dx = -ty / length; dy = tx / length;
-        } else { dx /= distance; dy /= distance; }
-        const shift = (minimum - (overlapping ? 0 : distance)) / 2 + .01;
-        a.x -= dx * shift; a.y -= dy * shift;
-        b.x += dx * shift; b.y += dy * shift;
-      }
     }
   }
 
@@ -1172,7 +1434,7 @@
     // effect as the pedestrian's moraleFactor, capped at a quarter slower.
     // Buses have no individual driver, so they never get this penalty.
     const driver = person(car.ownerId);
-    const moraleFactor = driver && driver.happiness != null ? .75 + .25 * (driver.happiness / 100) : 1;
+    const moraleFactor = travelPaceFactor(driver);
     let budget = dt, guard = 0;
     while (budget > 0 && guard++ < 50) {
       if (car.seg >= car.points.length - 1) { arriveCar(car); return; }
@@ -1235,7 +1497,7 @@
   function buyBus(lineId) {
     const line = town.busLines.find(l => l.id === lineId); if (!line) return;
     const spec = B.bus_types[line.tier];
-    if (town.treasury < spec.cost) return say(tr('lt_no_money'));
+    if (town.treasury < spec.cost) return say(tr('lt_no_money_cost', { price: money(spec.cost), have: money(town.treasury) }));
     town.treasury -= spec.cost;
     const start = line.points[0];
     town.buses.push({ id: town.next_bus++, lineId, tier: line.tier, seg: 0, segT: 0,
@@ -1246,7 +1508,7 @@
     const line = town.busLines.find(l => l.id === lineId); if (!line || !B.bus_types[tier]) return;
     const buses = town.buses.filter(b => b.lineId === lineId);
     const cost = B.bus_types[tier].cost * Math.max(1, buses.length);
-    if (town.treasury < cost) return say(tr('lt_no_money'));
+    if (town.treasury < cost) return say(tr('lt_no_money_cost', { price: money(cost), have: money(town.treasury) }));
     town.treasury -= cost; line.tier = tier;
     for (const bus of buses) { bus.tier = tier; bus.capacity = B.bus_types[tier].capacity; }
     say(tr('lt_bus_upgraded')); town.transit_version++; push(); renderPanel(); renderHud();
@@ -1338,23 +1600,46 @@
     return value;
   }
 
-  function vacantHomePurchase(buyer) {
+  function vacantHomePurchase(buyers) {
+    buyers = Array.isArray(buyers) ? buyers.filter(Boolean) : [buyers].filter(Boolean);
+    const availableMoney = buyers.reduce((sum, buyer) => sum + Math.max(0, buyer.money), 0);
     return town.buildings.filter(home => home.type === 'house' && home.built >= 1 && !home.target_development &&
       !(home.residents || []).length && buildingRoadAccess(home))
-      .map(home => ({ home, price: homeValue(home) }))
-      .filter(option => buyer.money >= option.price)
-      .sort((a, b) => a.price - b.price)[0] || null;
+      .map(home => {
+        const ownerIds = home.owners && home.owners.length ? home.owners : [home.owner];
+        const sellers = ownerIds.map(person).filter(Boolean);
+        // An ownerless home costs exactly what a new home in this zone would
+        // cost today. Owned resale property keeps its normal market value.
+        return { home, sellers, abandoned: !sellers.length,
+          price: sellers.length ? homeValue(home) : homeCostAt(home) };
+      })
+      .filter(option => availableMoney >= option.price)
+      .sort((a, b) => Number(b.abandoned) - Number(a.abandoned) || a.price - b.price)[0] || null;
   }
 
-  function buyVacantHome(buyer, option) {
-    const home = option.home, sellers = (home.owners || [home.owner]).map(person).filter(Boolean);
-    buyer.money -= option.price;
+  function buyVacantHome(buyers, option) {
+    buyers = Array.isArray(buyers) ? buyers.filter(Boolean) : [buyers].filter(Boolean);
+    const buyer = buyers[0], home = option.home;
+    const ownerIds = home.owners && home.owners.length ? home.owners : [home.owner];
+    const sellers = option.sellers || ownerIds.map(person).filter(Boolean);
+    const combined = buyers.reduce((sum, personBuyer) => sum + Math.max(0, personBuyer.money), 0);
+    if (!buyer || combined < option.price) return false;
+    for (const personBuyer of buyers) {
+      personBuyer.money -= option.price * (Math.max(0, personBuyer.money) / combined);
+    }
     if (sellers.length) for (const seller of sellers) seller.money += option.price / sellers.length;
     else town.treasury += option.price;
-    home.owner = buyer.id; home.owners = [buyer.id]; home.residents = [buyer.id];
-    buyer.home = home.id; buyer.rental_home = null; buyer.inside = home.id;
-    buyer.x = home.x; buyer.y = home.y; buyer.goal = null; resetTravel(buyer);
+    home.owner = buyer.id; home.owners = buyers.map(personBuyer => personBuyer.id); home.residents = [];
+    for (const personBuyer of buyers) {
+      const oldHome = building(personBuyer.home);
+      if (oldHome) oldHome.residents = (oldHome.residents || []).filter(id => id !== personBuyer.id);
+      personBuyer.home = home.id; personBuyer.rental_home = null; personBuyer.inside = home.id;
+      personBuyer.x = home.x; personBuyer.y = home.y; personBuyer.goal = null; resetTravel(personBuyer);
+      home.residents.push(personBuyer.id);
+      personBuyer.history.unshift('lt_hist_invested');
+    }
     addEvent('lt_event_home_bought', { person: buyer.name, name: home.name, price: money(option.price) });
+    return true;
   }
 
   function annualRent(home) {
@@ -1429,21 +1714,27 @@
     for (const investor of noWork) {
       const opportunity = businessOpportunity(investor);
       if (!opportunity) continue;
-      createPrivate('shop', opportunity.at, investor, opportunity.cost);
+      if (opportunity.building) buyAbandonedBusiness(investor, opportunity);
+      else createPrivate('shop', opportunity.at, investor, opportunity.cost);
       break;
     }
     const couples = adult.filter(p => p.partner && p.id < p.partner)
       .map(p => [p, person(p.partner)]).filter(pair => pair[1] &&
         (pair[0].home !== pair[1].home || pair[0].rental_home || pair[1].rental_home));
     for (const couple of couples) {
+      const resale = vacantHomePurchase(couple);
+      if (resale) { buyVacantHome(couple, resale); break; }
       const opportunity = housingOpportunity(couple);
-      if (!opportunity) continue;
-      createPrivate('house', opportunity.at, couple[0], opportunity.cost, couple); break;
+      if (opportunity) { createPrivate('house', opportunity.at, couple[0], opportunity.cost, couple); break; }
     }
     const housingSeeker = adult.find(p => (!p.home || p.rental_home) && !p.partner);
     if (housingSeeker) {
-      const opportunity = housingOpportunity([housingSeeker]);
-      if (opportunity) createPrivate('house', opportunity.at, housingSeeker, opportunity.cost, [housingSeeker]);
+      const resale = vacantHomePurchase([housingSeeker]);
+      if (resale) buyVacantHome([housingSeeker], resale);
+      else {
+        const opportunity = housingOpportunity([housingSeeker]);
+        if (opportunity) createPrivate('house', opportunity.at, housingSeeker, opportunity.cost, [housingSeeker]);
+      }
     }
   }
 
@@ -1454,13 +1745,34 @@
   }
 
   function businessOpportunity(owner) {
-    if (!owner || town.buildings.some(b => b.type === 'shop' && b.built < 1)) return null;
+    if (!owner) return null;
+    const abandoned = town.buildings.filter(b => b.type === 'shop' && b.built >= 1 && !b.target_development &&
+      !(b.owners && b.owners.length ? b.owners : [b.owner]).map(person).filter(Boolean).length)
+      .map(building => ({ building, cost: businessCostAt(building), tax: (zoneAt(building) || {}).tax_rate || 0 }))
+      .filter(option => owner.money >= option.cost)
+      .sort((a, b) => a.cost - b.cost || a.tax - b.tax || dist(owner, a.building) - dist(owner, b.building));
+    if (abandoned.length) return abandoned[0];
+    if (town.buildings.some(b => b.type === 'shop' && b.built < 1)) return null;
     const occupied = new Set(town.buildings.map(b => cellKey(cellAt(b))));
     const options = town.zones.filter(z => z.kind === 'business' && !occupied.has(cellKey(z)) && !cellHasRoad(z))
       .map(z => { const at = cellPoint(z); return { at, cost: businessCostAt(at), tax: z.tax_rate || 0 }; })
       .filter(x => owner.money >= x.cost)
       .sort((a, b) => a.cost - b.cost || a.tax - b.tax || dist(owner, a.at) - dist(owner, b.at));
     return options[0] || null;
+  }
+
+  function buyAbandonedBusiness(owner, option) {
+    const b = option && option.building;
+    if (!owner || !b || owner.money < option.cost) return false;
+    owner.money -= option.cost; town.treasury += option.cost;
+    b.owner = owner.id; b.owners = [owner.id];
+    owner.history.unshift('lt_hist_invested');
+    if (!owner.work && (b.workers || []).length < (b.jobs || 0)) {
+      b.workers.push(owner.id); owner.work = b.id;
+      owner.history.unshift('lt_hist_job');
+      addEvent('lt_event_job', { person: owner.name, name: b.name });
+    }
+    return true;
   }
 
   function zonedSite(kind) {
@@ -1489,7 +1801,7 @@
       wage: type === 'shop' ? 27 : 0, built: .01, builders: [],
       build_days: B.private_build_days[type], build_cost: cost,
       name: type === 'shop' ? owner.name.split(' ')[0] + ' Works' : owner.name.split(' ')[0] + ' House' };
-    if (type === 'shop') { b.cash = 250; b.development = 1; b.total_profit = 0; updateBusinessScale(b); }
+    if (type === 'shop') { b.development = 1; b.total_profit = 0; updateBusinessScale(b); }
     else { b.development = 1; updateHomeScale(b); }
     town.buildings.push(b);
     for (const personOwner of owners) personOwner.history.unshift('lt_hist_invested');
@@ -1515,6 +1827,9 @@
     town.events.unshift({ day: Math.floor(town.day), key, vars: vars || {} });
     town.events = town.events.slice(0, 100);
     unreadEvents += 1;
+    eventPreviewVisible = true;
+    clearTimeout(eventPreviewTimer);
+    eventPreviewTimer = setTimeout(() => { eventPreviewVisible = false; renderEvents(); }, 5000);
     renderEvents();
   }
 
@@ -1522,6 +1837,8 @@
     if (!eventButton || !eventLog || !town) return;
     const events = town.events || [];
     const latest = events[0];
+    eventButton.classList.toggle('compact', !eventPreviewVisible);
+    eventButton.title = tr('lt_events');
     eventButton.innerHTML = '🔔 <span>' + (latest ? esc(tr(latest.key, latest.vars)) : esc(tr('lt_events'))) + '</span>' +
       (unreadEvents ? '<b>' + unreadEvents + '</b>' : '');
     eventLog.innerHTML = '<button data-event-close>×</button><h2>🔔 ' + esc(tr('lt_events')) + '</h2><div>' +
@@ -1556,7 +1873,7 @@
     zone: [['residential', '🏠', 'lt_zone_home'], ['business', '🏪', 'lt_zone_business'], ['park', '🌳', 'lt_park']],
     road: [['road:dirt', '🟫', 'lt_road_type_dirt'], ['road:oneway', '➡️', 'lt_road_type_oneway'],
       ['road:twoway', '↔️', 'lt_road_type_twoway'], ['road:avenue', '🛣️', 'lt_road_type_avenue'],
-      ['road:highway', '🏎️', 'lt_road_type_highway']],
+      ['road:highway', '🏎️', 'lt_road_type_highway'], ['crosswalk', '🚸', 'lt_crosswalk']],
     public: [['clinic', '✚', 'lt_clinic'], ['police', '★', 'lt_police'], ['fire', '🔥', 'lt_fire']],
     transport: [['busline', '🚌', 'lt_bus_new_line'], ['busstop', '🚏', 'lt_bus_stop'], ['lines', '📋', 'lt_bus_lines']],
   };
@@ -1564,7 +1881,7 @@
     if (m === 'residential' || m === 'business' || m === 'park') return 'zone';
     if (m === 'clinic' || m === 'police' || m === 'fire') return 'public';
     if (m === 'busline' || m === 'busstop' || m === 'lines') return 'transport';
-    if (m && m.indexOf('road:') === 0) return 'road';
+    if (m === 'crosswalk' || m && m.indexOf('road:') === 0) return 'road';
     return null;
   }
   function renderTools() {
@@ -1583,12 +1900,28 @@
       // type left it "loaded": the canvas kept placing pieces on every tap
       // with no visible way to back out short of picking a different tool.
       category = category === cat ? null : cat;
-      mode = null; zoneStart = null; zoneHover = null; roadHoverCell = null; lineDraft = null;
+      mode = null; zoneStart = null; zoneHover = null; roadHoverCell = null; roadHoverPoint = null; lineDraft = null;
       renderTools(); say('');
     };
     renderSubtools();
   }
-  const ROAD_PIECE_DEFS = [['straight', 'lt_piece_straight'], ['corner', 'lt_piece_corner'], ['diagonal', 'lt_piece_diagonal']];
+  const ROAD_PIECE_DEFS = [['straight', 'lt_piece_straight'], ['corner', 'lt_piece_corner'],
+    ['diagonal', 'lt_piece_diagonal'], ['tee', 'lt_piece_tee'], ['cross', 'lt_piece_cross']];
+  function constructionPrice(tool) {
+    if (tool === 'residential' || tool === 'business') return B.zone_cost || 0;
+    if (tool === 'park') return B.park_cost_per_cell;
+    if (tool === 'crosswalk' || tool === 'busline' || tool === 'lines') return 0;
+    if (tool === 'busstop') return B.bus_stop_cost;
+    if (tool && tool.indexOf('road:') === 0) return Math.ceil(CELL * B.road_types[tool.slice(5)].cost);
+    return B.admin[tool] ? B.admin[tool].cost : null;
+  }
+  function priceMarkup(tool) {
+    const price = constructionPrice(tool);
+    if (price == null) return '';
+    const text = price === 0 ? tr('lt_free') : tr(tool === 'park' || tool === 'residential' || tool === 'business' ?
+      'lt_price_each' : 'lt_price', { price: money(price) });
+    return '<small style="display:block;opacity:.72;font-size:10px;line-height:1.1;margin-top:2px">' + esc(text) + '</small>';
+  }
   // Mini renders of the actual lane banding (ROAD_LAYOUTS/ROAD_COLORS) so the
   // picker shows what will really be built, not an abstract glyph standing
   // in for it.
@@ -1604,11 +1937,28 @@
       for (let i = 0; i < 6; i++) inner += '<rect x="0" y="' + (i * band).toFixed(1) + '" width="' + big +
         '" height="' + (band + .6).toFixed(1) + '" fill="' + ROAD_COLORS[layout[i]] + '"/>';
       inner += '</g>';
-    } else {
+    } else if (shape === 'corner') {
       for (let i = 0; i < 6; i++) {
         const r = ((i + .5) * band).toFixed(1);
         inner += '<path d="M ' + r + ' 0 A ' + r + ' ' + r + ' 0 0 1 0 ' + r + '" stroke="' + ROAD_COLORS[layout[i]] +
           '" stroke-width="' + (band + .6).toFixed(1) + '" fill="none"/>';
+      }
+    } else {
+      const id = 'lt-' + shape + '-' + type;
+      inner = '<defs><clipPath id="' + id + '-n"><polygon points="0,0 ' + S + ',0 ' + (S / 2) + ',' + (S / 2) +
+        '"/></clipPath>' + (shape === 'cross' ? '<clipPath id="' + id + '-s"><polygon points="0,' + S + ' ' +
+        (S / 2) + ',' + (S / 2) + ' ' + S + ',' + S + '"/></clipPath>' : '') + '</defs>';
+      // The horizontal base and the clipped vertical sectors mirror the
+      // exact painter used for the full-size junction tile.
+      for (let i = 0; i < 6; i++) inner += '<rect x="0" y="' + (i * band).toFixed(1) + '" width="' + S +
+        '" height="' + (band + .6).toFixed(1) + '" fill="' + ROAD_COLORS[layout[i]] + '"/>';
+      for (let i = 0; i < 6; i++) {
+        const x = (S / 2 + (i - 3) * band).toFixed(1);
+        inner += '<rect x="' + x + '" y="0" width="' + (band + .6).toFixed(1) + '" height="' + (S / 2) +
+          '" fill="' + ROAD_COLORS[layout[i]] + '" clip-path="url(#' + id + '-n)"/>';
+        if (shape === 'cross') inner += '<rect x="' + x + '" y="' + (S / 2) + '" width="' +
+          (band + .6).toFixed(1) + '" height="' + (S / 2) + '" fill="' + ROAD_COLORS[layout[i]] +
+          '" clip-path="url(#' + id + '-s)"/>';
       }
     }
     // The rotation goes on the svg itself, not a wrapping element: the <i>
@@ -1625,16 +1975,24 @@
     if (!defs) { subtools.innerHTML = ''; subtools.classList.remove('open'); return; }
     subtools.classList.add('open');
     let html = defs.map(x => '<button data-tool="' + x[0] + '" class="' + (mode === x[0] ? 'on' : '') +
-      '"><i>' + x[1] + '</i><span>' + esc(tr(x[2])) + '</span></button>').join('');
+      '"><i>' + x[1] + '</i><span>' + esc(tr(x[2])) + priceMarkup(x[0]) + '</span></button>').join('');
     if (category === 'road' && roadModeType()) {
       const type = roadModeType();
-      html += ROAD_PIECE_DEFS.map(x => '<button data-piece="' + x[0] + '" class="' + (roadShape === x[0] ? 'on' : '') +
-        '"><i style="display:flex;justify-content:center">' + pieceIconSVG(x[0], type, roadRotation * 90) + '</i><span>' + esc(tr(x[1])) + '</span></button>').join('') +
+      html += ROAD_PIECE_DEFS.map(x => {
+        const length = roadPiecePaths(x[0], roadRotation, { gx: 1, gy: 1 }).reduce((sum, path) => sum + pathLength(path), 0);
+        const price = Math.ceil(length * B.road_types[type].cost);
+        const priceText = price ? tr('lt_price', { price: money(price) }) : tr('lt_free');
+        return '<button data-piece="' + x[0] + '" class="' + (roadShape === x[0] ? 'on' : '') +
+          '"><i style="display:flex;justify-content:center">' + pieceIconSVG(x[0], type, roadRotation * 90) + '</i><span>' + esc(tr(x[1])) +
+          '<small style="display:block;opacity:.72;font-size:10px;line-height:1.1;margin-top:2px">' + esc(priceText) + '</small></span></button>';
+      }).join('') +
         '<button data-rotate><i>⟳</i><span>' + esc(tr('lt_piece_rotate')) + '</span></button>';
+    } else if (category === 'road' && mode === 'crosswalk') {
+      html += '<button data-rotate><i>⟳</i><span>' + esc(tr('lt_piece_rotate')) + '</span></button>';
     }
     subtools.innerHTML = html;
     for (const b of subtools.querySelectorAll('[data-tool]')) b.onclick = () => {
-      zoneStart = null; zoneHover = null; roadHoverCell = null; lineDraft = null;
+      zoneStart = null; zoneHover = null; roadHoverCell = null; roadHoverPoint = null; lineDraft = null;
       if (b.dataset.tool === 'lines') {
         mode = null; renderTools(); selected = { kind: 'lines' }; renderPanel(); return;
       }
@@ -1694,7 +2052,7 @@
         [tr('lt_wage'), b.jobs ? money(b.wage) + ' / ' + tr('lt_day_short') : '—'],
       ];
       if (b.type === 'shop') details.push(
-        [tr('lt_company_cash'), money(b.cash)], [tr('lt_development'), b.development || 1],
+        [tr('lt_development'), b.development || 1],
         [tr('lt_last_profit'), money(b.last_profit)], [tr('lt_last_tax'), money(b.last_tax)]);
       if (b.type === 'house') details.push([tr('lt_development'), b.development || 1]);
       panel.innerHTML = closeButton() + '<h2>' + glyph(b.type) + ' ' + esc(b.name) + '</h2>' +
@@ -1762,13 +2120,16 @@
     if (deleteRoadButton) deleteRoadButton.onclick = () => deleteRoad(selected.id);
     for (const el of panel.querySelectorAll('[data-speed-road]')) el.onclick = () => {
       const r = town.roads.find(x => x.id === selected.id); if (!r) return;
-      r.speed_kmh = Math.max(5, Math.min(150, (r.speed_kmh || 0) + parseInt(el.dataset.speedRoad, 10)));
+      const roads = r.piece_group ? town.roads.filter(x => x.piece_group === r.piece_group) : [r];
+      for (const part of roads) part.speed_kmh = Math.max(5, Math.min(150,
+        (part.speed_kmh || 0) + parseInt(el.dataset.speedRoad, 10)));
       town.transit_version++; push(); renderPanel();
     };
     const flipButton = panel.querySelector('[data-flip-road]');
     if (flipButton) flipButton.onclick = () => {
       const r = town.roads.find(x => x.id === selected.id); if (!r) return;
-      r.dir = (r.dir || 1) >= 0 ? -1 : 1;
+      const roads = r.piece_group ? town.roads.filter(x => x.piece_group === r.piece_group) : [r];
+      for (const part of roads) part.dir = (part.dir || 1) >= 0 ? -1 : 1;
       town.transit_version++; push(); renderPanel();
     };
     for (const el of panel.querySelectorAll('[data-line]')) el.onclick = () => { selected = { kind: 'line', id: +el.dataset.line }; renderPanel(); };
@@ -1796,7 +2157,7 @@
       const present = p.inside === buildingId;
       return '<button data-person="' + id + '" class="' + (present ? 'present' : 'away') + '" title="' +
         escAttr(personState(p)) + '"><i aria-hidden="true">●</i><b aria-label="' + (p.sex === 'f' ? 'female' : 'male') + '">' +
-        (p.sex === 'f' ? '♀' : '♂') + '</b>' + esc(p.name) + '</button>';
+        (p.sex === 'f' ? '♀' : '♂') + '</b><span>' + age(p) + ' · ' + esc(p.name) + '</span></button>';
     }).join('') + '</div>';
   }
 
@@ -1844,7 +2205,9 @@
     canvas.setPointerCapture(ev.pointerId); pointer = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, camX: cam.x, camY: cam.y, at: worldPoint(ev) }; moved = 0;
   }
   function onMove(ev) {
-    if (roadModeType()) { roadHoverCell = cellAt(worldPoint(ev)); draw(); }
+    if (roadModeType() || mode === 'crosswalk') {
+      roadHoverPoint = worldPoint(ev); roadHoverCell = cellAt(roadHoverPoint); draw();
+    }
     if (!pointer || pointer.id !== ev.pointerId) return;
     const dx = ev.clientX - pointer.x, dy = ev.clientY - pointer.y; moved = Math.max(moved, Math.hypot(dx, dy));
     zoneHover = worldPoint(ev);
@@ -1882,6 +2245,7 @@
       draw();
       return;
     }
+    if (mode === 'crosswalk') { placeCrosswalk(at, roadRotation); draw(); return; }
     if (['clinic', 'police', 'fire'].includes(mode)) { createAdmin(mode, at); return; }
     let best = null, bd = 32;
     for (const p of town.people) if (!p.inside && dist(p, at) < bd) { bd = dist(p, at); best = { kind: 'person', id: p.id }; }
@@ -1937,24 +2301,45 @@
       (() => { const bc = cellAt(b); return bc.gx === cell.gx && bc.gy === cell.gy; })())) {
       say(tr('lt_zone_occupied')); return false;
     }
-    const path = roadPieceGeometry(shape, rotation, cell);
-    const a = path[0], b = path[path.length - 1];
-    const nx = b.x - a.x, ny = b.y - a.y, nl = Math.hypot(nx, ny) || 1;
-    const length = pathLength(path);
+    const paths = roadPiecePaths(shape, rotation, cell);
+    const length = paths.reduce((sum, path) => sum + pathLength(path), 0);
     const first = town.roads.length === 0;
     const cost = Math.ceil(length * spec.cost);
-    if (town.treasury < cost) { say(tr('lt_no_money')); return false; }
+    if (town.treasury < cost) { say(tr('lt_no_money_cost', { price: money(cost), have: money(town.treasury) })); return false; }
     town.treasury -= cost;
-    town.roads.push({ id: town.next_road++, x1: a.x, y1: a.y, x2: b.x, y2: b.y, path,
-      end_dx: nx / nl, end_dy: ny / nl, type, shape, rotation, cell: { gx: cell.gx, gy: cell.gy },
-      dir: 1, speed_kmh: spec.speed_kmh });
+    const pieceGroup = 'road-piece-' + town.next_road;
+    for (const path of paths) {
+      const a = path[0], b = path[path.length - 1], nx = b.x - a.x, ny = b.y - a.y;
+      const nl = Math.hypot(nx, ny) || 1;
+      town.roads.push({ id: town.next_road++, x1: a.x, y1: a.y, x2: b.x, y2: b.y, path,
+        end_dx: nx / nl, end_dy: ny / nl, type, shape, rotation, piece_group: pieceGroup,
+        cell: { gx: cell.gx, gy: cell.gy }, dir: 1, speed_kmh: spec.speed_kmh });
+    }
+    invalidatePedestrianRoutes();
     say(first && type === 'dirt' ? tr('lt_first_road_done') : tr('lt_road_cost', { n: money(cost) }));
     town.transit_version++; push(); renderHud();
     return true;
   }
+  function placeCrosswalk(at, rotation) {
+    const crossing = crosswalkCandidate(at, rotation);
+    if (!crossing) {
+      say(tr('lt_crosswalk_need_road')); return false;
+    }
+    if (town.crosswalks.some(existing => dist(crosswalkCenter(existing), crosswalkCenter(crossing)) < SUB * .75)) {
+      say(tr('lt_crosswalk_exists')); return false;
+    }
+    crossing.id = town.next_crosswalk++;
+    if (!crosswalkConnection(crossing, sidewalkSegments(false))) {
+      town.next_crosswalk--; say(tr('lt_crosswalk_rotate')); return false;
+    }
+    town.crosswalks.push(crossing);
+    invalidatePedestrianRoutes(); town.transit_version++;
+    say(tr('lt_crosswalk_done')); push(); return true;
+  }
   function deleteRoad(id) {
     const road = town.roads.find(r => r.id === id); if (!road) return;
-    const affectedLines = town.busLines.filter(line => (line.roadIds || []).includes(id));
+    const deleteIds = new Set(town.roads.filter(r => road.piece_group && r.piece_group === road.piece_group || r.id === id).map(r => r.id));
+    const affectedLines = town.busLines.filter(line => (line.roadIds || []).some(roadId => deleteIds.has(roadId)));
     const affectedLineIds = new Set(affectedLines.map(line => line.id));
     for (const bus of town.buses.filter(bus => affectedLineIds.has(bus.lineId))) {
       for (const personId of bus.passengers || []) {
@@ -1964,14 +2349,17 @@
     }
     town.buses = town.buses.filter(bus => !affectedLineIds.has(bus.lineId));
     town.busLines = town.busLines.filter(line => !affectedLineIds.has(line.id));
-    for (const car of town.cars.filter(car => (car.roadIds || []).includes(id))) {
+    for (const car of town.cars.filter(car => (car.roadIds || []).some(roadId => deleteIds.has(roadId)))) {
       for (const personId of car.passengers || []) {
         const p = person(personId); if (!p) continue;
         p.riding = null; p.x = car.x; p.y = car.y; p.inside = null; resetTravel(p);
       }
     }
-    town.cars = town.cars.filter(car => !(car.roadIds || []).includes(id));
-    town.roads = town.roads.filter(r => r.id !== id);
+    town.cars = town.cars.filter(car => !(car.roadIds || []).some(roadId => deleteIds.has(roadId)));
+    town.roads = town.roads.filter(r => !deleteIds.has(r.id));
+    const remainingSidewalks = sidewalkSegments(false);
+    town.crosswalks = town.crosswalks.filter(crossing => !!crosswalkConnection(crossing, remainingSidewalks));
+    invalidatePedestrianRoutes();
     selected = null; town.transit_version++; say(tr('lt_road_deleted')); push(); renderPanel(); renderHud();
   }
   // Each tap routes from the previous point along the road network (turns
@@ -2014,7 +2402,7 @@
   function createBusStop(at) {
     const anchor = roadAnchor(at, true);
     if (!anchor) { say(tr('lt_bus_need_road')); return; }
-    if (town.treasury < B.bus_stop_cost) { say(tr('lt_no_money')); return; }
+    if (town.treasury < B.bus_stop_cost) { say(tr('lt_no_money_cost', { price: money(B.bus_stop_cost), have: money(town.treasury) })); return; }
     town.treasury -= B.bus_stop_cost;
     town.busStops.push({ id: town.next_bus_stop++, x: anchor.point.x, y: anchor.point.y });
     say(tr('lt_bus_stop_done'));
@@ -2040,7 +2428,7 @@
     if (!fresh.length) return say(tr('lt_zone_occupied'));
     if (town.founding && kind === 'residential' && fresh.length < 3) { say(tr('lt_need_three_homes')); return false; }
     const cost = Math.ceil(fresh.length * B.zone_cost);
-    if (town.treasury < cost) return say(tr('lt_no_money'));
+    if (town.treasury < cost) return say(tr('lt_no_money_cost', { price: money(cost), have: money(town.treasury) }));
     town.treasury -= cost;
     const group = town.next_zone_group++, tax = .10;
     for (const c of fresh) town.zones.push({ id: town.next_zone++, kind, gx: c.gx, gy: c.gy, group, tax_rate: tax });
@@ -2064,14 +2452,14 @@
         town.buildings.some(b => cellKey(cellAt(b)) === cellKey(cellAt(at)))) {
       say(tr('lt_zone_occupied')); return;
     }
-    if (town.treasury < spec.cost) return say(tr('lt_no_money'));
+    if (town.treasury < spec.cost) return say(tr('lt_no_money_cost', { price: money(spec.cost), have: money(town.treasury) }));
     town.treasury -= spec.cost;
     town.buildings.push({ id: town.next_building++, type, x: at.x, y: at.y, owner: null,
       residents: [], workers: [], jobs: spec.jobs, wage: spec.wage, built: 1,
       name: tr('lt_b_' + type), capacity: spec.jobs * 2 });
     mode = null; fillJobs(); renderTools(); renderHud(); push();
   }
-  function createPark(a, b) {
+  function parkCellsBetween(a, b) {
     const x0 = Math.min(a.gx, b.gx), x1 = Math.max(a.gx, b.gx);
     const y0 = Math.min(a.gy, b.gy), y1 = Math.max(a.gy, b.gy);
     const zoned = new Set(town.zones.map(cellKey));
@@ -2082,9 +2470,13 @@
       if (town.buildings.some(bd => cellKey(cellAt(bd)) === cellKey(c))) continue;
       cells.push(c);
     }
+    return cells;
+  }
+  function createPark(a, b) {
+    const cells = parkCellsBetween(a, b);
     if (!cells.length) return say(tr('lt_zone_occupied'));
     const cost = Math.ceil(cells.length * B.park_cost_per_cell);
-    if (town.treasury < cost) return say(tr('lt_no_money'));
+    if (town.treasury < cost) return say(tr('lt_no_money_cost', { price: money(cost), have: money(town.treasury) }));
     town.treasury -= cost;
     const center = cellPoint(cells[Math.floor(cells.length / 2)]);
     town.buildings.push({ id: town.next_building++, type: 'park', x: center.x, y: center.y, owner: null,
@@ -2094,7 +2486,8 @@
   }
 
   function zoneOverlayVisible() {
-    if (category === 'zone' || mode === 'residential' || mode === 'business' || mode === 'park') return true;
+    if (category === 'zone' || category === 'road' || roadModeType() ||
+        mode === 'residential' || mode === 'business' || mode === 'park') return true;
     if (!selected) return false;
     if (selected.kind === 'zone') return true;
     return selected.kind === 'building' && building(selected.id) && building(selected.id).type === 'park';
@@ -2115,7 +2508,15 @@
     }
     drawZoneChoice();
     g.lineCap = 'round';
-    for (const r of town.roads) drawRoad(r);
+    const drawnRoadGroups = new Set();
+    for (const r of town.roads) {
+      if (r.piece_group && (r.shape === 'tee' || r.shape === 'cross')) {
+        if (drawnRoadGroups.has(r.piece_group)) continue;
+        drawnRoadGroups.add(r.piece_group);
+        drawIntersectionPiece(town.roads.filter(part => part.piece_group === r.piece_group));
+      } else drawRoad(r);
+    }
+    for (const crossing of town.crosswalks) drawCrosswalk(crossing);
     // Transit keeps running in the background, but route overlays are a
     // planning aid: show all routes in the line list and only the selected
     // route in its detail view. The normal town view stays uncluttered.
@@ -2166,6 +2567,50 @@
       type === 'twoway' ? [[2, 1], [4, -1]] : type === 'avenue' ? [[1, 1], [2, 1], [3, -1], [4, -1]] :
       type === 'highway' ? [[0, 1], [1, 1], [2, 1], [3, -1], [4, -1], [5, -1]] : [];
     for (const lane of laneRows) drawArrowRow((lane[0] - 2.5) * SUB, len, SUB * 3.2, lane[1]);
+    g.restore();
+  }
+
+  function drawCrosswalk(crossing, previewColor) {
+    const center = crosswalkCenter(crossing);
+    g.save(); g.translate(center.x, center.y); g.rotate((crossing.rotation || 0) * Math.PI / 2);
+    g.fillStyle = previewColor || 'rgba(245,245,235,.92)';
+    for (let y = -SUB * 2.35; y <= SUB * 2.35; y += SUB * .72) {
+      g.fillRect(-SUB * .82, y - SUB * .14, SUB * 1.64, SUB * .28);
+    }
+    g.restore();
+  }
+
+  function drawIntersectionPiece(parts) {
+    const road = parts[0]; if (!road || !road.cell) return;
+    const type = road.type || 'dirt', layout = ROAD_LAYOUTS[type] || ROAD_LAYOUTS.dirt;
+    const center = cellPoint(road.cell), half = CELL / 2;
+    const drawBand = (x1, y1, x2, y2) => {
+      const dx = x2 - x1, dy = y2 - y1, length = Math.hypot(dx, dy) || 1;
+      const nx = -dy / length, ny = dx / length;
+      g.lineCap = 'butt'; g.lineJoin = 'miter';
+      for (let i = 0; i < 6; i++) {
+        const offset = (i - 2.5) * SUB;
+        g.strokeStyle = ROAD_COLORS[layout[i]]; g.lineWidth = SUB + .35;
+        g.beginPath(); g.moveTo(x1 + nx * offset, y1 + ny * offset);
+        g.lineTo(x2 + nx * offset, y2 + ny * offset); g.stroke();
+      }
+    };
+    const clipTriangle = points => {
+      g.beginPath(); g.moveTo(points[0][0], points[0][1]);
+      for (const point of points.slice(1)) g.lineTo(point[0], point[1]);
+      g.closePath(); g.clip();
+    };
+    g.save(); g.translate(center.x, center.y); g.rotate((road.rotation || 0) * Math.PI / 2);
+    // West/east is the base road. The northern and (for a four-way piece)
+    // southern arms are clipped to their own triangular sectors, so no full
+    // width road is painted twice over another one.
+    drawBand(-half, 0, half, 0);
+    g.save(); clipTriangle([[-half, -half], [half, -half], [0, 0]]);
+    drawBand(0, -half, 0, 0); g.restore();
+    if (road.shape === 'cross') {
+      g.save(); clipTriangle([[-half, half], [0, 0], [half, half]]);
+      drawBand(0, 0, 0, half); g.restore();
+    }
     g.restore();
   }
 
@@ -2330,6 +2775,14 @@
   }
   function drawRoadPreview() {
     const type = roadModeType();
+    if (mode === 'crosswalk' && roadHoverPoint) {
+      const candidate = crosswalkCandidate(roadHoverPoint, roadRotation) ||
+        { x: roadHoverPoint.x, y: roadHoverPoint.y, rotation: roadRotation % 2 };
+      const duplicate = town.crosswalks.some(c => dist(crosswalkCenter(c), crosswalkCenter(candidate)) < SUB * .75);
+      const valid = !duplicate && !!crosswalkConnection(candidate, sidewalkSegments(false));
+      g.save(); g.globalAlpha = .8; drawCrosswalk(candidate, valid ? '#ffd166' : '#e74c3c'); g.restore();
+      return;
+    }
     if (!type || !roadHoverCell) return;
     const spec = B.road_types[type];
     if (!spec) return;
@@ -2337,12 +2790,14 @@
     const blocked = cellHasRoad(cell) || town.buildings.some(b => b.type === 'park' ?
       (b.cells || []).some(c => c.gx === cell.gx && c.gy === cell.gy) :
       (() => { const bc = cellAt(b); return bc.gx === cell.gx && bc.gy === cell.gy; })());
-    const path = roadPieceGeometry(roadShape, roadRotation, cell);
+    const paths = roadPiecePaths(roadShape, roadRotation, cell);
     g.save(); g.globalAlpha = .6; g.lineCap = 'round'; g.lineJoin = 'round';
     g.strokeStyle = blocked ? '#e74c3c' : '#ffd166'; g.lineWidth = CELL * .62;
-    g.beginPath(); g.moveTo(path[0].x, path[0].y);
-    for (const p of path.slice(1)) g.lineTo(p.x, p.y);
-    g.stroke();
+    for (const path of paths) {
+      g.beginPath(); g.moveTo(path[0].x, path[0].y);
+      for (const p of path.slice(1)) g.lineTo(p.x, p.y);
+      g.stroke();
+    }
     g.restore();
   }
   function drawZoneChoice() {
@@ -2353,6 +2808,16 @@
     g.strokeStyle = mode === 'residential' ? '#7fdb9d' : mode === 'business' ? '#79adff' : '#5ad07a'; g.lineWidth = 5;
     g.fillRect(x0 * CELL, y0 * CELL, (x1 - x0 + 1) * CELL, (y1 - y0 + 1) * CELL);
     g.strokeRect(x0 * CELL + 2, y0 * CELL + 2, (x1 - x0 + 1) * CELL - 4, (y1 - y0 + 1) * CELL - 4);
+    if (mode === 'park') {
+      const count = parkCellsBetween(zoneStart, end).length;
+      const label = tr('lt_price_total', { price: money(count * B.park_cost_per_cell) });
+      const cx = (x0 + x1 + 1) * CELL / 2, cy = y0 * CELL - 9;
+      g.font = 'bold 12px system-ui'; g.textAlign = 'center';
+      const width = g.measureText(label).width + 16;
+      g.fillStyle = 'rgba(12,18,15,.92)'; g.fillRect(cx - width / 2, cy - 15, width, 20);
+      g.fillStyle = town.treasury >= count * B.park_cost_per_cell ? '#ffd166' : '#ff7b7b';
+      g.fillText(label, cx, cy); g.textAlign = 'left';
+    }
   }
   function line(r) { g.beginPath(); g.moveTo(r.x1, r.y1); g.lineTo(r.x2, r.y2); g.stroke(); }
   function drawGrid(v) {
@@ -2482,13 +2947,6 @@
     const r = SUB / 4;
     let px = p.x, py = p.y;
     const next = p.route && p.route[0];
-    const walkRoad = roadAnchor(p, false);
-    if (walkRoad && roadSpec(walkRoad.road).pedestrian_access !== false && walkRoad.distance < CELL * .7) {
-      const dx = next ? next.x - p.x : walkRoad.road.x2 - walkRoad.road.x1;
-      const dy = next ? next.y - p.y : walkRoad.road.y2 - walkRoad.road.y1;
-      const length = Math.hypot(dx, dy) || 1, side = p.id % 2 ? 1 : -1;
-      px -= dy / length * SUB * 2.5 * side; py += dx / length * SUB * 2.5 * side;
-    }
     if (offset) {
       const dx = next ? next.x - p.x : 0, dy = next ? next.y - p.y : 0;
       const length = Math.hypot(dx, dy);

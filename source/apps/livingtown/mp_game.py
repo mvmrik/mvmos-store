@@ -16,12 +16,12 @@ TUNING = {
     "days_per_second": 1 / 720,
     "adult_age": 18,
     "retire_age": 67,
-    "walk_speed": 72,
+    # At 140 km/h a vehicle crosses one 70-unit map cell in 0.25 real seconds
+    # at 1x. A pedestrian at 5 km/h therefore needs 7 real seconds for it.
+    "walk_speed": 10,
     # What walk_speed represents in real terms. Every vehicle's speed is
-    # derived from this same ratio (see road_types.*.speed_kmh and
-    # bus/car code in mp.js), so raising it would make pedestrians AND
-    # every vehicle faster together - the ratio between them is what
-    # speed_kmh actually controls.
+    # derived from this same ratio (see road_types.*.speed_kmh and the
+    # bus/car code in mp.js), keeping movement and journey planning aligned.
     "walk_speed_kmh": 5,
     # Five workdays (Mon-Fri equivalent) out of every 7-day/year cycle, so the
     # remaining two are genuine days off with no work commute - this is what

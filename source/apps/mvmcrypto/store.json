@@ -1,0 +1,17 @@
+{
+  "tagline": "Your seed phrases and portfolio, encrypted before they leave your browser.",
+  "description": "mvmCrypto is a seed phrase vault and a portfolio tracker for your mvmOS account. Every Apps Hub profile gets its own vault, so multiple people using the same machine never see one another's wallets.\n\nEach seed phrase is protected by two separate passwords. Your master password unlocks the vault and shows your saved labels; each seed phrase also has its own password, and revealing it needs both. This means changing your master password later never forces you to re-enter every entry's password, and no single password on its own can expose a phrase. Encryption happens entirely in the browser — the server only ever stores opaque salts, IVs and ciphertexts, never a password, a key or a readable seed phrase.\n\nA seed phrase can be shared with another Apps Hub account as a one-time secure transfer, addressed to someone already in your favourites. The recipient decrypts it with a password you already share and receives their own fully independent, dual-protected copy — there is no standing access one password alone can reopen later. Editing a shared entry re-sends a fresh transfer to everyone it was shared with; stopping the share deletes their copy outright.\n\nPortfolio tracks addresses across seven networks — Bitcoin, Ethereum, BNB Smart Chain, Polygon, Litecoin, Dogecoin and TRON — plus ERC-20-family tokens on the EVM ones. Address, label, network and the last known balance are encrypted the same way as a seed phrase; refreshing a balance calls each network's public API straight from your own browser, not from the server, so a lookup never reveals your holdings to mvmOS itself. A built-in Bitcoin explorer looks up any address or transaction, saved to your portfolio or not.\n\nWith a subscription, custom assets track anything outside the seven supported networks — gold, a flat, a business, savings held elsewhere — as a running ledger of transactions rather than one number you overwrite, sitting in the same portfolio list and counting toward the same total.",
+  "capabilities": [
+    "A separate encrypted vault for every Apps Hub profile.",
+    "AES-GCM encryption performed in the browser before anything is sent to the server.",
+    "A master password that is never transmitted or stored by mvmOS.",
+    "A second, independent password on every seed phrase — revealing it needs both.",
+    "One-time secure sharing of a seed phrase with an Apps Hub favourite, with no standing access left behind.",
+    "Portfolio addresses across Bitcoin, Ethereum, BNB Smart Chain, Polygon, Litecoin, Dogecoin and TRON, plus ERC-20-family tokens.",
+    "Balances refreshed directly from each network's public API in your own browser, never through the server.",
+    "Shared, cached native-asset USD pricing for every tracked network.",
+    "A built-in Bitcoin block explorer for any address or transaction.",
+    "Custom assets, with a subscription, for tracking anything outside the supported networks as a running transaction ledger.",
+    "A public page for your Apps Hub account, enabled by an administrator."
+  ]
+}

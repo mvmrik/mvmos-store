@@ -1,0 +1,10 @@
+{
+  "summary": "Track anything alongside your real crypto portfolio.",
+  "features": [
+    {
+      "title": "Custom assets",
+      "short": "Add gold, property, or anything else as a manual ledger",
+      "description": "Create an asset for anything that isn't a supported network — gold, a flat, a business, savings held elsewhere — and log its value as a running ledger of signed dollar amounts instead of one number you overwrite. Every deposit or withdrawal is its own transaction, each one editable or removable later, and the asset's balance is always the sum of its history. It shows up in the same Portfolio list and counts toward the same total, right alongside Bitcoin and every other network."
+    }
+  ]
+}

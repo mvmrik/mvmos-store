@@ -238,10 +238,36 @@
     ru:{lt_road_delete:'Удалить дорогу',lt_road_deleted:'Дорога удалена.',lt_road_delete_first:'Сначала удалите существующую дорогу.',lt_event_home_bought:'{person} купил(а) {name} за {price}.'},
     'zh-CN':{lt_road_delete:'删除道路',lt_road_deleted:'道路已删除。',lt_road_delete_first:'请先删除现有道路。',lt_event_home_bought:'{person}以{price}购买了{name}。'},
   };
+  const ROAD_PIECE_STRINGS = {
+    en:{lt_piece_tee:'T-junction',lt_piece_cross:'Crossroads'},
+    bg:{lt_piece_tee:'Т-кръстовище',lt_piece_cross:'Кръстовище'},
+    de:{lt_piece_tee:'T-Kreuzung',lt_piece_cross:'Kreuzung'},
+    es:{lt_piece_tee:'Intersección en T',lt_piece_cross:'Cruce'},
+    fr:{lt_piece_tee:'Carrefour en T',lt_piece_cross:'Carrefour'},
+    ja:{lt_piece_tee:'T字路',lt_piece_cross:'交差点'},
+    'pt-BR':{lt_piece_tee:'Cruzamento em T',lt_piece_cross:'Cruzamento'},
+    ru:{lt_piece_tee:'Т-образный перекрёсток',lt_piece_cross:'Перекрёсток'},
+    'zh-CN':{lt_piece_tee:'丁字路口',lt_piece_cross:'十字路口'},
+  };
+  const CROSSWALK_STRINGS = {
+    en:{lt_crosswalk:'Pedestrian crossing',lt_crosswalk_need_road:'Place the crossing on a road with sidewalks.',lt_crosswalk_exists:'There is already a crossing here.',lt_crosswalk_rotate:'Rotate the crossing so it joins both sidewalks.',lt_crosswalk_done:'Pedestrian crossing placed.',lt_free:'Free',lt_price:'{price}',lt_price_each:'{price} per square',lt_price_total:'Total: {price}',lt_no_money_cost:'It costs {price}; the town has {have}.'},
+    bg:{lt_crosswalk:'Пешеходна пътека',lt_crosswalk_need_road:'Постави пътеката върху път с тротоари.',lt_crosswalk_exists:'Тук вече има пешеходна пътека.',lt_crosswalk_rotate:'Завърти пътеката така, че да свърже двата тротоара.',lt_crosswalk_done:'Пешеходната пътека е поставена.',lt_free:'Безплатно',lt_price:'{price}',lt_price_each:'{price} на квадратче',lt_price_total:'Общо: {price}',lt_no_money_cost:'Струва {price}, а градът има {have}.'},
+    de:{lt_crosswalk:'Fußgängerüberweg',lt_crosswalk_need_road:'Setze den Überweg auf eine Straße mit Gehwegen.',lt_crosswalk_exists:'Hier gibt es bereits einen Überweg.',lt_crosswalk_rotate:'Drehe den Überweg, damit er beide Gehwege verbindet.',lt_crosswalk_done:'Fußgängerüberweg platziert.',lt_free:'Kostenlos',lt_price:'{price}',lt_price_each:'{price} pro Feld',lt_price_total:'Gesamt: {price}',lt_no_money_cost:'Kosten: {price}; die Stadt hat {have}.'},
+    es:{lt_crosswalk:'Paso de peatones',lt_crosswalk_need_road:'Coloca el paso en una carretera con aceras.',lt_crosswalk_exists:'Ya hay un paso aquí.',lt_crosswalk_rotate:'Gira el paso para conectar ambas aceras.',lt_crosswalk_done:'Paso de peatones colocado.',lt_free:'Gratis',lt_price:'{price}',lt_price_each:'{price} por casilla',lt_price_total:'Total: {price}',lt_no_money_cost:'Cuesta {price}; la ciudad tiene {have}.'},
+    fr:{lt_crosswalk:'Passage piéton',lt_crosswalk_need_road:'Placez le passage sur une route avec trottoirs.',lt_crosswalk_exists:'Il y a déjà un passage ici.',lt_crosswalk_rotate:'Tournez le passage pour relier les deux trottoirs.',lt_crosswalk_done:'Passage piéton placé.',lt_free:'Gratuit',lt_price:'{price}',lt_price_each:'{price} par case',lt_price_total:'Total : {price}',lt_no_money_cost:'Coût : {price} ; la ville possède {have}.'},
+    ja:{lt_crosswalk:'横断歩道',lt_crosswalk_need_road:'歩道のある道路上に配置してください。',lt_crosswalk_exists:'ここには既に横断歩道があります。',lt_crosswalk_rotate:'両側の歩道を結ぶ向きに回転してください。',lt_crosswalk_done:'横断歩道を配置しました。',lt_free:'無料',lt_price:'{price}',lt_price_each:'1マスあたり{price}',lt_price_total:'合計：{price}',lt_no_money_cost:'費用は{price}、市の資金は{have}です。'},
+    'pt-BR':{lt_crosswalk:'Faixa de pedestres',lt_crosswalk_need_road:'Coloque a faixa em uma via com calçadas.',lt_crosswalk_exists:'Já existe uma faixa aqui.',lt_crosswalk_rotate:'Gire a faixa para ligar as duas calçadas.',lt_crosswalk_done:'Faixa de pedestres colocada.',lt_free:'Grátis',lt_price:'{price}',lt_price_each:'{price} por quadrado',lt_price_total:'Total: {price}',lt_no_money_cost:'Custa {price}; a cidade tem {have}.'},
+    ru:{lt_crosswalk:'Пешеходный переход',lt_crosswalk_need_road:'Разместите переход на дороге с тротуарами.',lt_crosswalk_exists:'Здесь уже есть переход.',lt_crosswalk_rotate:'Поверните переход так, чтобы он соединял оба тротуара.',lt_crosswalk_done:'Пешеходный переход установлен.',lt_free:'Бесплатно',lt_price:'{price}',lt_price_each:'{price} за клетку',lt_price_total:'Итого: {price}',lt_no_money_cost:'Стоимость: {price}; в казне {have}.'},
+    'zh-CN':{lt_crosswalk:'人行横道',lt_crosswalk_need_road:'请将人行横道放在有人行道的道路上。',lt_crosswalk_exists:'此处已有一条人行横道。',lt_crosswalk_rotate:'请旋转人行横道，使其连接两侧人行道。',lt_crosswalk_done:'人行横道已放置。',lt_free:'免费',lt_price:'{price}',lt_price_each:'每格{price}',lt_price_total:'总计：{price}',lt_no_money_cost:'需要{price}；市政资金为{have}。'},
+  };
   function apply(lang) {
     const table = STRINGS[lang] || STRINGS.en; window._i18n = window._i18n || {};
     for (const k in table) window._i18n[k] = table[k];
     const extra = EXTRA_STRINGS[lang]; if (extra) for (const k in extra) window._i18n[k] = extra[k];
+    const roadPieces = ROAD_PIECE_STRINGS[lang] || ROAD_PIECE_STRINGS.en;
+    for (const k in roadPieces) window._i18n[k] = roadPieces[k];
+    const crosswalks = CROSSWALK_STRINGS[lang] || CROSSWALK_STRINGS.en;
+    for (const k in crosswalks) window._i18n[k] = crosswalks[k];
   }
   apply((window.mvmOS && window.mvmOS.lang) || 'en');
   if (window.mvmOS && window.mvmOS.onLangChange) window.mvmOS.onLangChange(apply);

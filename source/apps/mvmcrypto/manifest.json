@@ -1,0 +1,19 @@
+{
+  "id": "mvmcrypto",
+  "name": "mvmCrypto",
+  "icon": "🪙",
+  "category": "Finance",
+  "tags": [
+    "bitcoin",
+    "crypto",
+    "security",
+    "wallet",
+    "encryption"
+  ],
+  "version": "1.2.0",
+  "description": "Encrypted seed phrase vault and Bitcoin portfolio tracker.",
+  "entry": "main.js",
+  "min_core_version": "0.41.0-beta",
+  "public_url": "/pub/mvmcrypto/",
+  "public_directory": true
+}
