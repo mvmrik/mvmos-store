@@ -1,0 +1,20 @@
+{
+  "tagline": "Every throw. Every rival. Every result.",
+  "description": "Score Arena turns a phone into a shared scorekeeper for games played around a real table or dartboard. Start a room with Game Hub profiles, choose the order, enter every throw and keep the complete result in each player's history.\n\nThe first release includes regulation Darts 501 with double-out and checkout suggestions, plus Cricket with marks, open numbers and proper scoring. The dartboard input is shared by both modes and ready for more darts games later.",
+  "capabilities": [
+    "Darts 501 with bust rules, double-out and checkout suggestions.",
+    "Cricket for two to eight players with marks and open-target scoring.",
+    "Manual or dice-randomized starting order.",
+    "Best-of match lengths and a complete turn history.",
+    "Responsive dartboard designed for phones and larger screens.",
+    "Profile results, wins, losses and head-to-head history through Game Hub."
+  ],
+  "integrations": [{
+    "app": "gamehub",
+    "name": "Game Hub",
+    "kind": "gamehub",
+    "direction": "consumes",
+    "summary": "Players use their Game Hub profiles and finished matches are recorded in profile statistics and head-to-head history.",
+    "requires": "Game Hub installed."
+  }]
+}

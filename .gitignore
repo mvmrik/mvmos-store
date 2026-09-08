@@ -18,3 +18,11 @@ source/backend/apps/*/premium/
 
 __pycache__/
 *.py[cod]
+
+# Editor/manual backup copies left behind while working on an app's files
+# (e.g. foo.js.bak-2026-09-07-some-change). These are scratch copies, never
+# app code, and must never reach this public repo or the public zip.
+source/apps/*/**/*.bak
+source/apps/*/**/*.bak-*
+source/backend/apps/*/**/*.bak
+source/backend/apps/*/**/*.bak-*

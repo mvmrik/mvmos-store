@@ -33,9 +33,9 @@
       "name": "Game Hub",
       "icon": "🎮",
       "category": "Games",
-      "version": "1.15.1",
+      "version": "1.15.2",
       "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.15.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.15.2.zip",
       "tags": [
         "multiplayer",
         "social",
@@ -79,14 +79,30 @@
       "name": "Living Town",
       "icon": "🏘️",
       "category": "Games",
-      "version": "0.5.0",
+      "version": "0.6.0",
       "description": "Zone land, draw roads and build public services for a town that grows itself — every resident is a persistent person with a home, a job and a life of their own.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/livingtown-0.5.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/livingtown-0.6.0.zip",
       "tags": [
         "simulation",
         "city building",
         "transport",
         "people",
+        "games"
+      ],
+      "min_core_version": "0.37.0"
+    },
+    {
+      "id": "scorearena",
+      "name": "Score Arena",
+      "icon": "🎯",
+      "category": "Games",
+      "version": "1.0.0",
+      "description": "A shared scorekeeper for real-life games, starting with Darts 501 and Cricket.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/scorearena-1.0.0.zip",
+      "tags": [
+        "darts",
+        "scorekeeper",
+        "board games",
         "games"
       ],
       "min_core_version": "0.37.0"
