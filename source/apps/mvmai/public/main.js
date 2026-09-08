@@ -1,11 +1,6 @@
 // mvmOS App: mvmAI v0.1.0 — AI chat with shell access
 const _MVMAI_MODELS = {
-  gemini:     ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro', 'gemini-2.5-flash-preview-05-20', 'gemini-2.5-pro-preview-06-05'],
-  openai:     ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo', 'o1', 'o1-mini', 'o3-mini'],
-  groq:       ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'llama3-70b-8192', 'mixtral-8x7b-32768', 'gemma2-9b-it'],
-  deepseek:   ['deepseek-chat', 'deepseek-reasoner'],
-  qwen:       ['qwen-plus', 'qwen-turbo', 'qwen-max', 'qwen-long', 'qwen2.5-72b-instruct'],
-  mistral:    ['mistral-small-latest', 'mistral-medium-latest', 'mistral-large-latest', 'codestral-latest'],
+  gemini: [], openai: [], groq: [], deepseek: [], qwen: [], mistral: [],
   openrouter: [], ollama: [], custom: [],
 };
 const _mvmai18n = {
@@ -13,7 +8,7 @@ const _mvmai18n = {
     title: 'mvmAI', new_chat: '+ New chat', no_sessions: 'No conversations yet',
     placeholder: 'Message mvmAI…  (Shift+Enter for newline)', send: 'Send', stop: 'Stop',
     thinking: 'Thinking…', running: 'Running command…',
-    welcome_title: 'mvmAI', welcome_sub: 'Ask anything. I can run commands on this server for you.',
+    welcome_title: 'mvmAI', welcome_sub: 'Ask anything.',
     no_provider: 'No provider configured. Open ⚙ Settings, pick a provider and enter your API key.',
     open_settings: '⚙ Settings', settings_btn: '⚙', rename: 'Rename', delete: 'Delete',
     del_confirm: 'Delete this conversation?', cmd_label: 'Command', reason_label: 'Reason',
@@ -28,15 +23,18 @@ const _mvmai18n = {
     pub_bridge_label: 'Let public users use the app-data API integration',
     pub_bridge_hint: "Off by default. When on, mvmAI can read or change a user's own data in their other installed apps.",
     sett_hint: 'Everything stays inside mvmOS — the API key is stored on the server and never leaves it.',
-    exec_toggle: 'Server commands', exec_off: 'Off', exec_confirm: 'Confirm', exec_auto_short: 'Auto',
+    exec_toggle: 'Server commands', exec_off: 'Read-only', exec_confirm: 'Confirm', exec_auto_short: 'Auto',
     exec_enable_label: 'Let mvmAI run commands on this server', exec_mode_label: 'When it wants to run one',
     exec_mode_confirm: 'Ask me to confirm each command', exec_mode_auto: 'Run automatically, no confirmation',
+    model_tool_default: '(tool default)', models_found: '{count} models found — the tool default is used initially.',
+    models_failed: "The model list couldn't be loaded — the tool default will be used.",
+    models_unavailable: "This CLI doesn't expose a model list — its default model will be used.",
   },
   bg: {
     title: 'mvmAI', new_chat: '+ Нов чат', no_sessions: 'Все още няма разговори',
     placeholder: 'Съобщение до mvmAI…  (Shift+Enter за нов ред)', send: 'Изпрати', stop: 'Спри',
     thinking: 'Мисля…', running: 'Изпълнявам команда…',
-    welcome_title: 'mvmAI', welcome_sub: 'Питай каквото поискаш. Мога да изпълнявам команди на този сървър вместо теб.',
+    welcome_title: 'mvmAI', welcome_sub: 'Питай каквото поискаш.',
     no_provider: 'Няма конфигуриран провайдър. Отвори ⚙ Настройки, избери провайдър и въведи API ключ.',
     open_settings: '⚙ Настройки', settings_btn: '⚙', rename: 'Преименувай', delete: 'Изтрий',
     del_confirm: 'Изтриване на този разговор?', cmd_label: 'Команда', reason_label: 'Причина',
@@ -51,15 +49,18 @@ const _mvmai18n = {
     pub_bridge_label: 'Позволи на публичните потребители да ползват API интеграцията с приложенията',
     pub_bridge_hint: 'По подразбиране е изключено. Когато е включено, mvmAI може да чете или променя собствените данни на потребителя в другите му инсталирани приложения.',
     sett_hint: 'Всичко остава вътре в mvmOS — API ключът се пази на сървъра и никога не го напуска.',
-    exec_toggle: 'Команди на сървъра', exec_off: 'Изкл.', exec_confirm: 'С потвърждение', exec_auto_short: 'Автоматично',
+    exec_toggle: 'Команди на сървъра', exec_off: 'Само преглед', exec_confirm: 'С потвърждение', exec_auto_short: 'Автоматично',
     exec_enable_label: 'Позволи на mvmAI да изпълнява команди на този сървър', exec_mode_label: 'Когато иска да изпълни команда',
     exec_mode_confirm: 'Да ме пита за потвърждение за всяка команда', exec_mode_auto: 'Да изпълнява автоматично, без потвърждение',
+    model_tool_default: '(по подразбиране на инструмента)', models_found: '{count} открити модела — първоначално се използва моделът по подразбиране на инструмента.',
+    models_failed: 'Списъкът с модели не може да бъде зареден — ще се използва моделът по подразбиране на инструмента.',
+    models_unavailable: 'Този CLI не предоставя списък с модели — ще се използва неговият модел по подразбиране.',
   },
   de: {
     title: 'mvmAI', new_chat: '+ Neuer Chat', no_sessions: 'Noch keine Unterhaltungen',
     placeholder: 'Nachricht an mvmAI…  (Umschalt+Eingabe für neue Zeile)', send: 'Senden', stop: 'Stopp',
     thinking: 'Denke nach…', running: 'Befehl wird ausgeführt…',
-    welcome_title: 'mvmAI', welcome_sub: 'Frag mich alles. Ich kann für dich Befehle auf diesem Server ausführen.',
+    welcome_title: 'mvmAI', welcome_sub: 'Frag mich alles.',
     no_provider: 'Kein Anbieter konfiguriert. Öffne ⚙ Einstellungen, wähle einen Anbieter und gib deinen API-Schlüssel ein.',
     open_settings: '⚙ Einstellungen', settings_btn: '⚙', rename: 'Umbenennen', delete: 'Löschen',
     del_confirm: 'Diese Unterhaltung löschen?', cmd_label: 'Befehl', reason_label: 'Grund',
@@ -74,15 +75,18 @@ const _mvmai18n = {
     pub_bridge_label: 'Öffentlichen Nutzern die App-Daten-API-Integration erlauben',
     pub_bridge_hint: 'Standardmäßig deaktiviert. Wenn aktiviert, kann mvmAI die eigenen Daten des Nutzers in dessen anderen installierten Apps lesen oder ändern.',
     sett_hint: 'Alles bleibt innerhalb von mvmOS — der API-Schlüssel wird auf dem Server gespeichert und verlässt ihn nie.',
-    exec_toggle: 'Serverbefehle', exec_off: 'Aus', exec_confirm: 'Bestätigen', exec_auto_short: 'Automatisch',
+    exec_toggle: 'Serverbefehle', exec_off: 'Nur Lesen', exec_confirm: 'Bestätigen', exec_auto_short: 'Automatisch',
     exec_enable_label: 'mvmAI erlauben, Befehle auf diesem Server auszuführen', exec_mode_label: 'Wenn ein Befehl ausgeführt werden soll',
     exec_mode_confirm: 'Vor jedem Befehl um Bestätigung bitten', exec_mode_auto: 'Automatisch ausführen, ohne Bestätigung',
+    model_tool_default: '(Standardeinstellung des Tools)', models_found: '{count} Modelle gefunden — zunächst wird die Standardeinstellung des Tools verwendet.',
+    models_failed: 'Die Modellliste konnte nicht geladen werden — die Standardeinstellung des Tools wird verwendet.',
+    models_unavailable: 'Dieses CLI stellt keine Modellliste bereit — sein Standardmodell wird verwendet.',
   },
   es: {
     title: 'mvmAI', new_chat: '+ Nuevo chat', no_sessions: 'Aún no hay conversaciones',
     placeholder: 'Mensaje para mvmAI…  (Mayús+Intro para salto de línea)', send: 'Enviar', stop: 'Detener',
     thinking: 'Pensando…', running: 'Ejecutando comando…',
-    welcome_title: 'mvmAI', welcome_sub: 'Pregunta lo que quieras. Puedo ejecutar comandos en este servidor por ti.',
+    welcome_title: 'mvmAI', welcome_sub: 'Pregunta lo que quieras.',
     no_provider: 'No hay proveedor configurado. Abre ⚙ Ajustes, elige un proveedor e introduce tu clave API.',
     open_settings: '⚙ Ajustes', settings_btn: '⚙', rename: 'Renombrar', delete: 'Eliminar',
     del_confirm: '¿Eliminar esta conversación?', cmd_label: 'Comando', reason_label: 'Motivo',
@@ -97,15 +101,18 @@ const _mvmai18n = {
     pub_bridge_label: 'Permitir a los usuarios públicos usar la integración de API con las apps',
     pub_bridge_hint: 'Desactivado por defecto. Cuando está activado, mvmAI puede leer o modificar los propios datos del usuario en sus otras apps instaladas.',
     sett_hint: 'Todo permanece dentro de mvmOS — la clave API se guarda en el servidor y nunca sale de él.',
-    exec_toggle: 'Comandos del servidor', exec_off: 'Desact.', exec_confirm: 'Confirmar', exec_auto_short: 'Automático',
+    exec_toggle: 'Comandos del servidor', exec_off: 'Solo lectura', exec_confirm: 'Confirmar', exec_auto_short: 'Automático',
     exec_enable_label: 'Permitir que mvmAI ejecute comandos en este servidor', exec_mode_label: 'Cuando quiera ejecutar uno',
     exec_mode_confirm: 'Pedirme confirmación para cada comando', exec_mode_auto: 'Ejecutar automáticamente, sin confirmación',
+    model_tool_default: '(predeterminado de la herramienta)', models_found: '{count} modelos encontrados — inicialmente se usa el predeterminado de la herramienta.',
+    models_failed: 'No se pudo cargar la lista de modelos — se usará el predeterminado de la herramienta.',
+    models_unavailable: 'Este CLI no ofrece una lista de modelos — se usará su modelo predeterminado.',
   },
   fr: {
     title: 'mvmAI', new_chat: '+ Nouvelle discussion', no_sessions: 'Aucune conversation pour le moment',
     placeholder: 'Message à mvmAI…  (Maj+Entrée pour un saut de ligne)', send: 'Envoyer', stop: 'Arrêter',
     thinking: 'Réflexion…', running: 'Exécution de la commande…',
-    welcome_title: 'mvmAI', welcome_sub: 'Demande-moi ce que tu veux. Je peux exécuter des commandes sur ce serveur pour toi.',
+    welcome_title: 'mvmAI', welcome_sub: 'Demande-moi ce que tu veux.',
     no_provider: 'Aucun fournisseur configuré. Ouvre ⚙ Paramètres, choisis un fournisseur et saisis ta clé API.',
     open_settings: '⚙ Paramètres', settings_btn: '⚙', rename: 'Renommer', delete: 'Supprimer',
     del_confirm: 'Supprimer cette conversation ?', cmd_label: 'Commande', reason_label: 'Raison',
@@ -120,15 +127,18 @@ const _mvmai18n = {
     pub_bridge_label: "Autoriser les utilisateurs publics à utiliser l'intégration API avec les applications",
     pub_bridge_hint: "Désactivé par défaut. Une fois activé, mvmAI peut lire ou modifier les propres données de l'utilisateur dans ses autres applications installées.",
     sett_hint: "Tout reste à l'intérieur de mvmOS — la clé API est stockée sur le serveur et ne le quitte jamais.",
-    exec_toggle: 'Commandes serveur', exec_off: 'Désactivé', exec_confirm: 'Confirmation', exec_auto_short: 'Automatique',
+    exec_toggle: 'Commandes serveur', exec_off: 'Lecture seule', exec_confirm: 'Confirmation', exec_auto_short: 'Automatique',
     exec_enable_label: 'Autoriser mvmAI à exécuter des commandes sur ce serveur', exec_mode_label: "Quand il veut en exécuter une",
     exec_mode_confirm: 'Me demander de confirmer chaque commande', exec_mode_auto: 'Exécuter automatiquement, sans confirmation',
+    model_tool_default: '(valeur par défaut de l’outil)', models_found: '{count} modèles trouvés — la valeur par défaut de l’outil est utilisée initialement.',
+    models_failed: 'La liste des modèles n’a pas pu être chargée — la valeur par défaut de l’outil sera utilisée.',
+    models_unavailable: 'Ce CLI ne fournit pas de liste de modèles — son modèle par défaut sera utilisé.',
   },
   ja: {
     title: 'mvmAI', new_chat: '+ 新しいチャット', no_sessions: 'まだ会話がありません',
     placeholder: 'mvmAIへのメッセージ…  (Shift+Enterで改行)', send: '送信', stop: '停止',
     thinking: '考え中…', running: 'コマンドを実行中…',
-    welcome_title: 'mvmAI', welcome_sub: '何でも聞いてください。このサーバー上でコマンドを実行できます。',
+    welcome_title: 'mvmAI', welcome_sub: '何でも聞いてください。',
     no_provider: 'プロバイダーが設定されていません。⚙ 設定を開き、プロバイダーを選んでAPIキーを入力してください。',
     open_settings: '⚙ 設定', settings_btn: '⚙', rename: '名前を変更', delete: '削除',
     del_confirm: 'この会話を削除しますか?', cmd_label: 'コマンド', reason_label: '理由',
@@ -143,15 +153,18 @@ const _mvmai18n = {
     pub_bridge_label: '公開ユーザーにアプリデータAPI連携の利用を許可する',
     pub_bridge_hint: '初期設定ではオフです。オンにすると、mvmAIはユーザー自身の他のインストール済みアプリのデータを読み書きできます。',
     sett_hint: 'すべてmvmOS内に留まります — APIキーはサーバーに保存され、外部に出ることはありません。',
-    exec_toggle: 'サーバーコマンド', exec_off: 'オフ', exec_confirm: '確認あり', exec_auto_short: '自動',
+    exec_toggle: 'サーバーコマンド', exec_off: '読み取り専用', exec_confirm: '確認あり', exec_auto_short: '自動',
     exec_enable_label: 'mvmAIがこのサーバーでコマンドを実行できるようにする', exec_mode_label: 'コマンドを実行したいとき',
     exec_mode_confirm: 'コマンドごとに確認を求める', exec_mode_auto: '確認なしで自動実行する',
+    model_tool_default: '（ツールのデフォルト）', models_found: '{count}個のモデルが見つかりました — 初期状態ではツールのデフォルトを使用します。',
+    models_failed: 'モデル一覧を読み込めませんでした — ツールのデフォルトを使用します。',
+    models_unavailable: 'このCLIはモデル一覧を提供していません — デフォルトモデルを使用します。',
   },
   'pt-BR': {
     title: 'mvmAI', new_chat: '+ Nova conversa', no_sessions: 'Ainda não há conversas',
     placeholder: 'Mensagem para o mvmAI…  (Shift+Enter para nova linha)', send: 'Enviar', stop: 'Parar',
     thinking: 'Pensando…', running: 'Executando comando…',
-    welcome_title: 'mvmAI', welcome_sub: 'Pergunte qualquer coisa. Posso executar comandos neste servidor para você.',
+    welcome_title: 'mvmAI', welcome_sub: 'Pergunte qualquer coisa.',
     no_provider: 'Nenhum provedor configurado. Abra ⚙ Configurações, escolha um provedor e informe sua chave de API.',
     open_settings: '⚙ Configurações', settings_btn: '⚙', rename: 'Renomear', delete: 'Excluir',
     del_confirm: 'Excluir esta conversa?', cmd_label: 'Comando', reason_label: 'Motivo',
@@ -166,15 +179,18 @@ const _mvmai18n = {
     pub_bridge_label: 'Permitir que usuários públicos usem a integração de API com os apps',
     pub_bridge_hint: 'Desativado por padrão. Quando ativado, o mvmAI pode ler ou alterar os próprios dados do usuário em seus outros apps instalados.',
     sett_hint: 'Tudo permanece dentro do mvmOS — a chave de API fica armazenada no servidor e nunca sai dele.',
-    exec_toggle: 'Comandos do servidor', exec_off: 'Desligado', exec_confirm: 'Confirmar', exec_auto_short: 'Automático',
+    exec_toggle: 'Comandos do servidor', exec_off: 'Somente leitura', exec_confirm: 'Confirmar', exec_auto_short: 'Automático',
     exec_enable_label: 'Permitir que o mvmAI execute comandos neste servidor', exec_mode_label: 'Quando quiser executar um',
     exec_mode_confirm: 'Pedir confirmação para cada comando', exec_mode_auto: 'Executar automaticamente, sem confirmação',
+    model_tool_default: '(padrão da ferramenta)', models_found: '{count} modelos encontrados — inicialmente, o padrão da ferramenta é usado.',
+    models_failed: 'Não foi possível carregar a lista de modelos — o padrão da ferramenta será usado.',
+    models_unavailable: 'Esta CLI não fornece uma lista de modelos — seu modelo padrão será usado.',
   },
   ru: {
     title: 'mvmAI', new_chat: '+ Новый чат', no_sessions: 'Пока нет разговоров',
     placeholder: 'Сообщение для mvmAI…  (Shift+Enter для новой строки)', send: 'Отправить', stop: 'Стоп',
     thinking: 'Думаю…', running: 'Выполняю команду…',
-    welcome_title: 'mvmAI', welcome_sub: 'Спрашивай что угодно. Я могу выполнять команды на этом сервере за тебя.',
+    welcome_title: 'mvmAI', welcome_sub: 'Спрашивай что угодно.',
     no_provider: 'Провайдер не настроен. Открой ⚙ Настройки, выбери провайдера и введи API-ключ.',
     open_settings: '⚙ Настройки', settings_btn: '⚙', rename: 'Переименовать', delete: 'Удалить',
     del_confirm: 'Удалить этот разговор?', cmd_label: 'Команда', reason_label: 'Причина',
@@ -189,15 +205,18 @@ const _mvmai18n = {
     pub_bridge_label: 'Разрешить публичным пользователям использовать API-интеграцию с приложениями',
     pub_bridge_hint: 'По умолчанию выключено. Когда включено, mvmAI может читать или изменять собственные данные пользователя в его других установленных приложениях.',
     sett_hint: 'Всё остаётся внутри mvmOS — API-ключ хранится на сервере и никогда не покидает его.',
-    exec_toggle: 'Команды на сервере', exec_off: 'Выкл.', exec_confirm: 'С подтверждением', exec_auto_short: 'Автоматически',
+    exec_toggle: 'Команды на сервере', exec_off: 'Только чтение', exec_confirm: 'С подтверждением', exec_auto_short: 'Автоматически',
     exec_enable_label: 'Разрешить mvmAI выполнять команды на этом сервере', exec_mode_label: 'Когда хочет выполнить команду',
     exec_mode_confirm: 'Спрашивать подтверждение для каждой команды', exec_mode_auto: 'Выполнять автоматически, без подтверждения',
+    model_tool_default: '(по умолчанию инструмента)', models_found: 'Найдено моделей: {count} — изначально используется настройка инструмента по умолчанию.',
+    models_failed: 'Не удалось загрузить список моделей — будет использована настройка инструмента по умолчанию.',
+    models_unavailable: 'Этот CLI не предоставляет список моделей — будет использована его модель по умолчанию.',
   },
   'zh-CN': {
     title: 'mvmAI', new_chat: '+ 新对话', no_sessions: '暂无对话',
     placeholder: '给 mvmAI 发消息…  (Shift+Enter 换行)', send: '发送', stop: '停止',
     thinking: '思考中…', running: '正在执行命令…',
-    welcome_title: 'mvmAI', welcome_sub: '尽管问吧。我可以替你在此服务器上执行命令。',
+    welcome_title: 'mvmAI', welcome_sub: '尽管问吧。',
     no_provider: '尚未配置提供商。打开 ⚙ 设置，选择提供商并输入你的 API 密钥。',
     open_settings: '⚙ 设置', settings_btn: '⚙', rename: '重命名', delete: '删除',
     del_confirm: '删除此对话？', cmd_label: '命令', reason_label: '原因',
@@ -212,18 +231,33 @@ const _mvmai18n = {
     pub_bridge_label: '允许公开用户使用应用数据 API 集成',
     pub_bridge_hint: '默认关闭。开启后，mvmAI 可以读取或更改用户自己在其他已安装应用中的数据。',
     sett_hint: '一切都保留在 mvmOS 内部 — API 密钥保存在服务器上，永远不会离开。',
-    exec_toggle: '服务器命令', exec_off: '关闭', exec_confirm: '需确认', exec_auto_short: '自动',
+    exec_toggle: '服务器命令', exec_off: '只读', exec_confirm: '需确认', exec_auto_short: '自动',
     exec_enable_label: '允许 mvmAI 在此服务器上执行命令', exec_mode_label: '当它想执行命令时',
     exec_mode_confirm: '每条命令都要我确认', exec_mode_auto: '自动执行，无需确认',
+    model_tool_default: '（工具默认值）', models_found: '找到 {count} 个模型 — 初始使用工具默认值。',
+    models_failed: '无法加载模型列表 — 将使用工具默认值。',
+    models_unavailable: '此 CLI 不提供模型列表 — 将使用其默认模型。',
   },
 };
 function _ait(key) { const lang = window.mvmOS?.lang || 'en'; return (_mvmai18n[lang] || _mvmai18n.en)[key] || key; }
 
+function _loadMvmaiScript(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src + '?_=' + Date.now();
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+async function _loadMvmaiWidget() {
+  if (!window.MVMAI_I18N) await _loadMvmaiScript('/apps/mvmai/i18n.js');
+  if (!window.MvmaiWidget) await _loadMvmaiScript('/apps/mvmai/mvmai-widget.js');
+}
+
 const _DEFAULT_PROMPT =
-  'You are mvmAI, an assistant embedded in mvmOS running on a Linux server. ' +
-  'You can run shell commands via the run_command tool; commands run with the privileges of the logged-in mvmOS user. ' +
-  'Inspect before you modify, prefer non-destructive commands, and explain what you do in plain language. ' +
-  'Be concise. When a command output answers the question, summarize it for the user instead of dumping raw text.';
+  'You are mvmAI. Answer clearly and concisely. Server and app access is determined only by the tools supplied by mvmAI.';
 
 mvmOS.registerApp({
   id: 'mvmai',
@@ -359,34 +393,27 @@ mvmOS.registerApp({
     async function _updateModelControls(refs, provider, current, keyForFetch) {
       const cli = _isCli(provider);
       refs.status.textContent = '';
+      refs.status.style.color = '';
       if (cli) {
         refs.sel.style.display = 'none';
+        refs.cliInp.style.display = 'none';
         const cliInfo = cliProviders.find(p => p.id === provider);
-        const supportsModel = !!(cliInfo && cliInfo.supports_model);
         const choices = (cliInfo && cliInfo.model_choices) || [];
-        const useSelect = supportsModel && choices.length > 0;
-        const useText   = supportsModel && choices.length === 0;
-        refs.cliSel.style.display = useSelect ? '' : 'none';
-        refs.cliInp.style.display = useText ? '' : 'none';
-        if (useSelect) {
-          refs.cliSel.innerHTML = `<option value="">${isBg ? '(по подразбиране на инструмента)' : "(the tool's own default)"}</option>` +
-            choices.map(m => `<option value="${m}">${m}</option>`).join('');
-          refs.cliSel.value = choices.includes(current) ? current : '';
-          refs.status.textContent = isBg
-            ? 'Избери изрично, за да знаеш точно кой модел се ползва — при "по подразбиране" mvmOS не може да покаже кой е активният модел на инструмента.'
-            : 'Pick one explicitly to know exactly what\'s used — with "tool default" mvmOS can\'t show which model is actually active.';
-        } else if (useText) {
-          refs.cliInp.value = current || '';
-          refs.cliInp.placeholder = cliInfo?.model_hint
-            ? (isBg ? `напр. ${cliInfo.model_hint}` : `e.g. ${cliInfo.model_hint}`)
-            : '';
-          refs.status.textContent = isBg
-            ? 'Празно поле = моделът по подразбиране на самия CLI инструмент — mvmOS не може да го покаже.'
-            : "Empty = whatever the CLI tool itself defaults to — mvmOS can't see that.";
+        refs.cliSel.style.display = '';
+        refs.cliSel.innerHTML = `<option value="">${_ait('model_tool_default')}</option>`;
+        choices.forEach(m => {
+          const option = document.createElement('option');
+          option.value = m;
+          option.textContent = m;
+          refs.cliSel.appendChild(option);
+        });
+        refs.cliSel.value = choices.includes(current) ? current : '';
+        if (cliInfo?.models_dynamic && choices.length) {
+          refs.status.textContent = _ait('models_found').replace('{count}', choices.length);
+        } else if (cliInfo?.models_dynamic) {
+          refs.status.textContent = _ait('models_failed');
         } else {
-          refs.status.textContent = isBg
-            ? 'Този инструмент не поддържа избор на модел през mvmOS — смени го в неговата собствена конфигурация.'
-            : "This tool doesn't support choosing a model from mvmOS — change it in the tool's own config.";
+          refs.status.textContent = _ait('models_unavailable');
         }
         return;
       }
@@ -405,10 +432,19 @@ mvmOS.registerApp({
           body: JSON.stringify({ provider, api_key: keyForFetch(provider), base_url: baseUrlInp?.value || saved?.base_url || '' }),
         });
         const d = await res.json();
-        if (d.error) { refs.sel.innerHTML = `<option value="">${isBg ? '(грешка)' : '(error)'}</option>`; refs.status.style.color='#e25555'; refs.status.textContent=d.error.slice(0,120); return; }
+        if (d.error) {
+          _fillModelSelectInto(refs.sel, [], '');
+          refs.status.style.color = '#e25555';
+          refs.status.textContent = d.error.slice(0, 120);
+          return;
+        }
         _fillModelSelectInto(refs.sel, d.models, current || '');
         refs.status.textContent = `${d.models.length} ${isBg ? 'модела' : 'models'}`;
-      } catch(e) { refs.sel.innerHTML = `<option value="">(error)</option>`; refs.status.style.color='#e25555'; refs.status.textContent=e.message; }
+      } catch(e) {
+        _fillModelSelectInto(refs.sel, [], '');
+        refs.status.style.color = '#e25555';
+        refs.status.textContent = e.message;
+      }
     }
 
     async function _updateForProvider(provider, current) {
@@ -425,6 +461,8 @@ mvmOS.registerApp({
 
     _updateForProvider(savedProvider, savedModel);
     provSel.addEventListener('change', () => _updateForProvider(provSel.value, ''));
+    keyInp.addEventListener('change', () => _updateForProvider(provSel.value, ''));
+    baseUrlInp.addEventListener('change', () => _updateForProvider(provSel.value, ''));
 
     // Public-page AI is a store-premium feature: the whole segment stays
     // visible and browsable, but without premium it's locked behind
@@ -511,7 +549,35 @@ mvmOS.registerApp({
       onMount(body) {
         body.style.padding = '0';
         body.style.overflow = 'hidden';
-        (window.mvmOS?.i18nReady || Promise.resolve()).then(() => AI.mount(body));
+        body.innerHTML = '<div class="mvmai-shared-root" style="height:100%"></div>';
+        const root = body.querySelector('.mvmai-shared-root');
+        let handle = null;
+
+        async function start() {
+          const token = localStorage.getItem('apphub_token');
+          if (!token) return;
+          await fetch('/api/mvmai/migrate-history', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Pub-Token': token },
+          }).catch(() => {});
+          await _loadMvmaiWidget();
+          handle = window.MvmaiWidget.mount(root, {
+            onNeedLogin() { AppHub.requireLogin(() => start()); },
+          });
+        }
+
+        (window.mvmOS?.i18nReady || Promise.resolve()).then(() => {
+          if (typeof AppHub !== 'undefined') AppHub.requireLogin(() => start());
+          else start();
+        });
+
+        const observer = new MutationObserver(() => {
+          if (!document.body.contains(root)) {
+            if (handle) handle.destroy();
+            observer.disconnect();
+          }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
       },
     });
   },
@@ -524,6 +590,7 @@ const AI = (() => {
   let _sessionId = null;
   let _busy = false;
   let _cfg = {};
+  let _access = { apps_hub_logged_in: false, is_admin: false };
 
   function _esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
@@ -532,7 +599,7 @@ const AI = (() => {
     const blocks = [];
     let text = String(src || '').replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
       blocks.push(`<pre class="mvmai-code"><code>${_esc(code.replace(/\n$/, ''))}</code></pre>`);
-      return ` ${blocks.length - 1} `;
+      return `\x00${blocks.length - 1}\x00`;
     });
     text = _esc(text);
     text = text.replace(/`([^`]+)`/g, '<code class="mvmai-inline">$1</code>');
@@ -542,15 +609,29 @@ const AI = (() => {
     text = text.replace(/^### (.*)$/gm, '<h4>$1</h4>').replace(/^## (.*)$/gm, '<h3>$1</h3>').replace(/^# (.*)$/gm, '<h3>$1</h3>');
     text = text.replace(/^\s*[-*] (.*)$/gm, '<li>$1</li>').replace(/(<li>[\s\S]*?<\/li>)/g, m => `<ul>${m}</ul>`).replace(/<\/ul>\s*<ul>/g, '');
     text = text.replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>');
-    text = text.replace(/ (\d+) /g, (_, i) => blocks[+i]);
+    text = text.replace(/\x00(\d+)\x00/g, (_, i) => blocks[+i]);
     return text;
+  }
+
+  function _headers(extra = {}) {
+    const token = localStorage.getItem('apphub_token');
+    return Object.assign({ 'Content-Type': 'application/json' }, token ? { 'X-Pub-Token': token } : {}, extra);
   }
 
   async function _api(path, body) {
     const res = await fetch('/api/mvmai' + path, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+      method: 'POST', headers: _headers(), body: JSON.stringify(body),
     });
     return res.json();
+  }
+
+  async function _loadAccess() {
+    try {
+      const res = await fetch('/api/mvmai/access', { headers: _headers() });
+      _access = res.ok ? await res.json() : { apps_hub_logged_in: false, is_admin: false };
+    } catch (_) {
+      _access = { apps_hub_logged_in: false, is_admin: false };
+    }
   }
 
   // ── DB helpers ────────────────────────────────────────────────────────────────
@@ -587,7 +668,7 @@ const AI = (() => {
       sel.innerHTML = `<option value="">${window.mvmOS?.lang === 'bg' ? 'Зарежда…' : 'Loading…'}</option>`;
       try {
         const res = await fetch('/api/mvmai/models', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: _headers(),
           body: JSON.stringify({ provider }),
         });
         const d = await res.json();
@@ -614,17 +695,18 @@ const AI = (() => {
     btn.classList.toggle('on', enabled && !auto);
     btn.classList.toggle('auto', enabled && auto);
     btn.querySelector('.mvmai-exec-state').textContent = !enabled ? _ait('exec_off') : (auto ? _ait('exec_auto_short') : _ait('exec_confirm'));
-    const chk = _root.querySelector('.mvmai-exec-enabled-chk');
-    if (chk) chk.checked = enabled;
-    const modeWrap = _root.querySelector('.mvmai-exec-mode-wrap');
-    if (modeWrap) modeWrap.hidden = !enabled;
-    const radio = _root.querySelector(`.mvmai-exec-menu input[name="mvmai-exec-mode"][value="${auto ? 'auto' : 'confirm'}"]`);
+    const mode = !enabled ? 'readonly' : (auto ? 'auto' : 'confirm');
+    const radio = _root.querySelector(`.mvmai-exec-menu input[name="mvmai-exec-mode"][value="${mode}"]`);
     if (radio) radio.checked = true;
   }
 
-  async function _saveExecCfg(key, value) {
-    _cfg[key] = value;
-    await _db.run('INSERT OR REPLACE INTO cfg (key,value) VALUES (?,?)', [key, JSON.stringify(value)]);
+  async function _saveExecMode(mode) {
+    _cfg.exec_enabled = mode !== 'readonly';
+    _cfg.exec_auto = mode === 'auto';
+    await Promise.all([
+      _db.run('INSERT OR REPLACE INTO cfg (key,value) VALUES (?,?)', ['exec_enabled', JSON.stringify(_cfg.exec_enabled)]),
+      _db.run('INSERT OR REPLACE INTO cfg (key,value) VALUES (?,?)', ['exec_auto', JSON.stringify(_cfg.exec_auto)]),
+    ]);
     _updateExecBtn();
   }
 
@@ -678,7 +760,7 @@ const AI = (() => {
     try {
       if (_cfg.provider?.endsWith('-cli')) {
         const res = await fetch('/api/mvmai/cli-chat', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          method: 'POST', headers: _headers(),
           body: JSON.stringify({ provider_id: _cfg.provider, messages: summaryPrompt }),
         });
         const d = await res.json();
@@ -779,6 +861,17 @@ const AI = (() => {
     });
   }
 
+  async function _inspectWithUI(args) {
+    const command = args.command || '';
+    const card = _addCommandCard(command, args.reason || 'Read-only server inspection');
+    const data = await _api('/inspect', {
+      command, reason: args.reason || '',
+    });
+    const result = data.error ? { stdout: '', stderr: data.error, code: 1 } : data.result;
+    _renderOutput(card, result);
+    return data.error ? { error: data.error } : data.result;
+  }
+
   // ── conversation turn ──────────────────────────────────────────────────────────
   function _systemMsg() {
     return { role: 'system', content: _DEFAULT_PROMPT };
@@ -793,8 +886,8 @@ const AI = (() => {
       let d;
       try {
         const res = await fetch('/api/mvmai/cli-chat', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ provider_id: _cfg.provider, messages: msgs, offer_run_command: !!_cfg.exec_enabled }),
+          method: 'POST', headers: _headers(),
+          body: JSON.stringify({ provider_id: _cfg.provider, messages: msgs }),
         });
         d = await res.json();
       } catch(e) {
@@ -814,7 +907,9 @@ const AI = (() => {
         for (const tc of d.tool_calls) {
           let args = {};
           try { args = JSON.parse(tc.function.arguments || '{}'); } catch (_) {}
-          const result = await _execWithUI(args.command || '', args.reason || '');
+          const result = tc.function.name === 'inspect_server'
+            ? await _inspectWithUI(args)
+            : await _execWithUI(args.command || '', args.reason || '');
           const toolMsg = { role: 'tool', tool_call_id: tc.id, content: JSON.stringify(result) };
           msgs.push(toolMsg);
           await _saveMessage(_sessionId, toolMsg);
@@ -852,7 +947,9 @@ const AI = (() => {
         for (const tc of msg.tool_calls) {
           let args = {};
           try { args = JSON.parse(tc.function.arguments || '{}'); } catch (_) {}
-          const result = await _execWithUI(args.command || '', args.reason || '');
+          const result = tc.function.name === 'inspect_server'
+            ? await _inspectWithUI(args)
+            : await _execWithUI(args.command || '', args.reason || '');
           const toolMsg = { role: 'tool', tool_call_id: tc.id, content: JSON.stringify(result) };
           apiMsgs.push(toolMsg);
           await _saveMessage(_sessionId, toolMsg);
@@ -939,7 +1036,10 @@ const AI = (() => {
         }
         (msg.tool_calls || []).forEach(tc => {
           let args = {}; try { args = JSON.parse(tc.function.arguments || '{}'); } catch (_) {}
-          cardByCall[tc.id] = _addCommandCard(args.command || '', args.reason || '');
+          const label = tc.function.name === 'inspect_server'
+            ? (args.command || 'inspect_server')
+            : (args.command || '');
+          cardByCall[tc.id] = _addCommandCard(label, args.reason || '');
         });
       } else if (msg.role === 'tool') {
         const card = cardByCall[msg.tool_call_id];
@@ -960,22 +1060,21 @@ const AI = (() => {
   // ── mount ───────────────────────────────────────────────────────────────────────
   async function mount(body) {
     _root = body;
+    await _loadAccess();
     body.innerHTML = `
       <div class="mvmai-root">
         <aside class="as-sidebar mvmai-sidebar">
           <button class="s-btn mvmai-new">${_ait('new_chat')}</button>
           <select class="mvmai-model-quick" title="Model"></select>
-          <div class="mvmai-exec-wrap">
+          ${_access.is_admin ? `<div class="mvmai-exec-wrap">
             <button class="s-btn mvmai-exec-btn" title="${_ait('exec_toggle')}">⚡ <span class="mvmai-exec-state"></span></button>
             <div class="mvmai-exec-menu" hidden>
-              <label class="mvmai-exec-row"><input type="checkbox" class="mvmai-exec-enabled-chk"> ${_ait('exec_enable_label')}</label>
-              <div class="mvmai-exec-mode-wrap" hidden>
-                <div class="mvmai-exec-mode-label">${_ait('exec_mode_label')}</div>
-                <label class="mvmai-exec-row"><input type="radio" name="mvmai-exec-mode" value="confirm"> ${_ait('exec_mode_confirm')}</label>
-                <label class="mvmai-exec-row"><input type="radio" name="mvmai-exec-mode" value="auto"> ${_ait('exec_mode_auto')}</label>
-              </div>
+              <div class="mvmai-exec-mode-label">${_ait('exec_mode_label')}</div>
+              <label class="mvmai-exec-row"><input type="radio" name="mvmai-exec-mode" value="readonly"> ${_ait('exec_off')}</label>
+              <label class="mvmai-exec-row"><input type="radio" name="mvmai-exec-mode" value="confirm"> ${_ait('exec_mode_confirm')}</label>
+              <label class="mvmai-exec-row"><input type="radio" name="mvmai-exec-mode" value="auto"> ${_ait('exec_mode_auto')}</label>
             </div>
-          </div>
+          </div>` : ''}
           <div class="mvmai-sessions"></div>
         </aside>
         <main class="mvmai-main">
@@ -1008,15 +1107,16 @@ const AI = (() => {
 
     const execWrap = body.querySelector('.mvmai-exec-wrap');
     const execMenu = body.querySelector('.mvmai-exec-menu');
-    body.querySelector('.mvmai-exec-btn').addEventListener('click', e => {
-      e.stopPropagation();
-      execMenu.hidden = !execMenu.hidden;
-    });
-    document.addEventListener('click', e => { if (execWrap && !execWrap.contains(e.target)) execMenu.hidden = true; });
-    body.querySelector('.mvmai-exec-enabled-chk').addEventListener('change', e => _saveExecCfg('exec_enabled', e.target.checked));
-    body.querySelectorAll('.mvmai-exec-menu input[name="mvmai-exec-mode"]').forEach(r => {
-      r.addEventListener('change', e => { if (e.target.checked) _saveExecCfg('exec_auto', e.target.value === 'auto'); });
-    });
+    if (execWrap && execMenu) {
+      body.querySelector('.mvmai-exec-btn').addEventListener('click', e => {
+        e.stopPropagation();
+        execMenu.hidden = !execMenu.hidden;
+      });
+      document.addEventListener('click', e => { if (!execWrap.contains(e.target)) execMenu.hidden = true; });
+      body.querySelectorAll('.mvmai-exec-menu input[name="mvmai-exec-mode"]').forEach(r => {
+        r.addEventListener('change', e => { if (e.target.checked) _saveExecMode(e.target.value); });
+      });
+    }
 
     window.addEventListener('settings-changed', e => { if (e.detail?.app === 'mvmai') _loadCfg(); });
     window.mvmOS?.onLangChange?.(() => { /* keep current chat; labels update on reopen */ });

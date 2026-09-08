@@ -45,6 +45,8 @@
         overflow-wrap:anywhere;white-space:normal}
       .mvmai-msg.user{align-self:flex-end;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}
       .mvmai-msg.assistant{align-self:flex-start;background:var(--pub-surface2,#313244)}
+      .mvmai-provider-label{margin-top:.45rem;padding-top:.35rem;border-top:1px solid rgba(255,255,255,.09);
+        color:var(--pub-dim,#6c7086);font-size:.68rem;line-height:1.2}
       .mvmai-msg.system-note{align-self:center;background:none;color:var(--pub-dim,#6c7086);font-size:.78rem;
         text-align:center;max-width:100%}
       .mvmai-tool-card{align-self:flex-start;max-width:90%;background:var(--pub-crust,#2a2a3d);
@@ -89,6 +91,8 @@
         cursor:pointer;font-size:.82rem}
       .mvmai-session-row:hover,.mvmai-session-row.active{background:var(--pub-surface2,#313244)}
       .mvmai-session-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .mvmai-session-edit{flex:1;min-width:0;padding:.28rem .4rem;border:1px solid var(--pub-accent,#89b4fa);
+        border-radius:.3rem;background:var(--pub-bg,#1e1e2e);color:inherit;font:inherit;outline:none}
       .mvmai-session-row .mvmai-s-btn{opacity:.55;background:none;border:0;color:inherit;cursor:pointer;
         font-size:.82rem;padding:.15rem .3rem;flex-shrink:0}
       .mvmai-session-row .mvmai-s-btn:hover{opacity:1}
@@ -168,12 +172,10 @@
             ${me.is_admin ? `<div class="mvmai-exec-wrap">
               <button class="mvmai-exec-btn" type="button"><span>⚡</span><span class="mvmai-exec-state"></span></button>
               <div class="mvmai-exec-menu" hidden>
-                <label class="mvmai-exec-row"><input type="checkbox" class="mvmai-exec-enabled-chk"> ${esc(t('mvmai_pub_exec_enable_label'))}</label>
-                <div class="mvmai-exec-mode-wrap" hidden>
-                  <div class="mvmai-exec-mode-label">${esc(t('mvmai_pub_exec_mode_label'))}</div>
-                  <label class="mvmai-exec-row"><input type="radio" name="mvmai-pub-exec-mode" value="confirm"> ${esc(t('mvmai_pub_exec_mode_confirm'))}</label>
-                  <label class="mvmai-exec-row"><input type="radio" name="mvmai-pub-exec-mode" value="auto"> ${esc(t('mvmai_pub_exec_mode_auto'))}</label>
-                </div>
+                <div class="mvmai-exec-mode-label">${esc(t('mvmai_pub_exec_mode_label'))}</div>
+                <label class="mvmai-exec-row"><input type="radio" name="mvmai-pub-exec-mode" value="readonly"> ${esc(t('mvmai_pub_exec_off'))}</label>
+                <label class="mvmai-exec-row"><input type="radio" name="mvmai-pub-exec-mode" value="confirm"> ${esc(t('mvmai_pub_exec_mode_confirm'))}</label>
+                <label class="mvmai-exec-row"><input type="radio" name="mvmai-pub-exec-mode" value="auto"> ${esc(t('mvmai_pub_exec_mode_auto'))}</label>
               </div>
             </div>` : ''}
           </div>
@@ -205,8 +207,6 @@
         var execWrap = root.querySelector('.mvmai-exec-wrap');
         var execBtn = root.querySelector('.mvmai-exec-btn');
         var execMenu = root.querySelector('.mvmai-exec-menu');
-        var execChk = root.querySelector('.mvmai-exec-enabled-chk');
-        var execModeWrap = root.querySelector('.mvmai-exec-mode-wrap');
         var execState = { enabled: false, auto: false };
 
         function renderExecBtn() {
@@ -214,14 +214,14 @@
           execBtn.classList.toggle('auto', execState.enabled && execState.auto);
           execBtn.querySelector('.mvmai-exec-state').textContent = !execState.enabled
             ? t('mvmai_pub_exec_off') : (execState.auto ? t('mvmai_pub_exec_auto_short') : t('mvmai_pub_exec_confirm'));
-          execChk.checked = execState.enabled;
-          execModeWrap.hidden = !execState.enabled;
-          var radio = execMenu.querySelector('input[name="mvmai-pub-exec-mode"][value="' + (execState.auto ? 'auto' : 'confirm') + '"]');
+          var mode = !execState.enabled ? 'readonly' : (execState.auto ? 'auto' : 'confirm');
+          var radio = execMenu.querySelector('input[name="mvmai-pub-exec-mode"][value="' + mode + '"]');
           if (radio) radio.checked = true;
         }
 
-        function saveExecState(patch) {
-          Object.assign(execState, patch);
+        function saveExecMode(mode) {
+          execState.enabled = mode !== 'readonly';
+          execState.auto = mode === 'auto';
           renderExecBtn();
           api('/exec-settings', {method: 'POST', body: JSON.stringify({enabled: execState.enabled, auto: execState.auto})});
         }
@@ -235,9 +235,8 @@
 
         execBtn.onclick = function (e) { e.stopPropagation(); execMenu.hidden = !execMenu.hidden; };
         document.addEventListener('click', function (e) { if (!execWrap.contains(e.target)) execMenu.hidden = true; });
-        execChk.addEventListener('change', function (e) { saveExecState({enabled: e.target.checked}); });
         execMenu.querySelectorAll('input[name="mvmai-pub-exec-mode"]').forEach(function (r) {
-          r.addEventListener('change', function (e) { if (e.target.checked) saveExecState({auto: e.target.value === 'auto'}); });
+          r.addEventListener('change', function (e) { if (e.target.checked) saveExecMode(e.target.value); });
         });
       }
 
@@ -275,12 +274,43 @@
             row.querySelector('.mvmai-session-title').onclick = function () { openSession(s.id); };
             row.querySelector('.mvmai-s-rename').onclick = function (e) {
               e.stopPropagation();
-              var next = prompt(t('mvmai_pub_rename'), s.title || '');
-              if (next == null) return;
-              next = next.trim();
-              if (!next) return;
-              api('/sessions/' + s.id, {method: 'PATCH', body: JSON.stringify({title: next})})
-                .then(function () { refreshSessionList(); });
+              var titleEl = row.querySelector('.mvmai-session-title');
+              var input = document.createElement('input');
+              var finished = false;
+              input.className = 'mvmai-session-edit';
+              input.type = 'text';
+              input.maxLength = 120;
+              input.value = s.title || '';
+              input.setAttribute('aria-label', t('mvmai_pub_rename'));
+              titleEl.replaceWith(input);
+              input.focus();
+              input.select();
+
+              function finish(save) {
+                if (finished) return;
+                finished = true;
+                var next = input.value.trim();
+                if (!save || !next || next === (s.title || '')) {
+                  refreshSessionList();
+                  return;
+                }
+                api('/sessions/' + encodeURIComponent(s.id), {
+                  method: 'PATCH',
+                  body: JSON.stringify({title: next})
+                }).then(function () { refreshSessionList(); });
+              }
+
+              input.addEventListener('click', function (event) { event.stopPropagation(); });
+              input.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  finish(true);
+                } else if (event.key === 'Escape') {
+                  event.preventDefault();
+                  finish(false);
+                }
+              });
+              input.addEventListener('blur', function () { finish(true); });
             };
             row.querySelector('.mvmai-s-delete').onclick = function (e) {
               e.stopPropagation();
@@ -328,6 +358,12 @@
         var el = document.createElement('div');
         el.className = 'mvmai-msg ' + role;
         el.innerHTML = nl2br(content);
+        if (role === 'assistant' && me.is_admin && me.provider_label) {
+          var providerEl = document.createElement('div');
+          providerEl.className = 'mvmai-provider-label';
+          providerEl.textContent = me.provider_label;
+          el.appendChild(providerEl);
+        }
         listEl.appendChild(el);
         scrollDown();
         return el;
@@ -364,6 +400,12 @@
           });
         }
 
+        if (name === 'inspect_server') {
+          return inspectServerCall(args).then(function (resultText) {
+            return {role: 'tool', tool_call_id: call.id, content: resultText};
+          });
+        }
+
         var card = document.createElement('div');
         card.className = 'mvmai-tool-card';
         card.innerHTML = '<div class="mvmai-tool-head">🔧 ' + esc(t('mvmai_pub_using_tool', {name: name})) + '</div>';
@@ -384,6 +426,27 @@
             }
             return {role: 'tool', tool_call_id: call.id, content: content};
           });
+      }
+
+      function inspectServerCall(args) {
+        var card = document.createElement('div');
+        card.className = 'mvmai-tool-card';
+        card.innerHTML =
+          '<div class="mvmai-tool-head">🔎 ' + esc(t('mvmai_pub_using_tool', {name: 'inspect_server'})) + '</div>' +
+          '<div class="mvmai-tool-cmd">' + esc(args.command || '') + '</div>';
+        listEl.appendChild(card);
+        scrollDown();
+        return api('/inspect', {method: 'POST', body: JSON.stringify({
+          command: args.command || '', reason: args.reason || ''
+        })}).then(function (data) {
+          var content = data.__status === 200 ? JSON.stringify(data.result) : JSON.stringify({error: data.error || 'forbidden'});
+          var out = document.createElement('div');
+          out.className = 'mvmai-tool-out';
+          out.textContent = data.__status === 200 ? JSON.stringify(data.result, null, 2) : (data.error || 'forbidden');
+          card.appendChild(out);
+          scrollDown();
+          return content;
+        });
       }
 
       function runCommandCall(args) {

@@ -96,6 +96,100 @@ def _git(session, path, args, timeout=60):
     return _run_git(owner, path, args, timeout)
 
 
+def _issues_module():
+    module = _premium_module()
+    if module is None or not module.is_available():
+        raise HTTPException(403, 'Premium is required for Issues')
+    return module
+
+
+def _issues_context(session, path):
+    path, _ = _require_repo_access(session, path)
+    remote_r = _git(session, path, ['remote', 'get-url', 'origin'])
+    if remote_r.returncode != 0 or not remote_r.stdout.strip():
+        raise HTTPException(400, 'This repository has no origin remote')
+    return _issues_module(), path, remote_r.stdout.strip(), session['effective_user']
+
+
+def _issue_call(callback):
+    try:
+        return callback()
+    except Exception as exc:
+        status = getattr(exc, 'status', 500)
+        detail = getattr(exc, 'detail', None) or str(exc) or 'GitHub request failed'
+        raise HTTPException(status, detail) from exc
+
+
+def _issue_branch_state(session, path, branch, fetch=True):
+    dirty_r = _git(session, path, ['status', '--porcelain'])
+    if dirty_r.returncode != 0:
+        raise HTTPException(400, dirty_r.stderr.strip() or 'Could not inspect working tree')
+    current_r = _git(session, path, ['branch', '--show-current'])
+    current = current_r.stdout.strip() if current_r.returncode == 0 else ''
+    local_r = _git(session, path, ['show-ref', '--verify', '--quiet', f'refs/heads/{branch}'])
+    fetch_error = ''
+    if fetch:
+        fetch_r = _git(session, path, ['fetch', 'origin'], timeout=120)
+        if fetch_r.returncode != 0:
+            fetch_error = (fetch_r.stdout + fetch_r.stderr).strip() or 'Could not fetch origin'
+    remote_r = _git(
+        session, path,
+        ['show-ref', '--verify', '--quiet', f'refs/remotes/origin/{branch}'],
+    )
+    return {
+        'branch': branch,
+        'current': current,
+        'dirty': bool(dirty_r.stdout.strip()),
+        'local_exists': local_r.returncode == 0,
+        'remote_exists': remote_r.returncode == 0,
+        'fetch_error': fetch_error,
+    }
+
+
+def _activate_issue_branch(session, path, branch):
+    state = _issue_branch_state(session, path, branch)
+    if state['fetch_error']:
+        raise HTTPException(502, state['fetch_error'])
+    if state['dirty'] and state['current'] != branch:
+        raise HTTPException(409, 'Commit or discard your changes before switching branches')
+
+    if state['current'] != branch:
+        if state['local_exists']:
+            args = ['checkout', branch]
+        elif state['remote_exists']:
+            args = ['checkout', '-b', branch, '--track', f'origin/{branch}']
+        else:
+            args = ['checkout', '-b', branch]
+        result = _git(session, path, args)
+        output = (result.stdout + result.stderr).strip()
+        if result.returncode != 0:
+            raise HTTPException(400, output or 'Could not switch issue branch')
+
+    pulled = False
+    pull_output = ''
+    if state['remote_exists'] and not state['dirty']:
+        upstream_r = _git(
+            session, path,
+            ['branch', '--set-upstream-to', f'origin/{branch}', branch],
+        )
+        if upstream_r.returncode != 0:
+            raise HTTPException(400, upstream_r.stderr.strip() or 'Could not set branch upstream')
+        pull_r = _git(session, path, ['pull', '--ff-only', 'origin', branch], timeout=120)
+        pull_output = (pull_r.stdout + pull_r.stderr).strip()
+        if pull_r.returncode != 0:
+            raise HTTPException(409, pull_output or 'Could not fast-forward issue branch')
+        pulled = True
+
+    return {
+        'ok': True,
+        'branch': branch,
+        'created': not state['local_exists'],
+        'tracking': state['remote_exists'],
+        'pulled': pulled,
+        'output': pull_output,
+    }
+
+
 # ── Repos ──────────────────────────────────────────────────────────────────────
 
 @router.get("/repos")
@@ -375,6 +469,99 @@ def repo_clone(body: CloneBody, session=Depends(get_current_session)):
     if r.returncode != 0:
         raise HTTPException(400, out or 'Clone failed')
     return JSONResponse({'ok': True, 'output': out})
+
+
+# ── GitHub Issues (Premium implementation lives in apps/git-manager/premium) ──
+
+@router.get("/repo/issues/status")
+def issues_status(path: str, session=Depends(get_current_session)):
+    module, _, remote, user = _issues_context(session, path)
+    return JSONResponse(_issue_call(lambda: module.issue_status(user, remote)))
+
+
+class IssueTokenBody(BaseModel):
+    path: str
+    token: str
+
+
+@router.post("/repo/issues/token")
+def issues_save_token(body: IssueTokenBody, session=Depends(get_current_session)):
+    module, path, remote, user = _issues_context(session, body.path)
+    return JSONResponse(_issue_call(lambda: module.save_token(user, remote, body.token)))
+
+
+@router.delete("/repo/issues/token")
+def issues_remove_token(path: str, session=Depends(get_current_session)):
+    module, _, _, user = _issues_context(session, path)
+    return JSONResponse(_issue_call(lambda: module.remove_token(user)))
+
+
+@router.get("/repo/issues")
+def issues_list(path: str, state: str = 'open', session=Depends(get_current_session)):
+    if state not in ('open', 'closed'):
+        raise HTTPException(400, 'Invalid issue state')
+    module, _, remote, user = _issues_context(session, path)
+    return JSONResponse({'issues': _issue_call(lambda: module.list_issues(user, remote, state))})
+
+
+@router.get("/repo/issues/{number}")
+def issues_detail(number: int, path: str, session=Depends(get_current_session)):
+    module, _, remote, user = _issues_context(session, path)
+    return JSONResponse({'issue': _issue_call(lambda: module.get_issue(user, remote, number))})
+
+
+class IssueCreateBody(BaseModel):
+    path: str
+    title: str
+    body: str = ''
+
+
+@router.post("/repo/issues")
+def issues_create(body: IssueCreateBody, session=Depends(get_current_session)):
+    if not body.title.strip():
+        raise HTTPException(400, 'Issue title is required')
+    module, path, remote, user = _issues_context(session, body.path)
+    issue = _issue_call(lambda: module.create_issue(user, remote, body.title, body.body))
+    response = {'issue': issue}
+    try:
+        branch = _issue_call(lambda: module.issue_branch_name(user, remote, issue['number']))
+        response['branch'] = _activate_issue_branch(session, path, branch)
+    except HTTPException as exc:
+        response['branch_error'] = exc.detail
+    return JSONResponse(response)
+
+
+class IssueStateBody(BaseModel):
+    path: str
+    state: str
+
+
+@router.patch("/repo/issues/{number}/state")
+def issues_set_state(number: int, body: IssueStateBody, session=Depends(get_current_session)):
+    if body.state not in ('open', 'closed'):
+        raise HTTPException(400, 'Invalid issue state')
+    module, _, remote, user = _issues_context(session, body.path)
+    return JSONResponse({'issue': _issue_call(
+        lambda: module.set_issue_state(user, remote, number, body.state)
+    )})
+
+
+class IssueBranchBody(BaseModel):
+    path: str
+
+
+@router.get("/repo/issues/{number}/branch")
+def issues_branch_status(number: int, path: str, session=Depends(get_current_session)):
+    module, path, remote, user = _issues_context(session, path)
+    branch = _issue_call(lambda: module.issue_branch_name(user, remote, number))
+    return JSONResponse(_issue_branch_state(session, path, branch))
+
+
+@router.post("/repo/issues/{number}/branch")
+def issues_create_branch(number: int, body: IssueBranchBody, session=Depends(get_current_session)):
+    module, path, remote, user = _issues_context(session, body.path)
+    branch = _issue_call(lambda: module.issue_branch_name(user, remote, number))
+    return JSONResponse(_activate_issue_branch(session, path, branch))
 
 
 # ── SSH ────────────────────────────────────────────────────────────────────────

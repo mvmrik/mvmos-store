@@ -13,6 +13,12 @@ var GM = {
   contentEl: null,
 };
 
+GM.escape = function(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+};
+
 // ── API helper ────────────────────────────────────────────────────────────────
 
 GM.api = async function(path, opts) {
@@ -298,6 +304,8 @@ GM.showRepoView = function(container, repo, autoFetch) {
     + '<button id="gm-pull" class="s-btn s-btn-sm">&#x2B07; ' + t('gm_pull') + '</button>'
     + '<button id="gm-push" class="s-btn s-btn-sm">&#x2B06; ' + t('gm_push') + '</button>'
     + '<button id="gm-fetch" class="s-btn s-btn-sm">&#x27F3; ' + t('gm_fetch') + '</button>'
+    + '<button id="gm-issues" class="s-btn s-btn-sm">'
+    + ((GM.state.foreignAccess || {}).premium ? '&#x25C9; ' : '&#x1F48E; ') + t('gm_issues') + '</button>'
     + '<div id="gm-sync-info" style="font-size:.75rem;color:var(--text-dim);margin-left:4px"></div>'
     + '<div style="flex:1"></div>'
     + '<div style="display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden">'
@@ -499,9 +507,222 @@ GM.showRepoView = function(container, repo, autoFetch) {
     }
   }
 
+  function showIssues() {
+    var tc = container.querySelector('#gm-tab-content');
+    container.querySelector('#gm-tab-status').style.background = 'none';
+    container.querySelector('#gm-tab-status').style.color = 'var(--text-dim)';
+    container.querySelector('#gm-tab-log').style.background = 'none';
+    container.querySelector('#gm-tab-log').style.color = 'var(--text-dim)';
+    tc.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem;opacity:.7">' + t('gm_loading') + '</div>';
+    GM.api('/repo/issues/status?path=' + encodeURIComponent(repo.path)).then(function(status) {
+      if (!status.connected) {
+        renderIssueSetup(tc, status);
+        return;
+      }
+      renderIssueList(tc, 'open', status);
+    }).catch(function(e) {
+      tc.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + GM.escape(e.message) + '</div>';
+    });
+  }
+
+  function renderIssueSetup(tc, status) {
+    tc.innerHTML = '<div style="max-width:540px;margin:20px auto;background:var(--surface2,#313244);border-radius:9px;padding:18px;display:flex;flex-direction:column;gap:12px">'
+      + '<div style="font-size:1rem;font-weight:700">' + t('gm_issues_connect_title') + '</div>'
+      + '<div style="font-size:.82rem;line-height:1.5;color:var(--text-dim)">' + t('gm_issues_connect_body') + '</div>'
+      + '<div style="font-size:.76rem;color:var(--text-dim)">' + (status.gh_installed ? t('gm_issues_gh_not_logged') : t('gm_issues_gh_missing')) + '</div>'
+      + (status.error ? '<div style="font-size:.78rem;color:#f38ba8">' + GM.escape(status.error) + '</div>' : '')
+      + '<input id="gm-issues-token" class="s-input" type="password" autocomplete="off" placeholder="' + t('gm_issues_token_placeholder') + '" style="width:100%;box-sizing:border-box">'
+      + '<div id="gm-issues-token-error" style="display:none;color:#f38ba8;font-size:.78rem"></div>'
+      + '<div><button id="gm-issues-token-save" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_issues_connect') + '</button></div>'
+      + '</div>';
+    tc.querySelector('#gm-issues-token-save').addEventListener('click', async function() {
+      var token = tc.querySelector('#gm-issues-token').value.trim();
+      var err = tc.querySelector('#gm-issues-token-error');
+      if (!token) { err.textContent = t('gm_issues_token_required'); err.style.display = 'block'; return; }
+      this.disabled = true; this.textContent = t('gm_issues_connecting'); err.style.display = 'none';
+      try {
+        await GM.api('/repo/issues/token', {method:'POST', json:{path:repo.path, token:token}});
+        showIssues();
+      } catch(e) {
+        err.textContent = e.message; err.style.display = 'block';
+        this.disabled = false; this.textContent = t('gm_issues_connect');
+      }
+    });
+  }
+
+  function renderIssueList(tc, state, status) {
+    tc.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
+      + '<div style="display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden">'
+      + '<button id="gm-issues-open" class="s-btn s-btn-sm" style="border:0;border-radius:0">' + t('gm_issues_open') + '</button>'
+      + '<button id="gm-issues-closed" class="s-btn s-btn-sm" style="border:0;border-radius:0">' + t('gm_issues_closed') + '</button></div>'
+      + '<span style="font-size:.72rem;color:var(--text-dim)">' + GM.escape(status.repository || '') + '</span>'
+      + '<div style="flex:1"></div>'
+      + '<button id="gm-issues-new" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">+ ' + t('gm_issues_new') + '</button>'
+      + '</div><div id="gm-issues-list"></div>';
+    var openBtn = tc.querySelector('#gm-issues-open');
+    var closedBtn = tc.querySelector('#gm-issues-closed');
+    openBtn.style.background = state === 'open' ? 'var(--accent)' : 'none';
+    openBtn.style.color = state === 'open' ? '#fff' : 'var(--text-dim)';
+    closedBtn.style.background = state === 'closed' ? 'var(--accent)' : 'none';
+    closedBtn.style.color = state === 'closed' ? '#fff' : 'var(--text-dim)';
+    openBtn.onclick = function() { renderIssueList(tc, 'open', status); };
+    closedBtn.onclick = function() { renderIssueList(tc, 'closed', status); };
+    tc.querySelector('#gm-issues-new').onclick = function() { renderNewIssue(tc, status); };
+    var list = tc.querySelector('#gm-issues-list');
+    list.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem">' + t('gm_loading') + '</div>';
+    GM.api('/repo/issues?path=' + encodeURIComponent(repo.path) + '&state=' + state).then(function(data) {
+      var issues = data.issues || [];
+      if (!issues.length) {
+        list.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;text-align:center;padding:28px">' + t(state === 'open' ? 'gm_issues_no_open' : 'gm_issues_no_closed') + '</div>';
+        return;
+      }
+      list.innerHTML = '';
+      issues.forEach(function(issue) {
+        var row = document.createElement('button');
+        row.className = 's-btn';
+        row.style.cssText = 'width:100%;display:flex;align-items:flex-start;gap:10px;text-align:left;padding:9px 10px;margin-bottom:5px;background:var(--surface2,#313244);border-color:var(--border)';
+        row.innerHTML = '<span style="color:' + (issue.state === 'open' ? '#a6e3a1' : '#a6adc8') + ';font-size:1rem">&#x25CF;</span>'
+          + '<span style="flex:1;min-width:0"><span style="display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + GM.escape(issue.title) + '</span>'
+          + '<span style="display:block;font-size:.7rem;color:var(--text-dim);margin-top:3px">#' + issue.number + ' · ' + GM.escape(issue.author) + ' · ' + t('gm_issues_comments', {n:issue.comments || 0}) + '</span></span>';
+        row.onclick = function() { renderIssueDetail(tc, issue.number, status, state, true); };
+        list.appendChild(row);
+      });
+    }).catch(function(e) {
+      list.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + GM.escape(e.message) + '</div>';
+    });
+  }
+
+  function renderNewIssue(tc, status) {
+    tc.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><button id="gm-issues-back" class="s-btn s-btn-sm">&#x2190; ' + t('gm_back') + '</button>'
+      + '<strong>' + t('gm_issues_new') + '</strong></div>'
+      + '<div style="display:flex;flex-direction:column;gap:10px;max-width:700px">'
+      + '<input id="gm-issue-title" class="s-input" placeholder="' + t('gm_issues_title_placeholder') + '">'
+      + '<textarea id="gm-issue-body" class="s-input" rows="10" placeholder="' + t('gm_issues_body_placeholder') + '" style="resize:vertical;max-width:none"></textarea>'
+      + '<div id="gm-issue-create-error" style="display:none;color:#f38ba8;font-size:.8rem"></div>'
+      + '<div><button id="gm-issue-create" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_issues_create') + '</button></div></div>';
+    tc.querySelector('#gm-issues-back').onclick = function() { renderIssueList(tc, 'open', status); };
+    tc.querySelector('#gm-issue-create').onclick = async function() {
+      var title = tc.querySelector('#gm-issue-title').value.trim();
+      var body = tc.querySelector('#gm-issue-body').value.trim();
+      var err = tc.querySelector('#gm-issue-create-error');
+      if (!title) { err.textContent = t('gm_issues_title_required'); err.style.display = 'block'; return; }
+      this.disabled = true; this.textContent = t('gm_issues_creating');
+      try {
+        var data = await GM.api('/repo/issues', {method:'POST',json:{path:repo.path,title:title,body:body}});
+        var notice = null;
+        if (data.branch) {
+          repo.branch = data.branch.branch;
+          notice = {ok:true, text:t('gm_issues_branch_ready', {branch:data.branch.branch})};
+        } else if (data.branch_error) {
+          notice = {ok:false, text:t('gm_issues_created_branch_failed', {error:data.branch_error})};
+        }
+        renderIssueDetail(tc, data.issue.number, status, 'open', false, notice);
+      } catch(e) {
+        err.textContent = e.message; err.style.display = 'block'; this.disabled = false; this.textContent = t('gm_issues_create');
+      }
+    };
+  }
+
+  async function activateIssueBranch(tc, issue) {
+    var result = tc.querySelector('#gm-issue-action-result');
+    result.style.color = 'var(--text-dim)';
+    result.textContent = t('gm_issues_switching_branch');
+    var data = await GM.api('/repo/issues/' + issue.number + '/branch', {method:'POST',json:{path:repo.path}});
+    repo.branch = data.branch;
+    container.querySelector('#gm-branch-btn').innerHTML = '&#x1F33F; ' + GM.escape(data.branch) + ' &#x25BE;';
+    GM.renderSidebar();
+    result.style.color = '#a6e3a1';
+    result.textContent = t(data.pulled ? 'gm_issues_branch_synced' : 'gm_issues_branch_ready', {branch:data.branch});
+    return data;
+  }
+
+  function renderIssueDetail(tc, number, status, previousState, autoBranch, notice) {
+    tc.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem">' + t('gm_loading') + '</div>';
+    GM.api('/repo/issues/' + number + '?path=' + encodeURIComponent(repo.path)).then(function(data) {
+      var issue = data.issue;
+      tc.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
+        + '<button id="gm-issues-back" class="s-btn s-btn-sm">&#x2190; ' + t('gm_back') + '</button><strong style="flex:1">#' + issue.number + ' ' + GM.escape(issue.title) + '</strong>'
+        + '<button id="gm-issue-branch" class="s-btn s-btn-sm">&#x1F33F; ' + t('gm_issues_create_branch') + '</button>'
+        + '<button id="gm-issue-state" class="s-btn s-btn-sm">' + t(issue.state === 'open' ? 'gm_issues_close' : 'gm_issues_reopen') + '</button></div>'
+        + '<div style="font-size:.74rem;color:var(--text-dim);margin-bottom:12px">' + GM.escape(issue.author) + ' · ' + GM.escape(issue.state) + '</div>'
+        + '<div style="white-space:pre-wrap;line-height:1.5;background:var(--surface2,#313244);border-radius:8px;padding:12px;min-height:48px">' + GM.escape(issue.body || t('gm_issues_no_description')) + '</div>'
+        + '<div id="gm-issue-action-result" style="font-size:.78rem;margin-top:10px"></div>'
+        + '<div style="font-weight:600;margin:16px 0 8px">' + t('gm_issues_comments_title') + '</div><div id="gm-issue-comments"></div>';
+      tc.querySelector('#gm-issues-back').onclick = function() { renderIssueList(tc, previousState || issue.state, status); };
+      var actionResult = tc.querySelector('#gm-issue-action-result');
+      if (notice) {
+        actionResult.style.color = notice.ok ? '#a6e3a1' : '#f9e2af';
+        actionResult.textContent = notice.text;
+      }
+      var comments = tc.querySelector('#gm-issue-comments');
+      if (!(issue.comments_list || []).length) comments.innerHTML = '<div style="font-size:.8rem;color:var(--text-dim)">' + t('gm_issues_no_comments') + '</div>';
+      (issue.comments_list || []).forEach(function(comment) {
+        var item = document.createElement('div');
+        item.style.cssText = 'background:var(--surface2,#313244);border-radius:7px;padding:10px;margin-bottom:7px';
+        item.innerHTML = '<div style="font-size:.7rem;color:var(--text-dim);margin-bottom:6px">' + GM.escape(comment.author) + '</div><div style="white-space:pre-wrap;line-height:1.45">' + GM.escape(comment.body) + '</div>';
+        comments.appendChild(item);
+      });
+      tc.querySelector('#gm-issue-state').onclick = async function() {
+        var next = issue.state === 'open' ? 'closed' : 'open';
+        this.disabled = true;
+        try {
+          await GM.api('/repo/issues/' + issue.number + '/state', {method:'PATCH',json:{path:repo.path,state:next}});
+          renderIssueDetail(tc, issue.number, status, next, false);
+        } catch(e) { this.disabled = false; tc.querySelector('#gm-issue-action-result').textContent = e.message; }
+      };
+      tc.querySelector('#gm-issue-branch').onclick = async function() {
+        var result = tc.querySelector('#gm-issue-action-result');
+        this.disabled = true; this.textContent = t('gm_issues_creating_branch');
+        try {
+          await activateIssueBranch(tc, issue);
+          this.textContent = '&#x1F33F; ' + t('gm_issues_create_branch'); this.disabled = false;
+        } catch(e) { result.style.color = '#f38ba8'; result.textContent = e.message; this.disabled = false; this.textContent = t('gm_issues_create_branch'); }
+      };
+      if (autoBranch) {
+        actionResult.style.color = 'var(--text-dim)';
+        actionResult.textContent = t('gm_issues_checking_branch');
+        GM.api('/repo/issues/' + issue.number + '/branch?path=' + encodeURIComponent(repo.path)).then(async function(branchState) {
+          if (branchState.fetch_error) {
+            actionResult.style.color = '#f38ba8'; actionResult.textContent = branchState.fetch_error; return;
+          }
+          if (branchState.dirty) {
+            actionResult.style.color = '#f9e2af'; actionResult.textContent = t('gm_issues_dirty_no_switch'); return;
+          }
+          if (branchState.local_exists) {
+            try { await activateIssueBranch(tc, issue); }
+            catch(e) { actionResult.style.color = '#f38ba8'; actionResult.textContent = e.message; }
+            return;
+          }
+          if (branchState.remote_exists) {
+            actionResult.textContent = '';
+            var confirmed = await mvmOS.confirm(t('gm_issues_remote_branch_confirm', {branch:branchState.branch}));
+            if (!confirmed) return;
+            try { await activateIssueBranch(tc, issue); }
+            catch(e) { actionResult.style.color = '#f38ba8'; actionResult.textContent = e.message; }
+            return;
+          }
+          actionResult.textContent = '';
+        }).catch(function(e) {
+          actionResult.style.color = '#f38ba8'; actionResult.textContent = e.message;
+        });
+      }
+    }).catch(function(e) { tc.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + GM.escape(e.message) + '</div>'; });
+  }
+
   container.querySelector('#gm-pull').addEventListener('click', function() { doAction('pull'); });
   container.querySelector('#gm-push').addEventListener('click', function() { doAction('push'); });
   container.querySelector('#gm-fetch').addEventListener('click', function() { doAction('fetch'); });
+  var issuesBtn = container.querySelector('#gm-issues');
+  if (!(GM.state.foreignAccess || {}).premium) {
+    issuesBtn.addEventListener('click', function() {
+      window.dispatchEvent(new CustomEvent('open-subscription-settings'));
+    });
+    if (window.mvmOS && window.mvmOS.premiumGate) {
+      window.mvmOS.premiumGate(issuesBtn, t('gm_issues_premium_info'));
+    }
+  } else {
+    issuesBtn.addEventListener('click', showIssues);
+  }
   container.querySelector('#gm-tab-status').addEventListener('click', function() { switchTab('status'); });
   container.querySelector('#gm-tab-log').addEventListener('click', function() { switchTab('log'); });
 

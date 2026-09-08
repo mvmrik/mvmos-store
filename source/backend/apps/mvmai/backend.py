@@ -12,12 +12,15 @@ import json
 import os
 import pwd
 import re
+import shutil
 import sqlite3
 import subprocess
 import sys
+import tempfile
+from glob import glob
 
 import httpx
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -122,6 +125,83 @@ _TOOLS = [{
     },
 }]
 
+_INSPECT_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "inspect_server",
+        "description": "Run any shell command needed to inspect the server. Read-only rule: never use it to change server state.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "command": {"type": "string", "description": "Any command that only reads or inspects server state."},
+                "reason": {"type": "string", "description": "A short explanation of what is being inspected."},
+            },
+            "required": ["command"],
+        },
+    },
+}
+
+
+def _apps_hub_user(token: str | None):
+    hub = sys.modules.get("backend.apphub")
+    return hub.get_pub_session(token) if hub and token else None
+
+
+def _is_apps_hub_admin(token: str | None) -> bool:
+    user = _apps_hub_user(token)
+    return bool(user and user.get("is_admin"))
+
+
+def _server_tools(is_admin: bool, exec_enabled: bool) -> list:
+    if not is_admin:
+        return []
+    return list(_TOOLS) if exec_enabled else [_INSPECT_TOOL]
+
+
+def _access_prompt(is_admin: bool, exec_enabled: bool) -> str:
+    if not is_admin:
+        return (
+            "You are a general AI assistant. You have no access to this server, its files, "
+            "shell, environment, configuration, databases, services, or private data. Never "
+            "claim that you inspected or can inspect them. Only use explicitly provided app "
+            "API tools, if any; those are scoped to the current user's own data."
+        )
+    if exec_enabled:
+        return (
+            "You are mvmAI assisting an Apps Hub administrator. You may inspect the server with "
+            "inspect_server and may request shell execution with run_command. Use tools when a "
+            "server fact is needed; do not invent server state."
+        )
+    return (
+        "You are mvmAI assisting a trusted Apps Hub administrator with server access. READ-ONLY "
+        "RULE: use inspect_server and commands only to inspect the server. Do not create, edit, "
+        "delete, install, restart, stop, or otherwise change anything. Do not invent server state."
+    )
+
+
+def _trusted_messages(messages: list, access_prompt: str) -> list:
+    """Discard caller-supplied system roles and install the access policy here."""
+    out = [{"role": "system", "content": access_prompt}]
+    for message in messages:
+        role = message.get("role")
+        if role == "summary" and message.get("content"):
+            out.append({"role": "user", "content": f"[Conversation summary]:\n{message['content']}"})
+        elif role in ("user", "assistant", "tool"):
+            clean = {key: message[key] for key in ("role", "content", "tool_calls", "tool_call_id", "name") if key in message}
+            out.append(clean)
+    return out
+
+
+def _run_readonly_command(command: str) -> dict:
+    cmd = command.strip()
+    if not cmd:
+        raise ValueError("Empty command")
+    try:
+        proc = subprocess.run(["/bin/bash", "-lc", cmd], capture_output=True, text=True, timeout=120)
+        return {"stdout": proc.stdout[-20000:], "stderr": proc.stderr[-20000:], "code": proc.returncode}
+    except subprocess.TimeoutExpired:
+        return {"stdout": "", "stderr": "Read-only command timed out after 120s", "code": 124}
+
 
 # ── Endpoints ───────────────────────────────────────────────────────────────────
 @router.get("/providers")
@@ -145,6 +225,61 @@ async def status(session=Depends(get_current_session)):
     })
 
 
+@router.get("/access")
+async def access(x_pub_token: str = Header(default=None), session=Depends(get_current_session)):
+    user = _apps_hub_user(x_pub_token)
+    return JSONResponse({"apps_hub_logged_in": bool(user), "is_admin": bool(user and user.get("is_admin"))})
+
+
+@router.post("/migrate-history")
+async def migrate_history(x_pub_token: str = Header(default=None), session=Depends(get_current_session)):
+    """Move legacy shared desktop chats into the signed-in admin's Apps Hub history.
+
+    Legacy chats have no owner field, so only an Apps Hub admin may claim them.
+    Stable prefixed ids make the migration idempotent on every desktop launch.
+    """
+    user = _apps_hub_user(x_pub_token)
+    if not user:
+        return JSONResponse({"error": "apps_hub_login_required"}, status_code=401)
+    if not user.get("is_admin"):
+        return JSONResponse({"ok": True, "migrated": 0})
+    migrated = 0
+    with sqlite3.connect(_DB_PATH) as conn:
+        conn.row_factory = sqlite3.Row
+        tables = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        if not {"sessions", "messages", "pub_sessions", "pub_messages"}.issubset(tables):
+            return JSONResponse({"ok": True, "migrated": 0})
+        for legacy in conn.execute("SELECT id,title,created_at,updated_at FROM sessions ORDER BY created_at"):
+            target_id = f"desktop-{legacy['id']}"
+            existing = conn.execute("SELECT user_id FROM pub_sessions WHERE id=?", (target_id,)).fetchone()
+            if existing:
+                continue
+            conn.execute(
+                "INSERT INTO pub_sessions (id,user_id,title,created_at,updated_at) VALUES (?,?,?,?,?)",
+                (target_id, user["id"], legacy["title"] or "New chat", legacy["created_at"] or 0, legacy["updated_at"] or 0),
+            )
+            rows = conn.execute("SELECT role,content FROM messages WHERE session_id=? ORDER BY id", (legacy["id"],)).fetchall()
+            for seq, row in enumerate(rows):
+                try:
+                    message = json.loads(row["content"])
+                except Exception:
+                    message = {"role": row["role"], "content": row["content"]}
+                conn.execute(
+                    "INSERT INTO pub_messages (session_id,role,content,tool_call_id,tool_calls,seq) VALUES (?,?,?,?,?,?)",
+                    (
+                        target_id,
+                        message.get("role") or row["role"],
+                        message.get("content"),
+                        message.get("tool_call_id"),
+                        json.dumps(message.get("tool_calls")) if message.get("tool_calls") else None,
+                        seq,
+                    ),
+                )
+            migrated += 1
+        conn.commit()
+    return JSONResponse({"ok": True, "migrated": migrated})
+
+
 class ModelsRequest(BaseModel):
     provider: str = ""
     api_key: str = ""
@@ -160,7 +295,7 @@ async def list_models(body: ModelsRequest, session=Depends(get_current_session))
     base_url = body.base_url or cfg.get("base_url") or meta["base_url"]
     if base_url and not base_url.endswith("/"):
         base_url += "/"
-    api_key = body.api_key or cfg.get("api_key", "")
+    api_key = body.api_key or cfg.get(f"api_key_{pid}") or cfg.get("api_key", "")
 
     if not base_url:
         return JSONResponse({"error": "No base URL — pick a provider first."}, status_code=400)
@@ -195,7 +330,7 @@ class ChatRequest(BaseModel):
 
 
 @router.post("/chat")
-async def chat(body: ChatRequest, session=Depends(get_current_session)):
+async def chat(body: ChatRequest, x_pub_token: str = Header(default=None), session=Depends(get_current_session)):
     cfg = _read_cfg()
     pid, base_url, api_key, model = _resolve_provider(cfg)
     if not base_url:
@@ -210,20 +345,22 @@ async def chat(body: ChatRequest, session=Depends(get_current_session)):
     url = base_url + "chat/completions"
 
     exec_enabled = bool(cfg.get("exec_enabled"))
-    offer_tools = body.tools_enabled and exec_enabled
+    is_admin = _is_apps_hub_admin(x_pub_token)
+    tools = _server_tools(is_admin, exec_enabled) if body.tools_enabled else []
+    messages = _trusted_messages(body.messages, _access_prompt(is_admin, exec_enabled))
 
     async def _post(with_tools: bool):
-        p = {"model": model, "messages": body.messages}
+        p = {"model": model, "messages": messages}
         if with_tools:
-            p["tools"] = _TOOLS
+            p["tools"] = tools
             p["tool_choice"] = "auto"
         async with httpx.AsyncClient(timeout=120) as client:
             return await client.post(url, headers=headers, json=p)
 
     try:
-        r = await _post(offer_tools)
+        r = await _post(bool(tools))
         # some models/providers don't support tool use — retry without tools
-        if r.status_code == 404 and offer_tools and "tool" in r.text.lower():
+        if r.status_code == 404 and tools and "tool" in r.text.lower():
             r = await _post(False)
     except httpx.ConnectError:
         return JSONResponse({"error": f"Cannot reach provider at {base_url}"}, status_code=502)
@@ -253,7 +390,9 @@ class ExecRequest(BaseModel):
 
 
 @router.post("/exec")
-async def exec_command(body: ExecRequest, session=Depends(get_current_session)):
+async def exec_command(body: ExecRequest, x_pub_token: str = Header(default=None), session=Depends(get_current_session)):
+    if not _is_apps_hub_admin(x_pub_token):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
     cfg = _read_cfg()
     exec_enabled = bool(cfg.get("exec_enabled"))
     exec_auto = bool(cfg.get("exec_auto"))
@@ -307,53 +446,134 @@ async def exec_command(body: ExecRequest, session=Depends(get_current_session)):
         return JSONResponse({"stdout": "", "stderr": str(e), "code": 1, "is_dangerous": danger})
 
 
+class InspectRequest(BaseModel):
+    command: str
+    reason: str = ""
+
+
+@router.post("/inspect")
+async def inspect_server(body: InspectRequest, x_pub_token: str = Header(default=None), session=Depends(get_current_session)):
+    if not _is_apps_hub_admin(x_pub_token):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        return JSONResponse({"result": _run_readonly_command(body.command)})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=400)
+
+
 # ── CLI providers ────────────────────────────────────────────────────────────────
 CLI_PROVIDERS = [
-    {"id": "claude-cli",  "name": "Claude CLI",  "cmd": "claude",  "args": ["--print"], "supports_model": True,  "model_hint": "", "model_choices": ["sonnet", "opus", "fable", "claude-haiku-4-5-20251001"]},
-    {"id": "gemini-cli",  "name": "Gemini CLI",  "cmd": "gemini",  "args": ["--prompt"], "supports_model": True,  "model_hint": "", "model_choices": ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.0-flash-lite"]},
-    {"id": "ollama-cli",  "name": "Ollama CLI",  "cmd": "ollama",  "args": ["run"],      "supports_model": True,  "model_hint": "llama3.1", "model_choices": []},
+    {"id": "claude-cli",  "name": "Claude CLI",  "cmd": "claude",  "args": ["--print"], "supports_model": True,  "model_choices": []},
+    {"id": "gemini-cli",  "name": "Gemini CLI",  "cmd": "gemini",  "args": ["--prompt"], "supports_model": True,  "model_choices": []},
+    {"id": "ollama-cli",  "name": "Ollama CLI",  "cmd": "ollama",  "args": ["run"],      "supports_model": True,  "model_choices": [], "model_discovery": "ollama"},
     {"id": "sgpt-cli",    "name": "shell-gpt",   "cmd": "sgpt",    "args": [],           "supports_model": False, "model_hint": "", "model_choices": []},
     {"id": "aichat-cli",  "name": "aichat",      "cmd": "aichat",  "args": [],           "supports_model": False, "model_hint": "", "model_choices": []},
     {"id": "llm-cli",     "name": "llm",         "cmd": "llm",     "args": [],           "supports_model": False, "model_hint": "", "model_choices": []},
     {"id": "gpt4all-cli", "name": "GPT4All CLI", "cmd": "gpt4all", "args": [],           "supports_model": False, "model_hint": "", "model_choices": []},
-    {"id": "codex-cli",   "name": "Codex CLI",   "cmd": "codex",   "args": [],           "supports_model": True,  "model_hint": "gpt-5-codex", "model_choices": []},
+    {"id": "codex-cli",   "name": "Codex CLI",   "cmd": "codex",   "args": [],           "supports_model": True,  "model_choices": [], "model_discovery": "codex"},
     {"id": "mods-cli",    "name": "mods",        "cmd": "mods",    "args": [],           "supports_model": False, "model_hint": "", "model_choices": []},
     {"id": "tgpt-cli",    "name": "tgpt",        "cmd": "tgpt",    "args": [],           "supports_model": False, "model_hint": "", "model_choices": []},
 ]
 
 
-# Desktop's own direct chat turn (not the public page, which does its own
-# equivalent parsing in apps/mvmai/api.py after calling cli_chat() with
-# offer_run_command left False — see _cli_tool_instructions there). CLI
-# providers only understand plain text, so run_command is offered the same
-# way: describe it in the prompt and look for a fenced reply block naming it.
+# CLI providers only understand plain text, so the centrally authorized tool
+# list is described in the prompt and a fenced reply block is translated back
+# into the same tool-call shape used by HTTP providers.
 _CLI_TOOL_CALL_RE = re.compile(r"```mvmai_tool_call\s*\n(.*?)```", re.DOTALL)
 
 
-def _cli_tool_instructions() -> str:
-    fn = _TOOLS[0]["function"]
-    props = fn["parameters"]["properties"]
-    args_desc = ", ".join(f"{k} ({v.get('type', 'string')})" for k, v in props.items())
-    return (
-        f"You can call the following tool when it helps answer the request:\n"
-        f"- {fn['name']}: {fn['description']} Arguments: {args_desc}.\n"
+def _cli_tool_instructions(tools: list) -> str:
+    lines = ["You can call at most one of the following tools per reply:"]
+    for spec in tools:
+        fn = spec["function"]
+        props = (fn.get("parameters") or {}).get("properties") or {}
+        args_desc = ", ".join(f"{k} ({v.get('type', 'string')})" for k, v in props.items())
+        lines.append(f"- {fn['name']}: {fn['description']} Arguments: {args_desc}.")
+    lines.append(
         "To call it, output ONLY a fenced code block labeled mvmai_tool_call containing a JSON "
         "object with \"name\" and \"arguments\" keys, e.g.:\n"
-        "```mvmai_tool_call\n{\"name\": \"run_command\", \"arguments\": {\"command\": \"...\", \"reason\": \"...\"}}\n```\n"
+        "```mvmai_tool_call\n{\"name\": \"tool_name\", \"arguments\": {}}\n```\n"
         "Only include that block when you actually want to run a command. Otherwise just answer normally in plain text."
     )
+    return "\n".join(lines)
+
+
+def _cli_search_path() -> str:
+    """Return PATH plus common per-user CLI install locations.
+
+    Services do not load interactive shell startup files, so tools installed by
+    Codex, npm, nvm, pnpm, Bun, Volta, asdf, or mise may be available in a
+    terminal but absent from the service's PATH.
+    """
+    home = os.path.expanduser("~")
+    env_paths = [
+        os.environ.get("NVM_BIN"),
+        os.environ.get("PNPM_HOME"),
+        os.path.join(os.environ["BUN_INSTALL"], "bin") if os.environ.get("BUN_INSTALL") else None,
+        os.path.join(os.environ["VOLTA_HOME"], "bin") if os.environ.get("VOLTA_HOME") else None,
+        os.path.join(os.environ["NPM_CONFIG_PREFIX"], "bin") if os.environ.get("NPM_CONFIG_PREFIX") else None,
+    ]
+    user_paths = [
+        os.path.join(home, ".local", "bin"),
+        os.path.join(home, "bin"),
+        os.path.join(home, ".npm-global", "bin"),
+        os.path.join(home, ".local", "share", "pnpm"),
+        os.path.join(home, ".bun", "bin"),
+        os.path.join(home, ".volta", "bin"),
+        os.path.join(home, ".asdf", "shims"),
+        os.path.join(home, ".local", "share", "mise", "shims"),
+    ]
+    nvm_paths = sorted(glob(os.path.join(home, ".nvm", "versions", "node", "*", "bin")), reverse=True)
+    system_paths = os.environ.get("PATH", "").split(os.pathsep)
+
+    # Keep the first occurrence so an explicitly configured PATH still wins.
+    return os.pathsep.join(dict.fromkeys(p for p in system_paths + env_paths + user_paths + nvm_paths if p))
 
 
 def _which(cmd: str) -> str | None:
     try:
-        r = subprocess.run(["which", cmd], capture_output=True, text=True, timeout=3)
-        return r.stdout.strip() or None
+        return shutil.which(cmd, path=_cli_search_path())
     except Exception:
         return None
 
 
+def _discover_cli_models(provider: dict, cmd_bin: str) -> list[str]:
+    discovery = provider.get("model_discovery")
+    try:
+        if discovery == "codex":
+            proc = subprocess.run(
+                [cmd_bin, "debug", "models"], capture_output=True, text=True, timeout=15,
+            )
+            if proc.returncode != 0:
+                return []
+            data = json.loads(proc.stdout)
+            return list(dict.fromkeys(
+                model["slug"] for model in data.get("models", [])
+                if model.get("slug") and model.get("visibility") != "hide"
+            ))
+        if discovery == "ollama":
+            proc = subprocess.run([cmd_bin, "list"], capture_output=True, text=True, timeout=10)
+            if proc.returncode != 0:
+                return []
+            lines = [line.split() for line in proc.stdout.splitlines() if line.strip()]
+            return list(dict.fromkeys(parts[0] for parts in lines if parts and parts[0].upper() != "NAME"))
+    except Exception:
+        pass
+    return []
+
+
 def _detected_cli_providers():
-    return [p for p in CLI_PROVIDERS if _which(p["cmd"])]
+    detected = []
+    for provider in CLI_PROVIDERS:
+        cmd_bin = _which(provider["cmd"])
+        if not cmd_bin:
+            continue
+        item = dict(provider)
+        item["model_choices"] = _discover_cli_models(provider, cmd_bin)
+        item["models_dynamic"] = bool(provider.get("model_discovery"))
+        item.pop("model_discovery", None)
+        detected.append(item)
+    return detected
 
 
 @router.get("/cli-providers")
@@ -370,18 +590,19 @@ class CliChatRequest(BaseModel):
     # silently overwritten by the desktop's own saved model for a
     # different provider.
     model: str | None = None
-    # Opt-in only, and only ever set by the desktop's own direct calls
-    # (apps/mvmai/public/main.js) when its exec_enabled cfg is on. The
-    # public-page router (apps/mvmai/api.py) never sets this — it already
-    # flattens its own tool instructions into `messages` before calling
-    # cli_chat() and parses the reply itself, so this must stay False there
-    # or run_command would be described twice and the tool_calls this
-    # produces would go unread by that caller.
+    # Retained for compatibility with older frontends; access is resolved
+    # exclusively from the Apps Hub token and this value is never trusted.
     offer_run_command: bool = False
 
 
-@router.post("/cli-chat")
-async def cli_chat(body: CliChatRequest, session=Depends(get_current_session)):
+async def _run_cli_chat(
+    body: CliChatRequest,
+    tools: list,
+    is_admin: bool,
+    exec_enabled: bool,
+    exec_auto: bool = False,
+    identity_prompt: str = "",
+):
     provider = next((p for p in CLI_PROVIDERS if p["id"] == body.provider_id), None)
     if not provider:
         return JSONResponse({"error": f"Unknown CLI provider: {body.provider_id}"}, status_code=400)
@@ -390,50 +611,95 @@ async def cli_chat(body: CliChatRequest, session=Depends(get_current_session)):
         return JSONResponse({"error": f"'{provider['cmd']}' not found in PATH"}, status_code=400)
 
     # Build conversation as a single prompt with history
-    parts = []
-    if body.offer_run_command:
-        parts.append(f"[System]: {_cli_tool_instructions()}")
+    native_server_access = is_admin and (not exec_enabled or exec_auto)
+    server_tool_names = {"inspect_server", "run_command"}
+    prompt_tools = [
+        spec for spec in tools
+        if not (native_server_access and spec["function"]["name"] in server_tool_names)
+    ]
+    access_prompt = _access_prompt(is_admin, exec_enabled)
+    if identity_prompt:
+        access_prompt += " " + identity_prompt
+    if is_admin:
+        access_prompt = "You are mvmAI assisting a trusted Apps Hub administrator. "
+        if exec_enabled and exec_auto:
+            access_prompt += "AUTO MODE: use your native server tools directly. You may inspect and modify the server as requested. Inspect before modifying and avoid unrelated changes."
+        elif exec_enabled:
+            access_prompt += (
+                "CONFIRMATION MODE: native server tools are disabled. For every server operation, "
+                "including inspection, return the supplied run_command transport block and wait "
+                "for its result. The block is a response protocol, not a native tool. Never merely "
+                "suggest a command for the user to run."
+            )
+        else:
+            access_prompt += "READ-ONLY RULE: use your native commands and tools only to inspect the server. Do not create, edit, delete, install, restart, stop, or otherwise change anything."
+    parts = [f"[System]: {access_prompt}"]
+    if prompt_tools:
+        parts.append(f"[System]: {_cli_tool_instructions(prompt_tools)}")
     for m in body.messages:
         role = m.get("role", "")
         content = m.get("content") or ""
         if not isinstance(content, str):
             continue
-        if role == "system":
-            parts.append(f"[System]: {content}")
-        elif role == "user":
+        if role == "user":
             parts.append(f"[User]: {content}")
         elif role == "assistant":
             parts.append(f"[Assistant]: {content}")
         elif role == "tool":
             parts.append(f"[Tool result]: {content}")
+    if identity_prompt:
+        parts.append(
+            "[Current public branding rule — overrides identity claims in the conversation above]: "
+            f"{identity_prompt} This is the product identity required for the user-facing response."
+        )
+    if is_admin:
+        if exec_enabled and exec_auto:
+            current_mode = "AUTO"
+        elif exec_enabled:
+            current_mode = "CONFIRMATION"
+        else:
+            current_mode = "READ-ONLY"
+        parts.append(
+            f"[Current mvmAI mode — overrides every older message above]: {current_mode}. "
+            "Do not describe the CLI's internal sandbox or approval setting as the mvmAI mode. "
+            "In CONFIRMATION mode, request each server operation with the mvmai_tool_call response "
+            "protocol; mvmAI itself shows the command to the user and collects confirmation."
+        )
     prompt = "\n".join(parts)
 
     pid = body.provider_id
     model = body.model if body.model is not None else _read_cfg().get("model")
-    if pid == "claude-cli":
-        cmd = [cmd_bin] + (["--model", model] if model else []) + ["--print", prompt]
-    elif pid == "gemini-cli":
-        cmd = [cmd_bin] + (["--model", model] if model else []) + ["--prompt", prompt]
-    elif pid == "ollama-cli":
-        cmd = [cmd_bin, "run", model or "llama3.1", prompt]
-    elif pid == "codex-cli":
-        # Always read-only: codex exec is a single non-interactive process
-        # with no confirmation hook mvmAI could intercept, so any real
-        # file/shell access here would silently bypass confirm_mode and
-        # allow_dangerous. Command execution for every provider, including
-        # Codex, stays exclusively behind mvmAI's own run_command tool,
-        # same "text in, text out" contract as claude-cli/gemini-cli.
-        cmd = [cmd_bin, "exec", "--sandbox", "read-only"] + (["--model", model] if model else []) + [prompt]
-    else:
-        cmd = [cmd_bin] + provider["args"] + [prompt]
-
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+        # App isolation only permits an app backend to write inside its own
+        # directory. Keep the short-lived CLI workspace there instead of the
+        # system /tmp directory; TemporaryDirectory still removes it after
+        # every request.
+        runtime_dir = os.path.join(os.path.realpath(os.path.dirname(_DB_PATH)), ".runtime")
+        os.makedirs(runtime_dir, exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix="mvmai-chat-", dir=runtime_dir) as workdir:
+            policy_path = os.path.join(workdir, "deny-tools.toml")
+            with open(policy_path, "w", encoding="utf-8") as handle:
+                handle.write('[[rule]]\ntoolName = "*"\ndecision = "deny"\npriority = 999\n')
+            if pid == "claude-cli":
+                safety_args = ["--dangerously-skip-permissions", "--permission-mode", "bypassPermissions"] if native_server_access else ["--tools", ""]
+                cmd = [cmd_bin] + (["--model", model] if model else []) + ["--safe-mode"] + safety_args + ["--disable-slash-commands", "--no-session-persistence", "--print", prompt]
+            elif pid == "gemini-cli":
+                safety_args = ["--yolo"] if native_server_access else ["--admin-policy", policy_path]
+                cmd = [cmd_bin] + (["--model", model] if model else []) + safety_args + ["--prompt", prompt]
+            elif pid == "ollama-cli":
+                cmd = [cmd_bin, "run", model or "llama3.1", prompt]
+            elif pid == "codex-cli":
+                sandbox = "danger-full-access" if native_server_access else "read-only"
+                safety_args = [] if native_server_access else ["-c", "features.shell_tool=false"]
+                cmd = [cmd_bin, "exec", "--skip-git-repo-check", "--sandbox", sandbox, "-C", workdir, "-c", 'web_search="disabled"'] + safety_args + (["--model", model] if model else []) + [prompt]
+            else:
+                cmd = [cmd_bin] + provider["args"] + [prompt]
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120, cwd=workdir)
         if proc.returncode != 0 and not proc.stdout.strip():
             err = proc.stderr.strip() or f"exit code {proc.returncode}"
             return JSONResponse({"error": err}, status_code=502)
         content = proc.stdout.strip()
-        if body.offer_run_command:
+        if prompt_tools:
             m = _CLI_TOOL_CALL_RE.search(content)
             if m:
                 name = ""
@@ -444,7 +710,8 @@ async def cli_chat(body: CliChatRequest, session=Depends(get_current_session)):
                     arguments = parsed.get("arguments") or {}
                 except Exception:
                     pass
-                if name == "run_command":
+                valid_names = {spec["function"]["name"] for spec in prompt_tools}
+                if name in valid_names:
                     rest = (content[:m.start()] + content[m.end():]).strip()
                     return JSONResponse({
                         "content": rest or None,
@@ -459,3 +726,12 @@ async def cli_chat(body: CliChatRequest, session=Depends(get_current_session)):
         return JSONResponse({"error": "CLI timed out after 120s"}, status_code=504)
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=502)
+
+
+@router.post("/cli-chat")
+async def cli_chat(body: CliChatRequest, x_pub_token: str = Header(default=None), session=Depends(get_current_session)):
+    cfg = _read_cfg()
+    is_admin = _is_apps_hub_admin(x_pub_token)
+    exec_enabled = bool(cfg.get("exec_enabled"))
+    exec_auto = bool(cfg.get("exec_auto"))
+    return await _run_cli_chat(body, _server_tools(is_admin, exec_enabled), is_admin, exec_enabled, exec_auto)

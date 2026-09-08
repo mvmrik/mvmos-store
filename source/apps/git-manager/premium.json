@@ -1,11 +1,15 @@
 {
-  "summary": "Manage repositories from every system profile without switching accounts.",
+  "summary": "Unlock cross-profile repositories and manage GitHub Issues directly in Git Manager.",
   "features": [
     {
       "title": "Cross-profile repository access",
       "short": "Unlock every repository from one profile",
       "description": "Git Manager always shows that repositories owned by other system profiles exist, but keeps their status, history, files, remotes and actions locked. With Premium, a sudo-capable user confirms their own password once and unlocks every repository for the current mvmOS session, while each Git command still runs as the repository's real owner. Without Premium, nothing is lost: sign in to the corresponding owner profile and manage the same repository there."
+    },
+    {
+      "title": "GitHub Issues",
+      "short": "Manage issues and create ready-to-use branches",
+      "description": "View open and closed GitHub Issues, inspect their details and comments, create new issues, close or reopen existing ones, and automatically work in a user/issue<number> branch. Existing local branches are selected automatically; remote-only branches can be restored as local tracking branches and fast-forwarded after confirmation. Authentication works with either an existing GitHub CLI login or a per-user fine-grained GitHub API token with Issues access."
     }
   ]
 }
-
