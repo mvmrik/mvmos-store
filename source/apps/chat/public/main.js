@@ -20,7 +20,7 @@ mvmOS.registerApp({
   id: 'chat',
   name: _chatt('title'),
   icon: '💬',
-  category: 'Communication',
+  category: 'Social',
   launch() {
     mvmOS.createWindow({
       id: 'chat',

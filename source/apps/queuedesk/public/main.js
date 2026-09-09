@@ -173,7 +173,7 @@ mvmOS.registerApp({
   id: 'queuedesk',
   name: 'QueueDesk',
   icon: '🎫',
-  category: 'Business',
+  category: 'Utilities',
   requires_apphub: true,
   launch() {
     mvmOS.createWindow({

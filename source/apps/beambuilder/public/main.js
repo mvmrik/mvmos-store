@@ -144,7 +144,7 @@ mvmOS.registerApp({
   id: 'beambuilder',
   name: _bbt('title'),
   icon: '🏗️',
-  category: 'Creative',
+  category: 'Utilities',
   launch() {
     mvmOS.createWindow({
       id: 'beambuilder',

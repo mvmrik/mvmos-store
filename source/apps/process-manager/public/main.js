@@ -33,7 +33,7 @@ function _pmt(key, vars) {
 }
 
 mvmOS.registerApp({
-  id: 'process-manager', name: _pmt('title'), icon: '📊', category: 'System & Administration',
+  id: 'process-manager', name: _pmt('title'), icon: '📊', category: 'Administration',
   launch() {
     mvmOS.createWindow({
       id: 'process-manager', title: '📊 ' + _pmt('title'), width: 780, height: 520,

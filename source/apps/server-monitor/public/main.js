@@ -83,7 +83,7 @@ mvmOS.registerApp({
   id: 'server-monitor',
   name: _smt('title'),
   icon: '🌡️',
-  category: 'System & Administration',
+  category: 'Administration',
   launch() {
     mvmOS.createWindow({
       id: 'server-monitor',

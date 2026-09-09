@@ -20,7 +20,7 @@ mvmOS.registerApp({
   id: 'budget',
   name: _bgt('title'),
   icon: '💰',
-  category: 'Finance',
+  category: 'Productivity',
   requires_apphub: true,
   launch() {
     mvmOS.createWindow({

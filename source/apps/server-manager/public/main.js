@@ -90,7 +90,7 @@ const _sm18n = {
 function _smt(key) { const lang = window.mvmOS?.lang || 'en'; return (_sm18n[lang] || _sm18n.en)[key] || key; }
 
 mvmOS.registerApp({
-  id: 'server-manager', name: _smt('title'), icon: '🖧', category: 'System & Administration',
+  id: 'server-manager', name: _smt('title'), icon: '🖧', category: 'Administration',
   launch() {
     mvmOS.createWindow({
       id: 'server-manager', title: '🖧 ' + _smt('title'), width: 620, height: 480,

@@ -19,7 +19,7 @@ mvmOS.registerApp({
   id: 'telegramhub',
   name: 'Telegram Hub',
   icon: '✈️',
-  category: 'Communication',
+  category: 'Social',
   launch() {
     mvmOS.createWindow({
       id: 'telegramhub',
