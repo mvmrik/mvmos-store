@@ -51,8 +51,8 @@
       "name": "BwalletT",
       "icon": "₿",
       "category": "Finance",
-      "version": "1.0.0",
-      "description": "A private Bitcoin wallet with encrypted keys, payments, transaction history and a built-in explorer.",
+      "version": "1.0.1",
+      "description": "A private Bitcoin testnet wallet with encrypted keys, payments, transaction history and a built-in explorer. Uses testnet coins only — it cannot send, receive or hold real Bitcoin.",
       "tags": [
         "bitcoin",
         "wallet",
@@ -61,7 +61,7 @@
         "encryption"
       ],
       "min_core_version": "0.41.0-beta",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/finance/bwallett-1.0.0.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/finance/bwallett-1.0.1.zip"
     }
   ]
 }

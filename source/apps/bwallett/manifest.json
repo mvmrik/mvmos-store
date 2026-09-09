@@ -10,8 +10,8 @@
     "finance",
     "encryption"
   ],
-  "version": "1.0.0",
-  "description": "A private Bitcoin wallet with encrypted keys, payments, transaction history and a built-in explorer.",
+  "version": "1.0.1",
+  "description": "A private Bitcoin testnet wallet with encrypted keys, payments, transaction history and a built-in explorer. Uses testnet coins only — it cannot send, receive or hold real Bitcoin.",
   "entry": "main.js",
   "min_core_version": "0.41.0-beta",
   "public_url": "/pub/bwallett/",
