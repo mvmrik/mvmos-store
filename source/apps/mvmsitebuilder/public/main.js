@@ -30,7 +30,7 @@ mvmOS.registerApp({
   id: 'mvmsitebuilder',
   name: (window.t || (k => k))('msb_title'),
   icon: '🧱',
-  category: 'Productivity',
+  category: 'Developer Tools',
   requires_apphub: true,
   launch() {
     mvmOS.createWindow({

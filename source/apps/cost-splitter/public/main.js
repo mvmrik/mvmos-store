@@ -90,7 +90,7 @@ mvmOS.registerApp({
   id: 'cost-splitter',
   name: 'Cost Splitter',
   icon: '💸',
-  category: 'Utilities',
+  category: 'Finance',
   trayable: false,
   settings: [
     { key: 'currency', label: 'Currency', type: 'select', options: [

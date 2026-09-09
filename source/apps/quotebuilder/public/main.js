@@ -159,7 +159,7 @@ mvmOS.registerApp({
   id: 'quotebuilder',
   name: 'QuoteBuilder',
   icon: '💰',
-  category: 'Utilities',
+  category: 'Business',
   requires_apphub: true,
   launch() {
     mvmOS.createWindow({

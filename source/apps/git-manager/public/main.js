@@ -1346,7 +1346,7 @@ mvmOS.registerApp({
   id: 'git-manager',
   name: t('gm_title'),
   icon: '🔀',
-  category: 'Administration',
+  category: 'Developer Tools',
   width: 900,
   height: 580,
 
