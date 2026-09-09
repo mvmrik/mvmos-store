@@ -6,7 +6,7 @@ mvmOS.registerApp({
   id: 'yoursql',
   name: 'YourSQL',
   icon: '🗄️',
-  category: 'Administration',
+  category: 'Developer Tools',
   width: 1100,
   height: 680,
   minWidth: 700,

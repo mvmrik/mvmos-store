@@ -131,7 +131,7 @@ mvmOS.registerApp({
   id: 'rssfeed',
   name: 'RSS Reader',
   icon: '📰',
-  category: 'Utilities',
+  category: 'Media',
   requires_apphub: true,
   renderSettingsExtra(container, saved) {
     const _pendingBtns = (() => {

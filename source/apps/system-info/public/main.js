@@ -39,7 +39,7 @@ mvmOS.registerApp({
   id: 'system-info',
   name: _sit('title'),
   icon: '🖥️',
-  category: 'Administration',
+  category: 'System & Administration',
   launch() {
     mvmOS.createWindow({
       id: 'system-info',

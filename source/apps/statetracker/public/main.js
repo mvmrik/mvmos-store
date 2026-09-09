@@ -50,7 +50,7 @@ mvmOS.registerApp({
   id: 'statetracker',
   name: _stt('title'),
   icon: '📡',
-  category: 'Utilities',
+  category: 'System & Administration',
 
   launch() {
     mvmOS.createWindow({
