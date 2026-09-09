@@ -12,6 +12,7 @@
       "columns": [
         { "name": "id",         "type": "TEXT", "primary": true },
         { "name": "title",      "type": "TEXT" },
+        { "name": "project_id", "type": "TEXT" },
         { "name": "created_at", "type": "INTEGER" },
         { "name": "updated_at", "type": "INTEGER" }
       ]

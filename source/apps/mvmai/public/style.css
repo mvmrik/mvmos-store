@@ -32,7 +32,7 @@
 .mvmai-exec-mode-wrap[hidden] { display: none; }
 .mvmai-exec-mode-label { font-size: .74rem; color: var(--text-dim); }
 
-.mvmai-sessions { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
+.mvmai-sessions { flex: 1 1 auto; min-height: 60px; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
 .mvmai-no-sessions { color: var(--text-dim); font-size: .8rem; padding: 8px; text-align: center; }
 .mvmai-session {
   display: flex; align-items: center; gap: 4px; padding: 7px 8px; border-radius: var(--radius);
@@ -44,6 +44,43 @@
 .mvmai-s-del { background: none; border: none; color: inherit; opacity: 0; cursor: pointer; font-size: .75rem; padding: 2px 4px; border-radius: 4px; }
 .mvmai-session:hover .mvmai-s-del { opacity: .6; }
 .mvmai-s-del:hover { opacity: 1 !important; background: rgba(255,0,0,.15); }
+
+/* ── projects ────────────────────────────────────────────────────────────── */
+.mvmai-projects { flex: 0 0 auto; max-height: 40%; display: flex; flex-direction: column; border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px; }
+.mvmai-projects-head { display: flex; align-items: center; justify-content: space-between; font-size: .72rem; font-weight: 600; color: var(--text-dim); letter-spacing: .05em; text-transform: uppercase; padding: 0 4px 6px; flex-shrink: 0; }
+.mvmai-project-new { padding: 0 7px; line-height: 1.4; }
+.mvmai-projects-list { overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.mvmai-project { display: flex; align-items: center; gap: 4px; padding: 6px 8px; border-radius: var(--radius); cursor: pointer; transition: background .12s; }
+.mvmai-project:hover { background: var(--bg); }
+.mvmai-project.active { background: var(--accent); color: #fff; }
+.mvmai-p-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .8rem; cursor: pointer; }
+
+.mvmai-project-bar {
+  display: flex; align-items: center; gap: 8px; padding: 6px 14px; border-bottom: 1px solid var(--border);
+  background: var(--surface); font-size: .78rem; flex-shrink: 0; position: relative;
+}
+.mvmai-project-bar[hidden] { display: none; }
+.mvmai-project-name { font-weight: 600; }
+.mvmai-project-branch { color: var(--text-dim); font-size: .74rem; flex: 1; }
+.mvmai-files-toggle { padding: 2px 8px; line-height: 1.4; }
+
+.mvmai-filetree-dropdown {
+  position: absolute; top: calc(100% + 2px); right: 10px; z-index: 30; width: 260px; max-height: 360px;
+  overflow-y: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 6px; font-size: .8rem;
+}
+.mvmai-ft-dir, .mvmai-ft-file { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border-radius: 4px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mvmai-ft-dir:hover, .mvmai-ft-file:hover { background: var(--bg); }
+.mvmai-ft-name { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.mvmai-ft-children { padding-left: 14px; }
+.mvmai-ft-badge { font-size: .66rem; font-weight: 700; padding: 0 5px; border-radius: 4px; flex-shrink: 0; }
+.mvmai-ft-badge.mvmai-ft-M { background: rgba(224,160,0,.2); color: #e0a000; }
+.mvmai-ft-badge.mvmai-ft-A { background: rgba(76,174,90,.2); color: #4cae5a; }
+.mvmai-ft-badge.mvmai-ft-D { background: rgba(226,85,85,.2); color: #e25555; }
+.mvmai-ft-badge.mvmai-ft-U { background: rgba(127,127,127,.2); color: var(--text-dim); }
+
+.mvmai-browse-row { padding: 6px 10px; cursor: pointer; font-size: .82rem; border-radius: 4px; }
+.mvmai-browse-row:hover { background: var(--bg); }
 
 /* ── main / messages ─────────────────────────────────────────────────────── */
 .mvmai-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
@@ -118,10 +155,11 @@
 
 /* ── mobile ──────────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .mvmai-sidebar {
-    position: absolute; left: 0; top: 0; bottom: 0; z-index: 30; transform: translateX(-100%);
-    transition: transform .2s; box-shadow: var(--shadow);
-  }
-  .mvmai-sidebar.mobile-open { transform: translateX(0); }
   .mvmai-bubble, .mvmai-cmdcard { max-width: 92%; }
+  .mvmai-filetree-dropdown { width: 85vw; right: 4px; }
 }
+/* Desktop mvmAI sidebar never collapses/hides, at any width — unlike the
+   public-page widget (mvmai-widget.js), which intentionally stays an
+   off-canvas mobile panel. This overrides any leftover .mobile-open toggle
+   from the shared initMobileSidebar() helper with a hard, unconditional rule. */
+.mvmai-sidebar { transform: none !important; position: relative !important; }

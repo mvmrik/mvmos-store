@@ -10,6 +10,10 @@
     "Optional public page so visitors can chat with the same assistant outside the desktop, with its own separate on/off switch for command execution.",
     "Saved conversations you can rename and delete.",
     "Editable system prompt and model override.",
+    "Long conversations are compacted automatically once they pass 40 messages — everything except the most recent 20 is folded into a running summary, so per-message cost stays bounded instead of growing forever.",
+    "Admins can group chats into Projects: a name, optional shared instructions (typed text and/or a file already on the server, such as CLAUDE.md), and an optional working folder.",
+    "A project with a folder shows a live file tree with git status right in the sidebar, and scopes the assistant's shell commands — and any CLI tool's own file edits — to that folder automatically.",
+    "If Git Manager is installed, a project's branch line opens that repository there directly, already selected and fetched.",
     "Your API key stays on your server."
   ],
   "requirements": [

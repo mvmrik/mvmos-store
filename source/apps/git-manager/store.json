@@ -4,8 +4,9 @@
   "capabilities": [
     "Auto-detect git repositories on the machine, with a sidebar to switch between them.",
     "Clone a repository from a URL, or initialise a new one with an optional remote.",
-    "Switch branches, including remote branches.",
-    "Pull, push and fetch, with ahead/behind counts.",
+    "Switch branches, including remote branches, or create a new one by name from the toolbar at any time.",
+    "Pull, push and fetch, with ahead/behind counts. Push sets the upstream automatically the first time a new branch is pushed.",
+    "A small badge next to the branch name shows when the current branch has not been pushed anywhere yet.",
     "See changed files and the diff for each.",
     "Commit all changes with a message (Ctrl+Enter to send).",
     "Discard changes in one file or in the whole tree.",

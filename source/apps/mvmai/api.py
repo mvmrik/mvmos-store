@@ -81,6 +81,11 @@ def _ensure_tables():
         )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_pub_messages_session ON pub_messages(session_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_pub_sessions_user ON pub_sessions(user_id)")
+        # additive migration — not declared via db.json since pub_sessions isn't
+        # exposed through the generic /api/plugins/mvmai/db proxy at all
+        cols = {row[1] for row in conn.execute("PRAGMA table_info(pub_sessions)")}
+        if "project_id" not in cols:
+            conn.execute("ALTER TABLE pub_sessions ADD COLUMN project_id TEXT")
 
 
 _ensure_tables()
@@ -94,7 +99,7 @@ def _make_title(messages):
     return "New chat"
 
 
-def _persist_turn(user_id, session_id, messages, reply):
+def _persist_turn(user_id, session_id, messages, reply, project_id=None):
     """Snapshot this send()'s full message list (client-maintained, always
     complete) plus the new reply into the session, creating one if needed or
     if the given id doesn't belong to this user. Replace-all rather than
@@ -112,8 +117,8 @@ def _persist_turn(user_id, session_id, messages, reply):
         else:
             session_id = uuid.uuid4().hex
             conn.execute(
-                "INSERT INTO pub_sessions (id, user_id, title, created_at, updated_at) VALUES (?,?,?,?,?)",
-                (session_id, user_id, _make_title(messages), now, now),
+                "INSERT INTO pub_sessions (id, user_id, title, project_id, created_at, updated_at) VALUES (?,?,?,?,?,?)",
+                (session_id, user_id, _make_title(messages), project_id, now, now),
             )
         conn.execute("DELETE FROM pub_messages WHERE session_id=?", (session_id,))
         full = list(messages) + [reply]
@@ -208,6 +213,8 @@ def _cli_flatten_messages(messages):
         role = m.get("role")
         if role == "tool":
             out.append({"role": "user", "content": f"[Tool result]:\n{m.get('content') or ''}"})
+        elif role == "summary" and m.get("content"):
+            out.append({"role": "user", "content": f"[Conversation summary]:\n{m.get('content')}"})
         elif role in ("user", "assistant") and m.get("content"):
             out.append(m)
     return out
@@ -263,7 +270,7 @@ async def list_sessions(x_pub_token: str = Header(default=None)):
         return JSONResponse({"error": "unauthorized"}, status_code=401)
     with _sdb() as conn:
         rows = conn.execute(
-            "SELECT id, title, updated_at FROM pub_sessions WHERE user_id=? ORDER BY updated_at DESC",
+            "SELECT id, title, project_id, updated_at FROM pub_sessions WHERE user_id=? ORDER BY updated_at DESC",
             (me["id"],),
         ).fetchall()
     return JSONResponse({"sessions": [dict(r) for r in rows]})
@@ -333,6 +340,11 @@ async def delete_session(sid: str, x_pub_token: str = Header(default=None)):
 class ChatRequest(BaseModel):
     messages: list
     session_id: str | None = None
+    project_id: str | None = None
+    # Used only for the client-side history-compaction summary request: skips
+    # tools, credit charging, and session persistence — it's not a real turn
+    # the user sent, just internal upkeep on an existing conversation.
+    no_persist: bool = False
 
 
 @router.post("/chat")
@@ -347,15 +359,27 @@ async def chat(body: ChatRequest, x_pub_token: str = Header(default=None)):
     hub = _hub()
     is_admin = bool(me.get("is_admin"))
 
+    # An existing session's project is fixed at creation, same as desktop —
+    # only a brand-new session (no session_id yet) takes project_id from the body.
+    project_id = body.project_id
+    if body.session_id:
+        with _sdb() as conn:
+            row = conn.execute(
+                "SELECT project_id FROM pub_sessions WHERE id=? AND user_id=?", (body.session_id, me["id"])
+            ).fetchone()
+            if row:
+                project_id = row["project_id"]
+    project = desk._get_project(project_id) if is_admin and project_id else None
+
     price = 0
-    if hub and hub.credits_available():
+    if not body.no_persist and hub and hub.credits_available():
         price = hub.get_credit_feature_price(APP_ID, "chat_message")
         if price and hub.get_credit_balance(me["id"]) < price:
             return JSONResponse({"error": "insufficient_credits", "price": price}, status_code=402)
 
     cfg = desk._read_cfg()
     exec_enabled = bool(cfg.get("pub_exec_enabled"))
-    tools = desk._server_tools(is_admin, exec_enabled)
+    tools = [] if body.no_persist else desk._server_tools(is_admin, exec_enabled)
     prem = _premium()
     if prem and prem.is_available():
         if cfg.get("pub_data_bridge_enabled"):
@@ -377,6 +401,7 @@ async def chat(body: ChatRequest, x_pub_token: str = Header(default=None)):
             exec_enabled=exec_enabled,
             exec_auto=bool(cfg.get("pub_exec_auto")),
             identity_prompt=public_identity,
+            project=project,
         )
         data = json.loads(r.body)
         if r.status_code >= 400:
@@ -418,7 +443,7 @@ async def chat(body: ChatRequest, x_pub_token: str = Header(default=None)):
                 hub.charge_credit_feature(me["id"], APP_ID, "chat_message", "mvmAI chat message")
             except hub.CreditError:
                 return JSONResponse({"error": "insufficient_credits", "price": price}, status_code=402)
-        sid = _persist_turn(me["id"], body.session_id, body.messages, msg)
+        sid = None if body.no_persist else _persist_turn(me["id"], body.session_id, body.messages, msg, project_id)
         return JSONResponse({"session_id": sid, "message": msg})
 
     pid, base_url, api_key, model = desk._resolve_provider(cfg)
@@ -432,7 +457,7 @@ async def chat(body: ChatRequest, x_pub_token: str = Header(default=None)):
         headers["Authorization"] = f"Bearer {api_key}"
     url = base_url + "chat/completions"
 
-    access_prompt = desk._access_prompt(is_admin, exec_enabled)
+    access_prompt = desk._access_prompt(is_admin, exec_enabled, project)
     if public_identity:
         access_prompt += " " + public_identity
     messages = desk._trusted_messages(body.messages, access_prompt)
@@ -475,7 +500,7 @@ async def chat(body: ChatRequest, x_pub_token: str = Header(default=None)):
         except hub.CreditError:
             return JSONResponse({"error": "insufficient_credits", "price": price}, status_code=402)
 
-    sid = _persist_turn(me["id"], body.session_id, body.messages, msg)
+    sid = None if body.no_persist else _persist_turn(me["id"], body.session_id, body.messages, msg, project_id)
     return JSONResponse({"session_id": sid, "message": msg})
 
 
@@ -515,6 +540,7 @@ async def set_exec_settings(body: ExecSettingsRequest, x_pub_token: str = Header
 class ExecRequest(BaseModel):
     command: str
     confirmed: bool = False
+    project_id: str | None = None
 
 
 @router.post("/exec")
@@ -548,9 +574,11 @@ async def exec_command(body: ExecRequest, x_pub_token: str = Header(default=None
     # The public page has no mvmOS OS session to take an effective_user from —
     # this endpoint is already admin-only, so it runs as the server owner
     # (uvicorn's own user, root), the same reach the desktop terminal has.
+    # Plain bash (no runuser involved here), so cwd= is honored directly.
+    cwd = desk.resolve_project_cwd(body.project_id)
     try:
         proc = subprocess.run(
-            ["/bin/bash", "-lc", cmd], capture_output=True, text=True, timeout=120,
+            ["/bin/bash", "-lc", cmd], capture_output=True, text=True, timeout=120, cwd=cwd,
         )
         return JSONResponse({
             "stdout": proc.stdout[-20000:],
@@ -567,6 +595,7 @@ async def exec_command(body: ExecRequest, x_pub_token: str = Header(default=None
 class InspectRequest(BaseModel):
     command: str
     reason: str = ""
+    project_id: str | None = None
 
 
 @router.post("/inspect")
@@ -578,9 +607,118 @@ async def inspect_server(body: InspectRequest, x_pub_token: str = Header(default
     if desk is None:
         return JSONResponse({"error": "mvmAI is not available"}, status_code=500)
     try:
-        return JSONResponse({"result": desk._run_readonly_command(body.command)})
+        return JSONResponse({"result": desk._run_readonly_command(body.command, desk.resolve_project_cwd(body.project_id))})
     except Exception as exc:
         return JSONResponse({"error": str(exc)}, status_code=400)
+
+
+# ── Projects (admin-only; delegates to backend/apps/mvmai/backend.py so the
+#    project registry + git-status logic lives in exactly one place) ──────────
+
+class PubProjectCreateBody(BaseModel):
+    name: str
+    path: str = ""
+
+
+class PubProjectUpdateBody(BaseModel):
+    name: str | None = None
+    path: str | None = None
+    instructions: str | None = None
+    instructions_file: str | None = None
+
+
+@router.get("/projects")
+async def pub_projects_list(x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me or not me.get("is_admin"):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    desk = _desktop()
+    if desk is None:
+        return JSONResponse({"error": "mvmAI is not available"}, status_code=500)
+    return JSONResponse({"projects": desk.list_projects()})
+
+
+@router.post("/projects")
+async def pub_projects_create(body: PubProjectCreateBody, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me or not me.get("is_admin"):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    desk = _desktop()
+    if desk is None:
+        return JSONResponse({"error": "mvmAI is not available"}, status_code=500)
+    try:
+        project = desk.create_project(body.name, body.path)
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=400)
+    return JSONResponse({"project": project})
+
+
+@router.patch("/projects/{project_id}")
+async def pub_projects_update(project_id: str, body: PubProjectUpdateBody, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me or not me.get("is_admin"):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    desk = _desktop()
+    if desk is None:
+        return JSONResponse({"error": "mvmAI is not available"}, status_code=500)
+    try:
+        project = desk.update_project(project_id, body.name, body.path, body.instructions, body.instructions_file)
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=400)
+    return JSONResponse({"project": project})
+
+
+@router.delete("/projects/{project_id}")
+async def pub_projects_delete(project_id: str, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me or not me.get("is_admin"):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    desk = _desktop()
+    if desk is None:
+        return JSONResponse({"error": "mvmAI is not available"}, status_code=500)
+    desk.delete_project(project_id)
+    return JSONResponse({"ok": True})
+
+
+@router.get("/projects/{project_id}/git-status")
+async def pub_projects_git_status(project_id: str, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me or not me.get("is_admin"):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    desk = _desktop()
+    if desk is None:
+        return JSONResponse({"error": "mvmAI is not available"}, status_code=500)
+    project = desk._get_project(project_id)
+    if not project:
+        return JSONResponse({"error": "Project not found"}, status_code=404)
+    return JSONResponse(desk.project_git_status(project["path"]))
+
+
+@router.get("/browse")
+async def pub_browse_dirs(path: str = "/", x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me or not me.get("is_admin"):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    desk = _desktop()
+    if desk is None:
+        return JSONResponse({"error": "mvmAI is not available"}, status_code=500)
+    target = os.path.realpath(path or "/")
+    if not os.path.isdir(target):
+        return JSONResponse({"error": "Not a directory"}, status_code=400)
+    try:
+        dirs, files = [], []
+        for name in sorted(os.listdir(target)):
+            if name.startswith("."):
+                continue
+            full = os.path.join(target, name)
+            if os.path.isdir(full):
+                dirs.append(name)
+            elif os.path.isfile(full):
+                files.append(name)
+    except PermissionError:
+        return JSONResponse({"error": "Permission denied"}, status_code=403)
+    parent = os.path.dirname(target.rstrip("/")) or "/"
+    return JSONResponse({"path": target, "parent": parent if target != "/" else None, "dirs": dirs, "files": files})
 
 
 class ToolCallRequest(BaseModel):

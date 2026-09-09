@@ -12,11 +12,14 @@ import json
 import os
 import pwd
 import re
+import shlex
 import shutil
 import sqlite3
 import subprocess
 import sys
 import tempfile
+import time
+import uuid
 from glob import glob
 
 import httpx
@@ -95,6 +98,176 @@ def _write_cfg(key: str, value) -> None:
     conn.close()
 
 
+# ── AI Projects (admin-only; never exposed through the generic, un-gated
+#    /api/plugins/mvmai/db proxy — a project's `path` is exactly what /exec
+#    scopes shell access to, so it gets its own admin-gated table) ─────────────
+
+def _projects_db():
+    conn = sqlite3.connect(_DB_PATH)
+    conn.row_factory = sqlite3.Row
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS ai_projects ("
+        "id TEXT PRIMARY KEY, name TEXT NOT NULL, path TEXT NOT NULL, created_at INTEGER NOT NULL)"
+    )
+    # additive migration — same reasoning as pub_sessions.project_id in api.py
+    cols = {row[1] for row in conn.execute("PRAGMA table_info(ai_projects)")}
+    if "instructions" not in cols:
+        conn.execute("ALTER TABLE ai_projects ADD COLUMN instructions TEXT NOT NULL DEFAULT ''")
+    if "instructions_file" not in cols:
+        conn.execute("ALTER TABLE ai_projects ADD COLUMN instructions_file TEXT NOT NULL DEFAULT ''")
+    return conn
+
+
+_PROJECT_COLUMNS = "id, name, path, instructions, instructions_file, created_at"
+
+
+def list_projects() -> list:
+    with _projects_db() as conn:
+        rows = conn.execute(
+            f"SELECT {_PROJECT_COLUMNS} FROM ai_projects ORDER BY name COLLATE NOCASE"
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def _get_project(project_id: str):
+    if not project_id:
+        return None
+    with _projects_db() as conn:
+        row = conn.execute(
+            f"SELECT {_PROJECT_COLUMNS} FROM ai_projects WHERE id = ?", (project_id,)
+        ).fetchone()
+    return dict(row) if row else None
+
+
+def create_project(name: str, path: str = "") -> dict:
+    """A project's folder is optional — without one it's just a named group of
+    chats sharing the same instructions, no file tree / git status / shell cwd."""
+    name = (name or "").strip()
+    if not name:
+        raise ValueError("Project name is required")
+    path = (path or "").strip()
+    if path:
+        path = os.path.realpath(path)
+        if not os.path.isdir(path):
+            raise ValueError(f"Not a directory: {path}")
+    project_id = uuid.uuid4().hex
+    now = int(time.time())
+    with _projects_db() as conn:
+        conn.execute(
+            "INSERT INTO ai_projects (id, name, path, created_at) VALUES (?, ?, ?, ?)",
+            (project_id, name, path, now),
+        )
+    return _get_project(project_id)
+
+
+def update_project(project_id: str, name: str = None, path: str = None,
+                    instructions: str = None, instructions_file: str = None) -> dict:
+    """PATCH semantics: a field left as None is untouched; an empty string clears it."""
+    project = _get_project(project_id)
+    if not project:
+        raise ValueError("Project not found")
+    fields = {}
+    if name is not None:
+        name = name.strip()
+        if not name:
+            raise ValueError("Project name is required")
+        fields["name"] = name
+    if path is not None:
+        path = path.strip()
+        if path:
+            path = os.path.realpath(path)
+            if not os.path.isdir(path):
+                raise ValueError(f"Not a directory: {path}")
+        fields["path"] = path
+    if instructions is not None:
+        fields["instructions"] = instructions.strip()
+    if instructions_file is not None:
+        instructions_file = instructions_file.strip()
+        if instructions_file and not os.path.isfile(instructions_file):
+            raise ValueError(f"File not found: {instructions_file}")
+        fields["instructions_file"] = instructions_file
+    if fields:
+        with _projects_db() as conn:
+            conn.execute(
+                "UPDATE ai_projects SET " + ", ".join(f"{k} = ?" for k in fields) + " WHERE id = ?",
+                (*fields.values(), project_id),
+            )
+    return _get_project(project_id)
+
+
+def delete_project(project_id: str) -> None:
+    with _projects_db() as conn:
+        conn.execute("DELETE FROM ai_projects WHERE id = ?", (project_id,))
+
+
+def resolve_project_cwd(project_id: str | None) -> str | None:
+    """Turn a client-sent project_id into a trusted cwd — never trust a raw
+    path from the client, only ids the admin already registered server-side."""
+    project = _get_project(project_id)
+    return project["path"] if project and project.get("path") else None
+
+
+def project_context_block(project: dict) -> str:
+    """Text describing a project's working directory + custom instructions,
+    inserted into the system prompt ahead of anything the admin asked this turn."""
+    if project.get("path"):
+        parts = [
+            f"You are currently working inside project '{project['name']}' at {project['path']}. "
+            "Shell commands, file reads and file edits should target this directory unless the "
+            "user clearly asks otherwise."
+        ]
+    else:
+        parts = [f"You are currently assisting within project '{project['name']}' (it has no working directory set)."]
+    instr_file = (project.get("instructions_file") or "").strip()
+    if instr_file:
+        try:
+            with open(instr_file, "r", encoding="utf-8", errors="replace") as fh:
+                content = fh.read()
+            if len(content) > 20000:
+                content = content[:20000] + "\n...[truncated]"
+            parts.append(f"Project instructions file ({instr_file}):\n{content}")
+        except Exception as exc:
+            parts.append(f"(Could not read project instructions file {instr_file}: {exc})")
+    instr_text = (project.get("instructions") or "").strip()
+    if instr_text:
+        parts.append(f"Project-specific instructions from the admin:\n{instr_text}")
+    return "\n\n".join(parts)
+
+
+def project_git_status(path: str) -> dict:
+    if not path or not os.path.isdir(os.path.join(path, ".git")):
+        return {"is_repo": False}
+
+    def _git(args):
+        return subprocess.run(["git", "-C", path] + args, capture_output=True, text=True, timeout=15)
+
+    branch_r = _git(["rev-parse", "--abbrev-ref", "HEAD"])
+    branch = branch_r.stdout.strip() if branch_r.returncode == 0 else "?"
+    status_r = _git(["status", "--porcelain"])
+    added, modified, deleted, untracked = [], [], [], []
+    if status_r.returncode == 0:
+        for line in status_r.stdout.splitlines():
+            if len(line) < 4:
+                continue
+            code, name = line[:2], line[3:]
+            if code == "??":
+                untracked.append(name)
+            elif "D" in code:
+                deleted.append(name)
+            elif "A" in code:
+                added.append(name)
+            else:
+                modified.append(name)
+    return {
+        "is_repo": True,
+        "branch": branch,
+        "added": added,
+        "modified": modified,
+        "deleted": deleted,
+        "untracked": untracked,
+    }
+
+
 def _resolve_provider(cfg: dict):
     """Return (base_url, api_key, model) from saved config."""
     pid = cfg.get("provider", "gemini")
@@ -158,7 +331,7 @@ def _server_tools(is_admin: bool, exec_enabled: bool) -> list:
     return list(_TOOLS) if exec_enabled else [_INSPECT_TOOL]
 
 
-def _access_prompt(is_admin: bool, exec_enabled: bool) -> str:
+def _access_prompt(is_admin: bool, exec_enabled: bool, project: dict = None) -> str:
     if not is_admin:
         return (
             "You are a general AI assistant. You have no access to this server, its files, "
@@ -167,16 +340,20 @@ def _access_prompt(is_admin: bool, exec_enabled: bool) -> str:
             "API tools, if any; those are scoped to the current user's own data."
         )
     if exec_enabled:
-        return (
+        prompt = (
             "You are mvmAI assisting an Apps Hub administrator. You may inspect the server with "
             "inspect_server and may request shell execution with run_command. Use tools when a "
             "server fact is needed; do not invent server state."
         )
-    return (
-        "You are mvmAI assisting a trusted Apps Hub administrator with server access. READ-ONLY "
-        "RULE: use inspect_server and commands only to inspect the server. Do not create, edit, "
-        "delete, install, restart, stop, or otherwise change anything. Do not invent server state."
-    )
+    else:
+        prompt = (
+            "You are mvmAI assisting a trusted Apps Hub administrator with server access. READ-ONLY "
+            "RULE: use inspect_server and commands only to inspect the server. Do not create, edit, "
+            "delete, install, restart, stop, or otherwise change anything. Do not invent server state."
+        )
+    if project:
+        prompt += "\n\n" + project_context_block(project)
+    return prompt
 
 
 def _trusted_messages(messages: list, access_prompt: str) -> list:
@@ -192,12 +369,12 @@ def _trusted_messages(messages: list, access_prompt: str) -> list:
     return out
 
 
-def _run_readonly_command(command: str) -> dict:
+def _run_readonly_command(command: str, cwd: str | None = None) -> dict:
     cmd = command.strip()
     if not cmd:
         raise ValueError("Empty command")
     try:
-        proc = subprocess.run(["/bin/bash", "-lc", cmd], capture_output=True, text=True, timeout=120)
+        proc = subprocess.run(["/bin/bash", "-lc", cmd], capture_output=True, text=True, timeout=120, cwd=cwd)
         return {"stdout": proc.stdout[-20000:], "stderr": proc.stderr[-20000:], "code": proc.returncode}
     except subprocess.TimeoutExpired:
         return {"stdout": "", "stderr": "Read-only command timed out after 120s", "code": 124}
@@ -327,6 +504,7 @@ async def list_models(body: ModelsRequest, session=Depends(get_current_session))
 class ChatRequest(BaseModel):
     messages: list
     tools_enabled: bool = True
+    project_id: str | None = None
 
 
 @router.post("/chat")
@@ -346,8 +524,9 @@ async def chat(body: ChatRequest, x_pub_token: str = Header(default=None), sessi
 
     exec_enabled = bool(cfg.get("exec_enabled"))
     is_admin = _is_apps_hub_admin(x_pub_token)
+    project = _get_project(body.project_id) if is_admin else None
     tools = _server_tools(is_admin, exec_enabled) if body.tools_enabled else []
-    messages = _trusted_messages(body.messages, _access_prompt(is_admin, exec_enabled))
+    messages = _trusted_messages(body.messages, _access_prompt(is_admin, exec_enabled, project))
 
     async def _post(with_tools: bool):
         p = {"model": model, "messages": messages}
@@ -387,6 +566,7 @@ async def chat(body: ChatRequest, x_pub_token: str = Header(default=None), sessi
 class ExecRequest(BaseModel):
     command: str
     confirmed: bool = False
+    project_id: str | None = None
 
 
 @router.post("/exec")
@@ -418,12 +598,20 @@ async def exec_command(body: ExecRequest, x_pub_token: str = Header(default=None
     # the user actually logged in as root.
     eu = (session or {}).get("effective_user", "root")
     needs_sudo = os.geteuid() != 0
+
+    project_cwd = resolve_project_cwd(body.project_id)
+    # `runuser -l`/`sudo runuser -l` simulate a fresh login and land in the
+    # target user's home regardless of subprocess's own cwd — a plain cwd=
+    # override is silently ignored for those two branches, so the only
+    # reliable way to scope the command to a project is to cd inside it.
+    run_cmd = f"cd {shlex.quote(project_cwd)} && {cmd}" if project_cwd else cmd
+
     if needs_sudo:
-        wrapped = ["sudo", "runuser", "-l", eu, "-c", cmd]
+        wrapped = ["sudo", "runuser", "-l", eu, "-c", run_cmd]
     elif eu and eu != "root":
-        wrapped = ["runuser", "-l", eu, "-c", cmd]
+        wrapped = ["runuser", "-l", eu, "-c", run_cmd]
     else:
-        wrapped = ["/bin/bash", "-lc", cmd]
+        wrapped = ["/bin/bash", "-lc", run_cmd]
     try:
         home = pwd.getpwnam(eu).pw_dir
     except KeyError:
@@ -432,7 +620,7 @@ async def exec_command(body: ExecRequest, x_pub_token: str = Header(default=None
     try:
         proc = subprocess.run(
             wrapped, capture_output=True, text=True, timeout=120,
-            cwd=home, env={**os.environ, "HOME": home, "USER": eu, "LOGNAME": eu},
+            cwd=project_cwd or home, env={**os.environ, "HOME": home, "USER": eu, "LOGNAME": eu},
         )
         return JSONResponse({
             "stdout": proc.stdout[-20000:],
@@ -449,6 +637,7 @@ async def exec_command(body: ExecRequest, x_pub_token: str = Header(default=None
 class InspectRequest(BaseModel):
     command: str
     reason: str = ""
+    project_id: str | None = None
 
 
 @router.post("/inspect")
@@ -456,9 +645,93 @@ async def inspect_server(body: InspectRequest, x_pub_token: str = Header(default
     if not _is_apps_hub_admin(x_pub_token):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     try:
-        return JSONResponse({"result": _run_readonly_command(body.command)})
+        return JSONResponse({"result": _run_readonly_command(body.command, resolve_project_cwd(body.project_id))})
     except Exception as exc:
         return JSONResponse({"error": str(exc)}, status_code=400)
+
+
+# ── Projects (admin-only) ────────────────────────────────────────────────────
+
+class ProjectCreateBody(BaseModel):
+    name: str
+    path: str = ""
+
+
+class ProjectUpdateBody(BaseModel):
+    name: str | None = None
+    path: str | None = None
+    instructions: str | None = None
+    instructions_file: str | None = None
+
+
+@router.get("/projects")
+async def projects_list(x_pub_token: str = Header(default=None), session=Depends(get_current_session)):
+    if not _is_apps_hub_admin(x_pub_token):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    return JSONResponse({"projects": list_projects()})
+
+
+@router.post("/projects")
+async def projects_create(body: ProjectCreateBody, x_pub_token: str = Header(default=None), session=Depends(get_current_session)):
+    if not _is_apps_hub_admin(x_pub_token):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        project = create_project(body.name, body.path)
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=400)
+    return JSONResponse({"project": project})
+
+
+@router.patch("/projects/{project_id}")
+async def projects_update(project_id: str, body: ProjectUpdateBody, x_pub_token: str = Header(default=None), session=Depends(get_current_session)):
+    if not _is_apps_hub_admin(x_pub_token):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        project = update_project(project_id, body.name, body.path, body.instructions, body.instructions_file)
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=400)
+    return JSONResponse({"project": project})
+
+
+@router.delete("/projects/{project_id}")
+async def projects_delete(project_id: str, x_pub_token: str = Header(default=None), session=Depends(get_current_session)):
+    if not _is_apps_hub_admin(x_pub_token):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    delete_project(project_id)
+    return JSONResponse({"ok": True})
+
+
+@router.get("/projects/{project_id}/git-status")
+async def projects_git_status(project_id: str, x_pub_token: str = Header(default=None), session=Depends(get_current_session)):
+    if not _is_apps_hub_admin(x_pub_token):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    project = _get_project(project_id)
+    if not project:
+        return JSONResponse({"error": "Project not found"}, status_code=404)
+    return JSONResponse(project_git_status(project["path"]))
+
+
+@router.get("/browse")
+async def browse_dirs(path: str = "/", x_pub_token: str = Header(default=None), session=Depends(get_current_session)):
+    if not _is_apps_hub_admin(x_pub_token):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    target = os.path.realpath(path or "/")
+    if not os.path.isdir(target):
+        return JSONResponse({"error": "Not a directory"}, status_code=400)
+    try:
+        dirs, files = [], []
+        for name in sorted(os.listdir(target)):
+            if name.startswith("."):
+                continue
+            full = os.path.join(target, name)
+            if os.path.isdir(full):
+                dirs.append(name)
+            elif os.path.isfile(full):
+                files.append(name)
+    except PermissionError:
+        return JSONResponse({"error": "Permission denied"}, status_code=403)
+    parent = os.path.dirname(target.rstrip("/")) or "/"
+    return JSONResponse({"path": target, "parent": parent if target != "/" else None, "dirs": dirs, "files": files})
 
 
 # ── CLI providers ────────────────────────────────────────────────────────────────
@@ -602,6 +875,7 @@ async def _run_cli_chat(
     exec_enabled: bool,
     exec_auto: bool = False,
     identity_prompt: str = "",
+    project: dict = None,
 ):
     provider = next((p for p in CLI_PROVIDERS if p["id"] == body.provider_id), None)
     if not provider:
@@ -665,6 +939,8 @@ async def _run_cli_chat(
             "In CONFIRMATION mode, request each server operation with the mvmai_tool_call response "
             "protocol; mvmAI itself shows the command to the user and collects confirmation."
         )
+    if project:
+        parts.append(f"[System]: {project_context_block(project)}")
     prompt = "\n".join(parts)
 
     pid = body.provider_id
@@ -677,6 +953,10 @@ async def _run_cli_chat(
         runtime_dir = os.path.join(os.path.realpath(os.path.dirname(_DB_PATH)), ".runtime")
         os.makedirs(runtime_dir, exist_ok=True)
         with tempfile.TemporaryDirectory(prefix="mvmai-chat-", dir=runtime_dir) as workdir:
+            # A project's own folder is the real working directory when one is
+            # set — the throwaway workdir above still holds the sandbox policy
+            # file, but the CLI itself should read/edit the admin's real files.
+            effective_dir = project["path"] if project and project.get("path") else workdir
             policy_path = os.path.join(workdir, "deny-tools.toml")
             with open(policy_path, "w", encoding="utf-8") as handle:
                 handle.write('[[rule]]\ntoolName = "*"\ndecision = "deny"\npriority = 999\n')
@@ -691,10 +971,10 @@ async def _run_cli_chat(
             elif pid == "codex-cli":
                 sandbox = "danger-full-access" if native_server_access else "read-only"
                 safety_args = [] if native_server_access else ["-c", "features.shell_tool=false"]
-                cmd = [cmd_bin, "exec", "--skip-git-repo-check", "--sandbox", sandbox, "-C", workdir, "-c", 'web_search="disabled"'] + safety_args + (["--model", model] if model else []) + [prompt]
+                cmd = [cmd_bin, "exec", "--skip-git-repo-check", "--sandbox", sandbox, "-C", effective_dir, "-c", 'web_search="disabled"'] + safety_args + (["--model", model] if model else []) + [prompt]
             else:
                 cmd = [cmd_bin] + provider["args"] + [prompt]
-            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120, cwd=workdir)
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120, cwd=effective_dir)
         if proc.returncode != 0 and not proc.stdout.strip():
             err = proc.stderr.strip() or f"exit code {proc.returncode}"
             return JSONResponse({"error": err}, status_code=502)

@@ -29,6 +29,12 @@ const _mvmai18n = {
     model_tool_default: '(tool default)', models_found: '{count} models found — the tool default is used initially.',
     models_failed: "The model list couldn't be loaded — the tool default will be used.",
     models_unavailable: "This CLI doesn't expose a model list — its default model will be used.",
+    projects_title: 'Projects', project_new: '+ New project', no_projects: 'No projects yet',
+    project_name_label: 'Name', project_path_label: 'Folder', project_browse: 'Browse…', project_create: 'Create',
+    project_name_required: 'Project name is required', project_path_required: 'Choose a folder',
+    project_del_confirm: 'Delete this project? The folder itself is not touched.', project_creating: 'Creating…',
+    browse_title: 'Choose a folder', browse_select: 'Select this folder', browse_up: '.. (up)',
+    active_project: 'Project: {name}', loading: 'Loading…', git_not_repo: 'Not a git repository', git_clean: 'No changes', cancel: 'Cancel',
   },
   bg: {
     title: 'mvmAI', new_chat: '+ Нов чат', no_sessions: 'Все още няма разговори',
@@ -55,6 +61,12 @@ const _mvmai18n = {
     model_tool_default: '(по подразбиране на инструмента)', models_found: '{count} открити модела — първоначално се използва моделът по подразбиране на инструмента.',
     models_failed: 'Списъкът с модели не може да бъде зареден — ще се използва моделът по подразбиране на инструмента.',
     models_unavailable: 'Този CLI не предоставя списък с модели — ще се използва неговият модел по подразбиране.',
+    projects_title: 'Проекти', project_new: '+ Нов проект', no_projects: 'Все още няма проекти',
+    project_name_label: 'Име', project_path_label: 'Папка', project_browse: 'Разгледай…', project_create: 'Създай',
+    project_name_required: 'Името на проекта е задължително', project_path_required: 'Избери папка',
+    project_del_confirm: 'Изтриване на този проект? Самата папка не се пипа.', project_creating: 'Създаване…',
+    browse_title: 'Избери папка', browse_select: 'Избери тази папка', browse_up: '.. (нагоре)',
+    active_project: 'Проект: {name}', loading: 'Зареждане…', git_not_repo: 'Не е git repository', git_clean: 'Няма промени', cancel: 'Отказ',
   },
   de: {
     title: 'mvmAI', new_chat: '+ Neuer Chat', no_sessions: 'Noch keine Unterhaltungen',
@@ -81,6 +93,12 @@ const _mvmai18n = {
     model_tool_default: '(Standardeinstellung des Tools)', models_found: '{count} Modelle gefunden — zunächst wird die Standardeinstellung des Tools verwendet.',
     models_failed: 'Die Modellliste konnte nicht geladen werden — die Standardeinstellung des Tools wird verwendet.',
     models_unavailable: 'Dieses CLI stellt keine Modellliste bereit — sein Standardmodell wird verwendet.',
+    projects_title: 'Projekte', project_new: '+ Neues Projekt', no_projects: 'Noch keine Projekte',
+    project_name_label: 'Name', project_path_label: 'Ordner', project_browse: 'Durchsuchen…', project_create: 'Erstellen',
+    project_name_required: 'Der Projektname ist erforderlich', project_path_required: 'Wähle einen Ordner',
+    project_del_confirm: 'Dieses Projekt löschen? Der Ordner selbst bleibt unberührt.', project_creating: 'Wird erstellt…',
+    browse_title: 'Ordner wählen', browse_select: 'Diesen Ordner auswählen', browse_up: '.. (nach oben)',
+    active_project: 'Projekt: {name}', loading: 'Wird geladen…', git_not_repo: 'Kein Git-Repository', git_clean: 'Keine Änderungen', cancel: 'Abbrechen',
   },
   es: {
     title: 'mvmAI', new_chat: '+ Nuevo chat', no_sessions: 'Aún no hay conversaciones',
@@ -107,6 +125,12 @@ const _mvmai18n = {
     model_tool_default: '(predeterminado de la herramienta)', models_found: '{count} modelos encontrados — inicialmente se usa el predeterminado de la herramienta.',
     models_failed: 'No se pudo cargar la lista de modelos — se usará el predeterminado de la herramienta.',
     models_unavailable: 'Este CLI no ofrece una lista de modelos — se usará su modelo predeterminado.',
+    projects_title: 'Proyectos', project_new: '+ Nuevo proyecto', no_projects: 'Aún no hay proyectos',
+    project_name_label: 'Nombre', project_path_label: 'Carpeta', project_browse: 'Explorar…', project_create: 'Crear',
+    project_name_required: 'El nombre del proyecto es obligatorio', project_path_required: 'Elige una carpeta',
+    project_del_confirm: '¿Eliminar este proyecto? La carpeta en sí no se modifica.', project_creating: 'Creando…',
+    browse_title: 'Elegir una carpeta', browse_select: 'Seleccionar esta carpeta', browse_up: '.. (subir)',
+    active_project: 'Proyecto: {name}', loading: 'Cargando…', git_not_repo: 'No es un repositorio git', git_clean: 'Sin cambios', cancel: 'Cancelar',
   },
   fr: {
     title: 'mvmAI', new_chat: '+ Nouvelle discussion', no_sessions: 'Aucune conversation pour le moment',
@@ -133,6 +157,12 @@ const _mvmai18n = {
     model_tool_default: '(valeur par défaut de l’outil)', models_found: '{count} modèles trouvés — la valeur par défaut de l’outil est utilisée initialement.',
     models_failed: 'La liste des modèles n’a pas pu être chargée — la valeur par défaut de l’outil sera utilisée.',
     models_unavailable: 'Ce CLI ne fournit pas de liste de modèles — son modèle par défaut sera utilisé.',
+    projects_title: 'Projets', project_new: '+ Nouveau projet', no_projects: 'Aucun projet pour le moment',
+    project_name_label: 'Nom', project_path_label: 'Dossier', project_browse: 'Parcourir…', project_create: 'Créer',
+    project_name_required: 'Le nom du projet est requis', project_path_required: 'Choisissez un dossier',
+    project_del_confirm: "Supprimer ce projet ? Le dossier lui-même n'est pas touché.", project_creating: 'Création…',
+    browse_title: 'Choisir un dossier', browse_select: 'Sélectionner ce dossier', browse_up: '.. (remonter)',
+    active_project: 'Projet : {name}', loading: 'Chargement…', git_not_repo: "Ce n'est pas un dépôt git", git_clean: 'Aucun changement', cancel: 'Annuler',
   },
   ja: {
     title: 'mvmAI', new_chat: '+ 新しいチャット', no_sessions: 'まだ会話がありません',
@@ -159,6 +189,12 @@ const _mvmai18n = {
     model_tool_default: '（ツールのデフォルト）', models_found: '{count}個のモデルが見つかりました — 初期状態ではツールのデフォルトを使用します。',
     models_failed: 'モデル一覧を読み込めませんでした — ツールのデフォルトを使用します。',
     models_unavailable: 'このCLIはモデル一覧を提供していません — デフォルトモデルを使用します。',
+    projects_title: 'プロジェクト', project_new: '+ 新規プロジェクト', no_projects: 'まだプロジェクトがありません',
+    project_name_label: '名前', project_path_label: 'フォルダ', project_browse: '参照…', project_create: '作成',
+    project_name_required: 'プロジェクト名は必須です', project_path_required: 'フォルダを選択してください',
+    project_del_confirm: 'このプロジェクトを削除しますか？フォルダ自体は削除されません。', project_creating: '作成中…',
+    browse_title: 'フォルダを選択', browse_select: 'このフォルダを選択', browse_up: '..（上へ）',
+    active_project: 'プロジェクト: {name}', loading: '読み込み中…', git_not_repo: 'gitリポジトリではありません', git_clean: '変更なし', cancel: 'キャンセル',
   },
   'pt-BR': {
     title: 'mvmAI', new_chat: '+ Nova conversa', no_sessions: 'Ainda não há conversas',
@@ -185,6 +221,12 @@ const _mvmai18n = {
     model_tool_default: '(padrão da ferramenta)', models_found: '{count} modelos encontrados — inicialmente, o padrão da ferramenta é usado.',
     models_failed: 'Não foi possível carregar a lista de modelos — o padrão da ferramenta será usado.',
     models_unavailable: 'Esta CLI não fornece uma lista de modelos — seu modelo padrão será usado.',
+    projects_title: 'Projetos', project_new: '+ Novo projeto', no_projects: 'Ainda não há projetos',
+    project_name_label: 'Nome', project_path_label: 'Pasta', project_browse: 'Procurar…', project_create: 'Criar',
+    project_name_required: 'O nome do projeto é obrigatório', project_path_required: 'Escolha uma pasta',
+    project_del_confirm: 'Excluir este projeto? A pasta em si não é afetada.', project_creating: 'Criando…',
+    browse_title: 'Escolher uma pasta', browse_select: 'Selecionar esta pasta', browse_up: '.. (subir)',
+    active_project: 'Projeto: {name}', loading: 'Carregando…', git_not_repo: 'Não é um repositório git', git_clean: 'Sem alterações', cancel: 'Cancelar',
   },
   ru: {
     title: 'mvmAI', new_chat: '+ Новый чат', no_sessions: 'Пока нет разговоров',
@@ -211,6 +253,12 @@ const _mvmai18n = {
     model_tool_default: '(по умолчанию инструмента)', models_found: 'Найдено моделей: {count} — изначально используется настройка инструмента по умолчанию.',
     models_failed: 'Не удалось загрузить список моделей — будет использована настройка инструмента по умолчанию.',
     models_unavailable: 'Этот CLI не предоставляет список моделей — будет использована его модель по умолчанию.',
+    projects_title: 'Проекты', project_new: '+ Новый проект', no_projects: 'Пока нет проектов',
+    project_name_label: 'Имя', project_path_label: 'Папка', project_browse: 'Обзор…', project_create: 'Создать',
+    project_name_required: 'Имя проекта обязательно', project_path_required: 'Выберите папку',
+    project_del_confirm: 'Удалить этот проект? Сама папка не будет затронута.', project_creating: 'Создание…',
+    browse_title: 'Выбрать папку', browse_select: 'Выбрать эту папку', browse_up: '.. (вверх)',
+    active_project: 'Проект: {name}', loading: 'Загрузка…', git_not_repo: 'Не является git-репозиторием', git_clean: 'Нет изменений', cancel: 'Отмена',
   },
   'zh-CN': {
     title: 'mvmAI', new_chat: '+ 新对话', no_sessions: '暂无对话',
@@ -237,6 +285,12 @@ const _mvmai18n = {
     model_tool_default: '（工具默认值）', models_found: '找到 {count} 个模型 — 初始使用工具默认值。',
     models_failed: '无法加载模型列表 — 将使用工具默认值。',
     models_unavailable: '此 CLI 不提供模型列表 — 将使用其默认模型。',
+    projects_title: '项目', project_new: '+ 新建项目', no_projects: '还没有项目',
+    project_name_label: '名称', project_path_label: '文件夹', project_browse: '浏览…', project_create: '创建',
+    project_name_required: '项目名称为必填项', project_path_required: '选择一个文件夹',
+    project_del_confirm: '删除此项目？文件夹本身不会被删除。', project_creating: '创建中…',
+    browse_title: '选择文件夹', browse_select: '选择此文件夹', browse_up: '..（上一级）',
+    active_project: '项目：{name}', loading: '加载中…', git_not_repo: '不是 git 仓库', git_clean: '没有更改', cancel: '取消',
   },
 };
 function _ait(key) { const lang = window.mvmOS?.lang || 'en'; return (_mvmai18n[lang] || _mvmai18n.en)[key] || key; }
@@ -562,6 +616,7 @@ mvmOS.registerApp({
           }).catch(() => {});
           await _loadMvmaiWidget();
           handle = window.MvmaiWidget.mount(root, {
+            isDesktopApp: true,
             onNeedLogin() { AppHub.requireLogin(() => start()); },
           });
         }
@@ -591,6 +646,8 @@ const AI = (() => {
   let _busy = false;
   let _cfg = {};
   let _access = { apps_hub_logged_in: false, is_admin: false };
+  let _activeProject = null;   // project tied to the current chat session — fixed at creation
+  let _projects = [];
 
   function _esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
@@ -622,6 +679,16 @@ const AI = (() => {
     const res = await fetch('/api/mvmai' + path, {
       method: 'POST', headers: _headers(), body: JSON.stringify(body),
     });
+    return res.json();
+  }
+
+  async function _apiGet(path) {
+    const res = await fetch('/api/mvmai' + path, { headers: _headers() });
+    return res.json();
+  }
+
+  async function _apiDelete(path) {
+    const res = await fetch('/api/mvmai' + path, { method: 'DELETE', headers: _headers() });
     return res.json();
   }
 
@@ -720,6 +787,10 @@ const AI = (() => {
   async function _listSessions() {
     return _db.query('SELECT id, title, updated_at FROM sessions ORDER BY updated_at DESC');
   }
+  async function _getSessionProjectId(sid) {
+    const rows = await _db.query('SELECT project_id FROM sessions WHERE id=?', [sid]);
+    return (rows[0] && rows[0].project_id) || null;
+  }
   async function _loadMessages(sid, { forDisplay = false } = {}) {
     const rows = await _db.query('SELECT role, content FROM messages WHERE session_id=? ORDER BY id', [sid]);
     const all = rows.map(r => { try { return JSON.parse(r.content); } catch (_) { return { role: r.role, content: r.content }; } });
@@ -785,7 +856,8 @@ const AI = (() => {
     const id = 's' + Date.now() + Math.random().toString(36).slice(2, 6);
     const now = Math.floor(Date.now() / 1000);
     const title = (firstText || 'New chat').trim().slice(0, 42) || 'New chat';
-    await _db.run('INSERT INTO sessions (id, title, created_at, updated_at) VALUES (?,?,?,?)', [id, title, now, now]);
+    await _db.run('INSERT INTO sessions (id, title, project_id, created_at, updated_at) VALUES (?,?,?,?,?)',
+      [id, title, _activeProject ? _activeProject.id : null, now, now]);
     return id;
   }
 
@@ -837,7 +909,7 @@ const AI = (() => {
   function _execWithUI(command, reason) {
     return new Promise(async (resolve) => {
       const card = _addCommandCard(command, reason);
-      const first = await _api('/exec', { command, confirmed: false });
+      const first = await _api('/exec', { command, confirmed: false, project_id: _activeProject ? _activeProject.id : null });
       if (first.blocked) { _renderOutput(card, first); return resolve({ blocked: true, reason: first.reason }); }
       if (first.pending) {
         const actions = card.querySelector('.mvmai-cmd-actions');
@@ -847,7 +919,7 @@ const AI = (() => {
         actions.appendChild(yes); actions.appendChild(no);
         yes.addEventListener('click', async () => {
           actions.innerHTML = `<span class="mvmai-running">${_ait('running')}</span>`;
-          const r = await _api('/exec', { command, confirmed: true });
+          const r = await _api('/exec', { command, confirmed: true, project_id: _activeProject ? _activeProject.id : null });
           actions.innerHTML = '';
           _renderOutput(card, r);
           resolve(r);
@@ -865,7 +937,7 @@ const AI = (() => {
     const command = args.command || '';
     const card = _addCommandCard(command, args.reason || 'Read-only server inspection');
     const data = await _api('/inspect', {
-      command, reason: args.reason || '',
+      command, reason: args.reason || '', project_id: _activeProject ? _activeProject.id : null,
     });
     const result = data.error ? { stdout: '', stderr: data.error, code: 1 } : data.result;
     _renderOutput(card, result);
@@ -934,7 +1006,7 @@ const AI = (() => {
     let status = _addBubble('assistant', `<span class="mvmai-typing">${_ait('thinking')}</span>`);
 
     for (let i = 0; i < 10; i++) {
-      const res = await _api('/chat', { messages: apiMsgs });
+      const res = await _api('/chat', { messages: apiMsgs, project_id: _activeProject ? _activeProject.id : null });
       if (res.error) { status.querySelector('.mvmai-bubble').innerHTML = `<span class="mvmai-err">${_ait('err')}: ${_esc(res.error)}</span>`; return; }
       const msg = res.message;
       const msgWithModel = { ...msg, _model: _cfg.model || _cfg.provider || '' };
@@ -1051,10 +1123,212 @@ const AI = (() => {
 
   async function _openSession(sid) {
     _sessionId = sid;
+    const pid = await _getSessionProjectId(sid);
+    _activeProject = pid ? (_projects.find(p => p.id === pid) || null) : null;
+    _renderProjects();
+    _updateProjectBar();
     _renderChat(await _loadMessages(sid, { forDisplay: true }));
     await _renderSessions();
     _root.querySelector('.mvmai-sidebar')?.classList.remove('mobile-open');
     _root.querySelector('.as-sidebar-overlay')?.remove();
+  }
+
+  // ── projects ────────────────────────────────────────────────────────────────────
+  async function _loadProjects() {
+    try { const d = await _apiGet('/projects'); _projects = d.projects || []; } catch (_) { _projects = []; }
+    return _projects;
+  }
+
+  function _renderProjects() {
+    const list = _root && _root.querySelector('.mvmai-projects-list');
+    if (!list) return;
+    if (!_projects.length) { list.innerHTML = `<div class="mvmai-no-sessions">${_ait('no_projects')}</div>`; return; }
+    list.innerHTML = '';
+    _projects.forEach(p => {
+      const row = document.createElement('div');
+      row.className = 'mvmai-project' + (_activeProject && _activeProject.id === p.id ? ' active' : '');
+      row.innerHTML = `<span class="mvmai-p-title">📁 ${_esc(p.name)}</span><button class="mvmai-s-del" title="${_ait('delete')}">✕</button>`;
+      row.querySelector('.mvmai-p-title').addEventListener('click', () => _selectProject(p));
+      row.querySelector('.mvmai-s-del').addEventListener('click', async e => {
+        e.stopPropagation();
+        if (!confirm(_ait('project_del_confirm'))) return;
+        await _apiDelete('/projects/' + p.id);
+        if (_activeProject && _activeProject.id === p.id) { _activeProject = null; _updateProjectBar(); }
+        await _loadProjects(); _renderProjects();
+      });
+      list.appendChild(row);
+    });
+  }
+
+  function _selectProject(p) {
+    _activeProject = (_activeProject && _activeProject.id === p.id) ? null : p;
+    _renderProjects();
+    _updateProjectBar();
+  }
+
+  function _updateProjectBar() {
+    const bar = _root && _root.querySelector('.mvmai-project-bar');
+    if (!bar) return;
+    _root.querySelector('.mvmai-filetree-dropdown')?.remove();
+    if (!_activeProject) { bar.hidden = true; return; }
+    bar.hidden = false;
+    bar.querySelector('.mvmai-project-name').textContent = _ait('active_project').replace('{name}', _activeProject.name);
+    bar.querySelector('.mvmai-project-branch').textContent = '';
+  }
+
+  async function _toggleFileTree() {
+    const existing = _root.querySelector('.mvmai-filetree-dropdown');
+    if (existing) { existing.remove(); return; }
+    if (!_activeProject) return;
+    const bar = _root.querySelector('.mvmai-project-bar');
+    const dd = document.createElement('div');
+    dd.className = 'mvmai-filetree-dropdown';
+    dd.innerHTML = `<div class="mvmai-no-sessions">${_ait('loading')}</div>`;
+    bar.appendChild(dd);
+    let git = { is_repo: false };
+    try { git = await _apiGet('/projects/' + _activeProject.id + '/git-status'); } catch (_) {}
+    bar.querySelector('.mvmai-project-branch').textContent = git.is_repo ? ('⎇ ' + git.branch) : _ait('git_not_repo');
+    const statusMap = {};
+    (git.added || []).forEach(f => { statusMap[f] = 'A'; });
+    (git.modified || []).forEach(f => { statusMap[f] = 'M'; });
+    (git.deleted || []).forEach(f => { statusMap[f] = 'D'; });
+    (git.untracked || []).forEach(f => { statusMap[f] = 'U'; });
+    dd.innerHTML = '';
+    await _renderDirEntries(_activeProject.path, dd, statusMap, _activeProject.path);
+    if (!dd.children.length) dd.innerHTML = `<div class="mvmai-no-sessions">${_ait('git_clean')}</div>`;
+    setTimeout(() => {
+      const close = e => {
+        if (!dd.contains(e.target) && !e.target.closest('.mvmai-files-toggle')) {
+          dd.remove();
+          document.removeEventListener('click', close);
+        }
+      };
+      document.addEventListener('click', close);
+    }, 0);
+  }
+
+  async function _renderDirEntries(dirPath, container, statusMap, rootPath) {
+    let entries = [];
+    try {
+      const res = await fetch('/api/files?path=' + encodeURIComponent(dirPath), { headers: _headers() });
+      const data = await res.json();
+      entries = data.entries || data.files || data || [];
+    } catch (_) {}
+    entries = entries.filter(f => !f.name.startsWith('.'));
+    entries.sort((a, b) => ((a.type === 'dir') === (b.type === 'dir')) ? a.name.localeCompare(b.name) : (a.type === 'dir' ? -1 : 1));
+    entries.forEach(f => {
+      const full = dirPath.replace(/\/$/, '') + '/' + f.name;
+      const rel = full.slice(rootPath.length + 1);
+      const row = document.createElement('div');
+      row.className = f.type === 'dir' ? 'mvmai-ft-dir' : 'mvmai-ft-file';
+      const badge = statusMap[rel] ? `<span class="mvmai-ft-badge mvmai-ft-${statusMap[rel]}">${statusMap[rel]}</span>` : '';
+      row.innerHTML = `<span class="mvmai-ft-name">${f.type === 'dir' ? '📁' : '📄'} ${_esc(f.name)}</span>${badge}`;
+      if (f.type === 'dir') {
+        row.addEventListener('click', async e => {
+          e.stopPropagation();
+          const next = row.nextElementSibling;
+          if (next && next.classList.contains('mvmai-ft-children')) { next.remove(); return; }
+          const sub = document.createElement('div');
+          sub.className = 'mvmai-ft-children';
+          row.after(sub);
+          await _renderDirEntries(full, sub, statusMap, rootPath);
+        });
+      } else {
+        row.addEventListener('click', e => {
+          e.stopPropagation();
+          if (typeof CodeEditor !== 'undefined') CodeEditor.openFile(full);
+        });
+      }
+      container.appendChild(row);
+    });
+  }
+
+  function _showFolderPicker(startPath, onSelect) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:100';
+    overlay.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;width:420px;max-width:92%;max-height:70%;display:flex;flex-direction:column;gap:10px">
+      <div style="font-weight:600;font-size:.95rem">${_ait('browse_title')}</div>
+      <div class="mvmai-browse-path" style="font-size:.76rem;color:var(--text-dim);font-family:monospace;overflow-wrap:anywhere"></div>
+      <div class="mvmai-browse-list" style="flex:1;overflow-y:auto;border:1px solid var(--border);border-radius:6px;min-height:200px"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="s-btn mvmai-browse-cancel">${_ait('cancel')}</button>
+        <button class="s-btn mvmai-browse-select" style="background:var(--accent);color:#fff;border-color:var(--accent)">${_ait('browse_select')}</button>
+      </div></div>`;
+    _root.appendChild(overlay);
+    let current = startPath || '/';
+
+    async function load(path) {
+      const data = await _apiGet('/browse?path=' + encodeURIComponent(path));
+      if (data.error) return;
+      current = data.path;
+      overlay.querySelector('.mvmai-browse-path').textContent = current;
+      const list = overlay.querySelector('.mvmai-browse-list');
+      list.innerHTML = '';
+      if (data.parent) {
+        const up = document.createElement('div');
+        up.className = 'mvmai-browse-row';
+        up.textContent = _ait('browse_up');
+        up.addEventListener('click', () => load(data.parent));
+        list.appendChild(up);
+      }
+      (data.dirs || []).forEach(name => {
+        const row = document.createElement('div');
+        row.className = 'mvmai-browse-row';
+        row.textContent = '📁 ' + name;
+        row.addEventListener('click', () => load(current.replace(/\/$/, '') + '/' + name));
+        list.appendChild(row);
+      });
+    }
+    load(current);
+
+    overlay.querySelector('.mvmai-browse-cancel').addEventListener('click', () => overlay.remove());
+    overlay.querySelector('.mvmai-browse-select').addEventListener('click', () => {
+      onSelect(current);
+      overlay.remove();
+    });
+  }
+
+  function _showNewProjectDialog() {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:99';
+    overlay.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;width:380px;max-width:92%;display:flex;flex-direction:column;gap:12px">
+      <div style="font-weight:600;font-size:.95rem">${_ait('project_new')}</div>
+      <div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">${_ait('project_name_label')}</div>
+      <input class="s-input mvmai-proj-name" style="width:100%;box-sizing:border-box"></div>
+      <div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">${_ait('project_path_label')}</div>
+      <div style="display:flex;gap:6px">
+        <input class="s-input mvmai-proj-path" style="flex:1;box-sizing:border-box" readonly>
+        <button class="s-btn mvmai-proj-browse">${_ait('project_browse')}</button>
+      </div></div>
+      <div class="mvmai-proj-err" style="color:#f38ba8;font-size:.82rem;display:none"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="s-btn mvmai-proj-cancel">${_ait('cancel')}</button>
+      <button class="s-btn mvmai-proj-create" style="background:var(--accent);color:#fff;border-color:var(--accent)">${_ait('project_create')}</button>
+      </div></div>`;
+    _root.appendChild(overlay);
+    overlay.querySelector('.mvmai-proj-name').focus();
+    overlay.querySelector('.mvmai-proj-cancel').addEventListener('click', () => overlay.remove());
+    overlay.querySelector('.mvmai-proj-browse').addEventListener('click', () => {
+      _showFolderPicker(overlay.querySelector('.mvmai-proj-path').value || '/', chosen => {
+        overlay.querySelector('.mvmai-proj-path').value = chosen;
+      });
+    });
+    overlay.querySelector('.mvmai-proj-create').addEventListener('click', async function () {
+      const name = overlay.querySelector('.mvmai-proj-name').value.trim();
+      const path = overlay.querySelector('.mvmai-proj-path').value.trim();
+      const err = overlay.querySelector('.mvmai-proj-err');
+      if (!name) { err.textContent = _ait('project_name_required'); err.style.display = 'block'; return; }
+      if (!path) { err.textContent = _ait('project_path_required'); err.style.display = 'block'; return; }
+      this.disabled = true; this.textContent = _ait('project_creating');
+      const r = await _api('/projects', { name, path });
+      if (r.error) {
+        err.textContent = r.error; err.style.display = 'block';
+        this.disabled = false; this.textContent = _ait('project_create');
+        return;
+      }
+      overlay.remove();
+      await _loadProjects(); _renderProjects();
+    });
   }
 
   // ── mount ───────────────────────────────────────────────────────────────────────
@@ -1076,8 +1350,20 @@ const AI = (() => {
             </div>
           </div>` : ''}
           <div class="mvmai-sessions"></div>
+          ${_access.is_admin ? `<div class="mvmai-projects">
+            <div class="mvmai-projects-head">
+              <span>${_ait('projects_title')}</span>
+              <button class="s-btn s-btn-sm mvmai-project-new" title="${_ait('project_new')}">+</button>
+            </div>
+            <div class="mvmai-projects-list"></div>
+          </div>` : ''}
         </aside>
         <main class="mvmai-main">
+          <div class="mvmai-project-bar" hidden>
+            <span class="mvmai-project-name"></span>
+            <span class="mvmai-project-branch"></span>
+            <button class="s-btn s-btn-sm mvmai-files-toggle">📁</button>
+          </div>
           <div class="mvmai-messages"></div>
           <div class="mvmai-input">
             <textarea rows="1" placeholder="${_ait('placeholder')}"></textarea>
@@ -1090,6 +1376,13 @@ const AI = (() => {
     _updatePlaceholder();
     _renderChat([]);
     await _renderSessions();
+    if (_access.is_admin) {
+      await _loadProjects();
+      _renderProjects();
+      body.querySelector('.mvmai-project-new').addEventListener('click', _showNewProjectDialog);
+      body.querySelector('.mvmai-files-toggle').addEventListener('click', e => { e.stopPropagation(); _toggleFileTree(); });
+    }
+    _updateProjectBar();
 
     body.querySelector('.mvmai-new').addEventListener('click', () => { _sessionId = null; _renderChat([]); _renderSessions(); body.querySelector('textarea').focus(); });
 

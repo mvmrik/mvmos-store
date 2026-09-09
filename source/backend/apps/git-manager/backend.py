@@ -1,4 +1,4 @@
-import sys, os, subprocess, pwd
+import sys, os, re, subprocess, pwd
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -146,7 +146,30 @@ def _issue_branch_state(session, path, branch, fetch=True):
     }
 
 
+def _checkout_existing(session, path, branch):
+    """Plain checkout of a branch that must already exist locally. Never creates."""
+    result = _git(session, path, ['checkout', branch])
+    output = (result.stdout + result.stderr).strip()
+    if result.returncode != 0:
+        raise HTTPException(400, output or 'Could not switch branch')
+    return output
+
+
+def _default_branch(session, path):
+    r = _git(session, path, ['symbolic-ref', '--short', 'refs/remotes/origin/HEAD'])
+    if r.returncode == 0 and r.stdout.strip():
+        return r.stdout.strip().split('/', 1)[-1]
+    for name in ('main', 'master'):
+        check = _git(session, path, ['show-ref', '--verify', '--quiet', f'refs/heads/{name}'])
+        if check.returncode == 0:
+            return name
+    return ''
+
+
 def _activate_issue_branch(session, path, branch):
+    """Explicit 'Create branch' action for an issue: switches to it if it already
+    exists locally, downloads+tracks it if it only exists on origin, otherwise
+    creates a brand new local branch. Only ever called from a user click."""
     state = _issue_branch_state(session, path, branch)
     if state['fetch_error']:
         raise HTTPException(502, state['fetch_error'])
@@ -183,11 +206,92 @@ def _activate_issue_branch(session, path, branch):
     return {
         'ok': True,
         'branch': branch,
-        'created': not state['local_exists'],
-        'tracking': state['remote_exists'],
+        'created_fresh': not state['local_exists'] and not state['remote_exists'],
+        'downloaded': not state['local_exists'] and state['remote_exists'],
         'pulled': pulled,
+        'local_only': not state['remote_exists'],
         'output': pull_output,
     }
+
+
+def _sync_issue_branch(session, path, branch):
+    """Called whenever an issue is opened or navigated to. Never creates a
+    branch — it only switches to one that already exists:
+      - local branch exists  -> switch to it (fast-forward pull if tracked)
+      - only remote exists   -> leave the working tree alone, report it as
+                                 available for the explicit 'download' action
+      - neither exists       -> move to the repo's default branch (if the
+                                 tree is clean) so the user never stays
+                                 stranded on a different issue's branch
+    """
+    state = _issue_branch_state(session, path, branch)
+    result = {
+        'branch': branch,
+        'local_exists': state['local_exists'],
+        'remote_exists': state['remote_exists'],
+        'dirty': state['dirty'],
+        'fetch_error': state['fetch_error'],
+        'current': state['current'],
+        'switched': False,
+        'pulled': False,
+        'redirected_default': '',
+    }
+    if state['fetch_error']:
+        return result
+
+    dirty = state['dirty']
+    current = state['current']
+
+    if state['local_exists']:
+        if current != branch:
+            if dirty:
+                raise HTTPException(409, 'Commit or discard your changes before switching branches')
+            _checkout_existing(session, path, branch)
+            result['switched'] = True
+            result['current'] = branch
+        if state['remote_exists'] and not dirty:
+            upstream_r = _git(session, path, ['branch', '--set-upstream-to', f'origin/{branch}', branch])
+            if upstream_r.returncode == 0:
+                pull_r = _git(session, path, ['pull', '--ff-only', 'origin', branch], timeout=120)
+                result['pulled'] = pull_r.returncode == 0
+        return result
+
+    if not dirty:
+        default_branch = _default_branch(session, path)
+        if default_branch and current != default_branch:
+            _checkout_existing(session, path, default_branch)
+            result['redirected_default'] = default_branch
+            result['current'] = default_branch
+
+    return result
+
+
+def _download_issue_branch(session, path, branch):
+    """Explicit 'download' action: the issue's branch only exists on origin —
+    fetch it, create a local tracking branch, switch to it, and pull."""
+    state = _issue_branch_state(session, path, branch)
+    if state['fetch_error']:
+        raise HTTPException(502, state['fetch_error'])
+    if not state['remote_exists']:
+        raise HTTPException(400, 'This branch does not exist on origin')
+    if state['dirty'] and state['current'] != branch:
+        raise HTTPException(409, 'Commit or discard your changes before switching branches')
+
+    if state['current'] != branch:
+        if state['local_exists']:
+            _checkout_existing(session, path, branch)
+        else:
+            result = _git(session, path, ['checkout', '-b', branch, '--track', f'origin/{branch}'])
+            output = (result.stdout + result.stderr).strip()
+            if result.returncode != 0:
+                raise HTTPException(400, output or 'Could not check out remote branch')
+
+    pull_r = _git(session, path, ['pull', '--ff-only', 'origin', branch], timeout=120)
+    pull_output = (pull_r.stdout + pull_r.stderr).strip()
+    if pull_r.returncode != 0:
+        raise HTTPException(409, pull_output or 'Could not fast-forward issue branch')
+
+    return {'ok': True, 'branch': branch, 'downloaded': True, 'local_only': False, 'output': pull_output}
 
 
 # ── Repos ──────────────────────────────────────────────────────────────────────
@@ -304,7 +408,12 @@ def repo_status(path: str, session=Depends(get_current_session)):
     remote_r = _git(session, path, ['remote', 'get-url', 'origin'])
     remote = remote_r.stdout.strip() if remote_r.returncode == 0 else ''
 
-    return JSONResponse({'branch': branch, 'files': files, 'ahead': ahead, 'behind': behind, 'remote': remote})
+    upstream_r = _git(session, path, ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}'])
+    local_only = upstream_r.returncode != 0
+
+    return JSONResponse({'branch': branch, 'files': files, 'ahead': ahead, 'behind': behind,
+                         'remote': remote, 'local_only': local_only,
+                         'default_branch': _default_branch(session, path)})
 
 
 @router.get("/repo/branches")
@@ -338,6 +447,29 @@ def repo_checkout(body: CheckoutBody, session=Depends(get_current_session)):
     if r.returncode != 0:
         raise HTTPException(400, out or 'Checkout failed')
     return JSONResponse({'ok': True, 'branch': local, 'output': out})
+
+
+class CreateBranchBody(BaseModel):
+    path: str
+    name: str
+
+
+@router.post("/repo/branch/create")
+def repo_branch_create(body: CreateBranchBody, session=Depends(get_current_session)):
+    name = body.name.strip()
+    if not name:
+        raise HTTPException(400, 'Branch name is required')
+    if re.search(r'\s', name) or name.startswith('-') or '..' in name:
+        raise HTTPException(400, 'Invalid branch name')
+    exists_r = _git(session, body.path, ['show-ref', '--verify', '--quiet', f'refs/heads/{name}'])
+    if exists_r.returncode == 0:
+        raise HTTPException(400, f'Branch "{name}" already exists')
+    r = _git(session, body.path, ['checkout', '-b', name])
+    out = (r.stdout + r.stderr).strip()
+    if r.returncode != 0:
+        raise HTTPException(400, out or 'Could not create branch')
+    remote_r = _git(session, body.path, ['show-ref', '--verify', '--quiet', f'refs/remotes/origin/{name}'])
+    return JSONResponse({'ok': True, 'branch': name, 'output': out, 'local_only': remote_r.returncode != 0})
 
 
 @router.get("/repo/diff")
@@ -398,7 +530,15 @@ def repo_pull(body: PathBody, session=Depends(get_current_session)):
 
 @router.post("/repo/push")
 def repo_push(body: PathBody, session=Depends(get_current_session)):
-    r = _git(session, body.path, ['push'], timeout=120)
+    upstream_r = _git(session, body.path, ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}'])
+    if upstream_r.returncode != 0:
+        branch_r = _git(session, body.path, ['branch', '--show-current'])
+        branch = branch_r.stdout.strip()
+        if not branch:
+            raise HTTPException(400, 'Not on a branch (detached HEAD) — cannot push')
+        r = _git(session, body.path, ['push', '-u', 'origin', branch], timeout=120)
+    else:
+        r = _git(session, body.path, ['push'], timeout=120)
     out = (r.stdout + r.stderr).strip()
     if r.returncode != 0:
         raise HTTPException(400, out or 'Push failed')
@@ -522,13 +662,37 @@ def issues_create(body: IssueCreateBody, session=Depends(get_current_session)):
         raise HTTPException(400, 'Issue title is required')
     module, path, remote, user = _issues_context(session, body.path)
     issue = _issue_call(lambda: module.create_issue(user, remote, body.title, body.body))
-    response = {'issue': issue}
-    try:
-        branch = _issue_call(lambda: module.issue_branch_name(user, remote, issue['number']))
-        response['branch'] = _activate_issue_branch(session, path, branch)
-    except HTTPException as exc:
-        response['branch_error'] = exc.detail
-    return JSONResponse(response)
+    return JSONResponse({'issue': issue})
+
+
+class IssueUpdateBody(BaseModel):
+    path: str
+    title: str
+    body: str = ''
+
+
+@router.patch("/repo/issues/{number}")
+def issues_update(number: int, body: IssueUpdateBody, session=Depends(get_current_session)):
+    if not body.title.strip():
+        raise HTTPException(400, 'Issue title is required')
+    module, _, remote, user = _issues_context(session, body.path)
+    return JSONResponse({'issue': _issue_call(
+        lambda: module.update_issue(user, remote, number, body.title, body.body)
+    )})
+
+
+class ChecklistToggleBody(BaseModel):
+    path: str
+    index: int
+    checked: bool
+
+
+@router.patch("/repo/issues/{number}/checklist")
+def issues_toggle_checklist(number: int, body: ChecklistToggleBody, session=Depends(get_current_session)):
+    module, _, remote, user = _issues_context(session, body.path)
+    return JSONResponse({'issue': _issue_call(
+        lambda: module.toggle_checklist_item(user, remote, number, body.index, body.checked)
+    )})
 
 
 class IssueStateBody(BaseModel):
@@ -562,6 +726,64 @@ def issues_create_branch(number: int, body: IssueBranchBody, session=Depends(get
     module, path, remote, user = _issues_context(session, body.path)
     branch = _issue_call(lambda: module.issue_branch_name(user, remote, number))
     return JSONResponse(_activate_issue_branch(session, path, branch))
+
+
+@router.post("/repo/issues/{number}/branch/sync")
+def issues_sync_branch(number: int, body: IssueBranchBody, session=Depends(get_current_session)):
+    module, path, remote, user = _issues_context(session, body.path)
+    branch = _issue_call(lambda: module.issue_branch_name(user, remote, number))
+    return JSONResponse(_sync_issue_branch(session, path, branch))
+
+
+@router.post("/repo/issues/{number}/branch/download")
+def issues_download_branch(number: int, body: IssueBranchBody, session=Depends(get_current_session)):
+    module, path, remote, user = _issues_context(session, body.path)
+    branch = _issue_call(lambda: module.issue_branch_name(user, remote, number))
+    return JSONResponse(_download_issue_branch(session, path, branch))
+
+
+@router.get("/repo/pr")
+def repo_list_prs(path: str, head: str, session=Depends(get_current_session)):
+    module, _, remote, user = _issues_context(session, path)
+    head = head.strip()
+    if not head:
+        raise HTTPException(400, 'Branch is required')
+    return JSONResponse({'prs': _issue_call(lambda: module.list_pull_requests_for_branch(user, remote, head))})
+
+
+class CreatePRBody(BaseModel):
+    path: str
+    head: str
+    base: str
+    title: str = ''
+    body: str = ''
+
+
+@router.post("/repo/pr")
+def repo_create_pr(body: CreatePRBody, session=Depends(get_current_session)):
+    # Requires Premium (GitHub API/gh CLI) just like the rest of the Issues
+    # feature — plain git users never need this endpoint.
+    module, path, remote, user = _issues_context(session, body.path)
+    head = body.head.strip()
+    base = body.base.strip()
+    if not head or not base:
+        raise HTTPException(400, 'Source and target branch are required')
+    if head == base:
+        raise HTTPException(400, 'Source and target branch cannot be the same')
+
+    local_r = _git(session, path, ['show-ref', '--verify', '--quiet', f'refs/heads/{head}'])
+    if local_r.returncode != 0:
+        raise HTTPException(400, f'Branch "{head}" does not exist locally')
+
+    upstream_r = _git(session, path, ['rev-parse', '--abbrev-ref', '--symbolic-full-name', f'{head}@{{u}}'])
+    if upstream_r.returncode != 0:
+        push_r = _git(session, path, ['push', '-u', 'origin', head], timeout=120)
+        if push_r.returncode != 0:
+            raise HTTPException(400, (push_r.stdout + push_r.stderr).strip() or 'Could not push the branch before opening the pull request')
+
+    title = body.title.strip() or head
+    result = _issue_call(lambda: module.create_pull_request(user, remote, head, base, title, body.body))
+    return JSONResponse(result)
 
 
 # ── SSH ────────────────────────────────────────────────────────────────────────

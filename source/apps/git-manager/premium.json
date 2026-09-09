@@ -1,5 +1,5 @@
 {
-  "summary": "Unlock cross-profile repositories and manage GitHub Issues directly in Git Manager.",
+  "summary": "Unlock cross-profile repositories, manage GitHub Issues, and open pull requests directly in Git Manager.",
   "features": [
     {
       "title": "Cross-profile repository access",
@@ -8,8 +8,13 @@
     },
     {
       "title": "GitHub Issues",
-      "short": "Manage issues and create ready-to-use branches",
-      "description": "View open and closed GitHub Issues, inspect their details and comments, create new issues, close or reopen existing ones, and automatically work in a user/issue<number> branch. Existing local branches are selected automatically; remote-only branches can be restored as local tracking branches and fast-forwarded after confirmation. Authentication works with either an existing GitHub CLI login or a per-user fine-grained GitHub API token with Issues access."
+      "short": "Manage issues with Markdown, checklists and their own branch",
+      "description": "View open and closed GitHub Issues, inspect their details and comments, create new issues, edit an issue's title and body afterwards, and close or reopen them. Issue bodies and comments render as Markdown, including clickable task-list checkboxes that save back to GitHub the moment you check or uncheck one — no need to open the editor. A formatting toolbar (headings, bold, italic, quote, code, links, lists, checklists) is available whenever you're writing or editing an issue. Each issue has its own user/issue<number> branch: opening the issue switches to it if it already exists locally, offers to download it if it only exists on the remote, or leaves you on the repository's default branch until you create the branch yourself with one click — it is never created without asking. Authentication works with either an existing GitHub CLI login or a per-user fine-grained GitHub API token with Issues access."
+    },
+    {
+      "title": "Pull Requests",
+      "short": "Open a pull request from an issue's branch",
+      "description": "Once you're on an issue's own branch, open a pull request straight from Git Manager: choose the source and target branch (defaulting to the issue's branch and the repository's default branch), edit the title and description — prefilled from the issue — and see any pull requests that already target the same branch before opening another. The branch is pushed automatically first if it hasn't been pushed yet, and the finished pull request opens on GitHub to review and merge."
     }
   ]
 }
