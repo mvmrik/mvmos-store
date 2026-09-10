@@ -42,7 +42,7 @@ import time
 import uuid
 
 import httpx
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Depends, Header, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel
 
@@ -140,6 +140,21 @@ def _hub():
 
 def _desktop():
     return sys.modules.get("app_backend_mvmai")
+
+
+def _os_session_optional(request: Request):
+    """The caller's mvmOS desktop (Linux) session, if this same browser also
+    carries one — e.g. the server owner using the public page from the same
+    machine/device they're logged into mvmOS on. Lets native-server-access
+    CLI calls run as that real OS user instead of root; see
+    backend/apps/mvmai/backend.py's `_resolve_os_user`."""
+    auth = sys.modules.get("backend.auth")
+    if not auth:
+        return None
+    try:
+        return auth.get_current_session_optional(request)
+    except Exception:
+        return None
 
 
 def _resolve(token):
@@ -348,7 +363,7 @@ class ChatRequest(BaseModel):
 
 
 @router.post("/chat")
-async def chat(body: ChatRequest, x_pub_token: str = Header(default=None)):
+async def chat(body: ChatRequest, x_pub_token: str = Header(default=None), os_session=Depends(_os_session_optional)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -402,6 +417,7 @@ async def chat(body: ChatRequest, x_pub_token: str = Header(default=None)):
             exec_auto=bool(cfg.get("pub_exec_auto")),
             identity_prompt=public_identity,
             project=project,
+            session=os_session,
         )
         data = json.loads(r.body)
         if r.status_code >= 400:

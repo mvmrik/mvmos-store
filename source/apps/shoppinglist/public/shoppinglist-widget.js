@@ -16,7 +16,7 @@
   const CURRENCY_SYMBOLS = {
     EUR: '€', USD: '$', GBP: '£', CHF: 'CHF', JPY: '¥', CNY: '¥', TRY: '₺',
     UAH: '₴', PLN: 'zł', RON: 'lei', CZK: 'Kč', HUF: 'Ft', CAD: '$', AUD: '$',
-    SEK: 'kr', NOK: 'kr', DKK: 'kr', RUB: '₽', INR: '₹',
+    SEK: 'kr', NOK: 'kr', DKK: 'kr', RUB: '₽', INR: '₹', BTC: '₿',
   };
   function currencySymbol(code) {
     return CURRENCY_SYMBOLS[code] || code || '';

@@ -4,7 +4,7 @@
   "icon": "🔗",
   "category": "Security & Privacy",
   "tags": ["security", "sharing", "files", "encryption", "links"],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Share files, a note or a link through one encrypted link. Files are encrypted in your browser before upload; images open as a gallery, while the server only stores ciphertext it cannot read. Set how long a share lives and lock it with a password.",
   "entry": "main.js",
   "css": "style.css",

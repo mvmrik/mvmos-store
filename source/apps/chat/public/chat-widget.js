@@ -2,6 +2,16 @@
 // (apps/chat/main.js) and the standalone public page (apps/chat/public/index.html).
 // Identity always comes from the shared 'apphub_token' in localStorage.
 const ChatWidget = (() => {
+  // The account's own saved date/time display choice (Apps Hub profile).
+  // Loaded once a token is known (see mount() below); until then, or for a
+  // visitor with no override set, timeStr() below just uses their browser.
+  let _prefs = {};
+  function _loadPrefs() {
+    const token = localStorage.getItem('apphub_token');
+    if (!token) return;
+    fetch('/api/pub/apphub/me', {headers:{'X-Pub-Token':token}}).then(r=>r.ok?r.json():{}).then(p=>{_prefs=p;}).catch(()=>{});
+  }
+  _loadPrefs();
   const I18N = {
     en: {
       search: 'Search people…', empty: 'Select a conversation', noConv: 'No conversations yet — search for someone above',
@@ -40,7 +50,11 @@ const ChatWidget = (() => {
   }
 
   function timeStr(iso) {
-    try { return new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false }); }
+    try {
+      const d = new Date(iso);
+      if (_prefs.time_format) return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',hour12:_prefs.time_format==='12'});
+      return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    }
     catch (_) { return ''; }
   }
 

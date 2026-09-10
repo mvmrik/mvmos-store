@@ -5,6 +5,9 @@
   if (window.TasksWidget) return;
 
   const API = '/pub/tasks';
+  // The account's own saved date/time display choice (Apps Hub profile).
+  let _tkPrefs = {};
+  (() => { const tok = localStorage.getItem('apphub_token'); if (tok) fetch('/api/pub/apphub/me',{headers:{'X-Pub-Token':tok}}).then(r=>r.ok?r.json():{}).then(p=>{_tkPrefs=p}).catch(()=>{}); })();
 
   function t(key, vars) { return (window.t || (k => k))(key, vars); }
 
@@ -16,7 +19,7 @@
   const CURRENCY_SYMBOLS = {
     EUR: '€', USD: '$', GBP: '£', CHF: 'CHF', JPY: '¥', CNY: '¥', TRY: '₺',
     UAH: '₴', PLN: 'zł', RON: 'lei', CZK: 'Kč', HUF: 'Ft', CAD: '$', AUD: '$',
-    SEK: 'kr', NOK: 'kr', DKK: 'kr', RUB: '₽', INR: '₹',
+    SEK: 'kr', NOK: 'kr', DKK: 'kr', RUB: '₽', INR: '₹', BTC: '₿',
   };
   function currencySymbol(code) {
     return CURRENCY_SYMBOLS[code] || code || '';
@@ -43,8 +46,13 @@
   function fmtDate(iso) {
     if (!iso) return '';
     const d = new Date(iso);
-    return d.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: '2-digit' }) +
-      ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+    let dateStr = d.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: '2-digit' });
+    if (_tkPrefs.date_format) {
+      const v = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d).filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));
+      dateStr = _tkPrefs.date_format==='MM/DD/YYYY' ? `${v.month}/${v.day}/${v.year.slice(2)}` : _tkPrefs.date_format==='YYYY-MM-DD' ? `${v.year}-${v.month}-${v.day}` : `${v.day}/${v.month}/${v.year.slice(2)}`;
+    }
+    const timeStr = _tkPrefs.time_format ? d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',hour12:_tkPrefs.time_format==='12'}) : d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    return dateStr + ' ' + timeStr;
   }
   function toLocalInputValue(iso) {
     if (!iso) return '';

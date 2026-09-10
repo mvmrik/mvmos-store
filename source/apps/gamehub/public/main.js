@@ -92,7 +92,11 @@ mvmOS.registerApp({
         const inp = (w) => `padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--fg);font-size:13px;${w?'width:'+w+';':'width:100%;'}box-sizing:border-box`;
         const fld = (label,inner) => `<label style="display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--fg2)">${label}${inner}</label>`;
         const fmtDur = s => !s?'—':s<60?s+_ght('sec'):Math.floor(s/60)+_ght('min')+(s%60?s%60+_ght('sec'):'');
-        const fmtDate = s => new Date(s).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
+        // The account's own saved time display choice (Apps Hub profile),
+        // when this player also happens to be signed into Apps Hub.
+        let _ghPrefs = {};
+        (() => { const t = localStorage.getItem('apphub_token'); if (t) fetch('/api/pub/apphub/me',{headers:{'X-Pub-Token':t}}).then(r=>r.ok?r.json():{}).then(p=>{_ghPrefs=p;}).catch(()=>{}); })();
+        const fmtDate = s => new Date(s).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:_ghPrefs.time_format?_ghPrefs.time_format==='12':undefined});
 
         let tab = 'games', stats = null;
         let _ghMe = null; // logged-in GH player for favourites

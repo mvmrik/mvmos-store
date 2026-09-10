@@ -106,6 +106,7 @@
     { value: 'AUD', symbol: '$' }, { value: 'SEK', symbol: 'kr' },
     { value: 'NOK', symbol: 'kr' }, { value: 'DKK', symbol: 'kr' },
     { value: 'RUB', symbol: '₽' }, { value: 'INR', symbol: '₹' },
+    { value: 'BTC', symbol: '₿' },
   ];
   let _currencySymbol = '€';
   function currencySymbol(code) {
@@ -257,6 +258,20 @@
 
     let destroyed = false;
     let categories = [];
+    // The account's own saved date/time display choice (Apps Hub profile,
+    // Settings there) — falls back to nothing (this visitor's own browser
+    // decides) until it loads, same as before this existed.
+    let _prefs = {};
+    fetch('/api/pub/apphub/me', {headers:{'X-Pub-Token':token}}).then(r=>r.ok?r.json():{}).then(p=>{_prefs=p;}).catch(()=>{});
+    function _fmtDateTime(d) {
+      let dateStr = d.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: '2-digit' });
+      if (_prefs.date_format) {
+        const v = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d).filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));
+        dateStr = _prefs.date_format==='MM/DD/YYYY' ? `${v.month}/${v.day}/${v.year.slice(2)}` : _prefs.date_format==='YYYY-MM-DD' ? `${v.year}-${v.month}-${v.day}` : `${v.day}/${v.month}/${v.year.slice(2)}`;
+      }
+      const timeStr = _prefs.time_format ? d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',hour12:_prefs.time_format==='12'}) : d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+      return dateStr + ' ' + timeStr;
+    }
 
     root.style.position = 'relative';
     root.innerHTML = `<div class="bw-widget">
@@ -296,9 +311,7 @@
 
     function _htxWho(p) { return p && (p.display_name || p.username) || ''; }
     function _htxDate(iso) {
-      const d = new Date(iso);
-      return d.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: '2-digit' }) +
-        ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+      return _fmtDateTime(new Date(iso));
     }
 
     async function loadFullHistory() {
@@ -735,9 +748,7 @@
       function _txWho(p) { return p && (p.display_name || p.username) || ''; }
 
       function _txDate(iso) {
-        const d = new Date(iso);
-        return d.toLocaleDateString(undefined, { day: '2-digit', month: '2-digit', year: '2-digit' }) +
-          ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
+        return _fmtDateTime(new Date(iso));
       }
 
       async function loadTx() {

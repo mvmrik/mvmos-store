@@ -18,10 +18,14 @@ MAX_PHOTOS = 10
 MAX_BYTES = 5 * 1024 * 1024
 # Matches the regional selector in frontend/settings.js. Core exposes only the
 # selected currency through Platform API, not its option catalog.
-CURRENCIES = ('EUR','USD','GBP','CHF','JPY','CNY','TRY','UAH','PLN','RON','CZK','HUF','CAD','AUD','SEK','NOK','DKK','RUB','INR')
+CURRENCIES = ('EUR','USD','GBP','CHF','JPY','CNY','TRY','UAH','PLN','RON','CZK','HUF','CAD','AUD','SEK','NOK','DKK','RUB','INR','BTC')
 
 def hub():
     return sys.modules['backend.apphub']
+
+def _premium():
+    prem = sys.modules.get('backend.premium')
+    return prem.load_premium_backend(APP_ID) if prem else None
 
 @contextmanager
 def db():
@@ -52,7 +56,36 @@ with db() as c:
     CREATE INDEX IF NOT EXISTS listings_owner ON listings(owner_id,sort_at DESC);
     CREATE TABLE IF NOT EXISTS photos(id TEXT PRIMARY KEY, listing_id TEXT NOT NULL REFERENCES listings(id) ON DELETE CASCADE, filename TEXT NOT NULL, created_at REAL NOT NULL);
     CREATE INDEX IF NOT EXISTS photos_listing ON photos(listing_id,created_at);
+    -- One row per (listing, viewer, day): a plain COUNT(*) is the view count,
+    -- and the primary key is what keeps a refresh or a bot loop from
+    -- inflating it — at most one counted view per viewer per listing per day.
+    CREATE TABLE IF NOT EXISTS listing_views(
+        listing_id TEXT NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
+        viewer TEXT NOT NULL, day TEXT NOT NULL, PRIMARY KEY(listing_id,viewer,day));
+    CREATE INDEX IF NOT EXISTS listing_views_listing ON listing_views(listing_id);
+    CREATE TABLE IF NOT EXISTS watches(
+        listing_id TEXT NOT NULL REFERENCES listings(id) ON DELETE CASCADE,
+        user_id TEXT NOT NULL, created_at REAL NOT NULL, PRIMARY KEY(listing_id,user_id));
+    CREATE INDEX IF NOT EXISTS watches_user ON watches(user_id,created_at DESC);
+    CREATE INDEX IF NOT EXISTS watches_listing ON watches(listing_id);
     ''')
+    if 'vip_until' not in {r['name'] for r in c.execute("PRAGMA table_info(listings)")}:
+        c.execute('ALTER TABLE listings ADD COLUMN vip_until REAL NOT NULL DEFAULT 0')
+
+# A crash between deleting a listing's DB row and unlinking its photo files
+# (delete()) leaves orphaned files on disk — harmless but wasted space, and
+# with no cron job in this app to sweep them later. Reconcile once per
+# process start instead: cheap, and catches whatever the last run missed.
+def _gc_uploads():
+    if not os.path.isdir(UPLOADS):
+        return
+    with db() as c:
+        keep = {row[0] for row in c.execute('SELECT filename FROM photos')}
+    for name in os.listdir(UPLOADS):
+        if name not in keep:
+            try: os.unlink(os.path.join(UPLOADS, name))
+            except OSError: pass
+_gc_uploads()
 
 async def access(request: Request):
     if hub().is_app_public(APP_ID):
@@ -70,6 +103,16 @@ def user(token):
     if not me:
         raise HTTPException(401, 'login_required')
     return me
+
+def _client_key(request):
+    """Use a proxy address only when the immediate peer is local."""
+    peer = request.client.host if request.client else 'unknown'
+    if peer in {'127.0.0.1', '::1'}:
+        forwarded = request.headers.get('x-forwarded-for', '').split(',')[0].strip()
+        if forwarded: return forwarded[:128]
+        real_ip = request.headers.get('x-real-ip', '').strip()
+        if real_ip: return real_ip[:128]
+    return peer[:128]
 
 def own(c, lid, me):
     row = c.execute('SELECT * FROM listings WHERE id=? AND owner_id=?', (lid, me['id'])).fetchone()
@@ -97,6 +140,13 @@ def output(c, row, me=None):
     d = dict(row)
     d['status'] = 'inactive' if not d['active'] else ('expired' if d['expires_at'] <= time.time() else 'active')
     d['owned'] = bool(me and me['id'] == d['owner_id'])
+    d['vip'] = d['vip_until'] > time.time()
+    d['watched'] = bool(me and not d['owned'] and c.execute('SELECT 1 FROM watches WHERE listing_id=? AND user_id=?', (d['id'], me['id'])).fetchone())
+    # View and watcher counts are the owner's own stats, never shown to anyone
+    # else — the visitor side of "watching" is just the watched flag above.
+    if d['owned']:
+        d['views'] = c.execute('SELECT COUNT(*) FROM listing_views WHERE listing_id=?', (d['id'],)).fetchone()[0]
+        d['watchers_count'] = c.execute('SELECT COUNT(*) FROM watches WHERE listing_id=?', (d['id'],)).fetchone()[0]
     d['bump_available_at'] = d['last_bump_at'] + DAY
     d['photos'] = [{'id': p['id'], 'url': f"/pub/classifieds/photos/{p['id']}"} for p in c.execute('SELECT id FROM photos WHERE listing_id=? ORDER BY created_at,id', (d['id'],))]
     profiles = hub().get_users_by_ids([d.pop('owner_id')])
@@ -110,13 +160,19 @@ async def index():
 @router.get('/config')
 async def config():
     with db() as c:
-        return {**settings(c), 'categories': [dict(r) for r in c.execute('SELECT * FROM categories ORDER BY name COLLATE NOCASE')]}
+        result = {**settings(c), 'categories': [dict(r) for r in c.execute('SELECT * FROM categories ORDER BY name COLLATE NOCASE')]}
+    # No mention of premium here on purpose — the public page either has VIP
+    # packages to offer or it doesn't; there is nothing to upsell to a visitor
+    # whose account has nothing to do with this installation's own licence.
+    prem = _premium()
+    result['vip_packages'] = prem.list_packages(active_only=True) if prem and prem.is_available() else []
+    return result
 
 @router.get('/listings')
-async def listing_list(mine: bool = False, q: str = Query('', max_length=160), category: int = 0,
+async def listing_list(mine: bool = False, watched: bool = False, q: str = Query('', max_length=160), category: int = 0,
                        free: bool = False, min_price: int = Query(0, ge=0), max_price: int | None = Query(None, ge=0),
                        status: str = 'all', currency: str = '', offset: int = Query(0, ge=0), x_pub_token: str | None = Header(None)):
-    me = user(x_pub_token) if mine else hub().get_pub_session(x_pub_token)
+    me = user(x_pub_token) if (mine or watched) else hub().get_pub_session(x_pub_token)
     clauses, params = [], []
     now = time.time()
     if mine:
@@ -124,6 +180,8 @@ async def listing_list(mine: bool = False, q: str = Query('', max_length=160), c
         if status == 'active': clauses.append('active=1 AND expires_at>?'); params.append(now)
         elif status == 'expired': clauses.append('active=1 AND expires_at<=?'); params.append(now)
         elif status == 'inactive': clauses.append('active=0')
+    elif watched:
+        clauses.append('id IN (SELECT listing_id FROM watches WHERE user_id=?)'); params.append(me['id'])
     else:
         clauses.append('active=1 AND expires_at>?'); params.append(now)
     if q.strip():
@@ -141,17 +199,28 @@ async def listing_list(mine: bool = False, q: str = Query('', max_length=160), c
     where = ' AND '.join(clauses)
     with db() as c:
         total = c.execute('SELECT COUNT(*) FROM listings WHERE ' + where, params).fetchone()[0]
-        rows = c.execute('SELECT * FROM listings WHERE ' + where + ' ORDER BY sort_at DESC,id DESC LIMIT 24 OFFSET ?', [*params, offset]).fetchall()
+        # VIP listings (an active premium purchase) sort first, both in the
+        # overall feed and within a category, ahead of the normal recency order.
+        rows = c.execute('SELECT * FROM listings WHERE ' + where + ' ORDER BY (vip_until>?) DESC,sort_at DESC,id DESC LIMIT 24 OFFSET ?', [*params, now, offset]).fetchall()
         return {'items': [output(c, r, me) for r in rows], 'total': total}
 
 @router.get('/listings/{lid}')
-async def detail(lid: str, x_pub_token: str | None = Header(None)):
+async def detail(lid: str, request: Request, x_pub_token: str | None = Header(None)):
     me = hub().get_pub_session(x_pub_token)
     with db() as c:
         row = c.execute('SELECT * FROM listings WHERE id=?', (lid,)).fetchone()
         if not row or ((not row['active'] or row['expires_at'] <= time.time()) and (not me or row['owner_id'] != me['id'])):
             raise HTTPException(404, 'not_found')
-        return output(c, row, me)
+        if not (me and me['id'] == row['owner_id']):
+            viewer = me['id'] if me else 'ip:' + _client_key(request)
+            day = time.strftime('%Y-%m-%d', time.gmtime())
+            c.execute('INSERT OR IGNORE INTO listing_views(listing_id,viewer,day) VALUES(?,?,?)', (lid, viewer, day))
+        result = output(c, row, me)
+        if result['owned']:
+            ids = [w['user_id'] for w in c.execute('SELECT user_id FROM watches WHERE listing_id=? ORDER BY created_at DESC', (lid,))]
+            profiles = {p['id']: p.get('display_name') or p.get('username') or '' for p in hub().get_users_by_ids(ids)}
+            result['watchers'] = [{'id': i, 'name': profiles.get(i, '')} for i in ids]
+        return result
 
 class ListingBody(BaseModel):
     title: str = Field(min_length=1, max_length=140)
@@ -211,6 +280,62 @@ async def action(lid: str, action: str, x_pub_token: str | None = Header(None)):
             c.execute('UPDATE listings SET active=0,updated_at=? WHERE id=?', (now,lid))
         else: raise HTTPException(404,'not_found')
     return {'ok':True}
+
+@router.post('/listings/{lid}/watch', status_code=201)
+async def watch(lid: str, x_pub_token: str | None = Header(None)):
+    me = user(x_pub_token)
+    with db() as c:
+        row = c.execute('SELECT owner_id FROM listings WHERE id=?', (lid,)).fetchone()
+        if not row: raise HTTPException(404, 'not_found')
+        if row['owner_id'] == me['id']: raise HTTPException(400, 'watch_self')
+        c.execute('INSERT OR IGNORE INTO watches(listing_id,user_id,created_at) VALUES(?,?,?)', (lid, me['id'], time.time()))
+    return {'ok': True}
+
+@router.delete('/listings/{lid}/watch')
+async def unwatch(lid: str, x_pub_token: str | None = Header(None)):
+    me = user(x_pub_token)
+    with db() as c:
+        c.execute('DELETE FROM watches WHERE listing_id=? AND user_id=?', (lid, me['id']))
+    return {'ok': True}
+
+@router.post('/listings/{lid}/watchers/{uid}/conversation')
+async def message_watcher(lid: str, uid: str, x_pub_token: str | None = Header(None)):
+    """The seller reaching out first — e.g. to offer a watcher a discount —
+    instead of waiting for them to message in. Same conversations table and
+    UNIQUE(listing_id,buyer_id) as the buyer-initiated flow below; only who
+    initiates differs, so both sides land in the same thread either way."""
+    me = user(x_pub_token)
+    with db() as c:
+        c.execute('BEGIN IMMEDIATE')
+        row = own(c, lid, me)
+        if not c.execute('SELECT 1 FROM watches WHERE listing_id=? AND user_id=?', (lid, uid)).fetchone():
+            raise HTTPException(404, 'not_found')
+        old = c.execute('SELECT id FROM conversations WHERE listing_id=? AND buyer_id=?', (lid, uid)).fetchone()
+        if old: return {'id': old['id']}
+        cid, now = uuid.uuid4().hex, time.time()
+        c.execute('INSERT INTO conversations(id,listing_id,listing_title,buyer_id,seller_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?)',
+                  (cid, lid, row['title'], uid, me['id'], now, now))
+    return {'id': cid}
+
+class VipBody(BaseModel):
+    package_id: str
+    client_id: str = Field(min_length=16, max_length=64, pattern=r'^[a-zA-Z0-9-]+$')
+
+@router.post('/listings/{lid}/vip')
+async def purchase_vip(lid: str, body: VipBody, x_pub_token: str | None = Header(None)):
+    me = user(x_pub_token)
+    prem = _premium()
+    if not prem or not prem.is_available():
+        raise HTTPException(402, 'premium_required')
+    with db() as c:
+        own(c, lid, me)
+    try:
+        vip_until = prem.buy_vip(me['id'], lid, body.package_id, f'classifieds-vip-{body.client_id}')
+    except KeyError:
+        raise HTTPException(400, 'package_not_found')
+    except prem.InsufficientCredits:
+        raise HTTPException(402, 'insufficient_credits')
+    return {'vip_until': vip_until}
 
 @router.delete('/listings/{lid}')
 async def delete(lid: str, x_pub_token: str | None = Header(None)):
@@ -293,6 +418,45 @@ async def save_settings(body: SettingsBody):
     with db() as c:
         c.execute('UPDATE settings SET validity_days=?,currency=? WHERE id=1',(body.validity_days,body.currency))
     return {'ok':True}
+
+# VIP packages: the control below always exists in desktop Settings (per the
+# store premium convention) — mutating it is refused server-side without an
+# active core Premium licence, same posture as Apps Hub credits. The listing
+# never needs to know why the list is empty or a save was refused; the
+# desktop's own premium modal (via window.mvmOS.premiumGate) explains that.
+@desktop_router.get('/vip-packages')
+async def vip_packages_list():
+    prem = _premium()
+    available = bool(prem and prem.is_available())
+    return {'premium': available, 'items': prem.list_packages() if prem else []}
+
+class VipPackageBody(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
+    days: int = Field(ge=1, le=3650)
+    price_credits: int = Field(ge=0, le=1000000)
+    active: bool = True
+
+@desktop_router.post('/vip-packages', status_code=201)
+async def vip_package_create(body: VipPackageBody):
+    prem = _premium()
+    if not prem or not prem.is_available(): raise HTTPException(402, 'premium_required')
+    return prem.save_package(body.name, body.days, body.price_credits, active=body.active)
+
+@desktop_router.put('/vip-packages/{pid}')
+async def vip_package_edit(pid: str, body: VipPackageBody):
+    prem = _premium()
+    if not prem or not prem.is_available(): raise HTTPException(402, 'premium_required')
+    try:
+        return prem.save_package(body.name, body.days, body.price_credits, pid=pid, active=body.active)
+    except KeyError:
+        raise HTTPException(404, 'not_found')
+
+@desktop_router.delete('/vip-packages/{pid}')
+async def vip_package_delete(pid: str):
+    prem = _premium()
+    if not prem or not prem.is_available(): raise HTTPException(402, 'premium_required')
+    prem.delete_package(pid)
+    return {'ok': True}
 
 class CategoryBody(BaseModel):
     name: str = Field(min_length=1,max_length=80)

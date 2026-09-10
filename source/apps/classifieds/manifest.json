@@ -8,7 +8,7 @@
     "marketplace",
     "community"
   ],
-  "version": "1.0.0",
+  "version": "1.7.0",
   "description": "Community classifieds with photos, categories, free items, Apps Hub profiles and listing renewal.",
   "entry": "main.js",
   "public_url": "/pub/classifieds/",

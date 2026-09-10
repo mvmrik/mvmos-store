@@ -1,0 +1,24 @@
+{
+  "tagline": "Smaller images and clean WebP conversion, without uploading a byte.",
+  "description": "Image Optimizer converts and compresses JPEG, PNG and WebP images directly in your browser. Drop in one image or a whole batch, choose WebP or keep each file's original format, set quality with a slider, and see the exact size before and after processing.\n\nEach result can be previewed and downloaded separately, or all processed images can be collected into one ZIP. Premium adds complete ZIP-folder processing that recreates the original directory structure, resolution changes, transparency control and flexible bulk renaming with prefix, suffix, case, space and text-replacement rules. A rename-only mode changes names without touching image data.\n\nThe administrator chooses which Premium tools appear on the Apps Hub public page. Personal choices are remembered locally per Apps Hub profile and can be reset at any time. Image data never needs a server upload: decoding, conversion, optimisation and ZIP creation all happen on the current device.",
+  "capabilities": [
+    "Convert JPEG, PNG and WebP images to WebP.",
+    "Keep the original JPEG, PNG or WebP format while optimising the image.",
+    "Choose quality from 10% to 100% with a visual slider.",
+    "Process multiple images or a ZIP archive through one drag-and-drop area or file picker.",
+    "Compare the original size, optimised size and percentage saved for every image.",
+    "Preview and download each processed image separately.",
+    "Download all successful results together as a ZIP archive.",
+    "Preserve 100% quality PNG files without re-encoding them.",
+    "Runs entirely in the browser without uploading image data to the server.",
+    "Premium ZIP-folder processing preserves nested directories and untouched non-image files without crowding the results list.",
+    "Premium resolution, transparency and bulk-renaming controls, including rename-only mode.",
+    "Administrator-controlled Premium availability on the Apps Hub public page.",
+    "Premium settings remembered locally per Apps Hub profile with one-click reset.",
+    "Available in the desktop and through an Apps Hub profile, translated into all nine mvmOS languages."
+  ],
+  "requirements": [
+    "An Apps Hub profile.",
+    "A modern browser with Canvas and Blob support."
+  ]
+}

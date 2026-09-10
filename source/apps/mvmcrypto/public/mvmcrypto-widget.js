@@ -1,6 +1,9 @@
 (function(){
   if(window.MvmCryptoWidget)return;
   var API='/pub/mvmcrypto';
+  // The account's own saved date/time display choice (Apps Hub profile).
+  var _mcPrefs={};
+  (function(){var tok=localStorage.getItem('apphub_token');if(tok)fetch('/api/pub/apphub/me',{headers:{'X-Pub-Token':tok}}).then(function(r){return r.ok?r.json():{}}).then(function(p){_mcPrefs=p}).catch(function(){});})();
   var ITERATIONS=600000;
   var MIN_MASTER=10;
   var MIN_ENTRY_PW=8;
@@ -17,16 +20,13 @@
   // own on-chain decimals.
   function fmtAmount(n){if(n==null)return t('mc_balance_unknown');return (Math.round(n*1e8)/1e8).toFixed(8).replace(/0+$/,'').replace(/\.$/,'.0')}
   function fmtUsd(n){if(n==null)return t('mc_price_unavailable');try{return n.toLocaleString(undefined,{style:'currency',currency:'USD',maximumFractionDigits:2})}catch(_){return '$'+n.toFixed(2)}}
-  // hour12 explicitly false, same as budget-widget.js's timestamp formatter —
-  // plain toLocaleString() defaults to whatever the browser's own locale
-  // picks, which for many (e.g. en-US) means AM/PM regardless of the
-  // system's actual regional 24h/12h setting.
   function fmtTime(sec){
     if(!sec)return '';
     try{
       var d=new Date(sec*1000);
-      return d.toLocaleDateString(undefined,{day:'2-digit',month:'2-digit',year:'2-digit'})
-        +' '+d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit',hour12:false});
+      var dateStr=d.toLocaleDateString(undefined,{day:'2-digit',month:'2-digit',year:'2-digit'});
+      var timeStr=_mcPrefs.time_format?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:_mcPrefs.time_format==='12'}):d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+      return dateStr+' '+timeStr;
     }catch(_){return ''}
   }
 

@@ -26,6 +26,21 @@
         "torrent",
         "tools"
       ]
+    },
+    {
+      "id": "image-optimizer",
+      "name": "Image Optimizer",
+      "icon": "🖼️",
+      "category": "Utilities",
+      "version": "1.1.4",
+      "description": "Convert and optimise JPEG, PNG and WebP images in the browser, with batch processing, quality control, ZIP folders and Premium transformation tools.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/image-optimizer-1.1.4.zip",
+      "tags": [
+        "images",
+        "webp",
+        "conversion",
+        "compression"
+      ]
     }
   ]
 }

@@ -1,0 +1,25 @@
+{
+  "summary": "Credit-powered VIP listings that give sellers configurable promoted placement in the public marketplace.",
+  "features": [
+    {
+      "title": "Configurable VIP packages",
+      "short": "Set the duration and credit price of promoted listings",
+      "description": "The administrator can create and remove VIP packages with a custom name, duration in days and Apps Hub credit price."
+    },
+    {
+      "title": "VIP listing placement",
+      "short": "Place promoted listings ahead of normal results",
+      "description": "An active VIP listing receives a visible VIP badge and sorts before regular listings in the main feed and within its category."
+    },
+    {
+      "title": "Apps Hub credit payments",
+      "short": "Let listing owners purchase promotion with credits",
+      "description": "Listing owners can select an active package while creating or editing an advert. The charge is processed safely through Apps Hub credits and retries cannot charge the same purchase twice."
+    },
+    {
+      "title": "Stackable promotion time",
+      "short": "Extend an existing VIP period without losing remaining days",
+      "description": "Buying another VIP package before the current period expires adds its duration to the remaining promotion time instead of restarting it."
+    }
+  ]
+}

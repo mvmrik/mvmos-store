@@ -82,9 +82,14 @@ mvmOS.registerApp({
           return {start,end};
         }
 
+        // The account's own saved time display choice (Apps Hub profile).
+        let _stPrefs = {};
+        (() => { const tok = localStorage.getItem('apphub_token'); if (tok) fetch('/api/pub/apphub/me',{headers:{'X-Pub-Token':tok}}).then(r=>r.ok?r.json():{}).then(p=>{_stPrefs=p}).catch(()=>{}); })();
         function fmt(d) {
           if(!(d instanceof Date)) d=new Date(d);
-          return d.toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
+          const dateStr = d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+          const timeStr = _stPrefs.time_format ? d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:_stPrefs.time_format==='12'}) : d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+          return dateStr+' '+timeStr;
         }
 
         function sinceStr(evData) {
@@ -214,7 +219,7 @@ mvmOS.registerApp({
             const pct = ((t-start)/totalMs)*100;
             const lbl = document.createElement('span');
             lbl.style.cssText = `position:absolute;left:${pct.toFixed(2)}%;transform:translateX(-50%);font-size:10px;color:var(--fg2);white-space:nowrap`;
-            lbl.textContent = days<=1 ? t.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit',hour12:false}) : t.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+            lbl.textContent = days<=1 ? (_stPrefs.time_format ? t.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:_stPrefs.time_format==='12'}) : t.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'})) : t.toLocaleDateString(undefined,{month:'short',day:'numeric'});
             wrap.appendChild(lbl);
           }
           return wrap;

@@ -221,11 +221,19 @@ window.MvmShare = (function () {
     return (n < 10 && i > 0 ? n.toFixed(1) : Math.round(n)) + ' ' + units[i];
   }
 
+  // The account's own saved time display choice (Apps Hub profile).
+  var _mshPrefs = {};
+  (function () { var tok = localStorage.getItem('apphub_token'); if (tok) fetch('/api/pub/apphub/me', {headers:{'X-Pub-Token':tok}}).then(function(r){return r.ok?r.json():{}}).then(function(p){_mshPrefs=p}).catch(function(){}); })();
+
   function fmtDate(iso) {
     if (!iso) return '';
     var lang = (window.mvmOS && window.mvmOS.lang) || undefined;
+    if (_mshPrefs.time_format) {
+      var d = new Date(iso);
+      return d.toLocaleDateString(lang, { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',hour12:_mshPrefs.time_format==='12'});
+    }
     return new Date(iso).toLocaleString(lang, {
-      day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false,
+      day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
     });
   }
 

@@ -15,7 +15,7 @@ _DB_PATH = os.path.join(os.path.dirname(__file__), "data.db")
 _CURRENCY_SYMBOLS = {
     "EUR": "€", "USD": "$", "GBP": "£", "CHF": "CHF", "JPY": "¥", "CNY": "¥",
     "TRY": "₺", "UAH": "₴", "PLN": "zł", "RON": "lei", "CZK": "Kč", "HUF": "Ft",
-    "CAD": "$", "AUD": "$", "SEK": "kr", "NOK": "kr", "DKK": "kr", "RUB": "₽", "INR": "₹",
+    "CAD": "$", "AUD": "$", "SEK": "kr", "NOK": "kr", "DKK": "kr", "RUB": "₽", "INR": "₹", "BTC": "₿",
 }
 
 

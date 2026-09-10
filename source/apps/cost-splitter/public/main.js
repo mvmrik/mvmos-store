@@ -80,7 +80,7 @@ const _csCurrencies = [
   { value: 'RON', symbol: 'lei' }, { value: 'CZK', symbol: 'Kč' }, { value: 'HUF', symbol: 'Ft' },
   { value: 'CAD', symbol: '$' }, { value: 'AUD', symbol: '$' }, { value: 'SEK', symbol: 'kr' },
   { value: 'NOK', symbol: 'kr' }, { value: 'DKK', symbol: 'kr' }, { value: 'RUB', symbol: '₽' },
-  { value: 'INR', symbol: '₹' },
+  { value: 'INR', symbol: '₹' }, { value: 'BTC', symbol: '₿' },
 ];
 function _csCurrencySymbol(code) {
   return (_csCurrencies.find(c => c.value === code) || {}).symbol || code || '€';
@@ -101,7 +101,7 @@ mvmOS.registerApp({
         {value:'RON',label:'lei RON'}, {value:'CZK',label:'Kč CZK'}, {value:'HUF',label:'Ft HUF'},
         {value:'CAD',label:'$ CAD'}, {value:'AUD',label:'$ AUD'}, {value:'SEK',label:'kr SEK'},
         {value:'NOK',label:'kr NOK'}, {value:'DKK',label:'kr DKK'}, {value:'RUB',label:'₽ RUB'},
-        {value:'INR',label:'₹ INR'},
+        {value:'INR',label:'₹ INR'}, {value:'BTC',label:'₿ BTC'},
       ], default: '' },
     { key: 'total_cost',      label: 'Total monthly cost',           type: 'number',   default: 0, min: 0 },
     { key: 'mail_language',   label: 'Email language',               type: 'select',   options: [{value:'en',label:'English'},{value:'bg',label:'Български'}], default: 'en' },

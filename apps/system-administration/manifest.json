@@ -61,9 +61,9 @@
       "name": "State Tracker",
       "icon": "📡",
       "category": "System & Administration",
-      "version": "1.1.1",
+      "version": "1.1.2",
       "description": "Track state changes of anything over time — ping, HTTP checks, API values, or manual push.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/statetracker-1.1.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/statetracker-1.1.2.zip",
       "tags": [
         "tracking",
         "habits",

@@ -46,7 +46,7 @@ _PUBLIC_DIR  = os.path.join(_DIR, "public")
 # never load core desktop JS, so there's no shared module to import from).
 ALLOWED_CURRENCIES = {
     "EUR", "USD", "GBP", "CHF", "JPY", "CNY", "TRY", "UAH", "PLN",
-    "RON", "CZK", "HUF", "CAD", "AUD", "SEK", "NOK", "DKK", "RUB", "INR",
+    "RON", "CZK", "HUF", "CAD", "AUD", "SEK", "NOK", "DKK", "RUB", "INR", "BTC",
 }
 
 

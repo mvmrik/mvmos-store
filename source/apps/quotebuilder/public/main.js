@@ -190,7 +190,7 @@ const PC = (() => {
     { value: 'RON', symbol: 'lei' }, { value: 'CZK', symbol: 'Kč' }, { value: 'HUF', symbol: 'Ft' },
     { value: 'CAD', symbol: '$' }, { value: 'AUD', symbol: '$' }, { value: 'SEK', symbol: 'kr' },
     { value: 'NOK', symbol: 'kr' }, { value: 'DKK', symbol: 'kr' }, { value: 'RUB', symbol: '₽' },
-    { value: 'INR', symbol: '₹' },
+    { value: 'INR', symbol: '₹' }, { value: 'BTC', symbol: '₿' },
   ];
   function _qbCurrencySymbol(code) {
     return (_qbCurrencies.find(c => c.value === code) || {}).symbol || code || '€';

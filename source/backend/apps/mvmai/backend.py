@@ -771,14 +771,59 @@ def _cli_tool_instructions(tools: list) -> str:
     return "\n".join(lines)
 
 
-def _cli_search_path() -> str:
+def _resolve_os_user(explicit: str | None) -> str:
+    """Return the OS username whose home/PATH/credentials CLI providers
+    should run with. mvmOS itself always runs as root (see /exec above), so
+    without this, CLI discovery and execution silently operate on root's
+    home instead of the actual person's — that's what hid a per-user Claude
+    Code install from `/cli-providers` and, when found anyway (e.g. via a
+    manually PATH-exposed binary), made the CLI itself refuse to run
+    `--dangerously-skip-permissions` as root.
+
+    Prefers an explicit OS session (the caller's own mvmOS desktop login,
+    passed in as `session["effective_user"]`); falls back to the machine's
+    primary human login, since installations are typically single-user.
+    """
+    if explicit and explicit != "root":
+        return explicit
+    try:
+        candidates = sorted(
+            (u for u in pwd.getpwall() if u.pw_uid >= 1000 and u.pw_shell not in ("/usr/sbin/nologin", "/bin/false", "")),
+            key=lambda u: u.pw_uid,
+        )
+        if candidates:
+            return candidates[0].pw_name
+    except Exception:
+        pass
+    return "root"
+
+
+def _home_for(eu: str) -> str:
+    try:
+        return pwd.getpwnam(eu).pw_dir
+    except KeyError:
+        return "/root"
+
+
+def _wrap_as_user(argv: list[str], eu: str) -> list[str]:
+    """Prefix argv to run as OS user `eu`, dropping root the same way /exec
+    does — `runuser` needs root itself, hence the `sudo` branch when this
+    process isn't already root. Uses direct argv (no `-l`, no shell `-c`)
+    so an arbitrary chat prompt in argv never passes through a shell."""
+    if not eu or eu == "root":
+        return argv
+    if os.geteuid() == 0:
+        return ["runuser", "-u", eu, "--"] + argv
+    return ["sudo", "runuser", "-u", eu, "--"] + argv
+
+
+def _cli_search_path(home: str) -> str:
     """Return PATH plus common per-user CLI install locations.
 
     Services do not load interactive shell startup files, so tools installed by
     Codex, npm, nvm, pnpm, Bun, Volta, asdf, or mise may be available in a
     terminal but absent from the service's PATH.
     """
-    home = os.path.expanduser("~")
     env_paths = [
         os.environ.get("NVM_BIN"),
         os.environ.get("PNPM_HOME"),
@@ -803,19 +848,21 @@ def _cli_search_path() -> str:
     return os.pathsep.join(dict.fromkeys(p for p in system_paths + env_paths + user_paths + nvm_paths if p))
 
 
-def _which(cmd: str) -> str | None:
+def _which(cmd: str, home: str) -> str | None:
     try:
-        return shutil.which(cmd, path=_cli_search_path())
+        return shutil.which(cmd, path=_cli_search_path(home))
     except Exception:
         return None
 
 
-def _discover_cli_models(provider: dict, cmd_bin: str) -> list[str]:
+def _discover_cli_models(provider: dict, cmd_bin: str, eu: str, home: str) -> list[str]:
     discovery = provider.get("model_discovery")
+    env = {**os.environ, "HOME": home, "USER": eu, "LOGNAME": eu, "PATH": _cli_search_path(home)}
     try:
         if discovery == "codex":
             proc = subprocess.run(
-                [cmd_bin, "debug", "models"], capture_output=True, text=True, timeout=15,
+                _wrap_as_user([cmd_bin, "debug", "models"], eu),
+                capture_output=True, text=True, timeout=15, env=env,
             )
             if proc.returncode != 0:
                 return []
@@ -825,7 +872,10 @@ def _discover_cli_models(provider: dict, cmd_bin: str) -> list[str]:
                 if model.get("slug") and model.get("visibility") != "hide"
             ))
         if discovery == "ollama":
-            proc = subprocess.run([cmd_bin, "list"], capture_output=True, text=True, timeout=10)
+            proc = subprocess.run(
+                _wrap_as_user([cmd_bin, "list"], eu),
+                capture_output=True, text=True, timeout=10, env=env,
+            )
             if proc.returncode != 0:
                 return []
             lines = [line.split() for line in proc.stdout.splitlines() if line.strip()]
@@ -835,14 +885,14 @@ def _discover_cli_models(provider: dict, cmd_bin: str) -> list[str]:
     return []
 
 
-def _detected_cli_providers():
+def _detected_cli_providers(eu: str, home: str):
     detected = []
     for provider in CLI_PROVIDERS:
-        cmd_bin = _which(provider["cmd"])
+        cmd_bin = _which(provider["cmd"], home)
         if not cmd_bin:
             continue
         item = dict(provider)
-        item["model_choices"] = _discover_cli_models(provider, cmd_bin)
+        item["model_choices"] = _discover_cli_models(provider, cmd_bin, eu, home)
         item["models_dynamic"] = bool(provider.get("model_discovery"))
         item.pop("model_discovery", None)
         detected.append(item)
@@ -851,7 +901,8 @@ def _detected_cli_providers():
 
 @router.get("/cli-providers")
 async def cli_providers(session=Depends(get_current_session)):
-    return JSONResponse({"cli_providers": _detected_cli_providers()})
+    eu = _resolve_os_user(session.get("effective_user"))
+    return JSONResponse({"cli_providers": _detected_cli_providers(eu, _home_for(eu))})
 
 
 class CliChatRequest(BaseModel):
@@ -876,11 +927,14 @@ async def _run_cli_chat(
     exec_auto: bool = False,
     identity_prompt: str = "",
     project: dict = None,
+    session: dict | None = None,
 ):
     provider = next((p for p in CLI_PROVIDERS if p["id"] == body.provider_id), None)
     if not provider:
         return JSONResponse({"error": f"Unknown CLI provider: {body.provider_id}"}, status_code=400)
-    cmd_bin = _which(provider["cmd"])
+    eu = _resolve_os_user((session or {}).get("effective_user"))
+    home = _home_for(eu)
+    cmd_bin = _which(provider["cmd"], home)
     if not cmd_bin:
         return JSONResponse({"error": f"'{provider['cmd']}' not found in PATH"}, status_code=400)
 
@@ -960,6 +1014,16 @@ async def _run_cli_chat(
             policy_path = os.path.join(workdir, "deny-tools.toml")
             with open(policy_path, "w", encoding="utf-8") as handle:
                 handle.write('[[rule]]\ntoolName = "*"\ndecision = "deny"\npriority = 999\n')
+            if eu != "root":
+                # The CLI process below runs as `eu`, not root — hand it
+                # ownership of the throwaway workdir so it can actually read
+                # deny-tools.toml (and write into its own cwd) there.
+                try:
+                    pw = pwd.getpwnam(eu)
+                    os.chown(workdir, pw.pw_uid, pw.pw_gid)
+                    os.chown(policy_path, pw.pw_uid, pw.pw_gid)
+                except Exception:
+                    pass
             if pid == "claude-cli":
                 safety_args = ["--dangerously-skip-permissions", "--permission-mode", "bypassPermissions"] if native_server_access else ["--tools", ""]
                 cmd = [cmd_bin] + (["--model", model] if model else []) + ["--safe-mode"] + safety_args + ["--disable-slash-commands", "--no-session-persistence", "--print", prompt]
@@ -974,7 +1038,10 @@ async def _run_cli_chat(
                 cmd = [cmd_bin, "exec", "--skip-git-repo-check", "--sandbox", sandbox, "-C", effective_dir, "-c", 'web_search="disabled"'] + safety_args + (["--model", model] if model else []) + [prompt]
             else:
                 cmd = [cmd_bin] + provider["args"] + [prompt]
-            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120, cwd=effective_dir)
+            proc = subprocess.run(
+                _wrap_as_user(cmd, eu), capture_output=True, text=True, timeout=120, cwd=effective_dir,
+                env={**os.environ, "HOME": home, "USER": eu, "LOGNAME": eu, "PATH": _cli_search_path(home)},
+            )
         if proc.returncode != 0 and not proc.stdout.strip():
             err = proc.stderr.strip() or f"exit code {proc.returncode}"
             return JSONResponse({"error": err}, status_code=502)
@@ -1014,4 +1081,4 @@ async def cli_chat(body: CliChatRequest, x_pub_token: str = Header(default=None)
     is_admin = _is_apps_hub_admin(x_pub_token)
     exec_enabled = bool(cfg.get("exec_enabled"))
     exec_auto = bool(cfg.get("exec_auto"))
-    return await _run_cli_chat(body, _server_tools(is_admin, exec_enabled), is_admin, exec_enabled, exec_auto)
+    return await _run_cli_chat(body, _server_tools(is_admin, exec_enabled), is_admin, exec_enabled, exec_auto, session=session)

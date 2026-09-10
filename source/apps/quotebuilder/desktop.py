@@ -16,7 +16,7 @@ _DB_PATH = os.path.join(os.path.dirname(__file__), "data.db")
 # manually with frontend/settings.js's own copy (no shared module across surfaces).
 ALLOWED_CURRENCIES = {
     "EUR", "USD", "GBP", "CHF", "JPY", "CNY", "TRY", "UAH", "PLN",
-    "RON", "CZK", "HUF", "CAD", "AUD", "SEK", "NOK", "DKK", "RUB", "INR",
+    "RON", "CZK", "HUF", "CAD", "AUD", "SEK", "NOK", "DKK", "RUB", "INR", "BTC",
 }
 
 

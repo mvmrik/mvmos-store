@@ -1,0 +1,25 @@
+{
+  "summary": "Batch ZIP workflows and precise control over image dimensions, transparency and file names.",
+  "features": [
+    {
+      "title": "ZIP folder processing",
+      "short": "Optimise a complete folder tree in one archive",
+      "description": "Upload a ZIP through the main upload area, clear the previous batch, optimise every supported image and download a new ZIP with the same folders, subfolders and untouched non-image files."
+    },
+    {
+      "title": "Resolution and transparency",
+      "short": "Resize images and control transparent pixels",
+      "description": "Set width and height with optional aspect-ratio preservation, and choose whether transparent pixels stay transparent or are placed on a white background."
+    },
+    {
+      "title": "Bulk rename",
+      "short": "Apply complete naming rules to every image",
+      "description": "Add a prefix or suffix, force lower- or uppercase, replace spaces with hyphens or underscores, and replace or remove matching text. Rename-only mode leaves every image byte unchanged."
+    },
+    {
+      "title": "Public access and saved preferences",
+      "short": "Choose public tools and remember each profile's setup",
+      "description": "The administrator decides which Premium tools appear on the Apps Hub public page. Enabled users keep their choices locally per profile and can reset them to defaults at any time."
+    }
+  ]
+}
