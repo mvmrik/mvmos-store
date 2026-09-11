@@ -235,37 +235,50 @@ def project_context_block(project: dict) -> str:
 
 
 def project_git_status(path: str) -> dict:
-    if not path or not os.path.isdir(os.path.join(path, ".git")):
+    if not path or not os.path.isdir(path):
         return {"is_repo": False}
+    path = os.path.realpath(path)
+    repo_root = path
+    while not os.path.exists(os.path.join(repo_root, ".git")):
+        parent = os.path.dirname(repo_root)
+        if parent == repo_root:
+            return {"is_repo": False}
+        repo_root = parent
 
     def _git(args):
-        return subprocess.run(["git", "-C", path] + args, capture_output=True, text=True, timeout=15)
+        # Trust only this explicitly selected project, never all repositories.
+        return subprocess.run(["git", "-c", "safe.directory=" + repo_root, "-C", path] + args,
+                              capture_output=True, text=True, timeout=15,
+                              env={**os.environ, "GIT_OPTIONAL_LOCKS": "0"})
 
-    branch_r = _git(["rev-parse", "--abbrev-ref", "HEAD"])
-    branch = branch_r.stdout.strip() if branch_r.returncode == 0 else "?"
-    status_r = _git(["status", "--porcelain"])
-    added, modified, deleted, untracked = [], [], [], []
-    if status_r.returncode == 0:
-        for line in status_r.stdout.splitlines():
-            if len(line) < 4:
+    try:
+        repo = _git(["rev-parse", "--show-toplevel"])
+        if repo.returncode:
+            return {"is_repo": False, "error": repo.stderr.strip()}
+        branch_r = _git(["symbolic-ref", "--quiet", "--short", "HEAD"])
+        if branch_r.returncode:
+            branch_r = _git(["rev-parse", "--short", "HEAD"])
+        status_r = _git(["status", "--porcelain=v1", "-z", "--untracked-files=all", "--", "."])
+        if branch_r.returncode or status_r.returncode:
+            return {"is_repo": True, "branch": branch_r.stdout.strip(),
+                    "error": (branch_r.stderr + status_r.stderr).strip()}
+        result = {"is_repo": True, "branch": branch_r.stdout.strip(),
+                  "added": [], "modified": [], "deleted": [], "untracked": []}
+        prefix = os.path.relpath(path, repo.stdout.strip())
+        entries = iter(status_r.stdout.split("\0"))
+        for entry in entries:
+            if len(entry) < 4:
                 continue
-            code, name = line[:2], line[3:]
-            if code == "??":
-                untracked.append(name)
-            elif "D" in code:
-                deleted.append(name)
-            elif "A" in code:
-                added.append(name)
-            else:
-                modified.append(name)
-    return {
-        "is_repo": True,
-        "branch": branch,
-        "added": added,
-        "modified": modified,
-        "deleted": deleted,
-        "untracked": untracked,
-    }
+            code, name = entry[:2], entry[3:]
+            if "R" in code or "C" in code:
+                next(entries, None)  # The following NUL field is the old name.
+            if prefix != ".":
+                name = os.path.relpath(name, prefix)
+            key = "untracked" if code == "??" else "deleted" if "D" in code else "added" if "A" in code else "modified"
+            result[key].append(name)
+        return result
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {"is_repo": False, "error": str(exc)}
 
 
 def _resolve_provider(cfg: dict):

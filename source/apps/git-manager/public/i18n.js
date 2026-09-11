@@ -4,6 +4,9 @@
 
   var STRINGS = {
     'en': {
+    "gm_search_branches": "Search branches…",
+    "gm_no_matching_branches": "No matching branches",
+
     'gm_repositories':               'REPOSITORIES',
     'gm_refresh':                    'Refresh',
     'gm_clone':                      'Clone',
@@ -169,6 +172,9 @@
     'gm_pr_existing_title':          'Already has pull request(s) from this branch:',
     },
     'bg': {
+    "gm_search_branches": "Търсене на клонове…",
+    "gm_no_matching_branches": "Няма съвпадащи клонове",
+
     'gm_repositories':               'РЕПОЗИТОРИИ',
     'gm_refresh':                    'Опресни',
     'gm_clone':                      'Клониране',
@@ -334,6 +340,9 @@
     'gm_pr_existing_title':          'Вече има pull request(s) от този branch:',
     },
     'de': {
+    "gm_search_branches": "Branches suchen…",
+    "gm_no_matching_branches": "Keine passenden Branches",
+
     'gm_repositories':               'REPOSITORYS',
     'gm_refresh':                    'Aktualisieren',
     'gm_clone':                      'Klonen',
@@ -499,6 +508,9 @@
     'gm_pr_existing_title':'Hat bereits Pull Request(s) von diesem Branch:',
     },
     'es': {
+    "gm_search_branches": "Buscar ramas…",
+    "gm_no_matching_branches": "No hay ramas coincidentes",
+
     'gm_repositories':               'REPOSITORIOS',
     'gm_refresh':                    'Actualizar',
     'gm_clone':                      'Clonar',
@@ -664,6 +676,9 @@
     'gm_pr_existing_title':'Ya tiene pull request(s) desde esta rama:',
     },
     'fr': {
+    "gm_search_branches": "Rechercher des branches…",
+    "gm_no_matching_branches": "Aucune branche correspondante",
+
     'gm_repositories':               'DÉPÔTS',
     'gm_refresh':                    'Actualiser',
     'gm_clone':                      'Cloner',
@@ -829,6 +844,9 @@
     'gm_pr_existing_title':'A déjà des pull request(s) depuis cette branche :',
     },
     'ja': {
+    "gm_search_branches": "ブランチを検索…",
+    "gm_no_matching_branches": "一致するブランチはありません",
+
     'gm_repositories':               'リポジトリ',
     'gm_refresh':                    '更新',
     'gm_clone':                      'クローン',
@@ -994,6 +1012,9 @@
     'gm_pr_existing_title':'このブランチからのプルリクエストがすでにあります:',
     },
     'pt-BR': {
+    "gm_search_branches": "Buscar branches…",
+    "gm_no_matching_branches": "Nenhuma branch correspondente",
+
     'gm_repositories':               'REPOSITÓRIOS',
     'gm_refresh':                    'Atualizar',
     'gm_clone':                      'Clonar',
@@ -1159,6 +1180,9 @@
     'gm_pr_existing_title':'Já tem pull request(s) desta branch:',
     },
     'ru': {
+    "gm_search_branches": "Поиск веток…",
+    "gm_no_matching_branches": "Подходящих веток нет",
+
     'gm_repositories':               'РЕПОЗИТОРИИ',
     'gm_refresh':                    'Обновить',
     'gm_clone':                      'Клонировать',
@@ -1324,6 +1348,9 @@
     'gm_pr_existing_title':'Уже есть pull request(s) из этой ветки:',
     },
     'zh-CN': {
+    "gm_search_branches": "搜索分支…",
+    "gm_no_matching_branches": "没有匹配的分支",
+
     'gm_repositories':               '仓库',
     'gm_refresh':                    '刷新',
     'gm_clone':                      '克隆',

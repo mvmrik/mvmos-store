@@ -1173,7 +1173,12 @@ const AI = (() => {
     if (!_activeProject) { bar.hidden = true; return; }
     bar.hidden = false;
     bar.querySelector('.mvmai-project-name').textContent = _ait('active_project').replace('{name}', _activeProject.name);
-    bar.querySelector('.mvmai-project-branch').textContent = '';
+    const project = _activeProject;
+    bar.querySelector('.mvmai-project-branch').textContent = '…';
+    _apiGet('/projects/' + project.id + '/git-status').then(git => {
+      if (_activeProject?.id !== project.id || !bar.isConnected) return;
+      bar.querySelector('.mvmai-project-branch').textContent = git.error ? _ait('err') : git.is_repo ? ('⎇ ' + git.branch) : _ait('git_not_repo');
+    }).catch(() => { if (bar.isConnected) bar.querySelector('.mvmai-project-branch').textContent = _ait('err'); });
   }
 
   async function _toggleFileTree() {
@@ -1187,7 +1192,7 @@ const AI = (() => {
     bar.appendChild(dd);
     let git = { is_repo: false };
     try { git = await _apiGet('/projects/' + _activeProject.id + '/git-status'); } catch (_) {}
-    bar.querySelector('.mvmai-project-branch').textContent = git.is_repo ? ('⎇ ' + git.branch) : _ait('git_not_repo');
+    bar.querySelector('.mvmai-project-branch').textContent = git.error ? _ait('err') : git.is_repo ? ('⎇ ' + git.branch) : _ait('git_not_repo');
     const statusMap = {};
     (git.added || []).forEach(f => { statusMap[f] = 'A'; });
     (git.modified || []).forEach(f => { statusMap[f] = 'M'; });

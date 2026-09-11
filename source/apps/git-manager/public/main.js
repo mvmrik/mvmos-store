@@ -1178,14 +1178,46 @@ GM.showRepoView = function(container, repo, autoFetch) {
     var dd = document.createElement('div');
     dd.id = 'gm-branch-dropdown';
     dd.style.cssText = 'position:fixed;z-index:999;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.4);min-width:180px;overflow:hidden;top:' + (rect.bottom + 4) + 'px;left:' + rect.left + 'px';
+    dd.style.width = Math.min(300, window.innerWidth - 16) + 'px';
+    dd.style.minWidth = '0';
+    dd.style.left = Math.max(8, Math.min(rect.right - 300, window.innerWidth - 308)) + 'px';
+    const below = window.innerHeight - rect.bottom - 12;
+    const above = rect.top - 12;
+    const height = Math.min(320, Math.max(below, above));
+    dd.style.maxHeight = height + 'px';
+    if (below < 200 && above > below) { dd.style.top = 'auto'; dd.style.bottom = (window.innerHeight - rect.top + 4) + 'px'; }
+    dd.style.display = 'flex'; dd.style.flexDirection = 'column';
+    dd.addEventListener('click', function(event) { event.stopPropagation(); });
     dd.innerHTML = '<div style="padding:6px 10px;font-size:.72rem;color:var(--text-dim);border-bottom:1px solid var(--border)">' + t('gm_loading_branches') + '</div>';
     document.body.appendChild(dd);
 
     GM.api('/repo/branches?path=' + encodeURIComponent(repo.path)).then(function(data) {
+      if (!dd.isConnected) return;
       dd.innerHTML = '';
+      var search = document.createElement('input');
+      search.type = 'search'; search.placeholder = t('gm_search_branches');
+      search.setAttribute('aria-label', t('gm_search_branches'));
+      search.style.cssText = 'box-sizing:border-box;width:calc(100% - 16px);margin:8px;padding:7px;flex-shrink:0;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:5px';
+      var items = document.createElement('div');
+      items.style.cssText = 'overflow-y:auto;min-height:0;overscroll-behavior:contain';
+      dd.append(search, items);
+      var empty = document.createElement('div');
+      empty.textContent = t('gm_no_matching_branches'); empty.hidden = true;
+      empty.style.cssText = 'padding:10px;font-size:.8rem;color:var(--text-dim)';
+      dd.appendChild(empty);
+      search.addEventListener('input', function() {
+        var count = 0;
+        items.querySelectorAll('[data-branch]').forEach(function(row) {
+          var match = row.dataset.branch.toLowerCase().includes(search.value.trim().toLowerCase());
+          row.style.display = match ? 'flex' : 'none'; if (match) count++;
+        });
+        empty.hidden = count > 0;
+      });
+      search.addEventListener('keydown', function(event) { if (event.key === 'Escape') { close(); btn.focus(); } });
+      search.focus();
       data.branches.forEach(function(b) {
         var isRemote = b.startsWith('origin/');
-        var label = isRemote ? b.replace('origin/', '') + ' <span style="font-size:.68rem;opacity:.6">' + t('gm_remote_badge') + '</span>' : b;
+        var label = isRemote ? GM.escape(b.replace('origin/', '')) + ' <span style="font-size:.68rem;opacity:.6">' + t('gm_remote_badge') + '</span>' : GM.escape(b);
         var row = document.createElement('div');
         var isCurrent = b === data.current || (isRemote && b.replace('origin/', '') === data.current);
         row.style.cssText = 'padding:7px 12px;cursor:pointer;font-size:.82rem;display:flex;align-items:center;gap:6px;'
@@ -1200,7 +1232,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
             if (out) { out.style.display = 'block'; out.style.color = 'var(--text-dim)'; out.textContent = t('gm_switching_to', { branch: b }); }
             GM.api('/repo/checkout', { method: 'POST', json: { path: repo.path, branch: b } }).then(function(r) {
               repo.branch = r.branch;
-              btn.innerHTML = '&#x1F33F; ' + r.branch + ' &#x25BE;';
+              btn.innerHTML = '&#x1F33F; ' + GM.escape(r.branch) + ' &#x25BE;';
               if (out) { out.textContent = r.output || t('gm_switched_to', { branch: r.branch }); out.style.color = '#a6e3a1'; }
               GM.loadRepos();
               loadStatus();
@@ -1209,7 +1241,8 @@ GM.showRepoView = function(container, repo, autoFetch) {
             });
           });
         }
-        dd.appendChild(row);
+        row.dataset.branch = b;
+        items.appendChild(row);
       });
     }).catch(function(e) {
       dd.innerHTML = '<div style="padding:8px 12px;color:#f38ba8;font-size:.82rem">' + e.message + '</div>';

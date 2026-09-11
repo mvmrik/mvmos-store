@@ -2,6 +2,7 @@
 (function () {
   var STRINGS = {
     en: {
+      mvmai_pub_git_error: "Could not read Git status",
       mvmai_pub_title: 'mvmAI',
       mvmai_pub_login_required: 'Please log in to Apps Hub',
       mvmai_pub_placeholder: 'Message mvmAI…  (Shift+Enter for newline)',
@@ -73,6 +74,7 @@
       mvmai_pub_project_creating: 'Creating…',
     },
     bg: {
+      mvmai_pub_git_error: "Не може да се прочете Git състоянието",
       mvmai_pub_title: 'mvmAI',
       mvmai_pub_login_required: 'Моля, влез в Apps Hub',
       mvmai_pub_placeholder: 'Съобщение до mvmAI…  (Shift+Enter за нов ред)',
@@ -144,6 +146,7 @@
       mvmai_pub_project_creating: 'Създаване…',
     },
     de: {
+      mvmai_pub_git_error: "Git-Status konnte nicht gelesen werden",
       mvmai_pub_title: 'mvmAI',
       mvmai_pub_login_required: 'Bitte melde dich bei Apps Hub an',
       mvmai_pub_placeholder: 'Nachricht an mvmAI…  (Umschalt+Enter für neue Zeile)',
@@ -215,6 +218,7 @@
       mvmai_pub_project_creating: 'Wird erstellt…',
     },
     es: {
+      mvmai_pub_git_error: "No se pudo leer el estado de Git",
       mvmai_pub_title: 'mvmAI',
       mvmai_pub_login_required: 'Inicia sesión en Apps Hub',
       mvmai_pub_placeholder: 'Mensaje para mvmAI…  (Mayús+Enter para salto de línea)',
@@ -286,6 +290,7 @@
       mvmai_pub_project_creating: 'Creando…',
     },
     fr: {
+      mvmai_pub_git_error: "Impossible de lire l’état Git",
       mvmai_pub_title: 'mvmAI',
       mvmai_pub_login_required: 'Merci de te connecter à Apps Hub',
       mvmai_pub_placeholder: 'Message à mvmAI…  (Maj+Entrée pour un saut de ligne)',
@@ -357,6 +362,7 @@
       mvmai_pub_project_creating: 'Création…',
     },
     ja: {
+      mvmai_pub_git_error: "Gitの状態を読み取れませんでした",
       mvmai_pub_title: 'mvmAI',
       mvmai_pub_login_required: 'Apps Hub にログインしてください',
       mvmai_pub_placeholder: 'mvmAI にメッセージ…（Shift+Enterで改行）',
@@ -428,6 +434,7 @@
       mvmai_pub_project_creating: '作成中…',
     },
     'pt-BR': {
+      mvmai_pub_git_error: "Não foi possível ler o status do Git",
       mvmai_pub_title: 'mvmAI',
       mvmai_pub_login_required: 'Faça login no Apps Hub',
       mvmai_pub_placeholder: 'Mensagem para o mvmAI…  (Shift+Enter para nova linha)',
@@ -499,6 +506,7 @@
       mvmai_pub_project_creating: 'Criando…',
     },
     ru: {
+      mvmai_pub_git_error: "Не удалось прочитать состояние Git",
       mvmai_pub_title: 'mvmAI',
       mvmai_pub_login_required: 'Пожалуйста, войди в Apps Hub',
       mvmai_pub_placeholder: 'Сообщение для mvmAI…  (Shift+Enter — новая строка)',
@@ -570,6 +578,7 @@
       mvmai_pub_project_creating: 'Создание…',
     },
     'zh-CN': {
+      mvmai_pub_git_error: "无法读取 Git 状态",
       mvmai_pub_title: 'mvmAI',
       mvmai_pub_login_required: '请登录 Apps Hub',
       mvmai_pub_placeholder: '给 mvmAI 发消息…（Shift+Enter 换行）',

@@ -206,6 +206,7 @@
     var projects = [];
     var activeProject = null;   // {id, name, path} — fixed at session creation
     var sessionsCache = [];
+    var projectPoll = null;
 
     function api(path, options) {
       options = options || {};
@@ -451,18 +452,30 @@
           });
       }
 
-      function renderInlineFileTree() {
+      var lastGitSignature = '';
+      var gitPending = false;
+      projectPoll = setInterval(function () {
+        if (!root.isConnected) { clearInterval(projectPoll); return; }
+        if (!document.hidden && activeProject && !gitPending) renderInlineFileTree(true);
+      }, 5000);
+
+      function renderInlineFileTree(quiet) {
         if (!sidebarFiletreeEl) return;
         if (!activeProject || !activeProject.path) { sidebarFiletreeEl.innerHTML = ''; return; }
-        sidebarFiletreeEl.innerHTML = '<div class="mvmai-no-sessions">' + esc(t('mvmai_pub_loading')) + '</div>';
-        api('/projects/' + activeProject.id + '/git-status').then(function (git) {
-          if (!activeProject) return;
+        var project = activeProject;
+        if (!quiet) sidebarFiletreeEl.innerHTML = '<div class="mvmai-no-sessions">' + esc(t('mvmai_pub_loading')) + '</div>';
+        gitPending = true;
+        api('/projects/' + project.id + '/git-status').then(function (git) {
+          if (!activeProject || activeProject.id !== project.id || !root.isConnected) return;
+          var signature = project.id + JSON.stringify(git);
+          if (quiet && signature === lastGitSignature) return;
+          lastGitSignature = signature;
           var statusMap = {};
           ((git && git.added) || []).forEach(function (f) { statusMap[f] = 'A'; });
           ((git && git.modified) || []).forEach(function (f) { statusMap[f] = 'M'; });
           ((git && git.deleted) || []).forEach(function (f) { statusMap[f] = 'D'; });
           ((git && git.untracked) || []).forEach(function (f) { statusMap[f] = 'U'; });
-          var branchLabel = git && git.is_repo ? ('⎇ ' + git.branch) : t('mvmai_pub_git_not_repo');
+          var branchLabel = git.error ? t('mvmai_pub_git_error') : git && git.is_repo ? ('⎇ ' + git.branch) : t('mvmai_pub_git_not_repo');
           var hasGitManager = typeof GitManager !== 'undefined';
           var canOpenGitManager = git && git.is_repo && hasGitManager;
           var showInstallHint = git && git.is_repo && !hasGitManager;
@@ -480,8 +493,8 @@
               GitManager.openRepo(repoPath);
             });
           }
-          fillDir(activeProject.path, sidebarFiletreeEl.querySelector('.mvmai-sidebar-filetree-body'), statusMap, activeProject.path);
-        });
+          fillDir(project.path, sidebarFiletreeEl.querySelector('.mvmai-sidebar-filetree-body'), statusMap, project.path);
+        }).catch(function () { lastGitSignature = ''; }).finally(function () { gitPending = false; });
       }
 
       function showFolderPicker(startPath, onSelect) {
@@ -1101,7 +1114,7 @@
       });
     }
 
-    return { destroy: function () {} };
+    return { destroy: function () { clearInterval(projectPoll); } };
   }
 
   window.MvmaiWidget = { mount: mount };
