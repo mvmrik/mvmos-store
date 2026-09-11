@@ -42,8 +42,13 @@ def _premium_available():
 
 
 def _desktop_admin(session):
-    if session.get("effective_user") != "root":
-        raise HTTPException(403, "Root desktop access required")
+    # The desktop routes are already protected by get_current_session. Requiring
+    # the Linux username to be literally "root" breaks otherwise valid mvmOS
+    # installations whose administrator signs in with a regular or sudo-capable
+    # account: the settings UI then mistakes the 403 response for missing
+    # Premium content and disables every public-page feature toggle.
+    if not session or not session.get("effective_user"):
+        raise HTTPException(401, "Desktop session required")
     return session
 
 
