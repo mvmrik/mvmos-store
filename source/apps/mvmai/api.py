@@ -169,12 +169,12 @@ def _premium():
     return prem.load_premium_backend(APP_ID) if prem else None
 
 
-def _public_provider_label(desk, prem):
-    """Resolve the public provider name for admin-only UI disclosure."""
+def _provider_label(desk, prem, use_public: bool):
+    """Resolve the provider name for admin-only UI disclosure."""
     if desk is None:
         return None
     cfg = desk._read_cfg()
-    if prem and prem.is_available():
+    if use_public and prem and prem.is_available():
         cfg = prem.resolve_pub_cfg(cfg)
     provider_id = cfg.get("provider") or ""
     provider = next((p for p in desk.CLI_PROVIDERS if p["id"] == provider_id), None)
@@ -258,13 +258,18 @@ async def public_index():
 
 
 @router.get("/me")
-async def get_me(x_pub_token: str = Header(default=None)):
+async def get_me(
+    x_pub_token: str = Header(default=None),
+    x_mvmai_surface: str = Header(default=""),
+    os_session=Depends(_os_session_optional),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
     hub = _hub()
     prem = _premium()
     desk = _desktop()
+    is_desktop = x_mvmai_surface == "desktop" and bool(os_session)
     price = 0
     if hub and hub.credits_available():
         price = hub.get_credit_feature_price(APP_ID, "chat_message")
@@ -274,7 +279,7 @@ async def get_me(x_pub_token: str = Header(default=None)):
         "has_api_bridge": bool(prem and prem.is_available() and desk is not None and desk._read_cfg().get("pub_data_bridge_enabled")),
         "credit_price": price,
         "credit_balance": hub.get_credit_balance(me["id"]) if hub else 0,
-        **({"provider_label": _public_provider_label(desk, prem)} if me.get("is_admin") else {}),
+        **({"provider_label": _provider_label(desk, prem, use_public=not is_desktop)} if me.get("is_admin") else {}),
     })
 
 
@@ -363,7 +368,12 @@ class ChatRequest(BaseModel):
 
 
 @router.post("/chat")
-async def chat(body: ChatRequest, x_pub_token: str = Header(default=None), os_session=Depends(_os_session_optional)):
+async def chat(
+    body: ChatRequest,
+    x_pub_token: str = Header(default=None),
+    x_mvmai_surface: str = Header(default=""),
+    os_session=Depends(_os_session_optional),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -373,6 +383,7 @@ async def chat(body: ChatRequest, x_pub_token: str = Header(default=None), os_se
 
     hub = _hub()
     is_admin = bool(me.get("is_admin"))
+    is_desktop = x_mvmai_surface == "desktop" and bool(os_session)
 
     # An existing session's project is fixed at creation, same as desktop —
     # only a brand-new session (no session_id yet) takes project_id from the body.
@@ -393,13 +404,15 @@ async def chat(body: ChatRequest, x_pub_token: str = Header(default=None), os_se
             return JSONResponse({"error": "insufficient_credits", "price": price}, status_code=402)
 
     cfg = desk._read_cfg()
-    exec_enabled = bool(cfg.get("pub_exec_enabled"))
+    exec_prefix = "" if is_desktop else "pub_"
+    exec_enabled = bool(cfg.get(f"{exec_prefix}exec_enabled"))
     tools = [] if body.no_persist else desk._server_tools(is_admin, exec_enabled)
     prem = _premium()
     if prem and prem.is_available():
         if cfg.get("pub_data_bridge_enabled"):
             tools = tools + prem.list_tools()
-        cfg = prem.resolve_pub_cfg(cfg)
+        if not is_desktop:
+            cfg = prem.resolve_pub_cfg(cfg)
     cli_provider = next((p for p in desk.CLI_PROVIDERS if p["id"] == cfg.get("provider")), None)
     public_identity = (
         "On this public interface, your identity is mvmAI. Always introduce and describe yourself "
@@ -414,7 +427,7 @@ async def chat(body: ChatRequest, x_pub_token: str = Header(default=None), os_se
             tools=tools,
             is_admin=is_admin,
             exec_enabled=exec_enabled,
-            exec_auto=bool(cfg.get("pub_exec_auto")),
+            exec_auto=bool(cfg.get(f"{exec_prefix}exec_auto")),
             identity_prompt=public_identity,
             project=project,
             session=os_session,
@@ -526,7 +539,11 @@ class ExecSettingsRequest(BaseModel):
 
 
 @router.get("/exec-settings")
-async def get_exec_settings(x_pub_token: str = Header(default=None)):
+async def get_exec_settings(
+    x_pub_token: str = Header(default=None),
+    x_mvmai_surface: str = Header(default=""),
+    os_session=Depends(_os_session_optional),
+):
     me = _resolve(x_pub_token)
     if not me or not me.get("is_admin"):
         return JSONResponse({"error": "forbidden"}, status_code=403)
@@ -534,22 +551,29 @@ async def get_exec_settings(x_pub_token: str = Header(default=None)):
     if desk is None:
         return JSONResponse({"error": "mvmAI is not available"}, status_code=500)
     cfg = desk._read_cfg()
+    prefix = "" if x_mvmai_surface == "desktop" and os_session else "pub_"
     return JSONResponse({
-        "enabled": bool(cfg.get("pub_exec_enabled")),
-        "auto": bool(cfg.get("pub_exec_auto")),
+        "enabled": bool(cfg.get(f"{prefix}exec_enabled")),
+        "auto": bool(cfg.get(f"{prefix}exec_auto")),
     })
 
 
 @router.post("/exec-settings")
-async def set_exec_settings(body: ExecSettingsRequest, x_pub_token: str = Header(default=None)):
+async def set_exec_settings(
+    body: ExecSettingsRequest,
+    x_pub_token: str = Header(default=None),
+    x_mvmai_surface: str = Header(default=""),
+    os_session=Depends(_os_session_optional),
+):
     me = _resolve(x_pub_token)
     if not me or not me.get("is_admin"):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     desk = _desktop()
     if desk is None:
         return JSONResponse({"error": "mvmAI is not available"}, status_code=500)
-    desk._write_cfg("pub_exec_enabled", bool(body.enabled))
-    desk._write_cfg("pub_exec_auto", bool(body.auto))
+    prefix = "" if x_mvmai_surface == "desktop" and os_session else "pub_"
+    desk._write_cfg(f"{prefix}exec_enabled", bool(body.enabled))
+    desk._write_cfg(f"{prefix}exec_auto", bool(body.auto))
     return JSONResponse({"ok": True})
 
 
@@ -560,13 +584,25 @@ class ExecRequest(BaseModel):
 
 
 @router.post("/exec")
-async def exec_command(body: ExecRequest, x_pub_token: str = Header(default=None)):
+async def exec_command(
+    body: ExecRequest,
+    x_pub_token: str = Header(default=None),
+    x_mvmai_surface: str = Header(default=""),
+    os_session=Depends(_os_session_optional),
+):
     me = _resolve(x_pub_token)
     if not me or not me.get("is_admin"):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     desk = _desktop()
     if desk is None:
         return JSONResponse({"error": "mvmAI is not available"}, status_code=500)
+
+    if x_mvmai_surface == "desktop" and os_session:
+        return await desk.exec_command(
+            desk.ExecRequest(command=body.command, confirmed=body.confirmed, project_id=body.project_id),
+            x_pub_token=x_pub_token,
+            session=os_session,
+        )
 
     cfg = desk._read_cfg()
     exec_enabled = bool(cfg.get("pub_exec_enabled"))

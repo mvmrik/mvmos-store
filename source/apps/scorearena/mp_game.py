@@ -1,8 +1,66 @@
 """Server-authoritative rules for Score Arena."""
+import asyncio
+import json
+import os
 import random
+import sqlite3
+import sys
 import time
 
+# mp_game.py is loaded by Game Hub via importlib.spec_from_file_location, so
+# this directory is never on sys.path on its own — ghost.py needs it added
+# explicitly to be importable as a plain sibling module.
+_APP_DIR = os.path.dirname(__file__)
+if _APP_DIR not in sys.path:
+    sys.path.insert(0, _APP_DIR)
+
+from ghost import Ghost, skill_from_history
+
 CRICKET_TARGETS = (20, 19, 18, 17, 16, 15, 25)
+
+# Breakdown: descending 20 -> 1, then Bull. Any multiplier on the current
+# target breaks it down and advances to the next one.
+BREAKDOWN_TARGETS = tuple(range(20, 0, -1)) + (25,)
+# Around the Clock: ascending 1 -> 20, then Bull. Same any-multiplier rule.
+ATC_TARGETS = tuple(range(1, 21)) + (25,)
+
+GOLF_HOLE_COUNTS = {"progolf": 18, "minigolf": 9}
+
+GHOST_ID = "__ghost__"
+GHOST_HISTORY_LIMIT = 15
+GHOST_DART_DELAY = 0.85  # seconds between the ghost's own darts, so the client can animate them one by one
+# apps/scorearena/ -> repo root -> backend/apps/gamehub/data.db, the real Game
+# Hub database (apps/gamehub/data.db is an unrelated stale empty file).
+_GH_DB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "backend", "apps", "gamehub", "data.db")
+
+
+def _ghost_skill_for(mode: str, player_id: str) -> float:
+    """Reads this player's own recent solo `game_sessions` for scorearena in
+    this `mode` and derives a ghost skill from them (see ghost.py). Best
+    effort: any DB hiccup just falls back to the module's mid-table default,
+    never blocks starting a match."""
+    try:
+        conn = sqlite3.connect(_GH_DB_PATH)
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            """SELECT gs.metadata FROM game_sessions gs
+               JOIN session_players sp ON sp.session_id = gs.id
+               WHERE gs.game_id = 'scorearena' AND sp.player_id = ?
+               ORDER BY gs.played_at DESC LIMIT ?""",
+            (str(player_id), GHOST_HISTORY_LIMIT),
+        ).fetchall()
+        conn.close()
+        stats = []
+        for row in rows:
+            meta = json.loads(row["metadata"] or "{}")
+            if meta.get("scorearena_mode") != mode:
+                continue
+            ps = (meta.get("player_stats") or {}).get(str(player_id))
+            if ps:
+                stats.append(ps)
+        return skill_from_history(mode, stats)
+    except Exception:
+        return 0.5
 
 BITCOIN_NUMBERS = tuple(range(1, 21))
 BITCOIN_BULL = 25
@@ -41,6 +99,8 @@ class Game:
         self.halving_reward = BITCOIN_REWARD_LEVELS[0]
         self.halving_count = 0
         self.targets = []
+        self.ghost = None                # Ghost instance, solo-vs-ghost matches only
+        self.ghost_name = "Ghost"
 
     async def on_start(self, settings):
         roster = self.ctx.all_players()
@@ -50,10 +110,17 @@ class Game:
         if isinstance(saved, dict):
             self._restore(saved)
             await self.ctx.broadcast(self._state("sa_start"))
+            await self._maybe_ghost_turn()
             return
-        self.mode = settings.get("mode") if settings.get("mode") in ("501", "cricket", "bitcoin") else "501"
-        self.target_wins = max(1, min(7, int(settings.get("target_wins", 1))))
+        valid_modes = ("501", "301", "cricket", "bitcoin", "breakdown", "atc", "progolf", "minigolf")
+        self.mode = settings.get("mode") if settings.get("mode") in valid_modes else "501"
+        # Golf is one full round of holes, no leg-repeat concept — force it
+        # regardless of what the lobby's "first to N legs" setting says.
+        self.target_wins = 1 if self.mode in ("progolf", "minigolf") else max(1, min(7, int(settings.get("target_wins", 1))))
         ids = [p["id"] for p in roster]
+        # The ghost only ever makes sense heads-up against exactly one real
+        # player — with two+ real players the humans are already the rivals.
+        ghost_wanted = settings.get("opponent") == "ghost" and len(ids) == 1
         method = settings.get("order", "lobby")
         if method == "dice":
             rolls = sorted(((random.randint(1, 6), random.random(), pid) for pid in ids), reverse=True)
@@ -65,11 +132,16 @@ class Game:
         else:
             self.order = ids
         self.players = {pid: self._fresh_player() for pid in ids}
+        if ghost_wanted:
+            self.ghost = Ghost(_ghost_skill_for(self.mode, ids[0]))
+            self.order.append(GHOST_ID)
+            self.players[GHOST_ID] = self._fresh_player()
         self.started = True
         self.started_at = time.time()
         if self.mode == "bitcoin":
             self.targets = self._generate_targets()
         await self.ctx.broadcast(self._state("sa_start"))
+        await self._maybe_ghost_turn()
 
     def snapshot(self):
         """Save & exit, asked for by the framework — solo only."""
@@ -81,6 +153,8 @@ class Game:
             "round_no": self.round_no, "dice": self.dice, "started_at": self.started_at,
             "difficulty": self.difficulty, "block_count": self.block_count, "total_blocks": self.total_blocks,
             "halving_reward": self.halving_reward, "halving_count": self.halving_count, "targets": self.targets,
+            "ghost": ({"base_skill": self.ghost.base_skill, "skill": self.ghost.skill,
+                       "confidence": self.ghost.confidence} if self.ghost else None),
         }
 
     def _restore(self, data):
@@ -99,6 +173,11 @@ class Game:
         self.halving_reward = data.get("halving_reward", BITCOIN_REWARD_LEVELS[0])
         self.halving_count = data.get("halving_count", 0)
         self.targets = data.get("targets", [])
+        gdata = data.get("ghost")
+        if gdata:
+            self.ghost = Ghost(gdata.get("base_skill", 0.5))
+            self.ghost.skill = gdata.get("skill", self.ghost.skill)
+            self.ghost.confidence = gdata.get("confidence", 0.0)
         self.started = True
 
     async def on_join(self, player):
@@ -116,12 +195,136 @@ class Game:
             await self.ctx.send(player["id"], {"type": "sa_error", "message": "empty_turn"})
             return
         current = self.order[self.turn_index]
+        if current == GHOST_ID:
+            return
         if self.mode == "bitcoin":
             await self._resolve_bitcoin(darts, player["id"])
             return
-        result = self._play_501(current, darts) if self.mode == "501" else self._play_cricket(current, darts)
+        result = self._play_turn(self.mode, current, darts)
         result.update({"player_id": current, "entered_by": player["id"], "darts": darts, "round": self.round_no})
         self.history.append(result)
+
+        if self.mode in ("progolf", "minigolf"):
+            if self._golf_all_done():
+                await self._finish_golf()
+                return
+            self.turn_index = (self.turn_index + 1) % len(self.order)
+            await self.ctx.broadcast(self._state("sa_state", last=result))
+            await self._maybe_ghost_turn()
+            return
+
+        winner = result.get("round_winner")
+        if winner:
+            self.players[winner]["wins"] += 1
+            if self.players[winner]["wins"] >= self.target_wins:
+                await self._finish(winner)
+                return
+            self.round_no += 1
+            self._reset_round()
+        else:
+            self.turn_index = (self.turn_index + 1) % len(self.order)
+        await self.ctx.broadcast(self._state("sa_state", last=result))
+        await self._maybe_ghost_turn()
+
+    def _play_turn(self, mode, pid, darts):
+        if mode in ("501", "301"):
+            return self._play_501(pid, darts)
+        if mode == "cricket":
+            return self._play_cricket(pid, darts)
+        if mode == "breakdown":
+            return self._play_sequence(pid, darts, BREAKDOWN_TARGETS, "breakdown")
+        if mode == "atc":
+            return self._play_sequence(pid, darts, ATC_TARGETS, "atc")
+        if mode in ("progolf", "minigolf"):
+            hole_count = 18 if mode == "progolf" else 9
+            return self._play_golf(pid, darts, hole_count)
+        return self._play_cricket(pid, darts)
+
+    async def _maybe_ghost_turn(self):
+        """Auto-plays the ghost's turn the instant it's up, so from the real
+        player's side it looks like an opponent moving on its own rather than
+        something they have to prompt. Loops (round-reset can land back on the
+        ghost immediately in a 1-real-player order) until either the match
+        ends or play is back with the human."""
+        while (self.ghost and self.started and not self.finished
+               and self.order and self.order[self.turn_index] == GHOST_ID):
+            await self._play_ghost_turn()
+
+    async def _announce_ghost_dart(self, dart, index):
+        """Broadcasts one ghost dart on its own, with a short pause before it,
+        so the client can show it landing on the board and in the pending-dart
+        strip before the whole turn resolves — instead of the score just
+        jumping straight to the after-turn total."""
+        await asyncio.sleep(GHOST_DART_DELAY)
+        await self.ctx.broadcast({"type": "sa_ghost_dart", "dart": dart, "index": index})
+
+    async def _play_ghost_turn(self):
+        darts = []
+        if self.mode in ("501", "301"):
+            remaining = self.players[GHOST_ID]["remaining"]
+            for i in range(3):
+                d = self.ghost.dart_501(remaining)
+                darts.append(d)
+                await self._announce_ghost_dart(d, i)
+                remaining -= d["number"] * d["multiplier"]
+                if remaining <= 0:
+                    break
+        elif self.mode == "cricket":
+            marks = self.players[GHOST_ID]["marks"]
+            for i in range(3):
+                open_targets = [n for n in CRICKET_TARGETS if marks[str(n)] < 3] or list(CRICKET_TARGETS)
+                d = self.ghost.dart_cricket(open_targets)
+                darts.append(d)
+                await self._announce_ghost_dart(d, i)
+        elif self.mode == "bitcoin":
+            targets = list(self.targets)
+            for i, t in enumerate(targets[:3]):
+                d = self.ghost.dart_bitcoin(t)
+                darts.append(d)
+                await self._announce_ghost_dart(d, i)
+            while len(darts) < 3:
+                i = len(darts)
+                d = self.ghost.dart_bitcoin(random.choice(self.targets))
+                darts.append(d)
+                await self._announce_ghost_dart(d, i)
+        elif self.mode in ("breakdown", "atc"):
+            targets = BREAKDOWN_TARGETS if self.mode == "breakdown" else ATC_TARGETS
+            idx = self.players[GHOST_ID]["seq_index"]
+            for i in range(3):
+                target = targets[min(idx, len(targets) - 1)]
+                d = self.ghost.dart_sequence(target)
+                darts.append(d)
+                await self._announce_ghost_dart(d, i)
+                if d["number"] == target:
+                    idx += 1
+                    if idx >= len(targets):
+                        break
+        else:  # progolf / minigolf
+            hole = self.players[GHOST_ID]["golf_hole"]
+            for i in range(3):
+                d = self.ghost.dart_golf(hole)
+                darts.append(d)
+                await self._announce_ghost_dart(d, i)
+                if d["number"] == hole and d["multiplier"] == 2:
+                    break
+
+        if self.mode == "bitcoin":
+            await self._resolve_bitcoin(darts, GHOST_ID)
+            return
+
+        result = self._play_turn(self.mode, GHOST_ID, darts)
+        result.update({"player_id": GHOST_ID, "entered_by": GHOST_ID, "darts": darts, "round": self.round_no})
+        self.history.append(result)
+        good = result.get("scored", 0) >= (60 if self.mode in ("501", "301") else 4) or bool(result.get("round_winner"))
+        self.ghost.react(good)
+
+        if self.mode in ("progolf", "minigolf"):
+            if self._golf_all_done():
+                await self._finish_golf()
+                return
+            self.turn_index = (self.turn_index + 1) % len(self.order)
+            await self.ctx.broadcast(self._state("sa_state", last=result))
+            return
 
         winner = result.get("round_winner")
         if winner:
@@ -136,11 +339,21 @@ class Game:
         await self.ctx.broadcast(self._state("sa_state", last=result))
 
     def _fresh_player(self):
-        return {"remaining": 501, "score": 0, "marks": {str(n): 0 for n in CRICKET_TARGETS}, "wins": 0,
-                "round_darts": 0, "metrics": {"darts": 0, "points": 0, "turns": 0, "checkout_attempts": 0,
+        start = 301 if self.mode == "301" else 501
+        return {"remaining": start, "score": 0, "marks": {str(n): 0 for n in CRICKET_TARGETS}, "wins": 0,
+                "round_darts": 0, "seq_index": 0, "seq_turn_score": 0, "golf_hole": 0, "golf_done": False,
+                "golf_strokes": [],
+                "metrics": {"darts": 0, "points": 0, "turns": 0, "checkout_attempts": 0,
                 "checkout_hits": 0, "highest_checkout": 0, "best_leg_darts": 0, "scores_100": 0,
-                "scores_140": 0, "scores_180": 0, "marks_total": 0, "mark_5": 0, "mark_6": 0,
-                "mark_7": 0, "mark_8": 0, "mark_9": 0, "three_triples": 0, "perfect_games": 0}}
+                "scores_140": 0, "scores_180": 0, "nine_darters": 0, "marks_total": 0, "mark_5": 0, "mark_6": 0,
+                "mark_7": 0, "mark_8": 0, "mark_9": 0, "three_triples": 0, "perfect_games": 0,
+                "blocks_mined": 0, "blocks_attempted": 0, "btc_earned": 0.0, "best_block_reward": 0.0,
+                "mine_streak": 0, "best_mine_streak": 0, "bitcoin_darts": 0, "halvings_survived": 0,
+                "best_difficulty": 1,
+                "scores_80": 0, "scores_60": 0, "scores_40": 0, "perfect_breakdowns": 0,
+                "finishes_8dart": 0,
+                "golf_darts": 0, "golf_strokes_total": 0, "albatrosses": 0, "eagles": 0,
+                "birdies": 0, "pars": 0, "bogeys": 0, "double_bogeys": 0}}
 
     def _clean_darts(self, darts):
         out = []
@@ -202,8 +415,11 @@ class Game:
             leg_darts = self.players[pid]["round_darts"]
             best = metrics["best_leg_darts"]
             metrics["best_leg_darts"] = leg_darts if not best else min(best, leg_darts)
+            min_darts = 6 if self.mode == "301" else 9
+            if leg_darts <= min_darts:
+                metrics["nine_darters"] += 1
         self.players[pid]["remaining"] = remaining
-        return {"kind": "501", "before": start, "after": remaining, "bust": bust,
+        return {"kind": self.mode, "before": start, "after": remaining, "bust": bust,
                 "scored": scored, "used": used,
                 "round_winner": pid if won else None}
 
@@ -244,6 +460,99 @@ class Game:
         return {"kind": "cricket", "scored": gained, "changes": changes,
                 "round_winner": pid if closed_all and leads else None}
 
+    def _play_sequence(self, pid, darts, targets, kind):
+        """Breakdown / Around the Clock: a single shared sequence of targets
+        (descending 20->1->Bull for Breakdown, ascending 1->20->Bull for ATC).
+        Any multiplier on the current target breaks it down / advances the
+        clock by one step; darts that don't match the current target just do
+        nothing (no bust, no penalty — this game has no way to lose ground)."""
+        metrics = self.players[pid]["metrics"]
+        state = self.players[pid]
+        used = []
+        turn_score = 0
+        won = False
+        start_index = state["seq_index"]
+        for dart in darts:
+            used.append(dart)
+            metrics["darts"] += 1
+            state["round_darts"] += 1
+            if state["seq_index"] >= len(targets):
+                break
+            target = targets[state["seq_index"]]
+            if dart["number"] == target:
+                turn_score += dart["number"] * dart["multiplier"]
+                state["seq_index"] += 1
+                if state["seq_index"] >= len(targets):
+                    won = True
+                    break
+        metrics["turns"] += 1
+        metrics["points"] += turn_score
+        if kind == "breakdown":
+            if turn_score >= 80:
+                metrics["scores_80"] += 1
+            elif turn_score >= 60:
+                metrics["scores_60"] += 1
+            elif turn_score >= 40:
+                metrics["scores_40"] += 1
+            metrics["highest_checkout"] = max(metrics["highest_checkout"], turn_score)
+            if won:
+                leg_darts = state["round_darts"]
+                best = metrics["best_leg_darts"]
+                metrics["best_leg_darts"] = leg_darts if not best else min(best, leg_darts)
+                if leg_darts <= len(targets):
+                    metrics["perfect_breakdowns"] += 1
+        else:  # atc
+            if won:
+                leg_darts = state["round_darts"]
+                best = metrics["best_leg_darts"]
+                metrics["best_leg_darts"] = leg_darts if not best else min(best, leg_darts)
+                if leg_darts <= 8:
+                    metrics["finishes_8dart"] += 1
+        return {"kind": kind, "before": start_index, "after": state["seq_index"], "used": used,
+                "scored": turn_score, "round_winner": pid if won else None}
+
+    def _golf_all_done(self):
+        return all(self.players[pid]["golf_done"] for pid in self.order)
+
+    def _play_golf(self, pid, darts, hole_count):
+        """Pro Golf / Mini Golf: each hole is target number `golf_hole+1`,
+        3 darts, only the single best dart counts (standard darts-golf rule).
+        Stroke scale relative to par=3 (a single): double=1 (eagle, or
+        albatross if it's holed on the very first dart), triple=2 (birdie),
+        single=3 (par), a different number on the board=4 (bogey), a true
+        miss=5 (double bogey)."""
+        state = self.players[pid]
+        metrics = self.players[pid]["metrics"]
+        hole_number = state["golf_hole"] + 1
+        best_stroke = 5
+        best_label = "double_bogeys"
+        used = []
+        for i, dart in enumerate(darts):
+            used.append(dart)
+            metrics["golf_darts"] += 1
+            if dart["number"] == hole_number and dart["multiplier"] == 2:
+                stroke, label = 1, ("albatrosses" if i == 0 else "eagles")
+            elif dart["number"] == hole_number and dart["multiplier"] == 3:
+                stroke, label = 2, "birdies"
+            elif dart["number"] == hole_number and dart["multiplier"] == 1:
+                stroke, label = 3, "pars"
+            elif dart["number"] == 0:
+                stroke, label = 5, "double_bogeys"
+            else:
+                stroke, label = 4, "bogeys"
+            if stroke < best_stroke:
+                best_stroke, best_label = stroke, label
+            if stroke == 1:
+                break  # can't beat an eagle/albatross with the remaining darts
+        metrics[best_label] += 1
+        metrics["golf_strokes_total"] += best_stroke
+        state["golf_strokes"].append(best_stroke)
+        state["golf_hole"] += 1
+        if state["golf_hole"] >= hole_count:
+            state["golf_done"] = True
+        return {"kind": "golf", "hole": hole_number, "strokes": best_stroke, "used": used,
+                "scored": best_stroke, "round_winner": None}
+
     def _generate_targets(self):
         rule = BITCOIN_DIFFICULTY_RULES[self.difficulty]
         out = []
@@ -278,15 +587,27 @@ class Game:
             used.append(dart)
         hit = not remaining
         reward = self.halving_reward if hit else 0
+        metrics = self.players[pid]["metrics"]
+        metrics["blocks_attempted"] += 1
+        metrics["bitcoin_darts"] += len(used)
         if hit:
             self.players[pid]["score"] += reward
             self.difficulty = min(8, self.difficulty + 1)
+            metrics["blocks_mined"] += 1
+            metrics["btc_earned"] += reward
+            metrics["best_block_reward"] = max(metrics["best_block_reward"], reward)
+            metrics["mine_streak"] += 1
+            metrics["best_mine_streak"] = max(metrics["best_mine_streak"], metrics["mine_streak"])
         else:
             self.difficulty = max(1, self.difficulty - 1)
+            metrics["mine_streak"] = 0
+        metrics["best_difficulty"] = max(metrics["best_difficulty"], self.difficulty)
         result = {"kind": "bitcoin", "player_id": pid, "entered_by": entered_by, "darts": used,
                   "round": self.round_no, "targets": self.targets, "hit": hit, "scored": reward,
                   "block": self.block_count, "difficulty": self.difficulty}
         self.history.append(result)
+        if pid == GHOST_ID and self.ghost:
+            self.ghost.react(hit)
 
         if hit and not self._can_catch_up():
             await self._finish_bitcoin()
@@ -306,6 +627,8 @@ class Game:
                 return
         self.targets = self._generate_targets()
         await self.ctx.broadcast(self._state("sa_state", last=result))
+        if pid != GHOST_ID:
+            await self._maybe_ghost_turn()
 
     def _max_possible_score(self):
         remaining_blocks = BITCOIN_TOTAL_BLOCKS - self.total_blocks
@@ -335,12 +658,24 @@ class Game:
         self.finished = True
         standings = sorted(self.order, key=lambda pid: self.players[pid]["score"], reverse=True)
         winner = standings[0]
+        real_standings = [pid for pid in standings if pid != GHOST_ID]
         records = [{"player_id": pid, "score": self.players[pid]["score"], "rank": i + 1, "is_winner": pid == winner}
-                   for i, pid in enumerate(standings)]
+                   for i, pid in enumerate(real_standings)]
         await self.ctx.broadcast(self._state("sa_finished", winner=winner))
+        had_rival = len([pid for pid in self.order if pid != GHOST_ID]) > 1 or self.ghost is not None
+        player_stats = {}
+        for pid in self.order:
+            if pid == GHOST_ID:
+                continue
+            m = dict(self.players[pid]["metrics"])
+            m["hit_rate"] = round((m["blocks_mined"] / m["blocks_attempted"] * 100) if m["blocks_attempted"] else 0, 2)
+            m["darts_per_block"] = round((m["bitcoin_darts"] / m["blocks_attempted"]) if m["blocks_attempted"] else 0, 2)
+            m["halvings_survived"] = self.halving_count
+            m["wins"] = (1 if pid == winner else 0) if had_rival else 0
+            player_stats[pid] = m
         await self.ctx.finish(records, metadata={"scorearena_mode": self.mode, "rounds": self.round_no,
                                                   "turns": len(self.history), "winner": winner,
-                                                  "turn_history": self.history})
+                                                  "player_stats": player_stats, "turn_history": self.history})
 
     def _reset_round(self):
         for pid in self.order:
@@ -354,16 +689,47 @@ class Game:
     async def _finish(self, winner):
         self.finished = True
         standings = sorted(self.order, key=lambda pid: (self.players[pid]["wins"], self.players[pid].get("score", 0)), reverse=True)
+        real_standings = [pid for pid in standings if pid != GHOST_ID]
         records = [{"player_id": pid, "score": self.players[pid]["wins"], "rank": i + 1, "is_winner": pid == winner}
-                   for i, pid in enumerate(standings)]
+                   for i, pid in enumerate(real_standings)]
         await self.ctx.broadcast(self._state("sa_finished", winner=winner))
+        had_rival = len([pid for pid in self.order if pid != GHOST_ID]) > 1 or self.ghost is not None
         player_stats = {}
         for pid in self.order:
+            if pid == GHOST_ID:
+                continue
             m = dict(self.players[pid]["metrics"])
             m["three_dart_average"] = round((m["points"] / m["darts"] * 3) if m["darts"] else 0, 2)
             m["checkout_rate"] = round((m["checkout_hits"] / m["checkout_attempts"] * 100) if m["checkout_attempts"] else 0, 2)
             m["mpr"] = round((m["marks_total"] / m["turns"]) if m["turns"] else 0, 2)
-            m["wins"] = self.players[pid]["wins"]
+            m["wins"] = self.players[pid]["wins"] if had_rival else 0
+            player_stats[pid] = m
+        await self.ctx.finish(records, metadata={"scorearena_mode": self.mode, "rounds": self.round_no,
+                                                  "turns": len(self.history), "winner": winner,
+                                                  "player_stats": player_stats, "turn_history": self.history})
+
+    async def _finish_golf(self):
+        """Pro/Mini Golf finish: unlike every other mode, completion isn't
+        'first to N wins' — everyone plays every hole, lowest total strokes
+        wins, exactly like real golf."""
+        self.finished = True
+        hole_count = GOLF_HOLE_COUNTS.get(self.mode, 18)
+        standings = sorted(self.order, key=lambda pid: self.players[pid]["metrics"]["golf_strokes_total"])
+        winner = standings[0]
+        real_standings = [pid for pid in standings if pid != GHOST_ID]
+        records = [{"player_id": pid, "score": self.players[pid]["metrics"]["golf_strokes_total"],
+                    "rank": i + 1, "is_winner": pid == winner}
+                   for i, pid in enumerate(real_standings)]
+        await self.ctx.broadcast(self._state("sa_finished", winner=winner))
+        had_rival = len([pid for pid in self.order if pid != GHOST_ID]) > 1 or self.ghost is not None
+        player_stats = {}
+        for pid in self.order:
+            if pid == GHOST_ID:
+                continue
+            m = dict(self.players[pid]["metrics"])
+            m["darts_per_target"] = round((m["golf_darts"] / hole_count) if hole_count else 0, 2)
+            m["avg"] = round((m["golf_strokes_total"] / hole_count) if hole_count else 0, 2)
+            m["wins"] = (1 if pid == winner else 0) if had_rival else 0
             player_stats[pid] = m
         await self.ctx.finish(records, metadata={"scorearena_mode": self.mode, "rounds": self.round_no,
                                                   "turns": len(self.history), "winner": winner,
@@ -372,6 +738,9 @@ class Game:
     def _state(self, kind, **extra):
         roster = {p["id"]: {k: p.get(k) for k in ("id", "display_name", "avatar_color", "avatar_svg", "connected")}
                   for p in self.ctx.all_players()}
+        if self.ghost and GHOST_ID in self.players:
+            roster[GHOST_ID] = {"id": GHOST_ID, "display_name": self.ghost_name, "avatar_color": "#8b5cf6",
+                                 "avatar_svg": None, "connected": True, "is_ghost": True, "mood": self.ghost.mood()}
         return {"type": kind, "mode": self.mode, "target_wins": self.target_wins, "order": self.order,
                 "turn_index": self.turn_index, "current_player_id": self.order[self.turn_index] if self.order else None,
                 "players": self.players, "roster": roster, "history": self.history[-20:], "round": self.round_no,

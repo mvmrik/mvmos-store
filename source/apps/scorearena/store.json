@@ -1,13 +1,20 @@
 {
   "tagline": "Every throw. Every rival. Every result.",
-  "description": "Score Arena turns a phone into a shared scorekeeper for games played around a real table or dartboard. Start a room with Game Hub profiles, choose the order, enter every throw and keep the complete result in each player's history.\n\nThe first release includes regulation Darts 501 with double-out and checkout suggestions, plus Cricket with marks, open numbers and proper scoring. The dartboard input is shared by both modes and ready for more darts games later.",
+  "description": "Score Arena turns a phone into a shared scorekeeper for games played around a real dartboard. Start a room with Game Hub profiles, choose the order, enter every throw and keep the complete result in each player's history.\n\nChoose from Darts 301 or 501, Cricket, Bitcoin Darts, Breakdown, Around the Clock, 18-hole Pro Golf and 9-hole Mini Golf. Each mode has its own rules, live targets, help and personal performance statistics.\n\nPractising alone no longer means playing against an empty table. Add the Ghost for a simulated rival whose skill is shaped by your recent results in the selected mode and whose form changes naturally during the match. The Ghost never becomes a profile or pollutes the player directory; only your own result is saved.",
   "capabilities": [
-    "Darts 501 with bust rules, double-out and checkout suggestions.",
+    "Darts 301 and 501 with bust rules, double-out and checkout suggestions.",
     "Cricket for two to eight players with marks and open-target scoring.",
+    "Bitcoin Darts with highlighted mining targets, adaptive difficulty, block rewards and halvings.",
+    "Breakdown and Around the Clock with live target guidance.",
+    "18-hole Pro Golf and 9-hole Mini Golf with per-hole strokecards.",
+    "A history-matched Ghost opponent for solo practice, with animated throws and changing form.",
+    "Mode-specific personal statistics before every game.",
     "Manual or dice-randomized starting order.",
     "Best-of match lengths and a complete turn history.",
     "Responsive dartboard designed for phones and larger screens.",
-    "Profile results, wins, losses and head-to-head history through Game Hub."
+    "Save and resume an unfinished solo game.",
+    "Profile results, wins, losses and head-to-head history through Game Hub.",
+    "Available in all nine mvmOS languages."
   ],
   "integrations": [{
     "app": "gamehub",

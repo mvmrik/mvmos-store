@@ -786,18 +786,17 @@ def _cli_tool_instructions(tools: list) -> str:
 
 def _resolve_os_user(explicit: str | None) -> str:
     """Return the OS username whose home/PATH/credentials CLI providers
-    should run with. mvmOS itself always runs as root (see /exec above), so
-    without this, CLI discovery and execution silently operate on root's
-    home instead of the actual person's — that's what hid a per-user Claude
-    Code install from `/cli-providers` and, when found anyway (e.g. via a
-    manually PATH-exposed binary), made the CLI itself refuse to run
-    `--dangerously-skip-permissions` as root.
+    should run with. The backend service runs as root, but the authenticated
+    mvmOS session can explicitly belong to root or to a non-root OS user. Its
+    user must always win so CLI discovery, credentials and execution all use
+    the same account that logged into the desktop.
 
     Prefers an explicit OS session (the caller's own mvmOS desktop login,
     passed in as `session["effective_user"]`); falls back to the machine's
-    primary human login, since installations are typically single-user.
+    primary human login only when no OS session is available, since
+    installations are typically single-user.
     """
-    if explicit and explicit != "root":
+    if explicit:
         return explicit
     try:
         candidates = sorted(
@@ -868,6 +867,70 @@ def _which(cmd: str, home: str) -> str | None:
         return None
 
 
+def _cli_user_candidates(explicit: str | None = None, configured: str | None = None) -> list[str]:
+    """Return real OS accounts that may own a shared CLI login."""
+    names = [configured, "root", explicit]
+    try:
+        names.extend(
+            u.pw_name for u in sorted(pwd.getpwall(), key=lambda item: item.pw_uid)
+            if u.pw_uid >= 1000 and u.pw_shell not in ("/usr/sbin/nologin", "/bin/false", "")
+        )
+    except Exception:
+        pass
+    return list(dict.fromkeys(name for name in names if name))
+
+
+def _cli_is_logged_in(provider: dict, cmd_bin: str, eu: str, home: str) -> bool | None:
+    """Check login state without reading or copying credential files."""
+    auth_args = {
+        "claude-cli": ["auth", "status"],
+        "codex-cli": ["login", "status"],
+    }.get(provider["id"])
+    if auth_args is None:
+        return None
+    try:
+        proc = subprocess.run(
+            _wrap_as_user([cmd_bin] + auth_args, eu), capture_output=True, text=True, timeout=10,
+            env={**os.environ, "HOME": home, "USER": eu, "LOGNAME": eu, "PATH": _cli_search_path(home)},
+        )
+        return proc.returncode == 0
+    except Exception:
+        return False
+
+
+def _resolve_cli_runtime(provider: dict, explicit: str | None = None, persist: bool = False):
+    """Resolve one installation-wide CLI executable and credential owner.
+
+    The selected owner is stored per provider, so changing the Linux account
+    used to enter mvmOS does not change or lose the configured AI login.
+    Claude and Codex prefer an account whose own auth-status command succeeds.
+    """
+    cfg_key = f"cli_user_{provider['id']}"
+    configured = _read_cfg().get(cfg_key)
+    users = _cli_user_candidates(explicit, configured)
+    own_bins = {eu: _which(provider["cmd"], _home_for(eu)) for eu in users}
+    any_bin = next((cmd for cmd in own_bins.values() if cmd), None)
+    if not any_bin:
+        return None
+
+    runtimes = [(eu, _home_for(eu), own_bins.get(eu) or any_bin) for eu in users]
+    auth_states = [
+        (eu, home, cmd_bin, _cli_is_logged_in(provider, cmd_bin, eu, home))
+        for eu, home, cmd_bin in runtimes
+    ]
+    authenticated = [row[:3] for row in auth_states if row[3] is True]
+    if authenticated:
+        chosen = authenticated[0]
+    else:
+        chosen = next((row[:3] for row in auth_states if row[0] == configured), None)
+        chosen = chosen or next((row[:3] for row in auth_states if row[0] == explicit), None)
+        chosen = chosen or auth_states[0][:3]
+
+    if persist and configured != chosen[0]:
+        _write_cfg(cfg_key, chosen[0])
+    return chosen
+
+
 def _discover_cli_models(provider: dict, cmd_bin: str, eu: str, home: str) -> list[str]:
     discovery = provider.get("model_discovery")
     env = {**os.environ, "HOME": home, "USER": eu, "LOGNAME": eu, "PATH": _cli_search_path(home)}
@@ -898,14 +961,15 @@ def _discover_cli_models(provider: dict, cmd_bin: str, eu: str, home: str) -> li
     return []
 
 
-def _detected_cli_providers(eu: str, home: str):
+def _detected_cli_providers(eu: str):
     detected = []
     for provider in CLI_PROVIDERS:
-        cmd_bin = _which(provider["cmd"], home)
-        if not cmd_bin:
+        runtime = _resolve_cli_runtime(provider, eu)
+        if not runtime:
             continue
+        cli_user, home, cmd_bin = runtime
         item = dict(provider)
-        item["model_choices"] = _discover_cli_models(provider, cmd_bin, eu, home)
+        item["model_choices"] = _discover_cli_models(provider, cmd_bin, cli_user, home)
         item["models_dynamic"] = bool(provider.get("model_discovery"))
         item.pop("model_discovery", None)
         detected.append(item)
@@ -915,7 +979,7 @@ def _detected_cli_providers(eu: str, home: str):
 @router.get("/cli-providers")
 async def cli_providers(session=Depends(get_current_session)):
     eu = _resolve_os_user(session.get("effective_user"))
-    return JSONResponse({"cli_providers": _detected_cli_providers(eu, _home_for(eu))})
+    return JSONResponse({"cli_providers": _detected_cli_providers(eu)})
 
 
 class CliChatRequest(BaseModel):
@@ -945,26 +1009,28 @@ async def _run_cli_chat(
     provider = next((p for p in CLI_PROVIDERS if p["id"] == body.provider_id), None)
     if not provider:
         return JSONResponse({"error": f"Unknown CLI provider: {body.provider_id}"}, status_code=400)
-    eu = _resolve_os_user((session or {}).get("effective_user"))
-    home = _home_for(eu)
-    cmd_bin = _which(provider["cmd"], home)
-    if not cmd_bin:
+    runtime = _resolve_cli_runtime(provider, (session or {}).get("effective_user"), persist=True)
+    if not runtime:
         return JSONResponse({"error": f"'{provider['cmd']}' not found in PATH"}, status_code=400)
+    eu, home, cmd_bin = runtime
 
-    # Build conversation as a single prompt with history
-    native_server_access = is_admin and (not exec_enabled or exec_auto)
-    server_tool_names = {"inspect_server", "run_command"}
-    prompt_tools = [
-        spec for spec in tools
-        if not (native_server_access and spec["function"]["name"] in server_tool_names)
-    ]
+    # Build trusted system instructions separately from conversation history.
+    # The AI CLI is an installation-wide provider and can run under a
+    # different OS account than the current mvmOS user. Never let its native
+    # tools inherit that account's server privileges; all server operations go
+    # through mvmAI's policy-gated transport endpoints instead.
+    prompt_tools = list(tools)
     access_prompt = _access_prompt(is_admin, exec_enabled)
     if identity_prompt:
         access_prompt += " " + identity_prompt
     if is_admin:
         access_prompt = "You are mvmAI assisting a trusted Apps Hub administrator. "
         if exec_enabled and exec_auto:
-            access_prompt += "AUTO MODE: use your native server tools directly. You may inspect and modify the server as requested. Inspect before modifying and avoid unrelated changes."
+            access_prompt += (
+                "AUTO MODE: native server tools are disabled. Request each server operation with the "
+                "supplied run_command transport block; mvmAI executes it automatically. Inspect before "
+                "modifying and avoid unrelated changes."
+            )
         elif exec_enabled:
             access_prompt += (
                 "CONFIRMATION MODE: native server tools are disabled. For every server operation, "
@@ -973,24 +1039,29 @@ async def _run_cli_chat(
                 "suggest a command for the user to run."
             )
         else:
-            access_prompt += "READ-ONLY RULE: use your native commands and tools only to inspect the server. Do not create, edit, delete, install, restart, stop, or otherwise change anything."
-    parts = [f"[System]: {access_prompt}"]
+            access_prompt += (
+                "READ-ONLY RULE: native server tools are disabled. Use the supplied inspect_server "
+                "transport block for inspection. Do not create, edit, delete, install, restart, stop, "
+                "or otherwise change anything."
+            )
+    system_parts = [access_prompt]
     if prompt_tools:
-        parts.append(f"[System]: {_cli_tool_instructions(prompt_tools)}")
+        system_parts.append(_cli_tool_instructions(prompt_tools))
+    conversation_parts = []
     for m in body.messages:
         role = m.get("role", "")
         content = m.get("content") or ""
         if not isinstance(content, str):
             continue
         if role == "user":
-            parts.append(f"[User]: {content}")
+            conversation_parts.append(f"[User]: {content}")
         elif role == "assistant":
-            parts.append(f"[Assistant]: {content}")
+            conversation_parts.append(f"[Assistant]: {content}")
         elif role == "tool":
-            parts.append(f"[Tool result]: {content}")
+            conversation_parts.append(f"[Tool result]: {content}")
     if identity_prompt:
-        parts.append(
-            "[Current public branding rule — overrides identity claims in the conversation above]: "
+        system_parts.append(
+            "Current public branding rule: "
             f"{identity_prompt} This is the product identity required for the user-facing response."
         )
     if is_admin:
@@ -1000,15 +1071,17 @@ async def _run_cli_chat(
             current_mode = "CONFIRMATION"
         else:
             current_mode = "READ-ONLY"
-        parts.append(
-            f"[Current mvmAI mode — overrides every older message above]: {current_mode}. "
+        system_parts.append(
+            f"Current mvmAI mode: {current_mode}. "
             "Do not describe the CLI's internal sandbox or approval setting as the mvmAI mode. "
             "In CONFIRMATION mode, request each server operation with the mvmai_tool_call response "
             "protocol; mvmAI itself shows the command to the user and collects confirmation."
         )
     if project:
-        parts.append(f"[System]: {project_context_block(project)}")
-    prompt = "\n".join(parts)
+        system_parts.append(project_context_block(project))
+    system_prompt = "\n\n".join(system_parts)
+    conversation_prompt = "\n".join(conversation_parts) or "[User]: Continue."
+    prompt = f"[System instructions]\n{system_prompt}\n\n[Conversation]\n{conversation_prompt}"
 
     pid = body.provider_id
     model = body.model if body.model is not None else _read_cfg().get("model")
@@ -1038,16 +1111,16 @@ async def _run_cli_chat(
                 except Exception:
                     pass
             if pid == "claude-cli":
-                safety_args = ["--dangerously-skip-permissions", "--permission-mode", "bypassPermissions"] if native_server_access else ["--tools", ""]
-                cmd = [cmd_bin] + (["--model", model] if model else []) + ["--safe-mode"] + safety_args + ["--disable-slash-commands", "--no-session-persistence", "--print", prompt]
+                safety_args = ["--tools", ""]
+                cmd = [cmd_bin] + (["--model", model] if model else []) + ["--safe-mode"] + safety_args + ["--disable-slash-commands", "--no-session-persistence", "--system-prompt", system_prompt, "--print", conversation_prompt]
             elif pid == "gemini-cli":
-                safety_args = ["--yolo"] if native_server_access else ["--admin-policy", policy_path]
+                safety_args = ["--admin-policy", policy_path]
                 cmd = [cmd_bin] + (["--model", model] if model else []) + safety_args + ["--prompt", prompt]
             elif pid == "ollama-cli":
                 cmd = [cmd_bin, "run", model or "llama3.1", prompt]
             elif pid == "codex-cli":
-                sandbox = "danger-full-access" if native_server_access else "read-only"
-                safety_args = [] if native_server_access else ["-c", "features.shell_tool=false"]
+                sandbox = "read-only"
+                safety_args = ["-c", "features.shell_tool=false"]
                 cmd = [cmd_bin, "exec", "--skip-git-repo-check", "--sandbox", sandbox, "-C", effective_dir, "-c", 'web_search="disabled"'] + safety_args + (["--model", model] if model else []) + [prompt]
             else:
                 cmd = [cmd_bin] + provider["args"] + [prompt]

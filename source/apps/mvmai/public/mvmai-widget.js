@@ -207,6 +207,7 @@
     var activeProject = null;   // {id, name, path} — fixed at session creation
     var sessionsCache = [];
     var projectPoll = null;
+    var providerPoll = null;
 
     function api(path, options) {
       options = options || {};
@@ -214,6 +215,7 @@
         {'X-Pub-Token': token, 'Content-Type': 'application/json'},
         options.headers || {}
       );
+      if (isDesktop) headers['X-MvmAI-Surface'] = 'desktop';
       return fetch(API + path, Object.assign({}, options, {headers: headers})).then(async function (response) {
         var data = await response.json().catch(function () { return {}; });
         if (response.status === 401 && opts.onNeedLogin) opts.onNeedLogin(root);
@@ -232,6 +234,11 @@
       me = data;
       renderShell();
     });
+
+    function messagePlaceholder() {
+      var provider = me && me.is_admin && me.provider_label ? me.provider_label : 'mvmAI';
+      return t('mvmai_pub_placeholder').replace('mvmAI', provider);
+    }
 
     function renderShell() {
       var priceHint = '';
@@ -279,7 +286,7 @@
           </div>
           <div class="mvmai-list"></div>
           <div class="mvmai-inputbar">
-            <textarea class="mvmai-input" rows="1" placeholder="${esc(t('mvmai_pub_placeholder'))}"></textarea>
+            <textarea class="mvmai-input" rows="1" placeholder="${esc(messagePlaceholder())}"></textarea>
             <button class="mvmai-send">${esc(t('mvmai_pub_send'))}</button>
           </div>
         </div>
@@ -293,6 +300,22 @@
       var sidebarListEl = root.querySelector('.mvmai-sidebar-list');
       var histBtn = root.querySelector('.mvmai-hist-btn');
       var newChatBtn = root.querySelector('.mvmai-new-chat');
+
+      function refreshProviderMetadata() {
+        if (!me.is_admin) return Promise.resolve();
+        return api('/me').then(function (freshMe) {
+          if (freshMe.__status !== 200) return;
+          me = freshMe;
+          inputEl.placeholder = messagePlaceholder();
+        });
+      }
+
+      if (isDesktop && me.is_admin) {
+        providerPoll = setInterval(function () {
+          if (!root.isConnected) { clearInterval(providerPoll); return; }
+          refreshProviderMetadata();
+        }, 1000);
+      }
 
       if (me.is_admin) {
         var execWrap = root.querySelector('.mvmai-exec-wrap');
@@ -1098,7 +1121,11 @@
             }
           });
         }
-        step();
+        // Settings can change while this widget remains mounted in the
+        // desktop app. Refresh the admin/provider metadata before the turn so
+        // the response label reflects the provider the backend will actually
+        // read from the database for this request.
+        refreshProviderMetadata().then(function () { step(); }).catch(function () { step(); });
       }
 
       sendEl.onclick = send;
@@ -1114,7 +1141,7 @@
       });
     }
 
-    return { destroy: function () { clearInterval(projectPoll); } };
+    return { destroy: function () { clearInterval(projectPoll); clearInterval(providerPoll); } };
   }
 
   window.MvmaiWidget = { mount: mount };
