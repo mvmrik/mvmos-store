@@ -71,7 +71,7 @@ const ChatWidget = (() => {
 .cw-search-results{position:absolute;left:10px;right:10px;top:100%;background:var(--pub-surface1, #181825);border:1px solid var(--pub-surface2, #313244);border-radius:6px;margin-top:4px;max-height:260px;overflow-y:auto;z-index:5;display:none}
 .cw-search-results.show{display:block}
 .cw-result,.cw-conv{display:flex;align-items:center;gap:10px;padding:10px;cursor:pointer;border-bottom:1px solid #26263a}
-.cw-result:hover,.cw-conv:hover{background:#292941}
+.cw-result:hover,.cw-conv:hover{background:var(--pub-surface2, #292941)}
 .cw-conv.active{background:var(--pub-surface2, #313244)}
 .cw-conv-list,.cw-contacts-list{flex:1;overflow-y:auto;min-height:0}
 .cw-sidebar-tabs{display:flex;border-bottom:1px solid var(--pub-surface2, #313244);flex-shrink:0}
@@ -117,7 +117,7 @@ const ChatWidget = (() => {
 .cw-modal{background:var(--pub-bg, #1e1e2e);border:1px solid var(--pub-surface2, #313244);border-radius:12px;padding:18px;width:280px;display:flex;flex-direction:column;gap:8px}
 .cw-modal-title{font-weight:700;font-size:.95rem;margin-bottom:4px}
 .cw-modal-btn{background:var(--pub-surface2, #313244);border:none;color:var(--pub-fg, #cdd6f4);border-radius:8px;padding:10px;font-size:.85rem;cursor:pointer;text-align:center}
-.cw-modal-btn:hover{background:#3b3b54}
+.cw-modal-btn:hover{background:var(--pub-border, #3b3b54)}
 .cw-modal-btn.danger{color:var(--pub-red, #f38ba8)}
 .cw-modal-btn.cancel{background:none;color:var(--pub-dim, #6c7086);margin-top:2px}
 .cw-login{display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:12px;color:var(--pub-fg2, #a6adc8)}

@@ -10,6 +10,11 @@
       "title": "Public page AI",
       "short": "Use a different AI provider and model for the public page",
       "description": "mvmAI's public page can talk to a different provider and model than the desktop app — for example, a cheaper or faster model for anonymous visitors while the desktop keeps a stronger one for the administrator. Without a subscription the public page always uses the same provider and model configured for the desktop."
+    },
+    {
+      "title": "Adjustable chat history",
+      "short": "Choose how many recent messages stay in full before mvmAI summarizes",
+      "description": "mvmAI keeps a chat's most recent messages in full and folds everything older into a running summary, so long conversations don't grow more expensive per reply forever. With a subscription the administrator can raise or lower how many recent messages stay in full, on both the desktop app and the public page. Without a subscription this is fixed at 20 messages."
     }
   ]
 }

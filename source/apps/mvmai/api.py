@@ -32,6 +32,7 @@ Trust model:
     applies uniformly, including to the admin's own account.
 """
 
+import asyncio
 import json
 import os
 import re
@@ -279,6 +280,7 @@ async def get_me(
         "has_api_bridge": bool(prem and prem.is_available() and desk is not None and desk._read_cfg().get("pub_data_bridge_enabled")),
         "credit_price": price,
         "credit_balance": hub.get_credit_balance(me["id"]) if hub else 0,
+        "compact_keep_recent": prem.resolve_compact_keep_recent(desk._read_cfg()) if (prem and desk is not None) else 20,
         **({"provider_label": _provider_label(desk, prem, use_public=not is_desktop)} if me.get("is_admin") else {}),
     })
 
@@ -629,7 +631,8 @@ async def exec_command(
     # Plain bash (no runuser involved here), so cwd= is honored directly.
     cwd = desk.resolve_project_cwd(body.project_id)
     try:
-        proc = subprocess.run(
+        proc = await asyncio.to_thread(
+            subprocess.run,
             ["/bin/bash", "-lc", cmd], capture_output=True, text=True, timeout=120, cwd=cwd,
         )
         return JSONResponse({

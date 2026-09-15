@@ -15,8 +15,18 @@
     });
   }
 
+  function isLightTheme() {
+    var pref = localStorage.getItem('apphub_theme') || 'dark';
+    if (pref === 'auto') return !(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    return pref === 'light';
+  }
+
   function color(name) {
-    var palette = ['#89b4fa','#a6e3a1','#fab387','#f38ba8','#cba6f7','#94e2d5','#f9e2af','#74c7ec'];
+    // Two palettes so hash-based account colors stay readable in both
+    // themes: the dark-theme pastels are too pale against a light card.
+    var palette = isLightTheme()
+      ? ['#1868c7','#1a7f37','#bc4b0f','#cf222e','#8250df','#0d8577','#9a6700','#0a6ebd']
+      : ['#89b4fa','#a6e3a1','#fab387','#f38ba8','#cba6f7','#94e2d5','#f9e2af','#74c7ec'];
     var hash = 0;
     for (var i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) | 0;
     return palette[Math.abs(hash) % palette.length];

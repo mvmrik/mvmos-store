@@ -239,7 +239,7 @@
 
 .msh-badge-prem {
   background: var(--pub-yellow, #f9e2af);
-  color: #11111b;
+  color: var(--pub-bg, #11111b);
   border-radius: 999px;
   padding: 2px 9px;
   font-size: .68rem;
@@ -269,7 +269,7 @@
 .msh-btn:hover { filter: brightness(1.12); }
 .msh-btn:disabled { opacity: .6; cursor: default; filter: none; }
 
-.msh-btn-main { background: var(--pub-accent, #89b4fa); color: #11111b; }
+.msh-btn-main { background: var(--pub-accent, #89b4fa); color: var(--pub-bg, #11111b); }
 .msh-btn-ghost { background: transparent; border: 1px solid var(--pub-border, #45475a); }
 .msh-btn-danger { background: transparent; border: 1px solid var(--pub-red, #f38ba8); color: var(--pub-red, #f38ba8); }
 .msh-btn-sm { padding: 6px 10px; font-size: .78rem; }

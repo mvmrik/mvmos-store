@@ -54,8 +54,8 @@
         overflow-wrap:anywhere;white-space:normal}
       .mvmai-msg.user{align-self:flex-end;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}
       .mvmai-msg.assistant{align-self:flex-start;background:var(--pub-surface2,#313244)}
-      .mvmai-provider-label{margin-top:.45rem;padding-top:.35rem;border-top:1px solid rgba(255,255,255,.09);
-        color:var(--pub-dim,#6c7086);font-size:.68rem;line-height:1.2}
+      .mvmai-provider-label{margin-top:.45rem;padding-top:.35rem;border-top:1px solid var(--pub-border,rgba(255,255,255,.09));
+        color:var(--pub-dim,#6c7086);font-size:.68rem;line-height:1.2;white-space:nowrap;width:max-content;max-width:100%}
       .mvmai-msg.system-note{align-self:center;background:none;color:var(--pub-dim,#6c7086);font-size:.78rem;
         text-align:center;max-width:100%}
       .mvmai-tool-card{align-self:flex-start;max-width:90%;background:var(--pub-crust,#2a2a3d);
@@ -66,6 +66,17 @@
       .mvmai-tool-card .mvmai-tool-out{font-family:monospace;font-size:.74rem;white-space:pre-wrap;
         overflow-wrap:anywhere;max-height:14rem;overflow-y:auto;color:var(--pub-fg2,#a6adc8)}
       .mvmai-tool-card .mvmai-dangerous{color:var(--pub-red,#f38ba8)}
+      .mvmai-tool-card .mvmai-tool-toggle{background:none;border:1px solid var(--pub-border,#45475a);
+        color:var(--pub-dim,#6c7086);border-radius:.35rem;padding:.15rem .5rem;font-size:.72rem;
+        cursor:pointer;margin:.1rem 0 .3rem;display:inline-block}
+      .mvmai-tool-card .mvmai-tool-toggle:hover{color:var(--pub-fg,#cdd6f4);border-color:var(--pub-accent,#89b4fa)}
+      .mvmai-msg.system-note .mvmai-tool-toggle{background:none;border:1px solid var(--pub-border,#45475a);
+        color:var(--pub-dim,#6c7086);border-radius:.35rem;padding:.15rem .5rem;font-size:.72rem;
+        cursor:pointer;margin-top:.3rem}
+      .mvmai-msg.system-note .mvmai-tool-out{text-align:left;font-family:monospace;font-size:.74rem;
+        white-space:pre-wrap;overflow-wrap:anywhere;max-height:14rem;overflow-y:auto;
+        color:var(--pub-fg2,#a6adc8);margin-top:.3rem;background:var(--pub-surface2,#313244);
+        border-radius:.35rem;padding:.4rem .5rem}
       .mvmai-confirm-row{display:flex;gap:.5rem;margin-top:.4rem}
       .mvmai-confirm-row button{border:0;border-radius:.4rem;padding:.35rem .8rem;font-size:.8rem;
         font-weight:600;cursor:pointer}
@@ -87,7 +98,7 @@
         opacity:0;pointer-events:none;transition:opacity .18s ease}
       .mvmai-sidebar-backdrop.open{opacity:1;pointer-events:auto}
       .mvmai-sidebar{position:absolute;top:0;left:0;bottom:0;width:80%;max-width:280px;
-        background:var(--pub-surface,#181825);border-right:1px solid var(--pub-border,#45475a);
+        background:var(--pub-surface1,#181825);border-right:1px solid var(--pub-border,#45475a);
         transform:translateX(-100%);transition:transform .18s ease;z-index:5;display:flex;flex-direction:column;
         overflow:hidden}
       .mvmai-sidebar.open{transform:translateX(0)}
@@ -115,7 +126,7 @@
       .mvmai-exec-btn.on{border-color:var(--pub-accent,#89b4fa);color:var(--pub-accent,#89b4fa)}
       .mvmai-exec-btn.auto{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);border-color:var(--pub-accent,#89b4fa)}
       .mvmai-exec-menu{position:absolute;top:calc(100% + .4rem);right:0;width:220px;max-width:80vw;z-index:6;
-        background:var(--pub-surface,#181825);border:1px solid var(--pub-border,#45475a);border-radius:.5rem;
+        background:var(--pub-surface1,#181825);border:1px solid var(--pub-border,#45475a);border-radius:.5rem;
         padding:.6rem;display:flex;flex-direction:column;gap:.5rem;font-size:.78rem}
       .mvmai-exec-menu[hidden]{display:none}
       .mvmai-exec-row{display:flex;align-items:flex-start;gap:.4rem;cursor:pointer;line-height:1.35}
@@ -160,17 +171,17 @@
       .mvmai-ft-name{flex:1;overflow:hidden;text-overflow:ellipsis}
       .mvmai-ft-children{padding-left:.7rem}
       .mvmai-ft-badge{font-size:.62rem;font-weight:700;padding:0 .3rem;border-radius:.3rem;flex-shrink:0}
-      .mvmai-ft-badge.mvmai-ft-M{background:rgba(224,160,0,.2);color:#e0a000}
-      .mvmai-ft-badge.mvmai-ft-A{background:rgba(76,174,90,.2);color:#4cae5a}
-      .mvmai-ft-badge.mvmai-ft-D{background:rgba(226,85,85,.2);color:#e25555}
+      .mvmai-ft-badge.mvmai-ft-M{background:color-mix(in srgb,var(--pub-yellow,#e0a000) 20%,transparent);color:var(--pub-yellow,#e0a000)}
+      .mvmai-ft-badge.mvmai-ft-A{background:color-mix(in srgb,var(--pub-green,#4cae5a) 20%,transparent);color:var(--pub-green,#4cae5a)}
+      .mvmai-ft-badge.mvmai-ft-D{background:color-mix(in srgb,var(--pub-red,#e25555) 20%,transparent);color:var(--pub-red,#e25555)}
       .mvmai-ft-badge.mvmai-ft-U{background:rgba(127,127,127,.2);color:var(--pub-dim,#6c7086)}
-      .mvmai-ft-badge.mvmai-ft-dir-badge{background:rgba(224,160,0,.25);color:#e0a000;border-radius:1rem;
+      .mvmai-ft-badge.mvmai-ft-dir-badge{background:color-mix(in srgb,var(--pub-yellow,#e0a000) 25%,transparent);color:var(--pub-yellow,#e0a000);border-radius:1rem;
         min-width:1.1em;text-align:center}
       .mvmai-browse-row{padding:.5rem .55rem;cursor:pointer;font-size:.82rem;border-radius:.4rem}
       .mvmai-browse-row:hover{background:var(--pub-surface2,#313244)}
       .mvmai-pub-dialog-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:20;display:flex;
         align-items:center;justify-content:center}
-      .mvmai-pub-dialog{background:var(--pub-surface,#181825);border:1px solid var(--pub-border,#45475a);
+      .mvmai-pub-dialog{background:var(--pub-surface1,#181825);border:1px solid var(--pub-border,#45475a);
         border-radius:.6rem;padding:1rem;width:88%;max-width:340px;max-height:75%;display:flex;flex-direction:column;
         gap:.6rem;overflow:hidden}
       .mvmai-pub-dialog-title{font-weight:700;font-size:.92rem}
@@ -758,7 +769,7 @@
           sessionsCache = data.sessions || [];
           var sessions = activeProject
             ? sessionsCache.filter(function (s) { return s.project_id === activeProject.id; })
-            : sessionsCache;
+            : sessionsCache.filter(function (s) { return !s.project_id; });
           if (!sessions.length) {
             sidebarListEl.innerHTML = '<div class="mvmai-no-sessions">' + esc(t('mvmai_pub_no_sessions')) + '</div>';
             return;
@@ -848,7 +859,10 @@
           listEl.innerHTML = '';
           var any = false;
           history.forEach(function (m) {
-            if ((m.role === 'user' || m.role === 'assistant') && m.content) {
+            if (m.role === 'summary' && m.content) {
+              addCompactedNote(m.content);
+              any = true;
+            } else if ((m.role === 'user' || m.role === 'assistant') && m.content) {
               addBubble(m.role, m.content);
               any = true;
             }
@@ -890,6 +904,59 @@
         el.textContent = text;
         listEl.appendChild(el);
         scrollDown();
+      }
+
+      function addCompactedNote(summaryText) {
+        var el = document.createElement('div');
+        el.className = 'mvmai-msg system-note';
+        el.textContent = t('mvmai_pub_compacted_note');
+        if (summaryText) {
+          var body = document.createElement('div');
+          body.className = 'mvmai-tool-out';
+          body.textContent = summaryText;
+          body.hidden = true;
+          var toggle = document.createElement('button');
+          toggle.type = 'button';
+          toggle.className = 'mvmai-tool-toggle';
+          function sync() {
+            toggle.textContent = (body.hidden ? '▸ ' : '▾ ') + t(body.hidden ? 'mvmai_pub_view_summary' : 'mvmai_pub_show_less');
+          }
+          toggle.onclick = function () { body.hidden = !body.hidden; sync(); scrollDown(); };
+          sync();
+          el.appendChild(document.createElement('br'));
+          el.appendChild(toggle);
+          el.appendChild(body);
+        }
+        listEl.appendChild(el);
+        scrollDown();
+      }
+
+      // Shows only a short single-line preview of a command/output block by
+      // default; the rest (full multi-line command, full output) stays
+      // hidden behind a toggle so long tool output doesn't dominate the
+      // chat, but is one click away when the user wants to inspect it.
+      function shortPreview(text) {
+        var s = text || '';
+        var line = s.split('\n')[0];
+        if (line.length > 80) return line.slice(0, 80) + '…';
+        if (s.indexOf('\n') !== -1) return line + ' …';
+        return line;
+      }
+
+      function addDetailsToggle(card) {
+        var details = document.createElement('div');
+        details.hidden = true;
+        var toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'mvmai-tool-toggle';
+        function sync() {
+          toggle.textContent = (details.hidden ? '▸ ' : '▾ ') + t(details.hidden ? 'mvmai_pub_show_more' : 'mvmai_pub_show_less');
+        }
+        toggle.onclick = function () { details.hidden = !details.hidden; sync(); scrollDown(); };
+        sync();
+        card.appendChild(toggle);
+        card.appendChild(details);
+        return details;
       }
 
       function addTyping() {
@@ -946,10 +1013,18 @@
       function inspectServerCall(args) {
         var card = document.createElement('div');
         card.className = 'mvmai-tool-card';
+        var fullCmd = args.command || '';
         card.innerHTML =
           '<div class="mvmai-tool-head">🔎 ' + esc(t('mvmai_pub_using_tool', {name: 'inspect_server'})) + '</div>' +
-          '<div class="mvmai-tool-cmd">' + esc(args.command || '') + '</div>';
+          '<div class="mvmai-tool-cmd">' + esc(shortPreview(fullCmd)) + '</div>';
         listEl.appendChild(card);
+        var details = addDetailsToggle(card);
+        if (fullCmd !== shortPreview(fullCmd)) {
+          var fullCmdEl = document.createElement('div');
+          fullCmdEl.className = 'mvmai-tool-cmd';
+          fullCmdEl.textContent = fullCmd;
+          details.appendChild(fullCmdEl);
+        }
         scrollDown();
         return api('/inspect', {method: 'POST', body: JSON.stringify({
           command: args.command || '', reason: args.reason || '', project_id: activeProject ? activeProject.id : null
@@ -958,7 +1033,7 @@
           var out = document.createElement('div');
           out.className = 'mvmai-tool-out';
           out.textContent = data.__status === 200 ? JSON.stringify(data.result, null, 2) : (data.error || 'forbidden');
-          card.appendChild(out);
+          details.appendChild(out);
           scrollDown();
           return content;
         });
@@ -967,12 +1042,20 @@
       function runCommandCall(args) {
         var card = document.createElement('div');
         card.className = 'mvmai-tool-card';
+        var fullCmd = args.command || '';
         card.innerHTML =
           '<div class="mvmai-tool-head">▶ ' + esc(t('mvmai_pub_cmd_label')) + '</div>' +
-          '<div class="mvmai-tool-cmd">' + esc(args.command || '') + '</div>' +
+          '<div class="mvmai-tool-cmd">' + esc(shortPreview(fullCmd)) + '</div>' +
           (args.reason ? '<div style="color:var(--pub-dim,#6c7086);font-size:.76rem;margin-bottom:.3rem">' +
             esc(t('mvmai_pub_reason_label')) + ': ' + esc(args.reason) + '</div>' : '');
         listEl.appendChild(card);
+        var details = addDetailsToggle(card);
+        if (fullCmd !== shortPreview(fullCmd)) {
+          var fullCmdEl = document.createElement('div');
+          fullCmdEl.className = 'mvmai-tool-cmd';
+          fullCmdEl.textContent = fullCmd;
+          details.appendChild(fullCmdEl);
+        }
         scrollDown();
 
         function exec(confirmed) {
@@ -992,7 +1075,7 @@
           out.textContent =
             (data.stdout || '') + (data.stderr ? '\n' + data.stderr : '') +
             '\n[' + t('mvmai_pub_exit_code') + ' ' + data.code + ']';
-          card.appendChild(out);
+          details.appendChild(out);
           return JSON.stringify({stdout: data.stdout, stderr: data.stderr, code: data.code});
         }
 
@@ -1038,44 +1121,58 @@
       }
 
       // ── history compaction ─────────────────────────────────────────────────────
-      // Once a chat grows past COMPACT_THRESHOLD messages, fold everything except
-      // the most recent 20 into a single running summary, so token cost per
-      // message stays bounded instead of re-sending the whole conversation
-      // forever. no_persist:true keeps this maintenance call off the visible
-      // history, off credit charging, and off the session it belongs to.
-      var COMPACT_THRESHOLD = 40;
+      // Once a chat grows past 2x the keep-recent count, fold everything except
+      // the most recent `keepRecent` messages into a single running summary, so
+      // token cost per message stays bounded instead of re-sending the whole
+      // conversation forever. no_persist:true keeps this maintenance call off
+      // the visible history, off credit charging, and off the session it
+      // belongs to. keepRecent itself defaults to 20 and is only adjustable
+      // with a Premium licence (me.compact_keep_recent, resolved server-side
+      // in premium/backend.py's resolve_compact_keep_recent).
+      function compactKeepRecent() {
+        var v = me && me.compact_keep_recent;
+        return (typeof v === 'number' && v > 0) ? v : 20;
+      }
 
       function maybeCompact() {
+        var keepRecent = compactKeepRecent();
         var nonSummary = history.filter(function (m) { return m.role !== 'summary'; });
-        if (nonSummary.length < COMPACT_THRESHOLD) return;
-        var toSummarize = nonSummary.slice(0, nonSummary.length - 20);
+        if (nonSummary.length < keepRecent * 2) return;
+        var toSummarize = nonSummary.slice(0, nonSummary.length - keepRecent);
         if (!toSummarize.length) return;
 
         var prevSummary = history.filter(function (m) { return m.role === 'summary'; })[0];
         var prevText = prevSummary ? prevSummary.content : null;
         var historyLines = toSummarize
-          .filter(function (m) { return m.role === 'user' || m.role === 'assistant'; })
-          .map(function (m) { return (m.role === 'user' ? 'User' : 'Assistant') + ': ' + (m.content || ''); })
+          .filter(function (m) { return m.role === 'user' || m.role === 'assistant' || m.role === 'tool'; })
+          .map(function (m) {
+            var label = m.role === 'user' ? 'User' : (m.role === 'assistant' ? 'Assistant' : 'Tool result');
+            return label + ': ' + (m.content || '');
+          })
           .join('\n');
         var compactInstruction = prevText
-          ? 'Here is the previous summary:\n' + prevText + '\n\nHere is the new conversation to add to it:\n' + historyLines + '\n\nWrite an updated single summary covering everything. Be concise but include key topics, decisions, and context.'
-          : 'Summarize this conversation concisely. Include key topics, decisions, and important context:\n' + historyLines;
+          ? 'Here is the previous summary:\n' + prevText + '\n\nHere is the new conversation to add to it:\n' + historyLines + '\n\nWrite an updated single summary covering everything. Be concise but include key topics, decisions, context, and which run_command/tool calls actually succeeded (with their real results) so that capability is not lost or doubted later.'
+          : 'Summarize this conversation concisely. Include key topics, decisions, important context, and which run_command/tool calls actually succeeded (with their real results) so that capability is not lost or doubted later:\n' + historyLines;
 
         api('/chat', {method: 'POST', body: JSON.stringify({
           messages: [{role: 'user', content: compactInstruction}],
           no_persist: true,
         })}).then(function (data) {
           if (data.__status !== 200 || !data.message || !data.message.content) return;
-          var recent = nonSummary.slice(nonSummary.length - 20);
+          var recent = nonSummary.slice(nonSummary.length - keepRecent);
           history = [{role: 'summary', content: data.message.content}].concat(recent);
           // Match what's actually stored from here on -- the summarized bubbles
           // are gone from the persisted history the moment the next real
           // message is sent, so keep the screen in sync now rather than lie.
           listEl.innerHTML = '';
-          addNote(t('mvmai_pub_compacted_note'));
           recent.forEach(function (m) {
             if ((m.role === 'user' || m.role === 'assistant') && m.content) addBubble(m.role, m.content);
           });
+          // Rendered after the recent bubbles (even though it summarizes the
+          // older ones) so it lands as the newest, bottom-most item -- the
+          // user is scrolled to the bottom mid-conversation and should see
+          // it without having to scroll up looking for it.
+          addCompactedNote(data.message.content);
           scrollDown();
         }).catch(function () {});
       }

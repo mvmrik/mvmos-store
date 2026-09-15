@@ -8,7 +8,9 @@ SQLite DB (apps/mvmai/data.db, cfg table) — the key is read server-side and is
 never sent back to the browser.
 """
 
+import asyncio
 import json
+import logging
 import os
 import pwd
 import re
@@ -631,7 +633,8 @@ async def exec_command(body: ExecRequest, x_pub_token: str = Header(default=None
         home = "/root"
 
     try:
-        proc = subprocess.run(
+        proc = await asyncio.to_thread(
+            subprocess.run,
             wrapped, capture_output=True, text=True, timeout=120,
             cwd=project_cwd or home, env={**os.environ, "HOME": home, "USER": eu, "LOGNAME": eu},
         )
@@ -658,7 +661,8 @@ async def inspect_server(body: InspectRequest, x_pub_token: str = Header(default
     if not _is_apps_hub_admin(x_pub_token):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     try:
-        return JSONResponse({"result": _run_readonly_command(body.command, resolve_project_cwd(body.project_id))})
+        result = await asyncio.to_thread(_run_readonly_command, body.command, resolve_project_cwd(body.project_id))
+        return JSONResponse({"result": result})
     except Exception as exc:
         return JSONResponse({"error": str(exc)}, status_code=400)
 
@@ -721,7 +725,7 @@ async def projects_git_status(project_id: str, x_pub_token: str = Header(default
     project = _get_project(project_id)
     if not project:
         return JSONResponse({"error": "Project not found"}, status_code=404)
-    return JSONResponse(project_git_status(project["path"]))
+    return JSONResponse(await asyncio.to_thread(project_git_status, project["path"]))
 
 
 @router.get("/browse")
@@ -979,7 +983,7 @@ def _detected_cli_providers(eu: str):
 @router.get("/cli-providers")
 async def cli_providers(session=Depends(get_current_session)):
     eu = _resolve_os_user(session.get("effective_user"))
-    return JSONResponse({"cli_providers": _detected_cli_providers(eu)})
+    return JSONResponse({"cli_providers": await asyncio.to_thread(_detected_cli_providers, eu)})
 
 
 class CliChatRequest(BaseModel):
@@ -1009,7 +1013,7 @@ async def _run_cli_chat(
     provider = next((p for p in CLI_PROVIDERS if p["id"] == body.provider_id), None)
     if not provider:
         return JSONResponse({"error": f"Unknown CLI provider: {body.provider_id}"}, status_code=400)
-    runtime = _resolve_cli_runtime(provider, (session or {}).get("effective_user"), persist=True)
+    runtime = await asyncio.to_thread(_resolve_cli_runtime, provider, (session or {}).get("effective_user"), persist=True)
     if not runtime:
         return JSONResponse({"error": f"'{provider['cmd']}' not found in PATH"}, status_code=400)
     eu, home, cmd_bin = runtime
@@ -1029,14 +1033,24 @@ async def _run_cli_chat(
             access_prompt += (
                 "AUTO MODE: native server tools are disabled. Request each server operation with the "
                 "supplied run_command transport block; mvmAI executes it automatically. Inspect before "
-                "modifying and avoid unrelated changes."
+                "modifying and avoid unrelated changes. Your own CLI's built-in sandbox/shell tool "
+                "reports read-only or unavailable by design — that is expected and does not mean you "
+                "lack execution capability. The run_command transport block is your real and only "
+                "execution channel here, works every turn including after a conversation summary, "
+                "and stays available for the rest of this session. Never tell the user you lack access "
+                "or suggest restarting or starting a new chat; just keep using run_command."
             )
         elif exec_enabled:
             access_prompt += (
                 "CONFIRMATION MODE: native server tools are disabled. For every server operation, "
                 "including inspection, return the supplied run_command transport block and wait "
                 "for its result. The block is a response protocol, not a native tool. Never merely "
-                "suggest a command for the user to run."
+                "suggest a command for the user to run. Your own CLI's built-in sandbox/shell tool "
+                "reports read-only or unavailable by design — that is expected and does not mean you "
+                "lack execution capability. The run_command transport block is your real and only "
+                "execution channel here, works every turn including after a conversation summary, "
+                "and stays available for the rest of this session. Never tell the user you lack access "
+                "or suggest restarting or starting a new chat; just keep using run_command."
             )
         else:
             access_prompt += (
@@ -1110,26 +1124,47 @@ async def _run_cli_chat(
                     os.chown(policy_path, pw.pw_uid, pw.pw_gid)
                 except Exception:
                     pass
+            stdin_input = None
             if pid == "claude-cli":
+                # A long conversation can push system_prompt/conversation_prompt
+                # well past the kernel's ~128KB single-argv-string limit
+                # (MAX_ARG_STRLEN), making execve() fail with E2BIG before the
+                # CLI even starts. Route both through a file and stdin instead,
+                # which have no such size cap.
+                system_prompt_path = os.path.join(workdir, "system-prompt.txt")
+                with open(system_prompt_path, "w", encoding="utf-8") as handle:
+                    handle.write(system_prompt)
+                if eu != "root":
+                    try:
+                        os.chown(system_prompt_path, pwd.getpwnam(eu).pw_uid, pwd.getpwnam(eu).pw_gid)
+                    except Exception:
+                        pass
                 safety_args = ["--tools", ""]
-                cmd = [cmd_bin] + (["--model", model] if model else []) + ["--safe-mode"] + safety_args + ["--disable-slash-commands", "--no-session-persistence", "--system-prompt", system_prompt, "--print", conversation_prompt]
+                cmd = [cmd_bin] + (["--model", model] if model else []) + ["--safe-mode"] + safety_args + ["--disable-slash-commands", "--no-session-persistence", "--system-prompt-file", system_prompt_path, "--print"]
+                stdin_input = conversation_prompt
             elif pid == "gemini-cli":
                 safety_args = ["--admin-policy", policy_path]
                 cmd = [cmd_bin] + (["--model", model] if model else []) + safety_args + ["--prompt", prompt]
             elif pid == "ollama-cli":
                 cmd = [cmd_bin, "run", model or "llama3.1", prompt]
             elif pid == "codex-cli":
+                # Same E2BIG risk as claude-cli above — `codex exec` reads its
+                # prompt from stdin when no positional argument is given, so
+                # route it there instead of argv.
                 sandbox = "read-only"
                 safety_args = ["-c", "features.shell_tool=false"]
-                cmd = [cmd_bin, "exec", "--skip-git-repo-check", "--sandbox", sandbox, "-C", effective_dir, "-c", 'web_search="disabled"'] + safety_args + (["--model", model] if model else []) + [prompt]
+                cmd = [cmd_bin, "exec", "--skip-git-repo-check", "--sandbox", sandbox, "-C", effective_dir, "-c", 'web_search="disabled"'] + safety_args + (["--model", model] if model else [])
+                stdin_input = prompt
             else:
                 cmd = [cmd_bin] + provider["args"] + [prompt]
-            proc = subprocess.run(
-                _wrap_as_user(cmd, eu), capture_output=True, text=True, timeout=120, cwd=effective_dir,
+            proc = await asyncio.to_thread(
+                subprocess.run,
+                _wrap_as_user(cmd, eu), input=stdin_input, capture_output=True, text=True, timeout=120, cwd=effective_dir,
                 env={**os.environ, "HOME": home, "USER": eu, "LOGNAME": eu, "PATH": _cli_search_path(home)},
             )
         if proc.returncode != 0 and not proc.stdout.strip():
             err = proc.stderr.strip() or f"exit code {proc.returncode}"
+            logging.getLogger(__name__).error("mvmai CLI provider %s failed (exit %s): %s", pid, proc.returncode, err)
             return JSONResponse({"error": err}, status_code=502)
         content = proc.stdout.strip()
         if prompt_tools:
@@ -1158,6 +1193,7 @@ async def _run_cli_chat(
     except subprocess.TimeoutExpired:
         return JSONResponse({"error": "CLI timed out after 120s"}, status_code=504)
     except Exception as e:
+        logging.getLogger(__name__).error("mvmai CLI provider %s raised: %s", pid, e)
         return JSONResponse({"error": str(e)}, status_code=502)
 
 

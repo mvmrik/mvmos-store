@@ -38,19 +38,39 @@ def _conn():
     return conn
 
 
+_VAULTS_SCHEMA = """
+    CREATE TABLE IF NOT EXISTS vaults (
+        owner_id TEXT NOT NULL,
+        npub TEXT NOT NULL,
+        salt TEXT NOT NULL,
+        iterations INTEGER NOT NULL DEFAULT 600000,
+        iv TEXT NOT NULL,
+        ciphertext TEXT NOT NULL,
+        created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+        updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+        PRIMARY KEY (owner_id, npub)
+    );
+"""
+
+
 def _init_db():
     with _conn() as conn:
+        cols = conn.execute("PRAGMA table_info(vaults)").fetchall()
+        if cols and any(c["name"] == "owner_id" and c["pk"] == 1 for c in cols):
+            # Pre-multi-account installs had owner_id alone as the primary key: one
+            # Nostr identity per mvmOS user. Switching to (owner_id, npub) lets the
+            # same user hold several encrypted identities side by side, without
+            # losing whatever vault already exists on this installation.
+            conn.execute("ALTER TABLE vaults RENAME TO vaults_old")
+            conn.executescript(_VAULTS_SCHEMA)
+            conn.execute(
+                "INSERT INTO vaults(owner_id,npub,salt,iterations,iv,ciphertext,created_at,updated_at) "
+                "SELECT owner_id,npub,salt,iterations,iv,ciphertext,created_at,updated_at FROM vaults_old"
+            )
+            conn.execute("DROP TABLE vaults_old")
+        else:
+            conn.executescript(_VAULTS_SCHEMA)
         conn.executescript("""
-            CREATE TABLE IF NOT EXISTS vaults (
-                owner_id TEXT PRIMARY KEY,
-                npub TEXT NOT NULL,
-                salt TEXT NOT NULL,
-                iterations INTEGER NOT NULL DEFAULT 600000,
-                iv TEXT NOT NULL,
-                ciphertext TEXT NOT NULL,
-                created_at INTEGER NOT NULL DEFAULT (strftime('%s','now')),
-                updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now'))
-            );
             CREATE TABLE IF NOT EXISTS relay_prefs (
                 owner_id TEXT NOT NULL,
                 url TEXT NOT NULL,
@@ -149,15 +169,29 @@ async def public_index():
 
 @router.get("/vault")
 async def get_vault(x_pub_token: str = Header(default=None)):
+    """Kept for older widget builds: the first vault for this owner, if any."""
     me = _user(x_pub_token)
     if not me:
         return _private_response()
     with _conn() as conn:
         vault = conn.execute(
-            "SELECT npub,salt,iterations,iv,ciphertext FROM vaults WHERE owner_id=?",
+            "SELECT npub,salt,iterations,iv,ciphertext FROM vaults WHERE owner_id=? ORDER BY created_at LIMIT 1",
             (me["id"],),
         ).fetchone()
     return {"vault": dict(vault) if vault else None}
+
+
+@router.get("/vaults")
+async def list_vaults(x_pub_token: str = Header(default=None)):
+    me = _user(x_pub_token)
+    if not me:
+        return _private_response()
+    with _conn() as conn:
+        rows = conn.execute(
+            "SELECT npub,salt,iterations,iv,ciphertext FROM vaults WHERE owner_id=? ORDER BY created_at",
+            (me["id"],),
+        ).fetchall()
+    return {"vaults": [dict(row) for row in rows]}
 
 
 @router.post("/vault")
@@ -172,7 +206,9 @@ async def create_vault(data: VaultIn, x_pub_token: str = Header(default=None)):
     if not _valid_b64(data.iv, 12, 64) or not _valid_b64(data.ciphertext, 17, 1024):
         return JSONResponse({"error": "invalid_encrypted_key"}, status_code=400)
     with _conn() as conn:
-        exists = conn.execute("SELECT 1 FROM vaults WHERE owner_id=?", (me["id"],)).fetchone()
+        exists = conn.execute(
+            "SELECT 1 FROM vaults WHERE owner_id=? AND npub=?", (me["id"], data.npub.strip())
+        ).fetchone()
         if exists:
             return JSONResponse({"error": "vault_exists"}, status_code=409)
         conn.execute(
@@ -188,7 +224,16 @@ async def create_vault(data: VaultIn, x_pub_token: str = Header(default=None)):
 
 
 @router.put("/vault")
-async def update_vault(data: VaultUpdate, x_pub_token: str = Header(default=None)):
+async def update_vault(
+    data: VaultUpdate,
+    target_npub: str = "",
+    x_pub_token: str = Header(default=None),
+):
+    """Re-encrypts (or, with data.npub set, replaces the key of) one specific
+    identity — target_npub picks which of the owner's vaults, since an owner
+    can now hold several. Older widget builds that never send target_npub
+    fall back to the owner's first vault, matching the pre-multi-account
+    behaviour."""
     me = _user(x_pub_token)
     if not me:
         return _private_response()
@@ -199,11 +244,45 @@ async def update_vault(data: VaultUpdate, x_pub_token: str = Header(default=None
     npub = (data.npub or "").strip()
     if npub and not _NPUB_RE.fullmatch(npub):
         return JSONResponse({"error": "invalid_npub"}, status_code=400)
+    target = target_npub.strip()
+    if target and not _NPUB_RE.fullmatch(target):
+        return JSONResponse({"error": "invalid_npub"}, status_code=400)
     with _conn() as conn:
+        if not target:
+            row = conn.execute(
+                "SELECT npub FROM vaults WHERE owner_id=? ORDER BY created_at LIMIT 1", (me["id"],)
+            ).fetchone()
+            target = row["npub"] if row else ""
+        if not target:
+            return JSONResponse({"error": "vault_missing"}, status_code=409)
+        if npub and npub != target:
+            clash = conn.execute(
+                "SELECT 1 FROM vaults WHERE owner_id=? AND npub=?", (me["id"], npub)
+            ).fetchone()
+            if clash:
+                return JSONResponse({"error": "vault_exists"}, status_code=409)
         result = conn.execute(
             "UPDATE vaults SET npub=COALESCE(?,npub),salt=?,iterations=?,iv=?,ciphertext=?,"
-            "updated_at=strftime('%s','now') WHERE owner_id=?",
-            (npub or None, data.salt.strip(), data.iterations, data.iv.strip(), data.ciphertext.strip(), me["id"]),
+            "updated_at=strftime('%s','now') WHERE owner_id=? AND npub=?",
+            (npub or None, data.salt.strip(), data.iterations, data.iv.strip(), data.ciphertext.strip(), me["id"], target),
+        )
+        conn.commit()
+    if not result.rowcount:
+        return JSONResponse({"error": "vault_missing"}, status_code=409)
+    return {"ok": True}
+
+
+@router.delete("/vault")
+async def delete_vault(npub: str, x_pub_token: str = Header(default=None)):
+    me = _user(x_pub_token)
+    if not me:
+        return _private_response()
+    npub = npub.strip()
+    if not _NPUB_RE.fullmatch(npub):
+        return JSONResponse({"error": "invalid_npub"}, status_code=400)
+    with _conn() as conn:
+        result = conn.execute(
+            "DELETE FROM vaults WHERE owner_id=? AND npub=?", (me["id"], npub)
         )
         conn.commit()
     if not result.rowcount:

@@ -22,6 +22,9 @@ const _mvmai18n = {
     pub_provider_premium_hint: 'Using a different AI for the public page requires Premium.',
     pub_bridge_label: 'Let public users use the app-data API integration',
     pub_bridge_hint: "Off by default. When on, mvmAI can read or change a user's own data in their other installed apps.",
+    segment_compaction: 'History (Premium)', compact_keep_label: 'Recent messages kept in full',
+    compact_keep_hint: 'Older messages beyond this are folded into a running summary. Free plan is fixed at 20.',
+    compact_keep_premium_hint: 'Changing how many recent messages stay in full requires Premium.',
     sett_hint: 'Everything stays inside mvmOS — the API key is stored on the server and never leaves it.',
     exec_toggle: 'Server commands', exec_off: 'Read-only', exec_confirm: 'Confirm', exec_auto_short: 'Auto',
     exec_enable_label: 'Let mvmAI run commands on this server', exec_mode_label: 'When it wants to run one',
@@ -54,6 +57,9 @@ const _mvmai18n = {
     pub_provider_premium_hint: 'Различен AI за публичната страница изисква Premium.',
     pub_bridge_label: 'Позволи на публичните потребители да ползват API интеграцията с приложенията',
     pub_bridge_hint: 'По подразбиране е изключено. Когато е включено, mvmAI може да чете или променя собствените данни на потребителя в другите му инсталирани приложения.',
+    segment_compaction: 'История (Premium)', compact_keep_label: 'Скорошни съобщения, пазени изцяло',
+    compact_keep_hint: 'По-старите съобщения след това се сгъват в текущо резюме. Безплатният план е фиксиран на 20.',
+    compact_keep_premium_hint: 'Промяната на броя скорошни съобщения, пазени изцяло, изисква Premium.',
     sett_hint: 'Всичко остава вътре в mvmOS — API ключът се пази на сървъра и никога не го напуска.',
     exec_toggle: 'Команди на сървъра', exec_off: 'Само преглед', exec_confirm: 'С потвърждение', exec_auto_short: 'Автоматично',
     exec_enable_label: 'Позволи на mvmAI да изпълнява команди на този сървър', exec_mode_label: 'Когато иска да изпълни команда',
@@ -86,6 +92,9 @@ const _mvmai18n = {
     pub_provider_premium_hint: 'Eine andere KI für die öffentliche Seite erfordert Premium.',
     pub_bridge_label: 'Öffentlichen Nutzern die App-Daten-API-Integration erlauben',
     pub_bridge_hint: 'Standardmäßig deaktiviert. Wenn aktiviert, kann mvmAI die eigenen Daten des Nutzers in dessen anderen installierten Apps lesen oder ändern.',
+    segment_compaction: 'Verlauf (Premium)', compact_keep_label: 'Vollständig behaltene, aktuelle Nachrichten',
+    compact_keep_hint: 'Ältere Nachrichten werden darüber hinaus zu einer laufenden Zusammenfassung zusammengefasst. Der kostenlose Plan ist fest auf 20 eingestellt.',
+    compact_keep_premium_hint: 'Die Änderung, wie viele aktuelle Nachrichten vollständig erhalten bleiben, erfordert Premium.',
     sett_hint: 'Alles bleibt innerhalb von mvmOS — der API-Schlüssel wird auf dem Server gespeichert und verlässt ihn nie.',
     exec_toggle: 'Serverbefehle', exec_off: 'Nur Lesen', exec_confirm: 'Bestätigen', exec_auto_short: 'Automatisch',
     exec_enable_label: 'mvmAI erlauben, Befehle auf diesem Server auszuführen', exec_mode_label: 'Wenn ein Befehl ausgeführt werden soll',
@@ -118,6 +127,9 @@ const _mvmai18n = {
     pub_provider_premium_hint: 'Usar una IA distinta para la página pública requiere Premium.',
     pub_bridge_label: 'Permitir a los usuarios públicos usar la integración de API con las apps',
     pub_bridge_hint: 'Desactivado por defecto. Cuando está activado, mvmAI puede leer o modificar los propios datos del usuario en sus otras apps instaladas.',
+    segment_compaction: 'Historial (Premium)', compact_keep_label: 'Mensajes recientes conservados por completo',
+    compact_keep_hint: 'Los mensajes más antiguos más allá de este número se pliegan en un resumen continuo. El plan gratuito está fijado en 20.',
+    compact_keep_premium_hint: 'Cambiar cuántos mensajes recientes se conservan por completo requiere Premium.',
     sett_hint: 'Todo permanece dentro de mvmOS — la clave API se guarda en el servidor y nunca sale de él.',
     exec_toggle: 'Comandos del servidor', exec_off: 'Solo lectura', exec_confirm: 'Confirmar', exec_auto_short: 'Automático',
     exec_enable_label: 'Permitir que mvmAI ejecute comandos en este servidor', exec_mode_label: 'Cuando quiera ejecutar uno',
@@ -150,6 +162,9 @@ const _mvmai18n = {
     pub_provider_premium_hint: 'Utiliser une IA différente pour la page publique nécessite Premium.',
     pub_bridge_label: "Autoriser les utilisateurs publics à utiliser l'intégration API avec les applications",
     pub_bridge_hint: "Désactivé par défaut. Une fois activé, mvmAI peut lire ou modifier les propres données de l'utilisateur dans ses autres applications installées.",
+    segment_compaction: 'Historique (Premium)', compact_keep_label: 'Messages récents conservés en entier',
+    compact_keep_hint: "Les messages plus anciens au-delà de ce nombre sont repliés dans un résumé continu. Le plan gratuit est fixé à 20.",
+    compact_keep_premium_hint: "Modifier le nombre de messages récents conservés en entier nécessite Premium.",
     sett_hint: "Tout reste à l'intérieur de mvmOS — la clé API est stockée sur le serveur et ne le quitte jamais.",
     exec_toggle: 'Commandes serveur', exec_off: 'Lecture seule', exec_confirm: 'Confirmation', exec_auto_short: 'Automatique',
     exec_enable_label: 'Autoriser mvmAI à exécuter des commandes sur ce serveur', exec_mode_label: "Quand il veut en exécuter une",
@@ -182,6 +197,9 @@ const _mvmai18n = {
     pub_provider_premium_hint: '公開ページで別のAIを使うにはPremiumが必要です。',
     pub_bridge_label: '公開ユーザーにアプリデータAPI連携の利用を許可する',
     pub_bridge_hint: '初期設定ではオフです。オンにすると、mvmAIはユーザー自身の他のインストール済みアプリのデータを読み書きできます。',
+    segment_compaction: '履歴 (Premium)', compact_keep_label: '完全な形で保持する直近メッセージ数',
+    compact_keep_hint: 'これを超える古いメッセージは、継続的な要約にまとめられます。無料プランは20件に固定されています。',
+    compact_keep_premium_hint: '直近メッセージを完全な形で保持する数を変更するにはPremiumが必要です。',
     sett_hint: 'すべてmvmOS内に留まります — APIキーはサーバーに保存され、外部に出ることはありません。',
     exec_toggle: 'サーバーコマンド', exec_off: '読み取り専用', exec_confirm: '確認あり', exec_auto_short: '自動',
     exec_enable_label: 'mvmAIがこのサーバーでコマンドを実行できるようにする', exec_mode_label: 'コマンドを実行したいとき',
@@ -214,6 +232,9 @@ const _mvmai18n = {
     pub_provider_premium_hint: 'Usar uma IA diferente na página pública requer Premium.',
     pub_bridge_label: 'Permitir que usuários públicos usem a integração de API com os apps',
     pub_bridge_hint: 'Desativado por padrão. Quando ativado, o mvmAI pode ler ou alterar os próprios dados do usuário em seus outros apps instalados.',
+    segment_compaction: 'Histórico (Premium)', compact_keep_label: 'Mensagens recentes mantidas na íntegra',
+    compact_keep_hint: 'Mensagens mais antigas além dessa quantidade são condensadas em um resumo contínuo. O plano gratuito é fixo em 20.',
+    compact_keep_premium_hint: 'Alterar quantas mensagens recentes ficam na íntegra requer Premium.',
     sett_hint: 'Tudo permanece dentro do mvmOS — a chave de API fica armazenada no servidor e nunca sai dele.',
     exec_toggle: 'Comandos do servidor', exec_off: 'Somente leitura', exec_confirm: 'Confirmar', exec_auto_short: 'Automático',
     exec_enable_label: 'Permitir que o mvmAI execute comandos neste servidor', exec_mode_label: 'Quando quiser executar um',
@@ -246,6 +267,9 @@ const _mvmai18n = {
     pub_provider_premium_hint: 'Использование другого ИИ для публичной страницы требует Premium.',
     pub_bridge_label: 'Разрешить публичным пользователям использовать API-интеграцию с приложениями',
     pub_bridge_hint: 'По умолчанию выключено. Когда включено, mvmAI может читать или изменять собственные данные пользователя в его других установленных приложениях.',
+    segment_compaction: 'История (Premium)', compact_keep_label: 'Недавние сообщения, сохраняемые полностью',
+    compact_keep_hint: 'Более старые сообщения сверх этого сворачиваются в текущее резюме. В бесплатном плане зафиксировано значение 20.',
+    compact_keep_premium_hint: 'Изменение количества недавних сообщений, сохраняемых полностью, требует Premium.',
     sett_hint: 'Всё остаётся внутри mvmOS — API-ключ хранится на сервере и никогда не покидает его.',
     exec_toggle: 'Команды на сервере', exec_off: 'Только чтение', exec_confirm: 'С подтверждением', exec_auto_short: 'Автоматически',
     exec_enable_label: 'Разрешить mvmAI выполнять команды на этом сервере', exec_mode_label: 'Когда хочет выполнить команду',
@@ -278,6 +302,9 @@ const _mvmai18n = {
     pub_provider_premium_hint: '为公开页面使用不同的 AI 需要 Premium。',
     pub_bridge_label: '允许公开用户使用应用数据 API 集成',
     pub_bridge_hint: '默认关闭。开启后，mvmAI 可以读取或更改用户自己在其他已安装应用中的数据。',
+    segment_compaction: '历史记录 (Premium)', compact_keep_label: '完整保留的最近消息数',
+    compact_keep_hint: '超出此数量的较旧消息会被折叠进一个持续更新的摘要。免费版固定为 20。',
+    compact_keep_premium_hint: '更改完整保留的最近消息数量需要 Premium。',
     sett_hint: '一切都保留在 mvmOS 内部 — API 密钥保存在服务器上，永远不会离开。',
     exec_toggle: '服务器命令', exec_off: '只读', exec_confirm: '需确认', exec_auto_short: '自动',
     exec_enable_label: '允许 mvmAI 在此服务器上执行命令', exec_mode_label: '当它想执行命令时',
@@ -411,6 +438,14 @@ mvmOS.registerApp({
             ${_ait('pub_bridge_label')}
           </label>
           <div style="font-size:.74rem;color:var(--text-dim)">${_ait('pub_bridge_hint')}</div>`)}
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:4px 0;opacity:.6">
+      <div id="mvmai-compact-segment" style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-weight:600;font-size:.85rem">${_ait('segment_compaction')}</div>
+        ${_row(`${_lbl(_ait('compact_keep_label'))}
+          <input id="mvmai-compact-keep-inp" type="number" min="4" max="200" step="1" class="s-input"
+            value="${saved?.compact_keep_recent || ''}" placeholder="20">
+          <div style="font-size:.74rem;color:var(--text-dim)">${_ait('compact_keep_hint')}</div>`)}
       </div>
       <div style="font-size:.74rem;color:var(--text-dim)">${_ait('sett_hint')}</div>`;
 
@@ -550,6 +585,17 @@ mvmOS.registerApp({
       [pubProvSel, pubSel, pubCliSel, pubCliInp, pubBridgeChk].forEach(el => el.disabled = true);
     }
     window.mvmOS?.premiumGate?.(pubSegment, _ait('pub_provider_premium_hint'));
+
+    // History-compaction batch size is likewise store-premium: the field
+    // stays visible so a non-premium admin can see what it does, but is
+    // locked behind mvmOS.premiumGate — the actual enforcement lives
+    // server-side in apps/mvmai/premium/backend.py (resolve_compact_keep_recent).
+    const compactSegment = wrap.querySelector('#mvmai-compact-segment');
+    const compactKeepInp = wrap.querySelector('#mvmai-compact-keep-inp');
+    if (window.mvmOS?.premiumStatus !== 'premium') {
+      compactKeepInp.disabled = true;
+    }
+    window.mvmOS?.premiumGate?.(compactSegment, _ait('compact_keep_premium_hint'));
   },
 
   saveSettingsExtra(panel) {
@@ -589,6 +635,12 @@ mvmOS.registerApp({
     }
     if (pubModelVal !== undefined) saves.push(s('pub_model', pubModelVal));
     if (pubBridgeChk) saves.push(s('pub_data_bridge_enabled', pubBridgeChk.checked));
+    const compactKeepInp = panel.querySelector('#mvmai-compact-keep-inp');
+    if (compactKeepInp) {
+      const raw = compactKeepInp.value.trim();
+      const n = raw ? parseInt(raw, 10) : NaN;
+      saves.push(s('compact_keep_recent', (Number.isFinite(n) && n > 0) ? n : null));
+    }
     return Promise.all(saves);
   },
   launch() {

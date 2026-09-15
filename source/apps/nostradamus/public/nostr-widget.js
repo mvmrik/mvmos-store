@@ -79,6 +79,7 @@
   function nsecEncode(privHex){return encodeBech32Bytes('nsec',hexToBytes(privHex))}
   function noteEncode(idHex){return encodeBech32Bytes('note',hexToBytes(idHex))}
   function nsecDecode(nsec){var d=decodeBech32Bytes(nsec);return d&&d.hrp==='nsec'?bytesToHex(d.bytes):null}
+  function npubDecode(npub){var d=decodeBech32Bytes(npub);return d&&d.hrp==='npub'?bytesToHex(d.bytes):null}
   function shortNpub(npub){return npub.slice(0,10)+'…'+npub.slice(-6)}
   // nevent/nprofile carry a TLV payload; type 0 is the 32-byte id or pubkey and is
   // the only field a reader of a mention or a quote actually needs.
@@ -280,7 +281,7 @@
   // prevent. A CryptoKey survives the structured clone but never yields its
   // material to script, so the worst an attacker on the page can do is sign while
   // the session is live; the identity itself stays where it cannot be copied.
-  var IDB_NAME='nostradamus',IDB_STORE='session',IDB_ID='current';
+  var IDB_NAME='nostradamus',IDB_STORE='session';
   function idbOpen(){
     return new Promise(function(resolve,reject){
       var req=indexedDB.open(IDB_NAME,1);
@@ -302,21 +303,30 @@
   // no persistence: the key lives in memory for as long as the widget is mounted
   // and the password is asked for again on reload. That is a worse experience than
   // a stored session but never a worse secret.
-  function idbGet(){return idbRun('readonly',function(store){return store.get(IDB_ID)}).catch(function(){return null})}
-  function idbPut(value){return idbRun('readwrite',function(store){store.put(value,IDB_ID);return null}).catch(function(){})}
-  function idbDel(){return idbRun('readwrite',function(store){store.delete(IDB_ID);return null}).catch(function(){})}
+  // Keyed by npub, not a single fixed id: several identities can each hold a
+  // live cached session at once, which is what lets switching between them
+  // skip the password when both are still within their unlock window.
+  function idbGet(id){return idbRun('readonly',function(store){return store.get(id)}).catch(function(){return null})}
+  function idbPut(id,value){return idbRun('readwrite',function(store){store.put(value,id);return null}).catch(function(){})}
+  function idbDel(id){return idbRun('readwrite',function(store){store.delete(id);return null}).catch(function(){})}
 
   var styled=false;
-  function style(){if(styled)return;styled=true;var s=document.createElement('style');s.textContent='.nos,.nos *,.nos-modal,.nos-modal *{box-sizing:border-box}.nos{height:100%;display:flex;flex-direction:column;position:relative;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif;overflow:hidden}.nos-bar{border-bottom:1px solid var(--pub-border,#45475a);flex:0 0 auto}.nos-bar-head{display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem}.nos-title{font-weight:700;font-size:.88rem;white-space:nowrap}.nos-tabs{display:flex;gap:.25rem;flex:1;overflow-x:auto;scrollbar-width:none}.nos-tabs::-webkit-scrollbar{display:none}.nos-tab{background:transparent;padding:.35rem .6rem;border-radius:.5rem;white-space:nowrap;position:relative}.nos-tab.active{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos-badge{display:inline-block;min-width:1.05rem;padding:0 .25rem;margin-left:.25rem;border-radius:.6rem;background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1.05rem;text-align:center}.nos-bar-btn{flex:0 0 auto;padding:.35rem .5rem}.nos-me{flex:0 0 auto;padding:0;background:none!important}.nos-modes{display:flex;gap:.3rem;padding:0 .7rem .55rem;overflow-x:auto;scrollbar-width:none}.nos-modes::-webkit-scrollbar{display:none}.nos-mode{background:var(--pub-surface2,#313244);padding:.28rem .6rem;border-radius:999px;font-size:.74rem;white-space:nowrap}.nos-mode.active{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos-body{flex:1;min-height:0;overflow:auto;padding:.7rem}.nos button,.nos input,.nos textarea,.nos select,.nos-modal button,.nos-modal textarea{font:inherit}.nos button,.nos-modal button{border:0;border-radius:.45rem;padding:.45rem .7rem;cursor:pointer;font-size:.8rem;font-weight:600;background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4);transition:filter .15s,transform .15s}.nos button:hover,.nos-modal button:hover{filter:brightness(1.12)}.nos button:active{transform:translateY(1px)}.nos button:disabled{opacity:.6;cursor:default}.nos .primary,.nos-modal .primary{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos input,.nos textarea,.nos select,.nos-modal textarea{width:100%;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;color:var(--pub-fg,#cdd6f4);padding:.55rem .65rem;outline:none;margin:.3rem 0}.nos input:focus,.nos textarea:focus,.nos select:focus,.nos-modal textarea:focus{border-color:var(--pub-accent,#89b4fa)}.nos-error{min-height:1.2rem;color:var(--pub-red,#f38ba8);font-size:.8rem;margin:.3rem 0}.nos-empty{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;padding:1.5rem;color:var(--pub-fg2,#a6adc8);font-size:.85rem}.nos-unlock,.nos-onboard{display:flex;flex:1;align-items:center;justify-content:center;padding:1rem}.nos-unlock>div,.nos-card{width:100%;max-width:24rem;background:var(--pub-surface2,#313244);padding:1.25rem;border-radius:.7rem}.nos-unlock h2,.nos-card h2{font-size:1.05rem;margin:0 0 .4rem}.nos-unlock p,.nos-card p{font-size:.82rem;line-height:1.45;color:var(--pub-fg2,#a6adc8)}.nos-duration-hint{font-size:.72rem;opacity:.75;margin:.2rem 0 .6rem}.nos-warn{font-size:.78rem;line-height:1.45;color:#f9e2af;border:1px solid #f9e2af;border-radius:.45rem;padding:.5rem .6rem;margin:.5rem 0}.nos-link{background:none!important;padding:.4rem 0;font-size:.78rem;font-weight:400;color:var(--pub-accent,#89b4fa);text-decoration:underline}.nos-view-value{background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;padding:.55rem .65rem;font-size:.8rem;overflow-wrap:anywhere;margin:.3rem 0}.nos-key-value{font-family:monospace}.nos-check{display:flex!important;align-items:center;gap:.45rem;width:auto;font-size:.8rem;cursor:pointer}.nos-check input{width:auto;margin:0}.nos-note{border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);border-radius:.65rem;padding:.65rem;margin-bottom:.55rem;cursor:pointer;transition:background .3s}.nos-note:hover{filter:brightness(1.05)}.nos-note.nos-flat{border:0;background:none;padding:.55rem 0;border-bottom:1px solid var(--pub-border,#45475a);border-radius:0;margin:0}.nos-boost{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.35rem}.nos-note-head{display:flex;align-items:center;gap:.5rem}.nos-avatar-wrap{position:relative;width:2.1rem;height:2.1rem;flex:0 0 auto;cursor:pointer}.nos-avatar-wrap.nos-lg{width:4rem;height:4rem}.nos-avatar{position:absolute;inset:0;width:100%;height:100%;border-radius:.5rem;object-fit:cover;display:grid;place-items:center;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:800;overflow:hidden}.nos-avatar-img{background:var(--pub-surface2,#313244)}.nos-note-who{flex:1;min-width:0;cursor:pointer}.nos-note-name{display:block;font-weight:700;font-size:.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nos-note-time{display:block;font-size:.71rem;color:var(--pub-dim,#a6adc8)}.nos-nip05{font-size:.71rem;color:var(--pub-accent,#89b4fa)}.nos-follow-btn{flex:0 0 auto;padding:.28rem .55rem;font-size:.72rem}.nos-reply-of-wrap{margin:.35rem 0}.nos-reply-of-label{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.2rem}.nos-reply-of-wrap .nos-quote{margin:0;padding:.4rem .5rem}.nos-reply-of-wrap .nos-quote .nos-note-content{font-size:.76rem;max-height:5rem}.nos-reply-of-wrap .nos-avatar-wrap{width:1.5rem;height:1.5rem}.nos-reply-of-wrap .nos-note-name{font-size:.76rem}.nos-reply-of-wrap .nos-note-time{font-size:.66rem}.nos-note-content{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.86rem;margin:.4rem 0;overflow:hidden}.nos-note-content a{color:var(--pub-accent,#89b4fa)}.nos-mention{color:var(--pub-accent,#89b4fa);cursor:pointer}.nos-embed-link{display:block;width:100%}.nos-embed-img{display:block;max-width:100%;height:auto;max-height:22rem;border-radius:.5rem;margin-top:.4rem;object-fit:contain}.nos-quote{border:1px solid var(--pub-border,#45475a);border-radius:.5rem;padding:.5rem;margin:.45rem 0;background:var(--pub-bg,#1e1e2e)}.nos-quote .nos-note-content{font-size:.8rem;max-height:12rem}.nos-note-actions{display:flex;gap:.15rem;flex-wrap:wrap;margin-top:.2rem}.nos-act{background:transparent!important;padding:.3rem .45rem;font-size:.74rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-act:hover{color:var(--pub-fg,#cdd6f4)}.nos-act.on{color:var(--pub-accent,#89b4fa);font-weight:700}.nos-act.nos-a-like.on{color:var(--pub-red,#f38ba8)}.nos-act.nos-a-repost.on{color:var(--pub-green,#a6e3a1)}.nos-modal{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:1rem;z-index:20;overflow:auto}.nos-modal-card{width:100%;max-width:30rem;background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border-radius:.7rem;padding:.9rem;font-family:system-ui,sans-serif}.nos-modal-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem}.nos-modal-title{flex:1;font-weight:700;font-size:.9rem}.nos-modal-input{min-height:6rem;resize:vertical}.nos-modal-foot{display:flex;gap:.4rem;justify-content:flex-end;align-items:center}.nos-modal-ctx{max-height:11rem;overflow:auto;margin-bottom:.5rem}.nos-user-head{margin-bottom:.7rem}.nos-banner{width:100%;height:6.5rem;object-fit:cover;border-radius:.5rem;background:var(--pub-surface2,#313244)}.nos-user-row{display:flex;align-items:flex-end;gap:.6rem;margin-top:-1.6rem;padding:0 .3rem}.nos-user-meta{flex:1;min-width:0;padding-bottom:.2rem}.nos-user-name{font-weight:800;font-size:1rem}.nos-user-about{font-size:.82rem;line-height:1.45;margin:.5rem 0;white-space:pre-wrap;overflow-wrap:anywhere}.nos-user-stats{font-size:.74rem;color:var(--pub-fg2,#a6adc8);display:flex;gap:.9rem;flex-wrap:wrap}.nos-notif{display:flex;gap:.5rem;align-items:flex-start;border-bottom:1px solid var(--pub-border,#45475a);padding:.55rem .1rem;cursor:pointer}.nos-notif-body{flex:1;min-width:0}.nos-notif-line{font-size:.8rem}.nos-notif-quote{font-size:.76rem;color:var(--pub-fg2,#a6adc8);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-top:.15rem}.nos-notif-time{font-size:.7rem;color:var(--pub-dim,#a6adc8)}.nos-profile-form label{display:block;font-size:.75rem;font-weight:700;color:var(--pub-fg2,#a6adc8);margin:.55rem 0 .15rem}.nos-profile-form textarea{min-height:4rem}.nos-profile-meta{margin-top:1rem;font-size:.76rem;color:var(--pub-fg2,#a6adc8)}.nos-relay-row{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--pub-border,#45475a);font-size:.82rem;flex-wrap:wrap}.nos-relay-dot{width:.6rem;height:.6rem;border-radius:50%;flex:0 0 auto;background:var(--pub-dim,#a6adc8)}.nos-relay-open{background:var(--pub-green,#a6e3a1)}.nos-relay-connecting{background:#f9e2af}.nos-relay-closed,.nos-relay-error{background:var(--pub-red,#f38ba8)}.nos-relay-url{flex:1;min-width:9rem;overflow-wrap:anywhere}.nos-relay-del{flex:0 0 auto;padding:.3rem .5rem}.nos-relay-add{display:flex;gap:.4rem;margin-top:.6rem}.nos-relay-add input{flex:1;margin:0}.nos-relay-add button{flex:0 0 auto}.nos-newposts{position:sticky;top:0;left:0;z-index:5;display:flex;align-items:center;gap:.4rem;margin:0 auto .6rem;padding:.4rem .8rem .4rem .4rem;border-radius:999px;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-size:.78rem;font-weight:700;box-shadow:0 .25rem .6rem rgba(0,0,0,.25)}.nos-newposts-avatars{display:flex}.nos-newposts-avatars .nos-avatar-wrap{width:1.6rem;height:1.6rem;margin-left:-.6rem;border:2px solid var(--pub-accent,#89b4fa);border-radius:.6rem}.nos-newposts-avatars .nos-avatar-wrap:first-child{margin-left:0}.nos-newposts-avatars .nos-avatar{font-size:.68rem}.nos-people-stats{display:flex;gap:1rem;margin:.5rem 0}.nos-people-btn{background:none!important;padding:0;font-size:.8rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-people-btn:hover{color:var(--pub-fg,#cdd6f4)}.nos-people-btn b{color:var(--pub-fg,#cdd6f4);font-weight:700}.nos-modal-images{display:flex;gap:.4rem;flex-wrap:wrap;margin:.3rem 0}.nos-modal-image{position:relative;width:4.5rem;height:4.5rem}.nos-modal-image img{width:100%;height:100%;object-fit:cover;border-radius:.45rem}.nos-modal-image-del{position:absolute;top:-.35rem;right:-.35rem;width:1.3rem;height:1.3rem;padding:0;border-radius:50%;background:var(--pub-red,#f38ba8)!important;color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1;display:flex;align-items:center;justify-content:center}.nos-modal-image-btn{background:transparent!important;font-size:1rem;padding:.4rem .5rem}.nos-modal-foot{align-items:center}';document.head.appendChild(s)}
+  function style(){if(styled)return;styled=true;var s=document.createElement('style');s.textContent='.nos,.nos *,.nos-modal,.nos-modal *{box-sizing:border-box}.nos{height:100%;display:flex;flex-direction:column;position:relative;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif;overflow:hidden}.nos-bar{border-bottom:1px solid var(--pub-border,#45475a);flex:0 0 auto}.nos-bar-head{display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem}.nos-title{font-weight:700;font-size:.88rem;white-space:nowrap}.nos-tabs{display:flex;gap:.25rem;flex:1;overflow-x:auto;scrollbar-width:none}.nos-tabs::-webkit-scrollbar{display:none}.nos-tab{background:transparent;padding:.35rem .6rem;border-radius:.5rem;white-space:nowrap;position:relative}.nos-tab.active{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos-badge{display:inline-block;min-width:1.05rem;padding:0 .25rem;margin-left:.25rem;border-radius:.6rem;background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1.05rem;text-align:center}.nos-bar-btn{flex:0 0 auto;padding:.35rem .5rem;display:inline-flex;align-items:center;justify-content:center}.nos-me{flex:0 0 auto;padding:0;background:none!important}.nos-modes{display:flex;gap:.3rem;padding:0 .7rem .55rem;overflow-x:auto;scrollbar-width:none}.nos-modes::-webkit-scrollbar{display:none}.nos-mode{background:var(--pub-surface2,#313244);padding:.28rem .6rem;border-radius:999px;font-size:.74rem;white-space:nowrap}.nos-mode.active{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos-body{flex:1;min-height:0;overflow:auto;padding:.7rem}.nos button,.nos input,.nos textarea,.nos select,.nos-modal button,.nos-modal textarea{font:inherit}.nos button,.nos-modal button{border:0;border-radius:.45rem;padding:.45rem .7rem;cursor:pointer;font-size:.8rem;font-weight:600;background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4);transition:filter .15s,transform .15s}.nos button:hover,.nos-modal button:hover{filter:brightness(1.12)}.nos button:active{transform:translateY(1px)}.nos button:disabled{opacity:.6;cursor:default}.nos .primary,.nos-modal .primary{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos input,.nos textarea,.nos select,.nos-modal textarea{width:100%;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;color:var(--pub-fg,#cdd6f4);padding:.55rem .65rem;outline:none;margin:.3rem 0}.nos input:focus,.nos textarea:focus,.nos select:focus,.nos-modal textarea:focus{border-color:var(--pub-accent,#89b4fa)}.nos-error{min-height:1.2rem;color:var(--pub-red,#f38ba8);font-size:.8rem;margin:.3rem 0}.nos-empty{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;padding:1.5rem;color:var(--pub-fg2,#a6adc8);font-size:.85rem}.nos-unlock,.nos-onboard{display:flex;flex:1;align-items:center;justify-content:center;padding:1rem}.nos-unlock>div,.nos-card{width:100%;max-width:24rem;background:var(--pub-surface2,#313244);padding:1.25rem;border-radius:.7rem}.nos-unlock h2,.nos-card h2{font-size:1.05rem;margin:0 0 .4rem}.nos-unlock p,.nos-card p{font-size:.82rem;line-height:1.45;color:var(--pub-fg2,#a6adc8)}.nos-duration-hint{font-size:.72rem;opacity:.75;margin:.2rem 0 .6rem}.nos-warn{font-size:.78rem;line-height:1.45;color:var(--pub-yellow,#f9e2af);border:1px solid var(--pub-yellow,#f9e2af);border-radius:.45rem;padding:.5rem .6rem;margin:.5rem 0}.nos-link{background:none!important;padding:.4rem 0;font-size:.78rem;font-weight:400;color:var(--pub-accent,#89b4fa);text-decoration:underline}.nos-view-value{background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;padding:.55rem .65rem;font-size:.8rem;overflow-wrap:anywhere;margin:.3rem 0}.nos-key-value{font-family:monospace}.nos-check{display:flex!important;align-items:center;gap:.45rem;width:auto;font-size:.8rem;cursor:pointer}.nos-check input{width:auto;margin:0}.nos-note{border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);border-radius:.65rem;padding:.65rem;margin-bottom:.55rem;cursor:pointer;transition:background .3s}.nos-note:hover{filter:brightness(1.05)}.nos-note.nos-flat{border:0;background:none;padding:.55rem 0;border-bottom:1px solid var(--pub-border,#45475a);border-radius:0;margin:0}.nos-boost{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.35rem}.nos-note-head{display:flex;align-items:center;gap:.5rem}.nos-avatar-wrap{position:relative;width:2.1rem;height:2.1rem;flex:0 0 auto;cursor:pointer}.nos-avatar-wrap.nos-lg{width:4rem;height:4rem}.nos-avatar{position:absolute;inset:0;width:100%;height:100%;border-radius:.5rem;object-fit:cover;display:grid;place-items:center;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:800;overflow:hidden}.nos-avatar-img{background:var(--pub-surface2,#313244)}.nos-note-who{flex:1;min-width:0;cursor:pointer}.nos-note-name{display:block;font-weight:700;font-size:.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nos-note-time{display:block;font-size:.71rem;color:var(--pub-dim,#a6adc8)}.nos-nip05{font-size:.71rem;color:var(--pub-accent,#89b4fa)}.nos-follow-btn{flex:0 0 auto;padding:.28rem .55rem;font-size:.72rem}.nos-reply-of-wrap{margin:.35rem 0}.nos-reply-of-label{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.2rem}.nos-reply-of-wrap .nos-quote{margin:0;padding:.4rem .5rem}.nos-reply-of-wrap .nos-quote .nos-note-content{font-size:.76rem;max-height:5rem}.nos-reply-of-wrap .nos-avatar-wrap{width:1.5rem;height:1.5rem}.nos-reply-of-wrap .nos-note-name{font-size:.76rem}.nos-reply-of-wrap .nos-note-time{font-size:.66rem}.nos-note-content{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.86rem;margin:.4rem 0;overflow:hidden}.nos-note-content a{color:var(--pub-accent,#89b4fa)}.nos-mention{color:var(--pub-accent,#89b4fa);cursor:pointer}.nos-embed-link{display:block;width:100%}.nos-embed-img{display:block;max-width:100%;height:auto;max-height:22rem;border-radius:.5rem;margin-top:.4rem;object-fit:contain}.nos-quote{border:1px solid var(--pub-border,#45475a);border-radius:.5rem;padding:.5rem;margin:.45rem 0;background:var(--pub-bg,#1e1e2e)}.nos-quote .nos-note-content{font-size:.8rem;max-height:12rem}.nos-note-actions{display:flex;gap:.15rem;flex-wrap:wrap;margin-top:.2rem}.nos-act{background:transparent!important;padding:.3rem .45rem;font-size:.74rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-act:hover{color:var(--pub-fg,#cdd6f4)}.nos-act.on{color:var(--pub-accent,#89b4fa);font-weight:700}.nos-act.nos-a-like.on{color:var(--pub-red,#f38ba8)}.nos-act.nos-a-repost.on{color:var(--pub-green,#a6e3a1)}.nos-modal{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:1rem;z-index:20;overflow:auto}.nos-modal-card{width:100%;max-width:30rem;background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border-radius:.7rem;padding:.9rem;font-family:system-ui,sans-serif}.nos-modal-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem}.nos-modal-title{flex:1;font-weight:700;font-size:.9rem}.nos-modal-input{min-height:6rem;resize:vertical}.nos-modal-foot{display:flex;gap:.4rem;justify-content:flex-end;align-items:center}.nos-modal-ctx{max-height:11rem;overflow:auto;margin-bottom:.5rem}.nos-user-head{margin-bottom:.7rem}.nos-banner{width:100%;height:6.5rem;object-fit:cover;border-radius:.5rem;background:var(--pub-surface2,#313244)}.nos-user-row{display:flex;align-items:flex-end;gap:.6rem;margin-top:-1.6rem;padding:0 .3rem}.nos-user-meta{flex:1;min-width:0;padding-bottom:.2rem}.nos-user-name{font-weight:800;font-size:1rem}.nos-user-about{font-size:.82rem;line-height:1.45;margin:.5rem 0;white-space:pre-wrap;overflow-wrap:anywhere}.nos-user-stats{font-size:.74rem;color:var(--pub-fg2,#a6adc8);display:flex;gap:.9rem;flex-wrap:wrap}.nos-notif{display:flex;gap:.5rem;align-items:flex-start;border-bottom:1px solid var(--pub-border,#45475a);padding:.55rem .1rem;cursor:pointer}.nos-notif-body{flex:1;min-width:0}.nos-notif-line{font-size:.8rem}.nos-notif-quote{font-size:.76rem;color:var(--pub-fg2,#a6adc8);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-top:.15rem}.nos-notif-time{font-size:.7rem;color:var(--pub-dim,#a6adc8)}.nos-profile-form label{display:block;font-size:.75rem;font-weight:700;color:var(--pub-fg2,#a6adc8);margin:.55rem 0 .15rem}.nos-profile-form textarea{min-height:4rem}.nos-profile-meta{margin-top:1rem;font-size:.76rem;color:var(--pub-fg2,#a6adc8)}.nos-relay-row{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--pub-border,#45475a);font-size:.82rem;flex-wrap:wrap}.nos-relay-dot{width:.6rem;height:.6rem;border-radius:50%;flex:0 0 auto;background:var(--pub-dim,#a6adc8)}.nos-relay-open{background:var(--pub-green,#a6e3a1)}.nos-relay-connecting{background:var(--pub-yellow,#f9e2af)}.nos-relay-closed,.nos-relay-error{background:var(--pub-red,#f38ba8)}.nos-relay-url{flex:1;min-width:9rem;overflow-wrap:anywhere}.nos-relay-del{flex:0 0 auto;padding:.3rem .5rem}.nos-relay-add{display:flex;gap:.4rem;margin-top:.6rem}.nos-relay-add input{flex:1;margin:0}.nos-relay-add button{flex:0 0 auto}.nos-newposts{position:sticky;top:0;left:0;z-index:5;display:flex;align-items:center;gap:.4rem;margin:0 auto .6rem;padding:.4rem .8rem .4rem .4rem;border-radius:999px;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-size:.78rem;font-weight:700;box-shadow:0 .25rem .6rem rgba(0,0,0,.25)}.nos-newposts-avatars{display:flex}.nos-newposts-avatars .nos-avatar-wrap{width:1.6rem;height:1.6rem;margin-left:-.6rem;border:2px solid var(--pub-accent,#89b4fa);border-radius:.6rem}.nos-newposts-avatars .nos-avatar-wrap:first-child{margin-left:0}.nos-newposts-avatars .nos-avatar{font-size:.68rem}.nos-people-stats{display:flex;gap:1rem;margin:.5rem 0}.nos-people-btn{background:none!important;padding:0;font-size:.8rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-people-btn:hover{color:var(--pub-fg,#cdd6f4)}.nos-people-btn b{color:var(--pub-fg,#cdd6f4);font-weight:700}.nos-modal-images{display:flex;gap:.4rem;flex-wrap:wrap;margin:.3rem 0}.nos-modal-image{position:relative;width:4.5rem;height:4.5rem}.nos-modal-image img{width:100%;height:100%;object-fit:cover;border-radius:.45rem}.nos-modal-image-del{position:absolute;top:-.35rem;right:-.35rem;width:1.3rem;height:1.3rem;padding:0;border-radius:50%;background:var(--pub-red,#f38ba8)!important;color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1;display:flex;align-items:center;justify-content:center}.nos-modal-image-btn{background:transparent!important;font-size:1rem;padding:.4rem .5rem}.nos-modal-foot{align-items:center}.nos-identity-row{display:flex;align-items:center;gap:.5rem;padding:.45rem 0;border-bottom:1px solid var(--pub-border,#45475a)}.nos-identity-row[data-npub]{cursor:pointer}.nos-identity-row .nos-avatar-wrap{width:1.8rem;height:1.8rem}.nos-identity-label{flex:1;min-width:0;overflow-wrap:anywhere;font-size:.8rem}.nos-identity-actions{display:flex;gap:.3rem;flex:0 0 auto}.nos-identity-actions button{padding:.25rem .5rem;font-size:.72rem}.nos-identities-title{font-weight:700;font-size:.76rem;margin-top:.7rem}';document.head.appendChild(s)}
 
   function mount(root,opts){
     opts=opts||{};style();
     var token=localStorage.getItem('apphub_token');
     if(!token){root.innerHTML='<div class="nos-empty">'+esc(t('nos_login'))+'</div>';if(opts.onNeedLogin)opts.onNeedLogin();return{destroy:function(){}}}
-    var DURATION_KEY='nos_vault_duration',TAB_KEY='nos_vault_tab',SEEN_KEY='nos_notif_seen',FEED_MODE_KEY='nos_feed_mode';
+    var DURATION_KEY='nos_vault_duration',TAB_KEY='nos_vault_tab',SEEN_KEY='nos_notif_seen',FEED_MODE_KEY='nos_feed_mode',ACTIVE_KEY='nos_active_npub';
     var FEED_MODES=['following','1','4','24'];
     var MAX_STREAK=7;
     var key=null,privBytes=null,pubHex=null,vaultInfo=null,relays=[],autoLockTimer=0,destroyed=false,session=null;
+    var _prefs={};
+    fetch('/api/pub/apphub/me',{headers:{'X-Pub-Token':token}}).then(function(r){return r.ok?r.json():{}}).then(function(p){_prefs=p||{}}).catch(function(){});
+    // All of the owner's identities (from GET /vaults); vaultInfo is whichever one
+    // is active. addMode/switcherOpen drive the onboarding screen and the identity
+    // switcher panel reused for "add another identity" and "switch identity".
+    var identities=[],addMode=false,switcherOpen=false;
     var activeTab='feed',feedMode=FEED_MODES.indexOf(localStorage.getItem(FEED_MODE_KEY))>=0?localStorage.getItem(FEED_MODE_KEY):'following',stack=[];
     var feedItems=[],feedKeys={},feedLoaded=false,feedToken=0;
     var pendingItems=[],pendingKeys={};
@@ -344,7 +354,7 @@
     var peopleList=[],peopleKeys={},peopleLoaded=false;
     var composer=null;
     var obStep='choose',obPriv=null;
-    function blankRecover(){return{nsec:'',pass:'',confirm:'',replace:false,duration:''}}
+    function blankRecover(){return{nsec:'',pass:'',confirm:'',duration:''}}
     var recoverForm=blankRecover();
     // Builds before this one cached the raw exported AES key in Web Storage. That
     // entry is dead code now, but leaving it on disk would keep the exact secret
@@ -359,7 +369,8 @@
     // Not extractable: the session is stored as this CryptoKey object itself, so
     // there is never a moment where the raw AES material exists as bytes in the page.
     async function derive(password,salt,iterations){var raw=await crypto.subtle.importKey('raw',new TextEncoder().encode(password),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt:bytes(salt),iterations:iterations,hash:'SHA-256'},raw,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
-    async function encryptPriv(rawBytes){var iv=crypto.getRandomValues(new Uint8Array(12));var data=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},key,rawBytes);return{iv:b64(iv),ciphertext:b64(data)}}
+    async function encryptWithKey(k,rawBytes){var iv=crypto.getRandomValues(new Uint8Array(12));var data=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},k,rawBytes);return{iv:b64(iv),ciphertext:b64(data)}}
+    function encryptPriv(rawBytes){return encryptWithKey(key,rawBytes)}
     async function decryptPriv(ivB64,ctB64){var out=await crypto.subtle.decrypt({name:'AES-GCM',iv:bytes(ivB64)},key,bytes(ctB64));return new Uint8Array(out)}
     function minutesOf(value){return value==='session'?0:Number(value)||0}
     function dayStamp(){var now=new Date();return now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate()}
@@ -375,7 +386,7 @@
     // everything — so that mode is tied to a marker that only this tab's
     // sessionStorage holds, and a session whose tab is gone is unusable by design.
     function tabMarker(){var mark=sessionStorage.getItem(TAB_KEY);if(!mark){mark=b64(crypto.getRandomValues(new Uint8Array(12)));try{sessionStorage.setItem(TAB_KEY,mark)}catch(_){}}return mark}
-    function saveSession(saved){idbPut(saved)}
+    function saveSession(saved){idbPut(vaultInfo.npub,saved)}
     function renewSession(saved){
       if(!saved||!saved.minutes)return saved;
       var today=dayStamp();
@@ -386,19 +397,23 @@
     }
     // A freshly typed password starts the streak over: the window is earned by
     // uninterrupted use, and this unlock is proof the previous run was interrupted.
-    function cacheKey(value){
-      var minutes=minutesOf(value),saved={key:key,minutes:minutes,streak:1,day:dayStamp(),tab:minutes?null:tabMarker()};
+    function buildSession(k,value){
+      var minutes=minutesOf(value),saved={key:k,minutes:minutes,streak:1,day:dayStamp(),tab:minutes?null:tabMarker()};
       saved.expires=expiryOf(saved);
+      return saved;
+    }
+    function cacheKey(value){
+      var saved=buildSession(key,value);
       session=saved;
       scheduleAutoLock(saved.expires);
       try{localStorage.setItem(DURATION_KEY,value)}catch(_){}
-      return idbPut(saved);
+      return idbPut(vaultInfo.npub,saved);
     }
     async function readSession(){
-      var saved=await idbGet();
+      var saved=await idbGet(vaultInfo.npub);
       if(!saved)return null;
       var alive=saved.minutes?saved.expires>Date.now():!!saved.tab&&saved.tab===sessionStorage.getItem(TAB_KEY);
-      if(!alive){await idbDel();return null}
+      if(!alive){await idbDel(vaultInfo.npub);return null}
       return saved;
     }
     async function restoreLocalKey(){
@@ -411,7 +426,7 @@
         session=renewSession(saved);
         scheduleAutoLock(session.expires);
         return true;
-      }catch(_){await idbDel();key=null;privBytes=null;session=null;return false}
+      }catch(_){await idbDel(vaultInfo.npub);key=null;privBytes=null;session=null;return false}
     }
     function onVisible(){
       if(document.hidden||!key)return;
@@ -422,8 +437,10 @@
         scheduleAutoLock(session.expires);
       });
     }
-    function clearCachedKey(){idbDel()}
-    function lockedAtHint(){return session&&session.expires?t('nos_locks_at',{time:new Date(session.expires).toLocaleString()}):t('nos_lock')}
+    function clearCachedKey(){return idbDel(vaultInfo.npub)}
+    function fmtTime(d){return _prefs.time_format?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:_prefs.time_format==='12'}):d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'})}
+    function fmtDate(d){return _prefs.date_format==='MM/DD/YYYY'?(d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear():_prefs.date_format==='YYYY-MM-DD'?d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'):_prefs.date_format==='DD/MM/YYYY'?d.getDate()+'/'+(d.getMonth()+1)+'/'+d.getFullYear():d.toLocaleDateString()}
+    function lockedAtHint(){return session&&session.expires?t('nos_locks_at',{time:fmtDate(new Date(session.expires))+' '+fmtTime(new Date(session.expires))}):t('nos_lock')}
     function resetState(){
       clearTimeout(autoLockTimer);autoLockTimer=0;clearTimeout(renderTimer);clearTimeout(profileTimer);clearTimeout(noteTimer);
       stopModePolling();
@@ -436,7 +453,47 @@
       clearCachedKey();pool.destroy();pool=createPool();bindPool();
     }
     function lockNow(){resetState();load()}
-    function startRecover(){resetState();recoverForm=blankRecover();recoverScreen()}
+    function switchIdentity(npub){try{localStorage.setItem(ACTIVE_KEY,npub)}catch(_){}location.reload()}
+    async function logoutIdentity(npub){
+      await idbDel(npub);
+      var other=identities.filter(function(v){return v.npub!==npub})[0];
+      try{if(other)localStorage.setItem(ACTIVE_KEY,other.npub);else localStorage.removeItem(ACTIVE_KEY)}catch(_){}
+      location.reload();
+    }
+    async function removeIdentity(npub){
+      if(!confirm(t('nos_identity_confirm_remove')))return;
+      try{await api('/vault?npub='+encodeURIComponent(npub),{method:'DELETE'})}catch(_){return}
+      await idbDel(npub);
+      if(npub===vaultInfo.npub){
+        var other=identities.filter(function(v){return v.npub!==npub})[0];
+        try{if(other)localStorage.setItem(ACTIVE_KEY,other.npub);else localStorage.removeItem(ACTIVE_KEY)}catch(_){}
+      }
+      location.reload();
+    }
+    function shortNpub(n){return n.slice(0,12)+'…'+n.slice(-6)}
+    function closeSwitcher(){switcherOpen=false;renderSwitcher()}
+    function startAddIdentity(){closeSwitcher();addMode=true;obStep='choose';obPriv=null;onboardingScreen()}
+    function renderSwitcher(){
+      var existing=root.querySelector('.nos-switcher');
+      if(existing)existing.remove();
+      if(!switcherOpen||!key)return;
+      var wrap=document.createElement('div');
+      wrap.className='nos-modal nos-switcher';
+      wrap.innerHTML='<div class="nos-modal-card"><div class="nos-modal-head"><span class="nos-modal-title">'+esc(t('nos_switch_identity'))+'</span><button type="button" class="nos-modal-close">✕</button></div>'+
+        identities.map(function(v){
+          var active=v.npub===vaultInfo.npub,hex=active?pubHex:npubDecode(v.npub);
+          if(hex)ensureProfile(hex);
+          return'<div class="nos-identity-row"'+(active?'':' data-npub="'+esc(v.npub)+'"')+'>'+
+            (hex?avatarHtml(hex):'<span class="nos-avatar-wrap"><span class="nos-avatar">?</span></span>')+
+            '<span class="nos-identity-label">'+esc(hex?displayName(hex):shortNpub(v.npub))+(active?' — '+esc(t('nos_identity_current')):'')+'</span>'+
+            '</div>';
+        }).join('')+
+        '<button type="button" class="nos-link nos-switcher-add">'+esc(t('nos_add_identity'))+'</button></div>';
+      root.appendChild(wrap);
+      wrap.querySelector('.nos-modal-close').onclick=closeSwitcher;
+      wrap.querySelectorAll('.nos-identity-row[data-npub]').forEach(function(row){row.onclick=function(){switchIdentity(row.dataset.npub)}});
+      wrap.querySelector('.nos-switcher-add').onclick=startAddIdentity;
+    }
 
     function writeUrls(){return relays.filter(function(r){return r.write}).map(function(r){return r.url})}
     function readUrls(){return relays.filter(function(r){return r.read}).map(function(r){return r.url})}
@@ -445,14 +502,16 @@
     function durationBlock(){return'<label class="nos-duration-label">'+esc(t('nos_unlock_for'))+'</label><select class="nos-duration">'+durationOptions()+'</select><div class="nos-duration-hint">'+esc(t('nos_unlock_sliding'))+'</div>'}
     function applyDuration(){var select=root.querySelector('.nos-duration');if(select)select.value=localStorage.getItem(DURATION_KEY)||'15';return select}
 
-    function formatTime(ts){var diff=Math.floor(Date.now()/1000)-ts;if(diff<60)return t('nos_just_now');if(diff<3600)return t('nos_minutes_ago',{n:Math.floor(diff/60)});if(diff<86400)return t('nos_hours_ago',{n:Math.floor(diff/3600)});if(diff<604800)return t('nos_days_ago',{n:Math.floor(diff/86400)});return new Date(ts*1000).toLocaleDateString()}
+    function formatTime(ts){var diff=Math.floor(Date.now()/1000)-ts;if(diff<60)return t('nos_just_now');if(diff<3600)return t('nos_minutes_ago',{n:Math.floor(diff/60)});if(diff<86400)return t('nos_hours_ago',{n:Math.floor(diff/3600)});if(diff<604800)return t('nos_days_ago',{n:Math.floor(diff/86400)});return fmtDate(new Date(ts*1000))}
 
     // ---- onboarding ----
     function onboardingScreen(error){
       if(obStep==='choose'){
-        root.innerHTML='<div class="nos nos-onboard"><div class="nos-card"><h2>'+esc(t('nos_welcome_title'))+'</h2><p>'+esc(t('nos_welcome_info'))+'</p><button class="primary nos-ob-generate">'+esc(t('nos_generate_key'))+'</button><button class="nos-ob-import">'+esc(t('nos_import_key'))+'</button><div class="nos-error">'+esc(error||'')+'</div></div></div>';
+        var cancel=addMode?'<button type="button" class="nos-ob-cancel">'+esc(t('nos_back'))+'</button>':'';
+        root.innerHTML='<div class="nos nos-onboard"><div class="nos-card"><h2>'+esc(addMode?t('nos_add_identity_title'):t('nos_welcome_title'))+'</h2><p>'+esc(t('nos_welcome_info'))+'</p><button class="primary nos-ob-generate">'+esc(t('nos_generate_key'))+'</button><button class="nos-ob-import">'+esc(t('nos_import_key'))+'</button>'+cancel+'<div class="nos-error">'+esc(error||'')+'</div></div></div>';
         root.querySelector('.nos-ob-generate').onclick=function(){obPriv=genPrivKey();obStep='reveal';onboardingScreen()};
         root.querySelector('.nos-ob-import').onclick=function(){obStep='import';onboardingScreen()};
+        if(addMode)root.querySelector('.nos-ob-cancel').onclick=function(){addMode=false;renderShell()};
         return;
       }
       if(obStep==='reveal'){
@@ -485,16 +544,25 @@
           var pass=root.querySelector('.nos-master').value,confirmPass=root.querySelector('.nos-confirm').value;
           if(pass.length<MIN_MASTER){onboardingScreen(t('nos_password_short',{n:MIN_MASTER}));return}
           if(pass!==confirmPass){onboardingScreen(t('nos_passwords_differ'));return}
+          var priv=obPriv,pubHexLocal=bytesToHex(getXOnlyPubkey(priv)),npub=npubEncode(pubHexLocal);
+          if(identities.some(function(v){return v.npub===npub})){onboardingScreen(t('nos_identity_exists'));return}
           try{
             var salt=b64(crypto.getRandomValues(new Uint8Array(32)));
-            key=await derive(pass,salt,600000);
-            var enc=await encryptPriv(obPriv);
-            var pubHexLocal=bytesToHex(getXOnlyPubkey(obPriv));
-            var npub=npubEncode(pubHexLocal);
+            var newKey=await derive(pass,salt,600000);
+            var enc=await encryptWithKey(newKey,priv);
             await api('/vault',{method:'POST',body:JSON.stringify({npub:npub,salt:salt,iterations:600000,iv:enc.iv,ciphertext:enc.ciphertext})});
-            privBytes=obPriv;pubHex=pubHexLocal;obPriv=null;
+            var saved=buildSession(newKey,select.value);
+            await idbPut(npub,saved);
+            try{localStorage.setItem(DURATION_KEY,select.value);localStorage.setItem(ACTIVE_KEY,npub)}catch(_){}
+            obPriv=null;
+            // In "add another identity" mode the currently active identity stays fully
+            // untouched in memory (module key/vaultInfo were never reassigned above) —
+            // the reload is what actually switches over to the new one.
+            if(addMode){addMode=false;location.reload();return}
+            key=newKey;privBytes=priv;pubHex=pubHexLocal;
             vaultInfo={npub:npub,salt:salt,iterations:600000,iv:enc.iv,ciphertext:enc.ciphertext};
-            await cacheKey(select.value);
+            identities=[vaultInfo];session=saved;
+            scheduleAutoLock(saved.expires);
             await afterUnlock();
           }catch(_){key=null;onboardingScreen(t('nos_save_error'))}
         };
@@ -525,16 +593,16 @@
     // A forgotten master password used to be the end of the account: the vault is
     // undecryptable and nothing in the UI offered a way past it. The private key is
     // the real credential though — proving you hold it is at least as strong as the
-    // password it replaces, so it can mint a new one. The same screen doubles as
-    // "sign in as someone else": a key that is not the stored one replaces the
-    // identity outright, which is destructive enough to demand an explicit tick.
+    // password it replaces, so it can mint a new one. A key that turns out to
+    // belong to a different identity is rejected here rather than silently
+    // overwriting this vault — that identity gets added alongside it instead,
+    // through "Add account".
     function recoverScreen(error){
       root.innerHTML='<div class="nos nos-unlock"><div><h2>'+esc(t('nos_reset_title'))+'</h2><p>'+esc(t('nos_reset_info'))+'</p>'+
         '<input class="nos-r-key" type="password" autocomplete="off" placeholder="'+esc(t('nos_import_placeholder'))+'">'+
         '<input class="nos-r-pass" type="password" autocomplete="new-password" placeholder="'+esc(t('nos_master'))+'">'+
         '<input class="nos-r-confirm" type="password" autocomplete="new-password" placeholder="'+esc(t('nos_confirm_master'))+'">'+
         durationBlock()+
-        (recoverForm.replace?'<div class="nos-warn">'+esc(t('nos_reset_other_key'))+'</div><label class="nos-check"><input type="checkbox" class="nos-r-replace"> '+esc(t('nos_reset_replace_confirm'))+'</label>':'')+
         '<div class="nos-error">'+esc(error||'')+'</div><button class="primary nos-r-go">'+esc(t('nos_reset_go'))+'</button><button type="button" class="nos-r-back">'+esc(t('nos_back'))+'</button></div></div>';
       var select=applyDuration();
       // Confirming the identity swap re-renders this screen, so what was typed is
@@ -557,9 +625,8 @@
         var priv=null,pubHexLocal=null;
         if(privHex){try{priv=hexToBytes(privHex);pubHexLocal=bytesToHex(getXOnlyPubkey(priv))}catch(_){priv=null}}
         if(!priv){recoverScreen(t('nos_invalid_key'));return}
-        var npub=npubEncode(pubHexLocal),replacing=npub!==vaultInfo.npub;
-        if(replacing&&!recoverForm.replace){recoverForm.replace=true;recoverScreen();return}
-        if(replacing&&!root.querySelector('.nos-r-replace').checked){recoverScreen(t('nos_reset_needs_confirm'));return}
+        var npub=npubEncode(pubHexLocal);
+        if(npub!==vaultInfo.npub){recoverScreen(t('nos_reset_wrong_key'));return}
         if(recoverForm.pass.length<MIN_MASTER){recoverScreen(t('nos_password_short',{n:MIN_MASTER}));return}
         if(recoverForm.pass!==recoverForm.confirm){recoverScreen(t('nos_passwords_differ'));return}
         var chosen=select.value;
@@ -568,8 +635,7 @@
           key=await derive(recoverForm.pass,salt,600000);
           var enc=await encryptPriv(priv);
           var body={salt:salt,iterations:600000,iv:enc.iv,ciphertext:enc.ciphertext};
-          if(replacing)body.npub=npub;
-          await api('/vault',{method:'PUT',body:JSON.stringify(body)});
+          await api('/vault?target_npub='+encodeURIComponent(vaultInfo.npub),{method:'PUT',body:JSON.stringify(body)});
           vaultInfo={npub:npub,salt:salt,iterations:600000,iv:enc.iv,ciphertext:enc.ciphertext};
           privBytes=priv;pubHex=pubHexLocal;
           recoverForm=blankRecover();
@@ -582,8 +648,11 @@
 
     async function load(){
       if(destroyed)return;
-      try{var data=await api('/vault');vaultInfo=data.vault}catch(_){root.innerHTML='<div class="nos-empty">'+esc(t('nos_load_error'))+'</div>';return}
-      if(!vaultInfo){obStep='choose';obPriv=null;onboardingScreen();return}
+      try{var data=await api('/vaults');identities=data.vaults||[]}catch(_){root.innerHTML='<div class="nos-empty">'+esc(t('nos_load_error'))+'</div>';return}
+      if(!identities.length){vaultInfo=null;obStep='choose';obPriv=null;onboardingScreen();return}
+      var active=localStorage.getItem(ACTIVE_KEY);
+      vaultInfo=identities.filter(function(v){return v.npub===active})[0]||identities[0];
+      try{localStorage.setItem(ACTIVE_KEY,vaultInfo.npub)}catch(_){}
       var restored=await restoreLocalKey();
       if(restored){await afterUnlock();return}
       unlockScreen();
@@ -611,7 +680,7 @@
     var profileQueue=[],profileTimer=0,profileSubId=0;
     var noteQueue=[],noteTimer=0,noteSubId=0;
     var renderTimer=0;
-    function scheduleRender(){clearTimeout(renderTimer);renderTimer=setTimeout(renderBody,140)}
+    function scheduleRender(){clearTimeout(renderTimer);renderTimer=setTimeout(function(){renderBody();if(switcherOpen)renderSwitcher()},140)}
     var shellRenderTimer=0;
     function scheduleRenderShell(){clearTimeout(shellRenderTimer);shellRenderTimer=setTimeout(function(){if(key)renderShell()},140)}
     function parseProfile(ev){
@@ -633,7 +702,7 @@
         var prev=profileCache[ev.pubkey];
         if(prev&&prev.created_at>=ev.created_at)return;
         profileCache[ev.pubkey]=parseProfile(ev);
-        if(ev.pubkey===pubHex)ownProfileRaw=profileCache[ev.pubkey].raw||{};
+        if(ev.pubkey===pubHex){ownProfileRaw=profileCache[ev.pubkey].raw||{};scheduleRenderShell()}
         scheduleRender();
       },function(){pool.unsubscribe(subId)});
     }
@@ -679,6 +748,7 @@
         if(prev&&prev.created_at>=ev.created_at)return;
         profileCache[pubHex]=parseProfile(ev);
         ownProfileRaw=profileCache[pubHex].raw||{};
+        scheduleRenderShell();
         scheduleRender();
       },function(){pool.unsubscribe('self-meta')});
     }
@@ -1146,6 +1216,7 @@
           }).join('')+
         '</div>'+
         '<button type="button" class="nos-bar-btn nos-new" title="'+esc(t('nos_new_note'))+'">✏️</button>'+
+        (identities.length>1?'<button type="button" class="nos-bar-btn nos-switcher-btn" title="'+esc(t('nos_switch_identity'))+'">'+avatarHtml(pubHex)+'</button>':'')+
         '<button type="button" class="nos-bar-btn nos-lock-btn" title="'+esc(lockedAtHint())+'">🔒</button>'+
         '</div>'+
         (activeTab==='feed'&&!stack.length?'<div class="nos-modes">'+
@@ -1158,6 +1229,8 @@
       root.querySelectorAll('.nos-tab').forEach(function(btn){btn.onclick=function(){switchTab(btn.dataset.tab)}});
       root.querySelectorAll('.nos-mode').forEach(function(btn){btn.onclick=function(){if(feedMode===btn.dataset.mode)return;feedMode=btn.dataset.mode;try{localStorage.setItem(FEED_MODE_KEY,feedMode)}catch(_){}loadFeed();renderShell()}});
       root.querySelector('.nos-new').onclick=function(){openComposer('note')};
+      var switcherBtn=root.querySelector('.nos-switcher-btn');
+      if(switcherBtn)switcherBtn.onclick=function(){switcherOpen=true;renderSwitcher()};
       root.querySelector('.nos-lock-btn').onclick=function(){lockNow()};
       if(back)root.querySelector('.nos-back').onclick=popView;
       renderBody();
@@ -1325,8 +1398,22 @@
         '<div class="nos-error nos-profile-error"></div>'+
         '<button type="button" class="primary nos-profile-save">'+esc(t('nos_save'))+'</button>'+
         '<div class="nos-profile-meta">'+esc(t('nos_your_npub'))+'<div class="nos-view-value nos-key-value">'+esc(vaultInfo.npub)+'</div>'+
-        '<button type="button" class="nos-link nos-switch-key">'+esc(t('nos_switch_key'))+'</button></div></div>';
-      body.querySelector('.nos-switch-key').onclick=function(){startRecover()};
+        '<div class="nos-identities-title">'+esc(t('nos_identities_title'))+'</div>'+
+        identities.map(function(v){
+          var active=v.npub===vaultInfo.npub;
+          return'<div class="nos-identity-row"><span class="nos-identity-label">'+esc(shortNpub(v.npub))+(active?' — '+esc(t('nos_identity_current')):'')+'</span>'+
+            '<span class="nos-identity-actions">'+
+            (active?'<button type="button" class="nos-identity-logout" data-npub="'+esc(v.npub)+'">'+esc(t('nos_identity_logout'))+'</button>':
+              '<button type="button" class="nos-identity-switch" data-npub="'+esc(v.npub)+'">'+esc(t('nos_switch_identity'))+'</button>')+
+            '<button type="button" class="nos-identity-remove" data-npub="'+esc(v.npub)+'">'+esc(t('nos_identity_remove'))+'</button>'+
+            '</span></div>';
+        }).join('')+
+        '<button type="button" class="nos-link nos-add-identity">'+esc(t('nos_add_identity'))+'</button>'+
+        '</div></div>';
+      body.querySelector('.nos-add-identity').onclick=function(){addMode=true;obStep='choose';obPriv=null;onboardingScreen()};
+      body.querySelectorAll('.nos-identity-switch').forEach(function(btn){btn.onclick=function(){switchIdentity(btn.dataset.npub)}});
+      body.querySelectorAll('.nos-identity-logout').forEach(function(btn){btn.onclick=function(){logoutIdentity(btn.dataset.npub)}});
+      body.querySelectorAll('.nos-identity-remove').forEach(function(btn){btn.onclick=function(){removeIdentity(btn.dataset.npub)}});
       bindPeopleButtons(body);
       body.querySelector('.nos-profile-save').onclick=async function(){
         var btn=body.querySelector('.nos-profile-save'),err=body.querySelector('.nos-profile-error');

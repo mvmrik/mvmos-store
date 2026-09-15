@@ -168,7 +168,7 @@
       .cal-week-head{font-size:.72rem;color:var(--pub-fg2, #a6adc8);font-weight:600;text-align:center;margin-bottom:2px}
       .cal-day-list{display:flex;flex-direction:column;gap:6px;max-width:640px}
       .cal-day-item{background:var(--pub-surface1, #181825);border-radius:8px;padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:2px}
-      .cal-day-item:hover{background:#232336}
+      .cal-day-item:hover{background:var(--pub-surface2, #232336)}
       .cal-day-item .cal-ev-time{font-size:.72rem;color:var(--pub-yellow, #f9e2af);font-weight:600}
       .cal-day-item.allday .cal-ev-time{color:var(--pub-green, #a6e3a1)}
       .cal-day-item.completed{opacity:.55}
