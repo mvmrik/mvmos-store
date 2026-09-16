@@ -375,21 +375,6 @@ def _private_response():
     return JSONResponse({"error": "unauthorized"}, status_code=401)
 
 
-def _private_page():
-    return HTMLResponse(
-        """<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>mvmCrypto</title>
-<style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;
-height:100vh;margin:0;background:#1e1e2e;color:#a6adc8;flex-direction:column;gap:12px}
-.icon{font-size:3rem}.msg{font-size:1.1rem;font-weight:700;color:#cdd6f4}
-.sub{font-size:.9rem;color:#6c7086}</style></head><body>
-<div class="icon">🪙</div><div class="msg">mvmCrypto is private</div>
-<div class="sub">Access is not available to the public.</div>
-</body></html>""",
-        status_code=403,
-    )
-
-
 _SCRIPTS = ("i18n.js", "mvmcrypto-widget.js")
 
 
@@ -420,7 +405,7 @@ async def assets():
 async def public_index():
     hub = _hub()
     if hub and not hub.is_app_public(APP_ID):
-        return _private_page()
+        return hub.private_page("mvmCrypto", "🪙")
     with open(os.path.join(_PUBLIC_DIR, "index.html")) as file:
         html = file.read().replace("__APP_VERSION__", _asset_version())
     return HTMLResponse(html)

@@ -155,25 +155,11 @@ def _resolve(token):
     return hub.get_pub_session(token)
 
 
-def _private_page():
-    return HTMLResponse("""<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Tasks</title>
-<style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;
-height:100vh;margin:0;background:#1e1e2e;color:#a6adc8;flex-direction:column;gap:12px}
-.icon{font-size:3rem}.msg{font-size:1.1rem;font-weight:700;color:#cdd6f4}
-.sub{font-size:.9rem;color:#6c7086}</style>
-</head><body>
-<div class="icon">🔒</div>
-<div class="msg">Tasks is private</div>
-<div class="sub">Access is not available to the public.</div>
-</body></html>""", status_code=403)
-
-
 @router.get("/")
 async def public_index():
     hub = _hub()
     if hub and not hub.is_app_public(APP_ID):
-        return _private_page()
+        return hub.private_page("Tasks", "✅")
     return FileResponse(os.path.join(_PUBLIC_DIR, "index.html"))
 
 

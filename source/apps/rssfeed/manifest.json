@@ -8,7 +8,7 @@
     "feeds",
     "reading"
   ],
-  "version": "1.4.1",
+  "version": "1.4.2",
   "min_core_version": "0.33.0",
   "description": "RSS/Atom feed reader with auto-refresh, read/unread tracking, and optional public reading list.",
   "scheduler": "scheduler.py",
@@ -50,26 +50,6 @@
         {
           "value": "1440",
           "label": "24 hours"
-        }
-      ]
-    },
-    {
-      "key": "ai_source",
-      "label": "AI provider",
-      "type": "select",
-      "default": "off",
-      "options": [
-        {
-          "value": "off",
-          "label": "Off"
-        },
-        {
-          "value": "mvmai",
-          "label": "mvmAI — configured provider"
-        },
-        {
-          "value": "claude-cli",
-          "label": "mvmAI — Claude CLI"
         }
       ]
     }

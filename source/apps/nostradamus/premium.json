@@ -1,0 +1,10 @@
+{
+  "summary": "Adds a translate button to every post and to the composer, powered by each user's own DeepL Translator key.",
+  "features": [
+    {
+      "title": "DeepL translate button",
+      "short": "Translate any post",
+      "description": "Readers can translate any post into their preferred language with one click, using their own DeepL API key entered in the free DeepL Translator app. The composer gets the same button to translate a draft before publishing it. Requires the DeepL Translator app and a DeepL API key from each user; the server owner only turns the integration on."
+    }
+  ]
+}

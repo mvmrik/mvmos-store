@@ -56,6 +56,7 @@ def _init_db():
             )""")
         c.execute("INSERT OR IGNORE INTO cfg (key,value) VALUES ('fetch_interval','30')")
         c.execute("INSERT OR IGNORE INTO cfg (key,value) VALUES ('public_enabled','0')")
+        c.execute("INSERT OR IGNORE INTO cfg (key,value) VALUES ('deepl_enabled','0')")
         try:
             c.execute("ALTER TABLE articles ADD COLUMN is_saved INTEGER DEFAULT 0")
         except Exception:
@@ -96,6 +97,18 @@ def _pub_user(x_pub_token):
     if not hub or not x_pub_token:
         return None
     return hub.get_pub_session(x_pub_token)
+
+
+def _deepl_integration_available():
+    """Whether this server can offer the DeepL integration at all: the
+    rssfeed premium module must have been downloaded (licensed install) and
+    the server's premium subscription must be active. Readers pick their own
+    DeepL key regardless — this only gates whether the button exists."""
+    premium = sys.modules.get("backend.premium")
+    if not premium or not premium.is_premium():
+        return False
+    mod = premium.load_premium_backend("rssfeed")
+    return bool(mod and mod.is_available())
 
 
 def _do_fetch_user_feed(user_feed_id, url):
@@ -392,23 +405,28 @@ async def fetch_now(session=Depends(get_current_session)):
 async def get_settings(session=Depends(get_current_session)):
     with _conn() as c:
         rows = c.execute("SELECT key, value FROM cfg").fetchall()
-    return JSONResponse({r["key"]: r["value"] for r in rows})
+    settings = {r["key"]: r["value"] for r in rows}
+    # deepl_enabled is the administrator's own choice and is reported back
+    # untouched, so it survives a lapsed subscription and is still set when one
+    # returns. Whether the feature can actually run is a separate fact that
+    # changes on its own, and travels as its own field for the UI to combine.
+    settings["deepl_available"] = _deepl_integration_available()
+    return JSONResponse(settings)
 
 
 class SettingsBody(BaseModel):
     fetch_interval: str = "30"
     public_enabled: str = "0"
-    ai_source:      str = "off"
-    ai_buttons:     str = "[]"
+    deepl_enabled:  str = "0"
 
 
 @router.post("/settings")
 async def save_settings(body: SettingsBody, session=Depends(get_current_session)):
+    deepl_enabled = body.deepl_enabled
     with _conn() as c:
         c.execute("INSERT OR REPLACE INTO cfg (key,value) VALUES ('fetch_interval',?)", (body.fetch_interval,))
         c.execute("INSERT OR REPLACE INTO cfg (key,value) VALUES ('public_enabled',?)", (body.public_enabled,))
-        c.execute("INSERT OR REPLACE INTO cfg (key,value) VALUES ('ai_source',?)",      (body.ai_source,))
-        c.execute("INSERT OR REPLACE INTO cfg (key,value) VALUES ('ai_buttons',?)",     (body.ai_buttons,))
+        c.execute("INSERT OR REPLACE INTO cfg (key,value) VALUES ('deepl_enabled',?)",  (deepl_enabled,))
         c.commit()
     return JSONResponse({"ok": True})
 

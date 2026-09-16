@@ -1,0 +1,17 @@
+{
+  "id": "deepl",
+  "name": "DeepL Translator",
+  "icon": "🌐",
+  "category": "Utilities",
+  "tags": [
+    "translate",
+    "language",
+    "deepl"
+  ],
+  "version": "1.0.0",
+  "min_core_version": "0.44.1-beta",
+  "description": "Translate text with your own DeepL API key and keep a history of your translations.",
+  "entry": "main.js",
+  "public_url": "/pub/deepl/",
+  "public_directory": true
+}

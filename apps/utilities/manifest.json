@@ -41,6 +41,20 @@
         "conversion",
         "compression"
       ]
+    },
+    {
+      "id": "deepl",
+      "name": "DeepL Translator",
+      "icon": "🌐",
+      "category": "Utilities",
+      "version": "1.0.0",
+      "description": "Translate text with your own DeepL API key and keep a history of your translations.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/deepl-1.0.0.zip",
+      "tags": [
+        "translate",
+        "language",
+        "deepl"
+      ]
     }
   ]
 }

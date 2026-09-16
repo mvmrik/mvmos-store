@@ -394,25 +394,12 @@ def _apply_limits(max_views, expire_mode):
 
 # ── the public page ──────────────────────────────────────────────────
 
-def _private_page():
-    return HTMLResponse("""<!DOCTYPE html><html><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>mvmShare</title>
-<style>body{margin:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-gap:10px;background:#1e1e2e;color:#cdd6f4;font-family:system-ui,sans-serif}
-.icon{font-size:3rem}.msg{font-size:1.1rem;font-weight:600}.sub{font-size:.9rem;color:#6c7086}</style>
-</head><body>
-<div class="icon">🔒</div>
-<div class="msg">mvmShare is private</div>
-<div class="sub">Sharing is not available to the public on this server.</div>
-</body></html>""", status_code=403)
-
 
 @router.get("/")
 async def public_index():
     hub = _hub()
     if hub and not hub.is_app_public(APP_ID):
-        return _private_page()
+        return hub.private_page("mvmShare", "🔗")
     return FileResponse(os.path.join(_PUBLIC_DIR, "index.html"))
 
 
@@ -423,7 +410,7 @@ async def share_page(share_id: str):
     along in the fragment behind it and is never part of this request."""
     hub = _hub()
     if hub and not hub.is_app_public(APP_ID):
-        return _private_page()
+        return hub.private_page("mvmShare", "🔗")
     return FileResponse(os.path.join(_PUBLIC_DIR, "index.html"))
 
 

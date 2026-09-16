@@ -5,14 +5,15 @@
       "name": "Budget",
       "icon": "💰",
       "category": "Finance",
-      "version": "1.4.3",
+      "version": "1.4.4",
       "description": "Category-based budget tracking with shared categories, goals, mass-add, and per-app source visibility for entries added by other apps, plus a public web page and Telegram mini-app.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/finance/budget-1.4.3.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/finance/budget-1.4.4.zip",
       "tags": [
         "finance",
         "money",
         "planning"
-      ]
+      ],
+      "min_core_version": "0.44.1-beta"
     },
     {
       "id": "cost-splitter",
@@ -34,9 +35,9 @@
       "name": "mvmCrypto",
       "icon": "🪙",
       "category": "Finance",
-      "version": "1.2.1",
+      "version": "1.2.2",
       "description": "Encrypted seed phrase vault and multi-network portfolio tracker, with one-time secure sharing and a built-in Bitcoin explorer.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/finance/mvmcrypto-1.2.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/finance/mvmcrypto-1.2.2.zip",
       "tags": [
         "bitcoin",
         "crypto",
@@ -44,7 +45,7 @@
         "wallet",
         "encryption"
       ],
-      "min_core_version": "0.41.0-beta"
+      "min_core_version": "0.44.1-beta"
     },
     {
       "id": "bwallett",

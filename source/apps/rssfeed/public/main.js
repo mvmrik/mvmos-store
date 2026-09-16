@@ -44,22 +44,14 @@ const _rssi18n = {
     error_label:    'Error',
     fetched_label:  'Last fetched',
     public_hint:    'When enabled, anyone with the link can see your unread articles. Reading an article marks it as read.',
-    ai_section:     'AI Buttons',
-    ai_source_lbl:  'AI source',
-    ai_off:         'Disabled',
-    ai_mvmai:       'mvmAI — configured provider',
-    ai_cli:         'mvmAI — Claude CLI',
-    ai_btn_name_ph: 'Button name (e.g. Summarize)',
-    ai_btn_prmt_ph: 'Prompt (e.g. Summarize this article in Bulgarian in 3-4 sentences.)',
-    ai_add_btn:     '+ Add button',
-    ai_no_btns:     'No buttons yet.',
-    ai_examples:    'Examples: "Summarize in Bulgarian in 3-4 sentences." · "Translate fully to Bulgarian." · "TL;DR in English in 2 sentences."',
-    ai_running:     'Working…',
-    ai_result_close:'Close',
-    ai_scope_lbl:   'Show in',
-    ai_scope_list:  'List',
-    ai_scope_reader:'Reader',
-    ai_scope_both:  'Both',
+    deepl_section:    'DeepL Integration',
+    deepl_enable_lbl: 'Enable DeepL translate button',
+    deepl_needs_app:  'Requires the free DeepL Translator app — each reader enters their own DeepL API key there.',
+    deepl_translate:  'Translate',
+    deepl_translating:'Translating…',
+    deepl_close:      'Close',
+    deepl_key_missing:'Add your DeepL API key in the DeepL Translator app to translate.',
+    deepl_error:      'Translation failed. Please try again.',
   },
   bg: {
     title:          'RSS четец',
@@ -104,22 +96,378 @@ const _rssi18n = {
     error_label:    'Грешка',
     fetched_label:  'Последно обновен',
     public_hint:    'При активиране всеки с линка вижда непрочетените ти статии. Отварянето на статия я маркира като прочетена.',
-    ai_section:     'AI бутони',
-    ai_source_lbl:  'AI провайдър',
-    ai_off:         'Изключено',
-    ai_mvmai:       'mvmAI — настроен провайдър',
-    ai_cli:         'mvmAI — Claude CLI',
-    ai_btn_name_ph: 'Наименование (напр. Резюме)',
-    ai_btn_prmt_ph: 'Промпт (напр. Резюмирай на български в 3-4 изречения.)',
-    ai_add_btn:     '+ Добави бутон',
-    ai_no_btns:     'Няма бутони.',
-    ai_examples:    'Примери: "Резюмирай на български в 3-4 изречения." · "Преведи изцяло на български." · "TL;DR на 2 изречения."',
-    ai_running:     'Обработва…',
-    ai_result_close:'Затвори',
-    ai_scope_lbl:   'Показвай в',
-    ai_scope_list:  'Списък',
-    ai_scope_reader:'Reader',
-    ai_scope_both:  'И двете',
+    deepl_section:    'DeepL интеграция',
+    deepl_enable_lbl: 'Активирай бутон за превод с DeepL',
+    deepl_needs_app:  'Изисква безплатното приложение DeepL Translator — всеки читател въвежда там своя собствен DeepL API ключ.',
+    deepl_translate:  'Преведи',
+    deepl_translating:'Превежда се…',
+    deepl_close:      'Затвори',
+    deepl_key_missing:'Добавете своя DeepL API ключ в приложението DeepL Translator, за да превеждате.',
+    deepl_error:      'Преводът не бе успешен. Опитайте пак.',
+  },
+  de: {
+    title:          'RSS-Reader',
+    fetch:          '↻ Abrufen',
+    settings:       '⚙ Einstellungen',
+    all_feeds:      'Alle Feeds',
+    unread:         'Ungelesen',
+    read:           'Gelesen',
+    all_filter:     'Alle',
+    add_feed:       '+ Feed hinzufügen',
+    no_feeds:       'Noch keine Feeds. Füge einen in den Einstellungen hinzu.',
+    no_articles:    'Keine Artikel.',
+    back:           '← Zurück',
+    back_list:      '← Zurück',
+    open_original:  'Original öffnen ↗',
+    mark_all_read:  'Alle als gelesen markieren',
+    del_feed:       'Löschen',
+    feed_url_ph:    'RSS-/Atom-URL',
+    add:            'Hinzufügen',
+    cancel:         'Abbrechen',
+    settings_title: 'Einstellungen',
+    feeds_title:    'Feeds',
+    fetch_interval: 'Automatisch abrufen alle',
+    public_page:    'Öffentliche Leseliste',
+    public_url:     'Öffentliche URL',
+    copy:           'Kopieren',
+    copied:         'Kopiert!',
+    save:           'Speichern',
+    fetching:       'Wird abgerufen…',
+    feed_added:     'Feed hinzugefügt.',
+    settings_saved: 'Einstellungen gespeichert.',
+    min5:  '5 Minuten',  min15: '15 Minuten', min30: '30 Minuten',
+    h1:    '1 Stunde',   h2:    '2 Stunden',  h6:    '6 Stunden',
+    h12:   '12 Stunden', h24:   '24 Stunden',
+    filter_label:   'Anzeigen:',
+    source_label:   'Quelle:',
+    just_now:       'gerade eben',
+    ago_min:        'Min. her',
+    ago_h:          'Std. her',
+    ago_d:          'Tg. her',
+    saved:          'Gespeichert',
+    error_label:    'Fehler',
+    fetched_label:  'Zuletzt abgerufen',
+    public_hint:    'Wenn aktiviert, kann jeder mit dem Link deine ungelesenen Artikel sehen. Das Lesen eines Artikels markiert ihn als gelesen.',
+    deepl_section:    'DeepL-Integration',
+    deepl_enable_lbl: 'DeepL-Übersetzungsschaltfläche aktivieren',
+    deepl_needs_app:  'Erfordert die kostenlose App DeepL Translator — jeder Leser gibt dort seinen eigenen DeepL-API-Schlüssel ein.',
+    deepl_translate:  'Übersetzen',
+    deepl_translating:'Wird übersetzt…',
+    deepl_close:      'Schließen',
+    deepl_key_missing:'Füge deinen DeepL-API-Schlüssel in der App DeepL Translator hinzu, um zu übersetzen.',
+    deepl_error:      'Übersetzung fehlgeschlagen. Bitte erneut versuchen.',
+  },
+  es: {
+    title:          'Lector RSS',
+    fetch:          '↻ Actualizar',
+    settings:       '⚙ Configuración',
+    all_feeds:      'Todos los feeds',
+    unread:         'No leídos',
+    read:           'Leídos',
+    all_filter:     'Todos',
+    add_feed:       '+ Añadir feed',
+    no_feeds:       'Aún no hay feeds. Añade uno en Configuración.',
+    no_articles:    'No hay artículos.',
+    back:           '← Atrás',
+    back_list:      '← Atrás',
+    open_original:  'Abrir original ↗',
+    mark_all_read:  'Marcar todo como leído',
+    del_feed:       'Eliminar',
+    feed_url_ph:    'URL RSS / Atom',
+    add:            'Añadir',
+    cancel:         'Cancelar',
+    settings_title: 'Configuración',
+    feeds_title:    'Feeds',
+    fetch_interval: 'Actualizar automáticamente cada',
+    public_page:    'Lista de lectura pública',
+    public_url:     'URL pública',
+    copy:           'Copiar',
+    copied:         '¡Copiado!',
+    save:           'Guardar',
+    fetching:       'Actualizando…',
+    feed_added:     'Feed añadido.',
+    settings_saved: 'Configuración guardada.',
+    min5:  '5 minutos', min15: '15 minutos', min30: '30 minutos',
+    h1:    '1 hora',    h2:    '2 horas',    h6:    '6 horas',
+    h12:   '12 horas',  h24:   '24 horas',
+    filter_label:   'Mostrar:',
+    source_label:   'Fuente:',
+    just_now:       'ahora mismo',
+    ago_min:        'min',
+    ago_h:          'h',
+    ago_d:          'd',
+    saved:          'Guardados',
+    error_label:    'Error',
+    fetched_label:  'Última actualización',
+    public_hint:    'Al activarlo, cualquiera con el enlace puede ver tus artículos no leídos. Leer un artículo lo marca como leído.',
+    deepl_section:    'Integración con DeepL',
+    deepl_enable_lbl: 'Activar botón de traducción DeepL',
+    deepl_needs_app:  'Requiere la app gratuita DeepL Translator — cada lector introduce allí su propia clave API de DeepL.',
+    deepl_translate:  'Traducir',
+    deepl_translating:'Traduciendo…',
+    deepl_close:      'Cerrar',
+    deepl_key_missing:'Añade tu clave API de DeepL en la app DeepL Translator para traducir.',
+    deepl_error:      'La traducción falló. Inténtalo de nuevo.',
+  },
+  fr: {
+    title:          'Lecteur RSS',
+    fetch:          '↻ Actualiser',
+    settings:       '⚙ Paramètres',
+    all_feeds:      'Tous les flux',
+    unread:         'Non lus',
+    read:           'Lus',
+    all_filter:     'Tous',
+    add_feed:       '+ Ajouter un flux',
+    no_feeds:       'Aucun flux pour le moment. Ajoutez-en un dans les paramètres.',
+    no_articles:    'Aucun article.',
+    back:           '← Retour',
+    back_list:      '← Retour',
+    open_original:  "Ouvrir l'original ↗",
+    mark_all_read:  'Tout marquer comme lu',
+    del_feed:       'Supprimer',
+    feed_url_ph:    'URL RSS / Atom',
+    add:            'Ajouter',
+    cancel:         'Annuler',
+    settings_title: 'Paramètres',
+    feeds_title:    'Flux',
+    fetch_interval: 'Actualiser automatiquement toutes les',
+    public_page:    'Liste de lecture publique',
+    public_url:     'URL publique',
+    copy:           'Copier',
+    copied:         'Copié !',
+    save:           'Enregistrer',
+    fetching:       'Actualisation…',
+    feed_added:     'Flux ajouté.',
+    settings_saved: 'Paramètres enregistrés.',
+    min5:  '5 minutes', min15: '15 minutes', min30: '30 minutes',
+    h1:    '1 heure',   h2:    '2 heures',   h6:    '6 heures',
+    h12:   '12 heures', h24:   '24 heures',
+    filter_label:   'Afficher :',
+    source_label:   'Source :',
+    just_now:       "à l'instant",
+    ago_min:        'min',
+    ago_h:          'h',
+    ago_d:          'j',
+    saved:          'Enregistrés',
+    error_label:    'Erreur',
+    fetched_label:  'Dernière actualisation',
+    public_hint:    "Une fois activé, toute personne disposant du lien peut voir vos articles non lus. Lire un article le marque comme lu.",
+    deepl_section:    'Intégration DeepL',
+    deepl_enable_lbl: 'Activer le bouton de traduction DeepL',
+    deepl_needs_app:  "Nécessite l'application gratuite DeepL Translator — chaque lecteur y saisit sa propre clé API DeepL.",
+    deepl_translate:  'Traduire',
+    deepl_translating:'Traduction…',
+    deepl_close:      'Fermer',
+    deepl_key_missing:"Ajoutez votre clé API DeepL dans l'application DeepL Translator pour traduire.",
+    deepl_error:      'Échec de la traduction. Réessayez.',
+  },
+  ja: {
+    title:          'RSSリーダー',
+    fetch:          '↻ 更新',
+    settings:       '⚙ 設定',
+    all_feeds:      'すべてのフィード',
+    unread:         '未読',
+    read:           '既読',
+    all_filter:     'すべて',
+    add_feed:       '+ フィードを追加',
+    no_feeds:       'フィードがまだありません。設定から追加してください。',
+    no_articles:    '記事がありません。',
+    back:           '← 戻る',
+    back_list:      '← 戻る',
+    open_original:  '元の記事を開く ↗',
+    mark_all_read:  'すべて既読にする',
+    del_feed:       '削除',
+    feed_url_ph:    'RSS / Atom URL',
+    add:            '追加',
+    cancel:         'キャンセル',
+    settings_title: '設定',
+    feeds_title:    'フィード',
+    fetch_interval: '自動更新間隔',
+    public_page:    '公開の閲覧リスト',
+    public_url:     '公開URL',
+    copy:           'コピー',
+    copied:         'コピーしました!',
+    save:           '保存',
+    fetching:       '更新中…',
+    feed_added:     'フィードを追加しました。',
+    settings_saved: '設定を保存しました。',
+    min5:  '5分',  min15: '15分', min30: '30分',
+    h1:    '1時間', h2:    '2時間', h6:    '6時間',
+    h12:   '12時間', h24:  '24時間',
+    filter_label:   '表示:',
+    source_label:   'ソース:',
+    just_now:       'たった今',
+    ago_min:        '分前',
+    ago_h:          '時間前',
+    ago_d:          '日前',
+    saved:          '保存済み',
+    error_label:    'エラー',
+    fetched_label:  '最終更新',
+    public_hint:    '有効にすると、リンクを知っている人は誰でも未読記事を閲覧できます。記事を開くと既読になります。',
+    deepl_section:    'DeepL連携',
+    deepl_enable_lbl: 'DeepL翻訳ボタンを有効にする',
+    deepl_needs_app:  '無料のDeepL Translatorアプリが必要です — 各読者はそこで自分のDeepL APIキーを入力します。',
+    deepl_translate:  '翻訳',
+    deepl_translating:'翻訳中…',
+    deepl_close:      '閉じる',
+    deepl_key_missing:'翻訳するには、DeepL TranslatorアプリでDeepL APIキーを追加してください。',
+    deepl_error:      '翻訳に失敗しました。再試行してください。',
+  },
+  'pt-BR': {
+    title:          'Leitor RSS',
+    fetch:          '↻ Atualizar',
+    settings:       '⚙ Configurações',
+    all_feeds:      'Todos os feeds',
+    unread:         'Não lidos',
+    read:           'Lidos',
+    all_filter:     'Todos',
+    add_feed:       '+ Adicionar feed',
+    no_feeds:       'Ainda não há feeds. Adicione um nas Configurações.',
+    no_articles:    'Nenhum artigo.',
+    back:           '← Voltar',
+    back_list:      '← Voltar',
+    open_original:  'Abrir original ↗',
+    mark_all_read:  'Marcar tudo como lido',
+    del_feed:       'Excluir',
+    feed_url_ph:    'URL RSS / Atom',
+    add:            'Adicionar',
+    cancel:         'Cancelar',
+    settings_title: 'Configurações',
+    feeds_title:    'Feeds',
+    fetch_interval: 'Atualizar automaticamente a cada',
+    public_page:    'Lista de leitura pública',
+    public_url:     'URL pública',
+    copy:           'Copiar',
+    copied:         'Copiado!',
+    save:           'Salvar',
+    fetching:       'Atualizando…',
+    feed_added:     'Feed adicionado.',
+    settings_saved: 'Configurações salvas.',
+    min5:  '5 minutos', min15: '15 minutos', min30: '30 minutos',
+    h1:    '1 hora',    h2:    '2 horas',    h6:    '6 horas',
+    h12:   '12 horas',  h24:   '24 horas',
+    filter_label:   'Mostrar:',
+    source_label:   'Fonte:',
+    just_now:       'agora mesmo',
+    ago_min:        'min atrás',
+    ago_h:          'h atrás',
+    ago_d:          'd atrás',
+    saved:          'Salvos',
+    error_label:    'Erro',
+    fetched_label:  'Última atualização',
+    public_hint:    'Quando ativado, qualquer pessoa com o link pode ver seus artigos não lidos. Ler um artigo o marca como lido.',
+    deepl_section:    'Integração com DeepL',
+    deepl_enable_lbl: 'Ativar botão de tradução DeepL',
+    deepl_needs_app:  'Requer o app gratuito DeepL Translator — cada leitor insere lá sua própria chave de API do DeepL.',
+    deepl_translate:  'Traduzir',
+    deepl_translating:'Traduzindo…',
+    deepl_close:      'Fechar',
+    deepl_key_missing:'Adicione sua chave de API do DeepL no app DeepL Translator para traduzir.',
+    deepl_error:      'A tradução falhou. Tente novamente.',
+  },
+  ru: {
+    title:          'RSS-читалка',
+    fetch:          '↻ Обновить',
+    settings:       '⚙ Настройки',
+    all_feeds:      'Все ленты',
+    unread:         'Непрочитанные',
+    read:           'Прочитанные',
+    all_filter:     'Все',
+    add_feed:       '+ Добавить ленту',
+    no_feeds:       'Лент пока нет. Добавьте в настройках.',
+    no_articles:    'Нет статей.',
+    back:           '← Назад',
+    back_list:      '← Назад',
+    open_original:  'Открыть оригинал ↗',
+    mark_all_read:  'Отметить всё как прочитанное',
+    del_feed:       'Удалить',
+    feed_url_ph:    'URL RSS / Atom',
+    add:            'Добавить',
+    cancel:         'Отмена',
+    settings_title: 'Настройки',
+    feeds_title:    'Ленты',
+    fetch_interval: 'Автообновление каждые',
+    public_page:    'Публичный список чтения',
+    public_url:     'Публичная ссылка',
+    copy:           'Копировать',
+    copied:         'Скопировано!',
+    save:           'Сохранить',
+    fetching:       'Обновление…',
+    feed_added:     'Лента добавлена.',
+    settings_saved: 'Настройки сохранены.',
+    min5:  '5 минут', min15: '15 минут', min30: '30 минут',
+    h1:    '1 час',   h2:    '2 часа',   h6:    '6 часов',
+    h12:   '12 часов',h24:   '24 часа',
+    filter_label:   'Показать:',
+    source_label:   'Источник:',
+    just_now:       'только что',
+    ago_min:        'мин. назад',
+    ago_h:          'ч. назад',
+    ago_d:          'дн. назад',
+    saved:          'Сохранённые',
+    error_label:    'Ошибка',
+    fetched_label:  'Последнее обновление',
+    public_hint:    'При включении любой, у кого есть ссылка, может видеть ваши непрочитанные статьи. Открытие статьи отмечает её как прочитанную.',
+    deepl_section:    'Интеграция с DeepL',
+    deepl_enable_lbl: 'Включить кнопку перевода DeepL',
+    deepl_needs_app:  'Требуется бесплатное приложение DeepL Translator — каждый читатель вводит там свой собственный API-ключ DeepL.',
+    deepl_translate:  'Перевести',
+    deepl_translating:'Перевод…',
+    deepl_close:      'Закрыть',
+    deepl_key_missing:'Добавьте свой API-ключ DeepL в приложении DeepL Translator, чтобы переводить.',
+    deepl_error:      'Перевод не удался. Попробуйте снова.',
+  },
+  'zh-CN': {
+    title:          'RSS 阅读器',
+    fetch:          '↻ 获取',
+    settings:       '⚙ 设置',
+    all_feeds:      '所有订阅源',
+    unread:         '未读',
+    read:           '已读',
+    all_filter:     '全部',
+    add_feed:       '+ 添加订阅源',
+    no_feeds:       '还没有订阅源。请在设置中添加。',
+    no_articles:    '没有文章。',
+    back:           '← 返回',
+    back_list:      '← 返回',
+    open_original:  '打开原文 ↗',
+    mark_all_read:  '全部标记为已读',
+    del_feed:       '删除',
+    feed_url_ph:    'RSS / Atom 链接',
+    add:            '添加',
+    cancel:         '取消',
+    settings_title: '设置',
+    feeds_title:    '订阅源',
+    fetch_interval: '自动获取间隔',
+    public_page:    '公开阅读列表',
+    public_url:     '公开链接',
+    copy:           '复制',
+    copied:         '已复制!',
+    save:           '保存',
+    fetching:       '获取中…',
+    feed_added:     '已添加订阅源。',
+    settings_saved: '设置已保存。',
+    min5:  '5分钟', min15: '15分钟', min30: '30分钟',
+    h1:    '1小时', h2:    '2小时', h6:    '6小时',
+    h12:   '12小时', h24:  '24小时',
+    filter_label:   '显示:',
+    source_label:   '来源:',
+    just_now:       '刚刚',
+    ago_min:        '分钟前',
+    ago_h:          '小时前',
+    ago_d:          '天前',
+    saved:          '已收藏',
+    error_label:    '错误',
+    fetched_label:  '最后获取',
+    public_hint:    '启用后,任何拥有该链接的人都可以查看你的未读文章。打开文章会将其标记为已读。',
+    deepl_section:    'DeepL 集成',
+    deepl_enable_lbl: '启用 DeepL 翻译按钮',
+    deepl_needs_app:  '需要免费的 DeepL Translator 应用 — 每位读者在其中输入自己的 DeepL API 密钥。',
+    deepl_translate:  '翻译',
+    deepl_translating:'翻译中…',
+    deepl_close:      '关闭',
+    deepl_key_missing:'请在 DeepL Translator 应用中添加你的 DeepL API 密钥以进行翻译。',
+    deepl_error:      '翻译失败,请重试。',
   },
 };
 function _rsst(key) {
@@ -133,73 +481,48 @@ mvmOS.registerApp({
   icon: '📰',
   category: 'Media',
   requires_apphub: true,
-  renderSettingsExtra(container, saved) {
-    const _pendingBtns = (() => {
-      try { return JSON.parse(saved.ai_buttons || '[]'); } catch { return []; }
-    })();
-    const s = 'padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:.84rem;outline:none;';
-
+  async renderSettingsExtra(container) {
+    // The DeepL flag lives server-side (backend/apps/rssfeed cfg table, shared
+    // by every visitor), not in the per-browser local settings cache the core
+    // Settings panel passes in — reading/writing through that local cache showed
+    // a checkbox state that had nothing to do with reality and clobbered the
+    // other two server fields back to their defaults on every toggle.
+    let live = {};
+    try { live = await (await fetch('/api/apps/rssfeed/settings')).json(); } catch {}
+    const enabled = live.deepl_enabled === '1';
     container.innerHTML = `
       <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
-        <div style="font-size:.8rem;font-weight:600;color:var(--text-dim);margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px">AI Buttons</div>
-        <div id="rss-se-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"></div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <input id="rss-se-name" placeholder="Button name (e.g. Summarize)" style="${s}width:100%">
-          <textarea id="rss-se-prompt" placeholder="Prompt (e.g. Summarize in 3 sentences.)" rows="2"
-            style="${s}width:100%;resize:vertical;font-family:inherit"></textarea>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:.82rem;color:var(--text-dim)">Show in:</span>
-            <select id="rss-se-scope" style="${s}width:auto">
-              <option value="reader">Reader</option>
-              <option value="list">List</option>
-              <option value="both">Both</option>
-            </select>
-            <button id="rss-se-add" style="padding:5px 12px;border-radius:4px;cursor:pointer;font-size:.82rem;font-family:inherit;border:1px solid var(--accent);background:var(--accent);color:#1e1e2e">+ Add</button>
-          </div>
-          <div style="font-size:.72rem;color:var(--text-dim)">Examples: "Summarize in Bulgarian in 3 sentences." · "Translate to Bulgarian." · "TL;DR in 2 sentences."</div>
-        </div>
+        <div style="font-size:.8rem;font-weight:600;color:var(--text-dim);margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px">${_rsst('deepl_section')}</div>
+        <label id="rss-se-deepl-row" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="rss-se-deepl" ${enabled ? 'checked' : ''}>
+          <span style="font-size:.84rem">${_rsst('deepl_enable_lbl')}</span>
+        </label>
+        <div style="font-size:.72rem;color:var(--text-dim);margin-top:6px;margin-left:24px">${_rsst('deepl_needs_app')}</div>
       </div>`;
 
-    const listEl = container.querySelector('#rss-se-list');
+    const row = container.querySelector('#rss-se-deepl-row');
+    const cb  = container.querySelector('#rss-se-deepl');
+    window.mvmOS?.premiumGate?.(row, _rsst('deepl_needs_app'));
 
-    function renderList() {
-      listEl.innerHTML = _pendingBtns.length === 0
-        ? `<div style="font-size:.82rem;color:var(--text-dim)">No buttons yet.</div>`
-        : _pendingBtns.map((b, i) => `
-          <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:4px">
-            <div style="flex:1;min-width:0">
-              <span style="font-size:.84rem;font-weight:600">${b.name}</span>
-              <span style="font-size:.72rem;color:var(--text-dim);margin-left:6px">${b.scope||'reader'}</span>
-              <div style="font-size:.75rem;color:var(--text-dim);word-break:break-word">${b.prompt}</div>
-            </div>
-            <button data-i="${i}" style="background:none;border:none;cursor:pointer;color:#f38ba8;font-size:.8rem;padding:2px 6px;font-family:inherit">✕</button>
-          </div>`).join('');
-      listEl.querySelectorAll('button[data-i]').forEach(btn => {
-        btn.onclick = () => {
-          _pendingBtns.splice(parseInt(btn.dataset.i), 1);
-          save(); renderList();
-        };
-      });
-    }
-
-    function save() {
-      const db = mvmOS.db('rssfeed');
-      db.run('INSERT OR REPLACE INTO cfg(key,value) VALUES(?,?)', ['ai_buttons', JSON.stringify(_pendingBtns)]).catch(()=>{});
-      saved.ai_buttons = JSON.stringify(_pendingBtns);
-    }
-
-    container.querySelector('#rss-se-add').onclick = () => {
-      const name   = container.querySelector('#rss-se-name').value.trim();
-      const prompt = container.querySelector('#rss-se-prompt').value.trim();
-      if (!name || !prompt) return;
-      const scope  = container.querySelector('#rss-se-scope').value;
-      _pendingBtns.push({ name, prompt, scope });
-      container.querySelector('#rss-se-name').value   = '';
-      container.querySelector('#rss-se-prompt').value = '';
-      save(); renderList();
+    cb.onchange = async () => {
+      const val = cb.checked ? '1' : '0';
+      try {
+        const r = await fetch('/api/apps/rssfeed/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fetch_interval: live.fetch_interval || '30',
+            public_enabled: live.public_enabled || '0',
+            deepl_enabled:  val,
+          }),
+        });
+        if (!r.ok) throw new Error(await r.text().catch(() => r.statusText));
+        live.deepl_enabled = val;
+      } catch (e) {
+        cb.checked = !cb.checked;
+        window.mvmOS?.notify?.('RSS Reader', _rsst('deepl_error'));
+      }
     };
-
-    renderList();
   },
   launch() {
     mvmOS.createWindow({
@@ -301,30 +624,31 @@ const RSS = (() => {
     return b + 'border:1px solid var(--border);background:var(--surface);color:var(--text);';
   }
 
-  // ── AI ────────────────────────────────────────────────────────────────────
+  // ── DeepL ─────────────────────────────────────────────────────────────────
 
-  async function _runAI(prompt, article) {
-    const body = `${prompt}\n\n---\nTitle: ${article.title || ''}\n\n${_stripHtml(article.description || '').slice(0, 1200)}`;
-    const messages = [{ role: 'user', content: body }];
-    const source = _settings.ai_source || 'off';
-    if (source === 'claude-cli') {
-      const r = await fetch('/api/mvmai/cli-chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider_id: 'claude-cli', messages }),
-      });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.error || r.statusText);
-      return d.content || '';
-    }
-    const r = await fetch('/api/mvmai/chat', {
+  const _DEEPL_LANG_MAP = {
+    en: 'EN-US', bg: 'BG', de: 'DE', es: 'ES', fr: 'FR',
+    ja: 'JA', 'pt-BR': 'PT-BR', ru: 'RU', 'zh-CN': 'ZH',
+  };
+
+  async function _translate(text) {
+    const token = typeof AppHub !== 'undefined' ? AppHub.getToken() : null;
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['X-Pub-Token'] = token;
+    const lang = window.mvmOS?.lang || 'en';
+    const target_lang = _DEEPL_LANG_MAP[lang] || 'EN-US';
+    // Posts to RSS Reader's own endpoint, never to the DeepL app directly: the
+    // translation is a premium feature of *this* app, and only its premium
+    // module can perform one. On an install without that module the route is
+    // not there at all and this throws, which is the correct outcome.
+    const r = await fetch('/pub/rssfeed/translate', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages, tools_enabled: false }),
+      headers,
+      body: JSON.stringify({ text, target_lang }),
     });
-    const d = await r.json();
+    const d = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(d.error || r.statusText);
-    return d.message?.content || '';
+    return d.translated_text || '';
   }
 
   // ── Main render ───────────────────────────────────────────────────────────
@@ -458,10 +782,7 @@ const RSS = (() => {
   // ── Article list ──────────────────────────────────────────────────────────
 
   function _listHtml() {
-    const aiSource = _settings.ai_source || 'off';
-    let _allAiBtns = [];
-    if (aiSource !== 'off') { try { _allAiBtns = JSON.parse(_settings.ai_buttons || '[]'); } catch {} }
-    const listBtns = _allAiBtns.filter(b => (b.scope||'reader') === 'list' || b.scope === 'both');
+    const deeplOn = _settings.deepl_enabled === '1' && !!_settings.deepl_available;
     const filters = [
       { v: -1,      saved: false, lbl: _t('all_filter') },
       { v: 0,       saved: false, lbl: _t('unread') },
@@ -500,9 +821,9 @@ const RSS = (() => {
               <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
                 ${showFeed ? `<span style="color:var(--accent)">${_esc(a.feed_name)}</span>` : ''}
                 ${rel ? `<span>${rel}</span>` : ''}
-                ${listBtns.map((b, bi) => `<button class="rss-list-ai-btn" data-aid="${a.id}" data-bi="${bi}" style="background:none;border:1px solid var(--border);border-radius:3px;padding:1px 7px;font-size:.7rem;cursor:pointer;color:var(--text-dim);font-family:inherit" onclick="event.stopPropagation()">${_esc(b.name)}</button>`).join('')}
+                ${deeplOn ? `<button class="rss-list-tr-btn" data-aid="${a.id}" style="background:none;border:1px solid var(--border);border-radius:3px;padding:1px 7px;font-size:.7rem;cursor:pointer;color:var(--text-dim);font-family:inherit" onclick="event.stopPropagation()">${_esc(_t('deepl_translate'))}</button>` : ''}
               </div>
-              <div class="rss-list-ai-result" data-aid="${a.id}" style="display:none;margin-top:7px;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:8px 10px;font-size:.78rem;line-height:1.6;white-space:pre-wrap;word-break:break-word"></div>
+              ${deeplOn ? `<div class="rss-list-tr-result" data-aid="${a.id}" style="display:none;margin-top:7px;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:8px 10px;font-size:.78rem;line-height:1.6;white-space:pre-wrap;word-break:break-word"></div>` : ''}
             </div>
             <button class="rss-star" data-id="${a.id}" onclick="event.stopPropagation()"
               style="background:none;border:none;cursor:pointer;font-size:1.05rem;padding:2px 4px;flex-shrink:0;line-height:1;color:${a.is_saved?'#f59e0b':'var(--text-dim)'}">
@@ -562,28 +883,21 @@ const RSS = (() => {
         _render();
       };
     });
-    // List AI buttons
-    let _allAiBtns2 = [];
-    try { _allAiBtns2 = JSON.parse(_settings.ai_buttons || '[]'); } catch {}
-    const _listBtns2 = _allAiBtns2.filter(b => (b.scope||'reader') === 'list' || b.scope === 'both');
-    w.querySelectorAll('.rss-list-ai-btn').forEach(btn => {
+    w.querySelectorAll('.rss-list-tr-btn').forEach(btn => {
       btn.onclick = async (e) => {
         e.stopPropagation();
         const aid = parseInt(btn.dataset.aid);
-        const bi  = parseInt(btn.dataset.bi);
-        const b   = _listBtns2[bi];
-        if (!b) return;
         const a   = _articles.find(x => x.id === aid);
         if (!a) return;
         const orig = btn.textContent;
         btn.disabled = true;
-        btn.textContent = _t('ai_running');
-        const resultEl = w.querySelector(`.rss-list-ai-result[data-aid="${aid}"]`);
+        btn.textContent = _t('deepl_translating');
+        const resultEl = w.querySelector(`.rss-list-tr-result[data-aid="${aid}"]`);
         try {
-          const text = await _runAI(b.prompt, { title: a.title, description: _stripHtml(a.description || '').slice(0, 150) });
+          const text = await _translate(`${a.title || ''}\n\n${_stripHtml(a.description || '').slice(0, 1200)}`);
           if (resultEl) { resultEl.textContent = text; resultEl.style.display = ''; }
         } catch (err) {
-          if (resultEl) { resultEl.textContent = String(err); resultEl.style.display = ''; }
+          if (resultEl) { resultEl.textContent = _t('deepl_error'); resultEl.style.display = ''; }
         } finally {
           btn.disabled = false;
           btn.textContent = orig;
@@ -605,24 +919,16 @@ const RSS = (() => {
   function _readerHtml() {
     const a   = _selArticle;
     const rel = _relTime(a.pub_date || a.fetched_at);
-    const aiSource = _settings.ai_source || 'off';
-    let aiButtons = [];
-    if (aiSource !== 'off') {
-      try {
-        const all = JSON.parse(_settings.ai_buttons || '[]');
-        aiButtons = all.filter(b => (b.scope||'reader') === 'reader' || b.scope === 'both');
-      } catch {}
-    }
-    const aiRow = aiButtons.length > 0 ? `
-      <div id="rss-ai-btns" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-        ${aiButtons.map((b, i) => `<button class="rss-ai-btn" data-i="${i}" style="${_btnS('ghost')} font-size:.78rem;padding:4px 10px">${_esc(b.name)}</button>`).join('')}
+    const deeplOn = _settings.deepl_enabled === '1' && !!_settings.deepl_available;
+    const trRow = deeplOn ? `
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+        <button id="rss-tr-btn" style="${_btnS('ghost')} font-size:.78rem;padding:4px 10px">${_t('deepl_translate')}</button>
       </div>
-      <div id="rss-ai-result" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:16px;font-size:.84rem;line-height:1.7">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span id="rss-ai-result-label" style="font-size:.72rem;font-weight:600;color:var(--accent)"></span>
-          <button id="rss-ai-close" style="background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:.9rem;padding:0;font-family:inherit">${_t('ai_result_close')}</button>
+      <div id="rss-tr-result" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:16px;font-size:.84rem;line-height:1.7">
+        <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:8px">
+          <button id="rss-tr-close" style="background:none;border:none;cursor:pointer;color:var(--text-dim);font-size:.9rem;padding:0;font-family:inherit">${_t('deepl_close')}</button>
         </div>
-        <div id="rss-ai-result-text" style="white-space:pre-wrap;word-break:break-word"></div>
+        <div id="rss-tr-result-text" style="white-space:pre-wrap;word-break:break-word"></div>
       </div>` : '';
     return `
       <div style="flex:1;overflow-y:auto;padding:20px 22px">
@@ -634,7 +940,7 @@ const RSS = (() => {
           ${rel ? `<span style="color:var(--text-dim)">${rel}</span>` : ''}
         </div>
         <h2 style="font-size:1rem;font-weight:700;line-height:1.45;margin-bottom:14px;word-break:break-word">${_esc(a.title || '(no title)')}</h2>
-        ${aiRow}
+        ${trRow}
         <div id="rss-content" style="font-size:.86rem;line-height:1.7;color:var(--text);word-break:break-word;max-width:640px">
           ${a.description || '<span style="color:var(--text-dim)">—</span>'}
         </div>
@@ -650,31 +956,25 @@ const RSS = (() => {
       _selArticle = null;
       _render();
     };
-    w.querySelectorAll('.rss-ai-btn').forEach(btn => {
-      btn.onclick = async () => {
-        let aiButtons = [];
-        try { aiButtons = JSON.parse(_settings.ai_buttons || '[]'); } catch {}
-        const b = aiButtons[parseInt(btn.dataset.i)];
-        if (!b) return;
-        const orig = btn.textContent;
-        btn.disabled = true;
-        btn.textContent = _t('ai_running');
-        try {
-          const text = await _runAI(b.prompt, _selArticle);
-          const box   = w.querySelector('#rss-ai-result');
-          w.querySelector('#rss-ai-result-label').textContent = b.name;
-          w.querySelector('#rss-ai-result-text').textContent  = text;
-          box.style.display = '';
-        } catch (e) {
-          mvmOS.notify('RSS Reader', String(e));
-        } finally {
-          btn.disabled = false;
-          btn.textContent = orig;
-        }
-      };
-    });
-    const closeBtn = w.querySelector('#rss-ai-close');
-    if (closeBtn) closeBtn.onclick = () => { w.querySelector('#rss-ai-result').style.display = 'none'; };
+    const trBtn = w.querySelector('#rss-tr-btn');
+    if (trBtn) trBtn.onclick = async () => {
+      const orig = trBtn.textContent;
+      trBtn.disabled = true;
+      trBtn.textContent = _t('deepl_translating');
+      try {
+        const a = _selArticle;
+        const text = await _translate(`${a.title || ''}\n\n${_stripHtml(a.description || '').slice(0, 1200)}`);
+        w.querySelector('#rss-tr-result-text').textContent = text;
+        w.querySelector('#rss-tr-result').style.display = '';
+      } catch (e) {
+        mvmOS.notify('RSS Reader', _t('deepl_error'));
+      } finally {
+        trBtn.disabled = false;
+        trBtn.textContent = orig;
+      }
+    };
+    const closeBtn = w.querySelector('#rss-tr-close');
+    if (closeBtn) closeBtn.onclick = () => { w.querySelector('#rss-tr-result').style.display = 'none'; };
   }
 
   // ── Fetch now ─────────────────────────────────────────────────────────────
@@ -694,26 +994,6 @@ const RSS = (() => {
     } finally {
       _fetching = false;
     }
-  }
-
-  function _renderAiBtnList(container, btns, onDelete) {
-    container.innerHTML = btns.length === 0
-      ? `<div style="font-size:.8rem;color:var(--text-dim)">${_t('ai_no_btns')}</div>`
-      : btns.map((b, i) => `
-        <div style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;background:var(--surface);border:1px solid var(--border);border-radius:4px">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:.84rem;font-weight:600">${_esc(b.name)} <span style="font-size:.7rem;color:var(--text-dim);font-weight:400">${_t('ai_scope_' + (b.scope||'reader'))}</span></div>
-            <div style="font-size:.75rem;color:var(--text-dim);margin-top:2px;word-break:break-word">${_esc(b.prompt)}</div>
-          </div>
-          <button class="rss-ai-del" data-i="${i}" style="${_btnS('ghost')} font-size:.73rem;padding:3px 8px;flex-shrink:0">${_t('del_feed')}</button>
-        </div>`).join('');
-    container.querySelectorAll('.rss-ai-del').forEach(btn => {
-      btn.onclick = async () => {
-        _pendingAiButtons.splice(parseInt(btn.dataset.i), 1);
-        _renderAiBtnList(container, _pendingAiButtons, onDelete);
-        if (onDelete) await onDelete();
-      };
-    });
   }
 
   // ── Mount ─────────────────────────────────────────────────────────────────

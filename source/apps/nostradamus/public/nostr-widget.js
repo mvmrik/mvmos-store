@@ -8,6 +8,20 @@
   function bytes(s){var bin=atob(s),out=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);return out}
   var DEFAULT_RELAYS=['wss://relay.damus.io','wss://nos.lol','wss://relay.nostr.band','wss://relay.primal.net'];
   var MIN_MASTER=10;
+  // DeepL's full target-language list (matches apps/deepl/public/widget.js) —
+  // this picks the DeepL translation target, not the mvmOS UI language, so it
+  // isn't limited to the 9 languages the rest of the interface is translated into.
+  var NOS_LANGS=[
+    {value:'BG',label:'Bulgarian'},{value:'ZH',label:'Chinese'},{value:'CS',label:'Czech'},{value:'DA',label:'Danish'},
+    {value:'NL',label:'Dutch'},{value:'EN-GB',label:'English (British)'},{value:'EN-US',label:'English (American)'},
+    {value:'ET',label:'Estonian'},{value:'FI',label:'Finnish'},{value:'FR',label:'French'},{value:'DE',label:'German'},
+    {value:'EL',label:'Greek'},{value:'HU',label:'Hungarian'},{value:'ID',label:'Indonesian'},{value:'IT',label:'Italian'},
+    {value:'JA',label:'Japanese'},{value:'KO',label:'Korean'},{value:'LV',label:'Latvian'},{value:'LT',label:'Lithuanian'},
+    {value:'NB',label:'Norwegian'},{value:'PL',label:'Polish'},{value:'PT-BR',label:'Portuguese (Brazilian)'},
+    {value:'PT-PT',label:'Portuguese (European)'},{value:'RO',label:'Romanian'},{value:'RU',label:'Russian'},
+    {value:'SK',label:'Slovak'},{value:'SL',label:'Slovenian'},{value:'ES',label:'Spanish'},{value:'SV',label:'Swedish'},
+    {value:'TR',label:'Turkish'},{value:'UK',label:'Ukrainian'},
+  ];
 
   // ---- NIP-19 bech32 (BIP-173 reference algorithm, hand-rolled: no CDN dep) ----
   var CHARSET='qpzry9x8gf2tvdw0s3jn54khce6mua7l';
@@ -311,18 +325,78 @@
   function idbDel(id){return idbRun('readwrite',function(store){store.delete(id);return null}).catch(function(){})}
 
   var styled=false;
-  function style(){if(styled)return;styled=true;var s=document.createElement('style');s.textContent='.nos,.nos *,.nos-modal,.nos-modal *{box-sizing:border-box}.nos{height:100%;display:flex;flex-direction:column;position:relative;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif;overflow:hidden}.nos-bar{border-bottom:1px solid var(--pub-border,#45475a);flex:0 0 auto}.nos-bar-head{display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem}.nos-title{font-weight:700;font-size:.88rem;white-space:nowrap}.nos-tabs{display:flex;gap:.25rem;flex:1;overflow-x:auto;scrollbar-width:none}.nos-tabs::-webkit-scrollbar{display:none}.nos-tab{background:transparent;padding:.35rem .6rem;border-radius:.5rem;white-space:nowrap;position:relative}.nos-tab.active{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos-badge{display:inline-block;min-width:1.05rem;padding:0 .25rem;margin-left:.25rem;border-radius:.6rem;background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1.05rem;text-align:center}.nos-bar-btn{flex:0 0 auto;padding:.35rem .5rem;display:inline-flex;align-items:center;justify-content:center}.nos-me{flex:0 0 auto;padding:0;background:none!important}.nos-modes{display:flex;gap:.3rem;padding:0 .7rem .55rem;overflow-x:auto;scrollbar-width:none}.nos-modes::-webkit-scrollbar{display:none}.nos-mode{background:var(--pub-surface2,#313244);padding:.28rem .6rem;border-radius:999px;font-size:.74rem;white-space:nowrap}.nos-mode.active{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos-body{flex:1;min-height:0;overflow:auto;padding:.7rem}.nos button,.nos input,.nos textarea,.nos select,.nos-modal button,.nos-modal textarea{font:inherit}.nos button,.nos-modal button{border:0;border-radius:.45rem;padding:.45rem .7rem;cursor:pointer;font-size:.8rem;font-weight:600;background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4);transition:filter .15s,transform .15s}.nos button:hover,.nos-modal button:hover{filter:brightness(1.12)}.nos button:active{transform:translateY(1px)}.nos button:disabled{opacity:.6;cursor:default}.nos .primary,.nos-modal .primary{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos input,.nos textarea,.nos select,.nos-modal textarea{width:100%;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;color:var(--pub-fg,#cdd6f4);padding:.55rem .65rem;outline:none;margin:.3rem 0}.nos input:focus,.nos textarea:focus,.nos select:focus,.nos-modal textarea:focus{border-color:var(--pub-accent,#89b4fa)}.nos-error{min-height:1.2rem;color:var(--pub-red,#f38ba8);font-size:.8rem;margin:.3rem 0}.nos-empty{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;padding:1.5rem;color:var(--pub-fg2,#a6adc8);font-size:.85rem}.nos-unlock,.nos-onboard{display:flex;flex:1;align-items:center;justify-content:center;padding:1rem}.nos-unlock>div,.nos-card{width:100%;max-width:24rem;background:var(--pub-surface2,#313244);padding:1.25rem;border-radius:.7rem}.nos-unlock h2,.nos-card h2{font-size:1.05rem;margin:0 0 .4rem}.nos-unlock p,.nos-card p{font-size:.82rem;line-height:1.45;color:var(--pub-fg2,#a6adc8)}.nos-duration-hint{font-size:.72rem;opacity:.75;margin:.2rem 0 .6rem}.nos-warn{font-size:.78rem;line-height:1.45;color:var(--pub-yellow,#f9e2af);border:1px solid var(--pub-yellow,#f9e2af);border-radius:.45rem;padding:.5rem .6rem;margin:.5rem 0}.nos-link{background:none!important;padding:.4rem 0;font-size:.78rem;font-weight:400;color:var(--pub-accent,#89b4fa);text-decoration:underline}.nos-view-value{background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;padding:.55rem .65rem;font-size:.8rem;overflow-wrap:anywhere;margin:.3rem 0}.nos-key-value{font-family:monospace}.nos-check{display:flex!important;align-items:center;gap:.45rem;width:auto;font-size:.8rem;cursor:pointer}.nos-check input{width:auto;margin:0}.nos-note{border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);border-radius:.65rem;padding:.65rem;margin-bottom:.55rem;cursor:pointer;transition:background .3s}.nos-note:hover{filter:brightness(1.05)}.nos-note.nos-flat{border:0;background:none;padding:.55rem 0;border-bottom:1px solid var(--pub-border,#45475a);border-radius:0;margin:0}.nos-boost{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.35rem}.nos-note-head{display:flex;align-items:center;gap:.5rem}.nos-avatar-wrap{position:relative;width:2.1rem;height:2.1rem;flex:0 0 auto;cursor:pointer}.nos-avatar-wrap.nos-lg{width:4rem;height:4rem}.nos-avatar{position:absolute;inset:0;width:100%;height:100%;border-radius:.5rem;object-fit:cover;display:grid;place-items:center;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:800;overflow:hidden}.nos-avatar-img{background:var(--pub-surface2,#313244)}.nos-note-who{flex:1;min-width:0;cursor:pointer}.nos-note-name{display:block;font-weight:700;font-size:.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nos-note-time{display:block;font-size:.71rem;color:var(--pub-dim,#a6adc8)}.nos-nip05{font-size:.71rem;color:var(--pub-accent,#89b4fa)}.nos-follow-btn{flex:0 0 auto;padding:.28rem .55rem;font-size:.72rem}.nos-reply-of-wrap{margin:.35rem 0}.nos-reply-of-label{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.2rem}.nos-reply-of-wrap .nos-quote{margin:0;padding:.4rem .5rem}.nos-reply-of-wrap .nos-quote .nos-note-content{font-size:.76rem;max-height:5rem}.nos-reply-of-wrap .nos-avatar-wrap{width:1.5rem;height:1.5rem}.nos-reply-of-wrap .nos-note-name{font-size:.76rem}.nos-reply-of-wrap .nos-note-time{font-size:.66rem}.nos-note-content{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.86rem;margin:.4rem 0;overflow:hidden}.nos-note-content a{color:var(--pub-accent,#89b4fa)}.nos-mention{color:var(--pub-accent,#89b4fa);cursor:pointer}.nos-embed-link{display:block;width:100%}.nos-embed-img{display:block;max-width:100%;height:auto;max-height:22rem;border-radius:.5rem;margin-top:.4rem;object-fit:contain}.nos-quote{border:1px solid var(--pub-border,#45475a);border-radius:.5rem;padding:.5rem;margin:.45rem 0;background:var(--pub-bg,#1e1e2e)}.nos-quote .nos-note-content{font-size:.8rem;max-height:12rem}.nos-note-actions{display:flex;gap:.15rem;flex-wrap:wrap;margin-top:.2rem}.nos-act{background:transparent!important;padding:.3rem .45rem;font-size:.74rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-act:hover{color:var(--pub-fg,#cdd6f4)}.nos-act.on{color:var(--pub-accent,#89b4fa);font-weight:700}.nos-act.nos-a-like.on{color:var(--pub-red,#f38ba8)}.nos-act.nos-a-repost.on{color:var(--pub-green,#a6e3a1)}.nos-modal{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:1rem;z-index:20;overflow:auto}.nos-modal-card{width:100%;max-width:30rem;background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border-radius:.7rem;padding:.9rem;font-family:system-ui,sans-serif}.nos-modal-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem}.nos-modal-title{flex:1;font-weight:700;font-size:.9rem}.nos-modal-input{min-height:6rem;resize:vertical}.nos-modal-foot{display:flex;gap:.4rem;justify-content:flex-end;align-items:center}.nos-modal-ctx{max-height:11rem;overflow:auto;margin-bottom:.5rem}.nos-user-head{margin-bottom:.7rem}.nos-banner{width:100%;height:6.5rem;object-fit:cover;border-radius:.5rem;background:var(--pub-surface2,#313244)}.nos-user-row{display:flex;align-items:flex-end;gap:.6rem;margin-top:-1.6rem;padding:0 .3rem}.nos-user-meta{flex:1;min-width:0;padding-bottom:.2rem}.nos-user-name{font-weight:800;font-size:1rem}.nos-user-about{font-size:.82rem;line-height:1.45;margin:.5rem 0;white-space:pre-wrap;overflow-wrap:anywhere}.nos-user-stats{font-size:.74rem;color:var(--pub-fg2,#a6adc8);display:flex;gap:.9rem;flex-wrap:wrap}.nos-notif{display:flex;gap:.5rem;align-items:flex-start;border-bottom:1px solid var(--pub-border,#45475a);padding:.55rem .1rem;cursor:pointer}.nos-notif-body{flex:1;min-width:0}.nos-notif-line{font-size:.8rem}.nos-notif-quote{font-size:.76rem;color:var(--pub-fg2,#a6adc8);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-top:.15rem}.nos-notif-time{font-size:.7rem;color:var(--pub-dim,#a6adc8)}.nos-profile-form label{display:block;font-size:.75rem;font-weight:700;color:var(--pub-fg2,#a6adc8);margin:.55rem 0 .15rem}.nos-profile-form textarea{min-height:4rem}.nos-profile-meta{margin-top:1rem;font-size:.76rem;color:var(--pub-fg2,#a6adc8)}.nos-relay-row{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--pub-border,#45475a);font-size:.82rem;flex-wrap:wrap}.nos-relay-dot{width:.6rem;height:.6rem;border-radius:50%;flex:0 0 auto;background:var(--pub-dim,#a6adc8)}.nos-relay-open{background:var(--pub-green,#a6e3a1)}.nos-relay-connecting{background:var(--pub-yellow,#f9e2af)}.nos-relay-closed,.nos-relay-error{background:var(--pub-red,#f38ba8)}.nos-relay-url{flex:1;min-width:9rem;overflow-wrap:anywhere}.nos-relay-del{flex:0 0 auto;padding:.3rem .5rem}.nos-relay-add{display:flex;gap:.4rem;margin-top:.6rem}.nos-relay-add input{flex:1;margin:0}.nos-relay-add button{flex:0 0 auto}.nos-newposts{position:sticky;top:0;left:0;z-index:5;display:flex;align-items:center;gap:.4rem;margin:0 auto .6rem;padding:.4rem .8rem .4rem .4rem;border-radius:999px;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-size:.78rem;font-weight:700;box-shadow:0 .25rem .6rem rgba(0,0,0,.25)}.nos-newposts-avatars{display:flex}.nos-newposts-avatars .nos-avatar-wrap{width:1.6rem;height:1.6rem;margin-left:-.6rem;border:2px solid var(--pub-accent,#89b4fa);border-radius:.6rem}.nos-newposts-avatars .nos-avatar-wrap:first-child{margin-left:0}.nos-newposts-avatars .nos-avatar{font-size:.68rem}.nos-people-stats{display:flex;gap:1rem;margin:.5rem 0}.nos-people-btn{background:none!important;padding:0;font-size:.8rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-people-btn:hover{color:var(--pub-fg,#cdd6f4)}.nos-people-btn b{color:var(--pub-fg,#cdd6f4);font-weight:700}.nos-modal-images{display:flex;gap:.4rem;flex-wrap:wrap;margin:.3rem 0}.nos-modal-image{position:relative;width:4.5rem;height:4.5rem}.nos-modal-image img{width:100%;height:100%;object-fit:cover;border-radius:.45rem}.nos-modal-image-del{position:absolute;top:-.35rem;right:-.35rem;width:1.3rem;height:1.3rem;padding:0;border-radius:50%;background:var(--pub-red,#f38ba8)!important;color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1;display:flex;align-items:center;justify-content:center}.nos-modal-image-btn{background:transparent!important;font-size:1rem;padding:.4rem .5rem}.nos-modal-foot{align-items:center}.nos-identity-row{display:flex;align-items:center;gap:.5rem;padding:.45rem 0;border-bottom:1px solid var(--pub-border,#45475a)}.nos-identity-row[data-npub]{cursor:pointer}.nos-identity-row .nos-avatar-wrap{width:1.8rem;height:1.8rem}.nos-identity-label{flex:1;min-width:0;overflow-wrap:anywhere;font-size:.8rem}.nos-identity-actions{display:flex;gap:.3rem;flex:0 0 auto}.nos-identity-actions button{padding:.25rem .5rem;font-size:.72rem}.nos-identities-title{font-weight:700;font-size:.76rem;margin-top:.7rem}';document.head.appendChild(s)}
+  function style(){if(styled)return;styled=true;var s=document.createElement('style');s.textContent='.nos,.nos *,.nos-modal,.nos-modal *{box-sizing:border-box}.nos{height:100%;display:flex;flex-direction:column;position:relative;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif;overflow:hidden}.nos-bar{border-bottom:1px solid var(--pub-border,#45475a);flex:0 0 auto}.nos-bar-head{display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem}.nos-title{font-weight:700;font-size:.88rem;white-space:nowrap}.nos-tabs{display:flex;gap:.25rem;flex:1;overflow-x:auto;scrollbar-width:none}.nos-tabs::-webkit-scrollbar{display:none}.nos-tab{background:transparent;padding:.35rem .6rem;border-radius:.5rem;white-space:nowrap;position:relative}.nos-tab.active{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos-badge{display:inline-block;min-width:1.05rem;padding:0 .25rem;margin-left:.25rem;border-radius:.6rem;background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1.05rem;text-align:center}.nos-bar-btn{flex:0 0 auto;padding:.35rem .5rem;display:inline-flex;align-items:center;justify-content:center}.nos-me{flex:0 0 auto;padding:0;background:none!important}.nos-modes{display:flex;gap:.3rem;padding:0 .7rem .55rem;overflow-x:auto;scrollbar-width:none}.nos-modes::-webkit-scrollbar{display:none}.nos-mode{background:var(--pub-surface2,#313244);padding:.28rem .6rem;border-radius:999px;font-size:.74rem;white-space:nowrap}.nos-mode.active{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos-body{flex:1;min-height:0;overflow:auto;padding:.7rem}.nos button,.nos input,.nos textarea,.nos select,.nos-modal button,.nos-modal textarea{font:inherit}.nos button,.nos-modal button{border:0;border-radius:.45rem;padding:.45rem .7rem;cursor:pointer;font-size:.8rem;font-weight:600;background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4);transition:filter .15s,transform .15s}.nos button:hover,.nos-modal button:hover{filter:brightness(1.12)}.nos button:active{transform:translateY(1px)}.nos button:disabled{opacity:.6;cursor:default}.nos .primary,.nos-modal .primary{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos input,.nos textarea,.nos select,.nos-modal textarea{width:100%;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;color:var(--pub-fg,#cdd6f4);padding:.55rem .65rem;outline:none;margin:.3rem 0}.nos input:focus,.nos textarea:focus,.nos select:focus,.nos-modal textarea:focus{border-color:var(--pub-accent,#89b4fa)}.nos-error{min-height:1.2rem;color:var(--pub-red,#f38ba8);font-size:.8rem;margin:.3rem 0}.nos-empty{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;padding:1.5rem;color:var(--pub-fg2,#a6adc8);font-size:.85rem}.nos-unlock,.nos-onboard{display:flex;flex:1;align-items:center;justify-content:center;padding:1rem}.nos-unlock>div,.nos-card{width:100%;max-width:24rem;background:var(--pub-surface2,#313244);padding:1.25rem;border-radius:.7rem}.nos-unlock h2,.nos-card h2{font-size:1.05rem;margin:0 0 .4rem}.nos-unlock p,.nos-card p{font-size:.82rem;line-height:1.45;color:var(--pub-fg2,#a6adc8)}.nos-duration-hint{font-size:.72rem;opacity:.75;margin:.2rem 0 .6rem}.nos-warn{font-size:.78rem;line-height:1.45;color:var(--pub-yellow,#f9e2af);border:1px solid var(--pub-yellow,#f9e2af);border-radius:.45rem;padding:.5rem .6rem;margin:.5rem 0}.nos-link{background:none!important;padding:.4rem 0;font-size:.78rem;font-weight:400;color:var(--pub-accent,#89b4fa);text-decoration:underline}.nos-view-value{background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;padding:.55rem .65rem;font-size:.8rem;overflow-wrap:anywhere;margin:.3rem 0}.nos-key-value{font-family:monospace}.nos-check{display:flex!important;align-items:center;gap:.45rem;width:auto;font-size:.8rem;cursor:pointer}.nos-check input{width:auto;margin:0}.nos-note{border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);border-radius:.65rem;padding:.65rem;margin-bottom:.55rem;cursor:pointer;transition:background .3s}.nos-note:hover{filter:brightness(1.05)}.nos-note.nos-flat{border:0;background:none;padding:.55rem 0;border-bottom:1px solid var(--pub-border,#45475a);border-radius:0;margin:0}.nos-boost{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.35rem}.nos-note-head{display:flex;align-items:center;gap:.5rem}.nos-avatar-wrap{position:relative;width:2.1rem;height:2.1rem;flex:0 0 auto;cursor:pointer}.nos-avatar-wrap.nos-lg{width:4rem;height:4rem}.nos-avatar{position:absolute;inset:0;width:100%;height:100%;border-radius:.5rem;object-fit:cover;display:grid;place-items:center;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:800;overflow:hidden}.nos-avatar-img{background:var(--pub-surface2,#313244)}.nos-note-who{flex:1;min-width:0;cursor:pointer}.nos-note-name{display:block;font-weight:700;font-size:.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nos-note-time{display:block;font-size:.71rem;color:var(--pub-dim,#a6adc8)}.nos-nip05{font-size:.71rem;color:var(--pub-accent,#89b4fa)}.nos-follow-btn{flex:0 0 auto;padding:.28rem .55rem;font-size:.72rem}.nos-reply-of-wrap{margin:.35rem 0}.nos-reply-of-label{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.2rem}.nos-reply-of-wrap .nos-quote{margin:0;padding:.4rem .5rem}.nos-reply-of-wrap .nos-quote .nos-note-content{font-size:.76rem;max-height:5rem}.nos-reply-of-wrap .nos-avatar-wrap{width:1.5rem;height:1.5rem}.nos-reply-of-wrap .nos-note-name{font-size:.76rem}.nos-reply-of-wrap .nos-note-time{font-size:.66rem}.nos-note-content{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.86rem;margin:.4rem 0;overflow:hidden}.nos-note-content a{color:var(--pub-accent,#89b4fa)}.nos-mention{color:var(--pub-accent,#89b4fa);cursor:pointer}.nos-embed-link{display:block;width:100%}.nos-embed-img{display:block;max-width:100%;height:auto;max-height:22rem;border-radius:.5rem;margin-top:.4rem;object-fit:contain}.nos-quote{border:1px solid var(--pub-border,#45475a);border-radius:.5rem;padding:.5rem;margin:.45rem 0;background:var(--pub-bg,#1e1e2e)}.nos-quote .nos-note-content{font-size:.8rem;max-height:12rem}.nos-note-actions{display:flex;gap:.15rem;flex-wrap:wrap;margin-top:.2rem}.nos-act{background:transparent!important;padding:.3rem .45rem;font-size:.74rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-act:hover{color:var(--pub-fg,#cdd6f4)}.nos-act.on{color:var(--pub-accent,#89b4fa);font-weight:700}.nos-act.nos-a-like.on{color:var(--pub-red,#f38ba8)}.nos-act.nos-a-repost.on{color:var(--pub-green,#a6e3a1)}.nos-note-translation{font-size:.82rem;line-height:1.4;font-style:italic;color:var(--pub-fg2,#a6adc8);border-top:1px dashed var(--pub-border,#45475a);padding-top:.35rem;margin-top:.2rem;overflow-wrap:anywhere;white-space:pre-wrap}.nos-modal{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:1rem;z-index:20;overflow:auto}.nos-modal-card{width:100%;max-width:30rem;background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border-radius:.7rem;padding:.9rem;font-family:system-ui,sans-serif}.nos-modal-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem}.nos-modal-title{flex:1;font-weight:700;font-size:.9rem}.nos-modal-input{min-height:6rem;resize:vertical}.nos-modal-foot{display:flex;gap:.4rem;justify-content:flex-end;align-items:center}.nos-modal-ctx{max-height:11rem;overflow:auto;margin-bottom:.5rem}.nos-user-head{margin-bottom:.7rem}.nos-banner{width:100%;height:6.5rem;object-fit:cover;border-radius:.5rem;background:var(--pub-surface2,#313244)}.nos-user-row{display:flex;align-items:flex-end;gap:.6rem;margin-top:-1.6rem;padding:0 .3rem}.nos-user-meta{flex:1;min-width:0;padding-bottom:.2rem}.nos-user-name{font-weight:800;font-size:1rem}.nos-user-about{font-size:.82rem;line-height:1.45;margin:.5rem 0;white-space:pre-wrap;overflow-wrap:anywhere}.nos-user-stats{font-size:.74rem;color:var(--pub-fg2,#a6adc8);display:flex;gap:.9rem;flex-wrap:wrap}.nos-notif{display:flex;gap:.5rem;align-items:flex-start;border-bottom:1px solid var(--pub-border,#45475a);padding:.55rem .1rem;cursor:pointer}.nos-notif-body{flex:1;min-width:0}.nos-notif-line{font-size:.8rem}.nos-notif-quote{font-size:.76rem;color:var(--pub-fg2,#a6adc8);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-top:.15rem}.nos-notif-time{font-size:.7rem;color:var(--pub-dim,#a6adc8)}.nos-profile-form label{display:block;font-size:.75rem;font-weight:700;color:var(--pub-fg2,#a6adc8);margin:.55rem 0 .15rem}.nos-profile-form textarea{min-height:4rem}.nos-profile-meta{margin-top:1rem;font-size:.76rem;color:var(--pub-fg2,#a6adc8)}.nos-relay-row{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--pub-border,#45475a);font-size:.82rem;flex-wrap:wrap}.nos-relay-dot{width:.6rem;height:.6rem;border-radius:50%;flex:0 0 auto;background:var(--pub-dim,#a6adc8)}.nos-relay-open{background:var(--pub-green,#a6e3a1)}.nos-relay-connecting{background:var(--pub-yellow,#f9e2af)}.nos-relay-closed,.nos-relay-error{background:var(--pub-red,#f38ba8)}.nos-relay-url{flex:1;min-width:9rem;overflow-wrap:anywhere}.nos-relay-del{flex:0 0 auto;padding:.3rem .5rem}.nos-relay-add{display:flex;gap:.4rem;margin-top:.6rem}.nos-relay-add input{flex:1;margin:0}.nos-relay-add button{flex:0 0 auto}.nos-newposts{position:sticky;top:0;left:0;z-index:5;display:flex;align-items:center;gap:.4rem;margin:0 auto .6rem;padding:.4rem .8rem .4rem .4rem;border-radius:999px;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-size:.78rem;font-weight:700;box-shadow:0 .25rem .6rem rgba(0,0,0,.25)}.nos-newposts-avatars{display:flex}.nos-newposts-avatars .nos-avatar-wrap{width:1.6rem;height:1.6rem;margin-left:-.6rem;border:2px solid var(--pub-accent,#89b4fa);border-radius:.6rem}.nos-newposts-avatars .nos-avatar-wrap:first-child{margin-left:0}.nos-newposts-avatars .nos-avatar{font-size:.68rem}.nos-people-stats{display:flex;gap:1rem;margin:.5rem 0}.nos-people-btn{background:none!important;padding:0;font-size:.8rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-people-btn:hover{color:var(--pub-fg,#cdd6f4)}.nos-people-btn b{color:var(--pub-fg,#cdd6f4);font-weight:700}.nos-modal-images{display:flex;gap:.4rem;flex-wrap:wrap;margin:.3rem 0}.nos-modal-image{position:relative;width:4.5rem;height:4.5rem}.nos-modal-image img{width:100%;height:100%;object-fit:cover;border-radius:.45rem}.nos-modal-image-del{position:absolute;top:-.35rem;right:-.35rem;width:1.3rem;height:1.3rem;padding:0;border-radius:50%;background:var(--pub-red,#f38ba8)!important;color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1;display:flex;align-items:center;justify-content:center}.nos-modal-image-btn{background:transparent!important;font-size:1rem;padding:.4rem .5rem}.nos-modal-foot{align-items:center}.nos-identity-row{display:flex;align-items:center;gap:.5rem;padding:.45rem 0;border-bottom:1px solid var(--pub-border,#45475a)}.nos-identity-row[data-npub]{cursor:pointer}.nos-identity-row .nos-avatar-wrap{width:1.8rem;height:1.8rem}.nos-identity-label{flex:1;min-width:0;overflow-wrap:anywhere;font-size:.8rem}.nos-identity-actions{display:flex;gap:.3rem;flex:0 0 auto}.nos-identity-actions button{padding:.25rem .5rem;font-size:.72rem}.nos-identities-title{font-weight:700;font-size:.76rem;margin-top:.7rem}';document.head.appendChild(s)}
 
   function mount(root,opts){
     opts=opts||{};style();
     var token=localStorage.getItem('apphub_token');
     if(!token){root.innerHTML='<div class="nos-empty">'+esc(t('nos_login'))+'</div>';if(opts.onNeedLogin)opts.onNeedLogin();return{destroy:function(){}}}
     var DURATION_KEY='nos_vault_duration',TAB_KEY='nos_vault_tab',SEEN_KEY='nos_notif_seen',FEED_MODE_KEY='nos_feed_mode',ACTIVE_KEY='nos_active_npub';
+    var TR_LANG_KEY='nos_translate_lang',PUB_LANG_KEY='nos_publish_lang';
     var FEED_MODES=['following','1','4','24'];
     var MAX_STREAK=7;
     var key=null,privBytes=null,pubHex=null,vaultInfo=null,relays=[],autoLockTimer=0,destroyed=false,session=null;
     var _prefs={};
     fetch('/api/pub/apphub/me',{headers:{'X-Pub-Token':token}}).then(function(r){return r.ok?r.json():{}}).then(function(p){_prefs=p||{}}).catch(function(){});
+    // Translate/publish target language, saved per Apps Hub account on the
+    // server so it follows the user across devices instead of resetting on
+    // every browser. _langPrefs starts empty and fills in once the fetch
+    // below resolves; translateTargetLang/publishTargetLang fall back to
+    // localStorage (pre-migration values from before this moved server-side)
+    // until then, and one-time-migrate any such value up to the server.
+    var _langPrefs={};
+    fetch(API+'/prefs',{headers:{'X-Pub-Token':token}}).then(function(r){return r.ok?r.json():{}}).then(function(p){
+      _langPrefs=p||{};
+      var migrate={};
+      if(!_langPrefs.translate_lang){var v=localStorage.getItem(TR_LANG_KEY);if(v)migrate.translate_lang=LEGACY_LANG_MAP[v]||v}
+      if(!_langPrefs.publish_lang){var v2=localStorage.getItem(PUB_LANG_KEY);if(v2)migrate.publish_lang=LEGACY_LANG_MAP[v2]||v2}
+      if(migrate.translate_lang||migrate.publish_lang){
+        Object.assign(_langPrefs,migrate);
+        fetch(API+'/prefs',{method:'PUT',headers:{'Content-Type':'application/json','X-Pub-Token':token},body:JSON.stringify(migrate)}).catch(function(){});
+      }
+      renderBody();
+    }).catch(function(){});
+    // The translate button and the composer's translate-before-publish button are
+    // both premium-gated server-side: this flag only says whether the server has
+    // turned the integration on, never anything about the viewer's own premium
+    // status (the public page must never show premium messaging at all).
+    var deeplEnabled=false;
+    fetch(API+'/deepl-status').then(function(r){return r.ok?r.json():{}}).then(function(d){deeplEnabled=!!d.enabled;renderBody();scheduleRenderShell()}).catch(function(){});
+    var translations={};
+    // Values saved before the language list grew to DeepL's full set were the
+    // 9 mvmOS UI locale codes (en, bg, zh-CN…) — map anyone's already-saved
+    // choice onto its DeepL equivalent so it doesn't silently break.
+    var LEGACY_LANG_MAP={en:'EN-US',bg:'BG',de:'DE',es:'ES',fr:'FR',ja:'JA','pt-BR':'PT-BR',ru:'RU','zh-CN':'ZH'};
+    function translateTargetLang(){if(_langPrefs.translate_lang)return _langPrefs.translate_lang;var v=localStorage.getItem(TR_LANG_KEY);return LEGACY_LANG_MAP[v]||v||'EN-US'}
+    function publishTargetLang(){if(_langPrefs.publish_lang)return _langPrefs.publish_lang;var v=localStorage.getItem(PUB_LANG_KEY);return LEGACY_LANG_MAP[v]||v||'EN-US'}
+    // Posts to Nostradamus's own endpoint, never to the DeepL app directly:
+    // the translation is a premium feature of *this* app, and only its premium
+    // module can perform one. On an install without that module the route is
+    // not there at all and this throws, which is the correct outcome.
+    async function deeplTranslate(text,lang){
+      var r=await fetch(API+'/translate',{method:'POST',headers:{'Content-Type':'application/json','X-Pub-Token':token},body:JSON.stringify({text:text,target_lang:lang||'EN-US'})});
+      var d=await r.json().catch(function(){return{}});
+      if(!r.ok)throw new Error(d.error||'error');
+      return d.translated_text||'';
+    }
+    // Raw content can carry nostr: mention URIs and image/link URLs that are
+    // rendered separately (quoted-note card, inline <img>) and never need
+    // translating — sending them to DeepL just burns characters on gibberish.
+    function textForTranslation(text){
+      return text.replace(NOSTR_RE,'').replace(URL_RE,'').trim();
+    }
+    async function translateNote(id){
+      var note=noteCache[id];if(!note)return;
+      var tr=translations[id];
+      if(tr&&tr.status==='done'){tr.shown=!tr.shown;renderBody();return}
+      translations[id]={status:'loading',shown:true};
+      renderBody();
+      try{
+        var text=await deeplTranslate(textForTranslation(note.content),translateTargetLang());
+        translations[id]={status:'done',shown:true,text:text};
+      }catch(_){translations[id]={status:'error',shown:true}}
+      renderBody();
+    }
     // All of the owner's identities (from GET /vaults); vaultInfo is whichever one
     // is active. addMode/switcherOpen drive the onboarding screen and the identity
     // switcher panel reused for "add another identity" and "switch identity".
@@ -453,12 +527,12 @@
       clearCachedKey();pool.destroy();pool=createPool();bindPool();
     }
     function lockNow(){resetState();load()}
-    function switchIdentity(npub){try{localStorage.setItem(ACTIVE_KEY,npub)}catch(_){}location.reload()}
+    function switchIdentity(npub){try{localStorage.setItem(ACTIVE_KEY,npub)}catch(_){}remount()}
     async function logoutIdentity(npub){
       await idbDel(npub);
       var other=identities.filter(function(v){return v.npub!==npub})[0];
       try{if(other)localStorage.setItem(ACTIVE_KEY,other.npub);else localStorage.removeItem(ACTIVE_KEY)}catch(_){}
-      location.reload();
+      remount();
     }
     async function removeIdentity(npub){
       if(!confirm(t('nos_identity_confirm_remove')))return;
@@ -468,7 +542,7 @@
         var other=identities.filter(function(v){return v.npub!==npub})[0];
         try{if(other)localStorage.setItem(ACTIVE_KEY,other.npub);else localStorage.removeItem(ACTIVE_KEY)}catch(_){}
       }
-      location.reload();
+      remount();
     }
     function shortNpub(n){return n.slice(0,12)+'…'+n.slice(-6)}
     function closeSwitcher(){switcherOpen=false;renderSwitcher()}
@@ -558,7 +632,7 @@
             // In "add another identity" mode the currently active identity stays fully
             // untouched in memory (module key/vaultInfo were never reassigned above) —
             // the reload is what actually switches over to the new one.
-            if(addMode){addMode=false;location.reload();return}
+            if(addMode){addMode=false;remount();return}
             key=newKey;privBytes=priv;pubHex=pubHexLocal;
             vaultInfo={npub:npub,salt:salt,iterations:600000,iv:enc.iv,ciphertext:enc.ciphertext};
             identities=[vaultInfo];session=saved;
@@ -1069,6 +1143,7 @@
         '<div class="nos-error nos-modal-error">'+esc(composer.error||'')+'</div>'+
         '<div class="nos-modal-foot"><input type="file" accept="image/*" class="nos-modal-file" hidden>'+
         '<button type="button" class="nos-modal-image-btn" title="'+esc(t('nos_attach_image'))+'"'+(composer.uploading?' disabled':'')+'>'+(composer.uploading?'…':'🖼')+'</button>'+
+        (deeplEnabled?'<button type="button" class="nos-modal-image-btn nos-modal-translate" title="'+esc(t('nos_translate'))+'"'+(composer.translating?' disabled':'')+'>'+(composer.translating?'…':'🌐')+'</button>':'')+
         '<span style="flex:1"></span>'+
         '<button type="button" class="nos-modal-cancel">'+esc(t('nos_cancel'))+'</button><button type="button" class="primary nos-modal-send"'+(composer.busy?' disabled':'')+'>'+esc(composer.busy?t('nos_sending'):t('nos_publish'))+'</button></div></div>';
       root.appendChild(wrap);
@@ -1082,6 +1157,17 @@
       });
       var fileInput=wrap.querySelector('.nos-modal-file');
       wrap.querySelector('.nos-modal-image-btn').onclick=function(){fileInput.click()};
+      var translateBtn=wrap.querySelector('.nos-modal-translate');
+      if(translateBtn)translateBtn.onclick=async function(){
+        var text=textarea.value.trim();
+        if(!text)return;
+        composer.text=text;composer.translating=true;composer.error='';renderComposer();
+        try{
+          var out=await deeplTranslate(text,publishTargetLang());
+          composer.text=out;composer.translating=false;
+          renderComposer();
+        }catch(_){composer.translating=false;composer.error=t('nos_translate_error');renderComposer()}
+      };
       fileInput.onchange=async function(){
         var file=fileInput.files&&fileInput.files[0];
         if(!file)return;
@@ -1165,11 +1251,14 @@
     function actionsHtml(id){
       var s=stats[id]||{replies:0,reposts:0,likes:0};
       var liked=!!myReactions[id],reposted=!!myReposts[id];
+      var tr=translations[id];
+      var translateLabel=tr&&tr.status==='done'?(tr.shown?t('nos_show_original'):t('nos_translate')):tr&&tr.status==='loading'?t('nos_translating'):t('nos_translate');
       return'<div class="nos-note-actions">'+
         '<button type="button" class="nos-act nos-a-reply" data-act="reply" data-id="'+esc(id)+'">💬 '+(s.replies||'')+'</button>'+
         '<button type="button" class="nos-act nos-a-repost'+(reposted?' on':'')+'" data-act="repost" data-id="'+esc(id)+'" title="'+esc(t('nos_repost'))+'">🔁 '+(s.reposts||'')+'</button>'+
         '<button type="button" class="nos-act nos-a-quote" data-act="quote" data-id="'+esc(id)+'" title="'+esc(t('nos_quote'))+'">❝</button>'+
         '<button type="button" class="nos-act nos-a-like'+(liked?' on':'')+'" data-act="like" data-id="'+esc(id)+'" title="'+esc(t('nos_like'))+'">'+(liked?'❤️':'🤍')+' '+(s.likes||'')+'</button>'+
+        (deeplEnabled?'<button type="button" class="nos-act nos-a-translate'+(tr&&tr.status==='done'&&tr.shown?' on':'')+'" data-act="translate" data-id="'+esc(id)+'"'+(tr&&tr.status==='loading'?' disabled':'')+'>🌐 '+esc(translateLabel)+'</button>':'')+
         '</div>';
     }
     function quoteHtml(id){
@@ -1198,6 +1287,10 @@
         (parent&&options.showParent!==false?replyOfHtml(parent):'')+
         '<div class="nos-note-content">'+renderContent(note.content,quoted)+'</div>'+
         (quoted?quoteHtml(quoted):'')+
+        (translations[note.id]&&translations[note.id].shown?'<div class="nos-note-translation">'+
+          (translations[note.id].status==='loading'?esc(t('nos_translating')):
+           translations[note.id].status==='error'?esc(t('nos_translate_error')):
+           esc(translations[note.id].text))+'</div>':'')+
         (options.actions===false?'':actionsHtml(note.id))+
         '</div>';
     }
@@ -1274,6 +1367,7 @@
           else if(act.dataset.act==='repost')toggleRepost(id);
           else if(act.dataset.act==='like')toggleLike(id);
           else if(act.dataset.act==='follow'||act.dataset.act==='unfollow')toggleFollow(pk);
+          else if(act.dataset.act==='translate')translateNote(id);
           return;
         }
         if(e.target.closest('a'))return;
@@ -1409,7 +1503,30 @@
             '</span></div>';
         }).join('')+
         '<button type="button" class="nos-link nos-add-identity">'+esc(t('nos_add_identity'))+'</button>'+
-        '</div></div>';
+        '</div>'+
+        // Both of these choose a target language for a translation, so they
+        // belong to the premium integration and go with it: the first is the
+        // language the translate button renders a post into, the second the
+        // one the composer translates a draft into before publishing. With no
+        // integration there is nothing either could apply to.
+        (deeplEnabled?
+          '<label>'+esc(t('nos_translate_lang_label'))+'</label>'+
+          '<select class="nos-p-translate-lang">'+NOS_LANGS.map(function(l){return'<option value="'+esc(l.value)+'"'+(l.value===translateTargetLang()?' selected':'')+'>'+esc(l.label)+'</option>'}).join('')+'</select>'+
+          '<label>'+esc(t('nos_publish_lang_label'))+'</label>'+
+          '<select class="nos-p-publish-lang">'+NOS_LANGS.map(function(l){return'<option value="'+esc(l.value)+'"'+(l.value===publishTargetLang()?' selected':'')+'>'+esc(l.label)+'</option>'}).join('')+'</select>'
+        :'')+
+        '</div>';
+      function saveLangPref(field,value){
+        var prev=_langPrefs[field];
+        _langPrefs[field]=value;
+        api('/prefs',{method:'PUT',body:JSON.stringify((function(o){o[field]=value;return o})({}))}).catch(function(){_langPrefs[field]=prev});
+      }
+      // Absent whenever the integration is off, and everything bound after
+      // this — the identity buttons — would be left dead by the TypeError.
+      var trLangSel=body.querySelector('.nos-p-translate-lang');
+      if(trLangSel)trLangSel.onchange=function(e){saveLangPref('translate_lang',e.target.value)};
+      var pubLangSel=body.querySelector('.nos-p-publish-lang');
+      if(pubLangSel)pubLangSel.onchange=function(e){saveLangPref('publish_lang',e.target.value)};
       body.querySelector('.nos-add-identity').onclick=function(){addMode=true;obStep='choose';obPriv=null;onboardingScreen()};
       body.querySelectorAll('.nos-identity-switch').forEach(function(btn){btn.onclick=function(){switchIdentity(btn.dataset.npub)}});
       body.querySelectorAll('.nos-identity-logout').forEach(function(btn){btn.onclick=function(){logoutIdentity(btn.dataset.npub)}});
@@ -1470,15 +1587,23 @@
       };
     }
 
-    document.addEventListener('visibilitychange',onVisible);
-    load();
-    return{destroy:function(){
+    function destroy(){
       destroyed=true;
       clearTimeout(autoLockTimer);clearTimeout(renderTimer);clearTimeout(profileTimer);clearTimeout(noteTimer);
       stopModePolling();
       document.removeEventListener('visibilitychange',onVisible);
       pool.destroy();
-    }};
+    }
+    // Switching/removing/logging out of an identity used to reload the whole
+    // browser tab. On the public page that's just this one app's own tab, so
+    // it's harmless — but on the desktop every app shares one page with the
+    // rest of mvmOS, and a reload there wiped the whole running session, not
+    // just this widget. Tear down and re-mount in place instead, there only.
+    function remount(){if(opts.isDesktop){destroy();mount(root,opts)}else{location.reload()}}
+
+    document.addEventListener('visibilitychange',onVisible);
+    load();
+    return{destroy:destroy};
   }
 
   window.NostradamusWidget={mount:mount};

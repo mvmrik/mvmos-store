@@ -1,0 +1,10 @@
+{
+  "summary": "Adds a one-click translate button to every article, powered by each reader's own DeepL Translator key.",
+  "features": [
+    {
+      "title": "DeepL translate button",
+      "short": "Translate any article",
+      "description": "Readers can translate any article in the list or reader view with one click, using their own DeepL API key entered in the free DeepL Translator app. Requires the DeepL Translator app and a DeepL API key from each reader; the server owner only turns the integration on."
+    }
+  ]
+}

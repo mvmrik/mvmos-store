@@ -51,92 +51,77 @@ def _conn():
     return c
 
 
-def _private_page():
-    return HTMLResponse("""<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>RSS Reader</title>
-<style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;
-height:100vh;margin:0;background:#1e1e2e;color:#a6adc8;flex-direction:column;gap:12px}
-.icon{font-size:3rem}.msg{font-size:1.1rem;font-weight:700;color:#cdd6f4}
-.sub{font-size:.9rem;color:#6c7086}</style>
-</head><body>
-<div class="icon">🔒</div>
-<div class="msg">RSS Reader is private</div>
-<div class="sub">Access is not available to the public.</div>
-</body></html>""")
+class TranslateIn(BaseModel):
+    text: str
+    target_lang: str
+    source_lang: Optional[str] = None
 
 
-def _parse_date(s):
-    if not s:
-        return ""
-    s = s.strip()
-    try:
-        dt = parsedate_to_datetime(s)
-        return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    except Exception:
-        pass
-    try:
-        dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
-        return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
-    except Exception:
-        pass
-    return s
+def _premium():
+    """This app's premium module, or None on an install that was never sent it.
+
+    Looked up per request rather than held onto: premium/ is downloaded when a
+    licence is activated and deleted when it lapses, so a module cached at
+    import time would keep a removed subscription working until a restart.
+    """
+    mod = sys.modules.get("backend.premium")
+    return mod.load_premium_backend(APP_ID) if mod else None
 
 
-def _fetch_and_parse(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "mvmOS RSS Reader/1.0"})
-    with urllib.request.urlopen(req, timeout=15) as r:
-        data = r.read()
-    root = ET.fromstring(data)
-    ATOM = "http://www.w3.org/2005/Atom"
-    channel = root.find("channel")
-    if channel is not None:
-        name = (channel.findtext("title") or url).strip()
-        articles = []
-        for item in channel.findall("item"):
-            link = (item.findtext("link") or "").strip()
-            guid = (item.findtext("guid") or link).strip()
-            articles.append({
-                "title":       (item.findtext("title") or "").strip(),
-                "link":        link,
-                "description": (item.findtext("description") or "").strip(),
-                "pub_date":    _parse_date(item.findtext("pubDate") or ""),
-                "guid":        guid,
-            })
-        return name, articles
-    title_el = root.find(f"{{{ATOM}}}title")
-    name = (title_el.text if title_el is not None else url).strip()
-    articles = []
-    for entry in root.findall(f"{{{ATOM}}}entry"):
-        link_el = entry.find(f"{{{ATOM}}}link")
-        link = link_el.get("href", "") if link_el is not None else ""
-        guid = (entry.findtext(f"{{{ATOM}}}id") or link).strip()
-        content = (
-            entry.findtext(f"{{{ATOM}}}content")
-            or entry.findtext(f"{{{ATOM}}}summary")
-            or ""
-        ).strip()
-        updated = (
-            entry.findtext(f"{{{ATOM}}}updated")
-            or entry.findtext(f"{{{ATOM}}}published")
-            or ""
-        )
-        articles.append({
-            "title":       (entry.findtext(f"{{{ATOM}}}title") or "").strip(),
-            "link":        link,
-            "description": content,
-            "pub_date":    _parse_date(updated),
-            "guid":        guid,
-        })
-    return name, articles
+def _deepl_offered() -> bool:
+    """Whether the translate button may be drawn and used at all.
+
+    Two separate conditions: the owner switched the integration on, and the
+    premium module that performs the translation is actually present and
+    licensed. The second is not a courtesy check — without that module there
+    is no translation code on this installation to call.
+    """
+    with _conn() as c:
+        row = c.execute("SELECT value FROM cfg WHERE key='deepl_enabled'").fetchone()
+    if not (row and row["value"] == "1"):
+        return False
+    prem = _premium()
+    return bool(prem and prem.is_available())
 
 
-# ── Routes ────────────────────────────────────────────────────────
+@router.post("/translate")
+async def translate(data: TranslateIn, x_pub_token: str = Header(default=None)):
+    """Translate one article. The whole of this feature lives in the premium
+    module; this route only carries the request to it and the answer back.
 
-@router.get("/")
-async def index():
+    An unlicensed installation has no premium module, so there is nothing to
+    carry the request to and the endpoint reports itself as not found. That is
+    the honest answer: on this installation the feature does not exist.
+    """
     hub = _hub()
     if hub and not hub.is_app_public(APP_ID):
-        return _private_page()
+        return JSONResponse({"error": "private"}, status_code=403)
+    me = _pub_user(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    if not _deepl_offered():
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    result = _premium().translate(me["id"], data.text, data.target_lang, data.source_lang)
+    if "error" in result:
+        status = 400 if result["error"] in ("empty_text", "text_too_long", "api_key_missing",
+                                            "bad_target_lang", "bad_source_lang") else 502
+        return JSONResponse(result, status_code=status)
+    return result
+
+
+@router.get("/deepl-status")
+async def deepl_status():
+    hub = _hub()
+    if hub and not hub.is_app_public(APP_ID):
+        return JSONResponse({"error": "private"}, status_code=403)
+    return JSONResponse({"enabled": _deepl_offered()})
+
+
+@router.get("/")
+async def public_index():
+    hub = _hub()
+    if hub and not hub.is_app_public(APP_ID):
+        return hub.private_page("RSS Reader", "📰")
     return FileResponse(os.path.join(_DIR, "index.html"))
 
 

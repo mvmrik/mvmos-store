@@ -21,4 +21,32 @@ function _nosScript(file,global){
     return _nosLoad('/apps/nostradamus/'+file+'?v='+v).then(function(){window._nosBuild=v});
   });
 }
-mvmOS.registerApp({id:'nostradamus',name:'Nostradamus',icon:'🔮',category:'Communication',requires_apphub:true,launch:function(){mvmOS.createWindow({id:'nostradamus',title:'🔮 Nostradamus',width:520,height:700,onMount:function(body){body.style.padding='0';var root=document.createElement('div');root.style.height='100%';body.appendChild(root);_nosScript('i18n.js','NOSTRADAMUS_I18N').then(function(){return _nosScript('vendor/noble-secp256k1.js','NostrCrypto')}).then(function(){return _nosScript('nostr-widget.js','NostradamusWidget')}).then(function(){NostradamusWidget.mount(root,{})})}})}});
+function _nosT(k){return _nosScript('i18n.js','NOSTRADAMUS_I18N').then(function(){return(window.t||function(x){return x})(k)})}
+mvmOS.registerApp({
+  id:'nostradamus',name:'Nostradamus',icon:'🔮',category:'Communication',requires_apphub:true,
+  async renderSettingsExtra(container){
+    var live={};
+    try{live=await(await fetch('/api/apps/nostradamus/settings')).json()}catch(_){}
+    var enabled=live.deepl_enabled==='1';
+    var lbl=await _nosT('nos_deepl_enable_lbl'),hint=await _nosT('nos_deepl_needs_app');
+    container.innerHTML='<div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">'+
+      '<label id="nos-se-deepl-row" style="display:flex;align-items:center;gap:8px;cursor:pointer">'+
+      '<input type="checkbox" id="nos-se-deepl"'+(enabled?' checked':'')+'>'+
+      '<span style="font-size:.84rem">'+lbl+'</span></label>'+
+      '<div style="font-size:.72rem;color:var(--text-dim);margin-top:6px;margin-left:24px">'+hint+'</div></div>';
+    var row=container.querySelector('#nos-se-deepl-row'),cb=container.querySelector('#nos-se-deepl');
+    window.mvmOS?.premiumGate?.(row,hint);
+    cb.onchange=async function(){
+      var val=cb.checked?'1':'0';
+      try{
+        var r=await fetch('/api/apps/nostradamus/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({deepl_enabled:val})});
+        if(!r.ok)throw new Error(await r.text().catch(function(){return r.statusText}));
+        live.deepl_enabled=val;
+      }catch(_){
+        cb.checked=!cb.checked;
+        window.mvmOS?.notify?.('Nostradamus',await _nosT('nos_translate_error'));
+      }
+    };
+  },
+  launch:function(){mvmOS.createWindow({id:'nostradamus',title:'🔮 Nostradamus',width:520,height:700,appSettings:true,onAppSettings:function(){AppStore.openWindow({section:'my-apps',appId:'nostradamus'})},onMount:function(body){body.style.padding='0';var root=document.createElement('div');root.style.height='100%';body.appendChild(root);_nosScript('i18n.js','NOSTRADAMUS_I18N').then(function(){return _nosScript('vendor/noble-secp256k1.js','NostrCrypto')}).then(function(){return _nosScript('nostr-widget.js','NostradamusWidget')}).then(function(){NostradamusWidget.mount(root,{isDesktop:true})})}})}
+});

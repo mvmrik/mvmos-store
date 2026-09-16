@@ -1,0 +1,29 @@
+{
+  "tagline": "Translate anything with your own DeepL key, with a history you can search back through.",
+  "description": "DeepL Translator is a free app: paste text, pick a source and target language (or let DeepL detect the source automatically), and translate. Every translation is kept in a history you can revisit.\n\nIt works on the desktop and as a public page for your Apps Hub account. Your DeepL API key is your own — it is never shared with the server owner or with other Apps Hub users, and it is not required to be the same key everywhere. Get a free key at deepl.com and paste it into Settings to start translating.\n\nOther apps, such as RSS Reader and Nostradamus, can offer a translate button that uses this same key of yours, but only if their administrator has turned that integration on.",
+  "capabilities": [
+    "Translate text between any languages DeepL supports, with automatic source detection.",
+    "Full translation history, kept per Apps Hub account and searchable by text.",
+    "Works standalone — free forever, with your own DeepL API key.",
+    "Works identically on the mvmOS desktop and on a public page for any Apps Hub account.",
+    "Other apps can offer one-click translation through your same DeepL key, when their administrator enables it."
+  ],
+  "integrations": [
+    {
+      "app": "rssfeed",
+      "name": "RSS Reader",
+      "kind": "http",
+      "direction": "provides",
+      "summary": "When RSS Reader's administrator enables the DeepL integration (Premium), readers can translate any article using their own DeepL key entered here.",
+      "requires": "A DeepL API key entered in DeepL Translator's own settings."
+    },
+    {
+      "app": "nostradamus",
+      "name": "Nostradamus",
+      "kind": "http",
+      "direction": "provides",
+      "summary": "When Nostradamus's administrator enables the DeepL integration (Premium), a translate button appears under posts and in the composer, using the reader's own DeepL key entered here.",
+      "requires": "A DeepL API key entered in DeepL Translator's own settings."
+    }
+  ]
+}

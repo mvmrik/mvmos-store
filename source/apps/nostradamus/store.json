@@ -1,6 +1,6 @@
 {
   "tagline": "A Nostr client built into your desktop, with an encrypted key vault and a public page for your Apps Hub profile.",
-  "description": "Nostradamus connects you to the Nostr network without leaving mvmOS. Manage your relays, read your feed, and publish notes and replies from a private key that never leaves your browser unencrypted.\n\nYour Nostr identity (nsec) is protected the same way mvmPasswords protects your vault: a master password derives an AES-256-GCM key locally, and the server only ever stores an opaque encrypted blob plus a non-secret salt. This means the same identity works seamlessly on desktop and mobile, without relying on a browser extension that mobile browsers don't support.\n\nNostradamus also runs as a public page, so any Apps Hub account holder can read and publish to Nostr through their own encrypted vault, independent of the mvmOS desktop.\n\nKeep more than one encrypted Nostr identity in the same account and switch between them without losing an active session. This is still focused on the essentials: relay management, profile settings, a feed, and publishing notes and replies. Follows, reactions, and zaps are planned for future releases.",
+  "description": "Nostradamus connects you to the Nostr network without leaving mvmOS. Manage your relays, read your feed, and publish notes and replies from a private key that never leaves your browser unencrypted.\n\nYour Nostr identity (nsec) is protected the same way mvmPasswords protects your vault: a master password derives an AES-256-GCM key locally, and the server only ever stores an opaque encrypted blob plus a non-secret salt. This means the same identity works seamlessly on desktop and mobile, without relying on a browser extension that mobile browsers don't support.\n\nNostradamus also runs as a public page, so any Apps Hub account holder can read and publish to Nostr through their own encrypted vault, independent of the mvmOS desktop.\n\nKeep more than one encrypted Nostr identity in the same account and switch between them without losing an active session. With the Premium DeepL integration turned on, every post gets a Translate button into whichever language you prefer, and the composer gets its own Translate button to check a draft in another language before publishing it — both powered by your own DeepL Translator key, never a key shared across the server. This is still focused on the essentials: relay management, profile settings, a feed, and publishing notes and replies. Follows, reactions, and zaps are planned for future releases.",
   "capabilities": [
     "Manage your relay list with per-relay read/write control and live connection status",
     "View and edit your Nostr profile (display name, about, picture)",
@@ -10,6 +10,17 @@
     "Follow and unfollow other Nostr accounts",
     "End-to-end encrypted key vault — your private key is encrypted in the browser before it ever reaches the server",
     "Keep multiple encrypted Nostr identities per Apps Hub profile and switch between their own cached unlock sessions.",
-    "Works identically on the mvmOS desktop and on a public page for any Apps Hub account"
+    "Works identically on the mvmOS desktop and on a public page for any Apps Hub account",
+    "Premium: one-click DeepL translate button under every post, and a translate-before-publishing button in the composer, both using your own DeepL API key"
+  ],
+  "integrations": [
+    {
+      "app": "deepl",
+      "name": "DeepL Translator",
+      "kind": "http",
+      "direction": "consumes",
+      "summary": "The Translate button on posts and in the composer sends text to the free DeepL Translator app, using the DeepL API key each user entered there themselves — never a key shared across the whole server. Turning the integration off removes both buttons; the client works exactly as before.",
+      "requires": "Premium, and the free DeepL Translator app with each user's own DeepL API key."
+    }
   ]
 }

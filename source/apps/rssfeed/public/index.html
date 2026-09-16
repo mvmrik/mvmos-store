@@ -6,7 +6,7 @@
 <title>RSS Reader</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#1e1e2e;--s1:#181825;--s2:#313244;--border:#45475a;--fg:#cdd6f4;--fg2:#a6adc8;--accent:#89b4fa;--red:#f38ba8;--yellow:#f9e2af}
+:root{--bg:#1e1e2e;--surface1:#181825;--surface2:#313244;--border:#45475a;--fg:#cdd6f4;--fg2:#a6adc8;--accent:#89b4fa;--red:#f38ba8;--yellow:#f9e2af}
 body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--fg);height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 #app{flex:1;display:flex;flex-direction:column;max-width:720px;margin:0 auto;width:100%;overflow:hidden}
 button{font-family:inherit;cursor:pointer}
@@ -16,19 +16,19 @@ input{font-family:inherit}
 .hdr{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
 .hdr-title{font-weight:700;font-size:15px;flex:1}
 .hdr-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:.78rem;color:var(--fg2)}
-.hdr-btn:hover{background:var(--s2)}
+.hdr-btn:hover{background:var(--surface2)}
 
 /* Feed chips */
 .chips-row{display:flex;gap:6px;padding:8px 12px;border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0;scrollbar-width:none}
 .chips-row::-webkit-scrollbar{display:none}
 .chip{border-radius:20px;padding:4px 12px;font-size:.78rem;white-space:nowrap;border:1px solid var(--border);background:transparent;color:var(--fg2);flex-shrink:0}
 .chip.active{background:var(--accent);border-color:var(--accent);color:#1e1e2e;font-weight:600}
-.chip:hover:not(.active){background:var(--s2)}
+.chip:hover:not(.active){background:var(--surface2)}
 
 /* Filter bar */
 .filter-bar{display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
 .filter-bar::-webkit-scrollbar{display:none}
-.filter-btn{border-radius:16px;padding:3px 12px;font-size:.76rem;color:var(--fg2);background:var(--s2);border:1px solid var(--border);white-space:nowrap;flex-shrink:0}
+.filter-btn{border-radius:16px;padding:3px 12px;font-size:.76rem;color:var(--fg2);background:var(--surface2);border:1px solid var(--border);white-space:nowrap;flex-shrink:0}
 .filter-btn.active{background:var(--accent);border-color:var(--accent);color:#1e1e2e}
 .filter-btn:hover:not(.active){background:var(--border)}
 
@@ -50,7 +50,7 @@ input{font-family:inherit}
 .reader{position:fixed;inset:0;background:var(--bg);z-index:50;overflow-y:auto;padding:20px 20px 40px}
 .reader-inner{max-width:680px;margin:0 auto}
 .reader-back{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:.82rem;color:var(--fg2);margin-bottom:16px}
-.reader-back:hover{background:var(--s2)}
+.reader-back:hover{background:var(--surface2)}
 .reader-feed{font-size:.72rem;color:var(--accent);margin-bottom:4px}
 .reader-title{font-size:1.1rem;font-weight:700;line-height:1.45;margin-bottom:16px}
 .reader-content{font-size:.9rem;line-height:1.8;color:var(--fg2);word-break:break-word}
@@ -61,18 +61,18 @@ input{font-family:inherit}
 
 /* Modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:60;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
-.modal{background:var(--s1);border:1px solid var(--border);border-radius:12px;width:100%;max-width:420px;max-height:calc(100dvh - 32px);overflow-y:auto}
+.modal{background:var(--surface1);border:1px solid var(--border);border-radius:12px;width:100%;max-width:420px;max-height:calc(100dvh - 32px);overflow-y:auto}
 .modal-hdr{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)}
 .modal-hdr span{font-weight:600;font-size:.95rem;flex:1}
 .modal-hdr button{background:none;border:none;font-size:1.1rem;color:var(--fg2);padding:2px 6px}
 .modal-body{padding:16px;display:flex;flex-direction:column;gap:14px}
 .sec-label{font-size:.75rem;font-weight:600;color:var(--fg2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.inp{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--fg);font-size:.85rem;width:100%;outline:none}
+.inp{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--fg);font-size:.85rem;width:100%;outline:none}
 .inp:focus{border-color:var(--accent)}
 .btn-acc{background:var(--accent);color:#1e1e2e;border:none;border-radius:8px;padding:7px 14px;font-size:.85rem;font-weight:600}
 .btn-acc:hover{opacity:.9}
 .btn-ghost{background:none;color:var(--fg2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:.82rem}
-.btn-ghost:hover{background:var(--s2)}
+.btn-ghost:hover{background:var(--surface2)}
 .feed-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(69,71,90,.4)}
 .feed-row-name{flex:1;font-size:.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .feed-row-unreads{font-size:.7rem;color:var(--accent)}
@@ -82,7 +82,7 @@ input{font-family:inherit}
 
 /* Login gate */
 .login-gate{flex:1;display:flex;align-items:center;justify-content:center;padding:24px}
-.login-card{width:100%;max-width:340px;padding:32px;background:var(--s1);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;gap:18px;text-align:center}
+.login-card{width:100%;max-width:340px;padding:32px;background:var(--surface1);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;gap:18px;text-align:center}
 </style>
 </head>
 <body>
@@ -102,7 +102,12 @@ let _token = params.get('token') || localStorage.getItem('apphub_token');
 if (_token) { localStorage.setItem('apphub_token', _token); history.replaceState(null,'',location.pathname); }
 
 let _me = null, _feeds = [], _articles = [], _activeFeed = 0, _filter = 'unread';
-let _aiSource = 'off', _aiBtns = [];
+let _deeplEnabled = false;
+
+const DEEPL_LANG_MAP = {
+  en: 'EN-US', bg: 'BG', de: 'DE', es: 'ES', fr: 'FR',
+  ja: 'JA', 'pt-BR': 'PT-BR', ru: 'RU', 'zh-CN': 'ZH',
+};
 
 const app = document.getElementById('app');
 
@@ -115,16 +120,21 @@ function relTime(d) {
   return t('rss_pub_days_ago', { n: Math.floor(sec/86400) });
 }
 
-async function runAI(prompt, article) {
-  const body = `${prompt}\n\n---\nTitle: ${article.title||''}\n\n${stripHtml(article.description||'').slice(0,1200)}`;
-  const messages = [{ role:'user', content: body }];
-  if (_aiSource === 'claude-cli') {
-    const r = await fetch('/api/mvmai/cli-chat', {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({provider_id:'claude-cli',messages})});
-    const d = await r.json(); if (!r.ok) throw new Error(d.error||r.statusText); return d.content||'';
-  }
-  const r = await fetch('/api/mvmai/chat', {method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages,tools_enabled:false})});
-  const d = await r.json(); if (!r.ok) throw new Error(d.error||r.statusText);
-  return d.message?.content||'';
+async function translate(text) {
+  const lang = (window.mvmOS && window.mvmOS.lang) || 'en';
+  const target_lang = DEEPL_LANG_MAP[lang] || 'EN-US';
+  // Posts to RSS Reader's own endpoint, never to the DeepL app directly: the
+  // translation is a premium feature of *this* app, and only its premium
+  // module can perform one. On an install without that module the route is not
+  // there at all and this throws, which is the correct outcome.
+  const r = await fetch(BASE+'/translate', {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json', 'X-Pub-Token': _token },
+    body: JSON.stringify({ text, target_lang }),
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || r.statusText);
+  return d.translated_text || '';
 }
 
 async function boot() {
@@ -144,11 +154,10 @@ async function boot() {
 
 async function loadSettings() {
   try {
-    const r = await fetch('/api/apps/rssfeed/settings', {credentials:'include'});
+    const r = await fetch(BASE+'/deepl-status');
     if (!r.ok) return;
     const s = await r.json();
-    _aiSource = s.ai_source || 'off';
-    if (_aiSource !== 'off') { try { _aiBtns = JSON.parse(s.ai_buttons||'[]'); } catch { _aiBtns = []; } }
+    _deeplEnabled = !!s.enabled;
   } catch(_) {}
 }
 
@@ -252,17 +261,16 @@ function renderFilterBar() {
 function renderArticles() {
   const wrap = document.getElementById('art-wrap');
   if (!wrap) return;
-  const listBtns = _aiBtns.filter(b=>b.scope==='list'||b.scope==='both');
   if (!_articles.length) {
     wrap.innerHTML = `<div class="empty">${t('rss_pub_no_articles')}</div>`;
     return;
   }
   wrap.innerHTML = _articles.map(a => {
     const exc = stripHtml(a.description||'').slice(0,140);
-    const aiBtnHtml = listBtns.map((b,i)=>
-      `<button class="ai-lb" data-id="${a.id}" data-bi="${i}" onclick="event.stopPropagation()"
-        style="border:1px solid var(--border);background:none;border-radius:3px;padding:1px 7px;font-size:.7rem;cursor:pointer;color:var(--fg2);font-family:inherit">${esc(b.name)}</button>`
-    ).join('');
+    const trBtnHtml = _deeplEnabled
+      ? `<button class="tr-lb" data-id="${a.id}" onclick="event.stopPropagation()"
+        style="border:1px solid var(--border);background:none;border-radius:3px;padding:1px 7px;font-size:.7rem;cursor:pointer;color:var(--fg2);font-family:inherit">${t('rss_pub_translate')}</button>`
+      : '';
     return `<div class="art-item${a.is_read?' read':''}" data-id="${a.id}">
       ${!a.is_read?`<div class="unread-dot"></div>`:`<div style="width:7px;flex-shrink:0"></div>`}
       <div class="art-body">
@@ -271,16 +279,16 @@ function renderArticles() {
         <div class="art-meta">
           ${_activeFeed===0?`<span class="art-feed">${esc(a.feed_name)}</span>`:''}
           ${relTime(a.pub_date)?`<span>${relTime(a.pub_date)}</span>`:''}
-          ${aiBtnHtml}
+          ${trBtnHtml}
         </div>
-        <div class="ai-lr" data-id="${a.id}" style="display:none;margin-top:6px;background:var(--s2);border:1px solid var(--border);border-radius:4px;padding:8px 10px;font-size:.78rem;line-height:1.6;white-space:pre-wrap;word-break:break-word"></div>
+        ${_deeplEnabled?`<div class="tr-lr" data-id="${a.id}" style="display:none;margin-top:6px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:8px 10px;font-size:.78rem;line-height:1.6;white-space:pre-wrap;word-break:break-word"></div>`:''}
       </div>
       <button class="star-btn" data-id="${a.id}" onclick="event.stopPropagation()" style="color:${a.is_saved?'#f9e2af':'var(--border)'}">${a.is_saved?'★':'☆'}</button>
     </div>`;
   }).join('');
 
   wrap.querySelectorAll('.art-item').forEach(el => {
-    el.onclick = e => { if (e.target.closest('.star-btn,.ai-lb')) return; openArticle(parseInt(el.dataset.id)); };
+    el.onclick = e => { if (e.target.closest('.star-btn,.tr-lb')) return; openArticle(parseInt(el.dataset.id)); };
   });
   wrap.querySelectorAll('.star-btn').forEach(btn => {
     btn.onclick = async e => {
@@ -294,16 +302,17 @@ function renderArticles() {
       if (_filter==='saved'&&!d.is_saved){_articles=_articles.filter(x=>x.id!==id);renderArticles();}
     };
   });
-  wrap.querySelectorAll('.ai-lb').forEach(btn => {
+  wrap.querySelectorAll('.tr-lb').forEach(btn => {
     btn.onclick = async e => {
       e.stopPropagation();
-      const id=parseInt(btn.dataset.id), bi=parseInt(btn.dataset.bi);
-      const b=listBtns[bi]; if(!b) return;
+      const id=parseInt(btn.dataset.id);
       const a=_articles.find(x=>x.id===id); if(!a) return;
-      const orig=btn.textContent; btn.disabled=true; btn.textContent='…';
-      const res=wrap.querySelector(`.ai-lr[data-id="${id}"]`);
-      try { const t=await runAI(b.prompt,a); if(res){res.textContent=t;res.style.display='';} }
-      catch(err){ if(res){res.textContent=String(err);res.style.display='';} }
+      const orig=btn.textContent; btn.disabled=true; btn.textContent=t('rss_pub_translating');
+      const res=wrap.querySelector(`.tr-lr[data-id="${id}"]`);
+      try {
+        const text = await translate(`${a.title||''}\n\n${stripHtml(a.description||'').slice(0,1200)}`);
+        if(res){res.textContent=text;res.style.display='';}
+      } catch(err){ if(res){res.textContent=t('rss_pub_translate_error');res.style.display='';} }
       btn.disabled=false; btn.textContent=orig;
     };
   });
@@ -317,19 +326,18 @@ function openArticle(id) {
   if (_filter==='unread') _articles=_articles.filter(x=>x.id!==id);
   else { const f=_articles.find(x=>x.id===id); if(f) f.is_read=1; }
 
-  const readerBtns = _aiBtns.filter(b=>b.scope==='reader'||b.scope==='both'||!b.scope);
-  const aiBtnHtml = readerBtns.length ? `
+  const trBtnHtml = _deeplEnabled ? `
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
-      ${readerBtns.map((b,i)=>`<button class="ai-rb btn-ghost" data-bi="${i}" style="padding:5px 12px;font-size:.8rem">${esc(b.name)}</button>`).join('')}
+      <button class="tr-rb btn-ghost" style="padding:5px 12px;font-size:.8rem">${t('rss_pub_translate')}</button>
     </div>
-    <div id="ai-rr" style="display:none;margin-bottom:16px;background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;font-size:.85rem;line-height:1.7;white-space:pre-wrap;word-break:break-word"></div>` : '';
+    <div id="tr-rr" style="display:none;margin-bottom:16px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;font-size:.85rem;line-height:1.7;white-space:pre-wrap;word-break:break-word"></div>` : '';
 
   const inner = document.getElementById('reader-inner');
   inner.innerHTML = `
     <button class="reader-back" id="back-btn">${t('rss_pub_back')}</button>
     <div class="reader-feed">${esc(a.feed_name)}</div>
     <div class="reader-title">${esc(a.title||'(no title)')}</div>
-    ${aiBtnHtml}
+    ${trBtnHtml}
     <div class="reader-content">${a.description||'—'}</div>
     ${a.link?`<div class="reader-link"><a href="${esc(a.link)}" target="_blank" rel="noopener">${t('rss_pub_open_original')}</a></div>`:''}`;
 
@@ -340,16 +348,16 @@ function openArticle(id) {
     reader.style.display='none';
     renderArticles();
   };
-  inner.querySelectorAll('.ai-rb').forEach(btn => {
-    btn.onclick = async () => {
-      const b=readerBtns[parseInt(btn.dataset.bi)]; if(!b) return;
-      const orig=btn.textContent; btn.disabled=true; btn.textContent='…';
-      const res=document.getElementById('ai-rr');
-      try { const t=await runAI(b.prompt,a); if(res){res.textContent=t;res.style.display='';} }
-      catch(err){ if(res){res.textContent=String(err);res.style.display='';} }
-      btn.disabled=false; btn.textContent=orig;
-    };
-  });
+  const trBtn = inner.querySelector('.tr-rb');
+  if (trBtn) trBtn.onclick = async () => {
+    const orig=trBtn.textContent; trBtn.disabled=true; trBtn.textContent=t('rss_pub_translating');
+    const res=document.getElementById('tr-rr');
+    try {
+      const text = await translate(`${a.title||''}\n\n${stripHtml(a.description||'').slice(0,1200)}`);
+      if(res){res.textContent=text;res.style.display='';}
+    } catch(err){ if(res){res.textContent=t('rss_pub_translate_error');res.style.display='';} }
+    trBtn.disabled=false; trBtn.textContent=orig;
+  };
 }
 
 // ── Feeds modal ────────────────────────────────────────────────────────────

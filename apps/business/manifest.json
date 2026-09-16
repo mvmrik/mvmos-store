@@ -5,14 +5,15 @@
       "name": "QuoteBuilder",
       "icon": "💰",
       "category": "Business",
-      "version": "2.4.2",
+      "version": "2.4.3",
       "description": "Project quote builder. Add services with time (hours + minutes) or fixed prices, set an hourly rate, apply discounts and deposit, and share a live public link with your client.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/business/quotebuilder-2.4.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/business/quotebuilder-2.4.3.zip",
       "tags": [
         "business",
         "quotes",
         "estimates"
-      ]
+      ],
+      "min_core_version": "0.44.1-beta"
     },
     {
       "id": "queuedesk",
