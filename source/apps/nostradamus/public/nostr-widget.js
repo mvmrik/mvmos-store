@@ -270,9 +270,13 @@
           urls.forEach(function(url){send(connect(url),['EVENT',event])});
         });
       },
-      setRelayUrls:function(urls){
+      // `keep` is for connections that are not relays and therefore are not in
+      // the user's relay list — the ranking cache. Without it, saving the relay
+      // tab would tear down a connection the relay list never described.
+      setRelayUrls:function(urls,keep){
+        keep=keep||[];
         Object.keys(conns).forEach(function(url){
-          if(urls.indexOf(url)<0){var c=conns[url];c.closing=true;clearTimeout(c.timer);if(c.ws)c.ws.close();delete conns[url]}
+          if(urls.indexOf(url)<0&&keep.indexOf(url)<0){var c=conns[url];c.closing=true;clearTimeout(c.timer);if(c.ws)c.ws.close();delete conns[url]}
         });
         urls.forEach(function(url){connect(url)});
         notifyStatus();
@@ -325,7 +329,7 @@
   function idbDel(id){return idbRun('readwrite',function(store){store.delete(id);return null}).catch(function(){})}
 
   var styled=false;
-  function style(){if(styled)return;styled=true;var s=document.createElement('style');s.textContent='.nos,.nos *,.nos-modal,.nos-modal *{box-sizing:border-box}.nos{height:100%;display:flex;flex-direction:column;position:relative;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif;overflow:hidden}.nos-bar{border-bottom:1px solid var(--pub-border,#45475a);flex:0 0 auto}.nos-bar-head{display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem}.nos-title{font-weight:700;font-size:.88rem;white-space:nowrap}.nos-tabs{display:flex;gap:.25rem;flex:1;overflow-x:auto;scrollbar-width:none}.nos-tabs::-webkit-scrollbar{display:none}.nos-tab{background:transparent;padding:.35rem .6rem;border-radius:.5rem;white-space:nowrap;position:relative}.nos-tab.active{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos-badge{display:inline-block;min-width:1.05rem;padding:0 .25rem;margin-left:.25rem;border-radius:.6rem;background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1.05rem;text-align:center}.nos-bar-btn{flex:0 0 auto;padding:.35rem .5rem;display:inline-flex;align-items:center;justify-content:center}.nos-me{flex:0 0 auto;padding:0;background:none!important}.nos-modes{display:flex;gap:.3rem;padding:0 .7rem .55rem;overflow-x:auto;scrollbar-width:none}.nos-modes::-webkit-scrollbar{display:none}.nos-mode{background:var(--pub-surface2,#313244);padding:.28rem .6rem;border-radius:999px;font-size:.74rem;white-space:nowrap}.nos-mode.active{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos-body{flex:1;min-height:0;overflow:auto;padding:.7rem}.nos button,.nos input,.nos textarea,.nos select,.nos-modal button,.nos-modal textarea{font:inherit}.nos button,.nos-modal button{border:0;border-radius:.45rem;padding:.45rem .7rem;cursor:pointer;font-size:.8rem;font-weight:600;background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4);transition:filter .15s,transform .15s}.nos button:hover,.nos-modal button:hover{filter:brightness(1.12)}.nos button:active{transform:translateY(1px)}.nos button:disabled{opacity:.6;cursor:default}.nos .primary,.nos-modal .primary{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos input,.nos textarea,.nos select,.nos-modal textarea{width:100%;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;color:var(--pub-fg,#cdd6f4);padding:.55rem .65rem;outline:none;margin:.3rem 0}.nos input:focus,.nos textarea:focus,.nos select:focus,.nos-modal textarea:focus{border-color:var(--pub-accent,#89b4fa)}.nos-error{min-height:1.2rem;color:var(--pub-red,#f38ba8);font-size:.8rem;margin:.3rem 0}.nos-empty{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;padding:1.5rem;color:var(--pub-fg2,#a6adc8);font-size:.85rem}.nos-unlock,.nos-onboard{display:flex;flex:1;align-items:center;justify-content:center;padding:1rem}.nos-unlock>div,.nos-card{width:100%;max-width:24rem;background:var(--pub-surface2,#313244);padding:1.25rem;border-radius:.7rem}.nos-unlock h2,.nos-card h2{font-size:1.05rem;margin:0 0 .4rem}.nos-unlock p,.nos-card p{font-size:.82rem;line-height:1.45;color:var(--pub-fg2,#a6adc8)}.nos-duration-hint{font-size:.72rem;opacity:.75;margin:.2rem 0 .6rem}.nos-warn{font-size:.78rem;line-height:1.45;color:var(--pub-yellow,#f9e2af);border:1px solid var(--pub-yellow,#f9e2af);border-radius:.45rem;padding:.5rem .6rem;margin:.5rem 0}.nos-link{background:none!important;padding:.4rem 0;font-size:.78rem;font-weight:400;color:var(--pub-accent,#89b4fa);text-decoration:underline}.nos-view-value{background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;padding:.55rem .65rem;font-size:.8rem;overflow-wrap:anywhere;margin:.3rem 0}.nos-key-value{font-family:monospace}.nos-check{display:flex!important;align-items:center;gap:.45rem;width:auto;font-size:.8rem;cursor:pointer}.nos-check input{width:auto;margin:0}.nos-note{border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);border-radius:.65rem;padding:.65rem;margin-bottom:.55rem;cursor:pointer;transition:background .3s}.nos-note:hover{filter:brightness(1.05)}.nos-note.nos-flat{border:0;background:none;padding:.55rem 0;border-bottom:1px solid var(--pub-border,#45475a);border-radius:0;margin:0}.nos-boost{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.35rem}.nos-note-head{display:flex;align-items:center;gap:.5rem}.nos-avatar-wrap{position:relative;width:2.1rem;height:2.1rem;flex:0 0 auto;cursor:pointer}.nos-avatar-wrap.nos-lg{width:4rem;height:4rem}.nos-avatar{position:absolute;inset:0;width:100%;height:100%;border-radius:.5rem;object-fit:cover;display:grid;place-items:center;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:800;overflow:hidden}.nos-avatar-img{background:var(--pub-surface2,#313244)}.nos-note-who{flex:1;min-width:0;cursor:pointer}.nos-note-name{display:block;font-weight:700;font-size:.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nos-note-time{display:block;font-size:.71rem;color:var(--pub-dim,#a6adc8)}.nos-nip05{font-size:.71rem;color:var(--pub-accent,#89b4fa)}.nos-follow-btn{flex:0 0 auto;padding:.28rem .55rem;font-size:.72rem}.nos-reply-of-wrap{margin:.35rem 0}.nos-reply-of-label{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.2rem}.nos-reply-of-wrap .nos-quote{margin:0;padding:.4rem .5rem}.nos-reply-of-wrap .nos-quote .nos-note-content{font-size:.76rem;max-height:5rem}.nos-reply-of-wrap .nos-avatar-wrap{width:1.5rem;height:1.5rem}.nos-reply-of-wrap .nos-note-name{font-size:.76rem}.nos-reply-of-wrap .nos-note-time{font-size:.66rem}.nos-note-content{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.86rem;margin:.4rem 0;overflow:hidden}.nos-note-content a{color:var(--pub-accent,#89b4fa)}.nos-mention{color:var(--pub-accent,#89b4fa);cursor:pointer}.nos-embed-link{display:block;width:100%}.nos-embed-img{display:block;max-width:100%;height:auto;max-height:22rem;border-radius:.5rem;margin-top:.4rem;object-fit:contain}.nos-quote{border:1px solid var(--pub-border,#45475a);border-radius:.5rem;padding:.5rem;margin:.45rem 0;background:var(--pub-bg,#1e1e2e)}.nos-quote .nos-note-content{font-size:.8rem;max-height:12rem}.nos-note-actions{display:flex;gap:.15rem;flex-wrap:wrap;margin-top:.2rem}.nos-act{background:transparent!important;padding:.3rem .45rem;font-size:.74rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-act:hover{color:var(--pub-fg,#cdd6f4)}.nos-act.on{color:var(--pub-accent,#89b4fa);font-weight:700}.nos-act.nos-a-like.on{color:var(--pub-red,#f38ba8)}.nos-act.nos-a-repost.on{color:var(--pub-green,#a6e3a1)}.nos-note-translation{font-size:.82rem;line-height:1.4;font-style:italic;color:var(--pub-fg2,#a6adc8);border-top:1px dashed var(--pub-border,#45475a);padding-top:.35rem;margin-top:.2rem;overflow-wrap:anywhere;white-space:pre-wrap}.nos-modal{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:1rem;z-index:20;overflow:auto}.nos-modal-card{width:100%;max-width:30rem;background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border-radius:.7rem;padding:.9rem;font-family:system-ui,sans-serif}.nos-modal-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem}.nos-modal-title{flex:1;font-weight:700;font-size:.9rem}.nos-modal-input{min-height:6rem;resize:vertical}.nos-modal-foot{display:flex;gap:.4rem;justify-content:flex-end;align-items:center}.nos-modal-ctx{max-height:11rem;overflow:auto;margin-bottom:.5rem}.nos-user-head{margin-bottom:.7rem}.nos-banner{width:100%;height:6.5rem;object-fit:cover;border-radius:.5rem;background:var(--pub-surface2,#313244)}.nos-user-row{display:flex;align-items:flex-end;gap:.6rem;margin-top:-1.6rem;padding:0 .3rem}.nos-user-meta{flex:1;min-width:0;padding-bottom:.2rem}.nos-user-name{font-weight:800;font-size:1rem}.nos-user-about{font-size:.82rem;line-height:1.45;margin:.5rem 0;white-space:pre-wrap;overflow-wrap:anywhere}.nos-user-stats{font-size:.74rem;color:var(--pub-fg2,#a6adc8);display:flex;gap:.9rem;flex-wrap:wrap}.nos-notif{display:flex;gap:.5rem;align-items:flex-start;border-bottom:1px solid var(--pub-border,#45475a);padding:.55rem .1rem;cursor:pointer}.nos-notif-body{flex:1;min-width:0}.nos-notif-line{font-size:.8rem}.nos-notif-quote{font-size:.76rem;color:var(--pub-fg2,#a6adc8);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-top:.15rem}.nos-notif-time{font-size:.7rem;color:var(--pub-dim,#a6adc8)}.nos-profile-form label{display:block;font-size:.75rem;font-weight:700;color:var(--pub-fg2,#a6adc8);margin:.55rem 0 .15rem}.nos-profile-form textarea{min-height:4rem}.nos-profile-meta{margin-top:1rem;font-size:.76rem;color:var(--pub-fg2,#a6adc8)}.nos-relay-row{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--pub-border,#45475a);font-size:.82rem;flex-wrap:wrap}.nos-relay-dot{width:.6rem;height:.6rem;border-radius:50%;flex:0 0 auto;background:var(--pub-dim,#a6adc8)}.nos-relay-open{background:var(--pub-green,#a6e3a1)}.nos-relay-connecting{background:var(--pub-yellow,#f9e2af)}.nos-relay-closed,.nos-relay-error{background:var(--pub-red,#f38ba8)}.nos-relay-url{flex:1;min-width:9rem;overflow-wrap:anywhere}.nos-relay-del{flex:0 0 auto;padding:.3rem .5rem}.nos-relay-add{display:flex;gap:.4rem;margin-top:.6rem}.nos-relay-add input{flex:1;margin:0}.nos-relay-add button{flex:0 0 auto}.nos-newposts{position:sticky;top:0;left:0;z-index:5;display:flex;align-items:center;gap:.4rem;margin:0 auto .6rem;padding:.4rem .8rem .4rem .4rem;border-radius:999px;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-size:.78rem;font-weight:700;box-shadow:0 .25rem .6rem rgba(0,0,0,.25)}.nos-newposts-avatars{display:flex}.nos-newposts-avatars .nos-avatar-wrap{width:1.6rem;height:1.6rem;margin-left:-.6rem;border:2px solid var(--pub-accent,#89b4fa);border-radius:.6rem}.nos-newposts-avatars .nos-avatar-wrap:first-child{margin-left:0}.nos-newposts-avatars .nos-avatar{font-size:.68rem}.nos-people-stats{display:flex;gap:1rem;margin:.5rem 0}.nos-people-btn{background:none!important;padding:0;font-size:.8rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-people-btn:hover{color:var(--pub-fg,#cdd6f4)}.nos-people-btn b{color:var(--pub-fg,#cdd6f4);font-weight:700}.nos-modal-images{display:flex;gap:.4rem;flex-wrap:wrap;margin:.3rem 0}.nos-modal-image{position:relative;width:4.5rem;height:4.5rem}.nos-modal-image img{width:100%;height:100%;object-fit:cover;border-radius:.45rem}.nos-modal-image-del{position:absolute;top:-.35rem;right:-.35rem;width:1.3rem;height:1.3rem;padding:0;border-radius:50%;background:var(--pub-red,#f38ba8)!important;color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1;display:flex;align-items:center;justify-content:center}.nos-modal-image-btn{background:transparent!important;font-size:1rem;padding:.4rem .5rem}.nos-modal-foot{align-items:center}.nos-identity-row{display:flex;align-items:center;gap:.5rem;padding:.45rem 0;border-bottom:1px solid var(--pub-border,#45475a)}.nos-identity-row[data-npub]{cursor:pointer}.nos-identity-row .nos-avatar-wrap{width:1.8rem;height:1.8rem}.nos-identity-label{flex:1;min-width:0;overflow-wrap:anywhere;font-size:.8rem}.nos-identity-actions{display:flex;gap:.3rem;flex:0 0 auto}.nos-identity-actions button{padding:.25rem .5rem;font-size:.72rem}.nos-identities-title{font-weight:700;font-size:.76rem;margin-top:.7rem}';document.head.appendChild(s)}
+  function style(){if(styled)return;styled=true;var s=document.createElement('style');s.textContent='.nos,.nos *,.nos-modal,.nos-modal *{box-sizing:border-box}.nos{height:100%;display:flex;flex-direction:column;position:relative;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif;overflow:hidden}.nos-bar{border-bottom:1px solid var(--pub-border,#45475a);flex:0 0 auto}.nos-bar-head{display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem}.nos-title{font-weight:700;font-size:.88rem;white-space:nowrap}.nos-tabs{display:flex;gap:.25rem;flex:1;overflow-x:auto;scrollbar-width:none}.nos-tabs::-webkit-scrollbar{display:none}.nos-tab{background:transparent;padding:.35rem .6rem;border-radius:.5rem;white-space:nowrap;position:relative}.nos-tab.active{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos-badge{display:inline-block;min-width:1.05rem;padding:0 .25rem;margin-left:.25rem;border-radius:.6rem;background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1.05rem;text-align:center}.nos-bar-btn{flex:0 0 auto;padding:.35rem .5rem;display:inline-flex;align-items:center;justify-content:center}.nos-me{flex:0 0 auto;padding:0;background:none!important}.nos-modes{display:flex;gap:.3rem;padding:0 .7rem .55rem;overflow-x:auto;scrollbar-width:none}.nos-modes::-webkit-scrollbar{display:none}.nos-mode{background:var(--pub-surface2,#313244);padding:.28rem .6rem;border-radius:999px;font-size:.74rem;white-space:nowrap}.nos-mode.active{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos-body{flex:1;min-height:0;overflow:auto;padding:.7rem}.nos button,.nos input,.nos textarea,.nos select,.nos-modal button,.nos-modal textarea{font:inherit}.nos button,.nos-modal button{border:0;border-radius:.45rem;padding:.45rem .7rem;cursor:pointer;font-size:.8rem;font-weight:600;background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4);transition:filter .15s,transform .15s}.nos button:hover,.nos-modal button:hover{filter:brightness(1.12)}.nos button:active{transform:translateY(1px)}.nos button:disabled{opacity:.6;cursor:default}.nos .primary,.nos-modal .primary{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}.nos input,.nos textarea,.nos select,.nos-modal textarea{width:100%;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;color:var(--pub-fg,#cdd6f4);padding:.55rem .65rem;outline:none;margin:.3rem 0}.nos input:focus,.nos textarea:focus,.nos select:focus,.nos-modal textarea:focus{border-color:var(--pub-accent,#89b4fa)}.nos-error{min-height:1.2rem;color:var(--pub-red,#f38ba8);font-size:.8rem;margin:.3rem 0}.nos-empty{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;padding:1.5rem;color:var(--pub-fg2,#a6adc8);font-size:.85rem}.nos-unlock,.nos-onboard{display:flex;flex:1;align-items:center;justify-content:center;padding:1rem}.nos-unlock>div,.nos-card{width:100%;max-width:24rem;background:var(--pub-surface2,#313244);padding:1.25rem;border-radius:.7rem}.nos-unlock h2,.nos-card h2{font-size:1.05rem;margin:0 0 .4rem}.nos-unlock p,.nos-card p{font-size:.82rem;line-height:1.45;color:var(--pub-fg2,#a6adc8)}.nos-duration-hint{font-size:.72rem;opacity:.75;margin:.2rem 0 .6rem}.nos-warn{font-size:.78rem;line-height:1.45;color:var(--pub-yellow,#f9e2af);border:1px solid var(--pub-yellow,#f9e2af);border-radius:.45rem;padding:.5rem .6rem;margin:.5rem 0}.nos-link{background:none!important;padding:.4rem 0;font-size:.78rem;font-weight:400;color:var(--pub-accent,#89b4fa);text-decoration:underline}.nos-view-value{background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;padding:.55rem .65rem;font-size:.8rem;overflow-wrap:anywhere;margin:.3rem 0}.nos-key-value{font-family:monospace}.nos-check{display:flex!important;align-items:center;gap:.45rem;width:auto;font-size:.8rem;cursor:pointer}.nos-check input{width:auto;margin:0}.nos-note{border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);border-radius:.65rem;padding:.65rem;margin-bottom:.55rem;cursor:pointer;transition:background .3s}.nos-note:hover{filter:brightness(1.05)}.nos-note.nos-flat{border:0;background:none;padding:.55rem 0;border-bottom:1px solid var(--pub-border,#45475a);border-radius:0;margin:0}.nos-boost{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.35rem}.nos-note-head{display:flex;align-items:center;gap:.5rem}.nos-avatar-wrap{position:relative;width:2.1rem;height:2.1rem;flex:0 0 auto;cursor:pointer}.nos-avatar-wrap.nos-lg{width:4rem;height:4rem}.nos-avatar{position:absolute;inset:0;width:100%;height:100%;border-radius:.5rem;object-fit:cover;display:grid;place-items:center;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:800;overflow:hidden}.nos-avatar-img{background:var(--pub-surface2,#313244)}.nos-note-who{flex:1;min-width:0;cursor:pointer}.nos-note-name{display:block;font-weight:700;font-size:.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nos-note-time{display:block;font-size:.71rem;color:var(--pub-dim,#a6adc8)}.nos-nip05{font-size:.71rem;color:var(--pub-accent,#89b4fa)}.nos-follow-btn{flex:0 0 auto;padding:.28rem .55rem;font-size:.72rem}.nos-reply-of-wrap{margin:.35rem 0}.nos-reply-of-label{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.2rem}.nos-reply-of-wrap .nos-quote{margin:0;padding:.4rem .5rem}.nos-reply-of-wrap .nos-quote .nos-note-content{font-size:.76rem;max-height:5rem}.nos-reply-of-wrap .nos-avatar-wrap{width:1.5rem;height:1.5rem}.nos-reply-of-wrap .nos-note-name{font-size:.76rem}.nos-reply-of-wrap .nos-note-time{font-size:.66rem}.nos-note-content{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.86rem;margin:.4rem 0;overflow:hidden}.nos-note-content a{color:var(--pub-accent,#89b4fa)}.nos-mention{color:var(--pub-accent,#89b4fa);cursor:pointer}.nos-embed-link{display:block;width:100%}.nos-embed-img{display:block;max-width:100%;height:auto;max-height:22rem;border-radius:.5rem;margin-top:.4rem;object-fit:contain}.nos-embed-video{display:block;max-width:100%;height:auto;max-height:22rem;border-radius:.5rem;margin-top:.4rem;background:#000}.nos-embed-audio{display:block;width:100%;margin-top:.4rem}.nos-quote{border:1px solid var(--pub-border,#45475a);border-radius:.5rem;padding:.5rem;margin:.45rem 0;background:var(--pub-bg,#1e1e2e)}.nos-preview-card{display:flex;gap:.6rem;align-items:stretch;border:1px solid var(--pub-border,#45475a);border-radius:.5rem;margin:.45rem 0;background:var(--pub-bg,#1e1e2e);overflow:hidden;text-decoration:none;color:inherit}.nos-preview-card:hover{filter:brightness(1.08)}.nos-preview-img{width:5.5rem;flex:0 0 5.5rem;object-fit:cover;background:var(--pub-surface2,#313244)}.nos-preview-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:.15rem;padding:.5rem .55rem}.nos-preview-site{font-size:.68rem;color:var(--pub-fg2,#a6adc8);text-transform:uppercase;letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nos-preview-title{font-size:.82rem;font-weight:700;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.nos-preview-desc{font-size:.74rem;color:var(--pub-fg2,#a6adc8);line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.nos-compose-preview:empty{display:none}.nos-quote .nos-note-content{font-size:.8rem;max-height:12rem}.nos-note-actions{display:flex;gap:.15rem;flex-wrap:wrap;margin-top:.2rem}.nos-act{background:transparent!important;padding:.3rem .45rem;font-size:.74rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-act:hover{color:var(--pub-fg,#cdd6f4)}.nos-act.on{color:var(--pub-accent,#89b4fa);font-weight:700}.nos-act.nos-a-like.on{color:var(--pub-red,#f38ba8)}.nos-act.nos-a-repost.on{color:var(--pub-green,#a6e3a1)}.nos-note-translation{font-size:.82rem;line-height:1.4;font-style:italic;color:var(--pub-fg2,#a6adc8);border-top:1px dashed var(--pub-border,#45475a);padding-top:.35rem;margin-top:.2rem;overflow-wrap:anywhere;white-space:pre-wrap}.nos-modal{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:1rem;z-index:20;overflow:auto}.nos-modal-card{width:100%;max-width:30rem;background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border-radius:.7rem;padding:.9rem;font-family:system-ui,sans-serif}.nos-modal-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem}.nos-modal-title{flex:1;font-weight:700;font-size:.9rem}.nos-modal-input{min-height:6rem;resize:vertical}.nos-modal-foot{display:flex;gap:.4rem;justify-content:flex-end;align-items:center}.nos-modal-ctx{max-height:11rem;overflow:auto;margin-bottom:.5rem}.nos-user-head{margin-bottom:.7rem}.nos-banner{width:100%;height:6.5rem;object-fit:cover;border-radius:.5rem;background:var(--pub-surface2,#313244)}.nos-user-row{display:flex;align-items:flex-end;gap:.6rem;margin-top:-1.6rem;padding:0 .3rem}.nos-user-meta{flex:1;min-width:0;padding-bottom:.2rem}.nos-user-name{font-weight:800;font-size:1rem}.nos-user-about{font-size:.82rem;line-height:1.45;margin:.5rem 0;white-space:pre-wrap;overflow-wrap:anywhere}.nos-user-stats{font-size:.74rem;color:var(--pub-fg2,#a6adc8);display:flex;gap:.9rem;flex-wrap:wrap}.nos-notif{display:flex;gap:.5rem;align-items:flex-start;border-bottom:1px solid var(--pub-border,#45475a);padding:.55rem .1rem;cursor:pointer}.nos-notif-body{flex:1;min-width:0}.nos-notif-line{font-size:.8rem}.nos-notif-quote{font-size:.76rem;color:var(--pub-fg2,#a6adc8);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-top:.15rem}.nos-notif-time{font-size:.7rem;color:var(--pub-dim,#a6adc8)}.nos-profile-form label{display:block;font-size:.75rem;font-weight:700;color:var(--pub-fg2,#a6adc8);margin:.55rem 0 .15rem}.nos-profile-form textarea{min-height:4rem}.nos-profile-meta{margin-top:1rem;font-size:.76rem;color:var(--pub-fg2,#a6adc8)}.nos-relay-row{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--pub-border,#45475a);font-size:.82rem;flex-wrap:wrap}.nos-relay-dot{width:.6rem;height:.6rem;border-radius:50%;flex:0 0 auto;background:var(--pub-dim,#a6adc8)}.nos-relay-open{background:var(--pub-green,#a6e3a1)}.nos-relay-connecting{background:var(--pub-yellow,#f9e2af)}.nos-relay-closed,.nos-relay-error{background:var(--pub-red,#f38ba8)}.nos-relay-url{flex:1;min-width:9rem;overflow-wrap:anywhere}.nos-relay-del{flex:0 0 auto;padding:.3rem .5rem}.nos-relay-add{display:flex;gap:.4rem;margin-top:.6rem}.nos-relay-add input{flex:1;margin:0}.nos-relay-add button{flex:0 0 auto}.nos-newposts{position:sticky;top:0;left:0;z-index:5;display:flex;align-items:center;gap:.4rem;margin:0 auto .6rem;padding:.4rem .8rem .4rem .4rem;border-radius:999px;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-size:.78rem;font-weight:700;box-shadow:0 .25rem .6rem rgba(0,0,0,.25)}.nos-newposts-avatars{display:flex}.nos-newposts-avatars .nos-avatar-wrap{width:1.6rem;height:1.6rem;margin-left:-.6rem;border:2px solid var(--pub-accent,#89b4fa);border-radius:.6rem}.nos-newposts-avatars .nos-avatar-wrap:first-child{margin-left:0}.nos-newposts-avatars .nos-avatar{font-size:.68rem}.nos-people-stats{display:flex;gap:1rem;margin:.5rem 0}.nos-people-btn{background:none!important;padding:0;font-size:.8rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-people-btn:hover{color:var(--pub-fg,#cdd6f4)}.nos-people-btn b{color:var(--pub-fg,#cdd6f4);font-weight:700}.nos-modal-images{display:flex;gap:.4rem;flex-wrap:wrap;margin:.3rem 0}.nos-modal-image{position:relative;width:4.5rem;height:4.5rem}.nos-modal-image img{width:100%;height:100%;object-fit:cover;border-radius:.45rem}.nos-modal-image-del{position:absolute;top:-.35rem;right:-.35rem;width:1.3rem;height:1.3rem;padding:0;border-radius:50%;background:var(--pub-red,#f38ba8)!important;color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1;display:flex;align-items:center;justify-content:center}.nos-modal-image-btn{background:transparent!important;font-size:1rem;padding:.4rem .5rem}.nos-modal-foot{align-items:center}.nos-identity-row{display:flex;align-items:center;gap:.5rem;padding:.45rem 0;border-bottom:1px solid var(--pub-border,#45475a)}.nos-identity-row[data-npub],.nos-identity-row[data-user]{cursor:pointer}.nos-search-input{margin:0 0 .6rem}.nos-search-results .nos-identity-row{padding:.55rem .1rem}.nos-search-results .nos-avatar-wrap{width:2.1rem;height:2.1rem}.nos-identity-row .nos-avatar-wrap{width:1.8rem;height:1.8rem}.nos-identity-label{flex:1;min-width:0;overflow-wrap:anywhere;font-size:.8rem}.nos-identity-actions{display:flex;gap:.3rem;flex:0 0 auto}.nos-identity-actions button{padding:.25rem .5rem;font-size:.72rem}.nos-identities-title{font-weight:700;font-size:.76rem;margin-top:.7rem}';document.head.appendChild(s)}
 
   function mount(root,opts){
     opts=opts||{};style();
@@ -333,7 +337,32 @@
     if(!token){root.innerHTML='<div class="nos-empty">'+esc(t('nos_login'))+'</div>';if(opts.onNeedLogin)opts.onNeedLogin();return{destroy:function(){}}}
     var DURATION_KEY='nos_vault_duration',TAB_KEY='nos_vault_tab',SEEN_KEY='nos_notif_seen',FEED_MODE_KEY='nos_feed_mode',ACTIVE_KEY='nos_active_npub';
     var TR_LANG_KEY='nos_translate_lang',PUB_LANG_KEY='nos_publish_lang';
-    var FEED_MODES=['following','1','4','24'];
+    var FEED_MODES=['following','trending','discover'];
+    // Anyone still carrying a saved '1', '4' or '24' from the old trending
+    // windows lands on Discover rather than on a mode that no longer exists.
+    var DISCOVER_LIMIT=100;
+    // Popular. A relay has no ranking to offer — trending is a service built on
+    // top of Nostr, not a part of the protocol — so this is the one connection
+    // in the app the user did not choose themselves. Primal's cache speaks the
+    // ordinary relay protocol, so the existing pool talks to it unchanged.
+    //
+    // Two lists rather than one, because measuring them showed they answer
+    // different questions. Trending over 24h is dominated by notes old enough to
+    // have gathered engagement (median age 19h), so on its own it barely moves
+    // between visits. Most-zapped over 4h has a median age of 2h and turns over
+    // within the hour. Merged and shown newest-first, the top of the list is
+    // what is happening now and the day's big threads sit below it — and there
+    // is no time window for anyone to have to pick.
+    var TRENDING_URL='wss://cache2.primal.net/v1';
+    var TRENDING_CACHES=['explore_global_trending_24h','explore_global_mostzapped_4h'];
+    // The cache honours only the first filter of a REQ, so each list is its own
+    // subscription rather than one request carrying both.
+    var TRENDING_SUBS=TRENDING_CACHES.map(function(_,i){return 'trending'+i});
+    // The background refresh asks the same two lists again, under its own ids, so
+    // it never disturbs the subscriptions the open list is holding.
+    var TRENDING_POLL_SUBS=TRENDING_CACHES.map(function(_,i){return 'poll-trending'+i});
+    var TRENDING_TTL=300000;
+    var PRIMAL_STATS_KIND=10000100;
     var MAX_STREAK=7;
     var key=null,privBytes=null,pubHex=null,vaultInfo=null,relays=[],autoLockTimer=0,destroyed=false,session=null;
     var _prefs={};
@@ -401,24 +430,27 @@
     // is active. addMode/switcherOpen drive the onboarding screen and the identity
     // switcher panel reused for "add another identity" and "switch identity".
     var identities=[],addMode=false,switcherOpen=false;
+    var scrollReset=false;
+    var searchQuery='',searchResults=[],searchSeq=0,searchBusy=false,searchDebounce=0;
     var activeTab='feed',feedMode=FEED_MODES.indexOf(localStorage.getItem(FEED_MODE_KEY))>=0?localStorage.getItem(FEED_MODE_KEY):'following',stack=[];
     var feedItems=[],feedKeys={},feedLoaded=false,feedToken=0;
     var pendingItems=[],pendingKeys={};
-    // Each loadTrending() call gets its own trend-e/n/r sub IDs so an overlapping
-    // call (mode switch racing a still-loading previous mode, or the background
-    // poll re-querying the active trending mode) can never clobber another's
-    // in-flight subscriptions by reusing the same pool sub ID.
-    var trendSeq=0,activeTrendSubs=[];
-    // How many unseen following-feed items are waiting while some other mode
-    // is active — shown as a badge on the "Следвани" nos-mode button. Trending
-    // modes never get a background badge (only the active one polls itself,
-    // via loadTrending's own live/pending gate), so only "following" is
-    // tracked here. modeSeenKeys stops the background poll from re-counting
-    // the same note on every tick; modeSeenInit seeds it silently on the
-    // first poll instead of counting whatever it finds as "new".
-    var modeCounts={following:0,'1':0,'4':0,'24':0};
-    var modeSeenKeys={following:{}};
-    var modeSeenInit={following:false};
+    // How many unseen following-feed items are waiting while Discover is the
+    // active mode — shown as a badge on the Following button. Discover needs no
+    // badge of its own: it holds an open subscription whenever it is on screen
+    // and puts what arrives straight into its own "new posts" pill.
+    // modeSeenKeys stops the background poll from re-counting the same note on
+    // every tick; modeSeenInit seeds it silently on the first poll instead of
+    // counting whatever it happens to find as "new".
+    var modeCounts={following:0,trending:0,discover:0};
+    // Engagement counts as the ranking service measured them, network-wide.
+    // Kept apart from `stats`, which counts only what the user's own relays
+    // happen to store: merging the two would either double-count the same
+    // reaction or replace a network-wide number with a much smaller local one.
+    var netStats={};
+    var trendingFailed=false,trendingAt=0;
+    var modeSeenKeys={following:{},trending:{}};
+    var modeSeenInit={following:false,trending:false};
     var modePollTimer=0;
     var contactPubkeys=[];
     var profileCache={},noteCache={},stats={},myReactions={},myReposts={},ownProfileRaw={};
@@ -517,10 +549,12 @@
     function lockedAtHint(){return session&&session.expires?t('nos_locks_at',{time:fmtDate(new Date(session.expires))+' '+fmtTime(new Date(session.expires))}):t('nos_lock')}
     function resetState(){
       clearTimeout(autoLockTimer);autoLockTimer=0;clearTimeout(renderTimer);clearTimeout(profileTimer);clearTimeout(noteTimer);
+      clearTimeout(searchDebounce);searchQuery='';searchResults=[];searchBusy=false;searchSeq++;
       stopModePolling();
       key=null;privBytes=null;pubHex=null;session=null;composer=null;stack=[];activeTab='feed';
       feedItems=[];feedKeys={};feedLoaded=false;feedToken++;contactPubkeys=[];
-      modeCounts={following:0,'1':0,'4':0,'24':0};modeSeenKeys={following:{}};modeSeenInit={following:false};
+      modeCounts={following:0,trending:0,discover:0};quietProfiles={};modeSeenKeys={following:{},trending:{}};modeSeenInit={following:false,trending:false};
+      netStats={};trendingFailed=false;
       pendingItems=[];pendingKeys={};
       profileCache={};noteCache={};stats={};myReactions={};myReposts={};ownProfileRaw={};
       notifItems=[];notifKeys={};notifLoaded=false;profileQueue=[];noteQueue=[];
@@ -735,7 +769,7 @@
     async function loadRelays(){
       var data=await api('/relays');
       relays=(data.relays&&data.relays.length)?data.relays:DEFAULT_RELAYS.map(function(u){return{url:u,read:1,write:1}});
-      pool.setRelayUrls(relays.map(function(r){return r.url}));
+      pool.setRelayUrls(relays.map(function(r){return r.url}),[TRENDING_URL]);
     }
 
     async function afterUnlock(){
@@ -755,15 +789,21 @@
     var noteQueue=[],noteTimer=0,noteSubId=0;
     var renderTimer=0;
     function scheduleRender(){clearTimeout(renderTimer);renderTimer=setTimeout(function(){renderBody();if(switcherOpen)renderSwitcher()},140)}
-    var shellRenderTimer=0;
+    var shellRenderTimer=0,pillTimer=0,quietProfiles={};
     function scheduleRenderShell(){clearTimeout(shellRenderTimer);shellRenderTimer=setTimeout(function(){if(key)renderShell()},140)}
     function parseProfile(ev){
       var data={};try{data=JSON.parse(ev.content)||{}}catch(_){}
       return{created_at:ev.created_at,raw:data,name:data.display_name||data.name||'',handle:data.name||'',
              about:data.about||'',picture:data.picture||'',banner:data.banner||'',website:data.website||'',nip05:data.nip05||''};
     }
-    function ensureProfile(pk){
+    // `quiet` marks a profile wanted only for a post waiting behind the pill.
+    // Nothing on screen is showing that author yet, so when the profile lands
+    // there is nothing to redraw but the pill itself — and redrawing the feed for
+    // it is exactly what made Discover flash, since a steady stream of new posts
+    // is a steady stream of unknown authors.
+    function ensureProfile(pk,quiet){
       if(!pk||profileCache[pk]!==undefined)return;
+      if(quiet)quietProfiles[pk]=1;
       profileCache[pk]=null;
       profileQueue.push(pk);
       clearTimeout(profileTimer);profileTimer=setTimeout(flushProfiles,180);
@@ -777,7 +817,8 @@
         if(prev&&prev.created_at>=ev.created_at)return;
         profileCache[ev.pubkey]=parseProfile(ev);
         if(ev.pubkey===pubHex){ownProfileRaw=profileCache[ev.pubkey].raw||{};scheduleRenderShell()}
-        scheduleRender();
+        var quiet=quietProfiles[ev.pubkey];delete quietProfiles[ev.pubkey];
+        if(quiet)schedulePill();else scheduleRender();
       },function(){pool.unsubscribe(subId)});
     }
     function ensureNote(id){
@@ -848,12 +889,37 @@
     // They wait in pendingItems until acceptPending() merges them in.
     function pushPending(item){
       if(feedKeys[item.key]||pendingKeys[item.key])return;
+      // What you just posted yourself is not news to you. It used to land behind
+      // the pill like everyone else's, so publishing a note announced "1 new
+      // post" and made you press a button to see your own writing. Yours goes
+      // straight into the list; a repost of it by somebody else still counts,
+      // because there the new event is theirs, not yours.
+      var author=item.boost?item.boost.pubkey:(noteCache[item.noteId]||{}).pubkey;
+      if(author&&author===pubHex){pushItem(item);return}
       pendingKeys[item.key]=1;
       pendingItems.push(item);
       if(pendingItems.length>40)pendingItems.length=40;
-      scheduleRender();
+      schedulePill();
+    }
+    // A post arriving while you read changes nothing in the list on screen — it
+    // changes only the pill above it. Repainting the feed for that rebuilds every
+    // note, reloads every image and re-queries every engagement count, and on
+    // Discover, where notes stream in continuously, it reads as the whole screen
+    // flashing. So the pill is patched in place and the list is left alone.
+    function schedulePill(){clearTimeout(pillTimer);pillTimer=setTimeout(renderPendingPill,140)}
+    function renderPendingPill(){
+      var body=root.querySelector('.nos-body');
+      if(!body||stack.length||activeTab!=='feed')return;
+      var cur=body.querySelector('.nos-newposts'),html=pendingHtml();
+      if(!html){if(cur)cur.remove();return}
+      var tmp=document.createElement('div');tmp.innerHTML=html;
+      var el=tmp.firstChild;
+      el.onclick=function(e){e.stopPropagation();acceptPending()};
+      if(cur)body.replaceChild(el,cur);else body.insertBefore(el,body.firstChild);
+      bindImages(el);
     }
     function acceptPending(){
+      quietProfiles={};
       pendingItems.forEach(function(item){delete pendingKeys[item.key];pushItem(item)});
       pendingItems=[];
       var body=root.querySelector('.nos-body');
@@ -861,24 +927,133 @@
       scheduleRender();
     }
     function addFeedEvent(ev){
-      var live=feedMode==='following'&&feedLoaded;
+      // Both modes hold an open subscription now, so anything arriving after the
+      // stored batch is genuinely new and belongs behind the pill.
+      var live=feedLoaded;
       if(ev.kind===6){
         var targetId=lastETag(ev);
         if(!targetId)return;
         var embedded=null;try{embedded=JSON.parse(ev.content)}catch(_){}
         // NIP-18 lets the repost carry the original inline; using it saves a
         // round trip, but only when it really is the event the tag points at.
-        if(embedded&&embedded.id===targetId&&embedded.kind===1){noteCache[targetId]=embedded;ensureProfile(embedded.pubkey)}
+        if(embedded&&embedded.id===targetId&&embedded.kind===1){noteCache[targetId]=embedded;ensureProfile(embedded.pubkey,live)}
         else ensureNote(targetId);
-        ensureProfile(ev.pubkey);
+        ensureProfile(ev.pubkey,live);
         (live?pushPending:pushItem)({key:'boost:'+ev.id,noteId:targetId,boost:ev,at:ev.created_at});
         return;
       }
       if(ev.kind!==1)return;
-      noteCache[ev.id]=ev;ensureProfile(ev.pubkey);
+      noteCache[ev.id]=ev;ensureProfile(ev.pubkey,live);
       (live?pushPending:pushItem)({key:ev.id,noteId:ev.id,boost:null,at:ev.created_at});
     }
-    function stopFeedSubs(){['feed'].concat(activeTrendSubs).forEach(function(id){pool.unsubscribe(id)});activeTrendSubs=[]}
+    // Every other connection in this app is a relay the user picked. The ranking
+    // cache is not, so what comes back from it is checked rather than trusted:
+    // the id must be the hash of the event and the signature must match the
+    // author's key. That bounds what a compromised ranking service can do to
+    // choosing which real notes to show — it cannot put words in anyone's mouth.
+    // Verification is per event as it streams in, so the cost never lands as one
+    // block on the main thread.
+    async function verifyEvent(ev){
+      try{
+        if(!ev||!ev.id||!ev.sig||!ev.pubkey||!Array.isArray(ev.tags))return false;
+        var idBytes=await sha256(new TextEncoder().encode(serializeEvent(ev)));
+        if(bytesToHex(idBytes)!==ev.id)return false;
+        return window.NostrCrypto.schnorr.verify(hexToBytes(ev.sig),idBytes,hexToBytes(ev.pubkey));
+      }catch(_){return false}
+    }
+    // The cache answers with the notes, the profiles behind them and its own
+    // engagement counts in one stream, so a popular note arrives ready to draw:
+    // no follow-up query for the author's avatar and none for the numbers.
+    //
+    // The same request serves both the first load and the background refresh.
+    // Nothing already on screen moves on a refresh: a note the list did not have
+    // waits behind the "new posts" pill exactly as in the other two modes, so the
+    // ranking can keep changing underneath without costing the reader their
+    // place. When Popular is not the open mode the new notes raise its badge
+    // instead. Either way the ranking goes on being checked, which is the point —
+    // nothing here should need reloading the app to notice that it moved.
+    function fetchTrending(token,poll){
+      var subs=poll?TRENDING_POLL_SUBS:TRENDING_SUBS;
+      // Seeding. The very first answer is the state of the world, not news about
+      // it: without this, opening the app on Following and letting the poll run
+      // once would stamp the Popular button with the size of the whole ranking.
+      var firstRun=!modeSeenInit.trending;
+      if(!poll)trendingFailed=false;
+      trendingAt=Date.now();
+      var pendingSubs=subs.length,pendingChecks=0,got=0,eosed=false;
+      // Signature checks are asynchronous, so the last EOSE is not the end of the
+      // load: settling on it alone would flash the empty state over a list that
+      // is about to arrive, and would call a working service dead.
+      function settle(){
+        if(!eosed||pendingChecks>0)return;
+        modeSeenInit.trending=true;
+        if(poll){subs.forEach(function(id){pool.unsubscribe(id)});return}
+        if(token!==feedToken)return;
+        feedLoaded=true;
+        trendingFailed=got===0;
+        scheduleRender();
+      }
+      subs.forEach(function(subId,i){
+        if(poll)pool.unsubscribe(subId);
+        pool.subscribe([TRENDING_URL],subId,[{cache:[TRENDING_CACHES[i]]}],function(ev){
+          if(!poll&&token!==feedToken)return;
+          if(ev.kind===0){
+            var prev=profileCache[ev.pubkey];
+            if(!prev||prev.created_at<ev.created_at)profileCache[ev.pubkey]=parseProfile(ev);
+            return;
+          }
+          if(ev.kind===PRIMAL_STATS_KIND){
+            try{
+              var st=JSON.parse(ev.content||'{}');
+              if(st.event_id)netStats[st.event_id]={
+                replies:st.replies||0,reposts:st.reposts||0,
+                likes:st.likes||0,zaps:st.zaps||0
+              };
+            }catch(_){}
+            return;
+          }
+          if(ev.kind!==1||!String(ev.content||'').trim())return;
+          got++;
+          if(poll){
+            // A refresh mostly returns the list it returned last time, and the
+            // very first one returns all of it. Both are dropped before the
+            // signature check rather than after: these ids only ever decide new
+            // from already-counted, so re-verifying eighty notes every few
+            // minutes would buy nothing.
+            if(modeSeenKeys.trending[ev.id])return;
+            if(firstRun){modeSeenKeys.trending[ev.id]=1;return}
+          }
+          pendingChecks++;
+          verifyEvent(ev).then(function(ok){
+            pendingChecks--;
+            if(ok)takeTrending(token,ev,poll);
+            settle();
+          });
+        },function(){if(--pendingSubs<=0){eosed=true;settle()}});
+      });
+    }
+    function takeTrending(token,ev,poll){
+      modeSeenKeys.trending[ev.id]=1;
+      var item={key:ev.id,noteId:ev.id,boost:null,at:ev.created_at};
+      // The two lists overlap by a note or two; both pushItem and pushPending key
+      // them out, so the overlap costs nothing.
+      if(!poll){
+        if(token!==feedToken||feedMode!=='trending')return;
+        noteCache[ev.id]=ev;ensureProfile(ev.pubkey);
+        pushItem(item);
+        return;
+      }
+      // Only the mode actually on screen needs the note itself. Counting for the
+      // badge must never pull in avatars for a list nobody is looking at: each
+      // profile that came back would repaint the feed that *is* on screen, so a
+      // silent count on one button would flicker the other mode's list. Switching
+      // to Popular fetches the notes properly anyway.
+      if(feedMode==='trending'&&activeTab==='feed'){
+        noteCache[ev.id]=ev;ensureProfile(ev.pubkey,true);
+        pushPending(item);
+      }else{modeCounts.trending++;scheduleRenderShell()}
+    }
+    function stopFeedSubs(){['feed','discover'].concat(TRENDING_SUBS).forEach(function(id){pool.unsubscribe(id)})}
     function loadFeed(){
       var token=++feedToken;
       feedItems=[];feedKeys={};feedLoaded=false;
@@ -886,36 +1061,46 @@
       modeCounts[feedMode]=0;
       if(feedMode==='following'){modeSeenKeys.following={};modeSeenInit.following=true}
       stopFeedSubs();
+      // Popular does not read from the user's relays, so it is the one mode that
+      // still works on an installation with none configured yet.
+      if(feedMode==='trending'){fetchTrending(token,false);scheduleRender();startModePolling();return}
       if(!readUrls().length){feedLoaded=true;scheduleRender();return}
       if(feedMode==='following'){
         var authors=[pubHex].concat(contactPubkeys);
         pool.subscribe(readUrls(),'feed',[{kinds:[1,6],authors:authors,limit:60}],
           function(ev){if(token===feedToken)addFeedEvent(ev)},
           function(){if(token===feedToken){feedLoaded=true;scheduleRender()}});
-      }else loadTrending(Number(feedMode),token);
+      }else loadDiscover(token);
       scheduleRender();
       startModePolling();
     }
-    // Trending has no live subscription — it's one batch query — so the only
-    // way for the active trending mode to notice new posts is to re-run that
-    // query periodically. The other two trending modes are left alone (no
-    // badge) — only following, which streams live anyway, gets a background
-    // count, shown on its own nos-mode button while some trending mode is open.
+    // Following streams live on its own open subscription, and Discover does too
+    // now, so neither mode needs re-querying to notice new posts. What is still
+    // needed is the count on the *other* button: while Discover is open, the
+    // Following tab has no subscription of its own to raise its badge, so a small
+    // periodic query fills it.
     var MODE_POLL_MS=90000;
     function startModePolling(){
       clearInterval(modePollTimer);
       modePollTimer=setInterval(pollAllModes,MODE_POLL_MS);
     }
-    function stopModePolling(){clearInterval(modePollTimer);modePollTimer=0}
+    function stopModePolling(){
+      clearInterval(modePollTimer);modePollTimer=0;
+      TRENDING_POLL_SUBS.forEach(function(id){pool.unsubscribe(id)});
+    }
+    // Popular is the only mode with no open subscription of its own: the cache
+    // answers once and closes, so a poll is the only thing that can notice the
+    // ranking has moved. It moves by about a note every couple of minutes, so it
+    // gets its own slower beat than the Following count — asking faster would
+    // only re-download the list it just returned, and this is the heavier of the
+    // two answers, carrying notes, profiles and counts together.
+    var TRENDING_POLL_MS=180000;
     function pollAllModes(){
-      if(activeTab!=='feed'||!readUrls().length||stack.length)return;
-      if(feedMode==='following')return;
-      // The active trending mode re-runs its own query to fill its "new posts"
-      // pill, same gate as the following feed's live pushPending. Following
-      // itself streams live already, so it never needs polling for its own
-      // sake — this second call exists purely to fill the "Следвани" badge
-      // while some trending mode is the active tab.
-      loadTrending(Number(feedMode),feedToken,true);
+      if(activeTab!=='feed'||stack.length)return;
+      // Not gated on the relay list: the ranking cache is not one of the user's
+      // relays, so Popular keeps refreshing even where none are configured.
+      if(Date.now()-trendingAt>=TRENDING_POLL_MS)fetchTrending(0,true);
+      if(!readUrls().length||feedMode==='following')return;
       pollFollowingCount();
     }
     function pollFollowingCount(){
@@ -924,37 +1109,47 @@
       pool.subscribe(readUrls(),subId,[{kinds:[1,6],authors:authors,limit:20}],function(ev){
         if(modeSeenKeys.following[ev.id])return;
         modeSeenKeys.following[ev.id]=1;
-        if(!firstRun){modeCounts.following++;scheduleRenderShell()}
+        // Same reason as pushPending: your own note must not raise the badge that
+        // tells you there is something new to catch up on.
+        if(!firstRun&&ev.pubkey!==pubHex){modeCounts.following++;scheduleRenderShell()}
       },function(){pool.unsubscribe(subId);modeSeenInit.following=true});
     }
-    // Plain relays have no trending endpoint — that is a service Primal runs on
-    // top of Nostr, not part of the protocol. What a client can do honestly is
-    // measure it: pull the reactions and reposts from the window, tally which
-    // notes they point at, then fetch those notes. Reposts weigh more than likes
-    // because they cost the sender their own audience.
-    function loadTrending(hours,token,live){
-      var since=Math.floor(Date.now()/1000)-hours*3600,scores={};
-      var seq=++trendSeq,idE='trend-e-'+seq,idN='trend-n-'+seq,idR='trend-r-'+seq;
-      if(!live)activeTrendSubs=[idE,idN,idR];
-      function rank(ev){return(scores[ev.id]||0)*1e10+ev.created_at}
-      function accept(ev){
-        if(token!==feedToken||ev.kind!==1||ev.created_at<since||isReply(ev))return;
-        noteCache[ev.id]=ev;ensureProfile(ev.pubkey);
-        (live?pushPending:pushItem)({key:ev.id,noteId:ev.id,boost:null,at:rank(ev)});
-      }
-      pool.subscribe(readUrls(),idE,[{kinds:[6,7],since:since,limit:1000}],function(ev){
-        var target=lastETag(ev);
-        if(target)scores[target]=(scores[target]||0)+(ev.kind===6?3:1);
-      },function(){
-        if(token!==feedToken){pool.unsubscribe(idE);pool.unsubscribe(idN);pool.unsubscribe(idR);return}
-        pool.unsubscribe(idE);
-        var top=Object.keys(scores).sort(function(a,b){return scores[b]-scores[a]}).slice(0,60);
-        if(top.length)pool.subscribe(readUrls(),idN,[{ids:top}],accept,function(){pool.unsubscribe(idN);if(token===feedToken){feedLoaded=true;scheduleRender()}});
-        // A quiet hour on a small relay set produces almost no reactions, and an
-        // empty tab reads as broken. Recent notes fill in below everything scored.
-        pool.subscribe(readUrls(),idR,[{kinds:[1],since:since,limit:60}],accept,
-          function(){pool.unsubscribe(idR);if(token===feedToken){feedLoaded=true;scheduleRender()}});
-      });
+    // A relay has no trending endpoint — trending is a service Primal runs on top
+    // of Nostr, not a part of the protocol. This used to measure it honestly and
+    // expensively: pull up to a thousand reactions from a chosen window, tally
+    // what they pointed at, then fetch those notes. Three round trips across
+    // every relay had to finish before a single note could be drawn, which is
+    // why picking 1h/4h/24h meant waiting, sometimes minutes — and why having to
+    // pick at all was a chore rather than a feature.
+    //
+    // Recency is the one thing every relay really does index, so Discover asks
+    // for that and nothing else: one open subscription for recent notes. It
+    // paints as events arrive rather than after the last of them, and because the
+    // subscription stays open afterwards, new posts keep streaming into the
+    // pill by themselves. No window to choose and nothing to poll.
+    // Kind 1 means "a human wrote this", but nothing enforces that, and some
+    // people run their infrastructure over it: device heartbeats, presence pings
+    // and join events published as notes because a relay is a convenient message
+    // bus. Measured against the live firehose it is about one note in thirteen,
+    // from a handful of authors. There is nothing to draw — it is not a NIP, just
+    // somebody's own JSON — so in Discover, the one feed nobody chose the authors
+    // of, a note whose entire content is a JSON document is dropped. Following is
+    // deliberately left alone: what someone you chose to follow posts is between
+    // you and them, not something this app should quietly withhold.
+    function isMachineNote(content){
+      var c=content.charAt(0);
+      if(c!=='{'&&c!=='[')return false;
+      try{var v=JSON.parse(content);return v!==null&&typeof v==='object'}catch(_){return false}
+    }
+    function loadDiscover(token){
+      pool.subscribe(readUrls(),'discover',[{kinds:[1],limit:DISCOVER_LIMIT}],function(ev){
+        // Replies are conversation, not discovery, and an empty note is a relay
+        // artefact; both would only pad the list out with things nobody can read.
+        if(token!==feedToken||isReply(ev))return;
+        var content=String(ev.content||'').trim();
+        if(!content||isMachineNote(content))return;
+        addFeedEvent(ev);
+      },function(){if(token===feedToken){feedLoaded=true;scheduleRender()}});
     }
 
     // ---- notifications ----
@@ -982,9 +1177,10 @@
     }
 
     // ---- thread and user views ----
-    function pushView(view){stack.push(view);renderShell()}
+    function pushView(view){stack.push(view);scrollReset=true;renderShell()}
     function popView(){
       stack.pop();
+      scrollReset=true;
       var top=stack[stack.length-1];
       if(top&&top.type==='thread')loadThread(top.id);
       else if(top&&top.type==='user')loadUser(top.pubkey);
@@ -1002,6 +1198,107 @@
       ensureProfile(pk);
       loadUser(pk);
       pushView({type:'user',pubkey:pk});
+    }
+    // Finding somebody by name is not something Nostr gives a client for free.
+    // A relay indexes events, not people, and only relays that implement NIP-50
+    // understand a text query at all. So this asks in three ways at once and
+    // merges whatever answers: profiles already in this session's cache (instant,
+    // and it covers everyone you follow), a NIP-05 address resolved against the
+    // domain that owns it, and a NIP-50 query to the relays. Relays that do not
+    // support NIP-50 ignore the search field and reply with unrelated profiles,
+    // so every relay answer is checked against the query here before it is shown
+    // — an unsupporting relay then simply contributes nothing instead of noise.
+    var NIP05_RE=/^[\w.+-]+@(?:[\w-]+\.)+[a-z]{2,}$/i;
+    function openSearch(){
+      var top=stack[stack.length-1];
+      if(top&&top.type==='search')return;
+      // Your follow list is the most likely place for the person you are looking
+      // for, and their profiles may never have been fetched if they have not
+      // posted lately. One batched REQ through the existing queue covers it.
+      contactPubkeys.slice(0,500).forEach(ensureProfile);
+      pushView({type:'search'});
+      setTimeout(function(){var i=root.querySelector('.nos-search-input');if(i)i.focus()},30);
+    }
+    function profileMatches(pk,q){
+      var p=profileCache[pk];
+      if(!p)return false;
+      q=q.toLowerCase();
+      return String(p.name||'').toLowerCase().indexOf(q)>=0||
+             String(p.handle||'').toLowerCase().indexOf(q)>=0||
+             String(p.nip05||'').toLowerCase().indexOf(q)>=0;
+    }
+    function addSearchResult(pk){
+      if(!pk||searchResults.indexOf(pk)>=0||searchResults.length>=60)return;
+      searchResults.push(pk);
+      scheduleRender();
+    }
+    function scheduleSearch(q){clearTimeout(searchDebounce);searchDebounce=setTimeout(function(){runSearch(q)},350)}
+    function runSearch(raw){
+      var q=String(raw||'').trim();
+      searchQuery=q;
+      var seq=++searchSeq;
+      pool.unsubscribe('search');
+      searchResults=[];searchBusy=false;
+      if(!q){scheduleRender();return}
+      // A pasted npub or nostr: URI is not a search — it names one person exactly,
+      // so go straight to them instead of pretending to look.
+      var direct=npubDecode(q)||refToPubkey(q.replace(/^nostr:/,''))||(/^[0-9a-f]{64}$/i.test(q)?q.toLowerCase():null);
+      if(direct){openUser(direct);return}
+      searchBusy=true;
+      Object.keys(profileCache).forEach(function(pk){if(profileMatches(pk,q))addSearchResult(pk)});
+      if(NIP05_RE.test(q))resolveNip05(q,seq);
+      if(!readUrls().length){searchBusy=false;scheduleRender();return}
+      pool.subscribe(readUrls(),'search',[{kinds:[0],search:q,limit:40}],function(ev){
+        if(seq!==searchSeq)return;
+        var prev=profileCache[ev.pubkey];
+        if(prev===undefined||prev===null||prev.created_at<ev.created_at)profileCache[ev.pubkey]=parseProfile(ev);
+        if(profileMatches(ev.pubkey,q))addSearchResult(ev.pubkey);
+      },function(){if(seq===searchSeq){searchBusy=false;pool.unsubscribe('search');scheduleRender()}});
+      scheduleRender();
+    }
+    // NIP-05 is resolved by the domain in the address, not by a relay: the browser
+    // asks that host directly, which is exactly what the spec describes and why
+    // those hosts serve the file with permissive CORS. A host that does not is
+    // simply one source that returns nothing; the other two still answer.
+    function resolveNip05(q,seq){
+      var at=q.indexOf('@'),name=q.slice(0,at),domain=q.slice(at+1);
+      fetch('https://'+domain+'/.well-known/nostr.json?name='+encodeURIComponent(name),{referrerPolicy:'no-referrer'})
+        .then(function(r){return r.ok?r.json():null})
+        .then(function(d){
+          if(seq!==searchSeq||!d||!d.names)return;
+          var pk=d.names[name]||d.names[name.toLowerCase()];
+          if(pk&&/^[0-9a-f]{64}$/i.test(pk)){ensureProfile(pk);addSearchResult(pk)}
+        }).catch(function(){});
+    }
+    function searchRank(pk){
+      var p=profileCache[pk]||{},n=String(p.name||p.handle||'').toLowerCase(),q=searchQuery.toLowerCase(),s=0;
+      if(contactPubkeys.indexOf(pk)>=0)s+=8;
+      if(n===q)s+=4;else if(n.indexOf(q)===0)s+=2;
+      if(p.nip05)s+=1;
+      return s;
+    }
+    // The input element is deliberately left in place across re-renders: this view
+    // repaints whenever a relay answers, and rebuilding it would take the caret
+    // and half-typed query with it.
+    function renderSearch(body){
+      var input=body.querySelector('.nos-search-input');
+      if(!input){
+        body.innerHTML='<div class="nos-search"><input class="nos-search-input" type="search" autocomplete="off" spellcheck="false" placeholder="'+esc(t('nos_search_placeholder'))+'" value="'+esc(searchQuery)+'">'+
+          '<div class="nos-search-results"></div></div>';
+        input=body.querySelector('.nos-search-input');
+        input.oninput=function(){scheduleSearch(input.value)};
+        input.onkeydown=function(e){if(e.key==='Enter'){clearTimeout(searchDebounce);runSearch(input.value)}};
+      }
+      var res=body.querySelector('.nos-search-results');
+      if(!searchQuery)res.innerHTML='<div class="nos-empty">'+esc(t('nos_search_hint'))+'</div>';
+      else if(!searchResults.length)res.innerHTML='<div class="nos-empty">'+esc(searchBusy?t('nos_searching'):t('nos_search_none'))+'</div>';
+      else res.innerHTML=searchResults.slice().sort(function(a,b){return searchRank(b)-searchRank(a)}).map(function(pk){
+        var p=profileCache[pk]||{};
+        return'<div class="nos-identity-row" data-user="'+esc(pk)+'">'+avatarHtml(pk)+
+          '<span class="nos-identity-label"><b>'+esc(displayName(pk))+'</b>'+
+          (p.nip05?'<br><span class="nos-nip05">'+esc(p.nip05)+'</span>':'')+'</span></div>';
+      }).join('')+(searchBusy?'<div class="nos-empty">'+esc(t('nos_searching'))+'</div>':'');
+      bindList(res);
     }
     function openPeople(mode,pk){
       loadPeople(mode,pk);
@@ -1108,8 +1405,9 @@
     }
 
     // ---- composer ----
+    var composePreviewTimer=0;
     function openComposer(mode,id){composer={mode:mode,id:id||null,error:'',busy:false,images:[],uploading:false};renderComposer()}
-    function closeComposer(){composer=null;renderComposer()}
+    function closeComposer(){clearTimeout(composePreviewTimer);composer=null;renderComposer()}
     // nostr.build's anonymous upload endpoint needs no account or signed auth,
     // unlike NIP-96/Blossom which require per-server discovery and a signed
     // NIP-98 event — too much for what this widget needs to do here. The
@@ -1137,6 +1435,7 @@
       wrap.innerHTML='<div class="nos-modal-card"><div class="nos-modal-head"><span class="nos-modal-title">'+esc(title)+'</span><button type="button" class="nos-modal-close">✕</button></div>'+
         (target?'<div class="nos-modal-ctx">'+noteCardHtml({key:'ctx',noteId:target.id,boost:null},{flat:true,actions:false,clickable:false})+'</div>':'')+
         '<textarea class="nos-modal-input" placeholder="'+esc(composer.mode==='reply'?t('nos_reply_placeholder'):t('nos_compose_placeholder'))+'"></textarea>'+
+        '<div class="nos-compose-preview"></div>'+
         (composer.images.length?'<div class="nos-modal-images">'+composer.images.map(function(url,i){
           return'<div class="nos-modal-image"><img src="'+esc(url)+'"><button type="button" class="nos-modal-image-del" data-i="'+i+'">✕</button></div>';
         }).join('')+'</div>':'')+
@@ -1149,6 +1448,30 @@
       root.appendChild(wrap);
       var textarea=wrap.querySelector('.nos-modal-input');
       textarea.value=composer.text||'';
+      // Seeing the card before publishing is the point: a link that will render as
+      // a bare address, or with somebody else's stale title, is worth knowing
+      // about while it can still be changed. Only this one box is rewritten —
+      // re-rendering the composer would take the caret with it — and the lookup
+      // waits for a pause in typing so a half-typed address is not fetched.
+      function refreshComposePreview(){
+        var box=wrap.querySelector('.nos-compose-preview');
+        if(!box)return;
+        var url=firstPlainLink(textarea.value);
+        if(!url){box.innerHTML='';return}
+        box.innerHTML=previewHtml(url);
+        bindImages(box);
+        requestPreview(url).then(function(){
+          if(!wrap.parentNode||firstPlainLink(textarea.value)!==url)return;
+          box.innerHTML=previewHtml(url);
+          bindImages(box);
+        });
+      }
+      textarea.oninput=function(){
+        composer.text=textarea.value;
+        clearTimeout(composePreviewTimer);
+        composePreviewTimer=setTimeout(refreshComposePreview,700);
+      };
+      refreshComposePreview();
       wrap.querySelector('.nos-modal-close').onclick=closeComposer;
       wrap.querySelector('.nos-modal-cancel').onclick=closeComposer;
       wrap.onclick=function(e){if(e.target===wrap)closeComposer()};
@@ -1187,7 +1510,7 @@
           var ev=await publish(composeEvent(composer.mode,text,target));
           if(composer.mode==='reply'&&target)statOf(target.id).replies++;
           noteCache[ev.id]=ev;
-          if(!stack.length&&activeTab==='feed')pushItem({key:ev.id,noteId:ev.id,boost:null,at:feedMode==='following'?ev.created_at:Date.now()/1000});
+          if(!stack.length&&activeTab==='feed')pushItem({key:ev.id,noteId:ev.id,boost:null,at:ev.created_at});
           var top=stack[stack.length-1];
           if(top&&top.type==='thread'&&composer.mode==='reply'&&target&&target.id===top.id&&!threadKeys[ev.id]){threadKeys[ev.id]=1;threadReplies.push(ev)}
           composer=null;renderComposer();renderBody();
@@ -1232,11 +1555,21 @@
     var URL_RE=/https?:\/\/[^\s<]+[^\s<.,:;!?)'"]/g;
     var NOSTR_RE=/nostr:(n(?:pub|profile|ote|event)1[023456789acdefghjklmnpqrstuvwxyz]+)/g;
     var IMG_EXT_RE=/\.(png|jpe?g|gif|webp|avif)$/i;
+    // Nostr has no media type on a link — an attachment is just a URL in the
+    // text, so the extension is all there is to go on. Video was falling through
+    // to the plain-link branch and an .mp4 someone posted read as a bare address.
+    // preload="metadata" is what keeps that affordable: a feed can hold a dozen
+    // clips and the browser fetches a few hundred bytes of header for each
+    // instead of the files themselves.
+    var VID_EXT_RE=/\.(mp4|webm|ogv|ogm|m4v|mov)$/i;
+    var AUD_EXT_RE=/\.(mp3|oga|wav|m4a|flac)$/i;
     function renderContent(text,skipId){
       var out=esc(text).replace(URL_RE,function(url){
         var plain=url.replace(/&amp;/g,'&').replace(/&#39;/g,"'").replace(/&quot;/g,'"');
         var noQuery=plain.split(/[?#]/)[0];
         if(IMG_EXT_RE.test(noQuery))return'<a href="'+url+'" target="_blank" rel="noopener noreferrer" class="nos-embed-link"><img class="nos-embed-img" src="'+url+'" loading="lazy" referrerpolicy="no-referrer"></a>';
+        if(VID_EXT_RE.test(noQuery))return'<video class="nos-embed-video" src="'+url+'" controls playsinline preload="metadata"></video>';
+        if(AUD_EXT_RE.test(noQuery))return'<audio class="nos-embed-audio" src="'+url+'" controls preload="metadata"></audio>';
         return'<a href="'+url+'" target="_blank" rel="noopener noreferrer">'+url+'</a>';
       });
       return out.replace(NOSTR_RE,function(whole,ref){
@@ -1248,8 +1581,73 @@
         return whole;
       });
     }
+    // A link with nothing else to it is the one case worth previewing: an image,
+    // a clip or an audio file already renders as itself, and a quoted note gets
+    // its own card. Only the first such link is previewed — a note that is a list
+    // of ten links should stay a list, not turn into ten cards.
+    function firstPlainLink(text){
+      var found=String(text||'').match(URL_RE);
+      if(!found)return'';
+      for(var i=0;i<found.length;i++){
+        var noQuery=found[i].split(/[?#]/)[0];
+        if(IMG_EXT_RE.test(noQuery)||VID_EXT_RE.test(noQuery)||AUD_EXT_RE.test(noQuery))continue;
+        return found[i];
+      }
+      return'';
+    }
+    var previewCache={},previewInFlight={};
+    // false means "asked, and there is nothing to show" — cached exactly like a
+    // real answer so a link without Open Graph tags is not re-requested forever.
+    function requestPreview(url){
+      if(!url)return Promise.resolve(false);
+      if(previewCache[url]!==undefined)return Promise.resolve(previewCache[url]);
+      if(previewInFlight[url])return previewInFlight[url];
+      previewInFlight[url]=fetch(API+'/preview?url='+encodeURIComponent(url),{headers:{'X-Pub-Token':token}})
+        .then(function(r){return r.ok?r.json():null})
+        .catch(function(){return null})
+        .then(function(d){
+          delete previewInFlight[url];
+          previewCache[url]=(d&&(d.title||d.image))?d:false;
+          scheduleRender();
+          return previewCache[url];
+        });
+      return previewInFlight[url];
+    }
+    function previewHtml(url){
+      if(!url)return'';
+      var d=previewCache[url];
+      // Not asked for yet: leave a marker the observer can pick up when the card
+      // actually reaches the screen.
+      if(d===undefined)return'<div class="nos-preview" data-preview-url="'+esc(url)+'"></div>';
+      if(!d)return'';
+      return'<a class="nos-preview-card" href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+
+        (d.image?'<img class="nos-preview-img" src="'+esc(d.image)+'" loading="lazy" referrerpolicy="no-referrer" alt="">':'')+
+        '<span class="nos-preview-text">'+
+          (d.site?'<span class="nos-preview-site">'+esc(d.site)+'</span>':'')+
+          (d.title?'<span class="nos-preview-title">'+esc(d.title)+'</span>':'')+
+          (d.description?'<span class="nos-preview-desc">'+esc(d.description)+'</span>':'')+
+        '</span></a>';
+    }
+    // Discover can hold a hundred notes. Fetching a preview for every link in
+    // them the moment they render would have the server open a hundred pages for
+    // one scroll the reader may never reach the bottom of, so a preview is only
+    // asked for once its card is near the screen.
+    var previewObserver=('IntersectionObserver'in window)?new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(!entry.isIntersecting)return;
+        previewObserver.unobserve(entry.target);
+        requestPreview(entry.target.dataset.previewUrl);
+      });
+    },{rootMargin:'250px'}):null;
     function actionsHtml(id){
       var s=stats[id]||{replies:0,reposts:0,likes:0};
+      // A note that trended did so across the whole network, while `stats` only
+      // ever sees what the user's own handful of relays kept. Showing the larger
+      // of the two keeps the number from collapsing to a fraction of the truth
+      // the moment the local count starts coming in.
+      var net=netStats[id];
+      if(net)s={replies:Math.max(s.replies,net.replies),reposts:Math.max(s.reposts,net.reposts),
+                likes:Math.max(s.likes,net.likes)};
       var liked=!!myReactions[id],reposted=!!myReposts[id];
       var tr=translations[id];
       var translateLabel=tr&&tr.status==='done'?(tr.shown?t('nos_show_original'):t('nos_translate')):tr&&tr.status==='loading'?t('nos_translating'):t('nos_translate');
@@ -1286,7 +1684,7 @@
         '</div>'+
         (parent&&options.showParent!==false?replyOfHtml(parent):'')+
         '<div class="nos-note-content">'+renderContent(note.content,quoted)+'</div>'+
-        (quoted?quoteHtml(quoted):'')+
+        (quoted?quoteHtml(quoted):previewHtml(firstPlainLink(note.content)))+
         (translations[note.id]&&translations[note.id].shown?'<div class="nos-note-translation">'+
           (translations[note.id].status==='loading'?esc(t('nos_translating')):
            translations[note.id].status==='error'?esc(t('nos_translate_error')):
@@ -1296,11 +1694,10 @@
     }
     function listHtml(items,options){return items.map(function(item){return noteCardHtml(item,options)}).join('')}
 
-    function renderShell(){
-      if(!key)return;
+    function barHtml(){
       var back=stack.length?'<button type="button" class="nos-bar-btn nos-back">←</button>':'';
       var unread=unreadCount();
-      root.innerHTML='<div class="nos"><div class="nos-bar"><div class="nos-bar-head">'+back+
+      return'<div class="nos-bar"><div class="nos-bar-head">'+back+
         '<span class="nos-title">🔮 '+esc(t('nos_app_title'))+'</span>'+
         '<div class="nos-tabs">'+
           ['feed','notifications','profile','relays'].map(function(id){
@@ -1308,41 +1705,73 @@
             return'<button class="nos-tab'+(activeTab===id&&!stack.length?' active':'')+'" data-tab="'+id+'">'+esc(label)+(id==='notifications'&&unread?'<span class="nos-badge">'+(unread>99?'99+':unread)+'</span>':'')+'</button>';
           }).join('')+
         '</div>'+
+        '<button type="button" class="nos-bar-btn nos-search-btn" title="'+esc(t('nos_search_title'))+'">🔍</button>'+
         '<button type="button" class="nos-bar-btn nos-new" title="'+esc(t('nos_new_note'))+'">✏️</button>'+
         (identities.length>1?'<button type="button" class="nos-bar-btn nos-switcher-btn" title="'+esc(t('nos_switch_identity'))+'">'+avatarHtml(pubHex)+'</button>':'')+
         '<button type="button" class="nos-bar-btn nos-lock-btn" title="'+esc(lockedAtHint())+'">🔒</button>'+
         '</div>'+
         (activeTab==='feed'&&!stack.length?'<div class="nos-modes">'+
-          [['following','nos_mode_following'],['1','nos_mode_1h'],['4','nos_mode_4h'],['24','nos_mode_24h']].map(function(pair){
+          [['following','nos_mode_following'],['trending','nos_mode_trending'],['discover','nos_mode_discover']].map(function(pair){
             var count=modeCounts[pair[0]];
             return'<button class="nos-mode'+(feedMode===pair[0]?' active':'')+'" data-mode="'+pair[0]+'">'+esc(t(pair[1]))+
               (feedMode!==pair[0]&&count?'<span class="nos-badge">'+(count>99?'99+':count)+'</span>':'')+'</button>';
           }).join('')+'</div>':'')+
-        '</div><div class="nos-body"></div></div>';
+        '</div>';
+    }
+    function bindBar(){
       root.querySelectorAll('.nos-tab').forEach(function(btn){btn.onclick=function(){switchTab(btn.dataset.tab)}});
-      root.querySelectorAll('.nos-mode').forEach(function(btn){btn.onclick=function(){if(feedMode===btn.dataset.mode)return;feedMode=btn.dataset.mode;try{localStorage.setItem(FEED_MODE_KEY,feedMode)}catch(_){}loadFeed();renderShell()}});
+      root.querySelectorAll('.nos-mode').forEach(function(btn){btn.onclick=function(){if(feedMode===btn.dataset.mode)return;feedMode=btn.dataset.mode;try{localStorage.setItem(FEED_MODE_KEY,feedMode)}catch(_){}scrollReset=true;loadFeed();renderShell()}});
+      root.querySelector('.nos-search-btn').onclick=openSearch;
       root.querySelector('.nos-new').onclick=function(){openComposer('note')};
       var switcherBtn=root.querySelector('.nos-switcher-btn');
       if(switcherBtn)switcherBtn.onclick=function(){switcherOpen=true;renderSwitcher()};
       root.querySelector('.nos-lock-btn').onclick=function(){lockNow()};
-      if(back)root.querySelector('.nos-back').onclick=popView;
+      var back=root.querySelector('.nos-back');
+      if(back)back.onclick=popView;
+    }
+    // Repainting an unread badge used to rebuild the entire widget from scratch.
+    // That threw away the .nos-body element itself, and with it the reader's
+    // scroll position — a background poll landing while someone was halfway down
+    // a post snapped them straight back to the top. It also wiped any open
+    // composer, so a reply being typed vanished on the next poll. Only the bar is
+    // swapped now; the body element and any modal above it survive untouched.
+    function renderShell(){
+      if(!key)return;
+      var bar=root.querySelector('.nos > .nos-bar');
+      if(bar)bar.outerHTML=barHtml();
+      else root.innerHTML='<div class="nos">'+barHtml()+'<div class="nos-body"></div></div>';
+      bindBar();
       renderBody();
     }
     function switchTab(tab){
       stack=[];
       activeTab=tab;
       if(tab==='notifications')markNotifSeen();
+      // Following and Discover keep an open subscription, so they are still
+      // current when the reader comes back. Popular has none — the ranking cache
+      // answers once and closes. While the feed is on screen the background poll
+      // keeps it moving, but the poll stands down whenever something else is, so
+      // coming back after a while asks the ranking again. As a refresh, not a
+      // reload: what is new arrives behind the pill, and the reader keeps both
+      // the list and their place in it.
       if(tab==='feed'&&!feedItems.length)loadFeed();
+      else if(tab==='feed'&&feedMode==='trending'&&Date.now()-trendingAt>TRENDING_TTL)fetchTrending(0,true);
+      scrollReset=true;
       renderShell();
     }
+    // Navigating somewhere new should start at the top; a repaint of the view the
+    // reader is already in must not move them. The difference is explicit now
+    // that a repaint no longer resets the scroll by destroying the element.
     function renderBody(){
       var body=root.querySelector('.nos-body');
       if(!body)return;
-      var scroll=body.scrollTop;
+      var scroll=scrollReset?0:body.scrollTop;
+      scrollReset=false;
       var view=stack[stack.length-1];
       if(view&&view.type==='thread')renderThread(body,view);
       else if(view&&view.type==='user')renderUser(body,view);
       else if(view&&view.type==='people')renderPeople(body,view);
+      else if(view&&view.type==='search')renderSearch(body);
       else if(activeTab==='feed')renderFeed(body);
       else if(activeTab==='notifications')renderNotifications(body);
       else if(activeTab==='profile')renderProfileTab(body);
@@ -1352,6 +1781,13 @@
     }
     function bindImages(container){
       container.querySelectorAll('.nos-avatar-img').forEach(function(img){img.onerror=function(){img.style.display='none'}});
+      // A preview image that 404s or blocks hotlinking should leave the card's
+      // text intact rather than a broken-image box.
+      container.querySelectorAll('.nos-preview-img').forEach(function(img){img.onerror=function(){img.remove()}});
+      container.querySelectorAll('.nos-preview[data-preview-url]').forEach(function(el){
+        if(previewObserver)previewObserver.observe(el);
+        else requestPreview(el.dataset.previewUrl);
+      });
     }
     // One delegated handler per list beats a listener per button: the lists are
     // re-rendered on every incoming event, and re-binding hundreds of nodes each
@@ -1370,7 +1806,9 @@
           else if(act.dataset.act==='translate')translateNote(id);
           return;
         }
-        if(e.target.closest('a'))return;
+        // A note is clickable as a whole, so without this the play button, the
+        // seek bar and the volume slider all opened the thread instead.
+        if(e.target.closest('a,video,audio'))return;
         var user=e.target.closest('[data-user]');
         if(user){e.stopPropagation();openUser(user.dataset.user);return}
         var note=e.target.closest('[data-note]');
@@ -1391,7 +1829,8 @@
     function renderFeed(body){
       var pending=pendingHtml();
       if(!feedItems.length){
-        body.innerHTML=pending+'<div class="nos-empty">'+esc(feedLoaded?(feedMode==='following'?t('nos_no_notes'):t('nos_no_trending')):t('nos_loading'))+'</div>';
+        var emptyKey=feedMode==='following'?'nos_no_notes':feedMode==='trending'?(trendingFailed?'nos_trending_off':'nos_no_trending'):'nos_no_discover';
+        body.innerHTML=pending+'<div class="nos-empty">'+esc(feedLoaded?t(emptyKey):t('nos_loading'))+'</div>';
         if(pending)body.querySelector('.nos-newposts').onclick=function(e){e.stopPropagation();acceptPending()};
         return;
       }
@@ -1581,7 +2020,7 @@
         var err=body.querySelector('.nos-relay-error');err.textContent='';
         try{
           await api('/relays',{method:'PUT',body:JSON.stringify({relays:relays.map(function(r){return{url:r.url,read:!!r.read,write:!!r.write}})})});
-          pool.setRelayUrls(relays.map(function(r){return r.url}));
+          pool.setRelayUrls(relays.map(function(r){return r.url}),[TRENDING_URL]);
           loadFeed();loadNotifications();
         }catch(_){err.textContent=t('nos_save_error')}
       };
@@ -1590,6 +2029,7 @@
     function destroy(){
       destroyed=true;
       clearTimeout(autoLockTimer);clearTimeout(renderTimer);clearTimeout(profileTimer);clearTimeout(noteTimer);
+      clearTimeout(searchDebounce);
       stopModePolling();
       document.removeEventListener('visibilitychange',onVisible);
       pool.destroy();

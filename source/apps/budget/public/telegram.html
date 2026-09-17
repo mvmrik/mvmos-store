@@ -14,6 +14,10 @@
 </head>
 <body>
 <div id="budget-root"></div>
+<!-- The same core language loader the public page uses. Without it the
+     mini-app has no window.mvmOS.lang and every string falls back to English,
+     however the account's own language is set. -->
+<script src="/i18n/i18n.js"></script>
 <script>
 (function () {
   var tg = window.Telegram && window.Telegram.WebApp;
@@ -38,15 +42,25 @@
     if (!r.ok) throw new Error('auth_failed');
     return r.json();
   }).then(function (data) {
+    function load(src, next) {
+      var s = document.createElement('script');
+      s.src = src + '?_=' + Date.now();
+      s.onload = next;
+      document.head.appendChild(s);
+    }
     localStorage.setItem('apphub_token', data.pub_token);
     var params = new URLSearchParams(location.search);
     var categoryId = params.get('category');
-    var s = document.createElement('script');
-    s.src = '/apps/budget/budget-widget.js?_=' + Date.now();
-    s.onload = function () {
-      BudgetWidget.mount(root, { openCategory: categoryId || undefined });
-    };
-    document.head.appendChild(s);
+    // The app's own i18n.js first: the widget reads window.BUDGET_I18N as it
+    // defines itself, and it reads the chosen language only once that has been
+    // settled, so the widget waits for both.
+    (window.mvmOS && window.mvmOS.i18nReady || Promise.resolve()).then(function () {
+      load('/apps/budget/i18n.js', function () {
+        load('/apps/budget/budget-widget.js', function () {
+          BudgetWidget.mount(root, { openCategory: categoryId || undefined });
+        });
+      });
+    });
   }).catch(function () {
     fail('Could not verify your Telegram account. Link it again from the bot with /start.');
   });

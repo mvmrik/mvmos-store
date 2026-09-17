@@ -6,91 +6,14 @@
 
   const API = '/pub/budget';
 
-  const _i18n = {
-    en: {
-      title: 'Budget', add_category: '+ Category', mass_add: 'Mass add',
-      login_needed: 'Log in to Apps Hub to use Budget',
-      no_categories: 'No categories yet. Create your first one.',
-      cat_title: 'Title', description: 'Description', allocation: 'Allocation',
-      percent: 'Percent of total', fixed: 'Fixed amount', goal: 'Goal (optional)',
-      save: 'Save', cancel: 'Cancel', delete: 'Delete', edit: 'Edit', share: 'Share',
-      history: 'History', close: 'Close', owner: 'owner', members: 'members',
-      confirm_delete_category: 'Delete this category and all its transactions? This cannot be undone.',
-      confirm_delete_tx: 'Delete this transaction?',
-      title_required: 'Title is required', invalid_allocation: 'Enter a valid allocation value',
-      save_failed: 'Could not save. Please try again.',
-      amount: 'Amount', note: 'Note (optional)',
-      no_transactions: 'No transactions yet.',
-      mass_add_title: 'Mass add', total_amount: 'Total amount', mass_add_hint: 'Adjust any category before saving.',
-      mass_add_save: 'Save transactions', mass_add_failed: 'Could not save. Please try again.',
-      share_title: 'Share category', current_members: 'Current members', add_from_favourites: 'Add from favourites',
-      no_favourites: 'No favourites yet. Add someone as a favourite first.',
-      already_member: 'Already a member', leave: 'Leave', remove: 'Remove',
-      confirm_leave: 'Leave this shared category?', confirm_remove_member: 'Remove this member?',
-      new_category: 'New category', edit_category: 'Edit category',
-      currency: 'Currency', change_currency: 'Change currency', system_default: 'System default',
-      currency_mismatch_error: "Can't share — that person uses a different currency.",
-      added_by: 'Added by', removed_by: 'Removed by', leave_category: 'Leave category',
-      settings: 'Settings', default_sign: 'Default sign for new amounts', deposit: 'Deposit (+)', withdrawal: 'Withdrawal (-)',
-      sources_section: 'Entries from other apps',
-      sources_hint: 'Off by default per app — hides that app\'s entries from history lists so manual entries stay easy to scroll through. They always count toward balances and stats either way.',
-      total_balance: 'Total balance (all categories, incl. subcategories)',
-      subcategories: 'Subcategories', add_subcategory: '+ Subcategory', no_subcategories: 'No subcategories yet.',
-      new_subcategory: 'New subcategory', confirm_delete_subcategory: 'Delete this subcategory and all its transactions? This cannot be undone.',
-      manage_subcategories: 'Subcategories',
-      parent_has_own_tx: "Can't add subcategories — this category already has its own transactions.",
-      is_parent_category: 'Main category (holds subcategories, no amounts of its own)',
-      parent_locked_hint: 'This category has subcategories — delete them first to change this.',
-      menu: 'Menu', categories: 'Categories', full_history: 'History', back: 'Back',
-      no_history: 'No transactions yet.',
-      stats: 'Statistics', stats_period_week: 'Weekly', stats_period_month: 'Monthly', stats_period_year: 'Yearly',
-      stats_income: 'Income', stats_expense: 'Expense', stats_net: 'Net', no_stats: 'No data for this period yet.',
-      stats_by_category: 'By category',
-    },
-    bg: {
-      title: 'Бюджет', add_category: '+ Категория', mass_add: 'Разпредели сума',
-      login_needed: 'Влез в Apps Hub, за да ползваш бюджета',
-      no_categories: 'Все още няма категории. Създай първата.',
-      cat_title: 'Заглавие', description: 'Описание', allocation: 'Разпределение',
-      percent: 'Процент от сумата', fixed: 'Фиксирана сума', goal: 'Цел (по избор)',
-      save: 'Запази', cancel: 'Отказ', delete: 'Изтрий', edit: 'Редакция', share: 'Сподели',
-      history: 'История', close: 'Затвори', owner: 'собственик', members: 'участници',
-      confirm_delete_category: 'Да се изтрие ли категорията заедно с всички транзакции? Не може да се отмени.',
-      confirm_delete_tx: 'Да се изтрие ли транзакцията?',
-      title_required: 'Заглавието е задължително', invalid_allocation: 'Въведи валидна стойност за разпределение',
-      save_failed: 'Неуспешен запис. Опитай отново.',
-      amount: 'Сума', note: 'Бележка (по избор)',
-      no_transactions: 'Все още няма транзакции.',
-      mass_add_title: 'Разпредели сума', total_amount: 'Обща сума', mass_add_hint: 'Можеш да коригираш всяка категория преди запис.',
-      mass_add_save: 'Запази транзакциите', mass_add_failed: 'Неуспешен запис. Опитай отново.',
-      share_title: 'Сподели категория', current_members: 'Текущи участници', add_from_favourites: 'Добави от любими',
-      no_favourites: 'Все още няма любими. Добави някого в любими първо.',
-      already_member: 'Вече е участник', leave: 'Напусни', remove: 'Премахни',
-      confirm_leave: 'Да се напусне ли споделената категория?', confirm_remove_member: 'Да се премахне ли този участник?',
-      new_category: 'Нова категория', edit_category: 'Редакция на категория',
-      currency: 'Валута', change_currency: 'Смени валута', system_default: 'Системна по подразбиране',
-      currency_mismatch_error: 'Не може да споделиш — човекът ползва друга валута.',
-      added_by: 'Добавено от', removed_by: 'Премахнато от', leave_category: 'Напусни категорията',
-      settings: 'Настройки', default_sign: 'Знак по подразбиране за нови суми', deposit: 'Внасяне (+)', withdrawal: 'Теглене (-)',
-      sources_section: 'Записи от други приложения',
-      sources_hint: 'По подразбиране е изключено за всяко приложение — скрива неговите записи от хронологията, за да е лесно да се преглеждат ръчно добавените. Те винаги се броят в баланса и справките, независимо от настройката.',
-      total_balance: 'Общ баланс (всички категории, вкл. подкатегории)',
-      subcategories: 'Подкатегории', add_subcategory: '+ Подкатегория', no_subcategories: 'Все още няма подкатегории.',
-      new_subcategory: 'Нова подкатегория', confirm_delete_subcategory: 'Да се изтрие ли подкатегорията заедно с всички транзакции? Не може да се отмени.',
-      manage_subcategories: 'Подкатегории',
-      parent_has_own_tx: 'Не може да добавиш подкатегории — тази категория вече има собствени транзакции.',
-      is_parent_category: 'Главна категория (съдържа подкатегории, без собствени суми)',
-      parent_locked_hint: 'Тази категория има подкатегории — първо ги изтрий, за да смениш това.',
-      menu: 'Меню', categories: 'Категории', full_history: 'История', back: 'Назад',
-      no_history: 'Все още няма транзакции.',
-      stats: 'Статистики', stats_period_week: 'Седмично', stats_period_month: 'Месечно', stats_period_year: 'Годишно',
-      stats_income: 'Приходи', stats_expense: 'Разходи', stats_net: 'Нето', no_stats: 'Все още няма данни за този период.',
-      stats_by_category: 'По категории',
-    },
-  };
+  // Strings live in public/i18n.js so they travel inside the store archive and
+  // so all three surfaces share one table; every surface loads that file before
+  // this one. The fallback keeps the widget usable — showing key names rather
+  // than nothing — if it ever fails to load.
+  const _i18n = window.BUDGET_I18N || { en: {} };
   function t(key) {
     const lang = window.mvmOS?.lang || 'en';
-    return (_i18n[lang] || _i18n.en)[key] || key;
+    return (_i18n[lang] || _i18n.en || {})[key] || key;
   }
   // Fixed list — symbol-only display, never real FX conversion. Kept in
   // sync manually with frontend/settings.js and backend/apps/budget/public.py's
@@ -120,8 +43,37 @@
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
     }[c]));
   }
-  function contribution(cat, total) {
-    return cat.alloc_type === 'percent' ? (total * cat.alloc_value / 100) : cat.alloc_value;
+  function round2(n) { return Math.round((n + Number.EPSILON) * 100) / 100; }
+
+  // Fixed amounts are decided in advance, so they are taken off the top and the
+  // percentages divide only what is left. Percentages are used exactly as they
+  // were entered and never rescaled to 100: someone who deliberately allocates
+  // 80% wants the remaining fifth to stay unspent, and the dialog reports the
+  // gap instead of quietly closing it.
+  function allocate(cats, total) {
+    const percent = cats.filter(c => c.alloc_type === 'percent');
+    const fixedSum = cats.reduce((a, c) => a + (c.alloc_type === 'percent' ? 0 : (c.alloc_value || 0)), 0);
+    // A negative remainder would hand out negative amounts, which is not a plan
+    // anyone meant; the percent rows fall to zero and the summary shows that the
+    // fixed amounts alone already overshoot.
+    const remainder = Math.max(0, total - fixedSum);
+    const out = {};
+    cats.forEach(c => {
+      out[c.id] = round2(c.alloc_type === 'percent' ? remainder * (c.alloc_value || 0) / 100 : (c.alloc_value || 0));
+    });
+    // Rounding each row to two decimals can leave the plan a cent away from what
+    // the percentages actually come to. The largest share absorbs that cent, so
+    // a plan that is meant to balance exactly does balance exactly.
+    if (percent.length) {
+      const pctSum = percent.reduce((a, c) => a + (c.alloc_value || 0), 0);
+      const exact = fixedSum + remainder * pctSum / 100;
+      const drift = round2(exact - cats.reduce((a, c) => a + out[c.id], 0));
+      if (drift && Math.abs(drift) <= 0.01 * percent.length) {
+        const biggest = percent.reduce((a, c) => ((c.alloc_value || 0) > (a.alloc_value || 0) ? c : a));
+        out[biggest.id] = round2(out[biggest.id] + drift);
+      }
+    }
+    return out;
   }
 
   let _stylesInjected = false;
@@ -143,8 +95,10 @@
       .bw-btn-danger{background:var(--pub-red, #f38ba8);color:var(--pub-bg, #1e1e2e)}
       .bw-btn-icon{background:none;border:none;color:var(--pub-fg2, #a6adc8);cursor:pointer;font-size:.9rem;padding:4px 6px;border-radius:4px}
       .bw-btn-icon:hover{background:var(--pub-border, #45475a);color:var(--pub-fg, #cdd6f4)}
+      .bw-toolbar-break{display:none}
       .bw-body{flex:1;overflow-y:auto;padding:14px}
       .bw-empty{color:var(--pub-dim, #6c7086);text-align:center;padding:40px 16px}
+      .bw-loading{display:flex;justify-content:center;align-items:center;padding:22px 0}
       .bw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
       .bw-card{background:var(--pub-surface2, #313244);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
       .bw-card-head{display:block}
@@ -191,12 +145,62 @@
       .bw-tx-deleted .bw-tx-amount,.bw-tx-deleted .bw-tx-note{text-decoration:line-through}
       .bw-add-row{display:flex;gap:6px;align-items:flex-end}
       .bw-add-row .bw-field{flex:1}
+      .bw-add-stack{display:flex;flex-direction:column;gap:8px}
+      .bw-add-stack .bw-amount-group input{flex:1;min-width:0}
+      .bw-note-group{display:flex;gap:6px}
+      .bw-note-group input{flex:1;min-width:0}
+      .bw-note-group .bw-btn{flex-shrink:0}
+      /* The suggestions live behind the round button next to the note, the way a
+         chat keeps its emoji, and the panel is positioned out of flow — so an
+         answer that arrives while an amount is being typed cannot move anything
+         underneath it, and the picker takes no room at all when it is shut. */
+      .bw-suggest-btn{flex:0 0 auto;align-self:center;width:32px;height:32px;padding:0;
+        border-radius:50%;border:1px solid var(--pub-border, #45475a);
+        background:var(--pub-surface2, #313244);color:var(--pub-fg2, #a6adc8);
+        font-size:.95rem;line-height:1;cursor:pointer}
+      .bw-suggest-btn:hover{background:var(--pub-border, #45475a)}
+      .bw-suggest-btn.bw-suggest-open{background:var(--pub-accent, #89b4fa);border-color:transparent}
+      .bw-suggest-pop{position:absolute;z-index:60;width:min(320px, calc(100% - 32px));
+        box-sizing:border-box;background:var(--pub-surface1, #181825);
+        border:1px solid var(--pub-border, #45475a);border-radius:9px;
+        box-shadow:0 10px 26px rgba(0,0,0,.45);padding:9px}
+      .bw-suggest-pop-head{font-size:.7rem;text-transform:uppercase;letter-spacing:.4px;
+        color:var(--pub-dim, #6c7086);margin-bottom:7px}
+      .bw-suggest{display:flex;flex-wrap:wrap;align-content:flex-start;gap:6px;
+        max-height:160px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;
+        scrollbar-color:var(--pub-border, #45475a) transparent}
+      .bw-suggest::-webkit-scrollbar{width:6px}
+      .bw-suggest::-webkit-scrollbar-thumb{background:var(--pub-border, #45475a);border-radius:3px}
+      .bw-suggest::-webkit-scrollbar-track{background:transparent}
+      .bw-suggest-empty{color:var(--pub-dim, #6c7086);font-size:.74rem}
+      .bw-spin{display:inline-block;flex:0 0 auto;width:14px;height:14px;border-radius:50%;
+        border:2px solid var(--pub-border, #45475a);border-top-color:var(--pub-accent, #89b4fa);
+        animation:bw-spin .7s linear infinite}
+      @keyframes bw-spin{to{transform:rotate(360deg)}}
+      .bw-btn-wide{width:100%;text-align:center;margin-top:8px}
+      .bw-suggest-chip{flex:0 1 auto;background:var(--pub-surface2, #313244);border:1px solid var(--pub-border, #45475a);
+        color:var(--pub-fg2, #a6adc8);border-radius:999px;padding:4px 11px;font-size:.76rem;font-family:inherit;
+        line-height:1.35;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .bw-suggest-chip:hover{background:var(--pub-border, #45475a);color:var(--pub-fg, #cdd6f4)}
+      .bw-suggest-chip.bw-suggest-on{background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e);
+        border-color:transparent;font-weight:600}
       .bw-amount-group{display:flex;gap:4px}
       .bw-amount-group select{background:var(--pub-surface2, #313244);border:1px solid var(--pub-border, #45475a);border-radius:6px;color:var(--pub-fg, #cdd6f4);
         padding:7px 4px;font-family:inherit;font-size:.85rem;flex:0 0 46px}
       .bw-amount-group input{flex:1}
       .bw-total-balance{font-size:1.3rem;font-weight:700}
-      .bw-mass-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--pub-surface2, #313244)}
+      .bw-mass-row{display:flex;align-items:center;gap:8px;padding:6px 0 6px 7px;
+        border-bottom:1px solid var(--pub-surface2, #313244);border-left:3px solid transparent}
+      .bw-mass-row.bw-mass-ok{border-left-color:var(--pub-green, #a6e3a1)}
+      .bw-mass-row.bw-mass-ok input{border:1px solid var(--pub-green, #a6e3a1)}
+      .bw-mass-row.bw-mass-off{border-left-color:var(--pub-red, #f38ba8)}
+      .bw-mass-row.bw-mass-off input{border:1px solid var(--pub-red, #f38ba8)}
+      .bw-mass-summary{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;
+        margin-top:8px;padding:7px 10px;border-radius:7px;font-size:.78rem;
+        background:var(--pub-surface2, #313244);color:var(--pub-fg2, #a6adc8)}
+      .bw-mass-summary strong{font-weight:700}
+      .bw-mass-summary.bw-mass-ok{background:rgba(166,227,161,.15);color:var(--pub-green, #a6e3a1)}
+      .bw-mass-summary.bw-mass-off{background:rgba(243,139,168,.15);color:var(--pub-red, #f38ba8)}
       .bw-mass-row-info{flex:1;min-width:0}
       .bw-mass-row-title{font-weight:600;font-size:.82rem}
       .bw-mass-row-alloc{font-size:.7rem;color:var(--pub-dim, #6c7086)}
@@ -234,13 +238,63 @@
       .bw-bar-income{background:var(--pub-green, #a6e3a1)}
       .bw-bar-expense{background:var(--pub-red, #f38ba8)}
       .bw-bar-label{font-size:.66rem;color:var(--pub-dim, #6c7086);white-space:nowrap}
-      .bw-cat-stat-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--pub-surface2, #313244);font-size:.82rem}
-      .bw-cat-stat-row:last-child{border-bottom:none}
+      .bw-toolbar-label{font-size:.68rem;color:var(--pub-fg2, #a6adc8);text-transform:uppercase;letter-spacing:.4px}
+      .bw-stats-filters{display:flex;gap:10px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--pub-surface2, #313244);flex-shrink:0}
+      .bw-filter{display:flex;flex-direction:column;gap:3px;font-size:.68rem;color:var(--pub-fg2, #a6adc8);min-width:0}
+      .bw-filter select,.bw-filter input{background:var(--pub-surface2, #313244);border:1px solid transparent;color:var(--pub-fg, #cdd6f4);border-radius:6px;padding:5px 8px;font-size:.8rem;font-family:inherit;max-width:100%}
+      .bw-filter select:focus,.bw-filter input:focus{outline:none;border-color:var(--pub-accent, #89b4fa)}
+      .bw-filter-cat{flex:1 1 180px}
+      .bw-stats-body{padding:14px}
+      .bw-stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:14px}
+      .bw-stat-card{background:var(--pub-surface2, #313244);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+      .bw-stat-card span{font-size:.68rem;color:var(--pub-fg2, #a6adc8);text-transform:uppercase;letter-spacing:.4px}
+      .bw-stat-card b{font-size:1.02rem;overflow:hidden;text-overflow:ellipsis}
+      .bw-stat-card small{font-size:.66rem;color:var(--pub-dim, #6c7086)}
+      .bw-chart-title{font-size:.78rem;font-weight:600;margin-bottom:10px}
+      .bw-chart-note{font-size:.7rem;color:var(--pub-dim, #6c7086);margin-top:8px;display:flex;justify-content:space-between;gap:8px}
+      .bw-donut-wrap{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+      .bw-donut{flex:0 0 140px}
+      .bw-donut-total{font-size:.72rem;fill:var(--pub-fg2, #a6adc8)}
+      .bw-donut-sum{font-size:.8rem;font-weight:600;fill:var(--pub-fg, #cdd6f4)}
+      .bw-donut-legend{flex:1 1 180px;display:flex;flex-direction:column;gap:5px;font-size:.75rem;min-width:0}
+      .bw-donut-legend div{display:flex;align-items:center;gap:6px;min-width:0}
+      .bw-donut-legend .bw-dl-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .bw-donut-legend .bw-dl-pct{color:var(--pub-dim, #6c7086);flex-shrink:0}
+      .bw-line{width:100%;height:130px;display:block}
+      .bw-cat-stat{padding:8px 0;border-bottom:1px solid var(--pub-surface2, #313244)}
+      .bw-cat-stat:last-child{border-bottom:none}
+      .bw-cat-stat-head{display:flex;align-items:center;gap:7px;font-size:.84rem}
+      .bw-cat-stat-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .bw-cat-stat-bar{display:flex;gap:2px;height:6px;margin:5px 0 4px}
+      .bw-cat-stat-bar i{display:block;border-radius:3px;min-width:0}
+      .bw-cat-bar-income{background:var(--pub-green, #a6e3a1)}
+      .bw-cat-bar-expense{background:var(--pub-red, #f38ba8)}
+      .bw-cat-stat-meta{display:flex;gap:10px;font-size:.7rem;color:var(--pub-dim, #6c7086);flex-wrap:wrap}
+      .bw-top-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--pub-surface2, #313244);font-size:.8rem}
+      .bw-top-row:last-child{border-bottom:none}
+      .bw-top-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+      .bw-top-cat{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .bw-top-when{font-size:.68rem;color:var(--pub-dim, #6c7086)}
       @media (max-width:520px){
         .bw-grid{grid-template-columns:1fr}
         .bw-toolbar,.bw-history-toolbar{flex-wrap:wrap}
-        .bw-toolbar h2,.bw-history-toolbar h2{flex:1 1 100%}
+        /* The title shares the row with the icons and gives way with an
+           ellipsis; only the two wide buttons drop to a line of their own,
+           where they split it evenly. Letting the title claim a full row of
+           its own is what pushed every icon onto a line by itself. */
+        .bw-toolbar h2,.bw-history-toolbar h2{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .bw-toolbar-break{display:block;flex-basis:100%;height:0}
+        .bw-toolbar .bw-btn{flex:1 1 0;min-width:0;padding:7px 8px}
+        /* A finger needs more than the 24px square a mouse pointer was happy
+           with; only the header icons grow, not the ones inside list rows. */
+        .bw-toolbar .bw-btn-icon{font-size:1.1rem;padding:7px 9px}
         .bw-dialog{max-width:100%}
+        .bw-stats-toolbar h2{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .bw-period-tabs{flex:1 1 100%}
+        .bw-period-tab{flex:1;text-align:center;padding:6px 4px}
+        .bw-filter{flex:1 1 calc(50% - 5px)}
+        .bw-filter-cat{flex:1 1 100%}
+        .bw-stats-body{padding:12px}
       }
     `;
     document.head.appendChild(style);
@@ -281,6 +335,7 @@
         </div>
         <h2>💰 ${esc(t('title'))}</h2>
         <button class="bw-btn-icon" id="bw-settings-btn" title="${esc(t('settings'))}">⚙️</button>
+        <span class="bw-toolbar-break" id="bw-toolbar-break"></span>
         <button class="bw-btn" id="bw-mass-add">${esc(t('mass_add'))}</button>
         <button class="bw-btn bw-btn-primary" id="bw-add-cat">${esc(t('add_category'))}</button>
       </div>
@@ -296,6 +351,7 @@
     const statsViewEl = root.querySelector('#bw-stats-view');
     const addCatBtn = root.querySelector('#bw-add-cat');
     const massAddBtn = root.querySelector('#bw-mass-add');
+    const toolbarBreak = root.querySelector('#bw-toolbar-break');
 
     function _showView(name) {
       gridEl.style.display = name === 'categories' ? '' : 'none';
@@ -303,11 +359,14 @@
       statsViewEl.style.display = name === 'stats' ? '' : 'none';
       addCatBtn.style.display = name === 'categories' ? '' : 'none';
       massAddBtn.style.display = name === 'categories' ? '' : 'none';
+      // Nothing to break to once those two are gone, and an empty second row
+      // would still cost the toolbar a gap.
+      toolbarBreak.style.display = name === 'categories' ? '' : 'none';
     }
 
     function showCategoriesView() { _showView('categories'); refresh(); }
     function showHistoryView() { _showView('history'); loadFullHistory(); }
-    function showStatsView() { _showView('stats'); loadStats(statsPeriod); }
+    function showStatsView() { _showView('stats'); renderStatsView(); }
 
     function _htxWho(p) { return p && (p.display_name || p.username) || ''; }
     function _htxDate(iso) {
@@ -360,7 +419,45 @@
       });
     }
 
+    // ---- Statistics ---------------------------------------------------
+    // Drawn in two halves: the toolbar is built once when the view opens and
+    // only the body under it is redrawn as the selection changes. Rebuilding
+    // the whole thing would pull the focus out of a date field mid-edit, which
+    // is the one moment a date field is actually in use.
+
+    const STAT_COLORS = ['#89b4fa', '#f38ba8', '#a6e3a1', '#fab387', '#cba6f7',
+                         '#94e2d5', '#f9e2af', '#eba0ac', '#74c7ec', '#b4befe'];
+    const STAT_PRESETS = ['this_month', 'last_month', '3m', '6m', '12m', 'this_year', 'custom'];
+
+    function _statColor(i) {
+      // Past the hand-picked palette the wheel is walked in large steps, so a
+      // long category list never hands two entries the same colour — which in a
+      // legend reads as one of them being mislabelled.
+      return i < STAT_COLORS.length ? STAT_COLORS[i] : `hsl(${(i * 47) % 360} 55% 68%)`;
+    }
+
     let statsPeriod = 'month';
+    let statsPreset = '6m';
+    let statsCategory = 'all';
+    let statsFrom = '';
+    let statsTo = '';
+    let statsCats = null;   // the category tree, as the last answer described it
+    let statsSeq = 0;       // guards against a slow answer overwriting a newer one
+
+    function _isoDay(d) {
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') +
+             '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function _presetRange(preset) {
+      const now = new Date(), y = now.getFullYear(), m = now.getMonth();
+      if (preset === 'this_month') return [_isoDay(new Date(y, m, 1)), _isoDay(now)];
+      // Day 0 of this month is the last day of the previous one.
+      if (preset === 'last_month') return [_isoDay(new Date(y, m - 1, 1)), _isoDay(new Date(y, m, 0))];
+      if (preset === 'this_year') return [_isoDay(new Date(y, 0, 1)), _isoDay(now)];
+      const months = preset === '3m' ? 3 : preset === '12m' ? 12 : 6;
+      return [_isoDay(new Date(y, m - months + 1, 1)), _isoDay(now)];
+    }
 
     function _periodLabel(p, period) {
       if (period === 'year') return p;
@@ -368,69 +465,279 @@
         const [y, w] = p.split('-W');
         return 'W' + w + " '" + y.slice(2);
       }
-      const [y, m] = p.split('-');
-      const d = new Date(Number(y), Number(m) - 1, 1);
+      const parts = p.split('-');
+      if (period === 'day') {
+        const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+      }
+      const d = new Date(Number(parts[0]), Number(parts[1]) - 1, 1);
       return d.toLocaleDateString(undefined, { month: 'short', year: '2-digit' });
     }
 
-    async function loadStats(period) {
-      statsPeriod = period;
+    function _catOptions() {
+      // Subcategories are offered too, indented under their parent. Picking the
+      // parent means the parent and everything filed under it, which is what
+      // the server answers for it.
+      let html = `<option value="all"${statsCategory === 'all' ? ' selected' : ''}>${esc(t('stats_all_categories'))}</option>`;
+      (statsCats || []).forEach(c => {
+        html += `<option value="${esc(c.id)}"${statsCategory === c.id ? ' selected' : ''}>${esc(c.title)}</option>`;
+        (c.children || []).forEach(k => {
+          html += `<option value="${esc(k.id)}"${statsCategory === k.id ? ' selected' : ''}>  ↳ ${esc(k.title)}</option>`;
+        });
+      });
+      return html;
+    }
+
+    function renderStatsView() {
+      if (!statsFrom || !statsTo) {
+        const r = _presetRange(statsPreset);
+        statsFrom = r[0]; statsTo = r[1];
+      }
       statsViewEl.innerHTML = `
         <div class="bw-stats-toolbar">
           <h2>📊 ${esc(t('stats'))}</h2>
+          <span class="bw-toolbar-label">${esc(t('stats_grouping'))}</span>
           <div class="bw-period-tabs" id="bw-period-tabs">
-            <button class="bw-period-tab ${period === 'week' ? 'active' : ''}" data-p="week">${esc(t('stats_period_week'))}</button>
-            <button class="bw-period-tab ${period === 'month' ? 'active' : ''}" data-p="month">${esc(t('stats_period_month'))}</button>
-            <button class="bw-period-tab ${period === 'year' ? 'active' : ''}" data-p="year">${esc(t('stats_period_year'))}</button>
+            ${['day', 'week', 'month', 'year'].map(p =>
+              `<button class="bw-period-tab${statsPeriod === p ? ' active' : ''}" data-p="${p}">${esc(t('stats_period_' + p))}</button>`
+            ).join('')}
           </div>
         </div>
-        <div style="padding:14px" id="bw-stats-body"><div class="bw-empty">…</div></div>
-      `;
+        <div class="bw-stats-filters">
+          <label class="bw-filter bw-filter-cat"><span>${esc(t('stats_category'))}</span>
+            <select id="bw-stats-cat">${_catOptions()}</select></label>
+          <label class="bw-filter"><span>${esc(t('stats_range'))}</span>
+            <select id="bw-stats-preset">${STAT_PRESETS.map(k =>
+              `<option value="${k}"${statsPreset === k ? ' selected' : ''}>${esc(t('stats_preset_' + k))}</option>`
+            ).join('')}</select></label>
+          <label class="bw-filter"><span>${esc(t('stats_from'))}</span>
+            <input type="date" id="bw-stats-from" value="${esc(statsFrom)}"></label>
+          <label class="bw-filter"><span>${esc(t('stats_to'))}</span>
+            <input type="date" id="bw-stats-to" value="${esc(statsTo)}"></label>
+        </div>
+        <div class="bw-stats-body" id="bw-stats-body"><div class="bw-empty">…</div></div>`;
+
       statsViewEl.querySelectorAll('.bw-period-tab').forEach(btn => {
-        btn.onclick = () => loadStats(btn.dataset.p);
+        btn.onclick = () => {
+          statsPeriod = btn.dataset.p;
+          _markPeriodTab();
+          loadStats();
+        };
       });
+      statsViewEl.querySelector('#bw-stats-cat').onchange = e => {
+        statsCategory = e.target.value; loadStats();
+      };
+      const presetEl = statsViewEl.querySelector('#bw-stats-preset');
+      const fromEl = statsViewEl.querySelector('#bw-stats-from');
+      const toEl = statsViewEl.querySelector('#bw-stats-to');
+      presetEl.onchange = () => {
+        statsPreset = presetEl.value;
+        if (statsPreset !== 'custom') {
+          const r = _presetRange(statsPreset);
+          statsFrom = fromEl.value = r[0];
+          statsTo = toEl.value = r[1];
+        }
+        loadStats();
+      };
+      // Typing a date is the same statement as picking a preset, so the preset
+      // follows the dates rather than contradicting them.
+      [fromEl, toEl].forEach(el => {
+        el.onchange = () => {
+          if (!fromEl.value || !toEl.value) return;
+          statsFrom = fromEl.value; statsTo = toEl.value;
+          statsPreset = presetEl.value = 'custom';
+          loadStats();
+        };
+      });
+      loadStats();
+    }
 
-      const count = period === 'week' ? 8 : period === 'year' ? 6 : 6;
-      let data;
-      try { data = await api(`/stats?period=${period}&count=${count}`); } catch (e) { data = { periods: [], by_category: [] }; }
-      const bodyEl = statsViewEl.querySelector('#bw-stats-body');
-      if (!data.periods.length) { bodyEl.innerHTML = `<div class="bw-empty">${esc(t('no_stats'))}</div>`; return; }
+    function _markPeriodTab() {
+      statsViewEl.querySelectorAll('.bw-period-tab').forEach(b =>
+        b.classList.toggle('active', b.dataset.p === statsPeriod));
+    }
 
-      const maxVal = Math.max(1, ...data.periods.map(p => Math.max(p.income, p.expense)));
-      const bars = data.periods.map(p => {
+    function _flowChart(periods) {
+      const maxVal = Math.max(1, ...periods.map(p => Math.max(p.income, p.expense)));
+      // Past a dozen or so columns the labels stop fitting under them, so only
+      // every Nth is written out; the bars themselves all stay.
+      const every = Math.max(1, Math.ceil(periods.length / 12));
+      const bars = periods.map((p, i) => {
         const incH = Math.round((p.income / maxVal) * 130);
         const expH = Math.round((p.expense / maxVal) * 130);
-        return `<div class="bw-bar-col">
+        const label = _periodLabel(p.period, statsPeriod);
+        const tip = `${label} · ${t('stats_income')} ${fmtMoney(p.income)} · ${t('stats_expense')} ${fmtMoney(p.expense)}`;
+        return `<div class="bw-bar-col" title="${esc(tip)}">
           <div class="bw-bar-pair">
-            <div class="bw-bar bw-bar-income" style="height:${incH}px" title="${esc(t('stats_income'))}: ${fmtMoney(p.income)}"></div>
-            <div class="bw-bar bw-bar-expense" style="height:${expH}px" title="${esc(t('stats_expense'))}: ${fmtMoney(p.expense)}"></div>
+            <div class="bw-bar bw-bar-income" style="height:${incH}px"></div>
+            <div class="bw-bar bw-bar-expense" style="height:${expH}px"></div>
           </div>
-          <div class="bw-bar-label">${esc(_periodLabel(p.period, period))}</div>
+          <div class="bw-bar-label">${i % every === 0 ? esc(label) : ''}</div>
         </div>`;
       }).join('');
-
-      const totalIncome = data.periods.reduce((s, p) => s + p.income, 0);
-      const totalExpense = data.periods.reduce((s, p) => s + p.expense, 0);
-      const totalNet = totalIncome - totalExpense;
-
-      const catRows = data.by_category.slice(0, 12).map(c => `
-        <div class="bw-cat-stat-row">
-          <span>${esc(c.title)}</span>
-          <span class="${c.net >= 0 ? 'bw-tx-pos' : 'bw-tx-neg'}">${c.net >= 0 ? '+' : ''}${fmtMoney(c.net)}</span>
-        </div>`).join('');
-
-      bodyEl.innerHTML = `
-        <div class="bw-chart-wrap">
-          <div class="bw-chart-legend">
-            <span class="bw-legend-item"><span class="bw-legend-dot" style="background:#a6e3a1"></span>${esc(t('stats_income'))}: ${fmtMoney(totalIncome)}</span>
-            <span class="bw-legend-item"><span class="bw-legend-dot" style="background:#f38ba8"></span>${esc(t('stats_expense'))}: ${fmtMoney(totalExpense)}</span>
-            <span class="bw-legend-item">${esc(t('stats_net'))}: <span class="${totalNet >= 0 ? 'bw-tx-pos' : 'bw-tx-neg'}">${totalNet >= 0 ? '+' : ''}${fmtMoney(totalNet)}</span></span>
-          </div>
-          <div class="bw-bars">${bars}</div>
+      return `<div class="bw-chart-wrap">
+        <div class="bw-chart-title">${esc(t('stats_chart_flow'))}</div>
+        <div class="bw-chart-legend">
+          <span class="bw-legend-item"><span class="bw-legend-dot" style="background:#a6e3a1"></span>${esc(t('stats_income'))}</span>
+          <span class="bw-legend-item"><span class="bw-legend-dot" style="background:#f38ba8"></span>${esc(t('stats_expense'))}</span>
         </div>
-        <div class="bw-section-label">${esc(t('stats_by_category'))}</div>
-        ${catRows || `<div class="bw-empty">${esc(t('no_stats'))}</div>`}
-      `;
+        <div class="bw-bars">${bars}</div>
+      </div>`;
+    }
+
+    function _shareChart(byCategory) {
+      const exp = byCategory.filter(c => c.expense > 0).sort((a, b) => b.expense - a.expense);
+      if (!exp.length) {
+        return `<div class="bw-chart-wrap">
+          <div class="bw-chart-title">${esc(t('stats_chart_share'))}</div>
+          <div class="bw-empty">${esc(t('stats_no_expenses'))}</div>
+        </div>`;
+      }
+      const sum = exp.reduce((s, c) => s + c.expense, 0);
+      const R = 52, C = 2 * Math.PI * R;
+      let off = 0;
+      const segs = exp.map((c, i) => {
+        const len = (c.expense / sum) * C;
+        const seg = `<circle r="${R}" cx="70" cy="70" fill="none" stroke="${_statColor(i)}"
+          stroke-width="20" stroke-dasharray="${len.toFixed(2)} ${(C - len).toFixed(2)}"
+          stroke-dashoffset="${(-off).toFixed(2)}"></circle>`;
+        off += len;
+        return seg;
+      }).join('');
+      const legend = exp.map((c, i) => `<div>
+        <span class="bw-legend-dot" style="background:${_statColor(i)}"></span>
+        <span class="bw-dl-name">${esc(c.title)}</span>
+        <span class="bw-dl-pct">${Math.round((c.expense / sum) * 100)}%</span>
+        <span>${fmtMoney(c.expense)}</span>
+      </div>`).join('');
+      return `<div class="bw-chart-wrap">
+        <div class="bw-chart-title">${esc(t('stats_chart_share'))}</div>
+        <div class="bw-donut-wrap">
+          <svg class="bw-donut" viewBox="0 0 140 140" role="img" aria-label="${esc(t('stats_chart_share'))}">
+            <g transform="rotate(-90 70 70)">${segs}</g>
+            <text class="bw-donut-total" x="70" y="66" text-anchor="middle">${esc(t('stats_expense'))}</text>
+            <text class="bw-donut-sum" x="70" y="82" text-anchor="middle">${esc(fmtMoney(sum))}</text>
+          </svg>
+          <div class="bw-donut-legend">${legend}</div>
+        </div>
+      </div>`;
+    }
+
+    function _balanceChart(periods) {
+      // The running total, not the per-period net: what the whole range did to
+      // the money, period by period.
+      let run = 0;
+      const cum = periods.map(p => (run += p.net));
+      const W = 300, H = 120, pad = 6;
+      const hi = Math.max(0, ...cum), lo = Math.min(0, ...cum);
+      const spanV = (hi - lo) || 1;
+      const x = i => cum.length > 1 ? pad + i * (W - 2 * pad) / (cum.length - 1) : W / 2;
+      const y = v => pad + (hi - v) * (H - 2 * pad) / spanV;
+      const pts = cum.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+      const base = y(0).toFixed(1);
+      const last = cum.length ? cum[cum.length - 1] : 0;
+      const stroke = last >= 0 ? '#a6e3a1' : '#f38ba8';
+      return `<div class="bw-chart-wrap">
+        <div class="bw-chart-title">${esc(t('stats_chart_balance'))}</div>
+        <svg class="bw-line" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${esc(t('stats_chart_balance'))}">
+          <polygon points="${x(0).toFixed(1)},${base} ${pts} ${x(cum.length - 1).toFixed(1)},${base}"
+            fill="${stroke}" opacity="0.14"></polygon>
+          <line x1="0" y1="${base}" x2="${W}" y2="${base}" stroke="currentColor" opacity="0.28"
+            stroke-dasharray="3 3" vector-effect="non-scaling-stroke"></line>
+          <polyline points="${pts}" fill="none" stroke="${stroke}" stroke-width="2"
+            stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
+        </svg>
+        <div class="bw-chart-note">
+          <span>${periods.length ? esc(_periodLabel(periods[0].period, statsPeriod)) : ''}</span>
+          <span>${last >= 0 ? '+' : ''}${fmtMoney(last)}</span>
+          <span>${periods.length ? esc(_periodLabel(periods[periods.length - 1].period, statsPeriod)) : ''}</span>
+        </div>
+      </div>`;
+    }
+
+    async function loadStats() {
+      const bodyEl = statsViewEl.querySelector('#bw-stats-body');
+      if (!bodyEl) return;
+      const seq = ++statsSeq;
+      const qs = `?period=${statsPeriod}&from=${encodeURIComponent(statsFrom)}` +
+                 `&to=${encodeURIComponent(statsTo)}&category=${encodeURIComponent(statsCategory)}`;
+      let data = null;
+      try { data = await api('/stats' + qs); } catch (e) { data = null; }
+      if (seq !== statsSeq) return;   // a newer selection already went out
+
+      if (!data && statsCategory !== 'all') {
+        // The chosen category is gone — deleted, or unshared while the view was
+        // left open. Falling back to everything beats an empty screen that
+        // reads as there being no money in the app at all.
+        statsCategory = 'all';
+        const sel = statsViewEl.querySelector('#bw-stats-cat');
+        if (sel) sel.value = 'all';
+        return loadStats();
+      }
+      if (!data) { bodyEl.innerHTML = `<div class="bw-empty">${esc(t('no_stats'))}</div>`; return; }
+      if (data.categories) {
+        // Refreshed from every answer, not just the first, so a category added
+        // in another view shows up in the picker without reopening statistics.
+        statsCats = data.categories;
+        const sel = statsViewEl.querySelector('#bw-stats-cat');
+        const opts = _catOptions();
+        if (sel && sel.innerHTML !== opts) sel.innerHTML = opts;
+      }
+      if (data.period && data.period !== statsPeriod) {
+        // A range too long to draw day by day comes back grouped more coarsely.
+        // The tabs follow it, so the chart and its label never disagree.
+        statsPeriod = data.period;
+        _markPeriodTab();
+      }
+
+      const tot = data.totals || { income: 0, expense: 0, net: 0, count: 0 };
+      if (!tot.count) { bodyEl.innerHTML = `<div class="bw-empty">${esc(t('no_stats'))}</div>`; return; }
+
+      const periods = data.periods || [];
+      const byCat = data.by_category || [];
+      const avg = periods.length ? tot.net / periods.length : 0;
+      const maxCat = Math.max(1, ...byCat.map(c => c.income + c.expense));
+
+      const cards = `<div class="bw-stat-cards">
+        <div class="bw-stat-card"><span>${esc(t('stats_income'))}</span>
+          <b class="bw-tx-pos">${fmtMoney(tot.income)}</b></div>
+        <div class="bw-stat-card"><span>${esc(t('stats_expense'))}</span>
+          <b class="bw-tx-neg">${fmtMoney(tot.expense)}</b></div>
+        <div class="bw-stat-card"><span>${esc(t('stats_net'))}</span>
+          <b class="${tot.net >= 0 ? 'bw-tx-pos' : 'bw-tx-neg'}">${tot.net >= 0 ? '+' : ''}${fmtMoney(tot.net)}</b></div>
+        <div class="bw-stat-card"><span>${esc(t('stats_entries'))}</span><b>${tot.count}</b>
+          <small>${esc(t('stats_avg_period'))}: ${avg >= 0 ? '+' : ''}${fmtMoney(avg)}</small></div>
+      </div>`;
+
+      const catRows = byCat.map((c, i) => `<div class="bw-cat-stat">
+        <div class="bw-cat-stat-head">
+          <span class="bw-legend-dot" style="background:${_statColor(i)}"></span>
+          <span class="bw-cat-stat-name">${esc(c.title)}</span>
+          <span class="${c.net >= 0 ? 'bw-tx-pos' : 'bw-tx-neg'}">${c.net >= 0 ? '+' : ''}${fmtMoney(c.net)}</span>
+        </div>
+        <div class="bw-cat-stat-bar">
+          <i class="bw-cat-bar-income" style="width:${(c.income / maxCat * 100).toFixed(1)}%"></i>
+          <i class="bw-cat-bar-expense" style="width:${(c.expense / maxCat * 100).toFixed(1)}%"></i>
+        </div>
+        <div class="bw-cat-stat-meta">
+          <span class="bw-tx-pos">+${fmtMoney(c.income)}</span>
+          <span class="bw-tx-neg">-${fmtMoney(c.expense)}</span>
+          <span>${esc(t('stats_entries'))}: ${c.count}</span>
+          <span>${esc(t('stats_share'))}: ${tot.expense > 0 ? Math.round(c.expense / tot.expense * 100) : 0}%</span>
+        </div>
+      </div>`).join('');
+
+      const topRows = (data.top || []).map(r => `<div class="bw-top-row">
+        <span class="bw-top-main">
+          <span class="bw-top-cat">${esc(r.category)}${r.note ? ' — ' + esc(r.note) : ''}</span>
+          <span class="bw-top-when">${esc(_htxDate(r.created_at))}</span>
+        </span>
+        <span class="${r.amount >= 0 ? 'bw-tx-pos' : 'bw-tx-neg'}">${r.amount >= 0 ? '+' : ''}${fmtMoney(r.amount)}</span>
+      </div>`).join('');
+
+      bodyEl.innerHTML = cards + _flowChart(periods) + _shareChart(byCat) + _balanceChart(periods) +
+        `<div class="bw-section-label">${esc(t('stats_by_category'))}</div>${catRows}` +
+        (topRows ? `<div class="bw-section-label">${esc(t('stats_top'))}</div>${topRows}` : '');
     }
 
     async function api(path, o) {
@@ -719,7 +1026,7 @@
       const ov = overlay(`<div class="bw-dialog">
         <h3>${esc(cat.title)}</h3>
         <div class="bw-card-balance">${fmtMoney(cat.balance)}</div>
-        <div class="bw-add-row">
+        <div class="bw-add-stack">
           <div class="bw-field"><label>${esc(t('amount'))}</label>
             <div class="bw-amount-group">
               <select id="bw-tx-sign">
@@ -729,13 +1036,26 @@
               <input type="number" id="bw-tx-amount" step="0.01" min="0">
             </div>
           </div>
-          <div class="bw-field"><label>${esc(t('note'))}</label><input type="text" id="bw-tx-note" maxlength="300"></div>
-          <button class="bw-btn bw-btn-primary" id="bw-tx-add">${esc(t('save'))}</button>
+          <div class="bw-field"><label>${esc(t('note'))}</label>
+            <div class="bw-note-group">
+              <input type="text" id="bw-tx-note" maxlength="300">
+              <button type="button" class="bw-suggest-btn" id="bw-tx-suggest-btn"
+                title="${esc(t('frequent_notes'))}" aria-label="${esc(t('frequent_notes'))}">💬</button>
+              <button class="bw-btn bw-btn-primary" id="bw-tx-add">${esc(t('save'))}</button>
+            </div>
+          </div>
         </div>
         <div class="bw-error" id="bw-tx-error" style="display:none"></div>
-        <div class="bw-section-label">${esc(t('history'))}</div>
-        <div class="bw-tx-list" id="bw-tx-list"><div class="bw-empty">${esc(t('no_transactions'))}</div></div>
+        <button class="bw-btn bw-btn-wide" id="bw-tx-history-toggle">${esc(t('show_history'))}</button>
+        <div class="bw-tx-list" id="bw-tx-list" style="display:none"></div>
         <div class="bw-dialog-actions"><button class="bw-btn" id="bw-tx-close">${esc(t('close'))}</button></div>
+      </div>
+      <!-- Outside the dialog on purpose: the dialog scrolls its own overflow, so
+           a panel nested inside it would be clipped at the dialog's edge and
+           scroll away with the content. -->
+      <div class="bw-suggest-pop" id="bw-tx-suggest-pop" hidden>
+        <div class="bw-suggest-pop-head">${esc(t('frequent_notes'))}</div>
+        <div class="bw-suggest" id="bw-tx-suggest"><div class="bw-loading"><span class="bw-spin"></span></div></div>
       </div>`);
       const errEl = ov.querySelector('#bw-tx-error');
       ov.querySelector('#bw-tx-close').onclick = () => { ov.remove(); if (onClose) onClose(); else refresh(); };
@@ -751,7 +1071,24 @@
         return _fmtDateTime(new Date(iso));
       }
 
+      // The history is the slowest thing in this dialog and most visits here are
+      // to add one amount, so it is fetched only when it is actually asked for
+      // and refreshed afterwards only while it is on screen.
+      const historyBtn = ov.querySelector('#bw-tx-history-toggle');
+      const listEl0 = ov.querySelector('#bw-tx-list');
+      let historyOpen = false;
+      historyBtn.onclick = () => {
+        historyOpen = !historyOpen;
+        listEl0.style.display = historyOpen ? '' : 'none';
+        historyBtn.textContent = t(historyOpen ? 'hide_history' : 'show_history');
+        if (historyOpen) {
+          listEl0.innerHTML = `<div class="bw-loading"><span class="bw-spin"></span></div>`;
+          loadTx();
+        }
+      };
+
       async function loadTx() {
+        if (!historyOpen) return;
         const rows = await api(`/categories/${cat.id}/transactions`);
         const listEl = ov.querySelector('#bw-tx-list');
         if (!rows.length) { listEl.innerHTML = `<div class="bw-empty">${esc(t('no_transactions'))}</div>`; return; }
@@ -798,7 +1135,106 @@
           };
         });
       }
-      loadTx();
+
+      // The wordings this person types into this category often enough that
+      // retyping them is busywork. Tapping one adds it to the note; tapping it
+      // again takes it back out, so a wrong tap costs one more tap and not a
+      // trip into the text field.
+      let suggestNotes = [];
+      function _noteParts() {
+        const raw = ov.querySelector('#bw-tx-note').value.split(',').map(x => x.trim()).filter(Boolean);
+        // A suggestion may itself contain a comma, so neighbouring pieces are
+        // put back together whenever they spell out one; otherwise such a chip
+        // could never recognise its own text and a second tap would duplicate it.
+        const out = [];
+        for (let i = 0; i < raw.length; i++) {
+          let merged = null;
+          for (let j = raw.length; j > i + 1; j--) {
+            const joined = raw.slice(i, j).join(', ');
+            if (suggestNotes.includes(joined)) { merged = joined; i = j - 1; break; }
+          }
+          out.push(merged || raw[i]);
+        }
+        return out;
+      }
+      function _markSuggestions() {
+        const parts = _noteParts();
+        ov.querySelectorAll('#bw-tx-suggest .bw-suggest-chip').forEach(chip => {
+          chip.classList.toggle('bw-suggest-on', parts.includes(chip.dataset.note));
+        });
+      }
+      function _toggleSuggestion(note) {
+        const input = ov.querySelector('#bw-tx-note');
+        const parts = _noteParts();
+        const at = parts.indexOf(note);
+        if (at >= 0) parts.splice(at, 1); else parts.push(note);
+        input.value = parts.join(', ');
+        _markSuggestions();
+        // Straight to the amount when it is still empty: the note is usually
+        // the second thing typed, so after a tap there is nothing else to do.
+        const amountEl = ov.querySelector('#bw-tx-amount');
+        if (!amountEl.value) amountEl.focus();
+      }
+      const suggestBtn = ov.querySelector('#bw-tx-suggest-btn');
+      const suggestPop = ov.querySelector('#bw-tx-suggest-pop');
+      let suggestLoaded = false;
+      function closeSuggest() { suggestPop.hidden = true; suggestBtn.classList.remove('bw-suggest-open'); }
+      // Anchored to the button by measurement rather than by nesting: under it
+      // normally, above it when there is no room below, and pushed back inside
+      // when the widget is too short for either.
+      function placeSuggest() {
+        if (suggestPop.hidden) return;
+        const b = suggestBtn.getBoundingClientRect();
+        const o = ov.getBoundingClientRect();
+        const h = suggestPop.offsetHeight;
+        suggestPop.style.right = Math.max(8, o.right - b.right) + 'px';
+        let top = b.bottom - o.top + 6;
+        if (top + h > o.height - 8) {
+          const above = b.top - o.top - 6 - h;
+          top = above >= 8 ? above : Math.max(8, o.height - 8 - h);
+        }
+        suggestPop.style.top = top + 'px';
+      }
+      function openSuggest() {
+        suggestPop.hidden = false;
+        suggestBtn.classList.add('bw-suggest-open');
+        placeSuggest();
+        // Nothing is fetched until the picker is actually opened, so the usual
+        // visit — type an amount, save, leave — costs one request less.
+        if (!suggestLoaded) loadSuggestions();
+      }
+      suggestBtn.onclick = e => { e.stopPropagation(); suggestPop.hidden ? openSuggest() : closeSuggest(); };
+      suggestPop.addEventListener('click', e => e.stopPropagation());
+      ov.addEventListener('click', () => { if (!suggestPop.hidden) closeSuggest(); });
+      ov.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !suggestPop.hidden) { e.stopPropagation(); closeSuggest(); }
+      });
+
+      async function loadSuggestions() {
+        const wrapEl = ov.querySelector('#bw-tx-suggest');
+        if (!wrapEl) return;
+        wrapEl.innerHTML = `<div class="bw-loading"><span class="bw-spin"></span></div>`;
+        let rows;
+        try { rows = await api(`/categories/${cat.id}/note-suggestions`); }
+        catch (e) { rows = []; }
+        if (!Array.isArray(rows)) rows = [];
+        suggestLoaded = true;
+        suggestNotes = rows.map(r => r.note);
+        if (!rows.length) {
+          wrapEl.innerHTML = `<span class="bw-suggest-empty">${esc(t('no_frequent_notes'))}</span>`;
+          placeSuggest();
+          return;
+        }
+        wrapEl.innerHTML = rows.map(r =>
+          `<button type="button" class="bw-suggest-chip" data-note="${esc(r.note)}" title="${esc(r.note)} · ${r.uses}\u00d7">${esc(r.note)}</button>`
+        ).join('');
+        wrapEl.querySelectorAll('.bw-suggest-chip').forEach(chip => {
+          chip.onclick = () => _toggleSuggestion(chip.dataset.note);
+        });
+        _markSuggestions();
+        placeSuggest();
+      }
+      ov.querySelector('#bw-tx-note').addEventListener('input', _markSuggestions);
 
       async function submitTx() {
         const raw = parseFloat(ov.querySelector('#bw-tx-amount').value);
@@ -816,9 +1252,16 @@
           const freshBalance = await fetchFreshBalance();
           if (freshBalance !== undefined) { cat.balance = freshBalance; ov.querySelector('.bw-card-balance').textContent = fmtMoney(cat.balance); }
           loadTx();
+          // A wording used for the second time only becomes a suggestion now, so
+          // what was fetched is stale: refreshed at once while the picker is
+          // open, and otherwise left for whenever it is next opened.
+          suggestLoaded = false;
+          if (!suggestPop.hidden) loadSuggestions();
         } catch (e) { errEl.textContent = t('save_failed'); errEl.style.display = 'block'; }
       }
       ov.querySelector('#bw-tx-add').onclick = () => submitTx();
+      ov.querySelector('#bw-tx-note').addEventListener('keydown', e => { if (e.key === 'Enter') submitTx(); });
+      ov.querySelector('#bw-tx-amount').addEventListener('keydown', e => { if (e.key === 'Enter') submitTx(); });
     }
 
     async function deleteSubcategory(sub) {
@@ -903,6 +1346,7 @@
       const ov = overlay(`<div class="bw-dialog">
         <h3>${esc(t('mass_add_title'))}</h3>
         <div class="bw-field"><label>${esc(t('total_amount'))}</label><input type="number" id="bw-mass-total" step="0.01"></div>
+        <div class="bw-mass-summary" id="bw-mass-summary"></div>
         <div class="bw-section-label">${esc(t('mass_add_hint'))}</div>
         <div id="bw-mass-list"></div>
         <div class="bw-error" id="bw-mass-error" style="display:none"></div>
@@ -925,17 +1369,45 @@
           <input type="number" step="0.01" data-cid="${esc(c.id)}" value="0">
         </div>`).join('');
 
-      listEl.querySelectorAll('input[data-cid]').forEach(inp => {
-        inp.addEventListener('input', () => touched.add(inp.dataset.cid));
-      });
-      totalEl.addEventListener('input', () => {
+      const summaryEl = ov.querySelector('#bw-mass-summary');
+
+      // Nothing here refuses a plan that does not add up — a total can genuinely
+      // be mistyped, and correcting it by hand has to stay possible. The dialog
+      // only says, while the numbers are being typed, how far off the plan is.
+      function markBalance() {
         const total = parseFloat(totalEl.value) || 0;
+        let sum = 0;
+        listEl.querySelectorAll('input[data-cid]').forEach(inp => { sum += parseFloat(inp.value) || 0; });
+        sum = round2(sum);
+        const diff = round2(sum - total);
+        const neutral = !total && !sum;
+        const ok = !neutral && diff === 0;
+        summaryEl.classList.toggle('bw-mass-ok', ok);
+        summaryEl.classList.toggle('bw-mass-off', !neutral && !ok);
+        listEl.querySelectorAll('.bw-mass-row').forEach(row => {
+          row.classList.toggle('bw-mass-ok', ok);
+          row.classList.toggle('bw-mass-off', !neutral && !ok);
+        });
+        const state = neutral ? '' : ok ? esc(t('mass_exact'))
+          : `${esc(diff > 0 ? t('mass_over') : t('mass_short'))} <strong>${fmtMoney(Math.abs(diff))}</strong>`;
+        summaryEl.innerHTML =
+          `<span>${esc(t('mass_allocated'))} <strong>${fmtMoney(sum)}</strong> / ${fmtMoney(total)}</span><span>${state}</span>`;
+      }
+
+      function recompute() {
+        const plan = allocate(massCategories, parseFloat(totalEl.value) || 0);
         massCategories.forEach(c => {
           if (touched.has(c.id)) return;
-          const inp = listEl.querySelector(`input[data-cid="${c.id}"]`);
-          inp.value = (Math.round((contribution(c, total) + Number.EPSILON) * 100) / 100);
+          listEl.querySelector(`input[data-cid="${c.id}"]`).value = plan[c.id];
         });
+        markBalance();
+      }
+
+      listEl.querySelectorAll('input[data-cid]').forEach(inp => {
+        inp.addEventListener('input', () => { touched.add(inp.dataset.cid); markBalance(); });
       });
+      totalEl.addEventListener('input', recompute);
+      markBalance();
 
       ov.querySelector('#bw-mass-cancel').onclick = () => ov.remove();
       ov.querySelector('#bw-mass-save').onclick = async () => {

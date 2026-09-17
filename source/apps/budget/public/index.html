@@ -19,17 +19,23 @@
     location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
     return;
   }
-  (window.mvmOS && window.mvmOS.i18nReady || Promise.resolve()).then(function () {
+  // i18n.js first: the widget reads window.BUDGET_I18N as it defines itself.
+  function load(src, next) {
     var s = document.createElement('script');
-    s.src = '/apps/budget/budget-widget.js?_=' + Date.now();
-    s.onload = function () {
-      BudgetWidget.mount(document.getElementById('budget-root'), {
-        onNeedLogin: function () {
-          location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
-        }
-      });
-    };
+    s.src = src + '?_=' + Date.now();
+    s.onload = next;
     document.head.appendChild(s);
+  }
+  (window.mvmOS && window.mvmOS.i18nReady || Promise.resolve()).then(function () {
+    load('/apps/budget/i18n.js', function () {
+      load('/apps/budget/budget-widget.js', function () {
+        BudgetWidget.mount(document.getElementById('budget-root'), {
+          onNeedLogin: function () {
+            location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
+          }
+        });
+      });
+    });
   });
 })();
 </script>

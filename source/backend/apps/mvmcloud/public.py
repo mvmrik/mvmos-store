@@ -351,7 +351,7 @@ async def update_user_api_key(token_id: str, body: TokenPermissionsBody, x_pub_t
 
 
 @router.delete("/api-keys/{token_id}")
-async def revoke_user_api_key(token_id: str, x_pub_token: str = Header(default=None)):
+def revoke_user_api_key(token_id: str, x_pub_token: str = Header(default=None)):
     user = _need_public(x_pub_token)
     with _db() as conn:
         conn.execute("DELETE FROM user_api_tokens WHERE id=? AND user_id=?", (token_id, user["id"]))
@@ -404,7 +404,7 @@ async def move(body: MoveBody, x_pub_token: str = Header(default=None)):
 
 
 @router.delete("/files")
-async def delete(path: str, x_pub_token: str = Header(default=None)):
+def delete(path: str, x_pub_token: str = Header(default=None)):
     user = _need_public(x_pub_token); root = _user_root(user["id"]); _check_write(root, user["id"])
     target = _safe(root, path)
     if target == root or not target.exists(): raise HTTPException(404, "Not found")
@@ -559,7 +559,7 @@ async def save_settings(body: SettingsBody, session=Depends(sys.modules["backend
 
 
 @desktop_router.delete("/admin/users/{user_id}")
-async def admin_delete_user(user_id: str, session=Depends(sys.modules["backend.auth"].get_current_session)):
+def admin_delete_user(user_id: str, session=Depends(sys.modules["backend.auth"].get_current_session)):
     _desktop_admin(session)
     root = _user_root(user_id)
     shutil.rmtree(root); _audit("desktop:root", "delete_user_storage", user_id)
@@ -600,7 +600,7 @@ async def external_tokens(session=Depends(sys.modules["backend.auth"].get_curren
 
 
 @desktop_router.delete("/admin/external-tokens/{token_id}")
-async def revoke_external_token(token_id: str, session=Depends(sys.modules["backend.auth"].get_current_session)):
+def revoke_external_token(token_id: str, session=Depends(sys.modules["backend.auth"].get_current_session)):
     _desktop_admin(session)
     with _db() as conn: conn.execute("DELETE FROM external_tokens WHERE id=?", (token_id,)); conn.commit()
     return {"ok":True}
@@ -736,7 +736,7 @@ async def api_mkdir(body: PathBody, authorization: str = Header(default=None)):
 
 
 @router.delete("/api/files")
-async def api_delete(path: str, authorization: str = Header(default=None)):
+def api_delete(path: str, authorization: str = Header(default=None)):
     row, root, perms = _capability(authorization)
     if "delete" not in perms: raise HTTPException(403,"Delete not permitted")
     target = _safe(root,path)

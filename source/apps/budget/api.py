@@ -26,10 +26,10 @@ import os
 import sqlite3
 import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import List, Optional
 
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Header, Query
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel
 
@@ -586,6 +586,41 @@ async def list_transactions(category_id: str, x_pub_token: str = Header(default=
     return JSONResponse(result)
 
 
+@router.get("/categories/{category_id}/note-suggestions")
+async def note_suggestions(category_id: str, x_pub_token: str = Header(default=None)):
+    """The notes this person types into this category often enough to be worth
+    offering back as one tap.
+
+    Only their own hand-typed rows count: another member's wording is not this
+    person's shorthand, a note written by another app was never typed at all,
+    and a mass-add row carries wording the dialog produced rather than wording
+    this person chose for this category.
+
+    Wording is matched exactly rather than case-folded, because SQLite's NOCASE
+    only folds ASCII — it would merge "Bread"/"bread" but not "Хляб"/"хляб", and
+    a suggestion list that behaves one way in English and another in Bulgarian
+    is worse than one that simply takes people at their word.
+    """
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    with _db() as conn:
+        if not _my_role(conn, category_id, me["id"]):
+            return JSONResponse({"error": "not found"}, status_code=404)
+        rows = conn.execute(
+            "SELECT TRIM(note) AS note, COUNT(*) AS uses, MAX(created_at) AS last_used "
+            "FROM transactions "
+            "WHERE category_id=? AND user_id=? AND deleted_at IS NULL "
+            "AND source_app IS NULL AND batch_id IS NULL AND TRIM(note)<>'' "
+            "GROUP BY TRIM(note) HAVING COUNT(*)>=2 "
+            "ORDER BY uses DESC, last_used DESC LIMIT 10",
+            (category_id, me["id"]),
+        ).fetchall()
+    return JSONResponse([
+        {"note": r["note"], "uses": r["uses"]} for r in rows
+    ])
+
+
 def _leaf_categories_for(conn, user_id) -> dict:
     """Categories visible to a user, resolved to their leaves (subcategories
     inherit sharing from the parent, so we never store category_members rows
@@ -643,61 +678,217 @@ async def full_history(x_pub_token: str = Header(default=None)):
 
 
 _PERIOD_FMT = {
+    "day": "%Y-%m-%d",
     "week": "%Y-W%W",
     "month": "%Y-%m",
     "year": "%Y",
 }
 
 
+def _category_tree_for(conn, user_id) -> List[dict]:
+    """The categories a user may narrow statistics down to, in the same shape
+    the picker draws: every category shared with them, each with its own
+    subcategories under it. Built here rather than from /categories so that
+    what the picker offers can never drift from what /stats is able to
+    answer — they are computed from the same rows."""
+    rows = conn.execute(
+        "SELECT c.id, c.title FROM categories c JOIN category_members cm ON cm.category_id=c.id "
+        "WHERE cm.user_id=? AND c.archived=0 AND c.parent_id IS NULL ORDER BY c.title COLLATE NOCASE",
+        (user_id,),
+    ).fetchall()
+    tree = []
+    for r in rows:
+        kids = conn.execute(
+            "SELECT id, title FROM categories WHERE parent_id=? AND archived=0 ORDER BY title COLLATE NOCASE",
+            (r["id"],),
+        ).fetchall()
+        tree.append({
+            "id": r["id"],
+            "title": r["title"],
+            "children": [{"id": k["id"], "title": k["title"]} for k in kids],
+        })
+    return tree
+
+
+def _parse_day(value: str) -> Optional[date]:
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except (TypeError, ValueError):
+        return None
+
+
+def _shift_back(day: date, period: str, steps: int) -> date:
+    """The start of the period `steps` periods before the one `day` falls in.
+    Used only to turn "the last 6 months" into a real from-date, so that the
+    range the user is looking at is always a pair of dates they can see and
+    edit rather than a hidden count."""
+    if period == "day":
+        return day - timedelta(days=steps)
+    if period == "week":
+        return day - timedelta(days=day.weekday() + 7 * steps)
+    if period == "year":
+        return date(day.year - steps, 1, 1)
+    total = day.year * 12 + (day.month - 1) - steps
+    return date(total // 12, total % 12 + 1, 1)
+
+
+def _period_keys(start: date, end: date, period: str) -> List[str]:
+    """Every period key in the range, including the ones with no transactions
+    in them. A month in which nothing happened is a fact about the money, and
+    a chart that silently closes the gap tells the opposite story — so the
+    empty columns are generated here rather than inferred from the rows."""
+    keys, seen, cur = [], set(), start
+    fmt = _PERIOD_FMT[period]
+    # Stepping a day at a time keeps every key identical to the one SQLite's
+    # strftime produces for a transaction on that day, week numbering included.
+    step = timedelta(days=1)
+    guard = 0
+    while cur <= end and guard < 20000:
+        k = cur.strftime(fmt)
+        if k not in seen:
+            seen.add(k)
+            keys.append(k)
+        cur += step
+        guard += 1
+    return keys
+
+
 @router.get("/stats")
-async def stats(period: str = "month", count: int = 6, x_pub_token: str = Header(default=None)):
+async def stats(
+    period: str = "month",
+    count: int = 6,
+    date_from: str = Query(default=None, alias="from"),
+    date_to: str = Query(default=None, alias="to"),
+    category: str = None,
+    x_pub_token: str = Header(default=None),
+):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
     if period not in _PERIOD_FMT:
         return JSONResponse({"error": "invalid period"}, status_code=400)
-    count = max(1, min(count, 24))
+    count = max(1, min(count, 120))
+
+    today = datetime.utcnow().date()
+    end = _parse_day(date_to) if date_to else today
+    start = _parse_day(date_from) if date_from else None
+    if (date_to and end is None) or (date_from and start is None):
+        return JSONResponse({"error": "invalid date"}, status_code=400)
+    if start is None:
+        start = _shift_back(end, period, count - 1)
+    if start > end:
+        start, end = end, start
+    # A daily chart over ten years would be forty thousand columns nobody can
+    # read and a response nobody wants to parse, so the granularity is coarsened
+    # to fit rather than the range being refused.
+    span = (end - start).days
+    if period == "day" and span > 120:
+        period = "week"
+    if period == "week" and span > 900:
+        period = "month"
     fmt = _PERIOD_FMT[period]
 
     with _db() as conn:
         leaf_cats = _leaf_categories_for(conn, me["id"])
+        tree = _category_tree_for(conn, me["id"])
+        selected = None
+        if category and category != "all":
+            # A parent stands for its subcategories: the money never sits on the
+            # parent itself once it has children, so narrowing to one means
+            # narrowing to everything filed under it.
+            wanted = set(_child_ids(conn, category)) | {category}
+            scope = {k: v for k, v in leaf_cats.items() if k in wanted}
+            if not scope:
+                return JSONResponse({"error": "unknown category"}, status_code=404)
+            leaf_cats, selected = scope, category
+
         if not leaf_cats:
-            return JSONResponse({"periods": [], "by_category": []})
+            return JSONResponse({
+                "range": {"from": start.isoformat(), "to": end.isoformat()},
+                "period": period, "category": selected, "categories": tree,
+                "periods": [], "by_category": [], "top": [],
+                "totals": {"income": 0, "expense": 0, "net": 0, "count": 0},
+            })
 
         placeholders = ",".join("?" for _ in leaf_cats)
         rows = conn.execute(
-            f"SELECT category_id, amount, created_at, strftime('{fmt}', created_at) AS period "
-            f"FROM transactions WHERE category_id IN ({placeholders}) AND deleted_at IS NULL",
-            tuple(leaf_cats.keys()),
+            f"SELECT id, category_id, amount, note, created_at, "
+            f"strftime('{fmt}', created_at) AS period FROM transactions "
+            f"WHERE category_id IN ({placeholders}) AND deleted_at IS NULL "
+            f"AND date(created_at) BETWEEN ? AND ?",
+            (*leaf_cats.keys(), start.isoformat(), end.isoformat()),
         ).fetchall()
 
-    periods_map = {}
+    def blank():
+        return {"income": 0.0, "expense": 0.0, "count": 0}
+
+    periods_map = {k: blank() for k in _period_keys(start, end, period)}
     cat_totals = {}
+    total = blank()
     for r in rows:
-        p = periods_map.setdefault(r["period"], {"period": r["period"], "income": 0.0, "expense": 0.0})
-        if r["amount"] >= 0:
-            p["income"] += r["amount"]
-        else:
-            p["expense"] += -r["amount"]
+        bucket = periods_map.setdefault(r["period"], blank())
         cat = leaf_cats[r["category_id"]]
         label = f'{cat["parent_title"]} / {cat["title"]}' if cat["parent_title"] else cat["title"]
-        cat_totals[label] = cat_totals.get(label, 0.0) + r["amount"]
+        entry = cat_totals.setdefault(r["category_id"], dict(blank(), id=r["category_id"], title=label))
+        for target in (bucket, entry, total):
+            if r["amount"] >= 0:
+                target["income"] += r["amount"]
+            else:
+                target["expense"] += -r["amount"]
+            target["count"] += 1
 
-    all_periods = sorted(periods_map.keys())[-count:]
+    def money(v):
+        return round(v, 2)
+
     result_periods = [
         {
-            "period": p,
-            "income": round(periods_map[p]["income"], 2),
-            "expense": round(periods_map[p]["expense"], 2),
-            "net": round(periods_map[p]["income"] - periods_map[p]["expense"], 2),
+            "period": k,
+            "income": money(v["income"]),
+            "expense": money(v["expense"]),
+            "net": money(v["income"] - v["expense"]),
+            "count": v["count"],
         }
-        for p in all_periods
+        for k, v in sorted(periods_map.items())
     ]
     by_category = sorted(
-        ({"title": k, "net": round(v, 2)} for k, v in cat_totals.items()),
-        key=lambda x: abs(x["net"]), reverse=True,
+        (
+            {
+                "id": v["id"], "title": v["title"], "count": v["count"],
+                "income": money(v["income"]), "expense": money(v["expense"]),
+                "net": money(v["income"] - v["expense"]),
+            }
+            for v in cat_totals.values()
+        ),
+        key=lambda x: x["expense"] + x["income"], reverse=True,
     )
-    return JSONResponse({"periods": result_periods, "by_category": by_category})
+    # The handful of entries that actually moved the total, so that a month that
+    # looks wrong can be explained without leaving the statistics for history.
+    top = [
+        {
+            "id": r["id"], "amount": money(r["amount"]), "note": r["note"],
+            "created_at": r["created_at"],
+            "category": (
+                f'{leaf_cats[r["category_id"]]["parent_title"]} / {leaf_cats[r["category_id"]]["title"]}'
+                if leaf_cats[r["category_id"]]["parent_title"] else leaf_cats[r["category_id"]]["title"]
+            ),
+        }
+        for r in sorted(rows, key=lambda r: abs(r["amount"]), reverse=True)[:8]
+    ]
+    return JSONResponse({
+        "range": {"from": start.isoformat(), "to": end.isoformat()},
+        "period": period,
+        "category": selected,
+        "categories": tree,
+        "periods": result_periods,
+        "by_category": by_category,
+        "top": top,
+        "totals": {
+            "income": money(total["income"]),
+            "expense": money(total["expense"]),
+            "net": money(total["income"] - total["expense"]),
+            "count": total["count"],
+        },
+    })
 
 
 @router.post("/categories/{category_id}/transactions")

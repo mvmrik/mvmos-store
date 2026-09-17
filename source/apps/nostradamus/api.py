@@ -7,10 +7,18 @@ server never sees a plaintext private key or a master password.
 """
 
 import base64
+import hashlib
+import ipaddress
+import json
 import os
 import re
+import socket
 import sqlite3
 import sys
+import time
+import urllib.parse
+import urllib.request
+from html.parser import HTMLParser
 from typing import List, Optional
 
 from fastapi import APIRouter, Header
@@ -82,6 +90,12 @@ def _init_db():
                 owner_id TEXT NOT NULL PRIMARY KEY,
                 translate_lang TEXT,
                 publish_lang TEXT
+            );
+            CREATE TABLE IF NOT EXISTS link_previews (
+                url_hash TEXT NOT NULL PRIMARY KEY,
+                url TEXT NOT NULL,
+                payload TEXT NOT NULL,
+                fetched_at INTEGER NOT NULL
             );
         """)
         conn.commit()
@@ -226,6 +240,238 @@ async def translate(data: TranslateIn, x_pub_token: str = Header(default=None)):
                                             "bad_target_lang", "bad_source_lang") else 502
         return JSONResponse(result, status_code=status)
     return result
+
+
+# ---------------------------------------------------------------------------
+# Link previews
+#
+# Nostr carries no attachments: a shared article is a bare URL sitting in the
+# text, and that is all a reader saw. Every other client shows the page's own
+# title and picture instead, which is what makes a link readable at a glance.
+#
+# Doing it needs the page fetched, and the browser cannot: the pages are on
+# other origins and will not permit a cross-origin read. So the server fetches
+# it — which means this endpoint takes a URL chosen by whoever is asking and
+# makes the server open it. That is the classic shape of an SSRF, and the
+# machine running mvmOS is exactly the machine with something worth reaching:
+# localhost admin panels, the metadata service on a cloud VM, other hosts on the
+# LAN. The guards below are the whole point of this section, not decoration:
+#
+#   * http(s) only, so file:// and gopher:// cannot be asked for,
+#   * every hostname resolved first and refused if any address it answers with
+#     is private, loopback, link-local, multicast or otherwise not a public
+#     address, and the same check applied again at every redirect hop,
+#   * the response capped, so a multi-gigabyte body cannot be used to exhaust
+#     the box, and a timeout, so a host that never answers cannot hold a worker,
+#   * the whole thing behind the same Apps Hub session every other route needs,
+#     so it is not an open fetching service for the internet at large.
+#
+# One residual gap is worth naming rather than hiding: between the name being
+# resolved here and urllib resolving it again to connect, a hostile DNS server
+# could answer differently the second time (DNS rebinding). Closing that
+# properly means connecting to a pinned address by hand and carrying the
+# original host through TLS verification; it is not worth that complexity here,
+# where the caller must already hold a valid session on this installation.
+#
+# The route is a plain def on purpose. Fetching a remote page is blocking work
+# that can take seconds, so FastAPI runs it in a worker thread; written as async
+# it would sit on the event loop and every other request on the installation
+# would wait behind somebody else's link preview.
+# ---------------------------------------------------------------------------
+
+_PREVIEW_TTL = 7 * 24 * 3600
+_PREVIEW_MAX_BYTES = 262144
+_PREVIEW_TIMEOUT = 6
+_PREVIEW_UA = "Mozilla/5.0 (compatible; mvmOS-Nostradamus/1.0; +link-preview)"
+_WANTED_META = {
+    "og:title", "og:description", "og:image", "og:site_name",
+    "twitter:title", "twitter:description", "twitter:image",
+    "description",
+}
+
+
+def _public_host(host: Optional[str]) -> bool:
+    """True only when every address this name resolves to is a public one."""
+    if not host:
+        return False
+    try:
+        infos = socket.getaddrinfo(host, None)
+    except (socket.gaierror, UnicodeError):
+        return False
+    if not infos:
+        return False
+    for info in infos:
+        try:
+            ip = ipaddress.ip_address(info[4][0])
+        except ValueError:
+            return False
+        if (ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_multicast
+                or ip.is_reserved or ip.is_unspecified):
+            return False
+    return True
+
+
+class _GuardedRedirect(urllib.request.HTTPRedirectHandler):
+    """A redirect is a second URL the caller never showed us, so it gets the
+    same address check as the first. Returning None stops urllib following it."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        parsed = urllib.parse.urlsplit(newurl)
+        if parsed.scheme not in ("http", "https") or not _public_host(parsed.hostname):
+            return None
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+class _MetaParser(HTMLParser):
+    """Reads the handful of tags a preview needs and stops at </head>.
+
+    Open Graph lives in the head, so there is no reason to walk the body of a
+    page that may be megabytes of markup.
+    """
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.meta = {}
+        self.title = ""
+        self._in_title = False
+        self.finished = False
+
+    def handle_starttag(self, tag, attrs):
+        if self.finished:
+            return
+        if tag == "meta":
+            a = dict(attrs)
+            key = (a.get("property") or a.get("name") or "").strip().lower()
+            content = (a.get("content") or "").strip()
+            if key in _WANTED_META and content and key not in self.meta:
+                self.meta[key] = content
+        elif tag == "title" and not self.title:
+            self._in_title = True
+
+    def handle_data(self, data):
+        if self._in_title and not self.title:
+            self.title = data.strip()
+
+    def handle_endtag(self, tag):
+        if tag == "title":
+            self._in_title = False
+        elif tag in ("head", "html"):
+            self.finished = True
+
+
+def _clip(value: Optional[str], limit: int) -> str:
+    value = " ".join((value or "").split())
+    return value[:limit]
+
+
+def _scrape_preview(url: str) -> dict:
+    """Fetch one page and pull a title, description and image out of it.
+
+    Any failure — refused address, timeout, non-HTML, unparseable markup —
+    returns an empty dict, which is cached like any other answer so a dead link
+    is not re-fetched on every render.
+    """
+    parsed = urllib.parse.urlsplit(url)
+    if parsed.scheme not in ("http", "https") or not _public_host(parsed.hostname):
+        return {}
+    req = urllib.request.Request(url, headers={
+        "User-Agent": _PREVIEW_UA,
+        "Accept": "text/html,application/xhtml+xml",
+        "Accept-Language": "en;q=0.8,*;q=0.5",
+    })
+    opener = urllib.request.build_opener(_GuardedRedirect)
+    try:
+        with opener.open(req, timeout=_PREVIEW_TIMEOUT) as resp:
+            ctype = (resp.headers.get("Content-Type") or "").lower()
+            if "html" not in ctype:
+                return {}
+            raw = resp.read(_PREVIEW_MAX_BYTES)
+            final_url = resp.geturl()
+    except Exception:
+        return {}
+
+    charset = "utf-8"
+    match = re.search(r"charset=([\w-]+)", ctype)
+    if match:
+        charset = match.group(1)
+    try:
+        text = raw.decode(charset, "replace")
+    except LookupError:
+        text = raw.decode("utf-8", "replace")
+
+    # Only the head is ever read, so only the head is handed to the parser.
+    # HTMLParser is plain Python and holds the GIL while it tokenises, and a
+    # news page inside the read cap is a quarter of a megabyte of body markup
+    # that contains nothing this function wants. Cutting at </head> first turns
+    # the parse into a few kilobytes of work, which is what keeps a burst of
+    # previews from stealing CPU from every other request in the process.
+    head = text
+    cut = re.search(r"</head\s*>", text, re.I)
+    if cut:
+        head = text[:cut.end()]
+    elif len(head) > 65536:
+        # No </head> in a page this size means malformed markup, not a real
+        # head that big; the tags worth having are at the top either way.
+        head = head[:65536]
+
+    parser = _MetaParser()
+    try:
+        parser.feed(head)
+    except Exception:
+        pass
+    meta = parser.meta
+
+    title = _clip(meta.get("og:title") or meta.get("twitter:title") or parser.title, 200)
+    description = _clip(
+        meta.get("og:description") or meta.get("twitter:description") or meta.get("description"), 300
+    )
+    image = (meta.get("og:image") or meta.get("twitter:image") or "").strip()
+    if image:
+        image = urllib.parse.urljoin(final_url, image)
+        if urllib.parse.urlsplit(image).scheme not in ("http", "https"):
+            image = ""
+    site = _clip(meta.get("og:site_name"), 80) or (urllib.parse.urlsplit(final_url).hostname or "")
+
+    if not title and not image:
+        return {}
+    return {"url": url, "title": title, "description": description, "image": image, "site": site}
+
+
+@router.get("/preview")
+def link_preview(url: str, x_pub_token: str = Header(default=None)):
+    hub = _hub()
+    if hub and not hub.is_app_public(APP_ID):
+        return JSONResponse({"error": "private"}, status_code=403)
+    if not _user(x_pub_token):
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    url = (url or "").strip()
+    if len(url) > 2048 or urllib.parse.urlsplit(url).scheme not in ("http", "https"):
+        return JSONResponse({}, status_code=200)
+
+    url_hash = hashlib.sha256(url.encode("utf-8")).hexdigest()
+    now = int(time.time())
+    with _conn() as conn:
+        row = conn.execute(
+            "SELECT payload, fetched_at FROM link_previews WHERE url_hash=?", (url_hash,)
+        ).fetchone()
+    if row and now - row["fetched_at"] < _PREVIEW_TTL:
+        try:
+            return JSONResponse(json.loads(row["payload"]))
+        except ValueError:
+            pass
+
+    data = _scrape_preview(url)
+    # An empty result is cached too. A page with no Open Graph tags at all is
+    # the common case for a plain link, and without this every reader of that
+    # note would make the server fetch it again.
+    with _conn() as conn:
+        conn.execute(
+            "INSERT INTO link_previews(url_hash,url,payload,fetched_at) VALUES(?,?,?,?) "
+            "ON CONFLICT(url_hash) DO UPDATE SET payload=excluded.payload, fetched_at=excluded.fetched_at",
+            (url_hash, url[:2048], json.dumps(data), now),
+        )
+        conn.commit()
+    return JSONResponse(data)
 
 
 @router.get("/deepl-status")

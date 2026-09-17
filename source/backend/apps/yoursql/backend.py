@@ -8,6 +8,7 @@ dialect family — see dialect_common.py. mvmApps/mvmOS Core builtin SQLite
 connections are handled directly here, unchanged.
 """
 
+import asyncio
 import json
 import os
 import re
@@ -959,18 +960,25 @@ async def import_file(
                 tmp.write(chunk)
                 stmt_count += chunk.count(b";")
 
-        if filename.endswith(".csv"):
-            import csv, io
-            with open(tmp_path, "rb") as f:
-                text = f.read().decode("utf-8-sig")
-            reader = csv.DictReader(io.StringIO(text))
-            rows = list(reader)
-            if rows:
-                table = filename.rsplit(".", 1)[0]
-                affected, errors = _import_csv_rows(dialect, cfg, database, table, rows)
-        else:
+        # An import is the longest single thing this app does — the CLI call
+        # alone is allowed an hour, and a CSV is inserted row by row. Run on the
+        # event loop, that hour belonged to the whole server and not just to the
+        # person importing, so the work goes to a thread.
+        def _do_import():
+            if filename.endswith(".csv"):
+                import csv, io
+                with open(tmp_path, "rb") as f:
+                    text = f.read().decode("utf-8-sig")
+                reader = csv.DictReader(io.StringIO(text))
+                rows = list(reader)
+                if rows:
+                    table = filename.rsplit(".", 1)[0]
+                    return _import_csv_rows(dialect, cfg, database, table, rows)
+                return 0, []
             _run_cli_import(dialect, cfg, database, tmp_path)
-            affected = stmt_count
+            return stmt_count, []
+
+        affected, errors = await asyncio.to_thread(_do_import)
 
         return JSONResponse({"ok": True, "affected": affected, "errors": errors[:10]})
     except HTTPException:
@@ -999,7 +1007,7 @@ class ImportFromPathBody(BaseModel):
 
 
 @router.post("/import-from-path")
-async def import_from_path(body: ImportFromPathBody, session=Depends(get_current_session)):
+def import_from_path(body: ImportFromPathBody, session=Depends(get_current_session)):
     """Start import in background, return job_id immediately to avoid Cloudflare 524."""
     allowed = os.path.realpath("/tmp/mvmos-uploads")
     real = os.path.realpath(body.tmp_path)

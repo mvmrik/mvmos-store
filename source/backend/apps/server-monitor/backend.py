@@ -424,16 +424,20 @@ def _plant_hourly():
 
 async def _monitor_loop():
     # warm up counters, wait 5s, then first real sample, then every 60s
-    _cpu_stat(); _disk_io(); _net_io()
+    # _collect and the warm-up readings fork out to read the machine. This loop
+    # runs forever in the same process as everything else, so on the event loop
+    # it was a stall for every user, once a minute, whether or not anyone had
+    # the monitor open.
+    await asyncio.to_thread(lambda: (_cpu_stat(), _disk_io(), _net_io()))
     await asyncio.sleep(5)
     _last_hourly = [0]
     while True:
         try:
-            _collect()
+            await asyncio.to_thread(_collect)
             # run plant hourly update
             now = int(time.time())
             if now - _last_hourly[0] >= 3600:
-                _plant_hourly()
+                await asyncio.to_thread(_plant_hourly)
                 _last_hourly[0] = now
         except Exception as e:
             print(f"[server-monitor] collect error: {e}")
@@ -510,7 +514,7 @@ def _aggregate(rows, bucket_seconds: int):
 # ── Routes ────────────────────────────────────────────────────────────────────
 
 @router.get("/current")
-async def get_current(session=Depends(get_current_session)):
+def get_current(session=Depends(get_current_session)):
     _ensure_loop()
     with _conn() as c:
         row = c.execute(

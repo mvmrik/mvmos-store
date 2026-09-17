@@ -1,3 +1,5 @@
+import os
+import subprocess
 import asyncio
 import httpx
 import re
@@ -100,7 +102,7 @@ async def proxy(request: Request, session=Depends(get_current_session)):
 
 
 @router.post("/configure-localhost")
-async def configure_localhost(session=Depends(get_current_session)):
+def configure_localhost(session=Depends(get_current_session)):
     import pwd, pathlib
     user = session.get("effective_user", "root")
     try:

@@ -11,7 +11,9 @@
     "End-to-end encrypted key vault — your private key is encrypted in the browser before it ever reaches the server",
     "Keep multiple encrypted Nostr identities per Apps Hub profile and switch between their own cached unlock sessions.",
     "Works identically on the mvmOS desktop and on a public page for any Apps Hub account",
-    "Premium: one-click DeepL translate button under every post, and a translate-before-publishing button in the composer, both using your own DeepL API key"
+    "Premium: one-click DeepL translate button under every post, and a translate-before-publishing button in the composer, both using your own DeepL API key",
+    "Discover recent notes, browse popular posts, and search Nostr profiles by name, npub or NIP-05 address.",
+    "Open Graph link previews and inline image, video and audio embeds, including a preview while composing a post."
   ],
   "integrations": [
     {
