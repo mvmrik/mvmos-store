@@ -27,7 +27,7 @@ import sqlite3
 import sys
 import uuid
 from datetime import date, datetime, timedelta, timezone
-from typing import List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from fastapi import APIRouter, Header, Query
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
@@ -732,25 +732,35 @@ def _shift_back(day: date, period: str, steps: int) -> date:
     return date(total // 12, total % 12 + 1, 1)
 
 
-def _period_keys(start: date, end: date, period: str) -> List[str]:
-    """Every period key in the range, including the ones with no transactions
-    in them. A month in which nothing happened is a fact about the money, and
-    a chart that silently closes the gap tells the opposite story — so the
-    empty columns are generated here rather than inferred from the rows."""
-    keys, seen, cur = [], set(), start
+def _period_keys(start: date, end: date, period: str) -> Dict[str, Tuple[str, str]]:
+    """Every period key in the range, with the first and last day it covers.
+
+    Including the ones with no transactions in them: a month in which nothing
+    happened is a fact about the money, and a chart that silently closes the gap
+    tells the opposite story — so the empty columns are generated here rather
+    than inferred from the rows.
+
+    The bounds travel with each key because the client offers the columns as
+    something to click: asking for one period's detail means asking for its
+    exact days, and only this loop knows them. Deriving them in the browser
+    would mean reimplementing SQLite's week numbering there and disagreeing
+    with it at every year boundary.
+    """
+    out = {}
     fmt = _PERIOD_FMT[period]
     # Stepping a day at a time keeps every key identical to the one SQLite's
     # strftime produces for a transaction on that day, week numbering included.
-    step = timedelta(days=1)
-    guard = 0
+    cur, step, guard = start, timedelta(days=1), 0
     while cur <= end and guard < 20000:
         k = cur.strftime(fmt)
-        if k not in seen:
-            seen.add(k)
-            keys.append(k)
+        iso = cur.isoformat()
+        if k in out:
+            out[k] = (out[k][0], iso)
+        else:
+            out[k] = (iso, iso)
         cur += step
         guard += 1
-    return keys
+    return out
 
 
 @router.get("/stats")
@@ -822,7 +832,8 @@ async def stats(
     def blank():
         return {"income": 0.0, "expense": 0.0, "count": 0}
 
-    periods_map = {k: blank() for k in _period_keys(start, end, period)}
+    period_bounds = _period_keys(start, end, period)
+    periods_map = {k: blank() for k in period_bounds}
     cat_totals = {}
     total = blank()
     for r in rows:
@@ -843,6 +854,8 @@ async def stats(
     result_periods = [
         {
             "period": k,
+            "from": period_bounds.get(k, (start.isoformat(), end.isoformat()))[0],
+            "to": period_bounds.get(k, (start.isoformat(), end.isoformat()))[1],
             "income": money(v["income"]),
             "expense": money(v["expense"]),
             "net": money(v["income"] - v["expense"]),

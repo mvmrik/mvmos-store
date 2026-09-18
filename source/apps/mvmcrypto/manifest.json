@@ -10,10 +10,10 @@
     "wallet",
     "encryption"
   ],
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Encrypted seed phrase vault and Bitcoin portfolio tracker.",
   "entry": "main.js",
-  "min_core_version": "0.44.1-beta",
+  "min_core_version": "1.0.0",
   "public_url": "/pub/mvmcrypto/",
   "public_directory": true
 }

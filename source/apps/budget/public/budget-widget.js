@@ -231,13 +231,43 @@
       .bw-chart-legend{display:flex;gap:14px;margin-bottom:10px;font-size:.75rem}
       .bw-legend-item{display:flex;align-items:center;gap:5px}
       .bw-legend-dot{width:9px;height:9px;border-radius:2px;display:inline-block}
-      .bw-bars{display:flex;align-items:flex-end;gap:10px;height:150px;overflow-x:auto;padding-top:6px}
-      .bw-bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:44px;height:100%;justify-content:flex-end}
+      /* The columns stretch to fill the width and only start scrolling once they
+         would be too narrow to see or to hit with a finger. The old chart scrolled
+         at any width because every column reserved 44px, and its scrollbar sat on
+         top of the labels and hid them; here the bar keeps clear of them and shows
+         up only when scrolling is the only honest option left. */
+      .bw-bars{display:flex;align-items:flex-end;gap:2px;height:150px;padding-top:6px;padding-bottom:8px;
+        overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--pub-surface3, #45475a) transparent;
+        overscroll-behavior-x:contain}
+      .bw-bars::-webkit-scrollbar{height:6px}
+      .bw-bars::-webkit-scrollbar-track{background:transparent}
+      .bw-bars::-webkit-scrollbar-thumb{background:var(--pub-surface3, #45475a);border-radius:3px}
+      .bw-bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1 1 0;min-width:16px;height:100%;justify-content:flex-end;
+        background:none;border:none;padding:0;font:inherit;color:inherit;cursor:pointer;border-radius:5px 5px 0 0}
+      .bw-bar-col:hover{background:rgba(137,180,250,.10)}
+      .bw-bar-col.picked{background:rgba(137,180,250,.18)}
       .bw-bar-pair{display:flex;align-items:flex-end;gap:2px;height:100%;width:100%;justify-content:center}
-      .bw-bar{width:14px;border-radius:3px 3px 0 0;min-height:2px}
+      .bw-bar{flex:1 1 0;max-width:14px;min-width:2px;border-radius:3px 3px 0 0;min-height:2px}
       .bw-bar-income{background:var(--pub-green, #a6e3a1)}
       .bw-bar-expense{background:var(--pub-red, #f38ba8)}
-      .bw-bar-label{font-size:.66rem;color:var(--pub-dim, #6c7086);white-space:nowrap}
+      .bw-bar-label{font-size:.66rem;color:var(--pub-dim, #6c7086);white-space:nowrap;overflow:hidden;max-width:100%}
+      /* The one line that says what the numbers below it are about. It only
+         appears once a column has been picked, because until then they are
+         about the whole range and saying so would be noise. */
+      .bw-focus-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(137,180,250,.12);
+        border:1px solid var(--pub-accent, #89b4fa);border-radius:10px;padding:8px 12px;margin-bottom:14px;font-size:.82rem}
+      .bw-focus-bar b{font-weight:600}
+      .bw-focus-clear{margin-left:auto;background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e);border:none;
+        border-radius:6px;padding:4px 10px;font:inherit;font-size:.76rem;font-weight:600;cursor:pointer}
+      .bw-chart-hint{font-size:.7rem;color:var(--pub-dim, #6c7086);margin-top:8px}
+      .bw-chart-read{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px;padding:7px 10px;
+        border-radius:8px;background:rgba(137,180,250,.12);font-size:.82rem;font-variant-numeric:tabular-nums}
+      /* Dimmed rather than disabled: a disabled button swallows the click and
+         says nothing, which is exactly how this looked broken. It still takes
+         the click and answers it with the note below. */
+      .bw-period-tab.unavailable{opacity:.42}
+      .bw-period-note{margin:0 12px 10px;padding:8px 12px;border-radius:8px;font-size:.78rem;
+        background:rgba(249,226,175,.12);border:1px solid var(--pub-yellow, #f9e2af);color:var(--pub-fg, #cdd6f4)}
       .bw-toolbar-label{font-size:.68rem;color:var(--pub-fg2, #a6adc8);text-transform:uppercase;letter-spacing:.4px}
       .bw-stats-filters{display:flex;gap:10px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--pub-surface2, #313244);flex-shrink:0}
       .bw-filter{display:flex;flex-direction:column;gap:3px;font-size:.68rem;color:var(--pub-fg2, #a6adc8);min-width:0}
@@ -290,6 +320,9 @@
         .bw-toolbar .bw-btn-icon{font-size:1.1rem;padding:7px 9px}
         .bw-dialog{max-width:100%}
         .bw-stats-toolbar h2{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        /* A fingertip is about 9mm, so a column that is meant to be tapped cannot
+           be as narrow as one that is only meant to be looked at. */
+        .bw-bar-col{min-width:24px}
         .bw-period-tabs{flex:1 1 100%}
         .bw-period-tab{flex:1;text-align:center;padding:6px 4px}
         .bw-filter{flex:1 1 calc(50% - 5px)}
@@ -436,8 +469,15 @@
       return i < STAT_COLORS.length ? STAT_COLORS[i] : `hsl(${(i * 47) % 360} 55% 68%)`;
     }
 
-    let statsPeriod = 'month';
-    let statsPreset = '6m';
+    // The month that is still being spent is the one worth opening on, and a
+    // month is short enough that the daily grouping is available from the start
+    // rather than being coarsened away before it can be picked.
+    let statsPeriod = 'day';
+    let statsPreset = 'this_month';
+    // The one column the numbers underneath are about, or null for the whole
+    // range. Grouping alone never answered "show me this week" — it only chose
+    // how wide the bars are — so the column itself is what gets picked.
+    let statsFocus = null;   // { period, from, to }
     let statsCategory = 'all';
     let statsFrom = '';
     let statsTo = '';
@@ -457,6 +497,22 @@
       if (preset === 'this_year') return [_isoDay(new Date(y, 0, 1)), _isoDay(now)];
       const months = preset === '3m' ? 3 : preset === '12m' ? 12 : 6;
       return [_isoDay(new Date(y, m - months + 1, 1)), _isoDay(now)];
+    }
+
+    // Mirrors the ceilings the server coarsens at. Without this the tab simply
+    // sprang back to the coarser one and nothing said why; now it is visibly
+    // unavailable, with the reason on hover.
+    const PERIOD_MAX_DAYS = { day: 120, week: 900 };
+
+    function _rangeDays() {
+      const a = new Date(statsFrom), b = new Date(statsTo);
+      if (isNaN(a) || isNaN(b)) return 0;
+      return Math.abs(Math.round((b - a) / 86400000));
+    }
+
+    function _periodAllowed(p) {
+      const max = PERIOD_MAX_DAYS[p];
+      return max === undefined || _rangeDays() <= max;
     }
 
     function _periodLabel(p, period) {
@@ -499,7 +555,10 @@
           <span class="bw-toolbar-label">${esc(t('stats_grouping'))}</span>
           <div class="bw-period-tabs" id="bw-period-tabs">
             ${['day', 'week', 'month', 'year'].map(p =>
-              `<button class="bw-period-tab${statsPeriod === p ? ' active' : ''}" data-p="${p}">${esc(t('stats_period_' + p))}</button>`
+              `<button class="bw-period-tab${statsPeriod === p ? ' active' : ''}${
+                _periodAllowed(p) ? '' : ' unavailable'}" data-p="${p}"${
+                _periodAllowed(p) ? '' : ` title="${esc(_tooLongNote(p))}"`
+              }>${esc(t('stats_period_' + p))}</button>`
             ).join('')}
           </div>
         </div>
@@ -515,28 +574,41 @@
           <label class="bw-filter"><span>${esc(t('stats_to'))}</span>
             <input type="date" id="bw-stats-to" value="${esc(statsTo)}"></label>
         </div>
+        <div class="bw-period-note" id="bw-period-note" style="display:none"></div>
         <div class="bw-stats-body" id="bw-stats-body"><div class="bw-empty">…</div></div>`;
 
       statsViewEl.querySelectorAll('.bw-period-tab').forEach(btn => {
         btn.onclick = () => {
+          // A grouping the range is too long for cannot simply be applied: the
+          // server would coarsen it back and the tab would appear to ignore the
+          // click. It says what to change instead.
+          if (!_periodAllowed(btn.dataset.p)) { _showPeriodNote(_tooLongNote(btn.dataset.p)); return; }
           statsPeriod = btn.dataset.p;
+          statsFocus = null;   // its key belongs to the old grouping
+          _showPeriodNote('');
           _markPeriodTab();
           loadStats();
         };
       });
       statsViewEl.querySelector('#bw-stats-cat').onchange = e => {
-        statsCategory = e.target.value; loadStats();
+        statsCategory = e.target.value; statsFocus = null; loadStats();
       };
       const presetEl = statsViewEl.querySelector('#bw-stats-preset');
       const fromEl = statsViewEl.querySelector('#bw-stats-from');
       const toEl = statsViewEl.querySelector('#bw-stats-to');
       presetEl.onchange = () => {
         statsPreset = presetEl.value;
+        statsFocus = null;
         if (statsPreset !== 'custom') {
           const r = _presetRange(statsPreset);
           statsFrom = fromEl.value = r[0];
           statsTo = toEl.value = r[1];
         }
+        // A shorter range can make a finer grouping possible again, and a longer
+        // one can take the current grouping away; the tabs say so before the
+        // answer comes back.
+        if (!_periodAllowed(statsPeriod)) statsPeriod = statsPeriod === 'day' ? 'week' : 'month';
+        _markPeriodTab();
         loadStats();
       };
       // Typing a date is the same statement as picking a preset, so the preset
@@ -546,6 +618,9 @@
           if (!fromEl.value || !toEl.value) return;
           statsFrom = fromEl.value; statsTo = toEl.value;
           statsPreset = presetEl.value = 'custom';
+          statsFocus = null;
+          if (!_periodAllowed(statsPeriod)) statsPeriod = statsPeriod === 'day' ? 'week' : 'month';
+          _markPeriodTab();
           loadStats();
         };
       });
@@ -553,8 +628,24 @@
     }
 
     function _markPeriodTab() {
-      statsViewEl.querySelectorAll('.bw-period-tab').forEach(b =>
-        b.classList.toggle('active', b.dataset.p === statsPeriod));
+      statsViewEl.querySelectorAll('.bw-period-tab').forEach(b => {
+        b.classList.toggle('active', b.dataset.p === statsPeriod);
+        const ok = _periodAllowed(b.dataset.p);
+        b.classList.toggle('unavailable', !ok);
+        b.title = ok ? '' : _tooLongNote(b.dataset.p);
+      });
+      if (_periodAllowed(statsPeriod)) _showPeriodNote('');
+    }
+
+    function _tooLongNote(p) {
+      return t('stats_period_too_long').replace('{n}', PERIOD_MAX_DAYS[p] || '');
+    }
+
+    function _showPeriodNote(text) {
+      const el = statsViewEl.querySelector('#bw-period-note');
+      if (!el) return;
+      el.textContent = text;
+      el.style.display = text ? '' : 'none';
     }
 
     function _flowChart(periods) {
@@ -567,21 +658,38 @@
         const expH = Math.round((p.expense / maxVal) * 130);
         const label = _periodLabel(p.period, statsPeriod);
         const tip = `${label} · ${t('stats_income')} ${fmtMoney(p.income)} · ${t('stats_expense')} ${fmtMoney(p.expense)}`;
-        return `<div class="bw-bar-col" title="${esc(tip)}">
+        const picked = statsFocus && statsFocus.period === p.period;
+        return `<button type="button" class="bw-bar-col${picked ? ' picked' : ''}" title="${esc(tip)}"
+          data-period="${esc(p.period)}" data-from="${esc(p.from || '')}" data-to="${esc(p.to || '')}">
           <div class="bw-bar-pair">
             <div class="bw-bar bw-bar-income" style="height:${incH}px"></div>
             <div class="bw-bar bw-bar-expense" style="height:${expH}px"></div>
           </div>
           <div class="bw-bar-label">${i % every === 0 ? esc(label) : ''}</div>
-        </div>`;
+        </button>`;
       }).join('');
+      // A column's own numbers, under the column rather than in a tooltip: a
+      // tooltip needs a mouse to hover with, so on a phone the chart was shapes
+      // and nothing else. Picking a column is the gesture both a finger and a
+      // pointer have, and this line answers it right where it happened.
+      const picked = statsFocus && periods.find(p => p.period === statsFocus.period);
+      const readout = picked
+        ? `<div class="bw-chart-read">
+             <b>${esc(_periodLabel(picked.period, statsPeriod))}</b>
+             <span class="bw-tx-pos">+${fmtMoney(picked.income)}</span>
+             <span class="bw-tx-neg">-${fmtMoney(picked.expense)}</span>
+             <span class="${picked.net >= 0 ? 'bw-tx-pos' : 'bw-tx-neg'}">${
+               picked.net >= 0 ? '+' : ''}${fmtMoney(picked.net)}</span>
+           </div>`
+        : `<div class="bw-chart-hint">${esc(t('stats_click_hint'))}</div>`;
       return `<div class="bw-chart-wrap">
         <div class="bw-chart-title">${esc(t('stats_chart_flow'))}</div>
         <div class="bw-chart-legend">
           <span class="bw-legend-item"><span class="bw-legend-dot" style="background:#a6e3a1"></span>${esc(t('stats_income'))}</span>
           <span class="bw-legend-item"><span class="bw-legend-dot" style="background:#f38ba8"></span>${esc(t('stats_expense'))}</span>
         </div>
-        <div class="bw-bars">${bars}</div>
+        <div class="bw-bars" id="bw-flow-bars">${bars}</div>
+        ${readout}
       </div>`;
     }
 
@@ -690,12 +798,30 @@
         _markPeriodTab();
       }
 
-      const tot = data.totals || { income: 0, expense: 0, net: 0, count: 0 };
-      if (!tot.count) { bodyEl.innerHTML = `<div class="bw-empty">${esc(t('no_stats'))}</div>`; return; }
+      const fullTot = data.totals || { income: 0, expense: 0, net: 0, count: 0 };
+      if (!fullTot.count) { bodyEl.innerHTML = `<div class="bw-empty">${esc(t('no_stats'))}</div>`; return; }
 
       const periods = data.periods || [];
-      const byCat = data.by_category || [];
-      const avg = periods.length ? tot.net / periods.length : 0;
+
+      // The two charts always draw the whole range — that is what they are for.
+      // Everything under them describes one thing at a time: the range, or the
+      // single column that was picked out of it. A picked column is fetched on
+      // its own rather than sliced here, because only the server can split the
+      // categories and the largest entries by date.
+      let view = data;
+      if (statsFocus) {
+        const fq = `?period=day&from=${encodeURIComponent(statsFocus.from)}` +
+                   `&to=${encodeURIComponent(statsFocus.to)}&category=${encodeURIComponent(statsCategory)}`;
+        let detail = null;
+        try { detail = await api('/stats' + fq); } catch (e) { detail = null; }
+        if (seq !== statsSeq) return;
+        if (detail) view = detail;
+        else statsFocus = null;   // the range moved under it; fall back to everything
+      }
+
+      const tot = view.totals || { income: 0, expense: 0, net: 0, count: 0 };
+      const byCat = view.by_category || [];
+      const avg = periods.length ? fullTot.net / periods.length : 0;
       const maxCat = Math.max(1, ...byCat.map(c => c.income + c.expense));
 
       const cards = `<div class="bw-stat-cards">
@@ -706,7 +832,8 @@
         <div class="bw-stat-card"><span>${esc(t('stats_net'))}</span>
           <b class="${tot.net >= 0 ? 'bw-tx-pos' : 'bw-tx-neg'}">${tot.net >= 0 ? '+' : ''}${fmtMoney(tot.net)}</b></div>
         <div class="bw-stat-card"><span>${esc(t('stats_entries'))}</span><b>${tot.count}</b>
-          <small>${esc(t('stats_avg_period'))}: ${avg >= 0 ? '+' : ''}${fmtMoney(avg)}</small></div>
+          ${statsFocus ? '' :
+            `<small>${esc(t('stats_avg_period'))}: ${avg >= 0 ? '+' : ''}${fmtMoney(avg)}</small>`}</div>
       </div>`;
 
       const catRows = byCat.map((c, i) => `<div class="bw-cat-stat">
@@ -727,7 +854,7 @@
         </div>
       </div>`).join('');
 
-      const topRows = (data.top || []).map(r => `<div class="bw-top-row">
+      const topRows = (view.top || []).map(r => `<div class="bw-top-row">
         <span class="bw-top-main">
           <span class="bw-top-cat">${esc(r.category)}${r.note ? ' — ' + esc(r.note) : ''}</span>
           <span class="bw-top-when">${esc(_htxDate(r.created_at))}</span>
@@ -735,9 +862,38 @@
         <span class="${r.amount >= 0 ? 'bw-tx-pos' : 'bw-tx-neg'}">${r.amount >= 0 ? '+' : ''}${fmtMoney(r.amount)}</span>
       </div>`).join('');
 
-      bodyEl.innerHTML = cards + _flowChart(periods) + _shareChart(byCat) + _balanceChart(periods) +
-        `<div class="bw-section-label">${esc(t('stats_by_category'))}</div>${catRows}` +
+      const focusBar = statsFocus ? `<div class="bw-focus-bar">
+        <span>${esc(t('stats_focus_on'))} <b>${esc(_periodLabel(statsFocus.period, statsPeriod))}</b></span>
+        <button type="button" class="bw-focus-clear" id="bw-focus-clear">${esc(t('stats_focus_clear'))}</button>
+      </div>` : '';
+      const emptyFocus = statsFocus && !tot.count
+        ? `<div class="bw-empty">${esc(t('stats_focus_empty'))}</div>` : '';
+
+      // Where the chart was scrolled to survives the redraw. On a phone the
+      // column being tapped is often far to the right, and snapping back to the
+      // first day of the range loses the very column that was just picked.
+      const keepScroll = (bodyEl.querySelector('#bw-flow-bars') || {}).scrollLeft || 0;
+
+      bodyEl.innerHTML = focusBar + cards + emptyFocus +
+        _flowChart(periods) + _shareChart(byCat) + _balanceChart(periods) +
+        (catRows ? `<div class="bw-section-label">${esc(t('stats_by_category'))}</div>${catRows}` : '') +
         (topRows ? `<div class="bw-section-label">${esc(t('stats_top'))}</div>${topRows}` : '');
+
+      const barsEl = bodyEl.querySelector('#bw-flow-bars');
+      if (barsEl && keepScroll) barsEl.scrollLeft = keepScroll;
+
+      const clearEl = bodyEl.querySelector('#bw-focus-clear');
+      if (clearEl) clearEl.onclick = () => { statsFocus = null; loadStats(); };
+      bodyEl.querySelectorAll('.bw-bar-col').forEach(col => {
+        col.onclick = () => {
+          const key = col.dataset.period;
+          // Clicking the column that is already picked lets go of it, so the way
+          // back to the whole range is the same gesture as the way in.
+          statsFocus = (statsFocus && statsFocus.period === key)
+            ? null : { period: key, from: col.dataset.from, to: col.dataset.to };
+          loadStats();
+        };
+      });
     }
 
     async function api(path, o) {

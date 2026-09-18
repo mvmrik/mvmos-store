@@ -5,83 +5,85 @@
       "name": "FindYourself",
       "icon": "🌍",
       "category": "Games",
-      "version": "1.14.0",
+      "version": "1.14.1",
       "description": "Drop into a random Street View location anywhere in the world and guess where you are on the map. Requires a Google Maps API key.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/findyourself-1.14.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/findyourself-1.14.1.zip",
       "tags": [
         "multiplayer",
         "geography",
         "quiz"
-      ]
+      ],
+      "min_core_version": "1.0.0"
     },
     {
       "id": "sudofall",
       "name": "Sudofall",
       "icon": "🔢",
       "category": "Games",
-      "version": "1.14.0",
+      "version": "1.14.1",
       "description": "A mix between Tetris and Sudoku — drop numbers into the grid, clear rows and 3x3 boxes to score points.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/sudofall-1.14.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/sudofall-1.14.1.zip",
       "tags": [
         "puzzle",
         "numbers",
         "games"
-      ]
+      ],
+      "min_core_version": "1.0.0"
     },
     {
       "id": "gamehub",
       "name": "Game Hub",
       "icon": "🎮",
       "category": "Games",
-      "version": "1.15.3",
+      "version": "1.15.4",
       "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.15.3.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.15.4.zip",
       "tags": [
         "multiplayer",
         "social",
         "games"
       ],
-      "min_core_version": "0.33.0"
+      "min_core_version": "1.0.0"
     },
     {
       "id": "stonehold",
       "name": "Stonehold",
       "icon": "🗿",
       "category": "Games",
-      "version": "1.4.0",
+      "version": "1.4.1",
       "description": "A map, four enemy camps in the corners and no hold yet: choose where to settle, build, and survive as long as you can while all four keep growing — alone, or racing up to three other holds in the same room.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/stonehold-1.4.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/stonehold-1.4.1.zip",
       "tags": [
         "strategy",
         "base building",
         "tower defense",
         "games"
       ],
-      "min_core_version": "0.37.0"
+      "min_core_version": "1.0.0"
     },
     {
       "id": "towerdefense",
       "name": "Tower Defense",
       "icon": "🏰",
       "category": "Games",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "Defend the tower in the middle. Waves close in from every side and the tower fires back — hold out as long as you can.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/towerdefense-1.0.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/towerdefense-1.0.1.zip",
       "tags": [
         "tower defense",
         "strategy",
         "games"
       ],
-      "min_core_version": "0.37.0"
+      "min_core_version": "1.0.0"
     },
     {
       "id": "livingtown",
       "name": "Living Town",
       "icon": "🏘️",
       "category": "Games",
-      "version": "0.6.0",
+      "version": "0.6.1",
       "description": "Zone land, draw roads and build public services for a town that grows itself — every resident is a persistent person with a home, a job and a life of their own.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/livingtown-0.6.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/livingtown-0.6.1.zip",
       "tags": [
         "simulation",
         "city building",
@@ -89,23 +91,23 @@
         "people",
         "games"
       ],
-      "min_core_version": "0.37.0"
+      "min_core_version": "1.0.0"
     },
     {
       "id": "scorearena",
       "name": "Score Arena",
       "icon": "🎯",
       "category": "Games",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "description": "A shared darts scorekeeper with eight game modes, detailed personal statistics and a history-matched Ghost for solo practice.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/scorearena-1.1.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/scorearena-1.1.1.zip",
       "tags": [
         "darts",
         "scorekeeper",
         "board games",
         "games"
       ],
-      "min_core_version": "0.37.0"
+      "min_core_version": "1.0.0"
     }
   ]
 }

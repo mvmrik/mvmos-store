@@ -8,7 +8,8 @@
     "monitoring",
     "system"
   ],
-  "version": "1.3.2",
+  "version": "1.3.3",
+  "min_core_version": "1.0.0",
   "description": "Real-time server metrics with history. Tracks CPU, RAM, disk, network every minute.",
   "entry": "main.js"
 }

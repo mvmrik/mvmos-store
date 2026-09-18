@@ -50,10 +50,29 @@ for dir in "$SRC/apps/$APP_ID"/*/; do
     [ -d "$dir" ] && cp -r "$dir" "$TMP/"
 done
 
+# Runtime content of this installation never ships. Anything users uploaded
+# lives under an *upload* directory, and the copy above takes it along with the
+# rest of public/ — shoppinglist-1.2.2 went out with photos in it because this
+# was a manual step afterwards. The directories themselves stay, empty, so an
+# install still gets the folder the app writes into.
+find "$TMP" -depth -type d -iname '*upload*' -exec sh -c 'find "$1" -mindepth 1 -delete' _ {} \;
+find "$TMP" -depth -type d -name '__pycache__' -exec rm -rf {} +
+find "$TMP" -type f \( -name '*.py[cod]' -o -name '*.bak' -o -name '*.bak-*' \) -delete
+
 cd "$TMP"
 zip -r "$OUT" .
 cd /
 rm -rf "$TMP"
+
+# Last line of defence: whatever the steps above missed, a package carrying
+# uploads, databases, compiled Python, backups or premium code is not published.
+BAD=$(unzip -Z1 "$OUT" | grep -iE '(^|/)[^/]*upload[^/]*/.+|\.(db|sqlite|sqlite3)(-.*)?$|__pycache__|\.py[cod]$|\.bak(-.*)?$|(^|/)premium/|(^|/)(store|premium)\.json$')
+if [ -n "$BAD" ]; then
+    rm -f "$OUT"
+    echo "Refusing to publish $OUT — it contains files that must never ship:"
+    echo "$BAD"
+    exit 1
+fi
 
 echo "Created: $OUT"
 unzip -l "$OUT"

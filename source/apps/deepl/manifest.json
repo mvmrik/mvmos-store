@@ -8,8 +8,8 @@
     "language",
     "deepl"
   ],
-  "version": "1.0.0",
-  "min_core_version": "0.44.1-beta",
+  "version": "1.0.1",
+  "min_core_version": "1.0.0",
   "description": "Translate text with your own DeepL API key and keep a history of your translations.",
   "entry": "main.js",
   "public_url": "/pub/deepl/",

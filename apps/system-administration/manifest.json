@@ -5,70 +5,75 @@
       "name": "Server Manager",
       "icon": "🖧",
       "category": "System & Administration",
-      "version": "1.6.1",
+      "version": "1.6.2",
       "description": "Monitor and control system services — start, stop, restart, and check status of web servers, databases, and more. Configure PHP, MySQL, Nginx, SSH and UFW firewall settings directly from the UI.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/server-manager-1.6.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/server-manager-1.6.2.zip",
       "tags": [
         "server",
         "system",
         "administration"
-      ]
+      ],
+      "min_core_version": "1.0.0"
     },
     {
       "id": "process-manager",
       "name": "Process Manager",
       "icon": "📊",
       "category": "System & Administration",
-      "version": "1.3.1",
+      "version": "1.3.2",
       "description": "Monitor CPU, memory and disk usage. View and manage running processes.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/process-manager-1.3.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/process-manager-1.3.2.zip",
       "tags": [
         "system",
         "processes",
         "monitoring"
-      ]
+      ],
+      "min_core_version": "1.0.0"
     },
     {
       "id": "system-info",
       "name": "System Info",
       "icon": "🖥️",
       "category": "System & Administration",
-      "version": "1.2.1",
+      "version": "1.2.2",
       "description": "Detailed hardware and system information — CPU, memory, disks, network interfaces, temperatures, uptime and more.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/system-info-1.2.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/system-info-1.2.2.zip",
       "tags": [
         "system",
         "diagnostics",
         "monitoring"
-      ]
+      ],
+      "min_core_version": "1.0.0"
     },
     {
       "id": "server-monitor",
       "name": "Server Monitor",
       "icon": "🌡️",
       "category": "System & Administration",
-      "version": "1.3.2",
+      "version": "1.3.3",
       "description": "Real-time server metrics with history. Tracks CPU, RAM, disk, network every minute.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/server-monitor-1.3.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/server-monitor-1.3.3.zip",
       "tags": [
         "server",
         "monitoring",
         "system"
-      ]
+      ],
+      "min_core_version": "1.0.0"
     },
     {
       "id": "statetracker",
       "name": "State Tracker",
       "icon": "📡",
       "category": "System & Administration",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "description": "Track state changes of anything over time — ping, HTTP checks, API values, or manual push.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/statetracker-1.1.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/statetracker-1.1.3.zip",
       "tags": [
         "tracking",
         "habits",
         "wellbeing"
-      ]
+      ],
+      "min_core_version": "1.0.0"
     }
   ]
 }

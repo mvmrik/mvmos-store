@@ -8,8 +8,8 @@
     "assistant",
     "developer"
   ],
-  "version": "0.8.2",
-  "min_core_version": "0.44.1-beta",
+  "version": "0.8.3",
+  "min_core_version": "1.0.0",
   "description": "AI chat assistant with shell access. Talk to any OpenAI-compatible provider (Gemini, OpenAI, Groq, OpenRouter, Qwen, DeepSeek, Mistral, Ollama, custom). The assistant can run commands on the server on your behalf, with configurable confirmation and safety levels.",
   "entry": "main.js",
   "css": "style.css",

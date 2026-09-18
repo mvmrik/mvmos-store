@@ -5,61 +5,61 @@
       "name": "Calendar",
       "icon": "📅",
       "category": "Productivity",
-      "version": "1.2.3",
+      "version": "1.2.4",
       "description": "Calendar with events and reminders, a public web page for Apps Hub accounts, and a Telegram mini-app.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/calendar-1.2.3.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/calendar-1.2.4.zip",
       "tags": [
         "calendar",
         "planning",
         "events"
       ],
-      "min_core_version": "0.44.1-beta"
+      "min_core_version": "1.0.0"
     },
     {
       "id": "tasks",
       "name": "Tasks",
       "icon": "✅",
       "category": "Productivity",
-      "version": "1.4.3",
+      "version": "1.4.4",
       "description": "Persistent, one-time and periodic tasks with multiple categories per task and optional Budget rewards/penalties on completion, plus a public web page.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/tasks-1.4.3.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/tasks-1.4.4.zip",
       "tags": [
         "tasks",
         "planning",
         "to-do"
       ],
-      "min_core_version": "0.44.1-beta"
+      "min_core_version": "1.0.0"
     },
     {
       "id": "shoppinglist",
       "name": "Shopping List",
       "icon": "🛒",
       "category": "Productivity",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "description": "Shared shopping lists that update live on every device, with warranty tracking and optional Budget category deduction when items are marked bought, plus a public web page.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/shoppinglist-1.2.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/shoppinglist-1.2.3.zip",
       "tags": [
         "shopping",
         "groceries",
         "planning"
       ],
-      "min_core_version": "0.44.1-beta"
+      "min_core_version": "1.0.0"
     },
     {
       "id": "mvmcloud",
       "name": "mvmCloud",
       "icon": "☁️",
       "category": "Productivity",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "description": "A private folder for every Apps Hub profile, with browser file management and administrator-controlled external folder API access.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/mvmcloud-1.0.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/mvmcloud-1.0.3.zip",
       "tags": [
         "files",
         "cloud",
         "storage",
         "encrypted"
       ],
-      "min_core_version": "0.31.0-beta"
+      "min_core_version": "1.0.0"
     }
   ]
 }

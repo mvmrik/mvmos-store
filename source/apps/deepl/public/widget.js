@@ -94,11 +94,25 @@
           '.dpl-hist h2{font-size:13px;opacity:.7;margin:0 0 8px;display:flex;justify-content:space-between}' +
           '.dpl-hist-item{padding:8px;border-radius:6px;background:var(--pub-surface2,#313244);margin-bottom:6px;font-size:13px}' +
           '.dpl-hist-meta{opacity:.6;font-size:11px;margin-bottom:4px}' +
-          '.dpl-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000}' +
-          '.dpl-modal{background:var(--pub-surface1,var(--pub-bg,#1e1e2e));color:inherit;border-radius:10px;padding:20px;width:min(420px,90vw)}' +
-          '.dpl-modal h3{margin-top:0}' +
-          '.dpl-modal input{width:100%;padding:8px;border-radius:6px;border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);color:inherit;margin:8px 0}' +
-          '.dpl-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}' +
+          // The dialog hangs off document.body, not off .dpl-wrap, so it inherits
+          // the page's colour and font rather than the widget's. In the light
+          // theme that happened to look right; in the dark one it meant black
+          // serif text on a dark card. It therefore states both itself, with the
+          // same var-and-fallback pair the widget uses everywhere else — the dark
+          // theme deliberately defines no --pub-* variables and lives on these
+          // fallbacks, so hardcoding either colour alone would break one theme.
+          '.dpl-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000;' +
+            'font-family:system-ui,sans-serif;color:var(--pub-fg,#e8e8ec)}' +
+          '.dpl-modal-bg *{box-sizing:border-box;font-family:inherit}' +
+          '.dpl-modal{background:var(--pub-surface1,var(--pub-bg,#1e1e2e));color:inherit;border-radius:10px;padding:20px;width:min(420px,90vw);' +
+            'border:1px solid var(--pub-border,#45475a);box-shadow:0 18px 50px rgba(0,0,0,.45)}' +
+          '.dpl-modal h3{margin:0 0 12px;font-size:16px}' +
+          '.dpl-modal p{margin:0 0 10px}' +
+          '.dpl-modal input{width:100%;padding:9px 10px;border-radius:6px;border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);color:inherit;margin:10px 0 6px;font:inherit;font-size:14px}' +
+          '.dpl-modal input:focus{outline:none;border-color:var(--pub-accent,#2563eb)}' +
+          '.dpl-modal input::placeholder{color:inherit;opacity:.5}' +
+          '.dpl-modal a.dpl-link-btn{display:inline-block;opacity:1;color:var(--pub-accent,#2563eb);font-size:13px}' +
+          '.dpl-modal-actions{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:16px;flex-wrap:wrap}' +
           '.dpl-hint{font-size:12px;opacity:.65}' +
         '</style>' +
         '<div class="dpl-head"><h1>' + esc(t('deepl_title')) + '</h1>' +

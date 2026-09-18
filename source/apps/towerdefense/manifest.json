@@ -8,8 +8,8 @@
     "strategy",
     "games"
   ],
-  "version": "1.0.0",
-  "min_core_version": "0.37.0",
+  "version": "1.0.1",
+  "min_core_version": "1.0.0",
   "description": "Defend the tower in the middle. Waves close in from every side and the tower fires back — hold out as long as you can.",
   "entry": "main.js",
   "multiplayer": false,

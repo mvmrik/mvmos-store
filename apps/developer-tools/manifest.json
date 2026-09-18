@@ -5,44 +5,45 @@
       "name": "YourSQL",
       "icon": "🗄️",
       "category": "Developer Tools",
-      "version": "2.2.2",
+      "version": "2.2.3",
       "description": "MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL and Greenplum database manager — browse databases, edit data, run queries, import and export.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/developer-tools/yoursql-2.2.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/developer-tools/yoursql-2.2.3.zip",
       "tags": [
         "database",
         "sql",
         "developer"
       ],
-      "min_core_version": "0.7.4"
+      "min_core_version": "1.0.0"
     },
     {
       "id": "git-manager",
       "name": "Git Manager",
       "icon": "🔀",
       "category": "Developer Tools",
-      "version": "1.4.2",
+      "version": "1.5.0",
       "description": "Manage git repositories — auto-detect, pull, push, commit. SSH key setup included.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/developer-tools/git-manager-1.4.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/developer-tools/git-manager-1.5.0.zip",
       "tags": [
         "developer",
         "git",
         "source-control"
       ],
-      "min_core_version": "0.9.16"
+      "min_core_version": "1.0.0"
     },
     {
       "id": "mvmsitebuilder",
       "name": "mvmSiteBuilder",
       "icon": "🧱",
       "category": "Developer Tools",
-      "version": "1.3.1",
+      "version": "1.3.2",
       "description": "Build your own website: pages, menu, themes, custom CSS/JS.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/developer-tools/mvmsitebuilder-1.3.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/developer-tools/mvmsitebuilder-1.3.2.zip",
       "tags": [
         "website",
         "no-code",
         "design"
-      ]
+      ],
+      "min_core_version": "1.0.0"
     }
   ]
 }

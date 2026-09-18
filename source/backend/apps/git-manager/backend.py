@@ -1,11 +1,27 @@
-import sys, os, re, subprocess, pwd
-from fastapi import APIRouter, Depends, HTTPException, Request
+import sys, os, re, subprocess, pwd, sqlite3
+from concurrent.futures import ThreadPoolExecutor
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 get_current_session = sys.modules["backend.auth"].get_current_session
 
 router = APIRouter(prefix="/api/apps/git-manager", tags=["git-manager"])
+
+_DB_PATH = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps", "git-manager", "data.db"))
+
+
+def _db():
+    conn = sqlite3.connect(_DB_PATH)
+    conn.execute("CREATE TABLE IF NOT EXISTS repo_favorites (system_user TEXT NOT NULL, path TEXT NOT NULL, "
+                 "PRIMARY KEY (system_user, path))")
+    conn.execute("CREATE TABLE IF NOT EXISTS repo_cache (system_user TEXT NOT NULL, path TEXT NOT NULL, "
+                 "PRIMARY KEY (system_user, path))")
+    try:
+        os.chmod(_DB_PATH, 0o600)
+    except OSError:
+        pass
+    return conn
 
 
 def _home(user):
@@ -166,23 +182,39 @@ def _default_branch(session, path):
     return ''
 
 
-def _activate_issue_branch(session, path, branch):
-    """Explicit 'Create branch' action for an issue: switches to it if it already
-    exists locally, downloads+tracks it if it only exists on origin, otherwise
-    creates a brand new local branch. Only ever called from a user click."""
+def _activate_issue_branch(session, path, branch, mode='', base='', source='remote'):
+    """Explicit 'Create branch' action for an issue. The window asks what to do
+    first and sends it as mode, so the branch a user sees described in the
+    dialog is the branch they get:
+      switch   -> the branch exists locally, only check it out
+      pull     -> check it out and fast-forward it from origin
+      download -> it exists only on origin, create a local tracking branch
+      create   -> it exists nowhere, start it from base/source
+    An empty mode keeps the original behaviour of deciding automatically."""
     state = _issue_branch_state(session, path, branch)
     if state['fetch_error']:
         raise HTTPException(502, state['fetch_error'])
     if state['dirty'] and state['current'] != branch:
         raise HTTPException(409, 'Commit or discard your changes before switching branches')
 
+    # The repository can change between opening the dialog and confirming it.
+    if mode in ('switch', 'pull') and not state['local_exists']:
+        raise HTTPException(409, f'Branch "{branch}" no longer exists locally')
+    if mode == 'download' and not state['remote_exists']:
+        raise HTTPException(409, f'Branch "{branch}" is not on origin')
+    if mode == 'create' and (state['local_exists'] or state['remote_exists']):
+        raise HTTPException(409, f'Branch "{branch}" already exists')
+
+    base_label = ''
     if state['current'] != branch:
         if state['local_exists']:
             args = ['checkout', branch]
         elif state['remote_exists']:
             args = ['checkout', '-b', branch, '--track', f'origin/{branch}']
         else:
-            args = ['checkout', '-b', branch]
+            start_point, base_label = _branch_start_point(session, path, base, source)
+            # --no-track: an issue branch started from origin/main must not push into main.
+            args = ['checkout', '--no-track', '-b', branch, start_point]
         result = _git(session, path, args)
         output = (result.stdout + result.stderr).strip()
         if result.returncode != 0:
@@ -190,7 +222,7 @@ def _activate_issue_branch(session, path, branch):
 
     pulled = False
     pull_output = ''
-    if state['remote_exists'] and not state['dirty']:
+    if state['remote_exists'] and not state['dirty'] and mode != 'switch':
         upstream_r = _git(
             session, path,
             ['branch', '--set-upstream-to', f'origin/{branch}', branch],
@@ -210,6 +242,7 @@ def _activate_issue_branch(session, path, branch):
         'downloaded': not state['local_exists'] and state['remote_exists'],
         'pulled': pulled,
         'local_only': not state['remote_exists'],
+        'base': base_label,
         'output': pull_output,
     }
 
@@ -296,17 +329,13 @@ def _download_issue_branch(session, path, branch):
 
 # ── Repos ──────────────────────────────────────────────────────────────────────
 
-@router.get("/repos")
-def list_repos(session=Depends(get_current_session)):
-    _require_git()
-    user = session["effective_user"]
-    home = _home(user)
-    scan_dirs = ['/var/www', '/opt', '/home', home]
-    access = _foreign_access(session)
-
+def _scan_repo_paths(user):
+    """Walks the usual project roots for .git folders. This is the slow part of
+    listing repositories, so the result is cached per system user and only
+    refreshed when every repository is requested."""
     seen = set()
     paths = []
-    for base in scan_dirs:
+    for base in ['/var/www', '/opt', '/home', _home(user)]:
         if not os.path.isdir(base):
             continue
         try:
@@ -322,49 +351,96 @@ def list_repos(session=Depends(get_current_session)):
                     paths.append(p)
         except Exception:
             pass
+    return paths
 
+
+def _repo_entry(path, user, access, detailed):
+    owner = _repo_owner(path)
+    if not owner:
+        return None
+    entry = {'path': path, 'name': os.path.basename(path), 'branch': '', 'changes': 0,
+             'remote': '', 'owner': owner, 'locked': owner != user and not access['unlocked'],
+             'detailed': False}
+    if entry['locked'] or not detailed:
+        return entry
+    entry['detailed'] = True
+    try:
+        # One status call gives both the branch header and the changed files.
+        status_r = _run_git(owner, path, ['status', '--porcelain', '-b'], timeout=5)
+        if status_r.returncode == 0:
+            lines = [l for l in status_r.stdout.splitlines() if l.strip()]
+            header = lines[0][3:] if lines and lines[0].startswith('## ') else ''
+            if header.startswith('No commits yet on '):
+                entry['branch'] = header[len('No commits yet on '):]
+            elif header.startswith('HEAD (no branch)'):
+                entry['branch'] = 'HEAD'
+            else:
+                entry['branch'] = header.split('...', 1)[0] or '?'
+            entry['changes'] = len(lines) - (1 if header else 0)
+        else:
+            entry['branch'] = '?'
+        remote_r = _run_git(owner, path, ['remote', 'get-url', 'origin'], timeout=5)
+        entry['remote'] = remote_r.stdout.strip() if remote_r.returncode == 0 else ''
+    except Exception:
+        entry['branch'] = '?'
+    return entry
+
+
+@router.get("/repos")
+def list_repos(all: bool = False, scan: bool = False, extra: list[str] = Query(default=[]),
+               session=Depends(get_current_session)):
+    """Lists every known repository, but only reads git state for favorites,
+    the extra paths the window has opened this session, or everything when
+    all=1. The disk scan runs only for scan=1 or when nothing is cached yet."""
+    _require_git()
+    user = session["effective_user"]
+    access = _foreign_access(session)
+
+    with _db() as conn:
+        favorites = {r[0] for r in conn.execute(
+            "SELECT path FROM repo_favorites WHERE system_user = ?", (user,))}
+        cached = [r[0] for r in conn.execute(
+            "SELECT path FROM repo_cache WHERE system_user = ?", (user,))]
+        if scan or not cached:
+            paths = _scan_repo_paths(user)
+            conn.execute("DELETE FROM repo_cache WHERE system_user = ?", (user,))
+            conn.executemany("INSERT OR IGNORE INTO repo_cache (system_user, path) VALUES (?, ?)",
+                             [(user, p) for p in paths])
+            scanned = True
+        else:
+            paths = [p for p in cached if os.path.isdir(os.path.join(p, '.git'))]
+            scanned = False
+
+    wanted = favorites | set(extra)
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        entries = pool.map(lambda p: _repo_entry(p, user, access, all or p in wanted), paths)
     result = []
-    for path in paths:
-        owner = _repo_owner(path)
-        if not owner:
-            continue
-        locked = owner != user and not access['unlocked']
-        if locked:
-            result.append({
-                'path': path,
-                'name': os.path.basename(path),
-                'branch': '',
-                'changes': 0,
-                'remote': '',
-                'owner': owner,
-                'locked': True,
-            })
-            continue
-        try:
-            branch_r = _run_git(owner, path, ['rev-parse', '--abbrev-ref', 'HEAD'], timeout=5)
-            branch = branch_r.stdout.strip() if branch_r.returncode == 0 else '?'
-
-            status_r = _run_git(owner, path, ['status', '--porcelain'], timeout=5)
-            changes = len([l for l in status_r.stdout.splitlines() if l.strip()]) if status_r.returncode == 0 else 0
-
-            remote_r = _run_git(owner, path, ['remote', 'get-url', 'origin'], timeout=5)
-            remote = remote_r.stdout.strip() if remote_r.returncode == 0 else ''
-
-            result.append({
-                'path': path,
-                'name': os.path.basename(path),
-                'branch': branch,
-                'changes': changes,
-                'remote': remote,
-                'owner': owner,
-                'locked': False,
-            })
-        except Exception:
-            result.append({'path': path, 'name': os.path.basename(path), 'branch': '?', 'changes': 0,
-                           'remote': '', 'owner': owner, 'locked': False})
+    for entry in entries:
+        if entry:
+            entry['favorite'] = entry['path'] in favorites
+            result.append(entry)
 
     return JSONResponse({'repos': sorted(result, key=lambda x: x['name'].lower()),
-                         'current_user': user, 'foreign_access': access})
+                         'current_user': user, 'foreign_access': access, 'scanned': scanned})
+
+
+class FavoriteBody(BaseModel):
+    path: str
+    favorite: bool
+
+
+@router.post("/repos/favorite")
+def set_repo_favorite(body: FavoriteBody, session=Depends(get_current_session)):
+    user = session["effective_user"]
+    path = body.path.strip()
+    if not path:
+        raise HTTPException(400, 'Repository path is required')
+    with _db() as conn:
+        if body.favorite:
+            conn.execute("INSERT OR IGNORE INTO repo_favorites (system_user, path) VALUES (?, ?)", (user, path))
+        else:
+            conn.execute("DELETE FROM repo_favorites WHERE system_user = ? AND path = ?", (user, path))
+    return JSONResponse({'ok': True, 'path': path, 'favorite': body.favorite})
 
 
 class UnlockBody(BaseModel):
@@ -452,24 +528,55 @@ def repo_checkout(body: CheckoutBody, session=Depends(get_current_session)):
 class CreateBranchBody(BaseModel):
     path: str
     name: str
+    base: str = ''
+    source: str = 'remote'
+
+
+def _branch_start_point(session, path, base, source):
+    """Resolves where a new branch starts. The current branch is copied exactly
+    as it is locally. Any other branch starts from its freshest remote state
+    after a fetch, or from the local copy as it is when source is 'local'."""
+    current_r = _git(session, path, ['branch', '--show-current'])
+    if not base or base == current_r.stdout.strip():
+        return 'HEAD', current_r.stdout.strip() or 'HEAD'
+
+    local = _git(session, path, ['show-ref', '--verify', '--quiet', f'refs/heads/{base}']).returncode == 0
+    if source == 'local':
+        if not local:
+            raise HTTPException(400, f'Branch "{base}" does not exist locally')
+        return f'refs/heads/{base}', base
+    _git(session, path, ['fetch', 'origin', base], timeout=60)
+    remote = _git(session, path, ['show-ref', '--verify', '--quiet',
+                                  f'refs/remotes/origin/{base}']).returncode == 0
+    if remote:
+        return f'refs/remotes/origin/{base}', f'origin/{base}'
+    if local:
+        return f'refs/heads/{base}', base
+    raise HTTPException(400, f'Branch "{base}" was not found')
 
 
 @router.post("/repo/branch/create")
 def repo_branch_create(body: CreateBranchBody, session=Depends(get_current_session)):
     name = body.name.strip()
+    base = body.base.strip()
     if not name:
         raise HTTPException(400, 'Branch name is required')
     if re.search(r'\s', name) or name.startswith('-') or '..' in name:
         raise HTTPException(400, 'Invalid branch name')
+    if base.startswith('-'):
+        raise HTTPException(400, 'Invalid base branch')
     exists_r = _git(session, body.path, ['show-ref', '--verify', '--quiet', f'refs/heads/{name}'])
     if exists_r.returncode == 0:
         raise HTTPException(400, f'Branch "{name}" already exists')
-    r = _git(session, body.path, ['checkout', '-b', name])
+    start_point, base_label = _branch_start_point(session, body.path, base, body.source)
+    # --no-track: a branch started from origin/main must not push back into main.
+    r = _git(session, body.path, ['checkout', '--no-track', '-b', name, start_point])
     out = (r.stdout + r.stderr).strip()
     if r.returncode != 0:
         raise HTTPException(400, out or 'Could not create branch')
     remote_r = _git(session, body.path, ['show-ref', '--verify', '--quiet', f'refs/remotes/origin/{name}'])
-    return JSONResponse({'ok': True, 'branch': name, 'output': out, 'local_only': remote_r.returncode != 0})
+    return JSONResponse({'ok': True, 'branch': name, 'base': base_label, 'output': out,
+                         'local_only': remote_r.returncode != 0})
 
 
 @router.get("/repo/diff")
@@ -712,20 +819,25 @@ def issues_set_state(number: int, body: IssueStateBody, session=Depends(get_curr
 
 class IssueBranchBody(BaseModel):
     path: str
+    mode: str = ''
+    base: str = ''
+    source: str = 'remote'
 
 
 @router.get("/repo/issues/{number}/branch")
 def issues_branch_status(number: int, path: str, session=Depends(get_current_session)):
     module, path, remote, user = _issues_context(session, path)
     branch = _issue_call(lambda: module.issue_branch_name(user, remote, number))
-    return JSONResponse(_issue_branch_state(session, path, branch))
+    state = _issue_branch_state(session, path, branch)
+    state['default_branch'] = _default_branch(session, path)
+    return JSONResponse(state)
 
 
 @router.post("/repo/issues/{number}/branch")
 def issues_create_branch(number: int, body: IssueBranchBody, session=Depends(get_current_session)):
     module, path, remote, user = _issues_context(session, body.path)
     branch = _issue_call(lambda: module.issue_branch_name(user, remote, number))
-    return JSONResponse(_activate_issue_branch(session, path, branch))
+    return JSONResponse(_activate_issue_branch(session, path, branch, body.mode, body.base, body.source))
 
 
 @router.post("/repo/issues/{number}/branch/sync")

@@ -5,15 +5,15 @@
       "name": "RSS Reader",
       "icon": "📰",
       "category": "Media",
-      "version": "1.4.2",
+      "version": "1.4.3",
       "description": "RSS/Atom feed reader with auto-refresh, read/unread tracking, and optional public reading list.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/rssfeed-1.4.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/rssfeed-1.4.3.zip",
       "tags": [
         "news",
         "feeds",
         "reading"
       ],
-      "min_core_version": "0.33.0"
+      "min_core_version": "1.0.0"
     }
   ]
 }

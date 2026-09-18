@@ -7,7 +7,7 @@ function start() {
 var t = window.t || function(k) { return k; };
 
 var GM = {
-  state: { repos: [], activeRepo: null, currentUser: '', foreignAccess: {} },
+  state: { repos: [], activeRepo: null, currentUser: '', foreignAccess: {}, sessionShown: {}, showOthers: false },
   body: null,
   listEl: null,
   contentEl: null,
@@ -252,6 +252,91 @@ GM.api = async function(path, opts) {
 };
 
 
+// ── Branch dialog ─────────────────────────────────────────────────────────────
+// Shared by the toolbar's "+ Branch" button and by the issue view, so both ask
+// the same way where a branch comes from before anything is checked out.
+// cfg: { title, info, choices:[{value,label,tag,hint}], name:{value,suggest},
+//        confirmLabel, onConfirm(choice, name) }
+GM.branchDialog = function(cfg) {
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:99;padding:16px;box-sizing:border-box';
+  var choices = cfg.choices || [];
+  overlay.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;width:420px;max-width:100%;max-height:100%;overflow-y:auto;box-sizing:border-box;display:flex;flex-direction:column;gap:12px">'
+    + '<div style="font-weight:600;font-size:.95rem">&#x1F33F; ' + GM.escape(cfg.title) + '</div>'
+    + (cfg.info ? '<div style="font-size:.8rem;line-height:1.5;color:var(--text-dim);background:var(--surface2,#313244);border-radius:6px;padding:9px 11px">' + cfg.info + '</div>' : '')
+    + (choices.length > 1 ? '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:6px">' + GM.escape(cfg.choicesLabel || '') + '</div>'
+      + '<div style="display:flex;flex-direction:column;gap:4px">'
+      + choices.map(function(c, i) {
+          return '<label style="display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:.83rem">'
+            + '<input type="radio" name="gm-branch-choice" value="' + i + '"' + (i === 0 ? ' checked' : '') + '>'
+            + '<span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis' + (c.mono ? ';font-family:monospace' : '') + '">' + GM.escape(c.label) + '</span>'
+            + (c.tag ? '<span style="font-size:.68rem;color:var(--text-dim);flex-shrink:0">' + GM.escape(c.tag) + '</span>' : '')
+            + '</label>';
+        }).join('')
+      + '</div>'
+      + '<div id="gm-branch-hint" style="font-size:.74rem;line-height:1.45;color:var(--text-dim);margin-top:6px"></div></div>'
+      : '<div id="gm-branch-hint" style="font-size:.74rem;line-height:1.45;color:var(--text-dim)"></div>')
+    + (cfg.name ? '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_branch_name') + '</div>'
+      + '<input class="s-input" id="gm-branch-name" autocomplete="off" spellcheck="false"' + (cfg.name.readonly ? ' readonly' : '')
+      + ' value="' + GM.escape(cfg.name.value || '') + '" style="width:100%;box-sizing:border-box;font-family:monospace' + (cfg.name.readonly ? ';opacity:.7' : '') + '"></div>' : '')
+    + '<div id="gm-branch-err" style="color:#f38ba8;font-size:.82rem;display:none;white-space:pre-wrap"></div>'
+    + '<div style="display:flex;gap:8px;justify-content:flex-end">'
+    + '<button class="s-btn" id="gm-branch-cancel">' + t('gm_cancel') + '</button>'
+    + '<button class="s-btn" id="gm-branch-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + GM.escape(cfg.confirmLabel) + '</button>'
+    + '</div></div>';
+  GM.contentEl.appendChild(overlay);
+
+  var nameInput = overlay.querySelector('#gm-branch-name');
+  var hint = overlay.querySelector('#gm-branch-hint');
+  var okBtn = overlay.querySelector('#gm-branch-ok');
+  var errEl = overlay.querySelector('#gm-branch-err');
+  var suggestion = cfg.name ? (cfg.name.value || '') : '';
+
+  function selected() {
+    var checked = overlay.querySelector('input[name="gm-branch-choice"]:checked');
+    return choices[checked ? parseInt(checked.value, 10) : 0] || {};
+  }
+  function onChange() {
+    var c = selected();
+    hint.textContent = c.hint || '';
+    if (nameInput && !cfg.name.readonly && cfg.name.suggest) {
+      var next = cfg.name.suggest(c) || '';
+      if (!nameInput.value.trim() || nameInput.value === suggestion) nameInput.value = next;
+      suggestion = next;
+      nameInput.focus(); nameInput.select();
+    }
+  }
+  Array.prototype.forEach.call(overlay.querySelectorAll('input[name="gm-branch-choice"]'), function(r) {
+    r.addEventListener('change', onChange);
+  });
+  onChange();
+
+  function close() { overlay.remove(); }
+  overlay.querySelector('#gm-branch-cancel').addEventListener('click', close);
+  if (nameInput && !cfg.name.readonly) {
+    nameInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') confirm();
+      else if (e.key === 'Escape') close();
+    });
+  }
+  okBtn.addEventListener('click', confirm);
+  if (cfg.disabled) { okBtn.disabled = true; okBtn.style.opacity = '.5'; }
+
+  async function confirm() {
+    var name = nameInput ? nameInput.value.trim() : '';
+    if (nameInput && !name) { nameInput.focus(); return; }
+    okBtn.disabled = true; okBtn.textContent = t('gm_branch_working');
+    errEl.style.display = 'none';
+    try {
+      await cfg.onConfirm(selected(), name);
+      close();
+    } catch(e) {
+      errEl.textContent = e.message; errEl.style.display = 'block';
+      okBtn.disabled = false; okBtn.textContent = cfg.confirmLabel;
+    }
+  }
+};
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 GM.init = function(body) {
@@ -266,9 +351,9 @@ GM.init = function(body) {
       + '</div>'
       + '<div id="gm-repo-list" style="flex:1;overflow-y:auto"></div>'
       + '<div style="display:flex;gap:6px;padding:8px;border-top:1px solid var(--border);flex-shrink:0">'
-        + '<button id="gm-clone-btn" class="s-btn s-btn-sm" style="flex:1">&#x2295; ' + t('gm_clone') + '</button>'
-        + '<button id="gm-init-btn" class="s-btn s-btn-sm" style="flex:1">&#x25CE; ' + t('gm_init') + '</button>'
-        + '<button id="gm-ssh-btn" class="s-btn s-btn-sm" title="' + t('gm_ssh_keys') + '">&#x1F511;</button>'
+        + '<button id="gm-clone-btn" class="s-btn" title="' + t('gm_clone') + '" aria-label="' + t('gm_clone') + '" style="flex:1;font-size:1.15rem;padding:6px 0;line-height:1">&#x2295;</button>'
+        + '<button id="gm-init-btn" class="s-btn" title="' + t('gm_init') + '" aria-label="' + t('gm_init') + '" style="flex:1;font-size:1.15rem;padding:6px 0;line-height:1">&#x25CE;</button>'
+        + '<button id="gm-ssh-btn" class="s-btn" title="' + t('gm_ssh_keys') + '" aria-label="' + t('gm_ssh_keys') + '" style="flex:1;font-size:1.15rem;padding:6px 0;line-height:1">&#x1F511;</button>'
       + '</div>'
     + '</div>'
     + '<div id="gm-content" style="flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative;min-width:0">'
@@ -282,7 +367,12 @@ GM.init = function(body) {
   GM.listEl = sidebar.querySelector('#gm-repo-list');
   GM.contentEl = view;
 
-  sidebar.querySelector('#gm-refresh').addEventListener('click', function() { GM.loadRepos(); });
+  // Repositories opened from the hidden list stay visible only while this
+  // window is open; favorites are stored on the server and always shown.
+  GM.state.sessionShown = {};
+  GM.state.showOthers = false;
+
+  sidebar.querySelector('#gm-refresh').addEventListener('click', function() { GM.loadRepos(true); });
   sidebar.querySelector('#gm-clone-btn').addEventListener('click', function() { GM.showClone(); });
   sidebar.querySelector('#gm-init-btn').addEventListener('click', function() { GM.showInit(); });
   sidebar.querySelector('#gm-ssh-btn').addEventListener('click', function() {
@@ -309,25 +399,64 @@ GM.showLoading = function(msg) {
   GM.listEl.innerHTML = '<div style="padding:14px 10px;color:var(--text-dim);font-size:.8rem;text-align:center;opacity:.7">' + (msg || t('gm_scanning')) + '</div>';
 };
 
-GM.loadRepos = async function() {
+GM.isPinned = function(repo) {
+  return repo.favorite || !!GM.state.sessionShown[repo.path];
+};
+
+// Git state is read for favorites and repositories opened this session, or for
+// all of them while the hidden list is expanded. scan=true also searches the
+// disk for new repositories, which is the slow part.
+GM.loadRepos = async function(scan) {
   GM.showLoading(t('gm_scanning'));
   try {
-    var _reposData = await GM.api('/repos');
+    var params = Object.keys(GM.state.sessionShown).map(function(p) { return 'extra=' + encodeURIComponent(p); });
+    if (GM.state.showOthers) params.push('all=1');
+    if (scan) params.push('scan=1');
+    var query = '?' + params.join('&');
+    var _reposData = await GM.api('/repos' + query);
     GM.state.currentUser = _reposData.current_user || '';
     GM.state.foreignAccess = _reposData.foreign_access || {};
     GM.state.repos = _reposData.repos || _reposData;
+    // Without any favorites there is nothing to show on top, so the full list opens.
+    if (!GM.state.showOthers && !GM.state.repos.some(GM.isPinned) && GM.state.repos.length) {
+      GM.state.showOthers = true;
+      return GM.loadRepos();
+    }
     GM.renderSidebar();
     if (GM.state.activeRepo) {
       var still = GM.state.repos.filter(function(r) { return r.path === GM.state.activeRepo.path; })[0];
       if (still) {
         GM.state.activeRepo = still;
+        if (!still.locked && !still.detailed) {
+          GM.state.sessionShown[still.path] = true;
+          return GM.loadRepos();
+        }
         if (still.locked) GM.showLockedRepo(GM.contentEl, still);
         else GM.showRepoView(GM.contentEl, still);
       }
     }
   } catch(e) {
-    GM.listEl.innerHTML = '<div style="padding:14px 10px;color:#f38ba8;font-size:.8rem">' + e.message + '</div>';
+    GM.listEl.innerHTML = '<div style="padding:14px 10px;color:#f38ba8;font-size:.8rem">' + GM.escape(e.message) + '</div>';
   }
+};
+
+GM.repoItem = function(repo) {
+  var active = GM.state.activeRepo && GM.state.activeRepo.path === repo.path;
+  var item = document.createElement('div');
+  item.style.cssText = 'padding:7px 6px 7px 12px;cursor:pointer;border-bottom:1px solid var(--border);'
+    + (repo.locked ? 'opacity:.62;' : '')
+    + (active ? 'background:var(--accent-dim,rgba(99,102,241,.15))' : '');
+  item.dataset.gmPath = repo.path;
+  var sub = repo.locked ? t('gm_owned_by', { owner: GM.escape(repo.owner) })
+    : repo.detailed ? '&#x1F33F; ' + GM.escape(repo.branch) : '&nbsp;';
+  item.innerHTML = '<div style="display:flex;align-items:center;gap:5px">'
+    + '<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;font-size:.83rem;pointer-events:none">' + GM.escape(repo.name) + '</span>'
+    + (repo.locked ? '<span style="font-size:.72rem;flex-shrink:0;pointer-events:none" title="' + t('gm_locked') + '">&#x1F512;</span>' : '')
+    + (repo.changes > 0 ? '<span style="font-size:.68rem;background:var(--accent);color:#fff;border-radius:10px;padding:1px 5px;flex-shrink:0;pointer-events:none">' + repo.changes + '</span>' : '')
+    + '<button class="gm-fav" data-gm-fav="' + GM.escape(repo.path) + '" title="' + t(repo.favorite ? 'gm_favorite_remove' : 'gm_favorite_add') + '" style="background:none;border:none;cursor:pointer;padding:0 3px;font-size:.9rem;line-height:1;flex-shrink:0;color:' + (repo.favorite ? '#f9e2af' : 'var(--text-dim)') + ';opacity:' + (repo.favorite ? '1' : '.45') + '">' + (repo.favorite ? '&#x2605;' : '&#x2606;') + '</button>'
+    + '</div>'
+    + '<div style="font-size:.72rem;color:var(--text-dim);margin-top:2px;pointer-events:none">' + sub + '</div>';
+  return item;
 };
 
 GM.renderSidebar = function() {
@@ -337,34 +466,72 @@ GM.renderSidebar = function() {
     list.innerHTML = '<div style="padding:14px 10px;color:var(--text-dim);font-size:.8rem;text-align:center;opacity:.7">' + t('gm_no_repos') + '</div>';
     return;
   }
-  GM.state.repos.forEach(function(repo) {
-    var active = GM.state.activeRepo && GM.state.activeRepo.path === repo.path;
-    var item = document.createElement('div');
-    item.style.cssText = 'padding:7px 10px 7px 12px;cursor:pointer;border-bottom:1px solid var(--border);'
-      + (repo.locked ? 'opacity:.62;' : '')
-      + (active ? 'background:var(--accent-dim,rgba(99,102,241,.15))' : '');
-    item.dataset.gmPath = repo.path;
-    item.innerHTML = '<div style="display:flex;align-items:center;gap:5px;pointer-events:none">'
-      + '<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;font-size:.83rem">' + repo.name + '</span>'
-      + (repo.locked ? '<span style="font-size:.72rem;flex-shrink:0" title="' + t('gm_locked') + '">&#x1F512;</span>' : '')
-      + (repo.changes > 0 ? '<span style="font-size:.68rem;background:var(--accent);color:#fff;border-radius:10px;padding:1px 5px;flex-shrink:0">' + repo.changes + '</span>' : '')
-      + '</div>'
-      + '<div style="font-size:.72rem;color:var(--text-dim);margin-top:2px;pointer-events:none">'
-      + (repo.locked ? t('gm_owned_by', { owner: repo.owner }) : '&#x1F33F; ' + repo.branch) + '</div>';
-    list.appendChild(item);
-  });
+  var byFavorite = function(a, b) { return (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0); };
+  var pinned = GM.state.repos.filter(GM.isPinned).sort(byFavorite);
+  var others = GM.state.repos.filter(function(r) { return !GM.isPinned(r); });
+
+  pinned.forEach(function(repo) { list.appendChild(GM.repoItem(repo)); });
+  if (!pinned.length) {
+    var hint = document.createElement('div');
+    hint.style.cssText = 'padding:10px 12px;color:var(--text-dim);font-size:.74rem;line-height:1.4;opacity:.8;border-bottom:1px solid var(--border)';
+    hint.innerHTML = t('gm_favorites_hint');
+    list.appendChild(hint);
+  }
+  if (others.length) {
+    var toggle = document.createElement('div');
+    toggle.id = 'gm-others-toggle';
+    toggle.style.cssText = 'padding:7px 12px;cursor:pointer;font-size:.74rem;font-weight:600;color:var(--text-dim);border-bottom:1px solid var(--border);user-select:none;background:var(--surface2,#313244)';
+    toggle.innerHTML = (GM.state.showOthers ? '&#x25BE; ' : '&#x25B8; ') + t('gm_other_repos', { n: others.length });
+    list.appendChild(toggle);
+    if (GM.state.showOthers) others.forEach(function(repo) { list.appendChild(GM.repoItem(repo)); });
+  }
 
   // Event delegation — един listener на целия list
   list.onclick = function(e) {
+    if (e.target.closest('#gm-others-toggle')) {
+      GM.state.showOthers = !GM.state.showOthers;
+      if (GM.state.showOthers) GM.loadRepos();
+      else GM.renderSidebar();
+      return;
+    }
+    var fav = e.target.closest('[data-gm-fav]');
+    if (fav) {
+      e.stopPropagation();
+      GM.toggleFavorite(fav.dataset.gmFav);
+      return;
+    }
     var item = e.target.closest('[data-gm-path]');
     if (!item) return;
     var repo = GM.state.repos.filter(function(r) { return r.path === item.dataset.gmPath; })[0];
     if (!repo) return;
-    GM.state.activeRepo = repo;
-    GM.renderSidebar();
-    if (repo.locked) GM.showLockedRepo(GM.contentEl, repo);
-    else GM.showRepoView(GM.contentEl, repo, true);
+    GM.openRepo(repo);
   };
+};
+
+GM.openRepo = function(repo) {
+  GM.state.activeRepo = repo;
+  if (!GM.isPinned(repo)) GM.state.sessionShown[repo.path] = true;
+  // Picking any repository collapses the hidden list so it stays out of the way.
+  GM.state.showOthers = false;
+  GM.renderSidebar();
+  if (repo.locked) GM.showLockedRepo(GM.contentEl, repo);
+  else if (!repo.detailed) GM.loadRepos();
+  else GM.showRepoView(GM.contentEl, repo, true);
+};
+
+GM.toggleFavorite = async function(path) {
+  var repo = GM.state.repos.filter(function(r) { return r.path === path; })[0];
+  if (!repo) return;
+  var favorite = !repo.favorite;
+  try {
+    await GM.api('/repos/favorite', { method: 'POST', json: { path: path, favorite: favorite } });
+    repo.favorite = favorite;
+    // Un-starring the open repository keeps it visible for the rest of the session.
+    if (!favorite && GM.state.activeRepo && GM.state.activeRepo.path === path) GM.state.sessionShown[path] = true;
+    GM.renderSidebar();
+  } catch(e) {
+    mvmOS.notify(t('gm_title'), e.message);
+  }
 };
 
 GM.showLockedRepo = function(container, repo) {
@@ -451,7 +618,9 @@ GM.showClone = function() {
     try {
       var r = await GM.api('/repo/clone', { method: 'POST', json: { url: url, dest: dest } });
       overlay.remove();
-      GM.loadRepos();
+      var clonedName = url.replace(/\/+$/, '').split(/[\/:]/).pop().replace(/\.git$/, '');
+      if (clonedName) GM.state.sessionShown[dest.replace(/\/+$/, '') + '/' + clonedName] = true;
+      GM.loadRepos(true);
       mvmOS.notify(t('gm_title'), r.output || t('gm_cloned_ok'));
     } catch(e) {
       errEl.textContent = e.message; errEl.style.display = 'block';
@@ -493,7 +662,8 @@ GM.showInit = function() {
     try {
       var r = await GM.api('/repo/init', { method: 'POST', json: { path: path, remote: remote } });
       overlay.remove();
-      GM.loadRepos();
+      GM.state.sessionShown[path.replace(/\/+$/, '')] = true;
+      GM.loadRepos(true);
       mvmOS.notify(t('gm_title'), r.output || t('gm_initialized_ok', { path: path }));
     } catch(e) {
       errEl.textContent = e.message; errEl.style.display = 'block';
@@ -510,6 +680,7 @@ GM.showInit = function() {
 GM.showRepoView = function(container, repo, autoFetch) {
   var tab = 'status';
   var lastStatusSignature = null;
+  var defaultBranch = '';
 
   container.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)">'
     + '<div style="flex:1;min-width:0">'
@@ -519,16 +690,17 @@ GM.showRepoView = function(container, repo, autoFetch) {
     + '<span id="gm-branch-btn" style="font-size:.75rem;background:var(--surface2,#313244);border-radius:12px;padding:2px 9px;white-space:nowrap;flex-shrink:0;cursor:pointer;user-select:none" title="' + t('gm_switch_branch') + '">&#x1F33F; ' + repo.branch + ' &#x25BE;</span>'
     + '<span id="gm-branch-local-badge" style="display:none;font-size:.68rem;background:#f9e2af;color:#1e1e2e;border-radius:10px;padding:1px 7px;flex-shrink:0;font-weight:600" title="' + t('gm_branch_local_only') + '">' + t('gm_branch_local_only') + '</span>'
     + '</div>'
-    + '<div style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);flex-shrink:0">'
+    + '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);flex-shrink:0">'
     + '<button id="gm-pull" class="s-btn s-btn-sm">&#x2B07; ' + t('gm_pull') + '</button>'
     + '<button id="gm-push" class="s-btn s-btn-sm">&#x2B06; ' + t('gm_push') + '</button>'
     + '<button id="gm-fetch" class="s-btn s-btn-sm">&#x27F3; ' + t('gm_fetch') + '</button>'
     + '<button id="gm-new-branch" class="s-btn s-btn-sm">&#x2295; ' + t('gm_branch_new') + '</button>'
     + '<button id="gm-issues" class="s-btn s-btn-sm">'
     + ((GM.state.foreignAccess || {}).premium ? '&#x25C9; ' : '&#x1F48E; ') + t('gm_issues') + '</button>'
+    + '<button id="gm-pr-toolbar" class="s-btn s-btn-sm" style="display:none">'
+    + ((GM.state.foreignAccess || {}).premium ? '&#x1F500; ' : '&#x1F48E; ') + t('gm_issues_pull_request') + '</button>'
     + '<div id="gm-sync-info" style="font-size:.75rem;color:var(--text-dim);margin-left:4px"></div>'
-    + '<div style="flex:1"></div>'
-    + '<div style="display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden">'
+    + '<div style="display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-left:auto;flex-shrink:0">'
     + '<button id="gm-tab-status" style="border:none;padding:3px 10px;cursor:pointer;font-size:.78rem;background:var(--accent);color:#fff">' + t('gm_status') + '</button>'
     + '<button id="gm-tab-log" style="border:none;padding:3px 10px;cursor:pointer;font-size:.78rem;background:none;color:var(--text-dim)">' + t('gm_log') + '</button>'
     + '</div></div>'
@@ -569,20 +741,119 @@ GM.showRepoView = function(container, repo, autoFetch) {
     }
   }
 
-  async function doCommit(msgInput) {
+  async function doCommit(msgInput, andPush) {
     var msg = msgInput.value.trim();
     if (!msg) { msgInput.focus(); return; }
-    var btn = container.querySelector('#gm-commit-btn');
+    var buttons = [container.querySelector('#gm-commit-btn'), container.querySelector('#gm-commit-push-btn')];
     var out = container.querySelector('#gm-action-output');
-    btn.disabled = true;
+    buttons.forEach(function(b) { if (b) b.disabled = true; });
     if (out) { out.style.display = 'block'; out.textContent = t('gm_committing'); out.style.color = 'var(--text-dim)'; }
+    var committed = false;
     try {
       var r = await GM.api('/repo/commit', { method: 'POST', json: { path: repo.path, message: msg } });
+      committed = true;
       msgInput.value = '';
-      if (out) { out.textContent = r.output; out.style.color = '#a6e3a1'; }
+      var output = r.output || '';
+      if (andPush) {
+        if (out) out.textContent = output + '\n\n' + t('gm_pushing');
+        var p = await GM.api('/repo/push', { method: 'POST', json: { path: repo.path } });
+        output += '\n\n' + (p.output || t('gm_done'));
+      }
+      if (out) { out.textContent = output; out.style.color = '#a6e3a1'; }
       loadStatus(); GM.loadRepos();
     } catch(e) {
       if (out) { out.textContent = e.message; out.style.color = '#f38ba8'; }
+      // A failed push after a successful commit still has to show the new commit.
+      if (committed) { loadStatus(); GM.loadRepos(); }
+      else buttons.forEach(function(b) { if (b) b.disabled = false; });
+    }
+  }
+
+  // A commit message the user can accept or rewrite. The issue number comes
+  // from the branch name alone, so the button works without Premium; only the
+  // issue title and its label need the GitHub access Premium provides.
+  function issueNumberFromBranch(branch) {
+    var m = /issue(\d+)$/i.exec(branch || '');
+    return m ? parseInt(m[1], 10) : 0;
+  }
+
+  // Which GitHub closing keyword fits. The diff cannot tell a fix from a new
+  // feature, but the issue's own label can, so that is what decides it.
+  function closingKeyword(labels) {
+    var names = (labels || []).map(function(l) { return String(l).toLowerCase(); });
+    for (var i = 0; i < names.length; i++) {
+      if (/bug|defect|error|regression|hotfix/.test(names[i])) return 'fix';
+      if (/feature|enhancement|task|chore|improvement/.test(names[i])) return 'close';
+    }
+    return 'fix';
+  }
+
+  // Generated text stays English: the closing keyword has to be, and a commit
+  // log is conventionally written in one language whatever the UI shows.
+  function changeSummary(files) {
+    var added = 0, updated = 0, deleted = 0, renamed = 0;
+    (files || []).forEach(function(f) {
+      var code = (f.code || '');
+      if (code.indexOf('?') >= 0 || code.indexOf('A') >= 0) added++;
+      else if (code.indexOf('D') >= 0) deleted++;
+      else if (code.indexOf('R') >= 0) renamed++;
+      else updated++;
+    });
+    var parts = [];
+    if (added) parts.push(added + (added === 1 ? ' new file' : ' new files'));
+    if (updated) parts.push(updated + ' updated');
+    if (deleted) parts.push(deleted + ' deleted');
+    if (renamed) parts.push(renamed + ' renamed');
+    return parts.join(', ');
+  }
+
+  // Where the work happened, not what every file was. The commit itself lists
+  // the files; the message only has to point at the corner of the tree.
+  function touchedFolders(files) {
+    var seen = [];
+    (files || []).forEach(function(f) {
+      var name = f.file || '';
+      // A rename reads as "old -> new"; the new path is the one that matters.
+      var arrow = name.indexOf(' -> ');
+      if (arrow >= 0) name = name.slice(arrow + 4);
+      var cut = name.lastIndexOf('/');
+      // Everything loose at the top of the repository is named once, together.
+      var where = cut > 0 ? name.slice(0, cut) : 'root';
+      if (where && seen.indexOf(where) < 0) seen.push(where);
+    });
+    seen.sort();
+    // The root comes first, where it reads as the top of the tree it is.
+    var top = seen.indexOf('root');
+    if (top > 0) { seen.splice(top, 1); seen.unshift('root'); }
+    if (seen.length > 8) return seen.slice(0, 8).concat('…').join('\n');
+    return seen.join('\n');
+  }
+
+  async function fillSuggestedMessage(btn, msgInput, files, branch) {
+    if (!files || !files.length) return;
+    btn.disabled = true;
+    try {
+      var summary = changeSummary(files);
+      var folders = touchedFolders(files);
+      var number = issueNumberFromBranch(branch);
+      var subject = summary, body = folders;
+
+      // The issue half needs GitHub, which only Premium can reach. Without it
+      // the message is simply about the changes, with no issue line at all.
+      if (number && (GM.state.foreignAccess || {}).premium) {
+        try {
+          var data = await GM.api('/repo/issues/' + number + '?path=' + encodeURIComponent(repo.path));
+          var issue = data.issue || {};
+          if (issue.title) {
+            subject = closingKeyword(issue.labels) + ' #' + number + ': ' + issue.title;
+            body = folders ? summary + '\n\n' + folders : summary;
+          }
+        } catch(e) { /* no answer from GitHub — keep the plain change summary */ }
+      }
+      msgInput.value = body ? subject + '\n\n' + body : subject;
+      msgInput.focus();
+      msgInput.setSelectionRange(0, subject.indexOf('\n') < 0 ? subject.length : subject.indexOf('\n'));
+    } finally {
       btn.disabled = false;
     }
   }
@@ -596,6 +867,8 @@ GM.showRepoView = function(container, repo, autoFetch) {
       var statusSignature = JSON.stringify(s);
       if (onlyIfChanged && statusSignature === lastStatusSignature) return;
       lastStatusSignature = statusSignature;
+      defaultBranch = s.default_branch || '';
+      if (s.branch && s.branch !== '?') repo.branch = s.branch;
 
       var syncInfo = container.querySelector('#gm-sync-info');
       if (syncInfo) {
@@ -605,13 +878,18 @@ GM.showRepoView = function(container, repo, autoFetch) {
         syncInfo.innerHTML = parts.join('&nbsp;&nbsp;');
         syncInfo.style.color = s.behind > 0 ? '#f38ba8' : 'var(--text-dim)';
       }
+      // A pull request only makes sense from a branch other than the one it merges into.
+      var prToolbar = container.querySelector('#gm-pr-toolbar');
+      if (prToolbar) prToolbar.style.display = repo.branch && repo.branch !== '?' && repo.branch !== 'HEAD' && repo.branch !== defaultBranch ? '' : 'none';
       var localBadge = container.querySelector('#gm-branch-local-badge');
       if (localBadge) localBadge.style.display = s.local_only ? 'inline-block' : 'none';
 
       var commitHtml = '<div style="border-top:1px solid var(--border);padding-top:12px;display:flex;flex-direction:column;gap:8px">'
-        + '<div style="font-size:.75rem;color:var(--text-dim)">' + t('gm_commit_message') + ' <span style="opacity:.6">' + t('gm_ctrl_enter') + '</span></div>'
+        + '<div style="display:flex;align-items:center;gap:8px"><div style="font-size:.75rem;color:var(--text-dim);flex:1">' + t('gm_commit_message') + ' <span style="opacity:.6">' + t('gm_ctrl_enter') + '</span></div>'
+        + '<button id="gm-commit-suggest" class="s-btn s-btn-sm" title="' + GM.escape(t('gm_suggest_message')) + '" aria-label="' + GM.escape(t('gm_suggest_message')) + '" style="padding:2px 8px;line-height:1.4">&#x2728;</button></div>'
         + '<textarea id="gm-commit-msg" class="s-input" rows="4" placeholder="' + t('gm_describe_changes') + '" style="resize:vertical;flex:none;max-width:none;min-height:80px;font-family:inherit;font-size:.83rem;width:100%;box-sizing:border-box"></textarea>'
-        + '<div><button id="gm-commit-btn" class="s-btn s-btn-sm" ' + (s.files.length ? 'style="background:var(--accent);color:#fff;border-color:var(--accent)"' : 'disabled') + '>&#x2713; ' + t('gm_commit_all') + '</button></div>'
+        + '<div style="display:flex;gap:6px;flex-wrap:wrap"><button id="gm-commit-btn" class="s-btn s-btn-sm" ' + (s.files.length ? 'style="background:var(--accent);color:#fff;border-color:var(--accent)"' : 'disabled') + '>&#x2713; ' + t('gm_commit_all') + '</button>'
+        + '<button id="gm-commit-push-btn" class="s-btn s-btn-sm" ' + (s.files.length ? '' : 'disabled') + '>&#x2713;&#x2B06; ' + t('gm_commit_push') + '</button></div>'
         + '</div>';
 
       if (!s.files.length) {
@@ -697,7 +975,10 @@ GM.showRepoView = function(container, repo, autoFetch) {
       var msgInput = tc.querySelector('#gm-commit-msg');
       if (commitBtn && msgInput) {
         commitBtn.addEventListener('click', function() { doCommit(msgInput); });
+        tc.querySelector('#gm-commit-push-btn').addEventListener('click', function() { doCommit(msgInput, true); });
         msgInput.addEventListener('keydown', function(e) { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') doCommit(msgInput); });
+        var suggestBtn = tc.querySelector('#gm-commit-suggest');
+        if (suggestBtn) suggestBtn.addEventListener('click', function() { fillSuggestedMessage(suggestBtn, msgInput, s.files, s.branch); });
       }
     } catch(e) {
       tc.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + e.message + '</div>';
@@ -846,36 +1127,26 @@ GM.showRepoView = function(container, repo, autoFetch) {
   }
 
   function updateIssueBranchButtons(tc, isOnBranch) {
-    var prBtn = tc.querySelector('#gm-issue-pr');
     var brBtn = tc.querySelector('#gm-issue-branch');
-    if (prBtn) prBtn.style.display = isOnBranch ? '' : 'none';
     if (brBtn) brBtn.style.display = isOnBranch ? 'none' : '';
   }
 
-  function showPRResult(tc, r) {
-    var actionResult = tc.querySelector('#gm-issue-action-result');
-    if (!actionResult) return;
-    actionResult.style.color = '#a6e3a1';
-    actionResult.innerHTML = t(r.existing ? 'gm_pr_already_exists' : 'gm_pr_created', {number: r.number})
-      + ' <a href="' + GM.escape(r.url) + '" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">' + t('gm_pr_open_link') + '</a>';
-  }
-
-  function showPRDialog(tc, issue, headBranch) {
+  function showPRDialog(issue, headBranch) {
     container.style.position = 'relative';
     var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:99';
-    overlay.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;width:460px;max-width:90%;display:flex;flex-direction:column;gap:12px;max-height:85%;overflow-y:auto">'
+    overlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:99;padding:16px;box-sizing:border-box';
+    overlay.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;width:460px;max-width:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;max-height:100%;overflow-y:auto;overflow-x:hidden">'
       + '<div style="font-weight:600;font-size:.95rem">&#x1F500; ' + t('gm_pr_title_heading') + '</div>'
       + '<div id="gm-pr-existing" style="display:none;background:var(--surface2,#313244);border-radius:6px;padding:8px 10px"></div>'
       + '<div style="display:flex;gap:8px;align-items:center;font-size:.82rem">'
-      + '<select id="gm-pr-head" class="s-input" style="flex:1"></select>'
-      + '<span style="color:var(--text-dim)">&#x2192;</span>'
-      + '<select id="gm-pr-base" class="s-input" style="flex:1"></select>'
+      + '<select id="gm-pr-head" class="s-input" style="flex:1;min-width:0;width:0;max-width:none;text-overflow:ellipsis"></select>'
+      + '<span style="color:var(--text-dim);flex-shrink:0">&#x2192;</span>'
+      + '<select id="gm-pr-base" class="s-input" style="flex:1;min-width:0;width:0;max-width:none;text-overflow:ellipsis"></select>'
       + '</div>'
       + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_pr_title_label') + '</div>'
-      + '<input id="gm-pr-title" class="s-input" style="width:100%;box-sizing:border-box" value="' + GM.escape(issue.title || headBranch) + '"></div>'
+      + '<input id="gm-pr-title" class="s-input" style="width:100%;max-width:none;box-sizing:border-box" placeholder="' + GM.escape(headBranch) + '" value="' + GM.escape(issue ? (issue.title || headBranch) : '') + '"></div>'
       + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_pr_body_label') + '</div>'
-      + '<textarea id="gm-pr-body" class="s-input" rows="6" style="resize:vertical;max-width:none;width:100%;box-sizing:border-box">' + GM.escape(issue.body || '') + '</textarea></div>'
+      + '<textarea id="gm-pr-body" class="s-input" rows="6" style="resize:vertical;max-width:none;width:100%;box-sizing:border-box">' + GM.escape(issue ? (issue.body || '') : '') + '</textarea></div>'
       + '<div id="gm-pr-error" style="color:#f38ba8;font-size:.82rem;display:none"></div>'
       + '<div style="display:flex;gap:8px;justify-content:flex-end">'
       + '<button class="s-btn" id="gm-pr-cancel">' + t('gm_cancel') + '</button>'
@@ -953,8 +1224,13 @@ GM.showRepoView = function(container, repo, autoFetch) {
       btn.disabled = true; btn.textContent = t('gm_issues_creating'); err.style.display = 'none';
       try {
         var r = await GM.api('/repo/pr', {method:'POST', json:{path:repo.path, head:head, base:base, title:title, body:body}});
-        overlay.remove();
-        showPRResult(tc, r);
+        var box = overlay.firstChild;
+        box.innerHTML = '<div style="font-weight:600;font-size:.95rem">&#x1F500; ' + t('gm_pr_title_heading') + '</div>'
+          + '<div style="color:#a6e3a1;font-size:.85rem">' + t(r.existing ? 'gm_pr_already_exists' : 'gm_pr_created', {number: r.number})
+          + ' <a href="' + GM.escape(r.url) + '" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">' + t('gm_pr_open_link') + '</a></div>'
+          + '<div style="display:flex;justify-content:flex-end"><button class="s-btn" id="gm-pr-close">' + t('gm_close') + '</button></div>';
+        box.querySelector('#gm-pr-close').addEventListener('click', function() { overlay.remove(); });
+        loadStatus(true);
       } catch(e) {
         err.textContent = e.message; err.style.display = 'block';
         btn.disabled = false; btn.textContent = t('gm_pr_create');
@@ -962,21 +1238,72 @@ GM.showRepoView = function(container, repo, autoFetch) {
     });
   }
 
-  async function activateIssueBranch(tc, issue) {
+  // Asks before touching the working tree: an existing branch is switched to
+  // (optionally pulled), a branch that only exists on origin is downloaded, and
+  // a branch that exists nowhere is started from a base the user picks.
+  async function showIssueBranchDialog(tc, issue) {
+    var result = tc.querySelector('#gm-issue-action-result');
+    result.style.color = 'var(--text-dim)';
+    result.textContent = t('gm_issues_checking_branch');
+    var state = await GM.api('/repo/issues/' + issue.number + '/branch?path=' + encodeURIComponent(repo.path));
+    result.textContent = '';
+
+    var choices, info, confirmLabel;
+    if (state.local_exists) {
+      info = t('gm_branch_exists_local', { branch: state.branch });
+      confirmLabel = t('gm_branch_switch_confirm');
+      choices = [{ mode: 'switch', label: t('gm_branch_switch_only'), hint: t('gm_branch_switch_only_hint', { branch: state.branch }) }];
+      if (state.remote_exists) {
+        choices.push({ mode: 'pull', label: t('gm_branch_switch_pull'), hint: t('gm_branch_switch_pull_hint', { branch: state.branch }) });
+      }
+    } else if (state.remote_exists) {
+      info = t('gm_branch_exists_remote', { branch: state.branch });
+      confirmLabel = t('gm_branch_download_confirm');
+      choices = [{ mode: 'download', label: t('gm_branch_download_local'), hint: t('gm_branch_download_local_hint', { branch: state.branch }) }];
+    } else {
+      info = t('gm_branch_issue_new', { branch: state.branch });
+      confirmLabel = t('gm_branch_create');
+      defaultBranch = state.default_branch || defaultBranch;
+      choices = branchBases().map(function(b) { b.mode = 'create'; return b; });
+    }
+
+    var blocked = state.dirty && state.current !== state.branch;
+    GM.branchDialog({
+      title: t('gm_branch_issue_title', { number: issue.number }),
+      info: '<div style="font-family:monospace;font-size:.82rem;margin-bottom:6px">' + GM.escape(state.branch) + '</div>' + GM.escape(info)
+        + (blocked ? '<div style="color:#f9e2af;margin-top:6px">' + GM.escape(t('gm_issues_dirty_no_switch')) + '</div>' : ''),
+      choicesLabel: state.local_exists || state.remote_exists ? t('gm_branch_what_to_do') : t('gm_branch_from'),
+      choices: choices,
+      disabled: blocked,
+      confirmLabel: confirmLabel,
+      onConfirm: function(choice) {
+        return activateIssueBranch(tc, issue, choice);
+      }
+    });
+  }
+
+  async function activateIssueBranch(tc, issue, choice) {
+    choice = choice || {};
     var result = tc.querySelector('#gm-issue-action-result');
     result.style.color = 'var(--text-dim)';
     result.textContent = t('gm_issues_switching_branch');
-    var data = await GM.api('/repo/issues/' + issue.number + '/branch', {method:'POST',json:{path:repo.path}});
+    var data = await GM.api('/repo/issues/' + issue.number + '/branch', {method:'POST',
+      json:{path:repo.path, mode:choice.mode || '', base:choice.branch || '', source:choice.source || 'remote'}});
     repo.branch = data.branch;
     container.querySelector('#gm-branch-btn').innerHTML = '&#x1F33F; ' + GM.escape(data.branch) + ' &#x25BE;';
     GM.renderSidebar();
     loadStatus();
+    updateIssueBranchButtons(tc, repo.branch === data.branch);
     result.style.color = '#a6e3a1';
-    var msgKey = data.created_fresh ? 'gm_issues_branch_ready'
-      : data.downloaded ? 'gm_issues_branch_downloaded'
-      : data.pulled ? 'gm_issues_branch_synced'
-      : 'gm_switched_to';
-    result.textContent = t(msgKey, {branch:data.branch});
+    if (data.created_fresh && data.base) {
+      result.textContent = t('gm_branch_created_from', {branch: data.branch, base: data.base});
+    } else {
+      var msgKey = data.created_fresh ? 'gm_issues_branch_ready'
+        : data.downloaded ? 'gm_issues_branch_downloaded'
+        : data.pulled ? 'gm_issues_branch_synced'
+        : 'gm_switched_to';
+      result.textContent = t(msgKey, {branch:data.branch});
+    }
     return data;
   }
 
@@ -1016,7 +1343,6 @@ GM.showRepoView = function(container, repo, autoFetch) {
       tc.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
         + '<button id="gm-issues-back" class="s-btn s-btn-sm">&#x2190; ' + t('gm_back') + '</button><strong style="flex:1">#' + issue.number + ' ' + GM.escape(issue.title) + '</strong>'
         + '<button id="gm-issue-edit" class="s-btn s-btn-sm">&#x270E; ' + t('gm_issues_edit') + '</button>'
-        + '<button id="gm-issue-pr" class="s-btn s-btn-sm" style="display:' + (onIssueBranch ? '' : 'none') + '">&#x1F500; ' + t('gm_issues_pull_request') + '</button>'
         + '<button id="gm-issue-branch" class="s-btn s-btn-sm" style="display:' + (onIssueBranch ? 'none' : '') + '">&#x1F33F; ' + t('gm_issues_create_branch') + '</button>'
         + '<button id="gm-issue-state" class="s-btn s-btn-sm">' + t(issue.state === 'open' ? 'gm_issues_close' : 'gm_issues_reopen') + '</button></div>'
         + '<div style="font-size:.74rem;color:var(--text-dim);margin-bottom:12px">' + GM.escape(issue.author) + ' · ' + GM.escape(issue.state) + '</div>'
@@ -1065,15 +1391,15 @@ GM.showRepoView = function(container, repo, autoFetch) {
           renderIssueDetail(tc, issue.number, status, next, false);
         } catch(e) { this.disabled = false; tc.querySelector('#gm-issue-action-result').textContent = e.message; }
       };
-      tc.querySelector('#gm-issue-pr').onclick = function() { showPRDialog(tc, issue, issueBranch); };
       tc.querySelector('#gm-issue-branch').onclick = async function() {
         var result = tc.querySelector('#gm-issue-action-result');
-        this.disabled = true; this.textContent = t('gm_issues_creating_branch');
+        var btn = this;
+        btn.disabled = true; btn.textContent = t('gm_issues_checking_branch');
         try {
-          await activateIssueBranch(tc, issue);
-          this.textContent = '&#x1F33F; ' + t('gm_issues_create_branch'); this.disabled = false;
-          updateIssueBranchButtons(tc, repo.branch === issueBranch);
-        } catch(e) { result.style.color = '#f38ba8'; result.textContent = e.message; this.disabled = false; this.textContent = t('gm_issues_create_branch'); }
+          await showIssueBranchDialog(tc, issue);
+        } catch(e) { result.style.color = '#f38ba8'; result.textContent = e.message; }
+        btn.innerHTML = '&#x1F33F; ' + t('gm_issues_create_branch'); btn.disabled = false;
+        updateIssueBranchButtons(tc, repo.branch === issueBranch);
       };
       if (autoBranch) {
         actionResult.style.color = 'var(--text-dim)';
@@ -1134,25 +1460,51 @@ GM.showRepoView = function(container, repo, autoFetch) {
   container.querySelector('#gm-pull').addEventListener('click', function() { doAction('pull'); });
   container.querySelector('#gm-push').addEventListener('click', function() { doAction('push'); });
   container.querySelector('#gm-fetch').addEventListener('click', function() { doAction('fetch'); });
-  container.querySelector('#gm-new-branch').addEventListener('click', async function() {
-    var name = await mvmOS.prompt(t('gm_branch_new_prompt'), '');
-    if (!name) return;
-    var out = container.querySelector('#gm-action-output');
-    if (out) { out.style.display = 'block'; out.style.color = 'var(--text-dim)'; out.textContent = t('gm_branch_creating'); }
-    try {
-      var r = await GM.api('/repo/branch/create', { method: 'POST', json: { path: repo.path, name: name } });
-      repo.branch = r.branch;
-      container.querySelector('#gm-branch-btn').innerHTML = '&#x1F33F; ' + GM.escape(r.branch) + ' &#x25BE;';
-      GM.renderSidebar(); loadStatus();
-      if (out) {
-        var msg = t('gm_branch_created', { branch: r.branch });
-        if (r.local_only) msg += ' — ' + t('gm_branch_local_only');
-        out.textContent = msg; out.style.color = '#a6e3a1';
-      }
-    } catch(e) {
-      if (out) { out.style.display = 'block'; out.textContent = e.message; out.style.color = '#f38ba8'; }
+  container.querySelector('#gm-new-branch').addEventListener('click', function() { showNewBranch(); });
+
+  // Offers the main branch (local copy first, then the remote one) and, when
+  // the user is somewhere else, a copy of the current branch.
+  function branchBases() {
+    var current = repo.branch && repo.branch !== '?' && repo.branch !== 'HEAD' ? repo.branch : '';
+    var bases = [];
+    if (defaultBranch && defaultBranch !== current) {
+      bases.push({ branch: defaultBranch, source: 'local', label: defaultBranch, mono: true,
+        tag: t('gm_branch_kind_default') + ' · ' + t('gm_branch_source_local'),
+        hint: t('gm_branch_from_local_hint', { branch: defaultBranch }) });
+      bases.push({ branch: defaultBranch, source: 'remote', label: 'origin/' + defaultBranch, mono: true,
+        tag: t('gm_branch_kind_default') + ' · ' + t('gm_branch_source_remote'),
+        hint: t('gm_branch_from_default_hint', { branch: defaultBranch }) });
     }
-  });
+    bases.push({ branch: current, source: 'local', label: current || 'HEAD', mono: true,
+      tag: t('gm_branch_kind_current'),
+      hint: t('gm_branch_from_current_hint', { branch: current || 'HEAD' }) });
+    return bases;
+  }
+
+  function showNewBranch() {
+    var bases = branchBases();
+    GM.branchDialog({
+      title: t('gm_branch_new_title'),
+      choicesLabel: t('gm_branch_from'),
+      choices: bases,
+      name: { value: '', suggest: function(c) { return c.tag === t('gm_branch_kind_current') && c.branch ? c.branch + '_copy' : ''; } },
+      confirmLabel: t('gm_branch_create'),
+      onConfirm: async function(choice, name) {
+        var r = await GM.api('/repo/branch/create', { method: 'POST',
+          json: { path: repo.path, name: name, base: choice.branch, source: choice.source } });
+        repo.branch = r.branch;
+        container.querySelector('#gm-branch-btn').innerHTML = '&#x1F33F; ' + GM.escape(r.branch) + ' &#x25BE;';
+        GM.renderSidebar(); loadStatus();
+        var out = container.querySelector('#gm-action-output');
+        if (out) {
+          var msg = t('gm_branch_created_from', { branch: r.branch, base: r.base });
+          if (r.local_only) msg += ' — ' + t('gm_branch_local_only');
+          out.style.display = 'block'; out.textContent = msg; out.style.color = '#a6e3a1';
+        }
+      }
+    });
+  }
+
   var issuesBtn = container.querySelector('#gm-issues');
   if (!(GM.state.foreignAccess || {}).premium) {
     issuesBtn.addEventListener('click', function() {
@@ -1163,6 +1515,33 @@ GM.showRepoView = function(container, repo, autoFetch) {
     }
   } else {
     issuesBtn.addEventListener('click', showIssues);
+  }
+
+  // On an issue branch the pull request takes its title and description from
+  // that issue; on any other branch it starts empty.
+  var prToolbarBtn = container.querySelector('#gm-pr-toolbar');
+  if (!(GM.state.foreignAccess || {}).premium) {
+    prToolbarBtn.addEventListener('click', function() {
+      window.dispatchEvent(new CustomEvent('open-subscription-settings'));
+    });
+    if (window.mvmOS && window.mvmOS.premiumGate) {
+      window.mvmOS.premiumGate(prToolbarBtn, t('gm_issues_premium_info'));
+    }
+  } else {
+    prToolbarBtn.addEventListener('click', async function() {
+      var head = repo.branch;
+      var number = issueNumberFromBranch(head);
+      var issue = null;
+      if (number) {
+        prToolbarBtn.disabled = true;
+        try {
+          var data = await GM.api('/repo/issues/' + number + '?path=' + encodeURIComponent(repo.path));
+          issue = data.issue || null;
+        } catch(e) { /* no such issue on GitHub — open the plain dialog */ }
+        prToolbarBtn.disabled = false;
+      }
+      showPRDialog(issue, head);
+    });
   }
   container.querySelector('#gm-tab-status').addEventListener('click', function() { switchTab('status'); });
   container.querySelector('#gm-tab-log').addEventListener('click', function() { switchTab('log'); });
@@ -1423,10 +1802,7 @@ window.GitManager = {
       var repo = (GM.state.repos || []).filter(function(r) { return r.path === path; })[0];
       if (repo) {
         clearInterval(iv);
-        GM.state.activeRepo = repo;
-        GM.renderSidebar();
-        if (repo.locked) GM.showLockedRepo(GM.contentEl, repo);
-        else GM.showRepoView(GM.contentEl, repo, true);
+        GM.openRepo(repo);
       } else if (tries > 40) {
         clearInterval(iv);
       }

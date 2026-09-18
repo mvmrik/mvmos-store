@@ -8,8 +8,8 @@
     "quotes",
     "estimates"
   ],
-  "version": "2.4.3",
+  "version": "2.4.4",
   "description": "Project quote builder. Add services with time (hours + minutes) or fixed prices, set an hourly rate, apply discounts and deposit, and share a live public link with your client.",
   "public_directory": false,
-  "min_core_version": "0.44.1-beta"
+  "min_core_version": "1.0.0"
 }

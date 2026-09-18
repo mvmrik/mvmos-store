@@ -8,8 +8,8 @@
     "torrent",
     "media"
   ],
-  "version": "1.6.1",
-  "min_core_version": "0.5.16",
+  "version": "1.6.2",
+  "min_core_version": "1.0.0",
   "description": "Visual dashboard for qBittorrent. Connects to a local qBittorrent instance via WebUI API.",
   "entry": "main.js",
   "css": "style.css",
