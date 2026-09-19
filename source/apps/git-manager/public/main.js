@@ -7,7 +7,10 @@ function start() {
 var t = window.t || function(k) { return k; };
 
 var GM = {
-  state: { repos: [], activeRepo: null, currentUser: '', foreignAccess: {}, sessionShown: {}, showOthers: false },
+  state: {
+    repos: [], activeRepo: null, currentUser: '', foreignAccess: {}, sessionShown: {}, showOthers: false,
+    terminals: {}, termOpen: localStorage.getItem('gm_term_open') === '1', termPos: localStorage.getItem('gm_term_pos') === 'right' ? 'right' : 'bottom',
+  },
   body: null,
   listEl: null,
   contentEl: null,
@@ -357,7 +360,23 @@ GM.init = function(body) {
       + '</div>'
     + '</div>'
     + '<div id="gm-content" style="flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative;min-width:0">'
-      + '<div id="gm-view" style="flex:1;overflow:hidden;display:flex;flex-direction:column;min-width:0"></div>'
+      + '<div id="gm-content-top" style="display:flex;align-items:center;justify-content:flex-end;gap:2px;padding:3px 6px;border-bottom:1px solid var(--border);flex-shrink:0">'
+        + '<button id="gm-term-dock-bottom" title="' + t('gm_terminal_dock_bottom') + '" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:4px;display:flex;color:var(--text-dim)">' + GM.termDockIcon('bottom') + '</button>'
+        + '<button id="gm-term-dock-right" title="' + t('gm_terminal_dock_right') + '" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:4px;display:flex;color:var(--text-dim)">' + GM.termDockIcon('right') + '</button>'
+      + '</div>'
+      + '<div id="gm-content-main" style="flex:1;overflow:hidden;display:flex;min-width:0;min-height:0">'
+        + '<div id="gm-view" style="flex:1;overflow:hidden;display:flex;flex-direction:column;min-width:0;min-height:0"></div>'
+        + '<div id="gm-term-right" style="display:none;flex:1;min-width:260px;border-left:1px solid var(--border);overflow:hidden;position:relative"></div>'
+      + '</div>'
+      + '<div id="gm-term-bottom" style="display:none;flex:1;min-height:120px;border-top:1px solid var(--border);overflow:hidden;position:relative"></div>'
+      + '<button id="gm-term-fab" title="' + t('gm_terminal') + '" style="display:none;position:absolute;right:14px;bottom:14px;width:46px;height:46px;border-radius:50%;background:var(--accent);color:#fff;border:none;box-shadow:0 2px 10px rgba(0,0,0,.35);font-size:1.35rem;z-index:50;align-items:center;justify-content:center;cursor:pointer">&#x1F5A5;&#xFE0F;</button>'
+      + '<div id="gm-term-mobile-overlay" style="display:none;position:absolute;inset:0;background:#0d1117;z-index:60;flex-direction:column">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0">'
+          + '<span style="font-size:.8rem;font-weight:600;color:var(--text-dim)">' + t('gm_terminal') + '</span>'
+          + '<button id="gm-term-mobile-close" style="background:none;border:none;color:var(--text-dim);font-size:1.2rem;cursor:pointer;padding:2px 8px;line-height:1">&times;</button>'
+        + '</div>'
+        + '<div id="gm-term-mobile-body" style="flex:1;position:relative;overflow:hidden"></div>'
+      + '</div>'
     + '</div>'
     + '</div>';
 
@@ -371,6 +390,10 @@ GM.init = function(body) {
   // window is open; favorites are stored on the server and always shown.
   GM.state.sessionShown = {};
   GM.state.showOthers = false;
+  // Terminal shell processes never survive closing the app, but whether the
+  // panel was open and where it was docked is remembered per device via
+  // localStorage, so it reopens (with a fresh shell) on the next launch.
+  GM.closeAllTerminals();
 
   sidebar.querySelector('#gm-refresh').addEventListener('click', function() { GM.loadRepos(true); });
   sidebar.querySelector('#gm-clone-btn').addEventListener('click', function() { GM.showClone(); });
@@ -379,11 +402,215 @@ GM.init = function(body) {
     GM.state.activeRepo = null;
     GM.renderSidebar();
     GM.showSSH(GM.contentEl);
+    GM.renderTermLayout();
   });
+
+  body.querySelector('#gm-term-dock-bottom').addEventListener('click', function() { GM.toggleTermDock('bottom'); });
+  body.querySelector('#gm-term-dock-right').addEventListener('click', function() { GM.toggleTermDock('right'); });
+  body.querySelector('#gm-term-fab').addEventListener('click', function() { GM.toggleMobileTerm(); });
+  body.querySelector('#gm-term-mobile-close').addEventListener('click', function() { GM.toggleMobileTerm(); });
+
+  // The window manager has no onClose hook, so app-owned cleanup (killing
+  // the live terminal shells) has to notice the window leaving the DOM itself.
+  if (GM.state.termMutObserver) GM.state.termMutObserver.disconnect();
+  GM.state.termMutObserver = new MutationObserver(function() {
+    if (!body.isConnected) {
+      GM.state.termMutObserver.disconnect();
+      GM.closeAllTerminals();
+      GM.stopStatusPoll();
+    }
+  });
+  GM.state.termMutObserver.observe(document.body, { childList: true, subtree: true });
+
+  if (GM.state.termResizeObserver) GM.state.termResizeObserver.disconnect();
+  GM.state.termResizeObserver = new ResizeObserver(function() {
+    var entry = GM.state.activeRepo && GM.state.terminals[GM.state.activeRepo.path];
+    if (!entry) return;
+    try { entry.fitAddon.fit(); } catch(e) {}
+    if (entry.ws.readyState === WebSocket.OPEN)
+      entry.ws.send(JSON.stringify({ type: 'resize', rows: entry.term.rows, cols: entry.term.cols }));
+  });
+  GM.state.termResizeObserver.observe(body);
 
   mvmOS.initMobileSidebar(body);
   GM.showWelcome();
+  GM.renderTermLayout();
   GM.loadRepos();
+};
+
+// ── Terminal panel ───────────────────────────────────────────────────────────
+// One real shell per repository, kept alive (and its scrollback with it) for
+// as long as this app window stays open. Switching repos in the sidebar only
+// moves the visible terminal's DOM node around — it never tears the process
+// down — so coming back to a repo finds its terminal exactly as it was.
+
+GM.isMobile = function() {
+  return window.innerWidth < 768 || navigator.maxTouchPoints > 1;
+};
+
+GM.shQuote = function(s) {
+  return "'" + String(s).replace(/'/g, "'\\''") + "'";
+};
+
+GM.termDockIcon = function(pos) {
+  var fill = pos === 'right' ? '<rect x="9.5" y="1.5" width="5" height="13" fill="currentColor" opacity=".5"/>'
+    : '<rect x="1.5" y="9.5" width="13" height="5" fill="currentColor" opacity=".5"/>';
+  return '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">'
+    + '<rect x="1.5" y="1.5" width="13" height="13" rx="1.5" stroke="currentColor" stroke-width="1.3"/>'
+    + fill + '</svg>';
+};
+
+GM.ensureTerminal = function(repo) {
+  if (!repo) return null;
+  var existing = GM.state.terminals[repo.path];
+  if (existing) return existing;
+
+  var wrapper = document.createElement('div');
+  wrapper.style.cssText = 'position:absolute;inset:0;padding:4px;box-sizing:border-box;background:#0d1117';
+
+  var term = new window.Terminal({
+    fontFamily: "'Consolas', 'Menlo', 'Courier New', monospace",
+    fontSize: 13,
+    lineHeight: 1.2,
+    theme: {
+      background: '#0d1117', foreground: '#c9d1d9', cursor: '#c9d1d9',
+      black: '#0d1117', red: '#ff5555', green: '#50fa7b',
+      yellow: '#f1fa8c', blue: '#6272a4', magenta: '#ff79c6',
+      cyan: '#8be9fd', white: '#f8f8f2',
+    },
+    cursorBlink: true,
+    scrollback: 5000,
+    allowProposedApi: true,
+  });
+  var fitAddon = new window.FitAddon.FitAddon();
+  term.loadAddon(fitAddon);
+  term.open(wrapper);
+
+  var proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  var ws = new WebSocket(proto + '://' + location.host + '/ws/terminal');
+  ws.binaryType = 'arraybuffer';
+
+  var entry = { ws: ws, term: term, fitAddon: fitAddon, wrapper: wrapper };
+  GM.state.terminals[repo.path] = entry;
+
+  ws.onopen = function() {
+    try { fitAddon.fit(); } catch(e) {}
+    ws.send(JSON.stringify({ type: 'resize', rows: term.rows, cols: term.cols }));
+    // Give the login shell a moment to settle before dropping it straight
+    // into the repo, the same way it would if typed by hand.
+    setTimeout(function() {
+      if (ws.readyState === WebSocket.OPEN)
+        ws.send(new TextEncoder().encode('cd ' + GM.shQuote(repo.path) + ' && clear\n'));
+    }, 400);
+  };
+  ws.onmessage = function(e) {
+    term.write(e.data instanceof ArrayBuffer ? new Uint8Array(e.data) : e.data);
+  };
+  ws.onclose = function() { term.write('\r\n\x1b[31m[Connection closed]\x1b[0m\r\n'); };
+  ws.onerror = function() { term.write('\r\n\x1b[31m[Connection error]\x1b[0m\r\n'); };
+  term.onData(function(data) {
+    if (ws.readyState === WebSocket.OPEN) ws.send(new TextEncoder().encode(data));
+  });
+
+  return entry;
+};
+
+GM.closeTerminal = function(path) {
+  var entry = GM.state.terminals[path];
+  if (!entry) return;
+  delete GM.state.terminals[path];
+  try { entry.ws.close(); } catch(e) {}
+  try { entry.term.dispose(); } catch(e) {}
+  if (entry.wrapper.parentNode) entry.wrapper.parentNode.removeChild(entry.wrapper);
+};
+
+GM.closeAllTerminals = function() {
+  Object.keys(GM.state.terminals).forEach(GM.closeTerminal);
+};
+
+// Files changed by the terminal (e.g. a Claude Code session or any other
+// shell command) never notify the app, so the open repo's status is polled
+// while its view is visible — the only way to notice them without a manual
+// refresh. Stopped whenever the view changes so at most one poll ever runs.
+GM.stopStatusPoll = function() {
+  if (GM.state.statusPollInterval) {
+    clearInterval(GM.state.statusPollInterval);
+    GM.state.statusPollInterval = null;
+  }
+};
+
+GM.updateTermDockButtons = function() {
+  ['bottom', 'right'].forEach(function(pos) {
+    var btn = GM.body.querySelector('#gm-term-dock-' + pos);
+    if (!btn) return;
+    var active = GM.state.termOpen && GM.state.termPos === pos;
+    btn.style.color = active ? 'var(--accent)' : 'var(--text-dim)';
+    btn.style.background = active ? 'var(--accent-dim,rgba(99,102,241,.15))' : 'none';
+    var disabled = !GM.state.activeRepo;
+    btn.disabled = disabled;
+    btn.style.opacity = disabled ? '.35' : '1';
+    btn.style.cursor = disabled ? 'default' : 'pointer';
+  });
+};
+
+// Detaches every live terminal from wherever it is mounted, then reattaches
+// only the one that should currently be visible (if any) — the single place
+// that decides what the panel looks like, on desktop and on mobile alike.
+GM.renderTermLayout = function() {
+  if (!GM.body) return;
+  var bottom = GM.body.querySelector('#gm-term-bottom');
+  var right = GM.body.querySelector('#gm-term-right');
+  var overlay = GM.body.querySelector('#gm-term-mobile-overlay');
+  var mbody = GM.body.querySelector('#gm-term-mobile-body');
+  var fab = GM.body.querySelector('#gm-term-fab');
+  var topbar = GM.body.querySelector('#gm-content-top');
+  if (!bottom || !right || !overlay || !mbody) return;
+
+  Object.keys(GM.state.terminals).forEach(function(path) {
+    var entry = GM.state.terminals[path];
+    if (entry.wrapper.parentNode) entry.wrapper.parentNode.removeChild(entry.wrapper);
+  });
+
+  var mobile = GM.isMobile();
+  bottom.style.display = 'none';
+  right.style.display = 'none';
+  overlay.style.display = 'none';
+  if (topbar) topbar.style.display = mobile ? 'none' : 'flex';
+  if (fab) fab.style.display = mobile && GM.state.activeRepo ? 'flex' : 'none';
+
+  if (GM.state.termOpen && GM.state.activeRepo) {
+    var entry = GM.ensureTerminal(GM.state.activeRepo);
+    var slot;
+    if (mobile) { overlay.style.display = 'flex'; slot = mbody; }
+    else { slot = GM.state.termPos === 'right' ? right : bottom; slot.style.display = 'block'; }
+    slot.appendChild(entry.wrapper);
+    requestAnimationFrame(function() {
+      try { entry.fitAddon.fit(); } catch(e) {}
+      if (entry.ws.readyState === WebSocket.OPEN)
+        entry.ws.send(JSON.stringify({ type: 'resize', rows: entry.term.rows, cols: entry.term.cols }));
+      entry.term.focus();
+    });
+  }
+
+  GM.updateTermDockButtons();
+};
+
+GM.toggleTermDock = function(pos) {
+  if (GM.state.termOpen && GM.state.termPos === pos) {
+    GM.state.termOpen = false;
+  } else {
+    GM.state.termPos = pos;
+    GM.state.termOpen = true;
+    localStorage.setItem('gm_term_pos', pos);
+  }
+  localStorage.setItem('gm_term_open', GM.state.termOpen ? '1' : '0');
+  GM.renderTermLayout();
+};
+
+GM.toggleMobileTerm = function() {
+  GM.state.termOpen = !GM.state.termOpen;
+  localStorage.setItem('gm_term_open', GM.state.termOpen ? '1' : '0');
+  GM.renderTermLayout();
 };
 
 // ── Sidebar ───────────────────────────────────────────────────────────────────
@@ -452,11 +679,29 @@ GM.repoItem = function(repo) {
   item.innerHTML = '<div style="display:flex;align-items:center;gap:5px">'
     + '<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;font-size:.83rem;pointer-events:none">' + GM.escape(repo.name) + '</span>'
     + (repo.locked ? '<span style="font-size:.72rem;flex-shrink:0;pointer-events:none" title="' + t('gm_locked') + '">&#x1F512;</span>' : '')
-    + (repo.changes > 0 ? '<span style="font-size:.68rem;background:var(--accent);color:#fff;border-radius:10px;padding:1px 5px;flex-shrink:0;pointer-events:none">' + repo.changes + '</span>' : '')
+    + (repo.changes > 0 ? '<span class="gm-repo-badge" style="font-size:.68rem;background:var(--accent);color:#fff;border-radius:10px;padding:1px 5px;flex-shrink:0;pointer-events:none">' + repo.changes + '</span>' : '')
     + '<button class="gm-fav" data-gm-fav="' + GM.escape(repo.path) + '" title="' + t(repo.favorite ? 'gm_favorite_remove' : 'gm_favorite_add') + '" style="background:none;border:none;cursor:pointer;padding:0 3px;font-size:.9rem;line-height:1;flex-shrink:0;color:' + (repo.favorite ? '#f9e2af' : 'var(--text-dim)') + ';opacity:' + (repo.favorite ? '1' : '.45') + '">' + (repo.favorite ? '&#x2605;' : '&#x2606;') + '</button>'
     + '</div>'
     + '<div style="font-size:.72rem;color:var(--text-dim);margin-top:2px;pointer-events:none">' + sub + '</div>';
   return item;
+};
+
+GM.updateRepoBadge = function(repo) {
+  var item = GM.listEl.querySelector('[data-gm-path="' + repo.path.replace(/"/g, '\\"') + '"]');
+  if (!item) return;
+  var row = item.firstChild;
+  var badge = row.querySelector('.gm-repo-badge');
+  if (repo.changes > 0) {
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.className = 'gm-repo-badge';
+      badge.style.cssText = 'font-size:.68rem;background:var(--accent);color:#fff;border-radius:10px;padding:1px 5px;flex-shrink:0;pointer-events:none';
+      row.insertBefore(badge, row.querySelector('.gm-fav'));
+    }
+    badge.textContent = repo.changes;
+  } else if (badge) {
+    badge.remove();
+  }
 };
 
 GM.renderSidebar = function() {
@@ -517,6 +762,7 @@ GM.openRepo = function(repo) {
   if (repo.locked) GM.showLockedRepo(GM.contentEl, repo);
   else if (!repo.detailed) GM.loadRepos();
   else GM.showRepoView(GM.contentEl, repo, true);
+  GM.renderTermLayout();
 };
 
 GM.toggleFavorite = async function(path) {
@@ -535,6 +781,7 @@ GM.toggleFavorite = async function(path) {
 };
 
 GM.showLockedRepo = function(container, repo) {
+  GM.stopStatusPoll();
   var access = GM.state.foreignAccess || {};
   container.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface)">'
     + '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.9rem">' + repo.name + '</div>'
@@ -678,6 +925,7 @@ GM.showInit = function() {
 // ── Repo view ─────────────────────────────────────────────────────────────────
 
 GM.showRepoView = function(container, repo, autoFetch) {
+  GM.stopStatusPoll();
   var tab = 'status';
   var lastStatusSignature = null;
   var defaultBranch = '';
@@ -864,6 +1112,13 @@ GM.showRepoView = function(container, repo, autoFetch) {
     if (!onlyIfChanged) tc.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem;opacity:.7">' + t('gm_loading') + '</div>';
     try {
       var s = await GM.api('/repo/status?path=' + encodeURIComponent(repo.path));
+      // Kept in sync on every poll, independent of the signature check below,
+      // so the sidebar badge never lags behind changes made outside the app
+      // (e.g. from the terminal) even while the status view itself is unchanged.
+      if (repo.changes !== s.files.length) {
+        repo.changes = s.files.length;
+        GM.updateRepoBadge(repo);
+      }
       var statusSignature = JSON.stringify(s);
       if (onlyIfChanged && statusSignature === lastStatusSignature) return;
       lastStatusSignature = statusSignature;
@@ -1080,7 +1335,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         return;
       }
       list.innerHTML = '';
-      issues.forEach(function(issue) {
+      function issueRow(issue) {
         var row = document.createElement('button');
         row.className = 's-btn';
         row.style.cssText = 'width:100%;display:flex;align-items:flex-start;gap:10px;text-align:left;padding:9px 10px;margin-bottom:5px;background:var(--surface2,#313244);border-color:var(--border)';
@@ -1088,11 +1343,92 @@ GM.showRepoView = function(container, repo, autoFetch) {
           + '<span style="flex:1;min-width:0"><span style="display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + GM.escape(issue.title) + '</span>'
           + '<span style="display:block;font-size:.7rem;color:var(--text-dim);margin-top:3px">#' + issue.number + ' · ' + GM.escape(issue.author) + ' · ' + t('gm_issues_comments', {n:issue.comments || 0}) + '</span></span>';
         row.onclick = function() { renderIssueDetail(tc, issue.number, status, state, true); };
-        list.appendChild(row);
-      });
+        return row;
+      }
+      var mine = issues.filter(function(i) { return status.username && (i.assignees || []).indexOf(status.username) !== -1; });
+      var others = issues.filter(function(i) { return mine.indexOf(i) === -1; });
+      function sectionHeader(text) {
+        var h = document.createElement('div');
+        h.textContent = text;
+        h.style.cssText = 'font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);margin:4px 0 6px';
+        return h;
+      }
+      if (mine.length) {
+        list.appendChild(sectionHeader(t('gm_issues_mine')));
+        mine.forEach(function(issue) { list.appendChild(issueRow(issue)); });
+        if (others.length) {
+          var divider = document.createElement('div');
+          divider.style.cssText = 'border-top:1px solid var(--border);margin:10px 0';
+          list.appendChild(divider);
+          list.appendChild(sectionHeader(t('gm_issues_others')));
+        }
+      }
+      others.forEach(function(issue) { list.appendChild(issueRow(issue)); });
     }).catch(function(e) {
       list.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + GM.escape(e.message) + '</div>';
     });
+  }
+
+  // Shared Assignees/Labels/Milestone block for the create and edit issue
+  // forms. GitHub Issues have no local cache for these, so they're always
+  // fetched fresh from the repo when the form opens.
+  function issueMetaFieldsHtml() {
+    return '<div style="display:flex;gap:10px;flex-wrap:wrap">'
+      + '<div style="flex:1;min-width:160px"><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_issues_assignees') + '</div>'
+      + '<select id="gm-issue-assignees" class="s-input" multiple size="4" style="width:100%;max-width:none;box-sizing:border-box"></select></div>'
+      + '<div style="flex:1;min-width:160px"><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_issues_labels') + '</div>'
+      + '<select id="gm-issue-labels" class="s-input" multiple size="4" style="width:100%;max-width:none;box-sizing:border-box"></select></div>'
+      + '<div style="flex:1;min-width:160px"><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_issues_milestone') + '</div>'
+      + '<select id="gm-issue-milestone" class="s-input" style="width:100%;max-width:none;box-sizing:border-box"><option value="">' + t('gm_issues_no_milestone') + '</option></select></div>'
+      + '</div>';
+  }
+
+  function loadIssueMeta(tc, selected) {
+    selected = selected || {};
+    var assigneesSel = tc.querySelector('#gm-issue-assignees');
+    var labelsSel = tc.querySelector('#gm-issue-labels');
+    var milestoneSel = tc.querySelector('#gm-issue-milestone');
+    var selectedAssignees = selected.assignees || [];
+    var selectedLabels = selected.labels || [];
+    // The issue's current values are always present and selected — before the
+    // repo metadata arrives, if it fails, and when GitHub no longer lists them
+    // (e.g. a closed milestone) — so saving never silently clears them.
+    function fill(assignees, labels, milestones) {
+      assigneesSel.innerHTML = '';
+      assignees.concat(selectedAssignees.filter(function(a) { return assignees.indexOf(a) === -1; })).forEach(function(login) {
+        var opt = document.createElement('option');
+        opt.value = login; opt.textContent = login;
+        if (selectedAssignees.indexOf(login) !== -1) opt.selected = true;
+        assigneesSel.appendChild(opt);
+      });
+      labelsSel.innerHTML = '';
+      labels.concat(selectedLabels.filter(function(l) { return labels.indexOf(l) === -1; })).forEach(function(name) {
+        var opt = document.createElement('option');
+        opt.value = name; opt.textContent = name;
+        if (selectedLabels.indexOf(name) !== -1) opt.selected = true;
+        labelsSel.appendChild(opt);
+      });
+      milestoneSel.innerHTML = '<option value="">' + t('gm_issues_no_milestone') + '</option>';
+      var ms = milestones.slice();
+      if (selected.milestone && !ms.some(function(m) { return m.number === selected.milestone.number; })) ms.push(selected.milestone);
+      ms.forEach(function(m) {
+        var opt = document.createElement('option');
+        opt.value = m.number; opt.textContent = m.title;
+        if (selected.milestone && selected.milestone.number === m.number) opt.selected = true;
+        milestoneSel.appendChild(opt);
+      });
+    }
+    fill([], [], []);
+    GM.api('/repo/issues/meta?path=' + encodeURIComponent(repo.path)).then(function(meta) {
+      fill(meta.assignees || [], (meta.labels || []).map(function(l) { return l.name; }), meta.milestones || []);
+    }).catch(function(e) {
+      var err = tc.querySelector('#gm-issue-create-error') || tc.querySelector('#gm-issue-edit-error');
+      if (err) { err.textContent = e.message; err.style.display = 'block'; }
+    });
+  }
+
+  function selectedValues(sel) {
+    return Array.prototype.map.call(sel.selectedOptions || [], function(o) { return o.value; });
   }
 
   function renderNewIssue(tc, status) {
@@ -1102,18 +1438,24 @@ GM.showRepoView = function(container, repo, autoFetch) {
       + '<input id="gm-issue-title" class="s-input" placeholder="' + t('gm_issues_title_placeholder') + '">'
       + GM.mdToolbarHtml('gm-issue-body')
       + '<textarea id="gm-issue-body" class="s-input" rows="10" placeholder="' + t('gm_issues_body_placeholder') + '" style="resize:vertical;max-width:none;border-radius:0 0 6px 6px;margin-top:-1px"></textarea>'
+      + issueMetaFieldsHtml()
       + '<div id="gm-issue-create-error" style="display:none;color:#f38ba8;font-size:.8rem"></div>'
       + '<div><button id="gm-issue-create" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_issues_create') + '</button></div></div>';
     tc.querySelector('#gm-issues-back').onclick = function() { renderIssueList(tc, 'open', status); };
     GM.wireMdToolbar(tc, tc.querySelector('#gm-issue-body'));
+    loadIssueMeta(tc, {});
     tc.querySelector('#gm-issue-create').onclick = async function() {
       var title = tc.querySelector('#gm-issue-title').value.trim();
       var body = tc.querySelector('#gm-issue-body').value.trim();
       var err = tc.querySelector('#gm-issue-create-error');
       if (!title) { err.textContent = t('gm_issues_title_required'); err.style.display = 'block'; return; }
+      var assignees = selectedValues(tc.querySelector('#gm-issue-assignees'));
+      var labels = selectedValues(tc.querySelector('#gm-issue-labels'));
+      var milestoneVal = tc.querySelector('#gm-issue-milestone').value;
+      var milestone = milestoneVal ? parseInt(milestoneVal, 10) : null;
       this.disabled = true; this.textContent = t('gm_issues_creating');
       try {
-        var data = await GM.api('/repo/issues', {method:'POST',json:{path:repo.path,title:title,body:body}});
+        var data = await GM.api('/repo/issues', {method:'POST',json:{path:repo.path,title:title,body:body,assignees:assignees,labels:labels,milestone:milestone}});
         renderIssueDetail(tc, data.issue.number, status, 'open', true);
       } catch(e) {
         err.textContent = e.message; err.style.display = 'block'; this.disabled = false; this.textContent = t('gm_issues_create');
@@ -1141,7 +1483,10 @@ GM.showRepoView = function(container, repo, autoFetch) {
       + '<div style="display:flex;gap:8px;align-items:center;font-size:.82rem">'
       + '<select id="gm-pr-head" class="s-input" style="flex:1;min-width:0;width:0;max-width:none;text-overflow:ellipsis"></select>'
       + '<span style="color:var(--text-dim);flex-shrink:0">&#x2192;</span>'
-      + '<select id="gm-pr-base" class="s-input" style="flex:1;min-width:0;width:0;max-width:none;text-overflow:ellipsis"></select>'
+      + '<div style="position:relative;flex:1;min-width:0">'
+      + '<input id="gm-pr-base" class="s-input" style="width:100%;box-sizing:border-box;max-width:none;text-overflow:ellipsis" autocomplete="off" placeholder="' + t('gm_search_branches') + '">'
+      + '<div id="gm-pr-base-list" style="display:none;position:absolute;z-index:50;top:calc(100% + 4px);left:0;right:0;max-height:220px;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.4)"></div>'
+      + '</div>'
       + '</div>'
       + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_pr_title_label') + '</div>'
       + '<input id="gm-pr-title" class="s-input" style="width:100%;max-width:none;box-sizing:border-box" placeholder="' + GM.escape(headBranch) + '" value="' + GM.escape(issue ? (issue.title || headBranch) : '') + '"></div>'
@@ -1155,9 +1500,11 @@ GM.showRepoView = function(container, repo, autoFetch) {
     container.appendChild(overlay);
 
     var headSel = overlay.querySelector('#gm-pr-head');
-    var baseSel = overlay.querySelector('#gm-pr-base');
+    var baseInput = overlay.querySelector('#gm-pr-base');
+    var baseList = overlay.querySelector('#gm-pr-base-list');
+    var baseSel = { value: '' };
     headSel.innerHTML = '<option>' + t('gm_loading') + '</option>';
-    baseSel.innerHTML = '<option>' + t('gm_loading') + '</option>';
+    baseInput.value = t('gm_loading'); baseInput.disabled = true;
 
     function fillSelect(sel, names, selected) {
       sel.innerHTML = '';
@@ -1168,6 +1515,43 @@ GM.showRepoView = function(container, repo, autoFetch) {
         sel.appendChild(opt);
       });
     }
+
+    var baseNames = [];
+    function setBase(name) { baseSel.value = name; baseInput.value = name; }
+    function renderBaseList(names, filterText) {
+      var f = (filterText || '').toLowerCase();
+      baseList.innerHTML = '';
+      var any = false;
+      names.forEach(function(name) {
+        if (f && name.toLowerCase().indexOf(f) === -1) return;
+        any = true;
+        var isSel = name === baseSel.value;
+        var row = document.createElement('div');
+        row.style.cssText = 'padding:7px 12px;cursor:pointer;font-size:.82rem;font-family:monospace;'
+          + (isSel ? 'background:var(--accent-dim,rgba(99,102,241,.15));font-weight:600' : '');
+        row.textContent = name;
+        row.addEventListener('mouseenter', function() { if (!isSel) this.style.background = 'var(--surface2,#313244)'; });
+        row.addEventListener('mouseleave', function() { if (!isSel) this.style.background = ''; });
+        row.addEventListener('mousedown', function(e) {
+          e.preventDefault();
+          setBase(name);
+          baseList.style.display = 'none';
+        });
+        baseList.appendChild(row);
+      });
+      if (!any) {
+        var empty = document.createElement('div');
+        empty.textContent = t('gm_no_matching_branches');
+        empty.style.cssText = 'padding:8px 12px;font-size:.8rem;color:var(--text-dim)';
+        baseList.appendChild(empty);
+      }
+    }
+    baseInput.addEventListener('focus', function() { renderBaseList(baseNames, ''); baseList.style.display = 'block'; });
+    baseInput.addEventListener('input', function() { renderBaseList(baseNames, baseInput.value); baseList.style.display = 'block'; });
+    baseInput.addEventListener('keydown', function(e) { if (e.key === 'Escape') { baseInput.value = baseSel.value; baseList.style.display = 'none'; baseInput.blur(); } });
+    baseInput.addEventListener('blur', function() {
+      setTimeout(function() { baseList.style.display = 'none'; baseInput.value = baseSel.value; }, 150);
+    });
 
     function loadExistingPRs(head) {
       var box = overlay.querySelector('#gm-pr-existing');
@@ -1201,13 +1585,18 @@ GM.showRepoView = function(container, repo, autoFetch) {
       if (names.indexOf(headBranch) === -1) names.unshift(headBranch);
       fillSelect(headSel, names, headBranch);
       var fallbackBase = names.filter(function(n) { return n !== headBranch; })[0] || names[0];
+      baseInput.disabled = false; baseInput.value = '';
       GM.api('/repo/status?path=' + encodeURIComponent(repo.path)).then(function(s) {
         var def = s.default_branch && names.indexOf(s.default_branch) !== -1 ? s.default_branch : fallbackBase;
-        fillSelect(baseSel, names, def);
-      }).catch(function() { fillSelect(baseSel, names, fallbackBase); });
+        baseNames = names.slice().sort(function(a, b) {
+          var rank = function(n) { return n === def ? 0 : 1; };
+          return rank(a) - rank(b);
+        });
+        setBase(def);
+      }).catch(function() { baseNames = names.slice(); setBase(fallbackBase); });
     }).catch(function(e) {
       fillSelect(headSel, [headBranch], headBranch);
-      fillSelect(baseSel, [headBranch], headBranch);
+      baseNames = [headBranch]; baseInput.disabled = false; setBase(headBranch);
       overlay.querySelector('#gm-pr-error').textContent = e.message;
       overlay.querySelector('#gm-pr-error').style.display = 'block';
     });
@@ -1314,19 +1703,25 @@ GM.showRepoView = function(container, repo, autoFetch) {
       + '<input id="gm-issue-edit-title" class="s-input" value="' + GM.escape(issue.title) + '">'
       + GM.mdToolbarHtml('gm-issue-edit-body')
       + '<textarea id="gm-issue-edit-body" class="s-input" rows="10" style="resize:vertical;max-width:none;border-radius:0 0 6px 6px;margin-top:-1px">' + GM.escape(issue.body || '') + '</textarea>'
+      + issueMetaFieldsHtml()
       + '<div id="gm-issue-edit-error" style="display:none;color:#f38ba8;font-size:.8rem"></div>'
       + '<div style="display:flex;gap:8px"><button id="gm-issue-edit-save" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_save') + '</button></div></div>';
     var ta = tc.querySelector('#gm-issue-edit-body');
     GM.wireMdToolbar(tc, ta);
+    loadIssueMeta(tc, {assignees: issue.assignees || [], labels: issue.labels || [], milestone: issue.milestone || null});
     tc.querySelector('#gm-issue-edit-cancel').onclick = function() { renderIssueDetail(tc, issue.number, status, previousState, false); };
     tc.querySelector('#gm-issue-edit-save').onclick = async function() {
       var title = tc.querySelector('#gm-issue-edit-title').value.trim();
       var body = ta.value;
       var err = tc.querySelector('#gm-issue-edit-error');
       if (!title) { err.textContent = t('gm_issues_title_required'); err.style.display = 'block'; return; }
+      var assignees = selectedValues(tc.querySelector('#gm-issue-assignees'));
+      var labels = selectedValues(tc.querySelector('#gm-issue-labels'));
+      var milestoneVal = tc.querySelector('#gm-issue-milestone').value;
+      var milestone = milestoneVal ? parseInt(milestoneVal, 10) : null;
       this.disabled = true; this.textContent = t('gm_saving');
       try {
-        await GM.api('/repo/issues/' + issue.number, {method:'PATCH',json:{path:repo.path,title:title,body:body}});
+        await GM.api('/repo/issues/' + issue.number, {method:'PATCH',json:{path:repo.path,title:title,body:body,assignees:assignees,labels:labels,milestone:milestone}});
         renderIssueDetail(tc, issue.number, status, previousState, false, {ok:true, text:t('gm_issues_updated')});
       } catch(e) {
         err.textContent = e.message; err.style.display = 'block'; this.disabled = false; this.textContent = t('gm_save');
@@ -1594,7 +1989,16 @@ GM.showRepoView = function(container, repo, autoFetch) {
       });
       search.addEventListener('keydown', function(event) { if (event.key === 'Escape') { close(); btn.focus(); } });
       search.focus();
-      data.branches.forEach(function(b) {
+      var branches = data.branches.slice();
+      if (defaultBranch) {
+        var branchRank = function(b) {
+          if (b === defaultBranch) return 0;
+          if (b === 'origin/' + defaultBranch) return 1;
+          return 2;
+        };
+        branches.sort(function(a, b) { return branchRank(a) - branchRank(b); });
+      }
+      branches.forEach(function(b) {
         var isRemote = b.startsWith('origin/');
         var label = isRemote ? GM.escape(b.replace('origin/', '')) + ' <span style="font-size:.68rem;opacity:.6">' + t('gm_remote_badge') + '</span>' : GM.escape(b);
         var row = document.createElement('div');
@@ -1633,11 +2037,17 @@ GM.showRepoView = function(container, repo, autoFetch) {
 
   var initialStatus = loadStatus();
   if (autoFetch) initialStatus.then(function() { doAction('fetch'); });
+
+  GM.state.statusPollInterval = setInterval(function() {
+    if (!container.isConnected || GM.state.activeRepo !== repo) { GM.stopStatusPoll(); return; }
+    loadStatus(true);
+  }, 4000);
 };
 
 // ── SSH view ──────────────────────────────────────────────────────────────────
 
 GM.showSSH = function(container) {
+  GM.stopStatusPoll();
   container.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)">'
     + '<div style="font-weight:600;font-size:.9rem">' + t('gm_ssh_keys') + '</div>'
     + '<button id="gm-ssh-gen" class="s-btn s-btn-sm">&#xFF0B; ' + t('gm_generate_new_key') + '</button>'

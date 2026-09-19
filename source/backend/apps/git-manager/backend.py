@@ -471,6 +471,21 @@ def repo_status(path: str, session=Depends(get_current_session)):
         if len(line) >= 3:
             files.append({'code': line[:2], 'file': line[3:]})
 
+    remote_r = _git(session, path, ['remote', 'get-url', 'origin'])
+    remote = remote_r.stdout.strip() if remote_r.returncode == 0 else ''
+
+    upstream_r = _git(session, path, ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}'])
+    local_only = upstream_r.returncode != 0
+    # A branch can be perfectly in sync with origin yet have no upstream
+    # configured (e.g. a clone or checkout that never set -u). Re-link it
+    # instead of showing it as local-only just because that metadata is
+    # missing — otherwise ahead/behind stays blind and a plain "pull" fails.
+    if local_only and branch != '?':
+        remote_ref = _git(session, path, ['show-ref', '--verify', '--quiet', f'refs/remotes/origin/{branch}'])
+        if remote_ref.returncode == 0:
+            _git(session, path, ['branch', '--set-upstream-to', f'origin/{branch}', branch])
+            local_only = False
+
     ahead, behind = 0, 0
     try:
         ab = _git(session, path, ['rev-list', '--count', '--left-right', 'HEAD...@{u}'], timeout=8)
@@ -480,12 +495,6 @@ def repo_status(path: str, session=Depends(get_current_session)):
                 ahead, behind = int(parts[0]), int(parts[1])
     except Exception:
         pass
-
-    remote_r = _git(session, path, ['remote', 'get-url', 'origin'])
-    remote = remote_r.stdout.strip() if remote_r.returncode == 0 else ''
-
-    upstream_r = _git(session, path, ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}'])
-    local_only = upstream_r.returncode != 0
 
     return JSONResponse({'branch': branch, 'files': files, 'ahead': ahead, 'behind': behind,
                          'remote': remote, 'local_only': local_only,
@@ -751,6 +760,12 @@ def issues_list(path: str, state: str = 'open', session=Depends(get_current_sess
     return JSONResponse({'issues': _issue_call(lambda: module.list_issues(user, remote, state))})
 
 
+@router.get("/repo/issues/meta")
+def issues_meta(path: str, session=Depends(get_current_session)):
+    module, _, remote, user = _issues_context(session, path)
+    return JSONResponse(_issue_call(lambda: module.repo_meta(user, remote)))
+
+
 @router.get("/repo/issues/{number}")
 def issues_detail(number: int, path: str, session=Depends(get_current_session)):
     module, _, remote, user = _issues_context(session, path)
@@ -761,6 +776,9 @@ class IssueCreateBody(BaseModel):
     path: str
     title: str
     body: str = ''
+    assignees: list[str] = []
+    labels: list[str] = []
+    milestone: int | None = None
 
 
 @router.post("/repo/issues")
@@ -768,7 +786,9 @@ def issues_create(body: IssueCreateBody, session=Depends(get_current_session)):
     if not body.title.strip():
         raise HTTPException(400, 'Issue title is required')
     module, path, remote, user = _issues_context(session, body.path)
-    issue = _issue_call(lambda: module.create_issue(user, remote, body.title, body.body))
+    issue = _issue_call(lambda: module.create_issue(
+        user, remote, body.title, body.body, body.assignees, body.labels, body.milestone
+    ))
     return JSONResponse({'issue': issue})
 
 
@@ -776,6 +796,9 @@ class IssueUpdateBody(BaseModel):
     path: str
     title: str
     body: str = ''
+    assignees: list[str] = []
+    labels: list[str] = []
+    milestone: int | None = None
 
 
 @router.patch("/repo/issues/{number}")
@@ -784,7 +807,9 @@ def issues_update(number: int, body: IssueUpdateBody, session=Depends(get_curren
         raise HTTPException(400, 'Issue title is required')
     module, _, remote, user = _issues_context(session, body.path)
     return JSONResponse({'issue': _issue_call(
-        lambda: module.update_issue(user, remote, number, body.title, body.body)
+        lambda: module.update_issue(
+            user, remote, number, body.title, body.body, body.assignees, body.labels, body.milestone
+        )
     )})
 
 

@@ -5,13 +5,14 @@
     "Auto-detect git repositories on the machine, with a sidebar to switch between them. Star the ones you work on: favorites stay on top and refresh every time the window opens, while the rest are listed without slowing it down until you need them.",
     "Clone a repository from a URL, or initialise a new one with an optional remote.",
     "Switch branches, including remote branches, or create a new one from the toolbar, choosing whether it starts from the freshest remote main branch, your local copy of it, or the current branch exactly as it is.",
-    "Pull, push and fetch, with ahead/behind counts. Push sets the upstream automatically the first time a new branch is pushed.",
+    "Pull, push and fetch, with ahead/behind counts. Push sets the upstream automatically the first time a new branch is pushed. A branch that matches a branch on origin but lost its tracking link is reconnected automatically, so ahead/behind counts and pull keep working.",
     "A small badge next to the branch name shows when the current branch has not been pushed anywhere yet.",
     "See changed files and the diff for each.",
     "Commit all changes with a message (Ctrl+Enter to send), or commit and push in one step.",
     "Suggest a commit message from the changed files and folders, filled in so you can accept or rewrite it.",
     "Discard changes in one file or in the whole tree.",
     "Commit log per repository.",
+    "Open a terminal for the selected repository right inside the window, docked at the bottom or on the right. Each repository keeps its own live terminal while you switch between them, and the changed files refresh on their own when something in the terminal edits the working tree.",
     "Generate an ed25519 SSH key, copy the public key, and test the connection to GitHub, GitLab or any other host.",
     "See repositories owned by other profiles as locked entries, and either switch to the owner profile or unlock all of them from one place with Premium and sudo confirmation."
   ]
