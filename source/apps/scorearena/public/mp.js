@@ -10,12 +10,93 @@
   const BREAKDOWN_SEQ=[...Array(20)].map((_,i)=>20-i).concat([25]);
   const ATC_SEQ=[...Array(20)].map((_,i)=>i+1).concat([25]);
   const GOLF_HOLE_COUNTS={progolf:18,minigolf:9};
-  const CATEGORIES=[{id:'darts',icon:'🎯',label:'sa_cat_darts',kinds:GAME_KINDS},{id:'board',icon:'🎲',label:'sa_cat_board',kinds:[]}];
+  // Ready-made board games run on the custom-game engine; the server owns the real rules (BOARD_GAMES
+  // in mp_game.py) and these numbers only describe them before a match starts.
+  const boardRules=(icon,end,extra)=>({icon,direction:'up',start:0,end,target:0,rounds:10,winner:'high',exact:false,...extra});
+  const BOARD_KINDS=[
+    ['scrabble','🔤','manual'],['yahtzee','🎲','rounds',{rounds:13}],['farkle','🎰','target',{target:10000}],['catan','🏝️','target',{target:10}],
+    ['splendor','💎','target',{target:15}],['dominoes','⬛','target',{target:100}],['ticket','🚂','manual'],['carcassonne','🏰','manual'],
+    ['azul','🔷','manual'],['qwirkle','🔶','manual'],['wingspan','🐦','manual'],['kingdomino','👑','manual'],['monopoly','🏦','manual'],
+    ['blokus','🟦','manual',{winner:'low'}]
+  ].map(([id,icon,end,extra])=>({id,icon,label:'sa_board_'+id,rules:{...boardRules(icon,end,extra),board:id}}));
+  const CATEGORIES=[{id:'darts',icon:'🎯',label:'sa_cat_darts',kinds:GAME_KINDS},{id:'board',icon:'🎲',label:'sa_cat_board',kinds:BOARD_KINDS},{id:'custom',icon:'🧩',label:'sa_cat_custom',kinds:[]}];
+  // Custom games are rule sets made by the player. The list lives in this browser
+  // (and is rebuilt from the player's finished games in the Game Hub history); the
+  // server only learns the rules when a match starts, and records who authored them.
+  const CUSTOM_LIMIT=1000000,CUSTOM_BLANK={name:'',icon:'🎲',direction:'up',start:0,end:'target',target:100,rounds:10,winner:'high',exact:false};
+  const myKey=()=>String((mp.youId&&mp.youId())||'me');
+  const customKey=(r,owner)=>r.board?'board:'+r.board:`custom:${owner||myKey()}:${r.name.toLowerCase()}`;
+  const gamesKey=()=>'sa_custom_games:'+myKey(),goneKey=()=>'sa_custom_deleted:'+myKey(),playedKey=()=>'sa_custom_played:'+myKey();
+  const loadPlayed=()=>{const l=lsGet(playedKey(),[]);return Array.isArray(l)?l.filter(g=>g&&g.rules&&g.rules.name):[]};
+  function lsGet(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v??d}catch(_){return d}}
+  function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(_){}}
+  const loadGames=()=>{const l=lsGet(gamesKey(),[]);return Array.isArray(l)?l.filter(g=>g&&g.name):[]};
+  function upsertGame(g){const l=loadGames(),n=g.name.toLowerCase(),i=l.findIndex(x=>x.name.toLowerCase()===n);if(i>=0)l[i]=g;else l.push(g);lsSet(gamesKey(),l);lsSet(goneKey(),lsGet(goneKey(),[]).filter(x=>x!==n))}
+  function removeGame(g){const n=g.name.toLowerCase();lsSet(gamesKey(),loadGames().filter(x=>x.name.toLowerCase()!==n));lsSet(goneKey(),[...lsGet(goneKey(),[]),n])}
+  // Score Arena keeps its own statistics; this asks the app (not Game Hub) for them.
+  async function fetchHistory(){
+    const t=(window.GameHub&&GameHub.getToken&&GameHub.getToken())||localStorage.getItem('apphub_token')||localStorage.getItem('gh_token')||'';
+    if(!t)return null;
+    const r=await fetch('/pub/scorearena/history',{headers:{'X-Pub-Token':t}});
+    return r.ok?r.json():null;
+  }
+  // Rebuilds the two lists from finished games in the app's own history: games I made,
+  // and games somebody else made that I took part in (they show up in my stats too).
+  async function mergeHistory(){
+    try{
+      const data=await fetchHistory();if(!data)return false;
+      const list=loadGames(),gone=lsGet(goneKey(),[]),played=loadPlayed(),me=myKey();let changed=false;
+      (data.recent||[]).forEach(s=>{
+        if(s.game_id!=='scorearena')return;
+        let meta;try{meta=JSON.parse(s.metadata||'{}')}catch(_){return}
+        const c=meta.scorearena_custom;if(!c||!c.name)return;
+        const n=c.name.toLowerCase(),{owner_id,owner_name,...rules}=c;
+        if(String(owner_id)===me){
+          if(gone.includes(n)||list.some(x=>x.name.toLowerCase()===n))return;
+          list.push(rules);changed=true;
+        }else if(meta.player_stats&&meta.player_stats[me]){
+          if(played.some(x=>String(x.owner_id)===String(owner_id)&&x.rules.name.toLowerCase()===n))return;
+          played.push({rules,owner_id:String(owner_id),owner_name:owner_name||''});changed=true;
+        }
+      });
+      if(changed){lsSet(gamesKey(),list);lsSet(playedKey(),played)}
+      return changed;
+    }catch(_){return false}
+  }
+  function validateRules(g,isEdit){
+    if(!g.name)return 'sa_custom_err_name';
+    if(!isEdit&&loadGames().some(x=>x.name.toLowerCase()===g.name.toLowerCase()))return 'sa_custom_name_taken';
+    const ok=(v,lo=-CUSTOM_LIMIT,hi=CUSTOM_LIMIT)=>Number.isInteger(v)&&v>=lo&&v<=hi;
+    if(!ok(g.start)||!ok(g.target)||!ok(g.rounds,1,99))return 'sa_custom_err_number';
+    if(g.end==='target'&&(g.direction==='up'?g.target<=g.start:g.target>=g.start))return 'sa_custom_err_target';
+    return '';
+  }
+  const ruleName=r=>r.board?tr('sa_board_'+r.board):r.name;
+  function rulesLines(r){
+    const l=[tr(r.direction==='down'?'sa_rule_down':'sa_rule_up'),`${tr('sa_rule_start')}: ${r.start}`];
+    if(r.end==='target'){l.push(`${tr('sa_rule_target')}: ${r.target}`,tr('sa_rule_first'));if(r.exact)l.push(tr('sa_rule_exact'))}
+    else{l.push(r.end==='rounds'?`${tr('sa_rule_rounds')}: ${r.rounds}`:tr('sa_rule_manual'),tr(r.winner==='low'?'sa_rule_low':'sa_rule_high'))}
+    return l;
+  }
+  function formHtml(d,isEdit){
+    const opt=(v,k)=>`<option value="${v}">${tr(k)}</option>`;
+    return `<div class="sa-custom-form"><p class="sa-sub" style="margin:10px 0 8px">${tr('sa_custom_hint')}</p><div class="sa-options">
+      <div class="sa-field"><label for="cf-name">${tr('sa_custom_name')}</label><input id="cf-name" maxlength="40" value="${esc(d.name)}"${isEdit?' readonly':''}></div>
+      <div class="sa-field"><label for="cf-icon">${tr('sa_custom_icon')}</label><input id="cf-icon" maxlength="8" value="${esc(d.icon)}"></div>
+      <div class="sa-field"><label for="cf-direction">${tr('sa_custom_direction')}</label><select id="cf-direction">${opt('up','sa_rule_up')}${opt('down','sa_rule_down')}</select></div>
+      <div class="sa-field"><label for="cf-start">${tr('sa_custom_start')}</label><input id="cf-start" type="number" step="1" value="${d.start}"></div>
+      <div class="sa-field"><label for="cf-end">${tr('sa_custom_end')}</label><select id="cf-end">${opt('target','sa_custom_end_target')}${opt('rounds','sa_custom_end_rounds')}${opt('manual','sa_custom_end_manual')}</select></div>
+      <div class="sa-field" data-f="target"><label for="cf-target">${tr('sa_custom_target')}</label><input id="cf-target" type="number" step="1" value="${d.target}"></div>
+      <div class="sa-field" data-f="rounds"><label for="cf-rounds">${tr('sa_custom_rounds')}</label><input id="cf-rounds" type="number" step="1" min="1" max="99" value="${d.rounds}"></div>
+      <div class="sa-field" data-f="winner"><label for="cf-winner">${tr('sa_custom_winner')}</label><select id="cf-winner">${opt('high','sa_rule_high')}${opt('low','sa_rule_low')}</select></div>
+      <label class="sa-check" data-f="exact"><input id="cf-exact" type="checkbox"> ${tr('sa_custom_exact')}</label>
+    </div><p class="sa-form-error" id="cf-error"></p>
+    <div class="sa-form-actions"><button type="button" class="sa-btn sa-btn-text primary" id="cf-save">${tr('sa_custom_save')}</button><button type="button" class="sa-btn sa-btn-text" id="cf-cancel">${tr('sa_custom_cancel')}</button>${isEdit?`<button type="button" class="sa-btn sa-btn-text sa-danger" id="cf-delete">${tr('sa_custom_delete')}</button>`:''}</div></div>`;
+  }
   async function fetchModeStats(mode){
     try{
-      const r=await fetch('/api/pub/gamehub/stats');
-      if(!r.ok)return null;
-      const data=await r.json();
+      const data=await fetchHistory();
+      if(!data)return null;
       const myId=mp.youId&&mp.youId();
       const sessions=(data.recent||[]).filter(s=>s.game_id==='scorearena'&&(()=>{try{return JSON.parse(s.metadata||'{}').scorearena_mode===mode}catch(_){return false}})());
       const mine=[];
@@ -30,7 +111,12 @@
       const max=k=>mine.reduce((a,m)=>Math.max(a,m[k]||0),0);
       const min=k=>{const vals=mine.map(m=>m[k]||0).filter(v=>v>0);return vals.length?Math.min(...vals):0};
       const out={played:mine.length,wins:mine.reduce((a,m)=>a+(m.wins||0),0)};
-      if(mode==='501'||mode==='301'){
+      if(mode.startsWith('custom:')){
+        out.avg_turn=avg('avg_turn').toFixed(1);
+        out.best_turn=max('best_turn');
+        out.points=sum('points');
+        out.turns=sum('turns');
+      }else if(mode==='501'||mode==='301'){
         out.avg=avg('three_dart_average').toFixed(1);
         out.checkout=avg('checkout_rate').toFixed(0);
         out.highest_checkout=max('highest_checkout');
@@ -83,6 +169,7 @@
     const locked=ALL_MODE_IDS.includes(settings?.mode);
     let mode=locked?settings.mode:null;
     let category=locked?'darts':null;
+    let customGame=null,editing=null,viewing=null,locals=[],favs=null;
     box.innerHTML=`<div id="sa-cat-picker"></div><div id="sa-kind-picker" hidden></div><div id="sa-stats" hidden></div><div id="sa-kind-body" hidden></div>`;
     const catPicker=box.querySelector('#sa-cat-picker'),picker=box.querySelector('#sa-kind-picker'),statsBox=box.querySelector('#sa-stats'),body=box.querySelector('#sa-kind-body');
     let getExtra=()=>({});
@@ -90,25 +177,63 @@
       if(locked){catPicker.hidden=true;return}
       catPicker.hidden=false;
       catPicker.innerHTML=`<p class="sa-sub" style="margin-bottom:8px">${tr('sa_pick_category')}</p><div class="sa-kind-picker">${CATEGORIES.map(c=>`<button type="button" class="sa-kind-card${category===c.id?' sa-kind-chosen':''}" data-cat="${c.id}"><span class="sa-kind-icon">${c.icon}</span><span class="sa-kind-name">${tr(c.label)}</span></button>`).join('')}</div>`;
-      catPicker.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{category=b.dataset.cat;mode=null;drawCategories();drawPicker();drawStats();drawBody()});
+      catPicker.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{category=b.dataset.cat;mode=null;customGame=null;editing=null;viewing=null;locals=[];drawCategories();drawPicker();drawStats();drawBody();if(category==='custom')mergeHistory().then(ch=>{if(ch&&category==='custom'&&!editing)drawPicker()})});
+    }
+    function bindForm(){
+      const $=s=>picker.querySelector(s),d=editing.draft,isEdit=!!editing.orig;
+      $('#cf-direction').value=d.direction;$('#cf-end').value=d.end;$('#cf-winner').value=d.winner;$('#cf-exact').checked=!!d.exact;
+      const sync=()=>{const end=$('#cf-end').value;picker.querySelectorAll('[data-f]').forEach(el=>{const f=el.dataset.f;el.hidden=(f==='target'||f==='exact')?end!=='target':f==='rounds'?end!=='rounds':end==='target'})};
+      $('#cf-end').onchange=sync;sync();
+      const done=()=>{editing=null;drawPicker();drawStats();drawBody()};
+      $('#cf-save').onclick=()=>{
+        const g={name:$('#cf-name').value.trim(),icon:$('#cf-icon').value.trim()||'🎲',direction:$('#cf-direction').value,start:Number($('#cf-start').value),end:$('#cf-end').value,target:Number($('#cf-target').value),rounds:Number($('#cf-rounds').value),winner:$('#cf-winner').value,exact:$('#cf-exact').checked};
+        const err=validateRules(g,isEdit);if(err){$('#cf-error').textContent=tr(err);return}
+        upsertGame(g);customGame=g;mode='custom';done();
+      };
+      $('#cf-cancel').onclick=done;
+      const del=$('#cf-delete');
+      if(del)del.onclick=()=>{if(!confirm(tr('sa_custom_delete_confirm')))return;removeGame(editing.draft);customGame=null;mode=null;done()};
+    }
+    function drawCustomPicker(){
+      picker.hidden=false;
+      if(editing){picker.innerHTML=formHtml(editing.draft,!!editing.orig);bindForm();return}
+      const games=loadGames(),played=loadPlayed(),chosen=!viewing&&customGame&&customGame.name.toLowerCase();
+      picker.innerHTML=`<p class="sa-sub" style="margin:10px 0 8px">${tr('sa_custom_hint')}</p><div class="sa-kind-picker">${games.map((g,i)=>`<button type="button" class="sa-kind-card${chosen===g.name.toLowerCase()?' sa-kind-chosen':''}" data-game="${i}"><span class="sa-kind-icon">${esc(g.icon)}</span><span class="sa-kind-name">${esc(g.name)}</span></button>`).join('')}<button type="button" class="sa-kind-card" id="sa-new-game"><span class="sa-kind-icon">➕</span><span class="sa-kind-name">${tr('sa_custom_new')}</span></button></div>${games.length?'':`<p class="sa-sub" style="margin-top:8px">${tr('sa_custom_empty')}</p>`}${played.length?`<p class="sa-sub" style="margin:14px 0 8px">${tr('sa_custom_played_title')}</p><div class="sa-kind-picker">${played.map((g,i)=>`<button type="button" class="sa-kind-card${viewing&&viewing.owner_id===g.owner_id&&customGame&&customGame.name.toLowerCase()===g.rules.name.toLowerCase()?' sa-kind-chosen':''}" data-played="${i}"><span class="sa-kind-icon">${esc(g.rules.icon||'🎲')}</span><span class="sa-kind-name">${esc(g.rules.name)}</span>${g.owner_name?`<span class="sa-sub">${tr('sa_custom_by')} ${esc(g.owner_name)}</span>`:''}</button>`).join('')}</div>`:''}${viewing?`<p class="sa-sub" style="margin-top:10px">${tr('sa_custom_view_only')}</p>`:''}${customGame?`<div class="sa-rule-chips">${rulesLines(customGame).map(x=>`<span class="sa-stat-badge">${esc(x)}</span>`).join('')}${viewing?'':`<button type="button" class="sa-link-btn" id="sa-edit-game">${tr('sa_custom_edit')}</button>`}</div>`:''}`;
+      picker.querySelectorAll('[data-game]').forEach(b=>b.onclick=()=>{customGame=games[+b.dataset.game];viewing=null;mode='custom';drawPicker();drawStats();drawBody()});
+      picker.querySelectorAll('[data-played]').forEach(b=>b.onclick=()=>{const g=played[+b.dataset.played];customGame=g.rules;viewing=g;mode='custom';drawPicker();drawStats();drawBody()});
+      picker.querySelector('#sa-new-game').onclick=()=>{viewing=null;customGame=null;mode=null;editing={orig:null,draft:{...CUSTOM_BLANK}};drawPicker();drawStats();drawBody()};
+      const edit=picker.querySelector('#sa-edit-game');
+      if(edit)edit.onclick=()=>{editing={orig:customGame.name,draft:{...CUSTOM_BLANK,...customGame}};drawPicker();drawStats();drawBody()};
     }
     function drawPicker(){
       if(!category){picker.hidden=true;return}
+      if(category==='custom'){drawCustomPicker();return}
       const cat=CATEGORIES.find(c=>c.id===category);
-      if(!cat.kinds.length){picker.hidden=false;picker.innerHTML=`<p class="sa-sub">${tr('sa_cat_board_soon')}</p>`;return}
       picker.hidden=false;
+      if(cat.id==='board'){
+        picker.innerHTML=`<p class="sa-sub" style="margin:10px 0 8px">${tr('sa_pick_game')}</p><div class="sa-kind-picker">${cat.kinds.map(k=>`<button type="button" class="sa-kind-card${customGame&&customGame.board===k.id?' sa-kind-chosen':''}" data-board="${k.id}"><span class="sa-kind-icon">${k.icon}</span><span class="sa-kind-name">${tr(k.label)}</span></button>`).join('')}</div>${customGame&&customGame.board?`<div class="sa-rule-chips">${rulesLines(customGame).map(x=>`<span class="sa-stat-badge">${esc(x)}</span>`).join('')}</div>`:''}`;
+        picker.querySelectorAll('[data-board]').forEach(b=>b.onclick=()=>{const k=cat.kinds.find(x=>x.id===b.dataset.board);customGame={...k.rules,name:k.id};mode='custom';drawPicker();drawStats();drawBody()});
+        return;
+      }
       picker.innerHTML=`<p class="sa-sub" style="margin:10px 0 8px">${tr('sa_pick_game')}</p><div class="sa-kind-picker">${cat.kinds.map(k=>`<button type="button" class="sa-kind-card${mode===k.id?' sa-kind-chosen':''}" data-kind="${k.id}"><span class="sa-kind-icon">${k.icon}</span><span class="sa-kind-name">${tr(k.label)}</span></button>`).join('')}</div>`;
       picker.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{if(locked)return;mode=b.dataset.kind;drawPicker();drawStats();drawBody()});
     }
     function drawStats(){
-      if(!mode){statsBox.hidden=true;statsBox.innerHTML='';return}
+      if(!mode||editing||(mode==='custom'&&!customGame)){statsBox.hidden=true;statsBox.innerHTML='';return}
       statsBox.hidden=false;
       statsBox.innerHTML=`<p class="sa-sub">${tr('sa_stats_title')}…</p>`;
-      fetchModeStats(mode).then(s=>{
+      const shown=mode,game=customGame;
+      fetchModeStats(mode==='custom'?customKey(customGame,viewing&&viewing.owner_id):mode).then(s=>{
+        if(shown!==mode||game!==customGame||editing)return;
         if(!s||!s.played){statsBox.innerHTML=`<p class="sa-sub">${tr('sa_stats_none')}</p>`;return}
         const main=[[tr('sa_stats_played'),s.played],[tr('sa_stats_wins'),s.wins]];
         const badges=[];
-        if(mode==='501'||mode==='301'){
+        if(mode==='custom'){
+          main.push([tr('sa_custom_stat_avg'),s.avg_turn]);
+          main.push([tr('sa_custom_stat_best'),s.best_turn||0]);
+          badges.push([tr('sa_custom_stat_points'),s.points||0]);
+          badges.push([tr('sa_custom_stat_turns'),s.turns||0]);
+        }else if(mode==='501'||mode==='301'){
           main.push([tr('sa_stats_avg'),s.avg]);
           main.push([tr('sa_stats_checkout'),s.checkout+'%']);
           badges.push([tr('sa_stats_highest_checkout'),s.highest_checkout||0]);
@@ -159,26 +284,43 @@
       });
     }
     function drawBody(){
-      if(!mode){body.hidden=true;return}
+      if(!mode||editing||viewing||(mode==='custom'&&!customGame)){body.hidden=true;return}
       body.hidden=false;
+      const ghostOk=solo&&mode!=='custom';
       body.innerHTML=`
         <div class="sa-options" style="margin-top:14px">
-          ${solo?`<div class="sa-field"><label>${tr('sa_opponent')}</label><select id="sa-opponent"><option value="">${tr('sa_alone')}</option><option value="ghost">👻 ${tr('sa_ghost')}</option></select></div>`:''}
+          ${ghostOk?`<div class="sa-field"><label>${tr('sa_opponent')}</label><select id="sa-opponent"><option value="">${tr('sa_alone')}</option><option value="ghost">👻 ${tr('sa_ghost')}</option></select></div>`:''}
           <div class="sa-field" id="sa-wins-wrap"><label>${tr('sa_match')}</label><select id="sa-wins">${[1,2,3,4,5,7].map(n=>`<option value="${n}">${tr('sa_first_to')} ${n} ${tr('sa_rounds')}</option>`).join('')}</select></div>
-          <div class="sa-field" id="sa-order-wrap"><label>${tr('sa_order')}</label><select id="sa-order"><option value="lobby">${tr('sa_lobby_order')}</option><option value="manual">${tr('sa_manual_first')}</option><option value="dice">🎲 ${tr('sa_random_dice')}</option></select></div>
-          <div class="sa-field" id="sa-first-wrap" hidden><label>${tr('sa_first_player')}</label><select id="sa-first"></select></div>
-        </div>${solo?`<p class="sa-sub sa-ghost-blurb" id="sa-ghost-blurb" hidden>${tr('sa_ghost_blurb')}</p>`:''}<p class="sa-sub" style="margin-top:12px">${tr('sa_ready')} ${tr('sa_all_can_score')}</p>`;
-      const winsWrap=body.querySelector('#sa-wins-wrap'),orderWrap=body.querySelector('#sa-order-wrap'),order=body.querySelector('#sa-order'),wrap=body.querySelector('#sa-first-wrap'),first=body.querySelector('#sa-first'),opponent=body.querySelector('#sa-opponent'),blurb=body.querySelector('#sa-ghost-blurb');
-      const fill=()=>{const old=first.value;first.innerHTML=mp.players().map(p=>`<option value="${esc(p.id)}">${esc(p.display_name)}</option>`).join('');if(old)first.value=old};
-      const hasRivals=()=>!solo||(opponent&&opponent.value==='ghost');
+          <div class="sa-field" id="sa-order-wrap"><label>${tr('sa_first_player')}</label><select id="sa-first"></select></div>
+        </div>${mode==='custom'?'<div id="sa-locals" style="margin-top:14px"></div>':''}${ghostOk?`<p class="sa-sub sa-ghost-blurb" id="sa-ghost-blurb" hidden>${tr('sa_ghost_blurb')}</p>`:''}<p class="sa-sub" style="margin-top:12px">${mode==='custom'?tr('sa_custom_local_hint'):`${tr('sa_ready')} ${tr('sa_all_can_score')}`}</p>`;
+      const winsWrap=body.querySelector('#sa-wins-wrap'),orderWrap=body.querySelector('#sa-order-wrap'),first=body.querySelector('#sa-first'),opponent=body.querySelector('#sa-opponent'),blurb=body.querySelector('#sa-ghost-blurb');
+      const localsBox=body.querySelector('#sa-locals');
+      const hasRivals=()=>mode==='custom'?locals.length>0:(!solo||(opponent&&opponent.value==='ghost'));
+      const fill=()=>{const old=first.value;const me=mp.players().find(p=>String(p.id)===myKey())||mp.players()[0],people=mode==='custom'?[me,...locals].filter(Boolean):mp.players();first.innerHTML=people.map(p=>`<option value="${esc(p.id)}">${esc(p.display_name)}</option>`).join('')+(solo&&opponent&&opponent.value==='ghost'?`<option value="__ghost__">👻 ${tr('sa_ghost')}</option>`:'')+`<option value="__dice__">🎲 ${tr('sa_random_dice')}</option>`;if(old&&[...first.options].some(o=>o.value===old))first.value=old};
       const syncMode=()=>{winsWrap.hidden=mode==='bitcoin'||!hasRivals()};
-      const syncRivals=()=>{const show=hasRivals();orderWrap.hidden=!show;if(!show)wrap.hidden=true;syncMode()};
-      fill();syncRivals();order.onchange=()=>{wrap.hidden=order.value!=='manual';fill()};
-      if(opponent)opponent.onchange=()=>{blurb.hidden=opponent.value!=='ghost';syncRivals()};
-      getExtra=()=>({target_wins:+body.querySelector('#sa-wins').value,order:order.value,first_player_id:first.value||null,opponent:opponent?opponent.value||null:null});
+      const syncRivals=()=>{orderWrap.hidden=!hasRivals();syncMode()};
+      // Custom games are scored on one screen: the host picks the other players from their
+      // Game Hub favourites and they never have to join the room.
+      const drawLocals=async()=>{
+        if(!localsBox)return;
+        if(favs===null){
+          localsBox.innerHTML=`<p class="sa-sub">…</p>`;
+          try{const r=await fetch('/api/pub/gamehub/favourites',{headers:{'X-GH-Token':window.GameHub.getToken()||''}});favs=r.ok?await r.json():[]}catch(_){favs=[]}
+        }
+        if(!localsBox.isConnected)return;
+        localsBox.innerHTML=favs.length?`<p class="sa-sub" style="margin:0 0 6px">${tr('sa_custom_players')}</p><div class="sa-local-list">${favs.map(p=>`<label class="sa-local"><input type="checkbox" data-pid="${esc(p.id)}"${locals.some(l=>l.id===p.id)?' checked':''}><span class="sa-local-av">${window.GameHub.renderAvatar(p,22)}</span><span>${esc(p.display_name)}</span></label>`).join('')}</div>`:`<p class="sa-sub">${tr('sa_custom_players_none')}</p>`;
+        localsBox.querySelectorAll('[data-pid]').forEach(c=>c.onchange=()=>{
+          if(c.checked&&locals.length>=7){c.checked=false;return}
+          locals=c.checked?[...locals,favs.find(p=>String(p.id)===c.dataset.pid)]:locals.filter(l=>String(l.id)!==c.dataset.pid);
+          fill();syncRivals();
+        });
+      };
+      fill();syncRivals();drawLocals();
+      if(opponent)opponent.onchange=()=>{blurb.hidden=opponent.value!=='ghost';fill();syncRivals()};
+      getExtra=()=>({target_wins:+body.querySelector('#sa-wins').value,order:first.value==='__dice__'?'dice':'manual',first_player_id:first.value==='__dice__'?null:first.value||null,opponent:opponent?opponent.value||null:null,...(mode==='custom'?{rules:customGame,board:customGame.board||null,local_players:locals.map(l=>String(l.id))}:{})});
     }
     drawCategories();drawPicker();drawStats();drawBody();
-    return()=>{if(!mode)return null;return{mode,...getExtra()}};
+    return()=>{if(!mode||editing||viewing||(mode==='custom'&&!customGame))return null;return{mode,...getExtra()}};
   }
   function renderGame(box){root=box;root.classList.add('sa-game');root.innerHTML=`<div class="sa-shell"><section class="sa-card sa-board-card">${mp.players().length<=1?`<button class="sa-exit-btn" id="sa-exit" title="${tr('sa_save_exit')}" aria-label="${tr('sa_save_exit')}">⏸</button>`:''}<div class="sa-eyebrow" id="sa-turn-label">${tr('sa_turn')}<button class="sa-help-btn" id="sa-help" title="${tr('sa_help')}" aria-label="${tr('sa_help')}">?</button></div><div class="sa-turn-name" id="sa-turn-name">${tr('sa_waiting')}</div><div id="sa-board"></div><div class="sa-row"><div class="sa-darts" id="sa-darts"></div><div class="sa-actions"><button class="sa-btn" id="sa-miss" title="${tr('sa_miss')}" aria-label="${tr('sa_miss')}">🚫</button><button class="sa-btn" id="sa-undo" title="${tr('sa_undo')}" aria-label="${tr('sa_undo')}">↩︎</button><button class="sa-btn primary" id="sa-submit" title="${tr('sa_submit')}" aria-label="${tr('sa_submit')}">✔</button></div></div><div class="sa-sub" id="sa-hint" style="margin-top:8px"></div></section><section><div class="sa-card"><div id="sa-score"></div><div id="sa-checkout"></div><div id="sa-cricket"></div><div class="sa-cricket" id="sa-golf"></div><div id="sa-bitcoin-info"></div></div><div class="sa-card sa-history"><b>${tr('sa_history')}</b><div class="sa-history-list" id="sa-history"><span class="sa-sub">${tr('sa_no_throws')}</span></div></div></section></div><div id="sa-overlay"></div>`;
     root.querySelector('#sa-board').innerHTML=boardSvg();
@@ -190,10 +332,10 @@
   }
   function showHelp(){
     if(!root)return;
-    const kind=ALL_MODE_IDS.includes(state?.mode)?state.mode:'501';
-    const body=tr('sa_help_'+kind);
+    const kind=ALL_MODE_IDS.includes(state?.mode)?state.mode:'501',custom=isCustom();
+    const body=custom?rulesLines(state.rules).join('\n'):tr('sa_help_'+kind);
     const ov=document.createElement('div');ov.className='sa-help-ov';
-    ov.innerHTML=`<div class="sa-help-card"><b>${tr('sa_help_title_'+kind)}</b><p>${esc(body).replace(/\n/g,'<br>')}</p><button class="sa-btn primary" id="sa-help-close">${tr('sa_ok')}</button></div>`;
+    ov.innerHTML=`<div class="sa-help-card"><b>${esc(custom?ruleName(state.rules):tr('sa_help_title_'+kind))}</b><p>${esc(body).replace(/\n/g,'<br>')}</p><button class="sa-btn primary" id="sa-help-close">${tr('sa_ok')}</button></div>`;
     document.body.appendChild(ov);
     const close=()=>ov.remove();
     ov.querySelector('#sa-help-close').onclick=close;
@@ -204,7 +346,7 @@
     const cx=250,cy=250,parts=[];parts.push(`<svg class="sa-board" viewBox="0 0 500 500" role="group" aria-label="${esc(tr('sa_dartboard'))}">`);
     parts.push('<circle cx="250" cy="250" r="247" fill="#181a1d"/>');
     const cricketTargets=[20,19,18,17,16,15];
-    for(let i=0;i<20;i++){const a0=(i*18-99)*Math.PI/180,a1=((i+1)*18-99)*Math.PI/180,n=NUMBERS[i],light=i%2===0;parts.push(ring(cx,cy,36,196,a0,a1,light?'#eee6d2':'#202326',n,1));parts.push(ring(cx,cy,132,168,a0,a1,light?'#df3345':'#2d9b58',n,3));parts.push(ring(cx,cy,196,232,a0,a1,light?'#df3345':'#2d9b58',n,2));const am=(a0+a1)/2,x=cx+240*Math.cos(am),y=cy+240*Math.sin(am);parts.push(`<text x="${x}" y="${y}" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-size="22" font-weight="800">${n}</text>`)
+    for(let i=0;i<20;i++){const a0=(i*18-99)*Math.PI/180,a1=((i+1)*18-99)*Math.PI/180,n=NUMBERS[i],light=i%2===1;parts.push(ring(cx,cy,36,196,a0,a1,light?'#eee6d2':'#202326',n,1));parts.push(ring(cx,cy,132,168,a0,a1,light?'#2d9b58':'#df3345',n,3));parts.push(ring(cx,cy,196,232,a0,a1,light?'#2d9b58':'#df3345',n,2));const am=(a0+a1)/2,x=cx+240*Math.cos(am),y=cy+240*Math.sin(am);parts.push(`<text x="${x}" y="${y}" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-size="22" font-weight="800">${n}</text>`)
       if(cricketTargets.includes(n)){const mx=cx+150*Math.cos(am),my=cy+150*Math.sin(am);parts.push(`<g class="sa-cricket-mark" data-mark="${n}" data-size="10" transform="translate(${mx} ${my})" pointer-events="none"></g>`)}
       const sx=cx+116*Math.cos(am),sy=cy+116*Math.sin(am),tx=cx+150*Math.cos(am),ty=cy+150*Math.sin(am),dx=cx+214*Math.cos(am),dy=cy+214*Math.sin(am),s2x=cx+182*Math.cos(am),s2y=cy+182*Math.sin(am);
       parts.push(`<g class="sa-bitcoin-mark" data-bt-number="${n}" data-bt-mult="1" data-size="10" transform="translate(${sx} ${sy})" pointer-events="none"></g>`);
@@ -231,18 +373,45 @@
     if(!ghostTurn)root.querySelectorAll('[data-pending]').forEach(b=>b.onclick=()=>{const d=pending[+b.dataset.pending];if(d){d.checkout_attempt=!d.checkout_attempt;drawPending()}});
     root.querySelector('#sa-submit').disabled=ghostTurn||!pending.length;
     root.querySelector('#sa-miss').disabled=ghostTurn;root.querySelector('#sa-undo').disabled=ghostTurn;}
+  function clearGhostMarks(){if(root)root.querySelectorAll('.sa-ghost-hit').forEach(e=>e.classList.remove('sa-ghost-hit'))}
   function ghostDartEl(dart){if(!root)return null;if(!dart.number)return null;return root.querySelector(`[data-hit][data-number="${dart.number}"][data-multiplier="${dart.multiplier}"]`)}
   mp.on('sa_ghost_dart',msg=>{
-    if(msg.index===0)ghostPending=[];
+    if(msg.index===0){ghostPending=[];clearGhostMarks()}
     ghostPending[msg.index]=msg.dart;drawPending();
-    const el=ghostDartEl(msg.dart);if(el)flashHit(el);
+    const el=ghostDartEl(msg.dart);if(el){el.classList.remove('sa-ghost-hit');void el.getBoundingClientRect();el.classList.add('sa-ghost-hit')}
   });
   function submit(){if(!pending.length){notice(tr('sa_need_dart'));return}mp.send({type:'sa_turn',darts:pending});awaitingState=true;pending=[];drawPending();drawCheckout();drawTargetMark()}
   function playerName(id){return state?.roster?.[id]?.display_name||id||''}
-  function modeLabel(){const k=GAME_KINDS.find(k=>k.id===state.mode);return k?tr(k.label):tr('sa_501')}
+  function isCustom(){return state?.mode==='custom'&&!!state.rules}
+  // Custom games have no board: the turn's points are typed in and the server applies the rules.
+  function customPad(){
+    const r=state.rules;
+    return `<div class="sa-cpad" id="sa-cpad"><div class="sa-cpad-icon">${esc(r.icon)}</div><div class="sa-cpad-name">${esc(r.name)}</div><label class="sa-field" for="sa-cval"><span class="sa-sub">${tr('sa_custom_value')}</span><input class="sa-cpad-input" id="sa-cval" type="number" step="1" inputmode="numeric" autocomplete="off"></label><div class="sa-cpad-quick">${[1,5,10,50].map(n=>`<button type="button" class="sa-btn sa-btn-text" data-add="${n}">+${n}</button>`).join('')}<button type="button" class="sa-btn sa-btn-text" id="sa-csign">±</button><button type="button" class="sa-btn sa-btn-text" id="sa-cclear">${tr('sa_custom_clear')}</button></div><div class="sa-cpad-actions"><button type="button" class="sa-btn" id="sa-cundo" title="${tr('sa_undo')}" aria-label="${tr('sa_undo')}">↩︎</button><button type="button" class="sa-btn primary" id="sa-csubmit" title="${tr('sa_submit')}" aria-label="${tr('sa_submit')}">✔</button>${r.end==='manual'?`<button type="button" class="sa-btn sa-btn-text" id="sa-cend">${tr('sa_custom_end_round')}</button>`:''}</div></div>`}
+  function bindPad(){
+    const inp=root.querySelector('#sa-cval'),cur=()=>{const n=Number(inp.value);return inp.value===''||!Number.isFinite(n)?0:n};
+    root.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{inp.value=String(cur()+ +b.dataset.add);inp.focus()});
+    root.querySelector('#sa-csign').onclick=()=>{inp.value=cur()?String(-cur()):'';inp.focus()};
+    root.querySelector('#sa-cclear').onclick=()=>{inp.value='';inp.focus()};
+    const send=()=>{if(inp.value===''||!Number.isInteger(Number(inp.value))){notice(tr('sa_custom_need_value'));return}mp.send({type:'sa_custom_turn',value:Number(inp.value)});inp.value=''};
+    root.querySelector('#sa-csubmit').onclick=send;
+    inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}};
+    root.querySelector('#sa-cundo').onclick=()=>mp.send({type:'sa_custom_undo'});
+    const end=root.querySelector('#sa-cend');if(end)end.onclick=()=>{if(confirm(tr('sa_custom_end_confirm')))mp.send({type:'sa_custom_end'})};
+  }
+  function drawCustom(){
+    const custom=isCustom();root.classList.toggle('sa-custom',custom);
+    if(!custom)return;
+    if(!root.querySelector('#sa-cpad')){root.querySelector('#sa-board').innerHTML=customPad();bindPad()}
+    // Only the person keeping the score (the host) enters points; anyone else just watches.
+    const mine=String(state.owner_id)===myKey();
+    root.querySelectorAll('#sa-cpad input,#sa-cpad button').forEach(e=>e.disabled=!mine||(e.id==='sa-cundo'&&!state.can_undo));
+  }
+  function resetPad(){const inp=root?.querySelector('#sa-cval');if(inp)inp.value=''}
+  function modeLabel(){if(isCustom())return `${state.rules.icon} ${ruleName(state.rules)}`;const k=GAME_KINDS.find(k=>k.id===state.mode);return k?tr(k.label):tr('sa_501')}
   function ghostMoodBadge(id){const r=state?.roster?.[id];if(!r?.is_ghost)return'';const icon=r.mood==='hot'?'🔥':r.mood==='cold'?'🥶':'👻';return `<span class="sa-ghost-mood sa-ghost-mood-${esc(r.mood)}" title="${tr('sa_ghost_mood_'+r.mood)}">${icon}</span>`}
   function draw(){if(!root||!state)return;const current=state.current_player_id;root.querySelector('#sa-turn-name').textContent=playerName(current);root.querySelector('#sa-turn-label').firstChild.textContent=`${modeLabel()} · ${tr('sa_turn')} ${state.history.length+1}`;
-    if(!isGhostTurn())ghostPending=[];
+    if(!isGhostTurn()){ghostPending=[];clearGhostMarks()}
+    drawCustom();
     const players=Math.max(1,Math.min(state.order.length,2));
     root.querySelector('#sa-score').innerHTML=`<div class="sa-scoreboard" style="--sa-players:${players}">${state.order.map(id=>{const p=state.players[id];return `<div class="sa-player ${id===current?'current':''}"><div class="sa-player-name">${esc(playerName(id))}${ghostMoodBadge(id)}</div>${bigSubLine(p)}<div class="sa-big">${bigValue(p)}</div></div>`}).join('')}</div>${state.dice&&Object.keys(state.dice).length?`<div class="sa-dice">🎲 ${tr('sa_dice_result')}: ${state.order.map(id=>`${esc(playerName(id))} ${state.dice[id]}`).join(' · ')}</div>`:''}`;
     drawCheckout();
@@ -256,11 +425,13 @@
     if(GOLF_MODES.includes(state.mode))return p.metrics.golf_strokes_total;
     return p.score}
   function bigSubLine(p){if(state.mode==='bitcoin')return '';
+    if(isCustom()){const r=state.rules;return `<div class="sa-sub">${tr('sa_wins')}: ${p.wins}/${state.target_wins}${r.end==='rounds'?` · ${tr('sa_rule_rounds')} ${p.round_darts}/${r.rounds}`:''}</div>`}
     if(GOLF_MODES.includes(state.mode))return `<div class="sa-sub">${tr('sa_stats_hole')}: ${Math.min(p.golf_hole+1,GOLF_HOLE_COUNTS[state.mode])}/${GOLF_HOLE_COUNTS[state.mode]}</div>`;
     return `<div class="sa-sub">${tr('sa_wins')}: ${p.wins}/${state.target_wins}</div>`}
   function drawCheckout(){if(!root||!state)return;const checkout=root.querySelector('#sa-checkout'),current=state.current_player_id;
     if(state.mode==='501'||state.mode==='301'){const rem=state.players[current]?.remaining||0,suggestions=findCheckouts(rem);checkout.innerHTML=`<div class="sa-checkout"><span class="sa-sub">${tr('sa_checkout')} · ${rem}</span><br><b>${suggestions.length?suggestions.join(' &nbsp; / &nbsp; '):tr('sa_no_checkout')}</b></div>`}
     else if(SEQUENCE_MODES.includes(state.mode)||GOLF_MODES.includes(state.mode)){const waiting=awaitingState||(!isGhostTurn()&&pending.length>=3);checkout.innerHTML=`<div class="sa-checkout"><span class="sa-sub">${tr('sa_current_target')}</span><br><b>${waiting?tr('sa_submit'):targetIndicatorText()}</b></div>`}
+    else if(isCustom())checkout.innerHTML=`<div class="sa-checkout"><span class="sa-sub">${rulesLines(state.rules).map(esc).join(' · ')}</span></div>`;
     else checkout.innerHTML='';
   }
   function targetIndicatorText(){const t=currentTargetNumber();if(t===null)return '';
@@ -310,17 +481,18 @@
   }
   function cricketTable(){const targets=[20,19,18,17,16,15,25];return `<div class="sa-cricket"><table><thead><tr><th>${tr('sa_targets')}</th>${state.order.map(id=>`<th>${esc(playerName(id).split(' ')[0])}</th>`).join('')}</tr></thead><tbody>${targets.map(n=>`<tr><th>${n===25?esc(tr('sa_bull')):n}</th>${state.order.map(id=>`<td class="sa-mark">${marks(state.players[id].marks[String(n)])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
   function marks(n){return n<=0?'—':n===1?'╱':n===2?'╳':'●'}
-  function drawHistory(){const el=root.querySelector('#sa-history'),items=[...state.history].reverse();el.innerHTML=items.length?items.map(h=>`<div class="sa-history-row"><span><b>${esc(playerName(h.player_id))}</b> · ${(h.darts||[]).map(dartName).join(', ')}</span><span>${historyResult(h)}</span></div>`).join(''):`<span class="sa-sub">${tr('sa_no_throws')}</span>`}
+  function drawHistory(){const el=root.querySelector('#sa-history'),items=[...state.history].reverse();el.innerHTML=items.length?items.map(h=>`<div class="sa-history-row"><span><b>${esc(playerName(h.player_id))}</b> · ${h.kind==='custom'?(state.rules?.direction==='down'?'−':'+')+h.value:(h.darts||[]).map(dartName).join(', ')}</span><span>${historyResult(h)}</span></div>`).join(''):`<span class="sa-sub">${tr('sa_no_throws')}</span>`}
   function historyResult(h){
     if(h.kind==='bitcoin')return h.hit?'₿ +'+h.scored:tr('sa_bitcoin_miss');
+    if(h.kind==='custom')return h.bust?tr('sa_bust_short'):`${h.before} → ${h.after}`;
     if(h.bust)return tr('sa_bust_short');
     if(h.kind==='501'||h.kind==='301')return `${h.before} → ${h.after}`;
     if(h.kind==='breakdown'||h.kind==='atc')return `+${h.scored}`;
     if(h.kind==='golf')return `${tr('sa_stats_hole')} ${h.hole}: ${h.strokes}`;
     return `+${h.scored}`}
   function findCheckouts(score){if(score<2||score>170)return[];const bullLabel=tr('sa_bull'),dbLabel=tr('sa_inner_bull');const all=[];for(let n=1;n<=20;n++)all.push({v:n,l:'S'+n},{v:n*2,l:'D'+n},{v:n*3,l:'T'+n});all.push({v:25,l:bullLabel},{v:50,l:dbLabel});const doubles=[];for(let n=20;n>=1;n--)doubles.push({v:n*2,l:'D'+n});doubles.push({v:50,l:dbLabel});const out=[];for(let count=1;count<=3&&out.length<3;count++){for(const d of doubles){if(count===1&&d.v===score)out.push(d.l);if(count===2)for(const a of all)if(a.v+d.v===score)out.push(a.l+' '+d.l);if(count===3)for(const a of all)for(const b of all)if(a.v+b.v+d.v===score)out.push(a.l+' '+b.l+' '+d.l);if(out.length>=3)break}if(out.length)break}return [...new Set(out)].slice(0,3)}
-  function finish(msg){state=msg;draw();if(!root)return;const w=msg.winner;root.querySelector('#sa-overlay').innerHTML=`<div class="sa-finished"><div><div style="font-size:3.2rem">🏆</div><div class="sa-eyebrow">${tr('sa_winner')}</div><h1 style="margin:6px 0 18px">${esc(playerName(w))}</h1><button class="sa-btn primary" onclick="location.reload()">${tr('sa_back')}</button></div></div>`}
+  function finish(msg){state=msg;draw();if(!root)return;const ws=msg.winners&&msg.winners.length?msg.winners:[msg.winner];root.querySelector('#sa-overlay').innerHTML=`<div class="sa-finished"><div><div style="font-size:3.2rem">🏆</div><div class="sa-eyebrow">${tr('sa_winner')}</div><h1 style="margin:6px 0 18px">${ws.map(id=>esc(playerName(id))).join(' & ')}</h1><button class="sa-btn primary" onclick="location.reload()">${tr('sa_back')}</button></div></div>`}
   function notice(text){const el=root?.querySelector('#sa-hint');if(!el)return;el.textContent=text;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.textContent='',1800)}
-  mp.on('sa_start',msg=>{state=msg;pending=[];ghostPending=[];awaitingState=false;draw()});mp.on('sa_state',msg=>{state=msg;pending=[];ghostPending=[];awaitingState=false;draw()});mp.on('sa_finished',msg=>{ghostPending=[];finish(msg)});mp.on('sa_error',msg=>notice(msg.message==='empty_turn'?tr('sa_need_dart'):msg.message));
+  mp.on('sa_start',msg=>{state=msg;pending=[];ghostPending=[];clearGhostMarks();awaitingState=false;draw();resetPad()});mp.on('sa_state',msg=>{state=msg;pending=[];ghostPending=[];clearGhostMarks();awaitingState=false;draw();resetPad()});mp.on('sa_finished',msg=>{ghostPending=[];finish(msg)});mp.on('sa_error',msg=>notice(msg.message==='empty_turn'?tr(isCustom()?'sa_custom_need_value':'sa_need_dart'):msg.message));
   mp.registerGame({id:'scorearena',name:'Score Arena',renderSetup,renderGame,exitButton:false});
 })();

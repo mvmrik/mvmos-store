@@ -1,6 +1,6 @@
 {
   "tagline": "Every throw. Every rival. Every result.",
-  "description": "Score Arena turns a phone into a shared scorekeeper for games played around a real dartboard. Start a room with Game Hub profiles, choose the order, enter every throw and keep the complete result in each player's history.\n\nChoose from Darts 301 or 501, Cricket, Bitcoin Darts, Breakdown, Around the Clock, 18-hole Pro Golf and 9-hole Mini Golf. Each mode has its own rules, live targets, help and personal performance statistics.\n\nPractising alone no longer means playing against an empty table. Add the Ghost for a simulated rival whose skill is shaped by your recent results in the selected mode and whose form changes naturally during the match. The Ghost never becomes a profile or pollutes the player directory; only your own result is saved.",
+  "description": "Score Arena turns a phone into a shared scorekeeper for games played around a real dartboard or a board game table. Start a room with Game Hub profiles, choose the order, enter every throw and keep the complete result in each player's history.\n\nChoose from Darts 301 or 501, Cricket, Bitcoin Darts, Breakdown, Around the Clock, 18-hole Pro Golf and 9-hole Mini Golf. Each mode has its own rules, live targets, help and personal performance statistics.\n\nBoard games get the same treatment. Pick a ready-made game such as Scrabble, Yahtzee, Catan, Carcassonne or Azul and Score Arena keeps the scores and the winner while you play at a real table. Need something else? Design your own game by choosing where scores start, whether they count up or down, and whether it ends at a target score, after a set number of rounds or when you decide. Everyone who plays it sees it in their own history and statistics.\n\nPractising alone no longer means playing against an empty table. Add the Ghost for a simulated rival whose skill is shaped by your recent results in the selected mode and whose form changes naturally during the match. The Ghost never becomes a profile or pollutes the player directory; only your own result is saved.",
   "capabilities": [
     "Darts 301 and 501 with bust rules, double-out and checkout suggestions.",
     "Cricket for two to eight players with marks and open-target scoring.",
@@ -13,6 +13,10 @@
     "Best-of match lengths and a complete turn history.",
     "Responsive dartboard designed for phones and larger screens.",
     "Save and resume an unfinished solo game.",
+    "Fourteen ready-made board games, including Scrabble, Yahtzee, Catan, Ticket to Ride, Carcassonne and Azul.",
+    "Custom games with your own starting score, direction, target, number of rounds and winner rule.",
+    "One phone can score for everyone at the table, including favourite players who are not in the room.",
+    "Statistics for every game, kept by Score Arena itself and shown before you start.",
     "Profile results, wins, losses and head-to-head history through Game Hub.",
     "Available in all nine mvmOS languages."
   ],

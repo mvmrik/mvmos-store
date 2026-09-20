@@ -1159,9 +1159,9 @@ GM.showRepoView = function(container, repo, autoFetch) {
 
         tc.querySelector('#gm-discard-all').addEventListener('click', async function() {
           if (!await mvmOS.confirm(t('gm_discard_all_confirm', { name: repo.name }))) return;
-          GM.writeApi('/repo/discard', { path: repo.path }, repo)
+          GM.api('/repo/discard', { method: 'POST', json: { path: repo.path } })
             .then(function() { loadStatus(); })
-            .catch(function(e) { if (e.message !== 'cancelled') mvmOS.notify(t('gm_title'), e.message); });
+            .catch(function(e) { mvmOS.notify(t('gm_title'), e.message); });
         });
 
         var fl = tc.querySelector('#gm-file-list');
@@ -1215,9 +1215,9 @@ GM.showRepoView = function(container, repo, autoFetch) {
             fileRow.querySelector('.gm-discard-file').addEventListener('click', async function(e) {
               e.stopPropagation();
               if (!await mvmOS.confirm(t('gm_discard_file_confirm', { file: f.file }))) return;
-              GM.writeApi('/repo/discard', { path: repo.path, file: f.file }, repo)
+              GM.api('/repo/discard', { method: 'POST', json: { path: repo.path, file: f.file } })
                 .then(function() { loadStatus(); })
-                .catch(function(e) { if (e.message !== 'cancelled') mvmOS.notify(t('gm_title'), e.message); });
+                .catch(function(e) { mvmOS.notify(t('gm_title'), e.message); });
             });
           }
 

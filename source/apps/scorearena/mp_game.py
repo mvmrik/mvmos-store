@@ -15,6 +15,7 @@ if _APP_DIR not in sys.path:
     sys.path.insert(0, _APP_DIR)
 
 from ghost import Ghost, skill_from_history
+import sa_stats
 
 CRICKET_TARGETS = (20, 19, 18, 17, 16, 15, 25)
 
@@ -28,31 +29,100 @@ GOLF_HOLE_COUNTS = {"progolf": 18, "minigolf": 9}
 
 GHOST_ID = "__ghost__"
 GHOST_HISTORY_LIMIT = 15
-GHOST_DART_DELAY = 0.85  # seconds between the ghost's own darts, so the client can animate them one by one
+GHOST_DART_DELAY = 1.4  # seconds before each of the ghost's own darts, so the client can show them one by one
+CUSTOM_LIMIT = 1_000_000
+GHOST_TURN_PAUSE = 2.2  # seconds the finished turn stays on screen before its score is applied
 # apps/scorearena/ -> repo root -> backend/apps/gamehub/data.db, the real Game
 # Hub database (apps/gamehub/data.db is an unrelated stale empty file).
 _GH_DB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "backend", "apps", "gamehub", "data.db")
 
 
-def _ghost_skill_for(mode: str, player_id: str) -> float:
-    """Reads this player's own recent solo `game_sessions` for scorearena in
-    this `mode` and derives a ghost skill from them (see ghost.py). Best
-    effort: any DB hiccup just falls back to the module's mid-table default,
-    never blocks starting a match."""
+# Ready-made board games. They run on the same engine as player-made custom games
+# (one screen, the host types every turn's points in), but the rules come from here,
+# never from the browser, and the stats are shared by everybody who plays them.
+# mp.js keeps a copy of the numbers only to describe the rules before a match starts.
+BOARD_GAMES = {
+    "scrabble":      {"icon": "🔤", "direction": "up",   "start": 0, "end": "manual", "target": 0,     "rounds": 10, "winner": "high", "exact": False},
+    "yahtzee":       {"icon": "🎲", "direction": "up",   "start": 0, "end": "rounds", "target": 0,     "rounds": 13, "winner": "high", "exact": False},
+    "farkle":        {"icon": "🎰", "direction": "up",   "start": 0, "end": "target", "target": 10000, "rounds": 10, "winner": "high", "exact": False},
+    "catan":         {"icon": "🏝️", "direction": "up",   "start": 0, "end": "target", "target": 10,    "rounds": 10, "winner": "high", "exact": False},
+    "splendor":      {"icon": "💎", "direction": "up",   "start": 0, "end": "target", "target": 15,    "rounds": 10, "winner": "high", "exact": False},
+    "dominoes":      {"icon": "⬛", "direction": "up",   "start": 0, "end": "target", "target": 100,   "rounds": 10, "winner": "high", "exact": False},
+    "ticket":        {"icon": "🚂", "direction": "up",   "start": 0, "end": "manual", "target": 0,     "rounds": 10, "winner": "high", "exact": False},
+    "carcassonne":   {"icon": "🏰", "direction": "up",   "start": 0, "end": "manual", "target": 0,     "rounds": 10, "winner": "high", "exact": False},
+    "azul":          {"icon": "🔷", "direction": "up",   "start": 0, "end": "manual", "target": 0,     "rounds": 10, "winner": "high", "exact": False},
+    "qwirkle":       {"icon": "🔶", "direction": "up",   "start": 0, "end": "manual", "target": 0,     "rounds": 10, "winner": "high", "exact": False},
+    "wingspan":      {"icon": "🐦", "direction": "up",   "start": 0, "end": "manual", "target": 0,     "rounds": 10, "winner": "high", "exact": False},
+    "kingdomino":    {"icon": "👑", "direction": "up",   "start": 0, "end": "manual", "target": 0,     "rounds": 10, "winner": "high", "exact": False},
+    "monopoly":      {"icon": "🏦", "direction": "up",   "start": 0, "end": "manual", "target": 0,     "rounds": 10, "winner": "high", "exact": False},
+    "blokus":        {"icon": "🟦", "direction": "up",   "start": 0, "end": "manual", "target": 0,     "rounds": 10, "winner": "low",  "exact": False},
+}
+for _id, _rules in BOARD_GAMES.items():
+    _rules["name"] = _id.capitalize()
+    _rules["board"] = _id
+
+
+def _clean_rules(raw):
+    """Validates the rule set of a player-made custom game. Everything comes
+    from the browser, so every field is coerced and clamped; returns None when
+    the game has no usable name."""
+    if not isinstance(raw, dict):
+        return None
+    name = str(raw.get("name") or "").strip()[:40]
+    if not name:
+        return None
+
+    def num(key, default, lo=-CUSTOM_LIMIT, hi=CUSTOM_LIMIT):
+        try:
+            return max(lo, min(hi, int(raw.get(key, default))))
+        except (TypeError, ValueError):
+            return default
+
+    direction = raw.get("direction") if raw.get("direction") in ("up", "down") else "up"
+    end = raw.get("end") if raw.get("end") in ("target", "rounds", "manual") else "target"
+    rules = {
+        "name": name, "icon": (str(raw.get("icon") or "").strip()[:8] or "🎲"),
+        "direction": direction, "start": num("start", 0), "end": end,
+        "target": num("target", 0), "rounds": num("rounds", 10, 1, 99),
+        "winner": raw.get("winner") if raw.get("winner") in ("high", "low") else "high",
+        "exact": bool(raw.get("exact")),
+    }
+    # A target that can never be reached would make an endless game.
+    if end == "target" and ((direction == "up" and rules["target"] <= rules["start"])
+                            or (direction == "down" and rules["target"] >= rules["start"])):
+        rules["end"] = "manual"
+    return rules
+
+
+def _profiles_for(ids):
+    """Game Hub profiles of players who are picked into a custom game without
+    being in the room. Ids the hub does not know are simply dropped, so nobody
+    can be written into a match under a made-up identity."""
+    out = {}
+    if not ids:
+        return out
     try:
         conn = sqlite3.connect(_GH_DB_PATH)
         conn.row_factory = sqlite3.Row
-        rows = conn.execute(
-            """SELECT gs.metadata FROM game_sessions gs
-               JOIN session_players sp ON sp.session_id = gs.id
-               WHERE gs.game_id = 'scorearena' AND sp.player_id = ?
-               ORDER BY gs.played_at DESC LIMIT ?""",
-            (str(player_id), GHOST_HISTORY_LIMIT),
-        ).fetchall()
+        rows = conn.execute("SELECT id, display_name, avatar_color, avatar_svg FROM players WHERE id IN (%s)"
+                            % ",".join("?" * len(ids)), list(ids)).fetchall()
         conn.close()
+        for r in rows:
+            out[str(r["id"])] = dict(r)
+    except Exception:
+        pass
+    return out
+
+
+def _ghost_skill_for(mode: str, player_id: str) -> float:
+    """Reads this player's own recent Score Arena matches in this `mode` from the
+    app's own statistics and derives a ghost skill from them (see ghost.py).
+    Best effort: any hiccup just falls back to the module's mid-table default,
+    never blocks starting a match."""
+    try:
         stats = []
-        for row in rows:
-            meta = json.loads(row["metadata"] or "{}")
+        for raw in sa_stats.recent_metadata(player_id, GHOST_HISTORY_LIMIT):
+            meta = json.loads(raw or "{}")
             if meta.get("scorearena_mode") != mode:
                 continue
             ps = (meta.get("player_stats") or {}).get(str(player_id))
@@ -101,6 +171,11 @@ class Game:
         self.targets = []
         self.ghost = None                # Ghost instance, solo-vs-ghost matches only
         self.ghost_name = "Ghost"
+        self.rules = None                # rule set of a custom game (mode "custom" only)
+        self.owner_id = None             # who made that custom game
+        self.owner_name = ""
+        self.local = {}                  # profiles of players the host scores for, without them being in the room
+        self._undo = None                # one-step undo for the last custom turn
 
     async def on_start(self, settings):
         roster = self.ctx.all_players()
@@ -112,30 +187,52 @@ class Game:
             await self.ctx.broadcast(self._state("sa_start"))
             await self._maybe_ghost_turn()
             return
-        valid_modes = ("501", "301", "cricket", "bitcoin", "breakdown", "atc", "progolf", "minigolf")
+        valid_modes = ("501", "301", "cricket", "bitcoin", "breakdown", "atc", "progolf", "minigolf", "custom")
         self.mode = settings.get("mode") if settings.get("mode") in valid_modes else "501"
+        if self.mode == "custom":
+            board = BOARD_GAMES.get(settings.get("board"))
+            self.rules = dict(board) if board else _clean_rules(settings.get("rules"))
+            self.owner_id = str(self.ctx.host_id)
+            if not self.rules:
+                self.mode = "501"
         # Golf is one full round of holes, no leg-repeat concept — force it
         # regardless of what the lobby's "first to N legs" setting says.
         self.target_wins = 1 if self.mode in ("progolf", "minigolf") else max(1, min(7, int(settings.get("target_wins", 1))))
         ids = [p["id"] for p in roster]
+        if self.mode == "custom":
+            # A custom game is played on one screen: the host keeps the score for
+            # themselves and for the favourites they picked, nobody else has to join.
+            host = str(self.ctx.host_id)
+            picked = []
+            for pid in settings.get("local_players") or []:
+                pid = str(pid)
+                if pid != host and pid not in picked:
+                    picked.append(pid)
+            profiles = _profiles_for(picked[:7])
+            self.local = {pid: {"id": pid, "display_name": profiles[pid]["display_name"],
+                                "avatar_color": profiles[pid]["avatar_color"], "avatar_svg": profiles[pid]["avatar_svg"],
+                                "connected": True} for pid in picked if pid in profiles}
+            self.owner_name = next((p.get("display_name") or "" for p in roster if str(p["id"]) == host), "")
+            ids = [host] + list(self.local)
         # The ghost only ever makes sense heads-up against exactly one real
         # player — with two+ real players the humans are already the rivals.
-        ghost_wanted = settings.get("opponent") == "ghost" and len(ids) == 1
+        ghost_wanted = self.mode != "custom" and settings.get("opponent") == "ghost" and len(ids) == 1
+        # The ghost is a real participant in the turn order, so dice and the
+        # manual "who goes first" choice can put it ahead of the human.
+        participants = ids + ([GHOST_ID] if ghost_wanted else [])
         method = settings.get("order", "lobby")
         if method == "dice":
-            rolls = sorted(((random.randint(1, 6), random.random(), pid) for pid in ids), reverse=True)
+            rolls = sorted(((random.randint(1, 6), random.random(), pid) for pid in participants), reverse=True)
             self.order = [pid for _, _, pid in rolls]
             self.dice = {pid: roll for roll, _, pid in rolls}
-        elif method == "manual" and settings.get("first_player_id") in ids:
+        elif method == "manual" and settings.get("first_player_id") in participants:
             first = settings["first_player_id"]
-            self.order = [first] + [pid for pid in ids if pid != first]
+            self.order = [first] + [pid for pid in participants if pid != first]
         else:
-            self.order = ids
-        self.players = {pid: self._fresh_player() for pid in ids}
+            self.order = participants
+        self.players = {pid: self._fresh_player() for pid in participants}
         if ghost_wanted:
             self.ghost = Ghost(_ghost_skill_for(self.mode, ids[0]))
-            self.order.append(GHOST_ID)
-            self.players[GHOST_ID] = self._fresh_player()
         self.started = True
         self.started_at = time.time()
         if self.mode == "bitcoin":
@@ -151,6 +248,7 @@ class Game:
             "mode": self.mode, "target_wins": self.target_wins, "order": self.order,
             "turn_index": self.turn_index, "players": self.players, "history": self.history,
             "round_no": self.round_no, "dice": self.dice, "started_at": self.started_at,
+            "rules": self.rules, "owner_id": self.owner_id, "owner_name": self.owner_name, "local": self.local,
             "difficulty": self.difficulty, "block_count": self.block_count, "total_blocks": self.total_blocks,
             "halving_reward": self.halving_reward, "halving_count": self.halving_count, "targets": self.targets,
             "ghost": ({"base_skill": self.ghost.base_skill, "skill": self.ghost.skill,
@@ -173,6 +271,10 @@ class Game:
         self.halving_reward = data.get("halving_reward", BITCOIN_REWARD_LEVELS[0])
         self.halving_count = data.get("halving_count", 0)
         self.targets = data.get("targets", [])
+        self.rules = data.get("rules")
+        self.owner_id = data.get("owner_id")
+        self.owner_name = data.get("owner_name") or ""
+        self.local = data.get("local") or {}
         gdata = data.get("ghost")
         if gdata:
             self.ghost = Ghost(gdata.get("base_skill", 0.5))
@@ -188,6 +290,9 @@ class Game:
         await self.ctx.broadcast({"type": "sa_presence", "player_id": player["id"], "connected": False})
 
     async def on_message(self, player, msg):
+        if self.mode == "custom" and self.started and not self.finished:
+            await self._custom_message(player, msg)
+            return
         if msg.get("type") != "sa_turn" or not self.started or self.finished:
             return
         darts = self._clean_darts(msg.get("darts"))
@@ -308,6 +413,10 @@ class Game:
                 if d["number"] == hole and d["multiplier"] == 2:
                     break
 
+        # Let the last dart sink in before the score jumps, otherwise the whole
+        # turn flashes past faster than the eye can follow.
+        await asyncio.sleep(GHOST_TURN_PAUSE)
+
         if self.mode == "bitcoin":
             await self._resolve_bitcoin(darts, GHOST_ID)
             return
@@ -338,12 +447,111 @@ class Game:
             self.turn_index = (self.turn_index + 1) % len(self.order)
         await self.ctx.broadcast(self._state("sa_state", last=result))
 
+    # ── Custom games ─────────────────────────────────────────────────────
+    # A player-made game is just a rule set (see _clean_rules): scores go up or
+    # down from a start value, and it ends at a target, after N rounds, or when
+    # the players say so. Everyone in the room plays by the host's rules.
+
+    def _custom_key(self):
+        if self.rules.get("board"):
+            return f"board:{self.rules['board']}"
+        return f"custom:{self.owner_id}:{self.rules['name'].lower()}"
+
+    def _prefers_low(self):
+        r = self.rules
+        return r["direction"] == "down" if r["end"] == "target" else r["winner"] == "low"
+
+    def _custom_leaders(self):
+        pick = min if self._prefers_low() else max
+        best = pick(self.players[pid]["score"] for pid in self.order)
+        return [pid for pid in self.order if self.players[pid]["score"] == best]
+
+    async def _custom_message(self, player, msg):
+        if str(player["id"]) != str(self.owner_id):
+            return
+        kind = msg.get("type")
+        if kind == "sa_custom_turn":
+            try:
+                value = int(msg.get("value"))
+            except (TypeError, ValueError):
+                await self.ctx.send(player["id"], {"type": "sa_error", "message": "empty_turn"})
+                return
+            if abs(value) > CUSTOM_LIMIT:
+                return
+            await self._custom_turn(self.order[self.turn_index], value, player["id"])
+        elif kind == "sa_custom_undo":
+            await self._custom_undo()
+        elif kind == "sa_custom_end" and self.rules["end"] == "manual":
+            if not any(self.players[pid]["round_darts"] for pid in self.order):
+                return
+            await self._custom_round_over(self._custom_leaders())
+
+    async def _custom_turn(self, pid, value, entered_by):
+        rules, state = self.rules, self.players[pid]
+        metrics = state["metrics"]
+        self._undo = {"pid": pid, "score": state["score"], "metrics": dict(metrics),
+                      "turns": state["round_darts"], "turn_index": self.turn_index,
+                      "history_len": len(self.history)}
+        before = state["score"]
+        after = before + (value if rules["direction"] == "up" else -value)
+        bust = won = False
+        if rules["end"] == "target":
+            reached = after >= rules["target"] if rules["direction"] == "up" else after <= rules["target"]
+            if reached:
+                if rules["exact"] and after != rules["target"]:
+                    bust, after = True, before
+                else:
+                    won = True
+        state["score"] = after
+        state["round_darts"] += 1
+        metrics["turns"] += 1
+        if not bust:
+            metrics["points"] += value
+            metrics["best_turn"] = max(metrics["best_turn"], value)
+        result = {"kind": "custom", "before": before, "after": after, "value": value, "bust": bust,
+                  "scored": 0 if bust else value, "round_winner": pid if won else None,
+                  "player_id": pid, "entered_by": entered_by, "round": self.round_no}
+        self.history.append(result)
+        if won:
+            await self._custom_round_over([pid])
+            return
+        self.turn_index = (self.turn_index + 1) % len(self.order)
+        if rules["end"] == "rounds" and all(self.players[p]["round_darts"] >= rules["rounds"] for p in self.order):
+            await self._custom_round_over(self._custom_leaders())
+            return
+        await self.ctx.broadcast(self._state("sa_state", last=result))
+
+    async def _custom_undo(self):
+        undo = self._undo
+        if not undo or undo["history_len"] != len(self.history) - 1:
+            return
+        state = self.players[undo["pid"]]
+        state["score"], state["metrics"], state["round_darts"] = undo["score"], undo["metrics"], undo["turns"]
+        self.turn_index = undo["turn_index"]
+        self.history.pop()
+        self._undo = None
+        await self.ctx.broadcast(self._state("sa_state"))
+
+    async def _custom_round_over(self, winners):
+        """One game of the match is decided. Ties share the win."""
+        self._undo = None
+        for pid in winners:
+            self.players[pid]["wins"] += 1
+        done = [pid for pid in winners if self.players[pid]["wins"] >= self.target_wins]
+        if done:
+            await self._finish(done[0], done)
+            return
+        self.round_no += 1
+        self._reset_round()
+        await self.ctx.broadcast(self._state("sa_state", last=self.history[-1] if self.history else None))
+
     def _fresh_player(self):
         start = 301 if self.mode == "301" else 501
-        return {"remaining": start, "score": 0, "marks": {str(n): 0 for n in CRICKET_TARGETS}, "wins": 0,
+        score = self.rules["start"] if self.mode == "custom" and self.rules else 0
+        return {"remaining": start, "score": score, "marks": {str(n): 0 for n in CRICKET_TARGETS}, "wins": 0,
                 "round_darts": 0, "seq_index": 0, "seq_turn_score": 0, "golf_hole": 0, "golf_done": False,
                 "golf_strokes": [],
-                "metrics": {"darts": 0, "points": 0, "turns": 0, "checkout_attempts": 0,
+                "metrics": {"best_turn": 0, "darts": 0, "points": 0, "turns": 0, "checkout_attempts": 0,
                 "checkout_hits": 0, "highest_checkout": 0, "best_leg_darts": 0, "scores_100": 0,
                 "scores_140": 0, "scores_180": 0, "nine_darters": 0, "marks_total": 0, "mark_5": 0, "mark_6": 0,
                 "mark_7": 0, "mark_8": 0, "mark_9": 0, "three_triples": 0, "perfect_games": 0,
@@ -654,6 +862,19 @@ class Game:
         scores = sorted((self.players[pid]["score"] for pid in self.order), reverse=True)
         return (scores[0] - scores[1]) <= self._max_possible_score()
 
+    async def _record(self, records, metadata):
+        """Keeps the whole match in Score Arena's own statistics and tells Game
+        Hub only what it needs: who played, the points, and the headline facts."""
+        ids = {r["player_id"] for r in records if r.get("player_id")} | set(metadata.get("player_stats") or {})
+        try:
+            await asyncio.to_thread(sa_stats.import_from_hub)
+            await asyncio.to_thread(sa_stats.record, metadata["scorearena_mode"], ids,
+                                    {k: v for k, v in metadata.items() if k != "turn_history"})
+        except Exception as e:
+            print(f"[scorearena] could not save match statistics: {e}")
+        await self.ctx.finish(records, metadata={k: metadata.get(k) for k in
+                                                 ("scorearena_mode", "rounds", "turns", "winner")})
+
     async def _finish_bitcoin(self):
         self.finished = True
         standings = sorted(self.order, key=lambda pid: self.players[pid]["score"], reverse=True)
@@ -673,9 +894,9 @@ class Game:
             m["halvings_survived"] = self.halving_count
             m["wins"] = (1 if pid == winner else 0) if had_rival else 0
             player_stats[pid] = m
-        await self.ctx.finish(records, metadata={"scorearena_mode": self.mode, "rounds": self.round_no,
-                                                  "turns": len(self.history), "winner": winner,
-                                                  "player_stats": player_stats, "turn_history": self.history})
+        await self._record(records, {"scorearena_mode": self.mode, "rounds": self.round_no,
+                                     "turns": len(self.history), "winner": winner,
+                                     "player_stats": player_stats, "turn_history": self.history})
 
     def _reset_round(self):
         for pid in self.order:
@@ -686,13 +907,17 @@ class Game:
             self.players[pid]["metrics"] = metrics
         self.turn_index = (self.round_no - 1) % len(self.order)
 
-    async def _finish(self, winner):
+    async def _finish(self, winner, winners=None):
         self.finished = True
-        standings = sorted(self.order, key=lambda pid: (self.players[pid]["wins"], self.players[pid].get("score", 0)), reverse=True)
+        self._undo = None
+        winners = winners or [winner]
+        # In a custom game where the lowest score wins, a bigger score ranks worse.
+        sign = -1 if self.mode == "custom" and self._prefers_low() else 1
+        standings = sorted(self.order, key=lambda pid: (self.players[pid]["wins"], sign * self.players[pid].get("score", 0)), reverse=True)
         real_standings = [pid for pid in standings if pid != GHOST_ID]
-        records = [{"player_id": pid, "score": self.players[pid]["wins"], "rank": i + 1, "is_winner": pid == winner}
+        records = [{"player_id": pid, "score": self.players[pid]["wins"], "rank": i + 1, "is_winner": pid in winners}
                    for i, pid in enumerate(real_standings)]
-        await self.ctx.broadcast(self._state("sa_finished", winner=winner))
+        await self.ctx.broadcast(self._state("sa_finished", winner=winner, winners=winners))
         had_rival = len([pid for pid in self.order if pid != GHOST_ID]) > 1 or self.ghost is not None
         player_stats = {}
         for pid in self.order:
@@ -702,11 +927,21 @@ class Game:
             m["three_dart_average"] = round((m["points"] / m["darts"] * 3) if m["darts"] else 0, 2)
             m["checkout_rate"] = round((m["checkout_hits"] / m["checkout_attempts"] * 100) if m["checkout_attempts"] else 0, 2)
             m["mpr"] = round((m["marks_total"] / m["turns"]) if m["turns"] else 0, 2)
+            m["avg_turn"] = round((m["points"] / m["turns"]) if m["turns"] else 0, 2)
             m["wins"] = self.players[pid]["wins"] if had_rival else 0
             player_stats[pid] = m
-        await self.ctx.finish(records, metadata={"scorearena_mode": self.mode, "rounds": self.round_no,
-                                                  "turns": len(self.history), "winner": winner,
-                                                  "player_stats": player_stats, "turn_history": self.history})
+        metadata = {"scorearena_mode": self.mode, "rounds": self.round_no,
+                    "turns": len(self.history), "winner": winner,
+                    "player_stats": player_stats, "turn_history": self.history}
+        if self.mode == "custom":
+            # Stats are kept per game *and* per author: two players may both
+            # have a "Scrabble" with different rules, and those must not mix.
+            metadata["scorearena_mode"] = self._custom_key()
+            if self.rules.get("board"):
+                metadata["scorearena_board"] = self.rules["board"]
+            else:
+                metadata["scorearena_custom"] = {**self.rules, "owner_id": self.owner_id, "owner_name": self.owner_name}
+        await self._record(records, metadata)
 
     async def _finish_golf(self):
         """Pro/Mini Golf finish: unlike every other mode, completion isn't
@@ -731,13 +966,14 @@ class Game:
             m["avg"] = round((m["golf_strokes_total"] / hole_count) if hole_count else 0, 2)
             m["wins"] = (1 if pid == winner else 0) if had_rival else 0
             player_stats[pid] = m
-        await self.ctx.finish(records, metadata={"scorearena_mode": self.mode, "rounds": self.round_no,
-                                                  "turns": len(self.history), "winner": winner,
-                                                  "player_stats": player_stats, "turn_history": self.history})
+        await self._record(records, {"scorearena_mode": self.mode, "rounds": self.round_no,
+                                     "turns": len(self.history), "winner": winner,
+                                     "player_stats": player_stats, "turn_history": self.history})
 
     def _state(self, kind, **extra):
         roster = {p["id"]: {k: p.get(k) for k in ("id", "display_name", "avatar_color", "avatar_svg", "connected")}
                   for p in self.ctx.all_players()}
+        roster.update(self.local)
         if self.ghost and GHOST_ID in self.players:
             roster[GHOST_ID] = {"id": GHOST_ID, "display_name": self.ghost_name, "avatar_color": "#8b5cf6",
                                  "avatar_svg": None, "connected": True, "is_ghost": True, "mood": self.ghost.mood()}
@@ -746,4 +982,5 @@ class Game:
                 "players": self.players, "roster": roster, "history": self.history[-20:], "round": self.round_no,
                 "dice": self.dice, "targets": self.targets, "difficulty": self.difficulty,
                 "block_count": self.block_count, "halving_reward": self.halving_reward,
-                "halving_count": self.halving_count, "total_blocks": self.total_blocks, **extra}
+                "halving_count": self.halving_count, "total_blocks": self.total_blocks,
+                "rules": self.rules, "owner_id": self.owner_id, "can_undo": bool(self._undo), **extra}

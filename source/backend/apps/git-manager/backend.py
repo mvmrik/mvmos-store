@@ -465,11 +465,21 @@ def repo_status(path: str, session=Depends(get_current_session)):
     branch_r = _git(session, path, ['rev-parse', '--abbrev-ref', 'HEAD'])
     branch = branch_r.stdout.strip() if branch_r.returncode == 0 else '?'
 
-    status_r = _git(session, path, ['status', '--porcelain'])
+    # -z keeps names with spaces or non-ASCII letters unquoted, so they can be
+    # handed straight back to git (diff, discard). A rename carries its old
+    # name as one extra NUL-separated field, which is skipped.
+    status_r = _git(session, path, ['status', '--porcelain', '-z'])
     files = []
-    for line in status_r.stdout.splitlines():
-        if len(line) >= 3:
-            files.append({'code': line[:2], 'file': line[3:]})
+    entries = status_r.stdout.split('\0')
+    i = 0
+    while i < len(entries):
+        entry = entries[i]
+        i += 1
+        if len(entry) < 4:
+            continue
+        files.append({'code': entry[:2], 'file': entry[3:]})
+        if entry[0] in 'RC' or entry[1] in 'RC':
+            i += 1
 
     remote_r = _git(session, path, ['remote', 'get-url', 'origin'])
     remote = remote_r.stdout.strip() if remote_r.returncode == 0 else ''
@@ -604,19 +614,16 @@ class DiscardBody(BaseModel):
 
 @router.post("/repo/discard")
 def repo_discard(body: DiscardBody, session=Depends(get_current_session)):
-    if body.file:
-        r = _git(session, body.path, ['restore', '--', body.file])
-        if r.returncode != 0:
-            # fallback for older git
-            r = _git(session, body.path, ['checkout', '--', body.file])
-        if r.returncode != 0:
-            raise HTTPException(400, (r.stdout + r.stderr).strip() or 'Discard failed')
-    else:
-        r = _git(session, body.path, ['restore', '.'])
-        if r.returncode != 0:
-            r = _git(session, body.path, ['checkout', '--', '.'])
-        if r.returncode != 0:
-            raise HTTPException(400, (r.stdout + r.stderr).strip() or 'Discard failed')
+    # Discard means both the working tree and the staged copy go back to HEAD,
+    # otherwise a staged change would silently stay. Files that git does not
+    # track yet (??) are never touched.
+    target = ['--', body.file] if body.file else ['--', '.']
+    r = _git(session, body.path, ['restore', '--staged', '--worktree'] + target)
+    if r.returncode != 0:
+        # fallback for older git
+        r = _git(session, body.path, ['checkout', 'HEAD'] + target)
+    if r.returncode != 0:
+        raise HTTPException(400, (r.stdout + r.stderr).strip() or 'Discard failed')
     return JSONResponse({'ok': True})
 
 
