@@ -54,8 +54,11 @@ done
 # lives under an *upload* directory, and the copy above takes it along with the
 # rest of public/ — shoppinglist-1.2.2 went out with photos in it because this
 # was a manual step afterwards. The directories themselves stay, empty, so an
-# install still gets the folder the app writes into.
+# install still gets the folder the app writes into. mvmCloud keeps its
+# per-user files in a top-level storage/ directory instead, which went out
+# with real user photos and vault data the first time this ran — same rule.
 find "$TMP" -depth -type d -iname '*upload*' -exec sh -c 'find "$1" -mindepth 1 -delete' _ {} \;
+find "$TMP" -depth -type d -iname 'storage' -exec sh -c 'find "$1" -mindepth 1 -delete' _ {} \;
 find "$TMP" -depth -type d -name '__pycache__' -exec rm -rf {} +
 find "$TMP" -type f \( -name '*.py[cod]' -o -name '*.bak' -o -name '*.bak-*' \) -delete
 
@@ -66,7 +69,7 @@ rm -rf "$TMP"
 
 # Last line of defence: whatever the steps above missed, a package carrying
 # uploads, databases, compiled Python, backups or premium code is not published.
-BAD=$(unzip -Z1 "$OUT" | grep -iE '(^|/)[^/]*upload[^/]*/.+|\.(db|sqlite|sqlite3)(-.*)?$|__pycache__|\.py[cod]$|\.bak(-.*)?$|(^|/)premium/|(^|/)(store|premium)\.json$')
+BAD=$(unzip -Z1 "$OUT" | grep -iE '(^|/)[^/]*upload[^/]*/.+|(^|/)storage/.+|\.(db|sqlite|sqlite3)(-.*)?$|__pycache__|\.py[cod]$|\.bak(-.*)?$|(^|/)premium/|(^|/)(store|premium)\.json$')
 if [ -n "$BAD" ]; then
     rm -f "$OUT"
     echo "Refusing to publish $OUT — it contains files that must never ship:"
@@ -76,6 +79,27 @@ fi
 
 echo "Created: $OUT"
 unzip -l "$OUT"
+
+# The category manifest tells the desktop App Store which apps have Premium, so
+# the card can carry the 💎 before anyone opens it. The fact itself lives in
+# source/apps/<id>/premium.json; the flag is derived from it here, never by hand.
+python3 - "$APP_ID" "$CATEGORY" <<'PY'
+import json, os, sys
+app_id, category = sys.argv[1], sys.argv[2]
+root = "/var/www/mvmos-store"
+path = f"{root}/apps/{category}/manifest.json"
+wanted = os.path.isfile(f"{root}/source/apps/{app_id}/premium.json")
+raw = open(path, encoding="utf-8").read()
+data = json.loads(raw)
+for app in data.get("apps", []):
+    if app.get("id") == app_id and bool(app.get("premium")) != wanted:
+        if wanted:
+            app["premium"] = True
+        else:
+            app.pop("premium", None)
+        open(path, "w", encoding="utf-8").write(json.dumps(data, indent=2, ensure_ascii=False) + ("\n" if raw.endswith("\n") else ""))
+        print(f"manifest: premium={'true' if wanted else 'removed'} for {app_id}")
+PY
 
 # The premium build is skipped above on purpose, but it still has to reach
 # mvmos.org or the change stops in source/ with nothing to signal it. Publish

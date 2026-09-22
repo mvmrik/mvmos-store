@@ -5,6 +5,7 @@ external shares need to touch selected Linux folders.  Every path is resolved
 under an explicit root; it never exposes a shell or a general filesystem API.
 """
 import hashlib
+import hmac
 import json
 import os
 import re
@@ -27,6 +28,7 @@ APP_ID = "mvmcloud"
 APP_DIR = Path(__file__).resolve().parents[3] / "apps" / APP_ID
 STORAGE = APP_DIR / "storage"
 USERS_ROOT = STORAGE / "users"
+THUMBS_ROOT = STORAGE / "thumbs"
 DB_PATH = APP_DIR / "data.db"
 MAX_UPLOAD_BYTES = 2 * 1024 * 1024 * 1024
 MIN_FREE_BYTES = 1024 * 1024 * 1024
@@ -174,15 +176,38 @@ def _check_write(root: Path, user_id: str, incoming: int = 0):
         raise HTTPException(413, "Storage quota reached")
 
 
-def _entries(root: Path, rel: str):
+def _natural(name: str) -> list:
+    # IMG_2 before IMG_10.  re.split with a group puts the digits at odd positions.
+    return [int(x) if i % 2 else x.lower() for i, x in enumerate(re.split(r"([0-9]+)", name))]
+
+
+def _entry_row(p: Path, root: Path, known: dict):
+    try: stat = p.stat()
+    except OSError: return None
+    row = {"name": p.name, "type": "folder" if p.is_dir() else "file", "size": stat.st_size, "modified": int(stat.st_mtime)}
+    if known and row["type"] == "file" and p.suffix.lower() in INLINE_TYPES:
+        dur = known.get((_thumb_hash(p.relative_to(root).as_posix()), int(stat.st_mtime), stat.st_size))
+        if dur is not None: row["thumb"] = 1; row["dur"] = dur
+    return row
+
+
+def _entries(root: Path, rel: str, thumbs_for: str | None = None, offset: int = 0, limit: int = 0):
+    """List a folder.  With a limit the answer is one page in a stable order
+    (folders, other files, then pictures and videos, each in natural order) so a
+    big folder can be loaded piece by piece while the user scrolls."""
     folder = _safe(root, rel)
     if not folder.is_dir(): raise HTTPException(404, "Folder not found")
-    rows = []
-    for p in sorted(folder.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower())):
-        if p.is_symlink(): continue
-        stat = p.stat()
-        rows.append({"name": p.name, "type": "folder" if p.is_dir() else "file", "size": stat.st_size, "modified": int(stat.st_mtime)})
-    return {"path": rel.strip("/"), "entries": rows}
+    known = _thumb_index(thumbs_for) if thumbs_for else {}
+    if not limit:
+        rows = [r for r in (_entry_row(p, root, known) for p in sorted(folder.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower())) if not p.is_symlink()) if r]
+        return {"path": rel.strip("/"), "entries": rows}
+    with os.scandir(folder) as it:
+        kids = [(e.name, e.is_dir(follow_symlinks=False)) for e in it if not e.is_symlink()]
+    def group(kid): return 0 if kid[1] else (2 if Path(kid[0]).suffix.lower() in INLINE_TYPES else 1)
+    kids.sort(key=lambda k: (group(k), _natural(k[0])))
+    end = offset + limit
+    rows = [r for r in (_entry_row(folder / k[0], root, known) for k in kids[offset:end]) if r]
+    return {"path": rel.strip("/"), "entries": rows, "total": len(kids), "media_total": sum(1 for k in kids if group(k) == 2), "next": end if end < len(kids) else None}
 
 
 def _audit(actor, action, target):
@@ -257,8 +282,9 @@ async def me(x_pub_token: str = Header(default=None)):
 
 
 @router.get("/files")
-async def files(path: str = "", x_pub_token: str = Header(default=None)):
-    user = _need_public(x_pub_token); return _entries(_user_root(user["id"]), path)
+async def files(path: str = "", offset: int = 0, limit: int = 0, x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token)
+    return _entries(_user_root(user["id"]), path, user["id"], max(0, offset), min(max(0, limit), 1000))
 
 
 @router.get("/credit-features/encrypted_folder")
@@ -367,6 +393,141 @@ async def download(path: str, x_pub_token: str = Header(default=None)):
     return FileResponse(file, filename=file.name)
 
 
+# ── Media links ──────────────────────────────────────────────────────────────
+# <img>, <video> and a plain download link cannot send the X-Pub-Token header,
+# so the browser asks once for a signed ticket and puts it in the media URLs.
+# A ticket only reads the signed-in user's own files and expires on its own.
+MEDIA_TICKET_TTL = 3 * 3600
+# Only these types are ever shown inline. Anything else (HTML, SVG, scripts)
+# can only be downloaded as an attachment, so a stored file never runs in the
+# page's origin.
+INLINE_TYPES = {
+    ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".gif": "image/gif",
+    ".webp": "image/webp", ".avif": "image/avif", ".bmp": "image/bmp",
+    ".mp4": "video/mp4", ".m4v": "video/mp4", ".webm": "video/webm", ".mov": "video/quicktime", ".ogv": "video/ogg",
+}
+_media_secret_cache: list[str] = []
+
+
+def _media_secret() -> str:
+    if _media_secret_cache: return _media_secret_cache[0]
+    with _db() as conn:
+        conn.execute("INSERT OR IGNORE INTO settings(key,value) VALUES('media_secret',?)", (secrets.token_hex(32),))
+        conn.commit()
+        _media_secret_cache.append(conn.execute("SELECT value FROM settings WHERE key='media_secret'").fetchone()["value"])
+    return _media_secret_cache[0]
+
+
+def _media_sig(user_id: str, expires: int) -> str:
+    return hmac.new(_media_secret().encode(), f"{user_id}.{expires}".encode(), hashlib.sha256).hexdigest()
+
+
+def _media_user(ticket: str) -> str:
+    try:
+        user_id, expires, sig = ticket.rsplit(".", 2)
+        expires = int(expires)
+    except ValueError:
+        raise HTTPException(401, "Invalid media link")
+    if expires < time.time() or not USER_ID_RE.fullmatch(user_id) or not hmac.compare_digest(sig, _media_sig(user_id, expires)):
+        raise HTTPException(401, "Media link expired")
+    return user_id
+
+
+@router.get("/media-ticket")
+async def media_ticket(x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token); expires = int(time.time()) + MEDIA_TICKET_TTL
+    return {"ticket": f"{user['id']}.{expires}.{_media_sig(user['id'], expires)}", "expires": expires}
+
+
+@router.get("/stream")
+async def stream(path: str, t: str, dl: int = 0):
+    file = _safe(_user_root(_media_user(t)), path)
+    if not file.is_file(): raise HTTPException(404, "File not found")
+    headers = {"X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "Content-Security-Policy": "sandbox"}
+    if dl: return FileResponse(file, filename=file.name, headers=headers)
+    kind = INLINE_TYPES.get(file.suffix.lower())
+    if not kind: raise HTTPException(415, "This file type cannot be previewed")
+    headers["Cache-Control"] = "private, max-age=3600"
+    return FileResponse(file, media_type=kind, filename=file.name, content_disposition_type="inline", headers=headers)
+
+
+# ── Thumbnails ───────────────────────────────────────────────────────────────
+# The server has no image tools and needs none: the browser makes a small JPEG
+# once (right after an upload, or the first time it shows an older file) and
+# leaves it here, so every other device only downloads a few kilobytes.  They
+# live outside the user's folder (no listing, no quota, no sharing).  Files in
+# encrypted folders never get one, because that would leak their content.
+MAX_THUMB_BYTES = 300 * 1024
+_THUMB_NAME = re.compile(r"^([0-9a-f]{24})-(\d+)-(\d+)-(\d+)\.jpg$")
+
+
+def _thumb_hash(rel: str) -> str: return hashlib.sha256(rel.encode()).hexdigest()[:24]
+def _thumb_dir(user_id: str) -> Path: return THUMBS_ROOT / user_id
+
+
+def _thumb_index(user_id: str) -> dict:
+    """(path hash, mtime, size) -> video duration, for every thumbnail the user has."""
+    found = {}
+    try:
+        for name in os.listdir(_thumb_dir(user_id)):
+            m = _THUMB_NAME.match(name)
+            if m: found[(m.group(1), int(m.group(2)), int(m.group(3)))] = int(m.group(4))
+    except OSError: pass
+    return found
+
+
+def _thumb_forget(user_id: str, rels: list[str]):
+    hashes = {_thumb_hash(r) for r in rels}
+    if not hashes: return
+    d = _thumb_dir(user_id)
+    try: names = os.listdir(d)
+    except OSError: return
+    for name in names:
+        if name.split("-", 1)[0] in hashes:
+            try: (d / name).unlink()
+            except OSError: pass
+
+
+def _forget_thumbs(target: Path):
+    """Drop the thumbnails of a file or folder that is about to be deleted or moved."""
+    try: parts = target.resolve().relative_to(USERS_ROOT.resolve()).parts
+    except ValueError: return
+    if not parts or not USER_ID_RE.fullmatch(parts[0]) or not _thumb_dir(parts[0]).is_dir(): return
+    base = USERS_ROOT.resolve() / parts[0]
+    files = [target] if target.is_file() else (list(target.rglob("*")) if target.is_dir() else [])
+    _thumb_forget(parts[0], [p.relative_to(base).as_posix() for p in files if p.is_file() and p.suffix.lower() in INLINE_TYPES])
+
+
+@router.get("/thumb")
+async def thumb(path: str, t: str):
+    user_id = _media_user(t); root = _user_root(user_id); file = _safe(root, path)
+    if not file.is_file(): raise HTTPException(404, "File not found")
+    stat = file.stat(); key = (_thumb_hash(file.relative_to(root).as_posix()), int(stat.st_mtime), stat.st_size)
+    for name in os.listdir(_thumb_dir(user_id)) if _thumb_dir(user_id).is_dir() else []:
+        m = _THUMB_NAME.match(name)
+        if m and (m.group(1), int(m.group(2)), int(m.group(3))) == key:
+            return FileResponse(_thumb_dir(user_id) / name, media_type="image/jpeg", headers={"X-Content-Type-Options": "nosniff", "Content-Security-Policy": "sandbox", "Cache-Control": "private, max-age=86400"})
+    raise HTTPException(404, "No thumbnail")
+
+
+@router.post("/thumb")
+async def put_thumb(path: str = Form(...), dur: int = Form(0), file: UploadFile = File(...), x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token); root = _user_root(user["id"]); target = _safe(root, path)
+    if not target.is_file() or target.suffix.lower() not in INLINE_TYPES: raise HTTPException(404, "File not found")
+    rel = target.relative_to(root).as_posix()
+    with _db() as conn:
+        for vault in conn.execute("SELECT path FROM vaults WHERE user_id=?", (user["id"],)):
+            if rel == vault["path"] or rel.startswith(vault["path"] + "/"): raise HTTPException(403, "Encrypted folders never get server thumbnails")
+    data = await file.read(MAX_THUMB_BYTES + 1)
+    if len(data) > MAX_THUMB_BYTES or not data.startswith(b"\xff\xd8\xff"): raise HTTPException(400, "Invalid thumbnail")
+    if shutil.disk_usage(STORAGE).free < MIN_FREE_BYTES: raise HTTPException(507, "Server storage safety limit reached")
+    stat = target.stat(); folder = _thumb_dir(user["id"]); folder.mkdir(parents=True, exist_ok=True)
+    _thumb_forget(user["id"], [rel])
+    dest = folder / f"{_thumb_hash(rel)}-{int(stat.st_mtime)}-{stat.st_size}-{max(0, min(dur, 359999))}.jpg"
+    temp = dest.with_name("." + dest.name + ".tmp"); temp.write_bytes(data); os.replace(temp, dest)
+    return {"ok": True}
+
+
 @router.post("/folders")
 async def mkdir(body: PathBody, x_pub_token: str = Header(default=None)):
     user = _need_public(x_pub_token); root = _user_root(user["id"]); _check_write(root, user["id"])
@@ -400,7 +561,7 @@ async def move(body: MoveBody, x_pub_token: str = Header(default=None)):
     source, dest = _safe(root, body.source), _safe(root, body.destination)
     if not source.exists() or dest.exists(): raise HTTPException(409, "Invalid move")
     if source.is_dir() and source in dest.parents: raise HTTPException(400, "Cannot move a folder into itself")
-    source.rename(dest); _audit("hub:"+user["id"], "move", body.source + " -> " + body.destination); return {"ok":True}
+    _forget_thumbs(source); source.rename(dest); _audit("hub:"+user["id"], "move", body.source + " -> " + body.destination); return {"ok":True}
 
 
 @router.delete("/files")
@@ -408,6 +569,7 @@ def delete(path: str, x_pub_token: str = Header(default=None)):
     user = _need_public(x_pub_token); root = _user_root(user["id"]); _check_write(root, user["id"])
     target = _safe(root, path)
     if target == root or not target.exists(): raise HTTPException(404, "Not found")
+    _forget_thumbs(target)
     if target.is_dir(): shutil.rmtree(target)
     else: target.unlink()
     _audit("hub:"+user["id"], "delete", path); return {"ok":True}
@@ -562,7 +724,7 @@ async def save_settings(body: SettingsBody, session=Depends(sys.modules["backend
 def admin_delete_user(user_id: str, session=Depends(sys.modules["backend.auth"].get_current_session)):
     _desktop_admin(session)
     root = _user_root(user_id)
-    shutil.rmtree(root); _audit("desktop:root", "delete_user_storage", user_id)
+    shutil.rmtree(root); shutil.rmtree(_thumb_dir(user_id), ignore_errors=True); _audit("desktop:root", "delete_user_storage", user_id)
     return {"ok":True}
 
 
@@ -741,6 +903,7 @@ def api_delete(path: str, authorization: str = Header(default=None)):
     if "delete" not in perms: raise HTTPException(403,"Delete not permitted")
     target = _safe(root,path)
     if target == root or not target.exists(): raise HTTPException(404,"Not found")
+    _forget_thumbs(target)
     if target.is_dir(): shutil.rmtree(target)
     else: target.unlink()
     _audit("token:"+row["id"],"delete",path); return {"ok":True}

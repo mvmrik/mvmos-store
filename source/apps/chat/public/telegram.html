@@ -20,6 +20,12 @@
   if (tg) { tg.ready(); tg.expand(); }
 
   var root = document.getElementById('chat-root');
+  function load(src, done) {
+    var s = document.createElement('script');
+    s.src = src + '?_=' + Date.now();
+    s.onload = done;
+    document.head.appendChild(s);
+  }
   function fail(msg) {
     root.innerHTML = '<div class="cw-login">' + msg + '</div>';
   }
@@ -41,12 +47,13 @@
     localStorage.setItem('apphub_token', data.pub_token);
     var params = new URLSearchParams(location.search);
     var peer = params.get('peer');
-    var s = document.createElement('script');
-    s.src = '/apps/chat/chat-widget.js?_=' + Date.now();
-    s.onload = function () {
-      ChatWidget.mount(root, { openPeer: peer || undefined });
-    };
-    document.head.appendChild(s);
+    var conv = params.get('conv');
+    // i18n.js first: the widget reads window.CHAT_I18N as it defines itself.
+    load('/apps/chat/i18n.js', function () {
+      load('/apps/chat/chat-widget.js', function () {
+        ChatWidget.mount(root, { openPeer: peer || undefined, openConv: conv || undefined });
+      });
+    });
   }).catch(function () {
     fail('Could not verify your Telegram account. Link it again from the bot with /start.');
   });

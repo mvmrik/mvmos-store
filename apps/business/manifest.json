@@ -43,7 +43,8 @@
         "community"
       ],
       "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/business/classifieds-1.7.1.zip",
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "premium": true
     }
   ]
 }

@@ -28,7 +28,8 @@
         "git",
         "source-control"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "premium": true
     },
     {
       "id": "mvmsitebuilder",
@@ -43,7 +44,8 @@
         "no-code",
         "design"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "premium": true
     }
   ]
 }

@@ -5,14 +5,15 @@
       "name": "mvmOS Chat",
       "icon": "💬",
       "category": "Communication",
-      "version": "1.3.5",
+      "version": "1.4.0",
       "description": "Chat between mvmOS users, with a public web page for Apps Hub accounts.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/chat-1.3.5.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/chat-1.4.0.zip",
       "tags": [
         "messaging",
         "social"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "premium": true
     },
     {
       "id": "telegramhub",
@@ -27,7 +28,8 @@
         "telegram",
         "bot"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "premium": true
     },
     {
       "id": "nostradamus",
@@ -42,7 +44,8 @@
         "social",
         "decentralized"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "premium": true
     }
   ]
 }

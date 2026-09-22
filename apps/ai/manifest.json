@@ -13,7 +13,8 @@
         "assistant",
         "developer"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "premium": true
     }
   ]
 }

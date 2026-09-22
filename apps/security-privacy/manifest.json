@@ -30,7 +30,8 @@
       ],
       "min_core_version": "1.0.0",
       "public_url": "/pub/mvmpasswords/",
-      "public_directory": true
+      "public_directory": true,
+      "premium": true
     },
     {
       "id": "mvmshare",
@@ -48,7 +49,8 @@
       ],
       "min_core_version": "1.0.0",
       "public_url": "/pub/mvmshare/",
-      "public_directory": true
+      "public_directory": true,
+      "premium": true
     }
   ]
 }

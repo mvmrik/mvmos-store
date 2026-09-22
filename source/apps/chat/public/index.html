@@ -14,22 +14,28 @@
 <script src="/i18n/i18n.js"></script>
 <script>
 (function () {
+  function load(src, done) {
+    var s = document.createElement('script');
+    s.src = src + '?_=' + Date.now();
+    s.onload = done;
+    document.head.appendChild(s);
+  }
   var token = localStorage.getItem('apphub_token');
   if (!token) {
     location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
     return;
   }
   (window.mvmOS && window.mvmOS.i18nReady || Promise.resolve()).then(function () {
-    var s = document.createElement('script');
-    s.src = '/apps/chat/chat-widget.js?_=' + Date.now();
-    s.onload = function () {
-      ChatWidget.mount(document.getElementById('chat-root'), {
-        onNeedLogin: function () {
-          location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
-        }
+    // i18n.js first: the widget reads window.CHAT_I18N as it defines itself.
+    load('/apps/chat/i18n.js', function () {
+      load('/apps/chat/chat-widget.js', function () {
+        ChatWidget.mount(document.getElementById('chat-root'), {
+          onNeedLogin: function () {
+            location.replace('/pub/apphub/?return=' + encodeURIComponent(location.href));
+          }
+        });
       });
-    };
-    document.head.appendChild(s);
+    });
   });
 })();
 </script>

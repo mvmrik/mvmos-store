@@ -1,11 +1,13 @@
 {
   "tagline": "Personal cloud folders for every Apps Hub profile.",
-  "description": "mvmCloud creates a separate server-backed folder for every Apps Hub profile. Users work only inside their own folder from the desktop, public page or optional browser extension. An administrator can create tightly scoped API keys for selected folders in their current Linux home directory; those keys provide file operations, never shell access. With a subscription, administrators can apply individual quotas and choose who may create encrypted browser-unlocked vault folders.",
+  "description": "mvmCloud creates a separate server-backed folder for every Apps Hub profile. Users work only inside their own folder from the desktop, public page or optional browser extension, with a gallery view that generates thumbnails and previews for photos and videos as you browse. An administrator can create tightly scoped API keys for selected folders in their current Linux home directory, and users can spend Apps Hub credits to create their own scoped key for one of their own folders, for use with an AI assistant or a script; those keys provide file operations, never shell access. With a subscription, administrators can apply individual quotas and choose who may create encrypted browser-unlocked vault folders or issue their own API keys.",
   "capabilities": [
     "Separate private folder for every Apps Hub profile.",
     "Upload, download, create folders, move and delete files in the browser.",
+    "Gallery view with generated thumbnails and previews for photos and videos.",
     "Scoped Bearer-token API for administrator-selected Linux folders.",
+    "Users can create their own scoped API key for one of their folders, spending Apps Hub credits.",
     "Optional encrypted subfolders unlocked in the browser.",
-    "Subscription controls for user quotas and encrypted-folder permissions."
+    "Subscription controls for user quotas, encrypted-folder permissions and user-issued API keys."
   ]
 }

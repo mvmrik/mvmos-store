@@ -158,6 +158,8 @@ Describe what happens **without** a subscription too. The base app always stays 
 
 `make-zip.sh` deletes `store.json` and `premium.json` from the archive it builds. They are listing metadata for the website, not app code — and `_install_from_zip()` routes anything it does not recognise into `apps/<id>/public/`, the one folder that *is* served over HTTP.
 
+The desktop App Store marks Premium apps with 💎 on their card and lists these features on the app's page. It learns that from `"premium": true` on the app's entry in its category manifest and reads the feature list straight from `premium.json` in the store repo — never from mvmos.org. You do not write the flag: `make-zip.sh` sets or removes it from whether `premium.json` exists.
+
 Note also that `.gitignore` excludes `source/apps/*/premium/` **with a trailing slash**: that matches the premium *directory* (subscriber-only code, never in this repo). `premium.json` is a normal committed file and must stay one.
 
 ---

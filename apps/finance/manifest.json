@@ -45,7 +45,8 @@
         "wallet",
         "encryption"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "premium": true
     },
     {
       "id": "bwallett",
@@ -62,7 +63,8 @@
         "encryption"
       ],
       "min_core_version": "1.0.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/finance/bwallett-1.0.3.zip"
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/finance/bwallett-1.0.3.zip",
+      "premium": true
     }
   ]
 }

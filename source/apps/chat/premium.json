@@ -1,0 +1,35 @@
+{
+  "summary": "End-to-end encrypted conversations, so a leaked database or a curious administrator reveals nothing.",
+  "features": [
+    {
+      "title": "End-to-end encrypted chats",
+      "short": "Messages the server itself cannot read",
+      "description": "Once the administrator switches encryption on, people using Chat through Apps Hub can choose for every direct chat and group whether it is encrypted. Messages are encrypted in the browser before they are sent and stored only as ciphertext, so neither the server nor a stolen database can reveal what was written."
+    },
+    {
+      "title": "Encrypt every new chat",
+      "short": "One personal switch instead of a choice each time",
+      "description": "Each person can decide that all of their new chats start encrypted, and can still override it for a single conversation. Regular and encrypted chats live side by side, and existing chats stay exactly as they were."
+    },
+    {
+      "title": "Personal passphrase and recovery code",
+      "short": "Every person guards their own keys",
+      "description": "Each person protects their keys with a passphrase of their own that never leaves the device, and receives a recovery code to save. Both can be changed later, and the keys can be reset if everything is lost, which makes older encrypted messages unreadable."
+    },
+    {
+      "title": "Automatic key changes for groups",
+      "short": "Members joining or leaving never share old keys",
+      "description": "When someone is added to or removed from an encrypted group, or resets their own keys, the conversation moves to a fresh key automatically. New members read only what is written after they join, and people who left cannot read anything new."
+    },
+    {
+      "title": "Security codes",
+      "short": "Spot impersonation before it matters",
+      "description": "Every person has a short security code that can be compared through another channel such as a phone call. If a contact's code ever changes, Chat asks before sending anything further, and notifications for encrypted chats never reveal the message text."
+    },
+    {
+      "title": "Administrator control",
+      "short": "Switch it on or off in the app settings",
+      "description": "The administrator turns encryption on or off from the settings button in the Chat window. When it is off, people simply do not see the option, and chats that are already encrypted stay locked until it is switched back on. Regular chats are never affected."
+    }
+  ]
+}

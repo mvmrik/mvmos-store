@@ -1,13 +1,16 @@
 {
-  "tagline": "Direct messages between the people who use your mvmOS.",
-  "description": "mvmOS Chat is one-to-one messaging between Apps Hub accounts. Find someone by name, start a conversation, and it stays in your list. Contacts come from your Apps Hub favourites, so the people you talk to most are always at the top.\n\nMessages arrive live over a WebSocket, with typing indicators, editing and deleting — either just for you, or for everyone. The same conversations are reachable from a public web page for your Apps Hub account and from a Telegram mini-app, so you can keep talking away from the desktop.",
+  "tagline": "Direct and group messaging between the people who use your mvmOS.",
+  "description": "mvmOS Chat is messaging between Apps Hub accounts, one to one or in groups. Find someone by name, start a conversation, and it stays in your list. Contacts come from your Apps Hub favourites, so the people you talk to most are always at the top.\n\nCreate a group with up to 50 people, name it, and add or remove members later. Group admins manage the members and the name, everyone can leave at any time, and new members only see what is written after they join. Every message shows who wrote it, and the conversation list shows unread counts for both chats and groups.\n\nMessages arrive live over a WebSocket, with typing indicators, editing and deleting — either just for you, or for everyone if you wrote it. The same conversations are reachable from a public web page for your Apps Hub account and from a Telegram mini-app, so you can keep talking away from the desktop. The whole interface is available in nine languages.",
   "capabilities": [
     "One-to-one conversations between Apps Hub accounts.",
+    "Group chats with up to 50 members, with admins who can rename the group and add or remove people.",
     "Live delivery over a WebSocket, with typing indicators.",
     "Search for people, and a contacts list built from your Apps Hub favourites.",
     "Edit a sent message, marked as edited.",
     "Delete a message for yourself or for everyone.",
-    "Public web page for your Apps Hub account and a Telegram mini-app."
+    "Unread counts and notifications for chats and groups.",
+    "Public web page for your Apps Hub account and a Telegram mini-app.",
+    "Available in nine languages."
   ],
   "integrations": [
     {
