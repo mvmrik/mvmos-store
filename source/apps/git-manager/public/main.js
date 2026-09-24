@@ -427,8 +427,8 @@ GM.init = function(body) {
     var entry = GM.state.activeRepo && GM.state.terminals[GM.state.activeRepo.path];
     if (!entry) return;
     try { entry.fitAddon.fit(); } catch(e) {}
-    if (entry.ws.readyState === WebSocket.OPEN)
-      entry.ws.send(JSON.stringify({ type: 'resize', rows: entry.term.rows, cols: entry.term.cols }));
+    if (entry.conn.isOpen())
+      entry.conn.send(JSON.stringify({ type: 'resize', rows: entry.term.rows, cols: entry.term.cols }));
   });
   GM.state.termResizeObserver.observe(body);
 
@@ -486,40 +486,94 @@ GM.ensureTerminal = function(repo) {
   term.loadAddon(fitAddon);
   term.open(wrapper);
 
-  var proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(proto + '://' + location.host + '/ws/terminal');
-  ws.binaryType = 'arraybuffer';
-
-  var entry = { ws: ws, term: term, fitAddon: fitAddon, wrapper: wrapper };
-  GM.state.terminals[repo.path] = entry;
-
-  ws.onopen = function() {
-    try { fitAddon.fit(); } catch(e) {}
-    ws.send(JSON.stringify({ type: 'resize', rows: term.rows, cols: term.cols }));
-    // Give the login shell a moment to settle before dropping it straight
-    // into the repo, the same way it would if typed by hand.
-    setTimeout(function() {
-      if (ws.readyState === WebSocket.OPEN)
-        ws.send(new TextEncoder().encode('cd ' + GM.shQuote(repo.path) + ' && clear\n'));
-    }, 400);
-  };
-  ws.onmessage = function(e) {
-    term.write(e.data instanceof ArrayBuffer ? new Uint8Array(e.data) : e.data);
-  };
-  ws.onclose = function() { term.write('\r\n\x1b[31m[Connection closed]\x1b[0m\r\n'); };
-  ws.onerror = function() { term.write('\r\n\x1b[31m[Connection error]\x1b[0m\r\n'); };
-  term.onData(function(data) {
-    if (ws.readyState === WebSocket.OPEN) ws.send(new TextEncoder().encode(data));
+  var conn = GM.connectShell({
+    onOpen: function(again) {
+      if (again) term.write('\r\n\x1b[32m[' + t('gm_term_reconnected') + ']\x1b[0m\r\n');
+      try { fitAddon.fit(); } catch(e) {}
+      conn.send(JSON.stringify({ type: 'resize', rows: term.rows, cols: term.cols }));
+      // Give the login shell a moment to settle before dropping it straight
+      // into the repo, the same way it would if typed by hand. A reconnect
+      // keeps the screen, so what was there before the drop stays readable.
+      setTimeout(function() {
+        if (conn.isOpen())
+          conn.send(new TextEncoder().encode('cd ' + GM.shQuote(repo.path) + (again ? '' : ' && clear') + '\n'));
+      }, 400);
+    },
+    onMessage: function(data) {
+      term.write(data instanceof ArrayBuffer ? new Uint8Array(data) : data);
+    },
+    onLost: function() {
+      term.write('\r\n\x1b[33m[' + t('gm_term_reconnecting') + ']\x1b[0m\r\n');
+    },
   });
 
+  var entry = { conn: conn, term: term, fitAddon: fitAddon, wrapper: wrapper };
+  GM.state.terminals[repo.path] = entry;
+
+  term.onData(function(data) { conn.send(new TextEncoder().encode(data)); });
+
   return entry;
+};
+
+// The connection to a shell can drop at any moment (the computer sleeps, the
+// network changes, the server restarts) and would stay dead until the app is
+// reopened. It reconnects on its own with a growing pause, and at once when
+// the terminal is typed in, the tab comes back or the network returns. The
+// shell behind a reconnect is always a new one.
+GM.connectShell = function(h) {
+  var proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  var ws = null, timer = null, retry = 0, everOpened = false, closed = false;
+
+  function connect() {
+    clearTimeout(timer);
+    timer = null;
+    ws = new WebSocket(proto + '://' + location.host + '/ws/terminal');
+    ws.binaryType = 'arraybuffer';
+    ws.onopen = function() {
+      retry = 0;
+      h.onOpen(everOpened);
+      everOpened = true;
+    };
+    ws.onmessage = function(e) { h.onMessage(e.data); };
+    ws.onclose = function() {
+      if (closed) return;
+      if (retry === 0) h.onLost();
+      timer = setTimeout(connect, Math.min(30000, 1000 * Math.pow(2, retry++)));
+    };
+  }
+
+  function wake() {
+    if (closed || !ws) return;
+    if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) return;
+    connect();
+  }
+  function onVisible() { if (!document.hidden) wake(); }
+  window.addEventListener('online', wake);
+  document.addEventListener('visibilitychange', onVisible);
+  connect();
+
+  return {
+    isOpen: function() { return ws.readyState === WebSocket.OPEN; },
+    send: function(data) {
+      if (ws.readyState === WebSocket.OPEN) ws.send(data);
+      else wake();
+    },
+    close: function() {
+      closed = true;
+      clearTimeout(timer);
+      window.removeEventListener('online', wake);
+      document.removeEventListener('visibilitychange', onVisible);
+      ws.onclose = ws.onmessage = null;
+      ws.close();
+    },
+  };
 };
 
 GM.closeTerminal = function(path) {
   var entry = GM.state.terminals[path];
   if (!entry) return;
   delete GM.state.terminals[path];
-  try { entry.ws.close(); } catch(e) {}
+  try { entry.conn.close(); } catch(e) {}
   try { entry.term.dispose(); } catch(e) {}
   if (entry.wrapper.parentNode) entry.wrapper.parentNode.removeChild(entry.wrapper);
 };
@@ -586,8 +640,8 @@ GM.renderTermLayout = function() {
     slot.appendChild(entry.wrapper);
     requestAnimationFrame(function() {
       try { entry.fitAddon.fit(); } catch(e) {}
-      if (entry.ws.readyState === WebSocket.OPEN)
-        entry.ws.send(JSON.stringify({ type: 'resize', rows: entry.term.rows, cols: entry.term.cols }));
+      if (entry.conn.isOpen())
+        entry.conn.send(JSON.stringify({ type: 'resize', rows: entry.term.rows, cols: entry.term.cols }));
       entry.term.focus();
     });
   }
@@ -928,6 +982,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
   GM.stopStatusPoll();
   var tab = 'status';
   var lastStatusSignature = null;
+  var templateHintOpen = false;
   var defaultBranch = '';
 
   container.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)">'
@@ -1077,6 +1132,21 @@ GM.showRepoView = function(container, repo, autoFetch) {
     return seen.join('\n');
   }
 
+  // The message prepared in the file git's commit.template setting points to,
+  // the same text `git commit` would open its editor with.
+  async function fillTemplateMessage(btn, msgInput) {
+    btn.disabled = true;
+    try {
+      var r = await GM.api('/repo/commit-template?path=' + encodeURIComponent(repo.path));
+      if (!r.message) return;
+      msgInput.value = r.message;
+      msgInput.focus();
+    } catch(e) { /* the template went away since the status was read */ }
+    finally {
+      btn.disabled = false;
+    }
+  }
+
   async function fillSuggestedMessage(btn, msgInput, files, branch) {
     if (!files || !files.length) return;
     btn.disabled = true;
@@ -1141,7 +1211,16 @@ GM.showRepoView = function(container, repo, autoFetch) {
 
       var commitHtml = '<div style="border-top:1px solid var(--border);padding-top:12px;display:flex;flex-direction:column;gap:8px">'
         + '<div style="display:flex;align-items:center;gap:8px"><div style="font-size:.75rem;color:var(--text-dim);flex:1">' + t('gm_commit_message') + ' <span style="opacity:.6">' + t('gm_ctrl_enter') + '</span></div>'
-        + '<button id="gm-commit-suggest" class="s-btn s-btn-sm" title="' + GM.escape(t('gm_suggest_message')) + '" aria-label="' + GM.escape(t('gm_suggest_message')) + '" style="padding:2px 8px;line-height:1.4">&#x2728;</button></div>'
+        + '<button id="gm-commit-suggest" class="s-btn s-btn-sm" title="' + GM.escape(t('gm_suggest_message')) + '" aria-label="' + GM.escape(t('gm_suggest_message')) + '" style="padding:2px 8px;line-height:1.4">&#x2728;</button>'
+        + (s.has_commit_template
+          ? '<button id="gm-commit-template" class="s-btn s-btn-sm" title="' + GM.escape(t('gm_use_commit_template')) + '" aria-label="' + GM.escape(t('gm_use_commit_template')) + '" style="padding:2px 8px;line-height:1.4">&#x1F4C4;</button>'
+          : '<button id="gm-commit-template-help" class="s-btn s-btn-sm" title="' + GM.escape(t('gm_commit_template_help')) + '" aria-label="' + GM.escape(t('gm_commit_template_help')) + '" style="padding:2px 8px;line-height:1.4;opacity:.45">&#x1F4C4;</button>')
+        + '</div>'
+        // Without a template the button explains the git setting instead, so
+        // the feature can be found by people who have never heard of it.
+        + (s.has_commit_template ? '' : '<div id="gm-commit-template-hint" style="display:' + (templateHintOpen ? 'block' : 'none') + ';font-size:.78rem;line-height:1.5;color:var(--text-dim);background:var(--surface-2, rgba(127,127,127,.08));border:1px solid var(--border);border-radius:6px;padding:8px 10px">'
+          + GM.escape(t('gm_commit_template_hint'))
+          + '<code style="display:block;margin-top:6px;padding:4px 6px;border-radius:4px;background:rgba(127,127,127,.12);font-size:.74rem;white-space:pre-wrap;word-break:break-all;user-select:all">git config commit.template ' + GM.escape(repo.path.replace(/\/+$/, '') + '/.git/commit-template.txt') + '</code></div>')
         + '<textarea id="gm-commit-msg" class="s-input" rows="4" placeholder="' + t('gm_describe_changes') + '" style="resize:vertical;flex:none;max-width:none;min-height:80px;font-family:inherit;font-size:.83rem;width:100%;box-sizing:border-box"></textarea>'
         + '<div style="display:flex;gap:6px;flex-wrap:wrap"><button id="gm-commit-btn" class="s-btn s-btn-sm" ' + (s.files.length ? 'style="background:var(--accent);color:#fff;border-color:var(--accent)"' : 'disabled') + '>&#x2713; ' + t('gm_commit_all') + '</button>'
         + '<button id="gm-commit-push-btn" class="s-btn s-btn-sm" ' + (s.files.length ? '' : 'disabled') + '>&#x2713;&#x2B06; ' + t('gm_commit_push') + '</button></div>'
@@ -1234,6 +1313,14 @@ GM.showRepoView = function(container, repo, autoFetch) {
         msgInput.addEventListener('keydown', function(e) { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') doCommit(msgInput); });
         var suggestBtn = tc.querySelector('#gm-commit-suggest');
         if (suggestBtn) suggestBtn.addEventListener('click', function() { fillSuggestedMessage(suggestBtn, msgInput, s.files, s.branch); });
+        var templateBtn = tc.querySelector('#gm-commit-template');
+        if (templateBtn) templateBtn.addEventListener('click', function() { fillTemplateMessage(templateBtn, msgInput); });
+        var templateHelpBtn = tc.querySelector('#gm-commit-template-help');
+        if (templateHelpBtn) templateHelpBtn.addEventListener('click', function() {
+          templateHintOpen = !templateHintOpen;
+          var hint = tc.querySelector('#gm-commit-template-hint');
+          if (hint) hint.style.display = templateHintOpen ? 'block' : 'none';
+        });
       }
     } catch(e) {
       tc.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + e.message + '</div>';

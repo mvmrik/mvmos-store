@@ -508,7 +508,35 @@ def repo_status(path: str, session=Depends(get_current_session)):
 
     return JSONResponse({'branch': branch, 'files': files, 'ahead': ahead, 'behind': behind,
                          'remote': remote, 'local_only': local_only,
-                         'default_branch': _default_branch(session, path)})
+                         'default_branch': _default_branch(session, path),
+                         'has_commit_template': bool(_commit_template(session, path))})
+
+
+def _commit_template(session, path):
+    """The message git's own commit.template setting points to, the text `git
+    commit` opens its editor with. Read as the repo owner, never as root, so
+    the setting cannot be aimed at a file its owner may not read. Comment
+    lines are dropped the way git's default cleanup drops them."""
+    path, owner = _require_repo_access(session, path)
+    r = _run_git(owner, path, ['config', '--path', '--get', 'commit.template'], timeout=8)
+    template = r.stdout.strip()
+    if r.returncode != 0 or not template:
+        return ''
+    try:
+        read = subprocess.run(['runuser', '-u', owner, '--', 'head', '-c', '65536', '--',
+                               os.path.join(path, template)],
+                              capture_output=True, text=True, timeout=8)
+    except Exception:
+        return ''
+    if read.returncode != 0:
+        return ''
+    return '\n'.join(line.rstrip() for line in read.stdout.splitlines()
+                     if not line.startswith('#')).strip()
+
+
+@router.get("/repo/commit-template")
+def repo_commit_template(path: str, session=Depends(get_current_session)):
+    return JSONResponse({'message': _commit_template(session, path)})
 
 
 @router.get("/repo/branches")

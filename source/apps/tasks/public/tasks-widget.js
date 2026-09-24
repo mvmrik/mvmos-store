@@ -90,6 +90,26 @@
       .tk-body{flex:1;overflow-y:auto;padding:14px}
       .tk-empty{color:var(--pub-dim, #6c7086);text-align:center;padding:40px 16px}
       .tk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+      .tk-acc-section{border:1px solid var(--pub-surface2, #313244);border-radius:10px;margin-bottom:12px;padding:0 12px 12px}
+      .tk-acc-section[open]{padding-bottom:12px}
+      .tk-acc-section:not([open]){padding-bottom:0}
+      .tk-acc-header{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;padding:12px 0;font-weight:700;font-size:.9rem}
+      .tk-acc-header::-webkit-details-marker{display:none}
+      .tk-acc-header::before{content:'▸';display:inline-block;transition:transform .15s;color:var(--pub-fg2, #a6adc8)}
+      .tk-acc-section[open]>.tk-acc-header::before{transform:rotate(90deg)}
+      .tk-acc-title{flex:1}
+      .tk-acc-count{font-size:.72rem;font-weight:400;color:var(--pub-dim, #6c7086);background:var(--pub-surface2, #313244);border-radius:10px;padding:1px 8px}
+      .tk-acc-count.tk-active{color:#fff;background:var(--pub-accent, #89b4fa);font-weight:700}
+      .tk-todo-list{display:flex;flex-direction:column;gap:4px;max-height:280px;overflow-y:auto}
+      .tk-todo-item{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--pub-surface2, #313244)}
+      .tk-todo-item-title{flex:1;min-width:0;word-break:break-word;font-size:.85rem}
+      .tk-todo-item.done .tk-todo-item-title{text-decoration:line-through;color:var(--pub-dim, #6c7086)}
+      .tk-todo-item-meta{font-size:.68rem;color:var(--pub-dim, #6c7086);white-space:nowrap}
+      .tk-todo-add-row{display:flex;gap:6px;margin-top:6px}
+      .tk-todo-add-row input{flex:1}
+      .tk-proj-row{display:flex;align-items:center;gap:6px;padding:4px 0}
+      .tk-proj-title{flex:1;font-size:.85rem}
+      .tk-btn-icon[disabled]{opacity:.3;cursor:default}
       .tk-card{background:var(--pub-surface2, #313244);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
       .tk-card-head{display:flex;align-items:flex-start;gap:6px}
       .tk-card-title{font-weight:700;font-size:.95rem;word-break:break-word;flex:1;min-width:0}
@@ -162,10 +182,25 @@
 
     let destroyed = false;
     let tasks = [];
+    let projects = [];
     let settings = { budget_integration: false };
     let budgetCategories = { available: false, categories: [] };
     let timerInterval = null;
     let currentTab = 'tasks';
+    // Which accordion sections are expanded, keyed by project id ('' = the
+    // trailing "Other" section for tasks with no project). Whichever project
+    // is first (lowest position) is seeded open; re-seeded after a manual
+    // reorder so the user sees the effect right away, but otherwise left
+    // alone — re-rendering after an unrelated action must never re-collapse
+    // what the user opened themselves.
+    const expandedSections = {};
+    let expandedSeeded = false;
+    function seedExpandedSections() {
+      if (expandedSeeded) return;
+      expandedSeeded = true;
+      projects.forEach((p, i) => { expandedSections[p.id] = i === 0; });
+      expandedSections[''] = false;
+    }
 
     root.style.position = 'relative';
     root.innerHTML = `<div class="tk-widget">
@@ -179,7 +214,7 @@
         <button class="tk-btn tk-btn-primary" id="tk-add-btn">${esc(t('tk_add'))}</button>
       </div>
       <div class="tk-body">
-        <div class="tk-grid" id="tk-grid"></div>
+        <div id="tk-grid"></div>
         <div id="tk-history-view" style="display:none"></div>
         <div id="tk-settings-view" style="display:none"></div>
       </div>
@@ -219,7 +254,10 @@
     }
 
     function showRewardToast(result) {
-      if (!result || !result.category_ids || !result.category_ids.length) return;
+      if (!result || !result.category_ids || !result.category_ids.length) {
+        toast(t('tk_task_completed_toast'), 'good');
+        return;
+      }
       const reward = result.reward || {};
       if (reward.budget_ok) {
         const applied = (reward.categories || []).filter(r => r.budget_ok);
@@ -248,7 +286,8 @@
     addBtn.onclick = () => openTaskForm(null);
 
     function typeLabel(type) {
-      return type === 'persistent' ? t('tk_type_persistent') : type === 'onetime' ? t('tk_type_onetime') : t('tk_type_periodic');
+      return type === 'persistent' ? t('tk_type_persistent') : type === 'onetime' ? t('tk_type_onetime')
+        : type === 'todo' ? t('tk_type_todo') : t('tk_type_periodic');
     }
     function periodLabel(period) {
       return period === 'daily' ? t('tk_period_daily') : period === 'weekly' ? t('tk_period_weekly') : t('tk_period_monthly');
@@ -267,7 +306,7 @@
           } else if (task.timer_paused) {
             badges.push(`<span class="tk-badge tk-badge-warn">${esc(t('tk_timer_paused'))}</span>`);
             footHtml = `<span class="tk-timer">${fmtDuration(task.elapsed_seconds || 0)}</span>
-              <button class="tk-btn tk-btn-primary" data-action="stop-timer">${esc(t('tk_stop_timer'))}</button>`;
+              <button class="tk-btn tk-btn-primary" data-action="stop-timer">${esc(t('tk_resume_timer'))}</button>`;
           } else {
             footHtml = `<span></span><button class="tk-btn tk-btn-primary" data-action="start-timer">${esc(t('tk_start_timer'))}</button>`;
           }
@@ -289,6 +328,11 @@
           badges.push(`<span class="tk-badge tk-badge-warn">${esc(t('tk_not_done_this_period'))}</span>`);
           footHtml = `<span></span><button class="tk-btn tk-btn-primary" data-action="complete">${esc(t('tk_complete'))}</button>`;
         }
+      } else if (task.type === 'todo') {
+        const total = task.todo_total || 0;
+        const done = task.todo_done || 0;
+        badges.push(`<span class="tk-badge ${total && done === total ? 'tk-badge-good' : ''}">${esc(t('tk_todo_progress', { done, total }))}</span>`);
+        footHtml = `<span></span><button class="tk-btn tk-btn-primary" data-action="open-todo">${esc(t('tk_open'))}</button>`;
       }
 
       const rewardHint = (task.category_ids && task.category_ids.length && task.reward_amount != null)
@@ -310,13 +354,51 @@
       </div>`;
     }
 
+    function tasksGridHtml(list) {
+      return `<div class="tk-grid">${list.map(renderTaskCard).join('')}</div>`;
+    }
+
     function renderTasks() {
       stopTimerTicker();
       if (!tasks.length) {
-        gridEl.innerHTML = `<div class="tk-empty" style="grid-column:1/-1">${esc(t('tk_no_tasks'))}</div>`;
+        gridEl.innerHTML = `<div class="tk-empty">${esc(t('tk_no_tasks'))}</div>`;
+        wireTaskCards();
         return;
       }
-      gridEl.innerHTML = tasks.map(renderTaskCard).join('');
+      if (!projects.length) {
+        gridEl.innerHTML = tasksGridHtml(tasks);
+        wireTaskCards();
+        startTimerTicker();
+        return;
+      }
+      const byProject = {};
+      tasks.forEach(task => {
+        const key = task.project_id || '';
+        (byProject[key] = byProject[key] || []).push(task);
+      });
+      const sections = projects.map(p => ({ id: p.id, title: p.title, list: byProject[p.id] || [] }));
+      sections.push({ id: '', title: t('tk_project_other'), list: byProject[''] || [] });
+
+      gridEl.innerHTML = sections.filter(s => s.id || s.list.length).map(s => {
+        const active = s.list.some(x => x.timer_running);
+        return `
+        <details class="tk-acc-section" data-project="${esc(s.id)}" ${expandedSections[s.id] ? 'open' : ''}>
+          <summary class="tk-acc-header">
+            <span class="tk-acc-title">${esc(s.title)}</span>
+            <span class="tk-acc-count${active ? ' tk-active' : ''}">${s.list.length}</span>
+          </summary>
+          ${s.list.length ? tasksGridHtml(s.list) : `<div class="tk-empty">${esc(t('tk_no_tasks'))}</div>`}
+        </details>`;
+      }).join('');
+
+      gridEl.querySelectorAll('.tk-acc-section').forEach(sec => {
+        sec.addEventListener('toggle', () => { expandedSections[sec.dataset.project] = sec.open; });
+      });
+      wireTaskCards();
+      startTimerTicker();
+    }
+
+    function wireTaskCards() {
       gridEl.querySelectorAll('.tk-card').forEach(card => {
         const id = card.dataset.id;
         const task = tasks.find(x => x.id === id);
@@ -330,8 +412,9 @@
         if (startBtn) startBtn.onclick = () => startTimer(task);
         const stopBtn = card.querySelector('[data-action="stop-timer"]');
         if (stopBtn) stopBtn.onclick = () => stopTimer(task);
+        const openBtn = card.querySelector('[data-action="open-todo"]');
+        if (openBtn) openBtn.onclick = () => openTodoDialog(task);
       });
-      startTimerTicker();
     }
 
     function startTimerTicker() {
@@ -441,6 +524,71 @@
       catch (e) { toast(e.message || t('tk_error'), 'bad'); }
     }
 
+    function renderTodoItem(item) {
+      const done = !!item.completed_at;
+      return `<div class="tk-todo-item ${done ? 'done' : ''}" data-id="${esc(item.id)}">
+        <input type="checkbox" data-action="toggle" ${done ? 'checked' : ''}>
+        <span class="tk-todo-item-title">${esc(item.title)}</span>
+        ${done ? `<span class="tk-todo-item-meta">${esc(fmtDate(item.completed_at))}</span>` : ''}
+        <button class="tk-btn-icon" data-action="delete-item" title="${esc(t('tk_delete'))}">🗑</button>
+      </div>`;
+    }
+
+    async function openTodoDialog(task) {
+      const ov = overlay(`<div class="tk-dialog">
+        <h3>${esc(task.title)}</h3>
+        <div class="tk-todo-list" id="tk-todo-list"><div class="tk-empty">…</div></div>
+        <div class="tk-todo-add-row">
+          <input type="text" id="tk-todo-add-input" maxlength="200" placeholder="${esc(t('tk_todo_add_item_ph'))}">
+          <button class="tk-btn tk-btn-primary" id="tk-todo-add-btn">${esc(t('tk_add_item'))}</button>
+        </div>
+        <div class="tk-dialog-actions">
+          <button class="tk-btn" id="tk-todo-close">${esc(t('tk_close'))}</button>
+        </div>
+      </div>`);
+      const listEl = ov.querySelector('#tk-todo-list');
+      const input = ov.querySelector('#tk-todo-add-input');
+
+      async function reload() {
+        let items;
+        try { items = await api(`/tasks/${task.id}/items`); } catch (e) { items = []; }
+        if (!ov.isConnected) return;
+        listEl.innerHTML = items.length ? items.map(renderTodoItem).join('') : `<div class="tk-empty">${esc(t('tk_todo_no_items'))}</div>`;
+        listEl.querySelectorAll('.tk-todo-item').forEach(row => {
+          const id = row.dataset.id;
+          row.querySelector('[data-action="toggle"]').onchange = async e => {
+            try {
+              await api(`/tasks/${task.id}/items/${id}`, { method: 'PUT', body: JSON.stringify({ completed: e.target.checked }) });
+              await reload();
+              await refreshTasks();
+            } catch (err) { toast(err.message || t('tk_error'), 'bad'); }
+          };
+          row.querySelector('[data-action="delete-item"]').onclick = async () => {
+            try {
+              await api(`/tasks/${task.id}/items/${id}`, { method: 'DELETE' });
+              await reload();
+              await refreshTasks();
+            } catch (err) { toast(err.message || t('tk_error'), 'bad'); }
+          };
+        });
+      }
+      await reload();
+
+      async function addItem() {
+        const title = input.value.trim();
+        if (!title) return;
+        try {
+          await api(`/tasks/${task.id}/items`, { method: 'POST', body: JSON.stringify({ title }) });
+          input.value = '';
+          await reload();
+          await refreshTasks();
+        } catch (err) { toast(err.message || t('tk_error'), 'bad'); }
+      }
+      ov.querySelector('#tk-todo-add-btn').onclick = addItem;
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') addItem(); });
+      ov.querySelector('#tk-todo-close').onclick = () => ov.remove();
+    }
+
     async function ensureBudgetCategories() {
       if (!settings.budget_integration) { budgetCategories = { available: false, categories: [] }; return; }
       try { budgetCategories = await api('/budget-categories'); }
@@ -472,6 +620,13 @@
             <option value="persistent" ${type === 'persistent' ? 'selected' : ''}>${esc(t('tk_type_persistent'))}</option>
             <option value="onetime" ${type === 'onetime' ? 'selected' : ''}>${esc(t('tk_type_onetime'))}</option>
             <option value="periodic" ${type === 'periodic' ? 'selected' : ''}>${esc(t('tk_type_periodic'))}</option>
+            <option value="todo" ${type === 'todo' ? 'selected' : ''}>${esc(t('tk_type_todo'))}</option>
+          </select>
+        </div>
+        <div class="tk-field"><label>${esc(t('tk_project'))}</label>
+          <select id="tk-f-project">
+            <option value="">${esc(t('tk_project_none'))}</option>
+            ${projects.map(p => `<option value="${esc(p.id)}" ${existing && existing.project_id === p.id ? 'selected' : ''}>${esc(p.title)}</option>`).join('')}
           </select>
         </div>
         <div id="tk-f-persistent-wrap" style="display:none">
@@ -529,11 +684,13 @@
         return catListEl ? Array.from(catListEl.querySelectorAll('.tk-f-cat-cb:checked')).map(cb => cb.value) : [];
       }
 
+      const budgetWrap = ov.querySelector('#tk-f-budget-wrap');
       function syncTypeFields() {
         const val = typeSelect.value;
         persistentWrap.style.display = val === 'persistent' ? '' : 'none';
         onetimeWrap.style.display = val === 'onetime' ? '' : 'none';
         periodicWrap.style.display = val === 'periodic' ? '' : 'none';
+        if (budgetWrap) budgetWrap.style.display = (val !== 'todo' && settings.budget_integration) ? '' : 'none';
         if (amountHint) {
           const base = (val === 'persistent' && rewardModeSelect.value === 'hourly')
             ? t('tk_amount_hourly_hint') : t('tk_amount_hint');
@@ -559,6 +716,7 @@
           category_ids: [],
           due_at: null,
           period: null,
+          project_id: ov.querySelector('#tk-f-project').value || null,
         };
         if (selType === 'onetime') {
           body.due_at = fromLocalInputValue(ov.querySelector('#tk-f-due-at').value);
@@ -566,19 +724,23 @@
         } else if (selType === 'periodic') {
           body.period = ov.querySelector('#tk-f-period').value;
         }
-        const catIds = checkedCatIds();
-        if (catIds.length) {
-          const amtRaw = ov.querySelector('#tk-f-amount').value;
-          const amt = parseFloat(amtRaw);
-          if (isNaN(amt) || amt === 0) { errEl.textContent = t('tk_amount'); errEl.style.display = 'block'; return; }
-          body.category_ids = catIds;
-          body.reward_amount = amt;
+        if (selType !== 'todo') {
+          const catIds = checkedCatIds();
+          if (catIds.length) {
+            const amtRaw = ov.querySelector('#tk-f-amount').value;
+            const amt = parseFloat(amtRaw);
+            if (isNaN(amt) || amt === 0) { errEl.textContent = t('tk_amount'); errEl.style.display = 'block'; return; }
+            body.category_ids = catIds;
+            body.reward_amount = amt;
+          }
         }
         try {
-          if (isEdit) await api(`/tasks/${existing.id}`, { method: 'PUT', body: JSON.stringify(body) });
-          else await api('/tasks', { method: 'POST', body: JSON.stringify(body) });
+          let saved;
+          if (isEdit) saved = await api(`/tasks/${existing.id}`, { method: 'PUT', body: JSON.stringify(body) });
+          else saved = await api('/tasks', { method: 'POST', body: JSON.stringify(body) });
           ov.remove();
           await refreshTasks();
+          if (!isEdit && selType === 'todo') openTodoDialog(saved);
         } catch (e) {
           errEl.textContent = e.message || t('tk_error');
           errEl.style.display = 'block';
@@ -608,6 +770,46 @@
         </div>`).join('')}</div>`;
     }
 
+    function projectRowHtml(p, idx, total) {
+      return `<div class="tk-proj-row" data-id="${esc(p.id)}">
+        <button class="tk-btn-icon" data-action="proj-up" title="${esc(t('tk_move_up'))}" ${idx === 0 ? 'disabled' : ''}>▲</button>
+        <button class="tk-btn-icon" data-action="proj-down" title="${esc(t('tk_move_down'))}" ${idx === total - 1 ? 'disabled' : ''}>▼</button>
+        <span class="tk-proj-title">${esc(p.title)}</span>
+        <button class="tk-btn-icon" data-action="proj-rename" title="${esc(t('tk_edit'))}">✎</button>
+        <button class="tk-btn-icon" data-action="proj-delete" title="${esc(t('tk_delete'))}">🗑</button>
+      </div>`;
+    }
+
+    function startRenameProject(row, project) {
+      const titleEl = row.querySelector('.tk-proj-title');
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.maxLength = 100;
+      input.value = project.title;
+      input.style.flex = '1';
+      titleEl.replaceWith(input);
+      input.focus();
+      input.select();
+      let settled = false;
+      async function save() {
+        if (settled) return;
+        settled = true;
+        const val = input.value.trim();
+        if (val && val !== project.title) {
+          try { await api(`/projects/${project.id}`, { method: 'PUT', body: JSON.stringify({ title: val }) }); }
+          catch (e) { toast(e.message || t('tk_error'), 'bad'); }
+        }
+        await loadProjects();
+        renderSettings();
+        renderTasks();
+      }
+      input.addEventListener('blur', save);
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') save();
+        else if (e.key === 'Escape') { settled = true; renderSettings(); }
+      });
+    }
+
     async function renderSettings() {
       settingsViewEl.innerHTML = `<div class="tk-settings-block">
         <div class="tk-toggle-row">
@@ -615,7 +817,17 @@
           <label for="tk-s-budget">${esc(t('tk_budget_integration'))}</label>
         </div>
         <div class="tk-field-hint">${esc(t('tk_budget_integration_hint'))}</div>
+      </div>
+      <div class="tk-settings-block" style="margin-top:18px">
+        <label>${esc(t('tk_projects'))}</label>
+        <div class="tk-field-hint">${esc(t('tk_projects_hint'))}</div>
+        <div id="tk-proj-list">${projects.map((p, i) => projectRowHtml(p, i, projects.length)).join('')}</div>
+        <div class="tk-todo-add-row">
+          <input type="text" id="tk-proj-add-input" maxlength="100" placeholder="${esc(t('tk_project_new_ph'))}">
+          <button class="tk-btn tk-btn-primary" id="tk-proj-add-btn">${esc(t('tk_project_add'))}</button>
+        </div>
       </div>`;
+
       settingsViewEl.querySelector('#tk-s-budget').onchange = async e => {
         const enabled = e.target.checked;
         try {
@@ -627,12 +839,65 @@
           toast(t('tk_error'), 'bad');
         }
       };
+
+      settingsViewEl.querySelectorAll('.tk-proj-row').forEach((row, idx) => {
+        const id = row.dataset.id;
+        const project = projects.find(p => p.id === id);
+        const moveProject = async delta => {
+          const j = idx + delta;
+          if (j < 0 || j >= projects.length) return;
+          const order = projects.map(p => p.id);
+          [order[idx], order[j]] = [order[j], order[idx]];
+          try {
+            projects = await api('/projects/reorder', { method: 'PUT', body: JSON.stringify({ order }) });
+            expandedSeeded = false;
+            seedExpandedSections();
+            renderSettings();
+            renderTasks();
+          } catch (e) { toast(e.message || t('tk_error'), 'bad'); }
+        };
+        const upBtn = row.querySelector('[data-action="proj-up"]');
+        const downBtn = row.querySelector('[data-action="proj-down"]');
+        if (upBtn) upBtn.onclick = () => moveProject(-1);
+        if (downBtn) downBtn.onclick = () => moveProject(1);
+        row.querySelector('[data-action="proj-rename"]').onclick = () => startRenameProject(row, project);
+        row.querySelector('[data-action="proj-delete"]').onclick = async () => {
+          if (!confirm(t('tk_project_delete_confirm', { title: project.title }))) return;
+          try {
+            await api(`/projects/${id}`, { method: 'DELETE' });
+            await loadProjects();
+            renderSettings();
+            await refreshTasks();
+          } catch (e) { toast(e.message || t('tk_error'), 'bad'); }
+        };
+      });
+
+      const addInput = settingsViewEl.querySelector('#tk-proj-add-input');
+      async function addProject() {
+        const title = addInput.value.trim();
+        if (!title) return;
+        try {
+          await api('/projects', { method: 'POST', body: JSON.stringify({ title }) });
+          await loadProjects();
+          renderSettings();
+          renderTasks();
+        } catch (e) { toast(e.message || t('tk_error'), 'bad'); }
+      }
+      settingsViewEl.querySelector('#tk-proj-add-btn').onclick = addProject;
+      addInput.addEventListener('keydown', e => { if (e.key === 'Enter') addProject(); });
+    }
+
+    async function loadProjects() {
+      try { projects = await api('/projects'); } catch (e) { projects = []; }
+      seedExpandedSections();
     }
 
     async function init() {
       try { settings = await api('/me'); } catch (e) { settings = { budget_integration: false }; }
       if (destroyed) return;
       await ensureBudgetCategories();
+      if (destroyed) return;
+      await loadProjects();
       if (destroyed) return;
       await refreshTasks();
     }

@@ -46,7 +46,7 @@ _DIR        = os.path.dirname(__file__)                                    # app
 _DB_PATH    = os.path.join(_DIR, "data.db")
 _PUBLIC_DIR = os.path.join(_DIR, "public")
 
-TYPES        = {"persistent", "onetime", "periodic"}
+TYPES        = {"persistent", "onetime", "periodic", "todo"}
 REWARD_MODES = {"fixed", "hourly"}
 PERIODS      = {"daily", "weekly", "monthly"}
 
@@ -119,6 +119,26 @@ def _init_db():
                 budget_ok     INTEGER NOT NULL DEFAULT 0
             );
             CREATE INDEX IF NOT EXISTS idx_completion_rewards_completion ON completion_rewards(completion_id);
+
+            CREATE TABLE IF NOT EXISTS projects (
+                id              TEXT PRIMARY KEY,
+                user_id         TEXT NOT NULL,
+                title           TEXT NOT NULL,
+                position        INTEGER NOT NULL DEFAULT 0,
+                created_at      TEXT NOT NULL,
+                updated_at      TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_projects_user ON projects(user_id, position);
+
+            CREATE TABLE IF NOT EXISTS todo_items (
+                id           TEXT PRIMARY KEY,
+                task_id      TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+                title        TEXT NOT NULL,
+                position     INTEGER NOT NULL DEFAULT 0,
+                completed_at TEXT,
+                created_at   TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_todo_items_task ON todo_items(task_id, position);
         """)
         # A timed task can be paused and resumed. Keep the completed segments
         # separately from the currently running segment so a restart never
@@ -128,6 +148,8 @@ def _init_db():
             conn.execute(
                 "ALTER TABLE tasks ADD COLUMN timer_elapsed_seconds REAL NOT NULL DEFAULT 0"
             )
+        if "project_id" not in cols:
+            conn.execute("ALTER TABLE tasks ADD COLUMN project_id TEXT")
         # One-time-per-startup, idempotent backfill: tasks created before the
         # move to many-to-many categories only had a single category_id column.
         conn.execute(
@@ -195,7 +217,14 @@ def _row_to_task(conn, row, now: datetime) -> dict:
     d = dict(row)
     d.pop("category_id", None)
     d["category_ids"] = _task_category_ids(conn, d["id"])
-    if d["type"] == "periodic":
+    if d["type"] == "todo":
+        counts = conn.execute(
+            "SELECT COUNT(*) AS total, SUM(CASE WHEN completed_at IS NOT NULL THEN 1 ELSE 0 END) AS done "
+            "FROM todo_items WHERE task_id=?", (d["id"],),
+        ).fetchone()
+        d["todo_total"] = counts["total"] or 0
+        d["todo_done"] = counts["done"] or 0
+    elif d["type"] == "periodic":
         last = conn.execute(
             "SELECT created_at FROM completions WHERE task_id=? ORDER BY created_at DESC LIMIT 1",
             (d["id"],),
@@ -297,6 +326,114 @@ async def budget_categories(x_pub_token: str = Header(default=None)):
         return JSONResponse({"available": False, "categories": []})
 
 
+# ── Projects ─────────────────────────────────────────────────────
+# Purely an organizational grouping (accordion sections in the UI) — unrelated
+# to Budget category_ids above, which control the reward/penalty on completion.
+
+class ProjectBody(BaseModel):
+    title: str
+
+
+@router.get("/projects")
+async def list_projects(x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    with _db() as conn:
+        rows = conn.execute(
+            "SELECT * FROM projects WHERE user_id=? ORDER BY position", (me["id"],)
+        ).fetchall()
+        return JSONResponse([dict(r) for r in rows])
+
+
+@router.post("/projects")
+async def create_project(body: ProjectBody, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    title = body.title.strip()[:100]
+    if not title:
+        return JSONResponse({"error": "title required"}, status_code=400)
+    now = _now_iso()
+    pid = str(uuid.uuid4())
+    with _db() as conn:
+        maxpos = conn.execute(
+            "SELECT COALESCE(MAX(position), -1) AS m FROM projects WHERE user_id=?", (me["id"],)
+        ).fetchone()["m"]
+        conn.execute(
+            "INSERT INTO projects(id,user_id,title,position,created_at,updated_at) "
+            "VALUES(?,?,?,?,?,?)",
+            (pid, me["id"], title, maxpos + 1, now, now),
+        )
+        conn.commit()
+        row = conn.execute("SELECT * FROM projects WHERE id=?", (pid,)).fetchone()
+        return JSONResponse(dict(row))
+
+
+class ProjectReorderBody(BaseModel):
+    order: list[str]
+
+
+@router.put("/projects/reorder")
+async def reorder_projects(body: ProjectReorderBody, x_pub_token: str = Header(default=None)):
+    """The accordion always opens whichever project is first in this order —
+    there is no separate default-open flag to keep in sync.
+
+    Registered ahead of PUT /projects/{project_id} below: that dynamic route
+    would otherwise swallow "reorder" as a project_id and never let this one
+    match."""
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    with _db() as conn:
+        rows = conn.execute("SELECT id FROM projects WHERE user_id=?", (me["id"],)).fetchall()
+        existing_ids = {r["id"] for r in rows}
+        if set(body.order) != existing_ids or len(body.order) != len(existing_ids):
+            return JSONResponse({"error": "order must list every project exactly once"}, status_code=400)
+        now = _now_iso()
+        for i, pid in enumerate(body.order):
+            conn.execute("UPDATE projects SET position=?, updated_at=? WHERE id=? AND user_id=?", (i, now, pid, me["id"]))
+        conn.commit()
+        rows = conn.execute("SELECT * FROM projects WHERE user_id=? ORDER BY position", (me["id"],)).fetchall()
+        return JSONResponse([dict(r) for r in rows])
+
+
+@router.put("/projects/{project_id}")
+async def rename_project(project_id: str, body: ProjectBody, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    title = body.title.strip()[:100]
+    if not title:
+        return JSONResponse({"error": "title required"}, status_code=400)
+    with _db() as conn:
+        existing = conn.execute("SELECT id FROM projects WHERE id=? AND user_id=?", (project_id, me["id"])).fetchone()
+        if not existing:
+            return JSONResponse({"error": "not found"}, status_code=404)
+        conn.execute(
+            "UPDATE projects SET title=?, updated_at=? WHERE id=?", (title, _now_iso(), project_id)
+        )
+        conn.commit()
+        row = conn.execute("SELECT * FROM projects WHERE id=?", (project_id,)).fetchone()
+        return JSONResponse(dict(row))
+
+
+@router.delete("/projects/{project_id}")
+async def delete_project(project_id: str, x_pub_token: str = Header(default=None)):
+    """Tasks in the project are not deleted — they fall back to no project."""
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    with _db() as conn:
+        existing = conn.execute("SELECT id FROM projects WHERE id=? AND user_id=?", (project_id, me["id"])).fetchone()
+        if not existing:
+            return JSONResponse({"error": "not found"}, status_code=404)
+        conn.execute("UPDATE tasks SET project_id=NULL WHERE project_id=? AND user_id=?", (project_id, me["id"]))
+        conn.execute("DELETE FROM projects WHERE id=?", (project_id,))
+        conn.commit()
+    return JSONResponse({"ok": True})
+
+
 # ── Tasks ────────────────────────────────────────────────────────
 
 class TaskBody(BaseModel):
@@ -308,6 +445,7 @@ class TaskBody(BaseModel):
     category_ids:   list[str] = []
     due_at:         Optional[str] = None
     period:         Optional[str] = None
+    project_id:     Optional[str] = None
 
 
 def _validate_task(body: "TaskBody") -> Optional[str]:
@@ -328,11 +466,22 @@ def _validate_task(body: "TaskBody") -> Optional[str]:
             return "invalid period"
         if body.due_at:
             return "due_at not applicable to periodic tasks"
+    elif body.type == "todo":
+        if body.due_at or body.period:
+            return "due_at/period not applicable to todo tasks"
+        if body.category_ids or body.reward_amount is not None:
+            return "rewards not applicable to todo tasks"
     if body.category_ids and (body.reward_amount is None or body.reward_amount == 0):
         return "reward_amount required when a category is selected"
     if body.reward_amount is not None and body.reward_amount == 0:
         return "reward_amount must be non-zero"
     return None
+
+
+def _project_exists(conn, user_id: str, project_id: str) -> bool:
+    return bool(conn.execute(
+        "SELECT 1 FROM projects WHERE id=? AND user_id=?", (project_id, user_id)
+    ).fetchone())
 
 
 @router.get("/tasks")
@@ -364,11 +513,13 @@ async def create_task(body: TaskBody, x_pub_token: str = Header(default=None)):
     now = _now_iso()
     tid = str(uuid.uuid4())
     with _db() as conn:
+        if body.project_id and not _project_exists(conn, me["id"], body.project_id):
+            return JSONResponse({"error": "invalid project"}, status_code=400)
         conn.execute(
             "INSERT INTO tasks(id,user_id,title,description,type,reward_mode,reward_amount,"
-            "due_at,period,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+            "due_at,period,project_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
             (tid, me["id"], title, body.description.strip()[:1000], body.type, reward_mode,
-             body.reward_amount, body.due_at, body.period, now, now),
+             body.reward_amount, body.due_at, body.period, body.project_id, now, now),
         )
         _set_task_categories(conn, tid, body.category_ids)
         conn.commit()
@@ -393,11 +544,13 @@ async def update_task(task_id: str, body: TaskBody, x_pub_token: str = Header(de
         existing = conn.execute("SELECT * FROM tasks WHERE id=? AND user_id=?", (task_id, me["id"])).fetchone()
         if not existing:
             return JSONResponse({"error": "not found"}, status_code=404)
+        if body.project_id and not _project_exists(conn, me["id"], body.project_id):
+            return JSONResponse({"error": "invalid project"}, status_code=400)
         conn.execute(
             "UPDATE tasks SET title=?, description=?, type=?, reward_mode=?, reward_amount=?, "
-            "due_at=?, period=?, updated_at=? WHERE id=?",
+            "due_at=?, period=?, project_id=?, updated_at=? WHERE id=?",
             (title, body.description.strip()[:1000], body.type, reward_mode, body.reward_amount,
-             body.due_at, body.period, _now_iso(), task_id),
+             body.due_at, body.period, body.project_id, _now_iso(), task_id),
         )
         _set_task_categories(conn, task_id, body.category_ids)
         conn.commit()
@@ -433,6 +586,8 @@ async def complete_task(task_id: str, x_pub_token: str = Header(default=None)):
             return JSONResponse({"error": "not found"}, status_code=404)
         task = _row_to_task(conn, row, now)
 
+        if task["type"] == "todo":
+            return JSONResponse({"error": "open the task to check off its items"}, status_code=400)
         if task["type"] == "persistent" and task["reward_mode"] == "hourly":
             return JSONResponse({"error": "use the timer for hourly tasks"}, status_code=400)
         if task["type"] == "onetime" and task["completed"]:
@@ -593,6 +748,116 @@ async def complete_timer(task_id: str, x_pub_token: str = Header(default=None)):
 async def stop_timer_legacy(task_id: str, x_pub_token: str = Header(default=None)):
     """Compatibility for older Tasks clients: their Stop still completes."""
     return await complete_timer(task_id, x_pub_token)
+
+
+# ── Todo checklist items ─────────────────────────────────────────
+# A 'todo' task is a container of checkable items (like a shopping list) —
+# it never has its own reward/completion, only its items do (locally, no
+# Budget involved). Unfinished items sort by position; finished ones sort to
+# the bottom by completion time, oldest-completed first.
+
+class TodoItemBody(BaseModel):
+    title: str
+
+
+class TodoItemUpdateBody(BaseModel):
+    title:     Optional[str] = None
+    completed: Optional[bool] = None
+
+
+def _get_todo_task(conn, task_id: str, user_id: str):
+    row = conn.execute(
+        "SELECT id FROM tasks WHERE id=? AND user_id=? AND type='todo'", (task_id, user_id)
+    ).fetchone()
+    return row
+
+
+@router.get("/tasks/{task_id}/items")
+async def list_todo_items(task_id: str, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    with _db() as conn:
+        if not _get_todo_task(conn, task_id, me["id"]):
+            return JSONResponse({"error": "not found"}, status_code=404)
+        rows = conn.execute(
+            "SELECT * FROM todo_items WHERE task_id=? "
+            "ORDER BY (completed_at IS NOT NULL), position, completed_at",
+            (task_id,),
+        ).fetchall()
+        return JSONResponse([dict(r) for r in rows])
+
+
+@router.post("/tasks/{task_id}/items")
+async def add_todo_item(task_id: str, body: TodoItemBody, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    title = body.title.strip()[:200]
+    if not title:
+        return JSONResponse({"error": "title required"}, status_code=400)
+    with _db() as conn:
+        if not _get_todo_task(conn, task_id, me["id"]):
+            return JSONResponse({"error": "not found"}, status_code=404)
+        maxpos = conn.execute(
+            "SELECT COALESCE(MAX(position), -1) AS m FROM todo_items WHERE task_id=?", (task_id,)
+        ).fetchone()["m"]
+        iid = str(uuid.uuid4())
+        conn.execute(
+            "INSERT INTO todo_items(id,task_id,title,position,completed_at,created_at) VALUES(?,?,?,?,NULL,?)",
+            (iid, task_id, title, maxpos + 1, _now_iso()),
+        )
+        conn.execute("UPDATE tasks SET updated_at=? WHERE id=?", (_now_iso(), task_id))
+        conn.commit()
+        row = conn.execute("SELECT * FROM todo_items WHERE id=?", (iid,)).fetchone()
+        return JSONResponse(dict(row))
+
+
+@router.put("/tasks/{task_id}/items/{item_id}")
+async def update_todo_item(task_id: str, item_id: str, body: TodoItemUpdateBody, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    with _db() as conn:
+        if not _get_todo_task(conn, task_id, me["id"]):
+            return JSONResponse({"error": "not found"}, status_code=404)
+        item = conn.execute("SELECT * FROM todo_items WHERE id=? AND task_id=?", (item_id, task_id)).fetchone()
+        if not item:
+            return JSONResponse({"error": "not found"}, status_code=404)
+        title = item["title"]
+        if body.title is not None:
+            title = body.title.strip()[:200]
+            if not title:
+                return JSONResponse({"error": "title required"}, status_code=400)
+        completed_at = item["completed_at"]
+        if body.completed is True and not completed_at:
+            completed_at = _now_iso()
+        elif body.completed is False:
+            completed_at = None
+        conn.execute(
+            "UPDATE todo_items SET title=?, completed_at=? WHERE id=?", (title, completed_at, item_id)
+        )
+        conn.execute("UPDATE tasks SET updated_at=? WHERE id=?", (_now_iso(), task_id))
+        conn.commit()
+        row = conn.execute("SELECT * FROM todo_items WHERE id=?", (item_id,)).fetchone()
+        return JSONResponse(dict(row))
+
+
+@router.delete("/tasks/{task_id}/items/{item_id}")
+async def delete_todo_item(task_id: str, item_id: str, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    with _db() as conn:
+        if not _get_todo_task(conn, task_id, me["id"]):
+            return JSONResponse({"error": "not found"}, status_code=404)
+        item = conn.execute("SELECT id FROM todo_items WHERE id=? AND task_id=?", (item_id, task_id)).fetchone()
+        if not item:
+            return JSONResponse({"error": "not found"}, status_code=404)
+        conn.execute("DELETE FROM todo_items WHERE id=?", (item_id,))
+        conn.execute("UPDATE tasks SET updated_at=? WHERE id=?", (_now_iso(), task_id))
+        conn.commit()
+    return JSONResponse({"ok": True})
 
 
 # ── History ──────────────────────────────────────────────────────

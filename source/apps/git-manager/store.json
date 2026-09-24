@@ -8,11 +8,11 @@
     "Pull, push and fetch, with ahead/behind counts. Push sets the upstream automatically the first time a new branch is pushed. A branch that matches a branch on origin but lost its tracking link is reconnected automatically, so ahead/behind counts and pull keep working.",
     "A small badge next to the branch name shows when the current branch has not been pushed anywhere yet.",
     "See changed files and the diff for each.",
-    "Commit all changes with a message (Ctrl+Enter to send), or commit and push in one step.",
+    "Commit all changes with a message (Ctrl+Enter to send), or commit and push in one step. When your repository has a Git commit template, one click fills the message box from it; otherwise the same button shows how to set one up.",
     "Suggest a commit message from the changed files and folders, filled in so you can accept or rewrite it.",
     "Discard changes in one file or in the whole tree.",
     "Commit log per repository.",
-    "Open a terminal for the selected repository right inside the window, docked at the bottom or on the right. Each repository keeps its own live terminal while you switch between them, and the changed files refresh on their own when something in the terminal edits the working tree.",
+    "Open a terminal for the selected repository right inside the window, docked at the bottom or on the right. Each repository keeps its own live terminal while you switch between them, and the changed files refresh on their own when something in the terminal edits the working tree. If the connection drops, it reconnects automatically in a new shell session.",
     "Generate an ed25519 SSH key, copy the public key, and test the connection to GitHub, GitLab or any other host.",
     "See repositories owned by other profiles as locked entries, and either switch to the owner profile or unlock all of them from one place with Premium and sudo confirmation."
   ]
