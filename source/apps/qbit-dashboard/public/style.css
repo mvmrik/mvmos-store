@@ -303,3 +303,133 @@
   text-align: center;
 }
 .qb-connect-screen p { color: var(--text-dim); font-size: .82rem; margin: 0; }
+
+/* ── Statistics ── */
+.qb-root {
+  --qb-dl: #3987e5;
+  --qb-ul: #d95926;
+}
+.qb-sidebar-stats {
+  margin-top: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+.qb-stats {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.qb-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  min-width: 0;
+}
+.qb-card-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+.qb-card-title {
+  font-size: .7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-dim);
+  margin: 0 0 8px;
+}
+.qb-stats-section .qb-card-title { margin-top: 4px; }
+.qb-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.qb-tile {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  min-width: 0;
+}
+.qb-tile-label { font-size: .7rem; color: var(--text-dim); line-height: 1.25; overflow-wrap: anywhere; }
+.qb-tile-val { font-size: 1.15rem; font-weight: 600; color: var(--text); margin-top: 2px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.qb-tile-sub { font-size: .68rem; color: var(--text-dim); margin-top: 1px; }
+
+.qb-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .72rem; color: var(--text-dim); margin-bottom: 6px; align-items: center; }
+.qb-legend > span { display: inline-flex; align-items: center; gap: 5px; }
+.qb-legend-now { margin-left: auto; color: var(--text); font-variant-numeric: tabular-nums; white-space: pre; }
+.qb-key { display: inline-block; width: 10px; height: 10px; border-radius: 3px; }
+.qb-key-dl, .qb-bar-dl { background: var(--qb-dl); }
+.qb-key-ul, .qb-bar-ul { background: var(--qb-ul); }
+
+.qb-speed-plot { position: relative; height: 140px; margin: 10px 0 0 64px; }
+.qb-speed-plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.qb-speed-lbl { position: absolute; right: calc(100% + 6px); transform: translateY(-50%); font-size: .66rem; color: var(--text-dim); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.qb-grid { stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 3; }
+.qb-axis { stroke: var(--border); stroke-width: 1; }
+.qb-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.qb-line-dl { stroke: var(--qb-dl); }
+.qb-line-ul { stroke: var(--qb-ul); }
+.qb-cross { display: none; position: absolute; top: 0; bottom: 0; width: 1px; background: var(--text-dim); pointer-events: none; }
+.qb-speed-wait { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: .75rem; color: var(--text-dim); }
+.qb-axis-x { display: flex; justify-content: space-between; font-size: .66rem; color: var(--text-dim); margin-top: 4px; }
+.qb-speed-plot + .qb-axis-x { margin-left: 64px; }
+
+.qb-bars { display: flex; align-items: flex-end; gap: 3px; height: 120px; border-bottom: 1px solid var(--border); }
+.qb-bar-group { flex: 1; display: flex; align-items: flex-end; gap: 1px; height: 100%; min-width: 0; cursor: default; }
+.qb-bar-group:hover { background: var(--surface, rgba(255,255,255,.04)); }
+.qb-bar { flex: 1; border-radius: 3px 3px 0 0; min-width: 0; }
+.qb-bar-acc { background: var(--accent, #2a6ee0); }
+.qb-bars-months { gap: 6px; }
+.qb-axis-months { display: flex; gap: 6px; font-size: .66rem; color: var(--text-dim); margin-top: 4px; }
+.qb-axis-months span { flex: 1; text-align: center; }
+.qb-note { font-size: .68rem; color: var(--text-dim); margin-top: 8px; line-height: 1.4; }
+.qb-stats-empty { font-size: .78rem; color: var(--text-dim); padding: 14px 0; text-align: center; }
+.qb-dim { color: var(--text-dim); }
+
+.qb-hrow { display: grid; grid-template-columns: minmax(80px, 110px) 1fr auto; gap: 8px; align-items: center; font-size: .78rem; padding: 3px 0; }
+.qb-hrow-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qb-hrow-track { height: 8px; background: var(--surface, rgba(255,255,255,.04)); border-radius: 4px; overflow: hidden; }
+.qb-hrow-fill { display: block; height: 100%; background: var(--accent, #2a6ee0); border-radius: 4px; }
+.qb-hrow-val { font-variant-numeric: tabular-nums; color: var(--text-dim); min-width: 24px; text-align: right; }
+
+.qb-table-wrap { overflow-x: auto; }
+.qb-table { width: 100%; border-collapse: collapse; font-size: .76rem; }
+.qb-table th { text-align: left; font-weight: 500; color: var(--text-dim); padding: 4px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.qb-table td { padding: 5px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.qb-table tr:last-child td { border-bottom: none; }
+.qb-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.qb-td-name { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.qb-cell-bar { display: flex; flex-direction: column; gap: 3px; min-width: 90px; font-variant-numeric: tabular-nums; }
+.qb-cell-bar i { display: block; height: 4px; border-radius: 2px; min-width: 0; }
+
+.qb-top-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 5px 4px; border-bottom: 1px solid var(--border); font-size: .78rem; cursor: pointer; border-radius: 4px; }
+.qb-top-row:last-child { border-bottom: none; }
+.qb-top-row:hover { background: var(--surface, rgba(255,255,255,.04)); }
+.qb-top-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qb-top-sub { font-size: .7rem; color: var(--text-dim); white-space: nowrap; }
+.qb-top-val { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.qb-tip {
+  display: none;
+  position: absolute;
+  z-index: 20;
+  pointer-events: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  padding: 6px 9px;
+  font-size: .74rem;
+  color: var(--text);
+  white-space: pre-line;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Torrent details ── */
+.qb-detail-sub { margin-left: 6px; color: var(--text-dim); font-weight: 400; font-size: .85em; }

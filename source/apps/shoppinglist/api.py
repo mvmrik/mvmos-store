@@ -74,6 +74,7 @@ same as it always has for items still on a live list.
 
 import asyncio
 import json
+import html
 import os
 import re
 import shutil
@@ -564,18 +565,48 @@ class ListBody(BaseModel):
     title: str
 
 
+def _list_lists(user_id: str):
+    with _db() as conn:
+        rows = conn.execute(
+            "SELECT l.* FROM lists l JOIN list_members lm ON lm.list_id=l.id "
+            "WHERE lm.user_id=? AND l.archived=0 ORDER BY l.created_at",
+            (user_id,),
+        ).fetchall()
+        return JSONResponse([_row_to_list(conn, r, user_id) for r in rows]), None
+
+
 @router.get("/lists")
 async def list_lists(x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    resp, notify = _list_lists(me["id"])
+    if notify is not None:
+        await notify
+    return resp
+
+
+def _create_list(user_id: str, body: ListBody, client: Optional[str] = None):
+    title = body.title.strip()[:200]
+    if not title:
+        return JSONResponse({"error": "title required"}, status_code=400), None
+    now = _now()
+    lid = str(uuid.uuid4())
     with _db() as conn:
-        rows = conn.execute(
-            "SELECT l.* FROM lists l JOIN list_members lm ON lm.list_id=l.id "
-            "WHERE lm.user_id=? AND l.archived=0 ORDER BY l.created_at",
-            (me["id"],),
-        ).fetchall()
-        return JSONResponse([_row_to_list(conn, r, me["id"]) for r in rows])
+        conn.execute(
+            "INSERT INTO lists(id,owner_id,title,archived,created_at,updated_at) VALUES(?,?,?,0,?,?)",
+            (lid, user_id, title, now, now),
+        )
+        conn.execute(
+            "INSERT INTO list_members(list_id,user_id,role,created_at) VALUES(?,?,'owner',?)",
+            (lid, user_id, now),
+        )
+        conn.commit()
+        row = conn.execute("SELECT * FROM lists WHERE id=?", (lid,)).fetchone()
+        result = _row_to_list(conn, row, user_id)
+    # Nobody else is on a brand new list yet, but the same account may have
+    # it open on another device.
+    return JSONResponse(result), _push([user_id], {"type": "lists_changed"}, client)
 
 
 @router.post("/lists")
@@ -587,27 +618,29 @@ async def create_list(
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    resp, notify = _create_list(me["id"], body, x_sl_client)
+    if notify is not None:
+        await notify
+    return resp
+
+
+def _update_list(user_id: str, list_id: str, body: ListBody, client: Optional[str] = None):
     title = body.title.strip()[:200]
     if not title:
-        return JSONResponse({"error": "title required"}, status_code=400)
-    now = _now()
-    lid = str(uuid.uuid4())
+        return JSONResponse({"error": "title required"}, status_code=400), None
     with _db() as conn:
-        conn.execute(
-            "INSERT INTO lists(id,owner_id,title,archived,created_at,updated_at) VALUES(?,?,?,0,?,?)",
-            (lid, me["id"], title, now, now),
-        )
-        conn.execute(
-            "INSERT INTO list_members(list_id,user_id,role,created_at) VALUES(?,?,'owner',?)",
-            (lid, me["id"], now),
-        )
+        role = _my_role(conn, list_id, user_id)
+        if not role:
+            return JSONResponse({"error": "not found"}, status_code=404), None
+        if role != "owner":
+            return JSONResponse({"error": "forbidden"}, status_code=403), None
+        conn.execute("UPDATE lists SET title=?, updated_at=? WHERE id=?", (title, _now(), list_id))
         conn.commit()
-        row = conn.execute("SELECT * FROM lists WHERE id=?", (lid,)).fetchone()
-        result = _row_to_list(conn, row, me["id"])
-    # Nobody else is on a brand new list yet, but the same account may have
-    # it open on another device.
-    await _push([me["id"]], {"type": "lists_changed"}, x_sl_client)
-    return JSONResponse(result)
+        row = conn.execute("SELECT * FROM lists WHERE id=?", (list_id,)).fetchone()
+        result = _row_to_list(conn, row, user_id)
+    return JSONResponse(result), _notify_list(
+        list_id, {"type": "list_updated", "list_id": list_id, "title": title}, client
+    )
 
 
 @router.put("/lists/{list_id}")
@@ -620,40 +653,19 @@ async def update_list(
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
-    title = body.title.strip()[:200]
-    if not title:
-        return JSONResponse({"error": "title required"}, status_code=400)
-    with _db() as conn:
-        role = _my_role(conn, list_id, me["id"])
-        if not role:
-            return JSONResponse({"error": "not found"}, status_code=404)
-        if role != "owner":
-            return JSONResponse({"error": "forbidden"}, status_code=403)
-        conn.execute("UPDATE lists SET title=?, updated_at=? WHERE id=?", (title, _now(), list_id))
-        conn.commit()
-        row = conn.execute("SELECT * FROM lists WHERE id=?", (list_id,)).fetchone()
-        result = _row_to_list(conn, row, me["id"])
-    await _notify_list(
-        list_id, {"type": "list_updated", "list_id": list_id, "title": title}, x_sl_client
-    )
-    return JSONResponse(result)
+    resp, notify = _update_list(me["id"], list_id, body, x_sl_client)
+    if notify is not None:
+        await notify
+    return resp
 
 
-@router.delete("/lists/{list_id}")
-async def delete_list(
-    list_id: str,
-    x_pub_token: str = Header(default=None),
-    x_sl_client: str = Header(default=None),
-):
-    me = _resolve(x_pub_token)
-    if not me:
-        return JSONResponse({"error": "unauthorized"}, status_code=401)
+def _delete_list(user_id: str, list_id: str, client: Optional[str] = None):
     with _db() as conn:
-        role = _my_role(conn, list_id, me["id"])
+        role = _my_role(conn, list_id, user_id)
         if not role:
-            return JSONResponse({"error": "not found"}, status_code=404)
+            return JSONResponse({"error": "not found"}, status_code=404), None
         if role != "owner":
-            return JSONResponse({"error": "forbidden"}, status_code=403)
+            return JSONResponse({"error": "forbidden"}, status_code=403), None
         lst = conn.execute("SELECT title FROM lists WHERE id=?", (list_id,)).fetchone()
         # Read the members before the delete cascades their rows away.
         member_ids = _member_ids(conn, list_id)
@@ -667,8 +679,22 @@ async def delete_list(
         )
         conn.execute("DELETE FROM lists WHERE id=?", (list_id,))
         conn.commit()
-    await _push(member_ids, {"type": "list_gone", "list_id": list_id}, x_sl_client)
-    return JSONResponse({"ok": True})
+    return JSONResponse({"ok": True}), _push(member_ids, {"type": "list_gone", "list_id": list_id}, client)
+
+
+@router.delete("/lists/{list_id}")
+async def delete_list(
+    list_id: str,
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
+):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    resp, notify = _delete_list(me["id"], list_id, x_sl_client)
+    if notify is not None:
+        await notify
+    return resp
 
 
 # ── Items ────────────────────────────────────────────────────────
@@ -688,14 +714,10 @@ def _validate_item(body: "ItemBody") -> Optional[str]:
     return None
 
 
-@router.get("/lists/{list_id}/items")
-async def list_items(list_id: str, x_pub_token: str = Header(default=None)):
-    me = _resolve(x_pub_token)
-    if not me:
-        return JSONResponse({"error": "unauthorized"}, status_code=401)
+def _list_items(user_id: str, list_id: str):
     with _db() as conn:
-        if not _my_role(conn, list_id, me["id"]):
-            return JSONResponse({"error": "not found"}, status_code=404)
+        if not _my_role(conn, list_id, user_id):
+            return JSONResponse({"error": "not found"}, status_code=404), None
         rows = conn.execute(
             "SELECT * FROM items WHERE list_id=? ORDER BY (bought_at IS NOT NULL), created_at",
             (list_id,),
@@ -704,7 +726,44 @@ async def list_items(list_id: str, x_pub_token: str = Header(default=None)):
     ids = {r["added_by"] for r in rows} | {r["bought_by"] for r in rows if r["bought_by"]}
     profiles = {p["id"]: p for p in hub.get_users_by_ids(list(ids))} if hub and ids else {}
     with _db() as conn:
-        return JSONResponse([_row_to_item(conn, r, profiles) for r in rows])
+        return JSONResponse([_row_to_item(conn, r, profiles) for r in rows]), None
+
+
+@router.get("/lists/{list_id}/items")
+async def list_items(list_id: str, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    resp, notify = _list_items(me["id"], list_id)
+    if notify is not None:
+        await notify
+    return resp
+
+
+def _add_item(user_id: str, list_id: str, body: ItemBody, client: Optional[str] = None):
+    name = body.name.strip()[:200]
+    if not name:
+        return JSONResponse({"error": "name required"}, status_code=400), None
+    err = _validate_item(body)
+    if err:
+        return JSONResponse({"error": err}, status_code=400), None
+    now = _now()
+    iid = str(uuid.uuid4())
+    with _db() as conn:
+        if not _my_role(conn, list_id, user_id):
+            return JSONResponse({"error": "not found"}, status_code=404), None
+        conn.execute(
+            "INSERT INTO items(id,list_id,name,quantity,price,category_id,added_by,created_at,updated_at) "
+            "VALUES(?,?,?,?,?,?,?,?,?)",
+            (iid, list_id, name, body.quantity, body.price, body.category_id, user_id, now, now),
+        )
+        conn.execute("UPDATE lists SET updated_at=? WHERE id=?", (now, list_id))
+        conn.commit()
+        row = conn.execute("SELECT * FROM items WHERE id=?", (iid,)).fetchone()
+        hub = _hub()
+        profiles = {p["id"]: p for p in hub.get_users_by_ids([user_id])} if hub else {}
+        result = _row_to_item(conn, row, profiles)
+    return JSONResponse(result), _notify_items(list_id, client)
 
 
 @router.post("/lists/{list_id}/items")
@@ -717,29 +776,37 @@ async def add_item(
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    resp, notify = _add_item(me["id"], list_id, body, x_sl_client)
+    if notify is not None:
+        await notify
+    return resp
+
+
+def _update_item(user_id: str, item_id: str, body: ItemBody, client: Optional[str] = None):
     name = body.name.strip()[:200]
     if not name:
-        return JSONResponse({"error": "name required"}, status_code=400)
+        return JSONResponse({"error": "name required"}, status_code=400), None
     err = _validate_item(body)
     if err:
-        return JSONResponse({"error": err}, status_code=400)
-    now = _now()
-    iid = str(uuid.uuid4())
+        return JSONResponse({"error": err}, status_code=400), None
     with _db() as conn:
-        if not _my_role(conn, list_id, me["id"]):
-            return JSONResponse({"error": "not found"}, status_code=404)
+        row = conn.execute("SELECT * FROM items WHERE id=?", (item_id,)).fetchone()
+        if not row or not _can_access_item(conn, row, user_id):
+            return JSONResponse({"error": "not found"}, status_code=404), None
+        if row["bought_at"]:
+            return JSONResponse({"error": "already bought"}, status_code=400), None
         conn.execute(
-            "INSERT INTO items(id,list_id,name,quantity,price,category_id,added_by,created_at,updated_at) "
-            "VALUES(?,?,?,?,?,?,?,?,?)",
-            (iid, list_id, name, body.quantity, body.price, body.category_id, me["id"], now, now),
+            "UPDATE items SET name=?, quantity=?, price=?, category_id=?, updated_at=? WHERE id=?",
+            (name, body.quantity, body.price, body.category_id, _now(), item_id),
         )
-        conn.execute("UPDATE lists SET updated_at=? WHERE id=?", (now, list_id))
         conn.commit()
-        row = conn.execute("SELECT * FROM items WHERE id=?", (iid,)).fetchone()
-        profiles = {me["id"]: me}
+        row = conn.execute("SELECT * FROM items WHERE id=?", (item_id,)).fetchone()
+    hub = _hub()
+    ids = {row["added_by"]}
+    profiles = {p["id"]: p for p in hub.get_users_by_ids(list(ids))} if hub else {}
+    with _db() as conn:
         result = _row_to_item(conn, row, profiles)
-    await _notify_items(list_id, x_sl_client)
-    return JSONResponse(result)
+    return JSONResponse(result), _notify_items(row["list_id"], client)
 
 
 @router.put("/items/{item_id}")
@@ -752,31 +819,21 @@ async def update_item(
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
-    name = body.name.strip()[:200]
-    if not name:
-        return JSONResponse({"error": "name required"}, status_code=400)
-    err = _validate_item(body)
-    if err:
-        return JSONResponse({"error": err}, status_code=400)
+    resp, notify = _update_item(me["id"], item_id, body, x_sl_client)
+    if notify is not None:
+        await notify
+    return resp
+
+
+def _delete_item(user_id: str, item_id: str, client: Optional[str] = None):
     with _db() as conn:
         row = conn.execute("SELECT * FROM items WHERE id=?", (item_id,)).fetchone()
-        if not row or not _can_access_item(conn, row, me["id"]):
-            return JSONResponse({"error": "not found"}, status_code=404)
-        if row["bought_at"]:
-            return JSONResponse({"error": "already bought"}, status_code=400)
-        conn.execute(
-            "UPDATE items SET name=?, quantity=?, price=?, category_id=?, updated_at=? WHERE id=?",
-            (name, body.quantity, body.price, body.category_id, _now(), item_id),
-        )
+        if not row or not _can_access_item(conn, row, user_id):
+            return JSONResponse({"error": "not found"}, status_code=404), None
+        conn.execute("DELETE FROM items WHERE id=?", (item_id,))
         conn.commit()
-        row = conn.execute("SELECT * FROM items WHERE id=?", (item_id,)).fetchone()
-    hub = _hub()
-    ids = {row["added_by"]}
-    profiles = {p["id"]: p for p in hub.get_users_by_ids(list(ids))} if hub else {}
-    with _db() as conn:
-        result = _row_to_item(conn, row, profiles)
-    await _notify_items(row["list_id"], x_sl_client)
-    return JSONResponse(result)
+    shutil.rmtree(os.path.join(_WARRANTY_UPLOADS_DIR, item_id), ignore_errors=True)
+    return JSONResponse({"ok": True}), _notify_items(row["list_id"], client)
 
 
 @router.delete("/items/{item_id}")
@@ -788,15 +845,60 @@ async def delete_item(
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    resp, notify = _delete_item(me["id"], item_id, x_sl_client)
+    if notify is not None:
+        await notify
+    return resp
+
+
+# Budget stores the source name and the note as plain text and shows them to
+# every member of the category, whatever language each one reads in. So the
+# name is the app's own (untranslated, like every app name in mvmOS) and the
+# note carries no words at all: the product plus a sign that reads the same in
+# any language, 🛒 for a purchase and ↩ for taking it back.
+SOURCE_NAME = "Shopping List"
+
+
+def _buy_item(user_id: str, item_id: str, client: Optional[str] = None):
+    now = _now()
     with _db() as conn:
         row = conn.execute("SELECT * FROM items WHERE id=?", (item_id,)).fetchone()
-        if not row or not _can_access_item(conn, row, me["id"]):
-            return JSONResponse({"error": "not found"}, status_code=404)
-        conn.execute("DELETE FROM items WHERE id=?", (item_id,))
+        if not row or not _can_access_item(conn, row, user_id):
+            return JSONResponse({"error": "not found"}, status_code=404), None
+        if row["bought_at"]:
+            return JSONResponse({"error": "already bought"}, status_code=400), None
+
+        budget_ok = None
+        budget_applied = 0
+        if row["category_id"] and row["price"] is not None:
+            hub = _hub()
+            amount = -round(row["price"] * row["quantity"], 2)
+            try:
+                hub.call_app_api(
+                    "budget", "add_to_category", user_id, row["category_id"], amount,
+                    source_app="shoppinglist", source_app_name=SOURCE_NAME,
+                    reason=f"🛒 {row['name']}",
+                    idempotency_key=f"shoppinglist:buy:{item_id}:{now}",
+                )
+                budget_ok = True
+                budget_applied = 1
+            except Exception:
+                budget_ok = False
+
+        conn.execute(
+            "UPDATE items SET bought_at=?, bought_by=?, budget_applied=?, updated_at=? WHERE id=?",
+            (now, user_id, budget_applied, now, item_id),
+        )
+        conn.execute("UPDATE lists SET updated_at=? WHERE id=?", (now, row["list_id"]))
         conn.commit()
-    shutil.rmtree(os.path.join(_WARRANTY_UPLOADS_DIR, item_id), ignore_errors=True)
-    await _notify_items(row["list_id"], x_sl_client)
-    return JSONResponse({"ok": True})
+        row = conn.execute("SELECT * FROM items WHERE id=?", (item_id,)).fetchone()
+    hub = _hub()
+    ids = {row["added_by"], row["bought_by"]}
+    profiles = {p["id"]: p for p in hub.get_users_by_ids(list(ids))} if hub else {}
+    with _db() as conn:
+        d = _row_to_item(conn, row, profiles)
+    d["budget_ok"] = budget_ok
+    return JSONResponse(d), _notify_items(row["list_id"], client)
 
 
 @router.post("/items/{item_id}/buy")
@@ -808,64 +910,20 @@ async def buy_item(
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    resp, notify = _buy_item(me["id"], item_id, x_sl_client)
+    if notify is not None:
+        await notify
+    return resp
+
+
+def _unbuy_item(user_id: str, item_id: str, client: Optional[str] = None):
     now = _now()
     with _db() as conn:
         row = conn.execute("SELECT * FROM items WHERE id=?", (item_id,)).fetchone()
-        if not row or not _can_access_item(conn, row, me["id"]):
-            return JSONResponse({"error": "not found"}, status_code=404)
-        if row["bought_at"]:
-            return JSONResponse({"error": "already bought"}, status_code=400)
-
-        budget_ok = None
-        budget_applied = 0
-        if row["category_id"] and row["price"] is not None:
-            hub = _hub()
-            amount = -round(row["price"] * row["quantity"], 2)
-            try:
-                hub.call_app_api(
-                    "budget", "add_to_category", me["id"], row["category_id"], amount,
-                    source_app="shoppinglist", source_app_name="Списък за пазаруване",
-                    reason=f"Пазаруване: {row['name']}",
-                    idempotency_key=f"shoppinglist:buy:{item_id}:{now}",
-                )
-                budget_ok = True
-                budget_applied = 1
-            except Exception:
-                budget_ok = False
-
-        conn.execute(
-            "UPDATE items SET bought_at=?, bought_by=?, budget_applied=?, updated_at=? WHERE id=?",
-            (now, me["id"], budget_applied, now, item_id),
-        )
-        conn.execute("UPDATE lists SET updated_at=? WHERE id=?", (now, row["list_id"]))
-        conn.commit()
-        row = conn.execute("SELECT * FROM items WHERE id=?", (item_id,)).fetchone()
-    hub = _hub()
-    ids = {row["added_by"], row["bought_by"]}
-    profiles = {p["id"]: p for p in hub.get_users_by_ids(list(ids))} if hub else {}
-    with _db() as conn:
-        d = _row_to_item(conn, row, profiles)
-    d["budget_ok"] = budget_ok
-    await _notify_items(row["list_id"], x_sl_client)
-    return JSONResponse(d)
-
-
-@router.post("/items/{item_id}/unbuy")
-async def unbuy_item(
-    item_id: str,
-    x_pub_token: str = Header(default=None),
-    x_sl_client: str = Header(default=None),
-):
-    me = _resolve(x_pub_token)
-    if not me:
-        return JSONResponse({"error": "unauthorized"}, status_code=401)
-    now = _now()
-    with _db() as conn:
-        row = conn.execute("SELECT * FROM items WHERE id=?", (item_id,)).fetchone()
-        if not row or not _can_access_item(conn, row, me["id"]):
-            return JSONResponse({"error": "not found"}, status_code=404)
+        if not row or not _can_access_item(conn, row, user_id):
+            return JSONResponse({"error": "not found"}, status_code=404), None
         if not row["bought_at"]:
-            return JSONResponse({"error": "not bought"}, status_code=400)
+            return JSONResponse({"error": "not bought"}, status_code=400), None
 
         budget_ok = None
         if row["budget_applied"] and row["category_id"] and row["price"] is not None:
@@ -873,9 +931,9 @@ async def unbuy_item(
             amount = round(row["price"] * row["quantity"], 2)
             try:
                 hub.call_app_api(
-                    "budget", "add_to_category", me["id"], row["category_id"], amount,
-                    source_app="shoppinglist", source_app_name="Списък за пазаруване",
-                    reason=f"Отмаркиране: {row['name']}",
+                    "budget", "add_to_category", user_id, row["category_id"], amount,
+                    source_app="shoppinglist", source_app_name=SOURCE_NAME,
+                    reason=f"↩ {row['name']}",
                     idempotency_key=f"shoppinglist:unbuy:{item_id}:{row['bought_at']}",
                 )
                 budget_ok = True
@@ -895,8 +953,22 @@ async def unbuy_item(
     with _db() as conn:
         d = _row_to_item(conn, row, profiles)
     d["budget_ok"] = budget_ok
-    await _notify_items(row["list_id"], x_sl_client)
-    return JSONResponse(d)
+    return JSONResponse(d), _notify_items(row["list_id"], client)
+
+
+@router.post("/items/{item_id}/unbuy")
+async def unbuy_item(
+    item_id: str,
+    x_pub_token: str = Header(default=None),
+    x_sl_client: str = Header(default=None),
+):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    resp, notify = _unbuy_item(me["id"], item_id, x_sl_client)
+    if notify is not None:
+        await notify
+    return resp
 
 
 # ── Warranty ─────────────────────────────────────────────────────
@@ -1079,20 +1151,27 @@ async def list_warranties(x_pub_token: str = Header(default=None)):
 
 # ── History (items detached from a deleted list) ────────────────
 
+def _list_history(user_id: str):
+    with _db() as conn:
+        rows = conn.execute(
+            "SELECT * FROM items WHERE list_id IS NULL AND added_by=? ORDER BY updated_at DESC",
+            (user_id,),
+        ).fetchall()
+        ids = {r["bought_by"] for r in rows if r["bought_by"]} | {user_id}
+        hub = _hub()
+        profiles = {p["id"]: p for p in hub.get_users_by_ids(list(ids))} if hub and ids else {}
+        return JSONResponse([_row_to_item(conn, r, profiles) for r in rows]), None
+
+
 @router.get("/history")
 async def list_history(x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
-    with _db() as conn:
-        rows = conn.execute(
-            "SELECT * FROM items WHERE list_id IS NULL AND added_by=? ORDER BY updated_at DESC",
-            (me["id"],),
-        ).fetchall()
-        ids = {r["bought_by"] for r in rows if r["bought_by"]} | {me["id"]}
-        hub = _hub()
-        profiles = {p["id"]: p for p in hub.get_users_by_ids(list(ids))} if hub and ids else {}
-        return JSONResponse([_row_to_item(conn, r, profiles) for r in rows])
+    resp, notify = _list_history(me["id"])
+    if notify is not None:
+        await notify
+    return resp
 
 
 # ── Members (sharing) ───────────────────────────────────────────
@@ -1231,17 +1310,22 @@ def _notify_share(hub, from_user: dict, to_id: str, list_id: str, list_title: st
     if not users or not users[0].get("username"):
         return
     sender = from_user.get("display_name", "?")
-    body = f'{sender} сподели списък за пазаруване "{list_title}" с теб.'
 
+    # The recipient reads this in their own language, whenever they get to
+    # it, so the bell gets a key (sl_notif_shared in public/i18n.js) and the
+    # English sentence only as its fallback.
     notif = sys.modules.get("backend.notifications")
     if notif:
-        notif.create_notification(
-            users[0]["username"], "🛒 Споделен списък", body, kind="persistent",
-            source="shoppinglist", action_app="shoppinglist", ref=list_id,
+        notif.notify(
+            "shoppinglist", to=users[0]["username"], ref=list_id,
+            title_key="sl_notif_shared", vars={"name": sender, "title": list_title},
+            title=f'{sender} shared the shopping list "{list_title}" with you',
         )
 
+    # Telegram gets one finished text and has no table to translate it with,
+    # so it says it without words, the way Chat does.
     tg = sys.modules.get("app_backend_telegramhub")
     if tg:
         base = tg.get_public_base_url() or ""
         url = f"{base.rstrip('/')}/pub/shoppinglist/"
-        tg.notify(to_id, "shoppinglist", f"🛒 {body}", web_app=url)
+        tg.notify(to_id, "shoppinglist", f"🛒 {html.escape(sender)} → {html.escape(list_title)}", web_app=url)

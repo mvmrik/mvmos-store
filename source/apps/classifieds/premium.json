@@ -1,5 +1,5 @@
 {
-  "summary": "Credit-powered VIP listings that give sellers configurable promoted placement in the public marketplace.",
+  "summary": "Credit-powered VIP listings with promoted placement in the public marketplace, plus photo verification of users before they can post in chosen categories.",
   "features": [
     {
       "title": "Configurable VIP packages",
@@ -20,6 +20,11 @@
       "title": "Stackable promotion time",
       "short": "Extend an existing VIP period without losing remaining days",
       "description": "Buying another VIP package before the current period expires adds its duration to the remaining promotion time instead of restarting it."
+    },
+    {
+      "title": "User verification",
+      "short": "Require a verification photo before users can post",
+      "description": "The administrator can create any number of verifications with their own instructions, triggered right after registration, after a number of days or after a number of listings, and optionally limited to chosen categories. Users keep browsing and managing their listings and are only stopped from posting new ones where a verification applies, until an administrator approves the photo they sent. Photos are deleted as soon as they are reviewed."
     }
   ]
 }

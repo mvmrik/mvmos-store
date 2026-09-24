@@ -27,7 +27,7 @@ function _loadScript(src) {
 function _loadBudgetWidget() {
   if (window.BudgetWidget) return Promise.resolve();
   // i18n.js first: the widget reads window.BUDGET_I18N as it defines itself.
-  return _loadScript('/apps/budget/i18n.js')
+  return _loadScript('/apps/budget/i18n.js?v=1.5.1')
     .then(() => _loadScript('/apps/budget/budget-widget.js'));
 }
 

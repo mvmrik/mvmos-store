@@ -5,6 +5,8 @@ import httpx
 import re
 import sys
 import time
+import json
+import sqlite3
 from fastapi import APIRouter, Depends, Request, UploadFile, File, Form
 from fastapi.responses import JSONResponse, Response
 from typing import Optional
@@ -62,6 +64,97 @@ async def _proxy_request(host, port, username, password, path, method, data):
         except httpx.ConnectError:
             raise
     raise ValueError("Session error after retry")
+
+
+# ── Traffic history ──────────────────────────────────────────────────────────
+# qBittorrent keeps only all-time totals, so the server samples them in the
+# background and the app turns consecutive readings into traffic per day.
+# One row per hour holds the latest reading of that hour; the browser groups
+# the hours into days in its own time zone.
+
+_DB_PATH = os.path.join(sys.modules["backend.db"].APPS_DIR, "qbit-dashboard", "data.db")
+_SAMPLE_EVERY = 300
+_KEEP_SECONDS = 400 * 86400
+
+_loop_task = None
+_bg_rid = 0
+_bg_state: dict = {}
+
+
+def _db():
+    c = sqlite3.connect(_DB_PATH)
+    c.execute("PRAGMA busy_timeout=5000")
+    c.execute("CREATE TABLE IF NOT EXISTS stats_hourly (hour INTEGER PRIMARY KEY, dl INTEGER, ul INTEGER)")
+    return c
+
+
+def _read_cfg() -> dict:
+    cfg = {}
+    with _db() as c:
+        try:
+            rows = c.execute("SELECT key, value FROM cfg WHERE key IN ('host','port','username','password')").fetchall()
+        except sqlite3.OperationalError:
+            rows = []
+    for k, v in rows:
+        try:
+            cfg[k] = json.loads(v)
+        except Exception:
+            cfg[k] = v
+    return cfg
+
+
+def _store_sample(dl: int, ul: int):
+    now = int(time.time())
+    with _db() as c:
+        c.execute("INSERT OR REPLACE INTO stats_hourly (hour, dl, ul) VALUES (?,?,?)", (now - now % 3600, dl, ul))
+        c.execute("DELETE FROM stats_hourly WHERE hour < ?", (now - _KEEP_SECONDS,))
+
+
+async def _sample():
+    global _bg_rid, _bg_state
+    if not os.path.isdir(os.path.dirname(_DB_PATH)):
+        return
+    cfg = await asyncio.to_thread(_read_cfg)
+    if not cfg:
+        return  # the app was never opened, so there is nothing to connect to yet
+    try:
+        r = await _proxy_request(cfg.get("host") or "localhost", int(cfg.get("port") or 8080),
+                                 cfg.get("username") or "", cfg.get("password") or "",
+                                 f"/api/v2/sync/maindata?rid={_bg_rid}", "GET", None)
+        d = r.json()
+    except Exception:
+        _bg_rid, _bg_state = 0, {}
+        return
+    if d.get("full_update"):
+        _bg_state = {}
+    _bg_state.update(d.get("server_state") or {})
+    _bg_rid = d.get("rid") or 0
+    dl, ul = _bg_state.get("alltime_dl"), _bg_state.get("alltime_ul")
+    if isinstance(dl, (int, float)) and isinstance(ul, (int, float)):
+        await asyncio.to_thread(_store_sample, int(dl), int(ul))
+
+
+async def _stats_loop():
+    while True:
+        try:
+            await _sample()
+        except Exception as e:
+            print(f"[qbit-dashboard] stats sample error: {e}")
+        await asyncio.sleep(_SAMPLE_EVERY)
+
+
+def _ensure_loop():
+    global _loop_task
+    if _loop_task is None or _loop_task.done():
+        try:
+            _loop_task = asyncio.get_running_loop().create_task(_stats_loop())
+        except RuntimeError:
+            pass
+
+
+async def on_startup():
+    await asyncio.sleep(0)
+    _ensure_loop()
 
 
 @router.get("/discover")

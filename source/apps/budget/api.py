@@ -21,6 +21,7 @@ someone else. No pending-invite step: sharing is immediate, like Favourites,
 but the recipient gets a notification the moment they're added.
 """
 
+import html
 import json
 import os
 import sqlite3
@@ -367,10 +368,15 @@ async def list_sources(x_pub_token: str = Header(default=None)):
         if not leaf_cats:
             return JSONResponse([])
         placeholders = ",".join("?" for _ in leaf_cats)
+        # One row per app, under the name its latest entry carries: an app
+        # may rename itself between versions, and its older entries must not
+        # show up as a second, separate source.
         rows = conn.execute(
-            f"SELECT DISTINCT source_app, source_app_name FROM transactions "
+            f"SELECT source_app, (SELECT source_app_name FROM transactions "
+            f"WHERE source_app=t.source_app ORDER BY created_at DESC, rowid DESC LIMIT 1) "
+            f"AS source_app_name FROM transactions t "
             f"WHERE category_id IN ({placeholders}) AND source_app IS NOT NULL "
-            f"ORDER BY source_app_name",
+            f"GROUP BY source_app ORDER BY source_app_name",
             tuple(leaf_cats.keys()),
         ).fetchall()
         visible = set(_visible_source_apps(conn, me["id"]))
@@ -1133,17 +1139,22 @@ def _notify_share(hub, from_user: dict, to_id: str, category_id: str, category_t
     if not users or not users[0].get("username"):
         return
     sender = from_user.get("display_name", "?")
-    body = f'{sender} сподели бюджетна категория "{category_title}" с теб.'
 
+    # The recipient reads this in their own language, whenever they get to
+    # it, so the bell gets a key (budget_notif_shared in public/i18n.js) and
+    # the English sentence only as its fallback.
     notif = sys.modules.get("backend.notifications")
     if notif:
-        notif.create_notification(
-            users[0]["username"], "💰 Споделена категория", body, kind="persistent",
-            source="budget", action_app="budget", ref=category_id,
+        notif.notify(
+            "budget", to=users[0]["username"], ref=category_id,
+            title_key="budget_notif_shared", vars={"name": sender, "title": category_title},
+            title=f'{sender} shared the budget category "{category_title}" with you',
         )
 
+    # Telegram gets one finished text and has no table to translate it with,
+    # so it says it without words, the way Chat does.
     tg = sys.modules.get("app_backend_telegramhub")
     if tg:
         base = tg.get_public_base_url() or ""
         url = f"{base.rstrip('/')}/pub/budget/telegram?category={category_id}"
-        tg.notify(to_id, "budget", f"💰 {body}", web_app=url)
+        tg.notify(to_id, "budget", f"💰 {html.escape(sender)} → {html.escape(category_title)}", web_app=url)

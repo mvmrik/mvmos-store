@@ -4,12 +4,13 @@
   "icon": "🎯",
   "category": "Games",
   "tags": ["darts", "scorekeeper", "board games", "custom games", "games"],
-  "version": "1.2.0",
+  "version": "1.2.1",
   "min_core_version": "1.0.0",
   "description": "A shared scorekeeper for darts and board games, with eight darts modes, ready-made scoring for popular board games, custom games you design yourself, detailed personal statistics and a history-matched Ghost for solo practice.",
   "entry": "main.js",
   "multiplayer": true,
   "max_players": 8,
   "themed": true,
-  "public_directory": false
+  "public_directory": false,
+  "public_api_only": true
 }

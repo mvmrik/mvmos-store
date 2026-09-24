@@ -57,7 +57,7 @@ def add_to_category(user_id: str, category_id: str, amount: float,
     replaying it returns the original result instead of inserting twice.
 
     source_app/source_app_name identify the calling app (e.g. "tasks" /
-    "Задачи") so Budget can label the entry and let the user show/hide it —
+    "Tasks") so Budget can label the entry and let the user show/hide it —
     Budget stores and echoes these back verbatim but has no logic keyed on
     any specific value; the caller is responsible for a stable id and a
     human-readable name."""

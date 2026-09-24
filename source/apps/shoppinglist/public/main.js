@@ -16,7 +16,7 @@ function _loadScript(src) {
 }
 function _loadShoppingListAssets() {
   const p = [];
-  if (!window.SHOPPINGLIST_I18N) p.push(_loadScript('/apps/shoppinglist/i18n.js'));
+  if (!window.SHOPPINGLIST_I18N) p.push(_loadScript('/apps/shoppinglist/i18n.js?v=1.0.5'));
   if (!window.ShoppingListWidget) p.push(_loadScript('/apps/shoppinglist/shoppinglist-widget.js'));
   return Promise.all(p);
 }

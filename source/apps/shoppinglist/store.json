@@ -19,6 +19,14 @@
       "direction": "consumes",
       "summary": "Give an item a Budget category and marking it bought withdraws its cost from that category. Un-marking it reverts the withdrawal. If Budget is unavailable the item is still marked bought and you are told the deduction did not go through.",
       "requires": "Budget installed, and its App API enabled in Apps Hub → Settings → App APIs. The switch is off by default."
+    },
+    {
+      "app": "",
+      "name": "Any app",
+      "kind": "app_api",
+      "direction": "provides",
+      "summary": "Shopping List exposes an app-to-app API: other apps can read, add, rename and delete your lists and items, mark items bought or not bought with the same Budget deduction as in the app, and read your purchase history.",
+      "requires": "The Shopping List App API has to be switched on in Apps Hub → Settings → App APIs. It is off by default."
     }
   ]
 }

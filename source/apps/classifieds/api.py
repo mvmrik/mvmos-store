@@ -1,6 +1,7 @@
 """Classifieds: shared marketplace with Apps Hub ownership and desktop administration."""
 import os
 import sys
+import json
 import time
 import uuid
 import sqlite3
@@ -68,6 +69,10 @@ with db() as c:
         user_id TEXT NOT NULL, created_at REAL NOT NULL, PRIMARY KEY(listing_id,user_id));
     CREATE INDEX IF NOT EXISTS watches_user ON watches(user_id,created_at DESC);
     CREATE INDEX IF NOT EXISTS watches_listing ON watches(listing_id);
+    -- A ban only concerns Classifieds: the Apps Hub profile is untouched and
+    -- the person can still browse and message, just never publish again.
+    CREATE TABLE IF NOT EXISTS banned_users(
+        user_id TEXT PRIMARY KEY, reason TEXT NOT NULL DEFAULT '', banned_by TEXT NOT NULL DEFAULT '', banned_at REAL NOT NULL);
     ''')
     if 'vip_until' not in {r['name'] for r in c.execute("PRAGMA table_info(listings)")}:
         c.execute('ALTER TABLE listings ADD COLUMN vip_until REAL NOT NULL DEFAULT 0')
@@ -120,6 +125,18 @@ def own(c, lid, me):
         raise HTTPException(404, 'not_found')
     return row
 
+def not_banned(me):
+    """Everything that publishes goes through here: a banned profile gets a
+    clear refusal instead of a listing."""
+    with db() as c:
+        if c.execute('SELECT 1 FROM banned_users WHERE user_id=?', (me['id'],)).fetchone():
+            raise HTTPException(403, 'banned')
+
+def remove_files(names):
+    for name in names:
+        try: os.unlink(os.path.join(UPLOADS, name))
+        except FileNotFoundError: pass
+
 def settings(c):
     result = dict(c.execute('SELECT validity_days,currency FROM settings WHERE id=1').fetchone())
     platform = sys.modules.get('backend.platform_api')
@@ -165,14 +182,17 @@ async def config():
     # packages to offer or it doesn't; there is nothing to upsell to a visitor
     # whose account has nothing to do with this installation's own licence.
     prem = _premium()
-    result['vip_packages'] = prem.list_packages(active_only=True) if prem and prem.is_available() else []
+    available = bool(prem and prem.is_available())
+    result['vip_packages'] = prem.list_packages(active_only=True) if available else []
+    # Tells the editor whether choosing a category is worth a verification
+    # check at all; which requirement applies is asked per person and category.
+    result['verification'] = available and any(r['active'] for r in prem.list_requirements())
     return result
 
-@router.get('/listings')
-async def listing_list(mine: bool = False, watched: bool = False, q: str = Query('', max_length=160), category: int = 0,
-                       free: bool = False, min_price: int = Query(0, ge=0), max_price: int | None = Query(None, ge=0),
-                       status: str = 'all', currency: str = '', offset: int = Query(0, ge=0), x_pub_token: str | None = Header(None)):
-    me = user(x_pub_token) if (mine or watched) else hub().get_pub_session(x_pub_token)
+# The route bodies below live in plain _functions taking the resolved Apps
+# Hub profile, so app_api.py runs the exact same rules for another app.
+def _listing_list(me, mine=False, watched=False, q='', category=0, free=False, min_price=0,
+                  max_price=None, status='all', currency='', offset=0):
     clauses, params = [], []
     now = time.time()
     if mine:
@@ -203,6 +223,13 @@ async def listing_list(mine: bool = False, watched: bool = False, q: str = Query
         # overall feed and within a category, ahead of the normal recency order.
         rows = c.execute('SELECT * FROM listings WHERE ' + where + ' ORDER BY (vip_until>?) DESC,sort_at DESC,id DESC LIMIT 24 OFFSET ?', [*params, now, offset]).fetchall()
         return {'items': [output(c, r, me) for r in rows], 'total': total}
+
+@router.get('/listings')
+async def listing_list(mine: bool = False, watched: bool = False, q: str = Query('', max_length=160), category: int = 0,
+                       free: bool = False, min_price: int = Query(0, ge=0), max_price: int | None = Query(None, ge=0),
+                       status: str = 'all', currency: str = '', offset: int = Query(0, ge=0), x_pub_token: str | None = Header(None)):
+    me = user(x_pub_token) if (mine or watched) else hub().get_pub_session(x_pub_token)
+    return _listing_list(me, mine, watched, q, category, free, min_price, max_price, status, currency, offset)
 
 @router.get('/listings/{lid}')
 async def detail(lid: str, request: Request, x_pub_token: str | None = Header(None)):
@@ -241,30 +268,47 @@ def check_category(c, cid):
     if not c.execute('SELECT 1 FROM categories WHERE id=?', (cid,)).fetchone():
         raise HTTPException(400, 'category_required')
 
-@router.post('/listings', status_code=201)
-async def create(body: ListingBody, x_pub_token: str | None = Header(None)):
-    me = user(x_pub_token)
+def verification_check(me, category_id, exclude=None):
+    """Premium verification only ever stops a new listing — or an existing
+    one moved — into a category the person still has to verify for; the
+    rest of Classifieds stays open to them. Without the premium module there
+    is nothing to check."""
+    prem = _premium()
+    if prem and prem.is_available() and prem.blocking(me, category_id, exclude):
+        raise HTTPException(403, 'verification_required')
+
+def _create(me, body):
+    not_banned(me)
     now, lid = time.time(), uuid.uuid4().hex
     with db() as c:
         check_category(c, body.category_id)
+    verification_check(me, body.category_id)
+    with db() as c:
         cfg = settings(c)
         c.execute('INSERT INTO listings(id,owner_id,title,description,category_id,price_cents,currency,location,contact,active,created_at,updated_at,sort_at,expires_at,last_bump_at) VALUES(?,?,?,?,?,?,?,?,?,1,?,?,?,?,?)',
                   (lid, me['id'], body.title, body.description, body.category_id, body.price_cents, checked_currency(body.currency,c), body.location, body.contact,
                    now, now, now, now + cfg['validity_days'] * DAY, now))
     return {'id': lid}
 
-@router.put('/listings/{lid}')
-async def edit(lid: str, body: ListingBody, x_pub_token: str | None = Header(None)):
-    me = user(x_pub_token)
+@router.post('/listings', status_code=201)
+async def create(body: ListingBody, x_pub_token: str | None = Header(None)):
+    return _create(user(x_pub_token), body)
+
+def _edit(me, lid, body):
+    not_banned(me)
     with db() as c:
         row = own(c, lid, me); check_category(c, body.category_id)
+        if row['category_id'] != body.category_id: verification_check(me, body.category_id, lid)
         c.execute('UPDATE listings SET title=?,description=?,category_id=?,price_cents=?,currency=?,location=?,contact=?,updated_at=? WHERE id=?',
                   (body.title,body.description,body.category_id,body.price_cents,checked_currency(body.currency or row['currency'],c),body.location,body.contact,time.time(),lid))
     return {'ok': True}
 
-@router.post('/listings/{lid}/actions/{action}')
-async def action(lid: str, action: str, x_pub_token: str | None = Header(None)):
-    me = user(x_pub_token)
+@router.put('/listings/{lid}')
+async def edit(lid: str, body: ListingBody, x_pub_token: str | None = Header(None)):
+    return _edit(user(x_pub_token), lid, body)
+
+def _action(me, lid, action):
+    if action != 'deactivate': not_banned(me)
     with db() as c:
         c.execute('BEGIN IMMEDIATE')
         row = own(c,lid,me)
@@ -280,6 +324,10 @@ async def action(lid: str, action: str, x_pub_token: str | None = Header(None)):
             c.execute('UPDATE listings SET active=0,updated_at=? WHERE id=?', (now,lid))
         else: raise HTTPException(404,'not_found')
     return {'ok':True}
+
+@router.post('/listings/{lid}/actions/{action}')
+async def action(lid: str, action: str, x_pub_token: str | None = Header(None)):
+    return _action(user(x_pub_token), lid, action)
 
 @router.post('/listings/{lid}/watch', status_code=201)
 async def watch(lid: str, x_pub_token: str | None = Header(None)):
@@ -324,6 +372,7 @@ class VipBody(BaseModel):
 @router.post('/listings/{lid}/vip')
 async def purchase_vip(lid: str, body: VipBody, x_pub_token: str | None = Header(None)):
     me = user(x_pub_token)
+    not_banned(me)
     prem = _premium()
     if not prem or not prem.is_available():
         raise HTTPException(402, 'premium_required')
@@ -337,17 +386,17 @@ async def purchase_vip(lid: str, body: VipBody, x_pub_token: str | None = Header
         raise HTTPException(402, 'insufficient_credits')
     return {'vip_until': vip_until}
 
-@router.delete('/listings/{lid}')
-async def delete(lid: str, x_pub_token: str | None = Header(None)):
-    me = user(x_pub_token)
+def _delete(me, lid):
     with db() as c:
         own(c,lid,me)
         files = [p[0] for p in c.execute('SELECT filename FROM photos WHERE listing_id=?',(lid,))]
         c.execute('DELETE FROM listings WHERE id=?',(lid,))
-    for name in files:
-        try: os.unlink(os.path.join(UPLOADS,name))
-        except FileNotFoundError: pass
+    remove_files(files)
     return {'ok':True}
+
+@router.delete('/listings/{lid}')
+async def delete(lid: str, x_pub_token: str | None = Header(None)):
+    return _delete(user(x_pub_token), lid)
 
 def image_ext(data):
     if data.startswith(b'\xff\xd8\xff'): return 'jpg'
@@ -358,6 +407,7 @@ def image_ext(data):
 @router.post('/listings/{lid}/photos', status_code=201)
 async def upload(lid: str, file: UploadFile = File(...), x_pub_token: str | None = Header(None)):
     me = user(x_pub_token)
+    not_banned(me)
     with db() as c: own(c,lid,me)
     data = await file.read(MAX_BYTES + 1)
     await file.close()
@@ -398,6 +448,41 @@ async def remove_photo(lid: str, pid: str, x_pub_token: str | None = Header(None
     try: os.unlink(os.path.join(UPLOADS,p['filename']))
     except FileNotFoundError: pass
     return {'ok':True}
+
+@router.get('/account')
+async def account(x_pub_token: str | None = Header(None)):
+    """Lets the page tell a banned person up front, rather than only when a
+    save is refused."""
+    me = user(x_pub_token)
+    with db() as c:
+        row = c.execute('SELECT reason,banned_at FROM banned_users WHERE user_id=?', (me['id'],)).fetchone()
+    return {'banned': bool(row), 'ban_reason': row['reason'] if row else '', 'banned_at': row['banned_at'] if row else None}
+
+# Verification photos: the public page only learns which requirements block
+# the signed-in person in a category and sends a photo for one. Without the
+# premium module both answer as if the feature did not exist.
+@router.get('/verification')
+async def verification_status(category_id: int, x_pub_token: str | None = Header(None)):
+    me = user(x_pub_token)
+    prem = _premium()
+    return {'items': prem.blocking(me, category_id) if prem and prem.is_available() else []}
+
+@router.post('/verification/{rid}', status_code=201)
+async def verification_submit(rid: str, file: UploadFile = File(...), x_pub_token: str | None = Header(None)):
+    me = user(x_pub_token)
+    not_banned(me)
+    prem = _premium()
+    if not prem or not prem.is_available(): raise HTTPException(404, 'not_found')
+    data = await file.read(MAX_BYTES + 1)
+    await file.close()
+    if len(data) > MAX_BYTES: raise HTTPException(413, 'image_size')
+    ext = image_ext(data)
+    try:
+        return prem.submit(me, rid, data, ext)
+    except KeyError:
+        raise HTTPException(404, 'not_found')
+    except ValueError as e:
+        raise HTTPException(409, str(e))
 
 class SettingsBody(BaseModel):
     validity_days: int = Field(ge=1,le=3650)
@@ -458,6 +543,264 @@ async def vip_package_delete(pid: str):
     prem.delete_package(pid)
     return {'ok': True}
 
+# Verification requirements follow the VIP packages above: always visible in
+# desktop Settings, every change refused without an active Premium.
+def desktop_session(request: Request):
+    return sys.modules['backend.auth'].get_current_session(request)
+
+def _verification_premium():
+    prem = _premium()
+    if not prem or not prem.is_available(): raise HTTPException(402, 'premium_required')
+    return prem
+
+@desktop_router.get('/verifications')
+async def verifications_list():
+    prem = _premium()
+    available = bool(prem and prem.is_available())
+    return {'premium': available, 'items': prem.list_requirements() if prem else [],
+            'pending': prem.list_submissions() if available else []}
+
+class VerificationBody(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
+    instructions: str = Field(min_length=1, max_length=2000)
+    trigger: str = Field(pattern=r'^(immediate|after_days|after_listings)$')
+    trigger_value: int = Field(0, ge=0, le=100000)
+    categories: list[int] = Field(default_factory=list, max_length=500)
+    active: bool = True
+
+def _verification_save(body, session, rid=None):
+    prem = _verification_premium()
+    try:
+        return prem.save_requirement(body.name, body.instructions, body.trigger, body.trigger_value,
+                                     body.categories, body.active, rid, session.get('effective_user'))
+    except KeyError:
+        raise HTTPException(404, 'not_found')
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+
+@desktop_router.post('/verifications', status_code=201)
+async def verification_create(body: VerificationBody, session=Depends(desktop_session)):
+    return _verification_save(body, session)
+
+@desktop_router.put('/verifications/{rid}')
+async def verification_edit(rid: str, body: VerificationBody, session=Depends(desktop_session)):
+    return _verification_save(body, session, rid)
+
+@desktop_router.delete('/verifications/{rid}')
+async def verification_delete(rid: str):
+    _verification_premium().delete_requirement(rid)
+    return {'ok': True}
+
+@desktop_router.get('/verifications/{rid}/verified')
+async def verification_verified(rid: str):
+    return {'items': _verification_premium().list_verified(rid)}
+
+@desktop_router.delete('/verifications/{rid}/verified/{uid}')
+async def verification_revoke(rid: str, uid: str):
+    _verification_premium().revoke(rid, uid)
+    return {'ok': True}
+
+@desktop_router.get('/verification-submissions/{sid}/photo')
+async def verification_photo(sid: str):
+    try:
+        path = _verification_premium().submission_file(sid)
+    except KeyError:
+        raise HTTPException(404, 'not_found')
+    return FileResponse(path, headers={'Cache-Control': 'private, no-store', 'X-Content-Type-Options': 'nosniff'})
+
+@desktop_router.post('/verification-submissions/{sid}/{decision}')
+async def verification_review(sid: str, decision: str):
+    if decision not in ('approve', 'reject'): raise HTTPException(404, 'not_found')
+    try:
+        _verification_premium().review(sid, decision == 'approve')
+    except KeyError:
+        raise HTTPException(404, 'not_found')
+    return {'ok': True}
+
+# Moderation: the desktop sees and manages every listing and can ban a
+# profile from Classifieds. A ban never touches the Apps Hub account itself —
+# it deletes the person's listings and stops them from publishing here, while
+# browsing and messages stay open to them. Private messages stay private: the
+# desktop still gets no inbox access.
+ADMIN_PAGE = 50
+
+def admin_photo_url(pid):
+    return f'/api/apps/classifieds/admin/photos/{pid}'
+
+def admin_rows(c, rows):
+    now = time.time()
+    profiles = {p['id']: p for p in hub().get_users_by_ids([r['owner_id'] for r in rows])}
+    banned = {r[0] for r in c.execute('SELECT user_id FROM banned_users')} if rows else set()
+    result = []
+    for row in rows:
+        d = dict(row)
+        d['status'] = 'inactive' if not d['active'] else ('expired' if d['expires_at'] <= now else 'active')
+        d['vip'] = d['vip_until'] > now
+        p = profiles.get(d['owner_id']) or {}
+        d['owner_name'] = p.get('display_name') or p.get('username') or ''
+        d['owner_username'] = p.get('username') or ''
+        d['owner_banned'] = d['owner_id'] in banned
+        d['views'] = c.execute('SELECT COUNT(*) FROM listing_views WHERE listing_id=?', (d['id'],)).fetchone()[0]
+        d['watchers_count'] = c.execute('SELECT COUNT(*) FROM watches WHERE listing_id=?', (d['id'],)).fetchone()[0]
+        d['photos'] = [{'id': p['id'], 'url': admin_photo_url(p['id'])} for p in c.execute('SELECT id FROM photos WHERE listing_id=? ORDER BY created_at,id', (d['id'],))]
+        result.append(d)
+    return result
+
+@desktop_router.get('/admin/listings')
+async def admin_listings(q: str = Query('', max_length=160), category: int = 0, status: str = 'all',
+                         owner: str = Query('', max_length=64), offset: int = Query(0, ge=0)):
+    clauses, params, now = ['1=1'], [], time.time()
+    if status == 'active': clauses.append('active=1 AND expires_at>?'); params.append(now)
+    elif status == 'expired': clauses.append('active=1 AND expires_at<=?'); params.append(now)
+    elif status == 'inactive': clauses.append('active=0')
+    elif status == 'vip': clauses.append('vip_until>?'); params.append(now)
+    if q.strip():
+        clauses.append('(instr(casefold(title),casefold(?))>0 OR instr(casefold(description),casefold(?))>0 OR id=?)'); params.extend([q.strip(), q.strip(), q.strip()])
+    if category:
+        clauses.append('(category_id=? OR category_id IN (SELECT id FROM categories WHERE parent_id=?))'); params.extend([category, category])
+    if owner: clauses.append('owner_id=?'); params.append(owner)
+    where = ' AND '.join(clauses)
+    with db() as c:
+        total = c.execute('SELECT COUNT(*) FROM listings WHERE ' + where, params).fetchone()[0]
+        rows = c.execute('SELECT * FROM listings WHERE ' + where + ' ORDER BY created_at DESC,id DESC LIMIT ? OFFSET ?', [*params, ADMIN_PAGE, offset]).fetchall()
+        return {'items': admin_rows(c, rows), 'total': total, 'page': ADMIN_PAGE}
+
+@desktop_router.get('/admin/listings/{lid}')
+async def admin_listing(lid: str):
+    with db() as c:
+        row = c.execute('SELECT * FROM listings WHERE id=?', (lid,)).fetchone()
+        if not row: raise HTTPException(404, 'not_found')
+        return admin_rows(c, [row])[0]
+
+@desktop_router.put('/admin/listings/{lid}')
+async def admin_edit(lid: str, body: ListingBody):
+    # The administrator's edit skips the owner's verification: moving a
+    # listing to the right category is exactly what moderation is for.
+    with db() as c:
+        row = c.execute('SELECT * FROM listings WHERE id=?', (lid,)).fetchone()
+        if not row: raise HTTPException(404, 'not_found')
+        check_category(c, body.category_id)
+        new = (body.title,body.description,body.category_id,body.price_cents,checked_currency(body.currency or row['currency'],c),body.location,body.contact)
+        c.execute('UPDATE listings SET title=?,description=?,category_id=?,price_cents=?,currency=?,location=?,contact=?,updated_at=? WHERE id=?', (*new,time.time(),lid))
+        if new != tuple(row[k] for k in ('title','description','category_id','price_cents','currency','location','contact')):
+            system_message(c, row['owner_id'], 'edited', title=row['title'])
+    return {'ok': True}
+
+class BulkBody(BaseModel):
+    ids: list[str] = Field(min_length=1, max_length=500)
+    action: str = Field(pattern=r'^(delete|activate|deactivate|move|end_vip)$')
+    category_id: int | None = None
+
+def delete_listings(c, ids):
+    """Deletes the rows inside the caller's transaction and returns the photo
+    files to unlink once it has committed."""
+    if not ids: return []
+    marks = ','.join('?' * len(ids))
+    files = [p[0] for p in c.execute(f'SELECT filename FROM photos WHERE listing_id IN ({marks})', ids)]
+    c.execute(f'DELETE FROM listings WHERE id IN ({marks})', ids)
+    return files
+
+@desktop_router.post('/admin/listings/bulk')
+async def admin_bulk(body: BulkBody):
+    ids, now, files = list(dict.fromkeys(body.ids)), time.time(), []
+    marks = ','.join('?' * len(ids))
+    with db() as c:
+        c.execute('BEGIN IMMEDIATE')
+        rows = c.execute(f'SELECT * FROM listings WHERE id IN ({marks})', ids).fetchall()
+        # Only the listings the action really changes get a message.
+        told = {'delete': lambda r: True,
+                'move': lambda r: r['category_id'] != body.category_id,
+                'deactivate': lambda r: r['active'],
+                'activate': lambda r: not (r['active'] and r['expires_at'] > now),
+                'end_vip': lambda r: r['vip_until'] > now}[body.action]
+        if body.action == 'delete':
+            files = delete_listings(c, ids)
+        elif body.action == 'move':
+            if not body.category_id: raise HTTPException(400, 'category_required')
+            check_category(c, body.category_id)
+            c.execute(f'UPDATE listings SET category_id=?,updated_at=? WHERE id IN ({marks})', [body.category_id, now, *ids])
+        elif body.action == 'deactivate':
+            c.execute(f'UPDATE listings SET active=0,updated_at=? WHERE id IN ({marks})', [now, *ids])
+        elif body.action == 'end_vip':
+            c.execute(f'UPDATE listings SET vip_until=0,updated_at=? WHERE id IN ({marks})', [now, *ids])
+        else:
+            # Same rule as the owner's own activate: an expired listing gets a
+            # fresh validity period, one that is still running keeps its date.
+            expiry = now + settings(c)['validity_days'] * DAY
+            c.execute(f'UPDATE listings SET active=1,expires_at=CASE WHEN expires_at>? THEN expires_at ELSE ? END,updated_at=? WHERE id IN ({marks})', [now, expiry, now, *ids])
+        extra = {'category': category_path(c, body.category_id)} if body.action == 'move' else {}
+        for r in rows:
+            if told(r): system_message(c, r['owner_id'], body.action, title=r['title'], **extra)
+    remove_files(files)
+    return {'ok': True}
+
+@desktop_router.delete('/admin/listings/{lid}/photos/{pid}')
+async def admin_remove_photo(lid: str, pid: str):
+    with db() as c:
+        p = c.execute('SELECT p.filename,l.owner_id,l.title FROM photos p JOIN listings l ON l.id=p.listing_id WHERE p.id=? AND p.listing_id=?', (pid, lid)).fetchone()
+        if not p: raise HTTPException(404, 'not_found')
+        c.execute('DELETE FROM photos WHERE id=?', (pid,))
+        system_message(c, p['owner_id'], 'photo_removed', title=p['title'])
+    remove_files([p['filename']])
+    return {'ok': True}
+
+@desktop_router.get('/admin/photos/{pid}')
+async def admin_photo(pid: str):
+    with db() as c:
+        p = c.execute('SELECT filename FROM photos WHERE id=?', (pid,)).fetchone()
+    if not p: raise HTTPException(404, 'not_found')
+    return FileResponse(os.path.join(UPLOADS, p['filename']), headers={'Cache-Control': 'private, no-store', 'X-Content-Type-Options': 'nosniff'})
+
+@desktop_router.get('/admin/users')
+async def admin_users(q: str = Query('', max_length=80), filter: str = 'all', offset: int = Query(0, ge=0)):
+    """Everyone Classifieds knows: sellers, people in conversations and
+    banned profiles, with their listing counts."""
+    now = time.time()
+    with db() as c:
+        counts = {r['owner_id']: (r['total'], r['active']) for r in c.execute(
+            'SELECT owner_id,COUNT(*) total,SUM(active=1 AND expires_at>?) active FROM listings GROUP BY owner_id', (now,))}
+        bans = {r['user_id']: dict(r) for r in c.execute('SELECT * FROM banned_users')}
+        ids = set(counts) | set(bans)
+        for r in c.execute('SELECT buyer_id,seller_id FROM conversations'): ids.update((r['buyer_id'], r['seller_id']))
+        ids.discard(SYSTEM)
+    if filter == 'banned': ids &= set(bans)
+    profiles = {p['id']: p for p in hub().get_users_by_ids(list(ids))}
+    items = []
+    for uid in ids:
+        p = profiles.get(uid) or {}
+        name, username = p.get('display_name') or p.get('username') or '', p.get('username') or ''
+        if q.strip() and q.strip().casefold() not in (name + ' ' + username).casefold(): continue
+        ban = bans.get(uid)
+        items.append({'id': uid, 'name': name, 'username': username,
+                      'listings': counts.get(uid, (0, 0))[0], 'active_listings': counts.get(uid, (0, 0))[1] or 0,
+                      'banned': bool(ban), 'ban_reason': ban['reason'] if ban else '',
+                      'banned_at': ban['banned_at'] if ban else None, 'banned_by': ban['banned_by'] if ban else ''})
+    items.sort(key=lambda u: (not u['banned'], (u['name'] or u['username']).casefold()))
+    return {'items': items[offset:offset + ADMIN_PAGE], 'total': len(items), 'page': ADMIN_PAGE}
+
+class BanBody(BaseModel):
+    reason: str = Field('', max_length=500)
+
+@desktop_router.post('/admin/users/{uid}/ban')
+async def admin_ban(uid: str, body: BanBody, session=Depends(desktop_session)):
+    if not hub().get_users_by_ids([uid]): raise HTTPException(404, 'not_found')
+    with db() as c:
+        c.execute('BEGIN IMMEDIATE')
+        ids = [r[0] for r in c.execute('SELECT id FROM listings WHERE owner_id=?', (uid,))]
+        files = delete_listings(c, ids)
+        c.execute('INSERT OR REPLACE INTO banned_users(user_id,reason,banned_by,banned_at) VALUES(?,?,?,?)',
+                  (uid, body.reason.strip(), session.get('effective_user') or '', time.time()))
+        system_message(c, uid, 'banned', reason=body.reason.strip())
+    remove_files(files)
+    return {'ok': True, 'deleted': len(ids)}
+
+@desktop_router.delete('/admin/users/{uid}/ban')
+async def admin_unban(uid: str):
+    with db() as c:
+        if c.execute('DELETE FROM banned_users WHERE user_id=?', (uid,)).rowcount:
+            system_message(c, uid, 'unbanned')
+    return {'ok': True}
+
 class CategoryBody(BaseModel):
     name: str = Field(min_length=1,max_length=80)
     parent_id: int | None = None
@@ -511,6 +854,52 @@ with db() as c:
     CREATE INDEX IF NOT EXISTS messages_sender ON messages(sender_id,created_at);
     CREATE INDEX IF NOT EXISTS messages_conversation ON messages(conversation_id,id);
     ''')
+    if 'system' not in {r['name'] for r in c.execute("PRAGMA table_info(messages)")}:
+        c.execute('ALTER TABLE messages ADD COLUMN system TEXT')
+
+# What moderation did to someone reaches them as a message in their own
+# Classifieds inbox: one conversation per person whose other side is SYSTEM,
+# which nobody can answer. The message keeps its translation key and
+# variables (messages.system) so every reader sees it in their own language;
+# body is only the English fallback and the inbox preview.
+SYSTEM = 'system'
+SYSTEM_TEXT = {
+    'banned': 'An administrator has blocked you from publishing in Classifieds. Your listings were removed and you cannot post new ones. You can still browse and send messages.',
+    'unbanned': 'An administrator has lifted your block. You can publish listings in Classifieds again.',
+    'edited': 'An administrator edited your listing "{title}".',
+    'delete': 'An administrator removed your listing "{title}".',
+    'move': 'An administrator moved your listing "{title}" to the category {category}.',
+    'deactivate': 'An administrator hid your listing "{title}" from the public list.',
+    'activate': 'An administrator made your listing "{title}" visible again.',
+    'end_vip': 'An administrator ended the VIP promotion of your listing "{title}".',
+    'photo_removed': 'An administrator removed a photo from your listing "{title}".',
+}
+
+def category_path(c, cid):
+    row = c.execute('SELECT c.name,p.name AS parent FROM categories c LEFT JOIN categories p ON p.id=c.parent_id WHERE c.id=?', (cid,)).fetchone()
+    return (row['parent'] + ' / ' if row and row['parent'] else '') + (row['name'] if row else '')
+
+def system_message(c, uid, key, **vars):
+    """Posts inside the caller's transaction, so the message exists exactly
+    when the change it describes does."""
+    vars = {k: v for k, v in vars.items() if v not in (None, '')}
+    now = time.time()
+    row = c.execute('SELECT id FROM conversations WHERE buyer_id=? AND seller_id=?', (SYSTEM, uid)).fetchone()
+    if row:
+        cid = row['id']
+    else:
+        cid = uuid.uuid4().hex
+        c.execute('INSERT INTO conversations(id,listing_id,listing_title,buyer_id,seller_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?)',
+                  (cid, None, '', SYSTEM, uid, now, now))
+    body = SYSTEM_TEXT[key].format_map({'title': '', 'category': '', **vars})
+    if vars.get('reason'): body += '\nReason: ' + vars['reason']
+    c.execute('INSERT INTO messages(conversation_id,sender_id,body,created_at,client_id,system) VALUES(?,?,?,?,?,?)',
+              (cid, SYSTEM, body, now, uuid.uuid4().hex, json.dumps({'key': key, 'vars': vars}, ensure_ascii=False)))
+    c.execute('UPDATE conversations SET updated_at=? WHERE id=?', (now, cid))
+
+def system_part(raw):
+    try: return json.loads(raw) if raw else None
+    except ValueError: return None
 
 def participant(c, cid, me):
     row = c.execute('SELECT * FROM conversations WHERE id=? AND (buyer_id=? OR seller_id=?)',(cid,me['id'],me['id'])).fetchone()
@@ -547,8 +936,9 @@ async def conversations(offset: int = Query(0,ge=0), x_pub_token: str | None = H
             peer=row['seller_id'] if row['buyer_id']==me['id'] else row['buyer_id']
             read_at=row['buyer_read_at'] if row['buyer_id']==me['id'] else row['seller_read_at']
             unread=c.execute('SELECT COUNT(*) FROM messages WHERE conversation_id=? AND sender_id!=? AND created_at>?',(row['id'],me['id'],read_at)).fetchone()[0]
-            last=c.execute('SELECT body FROM messages WHERE conversation_id=? ORDER BY id DESC LIMIT 1',(row['id'],)).fetchone()
-            result.append({'id':row['id'],'listing_id':row['listing_id'],'listing_title':row['listing_title'],'peer':profiles.get(peer,''),'unread':unread,'preview':last['body'][:100] if last else '', 'updated_at':row['updated_at']})
+            last=c.execute('SELECT body,system FROM messages WHERE conversation_id=? ORDER BY id DESC LIMIT 1',(row['id'],)).fetchone()
+            result.append({'id':row['id'],'listing_id':row['listing_id'],'listing_title':row['listing_title'],'peer':profiles.get(peer,''),'unread':unread,'preview':last['body'][:100] if last else '', 'updated_at':row['updated_at'],
+                           'system':row['buyer_id']==SYSTEM,'preview_system':system_part(last['system']) if last else None})
     return {'items':result,'unread':unread_total,'total':total}
 
 @router.get('/conversations/{cid}/messages')
@@ -562,8 +952,8 @@ async def messages(cid: str, before: int = Query(0,ge=0), after: int = Query(0,g
             rows=c.execute('SELECT * FROM messages WHERE conversation_id=? AND (?=0 OR id<?) ORDER BY id DESC LIMIT 51',(cid,before,before)).fetchall()
         more=len(rows)>50
         rows=rows[:50] if after else list(reversed(rows[:50]))
-        return {'items':[{'id':r['id'],'body':r['body'],'mine':r['sender_id']==me['id'],'created_at':r['created_at']} for r in rows],
-                'more':more,'listing_title':conversation['listing_title'],'listing_id':conversation['listing_id']}
+        return {'items':[{'id':r['id'],'body':r['body'],'mine':r['sender_id']==me['id'],'created_at':r['created_at'],'system':system_part(r['system'])} for r in rows],
+                'more':more,'listing_title':conversation['listing_title'],'listing_id':conversation['listing_id'],'system':conversation['buyer_id']==SYSTEM}
 
 class ReadBody(BaseModel):
     message_id: int = Field(ge=0)
@@ -594,7 +984,7 @@ async def send_message(cid: str, body: MessageBody, x_pub_token: str | None = He
     me=user(x_pub_token)
     with db() as c:
         c.execute('BEGIN IMMEDIATE')
-        participant(c,cid,me)
+        if participant(c,cid,me)['buyer_id']==SYSTEM: raise HTTPException(403,'system_reply')
         previous=c.execute('SELECT id,conversation_id FROM messages WHERE sender_id=? AND client_id=?',(me['id'],body.client_id)).fetchone()
         if previous:
             if previous['conversation_id']!=cid: raise HTTPException(409,'error')

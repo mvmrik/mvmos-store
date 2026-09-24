@@ -98,6 +98,10 @@
       .tk-acc-header::before{content:'▸';display:inline-block;transition:transform .15s;color:var(--pub-fg2, #a6adc8)}
       .tk-acc-section[open]>.tk-acc-header::before{transform:rotate(90deg)}
       .tk-acc-title{flex:1}
+      .tk-acc-add{background:none;border:none;color:var(--pub-fg2, #a6adc8);cursor:pointer;font-size:1rem;line-height:1;padding:2px 7px;border-radius:5px}
+      .tk-acc-add:hover{background:var(--pub-border, #45475a);color:var(--pub-fg, #cdd6f4)}
+      .tk-acc-section .tk-acc-section{margin:12px 0 0;background:rgba(255,255,255,.02)}
+      .tk-acc-section .tk-acc-section .tk-acc-header{font-size:.85rem}
       .tk-acc-count{font-size:.72rem;font-weight:400;color:var(--pub-dim, #6c7086);background:var(--pub-surface2, #313244);border-radius:10px;padding:1px 8px}
       .tk-acc-count.tk-active{color:#fff;background:var(--pub-accent, #89b4fa);font-weight:700}
       .tk-todo-list{display:flex;flex-direction:column;gap:4px;max-height:280px;overflow-y:auto}
@@ -109,6 +113,8 @@
       .tk-todo-add-row input{flex:1}
       .tk-proj-row{display:flex;align-items:center;gap:6px;padding:4px 0}
       .tk-proj-title{flex:1;font-size:.85rem}
+      .tk-proj-sub-add{display:flex;gap:6px;padding:4px 0}
+      .tk-proj-sub-add input{flex:1}
       .tk-btn-icon[disabled]{opacity:.3;cursor:default}
       .tk-card{background:var(--pub-surface2, #313244);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
       .tk-card-head{display:flex;align-items:flex-start;gap:6px}
@@ -198,8 +204,23 @@
     function seedExpandedSections() {
       if (expandedSeeded) return;
       expandedSeeded = true;
-      projects.forEach((p, i) => { expandedSections[p.id] = i === 0; });
+      rootProjects().forEach((p, i) => { expandedSections[p.id] = i === 0; });
       expandedSections[''] = false;
+    }
+
+    // Projects form a tree through parent_id. A project whose parent is gone
+    // is treated as top-level so it never disappears from view.
+    function rootProjects() {
+      return projects.filter(p => !p.parent_id || !projects.some(q => q.id === p.parent_id));
+    }
+    function childProjects(id) {
+      return projects.filter(p => p.parent_id === id);
+    }
+    function projectTree() {
+      const out = [];
+      const walk = (list, depth) => list.forEach(p => { out.push({ p, depth }); walk(childProjects(p.id), depth + 1); });
+      walk(rootProjects(), 0);
+      return out;
     }
 
     root.style.position = 'relative';
@@ -284,6 +305,14 @@
     }
     root.querySelectorAll('.tk-tab').forEach(b => { b.onclick = () => setTab(b.dataset.tab); });
     addBtn.onclick = () => openTaskForm(null);
+    gridEl.addEventListener('click', e => {
+      const btn = e.target.closest('.tk-acc-add');
+      if (!btn) return;
+      // The button sits inside <summary>; keep the section from toggling.
+      e.preventDefault();
+      e.stopPropagation();
+      openTaskForm(null, btn.dataset.project);
+    });
 
     function typeLabel(type) {
       return type === 'persistent' ? t('tk_type_persistent') : type === 'onetime' ? t('tk_type_onetime')
@@ -373,26 +402,40 @@
       }
       const byProject = {};
       tasks.forEach(task => {
-        const key = task.project_id || '';
+        const key = projects.some(p => p.id === task.project_id) ? task.project_id : '';
         (byProject[key] = byProject[key] || []).push(task);
       });
-      const sections = projects.map(p => ({ id: p.id, title: p.title, list: byProject[p.id] || [] }));
-      sections.push({ id: '', title: t('tk_project_other'), list: byProject[''] || [] });
-
-      gridEl.innerHTML = sections.filter(s => s.id || s.list.length).map(s => {
-        const active = s.list.some(x => x.timer_running);
+      // A section's count and "timer running" mark cover its subprojects too,
+      // so a collapsed parent still shows what is going on inside it.
+      function subtreeTasks(id) {
+        return (byProject[id] || []).concat(...childProjects(id).map(c => subtreeTasks(c.id)));
+      }
+      function sectionHtml(id, title, own, all, children) {
+        const active = all.some(x => x.timer_running);
+        const inner = (own.length ? tasksGridHtml(own) : '') + children.map(projectSectionHtml).join('');
         return `
-        <details class="tk-acc-section" data-project="${esc(s.id)}" ${expandedSections[s.id] ? 'open' : ''}>
+        <details class="tk-acc-section" data-project="${esc(id)}" ${expandedSections[id] ? 'open' : ''}>
           <summary class="tk-acc-header">
-            <span class="tk-acc-title">${esc(s.title)}</span>
-            <span class="tk-acc-count${active ? ' tk-active' : ''}">${s.list.length}</span>
+            <span class="tk-acc-title">${esc(title)}</span>
+            ${id ? `<button class="tk-acc-add" data-project="${esc(id)}" title="${esc(t('tk_add_task_to_project'))}">＋</button>` : ''}
+            <span class="tk-acc-count${active ? ' tk-active' : ''}">${all.length}</span>
           </summary>
-          ${s.list.length ? tasksGridHtml(s.list) : `<div class="tk-empty">${esc(t('tk_no_tasks'))}</div>`}
+          ${inner || `<div class="tk-empty">${esc(t('tk_no_tasks'))}</div>`}
         </details>`;
-      }).join('');
+      }
+      function projectSectionHtml(p) {
+        return sectionHtml(p.id, p.title, byProject[p.id] || [], subtreeTasks(p.id), childProjects(p.id));
+      }
+
+      const other = byProject[''] || [];
+      gridEl.innerHTML = rootProjects().map(projectSectionHtml).join('')
+        + (other.length ? sectionHtml('', t('tk_project_other'), other, other, []) : '');
 
       gridEl.querySelectorAll('.tk-acc-section').forEach(sec => {
-        sec.addEventListener('toggle', () => { expandedSections[sec.dataset.project] = sec.open; });
+        sec.addEventListener('toggle', e => {
+          if (e.target !== sec) return;
+          expandedSections[sec.dataset.project] = sec.open;
+        });
       });
       wireTaskCards();
       startTimerTicker();
@@ -539,20 +582,23 @@
         <h3>${esc(task.title)}</h3>
         <div class="tk-todo-list" id="tk-todo-list"><div class="tk-empty">…</div></div>
         <div class="tk-todo-add-row">
-          <input type="text" id="tk-todo-add-input" maxlength="200" placeholder="${esc(t('tk_todo_add_item_ph'))}">
+          <input type="text" id="tk-todo-add-input" maxlength="2000" placeholder="${esc(t('tk_todo_add_item_ph'))}">
           <button class="tk-btn tk-btn-primary" id="tk-todo-add-btn">${esc(t('tk_add_item'))}</button>
         </div>
         <div class="tk-dialog-actions">
+          <button class="tk-btn" id="tk-todo-copy">${esc(t('tk_todo_copy'))}</button>
           <button class="tk-btn" id="tk-todo-close">${esc(t('tk_close'))}</button>
         </div>
       </div>`);
       const listEl = ov.querySelector('#tk-todo-list');
       const input = ov.querySelector('#tk-todo-add-input');
+      let currentItems = [];
 
       async function reload() {
         let items;
         try { items = await api(`/tasks/${task.id}/items`); } catch (e) { items = []; }
         if (!ov.isConnected) return;
+        currentItems = items;
         listEl.innerHTML = items.length ? items.map(renderTodoItem).join('') : `<div class="tk-empty">${esc(t('tk_todo_no_items'))}</div>`;
         listEl.querySelectorAll('.tk-todo-item').forEach(row => {
           const id = row.dataset.id;
@@ -587,6 +633,35 @@
       ov.querySelector('#tk-todo-add-btn').onclick = addItem;
       input.addEventListener('keydown', e => { if (e.key === 'Enter') addItem(); });
       ov.querySelector('#tk-todo-close').onclick = () => ov.remove();
+      ov.querySelector('#tk-todo-copy').onclick = async () => {
+        // Plain text has no strike-through, so checked items get a combining
+        // long stroke (U+0336) after every character — it survives pasting
+        // into chats, notes and mail.
+        const text = currentItems.map((item, i) => {
+          const title = item.completed_at ? Array.from(item.title).map(ch => ch + '\u0336').join('') : item.title;
+          return `${i + 1}. ${title}`;
+        }).join('\n');
+        if (await copyText(text)) toast(t('tk_todo_copied'));
+        else toast(t('tk_error'), 'bad');
+      };
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (e) {
+        // navigator.clipboard needs a secure context; fall back for plain http.
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+        document.body.appendChild(ta);
+        ta.select();
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch (_) {}
+        ta.remove();
+        return ok;
+      }
     }
 
     async function ensureBudgetCategories() {
@@ -595,8 +670,9 @@
       catch (e) { budgetCategories = { available: false, categories: [] }; }
     }
 
-    function openTaskForm(existing) {
+    function openTaskForm(existing, presetProjectId) {
       const isEdit = !!existing;
+      const selectedProject = existing ? existing.project_id : (presetProjectId || '');
       const type = existing ? existing.type : 'persistent';
       const rewardMode = existing ? existing.reward_mode : 'fixed';
       const existingCatIds = (existing && existing.category_ids) || [];
@@ -626,7 +702,7 @@
         <div class="tk-field"><label>${esc(t('tk_project'))}</label>
           <select id="tk-f-project">
             <option value="">${esc(t('tk_project_none'))}</option>
-            ${projects.map(p => `<option value="${esc(p.id)}" ${existing && existing.project_id === p.id ? 'selected' : ''}>${esc(p.title)}</option>`).join('')}
+            ${projectTree().map(({ p, depth }) => `<option value="${esc(p.id)}" ${selectedProject === p.id ? 'selected' : ''}>${'\u00a0\u00a0\u00a0'.repeat(depth)}${esc(p.title)}</option>`).join('')}
           </select>
         </div>
         <div id="tk-f-persistent-wrap" style="display:none">
@@ -770,11 +846,19 @@
         </div>`).join('')}</div>`;
     }
 
-    function projectRowHtml(p, idx, total) {
-      return `<div class="tk-proj-row" data-id="${esc(p.id)}">
+    // Arrows move a project among its siblings only; subprojects travel with
+    // their parent.
+    function projectSiblings(p) {
+      return projects.some(q => q.id === p.parent_id) ? childProjects(p.parent_id) : rootProjects();
+    }
+    function projectRowHtml(p, depth) {
+      const sib = projectSiblings(p);
+      const idx = sib.indexOf(p);
+      return `<div class="tk-proj-row" data-id="${esc(p.id)}" style="padding-left:${depth * 18}px">
         <button class="tk-btn-icon" data-action="proj-up" title="${esc(t('tk_move_up'))}" ${idx === 0 ? 'disabled' : ''}>▲</button>
-        <button class="tk-btn-icon" data-action="proj-down" title="${esc(t('tk_move_down'))}" ${idx === total - 1 ? 'disabled' : ''}>▼</button>
+        <button class="tk-btn-icon" data-action="proj-down" title="${esc(t('tk_move_down'))}" ${idx === sib.length - 1 ? 'disabled' : ''}>▼</button>
         <span class="tk-proj-title">${esc(p.title)}</span>
+        <button class="tk-btn-icon" data-action="proj-sub" title="${esc(t('tk_subproject_add'))}">＋</button>
         <button class="tk-btn-icon" data-action="proj-rename" title="${esc(t('tk_edit'))}">✎</button>
         <button class="tk-btn-icon" data-action="proj-delete" title="${esc(t('tk_delete'))}">🗑</button>
       </div>`;
@@ -810,6 +894,35 @@
       });
     }
 
+    function startAddSubproject(row, parent) {
+      settingsViewEl.querySelectorAll('.tk-proj-sub-add').forEach(el => el.remove());
+      const wrap = document.createElement('div');
+      wrap.className = 'tk-proj-sub-add';
+      wrap.style.paddingLeft = (parseInt(row.style.paddingLeft) || 0) + 18 + 'px';
+      wrap.innerHTML = `<input type="text" maxlength="100" placeholder="${esc(t('tk_subproject_new_ph', { title: parent.title }))}">
+        <button class="tk-btn tk-btn-primary">${esc(t('tk_project_add'))}</button>`;
+      row.after(wrap);
+      const input = wrap.querySelector('input');
+      input.focus();
+      async function add() {
+        const title = input.value.trim();
+        if (!title) return;
+        try {
+          await api('/projects', { method: 'POST', body: JSON.stringify({ title, parent_id: parent.id }) });
+          // Open the parent so the new subproject is visible in the Tasks tab.
+          expandedSections[parent.id] = true;
+          await loadProjects();
+          renderSettings();
+          renderTasks();
+        } catch (e) { toast(e.message || t('tk_error'), 'bad'); }
+      }
+      wrap.querySelector('button').onclick = add;
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') add();
+        else if (e.key === 'Escape') wrap.remove();
+      });
+    }
+
     async function renderSettings() {
       settingsViewEl.innerHTML = `<div class="tk-settings-block">
         <div class="tk-toggle-row">
@@ -821,7 +934,7 @@
       <div class="tk-settings-block" style="margin-top:18px">
         <label>${esc(t('tk_projects'))}</label>
         <div class="tk-field-hint">${esc(t('tk_projects_hint'))}</div>
-        <div id="tk-proj-list">${projects.map((p, i) => projectRowHtml(p, i, projects.length)).join('')}</div>
+        <div id="tk-proj-list">${projectTree().map(({ p, depth }) => projectRowHtml(p, depth)).join('')}</div>
         <div class="tk-todo-add-row">
           <input type="text" id="tk-proj-add-input" maxlength="100" placeholder="${esc(t('tk_project_new_ph'))}">
           <button class="tk-btn tk-btn-primary" id="tk-proj-add-btn">${esc(t('tk_project_add'))}</button>
@@ -840,14 +953,17 @@
         }
       };
 
-      settingsViewEl.querySelectorAll('.tk-proj-row').forEach((row, idx) => {
+      settingsViewEl.querySelectorAll('.tk-proj-row').forEach(row => {
         const id = row.dataset.id;
         const project = projects.find(p => p.id === id);
         const moveProject = async delta => {
-          const j = idx + delta;
-          if (j < 0 || j >= projects.length) return;
+          const sib = projectSiblings(project);
+          const k = sib.indexOf(project);
+          const other = sib[k + delta];
+          if (!other) return;
           const order = projects.map(p => p.id);
-          [order[idx], order[j]] = [order[j], order[idx]];
+          const a = order.indexOf(project.id), b = order.indexOf(other.id);
+          [order[a], order[b]] = [order[b], order[a]];
           try {
             projects = await api('/projects/reorder', { method: 'PUT', body: JSON.stringify({ order }) });
             expandedSeeded = false;
@@ -861,6 +977,7 @@
         if (upBtn) upBtn.onclick = () => moveProject(-1);
         if (downBtn) downBtn.onclick = () => moveProject(1);
         row.querySelector('[data-action="proj-rename"]').onclick = () => startRenameProject(row, project);
+        row.querySelector('[data-action="proj-sub"]').onclick = () => startAddSubproject(row, project);
         row.querySelector('[data-action="proj-delete"]').onclick = async () => {
           if (!confirm(t('tk_project_delete_confirm', { title: project.title }))) return;
           try {

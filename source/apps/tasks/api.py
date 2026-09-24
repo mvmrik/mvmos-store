@@ -49,6 +49,7 @@ _PUBLIC_DIR = os.path.join(_DIR, "public")
 TYPES        = {"persistent", "onetime", "periodic", "todo"}
 REWARD_MODES = {"fixed", "hourly"}
 PERIODS      = {"daily", "weekly", "monthly"}
+TODO_ITEM_MAX = 2000
 
 
 def _hub():
@@ -150,6 +151,11 @@ def _init_db():
             )
         if "project_id" not in cols:
             conn.execute("ALTER TABLE tasks ADD COLUMN project_id TEXT")
+        # Subprojects: a project with a parent_id is shown nested inside its
+        # parent. NULL means a top-level project.
+        pcols = {r[1] for r in conn.execute("PRAGMA table_info(projects)")}
+        if "parent_id" not in pcols:
+            conn.execute("ALTER TABLE projects ADD COLUMN parent_id TEXT")
         # One-time-per-startup, idempotent backfill: tasks created before the
         # move to many-to-many categories only had a single category_id column.
         conn.execute(
@@ -263,7 +269,7 @@ def _apply_reward(hub, user_id: str, category_ids: list, amount: Optional[float]
             continue
         try:
             hub.call_app_api("budget", "add_to_category", user_id, category_id, amount,
-                              source_app="tasks", source_app_name="Задачи",
+                              source_app="tasks", source_app_name="Tasks",
                               reason=reason, idempotency_key=f"{idempotency_key_base}:{category_id}")
             results.append({"category_id": category_id, "budget_ok": True, "amount": amount})
         except Exception:
@@ -332,6 +338,15 @@ async def budget_categories(x_pub_token: str = Header(default=None)):
 
 class ProjectBody(BaseModel):
     title: str
+    parent_id: Optional[str] = None
+
+
+def _list_projects(user_id: str):
+    with _db() as conn:
+        rows = conn.execute(
+            "SELECT * FROM projects WHERE user_id=? ORDER BY position", (user_id,)
+        ).fetchall()
+        return JSONResponse([dict(r) for r in rows])
 
 
 @router.get("/projects")
@@ -339,11 +354,29 @@ async def list_projects(x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    return _list_projects(me["id"])
+
+
+def _create_project(user_id: str, body: ProjectBody):
+    title = body.title.strip()[:100]
+    if not title:
+        return JSONResponse({"error": "title required"}, status_code=400)
+    now = _now_iso()
+    pid = str(uuid.uuid4())
     with _db() as conn:
-        rows = conn.execute(
-            "SELECT * FROM projects WHERE user_id=? ORDER BY position", (me["id"],)
-        ).fetchall()
-        return JSONResponse([dict(r) for r in rows])
+        if body.parent_id and not _project_exists(conn, user_id, body.parent_id):
+            return JSONResponse({"error": "invalid parent project"}, status_code=400)
+        maxpos = conn.execute(
+            "SELECT COALESCE(MAX(position), -1) AS m FROM projects WHERE user_id=?", (user_id,)
+        ).fetchone()["m"]
+        conn.execute(
+            "INSERT INTO projects(id,user_id,parent_id,title,position,created_at,updated_at) "
+            "VALUES(?,?,?,?,?,?,?)",
+            (pid, user_id, body.parent_id or None, title, maxpos + 1, now, now),
+        )
+        conn.commit()
+        row = conn.execute("SELECT * FROM projects WHERE id=?", (pid,)).fetchone()
+        return JSONResponse(dict(row))
 
 
 @router.post("/projects")
@@ -351,23 +384,7 @@ async def create_project(body: ProjectBody, x_pub_token: str = Header(default=No
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
-    title = body.title.strip()[:100]
-    if not title:
-        return JSONResponse({"error": "title required"}, status_code=400)
-    now = _now_iso()
-    pid = str(uuid.uuid4())
-    with _db() as conn:
-        maxpos = conn.execute(
-            "SELECT COALESCE(MAX(position), -1) AS m FROM projects WHERE user_id=?", (me["id"],)
-        ).fetchone()["m"]
-        conn.execute(
-            "INSERT INTO projects(id,user_id,title,position,created_at,updated_at) "
-            "VALUES(?,?,?,?,?,?)",
-            (pid, me["id"], title, maxpos + 1, now, now),
-        )
-        conn.commit()
-        row = conn.execute("SELECT * FROM projects WHERE id=?", (pid,)).fetchone()
-        return JSONResponse(dict(row))
+    return _create_project(me["id"], body)
 
 
 class ProjectReorderBody(BaseModel):
@@ -398,16 +415,14 @@ async def reorder_projects(body: ProjectReorderBody, x_pub_token: str = Header(d
         return JSONResponse([dict(r) for r in rows])
 
 
-@router.put("/projects/{project_id}")
-async def rename_project(project_id: str, body: ProjectBody, x_pub_token: str = Header(default=None)):
-    me = _resolve(x_pub_token)
-    if not me:
-        return JSONResponse({"error": "unauthorized"}, status_code=401)
+def _rename_project(user_id: str, project_id: str, body: ProjectBody):
+    """Renames only — parent_id in the body is ignored, a project keeps its
+    place in the tree."""
     title = body.title.strip()[:100]
     if not title:
         return JSONResponse({"error": "title required"}, status_code=400)
     with _db() as conn:
-        existing = conn.execute("SELECT id FROM projects WHERE id=? AND user_id=?", (project_id, me["id"])).fetchone()
+        existing = conn.execute("SELECT id FROM projects WHERE id=? AND user_id=?", (project_id, user_id)).fetchone()
         if not existing:
             return JSONResponse({"error": "not found"}, status_code=404)
         conn.execute(
@@ -418,20 +433,35 @@ async def rename_project(project_id: str, body: ProjectBody, x_pub_token: str = 
         return JSONResponse(dict(row))
 
 
-@router.delete("/projects/{project_id}")
-async def delete_project(project_id: str, x_pub_token: str = Header(default=None)):
-    """Tasks in the project are not deleted — they fall back to no project."""
+@router.put("/projects/{project_id}")
+async def rename_project(project_id: str, body: ProjectBody, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    return _rename_project(me["id"], project_id, body)
+
+
+def _delete_project(user_id: str, project_id: str):
+    """Nothing inside the project is deleted: its tasks and subprojects move
+    up one level, to its parent project (or to no project at the top)."""
     with _db() as conn:
-        existing = conn.execute("SELECT id FROM projects WHERE id=? AND user_id=?", (project_id, me["id"])).fetchone()
+        existing = conn.execute("SELECT id, parent_id FROM projects WHERE id=? AND user_id=?", (project_id, user_id)).fetchone()
         if not existing:
             return JSONResponse({"error": "not found"}, status_code=404)
-        conn.execute("UPDATE tasks SET project_id=NULL WHERE project_id=? AND user_id=?", (project_id, me["id"]))
+        parent = existing["parent_id"]
+        conn.execute("UPDATE tasks SET project_id=? WHERE project_id=? AND user_id=?", (parent, project_id, user_id))
+        conn.execute("UPDATE projects SET parent_id=? WHERE parent_id=? AND user_id=?", (parent, project_id, user_id))
         conn.execute("DELETE FROM projects WHERE id=?", (project_id,))
         conn.commit()
     return JSONResponse({"ok": True})
+
+
+@router.delete("/projects/{project_id}")
+async def delete_project(project_id: str, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    return _delete_project(me["id"], project_id)
 
 
 # ── Tasks ────────────────────────────────────────────────────────
@@ -484,24 +514,24 @@ def _project_exists(conn, user_id: str, project_id: str) -> bool:
     ).fetchone())
 
 
+def _list_tasks(user_id: str):
+    now = _now()
+    with _db() as conn:
+        rows = conn.execute(
+            "SELECT * FROM tasks WHERE user_id=? AND archived=0 ORDER BY created_at", (user_id,)
+        ).fetchall()
+        return JSONResponse([_row_to_task(conn, r, now) for r in rows])
+
+
 @router.get("/tasks")
 async def list_tasks(x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
-    now = _now()
-    with _db() as conn:
-        rows = conn.execute(
-            "SELECT * FROM tasks WHERE user_id=? AND archived=0 ORDER BY created_at", (me["id"],)
-        ).fetchall()
-        return JSONResponse([_row_to_task(conn, r, now) for r in rows])
+    return _list_tasks(me["id"])
 
 
-@router.post("/tasks")
-async def create_task(body: TaskBody, x_pub_token: str = Header(default=None)):
-    me = _resolve(x_pub_token)
-    if not me:
-        return JSONResponse({"error": "unauthorized"}, status_code=401)
+def _create_task(user_id: str, body: TaskBody):
     title = body.title.strip()[:200]
     if not title:
         return JSONResponse({"error": "title required"}, status_code=400)
@@ -513,12 +543,12 @@ async def create_task(body: TaskBody, x_pub_token: str = Header(default=None)):
     now = _now_iso()
     tid = str(uuid.uuid4())
     with _db() as conn:
-        if body.project_id and not _project_exists(conn, me["id"], body.project_id):
+        if body.project_id and not _project_exists(conn, user_id, body.project_id):
             return JSONResponse({"error": "invalid project"}, status_code=400)
         conn.execute(
             "INSERT INTO tasks(id,user_id,title,description,type,reward_mode,reward_amount,"
             "due_at,period,project_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
-            (tid, me["id"], title, body.description.strip()[:1000], body.type, reward_mode,
+            (tid, user_id, title, body.description.strip()[:1000], body.type, reward_mode,
              body.reward_amount, body.due_at, body.period, body.project_id, now, now),
         )
         _set_task_categories(conn, tid, body.category_ids)
@@ -527,11 +557,15 @@ async def create_task(body: TaskBody, x_pub_token: str = Header(default=None)):
         return JSONResponse(_row_to_task(conn, row, _now()))
 
 
-@router.put("/tasks/{task_id}")
-async def update_task(task_id: str, body: TaskBody, x_pub_token: str = Header(default=None)):
+@router.post("/tasks")
+async def create_task(body: TaskBody, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    return _create_task(me["id"], body)
+
+
+def _update_task(user_id: str, task_id: str, body: TaskBody):
     title = body.title.strip()[:200]
     if not title:
         return JSONResponse({"error": "title required"}, status_code=400)
@@ -541,10 +575,10 @@ async def update_task(task_id: str, body: TaskBody, x_pub_token: str = Header(de
 
     reward_mode = body.reward_mode if body.type == "persistent" else "fixed"
     with _db() as conn:
-        existing = conn.execute("SELECT * FROM tasks WHERE id=? AND user_id=?", (task_id, me["id"])).fetchone()
+        existing = conn.execute("SELECT * FROM tasks WHERE id=? AND user_id=?", (task_id, user_id)).fetchone()
         if not existing:
             return JSONResponse({"error": "not found"}, status_code=404)
-        if body.project_id and not _project_exists(conn, me["id"], body.project_id):
+        if body.project_id and not _project_exists(conn, user_id, body.project_id):
             return JSONResponse({"error": "invalid project"}, status_code=400)
         conn.execute(
             "UPDATE tasks SET title=?, description=?, type=?, reward_mode=?, reward_amount=?, "
@@ -558,13 +592,17 @@ async def update_task(task_id: str, body: TaskBody, x_pub_token: str = Header(de
         return JSONResponse(_row_to_task(conn, row, _now()))
 
 
-@router.delete("/tasks/{task_id}")
-async def delete_task(task_id: str, x_pub_token: str = Header(default=None)):
+@router.put("/tasks/{task_id}")
+async def update_task(task_id: str, body: TaskBody, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    return _update_task(me["id"], task_id, body)
+
+
+def _delete_task(user_id: str, task_id: str):
     with _db() as conn:
-        existing = conn.execute("SELECT id FROM tasks WHERE id=? AND user_id=?", (task_id, me["id"])).fetchone()
+        existing = conn.execute("SELECT id FROM tasks WHERE id=? AND user_id=?", (task_id, user_id)).fetchone()
         if not existing:
             return JSONResponse({"error": "not found"}, status_code=404)
         conn.execute("DELETE FROM tasks WHERE id=?", (task_id,))
@@ -572,16 +610,20 @@ async def delete_task(task_id: str, x_pub_token: str = Header(default=None)):
     return JSONResponse({"ok": True})
 
 
-# ── Completion / timer ──────────────────────────────────────────
-
-@router.post("/tasks/{task_id}/complete")
-async def complete_task(task_id: str, x_pub_token: str = Header(default=None)):
+@router.delete("/tasks/{task_id}")
+async def delete_task(task_id: str, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    return _delete_task(me["id"], task_id)
+
+
+# ── Completion / timer ──────────────────────────────────────────
+
+def _complete_task(user_id: str, task_id: str):
     now = _now()
     with _db() as conn:
-        row = conn.execute("SELECT * FROM tasks WHERE id=? AND user_id=?", (task_id, me["id"])).fetchone()
+        row = conn.execute("SELECT * FROM tasks WHERE id=? AND user_id=?", (task_id, user_id)).fetchone()
         if not row:
             return JSONResponse({"error": "not found"}, status_code=404)
         task = _row_to_task(conn, row, now)
@@ -598,14 +640,14 @@ async def complete_task(task_id: str, x_pub_token: str = Header(default=None)):
         hub = _hub()
         cid = str(uuid.uuid4())
         rewards = _apply_reward(
-            hub, me["id"], task["category_ids"], task["reward_amount"],
+            hub, user_id, task["category_ids"], task["reward_amount"],
             task["title"], cid,
         )
         overall_ok = bool(rewards) and all(r["budget_ok"] for r in rewards)
         conn.execute(
             "INSERT INTO completions(id,task_id,user_id,amount,duration_hours,budget_ok,note,created_at) "
             "VALUES(?,?,?,?,NULL,?,?,?)",
-            (cid, task_id, me["id"], task["reward_amount"] or 0.0, 1 if overall_ok else 0, "", now.isoformat()),
+            (cid, task_id, user_id, task["reward_amount"] or 0.0, 1 if overall_ok else 0, "", now.isoformat()),
         )
         for r in rewards:
             conn.execute(
@@ -624,13 +666,17 @@ async def complete_task(task_id: str, x_pub_token: str = Header(default=None)):
         return JSONResponse(result)
 
 
-@router.post("/tasks/{task_id}/timer/start")
-async def start_timer(task_id: str, x_pub_token: str = Header(default=None)):
+@router.post("/tasks/{task_id}/complete")
+async def complete_task(task_id: str, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    return _complete_task(me["id"], task_id)
+
+
+def _start_timer(user_id: str, task_id: str):
     with _db() as conn:
-        row = conn.execute("SELECT * FROM tasks WHERE id=? AND user_id=?", (task_id, me["id"])).fetchone()
+        row = conn.execute("SELECT * FROM tasks WHERE id=? AND user_id=?", (task_id, user_id)).fetchone()
         if not row:
             return JSONResponse({"error": "not found"}, status_code=404)
         if row["type"] != "persistent" or row["reward_mode"] != "hourly":
@@ -644,14 +690,18 @@ async def start_timer(task_id: str, x_pub_token: str = Header(default=None)):
         return JSONResponse(_row_to_task(conn, row, _now()))
 
 
-@router.post("/tasks/{task_id}/timer/pause")
-async def pause_timer(task_id: str, x_pub_token: str = Header(default=None)):
+@router.post("/tasks/{task_id}/timer/start")
+async def start_timer(task_id: str, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    return _start_timer(me["id"], task_id)
+
+
+def _pause_timer(user_id: str, task_id: str):
     now = _now()
     with _db() as conn:
-        row = conn.execute("SELECT * FROM tasks WHERE id=? AND user_id=?", (task_id, me["id"])).fetchone()
+        row = conn.execute("SELECT * FROM tasks WHERE id=? AND user_id=?", (task_id, user_id)).fetchone()
         if not row:
             return JSONResponse({"error": "not found"}, status_code=404)
         if row["type"] != "persistent" or row["reward_mode"] != "hourly":
@@ -671,15 +721,19 @@ async def pause_timer(task_id: str, x_pub_token: str = Header(default=None)):
         return JSONResponse(_row_to_task(conn, row, now))
 
 
-@router.post("/tasks/{task_id}/timer/discard")
-async def discard_timer(task_id: str, x_pub_token: str = Header(default=None)):
-    """Throw the tracked time away — no completion, no Budget reward."""
+@router.post("/tasks/{task_id}/timer/pause")
+async def pause_timer(task_id: str, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    return _pause_timer(me["id"], task_id)
+
+
+def _discard_timer(user_id: str, task_id: str):
+    """Throw the tracked time away — no completion, no Budget reward."""
     now = _now()
     with _db() as conn:
-        row = conn.execute("SELECT * FROM tasks WHERE id=? AND user_id=?", (task_id, me["id"])).fetchone()
+        row = conn.execute("SELECT * FROM tasks WHERE id=? AND user_id=?", (task_id, user_id)).fetchone()
         if not row:
             return JSONResponse({"error": "not found"}, status_code=404)
         if row["type"] != "persistent" or row["reward_mode"] != "hourly":
@@ -693,14 +747,18 @@ async def discard_timer(task_id: str, x_pub_token: str = Header(default=None)):
         return JSONResponse(_row_to_task(conn, row, now))
 
 
-@router.post("/tasks/{task_id}/timer/complete")
-async def complete_timer(task_id: str, x_pub_token: str = Header(default=None)):
+@router.post("/tasks/{task_id}/timer/discard")
+async def discard_timer(task_id: str, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    return _discard_timer(me["id"], task_id)
+
+
+def _complete_timer(user_id: str, task_id: str):
     now = _now()
     with _db() as conn:
-        row = conn.execute("SELECT * FROM tasks WHERE id=? AND user_id=?", (task_id, me["id"])).fetchone()
+        row = conn.execute("SELECT * FROM tasks WHERE id=? AND user_id=?", (task_id, user_id)).fetchone()
         if not row:
             return JSONResponse({"error": "not found"}, status_code=404)
         if row["type"] != "persistent" or row["reward_mode"] != "hourly":
@@ -718,12 +776,12 @@ async def complete_timer(task_id: str, x_pub_token: str = Header(default=None)):
         hub = _hub()
         cid = str(uuid.uuid4())
         category_ids = _task_category_ids(conn, task_id)
-        rewards = _apply_reward(hub, me["id"], category_ids, amount, row["title"], cid)
+        rewards = _apply_reward(hub, user_id, category_ids, amount, row["title"], cid)
         overall_ok = bool(rewards) and all(r["budget_ok"] for r in rewards)
         conn.execute(
             "INSERT INTO completions(id,task_id,user_id,amount,duration_hours,budget_ok,note,created_at) "
             "VALUES(?,?,?,?,?,?,?,?)",
-            (cid, task_id, me["id"], amount or 0.0, round(elapsed_hours, 4),
+            (cid, task_id, user_id, amount or 0.0, round(elapsed_hours, 4),
              1 if overall_ok else 0, "", now.isoformat()),
         )
         for r in rewards:
@@ -742,6 +800,14 @@ async def complete_timer(task_id: str, x_pub_token: str = Header(default=None)):
         result["reward"] = {"amount": amount or 0.0, "budget_ok": overall_ok, "categories": rewards}
         result["duration_hours"] = round(elapsed_hours, 4)
         return JSONResponse(result)
+
+
+@router.post("/tasks/{task_id}/timer/complete")
+async def complete_timer(task_id: str, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    return _complete_timer(me["id"], task_id)
 
 
 @router.post("/tasks/{task_id}/timer/stop")
@@ -772,13 +838,9 @@ def _get_todo_task(conn, task_id: str, user_id: str):
     return row
 
 
-@router.get("/tasks/{task_id}/items")
-async def list_todo_items(task_id: str, x_pub_token: str = Header(default=None)):
-    me = _resolve(x_pub_token)
-    if not me:
-        return JSONResponse({"error": "unauthorized"}, status_code=401)
+def _list_todo_items(user_id: str, task_id: str):
     with _db() as conn:
-        if not _get_todo_task(conn, task_id, me["id"]):
+        if not _get_todo_task(conn, task_id, user_id):
             return JSONResponse({"error": "not found"}, status_code=404)
         rows = conn.execute(
             "SELECT * FROM todo_items WHERE task_id=? "
@@ -788,16 +850,20 @@ async def list_todo_items(task_id: str, x_pub_token: str = Header(default=None))
         return JSONResponse([dict(r) for r in rows])
 
 
-@router.post("/tasks/{task_id}/items")
-async def add_todo_item(task_id: str, body: TodoItemBody, x_pub_token: str = Header(default=None)):
+@router.get("/tasks/{task_id}/items")
+async def list_todo_items(task_id: str, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
-    title = body.title.strip()[:200]
+    return _list_todo_items(me["id"], task_id)
+
+
+def _add_todo_item(user_id: str, task_id: str, body: TodoItemBody):
+    title = body.title.strip()[:TODO_ITEM_MAX]
     if not title:
         return JSONResponse({"error": "title required"}, status_code=400)
     with _db() as conn:
-        if not _get_todo_task(conn, task_id, me["id"]):
+        if not _get_todo_task(conn, task_id, user_id):
             return JSONResponse({"error": "not found"}, status_code=404)
         maxpos = conn.execute(
             "SELECT COALESCE(MAX(position), -1) AS m FROM todo_items WHERE task_id=?", (task_id,)
@@ -813,20 +879,24 @@ async def add_todo_item(task_id: str, body: TodoItemBody, x_pub_token: str = Hea
         return JSONResponse(dict(row))
 
 
-@router.put("/tasks/{task_id}/items/{item_id}")
-async def update_todo_item(task_id: str, item_id: str, body: TodoItemUpdateBody, x_pub_token: str = Header(default=None)):
+@router.post("/tasks/{task_id}/items")
+async def add_todo_item(task_id: str, body: TodoItemBody, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    return _add_todo_item(me["id"], task_id, body)
+
+
+def _update_todo_item(user_id: str, task_id: str, item_id: str, body: TodoItemUpdateBody):
     with _db() as conn:
-        if not _get_todo_task(conn, task_id, me["id"]):
+        if not _get_todo_task(conn, task_id, user_id):
             return JSONResponse({"error": "not found"}, status_code=404)
         item = conn.execute("SELECT * FROM todo_items WHERE id=? AND task_id=?", (item_id, task_id)).fetchone()
         if not item:
             return JSONResponse({"error": "not found"}, status_code=404)
         title = item["title"]
         if body.title is not None:
-            title = body.title.strip()[:200]
+            title = body.title.strip()[:TODO_ITEM_MAX]
             if not title:
                 return JSONResponse({"error": "title required"}, status_code=400)
         completed_at = item["completed_at"]
@@ -843,13 +913,17 @@ async def update_todo_item(task_id: str, item_id: str, body: TodoItemUpdateBody,
         return JSONResponse(dict(row))
 
 
-@router.delete("/tasks/{task_id}/items/{item_id}")
-async def delete_todo_item(task_id: str, item_id: str, x_pub_token: str = Header(default=None)):
+@router.put("/tasks/{task_id}/items/{item_id}")
+async def update_todo_item(task_id: str, item_id: str, body: TodoItemUpdateBody, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
+    return _update_todo_item(me["id"], task_id, item_id, body)
+
+
+def _delete_todo_item(user_id: str, task_id: str, item_id: str):
     with _db() as conn:
-        if not _get_todo_task(conn, task_id, me["id"]):
+        if not _get_todo_task(conn, task_id, user_id):
             return JSONResponse({"error": "not found"}, status_code=404)
         item = conn.execute("SELECT id FROM todo_items WHERE id=? AND task_id=?", (item_id, task_id)).fetchone()
         if not item:
@@ -858,6 +932,14 @@ async def delete_todo_item(task_id: str, item_id: str, x_pub_token: str = Header
         conn.execute("UPDATE tasks SET updated_at=? WHERE id=?", (_now_iso(), task_id))
         conn.commit()
     return JSONResponse({"ok": True})
+
+
+@router.delete("/tasks/{task_id}/items/{item_id}")
+async def delete_todo_item(task_id: str, item_id: str, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    return _delete_todo_item(me["id"], task_id, item_id)
 
 
 # ── History ──────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 {
   "tagline": "A community marketplace powered by Apps Hub profiles.",
-  "description": "Publish classified listings with photos, descriptions, categories, prices or free items. Browse a public catalog and manage your own listings with your existing Apps Hub account. Watch interesting listings, see owner-only view and watcher statistics, and start private conversations from either side. Desktop settings control categories, subcategories and listing validity. Premium adds credit-paid VIP packages that place promoted listings first.",
+  "description": "Publish classified listings with photos, descriptions, categories, prices or free items. Browse a public catalog and manage your own listings with your existing Apps Hub account. Watch interesting listings, see owner-only view and watcher statistics, and start private conversations from either side. Desktop settings control categories, subcategories and listing validity. A free Moderation panel lets the administrator manage every listing and ban a profile from posting, and each affected person is told what changed in their own language. Premium adds credit-paid VIP packages that place promoted listings first, and photo verification of users before they can post in chosen categories.",
   "capabilities": [
     "Public catalog with search, category and price filters.",
     "Apps Hub accounts own and manage their listings.",
@@ -16,6 +16,20 @@
     "Watch listings and review them later from a dedicated Watched view.",
     "Owner-only daily unique view counts and watcher statistics.",
     "Sellers can start a private conversation with a watcher.",
-    "Premium VIP listings paid through administrator-defined Apps Hub credit packages."
+    "Premium VIP listings paid through administrator-defined Apps Hub credit packages.",
+    "Moderation panel that shows every listing, searchable and filterable by category, status and owner, to edit, move, activate, deactivate, end VIP or delete one listing or a whole selection.",
+    "Ban a profile from posting in Classifieds, with an optional reason, without touching its Apps Hub account.",
+    "System messages that tell people, in their own language, what moderation changed on their listings.",
+    "Premium user verification that asks for a photo before posting in chosen categories, triggered after registration, after a number of days or after a number of listings."
+  ],
+  "integrations": [
+    {
+      "app": "",
+      "name": "Any app",
+      "kind": "app_api",
+      "direction": "provides",
+      "summary": "Classifieds exposes an app-to-app API: other apps can list the categories and your own listings, and add, edit, bump, activate, deactivate or delete a listing on your behalf, under the same rules, bans and verifications as the public page.",
+      "requires": "The Classifieds App API has to be switched on in Apps Hub → Settings → App APIs. It is off by default."
+    }
   ]
 }

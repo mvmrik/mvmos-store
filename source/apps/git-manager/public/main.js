@@ -721,6 +721,12 @@ GM.loadRepos = async function(scan) {
   }
 };
 
+// The name a repository is shown under: the user's own alias when set,
+// otherwise its folder name. Only ever visual — see GM.renameRepo.
+GM.repoLabel = function(repo) {
+  return repo.alias || repo.name;
+};
+
 GM.repoItem = function(repo) {
   var active = GM.state.activeRepo && GM.state.activeRepo.path === repo.path;
   var item = document.createElement('div');
@@ -731,12 +737,16 @@ GM.repoItem = function(repo) {
   var sub = repo.locked ? t('gm_owned_by', { owner: GM.escape(repo.owner) })
     : repo.detailed ? '&#x1F33F; ' + GM.escape(repo.branch) : '&nbsp;';
   item.innerHTML = '<div style="display:flex;align-items:center;gap:5px">'
-    + '<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;font-size:.83rem;pointer-events:none">' + GM.escape(repo.name) + '</span>'
+    + '<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;font-size:.83rem;pointer-events:none">' + GM.escape(GM.repoLabel(repo)) + '</span>'
     + (repo.locked ? '<span style="font-size:.72rem;flex-shrink:0;pointer-events:none" title="' + t('gm_locked') + '">&#x1F512;</span>' : '')
     + (repo.changes > 0 ? '<span class="gm-repo-badge" style="font-size:.68rem;background:var(--accent);color:#fff;border-radius:10px;padding:1px 5px;flex-shrink:0;pointer-events:none">' + repo.changes + '</span>' : '')
+    + '<button class="gm-rename" data-gm-rename="' + GM.escape(repo.path) + '" title="' + t('gm_edit_repo') + '" style="background:none;border:none;cursor:pointer;padding:0 2px;font-size:.8rem;line-height:1;flex-shrink:0;color:var(--text-dim);opacity:.45">&#x270E;</button>'
     + '<button class="gm-fav" data-gm-fav="' + GM.escape(repo.path) + '" title="' + t(repo.favorite ? 'gm_favorite_remove' : 'gm_favorite_add') + '" style="background:none;border:none;cursor:pointer;padding:0 3px;font-size:.9rem;line-height:1;flex-shrink:0;color:' + (repo.favorite ? '#f9e2af' : 'var(--text-dim)') + ';opacity:' + (repo.favorite ? '1' : '.45') + '">' + (repo.favorite ? '&#x2605;' : '&#x2606;') + '</button>'
     + '</div>'
-    + '<div style="font-size:.72rem;color:var(--text-dim);margin-top:2px;pointer-events:none">' + sub + '</div>';
+    + '<div style="font-size:.72rem;color:var(--text-dim);margin-top:2px;pointer-events:none">' + sub + '</div>'
+    // rtl keeps the end of a long path (the folder's own name) visible and
+    // cuts the start; the &lrm; marks stop the leading "/" jumping to the end.
+    + '<div title="' + GM.escape(repo.path) + '" style="font-size:.72rem;color:var(--text-dim);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:rtl;text-align:left">&lrm;' + GM.escape(repo.path) + '&lrm;</div>';
   return item;
 };
 
@@ -799,6 +809,12 @@ GM.renderSidebar = function() {
       GM.toggleFavorite(fav.dataset.gmFav);
       return;
     }
+    var rename = e.target.closest('[data-gm-rename]');
+    if (rename) {
+      e.stopPropagation();
+      GM.renameRepo(rename.dataset.gmRename);
+      return;
+    }
     var item = e.target.closest('[data-gm-path]');
     if (!item) return;
     var repo = GM.state.repos.filter(function(r) { return r.path === item.dataset.gmPath; })[0];
@@ -834,11 +850,158 @@ GM.toggleFavorite = async function(path) {
   }
 };
 
+// The repository's own settings in this window: the name it is shown under
+// (only visual — the folder and the repository keep their real name) and the
+// command its Deploy button runs. Entering the real name back shows the folder
+// name again; an empty command hides the Deploy button.
+GM.renameRepo = function(path) {
+  var repo = GM.state.repos.filter(function(r) { return r.path === path; })[0];
+  if (!repo) return;
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:99;padding:16px;box-sizing:border-box';
+  overlay.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;width:440px;max-width:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:12px">'
+    + '<div style="font-weight:600;font-size:.95rem">&#x270E; ' + t('gm_edit_repo') + '</div>'
+    + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_repo_display_name') + '</div>'
+    + '<input class="s-input" id="gm-edit-alias" style="width:100%;box-sizing:border-box">'
+    + '<div style="font-size:.72rem;color:var(--text-dim);margin-top:4px;line-height:1.45">' + t('gm_repo_display_name_hint', { name: GM.escape(repo.name) }) + '</div></div>'
+    + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_deploy_command') + ' <span style="opacity:.6">' + t('gm_optional') + '</span></div>'
+    + '<input class="s-input" id="gm-edit-deploy" placeholder="php artisan deploy" spellcheck="false" autocomplete="off" style="width:100%;box-sizing:border-box;font-family:monospace">'
+    + '<div style="font-size:.72rem;color:var(--text-dim);margin-top:4px;line-height:1.45">' + t('gm_deploy_command_hint') + '</div></div>'
+    + '<div id="gm-edit-err" style="color:#f38ba8;font-size:.82rem;display:none"></div>'
+    + '<div style="display:flex;gap:8px;justify-content:flex-end">'
+    + '<button class="s-btn" id="gm-edit-cancel">' + t('gm_cancel') + '</button>'
+    + '<button class="s-btn" id="gm-edit-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_save') + '</button>'
+    + '</div></div>';
+  GM.contentEl.appendChild(overlay);
+  var aliasInput = overlay.querySelector('#gm-edit-alias');
+  var deployInput = overlay.querySelector('#gm-edit-deploy');
+  aliasInput.value = GM.repoLabel(repo);
+  deployInput.value = repo.deploy || '';
+  aliasInput.focus(); aliasInput.select();
+  overlay.querySelector('#gm-edit-cancel').addEventListener('click', function() { overlay.remove(); });
+
+  var save = async function() {
+    var btn = overlay.querySelector('#gm-edit-ok');
+    var errEl = overlay.querySelector('#gm-edit-err');
+    var value = aliasInput.value.trim();
+    btn.disabled = true;
+    try {
+      var res = await GM.api('/repos/settings', { method: 'POST', json: {
+        path: path, alias: value === repo.name ? '' : value, deploy: deployInput.value.trim() } });
+      overlay.remove();
+      repo.alias = res.alias;
+      repo.deploy = res.deploy;
+      GM.renderSidebar();
+      // Only the title and the Deploy button change, so an open commit
+      // message or tab survives.
+      if (GM.state.activeRepo && GM.state.activeRepo.path === path) {
+        var title = GM.contentEl.querySelector('.gm-repo-title');
+        if (title) title.textContent = GM.repoLabel(repo);
+        var deployBtn = GM.contentEl.querySelector('#gm-deploy');
+        if (deployBtn) {
+          deployBtn.style.display = repo.deploy ? '' : 'none';
+          deployBtn.title = repo.deploy || '';
+        }
+      }
+    } catch(e) {
+      errEl.textContent = e.message; errEl.style.display = 'block';
+      btn.disabled = false;
+    }
+  };
+  overlay.querySelector('#gm-edit-ok').addEventListener('click', save);
+  [aliasInput, deployInput].forEach(function(input) {
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') save();
+      else if (e.key === 'Escape') overlay.remove();
+    });
+  });
+};
+
+// Deploy runs the repository's command in a shell of its own, never in the
+// repository's terminal: that one may be busy with anything (an editor, a
+// Claude Code session) and the command would be typed into it. The window
+// stays interactive, so a command that asks for confirmation or a password
+// can be answered, and the output stays until the window is closed. Closing
+// it ends the shell, and with it a command that is still running.
+GM.runDeploy = async function(repo, onClose) {
+  if (!repo || !repo.deploy) return;
+  var ok = await mvmOS.confirm(t('gm_deploy_confirm', {
+    command: '<code>' + GM.escape(repo.deploy) + '</code>', name: '<strong>' + GM.escape(GM.repoLabel(repo)) + '</strong>' }));
+  if (!ok) return;
+
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:99;padding:16px;box-sizing:border-box';
+  overlay.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;width:900px;max-width:100%;height:560px;max-height:100%;box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden">'
+    + '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border)">'
+    + '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.9rem">&#x1F680; ' + t('gm_deploy') + ' · ' + GM.escape(GM.repoLabel(repo)) + '</div>'
+    + '<div style="font-size:.72rem;color:var(--text-dim);font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + GM.escape(repo.deploy) + '</div></div>'
+    + '<button class="s-btn s-btn-sm" id="gm-deploy-close">' + t('gm_close') + '</button></div>'
+    + '<div style="flex:1;position:relative;background:#0d1117;min-height:0"><div id="gm-deploy-term" style="position:absolute;inset:0;padding:4px;box-sizing:border-box"></div></div>'
+    + '</div>';
+  GM.contentEl.appendChild(overlay);
+
+  var term = new window.Terminal({
+    fontFamily: "'Consolas', 'Menlo', 'Courier New', monospace",
+    fontSize: 13,
+    lineHeight: 1.2,
+    theme: {
+      background: '#0d1117', foreground: '#c9d1d9', cursor: '#c9d1d9',
+      black: '#0d1117', red: '#ff5555', green: '#50fa7b',
+      yellow: '#f1fa8c', blue: '#6272a4', magenta: '#ff79c6',
+      cyan: '#8be9fd', white: '#f8f8f2',
+    },
+    cursorBlink: true,
+    scrollback: 5000,
+    allowProposedApi: true,
+  });
+  var fitAddon = new window.FitAddon.FitAddon();
+  term.loadAddon(fitAddon);
+  term.open(overlay.querySelector('#gm-deploy-term'));
+  var fit = function() {
+    try { fitAddon.fit(); } catch(e) {}
+    if (conn && conn.isOpen()) conn.send(JSON.stringify({ type: 'resize', rows: term.rows, cols: term.cols }));
+  };
+
+  var command = repo.deploy;
+  var conn = GM.connectShell({
+    onOpen: function(again) {
+      fit();
+      // A reconnect is a new shell. The deploy already ran (or was cut off)
+      // in the old one, so it is never started a second time on its own;
+      // the new shell only goes back to the repository to run it by hand.
+      if (again) term.write('\r\n\x1b[33m[' + t('gm_deploy_reconnected') + ']\x1b[0m\r\n');
+      setTimeout(function() {
+        if (conn.isOpen())
+          conn.send(new TextEncoder().encode('cd ' + GM.shQuote(repo.path) + (again ? '' : ' && clear && ' + command) + '\n'));
+      }, 400);
+    },
+    onMessage: function(data) {
+      term.write(data instanceof ArrayBuffer ? new Uint8Array(data) : data);
+    },
+    onLost: function() {
+      term.write('\r\n\x1b[33m[' + t('gm_term_reconnecting') + ']\x1b[0m\r\n');
+    },
+  });
+  term.onData(function(data) { conn.send(new TextEncoder().encode(data)); });
+  var onResize = function() { fit(); };
+  window.addEventListener('resize', onResize);
+  requestAnimationFrame(function() { fit(); term.focus(); });
+
+  overlay.querySelector('#gm-deploy-close').addEventListener('click', function() {
+    window.removeEventListener('resize', onResize);
+    try { conn.close(); } catch(e) {}
+    try { term.dispose(); } catch(e) {}
+    overlay.remove();
+    // The command usually pulls and may change files, so the view is refreshed.
+    if (onClose) onClose();
+  });
+};
+
 GM.showLockedRepo = function(container, repo) {
   GM.stopStatusPoll();
   var access = GM.state.foreignAccess || {};
   container.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface)">'
-    + '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.9rem">' + repo.name + '</div>'
+    + '<div style="flex:1;min-width:0"><div class="gm-repo-title" style="font-weight:600;font-size:.9rem">' + GM.escape(GM.repoLabel(repo)) + '</div>'
     + '<div style="font-size:.72rem;color:var(--text-dim);margin-top:1px">' + t('gm_owned_by', { owner: repo.owner }) + '</div></div>'
     + '<span style="font-size:.75rem;background:var(--surface2,#313244);border-radius:12px;padding:3px 9px">&#x1F512; ' + t('gm_locked') + '</span></div>'
     + '<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:24px">'
@@ -987,13 +1150,14 @@ GM.showRepoView = function(container, repo, autoFetch) {
 
   container.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)">'
     + '<div style="flex:1;min-width:0">'
-    + '<div style="font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + repo.name + '</div>'
+    + '<div class="gm-repo-title" style="font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + GM.escape(GM.repoLabel(repo)) + '</div>'
     + '<div style="font-size:.72rem;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px">' + (repo.remote || '') + '</div>'
     + '</div>'
     + '<span id="gm-branch-btn" style="font-size:.75rem;background:var(--surface2,#313244);border-radius:12px;padding:2px 9px;white-space:nowrap;flex-shrink:0;cursor:pointer;user-select:none" title="' + t('gm_switch_branch') + '">&#x1F33F; ' + repo.branch + ' &#x25BE;</span>'
     + '<span id="gm-branch-local-badge" style="display:none;font-size:.68rem;background:#f9e2af;color:#1e1e2e;border-radius:10px;padding:1px 7px;flex-shrink:0;font-weight:600" title="' + t('gm_branch_local_only') + '">' + t('gm_branch_local_only') + '</span>'
     + '</div>'
     + '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);flex-shrink:0">'
+    + '<button id="gm-deploy" class="s-btn s-btn-sm" title="' + GM.escape(repo.deploy || '') + '"' + (repo.deploy ? '' : ' style="display:none"') + '>&#x1F680; ' + t('gm_deploy') + '</button>'
     + '<button id="gm-pull" class="s-btn s-btn-sm">&#x2B07; ' + t('gm_pull') + '</button>'
     + '<button id="gm-push" class="s-btn s-btn-sm">&#x2B06; ' + t('gm_push') + '</button>'
     + '<button id="gm-fetch" class="s-btn s-btn-sm">&#x27F3; ' + t('gm_fetch') + '</button>'
@@ -1237,7 +1401,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
           + commitHtml;
 
         tc.querySelector('#gm-discard-all').addEventListener('click', async function() {
-          if (!await mvmOS.confirm(t('gm_discard_all_confirm', { name: repo.name }))) return;
+          if (!await mvmOS.confirm(t('gm_discard_all_confirm', { name: GM.escape(GM.repoLabel(repo)) }))) return;
           GM.api('/repo/discard', { method: 'POST', json: { path: repo.path } })
             .then(function() { loadStatus(); })
             .catch(function(e) { mvmOS.notify(t('gm_title'), e.message); });
@@ -1939,6 +2103,9 @@ GM.showRepoView = function(container, repo, autoFetch) {
     }).catch(function(e) { tc.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + GM.escape(e.message) + '</div>'; });
   }
 
+  container.querySelector('#gm-deploy').addEventListener('click', function() {
+    GM.runDeploy(repo, function() { loadStatus(); GM.loadRepos(); });
+  });
   container.querySelector('#gm-pull').addEventListener('click', function() { doAction('pull'); });
   container.querySelector('#gm-push').addEventListener('click', function() { doAction('push'); });
   container.querySelector('#gm-fetch').addEventListener('click', function() { doAction('fetch'); });

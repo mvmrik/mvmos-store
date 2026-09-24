@@ -19,6 +19,14 @@
       "direction": "provides",
       "summary": "Calendar ships a Telegram adapter, so your events are reachable from the Telegram Hub bot.",
       "requires": "Telegram Hub installed with a bot token configured, and your Telegram account linked to your Apps Hub account."
+    },
+    {
+      "app": "",
+      "name": "Any app",
+      "kind": "app_api",
+      "direction": "provides",
+      "summary": "Calendar exposes an app-to-app API: other apps can list your events for a period, add timed, all-day or repeating events, edit or delete them and mark them done, always only in your own calendar.",
+      "requires": "The Calendar App API has to be switched on in Apps Hub → Settings → App APIs. It is off by default."
     }
   ]
 }

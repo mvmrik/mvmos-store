@@ -15,6 +15,14 @@ def _db():
     conn = sqlite3.connect(_DB_PATH)
     conn.execute("CREATE TABLE IF NOT EXISTS repo_favorites (system_user TEXT NOT NULL, path TEXT NOT NULL, "
                  "PRIMARY KEY (system_user, path))")
+    # A display name the user gave a repository in this window only; the
+    # folder and the repository itself are never renamed.
+    conn.execute("CREATE TABLE IF NOT EXISTS repo_aliases (system_user TEXT NOT NULL, path TEXT NOT NULL, "
+                 "alias TEXT NOT NULL, PRIMARY KEY (system_user, path))")
+    # The command the Deploy button runs in the repository, whatever the
+    # project uses for it (php artisan deploy, composer deploy, a script).
+    conn.execute("CREATE TABLE IF NOT EXISTS repo_deploy (system_user TEXT NOT NULL, path TEXT NOT NULL, "
+                 "command TEXT NOT NULL, PRIMARY KEY (system_user, path))")
     conn.execute("CREATE TABLE IF NOT EXISTS repo_cache (system_user TEXT NOT NULL, path TEXT NOT NULL, "
                  "PRIMARY KEY (system_user, path))")
     try:
@@ -399,6 +407,10 @@ def list_repos(all: bool = False, scan: bool = False, extra: list[str] = Query(d
     with _db() as conn:
         favorites = {r[0] for r in conn.execute(
             "SELECT path FROM repo_favorites WHERE system_user = ?", (user,))}
+        aliases = dict(conn.execute(
+            "SELECT path, alias FROM repo_aliases WHERE system_user = ?", (user,)))
+        deploys = dict(conn.execute(
+            "SELECT path, command FROM repo_deploy WHERE system_user = ?", (user,)))
         cached = [r[0] for r in conn.execute(
             "SELECT path FROM repo_cache WHERE system_user = ?", (user,))]
         if scan or not cached:
@@ -418,9 +430,11 @@ def list_repos(all: bool = False, scan: bool = False, extra: list[str] = Query(d
     for entry in entries:
         if entry:
             entry['favorite'] = entry['path'] in favorites
+            entry['alias'] = aliases.get(entry['path'])
+            entry['deploy'] = deploys.get(entry['path'])
             result.append(entry)
 
-    return JSONResponse({'repos': sorted(result, key=lambda x: x['name'].lower()),
+    return JSONResponse({'repos': sorted(result, key=lambda x: (x['alias'] or x['name']).lower()),
                          'current_user': user, 'foreign_access': access, 'scanned': scanned})
 
 
@@ -441,6 +455,40 @@ def set_repo_favorite(body: FavoriteBody, session=Depends(get_current_session)):
         else:
             conn.execute("DELETE FROM repo_favorites WHERE system_user = ? AND path = ?", (user, path))
     return JSONResponse({'ok': True, 'path': path, 'favorite': body.favorite})
+
+
+class RepoSettingsBody(BaseModel):
+    path: str
+    alias: str = ''
+    deploy: str = ''
+
+
+@router.post("/repos/settings")
+def set_repo_settings(body: RepoSettingsBody, session=Depends(get_current_session)):
+    """Sets the name the repository is shown under and the command its Deploy
+    button runs; an empty value clears either. The name is purely visual —
+    nothing on disk or in git changes. The command is only stored here and
+    runs in the user's own shell when they press Deploy, never on its own."""
+    user = session["effective_user"]
+    path = body.path.strip()
+    if not path:
+        raise HTTPException(400, 'Repository path is required')
+    alias = ' '.join(body.alias.split())[:120]
+    # One line: it is typed into a shell, where a line break would run the
+    # rest as a separate command.
+    deploy = ' '.join(body.deploy.splitlines()).strip()[:500]
+    with _db() as conn:
+        if alias:
+            conn.execute("INSERT INTO repo_aliases (system_user, path, alias) VALUES (?, ?, ?) "
+                         "ON CONFLICT(system_user, path) DO UPDATE SET alias = excluded.alias", (user, path, alias))
+        else:
+            conn.execute("DELETE FROM repo_aliases WHERE system_user = ? AND path = ?", (user, path))
+        if deploy:
+            conn.execute("INSERT INTO repo_deploy (system_user, path, command) VALUES (?, ?, ?) "
+                         "ON CONFLICT(system_user, path) DO UPDATE SET command = excluded.command", (user, path, deploy))
+        else:
+            conn.execute("DELETE FROM repo_deploy WHERE system_user = ? AND path = ?", (user, path))
+    return JSONResponse({'ok': True, 'path': path, 'alias': alias or None, 'deploy': deploy or None})
 
 
 class UnlockBody(BaseModel):

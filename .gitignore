@@ -4,6 +4,11 @@
 # make-zip.sh ships the empty directory so installs still get the folder.
 source/apps/*/public/*upload*/
 
+# Some apps keep their uploads next to their code instead, in a top-level
+# uploads/ directory (Classifieds' listing photos). Same user data, same rule.
+source/apps/*/*upload*/
+source/backend/apps/*/*upload*/
+
 # mvmCloud keeps its per-user files in a top-level storage/ directory instead
 # of public/*upload*/, so the rule above misses it. Same reasoning: this is
 # user data synced live from the installation, never app code, and must never

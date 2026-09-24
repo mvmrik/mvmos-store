@@ -2,6 +2,13 @@
 const _tkti18n = {
   en: { title: 'Tasks' },
   bg: { title: 'Задачи' },
+  de: { title: 'Aufgaben' },
+  es: { title: 'Tareas' },
+  fr: { title: 'Tâches' },
+  ja: { title: 'タスク' },
+  'pt-BR': { title: 'Tarefas' },
+  ru: { title: 'Задачи' },
+  'zh-CN': { title: '任务' },
 };
 function _tkt(key) { const lang = window.mvmOS?.lang || 'en'; return (_tkti18n[lang] || _tkti18n.en)[key] || key; }
 

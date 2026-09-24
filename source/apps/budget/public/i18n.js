@@ -9,6 +9,7 @@
   if (window.BUDGET_I18N) return;
   window.BUDGET_I18N = {
     en: {
+      budget_notif_shared: "{name} shared the budget category \"{title}\" with you",
       title: 'Budget', add_category: '+ Category', mass_add: 'Mass add',
       login_needed: 'Log in to Apps Hub to use Budget',
       no_categories: 'No categories yet. Create your first one.',
@@ -65,6 +66,7 @@
       stats_no_expenses: 'No expenses in this period.',
     },
     bg: {
+      budget_notif_shared: "{name} сподели бюджетна категория \"{title}\" с теб",
       title: 'Бюджет', add_category: '+ Категория', mass_add: 'Разпредели сума',
       login_needed: 'Влез в Apps Hub, за да ползваш бюджета',
       no_categories: 'Все още няма категории. Създай първата.',
@@ -121,6 +123,7 @@
       stats_no_expenses: 'Няма разходи в този период.',
     },
     de: {
+      budget_notif_shared: "{name} hat die Budget-Kategorie „{title}“ mit dir geteilt",
       title: 'Budget', add_category: '+ Kategorie', mass_add: 'Sammeleintrag',
       login_needed: 'Melde dich im Apps Hub an, um Budget zu nutzen',
       no_categories: 'Noch keine Kategorien. Lege deine erste an.',
@@ -177,6 +180,7 @@
       stats_no_expenses: 'In diesem Zeitraum keine Ausgaben.',
     },
     es: {
+      budget_notif_shared: "{name} ha compartido contigo la categoría de presupuesto \"{title}\"",
       title: 'Presupuesto', add_category: '+ Categoría', mass_add: 'Añadir en bloque',
       login_needed: 'Inicia sesión en Apps Hub para usar Presupuesto',
       no_categories: 'Todavía no hay categorías. Crea la primera.',
@@ -233,6 +237,7 @@
       stats_no_expenses: 'No hay gastos en este periodo.',
     },
     fr: {
+      budget_notif_shared: "{name} a partagé la catégorie de budget « {title} » avec vous",
       title: 'Budget', add_category: '+ Catégorie', mass_add: 'Ajout groupé',
       login_needed: 'Connecte-toi à Apps Hub pour utiliser Budget',
       no_categories: "Pas encore de catégories. Crée la première.",
@@ -289,6 +294,7 @@
       stats_no_expenses: 'Aucune dépense sur cette période.',
     },
     ja: {
+      budget_notif_shared: "{name} さんが予算カテゴリー「{title}」を共有しました",
       title: '家計簿', add_category: '+ カテゴリ', mass_add: 'まとめて追加',
       login_needed: '家計簿を使うには Apps Hub にログインしてください',
       no_categories: 'カテゴリがまだありません。最初のカテゴリを作成してください。',
@@ -345,6 +351,7 @@
       stats_no_expenses: 'この期間に支出はありません。',
     },
     'pt-BR': {
+      budget_notif_shared: "{name} compartilhou a categoria do orçamento \"{title}\" com você",
       title: 'Orçamento', add_category: '+ Categoria', mass_add: 'Adicionar em massa',
       login_needed: 'Entre no Apps Hub para usar o Orçamento',
       no_categories: 'Ainda não há categorias. Crie a primeira.',
@@ -401,6 +408,7 @@
       stats_no_expenses: 'Sem despesas neste período.',
     },
     ru: {
+      budget_notif_shared: "{name} поделился(-ась) с вами категорией бюджета «{title}»",
       title: 'Бюджет', add_category: '+ Категория', mass_add: 'Распределить сумму',
       login_needed: 'Войдите в Apps Hub, чтобы пользоваться бюджетом',
       no_categories: 'Категорий пока нет. Создайте первую.',
@@ -457,6 +465,7 @@
       stats_no_expenses: 'В этом периоде расходов нет.',
     },
     'zh-CN': {
+      budget_notif_shared: "{name} 与你共享了预算分类“{title}”",
       title: '预算', add_category: '+ 分类', mass_add: '批量添加',
       login_needed: '请登录 Apps Hub 以使用预算',
       no_categories: '还没有分类。创建第一个吧。',
@@ -513,4 +522,21 @@
       stats_no_expenses: '该期间没有支出。',
     },
   };
+})();
+
+// The notification bell reads window._i18n, where the table above never goes.
+// It loads this file on its own when a "category shared with you" notice
+// turns up, so the budget_notif_* keys are merged in for the desktop's
+// language, and again on every language switch.
+(function () {
+  function merge() {
+    var all = window.BUDGET_I18N;
+    var lang = (window.mvmOS && window.mvmOS.lang) || 'en';
+    if (!all[lang]) lang = lang.indexOf('pt') === 0 ? 'pt-BR' : lang.indexOf('zh') === 0 ? 'zh-CN' : lang.split('-')[0];
+    var table = all[lang] || all.en;
+    window._i18n = window._i18n || {};
+    Object.keys(table).forEach(function (k) { if (k.indexOf('budget_notif_') === 0) window._i18n[k] = table[k]; });
+  }
+  merge();
+  if (window.mvmOS && window.mvmOS.onLangChange) window.mvmOS.onLangChange(merge);
 })();

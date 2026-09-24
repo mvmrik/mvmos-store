@@ -64,6 +64,7 @@ The one exception is an app that must genuinely reach the system — `subprocess
 | `trayable` | no | `true` if the app supports System Tray |
 | `scheduler` | no | Python file for background scheduled logic (e.g. `"scheduler.py"`) |
 | `public_directory` | no | `false` to hide from the Apps Hub public directory card grid even though `public.py` exists — see [Listing in the public directory](#listing-in-the-public-directory). Default `true`. |
+| `public_api_only` | no | `true` when the public router is only an endpoint another page calls with the visitor's token (for example a game's statistics fetched from inside Game Hub), not a page of its own. Apps Hub then does not offer the app as a public page to switch on. Needs mvmOS 1.5.0; older cores ignore it. |
 
 ### Official Store categories
 

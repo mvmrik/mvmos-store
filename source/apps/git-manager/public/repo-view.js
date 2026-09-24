@@ -19,7 +19,7 @@ GM.repoView = (function() {
     container.innerHTML = `
       <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)">
         <div style="flex:1;min-width:0">
-          <div style="font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${repo.name}</div>
+          <div class="gm-repo-title" style="font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${GM.escape(GM.repoLabel(repo))}</div>
           <div style="font-size:.72rem;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px" id="gm-remote-label">${repo.remote || ''}</div>
         </div>
         <span id="gm-branch-badge" style="font-size:.75rem;background:var(--surface2,#313244);border-radius:12px;padding:2px 9px;white-space:nowrap;flex-shrink:0">🌿 ${repo.branch}</span>

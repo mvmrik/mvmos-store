@@ -3,8 +3,33 @@
     {
       "name": "cfg",
       "columns": [
-        { "name": "key",   "type": "TEXT", "primary": true },
-        { "name": "value", "type": "TEXT" }
+        {
+          "name": "key",
+          "type": "TEXT",
+          "primary": true
+        },
+        {
+          "name": "value",
+          "type": "TEXT"
+        }
+      ]
+    },
+    {
+      "name": "stats_hourly",
+      "columns": [
+        {
+          "name": "hour",
+          "type": "INTEGER",
+          "primary": true
+        },
+        {
+          "name": "dl",
+          "type": "INTEGER"
+        },
+        {
+          "name": "ul",
+          "type": "INTEGER"
+        }
       ]
     }
   ]
