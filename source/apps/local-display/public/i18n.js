@@ -31,6 +31,7 @@
       ld_failed:            'It did not work. Details below.',
       ld_busy:              'Another action is still running.',
       ld_unsupported:       'Only Debian and Ubuntu based systems are supported.',
+      ld_desktop:           'This computer already has a graphical desktop. Local Display is only for computers with nothing but a text console, because it would take the screen, keyboard and mouse away from the desktop.',
       ld_password:          'Enter your password to change what this computer\'s screen shows.',
     },
     bg: {
@@ -61,6 +62,7 @@
       ld_failed:            'Не стана. Подробности по-долу.',
       ld_busy:              'Все още се изпълнява друго действие.',
       ld_unsupported:       'Поддържат се само системи, базирани на Debian и Ubuntu.',
+      ld_desktop:           'Този компютър вече има графична среда. Local Display е само за компютри с текстова конзола, защото иначе би отнел екрана, клавиатурата и мишката от графичната среда.',
       ld_password:          'Въведи паролата си, за да промениш какво показва екранът на този компютър.',
     },
     de: {
@@ -91,6 +93,7 @@
       ld_failed:            'Das hat nicht geklappt. Details unten.',
       ld_busy:              'Eine andere Aktion läuft noch.',
       ld_unsupported:       'Nur Systeme auf Basis von Debian und Ubuntu werden unterstützt.',
+      ld_desktop:           'Dieser Computer hat bereits eine grafische Oberfläche. Local Display ist nur für Computer mit reiner Textkonsole gedacht, weil es der Oberfläche sonst Bildschirm, Tastatur und Maus wegnehmen würde.',
       ld_password:          'Gib dein Passwort ein, um zu ändern, was der Bildschirm dieses Computers zeigt.',
     },
     es: {
@@ -121,6 +124,7 @@
       ld_failed:            'No ha funcionado. Detalles abajo.',
       ld_busy:              'Todavía hay otra acción en curso.',
       ld_unsupported:       'Solo se admiten sistemas basados en Debian y Ubuntu.',
+      ld_desktop:           'Este ordenador ya tiene un escritorio gráfico. Local Display es solo para ordenadores con únicamente una consola de texto, porque le quitaría al escritorio la pantalla, el teclado y el ratón.',
       ld_password:          'Introduce tu contraseña para cambiar lo que muestra la pantalla de este ordenador.',
     },
     fr: {
@@ -151,6 +155,7 @@
       ld_failed:            'Cela n\'a pas fonctionné. Détails ci-dessous.',
       ld_busy:              'Une autre action est encore en cours.',
       ld_unsupported:       'Seuls les systèmes basés sur Debian et Ubuntu sont pris en charge.',
+      ld_desktop:           'Cet ordinateur a déjà un bureau graphique. Local Display est réservé aux ordinateurs qui n\'ont qu\'une console texte, car il retirerait l\'écran, le clavier et la souris au bureau.',
       ld_password:          'Saisissez votre mot de passe pour modifier ce qu\'affiche l\'écran de cet ordinateur.',
     },
     ja: {
@@ -181,6 +186,7 @@
       ld_failed:            'うまくいきませんでした。詳細は下にあります。',
       ld_busy:              '別の操作がまだ実行中です。',
       ld_unsupported:       'Debian と Ubuntu ベースのシステムのみ対応しています。',
+      ld_desktop:           'このコンピューターにはすでにグラフィカルなデスクトップがあります。Local Display はデスクトップから画面、キーボード、マウスを奪ってしまうため、テキストコンソールのみのコンピューター専用です。',
       ld_password:          'このコンピューターの画面の表示を変更するには、パスワードを入力してください。',
     },
     'pt-BR': {
@@ -211,6 +217,7 @@
       ld_failed:            'Não funcionou. Detalhes abaixo.',
       ld_busy:              'Outra ação ainda está em andamento.',
       ld_unsupported:       'Somente sistemas baseados em Debian e Ubuntu são suportados.',
+      ld_desktop:           'Este computador já tem um ambiente gráfico. O Local Display é apenas para computadores só com console de texto, porque tiraria a tela, o teclado e o mouse do ambiente gráfico.',
       ld_password:          'Digite sua senha para mudar o que a tela deste computador mostra.',
     },
     ru: {
@@ -241,6 +248,7 @@
       ld_failed:            'Не получилось. Подробности ниже.',
       ld_busy:              'Другое действие ещё выполняется.',
       ld_unsupported:       'Поддерживаются только системы на основе Debian и Ubuntu.',
+      ld_desktop:           'На этом компьютере уже есть графическая среда. Local Display предназначен только для компьютеров с текстовой консолью, иначе он отнимет у графической среды экран, клавиатуру и мышь.',
       ld_password:          'Введите пароль, чтобы изменить то, что показывает экран этого компьютера.',
     },
     'zh-CN': {
@@ -271,6 +279,7 @@
       ld_failed:            '操作失败。详情见下方。',
       ld_busy:              '另一个操作仍在进行中。',
       ld_unsupported:       '仅支持基于 Debian 和 Ubuntu 的系统。',
+      ld_desktop:           '这台计算机已有图形桌面。Local Display 仅适用于只有文本控制台的计算机，否则它会从桌面夺走屏幕、键盘和鼠标。',
       ld_password:          '输入密码以更改这台电脑屏幕显示的内容。',
     },
   };

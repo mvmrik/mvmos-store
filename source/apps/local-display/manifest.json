@@ -9,8 +9,8 @@
     "tv",
     "system"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "min_core_version": "1.6.0",
-  "description": "Show mvmOS full screen on the monitor or TV connected to this computer, even without a desktop environment.",
+  "description": "Show mvmOS full screen on the monitor or TV connected to a computer that has no desktop environment, only a text console.",
   "entry": "main.js"
 }

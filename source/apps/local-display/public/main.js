@@ -96,10 +96,12 @@
     function render() {
       if (!state) { el.innerHTML = '<div class="ld-dim">' + esc(t('ld_working')) + '</div>'; return; }
       var s = state, job = s.job || {}, busy = job.running;
+      var blocked = !s.supported || s.desktop;
       var jobText = busy ? t('ld_working') : (job.ok === false ? t('ld_failed') : '');
       var html = '<div class="ld-intro">' + esc(t('ld_intro')) + '</div>';
 
       if (!s.supported) html += '<div class="ld-card ld-warn">' + esc(t('ld_unsupported')) + '</div>';
+      else if (s.desktop) html += '<div class="ld-card ld-warn">' + esc(t('ld_desktop')) + '</div>';
 
       html += '<div class="ld-card">' +
         '<div class="ld-row"><span class="ld-label">' + esc(t('ld_screen')) + '</span>' +
@@ -109,9 +111,9 @@
         (s.screens.length ? '' : '<div class="ld-dim">' + esc(t('ld_screen_none')) + '</div>') +
         '<div class="ld-row"><span><span class="ld-dot" style="background:' + (s.running ? '#a6e3a1' : 'var(--text-dim)') + '"></span>' +
         esc(s.running ? t('ld_state_on') : t('ld_state_off')) + '</span>' +
-        '<button class="s-btn s-btn-sm" data-act="' + (s.running ? 'stop' : 'start') + '"' + (busy || !s.supported ? ' disabled' : '') + '>' +
+        '<button class="s-btn s-btn-sm" data-act="' + (s.running ? 'stop' : 'start') + '"' + (busy || (blocked && !s.running) ? ' disabled' : '') + '>' +
         esc(s.running ? t('ld_stop') : t('ld_show')) + '</button></div>' +
-        '<label class="ld-switch"><input type="checkbox" data-auto' + (s.enabled ? ' checked' : '') + (busy || !s.supported ? ' disabled' : '') + '>' +
+        '<label class="ld-switch"><input type="checkbox" data-auto' + (s.enabled ? ' checked' : '') + (busy || blocked ? ' disabled' : '') + '>' +
         '<span class="ld-label">' + esc(t('ld_autostart')) + '</span></label>' +
         '<div class="ld-dim">' + esc(t('ld_autostart_desc')) + '</div>' +
         (s.cage && s.browser ? '' : '<div class="ld-dim">' + esc(t('ld_first_time')) + '</div>') +

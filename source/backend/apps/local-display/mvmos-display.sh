@@ -61,6 +61,23 @@ remember() {
   BEFORE_APT=""
 }
 
+# A computer with a graphical desktop already owns its screen, keyboard and
+# mouse. A kiosk started next to it takes them away from the desktop and leaves
+# nothing usable, so Local Display is only for computers with a text console.
+desktop() {
+  systemctl is-active --quiet display-manager 2>/dev/null && return 0
+  local s
+  for s in $(loginctl list-sessions --no-legend 2>/dev/null | awk '{print $1}'); do
+    [ "$(loginctl show-session "$s" -p Name --value 2>/dev/null)" = "$KIOSK_USER" ] && continue
+    case "$(loginctl show-session "$s" -p Type --value 2>/dev/null)" in x11|wayland|mir) return 0 ;; esac
+  done
+  return 1
+}
+no_desktop() {
+  desktop && die "this computer already has a graphical desktop; Local Display is only for computers with a text console"
+  return 0
+}
+
 installed() { command -v cage >/dev/null && browser >/dev/null && [ -f "$UNIT" ] && id "$KIOSK_USER" >/dev/null 2>&1; }
 
 setup() {
@@ -139,6 +156,7 @@ EOF
 run() {
   local u b host port
   u=$(url) || exit 1
+  no_desktop
   b=$(browser) || die "no browser installed; run: sudo $NAME start"
   # At boot mvmOS itself may still be starting; wait for it (up to a minute)
   # so the screen does not open on a connection error.
@@ -157,6 +175,7 @@ run() {
 
 status() {
   echo "screen:    $(screens || echo none)"
+  echo "desktop:   $(desktop && echo "yes, Local Display cannot be used" || echo no)"
   echo "installed: $(installed && echo yes || echo no)"
   echo "running:   $(systemctl is-active "$NAME" 2>/dev/null || true)"
   echo "at boot:   $(systemctl is-enabled "$NAME" 2>/dev/null || echo disabled)"
@@ -240,10 +259,10 @@ remove() {
 }
 
 case "${1:-}" in
-  start)   need_root start; url >/dev/null || exit 1; installed || setup || exit 1
+  start)   need_root start; url >/dev/null || exit 1; no_desktop; installed || setup || exit 1
            systemctl start "$NAME" && echo "mvmOS is now on the screen." ;;
   stop)    need_root stop; systemctl stop "$NAME"; echo "Back to the text console." ;;
-  enable)  need_root enable; url >/dev/null || exit 1; installed || setup || exit 1
+  enable)  need_root enable; url >/dev/null || exit 1; no_desktop; installed || setup || exit 1
            systemctl enable "$NAME" && echo "mvmOS will be shown on the screen when the computer starts." ;;
   disable) need_root disable; systemctl disable "$NAME"; echo "The computer will start in the text console." ;;
   status)  status ;;

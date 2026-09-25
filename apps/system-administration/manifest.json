@@ -80,9 +80,9 @@
       "name": "Local Display",
       "icon": "📺",
       "category": "System & Administration",
-      "version": "1.0.0",
-      "description": "Show mvmOS full screen on the monitor or TV connected to this computer, even without a desktop environment.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/local-display-1.0.0.zip",
+      "version": "1.0.1",
+      "description": "Show mvmOS full screen on the monitor or TV connected to a computer that has no desktop environment, only a text console.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/local-display-1.0.1.zip",
       "tags": [
         "display",
         "kiosk",

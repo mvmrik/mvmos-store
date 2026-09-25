@@ -12,6 +12,7 @@
   ],
   "requirements": [
     "A Debian or Ubuntu based system.",
+    "No graphical desktop running on the computer, only a text console.",
     "A monitor or TV connected to the computer.",
     "An internet connection on first use to install cage and Chromium.",
     "A Linux user allowed to use sudo."

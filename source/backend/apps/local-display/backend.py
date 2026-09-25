@@ -89,6 +89,30 @@ def _browser() -> str | None:
     return None
 
 
+def _desktop() -> bool:
+    """True when a graphical desktop already owns the screen. The kiosk would
+    take the screen, keyboard and mouse away from it, so the app refuses.
+    Same test as desktop() in mvmos-display.sh."""
+    def run(*args):
+        try:
+            return subprocess.run(args, capture_output=True, text=True, timeout=5)
+        except Exception:
+            return None
+    r = run("systemctl", "is-active", "--quiet", "display-manager")
+    if r is not None and r.returncode == 0:
+        return True
+    r = run("loginctl", "list-sessions", "--no-legend")
+    for line in (r.stdout.splitlines() if r else []):
+        sid = line.split()[0] if line.split() else ""
+        if not sid:
+            continue
+        info = run("loginctl", "show-session", sid, "-p", "Name", "-p", "Type")
+        props = dict(l.split("=", 1) for l in (info.stdout.splitlines() if info else []) if "=" in l)
+        if props.get("Name") != SERVICE and props.get("Type") in ("x11", "wayland", "mir"):
+            return True
+    return False
+
+
 @router.get("/status")
 def status(request: Request, session=Depends(get_current_session)):
     port = (request.scope.get("server") or ("", 0))[1]
@@ -98,6 +122,7 @@ def status(request: Request, session=Depends(get_current_session)):
         job = dict(_job)
     return JSONResponse({
         "supported": shutil.which("apt-get") is not None,
+        "desktop": _desktop(),
         "screens": _screens(),
         "cage": shutil.which("cage") is not None,
         "browser": _browser(),
