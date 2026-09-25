@@ -74,6 +74,22 @@
         "wellbeing"
       ],
       "min_core_version": "1.0.0"
+    },
+    {
+      "id": "local-display",
+      "name": "Local Display",
+      "icon": "📺",
+      "category": "System & Administration",
+      "version": "1.0.0",
+      "description": "Show mvmOS full screen on the monitor or TV connected to this computer, even without a desktop environment.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/local-display-1.0.0.zip",
+      "tags": [
+        "display",
+        "kiosk",
+        "tv",
+        "system"
+      ],
+      "min_core_version": "1.6.0"
     }
   ]
 }

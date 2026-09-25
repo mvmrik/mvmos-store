@@ -23,6 +23,13 @@ def _db():
     # project uses for it (php artisan deploy, composer deploy, a script).
     conn.execute("CREATE TABLE IF NOT EXISTS repo_deploy (system_user TEXT NOT NULL, path TEXT NOT NULL, "
                  "command TEXT NOT NULL, PRIMARY KEY (system_user, path))")
+    # Folders a user added to the repository search, on top of SCAN_ROOTS.
+    conn.execute("CREATE TABLE IF NOT EXISTS repo_scan_paths (system_user TEXT NOT NULL, path TEXT NOT NULL, "
+                 "PRIMARY KEY (system_user, path))")
+    # Each user's Issues settings that differ from the defaults (see
+    # _issue_settings).
+    conn.execute("CREATE TABLE IF NOT EXISTS issue_prefs (system_user TEXT NOT NULL, key TEXT NOT NULL, "
+                 "value TEXT NOT NULL, PRIMARY KEY (system_user, key))")
     conn.execute("CREATE TABLE IF NOT EXISTS repo_cache (system_user TEXT NOT NULL, path TEXT NOT NULL, "
                  "PRIMARY KEY (system_user, path))")
     try:
@@ -255,7 +262,7 @@ def _activate_issue_branch(session, path, branch, mode='', base='', source='remo
     }
 
 
-def _sync_issue_branch(session, path, branch):
+def _sync_issue_branch(session, path, branch, mode='off'):
     """Called whenever an issue is opened or navigated to. Never creates a
     branch — it only switches to one that already exists:
       - local branch exists  -> switch to it (fast-forward pull if tracked)
@@ -264,6 +271,9 @@ def _sync_issue_branch(session, path, branch):
       - neither exists       -> move to the repo's default branch (if the
                                  tree is clean) so the user never stays
                                  stranded on a different issue's branch
+    Only with the user's setting on 'always', or on 'other_issue' while the
+    current branch belongs to a different issue; otherwise it just reports
+    the state and never touches the working tree.
     """
     state = _issue_branch_state(session, path, branch)
     result = {
@@ -277,7 +287,9 @@ def _sync_issue_branch(session, path, branch):
         'pulled': False,
         'redirected_default': '',
     }
-    if state['fetch_error']:
+    on_other_issue = bool(re.search(r'issue\d+$', state['current'] or '', re.I)) and state['current'] != branch
+    result['auto'] = mode == 'always' or (mode == 'other_issue' and on_other_issue)
+    if state['fetch_error'] or not result['auto']:
         return result
 
     dirty = state['dirty']
@@ -337,21 +349,34 @@ def _download_issue_branch(session, path, branch):
 
 # ── Repos ──────────────────────────────────────────────────────────────────────
 
+SCAN_ROOTS = ('/var/www', '/opt', '/home')
+MAX_SCAN_FOLDERS = 20
+
+
+def _scan_folders(user):
+    with _db() as conn:
+        return [r[0] for r in conn.execute(
+            "SELECT path FROM repo_scan_paths WHERE system_user = ? ORDER BY path", (user,))]
+
+
 def _scan_repo_paths(user):
-    """Walks the usual project roots for .git folders. This is the slow part of
-    listing repositories, so the result is cached per system user and only
-    refreshed when every repository is requested."""
+    """Walks the usual project roots and the user's own added folders for .git
+    folders. This is the slow part of listing repositories, so the result is
+    cached per system user and only refreshed when every repository is
+    requested. Added folders are searched as the user, so a folder they pick
+    never reveals what only root can see."""
     seen = set()
     paths = []
-    for base in ['/var/www', '/opt', '/home', _home(user)]:
+    bases = [(b, False) for b in (*SCAN_ROOTS, _home(user))] + [(b, user != 'root') for b in _scan_folders(user)]
+    for base, as_user in bases:
         if not os.path.isdir(base):
             continue
         try:
-            r = subprocess.run(
-                ['find', base, '-name', '.git', '-maxdepth', '4', '-type', 'd',
-                 '-not', '-path', '*/node_modules/*', '-not', '-path', '*/.git/*'],
-                capture_output=True, text=True, timeout=10
-            )
+            cmd = ['find', base, '-name', '.git', '-maxdepth', '4', '-type', 'd',
+                   '-not', '-path', '*/node_modules/*', '-not', '-path', '*/.git/*']
+            if as_user:
+                cmd = ['runuser', '-u', user, '--'] + cmd
+            r = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
             for line in r.stdout.splitlines():
                 p = os.path.dirname(line.strip())
                 if p and p not in seen:
@@ -810,7 +835,103 @@ def repo_clone(body: CloneBody, session=Depends(get_current_session)):
     return JSONResponse({'ok': True, 'output': out})
 
 
+class ScanFoldersBody(BaseModel):
+    folders: list[str] = []
+
+
+@router.get("/settings/repos")
+def repos_settings(session=Depends(get_current_session)):
+    """The folders searched for repositories, shown in the app's Store settings."""
+    user = session["effective_user"]
+    return JSONResponse({'roots': [*SCAN_ROOTS, _home(user)], 'folders': _scan_folders(user)})
+
+
+@router.put("/settings/repos")
+def repos_save_settings(body: ScanFoldersBody, session=Depends(get_current_session)):
+    """Replaces the user's added folders. The cached repository list is dropped,
+    so the next time the list loads the disk is searched again with them."""
+    user = session["effective_user"]
+    folders = []
+    for raw in body.folders:
+        folder = raw.strip()
+        if not folder:
+            continue
+        if not folder.startswith('/') or '\0' in folder or len(folder) > 1024:
+            raise HTTPException(400, 'not_absolute')
+        folder = os.path.normpath(folder)
+        if folder not in folders:
+            folders.append(folder)
+    if len(folders) > MAX_SCAN_FOLDERS:
+        raise HTTPException(400, 'too_many')
+    with _db() as conn:
+        if set(folders) != set(_scan_folders(user)):
+            conn.execute("DELETE FROM repo_scan_paths WHERE system_user = ?", (user,))
+            conn.executemany("INSERT INTO repo_scan_paths (system_user, path) VALUES (?, ?)",
+                             [(user, f) for f in folders])
+            conn.execute("DELETE FROM repo_cache WHERE system_user = ?", (user,))
+    return JSONResponse({'ok': True, 'folders': _scan_folders(user)})
+
+
 # ── GitHub Issues (Premium implementation lives in apps/git-manager/premium) ──
+
+# off:         stay on the current branch (the default)
+# other_issue: switch only away from a different issue's branch
+# always:      to the issue's branch, or to the default branch while it has none
+ISSUE_SWITCH_MODES = ('off', 'other_issue', 'always')
+# Parts of the issue list a user can pick; none picked shows one list of all.
+ISSUE_LIST_GROUPS = ('created', 'assigned', 'others')
+
+
+def _issue_settings(user):
+    with _db() as conn:
+        prefs = dict(conn.execute("SELECT key, value FROM issue_prefs WHERE system_user = ?", (user,)))
+    mode = prefs.get('switch_mode')
+    groups = (prefs.get('list_groups') or '').split(',')
+    return {
+        'switch_mode': mode if mode in ISSUE_SWITCH_MODES else 'off',
+        'list_groups': [g for g in ISSUE_LIST_GROUPS if g in groups],
+        'list_merge_mine': prefs.get('list_merge_mine') == '1',
+    }
+
+
+def _issue_switch_mode(user):
+    return _issue_settings(user)['switch_mode']
+
+
+class IssueSettingsBody(BaseModel):
+    switch_mode: str = 'off'
+    list_groups: list[str] = []
+    list_merge_mine: bool = False
+
+
+@router.get("/settings/issues")
+def issues_settings(session=Depends(get_current_session)):
+    """The Issues settings shown in the app's Store settings panel."""
+    module = _premium_module()
+    return JSONResponse({'premium': bool(module and module.is_available()),
+                         **_issue_settings(session["effective_user"])})
+
+
+@router.put("/settings/issues")
+def issues_save_settings(body: IssueSettingsBody, session=Depends(get_current_session)):
+    """What opening an issue does to the branch and how the issue list is
+    split. Each user chooses it for themselves; like the rest of Issues it
+    needs Premium."""
+    if body.switch_mode not in ISSUE_SWITCH_MODES or any(g not in ISSUE_LIST_GROUPS for g in body.list_groups):
+        raise HTTPException(400, 'Invalid Issues settings')
+    _issues_module()
+    user = session["effective_user"]
+    values = {
+        'switch_mode': body.switch_mode,
+        'list_groups': ','.join(g for g in ISSUE_LIST_GROUPS if g in body.list_groups),
+        'list_merge_mine': '1' if body.list_merge_mine else '',
+    }
+    with _db() as conn:
+        conn.execute("DELETE FROM issue_prefs WHERE system_user = ?", (user,))
+        conn.executemany("INSERT INTO issue_prefs (system_user, key, value) VALUES (?, ?, ?)",
+                         [(user, k, v) for k, v in values.items() if v and v != 'off'])
+    return JSONResponse({'ok': True, **_issue_settings(user)})
+
 
 @router.get("/repo/issues/status")
 def issues_status(path: str, session=Depends(get_current_session)):
@@ -952,7 +1073,7 @@ def issues_create_branch(number: int, body: IssueBranchBody, session=Depends(get
 def issues_sync_branch(number: int, body: IssueBranchBody, session=Depends(get_current_session)):
     module, path, remote, user = _issues_context(session, body.path)
     branch = _issue_call(lambda: module.issue_branch_name(user, remote, number))
-    return JSONResponse(_sync_issue_branch(session, path, branch))
+    return JSONResponse(_sync_issue_branch(session, path, branch, _issue_switch_mode(session["effective_user"])))
 
 
 @router.post("/repo/issues/{number}/branch/download")

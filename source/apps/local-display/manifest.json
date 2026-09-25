@@ -1,0 +1,16 @@
+{
+  "id": "local-display",
+  "name": "Local Display",
+  "icon": "📺",
+  "category": "System & Administration",
+  "tags": [
+    "display",
+    "kiosk",
+    "tv",
+    "system"
+  ],
+  "version": "1.0.0",
+  "min_core_version": "1.6.0",
+  "description": "Show mvmOS full screen on the monitor or TV connected to this computer, even without a desktop environment.",
+  "entry": "main.js"
+}

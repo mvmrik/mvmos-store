@@ -1,0 +1,19 @@
+{
+  "tagline": "Turn the computer's own screen into an mvmOS desktop.",
+  "description": "Local Display is for a computer that runs mvmOS with nothing but a text console, such as a small home server or a mini PC connected to a TV. It shows mvmOS full screen on the connected monitor or TV, so the same computer can be used directly with a keyboard and mouse, without installing a desktop environment.\n\nYou can switch it on from the app, or with a command from the computer's own terminal or over SSH. The app can also make the computer open mvmOS on its screen every time it starts. On the screen you sign in with your Linux user, the same as in the browser, and you can switch back to the text console whenever you want.\n\nThe first start installs a small kiosk compositor and the Chromium browser, which run under their own restricted user. Removing the app takes its service, user and command off the system again, together with the packages the first start installed, unless other software has come to need them.",
+  "capabilities": [
+    "Shows mvmOS full screen on the monitor or TV connected to the computer.",
+    "Detects which screens are connected.",
+    "Option to open mvmOS on the screen every time the computer starts.",
+    "The mvmos-display command to switch the screen from the local terminal or over SSH.",
+    "Installs what it needs by itself on first use and removes it again when the app is removed.",
+    "Always leaves a way back to the text console.",
+    "Every change asks for your sudo password."
+  ],
+  "requirements": [
+    "A Debian or Ubuntu based system.",
+    "A monitor or TV connected to the computer.",
+    "An internet connection on first use to install cage and Chromium.",
+    "A Linux user allowed to use sudo."
+  ]
+}

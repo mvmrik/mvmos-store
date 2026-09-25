@@ -1579,7 +1579,8 @@ GM.showRepoView = function(container, repo, autoFetch) {
     tc.querySelector('#gm-issues-new').onclick = function() { renderNewIssue(tc, status); };
     var list = tc.querySelector('#gm-issues-list');
     list.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem">' + t('gm_loading') + '</div>';
-    GM.api('/repo/issues?path=' + encodeURIComponent(repo.path) + '&state=' + state).then(function(data) {
+    Promise.all([GM.api('/repo/issues?path=' + encodeURIComponent(repo.path) + '&state=' + state), GM.issueSettings()]).then(function(results) {
+      var data = results[0], settings = results[1];
       var issues = data.issues || [];
       if (!issues.length) {
         list.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;text-align:center;padding:28px">' + t(state === 'open' ? 'gm_issues_no_open' : 'gm_issues_no_closed') + '</div>';
@@ -1596,25 +1597,45 @@ GM.showRepoView = function(container, repo, autoFetch) {
         row.onclick = function() { renderIssueDetail(tc, issue.number, status, state, true); };
         return row;
       }
-      var mine = issues.filter(function(i) { return status.username && (i.assignees || []).indexOf(status.username) !== -1; });
-      var others = issues.filter(function(i) { return mine.indexOf(i) === -1; });
       function sectionHeader(text) {
         var h = document.createElement('div');
         h.textContent = text;
         h.style.cssText = 'font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);margin:4px 0 6px';
         return h;
       }
-      if (mine.length) {
-        list.appendChild(sectionHeader(t('gm_issues_mine')));
-        mine.forEach(function(issue) { list.appendChild(issueRow(issue)); });
-        if (others.length) {
+      // The groups picked in the settings, in a fixed order. Nothing picked
+      // shows every issue in one list; an issue that fits two groups shows
+      // only in the first.
+      var groups = settings.list_groups || [];
+      if (!groups.length) {
+        issues.forEach(function(issue) { list.appendChild(issueRow(issue)); });
+        return;
+      }
+      var created = function(i) { return !!status.username && i.author === status.username; };
+      var assigned = function(i) { return !!status.username && (i.assignees || []).indexOf(status.username) !== -1; };
+      var sections = [];
+      if (settings.list_merge_mine && groups.indexOf('created') !== -1 && groups.indexOf('assigned') !== -1) {
+        sections.push({title: t('gm_issues_created_or_assigned'), fits: function(i) { return created(i) || assigned(i); }});
+      } else {
+        if (groups.indexOf('created') !== -1) sections.push({title: t('gm_issues_created'), fits: created});
+        if (groups.indexOf('assigned') !== -1) sections.push({title: t('gm_issues_mine'), fits: assigned});
+      }
+      if (groups.indexOf('others') !== -1) sections.push({title: t('gm_issues_others'), fits: function(i) { return !created(i) && !assigned(i); }});
+      var shown = [];
+      sections.forEach(function(section) {
+        var items = issues.filter(function(i) { return shown.indexOf(i) === -1 && section.fits(i); });
+        if (!items.length) return;
+        if (shown.length) {
           var divider = document.createElement('div');
           divider.style.cssText = 'border-top:1px solid var(--border);margin:10px 0';
           list.appendChild(divider);
-          list.appendChild(sectionHeader(t('gm_issues_others')));
         }
+        list.appendChild(sectionHeader(section.title));
+        items.forEach(function(issue) { shown.push(issue); list.appendChild(issueRow(issue)); });
+      });
+      if (!shown.length) {
+        list.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;text-align:center;padding:28px">' + t('gm_issues_none_in_view') + '</div>';
       }
-      others.forEach(function(issue) { list.appendChild(issueRow(issue)); });
     }).catch(function(e) {
       list.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + GM.escape(e.message) + '</div>';
     });
@@ -1901,10 +1922,11 @@ GM.showRepoView = function(container, repo, autoFetch) {
       confirmLabel = t('gm_branch_download_confirm');
       choices = [{ mode: 'download', label: t('gm_branch_download_local'), hint: t('gm_branch_download_local_hint', { branch: state.branch }) }];
     } else {
-      info = t('gm_branch_issue_new', { branch: state.branch });
       confirmLabel = t('gm_branch_create');
       defaultBranch = state.default_branch || defaultBranch;
       choices = branchBases().map(function(b) { b.mode = 'create'; return b; });
+      info = choices.length > 1 ? t('gm_branch_issue_new', { branch: state.branch })
+        : t('gm_branch_issue_new_single', { base: choices[0].label });
     }
 
     var blocked = state.dirty && state.current !== state.branch;
@@ -2061,8 +2083,13 @@ GM.showRepoView = function(container, repo, autoFetch) {
             loadStatus();
             updateIssueBranchButtons(tc, repo.branch === issueBranch);
           }
-          if (state.dirty) {
+          if (state.dirty && state.auto) {
             actionResult.style.color = '#f9e2af'; actionResult.textContent = t('gm_issues_dirty_no_switch'); return;
+          }
+          if (!state.auto && state.local_exists) {
+            actionResult.style.color = 'var(--text-dim)';
+            actionResult.textContent = state.current === state.branch ? '' : t('gm_issues_branch_exists_no_switch', {branch: state.branch});
+            return;
           }
           if (state.local_exists) {
             actionResult.style.color = '#a6e3a1';
@@ -2116,17 +2143,21 @@ GM.showRepoView = function(container, repo, autoFetch) {
   function branchBases() {
     var current = repo.branch && repo.branch !== '?' && repo.branch !== 'HEAD' ? repo.branch : '';
     var bases = [];
+    var remoteDefault = defaultBranch ? { branch: defaultBranch, source: 'remote', label: 'origin/' + defaultBranch, mono: true,
+      tag: t('gm_branch_kind_default') + ' · ' + t('gm_branch_source_remote'),
+      hint: t('gm_branch_from_default_hint', { branch: defaultBranch }) } : null;
     if (defaultBranch && defaultBranch !== current) {
       bases.push({ branch: defaultBranch, source: 'local', label: defaultBranch, mono: true,
         tag: t('gm_branch_kind_default') + ' · ' + t('gm_branch_source_local'),
         hint: t('gm_branch_from_local_hint', { branch: defaultBranch }) });
-      bases.push({ branch: defaultBranch, source: 'remote', label: 'origin/' + defaultBranch, mono: true,
-        tag: t('gm_branch_kind_default') + ' · ' + t('gm_branch_source_remote'),
-        hint: t('gm_branch_from_default_hint', { branch: defaultBranch }) });
+      bases.push(remoteDefault);
     }
     bases.push({ branch: current, source: 'local', label: current || 'HEAD', mono: true,
       tag: t('gm_branch_kind_current'),
       hint: t('gm_branch_from_current_hint', { branch: current || 'HEAD' }) });
+    // On the default branch itself its local copy is the current branch, but
+    // the version on origin is still a different starting point.
+    if (defaultBranch && defaultBranch === current) bases.push(remoteDefault);
     return bases;
   }
 
@@ -2416,6 +2447,104 @@ GM.showSSH = function(container) {
   }
 };
 
+// ── Settings (the app's panel in the Store) ──────────────────────────────────
+
+GM.openSettings = function() {
+  AppStore.openWindow({ section: 'my-apps', appId: 'git-manager' });
+};
+
+// The folders searched for repositories are for everyone. What opening an
+// issue does to the branch and how the issue list is split belong to Issues,
+// so they are Premium: without it the choices are shown but a click opens
+// the Premium dialog, and the server refuses to store them anyway.
+GM.issueSettings = function() {
+  return fetch('/api/apps/git-manager/settings/issues').then(function(r) { return r.json(); })
+    .catch(function() { return { premium: false, switch_mode: 'off', list_groups: [], list_merge_mine: false }; });
+};
+
+GM.renderSettingsExtra = async function(wrap) {
+  var results = await Promise.all([GM.issueSettings(),
+    fetch('/api/apps/git-manager/settings/repos').then(function(r) { return r.json(); }).catch(function() { return { roots: [], folders: [] }; })]);
+  var data = results[0], scan = results[1];
+  wrap.style.cssText = 'display:flex;flex-direction:column;gap:16px';
+  var reposBox = document.createElement('div');
+  reposBox.style.cssText = 'display:flex;flex-direction:column;gap:8px';
+  reposBox.innerHTML = '<div style="font-size:.82rem;font-weight:700">' + t('gm_settings_repos_title') + '</div>'
+    + '<div style="font-size:.8rem;color:var(--text-dim)">' + t('gm_settings_scan_label') + '</div>'
+    + '<textarea class="s-input" name="gm-scan-folders" rows="4" spellcheck="false" autocomplete="off" placeholder="/srv/projects" '
+    + 'style="width:100%;max-width:none;box-sizing:border-box;font-family:monospace;resize:vertical"></textarea>'
+    + '<div style="font-size:.75rem;color:var(--text-dim);line-height:1.5">'
+    + t('gm_settings_scan_hint', { roots: (scan.roots || []).map(GM.escape).join(', ') }) + '</div>'
+    + '<div data-gm-scan-error style="display:none;color:#f38ba8;font-size:.78rem"></div>';
+  var folders = reposBox.querySelector('textarea');
+  folders.value = (scan.folders || []).join('\n');
+  folders.dataset.saved = folders.value;
+  wrap.appendChild(reposBox);
+  var issuesBox = document.createElement('div');
+  wrap.appendChild(issuesBox);
+  GM.renderIssueSettings(issuesBox, data);
+};
+
+GM.renderIssueSettings = function(wrap, data) {
+  var off = data.premium ? '' : ' disabled';
+  var option = function(type, name, value, checked, label) {
+    return '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">'
+      + '<input type="' + type + '" name="' + name + '" value="' + value + '"' + (checked ? ' checked' : '') + off + '> ' + label + '</label>';
+  };
+  var hint = function(key) { return '<div style="font-size:.75rem;color:var(--text-dim);line-height:1.5">' + t(key) + '</div>'; };
+  wrap.style.cssText = 'display:flex;flex-direction:column;gap:8px';
+  wrap.innerHTML = '<div style="font-size:.82rem;font-weight:700">' + t('gm_settings_issues_title') + '</div>'
+    + '<div style="font-size:.8rem;color:var(--text-dim)">' + t('gm_settings_switch_label') + '</div>'
+    + ['off', 'other_issue', 'always'].map(function(mode) {
+      return option('radio', 'gm-switch-mode', mode, data.switch_mode === mode, t('gm_settings_switch_' + mode));
+    }).join('')
+    + hint('gm_settings_switch_hint')
+    + '<div style="font-size:.8rem;color:var(--text-dim);margin-top:6px">' + t('gm_settings_list_label') + '</div>'
+    + ['created', 'assigned', 'others'].map(function(group) {
+      return option('checkbox', 'gm-list-group', group, (data.list_groups || []).indexOf(group) !== -1, t('gm_settings_list_' + group));
+    }).join('')
+    + hint('gm_settings_list_hint')
+    + option('checkbox', 'gm-list-merge', '1', data.list_merge_mine, t('gm_settings_list_merge'));
+  // Joining only means something while both of those groups are picked.
+  var merge = wrap.querySelector('input[name="gm-list-merge"]');
+  var syncMerge = function() {
+    var picked = ['created', 'assigned'].every(function(g) { return wrap.querySelector('input[name="gm-list-group"][value="' + g + '"]').checked; });
+    merge.disabled = !data.premium || !picked;
+    merge.parentNode.style.opacity = picked ? '' : '.5';
+  };
+  syncMerge();
+  wrap.addEventListener('change', syncMerge);
+  if (!data.premium && window.mvmOS && window.mvmOS.premiumGate) window.mvmOS.premiumGate(wrap, t('gm_issues_premium_info'));
+};
+
+GM.saveSettingsExtra = async function(panel) {
+  var folders = panel.querySelector('textarea[name="gm-scan-folders"]');
+  if (folders && folders.value !== folders.dataset.saved) {
+    var error = panel.querySelector('[data-gm-scan-error]');
+    var saved = await fetch('/api/apps/git-manager/settings/repos', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ folders: folders.value.split('\n') }),
+    }).catch(function() { return null; });
+    if (saved && saved.ok) {
+      folders.dataset.saved = folders.value;
+      error.style.display = 'none';
+    } else {
+      var detail = saved ? (await saved.json().catch(function() { return {}; })).detail : '';
+      error.textContent = t(detail === 'not_absolute' || detail === 'too_many' ? 'gm_settings_scan_' + detail : 'gm_settings_scan_failed');
+      error.style.display = 'block';
+    }
+  }
+  var picked = panel.querySelector('input[name="gm-switch-mode"]:checked');
+  if (!picked || picked.disabled) return;
+  var groups = Array.prototype.map.call(panel.querySelectorAll('input[name="gm-list-group"]:checked'), function(el) { return el.value; });
+  var merge = panel.querySelector('input[name="gm-list-merge"]');
+  var res = await fetch('/api/apps/git-manager/settings/issues', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ switch_mode: picked.value, list_groups: groups, list_merge_mine: !!(merge && merge.checked) }),
+  });
+  if (!res.ok) throw new Error('premium_required');
+};
+
 // ── Register ──────────────────────────────────────────────────────────────────
 
 mvmOS.registerApp({
@@ -2425,6 +2554,11 @@ mvmOS.registerApp({
   category: 'Developer Tools',
   width: 900,
   height: 580,
+  settings: [],
+  appSettings: true,
+  onAppSettings: GM.openSettings,
+  renderSettingsExtra: function(wrap) { return GM.renderSettingsExtra(wrap); },
+  saveSettingsExtra: function(panel) { return GM.saveSettingsExtra(panel); },
 
   launch: function() {
     mvmOS.createWindow({
@@ -2435,6 +2569,8 @@ mvmOS.registerApp({
       height: 580,
       minWidth: 640,
       minHeight: 400,
+      appSettings: true,
+      onAppSettings: GM.openSettings,
       onMount: function(body) {
         body.innerHTML = '';
         GM.init(body);
@@ -2455,6 +2591,8 @@ window.GitManager = {
       height: 580,
       minWidth: 640,
       minHeight: 400,
+      appSettings: true,
+      onAppSettings: GM.openSettings,
       onMount: function(body) {
         body.innerHTML = '';
         GM.init(body);

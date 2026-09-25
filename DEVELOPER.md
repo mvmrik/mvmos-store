@@ -968,6 +968,20 @@ async def on_startup():
 
 ---
 
+## Cleaning up on uninstall
+
+Uninstalling an app removes `apps/<app-id>/` and `backend/apps/<app-id>/`. If your backend also changed the system outside those folders — a systemd service, a system user, a file in `/etc` or `/usr/local/bin` — define a plain (not async) `on_uninstall()` in `backend.py` to undo it:
+
+```python
+def on_uninstall():
+    subprocess.run(["systemctl", "disable", "--now", "my-app"], timeout=60)
+    os.remove("/etc/systemd/system/my-app.service")
+```
+
+It runs just before the files are removed (requires mvmOS 1.6.0). An exception is logged and the app is removed anyway, so guard steps that may fail, or the ones after them are skipped. Reinstalling or updating an app does not call it.
+
+---
+
 ## i18n
 
 Define your own dictionary inside `main.js`:
