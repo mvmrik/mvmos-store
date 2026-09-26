@@ -363,7 +363,7 @@
     parts.push(`<g class="sa-bitcoin-mark" data-bt-number="25" data-bt-mult="2" data-size="10" transform="translate(250 250)" pointer-events="none"></g>`);
     parts.push(`<g class="sa-target-mark" data-target="25" data-mult="1" data-size="10" transform="translate(250 250)" pointer-events="none"></g>`);
     parts.push(`<g class="sa-target-mark" data-target="25" data-mult="2" data-size="10" transform="translate(250 250)" pointer-events="none"></g>`);
-    parts.push('</svg>');return parts.join('')}
+    parts.push('<g class="sa-ghost-layer" pointer-events="none"></g></svg>');return parts.join('')}
   function ring(cx,cy,inner,outer,a0,a1,color,n,m){const p=(r,a)=>[cx+r*Math.cos(a),cy+r*Math.sin(a)],A=p(outer,a0),B=p(outer,a1),C=p(inner,a1),D=p(inner,a0);return `<path data-hit data-number="${n}" data-multiplier="${m}" d="M${A} A${outer} ${outer} 0 0 1 ${B} L${C} A${inner} ${inner} 0 0 0 ${D}Z" fill="${color}" stroke="#4d4d4d" stroke-width="1"/>`}
   function addDart(number,multiplier){if(!state||pending.length>=3)return;pending.push({number,multiplier});drawPending();drawCheckout();drawTargetMark()}
   function dartName(d){let name;if(!d.number)name=tr('sa_miss');else if(d.number===25)name=d.multiplier===2?tr('sa_inner_bull'):tr('sa_bull');else name=(d.multiplier===3?'T':d.multiplier===2?'D':'S')+d.number;return name+(d.checkout_attempt?' 🎯':'')}
@@ -373,12 +373,21 @@
     if(!ghostTurn)root.querySelectorAll('[data-pending]').forEach(b=>b.onclick=()=>{const d=pending[+b.dataset.pending];if(d){d.checkout_attempt=!d.checkout_attempt;drawPending()}});
     root.querySelector('#sa-submit').disabled=ghostTurn||!pending.length;
     root.querySelector('#sa-miss').disabled=ghostTurn;root.querySelector('#sa-undo').disabled=ghostTurn;}
-  function clearGhostMarks(){if(root)root.querySelectorAll('.sa-ghost-hit').forEach(e=>e.classList.remove('sa-ghost-hit'))}
+  function clearGhostMarks(){if(!root)return;root.querySelectorAll('.sa-ghost-hit').forEach(e=>e.classList.remove('sa-ghost-hit'));const layer=root.querySelector('.sa-ghost-layer');if(layer)layer.innerHTML=''}
+  // The ghost throws on a real board in millimetres (ghost.py); the drawn board has
+  // wider beds so they are easy to tap, so each real ring is stretched onto its drawn one.
+  const GHOST_RINGS=[[0,0],[6.35,19],[15.9,44],[99,132],[107,168],[162,196],[170,232],[225,247]];
+  function ghostPoint(x,y){const r=Math.hypot(x,y);let d=249;for(let i=1;i<GHOST_RINGS.length;i++){const[r0,d0]=GHOST_RINGS[i-1],[r1,d1]=GHOST_RINGS[i];if(r<=r1){d=d0+(r-r0)/(r1-r0)*(d1-d0);break}}const k=r?d/r:0;return[250+x*k,250+y*k]}
+  function ghostPin(dart,index){const layer=root&&root.querySelector('.sa-ghost-layer');if(!layer||dart.x==null)return;
+    const[ax,ay]=ghostPoint(dart.aim_x,dart.aim_y),[x,y]=ghostPoint(dart.x,dart.y);
+    layer.querySelectorAll('.sa-ghost-aim').forEach(e=>e.remove());
+    layer.insertAdjacentHTML('beforeend',`<g class="sa-ghost-aim"><circle cx="${ax}" cy="${ay}" r="9"/><path d="M${ax-14} ${ay}h8M${ax+6} ${ay}h8M${ax} ${ay-14}v8M${ax} ${ay+6}v8"/></g><g class="sa-ghost-pin" transform="translate(${x} ${y})"><circle r="9"/><text dominant-baseline="central" text-anchor="middle">${index+1}</text></g>`)}
   function ghostDartEl(dart){if(!root)return null;if(!dart.number)return null;return root.querySelector(`[data-hit][data-number="${dart.number}"][data-multiplier="${dart.multiplier}"]`)}
   mp.on('sa_ghost_dart',msg=>{
     if(msg.index===0){ghostPending=[];clearGhostMarks()}
     ghostPending[msg.index]=msg.dart;drawPending();
     const el=ghostDartEl(msg.dart);if(el){el.classList.remove('sa-ghost-hit');void el.getBoundingClientRect();el.classList.add('sa-ghost-hit')}
+    ghostPin(msg.dart,msg.index);
   });
   function submit(){if(!pending.length){notice(tr('sa_need_dart'));return}mp.send({type:'sa_turn',darts:pending});awaitingState=true;pending=[];drawPending();drawCheckout();drawTargetMark()}
   function playerName(id){return state?.roster?.[id]?.display_name||id||''}
@@ -455,12 +464,18 @@
       el.innerHTML=`<circle cx="0" cy="0" r="${s}" fill="#ffd700" stroke="#7a3d00" stroke-width="2"/><circle cx="0" cy="0" r="${Math.round(s*.45)}" fill="#df3345" stroke="#7a3d00" stroke-width="1.5"/>`;
     });
   }
-  function drawBoardMarks(){if(!root)return;const els=root.querySelectorAll('.sa-cricket-mark');if(!els.length)return;const current=state.current_player_id,p=state.players[current];els.forEach(el=>{const n=el.dataset.mark,s=+el.dataset.size,w=Math.max(3,Math.round(s*.26));const count=state.mode==='cricket'&&p?(p.marks[n]||0):0;
-    if(count<=0)el.innerHTML='';
-    else if(count===1)el.innerHTML=`<line x1="${-s}" y1="${s}" x2="${s}" y2="${-s}" stroke="#f5d96b" stroke-width="${w}" stroke-linecap="round"/>`;
-    else if(count===2)el.innerHTML=`<line x1="${-s}" y1="${s}" x2="${s}" y2="${-s}" stroke="#f5d96b" stroke-width="${w}" stroke-linecap="round"/><line x1="${-s}" y1="${-s}" x2="${s}" y2="${s}" stroke="#f5d96b" stroke-width="${w}" stroke-linecap="round"/>`;
-    else el.innerHTML=`<circle cx="0" cy="0" r="${s}" fill="none" stroke="#f5d96b" stroke-width="${w}"/>`;
-  })}
+  function markSymbol(count,s,w,color,dashed){const d=dashed?` stroke-dasharray="${Math.round(w*1.3)} ${Math.round(w*1.2)}"`:'',line=(x1,y1,x2,y2)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${w}" stroke-linecap="round"${d}/>`;
+    if(count<=0)return '';if(count===1)return line(-s,s,s,-s);if(count===2)return line(-s,s,s,-s)+line(-s,-s,s,s);
+    return `<circle cx="0" cy="0" r="${s}" fill="none" stroke="${color}" stroke-width="${w}"${d}/>`}
+  // Against the Ghost both sides are on the board at once: the player's marks in gold,
+  // the Ghost's in dashed white. Where both have marks on a number they take turns.
+  function drawBoardMarks(){if(!root)return;const els=root.querySelectorAll('.sa-cricket-mark');if(!els.length)return;
+    const cricket=state.mode==='cricket',ghostId=cricket&&state.order.find(id=>state.roster?.[id]?.is_ghost),meId=ghostId&&state.order.find(id=>id!==ghostId);
+    const shownId=ghostId?meId:state.current_player_id,me=state.players[shownId],ghost=ghostId&&state.players[ghostId],sync=`animation-delay:-${Date.now()%2400}ms`;
+    els.forEach(el=>{const n=el.dataset.mark,s=+el.dataset.size,w=Math.max(3,Math.round(s*.26));
+      const mine=cricket&&me?(me.marks[n]||0):0,theirs=ghost?(ghost.marks[n]||0):0,both=mine>0&&theirs>0;
+      el.innerHTML=(mine?`<g class="${both?'sa-cm-a':''}" style="${both?sync:''}">${markSymbol(mine,s,w,'#f5d96b')}</g>`:'')+(theirs?`<g class="${both?'sa-cm-b':''}" style="${both?sync:''}">${markSymbol(theirs,s,w,'#fff',true)}</g>`:'');
+    })}
   function currentTargetNumber(){
     if(!state)return null;
     const p=state.players[state.current_player_id];if(!p)return null;

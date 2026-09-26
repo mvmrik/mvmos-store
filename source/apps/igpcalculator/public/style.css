@@ -1,0 +1,181 @@
+/* IGP Calculator — loaded by Game Hub's play page. Colours come from the
+   page's theme variables, so light and dark both work without a second copy. */
+
+.igp-root{flex:1;min-height:0;display:flex;flex-direction:column}
+.igp-page{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
+.igp-wrap{max-width:1180px;margin:0 auto;padding:14px 16px 40px;display:flex;flex-direction:column;gap:14px}
+.igp-opening{padding:60px 16px;text-align:center;color:var(--fg2)}
+
+.igp-top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px}
+.igp-sticky{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;margin:-10px 0 -4px;border-bottom:1px solid var(--border)}
+.igp-top-title{font-weight:800;font-size:1.05rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.igp-btn{border:1px solid var(--border);background:var(--surface2);color:var(--fg);border-radius:10px;padding:9px 14px;font-weight:700;font-size:.88rem;cursor:pointer;white-space:nowrap;font-family:inherit}
+.igp-btn:disabled{opacity:.55;cursor:default}
+.igp-primary{background:var(--accent);border-color:transparent;color:var(--bg)}
+.igp-ghost{background:transparent}
+.igp-danger-btn{color:var(--red);background:transparent}
+.igp-link{border:0;background:none;color:var(--accent);font-weight:700;font-size:.8rem;cursor:pointer;padding:4px 2px;font-family:inherit}
+.igp-danger{color:var(--red);margin-top:10px}
+.igp-x{border:0;background:none;color:inherit;font-size:1.2rem;cursor:pointer;line-height:1;padding:0 4px;opacity:.7}
+
+.igp-card{background:var(--surface1);border:1px solid var(--border);border-radius:14px;padding:16px}
+.igp-card h3{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--fg2);margin-bottom:14px}
+.igp-card-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.igp-card-actions{display:flex;gap:12px;flex-wrap:wrap}
+
+.igp-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;font-size:.85rem;border:1px solid var(--border)}
+.igp-banner-info{background:color-mix(in srgb,var(--accent) 12%,var(--surface1));border-color:color-mix(in srgb,var(--accent) 40%,var(--border))}
+.igp-banner-ok{background:color-mix(in srgb,var(--green) 14%,var(--surface1));border-color:color-mix(in srgb,var(--green) 45%,var(--border))}
+.igp-banner-warn{background:color-mix(in srgb,var(--red) 12%,var(--surface1));border-color:color-mix(in srgb,var(--red) 45%,var(--border))}
+
+.igp-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.igp-field>span{font-size:.75rem;color:var(--fg2);font-weight:600}
+.igp-input{width:100%;padding:9px 11px;font-size:1rem;border:1px solid var(--border);border-radius:9px;background:var(--surface2);color:var(--fg);font-family:inherit;min-height:40px}
+.igp-input:focus{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:0;border-color:var(--accent)}
+.igp-track-btn{display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;text-align:left}
+.igp-grid4{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.igp-grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.igp-span3{grid-column:span 1}
+.igp-note{font-size:.75rem;color:var(--fg2);font-style:italic;margin-top:12px;line-height:1.45}
+.igp-dim{color:var(--fg2);font-size:.78rem}
+.igp-small{font-size:.72rem;margin-top:4px}
+.igp-nowrap{white-space:nowrap}
+.igp-flag{font-size:1.15em}
+
+/* List */
+.igp-list-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.igp-list-head h2{font-size:1.05rem;font-weight:800}
+.igp-filter{width:auto;min-width:180px}
+.igp-races{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.igp-race{display:flex;flex-direction:column;gap:8px;text-align:left;background:var(--surface1);border:1px solid var(--border);border-radius:14px;padding:14px;color:var(--fg);cursor:pointer;font-family:inherit;transition:border-color .15s,transform .15s}
+.igp-race:hover{border-color:var(--accent)}
+.igp-race-head{display:flex;align-items:center;gap:8px}
+.igp-race-name{font-weight:800;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.igp-race-date{font-size:.8rem;color:var(--fg2);white-space:nowrap}
+.igp-race-car{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.igp-car-tag{font-size:.7rem;font-weight:800;color:var(--fg2);background:var(--surface2);border-radius:6px;padding:2px 7px}
+.igp-race-notes{font-size:.78rem;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.igp-empty{text-align:center;color:var(--fg2);padding:48px 16px;font-size:.92rem;line-height:1.5;background:var(--surface1);border:1px dashed var(--border);border-radius:14px}
+.igp-empty-sm{padding:24px 12px;background:none;border:0}
+.igp-empty-icon{font-size:2.4rem;margin-bottom:10px}
+.igp-warn{color:var(--red)}
+.igp-warn-box{font-size:.85rem;color:var(--yellow);background:color-mix(in srgb,var(--yellow) 12%,var(--surface1));border:1px solid color-mix(in srgb,var(--yellow) 45%,var(--border));border-radius:10px;padding:10px 12px}
+
+/* Track picker */
+.igp-tracks{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.igp-track{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;text-align:left;background:var(--surface1);border:1px solid var(--border);border-radius:12px;padding:10px 12px;color:var(--fg);cursor:pointer;font-family:inherit}
+.igp-track .igp-flag{grid-row:1/3;font-size:1.7rem}
+.igp-track-name{font-weight:700;font-size:.92rem}
+.igp-track:hover,.igp-track.on{border-color:var(--accent)}
+.igp-track.on{background:color-mix(in srgb,var(--accent) 10%,var(--surface1))}
+
+/* Cars */
+.igp-cars{display:flex;gap:8px;flex-wrap:wrap}
+.igp-car-tab{border:1px solid var(--border);background:var(--surface1);color:var(--fg2);border-radius:999px;padding:8px 16px;font-weight:800;font-size:.88rem;cursor:pointer;font-family:inherit}
+.igp-car-tab.on{background:var(--accent);border-color:transparent;color:var(--bg)}
+.igp-car-add{border-style:dashed}
+.igp-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:14px;align-items:start}
+.igp-col{display:flex;flex-direction:column;gap:14px;min-width:0}
+
+/* Setup sliders */
+.igp-sliders{display:flex;flex-direction:column;gap:14px}
+.igp-slider-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:4px}
+.igp-slider-label{font-size:.85rem;font-weight:700}
+.igp-slider-val{font-size:1rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent);min-width:70px;text-align:right}
+.igp-slider-row{display:flex;align-items:center;gap:10px}
+.igp-slider-ends{display:flex;justify-content:space-between;font-size:.66rem;color:var(--fg2);padding:0 48px;margin-top:1px}
+.igp-step{flex:none;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--fg);font-size:1.25rem;font-weight:700;line-height:1;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;font-family:inherit}
+.igp-step:active{background:color-mix(in srgb,var(--accent) 25%,var(--surface2))}
+.igp-slider input[type=range]{flex:1;min-width:0;-webkit-appearance:none;appearance:none;height:28px;background:transparent;cursor:pointer;touch-action:pan-y}
+.igp-slider input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(to right,var(--accent) var(--p),var(--surface2) var(--p))}
+.igp-slider input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:linear-gradient(to right,var(--accent) var(--p),var(--surface2) var(--p))}
+.igp-slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--surface1);border:3px solid var(--accent);margin-top:-8px;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.igp-slider input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--surface1);border:3px solid var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.igp-slider input[type=range]:focus-visible{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);border-radius:6px}
+
+/* Tyres */
+.igp-tyre{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:#1a1a24;color:#fff;font-weight:900;letter-spacing:-.02em;box-shadow:0 0 0 3px var(--ring);text-shadow:0 1px 2px rgba(0,0,0,.9);flex:none}
+.igp-tyre-xs{width:20px;height:20px;font-size:.58rem;box-shadow:0 0 0 2px var(--ring)}
+.igp-tyre-sm{width:26px;height:26px;font-size:.68rem}
+.igp-tyre-md{width:32px;height:32px;font-size:.74rem}
+.igp-tyre-lg{width:44px;height:44px;font-size:.8rem}
+.igp-arrow{color:var(--fg2);font-size:.7rem;margin:0 3px}
+.igp-combo{display:inline-flex;align-items:center;flex-wrap:wrap;gap:2px 0}
+.igp-tyre-tabs{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.igp-tyre-tab{position:relative;border:0;background:none;padding:5px;border-radius:50%;cursor:pointer}
+.igp-tyre-tab.on{box-shadow:0 0 0 2px var(--accent)}
+.igp-dot{position:absolute;top:0;right:0;width:10px;height:10px;border-radius:50%;background:var(--green);border:2px solid var(--surface1)}
+
+/* Strategy */
+.igp-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.igp-stat{background:var(--surface2);border-radius:12px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:4px}
+.igp-stat b{font-size:1.6rem;font-weight:800;line-height:1.1}
+.igp-stat span{font-size:.72rem;color:var(--fg2)}
+.igp-strat{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:8px}
+.igp-strat.chosen{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.igp-strat-head{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;background:var(--surface2)}
+.igp-strat.best .igp-strat-head{background:color-mix(in srgb,var(--accent) 12%,var(--surface2))}
+.igp-strat-head .igp-combo{flex:1;min-width:0}
+.igp-pick{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--border);background:var(--surface1);color:var(--bg);font-weight:900;font-size:.8rem;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.igp-strat.chosen .igp-pick{background:var(--accent);border-color:var(--accent)}
+.igp-star{color:var(--accent)}
+.igp-fuel{font-weight:800;font-size:.9rem}
+.igp-chev{color:var(--fg2);transition:transform .15s}
+.igp-chev.open{transform:rotate(180deg)}
+.igp-stints{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;padding:12px}
+.igp-stint{border:1px solid var(--border);border-radius:10px;padding:10px;background:var(--surface1)}
+.igp-stint-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.igp-stint-laps{font-size:1.3rem;font-weight:800;line-height:1}
+.igp-stint-laps small{font-size:.72rem;font-weight:400;color:var(--fg2);margin-left:4px}
+.igp-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-top:8px}
+.igp-bar>div{height:100%;border-radius:3px}
+.igp-bar-good{background:#22c55e}.igp-bar-mid{background:#f59e0b}.igp-bar-low{background:#ef4444}.igp-bar-none{background:var(--border)}
+
+.igp-foot{display:flex;justify-content:flex-end}
+
+@media (max-width:860px){
+  .igp-cols{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .igp-wrap{padding:10px 12px 32px;gap:12px}
+  .igp-card{padding:14px 12px}
+  .igp-grid4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .igp-grid4 .igp-field:first-child,.igp-span3{grid-column:1/-1}
+  .igp-grid3{grid-template-columns:1fr 1fr}
+  .igp-grid3 .igp-field:last-child{grid-column:1/-1}
+  .igp-races{grid-template-columns:1fr}
+  .igp-tracks{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .igp-top .igp-btn{padding:8px 10px;font-size:.82rem}
+  .igp-top-title{font-size:.95rem}
+  .igp-step{width:42px;height:42px}
+  .igp-slider-ends{padding:0 52px}
+  .igp-stat b{font-size:1.3rem}
+  .igp-strat-head{padding:9px 10px;gap:6px}
+  .igp-tyre-tabs{gap:12px;justify-content:space-between}
+  .igp-filter{min-width:0;flex:1}
+}
+
+/* Drivers */
+.igp-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.igp-list-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.igp-driver-facts{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.8rem;min-width:0}
+.igp-ability{font-size:.7rem;font-weight:800;border-radius:6px;padding:2px 7px;border:1px solid var(--border);white-space:nowrap}
+.igp-tier-common{color:var(--fg2);background:var(--surface2)}
+.igp-tier-rare{color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--surface1));border-color:color-mix(in srgb,var(--accent) 45%,var(--border))}
+.igp-tier-legendary{color:var(--yellow);background:color-mix(in srgb,var(--yellow) 14%,var(--surface1));border-color:color-mix(in srgb,var(--yellow) 50%,var(--border))}
+.igp-fav{font-size:.75rem;font-weight:800;color:var(--yellow);white-space:nowrap}
+.igp-driver-bar{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;background:var(--surface1);border:1px solid var(--border);border-radius:14px;padding:12px 16px}
+.igp-driver-pick{flex:0 1 260px}
+.igp-driver-bar .igp-driver-facts{flex:1;padding-bottom:10px}
+.igp-load-race{cursor:default}
+.igp-load-race:hover{border-color:var(--border)}
+.igp-load-car{display:flex;align-items:center;gap:10px;flex-wrap:wrap;text-align:left;width:100%;border:1px solid var(--border);background:var(--surface2);color:var(--fg);border-radius:10px;padding:10px 12px;cursor:pointer;font-family:inherit}
+.igp-load-car:hover{border-color:var(--accent)}
+.igp-load-car.same{border-color:color-mix(in srgb,var(--accent) 60%,var(--border))}
+@media (max-width:640px){
+  .igp-grid2{grid-template-columns:1fr}
+  .igp-driver-pick{flex:1 1 100%}
+  .igp-driver-bar .igp-driver-facts{padding-bottom:0}
+  .igp-driver-bar .igp-btn{width:100%}
+}

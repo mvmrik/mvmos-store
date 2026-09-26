@@ -90,14 +90,15 @@ def history(player_id: str) -> list:
         conn.close()
 
 
-def recent_metadata(player_id: str, limit: int) -> list:
-    """Metadata (JSON strings) of the player's latest matches, newest first."""
+def recent_metadata(player_id: str, mode: str, limit: int) -> list:
+    """Metadata (JSON strings) of the player's latest matches in `mode`, solo
+    or with others, newest first."""
     conn = _connect()
     try:
         rows = conn.execute(
             """SELECT m.metadata FROM matches m JOIN match_players p ON p.match_id = m.id
-               WHERE p.player_id=? ORDER BY m.id DESC LIMIT ?""",
-            (str(player_id), int(limit)),
+               WHERE p.player_id=? AND m.mode=? ORDER BY m.id DESC LIMIT ?""",
+            (str(player_id), mode, int(limit)),
         ).fetchall()
         return [r["metadata"] for r in rows]
     finally:

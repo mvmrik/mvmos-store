@@ -98,9 +98,9 @@
       "name": "Score Arena",
       "icon": "🎯",
       "category": "Games",
-      "version": "1.2.1",
+      "version": "1.3.0",
       "description": "A shared scorekeeper for darts and board games, with eight darts modes, ready-made scoring for popular board games, custom games you design yourself, detailed personal statistics and a history-matched Ghost for solo practice.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/scorearena-1.2.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/scorearena-1.3.0.zip",
       "tags": [
         "darts",
         "scorekeeper",
@@ -109,6 +109,23 @@
         "games"
       ],
       "min_core_version": "1.0.0"
+    },
+    {
+      "id": "igpcalculator",
+      "name": "IGP Calculator",
+      "icon": "🏎️",
+      "category": "Games",
+      "version": "1.0.0",
+      "description": "Car setup and tyre strategy calculator for iGP Manager races, with every race you prepare kept on your own profile.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/igpcalculator-1.0.0.zip",
+      "tags": [
+        "igp manager",
+        "racing",
+        "calculator",
+        "strategy",
+        "games"
+      ],
+      "min_core_version": "1.5.0"
     }
   ]
 }

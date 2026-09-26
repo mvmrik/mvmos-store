@@ -1,0 +1,24 @@
+{
+  "tagline": "Car setup, drivers and tyre strategy for every iGP Manager race, kept on your profile.",
+  "description": "IGP Calculator is a race engineer's notebook for iGP Manager. For each race you pick the track, set up the car with sliders that match the game's own ranges and steps, and enter what you measured in practice: fuel and tyre wear per lap for every compound. The calculator then works out every tyre strategy that covers the race distance with the reserve fuel and minimum tyre life you ask for, ranks them and shows each stint with its laps, fuel load and the tyre life left at the end.\n\nEvery race is saved on your Apps Hub profile together with its date, the driver in each car, both cars' setups, the practice data and the strategy you chose, so later you can see exactly what you ran on which track, with whom and when.\n\nYou keep your own list of drivers with their name, country, favourite track, talent and special ability (Racecraft, Qualifying, Street Circuits or Wet Weather, each Common, Rare or Legendary) and put them in car 1 and car 2. A new race takes its drivers from those seats and gets a second car only when car 2 has a driver. Each car then starts from that driver's last race on the same track, or from the last race there when the driver has not raced it yet, and on a track you have never raced every setting starts in the middle. Any time you can load a car's setup and practice data from another race on the track, where every race shows which driver drove which car.\n\nThe second car is optional and can copy the first car's setup with one click. The race coefficient, which scales practice wear to race wear, defaults to 1.2 and can be changed for each tyre.\n\nIt opens full screen on its public Game Hub page, works on a phone as well as a desktop, follows your language and light or dark theme, and is a single player tool with no leaderboard.",
+  "capabilities": [
+    "Car setup sliders for tyre pressure, front and rear wing, gear ratio, camber, suspension, ride height, brake bias and toe, each with minus and plus buttons that move one step.",
+    "Tyre strategy calculation from practice fuel and wear for super soft, soft, medium and hard tyres, with reserve fuel and minimum tyre life.",
+    "Every possible strategy ranked by pit stops and fuel, with stint laps, fuel per stint and tyre life left.",
+    "One or two cars per race, each with its own driver, setup, practice data and chosen strategy.",
+    "Your own drivers with country, favourite track, talent and special ability, seated in car 1 and car 2 for every new race.",
+    "Races saved on your Apps Hub profile with date, track, setup and strategy, and filtered by track.",
+    "A new race starts from the same driver's last race on that track, then from the last race there, and on a new track with every setting in the middle; a car can also load its setup from any other race on the track.",
+    "Full screen on desktop and phone, in nine languages and in light and dark theme."
+  ],
+  "integrations": [
+    {
+      "app": "gamehub",
+      "name": "Game Hub",
+      "kind": "gamehub",
+      "direction": "consumes",
+      "summary": "The calculator runs on its public Game Hub page, which provides the Apps Hub account your races are saved under.",
+      "requires": "Game Hub is required. The launcher window offers to install it if it's missing."
+    }
+  ]
+}

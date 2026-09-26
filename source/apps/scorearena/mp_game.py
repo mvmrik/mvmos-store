@@ -14,7 +14,7 @@ _APP_DIR = os.path.dirname(__file__)
 if _APP_DIR not in sys.path:
     sys.path.insert(0, _APP_DIR)
 
-from ghost import Ghost, skill_from_history
+from ghost import Ghost, ghost_from_history
 import sa_stats
 
 CRICKET_TARGETS = (20, 19, 18, 17, 16, 15, 25)
@@ -114,23 +114,23 @@ def _profiles_for(ids):
     return out
 
 
-def _ghost_skill_for(mode: str, player_id: str) -> float:
+def _ghost_for(mode: str, player_id: str) -> Ghost:
     """Reads this player's own recent Score Arena matches in this `mode` from the
-    app's own statistics and derives a ghost skill from them (see ghost.py).
-    Best effort: any hiccup just falls back to the module's mid-table default,
-    never blocks starting a match."""
+    app's own statistics and builds a ghost that throws at their level (see
+    ghost.py). Best effort: any hiccup just falls back to the module's
+    mid-table default, never blocks starting a match."""
     try:
         stats = []
-        for raw in sa_stats.recent_metadata(player_id, GHOST_HISTORY_LIMIT):
+        for raw in sa_stats.recent_metadata(player_id, mode, GHOST_HISTORY_LIMIT):
             meta = json.loads(raw or "{}")
             if meta.get("scorearena_mode") != mode:
                 continue
             ps = (meta.get("player_stats") or {}).get(str(player_id))
             if ps:
                 stats.append(ps)
-        return skill_from_history(mode, stats)
+        return ghost_from_history(mode, stats)
     except Exception:
-        return 0.5
+        return ghost_from_history(mode, [])
 
 BITCOIN_NUMBERS = tuple(range(1, 21))
 BITCOIN_BULL = 25
@@ -232,7 +232,7 @@ class Game:
             self.order = participants
         self.players = {pid: self._fresh_player() for pid in participants}
         if ghost_wanted:
-            self.ghost = Ghost(_ghost_skill_for(self.mode, ids[0]))
+            self.ghost = _ghost_for(self.mode, ids[0])
         self.started = True
         self.started_at = time.time()
         if self.mode == "bitcoin":
@@ -251,7 +251,7 @@ class Game:
             "rules": self.rules, "owner_id": self.owner_id, "owner_name": self.owner_name, "local": self.local,
             "difficulty": self.difficulty, "block_count": self.block_count, "total_blocks": self.total_blocks,
             "halving_reward": self.halving_reward, "halving_count": self.halving_count, "targets": self.targets,
-            "ghost": ({"base_skill": self.ghost.base_skill, "skill": self.ghost.skill,
+            "ghost": ({"base_sigma": self.ghost.base_sigma, "sigma": self.ghost.sigma, "par": self.ghost.par,
                        "confidence": self.ghost.confidence} if self.ghost else None),
         }
 
@@ -276,9 +276,14 @@ class Game:
         self.owner_name = data.get("owner_name") or ""
         self.local = data.get("local") or {}
         gdata = data.get("ghost")
-        if gdata:
-            self.ghost = Ghost(gdata.get("base_skill", 0.5))
-            self.ghost.skill = gdata.get("skill", self.ghost.skill)
+        if gdata and "sigma" in gdata:
+            self.ghost = Ghost(gdata.get("base_sigma", gdata["sigma"]), par=gdata.get("par"))
+            self.ghost.sigma = gdata["sigma"]
+            self.ghost.confidence = gdata.get("confidence", 0.0)
+        elif gdata:
+            # Saved before the ghost threw at a real board: rebuild it from history.
+            human = next((pid for pid in self.order if pid != GHOST_ID), None)
+            self.ghost = _ghost_for(self.mode, human)
             self.ghost.confidence = gdata.get("confidence", 0.0)
         self.started = True
 
@@ -355,6 +360,20 @@ class Game:
                and self.order and self.order[self.turn_index] == GHOST_ID):
             await self._play_ghost_turn()
 
+    def _ghost_turn_good(self, result):
+        """Whether the ghost's turn beat the player's own average (`par`) in
+        this game — what moves its mood."""
+        par = self.ghost.par or 0
+        if result.get("round_winner"):
+            return True
+        if self.mode == "cricket":
+            return sum(c["marks"] for c in result.get("changes", [])) >= par
+        if self.mode in ("progolf", "minigolf"):
+            return result.get("strokes", 5) < par
+        # 501/301 and the sequence games: points this turn against the
+        # player's three-dart average.
+        return result.get("scored", 0) >= par
+
     async def _announce_ghost_dart(self, dart, index):
         """Broadcasts one ghost dart on its own, with a short pause before it,
         so the client can show it landing on the board and in the pending-dart
@@ -368,30 +387,39 @@ class Game:
         if self.mode in ("501", "301"):
             remaining = self.players[GHOST_ID]["remaining"]
             for i in range(3):
-                d = self.ghost.dart_501(remaining)
+                d = self.ghost.dart_501(remaining, 3 - i)
                 darts.append(d)
                 await self._announce_ghost_dart(d, i)
                 remaining -= d["number"] * d["multiplier"]
-                if remaining <= 0:
+                if remaining <= 1:
                     break
         elif self.mode == "cricket":
-            marks = self.players[GHOST_ID]["marks"]
+            # Plays the turn out on a copy, so each dart knows what the ones
+            # before it closed or scored; _play_turn applies it for real below.
+            marks = dict(self.players[GHOST_ID]["marks"])
+            score = self.players[GHOST_ID]["score"]
+            rivals = [(self.players[pid]["marks"], self.players[pid]["score"]) for pid in self.order if pid != GHOST_ID]
             for i in range(3):
-                open_targets = [n for n in CRICKET_TARGETS if marks[str(n)] < 3] or list(CRICKET_TARGETS)
-                d = self.ghost.dart_cricket(open_targets)
+                d = self.ghost.dart_cricket(marks, score, rivals)
                 darts.append(d)
                 await self._announce_ghost_dart(d, i)
+                key = str(d["number"])
+                if key in marks:
+                    extra = max(0, marks[key] + d["multiplier"] - 3)
+                    marks[key] = min(3, marks[key] + d["multiplier"])
+                    if extra and any(m[key] < 3 for m, _ in rivals):
+                        score += extra * d["number"]
         elif self.mode == "bitcoin":
-            targets = list(self.targets)
-            for i, t in enumerate(targets[:3]):
-                d = self.ghost.dart_bitcoin(t)
+            left = list(self.targets)
+            for i in range(3):
+                d = self.ghost.dart_bitcoin(left)
                 darts.append(d)
                 await self._announce_ghost_dart(d, i)
-            while len(darts) < 3:
-                i = len(darts)
-                d = self.ghost.dart_bitcoin(random.choice(self.targets))
-                darts.append(d)
-                await self._announce_ghost_dart(d, i)
+                match = next((t for t in left if self._dart_matches(d, t)), None)
+                if match:
+                    left.remove(match)
+                if not left:
+                    break
         elif self.mode in ("breakdown", "atc"):
             targets = BREAKDOWN_TARGETS if self.mode == "breakdown" else ATC_TARGETS
             idx = self.players[GHOST_ID]["seq_index"]
@@ -405,12 +433,17 @@ class Game:
                     if idx >= len(targets):
                         break
         else:  # progolf / minigolf
-            hole = self.players[GHOST_ID]["golf_hole"]
+            hole = self.players[GHOST_ID]["golf_hole"] + 1
+            best = 5
             for i in range(3):
-                d = self.ghost.dart_golf(hole)
+                d = self.ghost.dart_golf(hole, best)
                 darts.append(d)
                 await self._announce_ghost_dart(d, i)
-                if d["number"] == hole and d["multiplier"] == 2:
+                if d["number"] == hole:
+                    best = min(best, {2: 1, 3: 2, 1: 3}[d["multiplier"]])
+                elif d["number"]:
+                    best = min(best, 4)
+                if best == 1:
                     break
 
         # Let the last dart sink in before the score jumps, otherwise the whole
@@ -424,8 +457,7 @@ class Game:
         result = self._play_turn(self.mode, GHOST_ID, darts)
         result.update({"player_id": GHOST_ID, "entered_by": GHOST_ID, "darts": darts, "round": self.round_no})
         self.history.append(result)
-        good = result.get("scored", 0) >= (60 if self.mode in ("501", "301") else 4) or bool(result.get("round_winner"))
-        self.ghost.react(good)
+        self.ghost.react(self._ghost_turn_good(result))
 
         if self.mode in ("progolf", "minigolf"):
             if self._golf_all_done():

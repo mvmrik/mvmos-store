@@ -1,0 +1,16 @@
+{
+  "id": "igpcalculator",
+  "name": "IGP Calculator",
+  "icon": "🏎️",
+  "category": "Games",
+  "tags": ["igp manager", "racing", "calculator", "strategy", "games"],
+  "version": "1.0.0",
+  "min_core_version": "1.5.0",
+  "description": "Car setup and tyre strategy calculator for iGP Manager races, with every race you prepare kept on your own profile.",
+  "entry": "main.js",
+  "multiplayer": false,
+  "max_players": 1,
+  "themed": true,
+  "public_directory": false,
+  "public_api_only": true
+}
