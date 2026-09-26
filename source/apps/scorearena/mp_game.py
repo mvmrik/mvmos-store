@@ -1,21 +1,30 @@
 """Server-authoritative rules for Score Arena."""
 import asyncio
+import importlib.util
 import json
 import os
 import random
 import sqlite3
-import sys
 import time
 
-# mp_game.py is loaded by Game Hub via importlib.spec_from_file_location, so
-# this directory is never on sys.path on its own — ghost.py needs it added
-# explicitly to be importable as a plain sibling module.
-_APP_DIR = os.path.dirname(__file__)
-if _APP_DIR not in sys.path:
-    sys.path.insert(0, _APP_DIR)
+# mp_game.py is loaded by Game Hub via importlib.spec_from_file_location every
+# time a room is made, so an app update takes effect without a backend
+# restart. Its sibling modules are loaded the same way, straight from their
+# files: a plain "import ghost" would hand back whatever older copy a running
+# backend already cached in sys.modules, and break against the new mp_game.py.
+_APP_DIR = os.path.dirname(os.path.realpath(__file__))
 
-from ghost import Ghost, ghost_from_history
-import sa_stats
+
+def _load_sibling(name):
+    spec = importlib.util.spec_from_file_location(f"scorearena_{name}", os.path.join(_APP_DIR, f"{name}.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+_ghost = _load_sibling("ghost")
+Ghost, ghost_from_history = _ghost.Ghost, _ghost.ghost_from_history
+sa_stats = _load_sibling("sa_stats")
 
 CRICKET_TARGETS = (20, 19, 18, 17, 16, 15, 25)
 

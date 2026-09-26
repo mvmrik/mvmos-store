@@ -4,17 +4,19 @@ Matches themselves run inside the Game Hub multiplayer framework (mp_game.py).
 This file only hands a signed-in player back their own history, which the
 statistics screens and the custom-game lists are built from.
 """
+import importlib.util
 import os
 import sys
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
+# Loaded straight from the file rather than through sys.path, so an app update
+# never keeps running an older sa_stats a live backend has already cached.
 _APP_DIR = os.path.dirname(os.path.realpath(__file__))
-if _APP_DIR not in sys.path:
-    sys.path.insert(0, _APP_DIR)
-
-import sa_stats
+_spec = importlib.util.spec_from_file_location("scorearena_sa_stats", os.path.join(_APP_DIR, "sa_stats.py"))
+sa_stats = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(sa_stats)
 
 router = APIRouter()
 
