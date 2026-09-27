@@ -7,8 +7,9 @@
  * strategy) and their list of drivers are kept on their profile through this
  * app's own api.py at /pub/igpcalculator.
  *
- * The tyre arithmetic (tyreLaps, calcStints, strategies) is a straight port of
- * the IGP Calculator on mvmrik.com and must stay identical to it.
+ * The tyre arithmetic started as a port of the IGP Calculator on mvmrik.com,
+ * which is no longer maintained. Wear here is linear, and each race's real
+ * pit stops teach the next ones how much faster tyres wear than in practice.
  */
 (function () {
   if (!window.GameHub || !window.GameHub.mp) return;
@@ -30,10 +31,14 @@
 
   // ── Fixed data ─────────────────────────────────────────────────────────────
   const TYRES = ['SS', 'S', 'M', 'H'];
-  // Race wear against practice wear. 1.2 matches real races best so far; the
-  // player can change it per tyre.
+  // Intermediates and wets: never part of a dry strategy and never in
+  // practice, but raced in the rain, so their real wear is kept as well.
+  const WET = ['I', 'W'];
+  const ALL_TYRES = TYRES.concat(WET);
+  // Race wear against practice wear, until the player's own pit stops say
+  // otherwise. The player never sets it: learnedFor() works it out.
   const DEFAULT_COEF = 1.2;
-  const TYRE_RING = { SS: '#e63232', S: '#e6c832', M: '#d0d0d0', H: '#e87820' };
+  const TYRE_RING = { SS: '#e63232', S: '#e6c832', M: '#d0d0d0', H: '#e87820', I: '#3cb44b', W: '#2f7fe0' };
 
   const TRACKS = [
     { flag: '🇦🇪', key: 'abu_dhabi',     laps: 50 },
@@ -114,7 +119,7 @@
   function fmt(d, v) { return Number(v).toFixed(d.dec) + d.unit; }
 
   function defaultSetup() { return Object.fromEntries(SETUP.map(d => [d.key, middle(d)])); }
-  function emptyTyres() { return Object.fromEntries(TYRES.map(t => [t, { fuel: null, wear: null, coef: DEFAULT_COEF }])); }
+  function emptyTyres() { return Object.fromEntries(ALL_TYRES.map(t => [t, { fuel: null, wear: null, coef: DEFAULT_COEF }])); }
   function newCar(driver) {
     return { setup: defaultSetup(), tyres: emptyTyres(), pick: null,
       driver: driver ? driver.id : null, driverName: driver ? driver.name : '' };
@@ -128,24 +133,170 @@
   function num(v) { return (v === '' || v == null || isNaN(v)) ? null : Number(v); }
   function cleanTyres(ty) {
     const out = emptyTyres();
-    if (ty && typeof ty === 'object') TYRES.forEach(t => {
+    if (ty && typeof ty === 'object') ALL_TYRES.forEach(t => {
       const x = ty[t] || {};
       out[t] = { fuel: num(x.fuel), wear: num(x.wear), coef: x.coef === undefined ? DEFAULT_COEF : num(x.coef) };
     });
     return out;
   }
+  function cleanActual(a) {
+    if (!a || typeof a !== 'object' || !Array.isArray(a.stints)) return null;
+    return {
+      startFuel: num(a.startFuel),
+      stints: a.stints.slice(0, 8).map(s => {
+        const tyre = ALL_TYRES.includes(s && s.tyre) ? s.tyre : 'M';
+        const out = { tyre, lap: num(s && s.lap), left: num(s && s.left), fuel: num(s && s.fuel) };
+        // A dry tyre driven in the rain: its wear says nothing about the dry.
+        if (s && s.rain === true && TYRES.includes(tyre)) out.rain = true;
+        return out;
+      }),
+    };
+  }
   function cleanCar(c) {
     return { setup: cleanSetup(c && c.setup), tyres: cleanTyres(c && c.tyres), pick: (c && c.pick) || null,
-      driver: (c && c.driver) || null, driverName: (c && typeof c.driverName === 'string') ? c.driverName : '' };
+      driver: (c && c.driver) || null, driverName: (c && typeof c.driverName === 'string') ? c.driverName : '',
+      actual: cleanActual(c && c.actual), planned: cleanPlanned(c && c.strategy), learn: cleanLearn(c && c.learn) };
+  }
+  // Where the car's race coefficients came from, for the line above the strategy.
+  function cleanLearn(l) {
+    if (!l || !['driver', 'track', 'all', 'none'].includes(l.kind)) return null;
+    return { kind: l.kind, date: typeof l.date === 'string' ? l.date : null,
+      driverName: typeof l.driverName === 'string' ? l.driverName : '' };
+  }
+  // The strategy the race was saved with. Practice data or the formula may
+  // change later; the race keeps the plan it was actually run on.
+  function cleanPlanned(s) {
+    if (!s || !Array.isArray(s.combo) || !Array.isArray(s.stintLaps) || s.combo.length !== s.stintLaps.length) return null;
+    if (!s.combo.every(t => ALL_TYRES.includes(t)) || !s.stintLaps.every(n => n > 0)) return null;
+    return { combo: s.combo.slice(), stintLaps: s.stintLaps.map(Number), totalFuel: num(s.totalFuel), nPits: s.combo.length - 1 };
   }
 
-  // ── Tyre strategy (identical to the mvmrik.com calculator) ─────────────────
+  // ── What really happened in the race ───────────────────────────────────────
+  // After the race the player enters, for every pit stop and the finish, the
+  // tyre, the lap, the tyre left on the set that came off and the fuel left.
+  // Each stint gives the real wear per lap; for a dry tyre, against its
+  // practice wear, that is the race coefficient the next races start from.
+  // Fuel left from one stop to the next gives the real fuel per lap.
+  function raceFacts(car) {
+    const a = car.actual;
+    if (!a) return null;
+    let prevLap = 0, prevFuel = a.startFuel;
+    const rows = a.stints.map(s => {
+      const laps = s.lap != null && s.lap > prevLap ? s.lap - prevLap : null;
+      const pw = car.tyres[s.tyre] ? car.tyres[s.tyre].wear : null;
+      const r = { laps, wear: null, practice: pw > 0 ? pw : null, fuel: null };
+      if (laps && !s.rain && s.left != null && s.left >= 0 && s.left <= 100) r.wear = (100 - s.left) / laps;
+      if (laps && prevFuel != null && s.fuel != null && prevFuel > s.fuel) r.fuel = (prevFuel - s.fuel) / laps;
+      if (s.lap != null) prevLap = s.lap;
+      prevFuel = s.fuel;
+      return r;
+    });
+    // Sums per tyre, weighted by laps: worn against practice wherever there
+    // was practice on that tyre, and the plain race wear of every stint, which
+    // still tells how long a tyre lasts here when a race (an old one entered
+    // only from its report, or rain that was not in practice) had no practice.
+    const ratio = {}, real = {};
+    let worn = 0, base = 0;
+    a.stints.forEach((s, i) => {
+      const r = rows[i];
+      if (r.wear == null) return;
+      if (r.practice) {
+        const x = ratio[s.tyre] || (ratio[s.tyre] = { worn: 0, base: 0, laps: 0 });
+        x.worn += r.wear * r.laps; x.base += r.practice * r.laps; x.laps += r.laps;
+        worn += r.wear * r.laps; base += r.practice * r.laps;
+      }
+      const x = real[s.tyre] || (real[s.tyre] = { worn: 0, laps: 0 });
+      x.worn += r.wear * r.laps; x.laps += r.laps;
+    });
+    return { rows, ratio, real, worn, base };
+  }
+
+  // A car carried into a new race: its setup and practice data, without the
+  // result and plan that belong to the race it came from.
+  function carryCar(src) {
+    const c = cleanCar(src);
+    c.actual = null;
+    c.pick = null;
+    c.planned = null;
+    c.learn = null;
+    return c;
+  }
+
+  // What earlier pit stops say about this track: this driver's last race here
+  // with pit stops entered, else the last race here with any, else every race
+  // with pit stops on any track. `pick` chooses the stints that count.
+  function learnFrom(track, driverId, has) {
+    const past = races.filter(r => !draft || r.id !== draft.id).map(r => ({
+      r, cars: (r.data && Array.isArray(r.data.cars) ? r.data.cars : []).filter(Boolean)
+        .map(c => ({ driver: c.driver || null, f: raceFacts(cleanCar(c)) })).filter(c => c.f && has(c.f)),
+    })).filter(x => x.cars.length);
+    const here = past.filter(x => x.r.track === track);
+    if (driverId) {
+      for (const x of here) {
+        const mine = x.cars.filter(c => c.driver === driverId);
+        if (mine.length) return { kind: 'driver', date: x.r.race_date, facts: mine.map(c => c.f) };
+      }
+    }
+    if (here.length) return { kind: 'track', date: here[0].r.race_date, facts: here[0].cars.map(c => c.f) };
+    if (past.length) return { kind: 'all', date: null, facts: [].concat(...past.map(x => x.cars.map(c => c.f))) };
+    return null;
+  }
+
+  // Race coefficients for a new race. Each tyre takes its own, a tyre not
+  // raced takes the average of the others, and with no pit stops anywhere yet
+  // the default stays. New practice wear is entered as usual and multiplied.
+  function learnedFor(track, driverId) {
+    const L = learnFrom(track, driverId, f => f.base > 0);
+    if (!L) return { learn: { kind: 'none', date: null }, coefs: null };
+    const sum = {};
+    let worn = 0, base = 0;
+    L.facts.forEach(f => {
+      Object.keys(f.ratio).forEach(t => {
+        const x = sum[t] || (sum[t] = { worn: 0, base: 0 });
+        x.worn += f.ratio[t].worn; x.base += f.ratio[t].base;
+      });
+      worn += f.worn; base += f.base;
+    });
+    const coefs = Object.fromEntries(ALL_TYRES.map(t => [t, round2(sum[t] ? sum[t].worn / sum[t].base : worn / base)]));
+    return { learn: { kind: L.kind, date: L.date }, coefs };
+  }
+
+  // Real wear per lap of intermediates and wets, from the same sources.
+  // Plain race wear per lap of the tyres of this weather. Dry tyres only
+  // from this track; rain is rare, so wet ones fall back to all races.
+  function realFor(track, driverId, rain) {
+    const pool = rain ? WET : TYRES;
+    const L = learnFrom(track, driverId, f => pool.some(t => f.real[t]));
+    if (!L || (L.kind === 'all' && !rain)) return null;
+    const out = {};
+    pool.forEach(t => {
+      let worn = 0, laps = 0;
+      L.facts.forEach(f => { if (f.real[t]) { worn += f.real[t].worn; laps += f.real[t].laps; } });
+      if (laps) out[t] = worn / laps;
+    });
+    return { kind: L.kind, date: L.date, wear: out };
+  }
+  function round2(v) { return Math.round(v * 100) / 100; }
+
+  // Puts the learned coefficients on a car of a new race.
+  function applyLearned(car) {
+    const L = learnedFor(draft.track, car.driver);
+    ALL_TYRES.forEach(t => { car.tyres[t].coef = L.coefs ? L.coefs[t] : DEFAULT_COEF; });
+    car.learn = Object.assign({ driverName: car.driverName }, L.learn);
+  }
+
+
+  // ── Tyre strategy ──────────────────────────────────────────────────────────
+  // A tyre loses the same share of its life every lap: practice wear times the
+  // race coefficient. Pit stops in real races confirmed this; wear taken as a
+  // share of what is left made long stints look far healthier than they were.
+  function lifeLeft(rw, laps) { return Math.max(0, 1 - rw * laps); }
+
+  // Laps until the tyre reaches minLifePct, counting the lap that crosses it.
   function tyreLaps(wear, coef, minLifePct) {
     const rw = (wear * coef) / 100;
-    const threshold = minLifePct / 100;
-    let life = 1, lap = 0;
-    while (life > threshold && lap < 200) { life *= (1 - rw); lap++; }
-    return lap;
+    if (!(rw > 0)) return 200;
+    return Math.min(200, Math.max(1, Math.ceil((1 - minLifePct / 100) / rw - 1e-9)));
   }
 
   function calcStints(combo, data, total, rsv, minLifePct) {
@@ -169,7 +320,7 @@
 
     const score = combo.reduce((s, t, i) => {
       const rw = (data[t].wear * data[t].coef) / 100;
-      const rem = Math.round(Math.pow(1 - rw, laps[i]) * 100);
+      const rem = Math.round(lifeLeft(rw, laps[i]) * 100);
       return s + Math.abs(rem - minLifePct);
     }, 0) / n;
 
@@ -180,20 +331,23 @@
 
   function tyreData(tyres, minLife) {
     const d = {};
-    TYRES.forEach(t => { d[t] = { ...tyres[t], maxLaps: tyreLaps(tyres[t].wear, tyres[t].coef, minLife) }; });
+    ALL_TYRES.forEach(t => { d[t] = { ...tyres[t], maxLaps: tyreLaps(tyres[t].wear, tyres[t].coef, minLife) }; });
     return d;
   }
 
-  function strategies(tyres, totalLaps, reserve, minLife) {
-    const readyTyres = TYRES.filter(t => tyres[t].fuel > 0 && tyres[t].wear > 0 && tyres[t].coef != null);
-    const hasEnoughData = readyTyres.length >= 2 && totalLaps > 0;
+  // A dry race runs on SS/S/M/H and needs two different compounds; a wet one
+  // runs on intermediates and wets, where one compound is enough.
+  function strategies(tyres, totalLaps, reserve, minLife, rain) {
+    const need = rain ? 1 : 2;
+    const readyTyres = (rain ? WET : TYRES).filter(t => tyres[t].fuel > 0 && tyres[t].wear > 0 && tyres[t].coef != null);
+    const hasEnoughData = readyTyres.length >= need && totalLaps > 0;
     if (!hasEnoughData) return { empty: true, error: false, strategies: [] };
 
     const d = tyreData(tyres, minLife);
     const total = totalLaps;
 
     const bestMax = Math.max(...readyTyres.map(t => Math.max(1, d[t].maxLaps)));
-    const minStints = Math.max(2, Math.ceil(total / bestMax));
+    const minStints = Math.max(need, Math.ceil(total / bestMax));
     const maxStints = Math.min(6, Math.max(minStints, 6)); // up to 5 pit stops
 
     const all = [];
@@ -203,7 +357,7 @@
     function buildCombos(current, lapsLeft, startIdx = 0) {
       const n = current.length;
       if (n >= minStints && lapsLeft <= 0) {
-        if (new Set(current).size < 2) return;
+        if (new Set(current).size < need) return;
         const r = calcStints(current, d, total, reserve, minLife);
         if (r) all.push(r);
         return;
@@ -231,7 +385,7 @@
   function tyreRemaining(d, stintLaps) {
     if (!d || !d.wear || !d.coef || !stintLaps) return null;
     const rw = (d.wear * d.coef) / 100;
-    return Math.round(Math.pow(1 - rw, stintLaps) * 100);
+    return Math.round(lifeLeft(rw, stintLaps) * 100);
   }
   function remainingClass(pct) {
     if (pct === null) return 'igp-bar-none';
@@ -303,18 +457,26 @@
 
   function serialize(dr) {
     return {
-      laps: dr.laps, reserve: dr.reserve, minLife: dr.minLife, notes: dr.notes || '',
+      laps: dr.laps, reserve: dr.reserve, minLife: dr.minLife, rain: !!dr.rain, notes: dr.notes || '',
       cars: dr.cars.filter(Boolean).map(c => {
-        const res = strategies(c.tyres, dr.laps, dr.reserve, dr.minLife);
-        const chosen = pickedStrategy(c, res);
+        const res = strategies(c.tyres, dr.laps, dr.reserve, dr.minLife, dr.rain);
+        const chosen = raceStrategy(c, res);
         return {
           driver: c.driver || null, driverName: driverName(c),
-          setup: c.setup, tyres: c.tyres, pick: c.pick,
+          setup: c.setup, tyres: c.tyres, pick: c.pick, actual: c.actual,
           strategy: chosen ? { combo: chosen.combo, stintLaps: chosen.stintLaps,
             totalFuel: chosen.totalFuel, nPits: chosen.nPits } : null,
         };
       }),
     };
+  }
+
+  // What the race is run on: the picked strategy while the calculator still
+  // offers it, else the plan it was saved with, else the best one.
+  function raceStrategy(car, res) {
+    if (car.pick && car.planned && comboKey(car.planned.combo) === car.pick
+        && !(res && res.strategies.some(s => comboKey(s.combo) === car.pick))) return car.planned;
+    return pickedStrategy(car, res);
   }
 
   function pickedStrategy(car, res) {
@@ -334,6 +496,7 @@
       laps: num(d.laps) || (TRACK[r.track] ? TRACK[r.track].laps : 50),
       reserve: d.reserve == null ? 1 : num(d.reserve),
       minLife: d.minLife == null ? 50 : num(d.minLife),
+      rain: d.rain === true,
       notes: typeof d.notes === 'string' ? d.notes : '',
       cars: [cars[0], cars[1] || null],
     };
@@ -468,7 +631,7 @@
           render();
           return;
         }
-        const fresh = { id: null, track: key, race_date: today(), laps: TRACK[key].laps, reserve: 1, minLife: 50, notes: '', cars: [newCar(seatOf(1)), null] };
+        const fresh = { id: null, track: key, race_date: today(), laps: TRACK[key].laps, reserve: 1, minLife: 50, rain: false, notes: '', cars: [newCar(seatOf(1)), null] };
         draft = fresh;
         const note = applyTrackDefaults(key);
         openEditor(draft, note);
@@ -510,9 +673,10 @@
       if (!src && prevCars[i]) { src = prevCars[i]; line = tr('igp_src_track', { n: i + 1, date: fmtDate(prev.race_date) }); }
       if (!line) line = tr('igp_src_fresh', { n: i + 1 });
       lines.push(line);
-      const car = src ? Object.assign(cleanCar(src), { pick: null }) : newCar();
+      const car = src ? carryCar(src) : newCar();
       car.driver = drv ? drv.id : null;
       car.driverName = drv ? drv.name : '';
+      applyLearned(car);
       return car;
     });
     banner = { kind: 'info', lines };
@@ -560,7 +724,10 @@
       + '<label class="igp-field"><span>' + esc(tr('igp_total_laps')) + '</span><input class="igp-input" type="number" inputmode="numeric" min="1" max="120" id="igp-laps" value="' + (draft.laps ?? '') + '"></label>'
       + '<label class="igp-field"><span>' + esc(tr('igp_reserve')) + '</span><input class="igp-input" type="number" inputmode="decimal" min="0" max="5" step="0.1" id="igp-reserve" value="' + (draft.reserve ?? '') + '"></label>'
       + '<label class="igp-field"><span>' + esc(tr('igp_min_life')) + '</span><input class="igp-input" type="number" inputmode="numeric" min="10" max="80" step="1" id="igp-minlife" value="' + (draft.minLife ?? '') + '"></label>'
-      + '<label class="igp-field igp-span3"><span>' + esc(tr('igp_notes')) + '</span><input class="igp-input" type="text" maxlength="500" id="igp-notes" placeholder="' + esc(tr('igp_notes_ph')) + '" value="' + esc(draft.notes) + '"></label>'
+      + '<div class="igp-field"><span>' + esc(tr('igp_weather')) + '</span>'
+      + '<button class="igp-input igp-rain-btn' + (draft.rain ? ' on' : '') + '" id="igp-rain" aria-pressed="' + !!draft.rain + '">'
+      + (draft.rain ? '🌧 ' + esc(tr('igp_rain')) : '☀️ ' + esc(tr('igp_dry'))) + '</button></div>'
+      + '<label class="igp-field igp-span-all"><span>' + esc(tr('igp_notes')) + '</span><input class="igp-input" type="text" maxlength="500" id="igp-notes" placeholder="' + esc(tr('igp_notes_ph')) + '" value="' + esc(draft.notes) + '"></label>'
       + '</div></section>'
 
       // Car tabs
@@ -585,21 +752,22 @@
       + '<div class="igp-col">'
       // Practice
       + '<section class="igp-card"><h3>' + esc(tr('igp_practice')) + '</h3>'
-      + '<div class="igp-tyre-tabs">' + TYRES.map(ty => {
+      + '<div class="igp-tyre-tabs">' + ALL_TYRES.map(ty => {
         const x = car.tyres[ty];
         const filled = x.fuel > 0 && x.wear > 0;
         return '<button class="igp-tyre-tab' + (activeTyre === ty ? ' on' : '') + '" data-tyre="' + ty + '">'
           + tyreChip(ty, 'lg') + (filled ? '<span class="igp-dot"></span>' : '') + '</button>';
       }).join('') + '</div>'
-      + '<div class="igp-grid3">'
+      + '<div class="igp-grid2 igp-grid2-keep">'
       + tyreField('fuel', 'igp_fuel_lap', car.tyres[activeTyre].fuel, 0.1)
       + tyreField('wear', 'igp_wear_lap', car.tyres[activeTyre].wear, 0.1)
-      + tyreField('coef', 'igp_race_coef', car.tyres[activeTyre].coef, 0.05)
       + '</div>'
-      + '<p class="igp-note">' + esc(tr('igp_coef_note')) + '</p>'
+      + (WET.includes(activeTyre) ? '<p class="igp-note">' + esc(tr('igp_wet_note')) + '</p>' : '')
       + '</section>'
       // Strategy
       + '<section class="igp-card"><h3>' + esc(tr('igp_strategy')) + '</h3><div id="igp-results"></div></section>'
+      // Race result
+      + '<section class="igp-card"><h3>' + esc(tr('igp_actual')) + '</h3><div id="igp-actual"></div></section>'
       + '</div></div>'
 
       + (draft.id ? '<div class="igp-foot"><button class="igp-btn igp-danger-btn" id="igp-delete">🗑 ' + esc(tr('igp_delete')) + '</button></div>' : '')
@@ -654,20 +822,44 @@
       + '<input class="igp-input" type="number" inputmode="decimal" min="0" step="' + step + '" data-field="' + field + '" value="' + (value ?? '') + '"></label>';
   }
 
+  // Where the race wear behind the forecast comes from. The coefficient itself
+  // is never shown: the player only enters what the game shows.
+  function learnHtml(car) {
+    const l = car.learn;
+    if (!l) return '';
+    const date = fmtDate(l.date);
+    const text = l.kind === 'driver' ? tr('igp_learn_driver', { driver: l.driverName || driverName(car), date })
+      : l.kind === 'track' ? tr('igp_learn_track', { date })
+      : l.kind === 'all' ? tr('igp_learn_all') : tr('igp_learn_none');
+    return '<p class="igp-learn' + (l.kind === 'none' ? '' : ' igp-learn-ok') + '">' + esc(text) + '</p>';
+  }
+
+  // How long each tyre really lasted in earlier races, also those entered
+  // only from their race report without practice or a strategy.
+  function realHtml(car) {
+    const w = realFor(draft.track, car.driver, draft.rain);
+    if (!w) return '';
+    const items = (draft.rain ? WET : TYRES).filter(t => w.wear[t]).map(t => '<span class="igp-wet-item">' + tyreChip(t, 'xs') + ' '
+      + esc(tr('igp_wet_item', { v: w.wear[t].toFixed(1), n: Math.max(1, Math.floor((100 - (draft.minLife || 0)) / w.wear[t])) })) + '</span>');
+    return '<div class="igp-wet-info"><span class="igp-dim">' + (draft.rain ? '🌧 ' : '') + esc(tr(draft.rain ? 'igp_wet_info' : 'igp_real_info')) + '</span>' + items.join('') + '</div>';
+  }
+
   function renderResults() {
     const box = root.querySelector('#igp-results');
     if (!box) return;
     const car = draft.cars[activeCar];
-    const res = strategies(car.tyres, draft.laps, draft.reserve, draft.minLife);
-
-    if (res.empty) { box.innerHTML = '<div class="igp-empty igp-empty-sm">' + esc(tr('igp_no_data')) + '</div>'; return; }
-    if (res.error) { box.innerHTML = '<div class="igp-warn-box">' + esc(tr('igp_no_cover')) + '</div>'; return; }
-
+    const res = strategies(car.tyres, draft.laps, draft.reserve, draft.minLife, draft.rain);
     const chosen = pickedStrategy(car, res);
+    renderActual(car, raceStrategy(car, res));
+    const head = learnHtml(car) + realHtml(car);
+
+    if (res.empty) { box.innerHTML = head + '<div class="igp-empty igp-empty-sm">' + esc(tr(draft.rain ? 'igp_no_data_rain' : 'igp_no_data')) + '</div>'; return; }
+    if (res.error) { box.innerHTML = head + '<div class="igp-warn-box">' + esc(tr('igp_no_cover')) + '</div>'; return; }
+
     const chosenKey = comboKey(chosen.combo);
     const d = res.data;
 
-    box.innerHTML = '<div class="igp-stats">'
+    box.innerHTML = head + '<div class="igp-stats">'
       + '<div class="igp-stat"><b>' + chosen.nPits + '</b><span>' + esc(tr('igp_pit_stops')) + '</span></div>'
       + '<div class="igp-stat"><b>' + chosen.totalFuel + '</b><span>' + esc(tr('igp_fuel_total')) + '</span></div>'
       + '<div class="igp-stat"><b>' + esc(draft.minLife) + '%</b><span>' + esc(tr('igp_min_life_lbl')) + '</span></div>'
@@ -709,6 +901,111 @@
     });
   }
 
+  // Until the player types anything, the rows follow the chosen strategy and
+  // nothing is stored; the first entry makes them the race's own.
+  function actualTemplate(chosen) {
+    if (!chosen) return { startFuel: null, stints: [{ tyre: 'M', lap: draft.laps || null, left: null, fuel: null }] };
+    let lap = 0;
+    return { startFuel: chosen.totalFuel,
+      stints: chosen.combo.map((t, i) => ({ tyre: t, lap: (lap += chosen.stintLaps[i]), left: null, fuel: null })) };
+  }
+
+  function renderActual(car, chosen) {
+    const box = root.querySelector('#igp-actual');
+    if (!box) return;
+    const a = car.actual || actualTemplate(chosen);
+    const last = a.stints.length - 1;
+    const field = (k, v, step, max) => '<input class="igp-input" type="number" inputmode="decimal" min="0"'
+      + (max ? ' max="' + max + '"' : '') + ' step="' + step + '" data-act="' + k + '" value="' + (v ?? '') + '">';
+
+    box.innerHTML = '<p class="igp-note igp-note-top">' + esc(tr('igp_actual_note')) + '</p>'
+      + (chosen ? '' : '<p class="igp-note igp-note-top">' + esc(tr('igp_actual_old')) + '</p>')
+      + '<label class="igp-field igp-act-start"><span>' + esc(tr('igp_start_fuel')) + '</span>'
+      + '<input class="igp-input" type="number" inputmode="decimal" min="0" step="0.1" id="igp-act-start" value="' + (a.startFuel ?? '') + '"></label>'
+      + '<div class="igp-act-head"><span></span><span>' + esc(tr('igp_act_lap')) + '</span><span>' + esc(tr('igp_act_left'))
+      + '</span><span>' + esc(tr('igp_act_fuel')) + '</span><span></span></div>'
+      + a.stints.map((s, i) => '<div class="igp-act" data-i="' + i + '"><div class="igp-act-row">'
+        + '<div class="igp-act-tyre"><span class="igp-act-top"><span class="igp-act-name">' + esc(i === last ? tr('igp_act_finish') : tr('igp_pit') + ' ' + (i + 1)) + '</span>'
+        + (TYRES.includes(s.tyre) ? '<button class="igp-act-wet' + (s.rain ? ' on' : '') + '" aria-pressed="' + !!s.rain + '" title="' + esc(tr('igp_act_rain')) + '" aria-label="' + esc(tr('igp_act_rain')) + '">🌧</button>' : '')
+        + '</span><select class="igp-input" data-act="tyre" aria-label="' + esc(tr('igp_tyre')) + '">' + ALL_TYRES.map(t => '<option' + (t === s.tyre ? ' selected' : '') + '>' + t + '</option>').join('') + '</select></div>'
+        + field('lap', s.lap, 1) + (s.rain ? '<span class="igp-act-wet-cell">🌧 ' + esc(tr('igp_rain')) + '</span>' : field('left', s.left, 1, 100)) + field('fuel', s.fuel, 0.1)
+        + (a.stints.length > 1 ? '<button class="igp-x igp-act-rm" aria-label="×">×</button>' : '<span></span>')
+        + '</div><div class="igp-dim igp-small igp-act-calc"></div></div>').join('')
+      + '<div class="igp-card-actions igp-act-actions">'
+      + '<button class="igp-link" id="igp-act-add">＋ ' + esc(tr('igp_act_add')) + '</button>'
+      + (car.actual ? '<button class="igp-link igp-danger-link" id="igp-act-clear">' + esc(tr('igp_act_clear')) + '</button>' : '')
+      + '</div>'
+      + '<div id="igp-act-sum"></div>';
+
+    const own = () => {
+      if (!car.actual) car.actual = cleanActual(actualTemplate(chosen));
+      return car.actual;
+    };
+    box.querySelector('#igp-act-start').oninput = e => { own().startFuel = num(e.target.value); actualCalc(car); };
+    box.querySelectorAll('.igp-act').forEach(el => {
+      const i = +el.dataset.i;
+      el.querySelectorAll('input[data-act]').forEach(inp => {
+        inp.oninput = () => { own().stints[i][inp.dataset.act] = num(inp.value); actualCalc(car); };
+      });
+      el.querySelector('select').onchange = e => {
+        const st = own().stints[i];
+        st.tyre = e.target.value;
+        if (!TYRES.includes(st.tyre)) delete st.rain;
+        renderActual(car, chosen);
+      };
+      const wet = el.querySelector('.igp-act-wet');
+      if (wet) wet.onclick = () => {
+        const st = own().stints[i];
+        if (st.rain) delete st.rain; else st.rain = true;
+        renderActual(car, chosen);
+      };
+      const rm = el.querySelector('.igp-act-rm');
+      if (rm) rm.onclick = () => { own().stints.splice(i, 1); renderActual(car, chosen); };
+    });
+    box.querySelector('#igp-act-add').onclick = () => {
+      const st = own().stints;
+      if (st.length >= 8) return;
+      // A forgotten stop goes in before the finish.
+      st.splice(st.length - 1, 0, { tyre: st[st.length - 1].tyre, lap: null, left: null, fuel: null });
+      renderActual(car, chosen);
+    };
+    const clr = box.querySelector('#igp-act-clear');
+    if (clr) clr.onclick = () => { car.actual = null; renderActual(car, chosen); };
+    actualCalc(car);
+  }
+
+  // Refreshes only the worked-out lines, so typing never loses the field.
+  function actualCalc(car) {
+    const box = root.querySelector('#igp-actual');
+    if (!box) return;
+    const f = raceFacts(car) || { rows: [], ratio: {}, real: {} };
+    box.querySelectorAll('.igp-act').forEach(el => {
+      const r = f.rows[+el.dataset.i];
+      const parts = [];
+      if (r && r.laps) parts.push(r.laps + ' ' + tr('igp_laps'));
+      if (r && r.wear != null) parts.push(tr('igp_act_wear', { v: r.wear.toFixed(1) })
+        + (r.practice ? ' ' + tr('igp_act_practice', { v: r.practice }) : ''));
+      if (r && r.fuel != null) parts.push(tr('igp_act_fuel_lap', { v: r.fuel.toFixed(2) }));
+      const st = car.actual && car.actual.stints[+el.dataset.i];
+      if (st && st.rain) parts.push(tr('igp_act_rain_skip'));
+      el.querySelector('.igp-act-calc').textContent = parts.join(' · ');
+    });
+    // Per tyre over the whole race: practice against race where both exist,
+    // the race wear alone for a tyre that had no practice.
+    const items = ALL_TYRES.map(t => {
+      const x = f.ratio[t], w = f.real[t];
+      if (x) return '<span class="igp-act-coef">' + tyreChip(t, 'xs')
+        + esc(tr('igp_act_vs', { p: (x.base / x.laps).toFixed(1), r: (x.worn / x.laps).toFixed(1) })) + '</span>';
+      if (w) return '<span class="igp-act-coef">' + tyreChip(t, 'xs') + esc(tr('igp_act_wear', { v: (w.worn / w.laps).toFixed(1) })) + '</span>';
+      return '';
+    }).join('');
+    box.querySelector('#igp-act-sum').innerHTML = items
+      ? '<div class="igp-act-sum"><span class="igp-dim">' + esc(tr('igp_act_sum')) + '</span><div class="igp-act-coefs">' + items + '</div>'
+        + '<p class="igp-note">' + esc(tr('igp_act_next')) + '</p></div>'
+      : '';
+  }
+
+
   function bindEditor(car) {
     const $ = s => root.querySelector(s);
     $('#igp-back').onclick = leaveEditor;
@@ -721,6 +1018,7 @@
     $('#igp-laps').oninput = e => { draft.laps = num(e.target.value); renderResults(); };
     $('#igp-reserve').oninput = e => { draft.reserve = num(e.target.value) ?? 0; renderResults(); };
     $('#igp-minlife').oninput = e => { draft.minLife = num(e.target.value) ?? 0; renderResults(); };
+    $('#igp-rain').onclick = () => { draft.rain = !draft.rain; openAccords = new Set(); render(); };
 
     root.querySelectorAll('.igp-car-tab[data-car]').forEach(b => {
       b.onclick = () => { activeCar = +b.dataset.car; openAccords = new Set(); render(); };
@@ -729,6 +1027,7 @@
     if (add) add.onclick = () => {
       const s2 = seatOf(2);
       draft.cars[1] = newCar(s2 && s2.id !== draft.cars[0].driver ? s2 : null);
+      applyLearned(draft.cars[1]);
       activeCar = 1; openAccords = new Set(); render();
     };
     $('#igp-driver').onchange = e => {
@@ -736,6 +1035,8 @@
       const d = id ? driverById(id) : null;
       if (id && !d) return;
       car.driver = id; car.driverName = d ? d.name : '';
+      // A race not saved yet follows the new driver's own race wear.
+      if (!draft.id) applyLearned(car);
       render();
     };
     $('#igp-load').onclick = () => { loadCar = activeCar; view = 'load'; render(); };
@@ -848,8 +1149,9 @@
         const r = races.find(x => String(x.id) === b.dataset.race);
         const src = r && r.data && r.data.cars && r.data.cars[+b.dataset.car];
         if (!src) return;
-        const c = cleanCar(src);
+        const c = carryCar(src);
         car.setup = c.setup; car.tyres = c.tyres; car.pick = null;
+        applyLearned(car);
         banner = { kind: 'info', text: tr('igp_loaded', { n: loadCar + 1, date: fmtDate(r.race_date) }) };
         activeCar = loadCar; openAccords = new Set();
         view = 'edit'; render();

@@ -486,18 +486,22 @@ GM.ensureTerminal = function(repo) {
   term.loadAddon(fitAddon);
   term.open(wrapper);
 
+  // The shell lives on the server under this id, so a dropped connection or a
+  // reloaded page reattaches to the same shell (and whatever runs in it)
+  // instead of starting a new one in some other folder.
+  var sidKey = 'gm_term_sid:' + repo.path, sid = null;
+  try { sid = localStorage.getItem(sidKey); } catch(e) {}
+  if (!sid) {
+    sid = Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    try { localStorage.setItem(sidKey, sid); } catch(e) {}
+  }
+
   var conn = GM.connectShell({
+    query: 'sid=' + encodeURIComponent(sid) + '&cwd=' + encodeURIComponent(repo.path),
     onOpen: function(again) {
       if (again) term.write('\r\n\x1b[32m[' + t('gm_term_reconnected') + ']\x1b[0m\r\n');
       try { fitAddon.fit(); } catch(e) {}
       conn.send(JSON.stringify({ type: 'resize', rows: term.rows, cols: term.cols }));
-      // Give the login shell a moment to settle before dropping it straight
-      // into the repo, the same way it would if typed by hand. A reconnect
-      // keeps the screen, so what was there before the drop stays readable.
-      setTimeout(function() {
-        if (conn.isOpen())
-          conn.send(new TextEncoder().encode('cd ' + GM.shQuote(repo.path) + (again ? '' : ' && clear') + '\n'));
-      }, 400);
     },
     onMessage: function(data) {
       term.write(data instanceof ArrayBuffer ? new Uint8Array(data) : data);
@@ -507,7 +511,7 @@ GM.ensureTerminal = function(repo) {
     },
   });
 
-  var entry = { conn: conn, term: term, fitAddon: fitAddon, wrapper: wrapper };
+  var entry = { conn: conn, term: term, fitAddon: fitAddon, wrapper: wrapper, sidKey: sidKey };
   GM.state.terminals[repo.path] = entry;
 
   term.onData(function(data) { conn.send(new TextEncoder().encode(data)); });
@@ -518,8 +522,8 @@ GM.ensureTerminal = function(repo) {
 // The connection to a shell can drop at any moment (the computer sleeps, the
 // network changes, the server restarts) and would stay dead until the app is
 // reopened. It reconnects on its own with a growing pause, and at once when
-// the terminal is typed in, the tab comes back or the network returns. The
-// shell behind a reconnect is always a new one.
+// the terminal is typed in, the tab comes back or the network returns. With a
+// session id the shell behind a reconnect is the same one; without, a new one.
 GM.connectShell = function(h) {
   var proto = location.protocol === 'https:' ? 'wss' : 'ws';
   var ws = null, timer = null, retry = 0, everOpened = false, closed = false;
@@ -527,7 +531,7 @@ GM.connectShell = function(h) {
   function connect() {
     clearTimeout(timer);
     timer = null;
-    ws = new WebSocket(proto + '://' + location.host + '/ws/terminal');
+    ws = new WebSocket(proto + '://' + location.host + '/ws/terminal' + (h.query ? '?' + h.query : ''));
     ws.binaryType = 'arraybuffer';
     ws.onopen = function() {
       retry = 0;
@@ -558,6 +562,10 @@ GM.connectShell = function(h) {
       if (ws.readyState === WebSocket.OPEN) ws.send(data);
       else wake();
     },
+    // Ends the shell on the server too, not only this connection to it.
+    kill: function() {
+      if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'kill' }));
+    },
     close: function() {
       closed = true;
       clearTimeout(timer);
@@ -573,6 +581,8 @@ GM.closeTerminal = function(path) {
   var entry = GM.state.terminals[path];
   if (!entry) return;
   delete GM.state.terminals[path];
+  try { entry.conn.kill(); } catch(e) {}
+  try { localStorage.removeItem(entry.sidKey); } catch(e) {}
   try { entry.conn.close(); } catch(e) {}
   try { entry.term.dispose(); } catch(e) {}
   if (entry.wrapper.parentNode) entry.wrapper.parentNode.removeChild(entry.wrapper);

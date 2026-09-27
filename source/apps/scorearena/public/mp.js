@@ -328,7 +328,7 @@
     root.querySelector('#sa-miss').onclick=()=>addDart(0,0);root.querySelector('#sa-undo').onclick=()=>{pending.pop();drawPending();drawCheckout();drawTargetMark()};root.querySelector('#sa-submit').onclick=submit;
     root.querySelector('#sa-help').onclick=showHelp;
     const exitBtn=root.querySelector('#sa-exit');if(exitBtn)exitBtn.onclick=()=>mp.exitPrompt();
-    if(state)draw();
+    if(state){draw();showBetween()}
   }
   function showHelp(){
     if(!root)return;
@@ -422,7 +422,7 @@
     if(!isGhostTurn()){ghostPending=[];clearGhostMarks()}
     drawCustom();
     const players=Math.max(1,Math.min(state.order.length,2));
-    root.querySelector('#sa-score').innerHTML=`<div class="sa-scoreboard" style="--sa-players:${players}">${state.order.map(id=>{const p=state.players[id];return `<div class="sa-player ${id===current?'current':''}"><div class="sa-player-name">${esc(playerName(id))}${ghostMoodBadge(id)}</div>${bigSubLine(p)}<div class="sa-big">${bigValue(p)}</div></div>`}).join('')}</div>${state.dice&&Object.keys(state.dice).length?`<div class="sa-dice">🎲 ${tr('sa_dice_result')}: ${state.order.map(id=>`${esc(playerName(id))} ${state.dice[id]}`).join(' · ')}</div>`:''}`;
+    root.querySelector('#sa-score').innerHTML=`<div class="sa-scoreboard" style="--sa-players:${players}">${state.order.map(id=>{const p=state.players[id];return `<div class="sa-player ${id===current?'current':''}"><div class="sa-player-name">${esc(playerName(id))}${ghostMoodBadge(id)}</div>${bigSubLine(p)}<div class="sa-big">${bigValue(p)}</div></div>`}).join('')}</div>${roundStarterLine()}`;
     drawCheckout();
     root.querySelector('#sa-cricket').innerHTML=state.mode==='cricket'?cricketTable():'';
     root.querySelector('#sa-bitcoin-info').innerHTML=state.mode==='bitcoin'?bitcoinInfo():'';
@@ -506,8 +506,71 @@
     if(h.kind==='golf')return `${tr('sa_stats_hole')} ${h.hole}: ${h.strokes}`;
     return `+${h.scored}`}
   function findCheckouts(score){if(score<2||score>170)return[];const bullLabel=tr('sa_bull'),dbLabel=tr('sa_inner_bull');const all=[];for(let n=1;n<=20;n++)all.push({v:n,l:'S'+n},{v:n*2,l:'D'+n},{v:n*3,l:'T'+n});all.push({v:25,l:bullLabel},{v:50,l:dbLabel});const doubles=[];for(let n=20;n>=1;n--)doubles.push({v:n*2,l:'D'+n});doubles.push({v:50,l:dbLabel});const out=[];for(let count=1;count<=3&&out.length<3;count++){for(const d of doubles){if(count===1&&d.v===score)out.push(d.l);if(count===2)for(const a of all)if(a.v+d.v===score)out.push(a.l+' '+d.l);if(count===3)for(const a of all)for(const b of all)if(a.v+b.v+d.v===score)out.push(a.l+' '+b.l+' '+d.l);if(out.length>=3)break}if(out.length)break}return [...new Set(out)].slice(0,3)}
-  function finish(msg){state=msg;draw();if(!root)return;const ws=msg.winners&&msg.winners.length?msg.winners:[msg.winner];root.querySelector('#sa-overlay').innerHTML=`<div class="sa-finished"><div><div style="font-size:3.2rem">🏆</div><div class="sa-eyebrow">${tr('sa_winner')}</div><h1 style="margin:6px 0 18px">${ws.map(id=>esc(playerName(id))).join(' & ')}</h1><button class="sa-btn primary" onclick="location.reload()">${tr('sa_back')}</button></div></div>`}
+  // The dice only pick who opens the first game; after that the players take turns opening one.
+  function roundStarterLine(){
+    if(!state||isCustom()||state.order.length<2)return '';
+    if(state.round<=1&&state.dice&&Object.keys(state.dice).length)return `<div class="sa-dice">🎲 ${tr('sa_dice_result')}: ${state.order.map(id=>`${esc(playerName(id))} ${state.dice[id]}`).join(' · ')}</div>`;
+    if(state.round<=1)return '';
+    return `<div class="sa-dice">🔁 ${tr('sa_sum_round')} ${state.round} · ${tr('sa_starts')}: ${esc(sumName(state.order[(state.round-1)%state.order.length]))}</div>`;
+  }
+  // ── Stats between games: after every decided game, and for the whole match at the end ──
+  const sumName=id=>state?.roster?.[id]?.is_ghost?`👻 ${tr('sa_ghost')}`:playerName(id);
+  function statTiles(mode,s,scope,won){
+    const t=[],add=(label,value)=>t.push([label,value]),pct=v=>`${Math.round(v||0)}%`,round=scope==='round';
+    if(mode==='501'||mode==='301'){
+      add(tr('sa_stats_avg'),s.three_dart_average);add(tr('sa_sum_first9'),s.first9_average);add(tr('sa_sum_darts'),s.darts);
+      if(round)add(won?tr('sa_checkout'):tr('sa_remaining'),won?s.highest_checkout:s.remaining);
+      else{add(tr('sa_wins'),s.wins);add(tr('sa_stats_highest_checkout'),s.highest_checkout);add(tr('sa_stats_best_leg'),s.best_leg_darts||'—')}
+      add(tr('sa_sum_doubles'),`${s.checkout_hits}/${s.checkout_attempts}`);add(tr('sa_sum_best_turn'),s.best_turn);
+      add('180',s.scores_180);add(tr('sa_stats_140plus'),s.scores_140);add(tr('sa_stats_100plus'),s.scores_100);add(tr('sa_sum_busts'),s.busts);
+    }else if(mode==='cricket'){
+      add(tr('sa_stats_mpr'),s.mpr);add(tr('sa_stats_marks_total'),s.marks_total);add(tr('sa_sum_points'),s.points);
+      if(round)add(tr('sa_sum_closed'),`${s.closed}/7`);else add(tr('sa_wins'),s.wins);
+      add(tr('sa_sum_darts'),s.darts);add(tr('sa_sum_best_marks'),s.best_marks);
+      add(tr('sa_stats_high_marks'),(s.mark_5||0)+(s.mark_6||0)+(s.mark_7||0)+(s.mark_8||0)+(s.mark_9||0));add(tr('sa_stats_9marks'),s.three_triples);
+    }else if(mode==='breakdown'||mode==='atc'){
+      add(tr('sa_sum_targets'),round?`${s.seq}/21`:s.targets_hit);
+      if(!round)add(tr('sa_wins'),s.wins);
+      add(tr('sa_sum_darts'),s.darts);add(tr('sa_stats_darts_per_target'),s.darts_per_target);add(tr('sa_sum_hit_rate'),pct(s.target_rate));
+      if(mode==='breakdown'){add(tr('sa_stats_avg'),s.three_dart_average);add(tr('sa_sum_points'),s.points);add(tr('sa_sum_best_turn'),s.highest_checkout);add(tr('sa_stats_80s'),s.scores_80);add(tr('sa_stats_60s'),s.scores_60);add(tr('sa_stats_40s'),s.scores_40)}
+      else if(!round)add(tr('sa_stats_best_leg'),s.best_leg_darts||'—');
+    }else if(GOLF_MODES.includes(mode)){
+      const par=s.golf_to_par;
+      add(tr('sa_sum_strokes'),s.golf_strokes_total);add(tr('sa_sum_to_par'),par>0?'+'+par:par===0?'E':par);add(tr('sa_sum_per_hole'),s.golf_avg);add(tr('sa_sum_darts'),s.golf_darts);
+      add(tr('sa_stats_albatross'),s.albatrosses);add(tr('sa_stats_eagle'),s.eagles);add(tr('sa_stats_birdie'),s.birdies);add(tr('sa_stats_par'),s.pars);add(tr('sa_stats_bogey'),s.bogeys);add(tr('sa_stats_double_bogey'),s.double_bogeys);
+    }else if(mode==='bitcoin'){
+      add('₿ '+tr('sa_stats_btc_earned'),+(s.btc_earned||0).toFixed(4));add(tr('sa_stats_blocks_mined'),`${s.blocks_mined}/${s.blocks_attempted}`);add(tr('sa_stats_hitrate'),pct(s.hit_rate));
+      add(tr('sa_stats_darts_per_block'),s.darts_per_block);add(tr('sa_stats_best_streak'),s.best_mine_streak);add(tr('sa_stats_best_difficulty'),s.best_difficulty);add(tr('sa_stats_best_block'),s.best_block_reward);
+    }
+    return t;
+  }
+  function sumPlayers(view,winners){
+    return `<div class="sa-sum-players">${view.standings.map((id,i)=>{const s=view.stats[id];if(!s)return '';const won=winners.includes(id);
+      return `<div class="sa-sum-player${won?' sa-sum-won':''}"><div class="sa-sum-head"><span class="sa-sum-rank">${won?'🏆':i+1}</span><b>${esc(sumName(id))}</b></div><div class="sa-sum-grid">${statTiles(state.mode,s,view.scope,won).map(([l,v])=>`<div class="sa-sum-tile"><div class="sa-sum-val">${esc(v??0)}</div><div class="sa-sum-label">${esc(l)}</div></div>`).join('')}</div></div>`}).join('')}</div>`;
+  }
+  function winsLine(){return state.target_wins>1&&!GOLF_MODES.includes(state.mode)&&state.mode!=='bitcoin'?`<div class="sa-sum-wins">${state.order.map(id=>`${esc(sumName(id))} <b>${state.players[id].wins}</b>`).join(' · ')}</div>`:''}
+  function showBetween(){
+    const ov=root&&root.querySelector('#sa-overlay');if(!ov)return;
+    const b=state.between;
+    if(!b){if(ov.querySelector('.sa-between'))ov.innerHTML='';return}
+    const next=state.order[b.round%state.order.length];
+    ov.innerHTML=`<div class="sa-finished sa-summary sa-between"><div><div class="sa-eyebrow">${tr('sa_sum_round')} ${b.round} · ${tr('sa_sum_round_winner')}</div><h2 class="sa-sum-title">🏆 ${b.winners.map(id=>esc(sumName(id))).join(' & ')}</h2>${winsLine()}${sumPlayers({...b,scope:'round'},b.winners)}<p class="sa-sub sa-sum-next">${tr('sa_sum_round')} ${b.round+1} · ${tr('sa_starts')}: <b>${esc(sumName(next))}</b></p><div class="sa-sum-actions"><button class="sa-btn primary" id="sa-next">${tr('sa_sum_next')}</button></div></div></div>`;
+    ov.querySelector('#sa-next').onclick=e=>{e.currentTarget.disabled=true;mp.send({type:'sa_next'})};
+  }
+  function showSummary(msg){
+    const ov=root.querySelector('#sa-overlay'),rounds=msg.rounds||[],ws=msg.winners&&msg.winners.length?msg.winners:[msg.winner];
+    // A match of one game has nothing to add up: that game's own screen is the summary.
+    const views=rounds.length>1?[{...msg.summary,scope:'match',winners:ws,label:tr('sa_sum_match')},...rounds.map(r=>({...r,scope:'round',label:`${tr('sa_sum_round')} ${r.round}`}))]:[{...(rounds[0]||msg.summary),scope:rounds[0]?'round':'match',winners:rounds[0]?rounds[0].winners:ws}];
+    let current=0;
+    const paint=()=>{const v=views[current];
+      ov.innerHTML=`<div class="sa-finished sa-summary"><div><div class="sa-eyebrow">${tr('sa_winner')}</div><h2 class="sa-sum-title">🏆 ${ws.map(id=>esc(sumName(id))).join(' & ')}</h2>${winsLine()}${views.length>1?`<div class="sa-sum-tabs">${views.map((x,i)=>`<button type="button" class="sa-sum-tab${i===current?' active':''}" data-view="${i}">${esc(x.label)}</button>`).join('')}</div>`:''}${sumPlayers(v,v.winners||[])}<div class="sa-sum-actions"><button class="sa-btn primary" id="sa-done">${tr('sa_back')}</button></div></div></div>`;
+      ov.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{current=+b.dataset.view;paint()});
+      ov.querySelector('#sa-done').onclick=()=>location.reload();
+    };
+    paint();
+  }
+  function finish(msg){state=msg;draw();if(!root)return;if(msg.summary&&!isCustom()){showSummary(msg);return}const ws=msg.winners&&msg.winners.length?msg.winners:[msg.winner];root.querySelector('#sa-overlay').innerHTML=`<div class="sa-finished"><div><div style="font-size:3.2rem">🏆</div><div class="sa-eyebrow">${tr('sa_winner')}</div><h1 style="margin:6px 0 18px">${ws.map(id=>esc(playerName(id))).join(' & ')}</h1><button class="sa-btn primary" onclick="location.reload()">${tr('sa_back')}</button></div></div>`}
   function notice(text){const el=root?.querySelector('#sa-hint');if(!el)return;el.textContent=text;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.textContent='',1800)}
-  mp.on('sa_start',msg=>{state=msg;pending=[];ghostPending=[];clearGhostMarks();awaitingState=false;draw();resetPad()});mp.on('sa_state',msg=>{state=msg;pending=[];ghostPending=[];clearGhostMarks();awaitingState=false;draw();resetPad()});mp.on('sa_finished',msg=>{ghostPending=[];finish(msg)});mp.on('sa_error',msg=>notice(msg.message==='empty_turn'?tr(isCustom()?'sa_custom_need_value':'sa_need_dart'):msg.message));
+  mp.on('sa_start',msg=>{state=msg;pending=[];ghostPending=[];clearGhostMarks();awaitingState=false;draw();resetPad();showBetween()});mp.on('sa_state',msg=>{state=msg;pending=[];ghostPending=[];clearGhostMarks();awaitingState=false;draw();resetPad();showBetween()});mp.on('sa_finished',msg=>{ghostPending=[];finish(msg)});mp.on('sa_error',msg=>notice(msg.message==='empty_turn'?tr(isCustom()?'sa_custom_need_value':'sa_need_dart'):msg.message));
   mp.registerGame({id:'scorearena',name:'Score Arena',renderSetup,renderGame,exitButton:false});
 })();

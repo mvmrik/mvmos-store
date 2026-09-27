@@ -36,6 +36,33 @@ ATC_TARGETS = tuple(range(1, 21)) + (25,)
 
 GOLF_HOLE_COUNTS = {"progolf": 18, "minigolf": 9}
 
+# How a finished game's numbers fold into the whole match: most are counts and
+# add up, these keep the best value, and the best leg keeps the fewest darts.
+MATCH_MAX_KEYS = ("best_turn", "best_marks", "highest_checkout", "best_block_reward", "best_mine_streak",
+                  "best_difficulty", "halvings_survived")
+MATCH_MIN_KEYS = ("best_leg_darts",)
+MATCH_LAST_KEYS = ("mine_streak",)
+
+
+def _merge_metrics(total, game):
+    out = dict(total or {})
+    for key, value in (game or {}).items():
+        if key not in out:
+            out[key] = value
+        elif key in MATCH_MAX_KEYS:
+            out[key] = max(out[key], value)
+        elif key in MATCH_MIN_KEYS:
+            out[key] = min(v for v in (out[key], value) if v) if (out[key] or value) else 0
+        elif key in MATCH_LAST_KEYS:
+            out[key] = value
+        else:
+            out[key] = out[key] + value
+    return out
+
+
+def _ratio(a, b, scale=1):
+    return round(a / b * scale, 2) if b else 0
+
 GHOST_ID = "__ghost__"
 GHOST_HISTORY_LIMIT = 15
 GHOST_DART_DELAY = 1.4  # seconds before each of the ghost's own darts, so the client can show them one by one
@@ -185,6 +212,8 @@ class Game:
         self.owner_name = ""
         self.local = {}                  # profiles of players the host scores for, without them being in the room
         self._undo = None                # one-step undo for the last custom turn
+        self.paused = False              # a darts game is decided and its stats are on screen
+        self.rounds = []                 # summary of every decided game of the match
 
     async def on_start(self, settings):
         roster = self.ctx.all_players()
@@ -253,12 +282,15 @@ class Game:
         """Save & exit, asked for by the framework — solo only."""
         if len(self.ctx.all_players()) > 1 or self.finished or not self.started:
             return None
+        if self.paused:
+            # Saved from the stats screen: the save goes on with the next game.
+            self._next_round()
         return {
             "mode": self.mode, "target_wins": self.target_wins, "order": self.order,
             "turn_index": self.turn_index, "players": self.players, "history": self.history,
             "round_no": self.round_no, "dice": self.dice, "started_at": self.started_at,
             "rules": self.rules, "owner_id": self.owner_id, "owner_name": self.owner_name, "local": self.local,
-            "difficulty": self.difficulty, "block_count": self.block_count, "total_blocks": self.total_blocks,
+            "rounds": self.rounds, "difficulty": self.difficulty, "block_count": self.block_count, "total_blocks": self.total_blocks,
             "halving_reward": self.halving_reward, "halving_count": self.halving_count, "targets": self.targets,
             "ghost": ({"base_sigma": self.ghost.base_sigma, "sigma": self.ghost.sigma, "par": self.ghost.par,
                        "confidence": self.ghost.confidence} if self.ghost else None),
@@ -270,6 +302,10 @@ class Game:
         self.order = data.get("order", [])
         self.turn_index = data.get("turn_index", 0)
         self.players = data.get("players", {})
+        # A save from an older version lacks the counters added since.
+        blank = self._fresh_player()["metrics"]
+        for p in self.players.values():
+            p["metrics"] = {**blank, **(p.get("metrics") or {})}
         self.history = data.get("history", [])
         self.round_no = data.get("round_no", 1)
         self.dice = data.get("dice", {})
@@ -284,6 +320,7 @@ class Game:
         self.owner_id = data.get("owner_id")
         self.owner_name = data.get("owner_name") or ""
         self.local = data.get("local") or {}
+        self.rounds = data.get("rounds") or []
         gdata = data.get("ghost")
         if gdata and "sigma" in gdata:
             self.ghost = Ghost(gdata.get("base_sigma", gdata["sigma"]), par=gdata.get("par"))
@@ -304,6 +341,11 @@ class Game:
         await self.ctx.broadcast({"type": "sa_presence", "player_id": player["id"], "connected": False})
 
     async def on_message(self, player, msg):
+        if msg.get("type") == "sa_next":
+            await self._continue()
+            return
+        if self.paused:
+            return
         if self.mode == "custom" and self.started and not self.finished:
             await self._custom_message(player, msg)
             return
@@ -334,14 +376,9 @@ class Game:
 
         winner = result.get("round_winner")
         if winner:
-            self.players[winner]["wins"] += 1
-            if self.players[winner]["wins"] >= self.target_wins:
-                await self._finish(winner)
-                return
-            self.round_no += 1
-            self._reset_round()
-        else:
-            self.turn_index = (self.turn_index + 1) % len(self.order)
+            await self._game_won(winner, result)
+            return
+        self.turn_index = (self.turn_index + 1) % len(self.order)
         await self.ctx.broadcast(self._state("sa_state", last=result))
         await self._maybe_ghost_turn()
 
@@ -365,7 +402,7 @@ class Game:
         something they have to prompt. Loops (round-reset can land back on the
         ghost immediately in a 1-real-player order) until either the match
         ends or play is back with the human."""
-        while (self.ghost and self.started and not self.finished
+        while (self.ghost and self.started and not self.finished and not self.paused
                and self.order and self.order[self.turn_index] == GHOST_ID):
             await self._play_ghost_turn()
 
@@ -478,15 +515,85 @@ class Game:
 
         winner = result.get("round_winner")
         if winner:
-            self.players[winner]["wins"] += 1
-            if self.players[winner]["wins"] >= self.target_wins:
-                await self._finish(winner)
-                return
-            self.round_no += 1
-            self._reset_round()
-        else:
-            self.turn_index = (self.turn_index + 1) % len(self.order)
+            await self._game_won(winner, result)
+            return
+        self.turn_index = (self.turn_index + 1) % len(self.order)
         await self.ctx.broadcast(self._state("sa_state", last=result))
+
+    async def _game_won(self, winner, result):
+        """One darts game of the match is decided. Its stats go on screen and
+        the next game waits until somebody confirms them."""
+        self.players[winner]["wins"] += 1
+        if self.players[winner]["wins"] >= self.target_wins:
+            await self._finish(winner)
+            return
+        self.rounds.append(self._round_summary([winner]))
+        self.paused = True
+        await self.ctx.broadcast(self._state("sa_state", last=result))
+
+    async def _continue(self):
+        if not self.paused or self.finished:
+            return
+        self._next_round()
+        await self.ctx.broadcast(self._state("sa_state"))
+        await self._maybe_ghost_turn()
+
+    def _next_round(self):
+        self.paused = False
+        self.round_no += 1
+        self._reset_round()
+
+    # ── Statistics of one game and of the whole match ────────────────────
+
+    def _match_metrics(self, pid):
+        p = self.players[pid]
+        return _merge_metrics(p.get("past"), p["metrics"])
+
+    def _derive(self, m):
+        """The per-game figures the stats screen shows, from raw counters."""
+        holes = m.get("golf_holes") or 0
+        return {**m,
+                "three_dart_average": _ratio(m.get("points", 0), m.get("darts", 0), 3),
+                "first9_average": _ratio(m.get("first9_points", 0), m.get("first9_darts", 0), 3),
+                "mpr": _ratio(m.get("marks_total", 0), m.get("turns", 0)),
+                "hit_rate": _ratio(m.get("blocks_mined", 0), m.get("blocks_attempted", 0), 100),
+                "darts_per_block": _ratio(m.get("bitcoin_darts", 0), m.get("blocks_attempted", 0)),
+                "target_rate": _ratio(m.get("targets_hit", 0), m.get("darts", 0), 100),
+                "darts_per_target": _ratio(m.get("darts", 0), m.get("targets_hit", 0)),
+                "golf_avg": _ratio(m.get("golf_strokes_total", 0), holes),
+                "golf_to_par": m.get("golf_strokes_total", 0) - 3 * holes}
+
+    def _progress_key(self, pid):
+        """How far a player got in the game that just ended; smaller is better."""
+        p = self.players[pid]
+        if self.mode in ("501", "301"):
+            return p["remaining"]
+        if self.mode == "cricket":
+            return (-p["score"], -sum(1 for v in p["marks"].values() if v >= 3))
+        if self.mode in ("breakdown", "atc"):
+            return -p["seq_index"]
+        if self.mode in ("progolf", "minigolf"):
+            return p["metrics"]["golf_strokes_total"]
+        return -p["score"]
+
+    def _round_summary(self, winners):
+        stats = {}
+        for pid in self.order:
+            p = self.players[pid]
+            s = self._derive(p["metrics"])
+            s.update(remaining=p["remaining"], score=p["score"], seq=p["seq_index"],
+                     closed=sum(1 for v in p["marks"].values() if v >= 3))
+            stats[pid] = s
+        rest = sorted((pid for pid in self.order if pid not in winners), key=self._progress_key)
+        return {"round": self.round_no, "winners": list(winners), "standings": list(winners) + rest, "stats": stats}
+
+    def _match_summary(self, standings):
+        stats = {}
+        for pid in self.order:
+            s = self._derive(self._match_metrics(pid))
+            s["wins"] = self.players[pid]["wins"]
+            stats[pid] = s
+        return {"standings": list(standings), "stats": stats}
 
     # ── Custom games ─────────────────────────────────────────────────────
     # A player-made game is just a rule set (see _clean_rules): scores go up or
@@ -602,7 +709,9 @@ class Game:
                 "scores_80": 0, "scores_60": 0, "scores_40": 0, "perfect_breakdowns": 0,
                 "finishes_8dart": 0,
                 "golf_darts": 0, "golf_strokes_total": 0, "albatrosses": 0, "eagles": 0,
-                "birdies": 0, "pars": 0, "bogeys": 0, "double_bogeys": 0}}
+                "birdies": 0, "pars": 0, "bogeys": 0, "double_bogeys": 0,
+                "busts": 0, "first9_points": 0, "first9_darts": 0, "best_marks": 0, "targets_hit": 0,
+                "golf_holes": 0}}
 
     def _clean_darts(self, darts):
         out = []
@@ -629,10 +738,13 @@ class Game:
         won = False
         used = []
         metrics = self.players[pid]["metrics"]
+        first9 = self.players[pid]["round_darts"] < 9
         for dart in darts:
             used.append(dart)
             metrics["darts"] += 1
             self.players[pid]["round_darts"] += 1
+            if self.players[pid]["round_darts"] <= 9:
+                metrics["first9_darts"] += 1
             if dart.get("checkout_attempt"):
                 metrics["checkout_attempts"] += 1
             remaining -= dart["number"] * dart["multiplier"]
@@ -654,6 +766,11 @@ class Game:
         scored = 0 if bust else start - remaining
         metrics["turns"] += 1
         metrics["points"] += scored
+        metrics["best_turn"] = max(metrics["best_turn"], scored)
+        if bust:
+            metrics["busts"] += 1
+        if first9:
+            metrics["first9_points"] += scored
         if scored == 180:
             metrics["scores_180"] += 1
         if scored >= 140:
@@ -694,10 +811,12 @@ class Game:
             if extra and any(self.players[other]["marks"][key] < 3 for other in self.order if other != pid):
                 points = extra * number
                 self.players[pid]["score"] += points
+                metrics["points"] += points
                 gained += points
             changes.append({"number": number, "marks": marks})
         metrics["turns"] += 1
         metrics["marks_total"] += round_marks
+        metrics["best_marks"] = max(metrics["best_marks"], round_marks)
         if 5 <= round_marks <= 9:
             metrics[f"mark_{round_marks}"] += 1
         if len(darts) == 3 and all(d["number"] in CRICKET_TARGETS and d["multiplier"] == 3 for d in darts):
@@ -731,6 +850,7 @@ class Game:
             if dart["number"] == target:
                 turn_score += dart["number"] * dart["multiplier"]
                 state["seq_index"] += 1
+                metrics["targets_hit"] += 1
                 if state["seq_index"] >= len(targets):
                     won = True
                     break
@@ -795,6 +915,7 @@ class Game:
                 break  # can't beat an eagle/albatross with the remaining darts
         metrics[best_label] += 1
         metrics["golf_strokes_total"] += best_stroke
+        metrics["golf_holes"] += 1
         state["golf_strokes"].append(best_stroke)
         state["golf_hole"] += 1
         if state["golf_hole"] >= hole_count:
@@ -923,13 +1044,14 @@ class Game:
         real_standings = [pid for pid in standings if pid != GHOST_ID]
         records = [{"player_id": pid, "score": self.players[pid]["score"], "rank": i + 1, "is_winner": pid == winner}
                    for i, pid in enumerate(real_standings)]
-        await self.ctx.broadcast(self._state("sa_finished", winner=winner))
+        self.rounds.append(self._round_summary([winner]))
+        await self.ctx.broadcast(self._state("sa_finished", winner=winner, summary=self._match_summary(standings)))
         had_rival = len([pid for pid in self.order if pid != GHOST_ID]) > 1 or self.ghost is not None
         player_stats = {}
         for pid in self.order:
             if pid == GHOST_ID:
                 continue
-            m = dict(self.players[pid]["metrics"])
+            m = self._match_metrics(pid)
             m["hit_rate"] = round((m["blocks_mined"] / m["blocks_attempted"] * 100) if m["blocks_attempted"] else 0, 2)
             m["darts_per_block"] = round((m["bitcoin_darts"] / m["blocks_attempted"]) if m["blocks_attempted"] else 0, 2)
             m["halvings_survived"] = self.halving_count
@@ -941,11 +1063,10 @@ class Game:
 
     def _reset_round(self):
         for pid in self.order:
-            wins = self.players[pid]["wins"]
-            metrics = self.players[pid]["metrics"]
+            old = self.players[pid]
             self.players[pid] = self._fresh_player()
-            self.players[pid]["wins"] = wins
-            self.players[pid]["metrics"] = metrics
+            self.players[pid]["wins"] = old["wins"]
+            self.players[pid]["past"] = _merge_metrics(old.get("past"), old["metrics"])
         self.turn_index = (self.round_no - 1) % len(self.order)
 
     async def _finish(self, winner, winners=None):
@@ -958,13 +1079,17 @@ class Game:
         real_standings = [pid for pid in standings if pid != GHOST_ID]
         records = [{"player_id": pid, "score": self.players[pid]["wins"], "rank": i + 1, "is_winner": pid in winners}
                    for i, pid in enumerate(real_standings)]
-        await self.ctx.broadcast(self._state("sa_finished", winner=winner, winners=winners))
+        summary = None
+        if self.mode != "custom":
+            self.rounds.append(self._round_summary(winners))
+            summary = self._match_summary(standings)
+        await self.ctx.broadcast(self._state("sa_finished", winner=winner, winners=winners, summary=summary))
         had_rival = len([pid for pid in self.order if pid != GHOST_ID]) > 1 or self.ghost is not None
         player_stats = {}
         for pid in self.order:
             if pid == GHOST_ID:
                 continue
-            m = dict(self.players[pid]["metrics"])
+            m = self._match_metrics(pid)
             m["three_dart_average"] = round((m["points"] / m["darts"] * 3) if m["darts"] else 0, 2)
             m["checkout_rate"] = round((m["checkout_hits"] / m["checkout_attempts"] * 100) if m["checkout_attempts"] else 0, 2)
             m["mpr"] = round((m["marks_total"] / m["turns"]) if m["turns"] else 0, 2)
@@ -996,13 +1121,14 @@ class Game:
         records = [{"player_id": pid, "score": self.players[pid]["metrics"]["golf_strokes_total"],
                     "rank": i + 1, "is_winner": pid == winner}
                    for i, pid in enumerate(real_standings)]
-        await self.ctx.broadcast(self._state("sa_finished", winner=winner))
+        self.rounds.append(self._round_summary([winner]))
+        await self.ctx.broadcast(self._state("sa_finished", winner=winner, summary=self._match_summary(standings)))
         had_rival = len([pid for pid in self.order if pid != GHOST_ID]) > 1 or self.ghost is not None
         player_stats = {}
         for pid in self.order:
             if pid == GHOST_ID:
                 continue
-            m = dict(self.players[pid]["metrics"])
+            m = self._match_metrics(pid)
             m["darts_per_target"] = round((m["golf_darts"] / hole_count) if hole_count else 0, 2)
             m["avg"] = round((m["golf_strokes_total"] / hole_count) if hole_count else 0, 2)
             m["wins"] = (1 if pid == winner else 0) if had_rival else 0
@@ -1024,4 +1150,6 @@ class Game:
                 "dice": self.dice, "targets": self.targets, "difficulty": self.difficulty,
                 "block_count": self.block_count, "halving_reward": self.halving_reward,
                 "halving_count": self.halving_count, "total_blocks": self.total_blocks,
-                "rules": self.rules, "owner_id": self.owner_id, "can_undo": bool(self._undo), **extra}
+                "rules": self.rules, "owner_id": self.owner_id, "can_undo": bool(self._undo),
+                "between": self.rounds[-1] if self.paused and self.rounds else None,
+                "rounds": self.rounds if self.finished else [], **extra}

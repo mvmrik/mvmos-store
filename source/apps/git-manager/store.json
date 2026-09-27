@@ -13,7 +13,7 @@
     "Suggest a commit message from the changed files and folders, filled in so you can accept or rewrite it.",
     "Discard changes in one file or in the whole tree.",
     "Commit log per repository.",
-    "Open a terminal for the selected repository right inside the window, docked at the bottom or on the right. Each repository keeps its own live terminal while you switch between them, and the changed files refresh on their own when something in the terminal edits the working tree. If the connection drops, it reconnects automatically in a new shell session.",
+    "Open a terminal for the selected repository right inside the window, docked at the bottom or on the right. Each repository keeps its own live terminal while you switch between them, and the changed files refresh on their own when something in the terminal edits the working tree. The terminal opens in the repository's folder and its shell keeps running on the server, so after a dropped connection or a reloaded page it reconnects to the same shell with whatever was running in it, and closing the terminal ends that shell.",
     "Save a deploy command per repository, such as php artisan deploy or composer deploy, and run it with one Deploy button in its own interactive terminal, where prompts and passwords can be answered.",
     "Generate an ed25519 SSH key, copy the public key, and test the connection to GitHub, GitLab or any other host.",
     "See repositories owned by other profiles as locked entries, and either switch to the owner profile or unlock all of them from one place with Premium and sudo confirmation."

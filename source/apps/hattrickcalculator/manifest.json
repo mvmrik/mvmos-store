@@ -1,0 +1,24 @@
+{
+  "id": "hattrickcalculator",
+  "name": "Hattrick Calculator",
+  "icon": "⚽",
+  "category": "Games",
+  "tags": [
+    "hattrick",
+    "football",
+    "manager",
+    "calculator",
+    "training",
+    "lineup",
+    "games"
+  ],
+  "version": "1.0.0",
+  "min_core_version": "1.7.0",
+  "description": "Squad, lineup, training and arena calculator for Hattrick, with your players kept on your own profile.",
+  "entry": "main.js",
+  "multiplayer": false,
+  "max_players": 1,
+  "themed": true,
+  "public_directory": false,
+  "public_api_only": true
+}

@@ -1,0 +1,25 @@
+{
+  "tagline": "Squad, best lineup, training forecast and arena planning for Hattrick, kept on your profile.",
+  "description": "Hattrick Calculator is a manager's notebook for Hattrick. You enter your players once, with age, specialty, TSI, wage, form, stamina, experience, leadership, loyalty and all seven skills on Hattrick's own scale from non-existent to divine, and from then on you only change what changes: a skill that went up, a player you bought or a player you sold.\n\nWith the mvmOS Apps browser extension you do not have to type anything. Open any page of your team in Hattrick, open the extension and choose Import everything: after you allow it, the calculator reads your players, training, stadium, fans and youth academy pages as you see them when signed in, shows which players are new, changed or no longer in the team, and saves only what you keep ticked. It reads the pages by their structure, so it works in whatever language you play Hattrick.\n\nThe lineup tab picks the strongest eleven for every formation from 5-5-0 to 2-5-3 and ranks the formations against each other. It weighs each player's skills for each position together with form, stamina, loyalty, homegrown bonus and experience, and you can aim for a balanced team, more attack or more defence. Fix any player in a position and the rest is arranged around him. When you tick the players you are training, the lineup puts them in the positions your training type trains, so they get full training without you having to think about it. It also suggests a captain and a set pieces taker and shows the estimated midfield, defence and attack ratings for each side of the pitch.\n\nThe training tab shows for every player when the trained skill should go up next and how many levels he can gain this season, based on age, current level, coach, assistants, intensity and stamina share. Every skill-up you record is dated, and the calculator compares the real time between skill-ups with its estimate, so the forecast learns how fast your players really train, first for the whole team and then for each player.\n\nThe arena tab takes your current seats and fan club and plans the next rebuild: how many terraces, basic seats, seats under roof and VIP boxes to build or demolish, what it costs, how much more a sold-out home match brings in, how the weekly upkeep changes and in how many seasons it pays for itself. Prices, costs and the seat split can be changed to match what you see in the game.\n\nIt opens full screen on its public Game Hub page, works on a phone as well as a desktop, follows your language and light or dark theme, and is a single player tool with no leaderboard. Importing from Hattrick needs mvmOS 1.7.0 and its mvmOS Apps browser extension. It is not affiliated with Hattrick.",
+  "capabilities": [
+    "Your squad entered once with age, specialty, TSI, wage, form, stamina, experience, leadership, loyalty, homegrown status and all seven skills on Hattrick's scale.",
+    "Import of your players, training, stadium, fans and youth academy straight from Hattrick through the mvmOS Apps browser extension, with a preview of every change before it is saved.",
+    "Skill changes recorded with their date, a history for every player, and bought or sold players added and removed in one step.",
+    "Best lineup for every formation, ranked, with a balanced, attacking or defensive aim, fixed players and a suggested captain and set pieces taker.",
+    "Trainees placed automatically in the positions your training type trains.",
+    "Estimated midfield, defence and attack ratings for the left, centre and right of the pitch.",
+    "Training forecast for every player with the date of the next skill-up and the levels he can gain this season, learning from the skill-ups you record.",
+    "Arena rebuild plan by seat type with cost, extra income per home match, upkeep change and payback time in seasons.",
+    "Full screen on desktop and phone, in nine languages and in light and dark theme."
+  ],
+  "integrations": [
+    {
+      "app": "gamehub",
+      "name": "Game Hub",
+      "kind": "gamehub",
+      "direction": "consumes",
+      "summary": "The calculator runs on its public Game Hub page, which provides the Apps Hub account your squad is saved under.",
+      "requires": "Game Hub is required. The launcher window offers to install it if it's missing."
+    }
+  ]
+}

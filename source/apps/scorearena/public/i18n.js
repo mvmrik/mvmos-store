@@ -47,6 +47,7 @@
     sa_custom_stat_avg:"Average per turn", sa_custom_stat_best:"Best turn", sa_custom_stat_points:"Total points", sa_custom_stat_turns:"Turns played",
     sa_custom_players:"Players", sa_custom_players_none:"No favourites yet — add some in Game Hub to keep the score for them too.", sa_custom_local_hint:"You keep the score for everyone. The others don't need to join — the game shows up in each player's history and statistics.",
     sa_custom_played_title:"Played with others", sa_custom_by:"by", sa_custom_view_only:"This game belongs to someone else. Your statistics for it are shown here, but only its author can start it.",
+    sa_sum_round:"Round", sa_sum_round_winner:"Round winner", sa_sum_match:"Whole match", sa_sum_next:"Next round", sa_starts:"Throws first", sa_sum_first9:"First 9 average", sa_sum_darts:"Darts thrown", sa_sum_doubles:"Checkout doubles", sa_sum_best_turn:"Best turn", sa_sum_busts:"Busts", sa_sum_best_marks:"Best turn (marks)", sa_sum_closed:"Numbers closed", sa_sum_points:"Points", sa_sum_targets:"Targets hit", sa_sum_hit_rate:"Hit rate", sa_sum_strokes:"Strokes", sa_sum_to_par:"To par", sa_sum_per_hole:"Average per hole",
   };
   const bg = {
     sa_game:'Игра', sa_501:'Дартс 501', sa_301:'Дартс 301', sa_cricket:'Крикет', sa_bitcoin:'Биткойн дартс',
@@ -96,6 +97,7 @@
     sa_custom_stat_avg:"Средно на ход", sa_custom_stat_best:"Най-добър ход", sa_custom_stat_points:"Общо точки", sa_custom_stat_turns:"Изиграни хода",
     sa_custom_players:"Играчи", sa_custom_players_none:"Още нямаш любими — добави в Game Hub, за да водиш точки и за тях.", sa_custom_local_hint:"Ти водиш точките на всички. Останалите не е нужно да влизат — играта се появява в историята и статистиката на всеки играч.",
     sa_custom_played_title:"Играни с други", sa_custom_by:"от", sa_custom_view_only:"Тази игра е на друг играч. Тук се вижда твоята статистика за нея, но само авторът ѝ може да я започне.",
+    sa_sum_round:"Рунд", sa_sum_round_winner:"Победител в рунда", sa_sum_match:"Целият мач", sa_sum_next:"Следващ рунд", sa_starts:"Хвърля първи", sa_sum_first9:"Средно от първите 9", sa_sum_darts:"Хвърлени стрели", sa_sum_doubles:"Дубли за затваряне", sa_sum_best_turn:"Най-добър ход", sa_sum_busts:"Бъстове", sa_sum_best_marks:"Най-добър ход (марки)", sa_sum_closed:"Затворени числа", sa_sum_points:"Точки", sa_sum_targets:"Уцелени цели", sa_sum_hit_rate:"Точност", sa_sum_strokes:"Удари", sa_sum_to_par:"Спрямо пар", sa_sum_per_hole:"Средно на дупка",
   };
   const de = {
     sa_game:'Spiel', sa_501:'Darts 501', sa_301:'Darts 301', sa_cricket:'Cricket', sa_bitcoin:'Bitcoin Darts',
@@ -145,6 +147,7 @@
     sa_custom_stat_avg:"Durchschnitt pro Zug", sa_custom_stat_best:"Bester Zug", sa_custom_stat_points:"Gesamtpunkte", sa_custom_stat_turns:"Gespielte Züge",
     sa_custom_players:"Spieler", sa_custom_players_none:"Noch keine Favoriten — füge in Game Hub welche hinzu, um auch für sie die Punkte zu führen.", sa_custom_local_hint:"Du führst die Punkte für alle. Die anderen müssen nicht beitreten — das Spiel erscheint im Verlauf und in den Statistiken jedes Spielers.",
     sa_custom_played_title:"Mit anderen gespielt", sa_custom_by:"von", sa_custom_view_only:"Dieses Spiel gehört jemand anderem. Deine Statistiken dazu werden hier angezeigt, starten kann es aber nur der Autor.",
+    sa_sum_round:"Runde", sa_sum_round_winner:"Rundensieger", sa_sum_match:"Ganzes Match", sa_sum_next:"Nächste Runde", sa_starts:"Wirft zuerst", sa_sum_first9:"Schnitt erste 9", sa_sum_darts:"Geworfene Darts", sa_sum_doubles:"Checkout-Doppel", sa_sum_best_turn:"Beste Aufnahme", sa_sum_busts:"Überworfen", sa_sum_best_marks:"Beste Aufnahme (Marks)", sa_sum_closed:"Geschlossene Zahlen", sa_sum_points:"Punkte", sa_sum_targets:"Getroffene Ziele", sa_sum_hit_rate:"Trefferquote", sa_sum_strokes:"Schläge", sa_sum_to_par:"Zum Par", sa_sum_per_hole:"Schnitt pro Loch",
   };
   const es = {
     sa_game:'Juego', sa_501:'Dardos 501', sa_301:'Dardos 301', sa_cricket:'Cricket', sa_bitcoin:'Bitcoin Darts',
@@ -194,6 +197,7 @@
     sa_custom_stat_avg:"Media por turno", sa_custom_stat_best:"Mejor turno", sa_custom_stat_points:"Puntos totales", sa_custom_stat_turns:"Turnos jugados",
     sa_custom_players:"Jugadores", sa_custom_players_none:"Aún no tienes favoritos — añádelos en Game Hub para llevar también su puntuación.", sa_custom_local_hint:"Tú llevas la puntuación de todos. Los demás no necesitan unirse: la partida aparece en el historial y las estadísticas de cada jugador.",
     sa_custom_played_title:"Jugados con otros", sa_custom_by:"de", sa_custom_view_only:"Este juego es de otra persona. Aquí ves tus estadísticas, pero solo su autor puede iniciarlo.",
+    sa_sum_round:"Ronda", sa_sum_round_winner:"Ganador de la ronda", sa_sum_match:"Partido completo", sa_sum_next:"Siguiente ronda", sa_starts:"Lanza primero", sa_sum_first9:"Promedio primeros 9", sa_sum_darts:"Dardos lanzados", sa_sum_doubles:"Dobles de cierre", sa_sum_best_turn:"Mejor turno", sa_sum_busts:"Pasadas", sa_sum_best_marks:"Mejor turno (marcas)", sa_sum_closed:"Números cerrados", sa_sum_points:"Puntos", sa_sum_targets:"Objetivos acertados", sa_sum_hit_rate:"Precisión", sa_sum_strokes:"Golpes", sa_sum_to_par:"Respecto al par", sa_sum_per_hole:"Media por hoyo",
   };
   const fr = {
     sa_game:'Jeu', sa_501:'Fléchettes 501', sa_301:'Fléchettes 301', sa_cricket:'Cricket', sa_bitcoin:'Bitcoin Darts',
@@ -243,6 +247,7 @@
     sa_custom_stat_avg:"Moyenne par tour", sa_custom_stat_best:"Meilleur tour", sa_custom_stat_points:"Points totaux", sa_custom_stat_turns:"Tours joués",
     sa_custom_players:"Joueurs", sa_custom_players_none:"Pas encore de favoris — ajoutez-en dans Game Hub pour tenir aussi leur score.", sa_custom_local_hint:"Vous tenez le score de tout le monde. Les autres n'ont pas besoin de rejoindre : la partie apparaît dans l'historique et les statistiques de chaque joueur.",
     sa_custom_played_title:"Joués avec d'autres", sa_custom_by:"par", sa_custom_view_only:"Ce jeu appartient à quelqu'un d'autre. Vos statistiques s'affichent ici, mais seul son auteur peut le lancer.",
+    sa_sum_round:"Manche", sa_sum_round_winner:"Vainqueur de la manche", sa_sum_match:"Match complet", sa_sum_next:"Manche suivante", sa_starts:"Lance en premier", sa_sum_first9:"Moyenne des 9 premières", sa_sum_darts:"Fléchettes lancées", sa_sum_doubles:"Doubles de finition", sa_sum_best_turn:"Meilleure volée", sa_sum_busts:"Dépassements", sa_sum_best_marks:"Meilleure volée (marques)", sa_sum_closed:"Numéros fermés", sa_sum_points:"Points", sa_sum_targets:"Cibles touchées", sa_sum_hit_rate:"Précision", sa_sum_strokes:"Coups", sa_sum_to_par:"Par rapport au par", sa_sum_per_hole:"Moyenne par trou",
   };
   const ja = {
     sa_game:'ゲーム', sa_501:'ダーツ501', sa_301:'ダーツ301', sa_cricket:'クリケット', sa_bitcoin:'ビットコインダーツ',
@@ -292,6 +297,7 @@
     sa_custom_stat_avg:"ターン平均", sa_custom_stat_best:"ベストターン", sa_custom_stat_points:"合計ポイント", sa_custom_stat_turns:"プレイしたターン数",
     sa_custom_players:"プレイヤー", sa_custom_players_none:"お気に入りがまだありません。Game Hubで追加すると、その人の得点も記録できます。", sa_custom_local_hint:"全員の得点をあなたが記録します。他の人は参加する必要はなく、ゲームは各プレイヤーの履歴と統計に表示されます。",
     sa_custom_played_title:"他の人と遊んだゲーム", sa_custom_by:"作成者：", sa_custom_view_only:"このゲームは他の人のものです。あなたの統計はここに表示されますが、開始できるのは作成者だけです。",
+    sa_sum_round:"ラウンド", sa_sum_round_winner:"ラウンド勝者", sa_sum_match:"マッチ全体", sa_sum_next:"次のラウンド", sa_starts:"先攻", sa_sum_first9:"最初の9本の平均", sa_sum_darts:"投げたダーツ", sa_sum_doubles:"フィニッシュのダブル", sa_sum_best_turn:"ベストターン", sa_sum_busts:"バースト", sa_sum_best_marks:"ベストターン（マーク）", sa_sum_closed:"クローズした数字", sa_sum_points:"ポイント", sa_sum_targets:"ヒットしたターゲット", sa_sum_hit_rate:"命中率", sa_sum_strokes:"打数", sa_sum_to_par:"パー比", sa_sum_per_hole:"1ホール平均",
   };
   const pt = {
     sa_game:'Jogo', sa_501:'Dardos 501', sa_301:'Dardos 301', sa_cricket:'Cricket', sa_bitcoin:'Bitcoin Darts',
@@ -341,6 +347,7 @@
     sa_custom_stat_avg:"Média por turno", sa_custom_stat_best:"Melhor turno", sa_custom_stat_points:"Total de pontos", sa_custom_stat_turns:"Turnos jogados",
     sa_custom_players:"Jogadores", sa_custom_players_none:"Você ainda não tem favoritos — adicione no Game Hub para anotar os pontos deles também.", sa_custom_local_hint:"Você anota os pontos de todos. Os outros não precisam entrar — a partida aparece no histórico e nas estatísticas de cada jogador.",
     sa_custom_played_title:"Jogados com outros", sa_custom_by:"de", sa_custom_view_only:"Este jogo é de outra pessoa. Suas estatísticas aparecem aqui, mas só o autor pode iniciá-lo.",
+    sa_sum_round:"Rodada", sa_sum_round_winner:"Vencedor da rodada", sa_sum_match:"Partida inteira", sa_sum_next:"Próxima rodada", sa_starts:"Joga primeiro", sa_sum_first9:"Média dos 9 primeiros", sa_sum_darts:"Dardos lançados", sa_sum_doubles:"Duplas de fechamento", sa_sum_best_turn:"Melhor vez", sa_sum_busts:"Estouros", sa_sum_best_marks:"Melhor vez (marcas)", sa_sum_closed:"Números fechados", sa_sum_points:"Pontos", sa_sum_targets:"Alvos acertados", sa_sum_hit_rate:"Precisão", sa_sum_strokes:"Tacadas", sa_sum_to_par:"Em relação ao par", sa_sum_per_hole:"Média por buraco",
   };
   const ru = {
     sa_game:'Игра', sa_501:'Дартс 501', sa_301:'Дартс 301', sa_cricket:'Крикет', sa_bitcoin:'Bitcoin Дартс',
@@ -390,6 +397,7 @@
     sa_custom_stat_avg:"В среднем за ход", sa_custom_stat_best:"Лучший ход", sa_custom_stat_points:"Всего очков", sa_custom_stat_turns:"Сыграно ходов",
     sa_custom_players:"Игроки", sa_custom_players_none:"Пока нет избранных — добавьте их в Game Hub, чтобы вести счёт и для них.", sa_custom_local_hint:"Счёт ведёте вы для всех. Остальным не нужно входить — игра появится в истории и статистике каждого игрока.",
     sa_custom_played_title:"Сыграно с другими", sa_custom_by:"автор:", sa_custom_view_only:"Эта игра принадлежит другому игроку. Здесь показана ваша статистика по ней, но начать её может только автор.",
+    sa_sum_round:"Раунд", sa_sum_round_winner:"Победитель раунда", sa_sum_match:"Весь матч", sa_sum_next:"Следующий раунд", sa_starts:"Бросает первым", sa_sum_first9:"Среднее за первые 9", sa_sum_darts:"Брошено дротиков", sa_sum_doubles:"Дубли на закрытие", sa_sum_best_turn:"Лучший подход", sa_sum_busts:"Перебор", sa_sum_best_marks:"Лучший подход (метки)", sa_sum_closed:"Закрытые числа", sa_sum_points:"Очки", sa_sum_targets:"Поражённые цели", sa_sum_hit_rate:"Точность", sa_sum_strokes:"Удары", sa_sum_to_par:"Относительно пара", sa_sum_per_hole:"Среднее на лунку",
   };
   const zh = {
     sa_game:'游戏', sa_501:'飞镖501', sa_301:'飞镖301', sa_cricket:'板球飞镖', sa_bitcoin:'比特币飞镖',
@@ -439,6 +447,7 @@
     sa_custom_stat_avg:"每回合平均", sa_custom_stat_best:"最佳回合", sa_custom_stat_points:"总分", sa_custom_stat_turns:"已玩回合数",
     sa_custom_players:"玩家", sa_custom_players_none:"还没有收藏的玩家 — 在 Game Hub 中添加后即可为他们记分。", sa_custom_local_hint:"由你为所有人记分。其他人无需加入 — 游戏会出现在每位玩家的历史和统计中。",
     sa_custom_played_title:"与他人玩过", sa_custom_by:"作者：", sa_custom_view_only:"此游戏属于其他玩家。这里显示你的统计，但只有作者可以开始。",
+    sa_sum_round:"回合", sa_sum_round_winner:"本回合胜者", sa_sum_match:"整场比赛", sa_sum_next:"下一回合", sa_starts:"先投", sa_sum_first9:"前9镖平均", sa_sum_darts:"投出飞镖", sa_sum_doubles:"收镖双倍区", sa_sum_best_turn:"最佳一轮", sa_sum_busts:"爆分", sa_sum_best_marks:"最佳一轮（标记）", sa_sum_closed:"已关闭数字", sa_sum_points:"得分", sa_sum_targets:"命中目标", sa_sum_hit_rate:"命中率", sa_sum_strokes:"杆数", sa_sum_to_par:"相对标准杆", sa_sum_per_hole:"每洞平均",
   };
   const tables={bg,de,en,es,fr,ja,'pt-BR':pt,ru,'zh-CN':zh};
   function apply(lang){const table=tables[lang]||tables.en;window._i18n=window._i18n||{};for(const key in table)window._i18n[key]=table[key]}
