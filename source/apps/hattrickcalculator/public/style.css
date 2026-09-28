@@ -43,6 +43,7 @@
 .htc-input:focus{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:0;border-color:var(--accent)}
 .htc-check{display:flex;align-items:center;gap:8px;font-size:.88rem;cursor:pointer;min-height:40px}
 .htc-check input{width:18px;height:18px;accent-color:var(--accent);flex:none}
+.htc-lineup-checks{display:flex;flex-wrap:wrap;align-items:center;gap:4px 22px}
 .htc-note{font-size:.75rem;color:var(--fg2);font-style:italic;margin-top:12px;line-height:1.45}
 .htc-dim{color:var(--fg2);font-size:.78rem}
 .htc-nowrap{white-space:nowrap}
@@ -116,14 +117,14 @@
 /* Lineup */
 .htc-pitch{display:flex;flex-direction:column;gap:10px;padding:14px 10px;border-radius:12px;background:linear-gradient(color-mix(in srgb,var(--green) 16%,var(--surface2)),color-mix(in srgb,var(--green) 8%,var(--surface2)))}
 .htc-line{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
-.htc-slot{flex:1 1 0;max-width:170px;min-width:96px;display:flex;flex-direction:column;align-items:stretch;gap:4px;background:var(--surface1);border:1px solid var(--border);border-radius:10px;padding:7px}
+.htc-slot{flex:1 1 0;max-width:200px;min-width:110px;display:flex;flex-direction:column;align-items:stretch;gap:4px;background:var(--surface1);border:1px solid var(--border);border-radius:10px;padding:7px}
 .htc-slot.locked{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-.htc-slot.trainee{background:color-mix(in srgb,var(--yellow) 14%,var(--surface1))}
+.htc-slot.trainee{background:color-mix(in srgb,var(--green) 18%,var(--surface1));border-left:4px solid var(--green);padding-left:4px}
 .htc-slot-pos{font-size:.66rem;font-weight:800;color:var(--fg2);text-align:center;letter-spacing:.05em}
-.htc-slot-sel{width:100%;border:0;background:transparent;color:var(--fg);font-weight:800;font-size:.85rem;font-family:inherit;text-align:center;text-align-last:center;cursor:pointer;padding:2px 0;text-overflow:ellipsis}
-.htc-slot-sel option{background:var(--surface1);color:var(--fg)}
+.htc-slot-name{font-size:.85rem;text-align:center;overflow-wrap:anywhere}
 .htc-slot-sk{font-size:.68rem;color:var(--fg2);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .htc-roles{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;font-size:.85rem}
+.htc-role-sel{max-width:180px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--fg);font:inherit;padding:2px 5px}
 .htc-bench{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
 .htc-chip{font-size:.78rem;background:var(--surface2);border:1px solid var(--border);border-radius:999px;padding:3px 10px}
 .htc-chip.out{opacity:.55}
@@ -166,7 +167,6 @@
 .htc-bar>div{height:100%;background:var(--green);border-radius:3px}
 .htc-tinfo{font-size:.76rem;color:var(--fg2)}
 .htc-learned::before{content:'✓ ';color:var(--green);font-weight:800}
-.htc-pop{padding:8px 12px;font-variant-numeric:tabular-nums}
 
 /* Arena */
 .htc-price-grid{display:grid;grid-template-columns:minmax(110px,1.4fr) repeat(4,minmax(0,1fr));gap:6px;align-items:center;font-size:.72rem;color:var(--fg2);font-weight:600}
@@ -201,7 +201,6 @@
   .htc-pitch{padding:10px 6px;gap:8px}
   .htc-line{gap:5px;flex-wrap:nowrap}
   .htc-slot{min-width:0;padding:5px 3px}
-  .htc-slot-sel{font-size:.72rem;-webkit-appearance:none;appearance:none;padding:2px 0;overflow:hidden;white-space:nowrap}
   .htc-slot-sk{font-size:.62rem}
   .htc-rating{grid-template-columns:minmax(90px,1fr) minmax(0,1fr) 38px;gap:8px}
   .htc-price-grid{grid-template-columns:minmax(80px,1.1fr) repeat(4,minmax(0,1fr));gap:4px}
@@ -237,11 +236,11 @@
 .htc-v-sell{color:var(--accent)}
 .htc-v-release{color:var(--red)}
 /* Squad advice */
-.htc-adv{display:inline-block;max-width:7.5em;font-size:.74rem;line-height:1.25;white-space:normal;cursor:help}
+.htc-adv{display:inline-block;max-width:7.5em;font-size:.74rem;line-height:1.25;white-space:normal;cursor:help;border:1px solid currentColor;border-radius:999px;padding:2px 6px;font-weight:700}
 .htc-shop .htc-adv{max-width:none}
-.htc-adv-core,.htc-adv-youth{color:var(--green)}
-.htc-adv-old,.htc-adv-weak{color:var(--yellow)}
-.htc-adv-sell{color:var(--red)}
+.htc-adv-core{color:var(--green);background:color-mix(in srgb,var(--green) 14%,var(--surface1))}
+.htc-adv-veteran,.htc-adv-youth{color:var(--yellow);background:color-mix(in srgb,var(--yellow) 14%,var(--surface1))}
+.htc-adv-old,.htc-adv-weak,.htc-adv-sell{color:var(--red);background:color-mix(in srgb,var(--red) 14%,var(--surface1))}
 .htc-adv-backup,.htc-adv-train,.htc-adv-develop{color:var(--fg2)}
 .htc-shop{margin:14px 0}
 .htc-shop-row{padding:10px 0;border-top:1px solid var(--border);font-size:.86rem;line-height:1.45}

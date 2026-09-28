@@ -1,0 +1,13 @@
+{
+  "id": "mvmwarehouse",
+  "name": "mvmWarehouse",
+  "icon": "📦",
+  "category": "Business",
+  "tags": ["warehouse", "inventory", "stock", "invoices", "orders", "price lists", "erp"],
+  "version": "1.0.0",
+  "description": "Warehouse and sales for a small company: product catalogue, stock in several warehouses, price lists, customers and suppliers, orders, invoices and payments, shared with your team with per-area permissions and an API for other apps and online shops.",
+  "entry": "main.js",
+  "min_core_version": "1.0.0",
+  "public_url": "/pub/mvmwarehouse/",
+  "public_directory": true
+}

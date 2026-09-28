@@ -1,0 +1,25 @@
+{
+  "tagline": "Stock, prices, orders and invoices for a small company, shared with your team and ready for an online shop.",
+  "description": "mvmWarehouse is warehouse and sales software for a small company. It keeps your product catalogue with categories, photos and barcodes, the stock of every product in one or more warehouses, your customers and suppliers, and every order, invoice and payment in one place.\n\nStock follows your documents. Goods arrive with a receipt, leave with a write off, move between warehouses with a transfer and are corrected with an inventory count, and every movement is recorded so you can always see where a quantity came from. A confirmed order reserves its goods, shipping it takes them out of the warehouse, and an invoice made from the order carries its lines, prices and payments over, with overdue invoices and open receivables visible at a glance.\n\nPrice lists give groups of customers their own prices, either as a discount on the base price or as a fixed price for chosen products. Reports show sales by month, the best selling products and customers, and, for people allowed to see purchase prices, the cost of sales, gross margin and stock value.\n\nA company is shared with the people you choose from your Apps Hub favourites. Each person gets a ready made role such as sales, storekeeper or accountant, or their own set of permissions for every area, and purchase prices can be hidden from anyone who does not need them.\n\nmvmWarehouse is meant to be the heart of an online shop. Products marked for the online shop carry their photos and web description, and other mvmOS apps and outside programs can read the catalogue, prices and stock and place orders and payments, either through the app to app interface or through the company's own API keys, each with its own permissions.",
+  "capabilities": [
+    "Several companies, each with its own products, stock, partners and documents.",
+    "Product catalogue with nested categories, SKU, barcode, units, VAT rate, purchase price, minimum stock and several photos per product.",
+    "Services that can be sold and invoiced without stock.",
+    "Stock in several warehouses with receipts, write offs, transfers, inventory counts and customer returns, each posted and reversible.",
+    "Complete stock movement history with low stock warnings.",
+    "Price lists with a discount on the base price and fixed prices for chosen products.",
+    "Customers and suppliers with VAT number, addresses, payment terms and a default price list.",
+    "Orders that reserve goods when confirmed and take them out of the warehouse when shipped.",
+    "Invoices, proforma invoices and credit notes with continuous numbering and printing.",
+    "Payments against orders, invoices or partners, with refunds, overdue invoices and receivables.",
+    "Dashboard and reports with sales by month, best products and customers, cost of sales, gross margin and stock value.",
+    "Team access for people from your Apps Hub favourites with ready made roles or custom permissions per area.",
+    "Purchase prices and stock value hidden from people who should not see them.",
+    "Products marked for an online shop with photos and a separate web description.",
+    "API keys with their own permissions for online shops, accounting software and other programs.",
+    "App to app interface for other mvmOS apps to read products, prices and stock and place orders and payments.",
+    "All nine mvmOS languages.",
+    "Public web page for your Apps Hub account."
+  ],
+  "integrations": []
+}

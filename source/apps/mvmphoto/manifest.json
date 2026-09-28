@@ -1,0 +1,18 @@
+{
+  "id": "mvmphoto",
+  "name": "mvmPhoto",
+  "icon": "🎨",
+  "category": "Creative",
+  "tags": [
+    "image editor",
+    "photo",
+    "drawing",
+    "layers",
+    "paint"
+  ],
+  "version": "1.0.0",
+  "description": "An image editor with layers: select, paint, draw, add text and shapes, adjust colors and export to PNG, JPEG or WebP.",
+  "entry": "main.js",
+  "public_directory": false,
+  "min_core_version": "1.8.0"
+}

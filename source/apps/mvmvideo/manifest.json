@@ -1,0 +1,18 @@
+{
+  "id": "mvmvideo",
+  "name": "mvmVideo",
+  "icon": "🎬",
+  "category": "Media",
+  "tags": [
+    "video",
+    "video editor",
+    "timeline",
+    "audio",
+    "export"
+  ],
+  "version": "1.0.0",
+  "description": "A simple video editor: put videos, pictures and music on a timeline, trim and arrange them with a live preview, and export a video in full quality.",
+  "entry": "main.js",
+  "public_directory": false,
+  "min_core_version": "1.8.0"
+}

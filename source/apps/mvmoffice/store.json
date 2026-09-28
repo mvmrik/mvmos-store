@@ -1,0 +1,20 @@
+{
+  "tagline": "Your writing and your numbers in one document that keeps them in sync.",
+  "description": "mvmOffice puts a text document and a spreadsheet into the same file. Pages are written like in a word processor, on A4 sheets, with headings, lists, colors and tables placed right in the text. Data sheets are full spreadsheets with thousands of rows and columns that are not printed with the document, so they can hold everything the text is built on.\n\nThe two parts talk to each other. A formula in any table can use cells from any other table or data sheet, and a calculated value can sit inside a sentence: write \"The highest price is\" and insert the maximum of the Price column, and the sentence follows the data whenever it changes. Renaming a table or inserting rows keeps every formula pointing at the right place.\n\nDocuments are ordinary .mvmoffice files. They are saved automatically to your documents on the server under your Apps Hub account, can be downloaded and sent to someone who opens them on their own mvmOS, and in Chrome and Edge a file on your computer can be edited and saved in place. In the desktop window a document can also be saved to and opened from your folders on the server.",
+  "capabilities": [
+    "Text pages on A4 sheets with headings, bold, italic, underline, strikethrough, colors, alignment, bulleted and numbered lists, horizontal rules and page breaks.",
+    "Tables inside the text that behave like a spreadsheet, with a header row that repeats on every printed page.",
+    "Data sheets with up to one hundred thousand rows, resizable columns, number, percent, currency and date formats, fill and text colors.",
+    "Formulas with the common spreadsheet functions that work across tables, data sheets and pages, with suggestions for functions, tables and column names as you type.",
+    "Calculated values inside a sentence that update whenever the data changes.",
+    "References that follow renamed tables and inserted or deleted rows and columns.",
+    "Copy and paste with other spreadsheets and web pages, with undo and redo for every change.",
+    "Automatic saving to your documents on the server, with protection against two windows overwriting each other.",
+    "Download as a .mvmoffice file and open it on any other mvmOS.",
+    "Edit a file on your computer in place in Chrome and Edge.",
+    "Save to and open from your server folders in the desktop window.",
+    "Print the document or a data sheet on A4.",
+    "Public web page for your Apps Hub account."
+  ],
+  "integrations": []
+}

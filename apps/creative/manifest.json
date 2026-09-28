@@ -14,6 +14,23 @@
         "construction"
       ],
       "min_core_version": "1.0.0"
+    },
+    {
+      "id": "mvmphoto",
+      "name": "mvmPhoto",
+      "icon": "🎨",
+      "category": "Creative",
+      "version": "1.0.0",
+      "description": "An image editor with layers: select, paint, draw, add text and shapes, adjust colors and export to PNG, JPEG or WebP.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/creative/mvmphoto-1.0.0.zip",
+      "tags": [
+        "image editor",
+        "photo",
+        "drawing",
+        "layers",
+        "paint"
+      ],
+      "min_core_version": "1.8.0"
     }
   ]
 }

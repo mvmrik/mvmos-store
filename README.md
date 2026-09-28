@@ -93,7 +93,7 @@ mvmOS.registerApp({
 
 - `body` is a plain `div` — put any HTML you want inside it.
 - The window has minimize, maximize and close buttons built in.
-- Use `var(--surface)`, `var(--text)` etc. (see [CSS Variables](#css-variables-reference)) so your app matches the active theme.
+- Use `var(--surface)`, `var(--text)` etc. (see [CSS Variables](#css-variables-reference)) so your app matches the active theme. This is required, not a suggestion — see [Following the theme](#following-the-theme).
 - Use `this.storage` inside your `registerApp` def to persist data — each app has its own isolated storage.
 
 ### Persistent storage
@@ -543,6 +543,30 @@ function startGame(body, ws, mpState) {
 ### Standalone page for external players
 
 When Player 2 opens the shared link, they see the game in a standalone page (no mvmOS shell). A minimal `mvmOS` shim is injected so the app's `main.js` runs unchanged. `launch()` is called with `{ multiplayer: true, roomId }`.
+
+### Following the theme
+
+Every app must look right in whatever theme the user picked — light, dark or any theme from the store — both in its desktop window and on its public page. Never hard-code a dark (or light) palette for the app's own chrome: backgrounds, text, borders, buttons, inputs, menus and dialogs all come from theme variables. Test every new or changed app in a light and a dark theme.
+
+The two places get their colours from different variables:
+
+| Where | Variables | Set by |
+|-------|-----------|--------|
+| Desktop window | `--bg`, `--surface`, `--surface2`, `--border`, `--text`, `--text-dim`, `--accent`, `--accent-hover`, `--danger`, `--font` (see [CSS Variables](#css-variables-reference)) | The OS theme chosen in Settings |
+| Public page | `--pub-bg`, `--pub-surface1`, `--pub-surface2`, `--pub-border`, `--pub-fg`, `--pub-fg2`, `--pub-dim`, `--pub-accent`, `--pub-accent-hover`, `--pub-green`, `--pub-red`, `--pub-yellow` | The Apps Hub theme of the visitor (light, dark or auto) |
+
+The desktop does not define the `--pub-*` variables, and the public page does not define the OS ones. An app whose UI is shared between the two therefore maps both onto its own variables and switches set by where it is mounted:
+
+```css
+/* Public page: the Apps Hub theme. The fallbacks are the dark palette,
+   because a dark Apps Hub theme leaves --pub-* unset. */
+.my-app { --my-bg: var(--pub-bg, #1e1e2e); --my-fg: var(--pub-fg, #cdd6f4); --my-accent: var(--pub-accent, #89b4fa); }
+/* Desktop window: the OS theme. */
+.my-app.in-os { --my-bg: var(--surface); --my-fg: var(--text); --my-accent: var(--accent); }
+.my-app { background: var(--my-bg); color: var(--my-fg); }
+```
+
+Because both are CSS variables, a theme change applies at once without reloading the app. Colours that belong to the content rather than the app — a white A4 page in a document editor, a chart series, a user-chosen cell colour — may stay fixed. Text placed on an accent colour needs its own variable (for example `--my-on-accent`), since the background colour is not always a readable choice there.
 
 ### i18n in apps
 

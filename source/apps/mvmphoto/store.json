@@ -1,0 +1,18 @@
+{
+  "tagline": "Edit pictures and paint on layers right on your mvmOS desktop.",
+  "description": "mvmPhoto is an image editor for the mvmOS desktop that works the way you know from the big photo editors. Open pictures from your folders on the server or from your computer, or start with an empty canvas, and build your image on as many layers as you need, each with its own opacity and blend mode.\n\nSelect exactly the part you want to change with the rectangle, ellipse and lasso tools or with the magic wand, then add to it, subtract from it, expand it or soften its edge. Paint with a soft brush, draw crisp pixels with the pencil, erase, fill areas with the paint bucket, draw gradients, shapes and text, and move, scale or rotate anything with free transform. Brightness, contrast, hue, saturation, blur and sharpen are applied with a live preview.\n\nEverything runs in your browser, so no extra software is needed on the server. The finished picture is exported to PNG, JPEG or WebP into a server folder or downloaded to your computer, and your work with all its layers is kept in a .mvmphoto project that you can open again later. Pictures and projects open from File Manager with a double click.",
+  "capabilities": [
+    "Open PNG, JPEG, WebP, GIF, BMP and AVIF pictures from your server folders or from your computer, also by dragging them into the window or pasting them.",
+    "Layers with opacity, sixteen blend modes, visibility, renaming, reordering, duplicating and merging.",
+    "Rectangle, ellipse, lasso and magic wand selections that can be added, subtracted, intersected, inverted, expanded, contracted and feathered.",
+    "Soft brush, pencil, eraser, paint bucket, linear and radial gradients, rectangles, ellipses, lines and text.",
+    "Move, scale and rotate layers or selections with free transform.",
+    "Foreground and background colors with an eyedropper and a list of recently used colors.",
+    "Brightness and contrast, hue and saturation, blur, sharpen, invert and black and white with a live preview.",
+    "Crop, resize the image or the canvas, rotate, flip and trim transparent edges.",
+    "Undo and redo for every change, zoom and pan, and keyboard shortcuts for all tools.",
+    "Export to PNG, JPEG or WebP into a server folder or download it to your computer.",
+    "Save the whole work with its layers as a .mvmphoto project and continue editing later."
+  ],
+  "integrations": []
+}

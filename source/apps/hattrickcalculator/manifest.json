@@ -12,9 +12,9 @@
     "lineup",
     "games"
   ],
-  "version": "1.0.0",
+  "version": "1.1.0",
   "min_core_version": "1.7.0",
-  "description": "Squad, lineup, training and arena calculator for Hattrick, with your players kept on your own profile.",
+  "description": "Squad, lineup, training and arena calculator for the online football manager game Hattrick (hattrick.org), with your players kept on your own profile.",
   "entry": "main.js",
   "multiplayer": false,
   "max_players": 1,

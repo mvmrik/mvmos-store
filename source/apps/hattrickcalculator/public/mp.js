@@ -129,12 +129,23 @@
     passing:    { skill: 'ps', pos: { IM: 1, W: 1, FW: 1 } },
     through:    { skill: 'ps', pos: { WB: 0.85, CD: 0.85, IM: 0.85, W: 0.85 } },
     scoring:    { skill: 'sc', pos: { FW: 1 } },
-    shooting:   { skill: 'sc', pos: { GK: 0.6, WB: 0.6, CD: 0.6, W: 0.6, IM: 0.6, FW: 0.6 } },
+    // Shooting gives Scoring training to outfield players. It also gives a
+    // slower Set pieces effect to every player, which is not forecast here
+    // because this calculator tracks one trained skill at a time.
+    shooting:   { skill: 'sc', pos: { WB: 0.6, CD: 0.6, W: 0.6, IM: 0.6, FW: 0.6 } },
     setpieces:  { skill: 'sp', pos: { GK: 1, WB: 1, CD: 1, W: 1, IM: 1, FW: 1 } },
   };
   const TRAINING_KEYS = Object.keys(TRAININGS);
-  // How many weeks a level takes relative to playmaking.
-  const SKILL_SPEED = { kp: 0.55, df: 1.25, pm: 1, wi: 0.75, ps: 0.85, sc: 1, sp: 0.35 };
+  // Relative speeds calibrated to Hattrick's published training table:
+  // a 17-year-old from solid to excellent, solid coach, 100% intensity,
+  // 15% stamina share and two level-5 assistant coaches.  The game does not
+  // publish its exact formula, so these remain an estimate between skill-ups.
+  const TRAINING_SPEED = {
+    keeper: 0.58, defending: 0.96, defpos: 0.96,
+    playmaking: 0.77, winger: 0.58, wingatt: 0.58,
+    passing: 0.77, through: 0.82, scoring: 0.77,
+    shooting: 0.81, setpieces: 0.19,
+  };
   // Coach levels on the skill scale: weak (4) to excellent (8).
   const COACH = { 4: 1.7, 5: 1.45, 6: 1.27, 7: 1.12, 8: 1 };
 
@@ -142,10 +153,28 @@
   // of the same week another.
   const MATCHES = ['league', 'cup', 'friendly'];
   const GROUP_OF_MATCH = { league: 'trainees', cup: 'cup', friendly: 'cup' };
-  const GROUP_ICON = { trainees: '🏆', cup: '🏅' };
+  const MATCH_ICON = { league: '🏟️', cup: '🏆', friendly: '🤝' };
+  const GROUP_ICON = { trainees: MATCH_ICON.league, cup: MATCH_ICON.cup };
 
   const SEATS = ['terraces', 'basic', 'roof', 'vip'];
   const SEAT_ICON = { terraces: '🧍', basic: '🪑', roof: '⛱️', vip: '🥂' };
+
+  function trainingSnapshot(t) {
+    if (!t || !TRAININGS[t.type]) return null;
+    return {
+      type: t.type,
+      coach: clampInt(t.coach, 4, 8, 7),
+      // Hattrick has two assistant slots, with up to five training-skill
+      // levels each. We store their combined level, not their headcount.
+      assistants: clampInt(t.assistants, 0, 10, 0),
+      intensity: clampInt(t.intensity, 0, 100, 100),
+      stamina: clampInt(t.stamina, 10, 100, 10),
+    };
+  }
+  function sameTraining(a, b) {
+    return !!a && !!b && a.type === b.type && a.coach === b.coach
+      && a.assistants === b.assistants && a.intensity === b.intensity && a.stamina === b.stamina;
+  }
 
   // ── Players ────────────────────────────────────────────────────────────────
   function normPlayer(r) {
@@ -178,7 +207,7 @@
       added: validDate(d.added) || validDate(r && r.created_at && r.created_at.slice(0, 10)) || today(),
       history: (Array.isArray(d.history) ? d.history : [])
         .filter(h => h && SKILLS.includes(h.skill) && validDate(h.date))
-        .map(h => ({ date: h.date, skill: h.skill, from: clampInt(h.from, 0, MAX_LEVEL, 0), to: clampInt(h.to, 0, MAX_LEVEL, 0) }))
+        .map(h => ({ date: h.date, skill: h.skill, from: clampInt(h.from, 0, MAX_LEVEL, 0), to: clampInt(h.to, 0, MAX_LEVEL, 0), training: trainingSnapshot(h.training) }))
         .slice(-300),
     };
   }
@@ -339,8 +368,8 @@
     return { st, slots, assigned, ratings: total, score: weigh(total, opts.focus), trained };
   }
 
-  function bestLineups(opts) {
-    const pool = players.filter(p => !p.out);
+  function bestLineups(opts, playerPool) {
+    const pool = playerPool || players.filter(p => !p.out);
     const names = opts.formation === 'auto' ? FORMATIONS : [opts.formation];
     const results = [];
     names.forEach(n => {
@@ -360,9 +389,9 @@
   // The best substitutes for a lineup from the players left out of it, each
   // on one place only, with the starter he would replace: the weakest one
   // in that position.
-  function benchFor(best, focus) {
+  function benchFor(best, focus, pool) {
     const used = new Set(Object.values(best.assigned).map(p => p.id));
-    const free = players.filter(p => !p.out && !used.has(p.id));
+    const free = (pool || players).filter(p => !p.out && !used.has(p.id));
     const value = (p, pos) => weigh(contrib(p, pos, 'C', 1), focus);
     const subs = [];
     if (free.length) {
@@ -389,26 +418,36 @@
   }
 
   // ── Training forecast ──────────────────────────────────────────────────────
-  // Weeks for one level at 17 with an excellent coach, full intensity, 10%
-  // stamina share and a full training position; everything else scales it.
+  // Weeks for one level. The baseline and relative speeds follow Hattrick's
+  // published training table; individual hidden progress can still move a
+  // real skill-up by roughly a week either way.
   function modelWeeks(level, ageInDays, skill, t, share) {
     if (!share) return Infinity;
     const base = 2 + 0.45 * level + 0.02 * level * level;
-    const age = Math.pow(1.09, Math.max(0, ageInDays / HT_YEAR - 17));
+    // Hattrick's public rule of thumb is about four percent per year over 17.
+    const age = Math.pow(1.04, Math.max(0, ageInDays / HT_YEAR - 17));
     const coach = COACH[t.coach] || 1;
-    const assist = 1 + 0.025 * t.assistants;
+    // Ten combined assistant levels changes the published example from about
+    // seven to about five weeks: roughly a 40% training-speed bonus.
+    const assist = 1 + 0.04 * clampInt(t.assistants, 0, 10, 0);
     const intensity = Math.max(0.1, t.intensity / 100);
     const stamina = Math.max(0.1, (100 - t.stamina) / 90);
-    return base * SKILL_SPEED[skill] * age * coach / assist / intensity / stamina / share;
+    const speed = TRAINING_SPEED[t.type] || 1;
+    return base * speed * age * coach / assist / intensity / stamina / share;
   }
   // Consecutive skill-ups of one skill: how long they really took against
   // the model. Their median is the correction for what comes next.
   function popRatios(p, skill, t) {
     const ups = p.history.filter(h => h.skill === skill && h.to === h.from + 1)
       .sort((a, b) => dayNo(a.date) - dayNo(b.date));
+    const current = trainingSnapshot(t);
     const out = [];
     for (let i = 1; i < ups.length; i++) {
       if (ups[i].from !== ups[i - 1].to) continue;
+      // A recorded interval is comparable only when the same training setup
+      // was in use at both ends. Older entries without a setup are estimates,
+      // not evidence for the current forecast.
+      if (!sameTraining(ups[i - 1].training, current) || !sameTraining(ups[i].training, current)) continue;
       const weeks = (dayNo(ups[i].date) - dayNo(ups[i - 1].date)) / 7;
       const model = modelWeeks(ups[i].from, ageDays(p, ups[i - 1].date), skill, t, 1);
       if (weeks > 0 && isFinite(model)) out.push(Math.min(3, Math.max(0.3, weeks / model)));
@@ -429,12 +468,12 @@
     const h = p.history.filter(x => x.skill === skill).sort((a, b) => dayNo(b.date) - dayNo(a.date))[0];
     return h ? h.date : p.added;
   }
-  function forecast(p, t, team) {
+  function forecast(p, t, team, bonus) {
     const tt = TRAININGS[t.type];
     const skill = tt.skill;
-    const share = Math.max(...POSITIONS.map(pos => tt.pos[pos] || 0));
+    const share = Math.max(...POSITIONS.map(pos => tt.pos[pos] || 0)) * (bonus || 1);
     const own = popRatios(p, skill, t).slice(-4);
-    const factor = own.length ? median(own) : (team.factor || 1);
+    const factor = t.type === 'setpieces' ? 1 : (own.length ? median(own) : (team.factor || 1));
     const level = p.skills[skill];
     const since = lastChange(p, skill);
     const weeks = level >= MAX_LEVEL ? Infinity : modelWeeks(level, ageDays(p, since), skill, t, share) * factor;
@@ -473,9 +512,16 @@
     const current = SEATS.reduce((s, k) => s + a.seats[k], 0);
     const demand = a.target != null ? a.target : (a.fans != null ? Math.round(a.fans * a.perFan) : current);
     const ratioSum = SEATS.reduce((s, k) => s + a.ratio[k], 0) || 1;
-    const want = {}, delta = {};
+    const want = {}, delta = {}, raw = {};
     SEATS.forEach(k => {
-      want[k] = Math.round(demand * a.ratio[k] / ratioSum);
+      raw[k] = demand * a.ratio[k] / ratioSum;
+      want[k] = Math.floor(raw[k]);
+    });
+    // Keep the individual seat groups and the displayed total in agreement.
+    // The largest fractional remainders receive the few unassigned seats.
+    SEATS.slice().sort((a, b) => (raw[b] - want[b]) - (raw[a] - want[a])).slice(0,
+      demand - SEATS.reduce((s, k) => s + want[k], 0)).forEach(k => { want[k]++; });
+    SEATS.forEach(k => {
       delta[k] = want[k] - a.seats[k];
     });
     let cost = 0;
@@ -518,8 +564,11 @@
         focus: FOCUS[l.focus] ? l.focus : 'balanced',
         match: MATCHES.includes(l.match) ? l.match : 'league',
         useTrainees: l.useTrainees !== false,
-        locks: (l.locks && typeof l.locks === 'object') ? Object.fromEntries(Object.entries(l.locks)
-          .filter(([k, v]) => /^(GK|WB|CD|W|IM|FW)-[RCL]$/.test(k) && Number.isInteger(v))) : {},
+        useStrongest: l.useStrongest === true,
+        setTaker: Number.isInteger(l.setTaker) ? l.setTaker : null,
+        // The lineup is fully automatic; old manually locked positions are
+        // intentionally discarded so they cannot affect future suggestions.
+        locks: {},
       },
       youth: {
         formation: d.youth && FORMATIONS.includes(d.youth.formation) ? d.youth.formation : 'auto',
@@ -578,6 +627,7 @@
     players = players.filter(x => x.id !== id);
     setGroup(id, '');
     Object.keys(team.lineup.locks).forEach(k => { if (team.lineup.locks[k] === id) delete team.lineup.locks[k]; });
+    if (team.lineup.setTaker === id) team.lineup.setTaker = null;
     saveTeamSoon();
   }
 
@@ -614,22 +664,6 @@
     players.push(saved);
     sortPlayers();
     return saved;
-  }
-
-  // One level up in one skill, dated today.
-  async function recordPop(p, skill) {
-    if (p.skills[skill] >= MAX_LEVEL) return;
-    const copy = normPlayer({ id: p.id, data: JSON.parse(JSON.stringify(playerData(p))) });
-    copy.id = p.id;
-    copy.history.push({ date: today(), skill, from: copy.skills[skill], to: copy.skills[skill] + 1 });
-    copy.skills[skill]++;
-    try {
-      await savePlayer(copy);
-      banner = { kind: 'ok', text: tr('htc_pop_saved', { name: copy.name, skill: tr('htc_sk_' + skill), level: levelName(copy.skills[skill]) }) };
-    } catch (_) {
-      banner = { kind: 'warn', text: tr('htc_save_error') };
-    }
-    render();
   }
 
   // ── Views ──────────────────────────────────────────────────────────────────
@@ -726,7 +760,7 @@
   const TRAIN_OLD = 27;          // from this age training takes well over twice as long as at 17
   const TRAINEE_AGE = [17, 19];  // the age to buy a player to train
   const POS_MAIN = { GK: ['kp', 'df'], CD: ['df', 'pm'], WB: ['df', 'wi'], IM: ['pm', 'ps'], W: ['wi', 'pm'], FW: ['sc', 'ps'] };
-  const ADVICE_ICON = { core: '✅', youth: '🌱', old: '👴', weak: '⬇️', backup: '🔁', train: '📈', develop: '🐣', sell: '💰' };
+  const ADVICE_ICON = { core: '✅', youth: '🌱', veteran: '🧓', old: '🚨', weak: '🚨', backup: '🔁', train: '📈', develop: '🐣', sell: '💰' };
 
   const posFull = pos => tr('htc_pos_full_' + pos);
   const ageYears = p => Math.floor(ageDays(p) / HT_YEAR);
@@ -777,14 +811,20 @@
       if (st) {
         const vars = { pos: posFull(st.pos), age };
         const y = youthFor[p.id];
-        if (y) {
+        const weak = level && st.v < level * SENIOR_WEAK;
+        const pct = weak ? Math.round((1 - st.v / level) * 100) : 0;
+        // A player who is already weak needs replacing regardless of age.
+        // Age by itself is a warning only while he still performs at the
+        // team's level.
+        if (weak && age >= SENIOR_OLD) {
+          a = { v: 'old', text: tr('htc_advr_old', Object.assign(vars, { pct })) };
+        } else if (weak) {
+          a = { v: 'weak', text: tr(age <= SENIOR_YOUNG ? 'htc_advr_weak_young' : 'htc_advr_weak', Object.assign(vars, { pct })) };
+        } else if (y) {
           a = { v: 'youth', text: tr(y.y.promote === 0 ? 'htc_advr_youth_now' : 'htc_advr_youth_later',
             { youth: String(y.y.name || ''), pos: vars.pos, days: y.y.promote }) };
-        } else if (age >= SENIOR_OLD) a = { v: 'old', text: tr('htc_advr_old', vars) };
-        else if (level && st.v < level * SENIOR_WEAK) {
-          const pct = Math.round((1 - st.v / level) * 100);
-          a = { v: 'weak', text: tr(age <= SENIOR_YOUNG ? 'htc_advr_weak_young' : 'htc_advr_weak', Object.assign(vars, { pct })) };
-        } else a = { v: 'core', text: tr('htc_advr_core', vars) };
+        } else if (age >= SENIOR_OLD) a = { v: 'veteran', text: tr('htc_advr_veteran', vars) };
+        else a = { v: 'core', text: tr('htc_advr_core', vars) };
         a.pos = st.pos;
       } else if (trainees.has(p.id)) a = { v: 'train', text: tr('htc_advr_train') };
       else if (backup[p.id]) a = { v: 'backup', text: tr('htc_advr_backup', { pos: posFull(backup[p.id]) }) };
@@ -1926,7 +1966,7 @@
       const before = playerById(draft.id);
       if (before) SKILLS.forEach(s => {
         if (before.skills[s] !== draft.skills[s]) {
-          draft.history.push({ date: changeDate, skill: s, from: before.skills[s], to: draft.skills[s] });
+          draft.history.push({ date: changeDate, skill: s, from: before.skills[s], to: draft.skills[s], training: trainingSnapshot(team.training) });
         }
       });
     }
@@ -1951,37 +1991,72 @@
   function lineupOpts() {
     const l = team.lineup;
     return {
-      formation: l.formation, focus: l.focus, locks: l.locks,
+      formation: l.formation, focus: l.focus, locks: {},
       training: team.training.type, trainees: new Set(matchGroup()), useTrainees: l.useTrainees,
+      match: l.match, useStrongest: l.useStrongest,
     };
   }
+  // Cup and friendly lineups normally preserve the players who make the
+  // strongest league lineup. Trainees remain available so they can still get
+  // their minutes. A manager can opt into the strongest XI for an important
+  // cup match.
+  function matchPool(opts) {
+    const available = players.filter(p => !p.out);
+    if (opts.match === 'league' || opts.useStrongest) return available;
+    const leagueOpts = Object.assign({}, opts, { locks: {}, trainees: new Set(), useTrainees: false, match: 'league', useStrongest: true });
+    const league = bestLineups(leagueOpts)[0];
+    if (!league) return available;
+    const leagueIds = new Set(Object.values(league.assigned).map(p => p.id));
+    const pool = available.filter(p => !leagueIds.has(p.id) || opts.trainees.has(p.id));
+    // A small squad may not have a full separate eleven. Only then reuse the
+    // minimum number of league starters, beginning with the least valuable.
+    if (pool.length < 11) {
+      const value = p => weigh(contrib(p, bestPos(p), 'C', 1), 'balanced') / POS_SCALE[bestPos(p)];
+      available.filter(p => leagueIds.has(p.id) && !pool.includes(p)).sort((a, b) => value(a) - value(b))
+        .slice(0, 11 - pool.length).forEach(p => pool.push(p));
+    }
+    return pool;
+  }
+  function matchLineups(opts) {
+    return bestLineups(opts, matchPool(opts));
+  }
+  function setPieceBonuses() {
+    if (team.training.type !== 'setpieces') return new Map();
+    const best = matchLineups(lineupOpts())[0];
+    if (!best) return new Map();
+    const inTeam = Object.values(best.assigned);
+    const suggested = inTeam.slice().sort((a, b) => effSkill(b, 'sp') - effSkill(a, 'sp'))[0];
+    const taker = inTeam.find(p => p.id === team.lineup.setTaker) || suggested;
+    const bonuses = new Map();
+    const keeper = best.assigned['GK-C'];
+    if (keeper) bonuses.set(keeper.id, 1.25);
+    if (taker) bonuses.set(taker.id, 1.25);
+    return bonuses;
+  }
   function lineupHtml() {
-    const avail = players.filter(p => !p.out);
-    if (avail.length < 1) return '<div class="htc-empty"><div class="htc-empty-icon">📋</div>' + esc(tr('htc_lineup_empty')) + '</div>';
+    if (!players.some(p => !p.out)) return '<div class="htc-empty"><div class="htc-empty-icon">📋</div>' + esc(tr('htc_lineup_empty')) + '</div>';
     const l = team.lineup;
     const opts = lineupOpts();
-    const all = bestLineups(Object.assign({}, opts, { formation: 'auto' }));
-    const best = l.formation === 'auto' ? all[0] : bestLineups(opts)[0];
+    const avail = matchPool(opts);
+    const all = matchLineups(Object.assign({}, opts, { formation: 'auto' }));
+    const best = l.formation === 'auto' ? all[0] : matchLineups(opts)[0];
     const hasTrainees = matchGroup().some(id => playerById(id));
-    const subs = benchFor(best, l.focus);
+    const subs = benchFor(best, l.focus, avail);
     const used = new Set(Object.values(best.assigned).concat(subs.map(x => x.player)).map(p => p.id));
-    const rest = players.filter(p => !used.has(p.id));
+    const rest = avail.filter(p => !used.has(p.id));
     const inTeam = Object.values(best.assigned);
     const captain = inTeam.slice().sort((a, b) => (b.lead * 2 + b.xp) - (a.lead * 2 + a.xp))[0];
-    const setTaker = inTeam.slice().sort((a, b) => effSkill(b, 'sp') - effSkill(a, 'sp'))[0];
+    const suggestedTaker = inTeam.slice().sort((a, b) => effSkill(b, 'sp') - effSkill(a, 'sp'))[0];
+    const setTaker = inTeam.find(p => p.id === l.setTaker) || suggestedTaker;
     const maxR = Math.max(1, ...SECTORS.map(k => best.ratings[k]));
 
     const slotHtml = s => {
       const p = best.assigned[s.id];
-      const locked = l.locks[s.id] != null && p && l.locks[s.id] === p.id;
       const tt = TRAININGS[team.training.type];
       const trainee = p && l.useTrainees && opts.trainees.has(p.id) && tt.pos[s.pos];
-      return '<div class="htc-slot' + (locked ? ' locked' : '') + (trainee ? ' trainee' : '') + '">'
+      return '<div class="htc-slot' + (trainee ? ' trainee' : '') + '">'
         + '<span class="htc-slot-pos">' + esc(posShort(s.pos)) + (p ? ' ' + statusHtml(p) : '') + '</span>'
-        + '<select class="htc-slot-sel" data-slot="' + s.id + '" aria-label="' + esc(tr('htc_pos_full_' + s.pos)) + '">'
-        + '<option value="">' + (locked ? '⟳ ' + esc(tr('htc_auto')) : (p ? esc(p.name) : '—')) + '</option>'
-        + avail.map(x => '<option value="' + x.id + '"' + (locked && x.id === p.id ? ' selected' : '') + '>🔒 ' + esc(x.name) + '</option>').join('')
-        + '</select>'
+        + '<b class="htc-slot-name" title="' + esc(p ? p.name : '') + '">' + esc(p ? p.name : '—') + '</b>'
         + (p ? '<span class="htc-slot-sk">' + slotSkills(p, s.pos) + '</span>' : '')
         + '</div>';
     };
@@ -1998,10 +2073,14 @@
     const bar = k => '<div class="htc-rating"><span>' + esc(tr('htc_sec_' + k)) + '</span>'
       + '<div class="htc-rbar"><div style="width:' + (best.ratings[k] / maxR * 100).toFixed(1) + '%"></div></div>'
       + '<b>' + numFmt(best.ratings[k], 1) + '</b></div>';
+    const traineeCheck = hasTrainees ? '<label class="htc-check"><input type="checkbox" id="htc-use-trainees"' + (l.useTrainees ? ' checked' : '') + '> 📈 ' + esc(tr('htc_use_trainees', { training: tr('htc_tr_' + team.training.type) })) + '</label>' : '';
+    const strongestCheck = l.match !== 'league' ? '<label class="htc-check"><input type="checkbox" id="htc-use-strongest"' + (l.useStrongest ? ' checked' : '') + '> 💪 ' + esc(tr('htc_use_strongest')) + '</label>' : '';
+    const checkRow = traineeCheck || strongestCheck ? '<div class="htc-lineup-checks htc-span-all">' + traineeCheck + strongestCheck + '</div>' : '';
+    const traineeNotice = hasTrainees ? '' : '<p class="htc-dim htc-span-all">' + esc(tr('htc_no_group_trainees', { group: tr('htc_group_' + GROUP_OF_MATCH[l.match]) })) + '</p>';
 
     return '<section class="htc-card"><div class="htc-grid htc-grid-lineup">'
       + '<label class="htc-field"><span>' + esc(tr('htc_match')) + '</span><select class="htc-input" id="htc-match">'
-      + MATCHES.map(m => '<option value="' + m + '"' + (l.match === m ? ' selected' : '') + '>' + GROUP_ICON[GROUP_OF_MATCH[m]] + ' ' + esc(tr('htc_match_' + m)) + '</option>').join('')
+      + MATCHES.map(m => '<option value="' + m + '"' + (l.match === m ? ' selected' : '') + '>' + MATCH_ICON[m] + ' ' + esc(tr('htc_match_' + m)) + '</option>').join('')
       + '</select></label>'
       + '<label class="htc-field"><span>' + esc(tr('htc_formation')) + '</span><select class="htc-input" id="htc-formation">'
       + '<option value="auto"' + (l.formation === 'auto' ? ' selected' : '') + '>' + esc(tr('htc_formation_auto')) + '</option>'
@@ -2010,23 +2089,24 @@
       + '<label class="htc-field"><span>' + esc(tr('htc_focus')) + '</span><select class="htc-input" id="htc-focus">'
       + Object.keys(FOCUS).map(f => '<option value="' + f + '"' + (l.focus === f ? ' selected' : '') + '>' + esc(tr('htc_focus_' + f)) + '</option>').join('')
       + '</select></label>'
-      + (hasTrainees ? '<label class="htc-check htc-span-all"><input type="checkbox" id="htc-use-trainees"' + (l.useTrainees ? ' checked' : '') + '> 📈 ' + esc(tr('htc_use_trainees', { training: tr('htc_tr_' + team.training.type) })) + '</label>'
-        : '<p class="htc-dim htc-span-all">' + esc(tr('htc_no_group_trainees', { group: tr('htc_group_' + GROUP_OF_MATCH[l.match]) })) + '</p>')
-      + (Object.keys(l.locks).length ? '<button class="htc-link" id="htc-unlock">🔓 ' + esc(tr('htc_unlock')) + '</button>' : '')
+      + checkRow + traineeNotice
       + '</div></section>'
 
       + '<div class="htc-cols">'
       + '<section class="htc-card"><div class="htc-card-head"><h3>' + esc(tr('htc_lineup_for', { f: best.st.name })) + '</h3>'
       + '<span class="htc-score">' + esc(tr('htc_score')) + ' <b>' + numFmt(best.score, 1) + '</b></span></div>'
       + '<div class="htc-pitch">'
-      + line(orderLine(best.slots.filter(s => s.pos === 'FW')))
-      + line(orderLine(best.slots.filter(s => s.pos === 'W' || s.pos === 'IM')))
-      + line(orderLine(best.slots.filter(s => s.pos === 'WB' || s.pos === 'CD')))
       + line(best.slots.filter(s => s.pos === 'GK'))
+      + line(orderLine(best.slots.filter(s => s.pos === 'WB' || s.pos === 'CD')))
+      + line(orderLine(best.slots.filter(s => s.pos === 'W' || s.pos === 'IM')))
+      + line(orderLine(best.slots.filter(s => s.pos === 'FW')))
       + '</div>'
       + '<div class="htc-roles">'
       + (captain ? '<span>©️ ' + esc(tr('htc_captain')) + ': <b>' + esc(captain.name) + '</b></span>' : '')
-      + (setTaker ? '<span>🎯 ' + esc(tr('htc_set_taker')) + ': <b>' + esc(setTaker.name) + '</b></span>' : '')
+      + (setTaker ? '<label>🎯 ' + esc(tr('htc_set_taker')) + ': <select class="htc-role-sel" id="htc-set-taker">'
+        + '<option value=""' + (l.setTaker == null ? ' selected' : '') + '>' + esc(tr('htc_auto')) + ': ' + esc(suggestedTaker.name) + '</option>'
+        + inTeam.map(p => '<option value="' + p.id + '"' + (l.setTaker === p.id ? ' selected' : '') + '>' + esc(p.name) + '</option>').join('')
+        + '</select></label>' : '')
       + '</div>'
       + (subs.length ? '<div class="htc-subs-wrap"><h4>🔁 ' + esc(tr('htc_bench')) + '</h4>'
         + '<p class="htc-dim">' + esc(tr('htc_bench_hint')) + '</p>'
@@ -2066,21 +2146,8 @@
     on('htc-formation', el => { l.formation = el.value; });
     on('htc-focus', el => { l.focus = el.value; });
     on('htc-use-trainees', el => { l.useTrainees = el.checked; });
-    const un = root.querySelector('#htc-unlock');
-    if (un) un.onclick = () => { l.locks = {}; saveTeamSoon(); render(); };
-    root.querySelectorAll('.htc-slot-sel').forEach(sel => {
-      sel.onchange = () => {
-        const id = sel.dataset.slot;
-        if (!sel.value) delete l.locks[id];
-        else {
-          const pid = +sel.value;
-          Object.keys(l.locks).forEach(k => { if (l.locks[k] === pid) delete l.locks[k]; });
-          l.locks[id] = pid;
-        }
-        saveTeamSoon();
-        render();
-      };
-    });
+    on('htc-use-strongest', el => { l.useStrongest = el.checked; });
+    on('htc-set-taker', el => { l.setTaker = el.value ? +el.value : null; });
     root.querySelectorAll('.htc-form-row').forEach(b => {
       b.onclick = () => { l.formation = b.dataset.f; saveTeamSoon(); render(); };
     });
@@ -2094,7 +2161,8 @@
     const part = POSITIONS.filter(p => tt.pos[p] && tt.pos[p] < 1);
     const tf = teamFactor(t);
     const GROUP_RANK = { trainees: 2, cup: 1, '': 0 };
-    const rows = players.map(p => ({ p, f: forecast(p, t, tf), group: groupOf(p.id) }));
+    const setPieceBonusByPlayer = setPieceBonuses();
+    const rows = players.map(p => ({ p, f: forecast(p, t, tf, setPieceBonusByPlayer.get(p.id)), group: groupOf(p.id) }));
     rows.sort((a, b) => (GROUP_RANK[b.group] - GROUP_RANK[a.group]) || (a.f.weeks - b.f.weeks) || a.p.name.localeCompare(b.p.name));
     const slots = trainedSlots(t.type);
     const field = (label, inner) => '<label class="htc-field"><span>' + esc(tr(label)) + '</span>' + inner + '</label>';
@@ -2138,7 +2206,6 @@
               : '<div class="htc-tinfo htc-dim">' + (isFinite(f.weeks) ? esc(tr('htc_per_level', { w: numFmt(f.weeks, 1) })) : esc(tr('htc_max_level'))) + '</div>')
             + (f.own ? '<div class="htc-tinfo htc-learned">' + esc(tr('htc_learned_own', { n: f.own, pct: Math.round((f.factor - 1) * 100) > 0 ? '+' + Math.round((f.factor - 1) * 100) : Math.round((f.factor - 1) * 100) })) + '</div>' : '')
             + '</div>'
-            + (f.level < MAX_LEVEL ? '<button class="htc-btn htc-pop" data-pop="' + p.id + '" title="' + esc(tr('htc_pop_title')) + '">＋1</button>' : '')
             + '</div>';
         }).join('') + '</div>'
         + '<p class="htc-note">' + esc(tr('htc_training_note')) + '</p></section>'
@@ -2219,22 +2286,12 @@
       saveTeamSoon();
       render();
     };
-    root.querySelectorAll('[data-pop]').forEach(b => {
-      b.onclick = () => {
-        const p = playerById(+b.dataset.pop);
-        const skill = TRAININGS[t.type].skill;
-        if (p && confirm(tr('htc_pop_confirm', { name: p.name, skill: tr('htc_sk_' + skill), level: levelName(p.skills[skill] + 1) }))) {
-          b.disabled = true;
-          recordPop(p, skill);
-        }
-      };
-    });
   }
 
   // Youth academy ────────────────────────────────────────────────────────────
   // A guide, not the game: the academy's lineup is chosen for its training,
   // and each youth gets a plain verdict. The numbers below are judgement.
-  const YOUTH_SECONDARY = 0.5;   // the second training counts about half
+  const YOUTH_SECONDARY = 2 / 3; // the secondary training gives two-thirds
   const YOUTH_STRENGTH = 0.15;   // how much playing well matters next to training
   const YOUTH_FORMATION_XP = 0.3; // per level of formation experience (0–10)
   const YOUTH_SELL = 6;          // a skill this good sells once promoted
@@ -2264,27 +2321,32 @@
   }
   // What a week of training in one skill is worth to him: growth towards a
   // high potential, or the chance to learn a potential still unknown.
-  function youthGain(s) {
+  function youthGain(s, reveal) {
     if (s.maxed || (s.cur != null && s.cap != null && s.cur >= s.cap)) return { v: 0, why: 'done' };
-    if (s.cap == null) return { v: s.cur == null ? 1.5 : 2 + 0.2 * s.cur, why: 'reveal' };
+    // The primary report reveals a current level; the secondary report
+    // reveals a potential. Keep those two priorities distinct.
+    if (reveal === 'current' && s.cur == null) return { v: 3.5 + (s.cap || 0) * 0.1, why: 'reveal-current' };
+    if (reveal === 'potential' && s.cap == null) return { v: 3.5 + (s.cur || 0) * 0.1, why: 'reveal' };
+    if (s.cap == null) return { v: 1 + (s.cur || 0) * 0.1, why: 'none' };
     const room = s.cap - yNow(s);
     return { v: Math.min(room, 4) * s.cap / 5 + (s.cur == null ? 0.3 : 0), why: 'grow' };
   }
   function youthSlotValue(y, as, slot, tt) {
     let train = 0, why = null, skill = null;
-    tt.forEach(([t, w]) => {
+    let whyWeight = -1;
+    tt.forEach(([t, w, reveal]) => {
       const share = t && TRAININGS[t] ? TRAININGS[t].pos[slot.pos] || 0 : 0;
       if (!share) return;
-      const sk = TRAININGS[t].skill, g = youthGain(ySkill(y, sk));
+      const sk = TRAININGS[t].skill, g = youthGain(ySkill(y, sk), reveal);
       train += g.v * share * w;
-      if (!why || w === 1) { why = g.why; skill = sk; }
+      if (!why || w > whyWeight) { why = g.why; skill = sk; whyWeight = w; }
     });
     const strength = weigh(contrib(as, slot.pos, slot.side, slot.crowd), 'balanced') / POS_SCALE[slot.pos];
     return { v: train + YOUTH_STRENGTH * strength, why, skill };
   }
   function youthLineups(list) {
     const yt = youthTraining();
-    const tt = yt ? [[yt.primary, 1], [yt.secondary !== yt.primary ? yt.secondary : null, YOUTH_SECONDARY]] : [];
+    const tt = yt ? [[yt.primary, 1, 'current'], [yt.secondary !== yt.primary ? yt.secondary : null, YOUTH_SECONDARY, 'potential']] : [];
     const xp = (yt && yt.formations) || {};
     const pool = list.map(y => ({ y, as: youthAs(y, yNow) }));
     const results = [];
@@ -2309,6 +2371,19 @@
     });
     results.sort((a, b) => b.score - a.score);
     return results;
+  }
+  // One representative type per skill prevents the advice from repeating
+  // alternate training types for the same skill while others remain hidden.
+  const YOUTH_REVEAL_TYPES = ['keeper', 'defending', 'playmaking', 'winger', 'passing', 'scoring', 'setpieces'];
+  function youthTrainingSuggestion(list) {
+    const score = (type, reveal) => list.reduce((sum, y) => sum + youthGain(ySkill(y, TRAININGS[type].skill), reveal).v, 0);
+    let best = null;
+    YOUTH_REVEAL_TYPES.forEach(primary => YOUTH_REVEAL_TYPES.forEach(secondary => {
+      if (primary === secondary) return;
+      const value = score(primary, 'current') + YOUTH_SECONDARY * score(secondary, 'potential');
+      if (!best || value > best.value) best = { primary, secondary, value };
+    }));
+    return best;
   }
 
   // The weakest starter of the first team's best lineup in each position.
@@ -2370,6 +2445,7 @@
     if (!list.length) return '<div class="htc-empty"><div class="htc-empty-icon">🌱</div>' + esc(tr('htc_youth_empty')) + '</div>';
     const yt = youthTraining();
     const trName = t => t ? tr('htc_tr_' + t) : '—';
+    const nextTraining = youthTrainingSuggestion(list);
     const all = youthLineups(list);
     const f = team.youth.formation;
     const best = (f !== 'auto' && all.find(r => r.st.name === f)) || all[0];
@@ -2389,12 +2465,13 @@
       // Where he is not trained, the skill that matters most there.
       const shown = a.skill || CONTRIB[s.pos][0][0];
       const sk = ySkill(a.y, shown);
-      const icon = { grow: '📈', reveal: '🔍', done: '✔' }[a.why] || '';
+      const icon = { grow: '📈', reveal: '🔍', 'reveal-current': '🔍', done: '✔' }[a.why] || '';
       const why = a.why === 'grow' ? tr('htc_youth_why_grow', { skill: tr('htc_sk_' + a.skill), cur: sk.cur != null ? sk.cur : '?', cap: sk.cap })
+        : a.why === 'reveal-current' ? tr('htc_youth_why_reveal_current', { skill: tr('htc_sk_' + a.skill) })
         : a.why === 'reveal' ? tr('htc_youth_why_reveal', { skill: tr('htc_sk_' + a.skill) })
         : a.why === 'done' ? tr('htc_youth_why_done', { skill: tr('htc_sk_' + a.skill) })
         : tr('htc_youth_why_none');
-      return '<div class="htc-slot' + (a.why === 'grow' || a.why === 'reveal' ? ' trainee' : '') + '">'
+      return '<div class="htc-slot' + (a.why === 'grow' || a.why === 'reveal' || a.why === 'reveal-current' ? ' trainee' : '') + '">'
         + '<span class="htc-slot-pos">' + esc(posShort(s.pos)) + '</span>'
         + '<b class="htc-yname">' + esc(a.y.name) + '</b>'
         + '<span class="htc-slot-sk" title="' + esc(why) + '">' + (icon ? icon + ' ' : '') + esc(tr('htc_abbr_' + shown) + ' ' + (sk.cur != null ? sk.cur : '?') + '/' + (sk.cap != null ? sk.cap : '?')) + '</span>'
@@ -2411,6 +2488,7 @@
       + '<option value="auto"' + (f === 'auto' ? ' selected' : '') + '>' + esc(tr('htc_formation_auto')) + '</option>'
       + FORMATIONS.map(n => '<option value="' + n + '"' + (f === n ? ' selected' : '') + '>' + n + '</option>').join('')
       + '</select></label>'
+      + (nextTraining ? '<p class="htc-note htc-span-all">💡 ' + esc(tr('htc_youth_next_training', { primary: trName(nextTraining.primary), secondary: trName(nextTraining.secondary) })) + '</p>' : '')
       + (yt ? '' : '<p class="htc-dim htc-span-all">' + esc(tr('htc_youth_notrain')) + '</p>')
       + '</div></section>'
 
@@ -2419,10 +2497,10 @@
       + (best.xp != null ? '<span class="htc-score">' + esc(tr('htc_formation_xp', { n: best.xp })) + '</span>' : '') + '</div>'
       + '<p class="htc-dim htc-yhint">' + esc(tr('htc_youth_lineup_hint')) + '</p>'
       + '<div class="htc-pitch">'
-      + line(best.slots.filter(s => s.pos === 'FW'))
-      + line(best.slots.filter(s => s.pos === 'W' || s.pos === 'IM'))
-      + line(best.slots.filter(s => s.pos === 'WB' || s.pos === 'CD'))
       + line(best.slots.filter(s => s.pos === 'GK'))
+      + line(best.slots.filter(s => s.pos === 'WB' || s.pos === 'CD'))
+      + line(best.slots.filter(s => s.pos === 'W' || s.pos === 'IM'))
+      + line(best.slots.filter(s => s.pos === 'FW'))
       + '</div>'
       + '<p class="htc-ylegend htc-dim">📈 ' + esc(tr('htc_youth_leg_grow')) + ' · 🔍 ' + esc(tr('htc_youth_leg_reveal')) + ' · ✔ ' + esc(tr('htc_youth_leg_done')) + '</p>'
       + (out.length ? '<div class="htc-bench"><span class="htc-dim">' + esc(tr('htc_not_used')) + ':</span> '

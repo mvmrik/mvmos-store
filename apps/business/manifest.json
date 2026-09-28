@@ -45,6 +45,25 @@
       "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/business/classifieds-1.8.0.zip",
       "min_core_version": "1.0.0",
       "premium": true
+    },
+    {
+      "id": "mvmwarehouse",
+      "name": "mvmWarehouse",
+      "icon": "📦",
+      "category": "Business",
+      "version": "1.0.0",
+      "description": "Warehouse and sales for a small company: product catalogue, stock in several warehouses, price lists, customers and suppliers, orders, invoices and payments, shared with your team with per-area permissions and an API for other apps and online shops.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/business/mvmwarehouse-1.0.0.zip",
+      "tags": [
+        "warehouse",
+        "inventory",
+        "stock",
+        "invoices",
+        "orders",
+        "price lists",
+        "erp"
+      ],
+      "min_core_version": "1.0.0"
     }
   ]
 }

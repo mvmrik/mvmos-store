@@ -1,0 +1,18 @@
+{
+  "tagline": "Cut, arrange and export your videos right on your server, without losing quality.",
+  "description": "mvmVideo is a simple video editor for the mvmOS desktop. Pick videos, pictures and music from your folders on the server or from your computer, drop them on the timeline, trim the beginning and end of every clip, move clips around and stack them on several video and audio tracks while the preview shows exactly how the result will look and sound.\n\nThe export renders every frame of the film one by one at the resolution and frame rate of the project, so nothing is skipped or blurred on the way, and a clip that already has the size of the project is copied pixel for pixel. The result is encoded only once, at a bitrate that at maximum quality never falls below the richest source. Everything runs in your browser, so no extra software is needed on the server, and the finished video is saved to a server folder or downloaded to your computer.\n\nA project is a small .mvmvideo file that remembers the tracks, the clips and where their files are, so you can save your work and continue later. It opens from File Manager with a double click.",
+  "capabilities": [
+    "Add videos, pictures and audio from your server folders or from your computer, also by dragging files into the window.",
+    "Timeline with as many video and audio tracks as you need, where upper video tracks lie over the lower ones.",
+    "Move clips with the mouse, trim their start and end, split them at the playhead and snap them to each other.",
+    "Live preview with playback, frame by frame stepping and a precise time display.",
+    "Volume for every clip, and tracks that can be muted or hidden.",
+    "Waveforms for audio clips and thumbnails for video and picture clips.",
+    "Undo and redo for every change, with keyboard shortcuts for the common actions.",
+    "Project resolution and frame rate taken from the first video, or chosen from common sizes including vertical and square.",
+    "Export frame by frame at full resolution to MP4 or WebM in maximum, high or standard quality, with an estimated file size and remaining time.",
+    "Save the finished video to a server folder or download it to your computer.",
+    "Save projects as .mvmvideo files to the server or to your computer and continue editing later."
+  ],
+  "integrations": []
+}

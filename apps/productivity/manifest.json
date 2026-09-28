@@ -61,6 +61,22 @@
       ],
       "min_core_version": "1.0.0",
       "premium": true
+    },
+    {
+      "id": "mvmoffice",
+      "name": "mvmOffice",
+      "icon": "📝",
+      "category": "Productivity",
+      "version": "1.0.0",
+      "description": "Text documents on A4 pages and spreadsheets in one file, with tables inside the text, formulas across tables and pages, and calculated values right in your sentences.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/mvmoffice-1.0.0.zip",
+      "tags": [
+        "office",
+        "documents",
+        "spreadsheet",
+        "word processor"
+      ],
+      "min_core_version": "1.8.0"
     }
   ]
 }

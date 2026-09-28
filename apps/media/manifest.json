@@ -15,6 +15,23 @@
       ],
       "min_core_version": "1.0.0",
       "premium": true
+    },
+    {
+      "id": "mvmvideo",
+      "name": "mvmVideo",
+      "icon": "🎬",
+      "category": "Media",
+      "version": "1.0.0",
+      "description": "A simple video editor: put videos, pictures and music on a timeline, trim and arrange them with a live preview, and export a video in full quality.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/mvmvideo-1.0.0.zip",
+      "tags": [
+        "video",
+        "video editor",
+        "timeline",
+        "audio",
+        "export"
+      ],
+      "min_core_version": "1.8.0"
     }
   ]
 }

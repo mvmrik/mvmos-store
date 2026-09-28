@@ -1,0 +1,18 @@
+{
+  "id": "mvmoffice",
+  "name": "mvmOffice",
+  "icon": "📝",
+  "category": "Productivity",
+  "tags": [
+    "office",
+    "documents",
+    "spreadsheet",
+    "word processor"
+  ],
+  "version": "1.0.0",
+  "description": "Text documents on A4 pages and spreadsheets in one file, with tables inside the text, formulas across tables and pages, and calculated values right in your sentences.",
+  "entry": "main.js",
+  "public_url": "/pub/mvmoffice/",
+  "public_directory": true,
+  "min_core_version": "1.8.0"
+}
