@@ -116,8 +116,8 @@
 
 /* Lineup */
 .htc-pitch{display:flex;flex-direction:column;gap:10px;padding:14px 10px;border-radius:12px;background:linear-gradient(color-mix(in srgb,var(--green) 16%,var(--surface2)),color-mix(in srgb,var(--green) 8%,var(--surface2)))}
-.htc-line{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
-.htc-slot{flex:1 1 0;max-width:200px;min-width:110px;display:flex;flex-direction:column;align-items:stretch;gap:4px;background:var(--surface1);border:1px solid var(--border);border-radius:10px;padding:7px}
+.htc-line{--htc-slots:5;display:grid;grid-template-columns:repeat(var(--htc-slots),minmax(0,1fr));gap:8px;width:100%;margin:0 auto}.htc-line-1{--htc-slots:1;width:20%;min-width:110px}.htc-line-3{--htc-slots:3;width:60%}
+.htc-slot{min-width:0;min-height:66px;display:flex;flex-direction:column;align-items:stretch;gap:4px;background:var(--surface1);border:1px solid var(--border);border-radius:10px;padding:7px}.htc-slot-empty{background:color-mix(in srgb,var(--surface1) 72%,var(--surface2));opacity:1}.htc-opponent{margin-bottom:12px}.htc-opponent .htc-rgroup{margin-top:10px}
 .htc-slot.locked{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 .htc-slot.trainee{background:color-mix(in srgb,var(--green) 18%,var(--surface1));border-left:4px solid var(--green);padding-left:4px}
 .htc-slot-pos{font-size:.66rem;font-weight:800;color:var(--fg2);text-align:center;letter-spacing:.05em}
@@ -199,7 +199,7 @@
   .htc-skill{grid-template-columns:auto minmax(0,1fr) auto;row-gap:4px}
   .htc-skill-name{grid-column:1/-1}
   .htc-pitch{padding:10px 6px;gap:8px}
-  .htc-line{gap:5px;flex-wrap:nowrap}
+  .htc-line{gap:5px}.htc-line-1{min-width:0}
   .htc-slot{min-width:0;padding:5px 3px}
   .htc-slot-sk{font-size:.62rem}
   .htc-rating{grid-template-columns:minmax(90px,1fr) minmax(0,1fr) 38px;gap:8px}
@@ -222,7 +222,7 @@
 
 /* Youth academy */
 .htc-yhint{font-size:.78rem;margin:-4px 0 10px;line-height:1.45}
-.htc-yname{font-size:.82rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.htc-yname{font-size:.85rem;text-align:center;overflow-wrap:anywhere}
 .htc-ylegend{font-size:.75rem;margin-top:8px}
 .htc-ytable td{vertical-align:middle;padding:7px 5px}
 .htc-ytable th{padding:9px 5px}
@@ -236,7 +236,7 @@
 .htc-v-sell{color:var(--accent)}
 .htc-v-release{color:var(--red)}
 /* Squad advice */
-.htc-adv{display:inline-block;max-width:7.5em;font-size:.74rem;line-height:1.25;white-space:normal;cursor:help;border:1px solid currentColor;border-radius:999px;padding:2px 6px;font-weight:700}
+.htc-adv{display:inline-block;font-size:.74rem;line-height:1.25;white-space:nowrap;cursor:help;border:1px solid currentColor;border-radius:999px;padding:2px 6px;font-weight:700}
 .htc-shop .htc-adv{max-width:none}
 .htc-adv-core{color:var(--green);background:color-mix(in srgb,var(--green) 14%,var(--surface1))}
 .htc-adv-veteran,.htc-adv-youth{color:var(--yellow);background:color-mix(in srgb,var(--yellow) 14%,var(--surface1))}
@@ -249,3 +249,21 @@
 .htc-shop .htc-note{margin-top:10px}
 .htc-shop-opt{padding-left:2px}
 .htc-shop-k{display:inline-block;min-width:7.5em;font-weight:700;color:var(--fg2)}
+.htc-takers{margin-top:12px}.htc-takers td:nth-child(n+3),.htc-takers th:nth-child(n+3){text-align:center;width:44px}.htc-taker-set td{background:var(--surface2)}
+.htc-tactic-row{cursor:default;grid-template-columns:150px minmax(0,1fr) 52px}.htc-tactic-row:hover{background:none}
+.htc-aim-row{cursor:pointer}.htc-aim-row:hover{background:var(--surface2)}
+
+.htc-slot-order{font-size:.64rem;font-weight:700;text-align:center;color:var(--accent);line-height:1.2}
+.htc-plan-case{padding:8px 0;border-top:1px solid var(--border)}.htc-plan-case:first-of-type{border-top:0}.htc-plan-swap{font-size:.82rem;margin-top:3px}
+
+.htc-plan-dim{opacity:.6}
+
+.htc-acc{background:var(--surface1);border:1px solid var(--border);border-radius:14px;min-width:0}
+.htc-acc>summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;cursor:pointer;list-style:none;font-weight:600}
+.htc-acc>summary::-webkit-details-marker{display:none}
+.htc-acc>summary::before{content:'▸';margin-right:8px;color:var(--muted,inherit);transition:transform .15s}
+.htc-acc[open]>summary::before{transform:rotate(90deg)}
+.htc-acc-title{flex:1}
+.htc-acc-sum{font-weight:400;color:var(--accent)}
+.htc-acc-body{padding:0 14px 12px}
+.htc-acc-empty>summary{opacity:.55}

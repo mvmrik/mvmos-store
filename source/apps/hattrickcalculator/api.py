@@ -29,7 +29,7 @@ _MAX_PLAYER = 32 * 1024
 _MAX_TEAM = 32 * 1024
 _MAX_PLAYERS = 200
 _MAX_PAGE = 512 * 1024
-_PAGE_KINDS = {"players", "training", "stadium", "fans", "youth", "youthtraining"}
+_PAGE_KINDS = {"players", "training", "stadium", "fans", "youth", "youthtraining", "match", "analysis"}
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS players (

@@ -262,7 +262,7 @@ def _activate_issue_branch(session, path, branch, mode='', base='', source='remo
     }
 
 
-def _sync_issue_branch(session, path, branch, mode='off'):
+def _sync_issue_branch(session, path, branch, mode='ask'):
     """Called whenever an issue is opened or navigated to. Never creates a
     branch — it only switches to one that already exists:
       - local branch exists  -> switch to it (fast-forward pull if tracked)
@@ -286,10 +286,20 @@ def _sync_issue_branch(session, path, branch, mode='off'):
         'switched': False,
         'pulled': False,
         'redirected_default': '',
+        'mode': mode,
+        'ask': False,
     }
     on_other_issue = bool(re.search(r'issue\d+$', state['current'] or '', re.I)) and state['current'] != branch
     result['auto'] = mode == 'always' or (mode == 'other_issue' and on_other_issue)
-    if state['fetch_error'] or not result['auto']:
+    if state['fetch_error']:
+        return result
+    if mode == 'ask':
+        # Never touches the tree: the window asks, and only a clean tree gets
+        # the question, so nothing uncommitted can be in the way of the answer.
+        result['ask'] = (state['local_exists'] or state['remote_exists']) \
+            and state['current'] != branch and not state['dirty']
+        return result
+    if not result['auto']:
         return result
 
     dirty = state['dirty']
@@ -708,6 +718,40 @@ def repo_diff(path: str, file: str, session=Depends(get_current_session)):
     return JSONResponse({'diff': r.stdout})
 
 
+@router.get("/repo/files")
+def repo_files(path: str, session=Depends(get_current_session)):
+    # Every file git would show: tracked ones plus new files that are not
+    # ignored, so build output and dependencies stay out of the tree.
+    r = _git(session, path, ['ls-files', '-z', '--cached', '--others', '--exclude-standard'], timeout=30)
+    if r.returncode != 0:
+        raise HTTPException(400, (r.stdout + r.stderr).strip() or 'Could not list files')
+    return JSONResponse({'files': sorted(set(f for f in r.stdout.split('\0') if f))})
+
+
+FILE_PREVIEW_LIMIT = 1024 * 1024
+
+
+@router.get("/repo/file")
+def repo_file(path: str, file: str, session=Depends(get_current_session)):
+    root, owner = _require_repo_access(session, path)
+    full = os.path.realpath(os.path.join(root, file))
+    # A symlink inside the repository must not lead the preview outside it.
+    if not full.startswith(root + os.sep):
+        raise HTTPException(400, 'File is outside the repository')
+    if not os.path.isfile(full):
+        return JSONResponse({'state': 'missing'})
+    if os.path.getsize(full) > FILE_PREVIEW_LIMIT:
+        return JSONResponse({'state': 'too_large'})
+    # Read as the repository owner, so the preview never shows more than they can.
+    r = subprocess.run(['runuser', '-u', owner, '--', 'cat', '--', full],
+                       capture_output=True, timeout=15, env=_env(owner))
+    if r.returncode != 0:
+        raise HTTPException(400, r.stderr.decode('utf-8', 'replace').strip() or 'Could not read file')
+    if b'\0' in r.stdout[:8000]:
+        return JSONResponse({'state': 'binary'})
+    return JSONResponse({'state': 'text', 'content': r.stdout.decode('utf-8', 'replace')})
+
+
 class DiscardBody(BaseModel):
     path: str
     file: str = ''
@@ -874,10 +918,11 @@ def repos_save_settings(body: ScanFoldersBody, session=Depends(get_current_sessi
 
 # ── GitHub Issues (Premium implementation lives in apps/git-manager/premium) ──
 
-# off:         stay on the current branch (the default)
+# ask:         ask whether to switch when the issue has a branch (the default)
+# off:         stay on the current branch and say nothing about it
 # other_issue: switch only away from a different issue's branch
 # always:      to the issue's branch, or to the default branch while it has none
-ISSUE_SWITCH_MODES = ('off', 'other_issue', 'always')
+ISSUE_SWITCH_MODES = ('ask', 'off', 'other_issue', 'always')
 # Parts of the issue list a user can pick; none picked shows one list of all.
 ISSUE_LIST_GROUPS = ('created', 'assigned', 'others')
 
@@ -888,7 +933,7 @@ def _issue_settings(user):
     mode = prefs.get('switch_mode')
     groups = (prefs.get('list_groups') or '').split(',')
     return {
-        'switch_mode': mode if mode in ISSUE_SWITCH_MODES else 'off',
+        'switch_mode': mode if mode in ISSUE_SWITCH_MODES else 'ask',
         'list_groups': [g for g in ISSUE_LIST_GROUPS if g in groups],
         'list_merge_mine': prefs.get('list_merge_mine') == '1',
     }
@@ -899,7 +944,7 @@ def _issue_switch_mode(user):
 
 
 class IssueSettingsBody(BaseModel):
-    switch_mode: str = 'off'
+    switch_mode: str = 'ask'
     list_groups: list[str] = []
     list_merge_mine: bool = False
 
@@ -929,7 +974,7 @@ def issues_save_settings(body: IssueSettingsBody, session=Depends(get_current_se
     with _db() as conn:
         conn.execute("DELETE FROM issue_prefs WHERE system_user = ?", (user,))
         conn.executemany("INSERT INTO issue_prefs (system_user, key, value) VALUES (?, ?, ?)",
-                         [(user, k, v) for k, v in values.items() if v and v != 'off'])
+                         [(user, k, v) for k, v in values.items() if v and v != 'ask'])
     return JSONResponse({'ok': True, **_issue_settings(user)})
 
 

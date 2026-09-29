@@ -16,6 +16,98 @@ var GM = {
   contentEl: null,
 };
 
+GM.changeColor = function(code) {
+  return code === 'M' || code === 'MM' ? '#fab387' : code === '??' ? 'var(--text-dim)' : code === 'A' ? '#a6e3a1' : code === 'D' ? '#f38ba8' : 'var(--text)';
+};
+
+// The tree marks changes the way VS Code does: the name takes the colour of
+// the change, a file shows its letter and a folder a dot in the colour of the
+// most important change inside it.
+GM.GIT_DECO = {
+  M: { letter: 'M', color: '#e2c08d', rank: 3 },
+  D: { letter: 'D', color: '#e06c75', rank: 4 },
+  A: { letter: 'A', color: '#73c991', rank: 2 },
+  U: { letter: 'U', color: '#73c991', rank: 1 },
+  R: { letter: 'R', color: '#73c991', rank: 2 },
+};
+
+GM.gitDeco = function(code) {
+  if (!code) return null;
+  if (code === '??') return GM.GIT_DECO.U;
+  if (code.indexOf('U') !== -1 || code === 'AA' || code === 'DD') return { letter: '!', color: '#e4676b', rank: 5 };
+  if (code.indexOf('D') !== -1) return GM.GIT_DECO.D;
+  if (code.indexOf('M') !== -1) return GM.GIT_DECO.M;
+  if (code.indexOf('R') !== -1 || code.indexOf('C') !== -1) return GM.GIT_DECO.R;
+  if (code.indexOf('A') !== -1) return GM.GIT_DECO.A;
+  return GM.GIT_DECO.M;
+};
+
+// A small coloured label per file type, like the icons of a code editor.
+GM.FILE_ICONS = {
+  js: ['JS', '#f1dd35'], mjs: ['JS', '#f1dd35'], cjs: ['JS', '#f1dd35'], jsx: ['JSX', '#61dafb'],
+  ts: ['TS', '#3178c6'], tsx: ['TSX', '#3178c6'], py: ['PY', '#4b8bbe'], php: ['PHP', '#8892bf'],
+  html: ['<>', '#e44d26'], htm: ['<>', '#e44d26'], css: ['#', '#42a5f5'], scss: ['#', '#cd6799'], less: ['#', '#6d9fd5'],
+  json: ['{}', '#cbcb41'], md: ['MD', '#519aba'], sql: ['SQL', '#dad8d8'], sh: ['$', '#89e051'], bash: ['$', '#89e051'],
+  yml: ['YML', '#cb171e'], yaml: ['YML', '#cb171e'], xml: ['<>', '#e37933'], svg: ['SVG', '#ffb13b'],
+  png: ['IMG', '#a074c4'], jpg: ['IMG', '#a074c4'], jpeg: ['IMG', '#a074c4'], gif: ['IMG', '#a074c4'], webp: ['IMG', '#a074c4'], ico: ['IMG', '#a074c4'],
+  txt: ['TXT', '#9aa0a6'], go: ['GO', '#00add8'], rs: ['RS', '#dea584'], java: ['JV', '#e76f00'], c: ['C', '#599eff'], h: ['H', '#a074c4'],
+  cpp: ['C++', '#f34b7d'], rb: ['RB', '#cc342d'], vue: ['V', '#41b883'], lock: ['LCK', '#9aa0a6'], env: ['ENV', '#faf594'], zip: ['ZIP', '#afb42b'],
+};
+
+GM.fileIcon = function(name) {
+  var lower = name.toLowerCase();
+  if (lower === '.gitignore' || lower === '.gitattributes' || lower === '.gitmodules') return ['GIT', '#f14e32'];
+  if (lower === 'dockerfile') return ['DKR', '#2496ed'];
+  if (lower.indexOf('readme') === 0) return ['i', '#519aba'];
+  var dot = lower.lastIndexOf('.');
+  return (dot > 0 && GM.FILE_ICONS[lower.slice(dot + 1)]) || ['&#x2022;', 'var(--text-dim)'];
+};
+
+// Which status panes are shown, the same for every repository. A new
+// install shows only the changes, as before the file tree existed.
+GM.statusPanes = function() {
+  var v = null;
+  try { v = localStorage.getItem('gm_status_panes'); } catch(e) {}
+  var list = (v || 'changes').split(',');
+  var panes = { files: list.indexOf('files') !== -1, changes: list.indexOf('changes') !== -1 };
+  if (!panes.files && !panes.changes) panes.changes = true;
+  return panes;
+};
+
+GM.saveStatusPanes = function(panes) {
+  var list = [];
+  if (panes.files) list.push('files');
+  if (panes.changes) list.push('changes');
+  try { localStorage.setItem('gm_status_panes', list.join(',')); } catch(e) {}
+};
+
+GM.injectStyles = function() {
+  if (document.getElementById('gm-styles')) return;
+  var style = document.createElement('style');
+  style.id = 'gm-styles';
+  style.textContent = ''
+    + '.gm-pane-bar{display:flex;gap:6px;margin-bottom:10px}'
+    + '.gm-pane-btn.gm-pane-on{background:var(--accent);color:#fff;border-color:var(--accent)}'
+    + '.gm-pane-files+.gm-pane-changes{margin-top:14px}'
+    + '.gm-status-wrap.gm-side{height:100%;display:flex;flex-direction:column}'
+    + '.gm-side .gm-panes{flex:1;min-height:0;display:flex;gap:14px}'
+    + '.gm-side .gm-pane{flex:1;min-width:0;overflow-y:auto}'
+    + '.gm-side .gm-commit-box{flex-shrink:0;margin-top:14px}'
+    + '.gm-side .gm-pane-files+.gm-pane-changes{margin-top:0;border-left:1px solid var(--border);padding-left:14px}'
+    + '.gm-side .gm-fname{white-space:normal!important;overflow-wrap:anywhere}'
+    + '.gm-tree-row{display:flex;align-items:center;gap:6px;padding:3px 8px;font-size:.8rem;cursor:pointer;border-radius:4px}'
+    + '.gm-tree-row:hover{background:var(--surface2,#313244)}'
+    + '.gm-tree-row .gm-fname{flex:1;min-width:0;overflow-wrap:anywhere}'
+    + '.gm-tree-arrow{width:10px;flex-shrink:0;color:var(--text-dim);font-size:.7rem}'
+    + '.gm-tree-dot{flex-shrink:0;width:7px;height:7px;border-radius:50%;margin-right:4px}'
+    + '.gm-tree-letter{flex-shrink:0;font-family:monospace;font-size:.74rem;font-weight:600;min-width:12px;text-align:center}'
+    + '.gm-tree-icon{flex-shrink:0;width:26px;text-align:center;font-family:monospace;font-size:.62rem;font-weight:700;letter-spacing:-.02em}'
+    + '.gm-tree-edit{font-size:.68rem;padding:1px 6px;opacity:0;flex-shrink:0}'
+    + '.gm-tree-row:hover .gm-tree-edit{opacity:.7}'
+    + '@media (hover:none){.gm-tree-edit{opacity:.7}}';
+  document.head.appendChild(style);
+};
+
 GM.escape = function(value) {
   return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch) {
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
@@ -344,6 +436,7 @@ GM.branchDialog = function(cfg) {
 
 GM.init = function(body) {
   GM.body = body;
+  GM.injectStyles();
 
   // Wrapper div вътре в body — height:100% наследява от window manager-а
   body.innerHTML = '<div id="gm-root" style="display:flex;height:100%;overflow:hidden;font-size:.85rem;position:relative">'
@@ -1350,6 +1443,175 @@ GM.showRepoView = function(container, repo, autoFetch) {
     }
   }
 
+  // The status tab holds two panes, the whole file tree and the changes, each
+  // switched on or off with its own button. Both side by side only when there
+  // is room for full rows in each, otherwise the tree sits above the changes.
+  var expandedDirs = {};
+  var SIDE_BY_SIDE_WIDTH = 640;
+
+  function applyStatusLayout(tc) {
+    var wrap = tc.querySelector('.gm-status-wrap');
+    if (!wrap) return;
+    var panes = GM.statusPanes();
+    wrap.classList.toggle('gm-side', panes.files && panes.changes && tc.clientWidth >= SIDE_BY_SIDE_WIDTH);
+  }
+
+  function renderStatusPanes(tc, changesHtml, commitHtml, s) {
+    GM.injectStyles();
+    var panes = GM.statusPanes();
+    tc.innerHTML = '<div class="gm-status-wrap">'
+      + '<div class="gm-pane-bar">'
+      + '<button class="s-btn s-btn-sm gm-pane-btn" data-pane="files">&#x1F4C1; ' + t('gm_view_files') + '</button>'
+      + '<button class="s-btn s-btn-sm gm-pane-btn" data-pane="changes">&#x00B1; ' + t('gm_view_changes') + '</button>'
+      + '</div>'
+      + '<div class="gm-panes">'
+      + '<div class="gm-pane gm-pane-files"' + (panes.files ? '' : ' style="display:none"') + '><div class="gm-tree"></div></div>'
+      + '<div class="gm-pane gm-pane-changes"' + (panes.changes ? '' : ' style="display:none"') + '>' + changesHtml + '</div>'
+      + '</div>'
+      // Under both panes and across the full width, never squeezed into the changes column.
+      + '<div class="gm-commit-box"' + (panes.changes ? '' : ' style="display:none"') + '>' + commitHtml + '</div>'
+      + '</div>';
+    tc.querySelectorAll('.gm-pane-btn').forEach(function(btn) {
+      btn.classList.toggle('gm-pane-on', !!panes[btn.dataset.pane]);
+      btn.addEventListener('click', function() {
+        var next = GM.statusPanes();
+        next[btn.dataset.pane] = !next[btn.dataset.pane];
+        // One pane always stays, an empty status tab would look broken.
+        if (!next.files && !next.changes) return;
+        GM.saveStatusPanes(next);
+        btn.classList.toggle('gm-pane-on', next[btn.dataset.pane]);
+        tc.querySelector('.gm-pane-files').style.display = next.files ? '' : 'none';
+        tc.querySelector('.gm-pane-changes').style.display = next.changes ? '' : 'none';
+        tc.querySelector('.gm-commit-box').style.display = next.changes ? '' : 'none';
+        if (next.files) loadFileTree(tc, s);
+        applyStatusLayout(tc);
+      });
+    });
+    if (GM.state.statusResizeObserver) GM.state.statusResizeObserver.disconnect();
+    GM.state.statusResizeObserver = new ResizeObserver(function() { applyStatusLayout(tc); });
+    GM.state.statusResizeObserver.observe(tc);
+    applyStatusLayout(tc);
+    if (panes.files) loadFileTree(tc, s);
+  }
+
+  async function loadFileTree(tc, s) {
+    var treeEl = tc.querySelector('.gm-tree');
+    if (!treeEl) return;
+    if (!treeEl.childElementCount) treeEl.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem;opacity:.7">' + t('gm_loading') + '</div>';
+    try {
+      var d = await GM.api('/repo/files?path=' + encodeURIComponent(repo.path));
+      if (!treeEl.isConnected) return;
+      renderFileTree(treeEl, d.files || [], s.files);
+    } catch(e) {
+      treeEl.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + GM.escape(e.message) + '</div>';
+    }
+  }
+
+  function renderFileTree(treeEl, paths, changes) {
+    // git shows a folder with only new files as one "folder/" entry, every
+    // file inside it counts as new.
+    var codes = {}, newDirs = [];
+    changes.forEach(function(f) {
+      if (f.file.slice(-1) === '/') newDirs.push(f.file);
+      else codes[f.file] = f.code.trim();
+    });
+    function codeOf(p) {
+      if (codes[p]) return codes[p];
+      for (var i = 0; i < newDirs.length; i++) if (p.indexOf(newDirs[i]) === 0) return '??';
+      return '';
+    }
+    var all = {};
+    paths.forEach(function(p) { all[p] = true; });
+    Object.keys(codes).forEach(function(p) { all[p] = true; }); // a deletion already staged is no longer listed
+
+    var root = { dirs: {}, files: [], changed: 0 };
+    Object.keys(all).forEach(function(p) {
+      var parts = p.split('/'), node = root, deco = GM.gitDeco(codeOf(p)), changed = !!deco;
+      if (changed) root.changed++;
+      for (var i = 0; i < parts.length - 1; i++) {
+        var key = parts.slice(0, i + 1).join('/');
+        node = node.dirs[parts[i]] || (node.dirs[parts[i]] = { path: key, dirs: {}, files: [], changed: 0 });
+        if (changed) {
+          node.changed++;
+          if (!node.deco || deco.rank > node.deco.rank) node.deco = deco;
+        }
+      }
+      node.files.push({ name: parts[parts.length - 1], path: p, code: codeOf(p) });
+    });
+
+    treeEl.innerHTML = '';
+    if (!Object.keys(all).length) {
+      treeEl.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;opacity:.7;padding:20px 0;text-align:center">' + t('gm_tree_empty') + '</div>';
+      return;
+    }
+    fillTreeLevel(treeEl, root, 0);
+  }
+
+  function fillTreeLevel(el, node, depth) {
+    Object.keys(node.dirs).sort(function(a, b) { return a.localeCompare(b); }).forEach(function(name) {
+      var dir = node.dirs[name];
+      var row = document.createElement('div');
+      row.className = 'gm-tree-row';
+      row.style.paddingLeft = (6 + depth * 14) + 'px';
+      var children = document.createElement('div');
+      function draw() {
+        var open = !!expandedDirs[dir.path];
+        row.innerHTML = '<span class="gm-tree-arrow">' + (open ? '&#x25BE;' : '&#x25B8;') + '</span>'
+          + '<span class="gm-tree-icon" style="color:#dcb67a;font-size:.8rem">' + (open ? '&#x1F4C2;' : '&#x1F4C1;') + '</span>'
+          + '<span class="gm-fname"' + (dir.deco ? ' style="color:' + dir.deco.color + '"' : '') + '>' + GM.escape(name) + '</span>'
+          + (dir.deco ? '<span class="gm-tree-dot" style="background:' + dir.deco.color + '" title="' + GM.escape(t('gm_tree_changed', { n: dir.changed })) + '"></span>' : '');
+        children.innerHTML = '';
+        children.style.display = open ? '' : 'none';
+        if (open) fillTreeLevel(children, dir, depth + 1);
+      }
+      row.addEventListener('click', function() {
+        expandedDirs[dir.path] = !expandedDirs[dir.path];
+        draw();
+      });
+      draw();
+      el.appendChild(row);
+      el.appendChild(children);
+    });
+    node.files.sort(function(a, b) { return a.name.localeCompare(b.name); }).forEach(function(f) {
+      var item = document.createElement('div');
+      var row = document.createElement('div');
+      row.className = 'gm-tree-row';
+      row.style.paddingLeft = (6 + depth * 14) + 'px';
+      var deco = GM.gitDeco(f.code);
+      var icon = GM.fileIcon(f.name);
+      var canEdit = typeof CodeEditor !== 'undefined' && f.code !== 'D' && repo.owner === GM.state.currentUser;
+      row.innerHTML = '<span class="gm-tree-arrow"></span>'
+        + '<span class="gm-tree-icon" style="color:' + icon[1] + '">' + icon[0] + '</span>'
+        + '<span class="gm-fname" title="' + GM.escape(f.path) + '" style="' + (deco ? 'color:' + deco.color + ';' + (deco.letter === 'D' ? 'text-decoration:line-through;' : '') : '') + '">' + GM.escape(f.name) + '</span>'
+        + (canEdit ? '<button class="gm-tree-edit s-btn s-btn-sm" title="' + GM.escape(t('gm_open_in_editor')) + '">&#x270E;</button>' : '')
+        + (deco ? '<span class="gm-tree-letter" style="color:' + deco.color + '">' + deco.letter + '</span>' : '');
+      if (canEdit) row.querySelector('.gm-tree-edit').addEventListener('click', function(e) {
+        e.stopPropagation();
+        CodeEditor.openFile(repo.path.replace(/\/+$/, '') + '/' + f.path);
+      });
+      row.addEventListener('click', function() {
+        var existing = item.querySelector('.gm-diff-panel');
+        if (existing) { existing.remove(); return; }
+        var panel = document.createElement('div');
+        panel.className = 'gm-diff-panel';
+        panel.style.cssText = 'font-family:monospace;font-size:.74rem;padding:6px 8px;background:var(--bg,#1e1e2e);border-top:1px solid var(--border);max-height:360px;overflow:auto;white-space:pre;color:var(--text)';
+        panel.textContent = t('gm_loading');
+        item.appendChild(panel);
+        GM.api('/repo/file?path=' + encodeURIComponent(repo.path) + '&file=' + encodeURIComponent(f.path))
+          .then(function(d) {
+            if (d.state === 'text') panel.textContent = d.content || ' ';
+            else {
+              panel.style.color = 'var(--text-dim)';
+              panel.textContent = t({ missing: 'gm_file_deleted', too_large: 'gm_file_too_large', binary: 'gm_file_binary' }[d.state] || 'gm_file_binary');
+            }
+          })
+          .catch(function(e) { panel.textContent = e.message; });
+      });
+      item.appendChild(row);
+      el.appendChild(item);
+    });
+  }
+
   async function loadStatus(onlyIfChanged) {
     var tc = container.querySelector('#gm-tab-content');
     if (!tc) return;
@@ -1400,16 +1662,16 @@ GM.showRepoView = function(container, repo, autoFetch) {
         + '<button id="gm-commit-push-btn" class="s-btn s-btn-sm" ' + (s.files.length ? '' : 'disabled') + '>&#x2713;&#x2B06; ' + t('gm_commit_push') + '</button></div>'
         + '</div>';
 
-      if (!s.files.length) {
-        tc.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;opacity:.7;padding:20px 0;text-align:center">' + t('gm_nothing_to_commit') + '</div>' + commitHtml;
-      } else {
-        tc.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
+      var changesHtml = !s.files.length
+        ? '<div style="color:var(--text-dim);font-size:.82rem;opacity:.7;padding:20px 0;text-align:center">' + t('gm_nothing_to_commit') + '</div>'
+        : '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
           + '<span style="font-size:.75rem;color:var(--text-dim)">' + t('gm_changed_files', { n: s.files.length, s: s.files.length !== 1 ? 's' : '' }) + '</span>'
           + '<button id="gm-discard-all" class="s-btn s-btn-sm" style="font-size:.72rem;color:#f38ba8;border-color:#f38ba8">&#x21BA; ' + t('gm_discard_all') + '</button>'
           + '</div>'
-          + '<div id="gm-file-list" style="display:flex;flex-direction:column;gap:2px;margin-bottom:14px"></div>'
-          + commitHtml;
+          + '<div id="gm-file-list" style="display:flex;flex-direction:column;gap:2px;margin-bottom:14px"></div>';
+      renderStatusPanes(tc, changesHtml, commitHtml, s);
 
+      if (s.files.length) {
         tc.querySelector('#gm-discard-all').addEventListener('click', async function() {
           if (!await mvmOS.confirm(t('gm_discard_all_confirm', { name: GM.escape(GM.repoLabel(repo)) }))) return;
           GM.api('/repo/discard', { method: 'POST', json: { path: repo.path } })
@@ -1420,7 +1682,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         var fl = tc.querySelector('#gm-file-list');
         s.files.forEach(function(f) {
           var code = f.code.trim();
-          var color = code === 'M' || code === 'MM' ? '#fab387' : code === '??' ? 'var(--text-dim)' : code === 'A' ? '#a6e3a1' : code === 'D' ? '#f38ba8' : 'var(--text)';
+          var color = GM.changeColor(code);
           var canDiff = code !== '??';
           var canDiscard = code !== '??';
 
@@ -1431,7 +1693,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
           fileRow.style.cssText = 'display:flex;align-items:center;gap:8px;padding:4px 8px;font-size:.8rem;font-family:monospace;'
             + (canDiff ? 'cursor:pointer;' : '');
           fileRow.innerHTML = '<span style="color:' + color + ';width:20px;flex-shrink:0">' + f.code + '</span>'
-            + '<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + f.file + '</span>'
+            + '<span class="gm-fname" style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="' + GM.escape(f.file) + '">' + GM.escape(f.file) + '</span>'
             + (canDiscard ? '<button class="gm-discard-file s-btn s-btn-sm" style="font-size:.68rem;padding:1px 6px;opacity:.7" title="' + t('gm_discard') + '">&#x21BA;</button>' : '');
 
           if (canDiff) {
@@ -1954,6 +2216,20 @@ GM.showRepoView = function(container, repo, autoFetch) {
     });
   }
 
+  // "Ask" mode: the issue has a branch and the working tree is clean, so offer
+  // the switch. Declining leaves everything as it is.
+  function askIssueBranch(tc, issue, state) {
+    var local = state.local_exists;
+    GM.branchDialog({
+      title: t('gm_branch_issue_title', { number: issue.number }),
+      info: '<div style="font-family:monospace;font-size:.82rem;margin-bottom:6px">' + GM.escape(state.branch) + '</div>'
+        + GM.escape(t(local ? 'gm_issues_branch_ask' : 'gm_issues_branch_ask_remote', { branch: state.branch })),
+      choices: [{ mode: local ? 'switch' : 'download' }],
+      confirmLabel: t(local ? 'gm_branch_switch_confirm' : 'gm_branch_download_confirm'),
+      onConfirm: function(choice) { return activateIssueBranch(tc, issue, choice); }
+    });
+  }
+
   async function activateIssueBranch(tc, issue, choice) {
     choice = choice || {};
     var result = tc.querySelector('#gm-issue-action-result');
@@ -2092,6 +2368,13 @@ GM.showRepoView = function(container, repo, autoFetch) {
             GM.renderSidebar();
             loadStatus();
             updateIssueBranchButtons(tc, repo.branch === issueBranch);
+          }
+          if (state.mode === 'off' || state.mode === 'ask') {
+            // Off says nothing at all. Ask only speaks up when there is a
+            // branch to offer and a clean tree to switch on.
+            actionResult.textContent = '';
+            if (state.ask) askIssueBranch(tc, issue, state);
+            return;
           }
           if (state.dirty && state.auto) {
             actionResult.style.color = '#f9e2af'; actionResult.textContent = t('gm_issues_dirty_no_switch'); return;
@@ -2469,7 +2752,7 @@ GM.openSettings = function() {
 // the Premium dialog, and the server refuses to store them anyway.
 GM.issueSettings = function() {
   return fetch('/api/apps/git-manager/settings/issues').then(function(r) { return r.json(); })
-    .catch(function() { return { premium: false, switch_mode: 'off', list_groups: [], list_merge_mine: false }; });
+    .catch(function() { return { premium: false, switch_mode: 'ask', list_groups: [], list_merge_mine: false }; });
 };
 
 GM.renderSettingsExtra = async function(wrap) {
@@ -2505,7 +2788,7 @@ GM.renderIssueSettings = function(wrap, data) {
   wrap.style.cssText = 'display:flex;flex-direction:column;gap:8px';
   wrap.innerHTML = '<div style="font-size:.82rem;font-weight:700">' + t('gm_settings_issues_title') + '</div>'
     + '<div style="font-size:.8rem;color:var(--text-dim)">' + t('gm_settings_switch_label') + '</div>'
-    + ['off', 'other_issue', 'always'].map(function(mode) {
+    + ['ask', 'off', 'other_issue', 'always'].map(function(mode) {
       return option('radio', 'gm-switch-mode', mode, data.switch_mode === mode, t('gm_settings_switch_' + mode));
     }).join('')
     + hint('gm_settings_switch_hint')

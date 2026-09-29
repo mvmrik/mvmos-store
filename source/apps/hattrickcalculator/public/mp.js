@@ -114,6 +114,12 @@
     balanced: { m: 3, d: 1, a: 1 },
     attack:   { m: 3, d: 0.7, a: 1.4 },
     defense:  { m: 3, d: 1.4, a: 0.7 },
+    // Only for the substitution plan: a bigger lead or deficit pushes further.
+    attack2:  { m: 3, d: 0.5, a: 1.9 },
+    attack3:  { m: 3, d: 0.3, a: 2.4 },
+    defense2: { m: 3, d: 1.8, a: 0.5 },
+    defense3: { m: 3, d: 2.4, a: 0.3 },
+    mid:      { m: 4.5, d: 0.8, a: 0.8 },
   };
   const FORMATIONS = ['5-5-0', '5-4-1', '5-3-2', '5-2-3', '4-5-1', '4-4-2', '4-3-3', '3-5-2', '3-4-3', '2-5-3'];
 
@@ -151,6 +157,7 @@
 
   // The league match trains one group of players, the cup or friendly match
   // of the same week another.
+  let autoFocusCache = null;
   const MATCHES = ['league', 'cup', 'friendly'];
   const GROUP_OF_MATCH = { league: 'trainees', cup: 'cup', friendly: 'cup' };
   const MATCH_ICON = { league: '🏟️', cup: '🏆', friendly: '🤝' };
@@ -233,9 +240,36 @@
   }
 
   // What a player adds to every sector in one slot.
-  function contrib(p, pos, side, crowd) {
+  // Individual orders. Each skill weight of the normal role is multiplied by the
+  // factor here (from the community-measured weights that Hattrick Organizer uses);
+  // `add` gives a skill the role does not normally use, `move` sends part of one
+  // sector's weight to another. Approximate: Hattrick does not publish the effects.
+  const ORDERS = {
+    CD: { offensive: { mul: { df: 0.75, pm: 1.6 } }, wing: { mul: { df: 1.08, pm: 0.6 }, add: [['wi', 'ds', 0.17]], move: [['dc', 'ds']] } },
+    WB: { offensive: { mul: { df: 0.83, wi: 1.17, pm: 1.33 } }, defensive: { mul: { df: 1.1, wi: 0.76, pm: 0.67 } }, middle: { mul: { df: 1.02, wi: 0.59, pm: 1.33 }, move: [['ds', 'dc']] } },
+    IM: { offensive: { mul: { df: 0.42, pm: 0.95, sc: 1.41, ps: 1.44 } }, defensive: { mul: { df: 1.49, pm: 0.95, sc: 0.59, ps: 0.54 } }, wing: { mul: { df: 1.04, pm: 0.9, ps: 0.94 }, add: [['wi', 'as', 0.34]], move: [['dc', 'ds'], ['ac', 'as']] } },
+    W: { offensive: { mul: { df: 0.63, wi: 1.16, pm: 0.67, ps: 1.13 } }, defensive: { mul: { df: 1.62, wi: 0.8, pm: 0.67, ps: 0.71 } }, middle: { mul: { df: 0.94, wi: 0.86, pm: 1.22, ps: 0.81 }, move: [['as', 'ac']] } },
+    FW: { defensive: { mul: { wi: 0.54, pm: 1.4, sc: 0.53, ps: 1.91 } }, wing: { mul: { wi: 1.77, pm: 0.6, sc: 0.91, ps: 0.83 }, move: [['ac', 'as']] } },
+  };
+  // "Towards the wing" exists only for the players on the sides: the central
+  // defender, inner midfielder and forward have no such order.
+  const ordersFor = (pos, side) => Object.keys(ORDERS[pos] || {}).filter(o => o !== 'wing' || side !== 'C');
+  const ORDER_SHIFT = 0.5;
+  const orderRowsCache = {};
+  function rowsFor(pos, order) {
+    const o = order && ORDERS[pos] && ORDERS[pos][order];
+    if (!o) return CONTRIB[pos];
+    const key = pos + '/' + order;
+    if (orderRowsCache[key]) return orderRowsCache[key];
+    let rows = CONTRIB[pos].map(([sk, sec, w]) => [sk, sec, w * (o.mul[sk] === undefined ? 1 : o.mul[sk])]).concat(o.add || []);
+    (o.move || []).forEach(([from, to]) => {
+      rows = rows.reduce((out, [sk, sec, w]) => sec === from ? out.concat([[sk, from, w * (1 - ORDER_SHIFT)], [sk, to, w * ORDER_SHIFT]]) : out.concat([[sk, sec, w]]), []);
+    });
+    return (orderRowsCache[key] = rows);
+  }
+  function contrib(p, pos, side, crowd, order) {
     const out = { m: 0, dr: 0, dc: 0, dl: 0, ar: 0, ac: 0, al: 0 };
-    CONTRIB[pos].forEach(([sk, sec, w]) => {
+    rowsFor(pos, order).forEach(([sk, sec, w]) => {
       const v = effSkill(p, sk) * w * crowd;
       if (sec === 'm' || sec === 'dc' || sec === 'ac') out[sec] += v;
       else {
@@ -247,8 +281,11 @@
     });
     return out;
   }
-  function weigh(c, focus) {
+  // `sw` are optional per-sector multipliers, set when the lineup is built
+  // against an opponent.
+  function weigh(c, focus, sw) {
     const f = FOCUS[focus] || FOCUS.balanced;
+    if (sw) return c.m * f.m + (c.dr * sw.dr + c.dc * sw.dc + c.dl * sw.dl) * f.d + (c.ar * sw.ar + c.ac * sw.ac + c.al * sw.al) * f.a;
     return c.m * f.m + (c.dr + c.dc + c.dl) * f.d + (c.ar + c.ac + c.al) * f.a;
   }
   // A player's best position on his own, for the squad list. Each position is
@@ -268,34 +305,22 @@
   }
 
   // ── Lineup optimiser ───────────────────────────────────────────────────────
-  const SIDES = { 1: ['C'], 2: ['R', 'L'], 3: ['R', 'C', 'L'] };
+  const DEF_SLOTS = [{ pos: 'WB', side: 'L' }, { pos: 'CD', side: 'L' }, { pos: 'CD', side: 'C' }, { pos: 'CD', side: 'R' }, { pos: 'WB', side: 'R' }];
+  const MID_SLOTS = [{ pos: 'W', side: 'L' }, { pos: 'IM', side: 'L' }, { pos: 'IM', side: 'C' }, { pos: 'IM', side: 'R' }, { pos: 'W', side: 'R' }];
+  const ATT_SLOTS = [{ pos: 'FW', side: 'L' }, { pos: 'FW', side: 'C' }, { pos: 'FW', side: 'R' }];
+  const standardLine = (slots, n) => (slots.length === 3 ? { 0: [], 1: [1], 2: [0, 2], 3: [0, 1, 2] } : { 0: [], 1: [2], 2: [0, 4], 3: [0, 2, 4], 4: [0, 1, 3, 4], 5: [0, 1, 2, 3, 4] })[n].map(i => slots[i]);
   function structures(name) {
     const [d, m, f] = name.split('-').map(Number);
-    const out = [];
-    [0, 2].forEach(wb => {
-      const cd = d - wb;
-      if (cd < 1 || cd > 3) return;
-      [0, 2].forEach(w => {
-        const im = m - w;
-        if (im > 3 || (im < 1 && m > 0)) return;
-        if (f > 3) return;
-        out.push({ name, wb, cd, w, im: Math.max(0, im), fw: f });
-      });
-    });
-    return out;
+    return [{ name, layout: [{ pos: 'GK', side: 'C' }].concat(standardLine(DEF_SLOTS, d), standardLine(MID_SLOTS, m), standardLine(ATT_SLOTS, f)) }];
   }
   function slotsOf(st) {
-    const s = [{ pos: 'GK', side: 'C' }];
-    if (st.wb) s.push({ pos: 'WB', side: 'R' }, { pos: 'WB', side: 'L' });
-    (SIDES[st.cd] || []).forEach(side => s.push({ pos: 'CD', side }));
-    if (st.w) s.push({ pos: 'W', side: 'R' }, { pos: 'W', side: 'L' });
-    (SIDES[st.im] || []).forEach(side => s.push({ pos: 'IM', side }));
-    (SIDES[st.fw] || []).forEach(side => s.push({ pos: 'FW', side }));
-    s.forEach(x => {
+    const counts = st.layout.reduce((out, x) => { out[x.pos] = (out[x.pos] || 0) + 1; return out; }, {});
+    return st.layout.map(slot => {
+      const x = Object.assign({}, slot);
       x.id = x.pos + '-' + x.side;
-      x.crowd = CROWD[x.pos] ? CROWD[x.pos][st[x.pos.toLowerCase()]] : 1;
+      x.crowd = CROWD[x.pos] ? CROWD[x.pos][counts[x.pos]] : 1;
+      return x;
     });
-    return s;
   }
 
   // Hungarian algorithm: the cheapest one-to-one assignment of n rows to
@@ -350,7 +375,7 @@
       const cols = free.concat(new Array(Math.max(0, open.length - free.length)).fill(null));
       const cost = open.map(s => cols.map(p => {
         if (!p) return 0;
-        let v = weigh(contrib(p, s.pos, s.side, s.crowd), opts.focus);
+        let v = weigh(contrib(p, s.pos, s.side, s.crowd), opts.focus, opts.sw);
         if (training && isTrainee(p) && training.pos[s.pos]) v += TRAINEE_BONUS * training.pos[s.pos];
         return -v;
       }));
@@ -358,14 +383,27 @@
     }
     const total = { m: 0, dr: 0, dc: 0, dl: 0, ar: 0, ac: 0, al: 0 };
     let trained = 0;
+    // An individual order is used only when it clearly beats the normal role.
+    const orders = {};
+    if (opts.useOrders) {
+      slots.forEach(s => {
+        const p = assigned[s.id];
+        if (!p || !ordersFor(s.pos, s.side).length) return;
+        let top = weigh(contrib(p, s.pos, s.side, s.crowd), opts.focus, opts.sw) * 1.02;
+        ordersFor(s.pos, s.side).forEach(o => {
+          const v = weigh(contrib(p, s.pos, s.side, s.crowd, o), opts.focus, opts.sw);
+          if (v > top) { top = v; orders[s.id] = o; }
+        });
+      });
+    }
     slots.forEach(s => {
       const p = assigned[s.id];
       if (!p) return;
-      const c = contrib(p, s.pos, s.side, s.crowd);
+      const c = contrib(p, s.pos, s.side, s.crowd, orders[s.id]);
       SECTORS.forEach(k => { total[k] += c[k]; });
       if (training && isTrainee(p) && training.pos[s.pos]) trained++;
     });
-    return { st, slots, assigned, ratings: total, score: weigh(total, opts.focus), trained };
+    return { st, slots, assigned, orders, ratings: total, score: weigh(total, opts.focus, opts.sw), trained };
   }
 
   function bestLineups(opts, playerPool) {
@@ -561,10 +599,13 @@
       },
       lineup: {
         formation: l.formation === 'auto' || FORMATIONS.includes(l.formation) ? l.formation : 'auto',
-        focus: FOCUS[l.focus] ? l.focus : 'balanced',
+        focus: l.focusV2 ? (l.focus === 'auto' || FOCUS[l.focus] ? l.focus : 'auto') : (l.focus === 'attack' || l.focus === 'defense' ? l.focus : 'auto'),
+        focusV2: true,
         match: MATCHES.includes(l.match) ? l.match : 'league',
         useTrainees: l.useTrainees !== false,
         useStrongest: l.useStrongest === true,
+        useOrders: l.useOrders !== false,
+        useOpponent: l.useOpponent !== false,
         setTaker: Number.isInteger(l.setTaker) ? l.setTaker : null,
         // The lineup is fully automatic; old manually locked positions are
         // intentionally discarded so they cannot affect future suggestions.
@@ -671,6 +712,7 @@
   const scrollMemo = {};
   function render() {
     if (!root) return;
+    autoFocusCache = null;
     const before = root.querySelector('.htc-page');
     if (before && shownView) scrollMemo[shownView] = before.scrollTop;
     const keep = view === shownView || view !== 'player';
@@ -760,7 +802,6 @@
   const TRAIN_OLD = 27;          // from this age training takes well over twice as long as at 17
   const TRAINEE_AGE = [17, 19];  // the age to buy a player to train
   const POS_MAIN = { GK: ['kp', 'df'], CD: ['df', 'pm'], WB: ['df', 'wi'], IM: ['pm', 'ps'], W: ['wi', 'pm'], FW: ['sc', 'ps'] };
-  const ADVICE_ICON = { core: '✅', youth: '🌱', veteran: '🧓', old: '🚨', weak: '🚨', backup: '🔁', train: '📈', develop: '🐣', sell: '💰' };
 
   const posFull = pos => tr('htc_pos_full_' + pos);
   const ageYears = p => Math.floor(ageDays(p) / HT_YEAR);
@@ -920,11 +961,11 @@
   }
 
   function adviceHtml(a) {
-    return '<span class="htc-adv htc-adv-' + a.v + '" title="' + esc(a.text) + '">' + ADVICE_ICON[a.v] + ' ' + esc(tr('htc_adv_' + a.v)) + '</span>';
+    return '<span class="htc-adv htc-adv-' + a.v + '" title="' + esc(a.text) + '">' + esc(tr('htc_adv_' + a.v)) + '</span>';
   }
   function shopHtml(shop) {
     const rows = shop.map(x => '<div class="htc-shop-row"><div class="htc-shop-head"><b>' + esc(posFull(x.pos)) + '</b> '
-      + (x.p ? '<span class="htc-adv htc-adv-' + x.why + '">' + ADVICE_ICON[x.why] + ' ' + esc(tr('htc_adv_' + x.why)) + '</span> '
+      + (x.p ? '<span class="htc-adv htc-adv-' + x.why + '">' + esc(tr('htc_adv_' + x.why)) + '</span> '
         + '<span class="htc-dim">' + esc(tr('htc_shop_replaces', { name: x.p.name })) + '</span>'
         : '<span class="htc-dim">' + esc(tr('htc_shop_missing')) + '</span>') + '</div>'
       + x.options.map(o => '<div class="htc-shop-opt"><span class="htc-shop-k">' + SHOP_ICON[o.k] + ' ' + esc(tr('htc_shop_' + o.k)) + '</span> '
@@ -1095,13 +1136,14 @@
     render();
     const here = await window.mvmOS.extension.readPage();
     const all = (here && typeof here.html === 'string' ? clubPages(here.html) : []).filter(p => p.path || !p.optional);
+    all.push({ kind: 'match', path: '', generated: true, state: 'queued' }, { kind: 'analysis', path: '', generated: true, state: 'queued' });
     const targets = all.filter(p => p.path);
     if (!targets.length) {
       importing = false;
       banner = { kind: 'warn', text: tr(!here ? 'htc_import_error' : 'htc_import_unknown') };
       return render();
     }
-    all.forEach(p => { if (!p.path) p.state = 'missing'; });
+    all.forEach(p => { if (!p.path && !p.generated) p.state = 'missing'; });
     importPages = all;
     let ok = await readAll(targets);
     // A page not ready in time is read once more.
@@ -1118,6 +1160,33 @@
       banner = { kind: 'warn', text: tr('htc_import_none_read') };
       return render();
     }
+    // Every regular page contributes fixtures. The nearest future fixture is
+    // fetched directly from Hattrick, so the manager never has to find its
+    // separate match page.
+    const format = (reads.find(r => r.kind === 'training') || {}).data?.dateFormat;
+    const next = reads.flatMap(r => r.data && Array.isArray(r.data.upcoming) ? r.data.upcoming : [])
+      .filter(m => m && Number.isInteger(m.id))
+      .map((m, i) => ({ m, i, at: dateKey(m.date, format) }))
+      .sort((a, b) => (a.at || Infinity) - (b.at || Infinity) || a.i - b.i)[0];
+    if (next) {
+      const fixture = importPages.find(p => p.kind === 'match');
+      fixture.path = '/Club/Matches/Match.aspx?matchID=' + next.m.id + '&SourceSystem=Hattrick';
+      fixture.state = 'queued';
+      importing = { done: importPages.filter(p => p.state === 'ok' || p.state === 'missing').length, total: importPages.length };
+      render();
+      if (await readAll([fixture]) && fixture.read) reads.push(fixture.read);
+      const opponent = fixture.read && fixture.read.data && fixture.read.data.opponent;
+      if (opponent && opponent.id) {
+        const analysis = importPages.find(p => p.kind === 'analysis');
+        analysis.path = '/Club/TacticsRoom/?analyzeTeamId=' + opponent.id;
+        analysis.state = 'queued';
+        importing = { done: importPages.filter(p => p.state === 'ok' || p.state === 'missing').length, total: importPages.length };
+        render();
+        if (await readAll([analysis]) && analysis.read) reads.push(analysis.read);
+      } else importPages.find(p => p.kind === 'analysis').state = 'missing';
+    }
+    else importPages.filter(p => p.generated).forEach(p => { p.state = 'missing'; });
+    importing = false;
     planFrom(reads);
   }
   function importPagesHtml() {
@@ -1179,6 +1248,10 @@
   function readHattrickPage(html, url) {
     let doc;
     try { doc = new DOMParser().parseFromString(html, 'text/html'); } catch (_) { return null; }
+    const fixture = readMatchPage(doc, url);
+    if (fixture) return { kind: 'match', rows: [], data: fixture };
+    const analysis = readTeamAnalysis(doc, url);
+    if (analysis) return { kind: 'analysis', rows: [], data: analysis };
     const squad = parsePlayersPage(doc, url);
     if (squad) return Object.assign({ kind: 'players', data: { url: url || '', read: new Date().toISOString(), players: squad.players } }, squad);
     for (const [kind, read] of [['training', readTraining], ['stadium', readStadium], ['fans', readFans],
@@ -1187,6 +1260,65 @@
       if (got) return { kind, rows: got.rows, data: Object.assign({ url: url || '', read: new Date().toISOString() }, got.data) };
     }
     return null;
+  }
+
+  function readMatchPage(doc, url) {
+    const canonical = doc.querySelector('link[rel="canonical"]');
+    const href = (canonical && canonical.getAttribute('href')) || url || '';
+    const id = /[?&]matchID=(\d+)/i.exec(href);
+    if (!id || !/\/Club\/Matches\/Match\.aspx/i.test(href)) return null;
+    const user = scriptJson(doc, 'window.HT.ngHattrick.data.user');
+    const mine = user && user.user && Number.isInteger(user.user.currentTeamId) ? user.user.currentTeamId : null;
+    const teams = Array.from(doc.querySelectorAll('a[href*="TeamID="]')).map(a => {
+      const found = /[?&]TeamID=(\d+)/i.exec(a.getAttribute('href') || '');
+      return found ? { id: +found[1], name: cellText(a) } : null;
+    }).filter(Boolean).filter((x, i, list) => x.name && list.findIndex(y => y.id === x.id) === i);
+    // Power Rating of the home and the away team; a zero means the page has not
+    // filled that side in yet, so it is kept as unknown rather than as a rating.
+    const bar = doc.querySelector('ht-possession-bar');
+    const side = cls => {
+      const el = bar && bar.querySelector('.' + cls + ' span');
+      const v = el ? parseInt(cellText(el).replace(/\D/g, ''), 10) : NaN;
+      return v > 0 ? v : null;
+    };
+    const power = bar ? { home: side('possession-home'), away: side('possession-away') } : null;
+    // Which side is ours decides how the sided data below is read.
+    const mineHome = mine && teams[0] ? (teams[0].id === mine ? true : (teams[1] && teams[1].id === mine ? false : null)) : null;
+    const known = scriptJson(doc, 'ngMatch.matchesFromBrowseIds');
+    const entry = Array.isArray(known) ? known.find(m => m && +m.matchId === +id[1]) : null;
+    const matchType = entry && Number.isInteger(entry.matchType) ? entry.matchType : null;
+    // League positions shown under each team name, with the series they belong to.
+    const info = doc.querySelector('.match-h2h-info');
+    const positions = info ? Array.from(info.querySelectorAll('tr:nth-child(2) > td[width]')).slice(0, 2).map(td => {
+      const found = /№\s*(\d+)/.exec(cellText(td));
+      const series = td.querySelector('a[href*="LeagueLevelUnitID="]');
+      const unit = series ? /LeagueLevelUnitID=(\d+)/i.exec(series.getAttribute('href') || '') : null;
+      return found ? { pos: +found[1], unit: unit ? +unit[1] : null } : null;
+    }) : [];
+    // The fan club's own expectation, matched against the page's own wording (0..10).
+    let fans = null;
+    const labels = /"labels_FanMatchExpectation":(\{[^}]*\})/.exec(Array.from(doc.querySelectorAll('script:not([src])')).map(el => el.textContent).find(t => t.indexOf('"labels_FanMatchExpectation"') >= 0) || '');
+    if (labels && info && mineHome !== null) {
+      let dict = null;
+      try { dict = JSON.parse(labels[1]); } catch (_) { /* wording unknown */ }
+      const quotes = Array.from(info.querySelectorAll('.shy em')).map(e => cellText(e).replace(/[“”"„]/g, '').trim());
+      const own = quotes[mineHome ? 0 : 1];
+      const level = dict && own ? Object.keys(dict).find(k => dict[k] === own) : null;
+      if (level !== null && level !== undefined) fans = { level: +level, text: own };
+    }
+    return {
+      id: +id[1], opponent: teams.find(t => t.id !== mine) || null, homeTeam: teams[0] || null, awayTeam: teams[1] || null,
+      power, mineHome, matchType, positions: positions.length === 2 ? positions : null, fans, read: new Date().toISOString(),
+    };
+  }
+  function readTeamAnalysis(doc, url) {
+    if (!/\/Club\/TacticsRoom\//i.test(url || '') && !doc.querySelector('ht-team-analyzer')) return null;
+    const team = scriptJson(doc, 'window.HT.ngHattrick.ngTeamAnalyzer.data.firstTeam');
+    if (!team || !Array.isArray(team.matches)) return null;
+    // Our own upcoming fixtures come with the page (opponent, home or away,
+    // match type). The page's `user` block holds account details and is never kept.
+    const fixtures = scriptJson(doc, 'window.HT.ngHattrick.ngTeamAnalyzer.data.opponents');
+    return { team, fixtures: Array.isArray(fixtures) ? fixtures : [], read: new Date().toISOString() };
   }
 
   // Data Hattrick hands its own scripts on the page: `name = {…};`.
@@ -1988,12 +2120,26 @@
   }
 
   // Lineup ───────────────────────────────────────────────────────────────────
-  function lineupOpts() {
+  // Who trains in this match: the chosen group, but a trainee who cannot play
+  // (injured or suspended) is replaced at once by the next best for this
+  // training, taken from the players in neither group (never the other match's
+  // trainees), so every place the training uses still has a trainee in it.
+  function matchTrainees() {
+    const t = team.training, group = matchGroup();
+    const ids = group.filter(id => { const p = playerById(id); return p && !p.out; });
+    const need = group.some(id => playerById(id)) ? trainedSlots(t.type) - ids.length : 0;
+    if (need > 0) {
+      bestFor(t.type, teamFactor(t)).filter(x => !x.p.out && !groupOf(x.p.id)).slice(0, need).forEach(x => ids.push(x.p.id));
+    }
+    return new Set(ids);
+  }
+  function lineupOpts(focus) {
     const l = team.lineup;
     return {
-      formation: l.formation, focus: l.focus, locks: {},
-      training: team.training.type, trainees: new Set(matchGroup()), useTrainees: l.useTrainees,
-      match: l.match, useStrongest: l.useStrongest,
+      formation: l.formation, focus: focus || (l.focus === 'auto' ? autoFocus() : l.focus), locks: {},
+      training: team.training.type, trainees: matchTrainees(), useTrainees: l.useTrainees,
+      match: l.match, useStrongest: l.useStrongest, useOrders: l.useOrders,
+      sw: l.useOpponent ? sectorWeights(opponentProfile()) : null,
     };
   }
   // Cup and friendly lineups normally preserve the players who make the
@@ -2026,7 +2172,7 @@
     if (!best) return new Map();
     const inTeam = Object.values(best.assigned);
     const suggested = inTeam.slice().sort((a, b) => effSkill(b, 'sp') - effSkill(a, 'sp'))[0];
-    const taker = inTeam.find(p => p.id === team.lineup.setTaker) || suggested;
+    const taker = suggested;
     const bonuses = new Map();
     const keeper = best.assigned['GK-C'];
     if (keeper) bonuses.set(keeper.id, 1.25);
@@ -2038,19 +2184,27 @@
     const l = team.lineup;
     const opts = lineupOpts();
     const avail = matchPool(opts);
-    const all = matchLineups(Object.assign({}, opts, { formation: 'auto' }));
-    const best = l.formation === 'auto' ? all[0] : matchLineups(opts)[0];
+    const rawLineups = matchLineups(Object.assign({}, opts, { formation: 'auto' }));
+    const profile = l.useOpponent ? opponentProfile() : null;
+    const all = rankLineups(rawLineups, profile);
+    const best = l.formation === 'auto' ? all[0] : rankLineups(matchLineups(opts), profile)[0];
     const hasTrainees = matchGroup().some(id => playerById(id));
-    const subs = benchFor(best, l.focus, avail);
+    const subs = benchFor(best, resolvedFocus(), avail);
     const used = new Set(Object.values(best.assigned).concat(subs.map(x => x.player)).map(p => p.id));
     const rest = avail.filter(p => !used.has(p.id));
     const inTeam = Object.values(best.assigned);
     const captain = inTeam.slice().sort((a, b) => (b.lead * 2 + b.xp) - (a.lead * 2 + a.xp))[0];
-    const suggestedTaker = inTeam.slice().sort((a, b) => effSkill(b, 'sp') - effSkill(a, 'sp'))[0];
-    const setTaker = inTeam.find(p => p.id === l.setTaker) || suggestedTaker;
+    const keeper = best.assigned['GK-C'];
+    const outfield = inTeam.filter(p => p !== keeper);
+    // Direct set pieces: the taker's set pieces and experience. Penalty shootout:
+    // experience 1.5, set pieces 0.7, scoring 0.3, +10% for Technical.
+    const setTaker = outfield.slice().sort((a, b) => (b.skills.sp - a.skills.sp) || (b.xp - a.xp))[0];
+    const shootScore = p => (p.xp * 1.5 + p.skills.sp * .7 + p.skills.sc * .3) * (p.spec === 'technical' ? 1.1 : 1);
+    const shootout = outfield.slice().sort((a, b) => shootScore(b) - shootScore(a)).concat(keeper ? [keeper] : []);
     const maxR = Math.max(1, ...SECTORS.map(k => best.ratings[k]));
 
     const slotHtml = s => {
+      if (!s) return '<div class="htc-slot htc-slot-empty" aria-hidden="true"></div>';
       const p = best.assigned[s.id];
       const tt = TRAININGS[team.training.type];
       const trainee = p && l.useTrainees && opts.trainees.has(p.id) && tt.pos[s.pos];
@@ -2058,56 +2212,45 @@
         + '<span class="htc-slot-pos">' + esc(posShort(s.pos)) + (p ? ' ' + statusHtml(p) : '') + '</span>'
         + '<b class="htc-slot-name" title="' + esc(p ? p.name : '') + '">' + esc(p ? p.name : '—') + '</b>'
         + (p ? '<span class="htc-slot-sk">' + slotSkills(p, s.pos) + '</span>' : '')
+        + (p && best.orders && best.orders[s.id] ? '<span class="htc-slot-order">' + esc(tr('htc_order_' + best.orders[s.id])) + '</span>' : '')
         + '</div>';
     };
-    const line = (slots) => '<div class="htc-line">' + slots.map(slotHtml).join('') + '</div>';
-    // Left on the left: the left wide player, the central ones left to
-    // right, then the right wide player.
-    const SIDE_ORDER = { L: 0, C: 1, R: 2 };
-    const orderLine = list => {
-      const wide = s => s.pos === 'W' || s.pos === 'WB';
-      return list.filter(s => wide(s) && s.side === 'L')
-        .concat(list.filter(s => !wide(s)).sort((a, b) => SIDE_ORDER[a.side] - SIDE_ORDER[b.side]),
-          list.filter(s => wide(s) && s.side === 'R'));
-    };
+    const line = ids => { const byId = Object.fromEntries(best.slots.map(s => [s.id, s])); return '<div class="htc-line htc-line-' + ids.length + '">' + ids.map(id => slotHtml(byId[id])).join('') + '</div>'; };
+    const DEF_LINE = ['WB-L', 'CD-L', 'CD-C', 'CD-R', 'WB-R'];
+    const MID_LINE = ['W-L', 'IM-L', 'IM-C', 'IM-R', 'W-R'];
+    const ATT_LINE = ['FW-L', 'FW-C', 'FW-R'];
     const bar = k => '<div class="htc-rating"><span>' + esc(tr('htc_sec_' + k)) + '</span>'
       + '<div class="htc-rbar"><div style="width:' + (best.ratings[k] / maxR * 100).toFixed(1) + '%"></div></div>'
       + '<b>' + numFmt(best.ratings[k], 1) + '</b></div>';
     const traineeCheck = hasTrainees ? '<label class="htc-check"><input type="checkbox" id="htc-use-trainees"' + (l.useTrainees ? ' checked' : '') + '> 📈 ' + esc(tr('htc_use_trainees', { training: tr('htc_tr_' + team.training.type) })) + '</label>' : '';
     const strongestCheck = l.match !== 'league' ? '<label class="htc-check"><input type="checkbox" id="htc-use-strongest"' + (l.useStrongest ? ' checked' : '') + '> 💪 ' + esc(tr('htc_use_strongest')) + '</label>' : '';
-    const checkRow = traineeCheck || strongestCheck ? '<div class="htc-lineup-checks htc-span-all">' + traineeCheck + strongestCheck + '</div>' : '';
+    const ordersCheck = '<label class="htc-check" title="' + esc(tr('htc_orders_note')) + '"><input type="checkbox" id="htc-use-orders"' + (l.useOrders ? ' checked' : '') + '> 🧩 ' + esc(tr('htc_use_orders')) + '</label>';
+    const opponentCheck = opponentProfile() ? '<label class="htc-check"><input type="checkbox" id="htc-use-opponent"' + (l.useOpponent ? ' checked' : '') + '> 🎯 ' + esc(tr('htc_use_opponent')) + '</label>' : '';
+    const checkRow = '<div class="htc-lineup-checks htc-span-all">' + traineeCheck + strongestCheck + ordersCheck + opponentCheck + '</div>';
     const traineeNotice = hasTrainees ? '' : '<p class="htc-dim htc-span-all">' + esc(tr('htc_no_group_trainees', { group: tr('htc_group_' + GROUP_OF_MATCH[l.match]) })) + '</p>';
 
-    return '<section class="htc-card"><div class="htc-grid htc-grid-lineup">'
+    return opponentHtml(best, profile) + '<section class="htc-card"><div class="htc-grid htc-grid-lineup">'
       + '<label class="htc-field"><span>' + esc(tr('htc_match')) + '</span><select class="htc-input" id="htc-match">'
       + MATCHES.map(m => '<option value="' + m + '"' + (l.match === m ? ' selected' : '') + '>' + MATCH_ICON[m] + ' ' + esc(tr('htc_match_' + m)) + '</option>').join('')
-      + '</select></label>'
-      + '<label class="htc-field"><span>' + esc(tr('htc_formation')) + '</span><select class="htc-input" id="htc-formation">'
-      + '<option value="auto"' + (l.formation === 'auto' ? ' selected' : '') + '>' + esc(tr('htc_formation_auto')) + '</option>'
-      + FORMATIONS.map(f => '<option value="' + f + '"' + (l.formation === f ? ' selected' : '') + '>' + f + '</option>').join('')
-      + '</select></label>'
-      + '<label class="htc-field"><span>' + esc(tr('htc_focus')) + '</span><select class="htc-input" id="htc-focus">'
-      + Object.keys(FOCUS).map(f => '<option value="' + f + '"' + (l.focus === f ? ' selected' : '') + '>' + esc(tr('htc_focus_' + f)) + '</option>').join('')
       + '</select></label>'
       + checkRow + traineeNotice
       + '</div></section>'
 
       + '<div class="htc-cols">'
       + '<section class="htc-card"><div class="htc-card-head"><h3>' + esc(tr('htc_lineup_for', { f: best.st.name })) + '</h3>'
-      + '<span class="htc-score">' + esc(tr('htc_score')) + ' <b>' + numFmt(best.score, 1) + '</b></span></div>'
+      + '<span class="htc-score">' + esc(tr('htc_score')) + ' <b>' + numFmt(best.value, 1) + '</b></span></div>'
       + '<div class="htc-pitch">'
-      + line(best.slots.filter(s => s.pos === 'GK'))
-      + line(orderLine(best.slots.filter(s => s.pos === 'WB' || s.pos === 'CD')))
-      + line(orderLine(best.slots.filter(s => s.pos === 'W' || s.pos === 'IM')))
-      + line(orderLine(best.slots.filter(s => s.pos === 'FW')))
+      + line(['GK-C']) + line(DEF_LINE) + line(MID_LINE) + line(ATT_LINE)
       + '</div>'
+      + (l.useOrders ? '<p class="htc-dim">' + esc(tr('htc_orders_note')) + '</p>' : '')
       + '<div class="htc-roles">'
       + (captain ? '<span>©️ ' + esc(tr('htc_captain')) + ': <b>' + esc(captain.name) + '</b></span>' : '')
-      + (setTaker ? '<label>🎯 ' + esc(tr('htc_set_taker')) + ': <select class="htc-role-sel" id="htc-set-taker">'
-        + '<option value=""' + (l.setTaker == null ? ' selected' : '') + '>' + esc(tr('htc_auto')) + ': ' + esc(suggestedTaker.name) + '</option>'
-        + inTeam.map(p => '<option value="' + p.id + '"' + (l.setTaker === p.id ? ' selected' : '') + '>' + esc(p.name) + '</option>').join('')
-        + '</select></label>' : '')
       + '</div>'
+      + '<table class="htc-table htc-takers"><thead><tr><th>' + esc(tr('htc_taker_role')) + '</th><th>' + esc(tr('htc_f_name')) + '</th>'
+      + '<th title="' + esc(tr('htc_sk_sp')) + '">' + esc(tr('htc_abbr_sp')) + '</th><th title="' + esc(tr('htc_f_xp')) + '">XP</th></tr></thead><tbody>'
+      + (setTaker ? '<tr class="htc-taker-set"><td>🎯 ' + esc(tr('htc_set_taker')) + '</td><td><b>' + esc(setTaker.name) + '</b></td><td>' + setTaker.skills.sp + '</td><td>' + setTaker.xp + '</td></tr>' : '')
+      + shootout.map((p, i) => '<tr><td>🥅 ' + (i + 1) + '</td><td>' + esc(p.name) + '</td><td>' + p.skills.sp + '</td><td>' + p.xp + '</td></tr>').join('')
+      + '</tbody></table><p class="htc-dim">' + esc(tr('htc_penalty_hint')) + '</p>'
       + (subs.length ? '<div class="htc-subs-wrap"><h4>🔁 ' + esc(tr('htc_bench')) + '</h4>'
         + '<p class="htc-dim">' + esc(tr('htc_bench_hint')) + '</p>'
         + '<div class="htc-subs">' + subs.map(x => '<div class="htc-sub">'
@@ -2121,18 +2264,509 @@
       + '</section>'
 
       + '<div class="htc-col">'
-      + '<section class="htc-card"><h3>' + esc(tr('htc_ratings')) + '</h3>'
-      + bar('m')
-      + '<div class="htc-rgroup">' + ['dr', 'dc', 'dl'].map(bar).join('') + '</div>'
-      + '<div class="htc-rgroup">' + ['ar', 'ac', 'al'].map(bar).join('') + '</div>'
-      + '<p class="htc-note">' + esc(tr('htc_ratings_note')) + '</p></section>'
-      + '<section class="htc-card"><h3>' + esc(tr('htc_formations')) + '</h3>'
-      + '<div class="htc-forms">' + all.map((r, i) => '<button class="htc-form-row' + (r.st.name === best.st.name ? ' on' : '') + '" data-f="' + r.st.name + '">'
+      + accHtml('formations', '📐 ' + esc(tr('htc_formations')), '<b>' + (l.formation === 'auto' ? '★ ' : '') + best.st.name + '</b>',
+        '<div class="htc-forms">' + all.map((r, i) => '<button class="htc-form-row' + (r.st.name === best.st.name ? ' on' : '') + '" data-f="' + r.st.name + '"' + (i === 0 ? ' data-top="1"' : '') + '>'
         + '<span class="htc-form-name">' + (i === 0 ? '★ ' : '') + r.st.name + '</span>'
-        + '<div class="htc-rbar"><div style="width:' + (r.score / all[0].score * 100).toFixed(1) + '%"></div></div>'
-        + '<b>' + numFmt(r.score, 1) + '</b></button>').join('') + '</div>'
-      + '</section>'
+        + '<div class="htc-rbar"><div style="width:' + (r.value / all[0].value * 100).toFixed(1) + '%"></div></div>'
+        + '<b>' + numFmt(r.value, 1) + '</b></button>').join('') + '</div>')
+      + aimHtml()
+      + tacticHtml(best, profile)
+      + attitudeHtml()
+      + substitutionHtml(best, avail, profile) + behaviourHtml(best) + swapHtml(best)
+      + accHtml('ratings', '📊 ' + esc(tr('htc_ratings')), '',
+        bar('m')
+        + '<div class="htc-rgroup">' + ['dr', 'dc', 'dl'].map(bar).join('') + '</div>'
+        + '<div class="htc-rgroup">' + ['ar', 'ac', 'al'].map(bar).join('') + '</div>'
+        + '<p class="htc-note">' + esc(tr('htc_ratings_note')) + '</p>')
       + '</div></div>';
+  }
+
+  // Opponent sector ratings arrive as [dr, dc, dl, m, ar, ac, al] with their
+  // own scale, so only their shape is compared with ours, never the size.
+  function opponentProfile() {
+    const team = pages.analysis && pages.analysis.data && pages.analysis.data.team;
+    if (!team || !Array.isArray(team.matches)) return null;
+    const recent = team.matches.filter(m => Array.isArray(m.sectorRating) && m.sectorRating.length >= 7).slice(0, 5);
+    if (!recent.length) return null;
+    const average = i => recent.reduce((sum, m) => sum + (+m.sectorRating[i] || 0), 0) / recent.length;
+    const tactics = {};
+    recent.forEach((m, i) => {
+      const t = TACTIC_ID[m.tacticTypeId] || 'normal';
+      tactics[t] = (tactics[t] || 0) + (recent.length - i);
+    });
+    const total = Object.values(tactics).reduce((a, b) => a + b, 0);
+    return {
+      recent,
+      defence: { dr: average(0), dc: average(1), dl: average(2) },
+      mid: average(3),
+      attack: { ar: average(4), ac: average(5), al: average(6) },
+      tactics: Object.keys(tactics).map(t => ({ t, w: tactics[t] / total })).sort((a, b) => b.w - a.w),
+    };
+  }
+
+  // Tactics the match engine offers: how they move a team's attacks between
+  // the wings and the middle, and what they cost. Approximate, from the
+  // Hattrick wiki; the levels of the tactics themselves are not modelled.
+  const TACTICS = ['normal', 'pressing', 'counter', 'aim', 'aow', 'creative', 'longshots'];
+  const TACTIC_ID = { 0: 'normal', 1: 'pressing', 2: 'counter', 3: 'aim', 4: 'aow', 7: 'creative', 8: 'longshots' };
+  // Share of attacks by [right, centre, left].
+  const ATTACK_SHARE = { normal: [.3, .4, .3], aow: [.36, .28, .36], aim: [.24, .52, .24] };
+  const shareOf = t => ATTACK_SHARE[t] || ATTACK_SHARE.normal;
+  const meanOf = (a, b, c) => (a + b + c) / 3;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+  // How much each of our sectors is worth against this opponent: our attack
+  // where their matching defence is weak, our defence where their matching
+  // attack is strong, all with a mean of 1.
+  function sectorWeights(profile) {
+    if (!profile) return null;
+    const { defence: d, attack: a } = profile;
+    const exp = { ar: 1 / d.dl, ac: 1 / d.dc, al: 1 / d.dr };
+    const mix = { ar: 0, ac: 0, al: 0 };
+    profile.tactics.forEach(x => { const s = shareOf(x.t); mix.ar += x.w * s[0] / .3; mix.ac += x.w * s[1] / .4; mix.al += x.w * s[2] / .3; });
+    const theirs = { dl: a.ar * mix.ar, dc: a.ac * mix.ac, dr: a.al * mix.al };
+    const norm = (o, keys) => { const mean = keys.reduce((s, k) => s + o[k], 0) / keys.length; const r = {}; keys.forEach(k => { r[k] = o[k] / mean; }); return r; };
+    return Object.assign({}, norm(exp, ['ar', 'ac', 'al']), norm(theirs, ['dr', 'dc', 'dl']));
+  }
+
+  function tacticTeam(r) {
+    const xi = Object.entries(r.assigned).filter(([id]) => id !== 'GK-C').map(e => e[1]);
+    const avg = k => xi.length ? xi.reduce((s, p) => s + (k === 'xp' ? p.xp : p.skills[k]), 0) / xi.length : 0;
+    return { xp: avg('xp'), ps: avg('ps'), sc: avg('sc'), sp: avg('sp') };
+  }
+
+  // Value of one tactic for a lineup, in the same units as its plain score.
+  function tacticValue(r, t, focus, profile, sw, tm) {
+    const f = FOCUS[focus] || FOCUS.balanced;
+    const R = r.ratings;
+    const mid = R.m * (t === 'longshots' ? .95 : t === 'counter' ? .9 : 1);
+    const dm = { dr: 1, dc: 1, dl: 1 };
+    if (t === 'creative') { dm.dr = dm.dc = dm.dl = .925; }
+    if (t === 'aow') dm.dc = .97;
+    if (t === 'aim') { dm.dr = .97; dm.dl = .97; }
+    const w = sw || { dr: 1, dc: 1, dl: 1, ar: 1, ac: 1, al: 1 };
+    let D = (R.dr * dm.dr * w.dr + R.dc * dm.dc * w.dc + R.dl * dm.dl * w.dl);
+    const s = shareOf(t);
+    const am = t === 'longshots' ? .973 : 1;
+    let A = 3 * (s[0] * R.ar * w.ar + s[1] * R.ac * w.ac + s[2] * R.al * w.al) * am;
+    const sumA = R.ar * w.ar + R.ac * w.ac + R.al * w.al;
+    const meanD = meanOf(R.dr, R.dc, R.dl), meanA = meanOf(R.ar, R.ac, R.al);
+    const ourMid = R.m / (R.m + meanD + meanA);
+    let oppMid = ourMid, oppDA = meanD / meanA;
+    if (profile) {
+      const pd = meanOf(profile.defence.dr, profile.defence.dc, profile.defence.dl), pa = meanOf(profile.attack.ar, profile.attack.ac, profile.attack.al);
+      oppMid = profile.mid / (profile.mid + pd + pa);
+      oppDA = pd / pa;
+    }
+    if (t === 'pressing') { const k = profile && ourMid >= oppMid ? 1.004 : .99; A *= k; D *= k; }
+    if (t === 'counter' && profile) A *= 1 + clamp(1.5 * (oppMid - ourMid), -.05, .08);
+    if (t === 'creative') A *= 1 + .06 * (tm.xp + tm.ps) / 40;
+    if (t === 'longshots') {
+      const share = clamp(.035 + ((3 * tm.sc + tm.sp) / 4 / 20) * .335, .035, .37);
+      A = A * (1 - share) + share * sumA * .9 * clamp(oppDA / (meanD / meanA), .7, 1.5);
+    }
+    return mid * f.m + D * f.d + A * f.a;
+  }
+
+  // Aim "automatic": with no opponent only our own team is known, so it stays
+  // balanced. Against one, every aim gets its own best lineup, and the aim
+  // whose lineup best trades our attack for their defence and their attack for
+  // our defence wins, treating both teams as equally strong overall because
+  // their ratings come in another scale. A plain balanced aim wins close calls.
+  const resolvedFocus = () => team.lineup.focus === 'auto' ? autoFocus() : team.lineup.focus;
+  function autoFocus() {
+    if (autoFocusCache) return autoFocusCache;
+    const list = aimScores();
+    return (autoFocusCache = list.length ? list.find(x => x.pick).f : 'balanced');
+  }
+  // Every aim with its own best lineup, on one common scale. The first row of
+  // the list is the aim the app would choose.
+  function aimScores() {
+    const profile = team.lineup.useOpponent ? opponentProfile() : null;
+    const tops = ['balanced', 'attack', 'defense'].map(f => ({ f, r: matchLineups(Object.assign({}, lineupOpts(f), { formation: 'auto' }))[0] })).filter(x => x.r);
+    if (!tops.length) return [];
+    let value;
+    if (profile) {
+      const sw = sectorWeights(profile);
+      const pd = meanOf(profile.defence.dr, profile.defence.dc, profile.defence.dl), pa = meanOf(profile.attack.ar, profile.attack.ac, profile.attack.al);
+      const base = tops[0].r.ratings;
+      const k = (base.m + meanOf(base.dr, base.dc, base.dl) + meanOf(base.ar, base.ac, base.al)) / (profile.mid + pd + pa);
+      value = R => {
+        const A = (R.ar * sw.ar + R.ac * sw.ac + R.al * sw.al) / 3, D = (R.dr * sw.dr + R.dc * sw.dc + R.dl * sw.dl) / 3;
+        return 100 * (A / (pd * k)) / ((pa * k) / D);
+      };
+    } else value = R => weigh(R, 'balanced');
+    const list = tops.map(x => ({ f: x.f, value: value(x.r.ratings) }));
+    const best = list.reduce((a, b) => (b.value > a.value * 1.02 ? b : a), list[0]);
+    list.forEach(x => { x.pick = x === best; });
+    return list.sort((a, b) => b.pick - a.pick || b.value - a.value);
+  }
+  function aimHtml() {
+    const list = aimScores();
+    if (!list.length) return '';
+    const top = Math.max(...list.map(x => x.value)) || 1;
+    const cur = resolvedFocus();
+    return accHtml('aim', '🎚️ ' + esc(tr('htc_focus')), '<b>' + esc(tr('htc_focus_' + cur)) + '</b>',
+      '<div class="htc-forms">' + list.map(x => '<button class="htc-form-row htc-tactic-row htc-aim-row' + (cur === x.f ? ' on' : '') + '" data-aim="' + x.f + '">'
+        + '<span class="htc-form-name">' + (x.pick ? '★ ' : '') + esc(tr('htc_focus_' + x.f)) + '</span>'
+        + '<div class="htc-rbar"><div style="width:' + (x.value / top * 100).toFixed(1) + '%"></div></div>'
+        + '<b>' + numFmt(x.value, 1) + '</b></button>').join('') + '</div>');
+  }
+
+  // The best tactic for every lineup, then the lineups by their best tactic;
+  // the same with no opponent (our own team only) or against the last matches
+  // of the one chosen.
+  function rankLineups(lineups, profile, focus) {
+    focus = focus || resolvedFocus();
+    const sw = sectorWeights(profile);
+    const out = lineups.map(r => {
+      const tm = tacticTeam(r);
+      const list = TACTICS.map(t => ({ t, value: tacticValue(r, t, focus, profile, sw, tm) })).sort((a, b) => b.value - a.value);
+      const normal = list.find(x => x.t === 'normal');
+      const top = list[0].value > normal.value * 1.003 ? list[0] : normal;
+      return Object.assign({}, r, { tactics: list, tactic: top.t, value: top.value });
+    });
+    return out.sort((a, b) => (b.trained - a.trained) || (b.value - a.value));
+  }
+
+  function tacticHtml(best, profile) {
+    const top = best.tactics[0].value || 1;
+    const usual = profile && profile.tactics[0];
+    return accHtml('tactic', '🧭 ' + esc(tr('htc_tactic')), '<b>' + esc(tr('htc_tactic_' + best.tactic)) + '</b>',
+      (usual ? '<p class="htc-dim">' + esc(tr('htc_tactic_opp', { t: tr('htc_tactic_' + usual.t), n: Math.round(usual.w * 100) })) + '</p>' : '')
+      + '<div class="htc-forms">' + best.tactics.map(x => '<div class="htc-form-row htc-tactic-row' + (x.t === best.tactic ? ' on' : '') + '">'
+        + '<span class="htc-form-name">' + (x.t === best.tactic ? '★ ' : '') + esc(tr('htc_tactic_' + x.t)) + '</span>'
+        + '<div class="htc-rbar"><div style="width:' + (x.value / top * 100).toFixed(1) + '%"></div></div>'
+        + '<b>' + numFmt(x.value, 1) + '</b></div>').join('') + '</div>'
+      + '<p class="htc-note">' + esc(tr('htc_tactic_note')) + '</p>');
+  }
+
+  // Team attitude: Normal, Play it cool, Match of the season. Not modelled by
+  // Hattrick's own numbers, so this is a rough hint from how even the teams are
+  // (Power Rating and the fans' expectation) and how much the match matters.
+  const FRIENDLY_TYPES = [4, 5, 8, 9, 12];
+  const OFFICIAL_TYPES = [1, 2, 3, 6, 7, 10, 11];
+  const KNOCKOUT_TYPES = [2, 3, 7, 11];
+  function attitudeInfo() {
+    const saved = pages.match && pages.match.data;
+    const empty = { list: [{ t: 'normal', value: 60 }, { t: 'cool', value: 60 }, { t: 'mots', value: 60 }], reasons: [], top: 'normal', hint: true };
+    if (!saved || !saved.opponent) return empty;
+    // The fixture list of the analysis page knows the match type and the venue even
+    // when the match page was read before those were kept.
+    const fixture = nextFixture();
+    const m = Object.assign({}, saved);
+    if (m.matchType === undefined || m.matchType === null) m.matchType = fixture && Number.isInteger(fixture.matchType) ? fixture.matchType : null;
+    if (m.mineHome === undefined || m.mineHome === null) m.mineHome = fixture && typeof fixture.isHome === 'boolean' ? fixture.isHome : null;
+    const signals = [], reasons = [];
+    const side = m.mineHome;
+    if (m.power && side !== null && m.power.home && m.power.away) {
+      const mine = side ? m.power.home : m.power.away, theirs = side ? m.power.away : m.power.home;
+      signals.push({ w: 0.6, v: clamp((mine - theirs) / ((mine + theirs) / 2) * 8, -1, 1) });
+      reasons.push(tr('htc_att_r_power', { a: mine, b: theirs }));
+    }
+    if (m.fans) {
+      signals.push({ w: 0.4, v: (m.fans.level - 5) / 5 });
+      reasons.push(tr('htc_att_r_fans', { t: m.fans.text }));
+    }
+    // Standing in the same league table: being behind the opponent counts as the weaker side.
+    const pos = m.positions;
+    const sameTable = !!(pos && pos[0] && pos[1] && pos[0].unit && pos[0].unit === pos[1].unit);
+    const mineRow = sameTable ? (side === false ? pos[1] : pos[0]) : null, theirRow = sameTable ? (side === false ? pos[0] : pos[1]) : null;
+    if (sameTable) signals.push({ w: 0.3, v: clamp((theirRow.pos - mineRow.pos) / 4, -1, 1) });
+    const strength = signals.length ? signals.reduce((a, x) => a + x.w * x.v, 0) / signals.reduce((a, x) => a + x.w, 0) : null;
+    let importance = 0.5;
+    if (FRIENDLY_TYPES.includes(m.matchType)) { importance = 0; reasons.push(tr('htc_att_r_friendly')); }
+    else if (OFFICIAL_TYPES.includes(m.matchType)) { importance = 1; reasons.push(tr('htc_att_r_official')); }
+    // Within one league table, the top and the bottom are where points decide the season.
+    let stakes = 0;
+    if (sameTable) {
+      reasons.push(tr('htc_att_r_table', { a: mineRow.pos, b: theirRow.pos }));
+      if (m.matchType === 1 && (mineRow.pos <= 3 || mineRow.pos >= 6)) stakes = Math.abs(mineRow.pos - theirRow.pos) <= 3 ? 0.25 : 0.1;
+    }
+    if (strength === null && importance === 0.5 && !stakes) return empty;
+    const s = strength === null ? 0 : strength;
+    const up = x => clamp(x, 0, 1);
+    let normal, cool, mots;
+    if (importance === 0) {
+      // A friendly decides nothing, so the choice makes no difference.
+      normal = cool = mots = 60;
+    } else if (KNOCKOUT_TYPES.includes(m.matchType)) {
+      // Knockout: a defeat ends the run, so a stronger opponent calls for everything and
+      // nobody takes it easy.
+      mots = 30 + 60 * up((0.1 - s) / 0.7);
+      normal = 70 - 30 * up(-s / 0.6);
+      cool = 15;
+    } else if (m.matchType === 1) {
+      // League: points can be spared against a weaker side, an even game is normal, and
+      // the season's push is for a close game high or low in the table.
+      cool = 30 + 60 * up((s - 0.2) / 0.6);
+      normal = 65;
+      mots = 25 + 200 * stakes * (1 - Math.min(1, Math.abs(s) * 1.2));
+    } else {
+      const imp = clamp(importance + stakes, 0, 1);
+      cool = 30 + 45 * (1 - imp) + 35 * Math.max(0, s - 0.25);
+      mots = 20 + 55 * imp * (1 - Math.min(1, Math.abs(s + 0.05) * 1.6));
+      normal = 58 + 8 * (1 - Math.abs(s));
+    }
+    const list = [{ t: 'normal', value: normal }, { t: 'cool', value: cool }, { t: 'mots', value: mots }].sort((a, b) => b.value - a.value);
+    return { list, reasons, top: list[0].t, strength };
+  }
+  // Substitution plan: for each score situation the swaps (up to three) that help
+  // most, the tactic to switch to, and a rule-of-thumb minute. Swaps are found the
+  // same way as the lineup, with the aim of that situation and, when selected, the
+  // opponent's weak sectors. The minute is a habit, not a calculation.
+  // Collapsible cards of the lineup tab: the title and the chosen value or count
+  // stay visible, the details open on demand and stay open across redraws.
+  const accOpen = new Set();
+  function accHtml(id, title, summary, body, empty) {
+    return '<details class="htc-acc' + (empty ? ' htc-acc-empty' : '') + '" data-acc="' + id + '"' + (accOpen.has(id) ? ' open' : '') + '>'
+      + '<summary><span class="htc-acc-title">' + title + '</span><span class="htc-acc-sum">' + summary + '</span></summary>'
+      + '<div class="htc-acc-body">' + body + '</div></details>';
+  }
+  const countSummary = rows => { const n = rows.filter(r => r.star).length; return n ? '<b title="' + esc(tr('htc_star_note')) + '">⭐ ' + n + '</b>' : ''; };
+  // Which of the situations matter most in this match: the gain of the changes
+  // times how likely the situation is, judged by how the teams compare. Without a
+  // comparison nothing is marked.
+  function likelihood(id, s) {
+    const lead = clamp(0.35 + 0.35 * s, 0.05, 0.7), trail = clamp(0.35 - 0.35 * s, 0.05, 0.7);
+    return { any: 0.5, tied: 0.3, lead: lead, lead2: lead * 0.55, lead3: lead * 0.25, trail: trail, trail2: trail * 0.55, trail3: trail * 0.25 }[id] || 0.05;
+  }
+  const STAR_MIN = 0.02;
+  function prioritize(items) {
+    const s = attitudeInfo().strength;
+    if (s === null || s === undefined) return items;
+    items.forEach(x => { x.score = x.gain * likelihood(x.id, s); });
+    const sorted = items.slice().sort((a, b) => b.score - a.score);
+    // Worth doing when the expected gain is at least about 2% of the team's strength.
+    sorted.forEach(x => { x.star = x.score >= STAR_MIN; });
+    const any = sorted.some(x => x.star);
+    sorted.forEach(x => { x.marked = x.star ? true : any ? false : undefined; });
+    return sorted;
+  }
+  const starNote = () => { const st = attitudeInfo().strength; return st === null || st === undefined ? '' : ' ' + tr('htc_star_note'); };
+  const caseHtml = (x, inner) => '<div class="htc-plan-case' + (x.marked === false ? ' htc-plan-dim' : '') + '">' + inner + '</div>';
+  const gainOf = list => list.reduce((a, w) => a + (w.gain || 0), 0);
+
+  const PLAN_CASES = [
+    { id: 'any', focus: 'balanced', minute: 65, tired: true },
+    { id: 'tied', focus: 'balanced', minute: 70, tired: true },
+    { id: 'lead', focus: 'defense', minute: 75 },
+    { id: 'lead2', focus: 'defense2', minute: 70 },
+    { id: 'lead3', focus: 'defense3', minute: 65 },
+    { id: 'trail', focus: 'attack', minute: 65 },
+    { id: 'trail2', focus: 'attack2', minute: 55 },
+    { id: 'trail3', focus: 'attack3', minute: 45 },
+    { id: 'trail3', focus: 'attack3', minute: 45 },
+  ];
+  const PLAN_SWAPS = 3;
+  // A substitute is normally weaker than the starter, so a swap is judged by what it
+  // changes toward the aim of the situation, not by whether it beats the starter.
+  const PLAN_MAX_LOSS = 0.35;
+  function planFor(c, best, benchPlayers, profile, sw) {
+    const swaps = [];
+    const starters = best.slots.filter(s => best.assigned[s.id]).map(s => ({ s, p: best.assigned[s.id], order: null }));
+    const pool = benchPlayers.slice();
+    const valueOf = (p, s, order, focus) => weigh(contrib(p, s.pos, s.side, s.crowd, order), focus, focus === c.focus ? sw : null);
+    for (let n = 0; n < PLAN_SWAPS && pool.length; n++) {
+      let pick = null;
+      starters.forEach(x => {
+        if (x.s.pos === 'GK') return;
+        const nowAim = valueOf(x.p, x.s, x.order, c.focus), nowBal = weigh(contrib(x.p, x.s.pos, x.s.side, x.s.crowd, x.order), 'balanced');
+        pool.forEach(q => {
+          if (q.stamina < 1) return;
+          [null].concat(ordersFor(x.s.pos, x.s.side)).forEach(o => {
+            const aim = valueOf(q, x.s, o, c.focus) / (nowAim || 1) - 1;
+            const bal = weigh(contrib(q, x.s.pos, x.s.side, x.s.crowd, o), 'balanced') / (nowBal || 1) - 1;
+            // Tired: whoever is most worn out goes first; otherwise the swap that tilts most toward the aim.
+            const score = c.tired ? (q.stamina - x.p.stamina) + bal : aim - bal;
+            const ok = c.tired ? q.stamina > x.p.stamina && x.p.stamina <= 7 : aim - bal > 0.005;
+            if (ok && bal > -PLAN_MAX_LOSS && (!pick || score > pick.score)) pick = { x, q, order: o, score, gain: c.tired ? 0.02 * (q.stamina - x.p.stamina) : aim - bal };
+          });
+        });
+      });
+      if (!pick) break;
+      swaps.push({ out: pick.x.p, pos: pick.x.s.pos, in: pick.q, order: pick.order, gain: pick.gain });
+      pick.x.p = pick.q; pick.x.order = pick.order;
+      pool.splice(pool.indexOf(pick.q), 1);
+    }
+    const tactic = rankLineups([best], profile, c.focus)[0].tactic;
+    return { c, swaps, tactic };
+  }
+  function substitutionHtml(best, avail, profile) {
+    const started = new Set(Object.values(best.assigned).map(p => p.id));
+    const subs = avail.filter(p => !started.has(p.id));
+    const sw = lineupOpts().sw;
+    const all = PLAN_CASES.map(c => planFor(c, best, subs, profile, sw));
+    const rows = prioritize(all.filter(r => r.swaps.length).map(r => Object.assign(r, { id: r.c.id, gain: gainOf(r.swaps) })));
+    if (!rows.length) return accHtml('plan', '🔄 ' + esc(tr('htc_plan')), '', '<div class="htc-plan-swap htc-dim">' + esc(tr('htc_plan_none')) + '</div>', true);
+    return accHtml('plan', '🔄 ' + esc(tr('htc_plan')), countSummary(rows),
+      rows.map(r => caseHtml(r, '<b>' + (r.star ? '⭐ ' : '') + esc(tr('htc_cond_' + r.c.id)) + '</b> <span class="htc-dim">≈ ' + esc(tr('htc_plan_min', { n: r.c.minute })) + '</span>'
+        + (r.swaps.length ? r.swaps.map(w => '<div class="htc-plan-swap">⬅ ' + esc(w.out.name) + ' → ➡ <b>' + esc(w.in.name) + '</b> <span class="htc-dim">' + esc(posShort(w.pos) + (w.order ? ' · ' + tr('htc_order_' + w.order) : '')) + '</span></div>')
+          .join('') : '<div class="htc-plan-swap htc-dim">' + esc(tr('htc_plan_none')) + '</div>')
+        + '<div class="htc-plan-swap htc-dim">🧭 ' + esc(tr('htc_tactic_' + r.tactic)) + '</div>')).join('')
+      + '<p class="htc-note">' + esc(tr('htc_plan_note')) + ' ' + esc(tr('htc_cond_inverse')) + esc(starNote()) + '</p>');
+  }
+
+  const BEHAVE_CASES = [
+    { id: 'any', focus: 'balanced', minute: 60 },
+    { id: 'tied', focus: 'balanced', minute: 70 },
+    { id: 'lead', focus: 'defense', minute: 75 },
+    { id: 'lead2', focus: 'defense2', minute: 70 },
+    { id: 'lead3', focus: 'defense3', minute: 65 },
+    { id: 'trail', focus: 'attack', minute: 65 },
+    { id: 'trail2', focus: 'attack2', minute: 55 },
+    { id: 'trail3', focus: 'attack3', minute: 45 },
+  ];
+  const BEHAVE_CHANGES = 3;
+  function behaviourFor(c, best, sw) {
+    const changes = [];
+    const done = new Set();
+    for (let n = 0; n < BEHAVE_CHANGES; n++) {
+      let pick = null;
+      best.slots.forEach(s => {
+        const p = best.assigned[s.id];
+        if (!p || s.pos === 'GK' || done.has(s.id)) return;
+        const cur = best.orders && best.orders[s.id] || null;
+        const val = (o, f) => weigh(contrib(p, s.pos, s.side, s.crowd, o), f, f === c.focus ? sw : null);
+        const nowAim = val(cur, c.focus), nowBal = weigh(contrib(p, s.pos, s.side, s.crowd, cur), 'balanced');
+        ordersFor(s.pos, s.side).forEach(o => {
+          if (o === cur) return;
+          const aim = val(o, c.focus) / (nowAim || 1) - 1;
+          const bal = weigh(contrib(p, s.pos, s.side, s.crowd, o), 'balanced') / (nowBal || 1) - 1;
+          const gain = c.focus === 'balanced' ? aim : aim - bal;
+          if (gain > 0.01 && bal > -0.15 && (!pick || gain > pick.gain)) pick = { s, p, order: o, gain };
+        });
+      });
+      if (!pick) break;
+      done.add(pick.s.id);
+      changes.push({ p: pick.p, pos: pick.s.pos, order: pick.order, gain: pick.gain });
+    }
+    return { c, changes };
+  }
+  function behaviourHtml(best) {
+    const sw = lineupOpts().sw;
+    const rows = prioritize(BEHAVE_CASES.map(c => behaviourFor(c, best, sw)).filter(r => r.changes.length).map(r => Object.assign(r, { id: r.c.id, gain: gainOf(r.changes) })));
+    return accHtml('behave', '🎯 ' + esc(tr('htc_behave')), countSummary(rows),
+      (rows.length ? rows.map(r => caseHtml(r, '<b>' + (r.star ? '⭐ ' : '') + esc(tr('htc_cond_' + r.c.id)) + '</b> <span class="htc-dim">≈ ' + esc(tr('htc_plan_min', { n: r.c.minute })) + '</span>'
+        + r.changes.map(w => '<div class="htc-plan-swap">' + esc(w.p.name) + ' → <b>' + esc(tr('htc_order_' + w.order)) + '</b> <span class="htc-dim">' + esc(posShort(w.pos)) + '</span></div>').join(''))).join('') : '<div class="htc-plan-swap htc-dim">' + esc(tr('htc_behave_none')) + '</div>')
+      + '<p class="htc-note">' + esc(tr('htc_behave_note')) + ' ' + esc(tr('htc_cond_inverse')) + esc(starNote()) + '</p>', !rows.length);
+  }
+
+  // Swapping the positions of two players on the pitch.
+  const SWAP_CASES = BEHAVE_CASES.slice(0, 4).concat([{ id: 'lead3', focus: 'defense3', minute: 65 }], BEHAVE_CASES.slice(4), [{ id: 'trail3', focus: 'attack3', minute: 45 }]);
+  const SWAP_ROLES = ['GK', 'CD', 'WB', 'IM', 'W', 'FW'];
+  // What an opponent losing a player of that role lets us push on.
+  const SWAP_OPP_FOCUS = { GK: 'attack', CD: 'attack', WB: 'attack', W: 'attack', IM: 'mid', FW: 'defense' };
+  const SWAP_MAX = 2;
+  function swapsFor(focus, best, sw) {
+    const out = [];
+    const used = new Set();
+    const at = (p, s) => contrib(p, s.pos, s.side, s.crowd);
+    for (let n = 0; n < SWAP_MAX; n++) {
+      let pick = null;
+      best.slots.forEach((s1, i) => best.slots.forEach((s2, j) => {
+        const a = best.assigned[s1.id], b = best.assigned[s2.id];
+        if (j <= i || !a || !b || s1.pos === 'GK' || s2.pos === 'GK' || used.has(s1.id) || used.has(s2.id)) return;
+        const sum = (x, y) => { const r = {}; SECTORS.forEach(k => { r[k] = x[k] + y[k]; }); return r; };
+        const now = sum(at(a, s1), at(b, s2)), swapped = sum(at(a, s2), at(b, s1));
+        const aim = weigh(swapped, focus, sw) / (weigh(now, focus, sw) || 1) - 1;
+        const bal = weigh(swapped, 'balanced') / (weigh(now, 'balanced') || 1) - 1;
+        const gain = focus === 'balanced' ? aim : aim - bal;
+        if (gain > 0.01 && bal > -0.1 && (!pick || gain > pick.gain)) pick = { s1, s2, a, b, gain };
+      }));
+      if (!pick) break;
+      used.add(pick.s1.id); used.add(pick.s2.id);
+      out.push({ kind: 'swap', a: pick.a, b: pick.b, s1: pick.s1, s2: pick.s2, gain: pick.gain });
+    }
+    return out;
+  }
+  // One of ours is gone (injured or sent off): who covers his place best.
+  function coverFor(role, best) {
+    let lost = null;
+    best.slots.forEach(s => {
+      const p = best.assigned[s.id];
+      if (p && s.pos === role && (!lost || weigh(at2(p, s), 'balanced') > weigh(at2(lost.p, lost.s), 'balanced'))) lost = { s, p };
+    });
+    if (!lost) return [];
+    let pick = null;
+    best.slots.forEach(s => {
+      const q = best.assigned[s.id];
+      if (!q || s.id === lost.s.id || (role !== 'GK' && s.pos === 'GK')) return;
+      const net = weigh(at2(q, lost.s), 'balanced') - weigh(at2(q, s), 'balanced');
+      if (net > 0 && (!pick || net > pick.net)) pick = { q, from: s, net };
+    });
+    return pick ? [{ kind: 'move', gone: lost.p, q: pick.q, from: pick.from, to: lost.s, gain: pick.net / (weigh(at2(lost.p, lost.s), 'balanced') || 1) }] : [];
+  }
+  function at2(p, s) { return contrib(p, s.pos, s.side, s.crowd); }
+  function swapHtml(best) {
+    const sw = lineupOpts().sw;
+    const groups = [];
+    const line = w => w.kind === 'swap'
+      ? '<div class="htc-plan-swap">' + esc(w.a.name) + ' ⇄ <b>' + esc(w.b.name) + '</b> <span class="htc-dim">' + esc(posShort(w.s1.pos) + ' ' + w.s1.side + ' ⇄ ' + posShort(w.s2.pos) + ' ' + w.s2.side) + '</span></div>'
+      : '<div class="htc-plan-swap">' + esc(w.q.name) + ' → <b>' + esc(posShort(w.to.pos) + ' ' + w.to.side) + '</b> <span class="htc-dim">' + esc(tr('htc_swap_instead', { name: w.gone.name })) + '</span></div>';
+    const block = x => caseHtml(x, '<b>' + (x.star ? '⭐ ' : '') + esc(x.title) + '</b>'
+      + (x.minute ? ' <span class="htc-dim">≈ ' + esc(tr('htc_plan_min', { n: x.minute })) + '</span>' : '') + x.items.map(line).join(''));
+    SWAP_CASES.forEach(c => { const r = swapsFor(c.focus, best, sw); if (r.length) groups.push({ id: c.id, title: tr('htc_cond_' + c.id), minute: c.minute, items: r, gain: gainOf(r) }); });
+    SWAP_ROLES.forEach(role => { const r = coverFor(role, best); if (r.length) groups.push({ id: 'own', title: tr('htc_swap_own') + ' · ' + posFull(role), minute: 0, items: r, gain: gainOf(r) }); });
+    SWAP_ROLES.forEach(role => { const r = swapsFor(SWAP_OPP_FOCUS[role], best, sw); if (r.length) groups.push({ id: 'opp', title: tr('htc_swap_opp') + ' · ' + posFull(role), minute: 0, items: r, gain: gainOf(r) }); });
+    const ranked = prioritize(groups);
+    return accHtml('swap', '🔀 ' + esc(tr('htc_swap')), countSummary(ranked),
+      (groups.length ? ranked.map(block).join('') : '<div class="htc-plan-swap htc-dim">' + esc(tr('htc_swap_none')) + '</div>')
+      + '<p class="htc-note">' + esc(tr('htc_swap_note')) + ' ' + esc(tr('htc_cond_inverse')) + esc(starNote()) + '</p>', !groups.length);
+  }
+
+  function attitudeHtml() {
+    const info = attitudeInfo();
+    const top = info.list[0].value || 1;
+    return accHtml('attitude', '🎭 ' + esc(tr('htc_attitude')), '<b>' + esc(tr('htc_att_' + info.top)) + '</b>',
+      '<div class="htc-forms">' + info.list.map(x => '<div class="htc-form-row htc-tactic-row' + (x.t === info.top ? ' on' : '') + '">'
+        + '<span class="htc-form-name">' + (x.t === info.top ? '★ ' : '') + esc(tr('htc_att_' + x.t)) + '</span>'
+        + '<div class="htc-rbar"><div style="width:' + (x.value / top * 100).toFixed(1) + '%"></div></div>'
+        + '<b>' + numFmt(x.value, 0) + '</b></div>').join('') + '</div>'
+      + (info.reasons.length ? '<p class="htc-dim">' + info.reasons.map(esc).join(' · ') + '</p>' : '')
+      + (info.hint ? '<p class="htc-dim">' + esc(tr('htc_att_hint')) + '</p>' : '')
+      + '<p class="htc-note">' + esc(tr('htc_att_note')) + '</p>');
+  }
+
+  // The upcoming match against the opponent read from the match page: when, where and what kind.
+  function nextFixture() {
+    const saved = pages.match && pages.match.data;
+    if (!saved || !saved.opponent) return null;
+    const fixtures = pages.analysis && pages.analysis.data && pages.analysis.data.fixtures;
+    return Array.isArray(fixtures) ? (fixtures.find(f => f.matchId === saved.id) || fixtures.find(f => f.teamId === saved.opponent.id) || null) : null;
+  }
+  function fixtureLine() {
+    const saved = pages.match && pages.match.data, f = nextFixture();
+    const type = saved && Number.isInteger(saved.matchType) ? saved.matchType : (f && Number.isInteger(f.matchType) ? f.matchType : null);
+    const home = saved && typeof saved.mineHome === 'boolean' ? saved.mineHome : (f && typeof f.isHome === 'boolean' ? f.isHome : null);
+    const when = f && f.matchDate ? new Date(f.matchDate) : null;
+    const parts = [];
+    if (when && !isNaN(when)) {
+      try { parts.push(when.toLocaleString(lang(), { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })); } catch (_) { parts.push(when.toISOString().slice(0, 16).replace('T', ' ')); }
+    }
+    if (type !== null && type >= 1 && type <= 12) parts.push(tr('htc_mt_' + type));
+    if (home !== null) parts.push(tr(home ? 'htc_venue_home' : 'htc_venue_away'));
+    return parts.join(' · ');
+  }
+  function opponentHtml(best, profile) {
+    const fixture = pages.match && pages.match.data;
+    if (!fixture || !fixture.opponent) return '';
+    const when = fixtureLine();
+    if (!profile) {
+      return '<section class="htc-card htc-opponent"><div class="htc-card-head"><h3>🎯 ' + esc(tr('htc_page_analysis')) + '</h3></div>'
+        + '<b>' + esc(fixture.opponent.name) + '</b>' + (when ? '<p class="htc-dim">' + esc(when) + '</p>' : '') + '</section>';
+    }
+    const { recent, defence } = profile;
+    const sw = sectorWeights(profile);
+    const R = best.ratings, meanA = meanOf(R.ar, R.ac, R.al) || 1;
+    const chances = ['ar', 'ac', 'al'].map(k => ({ attack: k, edge: (R[k] / meanA * sw[k] - 1) * 100 })).sort((a, b) => b.edge - a.edge);
+    const chance = chances[0];
+    return '<section class="htc-card htc-opponent"><div class="htc-card-head"><h3>🎯 ' + esc(tr('htc_page_analysis')) + '</h3>'
+      + '<span class="htc-dim">' + esc(tr('htc_opponent_last', { n: recent.length })) + '</span></div>'
+      + '<b>' + esc(fixture.opponent.name) + '</b>' + (when ? '<p class="htc-dim">' + esc(when) + '</p>' : '')
+      + '<div class="htc-rgroup">' + ['dr', 'dc', 'dl'].map(k => '<div class="htc-rating"><span>' + esc(tr('htc_sec_' + k)) + '</span><b>' + numFmt(defence[k], 1) + '</b></div>').join('') + '</div>'
+      + '<p class="htc-note">' + esc(tr('htc_opponent_opening')) + ': <b>' + esc(tr('htc_sec_' + chance.attack)) + '</b> '
+      + (chance.edge >= 0 ? '+' : '') + numFmt(chance.edge, 0) + '%</p></section>';
   }
   // The skills that matter in a position, shortest form.
   function slotSkills(p, pos) {
@@ -2143,13 +2777,18 @@
     const l = team.lineup;
     const on = (id, fn) => { const el = root.querySelector('#' + id); if (el) el.onchange = () => { fn(el); saveTeamSoon(); render(); }; };
     on('htc-match', el => { l.match = el.value; });
-    on('htc-formation', el => { l.formation = el.value; });
-    on('htc-focus', el => { l.focus = el.value; });
+
     on('htc-use-trainees', el => { l.useTrainees = el.checked; });
     on('htc-use-strongest', el => { l.useStrongest = el.checked; });
-    on('htc-set-taker', el => { l.setTaker = el.value ? +el.value : null; });
-    root.querySelectorAll('.htc-form-row').forEach(b => {
-      b.onclick = () => { l.formation = b.dataset.f; saveTeamSoon(); render(); };
+    on('htc-use-orders', el => { l.useOrders = el.checked; });
+    on('htc-use-opponent', el => { l.useOpponent = el.checked; l.focus = 'auto'; l.formation = 'auto'; });
+    root.querySelectorAll('details.htc-acc').forEach(d => d.addEventListener('toggle', () => { if (d.open) accOpen.add(d.dataset.acc); else accOpen.delete(d.dataset.acc); }));
+    // Picking what the app would pick anyway keeps it automatic.
+    root.querySelectorAll('.htc-aim-row').forEach(b => {
+      b.onclick = () => { l.focus = b.dataset.aim === autoFocus() ? 'auto' : b.dataset.aim; saveTeamSoon(); render(); };
+    });
+    root.querySelectorAll('button.htc-form-row:not(.htc-aim-row)').forEach(b => {
+      b.onclick = () => { l.formation = b.dataset.top ? 'auto' : b.dataset.f; saveTeamSoon(); render(); };
     });
   }
 
@@ -2243,6 +2882,8 @@
     const order = bestFor(t.type, teamFactor(t)).map(x => x.p.id);
     t.trainees = order.slice(0, n);
     t.cup = order.slice(n, 2 * n);
+    // Arranging the trainees is for using them in the lineup.
+    team.lineup.useTrainees = true;
   }
   // Every training type with the players it would take furthest.
   const BEST_SHOWN = 3;
@@ -2453,12 +3094,6 @@
     const rows = list.map(y => ({ y, v: youthVerdict(y, weakest) }))
       .sort((a, b) => VERDICT_ORDER.indexOf(a.v.v) - VERDICT_ORDER.indexOf(b.v.v) || String(a.y.name).localeCompare(String(b.y.name), lang()));
     const going = rows.filter(r => r.v.v === 'release').length;
-    const SIDE_ORDER = { L: 0, C: 1, R: 2 };
-    const orderLine = l => {
-      const wide = s => s.pos === 'W' || s.pos === 'WB';
-      return l.filter(s => wide(s) && s.side === 'L')
-        .concat(l.filter(s => !wide(s)).sort((a, b) => SIDE_ORDER[a.side] - SIDE_ORDER[b.side]), l.filter(s => wide(s) && s.side === 'R'));
-    };
     const slotHtml = s => {
       const a = best.assigned[s.id];
       if (!a) return '<div class="htc-slot"><span class="htc-slot-pos">' + esc(posShort(s.pos)) + '</span><b>—</b></div>';
@@ -2473,21 +3108,20 @@
         : tr('htc_youth_why_none');
       return '<div class="htc-slot' + (a.why === 'grow' || a.why === 'reveal' || a.why === 'reveal-current' ? ' trainee' : '') + '">'
         + '<span class="htc-slot-pos">' + esc(posShort(s.pos)) + '</span>'
-        + '<b class="htc-yname">' + esc(a.y.name) + '</b>'
+        + '<b class="htc-yname" title="' + esc(a.y.name) + '">' + esc(a.y.name) + '</b>'
         + '<span class="htc-slot-sk" title="' + esc(why) + '">' + (icon ? icon + ' ' : '') + esc(tr('htc_abbr_' + shown) + ' ' + (sk.cur != null ? sk.cur : '?') + '/' + (sk.cap != null ? sk.cap : '?')) + '</span>'
         + '</div>';
     };
-    const line = l => '<div class="htc-line">' + orderLine(l).map(slotHtml).join('') + '</div>';
+    // The same fixed grid as the senior lineup; the places a formation does not use stay empty.
+    const bySlot = Object.fromEntries(best.slots.map(s => [s.id, s]));
+    const line = ids => '<div class="htc-line htc-line-' + ids.length + '">'
+      + ids.map(id => bySlot[id] ? slotHtml(bySlot[id]) : '<div class="htc-slot htc-slot-empty" aria-hidden="true"></div>').join('') + '</div>';
     const inTeam = new Set(Object.values(best.assigned).map(a => a.y.htid));
     const out = list.filter(y => !inTeam.has(y.htid));
 
     return '<section class="htc-card"><div class="htc-grid htc-grid-lineup">'
       + '<div class="htc-field"><span>' + esc(tr('htc_youth_training')) + '</span><b>' + esc(trName(yt && yt.primary)) + '</b></div>'
       + '<div class="htc-field"><span>' + esc(tr('htc_youth_secondary')) + '</span><b>' + esc(trName(yt && yt.secondary)) + '</b></div>'
-      + '<label class="htc-field"><span>' + esc(tr('htc_formation')) + '</span><select class="htc-input" id="htc-y-formation">'
-      + '<option value="auto"' + (f === 'auto' ? ' selected' : '') + '>' + esc(tr('htc_formation_auto')) + '</option>'
-      + FORMATIONS.map(n => '<option value="' + n + '"' + (f === n ? ' selected' : '') + '>' + n + '</option>').join('')
-      + '</select></label>'
       + (nextTraining ? '<p class="htc-note htc-span-all">💡 ' + esc(tr('htc_youth_next_training', { primary: trName(nextTraining.primary), secondary: trName(nextTraining.secondary) })) + '</p>' : '')
       + (yt ? '' : '<p class="htc-dim htc-span-all">' + esc(tr('htc_youth_notrain')) + '</p>')
       + '</div></section>'
@@ -2497,17 +3131,14 @@
       + (best.xp != null ? '<span class="htc-score">' + esc(tr('htc_formation_xp', { n: best.xp })) + '</span>' : '') + '</div>'
       + '<p class="htc-dim htc-yhint">' + esc(tr('htc_youth_lineup_hint')) + '</p>'
       + '<div class="htc-pitch">'
-      + line(best.slots.filter(s => s.pos === 'GK'))
-      + line(best.slots.filter(s => s.pos === 'WB' || s.pos === 'CD'))
-      + line(best.slots.filter(s => s.pos === 'W' || s.pos === 'IM'))
-      + line(best.slots.filter(s => s.pos === 'FW'))
+      + line(['GK-C']) + line(['WB-L', 'CD-L', 'CD-C', 'CD-R', 'WB-R']) + line(['W-L', 'IM-L', 'IM-C', 'IM-R', 'W-R']) + line(['FW-L', 'FW-C', 'FW-R'])
       + '</div>'
       + '<p class="htc-ylegend htc-dim">📈 ' + esc(tr('htc_youth_leg_grow')) + ' · 🔍 ' + esc(tr('htc_youth_leg_reveal')) + ' · ✔ ' + esc(tr('htc_youth_leg_done')) + '</p>'
       + (out.length ? '<div class="htc-bench"><span class="htc-dim">' + esc(tr('htc_not_used')) + ':</span> '
         + out.map(y => '<span class="htc-chip">' + esc(y.name) + '</span>').join('') + '</div>' : '')
       + '</section>'
       + '<div class="htc-col"><section class="htc-card"><h3>' + esc(tr('htc_formations')) + '</h3>'
-      + '<div class="htc-forms">' + all.map((r, i) => '<button class="htc-form-row htc-y-form' + (r.st.name === best.st.name ? ' on' : '') + '" data-f="' + r.st.name + '">'
+      + '<div class="htc-forms">' + all.map((r, i) => '<button class="htc-form-row htc-y-form' + (r.st.name === best.st.name ? ' on' : '') + '" data-f="' + r.st.name + '"' + (i === 0 ? ' data-top="1"' : '') + '>'
         + '<span class="htc-form-name">' + (i === 0 ? '★ ' : '') + r.st.name + '</span>'
         + '<div class="htc-rbar"><div style="width:' + Math.max(0, r.score / all[0].score * 100).toFixed(1) + '%"></div></div>'
         + '<b>' + (r.xp != null ? r.xp + '/10' : '') + '</b></button>').join('') + '</div>'
@@ -2533,9 +3164,8 @@
   }
   function bindYouth() {
     const set = v => { team.youth.formation = v; saveTeamSoon(); render(); };
-    const sel = root.querySelector('#htc-y-formation');
-    if (sel) sel.onchange = () => set(sel.value);
-    root.querySelectorAll('.htc-y-form').forEach(b => { b.onclick = () => set(b.dataset.f); });
+    // The best formation is the automatic choice; picking it goes back to automatic.
+    root.querySelectorAll('.htc-y-form').forEach(b => { b.onclick = () => set(b.dataset.top ? 'auto' : b.dataset.f); });
   }
 
   // Arena ────────────────────────────────────────────────────────────────────
