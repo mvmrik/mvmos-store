@@ -454,6 +454,8 @@ GM.init = function(body) {
     + '</div>'
     + '<div id="gm-content" style="flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative;min-width:0">'
       + '<div id="gm-content-top" style="display:flex;align-items:center;justify-content:flex-end;gap:2px;padding:3px 6px;border-bottom:1px solid var(--border);flex-shrink:0">'
+        + '<button id="gm-term-new" title="' + t('gm_term_new_button') + '" style="background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:4px;display:flex;color:var(--text-dim);font-size:.95rem;line-height:1">&#x2795;</button>'
+        + '<button id="gm-term-text" title="' + t('gm_term_text_button') + '" style="background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:4px;display:flex;color:var(--text-dim);font-size:.95rem;line-height:1">&#x1F4C4;</button>'
         + '<button id="gm-term-dock-bottom" title="' + t('gm_terminal_dock_bottom') + '" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:4px;display:flex;color:var(--text-dim)">' + GM.termDockIcon('bottom') + '</button>'
         + '<button id="gm-term-dock-right" title="' + t('gm_terminal_dock_right') + '" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:4px;display:flex;color:var(--text-dim)">' + GM.termDockIcon('right') + '</button>'
       + '</div>'
@@ -498,6 +500,14 @@ GM.init = function(body) {
     GM.renderTermLayout();
   });
 
+  body.querySelector('#gm-term-new').addEventListener('click', function() {
+    var repo = GM.state.activeRepo;
+    if (!repo || !GM.state.terminals[repo.path]) return;
+    if (!window.confirm(t('gm_term_new_confirm'))) return;
+    GM.closeTerminal(repo.path);
+    GM.renderTermLayout();
+  });
+  body.querySelector('#gm-term-text').addEventListener('click', function() { GM.showTerminalText(); });
   body.querySelector('#gm-term-dock-bottom').addEventListener('click', function() { GM.toggleTermDock('bottom'); });
   body.querySelector('#gm-term-dock-right').addEventListener('click', function() { GM.toggleTermDock('right'); });
   body.querySelector('#gm-term-fab').addEventListener('click', function() { GM.toggleMobileTerm(); });
@@ -668,6 +678,60 @@ GM.connectShell = function(h) {
       ws.close();
     },
   };
+};
+
+// The whole terminal as plain text in an ordinary text box, where selecting
+// and copying work whatever runs in the terminal.
+GM.showTerminalText = function() {
+  var entry = GM.state.activeRepo && GM.state.terminals[GM.state.activeRepo.path];
+  if (!entry) return;
+  var buf = entry.term.buffer.active, lines = [];
+  for (var i = 0; i < buf.length; i++) {
+    var line = buf.getLine(i);
+    if (!line) continue;
+    var text = line.translateToString(true);
+    if (line.isWrapped && lines.length) lines[lines.length - 1] += text;
+    else lines.push(text);
+  }
+  while (lines.length && !lines[lines.length - 1].trim()) lines.pop();
+
+  var ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px';
+  var box = document.createElement('div');
+  box.style.cssText = 'background:var(--bg-card,#161b22);color:var(--text,#c9d1d9);border:1px solid var(--border,#30363d);border-radius:8px;width:min(900px,100%);height:min(640px,100%);display:flex;flex-direction:column;padding:12px;gap:8px';
+  var head = document.createElement('div');
+  head.style.cssText = 'display:flex;align-items:center;gap:8px';
+  var title = document.createElement('strong');
+  title.textContent = t('gm_term_text_title');
+  title.style.cssText = 'flex:1;font-size:.9rem';
+  var copy = document.createElement('button');
+  copy.className = 's-btn';
+  copy.textContent = t('gm_term_text_copy');
+  var close = document.createElement('button');
+  close.className = 's-btn';
+  close.textContent = t('gm_term_text_close');
+  head.appendChild(title); head.appendChild(copy); head.appendChild(close);
+  var ta = document.createElement('textarea');
+  ta.readOnly = true;
+  ta.value = lines.join('\n');
+  ta.style.cssText = 'flex:1;min-height:0;resize:none;background:#0d1117;color:#c9d1d9;border:1px solid var(--border,#30363d);border-radius:4px;padding:8px;font:13px/1.4 Consolas,Menlo,monospace;white-space:pre';
+  box.appendChild(head); box.appendChild(ta);
+  ov.appendChild(box);
+  document.body.appendChild(ov);
+  ta.scrollTop = ta.scrollHeight;
+  function done() { ov.remove(); entry.term.focus(); }
+  close.addEventListener('click', done);
+  ov.addEventListener('mousedown', function(e) { if (e.target === ov) done(); });
+  ov.addEventListener('keydown', function(e) { if (e.key === 'Escape') done(); });
+  copy.addEventListener('click', function() {
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch(e) {}
+    if (!ok && navigator.clipboard) navigator.clipboard.writeText(ta.value).catch(function() {});
+    copy.textContent = t('gm_term_text_copied');
+    setTimeout(function() { copy.textContent = t('gm_term_text_copy'); }, 1500);
+  });
+  ta.focus();
 };
 
 GM.closeTerminal = function(path) {
