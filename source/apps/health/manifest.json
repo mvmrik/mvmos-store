@@ -1,0 +1,18 @@
+{
+  "id": "health",
+  "name": "Health",
+  "icon": "❤️",
+  "category": "Health & Fitness",
+  "tags": [
+    "health",
+    "weight",
+    "blood pressure",
+    "statistics"
+  ],
+  "version": "1.0.0",
+  "description": "One place for your health numbers: weight, blood pressure, water, caffeine and alcohol, with charts and statistics. Add values by hand or let other apps send them once you allow it, plus a public web page.",
+  "entry": "main.js",
+  "public_url": "/pub/health/",
+  "public_directory": true,
+  "min_core_version": "1.9.0"
+}

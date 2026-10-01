@@ -62,6 +62,12 @@
       "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/security-privacy/manifest.json"
     },
     {
+      "id": "health-fitness",
+      "name": "Health & Fitness",
+      "icon": "❤️",
+      "manifest_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/health-fitness/manifest.json"
+    },
+    {
       "id": "utilities",
       "name": "Utilities",
       "icon": "🔧",

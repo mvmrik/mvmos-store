@@ -68,7 +68,7 @@ The one exception is an app that must genuinely reach the system — `subprocess
 
 ### Official Store categories
 
-Use one broad primary category. The official Store currently uses: `Productivity`, `Finance`, `Communication`, `Media`, `Creative`, `Business`, `AI`, `Developer Tools`, `System & Administration`, `Security & Privacy`, `Utilities`, and `Games`.
+Use one broad primary category. The official Store currently uses: `Productivity`, `Finance`, `Communication`, `Media`, `Creative`, `Business`, `AI`, `Developer Tools`, `System & Administration`, `Security & Privacy`, `Health & Fitness`, `Utilities`, and `Games`.
 
 Do not create a narrow category for one app. Put the app in the closest broad category and use `tags` for specific capabilities, topics, or audiences.
 

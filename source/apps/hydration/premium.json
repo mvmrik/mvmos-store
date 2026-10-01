@@ -1,0 +1,10 @@
+{
+  "summary": "Controls the Budget reward for reaching the daily water goal.",
+  "features": [
+    {
+      "title": "Budget reward",
+      "short": "Get paid in your budget for reaching your water goal",
+      "description": "Turn on the Budget integration on the desktop and every Apps Hub profile can choose an amount to add to a Budget category the moment its daily water goal is reached. A profile can also pick a category to take the amount from, or leave it out to only add money. The reward is paid once per day, right when the goal is reached, the profile is told that the amount was added, and the transaction appears in Budget."
+    }
+  ]
+}

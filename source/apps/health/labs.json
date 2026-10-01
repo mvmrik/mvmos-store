@@ -1,0 +1,668 @@
+[
+ {
+  "key": "glucose",
+  "code": "1558-6",
+  "unit": "mmol/L",
+  "units": {
+   "mg/dL": [
+    0.0555,
+    0
+   ]
+  },
+  "hint": [
+   3.9,
+   5.6
+  ],
+  "names": {
+   "bg": "Глюкоза",
+   "en": "Glucose",
+   "de": "Glukose",
+   "es": "Glucosa",
+   "fr": "Glycémie",
+   "ja": "血糖値",
+   "pt-BR": "Glicose",
+   "ru": "Глюкоза",
+   "zh-CN": "血糖"
+  },
+  "aliases": [
+   "Blood sugar",
+   "GLU",
+   "Fasting glucose",
+   "Glucose fasting",
+   "Кръвна захар",
+   "Глюкоза на гладно",
+   "Захар",
+   "Glukose nüchtern",
+   "Glicemia",
+   "Глюкоза натощак",
+   "空腹血糖"
+  ]
+ },
+ {
+  "key": "hba1c",
+  "code": "4548-4",
+  "unit": "%",
+  "units": {
+   "mmol/mol": [
+    0.0915,
+    2.15
+   ]
+  },
+  "hint": [
+   4.0,
+   5.6
+  ],
+  "names": {
+   "bg": "Гликиран хемоглобин (HbA1c)",
+   "en": "Glycated hemoglobin (HbA1c)",
+   "de": "Glykiertes Hämoglobin (HbA1c)",
+   "es": "Hemoglobina glucosilada (HbA1c)",
+   "fr": "Hémoglobine glyquée (HbA1c)",
+   "ja": "ヘモグロビンA1c（HbA1c）",
+   "pt-BR": "Hemoglobina glicada (HbA1c)",
+   "ru": "Гликированный гемоглобин (HbA1c)",
+   "zh-CN": "糖化血红蛋白 (HbA1c)"
+  },
+  "aliases": [
+   "HbA1c",
+   "A1c",
+   "HbA1C",
+   "Hemoglobin A1c",
+   "Glycohemoglobin",
+   "Glycosylated hemoglobin",
+   "Гликозилиран хемоглобин",
+   "Гликолизиран хемоглобин",
+   "HGB A1c",
+   "Гликозилированный гемоглобин"
+  ]
+ },
+ {
+  "key": "chol",
+  "code": "2093-3",
+  "unit": "mmol/L",
+  "units": {
+   "mg/dL": [
+    0.02586,
+    0
+   ]
+  },
+  "hint": [
+   null,
+   5.2
+  ],
+  "names": {
+   "bg": "Общ холестерол",
+   "en": "Total cholesterol",
+   "de": "Gesamtcholesterin",
+   "es": "Colesterol total",
+   "fr": "Cholestérol total",
+   "ja": "総コレステロール",
+   "pt-BR": "Colesterol total",
+   "ru": "Общий холестерин",
+   "zh-CN": "总胆固醇"
+  },
+  "aliases": [
+   "Cholesterol",
+   "CHOL",
+   "TC",
+   "Холестерол",
+   "Cholesterin",
+   "Colesterol",
+   "Холестерин",
+   "Cholestérol",
+   "Total-C"
+  ]
+ },
+ {
+  "key": "ldl",
+  "code": "2089-1",
+  "unit": "mmol/L",
+  "units": {
+   "mg/dL": [
+    0.02586,
+    0
+   ]
+  },
+  "hint": [
+   null,
+   3.0
+  ],
+  "names": {
+   "bg": "LDL холестерол",
+   "en": "LDL cholesterol",
+   "de": "LDL-Cholesterin",
+   "es": "Colesterol LDL",
+   "fr": "Cholestérol LDL",
+   "ja": "LDLコレステロール",
+   "pt-BR": "Colesterol LDL",
+   "ru": "Холестерин ЛПНП",
+   "zh-CN": "低密度脂蛋白胆固醇"
+  },
+  "aliases": [
+   "LDL",
+   "LDL-C",
+   "LDL-Chol",
+   "ЛПНП",
+   "LDL-холестерол",
+   "Bad cholesterol",
+   "Lipoprotein LDL",
+   "LDL-холестерин",
+   "Low-density lipoprotein"
+  ]
+ },
+ {
+  "key": "hdl",
+  "code": "2085-9",
+  "unit": "mmol/L",
+  "units": {
+   "mg/dL": [
+    0.02586,
+    0
+   ]
+  },
+  "hint": null,
+  "names": {
+   "bg": "HDL холестерол",
+   "en": "HDL cholesterol",
+   "de": "HDL-Cholesterin",
+   "es": "Colesterol HDL",
+   "fr": "Cholestérol HDL",
+   "ja": "HDLコレステロール",
+   "pt-BR": "Colesterol HDL",
+   "ru": "Холестерин ЛПВП",
+   "zh-CN": "高密度脂蛋白胆固醇"
+  },
+  "aliases": [
+   "HDL",
+   "HDL-C",
+   "HDL-Chol",
+   "ЛПВП",
+   "HDL-холестерол",
+   "Good cholesterol",
+   "Lipoprotein HDL",
+   "HDL-холестерин",
+   "High-density lipoprotein"
+  ]
+ },
+ {
+  "key": "triglycerides",
+  "code": "2571-8",
+  "unit": "mmol/L",
+  "units": {
+   "mg/dL": [
+    0.01129,
+    0
+   ]
+  },
+  "hint": [
+   null,
+   1.7
+  ],
+  "names": {
+   "bg": "Триглицериди",
+   "en": "Triglycerides",
+   "de": "Triglyzeride",
+   "es": "Triglicéridos",
+   "fr": "Triglycérides",
+   "ja": "中性脂肪（トリグリセリド）",
+   "pt-BR": "Triglicerídeos",
+   "ru": "Триглицериды",
+   "zh-CN": "甘油三酯"
+  },
+  "aliases": [
+   "TG",
+   "TRIG",
+   "TAG",
+   "Triacylglycerol",
+   "Trigliceridi",
+   "Триглицериди",
+   "Triglyceride",
+   "Trigliceridos"
+  ]
+ },
+ {
+  "key": "hemoglobin",
+  "code": "718-7",
+  "unit": "g/L",
+  "units": {
+   "g/dL": [
+    10,
+    0
+   ]
+  },
+  "hint": null,
+  "names": {
+   "bg": "Хемоглобин",
+   "en": "Hemoglobin",
+   "de": "Hämoglobin",
+   "es": "Hemoglobina",
+   "fr": "Hémoglobine",
+   "ja": "ヘモグロビン",
+   "pt-BR": "Hemoglobina",
+   "ru": "Гемоглобин",
+   "zh-CN": "血红蛋白"
+  },
+  "aliases": [
+   "Hb",
+   "HGB",
+   "Hgb",
+   "Haemoglobin",
+   "Хемоглобин (Hb)",
+   "Hämoglobin (Hb)",
+   "Hemoglobin Hb"
+  ]
+ },
+ {
+  "key": "ferritin",
+  "code": "2276-4",
+  "unit": "µg/L",
+  "units": {
+   "ng/mL": [
+    1,
+    0
+   ]
+  },
+  "hint": null,
+  "names": {
+   "bg": "Феритин",
+   "en": "Ferritin",
+   "de": "Ferritin",
+   "es": "Ferritina",
+   "fr": "Ferritine",
+   "ja": "フェリチン",
+   "pt-BR": "Ferritina",
+   "ru": "Ферритин",
+   "zh-CN": "铁蛋白"
+  },
+  "aliases": [
+   "FERR",
+   "Serum ferritin",
+   "Ferritin serum",
+   "Феритин серум",
+   "Ферритин сыворотки"
+  ]
+ },
+ {
+  "key": "iron",
+  "code": "2498-4",
+  "unit": "µmol/L",
+  "units": {
+   "µg/dL": [
+    0.1791,
+    0
+   ]
+  },
+  "hint": null,
+  "names": {
+   "bg": "Желязо",
+   "en": "Iron",
+   "de": "Eisen",
+   "es": "Hierro",
+   "fr": "Fer sérique",
+   "ja": "血清鉄",
+   "pt-BR": "Ferro",
+   "ru": "Железо",
+   "zh-CN": "血清铁"
+  },
+  "aliases": [
+   "Fe",
+   "Serum iron",
+   "Желязо серум",
+   "Железо сыворотки",
+   "Eisen im Serum",
+   "Hierro sérico",
+   "Sérum Fe"
+  ]
+ },
+ {
+  "key": "vitd",
+  "code": "14635-7",
+  "unit": "nmol/L",
+  "units": {
+   "ng/mL": [
+    2.496,
+    0
+   ]
+  },
+  "hint": null,
+  "names": {
+   "bg": "Витамин D (25-OH)",
+   "en": "Vitamin D (25-OH)",
+   "de": "Vitamin D (25-OH)",
+   "es": "Vitamina D (25-OH)",
+   "fr": "Vitamine D (25-OH)",
+   "ja": "ビタミンD（25-OH）",
+   "pt-BR": "Vitamina D (25-OH)",
+   "ru": "Витамин D (25-OH)",
+   "zh-CN": "维生素D（25-OH）"
+  },
+  "aliases": [
+   "25-OH vitamin D",
+   "25(OH)D",
+   "Vit D",
+   "Vitamin D3",
+   "25-hydroxyvitamin D",
+   "25-OH D",
+   "Calcidiol",
+   "Витамин Д",
+   "Витамин D3",
+   "25-OH витамин D"
+  ]
+ },
+ {
+  "key": "b12",
+  "code": "2132-9",
+  "unit": "pmol/L",
+  "units": {
+   "pg/mL": [
+    0.738,
+    0
+   ]
+  },
+  "hint": null,
+  "names": {
+   "bg": "Витамин B12",
+   "en": "Vitamin B12",
+   "de": "Vitamin B12",
+   "es": "Vitamina B12",
+   "fr": "Vitamine B12",
+   "ja": "ビタミンB12",
+   "pt-BR": "Vitamina B12",
+   "ru": "Витамин B12",
+   "zh-CN": "维生素B12"
+  },
+  "aliases": [
+   "B12",
+   "Cobalamin",
+   "Cyanocobalamin",
+   "Кобаламин",
+   "Витамин Б12",
+   "Vit B12",
+   "Cobalamina"
+  ]
+ },
+ {
+  "key": "tsh",
+  "code": "3016-3",
+  "unit": "mIU/L",
+  "units": {
+   "µIU/mL": [
+    1,
+    0
+   ],
+   "mU/L": [
+    1,
+    0
+   ]
+  },
+  "hint": [
+   0.4,
+   4.0
+  ],
+  "names": {
+   "bg": "ТСХ (тиреостимулиращ хормон)",
+   "en": "TSH (thyroid-stimulating hormone)",
+   "de": "TSH (Thyreotropin)",
+   "es": "TSH (tirotropina)",
+   "fr": "TSH (thyréostimuline)",
+   "ja": "TSH（甲状腺刺激ホルモン）",
+   "pt-BR": "TSH (hormônio tireoestimulante)",
+   "ru": "ТТГ (тиреотропный гормон)",
+   "zh-CN": "促甲状腺激素 (TSH)"
+  },
+  "aliases": [
+   "TSH",
+   "Thyrotropin",
+   "Thyreotropin",
+   "Тиреотропин",
+   "ТТГ",
+   "ТСХ",
+   "Тиреостимулиращ хормон",
+   "Thyroid stimulating hormone",
+   "Tirotropina"
+  ]
+ },
+ {
+  "key": "creatinine",
+  "code": "2160-0",
+  "unit": "µmol/L",
+  "units": {
+   "mg/dL": [
+    88.4,
+    0
+   ]
+  },
+  "hint": null,
+  "names": {
+   "bg": "Креатинин",
+   "en": "Creatinine",
+   "de": "Kreatinin",
+   "es": "Creatinina",
+   "fr": "Créatinine",
+   "ja": "クレアチニン",
+   "pt-BR": "Creatinina",
+   "ru": "Креатинин",
+   "zh-CN": "肌酐"
+  },
+  "aliases": [
+   "CREA",
+   "Creat",
+   "Serum creatinine",
+   "Креатинин серум",
+   "Kreatinin im Serum"
+  ]
+ },
+ {
+  "key": "alt",
+  "code": "1742-6",
+  "unit": "U/L",
+  "units": {
+   "µkat/L": [
+    60,
+    0
+   ]
+  },
+  "hint": null,
+  "names": {
+   "bg": "АЛАТ (ALT)",
+   "en": "ALT (alanine aminotransferase)",
+   "de": "ALT (GPT)",
+   "es": "ALT (alanina aminotransferasa)",
+   "fr": "ALAT (ALT)",
+   "ja": "ALT（GPT）",
+   "pt-BR": "ALT (TGP)",
+   "ru": "АЛТ (ALT)",
+   "zh-CN": "谷丙转氨酶 (ALT)"
+  },
+  "aliases": [
+   "ALT",
+   "ALAT",
+   "SGPT",
+   "GPT",
+   "АЛАТ",
+   "АЛТ",
+   "Alanine aminotransferase",
+   "Alanin-Aminotransferase",
+   "TGP",
+   "Аланинаминотрансфераза"
+  ]
+ },
+ {
+  "key": "ast",
+  "code": "1920-8",
+  "unit": "U/L",
+  "units": {
+   "µkat/L": [
+    60,
+    0
+   ]
+  },
+  "hint": null,
+  "names": {
+   "bg": "АСАТ (AST)",
+   "en": "AST (aspartate aminotransferase)",
+   "de": "AST (GOT)",
+   "es": "AST (aspartato aminotransferasa)",
+   "fr": "ASAT (AST)",
+   "ja": "AST（GOT）",
+   "pt-BR": "AST (TGO)",
+   "ru": "АСТ (AST)",
+   "zh-CN": "谷草转氨酶 (AST)"
+  },
+  "aliases": [
+   "AST",
+   "ASAT",
+   "SGOT",
+   "GOT",
+   "АСАТ",
+   "АСТ",
+   "Aspartate aminotransferase",
+   "Aspartat-Aminotransferase",
+   "TGO",
+   "Аспартатаминотрансфераза"
+  ]
+ },
+ {
+  "key": "crp",
+  "code": "1988-5",
+  "unit": "mg/L",
+  "units": {
+   "mg/dL": [
+    10,
+    0
+   ]
+  },
+  "hint": null,
+  "names": {
+   "bg": "С-реактивен протеин (CRP)",
+   "en": "C-reactive protein (CRP)",
+   "de": "C-reaktives Protein (CRP)",
+   "es": "Proteína C reactiva (PCR)",
+   "fr": "Protéine C-réactive (CRP)",
+   "ja": "C反応性蛋白（CRP）",
+   "pt-BR": "Proteína C reativa (PCR)",
+   "ru": "С-реактивный белок (СРБ)",
+   "zh-CN": "C反应蛋白 (CRP)"
+  },
+  "aliases": [
+   "CRP",
+   "hs-CRP",
+   "PCR",
+   "СРБ",
+   "СРП",
+   "С-реактивен протеин",
+   "Високочувствителен CRP",
+   "C-Reactive Protein",
+   "CRP hs"
+  ]
+ },
+ {
+  "key": "uric",
+  "code": "3084-1",
+  "unit": "µmol/L",
+  "units": {
+   "mg/dL": [
+    59.48,
+    0
+   ]
+  },
+  "hint": null,
+  "names": {
+   "bg": "Пикочна киселина",
+   "en": "Uric acid",
+   "de": "Harnsäure",
+   "es": "Ácido úrico",
+   "fr": "Acide urique",
+   "ja": "尿酸",
+   "pt-BR": "Ácido úrico",
+   "ru": "Мочевая кислота",
+   "zh-CN": "尿酸"
+  },
+  "aliases": [
+   "Urate",
+   "UA",
+   "URIC",
+   "Уринна киселина",
+   "Мочевая",
+   "Harnsäure im Serum"
+  ]
+ },
+ {
+  "key": "wbc",
+  "code": "6690-2",
+  "unit": "×10⁹/L",
+  "units": {
+   "G/L": [
+    1,
+    0
+   ],
+   "K/µL": [
+    1,
+    0
+   ],
+   "/µL": [
+    0.001,
+    0
+   ]
+  },
+  "hint": null,
+  "names": {
+   "bg": "Левкоцити (WBC)",
+   "en": "White blood cells (WBC)",
+   "de": "Leukozyten (WBC)",
+   "es": "Leucocitos (WBC)",
+   "fr": "Globules blancs (WBC)",
+   "ja": "白血球（WBC）",
+   "pt-BR": "Leucócitos (WBC)",
+   "ru": "Лейкоциты (WBC)",
+   "zh-CN": "白细胞 (WBC)"
+  },
+  "aliases": [
+   "WBC",
+   "Leukocytes",
+   "Leucocytes",
+   "Левкоцити",
+   "Лейкоциты",
+   "Leukos",
+   "White cells"
+  ]
+ },
+ {
+  "key": "platelets",
+  "code": "777-3",
+  "unit": "×10⁹/L",
+  "units": {
+   "G/L": [
+    1,
+    0
+   ],
+   "K/µL": [
+    1,
+    0
+   ],
+   "/µL": [
+    0.001,
+    0
+   ]
+  },
+  "hint": null,
+  "names": {
+   "bg": "Тромбоцити (PLT)",
+   "en": "Platelets (PLT)",
+   "de": "Thrombozyten (PLT)",
+   "es": "Plaquetas (PLT)",
+   "fr": "Plaquettes (PLT)",
+   "ja": "血小板（PLT）",
+   "pt-BR": "Plaquetas (PLT)",
+   "ru": "Тромбоциты (PLT)",
+   "zh-CN": "血小板 (PLT)"
+  },
+  "aliases": [
+   "PLT",
+   "Thrombocytes",
+   "Тромби",
+   "Тромбоцити",
+   "Blood platelets"
+  ]
+ }
+]

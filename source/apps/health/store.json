@@ -1,0 +1,35 @@
+{
+  "tagline": "All your health numbers in one place, with charts.",
+  "description": "Health gathers the numbers that describe your day in one app, in the spirit of a health dashboard. It starts with weight, blood pressure, water, caffeine and alcohol, plus laboratory tests, and it is built so more metrics can join later.\n\nEvery metric has its own page with a chart, a choice of the last 7, 30, 90 days or the whole year, statistics such as the average, lowest, highest and change, and the list of entries. Tap a point of a chart to read that day. Weight and blood pressure are moments you add by hand at any date and time, with an optional note and pulse; blood pressure is also grouped into normal, elevated and high ranges. Water, caffeine and alcohol are daily totals, and every day adds up your own amount together with what other apps send.\n\nLab tests are kept by kind of test, not by lab. Every test is known by several names and abbreviations, so typing Hemoglobin, Hb or HGB finds the same one, and a name your lab writes differently can be added as your own. Each test shows a code that you can change, results can be entered in any common unit and are converted, and every result keeps the reference range printed on your own lab form, so it is marked low, in range or high by that range. You can also create tests of your own with a name in each language. A lab report saved as a PDF with selectable text can be imported: the results Health recognizes are offered for confirmation and everything else can be corrected by hand, and the file is read in your browser and is never uploaded. Laboratories you have used are offered as a list. Lab values are for information only.\n\nOther apps can send their data to Health, but only when you allow it: each app has its own switch, off by default. Hydration is the first one, and sends your daily water, caffeine and alcohol. Values from an app are shown with the app's name and can be changed only in that app; your own manual amounts are yours to edit or delete. Weight can be shown in kilograms or pounds and volume in millilitres or ounces, and dates and times follow your regional settings. The same data is on your Apps Hub public page, so you can add a measurement from your phone.",
+  "capabilities": [
+    "Weight, blood pressure (with optional pulse), water, caffeine and alcohol, each with its own page.",
+    "Lab tests with international codes, several known names per test, your own extra names, unit conversion and the reference range from each lab form.",
+    "Import a lab report from a PDF read in your browser: recognized results are confirmed first, the rest can be edited.",
+    "Charts for 7, 30, 90 days or a year with a readout of any point, plus averages, lowest, highest and change.",
+    "Blood pressure categories with a summary of how the readings were distributed.",
+    "Add, edit and delete values by hand, at any date and time.",
+    "Daily totals combine your own amount with the amounts sent by apps, and show where each one came from.",
+    "Kilograms or pounds, millilitres or ounces.",
+    "Public web page for your Apps Hub account.",
+    "External API: scripts and other apps can record weight, blood pressure, daily totals and lab results and read series, lab tests and the overview, once you allow it in Settings.",
+    "Built to grow: new metrics are added in one place and appear in the app and the API."
+  ],
+  "integrations": [
+    {
+      "app": "hydration",
+      "name": "Hydration",
+      "kind": "app_api",
+      "direction": "provides",
+      "summary": "Hydration can send each profile's daily water, caffeine and alcohol to Health. Every profile switches it on in Hydration, it is off by default, and Hydration then keeps the last 90 days up to date whenever a drink is logged, changed or deleted.",
+      "requires": "Health installed and its App API enabled in Apps Hub → Settings → App APIs."
+    },
+    {
+      "app": "",
+      "name": "Any app",
+      "kind": "app_api",
+      "direction": "provides",
+      "summary": "Health exposes an app-to-app API: other apps can record weight, blood pressure and daily totals of water, caffeine and alcohol for a profile, always marked with the name of the app that sent them, and read the same data back.",
+      "requires": "The Health App API has to be switched on in Apps Hub → Settings → App APIs. It is off by default."
+    }
+  ]
+}

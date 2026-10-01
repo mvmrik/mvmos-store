@@ -18,6 +18,8 @@
   const GAME_ID = 'igpcalculator';
   const API = '/pub/igpcalculator';
   const HUB_URL = '/pub/gamehub/?game=' + GAME_ID;
+  const importScript = new URL('import.js', document.currentScript?.src || location.origin + '/apps/igpcalculator/mp.js');
+  importScript.searchParams.set('v', '20260930-progress');
 
   function tr(k, vars) {
     let s = window.t ? window.t(k) : k;
@@ -119,10 +121,10 @@
   function fmt(d, v) { return Number(v).toFixed(d.dec) + d.unit; }
 
   function defaultSetup() { return Object.fromEntries(SETUP.map(d => [d.key, middle(d)])); }
-  function emptyTyres() { return Object.fromEntries(ALL_TYRES.map(t => [t, { fuel: null, wear: null, coef: DEFAULT_COEF }])); }
+  function emptyTyres() { return Object.fromEntries(ALL_TYRES.map(t => [t, { fuel: null, wear: null, time: null, coef: DEFAULT_COEF }])); }
   function newCar(driver) {
     return { setup: defaultSetup(), tyres: emptyTyres(), pick: null,
-      driver: driver ? driver.id : null, driverName: driver ? driver.name : '' };
+      driver: driver ? driver.id : null, driverName: driver ? driver.name : '', igpDriverId: driver?.igp_id || null };
   }
 
   function cleanSetup(s) {
@@ -135,7 +137,7 @@
     const out = emptyTyres();
     if (ty && typeof ty === 'object') ALL_TYRES.forEach(t => {
       const x = ty[t] || {};
-      out[t] = { fuel: num(x.fuel), wear: num(x.wear), coef: x.coef === undefined ? DEFAULT_COEF : num(x.coef) };
+      out[t] = { fuel: num(x.fuel), wear: num(x.wear), time: num(x.time), coef: x.coef === undefined ? DEFAULT_COEF : num(x.coef) };
     });
     return out;
   }
@@ -155,7 +157,11 @@
   function cleanCar(c) {
     return { setup: cleanSetup(c && c.setup), tyres: cleanTyres(c && c.tyres), pick: (c && c.pick) || null,
       driver: (c && c.driver) || null, driverName: (c && typeof c.driverName === 'string') ? c.driverName : '',
-      actual: cleanActual(c && c.actual), planned: cleanPlanned(c && c.strategy), learn: cleanLearn(c && c.learn) };
+      actual: cleanActual(c && c.actual), planned: cleanPlanned(c && c.strategy), learn: cleanLearn(c && c.learn),
+      igpDriverId: c?.igpDriverId || null, igpResultId: c?.igpResultId || null,
+      setupMissing: !!(c?.setupMissing || (c?.igpDriverId && !c.setup)),
+      practice: Array.isArray(c?.practice) ? c.practice : [], report: Array.isArray(c?.report) ? c.report : [],
+      position: num(c?.position), finish: c?.finish || '', bestLap: num(c?.bestLap) };
   }
   // Where the car's race coefficients came from, for the line above the strategy.
   function cleanLearn(l) {
@@ -219,6 +225,7 @@
     c.pick = null;
     c.planned = null;
     c.learn = null;
+    c.practice = []; c.report = []; c.position = null; c.finish = ''; c.bestLap = null; c.igpResultId = null;
     return c;
   }
 
@@ -326,7 +333,8 @@
 
     const capacity = combo.reduce((s, t) => s + data[t].maxLaps, 0);
 
-    return { combo, stintLaps: laps, totalFuel: fuel, nPits: n - 1, score, capacity };
+    const drivingTime = combo.every(t => data[t].time > 0) ? laps.reduce((sum, l, i) => sum + l * data[combo[i]].time, 0) : null;
+    return { combo, stintLaps: laps, totalFuel: fuel, nPits: n - 1, score, capacity, drivingTime };
   }
 
   function tyreData(tyres, minLife) {
@@ -370,8 +378,10 @@
     }
     buildCombos([], total);
 
+    const timed = readyTyres.every(t => d[t].time > 0);
     all.sort((a, b) => {
       if (a.nPits !== b.nPits) return a.nPits - b.nPits;
+      if (timed && a.drivingTime !== b.drivingTime) return a.drivingTime - b.drivingTime;
       if (a.totalFuel !== b.totalFuel) return a.totalFuel - b.totalFuel;
       return a.score - b.score;
     });
@@ -425,6 +435,7 @@
   let saving = false;
   let driverDraft = null;     // the driver being edited
   let loadCar = 0;            // the car the "load from a race" list fills
+  let importBusy = false, importPlan = null, importStatus = '', importError = '', importSteps = [], importExpected = 4;
 
   const driverById = id => drivers.find(d => d.id === id) || null;
   const seatOf = n => drivers.find(d => d.car === n) || null;
@@ -457,6 +468,7 @@
 
   function serialize(dr) {
     return {
+      igpRaceId: dr.igpRaceId || null,
       laps: dr.laps, reserve: dr.reserve, minLife: dr.minLife, rain: !!dr.rain, notes: dr.notes || '',
       cars: dr.cars.filter(Boolean).map(c => {
         const res = strategies(c.tyres, dr.laps, dr.reserve, dr.minLife, dr.rain);
@@ -464,6 +476,9 @@
         return {
           driver: c.driver || null, driverName: driverName(c),
           setup: c.setup, tyres: c.tyres, pick: c.pick, actual: c.actual,
+          igpDriverId: c.igpDriverId || null, igpResultId: c.igpResultId || null,
+          setupMissing: !!c.setupMissing, practice: c.practice || [], report: c.report || [],
+          position: c.position ?? null, finish: c.finish || '', bestLap: c.bestLap ?? null,
           strategy: chosen ? { combo: chosen.combo, stintLaps: chosen.stintLaps,
             totalFuel: chosen.totalFuel, nPits: chosen.nPits } : null,
         };
@@ -493,6 +508,7 @@
     const cars = Array.isArray(d.cars) && d.cars.length ? d.cars.slice(0, 2).map(cleanCar) : [newCar()];
     return {
       id: r.id, track: r.track, race_date: r.race_date,
+      igpRaceId: r.igp_id || d.igpRaceId || null,
       laps: num(d.laps) || (TRACK[r.track] ? TRACK[r.track].laps : 50),
       reserve: d.reserve == null ? 1 : num(d.reserve),
       minLife: d.minLife == null ? 50 : num(d.minLife),
@@ -521,6 +537,7 @@
   }
 
   function draw() {
+    if (view === 'import') return renderImport();
     if (view === 'pick') return renderPicker();
     if (view === 'edit') return renderEditor();
     if (view === 'load') return renderLoad();
@@ -530,7 +547,7 @@
   }
 
   function tyreChip(t, size) {
-    return '<span class="igp-tyre igp-tyre-' + (size || 'sm') + '" style="--ring:' + TYRE_RING[t] + '">' + t + '</span>';
+    return '<span class="igp-tyre igp-tyre-' + (size || 'sm') + '" style="--ring:' + (TYRE_RING[t] || '#888') + '">' + esc(t) + '</span>';
   }
   function comboHtml(combo, size) {
     return combo.map(t => tyreChip(t, size)).join('<span class="igp-arrow">→</span>');
@@ -577,17 +594,21 @@
       + '</div>'
       + '<div class="igp-list-head"><h2>' + esc(tr('igp_my_races')) + '</h2>'
       + '<div class="igp-list-tools">'
+      + (window.mvmOS?.extension?.active ? '<button class="igp-btn igp-primary" id="igp-import">⚡ ' + esc(tr('igp_import')) + '</button>' : '')
       + '<button class="igp-btn igp-ghost" id="igp-drivers">👤 ' + esc(tr('igp_drivers')) + '</button>'
       + (usedTracks.length > 1 ? '<select class="igp-input igp-filter" id="igp-filter"><option value="">' + esc(tr('igp_all_tracks')) + '</option>'
         + usedTracks.map(t => '<option value="' + t.key + '"' + (filter === t.key ? ' selected' : '') + '>' + t.flag + ' ' + esc(trackName(t.key)) + '</option>').join('')
         + '</select>' : '')
       + '</div></div>'
+      + (banner ? '<div class="igp-banner igp-banner-' + banner.kind + '">' + esc(banner.text) + '</div>' : '')
       + body
       + '</div></div>';
 
     root.querySelector('#igp-exit').onclick = exit;
     root.querySelector('#igp-new').onclick = () => { view = 'pick'; render(); };
     root.querySelector('#igp-drivers').onclick = () => { view = 'drivers'; render(); };
+    const imp = root.querySelector('#igp-import');
+    if (imp) imp.onclick = startImport;
     const f = root.querySelector('#igp-filter');
     if (f) f.onchange = () => { filter = f.value; render(); };
     root.querySelectorAll('.igp-race').forEach(b => {
@@ -676,6 +697,7 @@
       const car = src ? carryCar(src) : newCar();
       car.driver = drv ? drv.id : null;
       car.driverName = drv ? drv.name : '';
+      car.igpDriverId = drv?.igp_id || null;
       applyLearned(car);
       return car;
     });
@@ -745,7 +767,7 @@
       + (activeCar === 1 ? '<button class="igp-link" id="igp-copy1">' + esc(tr('igp_copy_car1')) + '</button>' : '')
       + '<button class="igp-link" id="igp-reset">' + esc(tr('igp_reset_setup')) + '</button>'
       + '</div></div>'
-      + '<div class="igp-sliders">' + SETUP.map(d => sliderHtml(d, car.setup[d.key])).join('') + '</div>'
+      + (car.setupMissing ? '<p class="igp-note">' + esc(tr('igp_import_no_setup')) + '</p>' : '<div class="igp-sliders">' + SETUP.map(d => sliderHtml(d, car.setup[d.key])).join('') + '</div>')
       + (activeCar === 1 ? '<button class="igp-link igp-danger" id="igp-rm-car">' + esc(tr('igp_remove_car2')) + '</button>' : '')
       + '</section>'
 
@@ -761,7 +783,9 @@
       + '<div class="igp-grid2 igp-grid2-keep">'
       + tyreField('fuel', 'igp_fuel_lap', car.tyres[activeTyre].fuel, 0.1)
       + tyreField('wear', 'igp_wear_lap', car.tyres[activeTyre].wear, 0.1)
+      + tyreField('time', 'igp_lap_seconds', car.tyres[activeTyre].time, 0.001)
       + '</div>'
+      + practiceHtml(car)
       + (WET.includes(activeTyre) ? '<p class="igp-note">' + esc(tr('igp_wet_note')) + '</p>' : '')
       + '</section>'
       // Strategy
@@ -875,6 +899,7 @@
           + '<span class="igp-combo">' + comboHtml(s.combo, 'sm') + '</span>'
           + '<span class="igp-dim igp-nowrap">' + esc(pitsLabel(s.nPits)) + '</span>'
           + '<span class="igp-fuel igp-nowrap">' + s.totalFuel + ' ' + esc(tr('igp_fuel_unit')) + '</span>'
+          + (s.drivingTime != null ? '<span class="igp-dim" title="' + esc(tr('igp_driving_time')) + '">⏱ ' + esc(formatTime(s.drivingTime)) + '</span>' : '')
           + '<span class="igp-chev' + (open ? ' open' : '') + '">▾</span>'
           + '</div>'
           + (open ? '<div class="igp-stints">' + s.combo.map((ty, si) => {
@@ -1035,6 +1060,7 @@
       const d = id ? driverById(id) : null;
       if (id && !d) return;
       car.driver = id; car.driverName = d ? d.name : '';
+      car.igpDriverId = d?.igp_id || null;
       // A race not saved yet follows the new driver's own race wear.
       if (!draft.id) applyLearned(car);
       render();
@@ -1046,8 +1072,8 @@
       draft.cars[1] = null; activeCar = 0; render();
     };
     const cp = $('#igp-copy1');
-    if (cp) cp.onclick = () => { car.setup = Object.assign({}, draft.cars[0].setup); render(); };
-    $('#igp-reset').onclick = () => { car.setup = defaultSetup(); render(); };
+    if (cp) cp.onclick = () => { car.setup = Object.assign({}, draft.cars[0].setup); car.setupMissing = !!draft.cars[0].setupMissing; render(); };
+    $('#igp-reset').onclick = () => { car.setup = defaultSetup(); car.setupMissing = false; render(); };
 
     root.querySelectorAll('.igp-tyre-tab').forEach(b => {
       b.onclick = () => { activeTyre = b.dataset.tyre; render(); };
@@ -1150,7 +1176,7 @@
         const src = r && r.data && r.data.cars && r.data.cars[+b.dataset.car];
         if (!src) return;
         const c = carryCar(src);
-        car.setup = c.setup; car.tyres = c.tyres; car.pick = null;
+        car.setup = c.setup; car.setupMissing = c.setupMissing; car.tyres = c.tyres; car.pick = null;
         applyLearned(car);
         banner = { kind: 'info', text: tr('igp_loaded', { n: loadCar + 1, date: fmtDate(r.race_date) }) };
         activeCar = loadCar; openAccords = new Set();
@@ -1328,6 +1354,107 @@
     }
   }
 
+  function formatTime(seconds) {
+    if (!(seconds > 0)) return '—';
+    const ms = Math.round(seconds * 1000), minutes = Math.floor(ms / 60000);
+    return minutes + ':' + String(Math.floor(ms / 1000) % 60).padStart(2, '0') + '.' + String(ms % 1000).padStart(3, '0');
+  }
+  function practiceHtml(car) {
+    if (!car.practice?.length) return '';
+    return '<details class="igp-history"><summary>' + esc(tr('igp_test_history')) + '</summary><div class="igp-table-wrap"><table class="igp-import-table"><thead><tr>'
+      + ['igp_lap', 'igp_tyre', 'igp_time', 'igp_fuel_lap', 'igp_wear_lap', 'igp_s_ride', 'igp_s_susp', 'igp_wing'].map(k => '<th>' + esc(tr(k)) + '</th>').join('')
+      + '</tr></thead><tbody>' + car.practice.map(p => '<tr><td>' + esc(p.lap) + '</td><td>' + tyreChip(p.tyre) + '</td><td>' + esc(formatTime(p.time)) + '</td><td>'
+        + esc(p.fuel) + '</td><td>' + esc(p.wear) + '%</td><td>' + esc(p.setup?.ride) + '</td><td>' + esc(p.setup?.susp) + '</td><td>' + esc(p.setup?.wing) + '°</td></tr>').join('')
+      + '</tbody></table></div></details>';
+  }
+  async function startImport() {
+    if (importBusy) return;
+    const ext = window.mvmOS?.extension;
+    importError = ''; importPlan = null; importSteps = []; importExpected = 4; view = 'import';
+    if (!ext?.active || !/(^|\.)igpmanager\.com$/.test(ext.context?.hostname || '')) {
+      importError = tr('igp_import_open'); render(); return;
+    }
+    importBusy = true; importStatus = tr('igp_import_reading'); render();
+    try {
+      if (!window.IGPImport) await new Promise((resolve, reject) => {
+        const script = document.createElement('script'); script.src = importScript.href;
+        script.onload = resolve; script.onerror = () => { script.remove(); reject(new Error('script')); };
+        document.head.appendChild(script);
+      });
+      importPlan = await window.IGPImport.collect(ext, (e) => {
+        importExpected = e.expected; importStatus = tr(e.label);
+        const last = importSteps[importSteps.length - 1];
+        if (e.state === 'reading') importSteps.push({ label: e.label, info: e.info || '', state: 'reading' });
+        else if (last) last.state = e.state;
+        render();
+      });
+      importPlan.races.forEach(r => { r.selected = true; });
+      if (!importPlan.drivers.length && !importPlan.races.length) importError = tr('igp_import_failed');
+    } catch (_) { importError = tr('igp_import_failed'); }
+    importBusy = false; render();
+  }
+  function importStepsHtml() {
+    const icon = { reading: '⏳', ok: '✅', failed: '⚠️' };
+    const done = importSteps.filter(x => x.state !== 'reading').length;
+    const total = importBusy ? Math.max(importExpected, importSteps.length) : importSteps.length;
+    return '<section class="igp-card igp-imp-steps" role="status"><div class="igp-card-head"><h3>' + esc(tr('igp_import_pages')) + '</h3>'
+      + '<span class="igp-dim">' + done + ' / ' + total + '</span></div>'
+      + '<div class="igp-progress"><i style="width:' + Math.round(100 * done / Math.max(1, total)) + '%"></i></div>'
+      + importSteps.map(x => '<div class="igp-imp-step igp-imp-' + x.state + '">' + icon[x.state] + ' <b>' + esc(tr(x.label)) + '</b>'
+        + (x.info ? ' <span class="igp-dim">' + esc(x.info) + '</span>' : '') + '</div>').join('')
+      + (importBusy && importStatus === tr('igp_saving') ? '<div class="igp-imp-step">⏳ ' + esc(importStatus) + '</div>' : '')
+      + '</section>';
+  }
+  function renderImport() {
+    root.innerHTML = '<div class="igp-page"><div class="igp-wrap"><div class="igp-top">'
+      + '<button class="igp-btn igp-ghost" id="igp-import-back"' + (importBusy ? ' disabled' : '') + '>‹ ' + esc(tr('igp_back')) + '</button>'
+      + '<div class="igp-top-title">' + esc(tr('igp_import')) + '</div><span></span></div>'
+      + (importBusy || importSteps.length ? importStepsHtml() : '')
+      + (importError ? '<div class="igp-banner igp-banner-warn" role="alert">' + esc(importError) + '</div>' : '')
+      + (importPlan ? '<p class="igp-note">' + esc(tr('igp_import_preview')) + '</p>'
+        + (importPlan.warnings.length ? '<div class="igp-banner igp-banner-warn">' + esc(tr('igp_import_partial')) + ' ' + [...new Set(importPlan.warnings)].map(k => esc(tr(k))).join(', ') + '</div>' : '')
+        + '<section class="igp-card"><h3>' + esc(tr('igp_drivers')) + '</h3>'
+        + importPlan.drivers.map(d => '<p>' + esc(d.name) + ' · iGP ' + esc(d.igp_id) + (d.car ? ' · ' + esc(tr('igp_car', { n: d.car })) : '') + '</p>').join('') + '</section>'
+        + importPlan.races.map((r, i) => {
+          const existing = races.find(x => x.igp_id === r.igpRaceId || x.data?.igpRaceId === r.igpRaceId);
+          if (existing && !r.race_date) r.race_date = existing.race_date;
+          if (existing && !r.laps) r.laps = existing.data.laps;
+          return '<section class="igp-card"><div class="igp-card-head"><h3><label><input type="checkbox" data-import-select="' + i + '"' + (r.selected ? ' checked' : '') + '> '
+            + esc(tr(r.kind === 'next' ? 'igp_import_next' : 'igp_import_previous')) + ' · ' + esc(trackName(r.track)) + ' · iGP ' + esc(r.igpRaceId) + '</label></h3></div>'
+            + '<div class="igp-grid2"><label class="igp-field"><span>' + esc(tr('igp_date')) + '</span><input type="date" class="igp-input" data-import-date="' + i + '" value="' + esc(r.race_date) + '"></label>'
+            + '<label class="igp-field"><span>' + esc(tr('igp_total_laps')) + '</span><input type="number" min="1" max="200" class="igp-input" data-import-laps="' + i + '" value="' + (r.laps || '') + '"></label></div>'
+            + ((!r.race_date || !r.laps) ? '<p class="igp-note">' + esc(tr('igp_import_date')) + (r.start ? ' ' + esc(r.start) : '') + '</p>' : '')
+            + '<label class="igp-field"><span>' + esc(tr('igp_import_merge')) + '</span><select class="igp-input" data-import-id="' + i + '"' + (existing ? ' disabled' : '') + '><option value="">' + esc(tr(existing ? 'igp_import_update' : 'igp_import_create')) + '</option>'
+            + races.filter(x => x.track === r.track && !x.igp_id && !x.data?.igpRaceId).map(x => '<option value="' + x.id + '"' + (r.id === x.id ? ' selected' : '') + '>' + esc(fmtDate(x.race_date)) + ' · ' + esc(x.data?.cars?.map(c => c.driverName).join(', ')) + '</option>').join('') + '</select></label>'
+            + r.cars.map(c => '<h4>' + esc(c.driverName) + '</h4>' + (c.practice ? practiceHtml(c) : '')
+              + (c.setup ? '<p class="igp-note">' + SETUP.filter(d => c.setup[d.key] != null).map(d => esc(tr('igp_s_' + d.key)) + ': ' + esc(fmt(d, c.setup[d.key]))).join(' · ') + '</p>' : '')
+              + (c.actual ? '<p>' + comboHtml(c.actual.stints.map(s => s.tyre)) + '</p><p class="igp-note">' + esc(tr('igp_import_stints', { laps: c.actual.stints.map(s => s.lap).join(', '), fuel: c.actual.startFuel })) + '</p>' : '')).join('') + '</section>';
+        }).join('')
+        + '<button class="igp-btn igp-primary" id="igp-import-save"' + (importBusy || loadError ? ' disabled' : '') + '>' + esc(tr(importBusy ? 'igp_saving' : 'igp_import_apply')) + '</button>' : '')
+      + (!importBusy ? '<button class="igp-btn igp-ghost" id="igp-import-retry">' + esc(tr('igp_import')) + '</button>' : '') + '</div></div>';
+    root.querySelector('#igp-import-back').onclick = () => { view = 'list'; render(); };
+    const retry = root.querySelector('#igp-import-retry'); if (retry) retry.onclick = startImport;
+    root.querySelectorAll('[data-import-select]').forEach(el => { el.onchange = () => { importPlan.races[+el.dataset.importSelect].selected = el.checked; }; });
+    root.querySelectorAll('[data-import-date]').forEach(el => { el.onchange = () => { importPlan.races[+el.dataset.importDate].race_date = el.value; }; });
+    root.querySelectorAll('[data-import-laps]').forEach(el => { el.oninput = () => { importPlan.races[+el.dataset.importLaps].laps = num(el.value); }; });
+    root.querySelectorAll('[data-import-id]').forEach(el => { el.onchange = () => { importPlan.races[+el.dataset.importId].id = num(el.value); }; });
+    const save = root.querySelector('#igp-import-save'); if (save) save.onclick = applyImport;
+  }
+  async function applyImport() {
+    if (importBusy || !importPlan) return;
+    const selected = importPlan.races.filter(r => r.selected);
+    if (selected.some(r => !/^\d{4}-\d{2}-\d{2}$/.test(r.race_date) || !Number.isInteger(r.laps) || r.laps < 1 || r.laps > 200)) {
+      importError = tr('igp_import_date'); render(); return;
+    }
+    importBusy = true; importError = ''; importStatus = tr('igp_saving'); render();
+    try {
+      const result = await api('POST', '/import', { drivers: importPlan.drivers, races: selected });
+      drivers = result.drivers; races = result.races;
+      importPlan = null; view = 'list'; banner = { kind: 'ok', text: tr('igp_import_saved') };
+    } catch (_) { importError = tr('igp_save_error'); }
+    importBusy = false; render();
+  }
+
   // ── Game Hub hooks ─────────────────────────────────────────────────────────
   // Nothing to set up and nobody to wait for, so the lobby is skipped: the
   // host's own start request goes out as soon as the lobby shows.
@@ -1353,6 +1480,7 @@
   }
 
   mp.on('room_closed', () => { location.href = HUB_URL; });
+  window.mvmOS?.extension?.onContext(() => { if (root && view === 'list') render(); });
 
   window.addEventListener('beforeunload', e => {
     if (view === 'edit' && dirty()) { e.preventDefault(); e.returnValue = ''; }

@@ -66,6 +66,17 @@ def _connect():
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA busy_timeout=5000")
     conn.executescript(_SCHEMA)
+    for table in ("drivers", "races"):
+        columns = {r["name"] for r in conn.execute(f"PRAGMA table_info({table})")}
+        if "igp_id" not in columns:
+            try:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN igp_id INTEGER")
+            except sqlite3.OperationalError:
+                # Another request may have completed this migration first.
+                if "igp_id" not in {r["name"] for r in conn.execute(f"PRAGMA table_info({table})")}:
+                    raise
+        conn.execute(f"CREATE UNIQUE INDEX IF NOT EXISTS idx_igp_{table}_external ON {table}(player_id, igp_id)")
+    conn.commit()
     return conn
 
 
@@ -82,7 +93,7 @@ def _row(r) -> dict:
     except Exception:
         data = {}
     return {"id": r["id"], "track": r["track"], "race_date": r["race_date"],
-            "data": data, "updated_at": r["updated_at"]}
+            "data": data, "updated_at": r["updated_at"], "igp_id": r["igp_id"]}
 
 
 @router.get("/races")
@@ -175,7 +186,7 @@ def delete_race(race_id: int, request: Request):
 
 def _driver_row(r) -> dict:
     return {"id": r["id"], "name": r["name"], "country": r["country"], "fav_track": r["fav_track"],
-            "talent": r["talent"], "ability": r["ability"], "tier": r["tier"], "car": r["car"]}
+            "talent": r["talent"], "ability": r["ability"], "tier": r["tier"], "car": r["car"], "igp_id": r["igp_id"]}
 
 
 def _clean_driver(body: dict):
@@ -314,5 +325,137 @@ def delete_driver(driver_id: int, request: Request):
         if cur.rowcount == 0:
             return JSONResponse({"error": "not_found"}, status_code=404)
         return JSONResponse({"drivers": _list_drivers(conn, pid)})
+    finally:
+        conn.close()
+
+
+@router.post("/import")
+async def import_data(request: Request):
+    """Apply one reviewed import atomically; external IDs are scoped to a profile.
+
+    Unread fields are preserved. Historical drivers never take a current seat,
+    and results merge by driver identity rather than by today's car number.
+    """
+    pid = _player(request)
+    if not pid:
+        return JSONResponse({"error": "signin"}, status_code=401)
+    try:
+        body = await request.json()
+        if not isinstance(body, dict) or len(json.dumps(body)) > 128 * 1024:
+            raise ValueError
+        imported = body.get("drivers", [])
+        races = body.get("races", [])
+        if not isinstance(imported, list) or not isinstance(races, list) or len(imported) > 10 or len(races) > 2:
+            raise ValueError
+        ids = [d["igp_id"] for d in imported]
+        if any(type(i) is not int or i <= 0 for i in ids) or len(set(ids)) != len(ids):
+            raise ValueError
+    except (ValueError, TypeError, KeyError):
+        return JSONResponse({"error": "invalid"}, status_code=400)
+    conn = _connect()
+    now = datetime.now(timezone.utc).isoformat()
+    saved = []
+    try:
+        with conn:
+            driver_ids = {}
+            seats = {}
+            for source in imported:
+                existing = conn.execute("SELECT * FROM drivers WHERE player_id=? AND igp_id=?", (pid, source["igp_id"])).fetchone()
+                # Attach an exact full-name match from an older manual record.
+                if existing is None and " " in str(source.get("name", "")) and not re.match(r"^\w\s", str(source.get("name", ""))):
+                    matches = conn.execute("SELECT * FROM drivers WHERE player_id=? AND igp_id IS NULL AND name=?", (pid, source.get("name"))).fetchall()
+                    if len(matches) == 1:
+                        existing = matches[0]
+                merged = _driver_row(existing) if existing else {}
+                merged.update({k: source[k] for k in ("name", "country", "fav_track", "talent", "ability", "tier") if k in source})
+                d = _clean_driver(merged)
+                if d is None:
+                    raise ValueError
+                if source.get("car") is not None:
+                    car = source["car"]
+                    if type(car) is not int or car not in (1, 2) or car in seats:
+                        raise ValueError
+                    seats[car] = source["igp_id"]
+                values = (d["name"], d["country"], d["fav_track"], d["talent"], d["ability"], d["tier"])
+                if existing:
+                    did = existing["id"]
+                    conn.execute("UPDATE drivers SET name=?,country=?,fav_track=?,talent=?,ability=?,tier=?,igp_id=?,updated_at=? WHERE id=? AND player_id=?",
+                                 (*values, source["igp_id"], now, did, pid))
+                else:
+                    did = conn.execute("INSERT INTO drivers(player_id,name,country,fav_track,talent,ability,tier,igp_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)",
+                                       (pid, *values, source["igp_id"], now, now)).lastrowid
+                driver_ids[source["igp_id"]] = did
+            if seats:
+                conn.execute("UPDATE drivers SET car=NULL WHERE player_id=?", (pid,))
+                for car, external in seats.items():
+                    conn.execute("UPDATE drivers SET car=? WHERE id=? AND player_id=?", (car, driver_ids[external], pid))
+            seen = set()
+            for source in races:
+                eid = source.get("igpRaceId")
+                if type(eid) is not int or eid <= 0 or eid in seen:
+                    raise ValueError
+                seen.add(eid)
+                track, day = source.get("track"), source.get("race_date", "")
+                if track not in TRACKS or not isinstance(day, str) or not _DATE.fullmatch(day):
+                    raise ValueError
+                datetime.strptime(day, "%Y-%m-%d")
+                laps = source.get("laps")
+                cars = source.get("cars")
+                if type(laps) is not int or not 1 <= laps <= 200 or not isinstance(cars, list) or not 1 <= len(cars) <= 2:
+                    raise ValueError
+                existing = conn.execute("SELECT * FROM races WHERE player_id=? AND igp_id=?", (pid, eid)).fetchone()
+                # A preview can explicitly link an existing manual race.
+                if existing is None and source.get("id") is not None:
+                    existing = conn.execute("SELECT * FROM races WHERE player_id=? AND id=? AND (igp_id IS NULL OR igp_id=?)", (pid, int(source["id"]), eid)).fetchone()
+                    if existing is None:
+                        raise ValueError
+                data = json.loads(existing["data"]) if existing else {}
+                data.update({"igpRaceId": eid, "laps": laps})
+                data.setdefault("reserve", 1)
+                data.setdefault("minLife", 50)
+                data.setdefault("rain", False)
+                old_cars = data.get("cars", [])
+                combined = list(old_cars)
+                car_ids = set()
+                for source_car in cars:
+                    external = source_car.get("igpDriverId")
+                    did = driver_ids.get(external)
+                    if not did or did in car_ids:
+                        raise ValueError
+                    car_ids.add(did)
+                    driver = conn.execute("SELECT name FROM drivers WHERE id=? AND player_id=?", (did, pid)).fetchone()
+                    index = next((i for i, c in enumerate(combined) if c.get("igpDriverId") == external or c.get("driver") == did), None)
+                    car = dict(combined[index]) if index is not None else {}
+                    car.update({"driver": did, "driverName": driver["name"], "igpDriverId": external})
+                    for key in ("setup", "practice", "actual", "report", "position", "finish", "bestLap", "igpResultId"):
+                        if key in source_car:
+                            car[key] = source_car[key]
+                    if source_car.get("setup"):
+                        car["setupMissing"] = False
+                    tyres = dict(car.get("tyres", {}))
+                    for tyre, value in source_car.get("tyres", {}).items():
+                        if tyre not in ("SS", "S", "M", "H", "I", "W") or not isinstance(value, dict):
+                            raise ValueError
+                        tyres[tyre] = {**tyres.get(tyre, {}), **value}
+                    car["tyres"] = tyres
+                    if index is None:
+                        combined.append(car)
+                    else:
+                        combined[index] = car
+                if len(combined) > 2:
+                    raise ValueError  # Never silently replace a different driver's history.
+                data["cars"] = combined
+                blob = json.dumps(data, separators=(",", ":"))
+                if len(blob) > _MAX_DATA:
+                    raise ValueError
+                if existing:
+                    rid = existing["id"]
+                    conn.execute("UPDATE races SET track=?,race_date=?,data=?,igp_id=?,updated_at=? WHERE id=? AND player_id=?", (track, day, blob, eid, now, rid, pid))
+                else:
+                    rid = conn.execute("INSERT INTO races(player_id,track,race_date,data,igp_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?)", (pid, track, day, blob, eid, now, now)).lastrowid
+                saved.append(rid)
+        return JSONResponse({"drivers": _list_drivers(conn, pid), "races": [_row(r) for r in conn.execute("SELECT * FROM races WHERE player_id=? ORDER BY race_date DESC,id DESC", (pid,))], "saved": saved})
+    except (ValueError, TypeError, KeyError, AttributeError, sqlite3.IntegrityError):
+        return JSONResponse({"error": "invalid"}, status_code=400)
     finally:
         conn.close()

@@ -115,9 +115,9 @@
       "name": "IGP Calculator",
       "icon": "🏎️",
       "category": "Games",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "description": "Car setup and tyre strategy calculator for iGP Manager races, with every race you prepare kept on your own profile.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/igpcalculator-1.1.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/igpcalculator-1.2.0.zip",
       "tags": [
         "igp manager",
         "racing",
@@ -125,7 +125,7 @@
         "strategy",
         "games"
       ],
-      "min_core_version": "1.5.0"
+      "min_core_version": "1.7.0"
     },
     {
       "id": "hattrickcalculator",

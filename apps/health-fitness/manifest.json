@@ -1,0 +1,36 @@
+{
+  "apps": [
+    {
+      "id": "health",
+      "name": "Health",
+      "icon": "❤️",
+      "category": "Health & Fitness",
+      "version": "1.0.0",
+      "description": "One place for your health numbers: weight, blood pressure, water, caffeine and alcohol, with charts and statistics. Add values by hand or let other apps send them once you allow it, plus a public web page.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/health-fitness/health-1.0.0.zip",
+      "tags": [
+        "health",
+        "weight",
+        "blood pressure",
+        "statistics"
+      ],
+      "min_core_version": "1.9.0"
+    },
+    {
+      "id": "hydration",
+      "name": "Hydration",
+      "icon": "💧",
+      "category": "Health & Fitness",
+      "version": "1.0.0",
+      "description": "Log what you drink through the day. Every drink counts only its own water content and also tracks caffeine and alcohol, with ready-made drinks and your own, plus a public web page.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/health-fitness/hydration-1.0.0.zip",
+      "tags": [
+        "water",
+        "drinks",
+        "health"
+      ],
+      "min_core_version": "1.0.0",
+      "premium": true
+    }
+  ]
+}

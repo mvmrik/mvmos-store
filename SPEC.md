@@ -47,7 +47,7 @@ apps/
 | `entry`       |          | Entry JS file (default: `main.js`)               |
 | `css`         |          | Optional CSS file loaded alongside the app       |
 
-For the official Store, choose one broad category: `Productivity`, `Finance`, `Communication`, `Media`, `Creative`, `Business`, `AI`, `Developer Tools`, `System & Administration`, `Security & Privacy`, `Utilities`, or `Games`. Use `tags` for more specific discovery rather than creating narrow categories.
+For the official Store, choose one broad category: `Productivity`, `Finance`, `Communication`, `Media`, `Creative`, `Business`, `AI`, `Developer Tools`, `System & Administration`, `Security & Privacy`, `Health & Fitness`, `Utilities`, or `Games`. Use `tags` for more specific discovery rather than creating narrow categories.
 
 ---
 
