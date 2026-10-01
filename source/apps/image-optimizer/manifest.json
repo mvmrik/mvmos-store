@@ -1,6 +1,17 @@
 {
   "id": "image-optimizer",
   "name": "Image Optimizer",
+  "name_i18n": {
+    "en": "Image Optimizer",
+    "bg": "Оптимизатор за изображения",
+    "de": "Bildoptimierer",
+    "es": "Optimizador de imágenes",
+    "fr": "Optimiseur d’images",
+    "ja": "画像オプティマイザー",
+    "pt-BR": "Otimizador de imagens",
+    "ru": "Оптимизатор изображений",
+    "zh-CN": "图像优化器"
+  },
   "icon": "🖼️",
   "category": "Utilities",
   "tags": [
@@ -9,7 +20,7 @@
     "conversion",
     "compression"
   ],
-  "version": "1.1.7",
+  "version": "1.1.8",
   "min_core_version": "1.0.0",
   "description": "Convert and optimise JPEG, PNG and WebP images in the browser, with batch processing, quality control, ZIP folders and Premium transformation tools.",
   "entry": "main.js",

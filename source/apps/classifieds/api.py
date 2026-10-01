@@ -688,7 +688,7 @@ async def admin_edit(lid: str, body: ListingBody):
 
 class BulkBody(BaseModel):
     ids: list[str] = Field(min_length=1, max_length=500)
-    action: str = Field(pattern=r'^(delete|activate|deactivate|move|end_vip)$')
+    action: str = Field(pattern=r'^(delete|activate|deactivate|move|end_vip|bump)$')
     category_id: int | None = None
 
 def delete_listings(c, ids):
@@ -712,7 +712,8 @@ async def admin_bulk(body: BulkBody):
                 'move': lambda r: r['category_id'] != body.category_id,
                 'deactivate': lambda r: r['active'],
                 'activate': lambda r: not (r['active'] and r['expires_at'] > now),
-                'end_vip': lambda r: r['vip_until'] > now}[body.action]
+                'end_vip': lambda r: r['vip_until'] > now,
+                'bump': lambda r: r['active'] and r['expires_at'] > now}[body.action]
         if body.action == 'delete':
             files = delete_listings(c, ids)
         elif body.action == 'move':
@@ -723,6 +724,11 @@ async def admin_bulk(body: BulkBody):
             c.execute(f'UPDATE listings SET active=0,updated_at=? WHERE id IN ({marks})', [now, *ids])
         elif body.action == 'end_vip':
             c.execute(f'UPDATE listings SET vip_until=0,updated_at=? WHERE id IN ({marks})', [now, *ids])
+        elif body.action == 'bump':
+            # The owner's bump without its 24-hour wait, and without using up
+            # the owner's own: last_bump_at stays theirs. A hidden or expired
+            # listing is not in the public list, so there is no top to send it to.
+            c.execute(f'UPDATE listings SET sort_at=?,updated_at=? WHERE id IN ({marks}) AND active=1 AND expires_at>?', [now, now, *ids, now])
         else:
             # Same rule as the owner's own activate: an expired listing gets a
             # fresh validity period, one that is still running keeps its date.
@@ -872,6 +878,7 @@ SYSTEM_TEXT = {
     'deactivate': 'An administrator hid your listing "{title}" from the public list.',
     'activate': 'An administrator made your listing "{title}" visible again.',
     'end_vip': 'An administrator ended the VIP promotion of your listing "{title}".',
+    'bump': 'An administrator moved your listing "{title}" to the top of the list.',
     'photo_removed': 'An administrator removed a photo from your listing "{title}".',
 }
 

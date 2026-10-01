@@ -1,6 +1,17 @@
 {
   "id": "budget",
   "name": "Budget",
+  "name_i18n": {
+    "en": "Budget",
+    "bg": "Бюджет",
+    "de": "Budget",
+    "es": "Presupuesto",
+    "fr": "Budget",
+    "ja": "家計簿",
+    "pt-BR": "Orçamento",
+    "ru": "Бюджет",
+    "zh-CN": "预算"
+  },
   "icon": "💰",
   "category": "Finance",
   "tags": [
@@ -8,7 +19,7 @@
     "money",
     "planning"
   ],
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Category-based budget tracking with shared categories, goals, mass-add, and per-app source visibility for entries added by other apps, plus a public web page and Telegram mini-app.",
   "entry": "main.js",
   "public_url": "/pub/budget/",

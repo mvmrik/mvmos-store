@@ -11,8 +11,8 @@
   // Sections are built from the server's metric list, grouped by what the
   // numbers describe (body, intake, ...), never by the app that sends them.
   // A metric or group the server adds later shows up with no change here.
-  const ICON = { weight: '⚖️', bp: '🩺', water: '💧', caffeine: '☕', alcohol: '🍷' };
-  const COLOR = { weight: '#89b4fa', bp: '#f38ba8', water: '#74c7ec', caffeine: '#fab387', alcohol: '#cba6f7' };
+  const ICON = { weight: '⚖️', bp: '🩺', water: '💧', caffeine: '☕', alcohol: '🍷', calories: '🔥', sugar: '🍬', protein: '💪' };
+  const COLOR = { weight: '#89b4fa', bp: '#f38ba8', water: '#74c7ec', caffeine: '#fab387', alcohol: '#cba6f7', calories: '#f9e2af', sugar: '#f5c2e7', protein: '#a6e3a1' };
   const FALLBACK = ['#a6e3a1', '#f9e2af', '#94e2d5', '#eba0ac', '#b4befe'];
   const iconOf = id => ICON[id] || '📈';
   const colorOf = id => COLOR[id] || FALLBACK[[...id].reduce((a, c) => a + c.charCodeAt(0), 0) % FALLBACK.length];
@@ -286,7 +286,7 @@
     function unitOf(metric) {
       if (metric === 'weight') return lb() ? 'lb' : 'kg';
       if (metric === 'water') return oz() ? 'oz' : 'ml';
-      return { bp: 'mmHg', caffeine: 'mg', alcohol: 'g' }[metric];
+      return { bp: 'mmHg', caffeine: 'mg', alcohol: 'g', calories: 'kcal', sugar: 'g', protein: 'g' }[metric];
     }
     function num(metric, v, forceUnit) {
       let d = dispVal(metric, v), s;

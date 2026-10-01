@@ -1,6 +1,17 @@
 {
   "id": "gamehub",
   "name": "Game Hub",
+  "name_i18n": {
+    "en": "Game Hub",
+    "bg": "Гейм хъб",
+    "de": "Spiele-Hub",
+    "es": "Centro de juegos",
+    "fr": "Hub de jeux",
+    "ja": "ゲームハブ",
+    "pt-BR": "Central de jogos",
+    "ru": "Гейм-хаб",
+    "zh-CN": "游戏中心"
+  },
   "icon": "🎮",
   "category": "Games",
   "tags": [
@@ -8,7 +19,7 @@
     "social",
     "games"
   ],
-  "version": "1.15.4",
+  "version": "1.15.5",
   "min_core_version": "1.0.0",
   "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
   "entry": "main.js",

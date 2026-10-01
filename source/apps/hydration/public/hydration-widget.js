@@ -262,6 +262,9 @@
         const meta = [t('hy_meta_water', { v: fmtVol(e.water_ml) })];
         if (e.caffeine_mg > 0) meta.push(t('hy_meta_caf', { v: num(e.caffeine_mg) }));
         if (e.alcohol_g > 0) meta.push(t('hy_meta_alc', { v: num(e.alcohol_g, 10) }));
+        if (e.calories_kcal > 0) meta.push(t('hy_meta_kcal', { v: num(e.calories_kcal) }));
+        if (e.sugar_g > 0) meta.push(t('hy_meta_sugar', { v: num(e.sugar_g, 10) }));
+        if (e.protein_g > 0) meta.push(t('hy_meta_protein', { v: num(e.protein_g, 10) }));
         return `<div class="hy-row"><div class="hy-row-main"><div class="hy-row-name">${esc(drinkName(e.product_id, e.name))} · ${esc(fmtTime(e.recorded_at))}</div>
             <div class="hy-row-meta">${esc(meta.join(' · '))}</div></div>
             <div class="hy-row-amt">${esc(fmtVol(e.amount_ml))}</div>
@@ -271,7 +274,7 @@
     }
 
     function todayView() {
-      const tt = st.totals || { amount_ml: 0, water_ml: 0, caffeine_mg: 0, alcohol_g: 0 };
+      const tt = st.totals || { amount_ml: 0, water_ml: 0, caffeine_mg: 0, alcohol_g: 0, calories_kcal: 0, sugar_g: 0, protein_g: 0 };
       const cur = curDrink();
       // Choosing a drink collapses the list to that one chip and reveals its
       // servings; clicking the chip opens the full list again.
@@ -291,7 +294,10 @@
         <div class="hy-hero">${ring()}<div class="hy-stats">
           <div class="hy-stat"><span>${esc(t('hy_drunk'))}</span><span>${esc(fmtVol(tt.amount_ml))}</span></div>
           <div class="hy-stat"><span>${esc(t('hy_caffeine'))}</span><span>${esc(num(tt.caffeine_mg))} mg</span></div>
-          <div class="hy-stat"><span>${esc(t('hy_alcohol'))}</span><span>${esc(num(tt.alcohol_g, 10))} g</span></div></div></div>
+          <div class="hy-stat"><span>${esc(t('hy_alcohol'))}</span><span>${esc(num(tt.alcohol_g, 10))} g</span></div>
+          ${tt.calories_kcal > 0 ? `<div class="hy-stat"><span>${esc(t('hy_energy'))}</span><span>${esc(num(tt.calories_kcal))} kcal</span></div>` : ''}
+          ${tt.sugar_g > 0 ? `<div class="hy-stat"><span>${esc(t('hy_sugar'))}</span><span>${esc(num(tt.sugar_g, 10))} g</span></div>` : ''}
+          ${tt.protein_g > 0 ? `<div class="hy-stat"><span>${esc(t('hy_protein'))}</span><span>${esc(num(tt.protein_g, 10))} g</span></div>` : ''}</div></div>
         ${picker}
         <div class="hy-list">${rows || `<div class="hy-empty">${esc(t('hy_no_entries'))}</div>`}</div>`;
     }
@@ -326,6 +332,8 @@
       const meta = ['💧 ' + num(d.water_percent, 10) + '%'];
       if (d.caffeine_mg_100 > 0) meta.push('☕ ' + num(d.caffeine_mg_100, 10) + ' mg');
       if (d.alcohol_percent > 0) meta.push(num(d.alcohol_percent, 10) + '% vol');
+      if (d.calories_kcal_100 > 0) meta.push(num(d.calories_kcal_100) + ' kcal');
+      if (d.protein_g_100 > 0) meta.push(num(d.protein_g_100, 10) + ' g ' + t('hy_protein').toLowerCase());
       const srv = d.servings.length ? d.servings.map(s => fmtServ(s.ml).replace(/ (ml|oz)$/, '')).join(' · ') + (st.unit === 'oz' ? ' oz' : ' ml') : '–';
       return `<div class="hy-row${d.active ? '' : ' off'}"><div class="hy-drow-ico">${d.icon || '🧪'}</div>
         <div class="hy-row-main" data-act="editdrink" data-id="${esc(d.id)}"><div class="hy-row-name">${esc(label(d))}</div>
@@ -454,7 +462,7 @@
 
     function drinkDialog(d) {
       const ready = !!d && d.kind === 'ready';
-      d = d || { name: '', water_percent: 100, caffeine_mg_100: 0, alcohol_percent: 0, active: true,
+      d = d || { name: '', water_percent: 100, caffeine_mg_100: 0, alcohol_percent: 0, calories_kcal_100: 0, sugar_g_100: 0, protein_g_100: 0, active: true,
         servings: [150, 250, 500].map(ml => ({ ml })) };
       let srv = d.servings.map(s => s.ml);
       const unitLbl = st.unit === 'oz' ? 'oz' : 'ml';
@@ -465,6 +473,9 @@
         ${f('hy-water', t('hy_water_percent'), d.water_percent, 100)}
         ${f('hy-caf', t('hy_caffeine_100'), d.caffeine_mg_100, 1000)}
         ${f('hy-alc', t('hy_alcohol_percent'), d.alcohol_percent, 100)}
+        ${f('hy-kcal', t('hy_calories_100'), d.calories_kcal_100 || 0, 900)}
+        ${f('hy-sugar', t('hy_sugar_100'), d.sugar_g_100 || 0, 100)}
+        ${f('hy-protein', t('hy_protein_100'), d.protein_g_100 || 0, 100)}
         <div class="hy-hint">${esc(t('hy_values_hint'))}</div>
         <div class="hy-field"><label>${esc(t('hy_servings'))} (${unitLbl})</label><div class="hy-chips" id="hy-srv"></div>
           <div class="hy-addsrv"><input class="hy-input" id="hy-newsrv" type="number" min="0" step="any" placeholder="${unitLbl}">
@@ -508,6 +519,9 @@
             water_percent: Number(ov.querySelector('#hy-water').value),
             caffeine_mg_100: Number(ov.querySelector('#hy-caf').value || 0),
             alcohol_percent: Number(ov.querySelector('#hy-alc').value || 0),
+            calories_kcal_100: Number(ov.querySelector('#hy-kcal').value || 0),
+            sugar_g_100: Number(ov.querySelector('#hy-sugar').value || 0),
+            protein_g_100: Number(ov.querySelector('#hy-protein').value || 0),
             servings: srv, active: ov.querySelector('#hy-active').checked,
           });
           try {

@@ -17,7 +17,7 @@
     "Owner-only daily unique view counts and watcher statistics.",
     "Sellers can start a private conversation with a watcher.",
     "Premium VIP listings paid through administrator-defined Apps Hub credit packages.",
-    "Moderation panel that shows every listing, searchable and filterable by category, status and owner, to edit, move, activate, deactivate, end VIP or delete one listing or a whole selection.",
+    "Moderation panel that shows every listing, searchable and filterable by category, status and owner, to edit, move, activate, deactivate, move to the top of the list without waiting a day, end VIP or delete one listing or a whole selection.",
     "Ban a profile from posting in Classifieds, with an optional reason, without touching its Apps Hub account.",
     "System messages that tell people, in their own language, what moderation changed on their listings.",
     "Premium user verification that asks for a photo before posting in chosen categories, triggered after registration, after a number of days or after a number of listings."

@@ -1,13 +1,24 @@
 {
   "id": "chat",
   "name": "mvmOS Chat",
+  "name_i18n": {
+    "en": "mvmOS Chat",
+    "bg": "mvmOS Чат",
+    "de": "mvmOS Chat",
+    "es": "mvmOS Chat",
+    "fr": "mvmOS Chat",
+    "ja": "mvmOS チャット",
+    "pt-BR": "mvmOS Chat",
+    "ru": "mvmOS Чат",
+    "zh-CN": "mvmOS 聊天"
+  },
   "icon": "💬",
   "category": "Communication",
   "tags": [
     "messaging",
     "social"
   ],
-  "version": "1.4.0",
+  "version": "1.4.1",
   "min_core_version": "1.0.0",
   "description": "Chat between mvmOS users, with a public web page for Apps Hub accounts.",
   "entry": "main.js",

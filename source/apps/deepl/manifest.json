@@ -1,6 +1,17 @@
 {
   "id": "deepl",
   "name": "DeepL Translator",
+  "name_i18n": {
+    "en": "DeepL Translator",
+    "bg": "DeepL Преводач",
+    "de": "DeepL Übersetzer",
+    "es": "Traductor DeepL",
+    "fr": "Traducteur DeepL",
+    "ja": "DeepL 翻訳",
+    "pt-BR": "Tradutor DeepL",
+    "ru": "Переводчик DeepL",
+    "zh-CN": "DeepL 翻译"
+  },
   "icon": "🌐",
   "category": "Utilities",
   "tags": [
@@ -8,7 +19,7 @@
     "language",
     "deepl"
   ],
-  "version": "1.0.1",
+  "version": "1.0.2",
   "min_core_version": "1.0.0",
   "description": "Translate text with your own DeepL API key and keep a history of your translations.",
   "entry": "main.js",

@@ -55,6 +55,9 @@ METRICS = {
     "water":    {"kind": "daily", "group": "nutrition", "unit": "ml", "max": 20000},
     "caffeine": {"kind": "daily", "group": "nutrition", "unit": "mg", "max": 5000},
     "alcohol":  {"kind": "daily", "group": "nutrition", "unit": "g", "max": 2000},
+    "calories": {"kind": "daily", "group": "nutrition", "unit": "kcal", "max": 20000},
+    "sugar":    {"kind": "daily", "group": "nutrition", "unit": "g", "max": 2000},
+    "protein":  {"kind": "daily", "group": "nutrition", "unit": "g", "max": 1000},
 }
 
 

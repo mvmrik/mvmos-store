@@ -10,7 +10,10 @@ profile's own drinks and entries.
 
 Invalid input raises ValueError with a short reason; a missing entry or drink
 raises LookupError("not found"). Amounts are in millilitres; a day is a
-YYYY-MM-DD date and defaults to today on the server.
+YYYY-MM-DD date and defaults to today on the server. Every drink also has
+energy (calories_kcal_100), sugar (sugar_g_100) and protein (protein_g_100)
+per 100 ml. Solid foods that hold water, such as soup, yogurt and fruit, are
+logged by weight: one gram counts as one millilitre.
 """
 
 import sys
@@ -47,7 +50,7 @@ def list_drinks(user_id: str):
     """The drinks that can be logged: ready-made ones (id such as water,
     coffee, beer) and the user's own custom drinks. Each has id, name (custom
     only), water_percent, caffeine_mg_100 per 100 ml, alcohol_percent (alcohol
-    by volume), active (shown on the main screen) and servings (a list of
+    by volume), calories_kcal_100, sugar_g_100, protein_g_100 per 100 ml, active (shown on the main screen) and servings (a list of
     {ml, last_used}). A ready-made drink the user has changed shows their
     values and modified true."""
     pub = _pub()
@@ -61,13 +64,15 @@ def list_drinks(user_id: str):
 def get_day(user_id: str, day: str = None):
     """The drinks logged on one day (newest first, day defaults to today)
     with totals: amount_ml, water_ml (only the water in the drinks),
-    caffeine_mg and alcohol_g. Each entry has id, name, amount_ml, water_ml,
-    caffeine_mg and alcohol_g."""
+    caffeine_mg, alcohol_g, calories_kcal, sugar_g and protein_g. Each entry has
+    id, name, amount_ml, water_ml, caffeine_mg, alcohol_g, calories_kcal,
+    sugar_g and protein_g."""
     return _pub()._get_day(user_id, day or _today())
 
 
 def get_history(user_id: str, days: int = 7, end: str = None):
-    """Daily totals (day, amount_ml, water_ml, caffeine_mg, alcohol_g) for the
+    """Daily totals (day, amount_ml, water_ml, caffeine_mg, alcohol_g, calories_kcal,
+    sugar_g, protein_g) for the
     last days days (1 to 90, default 7) up to and including end, which
     defaults to today."""
     return {"days": _pub()._get_history(user_id, end or _today(), days)}
@@ -100,21 +105,27 @@ def delete_entry(user_id: str, entry_id: str):
 
 def add_custom_drink(user_id: str, name: str, water_percent: float = 100,
                      caffeine_mg_100: float = 0, alcohol_percent: float = 0,
-                     servings_ml: list = None):
+                     servings_ml: list = None, calories_kcal_100: float = 0,
+                     sugar_g_100: float = 0, protein_g_100: float = 0):
     """Create a custom drink: water_percent of it is water (0 to 100),
     caffeine_mg_100 is mg of caffeine per 100 ml, alcohol_percent is alcohol
-    by volume, servings_ml the serving sizes offered for it in millilitres
-    (default 150, 250 and 500). Returns it with its id."""
-    return _pub()._add_product(user_id, name, water_percent, caffeine_mg_100, alcohol_percent, servings_ml)
+    by volume, calories_kcal_100, sugar_g_100 and protein_g_100 its energy,
+    sugar and protein per 100 ml, servings_ml the serving sizes offered for it
+    in millilitres (default 150, 250 and 500). Returns it with its id."""
+    return _pub()._add_product(user_id, name, water_percent, caffeine_mg_100, alcohol_percent, servings_ml,
+                               None, calories_kcal_100, sugar_g_100, protein_g_100)
 
 
 def update_custom_drink(user_id: str, drink_id: str, name: str, water_percent: float = 100,
                         caffeine_mg_100: float = 0, alcohol_percent: float = 0,
-                        servings_ml: list = None):
+                        servings_ml: list = None, calories_kcal_100: float = None,
+                        sugar_g_100: float = None, protein_g_100: float = None):
     """Change a custom drink; servings_ml, when given, replaces its serving
-    sizes. Entries already logged keep their old values."""
+    sizes, and energy, sugar or protein left out stay as they were. Entries
+    already logged keep their old values."""
     return _pub()._edit_product(user_id, drink_id, name, water_percent, caffeine_mg_100,
-                                alcohol_percent, servings_ml)
+                                alcohol_percent, servings_ml, None,
+                                calories_kcal_100, sugar_g_100, protein_g_100)
 
 
 def delete_custom_drink(user_id: str, drink_id: str):
@@ -124,11 +135,14 @@ def delete_custom_drink(user_id: str, drink_id: str):
 
 def update_ready_made_drink(user_id: str, drink_id: str, water_percent: float,
                             caffeine_mg_100: float = 0, alcohol_percent: float = 0,
-                            servings_ml: list = None):
+                            servings_ml: list = None, calories_kcal_100: float = None,
+                            sugar_g_100: float = None, protein_g_100: float = None):
     """Change the values of a ready-made drink (drink_id such as coffee or
     beer) for this user only; servings_ml, when given, replaces its serving
-    sizes. Entries already logged keep their old values."""
-    return _pub()._set_preset(user_id, drink_id, water_percent, caffeine_mg_100, alcohol_percent, servings_ml)
+    sizes, and energy, sugar or protein left out stay as they were. Entries
+    already logged keep their old values."""
+    return _pub()._set_preset(user_id, drink_id, water_percent, caffeine_mg_100, alcohol_percent, servings_ml,
+                              None, calories_kcal_100, sugar_g_100, protein_g_100)
 
 
 def reset_ready_made_drink(user_id: str, drink_id: str):

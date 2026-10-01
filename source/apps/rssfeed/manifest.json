@@ -1,6 +1,17 @@
 {
   "id": "rssfeed",
   "name": "RSS Reader",
+  "name_i18n": {
+    "en": "RSS Reader",
+    "bg": "RSS четец",
+    "de": "RSS-Reader",
+    "es": "Lector RSS",
+    "fr": "Lecteur RSS",
+    "ja": "RSSリーダー",
+    "pt-BR": "Leitor RSS",
+    "ru": "RSS-читалка",
+    "zh-CN": "RSS 阅读器"
+  },
   "icon": "📰",
   "category": "Media",
   "tags": [
@@ -8,7 +19,7 @@
     "feeds",
     "reading"
   ],
-  "version": "1.4.3",
+  "version": "1.4.4",
   "min_core_version": "1.0.0",
   "description": "RSS/Atom feed reader with auto-refresh, read/unread tracking, and optional public reading list.",
   "scheduler": "scheduler.py",

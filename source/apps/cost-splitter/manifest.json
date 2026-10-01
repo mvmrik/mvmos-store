@@ -1,6 +1,17 @@
 {
   "id": "cost-splitter",
   "name": "Cost Splitter",
+  "name_i18n": {
+    "en": "Cost Splitter",
+    "bg": "Разделяне на разходи",
+    "de": "Kostenteiler",
+    "es": "Divisor de gastos",
+    "fr": "Partage des dépenses",
+    "ja": "割り勘",
+    "pt-BR": "Divisor de despesas",
+    "ru": "Разделение расходов",
+    "zh-CN": "费用分摊"
+  },
   "icon": "💸",
   "category": "Finance",
   "tags": [
@@ -8,7 +19,7 @@
     "sharing",
     "expenses"
   ],
-  "version": "1.4.3",
+  "version": "1.4.4",
   "min_core_version": "1.0.0",
   "description": "Split recurring costs among members. Track balances, add payments, and send monthly email summaries automatically.",
   "entry": "main.js",

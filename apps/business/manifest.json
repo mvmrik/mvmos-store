@@ -35,16 +35,27 @@
       "name": "Classifieds",
       "icon": "🏷️",
       "category": "Business",
-      "version": "1.8.0",
+      "version": "1.9.0",
       "description": "Community classifieds with photos, categories, free items, Apps Hub profiles and listing renewal.",
       "tags": [
         "classifieds",
         "marketplace",
         "community"
       ],
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/business/classifieds-1.8.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/business/classifieds-1.9.0.zip",
       "min_core_version": "1.0.0",
-      "premium": true
+      "premium": true,
+      "name_i18n": {
+        "en": "Classifieds",
+        "bg": "Обяви",
+        "de": "Kleinanzeigen",
+        "es": "Anuncios clasificados",
+        "fr": "Petites annonces",
+        "ja": "クラシファイド広告",
+        "pt-BR": "Classificados",
+        "ru": "Объявления",
+        "zh-CN": "分类信息"
+      }
     },
     {
       "id": "mvmwarehouse",

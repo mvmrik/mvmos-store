@@ -81,24 +81,41 @@ echo "Created: $OUT"
 unzip -l "$OUT"
 
 # The category manifest tells the desktop App Store which apps have Premium, so
-# the card can carry the 💎 before anyone opens it. The fact itself lives in
-# source/apps/<id>/premium.json; the flag is derived from it here, never by hand.
+# the card can carry the 💎 before anyone opens it, and what the app is called
+# in every language. Both come from source/apps/<id> (premium.json and the
+# manifest's name_i18n) and are derived here, never by hand.
 python3 - "$APP_ID" "$CATEGORY" <<'PY'
 import json, os, sys
 app_id, category = sys.argv[1], sys.argv[2]
 root = "/var/www/mvmos-store"
 path = f"{root}/apps/{category}/manifest.json"
 wanted = os.path.isfile(f"{root}/source/apps/{app_id}/premium.json")
+try:
+    names = json.load(open(f"{root}/source/apps/{app_id}/manifest.json", encoding="utf-8")).get("name_i18n")
+except (OSError, ValueError):
+    names = None
 raw = open(path, encoding="utf-8").read()
 data = json.loads(raw)
+changed = False
 for app in data.get("apps", []):
-    if app.get("id") == app_id and bool(app.get("premium")) != wanted:
+    if app.get("id") != app_id:
+        continue
+    if bool(app.get("premium")) != wanted:
         if wanted:
             app["premium"] = True
         else:
             app.pop("premium", None)
-        open(path, "w", encoding="utf-8").write(json.dumps(data, indent=2, ensure_ascii=False) + ("\n" if raw.endswith("\n") else ""))
+        changed = True
         print(f"manifest: premium={'true' if wanted else 'removed'} for {app_id}")
+    if app.get("name_i18n") != names:
+        if names:
+            app["name_i18n"] = names
+        else:
+            app.pop("name_i18n", None)
+        changed = True
+        print(f"manifest: name_i18n {'set' if names else 'removed'} for {app_id}")
+if changed:
+    open(path, "w", encoding="utf-8").write(json.dumps(data, indent=2, ensure_ascii=False) + ("\n" if raw.endswith("\n") else ""))
 PY
 
 # The premium build is skipped above on purpose, but it still has to reach

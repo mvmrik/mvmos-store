@@ -1,6 +1,17 @@
 {
   "id": "classifieds",
   "name": "Classifieds",
+  "name_i18n": {
+    "en": "Classifieds",
+    "bg": "Обяви",
+    "de": "Kleinanzeigen",
+    "es": "Anuncios clasificados",
+    "fr": "Petites annonces",
+    "ja": "クラシファイド広告",
+    "pt-BR": "Classificados",
+    "ru": "Объявления",
+    "zh-CN": "分类信息"
+  },
   "icon": "🏷️",
   "category": "Business",
   "tags": [
@@ -8,7 +19,7 @@
     "marketplace",
     "community"
   ],
-  "version": "1.8.0",
+  "version": "1.9.0",
   "min_core_version": "1.0.0",
   "description": "Community classifieds with photos, categories, free items, Apps Hub profiles and listing renewal.",
   "entry": "main.js",

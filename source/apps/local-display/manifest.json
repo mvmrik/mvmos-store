@@ -1,6 +1,17 @@
 {
   "id": "local-display",
   "name": "Local Display",
+  "name_i18n": {
+    "en": "Local Display",
+    "bg": "Локален дисплей",
+    "de": "Lokale Anzeige",
+    "es": "Pantalla local",
+    "fr": "Affichage local",
+    "ja": "ローカルディスプレイ",
+    "pt-BR": "Tela local",
+    "ru": "Локальный дисплей",
+    "zh-CN": "本地显示屏"
+  },
   "icon": "📺",
   "category": "System & Administration",
   "tags": [
@@ -9,7 +20,7 @@
     "tv",
     "system"
   ],
-  "version": "1.0.1",
+  "version": "1.0.2",
   "min_core_version": "1.6.0",
   "description": "Show mvmOS full screen on the monitor or TV connected to a computer that has no desktop environment, only a text console.",
   "entry": "main.js"

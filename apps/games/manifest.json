@@ -35,15 +35,26 @@
       "name": "Game Hub",
       "icon": "🎮",
       "category": "Games",
-      "version": "1.15.4",
+      "version": "1.15.5",
       "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.15.4.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.15.5.zip",
       "tags": [
         "multiplayer",
         "social",
         "games"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "name_i18n": {
+        "en": "Game Hub",
+        "bg": "Гейм хъб",
+        "de": "Spiele-Hub",
+        "es": "Centro de juegos",
+        "fr": "Hub de jeux",
+        "ja": "ゲームハブ",
+        "pt-BR": "Central de jogos",
+        "ru": "Гейм-хаб",
+        "zh-CN": "游戏中心"
+      }
     },
     {
       "id": "stonehold",
@@ -66,24 +77,35 @@
       "name": "Tower Defense",
       "icon": "🏰",
       "category": "Games",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "description": "Defend the tower in the middle. Waves close in from every side and the tower fires back — hold out as long as you can.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/towerdefense-1.0.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/towerdefense-1.0.2.zip",
       "tags": [
         "tower defense",
         "strategy",
         "games"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "name_i18n": {
+        "en": "Tower Defense",
+        "bg": "Защита на кулата",
+        "de": "Turmverteidigung",
+        "es": "Defensa de la torre",
+        "fr": "Défense de la tour",
+        "ja": "タワーディフェンス",
+        "pt-BR": "Defesa da torre",
+        "ru": "Защита башни",
+        "zh-CN": "塔防"
+      }
     },
     {
       "id": "livingtown",
       "name": "Living Town",
       "icon": "🏘️",
       "category": "Games",
-      "version": "0.6.1",
+      "version": "0.6.2",
       "description": "Zone land, draw roads and build public services for a town that grows itself — every resident is a persistent person with a home, a job and a life of their own.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/livingtown-0.6.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/livingtown-0.6.2.zip",
       "tags": [
         "simulation",
         "city building",
@@ -91,7 +113,18 @@
         "people",
         "games"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "name_i18n": {
+        "en": "Living Town",
+        "bg": "Живият град",
+        "de": "Lebendige Stadt",
+        "es": "Ciudad viva",
+        "fr": "Ville vivante",
+        "ja": "生きている町",
+        "pt-BR": "Cidade viva",
+        "ru": "Живой город",
+        "zh-CN": "活力小镇"
+      }
     },
     {
       "id": "scorearena",

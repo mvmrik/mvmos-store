@@ -1,10 +1,27 @@
 {
   "id": "livingtown",
   "name": "Living Town",
+  "name_i18n": {
+    "en": "Living Town",
+    "bg": "Живият град",
+    "de": "Lebendige Stadt",
+    "es": "Ciudad viva",
+    "fr": "Ville vivante",
+    "ja": "生きている町",
+    "pt-BR": "Cidade viva",
+    "ru": "Живой город",
+    "zh-CN": "活力小镇"
+  },
   "icon": "🏘️",
   "category": "Games",
-  "tags": ["simulation", "city building", "transport", "people", "games"],
-  "version": "0.6.1",
+  "tags": [
+    "simulation",
+    "city building",
+    "transport",
+    "people",
+    "games"
+  ],
+  "version": "0.6.2",
   "min_core_version": "1.0.0",
   "description": "Guide a town that builds itself. Zone land, shape roads and public services, and follow every resident through work, travel, family and ownership.",
   "entry": "main.js",

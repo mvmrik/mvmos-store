@@ -1,6 +1,17 @@
 {
   "id": "system-info",
   "name": "System Info",
+  "name_i18n": {
+    "en": "System Info",
+    "bg": "Системна информация",
+    "de": "Systeminfo",
+    "es": "Información del sistema",
+    "fr": "Infos système",
+    "ja": "システム情報",
+    "pt-BR": "Informações do sistema",
+    "ru": "Сведения о системе",
+    "zh-CN": "系统信息"
+  },
   "icon": "🖥️",
   "category": "System & Administration",
   "tags": [
@@ -8,7 +19,7 @@
     "diagnostics",
     "monitoring"
   ],
-  "version": "1.2.2",
+  "version": "1.2.3",
   "min_core_version": "1.0.0",
   "description": "Detailed hardware and system information — CPU, memory, disks, network interfaces, temperatures, uptime and more.",
   "entry": "main.js"

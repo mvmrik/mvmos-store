@@ -4,6 +4,9 @@
 (function () {
   var STRINGS = {
     en: {
+      hb_m_calories: "Energy",
+      hb_m_sugar: "Sugar",
+      hb_m_protein: "Protein",
       hb_login_required: "Sign in to Apps Hub to use Health.",
       hb_overview: "Overview",
       hb_group_body: "Body",
@@ -128,6 +131,9 @@
       hb_labs_import_none_text: "No results were recognized in this text.",
     },
     bg: {
+      hb_m_calories: "Енергия",
+      hb_m_sugar: "Захар",
+      hb_m_protein: "Протеин",
       hb_login_required: "Влезте в Apps Hub, за да ползвате Health.",
       hb_overview: "Общо",
       hb_group_body: "Тяло",
@@ -252,6 +258,9 @@
       hb_labs_import_none_text: "В този текст не бяха разпознати резултати.",
     },
     de: {
+      hb_m_calories: "Energie",
+      hb_m_sugar: "Zucker",
+      hb_m_protein: "Eiweiß",
       hb_login_required: "Melde dich bei Apps Hub an, um Health zu nutzen.",
       hb_overview: "Übersicht",
       hb_group_body: "Körper",
@@ -376,6 +385,9 @@
       hb_labs_import_none_text: "In diesem Text wurden keine Ergebnisse erkannt.",
     },
     es: {
+      hb_m_calories: "Energía",
+      hb_m_sugar: "Azúcar",
+      hb_m_protein: "Proteína",
       hb_login_required: "Inicia sesión en Apps Hub para usar Health.",
       hb_overview: "Resumen",
       hb_group_body: "Cuerpo",
@@ -500,6 +512,9 @@
       hb_labs_import_none_text: "No se reconoció ningún resultado en este texto.",
     },
     fr: {
+      hb_m_calories: "Énergie",
+      hb_m_sugar: "Sucre",
+      hb_m_protein: "Protéines",
       hb_login_required: "Connectez-vous à Apps Hub pour utiliser Health.",
       hb_overview: "Aperçu",
       hb_group_body: "Corps",
@@ -624,6 +639,9 @@
       hb_labs_import_none_text: "Aucun résultat reconnu dans ce texte.",
     },
     ja: {
+      hb_m_calories: "エネルギー",
+      hb_m_sugar: "糖質",
+      hb_m_protein: "タンパク質",
       hb_login_required: "Health を使うには Apps Hub にサインインしてください。",
       hb_overview: "概要",
       hb_group_body: "身体",
@@ -748,6 +766,9 @@
       hb_labs_import_none_text: "このテキストから結果を認識できませんでした。",
     },
     "pt-BR": {
+      hb_m_calories: "Energia",
+      hb_m_sugar: "Açúcar",
+      hb_m_protein: "Proteína",
       hb_login_required: "Entre no Apps Hub para usar o Health.",
       hb_overview: "Resumo",
       hb_group_body: "Corpo",
@@ -872,6 +893,9 @@
       hb_labs_import_none_text: "Nenhum resultado reconhecido neste texto.",
     },
     ru: {
+      hb_m_calories: "Энергия",
+      hb_m_sugar: "Сахар",
+      hb_m_protein: "Белок",
       hb_login_required: "Войдите в Apps Hub, чтобы пользоваться Health.",
       hb_overview: "Обзор",
       hb_group_body: "Тело",
@@ -996,6 +1020,9 @@
       hb_labs_import_none_text: "В этом тексте результаты не распознаны.",
     },
     "zh-CN": {
+      hb_m_calories: "能量",
+      hb_m_sugar: "糖",
+      hb_m_protein: "蛋白质",
       hb_login_required: "请登录 Apps Hub 以使用 Health。",
       hb_overview: "概览",
       hb_group_body: "身体",

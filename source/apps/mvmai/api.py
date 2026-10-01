@@ -44,7 +44,7 @@ import uuid
 
 import httpx
 from fastapi import APIRouter, Depends, Header, Request
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -264,6 +264,9 @@ async def get_me(
         "id": me["id"],
         "is_admin": bool(me.get("is_admin")),
         "has_api_bridge": bool(prem and prem.is_available() and desk is not None and desk._read_cfg().get("pub_data_bridge_enabled")),
+        # Lets the desktop show the app picker locked (Premium dialog) on an
+        # install without the premium module; the public page never shows it.
+        "bridge_premium": bool(prem and prem.is_available()),
         "credit_price": price,
         "credit_balance": hub.get_credit_balance(me["id"]) if hub else 0,
         "compact_keep_recent": prem.resolve_compact_keep_recent(desk._read_cfg()) if (prem and desk is not None) else 20,
@@ -353,6 +356,8 @@ class ChatRequest(BaseModel):
     # tools, credit charging, and session persistence — it's not a real turn
     # the user sent, just internal upkeep on an existing conversation.
     no_persist: bool = False
+    # The app picked in the chat: only its functions are offered to the model.
+    app_id: str | None = None
 
 
 @router.post("/chat")
@@ -362,6 +367,35 @@ async def chat(
     x_mvmai_surface: str = Header(default=""),
     os_session=Depends(_os_session_optional),
 ):
+    # A full-access turn can work for many minutes, while Cloudflare drops a
+    # request that sends nothing for 100s. A quick answer keeps its status;
+    # a slow one starts a 200 response at once and sends a space every few
+    # seconds (still valid JSON once the body follows), so errors then travel
+    # only as {"error": ...}.
+    task = asyncio.ensure_future(_chat(body, x_pub_token, x_mvmai_surface, os_session))
+    done, _ = await asyncio.wait({task}, timeout=_CHAT_KEEPALIVE_SECONDS)
+    if done:
+        return task.result()
+
+    async def keepalive():
+        while not task.done():
+            yield b" "
+            await asyncio.wait({task}, timeout=_CHAT_KEEPALIVE_SECONDS)
+        try:
+            yield task.result().body
+        except Exception as e:
+            yield json.dumps({"error": str(e) or "mvmAI failed"}).encode()
+
+    return StreamingResponse(
+        keepalive(), media_type="application/json",
+        headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
+    )
+
+
+_CHAT_KEEPALIVE_SECONDS = 15
+
+
+async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -395,10 +429,14 @@ async def chat(
     exec_prefix = "" if is_desktop else "pub_"
     exec_enabled = bool(cfg.get(f"{exec_prefix}exec_enabled"))
     tools = [] if body.no_persist else desk._server_tools(is_admin, exec_enabled)
+    app_prompt = ""
     prem = _premium()
     if prem and prem.is_available():
-        if cfg.get("pub_data_bridge_enabled"):
-            tools = tools + prem.list_tools()
+        if cfg.get("pub_data_bridge_enabled") and body.app_id and not body.no_persist:
+            app_tools = prem.list_tools(me["id"], body.app_id)
+            if app_tools:
+                tools = tools + app_tools
+                app_prompt = prem.app_prompt(body.app_id)
         if not is_desktop:
             cfg = prem.resolve_pub_cfg(cfg)
     cli_provider = next((p for p in desk.CLI_PROVIDERS if p["id"] == cfg.get("provider")), None)
@@ -419,6 +457,7 @@ async def chat(
             identity_prompt=public_identity,
             project=project,
             session=os_session,
+            extra_prompt=app_prompt,
         )
         data = json.loads(r.body)
         if r.status_code >= 400:
@@ -477,6 +516,8 @@ async def chat(
     access_prompt = desk._access_prompt(is_admin, exec_enabled, project)
     if public_identity:
         access_prompt += " " + public_identity
+    if app_prompt:
+        access_prompt += " " + app_prompt
     messages = desk._trusted_messages(body.messages, access_prompt)
 
     async def _post(with_tools: bool):
@@ -765,6 +806,44 @@ async def pub_browse_dirs(path: str = "/", x_pub_token: str = Header(default=Non
 class ToolCallRequest(BaseModel):
     name: str
     arguments: dict = {}
+    # Set only by the user's Save on the review form of a tool that changes data.
+    confirmed: bool = False
+
+
+def _bridge(x_pub_token):
+    """(user, premium module) when the caller may use the data bridge, else
+    the JSONResponse refusing it."""
+    me = _resolve(x_pub_token)
+    if not me:
+        return None, JSONResponse({"error": "unauthorized"}, status_code=401)
+    prem = _premium()
+    desk = _desktop()
+    if not prem or not prem.is_available() or desk is None or not desk._read_cfg().get("pub_data_bridge_enabled"):
+        return None, JSONResponse({"error": "not_available"}, status_code=403)
+    return me, prem
+
+
+@router.get("/bridge-apps")
+async def bridge_apps(x_pub_token: str = Header(default=None)):
+    me, prem = _bridge(x_pub_token)
+    if me is None:
+        return prem
+    return JSONResponse({"apps": prem.list_apps(me["id"])})
+
+
+@router.post("/tool-preview")
+async def tool_preview(body: ToolCallRequest, x_pub_token: str = Header(default=None)):
+    """The review form for a tool call: whether it changes data and, when it
+    does, its fields with the model's values filled in."""
+    me, prem = _bridge(x_pub_token)
+    if me is None:
+        return prem
+    if not prem.is_write(body.name):
+        return JSONResponse({"write": False})
+    try:
+        return JSONResponse({"write": True, **prem.preview(me["id"], body.name, body.arguments or {})})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=400)
 
 
 @router.post("/tool-call")
@@ -774,17 +853,11 @@ async def tool_call(body: ToolCallRequest, x_pub_token: str = Header(default=Non
     user_id is always the caller's own session id, resolved here from the
     token and never taken from the request body, so no argument the model or
     a tampered client sends can reach another user's data."""
-    me = _resolve(x_pub_token)
-    if not me:
-        return JSONResponse({"error": "unauthorized"}, status_code=401)
-    prem = _premium()
-    if not prem or not prem.is_available():
-        return JSONResponse({"error": "not_available"}, status_code=403)
-    desk = _desktop()
-    if desk is None or not desk._read_cfg().get("pub_data_bridge_enabled"):
-        return JSONResponse({"error": "not_available"}, status_code=403)
+    me, prem = _bridge(x_pub_token)
+    if me is None:
+        return prem
     try:
-        result = prem.call_tool(me["id"], body.name, body.arguments or {})
+        result = prem.call_tool(me["id"], body.name, body.arguments or {}, confirmed=body.confirmed)
         return JSONResponse({"result": result})
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=400)

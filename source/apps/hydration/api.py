@@ -5,8 +5,10 @@ Mounted at /pub/hydration by public_loader.py. Identity is the Apps Hub token
 (X-Pub-Token header), used identically by the desktop window and the public
 page, so there is no separate backend.py.
 
-Every drink carries three numbers per 100 ml: the share of it that is water
-(percent), its caffeine (mg) and its alcohol (percent by volume). An entry
+Every drink carries six numbers per 100 ml: the share of it that is water
+(percent), its caffeine (mg), its alcohol (percent by volume), its energy
+(kcal), its sugar (g) and its protein (g). Solid foods that hold water, such
+as soup, yogurt or fruit, are counted by weight, one gram as one millilitre. An entry
 stores a snapshot of those numbers, so editing or deleting a custom drink never
 rewrites history. Water counted for an entry is amount * water_percent / 100.
 
@@ -55,7 +57,37 @@ PRESETS = {
     "beer":        ("🍺", 92, 0, 5),
     "wine":        ("🍷", 86, 0, 12),
     "spirits":     ("🥃", 60, 0, 40),
+    "herbal_tea":  ("🌿", 99, 0, 0),
+    "cocoa":       ("🍫", 82, 2, 0),
+    "protein_shake": ("💪", 85, 0, 0),
+    "kefir":       ("🥛", 89, 0, 0),
+    "ayran":       ("🥛", 95, 0, 0),
+    "plant_milk":  ("🌱", 90, 0, 0),
+    "smoothie":    ("🥤", 80, 0, 0),
+    "coconut_water": ("🥥", 95, 0, 0),
+    "sports_drink": ("🏃", 94, 0, 0),
+    "soup":        ("🍲", 90, 0, 0),
+    "yogurt":      ("🍶", 85, 0, 0),
+    "fruit":       ("🍉", 85, 0, 0),
+    "cider":       ("🍏", 90, 0, 5),
 }
+
+# Energy (kcal), sugar (g) and protein (g) per 100 ml, generic averages like the
+# values above. A drink not listed here has none of them.
+PRESET_NUTRI = {
+    "coffee": (1, 0, 0.1), "espresso": (9, 0, 1.7), "black_tea": (1, 0, 0), "green_tea": (1, 0, 0),
+    "milk": (46, 5, 3.4), "juice": (45, 10, 0.5), "soft_drink": (42, 10.6, 0), "energy": (45, 11, 0),
+    "beer": (43, 0, 0.5), "wine": (83, 1, 0.1), "spirits": (231, 0, 0),
+    "cocoa": (77, 9.5, 3.3), "protein_shake": (55, 3, 8), "kefir": (41, 4, 3.4), "ayran": (25, 2, 1.7),
+    "plant_milk": (35, 2.5, 1.5), "smoothie": (55, 10, 1), "coconut_water": (19, 3.7, 0.7),
+    "sports_drink": (26, 6, 0), "soup": (35, 1, 2), "yogurt": (60, 4.7, 3.8), "fruit": (52, 10, 0.6),
+    "cider": (45, 4, 0),
+}
+# Ready-made drinks added after the first release stay off the main screen until
+# the user shows them in Settings, so nobody's drink list suddenly grows.
+HIDDEN_BY_DEFAULT = {"herbal_tea", "cocoa", "protein_shake", "kefir", "ayran", "plant_milk", "smoothie",
+                     "coconut_water", "sports_drink", "soup", "yogurt", "fruit", "cider"}
+NUTRI_FIELDS = (("calories_kcal_100", 900), ("sugar_g_100", 100), ("protein_g_100", 100))
 
 # Standard servings in ml for the ready-made drinks. A user who drinks other
 # sizes replaces them (per drink, for that user only).
@@ -72,6 +104,19 @@ PRESET_SERVINGS = {
     "beer":      [330, 500],
     "wine":      [125, 150, 250],
     "spirits":   [40, 50],
+    "herbal_tea": [150, 250, 350],
+    "cocoa":     [150, 250, 330],
+    "protein_shake": [250, 330, 500],
+    "kefir":     [150, 250, 500],
+    "ayran":     [250, 330, 500],
+    "plant_milk": [100, 200, 250],
+    "smoothie":  [200, 300, 400],
+    "coconut_water": [250, 330, 500],
+    "sports_drink": [330, 500, 750],
+    "soup":      [200, 300, 400],
+    "yogurt":    [125, 150, 200],
+    "fruit":     [100, 200, 300],
+    "cider":     [330, 500],
 }
 
 
@@ -161,6 +206,12 @@ def _init_db():
                 PRIMARY KEY (user_id, product_id, amount_ml)
             );
         """)
+        # The energy, sugar and protein of a drink came later than the table.
+        for table in ("entries", "products", "preset_overrides"):
+            have = {r["name"] for r in c.execute(f"PRAGMA table_info({table})")}
+            for col, _ in NUTRI_FIELDS:
+                if col not in have:
+                    c.execute(f"ALTER TABLE {table} ADD COLUMN {col} REAL NOT NULL DEFAULT 0")
         c.commit()
 
 
@@ -264,7 +315,8 @@ def _push_health(uid, day):
         t = _get_day(uid, day)["totals"]
         hub.call_app_api("health", "record_daily", uid, day,
                          {"water": round(t["water_ml"], 1), "caffeine": round(t["caffeine_mg"], 1),
-                          "alcohol": round(t["alcohol_g"], 1)},
+                          "alcohol": round(t["alcohol_g"], 1), "calories": round(t["calories_kcal"], 1),
+                          "sugar": round(t["sugar_g"], 1), "protein": round(t["protein_g"], 1)},
                          source_app=APP_ID, source_app_name="Hydration")
     except Exception:
         pass
@@ -325,6 +377,9 @@ class ProductBody(BaseModel):
     water_percent: float = 100
     caffeine_mg_100: float = 0
     alcohol_percent: float = 0
+    calories_kcal_100: Optional[float] = None
+    sugar_g_100: Optional[float] = None
+    protein_g_100: Optional[float] = None
     servings: Optional[List[float]] = None
     active: Optional[bool] = None
 
@@ -364,7 +419,8 @@ def _settings(c, uid):
 
 def _products(c, uid):
     rows = c.execute(
-        "SELECT id,name,water_percent,caffeine_mg_100,alcohol_percent FROM products WHERE user_id=? ORDER BY name COLLATE NOCASE",
+        "SELECT id,name,water_percent,caffeine_mg_100,alcohol_percent,calories_kcal_100,sugar_g_100,protein_g_100"
+        " FROM products WHERE user_id=? ORDER BY name COLLATE NOCASE",
         (uid,),
     ).fetchall()
     return [dict(r) for r in rows]
@@ -373,7 +429,8 @@ def _products(c, uid):
 def _presets(c, uid):
     """The ready-made drinks with this user's own changes applied."""
     over = {r["product_id"]: r for r in c.execute(
-        "SELECT product_id,water_percent,caffeine_mg_100,alcohol_percent FROM preset_overrides WHERE user_id=?", (uid,))}
+        "SELECT product_id,water_percent,caffeine_mg_100,alcohol_percent,calories_kcal_100,sugar_g_100,protein_g_100"
+        " FROM preset_overrides WHERE user_id=?", (uid,))}
     out = []
     for k, (icon, w, caf, alc) in PRESETS.items():
         o = over.get(k)
@@ -382,6 +439,7 @@ def _presets(c, uid):
             "water_percent": o["water_percent"] if o else w,
             "caffeine_mg_100": o["caffeine_mg_100"] if o else caf,
             "alcohol_percent": o["alcohol_percent"] if o else alc,
+            **{col: (o[col] if o else PRESET_NUTRI.get(k, (0, 0, 0))[i]) for i, (col, _) in enumerate(NUTRI_FIELDS)},
         })
     return out
 
@@ -416,7 +474,7 @@ def _drinks(c, uid):
         pr = prefs.get(base["id"])
         raw = json.loads(pr["servings"]) if pr and pr["servings"] is not None else defaults
         u = used.get(base["id"], {})
-        base["active"] = bool(pr["active"]) if pr else True
+        base["active"] = bool(pr["active"]) if pr else base["id"] not in HIDDEN_BY_DEFAULT
         base["last_used"] = pr["last_used"] if pr else None
         base["servings"] = [{"ml": ml, "last_used": u.get(ml)} for ml in sorted(raw)]
         out.append(base)
@@ -434,9 +492,11 @@ def _find_product(c, uid, product_id):
     if product_id in PRESETS:
         p = next(x for x in _presets(c, uid) if x["id"] == product_id)
         return {"id": product_id, "name": product_id, "water_percent": p["water_percent"],
-                "caffeine_mg_100": p["caffeine_mg_100"], "alcohol_percent": p["alcohol_percent"]}
+                "caffeine_mg_100": p["caffeine_mg_100"], "alcohol_percent": p["alcohol_percent"],
+                **{col: p[col] for col, _ in NUTRI_FIELDS}}
     row = c.execute(
-        "SELECT id,name,water_percent,caffeine_mg_100,alcohol_percent FROM products WHERE id=? AND user_id=?",
+        "SELECT id,name,water_percent,caffeine_mg_100,alcohol_percent,calories_kcal_100,sugar_g_100,protein_g_100"
+        " FROM products WHERE id=? AND user_id=?",
         (product_id, uid),
     ).fetchone()
     return dict(row) if row else None
@@ -454,6 +514,12 @@ def _entry_out(r):
         "water_percent": r["water_percent"],
         "caffeine_mg_100": r["caffeine_mg_100"],
         "alcohol_percent": r["alcohol_percent"],
+        "calories_kcal_100": r["calories_kcal_100"],
+        "sugar_g_100": r["sugar_g_100"],
+        "protein_g_100": r["protein_g_100"],
+        "calories_kcal": amount * r["calories_kcal_100"] / 100.0,
+        "sugar_g": amount * r["sugar_g_100"] / 100.0,
+        "protein_g": amount * r["protein_g_100"] / 100.0,
         "water_ml": amount * r["water_percent"] / 100.0,
         "caffeine_mg": amount * r["caffeine_mg_100"] / 100.0,
         "alcohol_g": amount * r["alcohol_percent"] / 100.0 * ALCOHOL_G_PER_ML,
@@ -466,6 +532,9 @@ def _totals(entries):
         "water_ml": sum(e["water_ml"] for e in entries),
         "caffeine_mg": sum(e["caffeine_mg"] for e in entries),
         "alcohol_g": sum(e["alcohol_g"] for e in entries),
+        "calories_kcal": sum(e["calories_kcal"] for e in entries),
+        "sugar_g": sum(e["sugar_g"] for e in entries),
+        "protein_g": sum(e["protein_g"] for e in entries),
     }
 
 
@@ -522,10 +591,11 @@ def _add_entry(uid, day, amount_ml, product_id):
             raise LookupError("not found")
         eid = uuid.uuid4().hex
         c.execute(
-            "INSERT INTO entries(id,user_id,day,recorded_at,product_id,name,amount_ml,water_percent,caffeine_mg_100,alcohol_percent)"
-            " VALUES(?,?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO entries(id,user_id,day,recorded_at,product_id,name,amount_ml,water_percent,caffeine_mg_100,alcohol_percent,"
+            "calories_kcal_100,sugar_g_100,protein_g_100) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (eid, uid, day, datetime.now(timezone.utc).isoformat(), p["id"], p["name"], amount,
-             p["water_percent"], p["caffeine_mg_100"], p["alcohol_percent"]),
+             p["water_percent"], p["caffeine_mg_100"], p["alcohol_percent"],
+             p["calories_kcal_100"], p["sugar_g_100"], p["protein_g_100"]),
         )
         now = datetime.now(timezone.utc).isoformat()
         c.execute(
@@ -589,6 +659,19 @@ def _product_values(name, water_percent, caffeine_mg_100, alcohol_percent):
     return name, w, caf, alc
 
 
+def _nutri(kcal, sugar, protein):
+    """The energy, sugar and protein sent with a drink: a validated number, or
+    None for one that was not sent (a new drink then has none, an edited one
+    keeps what it had)."""
+    out = []
+    for v, (_, hi) in zip((kcal, sugar, protein), NUTRI_FIELDS):
+        n = _num(v, 0, hi)
+        if v is not None and n is None:
+            raise ValueError("invalid_value")
+        out.append(n)
+    return out
+
+
 def _drink(c, uid, product_id):
     return next(d for d in _drinks(c, uid) if d["id"] == product_id)
 
@@ -606,29 +689,36 @@ def _save_prefs(c, uid, product_id, active=None, servings=None, reset_servings=F
         c.execute("UPDATE drink_prefs SET servings=NULL WHERE user_id=? AND product_id=?", (uid, product_id))
 
 
-def _add_product(uid, name, water_percent, caffeine_mg_100, alcohol_percent, servings=None, active=None):
+def _add_product(uid, name, water_percent, caffeine_mg_100, alcohol_percent, servings=None, active=None,
+                 calories_kcal_100=None, sugar_g_100=None, protein_g_100=None):
     vals = _product_values(name, water_percent, caffeine_mg_100, alcohol_percent)
+    nut = [n or 0 for n in _nutri(calories_kcal_100, sugar_g_100, protein_g_100)]
     if servings is not None:
         _clean_servings(servings)
     pid = uuid.uuid4().hex
     with _db() as c:
         c.execute(
-            "INSERT INTO products(id,user_id,name,water_percent,caffeine_mg_100,alcohol_percent) VALUES(?,?,?,?,?,?)",
-            (pid, uid, *vals),
+            "INSERT INTO products(id,user_id,name,water_percent,caffeine_mg_100,alcohol_percent,"
+            "calories_kcal_100,sugar_g_100,protein_g_100) VALUES(?,?,?,?,?,?,?,?,?)",
+            (pid, uid, *vals, *nut),
         )
         _save_prefs(c, uid, pid, active, servings)
         c.commit()
         return _drink(c, uid, pid)
 
 
-def _edit_product(uid, product_id, name, water_percent, caffeine_mg_100, alcohol_percent, servings=None, active=None):
+def _edit_product(uid, product_id, name, water_percent, caffeine_mg_100, alcohol_percent, servings=None, active=None,
+                  calories_kcal_100=None, sugar_g_100=None, protein_g_100=None):
     vals = _product_values(name, water_percent, caffeine_mg_100, alcohol_percent)
+    nut = _nutri(calories_kcal_100, sugar_g_100, protein_g_100)
     if servings is not None:
         _clean_servings(servings)
     with _db() as c:
         cur = c.execute(
-            "UPDATE products SET name=?,water_percent=?,caffeine_mg_100=?,alcohol_percent=? WHERE id=? AND user_id=?",
-            (*vals, product_id, uid),
+            "UPDATE products SET name=?,water_percent=?,caffeine_mg_100=?,alcohol_percent=?,"
+            "calories_kcal_100=COALESCE(?,calories_kcal_100),sugar_g_100=COALESCE(?,sugar_g_100),"
+            "protein_g_100=COALESCE(?,protein_g_100) WHERE id=? AND user_id=?",
+            (*vals, *nut, product_id, uid),
         )
         if not cur.rowcount:
             raise LookupError("not found")
@@ -658,18 +748,25 @@ def _set_prefs(uid, product_id, active=None, servings=None):
         return _drink(c, uid, product_id)
 
 
-def _set_preset(uid, product_id, water_percent, caffeine_mg_100, alcohol_percent, servings=None, active=None):
+def _set_preset(uid, product_id, water_percent, caffeine_mg_100, alcohol_percent, servings=None, active=None,
+                calories_kcal_100=None, sugar_g_100=None, protein_g_100=None):
     if product_id not in PRESETS:
         raise LookupError("not found")
     _, w, caf, alc = _product_values("-", water_percent, caffeine_mg_100, alcohol_percent)
+    nut = _nutri(calories_kcal_100, sugar_g_100, protein_g_100)
     if servings is not None:
         _clean_servings(servings)
     with _db() as c:
+        cur = next(x for x in _presets(c, uid) if x["id"] == product_id)
+        nut = [cur[col] if n is None else n for n, (col, _) in zip(nut, NUTRI_FIELDS)]
         c.execute(
-            "INSERT INTO preset_overrides(user_id,product_id,water_percent,caffeine_mg_100,alcohol_percent) VALUES(?,?,?,?,?) "
+            "INSERT INTO preset_overrides(user_id,product_id,water_percent,caffeine_mg_100,alcohol_percent,"
+            "calories_kcal_100,sugar_g_100,protein_g_100) VALUES(?,?,?,?,?,?,?,?) "
             "ON CONFLICT(user_id,product_id) DO UPDATE SET water_percent=excluded.water_percent, "
-            "caffeine_mg_100=excluded.caffeine_mg_100, alcohol_percent=excluded.alcohol_percent",
-            (uid, product_id, w, caf, alc),
+            "caffeine_mg_100=excluded.caffeine_mg_100, alcohol_percent=excluded.alcohol_percent, "
+            "calories_kcal_100=excluded.calories_kcal_100, sugar_g_100=excluded.sugar_g_100, "
+            "protein_g_100=excluded.protein_g_100",
+            (uid, product_id, w, caf, alc, *nut),
         )
         _save_prefs(c, uid, product_id, active, servings)
         c.commit()
@@ -845,7 +942,8 @@ async def edit_preset(product_id: str, body: ProductBody, x_pub_token: str = Hea
     if not me:
         return _bad("unauthorized", 401)
     return _reply(_set_preset, me["id"], product_id, body.water_percent, body.caffeine_mg_100,
-                  body.alcohol_percent, body.servings, body.active)
+                  body.alcohol_percent, body.servings, body.active,
+                  body.calories_kcal_100, body.sugar_g_100, body.protein_g_100)
 
 
 @router.delete("/presets/{product_id}")
@@ -862,7 +960,8 @@ async def add_product(body: ProductBody, x_pub_token: str = Header(default=None)
     if not me:
         return _bad("unauthorized", 401)
     return _reply(_add_product, me["id"], body.name, body.water_percent, body.caffeine_mg_100,
-                  body.alcohol_percent, body.servings, body.active)
+                  body.alcohol_percent, body.servings, body.active,
+                  body.calories_kcal_100, body.sugar_g_100, body.protein_g_100)
 
 
 @router.put("/products/{product_id}")
@@ -871,7 +970,8 @@ async def edit_product(product_id: str, body: ProductBody, x_pub_token: str = He
     if not me:
         return _bad("unauthorized", 401)
     return _reply(_edit_product, me["id"], product_id, body.name, body.water_percent,
-                  body.caffeine_mg_100, body.alcohol_percent, body.servings, body.active)
+                  body.caffeine_mg_100, body.alcohol_percent, body.servings, body.active,
+                  body.calories_kcal_100, body.sugar_g_100, body.protein_g_100)
 
 
 @router.put("/drinks/{product_id}")

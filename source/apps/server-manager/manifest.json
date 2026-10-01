@@ -1,6 +1,17 @@
 {
   "id": "server-manager",
   "name": "Server Manager",
+  "name_i18n": {
+    "en": "Server Manager",
+    "bg": "Мениджър на услуги",
+    "de": "Dienstverwaltung",
+    "es": "Gestor de servicios",
+    "fr": "Gestionnaire de services",
+    "ja": "サービスマネージャー",
+    "pt-BR": "Gerenciador de serviços",
+    "ru": "Менеджер служб",
+    "zh-CN": "服务管理器"
+  },
   "icon": "🖧",
   "category": "System & Administration",
   "tags": [
@@ -8,7 +19,7 @@
     "system",
     "administration"
   ],
-  "version": "1.6.2",
+  "version": "1.6.3",
   "min_core_version": "1.0.0",
   "description": "Monitor and control system services — start, stop, restart, and check status of web servers, databases, and more. Configure PHP, MySQL, Nginx, SSH and UFW firewall settings directly from the UI.",
   "entry": "main.js"

@@ -12,6 +12,11 @@
     return s;
   }
 
+  // An app's name in the user's language (the manifest's name_i18n).
+  function appName(app) {
+    return window.mvmOS && window.mvmOS.appName ? window.mvmOS.appName(app) : app.name;
+  }
+
   function esc(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char];
@@ -90,6 +95,30 @@
       .mvmai-send{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);border:0;border-radius:.5rem;
         padding:0 1rem;font-weight:700;cursor:pointer;font-size:.88rem}
       .mvmai-send:disabled{opacity:.5;cursor:default}
+      .mvmai-inputbar{position:relative;align-items:flex-end}
+      .mvmai-inputbar .mvmai-send{flex-shrink:0;min-height:2.3rem;white-space:nowrap}
+      .mvmai-app-btn{background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border:1px solid var(--pub-border,#45475a);
+        border-radius:.5rem;min-width:2.3rem;height:2.3rem;padding:0 .5rem;cursor:pointer;font-size:.95rem;
+        display:flex;align-items:center;gap:.3rem;max-width:11rem;flex-shrink:0}
+      .mvmai-app-btn.chosen{border-color:var(--pub-accent,#89b4fa)}
+      .mvmai-app-btn .mvmai-app-name{font-size:.78rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .mvmai-app-pop{position:absolute;left:.9rem;bottom:calc(100% - .3rem);z-index:6;width:15rem;max-height:18rem;overflow-y:auto;
+        background:var(--pub-surface1,#181825);border:1px solid var(--pub-border,#45475a);border-radius:.6rem;
+        box-shadow:0 8px 24px rgba(0,0,0,.35);padding:.35rem}
+      .mvmai-app-pop[hidden]{display:none}
+      .mvmai-app-pop .mvmai-app-hint{font-size:.74rem;color:var(--pub-dim,#6c7086);padding:.3rem .45rem .45rem;line-height:1.4}
+      .mvmai-app-item{display:flex;align-items:center;gap:.5rem;width:100%;background:none;border:0;color:var(--pub-fg,#cdd6f4);
+        padding:.45rem .5rem;border-radius:.4rem;cursor:pointer;font-size:.84rem;text-align:left}
+      .mvmai-app-item:hover,.mvmai-app-item.active{background:var(--pub-surface2,#313244)}
+      .mvmai-review{max-width:min(28rem,92%)}
+      .mvmai-review .mvmai-review-sum{color:var(--pub-fg2,#a6adc8);margin-bottom:.5rem;line-height:1.4}
+      .mvmai-review label{display:block;font-size:.74rem;color:var(--pub-dim,#6c7086);margin:.45rem 0 .2rem}
+      .mvmai-review input,.mvmai-review select,.mvmai-review textarea{width:100%;box-sizing:border-box;
+        background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border:1px solid var(--pub-border,#45475a);
+        border-radius:.4rem;padding:.35rem .5rem;font:inherit;font-size:.82rem}
+      .mvmai-review input[type=checkbox]{width:auto}
+      .mvmai-review textarea{min-height:3.5rem;font-family:monospace;font-size:.76rem}
+      .mvmai-review .mvmai-review-state{margin-top:.5rem;font-weight:600}
       .mvmai-typing{align-self:flex-start;color:var(--pub-dim,#6c7086);font-size:.82rem}
       .mvmai-hist-btn{background:none;border:0;color:inherit;font-size:1.15rem;cursor:pointer;padding:.15rem .35rem;
         border-radius:.4rem;line-height:1}
@@ -246,6 +275,13 @@
       renderShell();
     });
 
+    // The app picker exists where the data bridge does; on the desktop of an
+    // install without Premium it is still shown, locked, and opens the
+    // Premium dialog. The public page never shows it without the bridge.
+    function showAppPicker() {
+      return !!(me.has_api_bridge || (isDesktop && !me.bridge_premium && window.mvmOS && window.mvmOS.premiumGate));
+    }
+
     function messagePlaceholder() {
       var provider = me && me.is_admin && me.provider_label ? me.provider_label : 'mvmAI';
       return t('mvmai_pub_placeholder').replace('mvmAI', provider);
@@ -297,6 +333,7 @@
           </div>
           <div class="mvmai-list"></div>
           <div class="mvmai-inputbar">
+            ${showAppPicker() ? '<button class="mvmai-app-btn" type="button" title="' + esc(t('mvmai_pub_app_pick')) + '"><span class="mvmai-app-icon">🧩</span><span class="mvmai-app-name" hidden></span></button><div class="mvmai-app-pop" hidden></div>' : ''}
             <textarea class="mvmai-input" rows="1" placeholder="${esc(messagePlaceholder())}"></textarea>
             <button class="mvmai-send">${esc(t('mvmai_pub_send'))}</button>
           </div>
@@ -311,6 +348,74 @@
       var sidebarListEl = root.querySelector('.mvmai-sidebar-list');
       var histBtn = root.querySelector('.mvmai-hist-btn');
       var newChatBtn = root.querySelector('.mvmai-new-chat');
+      var appBtn = root.querySelector('.mvmai-app-btn');
+      var appPop = root.querySelector('.mvmai-app-pop');
+      var appKey = 'mvmai_app_' + (isDesktop ? 'desktop' : 'public');
+      var chosenApp = null;
+      var bridgeApps = null;
+
+      function paintAppBtn() {
+        if (!appBtn) return;
+        appBtn.classList.toggle('chosen', !!chosenApp);
+        appBtn.querySelector('.mvmai-app-icon').textContent = chosenApp ? chosenApp.icon : '🧩';
+        var nameEl = appBtn.querySelector('.mvmai-app-name');
+        nameEl.hidden = !chosenApp;
+        nameEl.textContent = chosenApp ? appName(chosenApp) : '';
+        appBtn.title = chosenApp ? t('mvmai_pub_app_chosen', {name: appName(chosenApp)}) : t('mvmai_pub_app_pick');
+      }
+
+      function chooseApp(app) {
+        chosenApp = app;
+        try { app ? localStorage.setItem(appKey, app.id) : localStorage.removeItem(appKey); } catch (_) {}
+        paintAppBtn();
+        appPop.hidden = true;
+        inputEl.focus();
+      }
+
+      function renderAppPop() {
+        appPop.innerHTML = '';
+        var hint = document.createElement('div');
+        hint.className = 'mvmai-app-hint';
+        hint.textContent = bridgeApps && bridgeApps.length ? t('mvmai_pub_app_hint') : t('mvmai_pub_app_none_available');
+        appPop.appendChild(hint);
+        var items = [{id: '', icon: '💬', name: t('mvmai_pub_app_no_app')}].concat((bridgeApps || []).slice().sort(function (x, y) { return appName(x).localeCompare(appName(y)); }));
+        items.forEach(function (app) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'mvmai-app-item' + ((chosenApp ? chosenApp.id : '') === app.id ? ' active' : '');
+          b.innerHTML = '<span>' + esc(app.icon) + '</span><span>' + esc(appName(app)) + '</span>';
+          b.addEventListener('click', function () { chooseApp(app.id ? app : null); });
+          appPop.appendChild(b);
+        });
+      }
+
+      function loadBridgeApps() {
+        return api('/bridge-apps').then(function (data) {
+          bridgeApps = data.__status === 200 ? (data.apps || []) : [];
+          var saved = null;
+          try { saved = localStorage.getItem(appKey); } catch (_) {}
+          if (saved && !chosenApp) {
+            var found = bridgeApps.filter(function (a) { return a.id === saved; })[0];
+            if (found) { chosenApp = found; paintAppBtn(); }
+          }
+        });
+      }
+
+      if (appBtn && !me.has_api_bridge) {
+        window.mvmOS.premiumGate(appBtn, t('mvmai_pub_app_premium'));
+      } else if (appBtn) {
+        loadBridgeApps();
+        appBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (!appPop.hidden) { appPop.hidden = true; return; }
+          (bridgeApps ? Promise.resolve() : loadBridgeApps()).then(function () {
+            renderAppPop();
+            appPop.hidden = false;
+          });
+        });
+        appPop.addEventListener('click', function (e) { e.stopPropagation(); });
+        document.addEventListener('click', function () { if (appPop) appPop.hidden = true; });
+      }
 
       function refreshProviderMetadata() {
         if (!me.is_admin) return Promise.resolve();
@@ -988,6 +1093,116 @@
           });
         }
 
+        // A tool that changes data first becomes a form the user reviews,
+        // corrects and saves; reads run straight away.
+        return api('/tool-preview', {method: 'POST', body: JSON.stringify({name: name, arguments: args})})
+          .then(function (pv) {
+            if (pv.__status === 200 && pv.write) return reviewToolCall(call, name, args, pv);
+            return readToolCall(call, name, args);
+          });
+      }
+
+      function reviewToolCall(call, name, args, pv) {
+        return new Promise(function (resolve) {
+          var card = document.createElement('div');
+          card.className = 'mvmai-tool-card mvmai-review';
+          card.innerHTML = '<div class="mvmai-tool-head">' + esc(pv.app.icon) + ' ' + esc(appName(pv.app)) + ' · ' + esc(pv.action) + '</div>' +
+            (pv.summary ? '<div class="mvmai-review-sum">' + esc(pv.summary) + '</div>' : '');
+          var inputs = [];
+          pv.fields.forEach(function (f) {
+            var label = document.createElement('label');
+            label.textContent = f.label + (f.required ? ' *' : '');
+            var input;
+            var value = f.value === null || f.value === undefined ? '' : f.value;
+            if (f.options && f.options.length) {
+              input = document.createElement('select');
+              var opts = f.options.slice();
+              if (value !== '' && !opts.some(function (o) { return String(o.value) === String(value); })) {
+                opts.unshift({value: value, label: String(value)});
+              }
+              if (!f.required || value === '') opts.unshift({value: '', label: '—'});
+              opts.forEach(function (o) {
+                var op = document.createElement('option');
+                op.value = String(o.value);
+                op.textContent = o.label;
+                input.appendChild(op);
+              });
+              input.value = String(value);
+            } else if (f.type === 'bool') {
+              input = document.createElement('input');
+              input.type = 'checkbox';
+              input.checked = value === true || value === 'true';
+            } else if (f.type === 'json' || (f.type === 'text' && String(value).length > 60)) {
+              input = document.createElement('textarea');
+              input.value = String(value);
+            } else {
+              input = document.createElement('input');
+              input.type = f.type === 'number' ? 'number' : (f.type === 'date' || f.type === 'time' ? f.type : 'text');
+              if (f.type === 'number') input.step = 'any';
+              input.value = String(value);
+            }
+            card.appendChild(label);
+            card.appendChild(input);
+            inputs.push({f: f, el: input, before: f.type === 'bool' ? input.checked : input.value});
+          });
+          var row = document.createElement('div');
+          row.className = 'mvmai-confirm-row';
+          row.innerHTML = '<button class="mvmai-confirm-yes">' + esc(t('mvmai_pub_review_save')) + '</button>' +
+            '<button class="mvmai-confirm-no">' + esc(t('mvmai_pub_review_cancel')) + '</button>';
+          card.appendChild(row);
+          var state = document.createElement('div');
+          state.className = 'mvmai-review-state';
+          card.appendChild(state);
+          listEl.appendChild(card);
+          scrollDown();
+
+          function lock() {
+            inputs.forEach(function (i) { i.el.disabled = true; });
+            row.remove();
+          }
+
+          row.querySelector('.mvmai-confirm-no').addEventListener('click', function () {
+            lock();
+            state.textContent = t('mvmai_pub_review_cancelled');
+            resolve({role: 'tool', tool_call_id: call.id, content: JSON.stringify({
+              cancelled: true, note: 'The user cancelled this change. Nothing was saved.'
+            })});
+          });
+
+          row.querySelector('.mvmai-confirm-yes').addEventListener('click', function () {
+            var values = {};
+            var changed = {};
+            var missing = false;
+            inputs.forEach(function (i) {
+              var v = i.f.type === 'bool' ? i.el.checked : i.el.value;
+              i.el.style.borderColor = '';
+              if (i.f.type !== 'bool' && i.f.required && String(v).trim() === '') {
+                i.el.style.borderColor = 'var(--pub-red,#f38ba8)';
+                missing = true;
+              }
+              if (i.f.type === 'bool' || String(v).trim() !== '') values[i.f.id] = v;
+              if (v !== i.before) changed[i.f.id] = v;
+            });
+            if (missing) { state.textContent = t('mvmai_pub_review_required'); return; }
+            lock();
+            state.textContent = t('mvmai_pub_review_saving');
+            api('/tool-call', {method: 'POST', body: JSON.stringify({name: name, arguments: values, confirmed: true})})
+              .then(function (data) {
+                if (data.__status === 200) {
+                  state.textContent = '✓ ' + t('mvmai_pub_review_saved');
+                  var out = {saved: true, result: data.result};
+                  if (Object.keys(changed).length) out.user_changed = changed;
+                  resolve({role: 'tool', tool_call_id: call.id, content: JSON.stringify(out)});
+                } else {
+                  state.textContent = t('mvmai_pub_err') + ': ' + (data.error || data.__status);
+                  resolve({role: 'tool', tool_call_id: call.id, content: JSON.stringify({error: data.error || 'failed', saved: false})});
+                }
+              });
+          });
+        });
+      }
+
+      function readToolCall(call, name, args) {
         var card = document.createElement('div');
         card.className = 'mvmai-tool-card';
         card.innerHTML = '<div class="mvmai-tool-head">🔧 ' + esc(t('mvmai_pub_using_tool', {name: name})) + '</div>';
@@ -1190,9 +1405,11 @@
 
         function step() {
           var typing = addTyping();
-          api('/chat', {method: 'POST', body: JSON.stringify({messages: history, session_id: sessionId, project_id: activeProject ? activeProject.id : null})}).then(function (data) {
+          api('/chat', {method: 'POST', body: JSON.stringify({messages: history, session_id: sessionId, project_id: activeProject ? activeProject.id : null, app_id: chosenApp ? chosenApp.id : null})}).then(function (data) {
             typing.remove();
-            if (data.__status !== 200) {
+            // A long turn answers 200 at once to keep the connection open,
+            // so its failure arrives as an error in the body instead.
+            if (data.__status !== 200 || data.error || !data.message) {
               var key = data.error === 'insufficient_credits' ? 'mvmai_pub_insufficient_credits'
                 : (data.__status === 401 ? 'mvmai_pub_unauthorized' : null);
               addNote((key ? t(key) : (t('mvmai_pub_err') + ': ' + (data.error || data.__status))));

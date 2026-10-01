@@ -5,91 +5,157 @@
       "name": "Server Manager",
       "icon": "🖧",
       "category": "System & Administration",
-      "version": "1.6.2",
+      "version": "1.6.3",
       "description": "Monitor and control system services — start, stop, restart, and check status of web servers, databases, and more. Configure PHP, MySQL, Nginx, SSH and UFW firewall settings directly from the UI.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/server-manager-1.6.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/server-manager-1.6.3.zip",
       "tags": [
         "server",
         "system",
         "administration"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "name_i18n": {
+        "en": "Server Manager",
+        "bg": "Мениджър на услуги",
+        "de": "Dienstverwaltung",
+        "es": "Gestor de servicios",
+        "fr": "Gestionnaire de services",
+        "ja": "サービスマネージャー",
+        "pt-BR": "Gerenciador de serviços",
+        "ru": "Менеджер служб",
+        "zh-CN": "服务管理器"
+      }
     },
     {
       "id": "process-manager",
       "name": "Process Manager",
       "icon": "📊",
       "category": "System & Administration",
-      "version": "1.3.2",
+      "version": "1.3.3",
       "description": "Monitor CPU, memory and disk usage. View and manage running processes.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/process-manager-1.3.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/process-manager-1.3.3.zip",
       "tags": [
         "system",
         "processes",
         "monitoring"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "name_i18n": {
+        "en": "Process Manager",
+        "bg": "Мениджър на процеси",
+        "de": "Prozessmanager",
+        "es": "Administrador de procesos",
+        "fr": "Gestionnaire de processus",
+        "ja": "プロセスマネージャー",
+        "pt-BR": "Gerenciador de processos",
+        "ru": "Диспетчер процессов",
+        "zh-CN": "进程管理器"
+      }
     },
     {
       "id": "system-info",
       "name": "System Info",
       "icon": "🖥️",
       "category": "System & Administration",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "description": "Detailed hardware and system information — CPU, memory, disks, network interfaces, temperatures, uptime and more.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/system-info-1.2.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/system-info-1.2.3.zip",
       "tags": [
         "system",
         "diagnostics",
         "monitoring"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "name_i18n": {
+        "en": "System Info",
+        "bg": "Системна информация",
+        "de": "Systeminfo",
+        "es": "Información del sistema",
+        "fr": "Infos système",
+        "ja": "システム情報",
+        "pt-BR": "Informações do sistema",
+        "ru": "Сведения о системе",
+        "zh-CN": "系统信息"
+      }
     },
     {
       "id": "server-monitor",
       "name": "Server Monitor",
       "icon": "🌡️",
       "category": "System & Administration",
-      "version": "1.3.3",
+      "version": "1.3.4",
       "description": "Real-time server metrics with history. Tracks CPU, RAM, disk, network every minute.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/server-monitor-1.3.3.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/server-monitor-1.3.4.zip",
       "tags": [
         "server",
         "monitoring",
         "system"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "name_i18n": {
+        "en": "Server Monitor",
+        "bg": "Сървър Монитор",
+        "de": "Server-Monitor",
+        "es": "Monitor del servidor",
+        "fr": "Moniteur du serveur",
+        "ja": "サーバーモニター",
+        "pt-BR": "Monitor do servidor",
+        "ru": "Монитор сервера",
+        "zh-CN": "服务器监控"
+      }
     },
     {
       "id": "statetracker",
       "name": "State Tracker",
       "icon": "📡",
       "category": "System & Administration",
-      "version": "1.1.3",
+      "version": "1.1.4",
       "description": "Track state changes of anything over time — ping, HTTP checks, API values, or manual push.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/statetracker-1.1.3.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/statetracker-1.1.4.zip",
       "tags": [
         "tracking",
         "habits",
         "wellbeing"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.0.0",
+      "name_i18n": {
+        "en": "State Tracker",
+        "bg": "Проследяване на състояния",
+        "de": "Zustandsverfolgung",
+        "es": "Seguimiento de estados",
+        "fr": "Suivi d’états",
+        "ja": "状態トラッカー",
+        "pt-BR": "Rastreador de estados",
+        "ru": "Отслеживание состояний",
+        "zh-CN": "状态跟踪器"
+      }
     },
     {
       "id": "local-display",
       "name": "Local Display",
       "icon": "📺",
       "category": "System & Administration",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "description": "Show mvmOS full screen on the monitor or TV connected to a computer that has no desktop environment, only a text console.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/local-display-1.0.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/local-display-1.0.2.zip",
       "tags": [
         "display",
         "kiosk",
         "tv",
         "system"
       ],
-      "min_core_version": "1.6.0"
+      "min_core_version": "1.6.0",
+      "name_i18n": {
+        "en": "Local Display",
+        "bg": "Локален дисплей",
+        "de": "Lokale Anzeige",
+        "es": "Pantalla local",
+        "fr": "Affichage local",
+        "ja": "ローカルディスプレイ",
+        "pt-BR": "Tela local",
+        "ru": "Локальный дисплей",
+        "zh-CN": "本地显示屏"
+      }
     }
   ]
 }

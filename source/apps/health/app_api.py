@@ -42,7 +42,8 @@ def list_metrics():
 
 def record_daily(user_id: str, day: str, values: dict, source_app: str, source_app_name: str = None):
     """Set what one app contributes to a day. values maps a daily metric (water
-    in ml, caffeine in mg, alcohol in g) to that app's total for the day. It
+    in ml, caffeine in mg, alcohol in g, calories in kcal, sugar and protein in g)
+    to that app's total for the day. It
     replaces the app's earlier value for that day; 0 removes it. Other sources
     of the same day, such as values typed by hand, are added on top."""
     return _pub()._set_daily_many(user_id, day, values, (source_app or "").strip()[:60] or "app",
