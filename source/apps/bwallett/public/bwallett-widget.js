@@ -57,6 +57,14 @@
         return data;
       });
     }
+    function desktopApi(path,options){
+      options=options||{};
+      return fetch('/api/apps/bwallett'+path,Object.assign({credentials:'same-origin'},options,{headers:{'Content-Type':'application/json'}})).then(async function(r){
+        var data=await r.json().catch(function(){return{}});
+        if(!r.ok){var e=new Error(data.error||'error');e.code=data.error;throw e}
+        return data;
+      });
+    }
     function toast(message){var el=document.createElement('div');el.className='bw-toast';el.textContent=message;shell.appendChild(el);setTimeout(function(){if(el.parentNode)el.remove()},2400)}
     function modal(html){var o=document.createElement('div');o.className='bw-overlay';o.innerHTML='<div class="bw-dialog">'+html+'</div>';shell.appendChild(o);return o}
     function closeModal(o){if(o&&o.parentNode)o.remove()}
@@ -226,12 +234,12 @@
     }
     async function renderSendPolicy(card){
       try{
-        var p=await api('/admin/send-policy'),fields=card.querySelector('.policy-fields');
+        var p=await desktopApi('/send-policy'),fields=card.querySelector('.policy-fields');
         fields.innerHTML='<label>'+esc(t('tw_min_send'))+'</label><input class="min" inputmode="decimal" value="'+(Number(p.min_send_sats||0)/SATS).toFixed(8)+'"><label>'+esc(t('tw_max_send'))+'</label><input class="max" inputmode="decimal" value="'+(Number(p.max_send_sats||0)/SATS).toFixed(8)+'"><div class="bw-note">'+esc(t('tw_no_limit'))+'</div><div class="bw-error"></div><button class="primary save-policy">'+esc(t('tw_save_policy'))+'</button>';
-        fields.querySelector('.save-policy').onclick=async function(){var err=fields.querySelector('.bw-error'),minimum=satsFromBtc(fields.querySelector('.min').value,true),maximum=satsFromBtc(fields.querySelector('.max').value,true);err.textContent='';if(minimum===null||maximum===null||(maximum&&maximum<minimum)){err.textContent=t('tw_policy_invalid_range');return}try{var saved=await api('/admin/send-policy',{method:'PUT',body:JSON.stringify({min_send_sats:minimum,max_send_sats:maximum})});state.policy={min_send_sats:saved.min_send_sats,max_send_sats:saved.max_send_sats};toast(t('tw_policy_saved'))}catch(e){err.textContent=t(e.code==='invalid_send_policy'?'tw_policy_invalid_range':'tw_broadcast_error')}};
+        fields.querySelector('.save-policy').onclick=async function(){var err=fields.querySelector('.bw-error'),minimum=satsFromBtc(fields.querySelector('.min').value,true),maximum=satsFromBtc(fields.querySelector('.max').value,true);err.textContent='';if(minimum===null||maximum===null||(maximum&&maximum<minimum)){err.textContent=t('tw_policy_invalid_range');return}try{var saved=await desktopApi('/send-policy',{method:'PUT',body:JSON.stringify({min_send_sats:minimum,max_send_sats:maximum})});state.policy={min_send_sats:saved.min_send_sats,max_send_sats:saved.max_send_sats};toast(t('tw_policy_saved'))}catch(e){err.textContent=t(e.code==='invalid_send_policy'?'tw_policy_invalid_range':'tw_policy_save_error')}};
         if(!p.premium&&window.mvmOS)window.mvmOS.premiumStatus='free';
         if(window.mvmOS&&window.mvmOS.premiumGate)window.mvmOS.premiumGate(card,t('tw_policy_premium_info'));
-      }catch(_){card.querySelector('.policy-fields').textContent=t('tw_load_error')}
+      }catch(_){card.querySelector('.policy-fields').textContent=t('tw_policy_load_error')}
     }
     async function verifyPassword(password){var key=await deriveKey(password,state.remote.salt,state.remote.iterations);var doc=await decryptDoc(key,state.remote.iv,state.remote.ciphertext);if(!doc||doc.mnemonic!==state.doc.mnemonic)throw new Error('bad');return{key:key,doc:doc}}
     function revealPhrase(){

@@ -620,8 +620,8 @@ async def verification_review(sid: str, decision: str):
 # Moderation: the desktop sees and manages every listing and can ban a
 # profile from Classifieds. A ban never touches the Apps Hub account itself —
 # it deletes the person's listings and stops them from publishing here, while
-# browsing and messages stay open to them. Private messages stay private: the
-# desktop still gets no inbox access.
+# browsing and messages stay open to them. Messages are moderated further down:
+# the desktop can read every conversation and delete, but never write or edit.
 ADMIN_PAGE = 50
 
 def admin_photo_url(pid):
@@ -842,7 +842,7 @@ async def delete_category(cid: int):
     return {'ok':True}
 
 # Conversations retain their listing title after deletion. Only the two participants
-# can read or send messages; the desktop session grants no inbox access.
+# can send messages; the desktop can read them all and delete (see the end).
 with db() as c:
     c.executescript('''
     CREATE TABLE IF NOT EXISTS conversations(
@@ -860,8 +860,17 @@ with db() as c:
     CREATE INDEX IF NOT EXISTS messages_sender ON messages(sender_id,created_at);
     CREATE INDEX IF NOT EXISTS messages_conversation ON messages(conversation_id,id);
     ''')
-    if 'system' not in {r['name'] for r in c.execute("PRAGMA table_info(messages)")}:
+    cols = {r['name'] for r in c.execute("PRAGMA table_info(messages)")}
+    if 'system' not in cols:
         c.execute('ALTER TABLE messages ADD COLUMN system TEXT')
+    # When the recipient's app first learnt about a message and when they
+    # opened it. 0 is not yet; messages older than these columns only have
+    # the conversation's *_read_at to say whether they were seen.
+    if 'delivered_at' not in cols:
+        c.execute('ALTER TABLE messages ADD COLUMN delivered_at REAL NOT NULL DEFAULT 0')
+    if 'read_at' not in cols:
+        c.execute('ALTER TABLE messages ADD COLUMN read_at REAL NOT NULL DEFAULT 0')
+    c.execute('CREATE INDEX IF NOT EXISTS messages_undelivered ON messages(conversation_id) WHERE delivered_at=0')
 
 # What moderation did to someone reaches them as a message in their own
 # Classifieds inbox: one conversation per person whose other side is SYSTEM,
@@ -939,6 +948,10 @@ async def conversations(offset: int = Query(0,ge=0), x_pub_token: str | None = H
         unread_total=c.execute('''SELECT COUNT(*) FROM messages m JOIN conversations c ON c.id=m.conversation_id
           WHERE m.sender_id!=? AND ((c.buyer_id=? AND m.created_at>c.buyer_read_at) OR (c.seller_id=? AND m.created_at>c.seller_read_at))''',(me['id'],me['id'],me['id'])).fetchone()[0]
         total=c.execute('SELECT COUNT(*) FROM conversations WHERE buyer_id=? OR seller_id=?',(me['id'],me['id'])).fetchone()[0]
+        # The unread count above covers every conversation, so this answer is
+        # the moment each waiting message reached the recipient's app.
+        c.execute('''UPDATE messages SET delivered_at=? WHERE delivered_at=0 AND sender_id!=?
+          AND conversation_id IN (SELECT id FROM conversations WHERE buyer_id=? OR seller_id=?)''',(time.time(),me['id'],me['id'],me['id']))
         for row in rows:
             peer=row['seller_id'] if row['buyer_id']==me['id'] else row['buyer_id']
             read_at=row['buyer_read_at'] if row['buyer_id']==me['id'] else row['seller_read_at']
@@ -959,6 +972,7 @@ async def messages(cid: str, before: int = Query(0,ge=0), after: int = Query(0,g
             rows=c.execute('SELECT * FROM messages WHERE conversation_id=? AND (?=0 OR id<?) ORDER BY id DESC LIMIT 51',(cid,before,before)).fetchall()
         more=len(rows)>50
         rows=rows[:50] if after else list(reversed(rows[:50]))
+        c.execute('UPDATE messages SET delivered_at=? WHERE delivered_at=0 AND sender_id!=? AND conversation_id=?',(time.time(),me['id'],cid))
         return {'items':[{'id':r['id'],'body':r['body'],'mine':r['sender_id']==me['id'],'created_at':r['created_at'],'system':system_part(r['system'])} for r in rows],
                 'more':more,'listing_title':conversation['listing_title'],'listing_id':conversation['listing_id'],'system':conversation['buyer_id']==SYSTEM}
 
@@ -974,6 +988,9 @@ async def read_messages(cid: str, body: ReadBody, x_pub_token: str | None = Head
         if message:
             col='buyer_read_at' if row['buyer_id']==me['id'] else 'seller_read_at'
             c.execute(f'UPDATE conversations SET {col}=MAX({col},?) WHERE id=?',(message['created_at'],cid))
+            now=time.time()
+            c.execute('''UPDATE messages SET read_at=?,delivered_at=CASE WHEN delivered_at=0 THEN ? ELSE delivered_at END
+              WHERE conversation_id=? AND sender_id!=? AND read_at=0 AND created_at<=?''',(now,now,cid,me['id'],message['created_at']))
     return {'ok':True}
 
 class MessageBody(BaseModel):
@@ -1002,3 +1019,77 @@ async def send_message(cid: str, body: MessageBody, x_pub_token: str | None = He
         mid=c.execute('INSERT INTO messages(conversation_id,sender_id,body,created_at,client_id) VALUES(?,?,?,?,?)',(cid,me['id'],body.body,now,body.client_id)).lastrowid
         c.execute('UPDATE conversations SET updated_at=? WHERE id=?',(now,cid))
     return {'id':mid}
+
+# Message moderation (desktop only): every conversation with who wrote what to
+# whom, when it was sent, reached the recipient's app and was opened. The
+# administrator can delete a message or a whole conversation, never write or
+# edit one, and the participants are not told.
+def names(ids):
+    return {p['id']: (p.get('display_name') or p.get('username') or '', p.get('username') or '') for p in hub().get_users_by_ids([i for i in ids if i != SYSTEM])}
+
+def person(uid, profiles):
+    name, username = profiles.get(uid, ('', ''))
+    return {'id': uid, 'name': name, 'username': username, 'system': uid == SYSTEM}
+
+@desktop_router.get('/admin/conversations')
+async def admin_conversations(q: str = Query('', max_length=160), user: str = Query('', max_length=64), offset: int = Query(0, ge=0)):
+    clauses, params = ['1=1'], []
+    if user: clauses.append('(buyer_id=? OR seller_id=?)'); params += [user, user]
+    with db() as c:
+        if q.strip():
+            text = q.strip()
+            # Names live in Apps Hub, so the profiles whose name matches are
+            # found first and searched for like any other participant.
+            ids = set()
+            for r in c.execute('SELECT buyer_id,seller_id FROM conversations'): ids.update((r['buyer_id'], r['seller_id']))
+            who = [uid for uid, (n, u) in names(ids).items() if text.casefold() in (n + ' ' + u).casefold()]
+            marks = ','.join('?' * len(who)) or "''"
+            clauses.append(f"""(instr(casefold(listing_title),casefold(?))>0 OR buyer_id IN ({marks}) OR seller_id IN ({marks})
+              OR EXISTS(SELECT 1 FROM messages m WHERE m.conversation_id=conversations.id AND instr(casefold(m.body),casefold(?))>0))""")
+            params += [text, *who, *who, text]
+        where = ' AND '.join(clauses)
+        total = c.execute('SELECT COUNT(*) FROM conversations WHERE ' + where, params).fetchone()[0]
+        rows = c.execute('SELECT * FROM conversations WHERE ' + where + ' ORDER BY updated_at DESC,id LIMIT ? OFFSET ?', [*params, ADMIN_PAGE, offset]).fetchall()
+        profiles = names({x for r in rows for x in (r['buyer_id'], r['seller_id'])})
+        items = []
+        for r in rows:
+            count = c.execute('SELECT COUNT(*) FROM messages WHERE conversation_id=?', (r['id'],)).fetchone()[0]
+            last = c.execute('SELECT body,system,created_at FROM messages WHERE conversation_id=? ORDER BY id DESC LIMIT 1', (r['id'],)).fetchone()
+            items.append({'id': r['id'], 'listing_id': r['listing_id'], 'listing_title': r['listing_title'],
+                          'buyer': person(r['buyer_id'], profiles), 'seller': person(r['seller_id'], profiles),
+                          'system': r['buyer_id'] == SYSTEM, 'messages': count, 'updated_at': r['updated_at'],
+                          'preview': last['body'][:140] if last else '', 'preview_system': system_part(last['system']) if last else None})
+    return {'items': items, 'total': total, 'page': ADMIN_PAGE}
+
+@desktop_router.get('/admin/conversations/{cid}/messages')
+async def admin_messages(cid: str, before: int = Query(0, ge=0)):
+    with db() as c:
+        conv = c.execute('SELECT * FROM conversations WHERE id=?', (cid,)).fetchone()
+        if not conv: raise HTTPException(404, 'not_found')
+        rows = c.execute('SELECT * FROM messages WHERE conversation_id=? AND (?=0 OR id<?) ORDER BY id DESC LIMIT 101', (cid, before, before)).fetchall()
+    more, rows = len(rows) > 100, list(reversed(rows[:100]))
+    profiles = names({conv['buyer_id'], conv['seller_id']})
+    items = []
+    for m in rows:
+        to = conv['seller_id'] if m['sender_id'] == conv['buyer_id'] else conv['buyer_id']
+        # Seen also counts for messages older than read_at: the conversation
+        # remembers how far the recipient has read, only not when.
+        seen = bool(m['read_at']) or m['created_at'] <= (conv['buyer_read_at'] if to == conv['buyer_id'] else conv['seller_read_at'])
+        items.append({'id': m['id'], 'body': m['body'], 'system': system_part(m['system']), 'created_at': m['created_at'],
+                      'from': person(m['sender_id'], profiles), 'to': person(to, profiles),
+                      'delivered': seen or bool(m['delivered_at']), 'delivered_at': m['delivered_at'] or None,
+                      'seen': seen, 'seen_at': m['read_at'] or None})
+    return {'items': items, 'more': more, 'listing_id': conv['listing_id'], 'listing_title': conv['listing_title'],
+            'system': conv['buyer_id'] == SYSTEM, 'buyer': person(conv['buyer_id'], profiles), 'seller': person(conv['seller_id'], profiles)}
+
+@desktop_router.delete('/admin/messages/{mid}')
+async def admin_delete_message(mid: int):
+    with db() as c:
+        if not c.execute('DELETE FROM messages WHERE id=?', (mid,)).rowcount: raise HTTPException(404, 'not_found')
+    return {'ok': True}
+
+@desktop_router.delete('/admin/conversations/{cid}')
+async def admin_delete_conversation(cid: str):
+    with db() as c:
+        if not c.execute('DELETE FROM conversations WHERE id=?', (cid,)).rowcount: raise HTTPException(404, 'not_found')
+    return {'ok': True}

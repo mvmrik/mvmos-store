@@ -1,6 +1,6 @@
 {
   "tagline": "A community marketplace powered by Apps Hub profiles.",
-  "description": "Publish classified listings with photos, descriptions, categories, prices or free items. Browse a public catalog and manage your own listings with your existing Apps Hub account. Watch interesting listings, see owner-only view and watcher statistics, and start private conversations from either side. Desktop settings control categories, subcategories and listing validity. A free Moderation panel lets the administrator manage every listing and ban a profile from posting, and each affected person is told what changed in their own language. Premium adds credit-paid VIP packages that place promoted listings first, and photo verification of users before they can post in chosen categories.",
+  "description": "Publish classified listings with photos, descriptions, categories, prices or free items. Browse a public catalog and manage your own listings with your existing Apps Hub account. Watch interesting listings, see owner-only view and watcher statistics, and start private conversations from either side. Desktop settings control categories, subcategories and listing validity. A free Moderation panel lets the administrator manage every listing, read and delete every conversation with its delivery and read status, and ban a profile from posting, and each affected person is told what changed in their own language. Premium adds credit-paid VIP packages that place promoted listings first, and photo verification of users before they can post in chosen categories.",
   "capabilities": [
     "Public catalog with search, category and price filters.",
     "Apps Hub accounts own and manage their listings.",
@@ -19,6 +19,7 @@
     "Premium VIP listings paid through administrator-defined Apps Hub credit packages.",
     "Moderation panel that shows every listing, searchable and filterable by category, status and owner, to edit, move, activate, deactivate, move to the top of the list without waiting a day, end VIP or delete one listing or a whole selection.",
     "Ban a profile from posting in Classifieds, with an optional reason, without touching its Apps Hub account.",
+    "Message moderation that shows every conversation with who wrote to whom, when each message was sent, delivered and seen, and deletes a message or a whole conversation without editing anything.",
     "System messages that tell people, in their own language, what moderation changed on their listings.",
     "Premium user verification that asks for a photo before posting in chosen categories, triggered after registration, after a number of days or after a number of listings."
   ],

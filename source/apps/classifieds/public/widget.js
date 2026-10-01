@@ -176,15 +176,16 @@ function mount(root, options = {}) {
   // Moderation (desktop only): its own page beside the listings, not a
   // dialog — every listing and every profile Classifieds knows, whoever owns
   // them. State survives going into a listing and back.
-  const mod={tab:'listings',q:'',category:'',status:'all',owner:'',ownerName:'',offset:0,uq:'',ufilter:'all',uoffset:0,selected:new Set(),page:50};
+  const mod={tab:'listings',q:'',category:'',status:'all',owner:'',ownerName:'',offset:0,uq:'',ufilter:'all',uoffset:0,mq:'',muser:'',muserName:'',moffset:0,selected:new Set(),page:50};
   const nav=action=>root.querySelectorAll('.cl-header nav [data-action]').forEach(x=>x.classList.toggle('cl-current',x.dataset.action===action));
   function showMod(html){close();mainView.hidden=true;modPage.hidden=false;modPage.innerHTML=html;nav('moderation');root.scrollTop=0;hydrate(modPage);}
   function leaveMod(action){if(modPage.hidden&&action)return nav(action);modPage.hidden=true;modPage.innerHTML='';mainView.hidden=false;nav(action);}
-  const modHead=(extra='')=>`<div class="cl-mod-head"><h2>${esc(t('moderation'))}</h2><div class="cl-mod-tabs" role="tablist">${['listings','users'].map(k=>btn('mod_'+k,'mod_tab',`role="tab" data-tab="${k}" aria-selected="${mod.tab===k}" ${mod.tab===k?'class="cl-current"':''}`)).join('')}</div>${extra}</div>`;
+  const modHead=(extra='')=>`<div class="cl-mod-head"><h2>${esc(t('moderation'))}</h2><div class="cl-mod-tabs" role="tablist">${['listings','messages','users'].map(k=>btn('mod_'+k,'mod_tab',`role="tab" data-tab="${k}" aria-selected="${mod.tab===k}" ${mod.tab===k?'class="cl-current"':''}`)).join('')}</div>${extra}</div>`;
   const pager=(off,total,action)=>`<div class="cl-pager">${btn('previous',action,'data-step="-1" '+(off?'':'disabled'))}<span>${total?`${off+1}–${Math.min(off+mod.page,total)} / ${total}`:'0'}</span>${btn('next',action,'data-step="1" '+(off+mod.page<total?'':'disabled'))}</div>`;
   const banned=()=>`<span class="cl-mod-banned">${esc(t('mod_banned'))}</span>`;
   async function moderation() {
     if(mod.tab==='users') return modUsers();
+    if(mod.tab==='messages') return modMessages();
     const p=new URLSearchParams({q:mod.q,category:mod.category||'0',status:mod.status,owner:mod.owner,offset:String(mod.offset)});
     const data=await api('/admin/listings?'+p,'GET',undefined,true);
     if(mod.offset&&!data.items.length){mod.offset=Math.max(0,mod.offset-data.page);return moderation();}
@@ -204,11 +205,34 @@ function mount(root, options = {}) {
   async function modUsers() {
     const data=await api('/admin/users?'+new URLSearchParams({q:mod.uq,filter:mod.ufilter,offset:String(mod.uoffset)}),'GET',undefined,true);
     mod.page=data.page;
-    const row=u=>`<div class="cl-mod-row" role="row"><div class="cl-mod-main"><strong>${esc(u.name||u.id)}</strong>${u.username?`<small>@${esc(u.username)}</small>`:''}</div><div><small>${esc(t('mod_listing_count').replace('{n}',u.listings).replace('{a}',u.active_listings))}</small></div><div class="cl-mod-state">${u.banned?`${banned()}<small>${esc(date(u.banned_at))}${u.banned_by?` · ${esc(u.banned_by)}`:''}</small>${u.ban_reason?`<small>${esc(t('mod_reason'))}: ${esc(u.ban_reason)}</small>`:''}`:''}</div><div class="cl-mod-acts">${btn('mod_view_listings','mod_owner',`data-id="${u.id}" data-name="${esc(u.name||u.id)}" ${u.listings?'':'disabled'}`)}${u.banned?btn('mod_unban','mod_unban',`data-id="${u.id}" data-name="${esc(u.name||u.id)}"`):btn('mod_ban','mod_ban',`data-id="${u.id}" data-name="${esc(u.name||u.id)}" class="cl-danger"`)}</div></div>`;
+    const row=u=>`<div class="cl-mod-row" role="row"><div class="cl-mod-main"><strong>${esc(u.name||u.id)}</strong>${u.username?`<small>@${esc(u.username)}</small>`:''}</div><div><small>${esc(t('mod_listing_count').replace('{n}',u.listings).replace('{a}',u.active_listings))}</small></div><div class="cl-mod-state">${u.banned?`${banned()}<small>${esc(date(u.banned_at))}${u.banned_by?` · ${esc(u.banned_by)}`:''}</small>${u.ban_reason?`<small>${esc(t('mod_reason'))}: ${esc(u.ban_reason)}</small>`:''}`:''}</div><div class="cl-mod-acts">${btn('mod_view_listings','mod_owner',`data-id="${u.id}" data-name="${esc(u.name||u.id)}" ${u.listings?'':'disabled'}`)}${btn('mod_view_messages','mod_user_messages',`data-id="${u.id}" data-name="${esc(u.name||u.id)}"`)}${u.banned?btn('mod_unban','mod_unban',`data-id="${u.id}" data-name="${esc(u.name||u.id)}"`):btn('mod_ban','mod_ban',`data-id="${u.id}" data-name="${esc(u.name||u.id)}" class="cl-danger"`)}</div></div>`;
     showMod(`${modHead()}<form class="cl-mod-toolbar"><input name="q" type="search" maxlength="80" value="${esc(mod.uq)}" placeholder="${esc(t('mod_search_users'))}" aria-label="${esc(t('mod_search_users'))}"><select name="filter" aria-label="${esc(t('status'))}"><option value="all">${esc(t('mod_all_users'))}</option><option value="banned" ${mod.ufilter==='banned'?'selected':''}>${esc(t('mod_filter_banned'))}</option></select><button class="cl-primary">${esc(t('search_button'))}</button></form><p class="cl-mod-hint">${esc(t('mod_ban_hint'))}</p><div class="cl-form-error cl-mod-error" role="alert"></div>
       <div class="cl-mod-table cl-mod-users" role="table">${data.items.length?`<div class="cl-mod-row cl-mod-th" role="row"><span>${esc(t('mod_profile'))}</span><span>${esc(t('mod_listings'))}</span><span>${esc(t('status'))}</span><span></span></div>${data.items.map(row).join('')}`:`<p class="cl-mod-empty">${esc(t('mod_no_users'))}</p>`}</div>
       ${pager(mod.uoffset,data.total,'mod_upage')}`);
     modPage.querySelector('.cl-mod-toolbar').onsubmit=e=>{e.preventDefault();const f=e.target.elements;mod.uq=f.q.value.trim();mod.ufilter=f.filter.value;mod.uoffset=0;modUsers().catch(fail);};
+  }
+  // Messages: read every conversation and delete, never write or edit. Each
+  // message shows who sent it to whom and whether it reached and was opened.
+  const who=p=>p.system?`<span class="cl-system-badge">${esc(t('sys_badge'))}</span>`:`${esc(p.name||p.id)}${p.username?` <small>@${esc(p.username)}</small>`:''}`;
+  async function modMessages() {
+    const data=await api('/admin/conversations?'+new URLSearchParams({q:mod.mq,user:mod.muser,offset:String(mod.moffset)}),'GET',undefined,true);
+    if(mod.moffset&&!data.items.length){mod.moffset=Math.max(0,mod.moffset-data.page);return modMessages();}
+    mod.page=data.page;
+    const row=r=>`<div class="cl-mod-row" role="row"><div class="cl-mod-main"><button type="button" class="cl-mod-title" data-action="mod_conversation" data-id="${r.id}">${r.system?esc(t('mod_sys_conversation')):esc(r.listing_title)}</button><small>${esc(r.preview_system?sysText(r.preview_system):r.preview)}</small></div><div class="cl-mod-who"><span>${who(r.buyer)}</span><span>${who(r.seller)}</span></div><div class="cl-mod-state"><small>${esc(t('mod_msg_count').replace('{n}',r.messages))}</small><small>${esc(date(r.updated_at))}</small></div><div class="cl-mod-acts">${btn('mod_open','mod_conversation',`data-id="${r.id}"`)}${btn('delete','mod_delete_conversation',`data-id="${r.id}" class="cl-danger"`)}</div></div>`;
+    showMod(`${modHead()}<form class="cl-mod-toolbar"><input name="q" type="search" maxlength="160" value="${esc(mod.mq)}" placeholder="${esc(t('mod_search_messages'))}" aria-label="${esc(t('mod_search_messages'))}"><button class="cl-primary">${esc(t('search_button'))}</button></form>${mod.muser?`<div class="cl-mod-chip">${esc(t('mod_profile'))}: <strong>${esc(mod.muserName)}</strong>${btn('mod_show_all_messages','mod_clear_muser','class="cl-link"')}</div>`:''}<p class="cl-mod-hint">${esc(t('mod_messages_hint'))}</p><div class="cl-form-error cl-mod-error" role="alert"></div>
+      <div class="cl-mod-table cl-mod-convs" role="table">${data.items.length?`<div class="cl-mod-row cl-mod-th" role="row"><span>${esc(t('mod_conversation'))}</span><span>${esc(t('mod_participants'))}</span><span>${esc(t('messages'))}</span><span></span></div>${data.items.map(row).join('')}`:`<p class="cl-mod-empty">${esc(t('mod_no_messages'))}</p>`}</div>
+      ${pager(mod.moffset,data.total,'mod_mpage')}`);
+    modPage.querySelector('.cl-mod-toolbar').onsubmit=e=>{e.preventDefault();mod.mq=e.target.elements.q.value.trim();mod.moffset=0;modMessages().catch(fail);};
+  }
+  async function modConversation(cid) {
+    let data=await api('/admin/conversations/'+cid+'/messages','GET',undefined,true),rows=data.items;
+    const state=(done,at,yes,no)=>done?(at?t(yes+'_at').replace('{date}',date(at)):t(yes)):t(no);
+    const card=m=>`<div class="cl-mod-msg${m.from.system?' cl-system':''}"><div class="cl-mod-msg-head"><span>${who(m.from)} → ${who(m.to)}</span>${btn('delete','mod_delete_message',`data-id="${m.id}" class="cl-danger"`)}</div><p>${esc(m.system?sysText(m.system):m.body)}</p><div class="cl-mod-msg-state"><small>${esc(t('mod_msg_sent').replace('{date}',date(m.created_at)))}</small><small class="${m.delivered?'cl-mod-yes':''}">${esc(state(m.delivered,m.delivered_at,'mod_msg_delivered','mod_msg_not_delivered'))}</small><small class="${m.seen?'cl-mod-yes':''}">${esc(state(m.seen,m.seen_at,'mod_msg_seen','mod_msg_not_seen'))}</small></div></div>`;
+    showMod(`<div class="cl-mod-head">${btn('mod_back','mod_tab','data-tab="messages" class="cl-link cl-mod-back"')}<h2>${data.system?esc(t('mod_sys_conversation')):esc(data.listing_title)}</h2>${btn('mod_delete_conversation','mod_delete_conversation',`data-id="${cid}" class="cl-danger"`)}</div><p class="cl-mod-hint">${who(data.buyer)} · ${who(data.seller)}</p><div class="cl-form-error cl-mod-error" role="alert"></div>${btn('older_messages','mod_older',data.more?'':'hidden')}<div class="cl-mod-thread"></div>`);
+    const thread=modPage.querySelector('.cl-mod-thread'),older=modPage.querySelector('[data-action="mod_older"]');
+    const render=()=>{thread.innerHTML=rows.map(card).join('')||`<p class="cl-mod-empty">${esc(t('mod_no_messages'))}</p>`;};render();
+    older.onclick=async e=>{e.stopPropagation();try{const more=await api('/admin/conversations/'+cid+'/messages?before='+rows[0].id,'GET',undefined,true);rows=[...more.items,...rows];older.hidden=!more.more;render();}catch(err){fail(err);}};
+    thread.onclick=async e=>{const b=e.target.closest('[data-action="mod_delete_message"]');if(!b)return;e.stopPropagation();if(!confirm(t('mod_confirm_delete_message')))return;b.disabled=true;try{await api('/admin/messages/'+b.dataset.id,'DELETE',undefined,true);rows=rows.filter(m=>String(m.id)!==b.dataset.id);render();}catch(err){b.disabled=false;fail(err);}};
   }
   async function modEditor(id) {
     const r=await api('/admin/listings/'+id,'GET',undefined,true);
@@ -306,6 +330,11 @@ function mount(root, options = {}) {
       else if(action==='mod_tab') {mod.tab=b.dataset.tab;await moderation();}
       else if(action==='mod_page') {mod.offset=Math.max(0,mod.offset+Number(b.dataset.step)*mod.page);await moderation();}
       else if(action==='mod_upage') {mod.uoffset=Math.max(0,mod.uoffset+Number(b.dataset.step)*mod.page);await modUsers();}
+      else if(action==='mod_mpage') {mod.moffset=Math.max(0,mod.moffset+Number(b.dataset.step)*mod.page);await modMessages();}
+      else if(action==='mod_user_messages') {mod.tab='messages';mod.muser=id;mod.muserName=b.dataset.name||id;mod.mq='';mod.moffset=0;await modMessages();}
+      else if(action==='mod_clear_muser') {mod.muser='';mod.muserName='';mod.moffset=0;await modMessages();}
+      else if(action==='mod_conversation') await modConversation(id);
+      else if(action==='mod_delete_conversation') {if(confirm(t('mod_confirm_delete_conversation'))){b.disabled=true;await api('/admin/conversations/'+id,'DELETE',undefined,true);mod.tab='messages';await modMessages();}}
       else if(action==='mod_owner') {mod.tab='listings';mod.owner=id;mod.ownerName=b.dataset.name||id;mod.offset=0;mod.selected.clear();await moderation();}
       else if(action==='mod_clear_owner') {mod.owner='';mod.ownerName='';mod.offset=0;await moderation();}
       else if(action==='mod_edit') await modEditor(id);

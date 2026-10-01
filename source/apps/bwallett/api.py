@@ -20,12 +20,19 @@ import sys
 from typing import Optional
 
 import httpx
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Depends, Header, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 
 
 router = APIRouter()
+# The public send range belongs to the server owner, so it is managed from the
+# desktop session (mounted at /api/apps/bwallett), never from an Apps Hub profile.
+desktop_router = APIRouter()
+
+
+def _desktop_session(request: Request):
+    return sys.modules["backend.auth"].get_current_session(request)
 APP_ID = "bwallett"
 _DIR = os.path.dirname(__file__)
 _DB_PATH = os.path.join(_DIR, "data.db")
@@ -159,11 +166,6 @@ def _valid_address(value: str) -> bool:
 def _premium():
     premium = sys.modules.get("backend.premium")
     return premium.load_premium_backend(APP_ID) if premium else None
-
-
-def _admin(token: Optional[str]):
-    user = _user(token)
-    return user if user and user.get("is_admin") else None
 
 
 def _read_varint(raw: bytes, offset: int) -> tuple[int, int]:
@@ -488,10 +490,8 @@ async def send_policy(x_pub_token: str = Header(default=None)):
     return premium.get_policy()
 
 
-@router.get("/admin/send-policy")
-async def admin_send_policy(x_pub_token: str = Header(default=None)):
-    if not _admin(x_pub_token):
-        return JSONResponse({"error": "admin_required"}, status_code=403)
+@desktop_router.get("/send-policy")
+async def admin_send_policy(_session=Depends(_desktop_session)):
     premium = _premium()
     enabled = bool(premium and premium.is_available())
     policy = premium.get_policy() if enabled and hasattr(premium, "get_policy") else {
@@ -501,10 +501,8 @@ async def admin_send_policy(x_pub_token: str = Header(default=None)):
     return {"premium": enabled, **policy}
 
 
-@router.put("/admin/send-policy")
-async def save_admin_send_policy(data: SendPolicyIn, x_pub_token: str = Header(default=None)):
-    if not _admin(x_pub_token):
-        return JSONResponse({"error": "admin_required"}, status_code=403)
+@desktop_router.put("/send-policy")
+async def save_admin_send_policy(data: SendPolicyIn, _session=Depends(_desktop_session)):
     if (
         data.min_send_sats < 0
         or data.max_send_sats < 0
