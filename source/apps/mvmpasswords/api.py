@@ -6,6 +6,7 @@ master password or readable login data.
 """
 
 import base64
+import json
 import os
 import re
 import sqlite3
@@ -71,6 +72,12 @@ def _init_db():
             );
             CREATE INDEX IF NOT EXISTS idx_folders_owner ON folders(owner_id, created_at);
         """)
+        # The mvm2factor key, encrypted with this vault's key. Written only when
+        # the two passwords turn out to be the same, so unlocking the vault
+        # opens nothing that the same password would not open anyway.
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(vaults)")}
+        if "totp_wrap" not in columns:
+            conn.execute("ALTER TABLE vaults ADD COLUMN totp_wrap TEXT")
         conn.commit()
 
 
@@ -83,6 +90,11 @@ class VaultIn(BaseModel):
 
 
 class EntryIn(BaseModel):
+    iv: str
+    ciphertext: str
+
+
+class WrapIn(BaseModel):
     iv: str
     ciphertext: str
 
@@ -133,6 +145,13 @@ def _totp_enabled() -> bool:
         return False
     # The form stores JSON, so a checkbox is the literal `true` or `false`.
     return str(row["value"]).strip().lower() in ("true", "1", '"true"')
+
+
+def _json_or_none(value):
+    try:
+        return json.loads(value) if value else None
+    except ValueError:
+        return None
 
 
 def _private_response():
@@ -189,7 +208,7 @@ async def get_vault(x_pub_token: str = Header(default=None)):
     if not me:
         return _private_response()
     with _conn() as conn:
-        vault = conn.execute("SELECT salt,iterations FROM vaults WHERE owner_id=?", (me["id"],)).fetchone()
+        vault = conn.execute("SELECT salt,iterations,totp_wrap FROM vaults WHERE owner_id=?", (me["id"],)).fetchone()
         rows = conn.execute(
             "SELECT id,iv,ciphertext,created_at,updated_at FROM entries WHERE owner_id=? ORDER BY updated_at DESC",
             (me["id"],),
@@ -202,8 +221,11 @@ async def get_vault(x_pub_token: str = Header(default=None)):
             "SELECT id,iv,ciphertext FROM folders WHERE owner_id=? ORDER BY created_at",
             (me["id"],),
         ).fetchall()
+    totp_on = _totp_premium() is not None
+    vault = dict(vault) if vault else None
+    wrap = vault.pop("totp_wrap", None) if vault else None
     return {
-        "vault": dict(vault) if vault else None,
+        "vault": vault,
         "entries": [dict(row) for row in rows],
         "folders": [dict(row) for row in folders],
         # Whether this installation offers the 2FA integration at all. It rides
@@ -214,7 +236,10 @@ async def get_vault(x_pub_token: str = Header(default=None)):
         # Both halves, so the UI never offers a button that cannot work: the
         # administrator's switch and the licence that delivers the code behind
         # it. _totp_premium() answers for both at once.
-        "totp": _totp_premium() is not None,
+        "totp": totp_on,
+        # The mvm2factor key under this vault's key, see _init_db. Only while
+        # the integration is on, since nothing else may use it.
+        "totp_wrap": _json_or_none(wrap) if totp_on else None,
         # Whether the password check is available on this installation. Same
         # rule as totp: it is the licence of the server, not of the viewer, so
         # every surface gets the same answer — and it is what the public page
@@ -433,3 +458,71 @@ async def totp_code(account_id: str, x_pub_token: str = Header(default=None)):
     return result
 
 
+@router.get("/totp/vault")
+async def totp_vault(x_pub_token: str = Header(default=None)):
+    """mvm2factor's vault parameters, to test in the browser whether the master
+    password just typed opens it too."""
+    me = _user(x_pub_token)
+    if not me:
+        return _private_response()
+    module = _totp_premium()
+    getter = getattr(module, "get_vault", None) if module else None
+    if getter is None:
+        return JSONResponse({"error": "premium_required"}, status_code=402)
+    result = getter(me["id"])
+    if result.get("error") == "premium_required":
+        return JSONResponse(result, status_code=402)
+    return result
+
+
+@router.put("/totp/wrap")
+async def totp_set_wrap(data: WrapIn, x_pub_token: str = Header(default=None)):
+    """Store the mvm2factor key encrypted with this vault's key. The browser
+    sends it only after proving both passwords are the same; the server cannot
+    check that and does not need to, since it can read neither key."""
+    me = _user(x_pub_token)
+    if not me:
+        return _private_response()
+    if _totp_premium() is None:
+        return JSONResponse({"error": "premium_required"}, status_code=402)
+    if not _valid_b64(data.iv, 12, 24) or not _valid_b64(data.ciphertext, 17, 256):
+        return JSONResponse({"error": "invalid_wrap"}, status_code=400)
+    with _conn() as conn:
+        updated = conn.execute(
+            "UPDATE vaults SET totp_wrap=? WHERE owner_id=?",
+            (json.dumps({"iv": data.iv.strip(), "ciphertext": data.ciphertext.strip()}), me["id"]),
+        ).rowcount
+        conn.commit()
+    if not updated:
+        return JSONResponse({"error": "vault_missing"}, status_code=409)
+    return {"ok": True}
+
+
+@router.delete("/totp/wrap")
+async def totp_clear_wrap(x_pub_token: str = Header(default=None)):
+    """Forget the stored key, once it no longer opens mvm2factor (its vault was
+    made again with another password)."""
+    me = _user(x_pub_token)
+    if not me:
+        return _private_response()
+    with _conn() as conn:
+        conn.execute("UPDATE vaults SET totp_wrap=NULL WHERE owner_id=?", (me["id"],))
+        conn.commit()
+    return {"ok": True}
+
+
+@router.get("/totp.js")
+async def totp_script():
+    """The browser half of the 2FA integration: unlocking mvm2factor and
+    working out the code. Served like /audit.js, for the same reason: it runs
+    only in the browser, so what the licence withholds is the file itself."""
+    module = _totp_premium()
+    getter = getattr(module, "get_totp_script", None) if module else None
+    script = getter() if getter else None
+    if script is None:
+        return Response(status_code=404, headers={"Cache-Control": "no-store"})
+    return Response(
+        content=script,
+        media_type="application/javascript",
+        headers={"Cache-Control": "no-store"},
+    )

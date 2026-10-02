@@ -8,7 +8,8 @@ function _hyt(key) { const lang = window.mvmOS?.lang || 'en'; return (_hyi18n[la
 function _hyLoadScript(src) {
   return new Promise((resolve, reject) => {
     const s = document.createElement('script');
-    s.src = src + '?_=' + Date.now();
+    // window.asset() exists from mvmOS 1.10.0; an older core loads the bare path.
+    s.src = window.asset ? window.asset(src) : src;
     s.onload = resolve;
     s.onerror = reject;
     document.head.appendChild(s);

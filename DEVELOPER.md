@@ -11,14 +11,21 @@ apps/<app-id>/
   manifest.json   — metadata
   store.json      — the long store listing for mvmos.org
   premium.json    — premium feature list (only if the app has premium)
-  main.js         — logic
-  style.css       — styles (optional)
   db.json         — database schema (optional)
   data.db         — the app's own SQLite database (optional)
   api.py          — server code (optional)
   desktop.py      — desktop routes, when api.py grows too big (optional)
+  app_api.py      — functions other apps, Automations and the External API may call (optional)
+  scheduler.py    — background logic run every minute (optional)
+  mp_game.py      — server side of a Game Hub game (games only)
+  premium/        — premium code, never in the public zip (optional)
   public/         — the only web-reachable folder
+    main.js       — logic
+    style.css     — styles (optional)
+    i18n.js       — the app's translations, in all nine languages
 ```
+
+The official Store repository keeps this same tree under `source/apps/<app-id>/` (and `source/backend/apps/<app-id>/` for the rare app with a system backend), plus one versioned zip per app in `apps/<category>/`, listed in that category's `manifest.json`. Release zips are built with `make-zip.sh`, never by hand.
 
 An app lives entirely inside its own folder, and **that folder is all it can touch** — core mvmOS, other apps and the system are off limits, enforced at runtime (see [Folder isolation](#folder-isolation--enforced)). Whatever it needs from mvmOS it asks the [Platform API](#platform-api) for.
 
@@ -53,6 +60,7 @@ The one exception is an app that must genuinely reach the system — `subprocess
 |-------|----------|-------------|
 | `id` | yes | Unique identifier (kebab-case) |
 | `name` | yes | Display name |
+| `name_i18n` | no | The name in every language, e.g. `{"en": "Calendar", "bg": "Календар", ...}`. Wins over `name` in the Start menu, App Store, Apps Hub, Settings and public pages (mvmOS 1.10.0). Fill all nine languages. |
 | `icon` | yes | Emoji icon |
 | `category` | yes | App Store category |
 | `tags` | no | Array of 1–5 lowercase discovery tags (for example `["notes", "planning"]`). Use short, stable kebab-case terms; tags are for Store search/filters, not extra Start Menu categories. |
@@ -63,7 +71,12 @@ The one exception is an app that must genuinely reach the system — `subprocess
 | `settings` | no | Settings shown in App Store (⚙ button) |
 | `trayable` | no | `true` if the app supports System Tray |
 | `scheduler` | no | Python file for background scheduled logic (e.g. `"scheduler.py"`) |
-| `public_directory` | no | `false` to hide from the Apps Hub public directory card grid even though `public.py` exists — see [Listing in the public directory](#listing-in-the-public-directory). Default `true`. |
+| `public_url` | no | `"/pub/<app-id>/"` — shows a "Public page" link in the window footer, see [Window footer](#window-footer) |
+| `public_chrome` | no | `false` switches off the shared header, footer and theme injection on the public page, see [Theming & text size on public pages](#theming--text-size-on-public-pages) |
+| `replaces_widget` | no | A core widget slot the app takes over; `"calendar"` makes the taskbar clock open this app instead of its own calendar popup |
+| `credit_features` | no | Apps Hub credit prices the app charges for, `[{id, name, description, unit}]` (credits are a core Premium feature) |
+| `multiplayer`, `max_players`, `themed` | no | Game settings, see [Writing a game](#writing-a-game) |
+| `public_directory` | no | `false` to hide from the Apps Hub public directory card grid even though the app has a public `router` — see [Listing in the public directory](#listing-in-the-public-directory). Default `true`. |
 | `public_api_only` | no | `true` when the public router is only an endpoint another page calls with the visitor's token (for example a game's statistics fetched from inside Game Hub), not a page of its own. Apps Hub then does not offer the app as a public page to switch on. Needs mvmOS 1.5.0; older cores ignore it. |
 
 ### Official Store categories
@@ -203,6 +216,9 @@ mvmOS.registerApp({
   icon: '🚀',
   category: 'Utilities',
   trayable: true,           // optional — System Tray support
+  requires_apphub: true,    // optional — see Apps Hub integration
+  file_types: ['myext'],    // optional — extensions (no dot) this app opens
+  openFile(path) { ... },   // required with file_types — File Manager hands the file here
   settings: [               // must match manifest.json
     { key: 'host', label: 'Host', type: 'text', default: 'localhost' },
   ],
@@ -221,6 +237,10 @@ mvmOS.registerApp({
   },
 });
 ```
+
+`file_types` + `openFile(path)` register the app as the default for those extensions when no built-in handler claims them (mvmOS 1.8.0). Double-clicking such a file in File Manager or on the desktop calls `openFile`, the app appears in **Open with** for them, and the user can change the default in **Settings → Default apps**. When the app is uninstalled its types fall back to their default.
+
+Inside `registerApp` the definition also gets `this.storage` — a per-app wrapper over the browser's `localStorage` (`get`, `set`, `remove`), namespaced by the app id. It is per browser, not per server; use the database for anything that must follow the user.
 
 ---
 
@@ -268,6 +288,8 @@ await db.run('INSERT OR REPLACE INTO cfg (key, value) VALUES (?, ?)', ['theme', 
 | `db.query(sql, params)` | Executes SELECT, returns array of rows |
 | `db.run(sql, params)` | Executes INSERT/UPDATE/DELETE, returns number of affected rows |
 
+**Apps with their own `api.py`:** every desktop script shares one session, so this door would hand the app's data to any other app's script. If an app has an `api.py` and none of its `public/*.js` files call `mvmOS.db(`, the door is limited to the `cfg` settings table (the one App Store settings use) and everything else is denied. Such an app reads and writes its data through its own routes. Browser SQL for apps and widgets cannot attach another database or use `VACUUM INTO` to create files outside its own database.
+
 ---
 
 ### mvmOS.notify(title, body, action?, actionLabel?)
@@ -304,9 +326,47 @@ This only marks read; it doesn't delete or need to know the notification's id �
 Opens system settings.
 
 ```js
-mvmOS.openSettings();          // home page
-mvmOS.openSettings('apps');    // Apps tab
-mvmOS.openSettings('about');   // About tab
+mvmOS.openSettings();              // home page with the topic groups
+mvmOS.openSettings('defaultapps'); // Default apps
+mvmOS.openSettings('about');       // About
+```
+
+Tab ids: `display`, `wallpaper`, `screensaver`, `startmenu`, `filemanager`, `defaultapps`, `users`, `sshaccess`, `extapi`, `automations`, `regional`, `system`, `updates`, `backup`, `subscription`, `about`. A category id — `personalization`, `apps`, `accounts`, `connections`, `mvmos` — opens that category's first tab (`system` is both, and opens the System tab).
+
+---
+
+### Dialogs and messages
+
+Use these instead of `alert()`/`confirm()`/`prompt()` — they follow the theme and the language.
+
+```js
+await mvmOS.confirm('Delete this item?', { ok: 'Delete', cancel: 'Cancel', danger: true }); // true | false
+await mvmOS.prompt('Name', 'placeholder', 'default value');   // string | null
+mvmOS.toast('Saved', 'Optional body');                        // short message, not kept in the notification center
+await mvmOS.confirmPassword('Confirm', 'Enter your password'); // the typed password | null (checked by the server)
+await mvmOS.requireRoot('Title', 'Why it is needed');         // true once the user's sudo password is accepted
+```
+
+`requireRoot` gives the window an administrator key that the server checks on every system action; a user who may not use sudo gets an explanation instead of a password field.
+
+### Premium in the desktop window
+
+```js
+mvmOS.premiumStatus             // 'premium' | 'free'
+mvmOS.premiumGate(el, text)     // keep el visible but locked; a click shows text and opens the Premium dialog
+window.addEventListener('premium-changed', () => { /* re-read premiumStatus */ });
+```
+
+In the desktop a premium control is always visible and, without a licence, opens the Premium dialog through `premiumGate`. On a public page it simply does not exist. See [Premium features](#premium-features).
+
+### Names and language
+
+```js
+mvmOS.lang                      // 'en', 'bg', 'de', 'es', 'fr', 'ja', 'pt-BR', 'ru' or 'zh-CN'
+mvmOS.i18nReady                 // Promise, resolves after the first language table loads
+mvmOS.onLangChange(fn)          // fn(lang) on every language change
+mvmOS.appName(def)              // an app's name in the current language (uses name_i18n)
+mvmOS.categoryName('Finance')   // a Store category in the current language
 ```
 
 ---
@@ -616,7 +676,7 @@ Hot-load immediately after install (no page reload):
 ```js
 window._myWidgetRegistered = false;
 const s = document.createElement('script');
-s.src = '/apps/my-app/widget.js?_=' + Date.now();
+s.src = window.asset('/apps/my-app/widget.js');
 document.head.appendChild(s);
 ```
 
@@ -637,7 +697,7 @@ window._vosSettings?.timezone      // IANA timezone, e.g. "Europe/Sofia"
 window._vosSettings?.time_format   // "24" or "12"
 window._vosSettings?.date_format   // "DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"
 window._vosSettings?.week_starts   // "monday" or "sunday"
-window._vosSettings?.language      // "en" or "bg"
+window._vosSettings?.language      // one of the nine language codes, e.g. "en", "bg", "pt-BR"
 ```
 
 Updates live when the user changes settings:
@@ -760,7 +820,7 @@ From a public page or any frontend, the same data over HTTP:
 | `GET /api/platform/settings` | `{currency, locale, date_format}` — install-wide settings |
 | `GET /api/platform/whoami` | `{user, pub_user_id, pub_user_name}` — who is calling |
 | `GET /api/platform/apps` | `{apps: [...]}` — installed app ids, for feature detection |
-| `POST /api/platform/apps/{id}/call` | Call another app's `api.py` (its API must be enabled in Apps Hub) |
+| `POST /api/platform/apps/{id}/call` | Call another app's `app_api.py` (its API must be enabled in Apps Hub) |
 | `GET /api/platform/credits` | `{balance}` — Apps Hub credits for the caller |
 | `POST /api/platform/credits/spend` | Spend credits; `402` when short. Always send `idempotency_key` |
 | `POST /api/platform/notify` | Raise an mvmOS notification for the logged-in desktop user |
@@ -784,7 +844,9 @@ A premium module is **ordinary app code**. It lives in `apps/<app-id>/premium/` 
 
 ### What actually protects it
 
-Not a check — **delivery**. `premium.zip` is hosted on mvmos.org and never travels in the public store zip (`make-zip.sh` skips any `premium/` directory). On every install and update, `sync_premium()` wipes `premium/` and re-fetches it **only** if the installation holds a valid licence. The licence key never leaves the server and is never sent to the frontend.
+Not a check — **delivery**. `premium.zip` is hosted on mvmos.org and never travels in the public store zip (`make-zip.sh` skips any `premium/` directory). `sync_premium()` wipes `premium/` and re-fetches it **only** if the installation holds a valid licence. It runs in exactly three cases: when the app is installed or updated, when a licence is activated, and when the owner presses the recheck button in **Settings → Premium**. An installation that already has the app therefore never sees a new premium build until the app's version changes. The licence key never leaves the server and is never sent to the frontend.
+
+**Premium that runs in the browser.** The test is who does the work, not whether it is backend or UI. A control, its visibility and the click that opens the Premium dialog may live in `public/`. But if the feature itself runs entirely in the browser, with no server part that could refuse it, its code goes in `premium/public/` and is served by a route in `api.py` that answers only when the premium build is present (`Cache-Control: no-store`), then loaded on demand. Anything in `public/` ships in the public zip and works without a licence. Image Optimizer and mvmPasswords are the reference.
 
 So an unlicensed install does not have the premium code at all. There is no local decision to bypass, no flag to flip, no function to patch — the file is absent.
 
@@ -842,11 +904,13 @@ Do not gate anything real on this. Anything the frontend can read, a user can li
 
 ### Publishing
 
+**A change to `premium/` always bumps the app's version**, even when nothing else in the app changed — installations only fetch premium again on install/update, licence activation or a manual recheck, so without a new version they keep the old build. Release the new version with `make-zip.sh`, which also publishes `premium.zip` whenever the app has a `premium/` folder.
+
 ```bash
 /var/www/mvmos-store/make-premium-zip.sh <app-id>
 ```
 
-Packages `source/apps/<id>/premium/` flat into `premium.zip` on mvmos.org. Republish it in the same turn as any change to `premium/` — otherwise the old build stays live with nothing to signal it.
+Packages `source/apps/<id>/premium/` flat into `premium.zip` on mvmos.org. Run it by hand only to republish the same version again, for example after a failed upload. Never run it with an empty or missing `premium/` folder.
 
 ---
 
@@ -984,17 +1048,28 @@ It runs just before the files are removed (requires mvmOS 1.6.0). An exception i
 
 ## i18n
 
-Define your own dictionary inside `main.js`:
+Every text an app shows is translated, never hard-coded. An app's strings live in **`apps/<app-id>/public/i18n.js`** and cover all nine languages mvmOS ships: `en`, `bg`, `de`, `es`, `fr`, `ja`, `pt-BR`, `ru` and `zh-CN`. The file merges its table into `window._i18n`, so the global `t(key, vars)` finds the keys, and re-applies itself on every language change:
 
 ```js
-const _i18n = {
-  en: { title: 'My App', hello: 'Hello' },
-  bg: { title: 'Моето приложение', hello: 'Здравей' },
-};
-const _t = k => _i18n[mvmOS.lang]?.[k] || _i18n.en[k] || k;
+(function () {
+  if (window.MY_APP_I18N) return;
+  var STRINGS = {
+    en: { ma_title: 'My App', ma_items: '{n} items' },
+    bg: { ma_title: 'Моето приложение', ma_items: '{n} елемента' },
+    // de, es, fr, ja, pt-BR, ru, zh-CN — every key in every language
+  };
+  function apply(lang) {
+    var table = STRINGS[lang] || {};
+    window._i18n = window._i18n || {};
+    for (var key in STRINGS.en) window._i18n[key] = key in table ? table[key] : STRINGS.en[key];
+  }
+  apply((window.mvmOS && window.mvmOS.lang) || 'en');
+  if (window.mvmOS && window.mvmOS.onLangChange) window.mvmOS.onLangChange(apply);
+  window.MY_APP_I18N = true;
+})();
 ```
 
-System UI strings (in `frontend/i18n/`) are not touched by apps.
+Prefix the keys with the app's own short prefix so they never collide with core or another app. Never add an app's keys to core's `frontend/i18n/*.js`: those files do not travel in the store zip, and the text would be missing on every other installation. Give the app's name in every language through `name_i18n` in `manifest.json`.
 
 ---
 
@@ -1040,8 +1115,8 @@ Allows apps to execute background logic on a schedule — without the browser be
 
 ### How it works
 
-1. The user installs **Cron Manager** and enables the mvmOS Scheduler (installs a system cron `* * * * *`)
-2. Every minute Linux cron calls `POST /api/scheduler/tick`
+1. The owner opens **Cron Manager** (built into mvmOS) and presses **Enable Scheduler**, which adds a root cron line `* * * * * curl -s http://127.0.0.1:<port>/api/scheduler/tick`
+2. Every minute that line calls `/api/scheduler/tick`. The route answers only to `127.0.0.1` from the machine itself; a request through nginx, a domain or any other address gets `403`
 3. Core reads the manifests of all installed apps
 4. If an app has a `"scheduler"` field → runs the specified Python file
 
@@ -1167,7 +1242,7 @@ def _hub():
 
 hub = _hub()
 users = hub.get_users_by_ids(["uid1", "uid2", "uid3"])
-# -> [{ id, username, display_name, avatar_color, avatar_svg }, ...]
+# -> [{ id, username, display_name, avatar_color, avatar_svg, language }, ...]
 # unknown/missing ids are silently skipped, order is not guaranteed
 ```
 
@@ -1175,7 +1250,8 @@ users = hub.get_users_by_ids(["uid1", "uid2", "uid3"])
 
 ```python
 results = hub.search_users("joh", exclude_id=me["id"], limit=20)
-# -> same shape as get_users_by_ids; substring match, min 2 chars or returns []
+# -> [{ id, username, display_name, avatar_color, avatar_svg }, ...]
+# Unicode case-insensitive substring match; min 2 chars or returns []
 ```
 
 ```http
@@ -1221,7 +1297,7 @@ Safe to call repeatedly (insert-or-update): call it once when the user is create
 
 ### Public page (optional)
 
-If your app also has a page accessible without logging into mvmOS, declare a `router` in your `apps/<app-id>/api.py` (or its `desktop.py`-style companion) — the same file described in [Server code — api.py](#server-code--apipy). Apps Hub admin auto-detects any app whose `api.py` exposes a `router` and shows an enable/disable toggle. `backend/apps/<app-id>/public.py` is the older location, still honoured for apps that already have an approved backend.
+If your app also has a page accessible without logging into mvmOS, declare a `router` in your `apps/<app-id>/api.py` — the same file described in [Server code — api.py](#server-code--apipy). Apps Hub admin auto-detects any app whose `api.py` exposes a `router` and shows an enable/disable toggle. `backend/apps/<app-id>/public.py` is the older location, still honoured for apps that already have an approved backend.
 
 **Minimum template:**
 
@@ -1277,7 +1353,7 @@ The public page is served at `/pub/<app-id>/` once the admin enables it in Apps 
 
 ### Public page PWA (automatic)
 
-Public apps do not implement their own PWA files. Once an app has `public.py`, exposes `/pub/<app-id>/`, and an Apps Hub administrator enables its public page, mvmOS core automatically supplies:
+Public apps do not implement their own PWA files. Once an app has a public `router`, exposes `/pub/<app-id>/`, and an Apps Hub administrator enables its public page, mvmOS core automatically supplies:
 
 - a web app manifest scoped to `/pub/<app-id>/`;
 - PNG icons generated from the app's `icon` in `manifest.json`;
@@ -1295,11 +1371,11 @@ if (!token) {
 }
 ```
 
-**Important:** `is_app_public(APP_ID)` must be checked at the top of **every** route in your `public.py`, not just `/`. The router is mounted unconditionally at startup — nothing enforces the private/public toggle for you except this check. Forgetting it on even one route means that route stays reachable while the app is set to Private in Apps Hub.
+**Important:** `is_app_public(APP_ID)` must be checked at the top of **every** route of your public `router`, not just `/`. The router is mounted unconditionally at startup — nothing enforces the private/public toggle for you except this check. Forgetting it on even one route means that route stays reachable while the app is set to Private in Apps Hub.
 
 ### Theming & text size on public pages
 
-Every `/pub/<app-id>/` page automatically gets a shared header/footer (breadcrumb, avatar menu, credits, logout) injected server-side — you never add this yourself. That same injected script also applies the user's **Apps Hub appearance settings** (dark/light theme + text size) to your page, but only if your CSS is written to react to it. Two things to know:
+Every `/pub/<app-id>/` page automatically gets a shared header/footer (app switcher, avatar menu, credits, logout) injected server-side — you never add this yourself. That same injected script also applies the user's **Apps Hub appearance settings** (dark/light theme + text size) to your page, but only if your CSS is written to react to it. Two things to know:
 
 **1. Theme — use CSS custom properties, never hardcoded colors.**
 
@@ -1339,7 +1415,7 @@ Pattern:
 """
 
 def list_categories(user_id):
-    # reuse your own public.py / backend helpers here
+    # reuse your own api.py helpers here
     ...
     return [...]
 
@@ -1366,11 +1442,27 @@ except hub.AppApiError:
     pass
 ```
 
-`call_app_api(target_app_id, method, *args, **kwargs)` is the *only* sanctioned way to reach another app — it checks the admin toggle, loads `api.py` on first use (cached after), and calls `method` with whatever args/kwargs you pass. It raises `AppApiError` if the target app has no `api.py`, its API is disabled, or it doesn't expose that method; always catch this and degrade gracefully rather than letting it bubble up, since "the other app isn't installed" is routine, not exceptional.
+`call_app_api(target_app_id, method, *args, **kwargs)` is the *only* sanctioned way to reach another app — it checks the admin toggle, loads `app_api.py` on first use (cached after), and calls `method` with whatever args/kwargs you pass. It raises `AppApiError` if the target app has no `app_api.py`, its API is disabled, or it doesn't expose that method; always catch this and degrade gracefully rather than letting it bubble up, since "the other app isn't installed" is routine, not exceptional.
 
-**Never import another app's `api.py` directly** (`from backend.apps.budget import api` or similar) — always go through `hub.call_app_api()`, even though nothing currently stops a direct import. Apps are expected to become fully sandboxed from each other over time; `call_app_api()` is designed to be the one channel that keeps working after that happens, but only if it's actually used consistently everywhere, starting now.
+**Never import another app's `app_api.py` directly** — always go through `hub.call_app_api()`, even though nothing currently stops a direct import. Apps are expected to become fully sandboxed from each other over time; `call_app_api()` is designed to be the one channel that keeps working after that happens, but only if it's actually used consistently everywhere, starting now.
 
 If your API method changes money, credits, or anything else where a retried call must not double-apply, accept an `idempotency_key` argument and dedupe on it (mirrors the pattern `hub.spend_credits()`/`hub.grant_credits()` already use) — a caller may legitimately retry after a timeout without knowing whether the first attempt succeeded.
+
+### The same functions in Automations and the External API
+
+The functions in `app_api.py` are also what **Automations** and the **External API** see, with no extra code:
+
+- A function is offered there when its name does not start with `_` and its first parameter is `user_id`. The caller never passes `user_id`; it is the Apps Hub profile that owns the rule or the token.
+- Names starting with `list_`, `get_`, `find_`, `search_`, `download_` or `count_` count as reads, everything else as writes. A write function is an Automations action and, together with the app's write routes under `/pub/<app-id>/`, an event other rules can react to.
+- The first paragraph of the docstring is the summary shown to the user; parameter type hints and defaults become the form fields. A parameter such as `category_id` gets a choice list from a read function named `list_categories`.
+- A parameter annotated `UploadFile` receives an uploaded file, and returning `ApiFile(path, name)` from `backend.extapi` answers with a file.
+- Parameters named `source_app` and `source_app_name` are filled by the caller (for example `"api"` / `"External API"`) and never come from a request.
+
+**Keeping a function in-process only.** A function that makes sense only to another app calling it in-process — for example one that returns ciphertext only a browser holding the password can open — is named in `INTERNAL_ONLY`. Automations, the External API and mvmAI then never offer it, while `hub.call_app_api()` still reaches it:
+
+```python
+INTERNAL_ONLY = {"get_code", "get_vault"}
+```
 
 ### Window footer
 
@@ -1399,13 +1491,13 @@ The right side also shows a "🔗 Public page" link, but only if your `manifest.
 }
 ```
 
-This only makes sense if your app has a `public.py` (see above) with a real generic landing page at `/pub/<app-id>/` — the footer link doesn't check `is_app_public`/enable state itself, it just links there. If you don't have a public page, omit the field and the link simply doesn't appear.
+This only makes sense if your app has a public `router` (see above) with a real generic landing page at `/pub/<app-id>/` — the footer link doesn't check `is_app_public`/enable state itself, it just links there. If you don't have a public page, omit the field and the link simply doesn't appear.
 
 ### Listing in the public directory
 
-Any app with a `public.py` is auto-detected and, once enabled (toggled Public) in Apps Hub admin, appears as a card in the public directory at `/pub/apphub/` (the "Apps" tab) linking to `/pub/<app-id>/`.
+Any app with a public `router` is auto-detected and, once enabled (toggled Public) in Apps Hub admin, appears as a card in the public directory at `/pub/apphub/` (the "Apps" tab) linking to `/pub/<app-id>/`.
 
-This only makes sense for apps whose `/pub/<app-id>/` route is a real, generic landing page anyone can open (e.g. a reading list, a leaderboard). If your `public.py` only serves **per-resource share links** with no generic index — e.g. `/pub/<app-id>/{token}` for a single shared document, and a bare `/pub/<app-id>/` would 404 or makes no sense to browse — opt out of the directory by adding to your `manifest.json`:
+This only makes sense for apps whose `/pub/<app-id>/` route is a real, generic landing page anyone can open (e.g. a reading list, a leaderboard). If your public `router` only serves **per-resource share links** with no generic index — e.g. `/pub/<app-id>/{token}` for a single shared document, and a bare `/pub/<app-id>/` would 404 or makes no sense to browse — opt out of the directory by adding to your `manifest.json`:
 
 ```json
 {
@@ -1694,16 +1786,16 @@ One rule if the game also reports to a leaderboard: **apply the progress on the 
 
 ### Translations
 
-Both halves read the same table from `apps/<id>/public/i18n.js` — the launcher window injects it, and the play page loads it. Never put game strings in core's `frontend/i18n/*.js`: those do not travel in the store zip, and the text would be missing on every other installation.
+Both halves read the same table from `apps/<id>/public/i18n.js` — the launcher window injects it, and the play page loads it. It follows the [i18n](#i18n) rules: all nine languages, every key in each. Never put game strings in core's `frontend/i18n/*.js`: those do not travel in the store zip, and the text would be missing on every other installation.
 
 ```js
 (function () {
   if (window.MYGAME_I18N) return;
-  var STRINGS = { en: { mg_title: 'My Game' }, bg: { mg_title: 'Моята игра' } };
+  var STRINGS = { en: { mg_title: 'My Game' }, bg: { mg_title: 'Моята игра' } /* …all nine languages */ };
   function apply(lang) {
-    var table = STRINGS[lang] || STRINGS.en;
+    var table = STRINGS[lang] || {};
     window._i18n = window._i18n || {};
-    for (var k in table) window._i18n[k] = table[k];
+    for (var k in STRINGS.en) window._i18n[k] = k in table ? table[k] : STRINGS.en[k];
   }
   apply((window.mvmOS && window.mvmOS.lang) || 'en');
   if (window.mvmOS && window.mvmOS.onLangChange) window.mvmOS.onLangChange(apply);
@@ -1745,7 +1837,7 @@ Load only `widget.js` — there is no separate `avatar.js` anymore, everything i
 function _loadGameHub(cb) {
   if (window.GameHub) { window.GameHub.init().then(cb); return; }
   const s = document.createElement('script');
-  s.src = '/apps/gamehub/widget.js';
+  s.src = window.asset('/apps/gamehub/widget.js');
   s.onload = () => window.GameHub?.init().then(cb) || cb();
   s.onerror = cb;  // Game Hub not installed — continue without it
   document.head.appendChild(s);
@@ -1830,13 +1922,13 @@ const html = window.GameHub.renderAvatar(
 
 ---
 
-## Publishing a site (mvmOS Studio)
+## Publishing a site (mvmOS Studio Code)
 
-Projects created in mvmOS Studio can be published as public websites on a custom domain or subpath — no separate web server required.
+Projects created in mvmOS Studio Code (the built-in Sites app) can be published as public websites on a custom domain or subpath — no separate web server required.
 
 ### How it works
 
-mvmOS runs on port `2052` by default. When a domain or subpath is registered for a project, the built-in middleware identifies incoming requests by the `Host` header (domain mode) or URL prefix (path mode) and serves the project's public files without requiring login.
+mvmOS listens on the port chosen at install time — `2026` unless you picked another; the examples below use `2026`. When a domain or subpath is registered for a project, the built-in middleware identifies incoming requests by the `Host` header (domain mode) or URL prefix (path mode) and serves the project's public files without requiring login.
 
 ### Path mode
 
@@ -1852,7 +1944,7 @@ No additional configuration needed. Works out of the box.
 
 If no web server is installed, use the built-in **Web Server** (in the Sites panel) to listen on port 80:
 
-1. Create your project and register the domain in mvmOS Studio
+1. Create your project and register the domain in mvmOS Studio Code
 2. Start the Web Server on port 80 (Sites → Web Server button)
 3. Point your domain's DNS A record to your server's IP
 
@@ -1876,7 +1968,7 @@ server {
     server_name mysite.com;
 
     location / {
-        proxy_pass http://127.0.0.1:2052;
+        proxy_pass http://127.0.0.1:2026;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -1907,8 +1999,8 @@ Certbot automatically adds the HTTPS block. mvmOS itself does not need any SSL c
     ServerName mysite.com
 
     ProxyPreserveHost On
-    ProxyPass / http://127.0.0.1:2052/
-    ProxyPassReverse / http://127.0.0.1:2052/
+    ProxyPass / http://127.0.0.1:2026/
+    ProxyPassReverse / http://127.0.0.1:2026/
 </VirtualHost>
 ```
 
@@ -1933,7 +2025,7 @@ Cloudflare terminates SSL itself and talks to your origin over HTTP. Your server
 
 **Without nginx/Apache (built-in server):**
 
-1. Start the Web Server on port 80 in mvmOS Studio
+1. Start the Web Server on port 80 in mvmOS Studio Code
 2. In Cloudflare DNS, add an A record pointing to your server IP (orange cloud = proxied)
 3. Cloudflare handles HTTPS — your origin stays on HTTP port 80
 

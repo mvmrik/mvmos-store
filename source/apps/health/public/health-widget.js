@@ -213,10 +213,14 @@
     return out + '</svg>';
   }
 
-  function barChart(days, color, xs, sel, avg, unit) {
+  const GOAL = 'var(--pub-fg,#cdd6f4)';
+
+  function barChart(days, color, xs, sel, avg, unit, goals) {
     // days: [{day,total}] sparse; every day of the range gets a slot.
+    // goals: [{day,goal}] the goal each day had, drawn as a line over its slot.
+    goals = goals || [];
     const n = Math.round((xs.max - xs.min) / 86400000) + 1;
-    const vals = days.map(d => d.total);
+    const vals = days.map(d => d.total).concat(goals.map(g => g.goal));
     const f = frame({ min: 0, max: Math.max(...vals, 1) }, { min: xs.min, max: xs.max });
     const slot = (CW - ML - MR) / n, bw = Math.max(1.5, Math.min(slot * 0.72, 26));
     let out = `<svg class="hl-chart" viewBox="0 0 ${CW} ${CH}" role="img">${f.g}`;
@@ -227,6 +231,15 @@
       out += `<rect x="${(cx - bw / 2).toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(1, base - y).toFixed(1)}" rx="${bw > 5 ? 3 : 0}" fill="${color}" opacity="${sel === i ? 1 : 0.72}"/>` +
              `<rect class="hl-tip" data-act="pt" data-i="${i}" x="${(cx - Math.max(bw, 10) / 2).toFixed(1)}" y="${MT}" width="${Math.max(bw, 10).toFixed(1)}" height="${(CH - MT - MB).toFixed(1)}" fill="transparent"/>`;
     });
+    // One line through the goals, stepping where the goal changed and broken
+    // where a day has none.
+    let d = '', prev = null;
+    goals.forEach(g => {
+      const k = Math.round((dayMs(g.day) - xs.min) / 86400000), x0 = ML + slot * k, x1 = x0 + slot, y = f.y(g.goal).toFixed(1);
+      d += (prev === k - 1 ? `L${x0.toFixed(1)} ${y}` : `M${x0.toFixed(1)} ${y}`) + `L${x1.toFixed(1)} ${y}`;
+      prev = k;
+    });
+    if (d) out += `<path d="${d}" fill="none" style="stroke:${GOAL}" stroke-width="2" stroke-linejoin="round" opacity=".85" pointer-events="none"/>`;
     return out + '</svg>';
   }
 
@@ -340,7 +353,6 @@
       const ov = st.overview;
       if (!ov) return '';
       const xs = { min: dayMs(shiftDay(st.today, -29)), max: dayMs(st.today) };
-      const any = Object.values(ov.metrics).some(m => m.points.length);
       const card = id => {
         const m = ov.metrics[id];
         let val = `<span class="hl-mval" style="color:var(--pub-fg2,#a6adc8);font-size:1.1rem">—</span>`, sub = '', sp = '';
@@ -358,10 +370,14 @@
         return `<button class="hl-card hl-mcard" data-act="open" data-m="${id}">
           <div class="hl-mname"><span>${iconOf(id)}</span>${esc(t('hb_m_' + id))}</div>${val}<div class="hl-msub">${esc(sub)}</div>${sp}</button>`;
       };
-      const cards = st.groups.map(g => `<div class="hl-h">${esc(t('hb_group_' + g.id))}</div><div class="hl-grid">${g.metrics.filter(id => ov.metrics[id]).map(card).join('')}</div>`).join('');
+      // Only what has records: the tabs still open every metric to add the first one.
+      const cards = st.groups.map(g => {
+        const ids = g.metrics.filter(id => ov.metrics[id] && ov.metrics[id].latest);
+        return ids.length ? `<div class="hl-h">${esc(t('hb_group_' + g.id))}</div><div class="hl-grid">${ids.map(card).join('')}</div>` : '';
+      }).join('');
       const lab = st.labs.ov && st.labs.ov.tests.length
         ? `<div class="hl-h">${esc(t('hb_group_labs'))}</div><div class="hl-grid">${st.labs.ov.tests.slice(0, 6).map(labCard).join('')}</div>` : '';
-      return `${cards}${lab}${any || lab ? '' : `<div class="hl-empty">${esc(t('hb_empty_hint'))}</div>`}`;
+      return `${cards}${lab}${cards || lab ? '' : `<div class="hl-empty">${esc(t('hb_empty_hint'))}</div>`}`;
     }
 
     function stat(label, value) { return `<div class="hl-stat"><div class="hl-stat-l">${esc(label)}</div><div class="hl-stat-v">${value}</div></div>`; }
@@ -376,7 +392,8 @@
       }
       const p = sel != null ? s.points[sel] : s.points[s.points.length - 1];
       if (!p) return '';
-      return `<div class="hl-hero"><div class="hl-hero-val">${bigVal(m, p.total)}</div><div class="hl-hero-sub">${esc(fmtDate(p.day))}</div></div>`;
+      const goal = p.goal ? ' · ' + t('hb_goal') + ' ' + num(m, p.goal) + (p.total >= p.goal ? ' ✓' : '') : '';
+      return `<div class="hl-hero"><div class="hl-hero-val">${bigVal(m, p.total)}</div><div class="hl-hero-sub">${esc(fmtDate(p.day) + goal)}</div></div>`;
     }
 
     function chartFor(s) {
@@ -384,7 +401,7 @@
       if (s.kind === 'daily') {
         if (!s.points.length) return '';
         return barChart(s.points.map(p => ({ day: p.day, total: dispVal(m, p.total) })), colorOf(m), xs, st.sel,
-          s.stats ? dispVal(m, s.stats.avg) : null);
+          s.stats ? dispVal(m, s.stats.avg) : null, null, (s.goals || []).map(g => ({ day: g.day, goal: dispVal(m, g.goal) })));
       }
       if (!s.points.length) return '';
       if (m === 'bp') {
@@ -403,7 +420,8 @@
         const x = s.stats; if (!x) return '';
         return stat(t('hb_avg_per_day'), esc(num(m, x.avg))) + stat(t('hb_total'), esc(num(m, x.total))) +
           stat(t('hb_best_day'), esc(num(m, x.max)) + `<div class="hl-stat-l">${esc(fmtDate(x.max_day))}</div>`) +
-          stat(t('hb_lowest'), esc(num(m, x.min))) + stat(t('hb_days_with_data'), x.count);
+          stat(t('hb_lowest'), esc(num(m, x.min))) + stat(t('hb_days_with_data'), x.count) +
+          (s.goal_days ? stat(t('hb_goal_met'), esc(t('hb_goal_days', { a: s.goal_days.met, b: s.goal_days.of }))) : '');
       }
       if (m === 'bp') {
         const [a, b, c] = s.stats; if (!a) return '';
@@ -456,7 +474,7 @@
       const chart = chartFor(s);
       return `${sub}
         <div class="hl-row">${ranges}<button class="hl-btn hl-primary" data-act="add">＋ ${esc(t('hb_add'))}</button></div>
-        ${chart ? `<div class="hl-card">${readoutFor(s, st.sel)}${chart}</div>` : `<div class="hl-card"><div class="hl-empty">${esc(t('hb_no_points'))}</div></div>`}
+        ${chart ? `<div class="hl-card">${readoutFor(s, st.sel)}${chart}${s.goals && s.goals.length ? `<div class="hl-legend"><span><i style="background:${GOAL};border-radius:1px;height:3px;width:14px;vertical-align:middle"></i>${esc(t('hb_goal'))}</span></div>` : ''}</div>` : `<div class="hl-card"><div class="hl-empty">${esc(t('hb_no_points'))}</div></div>`}
         ${chart ? `<div class="hl-stats">${statsFor(s)}</div>` : ''}
         ${s.metric === 'bp' ? bpExtra(s) : ''}
         <div class="hl-h">${esc(t('hb_entries'))}</div>
@@ -476,8 +494,10 @@
     }
     function findTests(q) {
       const n = norm(q);
+      // Every test, the ones whose name starts with what was typed first.
+      const first = x => n && norm(tname(x)).startsWith(n) ? 0 : 1;
       return st.labs.catalog.filter(x => !n || testHay(x).includes(n))
-        .sort((a, b) => tname(a).localeCompare(tname(b))).slice(0, 8);
+        .sort((a, b) => first(a) - first(b) || tname(a).localeCompare(tname(b)));
     }
     // Labs already used in earlier results, offered as a list when typing
     function labList(id) {
@@ -561,8 +581,9 @@
       const lastRange = () => {
         if (!test) return {};
         const o = st.labs.ov.tests.find(x => x.test.key === test.key);
-        if (o && o.latest && (o.latest.low != null || o.latest.high != null)) return { low: o.latest.low, high: o.latest.high, unit: o.latest.unit };
-        return test.hint && !test.custom ? { low: test.hint[0], high: test.hint[1], unit: test.base_unit, hint: true } : {};
+        // The range of the latest result that had one: the person's own lab.
+        const p = o && o.points.slice().reverse().find(x => x.low != null || x.high != null);
+        return p ? { low: p.low, high: p.high, unit: p.unit } : {};
       };
       const units = () => test ? [test.base_unit].concat(Object.keys(test.units || {})) : [];
       const inp = (id, label, v, type, extra) => `<div class="hl-field"><label>${esc(label)}</label><input class="hl-input" id="${id}" type="${type || 'text'}" ${type === 'number' ? 'step="any" inputmode="decimal"' : ''} value="${v == null ? '' : esc(v)}" ${extra || ''}></div>`;
@@ -583,7 +604,7 @@
             <div class="hl-two">${inp('hl-lv', t('hb_labs_value'), existing ? r.value : '', 'number')}
               <div class="hl-field"><label>${esc(t('hb_labs_unit'))}</label><select class="hl-input" id="hl-lu">${units().map(u => `<option${u === du ? ' selected' : ''}>${esc(u)}</option>`).join('')}</select></div></div>
             <div class="hl-two">${inp('hl-llo', t('hb_labs_ref_low'), rg.low, 'number')}${inp('hl-lhi', t('hb_labs_ref_high'), rg.high, 'number')}</div>
-            <div class="hl-hint" style="margin-top:-6px">${esc(t(rg.hint ? 'hb_labs_ref_hint' : 'hb_labs_ref_form'))}</div>
+            <div class="hl-hint" style="margin-top:-6px">${esc(t('hb_labs_ref_form'))}</div>
             ${inp('hl-ld', t('hb_date'), existing ? r.day : st.today, 'date')}${inp('hl-llab', t('hb_labs_lab'), r.lab || '', 'text', 'list="hl-labs" autocomplete="off"')}${labList('hl-labs')}${inp('hl-lnote', t('hb_note'), r.note || '')}`;
           form.querySelector('#hl-lu').addEventListener('change', e => {
             // Ranges typed in the old unit follow the chosen unit
@@ -594,8 +615,9 @@
         function drawSug() {
           if (existing) { sug.innerHTML = ''; return; }
           const found = findTests(q.value);
-          sug.innerHTML = found.map(x => `<button class="hl-item" style="border:none;color:inherit;text-align:left;cursor:pointer;font:inherit" data-pick="${esc(x.key)}"><div class="hl-item-main"><div class="hl-item-v">${esc(tname(x))}</div>
+          sug.innerHTML = (found.length ? `<div class="hl-list" style="max-height:min(320px,45vh);overflow-y:auto">` : '') + found.map(x => `<button class="hl-item" style="border:none;color:inherit;text-align:left;cursor:pointer;font:inherit" data-pick="${esc(x.key)}"><div class="hl-item-main"><div class="hl-item-v">${esc(tname(x))}</div>
             <div class="hl-item-m">${esc([x.code].concat(x.aliases.slice(0, 3)).filter(Boolean).join(' · '))}</div></div></button>`).join('') +
+            (found.length ? '</div>' : '') +
             (q.value.trim() && !found.length ? `<div class="hl-hint">${esc(t('hb_labs_no_match'))}</div>` : '') +
             (q.value.trim() && !(test && norm(tname(test)) === norm(q.value)) ? `<button class="hl-btn" data-newtest="1">＋ ${esc(t('hb_labs_create_own', { name: q.value.trim() }))}</button>` : '');
         }
@@ -603,7 +625,7 @@
         sug.addEventListener('click', e => {
           const pick = e.target.closest('[data-pick]');
           if (pick) { test = testByKey(pick.dataset.pick); q.value = tname(test); sug.innerHTML = ''; drawForm(); }
-          else if (e.target.closest('[data-newtest]')) { const name = q.value.trim(); closeDialog(); labTestDialog(null, name, () => { }); }
+          else if (e.target.closest('[data-newtest]')) { const name = q.value.trim(); closeDialog(); labTestDialog(null, name, saved => labResultDialog(null, saved)); }
         });
         if (test) { drawForm(); } else drawSug();
         ov.querySelector('#hl-ok').addEventListener('click', async () => {
@@ -627,7 +649,8 @@
     // Edit how a test is written for this person: the code shown, the unit
     // results are shown in and every other name it answers to. Tests made by
     // the person also get their own name for each language.
-    function labTestDialog(key, prefillName) {
+    // onSaved: what comes next when the test was made while adding a result.
+    function labTestDialog(key, prefillName, onSaved) {
       const test = key ? testByKey(key) : null;
       const custom = !test || test.custom;
       const names = test ? test.names : {};
@@ -656,7 +679,8 @@
           } else body.unit = g('#hl-tdu');
           try {
             const saved = await api(test ? '/labs/tests/' + test.key : '/labs/tests', { method: test ? 'PUT' : 'POST', body: JSON.stringify(body) });
-            closeDialog(); st.tab = 'labs'; st.labs.test = saved.key; await refresh();
+            closeDialog(); st.tab = 'labs';
+            if (onSaved) { await refresh(); onSaved(saved.key); } else { st.labs.test = saved.key; await refresh(); }
           } catch (e) { fail(ov, e); }
         });
         ov.querySelector('#hl-del')?.addEventListener('click', async () => {
@@ -780,11 +804,17 @@
       lines.forEach(line => {
         const raw = line.replace(/^[^\p{L}\p{N}]+/u, '');
         let hit = null;
-        for (const c of cands) { const e = eatName(raw, c.k); if (e > 0) { hit = { test: c.test, end: e }; break; } }
+        for (const c of cands) { const e = eatName(raw, c.k); if (e > 0) { hit = { test: c.test, end: e, k: c.k }; break; } }
         if (hit) {
           if (raw[hit.end] === ')') hit.end++;
           const rest = raw.slice(hit.end).replace(/^\s*\([^)]*\)/, '');
           const v = parseValues(rest);
+          // A name some tests share once the signs are gone (NEUT% and NEUT#):
+          // the unit on the line tells which one it is.
+          if (v && v.unit) {
+            const same = cands.filter(c => c.k === hit.k && c.test !== hit.test && findUnit(c.test, v.unit));
+            if (same.length && !findUnit(hit.test, v.unit)) hit.test = same[0].test;
+          }
           if (v) rows.push({ test: hit.test.key, written: raw.slice(0, hit.end).trim(), ...v, found: true });
           return;
         }

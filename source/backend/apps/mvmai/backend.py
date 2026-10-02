@@ -9,6 +9,7 @@ never sent back to the browser.
 """
 
 import asyncio
+import contextvars
 import json
 import logging
 import os
@@ -16,6 +17,7 @@ import pwd
 import re
 import shlex
 import shutil
+import signal
 import sqlite3
 import subprocess
 import sys
@@ -777,7 +779,7 @@ _CLI_TOOL_CALL_RE = re.compile(r"```mvmai_tool_call\s*\n(.*?)```", re.DOTALL)
 
 
 def _cli_tool_instructions(tools: list) -> str:
-    lines = ["You can call at most one of the following tools per reply:"]
+    lines = ["You can call the following tools:"]
     for spec in tools:
         fn = spec["function"]
         props = (fn.get("parameters") or {}).get("properties") or {}
@@ -787,7 +789,10 @@ def _cli_tool_instructions(tools: list) -> str:
         "To call it, output ONLY a fenced code block labeled mvmai_tool_call containing a JSON "
         "object with \"name\" and \"arguments\" keys, e.g.:\n"
         "```mvmai_tool_call\n{\"name\": \"tool_name\", \"arguments\": {}}\n```\n"
-        "Only include that block when you actually want to run a command. Otherwise just answer normally in plain text."
+        "When the request needs several calls that do not depend on each other's results, such as "
+        "adding several entries, put one such block per call in the same reply, so the user reviews "
+        "and saves them together instead of one reply at a time. "
+        "Only include those blocks when you actually want to call a tool. Otherwise just answer normally in plain text."
     )
     return "\n".join(lines)
 
@@ -823,6 +828,39 @@ def _home_for(eu: str) -> str:
         return pwd.getpwnam(eu).pw_dir
     except KeyError:
         return "/root"
+
+
+# The chat turn a CLI process belongs to, so the user's Stop can kill it:
+# a dict {"procs": [...], "stopped": bool} set by the caller of the turn.
+CHAT_TURN = contextvars.ContextVar("mvmai_chat_turn", default=None)
+
+
+def kill_process(proc) -> None:
+    """Kill a CLI process together with everything it started."""
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+    except (ProcessLookupError, PermissionError, OSError):
+        pass
+
+
+def _run_turn_process(cmd, input=None, timeout=None, **kw):
+    """subprocess.run for a chat turn's CLI, in its own process group and
+    registered with the turn, so Stop ends it instead of letting it finish."""
+    kw.pop("capture_output", None)
+    turn = CHAT_TURN.get()
+    with subprocess.Popen(cmd, stdin=subprocess.PIPE if input is not None else subprocess.DEVNULL,
+                          stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True, **kw) as proc:
+        if turn is not None:
+            turn["procs"].append(proc)
+            if turn.get("stopped"):
+                kill_process(proc)
+        try:
+            out, err = proc.communicate(input, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            kill_process(proc)
+            proc.communicate()
+            raise
+        return subprocess.CompletedProcess(cmd, proc.returncode, out, err)
 
 
 def _wrap_as_user(argv: list[str], eu: str) -> list[str]:
@@ -1191,7 +1229,7 @@ async def _run_cli_chat(
             else:
                 cmd = [cmd_bin] + provider["args"] + [prompt]
             proc = await asyncio.to_thread(
-                subprocess.run,
+                _run_turn_process,
                 _wrap_as_user(cmd, eu), input=stdin_input, capture_output=True, text=True, timeout=cli_timeout, cwd=effective_dir,
                 env={**os.environ, "HOME": home, "USER": eu, "LOGNAME": eu, "PATH": _cli_search_path(home), **extra_env},
             )
@@ -1201,27 +1239,24 @@ async def _run_cli_chat(
             return JSONResponse({"error": err}, status_code=502)
         content = proc.stdout.strip()
         if prompt_tools:
-            m = _CLI_TOOL_CALL_RE.search(content)
-            if m:
-                name = ""
-                arguments = {}
+            valid_names = {spec["function"]["name"] for spec in prompt_tools}
+            calls = []
+            for m in _CLI_TOOL_CALL_RE.finditer(content):
                 try:
                     parsed = json.loads(m.group(1))
                     name = str(parsed.get("name") or "")
                     arguments = parsed.get("arguments") or {}
                 except Exception:
-                    pass
-                valid_names = {spec["function"]["name"] for spec in prompt_tools}
+                    continue
                 if name in valid_names:
-                    rest = (content[:m.start()] + content[m.end():]).strip()
-                    return JSONResponse({
-                        "content": rest or None,
-                        "tool_calls": [{
-                            "id": "cli-call-1",
-                            "type": "function",
-                            "function": {"name": name, "arguments": json.dumps(arguments)},
-                        }],
+                    calls.append({
+                        "id": f"cli-call-{len(calls) + 1}",
+                        "type": "function",
+                        "function": {"name": name, "arguments": json.dumps(arguments)},
                     })
+            if calls:
+                rest = _CLI_TOOL_CALL_RE.sub("", content).strip()
+                return JSONResponse({"content": rest or None, "tool_calls": calls})
         return JSONResponse({"content": content})
     except subprocess.TimeoutExpired:
         return JSONResponse({"error": f"CLI timed out after {cli_timeout}s"}, status_code=504)

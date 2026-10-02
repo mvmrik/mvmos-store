@@ -30,10 +30,10 @@
     clearUnlock.title = bg ? 'Изтрива само запазения ключ за отключване на това разширение' : 'Clears only this extension’s saved unlock key';
     clearUnlock.style.cssText = 'border:0;border-radius:4px;background:#313244;color:#cdd6f4;cursor:pointer;font:inherit;font-size:14px;line-height:1;padding:4px 6px';
     clearUnlock.addEventListener('click', function () {
-      var key = mvm.config.appId + ':vault_session';
+      var keys = [mvm.config.appId + ':vault_session', mvm.config.appId + ':totp_session'];
       function remove(area) {
         if (!area || !area.remove) return Promise.resolve();
-        try { return Promise.resolve(area.remove(key)); } catch (_) { return Promise.resolve(); }
+        try { return Promise.resolve(area.remove(keys)); } catch (_) { return Promise.resolve(); }
       }
       clearUnlock.disabled = true;
       Promise.all([remove(mvm.api.storage.local), remove(mvm.api.storage.session)]).then(function () {
@@ -72,6 +72,27 @@
   mvm.onFrameMessage('vault-session-clear', function () {
     mvm.persist.clear('vault_session');
     mvm.session.clear('vault_session');
+  });
+
+  // mvm2factor's unlocked key, for codes copied or filled from here. Kept the
+  // same way as the vault's own, under a name of its own: the mvm2factor
+  // extension is a separate extension and cannot share it.
+  function sendTotpSession() {
+    Promise.all([mvm.persist.get('totp_session'), mvm.session.get('totp_session')]).then(function (found) {
+      var saved = found[0] || found[1];
+      if (saved && saved.expires && saved.expires < Date.now()) saved = null;
+      if (!saved) { mvm.persist.clear('totp_session'); mvm.session.clear('totp_session'); }
+      mvm.postToFrame({type: 'totp-session', session: saved || null});
+    });
+  }
+  mvm.onFrameMessage('totp-session-save', function (message) {
+    var saved = message.session;
+    if (saved && saved.expires) { mvm.session.clear('totp_session'); mvm.persist.set('totp_session', saved); }
+    else { mvm.persist.clear('totp_session'); mvm.session.set('totp_session', saved); }
+  });
+  mvm.onFrameMessage('totp-session-clear', function () {
+    mvm.persist.clear('totp_session');
+    mvm.session.clear('totp_session');
   });
 
   // ---- filling a login ----------------------------------------------------
@@ -135,6 +156,7 @@
 
   mvm.onFrameReady(function () {
     sendVaultSession();
+    sendTotpSession();
     if (!isPasskeyWindow) return;
     // A job that arrived before the iframe existed was kept but never
     // delivered, so re-post everything still pending now that it can receive

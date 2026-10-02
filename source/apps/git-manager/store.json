@@ -17,6 +17,7 @@
     "Save a deploy command per repository, such as php artisan deploy or composer deploy, and run it with one Deploy button in its own interactive terminal, where prompts and passwords can be answered.",
     "Generate an ed25519 SSH key, copy the public key, and test the connection to GitHub, GitLab or any other host.",
     "See repositories owned by other profiles as locked entries, and either switch to the owner profile or unlock all of them from one place with Premium and sudo confirmation.",
-    "Show the text of a repository's terminal as plain text in an ordinary box, where it can be selected and copied even when the program inside the terminal blocks selecting, and start a fresh terminal for a repository with one button."
+    "Show the text of a repository's terminal as plain text in an ordinary box, where it can be selected and copied even when the program inside the terminal blocks selecting, and start a fresh terminal for a repository with one button.",
+    "Issue lists show matching local or remote branches, and status refreshes keep an open issue visible."
   ]
 }

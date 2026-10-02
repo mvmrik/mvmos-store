@@ -21,7 +21,8 @@
     "Ban a profile from posting in Classifieds, with an optional reason, without touching its Apps Hub account.",
     "Message moderation that shows every conversation with who wrote to whom, when each message was sent, delivered and seen, and deletes a message or a whole conversation without editing anything.",
     "System messages that tell people, in their own language, what moderation changed on their listings.",
-    "Premium user verification that asks for a photo before posting in chosen categories, triggered after registration, after a number of days or after a number of listings."
+    "Premium user verification that asks for a photo before posting in chosen categories, triggered after registration, after a number of days or after a number of listings.",
+    "Open the listing from its conversation without closing the chat, with clear seller details and scrolling in mobile desktop windows."
   ],
   "integrations": [
     {

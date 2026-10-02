@@ -12,6 +12,11 @@
     return s;
   }
 
+  // The language the page is shown in, which mvmAI answers and writes in.
+  function uiLang() {
+    return (window.mvmOS && window.mvmOS.lang) || null;
+  }
+
   // An app's name in the user's language (the manifest's name_i18n).
   function appName(app) {
     return window.mvmOS && window.mvmOS.appName ? window.mvmOS.appName(app) : app.name;
@@ -97,6 +102,19 @@
       .mvmai-send:disabled{opacity:.5;cursor:default}
       .mvmai-inputbar{position:relative;align-items:flex-end}
       .mvmai-inputbar .mvmai-send{flex-shrink:0;min-height:2.3rem;white-space:nowrap}
+      .mvmai-stop{flex-shrink:0;min-height:2.3rem;width:2.3rem;border:0;border-radius:.5rem;cursor:pointer;
+        background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e);font-size:.95rem;font-weight:700}
+      .mvmai-stop[hidden]{display:none}
+      .mvmai-queue{display:flex;flex-direction:column;gap:.35rem;padding:.5rem .9rem 0;flex-shrink:0;max-height:10rem;overflow-y:auto}
+      .mvmai-queue[hidden]{display:none}
+      .mvmai-queue-head{font-size:.72rem;color:var(--pub-dim,#6c7086)}
+      .mvmai-queue-item{display:flex;align-items:center;gap:.4rem;background:var(--pub-surface2,#313244);
+        border:1px dashed var(--pub-border,#45475a);border-radius:.5rem;padding:.3rem .4rem .3rem .6rem;font-size:.82rem}
+      .mvmai-queue-item.urgent{border-style:solid;border-color:var(--pub-accent,#89b4fa)}
+      .mvmai-queue-text{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .mvmai-queue-item button{background:none;border:0;color:var(--pub-fg2,#a6adc8);cursor:pointer;
+        font-size:.74rem;padding:.15rem .35rem;border-radius:.3rem;white-space:nowrap}
+      .mvmai-queue-item button:hover{background:var(--pub-border,#45475a)}
       .mvmai-app-btn{background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border:1px solid var(--pub-border,#45475a);
         border-radius:.5rem;min-width:2.3rem;height:2.3rem;padding:0 .5rem;cursor:pointer;font-size:.95rem;
         display:flex;align-items:center;gap:.3rem;max-width:11rem;flex-shrink:0}
@@ -119,6 +137,15 @@
       .mvmai-review input[type=checkbox]{width:auto}
       .mvmai-review textarea{min-height:3.5rem;font-family:monospace;font-size:.76rem}
       .mvmai-review .mvmai-review-state{margin-top:.5rem;font-weight:600}
+      .mvmai-batch-nav{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.4rem}
+      .mvmai-batch-nav button{background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border:1px solid var(--pub-border,#45475a);
+        border-radius:.4rem;width:2rem;height:1.8rem;font-size:1rem;cursor:pointer}
+      .mvmai-batch-nav button:disabled{opacity:.35;cursor:default}
+      .mvmai-batch-pos{font-weight:600;font-size:.82rem}
+      .mvmai-batch-page[hidden]{display:none}
+      .mvmai-review label.mvmai-batch-include{display:flex;align-items:center;gap:.4rem;font-size:.8rem;
+        color:var(--pub-fg,#cdd6f4);margin-top:.6rem;cursor:pointer}
+      .mvmai-confirm-yes:disabled{opacity:.5;cursor:default}
       .mvmai-typing{align-self:flex-start;color:var(--pub-dim,#6c7086);font-size:.82rem}
       .mvmai-hist-btn{background:none;border:0;color:inherit;font-size:1.15rem;cursor:pointer;padding:.15rem .35rem;
         border-radius:.4rem;line-height:1}
@@ -332,10 +359,12 @@
             ${priceHint}
           </div>
           <div class="mvmai-list"></div>
+          <div class="mvmai-queue" hidden></div>
           <div class="mvmai-inputbar">
             ${showAppPicker() ? '<button class="mvmai-app-btn" type="button" title="' + esc(t('mvmai_pub_app_pick')) + '"><span class="mvmai-app-icon">🧩</span><span class="mvmai-app-name" hidden></span></button><div class="mvmai-app-pop" hidden></div>' : ''}
             <textarea class="mvmai-input" rows="1" placeholder="${esc(messagePlaceholder())}"></textarea>
             <button class="mvmai-send">${esc(t('mvmai_pub_send'))}</button>
+            <button class="mvmai-stop" type="button" hidden title="${esc(t('mvmai_pub_stop'))}">■</button>
           </div>
         </div>
       </div>`;
@@ -343,6 +372,8 @@
       var listEl = root.querySelector('.mvmai-list');
       var inputEl = root.querySelector('.mvmai-input');
       var sendEl = root.querySelector('.mvmai-send');
+      var stopEl = root.querySelector('.mvmai-stop');
+      var queueEl = root.querySelector('.mvmai-queue');
       var sidebarEl = root.querySelector('.mvmai-sidebar');
       var backdropEl = root.querySelector('.mvmai-sidebar-backdrop');
       var sidebarListEl = root.querySelector('.mvmai-sidebar-list');
@@ -1095,84 +1126,65 @@
 
         // A tool that changes data first becomes a form the user reviews,
         // corrects and saves; reads run straight away.
-        return api('/tool-preview', {method: 'POST', body: JSON.stringify({name: name, arguments: args})})
+        return api('/tool-preview', {method: 'POST', body: JSON.stringify({name: name, arguments: args, lang: uiLang()})})
           .then(function (pv) {
             if (pv.__status === 200 && pv.write) return reviewToolCall(call, name, args, pv);
             return readToolCall(call, name, args);
           });
       }
 
-      function reviewToolCall(call, name, args, pv) {
-        return new Promise(function (resolve) {
-          var card = document.createElement('div');
-          card.className = 'mvmai-tool-card mvmai-review';
-          card.innerHTML = '<div class="mvmai-tool-head">' + esc(pv.app.icon) + ' ' + esc(appName(pv.app)) + ' · ' + esc(pv.action) + '</div>' +
-            (pv.summary ? '<div class="mvmai-review-sum">' + esc(pv.summary) + '</div>' : '');
-          var inputs = [];
-          pv.fields.forEach(function (f) {
-            var label = document.createElement('label');
-            label.textContent = f.label + (f.required ? ' *' : '');
-            var input;
-            var value = f.value === null || f.value === undefined ? '' : f.value;
-            if (f.options && f.options.length) {
-              input = document.createElement('select');
-              var opts = f.options.slice();
-              if (value !== '' && !opts.some(function (o) { return String(o.value) === String(value); })) {
-                opts.unshift({value: value, label: String(value)});
-              }
-              if (!f.required || value === '') opts.unshift({value: '', label: '—'});
-              opts.forEach(function (o) {
-                var op = document.createElement('option');
-                op.value = String(o.value);
-                op.textContent = o.label;
-                input.appendChild(op);
-              });
-              input.value = String(value);
-            } else if (f.type === 'bool') {
-              input = document.createElement('input');
-              input.type = 'checkbox';
-              input.checked = value === true || value === 'true';
-            } else if (f.type === 'json' || (f.type === 'text' && String(value).length > 60)) {
-              input = document.createElement('textarea');
-              input.value = String(value);
-            } else {
-              input = document.createElement('input');
-              input.type = f.type === 'number' ? 'number' : (f.type === 'date' || f.type === 'time' ? f.type : 'text');
-              if (f.type === 'number') input.step = 'any';
-              input.value = String(value);
+      // The editable form of one change: its card, and how to read the
+      // values the user left in it.
+      function buildReview(pv) {
+        var card = document.createElement('div');
+        card.className = 'mvmai-tool-card mvmai-review';
+        card.innerHTML = '<div class="mvmai-tool-head">' + esc(pv.app.icon) + ' ' + esc(appName(pv.app)) + ' · ' + esc(pv.action) + '</div>' +
+          (pv.summary ? '<div class="mvmai-review-sum">' + esc(pv.summary) + '</div>' : '');
+        var inputs = [];
+        pv.fields.forEach(function (f) {
+          var label = document.createElement('label');
+          label.textContent = f.label + (f.required ? ' *' : '');
+          var input;
+          var value = f.value === null || f.value === undefined ? '' : f.value;
+          if (f.options && f.options.length) {
+            input = document.createElement('select');
+            var opts = f.options.slice();
+            if (value !== '' && !opts.some(function (o) { return String(o.value) === String(value); })) {
+              opts.unshift({value: value, label: String(value)});
             }
-            card.appendChild(label);
-            card.appendChild(input);
-            inputs.push({f: f, el: input, before: f.type === 'bool' ? input.checked : input.value});
-          });
-          var row = document.createElement('div');
-          row.className = 'mvmai-confirm-row';
-          row.innerHTML = '<button class="mvmai-confirm-yes">' + esc(t('mvmai_pub_review_save')) + '</button>' +
-            '<button class="mvmai-confirm-no">' + esc(t('mvmai_pub_review_cancel')) + '</button>';
-          card.appendChild(row);
-          var state = document.createElement('div');
-          state.className = 'mvmai-review-state';
-          card.appendChild(state);
-          listEl.appendChild(card);
-          scrollDown();
-
-          function lock() {
-            inputs.forEach(function (i) { i.el.disabled = true; });
-            row.remove();
+            if (!f.required || value === '') opts.unshift({value: '', label: '—'});
+            opts.forEach(function (o) {
+              var op = document.createElement('option');
+              op.value = String(o.value);
+              op.textContent = o.label;
+              input.appendChild(op);
+            });
+            input.value = String(value);
+          } else if (f.type === 'bool') {
+            input = document.createElement('input');
+            input.type = 'checkbox';
+            input.checked = value === true || value === 'true';
+          } else if (f.type === 'json' || (f.type === 'text' && String(value).length > 60)) {
+            input = document.createElement('textarea');
+            input.value = String(value);
+          } else {
+            input = document.createElement('input');
+            input.type = f.type === 'number' ? 'number' : (f.type === 'date' || f.type === 'time' ? f.type : 'text');
+            if (f.type === 'number') input.step = 'any';
+            input.value = String(value);
           }
-
-          row.querySelector('.mvmai-confirm-no').addEventListener('click', function () {
-            lock();
-            state.textContent = t('mvmai_pub_review_cancelled');
-            resolve({role: 'tool', tool_call_id: call.id, content: JSON.stringify({
-              cancelled: true, note: 'The user cancelled this change. Nothing was saved.'
-            })});
-          });
-
-          row.querySelector('.mvmai-confirm-yes').addEventListener('click', function () {
-            var values = {};
-            var changed = {};
-            var missing = false;
+          card.appendChild(label);
+          card.appendChild(input);
+          inputs.push({f: f, el: input, before: f.type === 'bool' ? input.checked : input.value});
+        });
+        var state = document.createElement('div');
+        state.className = 'mvmai-review-state';
+        return {
+          card: card,
+          state: state,
+          lock: function () { inputs.forEach(function (i) { i.el.disabled = true; }); },
+          collect: function () {
+            var values = {}, changed = {}, missing = false;
             inputs.forEach(function (i) {
               var v = i.f.type === 'bool' ? i.el.checked : i.el.value;
               i.el.style.borderColor = '';
@@ -1183,22 +1195,195 @@
               if (i.f.type === 'bool' || String(v).trim() !== '') values[i.f.id] = v;
               if (v !== i.before) changed[i.f.id] = v;
             });
-            if (missing) { state.textContent = t('mvmai_pub_review_required'); return; }
-            lock();
-            state.textContent = t('mvmai_pub_review_saving');
-            api('/tool-call', {method: 'POST', body: JSON.stringify({name: name, arguments: values, confirmed: true})})
-              .then(function (data) {
-                if (data.__status === 200) {
-                  state.textContent = '✓ ' + t('mvmai_pub_review_saved');
-                  var out = {saved: true, result: data.result};
-                  if (Object.keys(changed).length) out.user_changed = changed;
-                  resolve({role: 'tool', tool_call_id: call.id, content: JSON.stringify(out)});
-                } else {
-                  state.textContent = t('mvmai_pub_err') + ': ' + (data.error || data.__status);
-                  resolve({role: 'tool', tool_call_id: call.id, content: JSON.stringify({error: data.error || 'failed', saved: false})});
-                }
-              });
+            return {values: values, changed: changed, missing: missing};
+          }
+        };
+      }
+
+      function cancelledMsg(call) {
+        return {role: 'tool', tool_call_id: call.id, content: JSON.stringify({
+          cancelled: true, note: 'The user cancelled this change. Nothing was saved.'
+        })};
+      }
+
+      // Runs a reviewed change and tells the model what was really saved.
+      function saveReviewed(call, name, form, got) {
+        form.state.textContent = t('mvmai_pub_review_saving');
+        return api('/tool-call', {method: 'POST', body: JSON.stringify({name: name, arguments: got.values, confirmed: true, lang: uiLang()})})
+          .then(function (data) {
+            if (data.__status === 200) {
+              form.state.textContent = '✓ ' + t('mvmai_pub_review_saved');
+              var out = {saved: true, result: data.result};
+              if (Object.keys(got.changed).length) out.user_changed = got.changed;
+              return {ok: true, msg: {role: 'tool', tool_call_id: call.id, content: JSON.stringify(out)}};
+            }
+            form.state.textContent = t('mvmai_pub_err') + ': ' + (data.error || data.__status);
+            return {ok: false, msg: {role: 'tool', tool_call_id: call.id, content: JSON.stringify({error: data.error || 'failed', saved: false})}};
           });
+      }
+
+      function reviewToolCall(call, name, args, pv) {
+        return new Promise(function (resolve) {
+          var form = buildReview(pv);
+          var card = form.card;
+          var row = document.createElement('div');
+          row.className = 'mvmai-confirm-row';
+          row.innerHTML = '<button class="mvmai-confirm-yes">' + esc(t('mvmai_pub_review_save')) + '</button>' +
+            '<button class="mvmai-confirm-no">' + esc(t('mvmai_pub_review_cancel')) + '</button>';
+          card.appendChild(row);
+          card.appendChild(form.state);
+          listEl.appendChild(card);
+          scrollDown();
+
+          row.querySelector('.mvmai-confirm-no').addEventListener('click', function () {
+            form.lock();
+            row.remove();
+            form.state.textContent = t('mvmai_pub_review_cancelled');
+            resolve(cancelledMsg(call));
+          });
+
+          row.querySelector('.mvmai-confirm-yes').addEventListener('click', function () {
+            var got = form.collect();
+            if (got.missing) { form.state.textContent = t('mvmai_pub_review_required'); return; }
+            form.lock();
+            row.remove();
+            saveReviewed(call, name, form, got).then(function (r) { resolve(r.msg); });
+          });
+        });
+      }
+
+      // Several changes asked for in one reply become one card with a page
+      // per change: the user goes through them, corrects or leaves out any,
+      // and saves them all at once.
+      function reviewBatch(items) {
+        return new Promise(function (resolve) {
+          var box = document.createElement('div');
+          box.className = 'mvmai-tool-card mvmai-review mvmai-batch';
+          var nav = document.createElement('div');
+          nav.className = 'mvmai-batch-nav';
+          nav.innerHTML = '<button class="mvmai-batch-prev" type="button">‹</button>' +
+            '<span class="mvmai-batch-pos"></span>' +
+            '<button class="mvmai-batch-next" type="button">›</button>';
+          box.appendChild(nav);
+          var pages = items.map(function (it) {
+            var form = buildReview(it.pv);
+            var page = document.createElement('div');
+            page.className = 'mvmai-batch-page';
+            form.card.className = 'mvmai-batch-form';
+            var inc = document.createElement('label');
+            inc.className = 'mvmai-batch-include';
+            inc.innerHTML = '<input type="checkbox" checked> ' + esc(t('mvmai_pub_review_include'));
+            page.appendChild(form.card);
+            page.appendChild(inc);
+            page.appendChild(form.state);
+            box.appendChild(page);
+            var check = inc.querySelector('input');
+            check.addEventListener('change', function () { form.card.style.opacity = check.checked ? '' : '.45'; });
+            return {it: it, form: form, page: page, check: check};
+          });
+          var row = document.createElement('div');
+          row.className = 'mvmai-confirm-row';
+          row.innerHTML = '<button class="mvmai-confirm-yes"></button>' +
+            '<button class="mvmai-confirm-no">' + esc(t('mvmai_pub_review_cancel_all')) + '</button>';
+          box.appendChild(row);
+          var state = document.createElement('div');
+          state.className = 'mvmai-review-state';
+          box.appendChild(state);
+          listEl.appendChild(box);
+
+          var cur = 0;
+          var yes = row.querySelector('.mvmai-confirm-yes');
+          function show(i) {
+            cur = Math.max(0, Math.min(pages.length - 1, i));
+            pages.forEach(function (p, k) { p.page.hidden = k !== cur; });
+            nav.querySelector('.mvmai-batch-pos').textContent = t('mvmai_pub_review_page', {a: cur + 1, b: pages.length});
+            nav.querySelector('.mvmai-batch-prev').disabled = cur === 0;
+            nav.querySelector('.mvmai-batch-next').disabled = cur === pages.length - 1;
+            state.textContent = '';
+            count();
+          }
+          // Until the last page the main button only moves on, so nothing is
+          // saved before the user has seen every change in the batch.
+          function count() {
+            if (cur < pages.length - 1) {
+              yes.textContent = t('mvmai_pub_review_next', {a: cur + 2, b: pages.length});
+              yes.disabled = false;
+              return;
+            }
+            var n = pages.filter(function (p) { return p.check.checked; }).length;
+            yes.textContent = t('mvmai_pub_review_save_all', {n: n});
+            yes.disabled = !n;
+          }
+          pages.forEach(function (p) { p.check.addEventListener('change', count); });
+          nav.querySelector('.mvmai-batch-prev').onclick = function () { show(cur - 1); };
+          nav.querySelector('.mvmai-batch-next').onclick = function () { show(cur + 1); };
+          show(0);
+          scrollDown();
+
+          function lockAll() {
+            pages.forEach(function (p) { p.form.lock(); p.check.disabled = true; });
+            row.remove();
+          }
+
+          row.querySelector('.mvmai-confirm-no').addEventListener('click', function () {
+            lockAll();
+            state.textContent = t('mvmai_pub_review_cancelled');
+            resolve(pages.map(function (p) { return cancelledMsg(p.it.call); }));
+          });
+
+          yes.addEventListener('click', function () {
+            if (cur < pages.length - 1) {
+              var here = pages[cur].check.checked ? pages[cur].form.collect() : null;
+              if (here && here.missing) { state.textContent = t('mvmai_pub_review_required'); return; }
+              show(cur + 1);
+              return;
+            }
+            var gots = pages.map(function (p) { return p.check.checked ? p.form.collect() : null; });
+            var bad = gots.findIndex(function (g) { return g && g.missing; });
+            if (bad >= 0) { show(bad); state.textContent = t('mvmai_pub_review_required'); return; }
+            lockAll();
+            state.textContent = t('mvmai_pub_review_saving');
+            Promise.all(pages.map(function (p, k) {
+              if (!gots[k]) {
+                p.form.state.textContent = t('mvmai_pub_review_cancelled');
+                return Promise.resolve({ok: false, skipped: true, msg: cancelledMsg(p.it.call)});
+              }
+              return saveReviewed(p.it.call, p.it.name, p.form, gots[k]);
+            })).then(function (rs) {
+              var saved = rs.filter(function (r) { return r.ok; }).length;
+              var tried = rs.filter(function (r) { return !r.skipped; }).length;
+              state.textContent = (saved === tried ? '✓ ' : '') + t('mvmai_pub_review_saved_n', {a: saved, b: tried});
+              resolve(rs.map(function (r) { return r.msg; }));
+            });
+          });
+        });
+      }
+
+      // The tool calls of one reply, in their order: changes that need the
+      // user's review are gathered into one paged card when there are several.
+      function runToolCalls(calls) {
+        var plain = function (c) {
+          var n = c.function && c.function.name;
+          return n === 'run_command' || n === 'inspect_server';
+        };
+        if (calls.length < 2) return Promise.all(calls.map(runToolCall));
+        return Promise.all(calls.map(function (call) {
+          if (plain(call)) return {call: call};
+          var name = call.function && call.function.name;
+          var args = parseArgs(call.function && call.function.arguments);
+          return api('/tool-preview', {method: 'POST', body: JSON.stringify({name: name, arguments: args, lang: uiLang()})})
+            .then(function (pv) { return {call: call, name: name, args: args, pv: pv}; });
+        })).then(function (items) {
+          var writes = items.filter(function (it) { return it.pv && it.pv.__status === 200 && it.pv.write; });
+          var batch = writes.length > 1 ? reviewBatch(writes) : Promise.resolve([]);
+          return Promise.all(items.map(function (it) {
+            if (!it.pv) return runToolCall(it.call);
+            if (writes.length > 1 && writes.indexOf(it) >= 0) {
+              return batch.then(function (msgs) { return msgs[writes.indexOf(it)]; });
+            }
+            if (it.pv.__status === 200 && it.pv.write) return reviewToolCall(it.call, it.name, it.args, it.pv);
+            return readToolCall(it.call, it.name, it.args);
+          }));
         });
       }
 
@@ -1209,7 +1394,7 @@
         listEl.appendChild(card);
         scrollDown();
 
-        return api('/tool-call', {method: 'POST', body: JSON.stringify({name: name, arguments: args})})
+        return api('/tool-call', {method: 'POST', body: JSON.stringify({name: name, arguments: args, lang: uiLang()})})
           .then(function (data) {
             var content;
             if (data.__status === 200) {
@@ -1369,11 +1554,14 @@
           ? 'Here is the previous summary:\n' + prevText + '\n\nHere is the new conversation to add to it:\n' + historyLines + '\n\nWrite an updated single summary covering everything. Be concise but include key topics, decisions, context, and which run_command/tool calls actually succeeded (with their real results) so that capability is not lost or doubted later.'
           : 'Summarize this conversation concisely. Include key topics, decisions, important context, and which run_command/tool calls actually succeeded (with their real results) so that capability is not lost or doubted later:\n' + historyLines;
 
+        var lengthBefore = history.length;
         api('/chat', {method: 'POST', body: JSON.stringify({
           messages: [{role: 'user', content: compactInstruction}],
           no_persist: true,
         })}).then(function (data) {
           if (data.__status !== 200 || !data.message || !data.message.content) return;
+          // A new message went out meanwhile; summarise after its answer.
+          if (sending || history.length !== lengthBefore) return;
           var recent = nonSummary.slice(nonSummary.length - keepRecent);
           history = [{role: 'summary', content: data.message.content}].concat(recent);
           // Match what's actually stored from here on -- the summarized bubbles
@@ -1392,20 +1580,119 @@
         }).catch(function () {});
       }
 
+      // Messages written while mvmAI is answering wait here, visible above the
+      // input: each can be removed, or marked to be shown to the model at its
+      // next step without stopping the answer.
+      var queue = [];
+      var turn = null;
+
+      function renderQueue() {
+        queueEl.hidden = !queue.length;
+        queueEl.innerHTML = queue.length ? '<div class="mvmai-queue-head">' + esc(t('mvmai_pub_queued')) + '</div>' : '';
+        queue.forEach(function (q) {
+          var item = document.createElement('div');
+          item.className = 'mvmai-queue-item' + (q.urgent ? ' urgent' : '');
+          item.innerHTML = '<span class="mvmai-queue-text"></span>' +
+            (q.urgent ? '<span class="mvmai-queue-head">' + esc(t('mvmai_pub_queue_next_step')) + '</span>'
+              : '<button type="button" class="mvmai-queue-now">' + esc(t('mvmai_pub_queue_now')) + '</button>') +
+            '<button type="button" class="mvmai-queue-del" title="' + esc(t('mvmai_pub_queue_remove')) + '">✕</button>';
+          item.querySelector('.mvmai-queue-text').textContent = q.text;
+          item.querySelector('.mvmai-queue-text').title = q.text;
+          var now = item.querySelector('.mvmai-queue-now');
+          if (now) now.onclick = function () { q.urgent = true; renderQueue(); };
+          item.querySelector('.mvmai-queue-del').onclick = function () {
+            queue.splice(queue.indexOf(q), 1);
+            renderQueue();
+          };
+          queueEl.appendChild(item);
+        });
+      }
+
+      function setBusy(busy) {
+        sending = busy;
+        stopEl.hidden = !busy;
+      }
+
+      // Ends the answer: the next waiting message, if any, is sent on its own.
+      function finishTurn() {
+        turn = null;
+        setBusy(false);
+        refreshSessionList();
+        if (!queue.length) maybeCompact();
+        if (queue.length) {
+          var next = queue.shift();
+          renderQueue();
+          sendText(next.text);
+        }
+      }
+
+      function stopTurn() {
+        if (!turn) return;
+        var current = turn;
+        current.stopped = true;
+        if (current.controller) current.controller.abort();
+        if (current.typing) current.typing.remove();
+        api('/stop', {method: 'POST', body: JSON.stringify({turn_id: current.id})}).catch(function () {});
+        // Forms still waiting for a decision can no longer be saved.
+        listEl.querySelectorAll('.mvmai-review .mvmai-confirm-row').forEach(function (row) {
+          var card = row.closest('.mvmai-review');
+          card.querySelectorAll('input,select,textarea').forEach(function (el) { el.disabled = true; });
+          row.remove();
+        });
+        // Every tool call needs an answer before the conversation goes on.
+        for (var i = history.length - 1; i >= 0 && history[i].role !== 'user'; i--) {
+          var m = history[i];
+          if (m.role === 'assistant' && m.tool_calls) {
+            var answered = history.slice(i + 1).map(function (x) { return x.tool_call_id; });
+            m.tool_calls.forEach(function (tc) {
+              if (answered.indexOf(tc.id) < 0) {
+                history.push({role: 'tool', tool_call_id: tc.id, content: JSON.stringify({
+                  stopped: true, note: 'The user stopped waiting for this tool. An in-flight change may already have been saved; check the app before retrying.'
+                })});
+              }
+            });
+            break;
+          }
+        }
+        addNote(t('mvmai_pub_stopped'));
+        finishTurn();
+      }
+
       function send() {
         var text = inputEl.value.trim();
-        if (!text || sending) return;
-        sending = true;
-        sendEl.disabled = true;
+        if (!text) return;
         inputEl.value = '';
         inputEl.style.height = 'auto';
+        if (sending) {
+          queue.push({text: text, urgent: false});
+          renderQueue();
+          return;
+        }
+        sendText(text);
+      }
 
+      function sendText(text) {
+        setBusy(true);
         addBubble('user', text);
         history.push({role: 'user', content: text});
+        var current = turn = {id: Math.random().toString(36).slice(2) + Date.now().toString(36), stopped: false};
 
         function step() {
-          var typing = addTyping();
-          api('/chat', {method: 'POST', body: JSON.stringify({messages: history, session_id: sessionId, project_id: activeProject ? activeProject.id : null, app_id: chosenApp ? chosenApp.id : null})}).then(function (data) {
+          if (current.stopped) return;
+          // Waiting messages marked to be sent now join the answer here,
+          // between two of its steps.
+          queue.filter(function (q) { return q.urgent; }).forEach(function (q) {
+            queue.splice(queue.indexOf(q), 1);
+            addBubble('user', q.text);
+            history.push({role: 'user', content: q.text});
+          });
+          renderQueue();
+          var typing = current.typing = addTyping();
+          current.controller = window.AbortController ? new AbortController() : null;
+          api('/chat', {method: 'POST', signal: current.controller ? current.controller.signal : undefined,
+            body: JSON.stringify({messages: history, session_id: sessionId, project_id: activeProject ? activeProject.id : null,
+              app_id: chosenApp ? chosenApp.id : null, turn_id: current.id, lang: uiLang()})}).then(function (data) {
+            if (current.stopped) return;
             typing.remove();
             // A long turn answers 200 at once to keep the connection open,
             // so its failure arrives as an error in the body instead.
@@ -1413,8 +1700,7 @@
               var key = data.error === 'insufficient_credits' ? 'mvmai_pub_insufficient_credits'
                 : (data.__status === 401 ? 'mvmai_pub_unauthorized' : null);
               addNote((key ? t(key) : (t('mvmai_pub_err') + ': ' + (data.error || data.__status))));
-              sending = false;
-              sendEl.disabled = false;
+              finishTurn();
               return;
             }
             if (data.session_id) sessionId = data.session_id;
@@ -1423,16 +1709,19 @@
             if (msg.content) addBubble('assistant', msg.content);
 
             if (msg.tool_calls && msg.tool_calls.length) {
-              Promise.all(msg.tool_calls.map(runToolCall)).then(function (toolMsgs) {
+              runToolCalls(msg.tool_calls).then(function (toolMsgs) {
+                if (current.stopped) return;
                 toolMsgs.forEach(function (tm) { history.push(tm); });
                 step();
               });
             } else {
-              sending = false;
-              sendEl.disabled = false;
-              refreshSessionList();
-              maybeCompact();
+              finishTurn();
             }
+          }).catch(function () {
+            if (current.stopped) return;
+            typing.remove();
+            addNote(t('mvmai_pub_err'));
+            finishTurn();
           });
         }
         // Settings can change while this widget remains mounted in the
@@ -1442,6 +1731,7 @@
         refreshProviderMetadata().then(function () { step(); }).catch(function () { step(); });
       }
 
+      stopEl.onclick = stopTurn;
       sendEl.onclick = send;
       inputEl.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' && !e.shiftKey) {

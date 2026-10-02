@@ -31,4 +31,27 @@
       return true;
     }, [code]);
   });
+
+  // The unlocked key, kept by the popup the way mvmPasswords' popup keeps its
+  // own: the page in the frame has no lasting storage, so it hands the key
+  // here and gets it back each time the popup opens. A chosen span outlives a
+  // browser restart and ends by its deadline; "until closed" stays in memory.
+  function sendVaultSession() {
+    Promise.all([mvm.persist.get('vault_session'), mvm.session.get('vault_session')]).then(function (found) {
+      var saved = found[0] || found[1];
+      if (saved && saved.expires && saved.expires < Date.now()) saved = null;
+      if (!saved) { mvm.persist.clear('vault_session'); mvm.session.clear('vault_session'); }
+      mvm.postToFrame({type: 'vault-session', session: saved || null});
+    });
+  }
+  mvm.onFrameMessage('vault-session-save', function (message) {
+    var saved = message.session;
+    if (saved && saved.expires) { mvm.session.clear('vault_session'); mvm.persist.set('vault_session', saved); }
+    else { mvm.persist.clear('vault_session'); mvm.session.set('vault_session', saved); }
+  });
+  mvm.onFrameMessage('vault-session-clear', function () {
+    mvm.persist.clear('vault_session');
+    mvm.session.clear('vault_session');
+  });
+  mvm.onFrameReady(sendVaultSession);
 })();

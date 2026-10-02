@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "enabled": true,
-  "version": "1.0.5",
+  "version": "1.0.6",
   "icon": "public/extension-icon.png",
   "targets": [
     "chrome",
@@ -24,7 +24,14 @@
       "type": "select",
       "label": {
         "en": "Accounts shown in the extension",
-        "bg": "Акаунти, показвани в разширението"
+        "bg": "Акаунти, показвани в разширението",
+        "de": "In der Erweiterung angezeigte Konten",
+        "es": "Cuentas mostradas en la extensión",
+        "fr": "Comptes affichés dans l’extension",
+        "ja": "拡張機能に表示するアカウント",
+        "pt-BR": "Contas exibidas na extensão",
+        "ru": "Аккаунты, показываемые в расширении",
+        "zh-CN": "扩展中显示的账户"
       },
       "default": "matching",
       "options": [
@@ -32,14 +39,28 @@
           "value": "matching",
           "label": {
             "en": "Only matching the current website",
-            "bg": "Само съвпадащите с текущия сайт"
+            "bg": "Само съвпадащите с текущия сайт",
+            "de": "Nur passend zur aktuellen Website",
+            "es": "Solo las que coinciden con el sitio actual",
+            "fr": "Uniquement ceux du site actuel",
+            "ja": "現在のサイトに一致するもののみ",
+            "pt-BR": "Apenas as do site atual",
+            "ru": "Только для текущего сайта",
+            "zh-CN": "仅与当前网站匹配的"
           }
         },
         {
           "value": "all",
           "label": {
             "en": "Show all accounts",
-            "bg": "Показвай всички акаунти"
+            "bg": "Показвай всички акаунти",
+            "de": "Alle Konten anzeigen",
+            "es": "Mostrar todas las cuentas",
+            "fr": "Afficher tous les comptes",
+            "ja": "すべてのアカウントを表示",
+            "pt-BR": "Mostrar todas as contas",
+            "ru": "Показывать все аккаунты",
+            "zh-CN": "显示所有账户"
           }
         }
       ]

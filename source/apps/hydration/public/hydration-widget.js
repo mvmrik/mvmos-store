@@ -5,6 +5,19 @@
 
   const API = '/pub/hydration';
   const OZ_ML = 29.5735295625;
+  // Offered when a drink's colour is chosen; any other colour can be picked too.
+  const PALETTE = ['#4ea8ff', '#00bfa5', '#6a9f2e', '#c6e600', '#f2b705', '#ffa726', '#ff7043', '#ef5350',
+    '#8c1d18', '#ec407a', '#8e244d', '#ab47bc', '#7986cb', '#8b5a2b', '#e8dfc8', '#90a4ae'];
+  // Icons for custom drinks: drinks first, then foods that hold water.
+  const EMOJIS = ['💧', '🚰', '🧊', '🥛', '🍼', '☕', '🍵', '🫖', '🧉', '🧋', '🥤', '🧃', '🍺', '🍻', '🍷', '🥂',
+    '🍸', '🍹', '🍾', '🥃', '🍶', '🫗', '🥥', '🍋', '🍊', '🍎', '🍏', '🍐', '🍑', '🍒', '🍓', '🫐', '🍇', '🍉',
+    '🍈', '🍍', '🥭', '🍌', '🥝', '🍅', '🥒', '🥕', '🥬', '🌿', '🍃', '🌱', '🍯', '🍫', '🍲', '🥣', '🍜', '🥗',
+    '🍦', '🍨', '🧪', '⚡', '💪', '🏃', '❄️', '🔥', '🌶️', '⭐'];
+  // The parts of what was drunk, in the order the inner ring draws them.
+  const PARTS = [['water', '#4ea8ff'], ['caffeine', '#8b5a2b'], ['alcohol', '#b03a74'], ['sugar', '#f2b705'],
+    ['protein', '#43a047']];
+  const ZERO = { amount_ml: 0, water_ml: 0, caffeine_mg: 0, alcohol_g: 0, calories_kcal: 0, sugar_g: 0, protein_g: 0 };
+  const col = c => /^#[0-9a-f]{6}$/i.test(c || '') ? c : '#89b4fa';
 
   function t(key, vars) { return (window.t || (k => k))(key, vars); }
   function esc(s) {
@@ -71,18 +84,29 @@
       .hy-body{flex:1;overflow-y:auto;padding:14px 14px 24px;display:flex;flex-direction:column;gap:16px}
       .hy-days{display:flex;align-items:center;justify-content:center;gap:12px}
       .hy-daylabel{min-width:130px;text-align:center;font-weight:600}
-      .hy-hero{display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap}
-      .hy-ring{position:relative;width:150px;height:150px;flex-shrink:0}
-      .hy-ring svg{transform:rotate(-90deg)}
+      .hy-hero{display:flex;justify-content:center}
+      .hy-ring{position:relative;width:min(270px,74vw);aspect-ratio:1;flex-shrink:0;cursor:pointer;border:none;background:none;padding:0;color:inherit;font:inherit;border-radius:50%}
+      .hy-ring:focus-visible{outline:2px solid var(--pub-accent,#89b4fa);outline-offset:4px}
+      .hy-ring svg{width:100%;height:100%;transform:rotate(-90deg);display:block}
       .hy-ring-track{stroke:var(--pub-surface2,#313244)}
-      .hy-ring-fill{stroke:var(--pub-accent,#89b4fa);transition:stroke-dashoffset .4s}
-      .hy-ring-fill.done{stroke:var(--pub-green,#a6e3a1)}
-      .hy-ring-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-      .hy-ring-pct{font-size:1.9rem;font-weight:700}
-      .hy-ring-sub{font-size:.75rem;color:var(--pub-fg2,#a6adc8)}
-      .hy-stats{display:flex;flex-direction:column;gap:8px;min-width:150px}
-      .hy-stat{display:flex;justify-content:space-between;gap:16px;font-size:.9rem;background:var(--pub-surface2,#313244);border-radius:8px;padding:8px 12px}
-      .hy-stat span:first-child{color:var(--pub-fg2,#a6adc8)}
+      .hy-ring-txt{position:absolute;inset:22%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px}
+      .hy-ring-pct{font-size:2.5rem;font-weight:700;line-height:1.1}
+      .hy-ring-sub{font-size:.82rem;color:var(--pub-fg2,#a6adc8)}
+      .hy-ring-left{font-size:.82rem;font-weight:600;color:var(--pub-accent,#89b4fa)}
+      .hy-ring-left.done{color:var(--pub-green,#a6e3a1)}
+      .hy-stat{display:flex;align-items:center;gap:10px;font-size:.9rem;background:var(--pub-surface2,#313244);border-radius:8px;padding:8px 12px}
+      .hy-sn{flex:1;min-width:0;color:var(--pub-fg2,#a6adc8)}
+      .hy-stat b{white-space:nowrap}
+      .hy-stat i{font-style:normal;font-size:.78rem;color:var(--pub-fg2,#a6adc8);min-width:46px;text-align:right}
+      .hy-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+      .hy-badge{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;border-left:4px solid transparent}
+      .hy-swatches{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+      .hy-sw{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
+      .hy-sw.sel{border-color:var(--pub-fg,#cdd6f4);box-shadow:0 0 0 2px var(--pub-bg,#1e1e2e) inset}
+      .hy-swatches input[type=color]{width:38px;height:32px;border:none;background:none;padding:0;cursor:pointer}
+      .hy-emojis{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:4px;max-height:176px;overflow-y:auto;padding:2px}
+      .hy-emo{font-size:1.35rem;height:40px;border-radius:8px;border:2px solid transparent;background:var(--pub-surface2,#313244);cursor:pointer;padding:0}
+      .hy-emo.sel{border-color:var(--pub-accent,#89b4fa)}
       .hy-h{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--pub-fg2,#a6adc8)}
       .hy-headrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
       .hy-headrow .hy-btn{padding:9px 14px;min-height:40px;max-width:60%;overflow:hidden;text-overflow:ellipsis}
@@ -95,8 +119,7 @@
       .hy-card .hy-input{background:var(--pub-bg,#1e1e2e)}
       details.hy-card>*:not(summary){margin-top:12px}
       details.hy-card>summary{font-size:.9rem;font-weight:600}
-      .hy-drow-ico{font-size:1.4rem;width:34px;text-align:center;flex-shrink:0}
-      .hy-row.off .hy-row-main,.hy-row.off .hy-drow-ico{opacity:.5}
+      .hy-row.off .hy-row-main,.hy-row.off .hy-badge{opacity:.5}
       .hy-row-main[data-act]{cursor:pointer;min-height:42px;display:flex;flex-direction:column;justify-content:center}
       .hy-switch{position:relative;width:52px;height:30px;border-radius:15px;border:none;background:var(--pub-border,#45475a);cursor:pointer;flex-shrink:0;padding:0;margin:6px 4px}
       .hy-switch i{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--pub-fg,#cdd6f4);transition:left .15s}
@@ -122,10 +145,11 @@
       .hy-empty{color:var(--pub-dim,#6c7086);text-align:center;padding:20px 12px}
       .hy-hrow{display:grid;grid-template-columns:82px 1fr auto;gap:10px;align-items:center;cursor:pointer;padding:5px 4px;border-radius:6px}
       .hy-hrow:hover{background:var(--pub-surface2,#313244)}
-      .hy-hbar{height:14px;background:var(--pub-surface2,#313244);border-radius:7px;overflow:hidden}
+      .hy-hbar{height:14px;background:var(--pub-surface2,#313244);border-radius:7px;overflow:hidden;display:flex}
       .hy-hrow:hover .hy-hbar{background:var(--pub-border,#45475a)}
-      .hy-hfill{height:100%;background:var(--pub-accent,#89b4fa);border-radius:7px}
-      .hy-hfill.done{background:var(--pub-green,#a6e3a1)}
+      .hy-hseg{height:100%;flex-shrink:0}
+      .hy-hseg+.hy-hseg{border-left:1px solid var(--pub-bg,#1e1e2e)}
+      .hy-hval.done{color:var(--pub-green,#a6e3a1)}
       .hy-hval{font-size:.8rem;color:var(--pub-fg2,#a6adc8);text-align:right;min-width:120px}
       .hy-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:14px;z-index:5}
       .hy-dialog{background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:10px;padding:18px;width:100%;max-width:400px;max-height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
@@ -156,7 +180,7 @@
 
     const st = {
       tab: 'today', today: ymd(new Date()), day: ymd(new Date()),
-      calc: { sex: 'm', age: '', weight: '', note: '', open: false }, view: 'main', unit: 'ml', target: 2000, drinks: [], sel: null, picked: false, hm: null, hday: null, hentries: [],
+      calc: { sex: 'm', age: '', weight: '', note: '', open: false }, view: 'main', unit: 'ml', target: 2000, dayEnd: 0, drinks: [], sel: null, picked: false, hm: null, hday: null, hentries: [],
       entries: [], totals: null, history: [], ready: false, error: '',
       health: { loaded: false, enabled: false, available: false, msg: '' },
       rewardOffered: false, reward: { enabled: false, amount: 0, to_category: '', from_category: '' },
@@ -188,6 +212,28 @@
       const d = st.drinks.find(x => x.id === id);
       return d && d.kind === 'ready' ? t('hy_p_' + id) : name;
     }
+    // How a logged drink looks: as the drink looks now, or as it was saved
+    // when the drink no longer exists.
+    function look(x) {
+      const d = st.drinks.find(y => y.id === x.product_id);
+      return { icon: (d && d.icon) || x.icon || '🧪', color: col((d && d.color) || x.color) };
+    }
+    function badge(lk) {
+      return `<span class="hy-badge" style="background:${lk.color}33;border-left-color:${lk.color}">${esc(lk.icon)}</span>`;
+    }
+    // Before the hour the user chose as the end of their day, it is still yesterday.
+    function logicalToday() {
+      const d = new Date();
+      if (d.getHours() < st.dayEnd) d.setDate(d.getDate() - 1);
+      return ymd(d);
+    }
+    function rollDay() {
+      const now = logicalToday();
+      if (now === st.today) return false;
+      if (st.day === st.today) st.day = now;
+      st.today = now;
+      return true;
+    }
     function fmtServ(ml) {
       return st.unit === 'oz' ? (Math.round(ml / OZ_ML * 10) / 10) + ' oz' : (Math.round(ml * 10) / 10) + ' ml';
     }
@@ -207,9 +253,11 @@
     }
     function servingsRecent(d) { return byRecent(d.servings, s => s.last_used, (a, b) => a.ml - b.ml); }
 
+    function goalOf(day, kept) { return (day >= st.today ? st.target : kept) || st.target; }
+
     async function loadDay() {
       const d = await api('/day?day=' + encodeURIComponent(st.day));
-      st.entries = d.entries; st.totals = d.totals;
+      st.entries = d.entries; st.totals = d.totals; st.dayTarget = d.target_ml;
     }
     // The history shows one calendar month at a time (never beyond today).
     function monthOf(day) { const [y, m] = day.split('-').map(Number); return { y, m }; }
@@ -245,16 +293,91 @@
       render();
     }
 
+    // The parts the app knows of, by weight (a millilitre of water counted as a
+    // gram), compared only with each other: fat, salts and the rest are left out.
+    function composition(tt) {
+      const g = {
+        water: tt.water_ml, caffeine: tt.caffeine_mg / 1000, alcohol: tt.alcohol_g,
+        sugar: tt.sugar_g, protein: tt.protein_g,
+      };
+      return PARTS.map(([key, color]) => ({ key, color, g: g[key] || 0 }));
+    }
+    function pctText(part, total) {
+      const p = part / total * 100;
+      return p < 0.1 ? '<0.1%' : (p < 10 ? Math.round(p * 10) / 10 : Math.round(p)) + '%';
+    }
+    function arc(R, w, color, len, pos, C) {
+      return `<circle cx="100" cy="100" r="${R}" fill="none" stroke="${color}" stroke-width="${w}"
+        stroke-dasharray="${Math.max(len, 0.5).toFixed(2)} ${C.toFixed(2)}" stroke-dashoffset="${(-pos).toFixed(2)}"/>`;
+    }
+
+    // The outer ring is the water towards the goal, one piece per drink in the
+    // order they were had and in that drink's colour; the inner ring, touching
+    // it, is what everything drunk today was made of, water included.
     function ring() {
-      const water = st.totals ? st.totals.water_ml : 0;
-      const frac = Math.min(water / st.target, 1);
-      const R = 62, C = 2 * Math.PI * R;
-      return `<div class="hy-ring"><svg width="150" height="150" viewBox="0 0 150 150">
-          <circle class="hy-ring-track" cx="75" cy="75" r="${R}" fill="none" stroke-width="14"/>
-          <circle class="hy-ring-fill${water >= st.target ? ' done' : ''}" cx="75" cy="75" r="${R}" fill="none" stroke-width="14" stroke-linecap="round"
-            stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - frac)).toFixed(1)}"/></svg>
-          <div class="hy-ring-txt"><div class="hy-ring-pct">${Math.round(water / st.target * 100)}%</div>
-          <div class="hy-ring-sub">${esc(t('hy_progress', { a: fmtVol(water), b: fmtVol(st.target) }))}</div></div></div>`;
+      // Today follows the goal setting; a day that is over keeps the goal it had.
+      const tt = st.totals || ZERO, water = tt.water_ml, target = goalOf(st.day, st.dayTarget);
+      const R = 86, W = 18, C = 2 * Math.PI * R, R2 = 71, W2 = 10, C2 = 2 * Math.PI * R2;
+      const list = st.entries.filter(e => e.water_ml > 0).reverse();
+      const gap = list.length > 1 ? 1.4 : 0;
+      let pos = 0, outer = '';
+      for (const e of list) {
+        if (pos >= C) break;
+        const len = Math.min(e.water_ml / target * C, C - pos);
+        outer += arc(R, W, look(e).color, len - gap, pos, C);
+        pos += len;
+      }
+      // Tiny parts, such as caffeine, would be invisible at their true size,
+      // so each one is drawn at least 2% of the ring, taken from the largest.
+      const comp = composition(tt).filter(p => p.g > 0), total = comp.reduce((a, p) => a + p.g, 0);
+      let inner = '';
+      if (total > 0) {
+        const MIN = 0.02;
+        let extra = 0;
+        const fr = comp.map(p => { const f = p.g / total; if (f < MIN) { extra += MIN - f; return MIN; } return f; });
+        fr[fr.indexOf(Math.max(...fr))] -= extra;
+        const gap2 = comp.length > 1 ? 1.2 : 0;
+        let p2 = 0;
+        comp.forEach((p, i) => { inner += arc(R2, W2, p.color, fr[i] * C2 - gap2, p2, C2); p2 += fr[i] * C2; });
+      }
+      const done = water >= target;
+      return `<button class="hy-ring" data-act="details" title="${esc(t('hy_ring_title'))}" aria-label="${esc(t('hy_ring_title'))}">
+          <svg viewBox="0 0 200 200" aria-hidden="true">
+          <circle class="hy-ring-track" cx="100" cy="100" r="${R}" fill="none" stroke-width="${W}"/>
+          <circle class="hy-ring-track" cx="100" cy="100" r="${R2}" fill="none" stroke-width="${W2}" opacity=".6"/>
+          ${outer}${inner}</svg>
+          <span class="hy-ring-txt"><span class="hy-ring-pct">${Math.round(water / target * 100)}%</span>
+          <span class="hy-ring-sub">${esc(t('hy_progress', { a: fmtVol(water), b: fmtVol(target) }))}</span>
+          <span class="hy-ring-left${done ? ' done' : ''}">${esc(done ? '✓ ' + t('hy_goal_done') : t('hy_left', { v: fmtVol(target - water) }))}</span></span></button>`;
+    }
+
+    function statRow(color, name, value, pct) {
+      return `<div class="hy-stat">${color ? `<span class="hy-dot" style="background:${color}"></span>` : ''}<span class="hy-sn">${esc(name)}</span>
+        <b>${esc(value)}</b>${pct != null ? `<i>${esc(pct)}</i>` : ''}</div>`;
+    }
+    // Everything the ring sums up, only what there is any of.
+    function detailsDialog() {
+      const tt = st.totals || ZERO;
+      const comp = composition(tt), total = comp.reduce((a, p) => a + p.g, 0);
+      const names = { water: t('hy_water'), caffeine: t('hy_caffeine'), alcohol: t('hy_alcohol'), sugar: t('hy_sugar'),
+        protein: t('hy_protein') };
+      const value = p => p.key === 'water' ? fmtVol(p.g) : p.key === 'caffeine' ? num(tt.caffeine_mg) + ' mg' : num(p.g, 10) + ' g';
+      const parts = comp.filter(p => p.g > 0).map(p => statRow(p.color, names[p.key], value(p), pctText(p.g, total))).join('');
+      const per = {};
+      st.entries.slice().reverse().forEach(e => {
+        const x = per[e.product_id] || (per[e.product_id] = { e, amount: 0, water: 0 });
+        x.amount += e.amount_ml; x.water += e.water_ml;
+      });
+      const drinks = Object.values(per).map(x => `<div class="hy-stat">${badge(look(x.e))}<span class="hy-sn">${esc(drinkName(x.e.product_id, x.e.name))}</span>
+        <b>${esc(fmtVol(x.amount))}</b></div>`).join('');
+      dialog(`<h3>${esc(t('hy_today'))} · ${esc(fmtDate(st.day))}</h3>
+        ${total > 0 ? `${statRow('', t('hy_drunk'), fmtVol(tt.amount_ml))}
+          ${tt.calories_kcal > 0 ? statRow('', t('hy_energy'), num(tt.calories_kcal) + ' kcal') : ''}
+          <div class="hy-h">${esc(t('hy_composition'))}</div>${parts}
+          <div class="hy-hint">${esc(t('hy_composition_hint'))}</div>
+          <div class="hy-h">${esc(t('hy_by_drink'))}</div>${drinks}`
+        : `<div class="hy-empty">${esc(t('hy_no_entries'))}</div>`}
+        <div class="hy-actions"><button class="hy-btn hy-primary" data-close>${esc(t('hy_close'))}</button></div>`, () => {});
     }
 
     function entryRows(list) {
@@ -265,7 +388,7 @@
         if (e.calories_kcal > 0) meta.push(t('hy_meta_kcal', { v: num(e.calories_kcal) }));
         if (e.sugar_g > 0) meta.push(t('hy_meta_sugar', { v: num(e.sugar_g, 10) }));
         if (e.protein_g > 0) meta.push(t('hy_meta_protein', { v: num(e.protein_g, 10) }));
-        return `<div class="hy-row"><div class="hy-row-main"><div class="hy-row-name">${esc(drinkName(e.product_id, e.name))} · ${esc(fmtTime(e.recorded_at))}</div>
+        return `<div class="hy-row">${badge(look(e))}<div class="hy-row-main"><div class="hy-row-name">${esc(drinkName(e.product_id, e.name))} · ${esc(fmtTime(e.recorded_at))}</div>
             <div class="hy-row-meta">${esc(meta.join(' · '))}</div></div>
             <div class="hy-row-amt">${esc(fmtVol(e.amount_ml))}</div>
             <button class="hy-ico" data-act="editentry" data-id="${esc(e.id)}" title="${esc(t('hy_edit'))}">✎</button>
@@ -274,13 +397,16 @@
     }
 
     function todayView() {
-      const tt = st.totals || { amount_ml: 0, water_ml: 0, caffeine_mg: 0, alcohol_g: 0, calories_kcal: 0, sugar_g: 0, protein_g: 0 };
       const cur = curDrink();
       // Choosing a drink collapses the list to that one chip and reveals its
       // servings; clicking the chip opens the full list again.
       const showAmounts = !!(cur && st.picked);
-      const chips = (showAmounts ? [cur] : homeDrinks()).map(d => `<span class="hy-chip${showAmounts ? ' sel' : ''}" data-act="${showAmounts ? 'unpick' : 'pick'}" data-id="${esc(d.id)}">
-          <span>${d.icon || '🧪'}</span><span>${esc(label(d))}</span>${showAmounts ? '<span>▾</span>' : ''}</span>`).join('');
+      const chips = (showAmounts ? [cur] : homeDrinks()).map(d => {
+        const c = col(d.color);
+        return `<span class="hy-chip${showAmounts ? ' sel' : ''}" style="border-color:${c}${showAmounts ? '' : '66'};${showAmounts ? `background:${c}33` : ''}"
+          data-act="${showAmounts ? 'unpick' : 'pick'}" data-id="${esc(d.id)}">
+          <span>${esc(d.icon || '🧪')}</span><span>${esc(label(d))}</span>${showAmounts ? '<span>▾</span>' : ''}</span>`;
+      }).join('');
       const quick = showAmounts ? servingsRecent(cur).map(v => `<button class="hy-amt" data-act="quick" data-ml="${v.ml}">+${esc(fmtServ(v.ml))}</button>`).join('') : '';
       // Only today is listed here; a picked drink narrows the list to itself.
       const rows = entryRows(showAmounts ? st.entries.filter(e => e.product_id === cur.id) : st.entries);
@@ -291,13 +417,7 @@
           <button class="hy-amt" data-act="addcustom">${esc(t('hy_add'))}</button></div></div></div>` : ''}`
         : `<div class="hy-empty">${esc(t('hy_no_visible'))}<br><br><button class="hy-btn hy-primary" data-act="settings">${esc(t('hy_open_settings'))}</button></div>`;
       return `
-        <div class="hy-hero">${ring()}<div class="hy-stats">
-          <div class="hy-stat"><span>${esc(t('hy_drunk'))}</span><span>${esc(fmtVol(tt.amount_ml))}</span></div>
-          <div class="hy-stat"><span>${esc(t('hy_caffeine'))}</span><span>${esc(num(tt.caffeine_mg))} mg</span></div>
-          <div class="hy-stat"><span>${esc(t('hy_alcohol'))}</span><span>${esc(num(tt.alcohol_g, 10))} g</span></div>
-          ${tt.calories_kcal > 0 ? `<div class="hy-stat"><span>${esc(t('hy_energy'))}</span><span>${esc(num(tt.calories_kcal))} kcal</span></div>` : ''}
-          ${tt.sugar_g > 0 ? `<div class="hy-stat"><span>${esc(t('hy_sugar'))}</span><span>${esc(num(tt.sugar_g, 10))} g</span></div>` : ''}
-          ${tt.protein_g > 0 ? `<div class="hy-stat"><span>${esc(t('hy_protein'))}</span><span>${esc(num(tt.protein_g, 10))} g</span></div>` : ''}</div></div>
+        <div class="hy-hero">${ring()}</div>
         ${picker}
         <div class="hy-list">${rows || `<div class="hy-empty">${esc(t('hy_no_entries'))}</div>`}</div>`;
     }
@@ -316,15 +436,18 @@
           <div class="hy-daylabel" style="text-transform:capitalize">${esc(monthLabel(hm))}</div>
           <button class="hy-btn" data-act="hmove" data-d="1" ${atNow ? 'disabled' : ''}>›</button>
           <button class="hy-btn" data-act="hmove" data-d="12" ${after(shiftMonth(hm, 12), cur) ? 'disabled' : ''}>»</button></div>`;
-      const max = Math.max(st.target, ...st.history.map(d => d.water_ml), 1);
+      const max = Math.max(...st.history.map(d => Math.max(goalOf(d.day, d.target_ml), d.water_ml)), 1);
       return nav + `<div class="hy-list">` + st.history.slice().reverse().map(d => {
-        const done = d.water_ml >= st.target;
+        const done = d.water_ml >= goalOf(d.day, d.target_ml);
         const extra = [];
         if (d.caffeine_mg > 0) extra.push(num(d.caffeine_mg) + ' mg');
         if (d.alcohol_g > 0) extra.push(num(d.alcohol_g, 10) + ' g');
+        // The bar is built from each drink's water in that drink's colour.
+        const segs = (d.drinks || []).filter(x => x.water_ml > 0).map(x =>
+          `<div class="hy-hseg" style="width:${(x.water_ml / max * 100).toFixed(2)}%;background:${look(x).color}"></div>`).join('');
         return `<div class="hy-hrow" data-act="goday" data-day="${d.day}"><div>${esc(fmtDate(d.day))}</div>
-          <div class="hy-hbar"><div class="hy-hfill${done ? ' done' : ''}" style="width:${(d.water_ml / max * 100).toFixed(1)}%"></div></div>
-          <div class="hy-hval">${esc(fmtVol(d.water_ml))}${extra.length ? ' · ' + esc(extra.join(' · ')) : ''}</div></div>`;
+          <div class="hy-hbar">${segs}</div>
+          <div class="hy-hval${done ? ' done' : ''}">${done ? '✓ ' : ''}${esc(fmtVol(d.water_ml))}${extra.length ? ' · ' + esc(extra.join(' · ')) : ''}</div></div>`;
       }).join('') + `</div>`;
     }
 
@@ -335,7 +458,7 @@
       if (d.calories_kcal_100 > 0) meta.push(num(d.calories_kcal_100) + ' kcal');
       if (d.protein_g_100 > 0) meta.push(num(d.protein_g_100, 10) + ' g ' + t('hy_protein').toLowerCase());
       const srv = d.servings.length ? d.servings.map(s => fmtServ(s.ml).replace(/ (ml|oz)$/, '')).join(' · ') + (st.unit === 'oz' ? ' oz' : ' ml') : '–';
-      return `<div class="hy-row${d.active ? '' : ' off'}"><div class="hy-drow-ico">${d.icon || '🧪'}</div>
+      return `<div class="hy-row${d.active ? '' : ' off'}">${badge({ icon: d.icon || '🧪', color: col(d.color) })}
         <div class="hy-row-main" data-act="editdrink" data-id="${esc(d.id)}"><div class="hy-row-name">${esc(label(d))}</div>
           <div class="hy-row-meta">${esc(meta.join(' · '))}</div>
           <div class="hy-row-meta">${esc(t('hy_servings'))}: ${esc(srv)}</div></div>
@@ -414,7 +537,10 @@
               <option value="ml"${st.unit === 'ml' ? ' selected' : ''}>${esc(t('hy_unit_ml'))}</option>
               <option value="oz"${st.unit === 'oz' ? ' selected' : ''}>${esc(t('hy_unit_oz'))}</option></select></div>
             <div class="hy-field"><label>${esc(t('hy_target'))} (${unitLbl})</label>
-              <input class="hy-input" id="hy-target" type="number" min="1" step="any" value="${num(toDisp(st.target), 10)}"></div></div>
+              <input class="hy-input" id="hy-target" type="number" min="1" step="any" value="${num(toDisp(st.target), 10)}"></div>
+            <div class="hy-field"><label>${esc(t('hy_day_end'))}</label><select class="hy-input" id="hy-dayend">
+              ${[0, 1, 2, 3, 4, 5, 6, 7, 8].map(h => `<option value="${h}"${st.dayEnd === h ? ' selected' : ''}>${esc(h ? fmtTime(new Date(2000, 0, 1, h).toISOString()) : t('hy_day_end_midnight'))}</option>`).join('')}</select>
+              <div class="hy-hint" style="margin-top:6px">${esc(t('hy_day_end_hint'))}</div></div></div>
           <details class="hy-card" id="hy-calc"${st.calc.open ? ' open' : ''}><summary style="cursor:pointer;min-height:32px;display:flex;align-items:center">${esc(t('hy_calc_title'))}</summary>
             <div class="hy-hint">${esc(t('hy_calc_hint'))}</div>
             <div class="hy-field"><label>${esc(t('hy_sex'))}</label><select class="hy-input" id="hy-sex">
@@ -463,13 +589,19 @@
     function drinkDialog(d) {
       const ready = !!d && d.kind === 'ready';
       d = d || { name: '', water_percent: 100, caffeine_mg_100: 0, alcohol_percent: 0, calories_kcal_100: 0, sugar_g_100: 0, protein_g_100: 0, active: true,
-        servings: [150, 250, 500].map(ml => ({ ml })) };
+        servings: [150, 250, 500].map(ml => ({ ml })), icon: '🥤', color: PALETTE[st.drinks.filter(x => x.kind === 'custom').length % PALETTE.length] };
       let srv = d.servings.map(s => s.ml);
+      let color = col(d.color), icon = d.icon || '🧪';
       const unitLbl = st.unit === 'oz' ? 'oz' : 'ml';
       const f = (id, lbl, val, max) => `<div class="hy-field"><label>${esc(lbl)}</label>
         <input class="hy-input" id="${id}" type="number" min="0" max="${max}" step="any" value="${esc(val)}"></div>`;
       dialog(`<h3>${esc(t(ready ? 'hy_edit_ready' : d.id ? 'hy_edit_drink' : 'hy_new_drink'))}</h3>
         <div class="hy-field"><label>${esc(t('hy_name'))}</label><input class="hy-input" id="hy-name" maxlength="60" value="${esc(ready ? label(d) : d.name)}"${ready ? ' disabled' : ''}></div>
+        ${ready ? '' : `<div class="hy-field"><label>${esc(t('hy_icon'))}</label><div class="hy-emojis" id="hy-emojis">
+          ${(EMOJIS.includes(icon) ? EMOJIS : [icon].concat(EMOJIS)).map(e => `<button type="button" class="hy-emo${e === icon ? ' sel' : ''}" data-e="${esc(e)}">${esc(e)}</button>`).join('')}</div></div>`}
+        <div class="hy-field"><label>${esc(t('hy_color'))}</label><div class="hy-swatches" id="hy-swatches">
+          ${PALETTE.map(c => `<button type="button" class="hy-sw" data-c="${c}" style="background:${c}" aria-label="${c}"></button>`).join('')}
+          <input type="color" id="hy-color" value="${color}" title="${esc(t('hy_color'))}"></div></div>
         ${f('hy-water', t('hy_water_percent'), d.water_percent, 100)}
         ${f('hy-caf', t('hy_caffeine_100'), d.caffeine_mg_100, 1000)}
         ${f('hy-alc', t('hy_alcohol_percent'), d.alcohol_percent, 100)}
@@ -502,6 +634,19 @@
           srv.sort((a, b) => a - b); inp.value = ''; drawSrv(); return true;
         };
         drawSrv();
+        const swatches = ov.querySelector('#hy-swatches'), picker = ov.querySelector('#hy-color');
+        const drawColor = () => swatches.querySelectorAll('.hy-sw').forEach(b => b.classList.toggle('sel', b.dataset.c === color));
+        drawColor();
+        swatches.addEventListener('click', e => {
+          const b = e.target.closest('[data-c]'); if (!b) return;
+          color = b.dataset.c; picker.value = color; drawColor();
+        });
+        picker.addEventListener('input', () => { color = col(picker.value); drawColor(); });
+        ov.querySelector('#hy-emojis')?.addEventListener('click', e => {
+          const b = e.target.closest('[data-e]'); if (!b) return;
+          icon = b.dataset.e;
+          ov.querySelectorAll('.hy-emo').forEach(x => x.classList.toggle('sel', x === b));
+        });
         box.addEventListener('click', e => {
           const b = e.target.closest('[data-i]'); if (!b) return;
           srv.splice(Number(b.dataset.i), 1); drawSrv();
@@ -523,6 +668,7 @@
             sugar_g_100: Number(ov.querySelector('#hy-sugar').value || 0),
             protein_g_100: Number(ov.querySelector('#hy-protein').value || 0),
             servings: srv, active: ov.querySelector('#hy-active').checked,
+            color, ...(ready ? {} : { icon }),
           });
           try {
             if (ready) store(await api('/presets/' + d.id, { method: 'PUT', body }));
@@ -565,6 +711,7 @@
     async function addAmount(ml) {
       const cur = curDrink();
       if (!cur || !(ml > 0)) return;
+      rollDay();
       try {
         const added = await api('/entries', { method: 'POST', body: JSON.stringify({ day: st.day, amount_ml: ml, product_id: cur.id }) });
         showReward(added);
@@ -588,10 +735,11 @@
       return Math.min(6000, Math.max(1000, Math.round(ml / 50) * 50));
     }
 
-    async function savePrefs(unit, targetMl) {
+    async function savePrefs(unit, targetMl, dayEnd) {
       try {
-        const r = await api('/settings', { method: 'PUT', body: JSON.stringify({ unit, target_ml: targetMl }) });
-        st.unit = r.unit; st.target = r.target_ml; st.error = '';
+        const r = await api('/settings', { method: 'PUT', body: JSON.stringify({ unit, target_ml: targetMl, day_end_hour: dayEnd == null ? st.dayEnd : dayEnd }) });
+        st.unit = r.unit; st.target = r.target_ml; st.dayEnd = r.day_end_hour || 0; st.error = '';
+        rollDay();
       } catch (e) { st.error = t('hy_error'); }
       render();
     }
@@ -624,6 +772,7 @@
         if (hm.y > cur.y || (hm.y === cur.y && hm.m > cur.m)) hm = cur;
         st.hm = hm; await refresh();
       }
+      else if (act === 'details') detailsDialog();
       else if (act === 'pick') { st.sel = el.dataset.id; st.picked = true; render(); }
       else if (act === 'unpick') { st.picked = false; render(); }
       else if (act === 'editdrink') { const d = st.drinks.find(x => x.id === el.dataset.id); if (d) drinkDialog(d); }
@@ -655,6 +804,7 @@
       }
       else if (['hy-rw-on', 'hy-rw-amount', 'hy-rw-to', 'hy-rw-from'].includes(e.target.id)) saveReward();
       else if (e.target.id === 'hy-sex') st.calc.sex = e.target.value;
+      else if (e.target.id === 'hy-dayend') savePrefs(st.unit, st.target, Number(e.target.value));
       else if (e.target.id === 'hy-unit') savePrefs(e.target.value === 'oz' ? 'oz' : 'ml', st.target);
       else if (e.target.id === 'hy-target') {
         const ml = fromDisp(Number(e.target.value));
@@ -662,11 +812,10 @@
       }
     });
 
-    // A new calendar day starts by itself when the page is left open overnight.
+    // A new day starts by itself when the page is left open overnight.
     function onVisible() {
       if (document.visibilityState !== 'visible') return;
-      const now = ymd(new Date());
-      if (now !== st.today) { if (st.day === st.today) st.day = now; st.today = now; }
+      rollDay();
       refresh();
     }
     document.addEventListener('visibilitychange', onVisible);
@@ -677,8 +826,9 @@
     (async () => {
       try {
         const [, me] = await Promise.all([loadRegional(token), api('/me')]);
-        st.unit = me.settings.unit; st.target = me.settings.target_ml;
+        st.unit = me.settings.unit; st.target = me.settings.target_ml; st.dayEnd = me.settings.day_end_hour || 0;
         st.drinks = me.drinks; st.ready = true;
+        rollDay();
         st.rewardOffered = !!me.reward_offered; if (me.reward) st.reward = me.reward;
         await loadDay();
       } catch (e) { st.error = t('hy_error'); }

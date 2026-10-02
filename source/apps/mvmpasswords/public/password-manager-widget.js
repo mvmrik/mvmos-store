@@ -206,7 +206,7 @@
     // unlocks nothing: an unlicensed install was never sent the code that talks
     // to mvm2factor, so the routes simply answer that it is unavailable.
     // `totpAccounts` is the account list, fetched lazily when a picker opens.
-    var totpOn=false,totpAccounts=null,auditOn=false;
+    var totpOn=false,totpAccounts=null,auditOn=false,totpWrap=null,totpHelper=null,totpExtSession=null;
     function totpReady(){return totpOn}
     // The password check has no such flag on purpose. Whether its button is
     // drawn is a question about the surface, not the licence — see renderShell
@@ -283,6 +283,31 @@
     async function totpFetchAccounts(){if(totpAccounts)return totpAccounts;
       var data=await api('/totp/accounts');totpAccounts=data.accounts||[];return totpAccounts}
     async function totpFetchCode(accountId){return api('/totp/code/'+encodeURIComponent(accountId))}
+    // mvm2factor encrypts its secrets with a password of its own, so a code is
+    // worked out here, by the premium script, from what /totp/code returns. It
+    // is fetched once per window; the routes behind it check the licence on
+    // every request anyway. See premium/public/totp.js for how the key is found.
+    function totpHelperLoad(){
+      if(totpHelper)return totpHelper;
+      totpHelper=new Promise(function(resolve,reject){
+        delete window.__mvmPmTotp;
+        var el=document.createElement('script');el.src=window.asset(API+'/totp.js');
+        el.onload=function(){el.remove();window.__mvmPmTotp?resolve(window.__mvmPmTotp(totpContext)):reject(new Error('unavailable'))};
+        el.onerror=function(){el.remove();reject(new Error('unavailable'))};
+        document.head.appendChild(el)}).catch(function(e){totpHelper=null;throw e});
+      return totpHelper}
+    var totpContext={api:api,t:t,esc:esc,root:function(){return root},key:function(){return key},vault:function(){return lastVault},
+      wrap:function(){return totpWrap},
+      setWrap:function(box){totpWrap=box;vaultPromise=null;api('/totp/wrap',box?{method:'PUT',body:JSON.stringify(box)}:{method:'DELETE'}).catch(function(){})},
+      parentOrigin:function(){return parentOrigin},extensionSession:function(){return totpExtSession},
+      saveExtensionSession:function(saved){totpExtSession=saved;if(parentOrigin)window.parent.postMessage({source:'mvmos-public-app',appId:APP_ID,action:saved?'totp-session-save':'totp-session-clear',session:saved},parentOrigin)}};
+    // The digits, or null when the user closed mvm2factor's password prompt.
+    async function totpCode(accountId){var data=await totpFetchCode(accountId);if(data.code)return data.code;return(await totpHelperLoad()).code(data)}
+    // A master password just typed may open mvm2factor as well. Tried once in
+    // the background so that, when it does, codes never ask for a password.
+    function totpPasswordTyped(password){
+      if(!totpOn||totpWrap||!entries.some(function(x){return x.totp_id}))return;
+      totpHelperLoad().then(function(helper){return helper.passwordTyped(password)}).catch(function(){})}
     async function loadEntries(){var data=await api('/vault');var out=[];for(var i=0;i<(data.entries||[]).length;i++)out.push(await decrypt(data.entries[i]));entries=out;return out}
     async function saveEntry(id,value){var encrypted=await encrypt(value);return id?api('/entries/'+encodeURIComponent(id),{method:'PUT',body:JSON.stringify(encrypted)}):api('/entries',{method:'POST',body:JSON.stringify(encrypted)})}
 
@@ -453,7 +478,7 @@
       // of a vault whose password predates the rule — the password is already
       // chosen by then, and a wrong one fails at decryption anyway.
       if(creating&&pass.length<MIN_MASTER){unlockScreen(vault,t('pm_password_short',{n:MIN_MASTER}));return}
-      if(!creating&&!pass){unlockScreen(vault,t('pm_unlock_failed'));return}if(creating&&pass!==root.querySelector('.pm-confirm').value){unlockScreen(vault,t('pm_passwords_differ'));return}try{if(creating){var salt=b64(crypto.getRandomValues(new Uint8Array(32)));await api('/vault',{method:'POST',body:JSON.stringify({salt:salt,iterations:600000})});vault={salt:salt,iterations:600000}}key=await derive(pass,vault.salt,vault.iterations);await load(creating);if(key)await cacheKey(select.value);}catch(_){key=null;unlockScreen(vault,t('pm_unlock_failed'))}};setTimeout(function(){input.focus()},30)}
+      if(!creating&&!pass){unlockScreen(vault,t('pm_unlock_failed'));return}if(creating&&pass!==root.querySelector('.pm-confirm').value){unlockScreen(vault,t('pm_passwords_differ'));return}try{if(creating){var salt=b64(crypto.getRandomValues(new Uint8Array(32)));await api('/vault',{method:'POST',body:JSON.stringify({salt:salt,iterations:600000})});vault={salt:salt,iterations:600000}}key=await derive(pass,vault.salt,vault.iterations);await load(creating);if(key)await cacheKey(select.value);if(key&&!creating)totpPasswordTyped(pass);}catch(_){key=null;unlockScreen(vault,t('pm_unlock_failed'))}};setTimeout(function(){input.focus()},30)}
     // An entry matches when any one of its addresses matches: the rule is the
     // same for all of them, but each is tested on its own, so a single bad
     // regex line cannot silently disqualify the addresses beside it.
@@ -747,10 +772,11 @@
     // rest of the entry keeps working exactly as before.
     async function totpCopy(el,accountId){
       var label=el.textContent;el.textContent='⏳';
-      try{var data=await totpFetchCode(accountId);
+      try{var code=await totpCode(accountId);
+        if(code===null){el.textContent=label;return}
         // Not swallowed: a refused clipboard write is the one failure the user
         // would otherwise discover by pasting nothing into a login form.
-        await navigator.clipboard.writeText(data.code);
+        await navigator.clipboard.writeText(code);
         el.classList.add('pm-copied');el.textContent='✅'}
       catch(_){el.textContent='⚠️';el.title=t('pm_totp_unavailable')}
       setTimeout(function(){el.textContent=label;render()},1200);
@@ -810,9 +836,10 @@
       var totpCopyBtn=overlay.querySelector('.f-totp-copy');
       if(totpCopyBtn)totpCopyBtn.onclick=async function(){
         var view=overlay.querySelector('.f-totp-view');totpCopyBtn.textContent='⏳';
-        try{var data=await totpFetchCode(item.totp_id);
-          view.textContent=data.code;
-          await navigator.clipboard.writeText(data.code).catch(function(){});
+        try{var code=await totpCode(item.totp_id);
+          if(code===null){totpCopyBtn.textContent='🔢';return}
+          view.textContent=code;
+          await navigator.clipboard.writeText(code).catch(function(){});
           totpCopyBtn.textContent='✅'}
         catch(_){view.textContent=t('pm_totp_unavailable');totpCopyBtn.textContent='⚠️'}
         setTimeout(function(){totpCopyBtn.textContent='🔢'},1200)};
@@ -998,7 +1025,7 @@
       // Carried by the vault response, so every surface — desktop window, public
       // page, extension — learns it at the same moment it learns everything else
       // and none of them pays for an extra round trip to find out.
-      totpOn=!!payload.totp;auditOn=!!payload.audit;if(!key&&!parentOrigin)await restoreLocalKey();if(!key){unlockScreen(payload.vault);return}
+      totpOn=!!payload.totp;totpWrap=payload.totp_wrap||null;auditOn=!!payload.audit;if(!key&&!parentOrigin)await restoreLocalKey();if(!key){unlockScreen(payload.vault);return}
       // Every record is independent, so they decrypt concurrently. Sequential
       // awaits made this O(n) round trips through the crypto engine.
       var loaded=await Promise.all([Promise.all((payload.entries||[]).map(decrypt)),Promise.all((payload.folders||[]).map(decrypt))]);
@@ -1025,7 +1052,7 @@
     function passkeyUnlockGate(job){return new Promise(function(resolve){if(key){resolve();return}root.innerHTML='<div class="pm pm-unlock"><div><h2>'+esc(t('pm_passkey_unlock_title'))+'</h2><p>'+esc(t('pm_unlock_info'))+'</p><input class="pm-master" type="password" autocomplete="current-password" placeholder="'+esc(t('pm_master'))+'"><div class="pm-error"></div><button class="primary pm-go">'+esc(t('pm_unlock'))+'</button></div></div>';var input=root.querySelector('.pm-master'),err=root.querySelector('.pm-error');root.querySelector('.pm-go').onclick=async function(){try{var payload=await api('/vault');if(!payload.vault)throw new Error('vault_missing');key=await derive(input.value,payload.vault.salt,payload.vault.iterations);await cacheKey(localStorage.getItem('mvm_pm_unlock_duration')||'session');resolve()}catch(_){err.textContent=t('pm_unlock_failed')}};setTimeout(function(){input.focus()},30)})}
     async function runPasskeyCreate(job){await passkeyUnlockGate(job);var opts=Object.assign({},unwrapBufs(job.options),{__origin:job.origin});var rpId=String((opts.rp&&opts.rp.id)||new URL(job.origin).hostname).toLowerCase();try{await loadEntries()}catch(_){}var targets=entries.filter(function(x){return !x.passkey&&matchesEntry({hostname:rpId,url:job.origin},x)});var account=(opts.user&&(opts.user.displayName||opts.user.name))||rpId;return new Promise(function(resolve){root.innerHTML='<div class="pm pm-unlock"><div><h2>'+esc(t('pm_passkey_create_title'))+'</h2><p>'+esc(t('pm_passkey_create_info',{host:rpId}))+'</p>'+'<label class="pm-duration-label">'+esc(t('pm_passkey_save_to'))+'</label><select class="pm-duration pm-passkey-target"><option value="">'+esc(t('pm_passkey_new_login'))+'</option>'+targets.map(function(x,i){return'<option value="'+i+'">'+esc(x.name)+'</option>'}).join('')+'</select>'+'<label class="pm-duration-label">'+esc(t('pm_passkey_name'))+'</label><input class="pm-passkey-name" value="'+esc(account)+'">'+'<div class="pm-error"></div><div class="pm-actions"><button class="primary pm-go">'+esc(t('pm_passkey_save'))+'</button><button class="pm-cancel">'+esc(t('pm_cancel'))+'</button></div></div></div>';var nameInput=root.querySelector('.pm-passkey-name'),target=root.querySelector('.pm-passkey-target'),err=root.querySelector('.pm-error');root.querySelector('.pm-cancel').onclick=function(){replyPasskey(job.reqId,null,'The operation was cancelled.');resolve()};root.querySelector('.pm-go').onclick=async function(){try{var result=await pk().createCredential(opts);var record=result.vaultRecord;record.userDisplayName=nameInput.value.trim()||record.userDisplayName||record.userName;record.signCount=1;if(target.value===''){await saveEntry(null,{name:record.rpName||rpId,website:rpId,match_mode:'default',username:record.userName||record.userDisplayName||'',password:'',notes:'',passkey:record})}else{var item=targets[Number(target.value)],value=withoutId(item);value.passkey=record;await saveEntry(item.id,value)}replyPasskey(job.reqId,{credentialId:result.credentialId,clientDataJSON:result.clientDataJSON,attestationObject:result.attestationObject,publicKeySpki:result.publicKeySpki});resolve()}catch(_){err.textContent=t('pm_error')}}})}
     async function runPasskeyGet(job){await passkeyUnlockGate(job);var opts=Object.assign({},unwrapBufs(job.options),{__origin:job.origin});var rpId=String(opts.rpId||new URL(job.origin).hostname).toLowerCase();try{await loadEntries()}catch(_){}var allow=(opts.allowCredentials||[]).map(function(c){return c&&c.id}).filter(Boolean);var candidates=passkeyOwners(rpId,job.origin,allow);if(!candidates.length){replyPasskey(job.reqId,null,'No matching passkey.');return}return new Promise(function(resolve){function pick(item){root.innerHTML='<div class="pm pm-unlock"><div><h2>'+esc(t('pm_passkey_confirm_title'))+'</h2><p>'+esc(t('pm_passkey_confirm_info',{name:passkeyLabel(item)}))+'</p><div class="pm-error"></div><div class="pm-actions"><button class="primary pm-go">'+esc(t('pm_passkey_use'))+'</button><button class="pm-cancel">'+esc(t('pm_cancel'))+'</button></div></div></div>';var err=root.querySelector('.pm-error');root.querySelector('.pm-cancel').onclick=function(){replyPasskey(job.reqId,null,'The operation was cancelled.');resolve()};root.querySelector('.pm-go').onclick=async function(){try{var assertion=await pk().getAssertion(opts,item.passkey);var value=withoutId(item);value.passkey=Object.assign({},item.passkey,{signCount:(item.passkey.signCount||0)+1});await saveEntry(item.id,value).catch(function(){});replyPasskey(job.reqId,assertion);resolve()}catch(_){err.textContent=t('pm_error')}}}if(candidates.length===1){pick(candidates[0]);return}root.innerHTML='<div class="pm"><div class="pm-bar"><span class="pm-title">🔑 '+esc(t('pm_passkey_pick_title'))+'</span></div><div class="pm-list">'+candidates.map(function(c,idx){return'<div class="pm-card"><div class="pm-head"><div class="pm-avatar">'+esc((passkeyLabel(c)||'?')[0].toUpperCase())+'</div><div><div class="pm-name">'+esc(passkeyLabel(c))+'</div><div class="pm-sub">'+esc(c.name)+' · '+esc(rpId)+'</div></div></div><div class="pm-actions"><button class="primary" data-pick="'+idx+'">'+esc(t('pm_passkey_use'))+'</button></div></div>'}).join('')+'</div></div>';root.querySelector('.pm-list').onclick=function(e){var el=e.target.closest('[data-pick]');if(!el)return;pick(candidates[Number(el.dataset.pick)])}})}
-    function onMessage(e){if(e.source!==window.parent||!/^chrome-extension:\/\/|^moz-extension:\/\//.test(e.origin))return;var m=e.data||{};if(m.source!=='mvmos-extension'||m.appId!==APP_ID)return;if(m.type==='context'){parentOrigin=e.origin;extensionSettings=m.settings||{};if(passkeyBusy)return;context=m.context||{};showAll=false;otherFolders=false;render();return}if(m.type==='vault-session'&&m.session&&(!m.session.expires||m.session.expires>Date.now()))importKey(m.session.key).then(function(v){key=v;scheduleAutoLock(renewSession(m.session).expires);load()}).catch(function(){});if(m.type==='passkey-job'&&m.job&&pk()){passkeyBusy=true;try{context={hostname:new URL(m.job.origin).hostname.toLowerCase(),url:m.job.origin}}catch(_){}if(m.job.op==='create')runPasskeyCreate(m.job);else if(m.job.op==='get')runPasskeyGet(m.job);return}}
+    function onMessage(e){if(e.source!==window.parent||!/^chrome-extension:\/\/|^moz-extension:\/\//.test(e.origin))return;var m=e.data||{};if(m.source!=='mvmos-extension'||m.appId!==APP_ID)return;if(m.type==='context'){parentOrigin=e.origin;extensionSettings=m.settings||{};if(passkeyBusy)return;context=m.context||{};showAll=false;otherFolders=false;render();return}if(m.type==='vault-session'&&m.session&&(!m.session.expires||m.session.expires>Date.now()))importKey(m.session.key).then(function(v){key=v;scheduleAutoLock(renewSession(m.session).expires);load()}).catch(function(){});if(m.type==='totp-session'){totpExtSession=m.session&&(!m.session.expires||m.session.expires>Date.now())?m.session:null;return}if(m.type==='passkey-job'&&m.job&&pk()){passkeyBusy=true;try{context={hostname:new URL(m.job.origin).hostname.toLowerCase(),url:m.job.origin}}catch(_){}if(m.job.op==='create')runPasskeyCreate(m.job);else if(m.job.op==='get')runPasskeyGet(m.job);return}}
     // Fire the vault request before announcing readiness, so it travels while
     // the extension is still deciding to send the key back instead of starting
     // only once it has: in the popup that round trip was the whole visible wait.

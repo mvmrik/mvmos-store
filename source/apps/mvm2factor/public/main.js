@@ -2,6 +2,13 @@
 const _m2fTitleStrings = {
   en: { title: 'mvm2factor' },
   bg: { title: 'mvm2factor' },
+  de: { title: 'mvm2factor' },
+  es: { title: 'mvm2factor' },
+  fr: { title: 'mvm2factor' },
+  ja: { title: 'mvm2factor' },
+  'pt-BR': { title: 'mvm2factor' },
+  ru: { title: 'mvm2factor' },
+  'zh-CN': { title: 'mvm2factor' },
 };
 function _m2fTitle(key) {
   const lang = window.mvmOS?.lang || 'en';
@@ -11,7 +18,7 @@ function _m2fTitle(key) {
 function _m2fLoadScript(src) {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = src + '?_=' + Date.now();
+    script.src = window.asset ? window.asset(src) : src;
     script.onload = resolve;
     script.onerror = reject;
     document.head.appendChild(script);

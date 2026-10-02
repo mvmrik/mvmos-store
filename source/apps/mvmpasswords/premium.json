@@ -4,7 +4,7 @@
     {
       "title": "Two-factor codes in the vault",
       "short": "Link a mvm2factor account to a login and copy its code",
-      "description": "Once an administrator switches the integration on in the app's settings, any login can be linked to a mvm2factor account, and mvmPasswords gains a button that copies its current six-digit code. Filling a login that has two-factor set up puts the code on the clipboard at the same time, so the second step is one paste away instead of a trip to another app. The code is always computed by mvm2factor and asked for only when you press the button, so nothing is slowed down and no shared secret ever reaches the password manager."
+      "description": "Once an administrator enables the integration, link a mvm2factor account to a login and copy its current code or put it on the clipboard during autofill. Encrypted secrets are decrypted and codes are computed locally by the Premium browser module. It reuses the mvm2factor unlock session or asks for its separate password. When both passwords match, the mvm2factor key is kept encrypted under the password vault’s key. Without Premium, the desktop control opens the Premium prompt and public pages do not offer it."
     },
     {
       "title": "Password check",

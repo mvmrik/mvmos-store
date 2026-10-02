@@ -98,6 +98,14 @@ def _init_db():
                 value REAL NOT NULL,
                 PRIMARY KEY (user_id, metric, day, source)
             );
+            CREATE TABLE IF NOT EXISTS daily_goals (
+                user_id TEXT NOT NULL,
+                metric TEXT NOT NULL,
+                day TEXT NOT NULL,
+                source TEXT NOT NULL,
+                value REAL NOT NULL,
+                PRIMARY KEY (user_id, metric, day, source)
+            );
             CREATE TABLE IF NOT EXISTS settings (
                 user_id TEXT PRIMARY KEY,
                 weight_unit TEXT NOT NULL DEFAULT 'kg',
@@ -313,13 +321,39 @@ def _set_daily(uid, metric, day, value, source=MANUAL, source_name=None):
     return {"ok": True}
 
 
-def _set_daily_many(uid, day, values, source, source_name):
+def _set_daily_goal(uid, metric, day, value, source):
+    """The goal one source had for a day's total of a metric (the water an app
+    asks you to drink that day). Zero (or nothing) removes it. A source sends
+    the goal of each day as it was then, so the chart shows every day against
+    its own goal."""
+    m = _metric(metric, "daily")
+    _check_day(day)
+    with _db() as c:
+        if value in (None, "") or float(value or 0) == 0:
+            c.execute("DELETE FROM daily_goals WHERE user_id=? AND metric=? AND day=? AND source=?",
+                      (uid, metric, day, source))
+        else:
+            v = _num(value, 0, m["max"])
+            if v is None:
+                raise ValueError("invalid_goal")
+            c.execute(
+                "INSERT INTO daily_goals(user_id,metric,day,source,value) VALUES(?,?,?,?,?) "
+                "ON CONFLICT(user_id,metric,day,source) DO UPDATE SET value=excluded.value",
+                (uid, metric, day, source, round(v, 2)))
+        c.commit()
+
+
+def _set_daily_many(uid, day, values, source, source_name, goals=None):
     if not isinstance(values, dict) or not values:
         raise ValueError("invalid_values")
-    for metric in values:
+    if goals is not None and not isinstance(goals, dict):
+        raise ValueError("invalid_goals")
+    for metric in list(values) + list(goals or {}):
         _metric(metric, "daily")
     for metric, value in values.items():
         _set_daily(uid, metric, day, value, source, source_name)
+    for metric, value in (goals or {}).items():
+        _set_daily_goal(uid, metric, day, value, source)
     return {"ok": True}
 
 
@@ -385,8 +419,19 @@ def _series(uid, metric, end, days):
                 d = by_day.setdefault(r["day"], {"day": r["day"], "total": 0, "sources": []})
                 d["total"] = round(d["total"] + r["value"], 2)
                 d["sources"].append({"source": r["source"], "name": r["source_name"], "value": r["value"]})
+            # A day's goal: the highest any source set for it.
+            goals = {}
+            for r in c.execute("SELECT day, MAX(value) AS goal FROM daily_goals WHERE user_id=? AND metric=? "
+                               "AND day>=? AND day<=? GROUP BY day ORDER BY day", (uid, metric, start, end)):
+                goals[r["day"]] = r["goal"]
+            for d in by_day.values():
+                if d["day"] in goals:
+                    d["goal"] = goals[d["day"]]
             pts = list(by_day.values())
             out["points"] = pts
+            out["goals"] = [{"day": d, "goal": g} for d, g in goals.items()]
+            met = [p for p in pts if "goal" in p]
+            out["goal_days"] = {"met": sum(1 for p in met if p["total"] >= p["goal"]), "of": len(met)} if met else None
             totals = [p["total"] for p in pts]
             out["stats"] = None
             if totals:
@@ -500,11 +545,10 @@ def _lab_tests(c, uid):
     tests = []
     for key, t in LAB_CATALOG.items():
         tests.append({"key": key, "custom": False, "catalog_code": t["code"], "unit": t["unit"],
-                      "units": t.get("units") or {}, "names": t["names"], "aliases": list(t["aliases"]),
-                      "hint": t.get("hint")})
+                      "units": t.get("units") or {}, "names": t["names"], "aliases": list(t["aliases"])})
     for r in c.execute("SELECT * FROM lab_custom WHERE user_id=?", (uid,)):
         tests.append({"key": r["id"], "custom": True, "catalog_code": "", "unit": r["unit"], "units": {},
-                      "names": json.loads(r["names"]), "aliases": [], "hint": None})
+                      "names": json.loads(r["names"]), "aliases": []})
     for t in tests:
         p = prefs.get(t["key"])
         mine = json.loads(p["aliases"]) if p else []
@@ -532,8 +576,10 @@ def _test_keys(t):
     return keys
 
 
-def _find_test(c, uid, text):
-    """A test by key, code, any of its names or any alias."""
+def _find_test(c, uid, text, unit=None):
+    """A test by key, code, any of its names or any alias. A name some tests
+    share once the signs are gone (NEUT% and NEUT#) goes to the one that
+    knows the unit."""
     n = _norm(text)
     if not n:
         return None
@@ -541,10 +587,11 @@ def _find_test(c, uid, text):
     for t in tests:
         if t["key"] == text:
             return t
-    for t in tests:
-        if n in _test_keys(t):
+    found = [t for t in tests if n in _test_keys(t)]
+    for t in found:
+        if unit and (unit == t["unit"] or unit in (t["units"] or {})):
             return t
-    return None
+    return found[0] if found else None
 
 
 def _lab_out(t, r):
@@ -645,7 +692,7 @@ def _remember_alias(c, uid, t, written):
 def _add_lab(uid, test, value, unit=None, day=None, low=None, high=None, lab="", note="",
              written_name="", source=MANUAL, source_name=None):
     with _db() as c:
-        t = _find_test(c, uid, test)
+        t = _find_test(c, uid, test, unit)
         if not t:
             raise LookupError("not found")
         day = _check_day(day) if day else datetime.now().strftime("%Y-%m-%d")

@@ -7,9 +7,11 @@
   const css=document.createElement('link');css.rel='stylesheet';css.href=asset('/apps/classifieds/style.css');document.head.appendChild(css);
   mvmOS.registerApp({id:'classifieds',name:'Classifieds',icon:'🏷️',category:'Business',requires_apphub:true,launch(){
     mvmOS.createWindow({id:'classifieds',title:'🏷️ Classifieds',width:1100,height:740,onMount(body){
-      body.style.padding='0';let handle,closed=false;
+      // The app scrolls its own root; mounted on the window body itself, a phone's
+      // fullscreen window forces that body to overflow:hidden and nothing scrolls.
+      body.style.padding='0';const host=document.createElement('div');host.style.cssText='flex:1;min-height:0';body.appendChild(host);let handle,closed=false;
       const observer=new MutationObserver(()=>{if(!document.body.contains(body)){closed=true;handle?.destroy();observer.disconnect();}});observer.observe(document.body,{childList:true,subtree:true});
-      assets().then(()=>{if(!closed)handle=window.Classifieds.mount(body,{desktop:true});}).catch(()=>{body.textContent='⚠';});
+      assets().then(()=>{if(!closed)handle=window.Classifieds.mount(host,{desktop:true});}).catch(()=>{host.textContent='⚠';});
     }});
   }});
 })();

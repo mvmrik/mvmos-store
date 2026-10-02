@@ -1,21 +1,30 @@
 # mvmOS App Specification
 
-This document defines how to create an app for mvmOS.
+The short list of rules every mvmOS app follows. The full guide with every field, API and example is **[DEVELOPER.md](DEVELOPER.md)**; the repository layout, widgets and themes are in **[README.md](README.md)**.
 
 ---
 
-## App Structure
+## App structure
 
-Each app lives in its own folder inside `apps/`:
+An app is a folder `apps/<app-id>/` of a running mvmOS installation:
 
 ```
-apps/
-  your-app/
-    manifest.json   ← required: app metadata
+apps/your-app/
+  manifest.json     ← required: app metadata
+  store.json        ← the Store listing on mvmos.org (never in the zip)
+  premium.json      ← only for apps with premium (never in the zip)
+  db.json           ← optional: database schema
+  api.py            ← optional: the app's server routes
+  app_api.py        ← optional: functions for other apps, Automations and the External API
+  scheduler.py      ← optional: runs every minute
+  premium/          ← optional: premium code, delivered only to licensed installations
+  public/           ← the only web-reachable folder
     main.js         ← required: entry point
-    style.css       ← optional: styles
-    README.md       ← optional: documentation
+    style.css       ← optional
+    i18n.js         ← the app's translations
 ```
+
+The official Store keeps the same tree in `source/apps/<app-id>/` and ships each version as `apps/<category>/<app-id>-<version>.zip`, built with `make-zip.sh`.
 
 ---
 
@@ -25,288 +34,111 @@ apps/
 {
   "id": "your-app",
   "name": "Your App",
+  "name_i18n": { "en": "Your App", "bg": "Вашето приложение" },
   "icon": "🚀",
   "category": "Utilities",
   "tags": ["notes", "planning"],
   "version": "1.0.0",
+  "min_core_version": "1.10.0",
   "description": "Short description shown in the store.",
   "entry": "main.js",
   "css": "style.css"
 }
 ```
 
-| Field         | Required | Description                                      |
-|---------------|----------|--------------------------------------------------|
-| `id`          | ✓        | Unique identifier, lowercase, hyphens allowed    |
-| `name`        | ✓        | Display name                                     |
-| `icon`        | ✓        | Emoji, or a path/URL to an image (`/apps/your-app/icon.png`) |
-| `category`    | ✓        | Category shown in the store                      |
-| `tags`        |          | Array of 1–5 lowercase discovery tags, using short kebab-case terms (e.g. `["notes", "planning"]`). Used for Store search/filters, not extra Start Menu categories. |
-| `version`     | ✓        | Semver string — bump to trigger update prompt    |
-| `description` | ✓        | Short description                                |
-| `entry`       |          | Entry JS file (default: `main.js`)               |
-| `css`         |          | Optional CSS file loaded alongside the app       |
+| Field              | Required | Description |
+|--------------------|----------|-------------|
+| `id`               | ✓        | Unique identifier, lowercase, hyphens allowed |
+| `name`             | ✓        | Display name |
+| `name_i18n`        |          | The name in each of the nine languages |
+| `icon`             | ✓        | Emoji, or a path/URL to an image (`/apps/your-app/icon.png`) |
+| `category`         | ✓        | One broad Store category (below) |
+| `tags`             |          | 1–5 lowercase kebab-case discovery tags for Store search, not extra Start menu categories |
+| `version`          | ✓        | Semver — bump it for every change that ships, including premium-only changes |
+| `min_core_version` |          | The oldest mvmOS that has everything the app uses |
+| `description`      | ✓        | Short description |
+| `entry`            |          | Entry JS file in `public/` (default `main.js`) |
+| `css`              |          | CSS file in `public/` loaded with the app |
 
-For the official Store, choose one broad category: `Productivity`, `Finance`, `Communication`, `Media`, `Creative`, `Business`, `AI`, `Developer Tools`, `System & Administration`, `Security & Privacy`, `Health & Fitness`, `Utilities`, or `Games`. Use `tags` for more specific discovery rather than creating narrow categories.
+Every other field (`settings`, `scheduler`, `file_types`, `requires_apphub`, `public_url`, games…) is in [DEVELOPER.md → manifest.json](DEVELOPER.md#manifestjson).
+
+Official Store categories: `Productivity`, `Finance`, `Communication`, `Media`, `Creative`, `Business`, `AI`, `Developer Tools`, `System & Administration`, `Security & Privacy`, `Health & Fitness`, `Utilities`, `Games`. Use `tags` for anything narrower.
 
 ---
 
 ## main.js
 
-The entry file must call `mvmOS.registerApp()`:
-
 ```js
 mvmOS.registerApp({
   id: 'your-app',       // must match manifest id
   name: 'Your App',
-  icon: '🚀',           // emoji, or a path/URL to an image file (e.g. '/apps/your-app/icon.png')
+  icon: '🚀',
   launch() {
     mvmOS.createWindow({
       id: 'your-app',
-      title: '🚀 Your App',
+      title: t('ya_title'),
       width: 600,
       height: 400,
       onMount(body) {
-        body.innerHTML = '<p>Hello from your app!</p>';
+        body.innerHTML = `<p>${t('ya_hello')}</p>`;
       }
     });
   }
 });
 ```
 
+`createWindow` also takes `onResize(el)`. On screens under 768px windows open full screen; a sidebar marked `as-sidebar` inside `as-wrap` + `as-main` becomes an overlay behind a ☰ button.
+
 ---
 
-## mvmOS API
+## Rules
 
-Your app has access to the global `mvmOS` object:
-
-```js
-// Open a window
-mvmOS.createWindow({
-  id: 'unique-id',        // used to prevent duplicate windows
-  title: 'Window Title',
-  width: 600,             // default: 700
-  height: 400,            // default: 450
-  onMount(body) { ... },  // called with the window body element
-  onResize(el) { ... },   // called on resize (optional)
-})
-```
-
-**Mobile layout:** On small screens (< 768px) windows open fullscreen automatically. If your app has a sidebar, use the class `as-sidebar` and wrap the layout in `as-wrap` + `as-main` — the sidebar will automatically hide and a ☰ button will appear in the titlebar to show it as an overlay.
-
-```html
-<div class="as-wrap">
-  <nav class="as-sidebar"><!-- sidebar items --></nav>
-  <div class="as-main"><!-- main content --></div>
-</div>
-```
-
-```js
-
-// Open Settings on a specific tab
-mvmOS.openSettings('display')   // display | regional | filemanager | users | about
-
-// Per-app localStorage (namespaced automatically)
-mvmOS.storage.get('key')             // returns value or null
-mvmOS.storage.set('key', value)      // value can be any JSON-serializable type
-mvmOS.storage.remove('key')
-
-// Push a notification to the taskbar
-mvmOS.notify('Title', 'Body text', () => { /* action on click */ }, 'Button label')
-
-// SQLite database (stored in apps/your-app/data.db on the server)
-const db = mvmOS.db('your-app');
-
-await db.run('CREATE TABLE IF NOT EXISTS entries (id INTEGER PRIMARY KEY, text TEXT, created_at INTEGER)');
-await db.run('INSERT INTO entries (text, created_at) VALUES (?, ?)', ['hello', Date.now()]);
-const rows = await db.query('SELECT * FROM entries ORDER BY created_at DESC');
-// rows → [{ id: 1, text: 'hello', created_at: ... }, ...]
-```
+- **Translate everything.** No hard-coded text. Strings live in `public/i18n.js`, cover all nine languages (`en`, `bg`, `de`, `es`, `fr`, `ja`, `pt-BR`, `ru`, `zh-CN`) and are read with `t(key, vars)`. Never add keys to core's `frontend/i18n/`. See [DEVELOPER.md → i18n](DEVELOPER.md#i18n).
+- **Follow the theme.** Colours come from the theme variables, in the desktop window and on the public page. See [README.md → Following the theme](README.md#following-the-theme).
+- **Use mvmOS dialogs.** `mvmOS.confirm`, `mvmOS.prompt`, `mvmOS.toast` and `mvmOS.notify` instead of the browser's own.
+- **Load files through `asset()`.** Every script, stylesheet or image the browser loads goes through `window.asset(url)`, which adds the file's change time so no cache serves an old copy.
+- **Stay in your folder.** An app reads and writes only its own `apps/<app-id>/` and reaches other apps only through `hub.call_app_api()`.
+- **Premium stays in `premium/`.** Whatever does the premium work — server code or browser code — lives in `premium/`; the public part may only show the locked control. See [DEVELOPER.md → Premium features](DEVELOPER.md#premium-features).
 
 ---
 
 ## Data storage
 
-You are responsible for your app's data. mvmOS provides three options:
+You are responsible for your app's data.
 
-### 1. Simple key-value (localStorage)
-```js
-mvmOS.storage.set('my-app/settings', { theme: 'dark' });
-const s = mvmOS.storage.get('my-app/settings');
-```
-Good for: settings, preferences, small state. Stored in the browser, per device.
+1. **The app's database** — `apps/your-app/data.db`, created from `db.json`. Read and write it from your own `api.py` routes; that is the normal way. The browser door `mvmOS.db('your-app')` (`query`, `run`) still works for small apps without `api.py`, but once an app has `api.py` it reaches only the `cfg` settings table unless the app's own scripts use it. Good for records that must follow the user across devices.
+2. **Per-browser values** — `this.storage.get/set/remove` inside `registerApp`, namespaced by your app id. Good for UI preferences of one device. (`mvmOS.storage` is a shared global store; don't use it in new apps.)
+3. **Files** — your app's own folder through `api.py`, or the user's files through `mvmOS.fs` and the upload manager (see [README.md → File uploads](README.md#file-uploads)).
 
-### 2. SQLite database (server-side)
-```js
-const db = mvmOS.db('your-app-id');
-await db.run('CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY, name TEXT)');
-await db.run('INSERT INTO items (name) VALUES (?)', ['example']);
-const rows = await db.query('SELECT * FROM items');
-```
-The database file is stored at `apps/your-app/data.db` on the server.
-Good for: records, logs, entries — anything that needs to persist across devices/users.
-You design the schema, you manage migrations. mvmOS just executes the queries.
-
-### 3. File system
-```js
-// Use the mvmOS file manager API or standard fetch to read/write files
-// Files can be stored anywhere the server user has access to
-```
-Good for: images, documents, exports.
-
-> **Note:** When your app is uninstalled, the `apps/your-app/` folder is deleted —
-> including `data.db`. If users need to keep their data, provide an export feature.
-
----
-
-## Internationalization (i18n)
-
-mvmOS has built-in multi-language support. The system loads a language file (`/i18n/en.js`, `/i18n/bg.js`, etc.) that populates `window._i18n`. Apps can read the current language and react to language changes.
-
-### Available APIs
-
-```js
-// Current language code ('en', 'bg', ...)
-window.mvmOS.lang
-
-// Promise that resolves after the first language file loads
-window.mvmOS.i18nReady
-
-// Register a callback fired on every language change
-window.mvmOS.onLangChange(callback)
-```
-
-### Recommended pattern
-
-Embed your translations directly in `main.js` — no external files needed:
-
-```js
-const _myI18n = {
-  en: { title: 'My App', hello: 'Hello', items: '{n} items' },
-  bg: { title: 'Моето приложение', hello: 'Здравей', items: '{n} елемента' },
-};
-
-function _t(key, vars) {
-  const lang = window.mvmOS?.lang || 'en';
-  let str = (_myI18n[lang] || _myI18n.en)[key] || key;
-  if (vars) str = str.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
-  return str;
-}
-
-mvmOS.registerApp({
-  id: 'my-app',
-  name: _t('title'),   // evaluated at load time — will use whatever language is active
-  icon: '🚀',
-  launch() {
-    mvmOS.createWindow({
-      id: 'my-app',
-      title: '🚀 ' + _t('title'),
-      width: 600,
-      height: 400,
-      onMount(body) {
-        // Wait for i18n to be ready before rendering
-        (window.mvmOS?.i18nReady || Promise.resolve()).then(() => {
-          MyApp.init(body);
-        });
-      }
-    });
-  }
-});
-
-const MyApp = (() => {
-  function init(body) {
-    body.innerHTML = `<p>${_t('hello')}</p>`;
-
-    // Re-render when the user changes language
-    window.mvmOS?.onLangChange(() => init(body));
-  }
-  return { init };
-})();
-```
-
-### Key rules
-
-- Always call `_t()` inside your render function, **not** at the top level of the script. The language file may not be loaded yet when the script first runs.
-- The `name` field in `registerApp()` is read at load time. Since language scripts load asynchronously, the app name in the store may appear in English on first load. This is acceptable — the name is only used in the App Store listing, not inside the window.
-- Use `window.mvmOS?.i18nReady` (optional chaining) so your app works even if run outside mvmOS.
-- Call `onLangChange(() => init(body))` inside your `init` function so each new window re-registers the callback without stacking old ones.
-- Variable substitution uses `{varName}` syntax: `_t('items', { n: 5 })` → `'5 items'`.
-
-### Supported languages
-
-Currently mvmOS ships with `en` (English) and `bg` (Bulgarian). The language is selected in **Settings → Regional**. Your app does not need to support all languages — if a language is missing from your dict, `_t()` falls back to `en` automatically (via `|| _myI18n.en`).
+> When an app is uninstalled, `apps/your-app/` is deleted, `data.db` included. If users need to keep their data, offer an export.
 
 ---
 
 ## Widgets
 
-Widgets are small UI components that live on the desktop or in the taskbar. They follow the same store structure as apps but use `mvmOS.registerWidget()` instead of `mvmOS.registerApp()`.
-
-### Widget structure
-
-```
-widgets/
-  your-widget/
-    manifest.json
-    main.js
-```
-
-### manifest.json
-
-Same fields as apps, plus:
-
-| Field         | Description                                      |
-|---------------|--------------------------------------------------|
-| `widget_type` | `"desktop"` or `"taskbar"`                       |
-
-### main.js
+Widgets live on the desktop or in the taskbar and call `mvmOS.registerWidget()`:
 
 ```js
 mvmOS.registerWidget({
   id: 'my-widget',
+  name: 'My Widget',
   type: 'desktop',      // 'desktop' or 'taskbar'
-  label: 'My Widget',   // shown in widget store
-  defaultX: 20,         // initial desktop position (desktop widgets only)
+  defaultX: 20,         // desktop widgets only
   defaultY: 60,
   init(container) {
-    container.innerHTML = `<div>Hello widget</div>`;
-
-    // subscribe to system resources (CPU, RAM, disk) — called every N seconds
-    mvmOS.onResources(data => {
-      // data.cpu_pct, data.mem_used, data.mem_total, data.disk_used, data.disk_total
-      // data.disks[], data.uptime, data.hostname, data.load
-    });
-  }
-});
-```
-
-### i18n for widgets
-
-Same pattern as apps — embed translations and use `onLangChange` to re-render:
-
-```js
-const _myW18n = {
-  en: { label: 'My Widget', title: 'MY WIDGET' },
-  bg: { label: 'Моят уиджет', title: 'МОЯ УИДЖЕТ' },
-};
-function _wt(key) { const lang = window.mvmOS?.lang || 'en'; return (_myW18n[lang] || _myW18n.en)[key] || key; }
-
-mvmOS.registerWidget({
-  id: 'my-widget',
-  type: 'desktop',
-  label: _wt('label'),
-  init(container) {
     function render() {
-      container.innerHTML = `<div>${_wt('title')}</div>`;
-      mvmOS.onResources(d => { /* update */ });
+      container.innerHTML = `<div>${t('mw_title')}</div>`;
     }
     render();
-    window.mvmOS?.onLangChange(() => render());
+    mvmOS.onLangChange(render);
+    mvmOS.onResources(data => { /* data.cpu_pct, mem_used, mem_total, disks, uptime, load … */ });
   }
 });
 ```
 
-### Widget settings
+The release is a zip with `<widget-id>/manifest.json` (the app fields plus `widget_type`) and `<widget-id>/main.js`, listed in `widgets/<type>/<category>/manifest.json`. Sizes, the full `onResources` data and more are in [README.md → Widgets](README.md#widgets).
+
+## Widget settings
 
 Widgets can expose user-configurable settings. These appear in **App Store → My Widgets** and are accessible via a right-click / long-press context menu on the widget itself.
 
@@ -316,7 +148,7 @@ Declare a `settings` array in `registerWidget()`:
 mvmOS.registerWidget({
   id: 'my-widget',
   type: 'desktop',
-  label: 'My Widget',
+  name: 'My Widget',
   settings: [
     { key: 'interval', label: 'Refresh interval (s)', type: 'number', default: 5, min: 1, max: 60 },
     { key: 'show_label', label: 'Show label', type: 'checkbox', default: true },
@@ -341,7 +173,7 @@ mvmOS.registerWidget({
 });
 ```
 
-#### Setting field types
+### Setting field types
 
 | `type`     | Extra fields                                      |
 |------------|---------------------------------------------------|
@@ -353,15 +185,15 @@ mvmOS.registerWidget({
 
 All fields require `key`, `label`, `type`, and `default`.
 
-#### Reading settings in `init`
+### Reading settings in `init`
 
 ```js
 mvmOS.widgetSetting(widgetId, key, defaultValue)
 ```
 
-Returns the saved value (from localStorage), or `defaultValue` if nothing saved yet.
+Returns the saved value (from this browser's localStorage), or `defaultValue` if nothing is saved yet.
 
-#### Server-side settings (persist across devices)
+### Server-side settings (persist across devices)
 
 By default settings are stored in `localStorage` — per browser. If you want settings shared across all devices, add `useDb: true` to `registerWidget()` and use `mvmOS.widgetDb()` instead of `mvmOS.widgetSetting()`:
 
@@ -397,9 +229,9 @@ mvmOS.registerWidget({
 });
 ```
 
-The database file is stored at `widgets/my-widget/data.db` on the server. The App Store settings panel reads and writes it automatically when `useDb: true` is set.
+The database file is `widgets/my-widget/data.db` in the mvmOS installation. The App Store settings panel reads and writes it automatically when `useDb: true` is set.
 
-#### Custom context menu items
+### Custom context menu items
 
 You can add extra items to the right-click / long-press menu:
 
@@ -415,24 +247,28 @@ mvmOS.registerWidget({
 
 ---
 
+---
+
 ## Publishing to the store
 
-1. Fork [mvmrik/mvmos-store](https://github.com/mvmrik/mvmos-store)
-2. Add your app folder under `apps/your-app/`
-3. Add your app entry to the category `manifest.json` (e.g. `apps/your-category/manifest.json`)
-4. Submit a pull request
+The official Store is built from a running mvmOS installation, not by copying folders into this repository:
 
-> **Version must be set in two places:** `apps/your-app/manifest.json` (the app itself) and the category `manifest.json` entry. The update checker reads the version from the category manifest — if you only bump the app's own manifest, users won't see an update notification.
+1. Write the app in `apps/<app-id>/` of your installation, with `store.json` (and `premium.json` for premium).
+2. Release it with `make-zip.sh <app-id> <version> <category>`. The script replaces the old `apps/<category>/<app-id>-*.zip` with `apps/<category>/<app-id>-<version>.zip` built from `source/apps/<app-id>/`, without `store.json`, `premium.json`, `premium/`, uploads or runtime data, copies `premium` and `name_i18n` into the category entry and publishes the premium build when there is one.
+3. Set `version`, `zip_url` and `min_core_version` of the app's entry in the category `manifest.json` to match, then commit the source, the zip and the category manifest together.
+
+> **The version lives in two places:** the app's own `manifest.json` and its entry in the category `manifest.json`. Installations compare against the category manifest, so a version bumped only in the app would never reach them. Keep `min_core_version` the same in both as well.
+
+To offer an app without being in the official Store, publish your own store (next section) or send a pull request to [mvmrik/mvmos-store](https://github.com/mvmrik/mvmos-store) with the app's source.
 
 ## Using a custom store
 
-You can host your own store by creating a GitHub repo with the same structure. In mvmOS:
+Host a `manifest.json` in the same format as this repository's — `{"version": 2, "categories": [...]}` pointing to category manifests, or a simple `{"version": 1, "apps": [...]}` list — and add it in mvmOS:
 
-**App Store → Stores → Add store** → paste the raw URL to your `manifest.json`
+**App Store → Stores → + Add store** → a name and the URL of your `manifest.json`
 
-Example:
 ```
 https://raw.githubusercontent.com/yourname/your-store/main/manifest.json
 ```
 
-Your apps will appear in a separate tab in the App Store and can be installed like any other app.
+Its apps appear in the App Store next to the official ones and install like any other. See [README.md → Your own store](README.md#your-own-store).

@@ -204,7 +204,7 @@ _CLI_TOOL_CALL_RE = re.compile(r"```mvmai_tool_call\s*\n(.*?)```", re.DOTALL)
 def _cli_tool_instructions(tools):
     if not tools:
         return None
-    lines = ["You can call at most one of the following tools per reply, when it helps answer the request:"]
+    lines = ["You can call the following tools when it helps answer the request:"]
     for spec in tools:
         fn = spec["function"]
         props = (fn.get("parameters") or {}).get("properties") or {}
@@ -214,7 +214,10 @@ def _cli_tool_instructions(tools):
         "To call one, output ONLY a fenced code block labeled mvmai_tool_call containing a JSON "
         "object with \"name\" and \"arguments\" keys, e.g.:\n"
         "```mvmai_tool_call\n{\"name\": \"tool_name\", \"arguments\": {\"key\": \"value\"}}\n```\n"
-        "Only include that block when you actually want to call a tool. "
+        "When the request needs several calls that do not depend on each other's results, such as "
+        "adding several entries, put one such block per call in the same reply, so the user reviews "
+        "them together instead of one reply at a time. "
+        "Only include those blocks when you actually want to call a tool. "
         "Otherwise just answer normally in plain text."
     )
     return "\n".join(lines)
@@ -358,6 +361,19 @@ class ChatRequest(BaseModel):
     no_persist: bool = False
     # The app picked in the chat: only its functions are offered to the model.
     app_id: str | None = None
+    # The browser's id for this request, so its Stop can end it (see /stop).
+    turn_id: str | None = None
+    # The language the user sees mvmOS in; mvmAI answers and writes in it.
+    lang: str | None = None
+
+
+class StopRequest(BaseModel):
+    turn_id: str
+
+
+# Running chat requests by turn_id: the task, the CLI processes it started and
+# the token that sent it, the only one that may stop it.
+_TURNS: dict = {}
 
 
 @router.post("/chat")
@@ -372,15 +388,31 @@ async def chat(
     # a slow one starts a 200 response at once and sends a space every few
     # seconds (still valid JSON once the body follows), so errors then travel
     # only as {"error": ...}.
-    task = asyncio.ensure_future(_chat(body, x_pub_token, x_mvmai_surface, os_session))
+    desk = _desktop()
+    turn = {"procs": [], "stopped": False, "token": x_pub_token}
+    ctx_token = desk.CHAT_TURN.set(turn) if desk and hasattr(desk, "CHAT_TURN") else None
+    try:
+        task = asyncio.ensure_future(_chat(body, x_pub_token, x_mvmai_surface, os_session))
+    finally:
+        if ctx_token is not None:
+            desk.CHAT_TURN.reset(ctx_token)
+    turn_id = (body.turn_id or "")[:64]
+    if turn_id:
+        turn["task"] = task
+        _TURNS[turn_id] = turn
+        task.add_done_callback(lambda _t: _TURNS.pop(turn_id, None))
+    stopped = JSONResponse({"error": "stopped"})
     done, _ = await asyncio.wait({task}, timeout=_CHAT_KEEPALIVE_SECONDS)
     if done:
-        return task.result()
+        return stopped if task.cancelled() else task.result()
 
     async def keepalive():
         while not task.done():
             yield b" "
             await asyncio.wait({task}, timeout=_CHAT_KEEPALIVE_SECONDS)
+        if task.cancelled():
+            yield stopped.body
+            return
         try:
             yield task.result().body
         except Exception as e:
@@ -393,6 +425,38 @@ async def chat(
 
 
 _CHAT_KEEPALIVE_SECONDS = 15
+
+_LANG_NAMES = {"en": "English", "bg": "Bulgarian", "de": "German", "es": "Spanish", "fr": "French",
+               "ja": "Japanese", "pt-BR": "Brazilian Portuguese", "ru": "Russian", "zh-CN": "Simplified Chinese"}
+
+
+def _language_prompt(lang) -> str:
+    """Tells the model the language the user sees mvmOS in, so it answers in
+    it and everything it writes into apps is in it too."""
+    if lang not in _LANG_NAMES:
+        return ""
+    name = _LANG_NAMES[lang]
+    return (
+        f"The user uses mvmOS in {name} ({lang}). Reply in {name}, and write everything you put into "
+        f"apps in {name} as well, such as names, titles, notes and descriptions, and pass {lang} to any "
+        f"lang argument, unless the user writes to you in another language or asks for another one."
+    )
+
+
+@router.post("/stop")
+async def stop(body: StopRequest, x_pub_token: str = Header(default=None)):
+    """The user's Stop: ends a running chat request and kills its CLI, so a
+    stopped answer is never finished or saved into the conversation later."""
+    turn = _TURNS.get(body.turn_id)
+    if not turn or not x_pub_token or turn["token"] != x_pub_token:
+        return JSONResponse({"ok": True})
+    turn["stopped"] = True
+    desk = _desktop()
+    for proc in list(turn["procs"]):
+        if desk:
+            desk.kill_process(proc)
+    turn["task"].cancel()
+    return JSONResponse({"ok": True})
 
 
 async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
@@ -439,6 +503,8 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
                 app_prompt = prem.app_prompt(body.app_id)
         if not is_desktop:
             cfg = prem.resolve_pub_cfg(cfg)
+    if not body.no_persist:
+        app_prompt = (app_prompt + " " + _language_prompt(body.lang)).strip()
     cli_provider = next((p for p in desk.CLI_PROVIDERS if p["id"] == cfg.get("provider")), None)
     public_identity = (
         "On this public interface, your identity is mvmAI. Always introduce and describe yourself "
@@ -473,26 +539,24 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
                 "content": content or None,
                 "tool_calls": returned_tool_calls,
             }
-        else:
-            m = _CLI_TOOL_CALL_RE.search(content) if valid_names else None
-        if not returned_tool_calls and m:
-            try:
-                parsed = json.loads(m.group(1))
-                name = str(parsed.get("name") or "")
-                arguments = parsed.get("arguments") or {}
-            except Exception:
-                name = ""
-            if name in valid_names:
-                rest = (content[:m.start()] + content[m.end():]).strip()
-                msg = {
-                    "role": "assistant",
-                    "content": rest or None,
-                    "tool_calls": [{
-                        "id": "cli-call-1",
+        elif valid_names:
+            calls = []
+            for m in _CLI_TOOL_CALL_RE.finditer(content):
+                try:
+                    parsed = json.loads(m.group(1))
+                    name = str(parsed.get("name") or "")
+                    arguments = parsed.get("arguments") or {}
+                except Exception:
+                    continue
+                if name in valid_names:
+                    calls.append({
+                        "id": f"cli-call-{len(calls) + 1}",
                         "type": "function",
                         "function": {"name": name, "arguments": json.dumps(arguments)},
-                    }],
-                }
+                    })
+            if calls:
+                rest = _CLI_TOOL_CALL_RE.sub("", content).strip()
+                msg = {"role": "assistant", "content": rest or None, "tool_calls": calls}
 
         if price:
             try:
@@ -806,6 +870,7 @@ async def pub_browse_dirs(path: str = "/", x_pub_token: str = Header(default=Non
 class ToolCallRequest(BaseModel):
     name: str
     arguments: dict = {}
+    lang: str | None = None
     # Set only by the user's Save on the review form of a tool that changes data.
     confirmed: bool = False
 
@@ -841,7 +906,7 @@ async def tool_preview(body: ToolCallRequest, x_pub_token: str = Header(default=
     if not prem.is_write(body.name):
         return JSONResponse({"write": False})
     try:
-        return JSONResponse({"write": True, **prem.preview(me["id"], body.name, body.arguments or {})})
+        return JSONResponse({"write": True, **prem.preview(me["id"], body.name, body.arguments or {}, lang=body.lang)})
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=400)
 
@@ -857,7 +922,8 @@ async def tool_call(body: ToolCallRequest, x_pub_token: str = Header(default=Non
     if me is None:
         return prem
     try:
-        result = prem.call_tool(me["id"], body.name, body.arguments or {}, confirmed=body.confirmed)
+        result = prem.call_tool(me["id"], body.name, body.arguments or {}, confirmed=body.confirmed,
+                                lang=body.lang)
         return JSONResponse({"result": result})
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=400)

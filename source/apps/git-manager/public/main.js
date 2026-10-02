@@ -1679,7 +1679,10 @@ GM.showRepoView = function(container, repo, autoFetch) {
   async function loadStatus(onlyIfChanged) {
     var tc = container.querySelector('#gm-tab-content');
     if (!tc) return;
-    if (!onlyIfChanged) tc.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem;opacity:.7">' + t('gm_loading') + '</div>';
+    // Another tab owns the content: only the header and the badge follow the
+    // status then, so a branch switch from an open issue stays in that issue.
+    var own = tab === 'status';
+    if (!onlyIfChanged && own) tc.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem;opacity:.7">' + t('gm_loading') + '</div>';
     try {
       var s = await GM.api('/repo/status?path=' + encodeURIComponent(repo.path));
       // Kept in sync on every poll, independent of the signature check below,
@@ -1708,6 +1711,8 @@ GM.showRepoView = function(container, repo, autoFetch) {
       if (prToolbar) prToolbar.style.display = repo.branch && repo.branch !== '?' && repo.branch !== 'HEAD' && repo.branch !== defaultBranch ? '' : 'none';
       var localBadge = container.querySelector('#gm-branch-local-badge');
       if (localBadge) localBadge.style.display = s.local_only ? 'inline-block' : 'none';
+
+      if (tab !== 'status') { lastStatusSignature = null; return; }
 
       var commitHtml = '<div style="border-top:1px solid var(--border);padding-top:12px;display:flex;flex-direction:column;gap:8px">'
         + '<div style="display:flex;align-items:center;gap:8px"><div style="font-size:.75rem;color:var(--text-dim);flex:1">' + t('gm_commit_message') + ' <span style="opacity:.6">' + t('gm_ctrl_enter') + '</span></div>'
@@ -1823,7 +1828,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         });
       }
     } catch(e) {
-      tc.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + e.message + '</div>';
+      if (tab === 'status') tc.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + GM.escape(e.message) + '</div>';
     }
   }
 
@@ -1853,6 +1858,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
   }
 
   function showIssues() {
+    tab = 'issues';
     var tc = container.querySelector('#gm-tab-content');
     container.querySelector('#gm-tab-status').style.background = 'none';
     container.querySelector('#gm-tab-status').style.color = 'var(--text-dim)';
@@ -1915,9 +1921,18 @@ GM.showRepoView = function(container, repo, autoFetch) {
     tc.querySelector('#gm-issues-new').onclick = function() { renderNewIssue(tc, status); };
     var list = tc.querySelector('#gm-issues-list');
     list.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem">' + t('gm_loading') + '</div>';
-    Promise.all([GM.api('/repo/issues?path=' + encodeURIComponent(repo.path) + '&state=' + state), GM.issueSettings()]).then(function(results) {
+    Promise.all([GM.api('/repo/issues?path=' + encodeURIComponent(repo.path) + '&state=' + state), GM.issueSettings(),
+      GM.api('/repo/branches?path=' + encodeURIComponent(repo.path)).catch(function() { return {branches: []}; })]).then(function(results) {
       var data = results[0], settings = results[1];
       var issues = data.issues || [];
+      // Which issue already has a branch, here or on origin. The user's own
+      // branch name wins when someone else has one for the same issue too.
+      var issueBranches = {};
+      (results[2].branches || []).forEach(function(b) {
+        var name = b.indexOf('origin/') === 0 ? b.slice(7) : b;
+        var n = issueNumberFromBranch(name);
+        if (n && (!issueBranches[n] || name === issueBranchName(status, n))) issueBranches[n] = name;
+      });
       if (!issues.length) {
         list.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;text-align:center;padding:28px">' + t(state === 'open' ? 'gm_issues_no_open' : 'gm_issues_no_closed') + '</div>';
         return;
@@ -1929,7 +1944,9 @@ GM.showRepoView = function(container, repo, autoFetch) {
         row.style.cssText = 'width:100%;display:flex;align-items:flex-start;gap:10px;text-align:left;padding:9px 10px;margin-bottom:5px;background:var(--surface2,#313244);border-color:var(--border)';
         row.innerHTML = '<span style="color:' + (issue.state === 'open' ? '#a6e3a1' : '#a6adc8') + ';font-size:1rem">&#x25CF;</span>'
           + '<span style="flex:1;min-width:0"><span style="display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + GM.escape(issue.title) + '</span>'
-          + '<span style="display:block;font-size:.7rem;color:var(--text-dim);margin-top:3px">#' + issue.number + ' · ' + GM.escape(issue.author) + ' · ' + t('gm_issues_comments', {n:issue.comments || 0}) + '</span></span>';
+          + '<span style="display:block;font-size:.7rem;color:var(--text-dim);margin-top:3px">#' + issue.number + ' · ' + GM.escape(issue.author) + ' · ' + t('gm_issues_comments', {n:issue.comments || 0})
+          + (issueBranches[issue.number] ? ' · <span style="color:#89b4fa">&#x1F33F; ' + GM.escape(issueBranches[issue.number]) + '</span>' : '')
+          + '</span></span>';
         row.onclick = function() { renderIssueDetail(tc, issue.number, status, state, true); };
         return row;
       }

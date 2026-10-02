@@ -1,175 +1,69 @@
-# mvmOS Developer Guide
+# mvmOS Store
 
-This repository contains apps, widgets and themes for [mvmOS](https://github.com/mvmrik/mvmOS) — a web-based desktop OS.
+This repository is the official Store of [mvmOS](https://github.com/mvmrik/mvmOS), a web-based desktop OS for your own server. It holds **48 apps, 5 widgets and 4 themes**. mvmOS reads it from the App Store; nothing here has to be installed by hand.
+
+- **[DEVELOPER.md](DEVELOPER.md)** — the complete guide to writing an app: structure, `manifest.json`, `store.json`, `premium.json`, the `mvmOS` API, server code, Apps Hub, public pages, games, i18n and premium.
+- **[SPEC.md](SPEC.md)** — the short checklist of the rules every app follows.
+- This file — how the repository is laid out, how to run your own store, and the reference for widgets, themes and the shared CSS variables.
 
 ---
 
 ## Table of Contents
 
-1. [Apps](#apps)
-2. [Widgets](#widgets)
-3. [Themes](#themes)
-4. [CSS Variables Reference](#css-variables-reference)
-5. [mvmOS API Reference](#mvmos-api-reference)
+1. [Repository layout](#repository-layout)
+2. [Your own store](#your-own-store)
+3. [Widgets](#widgets)
+4. [Themes](#themes)
+5. [CSS Variables Reference](#css-variables-reference)
+6. [Following the theme](#following-the-theme)
+7. [File uploads](#file-uploads)
 
 ---
 
-## Apps
-
-### Directory structure
+## Repository layout
 
 ```
-apps/
-  <category>/
-    manifest.json          ← category metadata
-    <app-id>/
-      manifest.json        ← app metadata
-      main.js              ← app code
+manifest.json                     ← the app categories, each with its manifest_url
+apps/<category>/
+  manifest.json                   ← {"apps": [...]}: id, name, name_i18n, icon, category,
+                                    version, description, tags, min_core_version, zip_url,
+                                    premium (true when the app has Premium)
+  <app-id>-<version>.zip          ← the release that mvmOS downloads
+source/apps/<app-id>/             ← the source of every app (see DEVELOPER.md → App structure)
+source/backend/apps/<app-id>/     ← the rare system backend of an app
+widgets/                          ← see Widgets
+themes/                           ← see Themes
+make-zip.sh                       ← builds an app release zip (and publishes its premium build)
+make-premium-zip.sh               ← publishes an app's premium build to mvmos.org
+make-core-premium-zip.sh          ← publishes a core premium module to mvmos.org
 ```
 
-### manifest.json
+App categories: `ai`, `business`, `communication`, `creative`, `developer-tools`, `finance`, `games`, `health-fitness`, `media`, `productivity`, `security-privacy`, `system-administration`, `utilities`.
+
+An app is written as a folder under `apps/<app-id>/` of a running mvmOS installation, and the official releases are built from it with `make-zip.sh <app-id> <version> <category>`. The script leaves out `store.json`, `premium.json`, the `premium/` folder, uploads and runtime data, and fills `premium` and `name_i18n` in the category entry; `version`, `zip_url` and `min_core_version` of that entry are set to the same release. The store listing on mvmos.org is imported from `store.json` and `premium.json` in `source/`.
+
+---
+
+## Your own store
+
+Any installation can add more stores in **App Store → Stores → + Add store**, with a name and the URL of a `manifest.json`. Two formats are accepted:
 
 ```json
-{
-  "id": "my-app",
-  "name": "My App",
-  "icon": "🚀",
-  "category": "Utilities",
-  "version": "1.0.0",
-  "description": "Short description shown in the App Store.",
-  "entry": "main.js"
-}
+{ "version": 2, "categories": [
+  { "id": "tools", "name": "Tools", "icon": "🛠️", "manifest_url": "https://example.com/apps/tools/manifest.json" }
+] }
 ```
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| `id` | ✅ | Unique identifier, kebab-case |
-| `name` | ✅ | Display name |
-| `icon` | ✅ | Emoji icon |
-| `category` | ✅ | Groups apps in the start menu |
-| `version` | ✅ | Semver string |
-| `description` | ✅ | Shown in App Store |
-| `entry` | ✅ | Entry JS file (e.g. `"main.js"`) |
-| `css` | ☐ | Optional CSS file to inject when the app loads (e.g. `"style.css"`) |
+Each category's manifest is `{"apps": [...]}` exactly as in this repository. A small store can instead list its apps directly:
 
-### main.js
-
-Call `mvmOS.registerApp(def)` — the OS loads this file and runs it in a sandboxed `Function` context.
-
-```js
-mvmOS.registerApp({
-  id: 'my-app',
-  name: 'My App',
-  icon: '🚀',
-  category: 'Utilities',
-
-  launch() {
-    mvmOS.createWindow({
-      id: 'my-app',          // unique window id
-      title: '🚀 My App',
-      width: 400,
-      height: 300,
-
-      onMount(body) {
-        // `body` is the window's content div — build your UI here
-        body.innerHTML = `<p style="padding:16px">Hello from My App!</p>`;
-      }
-    });
-  }
-});
+```json
+{ "version": 1, "apps": [
+  { "id": "my-app", "name": "My App", "icon": "🚀", "version": "1.0.0", "category": "Utilities",
+    "description": "…", "zip_url": "https://example.com/my-app-1.0.0.zip" }
+] }
 ```
 
-**`mvmOS.createWindow(options)`**
-
-| Option | Type | Description |
-|--------|------|-------------|
-| `id` | string | Window identifier (only one window per id at a time) |
-| `title` | string | Title bar text |
-| `width` | number | Initial width in px |
-| `height` | number | Initial height in px |
-| `onMount(body)` | function | Called once with the content `div` |
-
-**Inside `onMount(body)`**
-
-- `body` is a plain `div` — put any HTML you want inside it.
-- The window has minimize, maximize and close buttons built in.
-- Use `var(--surface)`, `var(--text)` etc. (see [CSS Variables](#css-variables-reference)) so your app matches the active theme. This is required, not a suggestion — see [Following the theme](#following-the-theme).
-- Use `this.storage` inside your `registerApp` def to persist data — each app has its own isolated storage.
-
-### Persistent storage
-
-Each app gets its own isolated storage, automatically namespaced by app id. Use `this.storage` inside the `def` object, or save a reference:
-
-```js
-mvmOS.registerApp({
-  id: 'my-app',
-  // ...
-  launch() {
-    const store = this.storage;
-    store.set('count', 5);
-    const count = store.get('count'); // 5
-    store.remove('count');
-  }
-});
-```
-
-Two different apps using `storage.set('key', ...)` will never overwrite each other's data.
-
-### Notifications
-
-```js
-mvmOS.notify('Title', 'Body text');
-
-// with an action button:
-mvmOS.notify('Download ready', 'file.zip is ready.', () => {
-  // callback when user clicks the action
-}, 'Open');
-```
-
-### Server-side backend (backend.py)
-
-If your app needs to access local services (e.g. proxy to another process to avoid CORS), you can include a `backend.py` in your app folder.
-
-```
-apps/<category>/<app-id>/
-  backend.py   ← optional server-side component
-```
-
-`backend.py` must expose a FastAPI `router` at module level:
-
-```python
-import sys
-from fastapi import APIRouter, Depends
-
-router = APIRouter(prefix="/api/my-app", tags=["my-app"])
-
-# Use sys.modules to access mvmOS auth — relative imports don't work in dynamic loaders
-get_current_session = sys.modules["backend.auth"].get_current_session
-
-@router.get("/hello")
-async def hello(session=Depends(get_current_session)):
-    return {"hello": "world"}
-```
-
-**Security model:**
-- When a user installs or updates an app with `backend.py`, mvmOS shows a confirmation dialog and **requires the user's system password** before proceeding
-- The file is copied to `backend/app-backends/<app-id>.py` and loaded dynamically — no server restart needed
-- Every version bump that changes `backend.py` will trigger this confirmation dialog again on update
-- **Always bump the app version when you change `backend.py`** — otherwise users won't get the updated backend
-
-### Fetching data
-
-Apps run in the browser — you can use `fetch()` freely. The OS backend API is available at `/api/*`.
-
-Useful endpoints:
-
-| Endpoint | Description |
-|----------|-------------|
-| `GET /api/system/resources` | CPU %, memory, disk, uptime, load avg |
-| `GET /api/system/hardware` | Hostname, CPU model, RAM total |
-| `GET /api/files?path=/some/dir` | List directory |
-| `GET /api/files/raw?path=/some/file` | Download/view a file |
-| `POST /api/files/write` | Write text to a file (`{ path, content }`) |
+Every app needs `id`, `name` and `version`, and a `zip_url` (older stores may still give `base_url` or `js_url` instead). Widget and theme stores are added the same way from their own tabs.
 
 ---
 
@@ -181,11 +75,12 @@ Widgets are small always-on components that live either on the **desktop** (drag
 
 ```
 widgets/
-  <category>/
-    manifest.json
-    <widget-id>/
-      manifest.json
-      main.js
+  manifest.json                    ← the two widget types: desktop, taskbar
+  <type>/
+    manifest.json                  ← categories of that type
+    <category>/
+      manifest.json                ← {"widgets": [...]} with zip_url
+      <widget-id>-<version>.zip    ← <widget-id>/manifest.json + <widget-id>/main.js
 ```
 
 ### manifest.json
@@ -202,6 +97,8 @@ widgets/
   "entry": "main.js"
 }
 ```
+
+The same object, with `zip_url` instead of `entry`, goes into the category's `manifest.json`.
 
 `widget_type` is either `"desktop"` or `"taskbar"`.
 
@@ -294,19 +191,21 @@ mvmOS.registerWidget({
 
 ### System resource data
 
-Both widget types can subscribe to live system data (CPU, memory, disk, uptime) polled every 3 seconds:
+Both widget types can subscribe to live system data, polled every few seconds. The object merges `/api/system/resources` and `/api/system/hardware`:
 
 ```js
 mvmOS.onResources(data => {
-  // data.cpu_pct      — CPU usage 0–100
-  // data.mem_used     — bytes used
-  // data.mem_total    — bytes total
-  // data.disks        — array of { path, used, total, pct }
-  // data.uptime       — human string e.g. "3d 4h 12m"
-  // data.hostname     — machine hostname
-  // data.load         — { '1': x, '5': y, '15': z }
+  // data.cpu_pct                 — CPU usage 0–100
+  // data.mem_used, mem_total     — bytes
+  // data.disk_used, disk_total   — bytes, root filesystem
+  // data.disks                   — every mounted disk
+  // data.uptime, data.load       — uptime and load averages
+  // data.hostname, os, kernel    — machine info
+  // data.cpu_model, cpu_cores, cpu_freq_mhz, network, temps, swap_*
 });
 ```
+
+Widget settings (`settings`, `useDb`, `contextMenu`), one file serving two widgets, the no-flicker pattern and installing a widget from inside an app are described in [DEVELOPER.md → Widgets](DEVELOPER.md#widgets).
 
 ### Widget design tips
 
@@ -324,10 +223,13 @@ mvmOS.onResources(data => {
 
 ```
 themes/
-  <theme-id>/
-    theme.css     ← CSS variables + optional overrides
-    manifest.json ← (optional, used by Theme Store)
+  manifest.json                  ← categories: dark, light
+  <dark|light>/
+    manifest.json                ← {"themes": [...]} with zip_url
+    <theme-id>-<version>.zip     ← theme.css + manifest.json
 ```
+
+The `manifest.json` inside the zip holds `id`, `name`, `icon`, `version` and `layout` (`"macos"` for every current theme). The category entry adds `category`, `description` and `zip_url`.
 
 ### theme.css
 
@@ -389,162 +291,10 @@ All variables have fallback values built into the OS, so you only need to define
 
 ---
 
-## mvmOS API Reference
-
-Global object available in all app and widget scripts:
-
-```
-mvmOS.registerApp(def)               — register an app
-mvmOS.registerWidget(def)            — register a widget
-mvmOS.createWindow(options)          — open a window (call inside launch())
-mvmOS.notify(title, body)            — push a notification
-mvmOS.notify(title, body, fn, label) — notification with action button
-mvmOS.markNotifsRead(source, ref)    — clear your own notifications when the user views the content (see DEVELOPER.md)
-mvmOS.onResources(callback)          — subscribe to system resource updates
-
-mvmOS.multiplayer.createRoom(gameId) — create a multiplayer room, returns { roomId, link }
-mvmOS.multiplayer.connect(roomId, gameId) — connect to a room via WebSocket, returns WebSocket
-
-this.storage.get(key)        — read from app-isolated localStorage (use inside registerApp def)
-this.storage.set(key, value) — write to app-isolated localStorage
-this.storage.remove(key)     — delete a key
-```
-
 ---
 
-## Multiplayer
+## Following the theme
 
-mvmOS has a built-in generic multiplayer system based on WebSockets. Any game can use it — no extra server setup required.
-
-### How it works
-
-1. Player 1 calls `mvmOS.multiplayer.createRoom(gameId)` — the backend creates a room and returns a shareable link
-2. Player 1 shares the link with Player 2
-3. Player 2 opens the link in any browser (no mvmOS login needed) — the game loads in a standalone page
-4. Both players connect via WebSocket — the backend syncs moves in real time
-5. The game controls the rules — the backend only relays messages
-
-### API
-
-```js
-// Create a room and get a shareable link
-const { roomId, link } = await mvmOS.multiplayer.createRoom('my-game');
-// link → e.g. https://your-mvmos.com/api/multiplayer/play/my-game/abc12345
-
-// Connect to a room via WebSocket
-const ws = mvmOS.multiplayer.connect(roomId, 'my-game');
-```
-
-### WebSocket message protocol
-
-**Server → client:**
-
-| Message | Fields | Description |
-|---------|--------|-------------|
-| `waiting` | — | Waiting for the second player to join |
-| `joined` | `player` (0 or 1), `game_id` | You connected. `player` is your index |
-| `start` | `first`, `your_turn`, `numbers` | Both players connected. `numbers` = array of upcoming values (first 10) |
-| `move_ok` | `your_turn` (false), `next_number` | Your move was accepted. Wait for opponent |
-| `opponent_move` | `move`, `your_turn` (true), `next_number` | Opponent moved. Now it's your turn |
-| `opponent_score` | `score` | Opponent's current score |
-| `opponent_grid` | `grid` | Opponent's grid state (2D array) |
-| `opponent_game_over` | `score` | Opponent's game ended |
-| `opponent_left` | — | Opponent disconnected |
-
-**Client → server:**
-
-| Message | Fields | Description |
-|---------|--------|-------------|
-| `move` | `move: { col }` | Player placed a piece in column `col` |
-| `grid_update` | `grid` | Send your current grid so the opponent can see it |
-| `score_update` | `score` | Send your current score |
-| `game_over` | `score` | Your grid is full |
-
-### Minimal example
-
-```js
-mvmOS.registerApp({
-  id: 'my-game',
-  name: 'My Game',
-  icon: '🎮',
-  category: 'Games',
-
-  launch(opts) {
-    const isMultiplayer = opts?.multiplayer === true;
-    const roomId = opts?.roomId;
-
-    mvmOS.createWindow({
-      id: 'my-game',
-      title: '🎮 My Game',
-      width: 500, height: 600,
-      onMount(body) {
-        if (isMultiplayer && roomId) {
-          // Came from shared link — connect directly
-          startMultiplayer(body, roomId);
-          return;
-        }
-
-        // Show lobby
-        body.innerHTML = `
-          <button id="single">Single Player</button>
-          <button id="multi">Multiplayer</button>`;
-
-        body.querySelector('#single').onclick = () => startGame(body, null);
-        body.querySelector('#multi').onclick = async () => {
-          const { roomId, link } = await mvmOS.multiplayer.createRoom('my-game');
-          // Show link to share, then connect...
-          startMultiplayer(body, roomId);
-        };
-      }
-    });
-  }
-});
-
-function startMultiplayer(body, roomId) {
-  const ws = mvmOS.multiplayer.connect(roomId, 'my-game');
-  ws.onmessage = e => {
-    const msg = JSON.parse(e.data);
-    if (msg.type === 'start') {
-      startGame(body, ws, msg);
-    }
-  };
-}
-
-function startGame(body, ws, mpState) {
-  // ws is null for single player
-  // mpState.your_turn — whether you go first
-  // mpState.numbers   — shared sequence of upcoming values
-
-  // After each move, send state to backend:
-  function sendMove(col) {
-    if (!ws) return;
-    ws.send(JSON.stringify({ type: 'move', move: { col } }));
-    ws.send(JSON.stringify({ type: 'score_update', score: myScore }));
-    ws.send(JSON.stringify({ type: 'grid_update', grid: myGrid }));
-  }
-
-  // Handle incoming messages:
-  if (ws) {
-    ws.onmessage = e => {
-      const msg = JSON.parse(e.data);
-      if (msg.type === 'opponent_move') {
-        // msg.move       — what the opponent did
-        // msg.your_turn  — true, now it's your turn
-        // msg.next_number — next number in the shared sequence
-      }
-      if (msg.type === 'opponent_grid') {
-        // msg.grid — render this to show opponent's board
-      }
-    };
-  }
-}
-```
-
-### Standalone page for external players
-
-When Player 2 opens the shared link, they see the game in a standalone page (no mvmOS shell). A minimal `mvmOS` shim is injected so the app's `main.js` runs unchanged. `launch()` is called with `{ multiplayer: true, roomId }`.
-
-### Following the theme
 
 Every app must look right in whatever theme the user picked — light, dark or any theme from the store — both in its desktop window and on its public page. Never hard-code a dark (or light) palette for the app's own chrome: backgrounds, text, borders, buttons, inputs, menus and dialogs all come from theme variables. Test every new or changed app in a light and a dark theme.
 
@@ -568,22 +318,10 @@ The desktop does not define the `--pub-*` variables, and the public page does no
 
 Because both are CSS variables, a theme change applies at once without reloading the app. Colours that belong to the content rather than the app — a white A4 page in a document editor, a chart series, a user-chosen cell colour — may stay fixed. Text placed on an accent colour needs its own variable (for example `--my-on-accent`), since the background colour is not always a readable choice there.
 
-### i18n in apps
+---
 
-Translations belong **inside the app's `main.js`** — do not add keys to the core `frontend/i18n/` files. Follow the pattern used in `apps/calculator/main.js`:
+## File uploads
 
-```js
-const _mygame18n = {
-  en: { title: 'My Game', play: 'Play' },
-  bg: { title: 'Моята игра', play: 'Играй' },
-};
-function _t(key) {
-  const lang = window.mvmOS?.lang || 'en';
-  return (_mygame18n[lang] || _mygame18n.en)[key] || key;
-}
-```
-
-### File uploads
 
 mvmOS has a global upload manager (`mvmOS.upload`) available to all apps. It handles chunked uploads (80 MB per chunk, no Cloudflare 100 MB limit), shows a floating OS window with progress and speed, and supports a sequential queue.
 
@@ -616,7 +354,7 @@ onDone(data) {
 
 **`accept` values** — extensions (`.sql`), exact MIME types (`image/jpeg`), or wildcard MIME (`image/*`). If the file doesn't match, an error is shown immediately without uploading.
 
-**`noFinalize`** — the assembled temp file stays in `/tmp/mvmos-uploads/<upload_id>_<filename>`. Your backend receives its path via `data.tmp_path` in `onDone`. The file is deleted once your backend is done with it. Only files older than 24 hours are auto-cleaned (to avoid deleting active slow uploads).
+**`noFinalize`** — the assembled temp file stays in `/tmp/mvmos-uploads/<upload_id>_<filename>`. Your backend receives its path via `data.tmp_path` in `onDone`. Your backend deletes it once it is done; anything left behind is removed after 24 hours (younger files are never touched, so slow uploads survive).
 
 **MySQL privileges** — if your app creates or drops MySQL databases via YourSQL or a similar app, the MySQL user needs global `CREATE` and `DROP` privileges:
 ```sql

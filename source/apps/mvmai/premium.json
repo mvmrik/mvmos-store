@@ -4,7 +4,7 @@
     {
       "title": "Personal data bridge",
       "short": "Point a chat at one of your apps and let mvmAI read or change your data there",
-      "description": "Choose one of your apps in the chat, such as Budget or Calendar, and mvmAI can look things up and add or change things in it, but only for your own account. The list holds the apps you added to your Apps Hub profile whose app-to-app API the administrator enabled, and it picks up any new action an app adds. Every change is first shown as a form with the values mvmAI filled in, where you can correct them and save or cancel, and mvmAI reports only what was actually saved. It can never see or touch another user's data. Without a subscription the app picker is shown locked on the desktop and the assistant answers with a plain chat only."
+      "description": "Choose one of your apps in the chat, such as Budget or Calendar, and mvmAI can look things up and add or change things in it, but only for your own account. The list holds the apps you added to your Apps Hub profile whose app-to-app API the administrator enabled, and it picks up any new action an app adds. Every change is first shown as a form with the values mvmAI filled in, where you can correct them and save or cancel, and mvmAI reports only what was actually saved. It can never see or touch another user's data. Without a subscription the app picker is shown locked on the desktop and the assistant answers with a plain chat only. Several independent changes are reviewed as pages of one form; correct or exclude any entry before saving the selected changes together. Functions marked internal by an app are never offered to the assistant."
     },
     {
       "title": "Public page AI",
