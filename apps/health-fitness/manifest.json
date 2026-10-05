@@ -32,9 +32,9 @@
       "name": "Hydration",
       "icon": "💧",
       "category": "Health & Fitness",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "description": "Log what you drink through the day. Every drink counts only its own water content and also tracks caffeine and alcohol, with ready-made drinks and your own, plus a public web page.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/health-fitness/hydration-1.2.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/health-fitness/hydration-1.3.0.zip",
       "tags": [
         "water",
         "drinks",

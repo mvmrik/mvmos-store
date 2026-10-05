@@ -246,6 +246,7 @@ def _init_db():
         # Colours, icons and the end of the day came later still.
         for table, col, decl in (("settings", "day_end_hour", "INTEGER NOT NULL DEFAULT 0"),
                                  ("drink_prefs", "color", "TEXT"), ("products", "icon", "TEXT"),
+                                 ("preset_overrides", "name", "TEXT NOT NULL DEFAULT ''"),
                                  ("entries", "color", "TEXT"), ("entries", "icon", "TEXT"),
                                  ("health_link", "goals_sent", "INTEGER NOT NULL DEFAULT 0")):
             if col not in {r["name"] for r in c.execute(f"PRAGMA table_info({table})")}:
@@ -559,13 +560,13 @@ def _products(c, uid):
 def _presets(c, uid):
     """The ready-made drinks with this user's own changes applied."""
     over = {r["product_id"]: r for r in c.execute(
-        "SELECT product_id,water_percent,caffeine_mg_100,alcohol_percent,calories_kcal_100,sugar_g_100,protein_g_100"
+        "SELECT product_id,name,water_percent,caffeine_mg_100,alcohol_percent,calories_kcal_100,sugar_g_100,protein_g_100"
         " FROM preset_overrides WHERE user_id=?", (uid,))}
     out = []
     for k, (icon, w, caf, alc) in PRESETS.items():
         o = over.get(k)
         out.append({
-            "id": k, "icon": icon, "modified": bool(o),
+            "id": k, "icon": icon, "modified": bool(o), "name": o["name"] if o else "",
             "water_percent": o["water_percent"] if o else w,
             "caffeine_mg_100": o["caffeine_mg_100"] if o else caf,
             "alcohol_percent": o["alcohol_percent"] if o else alc,
@@ -903,7 +904,9 @@ def _set_prefs(uid, product_id, active=None, servings=None, color=None):
 
 
 def _set_preset(uid, product_id, water_percent, caffeine_mg_100, alcohol_percent, servings=None, active=None,
-                calories_kcal_100=None, sugar_g_100=None, protein_g_100=None, color=None):
+                calories_kcal_100=None, sugar_g_100=None, protein_g_100=None, color=None, name=None):
+    """name is the user's own name for a ready-made drink; an empty one brings
+    back the translated standard name and None leaves the name as it is."""
     if product_id not in PRESETS:
         raise LookupError("not found")
     _, w, caf, alc = _product_values("-", water_percent, caffeine_mg_100, alcohol_percent)
@@ -914,14 +917,15 @@ def _set_preset(uid, product_id, water_percent, caffeine_mg_100, alcohol_percent
     with _db() as c:
         cur = next(x for x in _presets(c, uid) if x["id"] == product_id)
         nut = [cur[col] if n is None else n for n, (col, _) in zip(nut, NUTRI_FIELDS)]
+        name = cur["name"] if name is None else name.strip()[:60]
         c.execute(
-            "INSERT INTO preset_overrides(user_id,product_id,water_percent,caffeine_mg_100,alcohol_percent,"
-            "calories_kcal_100,sugar_g_100,protein_g_100) VALUES(?,?,?,?,?,?,?,?) "
-            "ON CONFLICT(user_id,product_id) DO UPDATE SET water_percent=excluded.water_percent, "
+            "INSERT INTO preset_overrides(user_id,product_id,name,water_percent,caffeine_mg_100,alcohol_percent,"
+            "calories_kcal_100,sugar_g_100,protein_g_100) VALUES(?,?,?,?,?,?,?,?,?) "
+            "ON CONFLICT(user_id,product_id) DO UPDATE SET name=excluded.name, water_percent=excluded.water_percent, "
             "caffeine_mg_100=excluded.caffeine_mg_100, alcohol_percent=excluded.alcohol_percent, "
             "calories_kcal_100=excluded.calories_kcal_100, sugar_g_100=excluded.sugar_g_100, "
             "protein_g_100=excluded.protein_g_100",
-            (uid, product_id, w, caf, alc, *nut),
+            (uid, product_id, name, w, caf, alc, *nut),
         )
         _save_prefs(c, uid, product_id, active, servings, color=color)
         c.commit()
@@ -929,7 +933,7 @@ def _set_preset(uid, product_id, water_percent, caffeine_mg_100, alcohol_percent
 
 
 def _reset_preset(uid, product_id):
-    """Back to the standard values, servings and colour; shown or hidden stays as chosen."""
+    """Back to the standard name, values, servings and colour; shown or hidden stays as chosen."""
     if product_id not in PRESETS:
         raise LookupError("not found")
     with _db() as c:
@@ -1111,7 +1115,8 @@ async def edit_preset(product_id: str, body: ProductBody, x_pub_token: str = Hea
         return _bad("unauthorized", 401)
     return _reply(_set_preset, me["id"], product_id, body.water_percent, body.caffeine_mg_100,
                   body.alcohol_percent, body.servings, body.active,
-                  body.calories_kcal_100, body.sugar_g_100, body.protein_g_100, body.color)
+                  body.calories_kcal_100, body.sugar_g_100, body.protein_g_100, body.color,
+                  None if body.name == "-" else body.name)
 
 
 @router.delete("/presets/{product_id}")

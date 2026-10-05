@@ -207,10 +207,10 @@
     }
     function num(n, d) { return String(Math.round(n * (d || 1)) / (d || 1)); }
 
-    function label(d) { return d.kind === 'ready' ? t('hy_p_' + d.id) : d.name; }
+    function label(d) { return d.kind === 'ready' ? (d.name || t('hy_p_' + d.id)) : d.name; }
     function drinkName(id, name) {
       const d = st.drinks.find(x => x.id === id);
-      return d && d.kind === 'ready' ? t('hy_p_' + id) : name;
+      return d && d.kind === 'ready' ? label(d) : name;
     }
     // How a logged drink looks: as the drink looks now, or as it was saved
     // when the drink no longer exists.
@@ -596,7 +596,7 @@
       const f = (id, lbl, val, max) => `<div class="hy-field"><label>${esc(lbl)}</label>
         <input class="hy-input" id="${id}" type="number" min="0" max="${max}" step="any" value="${esc(val)}"></div>`;
       dialog(`<h3>${esc(t(ready ? 'hy_edit_ready' : d.id ? 'hy_edit_drink' : 'hy_new_drink'))}</h3>
-        <div class="hy-field"><label>${esc(t('hy_name'))}</label><input class="hy-input" id="hy-name" maxlength="60" value="${esc(ready ? label(d) : d.name)}"${ready ? ' disabled' : ''}></div>
+        <div class="hy-field"><label>${esc(t('hy_name'))}</label><input class="hy-input" id="hy-name" maxlength="60" value="${esc(d.name)}"${ready ? ` placeholder="${esc(t('hy_p_' + d.id))}"` : ''}></div>
         ${ready ? '' : `<div class="hy-field"><label>${esc(t('hy_icon'))}</label><div class="hy-emojis" id="hy-emojis">
           ${(EMOJIS.includes(icon) ? EMOJIS : [icon].concat(EMOJIS)).map(e => `<button type="button" class="hy-emo${e === icon ? ' sel' : ''}" data-e="${esc(e)}">${esc(e)}</button>`).join('')}</div></div>`}
         <div class="hy-field"><label>${esc(t('hy_color'))}</label><div class="hy-swatches" id="hy-swatches">

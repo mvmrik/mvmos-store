@@ -102,6 +102,17 @@
       .mvmai-send:disabled{opacity:.5;cursor:default}
       .mvmai-inputbar{position:relative;align-items:flex-end}
       .mvmai-inputbar .mvmai-send{flex-shrink:0;min-height:2.3rem;white-space:nowrap}
+      .mvmai-attach{flex-shrink:0;min-height:2.3rem;width:2.3rem;border:1px solid var(--pub-border,#45475a);border-radius:.5rem;
+        background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);cursor:pointer;font-size:1rem;padding:0}
+      .mvmai-chips{display:flex;flex-wrap:wrap;gap:.35rem;padding:.5rem .9rem 0;flex-shrink:0}
+      .mvmai-chips[hidden]{display:none}
+      .mvmai-chip{display:flex;align-items:center;gap:.35rem;max-width:100%;background:var(--pub-surface2,#313244);
+        border:1px solid var(--pub-border,#45475a);border-radius:1rem;padding:.2rem .35rem .2rem .65rem;font-size:.76rem}
+      .mvmai-chip.busy{opacity:.6}
+      .mvmai-downloads{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+      .mvmai-download{cursor:pointer;background:var(--pub-surface2,#313244);color:inherit;border:1px solid var(--pub-border,#45475a);border-radius:.5rem;padding:.35rem .7rem;font:inherit;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .mvmai-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:14rem}
+      .mvmai-chip button{background:none;border:0;color:var(--pub-fg2,#a6adc8);cursor:pointer;padding:0 .3rem;font-size:.8rem}
       .mvmai-stop{flex-shrink:0;min-height:2.3rem;width:2.3rem;border:0;border-radius:.5rem;cursor:pointer;
         background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e);font-size:.95rem;font-weight:700}
       .mvmai-stop[hidden]{display:none}
@@ -360,8 +371,11 @@
           </div>
           <div class="mvmai-list"></div>
           <div class="mvmai-queue" hidden></div>
+          <div class="mvmai-chips" hidden></div>
           <div class="mvmai-inputbar">
             ${showAppPicker() ? '<button class="mvmai-app-btn" type="button" title="' + esc(t('mvmai_pub_app_pick')) + '"><span class="mvmai-app-icon">🧩</span><span class="mvmai-app-name" hidden></span></button><div class="mvmai-app-pop" hidden></div>' : ''}
+            <button class="mvmai-attach" type="button" title="${esc(t('mvmai_pub_attach'))}">📎</button>
+            <input class="mvmai-file" type="file" multiple hidden>
             <textarea class="mvmai-input" rows="1" placeholder="${esc(messagePlaceholder())}"></textarea>
             <button class="mvmai-send">${esc(t('mvmai_pub_send'))}</button>
             <button class="mvmai-stop" type="button" hidden title="${esc(t('mvmai_pub_stop'))}">■</button>
@@ -1019,10 +1033,64 @@
 
       refreshSessionList();
 
+      // Files the model offers: [[file:/abs/path]] (administrators, fetched from the
+      // server) and ```file:name.ext blocks (text made right here in the browser).
+      function extractDownloads(content) {
+        var files = [];
+        var text = String(content || '').replace(/```file:([^\s`]{1,120})[^\n]*\n([\s\S]*?)```/g, function (all, name, body) {
+          files.push({name: name.replace(/[\\/]/g, '_'), text: body});
+          return '';
+        });
+        if (me && me.is_admin) {
+          text = text.replace(/\[\[file:(\/[^\]\n]{1,1000})\]\]/g, function (all, path) {
+            files.push({name: path.split('/').pop(), path: path});
+            return '';
+          });
+        }
+        return {text: text.trim(), files: files};
+      }
+
+      function saveBlob(blob, name) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = name;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
+      }
+
+      function downloadRow(files) {
+        var row = document.createElement('div');
+        row.className = 'mvmai-downloads';
+        files.forEach(function (f) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'mvmai-download';
+          b.textContent = '⬇ ' + f.name;
+          b.onclick = function () {
+            if (f.path) {
+              b.disabled = true;
+              var headers = {'X-Pub-Token': token};
+              if (isDesktop) headers['X-MvmAI-Surface'] = 'desktop';
+              fetch(API + '/download?path=' + encodeURIComponent(f.path), {headers: headers})
+                .then(function (r) { if (!r.ok) throw new Error('x'); return r.blob(); })
+                .then(function (blob) { saveBlob(blob, f.name); })
+                .catch(function () { addNote(t('mvmai_pub_download_failed')); })
+                .then(function () { b.disabled = false; });
+            } else {
+              saveBlob(new Blob([f.text], {type: 'text/plain;charset=utf-8'}), f.name);
+            }
+          };
+          row.appendChild(b);
+        });
+        return row;
+      }
+
       function addBubble(role, content) {
         var el = document.createElement('div');
         el.className = 'mvmai-msg ' + role;
-        el.innerHTML = nl2br(content);
+        var offered = role === 'assistant' ? extractDownloads(content) : null;
+        el.innerHTML = nl2br(offered ? offered.text : content);
+        if (offered && offered.files.length) el.appendChild(downloadRow(offered.files));
         if (role === 'assistant' && me.is_admin && me.provider_label) {
           var providerEl = document.createElement('div');
           providerEl.className = 'mvmai-provider-label';
@@ -1583,6 +1651,180 @@
       // Messages written while mvmAI is answering wait here, visible above the
       // input: each can be removed, or marked to be shown to the model at its
       // next step without stopping the answer.
+      // ── Attachments ──────────────────────────────────────────────────────
+      // An administrator's files are uploaded to the server and the message
+      // carries their path. Anyone else sends images inside the message and
+      // text or PDF text as plain text; nothing of theirs is stored.
+      var attachEl = root.querySelector('.mvmai-attach');
+      var fileEl = root.querySelector('.mvmai-file');
+      var chipsEl = root.querySelector('.mvmai-chips');
+      var pending = [];
+      var TEXT_EXT = /\.(txt|md|csv|tsv|json|xml|log|html?|ya?ml|ini|conf|js|ts|py|php|sql|sh|css)$/i;
+      var MAX_TEXT = 60000, MAX_IMAGES = 6, MAX_FILE = 25 * 1024 * 1024;
+      var PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+      var PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+      function pendingImages() {
+        return pending.reduce(function (n, p) { return n + (p.images ? p.images.length : 0); }, 0);
+      }
+
+      function renderChips() {
+        chipsEl.hidden = !pending.length;
+        chipsEl.innerHTML = '';
+        pending.forEach(function (p) {
+          var chip = document.createElement('div');
+          chip.className = 'mvmai-chip' + (p.busy ? ' busy' : '');
+          chip.innerHTML = '<span></span><button type="button" title="' + esc(t('mvmai_pub_attach_remove')) + '">✕</button>';
+          chip.querySelector('span').textContent = '📎 ' + p.name + (p.busy ? ' …' : '');
+          chip.querySelector('button').onclick = function () {
+            pending.splice(pending.indexOf(p), 1);
+            renderChips();
+          };
+          chipsEl.appendChild(chip);
+        });
+      }
+
+      function shrinkImage(file) {
+        return new Promise(function (resolve, reject) {
+          var url = URL.createObjectURL(file);
+          var img = new Image();
+          img.onload = function () {
+            var scale = Math.min(1, 1600 / Math.max(img.width, img.height));
+            var canvas = document.createElement('canvas');
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            URL.revokeObjectURL(url);
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
+          };
+          img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('image')); };
+          img.src = url;
+        });
+      }
+
+      function loadPdfJs() {
+        if (window.pdfjsLib) { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; return Promise.resolve(window.pdfjsLib); }
+        return new Promise(function (resolve, reject) {
+          var sc = document.createElement('script');
+          sc.src = PDFJS;
+          sc.onload = function () { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; resolve(window.pdfjsLib); };
+          sc.onerror = function () { reject(new Error('pdfjs')); };
+          document.head.appendChild(sc);
+        });
+      }
+
+      // The text of a PDF; a scan with no text becomes its first pages as images.
+      function readPdf(file) {
+        return Promise.all([loadPdfJs(), file.arrayBuffer()]).then(function (r) {
+          return r[0].getDocument({data: r[1]}).promise;
+        }).then(function (pdf) {
+          var pages = Math.min(pdf.numPages, 40), chain = Promise.resolve([]);
+          for (var i = 1; i <= pages; i++) (function (n) {
+            chain = chain.then(function (acc) {
+              return pdf.getPage(n).then(function (pg) { return pg.getTextContent(); }).then(function (tc) {
+                acc.push(tc.items.map(function (it) { return it.str; }).join(' '));
+                return acc;
+              });
+            });
+          })(i);
+          return chain.then(function (texts) {
+            var text = texts.join('\n\n').trim();
+            if (text.length >= 40 * Math.min(pages, 5)) return {text: text.slice(0, MAX_TEXT)};
+            var shots = Promise.resolve([]);
+            for (var j = 1; j <= Math.min(pdf.numPages, Math.max(1, MAX_IMAGES - pendingImages())); j++) (function (n) {
+              shots = shots.then(function (acc) {
+                return pdf.getPage(n).then(function (pg) {
+                  var vp = pg.getViewport({scale: 1.6});
+                  var canvas = document.createElement('canvas');
+                  canvas.width = vp.width; canvas.height = vp.height;
+                  return pg.render({canvasContext: canvas.getContext('2d'), viewport: vp}).promise.then(function () {
+                    acc.push(canvas.toDataURL('image/jpeg', 0.85));
+                    return acc;
+                  });
+                });
+              });
+            })(j);
+            return shots.then(function (images) { return {images: images}; });
+          });
+        });
+      }
+
+      function addFile(file) {
+        if (file.size > (me.is_admin ? 500 * 1024 * 1024 : MAX_FILE)) { addNote(t('mvmai_pub_attach_big')); return; }
+        var item = {name: file.name || 'file', busy: true};
+        var isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name || '');
+        var isImage = /^image\/(png|jpeg|webp|gif)$/.test(file.type);
+        var jobs = [];
+        var inline = null;
+        if (isImage) {
+          if (pendingImages() >= MAX_IMAGES) { addNote(t('mvmai_pub_attach_limit', {n: MAX_IMAGES})); return; }
+          inline = shrinkImage(file).then(function (url) { item.images = [url]; });
+        } else if (isPdf) {
+          inline = readPdf(file).then(function (r) { item.text = r.text; item.images = r.images; });
+        } else if (/^text\//.test(file.type) || TEXT_EXT.test(file.name || '')) {
+          inline = file.slice(0, MAX_TEXT * 4).text().then(function (txt) { item.text = txt.slice(0, MAX_TEXT); });
+        } else if (!me.is_admin) {
+          addNote(t('mvmai_pub_attach_type'));
+          return;
+        }
+        if (me.is_admin) {
+          // The administrator's file is also kept on the server, so the model can
+          // work with the original; what it can read inline reaches it in every mode.
+          var headers = {'X-Pub-Token': token, 'X-File-Name': encodeURIComponent(file.name || 'file'),
+            'Content-Type': 'application/octet-stream'};
+          jobs.push(fetch(API + '/attach', {method: 'POST', headers: headers, body: file}).then(function (r) {
+            return r.json().catch(function () { return {}; }).then(function (d) {
+              if (!r.ok || !d.path) throw new Error(d.error === 'too_big' ? 'big' : 'failed');
+              item.path = d.path;
+              item.dir = d.dir || '';
+            });
+          }));
+          // A file that cannot be read inline still goes up; a failed reading must not block it.
+          if (inline) jobs.push(inline.catch(function () {}));
+        } else {
+          jobs.push(inline);
+        }
+        var job = Promise.all(jobs);
+        pending.push(item);
+        renderChips();
+        job.then(function () { item.busy = false; renderChips(); }).catch(function (e) {
+          pending.splice(pending.indexOf(item), 1);
+          renderChips();
+          addNote(t(e && e.message === 'big' ? 'mvmai_pub_attach_big' : 'mvmai_pub_attach_failed'));
+        });
+      }
+
+      // The message as the model gets it (content, images) and as the user sees it (shown).
+      function buildMessage(text, att) {
+        var content = text, shown = text, images = [];
+        att.forEach(function (a) {
+          shown += (shown ? '\n' : '') + '📎 ' + a.name;
+          if (a.path) content += '\n\n[Attached file saved on the server: ' + a.path + ']';
+          if (a.dir) content += '\n[It is an archive; its contents were unpacked to: ' + a.dir + ']';
+          if (a.text) content += '\n\n[Attached file: ' + a.name + ']\n' + a.text + '\n[End of attached file]';
+          if (a.images && a.images.length) {
+            images = images.concat(a.images);
+            content += '\n\n[Attached ' + (a.images.length > 1 ? a.images.length + ' images' : 'image') + ': ' + a.name + ']';
+          }
+        });
+        return {content: content.trim(), shown: shown, images: images};
+      }
+
+      attachEl.onclick = function () { fileEl.click(); };
+      fileEl.onchange = function () {
+        Array.prototype.forEach.call(fileEl.files, addFile);
+        fileEl.value = '';
+      };
+      inputEl.addEventListener('paste', function (e) {
+        var files = (e.clipboardData && e.clipboardData.files) || [];
+        if (!files.length) return;
+        e.preventDefault();
+        Array.prototype.forEach.call(files, addFile);
+      });
+
       var queue = [];
       var turn = null;
 
@@ -1622,7 +1864,7 @@
         if (queue.length) {
           var next = queue.shift();
           renderQueue();
-          sendText(next.text);
+          sendText(next.msg);
         }
       }
 
@@ -1659,22 +1901,26 @@
       }
 
       function send() {
+        if (pending.some(function (p) { return p.busy; })) return;
         var text = inputEl.value.trim();
-        if (!text) return;
+        if (!text && !pending.length) return;
+        var msg = buildMessage(text, pending);
+        pending = [];
+        renderChips();
         inputEl.value = '';
         inputEl.style.height = 'auto';
         if (sending) {
-          queue.push({text: text, urgent: false});
+          queue.push({text: msg.shown, msg: msg, urgent: false});
           renderQueue();
           return;
         }
-        sendText(text);
+        sendText(msg);
       }
 
-      function sendText(text) {
+      function sendText(msg) {
         setBusy(true);
-        addBubble('user', text);
-        history.push({role: 'user', content: text});
+        addBubble('user', msg.shown);
+        history.push({role: 'user', content: msg.content, images: msg.images.length ? msg.images : undefined});
         var current = turn = {id: Math.random().toString(36).slice(2) + Date.now().toString(36), stopped: false};
 
         function step() {
@@ -1683,8 +1929,8 @@
           // between two of its steps.
           queue.filter(function (q) { return q.urgent; }).forEach(function (q) {
             queue.splice(queue.indexOf(q), 1);
-            addBubble('user', q.text);
-            history.push({role: 'user', content: q.text});
+            addBubble('user', q.msg.shown);
+            history.push({role: 'user', content: q.msg.content, images: q.msg.images.length ? q.msg.images : undefined});
           });
           renderQueue();
           var typing = current.typing = addTyping();
@@ -1694,12 +1940,15 @@
               app_id: chosenApp ? chosenApp.id : null, turn_id: current.id, lang: uiLang()})}).then(function (data) {
             if (current.stopped) return;
             typing.remove();
+            // The model has seen the images; they are not sent again.
+            history.forEach(function (m) { delete m.images; });
             // A long turn answers 200 at once to keep the connection open,
             // so its failure arrives as an error in the body instead.
             if (data.__status !== 200 || data.error || !data.message) {
               var key = data.error === 'insufficient_credits' ? 'mvmai_pub_insufficient_credits'
                 : (data.__status === 401 ? 'mvmai_pub_unauthorized' : null);
               addNote((key ? t(key) : (t('mvmai_pub_err') + ': ' + (data.error || data.__status))));
+              if (data.images) addNote(t('mvmai_pub_images_failed'));
               finishTurn();
               return;
             }

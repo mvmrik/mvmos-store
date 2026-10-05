@@ -223,6 +223,190 @@ def _cli_tool_instructions(tools):
     return "\n".join(lines)
 
 
+# ── Attachments ────────────────────────────────────────────────────────────────
+# An administrator uploads any file to a folder of their own on the server and
+# the message carries its path, so the CLI (which has all its tools in full
+# access) or run_command can unpack and read it. Everyone else sends images
+# inside the message itself; nothing of theirs is ever written to disk.
+_UPLOAD_DIR = os.path.join(_DIR, "uploads")
+_UPLOAD_KEEP_SECONDS = 7 * 86400
+_UPLOAD_MAX_BYTES = 500 * 1024 * 1024
+_IMAGE_RE = re.compile(r"^data:image/(?:png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$")
+_IMAGES_MAX = 6
+_IMAGE_MAX_CHARS = 5 * 1024 * 1024
+
+
+def _upload_name(raw: str) -> str:
+    name = os.path.basename((raw or "").replace("\\", "/")).strip()
+    name = re.sub(r"[^\w.\- ]", "_", name, flags=re.UNICODE)[:120].strip(". ")
+    return name or "file"
+
+
+def _purge_old_uploads():
+    cutoff = time.time() - _UPLOAD_KEEP_SECONDS
+    for root, dirs, files in os.walk(_UPLOAD_DIR, topdown=False):
+        for f in files:
+            p = os.path.join(root, f)
+            try:
+                if os.path.getmtime(p) < cutoff:
+                    os.remove(p)
+            except OSError:
+                pass
+        if root != _UPLOAD_DIR:
+            try:
+                os.rmdir(root)
+            except OSError:
+                pass
+
+
+_EXTRACT_MAX_BYTES = 2 * 1024 * 1024 * 1024
+_EXTRACT_MAX_FILES = 20000
+
+
+def _extract_archive(path: str):
+    """Unpack a zip or tar archive next to itself with the standard library
+    and return the folder, or None when it is not one, is too big or is unsafe.
+    Only plain files and folders are written, and only inside that folder."""
+    import shutil
+    import tarfile
+    import zipfile
+    dest = path + "_extracted"
+    root = os.path.realpath(dest)
+
+    def target(member_name: str):
+        out = os.path.realpath(os.path.join(root, member_name))
+        return out if out == root or out.startswith(root + os.sep) else None
+
+    try:
+        os.makedirs(dest, mode=0o755, exist_ok=True)
+        total = count = 0
+        if zipfile.is_zipfile(path):
+            with zipfile.ZipFile(path) as z:
+                for info in z.infolist():
+                    out = target(info.filename)
+                    count += 1
+                    total += info.file_size
+                    if out is None or count > _EXTRACT_MAX_FILES or total > _EXTRACT_MAX_BYTES:
+                        raise ValueError("unsafe")
+                    if info.is_dir():
+                        os.makedirs(out, mode=0o755, exist_ok=True)
+                        continue
+                    os.makedirs(os.path.dirname(out), mode=0o755, exist_ok=True)
+                    with z.open(info) as src, open(out, "wb") as dst:
+                        shutil.copyfileobj(src, dst)
+                    os.chmod(out, 0o644)
+        elif tarfile.is_tarfile(path):
+            with tarfile.open(path) as t:
+                for m in t:
+                    out = target(m.name)
+                    count += 1
+                    total += max(m.size, 0)
+                    if out is None or count > _EXTRACT_MAX_FILES or total > _EXTRACT_MAX_BYTES:
+                        raise ValueError("unsafe")
+                    if m.isdir():
+                        os.makedirs(out, mode=0o755, exist_ok=True)
+                    elif m.isreg():
+                        os.makedirs(os.path.dirname(out), mode=0o755, exist_ok=True)
+                        with t.extractfile(m) as src, open(out, "wb") as dst:
+                            shutil.copyfileobj(src, dst)
+                        os.chmod(out, 0o644)
+        else:
+            os.rmdir(dest)
+            return None
+        return root
+    except Exception:
+        shutil.rmtree(dest, ignore_errors=True)
+        return None
+
+
+@router.post("/attach")
+async def attach_file(request: Request, x_pub_token: str = Header(default=None), x_file_name: str = Header(default="")):
+    """Administrators only: the request body is the file itself."""
+    from urllib.parse import unquote
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    if not me.get("is_admin"):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    _purge_old_uploads()
+    folder = os.path.join(_UPLOAD_DIR, re.sub(r"[^\w-]", "_", str(me["id"])))
+    os.makedirs(folder, mode=0o755, exist_ok=True)
+    os.chmod(_UPLOAD_DIR, 0o755)
+    os.chmod(folder, 0o755)
+    name = _upload_name(unquote(x_file_name))
+    path = os.path.join(folder, f"{int(time.time())}_{name}")
+    size = 0
+    try:
+        with open(path, "wb") as out:
+            async for chunk in request.stream():
+                size += len(chunk)
+                if size > _UPLOAD_MAX_BYTES:
+                    raise ValueError("too_big")
+                out.write(chunk)
+        os.chmod(path, 0o644)
+    except Exception as e:
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+        if str(e) == "too_big":
+            return JSONResponse({"error": "too_big"}, status_code=413)
+        return JSONResponse({"error": "upload_failed"}, status_code=500)
+    unpacked = await asyncio.to_thread(_extract_archive, path)
+    return JSONResponse({"path": os.path.realpath(path), "name": name, "size": size, "dir": unpacked})
+
+
+@router.get("/download")
+async def download_file(path: str = "", x_pub_token: str = Header(default=None)):
+    """Administrators only: a file the model offered with [[file:<path>]] in a
+    reply of this user's own chats. Any other path is refused."""
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    if not me.get("is_admin"):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    if not path.startswith("/") or len(path) > 1000:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    with _sdb() as conn:
+        offered = conn.execute(
+            "SELECT 1 FROM pub_messages m JOIN pub_sessions s ON s.id=m.session_id "
+            "WHERE s.user_id=? AND m.role='assistant' AND instr(m.content, ?) > 0 LIMIT 1",
+            (me["id"], f"[[file:{path}]]"),
+        ).fetchone()
+    real = os.path.realpath(path)
+    if not offered or not os.path.isfile(real):
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    return FileResponse(real, filename=os.path.basename(real), media_type="application/octet-stream",
+                        headers={"Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff"})
+
+
+def _clean_images(messages: list) -> list:
+    """Take the images off the messages (they are never stored in the history)
+    and return the valid ones as data URLs; anything else is dropped."""
+    images = []
+    for m in messages:
+        found = m.pop("images", None) if isinstance(m, dict) else None
+        if not isinstance(found, list):
+            continue
+        for url in found:
+            if (isinstance(url, str) and len(url) <= _IMAGE_MAX_CHARS and _IMAGE_RE.match(url)
+                    and len(images) < _IMAGES_MAX):
+                images.append(url)
+    return images
+
+
+def _with_images(messages: list, images: list) -> list:
+    """The last user message as a text + image_url content, for providers
+    that take images in the OpenAI format."""
+    out = [dict(m) for m in messages]
+    for m in reversed(out):
+        if m.get("role") == "user" and isinstance(m.get("content"), str):
+            m["content"] = [{"type": "text", "text": m["content"]}] + [
+                {"type": "image_url", "image_url": {"url": u}} for u in images]
+            break
+    return out
+
+
 def _cli_flatten_messages(messages):
     """Adapt OpenAI-shaped history to the CLI's plain-text conversation.
     Caller-supplied system messages are discarded; the desktop backend adds
@@ -505,6 +689,7 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
             cfg = prem.resolve_pub_cfg(cfg)
     if not body.no_persist:
         app_prompt = (app_prompt + " " + _language_prompt(body.lang)).strip()
+    images = [] if body.no_persist else _clean_images(body.messages)
     cli_provider = next((p for p in desk.CLI_PROVIDERS if p["id"] == cfg.get("provider")), None)
     public_identity = (
         "On this public interface, your identity is mvmAI. Always introduce and describe yourself "
@@ -524,6 +709,7 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
             project=project,
             session=os_session,
             extra_prompt=app_prompt,
+            images=images,
         )
         data = json.loads(r.body)
         if r.status_code >= 400:
@@ -582,7 +768,7 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
         access_prompt += " " + public_identity
     if app_prompt:
         access_prompt += " " + app_prompt
-    messages = desk._trusted_messages(body.messages, access_prompt)
+    messages = desk._trusted_messages(_with_images(body.messages, images) if images else body.messages, access_prompt)
 
     async def _post(with_tools: bool):
         p = {"model": model, "messages": messages}
@@ -608,7 +794,8 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
             detail = j.get("error", {}).get("message") or j.get("error") or detail
         except Exception:
             pass
-        return JSONResponse({"error": f"Provider error ({r.status_code}): {detail}"}, status_code=r.status_code)
+        return JSONResponse({"error": f"Provider error ({r.status_code}): {detail}", "images": bool(images)},
+                            status_code=r.status_code)
 
     try:
         data = r.json()

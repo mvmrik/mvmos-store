@@ -9,6 +9,7 @@ never sent back to the browser.
 """
 
 import asyncio
+import base64
 import contextvars
 import json
 import logging
@@ -316,6 +317,8 @@ _TOOLS = [{
 }]
 
 _SERVER_TOOL_NAMES = {"run_command", "inspect_server"}
+# CLIs that take an image from mvmAI itself, without any file tool.
+_IMAGE_CLIS = {"claude-cli", "codex-cli"}
 # CLIs that carry their own shell/file/web tools and can use them in full access.
 _NATIVE_TOOL_CLIS = {"claude-cli", "gemini-cli", "codex-cli"}
 
@@ -1052,7 +1055,9 @@ async def _run_cli_chat(
     project: dict = None,
     session: dict | None = None,
     extra_prompt: str = "",
+    images: list | None = None,
 ):
+    images = images or []
     provider = next((p for p in CLI_PROVIDERS if p["id"] == body.provider_id), None)
     if not provider:
         return JSONResponse({"error": f"Unknown CLI provider: {body.provider_id}"}, status_code=400)
@@ -1151,6 +1156,29 @@ async def _run_cli_chat(
         system_parts.append(project_context_block(project))
     if extra_prompt:
         system_parts.append(extra_prompt)
+    if is_admin and not full_access and body.provider_id == "claude-cli":
+        system_parts.append(
+            "You also have a Read tool, which only reads. Use it to open files, images and PDFs the "
+            "user attached, including those inside an unpacked archive. It never changes anything."
+        )
+    if is_admin:
+        system_parts.append(
+            "To give the user a file to download, put an existing file's absolute path alone on a line "
+            "as [[file:/absolute/path]] in your reply. The chat turns it into a download button. "
+            "Create or find the file first; the path must be a real file."
+        )
+    else:
+        system_parts.append(
+            "To give the user a text file to download (CSV, JSON, Markdown or plain text), write its "
+            "content in a fenced code block whose info string is file:<name.ext>, for example "
+            "```file:results.csv. The chat turns it into a download button. You cannot create other files."
+        )
+    if images and body.provider_id not in _IMAGE_CLIS:
+        system_parts.append(
+            f"The user attached {len(images)} image(s) that this assistant cannot see. Say so plainly "
+            "and ask them to describe the content or use a provider that accepts images."
+        )
+        images = []
     system_prompt = "\n\n".join(system_parts)
     conversation_prompt = "\n".join(conversation_parts) or "[User]: Continue."
     prompt = f"[System instructions]\n{system_prompt}\n\n[Conversation]\n{conversation_prompt}"
@@ -1208,9 +1236,21 @@ async def _run_cli_chat(
                     if eu == "root":
                         extra_env["IS_SANDBOX"] = "1"
                 else:
-                    safety_args = ["--safe-mode", "--tools", "", "--system-prompt-file", system_prompt_path]
+                    # An administrator can always have attached files and images
+                    # opened, whatever the mode: Read only reads.
+                    safety_args = ["--safe-mode", "--tools", "Read" if is_admin else "", "--system-prompt-file", system_prompt_path]
                 cmd = [cmd_bin] + (["--model", model] if model else []) + safety_args + ["--disable-slash-commands", "--no-session-persistence", "--print"]
                 stdin_input = conversation_prompt
+                if images:
+                    # Images travel in the message itself (stream-json input),
+                    # so no file tool is needed to see them.
+                    blocks = []
+                    for url in images:
+                        head, _, data = url.partition(",")
+                        blocks.append({"type": "image", "source": {"type": "base64", "media_type": head[5:].split(";")[0], "data": data}})
+                    blocks.append({"type": "text", "text": conversation_prompt})
+                    cmd += ["--input-format", "stream-json", "--output-format", "stream-json", "--verbose"]
+                    stdin_input = json.dumps({"type": "user", "message": {"role": "user", "content": blocks}}) + "\n"
             elif pid == "gemini-cli":
                 safety_args = ["--yolo"] if full_access else ["--admin-policy", policy_path]
                 cmd = [cmd_bin] + (["--model", model] if model else []) + safety_args + ["--prompt", prompt]
@@ -1225,6 +1265,17 @@ async def _run_cli_chat(
                 else:
                     safety_args = ["--sandbox", "read-only", "-c", 'web_search="disabled"', "-c", "features.shell_tool=false"]
                 cmd = [cmd_bin, "exec", "--skip-git-repo-check", "-C", effective_dir] + safety_args + (["--model", model] if model else [])
+                for n, url in enumerate(images):
+                    head, _, data = url.partition(",")
+                    img_path = os.path.join(workdir, f"image-{n + 1}." + ("jpg" if "jpeg" in head else head[11:].split(";")[0]))
+                    with open(img_path, "wb") as handle:
+                        handle.write(base64.b64decode(data))
+                    if eu != "root":
+                        try:
+                            os.chown(img_path, pwd.getpwnam(eu).pw_uid, pwd.getpwnam(eu).pw_gid)
+                        except Exception:
+                            pass
+                    cmd += ["-i", img_path]
                 stdin_input = prompt
             else:
                 cmd = [cmd_bin] + provider["args"] + [prompt]
@@ -1238,6 +1289,17 @@ async def _run_cli_chat(
             logging.getLogger(__name__).error("mvmai CLI provider %s failed (exit %s): %s", pid, proc.returncode, err)
             return JSONResponse({"error": err}, status_code=502)
         content = proc.stdout.strip()
+        if pid == "claude-cli" and images:
+            # stream-json: the answer is the "result" line.
+            answer = None
+            for line in content.splitlines():
+                try:
+                    event = json.loads(line)
+                except Exception:
+                    continue
+                if event.get("type") == "result":
+                    answer = event.get("result") or ""
+            content = (answer if answer is not None else "").strip()
         if prompt_tools:
             valid_names = {spec["function"]["name"] for spec in prompt_tools}
             calls = []

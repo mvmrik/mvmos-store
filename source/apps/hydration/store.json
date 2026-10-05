@@ -11,9 +11,10 @@
     "Two progress rings for water toward your goal and drink composition, a detailed breakdown, and calendar-month history coloured by drink.",
     "Edit or delete any entry, and browse previous days.",
     "Public web page for your Apps Hub account.",
-    "External API: scripts and other apps can log drinks, read days and history, and manage drinks, servings and visibility, once you allow it in Settings.",
+    "External API: scripts, Shortcuts and other apps can log a drink by its name in any language, read days and history with today's percent of the goal, list drinks and servings most recently used first, and manage drinks, servings and visibility, once you allow it in Settings.",
     "Premium: a Budget reward for reaching the daily target, paid once a day into a category you choose, optionally taken from another one.",
     "Optional: send daily water, caffeine, alcohol, energy, sugar and protein to the Health app, per profile.",
+    "Your own name for any ready-made drink; without one it shows its standard name in your language.",
     "Colours for every drink and emoji icons for custom drinks.",
     "A configurable end of day and historical targets preserved for completed days."
   ],
