@@ -1,14 +1,15 @@
 {
-  "tagline": "One tower in the middle. Everything else is coming for it.",
-  "description": "Tower Defense puts a single tower at the centre of the field and sends waves at it from every direction. The tower picks its own target — the closest thing in range — and fires on its own; you watch the ring fill up and count how long the walls hold. Every wave is bigger and faster than the last, and anything that reaches the tower takes a piece of it.\n\nThe game is played entirely on its public Game Hub page, so it opens full screen in its own tab and anyone with an Apps Hub account can play it and appear in the leaderboard. The window inside mvmOS is only the launcher — and it will install Game Hub for you if it isn't there yet.\n\nStop whenever you like: Exit saves the run as it stands and you continue it whenever you come back, while a run you merely closed the tab on is still there waiting. Only one run at a time, so there is never a pile of half-played games to pick through.\n\nSingle player today: your run is recorded against your Game Hub profile as a solo session, with the wave you reached, your kills and how long you survived. Multiplayer is next — the server already deals every player in a room the same wave seed, so a shared run will be the same run for everyone in it.",
+  "tagline": "One tower against endless waves, and a shop between them that decides how long it stands.",
+  "description": "Tower Defense puts a single tower at the centre of the field and sends waves at it from every direction. During a wave the tower fights on its own; between waves the game stops in a shop where you spend the coins you earned on whatever you think the next wave needs, and the shop shows you exactly which enemies are coming before you start it.\n\nYou build the tower your way. Three mounts take any of five weapons, from the quick cannon and the flamer that keeps enemies burning to frost that freezes them, a mine layer and a laser that reaches the toughest enemy anywhere on the field. A fire ring and an ice ring guard the edge of your range, and the tower can be repaired, reinforced, given more range, a shield, regeneration, a shockwave, soldiers, drones and tesla pylons. The enemies answer with runners, gunners that shoot from a distance, flyers that pass over mines and ice, armoured knights, splitters, healers and a boss every few waves, from the Warlord and the Colossus to the Wraith, the Hive Queen and the Juggernaut.\n\nEvery game also earns points that stay with you. They are spent in a permanent shop, and whatever you buy there every new game starts with, so a tower that fell early today goes further tomorrow. The furthest wave you have reached is remembered and shown next to the current one.\n\nThe game is played on its public Game Hub page, full screen in its own tab, on a phone as well as a desktop, and your score lands on the Game Hub leaderboard. The window inside mvmOS is the launcher, and it installs Game Hub for you if it is not there yet. Exit saves the run as it stands and you continue it whenever you come back.",
   "capabilities": [
-    "A tower at the centre that acquires and fires at the nearest enemy on its own.",
-    "Waves closing in from every side, each one larger, tougher and faster than the last.",
-    "Three difficulties — easy, normal and hard — changing enemy health, speed, wave pressure and how much tower you start with.",
-    "Live HUD: wave, score, kills and the tower's remaining integrity.",
-    "Save and exit at any point, then pick the run back up days later — and a run you simply walked away from is waiting for you too.",
-    "Runs recorded on your Game Hub profile with score, wave reached, kills and time survived.",
-    "Played full screen in its own tab, on a phone as well as a desktop, in your own language and theme."
+    "A tower at the centre that fights every wave on its own while enemies close in from every side.",
+    "A shop between waves that shows what the next wave brings, so every coin is spent with the coming enemies in view.",
+    "Five weapons on three mounts: cannon, flamer, frost, mine layer and laser, each with its own upgrades.",
+    "Fire and ice rings, plus repair, reinforcement, range, shield, regeneration, shockwave, soldiers, drones and tesla pylons.",
+    "Eight kinds of enemies and five bosses: Warlord, Colossus, Wraith, Hive Queen and Juggernaut.",
+    "A permanent shop paid with points from every game, so each new game starts stronger, and your best wave remembered.",
+    "Save and exit at any point and pick the run back up later.",
+    "Runs recorded on your Game Hub profile and leaderboard, played full screen in your own language and theme."
   ],
   "integrations": [
     {

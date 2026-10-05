@@ -66,6 +66,7 @@ The one exception is an app that must genuinely reach the system — `subprocess
 | `tags` | no | Array of 1–5 lowercase discovery tags (for example `["notes", "planning"]`). Use short, stable kebab-case terms; tags are for Store search/filters, not extra Start Menu categories. |
 | `version` | yes | Semver version |
 | `min_core_version` | no | Minimum mvmOS core version required |
+| `beta` | no | `true` while the app is not ready for people. Its source can be committed to `source/`, but `make-zip.sh` refuses to release it, so it gets no zip and no category entry and neither the App Store nor mvmos.org shows it. An app already released keeps its last released version. Remove the field to release it. |
 | `entry` | no | JS file (default: `main.js`) |
 | `css` | no | CSS file |
 | `settings` | no | Settings shown in App Store (⚙ button) |

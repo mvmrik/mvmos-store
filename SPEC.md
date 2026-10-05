@@ -254,8 +254,9 @@ mvmOS.registerWidget({
 The official Store is built from a running mvmOS installation, not by copying folders into this repository:
 
 1. Write the app in `apps/<app-id>/` of your installation, with `store.json` (and `premium.json` for premium).
-2. Release it with `make-zip.sh <app-id> <version> <category>`. The script replaces the old `apps/<category>/<app-id>-*.zip` with `apps/<category>/<app-id>-<version>.zip` built from `source/apps/<app-id>/`, without `store.json`, `premium.json`, `premium/`, uploads or runtime data, copies `premium` and `name_i18n` into the category entry and publishes the premium build when there is one.
-3. Set `version`, `zip_url` and `min_core_version` of the app's entry in the category `manifest.json` to match, then commit the source, the zip and the category manifest together.
+2. An app whose `manifest.json` has `"beta": true` is not released: its source may be committed, but `make-zip.sh` refuses it, so it stays out of the App Store and mvmos.org until the field is removed.
+3. Release it with `make-zip.sh <app-id> <version> <category>`. The script replaces the old `apps/<category>/<app-id>-*.zip` with `apps/<category>/<app-id>-<version>.zip` built from `source/apps/<app-id>/`, without `store.json`, `premium.json`, `premium/`, uploads or runtime data, copies `premium` and `name_i18n` into the category entry and publishes the premium build when there is one.
+4. Set `version`, `zip_url` and `min_core_version` of the app's entry in the category `manifest.json` to match, then commit the source, the zip and the category manifest together.
 
 > **The version lives in two places:** the app's own `manifest.json` and its entry in the category `manifest.json`. Installations compare against the category manifest, so a version bumped only in the app would never reach them. Keep `min_core_version` the same in both as well.
 

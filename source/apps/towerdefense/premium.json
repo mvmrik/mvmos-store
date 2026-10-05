@@ -1,0 +1,20 @@
+{
+  "summary": "Premium adds Fast play to Tower Defense, so players with a strong tower can spend less time waiting for waves they already know they will win.",
+  "features": [
+    {
+      "title": "Game speed",
+      "short": "Run the game up to three times faster",
+      "description": "A speed button on the game page switches between normal, double and triple speed. It is the same game with the same score, only with less waiting."
+    },
+    {
+      "title": "Auto waves",
+      "short": "Start the next waves by themselves",
+      "description": "Once you have a record, you choose up to which wave the next wave starts on its own instead of waiting in the shop, up to the furthest wave you have already reached."
+    },
+    {
+      "title": "Owner switch",
+      "short": "Turn Fast play on or off for players",
+      "description": "The owner of the server decides from the game's window in the desktop whether players get Fast play. It is on by default."
+    }
+  ]
+}

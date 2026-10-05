@@ -16,26 +16,73 @@ the waves from that seed with the same arithmetic (public/mp.js) rather than
 receiving thousands of pre-rolled enemies over the socket.
 """
 
+import asyncio
+import importlib.util
+import json
+import os
 import random
 import time
 
-# Difficulty is chosen by the host in the lobby and is part of the room's
-# settings, so every player in the room gets the same one. The client reads
-# these numbers out of td_start rather than keeping its own copy — one place to
-# balance the game, and no way for the two halves to disagree.
-DIFFICULTIES = {
-    "easy":   {"enemy_hp": 0.75, "enemy_speed": 0.85, "spawn_rate": 0.8,  "tower_hp": 120},
-    "normal": {"enemy_hp": 1.0,  "enemy_speed": 1.0,  "spawn_rate": 1.0,  "tower_hp": 100},
-    "hard":   {"enemy_hp": 1.35, "enemy_speed": 1.2,  "spawn_rate": 1.35, "tower_hp": 80},
-}
-DEFAULT_DIFFICULTY = "normal"
+# mp_game.py is loaded by Game Hub straight from its file, so its siblings are
+# loaded the same way: an app update then never keeps running an older copy a
+# live backend has already cached.
+_APP_DIR = os.path.dirname(os.path.realpath(__file__))
+
+
+def _load_sibling(name):
+    spec = importlib.util.spec_from_file_location(f"towerdefense_{name}", os.path.join(_APP_DIR, f"{name}.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+td_bank = _load_sibling("td_bank")
+
+# One balance for everyone. There is no difficulty to choose, so every score
+# on the leaderboard was earned against the same waves and means the same
+# thing. The client reads these numbers out of td_start rather than keeping
+# its own copy — one place to balance the game, and no way for the two halves
+# to disagree.
+TUNING = {"enemy_hp": 0.9, "enemy_speed": 0.95, "spawn_rate": 0.9, "tower_hp": 100}
+
+# What the tower has bought is kept as the browser describes it; the browser
+# checks every level against its own catalogue when it reads it back. This is
+# only the ceiling on how much of it a room is willing to hold.
+_BUILD_MAX_BYTES = 4000
+
+
+def _int(v, default=0):
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return default
+
+
+def _state_from(msg) -> dict:
+    """The checkpoint a player reported: the run as it stood at the start of
+    a wave or in the shop between two waves."""
+    build = msg.get("build")
+    if not isinstance(build, dict) or len(json.dumps(build)) > _BUILD_MAX_BYTES:
+        build = None
+    try:
+        hp = float(msg.get("hp", 0))
+    except (TypeError, ValueError):
+        hp = 0.0
+    return {
+        "score":   _int(msg.get("score")),
+        "wave":    max(1, _int(msg.get("wave"), 1)),
+        "kills":   _int(msg.get("kills")),
+        "hp":      hp,
+        "seconds": _int(msg.get("seconds")),
+        "coins":   max(0, _int(msg.get("coins"))),
+        "build":   build,
+    }
 
 
 class Game:
     def __init__(self, ctx):
         self.ctx        = ctx
         self.seed       = 0
-        self.difficulty = DEFAULT_DIFFICULTY
         self.started    = False
         self.started_at = 0.0
         self.results    = {}   # player_id -> {score, wave, kills, seconds}
@@ -51,9 +98,6 @@ class Game:
     # ── Framework callbacks ──────────────────────────────────────────────────
 
     async def on_start(self, settings):
-        self.difficulty = settings.get("difficulty")
-        if self.difficulty not in DIFFICULTIES:
-            self.difficulty = DEFAULT_DIFFICULTY
         self.seed       = random.randint(1, 2 ** 31 - 1)
         self.started    = True
         self.started_at = time.time()
@@ -63,16 +107,7 @@ class Game:
         # wave one. The framework has already consumed the save.
         saved = self.ctx.saved_state
         if saved:
-            self.difficulty = saved.get("difficulty", self.difficulty)
-            if self.difficulty not in DIFFICULTIES:
-                self.difficulty = DEFAULT_DIFFICULTY
-            self.resumed = {
-                "score":   int(saved.get("score", 0)),
-                "wave":    int(saved.get("wave", 1)),
-                "kills":   int(saved.get("kills", 0)),
-                "hp":      float(saved.get("hp", 0)),
-                "seconds": int(saved.get("seconds", 0)),
-            }
+            self.resumed = _state_from(saved)
             # Reusing the reconnect channel: from here on a resumed save is
             # indistinguishable from a run someone reloaded into, so reloading
             # a resumed run keeps working with no extra code.
@@ -94,7 +129,7 @@ class Game:
         state = self.states.get(pid)
         if not state:
             return None
-        return {**state, "difficulty": self.difficulty}
+        return dict(state)
 
     async def on_join(self, player):
         # Reconnect: the room outlives a dropped socket, so a player coming
@@ -119,16 +154,11 @@ class Game:
         kind = msg.get("type", "")
 
         if kind == "td_progress":
-            # Two jobs, one message. The whole snapshot is kept for the sender's
-            # own reconnect; only score and wave go out to the others, for the
+            # Two jobs, one message. The whole checkpoint (coins and everything
+            # the tower has bought included) is kept for the sender's own
+            # reconnect; only score and wave go out to the others, for the
             # shared scoreboard multiplayer will draw.
-            self.states[pid] = {
-                "score":   int(msg.get("score", 0)),
-                "wave":    int(msg.get("wave", 1)),
-                "kills":   int(msg.get("kills", 0)),
-                "hp":      float(msg.get("hp", 0)),
-                "seconds": int(msg.get("seconds", 0)),
-            }
+            self.states[pid] = _state_from(msg)
             self.progress[pid] = {
                 "score": self.states[pid]["score"],
                 "wave":  self.states[pid]["wave"],
@@ -164,9 +194,17 @@ class Game:
         msg = {
             "type":       "td_start",
             "seed":       self.seed,
-            "difficulty": self.difficulty,
-            "tuning":     DIFFICULTIES[self.difficulty],
+            "tuning":     TUNING,
+            # Prices and caps, from the one catalogue the bank also checks.
+            "shop":       td_bank.catalogue(),
         }
+        # What the player has bought for good: every run starts from it.
+        pid = player_id or self.ctx.host_id
+        try:
+            bank = td_bank.get(pid)
+            msg["perm"], msg["best"] = bank["build"], bank["best"]
+        except Exception:
+            msg["perm"], msg["best"] = td_bank.fresh_build(), 0
         if player_id is None:
             if self.resumed:
                 msg["resume"] = self.resumed
@@ -200,9 +238,18 @@ class Game:
                 # meaningless.
                 "is_winner": multi and i == 0,
             })
+        # Every score is also paid into its player's bank, to be spent in the
+        # permanent shop. The leaderboard below still gets the whole score.
+        for p in players:
+            result = self.results.get(p["id"], {})
+            score = result.get("score", 0)
+            try:
+                bank = await asyncio.to_thread(td_bank.credit, p["id"], score, result.get("wave", 0))
+            except Exception:
+                continue
+            await self.ctx.send(p["id"], {"type": "td_bank", "earned": score, **bank})
         best = self.results.get(ordered[0]["id"], {}) if ordered else {}
         await self.ctx.finish(records, metadata={
-            "difficulty": self.difficulty,
             "waves":      best.get("wave", 0),
             "kills":      best.get("kills", 0),
         })

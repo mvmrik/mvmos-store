@@ -1,0 +1,16 @@
+{
+  "id": "hearthvale",
+  "name": "Hearthvale",
+  "icon": "🏡",
+  "category": "Games",
+  "tags": ["3d", "open world", "multiplayer", "farming", "games"],
+  "version": "0.1.0",
+  "beta": true,
+  "min_core_version": "1.0.0",
+  "description": "One 3D valley shared by everyone who plays on this server: walk in at any time, explore and meet the other players who are there.",
+  "entry": "main.js",
+  "multiplayer": false,
+  "max_players": 1,
+  "themed": true,
+  "public_directory": false
+}

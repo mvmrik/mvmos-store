@@ -12,6 +12,16 @@ if [ -z "$APP_ID" ] || [ -z "$VERSION" ] || [ -z "$CATEGORY" ]; then
 fi
 
 SRC=/var/www/mvmos-store/source
+
+# A beta app is committed so its source is kept, but it is not released: no zip
+# and no entry in the category manifest, which is all that the desktop App
+# Store and the mvmos.org sync ever read. Remove "beta" from the manifest when
+# the app is ready.
+if python3 -c 'import json,sys; sys.exit(0 if json.load(open(sys.argv[1])).get("beta") is True else 1)' "$SRC/apps/$APP_ID/manifest.json" 2>/dev/null; then
+    echo "Refusing to release $APP_ID — its manifest.json says \"beta\": true."
+    exit 1
+fi
+
 OUT=/var/www/mvmos-store/apps/$CATEGORY/$APP_ID-$VERSION.zip
 TMP=/tmp/ziptmp-$$
 
