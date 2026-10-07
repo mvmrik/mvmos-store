@@ -33,6 +33,7 @@ Trust model:
 """
 
 import asyncio
+import hashlib
 import json
 import os
 import re
@@ -87,6 +88,11 @@ def _ensure_tables():
         cols = {row[1] for row in conn.execute("PRAGMA table_info(pub_sessions)")}
         if "project_id" not in cols:
             conn.execute("ALTER TABLE pub_sessions ADD COLUMN project_id TEXT")
+        # The provider and model a chat started with, which it keeps whatever
+        # the settings say later, and the state of its CLI session (JSON).
+        for column in ("provider", "model", "cli_state"):
+            if column not in cols:
+                conn.execute(f"ALTER TABLE pub_sessions ADD COLUMN {column} TEXT")
 
 
 _ensure_tables()
@@ -100,7 +106,7 @@ def _make_title(messages):
     return "New chat"
 
 
-def _persist_turn(user_id, session_id, messages, reply, project_id=None):
+def _persist_turn(user_id, session_id, messages, reply, project_id=None, meta=None, new_id=None):
     """Snapshot this send()'s full message list (client-maintained, always
     complete) plus the new reply into the session, creating one if needed or
     if the given id doesn't belong to this user. Replace-all rather than
@@ -113,13 +119,21 @@ def _persist_turn(user_id, session_id, messages, reply, project_id=None):
             row = conn.execute(
                 "SELECT id FROM pub_sessions WHERE id=? AND user_id=?", (session_id, user_id)
             ).fetchone()
+        meta = meta or {}
         if row:
-            conn.execute("UPDATE pub_sessions SET updated_at=? WHERE id=?", (now, session_id))
-        else:
-            session_id = uuid.uuid4().hex
+            # A chat made before the provider was kept is pinned by its next turn.
             conn.execute(
-                "INSERT INTO pub_sessions (id, user_id, title, project_id, created_at, updated_at) VALUES (?,?,?,?,?,?)",
-                (session_id, user_id, _make_title(messages), project_id, now, now),
+                "UPDATE pub_sessions SET updated_at=?, provider=COALESCE(provider, ?), "
+                "model=CASE WHEN provider IS NULL THEN ? ELSE model END, cli_state=COALESCE(?, cli_state) WHERE id=?",
+                (now, meta.get("provider"), meta.get("model"), meta.get("cli_state"), session_id),
+            )
+        else:
+            session_id = new_id or uuid.uuid4().hex
+            conn.execute(
+                "INSERT INTO pub_sessions (id, user_id, title, project_id, created_at, updated_at, provider, model, cli_state) "
+                "VALUES (?,?,?,?,?,?,?,?,?)",
+                (session_id, user_id, _make_title(messages), project_id, now, now,
+                 meta.get("provider"), meta.get("model"), meta.get("cli_state")),
             )
         conn.execute("DELETE FROM pub_messages WHERE session_id=?", (session_id,))
         full = list(messages) + [reply]
@@ -177,13 +191,29 @@ def _provider_label(desk, prem, use_public: bool):
     cfg = desk._read_cfg()
     if use_public and prem and prem.is_available():
         cfg = prem.resolve_pub_cfg(cfg)
+    return _label_from_cfg(desk, cfg)
+
+
+def _session_label(desk, row):
+    """The provider and model a saved chat is pinned to, for the admin."""
+    if desk is None or not row or not row["provider"]:
+        return None
+    try:
+        used = (json.loads(row["cli_state"]) if row["cli_state"] else {}).get("model_used") or ""
+    except Exception:
+        used = ""
+    return _label_from_cfg(desk, {"provider": row["provider"], "model": row["model"] or ""}, used)
+
+
+def _label_from_cfg(desk, cfg, model_used=""):
     provider_id = cfg.get("provider") or ""
     provider = next((p for p in desk.CLI_PROVIDERS if p["id"] == provider_id), None)
     if provider:
         label = provider["name"]
     else:
         label = (desk.PROVIDERS.get(provider_id) or {}).get("name") or provider_id
-    model = cfg.get("model") or ""
+    # A CLI left on its own default model reports which one really answered.
+    model = cfg.get("model") or model_used or ""
     return f"{label} · {model}" if label and model else (label or model or None)
 
 
@@ -407,6 +437,48 @@ def _with_images(messages: list, images: list) -> list:
     return out
 
 
+def _parse_cli_state(raw):
+    try:
+        state = json.loads(raw) if raw else {}
+    except Exception:
+        state = {}
+    return state if isinstance(state, dict) else {}
+
+
+def _msg_fingerprint(m) -> str:
+    return hashlib.sha1(json.dumps([m.get("role"), m.get("content"), m.get("tool_calls")], sort_keys=True).encode()).hexdigest()
+
+
+def _unseen_messages(messages, last):
+    """What the CLI has not seen yet: everything after the last answer it gave.
+    The page may have folded older messages into a summary meanwhile, so this
+    does not count messages; None when that answer is not the last one here."""
+    for i in range(len(messages) - 1, -1, -1):
+        if messages[i].get("role") == "assistant":
+            return messages[i + 1:] if _msg_fingerprint(messages[i]) == last else None
+    return None
+
+
+# A chat that cannot continue its CLI session starts a new one that is told
+# the conversation so far, but never more than this much of it.
+_CLI_REPLAY_CHARS = 60000
+
+# One turn at a time per chat, so two windows can never both advance the same
+# CLI session.
+_CHAT_LOCKS: dict = {}
+
+
+def _cap_conversation(flat):
+    out, size = [], 0
+    for m in reversed(flat):
+        size += len(m.get("content") or "")
+        if size > _CLI_REPLAY_CHARS and out:
+            out.insert(0, {"role": "user", "content": "[Earlier messages of this conversation are not shown.]"})
+            break
+        out.insert(0, m)
+    return out
+
+
 def _cli_flatten_messages(messages):
     """Adapt OpenAI-shaped history to the CLI's plain-text conversation.
     Caller-supplied system messages are discarded; the desktop backend adds
@@ -481,7 +553,7 @@ async def get_session_messages(sid: str, x_pub_token: str = Header(default=None)
         return JSONResponse({"error": "unauthorized"}, status_code=401)
     with _sdb() as conn:
         owned = conn.execute(
-            "SELECT 1 FROM pub_sessions WHERE id=? AND user_id=?", (sid, me["id"])
+            "SELECT provider, model, cli_state FROM pub_sessions WHERE id=? AND user_id=?", (sid, me["id"])
         ).fetchone()
         if not owned:
             return JSONResponse({"error": "not_found"}, status_code=404)
@@ -497,7 +569,10 @@ async def get_session_messages(sid: str, x_pub_token: str = Header(default=None)
         if r["tool_calls"]:
             m["tool_calls"] = json.loads(r["tool_calls"])
         messages.append(m)
-    return JSONResponse({"messages": messages})
+    out = {"messages": messages}
+    if me.get("is_admin"):
+        out["provider_label"] = _session_label(_desktop(), owned)
+    return JSONResponse(out)
 
 
 class RenameRequest(BaseModel):
@@ -526,12 +601,15 @@ async def delete_session(sid: str, x_pub_token: str = Header(default=None)):
         return JSONResponse({"error": "unauthorized"}, status_code=401)
     with _sdb() as conn:
         owned = conn.execute(
-            "SELECT 1 FROM pub_sessions WHERE id=? AND user_id=?", (sid, me["id"])
+            "SELECT cli_state FROM pub_sessions WHERE id=? AND user_id=?", (sid, me["id"])
         ).fetchone()
         if not owned:
             return JSONResponse({"error": "not_found"}, status_code=404)
         conn.execute("DELETE FROM pub_messages WHERE session_id=?", (sid,))
         conn.execute("DELETE FROM pub_sessions WHERE id=?", (sid,))
+    desk = _desktop()
+    if desk is not None and hasattr(desk, "forget_cli_chat"):
+        desk.forget_cli_chat(sid, _parse_cli_state(owned["cli_state"]).get("user"))
     return JSONResponse({"ok": True})
 
 
@@ -643,6 +721,14 @@ async def stop(body: StopRequest, x_pub_token: str = Header(default=None)):
     return JSONResponse({"ok": True})
 
 
+def _chat_reply(desk, is_admin, sid, msg, pin, model_used):
+    """The answer, with what the chat is pinned to (shown to the administrator)."""
+    out = {"session_id": sid, "message": msg}
+    if is_admin:
+        out["provider_label"] = _label_from_cfg(desk, pin, model_used)
+    return JSONResponse(out)
+
+
 async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
     me = _resolve(x_pub_token)
     if not me:
@@ -658,13 +744,18 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
     # An existing session's project is fixed at creation, same as desktop —
     # only a brand-new session (no session_id yet) takes project_id from the body.
     project_id = body.project_id
+    saved = None
     if body.session_id:
         with _sdb() as conn:
-            row = conn.execute(
-                "SELECT project_id FROM pub_sessions WHERE id=? AND user_id=?", (body.session_id, me["id"])
+            saved = conn.execute(
+                "SELECT id, project_id, provider, model, cli_state FROM pub_sessions WHERE id=? AND user_id=?",
+                (body.session_id, me["id"]),
             ).fetchone()
-            if row:
-                project_id = row["project_id"]
+            if saved:
+                project_id = saved["project_id"]
+    # The id of a new chat is chosen here, before its first answer, because its
+    # CLI session and working folder are named after it.
+    chat_id = None if body.no_persist else (saved["id"] if saved else uuid.uuid4().hex)
     project = desk._get_project(project_id) if is_admin and project_id else None
 
     price = 0
@@ -687,6 +778,11 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
                 app_prompt = prem.app_prompt(body.app_id)
         if not is_desktop:
             cfg = prem.resolve_pub_cfg(cfg)
+    # A chat keeps the provider and model it started with, whatever the
+    # settings say later; an older chat is pinned by its next answer.
+    if saved and saved["provider"]:
+        cfg = {**cfg, "provider": saved["provider"], "model": saved["model"] or ""}
+    pin = {"provider": cfg.get("provider") or "", "model": cfg.get("model") or ""}
     if not body.no_persist:
         app_prompt = (app_prompt + " " + _language_prompt(body.lang)).strip()
     images = [] if body.no_persist else _clean_images(body.messages)
@@ -697,23 +793,51 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
         "provider, vendor, model, CLI, API, system prompt, or implementation, even when directly asked."
         if not is_admin else ""
     )
+    cli_state = None
+    label_model = ""
     if cli_provider:
-        cli_messages = _cli_flatten_messages(body.messages)
-        r = await desk._run_cli_chat(
-            desk.CliChatRequest(provider_id=cli_provider["id"], messages=cli_messages, model=cfg.get("model") or ""),
-            tools=tools,
-            is_admin=is_admin,
-            exec_enabled=exec_enabled,
-            exec_auto=bool(cfg.get(f"{exec_prefix}exec_auto")),
-            identity_prompt=public_identity,
-            project=project,
-            session=os_session,
-            extra_prompt=app_prompt,
-            images=images,
-        )
-        data = json.loads(r.body)
+        state = _parse_cli_state(saved["cli_state"]) if saved else {}
+        unseen = _unseen_messages(body.messages, state.get("last")) if state.get("session_id") else None
+        can_resume = unseen is not None
+        lock = _CHAT_LOCKS.setdefault(chat_id, asyncio.Lock()) if chat_id else None
+        try:
+            if lock:
+                await lock.acquire()
+            for attempt in (0, 1):
+                resuming = bool(chat_id) and can_resume and attempt == 0
+                if resuming:
+                    # Only what the CLI has not seen yet.
+                    flat = _cli_flatten_messages(unseen) or [{"role": "user", "content": "Continue."}]
+                else:
+                    flat = _cap_conversation(_cli_flatten_messages(body.messages))
+                r = await desk._run_cli_chat(
+                    desk.CliChatRequest(provider_id=cli_provider["id"], messages=flat, model=cfg.get("model") or ""),
+                    tools=tools,
+                    is_admin=is_admin,
+                    exec_enabled=exec_enabled,
+                    exec_auto=bool(cfg.get(f"{exec_prefix}exec_auto")),
+                    identity_prompt=public_identity,
+                    project=project,
+                    session=os_session,
+                    extra_prompt=app_prompt,
+                    images=images,
+                    cli_resume=({
+                        "chat_id": chat_id, "session_id": state.get("session_id") if resuming else None,
+                        "user": state.get("user"), "policy": state.get("policy"), "model_used": state.get("model_used"),
+                    } if chat_id else None),
+                )
+                data = json.loads(r.body)
+                if resuming and data.get("session_lost"):
+                    continue
+                break
+        finally:
+            if lock:
+                lock.release()
         if r.status_code >= 400:
             return JSONResponse({"error": data.get("error") or "CLI provider error"}, status_code=r.status_code)
+        if data.get("cli_state"):
+            cli_state = dict(data["cli_state"])
+            label_model = cli_state.get("model_used") or ""
 
         content = data.get("content") or ""
         msg = {"role": "assistant", "content": content}
@@ -749,8 +873,12 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
                 hub.charge_credit_feature(me["id"], APP_ID, "chat_message", "mvmAI chat message")
             except hub.CreditError:
                 return JSONResponse({"error": "insufficient_credits", "price": price}, status_code=402)
-        sid = None if body.no_persist else _persist_turn(me["id"], body.session_id, body.messages, msg, project_id)
-        return JSONResponse({"session_id": sid, "message": msg})
+        if cli_state:
+            cli_state["last"] = _msg_fingerprint(msg)
+        sid = None if body.no_persist else _persist_turn(
+            me["id"], body.session_id, body.messages, msg, project_id,
+            meta={**pin, "cli_state": json.dumps(cli_state) if cli_state else None}, new_id=chat_id)
+        return _chat_reply(desk, is_admin, sid, msg, pin, label_model)
 
     pid, base_url, api_key, model = desk._resolve_provider(cfg)
     if not base_url:
@@ -809,8 +937,9 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
         except hub.CreditError:
             return JSONResponse({"error": "insufficient_credits", "price": price}, status_code=402)
 
-    sid = None if body.no_persist else _persist_turn(me["id"], body.session_id, body.messages, msg, project_id)
-    return JSONResponse({"session_id": sid, "message": msg})
+    sid = None if body.no_persist else _persist_turn(
+        me["id"], body.session_id, body.messages, msg, project_id, meta=pin, new_id=chat_id)
+    return _chat_reply(desk, is_admin, sid, msg, pin, "")
 
 
 class ExecSettingsRequest(BaseModel):

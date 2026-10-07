@@ -69,6 +69,8 @@ done
 # with real user photos and vault data the first time this ran — same rule.
 find "$TMP" -depth -type d -iname '*upload*' -exec sh -c 'find "$1" -mindepth 1 -delete' _ {} \;
 find "$TMP" -depth -type d -iname 'storage' -exec sh -c 'find "$1" -mindepth 1 -delete' _ {} \;
+# Working folders the app's CLI chats keep while running (mvmAI), never code.
+find "$TMP" -depth -type d -name '.runtime' -exec rm -rf {} +
 find "$TMP" -depth -type d -name '__pycache__' -exec rm -rf {} +
 find "$TMP" -type f \( -name '*.py[cod]' -o -name '*.bak' -o -name '*.bak-*' \) -delete
 

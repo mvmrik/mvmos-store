@@ -72,12 +72,32 @@ class Game:
             await self.world.pick(pid, msg)
         elif kind == "hv_drop":
             await self.world.drop(pid, msg)
-        elif kind == "hv_craft":
-            await self.world.craft(pid, msg)
+        elif kind == "hv_unload":
+            await self.world.unload(pid, msg)
+        elif kind == "hv_shift":
+            await self.world.transfer(pid, msg)
         elif kind == "hv_place":
             await self.world.place(pid, msg)
         elif kind == "hv_pull":
             await self.world.pull(pid, msg)
+        elif kind == "hv_gather":
+            await self.world.gather(pid, msg)
+        elif kind == "hv_eat":
+            await self.world.eat(pid, msg)
+        elif kind == "hv_drink":
+            await self.world.drink(pid, msg)
+        elif kind == "hv_sync":
+            await self.world.sync(pid, msg)
+        elif kind == "hv_plan":
+            await self.world.plan(pid, msg)
+        elif kind == "hv_dig":
+            await self.world.dig(pid, msg)
+        elif kind == "hv_plant":
+            await self.world.plant(pid, msg)
+        elif kind == "hv_water":
+            await self.world.water(pid, msg)
+        elif kind == "hv_uproot":
+            await self.world.uproot(pid, msg)
         elif kind == "hv_hold":
             await self.world.hold(pid, msg)
         elif kind == "hv_exit":

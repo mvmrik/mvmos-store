@@ -11,6 +11,7 @@ never sent back to the browser.
 import asyncio
 import base64
 import contextvars
+import hashlib
 import json
 import logging
 import os
@@ -317,7 +318,29 @@ _TOOLS = [{
 }]
 
 _SERVER_TOOL_NAMES = {"run_command", "inspect_server"}
-# CLIs that take an image from mvmAI itself, without any file tool.
+# CLIs that can continue one session of their own from turn to turn.
+_RESUMABLE_CLIS = {"claude-cli", "gemini-cli", "codex-cli"}
+_CHAT_ID_RE = re.compile(r"[0-9a-f]{32}")
+_SESSION_ID_RE = re.compile(r"[0-9a-fA-F-]{8,64}")
+# What the CLIs say when the session they are asked to continue does not exist.
+_SESSION_LOST_RE = re.compile(
+    r"no conversation found|no rollout found|session .{0,60}not found|not found.{0,40}session|"
+    r"invalid session identifier|error resuming session|no sessions found", re.I)
+# CLI chat folders and the sessions the CLIs keep about them.
+_CHATS_DIR = os.path.join(os.path.realpath(os.path.dirname(_DB_PATH)), ".runtime", "chats")
+
+
+def forget_cli_chat(chat_id: str, user: str | None = None) -> None:
+    """Remove what a deleted chat left behind: its working folder and the
+    Claude session files kept for that folder."""
+    if not _CHAT_ID_RE.fullmatch(str(chat_id or "")):
+        return
+    folder = os.path.join(_CHATS_DIR, chat_id)
+    if user:
+        projects = os.path.join(_home_for(user), ".claude", "projects", re.sub(r"[^a-zA-Z0-9]", "-", folder))
+        shutil.rmtree(projects, ignore_errors=True)
+    shutil.rmtree(folder, ignore_errors=True)
+
 _IMAGE_CLIS = {"claude-cli", "codex-cli"}
 # CLIs that carry their own shell/file/web tools and can use them in full access.
 _NATIVE_TOOL_CLIS = {"claude-cli", "gemini-cli", "codex-cli"}
@@ -762,7 +785,9 @@ async def browse_dirs(path: str = "/", x_pub_token: str = Header(default=None), 
 
 # ── CLI providers ────────────────────────────────────────────────────────────────
 CLI_PROVIDERS = [
-    {"id": "claude-cli",  "name": "Claude CLI",  "cmd": "claude",  "args": ["--print"], "supports_model": True,  "model_choices": []},
+    # Claude CLI has no command that lists models, but it takes these aliases,
+    # which always point at the newest model of each family.
+    {"id": "claude-cli",  "name": "Claude CLI",  "cmd": "claude",  "args": ["--print"], "supports_model": True,  "model_choices": ["fable", "opus", "sonnet", "haiku"]},
     {"id": "gemini-cli",  "name": "Gemini CLI",  "cmd": "gemini",  "args": ["--prompt"], "supports_model": True,  "model_choices": []},
     {"id": "ollama-cli",  "name": "Ollama CLI",  "cmd": "ollama",  "args": ["run"],      "supports_model": True,  "model_choices": [], "model_discovery": "ollama"},
     {"id": "sgpt-cli",    "name": "shell-gpt",   "cmd": "sgpt",    "args": [],           "supports_model": False, "model_hint": "", "model_choices": []},
@@ -1007,7 +1032,7 @@ def _discover_cli_models(provider: dict, cmd_bin: str, eu: str, home: str) -> li
             return list(dict.fromkeys(parts[0] for parts in lines if parts and parts[0].upper() != "NAME"))
     except Exception:
         pass
-    return []
+    return [] if discovery else list(provider.get("model_choices") or [])
 
 
 def _detected_cli_providers(eu: str):
@@ -1056,6 +1081,7 @@ async def _run_cli_chat(
     session: dict | None = None,
     extra_prompt: str = "",
     images: list | None = None,
+    cli_resume: dict | None = None,
 ):
     images = images or []
     provider = next((p for p in CLI_PROVIDERS if p["id"] == body.provider_id), None)
@@ -1065,6 +1091,17 @@ async def _run_cli_chat(
     if not runtime:
         return JSONResponse({"error": f"'{provider['cmd']}' not found in PATH"}, status_code=400)
     eu, home, cmd_bin = runtime
+
+    # A chat that gives a cli_resume keeps one CLI session of its own and
+    # continues it every turn, so only the new messages travel instead of the
+    # whole conversation, and the CLI keeps what it read and did itself.
+    # {"chat_id": hex id of the chat, "session_id": the CLI's session or None
+    # for the first turn, "user": OS account it belongs to, "policy": hash of
+    # the instructions the CLI last got}.
+    persist = bool(cli_resume) and body.provider_id in _RESUMABLE_CLIS and bool(_CHAT_ID_RE.fullmatch(str(cli_resume.get("chat_id") or "")))
+    resume_id = str(cli_resume.get("session_id") or "") if persist else ""
+    if resume_id and (cli_resume.get("user") != eu or not _SESSION_ID_RE.fullmatch(resume_id)):
+        return JSONResponse({"error": "The CLI session belongs to another account.", "session_lost": True}, status_code=409)
 
     # Build trusted system instructions separately from conversation history.
     # The AI CLI is an installation-wide provider and can run under a
@@ -1182,6 +1219,13 @@ async def _run_cli_chat(
     system_prompt = "\n\n".join(system_parts)
     conversation_prompt = "\n".join(conversation_parts) or "[User]: Continue."
     prompt = f"[System instructions]\n{system_prompt}\n\n[Conversation]\n{conversation_prompt}"
+    policy = hashlib.sha256(system_prompt.encode("utf-8")).hexdigest()[:16]
+    if resume_id and body.provider_id != "claude-cli":
+        # Claude is given the instructions again by its own flag every turn;
+        # the others only have them inside the first message, so they are
+        # repeated here only when something in them changed (mode, language).
+        prompt = conversation_prompt if cli_resume.get("policy") == policy else (
+            f"[System instructions, updated]\n{system_prompt}\n\n[New messages]\n{conversation_prompt}")
 
     pid = body.provider_id
     model = body.model if body.model is not None else _read_cfg().get("model")
@@ -1192,13 +1236,26 @@ async def _run_cli_chat(
         # directory. Keep the short-lived CLI workspace there instead of the
         # system /tmp directory; TemporaryDirectory still removes it after
         # every request.
-        runtime_dir = os.path.join(os.path.realpath(os.path.dirname(_DB_PATH)), ".runtime")
+        runtime_dir = os.path.dirname(_CHATS_DIR)
         os.makedirs(runtime_dir, exist_ok=True)
         with tempfile.TemporaryDirectory(prefix="mvmai-chat-", dir=runtime_dir) as workdir:
             # A project's own folder is the real working directory when one is
             # set — the throwaway workdir above still holds the sandbox policy
             # file, but the CLI itself should read/edit the admin's real files.
-            effective_dir = project["path"] if project and project.get("path") else (home if full_access and os.path.isdir(home) else workdir)
+            chat_dir = None
+            if persist:
+                # The CLI keeps its session per working folder, so a chat
+                # that continues one needs a folder that stays.
+                chat_dir = os.path.join(runtime_dir, "chats", cli_resume["chat_id"])
+                os.makedirs(chat_dir, exist_ok=True)
+                if eu != "root":
+                    try:
+                        pw = pwd.getpwnam(eu)
+                        os.chown(chat_dir, pw.pw_uid, pw.pw_gid)
+                    except Exception:
+                        pass
+            effective_dir = project["path"] if project and project.get("path") else (home if full_access and os.path.isdir(home) else (chat_dir or workdir))
+            new_session = str(uuid.uuid4()) if persist and not resume_id and pid != "codex-cli" else ""
             extra_env = {}
             policy_path = os.path.join(workdir, "deny-tools.toml")
             with open(policy_path, "w", encoding="utf-8") as handle:
@@ -1239,7 +1296,12 @@ async def _run_cli_chat(
                     # An administrator can always have attached files and images
                     # opened, whatever the mode: Read only reads.
                     safety_args = ["--safe-mode", "--tools", "Read" if is_admin else "", "--system-prompt-file", system_prompt_path]
-                cmd = [cmd_bin] + (["--model", model] if model else []) + safety_args + ["--disable-slash-commands", "--no-session-persistence", "--print"]
+                session_args = ["--no-session-persistence"]
+                if persist:
+                    session_args = ["--resume", resume_id] if resume_id else ["--session-id", new_session]
+                cmd = [cmd_bin] + (["--model", model] if model else []) + safety_args + ["--disable-slash-commands"] + session_args + ["--print"]
+                if persist and not images:
+                    cmd += ["--output-format", "json"]
                 stdin_input = conversation_prompt
                 if images:
                     # Images travel in the message itself (stream-json input),
@@ -1253,7 +1315,10 @@ async def _run_cli_chat(
                     stdin_input = json.dumps({"type": "user", "message": {"role": "user", "content": blocks}}) + "\n"
             elif pid == "gemini-cli":
                 safety_args = ["--yolo"] if full_access else ["--admin-policy", policy_path]
-                cmd = [cmd_bin] + (["--model", model] if model else []) + safety_args + ["--prompt", prompt]
+                session_args = []
+                if persist:
+                    session_args = ["--resume", resume_id] if resume_id else ["--session-id", new_session]
+                cmd = [cmd_bin] + (["--model", model] if model else []) + safety_args + session_args + ["--prompt", prompt]
             elif pid == "ollama-cli":
                 cmd = [cmd_bin, "run", model or "llama3.1", prompt]
             elif pid == "codex-cli":
@@ -1262,9 +1327,16 @@ async def _run_cli_chat(
                 # route it there instead of argv.
                 if full_access:
                     safety_args = ["--dangerously-bypass-approvals-and-sandbox", "-c", 'web_search="live"']
+                elif resume_id:
+                    # `codex exec resume` has no --sandbox flag; the same
+                    # setting is given as a config override instead.
+                    safety_args = ["-c", 'sandbox_mode="read-only"', "-c", 'web_search="disabled"', "-c", "features.shell_tool=false"]
                 else:
                     safety_args = ["--sandbox", "read-only", "-c", 'web_search="disabled"', "-c", "features.shell_tool=false"]
-                cmd = [cmd_bin, "exec", "--skip-git-repo-check", "-C", effective_dir] + safety_args + (["--model", model] if model else [])
+                if resume_id:
+                    cmd = [cmd_bin, "exec", "resume", "--skip-git-repo-check", "--json"] + safety_args + (["--model", model] if model else [])
+                else:
+                    cmd = [cmd_bin, "exec", "--skip-git-repo-check", "-C", effective_dir] + (["--json"] if persist else []) + safety_args + (["--model", model] if model else [])
                 for n, url in enumerate(images):
                     head, _, data = url.partition(",")
                     img_path = os.path.join(workdir, f"image-{n + 1}." + ("jpg" if "jpeg" in head else head[11:].split(";")[0]))
@@ -1276,6 +1348,8 @@ async def _run_cli_chat(
                         except Exception:
                             pass
                     cmd += ["-i", img_path]
+                if resume_id:
+                    cmd += [resume_id, "-"]
                 stdin_input = prompt
             else:
                 cmd = [cmd_bin] + provider["args"] + [prompt]
@@ -1284,22 +1358,70 @@ async def _run_cli_chat(
                 _wrap_as_user(cmd, eu), input=stdin_input, capture_output=True, text=True, timeout=cli_timeout, cwd=effective_dir,
                 env={**os.environ, "HOME": home, "USER": eu, "LOGNAME": eu, "PATH": _cli_search_path(home), **extra_env},
             )
-        if proc.returncode != 0 and not proc.stdout.strip():
-            err = proc.stderr.strip() or f"exit code {proc.returncode}"
-            logging.getLogger(__name__).error("mvmai CLI provider %s failed (exit %s): %s", pid, proc.returncode, err)
-            return JSONResponse({"error": err}, status_code=502)
-        content = proc.stdout.strip()
-        if pid == "claude-cli" and images:
-            # stream-json: the answer is the "result" line.
-            answer = None
-            for line in content.splitlines():
+        raw_out = proc.stdout.strip()
+        if proc.returncode != 0 and resume_id and _SESSION_LOST_RE.search(f"{proc.stderr}\n{raw_out}"):
+            return JSONResponse({"error": "The CLI session is gone.", "session_lost": True}, status_code=409)
+        model_used = ""
+        codex_thread = ""
+        if pid == "codex-cli" and persist:
+            # --json prints one event per line: the thread id once, then every
+            # message the agent wrote; the answer is the last one.
+            answer, failure = None, ""
+            for line in raw_out.splitlines():
                 try:
                     event = json.loads(line)
                 except Exception:
                     continue
-                if event.get("type") == "result":
-                    answer = event.get("result") or ""
-            content = (answer if answer is not None else "").strip()
+                kind = event.get("type")
+                if kind == "thread.started":
+                    codex_thread = event.get("thread_id") or ""
+                elif kind == "item.completed" and (event.get("item") or {}).get("type") == "agent_message":
+                    answer = event["item"].get("text") or ""
+                elif kind in ("error", "turn.failed"):
+                    failure = event.get("message") or (event.get("error") or {}).get("message") or failure
+            if answer is None and proc.returncode != 0:
+                err = failure or proc.stderr.strip() or f"exit code {proc.returncode}"
+                logging.getLogger(__name__).error("mvmai CLI provider %s failed (exit %s): %s", pid, proc.returncode, err)
+                return JSONResponse({"error": err}, status_code=502)
+            content = (answer or "").strip()
+        elif pid == "claude-cli" and (images or persist):
+            # json / stream-json: the answer is the "result" entry, which also
+            # names the model that really answered.
+            result = None
+            for chunk in ([raw_out] if not images else raw_out.splitlines()):
+                try:
+                    event = json.loads(chunk)
+                except Exception:
+                    continue
+                for item in (event if isinstance(event, list) else [event]):
+                    if isinstance(item, dict) and item.get("type") == "result":
+                        result = item
+            if result is None and proc.returncode != 0:
+                err = proc.stderr.strip() or raw_out or f"exit code {proc.returncode}"
+                logging.getLogger(__name__).error("mvmai CLI provider %s failed (exit %s): %s", pid, proc.returncode, err)
+                return JSONResponse({"error": err}, status_code=502)
+            if result is not None and result.get("is_error") and proc.returncode != 0 and not (result.get("result") or "").strip():
+                return JSONResponse({"error": proc.stderr.strip() or f"exit code {proc.returncode}"}, status_code=502)
+            content = ((result or {}).get("result") or "").strip()
+            usage = (result or {}).get("modelUsage") or {}
+            if usage:
+                model_used = max(usage, key=lambda name: (usage[name] or {}).get("costUSD") or 0)
+        else:
+            if proc.returncode != 0 and not raw_out:
+                err = proc.stderr.strip() or f"exit code {proc.returncode}"
+                logging.getLogger(__name__).error("mvmai CLI provider %s failed (exit %s): %s", pid, proc.returncode, err)
+                return JSONResponse({"error": err}, status_code=502)
+            content = raw_out
+
+        def _reply(payload: dict):
+            sid = resume_id or new_session or codex_thread
+            if persist and sid:
+                payload["cli_state"] = {
+                    "session_id": sid, "user": eu, "policy": policy,
+                    "model_used": model_used or str((cli_resume or {}).get("model_used") or ""),
+                }
+            return JSONResponse(payload)
+
         if prompt_tools:
             valid_names = {spec["function"]["name"] for spec in prompt_tools}
             calls = []
@@ -1318,8 +1440,8 @@ async def _run_cli_chat(
                     })
             if calls:
                 rest = _CLI_TOOL_CALL_RE.sub("", content).strip()
-                return JSONResponse({"content": rest or None, "tool_calls": calls})
-        return JSONResponse({"content": content})
+                return _reply({"content": rest or None, "tool_calls": calls})
+        return _reply({"content": content})
     except subprocess.TimeoutExpired:
         return JSONResponse({"error": f"CLI timed out after {cli_timeout}s"}, status_code=504)
     except Exception as e:

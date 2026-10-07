@@ -92,7 +92,22 @@ def _gc_uploads():
             except OSError: pass
 _gc_uploads()
 
+# Where people open this server, as the last request to the app saw it, so
+# a listing's link can also be given to callers without a request of their
+# own (app_api.py, External APIs).
+_origin = ''
+
+def listing_url(lid):
+    return f'{_origin}/pub/{APP_ID}/?listing={lid}'
+
 async def access(request: Request):
+    global _origin
+    host = request.headers.get('host')
+    if host:
+        # Cloudflare reaches the proxy over http; it says what the visitor used.
+        visitor = request.headers.get('cf-visitor', '')
+        scheme = ('https' if '"https"' in visitor else '') or request.headers.get('x-forwarded-proto', '').split(',')[0].strip() or request.url.scheme
+        _origin = f'{scheme}://{host}'
     if hub().is_app_public(APP_ID):
         return
     auth = sys.modules['backend.auth']
@@ -165,6 +180,7 @@ def output(c, row, me=None):
         d['views'] = c.execute('SELECT COUNT(*) FROM listing_views WHERE listing_id=?', (d['id'],)).fetchone()[0]
         d['watchers_count'] = c.execute('SELECT COUNT(*) FROM watches WHERE listing_id=?', (d['id'],)).fetchone()[0]
     d['bump_available_at'] = d['last_bump_at'] + DAY
+    d['url'] = listing_url(d['id'])
     d['photos'] = [{'id': p['id'], 'url': f"/pub/classifieds/photos/{p['id']}"} for p in c.execute('SELECT id FROM photos WHERE listing_id=? ORDER BY created_at,id', (d['id'],))]
     profiles = hub().get_users_by_ids([d.pop('owner_id')])
     d['seller'] = (profiles[0].get('display_name') or profiles[0].get('username') or '') if profiles else ''
@@ -288,7 +304,7 @@ def _create(me, body):
         c.execute('INSERT INTO listings(id,owner_id,title,description,category_id,price_cents,currency,location,contact,active,created_at,updated_at,sort_at,expires_at,last_bump_at) VALUES(?,?,?,?,?,?,?,?,?,1,?,?,?,?,?)',
                   (lid, me['id'], body.title, body.description, body.category_id, body.price_cents, checked_currency(body.currency,c), body.location, body.contact,
                    now, now, now, now + cfg['validity_days'] * DAY, now))
-    return {'id': lid}
+    return {'id': lid, 'url': listing_url(lid)}
 
 @router.post('/listings', status_code=201)
 async def create(body: ListingBody, x_pub_token: str | None = Header(None)):
@@ -301,7 +317,7 @@ def _edit(me, lid, body):
         if row['category_id'] != body.category_id: verification_check(me, body.category_id, lid)
         c.execute('UPDATE listings SET title=?,description=?,category_id=?,price_cents=?,currency=?,location=?,contact=?,updated_at=? WHERE id=?',
                   (body.title,body.description,body.category_id,body.price_cents,checked_currency(body.currency or row['currency'],c),body.location,body.contact,time.time(),lid))
-    return {'ok': True}
+    return {'ok': True, 'url': listing_url(lid)}
 
 @router.put('/listings/{lid}')
 async def edit(lid: str, body: ListingBody, x_pub_token: str | None = Header(None)):

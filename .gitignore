@@ -37,3 +37,7 @@ source/apps/*/**/*.bak
 source/apps/*/**/*.bak-*
 source/backend/apps/*/**/*.bak
 source/backend/apps/*/**/*.bak-*
+
+# Working folders of running apps (mvmAI keeps one per CLI chat): runtime state, never code.
+source/apps/*/.runtime/
+source/backend/apps/*/.runtime/

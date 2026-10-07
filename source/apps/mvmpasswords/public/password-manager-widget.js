@@ -291,16 +291,18 @@
       if(totpHelper)return totpHelper;
       totpHelper=new Promise(function(resolve,reject){
         delete window.__mvmPmTotp;
-        var el=document.createElement('script');el.src=window.asset(API+'/totp.js');
+        var el=document.createElement('script');el.src=window.asset?window.asset(API+'/totp.js'):API+'/totp.js';
         el.onload=function(){el.remove();window.__mvmPmTotp?resolve(window.__mvmPmTotp(totpContext)):reject(new Error('unavailable'))};
         el.onerror=function(){el.remove();reject(new Error('unavailable'))};
         document.head.appendChild(el)}).catch(function(e){totpHelper=null;throw e});
       return totpHelper}
+    // The extension tells the page who it is with its first message, but 2FA must not depend on that arriving first: a popup opened inside the extension is recognised by ?ext=1 and its parent's origin.
+    function extOrigin(){if(parentOrigin)return parentOrigin;try{if(window.parent!==window&&/(?:^|[?&])ext=1(?:&|$)/.test(location.search)){var o=(location.ancestorOrigins&&location.ancestorOrigins[0])||'';if(/^(chrome|moz)-extension:\/\//.test(o))return o}}catch(_){}return ''}
     var totpContext={api:api,t:t,esc:esc,root:function(){return root},key:function(){return key},vault:function(){return lastVault},
       wrap:function(){return totpWrap},
       setWrap:function(box){totpWrap=box;vaultPromise=null;api('/totp/wrap',box?{method:'PUT',body:JSON.stringify(box)}:{method:'DELETE'}).catch(function(){})},
-      parentOrigin:function(){return parentOrigin},extensionSession:function(){return totpExtSession},
-      saveExtensionSession:function(saved){totpExtSession=saved;if(parentOrigin)window.parent.postMessage({source:'mvmos-public-app',appId:APP_ID,action:saved?'totp-session-save':'totp-session-clear',session:saved},parentOrigin)}};
+      parentOrigin:extOrigin,extensionSession:function(){return totpExtSession},
+      saveExtensionSession:function(saved){totpExtSession=saved;var o=extOrigin();if(o)window.parent.postMessage({source:'mvmos-public-app',appId:APP_ID,action:saved?'totp-session-save':'totp-session-clear',session:saved},o)}};
     // The digits, or null when the user closed mvm2factor's password prompt.
     async function totpCode(accountId){var data=await totpFetchCode(accountId);if(data.code)return data.code;return(await totpHelperLoad()).code(data)}
     // A master password just typed may open mvm2factor as well. Tried once in

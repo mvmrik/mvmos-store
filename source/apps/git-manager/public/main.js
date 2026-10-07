@@ -528,10 +528,7 @@ GM.init = function(body) {
   if (GM.state.termResizeObserver) GM.state.termResizeObserver.disconnect();
   GM.state.termResizeObserver = new ResizeObserver(function() {
     var entry = GM.state.activeRepo && GM.state.terminals[GM.state.activeRepo.path];
-    if (!entry) return;
-    try { entry.fitAddon.fit(); } catch(e) {}
-    if (entry.conn.isOpen())
-      entry.conn.send(JSON.stringify({ type: 'resize', rows: entry.term.rows, cols: entry.term.cols }));
+    if (entry) GM.fitTerminal(entry);
   });
   GM.state.termResizeObserver.observe(body);
 
@@ -561,6 +558,31 @@ GM.termDockIcon = function(pos) {
   return '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">'
     + '<rect x="1.5" y="1.5" width="13" height="13" rx="1.5" stroke="currentColor" stroke-width="1.3"/>'
     + fill + '</svg>';
+};
+
+// Fits the terminal to its panel and tells the shell the new size. fit() does
+// nothing while xterm has not measured its font yet or the panel is hidden,
+// which on a slower computer is exactly when the first fit runs; the terminal
+// would then stay at 24 rows and a full-screen program like Codex or Claude
+// would draw only in the upper part. So an unsuccessful fit is retried.
+GM.fitTerminal = function(entry, force, tries) {
+  var dims = null;
+  try { dims = entry.fitAddon.proposeDimensions(); } catch(e) {}
+  if (!dims || !dims.cols || !dims.rows || isNaN(dims.cols) || isNaN(dims.rows)) {
+    if ((tries || 0) < 40 && !entry.fitRetry) {
+      entry.fitRetry = setTimeout(function() {
+        entry.fitRetry = null;
+        GM.fitTerminal(entry, force, (tries || 0) + 1);
+      }, 100);
+    }
+    return;
+  }
+  if (dims.cols !== entry.term.cols || dims.rows !== entry.term.rows) entry.term.resize(dims.cols, dims.rows);
+  var size = entry.term.rows + 'x' + entry.term.cols;
+  if (entry.conn && entry.conn.isOpen() && (force || entry.sentSize !== size)) {
+    entry.sentSize = size;
+    entry.conn.send(JSON.stringify({ type: 'resize', rows: entry.term.rows, cols: entry.term.cols }));
+  }
 };
 
 GM.ensureTerminal = function(repo) {
@@ -603,8 +625,7 @@ GM.ensureTerminal = function(repo) {
     query: 'sid=' + encodeURIComponent(sid) + '&cwd=' + encodeURIComponent(repo.path),
     onOpen: function(again) {
       if (again) term.write('\r\n\x1b[32m[' + t('gm_term_reconnected') + ']\x1b[0m\r\n');
-      try { fitAddon.fit(); } catch(e) {}
-      conn.send(JSON.stringify({ type: 'resize', rows: term.rows, cols: term.cols }));
+      GM.fitTerminal(entry, true);
     },
     onMessage: function(data) {
       term.write(data instanceof ArrayBuffer ? new Uint8Array(data) : data);
@@ -616,6 +637,11 @@ GM.ensureTerminal = function(repo) {
 
   var entry = { conn: conn, term: term, fitAddon: fitAddon, wrapper: wrapper, sidKey: sidKey };
   GM.state.terminals[repo.path] = entry;
+
+  // The panel's own size is what matters, not the window's: it changes when
+  // the terminal is docked elsewhere, shown or hidden, or the split moves.
+  if (window.ResizeObserver) new ResizeObserver(function() { GM.fitTerminal(entry); }).observe(wrapper);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function() { GM.fitTerminal(entry); });
 
   term.onData(function(data) { conn.send(new TextEncoder().encode(data)); });
 
@@ -806,9 +832,7 @@ GM.renderTermLayout = function() {
     else { slot = GM.state.termPos === 'right' ? right : bottom; slot.style.display = 'block'; }
     slot.appendChild(entry.wrapper);
     requestAnimationFrame(function() {
-      try { entry.fitAddon.fit(); } catch(e) {}
-      if (entry.conn.isOpen())
-        entry.conn.send(JSON.stringify({ type: 'resize', rows: entry.term.rows, cols: entry.term.cols }));
+      GM.fitTerminal(entry, true);
       entry.term.focus();
     });
   }

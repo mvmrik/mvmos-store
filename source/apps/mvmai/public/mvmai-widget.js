@@ -281,6 +281,8 @@
     var history = [];       // {role, content, tool_calls?, tool_call_id?}
     var sending = false;
     var sessionId = null;
+    // The provider and model the open chat is pinned to (shown to the administrator).
+    var chatLabel = null;
     var projects = [];
     var activeProject = null;   // {id, name, path} — fixed at session creation
     var sessionsCache = [];
@@ -320,8 +322,14 @@
       return !!(me.has_api_bridge || (isDesktop && !me.bridge_premium && window.mvmOS && window.mvmOS.premiumGate));
     }
 
+    // An open chat keeps the provider it started with; a new one takes the
+    // one chosen in the settings.
+    function currentLabel() {
+      return me && me.is_admin ? (chatLabel || me.provider_label || null) : null;
+    }
+
     function messagePlaceholder() {
-      var provider = me && me.is_admin && me.provider_label ? me.provider_label : 'mvmAI';
+      var provider = currentLabel() || 'mvmAI';
       return t('mvmai_pub_placeholder').replace('mvmAI', provider);
     }
 
@@ -978,7 +986,11 @@
               e.stopPropagation();
               if (!confirm(t('mvmai_pub_delete_confirm'))) return;
               api('/sessions/' + s.id, {method: 'DELETE'}).then(function () {
-                if (s.id === sessionId) { sessionId = null; history = []; showWelcome(); }
+                if (s.id === sessionId) {
+                  sessionId = null; chatLabel = null; history = [];
+                  inputEl.placeholder = messagePlaceholder();
+                  showWelcome();
+                }
                 refreshSessionList();
               });
             };
@@ -991,6 +1003,8 @@
         api('/sessions/' + id + '/messages').then(function (data) {
           if (data.__status !== 200) return;
           sessionId = id;
+          chatLabel = data.provider_label || null;
+          inputEl.placeholder = messagePlaceholder();
           var row = sessionsCache.filter(function (s) { return s.id === id; })[0];
           var pid = row && row.project_id;
           activeProject = pid ? (projects.filter(function (p) { return p.id === pid; })[0] || {id: pid, name: pid, path: ''}) : null;
@@ -1025,6 +1039,8 @@
 
       newChatBtn.onclick = function () {
         sessionId = null;
+        chatLabel = null;
+        inputEl.placeholder = messagePlaceholder();
         history = [];
         showWelcome();
         closeSidebar();
@@ -1091,10 +1107,10 @@
         var offered = role === 'assistant' ? extractDownloads(content) : null;
         el.innerHTML = nl2br(offered ? offered.text : content);
         if (offered && offered.files.length) el.appendChild(downloadRow(offered.files));
-        if (role === 'assistant' && me.is_admin && me.provider_label) {
+        if (role === 'assistant' && currentLabel()) {
           var providerEl = document.createElement('div');
           providerEl.className = 'mvmai-provider-label';
-          providerEl.textContent = me.provider_label;
+          providerEl.textContent = currentLabel();
           el.appendChild(providerEl);
         }
         listEl.appendChild(el);
@@ -1953,6 +1969,7 @@
               return;
             }
             if (data.session_id) sessionId = data.session_id;
+            if (data.provider_label) { chatLabel = data.provider_label; inputEl.placeholder = messagePlaceholder(); }
             var msg = data.message;
             history.push(msg);
             if (msg.content) addBubble('assistant', msg.content);

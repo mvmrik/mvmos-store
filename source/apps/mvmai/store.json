@@ -11,7 +11,7 @@
     "Approve or skip each proposed command, with the command and its reason shown first.",
     "Optional public page so visitors can chat with the same assistant outside the desktop, with its own separate provider and command-execution controls when Premium is active.",
     "Attach images, PDF and text files to a message; administrators can attach any file or archive, and the assistant can offer a file in its reply as a download button.",
-    "Saved conversations you can rename and delete.",
+    "Saved conversations you can rename and delete. With Claude Code, Gemini CLI or Codex CLI each chat continues its own CLI session and sends only the new messages, and its provider and model stay fixed for the whole chat, shown to administrators with every answer.",
     "Editable system prompt and model override.",
     "Long tasks keep running past proxy time limits, so a CLI with full access can work for up to 30 minutes on one request.",
     "Long conversations are compacted automatically once they pass twice the configured recent-message count, folding older messages into a running summary so per-message cost stays bounded instead of growing forever. The free plan keeps the most recent 20 messages in full; a subscription lets the administrator choose from 4 to 200.",

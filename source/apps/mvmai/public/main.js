@@ -501,7 +501,7 @@ mvmOS.registerApp({
           refs.status.textContent = _ait('models_found').replace('{count}', choices.length);
         } else if (cliInfo?.models_dynamic) {
           refs.status.textContent = _ait('models_failed');
-        } else {
+        } else if (!choices.length) {
           refs.status.textContent = _ait('models_unavailable');
         }
         return;
