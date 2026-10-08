@@ -100,8 +100,18 @@
       .mvmai-send{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);border:0;border-radius:.5rem;
         padding:0 1rem;font-weight:700;cursor:pointer;font-size:.88rem}
       .mvmai-send:disabled{opacity:.5;cursor:default}
+      .mvmai-thumbs{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem}
+      .mvmai-thumb{height:64px;max-width:120px;border-radius:.4rem;object-fit:cover;cursor:zoom-in;
+        border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244)}
+      .mvmai-chip .mvmai-thumb{height:28px;max-width:44px;border-radius:.25rem}
+      .mvmai-lightbox{position:absolute;inset:0;z-index:80;background:rgba(0,0,0,.82);display:flex;
+        align-items:center;justify-content:center;padding:1rem;cursor:zoom-out}
+      .mvmai-lightbox img{max-width:100%;max-height:100%;border-radius:.4rem;box-shadow:0 0 30px rgba(0,0,0,.6)}
+      .mvmai-term-btn{margin-left:auto;background:none;border:0;cursor:pointer;font-size:1rem;line-height:1;padding:.2rem .4rem;border-radius:.4rem;color:inherit;opacity:.8}
+      .mvmai-term-btn+.mvmai-price{margin-left:.6rem}
+      .mvmai-term-btn:hover{opacity:1;background:var(--pub-surface2,#313244)}
       .mvmai-inputbar{position:relative;align-items:flex-end}
-      .mvmai-inputbar .mvmai-send{flex-shrink:0;min-height:2.3rem;white-space:nowrap}
+      .mvmai-inputbar .mvmai-send{flex-shrink:0;width:auto;height:auto;min-height:2.3rem;border-radius:.5rem;padding:0 1rem;white-space:nowrap}
       .mvmai-attach{flex-shrink:0;min-height:2.3rem;width:2.3rem;border:1px solid var(--pub-border,#45475a);border-radius:.5rem;
         background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);cursor:pointer;font-size:1rem;padding:0}
       .mvmai-chips{display:flex;flex-wrap:wrap;gap:.35rem;padding:.5rem .9rem 0;flex-shrink:0}
@@ -185,18 +195,18 @@
         font-size:.82rem;padding:.15rem .3rem;flex-shrink:0}
       .mvmai-session-row .mvmai-s-btn:hover{opacity:1}
       .mvmai-no-sessions{color:var(--pub-dim,#6c7086);font-size:.78rem;padding:.7rem .5rem;text-align:center}
-      .mvmai-exec-wrap{position:relative;flex:1;min-width:0}
+      .mvmai-exec-wrap{flex:1;min-width:0}
       .mvmai-exec-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:.35rem;white-space:nowrap;
         overflow:hidden;text-overflow:ellipsis;
         padding:.4rem .5rem;border:1px solid var(--pub-border,#45475a);border-radius:.5rem;
         background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);cursor:pointer;font-size:.78rem}
       .mvmai-exec-btn.on{border-color:var(--pub-accent,#89b4fa);color:var(--pub-accent,#89b4fa)}
       .mvmai-exec-btn.auto{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);border-color:var(--pub-accent,#89b4fa)}
-      .mvmai-exec-menu{position:absolute;top:calc(100% + .4rem);right:0;width:220px;max-width:80vw;z-index:6;
+      .mvmai-exec-menu{position:absolute;top:3rem;left:.6rem;width:240px;max-width:calc(100% - 1.2rem);z-index:40;
         background:var(--pub-surface1,#181825);border:1px solid var(--pub-border,#45475a);border-radius:.5rem;
         padding:.6rem;display:flex;flex-direction:column;gap:.5rem;font-size:.78rem}
       .mvmai-exec-menu[hidden]{display:none}
-      .mvmai-exec-row{display:flex;align-items:flex-start;gap:.4rem;cursor:pointer;line-height:1.35}
+      .mvmai-exec-row{display:flex;align-items:flex-start;gap:.4rem;cursor:pointer;line-height:1.35;overflow-wrap:anywhere}
       .mvmai-exec-row input{margin-top:.15rem;flex-shrink:0;cursor:pointer}
       .mvmai-exec-mode-wrap{display:flex;flex-direction:column;gap:.4rem;padding-top:.4rem;
         border-top:1px solid var(--pub-border,#45475a)}
@@ -288,6 +298,8 @@
     var sessionsCache = [];
     var projectPoll = null;
     var providerPoll = null;
+    var termPanel = null;    // the Premium terminal panel, once made
+    var termLoading = null;
 
     function api(path, options) {
       options = options || {};
@@ -333,6 +345,13 @@
       return t('mvmai_pub_placeholder').replace('mvmAI', provider);
     }
 
+    // The terminal panel of the desktop (Premium). With the setting on it is
+    // a button; on an install without Premium it is still shown, locked, and
+    // opens the Premium dialog. The public page never has it.
+    function terminalButtonShown() {
+      return !!(isDesktop && me.is_admin && (me.terminal || (!me.bridge_premium && window.mvmOS && window.mvmOS.premiumGate)));
+    }
+
     function renderShell() {
       var priceHint = '';
       if (me.credit_price) {
@@ -375,6 +394,7 @@
             <span class="mvmai-header-title">🤖 ${esc(t('mvmai_pub_title'))}</span>
             ${me.is_admin ? '<span class="mvmai-badge">' + esc(t('mvmai_pub_admin_badge')) + '</span>' : ''}
             <span class="mvmai-project-badge" hidden></span>
+            ${terminalButtonShown() ? '<button class="mvmai-term-btn" type="button" title="' + esc(t('mvmai_pub_term_title')) + '">🖥</button>' : ''}
             ${priceHint}
           </div>
           <div class="mvmai-list"></div>
@@ -479,6 +499,48 @@
         });
       }
 
+      // The work is done by the Premium code (premium/public/terminal.js),
+      // fetched only when the server says the setting is on.
+      var termBtn = root.querySelector('.mvmai-term-btn');
+      function loadTerminalCode() {
+        if (window.MvmaiPremium && window.MvmaiPremium.createTerminal) return Promise.resolve();
+        if (termLoading) return termLoading;
+        termLoading = fetch(API + '/premium/terminal.js', {headers: {'X-Pub-Token': token, 'X-MvmAI-Surface': 'desktop'}, cache: 'no-store'}).then(function (r) {
+          if (!r.ok) throw new Error(String(r.status));
+          return r.text();
+        }).then(function (code) {
+          var script = document.createElement('script');
+          script.textContent = code;
+          document.head.appendChild(script);
+          script.remove();
+        });
+        termLoading.catch(function () { termLoading = null; });
+        return termLoading;
+      }
+      function terminalPanel() {
+        if (termPanel) return termPanel;
+        termPanel = window.MvmaiPremium.createTerminal({
+          widgetEl: root.querySelector('.mvmai-widget'),
+          colEl: root.querySelector('.mvmai-chat-col'),
+          toggleEl: termBtn,
+          t: t,
+          getCli: function () { return (me.cli_commands || {})[String(currentLabel() || '').split(' · ')[0]] || ''; },
+          getCwd: function () { return activeProject ? activeProject.path : ''; },
+        });
+        return termPanel;
+      }
+      if (termBtn) {
+        if (me.terminal) {
+          termBtn.onclick = function () {
+            loadTerminalCode().then(function () { terminalPanel().toggle(); }).catch(function () { addNote(t('mvmai_pub_err')); });
+          };
+          // A chat with a pinned terminal shows it at once.
+          loadTerminalCode().then(function () { terminalPanel().setChat(sessionId); }).catch(function () {});
+        } else {
+          window.mvmOS.premiumGate(termBtn, t('mvmai_pub_term_premium'));
+        }
+      }
+
       if (isDesktop && me.is_admin) {
         providerPoll = setInterval(function () {
           if (!root.isConnected) { clearInterval(providerPoll); return; }
@@ -516,8 +578,19 @@
           renderExecBtn();
         });
 
-        execBtn.onclick = function (e) { e.stopPropagation(); execMenu.hidden = !execMenu.hidden; };
-        document.addEventListener('click', function (e) { if (!execWrap.contains(e.target)) execMenu.hidden = true; });
+        // The menu lives in the window itself, not in the sidebar, whose edge would cut it off.
+        root.querySelector('.mvmai-widget').appendChild(execMenu);
+        execBtn.onclick = function (e) {
+          e.stopPropagation();
+          execMenu.hidden = !execMenu.hidden;
+          if (!execMenu.hidden) {
+            var wr = root.querySelector('.mvmai-widget').getBoundingClientRect();
+            var br = execBtn.getBoundingClientRect();
+            execMenu.style.top = (br.bottom - wr.top + 6) + 'px';
+            execMenu.style.left = Math.max(8, Math.min(br.left - wr.left, wr.width - 248)) + 'px';
+          }
+        };
+        document.addEventListener('click', function (e) { if (!execWrap.contains(e.target) && !execMenu.contains(e.target)) execMenu.hidden = true; });
         execMenu.querySelectorAll('input[name="mvmai-pub-exec-mode"]').forEach(function (r) {
           r.addEventListener('change', function (e) { if (e.target.checked) saveExecMode(e.target.value); });
         });
@@ -988,6 +1061,7 @@
               api('/sessions/' + s.id, {method: 'DELETE'}).then(function () {
                 if (s.id === sessionId) {
                   sessionId = null; chatLabel = null; history = [];
+                  if (termPanel) termPanel.setChat(null);
                   inputEl.placeholder = messagePlaceholder();
                   showWelcome();
                 }
@@ -1003,6 +1077,7 @@
         api('/sessions/' + id + '/messages').then(function (data) {
           if (data.__status !== 200) return;
           sessionId = id;
+          if (termPanel) termPanel.setChat(id);
           chatLabel = data.provider_label || null;
           inputEl.placeholder = messagePlaceholder();
           var row = sessionsCache.filter(function (s) { return s.id === id; })[0];
@@ -1039,6 +1114,7 @@
 
       newChatBtn.onclick = function () {
         sessionId = null;
+        if (termPanel) termPanel.setChat(null);
         chatLabel = null;
         inputEl.placeholder = messagePlaceholder();
         history = [];
@@ -1101,12 +1177,60 @@
         return row;
       }
 
-      function addBubble(role, content) {
+      // A picture shown larger over the chat; a click or Escape closes it.
+      function openLightbox(src) {
+        var box = document.createElement('div');
+        box.className = 'mvmai-lightbox';
+        var img = document.createElement('img');
+        img.src = src;
+        box.appendChild(img);
+        function close() { box.remove(); document.removeEventListener('keydown', onKey); }
+        function onKey(e) { if (e.key === 'Escape') close(); }
+        box.onclick = close;
+        document.addEventListener('keydown', onKey);
+        root.querySelector('.mvmai-widget').appendChild(box);
+      }
+
+      function makeThumb(src) {
+        var img = document.createElement('img');
+        img.className = 'mvmai-thumb';
+        img.src = src;
+        img.onclick = function (e) { e.stopPropagation(); openLightbox(src); };
+        return img;
+      }
+
+      // Small pictures of what was attached: the ones sent a moment ago come
+      // with the message; in an older chat the images the administrator saved on
+      // the server are fetched again (they stay a week).
+      function addThumbs(el, thumbs, content) {
+        var box = document.createElement('div');
+        box.className = 'mvmai-thumbs';
+        (thumbs || []).forEach(function (src) { box.appendChild(makeThumb(src)); });
+        if (!thumbs && me && me.is_admin) {
+          var re = /\[Attached file saved on the server: ([^\]]+\.(?:png|jpe?g|webp|gif))\]/gi, m;
+          while ((m = re.exec(content || ''))) {
+            (function (path) {
+              fetch(API + '/attachment?path=' + encodeURIComponent(path), {headers: {'X-Pub-Token': token}}).then(function (r) {
+                if (!r.ok) throw new Error('gone');
+                return r.blob();
+              }).then(function (blob) {
+                if (!box.parentNode) el.appendChild(box);
+                box.appendChild(makeThumb(URL.createObjectURL(blob)));
+                scrollDown();
+              }).catch(function () {});
+            })(m[1]);
+          }
+        }
+        if (thumbs && thumbs.length) el.appendChild(box);
+      }
+
+      function addBubble(role, content, thumbs) {
         var el = document.createElement('div');
         el.className = 'mvmai-msg ' + role;
         var offered = role === 'assistant' ? extractDownloads(content) : null;
         el.innerHTML = nl2br(offered ? offered.text : content);
         if (offered && offered.files.length) el.appendChild(downloadRow(offered.files));
+        if (role === 'user') addThumbs(el, thumbs, content);
         if (role === 'assistant' && currentLabel()) {
           var providerEl = document.createElement('div');
           providerEl.className = 'mvmai-provider-label';
@@ -1692,6 +1816,12 @@
           chip.className = 'mvmai-chip' + (p.busy ? ' busy' : '');
           chip.innerHTML = '<span></span><button type="button" title="' + esc(t('mvmai_pub_attach_remove')) + '">✕</button>';
           chip.querySelector('span').textContent = '📎 ' + p.name + (p.busy ? ' …' : '');
+          // An image shows as a small picture, larger on a click.
+          if (p.thumb) {
+            var th = makeThumb(p.thumb);
+            chip.insertBefore(th, chip.firstChild);
+            chip.querySelector('span').textContent = (p.busy ? '… ' : '') + p.name;
+          }
           chip.querySelector('button').onclick = function () {
             pending.splice(pending.indexOf(p), 1);
             renderChips();
@@ -1777,7 +1907,7 @@
         var inline = null;
         if (isImage) {
           if (pendingImages() >= MAX_IMAGES) { addNote(t('mvmai_pub_attach_limit', {n: MAX_IMAGES})); return; }
-          inline = shrinkImage(file).then(function (url) { item.images = [url]; });
+          inline = shrinkImage(file).then(function (url) { item.images = [url]; item.thumb = url; });
         } else if (isPdf) {
           inline = readPdf(file).then(function (r) { item.text = r.text; item.images = r.images; });
         } else if (/^text\//.test(file.type) || TEXT_EXT.test(file.name || '')) {
@@ -1815,8 +1945,9 @@
 
       // The message as the model gets it (content, images) and as the user sees it (shown).
       function buildMessage(text, att) {
-        var content = text, shown = text, images = [];
+        var content = text, shown = text, images = [], thumbs = [];
         att.forEach(function (a) {
+          if (a.thumb) thumbs.push(a.thumb);
           shown += (shown ? '\n' : '') + '📎 ' + a.name;
           if (a.path) content += '\n\n[Attached file saved on the server: ' + a.path + ']';
           if (a.dir) content += '\n[It is an archive; its contents were unpacked to: ' + a.dir + ']';
@@ -1826,7 +1957,7 @@
             content += '\n\n[Attached ' + (a.images.length > 1 ? a.images.length + ' images' : 'image') + ': ' + a.name + ']';
           }
         });
-        return {content: content.trim(), shown: shown, images: images};
+        return {content: content.trim(), shown: shown, images: images, thumbs: thumbs};
       }
 
       attachEl.onclick = function () { fileEl.click(); };
@@ -1935,7 +2066,7 @@
 
       function sendText(msg) {
         setBusy(true);
-        addBubble('user', msg.shown);
+        addBubble('user', msg.shown, msg.thumbs);
         history.push({role: 'user', content: msg.content, images: msg.images.length ? msg.images : undefined});
         var current = turn = {id: Math.random().toString(36).slice(2) + Date.now().toString(36), stopped: false};
 
@@ -1945,12 +2076,21 @@
           // between two of its steps.
           queue.filter(function (q) { return q.urgent; }).forEach(function (q) {
             queue.splice(queue.indexOf(q), 1);
-            addBubble('user', q.msg.shown);
+            addBubble('user', q.msg.shown, q.msg.thumbs);
             history.push({role: 'user', content: q.msg.content, images: q.msg.images.length ? q.msg.images : undefined});
           });
           renderQueue();
           var typing = current.typing = addTyping();
           current.controller = window.AbortController ? new AbortController() : null;
+          // A new chat gets its id here, so it is saved and listed at once
+          // instead of after the answer.
+          if (!sessionId) {
+            var rnd = new Uint8Array(16);
+            (window.crypto || {getRandomValues: function (a) { for (var i = 0; i < a.length; i++) a[i] = Math.floor(Math.random() * 256); }}).getRandomValues(rnd);
+            sessionId = Array.prototype.map.call(rnd, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+            if (termPanel) termPanel.setChat(sessionId, true);
+            setTimeout(refreshSessionList, 1500);
+          }
           api('/chat', {method: 'POST', signal: current.controller ? current.controller.signal : undefined,
             body: JSON.stringify({messages: history, session_id: sessionId, project_id: activeProject ? activeProject.id : null,
               app_id: chosenApp ? chosenApp.id : null, turn_id: current.id, lang: uiLang()})}).then(function (data) {
@@ -2011,7 +2151,7 @@
       });
     }
 
-    return { destroy: function () { clearInterval(projectPoll); clearInterval(providerPoll); } };
+    return { destroy: function () { clearInterval(projectPoll); clearInterval(providerPoll); if (termPanel) termPanel.destroy(); } };
   }
 
   window.MvmaiWidget = { mount: mount };

@@ -73,6 +73,10 @@ TUNING = {
     # the last material, and the seconds of wear the work costs them: a
     # bucket is carved out of a log with an axe.
     "build_tools": {"bucket": {"axe": 60}},
+    # Permanent modules use the farming grid and size-dependent recipes.
+    "housing": {"cell": 1.5, "max_side": 8, "floor_logs": 1, "wall_logs": 2,
+                "height": 2.6, "thickness": 0.16, "door_width": 1.2, "door_height": 2.1,
+                "support_step": 2, "support_min": 0.2, "support_unit": 2.0, "support_width": 0.22},
     # How much room a frame takes, in metres from its middle: two frames
     # stand at least the two rooms added together apart.
     "build_room": {"axe": 0.6, "hoe": 0.6, "bucket": 0.6, "sled": 1.5},
@@ -103,7 +107,7 @@ TUNING = {
     "chop_tick": 1.0,
     # Most items one pile on the ground holds before a new one is started.
     # A bucket lies on its own, so the water in each one stays its own.
-    "pile_max": {"stone": 40, "log": 12, "apple": 60, "berries": 100, "bucket": 1},
+    "pile_max": {"stone": 40, "log": 12, "apple": 60, "berries": 100, "bucket": 1, "axe": 1, "hoe": 1},
     # Two piles of the same thing closer than this become one.
     "pile_merge": 1.6,
     # Skills. A level takes `base_seconds` of training to climb from level 1
@@ -326,6 +330,8 @@ def _unit_of(kind: str, at: float):
     was picked, or how many waterings a bucket holds."""
     if kind in _VESSELS:
         return {"k": kind, "w": int(_num(at, 0, TUNING["farm"]["bucket"], 0))}
+    if kind in _TOOLS:
+        return {"k": kind, "w": _num(at, 0, TUNING["tool_life"][kind], 0)}
     return kind
 
 
@@ -334,7 +340,9 @@ def _unit_at(item) -> float:
     if kind in _FOOD:
         return item["at"]
     if kind in _VESSELS:
-        return float(item["w"])
+        return float(item["w"]) if isinstance(item, dict) else 0.0
+    if kind in _TOOLS:
+        return float(item["w"]) if isinstance(item, dict) else TUNING["tool_life"][kind]
     return 0.0
 
 
@@ -947,7 +955,7 @@ class World:
                 return
             if not self._near(p, *pos):
                 return await self._nope(p, "far")
-            if not self._put(inv, "stone"):
+            if not await self._receive(p, "stone"):
                 return await self._nope(p, "full")
             self.taken.add(stone)
             with _conn() as conn:
@@ -966,9 +974,9 @@ class World:
             if pile["n"] <= 0:
                 break
             if pile["kind"] in _FOOD:
-                if self._add_food(inv, pile["kind"], 1, pile["at"]):
+                if not await self._receive_food(p, pile["kind"], pile["at"], free_hand=moved == 0):
                     break
-            elif not self._put(inv, _unit_of(pile["kind"], pile["at"])):
+            elif not await self._receive(p, _unit_of(pile["kind"], pile["at"]), free_hand=moved == 0):
                 break
             pile["n"] -= 1
             moved += 1
@@ -981,6 +989,41 @@ class World:
         else:
             await self._to_all({"type": "hv_pile", "pile": pile})
         await self._inv_changed(p, hand_before)
+
+    async def _free_hand(self, p: dict):
+        """Stow held cargo if possible; otherwise preserve it on the ground."""
+        inv = p["inv"]
+        item = inv["hand"]
+        if item is None:
+            return
+        inv["hand"] = None
+        p["chop"] = p["dig"] = None
+        if _kind(item) in _FOOD:
+            left = self._add_food(inv, item["k"], item["n"], item["at"], hands=False)
+            if not left:
+                return
+            item = {**item, "n": left}
+        elif _kind(item) in _SMALL and None in inv["pack"]:
+            inv["pack"][inv["pack"].index(None)] = item
+            return
+        await self._to_ground(_kind(item), _count(item), _unit_at(item), p["x"], p["z"])
+
+    async def _receive(self, p: dict, item, free_hand: bool = True) -> bool:
+        """Make room once for a pickup; bulk taking still stops when full."""
+        if self._put(p["inv"], item):
+            return True
+        if not free_hand:
+            return False
+        await self._free_hand(p)
+        return self._put(p["inv"], item)
+
+    async def _receive_food(self, p: dict, kind: str, at: float, free_hand: bool = True) -> bool:
+        if not self._add_food(p["inv"], kind, 1, at):
+            return True
+        if not free_hand:
+            return False
+        await self._free_hand(p)
+        return not self._add_food(p["inv"], kind, 1, at)
 
     @staticmethod
     def _put(inv: dict, item) -> bool:
@@ -1101,8 +1144,8 @@ class World:
             await self._to_all({"type": "hv_pile", "pile": target})
 
     async def hold(self, pid: str, msg: dict):
-        """Swap the hands with one backpack slot. A log never goes into the
-        backpack, so with a log in the hands nothing happens."""
+        """Swap the hands with one backpack slot, setting bulky cargo on the
+        ground first so taking out a tool cannot block the player's task."""
         p = self.online.get(pid)
         if p is None:
             return
@@ -1129,10 +1172,16 @@ class World:
             inv["pack"][inv["pack"].index(None)] = inv["hand"]
             inv["hand"] = None
             return await self._inv_changed(p, hand_before)
-        if not isinstance(slot, int) or not 0 <= slot < len(inv["pack"]):
+        if not isinstance(slot, int) or isinstance(slot, bool) or not 0 <= slot < len(inv["pack"]):
             return
         if inv["hand"] is not None and _kind(inv["hand"]) not in _SMALL:
-            return await self._nope(p, "too_big")
+            if inv["pack"][slot] is None:
+                return
+            # Buckets and logs cannot fit in the backpack. Preserve the
+            # cargo (including bucket water) beside the player, then equip.
+            item = inv["hand"]
+            await self._to_ground(_kind(item), _count(item), _unit_at(item), p["x"], p["z"])
+            inv["hand"] = None
         if inv["hand"] is None and inv["pack"][slot] is None:
             return
         h, s_ = inv["hand"], inv["pack"][slot]
@@ -1186,7 +1235,7 @@ class World:
             return await self._nope(p, "unripe")
         kind = "apple" if m.group(1) == "t" else "berries"
         hand_before = p["inv"]["hand"]
-        if self._add_food(p["inv"], kind, 1, now):
+        if not await self._receive_food(p, kind, now):
             return await self._nope(p, "full")
         self.fruit[(src, k)] = now
         with _conn() as conn:
@@ -1206,7 +1255,7 @@ class World:
         if not _ripe(plot, k, now):
             return await self._nope(p, "unripe")
         hand_before = p["inv"]["hand"]
-        if self._add_food(p["inv"], crop["k"], 1, now):
+        if not await self._receive_food(p, crop["k"], now):
             return await self._nope(p, "full")
         crop["pk"][k] = round(_crop_g(plot, now), 2)
         await self._plots_changed([plot])
@@ -1327,7 +1376,8 @@ class World:
                     continue
                 if ((p["x"] - pos[0]) ** 2 + (p["z"] - pos[1]) ** 2) ** 0.5 > f["plan_reach"]:
                     continue
-                if any(((b["x"] - pos[0]) ** 2 + (b["z"] - pos[1]) ** 2) ** 0.5 < f["cell"]
+                if any(self._overlaps({"x": pos[0], "z": pos[1], "width": f["cell"], "depth": f["cell"]}, b) if b.get("make") in ("floor", "wall") else
+                       ((b["x"] - pos[0]) ** 2 + (b["z"] - pos[1]) ** 2) ** 0.5 < f["cell"]
                        for b in self.builds.values()):
                     continue
                 plot = {"c": c, "x": pos[0], "z": pos[1], "by": pid, "p": 0.0,
@@ -1499,12 +1549,204 @@ class World:
         await self._push_needs(p, now, True)
 
     # ── builds: frames, sleds ───────────────────────────────────────────────
+    @staticmethod
+    def _build_need(b: dict) -> dict:
+        return b.get("need") or TUNING["builds"].get(b.get("make"), {})
+
+    @staticmethod
+    def _build_rect(b: dict) -> tuple:
+        if "width" in b and "depth" in b:
+            return b["width"], b["depth"]
+        room = TUNING["build_room"].get(b.get("make") or b["kind"], 1.5)
+        return room * 2, room * 2
+
+    @staticmethod
+    def _floor_cells(b: dict) -> list:
+        removed = set(b.get("removed", []))
+        return [(x, z) for x in range(b["nx"]) for z in range(b["nz"]) if f"{x}_{z}" not in removed]
+
+    @classmethod
+    def _build_parts(cls, b: dict) -> list:
+        if b.get("make") == "floor" and b.get("removed"):
+            cell = TUNING["housing"]["cell"]
+            return [(b["x"] + (x + 0.5 - b["nx"] / 2) * cell,
+                     b["z"] + (z + 0.5 - b["nz"] / 2) * cell, cell, cell) for x, z in cls._floor_cells(b)]
+        w, d = cls._build_rect(b)
+        return [(b["x"], b["z"], w, d)]
+
+    @classmethod
+    def _floor_side_full(cls, b: dict, side: str) -> bool:
+        cells = set(cls._floor_cells(b))
+        if side in ("n", "s"):
+            z = 0 if side == "n" else b["nz"] - 1
+            return all((x, z) in cells for x in range(b["nx"]))
+        x = 0 if side == "w" else b["nx"] - 1
+        return all((x, z) in cells for z in range(b["nz"]))
+
+    @classmethod
+    def _overlaps(cls, a: dict, b: dict) -> bool:
+        return any(abs(ax - bx) < (aw + bw) / 2 - 0.01 and abs(az - bz) < (ad + bd) / 2 - 0.01
+                   for ax, az, aw, ad in cls._build_parts(a) for bx, bz, bw, bd in cls._build_parts(b))
+
+    @staticmethod
+    def _floor_foundation(nx: int, nz: int, terrain: list) -> dict:
+        """The client supplies sampled terrain, as it owns the terrain mesh.
+        Derive every post and its cost here; never accept a client recipe."""
+        cfg = TUNING["housing"]
+        base = max(terrain)
+        xs = list(range(0, nx, cfg["support_step"])) + [nx]
+        zs = list(range(0, nz, cfg["support_step"])) + [nz]
+        supports = []
+        for x in xs:
+            for z in zs:
+                y = terrain[x * 2 * (nz * 2 + 1) + z * 2]
+                height = round(base + 0.06 - y, 4)
+                if height <= cfg["support_min"]:
+                    continue
+                supports.append({"x": (x - nx / 2) * cfg["cell"], "z": (z - nz / 2) * cfg["cell"],
+                                 "y": y, "height": height,
+                                 "logs": math.ceil((height - 0.000001) / cfg["support_unit"])})
+        return {"base_y": base, "supports": supports, "support_logs": sum(s["logs"] for s in supports)}
+
+    async def _place_structure(self, p: dict, msg: dict):
+        cfg = TUNING["housing"]
+        make = msg["make"]
+        b = {"id": None, "kind": "site", "make": make, "ry": 0.0,
+             "owner": p["id"], "by": None, "have": {"log": 0}}
+        if make == "floor":
+            values = [msg.get(k) for k in ("gx", "gz", "nx", "nz")]
+            if any(not isinstance(v, int) or isinstance(v, bool) for v in values):
+                return await self._nope(p, "bad_structure")
+            gx, gz, nx, nz = values
+            if not 1 <= nx <= cfg["max_side"] or not 1 <= nz <= cfg["max_side"]:
+                return await self._nope(p, "bad_structure")
+            cell = cfg["cell"]
+            half = TUNING["world_size"] / 2
+            if gx * cell < -half or gz * cell < -half or (gx + nx) * cell > half or (gz + nz) * cell > half:
+                return await self._nope(p, "bad_structure")
+            base_y = _num(msg.get("base_y"), 0.05, 80, p.get("y") or 0.05)
+            terrain = msg.get("terrain")
+            foundation = {"base_y": base_y, "supports": [], "support_logs": 0}
+            if terrain is not None:
+                if (not isinstance(terrain, list) or len(terrain) != (nx * 2 + 1) * (nz * 2 + 1) or
+                    any(isinstance(y, bool) or not isinstance(y, (int, float)) or not math.isfinite(y) or
+                        not 0.1 < y <= 80 for y in terrain)):
+                    return await self._nope(p, "bad_structure")
+                foundation = self._floor_foundation(nx, nz, [round(y, 4) for y in terrain])
+            elif abs(base_y - (p.get("y") or 0)) > 2.0:
+                # Keep older clients compatible on the flat ground they support.
+                return await self._nope(p, "bad_structure")
+            b.update(gx=gx, gz=gz, nx=nx, nz=nz, x=(gx + nx / 2) * cell, z=(gz + nz / 2) * cell,
+                     width=nx * cell, depth=nz * cell, **foundation,
+                     need={"log": nx * nz * cfg["floor_logs"] + foundation["support_logs"]})
+            if any(abs(pl["x"] - b["x"]) < (b["width"] + TUNING["farm"]["cell"]) / 2 - 0.01 and
+                   abs(pl["z"] - b["z"]) < (b["depth"] + TUNING["farm"]["cell"]) / 2 - 0.01 for pl in self.plots.values()):
+                return await self._nope(p, "crowded")
+        else:
+            fid, side = msg.get("floor"), msg.get("side")
+            floor = self.builds.get(fid) if isinstance(fid, int) and not isinstance(fid, bool) else None
+            if not floor or floor.get("make") != "floor" or not floor.get("done") or side not in ("n", "e", "s", "w"):
+                return await self._nope(p, "need_floor")
+            if not self._floor_side_full(floor, side):
+                return await self._nope(p, "bad_structure")
+            if any(o.get("floor") == fid and o.get("side") == side for o in self.builds.values()):
+                return await self._nope(p, "crowded")
+            along_x = side in ("n", "s")
+            length = floor["width"] if along_x else floor["depth"]
+            thickness = cfg["thickness"]
+            b.update(floor=fid, side=side, door=msg.get("door") is True,
+                     x=floor["x"] + ((floor["width"] + thickness) / 2 * (1 if side == "e" else -1) if not along_x else 0),
+                     z=floor["z"] + ((floor["depth"] + thickness) / 2 * (1 if side == "s" else -1) if along_x else 0),
+                     width=length if along_x else thickness, depth=thickness if along_x else length,
+                     base_y=floor["base_y"] + 0.22, height=cfg["height"],
+                     need={"log": (floor["nx"] if along_x else floor["nz"]) * cfg["wall_logs"]})
+        if not self._near_build(p, b):
+            return await self._nope(p, "far")
+        for other in self.builds.values():
+            if make == "wall" and (other["id"] == b["floor"] or other.get("floor") == b["floor"]):
+                continue
+            if self._overlaps(b, other):
+                return await self._nope(p, "crowded")
+        self._store_build(b)
+        self.builds[b["id"]] = b
+        await self._to_all({"type": "hv_build", "build": b})
+
+    async def _remove_site(self, p: dict, b: dict):
+        """Remove before refunding, so duplicate requests cannot reclaim twice."""
+        materials = dict(b.get("have", {}))
+        b["gone"] = True
+        await self._build_changed(b)
+        for i, (kind, n) in enumerate(materials.items()):
+            if n > 0:
+                await self._to_ground(kind, n, 0, p["x"] + 1.2 + i, p["z"])
+
+    async def remove_build(self, pid: str, msg: dict):
+        p = self.online.get(pid)
+        bid = msg.get("build")
+        if p is None or not isinstance(bid, int) or isinstance(bid, bool):
+            return
+        b = self.builds.get(bid)
+        if b is None or b["kind"] != "site":
+            return
+        part = msg.get("cell")
+        cell = None
+        if part is not None:
+            if b.get("make") != "floor" or not isinstance(part, dict):
+                return await self._nope(p, "bad_structure")
+            x, z = part.get("x"), part.get("z")
+            if (any(not isinstance(v, int) or isinstance(v, bool) for v in (x, z)) or
+                not 0 <= x < b["nx"] or not 0 <= z < b["nz"]):
+                return await self._nope(p, "bad_structure")
+            key = f"{x}_{z}"
+            if key in b.get("removed", []):
+                return
+            c = TUNING["housing"]["cell"]
+            px, pz = b["x"] + (x + 0.5 - b["nx"] / 2) * c, b["z"] + (z + 0.5 - b["nz"] / 2) * c
+            if not self._near(p, px, pz, c / 2):
+                return await self._nope(p, "far")
+            cell = (x, z, key)
+        elif not self._near_build(p, b):
+            return await self._nope(p, "far")
+        if cell and len(self._floor_cells(b)) > 1:
+            x, z, key = cell
+            b.setdefault("removed", []).append(key)
+            active = set(self._floor_cells(b))
+            # Keep shared columns; reclaim only columns that no remaining
+            # square touches. The floor height stays fixed after trimming.
+            c = TUNING["housing"]["cell"]
+            def needed(post):
+                vx, vz = round(post["x"] / c + b["nx"] / 2), round(post["z"] / c + b["nz"] / 2)
+                return any((ax, az) in active for ax in (vx - 1, vx) for az in (vz - 1, vz))
+            b["supports"] = [post for post in b.get("supports", []) if needed(post)]
+            b["support_logs"] = sum(post["logs"] for post in b["supports"])
+            need = len(active) * TUNING["housing"]["floor_logs"] + b["support_logs"]
+            refund = max(0, b["have"].get("log", 0) - need)
+            b["have"]["log"] -= refund
+            b["need"] = {"log": need}
+            walls = [wall for wall in self.builds.values() if wall.get("floor") == bid and
+                     not self._floor_side_full(b, wall["side"])]
+            for wall in walls:
+                await self._remove_site(p, wall)
+            if not b.get("done") and b["have"]["log"] >= need:
+                await self._site_check(p, b)
+            await self._build_changed(b)
+            if refund:
+                await self._to_ground("log", refund, 0, p["x"] + 1.2, p["z"])
+        else:
+            walls = [wall for wall in self.builds.values() if wall.get("floor") == bid]
+            await self._remove_site(p, b)
+            for wall in walls:
+                await self._remove_site(p, wall)
+        await p["ctx"].send(pid, {"type": "hv_removed", "part": cell is not None})
+
     async def place(self, pid: str, msg: dict):
         """Lay down the frame of something made on the ground."""
         p = self.online.get(pid)
         if p is None:
             return
         make = msg.get("make")
+        if make in ("floor", "wall"):
+            return await self._place_structure(p, msg)
         need = TUNING["builds"].get(make) if isinstance(make, str) else None
         if need is None:
             return
@@ -1515,6 +1757,10 @@ class World:
             return await self._nope(p, "far")
         room = TUNING["build_room"]
         for o in self.builds.values():
+            if o.get("make") in ("floor", "wall"):
+                if self._overlaps({"x": x, "z": z, "make": make, "kind": "site"}, o):
+                    return await self._nope(p, "crowded")
+                continue
             gap = room[make] + room.get(o.get("make") or o["kind"], room["sled"])
             if ((o["x"] - x) ** 2 + (o["z"] - z) ** 2) ** 0.5 < gap:
                 return await self._nope(p, "crowded")
@@ -1527,6 +1773,12 @@ class World:
         await self._to_all({"type": "hv_build", "build": b})
 
     def _near_build(self, p: dict, b: dict) -> bool:
+        if b.get("make") in ("floor", "wall"):
+            if p["x"] is None:
+                return False
+            return any(math.hypot(max(0.0, abs(p["x"] - x) - w / 2),
+                                  max(0.0, abs(p["z"] - z) - d / 2)) <= TUNING["reach"]
+                       for x, z, w, d in self._build_parts(b))
         # A sled is a couple of metres long; reach it anywhere along its side.
         return self._near(p, b["x"], b["z"], 1.2)
 
@@ -1611,7 +1863,7 @@ class World:
         if b["kind"] == "site":
             if b.get("done"):
                 return await self._nope(p, "not_needed")
-            need = TUNING["builds"][b["make"]]
+            need = self._build_need(b)
             moved, why = 0, None
             for _ in range(50 if msg.get("all") else 1):
                 wanted = {k for k, n in need.items() if b["have"].get(k, 0) < n}
@@ -1673,7 +1925,7 @@ class World:
     async def _site_check(self, p: dict, b: dict):
         """A frame with everything it needs is finished: a sled becomes the
         sled itself, a tool lies on its frame until someone takes it."""
-        need = TUNING["builds"][b["make"]]
+        need = self._build_need(b)
         if not all(b["have"].get(k, 0) >= n for k, n in need.items()):
             return
         if b["make"] == "sled":
@@ -1684,7 +1936,7 @@ class World:
             b["done"] = True
         p["chop"] = p["dig"] = None
         await p["ctx"].send(p["id"], {"type": "hv_made", "item": b.get("make") or b["kind"],
-                                      "frame": bool(b.get("done"))})
+                                      "frame": bool(b.get("done")) and b.get("make") not in ("floor", "wall")})
 
     def _sled_room(self, b: dict, kind: str) -> str | None:
         """Why one more `kind` cannot go on a sled, or None when it can."""
@@ -1723,7 +1975,11 @@ class World:
         near = lambda h: self._near_build(p, h[1]) if h[0] == "build" else self._near(p, h[2], h[3])
         if not near(src) and not near(dst):
             return await self._nope(p, "far")
-        if ((src[2] - dst[2]) ** 2 + (src[3] - dst[3]) ** 2) ** 0.5 > TUNING["unload_reach"] + 1.2:
+        sw, sd = self._build_rect(src[1]) if src[0] == "build" and src[1].get("make") in ("floor", "wall") else (0, 0)
+        dw, dd = self._build_rect(dst[1]) if dst[0] == "build" and dst[1].get("make") in ("floor", "wall") else (0, 0)
+        gap = math.hypot(max(0, abs(src[2] - dst[2]) - (sw + dw) / 2),
+                         max(0, abs(src[3] - dst[3]) - (sd + dd) / 2))
+        if gap > TUNING["unload_reach"] + 1.2:
             return await self._nope(p, "far_spot")
         s, d = src[1], dst[1]
         if src[0] == "pile":
@@ -1744,7 +2000,7 @@ class World:
             # Whether the other side takes one more, before anything is moved.
             last = False
             if dst[0] == "build" and d["kind"] == "site":
-                need = TUNING["builds"][d["make"]]
+                need = self._build_need(d)
                 if d["have"].get(kind, 0) >= need.get(kind, 0):
                     why = why or "not_needed"
                     break
@@ -1870,13 +2126,12 @@ class World:
         inv = p["inv"]
         hand_before = inv["hand"]
         if b["kind"] == "site" and b.get("done"):
+            if b.get("make") in ("floor", "wall"):
+                return await self._nope(p, "not_needed")
             made = self._made_item(b["make"])
-            if inv["hand"] is None:
-                inv["hand"] = made
-            elif _kind(made) in _SMALL and None in inv["pack"]:
-                inv["pack"][inv["pack"].index(None)] = made
-            else:
-                return await self._nope(p, "full" if _kind(made) in _SMALL else "hands_full")
+            if inv["hand"] is not None:
+                await self._free_hand(p)
+            inv["hand"] = made
             b["gone"] = True
             await self._build_changed(b)
             return await self._inv_changed(p, hand_before)
@@ -1893,7 +2148,7 @@ class World:
             at = self._take_from(b, kind)
             if at is None:
                 break
-            ok = (not self._add_food(inv, kind, 1, at)) if kind in _FOOD else self._put(inv, _unit_of(kind, at))
+            ok = (await self._receive_food(p, kind, at, free_hand=moved == 0)) if kind in _FOOD else await self._receive(p, _unit_of(kind, at), free_hand=moved == 0)
             if not ok:
                 self._give_back(b, kind, at)
                 failed = True
@@ -1927,8 +2182,21 @@ class World:
             half = TUNING["world_size"] / 2
             x = _num(msg.get("x"), -half, half, b["x"])
             z = _num(msg.get("z"), -half, half, b["z"])
-            if ((x - b["x"]) ** 2 + (z - b["z"]) ** 2) ** 0.5 > TUNING["unload_reach"]:
+            dx, dz = abs(x - b["x"]), abs(z - b["z"])
+            if b.get("make") in ("floor", "wall"):
+                dx, dz = max(0, dx - b["width"] / 2), max(0, dz - b["depth"] / 2)
+            if math.hypot(dx, dz) > TUNING["unload_reach"]:
                 return await self._nope(p, "far_spot")
+        elif b.get("make") in ("floor", "wall"):
+            # Keep recovered materials beside the edge where the player is,
+            # rather than at the centre of a potentially large floor.
+            dx, dz = p["x"] - b["x"], p["z"] - b["z"]
+            if abs(dx) / b["width"] >= abs(dz) / b["depth"]:
+                x = b["x"] + (b["width"] / 2 + 1.0) * (1 if dx >= 0 else -1)
+                z = max(b["z"] - b["depth"] / 2, min(b["z"] + b["depth"] / 2, p["z"]))
+            else:
+                x = max(b["x"] - b["width"] / 2, min(b["x"] + b["width"] / 2, p["x"]))
+                z = b["z"] + (b["depth"] / 2 + 1.0) * (1 if dz >= 0 else -1)
         else:
             # Beside it, on the side the player stands on.
             sx, sz = math.cos(b["ry"]), -math.sin(b["ry"])

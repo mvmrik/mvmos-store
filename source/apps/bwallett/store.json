@@ -10,6 +10,7 @@
     "Selectable network fee with a complete confirmation summary.",
     "A built-in address and transaction explorer.",
     "Wallet password changes without replacing the recovery phrase.",
-    "The same data in the desktop app and Apps Hub public page."
+    "The same data in the desktop app and Apps Hub public page.",
+    "When the public payment range is set, the send form shows it and checks the amount while you type."
   ]
 }

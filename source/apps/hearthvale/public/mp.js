@@ -51,6 +51,7 @@
   // The player is never steered directly: a click or a tap on a thing gives
   // its menu, and what is chosen there is done, like in The Sims.
   let goal = null, autoUse = null, drinkHeld = false, drinkClock = 0;
+  let housing = null;
   let placing = null;           // what is being placed: { make, ghost, ok, at }
   // The open window of a sled or a frame: { id, other, sel, spot, drag }.
   // `other` is what is shown below it instead of the player's things: a
@@ -67,10 +68,11 @@
   // The camera looks wherever it is dragged, unless it is locked on the
   // player with the button by the hands.
   let camLock = false, camFree = null;
+  let cameraInput = () => {};
   try { camLock = localStorage.getItem('hv_follow') === '1'; } catch (e) { /* private window */ }
   const SLED_W = 1.2, SLED_L = 2.3;   // footprint of a sled and of its frame
   const TOOL_W = 0.9, TOOL_L = 0.75;  // footprint of the frame a tool is made on
-  const footOf = (d) => (d.make || d.kind) === 'sled' ? [SLED_W, SLED_L] : [TOOL_W, TOOL_L];
+  const footOf = (d) => d.make === 'floor' || d.make === 'wall' ? [d.width, d.depth] : (d.make || d.kind) === 'sled' ? [SLED_W, SLED_L] : [TOOL_W, TOOL_L];
 
   // ── seeded noise ─────────────────────────────────────────────────────────
   function mulberry32(a) {
@@ -1104,9 +1106,11 @@
         '<button type="button" class="hv-chip hv-craft-btn">🔨 <span class="hv-craft-label"></span></button>' +
         '<button type="button" class="hv-chip hv-skills-btn">📈 <span class="hv-skills-label"></span></button>' +
         '<div class="hv-spacer"></div>' +
+        '<button type="button" class="hv-chip hv-fullscreen">⛶</button>' +
         '<button type="button" class="hv-chip hv-leave"></button>' +
       '</div>' +
       '<div class="hv-menu"></div>' +
+      '<div class="hv-house-plan"></div>' +
       '<div class="hv-people"></div>' +
       '<div class="hv-craft"></div>' +
       '<div class="hv-skills"></div>' +
@@ -1130,6 +1134,7 @@
       peopleBtn: app.querySelector('.hv-people-btn'),
       people: app.querySelector('.hv-people'),
       leave: app.querySelector('.hv-leave'),
+      fullscreen: app.querySelector('.hv-fullscreen'),
       toasts: app.querySelector('.hv-toasts'),
       hint: app.querySelector('.hv-hint'),
       loading: app.querySelector('.hv-loading'),
@@ -1151,6 +1156,7 @@
       pillText: app.querySelector('.hv-pill-text'),
       pillFill: app.querySelector('.hv-pill-bar i'),
       menu: app.querySelector('.hv-menu'),
+      housePlan: app.querySelector('.hv-house-plan'),
       craftLabel: app.querySelector('.hv-craft-label'),
       me: app.querySelector('.hv-me'),
     };
@@ -1160,16 +1166,20 @@
     renderNeeds();
     renderCraftBtn();
     // While a frame is placed or a field marked, the same button ends it.
-    ui.craftBtn.onclick = () => { if (placing) stopPlacing(); else if (tilling) stopTilling(true); else toggleCraft(); };
+    ui.craftBtn.onclick = () => { if (housing) stopHousing(); else if (placing) stopPlacing(); else if (tilling) stopTilling(true); else toggleCraft(); };
     ui.hand.title = tr('hv_hands');
     ui.hand.onclick = (e) => { if (inv.hand) slotMenu('hand', e); };
     ui.pack.title = tr('hv_backpack');
     renderInv();
     ui.name.textContent = tr('hv_title');
     ui.leave.textContent = tr('hv_leave');
+    ui.fullscreen.onclick = toggleFullscreen;
+    document.addEventListener('fullscreenchange', renderFullscreen);
+    document.addEventListener('webkitfullscreenchange', renderFullscreen);
+    renderFullscreen();
     ui.loadingText.textContent = tr('hv_loading');
     app.classList.toggle('hv-touch', isTouch());
-    ui.hint.textContent = tr(isTouch() ? 'hv_controls_touch' : 'hv_controls_mouse');
+    ui.hint.textContent = tr(isTouch() ? 'hv_controls_touch' : 'hv_controls_mouse') + (isTouch() ? '' : ' · ' + tr('hv_camera_help'));
     ui.peopleBtn.onclick = () => { ui.people.classList.toggle('open'); toggleCraft(false); toggleSkills(false); renderPeople(); };
     ui.leave.onclick = () => {
       ui.leave.disabled = true;
@@ -1177,6 +1187,38 @@
       setTimeout(() => { location.href = HUB_URL; }, 1500);
     };
     renderPeople();
+  }
+
+  function gameFullscreen() {
+    return (document.fullscreenElement || document.webkitFullscreenElement) === app;
+  }
+
+  function renderFullscreen() {
+    if (!ui.fullscreen) return;
+    const active = gameFullscreen();
+    const label = tr(active ? 'hv_fullscreen_exit' : 'hv_fullscreen');
+    ui.fullscreen.textContent = active ? '⊡' : '⛶';
+    ui.fullscreen.title = label;
+    ui.fullscreen.setAttribute('aria-label', label);
+    ui.fullscreen.setAttribute('aria-pressed', String(active));
+    fit();
+  }
+
+  async function toggleFullscreen() {
+    try {
+      if (gameFullscreen()) {
+        const exit = document.exitFullscreen || document.webkitExitFullscreen;
+        if (!exit) throw new Error('Fullscreen unavailable');
+        await exit.call(document);
+      } else {
+        const enter = app.requestFullscreen || app.webkitRequestFullscreen;
+        if (!enter) throw new Error('Fullscreen unavailable');
+        await enter.call(app);
+      }
+      renderFullscreen();
+    } catch (e) {
+      toast(tr('hv_fullscreen_failed'));
+    }
   }
 
   function renderPeople() {
@@ -1208,7 +1250,7 @@
     }
   }
 
-  const ICON = { stone: '🪨', log: '🪵', axe: '🪓', hoe: '⛏', bucket: '🪣', sled: '🛷', apple: '🍎', berries: '🍇' };
+  const ICON = { floor: '🟫', wall: '🧱', stone: '🪨', log: '🪵', axe: '🪓', hoe: '⛏', bucket: '🪣', sled: '🛷', apple: '🍎', berries: '🍇' };
   // What stays with the player: never put down, never loaded on a sled.
   const kept = (k) => k === 'axe' || k === 'hoe';
 
@@ -1330,6 +1372,15 @@
       row.append(icon, mid, btn);
       ui.craft.appendChild(row);
     });
+    for (const [make, door] of [['floor', false], ['wall', false], ['wall', true]]) {
+      const row = el('div', 'hv-recipe');
+      const mid = el('div', 'hv-recipe-mid');
+      mid.appendChild(el('b', null, tr(door ? 'hv_wall_door' : 'hv_name_' + make)));
+      mid.appendChild(el('div', 'hv-recipe-parts', tr(make === 'floor' ? 'hv_floor_recipe' : 'hv_wall_recipe', { n: make === 'floor' ? T.housing.floor_logs : T.housing.wall_logs, size: T.housing.cell, max: T.housing.max_side })));
+      const btn = el('button', 'hv-make', tr('hv_place')); btn.type = 'button';
+      btn.onclick = () => startHousing(make, door);
+      row.append(el('div', 'hv-recipe-icon', ICON[make]), mid, btn); ui.craft.appendChild(row);
+    }
     // A field: squares of ground marked here and dug with a hoe.
     {
       const row = document.createElement('div');
@@ -1391,8 +1442,8 @@
   }
 
   // ── input ────────────────────────────────────────────────────────────────
-  // Only the pointer: a mouse, or fingers. Dragging looks around, dragging
-  // with the right button or two fingers moves the camera over the ground,
+  // Dragging looks around; arrows, edge scrolling, Shift/right dragging
+  // or two fingers move the camera over the ground,
   // the wheel or a pinch brings it closer, and a short press is a click.
   function bindInput(canvas) {
     // Tiles dragged out of the window of a sled or a frame.
@@ -1404,6 +1455,57 @@
     });
 
     const drags = new Map();
+    const arrows = new Set();
+    let edge = null;
+    const editable = (target) => target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+    window.addEventListener('keydown', (e) => {
+      if (!booted || !app.isConnected || editable(e.target) || e.altKey || e.metaKey || e.ctrlKey || !e.key.startsWith('Arrow')) return;
+      e.preventDefault();
+      arrows.add(e.key);
+    });
+    window.addEventListener('keyup', (e) => arrows.delete(e.key));
+    const resetCameraInput = () => {
+      arrows.clear(); edge = null; drags.clear(); pinch = null;
+      if (housing && housing.drag !== null) { housing.drag = null; housing.fixed = true; housing.selecting = false; }
+    };
+    window.addEventListener('blur', resetCameraInput);
+    document.addEventListener('visibilitychange', () => { if (document.hidden) resetCameraInput(); });
+    const cameraBounds = () => gameFullscreen()
+      ? { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight }
+      : canvas.getBoundingClientRect();
+    const cameraSurface = (target) => target === canvas || target === app || target === ui.stage;
+    const trackCameraPointer = (e, leaving = false) => {
+      const r = cameraBounds();
+      // Fullscreen can report a leave at the physical screen boundary, or
+      // hit the app's background in a fractional gap beside the canvas.
+      const atScreenEdge = gameFullscreen() && !e.relatedTarget &&
+        e.clientX >= r.left - 2 && e.clientX <= r.right + 2 &&
+        e.clientY >= r.top - 2 && e.clientY <= r.bottom + 2 &&
+        (e.clientX <= r.left + 2 || e.clientX >= r.right - 2 ||
+         e.clientY <= r.top + 2 || e.clientY >= r.bottom - 2);
+      const surface = leaving ? cameraSurface(e.relatedTarget) || atScreenEdge : cameraSurface(e.target);
+      edge = e.pointerType === 'mouse' && surface && !e.buttons
+        ? { x: Math.max(r.left, Math.min(r.right, e.clientX)), y: Math.max(r.top, Math.min(r.bottom, e.clientY)) }
+        : null;
+    };
+    window.addEventListener('pointermove', (e) => trackCameraPointer(e));
+    document.addEventListener('pointerout', (e) => { if (!e.relatedTarget) trackCameraPointer(e, true); });
+    document.addEventListener('fullscreenchange', resetCameraInput);
+    document.addEventListener('webkitfullscreenchange', resetCameraInput);
+    cameraInput = (dt) => {
+      if (!booted || !app.isConnected || document.hidden || editable(document.activeElement) || (housing && housing.drag !== null) || drags.size || (tilling && tilling.paint) || (cargo && cargo.drag)) return;
+      let x = Number(arrows.has('ArrowRight')) - Number(arrows.has('ArrowLeft'));
+      let y = Number(arrows.has('ArrowDown')) - Number(arrows.has('ArrowUp'));
+      if (!x && !y && edge && !ui.menu.classList.contains('show')) {
+        const r = cameraBounds(), band = 24;
+        if (edge.x >= r.left && edge.x <= r.right && edge.y >= r.top && edge.y <= r.bottom) {
+          x = edge.x > r.right - band ? 1 : edge.x < r.left + band ? -1 : 0;
+          y = edge.y > r.bottom - band ? 1 : edge.y < r.top + band ? -1 : 0;
+        }
+      }
+      const n = Math.hypot(x, y);
+      if (n) panBy(-x / n * 420 * dt, -y / n * 420 * dt);
+    };
     let pinch = null;
     const pair = () => {
       const [a, b] = [...drags.values()];
@@ -1411,8 +1513,25 @@
     };
     canvas.addEventListener('pointerdown', (e) => {
       hideMenu();
+      edge = null;
+      if (housing && e.pointerType === 'touch' && housing.drag !== null && housing.drag !== e.pointerId) {
+        // A second finger changes the gesture to camera pan/zoom. Freeze
+        // the plan while both fingers use the normal camera controls.
+        const h = housing, p = h.pointer;
+        drags.set(h.drag, { x: p.x, y: p.y, x0: p.x, y0: p.y, t0: performance.now(), pan: true, moved: true });
+        const previous = h.press.previous;
+        h.anchor = previous.anchor; h.end = previous.end; h.candidate = previous.candidate;
+        h.drag = null; h.fixed = true; h.selecting = false;
+      }
+      if (housing && e.button === 0 && !e.shiftKey && !e.ctrlKey && !drags.size) {
+        if (housing.drag !== null) return;
+        housing.press = { x: e.clientX, y: e.clientY, selecting: housing.selecting, moved: false,
+          previous: { anchor: housing.anchor, end: housing.end, candidate: housing.candidate } };
+        housing.fixed = false; housing.pointer = { x: e.clientX, y: e.clientY }; housing.drag = e.pointerId;
+        housingPoint(e.clientX, e.clientY, !housing.selecting); canvas.setPointerCapture(e.pointerId); updateHousing(); return;
+      }
       // Marking a field: the left button or a finger paints squares.
-      if (tilling && e.button === 0 && !drags.size) {
+      if (tilling && e.button === 0 && !e.shiftKey && !e.ctrlKey && !drags.size) {
         tilling.paint = { id: e.pointerId, last: null };
         tilling.erase = null;
         canvas.setPointerCapture(e.pointerId);
@@ -1420,11 +1539,18 @@
         return;
       }
       drags.set(e.pointerId, { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, t0: performance.now(),
-        pan: e.button === 2 || e.button === 1, moved: false });
+        pan: e.button === 2 || e.button === 1 || e.shiftKey || e.ctrlKey, moved: false });
       canvas.setPointerCapture(e.pointerId);
       if (drags.size === 2) { pinch = pair(); drags.forEach(d => { d.moved = true; }); }
     });
     canvas.addEventListener('pointermove', (e) => {
+      if (housing && (!drags.size || housing.drag === e.pointerId)) {
+        if (e.pointerType !== 'touch' || housing.drag === e.pointerId) housing.pointer = { x: e.clientX, y: e.clientY };
+        if (housing.drag === e.pointerId) {
+          if (Math.hypot(e.clientX - housing.press.x, e.clientY - housing.press.y) >= 7) housing.press.moved = true;
+          housingPoint(e.clientX, e.clientY); return;
+        }
+      }
       if (tilling && tilling.paint && tilling.paint.id === e.pointerId) { paintAt(e.clientX, e.clientY); return; }
       const d = drags.get(e.pointerId);
       if (!d) return;
@@ -1445,6 +1571,7 @@
     const end = (e) => {
       drags.delete(e.pointerId);
       if (drags.size < 2) pinch = null;
+      if (housing && housing.drag === e.pointerId) { housing.drag = null; housing.fixed = true; housing.selecting = false; }
       if (tilling && tilling.paint && tilling.paint.id === e.pointerId) endPaint();
     };
     canvas.addEventListener('pointermove', (e) => {
@@ -1462,8 +1589,18 @@
       hoverHit = h && h.kind !== 'ground' && h.kind !== 'water' ? h : null;
       canvas.style.cursor = hoverHit ? 'pointer' : '';
     });
-    canvas.addEventListener('pointerleave', () => { hoverHit = null; canvas.style.cursor = ''; });
+    canvas.addEventListener('pointerleave', (e) => { trackCameraPointer(e, true); hoverHit = null; canvas.style.cursor = ''; });
     canvas.addEventListener('pointerup', (e) => {
+      if (housing && housing.drag === e.pointerId) {
+        const h = housing;
+        housingPoint(e.clientX, e.clientY); h.drag = null;
+        const moved = h.press.moved || Math.hypot(e.clientX - h.press.x, e.clientY - h.press.y) >= 7;
+        // A tap starts the rectangle; the next tap fixes its opposite
+        // corner. Dragging still chooses both corners in one gesture.
+        h.selecting = h.make === 'floor' && !!h.anchor && !h.press.selecting && !moved;
+        h.fixed = !h.selecting;
+        updateHousing(); return;
+      }
       if (tilling && tilling.paint && tilling.paint.id === e.pointerId) { endPaint(); return; }
       const d = drags.get(e.pointerId), many = drags.size > 1;
       end(e);
@@ -1520,6 +1657,9 @@
     const fx = me.x + Math.sin(me.ry) * 0.9, fz = me.z + Math.cos(me.ry) * 0.9;
     let build = null, bd = 0.9;
     builds.forEach(b => {
+      // Permanent projects are opened by clicking them explicitly. They
+      // must not intercept picking up the logs brought beside a house.
+      if (isStructure(b.data)) return;
       const d = footDist(b.data, fx, fz);
       if (d < bd) { build = b; bd = d; }
     });
@@ -1546,6 +1686,8 @@
 
   // How far (x, z) is from the footprint of a frame or a sled.
   function footDist(d, x, z) {
+    if (d.make === 'floor' && d.removed?.length) return Math.min(...buildParts(d).map(p =>
+      Math.hypot(Math.max(0, Math.abs(x - p.x) - p.width / 2), Math.max(0, Math.abs(z - p.z) - p.depth / 2))));
     const dx = x - d.x, dz = z - d.z, c = Math.cos(d.ry), s = Math.sin(d.ry);
     const lx = dx * c - dz * s, lz = dx * s + dz * c;
     const [w, l] = footOf(d);
@@ -1600,7 +1742,7 @@
       else { g.tried.add(k); g.left--; g.at = now; mp.send({ type: 'hv_gather', src: g.src, k }); }
     }
     // A field worked square by square: the next one once this one is done.
-    if (autoTask && !goal && !digAt && now - autoTask.at > 700) nextAuto();
+    if (autoTask && !goal && !digAt && !gatherAll && now - autoTask.at > 700) nextAuto();
   }
 
   // ── picking fruit ────────────────────────────────────────────────────────
@@ -1618,10 +1760,15 @@
   // Menu lines to pick one, or every ripe one, after walking up to it.
   function fruitItems(items, src, kind, x, z, r) {
     const n = ripeOf(src).length;
-    if (!n) return;
     const go = (left) => () => goAct(x, z, r, () => { gatherAll = { src, left, tried: new Set(), at: 0 }; });
-    items.push({ task: true, label: tr('hv_m_pick_' + kind), run: go(1) });
-    if (n > 1) items.push({ task: true, label: tr('hv_m_pick_all_' + kind), run: go(Infinity) });
+    if (n) {
+      items.push({ group: tr('hv_m_pick_' + kind), task: true, label: tr('hv_m_pick_' + kind), run: go(1) });
+      items.push({ group: tr('hv_m_pick_' + kind), task: true, label: tr('hv_m_pick_all_' + kind), run: go(Infinity) });
+    }
+    if (src[0] === 'f') {
+      items.push({ group: tr('hv_m_pick_' + kind), task: true, label: tr('hv_m_pick_garden_' + kind),
+        run: () => goAct(x, z, r, () => startAuto('harvest', kind, src.slice(1))) });
+    }
   }
 
   // ── click controls ───────────────────────────────────────────────────────
@@ -1746,17 +1893,45 @@
     });
   }
 
-  function showMenu(items, px, py, title) {
+  function groupMenuItems(items) {
+    const grouped = [], groups = new Map();
+    for (const it of items) {
+      if (!it.group) { grouped.push(it); continue; }
+      let g = groups.get(it.group);
+      if (!g) { g = { label: it.group, children: [] }; groups.set(it.group, g); grouped.push(g); }
+      g.children.push(it);
+    }
+    return grouped.map(it => it.children && it.children.length === 1 ? it.children[0] : it);
+  }
+
+  function showMenu(items, px, py, title, parent = null) {
     hideMenu();
     if (!items.length) return;
     const m = ui.menu;
     if (title) { const h = document.createElement('div'); h.className = 'hv-menu-title'; h.textContent = title; m.appendChild(h); }
-    items.forEach(it => {
+    if (parent) {
+      const back = document.createElement('button');
+      back.type = 'button'; back.textContent = '‹ ' + tr('hv_menu_back');
+      back.onclick = (e) => { e.stopPropagation(); parent(); };
+      m.appendChild(back);
+    }
+    groupMenuItems(items).forEach(it => {
       const b = document.createElement('button');
       b.type = 'button';
-      b.textContent = it.label;
-      if (it.off) b.disabled = true;
-      b.onclick = (e) => { e.stopPropagation(); hideMenu(); if (it.task) queueTask(it.label, it.run); else it.run(); };
+      b.textContent = it.label + (it.children ? ' ›' : '');
+      if (it.children) b.setAttribute('aria-haspopup', 'menu');
+      if (it.off || (it.children && it.children.every(child => child.off))) b.disabled = true;
+      b.onclick = (e) => {
+        e.stopPropagation();
+        if (it.children) {
+          const hit = markHit;
+          const reopen = () => { showMenu(items, px, py, title, parent); markHit = hit; };
+          showMenu(it.children.map(child => ({ ...child, group: null })), px, py, it.label, reopen);
+          markHit = hit;
+          return;
+        }
+        hideMenu(); if (it.task) queueTask(it.label, it.run); else it.run();
+      };
       m.appendChild(b);
     });
     m.classList.add('show');
@@ -1787,13 +1962,22 @@
     stones.forEach(st => { if (!st.taken) consider('stone', st.x, groundAt(st.x, st.z) + 0.2, st.z, 40, st); });
     trees.forEach(t => { if (!t.felled) consider('tree', t.x, groundAt(t.x, t.z) + 1.5 * (t.s || 1), t.z, 58, t); });
     piles.forEach(p => consider('pile', p.data.x, groundAt(p.data.x, p.data.z) + 0.3, p.data.z, 44, p));
-    builds.forEach(b => consider('build', b.data.x, groundAt(b.data.x, b.data.z) + 0.5, b.data.z, 54, b));
+    builds.forEach(b => { if (!isStructure(b.data)) consider('build', b.data.x, groundAt(b.data.x, b.data.z) + 0.5, b.data.z, 54, b); });
     plots.forEach(p => consider('plot', p.data.x, groundAt(p.data.x, p.data.z) + 0.2, p.data.z, 34, p));
     fruitSrc.forEach(f => {
       if (f.kind === 't') { const t = trees.get(f.src); if (t && t.felled) return; }
       f.slots.forEach((gi, i) => { const sl = fruitSlots[gi]; if (sl && fruitRipe(f.src, i)) consider('fruit', sl.x, sl.y, sl.z, 30, { src: f.src, k: i, kind: f.kind, x: f.x, z: f.z }); });
     });
     if (best) return best;
+    const ray = new THREE.Raycaster();
+    ray.setFromCamera(new THREE.Vector2(px / rect.width * 2 - 1, -(py / rect.height) * 2 + 1), camera);
+    const roots = [...builds.values()].filter(b => isStructure(b.data)).map(b => b.group);
+    const hit = ray.intersectObjects(roots, true)[0];
+    if (hit) {
+      let root = hit.object; while (root.parent && root.userData.buildId == null) root = root.parent;
+      const b = builds.get(root.userData.buildId);
+      if (b) return { kind: 'build', x: hit.point.x, z: hit.point.z, data: b };
+    }
     return groundRay(cx, cy);
   }
 
@@ -1807,11 +1991,20 @@
     const o = ray.ray.origin, d = ray.ray.direction;
     for (let t = 1; t < 140; t += 0.6) {
       const x = o.x + d.x * t, y = o.y + d.y * t, z = o.z + d.z * t;
-      const g = groundAt(x, z), sl = shoreLevel(x, z);
+      const g = walkGround(x, z), sl = shoreLevel(x, z);
       const top = sl !== null && sl > g ? sl : g;
       if (y <= top) {
-        if (sl !== null && sl - g > 0.05) return { kind: 'water', x, z };
-        return { kind: 'ground', x, z };
+        // Refine the intersection so selecting a construction square does
+        // not drift into the next cell with the terrain march's step size.
+        let lo = Math.max(0, t - .6), hi = t;
+        for (let i = 0; i < 8; i++) {
+          const mid = (lo + hi) / 2, mx = o.x + d.x * mid, mz = o.z + d.z * mid;
+          const land = walkGround(mx, mz), water = shoreLevel(mx, mz);
+          if (o.y + d.y * mid <= Math.max(land, water ?? -Infinity)) hi = mid; else lo = mid;
+        }
+        const hx = o.x + d.x * hi, hz = o.z + d.z * hi;
+        const land = walkGround(hx, hz), water = shoreLevel(hx, hz);
+        return { kind: water !== null && water - land > .05 ? 'water' : 'ground', x: hx, z: hz };
       }
     }
     return null;
@@ -1822,13 +2015,13 @@
     if (!hit) return;
     const items = [];
     const D = hit;
-    const tool = () => isTool(inv.hand) || (!inv.hand && packTool() >= 0);
+    const tool = () => isTool(inv.hand) || packTool() >= 0;
     if (D.kind === 'stone') {
       items.push({ task: true, label: tr('hv_act_pick', { item: tr('hv_name_stone') }), run: () => goAct(D.x, D.z, 1.4, () => doPick()) });
     } else if (D.kind === 'pile') {
       const pd = D.data.data;
-      items.push({ task: true, label: pileLabel(pd), run: () => goAct(pd.x, pd.z, 1.5, () => doPick()) });
-      if (pd.n > 1) items.push({ task: true, label: tr('hv_m_all_take'), run: () => goAct(pd.x, pd.z, 1.5, () => doPick(true)) });
+      items.push({ task: true, group: tr('hv_act_pick', { item: tr('hv_name_' + pd.kind) }), label: pileLabel(pd), run: () => goAct(pd.x, pd.z, 1.5, () => doPick()) });
+      if (pd.n > 1) items.push({ task: true, group: tr('hv_act_pick', { item: tr('hv_name_' + pd.kind) }), label: tr('hv_m_all_take'), run: () => goAct(pd.x, pd.z, 1.5, () => doPick(true)) });
     } else if (D.kind === 'fruit') {
       const f = D.data, t = f.kind === 't' && trees.get(f.src);
       if (t) return worldClick(e, { kind: 'tree', x: t.x, z: t.z, data: t });
@@ -1846,14 +2039,33 @@
     } else if (D.kind === 'plot') {
       return plotMenu(D.data, e);
     } else if (D.kind === 'build') {
-      const d = D.data.data, at = (fn) => goAct(d.x, d.z, 2.6, fn);
-      if (d.kind === 'site') {
+      const d = D.data.data, at = (fn) => isStructure(d) ? approachBuild(d, fn) : goAct(d.x, d.z, 2.6, fn);
+      if (isStructure(d) && d.done) {
+        if (d.make === 'floor') {
+          items.push({ group: tr('hv_name_wall'), label: tr('hv_name_wall'), run: () => startHousing('wall') });
+          items.push({ group: tr('hv_name_wall'), label: tr('hv_wall_door'), run: () => startHousing('wall', true) });
+          const g = groundRay(e.clientX, e.clientY);
+          if (g) {
+            items.push({ task: true, label: tr('hv_m_walk'), run: () => goTo(g.x, g.z, .5) });
+            items.push({ task: true, label: tr('hv_m_run'), run: () => goTo(g.x, g.z, .5, null, null, true) });
+          }
+        } else items.push({ label: tr('hv_structure_done'), off: true, run: () => {} });
+      } else if (d.kind === 'site') {
         if (d.done) items.push({ task: true, label: tr('hv_act_take_made', { item: tr('hv_name_' + d.make) }), run: () => at(() => mp.send({ type: 'hv_pick', build: d.id })) });
         else items.push({ label: tr('hv_m_view_frame'), run: () => viewBuild(D.data) });
       } else {
         const pulled = myPull() === D.data;
         items.push({ task: true, label: pulled ? tr('hv_act_let_go') : tr('hv_act_pull'), run: () => at(() => mp.send(pulled ? { type: 'hv_pull' } : { type: 'hv_pull', build: d.id })) });
         items.push({ label: tr('hv_m_view_sled'), run: () => viewBuild(D.data) });
+      }
+      if (d.kind === 'site') {
+        const cell = d.make === 'floor' ? floorCellAt(d, D.x, D.z) : null;
+        const walls = [...builds.values()].filter(b => b.data.floor === d.id);
+        const whole = d.make === 'floor' && walls.length ? 'hv_remove_floor_walls' : 'hv_remove_build';
+        const cellWalls = cell && walls.some(b => b.data.side === 'n' ? cell.z === 0 : b.data.side === 's' ? cell.z === d.nz - 1 : b.data.side === 'w' ? cell.x === 0 : cell.x === d.nx - 1);
+        if (cell) items.push({ group: tr('hv_remove_group'), task: true,
+          label: tr(cellWalls ? 'hv_remove_cell_walls' : 'hv_remove_cell'), run: () => removeBuildAction(d.id, cell) });
+        items.push({ group: tr('hv_remove_group'), task: true, label: tr(whole), run: () => removeBuildAction(d.id) });
       }
     } else {
       items.push({ task: true, label: tr('hv_m_walk'), run: () => goTo(D.x, D.z, 0.5) });
@@ -1871,8 +2083,8 @@
     if (it && typeof it === 'object' && it.n && qualityOf(it) > 0) {
       items.push({ label: tr('hv_act_eat', { item: tr('hv_name_' + k) }), run: () => doEat(i) });
     }
-    if (i === 'hand') items.push({ label: tr('hv_act_stash'), run: () => mp.send({ type: 'hv_hold', slot: 'stash' }) });
-    else items.push({ label: tr('hv_m_hold'), run: () => mp.send({ type: 'hv_hold', slot: i }) });
+    if (i === 'hand' && T.items[k].slot > 0) items.push({ label: tr('hv_act_stash'), run: () => mp.send({ type: 'hv_hold', slot: 'stash' }) });
+    else if (i !== 'hand') items.push({ label: tr('hv_m_hold'), run: () => mp.send({ type: 'hv_hold', slot: i }) });
     if (k === 'bucket') {
       if (it.w > 0) items.push({ label: tr('hv_act_drink_bucket'), off: needs.water >= T.needs.water_max - 1, run: () => mp.send({ type: 'hv_drink', bucket: true }) });
       if (drinkSpot() && it.w < T.farm.bucket) items.push({ label: tr('hv_act_fill'), run: () => fillBucket() });
@@ -1912,8 +2124,8 @@
 
   function startChop() {
     chopHeld = true;
-    // With empty hands the best tool in the backpack comes out by itself.
-    if (target.tree && !inv.hand && packTool() >= 0) mp.send({ type: 'hv_hold', slot: packTool() });
+    // Swap carried cargo for a chopping tool when the task needs one.
+    if (target.tree && !isTool(inv.hand) && packTool() >= 0) mp.send({ type: 'hv_hold', slot: packTool() });
   }
 
   // Called every frame; returns true while the player is chopping.
@@ -2047,6 +2259,9 @@
       const o = bucketMesh(data.at);
       o.rotation.y = r() * Math.PI * 2;
       g.add(o);
+    } else if (data.kind === 'axe' || data.kind === 'hoe') {
+      toolMesh(g, data.kind, true);
+      g.rotation.y = r() * Math.PI * 2;
     } else if (data.kind === 'apple' || data.kind === 'berries') {
       // A small heap of fruit; a big pile shows no more than a couple of dozen.
       const shown = Math.min(data.n, 24);
@@ -2231,7 +2446,9 @@
   function showBuild(data) {
     removeBuild(data.id);
     const g = new THREE.Group();
-    if (data.kind === 'site') {
+    if (isStructure(data)) {
+      structureMesh(g, data);
+    } else if (data.kind === 'site') {
       frameMesh(g, buildMat().mark, data.make);
       if (!pileGeo) showPileGeo();
       if (data.make === 'sled') {
@@ -2269,8 +2486,9 @@
       sledMesh(g);
       loadMesh(g, data.load || [], 0.3);
     }
-    g.position.set(data.x, groundAt(data.x, data.z), data.z);
+    g.position.set(data.x, isStructure(data) ? data.base_y : groundAt(data.x, data.z), data.z);
     g.rotation.y = data.ry;
+    g.userData.buildId = data.id;
     scene.add(g);
     const rope = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), buildMat().rope);
     rope.visible = false;
@@ -2333,9 +2551,243 @@
     });
   }
 
+  // ── permanent modular construction ───────────────────────────────────────
+  const isStructure = (d) => d.make === 'floor' || d.make === 'wall';
+  const buildNeeds = (d) => d.need || T.builds[d.make] || {};
+  function floorCells(d) {
+    const removed = new Set(d.removed || []), cells = [];
+    for (let x = 0; x < d.nx; x++) for (let z = 0; z < d.nz; z++) if (!removed.has(x + '_' + z)) cells.push({ x, z });
+    return cells;
+  }
+  function floorCellAt(d, x, z) {
+    const c = T.housing.cell, left = d.x - d.width / 2, top = d.z - d.depth / 2;
+    if (x < left - .001 || x > left + d.width + .001 || z < top - .001 || z > top + d.depth + .001) return null;
+    const cell = { x: Math.max(0, Math.min(d.nx - 1, Math.floor((x - left) / c))), z: Math.max(0, Math.min(d.nz - 1, Math.floor((z - top) / c))) };
+    return (d.removed || []).includes(cell.x + '_' + cell.z) ? null : cell;
+  }
+  function buildParts(d) {
+    if (d.make === 'floor' && d.removed?.length) {
+      const c = T.housing.cell;
+      return floorCells(d).map(p => ({ x: d.x + (p.x + .5 - d.nx / 2) * c, z: d.z + (p.z + .5 - d.nz / 2) * c, width: c, depth: c }));
+    }
+    if (isStructure(d) || (d.width != null && d.depth != null)) return [d];
+    const room = 2 * (T.build_room[d.make || d.kind] || 1.5);
+    return [{ x: d.x, z: d.z, width: room, depth: room }];
+  }
+  function floorSideFull(d, side) {
+    return !(d.removed || []).some(key => { const [x, z] = key.split('_').map(Number);
+      return side === 'n' ? z === 0 : side === 's' ? z === d.nz - 1 : side === 'w' ? x === 0 : x === d.nx - 1; });
+  }
+  function removeBuildAction(id, cell = null) {
+    const d = builds.get(id)?.data;
+    if (!d) return;
+    const send = () => { if (builds.has(id)) mp.send({ type: 'hv_remove_build', build: id, cell }); };
+    if (cell) {
+      const c = T.housing.cell;
+      goAct(d.x + (cell.x + .5 - d.nx / 2) * c, d.z + (cell.z + .5 - d.nz / 2) * c, 1.2, send);
+    } else if (isStructure(d)) approachBuild(d, send);
+    else goAct(d.x, d.z, 2.6, send);
+  }
+  function structureMesh(g, d, preview = false) {
+    const M = buildMat();
+    const mat = preview ? M.ghost : d.done ? M.board : M.shade;
+    if (d.make === 'floor') {
+      const cell = T.housing.cell;
+      let supplied = d.have?.log || 0;
+      for (const post of d.supports || []) {
+        const finished = !preview && (d.done || supplied >= post.logs);
+        supplied = Math.max(0, supplied - post.logs);
+        g.add(box(finished ? M.runner : mat, T.housing.support_width, post.height, T.housing.support_width,
+          post.x, post.y - d.base_y + post.height / 2, post.z));
+      }
+      let index = 0;
+      for (const { x, z } of floorCells(d)) {
+        const px = (x + .5) * cell - d.width / 2, pz = (z + .5) * cell - d.depth / 2;
+        const finished = !preview && (d.done || (++index) * T.housing.floor_logs <= supplied);
+        for (let board = 0; board < 5; board++) {
+          g.add(box(finished ? M.board : mat, cell - .02, .16, cell / 5 - .015, px, .14, pz + (board - 2) * cell / 5));
+        }
+      }
+    } else {
+      const alongX = d.side === 'n' || d.side === 's';
+      const length = alongX ? d.width : d.depth, h = T.housing.height;
+      const doorway = d.door ? Math.min(T.housing.door_width, length - .2) : 0;
+      const add = (w, height, x, y) => {
+        g.add(box(mat, alongX ? w : d.width, height, alongX ? d.depth : w,
+          alongX ? x : 0, y, alongX ? 0 : x));
+      };
+      for (let i = 0; i < 13; i++) {
+        const y = (i + .5) * h / 13;
+        if (doorway && y < T.housing.door_height) {
+          const w = (length - doorway) / 2;
+          add(w, h / 13 - .012, -(length + doorway) / 4, y);
+          add(w, h / 13 - .012, (length + doorway) / 4, y);
+        } else add(length, h / 13 - .012, 0, y);
+      }
+    }
+  }
+
+  function walkGround(x, z) {
+    let y = groundAt(x, z);
+    builds.forEach(b => {
+      const d = b.data;
+      if (d.make === 'floor' && d.done && floorCellAt(d, x, z)) y = Math.max(y, d.base_y + .22);
+    });
+    return y;
+  }
+  function wallRects() {
+    const rects = [];
+    builds.forEach(b => {
+      const d = b.data;
+      if (d.make !== 'wall' || !d.done) return;
+      const alongX = d.side === 'n' || d.side === 's', length = alongX ? d.width : d.depth;
+      const door = d.door ? Math.min(T.housing.door_width, length - .2) : 0;
+      const parts = door ? [[-(length + door) / 4, (length - door) / 2], [(length + door) / 4, (length - door) / 2]] : [[0, length]];
+      for (const [offset, span] of parts) rects.push({ x: d.x + (alongX ? offset : 0), z: d.z + (alongX ? 0 : offset), w: alongX ? span : d.width, l: alongX ? d.depth : span });
+    });
+    return rects;
+  }
+  function housingOverlaps(a, b) {
+    return buildParts(a).some(ap => buildParts(b).some(bp =>
+      Math.abs(ap.x - bp.x) < (ap.width + bp.width) / 2 - .01 && Math.abs(ap.z - bp.z) < (ap.depth + bp.depth) / 2 - .01));
+  }
+  function floorCandidate(a, b) {
+    const c = T.housing.cell;
+    const gx = Math.min(a.x, b.x), gz = Math.min(a.z, b.z), nx = Math.abs(a.x - b.x) + 1, nz = Math.abs(a.z - b.z) + 1;
+    return { make: 'floor', gx, gz, nx, nz, x: (gx + nx / 2) * c, z: (gz + nz / 2) * c,
+      width: nx * c, depth: nz * c, ry: 0, base_y: 0, have: { log: 0 }, need: { log: nx * nz * T.housing.floor_logs } };
+  }
+  function floorFoundation(d, terrain) {
+    const cfg = T.housing, base = Math.max(...terrain), supports = [];
+    const positions = n => { const out = []; for (let i = 0; i < n; i += cfg.support_step) out.push(i); out.push(n); return out; };
+    for (const x of positions(d.nx)) for (const z of positions(d.nz)) {
+      const y = terrain[x * 2 * (d.nz * 2 + 1) + z * 2], height = Math.round((base + .06 - y) * 10000) / 10000;
+      if (height > cfg.support_min) supports.push({ x: (x - d.nx / 2) * cfg.cell, z: (z - d.nz / 2) * cfg.cell,
+        y, height, logs: Math.ceil((height - .000001) / cfg.support_unit) });
+    }
+    const support_logs = supports.reduce((n, s) => n + s.logs, 0);
+    Object.assign(d, { base_y: base, terrain, supports, support_logs, need: { log: d.nx * d.nz * cfg.floor_logs + support_logs } });
+  }
+  function wallCandidate(floor, side, door = false) {
+    const d = floor, c = T.housing, alongX = side === 'n' || side === 's', length = alongX ? d.width : d.depth;
+    return { make: 'wall', floor: d.id, side, door, ry: 0,
+      x: d.x + (!alongX ? (d.width + c.thickness) / 2 * (side === 'e' ? 1 : -1) : 0),
+      z: d.z + (alongX ? (d.depth + c.thickness) / 2 * (side === 's' ? 1 : -1) : 0),
+      width: alongX ? length : c.thickness, depth: alongX ? c.thickness : length,
+      base_y: d.base_y + .22, height: c.height, have: { log: 0 }, need: { log: (alongX ? d.nx : d.nz) * c.wall_logs } };
+  }
+  function housingValid(d) {
+    if (!d) return false;
+    if (d.make === 'floor') {
+      if (d.nx > T.housing.max_side || d.nz > T.housing.max_side) return false;
+      if (Math.abs(d.x) + d.width / 2 > SIZE / 2 - 3 || Math.abs(d.z) + d.depth / 2 > SIZE / 2 - 3) return false;
+      const terrain = [];
+      // Check every grid corner and centre, including interior obstacles.
+      for (let x = 0; x <= d.nx * 2; x++) for (let z = 0; z <= d.nz * 2; z++) {
+        const px = d.x - d.width / 2 + x * T.housing.cell / 2, pz = d.z - d.depth / 2 + z * T.housing.cell / 2;
+        const y = groundAt(px, pz);
+        if (y <= .1 || (shoreLevel(px, pz) ?? -Infinity) > y || gridNearest(treeGrid, px, pz, .5, t => !t.felled, t => t.r)) return false;
+        terrain.push(Math.round(y * 10000) / 10000);
+      }
+      floorFoundation(d, terrain);
+      for (const p of plots.values()) {
+        if (Math.abs(p.data.x - d.x) < (d.width + T.farm.cell) / 2 - .01 && Math.abs(p.data.z - d.z) < (d.depth + T.farm.cell) / 2 - .01) return false;
+      }
+    } else {
+      const f = builds.get(d.floor)?.data;
+      if (!f || f.make !== 'floor' || !f.done || !floorSideFull(f, d.side)) return false;
+    }
+    for (const b of builds.values()) {
+      if (d.make === 'wall' && b.data.floor === d.floor && b.data.side === d.side) return false;
+      if (d.make === 'wall' && (b.data.id === d.floor || b.data.floor === d.floor)) continue;
+      if (housingOverlaps(d, b.data)) return false;
+    }
+    return true;
+  }
+  function startHousing(make, door = false) {
+    stopHousing(); stopPlacing(); stopTilling(false); closeCargo(); hideMenu(); toggleCraft(false);
+    const ghost = new THREE.Group(); scene.add(ghost);
+    housing = { make, door, ghost, anchor: null, end: null, drag: null, press: null, selecting: false, pointer: null, fixed: false, candidate: null, signature: null };
+    app.classList.add('hv-building'); renderHousing(); renderCraftBtn();
+  }
+  function stopHousing() {
+    if (!housing) return;
+    scene.remove(housing.ghost); housing = null;
+    app.classList.remove('hv-building');
+    ui.housePlan.classList.remove('open'); ui.housePlan.textContent = '';
+    renderCraftBtn();
+  }
+  function housingPoint(cx, cy, begin = false) {
+    if (!housing) return;
+    const h = housing, g = groundRay(cx, cy);
+    if (!g || g.kind !== 'ground') { h.candidate = null; return; }
+    if (h.make === 'floor') {
+      const p = { x: Math.floor(g.x / T.housing.cell), z: Math.floor(g.z / T.housing.cell) };
+      if (begin) h.anchor = p;
+      h.end = p;
+      h.candidate = floorCandidate(h.anchor || p, p);
+    } else {
+      let floor = null, best = 1.5;
+      builds.forEach(b => { if (b.data.make === 'floor' && b.data.done) { const dist = footDist(b.data, g.x, g.z); if (dist < best) { best = dist; floor = b.data; } } });
+      if (!floor) { h.candidate = null; return; }
+      const sides = [['n', Math.abs(g.z - (floor.z - floor.depth / 2))], ['s', Math.abs(g.z - (floor.z + floor.depth / 2))],
+        ['w', Math.abs(g.x - (floor.x - floor.width / 2))], ['e', Math.abs(g.x - (floor.x + floor.width / 2))]];
+      sides.sort((a, b) => a[1] - b[1]);
+      h.candidate = wallCandidate(floor, sides[0][0], h.door);
+    }
+  }
+  function updateHousing() {
+    if (!housing) return;
+    const h = housing;
+    if (h.pointer && !h.fixed) housingPoint(h.pointer.x, h.pointer.y);
+    const d = h.candidate, ok = housingValid(d);
+    const signature = JSON.stringify([d, ok]);
+    if (signature === h.signature) return;
+    h.signature = signature;
+    h.ghost.clear();
+    if (d && (d.make !== 'floor' || (d.nx <= T.housing.max_side && d.nz <= T.housing.max_side))) {
+      structureMesh(h.ghost, d, true);
+      h.ghost.traverse(o => { if (o.isMesh) { o.material = ok ? buildMat().ghost : buildMat().bad; o.castShadow = false; } });
+      h.ghost.position.set(d.x, d.base_y, d.z);
+    }
+    renderHousing(ok);
+  }
+  function renderHousing(ok = false) {
+    if (!housing) return;
+    const box = ui.housePlan, h = housing, d = h.candidate;
+    box.textContent = ''; box.classList.add('open');
+    box.appendChild(el('b', null, tr(h.make === 'floor' ? 'hv_name_floor' : h.door ? 'hv_wall_door' : 'hv_name_wall')));
+    box.appendChild(el('div', 'hv-house-note', tr(h.make === 'floor' ? 'hv_floor_help' : 'hv_wall_help')));
+    if (d) box.appendChild(el('div', 'hv-house-cost', tr('hv_structure_cost', { w: fmt(d.width), l: fmt(d.depth), n: d.need.log })));
+    if (d?.make === 'floor' && d.support_logs) box.appendChild(el('div', 'hv-house-note', tr('hv_support_cost', { n: d.supports.length, logs: d.support_logs })));
+    if (d && !ok) box.appendChild(el('div', 'hv-house-error', tr('hv_structure_invalid')));
+    const acts = el('div', 'hv-cargo-acts'), confirm = el('button', 'hv-make', tr('hv_place_project'));
+    confirm.type = 'button'; confirm.disabled = !d || !ok || (h.make === 'floor' && !h.anchor);
+    confirm.onclick = confirmHousing;
+    const cancel = el('button', 'hv-make', tr('hv_act_cancel')); cancel.type = 'button'; cancel.onclick = stopHousing;
+    acts.append(confirm, cancel); box.appendChild(acts);
+  }
+  function approachBuild(d, fn) {
+    const points = buildParts(d).map(p => ({ x: Math.max(p.x - p.width / 2, Math.min(p.x + p.width / 2, me.x)),
+      z: Math.max(p.z - p.depth / 2, Math.min(p.z + p.depth / 2, me.z)) }));
+    points.sort((a, b) => Math.hypot(a.x - me.x, a.z - me.z) - Math.hypot(b.x - me.x, b.z - me.z));
+    if (points.length) goAct(points[0].x, points[0].z, 1.2, fn);
+  }
+  function confirmHousing() {
+    const d = housing?.candidate;
+    if (!housingValid(d)) return toast(tr('hv_structure_invalid'));
+    const plan = { ...d }; stopHousing();
+    queueTask(tr('hv_frame', { item: tr('hv_name_' + plan.make) }), () => approachBuild(plan, () => {
+      if (!housingValid(plan)) return toast(tr('hv_structure_invalid'));
+      mp.send({ type: 'hv_place', make: plan.make, gx: plan.gx, gz: plan.gz, nx: plan.nx, nz: plan.nz,
+        floor: plan.floor, side: plan.side, door: plan.door, base_y: plan.base_y, terrain: plan.terrain });
+    }));
+  }
+
   // Placing a frame: a ghost of it follows the pointer until a click or a
   // tap on the ground puts it there; the player then walks over and builds.
   function startPlacing(make) {
+    stopHousing(); stopTilling(false);
     stopPlacing();
     toggleCraft(false);
     const g = new THREE.Group();
@@ -2356,8 +2808,8 @@
   // The craft button ends what it started: placing a frame or marking a field.
   function renderCraftBtn() {
     if (!ui.craftLabel) return;
-    ui.craftLabel.textContent = placing ? '✕ ' + tr('hv_act_cancel') : tilling ? '✓ ' + tr('hv_till_done') : tr('hv_craft');
-    ui.craftBtn.classList.toggle('on', !!(placing || tilling));
+    ui.craftLabel.textContent = housing ? '✕ ' + tr('hv_act_cancel') : placing ? '✕ ' + tr('hv_act_cancel') : tilling ? '✓ ' + tr('hv_till_done') : tr('hv_craft');
+    ui.craftBtn.classList.toggle('on', !!(housing || placing || tilling));
   }
 
   // Under the pointer, or in front of the player until the pointer has moved.
@@ -2374,6 +2826,7 @@
     if (groundAt(x, z) <= 0.05 || (shoreLevel(x, z) ?? -Infinity) > groundAt(x, z)) return false;
     const room = T.build_room;
     for (const b of builds.values()) {
+      if (isStructure(b.data)) { if (housingOverlaps({ x, z, width: room[make] * 2, depth: room[make] * 2 }, b.data)) return false; continue; }
       const gap = room[make] + (room[b.data.make || b.data.kind] || room.sled);
       if (Math.hypot(b.data.x - x, b.data.z - z) < gap) return false;
     }
@@ -2406,12 +2859,13 @@
   // What lies on it and what the player carries, side by side as tiles. A
   // tile is tapped for its choices, or dragged: from the sled to the player's
   // things, the other way, or out onto the ground.
-  const nearBuild = (d) => Math.hypot(d.x - me.x, d.z - me.z) <= T.reach + 1.1;
+  const nearBuild = (d) => isStructure(d) ? footDist(d, me.x, me.z) <= T.reach : Math.hypot(d.x - me.x, d.z - me.z) <= T.reach + 1.1;
 
   function viewBuild(b) {
     const d = b.data;
     if (nearBuild(d)) return openCargo(b);
-    goAct(d.x, d.z, 2.6, () => { if (builds.get(d.id)) openCargo(builds.get(d.id)); });
+    const open = () => { if (builds.get(d.id)) openCargo(builds.get(d.id)); };
+    if (isStructure(d)) approachBuild(d, open); else goAct(d.x, d.z, 2.6, open);
   }
 
   function openCargo(b) {
@@ -2431,6 +2885,11 @@
     return h ? { pile: o.pile != null, d: h.data, ref: o } : null;
   }
   const otherReach = () => T.unload_reach + 1.2;
+  function cargoGap(a, b) {
+    const [aw, ad] = isStructure(a) ? [a.width, a.depth] : [0, 0];
+    const [bw, bd] = isStructure(b) ? [b.width, b.depth] : [0, 0];
+    return Math.hypot(Math.max(0, Math.abs(a.x - b.x) - (aw + bw) / 2), Math.max(0, Math.abs(a.z - b.z) - (ad + bd) / 2));
+  }
 
   // A click in the world while the window is open: a pile, sled or frame
   // close to the first one comes into the window. True when it did.
@@ -2439,7 +2898,7 @@
     if (!hit || !b || (hit.kind !== 'pile' && hit.kind !== 'build')) return false;
     const d = hit.data.data;
     if (hit.kind === 'build' && d.id === cargo.id) { cargo.other = null; cargo.sel = null; renderCargo(); return true; }
-    if (Math.hypot(d.x - b.data.x, d.z - b.data.z) > otherReach()) return false;
+    if (cargoGap(d, b.data) > otherReach()) return false;
     cargo.other = hit.kind === 'pile' ? { pile: d.id } : { build: d.id };
     cargo.sel = null;
     renderCargo();
@@ -2460,7 +2919,7 @@
     const b = builds.get(cargo.id);
     if (!b) return closeCargo();
     const o = cargoOther();
-    if (cargo.other && (!o || Math.hypot(o.d.x - b.data.x, o.d.z - b.data.z) > otherReach())) {
+    if (cargo.other && (!o || cargoGap(o.d, b.data) > otherReach())) {
       cargo.other = null;
       if (cargo.sel && cargo.sel.from === 'other') cargo.sel = null;
       renderCargo();
@@ -2473,8 +2932,8 @@
   // What is on it, by kind: [{ k, n }] — for a frame, what it needs.
   function cargoOn(d) {
     if (d.kind === 'site') {
-      if (d.done) return [{ k: d.make, n: 1, made: true }];
-      return Object.entries(T.builds[d.make] || {}).map(([k, need]) => ({ k, n: d.have[k] || 0, need }));
+      if (d.done) return isStructure(d) ? [] : [{ k: d.make, n: 1, made: true }];
+      return Object.entries(buildNeeds(d)).map(([k, need]) => ({ k, n: d.have[k] || 0, need }));
     }
     const by = new Map();
     (d.load || []).forEach(e => by.set(kindOf(e), (by.get(kindOf(e)) || 0) + countOf(e)));
@@ -2514,6 +2973,11 @@
     x.onclick = () => closeCargo();
     head.appendChild(x);
     box.appendChild(head);
+    if (isStructure(d)) {
+      box.appendChild(el('div', 'hv-house-cost', tr('hv_structure_cost', { w: fmt(d.width), l: fmt(d.depth), n: buildNeeds(d).log })));
+      if (d.make === 'floor' && d.support_logs) box.appendChild(el('div', 'hv-house-note', tr('hv_support_cost', { n: d.supports.length, logs: d.support_logs })));
+      if (d.done) { box.appendChild(el('div', 'hv-cargo-note', tr('hv_structure_done'))); return; }
+    }
     if (!site) {
       const tot = loadTotals(d.load);
       box.appendChild(el('div', 'hv-cargo-cap', fmt(tot.kg) + '/' + T.sled.kg + ' kg · ' + fmt(tot.l) + '/' + T.sled.litres + ' L'));
@@ -2629,7 +3093,7 @@
       acts.appendChild(el('div', 'hv-people-empty', tr('hv_keep_tool')));
     } else {
       if (!site && d.load.length) act(tr('hv_cargo_unload_all'), () => mp.send({ type: 'hv_unload', build: id, all: true }));
-      if (site && !d.done && on.every(t => !t.n)) act(tr('hv_act_remove_frame'), () => { mp.send({ type: 'hv_pick', build: id }); closeCargo(); });
+      if (site && !d.done) act(tr('hv_remove_build'), () => { queueTask(tr('hv_remove_build'), () => removeBuildAction(id)); closeCargo(); });
       if (site && !d.done && on.some(t => t.n)) act(tr('hv_cargo_unload_all'), () => mp.send({ type: 'hv_unload', build: id, all: true }));
     }
     if (acts.children.length) box.appendChild(acts);
@@ -2639,7 +3103,7 @@
   const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
   function buildName(d) {
     const make = d.kind === 'site' ? d.make : d.kind;
-    return (ICON[make] || '') + ' ' + cap(d.kind === 'site' ? tr('hv_frame', { item: tr('hv_name_' + make) }) : tr('hv_name_' + make));
+    return (ICON[make] || '') + ' ' + cap(d.kind === 'site' && !d.done ? tr('hv_frame', { item: tr('hv_name_' + make) }) : tr('hv_name_' + make));
   }
 
   // Into the player's things from the second thing: from where they stand,
@@ -2717,7 +3181,8 @@
     const g = groundRay(cx, cy);
     if (!g || g.kind !== 'ground') { if (!quiet) toast(tr('hv_bad_spot')); cargo.spot = quiet ? null : sp; return renderCargo(); }
     if (sp.from === 'on') {
-      if (Math.hypot(g.x - b.data.x, g.z - b.data.z) > T.unload_reach) { toast(tr('hv_cargo_far_spot')); if (quiet) cargo.spot = null; return renderCargo(); }
+      const distance = isStructure(b.data) ? footDist(b.data, g.x, g.z) : Math.hypot(g.x - b.data.x, g.z - b.data.z);
+      if (distance > T.unload_reach) { toast(tr('hv_cargo_far_spot')); if (quiet) cargo.spot = null; return renderCargo(); }
       mp.send({ type: 'hv_unload', build: b.data.id, k: sp.k, all: sp.all, x: g.x, z: g.z });
     } else {
       if (Math.hypot(g.x - me.x, g.z - me.z) > T.reach) { toast(tr('hv_cargo_far_spot')); if (quiet) cargo.spot = null; return renderCargo(); }
@@ -2805,22 +3270,31 @@
     if (d.crop) fruitItems(items, 'f' + d.c, d.crop.k, d.x, d.z, 1.8);
     const hoe = hasKind('hoe');
     if (!d.till) {
-      items.push({ task: true, label: hoe ? tr('hv_m_dig') : tr('hv_need_hoe'), off: !hoe, run: () => at(() => startDig(d.c)) });
-      if (hoe) items.push({ task: true, label: tr('hv_m_dig_all'), run: () => startAuto('dig') });
+      items.push({ task: true, group: tr('hv_m_dig'), label: hoe ? tr('hv_m_dig_here') : tr('hv_need_hoe'), off: !hoe, run: () => at(() => startDig(d.c)) });
+      if (hoe) {
+        items.push({ group: tr('hv_m_dig'), task: true, label: tr('hv_m_dig_garden'), run: () => at(() => startAuto('dig', null, d.c)) });
+        items.push({ group: tr('hv_m_dig'), task: true, label: tr('hv_m_dig_all'), run: () => startAuto('dig') });
+      }
       items.push({ label: tr('hv_m_unmark'), run: () => mp.send({ type: 'hv_plan', cells: [d.c], on: false }) });
     } else {
       const bw = bucketWater();
       if (hasKind('bucket')) {
-        items.push({ task: true, label: bw > 0 ? tr('hv_m_water') : tr('hv_bucket_empty'), off: bw <= 0, run: () => at(() => waterPlot(d.c)) });
-        if (bw > 0 && d.crop) items.push({ task: true, label: tr('hv_m_water_all'), run: () => startAuto('water') });
+        items.push({ task: true, group: tr('hv_m_water'), label: bw > 0 ? tr('hv_m_water_here') : tr('hv_bucket_empty'), off: bw <= 0, run: () => at(() => waterPlot(d.c)) });
+        if (bw > 0) {
+          items.push({ task: true, group: tr('hv_m_water'), label: tr('hv_m_water_garden'), run: () => at(() => startAuto('water', null, d.c)) });
+          items.push({ task: true, group: tr('hv_m_water'), label: tr('hv_m_water_all'), run: () => at(() => startAuto('water')) });
+        }
       } else if (d.crop && !soilWet(d, now)) items.push({ label: tr('hv_need_bucket'), off: true, run: () => {} });
-      if (hoe) items.push({ task: true, label: tr(needsDig(d, now) ? 'hv_m_dig' : 'hv_m_loosen'), run: () => at(() => startDig(d.c)) });
-      if (hoe && needsDig(d, now)) items.push({ task: true, label: tr('hv_m_dig_all'), run: () => startAuto('dig') });
+      if (hoe) items.push({ task: true, group: tr('hv_m_dig'), label: tr(needsDig(d, now) ? 'hv_m_dig_here' : 'hv_m_loosen'), run: () => at(() => startDig(d.c)) });
+      if (hoe) {
+        items.push({ group: tr('hv_m_dig'), task: true, label: tr('hv_m_dig_garden'), run: () => at(() => startAuto('dig', null, d.c)) });
+        items.push({ group: tr('hv_m_dig'), task: true, label: tr('hv_m_dig_all'), run: () => startAuto('dig') });
+      }
       if (!d.crop && soilLoose(d, now)) {
         const kinds = seedKinds();
         kinds.forEach(k => {
-          items.push({ task: true, label: tr('hv_m_plant', { item: tr('hv_name_' + k) }), run: () => at(() => plantPlot(d.c, k)) });
-          items.push({ task: true, label: tr('hv_m_plant_all', { item: tr('hv_name_' + k) }), run: () => startAuto('plant', k) });
+          items.push({ task: true, group: tr('hv_m_plant_group'), label: tr('hv_m_plant', { item: tr('hv_name_' + k) }), run: () => at(() => plantPlot(d.c, k)) });
+          items.push({ task: true, group: tr('hv_m_plant_group'), label: tr('hv_m_plant_all', { item: tr('hv_name_' + k) }), run: () => startAuto('plant', k) });
         });
         if (!kinds.length) items.push({ label: tr('hv_no_seed'), off: true, run: () => {} });
       }
@@ -2866,8 +3340,22 @@
   function plantPlot(c, k) { mp.send({ type: 'hv_plant', c, k }); }
 
   // Work every square that needs it, nearest first: dig, water or plant.
-  function startAuto(kind, item) {
-    autoTask = { kind, item, at: 0, last: null, n: 0, skip: new Set() };
+  // A garden is one connected patch of plots, including diagonal neighbours.
+  function gardenCells(c) {
+    const cells = new Set(), pending = [c];
+    while (pending.length) {
+      const key = pending.pop();
+      if (cells.has(key) || !plots.has(key)) continue;
+      cells.add(key);
+      const [x, z] = key.split('_').map(Number);
+      for (let dx = -1; dx <= 1; dx++) for (let dz = -1; dz <= 1; dz++) {
+        if (dx || dz) pending.push((x + dx) + '_' + (z + dz));
+      }
+    }
+    return cells;
+  }
+  function startAuto(kind, item, garden = null) {
+    autoTask = { kind, item, cells: garden === null ? null : gardenCells(garden), at: 0, last: null, n: 0, skip: new Set() };
     nextAuto();
   }
   function nextAuto() {
@@ -2879,16 +3367,22 @@
     if (t.kind === 'water' && bucketWater() <= 0) { toast(tr('hv_bucket_empty')); autoTask = null; return; }
     if (t.kind === 'plant' && !seedKind(t.item)) { toast(tr('hv_no_seed')); autoTask = null; return; }
     const wants = (d) => t.kind === 'dig' ? needsDig(d, now)
-      : t.kind === 'water' ? d.till && d.crop && !soilWet(d, now)
+      : t.kind === 'water' ? d.till && !soilWet(d, now)
+      : t.kind === 'harvest' ? d.crop && d.crop.k === t.item && ripeOf('f' + d.c).length > 0
       : !d.crop && soilLoose(d, now);
-    let best = null, bd = t.kind === 'dig' ? T.farm.plan_reach : 30;
+    const reach = t.cells ? Infinity : (t.kind === 'dig' || t.kind === 'water') ? T.farm.plan_reach : 30;
+    let best = null, bd = reach;
     plots.forEach(p => {
-      if (t.skip.has(p.data.c) || !wants(p.data)) return;
+      if ((t.cells && !t.cells.has(p.data.c)) || t.skip.has(p.data.c) || !wants(p.data)) return;
       const dd = Math.hypot(p.data.x - me.x, p.data.z - me.z);
       if (dd < bd) { bd = dd; best = p; }
     });
     if (!best) {
-      toast(tr(t.kind === 'dig' ? 'hv_all_dug' : t.kind === 'water' ? 'hv_all_watered' : 'hv_all_planted'));
+      const remaining = t.kind === 'harvest' ? 0 : [...plots.values()].filter(p =>
+        (!t.cells || t.cells.has(p.data.c)) && wants(p.data) &&
+        Math.hypot(p.data.x - me.x, p.data.z - me.z) < reach).length;
+      if (remaining) toast(tr('hv_work_remaining', { n: remaining }));
+      else toast(tr(t.kind === 'dig' ? (t.cells ? 'hv_garden_dug' : 'hv_all_dug') : t.kind === 'water' ? (t.cells ? 'hv_garden_watered' : 'hv_all_watered') : t.kind === 'harvest' ? 'hv_garden_harvested' : 'hv_all_planted'));
       autoTask = null;
       return;
     }
@@ -2897,11 +3391,15 @@
     t.n = t.last === c ? t.n + 1 : 0;
     t.last = c;
     if (t.n >= 3) { t.skip.add(c); return; }
-    goAct(best.data.x, best.data.z, 1.4, () => {
+    goAct(best.data.x, best.data.z, t.kind === 'harvest' ? 1.8 : 1.4, () => {
       if (autoTask !== t) return;
       t.at = performance.now();
       if (t.kind === 'dig') startDig(c);
       else if (t.kind === 'water') waterPlot(c);
+      else if (t.kind === 'harvest') {
+        t.skip.add(c);
+        gatherAll = { src: 'f' + c, left: Infinity, tried: new Set(), at: 0 };
+      }
       else plantPlot(c, t.item);
     });
   }
@@ -3046,7 +3544,7 @@
   // Like placing a frame: squares are marked first and dug afterwards. They
   // are painted by dragging over the ground with the mouse or a finger.
   function startTilling() {
-    stopPlacing();
+    stopHousing(); stopPlacing();
     toggleCraft(false);
     goal = null; autoTask = null;
     tilling = { pend: new Set(), erase: null, paint: null, hover: null, ghost: new THREE.Group(), sig: '' };
@@ -3073,7 +3571,7 @@
     const g = groundAt(x, z);
     if (g < 0.4 || (shoreLevel(x, z) ?? -Infinity) > g - 0.05 || slopeAt(x, z) > 0.6) return false;
     if (gridNearest(treeGrid, x, z, c * 0.75, t => !t.felled, t => t.r)) return false;
-    for (const b of builds.values()) if (Math.hypot(b.data.x - x, b.data.z - z) < c) return false;
+    for (const b of builds.values()) if (isStructure(b.data) ? housingOverlaps({ x, z, width: c, depth: c }, b.data) : Math.hypot(b.data.x - x, b.data.z - z) < c) return false;
     return true;
   }
   // One point of a drag: every square on the way from the last point is
@@ -3134,6 +3632,13 @@
         }
       }
     }
+    for (const wall of wallRects()) {
+      const dx = x - wall.x, dz = z - wall.z, hx = wall.w / 2 + r, hz = wall.l / 2 + r;
+      if (Math.abs(dx) < hx && Math.abs(dz) < hz) {
+        if (hx - Math.abs(dx) < hz - Math.abs(dz)) x = wall.x + (dx >= 0 ? hx : -hx);
+        else z = wall.z + (dz >= 0 ? hz : -hz);
+      }
+    }
     return [x, z];
   }
 
@@ -3151,7 +3656,11 @@
         }
       }
     }
-    return (shoreLevel(x, z) ?? 0) - groundAt(x, z) <= maxDepth;
+    // Keep the walker’s actual radius at doorways; the wider steering
+    // margin used around trees would close a 1.2 m entrance completely.
+    const wallRadius = Math.min(r, .35);
+    if (wallRects().some(w => Math.abs(x - w.x) < w.w / 2 + wallRadius && Math.abs(z - w.z) < w.l / 2 + wallRadius)) return false;
+    return (shoreLevel(x, z) ?? 0) - walkGround(x, z) <= maxDepth;
   }
 
   // The heading that goes round whatever stands between here and the goal:
@@ -3232,7 +3741,7 @@
       me.ry += d * (1 - Math.exp(-dt * 12));
     }
 
-    me.y = groundAt(me.x, me.z);
+    me.y = walkGround(me.x, me.z);
     const chopping = updateChop(dt, speed > 0);
     const digging = !chopping && updateDig(dt, speed > 0);
     me.anim = chopping ? 'chop' : digging ? 'dig' : speed === 0 ? 'idle' : running ? 'run' : 'walk';
@@ -3407,7 +3916,7 @@
     } else {
       me.x = you.x; me.z = you.z; me.ry = you.ry || 0;
     }
-    me.y = groundAt(me.x, me.z);
+    me.y = walkGround(me.x, me.z);
     lastSent = null;
   }
 
@@ -3437,10 +3946,12 @@
     updateMe(dt);
     sendMove(dt);
     updatePeers(dt);
+    cameraInput(dt);
     updateCamera(dt);
     updateFalling(dt);
     updateBuilds(dt);
     updatePlacing();
+    updateHousing();
     updateCargo();
     updateTilling();
     updateAuto();
@@ -3497,6 +4008,7 @@
   mp.on('hv_pile', (m) => { if (booted && m.pile) { showPile(m.pile); if (cargo && cargo.other && cargo.other.pile === m.pile.id) renderCargo(); } });
   mp.on('hv_pile_gone', (m) => { if (booted) removePile(m.id); if (cargo && cargo.other && cargo.other.pile === m.id) { cargo.other = null; cargo.sel = null; renderCargo(); } });
   mp.on('hv_made', (m) => toast(tr(m.frame ? 'hv_made_frame' : 'hv_made', { item: tr('hv_name_' + m.item) })));
+  mp.on('hv_removed', (m) => toast(tr(m.part ? 'hv_removed_cell' : 'hv_removed_build')));
   mp.on('hv_dig_p', (m) => digProg.set(m.c, m.p));
   mp.on('hv_plots', (m) => { if (booted) (m.plots || []).forEach(d => d.gone ? removePlot(d.c) : showPlot(d)); });
   mp.on('hv_broke', (m) => { chopTree = null; if (m.item === 'hoe') { digAt = null; autoTask = null; } toast(tr('hv_broke', { item: tr('hv_name_' + m.item) })); });
@@ -3535,13 +4047,14 @@
     far: 'hv_too_far', full: 'hv_pack_full', hands_full: 'hv_hands_full', too_big: 'hv_too_big',
     need_stone: 'hv_need_stone', keep_tool: 'hv_keep_tool',
     sled_full: 'hv_sled_full', far_spot: 'hv_cargo_far_spot', crowded: 'hv_crowded', not_needed: 'hv_not_needed', taken: 'hv_taken',
+    bad_structure: 'hv_structure_invalid', need_floor: 'hv_need_floor',
     need_hoe: 'hv_need_hoe', need_bucket: 'hv_need_bucket', need_axe: 'hv_need_axe', bucket_empty: 'hv_bucket_empty',
     soil_hard: 'hv_soil_hard_nope', no_seed: 'hv_no_seed', plan_none: 'hv_plan_none',
   };
   mp.on('hv_nope', (m) => {
-    if (m.reason === 'far' || m.reason === 'need_stone' || m.reason === 'tired') { chopTree = null; if (autoUse === 'chop') { autoUse = null; chopHeld = false; } }
+    if (m.reason === 'far' || m.reason === 'need_stone' || m.reason === 'tired' || m.reason === 'too_big' || m.reason === 'hands_full') { chopTree = null; if (autoUse === 'chop') { autoUse = null; chopHeld = false; } }
     if (m.reason === 'far' || m.reason === 'full') gatherAll = null;
-    if (['far', 'need_hoe', 'tired', 'need_bucket', 'bucket_empty', 'soil_hard', 'no_seed', 'full'].includes(m.reason)) { digAt = null; digHeld = false; autoTask = null; }
+    if (['far', 'need_hoe', 'tired', 'need_bucket', 'bucket_empty', 'soil_hard', 'no_seed', 'full', 'too_big', 'hands_full'].includes(m.reason)) { digAt = null; digHeld = false; autoTask = null; }
     if (m.reason === 'too_big') return toast(tr('hv_too_big', { item: tr('hv_name_' + (kindOf(inv.hand) || 'log')) }));
     if (NOPE[m.reason]) toast(tr(NOPE[m.reason]));
   });

@@ -66,7 +66,7 @@ button.hv-chip{cursor:pointer}button.hv-chip:hover{background:rgba(16,22,26,.82)
 
 .hv-slot .hv-count{position:absolute;right:3px;top:1px;font-size:10px;font-weight:700;color:#fff;text-shadow:0 0 3px #000}
 
-.hv-menu{display:none;position:fixed;z-index:30;min-width:150px;max-width:260px;flex-direction:column;gap:2px;padding:6px;border-radius:12px;background:rgba(16,22,26,.92);border:1px solid rgba(255,255,255,.2);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.hv-menu{display:none;position:fixed;z-index:30;min-width:150px;max-width:260px;max-height:calc(100dvh - 8px);overflow-y:auto;flex-direction:column;gap:2px;padding:6px;border-radius:12px;background:rgba(16,22,26,.92);border:1px solid rgba(255,255,255,.2);box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .hv-menu.show{display:flex}
 .hv-menu button{border:0;background:transparent;color:#f4f6f8;font:inherit;text-align:left;padding:9px 12px;border-radius:8px;cursor:pointer}
 .hv-menu button:hover:not(:disabled){background:rgba(242,193,78,.3)}
@@ -105,3 +105,16 @@ button.hv-chip{cursor:pointer}button.hv-chip:hover{background:rgba(16,22,26,.82)
 .hv-cargo-ohead{margin-top:10px;padding-top:8px;border-top:1px solid rgba(127,212,255,.35)}.hv-cargo-ohead b{color:#bfe8ff}
 .hv-cargo-back{padding:5px 10px;font-size:12px}
 .hv-cargo-other .hv-tile{border-color:rgba(127,212,255,.55)}
+
+.hv-app:fullscreen{width:100vw;height:100vh;min-height:0}
+.hv-app:-webkit-full-screen{width:100vw;height:100vh;min-height:0}
+.hv-fullscreen{flex:none;font-size:20px;line-height:1}
+
+.hv-house-plan{display:none;position:absolute;z-index:6;top:64px;left:12px;max-width:min(360px,calc(100% - 24px));padding:14px;border-radius:14px;background:rgba(16,22,26,.92);border:1px solid rgba(255,255,255,.2)}
+.hv-house-plan.open{display:block}.hv-house-note{margin:8px 0;line-height:1.5;font-size:12px;color:#c1cbd2}.hv-house-cost{margin:8px 0;color:#f2c14e}.hv-house-error{margin:8px 0;color:#ff9d91}.hv-house-plan button:disabled{opacity:.4;cursor:default}
+.hv-building .hv-hint,.hv-building .hv-prompt{display:none}
+.hv-house-plan{box-sizing:border-box}
+.hv-touch .hv-house-plan{top:auto;bottom:12px;left:8px;right:8px;max-width:none;max-height:42%;overflow:auto;padding:10px}
+.hv-touch .hv-house-plan .hv-house-note{margin:5px 0;font-size:12px;line-height:1.35}
+.hv-touch .hv-house-plan .hv-make{min-height:44px;min-width:88px}
+.hv-touch .hv-menu button{min-height:44px}

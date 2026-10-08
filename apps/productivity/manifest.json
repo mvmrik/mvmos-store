@@ -31,15 +31,15 @@
       "name": "Tasks",
       "icon": "✅",
       "category": "Productivity",
-      "version": "1.6.1",
+      "version": "1.7.0",
       "description": "Persistent, one-time and periodic tasks with multiple categories per task and optional Budget rewards/penalties on completion, plus a public web page.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/tasks-1.6.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/tasks-1.7.0.zip",
       "tags": [
         "tasks",
         "planning",
         "to-do"
       ],
-      "min_core_version": "1.0.0",
+      "min_core_version": "1.13.0",
       "name_i18n": {
         "en": "Tasks",
         "bg": "Задачи",

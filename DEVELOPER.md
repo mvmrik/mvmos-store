@@ -1465,6 +1465,16 @@ The functions in `app_api.py` are also what **Automations** and the **External A
 INTERNAL_ONLY = {"get_code", "get_vault"}
 ```
 
+**Showing what is going on right now.** An app can offer `get_live_activity(user_id)` in `app_api.py` to take part in the strip under the header of the Apps Hub public pages (core 1.13.0 and later). It returns a list of items for what is running for that profile at this moment, each a dict with `title` (required), `id`, `state` (`"running"` or `"paused"`), `elapsed_seconds` for a clock that keeps counting while running, `due_at` for something that falls due later, and up to three `actions`. An action is `{"type": "pause" | "resume" | "stop" | "done", "function": "<name of a function of the same app>", "args": {...}}`; the strip draws the button and can only run an action the app offered a moment before. The strip shows only apps the profile keeps on its shelf, and name the function in `INTERNAL_ONLY` so scripts and Automations do not list it:
+
+```python
+INTERNAL_ONLY = ("get_live_activity",)
+
+def get_live_activity(user_id: str):
+    return [{"id": "t1", "title": "Write report", "state": "running", "elapsed_seconds": 754,
+             "actions": [{"type": "pause", "function": "pause_timer", "args": {"task_id": "t1"}}]}]
+```
+
 ### Window footer
 
 Every window (desktop, not mobile-fullscreen) gets a shared footer, rendered centrally by `Desktop.createWindow`. You don't add anything for the "mvmOS" branding on the left — that's automatic — but you can put your own content in it.

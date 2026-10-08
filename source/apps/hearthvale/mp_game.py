@@ -78,6 +78,8 @@ class Game:
             await self.world.transfer(pid, msg)
         elif kind == "hv_place":
             await self.world.place(pid, msg)
+        elif kind == "hv_remove_build":
+            await self.world.remove_build(pid, msg)
         elif kind == "hv_pull":
             await self.world.pull(pid, msg)
         elif kind == "hv_gather":

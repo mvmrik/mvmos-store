@@ -11,7 +11,8 @@
     "Reward or penalty per completion — a fixed amount, or an hourly rate applied to the time tracked.",
     "Discard tracked time when it should not count.",
     "History of every completion.",
-    "Public web page for your Apps Hub account."
+    "Public web page for your Apps Hub account.",
+    "A running or paused timer appears in the live strip of the Apps Hub public page, with buttons to pause, continue or stop it."
   ],
   "integrations": [
     {

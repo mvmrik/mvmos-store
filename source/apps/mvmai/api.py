@@ -45,7 +45,7 @@ import uuid
 
 import httpx
 from fastapi import APIRouter, Depends, Header, Request
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response, StreamingResponse
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -115,10 +115,14 @@ def _persist_turn(user_id, session_id, messages, reply, project_id=None, meta=No
     now = int(time.time())
     with _sdb() as conn:
         row = None
-        if session_id:
+        # new_id also matches: the chat is saved when the message is sent,
+        # before its answer, and the answer then finds it by that id.
+        if session_id or new_id:
             row = conn.execute(
-                "SELECT id FROM pub_sessions WHERE id=? AND user_id=?", (session_id, user_id)
+                "SELECT id FROM pub_sessions WHERE id=? AND user_id=?", (session_id or new_id, user_id)
             ).fetchone()
+            if row:
+                session_id = row["id"]
         meta = meta or {}
         if row:
             # A chat made before the provider was kept is pinned by its next turn.
@@ -136,7 +140,7 @@ def _persist_turn(user_id, session_id, messages, reply, project_id=None, meta=No
                  meta.get("provider"), meta.get("model"), meta.get("cli_state")),
             )
         conn.execute("DELETE FROM pub_messages WHERE session_id=?", (session_id,))
-        full = list(messages) + [reply]
+        full = list(messages) + ([reply] if reply else [])
         for i, m in enumerate(full):
             conn.execute(
                 "INSERT INTO pub_messages (session_id, role, content, tool_call_id, tool_calls, seq) "
@@ -386,6 +390,26 @@ async def attach_file(request: Request, x_pub_token: str = Header(default=None),
     return JSONResponse({"path": os.path.realpath(path), "name": name, "size": size, "dir": unpacked})
 
 
+_PREVIEW_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".gif": "image/gif"}
+
+
+@router.get("/attachment")
+async def attachment_preview(path: str = "", x_pub_token: str = Header(default=None)):
+    """Administrators only: an image this user attached earlier, so an old chat
+    can show it again. Only images inside the user's own upload folder."""
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    if not me.get("is_admin"):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    folder = os.path.realpath(os.path.join(_UPLOAD_DIR, re.sub(r"[^\w-]", "_", str(me["id"]))))
+    real = os.path.realpath(path) if path.startswith("/") and len(path) <= 1000 else ""
+    kind = _PREVIEW_TYPES.get(os.path.splitext(real)[1].lower())
+    if not real or not kind or not real.startswith(folder + os.sep) or not os.path.isfile(real):
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    return FileResponse(real, media_type=kind, headers={"Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff"})
+
+
 @router.get("/download")
 async def download_file(path: str = "", x_pub_token: str = Header(default=None)):
     """Administrators only: a file the model offered with [[file:<path>]] in a
@@ -530,7 +554,32 @@ async def get_me(
         "credit_balance": hub.get_credit_balance(me["id"]) if hub else 0,
         "compact_keep_recent": prem.resolve_compact_keep_recent(desk._read_cfg()) if (prem and desk is not None) else 20,
         **({"provider_label": _provider_label(desk, prem, use_public=not is_desktop)} if me.get("is_admin") else {}),
+        # The terminal panel of the desktop chat (Premium module and setting);
+        # cli_commands is what each CLI provider is started with in it.
+        "terminal": bool(is_desktop and me.get("is_admin") and prem and prem.terminal_enabled(desk._read_cfg())),
+        **({"cli_commands": {p["name"]: p["cmd"] for p in desk.CLI_PROVIDERS}} if is_desktop and me.get("is_admin") else {}),
     })
+
+
+@router.get("/premium/{asset}")
+async def premium_asset(
+    asset: str,
+    x_pub_token: str = Header(default=None),
+    x_mvmai_surface: str = Header(default=""),
+    os_session=Depends(_os_session_optional),
+):
+    """Browser code of the Premium terminal, only for the administrator on the desktop."""
+    me = _resolve(x_pub_token)
+    prem = _premium()
+    desk = _desktop()
+    if not me or not me.get("is_admin") or not (x_mvmai_surface == "desktop" and os_session) or not prem or desk is None:
+        return Response(status_code=404, headers={"Cache-Control": "no-store"})
+    if not prem.terminal_enabled(desk._read_cfg()):
+        return Response(status_code=404, headers={"Cache-Control": "no-store"})
+    content = prem.get_asset(asset)
+    if content is None:
+        return Response(status_code=404, headers={"Cache-Control": "no-store"})
+    return Response(content=content, media_type="application/javascript", headers={"Cache-Control": "private, no-store"})
 
 
 @router.get("/sessions")
@@ -755,7 +804,14 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
                 project_id = saved["project_id"]
     # The id of a new chat is chosen here, before its first answer, because its
     # CLI session and working folder are named after it.
-    chat_id = None if body.no_persist else (saved["id"] if saved else uuid.uuid4().hex)
+    # The browser may choose the id of a new chat (32 hex characters) so the
+    # chat shows in its list at once; one that belongs to someone else is ignored.
+    chosen = None
+    if body.session_id and not saved and re.fullmatch(r"[0-9a-f]{32}", body.session_id):
+        with _sdb() as conn:
+            if not conn.execute("SELECT 1 FROM pub_sessions WHERE id=?", (body.session_id,)).fetchone():
+                chosen = body.session_id
+    chat_id = None if body.no_persist else (saved["id"] if saved else (chosen or uuid.uuid4().hex))
     project = desk._get_project(project_id) if is_admin and project_id else None
 
     price = 0
@@ -786,6 +842,10 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
     if not body.no_persist:
         app_prompt = (app_prompt + " " + _language_prompt(body.lang)).strip()
     images = [] if body.no_persist else _clean_images(body.messages)
+    # Save the chat now, so it survives a reload while the answer is still on
+    # its way (or never arrives).
+    if not body.no_persist:
+        _persist_turn(me["id"], body.session_id, body.messages, None, project_id, meta=pin, new_id=chat_id)
     cli_provider = next((p for p in desk.CLI_PROVIDERS if p["id"] == cfg.get("provider")), None)
     public_identity = (
         "On this public interface, your identity is mvmAI. Always introduce and describe yourself "

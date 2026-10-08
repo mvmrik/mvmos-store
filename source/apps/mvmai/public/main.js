@@ -17,14 +17,16 @@ const _mvmai18n = {
     err: 'Error',
     provider: 'Provider', api_key: 'API key', model: 'Model (leave empty for default)',
     base_url: 'Custom base URL (only for Custom provider)',
-    segment_desktop: 'Desktop', segment_public: 'Public page (Premium)',
+    segment_desktop: 'Desktop', segment_public: 'Public page',
     pub_provider_label: 'Public page AI', pub_provider_same: '(same as desktop)',
-    pub_provider_premium_hint: 'Using a different AI for the public page requires Premium.',
     pub_bridge_label: 'Let public users use the app-data API integration',
     pub_bridge_hint: "Off by default. When on, mvmAI can read or change a user's own data in their other installed apps.",
-    segment_compaction: 'History (Premium)', compact_keep_label: 'Recent messages kept in full',
+    segment_compaction: 'History', compact_keep_label: 'Recent messages kept in full',
     compact_keep_hint: 'Older messages beyond this are folded into a running summary. Free plan is fixed at 20.',
-    compact_keep_premium_hint: 'Changing how many recent messages stay in full requires Premium.',
+    segment_premium: 'Premium', segment_terminal: "Terminal",
+    terminal_label: "Show a terminal next to the chat",
+    terminal_hint: "Adds a terminal button to the chat on the desktop. The terminal opens with the CLI of the chat's provider, can be docked on the right or at the bottom and keeps its session while you work, so a CLI such as Claude does not ask about the folder every time. It is not available on the public page.",
+    premium_hint: "These settings require Premium.",
     sett_hint: 'Everything stays inside mvmOS — the API key is stored on the server and never leaves it.',
     exec_toggle: 'Server commands', exec_off: 'Read-only', exec_confirm: 'Confirm', exec_auto_short: 'Auto',
     exec_enable_label: 'Let mvmAI run commands on this server', exec_mode_label: 'When it wants to run one',
@@ -52,14 +54,16 @@ const _mvmai18n = {
     err: 'Грешка',
     provider: 'Провайдър', api_key: 'API ключ', model: 'Модел (празно = по подразбиране)',
     base_url: 'Custom base URL (само за Custom провайдър)',
-    segment_desktop: 'Работен плот', segment_public: 'Публична страница (Premium)',
+    segment_desktop: 'Работен плот', segment_public: 'Публична страница',
     pub_provider_label: 'AI за публичната страница', pub_provider_same: '(същия като вътрешния)',
-    pub_provider_premium_hint: 'Различен AI за публичната страница изисква Premium.',
     pub_bridge_label: 'Позволи на публичните потребители да ползват API интеграцията с приложенията',
     pub_bridge_hint: 'По подразбиране е изключено. Когато е включено, mvmAI може да чете или променя собствените данни на потребителя в другите му инсталирани приложения.',
-    segment_compaction: 'История (Premium)', compact_keep_label: 'Скорошни съобщения, пазени изцяло',
+    segment_compaction: 'История', compact_keep_label: 'Скорошни съобщения, пазени изцяло',
     compact_keep_hint: 'По-старите съобщения след това се сгъват в текущо резюме. Безплатният план е фиксиран на 20.',
-    compact_keep_premium_hint: 'Промяната на броя скорошни съобщения, пазени изцяло, изисква Premium.',
+    segment_premium: 'Premium', segment_terminal: "Терминал",
+    terminal_label: "Показвай терминал до чата",
+    terminal_hint: "Добавя бутон за терминал в чата на десктопа. Терминалът се отваря с CLI-то на доставчика на чата, може да се закачи вдясно или долу и пази сесията си, докато работиш, така че CLI като Claude не пита за папката всеки път. Няма го на публичната страница.",
+    premium_hint: "Тези настройки изискват Premium.",
     sett_hint: 'Всичко остава вътре в mvmOS — API ключът се пази на сървъра и никога не го напуска.',
     exec_toggle: 'Команди на сървъра', exec_off: 'Само преглед', exec_confirm: 'С потвърждение', exec_auto_short: 'Автоматично',
     exec_enable_label: 'Позволи на mvmAI да изпълнява команди на този сървър', exec_mode_label: 'Когато иска да изпълни команда',
@@ -87,14 +91,16 @@ const _mvmai18n = {
     err: 'Fehler',
     provider: 'Anbieter', api_key: 'API-Schlüssel', model: 'Modell (leer = Standard)',
     base_url: 'Eigene Basis-URL (nur für Custom-Anbieter)',
-    segment_desktop: 'Desktop', segment_public: 'Öffentliche Seite (Premium)',
+    segment_desktop: 'Desktop', segment_public: 'Öffentliche Seite',
     pub_provider_label: 'KI für die öffentliche Seite', pub_provider_same: '(wie im Desktop)',
-    pub_provider_premium_hint: 'Eine andere KI für die öffentliche Seite erfordert Premium.',
     pub_bridge_label: 'Öffentlichen Nutzern die App-Daten-API-Integration erlauben',
     pub_bridge_hint: 'Standardmäßig deaktiviert. Wenn aktiviert, kann mvmAI die eigenen Daten des Nutzers in dessen anderen installierten Apps lesen oder ändern.',
-    segment_compaction: 'Verlauf (Premium)', compact_keep_label: 'Vollständig behaltene, aktuelle Nachrichten',
+    segment_compaction: 'Verlauf', compact_keep_label: 'Vollständig behaltene, aktuelle Nachrichten',
     compact_keep_hint: 'Ältere Nachrichten werden darüber hinaus zu einer laufenden Zusammenfassung zusammengefasst. Der kostenlose Plan ist fest auf 20 eingestellt.',
-    compact_keep_premium_hint: 'Die Änderung, wie viele aktuelle Nachrichten vollständig erhalten bleiben, erfordert Premium.',
+    segment_premium: 'Premium', segment_terminal: "Terminal",
+    terminal_label: "Ein Terminal neben dem Chat anzeigen",
+    terminal_hint: "Fügt dem Chat auf dem Desktop eine Terminal-Schaltfläche hinzu. Das Terminal öffnet sich mit der CLI des Chat-Anbieters, lässt sich rechts oder unten andocken und behält seine Sitzung, solange du arbeitest, sodass eine CLI wie Claude nicht jedes Mal nach dem Ordner fragt. Auf der öffentlichen Seite ist es nicht verfügbar.",
+    premium_hint: "Diese Einstellungen erfordern Premium.",
     sett_hint: 'Alles bleibt innerhalb von mvmOS — der API-Schlüssel wird auf dem Server gespeichert und verlässt ihn nie.',
     exec_toggle: 'Serverbefehle', exec_off: 'Nur Lesen', exec_confirm: 'Bestätigen', exec_auto_short: 'Automatisch',
     exec_enable_label: 'mvmAI erlauben, Befehle auf diesem Server auszuführen', exec_mode_label: 'Wenn ein Befehl ausgeführt werden soll',
@@ -122,14 +128,16 @@ const _mvmai18n = {
     err: 'Error',
     provider: 'Proveedor', api_key: 'Clave API', model: 'Modelo (vacío = predeterminado)',
     base_url: 'URL base personalizada (solo para proveedor Custom)',
-    segment_desktop: 'Escritorio', segment_public: 'Página pública (Premium)',
+    segment_desktop: 'Escritorio', segment_public: 'Página pública',
     pub_provider_label: 'IA de la página pública', pub_provider_same: '(igual que en el escritorio)',
-    pub_provider_premium_hint: 'Usar una IA distinta para la página pública requiere Premium.',
     pub_bridge_label: 'Permitir a los usuarios públicos usar la integración de API con las apps',
     pub_bridge_hint: 'Desactivado por defecto. Cuando está activado, mvmAI puede leer o modificar los propios datos del usuario en sus otras apps instaladas.',
-    segment_compaction: 'Historial (Premium)', compact_keep_label: 'Mensajes recientes conservados por completo',
+    segment_compaction: 'Historial', compact_keep_label: 'Mensajes recientes conservados por completo',
     compact_keep_hint: 'Los mensajes más antiguos más allá de este número se pliegan en un resumen continuo. El plan gratuito está fijado en 20.',
-    compact_keep_premium_hint: 'Cambiar cuántos mensajes recientes se conservan por completo requiere Premium.',
+    segment_premium: 'Premium', segment_terminal: "Terminal",
+    terminal_label: "Mostrar un terminal junto al chat",
+    terminal_hint: "Añade un botón de terminal al chat en el escritorio. El terminal se abre con la CLI del proveedor del chat, se puede acoplar a la derecha o abajo y conserva su sesión mientras trabajas, así que una CLI como Claude no pregunta por la carpeta cada vez. No está disponible en la página pública.",
+    premium_hint: "Estos ajustes requieren Premium.",
     sett_hint: 'Todo permanece dentro de mvmOS — la clave API se guarda en el servidor y nunca sale de él.',
     exec_toggle: 'Comandos del servidor', exec_off: 'Solo lectura', exec_confirm: 'Confirmar', exec_auto_short: 'Automático',
     exec_enable_label: 'Permitir que mvmAI ejecute comandos en este servidor', exec_mode_label: 'Cuando quiera ejecutar uno',
@@ -157,14 +165,16 @@ const _mvmai18n = {
     err: 'Erreur',
     provider: 'Fournisseur', api_key: 'Clé API', model: 'Modèle (vide = par défaut)',
     base_url: 'URL de base personnalisée (uniquement pour le fournisseur Custom)',
-    segment_desktop: 'Bureau', segment_public: 'Page publique (Premium)',
+    segment_desktop: 'Bureau', segment_public: 'Page publique',
     pub_provider_label: 'IA de la page publique', pub_provider_same: '(identique au bureau)',
-    pub_provider_premium_hint: 'Utiliser une IA différente pour la page publique nécessite Premium.',
     pub_bridge_label: "Autoriser les utilisateurs publics à utiliser l'intégration API avec les applications",
     pub_bridge_hint: "Désactivé par défaut. Une fois activé, mvmAI peut lire ou modifier les propres données de l'utilisateur dans ses autres applications installées.",
-    segment_compaction: 'Historique (Premium)', compact_keep_label: 'Messages récents conservés en entier',
+    segment_compaction: 'Historique', compact_keep_label: 'Messages récents conservés en entier',
     compact_keep_hint: "Les messages plus anciens au-delà de ce nombre sont repliés dans un résumé continu. Le plan gratuit est fixé à 20.",
-    compact_keep_premium_hint: "Modifier le nombre de messages récents conservés en entier nécessite Premium.",
+    segment_premium: 'Premium', segment_terminal: "Terminal",
+    terminal_label: "Afficher un terminal à côté du chat",
+    terminal_hint: "Ajoute un bouton de terminal au chat sur le bureau. Le terminal s’ouvre avec la CLI du fournisseur du chat, peut être ancré à droite ou en bas et garde sa session pendant que vous travaillez, si bien qu’une CLI comme Claude ne demande pas le dossier à chaque fois. Il n’est pas disponible sur la page publique.",
+    premium_hint: "Ces réglages nécessitent Premium.",
     sett_hint: "Tout reste à l'intérieur de mvmOS — la clé API est stockée sur le serveur et ne le quitte jamais.",
     exec_toggle: 'Commandes serveur', exec_off: 'Lecture seule', exec_confirm: 'Confirmation', exec_auto_short: 'Automatique',
     exec_enable_label: 'Autoriser mvmAI à exécuter des commandes sur ce serveur', exec_mode_label: "Quand il veut en exécuter une",
@@ -192,14 +202,16 @@ const _mvmai18n = {
     err: 'エラー',
     provider: 'プロバイダー', api_key: 'APIキー', model: 'モデル (空欄でデフォルト)',
     base_url: 'カスタムベースURL (Customプロバイダーのみ)',
-    segment_desktop: 'デスクトップ', segment_public: '公開ページ (Premium)',
+    segment_desktop: 'デスクトップ', segment_public: '公開ページ',
     pub_provider_label: '公開ページのAI', pub_provider_same: '(デスクトップと同じ)',
-    pub_provider_premium_hint: '公開ページで別のAIを使うにはPremiumが必要です。',
     pub_bridge_label: '公開ユーザーにアプリデータAPI連携の利用を許可する',
     pub_bridge_hint: '初期設定ではオフです。オンにすると、mvmAIはユーザー自身の他のインストール済みアプリのデータを読み書きできます。',
-    segment_compaction: '履歴 (Premium)', compact_keep_label: '完全な形で保持する直近メッセージ数',
+    segment_compaction: '履歴', compact_keep_label: '完全な形で保持する直近メッセージ数',
     compact_keep_hint: 'これを超える古いメッセージは、継続的な要約にまとめられます。無料プランは20件に固定されています。',
-    compact_keep_premium_hint: '直近メッセージを完全な形で保持する数を変更するにはPremiumが必要です。',
+    segment_premium: 'Premium', segment_terminal: "ターミナル",
+    terminal_label: "チャットの横にターミナルを表示する",
+    terminal_hint: "デスクトップのチャットにターミナルボタンを追加します。ターミナルはチャットのプロバイダーの CLI で開き、右または下にドッキングでき、作業中はセッションが保持されるため、Claude などの CLI が毎回フォルダーについて尋ねることはありません。公開ページでは利用できません。",
+    premium_hint: "これらの設定には Premium が必要です。",
     sett_hint: 'すべてmvmOS内に留まります — APIキーはサーバーに保存され、外部に出ることはありません。',
     exec_toggle: 'サーバーコマンド', exec_off: '読み取り専用', exec_confirm: '確認あり', exec_auto_short: '自動',
     exec_enable_label: 'mvmAIがこのサーバーでコマンドを実行できるようにする', exec_mode_label: 'コマンドを実行したいとき',
@@ -227,14 +239,16 @@ const _mvmai18n = {
     err: 'Erro',
     provider: 'Provedor', api_key: 'Chave de API', model: 'Modelo (vazio = padrão)',
     base_url: 'URL base personalizada (apenas para provedor Custom)',
-    segment_desktop: 'Desktop', segment_public: 'Página pública (Premium)',
+    segment_desktop: 'Desktop', segment_public: 'Página pública',
     pub_provider_label: 'IA da página pública', pub_provider_same: '(igual ao desktop)',
-    pub_provider_premium_hint: 'Usar uma IA diferente na página pública requer Premium.',
     pub_bridge_label: 'Permitir que usuários públicos usem a integração de API com os apps',
     pub_bridge_hint: 'Desativado por padrão. Quando ativado, o mvmAI pode ler ou alterar os próprios dados do usuário em seus outros apps instalados.',
-    segment_compaction: 'Histórico (Premium)', compact_keep_label: 'Mensagens recentes mantidas na íntegra',
+    segment_compaction: 'Histórico', compact_keep_label: 'Mensagens recentes mantidas na íntegra',
     compact_keep_hint: 'Mensagens mais antigas além dessa quantidade são condensadas em um resumo contínuo. O plano gratuito é fixo em 20.',
-    compact_keep_premium_hint: 'Alterar quantas mensagens recentes ficam na íntegra requer Premium.',
+    segment_premium: 'Premium', segment_terminal: "Terminal",
+    terminal_label: "Mostrar um terminal ao lado do chat",
+    terminal_hint: "Adiciona um botão de terminal ao chat no desktop. O terminal abre com a CLI do provedor do chat, pode ser acoplado à direita ou embaixo e mantém a sessão enquanto você trabalha, então uma CLI como o Claude não pergunta pela pasta toda vez. Não está disponível na página pública.",
+    premium_hint: "Estas configurações exigem Premium.",
     sett_hint: 'Tudo permanece dentro do mvmOS — a chave de API fica armazenada no servidor e nunca sai dele.',
     exec_toggle: 'Comandos do servidor', exec_off: 'Somente leitura', exec_confirm: 'Confirmar', exec_auto_short: 'Automático',
     exec_enable_label: 'Permitir que o mvmAI execute comandos neste servidor', exec_mode_label: 'Quando quiser executar um',
@@ -262,14 +276,16 @@ const _mvmai18n = {
     err: 'Ошибка',
     provider: 'Провайдер', api_key: 'API-ключ', model: 'Модель (пусто = по умолчанию)',
     base_url: 'Свой базовый URL (только для провайдера Custom)',
-    segment_desktop: 'Рабочий стол', segment_public: 'Публичная страница (Premium)',
+    segment_desktop: 'Рабочий стол', segment_public: 'Публичная страница',
     pub_provider_label: 'ИИ для публичной страницы', pub_provider_same: '(как на десктопе)',
-    pub_provider_premium_hint: 'Использование другого ИИ для публичной страницы требует Premium.',
     pub_bridge_label: 'Разрешить публичным пользователям использовать API-интеграцию с приложениями',
     pub_bridge_hint: 'По умолчанию выключено. Когда включено, mvmAI может читать или изменять собственные данные пользователя в его других установленных приложениях.',
-    segment_compaction: 'История (Premium)', compact_keep_label: 'Недавние сообщения, сохраняемые полностью',
+    segment_compaction: 'История', compact_keep_label: 'Недавние сообщения, сохраняемые полностью',
     compact_keep_hint: 'Более старые сообщения сверх этого сворачиваются в текущее резюме. В бесплатном плане зафиксировано значение 20.',
-    compact_keep_premium_hint: 'Изменение количества недавних сообщений, сохраняемых полностью, требует Premium.',
+    segment_premium: 'Premium', segment_terminal: "Терминал",
+    terminal_label: "Показывать терминал рядом с чатом",
+    terminal_hint: "Добавляет в чат на рабочем столе кнопку терминала. Терминал открывается с CLI провайдера чата, его можно закрепить справа или снизу, и он сохраняет сессию, пока вы работаете, поэтому CLI вроде Claude не спрашивает о папке каждый раз. На публичной странице его нет.",
+    premium_hint: "Эти настройки требуют Premium.",
     sett_hint: 'Всё остаётся внутри mvmOS — API-ключ хранится на сервере и никогда не покидает его.',
     exec_toggle: 'Команды на сервере', exec_off: 'Только чтение', exec_confirm: 'С подтверждением', exec_auto_short: 'Автоматически',
     exec_enable_label: 'Разрешить mvmAI выполнять команды на этом сервере', exec_mode_label: 'Когда хочет выполнить команду',
@@ -297,14 +313,16 @@ const _mvmai18n = {
     err: '错误',
     provider: '提供商', api_key: 'API 密钥', model: '模型 (留空为默认)',
     base_url: '自定义基础 URL (仅适用于 Custom 提供商)',
-    segment_desktop: '桌面端', segment_public: '公开页面 (Premium)',
+    segment_desktop: '桌面端', segment_public: '公开页面',
     pub_provider_label: '公开页面 AI', pub_provider_same: '(与桌面端相同)',
-    pub_provider_premium_hint: '为公开页面使用不同的 AI 需要 Premium。',
     pub_bridge_label: '允许公开用户使用应用数据 API 集成',
     pub_bridge_hint: '默认关闭。开启后，mvmAI 可以读取或更改用户自己在其他已安装应用中的数据。',
-    segment_compaction: '历史记录 (Premium)', compact_keep_label: '完整保留的最近消息数',
+    segment_compaction: '历史记录', compact_keep_label: '完整保留的最近消息数',
     compact_keep_hint: '超出此数量的较旧消息会被折叠进一个持续更新的摘要。免费版固定为 20。',
-    compact_keep_premium_hint: '更改完整保留的最近消息数量需要 Premium。',
+    segment_premium: 'Premium', segment_terminal: "终端",
+    terminal_label: "在聊天旁边显示终端",
+    terminal_hint: "在桌面端的聊天中添加终端按钮。终端以聊天提供商的 CLI 打开，可停靠在右侧或底部，并在你工作期间保持会话，因此 Claude 等 CLI 不会每次都询问文件夹。公开页面上不可用。",
+    premium_hint: "这些设置需要 Premium。",
     sett_hint: '一切都保留在 mvmOS 内部 — API 密钥保存在服务器上，永远不会离开。',
     exec_toggle: '服务器命令', exec_off: '只读', exec_confirm: '需确认', exec_auto_short: '自动',
     exec_enable_label: '允许 mvmAI 在此服务器上执行命令', exec_mode_label: '当它想执行命令时',
@@ -421,7 +439,9 @@ mvmOS.registerApp({
         <input id="mvmai-baseurl-inp" type="text" class="s-input" value="${saved?.base_url || ''}">
       </div>
       <hr style="border:none;border-top:1px solid var(--border);margin:4px 0;opacity:.6">
-      <div id="mvmai-pub-segment" style="display:flex;flex-direction:column;gap:10px">
+      <div id="mvmai-premium-segment" style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-weight:600;font-size:.85rem">${_ait('segment_premium')}</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
         <div style="font-weight:600;font-size:.85rem">${_ait('segment_public')}</div>
         ${_row(`${_lbl(_ait('pub_provider_label'))}
           <select id="mvmai-pub-provider-sel" class="s-input">
@@ -438,14 +458,22 @@ mvmOS.registerApp({
             ${_ait('pub_bridge_label')}
           </label>
           <div style="font-size:.74rem;color:var(--text-dim)">${_ait('pub_bridge_hint')}</div>`)}
-      </div>
-      <hr style="border:none;border-top:1px solid var(--border);margin:4px 0;opacity:.6">
-      <div id="mvmai-compact-segment" style="display:flex;flex-direction:column;gap:10px">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
         <div style="font-weight:600;font-size:.85rem">${_ait('segment_compaction')}</div>
         ${_row(`${_lbl(_ait('compact_keep_label'))}
           <input id="mvmai-compact-keep-inp" type="number" min="4" max="200" step="1" class="s-input"
             value="${saved?.compact_keep_recent || ''}" placeholder="20">
           <div style="font-size:.74rem;color:var(--text-dim)">${_ait('compact_keep_hint')}</div>`)}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-weight:600;font-size:.85rem">${_ait('segment_terminal')}</div>
+          ${_row(`<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
+              <input type="checkbox" id="mvmai-terminal-chk" ${saved?.terminal_enabled ? 'checked' : ''}>
+              ${_ait('terminal_label')}
+            </label>
+            <div style="font-size:.74rem;color:var(--text-dim)">${_ait('terminal_hint')}</div>`)}
+        </div>
       </div>
       <div style="font-size:.74rem;color:var(--text-dim)">${_ait('sett_hint')}</div>`;
 
@@ -566,7 +594,6 @@ mvmOS.registerApp({
     const pubCliInp    = wrap.querySelector('#mvmai-pub-model-cli-inp');
     const pubStatus    = wrap.querySelector('#mvmai-pub-models-status');
     const pubBridgeChk = wrap.querySelector('#mvmai-pub-bridge-chk');
-    const pubSegment    = wrap.querySelector('#mvmai-pub-segment');
 
     function _pubEffectiveProvider() { return pubProvSel.value || savedProvider; }
     async function _updatePubModel(current) {
@@ -581,21 +608,15 @@ mvmOS.registerApp({
     _updatePubModel(initialPubModel);
     pubProvSel.addEventListener('change', () => _updatePubModel(''));
 
+    // The settings of the Premium block look like any other settings; without
+    // Premium they are locked and a click on the block opens the Premium dialog.
+    // The enforcement lives server-side (premium/backend.py), this is only the
+    // cosmetic desktop lock.
+    const premiumSegment = wrap.querySelector('#mvmai-premium-segment');
     if (window.mvmOS?.premiumStatus !== 'premium') {
-      [pubProvSel, pubSel, pubCliSel, pubCliInp, pubBridgeChk].forEach(el => el.disabled = true);
+      premiumSegment.querySelectorAll('input, select').forEach(el => el.disabled = true);
     }
-    window.mvmOS?.premiumGate?.(pubSegment, _ait('pub_provider_premium_hint'));
-
-    // History-compaction batch size is likewise store-premium: the field
-    // stays visible so a non-premium admin can see what it does, but is
-    // locked behind mvmOS.premiumGate — the actual enforcement lives
-    // server-side in apps/mvmai/premium/backend.py (resolve_compact_keep_recent).
-    const compactSegment = wrap.querySelector('#mvmai-compact-segment');
-    const compactKeepInp = wrap.querySelector('#mvmai-compact-keep-inp');
-    if (window.mvmOS?.premiumStatus !== 'premium') {
-      compactKeepInp.disabled = true;
-    }
-    window.mvmOS?.premiumGate?.(compactSegment, _ait('compact_keep_premium_hint'));
+    window.mvmOS?.premiumGate?.(premiumSegment, _ait('premium_hint'));
   },
 
   saveSettingsExtra(panel) {
@@ -604,6 +625,7 @@ mvmOS.registerApp({
     const baseUrlInp  = panel.querySelector('#mvmai-baseurl-inp');
     const pubProvSel   = panel.querySelector('#mvmai-pub-provider-sel');
     const pubBridgeChk = panel.querySelector('#mvmai-pub-bridge-chk');
+    const terminalChk  = panel.querySelector('#mvmai-terminal-chk');
     const db = mvmOS.db('mvmai');
     const s = (k, v) => db.run('INSERT OR REPLACE INTO cfg (key,value) VALUES (?,?)', [k, JSON.stringify(v)]);
     const saves = [s('provider', provider)];
@@ -635,6 +657,7 @@ mvmOS.registerApp({
     }
     if (pubModelVal !== undefined) saves.push(s('pub_model', pubModelVal));
     if (pubBridgeChk) saves.push(s('pub_data_bridge_enabled', pubBridgeChk.checked));
+    if (terminalChk) saves.push(s('terminal_enabled', terminalChk.checked));
     const compactKeepInp = panel.querySelector('#mvmai-compact-keep-inp');
     if (compactKeepInp) {
       const raw = compactKeepInp.value.trim();
@@ -1214,6 +1237,15 @@ const AI = (() => {
 
   function _selectProject(p) {
     _activeProject = (_activeProject && _activeProject.id === p.id) ? null : p;
+    // A chat is tied to its project when it is created, so picking another
+    // one while a chat is open would only relabel the old chat. Close it and
+    // let the next message start a new chat in the chosen project.
+    if (_sessionId) {
+      _sessionId = null;
+      _renderChat([]);
+      _renderSessions();
+      _root.querySelector('textarea')?.focus();
+    }
     _renderProjects();
     _updateProjectBar();
   }

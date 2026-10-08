@@ -15,6 +15,11 @@
       "title": "Adjustable chat history",
       "short": "Choose how many recent messages stay in full before mvmAI summarizes",
       "description": "mvmAI keeps a chat's most recent messages in full and folds everything older into a running summary, so long conversations don't grow more expensive per reply forever. With a subscription the administrator can raise or lower how many recent messages stay in full, on both the desktop app and the public page. Without a subscription this is fixed at 20 messages."
+    },
+    {
+      "title": "Terminal next to the chat",
+      "short": "A real terminal beside the chat, started with your AI tool and kept running",
+      "description": "With the setting turned on, the mvmAI window on the desktop gets a terminal button. The terminal opens over the chat, at the bottom or on the right, and starts the command-line tool of the chat's provider, such as Claude, Codex or Gemini, so you can type that tool's own commands, like /usage, yourself. It hides when you click anywhere else. The pin button keeps it docked beside the chat and open every time you return to that chat, while a new chat starts without one. Its session keeps running while it is hidden or the window is closed, so the tool does not ask about trusting the folder every time; the close button ends it. This works only on the desktop. Without a subscription the setting is shown locked and the button opens the Premium dialog."
     }
   ]
 }

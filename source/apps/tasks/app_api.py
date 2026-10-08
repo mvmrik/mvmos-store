@@ -20,6 +20,11 @@ import sys
 from datetime import datetime, timezone
 
 
+# Read by Apps Hub for the live strip of the public page, not a function for
+# scripts, so the External API and Automations do not list it.
+INTERNAL_ONLY = ("get_live_activity",)
+
+
 def _pub():
     pub = sys.modules.get("app_public_tasks")
     if pub is None:
@@ -116,6 +121,30 @@ def list_tasks(user_id: str, project_id: str = None):
     for t in tasks:
         t["project_title"] = projects.get(t.get("project_id"))
     return tasks
+
+
+def get_live_activity(user_id: str):
+    """What is running for the user right now: one entry per timed task whose
+    timer is running or paused, with id, title, state (running or paused),
+    elapsed_seconds at the moment of the call and the buttons the live strip
+    may show for it."""
+    out = []
+    for t in _unwrap(_pub()._list_tasks(user_id)):
+        if t.get("timer_running") or t.get("timer_paused"):
+            running = bool(t.get("timer_running"))
+            args = {"task_id": t["id"]}
+            out.append({
+                "id": t["id"],
+                "title": t["title"],
+                "state": "running" if running else "paused",
+                "elapsed_seconds": int(t.get("elapsed_seconds") or 0),
+                "actions": [
+                    {"type": "pause" if running else "resume",
+                     "function": "pause_task_timer" if running else "start_task_timer", "args": args},
+                    {"type": "stop", "function": "complete_task", "args": args},
+                ],
+            })
+    return out
 
 
 def get_task(user_id: str, task_id: str):
