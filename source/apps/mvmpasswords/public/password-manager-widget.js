@@ -544,6 +544,7 @@
       // subscription modal — but let the fresh answer drive the gate below.
       var showAudit=isDesktop||auditOn;
       root.innerHTML='<div class="pm"><div class="pm-bar"><div class="pm-bar-head"><span class="pm-title">🛡️ '+esc(t('pm_title'))+'</span></div><div class="pm-bar-tools"><input class="pm-search" placeholder="'+esc(t('pm_search'))+'"><button class="pm-menu-btn" title="'+esc(t('pm_menu'))+'" aria-label="'+esc(t('pm_menu'))+'">☰</button></div><div class="pm-folders" hidden><div class="pm-folder-row"></div><button class="pm-folder-more" hidden title="'+esc(t('pm_folder_more'))+'" aria-label="'+esc(t('pm_folder_more'))+'">⋯</button><div class="pm-folder-menu" hidden></div></div><span class="pm-context"></span></div><div class="pm-menu" hidden><button class="pm-add">'+esc(t('pm_add'))+'</button><button class="pm-folders-btn">'+esc(t('pm_folders'))+'</button>'+(showAudit?'<button class="pm-audit">'+esc(t('pm_audit_title'))+'</button>':'')+(parentOrigin?'':'<button class="pm-import">'+esc(t('pm_import_title'))+'</button>')+'<button class="pm-lock">'+esc(t('pm_lock'))+'</button></div><div class="pm-list"></div></div>';
+      root.querySelector('.pm-bar-head').remove();
       var search=root.querySelector('.pm-search');search.oninput=renderList;
       var menuBtn=root.querySelector('.pm-menu-btn'),menu=root.querySelector('.pm-menu');
       menuBtn.onclick=function(e){e.stopPropagation();menu.hidden=!menu.hidden};

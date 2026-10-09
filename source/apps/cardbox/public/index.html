@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cardbox</title>
+<style>html,body{margin:0;height:100%;background:#101521}#cardbox-root{height:100dvh}</style></head>
+<body><div id="cardbox-root"></div><script src="/i18n/i18n.js"></script>
+<script>
+(async function(){
+  if (!localStorage.getItem('apphub_token')) { location.replace('/pub/apphub/?return='+encodeURIComponent(location.href)); return; }
+  function load(src){return new Promise((ok,bad)=>{const s=document.createElement('script');s.src=window.asset(src);s.onload=ok;s.onerror=bad;document.head.appendChild(s)})}
+  await load('/apps/cardbox/i18n.js'); await load('/apps/cardbox/qrcode.js'); await load('/apps/cardbox/jsbarcode.js'); await load('/apps/cardbox/widget.js');
+  CardboxWidget.mount(document.getElementById('cardbox-root'), {onNeedLogin(){location.replace('/pub/apphub/?return='+encodeURIComponent(location.href))}});
+})();
+</script></body></html>

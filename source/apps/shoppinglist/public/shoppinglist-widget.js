@@ -130,6 +130,7 @@
         font-family:system-ui,sans-serif;font-size:.9rem;text-align:center;padding:20px}
       .sl-toolbar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--pub-surface2, #313244);flex-shrink:0;flex-wrap:wrap}
       .sl-toolbar h2{margin:0;font-size:1rem;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .sl-toolbar .sl-quick-add{flex:0 0 34px;width:34px;height:34px;padding:0;font-size:1.25rem;line-height:1}
       .sl-btn{background:var(--pub-surface2, #313244);color:var(--pub-fg, #cdd6f4);border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.82rem;white-space:nowrap}
       .sl-btn:hover{background:var(--pub-border, #45475a)}
       .sl-btn-primary{background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e);font-weight:600}
@@ -212,8 +213,7 @@
       .sl-date-input input::-webkit-inner-spin-button,.sl-date-input input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
       @media (max-width:520px){
         .sl-grid{grid-template-columns:1fr}
-        .sl-toolbar{flex-wrap:wrap}
-        .sl-toolbar h2{flex:1 1 100%}
+        #sl-toolbar-main{flex-wrap:nowrap}
         .sl-dialog{max-width:100%}
       }
     `;
@@ -251,17 +251,16 @@
     root.style.position = 'relative';
     root.innerHTML = `<div class="sl-widget">
       <div class="sl-toolbar" id="sl-toolbar-main">
-        <h2>🛒 ${esc(t('sl_title'))}</h2>
         <button class="sl-btn-icon" id="sl-settings-btn" title="${esc(t('sl_settings'))}">⚙</button>
         <button class="sl-btn-icon" id="sl-warranties-btn" title="${esc(t('sl_warranties'))}">🛡️</button>
         <button class="sl-btn-icon" id="sl-history-btn" title="${esc(t('sl_history'))}">🕓</button>
-        <button class="sl-btn sl-btn-primary" id="sl-add-list-btn">${esc(t('sl_add_list'))}</button>
+        <button class="sl-btn sl-btn-primary sl-quick-add" id="sl-add-list-btn" type="button" title="${esc(t('sl_add_list'))}" aria-label="${esc(t('sl_add_list'))}">+</button>
       </div>
       <div class="sl-toolbar" id="sl-toolbar-items" style="display:none">
         <button class="sl-btn-icon" id="sl-back-btn">←</button>
         <h2 id="sl-items-title"></h2>
         <button class="sl-btn-icon" id="sl-share-btn" title="${esc(t('sl_share'))}">👥</button>
-        <button class="sl-btn sl-btn-primary" id="sl-add-item-btn">${esc(t('sl_add_item'))}</button>
+        <button class="sl-btn sl-btn-primary sl-quick-add" id="sl-add-item-btn" type="button" title="${esc(t('sl_add_item'))}" aria-label="${esc(t('sl_add_item'))}">+</button>
       </div>
       <div class="sl-body">
         <div class="sl-grid" id="sl-lists-grid"></div>

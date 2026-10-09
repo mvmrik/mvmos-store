@@ -79,8 +79,12 @@ def _ensure_tables():
         conn.execute(
             "CREATE TABLE IF NOT EXISTS pub_messages ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT, session_id TEXT NOT NULL,"
-            "role TEXT NOT NULL, content TEXT, tool_call_id TEXT, tool_calls TEXT, seq INTEGER NOT NULL)"
+            "role TEXT NOT NULL, content TEXT, tool_call_id TEXT, tool_calls TEXT, seq INTEGER NOT NULL,"
+            "created_at INTEGER)"
         )
+        message_cols = {row[1] for row in conn.execute("PRAGMA table_info(pub_messages)")}
+        if "created_at" not in message_cols:
+            conn.execute("ALTER TABLE pub_messages ADD COLUMN created_at INTEGER")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_pub_messages_session ON pub_messages(session_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_pub_sessions_user ON pub_sessions(user_id)")
         # additive migration — not declared via db.json since pub_sessions isn't
@@ -139,15 +143,26 @@ def _persist_turn(user_id, session_id, messages, reply, project_id=None, meta=No
                 (session_id, user_id, _make_title(messages), project_id, now, now,
                  meta.get("provider"), meta.get("model"), meta.get("cli_state")),
             )
+        previous = conn.execute(
+            "SELECT seq, role, content, created_at FROM pub_messages WHERE session_id=?", (session_id,)
+        ).fetchall()
+        previous_times = {(r["seq"], r["role"], r["content"]): r["created_at"] for r in previous}
         conn.execute("DELETE FROM pub_messages WHERE session_id=?", (session_id,))
         full = list(messages) + ([reply] if reply else [])
         for i, m in enumerate(full):
+            created_at = now if reply is m else m.get("created_at")
+            if not isinstance(created_at, (int, float)) or not 0 < created_at <= now + 300:
+                created_at = previous_times.get((i, m.get("role"), m.get("content")))
+            if created_at is None and (reply is m or not row):
+                created_at = now
+            if reply is m:
+                m["created_at"] = int(created_at)
             conn.execute(
-                "INSERT INTO pub_messages (session_id, role, content, tool_call_id, tool_calls, seq) "
-                "VALUES (?,?,?,?,?,?)",
+                "INSERT INTO pub_messages (session_id, role, content, tool_call_id, tool_calls, seq, created_at) "
+                "VALUES (?,?,?,?,?,?,?)",
                 (
                     session_id, m.get("role"), m.get("content"), m.get("tool_call_id"),
-                    json.dumps(m["tool_calls"]) if m.get("tool_calls") else None, i,
+                    json.dumps(m["tool_calls"]) if m.get("tool_calls") else None, i, created_at,
                 ),
             )
     return session_id
@@ -515,7 +530,7 @@ def _cli_flatten_messages(messages):
         elif role == "summary" and m.get("content"):
             out.append({"role": "user", "content": f"[Conversation summary]:\n{m.get('content')}"})
         elif role in ("user", "assistant") and m.get("content"):
-            out.append(m)
+            out.append({key: m[key] for key in ("role", "content", "tool_calls") if key in m})
     return out
 
 
@@ -607,12 +622,12 @@ async def get_session_messages(sid: str, x_pub_token: str = Header(default=None)
         if not owned:
             return JSONResponse({"error": "not_found"}, status_code=404)
         rows = conn.execute(
-            "SELECT role, content, tool_call_id, tool_calls FROM pub_messages WHERE session_id=? ORDER BY seq",
+            "SELECT role, content, tool_call_id, tool_calls, created_at FROM pub_messages WHERE session_id=? ORDER BY seq",
             (sid,),
         ).fetchall()
     messages = []
     for r in rows:
-        m = {"role": r["role"], "content": r["content"]}
+        m = {"role": r["role"], "content": r["content"], "created_at": r["created_at"]}
         if r["tool_call_id"]:
             m["tool_call_id"] = r["tool_call_id"]
         if r["tool_calls"]:

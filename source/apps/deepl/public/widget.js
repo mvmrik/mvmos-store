@@ -75,15 +75,17 @@
           '.dpl-wrap *{box-sizing:border-box}' +
           '.dpl-head{display:flex;align-items:center;justify-content:space-between;gap:8px}' +
           '.dpl-head h1{font-size:18px;margin:0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
+          '.dpl-head h1{display:none}' +
           '.dpl-usage{font-size:12px;opacity:.65;white-space:nowrap}' +
           '.dpl-gear{cursor:pointer;font-size:18px;opacity:.8;background:none;border:none;color:inherit}' +
           '.dpl-gear:hover{opacity:1}' +
           '.dpl-langs{display:flex;align-items:center;gap:8px}' +
-          '.dpl-langs select{flex:1;padding:6px;border-radius:6px;border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);color:inherit}' +
+          '.dpl-langs select{flex:1;min-width:0;padding:6px;border-radius:6px;border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);color:inherit}' +
           '.dpl-swap{cursor:pointer;background:none;border:none;color:inherit;font-size:16px;padding:4px 8px}' +
           '.dpl-panes{display:flex;gap:12px;flex:1;min-height:120px}' +
-          '.dpl-pane{flex:1;display:flex;flex-direction:column}' +
-          '.dpl-pane textarea{flex:1;resize:none;padding:10px;border-radius:8px;border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);color:inherit;font-size:14px}' +
+          '.dpl-pane{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column}' +
+          '.dpl-pane textarea{flex:1;width:100%;min-width:0;min-height:0;resize:none;padding:10px;border-radius:8px;border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);color:inherit;font-size:14px}' +
+          '@media(max-width:600px){.dpl-panes{flex-direction:column}.dpl-pane{min-height:120px}}' +
           '.dpl-actions{display:flex;justify-content:space-between;align-items:center}' +
           '.dpl-btn{padding:8px 16px;border-radius:8px;border:none;background:var(--pub-accent,#2563eb);color:#fff;cursor:pointer;font-size:14px}' +
           '.dpl-btn:disabled{opacity:.5;cursor:default}' +

@@ -1,0 +1,24 @@
+{
+  "tagline": "Every useful card and code in one pocket.",
+  "description": "Cardbox keeps loyalty and membership cards, discount codes, gift vouchers, tickets, business cards and other useful passes together. Every Apps Hub profile has its own private collection, available in the mvmOS desktop and on a public web page. Save a card number or scannable code, add photos of the front and back, mark favourites and track expiration dates. A business card can remain just a photo, or carry optional contact details.\n\nThe App API lets mvmAI and other authorized apps find, add, update and remove items under the same profile. Image attachments are private and require the owner's session.",
+  "capabilities": [
+    "Separate private collection for every Apps Hub profile.",
+    "Loyalty cards, discount codes, vouchers, tickets, business cards and custom items.",
+    "Optional front and back photos, with private access.",
+    "Scannable QR and Code 128 formats, with a compact clickable code preview on each card.",
+    "Optional business contact details and one tap email, call or website actions.",
+    "Search, type filters, favourites, expiration dates and archive.",
+    "Per-profile general sorting and separate category sorting by favourites, recent use, frequency of use or upcoming expiration.",
+    "Responsive desktop and public web page using the same collection."
+  ],
+  "integrations": [
+    {
+      "app": "",
+      "name": "Any app",
+      "kind": "app_api",
+      "direction": "provides",
+      "summary": "Authorized apps can search and manage the current Apps Hub profile's cards, codes, vouchers, tickets and contacts, including optional images supplied as base64 data, usage tracking and sorting preferences.",
+      "requires": "The Cardbox App API must be enabled in Apps Hub → Settings → App APIs. It is off by default."
+    }
+  ]
+}

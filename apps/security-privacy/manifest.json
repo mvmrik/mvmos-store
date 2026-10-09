@@ -20,9 +20,9 @@
       "name": "mvmPasswords",
       "icon": "🛡️",
       "category": "Security & Privacy",
-      "version": "1.5.1",
+      "version": "1.5.2",
       "description": "An end-to-end encrypted password vault for your Apps Hub profile, with a public page and optional browser autofill.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/security-privacy/mvmpasswords-1.5.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/security-privacy/mvmpasswords-1.5.2.zip",
       "tags": [
         "security",
         "passwords",

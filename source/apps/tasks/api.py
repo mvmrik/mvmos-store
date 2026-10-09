@@ -27,6 +27,8 @@ completes normally; the reward is just skipped (recorded as budget_ok=0 in
 the completions ledger) rather than failing the whole action.
 """
 
+import asyncio
+import json
 import os
 import sqlite3
 import sys
@@ -34,7 +36,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Header, WebSocket
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel
 
@@ -181,6 +183,72 @@ def _resolve(token):
     if not hub or not token:
         return None
     return hub.get_pub_session(token)
+
+
+# An open Tasks widget receives only a change signal. It reads the current
+# state from the database on demand, so idle widgets do no repeated work.
+_conns: dict = {}  # user_id -> set[WebSocket]
+_socket_loop = None
+
+
+def _notify_changed(user_id: str, kind: str = "tasks"):
+    if not _conns.get(user_id):
+        return
+
+    async def send():
+        payload = json.dumps({"type": "changed", "kind": kind})
+        for ws in list(_conns.get(user_id, ())):
+            try:
+                await ws.send_text(payload)
+            except Exception:
+                pass
+
+    try:
+        asyncio.get_running_loop().create_task(send())
+    except RuntimeError:
+        # App APIs may be called from a worker thread. Deliver to the loop
+        # serving the open sockets in this process.
+        if _socket_loop and _socket_loop.is_running():
+            asyncio.run_coroutine_threadsafe(send(), _socket_loop)
+
+
+@router.websocket("/ws")
+async def realtime_ws(websocket: WebSocket):
+    global _socket_loop
+    await websocket.accept()
+    uid = None
+    heartbeat = None
+    try:
+        first = json.loads(await asyncio.wait_for(websocket.receive_text(), timeout=10))
+        if first.get("type") != "join":
+            await websocket.close()
+            return
+        me = _resolve(first.get("token"))
+        if not me:
+            await websocket.close(code=1008)
+            return
+        uid = me["id"]
+        _socket_loop = asyncio.get_running_loop()
+        _conns.setdefault(uid, set()).add(websocket)
+        await websocket.send_text('{"type":"joined"}')
+
+        async def keepalive():
+            while True:
+                await asyncio.sleep(25)
+                await websocket.send_text('{"type":"ping"}')
+
+        heartbeat = asyncio.create_task(keepalive())
+        while True:
+            await websocket.receive_text()
+    except Exception:
+        pass
+    finally:
+        if heartbeat:
+            heartbeat.cancel()
+        if uid in _conns:
+            _conns[uid].discard(websocket)
+            if not _conns[uid]:
+                del _conns[uid]
 
 
 @router.get("/")
@@ -376,6 +444,7 @@ def _create_project(user_id: str, body: ProjectBody):
         )
         conn.commit()
         row = conn.execute("SELECT * FROM projects WHERE id=?", (pid,)).fetchone()
+        _notify_changed(user_id, "projects")
         return JSONResponse(dict(row))
 
 
@@ -412,6 +481,7 @@ async def reorder_projects(body: ProjectReorderBody, x_pub_token: str = Header(d
             conn.execute("UPDATE projects SET position=?, updated_at=? WHERE id=? AND user_id=?", (i, now, pid, me["id"]))
         conn.commit()
         rows = conn.execute("SELECT * FROM projects WHERE user_id=? ORDER BY position", (me["id"],)).fetchall()
+        _notify_changed(me["id"], "projects")
         return JSONResponse([dict(r) for r in rows])
 
 
@@ -430,6 +500,7 @@ def _rename_project(user_id: str, project_id: str, body: ProjectBody):
         )
         conn.commit()
         row = conn.execute("SELECT * FROM projects WHERE id=?", (project_id,)).fetchone()
+        _notify_changed(user_id, "projects")
         return JSONResponse(dict(row))
 
 
@@ -453,6 +524,7 @@ def _delete_project(user_id: str, project_id: str):
         conn.execute("UPDATE projects SET parent_id=? WHERE parent_id=? AND user_id=?", (parent, project_id, user_id))
         conn.execute("DELETE FROM projects WHERE id=?", (project_id,))
         conn.commit()
+    _notify_changed(user_id, "projects")
     return JSONResponse({"ok": True})
 
 
@@ -554,6 +626,7 @@ def _create_task(user_id: str, body: TaskBody):
         _set_task_categories(conn, tid, body.category_ids)
         conn.commit()
         row = conn.execute("SELECT * FROM tasks WHERE id=?", (tid,)).fetchone()
+        _notify_changed(user_id)
         return JSONResponse(_row_to_task(conn, row, _now()))
 
 
@@ -589,6 +662,7 @@ def _update_task(user_id: str, task_id: str, body: TaskBody):
         _set_task_categories(conn, task_id, body.category_ids)
         conn.commit()
         row = conn.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
+        _notify_changed(user_id)
         return JSONResponse(_row_to_task(conn, row, _now()))
 
 
@@ -607,6 +681,7 @@ def _delete_task(user_id: str, task_id: str):
             return JSONResponse({"error": "not found"}, status_code=404)
         conn.execute("DELETE FROM tasks WHERE id=?", (task_id,))
         conn.commit()
+    _notify_changed(user_id)
     return JSONResponse({"ok": True})
 
 
@@ -663,6 +738,7 @@ def _complete_task(user_id: str, task_id: str):
         row = conn.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
         result = _row_to_task(conn, row, now)
         result["reward"] = {"amount": task["reward_amount"] or 0.0, "budget_ok": overall_ok, "categories": rewards}
+        _notify_changed(user_id)
         return JSONResponse(result)
 
 
@@ -687,6 +763,7 @@ def _start_timer(user_id: str, task_id: str):
         conn.execute("UPDATE tasks SET timer_started_at=?, updated_at=? WHERE id=?", (now, now, task_id))
         conn.commit()
         row = conn.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
+        _notify_changed(user_id)
         return JSONResponse(_row_to_task(conn, row, _now()))
 
 
@@ -718,6 +795,7 @@ def _pause_timer(user_id: str, task_id: str):
         conn.commit()
 
         row = conn.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
+        _notify_changed(user_id)
         return JSONResponse(_row_to_task(conn, row, now))
 
 
@@ -744,6 +822,7 @@ def _discard_timer(user_id: str, task_id: str):
         )
         conn.commit()
         row = conn.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
+        _notify_changed(user_id)
         return JSONResponse(_row_to_task(conn, row, now))
 
 
@@ -799,6 +878,7 @@ def _complete_timer(user_id: str, task_id: str):
         result = _row_to_task(conn, row, now)
         result["reward"] = {"amount": amount or 0.0, "budget_ok": overall_ok, "categories": rewards}
         result["duration_hours"] = round(elapsed_hours, 4)
+        _notify_changed(user_id)
         return JSONResponse(result)
 
 
@@ -876,6 +956,7 @@ def _add_todo_item(user_id: str, task_id: str, body: TodoItemBody):
         conn.execute("UPDATE tasks SET updated_at=? WHERE id=?", (_now_iso(), task_id))
         conn.commit()
         row = conn.execute("SELECT * FROM todo_items WHERE id=?", (iid,)).fetchone()
+        _notify_changed(user_id)
         return JSONResponse(dict(row))
 
 
@@ -910,6 +991,7 @@ def _update_todo_item(user_id: str, task_id: str, item_id: str, body: TodoItemUp
         conn.execute("UPDATE tasks SET updated_at=? WHERE id=?", (_now_iso(), task_id))
         conn.commit()
         row = conn.execute("SELECT * FROM todo_items WHERE id=?", (item_id,)).fetchone()
+        _notify_changed(user_id)
         return JSONResponse(dict(row))
 
 
@@ -931,6 +1013,7 @@ def _delete_todo_item(user_id: str, task_id: str, item_id: str):
         conn.execute("DELETE FROM todo_items WHERE id=?", (item_id,))
         conn.execute("UPDATE tasks SET updated_at=? WHERE id=?", (_now_iso(), task_id))
         conn.commit()
+    _notify_changed(user_id)
     return JSONResponse({"ok": True})
 
 

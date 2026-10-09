@@ -19,7 +19,7 @@
     "drinks",
     "health"
   ],
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Log what you drink through the day. Every drink counts only its own water content and also tracks caffeine and alcohol, with ready-made drinks and your own, plus a public web page.",
   "entry": "main.js",
   "public_url": "/pub/hydration/",

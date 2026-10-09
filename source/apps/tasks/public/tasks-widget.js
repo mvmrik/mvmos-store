@@ -75,15 +75,16 @@
         font-family:system-ui,sans-serif;font-size:.85rem;overflow:hidden}
       .tk-login{display:flex;align-items:center;justify-content:center;height:100%;color:var(--pub-fg2, #a6adc8);
         font-family:system-ui,sans-serif;font-size:.9rem;text-align:center;padding:20px}
-      .tk-toolbar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--pub-surface2, #313244);flex-shrink:0;flex-wrap:wrap}
-      .tk-toolbar h2{margin:0;font-size:1rem;flex:1}
-      .tk-tabs{display:flex;gap:4px;background:var(--pub-surface2, #313244);border-radius:6px;padding:2px}
+      .tk-toolbar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--pub-surface2, #313244);flex-shrink:0}
+      .tk-tabs{display:flex;gap:4px;min-width:0;overflow-x:auto;scrollbar-width:none;background:var(--pub-surface2, #313244);border-radius:6px;padding:2px}
+      .tk-tabs::-webkit-scrollbar{display:none}
       .tk-tab{background:none;border:none;color:var(--pub-fg2, #a6adc8);padding:5px 10px;border-radius:5px;cursor:pointer;font-size:.78rem;white-space:nowrap}
       .tk-tab.active{background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e);font-weight:600}
       .tk-btn{background:var(--pub-surface2, #313244);color:var(--pub-fg, #cdd6f4);border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.82rem;white-space:nowrap}
       .tk-btn:hover{background:var(--pub-border, #45475a)}
       .tk-btn-primary{background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e);font-weight:600}
       .tk-btn-primary:hover{background:var(--pub-accent-hover, #a6c8ff)}
+      .tk-toolbar-add{margin-left:auto;flex:0 0 34px;width:34px;height:34px;padding:0;font-size:1.35rem;line-height:1}
       .tk-btn-danger{background:var(--pub-red, #f38ba8);color:var(--pub-bg, #1e1e2e)}
       .tk-btn-icon{background:none;border:none;color:var(--pub-fg2, #a6adc8);cursor:pointer;font-size:.9rem;padding:4px 6px;border-radius:4px}
       .tk-btn-icon:hover{background:var(--pub-border, #45475a);color:var(--pub-fg, #cdd6f4)}
@@ -168,8 +169,7 @@
       .tk-toast-bad{border-color:var(--pub-red, #f38ba8)}
       @media (max-width:520px){
         .tk-grid{grid-template-columns:1fr}
-        .tk-toolbar{flex-wrap:wrap}
-        .tk-toolbar h2{flex:1 1 100%}
+        .tk-tab{padding:6px 7px;font-size:.74rem}
         .tk-dialog{max-width:100%}
       }
     `;
@@ -192,6 +192,15 @@
     let settings = { budget_integration: false };
     let budgetCategories = { available: false, categories: [] };
     let timerInterval = null;
+    let ws = null;
+    let wsTimer = null;
+    let pollInterval = null;
+    let syncTimeout = null;
+    let wsRetry = 0;
+    let syncInFlight = false;
+    let syncPending = false;
+    let taskRequestVersion = 0;
+    let taskSnapshot = '';
     let currentTab = 'tasks';
     // Which accordion sections are expanded, keyed by project id ('' = the
     // trailing "Other" section for tasks with no project). Whichever project
@@ -226,13 +235,12 @@
     root.style.position = 'relative';
     root.innerHTML = `<div class="tk-widget">
       <div class="tk-toolbar">
-        <h2>✅ ${esc(t('tk_title'))}</h2>
         <div class="tk-tabs" id="tk-tabs">
           <button class="tk-tab active" data-tab="tasks">${esc(t('tk_tab_tasks'))}</button>
           <button class="tk-tab" data-tab="history">${esc(t('tk_tab_history'))}</button>
           <button class="tk-tab" data-tab="settings">${esc(t('tk_tab_settings'))}</button>
         </div>
-        <button class="tk-btn tk-btn-primary" id="tk-add-btn">${esc(t('tk_add'))}</button>
+        <button class="tk-btn tk-btn-primary tk-toolbar-add" id="tk-add-btn" type="button" title="${esc(t('tk_add'))}" aria-label="${esc(t('tk_add'))}">+</button>
       </div>
       <div class="tk-body">
         <div id="tk-grid"></div>
@@ -475,22 +483,136 @@
       if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
     }
 
+    // Ignore the calculated elapsed time: it changes on every server read even
+    // when nobody has changed a task. A real change should update the cards.
+    function snapshotTasks(list) {
+      return JSON.stringify(list.map(({ elapsed_seconds, ...task }) => task));
+    }
+    function runningTimers(list) {
+      return JSON.stringify(list.filter(task => task.timer_running)
+        .map(task => [task.id, task.timer_started_at]));
+    }
+
     async function refreshTasks() {
-      try { tasks = await api('/tasks'); } catch (e) { tasks = []; }
-      if (destroyed) return;
-      renderTasks();
+      const version = ++taskRequestVersion;
+      try {
+        const latest = await api('/tasks');
+        if (destroyed || version !== taskRequestVersion) return false;
+        tasks = latest;
+        taskSnapshot = snapshotTasks(latest);
+        renderTasks();
+        return true;
+      } catch (e) { return false; }
+    }
+
+    async function syncTasks() {
+      if (destroyed || document.hidden) return;
+      if (syncInFlight) { syncPending = true; return; }
+      syncInFlight = true;
+      const version = ++taskRequestVersion;
+      try {
+        const latest = await api('/tasks');
+        if (destroyed || version !== taskRequestVersion) return;
+        const snapshot = snapshotTasks(latest);
+        if (snapshot !== taskSnapshot) {
+          const timersChanged = runningTimers(tasks) !== runningTimers(latest);
+          tasks = latest;
+          taskSnapshot = snapshot;
+          renderTasks();
+          if (timersChanged) refreshLiveActivity();
+        }
+      } catch (e) {
+        // Keep the last known state until the connection works again.
+      } finally {
+        syncInFlight = false;
+        if (syncPending) {
+          syncPending = false;
+          scheduleSync();
+        }
+      }
+    }
+
+    function scheduleSync() {
+      if (destroyed || syncTimeout) return;
+      syncTimeout = setTimeout(() => {
+        syncTimeout = null;
+        syncTasks();
+      }, 150);
+    }
+
+    function startFallbackPolling() {
+      if (pollInterval || destroyed) return;
+      pollInterval = setInterval(syncTasks, 15000);
+    }
+    function stopFallbackPolling() {
+      if (pollInterval) clearInterval(pollInterval);
+      pollInterval = null;
+    }
+
+    // The socket only signals changes. The full task list is fetched when
+    // something changed, on reconnect, or when the page becomes visible again.
+    function connectWs() {
+      if (destroyed || (ws && ws.readyState <= 1)) return;
+      let sock;
+      try {
+        const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+        sock = new WebSocket(`${proto}://${location.host}${API}/ws`);
+      } catch (e) { startFallbackPolling(); return; }
+      ws = sock;
+      sock.onopen = () => sock.send(JSON.stringify({ type: 'join', token }));
+      sock.onmessage = ev => {
+        let msg;
+        try { msg = JSON.parse(ev.data); } catch (e) { return; }
+        if (msg.type === 'ping') {
+          sock.send('{"type":"pong"}');
+        } else if (msg.type === 'joined') {
+          wsRetry = 0;
+          stopFallbackPolling();
+          scheduleSync();
+        } else if (msg.type === 'changed') {
+          if (msg.kind === 'projects') {
+            loadProjects().then(() => {
+              if (destroyed) return;
+              if (currentTab === 'settings') renderSettings();
+              scheduleSync();
+            });
+          } else scheduleSync();
+        }
+      };
+      sock.onclose = ev => {
+        if (destroyed || ws !== sock) return;
+        ws = null;
+        if (ev.code === 1008) return;
+        startFallbackPolling();
+        wsRetry = Math.min(wsRetry + 1, 5);
+        wsTimer = setTimeout(connectWs, Math.min(30000, 1000 * 2 ** (wsRetry - 1)));
+      };
+      sock.onerror = () => sock.close();
+    }
+
+    function onWake() {
+      if (destroyed || document.hidden) return;
+      scheduleSync();
+      clearTimeout(wsTimer);
+      wsTimer = null;
+      connectWs();
+    }
+
+    function refreshLiveActivity() {
+      window.MvmLayout?.refreshLive?.();
     }
 
     async function completeTask(task) {
       try {
         const result = await api(`/tasks/${task.id}/complete`, { method: 'POST' });
+        if (task.timer_running || task.timer_paused) refreshLiveActivity();
         showRewardToast(result);
         await refreshTasks();
       } catch (e) { toast(e.message || t('tk_error'), 'bad'); }
     }
     async function startTimer(task) {
-      try { await api(`/tasks/${task.id}/timer/start`, { method: 'POST' }); await refreshTasks(); }
-      catch (e) { toast(e.message || t('tk_error'), 'bad'); }
+      try { await api(`/tasks/${task.id}/timer/start`, { method: 'POST' }); refreshLiveActivity(); await refreshTasks(); }
+      catch (e) { await refreshTasks(); toast(e.message || t('tk_error'), 'bad'); }
     }
     // Stop pauses the timer first (so no time accrues while the user decides),
     // then asks what to do with the tracked time: resume, throw it away, or save it.
@@ -499,10 +621,16 @@
       if (task.timer_running) {
         try {
           paused = await api(`/tasks/${task.id}/timer/pause`, { method: 'POST' });
-        } catch (e) { toast(e.message || t('tk_error'), 'bad'); return; }
+          refreshLiveActivity();
+        } catch (e) {
+          await refreshTasks();
+          toast(e.message || t('tk_error'), 'bad');
+          return;
+        }
       }
-      await refreshTasks();
-      openStopDialog(tasks.find(x => x.id === task.id) || paused);
+      const refreshed = await refreshTasks();
+      const latest = refreshed ? tasks.find(x => x.id === task.id) : paused;
+      if (latest && latest.timer_paused) openStopDialog(latest);
     }
 
     function openStopDialog(task) {
@@ -550,20 +678,22 @@
     async function discardTimer(task) {
       try {
         await api(`/tasks/${task.id}/timer/discard`, { method: 'POST' });
+        refreshLiveActivity();
         toast(t('tk_stop_discarded'));
         await refreshTasks();
-      } catch (e) { toast(e.message || t('tk_error'), 'bad'); }
+      } catch (e) { await refreshTasks(); toast(e.message || t('tk_error'), 'bad'); }
     }
     async function completeTimer(task) {
       try {
         const result = await api(`/tasks/${task.id}/timer/complete`, { method: 'POST' });
+        refreshLiveActivity();
         showRewardToast(result);
         await refreshTasks();
-      } catch (e) { toast(e.message || t('tk_error'), 'bad'); }
+      } catch (e) { await refreshTasks(); toast(e.message || t('tk_error'), 'bad'); }
     }
     async function deleteTask(task) {
       if (!confirm(t('tk_confirm_delete', { title: task.title }))) return;
-      try { await api(`/tasks/${task.id}`, { method: 'DELETE' }); await refreshTasks(); }
+      try { await api(`/tasks/${task.id}`, { method: 'DELETE' }); if (task.timer_running || task.timer_paused) refreshLiveActivity(); await refreshTasks(); }
       catch (e) { toast(e.message || t('tk_error'), 'bad'); }
     }
 
@@ -1017,13 +1147,26 @@
       await loadProjects();
       if (destroyed) return;
       await refreshTasks();
+      if (destroyed) return;
+      connectWs();
     }
     init();
+
+    document.addEventListener('visibilitychange', onWake);
+    window.addEventListener('focus', onWake);
+    window.addEventListener('online', onWake);
 
     return {
       destroy() {
         destroyed = true;
         stopTimerTicker();
+        stopFallbackPolling();
+        clearTimeout(wsTimer);
+        clearTimeout(syncTimeout);
+        if (ws) { ws.onclose = null; ws.close(); ws = null; }
+        document.removeEventListener('visibilitychange', onWake);
+        window.removeEventListener('focus', onWake);
+        window.removeEventListener('online', onWake);
       },
     };
   }

@@ -190,8 +190,8 @@ const MsbApp = (() => {
           <select class="s-input msb-site-select" id="msb-site-select">
             ${sites.map(s => `<option value="${s.id}" ${site && s.id === site.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}
           </select>
-          <button class="s-btn s-btn-sm" id="msb-new-site">＋ ${t('msb_new_site')}</button>
-          ${site ? `<a class="msb-open-link" href="/pub/mvmsitebuilder/${esc(site.slug)}" target="_blank">🔗 ${t('msb_view_site')}</a>` : ''}
+          <button class="s-btn s-btn-sm msb-top-action" id="msb-new-site" title="${esc(t('msb_new_site'))}" aria-label="${esc(t('msb_new_site'))}">+</button>
+          ${site ? `<a class="msb-open-link msb-top-action" href="/pub/mvmsitebuilder/${esc(site.slug)}" target="_blank" title="${esc(t('msb_view_site'))}" aria-label="${esc(t('msb_view_site'))}">🔗</a>` : ''}
         </div>
         <div class="msb-body">
           <div class="msb-tabs">

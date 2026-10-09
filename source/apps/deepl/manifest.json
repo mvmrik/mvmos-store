@@ -19,7 +19,7 @@
     "language",
     "deepl"
   ],
-  "version": "1.0.2",
+  "version": "1.0.3",
   "min_core_version": "1.0.0",
   "description": "Translate text with your own DeepL API key and keep a history of your translations.",
   "entry": "main.js",

@@ -1,0 +1,15 @@
+{
+  "id": "cardbox",
+  "name": "Cardbox",
+  "name_i18n": {"en":"Cardbox","bg":"Картотека","de":"Kartenbox","es":"Tarjetero","fr":"Porte-cartes","ja":"カードボックス","pt-BR":"Carteira de cartões","ru":"Картотека","zh-CN":"卡片盒"},
+  "icon": "🎟️",
+  "category": "Productivity",
+  "tags": ["loyalty", "discounts", "business cards", "vouchers", "tickets"],
+  "version": "1.0.0",
+  "beta": true,
+  "description": "A personal collection of loyalty cards, discount codes, vouchers, tickets and business cards for every Apps Hub profile.",
+  "entry": "main.js",
+  "public_url": "/pub/cardbox/",
+  "public_directory": true,
+  "min_core_version": "1.10.0"
+}

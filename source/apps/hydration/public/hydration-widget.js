@@ -81,6 +81,7 @@
       .hy-btn:hover{background:var(--pub-border,#45475a)}
       .hy-btn:disabled{opacity:.4;cursor:default}
       .hy-btn.on{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:600}
+      .hy-bar .hy-settings-btn{flex:0 0 34px;width:34px;height:34px;padding:0;font-size:1.05rem}
       .hy-body{flex:1;overflow-y:auto;padding:14px 14px 24px;display:flex;flex-direction:column;gap:16px}
       .hy-days{display:flex;align-items:center;justify-content:center;gap:12px}
       .hy-daylabel{min-width:130px;text-align:center;font-weight:600}
@@ -568,7 +569,7 @@
         <div class="hy-bar"><div class="hy-tabs">
           <button class="hy-btn${st.tab === 'today' ? ' on' : ''}" data-act="tab" data-tab="today">${esc(t('hy_today'))}</button>
           <button class="hy-btn${st.tab === 'history' ? ' on' : ''}" data-act="tab" data-tab="history">${esc(t('hy_history'))}</button></div>
-          <button class="hy-btn" data-act="settings">⚙ ${esc(t('hy_settings'))}</button></div>
+          <button class="hy-btn hy-settings-btn" data-act="settings" type="button" title="${esc(t('hy_settings'))}" aria-label="${esc(t('hy_settings'))}">⚙</button></div>
         <div class="hy-body">${st.error ? `<div class="hy-err">${esc(st.error)}</div>` : ''}${st.notice ? `<div class="hy-note">💰 ${esc(st.notice)}</div>` : ''}${st.ready ? (st.tab === 'today' ? todayView() : historyView()) : ''}</div>`;
     }
 

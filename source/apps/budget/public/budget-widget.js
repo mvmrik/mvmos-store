@@ -87,7 +87,6 @@
       .bw-login{display:flex;align-items:center;justify-content:center;height:100%;color:var(--pub-fg2, #a6adc8);
         font-family:system-ui,sans-serif;font-size:.9rem;text-align:center;padding:20px}
       .bw-toolbar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--pub-surface2, #313244);flex-shrink:0}
-      .bw-toolbar h2{margin:0;font-size:1rem;flex:1}
       .bw-btn{background:var(--pub-surface2, #313244);color:var(--pub-fg, #cdd6f4);border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.82rem}
       .bw-btn:hover{background:var(--pub-border, #45475a)}
       .bw-btn-primary{background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e);font-weight:600}
@@ -95,7 +94,7 @@
       .bw-btn-danger{background:var(--pub-red, #f38ba8);color:var(--pub-bg, #1e1e2e)}
       .bw-btn-icon{background:none;border:none;color:var(--pub-fg2, #a6adc8);cursor:pointer;font-size:.9rem;padding:4px 6px;border-radius:4px}
       .bw-btn-icon:hover{background:var(--pub-border, #45475a);color:var(--pub-fg, #cdd6f4)}
-      .bw-toolbar-break{display:none}
+      .bw-toolbar .bw-quick-add{width:34px;height:34px;padding:0;flex:0 0 34px;font-size:1.25rem;line-height:1}
       .bw-body{flex:1;overflow-y:auto;padding:14px}
       .bw-empty{color:var(--pub-dim, #6c7086);text-align:center;padding:40px 16px}
       .bw-loading{display:flex;justify-content:center;align-items:center;padding:22px 0}
@@ -308,13 +307,10 @@
       @media (max-width:520px){
         .bw-grid{grid-template-columns:1fr}
         .bw-toolbar,.bw-history-toolbar{flex-wrap:wrap}
-        /* The title shares the row with the icons and gives way with an
-           ellipsis; only the two wide buttons drop to a line of their own,
-           where they split it evenly. Letting the title claim a full row of
-           its own is what pushed every icon onto a line by itself. */
-        .bw-toolbar h2,.bw-history-toolbar h2{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-        .bw-toolbar-break{display:block;flex-basis:100%;height:0}
-        .bw-toolbar .bw-btn{flex:1 1 0;min-width:0;padding:7px 8px}
+        /* Keep the current view title readable in its own toolbar. */
+        .bw-history-toolbar h2{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .bw-toolbar{flex-wrap:nowrap}
+        .bw-toolbar .bw-quick-add{flex:0 0 34px;min-width:34px;padding:0}
         /* A finger needs more than the 24px square a mouse pointer was happy
            with; only the header icons grow, not the ones inside list rows. */
         .bw-toolbar .bw-btn-icon{font-size:1.1rem;padding:7px 9px}
@@ -366,11 +362,9 @@
         <div class="bw-menu-wrap">
           <button class="bw-btn-icon" id="bw-menu-btn" title="${esc(t('menu'))}">☰</button>
         </div>
-        <h2>💰 ${esc(t('title'))}</h2>
         <button class="bw-btn-icon" id="bw-settings-btn" title="${esc(t('settings'))}">⚙️</button>
-        <span class="bw-toolbar-break" id="bw-toolbar-break"></span>
-        <button class="bw-btn" id="bw-mass-add">${esc(t('mass_add'))}</button>
-        <button class="bw-btn bw-btn-primary" id="bw-add-cat">${esc(t('add_category'))}</button>
+        <button class="bw-btn bw-quick-add" id="bw-mass-add" title="${esc(t('mass_add'))}" aria-label="${esc(t('mass_add'))}">⊞</button>
+        <button class="bw-btn bw-btn-primary bw-quick-add" id="bw-add-cat" title="${esc(t('add_category'))}" aria-label="${esc(t('add_category'))}">+</button>
       </div>
       <div class="bw-body">
         <div class="bw-grid" id="bw-grid"></div>
@@ -384,7 +378,6 @@
     const statsViewEl = root.querySelector('#bw-stats-view');
     const addCatBtn = root.querySelector('#bw-add-cat');
     const massAddBtn = root.querySelector('#bw-mass-add');
-    const toolbarBreak = root.querySelector('#bw-toolbar-break');
 
     function _showView(name) {
       gridEl.style.display = name === 'categories' ? '' : 'none';
@@ -392,9 +385,6 @@
       statsViewEl.style.display = name === 'stats' ? '' : 'none';
       addCatBtn.style.display = name === 'categories' ? '' : 'none';
       massAddBtn.style.display = name === 'categories' ? '' : 'none';
-      // Nothing to break to once those two are gone, and an empty second row
-      // would still cost the toolbar a gap.
-      toolbarBreak.style.display = name === 'categories' ? '' : 'none';
     }
 
     function showCategoriesView() { _showView('categories'); refresh(); }

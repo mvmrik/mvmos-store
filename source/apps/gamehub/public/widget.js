@@ -138,7 +138,7 @@
     const p = _player || {};
     const hdr = document.createElement('header');
     hdr.style.cssText = 'display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border,#45475a);flex-shrink:0';
-    hdr.innerHTML = '<a href="/pub/gamehub/" style="font-weight:700;font-size:15px;color:inherit;text-decoration:none">🎮 Game Hub</a>'
+    hdr.innerHTML = '<a href="/pub/gamehub/" title="' + _esc(_t('gh_back_to_hub', 'Game Hub')) + '" aria-label="' + _esc(_t('gh_back_to_hub', 'Game Hub')) + '" style="font-size:22px;color:inherit;text-decoration:none;line-height:1">🎮</a>'
       + '<div style="flex:1"></div>'
       + '<div style="display:flex;align-items:center;gap:8px">'
       + renderAvatar(p, 28)

@@ -139,6 +139,7 @@
       .cal-views{display:flex;gap:4px;margin-left:auto}
       .cal-views button.active{background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e);font-weight:600}
       .cal-add{background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e);font-weight:600}
+      .cal-add{flex:0 0 34px;width:34px;height:34px;padding:0;font-size:1.25rem;line-height:1}
       .cal-title{font-weight:700;font-size:.95rem;white-space:nowrap}
       .cal-body{flex:1;overflow:auto;padding:10px}
       .cal-month-grid{display:grid;grid-template-columns:24px repeat(7,1fr);gap:4px;height:100%}
@@ -469,7 +470,7 @@
           <button data-view="week" class="${view === 'week' ? 'active' : ''}">${esc(t('week'))}</button>
           <button data-view="day" class="${view === 'day' ? 'active' : ''}">${esc(t('day'))}</button>
         </div>
-        <button class="cal-add">${esc(t('add'))}</button>
+        <button class="cal-add" type="button" title="${esc(t('add'))}" aria-label="${esc(t('add'))}">+</button>
       `;
       toolbarEl.querySelector('[data-nav="prev"]').onclick = () => nav(-1);
       toolbarEl.querySelector('[data-nav="next"]').onclick = () => nav(1);

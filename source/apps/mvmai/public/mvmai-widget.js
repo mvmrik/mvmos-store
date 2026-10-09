@@ -55,17 +55,21 @@
       .mvmai-header{display:flex;align-items:center;gap:.6rem;padding:.75rem .9rem;flex-shrink:0;
         border-bottom:1px solid var(--pub-border,#45475a)}
       .mvmai-header-title{font-weight:700;font-size:1rem}
+      .mvmai-header-title{display:none}
       .mvmai-badge{font-size:.68rem;font-weight:700;padding:.15rem .5rem;border-radius:1rem;
         background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);white-space:nowrap}
       .mvmai-price{margin-left:auto;font-size:.72rem;color:var(--pub-dim,#6c7086);white-space:nowrap}
       .mvmai-list{flex:1;min-height:0;overflow-y:auto;padding:.9rem;display:flex;flex-direction:column;gap:.7rem}
       .mvmai-welcome{color:var(--pub-fg2,#a6adc8);font-size:.85rem;text-align:center;margin:auto;padding:1rem}
-      .mvmai-msg{max-width:85%;padding:.55rem .75rem;border-radius:.7rem;font-size:.88rem;line-height:1.45;
-        overflow-wrap:anywhere;white-space:normal}
+      .mvmai-widget .mvmai-msg{display:block;max-width:85%;padding:.55rem .75rem;border-radius:.7rem;font-size:.88rem;line-height:1.45;
+        overflow-wrap:anywhere;white-space:normal;user-select:text;-webkit-user-select:text}
       .mvmai-msg.user{align-self:flex-end;background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}
       .mvmai-msg.assistant{align-self:flex-start;background:var(--pub-surface2,#313244)}
-      .mvmai-provider-label{margin-top:.45rem;padding-top:.35rem;border-top:1px solid var(--pub-border,rgba(255,255,255,.09));
-        color:var(--pub-dim,#6c7086);font-size:.68rem;line-height:1.2;white-space:nowrap;width:max-content;max-width:100%}
+      .mvmai-msg-meta{display:flex;flex-wrap:wrap;gap:.2rem .55rem;margin-top:.45rem;padding-top:.35rem;
+        border-top:1px solid var(--pub-border,rgba(255,255,255,.09));color:var(--pub-dim,#6c7086);
+        font-size:.68rem;line-height:1.2;min-width:0}
+      .mvmai-provider-label{min-width:0;overflow-wrap:anywhere}
+      .mvmai-msg-time{margin-left:auto;white-space:nowrap}
       .mvmai-msg.system-note{align-self:center;background:none;color:var(--pub-dim,#6c7086);font-size:.78rem;
         text-align:center;max-width:100%}
       .mvmai-tool-card{align-self:flex-start;max-width:90%;background:var(--pub-crust,#2a2a3d);
@@ -288,6 +292,7 @@
 
     var isDesktop = !!opts.isDesktopApp;
     var me = null;
+    var publicPrefs = {};
     var history = [];       // {role, content, tool_calls?, tool_call_id?}
     var sending = false;
     var sessionId = null;
@@ -324,8 +329,41 @@
         return;
       }
       me = data;
-      renderShell();
+      if (isDesktop) { renderShell(); return; }
+      fetch('/api/pub/apphub/me', {headers: {'X-Pub-Token': token}})
+        .then(function (response) { return response.ok ? response.json() : {}; })
+        .then(function (prefs) { publicPrefs = prefs; })
+        .catch(function () {})
+        .then(renderShell);
     });
+
+    function formatMessageTime(seconds) {
+      if (!seconds) return '';
+      var date = new Date(Number(seconds) * 1000);
+      if (isNaN(date.getTime())) return '';
+      var prefs = isDesktop ? (window._vosSettings || {}) : publicPrefs;
+      var options = {year: 'numeric', month: '2-digit', day: '2-digit'};
+      if (isDesktop && prefs.timezone) options.timeZone = prefs.timezone;
+      var parts;
+      try { parts = new Intl.DateTimeFormat(uiLang() || undefined, options).formatToParts(date); }
+      catch (_) { delete options.timeZone; parts = new Intl.DateTimeFormat(uiLang() || undefined, options).formatToParts(date); }
+      var values = {};
+      parts.forEach(function (part) { values[part.type] = part.value; });
+      var format = prefs.date_format || 'DD/MM/YYYY';
+      var dateText = format === 'YYYY-MM-DD' ? values.year + '-' + values.month + '-' + values.day
+        : format === 'MM/DD/YYYY' ? values.month + '/' + values.day + '/' + values.year
+        : values.day + '/' + values.month + '/' + values.year;
+      var timeOptions = {hour: '2-digit', minute: '2-digit', hour12: prefs.time_format === '12'};
+      if (options.timeZone) timeOptions.timeZone = options.timeZone;
+      return dateText + ' ' + date.toLocaleTimeString(uiLang() || undefined, timeOptions);
+    }
+
+    function refreshMessageTimes() {
+      root.querySelectorAll('.mvmai-msg-time').forEach(function (el) {
+        el.textContent = formatMessageTime(Date.parse(el.dateTime) / 1000);
+      });
+    }
+    if (isDesktop) window.addEventListener('settings-changed', refreshMessageTimes);
 
     // The app picker exists where the data bridge does; on the desktop of an
     // install without Premium it is still shown, locked, and opens the
@@ -1102,7 +1140,7 @@
               addCompactedNote(m.content);
               any = true;
             } else if ((m.role === 'user' || m.role === 'assistant') && m.content) {
-              addBubble(m.role, m.content);
+              addBubble(m.role, m.content, null, m.created_at);
               any = true;
             }
           });
@@ -1224,18 +1262,32 @@
         if (thumbs && thumbs.length) el.appendChild(box);
       }
 
-      function addBubble(role, content, thumbs) {
+      function addBubble(role, content, thumbs, createdAt) {
         var el = document.createElement('div');
         el.className = 'mvmai-msg ' + role;
         var offered = role === 'assistant' ? extractDownloads(content) : null;
         el.innerHTML = nl2br(offered ? offered.text : content);
         if (offered && offered.files.length) el.appendChild(downloadRow(offered.files));
         if (role === 'user') addThumbs(el, thumbs, content);
-        if (role === 'assistant' && currentLabel()) {
-          var providerEl = document.createElement('div');
-          providerEl.className = 'mvmai-provider-label';
-          providerEl.textContent = currentLabel();
-          el.appendChild(providerEl);
+        var label = role === 'assistant' ? currentLabel() : null;
+        var time = formatMessageTime(createdAt);
+        if (label || time) {
+          var meta = document.createElement('div');
+          meta.className = 'mvmai-msg-meta';
+          if (label) {
+            var providerEl = document.createElement('span');
+            providerEl.className = 'mvmai-provider-label';
+            providerEl.textContent = label;
+            meta.appendChild(providerEl);
+          }
+          if (time) {
+            var timeEl = document.createElement('time');
+            timeEl.className = 'mvmai-msg-time';
+            timeEl.dateTime = new Date(Number(createdAt) * 1000).toISOString();
+            timeEl.textContent = time;
+            meta.appendChild(timeEl);
+          }
+          el.appendChild(meta);
         }
         listEl.appendChild(el);
         scrollDown();
@@ -1777,7 +1829,7 @@
           // message is sent, so keep the screen in sync now rather than lie.
           listEl.innerHTML = '';
           recent.forEach(function (m) {
-            if ((m.role === 'user' || m.role === 'assistant') && m.content) addBubble(m.role, m.content);
+            if ((m.role === 'user' || m.role === 'assistant') && m.content) addBubble(m.role, m.content, null, m.created_at);
           });
           // Rendered after the recent bubbles (even though it summarizes the
           // older ones) so it lands as the newest, bottom-most item -- the
@@ -2066,8 +2118,9 @@
 
       function sendText(msg) {
         setBusy(true);
-        addBubble('user', msg.shown, msg.thumbs);
-        history.push({role: 'user', content: msg.content, images: msg.images.length ? msg.images : undefined});
+        var sentAt = Math.floor(Date.now() / 1000);
+        addBubble('user', msg.shown, msg.thumbs, sentAt);
+        history.push({role: 'user', content: msg.content, images: msg.images.length ? msg.images : undefined, created_at: sentAt});
         var current = turn = {id: Math.random().toString(36).slice(2) + Date.now().toString(36), stopped: false};
 
         function step() {
@@ -2076,8 +2129,9 @@
           // between two of its steps.
           queue.filter(function (q) { return q.urgent; }).forEach(function (q) {
             queue.splice(queue.indexOf(q), 1);
-            addBubble('user', q.msg.shown, q.msg.thumbs);
-            history.push({role: 'user', content: q.msg.content, images: q.msg.images.length ? q.msg.images : undefined});
+            var queuedAt = Math.floor(Date.now() / 1000);
+            addBubble('user', q.msg.shown, q.msg.thumbs, queuedAt);
+            history.push({role: 'user', content: q.msg.content, images: q.msg.images.length ? q.msg.images : undefined, created_at: queuedAt});
           });
           renderQueue();
           var typing = current.typing = addTyping();
@@ -2112,7 +2166,7 @@
             if (data.provider_label) { chatLabel = data.provider_label; inputEl.placeholder = messagePlaceholder(); }
             var msg = data.message;
             history.push(msg);
-            if (msg.content) addBubble('assistant', msg.content);
+            if (msg.content) addBubble('assistant', msg.content, null, msg.created_at);
 
             if (msg.tool_calls && msg.tool_calls.length) {
               runToolCalls(msg.tool_calls).then(function (toolMsgs) {
@@ -2151,7 +2205,11 @@
       });
     }
 
-    return { destroy: function () { clearInterval(projectPoll); clearInterval(providerPoll); if (termPanel) termPanel.destroy(); } };
+    return { destroy: function () {
+      clearInterval(projectPoll); clearInterval(providerPoll);
+      if (isDesktop) window.removeEventListener('settings-changed', refreshMessageTimes);
+      if (termPanel) termPanel.destroy();
+    } };
   }
 
   window.MvmaiWidget = { mount: mount };

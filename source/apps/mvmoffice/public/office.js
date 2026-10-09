@@ -256,9 +256,9 @@
       this.listEl.innerHTML = `
         <div class="mo-lhead">
           <span class="mo-logo">📝</span><h2>mvmOffice</h2><span class="mo-grow"></span>
-          <button class="mo-btn mo-primary" data-l="new">+ ${esc(t('mo_new'))}</button>
-          <button class="mo-btn" data-l="open">📂 ${esc(t('mo_open_file'))}</button>
-          ${this.desktop ? `<button class="mo-btn" data-l="openfolder">🗄 ${esc(t('mo_open_from_folder'))}</button>` : ''}
+          <button class="mo-btn mo-primary mo-quick" data-l="new" title="${esc(t('mo_new'))}" aria-label="${esc(t('mo_new'))}">+</button>
+          <button class="mo-btn mo-quick" data-l="open" title="${esc(t('mo_open_file'))}" aria-label="${esc(t('mo_open_file'))}">📂</button>
+          ${this.desktop ? `<button class="mo-btn mo-quick" data-l="openfolder" title="${esc(t('mo_open_from_folder'))}" aria-label="${esc(t('mo_open_from_folder'))}">🗄</button>` : ''}
         </div>
         <div class="mo-lbody"><div class="mo-loading">${esc(t('mo_loading'))}</div></div>
         <div class="mo-lhint">${esc(t('mo_drop_hint'))}</div>`;
@@ -2118,6 +2118,8 @@
   .mo-lhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .mo-lhead h2{margin:0;font-size:1.2rem}
   .mo-logo{font-size:1.4rem}
+  .mo-lhead h2,.mo-lhead .mo-logo{display:none}
+  .mo-lhead .mo-quick{width:36px;height:36px;min-width:36px;padding:0;font-size:1.1rem}
   .mo-loading,.mo-emptylist{color:var(--mo-dim);padding:30px;text-align:center}
   .mo-lhint{color:var(--mo-dim);font-size:.75rem;text-align:center;margin-top:auto}
   .mo-start{text-align:center;color:var(--mo-fg2);padding:30px 10px}

@@ -35,14 +35,14 @@
       "name": "Classifieds",
       "icon": "🏷️",
       "category": "Business",
-      "version": "1.11.0",
+      "version": "1.11.1",
       "description": "Community classifieds with photos, categories, free items, Apps Hub profiles and listing renewal.",
       "tags": [
         "classifieds",
         "marketplace",
         "community"
       ],
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/business/classifieds-1.11.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/business/classifieds-1.11.1.zip",
       "min_core_version": "1.0.0",
       "premium": true,
       "name_i18n": {
