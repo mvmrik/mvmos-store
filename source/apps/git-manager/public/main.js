@@ -1338,13 +1338,16 @@ GM.showRepoView = function(container, repo, autoFetch) {
   var lastStatusSignature = null;
   var templateHintOpen = false;
   var defaultBranch = '';
+  var issueTitles = {};
+  var issueTitleRequests = {};
+  var currentIssueDetails = null;
 
   container.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface)">'
     + '<div style="flex:1;min-width:0">'
     + '<div class="gm-repo-title" style="font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + GM.escape(GM.repoLabel(repo)) + '</div>'
     + '<div style="font-size:.72rem;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px">' + (repo.remote || '') + '</div>'
     + '</div>'
-    + '<span id="gm-branch-btn" style="font-size:.75rem;background:var(--surface2,#313244);border-radius:12px;padding:2px 9px;white-space:nowrap;flex-shrink:0;cursor:pointer;user-select:none" title="' + t('gm_switch_branch') + '">&#x1F33F; ' + repo.branch + ' &#x25BE;</span>'
+    + '<span id="gm-branch-btn" style="font-size:.75rem;background:var(--surface2,#313244);border-radius:12px;padding:2px 9px;white-space:nowrap;flex-shrink:0;cursor:pointer;user-select:none" title="' + t('gm_switch_branch') + '">&#x1F33F; ' + GM.escape(repo.branch) + ' &#x25BE;</span>'
     + '<span id="gm-branch-local-badge" style="display:none;font-size:.68rem;background:#f9e2af;color:#1e1e2e;border-radius:10px;padding:1px 7px;flex-shrink:0;font-weight:600" title="' + t('gm_branch_local_only') + '">' + t('gm_branch_local_only') + '</span>'
     + '</div>'
     + '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);flex-shrink:0">'
@@ -1367,6 +1370,32 @@ GM.showRepoView = function(container, repo, autoFetch) {
 
   container.style.display = 'flex';
   container.style.flexDirection = 'column';
+
+  function updateBranchButton(branch) {
+    var btn = container.querySelector('#gm-branch-btn');
+    if (!btn) return;
+    btn.innerHTML = '&#x1F33F; ' + GM.escape(branch) + ' &#x25BE;';
+    var number = issueNumberFromBranch(branch);
+    btn.title = number ? t('gm_branch_issue_title', {number:number}) : t('gm_switch_branch');
+    if (!number || !(GM.state.foreignAccess || {}).premium) return;
+    if (Object.prototype.hasOwnProperty.call(issueTitles, number)) {
+      if (issueTitles[number]) btn.title += ': ' + issueTitles[number];
+      return;
+    }
+    if (!issueTitleRequests[number]) {
+      issueTitleRequests[number] = GM.api('/repo/issues/' + number + '?path=' + encodeURIComponent(repo.path))
+        .then(function(data) { issueTitles[number] = (data.issue || {}).title || ''; })
+        .catch(function() { issueTitles[number] = ''; })
+        .then(function() { delete issueTitleRequests[number]; });
+    }
+    issueTitleRequests[number].then(function() {
+      if (repo.branch === branch && btn.isConnected && issueTitles[number]) {
+        btn.title = t('gm_branch_issue_title', {number:number}) + ': ' + issueTitles[number];
+      }
+    });
+  }
+
+  updateBranchButton(repo.branch);
 
   function switchTab(t) {
     tab = t;
@@ -1720,7 +1749,10 @@ GM.showRepoView = function(container, repo, autoFetch) {
       if (onlyIfChanged && statusSignature === lastStatusSignature) return;
       lastStatusSignature = statusSignature;
       defaultBranch = s.default_branch || '';
-      if (s.branch && s.branch !== '?') repo.branch = s.branch;
+      if (s.branch && s.branch !== '?' && s.branch !== repo.branch) {
+        repo.branch = s.branch;
+        updateBranchButton(repo.branch);
+      }
 
       var syncInfo = container.querySelector('#gm-sync-info');
       if (syncInfo) {
@@ -1894,7 +1926,19 @@ GM.showRepoView = function(container, repo, autoFetch) {
         renderIssueSetup(tc, status);
         return;
       }
-      renderIssueList(tc, 'open', status);
+      var number = issueNumberFromBranch(repo.branch);
+      if (number) {
+        GM.api('/repo/issues/' + number + '?path=' + encodeURIComponent(repo.path))
+          .then(function(data) {
+            var issue = data.issue || {};
+            currentIssueDetails = issue.number === number ? issue : null;
+            if (issue.title) { issueTitles[number] = issue.title; updateBranchButton(repo.branch); }
+            renderIssueList(tc, issue.state === 'closed' ? 'closed' : 'open', status);
+          }).catch(function() { currentIssueDetails = null; renderIssueList(tc, 'open', status); });
+      } else {
+        currentIssueDetails = null;
+        renderIssueList(tc, 'open', status);
+      }
     }).catch(function(e) {
       tc.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + GM.escape(e.message) + '</div>';
     });
@@ -1949,6 +1993,13 @@ GM.showRepoView = function(container, repo, autoFetch) {
       GM.api('/repo/branches?path=' + encodeURIComponent(repo.path)).catch(function() { return {branches: []}; })]).then(function(results) {
       var data = results[0], settings = results[1];
       var issues = data.issues || [];
+      if (currentIssueDetails && currentIssueDetails.state === state
+          && currentIssueDetails.number === issueNumberFromBranch(repo.branch)
+          && !issues.some(function(issue) { return issue.number === currentIssueDetails.number; })) {
+        issues.unshift(currentIssueDetails);
+      }
+      issues.forEach(function(issue) { if (issue.title) issueTitles[issue.number] = issue.title; });
+      updateBranchButton(repo.branch);
       // Which issue already has a branch, here or on origin. The user's own
       // branch name wins when someone else has one for the same issue too.
       var issueBranches = {};
@@ -1965,7 +2016,14 @@ GM.showRepoView = function(container, repo, autoFetch) {
       function issueRow(issue) {
         var row = document.createElement('button');
         row.className = 's-btn';
-        row.style.cssText = 'width:100%;display:flex;align-items:flex-start;gap:10px;text-align:left;padding:9px 10px;margin-bottom:5px;background:var(--surface2,#313244);border-color:var(--border)';
+        var isCurrent = issue.number === issueNumberFromBranch(repo.branch);
+        row.style.cssText = 'width:100%;display:flex;align-items:flex-start;gap:10px;text-align:left;padding:9px 10px;margin-bottom:5px;background:'
+          + (isCurrent ? 'var(--accent-dim,rgba(99,102,241,.15))' : 'var(--surface2,#313244)')
+          + ';border-color:' + (isCurrent ? 'var(--accent)' : 'var(--border)');
+        if (isCurrent) {
+          row.setAttribute('aria-current', 'true');
+          row.title = t('gm_branch_issue_title', {number:issue.number}) + ': ' + issue.title;
+        }
         row.innerHTML = '<span style="color:' + (issue.state === 'open' ? '#a6e3a1' : '#a6adc8') + ';font-size:1rem">&#x25CF;</span>'
           + '<span style="flex:1;min-width:0"><span style="display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + GM.escape(issue.title) + '</span>'
           + '<span style="display:block;font-size:.7rem;color:var(--text-dim);margin-top:3px">#' + issue.number + ' · ' + GM.escape(issue.author) + ' · ' + t('gm_issues_comments', {n:issue.comments || 0})
@@ -1984,8 +2042,10 @@ GM.showRepoView = function(container, repo, autoFetch) {
       // shows every issue in one list; an issue that fits two groups shows
       // only in the first.
       var groups = settings.list_groups || [];
+      var currentIssue = issues.find(function(issue) { return issue.number === issueNumberFromBranch(repo.branch); });
+      if (currentIssue) list.appendChild(issueRow(currentIssue));
       if (!groups.length) {
-        issues.forEach(function(issue) { list.appendChild(issueRow(issue)); });
+        issues.forEach(function(issue) { if (issue !== currentIssue) list.appendChild(issueRow(issue)); });
         return;
       }
       var created = function(i) { return !!status.username && i.author === status.username; };
@@ -1998,7 +2058,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         if (groups.indexOf('assigned') !== -1) sections.push({title: t('gm_issues_mine'), fits: assigned});
       }
       if (groups.indexOf('others') !== -1) sections.push({title: t('gm_issues_others'), fits: function(i) { return !created(i) && !assigned(i); }});
-      var shown = [];
+      var shown = currentIssue ? [currentIssue] : [];
       sections.forEach(function(section) {
         var items = issues.filter(function(i) { return shown.indexOf(i) === -1 && section.fits(i); });
         if (!items.length) return;
@@ -2343,7 +2403,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
     var data = await GM.api('/repo/issues/' + issue.number + '/branch', {method:'POST',
       json:{path:repo.path, mode:choice.mode || '', base:choice.branch || '', source:choice.source || 'remote'}});
     repo.branch = data.branch;
-    container.querySelector('#gm-branch-btn').innerHTML = '&#x1F33F; ' + GM.escape(data.branch) + ' &#x25BE;';
+    updateBranchButton(data.branch);
     GM.renderSidebar();
     loadStatus();
     updateIssueBranchButtons(tc, repo.branch === data.branch);
@@ -2397,6 +2457,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
     tc.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem">' + t('gm_loading') + '</div>';
     GM.api('/repo/issues/' + number + '?path=' + encodeURIComponent(repo.path)).then(function(data) {
       var issue = data.issue;
+      if (issue.title) { issueTitles[issue.number] = issue.title; updateBranchButton(repo.branch); }
       var issueBranch = issueBranchName(status, issue.number);
       var onIssueBranch = repo.branch === issueBranch;
       tc.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
@@ -2469,7 +2530,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
           }
           if (state.switched || state.redirected_default) {
             repo.branch = state.current;
-            container.querySelector('#gm-branch-btn').innerHTML = '&#x1F33F; ' + GM.escape(state.current) + ' &#x25BE;';
+            updateBranchButton(state.current);
             GM.renderSidebar();
             loadStatus();
             updateIssueBranchButtons(tc, repo.branch === issueBranch);
@@ -2504,7 +2565,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
               try {
                 var data = await GM.api('/repo/issues/' + issue.number + '/branch/download', {method:'POST',json:{path:repo.path}});
                 repo.branch = data.branch;
-                container.querySelector('#gm-branch-btn').innerHTML = '&#x1F33F; ' + GM.escape(data.branch) + ' &#x25BE;';
+                updateBranchButton(data.branch);
                 GM.renderSidebar(); loadStatus();
                 updateIssueBranchButtons(tc, repo.branch === issueBranch);
                 actionResult.style.color = '#a6e3a1';
@@ -2571,7 +2632,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         var r = await GM.api('/repo/branch/create', { method: 'POST',
           json: { path: repo.path, name: name, base: choice.branch, source: choice.source } });
         repo.branch = r.branch;
-        container.querySelector('#gm-branch-btn').innerHTML = '&#x1F33F; ' + GM.escape(r.branch) + ' &#x25BE;';
+        updateBranchButton(r.branch);
         GM.renderSidebar(); loadStatus();
         var out = container.querySelector('#gm-action-output');
         if (out) {
@@ -2698,7 +2759,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
             if (out) { out.style.display = 'block'; out.style.color = 'var(--text-dim)'; out.textContent = t('gm_switching_to', { branch: b }); }
             GM.api('/repo/checkout', { method: 'POST', json: { path: repo.path, branch: b } }).then(function(r) {
               repo.branch = r.branch;
-              btn.innerHTML = '&#x1F33F; ' + GM.escape(r.branch) + ' &#x25BE;';
+              updateBranchButton(r.branch);
               if (out) { out.textContent = r.output || t('gm_switched_to', { branch: r.branch }); out.style.color = '#a6e3a1'; }
               GM.loadRepos();
               loadStatus();
