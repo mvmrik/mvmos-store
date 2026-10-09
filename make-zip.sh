@@ -103,12 +103,26 @@ root = "/var/www/mvmos-store"
 path = f"{root}/apps/{category}/manifest.json"
 wanted = os.path.isfile(f"{root}/source/apps/{app_id}/premium.json")
 try:
-    names = json.load(open(f"{root}/source/apps/{app_id}/manifest.json", encoding="utf-8")).get("name_i18n")
+    source_manifest = json.load(open(f"{root}/source/apps/{app_id}/manifest.json", encoding="utf-8"))
+    names = source_manifest.get("name_i18n")
 except (OSError, ValueError):
+    source_manifest = None
     names = None
 raw = open(path, encoding="utf-8").read()
 data = json.loads(raw)
 changed = False
+if source_manifest and not any(app.get("id") == app_id for app in data.get("apps", [])):
+    entry = {key: source_manifest[key] for key in (
+        "id", "name", "icon", "category", "version", "description", "tags", "min_core_version"
+    ) if key in source_manifest}
+    entry["zip_url"] = f"https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/{category}/{app_id}-{source_manifest['version']}.zip"
+    if wanted:
+        entry["premium"] = True
+    if names:
+        entry["name_i18n"] = names
+    data.setdefault("apps", []).append(entry)
+    changed = True
+    print(f"manifest: added {app_id} to {category}")
 for app in data.get("apps", []):
     if app.get("id") != app_id:
         continue

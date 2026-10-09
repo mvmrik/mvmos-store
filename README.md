@@ -1,6 +1,6 @@
 # mvmOS Store
 
-This repository is the official Store of [mvmOS](https://github.com/mvmrik/mvmOS), a web-based desktop OS for your own server. It holds **48 apps, 5 widgets and 4 themes**. mvmOS reads it from the App Store; nothing here has to be installed by hand.
+This repository is the official Store of [mvmOS](https://github.com/mvmrik/mvmOS), a web-based desktop OS for your own server. It holds **49 apps, 5 widgets and 4 themes**. mvmOS reads it from the App Store; nothing here has to be installed by hand.
 
 - **[DEVELOPER.md](DEVELOPER.md)** — the complete guide to writing an app: structure, `manifest.json`, `store.json`, `premium.json`, the `mvmOS` API, server code, Apps Hub, public pages, games, i18n and premium.
 - **[SPEC.md](SPEC.md)** — the short checklist of the rules every app follows.

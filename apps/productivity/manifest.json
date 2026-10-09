@@ -110,6 +110,34 @@
         "word processor"
       ],
       "min_core_version": "1.8.0"
+    },
+    {
+      "id": "cardbox",
+      "name": "Cardbox",
+      "icon": "🎟️",
+      "category": "Productivity",
+      "version": "1.0.0",
+      "description": "A personal collection of loyalty cards, discount codes, vouchers, tickets and business cards for every Apps Hub profile.",
+      "tags": [
+        "loyalty",
+        "discounts",
+        "business-cards",
+        "vouchers",
+        "tickets"
+      ],
+      "min_core_version": "1.10.0",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/cardbox-1.0.0.zip",
+      "name_i18n": {
+        "en": "Cardbox",
+        "bg": "Картотека",
+        "de": "Kartenbox",
+        "es": "Tarjetero",
+        "fr": "Porte-cartes",
+        "ja": "カードボックス",
+        "pt-BR": "Carteira de cartões",
+        "ru": "Картотека",
+        "zh-CN": "卡片盒"
+      }
     }
   ]
 }
