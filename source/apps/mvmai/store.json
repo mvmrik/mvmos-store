@@ -21,7 +21,6 @@
     "Your API key stays on your server.",
     "Premium: choose one of your apps for a chat; only that app's functions are offered, and every change is reviewed in a form before it is saved.",
     "Stop a running reply, queue follow-up messages or send a waiting message into the next tool step.",
-    "Expand Progress on a reply to follow available tool activity while it runs, then review the recorded activity later. Opening Progress only reads events from the current turn and does not send another request to the AI provider.",
     "Replies and app entries follow your interface language.",
     "Attached pictures show as small previews before sending and in the chat, and a click enlarges them; in an older chat the administrator's images are shown again for a week.",
     "With Premium on the desktop, a terminal can sit next to the chat: it opens over the chat or docked on the right or at the bottom, starts the command-line tool of the chat's provider in the chat's project folder, keeps its session while hidden, and can be pinned open for chosen chats."

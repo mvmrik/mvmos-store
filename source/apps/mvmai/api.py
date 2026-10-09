@@ -85,8 +85,6 @@ def _ensure_tables():
         message_cols = {row[1] for row in conn.execute("PRAGMA table_info(pub_messages)")}
         if "created_at" not in message_cols:
             conn.execute("ALTER TABLE pub_messages ADD COLUMN created_at INTEGER")
-        if "progress" not in message_cols:
-            conn.execute("ALTER TABLE pub_messages ADD COLUMN progress TEXT")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_pub_messages_session ON pub_messages(session_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_pub_sessions_user ON pub_sessions(user_id)")
         # additive migration — not declared via db.json since pub_sessions isn't
@@ -160,12 +158,11 @@ def _persist_turn(user_id, session_id, messages, reply, project_id=None, meta=No
             if reply is m:
                 m["created_at"] = int(created_at)
             conn.execute(
-                "INSERT INTO pub_messages (session_id, role, content, tool_call_id, tool_calls, seq, created_at, progress) "
-                "VALUES (?,?,?,?,?,?,?,?)",
+                "INSERT INTO pub_messages (session_id, role, content, tool_call_id, tool_calls, seq, created_at) "
+                "VALUES (?,?,?,?,?,?,?)",
                 (
                     session_id, m.get("role"), m.get("content"), m.get("tool_call_id"),
                     json.dumps(m["tool_calls"]) if m.get("tool_calls") else None, i, created_at,
-                    json.dumps(m["progress"]) if m.get("progress") else None,
                 ),
             )
     return session_id
@@ -625,7 +622,7 @@ async def get_session_messages(sid: str, x_pub_token: str = Header(default=None)
         if not owned:
             return JSONResponse({"error": "not_found"}, status_code=404)
         rows = conn.execute(
-            "SELECT role, content, tool_call_id, tool_calls, created_at, progress FROM pub_messages WHERE session_id=? ORDER BY seq",
+            "SELECT role, content, tool_call_id, tool_calls, created_at FROM pub_messages WHERE session_id=? ORDER BY seq",
             (sid,),
         ).fetchall()
     messages = []
@@ -635,8 +632,6 @@ async def get_session_messages(sid: str, x_pub_token: str = Header(default=None)
             m["tool_call_id"] = r["tool_call_id"]
         if r["tool_calls"]:
             m["tool_calls"] = json.loads(r["tool_calls"])
-        if r["progress"]:
-            m["progress"] = json.loads(r["progress"])
         messages.append(m)
     out = {"messages": messages}
     if me.get("is_admin"):
@@ -707,19 +702,6 @@ class StopRequest(BaseModel):
 _TURNS: dict = {}
 
 
-@router.get("/progress/{turn_id}")
-async def chat_progress(turn_id: str, after: int = 0, x_pub_token: str = Header(default=None)):
-    """Read status from an existing turn; never calls an AI provider."""
-    turn = _TURNS.get(turn_id)
-    if not turn or not x_pub_token or turn["token"] != x_pub_token:
-        return JSONResponse({"error": "not_found"}, status_code=404,
-                            headers={"Cache-Control": "private, no-store"})
-    events = list(turn["events"])
-    cursor = max(0, min(after, len(events)))
-    return JSONResponse({"events": events[cursor:], "next": len(events), "done": turn["task"].done()},
-                        headers={"Cache-Control": "private, no-store"})
-
-
 @router.post("/chat")
 async def chat(
     body: ChatRequest,
@@ -733,7 +715,7 @@ async def chat(
     # seconds (still valid JSON once the body follows), so errors then travel
     # only as {"error": ...}.
     desk = _desktop()
-    turn = {"procs": [], "stopped": False, "token": x_pub_token, "events": []}
+    turn = {"procs": [], "stopped": False, "token": x_pub_token}
     ctx_token = desk.CHAT_TURN.set(turn) if desk and hasattr(desk, "CHAT_TURN") else None
     try:
         task = asyncio.ensure_future(_chat(body, x_pub_token, x_mvmai_surface, os_session))
@@ -744,28 +726,21 @@ async def chat(
     if turn_id:
         turn["task"] = task
         _TURNS[turn_id] = turn
-        task.add_done_callback(lambda _t: _TURNS.pop(turn_id, None) if _TURNS.get(turn_id) is turn else None)
+        task.add_done_callback(lambda _t: _TURNS.pop(turn_id, None))
     stopped = JSONResponse({"error": "stopped"})
-    def with_progress(response):
-        try:
-            payload = json.loads(response.body)
-            payload["progress"] = list(turn["events"])
-            return JSONResponse(payload, status_code=response.status_code)
-        except (TypeError, ValueError):
-            return response
     done, _ = await asyncio.wait({task}, timeout=_CHAT_KEEPALIVE_SECONDS)
     if done:
-        return with_progress(stopped if task.cancelled() else task.result())
+        return stopped if task.cancelled() else task.result()
 
     async def keepalive():
         while not task.done():
             yield b" "
             await asyncio.wait({task}, timeout=_CHAT_KEEPALIVE_SECONDS)
         if task.cancelled():
-            yield with_progress(stopped).body
+            yield stopped.body
             return
         try:
-            yield with_progress(task.result()).body
+            yield task.result().body
         except Exception as e:
             yield json.dumps({"error": str(e) or "mvmAI failed"}).encode()
 
@@ -800,8 +775,6 @@ async def stop(body: StopRequest, x_pub_token: str = Header(default=None)):
     stopped answer is never finished or saved into the conversation later."""
     turn = _TURNS.get(body.turn_id)
     if not turn or not x_pub_token or turn["token"] != x_pub_token:
-        return JSONResponse({"ok": True})
-    if turn["task"].done():
         return JSONResponse({"ok": True})
     turn["stopped"] = True
     desk = _desktop()
@@ -898,7 +871,6 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
     cli_state = None
     label_model = ""
     if cli_provider:
-        desk.record_chat_progress("model")
         state = _parse_cli_state(saved["cli_state"]) if saved else {}
         unseen = _unseen_messages(body.messages, state.get("last")) if state.get("session_id") else None
         can_resume = unseen is not None
@@ -978,10 +950,6 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
                 return JSONResponse({"error": "insufficient_credits", "price": price}, status_code=402)
         if cli_state:
             cli_state["last"] = _msg_fingerprint(msg)
-        desk.record_chat_progress("done")
-        turn = desk.CHAT_TURN.get()
-        if turn and turn.get("events"):
-            msg["progress"] = list(turn["events"])
         sid = None if body.no_persist else _persist_turn(
             me["id"], body.session_id, body.messages, msg, project_id,
             meta={**pin, "cli_state": json.dumps(cli_state) if cli_state else None}, new_id=chat_id)
@@ -1013,7 +981,6 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
         async with httpx.AsyncClient(timeout=120) as client:
             return await client.post(url, headers=headers, json=p)
 
-    desk.record_chat_progress("model")
     try:
         r = await _post(bool(tools))
         if r.status_code == 404 and tools and "tool" in r.text.lower():
@@ -1038,13 +1005,6 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
         msg = data["choices"][0]["message"]
     except Exception:
         return JSONResponse({"error": "Unexpected provider response"}, status_code=502)
-
-    for call in msg.get("tool_calls") or []:
-        desk.record_chat_progress("tool", (call.get("function") or {}).get("name") or "")
-    desk.record_chat_progress("done")
-    turn = desk.CHAT_TURN.get()
-    if turn and turn.get("events"):
-        msg["progress"] = list(turn["events"])
 
     if price:
         try:

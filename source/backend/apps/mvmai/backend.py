@@ -24,7 +24,6 @@ import sqlite3
 import subprocess
 import sys
 import tempfile
-import threading
 import time
 import uuid
 from glob import glob
@@ -864,48 +863,6 @@ def _home_for(eu: str) -> str:
 CHAT_TURN = contextvars.ContextVar("mvmai_chat_turn", default=None)
 
 
-def record_chat_progress(kind: str, detail: str = "", turn: dict | None = None) -> None:
-    """Report existing work to the UI; this never sends a prompt to a model."""
-    turn = turn if turn is not None else CHAT_TURN.get()
-    if turn is None:
-        return
-    events = turn.setdefault("events", [])
-    if len(events) >= 200:
-        return
-    events.append({"kind": kind, "detail": str(detail)[:300]})
-
-
-def _record_cli_progress(line: str, turn: dict) -> None:
-    try:
-        event = json.loads(line)
-    except (TypeError, ValueError):
-        return
-    if not isinstance(event, dict):
-        return
-    kind = event.get("type")
-    if kind in ("item.started", "item.completed"):
-        item = event.get("item") or {}
-        if not isinstance(item, dict):
-            return
-        item_type = item.get("type")
-        if kind == "item.started":
-            if item_type == "command_execution":
-                record_chat_progress("command", item.get("command") or "", turn)
-            elif item_type in ("web_search", "web_search_call"):
-                record_chat_progress("search", turn=turn)
-            elif item_type in ("file_change", "file_edit"):
-                record_chat_progress("files", turn=turn)
-        elif item_type == "agent_message":
-            record_chat_progress("writing", turn=turn)
-    elif kind == "assistant":
-        message = event.get("message") or {}
-        if not isinstance(message, dict):
-            return
-        for block in message.get("content") or []:
-            if isinstance(block, dict) and block.get("type") == "tool_use":
-                record_chat_progress("tool", block.get("name") or "", turn)
-
-
 def kill_process(proc) -> None:
     """Kill a CLI process together with everything it started."""
     try:
@@ -925,59 +882,12 @@ def _run_turn_process(cmd, input=None, timeout=None, **kw):
             turn["procs"].append(proc)
             if turn.get("stopped"):
                 kill_process(proc)
-        if turn is None:
-            try:
-                out, err = proc.communicate(input, timeout=timeout)
-            except subprocess.TimeoutExpired:
-                kill_process(proc)
-                proc.communicate()
-                raise
-        else:
-            # Read the CLI's existing output while it works. Keep the complete
-            # stdout/stderr for the normal result parser; expose only selected
-            # status events, never raw tool output or hidden model reasoning.
-            stdout_parts, stderr_parts = [], []
-
-            def read_pipe(pipe, parts, report=False):
-                try:
-                    for line in pipe:
-                        parts.append(line)
-                        if report:
-                            _record_cli_progress(line, turn)
-                finally:
-                    pipe.close()
-
-            readers = [
-                threading.Thread(target=read_pipe, args=(proc.stdout, stdout_parts, True), daemon=True),
-                threading.Thread(target=read_pipe, args=(proc.stderr, stderr_parts), daemon=True),
-            ]
-            for reader in readers:
-                reader.start()
-
-            def write_input():
-                try:
-                    if input is not None:
-                        proc.stdin.write(input)
-                        proc.stdin.flush()
-                except (BrokenPipeError, OSError):
-                    pass
-                finally:
-                    if proc.stdin:
-                        proc.stdin.close()
-
-            writer = threading.Thread(target=write_input, daemon=True)
-            writer.start()
-            try:
-                proc.wait(timeout=timeout)
-            except subprocess.TimeoutExpired:
-                kill_process(proc)
-                proc.wait()
-                raise
-            finally:
-                writer.join(timeout=2)
-                for reader in readers:
-                    reader.join(timeout=2)
-            out, err = "".join(stdout_parts), "".join(stderr_parts)
+        try:
+            out, err = proc.communicate(input, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            kill_process(proc)
+            proc.communicate()
+            raise
         return subprocess.CompletedProcess(cmd, proc.returncode, out, err)
 
 
@@ -1391,7 +1301,7 @@ async def _run_cli_chat(
                     session_args = ["--resume", resume_id] if resume_id else ["--session-id", new_session]
                 cmd = [cmd_bin] + (["--model", model] if model else []) + safety_args + ["--disable-slash-commands"] + session_args + ["--print"]
                 if persist and not images:
-                    cmd += ["--output-format", "stream-json", "--verbose"]
+                    cmd += ["--output-format", "json"]
                 stdin_input = conversation_prompt
                 if images:
                     # Images travel in the message itself (stream-json input),
@@ -1478,7 +1388,7 @@ async def _run_cli_chat(
             # json / stream-json: the answer is the "result" entry, which also
             # names the model that really answered.
             result = None
-            for chunk in raw_out.splitlines():
+            for chunk in ([raw_out] if not images else raw_out.splitlines()):
                 try:
                     event = json.loads(chunk)
                 except Exception:

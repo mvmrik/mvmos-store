@@ -70,14 +70,6 @@
         font-size:.68rem;line-height:1.2;min-width:0}
       .mvmai-provider-label{min-width:0;overflow-wrap:anywhere}
       .mvmai-msg-time{margin-left:auto;white-space:nowrap}
-      .mvmai-progress{margin-top:.45rem;font-size:.74rem;color:var(--pub-dim,#6c7086)}
-      .mvmai-progress-toggle{padding:.12rem .4rem;border:1px solid var(--pub-border,#45475a);border-radius:.35rem;
-        background:none;color:inherit;font:inherit;cursor:pointer}
-      .mvmai-progress-toggle:hover{color:var(--pub-fg,#cdd6f4);border-color:var(--pub-accent,#89b4fa)}
-      .mvmai-progress-lines{margin-top:.35rem;max-height:12rem;overflow-y:auto;white-space:pre-wrap;
-        overflow-wrap:anywhere;font-family:monospace;line-height:1.4}
-      .mvmai-progress-lines[hidden]{display:none}
-      .mvmai-progress-line{padding:.12rem 0;border-bottom:1px solid var(--pub-border,rgba(255,255,255,.06))}
       .mvmai-msg.system-note{align-self:center;background:none;color:var(--pub-dim,#6c7086);font-size:.78rem;
         text-align:center;max-width:100%}
       .mvmai-tool-card{align-self:flex-start;max-width:90%;background:var(--pub-crust,#2a2a3d);
@@ -1147,9 +1139,8 @@
             if (m.role === 'summary' && m.content) {
               addCompactedNote(m.content);
               any = true;
-            } else if ((m.role === 'user' || m.role === 'assistant') && (m.content || m.progress)) {
-              var bubble = addBubble(m.role, m.content || '', null, m.created_at);
-              if (m.role === 'assistant' && m.progress) bubble.appendChild(createProgress(null, m.progress).el);
+            } else if ((m.role === 'user' || m.role === 'assistant') && m.content) {
+              addBubble(m.role, m.content, null, m.created_at);
               any = true;
             }
           });
@@ -1309,87 +1300,6 @@
         el.textContent = text;
         listEl.appendChild(el);
         scrollDown();
-        return el;
-      }
-
-      function progressText(event) {
-        var detail = event.detail || '';
-        switch (event.kind) {
-          case 'command': return t('mvmai_pub_running') + (detail ? ' ' + detail : '');
-          case 'tool': return t('mvmai_pub_using_tool', {name: detail});
-          case 'search': return t('mvmai_pub_progress_search');
-          case 'files': return t('mvmai_pub_progress_files');
-          case 'writing': return t('mvmai_pub_progress_writing');
-          case 'done': return t('mvmai_pub_progress_done');
-          default: return t('mvmai_pub_thinking');
-        }
-      }
-
-      function createProgress(turnId, savedEvents) {
-        var el = document.createElement('div');
-        el.className = 'mvmai-progress';
-        var toggle = document.createElement('button');
-        toggle.type = 'button';
-        toggle.className = 'mvmai-progress-toggle';
-        var lines = document.createElement('div');
-        lines.className = 'mvmai-progress-lines';
-        lines.hidden = true;
-        el.append(toggle, lines);
-        var events = Array.isArray(savedEvents) ? savedEvents.slice() : [];
-        var cursor = events.length;
-        var done = !!savedEvents;
-        var timer = null;
-        var open = false;
-        var inFlight = false;
-
-        function render() {
-          lines.replaceChildren();
-          events.forEach(function (event) {
-            var line = document.createElement('div');
-            line.className = 'mvmai-progress-line';
-            line.textContent = progressText(event);
-            lines.appendChild(line);
-          });
-          if (!events.length) lines.textContent = t('mvmai_pub_thinking');
-          lines.scrollTop = lines.scrollHeight;
-        }
-        function schedule() {
-          if (!open || done || !turnId) return;
-          timer = setTimeout(poll, 800);
-        }
-        function poll() {
-          timer = null;
-          if (!open || done || !turnId || inFlight) return;
-          inFlight = true;
-          api('/progress/' + encodeURIComponent(turnId) + '?after=' + cursor).then(function (data) {
-            if (!open || done) return;
-            if (data.__status === 200) {
-              events.push.apply(events, data.events || []);
-              cursor = data.next || 0;
-              render();
-              if (data.done) done = true;
-            } else if (data.__status === 404) {
-              done = true;
-            }
-          }).catch(function () {}).finally(function () { inFlight = false; schedule(); });
-        }
-        function sync() {
-          toggle.textContent = (open ? '▾ ' : '▸ ') + t('mvmai_pub_progress');
-          lines.hidden = !open;
-          if (open) { render(); poll(); }
-          else if (timer) { clearTimeout(timer); timer = null; }
-        }
-        toggle.onclick = function () { open = !open; sync(); scrollDown(); };
-        sync();
-        return {
-          el: el,
-          finish: function (allEvents) {
-            done = true;
-            if (timer) { clearTimeout(timer); timer = null; }
-            if (Array.isArray(allEvents)) { events = allEvents.slice(); cursor = events.length; }
-            if (open) render();
-          }
-        };
       }
 
       function addCompactedNote(summaryText) {
@@ -1919,10 +1829,7 @@
           // message is sent, so keep the screen in sync now rather than lie.
           listEl.innerHTML = '';
           recent.forEach(function (m) {
-            if ((m.role === 'user' || m.role === 'assistant') && (m.content || m.progress)) {
-              var bubble = addBubble(m.role, m.content || '', null, m.created_at);
-              if (m.role === 'assistant' && m.progress) bubble.appendChild(createProgress(null, m.progress).el);
-            }
+            if ((m.role === 'user' || m.role === 'assistant') && m.content) addBubble(m.role, m.content, null, m.created_at);
           });
           // Rendered after the recent bubbles (even though it summarizes the
           // older ones) so it lands as the newest, bottom-most item -- the
@@ -2165,7 +2072,6 @@
         var current = turn;
         current.stopped = true;
         if (current.controller) current.controller.abort();
-        if (current.progress) current.progress.finish();
         if (current.typing) current.typing.remove();
         api('/stop', {method: 'POST', body: JSON.stringify({turn_id: current.id})}).catch(function () {});
         // Forms still waiting for a decision can no longer be saved.
@@ -2189,8 +2095,7 @@
             break;
           }
         }
-        var stoppedNote = addNote(t('mvmai_pub_stopped'));
-        if (current.progress) stoppedNote.appendChild(current.progress.el);
+        addNote(t('mvmai_pub_stopped'));
         finishTurn();
       }
 
@@ -2230,8 +2135,6 @@
           });
           renderQueue();
           var typing = current.typing = addTyping();
-          current.progress = createProgress(current.id);
-          typing.appendChild(current.progress.el);
           current.controller = window.AbortController ? new AbortController() : null;
           // A new chat gets its id here, so it is saved and listed at once
           // instead of after the answer.
@@ -2247,7 +2150,6 @@
               app_id: chosenApp ? chosenApp.id : null, turn_id: current.id, lang: uiLang()})}).then(function (data) {
             if (current.stopped) return;
             typing.remove();
-            current.progress.finish(data.progress);
             // The model has seen the images; they are not sent again.
             history.forEach(function (m) { delete m.images; });
             // A long turn answers 200 at once to keep the connection open,
@@ -2255,7 +2157,7 @@
             if (data.__status !== 200 || data.error || !data.message) {
               var key = data.error === 'insufficient_credits' ? 'mvmai_pub_insufficient_credits'
                 : (data.__status === 401 ? 'mvmai_pub_unauthorized' : null);
-              addNote((key ? t(key) : (t('mvmai_pub_err') + ': ' + (data.error || data.__status)))).appendChild(current.progress.el);
+              addNote((key ? t(key) : (t('mvmai_pub_err') + ': ' + (data.error || data.__status))));
               if (data.images) addNote(t('mvmai_pub_images_failed'));
               finishTurn();
               return;
@@ -2264,8 +2166,7 @@
             if (data.provider_label) { chatLabel = data.provider_label; inputEl.placeholder = messagePlaceholder(); }
             var msg = data.message;
             history.push(msg);
-            var answer = addBubble('assistant', msg.content || '', null, msg.created_at);
-            answer.appendChild(current.progress.el);
+            if (msg.content) addBubble('assistant', msg.content, null, msg.created_at);
 
             if (msg.tool_calls && msg.tool_calls.length) {
               runToolCalls(msg.tool_calls).then(function (toolMsgs) {
@@ -2279,8 +2180,7 @@
           }).catch(function () {
             if (current.stopped) return;
             typing.remove();
-            current.progress.finish();
-            addNote(t('mvmai_pub_err')).appendChild(current.progress.el);
+            addNote(t('mvmai_pub_err'));
             finishTurn();
           });
         }
