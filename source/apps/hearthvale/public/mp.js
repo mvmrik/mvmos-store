@@ -72,7 +72,8 @@
   try { camLock = localStorage.getItem('hv_follow') === '1'; } catch (e) { /* private window */ }
   const SLED_W = 1.2, SLED_L = 2.3;   // footprint of a sled and of its frame
   const TOOL_W = 0.9, TOOL_L = 0.75;  // footprint of the frame a tool is made on
-  const footOf = (d) => d.make === 'floor' || d.make === 'wall' ? [d.width, d.depth] : (d.make || d.kind) === 'sled' ? [SLED_W, SLED_L] : [TOOL_W, TOOL_L];
+  const footOf = (d) => T && T.furniture && T.furniture[d.make] ? [T.furniture[d.make].w, T.furniture[d.make].d]
+    : STRUCT_MAKES.includes(d.make) || d.kind === 'fixture' ? [d.width, d.depth] : (d.make || d.kind) === 'sled' ? [SLED_W, SLED_L] : [TOOL_W, TOOL_L];
 
   // ── seeded noise ─────────────────────────────────────────────────────────
   function mulberry32(a) {
@@ -234,6 +235,58 @@
     scene.add(water);
   }
 
+  // ── day and night ────────────────────────────────────────────────────────
+  // One clock for everyone: the hour comes from the server's time, so it is
+  // the same time of day for every player.
+  let cloudMat = null, starsMat = null, skyU = null, hemi = null, sunOff = { x: 40, y: 70, z: 25 }, lightClock = 0;
+  const gameHour = () => (((fruitNow() % T.day.length) / T.day.length) * 24 + T.day.start_hour) % 24;
+  const isNight = () => { const h = gameHour(); return h >= T.day.night_from || h < T.day.night_to; };
+  function updateDaylight() {
+    if (!T || !T.day || !sun || !hemi || !skyU) return;
+    const h = gameHour();
+    // Light from five in the morning to ten at night.
+    const rise = T.day.night_to, set = T.day.night_from, arc = (h - rise) / (set - rise) * Math.PI;
+    const sunH = h >= rise && h <= set ? Math.sin(arc) : Math.min(0, Math.sin(arc));
+    const L = Math.max(0, Math.min(1, (sunH + 0.1) / 0.5));
+    const c = (hex) => new THREE.Color(hex);
+    const dusk = Math.max(0, Math.min(1, (1 - L) * L * 4));
+    const horizon = c('#121c38').lerp(c('#d3e9f1'), L).lerp(c('#f0a070'), dusk * 0.55);
+    const top = c('#060b1c').lerp(c('#4f97d8'), L);
+    skyU.top.value.copy(top); skyU.horizon.value.copy(horizon);
+    scene.fog.color.copy(horizon); scene.background.copy(horizon);
+    sun.intensity = 0.2 + 2.3 * L;
+    sun.color.copy(c('#8fa4e0').lerp(c('#ffb070'), Math.min(1, L * 3)).lerp(c('#fff0d4'), Math.max(0, L * 1.4 - 0.4)));
+    hemi.intensity = 0.5 + 0.65 * L;
+    hemi.color.copy(c('#5d6fb0').lerp(c('#dcefff'), L));
+    hemi.groundColor.copy(c('#1f2a1c').lerp(c('#58733a'), L));
+    if (starsMat) starsMat.opacity = Math.max(0, Math.min(1, (0.5 - L) / 0.4));
+    if (cloudMat) {
+      // By night the clouds are only a dark shape against the stars.
+      cloudMat.opacity = 0.18 + 0.82 * Math.min(1, L * 1.5);
+      cloudMat.color.copy(c('#2a3350').lerp(c('#ffffff'), L));
+      cloudMat.emissiveIntensity = 0.35 * L;
+    }
+    const a = Math.max(0, Math.min(Math.PI, arc));
+    sunOff = { x: Math.cos(a) * 70, y: 25 + 60 * Math.max(Math.sin(a), 0.12), z: 25 };
+    if (ui.clock) {
+      const hh = Math.floor(h), mm = Math.floor((h - hh) * 60);
+      ui.clock.textContent = (h >= T.day.night_from || h < T.day.night_to ? '🌙 ' : '☀️ ') + String(hh).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+    }
+  }
+
+  // ── sleeping ─────────────────────────────────────────────────────────────
+  let sleeping = null, lastBed = null;   // sleeping: { bed } while lying in one
+  function bedPose(bed) {
+    // Where a body lies on a bed, and which way.
+    const d = bed.data || bed, len = T.furniture[d.make].d;
+    return { x: d.x + Math.sin(d.ry) * (len * 0.42), z: d.z + Math.cos(d.ry) * (len * 0.42), y: walkGround(d.x, d.z) + 0.6, ry: d.ry };
+  }
+  function renderSleep() {
+    if (!ui.sleep) return;
+    ui.sleep.classList.toggle('open', !!sleeping);
+    if (sleeping) ui.sleepText.textContent = '💤 ' + tr('hv_sleeping', { n: Math.round(needs.energy / Math.max(1, needs.emax) * 100) });
+  }
+
   function buildSky() {
     const top = new THREE.Color('#4f97d8'), horizon = new THREE.Color('#d3e9f1');
     const mat = new THREE.ShaderMaterial({
@@ -251,11 +304,27 @@
     scene.add(sky);
     scene.fog = new THREE.Fog(horizon.clone(), 160, 540);
     scene.background = horizon.clone();
+    skyU = mat.uniforms;
+    // Stars, seen once it gets dark: points on the upper sky, which follow the camera.
+    const rs = mulberry32(welcome.seed ^ 0x57a45), pos = [];
+    for (let i = 0; i < 700; i++) {
+      const a = rs() * Math.PI * 2, y = 0.06 + rs() * 0.94, r = Math.sqrt(1 - y * y);
+      pos.push(Math.cos(a) * r * 760, y * 760, Math.sin(a) * r * 760);
+    }
+    const sg = new THREE.BufferGeometry();
+    sg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    starsMat = new THREE.PointsMaterial({ color: '#ffffff', size: 2.4, sizeAttenuation: false, transparent: true, opacity: 0, depthWrite: false, fog: false });
+    const stars = new THREE.Points(sg, starsMat);
+    stars.renderOrder = 0;
+    stars.frustumCulled = false;
+    stars.onBeforeRender = () => stars.position.copy(camera.position);
+    scene.add(stars);
   }
 
   function buildClouds(rand) {
     const geo = new THREE.IcosahedronGeometry(1, 1);
-    const mat = new THREE.MeshStandardMaterial({ color: '#ffffff', flatShading: true, roughness: 1, fog: false, emissive: '#dfe9f0', emissiveIntensity: 0.35 });
+    const mat = new THREE.MeshStandardMaterial({ color: '#ffffff', flatShading: true, roughness: 1, fog: false, emissive: '#dfe9f0', emissiveIntensity: 0.35, transparent: true });
+    cloudMat = mat;
     for (let i = 0; i < 40; i++) {
       const g = new THREE.Group();
       const parts = 3 + Math.floor(rand() * 3);
@@ -934,6 +1003,8 @@
       haft: new THREE.CylinderGeometry(0.03, 0.035, 0.75, 6),
       blade: new THREE.BoxGeometry(0.05, 0.16, 0.2),
       hoeHaft: new THREE.CylinderGeometry(0.03, 0.035, 1.25, 6),
+      slab: new THREE.BoxGeometry(0.8, 1.0, 0.07),
+      hammerHead: new THREE.BoxGeometry(0.12, 0.12, 0.2),
       hoeBlade: new THREE.BoxGeometry(0.18, 0.035, 0.2),
       pail: new THREE.CylinderGeometry(0.17, 0.13, 0.3, 10),
       handle: new THREE.TorusGeometry(0.15, 0.012, 4, 12, Math.PI),
@@ -991,8 +1062,17 @@
     armR.add(bucket);
     mesh(G.pail, m('#8a5d3b', 0.9), 0, -0.22, 0, bucket);
     mesh(G.handle, m('#5b3e2b', 0.8), 0, -0.07, 0, bucket);
-    stone.visible = log.visible = axe.visible = hoe.visible = bucket.visible = false;
-    return { root, body, legL, legR, armL, armR, stone, log, axe, hoe, bucket, held: null, phase: 0, swing: 0 };
+    // A hammer: a short haft with a stone head across its end.
+    const hammer = new THREE.Group();
+    hammer.position.set(0, -0.52, 0.06);
+    hammer.rotation.x = Math.PI / 2;
+    armR.add(hammer);
+    mesh(G.haft, m('#9a7048', 0.9), 0, 0.2, 0, hammer);
+    mesh(G.hammerHead, m('#9c988e', 1), 0, 0.52, 0.1, hammer);
+    // A door or a window carried upright in front.
+    const slab = mesh(G.slab, m('#9a6a42', 0.9), 0, 1.0, 0.5);
+    stone.visible = log.visible = axe.visible = hoe.visible = bucket.visible = hammer.visible = slab.visible = false;
+    return { root, body, legL, legR, armL, armR, stone, log, axe, hoe, bucket, hammer, slab, held: null, phase: 0, swing: 0 };
   }
 
   function setHeld(ch, item) {
@@ -1002,6 +1082,8 @@
     ch.axe.visible = item === 'axe';
     ch.hoe.visible = item === 'hoe';
     ch.bucket.visible = item === 'bucket';
+    ch.hammer.visible = item === 'hammer';
+    ch.slab.visible = item === 'door' || item === 'window';
   }
 
   function animateCharacter(ch, anim, dt) {
@@ -1074,7 +1156,7 @@
     ch.root.rotation.y = p.ry || 0;
     setHeld(ch, p.h);
     scene.add(ch.root);
-    peers.set(p.id, { ch, label, name: p.name, color: p.color, tx: p.x || 0, ty: p.y || 0, tz: p.z || 0, tr: p.ry || 0, anim: p.a || 'idle' });
+    peers.set(p.id, { ch, label, name: p.name, color: p.color, tx: p.x || 0, ty: p.y || 0, tz: p.z || 0, tr: p.ry || 0, anim: p.a || 'idle', sleepBed: p.sleep != null ? p.sleep : null });
     renderPeople();
   }
 
@@ -1104,8 +1186,10 @@
         '<div class="hv-chip hv-brand">🏡 <span class="hv-name"></span></div>' +
         '<button type="button" class="hv-chip hv-people-btn">👥 <span class="hv-count"></span></button>' +
         '<button type="button" class="hv-chip hv-craft-btn">🔨 <span class="hv-craft-label"></span></button>' +
+        '<button type="button" class="hv-chip hv-mode-btn"><span class="hv-mode-label"></span></button>' +
         '<button type="button" class="hv-chip hv-skills-btn">📈 <span class="hv-skills-label"></span></button>' +
         '<div class="hv-spacer"></div>' +
+        '<div class="hv-chip hv-clock"></div>' +
         '<button type="button" class="hv-chip hv-fullscreen">⛶</button>' +
         '<button type="button" class="hv-chip hv-leave"></button>' +
       '</div>' +
@@ -1114,7 +1198,10 @@
       '<div class="hv-people"></div>' +
       '<div class="hv-craft"></div>' +
       '<div class="hv-skills"></div>' +
+      '<div class="hv-auto"></div>' +
       '<div class="hv-cargo"></div>' +
+      '<div class="hv-view"></div>' +
+      '<div class="hv-sleep"><div class="hv-sleep-text"></div><button type="button" class="hv-make hv-sleep-wake"></button></div>' +
       '<div class="hv-tasks"></div>' +
       '<div class="hv-needs">' +
         '<div class="hv-need" data-need="food"><span>🍎</span><div><i></i></div><b></b></div>' +
@@ -1146,10 +1233,17 @@
       hand: app.querySelector('.hv-hand'),
       pack: app.querySelector('.hv-pack'),
       craftBtn: app.querySelector('.hv-craft-btn'),
+      modeBtn: app.querySelector('.hv-mode-btn'),
       craft: app.querySelector('.hv-craft'),
       skillsBtn: app.querySelector('.hv-skills-btn'),
       skills: app.querySelector('.hv-skills'),
+      auto: app.querySelector('.hv-auto'),
       cargo: app.querySelector('.hv-cargo'),
+      clock: app.querySelector('.hv-clock'),
+      view: app.querySelector('.hv-view'),
+      sleep: app.querySelector('.hv-sleep'),
+      sleepText: app.querySelector('.hv-sleep-text'),
+      sleepWake: app.querySelector('.hv-sleep-wake'),
       tasks: app.querySelector('.hv-tasks'),
       needs: app.querySelector('.hv-needs'),
       pill: app.querySelector('.hv-pill'),
@@ -1163,6 +1257,10 @@
     setLock(camLock, true);
     app.querySelector('.hv-skills-label').textContent = tr('hv_skills');
     ui.skillsBtn.onclick = () => toggleSkills();
+    ui.modeBtn.onclick = () => setBuildMode(!buildMode);
+    ui.sleepWake.textContent = tr('hv_wake');
+    ui.sleepWake.onclick = () => mp.send({ type: 'hv_wake' });
+    renderModeBtn(); renderView();
     renderNeeds();
     renderCraftBtn();
     // While a frame is placed or a field marked, the same button ends it.
@@ -1250,12 +1348,15 @@
     }
   }
 
-  const ICON = { floor: '🟫', wall: '🧱', stone: '🪨', log: '🪵', axe: '🪓', hoe: '⛏', bucket: '🪣', sled: '🛷', apple: '🍎', berries: '🍇' };
+  const STRUCT_MAKES = ['floor', 'wall', 'roof', 'door', 'window'];
+  const ICON = { bed: '🛏', bed_stone: '🛏', bed_big: '🛏', stool: '🪑', chair: '🪑', chair_stone: '🪑', table: '🍽', table_big: '🍽', table_stone: '🍽', hammer: '🔨', floor: '🟫', wall: '🧱', roof: '🏠', door: '🚪', window: '🪟', stone: '🪨', log: '🪵', axe: '🪓', hoe: '⛏', bucket: '🪣', sled: '🛷', apple: '🍎', berries: '🍇' };
   // What stays with the player: never put down, never loaded on a sled.
-  const kept = (k) => k === 'axe' || k === 'hoe';
+  const kept = (k) => k === 'axe' || k === 'hoe' || k === 'hammer';
+  // Carried one at a time: it does not fit a backpack slot.
+  const smallKind = (k) => (T.items[k]?.slot || 0) > 0;
 
   // An item's icon, with a bar for how worn a tool is.
-  function fillSlot(el, it) {
+  function fillSlot(el, it, count) {
     const k = kindOf(it);
     el.textContent = ICON[k] || '';
     el.classList.toggle('empty', !k);
@@ -1273,6 +1374,12 @@
       bar.style.background = q > 0.5 ? '#7ccf5a' : q > 0.2 ? '#f2c14e' : '#e5624f';
       el.appendChild(bar);
       el.title += ' ×' + it.n + ' · ' + (q > 0 ? tr('hv_quality', { n: Math.round(q * 100) }) : tr('hv_rotten'));
+    } else if (count > 1) {
+      const cnt = document.createElement('b');
+      cnt.className = 'hv-count';
+      cnt.textContent = count;
+      el.appendChild(cnt);
+      el.title += ' ×' + count;
     } else if (k === 'bucket' && T) {
       // A bucket: how many waterings or gulps are still in it.
       const bar = document.createElement('i');
@@ -1292,26 +1399,45 @@
     }
   }
 
+  // What the backpack holds, grouped by kind: [{ k, idx, it, count }], where
+  // idx is the first place of that kind in it.
+  function packGroups() {
+    const out = [], by = new Map();
+    (inv.pack || []).forEach((it, i) => {
+      const k = kindOf(it);
+      if (!k) return;
+      let g = by.get(k);
+      if (!g) { g = { k, idx: i, it, count: 0 }; by.set(k, g); out.push(g); }
+      g.count += countOf(it);
+    });
+    return out;
+  }
+  const packKg = () => (inv.pack || []).reduce((n, it) => n + (it && T && T.items[kindOf(it)] ? T.items[kindOf(it)].kg * countOf(it) : 0), 0);
+  const packLimit = () => T.pack_kg * boostOf(skillLevel('strength'));
+  const packLitres = () => (inv.pack || []).reduce((n, it) => n + (it && T && T.items[kindOf(it)] ? T.items[kindOf(it)].l * countOf(it) : 0), 0);
+
   function renderInv() {
     if (!ui.hand) return;
     fillSlot(ui.hand, inv.hand);
     ui.hand.title = (ui.hand.title ? ui.hand.title + ' — ' : '') + tr('hv_hands');
-    const n = (inv.pack || []).length;
-    while (ui.pack.children.length < n) {
-      const i = ui.pack.children.length;
+    // The backpack holds as much as it can carry: one tile for each kind of
+    // thing in it, with how many there are.
+    ui.pack.textContent = '';
+    packGroups().forEach(g => {
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'hv-slot';
-      b.onclick = (e) => {
-        if (inv.pack[i]) slotMenu(i, e);
-        else mp.send({ type: 'hv_hold', slot: i });
-      };
+      b.onclick = (e) => slotMenu(g.idx, e);
+      fillSlot(b, g.it, g.count);
       ui.pack.appendChild(b);
-    }
-    inv.pack.forEach((it, i) => {
-      const b = ui.pack.children[i];
-      fillSlot(b, it);
     });
+    if (T) {
+      const kg = document.createElement('div');
+      kg.className = 'hv-kg' + (packKg() >= packLimit() - 0.05 || packLitres() >= T.pack_litres - 0.05 ? ' full' : '');
+      kg.textContent = fmt(packKg()) + '/' + fmt(packLimit()) + ' kg · ' + fmt(packLitres()) + '/' + fmt(T.pack_litres) + ' L';
+      kg.title = tr('hv_pack_weight');
+      ui.pack.appendChild(kg);
+    }
     if (ui.craft.classList.contains('open')) renderCraft();
   }
 
@@ -1325,18 +1451,27 @@
     const open = force == null ? !ui.craft.classList.contains('open') : force;
     ui.craft.classList.toggle('open', open);
     ui.craftBtn.classList.toggle('on', open);
-    if (open) { ui.people.classList.remove('open'); ui.skills.classList.remove('open'); renderCraft(); }
+    if (open) { ui.people.classList.remove('open'); ui.skills.classList.remove('open'); if (ui.auto) ui.auto.classList.remove('open'); renderCraft(); }
   }
 
   // Everything is made the same way: its frame is placed on the ground and
   // the materials are brought to it.
+  let craftTab = 'tools';
   function renderCraft() {
     ui.craft.innerHTML = '';
     const h = document.createElement('div');
     h.className = 'hv-people-title';
     h.textContent = tr('hv_recipes');
     ui.craft.appendChild(h);
-    Object.entries((T && T.builds) || {}).forEach(([name, needs]) => {
+    const tabs = el('div', 'hv-craft-tabs');
+    [['tools', 'hv_craft_tools'], ['furniture', 'hv_craft_furniture'], ['build', 'hv_craft_build'], ['other', 'hv_craft_other']].filter(([id]) => id !== 'build' || buildMode).forEach(([id, key]) => {
+      const b = el('button', 'hv-craft-tab' + (craftTab === id ? ' on' : ''), tr(key));
+      b.type = 'button';
+      b.onclick = () => { craftTab = id; renderCraft(); };
+      tabs.appendChild(b);
+    });
+    ui.craft.appendChild(tabs);
+    if (craftTab === 'tools' || craftTab === 'furniture') Object.entries((T && T.builds) || {}).filter(([name]) => !!(T.furniture && T.furniture[name]) === (craftTab === 'furniture')).forEach(([name, needs]) => {
       const row = document.createElement('div');
       row.className = 'hv-recipe';
       const icon = document.createElement('div');
@@ -1372,17 +1507,18 @@
       row.append(icon, mid, btn);
       ui.craft.appendChild(row);
     });
-    for (const [make, door] of [['floor', false], ['wall', false], ['wall', true]]) {
+    if (craftTab === 'build') for (const make of ['floor', 'wall', 'roof', 'door', 'window']) {
       const row = el('div', 'hv-recipe');
       const mid = el('div', 'hv-recipe-mid');
-      mid.appendChild(el('b', null, tr(door ? 'hv_wall_door' : 'hv_name_' + make)));
-      mid.appendChild(el('div', 'hv-recipe-parts', tr(make === 'floor' ? 'hv_floor_recipe' : 'hv_wall_recipe', { n: make === 'floor' ? T.housing.floor_logs : T.housing.wall_logs, size: T.housing.cell, max: T.housing.max_side })));
+      const c = T.housing;
+      mid.appendChild(el('b', null, tr('hv_name_' + make)));
+      mid.appendChild(el('div', 'hv-recipe-parts', tr('hv_' + make + '_recipe', { n: { floor: c.floor_logs, wall: c.wall_logs, roof: c.roof_logs, door: c.door_logs, window: c.window_logs }[make], size: c.cell, max: c.max_side })));
       const btn = el('button', 'hv-make', tr('hv_place')); btn.type = 'button';
-      btn.onclick = () => startHousing(make, door);
+      btn.onclick = () => startHousing(make);
       row.append(el('div', 'hv-recipe-icon', ICON[make]), mid, btn); ui.craft.appendChild(row);
     }
     // A field: squares of ground marked here and dug with a hoe.
-    {
+    if (craftTab === 'other') {
       const row = document.createElement('div');
       row.className = 'hv-recipe';
       const icon = document.createElement('div');
@@ -1416,7 +1552,7 @@
     if (!ui.skills) return;
     const open = on === undefined ? !ui.skills.classList.contains('open') : on;
     ui.skills.classList.toggle('open', open);
-    if (open) { ui.people.classList.remove('open'); toggleCraft(false); renderSkills(); }
+    if (open) { ui.people.classList.remove('open'); toggleCraft(false); if (ui.auto) ui.auto.classList.remove('open'); renderSkills(); }
   }
 
   function doDrink() {
@@ -1456,14 +1592,17 @@
 
     const drags = new Map();
     const arrows = new Set();
+    // The arrow keys and W A S D (by position, so any keyboard layout) pan the camera.
+    const WASD = { KeyW: 'ArrowUp', KeyA: 'ArrowLeft', KeyS: 'ArrowDown', KeyD: 'ArrowRight' };
+    const camKey = (e) => e.key.startsWith('Arrow') ? e.key : WASD[e.code] || null;
     let edge = null;
     const editable = (target) => target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
     window.addEventListener('keydown', (e) => {
-      if (!booted || !app.isConnected || editable(e.target) || e.altKey || e.metaKey || e.ctrlKey || !e.key.startsWith('Arrow')) return;
+      if (!booted || !app.isConnected || editable(e.target) || e.altKey || e.metaKey || e.ctrlKey || !camKey(e)) return;
       e.preventDefault();
-      arrows.add(e.key);
+      arrows.add(camKey(e));
     });
-    window.addEventListener('keyup', (e) => arrows.delete(e.key));
+    window.addEventListener('keyup', (e) => { const k = camKey(e); if (k) arrows.delete(k); });
     const resetCameraInput = () => {
       arrows.clear(); edge = null; drags.clear(); pinch = null;
       if (housing && housing.drag !== null) { housing.drag = null; housing.fixed = true; housing.selecting = false; }
@@ -1614,16 +1753,25 @@
     canvas.addEventListener('pointercancel', end);
     canvas.addEventListener('wheel', (e) => {
       e.preventDefault();
+      if (placing && placing.furniture) {
+        // One step to a notch of the wheel; a touchpad's many small ones add up.
+        placing.wheel = (placing.wheel || 0) + e.deltaY;
+        if (Math.abs(placing.wheel) >= 50) { turnPlacing((placing.wheel > 0 ? 1 : -1) * Math.PI / 12); placing.wheel = 0; }
+        return;
+      }
       cam.dist = Math.max(3.2, Math.min(32, cam.dist * (e.deltaY > 0 ? 1.1 : 0.9)));
     }, { passive: false });
     canvas.addEventListener('contextmenu', e => e.preventDefault());
 
     // The button by the hands: a click flies the camera back to the player,
-    // a right click or a long press keeps it on them or sets it free.
+    // a right click keeps it on them or sets it free, a long press opens
+    // the character's priorities.
     let held = null;
+    let pressType = 'mouse';
     ui.me.addEventListener('pointerdown', (e) => {
+      pressType = e.pointerType;
       if (e.button !== 0) return;
-      held = setTimeout(() => { held = 'done'; setLock(!camLock); }, 550);
+      held = setTimeout(() => { held = 'done'; toggleAuto(); }, 550);
     });
     const letGo = () => { if (held && held !== 'done') clearTimeout(held); };
     ui.me.addEventListener('pointerup', letGo);
@@ -1635,9 +1783,8 @@
     };
     ui.me.oncontextmenu = (e) => {
       e.preventDefault();
-      if (held === 'done') return;
-      // A long press may call this before the timer does: it counts once.
-      if (held) { clearTimeout(held); held = 'done'; } else held = null;
+      // A long press on a phone raises this too: the timer above handles it.
+      if (pressType !== 'mouse' || held === 'done') return;
       setLock(!camLock);
     };
   }
@@ -1659,7 +1806,7 @@
     builds.forEach(b => {
       // Permanent projects are opened by clicking them explicitly. They
       // must not intercept picking up the logs brought beside a house.
-      if (isStructure(b.data)) return;
+      if (isStructure(b.data) || b.data.kind === 'furniture') return;
       const d = footDist(b.data, fx, fz);
       if (d < bd) { build = b; bd = d; }
     });
@@ -1777,41 +1924,252 @@
     markHit = null;
   }
 
-  // A ring on the ground under whatever a click would act on: under the
-  // pointer while it hovers, and under the chosen thing while its menu is open.
-  let markHit = null, hoverHit = null, markMesh = null, otherMesh = null, hoverAt = 0;
-  function markSize(h) {
-    if (h.kind === 'tree') return (h.data.r || 0.5) + 0.7;
-    if (h.kind === 'build') return h.data.data.kind === 'sled' ? 1.9 : footOf(h.data.data)[1] > 1 ? 1.6 : 0.85;
-    if (h.kind === 'pile') return 0.9;
-    if (h.kind === 'fruit') return 0.9;
-    if (h.kind === 'stone') return 0.7;
-    if (h.kind === 'plot') return T.farm.cell * 0.75;
-    return 0.45;
+  // A box around the whole thing a click would act on: the one under the
+  // pointer while it hovers, and the chosen one while its menu is open.
+  let markHit = null, hoverHit = null, hoverAt = 0;
+  // The box of the whole thing a click would act on: { x, y, z, w, h, d }.
+  function markBox(h) {
+    const box3 = (o) => {
+      o.updateMatrixWorld(true);
+      const b = new THREE.Box3().setFromObject(o), c = b.getCenter(new THREE.Vector3()), sz = b.getSize(new THREE.Vector3());
+      return { x: c.x, y: c.y, z: c.z, w: sz.x, h: sz.y, d: sz.z };
+    };
+    if (h.kind === 'tree') {
+      const t = h.data, s = t.s || 1, top = t.th + (t.pine ? 3.7 : 2.5) * s, g = groundAt(t.x, t.z);
+      return { x: t.x, y: g + top / 2, z: t.z, w: 3.2 * s, h: top, d: 3.2 * s };
+    }
+    if (h.kind === 'build' && h.data && h.data.data && h.data.data.done && hasKind('hammer')) {
+      // With a hammer in reach, the square of a floor or a roof that would break.
+      const d = h.data.data, c = T.housing.cell;
+      if (d.make === 'floor') {
+        const cell = floorCellAt(d, h.x, h.z);
+        if (cell) return { x: d.x + (cell.x + .5 - d.nx / 2) * c, y: d.base_y + .3, z: d.z + (cell.z + .5 - d.nz / 2) * c, w: c, h: .5, d: c };
+      } else if (d.make === 'roof') {
+        const f = (builds.get(d.floor) || {}).data;
+        if (f) {
+          const cell = floorCellAt(f, Math.max(f.x - f.width / 2 + .01, Math.min(f.x + f.width / 2 - .01, h.x)), Math.max(f.z - f.depth / 2 + .01, Math.min(f.z + f.depth / 2 - .01, h.z)));
+          if (cell) return { x: f.x + (cell.x + .5 - f.nx / 2) * c, y: d.base_y + d.height * .45, z: f.z + (cell.z + .5 - f.nz / 2) * c, w: c, h: d.height * .9, d: c };
+        }
+      }
+    }
+    if (h.kind === 'build' || h.kind === 'pile') return h.data && h.data.group ? box3(h.data.group) : null;
+    if (h.kind === 'stone') return { x: h.x, y: groundAt(h.x, h.z) + 0.2, z: h.z, w: 0.8, h: 0.5, d: 0.8 };
+    if (h.kind === 'fruit') return { x: h.data.sx, y: h.data.sy, z: h.data.sz, w: 0.5, h: 0.5, d: 0.5 };
+    if (h.kind === 'plot') return { x: h.x, y: groundAt(h.x, h.z) + 0.1, z: h.z, w: T.farm.cell, h: 0.3, d: T.farm.cell };
+    return null;
   }
+  // A glowing box, for things that are a stretch of ground or a whole building.
   function ringMesh(color) {
-    const m = new THREE.Mesh(new THREE.RingGeometry(0.82, 1, 40),
-      new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9, depthTest: false, side: THREE.DoubleSide }));
-    m.rotation.x = -Math.PI / 2;
-    m.renderOrder = 20;
-    scene.add(m);
-    return m;
+    const g = new THREE.Group();
+    const fill = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.12, depthTest: false, depthWrite: false }));
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 1)),
+      new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.95, depthTest: false }));
+    fill.renderOrder = edges.renderOrder = 20;
+    g.add(fill, edges);
+    g.frustumCulled = false;
+    scene.add(g);
+    return g;
   }
-  function ringAt(m, h, pulse) {
-    const g = groundAt(h.x, h.z), sl = shoreLevel(h.x, h.z);
-    m.position.set(h.x, Math.max(g, sl ?? -Infinity) + 0.08, h.z);
-    m.scale.setScalar(markSize(h) * pulse);
-    m.visible = true;
+  // The thing itself, edged all round: copies of its parts a little bigger,
+  // drawn behind it, so only the rim shows. Instanced trees and stones are
+  // copied from their own place in the instance.
+  const hullMats = {};
+  const hullMat = (color) => hullMats[color] || (hullMats[color] = new THREE.MeshBasicMaterial({ color, side: THREE.BackSide }));
+  let _hullS = null, _hullI = null;   // made on first use: THREE is loaded later
+  function hullParts(h) {
+    // [{ geo, src: Object3D | null, inst: [InstancedMesh, i] | null }]
+    const out = [];
+    if (h.kind === 'tree') {
+      (h.data.parts || []).forEach(([mesh, i]) => out.push({ geo: mesh.geometry, inst: [mesh, i] }));
+    } else if (h.kind === 'fruit') {
+      if (!hullMats.fruitGeo) hullMats.fruitGeo = new THREE.SphereGeometry(1, 8, 6);
+      out.push({ geo: hullMats.fruitGeo, at: [h.data.sx, h.data.sy, h.data.sz, 0.15] });
+    } else if (h.kind === 'stone') {
+      if (h.data.mesh) out.push({ geo: h.data.mesh.geometry, inst: [h.data.mesh, h.data.i] });
+    } else if (h.kind === 'pile' || h.kind === 'build') {
+      const g = h.data && h.data.group;
+      if (g) g.traverse(o => { if (o.isMesh) out.push({ geo: o.geometry, src: o }); });
+    }
+    return out;
   }
-  // The window's sled and its second thing keep their rings while it is open.
+  function hullKey(h) {
+    if (h.kind === 'tree') return 'tree' + h.data.id;
+    if (h.kind === 'stone') return 'stone' + h.data.id;
+    if (h.kind === 'fruit') return 'fruit' + h.data.src + '.' + h.data.k;
+    if (h.kind === 'pile' || h.kind === 'build') return h.kind + (h.data && h.data.group ? h.data.group.uuid : '');
+    return null;
+  }
+  const isOpening = (d) => d.make === 'door' || d.make === 'window';
+  // Whatever is a thing in itself gets its own outline; a floor, a wall or a
+  // roof is a part of a building and is marked only while building.
+  const hullKind = (h) => h.kind === 'tree' || h.kind === 'stone' || h.kind === 'pile' || h.kind === 'fruit' ||
+    (h.kind === 'build' && h.data && h.data.data && (!isStructure(h.data.data) || isOpening(h.data.data)));
+  function outlineAt(slot, color, h, pulse) {
+    // Out of building mode a house is only a house: nothing of it is marked.
+    if (!buildMode && h.kind === 'build' && h.data && h.data.data && isStructure(h.data.data) && !isOpening(h.data.data)) { hideOutline(slot); return; }
+    if (hullKind(h)) {
+      if (slot.box) slot.box.visible = false;
+      const key = hullKey(h);
+      if (slot.hullKey !== key) {
+        if (slot.hull) { scene.remove(slot.hull); slot.hull = null; }
+        slot.hullKey = key;
+        const parts = hullParts(h);
+        if (parts.length) {
+          slot.hull = new THREE.Group();
+          slot.hullParts = parts.map(pt => {
+            const m = new THREE.Mesh(pt.geo, hullMat(color));
+            m.matrixAutoUpdate = false;
+            m.frustumCulled = false;
+            slot.hull.add(m);
+            return { m, pt };
+          });
+          scene.add(slot.hull);
+        }
+      }
+      if (slot.hull) {
+        slot.hull.visible = true;
+        // Follow the thing, a thin rim wider than the thing itself.
+        const k = h.kind === 'tree' ? 1.07 : 1.12;
+        if (!_hullS) { _hullS = new THREE.Matrix4(); _hullI = new THREE.Matrix4(); }
+        _hullS.makeScale(k, k, k);
+        slot.hullParts.forEach(({ m, pt }) => {
+          if (pt.at) {
+            const [x, y, z, r] = pt.at, kk = r * 1.5;
+            m.matrix.makeScale(kk, kk, kk).setPosition(x, y, z);
+          } else if (pt.inst) {
+            pt.inst[0].getMatrixAt(pt.inst[1], _hullI);
+            m.matrix.multiplyMatrices(pt.inst[0].matrixWorld, _hullI).multiply(_hullS);
+          } else {
+            pt.src.updateMatrixWorld(true);
+            m.matrix.copy(pt.src.matrixWorld).multiply(_hullS);
+          }
+          m.matrixWorldNeedsUpdate = true;
+        });
+      }
+      return;
+    }
+    if (slot.hull) { slot.hull.visible = false; slot.hullKey = null; }
+    const now = performance.now();
+    if (!slot.box) slot.box = ringMesh(color);
+    if (!slot.b || now - slot.bt > 150 || slot.bh !== h) { slot.b = markBox(h); slot.bt = now; slot.bh = h; }
+    const b = slot.b;
+    if (!b) { slot.box.visible = false; return; }
+    const pad = 0.12 * pulse;
+    slot.box.position.set(b.x, b.y, b.z);
+    slot.box.scale.set(b.w + pad, b.h + pad, b.d + pad);
+    slot.box.visible = true;
+  }
+  function hideOutline(slot) {
+    if (slot.box) slot.box.visible = false;
+    if (slot.hull) slot.hull.visible = false;
+  }
+  const markSlot = {}, otherSlot = {};
+  // The window's sled and its second thing keep their outline while it is open.
   function updateMarks() {
     const pulse = 1 + 0.07 * Math.sin(performance.now() / 160);
     const cb = cargo && builds.get(cargo.id), o = cargoOther();
-    const h = markHit || (!placing ? hoverHit : null) || (cb ? { kind: 'build', x: cb.data.x, z: cb.data.z } : null);
-    if (h) { markMesh = markMesh || ringMesh('#ffd45c'); ringAt(markMesh, h, pulse); }
-    else if (markMesh) markMesh.visible = false;
-    if (o) { otherMesh = otherMesh || ringMesh('#7fd4ff'); ringAt(otherMesh, { kind: o.pile ? 'pile' : 'build', x: o.d.x, z: o.d.z }, pulse); }
-    else if (otherMesh) otherMesh.visible = false;
+    const h = markHit || (!placing ? hoverHit : null) || (cb ? { kind: 'build', x: cb.data.x, z: cb.data.z, data: cb } : null);
+    if (h) outlineAt(markSlot, '#ffd45c', h, pulse); else hideOutline(markSlot);
+    if (o) outlineAt(otherSlot, '#7fd4ff', { kind: o.pile ? 'pile' : 'build', x: o.d.x, z: o.d.z, data: o.pile ? piles.get(o.ref.pile) : builds.get(o.ref.build) }, pulse);
+    else hideOutline(otherSlot);
+  }
+
+  // A little picture over the character's head: what it thinks of.
+  let thoughtMesh = null, thoughtUntil = 0, thoughtText = null;
+  function thought(text, ms = 2600) {
+    if (!me || !me.ch || !THREE) return;
+    if (!thoughtMesh) {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 128;
+      const tex = new THREE.CanvasTexture(canvas);
+      thoughtMesh = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+      thoughtMesh.userData.canvas = canvas;
+      thoughtMesh.scale.set(0.9, 0.9, 1);
+      thoughtMesh.position.set(0, 2.55, 0);
+      thoughtMesh.renderOrder = 30;
+      me.ch.root.add(thoughtMesh);
+    }
+    if (thoughtText !== text) {
+      thoughtText = text;
+      const c = thoughtMesh.userData.canvas, g = c.getContext('2d');
+      g.clearRect(0, 0, 128, 128);
+      g.fillStyle = 'rgba(255,255,255,.92)';
+      g.beginPath(); g.arc(64, 60, 52, 0, Math.PI * 2); g.fill();
+      g.beginPath(); g.moveTo(52, 108); g.lineTo(64, 126); g.lineTo(76, 108); g.fill();
+      g.font = '64px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(text, 64, 64);
+      thoughtMesh.material.map.needsUpdate = true;
+    }
+    thoughtUntil = performance.now() + ms;
+    thoughtMesh.visible = true;
+  }
+  function updateThought() {
+    if (thoughtMesh && thoughtMesh.visible && performance.now() > thoughtUntil) thoughtMesh.visible = false;
+  }
+  // No way to where it was sent: it says so and stays put.
+  function noWay() {
+    thought('🚧', 4000);
+    brainMemo.set('noway', { n: 0, t: 0, until: performance.now() + 12000 });
+  }
+
+  // The way round the walls: waypoints from here to (x1, z1) through the
+  // doors and round the corners, or null when the straight line is free.
+  function pathAround(x0, z0, x1, z1) {
+    const rects = wallRects();
+    if (!rects.length) return null;
+    const pad = .42;
+    const near = (r, x, z) => Math.abs(x - r.x) < r.w / 2 + pad && Math.abs(z - r.z) < r.l / 2 + pad;
+    // A wall the walker already stands against, or is heading for, does not count.
+    const ends = [[x0, z0], [x1, z1]];
+    const hits = (ax, az, bx, bz) => rects.some(r => {
+      if (ends.some(([ex, ez]) => ((ex === ax && ez === az) || (ex === bx && ez === bz)) && near(r, ex, ez))) return false;
+      const hx = r.w / 2 + pad, hz = r.l / 2 + pad;
+      let t0 = 0, t1 = 1;
+      for (const [o, d, lo, hi] of [[ax - r.x, bx - ax, -hx, hx], [az - r.z, bz - az, -hz, hz]]) {
+        if (Math.abs(d) < 1e-9) { if (o < lo || o > hi) return false; continue; }
+        let a = (lo - o) / d, b = (hi - o) / d;
+        if (a > b) [a, b] = [b, a];
+        t0 = Math.max(t0, a); t1 = Math.min(t1, b);
+        if (t0 > t1) return false;
+      }
+      return true;
+    });
+    if (!hits(x0, z0, x1, z1)) return null;
+    const nodes = [{ x: x0, z: z0 }, { x: x1, z: z1 }];
+    const inside = (x, z) => rects.some(r => Math.abs(x - r.x) < r.w / 2 + pad - .05 && Math.abs(z - r.z) < r.l / 2 + pad - .05);
+    rects.forEach(r => [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(([sx, sz]) => {
+      const x = r.x + sx * (r.w / 2 + pad + .1), z = r.z + sz * (r.l / 2 + pad + .1);
+      if (!inside(x, z)) nodes.push({ x, z });
+    }));
+    // Each doorway, and the ground just inside and outside it.
+    builds.forEach(b => {
+      const d = b.data;
+      if (d.make !== 'wall' || !d.done) return;
+      const along = d.side === 'n' || d.side === 's';
+      wallOpenings(d).filter(o => o.door).forEach(o => {
+        const u = (o.a + o.b) / 2, cx = d.x + (along ? u : 0), cz = d.z + (along ? 0 : u);
+        [-1, 0, 1].forEach(k => nodes.push({ x: cx + (along ? 0 : k * 1.1), z: cz + (along ? k * 1.1 : 0) }));
+      });
+    });
+    const n = nodes.length, dist = new Array(n).fill(Infinity), from = new Array(n).fill(-1), done = new Array(n).fill(false);
+    dist[0] = 0;
+    for (let step = 0; step < n; step++) {
+      let u = -1;
+      for (let i = 0; i < n; i++) if (!done[i] && (u < 0 || dist[i] < dist[u])) u = i;
+      if (u < 0 || dist[u] === Infinity || u === 1) break;
+      done[u] = true;
+      for (let v = 0; v < n; v++) {
+        if (done[v]) continue;
+        const dd = Math.hypot(nodes[u].x - nodes[v].x, nodes[u].z - nodes[v].z);
+        if (dist[u] + dd < dist[v] && !hits(nodes[u].x, nodes[u].z, nodes[v].x, nodes[v].z)) { dist[v] = dist[u] + dd; from[v] = u; }
+      }
+    }
+    if (from[1] < 0) return false;
+    const way = [];
+    for (let i = from[1]; i > 0; i = from[i]) way.unshift(nodes[i]);
+    return way;
   }
 
   // Walk to a place, then do something there.
@@ -1819,7 +2177,10 @@
   function goTo(x, z, r, after, until, run) {
     // Far places get the time it takes to walk there, and some.
     const limit = Math.max(25000, Math.hypot(x - me.x, z - me.z) / T.walk_speed * 1600);
-    goal = { x, z, r, after, until, limit, run: !!run, t0: performance.now(), chk: performance.now(), cx: me.x, cz: me.z };
+    if (sleeping) return;
+    const way = pathAround(me.x, me.z, x, z);
+    if (way === false) return noWay();
+    goal = { x, z, r, after, until, limit, run: !!run, t0: performance.now(), chk: performance.now(), cx: me.x, cz: me.z, way, tries: 0 };
   }
   // Walk up to a thing, face it, refresh what is in reach, then act.
   function goAct(x, z, r, fn, until) {
@@ -1859,10 +2220,18 @@
     const t = tasks[0];
     if (!t) return;
     const now = performance.now();
+    if (t.bar) {
+      // How far the work under way is, when it can be told.
+      const tid = chopTree || (target.tree && target.tree.id), cp = tid && chopProg.get(tid), dp = digAt && digProg.get(digAt.c);
+      const p = cp ? cp.p : dp != null ? dp : null;
+      t.bar.parentNode.style.display = p == null ? 'none' : '';
+      if (p != null) t.bar.style.width = (Math.max(0, Math.min(1, p)) * 100).toFixed(1) + '%';
+    }
     if (!t.started) {
       // A short pause between tasks lets the server answer the last one.
       if (busy() || now - taskIdle < 350) return;
       t.started = true; t.at = now;
+      if (t.icon) thought(t.icon);
       t.run();
       renderTasks();
       return;
@@ -1884,6 +2253,14 @@
       const row = el('div', 'hv-task' + (t.started ? ' now' : ''));
       row.appendChild(el('span', 'hv-task-n', t.started ? '▶' : String(i + 1)));
       row.appendChild(el('span', 'hv-task-label', t.label));
+      t.bar = null;
+      if (t.started) {
+        const track = el('span', 'hv-task-bar');
+        track.style.display = 'none';
+        t.bar = el('i');
+        track.appendChild(t.bar);
+        row.appendChild(track);
+      }
       const x = el('button', 'hv-task-x', '×');
       x.type = 'button';
       x.title = tr('hv_task_remove');
@@ -1891,6 +2268,480 @@
       row.appendChild(x);
       box.appendChild(row);
     });
+  }
+
+  // ── autonomy ─────────────────────────────────────────────────────────────
+  // The character looks after itself and, when asked, works on its own. Its
+  // choices are the same tasks a click would queue, so they show in the list
+  // and can be taken out of it. Order of importance: a vital need that has
+  // become critical, then frames marked as a priority, then the chosen kinds
+  // of work in the order set in the panel, with eating and drinking done
+  // whenever they are due. Kept in this browser for this character.
+  const AUTO_FOOD = 40, AUTO_WATER = 40, AUTO_CRIT = 20;
+  let auto = null, brainClock = 0, brainOwn = false, brainRest = false;
+  const AUTO_REST = 0.1;   // share of the energy it takes to start work again
+  const brainMemo = new Map();   // what was tried lately: key -> { n, t, until }
+  const brainSaid = new Map();   // notices already shown: key -> time
+  const autoKey = () => 'hv_auto_' + (welcome && welcome.you ? welcome.you.id : '');
+  function loadAuto() {
+    let o = {};
+    try { o = JSON.parse(localStorage.getItem(autoKey())) || {}; } catch (e) { /* none saved */ }
+    const order = (Array.isArray(o.order) ? o.order : []).filter(k => k === 'farm' || k === 'build');
+    ['farm', 'build'].forEach(k => { if (!order.includes(k)) order.push(k); });
+    auto = { on: o.on !== false, farm: !!o.farm, build: !!o.build, sled: Number.isInteger(o.sled) ? o.sled : null, order, pins: Array.isArray(o.pins) ? o.pins.filter(Number.isInteger) : [] };
+  }
+  function saveAuto() { try { localStorage.setItem(autoKey(), JSON.stringify(auto)); } catch (e) { /* storage full or blocked */ } }
+  const isPinned = (id) => !!auto && auto.pins.includes(id);
+  function togglePin(id) {
+    if (!auto) loadAuto();
+    auto.pins = isPinned(id) ? auto.pins.filter(x => x !== id) : [...auto.pins, id];
+    saveAuto();
+    renderAuto();
+  }
+
+  function brainSay(key, text, gap = 60000) {
+    const now = performance.now();
+    if (now - (brainSaid.get(key) || -Infinity) < gap) return;
+    brainSaid.set(key, now);
+    toast(text);
+  }
+  // A thing that keeps failing is left alone for a while.
+  function brainOk(key) {
+    const m = brainMemo.get(key), now = performance.now();
+    return !m || !(m.until > now);
+  }
+  function brainTry(key) {
+    const now = performance.now(), m = brainMemo.get(key);
+    if (!m || now - m.t > 90000) return void brainMemo.set(key, { n: 1, t: now, until: 0 });
+    m.n++;
+    if (m.n >= 4) m.until = now + 150000;
+  }
+  // What the character thinks about as it sets out to do something.
+  const AUTO_ICON = { hv_auto_eat: '🍎', hv_auto_drink: '💧', hv_auto_find_food: '🍎', hv_auto_look_food: '🔎', hv_auto_look_water: '🔎',
+    hv_auto_fetch_water: '🪣', hv_act_fill: '🪣', hv_auto_garden: '🌱', hv_auto_gather: '🪵', hv_auto_bring: '🪵',
+    hv_auto_load_sled: '🛷', hv_auto_move_sled: '🛷', hv_auto_haul: '🛷', hv_auto_unload_sled: '🛷', hv_auto_sleep: '💤' };
+  let lastKey = null;
+  const trk = (key, params) => { lastKey = key; return tr(key, params); };
+  function brainTask(label, run, vital) {
+    queueTask(label, run);
+    const t = tasks[tasks.length - 1];
+    t.auto = true; t.vital = !!vital; t.icon = AUTO_ICON[lastKey] || null;
+    brainOwn = true;
+  }
+  // Stops whatever the character is doing and empties the list.
+  function brainStop() {
+    tasks.length = 0;
+    goal = null; autoUse = null; autoTask = null; digAt = null; gatherAll = null;
+    chopHeld = false; digHeld = false; drinkHeld = false;
+    taskIdle = performance.now();
+    renderTasks();
+  }
+
+  const foodSlot = () => {
+    if (inv.hand && typeof inv.hand === 'object' && inv.hand.n && qualityOf(inv.hand) > 0 && T.items[inv.hand.k]?.food) return 'hand';
+    const i = inv.pack.findIndex(it => it && typeof it === 'object' && it.n && qualityOf(it) > 0 && T.items[it.k]?.food);
+    return i >= 0 ? i : null;
+  };
+  const distMe = (x, z) => Math.hypot(x - me.x, z - me.z);
+
+  // The nearest water to drink at: a pond or a stretch of river.
+  function nearestWater() {
+    let best = null, bd = Infinity;
+    for (const p of ponds) {
+      const d = distMe(p.x, p.z) - Math.min(p.ax, p.az);
+      if (d < bd) { bd = d; best = { x: p.x, z: p.z }; }
+    }
+    for (let r = 8; r <= 80; r += 8) {
+      for (let a = 0; a < 16; a++) {
+        const x = me.x + Math.cos(a * Math.PI / 8) * r, z = me.z + Math.sin(a * Math.PI / 8) * r;
+        if (nearRiver(x, z) && RV.d < RIVER_W / 2 + 6) {
+          const d = distMe(RV.x, RV.z);
+          if (d < bd) { bd = d; best = { x: RV.x, z: RV.z }; }
+        }
+      }
+      if (best && bd < r) break;
+    }
+    return best;
+  }
+
+  function wander(why) {
+    if (!brainOk('wander')) return false;
+    brainMemo.set('wander', { n: 0, t: 0, until: performance.now() + 9000 });
+    for (let i = 0; i < 8; i++) {
+      const a = Math.random() * Math.PI * 2, r = 20 + Math.random() * 25;
+      const x = me.x + Math.cos(a) * r, z = me.z + Math.sin(a) * r;
+      if (Math.abs(x) > SIZE / 2 - 6 || Math.abs(z) > SIZE / 2 - 6 || groundAt(x, z) < 1.4 || (shoreLevel(x, z) ?? -Infinity) > groundAt(x, z)) continue;
+      brainTask(trk(why), () => goTo(x, z, 2), true);
+      return true;
+    }
+    return false;
+  }
+
+  // Eats what is carried, else fetches food. True when something was queued.
+  function brainEat() {
+    const slot = foodSlot();
+    if (slot !== null) { brainTask(trk('hv_auto_eat'), () => doEat(slot), true); return true; }
+    let best = null, bd = 70;
+    piles.forEach(p => {
+      const d = p.data;
+      if ((d.kind !== 'apple' && d.kind !== 'berries') || !(d.n > 0) || !brainOk('pile' + d.id + ':' + d.n)) return;
+      const dd = distMe(d.x, d.z);
+      if (dd < bd) { bd = dd; best = { pile: d }; }
+    });
+    fruitSrc.forEach(s => {
+      if (!brainOk('fruit' + s.src)) return;
+      const dd = distMe(s.x, s.z);
+      if (dd < bd && ripeOf(s.src).length) { bd = dd; best = { src: s.src, x: s.x, z: s.z }; }
+    });
+    plots.forEach(p => {
+      const d = p.data, dd = distMe(d.x, d.z);
+      if (dd < bd && d.crop && brainOk('fruit' + d.c) && ripeOf('f' + d.c).length) { bd = dd; best = { src: 'f' + d.c, x: d.x, z: d.z, plot: d.c }; }
+    });
+    if (best && best.pile) {
+      const d = best.pile;
+      brainTry('pile' + d.id + ':' + d.n);
+      brainTask(trk('hv_auto_find_food'), () => goAct(d.x, d.z, 1.5, () => doPick()), true);
+      return true;
+    }
+    if (best) {
+      brainTry('fruit' + (best.plot || best.src));
+      brainTask(trk('hv_auto_find_food'), () => goAct(best.x, best.z, 1.8, () => { gatherAll = { src: best.src, left: 4, tried: new Set(), at: 0 }; }), true);
+      return true;
+    }
+    brainSay('nofood', tr('hv_auto_no_food'));
+    return wander('hv_auto_look_food');
+  }
+
+  // Drinks at the nearest water, else from the bucket. True when queued.
+  function brainDrink() {
+    const w = nearestWater();
+    if (w && brainOk('water')) {
+      brainTry('water');
+      brainTask(trk('hv_auto_drink'), () => goTo(w.x, w.z, 0.6, () => { drinkClock = 0; autoUse = 'drink'; }, () => !!drinkSpot()), true);
+      brainTask(trk('hv_act_fill'), () => { if (drinkSpot() && bucketWater() < T.farm.bucket && hasKind('bucket')) fillBucket(); }, true);
+      return true;
+    }
+    if (bucketWater() > 0) { brainTask(trk('hv_auto_drink'), () => mp.send({ type: 'hv_drink', bucket: true }), true); return true; }
+    brainSay('nowater', tr('hv_auto_no_water'));
+    return wander('hv_auto_look_water');
+  }
+
+  // The next piece of garden work: { kind, item, c } or null.
+  function farmNext() {
+    const now = fruitNow();
+    const near = (kind, ok) => {
+      let best = null, bd = Infinity;
+      plots.forEach(p => {
+        const d = p.data;
+        if (!ok(d) || !brainOk(kind + d.c)) return;
+        const dd = distMe(d.x, d.z);
+        if (dd < bd) { bd = dd; best = d; }
+      });
+      return best;
+    };
+    let d = near('harvest', d => d.crop && ripeOf('f' + d.c).length > 0);
+    if (d) return { kind: 'harvest', item: d.crop.k, c: d.c };
+    if (hasKind('hoe') && (d = near('dig', d => needsDig(d, now)))) return { kind: 'dig', item: null, c: d.c };
+    const seed = seedKind();
+    if (seed && (d = near('plant', d => !d.crop && soilLoose(d, now)))) return { kind: 'plant', item: seed, c: d.c };
+    if ((d = near('water', d => d.crop && d.till && !soilWet(d, now)))) {
+      if (bucketWater() > 0) return { kind: 'water', item: null, c: d.c };
+      return hasKind('bucket') ? { kind: 'fill', c: d.c } : { kind: 'nobucket' };
+    }
+    return null;
+  }
+  function brainFarm() {
+    const job = farmNext();
+    if (!job) return false;
+    if (job.kind === 'nobucket') { brainSay('nobucket', tr('hv_need_bucket')); return false; }
+    if (job.kind === 'fill') {
+      const w = nearestWater();
+      if (!w) { brainSay('nowater', tr('hv_auto_no_water')); return false; }
+      brainTry('water');
+      brainTask(trk('hv_auto_fetch_water'), () => goTo(w.x, w.z, 0.6, () => fillBucket(), () => !!drinkSpot()));
+      return true;
+    }
+    brainTry(job.kind + job.c);
+    brainTask(trk('hv_auto_garden'), () => startAuto(job.kind, job.item, job.c));
+    return true;
+  }
+
+  // The nearest log to get: a pile, else a standing tree (when there is an axe).
+  function logSource(from) {
+    let best = null, bd = Infinity;
+    piles.forEach(p => {
+      if (p.data.kind !== 'log' || !(p.data.n > 0) || !brainOk('pile' + p.data.id + ':' + p.data.n)) return;
+      const dd = Math.hypot(p.data.x - from.x, p.data.z - from.z);
+      if (dd < bd) { bd = dd; best = { pile: p.data, x: p.data.x, z: p.data.z }; }
+    });
+    if (best) return best;
+    if (!(isTool(inv.hand) || packTool() >= 0)) { brainSay('noaxe', tr('hv_act_need_stone')); return null; }
+    trees.forEach(t => {
+      if (t.felled || !brainOk('tree' + t.id)) return;
+      const dd = Math.hypot(t.x - from.x, t.z - from.z);
+      if (dd < bd) { bd = dd; best = { tree: t, x: t.x, z: t.z }; }
+    });
+    return best;
+  }
+  function logTask(src) {
+    const label = tr('hv_auto_gather', { item: tr('hv_name_log') });
+    if (src.pile) {
+      brainTry('pile' + src.pile.id + ':' + src.pile.n);
+      brainTask(label, () => goAct(src.x, src.z, 1.5, () => doPick()));
+    } else {
+      const tree = src.tree;
+      brainTry('tree' + tree.id);
+      brainTask(label, () => goAct(tree.x, tree.z, tree.r + 0.9, () => { if (target.tree) { startChop(); autoUse = 'chop'; } }));
+    }
+  }
+  // Logs for a big frame go on a sled that stays near the trees, and the
+  // sled is hauled to the frame and emptied into it. False when this does
+  // not apply and the logs are carried by hand.
+  function brainSled(b, remaining) {
+    const d = b.data, LOGS_MAX = 12;
+    if (!brainOk('sled')) return false;
+    // The character keeps to one sled, however far it was left, and takes
+    // another only when that one is gone or someone else is pulling it.
+    const usable = (x) => x && x.data.kind === 'sled' && (!x.data.by || x.data.by === welcome.you.id);
+    let S = auto.sled != null ? builds.get(auto.sled) : null;
+    if (!usable(S)) {
+      S = null;
+      let sd = Infinity;
+      builds.forEach(x => {
+        if (!usable(x)) return;
+        const dd = distMe(x.data.x, x.data.z);
+        if (dd < sd) { sd = dd; S = x; }
+      });
+      auto.sled = S ? S.data.id : null;
+      saveAuto();
+    }
+    if (!S) return false;
+    const sl = S.data, on = (sl.load || []).reduce((n, e) => n + (kindOf(e) === 'log' ? countOf(e) : 0), 0);
+    // A log or two from right beside the frame are not worth the sled, unless
+    // it already carries logs.
+    if (on <= 0) {
+      // Whichever is less walking: the logs by hand, a log at a time, or the
+      // sled fetched, loaded and hauled back.
+      const near = logSource({ x: d.x, z: d.z });
+      if (!near) return false;
+      const ds = Math.hypot(near.x - d.x, near.z - d.z);
+      const hand = remaining * 2 * ds + distMe(near.x, near.z);
+      const sledWay = 20 + distMe(sl.x, sl.z) + Math.hypot(near.x - sl.x, near.z - sl.z) + 2 * ds;
+      if (remaining < 3 ? ds <= 12 || sledWay > hand : sledWay > hand * 1.3) return false;
+    }
+    // How many more logs the sled can take with what is already on it.
+    const tot = loadTotals(sl.load), unit = T.items.log;
+    // ...and as much as can be pulled: the pulling strength is the limit.
+    const pullLimit = T.pull_kg * boostOf(skillLevel('strength'));
+    const room = Math.max(0, Math.floor(Math.min((T.sled.kg - tot.kg) / unit.kg, (T.sled.litres - tot.l) / unit.l, (pullLimit - tot.kg) / unit.kg) + 1e-6));
+    const want = Math.min(remaining, LOGS_MAX, on + room), mine = () => { const m = myPull(); return !!m && m.data.id === sl.id; };
+    const live = () => (builds.get(sl.id) || S).data;
+    const pullIt = () => goAct(live().x, live().z, 1.4, () => { if (!mine()) mp.send({ type: 'hv_pull', build: sl.id }); });
+    const release = () => { if (myPull()) mp.send({ type: 'hv_pull' }); };
+    if (tot.kg > pullLimit) {
+      // Loaded past what can be pulled: carry the logs off it by hand.
+      if (inv.hand === 'log' || on <= 0) return false;
+      brainTask(trk('hv_auto_unload_sled'), () => goAct(live().x, live().z, 1.4, () => mp.send({ type: 'hv_pick', build: sl.id, k: 'log' })));
+      return true;
+    }
+    if (room <= 0 && on <= 0) return false;
+    if (inv.hand === 'log' && on >= want) return false;
+    if (inv.hand === 'log') {
+      brainTask(trk('hv_auto_load_sled'), () => goAct(live().x, live().z, 1.4, () => mp.send({ type: 'hv_drop', build: sl.id, slot: 'hand' })));
+      return true;
+    }
+    const src = on < want ? logSource(sl) : null;
+    if (src) {
+      // The sled follows the work: bring it up to where the logs are.
+      if (Math.hypot(src.x - sl.x, src.z - sl.z) > 14) {
+        brainTask(trk('hv_auto_move_sled'), pullIt);
+        brainTask(trk('hv_auto_move_sled'), () => goTo(src.x, src.z, 3.5));
+        brainTask(trk('hv_auto_move_sled'), release);
+      } else logTask(src);
+      return true;
+    }
+    if (on <= 0) return false;
+    // Haul it to the frame and empty it there.
+    let px = d.x, pz = d.z;
+    if (isStructure(d)) {
+      px = Math.max(d.x - d.width / 2, Math.min(d.x + d.width / 2, sl.x));
+      pz = Math.max(d.z - d.depth / 2, Math.min(d.z + d.depth / 2, sl.z));
+    }
+    brainTask(trk('hv_auto_haul'), pullIt);
+    brainTask(trk('hv_auto_haul'), () => goTo(px, pz, 1.2));
+    brainTask(trk('hv_auto_unload_sled'), () => { mp.send({ type: 'hv_shift', src: { build: sl.id }, dst: { build: d.id }, k: 'log', all: true }); release(); });
+    return true;
+  }
+
+  // Work on a frame: bring what it needs, getting it first when there is none.
+  function brainBuild(b) {
+    const d = b.data, need = buildNeeds(d), id = d.id;
+    const missing = Object.keys(need).filter(k => (d.have[k] || 0) < need[k]);
+    if (!missing.length) return false;
+    for (const tk of Object.keys((T.build_tools || {})[d.make] || {})) {
+      if (carried(tk) <= 0) { brainSay('tool' + tk, tr('hv_cargo_tool', { item: tr('hv_name_' + tk) })); return false; }
+    }
+    if (missing.includes('log') && brainSled(b, need.log - (d.have.log || 0))) return true;
+    const slots = [['hand', inv.hand], ...inv.pack.map((it, i) => [i, it])];
+    const have = (k) => slots.reduce((n, [, it]) => n + (kindOf(it) === k && !kept(k) ? countOf(it) : 0), 0);
+    const free = inv.pack.filter(x => !x).length;
+    const gatherable = missing.filter(k => have(k) < need[k] - (d.have[k] || 0) && (k === 'log' ? have('log') === 0 : free > 0));
+    for (const k of gatherable) {
+      if (k === 'log') {
+        let best = null, bd = Infinity;
+        piles.forEach(p => {
+          if (p.data.kind !== 'log' || !(p.data.n > 0) || !brainOk('pile' + p.data.id + ':' + p.data.n)) return;
+          const dd = distMe(p.data.x, p.data.z);
+          if (dd < bd) { bd = dd; best = p.data; }
+        });
+        if (best) {
+          brainTry('pile' + best.id + ':' + best.n);
+          brainTask(trk('hv_auto_gather', { item: tr('hv_name_log') }), () => goAct(best.x, best.z, 1.5, () => doPick()));
+          return true;
+        }
+        if (!(isTool(inv.hand) || packTool() >= 0)) { brainSay('noaxe', tr('hv_act_need_stone')); continue; }
+        let tree = null; bd = Infinity;
+        trees.forEach(t => {
+          if (t.felled || !brainOk('tree' + t.id)) return;
+          const dd = distMe(t.x, t.z);
+          if (dd < bd) { bd = dd; tree = t; }
+        });
+        if (tree) {
+          brainTry('tree' + tree.id);
+          brainTask(trk('hv_auto_gather', { item: tr('hv_name_log') }), () => goAct(tree.x, tree.z, tree.r + 0.9, () => { if (target.tree) { startChop(); autoUse = 'chop'; } }));
+          return true;
+        }
+      } else if (k === 'stone') {
+        let best = null, bd = Infinity;
+        stones.forEach(st => {
+          if (st.taken || !brainOk('stone' + st.id)) return;
+          const dd = distMe(st.x, st.z);
+          if (dd < bd) { bd = dd; best = st; }
+        });
+        if (best) {
+          brainTry('stone' + best.id);
+          brainTask(trk('hv_auto_gather', { item: tr('hv_name_stone') }), () => goAct(best.x, best.z, 1.4, () => doPick()));
+          return true;
+        }
+      }
+    }
+    const carry = slots.find(([, it]) => it && missing.includes(kindOf(it)) && !kept(kindOf(it)));
+    if (!carry) { brainSay('nomat' + id, tr('hv_auto_no_material', { item: tr('hv_name_' + missing[0]) })); return false; }
+    let px = d.x, pz = d.z, r = 1.2;
+    if (isStructure(d)) {
+      px = Math.max(d.x - d.width / 2, Math.min(d.x + d.width / 2, me.x));
+      pz = Math.max(d.z - d.depth / 2, Math.min(d.z + d.depth / 2, me.z));
+      r = 0.8;
+    }
+    brainTask(trk('hv_auto_bring', { item: tr('hv_name_' + kindOf(carry[1])) }), () => goAct(px, pz, r, () => mp.send({ type: 'hv_drop', build: id, slot: carry[0], all: true })));
+    return true;
+  }
+
+  function brainWork() {
+    const sites = [...builds.values()].filter(b => b.data.kind === 'site' && !b.data.done);
+    const byDist = (a, b) => distMe(a.data.x, a.data.z) - distMe(b.data.x, b.data.z);
+    for (const b of sites.filter(b => isPinned(b.data.id)).sort(byDist)) if (brainBuild(b)) return true;
+    for (const k of auto.order) {
+      if (!auto[k]) continue;
+      if (k === 'farm' && brainFarm()) return true;
+      if (k === 'build') for (const b of sites.filter(b => !isPinned(b.data.id)).sort(byDist)) if (brainBuild(b)) return true;
+    }
+    return false;
+  }
+
+  // Tired, and it is night or there is nothing left in it: go to bed.
+  function brainSleep() {
+    if (!brainOk('sleepno')) return false;
+    let best = null, bd = Infinity;
+    builds.forEach(b => {
+      const d = b.data;
+      if (d.kind !== 'furniture' || !(T.furniture[d.make] && T.furniture[d.make].sleep) || !brainOk('bed' + d.id)) return;
+      const dd = distMe(d.x, d.z);
+      if (dd < bd) { bd = dd; best = d; }
+    });
+    if (!best) return false;
+    const bed = best;
+    brainTask(trk('hv_auto_sleep'), () => goAct(bed.x, bed.z, 1.8, () => { lastBed = bed.id; mp.send({ type: 'hv_sleep', build: bed.id }); }), true);
+    return true;
+  }
+
+  function updateBrain() {
+    if (!booted || !me || !auto || !auto.on || !T || sleeping) return;
+    const now = performance.now();
+    if (now - brainClock < 1000) return;
+    brainClock = now;
+    if (document.hidden || placing || housing || tilling || cargo) return;
+    const cur = tasks[0];
+    const crit = needs.food < AUTO_CRIT || needs.water < AUTO_CRIT;
+    // Out of energy: stop working, and start again at a tenth of it.
+    if (!brainRest && needs.energy <= 0) { brainRest = true; thought('💤', 5000); }
+    if (brainRest && needs.energy >= needs.emax * AUTO_REST) brainRest = false;
+    if (brainRest && cur && cur.auto && !cur.vital && !tasks.some(t => !t.auto)) brainStop();
+    // A critical need comes before the work the character chose itself.
+    if (crit && cur && cur.auto && !cur.vital && !tasks.some(t => !t.auto)) brainStop();
+    else if (tasks.length || busy() || chopHeld || digHeld) return;
+    if (tasks.length) return;
+    if (!brainOk('noway')) return;
+    // Nothing queued by hand and nothing under way.
+    const foodLow = needs.food < AUTO_FOOD, waterLow = needs.water < AUTO_WATER;
+    if (waterLow && (!foodLow || needs.water <= needs.food) && brainDrink()) return;
+    if (foodLow && brainEat()) return;
+    if (waterLow && brainDrink()) return;
+    // Worn out in the evening, or out of energy altogether: to bed.
+    if ((needs.energy < needs.emax * 0.25 && isNight()) || needs.energy <= 0) { if (brainSleep()) return; }
+    brainOwn = false;
+    if (brainRest) { thought('💤', 1500); return; }
+    brainWork();
+  }
+
+  function renderAuto() {
+    const box = ui.auto;
+    if (!box || !box.classList.contains('open')) return;
+    if (!auto) loadAuto();
+    box.textContent = '';
+    const row = (checked, label, onchange) => {
+      const l = el('label', 'hv-auto-row');
+      const c = document.createElement('input');
+      c.type = 'checkbox'; c.checked = checked;
+      c.onchange = () => { onchange(c.checked); saveAuto(); renderAuto(); };
+      l.append(c, el('span', null, label));
+      return l;
+    };
+    const head = el('div', 'hv-cargo-head');
+    head.appendChild(el('b', null, '🧭 ' + tr('hv_auto')));
+    const x = el('button', 'hv-cargo-x', '✕');
+    x.type = 'button';
+    x.title = tr('hv_close');
+    x.onclick = () => toggleAuto(false);
+    head.appendChild(x);
+    box.appendChild(head);
+    box.appendChild(row(auto.on, tr('hv_auto_on'), v => { auto.on = v; }));
+    box.appendChild(el('div', 'hv-people-empty', tr('hv_auto_note')));
+    box.appendChild(el('div', 'hv-people-title', tr('hv_auto_work')));
+    auto.order.forEach((k, i) => {
+      const line = el('div', 'hv-auto-line');
+      line.appendChild(el('span', 'hv-auto-n', String(i + 1)));
+      line.appendChild(row(auto[k], tr('hv_auto_' + k), v => { auto[k] = v; }));
+      [['↑', -1], ['↓', 1]].forEach(([sym, dir]) => {
+        const b = el('button', 'hv-task-x', sym);
+        b.type = 'button';
+        b.title = tr(dir < 0 ? 'hv_auto_up' : 'hv_auto_down');
+        const j = i + dir;
+        b.disabled = j < 0 || j >= auto.order.length;
+        b.onclick = () => { [auto.order[i], auto.order[j]] = [auto.order[j], auto.order[i]]; saveAuto(); renderAuto(); };
+        line.appendChild(b);
+      });
+      box.appendChild(line);
+    });
+    box.appendChild(el('div', 'hv-people-empty', tr('hv_auto_pin_note')));
+    const f = row(camLock, tr('hv_auto_follow'), v => setLock(v));
+    box.appendChild(f);
+  }
+  function toggleAuto(on) {
+    if (!ui.auto) return;
+    const open = on === undefined ? !ui.auto.classList.contains('open') : on;
+    ui.auto.classList.toggle('open', open);
+    if (open) { ui.people.classList.remove('open'); toggleCraft(false); ui.skills.classList.remove('open'); renderAuto(); }
   }
 
   function groupMenuItems(items) {
@@ -1960,18 +2811,32 @@
       if (sc < bs) { bs = sc; best = { kind, x, z, data }; }
     };
     stones.forEach(st => { if (!st.taken) consider('stone', st.x, groundAt(st.x, st.z) + 0.2, st.z, 40, st); });
-    trees.forEach(t => { if (!t.felled) consider('tree', t.x, groundAt(t.x, t.z) + 1.5 * (t.s || 1), t.z, 58, t); });
+    trees.forEach(t => {
+      if (t.felled) return;
+      // Anywhere along the trunk and the crown picks the tree.
+      const g = groundAt(t.x, t.z), k = t.s || 1;
+      for (const hh of [0.6, 1.8, 3.0]) consider('tree', t.x, g + hh * k, t.z, 50 * k + 14, t);
+    });
     piles.forEach(p => consider('pile', p.data.x, groundAt(p.data.x, p.data.z) + 0.3, p.data.z, 44, p));
     builds.forEach(b => { if (!isStructure(b.data)) consider('build', b.data.x, groundAt(b.data.x, b.data.z) + 0.5, b.data.z, 54, b); });
     plots.forEach(p => consider('plot', p.data.x, groundAt(p.data.x, p.data.z) + 0.2, p.data.z, 34, p));
     fruitSrc.forEach(f => {
       if (f.kind === 't') { const t = trees.get(f.src); if (t && t.felled) return; }
-      f.slots.forEach((gi, i) => { const sl = fruitSlots[gi]; if (sl && fruitRipe(f.src, i)) consider('fruit', sl.x, sl.y, sl.z, 30, { src: f.src, k: i, kind: f.kind, x: f.x, z: f.z }); });
+      f.slots.forEach((gi, i) => { const sl = fruitSlots[gi]; if (sl && fruitRipe(f.src, i)) consider('fruit', sl.x, sl.y, sl.z, 30, { src: f.src, k: i, kind: f.kind, x: f.x, z: f.z, sx: sl.x, sy: sl.y, sz: sl.z }); });
     });
-    if (best) return best;
     const ray = new THREE.Raycaster();
     ray.setFromCamera(new THREE.Vector2(px / rect.width * 2 - 1, -(py / rect.height) * 2 + 1), camera);
-    const roots = [...builds.values()].filter(b => isStructure(b.data)).map(b => b.group);
+    // A piece of furniture, a sled or a frame is hit where it really is, so
+    // one inside a house is picked and not the house round it.
+    const solid = [...builds.values()].filter(b => !isStructure(b.data) && b.group.visible).map(b => b.group);
+    const near = ray.intersectObjects(solid, true)[0];
+    if (near) {
+      let root = near.object; while (root.parent && root.userData.buildId == null) root = root.parent;
+      const b = builds.get(root.userData.buildId);
+      if (b) return { kind: 'build', x: near.point.x, z: near.point.z, data: b };
+    }
+    if (best) return best;
+    const roots = [...builds.values()].filter(b => isStructure(b.data) && b.group.visible).map(b => b.group);
     const hit = ray.intersectObjects(roots, true)[0];
     if (hit) {
       let root = hit.object; while (root.parent && root.userData.buildId == null) root = root.parent;
@@ -2021,7 +2886,7 @@
     } else if (D.kind === 'pile') {
       const pd = D.data.data;
       items.push({ task: true, group: tr('hv_act_pick', { item: tr('hv_name_' + pd.kind) }), label: pileLabel(pd), run: () => goAct(pd.x, pd.z, 1.5, () => doPick()) });
-      if (pd.n > 1) items.push({ task: true, group: tr('hv_act_pick', { item: tr('hv_name_' + pd.kind) }), label: tr('hv_m_all_take'), run: () => goAct(pd.x, pd.z, 1.5, () => doPick(true)) });
+      if (pd.n > 1 && smallKind(pd.kind)) items.push({ task: true, group: tr('hv_act_pick', { item: tr('hv_name_' + pd.kind) }), label: tr('hv_m_all_take'), run: () => goAct(pd.x, pd.z, 1.5, () => doPick(true)) });
     } else if (D.kind === 'fruit') {
       const f = D.data, t = f.kind === 't' && trees.get(f.src);
       if (t) return worldClick(e, { kind: 'tree', x: t.x, z: t.z, data: t });
@@ -2040,16 +2905,66 @@
       return plotMenu(D.data, e);
     } else if (D.kind === 'build') {
       const d = D.data.data, at = (fn) => isStructure(d) ? approachBuild(d, fn) : goAct(d.x, d.z, 2.6, fn);
-      if (isStructure(d) && d.done) {
+      if (isStructure(d) && !buildMode) {
+        // Out of building mode a house is only a house.
+        const g = groundRay(e.clientX, e.clientY);
+        if (g) {
+          items.push({ task: true, label: tr('hv_m_walk'), run: () => goTo(g.x, g.z, .5) });
+          items.push({ task: true, label: tr('hv_m_run'), run: () => goTo(g.x, g.z, .5, null, null, true) });
+        }
+        showMenu(items, e.clientX, e.clientY);
+        if (items.length) markHit = hit;
+        return;
+      }
+      const hammer = hasKind('hammer');
+      // Breaking a part with the hammer: walk up to that part and do it.
+      const breakItem = (key, part, x, z, args) => items.push({ task: true, off: !hammer, label: hammer ? tr(key, args) : tr('hv_need_hammer'),
+        run: () => goAct(x, z, 1.6, () => mp.send({ type: 'hv_break', build: d.id, part })) });
+      if (d.kind === 'furniture') {
+        const g = groundRay(e.clientX, e.clientY);
+        if (T.furniture[d.make] && T.furniture[d.make].sleep) {
+          items.push({ task: true, label: '💤 ' + tr('hv_sleep'), run: () => goAct(d.x, d.z, 1.8, () => { lastBed = d.id; mp.send({ type: 'hv_sleep', build: d.id }); }) });
+        }
+        if (g) {
+          items.push({ task: true, label: tr('hv_m_walk'), run: () => goTo(g.x, g.z, .5) });
+          items.push({ task: true, label: tr('hv_m_run'), run: () => goTo(g.x, g.z, .5, null, null, true) });
+        }
+        if (buildMode) {
+          items.push({ label: tr('hv_furn_move'), run: () => startMoveFurniture(d) });
+          breakItem('hv_break_fixture', null, d.x, d.z, { item: tr('hv_name_' + d.make) });
+        }
+      } else if (d.make === 'door' || d.make === 'window') {
+        if (!d.done) items.push({ label: tr('hv_m_view_frame'), run: () => viewBuild(D.data) });
+        items.push({ label: tr('hv_move_fixture', { item: tr('hv_name_' + d.make) }), run: () => startHousing(d.make, false, d.id) });
+        if (d.done) breakItem('hv_break_fixture', null, d.x, d.z, { item: tr('hv_name_' + d.make) });
+      } else if (isStructure(d) && d.done) {
+        const c = T.housing.cell;
         if (d.make === 'floor') {
-          items.push({ group: tr('hv_name_wall'), label: tr('hv_name_wall'), run: () => startHousing('wall') });
-          items.push({ group: tr('hv_name_wall'), label: tr('hv_wall_door'), run: () => startHousing('wall', true) });
+          items.push({ label: tr('hv_name_wall'), run: () => startHousing('wall') });
+          items.push({ label: tr('hv_name_roof'), run: () => startHousing('roof') });
+          const cell = floorCellAt(d, D.x, D.z);
+          if (cell) breakItem('hv_break_floor', cell, d.x + (cell.x + .5 - d.nx / 2) * c, d.z + (cell.z + .5 - d.nz / 2) * c);
           const g = groundRay(e.clientX, e.clientY);
           if (g) {
             items.push({ task: true, label: tr('hv_m_walk'), run: () => goTo(g.x, g.z, .5) });
             items.push({ task: true, label: tr('hv_m_run'), run: () => goTo(g.x, g.z, .5, null, null, true) });
           }
-        } else items.push({ label: tr('hv_structure_done'), off: true, run: () => {} });
+        } else if (d.make === 'wall') {
+          items.push({ label: tr('hv_name_door'), run: () => startHousing('door') });
+          items.push({ label: tr('hv_name_window'), run: () => startHousing('window') });
+          const along = d.side === 'n' || d.side === 's';
+          // From the side the character is on.
+          const side = along ? (me.z < d.z ? -1 : 1) : (me.x < d.x ? -1 : 1);
+          breakItem('hv_break_wall', null, d.x + (along ? 0 : side * 1.4), d.z + (along ? side * 1.4 : 0));
+        } else if (d.make === 'roof') {
+          const floor = builds.get(d.floor)?.data;
+          if (floor) {
+            const cx = Math.max(floor.x - floor.width / 2 + .01, Math.min(floor.x + floor.width / 2 - .01, D.x));
+            const cz = Math.max(floor.z - floor.depth / 2 + .01, Math.min(floor.z + floor.depth / 2 - .01, D.z));
+            const cell = floorCellAt(floor, cx, cz);
+            if (cell && !(d.removed || []).includes(cell.x + '_' + cell.z)) breakItem('hv_break_roof', cell, floor.x + (cell.x + .5 - floor.nx / 2) * c, floor.z + (cell.z + .5 - floor.nz / 2) * c);
+          }
+        }
       } else if (d.kind === 'site') {
         if (d.done) items.push({ task: true, label: tr('hv_act_take_made', { item: tr('hv_name_' + d.make) }), run: () => at(() => mp.send({ type: 'hv_pick', build: d.id })) });
         else items.push({ label: tr('hv_m_view_frame'), run: () => viewBuild(D.data) });
@@ -2058,15 +2973,9 @@
         items.push({ task: true, label: pulled ? tr('hv_act_let_go') : tr('hv_act_pull'), run: () => at(() => mp.send(pulled ? { type: 'hv_pull' } : { type: 'hv_pull', build: d.id })) });
         items.push({ label: tr('hv_m_view_sled'), run: () => viewBuild(D.data) });
       }
-      if (d.kind === 'site') {
-        const cell = d.make === 'floor' ? floorCellAt(d, D.x, D.z) : null;
-        const walls = [...builds.values()].filter(b => b.data.floor === d.id);
-        const whole = d.make === 'floor' && walls.length ? 'hv_remove_floor_walls' : 'hv_remove_build';
-        const cellWalls = cell && walls.some(b => b.data.side === 'n' ? cell.z === 0 : b.data.side === 's' ? cell.z === d.nz - 1 : b.data.side === 'w' ? cell.x === 0 : cell.x === d.nx - 1);
-        if (cell) items.push({ group: tr('hv_remove_group'), task: true,
-          label: tr(cellWalls ? 'hv_remove_cell_walls' : 'hv_remove_cell'), run: () => removeBuildAction(d.id, cell) });
-        items.push({ group: tr('hv_remove_group'), task: true, label: tr(whole), run: () => removeBuildAction(d.id) });
-      }
+      // A plan or a frame that is not built yet can simply be taken away;
+      // what is built comes down a part at a time with the hammer.
+      if (d.kind === 'site' && !d.done) items.push({ task: true, label: tr('hv_remove_build'), run: () => removeBuildAction(d.id) });
     } else {
       items.push({ task: true, label: tr('hv_m_walk'), run: () => goTo(D.x, D.z, 0.5) });
       items.push({ task: true, label: tr('hv_m_run'), run: () => goTo(D.x, D.z, 0.5, null, null, true) });
@@ -2259,7 +3168,7 @@
       const o = bucketMesh(data.at);
       o.rotation.y = r() * Math.PI * 2;
       g.add(o);
-    } else if (data.kind === 'axe' || data.kind === 'hoe') {
+    } else if (data.kind === 'axe' || data.kind === 'hoe' || data.kind === 'hammer' || data.kind === 'door' || data.kind === 'window') {
       toolMesh(g, data.kind, true);
       g.rotation.y = r() * Math.PI * 2;
     } else if (data.kind === 'apple' || data.kind === 'berries') {
@@ -2371,14 +3280,57 @@
       box(M.board, w, 0.06, t, 0, 0.03, -hl), box(M.board, w, 0.06, t, 0, 0.03, hl));
   }
 
+  // Furniture, the simple kinds: boards, with stone where the name says so.
+  let clothMat = null;
+  function furnitureMesh(g, make, done) {
+    const M = buildMat(), spec = T.furniture[make];
+    if (!clothMat) clothMat = new THREE.MeshStandardMaterial({ color: '#d9cfa8', flatShading: true, roughness: 1 });
+    const wood = done ? M.board : M.shade, dark = done ? M.runner : M.shade, stone = done ? M.blade : M.shade, cloth = done ? clothMat : M.shade;
+    const w = spec.w, d = spec.d, base = make.split('_')[0], rock = make.endsWith('_stone');
+    const legs = (h, inset, mat, sz) => [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz2]) =>
+      g.add(box(mat, sz, h, sz, sx * (w / 2 - inset), h / 2, sz2 * (d / 2 - inset))));
+    if (base === 'bed') {
+      const big = make === 'bed_big';
+      legs(.28, .07, rock ? stone : dark, rock ? .16 : .1);
+      g.add(box(wood, w, .08, d, 0, .3, 0));
+      g.add(box(cloth, w - .1, .13, d * .72, 0, .41, d * .08));
+      g.add(box(wood, w, .55, .08, 0, .6, -d / 2 + .04));
+      g.add(box(wood, w, .28, .07, 0, .42, d / 2 - .035));
+      g.add(box(cloth, big ? w * .42 : w * .6, .08, .32, big ? -w * .22 : 0, .52, -d / 2 + .3));
+      if (big) g.add(box(cloth, w * .42, .08, .32, w * .22, .52, -d / 2 + .3));
+    } else if (base === 'stool') {
+      legs(.4, .08, dark, .07);
+      g.add(box(wood, w, .07, d, 0, .43, 0));
+    } else if (base === 'chair') {
+      legs(.42, .06, rock ? stone : dark, rock ? .12 : .07);
+      g.add(box(rock ? stone : wood, w, .07, d, 0, .45, 0));
+      g.add(box(wood, w, .5, .06, 0, .74, -d / 2 + .03));
+    } else if (base === 'table') {
+      legs(.72, .08, rock ? stone : dark, rock ? .16 : .09);
+      g.add(box(rock ? stone : wood, w, .08, d, 0, .76, 0));
+      if (make === 'table_big') g.add(box(dark, w - .3, .06, .06, 0, .35, 0));
+    }
+  }
+
   // A tool lying on its frame: pale while it is still being made.
   function toolMesh(g, k, done) {
+    if (T.furniture && T.furniture[k]) return furnitureMesh(g, k, done);
     const M = buildMat(), wood = done ? M.tool : M.shade, stone = done ? M.blade : M.shade;
     const y = 0.1;
     if (k === 'axe') {
       g.add(box(wood, 0.06, 0.06, 0.62, 0, y, 0.04), box(stone, 0.26, 0.08, 0.12, 0.06, y + 0.01, -0.26));
     } else if (k === 'hoe') {
       g.add(box(wood, 0.05, 0.05, 0.66, 0, y, 0.06), box(stone, 0.28, 0.04, 0.1, 0, y, -0.3));
+    } else if (k === 'hammer') {
+      g.add(box(wood, 0.05, 0.05, 0.6, 0, y, 0.05), box(stone, 0.12, 0.12, 0.2, 0, y + 0.02, -0.26));
+    } else if (k === 'door') {
+      // Boards laid side by side on the ground.
+      for (let i = 0; i < 4; i++) g.add(box(wood, 0.2, 0.05, 1.3, -0.3 + i * 0.2, 0.06, 0));
+      g.add(box(wood, 0.8, 0.05, 0.1, 0, 0.1, -0.4), box(wood, 0.8, 0.05, 0.1, 0, 0.1, 0.4));
+    } else if (k === 'window') {
+      g.add(box(wood, 0.7, 0.05, 0.06, 0, 0.07, -0.32), box(wood, 0.7, 0.05, 0.06, 0, 0.07, 0.32),
+        box(wood, 0.06, 0.05, 0.7, -0.32, 0.07, 0), box(wood, 0.06, 0.05, 0.7, 0.32, 0.07, 0),
+        box(wood, 0.04, 0.05, 0.64, 0, 0.07, 0), box(wood, 0.64, 0.05, 0.04, 0, 0.07, 0));
     } else if (k === 'bucket') {
       const o = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.13, 0.3, 10), wood);
       o.position.set(0, 0.2, 0);
@@ -2482,11 +3434,13 @@
           }
         }
       }
+    } else if (data.kind === 'furniture') {
+      furnitureMesh(g, data.make, true);
     } else {
       sledMesh(g);
       loadMesh(g, data.load || [], 0.3);
     }
-    g.position.set(data.x, isStructure(data) ? data.base_y : groundAt(data.x, data.z), data.z);
+    g.position.set(data.x, isStructure(data) ? data.base_y : data.kind === 'furniture' ? walkGround(data.x, data.z) : groundAt(data.x, data.z), data.z);
     g.rotation.y = data.ry;
     g.userData.buildId = data.id;
     scene.add(g);
@@ -2497,12 +3451,31 @@
     const b = { data, group: g, rope, obst: null };
     builds.set(data.id, b);
     setBuildObstacle(b);
+    if (data.wall != null) refreshWall(data.wall);
+  }
+  // A door or a window changes its wall.
+  function refreshWall(id) {
+    const w = builds.get(id);
+    if (w) showBuild(w.data);
   }
 
   // A standing sled is in the way like a log pile; a pulled one is not.
   function setBuildObstacle(b) {
     if (b.obst) { b.obst.forEach(o => removeObstacle(o.x, o.z, o)); b.obst = null; }
     const d = b.data;
+    if (d.kind === 'furniture' && T.furniture[d.make]) {
+      // Solid: a row of circles along its length, turned as it is.
+      const sp = T.furniture[d.make], long = Math.max(sp.w, sp.d), r = Math.min(sp.w, sp.d) / 2 + .04;
+      const n = Math.max(1, Math.round(long / (r * 1.5))), alongZ = sp.d >= sp.w;
+      b.obst = [];
+      for (let i = 0; i < n; i++) {
+        const k = n === 1 ? 0 : -(long - 2 * r) / 2 + i * (long - 2 * r) / (n - 1);
+        const ax = alongZ ? Math.sin(d.ry) : Math.cos(d.ry), az = alongZ ? Math.cos(d.ry) : -Math.sin(d.ry);
+        b.obst.push({ x: d.x + ax * k, z: d.z + az * k, r });
+      }
+      b.obst.forEach(o => addObstacle(o.x, o.z, o.r, o));
+      return;
+    }
     if (d.kind !== 'sled' || d.by) return;
     b.obst = [-0.6, 0.6].map(k => ({ x: d.x + Math.sin(d.ry) * k, z: d.z + Math.cos(d.ry) * k }));
     b.obst.forEach(o => addObstacle(o.x, o.z, 0.6, o));
@@ -2524,6 +3497,25 @@
   function updateBuilds(dt) {
     builds.forEach(b => {
       const d = b.data;
+      // A roof is lifted away while the player is under it.
+      if (b.group.userData.door) {
+        // A door opens for whoever comes up to it and shuts behind them.
+        const dr = b.group.userData.door;
+        let near = Math.hypot(me.x - d.x, me.z - d.z) < 1.8;
+        if (!near) peers.forEach(pr => { if (Math.hypot(pr.tx - d.x, pr.tz - d.z) < 1.8) near = true; });
+        dr.open += ((near ? 1.45 : 0) - dr.open) * Math.min(1, dt * 7);
+        dr.pivot.rotation.y = dr.open;
+      }
+      // (An unfinished one is only a pale frame and stays in view.)
+      if (d.make === 'roof') b.group.visible = !(d.done && Math.abs(me.x - d.x) < d.width / 2 && Math.abs(me.z - d.z) < d.depth / 2) && viewRoof;
+      if (d.make === 'wall' || d.make === 'door' || d.make === 'window') {
+        // The walls that hide what is inside can be cut away, whatever the mode.
+        const mode = viewWalls;
+        // Facing the camera from outside: the walls that would hide the inside.
+        const cx = camera.position.x, cz = camera.position.z;
+        const front = d.side === 'n' ? cz < d.z : d.side === 's' ? cz > d.z : d.side === 'w' ? cx < d.x : cx > d.x;
+        b.group.visible = mode === 'full' || (mode === 'front' && !front);
+      }
       if (!d.by) { b.rope.visible = false; return; }
       const who = d.by === welcome.you.id ? me : peers.get(d.by);
       if (!who) { b.rope.visible = false; return; }
@@ -2552,7 +3544,7 @@
   }
 
   // ── permanent modular construction ───────────────────────────────────────
-  const isStructure = (d) => d.make === 'floor' || d.make === 'wall';
+  const isStructure = (d) => STRUCT_MAKES.includes(d.make) || d.kind === 'fixture';
   const buildNeeds = (d) => d.need || T.builds[d.make] || {};
   function floorCells(d) {
     const removed = new Set(d.removed || []), cells = [];
@@ -2608,22 +3600,116 @@
           g.add(box(finished ? M.board : mat, cell - .02, .16, cell / 5 - .015, px, .14, pz + (board - 2) * cell / 5));
         }
       }
+    } else if (d.make === 'roof') {
+      roofMesh(g, d, mat, preview);
+    } else if (d.make === 'door' || d.make === 'window') {
+      openingMesh(g, d, mat, !preview && d.done);
     } else {
       const alongX = d.side === 'n' || d.side === 's';
       const length = alongX ? d.width : d.depth, h = T.housing.height;
-      const doorway = d.door ? Math.min(T.housing.door_width, length - .2) : 0;
+      const gaps = wallOpenings(d);
       const add = (w, height, x, y) => {
         g.add(box(mat, alongX ? w : d.width, height, alongX ? d.depth : w,
           alongX ? x : 0, y, alongX ? 0 : x));
       };
       for (let i = 0; i < 13; i++) {
         const y = (i + .5) * h / 13;
-        if (doorway && y < T.housing.door_height) {
-          const w = (length - doorway) / 2;
-          add(w, h / 13 - .012, -(length + doorway) / 4, y);
-          add(w, h / 13 - .012, (length + doorway) / 4, y);
-        } else add(length, h / 13 - .012, 0, y);
+        // The stretches of this board that are left between the openings.
+        const cuts = gaps.filter(o => y >= o.y0 && y < o.y1).sort((a, b) => a.a - b.a);
+        let at = -length / 2;
+        for (const c of cuts) {
+          if (c.a - at > .01) add(c.a - at, h / 13 - .012, (at + c.a) / 2, y);
+          at = Math.max(at, c.b);
+        }
+        if (length / 2 - at > .01) add(length / 2 - at, h / 13 - .012, (at + length / 2) / 2, y);
       }
+    }
+  }
+
+  // The openings in a finished wall: its doors and windows (and the doorway
+  // of a wall made before doors were separate): [{ a, b, y0, y1, door }],
+  // a and b measured along the wall from its middle.
+  function wallOpenings(d) {
+    const c = T.housing, out = [];
+    const length = d.side === 'n' || d.side === 's' ? d.width : d.depth;
+    if (d.door) {
+      const w = Math.min(c.door_width, length - .2);
+      out.push({ a: -w / 2, b: w / 2, y0: 0, y1: c.door_height, door: true });
+    }
+    // Stretches knocked out with a hammer are open to the top.
+    (d.removed || []).forEach(i => out.push({ a: -length / 2 + i * c.cell, b: -length / 2 + (i + 1) * c.cell, y0: 0, y1: 99, door: true }));
+    builds.forEach(o => {
+      const od = o.data;
+      if (od.wall !== d.id || (od.make !== 'door' && od.make !== 'window') || !od.done) return;
+      const w = od.make === 'door' ? c.door_width : c.window_width;
+      out.push(od.make === 'door' ? { a: od.u - w / 2, b: od.u + w / 2, y0: 0, y1: c.door_height, door: true }
+        : { a: od.u - w / 2, b: od.u + w / 2, y0: c.window_sill, y1: c.window_sill + c.window_height, door: false });
+    });
+    return out;
+  }
+
+  // A gabled roof over the floor, laid square by square so any square can be
+  // broken out; its ridge runs along the longer side.
+  function roofMesh(g, d, mat, preview) {
+    const M = buildMat(), c = T.housing, rise = d.height || c.roof_rise, over = c.roof_overhang;
+    const floor = (builds.get(d.floor) || {}).data;
+    if (!floor) return;
+    const gone = new Set(d.removed || []);
+    const ridgeX = floor.width >= floor.depth;
+    const nR = ridgeX ? floor.nx : floor.nz, nS = ridgeX ? floor.nz : floor.nx;
+    const halfS = nS * c.cell / 2 + over, ang = Math.atan2(rise, halfS), tilt = Math.hypot(1, rise / halfS);
+    const hAt = (s) => rise * (1 - Math.abs(s) / halfS);
+    let all = true;
+    for (const { x, z } of floorCells(floor)) {
+      if (gone.has(x + '_' + z)) { all = false; continue; }
+      const r = ridgeX ? x : z, sIdx = ridgeX ? z : x;
+      const c0 = (r - nR / 2) * c.cell - (r === 0 ? over : 0), c1 = (r + 1 - nR / 2) * c.cell + (r === nR - 1 ? over : 0);
+      let s0 = (sIdx - nS / 2) * c.cell - (sIdx === 0 ? over : 0), s1 = (sIdx + 1 - nS / 2) * c.cell + (sIdx === nS - 1 ? over : 0);
+      const pieces = s0 < 0 && s1 > 0 ? [[s0, 0], [0, s1]] : [[s0, s1]];
+      for (const [a, b] of pieces) {
+        const sm = (a + b) / 2, len = (b - a) * tilt + .04, side = sm >= 0 ? 1 : -1;
+        const slab = ridgeX ? box(mat, c1 - c0, .1, len, (c0 + c1) / 2, hAt(sm) + .04, sm) : box(mat, len, .1, c1 - c0, sm, hAt(sm) + .04, (c0 + c1) / 2);
+        if (ridgeX) slab.rotation.x = side * ang; else slab.rotation.z = -side * ang;
+        g.add(slab);
+      }
+    }
+    if (all && !(floor.removed || []).length) {
+      const tri = new THREE.ShapeGeometry(new THREE.Shape([new THREE.Vector2(-halfS, 0), new THREE.Vector2(halfS, 0), new THREE.Vector2(0, rise)]));
+      const gmat = (preview ? mat : d.done ? M.board : mat).clone();
+      gmat.side = THREE.DoubleSide;
+      const half = nR * c.cell / 2;
+      [1, -1].forEach(side => {
+        const end = new THREE.Mesh(tri, gmat);
+        end.rotation.y = ridgeX ? Math.PI / 2 : 0;
+        if (ridgeX) end.position.set(side * (half + over - .02), 0, 0); else end.position.set(0, 0, side * (half + over - .02));
+        g.add(end);
+      });
+    }
+  }
+
+  // A door or a window set in a wall: its frame, and the door leaf swung open.
+  function openingMesh(g, d, mat, finished) {
+    const M = buildMat(), c = T.housing, door = d.make === 'door';
+    const alongX = d.side === 'n' || d.side === 's';
+    const span = door ? c.door_width : c.window_width, h = door ? c.door_height : c.window_height, thick = c.thickness + .06;
+    const wood = finished ? M.runner : mat;
+    // Positions are given along the wall and across it, whatever way it runs.
+    const put = (m, along, across, y, a, hgt, w) => g.add(box(m, alongX ? a : w, hgt, alongX ? w : a, alongX ? along : across, y, alongX ? across : along));
+    const bar = .07;
+    put(wood, -span / 2 + bar / 2, 0, h / 2, bar, h, thick);
+    put(wood, span / 2 - bar / 2, 0, h / 2, bar, h, thick);
+    put(wood, 0, 0, h - bar / 2, span, bar, thick);
+    if (door) {
+      // The leaf hangs on its hinge, shut; it swings open when someone is by.
+      const pivot = new THREE.Group(), lw = span - bar * 2;
+      pivot.position.set(alongX ? -span / 2 + bar : 0, 0, alongX ? 0 : -span / 2 + bar);
+      pivot.add(box(finished ? M.board : mat, alongX ? lw : .05, h - bar, alongX ? .05 : lw, alongX ? lw / 2 : 0, (h - bar) / 2, alongX ? 0 : lw / 2));
+      g.add(pivot);
+      g.userData.door = { pivot, open: 0 };
+    } else {
+      put(wood, 0, 0, bar / 2, span, bar, thick);
+      put(wood, 0, 0, h / 2, .035, h - bar, thick - .04);
+      put(wood, 0, 0, h / 2, span - bar * 2, .035, thick - .04);
     }
   }
 
@@ -2641,9 +3727,13 @@
       const d = b.data;
       if (d.make !== 'wall' || !d.done) return;
       const alongX = d.side === 'n' || d.side === 's', length = alongX ? d.width : d.depth;
-      const door = d.door ? Math.min(T.housing.door_width, length - .2) : 0;
-      const parts = door ? [[-(length + door) / 4, (length - door) / 2], [(length + door) / 4, (length - door) / 2]] : [[0, length]];
-      for (const [offset, span] of parts) rects.push({ x: d.x + (alongX ? offset : 0), z: d.z + (alongX ? 0 : offset), w: alongX ? span : d.width, l: alongX ? d.depth : span });
+      // Only doors let anyone through; a window is still wall to walk into.
+      const doors = wallOpenings(d).filter(o => o.door).sort((p, q) => p.a - q.a);
+      let at = -length / 2;
+      const parts = [];
+      for (const o of doors) { if (o.a - at > .01) parts.push([at, o.a]); at = Math.max(at, o.b); }
+      if (length / 2 - at > .01) parts.push([at, length / 2]);
+      for (const [lo, hi] of parts) rects.push({ x: d.x + (alongX ? (lo + hi) / 2 : 0), z: d.z + (alongX ? 0 : (lo + hi) / 2), w: alongX ? hi - lo : d.width, l: alongX ? d.depth : hi - lo });
     });
     return rects;
   }
@@ -2676,6 +3766,21 @@
       width: alongX ? length : c.thickness, depth: alongX ? c.thickness : length,
       base_y: d.base_y + .22, height: c.height, have: { log: 0 }, need: { log: (alongX ? d.nx : d.nz) * c.wall_logs } };
   }
+  function roofCandidate(floor) {
+    const c = T.housing, over = c.roof_overhang;
+    return { make: 'roof', floor: floor.id, ry: 0, x: floor.x, z: floor.z, width: floor.width + 2 * over, depth: floor.depth + 2 * over,
+      base_y: floor.base_y + .22 + c.height, height: c.roof_rise, have: { log: 0 }, need: { log: floorCells(floor).length * c.roof_logs } };
+  }
+  function openingCandidate(wall, u, make) {
+    const c = T.housing, alongX = wall.side === 'n' || wall.side === 's', length = alongX ? wall.width : wall.depth;
+    const span = make === 'door' ? c.door_width : c.window_width;
+    u = Math.round(Math.max(-length / 2, Math.min(length / 2, u)) / .25) * .25;
+    return { make, wall: wall.id, floor: wall.floor, side: wall.side, u, ry: 0,
+      x: wall.x + (alongX ? u : 0), z: wall.z + (alongX ? 0 : u),
+      width: alongX ? span : c.thickness, depth: alongX ? c.thickness : span,
+      base_y: wall.base_y + (make === 'door' ? 0 : c.window_sill), height: make === 'door' ? c.door_height : c.window_height,
+      have: { log: 0 }, need: { log: make === 'door' ? c.door_logs : c.window_logs }, id: housing ? housing.moveId : undefined };
+  }
   function housingValid(d) {
     if (!d) return false;
     if (d.make === 'floor') {
@@ -2693,21 +3798,42 @@
       for (const p of plots.values()) {
         if (Math.abs(p.data.x - d.x) < (d.width + T.farm.cell) / 2 - .01 && Math.abs(p.data.z - d.z) < (d.depth + T.farm.cell) / 2 - .01) return false;
       }
+    } else if (d.make === 'roof') {
+      const f = builds.get(d.floor)?.data;
+      if (!f || f.make !== 'floor' || !f.done) return false;
+      for (const b of builds.values()) if (b.data.make === 'roof' && b.data.floor === d.floor) return false;
+    } else if (d.make === 'door' || d.make === 'window') {
+      const w = builds.get(d.wall)?.data, c = T.housing;
+      if (!w || w.make !== 'wall' || !w.done) return false;
+      const length = d.side === 'n' || d.side === 's' ? w.width : w.depth, span = d.make === 'door' ? c.door_width : c.window_width;
+      if (Math.abs(d.u) + span / 2 > length / 2 - c.opening_gap) return false;
+      if (d.make === 'door' && w.door) return false;
+      const lo = Math.floor((d.u - span / 2 + length / 2) / c.cell), hi = Math.ceil((d.u + span / 2 + length / 2) / c.cell - 1e-6) - 1;
+      for (let i = lo; i <= hi; i++) if ((w.removed || []).includes(i)) return false;
+      for (const o of builds.values()) {
+        const od = o.data;
+        if (od.wall !== d.wall || (od.make !== 'door' && od.make !== 'window') || od.id === d.id) continue;
+        if (d.make === 'door' && od.make === 'door') return false;
+        const other = od.make === 'door' ? c.door_width : c.window_width;
+        if (Math.abs(od.u - d.u) < (span + other) / 2 + c.opening_gap) return false;
+      }
     } else {
       const f = builds.get(d.floor)?.data;
       if (!f || f.make !== 'floor' || !f.done || !floorSideFull(f, d.side)) return false;
     }
     for (const b of builds.values()) {
+      if (d.id != null && b.data.id === d.id) continue;
       if (d.make === 'wall' && b.data.floor === d.floor && b.data.side === d.side) return false;
-      if (d.make === 'wall' && (b.data.id === d.floor || b.data.floor === d.floor)) continue;
+      if (d.make !== 'floor' && (b.data.id === d.floor || b.data.floor === d.floor)) continue;
       if (housingOverlaps(d, b.data)) return false;
     }
     return true;
   }
-  function startHousing(make, door = false) {
+  function startHousing(make, door = false, moveId) {
+    door = false;
     stopHousing(); stopPlacing(); stopTilling(false); closeCargo(); hideMenu(); toggleCraft(false);
     const ghost = new THREE.Group(); scene.add(ghost);
-    housing = { make, door, ghost, anchor: null, end: null, drag: null, press: null, selecting: false, pointer: null, fixed: false, candidate: null, signature: null };
+    housing = { make, door, moveId, ghost, anchor: null, end: null, drag: null, press: null, selecting: false, pointer: null, fixed: false, candidate: null, signature: null };
     app.classList.add('hv-building'); renderHousing(); renderCraftBtn();
   }
   function stopHousing() {
@@ -2726,6 +3852,15 @@
       if (begin) h.anchor = p;
       h.end = p;
       h.candidate = floorCandidate(h.anchor || p, p);
+    } else if (h.make === 'door' || h.make === 'window') {
+      let wall = null, best = 1.2;
+      builds.forEach(b => { if (b.data.make === 'wall' && b.data.done) { const dist = footDist(b.data, g.x, g.z); if (dist < best) { best = dist; wall = b.data; } } });
+      if (!wall) { h.candidate = null; return; }
+      h.candidate = openingCandidate(wall, wall.side === 'n' || wall.side === 's' ? g.x - wall.x : g.z - wall.z, h.make);
+    } else if (h.make === 'roof') {
+      let floor = null, best = 1.5;
+      builds.forEach(b => { if (b.data.make === 'floor' && b.data.done) { const dist = footDist(b.data, g.x, g.z); if (dist < best) { best = dist; floor = b.data; } } });
+      h.candidate = floor ? roofCandidate(floor) : null;
     } else {
       let floor = null, best = 1.5;
       builds.forEach(b => { if (b.data.make === 'floor' && b.data.done) { const dist = footDist(b.data, g.x, g.z); if (dist < best) { best = dist; floor = b.data; } } });
@@ -2756,9 +3891,9 @@
     if (!housing) return;
     const box = ui.housePlan, h = housing, d = h.candidate;
     box.textContent = ''; box.classList.add('open');
-    box.appendChild(el('b', null, tr(h.make === 'floor' ? 'hv_name_floor' : h.door ? 'hv_wall_door' : 'hv_name_wall')));
-    box.appendChild(el('div', 'hv-house-note', tr(h.make === 'floor' ? 'hv_floor_help' : 'hv_wall_help')));
-    if (d) box.appendChild(el('div', 'hv-house-cost', tr('hv_structure_cost', { w: fmt(d.width), l: fmt(d.depth), n: d.need.log })));
+    box.appendChild(el('b', null, tr('hv_name_' + h.make)));
+    box.appendChild(el('div', 'hv-house-note', tr(h.make === 'floor' ? 'hv_floor_help' : h.make === 'roof' ? 'hv_roof_help' : h.make === 'wall' ? 'hv_wall_help' : 'hv_opening_help')));
+    if (d && d.need) box.appendChild(el('div', 'hv-house-cost', tr('hv_structure_cost', { w: fmt(d.width), l: fmt(d.depth), n: d.need.log })));
     if (d?.make === 'floor' && d.support_logs) box.appendChild(el('div', 'hv-house-note', tr('hv_support_cost', { n: d.supports.length, logs: d.support_logs })));
     if (d && !ok) box.appendChild(el('div', 'hv-house-error', tr('hv_structure_invalid')));
     const acts = el('div', 'hv-cargo-acts'), confirm = el('button', 'hv-make', tr('hv_place_project'));
@@ -2770,6 +3905,14 @@
   function approachBuild(d, fn) {
     const points = buildParts(d).map(p => ({ x: Math.max(p.x - p.width / 2, Math.min(p.x + p.width / 2, me.x)),
       z: Math.max(p.z - p.depth / 2, Math.min(p.z + p.depth / 2, me.z)) }));
+    // A wall, a door or a window is walked up to from the side the character is on.
+    if (d.make === 'wall' || d.kind === 'fixture') {
+      const along = d.side === 'n' || d.side === 's';
+      points.forEach(pt => {
+        if (along) pt.z += (me.z < d.z ? -1 : 1) * (T.housing.thickness / 2 + .9);
+        else pt.x += (me.x < d.x ? -1 : 1) * (T.housing.thickness / 2 + .9);
+      });
+    }
     points.sort((a, b) => Math.hypot(a.x - me.x, a.z - me.z) - Math.hypot(b.x - me.x, b.z - me.z));
     if (points.length) goAct(points[0].x, points[0].z, 1.2, fn);
   }
@@ -2777,10 +3920,18 @@
     const d = housing?.candidate;
     if (!housingValid(d)) return toast(tr('hv_structure_invalid'));
     const plan = { ...d }; stopHousing();
+    if (plan.id != null) {
+      const wall = builds.get(plan.wall)?.data;
+      if (!wall) return;
+      return queueTask(tr('hv_move_fixture', { item: tr('hv_name_' + plan.make) }), () => approachBuild(wall, () => {
+        if (!housingValid(plan)) return toast(tr('hv_structure_invalid'));
+        mp.send({ type: 'hv_move_opening', build: plan.id, wall: plan.wall, u: plan.u });
+      }));
+    }
     queueTask(tr('hv_frame', { item: tr('hv_name_' + plan.make) }), () => approachBuild(plan, () => {
       if (!housingValid(plan)) return toast(tr('hv_structure_invalid'));
       mp.send({ type: 'hv_place', make: plan.make, gx: plan.gx, gz: plan.gz, nx: plan.nx, nz: plan.nz,
-        floor: plan.floor, side: plan.side, door: plan.door, base_y: plan.base_y, terrain: plan.terrain });
+        floor: plan.floor, side: plan.side, wall: plan.wall, u: plan.u, base_y: plan.base_y, terrain: plan.terrain });
     }));
   }
 
@@ -2794,7 +3945,8 @@
     frameMesh(g, buildMat().ghost, make);
     if (make !== 'sled') toolMesh(g, make, false);
     scene.add(g);
-    placing = { make, ghost: g, ok: true, at: null };
+    placing = { make, ghost: g, ok: true, at: null, furniture: !!(T.furniture && T.furniture[make]), ry: null, move: null };
+    renderPlacePanel();
     renderCraftBtn();
   }
 
@@ -2802,10 +3954,52 @@
     if (!placing) return;
     scene.remove(placing.ghost);
     placing = null;
+    ui.housePlan.classList.remove('open'); ui.housePlan.textContent = '';
     renderCraftBtn();
   }
 
   // The craft button ends what it started: placing a frame or marking a field.
+  // Building mode: what can be built, moved and broken shows only while it is
+  // on; otherwise a house is just a house to walk up to.
+  let buildMode = false;
+  // How much of a house is shown, as in The Sims, in play as well as in building: the roof, and the
+  // walls all there, only the ones facing the camera cut away, or all gone,
+  // so the inside can be seen and worked on.
+  let viewRoof = true, viewWalls = 'full';
+  try {
+    const sv = JSON.parse(localStorage.getItem('hv_view'));
+    if (sv) { viewRoof = sv.roof !== false; if (['full', 'front', 'none'].includes(sv.walls)) viewWalls = sv.walls; }
+  } catch (e) { /* nothing saved */ }
+  const saveView = () => { try { localStorage.setItem('hv_view', JSON.stringify({ roof: viewRoof, walls: viewWalls })); } catch (e) { /* private window */ } };
+  function renderView() {
+    if (!ui.view) return;
+    ui.view.textContent = '';
+    ui.view.classList.add('open');
+    const roof = el('button', 'hv-make' + (viewRoof ? '' : ' off'), '🏠 ' + tr('hv_view_roof') + ': ' + tr(viewRoof ? 'hv_view_on' : 'hv_view_off'));
+    roof.type = 'button';
+    roof.onclick = () => { viewRoof = !viewRoof; saveView(); renderView(); };
+    const walls = el('button', 'hv-make' + (viewWalls === 'full' ? '' : ' off'), '🧱 ' + tr('hv_view_walls') + ': ' + tr('hv_view_' + viewWalls));
+    walls.type = 'button';
+    walls.onclick = () => { viewWalls = viewWalls === 'full' ? 'front' : viewWalls === 'front' ? 'none' : 'full'; saveView(); renderView(); };
+    ui.view.append(roof, walls);
+  }
+  function renderModeBtn() {
+    if (!ui.modeBtn) return;
+    ui.modeBtn.querySelector('.hv-mode-label').textContent = buildMode ? '🎮 ' + tr('hv_mode_play') : '🏗 ' + tr('hv_mode_build');
+    ui.modeBtn.classList.toggle('on', buildMode);
+    ui.modeBtn.title = tr('hv_mode_title');
+    app.classList.toggle('hv-buildmode', buildMode);
+  }
+  function setBuildMode(on) {
+    if (buildMode === on) return;
+    buildMode = on;
+    if (!on) { stopHousing(); closeCargo(); if (craftTab === 'build') craftTab = 'tools'; }
+    hideMenu();
+    renderModeBtn();
+    renderView();
+    if (ui.craft.classList.contains('open')) renderCraft();
+  }
+
   function renderCraftBtn() {
     if (!ui.craftLabel) return;
     ui.craftLabel.textContent = housing ? '✕ ' + tr('hv_act_cancel') : placing ? '✕ ' + tr('hv_act_cancel') : tilling ? '✓ ' + tr('hv_till_done') : tr('hv_craft');
@@ -2813,20 +4007,28 @@
   }
 
   // Under the pointer, or in front of the player until the pointer has moved.
+  // The nearest quarter turn: furniture starts square to the walls.
+  const squareUp = (a) => (Math.round(a / (Math.PI / 2)) * (Math.PI / 2) + Math.PI * 2) % (Math.PI * 2);
   function placeSpot() {
     if (placing && placing.at) {
       const a = placing.at;
-      return { x: a.x, z: a.z, ry: Math.atan2(a.x - me.x, a.z - me.z) };
+      return { x: a.x, z: a.z, ry: placing.ry != null ? placing.ry : squareUp(Math.atan2(a.x - me.x, a.z - me.z)) };
     }
     const r = placing && placing.make !== 'sled' ? 1.3 : 2.2;
-    return { x: me.x + Math.sin(me.ry) * r, z: me.z + Math.cos(me.ry) * r, ry: me.ry };
+    return { x: me.x + Math.sin(me.ry) * r, z: me.z + Math.cos(me.ry) * r, ry: placing && placing.ry != null ? placing.ry : squareUp(me.ry) };
   }
 
-  function placeOk(make, x, z) {
+  function placeOk(make, x, z, selfId) {
     if (groundAt(x, z) <= 0.05 || (shoreLevel(x, z) ?? -Infinity) > groundAt(x, z)) return false;
-    const room = T.build_room;
+    const room = T.build_room, furniture = !!(T.furniture && T.furniture[make]);
     for (const b of builds.values()) {
-      if (isStructure(b.data)) { if (housingOverlaps({ x, z, width: room[make] * 2, depth: room[make] * 2 }, b.data)) return false; continue; }
+      if (b.data.id === selfId) continue;
+      if (isStructure(b.data)) {
+        // Furniture stands on floors, under roofs and by doors and windows.
+        if (furniture && ['floor', 'roof', 'door', 'window'].includes(b.data.make)) continue;
+        if (housingOverlaps({ x, z, width: room[make] * 2, depth: room[make] * 2 }, b.data)) return false;
+        continue;
+      }
       const gap = room[make] + (room[b.data.make || b.data.kind] || room.sled);
       if (Math.hypot(b.data.x - x, b.data.z - z) < gap) return false;
     }
@@ -2836,23 +4038,68 @@
   function updatePlacing() {
     if (!placing) return;
     const p = placeSpot();
-    const ok = placeOk(placing.make, p.x, p.z);
+    const ok = placeOk(placing.make, p.x, p.z, placing.move);
     placing.ok = ok;
-    placing.ghost.position.set(p.x, groundAt(p.x, p.z), p.z);
+    placing.ghost.position.set(p.x, placing.furniture ? walkGround(p.x, p.z) : groundAt(p.x, p.z), p.z);
     placing.ghost.rotation.y = p.ry;
-    placing.ghost.children[0].material = ok ? buildMat().ghost : buildMat().bad;
+    if (placing.move) placing.ghost.traverse(o => { if (o.isMesh) { o.material = ok ? buildMat().ghost : buildMat().bad; o.castShadow = false; } });
+    else placing.ghost.children[0].material = ok ? buildMat().ghost : buildMat().bad;
   }
 
-  // A click or a tap while placing: walk there and put the frame down.
+  // A click or a tap while placing: walk there and put the frame down, or
+  // set the piece of furniture that was picked up.
   function placeAt(cx, cy) {
     const g = groundRay(cx, cy);
-    if (!g || g.kind !== 'ground' || !placeOk(placing.make, g.x, g.z)) { toast(tr('hv_bad_spot')); return; }
-    const make = placing.make, x = g.x, z = g.z;
+    const mv = placing && placing.move;
+    if (!g || g.kind !== 'ground' || !placeOk(placing.make, g.x, g.z, mv)) { toast(tr('hv_bad_spot')); return; }
+    const make = placing.make, x = g.x, z = g.z, ry = placing.ry != null ? placing.ry : squareUp(Math.atan2(x - me.x, z - me.z));
     stopPlacing();
-    queueTask(tr('hv_frame', { item: tr('hv_name_' + make) }), () => goAct(x, z, T.reach - 0.8, () => {
-      if (!placeOk(make, x, z)) return toast(tr('hv_bad_spot'));
-      mp.send({ type: 'hv_place', make, x, z, ry: Math.atan2(x - me.x, z - me.z) });
+    if (T.furniture && T.furniture[make]) {
+      // Furniture is laid out from where the character stands.
+      if (distMe(x, z) > T.reach + T.design_reach) return toast(tr('hv_cargo_far_spot'));
+      if (mv) mp.send({ type: 'hv_move_furniture', build: mv, x, z, ry });
+      else mp.send({ type: 'hv_place', make, x, z, ry });
+      return;
+    }
+    queueTask(tr(mv ? 'hv_move_fixture' : 'hv_frame', { item: tr('hv_name_' + make) }), () => goAct(x, z, T.reach - 0.8, () => {
+      if (!placeOk(make, x, z, mv)) return toast(tr('hv_bad_spot'));
+      if (mv) mp.send({ type: 'hv_move_furniture', build: mv, x, z, ry });
+      else mp.send({ type: 'hv_place', make, x, z, ry });
     }));
+  }
+
+  // Picking up a piece of furniture to put it elsewhere, turned as wanted.
+  function startMoveFurniture(d) {
+    stopHousing(); stopPlacing(); stopTilling(false); closeCargo(); hideMenu(); toggleCraft(false);
+    const g = new THREE.Group();
+    furnitureMesh(g, d.make, false);
+    g.traverse(o => { if (o.isMesh) o.material = buildMat().ghost; });
+    scene.add(g);
+    placing = { make: d.make, ghost: g, ok: true, at: { x: d.x, z: d.z }, furniture: true, ry: d.ry, move: d.id };
+    renderPlacePanel();
+    renderCraftBtn();
+  }
+  function turnPlacing(step) {
+    if (!placing || !placing.furniture) return;
+    // Turns go by fifteen degrees from a multiple of fifteen, so a quarter
+    // turn is always reachable.
+    const grid = Math.PI / 12, base = Math.round((placing.ry != null ? placing.ry : placeSpot().ry) / grid) * grid;
+    placing.ry = (base + step + Math.PI * 2) % (Math.PI * 2);
+  }
+  // The little panel while furniture is put down: how to turn it.
+  function renderPlacePanel() {
+    const box = ui.housePlan;
+    if (!placing || !placing.furniture) return;
+    box.textContent = ''; box.classList.add('open');
+    box.appendChild(el('b', null, (ICON[placing.make] || '') + ' ' + tr('hv_name_' + placing.make)));
+    box.appendChild(el('div', 'hv-house-note', tr('hv_furn_help')));
+    const acts = el('div', 'hv-cargo-acts');
+    const mk = (label, fn) => { const b = el('button', 'hv-make', label); b.type = 'button'; b.onclick = fn; acts.appendChild(b); };
+    mk('⟲', () => turnPlacing(-Math.PI / 12));
+    mk('⟳', () => turnPlacing(Math.PI / 12));
+    mk('90°', () => turnPlacing(Math.PI / 2));
+    mk(tr('hv_act_cancel'), stopPlacing);
+    box.appendChild(acts);
   }
 
   // ── the window of a sled or a frame ──────────────────────────────────────
@@ -2889,6 +4136,24 @@
     const [aw, ad] = isStructure(a) ? [a.width, a.depth] : [0, 0];
     const [bw, bd] = isStructure(b) ? [b.width, b.depth] : [0, 0];
     return Math.hypot(Math.max(0, Math.abs(a.x - b.x) - (aw + bw) / 2), Math.max(0, Math.abs(a.z - b.z) - (ad + bd) / 2));
+  }
+
+  // Piles, sleds and frames close to the window's one that hold something to
+  // take: [{ ref, label }], the nearest first.
+  function nearHolders(d) {
+    const out = [];
+    const add = (ref, o, label, empty) => {
+      if (empty || cargoGap(o, d) > otherReach()) return;
+      if (Math.hypot(o.x - me.x, o.z - me.z) > T.reach + 1.1 + otherReach()) return;
+      out.push({ ref, label, gap: cargoGap(o, d) });
+    };
+    piles.forEach(p => add({ pile: p.data.id }, p.data, (ICON[p.data.kind] || '') + ' ' + cap(tr('hv_cargo_pile', { item: tr('hv_name_' + p.data.kind) })), !(p.data.n > 0)));
+    builds.forEach(b => {
+      if (b.data.id === d.id) return;
+      const od = b.data;
+      add({ build: od.id }, od, buildName(od), od.kind === 'site' && !od.done ? !Object.values(od.have || {}).some(n => n > 0) : od.kind === 'site' ? isStructure(od) : !(od.load || []).length);
+    });
+    return out.sort((a, b) => a.gap - b.gap);
   }
 
   // A click in the world while the window is open: a pile, sled or frame
@@ -3035,16 +4300,23 @@
       box.appendChild(gO);
     } else {
       box.appendChild(el('div', 'hv-people-title', tr('hv_cargo_mine')));
+      // Other things close by to take from instead of the backpack.
+      nearHolders(b.data).forEach(h => {
+        const sw = el('button', 'hv-make hv-cargo-switch', '⇄ ' + h.label);
+        sw.type = 'button';
+        sw.onclick = () => { cargo.other = h.ref; cargo.sel = null; renderCargo(); };
+        box.appendChild(sw);
+      });
       const gMine = el('div', 'hv-cargo-grid hv-cargo-mine');
-      [['hand', inv.hand], ...inv.pack.map((it, i) => [i, it])].forEach(([slot, it]) => {
+      [['hand', inv.hand, 1], ...packGroups().map(g => [g.idx, g.it, g.count])].forEach(([slot, it, count]) => {
         if (!it) return;
         const tile = el('button', 'hv-slot hv-tile');
         tile.type = 'button';
-        fillSlot(tile, it);
+        fillSlot(tile, it, count);
         if (slot === 'hand') tile.appendChild(el('i', 'hv-tile-hand', '✋'));
         if (kept(kindOf(it))) tile.classList.add('dim');
         if (cargo.sel && cargo.sel.from === 'mine' && cargo.sel.slot === slot) tile.classList.add('sel');
-        bindTile(tile, { from: 'mine', slot, k: kindOf(it), kept: kept(kindOf(it)) });
+        bindTile(tile, { from: 'mine', slot, k: kindOf(it), n: count, kept: kept(kindOf(it)) });
         gMine.appendChild(tile);
       });
       if (!gMine.children.length) gMine.appendChild(el('div', 'hv-people-empty', tr('hv_cargo_nothing')));
@@ -3070,7 +4342,7 @@
         if (s.n > 1) act(tr('hv_cargo_move_all', item), () => mp.send({ type: 'hv_shift', src: oRef, dst: top, k: s.k, all: true }));
       }
       act(tr('hv_cargo_take_one'), () => takeOther(o, s.k, false));
-      if (s.n > 1) act(tr('hv_cargo_take_all'), () => takeOther(o, s.k, true));
+      if (s.n > 1 && smallKind(s.k)) act(tr('hv_cargo_take_all'), () => takeOther(o, s.k, true));
     } else if (s && s.from === 'on' && s.made) {
       act(tr('hv_act_take_made', item), () => mp.send({ type: 'hv_pick', build: id }));
     } else if (s && s.from === 'on' && s.n > 0 && oOpen) {
@@ -3079,13 +4351,13 @@
       act(tr('hv_cargo_unload'), () => mp.send({ type: 'hv_unload', build: id, k: s.k, all: true }));
     } else if (s && s.from === 'on' && s.n > 0) {
       act(tr('hv_cargo_take_one'), () => mp.send({ type: 'hv_pick', build: id, k: s.k }));
-      if (s.n > 1) act(tr('hv_cargo_take_all'), () => mp.send({ type: 'hv_pick', build: id, k: s.k, all: true }));
+      if (s.n > 1 && smallKind(s.k)) act(tr('hv_cargo_take_all'), () => mp.send({ type: 'hv_pick', build: id, k: s.k, all: true }));
       act(tr('hv_cargo_unload'), () => mp.send({ type: 'hv_unload', build: id, k: s.k, all: true }));
       act(tr('hv_cargo_put_one'), () => { cargo.spot = { from: 'on', k: s.k, all: false }; });
       if (s.n > 1) act(tr('hv_cargo_put_all'), () => { cargo.spot = { from: 'on', k: s.k, all: true }; });
     } else if (s && s.from === 'mine' && !s.kept) {
       const it = s.slot === 'hand' ? inv.hand : inv.pack[s.slot];
-      const many = countOf(it) > 1;
+      const many = (s.n || countOf(it)) > 1;
       act(tr(site ? 'hv_cargo_add_one' : 'hv_cargo_load_one'), () => mp.send({ type: 'hv_drop', build: id, slot: s.slot }));
       if (many) act(tr(site ? 'hv_cargo_add_all' : 'hv_cargo_load_all'), () => mp.send({ type: 'hv_drop', build: id, slot: s.slot, all: true }));
       act(tr('hv_cargo_drop'), () => { cargo.spot = { from: 'mine', slot: s.slot }; });
@@ -3093,6 +4365,7 @@
       acts.appendChild(el('div', 'hv-people-empty', tr('hv_keep_tool')));
     } else {
       if (!site && d.load.length) act(tr('hv_cargo_unload_all'), () => mp.send({ type: 'hv_unload', build: id, all: true }));
+      if (site && !d.done) act(tr(isPinned(id) ? 'hv_auto_unpin' : 'hv_auto_pin'), () => togglePin(id));
       if (site && !d.done) act(tr('hv_remove_build'), () => { queueTask(tr('hv_remove_build'), () => removeBuildAction(id)); closeCargo(); });
       if (site && !d.done && on.some(t => t.n)) act(tr('hv_cargo_unload_all'), () => mp.send({ type: 'hv_unload', build: id, all: true }));
     }
@@ -3103,7 +4376,7 @@
   const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
   function buildName(d) {
     const make = d.kind === 'site' ? d.make : d.kind;
-    return (ICON[make] || '') + ' ' + cap(d.kind === 'site' && !d.done ? tr('hv_frame', { item: tr('hv_name_' + make) }) : tr('hv_name_' + make));
+    return (ICON[make] || '') + ' ' + cap(d.kind === 'site' && !d.done ? tr('hv_frame', { item: tr('hv_name_' + make) }) : tr('hv_name_' + make)) + (d.kind === 'site' && !d.done && isPinned(d.id) ? ' ★' : '');
   }
 
   // Into the player's things from the second thing: from where they stand,
@@ -3686,6 +4959,7 @@
 
   function updateMe(dt) {
     let mx = 0, mz = 0, mag = 0;
+    if (sleeping) goal = null;
     // A log in the arms or a sled on the rope: walking only.
     const pulled = myPull();
     const heavy = inv.hand === 'log' || !!pulled;
@@ -3693,13 +4967,19 @@
     let running = false;
     if (goal) {
       // Walking to a clicked place or thing.
-      const gx = goal.x - me.x, gz = goal.z - me.z, gd = Math.hypot(gx, gz);
+      while (goal.way && goal.way.length && Math.hypot(goal.way[0].x - me.x, goal.way[0].z - me.z) < 0.7) goal.way.shift();
+      const wp = goal.way && goal.way.length ? goal.way[0] : goal;
+      const gx = wp.x - me.x, gz = wp.z - me.z, gd = Math.hypot(gx, gz);
       const now = performance.now();
-      if (goal.until ? goal.until() : gd <= goal.r) {
+      if (goal.until ? goal.until() : Math.hypot(goal.x - me.x, goal.z - me.z) <= goal.r) {
         const f = goal.after; goal = null;
         if (f) f();
-      } else if (now - goal.t0 > goal.limit || (now - goal.chk > 1500 && Math.hypot(me.x - goal.cx, me.z - goal.cz) < 0.4)) {
+      } else if (now - goal.t0 > goal.limit) {
         goal = null;
+      } else if (now - goal.chk > 1500 && Math.hypot(me.x - goal.cx, me.z - goal.cz) < 0.4) {
+        // Stuck: look for another way round, a couple of times, then give up.
+        if (goal.tries++ >= 2) { goal = null; thought('❓'); }
+        else { goal.way = pathAround(me.x, me.z, goal.x, goal.z) || null; goal.chk = now; goal.cx = me.x; goal.cz = me.z; goal.hd = undefined; }
       } else {
         if (now - goal.chk > 1500) { goal.chk = now; goal.cx = me.x; goal.cz = me.z; }
         let ang = steer(gx, gz, gd, pulled ? T.sled_wade : T.wade);
@@ -3746,7 +5026,17 @@
     const digging = !chopping && updateDig(dt, speed > 0);
     me.anim = chopping ? 'chop' : digging ? 'dig' : speed === 0 ? 'idle' : running ? 'run' : 'walk';
 
+    me.ch.root.rotation.order = 'YXZ';
+    const bed = sleeping && builds.get(sleeping.bed);
+    if (bed) {
+      const pose = bedPose(bed);
+      me.ch.root.position.set(pose.x, pose.y, pose.z);
+      me.ch.root.rotation.set(-Math.PI / 2, pose.ry, 0);
+      animateCharacter(me.ch, 'idle', dt);
+      return;
+    }
     me.ch.root.position.set(me.x, me.y, me.z);
+    me.ch.root.rotation.x = 0;
     me.ch.root.rotation.y = me.ry;
     animateCharacter(me.ch, me.anim, dt);
   }
@@ -3772,6 +5062,16 @@
       let d = p.tr - r.rotation.y;
       d = Math.atan2(Math.sin(d), Math.cos(d));
       r.rotation.y += d * k;
+      r.rotation.order = 'YXZ';
+      const bed = p.sleepBed != null && builds.get(p.sleepBed);
+      if (bed) {
+        const pose = bedPose(bed);
+        r.position.set(pose.x, pose.y, pose.z);
+        r.rotation.set(-Math.PI / 2, pose.ry, 0);
+        animateCharacter(p.ch, 'idle', dt);
+        return;
+      }
+      r.rotation.x = 0;
       animateCharacter(p.ch, p.anim, dt);
     });
   }
@@ -3816,7 +5116,7 @@
     camera.lookAt(cam.x, cam.y, cam.z);
 
     // The sun and its shadows follow what the camera looks at.
-    sun.position.set(cam.x + 40, cam.y + 70, cam.z + 25);
+    sun.position.set(cam.x + sunOff.x, cam.y + sunOff.y, cam.z + sunOff.z);
     sun.target.position.set(cam.x, cam.y, cam.z);
   }
 
@@ -3834,6 +5134,7 @@
       return;
     }
     T = welcome.tuning;
+    loadAuto();
     SIZE = T.world_size;
 
     try {
@@ -3854,7 +5155,8 @@
     camera = new THREE.PerspectiveCamera(55, 1, 0.1, 900);
     clock = new THREE.Clock();
 
-    scene.add(new THREE.HemisphereLight('#dcefff', '#58733a', 1.15));
+    hemi = new THREE.HemisphereLight('#dcefff', '#58733a', 1.15);
+    scene.add(hemi);
     sun = new THREE.DirectionalLight('#fff0d4', 2.5);
     sun.castShadow = true;
     const sm = isTouch() ? 1024 : 2048;
@@ -3956,6 +5258,10 @@
     updateTilling();
     updateAuto();
     updateTasks();
+    updateBrain();
+    updateThought();
+    lightClock += dt;
+    if (lightClock > 0.5) { lightClock = 0; updateDaylight(); }
     updateMarks();
     fruitClock += dt;
     if (fruitClock > 1) { fruitClock = 0; refreshFruit(); refreshPlots(); }
@@ -4007,7 +5313,7 @@
   mp.on('hv_stone_taken', (m) => { if (booted) takeStone(m.id); });
   mp.on('hv_pile', (m) => { if (booted && m.pile) { showPile(m.pile); if (cargo && cargo.other && cargo.other.pile === m.pile.id) renderCargo(); } });
   mp.on('hv_pile_gone', (m) => { if (booted) removePile(m.id); if (cargo && cargo.other && cargo.other.pile === m.id) { cargo.other = null; cargo.sel = null; renderCargo(); } });
-  mp.on('hv_made', (m) => toast(tr(m.frame ? 'hv_made_frame' : 'hv_made', { item: tr('hv_name_' + m.item) })));
+  mp.on('hv_made', (m) => toast(tr(m.ground ? 'hv_made_ground' : m.frame ? 'hv_made_frame' : 'hv_made', { item: tr('hv_name_' + m.item) })));
   mp.on('hv_removed', (m) => toast(tr(m.part ? 'hv_removed_cell' : 'hv_removed_build')));
   mp.on('hv_dig_p', (m) => digProg.set(m.c, m.p));
   mp.on('hv_plots', (m) => { if (booted) (m.plots || []).forEach(d => d.gone ? removePlot(d.c) : showPlot(d)); });
@@ -4021,19 +5327,29 @@
     if (cargo && (cargo.id === m.build.id || (cargo.other && cargo.other.build === m.build.id))) renderCargo();
   });
   mp.on('hv_build_gone', (m) => {
-    if (booted) removeBuild(m.id);
+    const wall = builds.get(m.id)?.data.wall;
+    if (booted) { removeBuild(m.id); if (wall != null) refreshWall(wall); }
     if (cargo && cargo.id === m.id) closeCargo();
     else if (cargo && cargo.other && cargo.other.build === m.id) { cargo.other = null; cargo.sel = null; renderCargo(); }
   });
+  mp.on('hv_sleep_on', (m) => {
+    sleeping = { bed: m.bed };
+    brainStop();
+    thought('💤', 6000);
+    renderSleep();
+  });
+  mp.on('hv_wake', () => { sleeping = null; renderSleep(); thought('☀️', 2500); });
+  mp.on('hv_asleep', (m) => { const p = peers.get(m.id); if (p) p.sleepBed = m.bed; });
   mp.on('hv_needs', (m) => {
     if (m.skills) Object.assign(skills, m.skills);
-    if (m.needs) { needs = m.needs; renderNeeds(); renderSkills(); }
+    if (m.needs) { needs = m.needs; renderNeeds(); renderSkills(); if (sleeping) renderSleep(); }
   });
   mp.on('hv_skill', (m) => {
     if (!booted || !SKILL_KEYS.includes(m.k)) return;
     skills[m.k] = m.xp;
     showSkillPill(m.k);
     renderSkills();
+    if (m.k === 'strength') renderInv();
     if (m.up) toast(tr('hv_skill_up', { skill: tr('hv_skill_' + m.k), n: skillLevel(m.k) }));
   });
   mp.on('hv_fruit', (m) => {
@@ -4047,7 +5363,7 @@
     far: 'hv_too_far', full: 'hv_pack_full', hands_full: 'hv_hands_full', too_big: 'hv_too_big',
     need_stone: 'hv_need_stone', keep_tool: 'hv_keep_tool',
     sled_full: 'hv_sled_full', far_spot: 'hv_cargo_far_spot', crowded: 'hv_crowded', not_needed: 'hv_not_needed', taken: 'hv_taken',
-    bad_structure: 'hv_structure_invalid', need_floor: 'hv_need_floor',
+    bad_structure: 'hv_structure_invalid', need_floor: 'hv_need_floor', need_wall: 'hv_need_wall', need_hammer: 'hv_need_hammer', need_fixture: 'hv_need_fixture', not_tired: 'hv_not_tired', bed_taken: 'hv_bed_taken',
     need_hoe: 'hv_need_hoe', need_bucket: 'hv_need_bucket', need_axe: 'hv_need_axe', bucket_empty: 'hv_bucket_empty',
     soil_hard: 'hv_soil_hard_nope', no_seed: 'hv_no_seed', plan_none: 'hv_plan_none',
   };
@@ -4055,6 +5371,12 @@
     if (m.reason === 'far' || m.reason === 'need_stone' || m.reason === 'tired' || m.reason === 'too_big' || m.reason === 'hands_full') { chopTree = null; if (autoUse === 'chop') { autoUse = null; chopHeld = false; } }
     if (m.reason === 'far' || m.reason === 'full') gatherAll = null;
     if (['far', 'need_hoe', 'tired', 'need_bucket', 'bucket_empty', 'soil_hard', 'no_seed', 'full', 'too_big', 'hands_full'].includes(m.reason)) { digAt = null; digHeld = false; autoTask = null; }
+    if (m.reason === 'bed_taken' && lastBed != null) brainMemo.set('bed' + lastBed, { n: 0, t: 0, until: performance.now() + 60000 });
+    if (m.reason === 'not_tired') brainMemo.set('sleepno', { n: 0, t: 0, until: performance.now() + 90000 });
+    // Too tired: the character rests until it has some energy again.
+    if (m.reason === 'tired' && auto && auto.on && tasks.some(t => t.auto) && !tasks.some(t => !t.auto)) { brainRest = true; brainStop(); }
+    // The sled cannot be pulled or loaded now: leave it for a minute.
+    if (['too_heavy', 'taken'].includes(m.reason)) brainMemo.set('sled', { n: 0, t: 0, until: performance.now() + 60000 });
     if (m.reason === 'too_big') return toast(tr('hv_too_big', { item: tr('hv_name_' + (kindOf(inv.hand) || 'log')) }));
     if (NOPE[m.reason]) toast(tr(NOPE[m.reason]));
   });

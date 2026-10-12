@@ -973,11 +973,13 @@ def _cli_is_logged_in(provider: dict, cmd_bin: str, eu: str, home: str) -> bool 
 
 
 def _resolve_cli_runtime(provider: dict, explicit: str | None = None, persist: bool = False):
-    """Resolve one installation-wide CLI executable and credential owner.
+    """Resolve the CLI executable and the OS account it runs as.
 
-    The selected owner is stored per provider, so changing the Linux account
-    used to enter mvmOS does not change or lose the configured AI login.
-    Claude and Codex prefer an account whose own auth-status command succeeds.
+    The account the caller is logged into mvmOS with (`explicit`) always wins,
+    so the chat has exactly that account's rights and login. Only when there
+    is no such session (background jobs) does it fall back to an account whose
+    own auth-status command succeeds. Nothing is stored: a failed check must
+    never silently switch the account for every later turn.
     """
     cfg_key = f"cli_user_{provider['id']}"
     configured = _read_cfg().get(cfg_key)
@@ -987,6 +989,9 @@ def _resolve_cli_runtime(provider: dict, explicit: str | None = None, persist: b
     if not any_bin:
         return None
 
+    if explicit:
+        return (explicit, _home_for(explicit), own_bins.get(explicit) or any_bin)
+
     runtimes = [(eu, _home_for(eu), own_bins.get(eu) or any_bin) for eu in users]
     auth_states = [
         (eu, home, cmd_bin, _cli_is_logged_in(provider, cmd_bin, eu, home))
@@ -994,15 +999,9 @@ def _resolve_cli_runtime(provider: dict, explicit: str | None = None, persist: b
     ]
     authenticated = [row[:3] for row in auth_states if row[3] is True]
     if authenticated:
-        chosen = authenticated[0]
-    else:
-        chosen = next((row[:3] for row in auth_states if row[0] == configured), None)
-        chosen = chosen or next((row[:3] for row in auth_states if row[0] == explicit), None)
-        chosen = chosen or auth_states[0][:3]
-
-    if persist and configured != chosen[0]:
-        _write_cfg(cfg_key, chosen[0])
-    return chosen
+        return authenticated[0]
+    chosen = next((row[:3] for row in auth_states if row[0] == configured), None)
+    return chosen or auth_states[0][:3]
 
 
 def _discover_cli_models(provider: dict, cmd_bin: str, eu: str, home: str) -> list[str]:

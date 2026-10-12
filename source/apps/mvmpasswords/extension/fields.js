@@ -7,7 +7,65 @@
   // one: the focus had already happened before this script ran, and no further
   // event was coming.
   const markers = new Map();
-  let enabled = false, onFocusOnly = false, frame = 0;
+  let enabled = false, onFocusOnly = false, frame = 0, mode = 'off', rules = [], currentUrl = location.href;
+  const observer = new MutationObserver(schedule);
+
+  // One rule per line. A host covers its subdomains; *.host covers only
+  // subdomains. Adding a path makes the rule exact for that path, while a
+  // scheme or port restricts those parts too. Query strings are optional:
+  // without one, the rule covers every query on that path.
+  function parseRule(line) {
+    const raw = line.trim();
+    if (!raw || raw.startsWith('#') || /\s/.test(raw)) return null;
+    const scheme = /^https?:\/\//i.test(raw);
+    if (raw.includes('://') && !scheme) return null;
+    const wildcard = (scheme ? raw.replace(/^https?:\/\//i, '') : raw).startsWith('*.');
+    const clean = wildcard ? raw.replace('*.','') : raw;
+    try {
+      const url = new URL(scheme ? clean : 'http://' + clean);
+      if (!url.hostname || url.username || url.password) return null;
+      const authority = (scheme ? raw.replace(/^https?:\/\//i, '') : raw).split(/[/?#]/, 1)[0];
+      const tail = (scheme ? raw.replace(/^https?:\/\//i, '') : raw).slice(authority.length);
+      return {
+        host: url.hostname.toLowerCase(), wildcard,
+        protocol: scheme ? url.protocol : null,
+        port: authority.includes(']') ? (authority.split(']')[1] || '').replace(/^:/, '') :
+          (authority.match(/:(\d+)$/) || [])[1] || null,
+        path: tail.startsWith('/') ? url.pathname : null,
+        query: tail.includes('?') ? url.search : null
+      };
+    } catch (_) { return null; }
+  }
+  function isExcluded(href) {
+    let page;
+    try { page = new URL(href); } catch (_) { return false; }
+    return rules.some(rule => {
+      const host = page.hostname.toLowerCase();
+      const matchesHost = host === rule.host ||
+        ((rule.path === null || rule.wildcard) && !/^[\d.:]+$/.test(rule.host) &&
+         host.endsWith('.' + rule.host));
+      if (!matchesHost || (rule.wildcard && host === rule.host)) return false;
+      if (rule.protocol && page.protocol !== rule.protocol) return false;
+      if (rule.port !== null && page.port !== rule.port &&
+          !(page.port === '' && ((page.protocol === 'http:' && rule.port === '80') ||
+                                  (page.protocol === 'https:' && rule.port === '443')))) return false;
+      return (rule.path === null || page.pathname === rule.path) &&
+             (rule.query === null || page.search === rule.query);
+    });
+  }
+  function updateAccess() {
+    const allowed = mode === 'icons' && !isExcluded(location.href);
+    if (allowed === enabled) return;
+    enabled = allowed;
+    if (enabled) {
+      observer.observe(document.documentElement, {childList: true, subtree: true, attributes: true,
+        attributeFilter: ['type', 'name', 'autocomplete', 'style', 'class', 'hidden', 'disabled', 'readonly']});
+      schedule();
+    } else {
+      observer.disconnect();
+      clear();
+    }
+  }
 
   function loginField(input) {
     return input && input.matches && input.matches('input[type="password"],input[autocomplete="username"],input[type="email"],input[name*="user" i],input[name*="email" i]');
@@ -72,25 +130,26 @@
   }
 
   function readSettings(callback) {
-    const wanted = {autofill_mode: 'off', icons_on_focus: false};
+    const wanted = {autofill_mode: 'off', icons_on_focus: false, autofill_exclusions: ''};
     const result = api.storage.local.get(wanted);
     if (result && typeof result.then === 'function') result.then(callback);
     else api.storage.local.get(wanted, callback);
   }
   function apply(values) {
-    enabled = values.autofill_mode === 'icons';
+    mode = values.autofill_mode;
     onFocusOnly = Boolean(values.icons_on_focus);
-    sync();
+    rules = String(values.autofill_exclusions || '').split(/\r?\n/).map(parseRule).filter(Boolean);
+    updateAccess();
+    if (enabled) schedule();
   }
 
   readSettings(apply);
   // Changing the setting reaches an already-open tab straight away, instead of
   // only after it is reloaded.
   if (api.storage.onChanged) api.storage.onChanged.addListener((changes, area) => {
-    if (area === 'local' && (changes.autofill_mode || changes.icons_on_focus)) readSettings(apply);
+    if (area === 'local' && (changes.autofill_mode || changes.icons_on_focus || changes.autofill_exclusions)) readSettings(apply);
   });
 
-  new MutationObserver(schedule).observe(document.documentElement, {childList: true, subtree: true, attributes: true, attributeFilter: ['type', 'name', 'autocomplete', 'style', 'class', 'hidden', 'disabled', 'readonly']});
   addEventListener('focusin', schedule, true);
   addEventListener('focusout', schedule, true);
   addEventListener('scroll', schedule, true);
@@ -103,4 +162,11 @@
   // icons on their fields in the cases nothing announces. It rests while the tab
   // is in the background, where there is nothing to look at anyway.
   setInterval(() => { if (!document.hidden && markers.size) sync(); }, 700);
+  // pushState changes the address without reloading the content script. Keep
+  // exclusions in sync without observing a blocked page's busy DOM.
+  setInterval(() => {
+    if (location.href === currentUrl) return;
+    currentUrl = location.href;
+    updateAccess();
+  }, 1000);
 })();

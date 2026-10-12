@@ -15,7 +15,8 @@
     "Choose the currency, or follow the system default.",
     "Set the default sign for new amounts, so a spending category does not need a minus every time.",
     "Per-app visibility for entries added by other apps.",
-    "Public web page for your Apps Hub account and a Telegram mini-app, both on the same data."
+    "Public web page for your Apps Hub account and a Telegram mini-app, both on the same data.",
+    "Saving an amount from a category on the public page closes the dialog, shows a short confirmation and cannot be sent twice by a double tap."
   ],
   "integrations": [
     {

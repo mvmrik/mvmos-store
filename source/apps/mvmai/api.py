@@ -236,6 +236,78 @@ def _label_from_cfg(desk, cfg, model_used=""):
     return f"{label} · {model}" if label and model else (label or model or None)
 
 
+@router.get("/model-options")
+async def model_options(
+    x_pub_token: str = Header(default=None),
+    x_mvmai_surface: str = Header(default=""),
+    os_session=Depends(_os_session_optional),
+):
+    """The settings provider catalog, for an admin's new project chat."""
+    me, desk = _resolve(x_pub_token), _desktop()
+    if not me or not me.get("is_admin") or desk is None:
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    cfg = desk._read_cfg()
+    if not (x_mvmai_surface == "desktop" and os_session):
+        prem = _premium()
+        if prem and prem.is_available():
+            cfg = prem.resolve_pub_cfg(cfg)
+    user = desk._resolve_os_user(os_session.get("effective_user") if os_session else None)
+    def installed_cli():
+        users = desk._cli_user_candidates(user)
+        return [p for p in desk.CLI_PROVIDERS if any(
+            desk._which(p["cmd"], desk._home_for(eu)) for eu in users
+        )]
+    cli = await asyncio.to_thread(installed_cli)
+    return JSONResponse({
+        "provider": cfg.get("provider") or "gemini", "model": cfg.get("model") or "",
+        "label": _label_from_cfg(desk, cfg),
+        "cli_providers": [{"id": p["id"], "name": p["name"],
+                           "model_choices": p.get("model_choices") or [],
+                           "models_dynamic": bool(p.get("model_discovery"))} for p in cli],
+        "api_providers": [{"id": pid, "name": p["name"]} for pid, p in desk.PROVIDERS.items()],
+    })
+
+
+class ModelOptionsRequest(BaseModel):
+    provider: str
+
+
+@router.post("/model-options/cli-models")
+async def model_options_cli_models(
+    body: ModelOptionsRequest,
+    x_pub_token: str = Header(default=None),
+    os_session=Depends(_os_session_optional),
+):
+    me, desk = _resolve(x_pub_token), _desktop()
+    if not me or not me.get("is_admin") or desk is None:
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    provider = next((p for p in desk.CLI_PROVIDERS if p["id"] == body.provider), None)
+    if not provider:
+        return JSONResponse({"error": "invalid_provider"}, status_code=400)
+    user = desk._resolve_os_user(os_session.get("effective_user") if os_session else None)
+    def discover():
+        runtime = desk._resolve_cli_runtime(provider, user)
+        if not runtime:
+            return None
+        cli_user, home, cmd_bin = runtime
+        return desk._discover_cli_models(provider, cmd_bin, cli_user, home)
+    models = await asyncio.to_thread(discover)
+    if models is None:
+        return JSONResponse({"error": "provider_unavailable"}, status_code=404)
+    return JSONResponse({"models": models})
+
+
+@router.post("/model-options/models")
+async def model_options_models(body: ModelOptionsRequest, x_pub_token: str = Header(default=None)):
+    """Fetch API models with the saved key without exposing it to the public page."""
+    me, desk = _resolve(x_pub_token), _desktop()
+    if not me or not me.get("is_admin") or desk is None:
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    if body.provider not in desk.PROVIDERS:
+        return JSONResponse({"error": "invalid_provider"}, status_code=400)
+    return await desk.list_models(desk.ModelsRequest(provider=body.provider), session=None)
+
+
 # CLI providers (claude-cli, gemini-cli, ...) talk in plain text, not the
 # OpenAI tool_calls JSON the HTTP providers use — so neither run_command nor
 # the premium app-api bridge has anything to attach to there. To let a CLI
@@ -278,8 +350,11 @@ def _cli_tool_instructions(tools):
 # access) or run_command can unpack and read it. Everyone else sends images
 # inside the message itself; nothing of theirs is ever written to disk.
 _UPLOAD_DIR = os.path.join(_DIR, "uploads")
-_UPLOAD_KEEP_SECONDS = 7 * 86400
 _UPLOAD_MAX_BYTES = 500 * 1024 * 1024
+# Anyone but an administrator keeps what they attach for the gallery only: small
+# files, and no more than this much in total.
+_USER_UPLOAD_MAX_BYTES = 25 * 1024 * 1024
+_USER_UPLOAD_QUOTA = 300 * 1024 * 1024
 _IMAGE_RE = re.compile(r"^data:image/(?:png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$")
 _IMAGES_MAX = 6
 _IMAGE_MAX_CHARS = 5 * 1024 * 1024
@@ -291,21 +366,19 @@ def _upload_name(raw: str) -> str:
     return name or "file"
 
 
-def _purge_old_uploads():
-    cutoff = time.time() - _UPLOAD_KEEP_SECONDS
-    for root, dirs, files in os.walk(_UPLOAD_DIR, topdown=False):
+def _user_folder(user_id) -> str:
+    return os.path.join(_UPLOAD_DIR, re.sub(r"[^\w-]", "_", str(user_id)))
+
+
+def _folder_size(folder: str) -> int:
+    total = 0
+    for root, _dirs, files in os.walk(folder):
         for f in files:
-            p = os.path.join(root, f)
             try:
-                if os.path.getmtime(p) < cutoff:
-                    os.remove(p)
+                total += os.path.getsize(os.path.join(root, f))
             except OSError:
                 pass
-        if root != _UPLOAD_DIR:
-            try:
-                os.rmdir(root)
-            except OSError:
-                pass
+    return total
 
 
 _EXTRACT_MAX_BYTES = 2 * 1024 * 1024 * 1024
@@ -370,26 +443,28 @@ def _extract_archive(path: str):
 
 @router.post("/attach")
 async def attach_file(request: Request, x_pub_token: str = Header(default=None), x_file_name: str = Header(default="")):
-    """Administrators only: the request body is the file itself."""
+    """The request body is the file itself. An administrator's file also reaches
+    the model by its path; anyone else's is only kept for their gallery."""
     from urllib.parse import unquote
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
-    if not me.get("is_admin"):
-        return JSONResponse({"error": "forbidden"}, status_code=403)
-    _purge_old_uploads()
-    folder = os.path.join(_UPLOAD_DIR, re.sub(r"[^\w-]", "_", str(me["id"])))
+    admin = bool(me.get("is_admin"))
+    folder = _user_folder(me["id"])
     os.makedirs(folder, mode=0o755, exist_ok=True)
     os.chmod(_UPLOAD_DIR, 0o755)
     os.chmod(folder, 0o755)
+    limit = _UPLOAD_MAX_BYTES if admin else _USER_UPLOAD_MAX_BYTES
+    if not admin and _folder_size(folder) > _USER_UPLOAD_QUOTA:
+        return JSONResponse({"error": "quota"}, status_code=413)
     name = _upload_name(unquote(x_file_name))
-    path = os.path.join(folder, f"{int(time.time())}_{name}")
+    path = os.path.join(folder, f"{int(time.time() * 1000)}_{name}")
     size = 0
     try:
         with open(path, "wb") as out:
             async for chunk in request.stream():
                 size += len(chunk)
-                if size > _UPLOAD_MAX_BYTES:
+                if size > limit:
                     raise ValueError("too_big")
                 out.write(chunk)
         os.chmod(path, 0o644)
@@ -401,6 +476,8 @@ async def attach_file(request: Request, x_pub_token: str = Header(default=None),
         if str(e) == "too_big":
             return JSONResponse({"error": "too_big"}, status_code=413)
         return JSONResponse({"error": "upload_failed"}, status_code=500)
+    if not admin:
+        return JSONResponse({"name": name, "size": size})
     unpacked = await asyncio.to_thread(_extract_archive, path)
     return JSONResponse({"path": os.path.realpath(path), "name": name, "size": size, "dir": unpacked})
 
@@ -410,14 +487,12 @@ _PREVIEW_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpe
 
 @router.get("/attachment")
 async def attachment_preview(path: str = "", x_pub_token: str = Header(default=None)):
-    """Administrators only: an image this user attached earlier, so an old chat
-    can show it again. Only images inside the user's own upload folder."""
+    """An image this user attached earlier, so an old chat can show it again.
+    Only images inside the user's own upload folder."""
     me = _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
-    if not me.get("is_admin"):
-        return JSONResponse({"error": "forbidden"}, status_code=403)
-    folder = os.path.realpath(os.path.join(_UPLOAD_DIR, re.sub(r"[^\w-]", "_", str(me["id"]))))
+    folder = os.path.realpath(_user_folder(me["id"]))
     real = os.path.realpath(path) if path.startswith("/") and len(path) <= 1000 else ""
     kind = _PREVIEW_TYPES.get(os.path.splitext(real)[1].lower())
     if not real or not kind or not real.startswith(folder + os.sep) or not os.path.isfile(real):
@@ -447,6 +522,134 @@ async def download_file(path: str = "", x_pub_token: str = Header(default=None))
         return JSONResponse({"error": "not_found"}, status_code=404)
     return FileResponse(real, filename=os.path.basename(real), media_type="application/octet-stream",
                         headers={"Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff"})
+
+
+# ── Gallery ────────────────────────────────────────────────────────────────────
+# Every file the user sent (their upload folder) and, for an administrator, every
+# file the model offered with [[file:<path>]], over all of their chats. A sent
+# file is deleted from the server; an offered one lives wherever the model made
+# it, so deleting it only removes it from the gallery.
+_OFFERED_RE = re.compile(r"\[\[file:(/[^\]\n]{1,990})\]\]")
+
+
+def _gallery_id(kind: str, path: str) -> str:
+    return hashlib.sha1(f"{kind}:{path}".encode()).hexdigest()[:20]
+
+
+def _gallery_items(user_id, admin: bool) -> list:
+    with _sdb() as conn:
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS pub_gallery_hidden (user_id TEXT NOT NULL, path TEXT NOT NULL, "
+            "PRIMARY KEY (user_id, path))"
+        )
+        hidden = {r[0] for r in conn.execute("SELECT path FROM pub_gallery_hidden WHERE user_id=?", (user_id,))}
+        sessions = {r["id"]: r["title"] for r in conn.execute(
+            "SELECT id, title FROM pub_sessions WHERE user_id=?", (user_id,))}
+        rows = conn.execute(
+            "SELECT m.session_id, m.role, m.content, m.created_at FROM pub_messages m "
+            "JOIN pub_sessions s ON s.id=m.session_id WHERE s.user_id=? AND m.content IS NOT NULL "
+            "AND (m.content LIKE '%[[file:%' OR m.content LIKE '%Attached file saved on the server:%') "
+            "ORDER BY m.id DESC", (user_id,)).fetchall()
+    folder = os.path.realpath(_user_folder(user_id))
+    items = {}
+
+    def chat_of(path, role):
+        for r in rows:
+            c = r["content"] or ""
+            if r["role"] == role and path in c:
+                return r["session_id"], sessions.get(r["session_id"], ""), r["created_at"]
+        return None, "", None
+
+    if os.path.isdir(folder):
+        for name in os.listdir(folder):
+            full = os.path.join(folder, name)
+            if not os.path.isfile(full):
+                continue
+            real = os.path.realpath(full)
+            sid, title, at = chat_of(real, "user")
+            m = re.match(r"^(\d{10,13})_(.+)$", name)
+            display = m.group(2) if m else name
+            items[real] = {"kind": "sent", "path": real, "name": display, "chat_id": sid, "chat_title": title,
+                           "time": int(at or os.path.getmtime(real))}
+    if admin:
+        for r in rows:
+            if r["role"] != "assistant":
+                continue
+            for path in _OFFERED_RE.findall(r["content"] or ""):
+                real = os.path.realpath(path)
+                if real in items or real in hidden or not os.path.isfile(real):
+                    continue
+                items[real] = {"kind": "received", "path": real, "name": os.path.basename(real),
+                               "chat_id": r["session_id"], "chat_title": sessions.get(r["session_id"], ""),
+                               "time": int(r["created_at"] or os.path.getmtime(real))}
+    out = []
+    for real, it in items.items():
+        try:
+            it["size"] = os.path.getsize(real)
+        except OSError:
+            continue
+        it["id"] = _gallery_id(it["kind"], real)
+        it["image"] = os.path.splitext(real)[1].lower() in _PREVIEW_TYPES
+        out.append(it)
+    out.sort(key=lambda x: x["time"], reverse=True)
+    return out
+
+
+def _gallery_find(me, item_id: str):
+    return next((it for it in _gallery_items(me["id"], bool(me.get("is_admin"))) if it["id"] == item_id), None)
+
+
+@router.get("/gallery")
+async def gallery_list(x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    items = _gallery_items(me["id"], bool(me.get("is_admin")))
+    return JSONResponse({"items": [{k: v for k, v in it.items() if k != "path"} for it in items]})
+
+
+@router.get("/gallery/file")
+async def gallery_file(id: str = "", download: int = 0, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    it = _gallery_find(me, id)
+    if not it:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    headers = {"Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff"}
+    kind = _PREVIEW_TYPES.get(os.path.splitext(it["path"])[1].lower())
+    if kind and not download:
+        return FileResponse(it["path"], media_type=kind, headers=headers)
+    return FileResponse(it["path"], filename=it["name"], media_type="application/octet-stream", headers=headers)
+
+
+class GalleryDelete(BaseModel):
+    ids: list[str]
+
+
+@router.post("/gallery/delete")
+async def gallery_delete(body: GalleryDelete, x_pub_token: str = Header(default=None)):
+    import shutil
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    wanted = set(body.ids[:500])
+    deleted = 0
+    for it in _gallery_items(me["id"], bool(me.get("is_admin"))):
+        if it["id"] not in wanted:
+            continue
+        if it["kind"] == "sent":
+            try:
+                os.remove(it["path"])
+            except OSError:
+                continue
+            shutil.rmtree(it["path"] + "_extracted", ignore_errors=True)
+        else:
+            with _sdb() as conn:
+                conn.execute("INSERT OR IGNORE INTO pub_gallery_hidden (user_id, path) VALUES (?,?)",
+                             (me["id"], it["path"]))
+        deleted += 1
+    return JSONResponse({"deleted": deleted})
 
 
 def _clean_images(messages: list) -> list:
@@ -604,10 +807,19 @@ async def list_sessions(x_pub_token: str = Header(default=None)):
         return JSONResponse({"error": "unauthorized"}, status_code=401)
     with _sdb() as conn:
         rows = conn.execute(
-            "SELECT id, title, project_id, updated_at FROM pub_sessions WHERE user_id=? ORDER BY updated_at DESC",
+            "SELECT id, title, project_id, updated_at, provider, model, cli_state FROM pub_sessions "
+            "WHERE user_id=? ORDER BY updated_at DESC",
             (me["id"],),
         ).fetchall()
-    return JSONResponse({"sessions": [dict(r) for r in rows]})
+    desk = _desktop() if me.get("is_admin") else None
+    out = []
+    for r in rows:
+        item = {k: r[k] for k in ("id", "title", "project_id", "updated_at")}
+        # Which AI and model a chat is pinned to is shown to the administrator only.
+        if desk is not None:
+            item["label"] = _session_label(desk, r)
+        out.append(item)
+    return JSONResponse({"sessions": out})
 
 
 @router.get("/sessions/{sid}/messages")
@@ -681,6 +893,7 @@ class ChatRequest(BaseModel):
     messages: list
     session_id: str | None = None
     project_id: str | None = None
+    project_model: dict | None = None
     # Used only for the client-side history-compaction summary request: skips
     # tools, credit charging, and session persistence — it's not a real turn
     # the user sent, just internal upkeep on an existing conversation.
@@ -697,8 +910,8 @@ class StopRequest(BaseModel):
     turn_id: str
 
 
-# Running chat requests by turn_id: the task, the CLI processes it started and
-# the token that sent it, the only one that may stop it.
+# Running chat requests by turn_id: the task, its processes and the token that
+# sent it. Completed turns stay briefly so a polling client can collect them.
 _TURNS: dict = {}
 
 
@@ -709,11 +922,11 @@ async def chat(
     x_mvmai_surface: str = Header(default=""),
     os_session=Depends(_os_session_optional),
 ):
-    # A full-access turn can work for many minutes, while Cloudflare drops a
-    # request that sends nothing for 100s. A quick answer keeps its status;
-    # a slow one starts a 200 response at once and sends a space every few
-    # seconds (still valid JSON once the body follows), so errors then travel
-    # only as {"error": ...}.
+    # Return pending for long turns. A long-lived response can be closed by a
+    # proxy even while keepalive bytes are flowing, leaving only whitespace.
+    for old_id, old_turn in list(_TURNS.items()):
+        if old_turn.get("finished_at", float("inf")) < time.monotonic() - 3600:
+            _TURNS.pop(old_id, None)
     desk = _desktop()
     turn = {"procs": [], "stopped": False, "token": x_pub_token}
     ctx_token = desk.CHAT_TURN.set(turn) if desk and hasattr(desk, "CHAT_TURN") else None
@@ -726,11 +939,16 @@ async def chat(
     if turn_id:
         turn["task"] = task
         _TURNS[turn_id] = turn
-        task.add_done_callback(lambda _t: _TURNS.pop(turn_id, None))
+        task.add_done_callback(lambda _t: turn.update(finished_at=time.monotonic()))
     stopped = JSONResponse({"error": "stopped"})
     done, _ = await asyncio.wait({task}, timeout=_CHAT_KEEPALIVE_SECONDS)
     if done:
+        if turn_id:
+            _TURNS.pop(turn_id, None)
         return stopped if task.cancelled() else task.result()
+
+    if turn_id:
+        return JSONResponse({"pending": True}, status_code=202)
 
     async def keepalive():
         while not task.done():
@@ -748,6 +966,23 @@ async def chat(
         keepalive(), media_type="application/json",
         headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
     )
+
+
+@router.get("/chat/turn/{turn_id}")
+async def poll_chat_turn(turn_id: str, x_pub_token: str = Header(default=None)):
+    turn = _TURNS.get(turn_id)
+    if not turn or not x_pub_token or turn["token"] != x_pub_token:
+        return JSONResponse({"error": "turn_not_found"}, status_code=404)
+    task = turn["task"]
+    if not task.done():
+        return JSONResponse({"pending": True}, status_code=202)
+    _TURNS.pop(turn_id, None)
+    if task.cancelled():
+        return JSONResponse({"error": "stopped"})
+    try:
+        return task.result()
+    except Exception as exc:
+        return JSONResponse({"error": str(exc) or "mvmAI failed"}, status_code=500)
 
 
 _CHAT_KEEPALIVE_SECONDS = 15
@@ -849,6 +1084,17 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session):
                 app_prompt = prem.app_prompt(body.app_id)
         if not is_desktop:
             cfg = prem.resolve_pub_cfg(cfg)
+    # A confirmed model applies only to an admin's first turn in a project.
+    # Existing chats always keep their pinned provider and model.
+    if not saved and is_admin and project and body.project_model and not body.no_persist:
+        requested_provider = body.project_model.get("provider")
+        requested_model = body.project_model.get("model")
+        known = isinstance(requested_provider, str) and (requested_provider in desk.PROVIDERS or any(
+            p["id"] == requested_provider for p in desk.CLI_PROVIDERS
+        ))
+        if not known or not isinstance(requested_model, str) or len(requested_model) > 200:
+            return JSONResponse({"error": "invalid_model"}, status_code=400)
+        cfg = {**cfg, "provider": requested_provider, "model": requested_model}
     # A chat keeps the provider and model it started with, whatever the
     # settings say later; an older chat is pinned by its next answer.
     if saved and saved["provider"]:

@@ -118,6 +118,10 @@
       .bw-progress-label{font-size:.72rem;color:var(--pub-fg2, #a6adc8)}
       .bw-card-meta{font-size:.72rem;color:var(--pub-dim, #6c7086)}
       .bw-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+      .bw-toast{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:70;
+        max-width:calc(100% - 32px);padding:10px 16px;border:1px solid var(--pub-green, #a6e3a1);
+        border-radius:8px;background:var(--pub-surface1, #181825);color:var(--pub-fg, #cdd6f4);
+        box-shadow:0 8px 24px rgba(0,0,0,.3);font-size:.84rem;font-weight:600;text-align:center}
       .bw-dialog{background:var(--pub-bg, #1e1e2e);border-radius:10px;padding:18px;width:100%;max-width:420px;max-height:88%;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
       .bw-dialog h3{margin:0 0 4px}
       .bw-field label{display:block;font-size:.78rem;color:var(--pub-fg2, #a6adc8);margin-bottom:4px}
@@ -919,6 +923,18 @@
       return ov;
     }
 
+    let toastTimer;
+    function showToast(message) {
+      clearTimeout(toastTimer);
+      root.querySelector('.bw-toast')?.remove();
+      const toast = document.createElement('div');
+      toast.className = 'bw-toast';
+      toast.setAttribute('role', 'status');
+      toast.textContent = message;
+      root.appendChild(toast);
+      toastTimer = setTimeout(() => toast.remove(), 3200);
+    }
+
     let myCurrency = null; // override code, or null = system default
     let myId = null;
     let myDefaultSign = 1;
@@ -1382,28 +1398,31 @@
       }
       ov.querySelector('#bw-tx-note').addEventListener('input', _markSuggestions);
 
+      let savingTx = false;
       async function submitTx() {
+        if (savingTx) return;
         const raw = parseFloat(ov.querySelector('#bw-tx-amount').value);
         const sign = parseInt(ov.querySelector('#bw-tx-sign').value, 10);
         if (isNaN(raw) || raw <= 0) { errEl.textContent = t('invalid_allocation'); errEl.style.display = 'block'; return; }
         const note = ov.querySelector('#bw-tx-note').value.trim();
+        const saveBtn = ov.querySelector('#bw-tx-add');
+        savingTx = true;
+        saveBtn.disabled = true;
+        let saved;
         try {
-          await api(`/categories/${cat.id}/transactions`, {
+          saved = await api(`/categories/${cat.id}/transactions`, {
             method: 'POST', body: JSON.stringify({ amount: raw * sign, note }),
           });
-          ov.querySelector('#bw-tx-amount').value = '';
-          ov.querySelector('#bw-tx-note').value = '';
-          ov.querySelector('#bw-tx-sign').value = String(myDefaultSign);
-          errEl.style.display = 'none';
-          const freshBalance = await fetchFreshBalance();
-          if (freshBalance !== undefined) { cat.balance = freshBalance; ov.querySelector('.bw-card-balance').textContent = fmtMoney(cat.balance); }
-          loadTx();
-          // A wording used for the second time only becomes a suggestion now, so
-          // what was fetched is stale: refreshed at once while the picker is
-          // open, and otherwise left for whenever it is next opened.
-          suggestLoaded = false;
-          if (!suggestPop.hidden) loadSuggestions();
-        } catch (e) { errEl.textContent = t('save_failed'); errEl.style.display = 'block'; }
+        } catch (e) {
+          errEl.textContent = t('save_failed'); errEl.style.display = 'block';
+          savingTx = false;
+          saveBtn.disabled = false;
+          return;
+        }
+        cat.balance = saved.balance;
+        ov.remove();
+        showToast(t('amount_saved'));
+        try { if (onClose) await onClose(); else await refresh(); } catch (_) {}
       }
       ov.querySelector('#bw-tx-add').onclick = () => submitTx();
       ov.querySelector('#bw-tx-note').addEventListener('keydown', e => { if (e.key === 'Enter') submitTx(); });
@@ -1664,7 +1683,7 @@
       }
     });
 
-    return { destroy() { destroyed = true; } };
+    return { destroy() { destroyed = true; clearTimeout(toastTimer); } };
   }
 
   window.BudgetWidget = { mount };

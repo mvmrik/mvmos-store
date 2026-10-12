@@ -14,7 +14,7 @@ button.hv-chip{cursor:pointer}button.hv-chip:hover{background:rgba(16,22,26,.82)
 .hv-loading.done{opacity:0;pointer-events:none}.hv-spin{width:42px;height:42px;border-radius:50%;border:4px solid rgba(255,255,255,.35);border-top-color:#fff;animation:hv-spin 1s linear infinite}@keyframes hv-spin{to{transform:rotate(360deg)}}
 @media(max-width:600px){.hv-chip{padding:6px 9px;font-size:12px}.hv-brand .hv-name{display:none}}
 .hv-inv{position:absolute;z-index:3;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:10px;align-items:flex-end;max-width:calc(100% - 24px)}
-.hv-pack{display:flex;gap:4px;padding:5px;border-radius:12px;background:rgba(16,22,26,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.hv-pack{display:flex;flex-wrap:wrap;align-items:center;max-width:min(60vw,420px);gap:4px;padding:5px;border-radius:12px;background:rgba(16,22,26,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .hv-slot{position:relative;width:40px;height:40px;flex:none;border:1px solid rgba(255,255,255,.2);border-radius:9px;background:rgba(255,255,255,.08);color:#fff;font-size:22px;line-height:1;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .hv-slot:hover{background:rgba(255,255,255,.18)}.hv-slot.empty{cursor:default}.hv-slot.empty:hover{background:rgba(255,255,255,.08)}
 .hv-me{display:block;position:relative;width:46px;height:46px;border-radius:50%;border:2px solid rgba(255,255,255,.35);background:rgba(16,22,26,.6);cursor:pointer;padding:0;align-self:center}
@@ -97,6 +97,9 @@ button.hv-chip{cursor:pointer}button.hv-chip:hover{background:rgba(16,22,26,.82)
 .hv-tasks-title{padding:1px 5px 3px;font-size:11px;font-weight:600;opacity:.7;text-transform:uppercase;letter-spacing:.04em}
 .hv-task{display:flex;align-items:center;gap:7px;padding:4px 4px 4px 6px;border-radius:8px;font-size:12px;background:rgba(255,255,255,.06)}
 .hv-task.now{background:rgba(242,193,78,.28)}
+.hv-task{position:relative}
+.hv-task-bar{position:absolute;left:6px;right:6px;bottom:2px;height:3px;border-radius:2px;background:rgba(255,255,255,.18);overflow:hidden}
+.hv-task-bar i{display:block;height:100%;width:0;background:#f2c14e}
 .hv-task-n{width:16px;text-align:center;font-size:11px;opacity:.75;font-variant-numeric:tabular-nums}
 .hv-task-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hv-task-x{flex:none;width:24px;height:24px;border:0;border-radius:6px;background:transparent;color:#f4f6f8;font:inherit;font-size:16px;line-height:1;cursor:pointer}
@@ -104,6 +107,7 @@ button.hv-chip{cursor:pointer}button.hv-chip:hover{background:rgba(16,22,26,.82)
 @media(max-width:600px){.hv-tasks{width:180px}}
 .hv-cargo-ohead{margin-top:10px;padding-top:8px;border-top:1px solid rgba(127,212,255,.35)}.hv-cargo-ohead b{color:#bfe8ff}
 .hv-cargo-back{padding:5px 10px;font-size:12px}
+.hv-cargo-switch{padding:5px 10px;font-size:12px;margin:0 6px 6px 0}
 .hv-cargo-other .hv-tile{border-color:rgba(127,212,255,.55)}
 
 .hv-app:fullscreen{width:100vw;height:100vh;min-height:0}
@@ -118,3 +122,25 @@ button.hv-chip{cursor:pointer}button.hv-chip:hover{background:rgba(16,22,26,.82)
 .hv-touch .hv-house-plan .hv-house-note{margin:5px 0;font-size:12px;line-height:1.35}
 .hv-touch .hv-house-plan .hv-make{min-height:44px;min-width:88px}
 .hv-touch .hv-menu button{min-height:44px}
+.hv-auto{position:absolute;z-index:5;left:50%;bottom:84px;transform:translateX(-50%);width:330px;max-width:calc(100% - 24px);max-height:60%;overflow:auto;display:none;background:rgba(16,22,26,.88);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:12px 14px}
+.hv-auto.open{display:block}
+.hv-auto-row{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;flex:1}
+.hv-auto-line{display:flex;align-items:center;gap:6px}
+.hv-auto-n{width:16px;text-align:center;font-size:11px;opacity:.7}
+.hv-auto-line button:disabled{opacity:.3;cursor:default}
+
+.hv-kg{padding:0 6px;font-size:11px;opacity:.75;font-variant-numeric:tabular-nums;white-space:nowrap}.hv-kg.full{color:#f2c14e;opacity:1}
+.hv-touch .hv-kg{grid-column:1/-1}
+
+.hv-craft-tabs{display:flex;gap:4px;margin:2px 0 8px}.hv-craft-tab{flex:1;padding:6px 8px;border:1px solid rgba(255,255,255,.18);border-radius:8px;background:rgba(255,255,255,.06);color:#f4f6f8;font:inherit;font-size:12px;cursor:pointer}.hv-craft-tab.on{background:rgba(242,193,78,.3);border-color:rgba(242,193,78,.7)}
+
+.hv-chip.hv-mode-btn.on{background:rgba(242,193,78,.4);border-color:rgba(242,193,78,.8)}.hv-buildmode .hv-stage{box-shadow:inset 0 0 0 3px rgba(242,193,78,.5)}
+
+.hv-clock{pointer-events:none;font-variant-numeric:tabular-nums}
+.hv-sleep{position:absolute;left:50%;top:58px;transform:translateX(-50%);z-index:5;display:none;align-items:center;gap:12px;padding:8px 12px 8px 16px;border-radius:14px;background:rgba(16,22,40,.82);border:1px solid rgba(160,180,255,.4);color:#e8ecff;font-size:14px;pointer-events:none}
+.hv-sleep.open{display:flex}
+.hv-sleep .hv-make{pointer-events:auto}
+
+.hv-view{position:absolute;left:12px;bottom:84px;z-index:3;display:none;flex-direction:column;gap:6px}
+.hv-view.open{display:flex}
+.hv-view .hv-make.off{opacity:.75;background:rgba(255,255,255,.12)}

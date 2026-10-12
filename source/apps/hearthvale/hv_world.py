@@ -53,9 +53,15 @@ TUNING = {
     "sled_wade": 0.35,
     # How far from a player the thing they act on may be, in metres.
     "reach": 3.5,
-    # Small things go in the backpack, one per slot. A log does not fit in
-    # any backpack: it is carried in the hands, one at a time, at a walk.
-    "pack_slots": 10,
+    # How much farther than that furniture can be set down or moved: a room is
+    # laid out from where you stand, not from every corner of it.
+    "design_reach": 26.5,
+    # Small things go in the backpack, as many as it can carry: its limit in
+    # kilograms grows with Strength like everything else. A log does not fit
+    # in any backpack: it is carried in the hands, one at a time, at a walk.
+    "pack_kg": 40.0,
+    # How much room it has, in litres: a bag does not grow with strength.
+    "pack_litres": 30.0,
     # Seconds of chopping a tree takes for someone with Woodcutting 1 and
     # Strength 1, by what is in the hand. The two levels added together divide
     # it: levels 1 and 1 give half of this, so a newcomer chops a tree in
@@ -63,12 +69,17 @@ TUNING = {
     "chop_seconds": {"stone": 600, "axe": 200},
     # Seconds of use a tool lasts before it breaks: an axe chops twelve
     # trees, a hoe digs about a hundred squares of new soil.
-    "tool_life": {"axe": 1200, "hoe": 1800},
+    "tool_life": {"axe": 1200, "hoe": 1800, "hammer": 1500},
+    # Seconds of wear one broken part costs a hammer.
+    "break_wear": 25,
     # Everything is made the same way, on the ground: the player places its
     # frame, brings the materials to it, and takes the made thing from it.
     # A sled stays where it was built; a tool is picked up off its frame.
-    "builds": {"axe": {"stone": 1, "log": 1}, "hoe": {"stone": 1, "log": 1},
-               "bucket": {"log": 1}, "sled": {"log": 5}},
+    "builds": {"axe": {"stone": 1, "log": 1}, "hoe": {"stone": 1, "log": 1}, "hammer": {"stone": 1, "log": 1},
+               "bucket": {"log": 1}, "sled": {"log": 5},
+               "bed": {"log": 4}, "bed_stone": {"log": 3, "stone": 3}, "bed_big": {"log": 7, "stone": 2},
+               "stool": {"log": 1}, "chair": {"log": 2}, "chair_stone": {"log": 1, "stone": 2},
+               "table": {"log": 3}, "table_big": {"log": 5}, "table_stone": {"log": 2, "stone": 4}},
     # Tools a build needs without using them up, carried by whoever brings
     # the last material, and the seconds of wear the work costs them: a
     # bucket is carved out of a log with an axe.
@@ -76,10 +87,30 @@ TUNING = {
     # Permanent modules use the farming grid and size-dependent recipes.
     "housing": {"cell": 1.5, "max_side": 8, "floor_logs": 1, "wall_logs": 2,
                 "height": 2.6, "thickness": 0.16, "door_width": 1.2, "door_height": 2.1,
-                "support_step": 2, "support_min": 0.2, "support_unit": 2.0, "support_width": 0.22},
+                "support_step": 2, "support_min": 0.2, "support_unit": 2.0, "support_width": 0.22,
+                # A roof covers the whole floor and a little beyond it; a door
+                # or a window is set in a wall and makes the opening itself.
+                "roof_logs": 2, "roof_overhang": 0.3, "roof_rise": 1.2,
+                "door_logs": 3, "window_logs": 2, "window_width": 1.0,
+                "window_height": 0.8, "window_sill": 1.0, "opening_gap": 0.1},
     # How much room a frame takes, in metres from its middle: two frames
     # stand at least the two rooms added together apart.
-    "build_room": {"axe": 0.6, "hoe": 0.6, "bucket": 0.6, "sled": 1.5},
+    "build_room": {"axe": 0.6, "hoe": 0.6, "hammer": 0.6, "bucket": 0.6, "sled": 1.5,
+                   "bed": 1.0, "bed_stone": 1.0, "bed_big": 1.2, "stool": 0.35, "chair": 0.4, "chair_stone": 0.4,
+                   "table": 0.8, "table_big": 1.2, "table_stone": 0.8},
+    # A day in the valley: the same hour for everyone, told by the server's
+    # clock. It starts at `start_hour` whenever the clock is a multiple of `length`.
+    "day": {"length": 900.0, "start_hour": 6.0, "night_from": 22.0, "night_to": 5.0},
+    # Sleeping: `hours` of it take someone from nothing to full energy; a better
+    # bed (`sleep`) is a little quicker. Hunger and thirst grow `slow` times as
+    # fast meanwhile; above `max_energy` of the energy there is no sleeping.
+    "sleep": {"hours": 7.0, "slow": 0.5, "max_energy": 0.9},
+    # Things made on the ground that stay there: size in metres, and for a
+    # bed how well it rests.
+    "furniture": {"bed": {"w": 1.0, "d": 2.0, "sleep": 1.0}, "bed_stone": {"w": 1.1, "d": 2.0, "sleep": 1.2},
+                  "bed_big": {"w": 1.8, "d": 2.0, "sleep": 1.45},
+                  "stool": {"w": 0.5, "d": 0.5}, "chair": {"w": 0.6, "d": 0.6}, "chair_stone": {"w": 0.6, "d": 0.6},
+                  "table": {"w": 1.2, "d": 0.8}, "table_big": {"w": 2.0, "d": 0.9}, "table_stone": {"w": 1.2, "d": 0.9}},
     # How far from a sled or a frame what is taken off it may be put down.
     "unload_reach": 6.0,
     # What things are. `kg` and `l` (litres) are for one piece. `slot` is how
@@ -93,6 +124,7 @@ TUNING = {
         "log":     {"kg": 15.0, "l": 30.0, "slot": 0,  "hand": 1},
         "axe":     {"kg": 2.0,  "l": 2.0,  "slot": 1,  "hand": 1},
         "hoe":     {"kg": 1.8,  "l": 2.5,  "slot": 1,  "hand": 1},
+        "hammer":  {"kg": 2.5,  "l": 2.5,  "slot": 1,  "hand": 1},
         "bucket":  {"kg": 1.5,  "l": 12.0, "slot": 0,  "hand": 1},
         "apple":   {"kg": 0.2,  "l": 0.3,  "slot": 10, "hand": 6,  "life": 259200,
                     "food": 16, "water": 4},
@@ -107,7 +139,7 @@ TUNING = {
     "chop_tick": 1.0,
     # Most items one pile on the ground holds before a new one is started.
     # A bucket lies on its own, so the water in each one stays its own.
-    "pile_max": {"stone": 40, "log": 12, "apple": 60, "berries": 100, "bucket": 1, "axe": 1, "hoe": 1},
+    "pile_max": {"stone": 40, "log": 12, "apple": 60, "berries": 100, "bucket": 1, "axe": 1, "hoe": 1, "hammer": 1},
     # Two piles of the same thing closer than this become one.
     "pile_merge": 1.6,
     # Skills. A level takes `base_seconds` of training to climb from level 1
@@ -133,8 +165,9 @@ TUNING = {
     # is spent by what the player does and comes back only at rest.
     "needs": {
         "food_max": 100, "water_max": 100, "energy_base": 100,
-        # Share of the maximum energy that comes back per second of rest.
-        "regen": 0.006,
+        # Share of the maximum energy that comes back per second of standing
+        # still: none, standing about even wears a little. Rest is sleep.
+        "regen": 0.0,
         # Below this share of food or water rest gives back half as much;
         # at zero it gives nothing and effort costs half as much again.
         "low": 25, "starved_cost": 1.5,
@@ -143,7 +176,7 @@ TUNING = {
         "act_window": 0.4, "chop_window": 1.5, "max_gap": 600,
         "pull_per_kg": 0.004,
         "rates": {
-            "idle": {"food": 0.020, "water": 0.030, "energy": 0},
+            "idle": {"food": 0.020, "water": 0.030, "energy": 0.03},
             "walk": {"food": 0.035, "water": 0.050, "energy": 0.10},
             "run":  {"food": 0.060, "water": 0.100, "energy": 1.00},
             "chop": {"food": 0.060, "water": 0.080, "energy": 0.25},
@@ -186,8 +219,9 @@ TUNING = {
 
 _ANIMS = {"idle", "walk", "run", "jump", "chop", "dig"}
 _ITEMS = {"stone", "log"}   # plain things, stored as their name
-_TOOLS = {"axe", "hoe"}     # worn by use, stored as {"k": name, "w": seconds left}
+_TOOLS = {"axe", "hoe", "hammer"}     # worn by use, stored as {"k": name, "w": seconds left}
 _VESSELS = {"bucket"}       # never wear out, stored as {"k": name, "w": waterings in it}
+_STRUCTS = ("floor", "wall", "roof", "door", "window")   # built where they stand, never carried away
 _KEPT = _TOOLS              # stay with the player: never put down or loaded
 _FOOD = {"apple", "berries"}   # stacks: {"k", "n", "at"}, `at` when they were picked
 _SMALL = {k for k, v in TUNING["items"].items() if v["slot"] > 0}   # fits a backpack slot
@@ -368,8 +402,7 @@ def _clean_item(item):
     if isinstance(item, str):
         return item if item in _ITEMS else None
     if isinstance(item, dict) and item.get("k") in _FOOD:
-        cap = TUNING["items"][item["k"]]["slot"]
-        n = int(_num(item.get("n"), 0, cap, 0))
+        n = int(_num(item.get("n"), 0, 100000, 0))
         return {"k": item["k"], "n": n, "at": _num(item.get("at"), 0, 1e12, time.time())} if n > 0 else None
     if isinstance(item, dict) and item.get("k") in _TOOLS:
         w = _num(item.get("w"), 0, TUNING["tool_life"][item["k"]], 0)
@@ -379,11 +412,28 @@ def _clean_item(item):
     return None
 
 
+def _tidy_pack(inv: dict):
+    """One stack of each fruit in the backpack, and no empty places at the
+    end. Empty places in between stay, so the slots keep their numbers."""
+    pack, seen = inv["pack"], {}
+    for i, it in enumerate(pack):
+        if _kind(it) not in _FOOD:
+            continue
+        first = seen.get(it["k"])
+        if first is None:
+            seen[it["k"]] = i
+            continue
+        st = pack[first]
+        st["at"] = _merged_at(st["n"], st["at"], it["n"], it["at"])
+        st["n"] += it["n"]
+        pack[i] = None
+    while pack and pack[-1] is None:
+        pack.pop()
+
+
 def _new_inventory() -> dict:
     # A newcomer starts with one stone in the backpack — the first tool.
-    pack = [None] * TUNING["pack_slots"]
-    pack[0] = "stone"
-    return {"hand": None, "pack": pack}
+    return {"hand": None, "pack": ["stone"]}
 
 
 def _clean_inventory(raw) -> dict:
@@ -392,7 +442,7 @@ def _clean_inventory(raw) -> dict:
         return inv
     inv["hand"] = _clean_item(raw.get("hand"))
     pack = raw.get("pack") if isinstance(raw.get("pack"), list) else []
-    items = list(map(_clean_item, pack[:TUNING["pack_slots"]]))
+    items = list(map(_clean_item, pack[:300]))
     # What no longer fits a backpack (a bucket once did) goes to the hands,
     # or is put on the ground when the player comes in.
     spill = [x for x in items if x is not None and _kind(x) not in _SMALL]
@@ -401,7 +451,7 @@ def _clean_inventory(raw) -> dict:
     if spill:
         inv["spill"] = spill
     inv["pack"] = [(x if _kind(x) in _SMALL else None) for x in items]
-    inv["pack"] += [None] * (TUNING["pack_slots"] - len(inv["pack"]))
+    _tidy_pack(inv)
     return inv
 
 
@@ -488,6 +538,13 @@ class World:
                 b.update(json.loads(r["data"]))
                 self.builds[b["id"]] = b
         self.seed = seed
+        # Tool frames finished before frames went away turn into the tools.
+        for b in [b for b in self.builds.values() if b["kind"] == "site" and b.get("done") and b.get("make") not in _STRUCTS]:
+            make = b["make"]
+            b["gone"] = True
+            self._store_build(b)
+            self.builds.pop(b["id"], None)
+            pile = self._new_pile(make, 1, b["x"], b["z"], TUNING["tool_life"].get(make, 0))
         # player_id -> live state of everyone online right now
         self.online: dict[str, dict] = {}
 
@@ -571,7 +628,7 @@ class World:
         return {
             "id": p["id"], "name": p["name"], "color": p["color"],
             "x": p["x"], "y": p["y"], "z": p["z"], "ry": p["ry"], "a": p["anim"],
-            "h": _kind(p["inv"]["hand"]),
+            "h": _kind(p["inv"]["hand"]), "sleep": (p.get("sleep") or {}).get("bed"),
         }
 
     async def _to_others(self, pid: str, msg: dict):
@@ -587,6 +644,7 @@ class World:
         await p["ctx"].send(p["id"], {"type": "hv_nope", "reason": reason})
 
     async def _inv_changed(self, p: dict, hand_before):
+        _tidy_pack(p["inv"])
         self._store_inv(p)
         await p["ctx"].send(p["id"], {"type": "hv_inv", "inv": p["inv"]})
         if _kind(p["inv"]["hand"]) != _kind(hand_before):
@@ -641,6 +699,18 @@ class World:
             return
         self._fade(p, now, last, gap)
         emax = self._emax(p)
+        sl = p.get("sleep")
+        if sl:
+            # Asleep: energy comes back at a steady rate, hunger and thirst crawl.
+            cfg_s, day = TUNING["sleep"], TUNING["day"]
+            rate = emax / (cfg_s["hours"] * day["length"] / 24.0) * sl["q"]
+            r = cfg["rates"]["idle"]
+            n["food"] = max(0.0, n["food"] - r["food"] * cfg_s["slow"] * gap)
+            n["water"] = max(0.0, n["water"] - r["water"] * cfg_s["slow"] * gap)
+            n["energy"] = min(emax, n["energy"] + rate * gap)
+            if n["energy"] >= emax - 1e-6:
+                p["wake"] = True
+            return
         starved = n["food"] <= 0 or n["water"] <= 0
         low = min(n["food"], n["water"]) < cfg["low"]
         act_dt = min(max(0.0, min(now, p["act_until"]) - last), gap)
@@ -658,7 +728,8 @@ class World:
             r = cfg["rates"]["idle"]
             n["food"] -= r["food"] * idle_dt
             n["water"] -= r["water"] * idle_dt
-            if not starved:
+            n["energy"] -= r["energy"] * (cfg["starved_cost"] if starved else 1) * idle_dt
+            if not starved and cfg["regen"]:
                 n["energy"] += cfg["regen"] * emax * idle_dt * (0.5 if low else 1)
         n["food"] = max(0.0, min(cfg["food_max"], n["food"]))
         n["water"] = max(0.0, min(cfg["water_max"], n["water"]))
@@ -742,7 +813,7 @@ class World:
             "skills": prev["skills"] if prev else _clean_skills(
                 json.loads(pos["skills"]) if pos and pos.get("skills") else None),
             "needs": prev["needs"] if prev else None,
-            "needs_t": now, "act": "idle", "act_until": 0.0, "needs_sent": 0.0,
+            "needs_t": now, "act": "idle", "act_until": 0.0, "needs_sent": 0.0, "sleep": None,
             "skill_sent": {}, "skill_t": dict.fromkeys(SKILLS, now), "stats_saved": now, "drink_at": 0.0,
         }
         if p["needs"] is None:
@@ -788,6 +859,7 @@ class World:
         self._store_inv(p)
         self._store_chop()
         await self._let_go(p)
+        await self._wake(p, quiet=True)
         self.online.pop(pid, None)
         await self._to_others(pid, {"type": "hv_leave", "id": pid})
 
@@ -807,6 +879,8 @@ class World:
         anim = msg.get("a") if msg.get("a") in _ANIMS else "idle"
         now = time.time()
         self._settle(p, now)
+        if p.get("sleep"):
+            return
 
         if p["x"] is not None:
             # A move faster than anyone can run is refused, and the player is
@@ -999,77 +1073,104 @@ class World:
         inv["hand"] = None
         p["chop"] = p["dig"] = None
         if _kind(item) in _FOOD:
-            left = self._add_food(inv, item["k"], item["n"], item["at"], hands=False)
+            left = self._add_food(p, item["k"], item["n"], item["at"], hands=False)
             if not left:
                 return
             item = {**item, "n": left}
-        elif _kind(item) in _SMALL and None in inv["pack"]:
-            inv["pack"][inv["pack"].index(None)] = item
+        elif _kind(item) in _SMALL and self._pack_fits(p, item):
+            self._pack_store(inv, item)
             return
         await self._to_ground(_kind(item), _count(item), _unit_at(item), p["x"], p["z"])
 
     async def _receive(self, p: dict, item, free_hand: bool = True) -> bool:
         """Make room once for a pickup; bulk taking still stops when full."""
-        if self._put(p["inv"], item):
+        if self._put(p, item):
             return True
         if not free_hand:
             return False
         await self._free_hand(p)
-        return self._put(p["inv"], item)
+        return self._put(p, item)
 
     async def _receive_food(self, p: dict, kind: str, at: float, free_hand: bool = True) -> bool:
-        if not self._add_food(p["inv"], kind, 1, at):
+        if not self._add_food(p, kind, 1, at):
             return True
         if not free_hand:
             return False
         await self._free_hand(p)
-        return not self._add_food(p["inv"], kind, 1, at)
+        return not self._add_food(p, kind, 1, at)
+
+    def _pack_limit(self, p: dict) -> float:
+        return TUNING["pack_kg"] * _boost(self._lvl(p, "strength"))
+
+    def _pack_room(self, p: dict) -> float:
+        """Kilograms still free in the backpack."""
+        return self._pack_limit(p) - sum(_weight(it)[0] for it in p["inv"]["pack"])
+
+    def _pack_room_l(self, p: dict) -> float:
+        """Litres still free in the backpack."""
+        return TUNING["pack_litres"] - sum(_weight(it)[1] for it in p["inv"]["pack"])
+
+    def _pack_fits(self, p: dict, item, freed=None) -> bool:
+        """Whether `item` goes in, optionally once `freed` has come out."""
+        kg, l = _weight(item)
+        if freed is not None:
+            kg -= _weight(freed)[0]
+            l -= _weight(freed)[1]
+        return kg <= self._pack_room(p) + 1e-9 and l <= self._pack_room_l(p) + 1e-9
+
+    def _pack_fit_n(self, p: dict, kind: str) -> int:
+        """How many pieces of a fruit still go in, by weight and by room."""
+        it = TUNING["items"][kind]
+        return max(0, int(min((self._pack_room(p) + 1e-9) // it["kg"], (self._pack_room_l(p) + 1e-9) // it["l"])))
 
     @staticmethod
-    def _put(inv: dict, item) -> bool:
+    def _pack_store(inv: dict, item):
+        pack = inv["pack"]
+        if None in pack:
+            pack[pack.index(None)] = item
+        else:
+            pack.append(item)
+
+    def _put(self, p: dict, item) -> bool:
         # A small thing goes to the backpack first and to the hands only when
         # the backpack is full; anything else needs empty hands.
-        if _kind(item) in _SMALL and None in inv["pack"]:
-            inv["pack"][inv["pack"].index(None)] = item
+        inv = p["inv"]
+        if _kind(item) in _SMALL and self._pack_fits(p, item):
+            self._pack_store(inv, item)
             return True
         if inv["hand"] is None:
             inv["hand"] = item
             return True
         return False
 
-    @staticmethod
-    def _add_food(inv: dict, k: str, n: int, at: float, hands: bool = True) -> int:
-        """Put `n` pieces of fruit picked at `at` into the backpack stacks of
-        the same fruit, then free slots, then the hands. Returns how many did
-        not fit."""
-        it = TUNING["items"][k]
-        spots = [(i, it["slot"]) for i in range(len(inv["pack"]))]
-        if hands:
-            spots.append((None, it["hand"]))
-        # Stacks of the same fruit first, then the empty places.
-        def stack(i):
-            return inv["hand"] if i is None else inv["pack"][i]
-        order = [sp for sp in spots if _kind(stack(sp[0])) == k] + [sp for sp in spots if stack(sp[0]) is None]
-        for i, cap in order:
-            if n <= 0:
-                break
-            cur = stack(i)
-            have = cur["n"] if cur else 0
-            add = min(n, cap - have)
-            if add <= 0:
-                continue
-            new = {"k": k, "n": have + add,
-                   "at": _merged_at(have, cur["at"], add, at) if cur else at}
-            if i is None:
-                inv["hand"] = new
+    def _add_food(self, p: dict, k: str, n: int, at: float, hands: bool = True) -> int:
+        """Put `n` pieces of fruit picked at `at` into the backpack, as many as
+        its weight limit allows, all in one stack of that fruit, then into the
+        hands. Returns how many did not fit."""
+        inv, it = p["inv"], TUNING["items"][k]
+        add = min(n, self._pack_fit_n(p, k))
+        if add > 0:
+            stack = next((x for x in inv["pack"] if _kind(x) == k), None)
+            if stack:
+                stack["at"] = _merged_at(stack["n"], stack["at"], add, at)
+                stack["n"] += add
             else:
-                inv["pack"][i] = new
+                self._pack_store(inv, {"k": k, "n": add, "at": at})
             n -= add
+        if hands and n > 0:
+            cur = inv["hand"]
+            have = cur["n"] if _kind(cur) == k else 0
+            if cur is None or _kind(cur) == k:
+                put = min(n, it["hand"] - have)
+                if put > 0:
+                    inv["hand"] = {"k": k, "n": have + put,
+                                   "at": _merged_at(have, cur["at"], put, at) if cur else at}
+                    n -= put
         return n
 
     def _build_of(self, p: dict, msg: dict):
         b = self.builds.get(msg.get("build")) if isinstance(msg.get("build"), int) else None
-        return b if b is not None and self._near_build(p, b) else None
+        return b if b is not None and b.get("kind") != "furniture" and self._near_build(p, b) else None
 
     async def drop(self, pid: str, msg: dict):
         """Put down what is in the hands, or with empty hands one stone from
@@ -1161,15 +1262,15 @@ class World:
             if _kind(inv["hand"]) in _FOOD:
                 h = inv["hand"]
                 inv["hand"] = None
-                left = self._add_food(inv, h["k"], h["n"], h["at"], hands=False)
+                left = self._add_food(p, h["k"], h["n"], h["at"], hands=False)
                 if left:
                     inv["hand"] = {"k": h["k"], "n": left, "at": h["at"]}
                     if left == h["n"]:
                         return await self._nope(p, "full")
                 return await self._inv_changed(p, hand_before)
-            if None not in inv["pack"]:
+            if not self._pack_fits(p, inv["hand"]):
                 return await self._nope(p, "full")
-            inv["pack"][inv["pack"].index(None)] = inv["hand"]
+            self._pack_store(inv, inv["hand"])
             inv["hand"] = None
             return await self._inv_changed(p, hand_before)
         if not isinstance(slot, int) or isinstance(slot, bool) or not 0 <= slot < len(inv["pack"]):
@@ -1187,8 +1288,7 @@ class World:
         h, s_ = inv["hand"], inv["pack"][slot]
         if _kind(h) in _FOOD and _kind(s_) == _kind(h):
             # The same fruit: pour the hands into the slot as far as it goes.
-            cap = TUNING["items"][h["k"]]["slot"]
-            add = min(h["n"], cap - s_["n"])
+            add = min(h["n"], self._pack_fit_n(p, h["k"]))
             if add <= 0:
                 return await self._nope(p, "full")
             s_["at"] = _merged_at(s_["n"], s_["at"], add, h["at"])
@@ -1205,6 +1305,8 @@ class World:
             s_["n"] -= hcap
             p["chop"] = None
             return await self._inv_changed(p, hand_before)
+        if h is not None and not self._pack_fits(p, h, freed=s_):
+            return await self._nope(p, "full")
         inv["hand"], inv["pack"][slot] = s_, h
         p["chop"] = p["dig"] = None
         await self._inv_changed(p, hand_before)
@@ -1376,7 +1478,7 @@ class World:
                     continue
                 if ((p["x"] - pos[0]) ** 2 + (p["z"] - pos[1]) ** 2) ** 0.5 > f["plan_reach"]:
                     continue
-                if any(self._overlaps({"x": pos[0], "z": pos[1], "width": f["cell"], "depth": f["cell"]}, b) if b.get("make") in ("floor", "wall") else
+                if any(self._overlaps({"x": pos[0], "z": pos[1], "width": f["cell"], "depth": f["cell"]}, b) if self._struct(b) else
                        ((b["x"] - pos[0]) ** 2 + (b["z"] - pos[1]) ** 2) ** 0.5 < f["cell"]
                        for b in self.builds.values()):
                     continue
@@ -1546,7 +1648,73 @@ class World:
             return
         now = time.time()
         self._settle(p, now)
+        if p.pop("wake", False):
+            await self._wake(p)
         await self._push_needs(p, now, True)
+
+    def asleep(self, pid: str) -> bool:
+        p = self.online.get(pid)
+        return bool(p and p.get("sleep"))
+
+    def _hour(self, now: float) -> float:
+        day = TUNING["day"]
+        return ((now % day["length"]) / day["length"] * 24.0 + day["start_hour"]) % 24.0
+
+    async def sleep(self, pid: str, msg: dict):
+        """Lie down in a bed and sleep until rested, or until woken."""
+        p = self.online.get(pid)
+        bid = msg.get("build")
+        b = self.builds.get(bid) if isinstance(bid, int) and not isinstance(bid, bool) else None
+        if p is None or b is None or b.get("kind") != "furniture":
+            return
+        spec = TUNING["furniture"].get(b.get("make"), {})
+        if "sleep" not in spec:
+            return
+        if p.get("sleep"):
+            return
+        if not self._near_build(p, b):
+            return await self._nope(p, "far")
+        other = b.get("sleeper")
+        if other and other != pid and other in self.online and (self.online[other].get("sleep") or {}).get("bed") == bid:
+            return await self._nope(p, "bed_taken")
+        now = time.time()
+        self._settle(p, now)
+        if p["needs"]["energy"] >= self._emax(p) * TUNING["sleep"]["max_energy"]:
+            return await self._nope(p, "not_tired")
+        await self._let_go(p)
+        p["chop"] = p["dig"] = None
+        p["sleep"] = {"bed": bid, "q": spec["sleep"], "since": now}
+        p["wake"] = False
+        b["sleeper"] = pid
+        p.update(x=b["x"], z=b["z"], anim="idle", t=now)
+        self._busy(p, "idle", now)
+        await p["ctx"].send(pid, {"type": "hv_snap", "x": b["x"], "y": p["y"], "z": b["z"]})
+        await p["ctx"].send(pid, {"type": "hv_sleep_on", "bed": bid})
+        await self._to_others(pid, {"type": "hv_asleep", "id": pid, "bed": bid})
+        await self._push_needs(p, now, True)
+
+    async def _wake(self, p: dict, quiet: bool = False):
+        sl = p.get("sleep")
+        if not sl:
+            return
+        p["sleep"] = None
+        p["wake"] = False
+        b = self.builds.get(sl["bed"])
+        if b is not None and b.get("sleeper") == p["id"]:
+            b["sleeper"] = None
+        p["needs_t"] = time.time()
+        if quiet:
+            return
+        await p["ctx"].send(p["id"], {"type": "hv_wake"})
+        await self._to_others(p["id"], {"type": "hv_asleep", "id": p["id"], "bed": None})
+
+    async def wake(self, pid: str, msg: dict):
+        p = self.online.get(pid)
+        if p is None or not p.get("sleep"):
+            return
+        self._settle(p, time.time())
+        await self._wake(p)
+        await self._push_needs(p, time.time(), True)
 
     # ── builds: frames, sleds ───────────────────────────────────────────────
     @staticmethod
@@ -1642,6 +1810,22 @@ class World:
             if any(abs(pl["x"] - b["x"]) < (b["width"] + TUNING["farm"]["cell"]) / 2 - 0.01 and
                    abs(pl["z"] - b["z"]) < (b["depth"] + TUNING["farm"]["cell"]) / 2 - 0.01 for pl in self.plots.values()):
                 return await self._nope(p, "crowded")
+        elif make == "roof":
+            fid = msg.get("floor")
+            floor = self.builds.get(fid) if isinstance(fid, int) and not isinstance(fid, bool) else None
+            if not floor or floor.get("make") != "floor" or not floor.get("done"):
+                return await self._nope(p, "need_floor")
+            if any(o.get("make") == "roof" and o.get("floor") == fid for o in self.builds.values()):
+                return await self._nope(p, "crowded")
+            over = cfg["roof_overhang"]
+            b.update(floor=fid, x=floor["x"], z=floor["z"], width=floor["width"] + 2 * over, depth=floor["depth"] + 2 * over,
+                     base_y=floor["base_y"] + 0.22 + cfg["height"], height=cfg["roof_rise"],
+                     need={"log": len(self._floor_cells(floor)) * cfg["roof_logs"]})
+        elif make in ("door", "window"):
+            spec = self._opening_spec(p, make, msg.get("wall"), msg.get("u"))
+            if isinstance(spec, str):
+                return await self._nope(p, spec)
+            b.update(spec, need={"log": cfg["door_logs"] if make == "door" else cfg["window_logs"]})
         else:
             fid, side = msg.get("floor"), msg.get("side")
             floor = self.builds.get(fid) if isinstance(fid, int) and not isinstance(fid, bool) else None
@@ -1654,7 +1838,7 @@ class World:
             along_x = side in ("n", "s")
             length = floor["width"] if along_x else floor["depth"]
             thickness = cfg["thickness"]
-            b.update(floor=fid, side=side, door=msg.get("door") is True,
+            b.update(floor=fid, side=side, door=False,
                      x=floor["x"] + ((floor["width"] + thickness) / 2 * (1 if side == "e" else -1) if not along_x else 0),
                      z=floor["z"] + ((floor["depth"] + thickness) / 2 * (1 if side == "s" else -1) if along_x else 0),
                      width=length if along_x else thickness, depth=thickness if along_x else length,
@@ -1663,7 +1847,7 @@ class World:
         if not self._near_build(p, b):
             return await self._nope(p, "far")
         for other in self.builds.values():
-            if make == "wall" and (other["id"] == b["floor"] or other.get("floor") == b["floor"]):
+            if make in ("wall", "roof", "door", "window") and (other["id"] == b["floor"] or other.get("floor") == b["floor"]):
                 continue
             if self._overlaps(b, other):
                 return await self._nope(p, "crowded")
@@ -1688,6 +1872,8 @@ class World:
         b = self.builds.get(bid)
         if b is None or b["kind"] != "site":
             return
+        if b.get("done") and b.get("make") in _STRUCTS:
+            return await self._nope(p, "need_hammer")
         part = msg.get("cell")
         cell = None
         if part is not None:
@@ -1708,36 +1894,200 @@ class World:
         elif not self._near_build(p, b):
             return await self._nope(p, "far")
         if cell and len(self._floor_cells(b)) > 1:
-            x, z, key = cell
-            b.setdefault("removed", []).append(key)
-            active = set(self._floor_cells(b))
-            # Keep shared columns; reclaim only columns that no remaining
-            # square touches. The floor height stays fixed after trimming.
-            c = TUNING["housing"]["cell"]
-            def needed(post):
-                vx, vz = round(post["x"] / c + b["nx"] / 2), round(post["z"] / c + b["nz"] / 2)
-                return any((ax, az) in active for ax in (vx - 1, vx) for az in (vz - 1, vz))
-            b["supports"] = [post for post in b.get("supports", []) if needed(post)]
-            b["support_logs"] = sum(post["logs"] for post in b["supports"])
-            need = len(active) * TUNING["housing"]["floor_logs"] + b["support_logs"]
-            refund = max(0, b["have"].get("log", 0) - need)
-            b["have"]["log"] -= refund
-            b["need"] = {"log": need}
-            walls = [wall for wall in self.builds.values() if wall.get("floor") == bid and
-                     not self._floor_side_full(b, wall["side"])]
-            for wall in walls:
-                await self._remove_site(p, wall)
-            if not b.get("done") and b["have"]["log"] >= need:
-                await self._site_check(p, b)
-            await self._build_changed(b)
-            if refund:
-                await self._to_ground("log", refund, 0, p["x"] + 1.2, p["z"])
+            await self._drop_floor_cell(p, b, cell[2])
         else:
-            walls = [wall for wall in self.builds.values() if wall.get("floor") == bid]
-            await self._remove_site(p, b)
-            for wall in walls:
-                await self._remove_site(p, wall)
+            await self._drop_building(p, b)
         await p["ctx"].send(pid, {"type": "hv_removed", "part": cell is not None})
+
+    # ── taking a building apart ─────────────────────────────────────────────
+    def _parts_of(self, b: dict) -> list:
+        """What stands on or in a floor or a wall: roofs, walls, doors, windows."""
+        return [o for o in self.builds.values() if o is not b and (o.get("floor") == b["id"] or o.get("wall") == b["id"])]
+
+    async def _drop_building(self, p: dict, b: dict):
+        """A frame taken away whole with everything built on it, or the last
+        square of a floor: materials go back on the ground."""
+        for o in self._parts_of(b):
+            await self._remove_part(p, o)
+        await self._remove_part(p, b)
+
+    async def _remove_part(self, p: dict, o: dict):
+        if o.get("gone"):
+            return
+        await self._remove_site(p, o)
+
+    @staticmethod
+    def _trim_need(b: dict, need: int) -> int:
+        """Lower what a frame needs; returns how many logs now come back."""
+        refund = max(0, b["have"].get("log", 0) - need)
+        b["have"]["log"] = b["have"].get("log", 0) - refund
+        b["need"] = {"log": need}
+        return refund
+
+    async def _drop_floor_cell(self, p: dict, b: dict, key: str):
+        cfg = TUNING["housing"]
+        b.setdefault("removed", []).append(key)
+        active = set(self._floor_cells(b))
+        # Keep shared columns; reclaim only columns that no remaining
+        # square touches. The floor height stays fixed after trimming.
+        c = cfg["cell"]
+        def needed(post):
+            vx, vz = round(post["x"] / c + b["nx"] / 2), round(post["z"] / c + b["nz"] / 2)
+            return any((ax, az) in active for ax in (vx - 1, vx) for az in (vz - 1, vz))
+        b["supports"] = [post for post in b.get("supports", []) if needed(post)]
+        b["support_logs"] = sum(post["logs"] for post in b["supports"])
+        refund = self._trim_need(b, len(active) * cfg["floor_logs"] + b["support_logs"])
+        for o in self._parts_of(b):
+            if o.get("make") == "wall" and not self._floor_side_full(b, o["side"]):
+                await self._drop_building(p, o)
+            elif o.get("make") == "roof":
+                gone = o.setdefault("removed", [])
+                if key not in gone:
+                    gone.append(key)
+                    left = sum(1 for a, d in active if f"{a}_{d}" not in gone)
+                    refund += self._trim_need(o, left * cfg["roof_logs"])
+                    if left <= 0:
+                        await self._remove_part(p, o)
+                    else:
+                        await self._build_changed(o)
+        if not b.get("done") and b["have"]["log"] >= b["need"]["log"]:
+            await self._site_check(p, b)
+        await self._build_changed(b)
+        if refund:
+            await self._to_ground("log", refund, 0, p["x"] + 1.2, p["z"])
+
+    def _hammer(self, p: dict):
+        inv = p["inv"]
+        return next((it for it in [inv["hand"]] + inv["pack"] if _kind(it) == "hammer"), None)
+
+    async def break_part(self, pid: str, msg: dict):
+        """Break one part of a building with a hammer: a square of a floor or
+        a roof, a stretch of a wall, a door or a window. What went into it
+        comes back as logs on the ground."""
+        p = self.online.get(pid)
+        bid = msg.get("build")
+        if p is None or not isinstance(bid, int) or isinstance(bid, bool):
+            return
+        b = self.builds.get(bid)
+        if b is None or not (self._struct(b) or b.get("kind") == "furniture") or b.get("gone"):
+            return
+        tool = self._hammer(p)
+        if tool is None:
+            return await self._nope(p, "need_hammer")
+        cfg = TUNING["housing"]
+        c = cfg["cell"]
+        part = msg.get("part")
+        hand_before = p["inv"]["hand"]
+        make = b.get("make")
+        if make in ("door", "window") or b.get("kind") == "furniture":
+            if not self._near_build(p, b):
+                return await self._nope(p, "far")
+            if b.get("sleeper") in self.online and (self.online[b["sleeper"]].get("sleep") or {}).get("bed") == b["id"]:
+                return await self._nope(p, "bed_taken")
+            await self._remove_part(p, b)
+        elif make in ("floor", "roof"):
+            floor = b if make == "floor" else self.builds.get(b.get("floor"))
+            if not isinstance(part, dict) or floor is None:
+                return await self._nope(p, "bad_structure")
+            x, z = part.get("x"), part.get("z")
+            if (any(not isinstance(v, int) or isinstance(v, bool) for v in (x, z)) or
+                    not 0 <= x < floor["nx"] or not 0 <= z < floor["nz"] or f"{x}_{z}" in b.get("removed", [])):
+                return await self._nope(p, "bad_structure")
+            px, pz = floor["x"] + (x + 0.5 - floor["nx"] / 2) * c, floor["z"] + (z + 0.5 - floor["nz"] / 2) * c
+            if not self._near(p, px, pz, c / 2 + (1.0 if make == "roof" else 0.0)):
+                return await self._nope(p, "far")
+            key = f"{x}_{z}"
+            if make == "floor":
+                if len(self._floor_cells(b)) > 1:
+                    await self._drop_floor_cell(p, b, key)
+                else:
+                    await self._drop_building(p, b)
+            else:
+                if f"{x}_{z}" not in {f"{a}_{d}" for a, d in self._floor_cells(floor)}:
+                    return await self._nope(p, "bad_structure")
+                b.setdefault("removed", []).append(key)
+                left = sum(1 for a, d in self._floor_cells(floor) if f"{a}_{d}" not in b["removed"])
+                refund = self._trim_need(b, max(0, left) * cfg["roof_logs"])
+                if left <= 0:
+                    await self._remove_part(p, b)
+                else:
+                    await self._build_changed(b)
+                if refund:
+                    await self._to_ground("log", refund, 0, p["x"] + 1.2, p["z"])
+        elif make == "wall":
+            # A wall comes down whole, with the doors and windows in it.
+            if not self._near_build(p, b):
+                return await self._nope(p, "far")
+            await self._drop_building(p, b)
+        else:
+            return
+        # The hammer pays for it in wear.
+        tool["w"] = round(tool["w"] - TUNING["break_wear"], 2)
+        if tool["w"] <= 0:
+            if p["inv"]["hand"] is tool:
+                p["inv"]["hand"] = None
+            else:
+                p["inv"]["pack"][p["inv"]["pack"].index(tool)] = None
+            await p["ctx"].send(pid, {"type": "hv_broke", "item": "hammer"})
+        await self._inv_changed(p, hand_before)
+        await p["ctx"].send(pid, {"type": "hv_removed", "part": True})
+
+    @staticmethod
+    def _span(make: str) -> float:
+        return TUNING["housing"]["door_width"] if make == "door" else TUNING["housing"]["window_width"]
+
+    def _opening_spec(self, p: dict, make: str, wid, u, skip=None):
+        """Where a door or a window goes in a finished wall: the fields of the
+        frame, or the reason it cannot go there."""
+        cfg = TUNING["housing"]
+        wall = self.builds.get(wid) if isinstance(wid, int) and not isinstance(wid, bool) else None
+        if not wall or wall.get("make") != "wall" or not wall.get("done"):
+            return "need_wall"
+        if isinstance(u, bool) or not isinstance(u, (int, float)) or not math.isfinite(u):
+            return "bad_structure"
+        along_x = wall["side"] in ("n", "s")
+        length = wall["width"] if along_x else wall["depth"]
+        span = self._span(make)
+        u = round(max(-length / 2, min(length / 2, float(u))), 2)
+        if abs(u) + span / 2 > length / 2 - cfg["opening_gap"]:
+            return "bad_structure"
+        if not self._near_build(p, wall):
+            return "far"
+        if make == "door" and wall.get("door"):
+            return "crowded"
+        c = cfg["cell"]
+        lo, hi = int((u - span / 2 + length / 2) // c), int(math.ceil((u + span / 2 + length / 2) / c - 1e-6)) - 1
+        if any(i in wall.get("removed", []) for i in range(lo, hi + 1)):
+            return "bad_structure"
+        for o in self._parts_of(wall):
+            if o is skip or o.get("make") not in ("door", "window"):
+                continue
+            if make == "door" and o["make"] == "door":
+                return "crowded"
+            if abs(o["u"] - u) < (span + self._span(o["make"])) / 2 + cfg["opening_gap"]:
+                return "crowded"
+        thick = cfg["thickness"]
+        return {"wall": wall["id"], "floor": wall["floor"], "side": wall["side"], "u": u,
+                "x": round(wall["x"] + (u if along_x else 0), 2), "z": round(wall["z"] + (0 if along_x else u), 2),
+                "width": span if along_x else thick, "depth": thick if along_x else span,
+                "base_y": wall["base_y"] + (0 if make == "door" else cfg["window_sill"]),
+                "height": cfg["door_height"] if make == "door" else cfg["window_height"]}
+
+    async def move_opening(self, pid: str, msg: dict):
+        """Move a door or a window, built or not, to another place in a wall;
+        what was brought to it stays."""
+        p = self.online.get(pid)
+        bid = msg.get("build")
+        b = self.builds.get(bid) if isinstance(bid, int) and not isinstance(bid, bool) else None
+        if p is None or b is None or b.get("make") not in ("door", "window") or b.get("gone"):
+            return
+        if not self._near_build(p, b):
+            return await self._nope(p, "far")
+        spec = self._opening_spec(p, b["make"], msg.get("wall"), msg.get("u"), skip=b)
+        if isinstance(spec, str):
+            return await self._nope(p, spec)
+        b.update(spec)
+        await self._build_changed(b)
 
     async def place(self, pid: str, msg: dict):
         """Lay down the frame of something made on the ground."""
@@ -1745,7 +2095,7 @@ class World:
         if p is None:
             return
         make = msg.get("make")
-        if make in ("floor", "wall"):
+        if make in _STRUCTS:
             return await self._place_structure(p, msg)
         need = TUNING["builds"].get(make) if isinstance(make, str) else None
         if need is None:
@@ -1753,17 +2103,11 @@ class World:
         half = TUNING["world_size"] / 2
         x = _num(msg.get("x"), -half, half, p["x"] or 0.0)
         z = _num(msg.get("z"), -half, half, p["z"] or 0.0)
-        if not self._near(p, x, z):
+        # Furniture is laid out from a distance, the way a house is designed.
+        if not self._near(p, x, z, TUNING["design_reach"] if make in TUNING["furniture"] else 0.0):
             return await self._nope(p, "far")
-        room = TUNING["build_room"]
-        for o in self.builds.values():
-            if o.get("make") in ("floor", "wall"):
-                if self._overlaps({"x": x, "z": z, "make": make, "kind": "site"}, o):
-                    return await self._nope(p, "crowded")
-                continue
-            gap = room[make] + room.get(o.get("make") or o["kind"], room["sled"])
-            if ((o["x"] - x) ** 2 + (o["z"] - z) ** 2) ** 0.5 < gap:
-                return await self._nope(p, "crowded")
+        if not self._spot_free(make, x, z):
+            return await self._nope(p, "crowded")
         b = {"id": None, "kind": "site", "x": round(x, 2), "z": round(z, 2),
              "ry": round(_num(msg.get("ry"), -1000, 1000) % 6.283185307179586, 3),
              "make": make, "have": {k: 0 for k in need}}
@@ -1772,8 +2116,55 @@ class World:
         self.builds[b["id"]] = b
         await self._to_all({"type": "hv_build", "build": b})
 
+    def _spot_free(self, make: str, x: float, z: float, skip=None) -> bool:
+        """Whether a frame or a piece of furniture fits at (x, z): clear of
+        walls and of everything else. Furniture may stand on a floor, under a
+        roof and by a door or window."""
+        room = TUNING["build_room"]
+        furniture = make in TUNING["furniture"]
+        for o in self.builds.values():
+            if o is skip:
+                continue
+            if self._struct(o):
+                if furniture and o.get("make") in ("floor", "roof", "door", "window"):
+                    continue
+                if self._overlaps({"x": x, "z": z, "make": make, "kind": "site"}, o):
+                    return False
+                continue
+            gap = room[make] + room.get(o.get("make") or o["kind"], room["sled"])
+            if ((o["x"] - x) ** 2 + (o["z"] - z) ** 2) ** 0.5 < gap:
+                return False
+        return True
+
+    async def move_furniture(self, pid: str, msg: dict):
+        """Pick a piece of furniture up and put it down again somewhere else,
+        turned the way it is wanted."""
+        p = self.online.get(pid)
+        bid = msg.get("build")
+        b = self.builds.get(bid) if isinstance(bid, int) and not isinstance(bid, bool) else None
+        if p is None or b is None or b.get("kind") != "furniture":
+            return
+        half = TUNING["world_size"] / 2
+        x = _num(msg.get("x"), -half, half, b["x"])
+        z = _num(msg.get("z"), -half, half, b["z"])
+        if not self._near(p, x, z, TUNING["design_reach"]):
+            return await self._nope(p, "far")
+        sl = b.get("sleeper")
+        if sl in self.online and (self.online[sl].get("sleep") or {}).get("bed") == bid:
+            return await self._nope(p, "bed_taken")
+        if not self._spot_free(b["make"], x, z, skip=b):
+            return await self._nope(p, "crowded")
+        b.update(x=round(x, 2), z=round(z, 2), ry=round(_num(msg.get("ry"), -1000, 1000) % 6.283185307179586, 3))
+        await self._build_changed(b)
+
+    @staticmethod
+    def _struct(b: dict) -> bool:
+        """A floor, wall, roof, door or window: built where it stands and
+        measured by its footprint."""
+        return b.get("make") in _STRUCTS
+
     def _near_build(self, p: dict, b: dict) -> bool:
-        if b.get("make") in ("floor", "wall"):
+        if self._struct(b):
             if p["x"] is None:
                 return False
             return any(math.hypot(max(0.0, abs(p["x"] - x) - w / 2),
@@ -1808,6 +2199,18 @@ class World:
                 return ("pack", i)
         for i in range(len(pack) - 1, -1, -1):
             if ok(pack[i]):
+                return ("pack", i)
+        return None
+
+    @staticmethod
+    def _kind_source(inv: dict, kind, kinds=None):
+        """Another piece of the same kind as one already handed over: the
+        backpack has a separate entry for each stone, so a whole group goes
+        entry after entry."""
+        if kind is None or kind in _KEPT or (kinds is not None and kind not in kinds):
+            return None
+        for i in range(len(inv["pack"]) - 1, -1, -1):
+            if _kind(inv["pack"][i]) == kind:
                 return ("pack", i)
         return None
 
@@ -1860,6 +2263,9 @@ class World:
         msg = msg or {}
         inv = p["inv"]
         hand_before = inv["hand"]
+        sl = msg.get("slot")
+        k0 = (_kind(inv["pack"][sl]) if isinstance(sl, int) and not isinstance(sl, bool) and 0 <= sl < len(inv["pack"])
+              else _kind(inv["hand"]) if sl == "hand" else None)
         if b["kind"] == "site":
             if b.get("done"):
                 return await self._nope(p, "not_needed")
@@ -1867,7 +2273,7 @@ class World:
             moved, why = 0, None
             for _ in range(50 if msg.get("all") else 1):
                 wanted = {k for k, n in need.items() if b["have"].get(k, 0) < n}
-                src = self._unit_source(inv, msg.get("slot"), wanted)
+                src = self._unit_source(inv, msg.get("slot"), wanted) or self._kind_source(inv, k0, wanted)
                 if src is None:
                     why = why or "not_needed"
                     break
@@ -1889,7 +2295,7 @@ class World:
         spec = TUNING["sled"]
         moved, why = 0, None
         for _ in range(300 if msg.get("all") else 1):
-            src = self._unit_source(inv, msg.get("slot"))
+            src = self._unit_source(inv, msg.get("slot")) or self._kind_source(inv, k0)
             if src is None:
                 break
             item = inv["hand"] if src[0] == "hand" else inv["pack"][src[1]]
@@ -1932,11 +2338,29 @@ class World:
             b["kind"] = b.pop("make")
             b.pop("have", None)
             b["load"] = []
-        else:
+        elif b["make"] in TUNING["furniture"]:
+            # Furniture stays where it was built, finished.
+            b["kind"] = "furniture"
             b["done"] = True
+        elif b["make"] in _STRUCTS:
+            b["done"] = True
+        else:
+            # A tool or a bucket: the frame goes and the thing lies there.
+            p["chop"] = p["dig"] = None
+            await self._frame_to_item(b)
+            await p["ctx"].send(p["id"], {"type": "hv_made", "item": b["make"], "frame": False, "ground": True})
+            return
         p["chop"] = p["dig"] = None
-        await p["ctx"].send(p["id"], {"type": "hv_made", "item": b.get("make") or b["kind"],
-                                      "frame": bool(b.get("done")) and b.get("make") not in ("floor", "wall")})
+        await p["ctx"].send(p["id"], {"type": "hv_made", "item": b.get("make") or b["kind"], "frame": False})
+
+    async def _frame_to_item(self, b: dict):
+        """A finished tool: its frame is taken away and the tool lies where
+        the frame stood, to be picked up like anything else on the ground."""
+        make = b["make"]
+        at = TUNING["tool_life"].get(make, 0)
+        b["gone"] = True
+        await self._build_changed(b)
+        await self._to_ground(make, 1, at, b["x"], b["z"])
 
     def _sled_room(self, b: dict, kind: str) -> str | None:
         """Why one more `kind` cannot go on a sled, or None when it can."""
@@ -1958,6 +2382,8 @@ class World:
             i = ref.get(kind)
             if isinstance(i, int) and not isinstance(i, bool) and i in pool:
                 h = pool[i]
+                if h.get("kind") == "furniture":
+                    return None
                 return kind, h, h["x"], h["z"]
         return None
 
@@ -1975,8 +2401,8 @@ class World:
         near = lambda h: self._near_build(p, h[1]) if h[0] == "build" else self._near(p, h[2], h[3])
         if not near(src) and not near(dst):
             return await self._nope(p, "far")
-        sw, sd = self._build_rect(src[1]) if src[0] == "build" and src[1].get("make") in ("floor", "wall") else (0, 0)
-        dw, dd = self._build_rect(dst[1]) if dst[0] == "build" and dst[1].get("make") in ("floor", "wall") else (0, 0)
+        sw, sd = self._build_rect(src[1]) if src[0] == "build" and src[1].get("make") in _STRUCTS else (0, 0)
+        dw, dd = self._build_rect(dst[1]) if dst[0] == "build" and dst[1].get("make") in _STRUCTS else (0, 0)
         gap = math.hypot(max(0, abs(src[2] - dst[2]) - (sw + dw) / 2),
                          max(0, abs(src[3] - dst[3]) - (sd + dd) / 2))
         if gap > TUNING["unload_reach"] + 1.2:
@@ -2126,7 +2552,7 @@ class World:
         inv = p["inv"]
         hand_before = inv["hand"]
         if b["kind"] == "site" and b.get("done"):
-            if b.get("make") in ("floor", "wall"):
+            if b.get("make") in _STRUCTS:
                 return await self._nope(p, "not_needed")
             made = self._made_item(b["make"])
             if inv["hand"] is not None:
@@ -2183,11 +2609,11 @@ class World:
             x = _num(msg.get("x"), -half, half, b["x"])
             z = _num(msg.get("z"), -half, half, b["z"])
             dx, dz = abs(x - b["x"]), abs(z - b["z"])
-            if b.get("make") in ("floor", "wall"):
+            if b.get("make") in _STRUCTS:
                 dx, dz = max(0, dx - b["width"] / 2), max(0, dz - b["depth"] / 2)
             if math.hypot(dx, dz) > TUNING["unload_reach"]:
                 return await self._nope(p, "far_spot")
-        elif b.get("make") in ("floor", "wall"):
+        elif b.get("make") in _STRUCTS:
             # Keep recovered materials beside the edge where the player is,
             # rather than at the centre of a potentially large floor.
             dx, dz = p["x"] - b["x"], p["z"] - b["z"]

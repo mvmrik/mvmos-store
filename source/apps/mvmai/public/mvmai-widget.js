@@ -98,6 +98,10 @@
       .mvmai-confirm-no{background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4)}
       .mvmai-inputbar{display:flex;gap:.5rem;padding:.75rem .9rem;flex-shrink:0;
         border-top:1px solid var(--pub-border,#45475a)}
+      .mvmai-composer-model{flex-shrink:0;padding:.5rem .9rem 0;color:var(--pub-fg2,#a6adc8);
+        border-top:1px solid var(--pub-border,#45475a);font-size:.76rem;line-height:1.35;overflow-wrap:anywhere}
+      .mvmai-composer-model[hidden]{display:none}
+      .mvmai-composer-model:not([hidden])+.mvmai-inputbar{border-top:0}
       .mvmai-input{flex:1;resize:none;min-height:2.3rem;max-height:8rem;background:var(--pub-surface2,#313244);
         color:var(--pub-fg,#cdd6f4);border:1px solid var(--pub-border,#45475a);border-radius:.5rem;
         padding:.5rem .65rem;font:inherit;font-size:.88rem;outline:none}
@@ -111,7 +115,37 @@
       .mvmai-lightbox{position:absolute;inset:0;z-index:80;background:rgba(0,0,0,.82);display:flex;
         align-items:center;justify-content:center;padding:1rem;cursor:zoom-out}
       .mvmai-lightbox img{max-width:100%;max-height:100%;border-radius:.4rem;box-shadow:0 0 30px rgba(0,0,0,.6)}
+      .mvmai-lightbox-close{position:absolute;top:.6rem;right:.6rem;width:2.4rem;height:2.4rem;border-radius:50%;border:0;cursor:pointer;
+        background:rgba(0,0,0,.65);color:#fff;font-size:1.1rem;line-height:1}
       .mvmai-term-btn{margin-left:auto;background:none;border:0;cursor:pointer;font-size:1rem;line-height:1;padding:.2rem .4rem;border-radius:.4rem;color:inherit;opacity:.8}
+      .mvmai-gal-btn{margin-left:auto;background:none;border:0;cursor:pointer;font-size:1rem;line-height:1;padding:.2rem .4rem;border-radius:.4rem;color:inherit;opacity:.8}
+      .mvmai-gal-btn:hover{opacity:1;background:var(--pub-surface2,#313244)}
+      .mvmai-gal-btn+.mvmai-term-btn{margin-left:0}
+      .mvmai-gal-btn+.mvmai-price{margin-left:.6rem}
+      .mvmai-gal{position:absolute;inset:0;z-index:70;background:var(--pub-bg,#1e1e2e);display:flex;flex-direction:column;min-height:0}
+      .mvmai-gal-head{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;padding:.6rem .9rem;flex-shrink:0;border-bottom:1px solid var(--pub-border,#45475a)}
+      .mvmai-gal-head b{font-size:.95rem;margin-right:auto}
+      .mvmai-gal-tabs{display:flex;gap:.3rem}
+      .mvmai-gal-tabs button,.mvmai-gal-close{background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border:1px solid var(--pub-border,#45475a);border-radius:.4rem;padding:.25rem .6rem;font-size:.78rem;cursor:pointer}
+      .mvmai-gal-tabs button.on{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);border-color:transparent;font-weight:700}
+      .mvmai-gal-body{flex:1;min-height:0;overflow-y:auto;padding:.8rem .9rem}
+      .mvmai-gal-wrap{overflow-x:auto}
+      .mvmai-gal-table{width:100%;border-collapse:collapse;font-size:.8rem}
+      .mvmai-gal-table th{text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:var(--pub-fg2,#a6adc8);
+        padding:.4rem .5rem;border-bottom:1px solid var(--pub-border,#45475a);white-space:nowrap;position:sticky;top:0;background:var(--pub-bg,#1e1e2e)}
+      .mvmai-gal-table td{padding:.4rem .5rem;border-bottom:1px solid var(--pub-border,#45475a);vertical-align:middle}
+      .mvmai-gal-table .c-prev{width:64px}
+      .mvmai-gal-table .c-prev img,.mvmai-gal-table .c-prev .mvmai-gal-ico{width:56px;height:56px;border-radius:.4rem;object-fit:cover;display:flex;align-items:center;
+        justify-content:center;background:var(--pub-surface2,#313244);font-size:1.5rem;cursor:default}
+      .mvmai-gal-table .c-prev img{cursor:zoom-in}
+      .mvmai-gal-table .c-name{min-width:9rem;max-width:16rem;overflow-wrap:anywhere}
+      .mvmai-gal-table .c-chat{min-width:8rem;max-width:14rem}
+      .mvmai-gal-table .c-chat .mvmai-gal-link{text-align:left}
+      .mvmai-gal-table .c-num{white-space:nowrap;color:var(--pub-fg2,#a6adc8)}
+      .mvmai-gal-table .c-act{white-space:nowrap;text-align:right}
+      .mvmai-gal-table .c-act button{background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4);border:0;border-radius:.3rem;padding:.25rem .5rem;font-size:.85rem;cursor:pointer;margin-left:.2rem}
+      .mvmai-gal-link{background:none!important;border:0;padding:0!important;color:var(--pub-accent,#89b4fa)!important;cursor:pointer;font:inherit;text-decoration:underline}
+      .mvmai-gal-empty{text-align:center;color:var(--pub-fg2,#a6adc8);padding:2.5rem 1rem;font-size:.86rem}
       .mvmai-term-btn+.mvmai-price{margin-left:.6rem}
       .mvmai-term-btn:hover{opacity:1;background:var(--pub-surface2,#313244)}
       .mvmai-inputbar{position:relative;align-items:flex-end}
@@ -192,7 +226,10 @@
       .mvmai-session-row{display:flex;align-items:center;gap:.2rem;padding:.5rem .55rem;border-radius:.4rem;
         cursor:pointer;font-size:.82rem}
       .mvmai-session-row:hover,.mvmai-session-row.active{background:var(--pub-surface2,#313244)}
-      .mvmai-session-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .mvmai-session-text{flex:1;min-width:0}
+      .mvmai-session-title{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .mvmai-session-row.active .mvmai-session-title{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+      .mvmai-session-label{display:block;margin-top:.1rem;font-size:.68rem;color:var(--pub-fg2,#a6adc8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       .mvmai-session-edit{flex:1;min-width:0;padding:.28rem .4rem;border:1px solid var(--pub-accent,#89b4fa);
         border-radius:.3rem;background:var(--pub-bg,#1e1e2e);color:inherit;font:inherit;outline:none}
       .mvmai-session-row .mvmai-s-btn{opacity:.55;background:none;border:0;color:inherit;cursor:pointer;
@@ -269,6 +306,31 @@
       .mvmai-pub-dialog input,.mvmai-pub-dialog textarea{width:100%;box-sizing:border-box;background:var(--pub-surface2,#313244);
         color:var(--pub-fg,#cdd6f4);border:1px solid var(--pub-border,#45475a);border-radius:.4rem;
         padding:.4rem .55rem;font:inherit;font-size:.84rem}
+      .mvmai-model-fields{display:flex;flex-direction:column;gap:.55rem}
+      .mvmai-model-fields label{display:flex;flex-direction:column;gap:.25rem;font-size:.78rem}
+      .mvmai-model-fields select{width:100%;box-sizing:border-box;background:var(--pub-surface2,#313244);
+        color:var(--pub-fg,#cdd6f4);border:1px solid var(--pub-border,#45475a);border-radius:.4rem;
+        padding:.4rem .55rem;font:inherit;font-size:.84rem}
+      .mvmai-model-dialog .mvmai-pub-dialog{width:min(90vw,390px);max-width:none;padding:1.25rem;
+        gap:1rem;border-radius:.9rem;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+      .mvmai-model-dialog .mvmai-pub-dialog-title{font-size:1.05rem;line-height:1.35}
+      .mvmai-model-loading{display:flex;align-items:center;justify-content:center;gap:.7rem;
+        min-height:5.5rem;color:var(--pub-fg2,#a6adc8);font-size:.82rem}
+      .mvmai-model-loading[hidden]{display:none}
+      .mvmai-model-spinner{width:1.2rem;height:1.2rem;border:2px solid var(--pub-border,#45475a);
+        border-top-color:var(--pub-accent,#89b4fa);border-radius:50%;animation:mvmai-model-spin .7s linear infinite}
+      @keyframes mvmai-model-spin{to{transform:rotate(360deg)}}
+      .mvmai-model-dialog .mvmai-model-fields{gap:.85rem}
+      .mvmai-model-dialog .mvmai-model-fields[hidden],.mvmai-model-dialog .mvmai-pub-dialog-actions[hidden]{display:none}
+      .mvmai-model-dialog .mvmai-model-fields label{gap:.4rem;font-size:.8rem;font-weight:600}
+      .mvmai-model-dialog .mvmai-model-fields select{min-height:2.75rem;border-radius:.55rem;padding:.55rem .7rem}
+      .mvmai-model-dialog .mvmai-pub-dialog-actions{display:block}
+      .mvmai-model-dialog .mvmai-model-confirm{width:100%;min-height:2.8rem;border:0;border-radius:.6rem;
+        background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-size:.9rem;font-weight:700;
+        cursor:pointer;transition:filter .15s,transform .15s}
+      .mvmai-model-dialog .mvmai-model-confirm:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
+      .mvmai-model-dialog .mvmai-model-confirm:focus-visible{outline:2px solid var(--pub-fg,#cdd6f4);outline-offset:3px}
+      .mvmai-model-dialog .mvmai-model-confirm:disabled{opacity:.55;cursor:default}
       .mvmai-pub-dialog textarea{resize:vertical}
       .mvmai-pub-dialog-list{flex:1;overflow-y:auto;min-height:120px;border:1px solid var(--pub-border,#45475a);
         border-radius:.4rem}
@@ -276,6 +338,16 @@
       .mvmai-pub-dialog-hint{font-size:.72rem;color:var(--pub-dim,#6c7086)}
       .mvmai-pub-dialog-err{color:var(--pub-red,#f38ba8);font-size:.78rem}
       .mvmai-pub-dialog-actions{display:flex;gap:.5rem;justify-content:flex-end}
+      @media (max-width:640px){
+        .mvmai-widget:not(.mvmai-desktop) .mvmai-inputbar{flex-wrap:wrap;gap:.5rem;padding:.65rem .75rem}
+        .mvmai-widget:not(.mvmai-desktop) .mvmai-input{order:-1;flex:0 0 100%;min-width:0;min-height:5rem;
+          max-height:35dvh;font-size:1rem}
+        .mvmai-widget:not(.mvmai-desktop) .mvmai-app-btn,
+        .mvmai-widget:not(.mvmai-desktop) .mvmai-attach,
+        .mvmai-widget:not(.mvmai-desktop) .mvmai-stop,
+        .mvmai-widget:not(.mvmai-desktop) .mvmai-send{min-height:2.75rem}
+        .mvmai-widget:not(.mvmai-desktop) .mvmai-send{margin-left:auto}
+      }
     `;
     document.head.appendChild(style);
   }
@@ -298,6 +370,7 @@
     var sessionId = null;
     // The provider and model the open chat is pinned to (shown to the administrator).
     var chatLabel = null;
+    var newProjectModel = null; // Confirmed choice for the next project chat only.
     var projects = [];
     var activeProject = null;   // {id, name, path} — fixed at session creation
     var sessionsCache = [];
@@ -314,7 +387,7 @@
       );
       if (isDesktop) headers['X-MvmAI-Surface'] = 'desktop';
       return fetch(API + path, Object.assign({}, options, {headers: headers})).then(async function (response) {
-        var data = await response.json().catch(function () { return {}; });
+        var data = await response.json().catch(function () { return {__invalidResponse: true}; });
         if (response.status === 401 && opts.onNeedLogin) opts.onNeedLogin(root);
         data.__status = response.status;
         return data;
@@ -375,12 +448,11 @@
     // An open chat keeps the provider it started with; a new one takes the
     // one chosen in the settings.
     function currentLabel() {
-      return me && me.is_admin ? (chatLabel || me.provider_label || null) : null;
+      return me && me.is_admin ? (chatLabel || (newProjectModel && newProjectModel.label) || me.provider_label || null) : null;
     }
 
     function messagePlaceholder() {
-      var provider = currentLabel() || 'mvmAI';
-      return t('mvmai_pub_placeholder').replace('mvmAI', provider);
+      return t('mvmai_pub_placeholder');
     }
 
     // The terminal panel of the desktop (Premium). With the setting on it is
@@ -432,12 +504,14 @@
             <span class="mvmai-header-title">🤖 ${esc(t('mvmai_pub_title'))}</span>
             ${me.is_admin ? '<span class="mvmai-badge">' + esc(t('mvmai_pub_admin_badge')) + '</span>' : ''}
             <span class="mvmai-project-badge" hidden></span>
+            <button class="mvmai-gal-btn" type="button" title="${esc(t('mvmai_gal_title'))}">🖼</button>
             ${terminalButtonShown() ? '<button class="mvmai-term-btn" type="button" title="' + esc(t('mvmai_pub_term_title')) + '">🖥</button>' : ''}
             ${priceHint}
           </div>
           <div class="mvmai-list"></div>
           <div class="mvmai-queue" hidden></div>
           <div class="mvmai-chips" hidden></div>
+          ${me.is_admin ? '<div class="mvmai-composer-model" hidden></div>' : ''}
           <div class="mvmai-inputbar">
             ${showAppPicker() ? '<button class="mvmai-app-btn" type="button" title="' + esc(t('mvmai_pub_app_pick')) + '"><span class="mvmai-app-icon">🧩</span><span class="mvmai-app-name" hidden></span></button><div class="mvmai-app-pop" hidden></div>' : ''}
             <button class="mvmai-attach" type="button" title="${esc(t('mvmai_pub_attach'))}">📎</button>
@@ -451,6 +525,7 @@
 
       var listEl = root.querySelector('.mvmai-list');
       var inputEl = root.querySelector('.mvmai-input');
+      var composerModelEl = root.querySelector('.mvmai-composer-model');
       var sendEl = root.querySelector('.mvmai-send');
       var stopEl = root.querySelector('.mvmai-stop');
       var queueEl = root.querySelector('.mvmai-queue');
@@ -464,6 +539,16 @@
       var appKey = 'mvmai_app_' + (isDesktop ? 'desktop' : 'public');
       var chosenApp = null;
       var bridgeApps = null;
+
+      function refreshComposer() {
+        inputEl.placeholder = messagePlaceholder();
+        if (composerModelEl) {
+          var label = currentLabel();
+          composerModelEl.textContent = label || '';
+          composerModelEl.hidden = !label;
+        }
+      }
+      refreshComposer();
 
       function paintAppBtn() {
         if (!appBtn) return;
@@ -533,7 +618,112 @@
         return api('/me').then(function (freshMe) {
           if (freshMe.__status !== 200) return;
           me = freshMe;
-          inputEl.placeholder = messagePlaceholder();
+          refreshComposer();
+        });
+      }
+
+      function chooseProjectModel() {
+        if (!me.is_admin || !activeProject || sessionId || root.querySelector('.mvmai-model-dialog')) return;
+        newProjectModel = null;
+        var backdrop = document.createElement('div');
+        backdrop.className = 'mvmai-pub-dialog-backdrop mvmai-model-dialog';
+        backdrop.innerHTML = '<div class="mvmai-pub-dialog" role="dialog" aria-modal="true" aria-label="' + esc(t('mvmai_pub_model_confirm_title')) + '">' +
+          '<div class="mvmai-pub-dialog-title">' + esc(t('mvmai_pub_model_confirm_title')) + '</div>' +
+          '<div class="mvmai-model-loading" role="status"><span class="mvmai-model-spinner"></span><span>' + esc(t('mvmai_pub_model_loading')) + '</span></div>' +
+          '<div class="mvmai-model-fields" hidden>' +
+          '<label>' + esc(t('mvmai_pub_model_provider')) + '<select class="mvmai-model-provider"></select></label>' +
+          '<label>' + esc(t('mvmai_pub_model_model')) + '<select class="mvmai-model-select"></select></label></div>' +
+          '<div class="mvmai-pub-dialog-hint mvmai-model-status" hidden></div>' +
+          '<div class="mvmai-pub-dialog-actions" hidden>' +
+          '<button type="button" class="mvmai-confirm-yes mvmai-model-confirm" disabled>' + esc(t('mvmai_pub_model_confirm')) + '</button></div></div>';
+        root.querySelector('.mvmai-widget').appendChild(backdrop);
+        var loadingEl = backdrop.querySelector('.mvmai-model-loading');
+        var fieldsEl = backdrop.querySelector('.mvmai-model-fields');
+        var actionsEl = backdrop.querySelector('.mvmai-pub-dialog-actions');
+        var providerSel = backdrop.querySelector('.mvmai-model-provider');
+        var modelSel = backdrop.querySelector('.mvmai-model-select');
+        var statusEl = backdrop.querySelector('.mvmai-model-status');
+        var confirmBtn = backdrop.querySelector('.mvmai-model-confirm');
+        var catalog, requestSeq = 0;
+        function setLoading(busy) {
+          loadingEl.hidden = !busy;
+          fieldsEl.hidden = busy;
+          actionsEl.hidden = busy;
+          providerSel.disabled = busy;
+          modelSel.disabled = busy;
+          confirmBtn.disabled = busy;
+          if (busy) statusEl.hidden = true;
+        }
+        function labelFor(provider, model) {
+          var option = providerSel.selectedOptions[0];
+          var name = option ? option.textContent : provider;
+          return name + (model ? ' · ' + model : '');
+        }
+        function addModel(value) {
+          var o = document.createElement('option'); o.value = value; o.textContent = value || t('mvmai_pub_model_default');
+          modelSel.appendChild(o);
+        }
+        function loadModels(current) {
+          var seq = ++requestSeq, provider = providerSel.value;
+          setLoading(true);
+          statusEl.hidden = true;
+          modelSel.innerHTML = '';
+          addModel('');
+          var cli = (catalog.cli_providers || []).filter(function (p) { return p.id === provider; })[0];
+          function finish(models, failed) {
+            if (seq !== requestSeq || !backdrop.isConnected) return;
+            modelSel.innerHTML = '';
+            addModel('');
+            models.forEach(addModel);
+            if (current && !models.includes(current)) addModel(current);
+            modelSel.value = current || '';
+            setLoading(false);
+            statusEl.textContent = failed ? t('mvmai_pub_model_failed') : '';
+            statusEl.hidden = !failed;
+          }
+          if (cli && !cli.models_dynamic) {
+            finish(cli.model_choices || [], false);
+            return;
+          }
+          var path = cli ? '/model-options/cli-models' : '/model-options/models';
+          api(path, {method: 'POST', body: JSON.stringify({provider: provider})}).then(function (data) {
+            finish(data.models || [], data.__status !== 200 || (cli && !(data.models || []).length));
+          }).catch(function () {
+            finish([], true);
+          });
+        }
+        api('/model-options').then(function (data) {
+          if (!backdrop.isConnected) return;
+          if (data.__status !== 200) {
+            loadingEl.hidden = true;
+            statusEl.textContent = t('mvmai_pub_err'); statusEl.hidden = false;
+            return;
+          }
+          catalog = data;
+          function group(label, providers) {
+            if (!providers.length) return;
+            var g = document.createElement('optgroup'); g.label = label;
+            providers.forEach(function (p) {
+              var o = document.createElement('option'); o.value = p.id; o.textContent = p.name; g.appendChild(o);
+            });
+            providerSel.appendChild(g);
+          }
+          group(t('mvmai_pub_model_cli_group'), data.cli_providers || []);
+          group(t('mvmai_pub_model_api_group'), data.api_providers || []);
+          providerSel.value = data.provider;
+          if (!providerSel.value && providerSel.options.length) providerSel.selectedIndex = 0;
+          providerSel.onchange = function () { loadModels(''); };
+          loadModels(providerSel.value === data.provider ? data.model : '');
+          confirmBtn.onclick = function () {
+            var provider = providerSel.value;
+            var model = modelSel.value;
+            newProjectModel = {provider: provider, model: model, label: labelFor(provider, model)};
+            backdrop.remove(); refreshComposer(); inputEl.focus();
+          };
+        }).catch(function () {
+          if (!backdrop.isConnected) return;
+          loadingEl.hidden = true;
+          statusEl.textContent = t('mvmai_pub_err'); statusEl.hidden = false;
         });
       }
 
@@ -578,6 +768,177 @@
           window.mvmOS.premiumGate(termBtn, t('mvmai_pub_term_premium'));
         }
       }
+
+      // ── Gallery ──────────────────────────────────────────────────────────
+      // Every file the user sent or the model offered, over all chats: pictures
+      // as a grid, anything else as a list to download. Free for everyone; each
+      // person sees only their own files.
+      var galBtn = root.querySelector('.mvmai-gal-btn');
+      function galSize(n) {
+        if (n < 1024) return n + ' B';
+        if (n < 1048576) return (n / 1024).toFixed(0) + ' KB';
+        return (n / 1048576).toFixed(1) + ' MB';
+      }
+      function openGallery() {
+        var widget = root.querySelector('.mvmai-widget');
+        if (widget.querySelector('.mvmai-gal')) return;
+        var panel = document.createElement('div');
+        panel.className = 'mvmai-gal';
+        panel.innerHTML = '<div class="mvmai-gal-head"><b>🖼 ' + esc(t('mvmai_gal_title')) + '</b><div class="mvmai-gal-tabs"></div>' +
+          '<button class="mvmai-gal-close" type="button">✕ ' + esc(t('mvmai_gal_close')) + '</button></div><div class="mvmai-gal-body"></div>';
+        widget.appendChild(panel);
+        var bodyEl = panel.querySelector('.mvmai-gal-body');
+        var tabsEl = panel.querySelector('.mvmai-gal-tabs');
+        var items = [], filter = 'all', urls = [];
+        var headers = {'X-Pub-Token': token};
+        function close() {
+          urls.forEach(function (u) { URL.revokeObjectURL(u); });
+          panel.remove();
+          document.removeEventListener('keydown', onKey);
+        }
+        function onKey(e) { if (e.key === 'Escape' && !widget.querySelector('.mvmai-lightbox')) close(); }
+        document.addEventListener('keydown', onKey);
+        panel.querySelector('.mvmai-gal-close').onclick = close;
+
+        function fileUrl(it, dl) { return API + '/gallery/file?id=' + encodeURIComponent(it.id) + (dl ? '&download=1' : ''); }
+        function getBlob(it, dl) {
+          return fetch(fileUrl(it, dl), {headers: headers}).then(function (r) {
+            if (!r.ok) throw new Error('gone');
+            return r.blob();
+          });
+        }
+        function download(it) {
+          getBlob(it, true).then(function (blob) {
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = it.name;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+          }).catch(function () { addNote(t('mvmai_gal_failed')); });
+        }
+        function remove(it) {
+          if (!window.confirm(t(it.kind === 'sent' ? 'mvmai_gal_delete_confirm' : 'mvmai_gal_remove_confirm', {name: it.name}))) return;
+          fetch(API + '/gallery/delete', {method: 'POST', headers: {'X-Pub-Token': token, 'Content-Type': 'application/json'},
+            body: JSON.stringify({ids: [it.id]})}).then(function (r) {
+            if (!r.ok) throw new Error('failed');
+            items = items.filter(function (x) { return x.id !== it.id; });
+            render();
+          }).catch(function () { addNote(t('mvmai_gal_failed')); });
+        }
+        function chatLink(it) {
+          if (!it.chat_id) return null;
+          var a = document.createElement('button');
+          a.type = 'button';
+          a.className = 'mvmai-gal-link';
+          a.textContent = it.chat_title || t('mvmai_gal_open_chat');
+          a.onclick = function () { close(); openSession(it.chat_id); };
+          return a;
+        }
+        function when(it) { return new Date(it.time * 1000).toLocaleDateString(undefined, {day: 'numeric', month: 'short', year: 'numeric'}); }
+        var observer = ('IntersectionObserver' in window) ? new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) {
+            if (!en.isIntersecting) return;
+            observer.unobserve(en.target);
+            en.target._load();
+          });
+        }, {root: bodyEl, rootMargin: '200px'}) : null;
+        function iconBtn(text, title, fn) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = text;
+          b.title = title;
+          b.onclick = fn;
+          return b;
+        }
+        function previewCell(it) {
+          var td = document.createElement('td');
+          td.className = 'c-prev';
+          if (!it.image) {
+            td.innerHTML = '<div class="mvmai-gal-ico">📄</div>';
+            return td;
+          }
+          var img = document.createElement('img');
+          img.alt = it.name;
+          td.appendChild(img);
+          td._load = function () {
+            getBlob(it).then(function (blob) {
+              var u = URL.createObjectURL(blob);
+              urls.push(u);
+              img.src = u;
+              img.onclick = function () { openLightbox(u); };
+            }).catch(function () {});
+          };
+          if (observer) observer.observe(td); else td._load();
+          return td;
+        }
+        function cell(cls, text) {
+          var td = document.createElement('td');
+          td.className = cls;
+          if (text !== undefined) td.textContent = text;
+          return td;
+        }
+        function row(it) {
+          var tr = document.createElement('tr');
+          tr.appendChild(previewCell(it));
+          tr.appendChild(cell('c-name', it.name));
+          var chat = cell('c-chat');
+          var link = chatLink(it);
+          if (link) chat.appendChild(link);
+          tr.appendChild(chat);
+          tr.appendChild(cell('c-num', when(it)));
+          tr.appendChild(cell('c-num', galSize(it.size)));
+          var act = cell('c-act');
+          act.appendChild(iconBtn('⬇', t('mvmai_gal_download'), function () { download(it); }));
+          act.appendChild(iconBtn('🗑', t('mvmai_gal_delete'), function () { remove(it); }));
+          tr.appendChild(act);
+          return tr;
+        }
+        function render() {
+          tabsEl.innerHTML = '';
+          [['all', 'mvmai_gal_all'], ['sent', 'mvmai_gal_sent'], ['received', 'mvmai_gal_received']].forEach(function (f) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.textContent = t(f[1]);
+            b.className = filter === f[0] ? 'on' : '';
+            b.onclick = function () { filter = f[0]; render(); };
+            tabsEl.appendChild(b);
+          });
+          bodyEl.innerHTML = '';
+          var shown = items.filter(function (it) { return filter === 'all' || it.kind === filter; });
+          if (!shown.length) {
+            var empty = document.createElement('div');
+            empty.className = 'mvmai-gal-empty';
+            empty.textContent = t('mvmai_gal_empty');
+            bodyEl.appendChild(empty);
+            return;
+          }
+          var wrap = document.createElement('div');
+          wrap.className = 'mvmai-gal-wrap';
+          var table = document.createElement('table');
+          table.className = 'mvmai-gal-table';
+          table.innerHTML = '<thead><tr><th></th><th>' + esc(t('mvmai_gal_col_name')) + '</th><th>' + esc(t('mvmai_gal_col_chat')) +
+            '</th><th>' + esc(t('mvmai_gal_col_date')) + '</th><th>' + esc(t('mvmai_gal_col_size')) + '</th><th></th></tr></thead>';
+          var tb = document.createElement('tbody');
+          shown.forEach(function (it) { tb.appendChild(row(it)); });
+          table.appendChild(tb);
+          wrap.appendChild(table);
+          bodyEl.appendChild(wrap);
+        }
+        bodyEl.innerHTML = '<div class="mvmai-gal-empty">…</div>';
+        fetch(API + '/gallery', {headers: headers}).then(function (r) {
+          if (!r.ok) throw new Error('failed');
+          return r.json();
+        }).then(function (d) { items = d.items || []; render(); }).catch(function () {
+          bodyEl.innerHTML = '';
+          var err = document.createElement('div');
+          err.className = 'mvmai-gal-empty';
+          err.textContent = t('mvmai_gal_failed');
+          bodyEl.appendChild(err);
+        });
+      }
+      if (galBtn) galBtn.onclick = openGallery;
 
       if (isDesktop && me.is_admin) {
         providerPoll = setInterval(function () {
@@ -697,10 +1058,14 @@
         updateProjectBadge();
         refreshSessionList();
         renderInlineFileTree();
+        if (!sessionId && me.is_admin) chooseProjectModel();
       }
 
       function exitProjectView() {
         activeProject = null;
+        newProjectModel = null;
+        var modelDialog = root.querySelector('.mvmai-model-dialog');
+        if (modelDialog) modelDialog.remove();
         sidebarProjectHeaderEl.hidden = true;
         if (projectsSectionEl) projectsSectionEl.hidden = false;
         if (sidebarFiletreeEl) sidebarFiletreeEl.innerHTML = '';
@@ -1048,10 +1413,12 @@
             var row = document.createElement('div');
             row.className = 'mvmai-session-row' + (s.id === sessionId ? ' active' : '');
             row.innerHTML =
-              '<span class="mvmai-session-title"></span>' +
+              '<div class="mvmai-session-text"><span class="mvmai-session-title"></span>' +
+              (s.label ? '<span class="mvmai-session-label"></span>' : '') + '</div>' +
               '<button class="mvmai-s-btn mvmai-s-rename" title="' + esc(t('mvmai_pub_rename')) + '">✎</button>' +
               '<button class="mvmai-s-btn mvmai-s-delete" title="' + esc(t('mvmai_pub_delete')) + '">🗑</button>';
             row.querySelector('.mvmai-session-title').textContent = s.title || t('mvmai_pub_new_chat');
+            if (s.label) row.querySelector('.mvmai-session-label').textContent = s.label;
             row.onclick = function () { openSession(s.id); };
             row.querySelector('.mvmai-s-rename').onclick = function (e) {
               e.stopPropagation();
@@ -1100,7 +1467,7 @@
                 if (s.id === sessionId) {
                   sessionId = null; chatLabel = null; history = [];
                   if (termPanel) termPanel.setChat(null);
-                  inputEl.placeholder = messagePlaceholder();
+                  refreshComposer();
                   showWelcome();
                 }
                 refreshSessionList();
@@ -1115,9 +1482,12 @@
         api('/sessions/' + id + '/messages').then(function (data) {
           if (data.__status !== 200) return;
           sessionId = id;
+          newProjectModel = null;
+          var modelDialog = root.querySelector('.mvmai-model-dialog');
+          if (modelDialog) modelDialog.remove();
           if (termPanel) termPanel.setChat(id);
           chatLabel = data.provider_label || null;
-          inputEl.placeholder = messagePlaceholder();
+          refreshComposer();
           var row = sessionsCache.filter(function (s) { return s.id === id; })[0];
           var pid = row && row.project_id;
           activeProject = pid ? (projects.filter(function (p) { return p.id === pid; })[0] || {id: pid, name: pid, path: ''}) : null;
@@ -1152,13 +1522,15 @@
 
       newChatBtn.onclick = function () {
         sessionId = null;
+        newProjectModel = null;
         if (termPanel) termPanel.setChat(null);
         chatLabel = null;
-        inputEl.placeholder = messagePlaceholder();
+        refreshComposer();
         history = [];
         showWelcome();
         closeSidebar();
         refreshSessionList();
+        if (me.is_admin && activeProject) chooseProjectModel();
       };
 
       refreshSessionList();
@@ -1224,6 +1596,13 @@
         box.appendChild(img);
         function close() { box.remove(); document.removeEventListener('keydown', onKey); }
         function onKey(e) { if (e.key === 'Escape') close(); }
+        var x = document.createElement('button');
+        x.type = 'button';
+        x.className = 'mvmai-lightbox-close';
+        x.textContent = '✕';
+        x.title = t('mvmai_gal_close');
+        x.onclick = function (e) { e.stopPropagation(); close(); };
+        box.appendChild(x);
         box.onclick = close;
         document.addEventListener('keydown', onKey);
         root.querySelector('.mvmai-widget').appendChild(box);
@@ -1984,6 +2363,9 @@
           if (inline) jobs.push(inline.catch(function () {}));
         } else {
           jobs.push(inline);
+          // Kept only for the gallery; the model gets the file inside the message.
+          jobs.push(fetch(API + '/attach', {method: 'POST', headers: {'X-Pub-Token': token, 'X-File-Name': encodeURIComponent(file.name || 'file'),
+            'Content-Type': 'application/octet-stream'}, body: file}).catch(function () {}));
         }
         var job = Promise.all(jobs);
         pending.push(item);
@@ -2100,6 +2482,10 @@
       }
 
       function send() {
+        if (me.is_admin && activeProject && !sessionId && !newProjectModel) {
+          chooseProjectModel();
+          return;
+        }
         if (pending.some(function (p) { return p.busy; })) return;
         var text = inputEl.value.trim();
         if (!text && !pending.length) return;
@@ -2145,25 +2531,34 @@
             if (termPanel) termPanel.setChat(sessionId, true);
             setTimeout(refreshSessionList, 1500);
           }
+          function awaitTurn(data) {
+            if (data.__status !== 202 || !data.pending) return Promise.resolve(data);
+            return new Promise(function (resolve) { setTimeout(resolve, 2000); }).then(function () {
+              if (current.stopped) return {error: 'stopped'};
+              return api('/chat/turn/' + encodeURIComponent(current.id),
+                {signal: current.controller ? current.controller.signal : undefined});
+            }).then(awaitTurn);
+          }
           api('/chat', {method: 'POST', signal: current.controller ? current.controller.signal : undefined,
             body: JSON.stringify({messages: history, session_id: sessionId, project_id: activeProject ? activeProject.id : null,
-              app_id: chosenApp ? chosenApp.id : null, turn_id: current.id, lang: uiLang()})}).then(function (data) {
+              project_model: newProjectModel && history.length === 1 ? {provider: newProjectModel.provider, model: newProjectModel.model} : null,
+              app_id: chosenApp ? chosenApp.id : null, turn_id: current.id, lang: uiLang()})}).then(awaitTurn).then(function (data) {
             if (current.stopped) return;
             typing.remove();
             // The model has seen the images; they are not sent again.
             history.forEach(function (m) { delete m.images; });
-            // A long turn answers 200 at once to keep the connection open,
-            // so its failure arrives as an error in the body instead.
+            // A malformed response has no useful HTTP error code to display.
             if (data.__status !== 200 || data.error || !data.message) {
               var key = data.error === 'insufficient_credits' ? 'mvmai_pub_insufficient_credits'
                 : (data.__status === 401 ? 'mvmai_pub_unauthorized' : null);
-              addNote((key ? t(key) : (t('mvmai_pub_err') + ': ' + (data.error || data.__status))));
+              addNote(data.__invalidResponse ? t('mvmai_pub_err')
+                : (key ? t(key) : (t('mvmai_pub_err') + ': ' + (data.error || data.__status))));
               if (data.images) addNote(t('mvmai_pub_images_failed'));
               finishTurn();
               return;
             }
             if (data.session_id) sessionId = data.session_id;
-            if (data.provider_label) { chatLabel = data.provider_label; inputEl.placeholder = messagePlaceholder(); }
+            if (data.provider_label) { chatLabel = data.provider_label; newProjectModel = null; refreshComposer(); }
             var msg = data.message;
             history.push(msg);
             if (msg.content) addBubble('assistant', msg.content, null, msg.created_at);

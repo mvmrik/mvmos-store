@@ -12,7 +12,8 @@
     "Discard tracked time when it should not count.",
     "History of every completion.",
     "Public web page for your Apps Hub account.",
-    "A running or paused timer appears in the live strip of the Apps Hub public page, with buttons to pause, continue or stop it."
+    "A running or paused timer appears in the live strip of the Apps Hub public page, with buttons to pause, continue or stop it.",
+    "When several timers run, the one started or resumed last appears first in the live strip, and running timers always come before paused ones."
   ],
   "integrations": [
     {

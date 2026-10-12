@@ -64,6 +64,9 @@ class Game:
     async def on_message(self, player, msg):
         kind = msg.get("type")
         pid = str(player["id"])
+        # Someone asleep does nothing but wake up, or be asked how they are.
+        if self.world.asleep(pid) and kind not in ("hv_wake", "hv_sync", "hv_exit"):
+            return
         if kind == "hv_move":
             await self.world.move(pid, msg)
         elif kind == "hv_chop":
@@ -80,6 +83,16 @@ class Game:
             await self.world.place(pid, msg)
         elif kind == "hv_remove_build":
             await self.world.remove_build(pid, msg)
+        elif kind == "hv_move_furniture":
+            await self.world.move_furniture(pid, msg)
+        elif kind == "hv_sleep":
+            await self.world.sleep(pid, msg)
+        elif kind == "hv_wake":
+            await self.world.wake(pid, msg)
+        elif kind == "hv_move_opening":
+            await self.world.move_opening(pid, msg)
+        elif kind == "hv_break":
+            await self.world.break_part(pid, msg)
         elif kind == "hv_pull":
             await self.world.pull(pid, msg)
         elif kind == "hv_gather":

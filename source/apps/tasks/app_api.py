@@ -126,8 +126,8 @@ def list_tasks(user_id: str, project_id: str = None):
 def get_live_activity(user_id: str):
     """What is running for the user right now: one entry per timed task whose
     timer is running or paused, with id, title, state (running or paused),
-    elapsed_seconds at the moment of the call and the buttons the live strip
-    may show for it."""
+    elapsed_seconds at the moment of the call, timing used by Apps Hub to
+    order the strip, and the buttons it may show for the task."""
     out = []
     for t in _unwrap(_pub()._list_tasks(user_id)):
         if t.get("timer_running") or t.get("timer_paused"):
@@ -138,6 +138,8 @@ def get_live_activity(user_id: str):
                 "title": t["title"],
                 "state": "running" if running else "paused",
                 "elapsed_seconds": int(t.get("elapsed_seconds") or 0),
+                "started_at": t.get("timer_started_at") if running else None,
+                "activity_at": t.get("updated_at") or t.get("created_at"),
                 "actions": [
                     {"type": "pause" if running else "resume",
                      "function": "pause_task_timer" if running else "start_task_timer", "args": args},

@@ -6,7 +6,7 @@ const _MVMAI_MODELS = {
 const _mvmai18n = {
   en: {
     title: 'mvmAI', new_chat: '+ New chat', no_sessions: 'No conversations yet',
-    placeholder: 'Message mvmAI…  (Shift+Enter for newline)', send: 'Send', stop: 'Stop',
+    placeholder: 'Message mvmAI…', send: 'Send', stop: 'Stop',
     thinking: 'Thinking…', running: 'Running command…',
     welcome_title: 'mvmAI', welcome_sub: 'Ask anything.',
     no_provider: 'No provider configured. Open ⚙ Settings, pick a provider and enter your API key.',
@@ -43,7 +43,7 @@ const _mvmai18n = {
   },
   bg: {
     title: 'mvmAI', new_chat: '+ Нов чат', no_sessions: 'Все още няма разговори',
-    placeholder: 'Съобщение до mvmAI…  (Shift+Enter за нов ред)', send: 'Изпрати', stop: 'Спри',
+    placeholder: 'Съобщение до mvmAI…', send: 'Изпрати', stop: 'Спри',
     thinking: 'Мисля…', running: 'Изпълнявам команда…',
     welcome_title: 'mvmAI', welcome_sub: 'Питай каквото поискаш.',
     no_provider: 'Няма конфигуриран провайдър. Отвори ⚙ Настройки, избери провайдър и въведи API ключ.',
@@ -80,7 +80,7 @@ const _mvmai18n = {
   },
   de: {
     title: 'mvmAI', new_chat: '+ Neuer Chat', no_sessions: 'Noch keine Unterhaltungen',
-    placeholder: 'Nachricht an mvmAI…  (Umschalt+Eingabe für neue Zeile)', send: 'Senden', stop: 'Stopp',
+    placeholder: 'Nachricht an mvmAI…', send: 'Senden', stop: 'Stopp',
     thinking: 'Denke nach…', running: 'Befehl wird ausgeführt…',
     welcome_title: 'mvmAI', welcome_sub: 'Frag mich alles.',
     no_provider: 'Kein Anbieter konfiguriert. Öffne ⚙ Einstellungen, wähle einen Anbieter und gib deinen API-Schlüssel ein.',
@@ -117,7 +117,7 @@ const _mvmai18n = {
   },
   es: {
     title: 'mvmAI', new_chat: '+ Nuevo chat', no_sessions: 'Aún no hay conversaciones',
-    placeholder: 'Mensaje para mvmAI…  (Mayús+Intro para salto de línea)', send: 'Enviar', stop: 'Detener',
+    placeholder: 'Mensaje para mvmAI…', send: 'Enviar', stop: 'Detener',
     thinking: 'Pensando…', running: 'Ejecutando comando…',
     welcome_title: 'mvmAI', welcome_sub: 'Pregunta lo que quieras.',
     no_provider: 'No hay proveedor configurado. Abre ⚙ Ajustes, elige un proveedor e introduce tu clave API.',
@@ -154,7 +154,7 @@ const _mvmai18n = {
   },
   fr: {
     title: 'mvmAI', new_chat: '+ Nouvelle discussion', no_sessions: 'Aucune conversation pour le moment',
-    placeholder: 'Message à mvmAI…  (Maj+Entrée pour un saut de ligne)', send: 'Envoyer', stop: 'Arrêter',
+    placeholder: 'Message à mvmAI…', send: 'Envoyer', stop: 'Arrêter',
     thinking: 'Réflexion…', running: 'Exécution de la commande…',
     welcome_title: 'mvmAI', welcome_sub: 'Demande-moi ce que tu veux.',
     no_provider: 'Aucun fournisseur configuré. Ouvre ⚙ Paramètres, choisis un fournisseur et saisis ta clé API.',
@@ -191,7 +191,7 @@ const _mvmai18n = {
   },
   ja: {
     title: 'mvmAI', new_chat: '+ 新しいチャット', no_sessions: 'まだ会話がありません',
-    placeholder: 'mvmAIへのメッセージ…  (Shift+Enterで改行)', send: '送信', stop: '停止',
+    placeholder: 'mvmAIへのメッセージ…', send: '送信', stop: '停止',
     thinking: '考え中…', running: 'コマンドを実行中…',
     welcome_title: 'mvmAI', welcome_sub: '何でも聞いてください。',
     no_provider: 'プロバイダーが設定されていません。⚙ 設定を開き、プロバイダーを選んでAPIキーを入力してください。',
@@ -228,7 +228,7 @@ const _mvmai18n = {
   },
   'pt-BR': {
     title: 'mvmAI', new_chat: '+ Nova conversa', no_sessions: 'Ainda não há conversas',
-    placeholder: 'Mensagem para o mvmAI…  (Shift+Enter para nova linha)', send: 'Enviar', stop: 'Parar',
+    placeholder: 'Mensagem para o mvmAI…', send: 'Enviar', stop: 'Parar',
     thinking: 'Pensando…', running: 'Executando comando…',
     welcome_title: 'mvmAI', welcome_sub: 'Pergunte qualquer coisa.',
     no_provider: 'Nenhum provedor configurado. Abra ⚙ Configurações, escolha um provedor e informe sua chave de API.',
@@ -265,7 +265,7 @@ const _mvmai18n = {
   },
   ru: {
     title: 'mvmAI', new_chat: '+ Новый чат', no_sessions: 'Пока нет разговоров',
-    placeholder: 'Сообщение для mvmAI…  (Shift+Enter для новой строки)', send: 'Отправить', stop: 'Стоп',
+    placeholder: 'Сообщение для mvmAI…', send: 'Отправить', stop: 'Стоп',
     thinking: 'Думаю…', running: 'Выполняю команду…',
     welcome_title: 'mvmAI', welcome_sub: 'Спрашивай что угодно.',
     no_provider: 'Провайдер не настроен. Открой ⚙ Настройки, выбери провайдера и введи API-ключ.',
@@ -302,7 +302,7 @@ const _mvmai18n = {
   },
   'zh-CN': {
     title: 'mvmAI', new_chat: '+ 新对话', no_sessions: '暂无对话',
-    placeholder: '给 mvmAI 发消息…  (Shift+Enter 换行)', send: '发送', stop: '停止',
+    placeholder: '给 mvmAI 发消息…', send: '发送', stop: '停止',
     thinking: '思考中…', running: '正在执行命令…',
     welcome_title: 'mvmAI', welcome_sub: '尽管问吧。',
     no_provider: '尚未配置提供商。打开 ⚙ 设置，选择提供商并输入你的 API 密钥。',
@@ -857,7 +857,7 @@ const AI = (() => {
     if (!ta) return;
     const providerName = _PROVIDER_NAMES[_cfg.provider] || _cfg.provider || 'AI';
     const label = (_cfg.model && !_cfg.provider?.endsWith('-cli')) ? _cfg.model : providerName;
-    ta.placeholder = `Message ${label}…  (Shift+Enter ${window.mvmOS?.lang === 'bg' ? 'за нов ред' : 'for newline'})`;
+    ta.placeholder = _ait('placeholder').replace('mvmAI', label);
   }
   async function _listSessions() {
     return _db.query('SELECT id, title, updated_at FROM sessions ORDER BY updated_at DESC');
