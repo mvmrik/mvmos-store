@@ -1,16 +1,40 @@
 {
   "id": "belot",
   "name": "Belot",
-  "name_i18n": {"en":"Belot","bg":"Белот","de":"Belot","es":"Belot","fr":"Belote","ja":"ベロット","pt-BR":"Belote","ru":"Белот","zh-CN":"贝洛特"},
+  "name_i18n": {
+    "en": "Belot",
+    "bg": "Белот",
+    "de": "Belot",
+    "es": "Belot",
+    "fr": "Belote",
+    "ja": "ベロット",
+    "pt-BR": "Belote",
+    "ru": "Белот",
+    "zh-CN": "贝洛特"
+  },
   "icon": "🃏",
   "category": "Games",
-  "tags": ["cards", "strategy", "multiplayer", "games"],
-  "version": "0.1.0",
-  "beta": true,
-  "min_core_version": "1.0.0",
+  "tags": [
+    "cards",
+    "strategy",
+    "multiplayer",
+    "games"
+  ],
+  "version": "1.0.0",
+  "min_core_version": "1.15.0",
   "description": "Play Bulgarian Belot or classic French Belote with friends or independent bots, and save custom rules for either style.",
   "entry": "main.js",
   "multiplayer": true,
   "max_players": 4,
-  "themed": true
+  "themed": true,
+  "credit_features": [
+    {
+      "id": "ai_bot",
+      "name": "AI bot in a game",
+      "description": "Charged once for each bot a player replaces with an AI when a game starts.",
+      "unit": "bot"
+    }
+  ],
+  "public_api_only": true,
+  "public_directory": false
 }

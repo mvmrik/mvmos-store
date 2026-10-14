@@ -941,16 +941,22 @@ def _which(cmd: str, home: str) -> str | None:
         return None
 
 
-def _cli_user_candidates(explicit: str | None = None, configured: str | None = None) -> list[str]:
-    """Return real OS accounts that may own a shared CLI login."""
-    names = [configured, "root", explicit]
+def _linux_accounts() -> list[str]:
+    """Real OS accounts a CLI chat may run as: root plus the login users."""
+    names = ["root"]
     try:
         names.extend(
             u.pw_name for u in sorted(pwd.getpwall(), key=lambda item: item.pw_uid)
-            if u.pw_uid >= 1000 and u.pw_shell not in ("/usr/sbin/nologin", "/bin/false", "")
+            if 1000 <= u.pw_uid < 60000 and not u.pw_shell.endswith(("nologin", "false")) and u.pw_shell
         )
     except Exception:
         pass
+    return list(dict.fromkeys(names))
+
+
+def _cli_user_candidates(explicit: str | None = None, configured: str | None = None) -> list[str]:
+    """Return real OS accounts that may own a shared CLI login."""
+    names = [configured, "root", explicit] + _linux_accounts()
     return list(dict.fromkeys(name for name in names if name))
 
 
@@ -975,33 +981,32 @@ def _cli_is_logged_in(provider: dict, cmd_bin: str, eu: str, home: str) -> bool 
 def _resolve_cli_runtime(provider: dict, explicit: str | None = None, persist: bool = False):
     """Resolve the CLI executable and the OS account it runs as.
 
-    The account the caller is logged into mvmOS with (`explicit`) always wins,
-    so the chat has exactly that account's rights and login. Only when there
-    is no such session (background jobs) does it fall back to an account whose
-    own auth-status command succeeds. Nothing is stored: a failed check must
-    never silently switch the account for every later turn.
+    The account chosen for this CLI in the mvmAI settings (`cli_user_<id>`)
+    wins, so desktop and public-page chats always run as the same account no
+    matter who is logged in where. Without a choice, the mvmOS session's
+    account (`explicit`) is used, and when there is no session either (a pure
+    Apps Hub visitor) the chat runs as root. Nothing is detected or stored
+    automatically.
     """
-    cfg_key = f"cli_user_{provider['id']}"
-    configured = _read_cfg().get(cfg_key)
-    users = _cli_user_candidates(explicit, configured)
-    own_bins = {eu: _which(provider["cmd"], _home_for(eu)) for eu in users}
+    configured = _read_cfg().get(f"cli_user_{provider['id']}")
+    if not (isinstance(configured, str) and configured in _linux_accounts()):
+        configured = None
+    eu = configured or explicit or "root"
+    users = _cli_user_candidates(eu)
+    own_bins = {u: _which(provider["cmd"], _home_for(u)) for u in users}
     any_bin = next((cmd for cmd in own_bins.values() if cmd), None)
     if not any_bin:
         return None
+    return (eu, _home_for(eu), own_bins.get(eu) or any_bin)
 
-    if explicit:
-        return (explicit, _home_for(explicit), own_bins.get(explicit) or any_bin)
 
-    runtimes = [(eu, _home_for(eu), own_bins.get(eu) or any_bin) for eu in users]
-    auth_states = [
-        (eu, home, cmd_bin, _cli_is_logged_in(provider, cmd_bin, eu, home))
-        for eu, home, cmd_bin in runtimes
-    ]
-    authenticated = [row[:3] for row in auth_states if row[3] is True]
-    if authenticated:
-        return authenticated[0]
-    chosen = next((row[:3] for row in auth_states if row[0] == configured), None)
-    return chosen or auth_states[0][:3]
+def _read_cli_usage(provider: str, user: str, home: str, cmd_bin: str,
+                    force: bool = False, model: str = ""):
+    """Read the selected Linux account's limits outside public-app isolation."""
+    from backend.app_isolation import release
+    with release():
+        from backend.apps.mvmai.usage import read_usage
+        return read_usage(sys.modules[__name__], provider, user, home, cmd_bin, force, model)
 
 
 def _discover_cli_models(provider: dict, cmd_bin: str, eu: str, home: str) -> list[str]:
@@ -1047,6 +1052,39 @@ def _detected_cli_providers(eu: str):
         item.pop("model_discovery", None)
         detected.append(item)
     return detected
+
+
+# CLIs with no auth-status command keep their login in a folder of the
+# account's home; only its presence is checked, never its contents.
+_CLI_HOME_MARKER = {"gemini-cli": ".gemini"}
+
+
+def _cli_usable_accounts() -> dict:
+    """For each CLI provider, the OS accounts it can really run as: the CLI
+    is installed for the account and, where the CLI can tell, logged in."""
+    from concurrent.futures import ThreadPoolExecutor
+    accounts = _linux_accounts()
+    jobs = []
+    for provider in CLI_PROVIDERS:
+        for eu in accounts:
+            home = _home_for(eu)
+            cmd_bin = _which(provider["cmd"], home)
+            if cmd_bin:
+                jobs.append((provider, eu, home, cmd_bin))
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        states = list(pool.map(lambda j: _cli_is_logged_in(j[0], j[3], j[1], j[2]), jobs))
+    out = {provider["id"]: [] for provider in CLI_PROVIDERS}
+    for (provider, eu, home, _bin), state in zip(jobs, states):
+        if state is None and provider["id"] in _CLI_HOME_MARKER:
+            state = os.path.isdir(os.path.join(home, _CLI_HOME_MARKER[provider["id"]]))
+        if state is not False:
+            out[provider["id"]].append(eu)
+    return out
+
+
+@router.get("/cli-users")
+async def cli_users(session=Depends(get_current_session)):
+    return JSONResponse({"users": _linux_accounts(), "by_cli": await asyncio.to_thread(_cli_usable_accounts)})
 
 
 @router.get("/cli-providers")

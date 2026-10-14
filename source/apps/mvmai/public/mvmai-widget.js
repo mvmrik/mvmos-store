@@ -60,6 +60,13 @@
         background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);white-space:nowrap}
       .mvmai-price{margin-left:auto;font-size:.72rem;color:var(--pub-dim,#6c7086);white-space:nowrap}
       .mvmai-list{flex:1;min-height:0;overflow-y:auto;padding:.9rem;display:flex;flex-direction:column;gap:.7rem}
+      .mvmai-start{margin:auto;display:flex;flex-direction:column;align-items:center;gap:.9rem;padding:1rem;width:100%;max-width:26rem}
+      .mvmai-start-title{font-weight:600;font-size:1rem;color:var(--pub-fg,#cdd6f4)}
+      .mvmai-start-new{border:0;border-radius:.6rem;padding:.55rem 1.3rem;font:inherit;font-size:.9rem;font-weight:600;cursor:pointer;
+        background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e)}
+      .mvmai-start-new:hover{filter:brightness(1.08)}
+      .mvmai-start-list{display:flex;flex-direction:column;gap:.15rem;width:100%;text-align:left}
+      .mvmai-start-empty{color:var(--pub-fg2,#a6adc8);font-size:.8rem;text-align:center}
       .mvmai-welcome{color:var(--pub-fg2,#a6adc8);font-size:.85rem;text-align:center;margin:auto;padding:1rem}
       .mvmai-widget .mvmai-msg{display:block;max-width:85%;padding:.55rem .75rem;border-radius:.7rem;font-size:.88rem;line-height:1.45;
         overflow-wrap:anywhere;white-space:normal;user-select:text;-webkit-user-select:text}
@@ -98,8 +105,20 @@
       .mvmai-confirm-no{background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4)}
       .mvmai-inputbar{display:flex;gap:.5rem;padding:.75rem .9rem;flex-shrink:0;
         border-top:1px solid var(--pub-border,#45475a)}
-      .mvmai-composer-model{flex-shrink:0;padding:.5rem .9rem 0;color:var(--pub-fg2,#a6adc8);
+      .mvmai-composer-model{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .45rem;
+        flex-shrink:0;padding:.5rem .9rem 0;color:var(--pub-fg2,#a6adc8);
         border-top:1px solid var(--pub-border,#45475a);font-size:.76rem;line-height:1.35;overflow-wrap:anywhere}
+      .mvmai-usage-badge{display:inline-flex;align-items:center;flex-wrap:wrap;gap:.2rem .35rem;
+        max-width:100%;box-sizing:border-box;
+        padding:.28rem .48rem;border:1px solid var(--pub-border,#45475a);border-radius:.5rem;
+        background:var(--pub-surface2,#313244);font-size:.73rem}
+      .mvmai-usage-window{color:var(--pub-fg2,#a6adc8);font-weight:600;white-space:nowrap}
+      .mvmai-usage-percent{color:var(--pub-fg,#cdd6f4);font-weight:700;white-space:nowrap}
+      .mvmai-usage-reset{color:var(--pub-fg2,#a6adc8);border-left:1px solid var(--pub-border,#45475a);
+        white-space:nowrap;
+        padding-left:.35rem}
+      .mvmai-usage-badge.near-limit .mvmai-usage-percent{color:#f9b36d}
+      .mvmai-usage-badge.at-limit .mvmai-usage-percent{color:#f38ba8}
       .mvmai-composer-model[hidden]{display:none}
       .mvmai-composer-model:not([hidden])+.mvmai-inputbar{border-top:0}
       .mvmai-input{flex:1;resize:none;min-height:2.3rem;max-height:8rem;background:var(--pub-surface2,#313244);
@@ -222,13 +241,25 @@
       .mvmai-new-chat{flex:1;min-width:0;padding:.5rem;border:1px solid var(--pub-border,#45475a);border-radius:.5rem;
         background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);cursor:pointer;font-size:.84rem;
         font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .mvmai-sidebar-list{flex:1;overflow-y:auto;padding:.4rem}
+      .mvmai-sidebar-list{flex:1;min-height:0;overflow-y:auto;padding:.4rem}
+      .mvmai-archive-nav{padding:.35rem .55rem;border-top:1px solid var(--pub-border,#45475a);flex-shrink:0}
+      .mvmai-archive-link,.mvmai-archive-delete-all{background:none;border:0;color:var(--pub-fg2,#a6adc8);
+        cursor:pointer;font:inherit;font-size:.78rem;padding:.2rem .1rem;text-align:left}
+      .mvmai-archive-link:hover,.mvmai-archive-delete-all:hover{text-decoration:underline}
+      .mvmai-archive-delete-all{color:var(--pub-red,#f38ba8);margin-left:.4rem}
+      .mvmai-archive-list{max-height:38%;overflow-y:auto;padding:.2rem .4rem .5rem;flex-shrink:0}
+      .mvmai-archive-list[hidden]{display:none}
+      .mvmai-archive-notice{padding:.7rem .9rem;border-top:1px solid var(--pub-border,#45475a);
+        color:var(--pub-fg2,#a6adc8);font-size:.82rem}
+      .mvmai-archive-notice[hidden]{display:none}
+      .mvmai-archive-restore{margin-left:.5rem;border:1px solid var(--pub-border,#45475a);border-radius:.4rem;
+        background:var(--pub-surface2,#313244);color:inherit;padding:.25rem .5rem;cursor:pointer}
       .mvmai-session-row{display:flex;align-items:center;gap:.2rem;padding:.5rem .55rem;border-radius:.4rem;
         cursor:pointer;font-size:.82rem}
       .mvmai-session-row:hover,.mvmai-session-row.active{background:var(--pub-surface2,#313244)}
       .mvmai-session-text{flex:1;min-width:0}
       .mvmai-session-title{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-      .mvmai-session-row.active .mvmai-session-title{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+      .mvmai-session-row.active .mvmai-session-title{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
       .mvmai-session-label{display:block;margin-top:.1rem;font-size:.68rem;color:var(--pub-fg2,#a6adc8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       .mvmai-session-edit{flex:1;min-width:0;padding:.28rem .4rem;border:1px solid var(--pub-accent,#89b4fa);
         border-radius:.3rem;background:var(--pub-bg,#1e1e2e);color:inherit;font:inherit;outline:none}
@@ -370,12 +401,16 @@
     var sessionId = null;
     // The provider and model the open chat is pinned to (shown to the administrator).
     var chatLabel = null;
+    var chatProvider = null;
+    var chatModel = null;
     var newProjectModel = null; // Confirmed choice for the next project chat only.
     var projects = [];
     var activeProject = null;   // {id, name, path} — fixed at session creation
     var sessionsCache = [];
     var projectPoll = null;
     var providerPoll = null;
+    var usagePoll = null;
+    var titleRefreshTimer = null;
     var termPanel = null;    // the Premium terminal panel, once made
     var termLoading = null;
 
@@ -489,6 +524,11 @@
             <span class="mvmai-sidebar-project-title"></span>
           </div>
           <div class="mvmai-sidebar-list"></div>
+          <div class="mvmai-archive-nav">
+            <button class="mvmai-archive-link" type="button" aria-expanded="false"></button>
+            <button class="mvmai-archive-delete-all" type="button" hidden>${esc(t('mvmai_pub_delete_all_archived'))}</button>
+          </div>
+          <div class="mvmai-archive-list" hidden></div>
           <div class="mvmai-sidebar-filetree"></div>
           ${me.is_admin ? `<div class="mvmai-projects-section">
             <div class="mvmai-projects-head">
@@ -512,6 +552,7 @@
           <div class="mvmai-queue" hidden></div>
           <div class="mvmai-chips" hidden></div>
           ${me.is_admin ? '<div class="mvmai-composer-model" hidden></div>' : ''}
+          <div class="mvmai-archive-notice" hidden>${esc(t('mvmai_pub_archived_readonly'))}<button class="mvmai-archive-restore" type="button">${esc(t('mvmai_pub_restore'))}</button></div>
           <div class="mvmai-inputbar">
             ${showAppPicker() ? '<button class="mvmai-app-btn" type="button" title="' + esc(t('mvmai_pub_app_pick')) + '"><span class="mvmai-app-icon">🧩</span><span class="mvmai-app-name" hidden></span></button><div class="mvmai-app-pop" hidden></div>' : ''}
             <button class="mvmai-attach" type="button" title="${esc(t('mvmai_pub_attach'))}">📎</button>
@@ -532,6 +573,18 @@
       var sidebarEl = root.querySelector('.mvmai-sidebar');
       var backdropEl = root.querySelector('.mvmai-sidebar-backdrop');
       var sidebarListEl = root.querySelector('.mvmai-sidebar-list');
+      var archiveLinkEl = root.querySelector('.mvmai-archive-link');
+      var archiveListEl = root.querySelector('.mvmai-archive-list');
+      var archiveDeleteAllEl = root.querySelector('.mvmai-archive-delete-all');
+      var archiveNoticeEl = root.querySelector('.mvmai-archive-notice');
+      var archiveRestoreEl = root.querySelector('.mvmai-archive-restore');
+      var archiveExpanded = false;
+      var archivedSession = false;
+      var usageProvider = null;
+      var usageModel = null;
+      var usageData = null;
+      var usageFetchedAt = 0;
+      var usageRequest = 0;
       var histBtn = root.querySelector('.mvmai-hist-btn');
       var newChatBtn = root.querySelector('.mvmai-new-chat');
       var appBtn = root.querySelector('.mvmai-app-btn');
@@ -540,15 +593,118 @@
       var chosenApp = null;
       var bridgeApps = null;
 
+      // In a project with no chat opened, the composer stays hidden until an
+      // existing chat is opened or a new one gets its model chosen.
+      function projectStartState() { return !!(me.is_admin && activeProject && !sessionId && !newProjectModel); }
+      function currentUsageProvider() {
+        return chatProvider || (newProjectModel && newProjectModel.provider) || me.provider || null;
+      }
+      function currentUsageModel() {
+        if (chatProvider) return chatModel || '';
+        if (newProjectModel) return newProjectModel.model || '';
+        return me.model || '';
+      }
+      function resetCountdown(timestamp) {
+        var total = Math.max(0, Math.ceil((Number(timestamp) * 1000 - Date.now()) / 60000));
+        var days = Math.floor(total / 1440);
+        var hours = Math.floor(total % 1440 / 60);
+        var minutes = total % 60;
+        var parts = [];
+        if (days) parts.push(days + t('mvmai_pub_usage_days'));
+        if (hours) parts.push(hours + t('mvmai_pub_usage_hours'));
+        parts.push(minutes + t('mvmai_pub_usage_minutes'));
+        return parts.join(' ');
+      }
+      function usageBadge(window, label) {
+        if (!window || !Number.isFinite(Number(window.used_percent))) return null;
+        var percent = Math.round(Number(window.used_percent));
+        var badge = document.createElement('span');
+        badge.className = 'mvmai-usage-badge' + (percent >= 100 ? ' at-limit' : percent >= 80 ? ' near-limit' : '');
+        var name = document.createElement('span');
+        name.className = 'mvmai-usage-window';
+        name.textContent = label;
+        var value = document.createElement('span');
+        value.className = 'mvmai-usage-percent';
+        value.textContent = percent + '%';
+        badge.append(name, value);
+        if (window.resets_at) {
+          var reset = document.createElement('span');
+          reset.className = 'mvmai-usage-reset';
+          reset.textContent = '↻ ' + resetCountdown(window.resets_at);
+          badge.appendChild(reset);
+        }
+        badge.title = t('mvmai_pub_usage_used');
+        return badge;
+      }
+      function paintUsage() {
+        if (!composerModelEl || composerModelEl.hidden || !usageData || usageData.hide) return;
+        var models = usageData.models || [];
+        var badges = currentUsageProvider() === 'gemini-cli'
+          ? models.map(function (window) {
+              return usageBadge(window, models.length === 1 ? t('mvmai_pub_usage_day') : window.model_label);
+            }).filter(Boolean)
+          : [usageBadge(usageData.five_hour, t('mvmai_pub_usage_five_hour')),
+            usageBadge(usageData.week, t('mvmai_pub_usage_week'))].filter(Boolean);
+        if (badges.length) {
+          badges.forEach(function (badge) { composerModelEl.appendChild(badge); });
+        } else {
+          var unavailable = document.createElement('span');
+          unavailable.textContent = t('mvmai_pub_usage_unavailable');
+          composerModelEl.appendChild(unavailable);
+        }
+      }
+      function updateUsage(force) {
+        var provider = currentUsageProvider();
+        var model = provider === 'gemini-cli' ? currentUsageModel() : '';
+        if (!me.is_admin || archivedSession || !['claude-cli', 'codex-cli', 'gemini-cli'].includes(provider) || projectStartState()) {
+          usageProvider = null; usageModel = null; usageData = null; usageRequest++;
+          return;
+        }
+        if (provider !== usageProvider || model !== usageModel) {
+          usageProvider = provider; usageModel = model; usageData = null; usageFetchedAt = 0; usageRequest++;
+        }
+        if (!force && Date.now() - usageFetchedAt < 60000) return;
+        usageFetchedAt = Date.now();
+        var request = ++usageRequest;
+        api('/cli-usage?provider=' + encodeURIComponent(provider) + '&model=' + encodeURIComponent(model) +
+          (force ? '&fresh=1' : '')).then(function (data) {
+          if (request !== usageRequest || provider !== currentUsageProvider() ||
+              model !== (provider === 'gemini-cli' ? currentUsageModel() : '') || !root.isConnected) return;
+          usageData = data.__status === 200 ? data : {unavailable: true};
+          refreshComposer();
+        }).catch(function () {
+          if (request !== usageRequest || provider !== currentUsageProvider() ||
+              model !== (provider === 'gemini-cli' ? currentUsageModel() : '') || !root.isConnected) return;
+          usageData = {unavailable: true};
+          refreshComposer();
+        });
+      }
       function refreshComposer() {
+        var bar = root.querySelector('.mvmai-inputbar');
+        if (bar) bar.style.display = (projectStartState() || archivedSession) ? 'none' : '';
+        archiveNoticeEl.hidden = !archivedSession;
+        if (termBtn) termBtn.hidden = archivedSession;
+        if (archivedSession && termPanel) termPanel.setChat(null);
         inputEl.placeholder = messagePlaceholder();
         if (composerModelEl) {
           var label = currentLabel();
-          composerModelEl.textContent = label || '';
-          composerModelEl.hidden = !label;
+          composerModelEl.textContent = '';
+          if (label) {
+            var labelEl = document.createElement('span');
+            labelEl.className = 'mvmai-composer-label';
+            labelEl.textContent = label;
+            composerModelEl.appendChild(labelEl);
+          }
+          composerModelEl.hidden = !label || archivedSession;
+          updateUsage(false);
+          paintUsage();
         }
       }
       refreshComposer();
+      if (me.is_admin) usagePoll = setInterval(function () {
+        if (!root.isConnected) { clearInterval(usagePoll); return; }
+        if (!document.hidden) { refreshComposer(); }
+      }, 60000);
 
       function paintAppBtn() {
         if (!appBtn) return;
@@ -718,7 +874,7 @@
             var provider = providerSel.value;
             var model = modelSel.value;
             newProjectModel = {provider: provider, model: model, label: labelFor(provider, model)};
-            backdrop.remove(); refreshComposer(); inputEl.focus();
+            backdrop.remove(); refreshComposer(); showWelcome(); inputEl.focus();
           };
         }).catch(function () {
           if (!backdrop.isConnected) return;
@@ -1058,7 +1214,19 @@
         updateProjectBadge();
         refreshSessionList();
         renderInlineFileTree();
-        if (!sessionId && me.is_admin) chooseProjectModel();
+        // Opening a project never continues whatever chat was open before.
+        sessionId = null;
+        archivedSession = false;
+        newProjectModel = null;
+        chatLabel = null;
+        chatProvider = null;
+        chatModel = null;
+        history = [];
+        if (termPanel) termPanel.setChat(null);
+        var modelDialog = root.querySelector('.mvmai-model-dialog');
+        if (modelDialog) modelDialog.remove();
+        refreshComposer();
+        showProjectStart();
       }
 
       function exitProjectView() {
@@ -1070,6 +1238,16 @@
         if (projectsSectionEl) projectsSectionEl.hidden = false;
         if (sidebarFiletreeEl) sidebarFiletreeEl.innerHTML = '';
         updateProjectBadge();
+        sessionId = null;
+        archivedSession = false;
+        newProjectModel = null;
+        chatLabel = null;
+        chatProvider = null;
+        chatModel = null;
+        history = [];
+        if (termPanel) termPanel.setChat(null);
+        refreshComposer();
+        showWelcome();
         refreshSessionList();
       }
 
@@ -1390,20 +1568,145 @@
       }
       showWelcome();
 
+      // Opening a project starts no chat: it lists the project's chats and
+      // offers a new one (which asks for its model first).
+      function showProjectStart() {
+        if (!projectStartState()) return;
+        var project = activeProject;
+        listEl.innerHTML = '<div class="mvmai-start"></div>';
+        var box = listEl.firstChild;
+        var title = document.createElement('div');
+        title.className = 'mvmai-start-title';
+        title.textContent = '📁 ' + project.name;
+        var newBtn = document.createElement('button');
+        newBtn.type = 'button';
+        newBtn.className = 'mvmai-start-new';
+        newBtn.textContent = '+ ' + t('mvmai_pub_new_chat');
+        newBtn.onclick = function () { chooseProjectModel(); };
+        box.append(title, newBtn);
+        refreshSessionList().then(function () {
+          if (!projectStartState() || activeProject !== project) return;
+          var rows = sessionsCache.filter(function (x) { return !x.archived_at && x.project_id === project.id; });
+          var list = document.createElement('div');
+          list.className = 'mvmai-start-list';
+          if (!rows.length) {
+            var none = document.createElement('div');
+            none.className = 'mvmai-start-empty';
+            none.textContent = t('mvmai_pub_no_sessions');
+            list.appendChild(none);
+          }
+          rows.forEach(function (x) {
+            var b = document.createElement('div');
+            b.className = 'mvmai-session-row';
+            var tt = document.createElement('span');
+            tt.className = 'mvmai-session-title';
+            tt.textContent = x.title || t('mvmai_pub_new_chat');
+            b.appendChild(tt);
+            b.onclick = function () { openSession(x.id); };
+            list.appendChild(b);
+          });
+          box.appendChild(list);
+        });
+      }
+
       function scrollDown() { listEl.scrollTop = listEl.scrollHeight; }
 
       function openSidebar() { sidebarEl.classList.add('open'); backdropEl.classList.add('open'); }
       function closeSidebar() { sidebarEl.classList.remove('open'); backdropEl.classList.remove('open'); }
       histBtn.onclick = function () { openSidebar(); refreshSessionList(); };
       backdropEl.onclick = closeSidebar;
+      archiveLinkEl.onclick = function () {
+        archiveExpanded = !archiveExpanded;
+        renderArchiveList();
+      };
+
+      function restoreSession(id) {
+        if (sending) return;
+        api('/sessions/' + encodeURIComponent(id) + '/restore', {method: 'POST'}).then(function (data) {
+          if (data.__status !== 200) return;
+          if (sessionId === id) {
+            archivedSession = false;
+            refreshComposer();
+            if (termPanel) termPanel.setChat(id);
+          }
+          refreshSessionList();
+        });
+      }
+
+      function renderArchiveList() {
+        var archived = sessionsCache.filter(function (s) { return !!s.archived_at; });
+        archiveLinkEl.textContent = t('mvmai_pub_archived') + ' (' + archived.length + ') ' + (archiveExpanded ? '▴' : '▾');
+        archiveLinkEl.setAttribute('aria-expanded', String(archiveExpanded));
+        archiveListEl.hidden = !archiveExpanded;
+        archiveDeleteAllEl.hidden = !archiveExpanded || !archived.length;
+        if (!archiveExpanded) return;
+        archiveListEl.innerHTML = '';
+        if (!archived.length) {
+          archiveListEl.innerHTML = '<div class="mvmai-no-sessions">' + esc(t('mvmai_pub_no_archived')) + '</div>';
+          return;
+        }
+        archived.forEach(function (s) {
+          var row = document.createElement('div');
+          row.className = 'mvmai-session-row' + (s.id === sessionId ? ' active' : '');
+          row.innerHTML = '<div class="mvmai-session-text"><span class="mvmai-session-title"></span></div>' +
+            '<button class="mvmai-s-btn mvmai-s-restore" title="' + esc(t('mvmai_pub_restore')) + '">↩</button>' +
+            '<button class="mvmai-s-btn mvmai-s-delete" title="' + esc(t('mvmai_pub_delete')) + '">🗑</button>';
+          row.querySelector('.mvmai-session-title').textContent = s.title || t('mvmai_pub_new_chat');
+          row.onclick = function () { openSession(s.id); };
+          row.querySelector('.mvmai-s-restore').onclick = function (e) {
+            e.stopPropagation();
+            restoreSession(s.id);
+          };
+          row.querySelector('.mvmai-s-delete').onclick = function (e) {
+            e.stopPropagation();
+            if (sending || !confirm(t('mvmai_pub_delete_confirm'))) return;
+            api('/sessions/' + encodeURIComponent(s.id), {method: 'DELETE'}).then(function (data) {
+              if (data.__status !== 200) return;
+              if (s.id === sessionId) {
+                sessionId = null; archivedSession = false; chatLabel = null; chatProvider = null; chatModel = null; history = [];
+                if (termPanel) termPanel.setChat(null);
+                refreshComposer(); showWelcome();
+              }
+              refreshSessionList();
+            });
+          };
+          archiveListEl.appendChild(row);
+        });
+      }
+
+      archiveDeleteAllEl.onclick = function () {
+        if (sending || !confirm(t('mvmai_pub_delete_all_archived_confirm'))) return;
+        api('/sessions/archived', {method: 'DELETE'}).then(function (data) {
+          if (data.__status !== 200) return;
+          if (archivedSession) {
+            sessionId = null; archivedSession = false; chatLabel = null; chatProvider = null; chatModel = null; history = [];
+            if (termPanel) termPanel.setChat(null);
+            refreshComposer(); showWelcome();
+          }
+          refreshSessionList();
+        });
+      };
+      archiveRestoreEl.onclick = function () {
+        if (sessionId && archivedSession) restoreSession(sessionId);
+      };
 
       function refreshSessionList() {
+        if (titleRefreshTimer) { clearTimeout(titleRefreshTimer); titleRefreshTimer = null; }
         return api('/sessions').then(function (data) {
           if (data.__status !== 200) return;
           sessionsCache = data.sessions || [];
-          var sessions = activeProject
-            ? sessionsCache.filter(function (s) { return s.project_id === activeProject.id; })
-            : sessionsCache.filter(function (s) { return !s.project_id; });
+          if (sessionsCache.some(function (s) { return s.title_pending; })) {
+            titleRefreshTimer = setTimeout(refreshSessionList, 2500);
+          }
+          var current = sessionsCache.filter(function (s) { return s.id === sessionId; })[0];
+          if (current && archivedSession !== !!current.archived_at) {
+            archivedSession = !!current.archived_at;
+            refreshComposer();
+          }
+          var sessions = sessionsCache.filter(function (s) {
+            return !s.archived_at && (activeProject ? s.project_id === activeProject.id : !s.project_id);
+          });
+          renderArchiveList();
           if (!sessions.length) {
             sidebarListEl.innerHTML = '<div class="mvmai-no-sessions">' + esc(t('mvmai_pub_no_sessions')) + '</div>';
             return;
@@ -1416,7 +1719,7 @@
               '<div class="mvmai-session-text"><span class="mvmai-session-title"></span>' +
               (s.label ? '<span class="mvmai-session-label"></span>' : '') + '</div>' +
               '<button class="mvmai-s-btn mvmai-s-rename" title="' + esc(t('mvmai_pub_rename')) + '">✎</button>' +
-              '<button class="mvmai-s-btn mvmai-s-delete" title="' + esc(t('mvmai_pub_delete')) + '">🗑</button>';
+              '<button class="mvmai-s-btn mvmai-s-archive" title="' + esc(t('mvmai_pub_archive')) + '">🗃</button>';
             row.querySelector('.mvmai-session-title').textContent = s.title || t('mvmai_pub_new_chat');
             if (s.label) row.querySelector('.mvmai-session-label').textContent = s.label;
             row.onclick = function () { openSession(s.id); };
@@ -1427,7 +1730,6 @@
               var finished = false;
               input.className = 'mvmai-session-edit';
               input.type = 'text';
-              input.maxLength = 120;
               input.value = s.title || '';
               input.setAttribute('aria-label', t('mvmai_pub_rename'));
               titleEl.replaceWith(input);
@@ -1460,16 +1762,16 @@
               });
               input.addEventListener('blur', function () { finish(true); });
             };
-            row.querySelector('.mvmai-s-delete').onclick = function (e) {
+            row.querySelector('.mvmai-s-archive').onclick = function (e) {
               e.stopPropagation();
-              if (!confirm(t('mvmai_pub_delete_confirm'))) return;
-              api('/sessions/' + s.id, {method: 'DELETE'}).then(function () {
+              if (sending) return;
+              api('/sessions/' + encodeURIComponent(s.id) + '/archive', {method: 'POST'}).then(function (data) {
+                if (data.__status !== 200) return;
                 if (s.id === sessionId) {
-                  sessionId = null; chatLabel = null; history = [];
-                  if (termPanel) termPanel.setChat(null);
+                  archivedSession = true;
                   refreshComposer();
-                  showWelcome();
                 }
+                archiveExpanded = true;
                 refreshSessionList();
               });
             };
@@ -1479,14 +1781,18 @@
       }
 
       function openSession(id) {
-        api('/sessions/' + id + '/messages').then(function (data) {
+        if (sending) return;
+        api('/sessions/' + encodeURIComponent(id) + '/messages?lang=' + encodeURIComponent(uiLang() || 'en')).then(function (data) {
           if (data.__status !== 200) return;
           sessionId = id;
+          archivedSession = !!data.archived_at;
           newProjectModel = null;
           var modelDialog = root.querySelector('.mvmai-model-dialog');
           if (modelDialog) modelDialog.remove();
-          if (termPanel) termPanel.setChat(id);
+          if (termPanel) termPanel.setChat(archivedSession ? null : id);
           chatLabel = data.provider_label || null;
+          chatProvider = data.provider || null;
+          chatModel = data.model || null;
           refreshComposer();
           var row = sessionsCache.filter(function (s) { return s.id === id; })[0];
           var pid = row && row.project_id;
@@ -1521,16 +1827,20 @@
       }
 
       newChatBtn.onclick = function () {
+        if (sending) return;
         sessionId = null;
+        archivedSession = false;
         newProjectModel = null;
         if (termPanel) termPanel.setChat(null);
         chatLabel = null;
+        chatProvider = null;
+        chatModel = null;
         refreshComposer();
         history = [];
         showWelcome();
         closeSidebar();
         refreshSessionList();
-        if (me.is_admin && activeProject) chooseProjectModel();
+        if (me.is_admin && activeProject) { showProjectStart(); chooseProjectModel(); }
       };
 
       refreshSessionList();
@@ -2441,7 +2751,7 @@
         turn = null;
         setBusy(false);
         refreshSessionList();
-        if (!queue.length) maybeCompact();
+        if (!queue.length && !archivedSession) maybeCompact();
         if (queue.length) {
           var next = queue.shift();
           renderQueue();
@@ -2482,6 +2792,7 @@
       }
 
       function send() {
+        if (archivedSession) return;
         if (me.is_admin && activeProject && !sessionId && !newProjectModel) {
           chooseProjectModel();
           return;
@@ -2549,6 +2860,15 @@
             history.forEach(function (m) { delete m.images; });
             // A malformed response has no useful HTTP error code to display.
             if (data.__status !== 200 || data.error || !data.message) {
+              if (data.error === 'archived') {
+                queue = [];
+                renderQueue();
+                archivedSession = true;
+                refreshComposer();
+                finishTurn();
+                if (sessionId) openSession(sessionId);
+                return;
+              }
               var key = data.error === 'insufficient_credits' ? 'mvmai_pub_insufficient_credits'
                 : (data.__status === 401 ? 'mvmai_pub_unauthorized' : null);
               addNote(data.__invalidResponse ? t('mvmai_pub_err')
@@ -2558,7 +2878,11 @@
               return;
             }
             if (data.session_id) sessionId = data.session_id;
-            if (data.provider_label) { chatLabel = data.provider_label; newProjectModel = null; refreshComposer(); }
+            if (data.provider_label) {
+              chatLabel = data.provider_label; chatProvider = data.provider || null; chatModel = data.model || null;
+              newProjectModel = null; refreshComposer();
+              updateUsage(true);
+            }
             var msg = data.message;
             history.push(msg);
             if (msg.content) addBubble('assistant', msg.content, null, msg.created_at);
@@ -2601,7 +2925,7 @@
     }
 
     return { destroy: function () {
-      clearInterval(projectPoll); clearInterval(providerPoll);
+      clearInterval(projectPoll); clearInterval(providerPoll); clearInterval(usagePoll); clearTimeout(titleRefreshTimer);
       if (isDesktop) window.removeEventListener('settings-changed', refreshMessageTimes);
       if (termPanel) termPanel.destroy();
     } };

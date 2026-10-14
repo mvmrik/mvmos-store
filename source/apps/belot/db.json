@@ -1,0 +1,18 @@
+{
+  "tables": [
+    {
+      "name": "cfg",
+      "columns": [
+        {
+          "name": "key",
+          "type": "TEXT",
+          "primary": true
+        },
+        {
+          "name": "value",
+          "type": "TEXT"
+        }
+      ]
+    }
+  ]
+}

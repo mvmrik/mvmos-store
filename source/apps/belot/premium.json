@@ -1,0 +1,10 @@
+{
+  "summary": "Give the bots at your table an AI mentor.",
+  "features": [
+    {
+      "title": "AI bots",
+      "short": "A bot with an AI mentor that advises it and sometimes comments",
+      "description": "When a game is set up, the host can give any bot an AI mentor. The bot still reads the table, remembers every card and works out the best move; for a close call it shows its ranking to the AI of mvmAI's public page, which approves the move, picks a better one, and now and then adds a short, light-hearted remark in the language of the host's Apps Hub profile. Obvious moves are played by the bot alone, so the AI is asked only when it matters. Players simply see a bot with a brain on its avatar and an occasional comment; if the AI cannot be reached, the bot plays on by itself. The server owner switches AI bots on in Belot's settings on the desktop, needs mvmAI installed with its app API enabled in Apps Hub, and can limit use with a price per AI bot in Apps Hub credits, charged once for each AI bot when a game starts. Without a subscription the AI bots setting is shown locked and opens the Premium dialog, and players on the public pages never see the option."
+    }
+  ]
+}

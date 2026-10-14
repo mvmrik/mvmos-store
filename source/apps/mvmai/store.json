@@ -38,6 +38,14 @@
       "kind": "http",
       "direction": "provides",
       "summary": "mvmAI exposes its chat endpoint to other apps on the same desktop, so they can send a prompt and get an answer using your configured provider without asking you for a second API key. RSS Reader uses this for its AI buttons."
+    },
+    {
+      "app": "",
+      "name": "Any app",
+      "kind": "app_api",
+      "direction": "provides",
+      "summary": "mvmAI exposes an app-to-app API with one function: another app's server code can put a single question to the AI of mvmAI's public page and get plain text back. Nothing is stored, no tools are offered and the asker has no server access. Belot Premium uses it to give bots an AI mentor.",
+      "requires": "The mvmAI App API has to be switched on in Apps Hub → Settings → App APIs. It is off by default."
     }
   ]
 }

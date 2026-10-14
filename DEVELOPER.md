@@ -1553,6 +1553,8 @@ mvmOS.registerApp({
       name: 'Tower Defense',
       icon: '🏰',
       tagline: () => t('td_tagline'),          // string or function
+      appSettings: true,                       // show a gear that opens this app's
+                                               // App Store settings (core ≥ 1.15.0)
       sections: [                              // optional, owner-side only
         { title: t('td_settings'), render(el) { /* … */ } },
       ],
@@ -1568,6 +1570,7 @@ What the launcher does:
 - If it is not: a card explaining that Game Hub is required, with an **Install** button that installs it in place (including the backend-confirmation prompt Game Hub needs) and re-renders itself.
 - Loads your `public/i18n.js` before rendering, so `t('…')` works in the window as well as on the play page.
 - Renders your `sections` underneath. This is the only place owner-side UI belongs — it never reaches the public page, and public players simply get whatever the owner configured.
+- When `appSettings: true`, adds a gear that opens this app's settings in **App Store → Installed**. The app can supply `renderSettingsExtra` and `saveSettingsExtra` through `mvmOS.registerApp()` for owner settings that need custom controls; the gear is available from the game window as well as the App Store. This option was added in core 1.15.0.
 
 Any text field (`name`, `tagline`) may be a function, so it can be a `t('…')` call that only resolves after the string table is merged.
 

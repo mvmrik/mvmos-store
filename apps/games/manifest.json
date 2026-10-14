@@ -35,9 +35,9 @@
       "name": "Game Hub",
       "icon": "🎮",
       "category": "Games",
-      "version": "1.15.6",
+      "version": "1.15.7",
       "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.15.6.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.15.7.zip",
       "tags": [
         "multiplayer",
         "social",
@@ -179,6 +179,34 @@
         "games"
       ],
       "min_core_version": "1.7.0"
+    },
+    {
+      "id": "belot",
+      "name": "Belot",
+      "icon": "🃏",
+      "category": "Games",
+      "version": "1.0.0",
+      "description": "Play Bulgarian Belot or classic French Belote with friends or independent bots, and save custom rules for either style.",
+      "tags": [
+        "cards",
+        "strategy",
+        "multiplayer",
+        "games"
+      ],
+      "min_core_version": "1.15.0",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/belot-1.0.0.zip",
+      "premium": true,
+      "name_i18n": {
+        "en": "Belot",
+        "bg": "Белот",
+        "de": "Belot",
+        "es": "Belot",
+        "fr": "Belote",
+        "ja": "ベロット",
+        "pt-BR": "Belote",
+        "ru": "Белот",
+        "zh-CN": "贝洛特"
+      }
     }
   ]
 }

@@ -32,6 +32,7 @@ const _mvmai18n = {
     exec_enable_label: 'Let mvmAI run commands on this server', exec_mode_label: 'When it wants to run one',
     exec_mode_confirm: 'Ask me to confirm each command', exec_mode_auto: 'Run automatically, no confirmation',
     model_tool_default: '(tool default)', models_found: '{count} models found — the tool default is used initially.',
+    cli_users_title: 'Linux account', cli_user_hint: 'The Linux account this CLI runs as, for desktop and public-page chats alike. It does not depend on who is logged in. Root can edit server files; other accounts have only their own rights.', cli_user_auto: 'Not chosen (the account you are logged in with)',
     models_failed: "The model list couldn't be loaded — the tool default will be used.",
     models_unavailable: "This CLI doesn't expose a model list — its default model will be used.",
     projects_title: 'Projects', project_new: '+ New project', no_projects: 'No projects yet',
@@ -69,6 +70,7 @@ const _mvmai18n = {
     exec_enable_label: 'Позволи на mvmAI да изпълнява команди на този сървър', exec_mode_label: 'Когато иска да изпълни команда',
     exec_mode_confirm: 'Да ме пита за потвърждение за всяка команда', exec_mode_auto: 'Да изпълнява автоматично, без потвърждение',
     model_tool_default: '(по подразбиране на инструмента)', models_found: '{count} открити модела — първоначално се използва моделът по подразбиране на инструмента.',
+    cli_users_title: 'Linux профил', cli_user_hint: 'Linux профилът, с който работи този CLI, както за десктопа, така и за публичната страница. Не зависи от това кой е логнат. Root може да променя сървърни файлове; другите профили имат само собствените си права.', cli_user_auto: 'Не е избран (профилът, с който си логнат)',
     models_failed: 'Списъкът с модели не може да бъде зареден — ще се използва моделът по подразбиране на инструмента.',
     models_unavailable: 'Този CLI не предоставя списък с модели — ще се използва неговият модел по подразбиране.',
     projects_title: 'Проекти', project_new: '+ Нов проект', no_projects: 'Все още няма проекти',
@@ -106,6 +108,7 @@ const _mvmai18n = {
     exec_enable_label: 'mvmAI erlauben, Befehle auf diesem Server auszuführen', exec_mode_label: 'Wenn ein Befehl ausgeführt werden soll',
     exec_mode_confirm: 'Vor jedem Befehl um Bestätigung bitten', exec_mode_auto: 'Automatisch ausführen, ohne Bestätigung',
     model_tool_default: '(Standardeinstellung des Tools)', models_found: '{count} Modelle gefunden — zunächst wird die Standardeinstellung des Tools verwendet.',
+    cli_users_title: 'Linux-Konto', cli_user_hint: 'Das Linux-Konto, unter dem dieses CLI läuft, für Desktop und öffentliche Seite gleichermaßen. Es hängt nicht davon ab, wer angemeldet ist. Root darf Serverdateien ändern; andere Konten haben nur ihre eigenen Rechte.', cli_user_auto: 'Nicht gewählt (das Konto, mit dem du angemeldet bist)',
     models_failed: 'Die Modellliste konnte nicht geladen werden — die Standardeinstellung des Tools wird verwendet.',
     models_unavailable: 'Dieses CLI stellt keine Modellliste bereit — sein Standardmodell wird verwendet.',
     projects_title: 'Projekte', project_new: '+ Neues Projekt', no_projects: 'Noch keine Projekte',
@@ -143,6 +146,7 @@ const _mvmai18n = {
     exec_enable_label: 'Permitir que mvmAI ejecute comandos en este servidor', exec_mode_label: 'Cuando quiera ejecutar uno',
     exec_mode_confirm: 'Pedirme confirmación para cada comando', exec_mode_auto: 'Ejecutar automáticamente, sin confirmación',
     model_tool_default: '(predeterminado de la herramienta)', models_found: '{count} modelos encontrados — inicialmente se usa el predeterminado de la herramienta.',
+    cli_users_title: 'Cuenta de Linux', cli_user_hint: 'La cuenta de Linux con la que se ejecuta este CLI, tanto en el escritorio como en la página pública. No depende de quién haya iniciado sesión. Root puede editar archivos del servidor; otras cuentas solo tienen sus propios permisos.', cli_user_auto: 'Sin elegir (la cuenta con la que has iniciado sesión)',
     models_failed: 'No se pudo cargar la lista de modelos — se usará el predeterminado de la herramienta.',
     models_unavailable: 'Este CLI no ofrece una lista de modelos — se usará su modelo predeterminado.',
     projects_title: 'Proyectos', project_new: '+ Nuevo proyecto', no_projects: 'Aún no hay proyectos',
@@ -180,6 +184,7 @@ const _mvmai18n = {
     exec_enable_label: 'Autoriser mvmAI à exécuter des commandes sur ce serveur', exec_mode_label: "Quand il veut en exécuter une",
     exec_mode_confirm: 'Me demander de confirmer chaque commande', exec_mode_auto: 'Exécuter automatiquement, sans confirmation',
     model_tool_default: '(valeur par défaut de l’outil)', models_found: '{count} modèles trouvés — la valeur par défaut de l’outil est utilisée initialement.',
+    cli_users_title: 'Compte Linux', cli_user_hint: 'Le compte Linux sous lequel ce CLI s’exécute, pour le bureau comme pour la page publique. Il ne dépend pas de la personne connectée. Root peut modifier les fichiers du serveur ; les autres comptes n’ont que leurs propres droits.', cli_user_auto: 'Non choisi (le compte avec lequel vous êtes connecté)',
     models_failed: 'La liste des modèles n’a pas pu être chargée — la valeur par défaut de l’outil sera utilisée.',
     models_unavailable: 'Ce CLI ne fournit pas de liste de modèles — son modèle par défaut sera utilisé.',
     projects_title: 'Projets', project_new: '+ Nouveau projet', no_projects: 'Aucun projet pour le moment',
@@ -217,6 +222,7 @@ const _mvmai18n = {
     exec_enable_label: 'mvmAIがこのサーバーでコマンドを実行できるようにする', exec_mode_label: 'コマンドを実行したいとき',
     exec_mode_confirm: 'コマンドごとに確認を求める', exec_mode_auto: '確認なしで自動実行する',
     model_tool_default: '（ツールのデフォルト）', models_found: '{count}個のモデルが見つかりました — 初期状態ではツールのデフォルトを使用します。',
+    cli_users_title: 'Linux アカウント', cli_user_hint: 'この CLI を実行する Linux アカウントです。デスクトップでも公開ページでも同じで、ログインしているユーザーには依存しません。root はサーバーのファイルを編集できますが、他のアカウントは自身の権限だけを持ちます。', cli_user_auto: '未選択（ログイン中のアカウント）',
     models_failed: 'モデル一覧を読み込めませんでした — ツールのデフォルトを使用します。',
     models_unavailable: 'このCLIはモデル一覧を提供していません — デフォルトモデルを使用します。',
     projects_title: 'プロジェクト', project_new: '+ 新規プロジェクト', no_projects: 'まだプロジェクトがありません',
@@ -254,6 +260,7 @@ const _mvmai18n = {
     exec_enable_label: 'Permitir que o mvmAI execute comandos neste servidor', exec_mode_label: 'Quando quiser executar um',
     exec_mode_confirm: 'Pedir confirmação para cada comando', exec_mode_auto: 'Executar automaticamente, sem confirmação',
     model_tool_default: '(padrão da ferramenta)', models_found: '{count} modelos encontrados — inicialmente, o padrão da ferramenta é usado.',
+    cli_users_title: 'Conta do Linux', cli_user_hint: 'A conta do Linux com a qual este CLI é executado, tanto no desktop quanto na página pública. Não depende de quem está logado. O root pode editar arquivos do servidor; outras contas têm apenas as próprias permissões.', cli_user_auto: 'Não escolhida (a conta com a qual você está logado)',
     models_failed: 'Não foi possível carregar a lista de modelos — o padrão da ferramenta será usado.',
     models_unavailable: 'Esta CLI não fornece uma lista de modelos — seu modelo padrão será usado.',
     projects_title: 'Projetos', project_new: '+ Novo projeto', no_projects: 'Ainda não há projetos',
@@ -291,6 +298,7 @@ const _mvmai18n = {
     exec_enable_label: 'Разрешить mvmAI выполнять команды на этом сервере', exec_mode_label: 'Когда хочет выполнить команду',
     exec_mode_confirm: 'Спрашивать подтверждение для каждой команды', exec_mode_auto: 'Выполнять автоматически, без подтверждения',
     model_tool_default: '(по умолчанию инструмента)', models_found: 'Найдено моделей: {count} — изначально используется настройка инструмента по умолчанию.',
+    cli_users_title: 'Учётная запись Linux', cli_user_hint: 'Учётная запись Linux, от имени которой работает этот CLI, и на рабочем столе, и на публичной странице. Она не зависит от того, кто вошёл в систему. Root может менять файлы сервера; у других учётных записей только собственные права.', cli_user_auto: 'Не выбрана (учётная запись, под которой вы вошли)',
     models_failed: 'Не удалось загрузить список моделей — будет использована настройка инструмента по умолчанию.',
     models_unavailable: 'Этот CLI не предоставляет список моделей — будет использована его модель по умолчанию.',
     projects_title: 'Проекты', project_new: '+ Новый проект', no_projects: 'Пока нет проектов',
@@ -328,6 +336,7 @@ const _mvmai18n = {
     exec_enable_label: '允许 mvmAI 在此服务器上执行命令', exec_mode_label: '当它想执行命令时',
     exec_mode_confirm: '每条命令都要我确认', exec_mode_auto: '自动执行，无需确认',
     model_tool_default: '（工具默认值）', models_found: '找到 {count} 个模型 — 初始使用工具默认值。',
+    cli_users_title: 'Linux 账户', cli_user_hint: '此 CLI 运行所用的 Linux 账户，桌面端和公开页面相同，与谁登录无关。root 可以修改服务器文件；其他账户只有自己的权限。', cli_user_auto: '未选择（使用你登录的账户）',
     models_failed: '无法加载模型列表 — 将使用工具默认值。',
     models_unavailable: '此 CLI 不提供模型列表 — 将使用其默认模型。',
     projects_title: '项目', project_new: '+ 新建项目', no_projects: '还没有项目',
@@ -434,6 +443,11 @@ mvmOS.registerApp({
         <select id="mvmai-model-cli-sel" class="s-input" style="display:none"></select>
         <input id="mvmai-model-cli-inp" type="text" class="s-input" style="display:none">
         <div id="mvmai-models-status" style="font-size:.75rem;color:var(--text-dim);min-height:1.2em"></div>`)}
+      <div id="mvmai-cliusers-block" style="display:none;flex-direction:column;gap:6px">
+        <div style="font-weight:600;font-size:.85rem">${_ait('cli_users_title')}</div>
+        <div style="font-size:.74rem;color:var(--text-dim)">${_ait('cli_user_hint')}</div>
+        <div id="mvmai-cliusers-list" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
       <div id="mvmai-baseurl-row" style="display:none;flex-direction:column;gap:4px">
         ${_lbl(isBg ? 'Base URL (само за Custom)' : 'Base URL (Custom provider only)')}
         <input id="mvmai-baseurl-inp" type="text" class="s-input" value="${saved?.base_url || ''}">
@@ -576,6 +590,46 @@ mvmOS.registerApp({
       );
     }
 
+    // Linux account a CLI provider runs as; stored per provider as
+    // cli_user_<id>, shared by the desktop chat and the public page.
+    let linuxUsers = ['root'];
+    let usableUsers = {};
+    try {
+      const r = await fetch('/api/mvmai/cli-users');
+      const data = await r.json();
+      linuxUsers = data.users || linuxUsers;
+      usableUsers = data.by_cli || {};
+    } catch(_) {}
+    const cliUsersBlock = wrap.querySelector('#mvmai-cliusers-block');
+    const cliUsersList = wrap.querySelector('#mvmai-cliusers-list');
+    cliProviders.forEach(cp => {
+      const cur = saved?.[`cli_user_${cp.id}`];
+      const usable = (usableUsers[cp.id] || []).length ? usableUsers[cp.id] : ['root'];
+      const names = (!cur || usable.includes(cur)) ? usable : [...usable, cur];
+      const row = document.createElement('label');
+      row.style.cssText = 'display:flex;align-items:center;gap:8px;font-size:.85rem';
+      const name = document.createElement('span');
+      name.style.cssText = 'min-width:110px';
+      name.textContent = cp.name || cp.id;
+      const sel = document.createElement('select');
+      sel.className = 's-input';
+      sel.dataset.cliUser = cp.id;
+      const none = document.createElement('option');
+      none.value = '';
+      none.textContent = _ait('cli_user_auto');
+      sel.appendChild(none);
+      names.forEach(n => {
+        const o = document.createElement('option');
+        o.value = n;
+        o.textContent = n;
+        sel.appendChild(o);
+      });
+      sel.value = cur || '';
+      row.append(name, sel);
+      cliUsersList.appendChild(row);
+    });
+    if (cliProviders.length) cliUsersBlock.style.display = 'flex';
+
     _updateForProvider(savedProvider, savedModel);
     provSel.addEventListener('change', () => _updateForProvider(provSel.value, ''));
     keyInp.addEventListener('change', () => _updateForProvider(provSel.value, ''));
@@ -656,6 +710,7 @@ mvmOS.registerApp({
       pubModelVal = panel.querySelector('#mvmai-pub-model-sel')?.value.trim();
     }
     if (pubModelVal !== undefined) saves.push(s('pub_model', pubModelVal));
+    panel.querySelectorAll('select[data-cli-user]').forEach(el => saves.push(s(`cli_user_${el.dataset.cliUser}`, el.value)));
     if (pubBridgeChk) saves.push(s('pub_data_bridge_enabled', pubBridgeChk.checked));
     if (terminalChk) saves.push(s('terminal_enabled', terminalChk.checked));
     const compactKeepInp = panel.querySelector('#mvmai-compact-keep-inp');

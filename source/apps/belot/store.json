@@ -6,7 +6,25 @@
     "Custom rules and named presets for each player on this device.",
     "Server-validated bidding, legal cards, tricks and scores.",
     "Game Hub profiles, invitations, match history and leaderboards.",
-    "Responsive card table for desktop and phone."
+    "Responsive card table for desktop and phone.",
+    "Premium: bots with an AI mentor that advises them on close calls and sometimes comments."
   ],
-  "integrations": [{"app":"gamehub","name":"Game Hub","kind":"gamehub","direction":"uses","summary":"Provides profiles, rooms, invitations, saves and recorded match results.","requires":"Game Hub installed."}]
+  "integrations": [
+    {
+      "app": "gamehub",
+      "name": "Game Hub",
+      "kind": "gamehub",
+      "direction": "uses",
+      "summary": "Provides profiles, rooms, invitations, saves and recorded match results.",
+      "requires": "Game Hub installed."
+    },
+    {
+      "app": "mvmai",
+      "name": "mvmAI",
+      "kind": "app_api",
+      "direction": "uses",
+      "summary": "Premium: the AI of mvmAI's public page mentors the bots at a table.",
+      "requires": "mvmAI installed with its app API enabled in Apps Hub."
+    }
+  ]
 }
