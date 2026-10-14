@@ -12,7 +12,8 @@ function _belotStrings() {
 
 mvmOS.registerApp({
   id: 'belot', name: 'Belot', icon: '🃏', category: 'Games',
-  launch() {
+  async launch() {
+    await _belotStrings();
     if (!window.GameLauncher) {
       mvmOS.notify('Belot', 'This game needs a newer mvmOS core.');
       return;

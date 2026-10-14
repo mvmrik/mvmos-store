@@ -20,7 +20,7 @@
     "multiplayer",
     "games"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "min_core_version": "1.15.0",
   "description": "Play Bulgarian Belot or classic French Belote with friends or independent bots, and save custom rules for either style.",
   "entry": "main.js",
