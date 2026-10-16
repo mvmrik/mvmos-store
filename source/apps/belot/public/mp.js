@@ -11,7 +11,7 @@
     must_trump:true,partner_winning_exempts:true,must_overtrump:true,allow_undertrump:false,
     announcements:true,announcements_mode:'declare',announcement_visibility:'named',announcement_competition:'highest',equal_value_priority:'quad',no_trump_announcements:false,
     belote:true,belote_mode:'declare',all_trump_belote_follow:true,
-    allow_contra:true,escape_contra:true,capot_cancels_contra:true,capot_bonus:90,no_trump_multiplier:2,target:151,
+    allow_contra:true,escape_contra:true,capot_cancels_contra:true,capot_bonus:90,no_trump_capot_doubled:true,no_trump_multiplier:2,target:151,
     redeal_all_pass:true,rounding:'balanced',tie_mode:'caller_hangs',contra_tie_mode:'all_hangs',
     deals_limit:0,finish_after_capot:false,finish_on_tie:false,french_second_round_same_suit:true};
   const frenchStandard = {...standard,variant:'french',contracts:'suits',allow_contra:false,escape_contra:false,
@@ -44,6 +44,7 @@
     ['redeal_all_pass','check','bl_redeal'],
     ['no_trump_multiplier','number','bl_nt_multiplier',1,3],
     ['capot_bonus','number','bl_capot_bonus',0,200],
+    ['no_trump_capot_doubled','check','bl_no_trump_capot_doubled'],
     ['target','number','bl_target',51,1001],
     ['deals_limit','number','bl_deals_limit',0,100],
     ['rounding','select','bl_rounding','balanced:bl_balanced,nearest:bl_nearest,floor:bl_floor,raw:bl_raw'],
@@ -415,7 +416,7 @@
   const dealing = () => Date.now() < dealUntil;
   function renderGame(root) {
     view = root; root.style.containerType = 'inline-size'; builtKey = ''; sweeping = false; sweepTimers.forEach(clearTimeout); sweepTimers = [];
-    localHistory = []; lastResultKey = ''; seenBidEvents = 0; holdUntil = 0; queue = []; dealUntil = 0; clearTimeout(dealTimer); says = [[], [], [], []];
+    localHistory = []; lastResultKey = ''; seenBidEvents = 0; queue = []; shownAt = 0; pace = 0; clearTimeout(pumpTimer); dealUntil = 0; clearTimeout(dealTimer); says = [[], [], [], []];
     root.innerHTML = `<div class="bl-table"><div class="bl-top"><a id="bl-exit" href="/pub/gamehub/?game=belot">${mp.canSave() ? '⏸ ' + esc(tr('bl_save_exit','Save & exit')) : '← ' + esc(tr('bl_hub','Game Hub'))}</a><div id="bl-score" role="button" tabindex="0"></div><span class="bl-top-btns"><button id="bl-sound" type="button" title="${esc(tr('bl_sound','Sound'))}"></button><button id="bl-show-rules">${esc(tr('bl_rules_short','Rules'))}</button></span></div>
       <div class="bl-board" id="bl-board"><div class="bl-felt"></div>
         <div class="bl-corner"><div class="bl-trump" id="bl-contract" hidden></div><div class="bl-upcard" id="bl-upcard" hidden></div></div>
@@ -458,10 +459,13 @@
         const announced = Array.from(declPicked);
         declPicked = new Set();
         pending = true;
+        // The card shows at once that it was taken, until the table answers.
+        const sent = view.querySelector(`#bl-hand .bl-card[data-card="${card}"]`);
+        sent?.classList.add('sending');
         mp.send({type:'bl_play',card,announcements:announced,belote:announceBelote});
         // If the table has not answered, give the card back to the player, still lifted, to tap again.
         setTimeout(() => {
-          if (pending && state && state.turn === state.seat && state.hand.includes(card)) { pending = false; pickedCard = card; markPicked(); }
+          if (pending && state && state.turn === state.seat && state.hand.includes(card)) { report('card-unanswered'); pending = false; sent?.classList.remove('sending'); pickedCard = card; markPicked(); mp.send({type: 'bl_sync'}); }
         }, 3000);
       }
     });
@@ -693,6 +697,7 @@
       el.classList.toggle('hint', ok && narrowed);
       el.classList.toggle('dim', narrowed && !ok);
       el.disabled = !ok;
+      el.classList.remove('sending');
     });
     existing.forEach(e => e.remove());
     if (pickedCard && !(state.phase === 'playing' && state.turn === state.seat && state.hand.includes(pickedCard))) pickedCard = null;
@@ -742,8 +747,7 @@
       <div class="bl-deal-scores">${cell(mine)}${cell(1 - mine)}</div>
       <p>${esc(tr('bl_us', 'Us'))} ${state.scores[mine]} : ${state.scores[1 - mine]} ${esc(tr('bl_them', 'Them'))}${state.hanging ? ' · ⏳ ' + state.hanging : ''}</p></div>`;
     box.hidden = false;
-    // The result stays 3.5 s, then goes away; only after that the next deal may start.
-    holdUntil = Date.now() + 3900;
+    // The result stays 3.5 s, then goes away; the next deal waits for it in the queue.
     clearTimeout(dealResultTimer);
     dealResultTimer = setTimeout(() => { box.hidden = true; }, 3500);
   }
@@ -807,7 +811,21 @@
         (state.can_recontra?`<button data-bid="RECONTRA">${esc(tr('bl_recontra','Recontra'))}</button>`:'') + '</div>';
     }
     view.querySelector('#bl-actions').innerHTML = panel;
-    view.querySelectorAll('[data-bid]').forEach(btn => btn.onclick=() => { if (pending) return; pending=true; mp.send({type:'bl_bid',contract:btn.dataset.bid}); });
+    view.querySelectorAll('[data-bid]').forEach(btn => btn.onclick=() => {
+      if (pending) return;
+      pending = true;
+      // The chosen call lights up and the others step back until the table answers.
+      btn.classList.add('sent');
+      btn.closest('.bl-bidpanel')?.classList.add('waiting');
+      mp.send({type:'bl_bid',contract:btn.dataset.bid});
+      // If the table has not answered, the buttons work again.
+      setTimeout(() => {
+        if (pending && state && state.turn === state.seat) {
+          report('bid-unanswered'); pending = false; mp.send({type: 'bl_sync'});
+          btn.classList.remove('sent'); btn.closest('.bl-bidpanel')?.classList.remove('waiting');
+        }
+      }, 3000);
+    });
     const declarations = view.querySelector('#bl-declarations');
     const options = state.announcement_options || [];
     declPicked = new Set(Array.from(declPicked).filter(id => options.some(a => a.id === id)));
@@ -872,32 +890,62 @@
     if (animate && state.seat !== null && state.turn === state.seat && !state.result && (prev.turn !== state.seat || prev.phase !== state.phase))
       setTimeout(() => sfx.play('turn'), dealing() ? dealUntil - Date.now() + 150 : sweeping ? 700 : 120);
   }
-  // The deal result stays readable: states that arrive meanwhile (e.g. the next deal) wait in line.
-  let holdUntil = 0, queue = [], flushTimer = 0;
-  function flushQueue() {
-    clearTimeout(flushTimer);
-    if (Date.now() < holdUntil) { flushTimer = setTimeout(flushQueue, holdUntil - Date.now() + 20); return; }
-    while (queue.length) handleState(queue.shift());
+  // The server never waits for the table: after a person's move the bots play
+  // at once and every step arrives as its own state. They are shown here one
+  // at a time, in order, with the pause each one needs to be seen: a card or a
+  // call, a trick going to its winner, a deal arriving, a deal's result.
+  let queue = [], shownAt = 0, pace = 0, pumpTimer = 0;
+  function pauseAfter(prev, s) {
+    if (!prev) return 0;
+    if (s.result) return 4800;
+    if (dealing()) return dealUntil - Date.now() + 400;
+    if (s.last?.length) return 1900;
+    return 900;
   }
-  mp.on('bl_state', s => {
-    if (queue.length || Date.now() < holdUntil) { queue.push(s); flushQueue(); return; }
-    handleState(s);
-  });
+  function pump() {
+    clearTimeout(pumpTimer);
+    while (queue.length) {
+      const wait = shownAt + pace - Date.now();
+      if (wait > 0) { pumpTimer = setTimeout(pump, wait); return; }
+      const item = queue.shift();
+      const prev = state;
+      // One state that cannot be drawn must not stop the ones after it.
+      try { item.type === 'game_over' ? gameOver() : handleState(item); } catch (e) { console.error(e); }
+      shownAt = Date.now();
+      pace = item.type === 'game_over' ? 0 : pauseAfter(prev, item);
+    }
+  }
+  mp.on('bl_state', s => { lastStateAt = Date.now(); queue.push(s); pump(); });
   function handleState(s) {
     if (pendingStartedVariant?.room === mp.roomId()) {
       rememberVariant(pendingStartedVariant.variant);
       pendingStartedVariant = null;
     }
     const prev = state;
-    pending = false; state = s; lastStateAt = Date.now(); draw(prev);
+    pending = false; state = s; draw(prev);
+  }
+  // What this table shows, for the server log when something takes too long.
+  function report(reason) {
+    if (!state) return;
+    mp.send({type: 'bl_diag', reason, info: {phase: state.phase, turn: state.turn, seat: state.seat, hand: state.hand.length,
+      trick: (state.trick || []).length, queue: queue.length, pending, dealing: dealing(), legal: (state.legal || []).length, quietMs: Date.now() - lastStateAt,
+      hidden: document.hidden, online: navigator.onLine}});
   }
   // If the table has gone quiet in the middle of a game, ask the server where it is.
   let lastStateAt = Date.now();
   setInterval(() => {
-    if (!view?.isConnected || !state || !['bidding', 'playing'].includes(state.phase)) return;
-    if (Date.now() - lastStateAt > 20000) { lastStateAt = Date.now() - 10000; mp.send({type: 'bl_sync'}); }
+    if (!view?.isConnected || !state || queue.length || !['bidding', 'playing'].includes(state.phase)) return;
+    if (Date.now() - lastStateAt > 20000) {
+      if (state.turn !== state.seat) report('quiet');
+      lastStateAt = Date.now() - 10000; mp.send({type: 'bl_sync'});
+    }
   }, 5000);
-  mp.on('game_over', msg => {
+  // Coming back to the window: catch up with the table at once.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && view?.isConnected && state && ['bidding', 'playing'].includes(state.phase)) mp.send({type: 'bl_sync'});
+  });
+  mp.on('game_over', msg => { queue.push({type: 'game_over', msg}); pump(); });
+  function gameOver() {
     if (!view || !state) return;
     const team = (state.seat ?? 0) % 2;
     bannerText = '';
@@ -906,8 +954,8 @@
     el.textContent = state.scores[team] > state.scores[1-team] ? tr('bl_win','You win!') : state.scores[team] === state.scores[1-team] ? tr('bl_draw','Draw') : tr('bl_lose','You lose');
     view.querySelector('#bl-actions').innerHTML = `<a href="/pub/gamehub/?game=belot">${esc(tr('bl_back','Back to Game Hub'))}</a>`;
     view.querySelector('#bl-hand').innerHTML = '';
-    setTimeout(showEnd, Math.max(1900, holdUntil - Date.now() + 200));
-  });
+    setTimeout(showEnd, 200);
+  }
   mp.registerGame({id:'belot',name:'Belot',renderSetup:ruleForm,renderGame,exitButton:false,
     snapshot:()=>({seats: state?.seats?.map(p => p.id) || seatIds.slice(), variant:chosenVariant})});
 })();

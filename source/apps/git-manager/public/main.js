@@ -2426,7 +2426,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
       + '<div style="display:flex;flex-direction:column;gap:10px;max-width:700px">'
       + '<input id="gm-issue-edit-title" class="s-input" value="' + GM.escape(issue.title) + '">'
       + GM.mdToolbarHtml('gm-issue-edit-body')
-      + '<textarea id="gm-issue-edit-body" class="s-input" rows="10" style="resize:vertical;max-width:none;border-radius:0 0 6px 6px;margin-top:-1px">' + GM.escape(issue.body || '') + '</textarea>'
+      + '<textarea id="gm-issue-edit-body" class="s-input" rows="10" style="resize:vertical;flex:none;min-height:120px;max-width:none;border-radius:0 0 6px 6px;margin-top:-1px">' + GM.escape(issue.body || '') + '</textarea>'
       + issueMetaFieldsHtml()
       + '<div id="gm-issue-edit-error" style="display:none;color:#f38ba8;font-size:.8rem"></div>'
       + '<div style="display:flex;gap:8px"><button id="gm-issue-edit-save" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_save') + '</button></div></div>';
@@ -2461,15 +2461,15 @@ GM.showRepoView = function(container, repo, autoFetch) {
       var issueBranch = issueBranchName(status, issue.number);
       var onIssueBranch = repo.branch === issueBranch;
       tc.innerHTML = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
-        + '<button id="gm-issues-back" class="s-btn s-btn-sm">&#x2190; ' + t('gm_back') + '</button><strong style="flex:1">#' + issue.number + ' ' + GM.escape(issue.title) + '</strong>'
+        + '<button id="gm-issues-back" class="s-btn s-btn-sm">&#x2190; ' + t('gm_back') + '</button><strong style="flex:1;user-select:text;-webkit-user-select:text">#' + issue.number + ' ' + GM.escape(issue.title) + '</strong>'
         + '<button id="gm-issue-edit" class="s-btn s-btn-sm">&#x270E; ' + t('gm_issues_edit') + '</button>'
         + '<button id="gm-issue-branch" class="s-btn s-btn-sm" style="display:' + (onIssueBranch ? 'none' : '') + '">&#x1F33F; ' + t('gm_issues_create_branch') + '</button>'
         + '<button id="gm-issue-state" class="s-btn s-btn-sm">' + t(issue.state === 'open' ? 'gm_issues_close' : 'gm_issues_reopen') + '</button></div>'
         + '<div style="font-size:.74rem;color:var(--text-dim);margin-bottom:12px">' + GM.escape(issue.author) + ' · ' + GM.escape(issue.state) + '</div>'
-        + '<div id="gm-issue-body-view" class="gm-md" style="line-height:1.5;background:var(--surface2,#313244);border-radius:8px;padding:12px;min-height:48px">'
+        + '<div id="gm-issue-body-view" class="gm-md" style="user-select:text;-webkit-user-select:text;line-height:1.5;background:var(--surface2,#313244);border-radius:8px;padding:12px;min-height:48px">'
         + (issue.body ? GM.renderMarkdown(issue.body, true) : '<span style="opacity:.6">' + t('gm_issues_no_description') + '</span>') + '</div>'
         + '<div id="gm-issue-action-result" style="font-size:.78rem;margin-top:10px"></div>'
-        + '<div style="font-weight:600;margin:16px 0 8px">' + t('gm_issues_comments_title') + '</div><div id="gm-issue-comments"></div>';
+        + '<div style="font-weight:600;margin:16px 0 8px">' + t('gm_issues_comments_title') + '</div><div id="gm-issue-comments" style="user-select:text;-webkit-user-select:text"></div>';
       tc.querySelector('#gm-issues-back').onclick = function() { renderIssueList(tc, previousState || issue.state, status); };
       tc.querySelector('#gm-issue-edit').onclick = function() { renderEditIssue(tc, issue, status, previousState); };
       var actionResult = tc.querySelector('#gm-issue-action-result');

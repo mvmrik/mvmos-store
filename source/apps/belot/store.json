@@ -1,6 +1,6 @@
 {
   "tagline": "Your table. Your rules.",
-  "description": "Play four-seat Belot with friends or independent bots. The standard Bulgarian preset uses optional raising on no trump, declarations before the first card, balanced scoring and continued play after capot. The host can choose whether declarations name their combinations during play or only say they have one, along with other disputed bidding, card and scoring rules, then save named presets. Game Hub records completed matches, wins and head-to-head results.",
+  "description": "Play four-seat Bulgarian Belot or classic French Belote with friends or independent bots. The standard Bulgarian preset uses optional raising on no trump, declarations before the first card, balanced scoring and continued play after capot. The host can choose whether declarations name their combinations during play or only say they have one, along with other disputed bidding, card and scoring rules, then save named presets. Choose whether the capot bonus is doubled in no-trump deals. Bot bidding considers earlier calls and partner suits, while ordered table animations and immediate card and bid feedback keep every move clear. Game Hub records completed matches, wins and head-to-head results.",
   "capabilities": [
     "Four-seat team play with one to four human players and bots in empty seats.",
     "Custom rules and named presets for each player on this device.",
@@ -14,7 +14,7 @@
       "app": "gamehub",
       "name": "Game Hub",
       "kind": "gamehub",
-      "direction": "uses",
+      "direction": "consumes",
       "summary": "Provides profiles, rooms, invitations, saves and recorded match results.",
       "requires": "Game Hub installed."
     },
@@ -22,9 +22,9 @@
       "app": "mvmai",
       "name": "mvmAI",
       "kind": "app_api",
-      "direction": "uses",
+      "direction": "consumes",
       "summary": "Premium: the AI of mvmAI's public page mentors the bots at a table.",
-      "requires": "mvmAI installed with its app API enabled in Apps Hub."
+      "requires": "mvmAI installed with its App API enabled in Apps Hub → Settings → App APIs. This switch is off by default."
     }
   ]
 }

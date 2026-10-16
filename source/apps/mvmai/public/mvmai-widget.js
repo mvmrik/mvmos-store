@@ -108,19 +108,24 @@
       .mvmai-composer-model{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .45rem;
         flex-shrink:0;padding:.5rem .9rem 0;color:var(--pub-fg2,#a6adc8);
         border-top:1px solid var(--pub-border,#45475a);font-size:.76rem;line-height:1.35;overflow-wrap:anywhere}
-      .mvmai-usage-badge{display:inline-flex;align-items:center;flex-wrap:wrap;gap:.2rem .35rem;
-        max-width:100%;box-sizing:border-box;
-        padding:.28rem .48rem;border:1px solid var(--pub-border,#45475a);border-radius:.5rem;
-        background:var(--pub-surface2,#313244);font-size:.73rem}
-      .mvmai-usage-window{color:var(--pub-fg2,#a6adc8);font-weight:600;white-space:nowrap}
-      .mvmai-usage-percent{color:var(--pub-fg,#cdd6f4);font-weight:700;white-space:nowrap}
-      .mvmai-usage-reset{color:var(--pub-fg2,#a6adc8);border-left:1px solid var(--pub-border,#45475a);
-        white-space:nowrap;
-        padding-left:.35rem}
-      .mvmai-usage-badge.near-limit .mvmai-usage-percent{color:#f9b36d}
-      .mvmai-usage-badge.at-limit .mvmai-usage-percent{color:#f38ba8}
+      .mvmai-usage-list{display:flex;flex:1 1 22rem;min-width:0;gap:.4rem}
+      .mvmai-usage-bar{position:relative;display:flex;align-items:center;justify-content:space-between;gap:.35rem;
+        flex:1;min-width:0;height:1.35rem;box-sizing:border-box;padding:0 .4rem;overflow:hidden;
+        border-radius:.2rem;background:#e9edf4;font-size:.69rem;white-space:nowrap}
+      .mvmai-usage-fill{position:absolute;inset:0 auto 0 0;background:var(--pub-accent,#89b4fa)}
+      .mvmai-usage-bar.near-limit .mvmai-usage-fill{background:color-mix(in srgb,#f9b36d 70%,white)}
+      .mvmai-usage-bar.at-limit .mvmai-usage-fill{background:color-mix(in srgb,#f38ba8 70%,white)}
+      .mvmai-usage-window,.mvmai-usage-percent,.mvmai-usage-reset{position:relative;z-index:1;color:#111}
+      .mvmai-usage-window{min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis}
+      .mvmai-usage-percent{font-weight:700;flex-shrink:0}
+      .mvmai-usage-reset{font-weight:600;margin-left:auto;flex-shrink:0}
+      .mvmai-usage-next{display:none}
       .mvmai-composer-model[hidden]{display:none}
-      .mvmai-composer-model:not([hidden])+.mvmai-inputbar{border-top:0}
+      .mvmai-composer-label.mvmai-model-change{border:0;background:none;color:inherit;padding:0;
+        font:inherit;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}
+      .mvmai-composer-label.mvmai-model-change:hover{color:var(--pub-accent,#89b4fa)}
+      .mvmai-composer-label.mvmai-model-change:focus-visible{outline:2px solid var(--pub-accent,#89b4fa);outline-offset:3px}
+      .mvmai-composer-model:not([hidden])~.mvmai-inputbar{border-top:0}
       .mvmai-input{flex:1;resize:none;min-height:2.3rem;max-height:8rem;background:var(--pub-surface2,#313244);
         color:var(--pub-fg,#cdd6f4);border:1px solid var(--pub-border,#45475a);border-radius:.5rem;
         padding:.5rem .65rem;font:inherit;font-size:.88rem;outline:none}
@@ -249,6 +254,11 @@
       .mvmai-archive-delete-all{color:var(--pub-red,#f38ba8);margin-left:.4rem}
       .mvmai-archive-list{max-height:38%;overflow-y:auto;padding:.2rem .4rem .5rem;flex-shrink:0}
       .mvmai-archive-list[hidden]{display:none}
+      .mvmai-filetree-nav{padding:.35rem .55rem;border-top:1px solid var(--pub-border,#45475a);flex-shrink:0}
+      .mvmai-filetree-nav[hidden]{display:none}
+      .mvmai-filetree-link{background:none;border:0;color:var(--pub-fg2,#a6adc8);cursor:pointer;
+        font:inherit;font-size:.78rem;padding:.2rem .1rem;text-align:left}
+      .mvmai-filetree-link:hover{text-decoration:underline}
       .mvmai-archive-notice{padding:.7rem .9rem;border-top:1px solid var(--pub-border,#45475a);
         color:var(--pub-fg2,#a6adc8);font-size:.82rem}
       .mvmai-archive-notice[hidden]{display:none}
@@ -257,6 +267,9 @@
       .mvmai-session-row{display:flex;align-items:center;gap:.2rem;padding:.5rem .55rem;border-radius:.4rem;
         cursor:pointer;font-size:.82rem}
       .mvmai-session-row:hover,.mvmai-session-row.active{background:var(--pub-surface2,#313244)}
+      .mvmai-session-row.pinned{box-shadow:inset 3px 0 var(--pub-accent,#89b4fa)}
+      .mvmai-session-row.mvmai-session-main{position:relative;overflow:hidden;--mvmai-actions-width:6.6rem}
+      .mvmai-session-row.mvmai-session-main.pinned{--mvmai-actions-width:4.4rem}
       .mvmai-session-text{flex:1;min-width:0}
       .mvmai-session-title{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       .mvmai-session-row.active .mvmai-session-title{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
@@ -266,6 +279,15 @@
       .mvmai-session-row .mvmai-s-btn{opacity:.55;background:none;border:0;color:inherit;cursor:pointer;
         font-size:.82rem;padding:.15rem .3rem;flex-shrink:0}
       .mvmai-session-row .mvmai-s-btn:hover{opacity:1}
+      .mvmai-session-actions{display:none}
+      .mvmai-session-menu{position:absolute;z-index:50;min-width:10rem;max-width:calc(100% - .5rem);
+        padding:.25rem;border:1px solid var(--pub-border,#45475a);border-radius:.5rem;
+        background:var(--pub-surface1,#181825);box-shadow:0 .4rem 1.3rem rgba(0,0,0,.25)}
+      .mvmai-session-menu[hidden]{display:none}
+      .mvmai-session-menu button{display:block;width:100%;padding:.45rem .6rem;border:0;border-radius:.3rem;
+        background:none;color:var(--pub-fg,#cdd6f4);font:inherit;font-size:.8rem;text-align:left;cursor:pointer}
+      .mvmai-session-menu button:hover,.mvmai-session-menu button:focus-visible{background:var(--pub-surface2,#313244)}
+      .mvmai-session-menu button:disabled{opacity:.5;cursor:default}
       .mvmai-no-sessions{color:var(--pub-dim,#6c7086);font-size:.78rem;padding:.7rem .5rem;text-align:center}
       .mvmai-exec-wrap{flex:1;min-width:0}
       .mvmai-exec-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:.35rem;white-space:nowrap;
@@ -306,6 +328,7 @@
         text-overflow:ellipsis;white-space:nowrap}
       .mvmai-sidebar-filetree{flex-shrink:0;max-height:38%;overflow-y:auto;border-top:1px solid var(--pub-border,#45475a);
         padding:.4rem}
+      .mvmai-sidebar-filetree[hidden]{display:none}
       .mvmai-sidebar-filetree:empty{display:none;border-top:none;padding:0}
       .mvmai-sidebar-filetree-branch{font-size:.7rem;color:var(--pub-dim,#6c7086);padding:.1rem .4rem .3rem;
         display:block;text-decoration:none}
@@ -370,6 +393,21 @@
       .mvmai-pub-dialog-err{color:var(--pub-red,#f38ba8);font-size:.78rem}
       .mvmai-pub-dialog-actions{display:flex;gap:.5rem;justify-content:flex-end}
       @media (max-width:640px){
+        .mvmai-session-row.mvmai-session-main{touch-action:pan-y}
+        .mvmai-session-main .mvmai-session-text{transition:margin-right .18s ease}
+        .mvmai-session-main.revealed .mvmai-session-text{margin-right:var(--mvmai-actions-width)}
+        .mvmai-session-main .mvmai-session-actions{position:absolute;top:0;right:0;bottom:0;
+          display:flex;width:var(--mvmai-actions-width);background:var(--pub-surface2,#313244);
+          transform:translateX(100%);transition:transform .18s ease}
+        .mvmai-session-main.revealed .mvmai-session-actions{transform:translateX(0)}
+        .mvmai-session-main .mvmai-session-actions .mvmai-s-btn{flex:1;opacity:1;padding:0;
+          border-left:1px solid var(--pub-border,#45475a);font-size:1rem}
+        .mvmai-usage-list{flex-basis:10rem}
+        .mvmai-usage-list.switchable{cursor:pointer;touch-action:manipulation}
+        .mvmai-usage-list.switchable .mvmai-usage-bar{display:none}
+        .mvmai-usage-list.switchable .mvmai-usage-bar.current{display:flex}
+        .mvmai-usage-list.switchable .mvmai-usage-next{display:inline;position:relative;z-index:1;
+          color:#111;font-size:1rem;line-height:1;flex-shrink:0}
         .mvmai-widget:not(.mvmai-desktop) .mvmai-inputbar{flex-wrap:wrap;gap:.5rem;padding:.65rem .75rem}
         .mvmai-widget:not(.mvmai-desktop) .mvmai-input{order:-1;flex:0 0 100%;min-width:0;min-height:5rem;
           max-height:35dvh;font-size:1rem}
@@ -403,7 +441,7 @@
     var chatLabel = null;
     var chatProvider = null;
     var chatModel = null;
-    var newProjectModel = null; // Confirmed choice for the next project chat only.
+    var newProjectModel = null; // Confirmed choice for the next new chat.
     var projects = [];
     var activeProject = null;   // {id, name, path} — fixed at session creation
     var sessionsCache = [];
@@ -413,6 +451,7 @@
     var titleRefreshTimer = null;
     var termPanel = null;    // the Premium terminal panel, once made
     var termLoading = null;
+    var sessionMenuCleanup = null;
 
     function api(path, options) {
       options = options || {};
@@ -529,7 +568,8 @@
             <button class="mvmai-archive-delete-all" type="button" hidden>${esc(t('mvmai_pub_delete_all_archived'))}</button>
           </div>
           <div class="mvmai-archive-list" hidden></div>
-          <div class="mvmai-sidebar-filetree"></div>
+          <div class="mvmai-filetree-nav" hidden><button class="mvmai-filetree-link" type="button" aria-expanded="false"></button></div>
+          <div class="mvmai-sidebar-filetree" hidden></div>
           ${me.is_admin ? `<div class="mvmai-projects-section">
             <div class="mvmai-projects-head">
               <span>${esc(t('mvmai_pub_projects_title'))}</span>
@@ -585,6 +625,8 @@
       var usageData = null;
       var usageFetchedAt = 0;
       var usageRequest = 0;
+      var usageVisibleIndex = 0;
+      var usageDisplayKey = null;
       var histBtn = root.querySelector('.mvmai-hist-btn');
       var newChatBtn = root.querySelector('.mvmai-new-chat');
       var appBtn = root.querySelector('.mvmai-app-btn');
@@ -615,38 +657,83 @@
         parts.push(minutes + t('mvmai_pub_usage_minutes'));
         return parts.join(' ');
       }
-      function usageBadge(window, label) {
+      function usageBar(window, label) {
         if (!window || !Number.isFinite(Number(window.used_percent))) return null;
         var percent = Math.round(Number(window.used_percent));
-        var badge = document.createElement('span');
-        badge.className = 'mvmai-usage-badge' + (percent >= 100 ? ' at-limit' : percent >= 80 ? ' near-limit' : '');
+        var bar = document.createElement('span');
+        bar.className = 'mvmai-usage-bar' + (percent >= 100 ? ' at-limit' : percent >= 80 ? ' near-limit' : '');
+        var fill = document.createElement('span');
+        fill.className = 'mvmai-usage-fill';
+        fill.style.width = Math.max(0, Math.min(100, percent)) + '%';
         var name = document.createElement('span');
         name.className = 'mvmai-usage-window';
         name.textContent = label;
         var value = document.createElement('span');
         value.className = 'mvmai-usage-percent';
         value.textContent = percent + '%';
-        badge.append(name, value);
+        bar.append(fill, name, value);
+        var description = label + ' ' + percent + '%';
         if (window.resets_at) {
           var reset = document.createElement('span');
           reset.className = 'mvmai-usage-reset';
-          reset.textContent = '↻ ' + resetCountdown(window.resets_at);
-          badge.appendChild(reset);
+          reset.textContent = '🕒 ' + resetCountdown(window.resets_at);
+          bar.appendChild(reset);
+          description += ' ' + reset.textContent;
         }
-        badge.title = t('mvmai_pub_usage_used');
-        return badge;
+        bar.setAttribute('role', 'progressbar');
+        bar.setAttribute('aria-label', description);
+        bar.setAttribute('aria-valuemin', '0');
+        bar.setAttribute('aria-valuemax', '100');
+        bar.setAttribute('aria-valuenow', String(Math.max(0, Math.min(100, percent))));
+        bar.title = t('mvmai_pub_usage_used');
+        return bar;
       }
       function paintUsage() {
-        if (!composerModelEl || composerModelEl.hidden || !usageData || usageData.hide) return;
+        if (!composerModelEl || composerModelEl.hidden || !usageData || usageData.hide || usageData.unavailable) return;
         var models = usageData.models || [];
-        var badges = currentUsageProvider() === 'gemini-cli'
+        var bars = currentUsageProvider() === 'gemini-cli'
           ? models.map(function (window) {
-              return usageBadge(window, models.length === 1 ? t('mvmai_pub_usage_day') : window.model_label);
+              return usageBar(window, models.length === 1 ? t('mvmai_pub_usage_day') : window.model_label);
             }).filter(Boolean)
-          : [usageBadge(usageData.five_hour, t('mvmai_pub_usage_five_hour')),
-            usageBadge(usageData.week, t('mvmai_pub_usage_week'))].filter(Boolean);
-        if (badges.length) {
-          badges.forEach(function (badge) { composerModelEl.appendChild(badge); });
+          : [usageBar(usageData.five_hour, t('mvmai_pub_usage_five_hour')),
+            usageBar(usageData.week, t('mvmai_pub_usage_week'))].filter(Boolean);
+        if (bars.length) {
+          var displayKey = [viewVersion, sessionId || 'new', currentUsageProvider(), currentUsageModel()].join(':');
+          if (displayKey !== usageDisplayKey) { usageDisplayKey = displayKey; usageVisibleIndex = 0; }
+          usageVisibleIndex %= bars.length;
+          var list = document.createElement('span');
+          list.className = 'mvmai-usage-list';
+          if (bars.length > 1) {
+            list.classList.add('switchable');
+            list.title = t('mvmai_pub_usage_switch');
+            bars.forEach(function (bar) {
+              var next = document.createElement('span');
+              next.className = 'mvmai-usage-next';
+              next.setAttribute('aria-hidden', 'true');
+              next.textContent = '›';
+              bar.appendChild(next);
+            });
+            function showNext() {
+              if (!window.matchMedia('(max-width:640px)').matches) return;
+              usageVisibleIndex = (usageVisibleIndex + 1) % bars.length;
+              bars.forEach(function (bar, i) { bar.classList.toggle('current', i === usageVisibleIndex); });
+              list.setAttribute('aria-label', t('mvmai_pub_usage_switch') + ': ' + bars[usageVisibleIndex].getAttribute('aria-label'));
+            }
+            list.onclick = showNext;
+            list.onkeydown = function (event) {
+              if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); showNext(); }
+            };
+            if (window.matchMedia('(max-width:640px)').matches) {
+              list.setAttribute('role', 'button');
+              list.tabIndex = 0;
+              list.setAttribute('aria-label', t('mvmai_pub_usage_switch') + ': ' + bars[usageVisibleIndex].getAttribute('aria-label'));
+            }
+          }
+          bars.forEach(function (bar, i) {
+            bar.classList.toggle('current', i === usageVisibleIndex);
+            list.appendChild(bar);
+          });
+          composerModelEl.appendChild(list);
         } else {
           var unavailable = document.createElement('span');
           unavailable.textContent = t('mvmai_pub_usage_unavailable');
@@ -690,9 +777,16 @@
           var label = currentLabel();
           composerModelEl.textContent = '';
           if (label) {
-            var labelEl = document.createElement('span');
-            labelEl.className = 'mvmai-composer-label';
+            var canChoose = me.is_admin && !archivedSession;
+            var labelEl = document.createElement(canChoose ? 'button' : 'span');
+            labelEl.className = 'mvmai-composer-label' + (canChoose ? ' mvmai-model-change' : '');
             labelEl.textContent = label;
+            if (canChoose) {
+              labelEl.type = 'button';
+              labelEl.title = t(sessionId ? 'mvmai_pub_model_change_title' : 'mvmai_pub_model_confirm_title');
+              labelEl.disabled = sending;
+              labelEl.onclick = function () { chooseProjectModel(!!sessionId); };
+            }
             composerModelEl.appendChild(labelEl);
           }
           composerModelEl.hidden = !label || archivedSession;
@@ -778,20 +872,22 @@
         });
       }
 
-      function chooseProjectModel() {
-        if (!me.is_admin || !activeProject || sessionId || root.querySelector('.mvmai-model-dialog')) return;
-        newProjectModel = null;
+      function chooseProjectModel(switching) {
+        switching = switching === true;
+        if (!me.is_admin || root.querySelector('.mvmai-model-dialog')) return;
+        if (archivedSession || sending || (switching ? !sessionId : !!sessionId)) return;
+        var dialogTitle = t(switching ? 'mvmai_pub_model_change_title' : 'mvmai_pub_model_confirm_title');
         var backdrop = document.createElement('div');
         backdrop.className = 'mvmai-pub-dialog-backdrop mvmai-model-dialog';
-        backdrop.innerHTML = '<div class="mvmai-pub-dialog" role="dialog" aria-modal="true" aria-label="' + esc(t('mvmai_pub_model_confirm_title')) + '">' +
-          '<div class="mvmai-pub-dialog-title">' + esc(t('mvmai_pub_model_confirm_title')) + '</div>' +
+        backdrop.innerHTML = '<div class="mvmai-pub-dialog" role="dialog" aria-modal="true" aria-label="' + esc(dialogTitle) + '">' +
+          '<div class="mvmai-pub-dialog-title">' + esc(dialogTitle) + '</div>' +
           '<div class="mvmai-model-loading" role="status"><span class="mvmai-model-spinner"></span><span>' + esc(t('mvmai_pub_model_loading')) + '</span></div>' +
           '<div class="mvmai-model-fields" hidden>' +
           '<label>' + esc(t('mvmai_pub_model_provider')) + '<select class="mvmai-model-provider"></select></label>' +
           '<label>' + esc(t('mvmai_pub_model_model')) + '<select class="mvmai-model-select"></select></label></div>' +
           '<div class="mvmai-pub-dialog-hint mvmai-model-status" hidden></div>' +
           '<div class="mvmai-pub-dialog-actions" hidden>' +
-          '<button type="button" class="mvmai-confirm-yes mvmai-model-confirm" disabled>' + esc(t('mvmai_pub_model_confirm')) + '</button></div></div>';
+          '<button type="button" class="mvmai-confirm-yes mvmai-model-confirm" disabled>' + esc(t(switching ? 'mvmai_pub_model_change_confirm' : 'mvmai_pub_model_confirm')) + '</button></div></div>';
         root.querySelector('.mvmai-widget').appendChild(backdrop);
         var loadingEl = backdrop.querySelector('.mvmai-model-loading');
         var fieldsEl = backdrop.querySelector('.mvmai-model-fields');
@@ -866,13 +962,51 @@
           }
           group(t('mvmai_pub_model_cli_group'), data.cli_providers || []);
           group(t('mvmai_pub_model_api_group'), data.api_providers || []);
-          providerSel.value = data.provider;
+          providerSel.value = switching ? chatProvider : (newProjectModel ? newProjectModel.provider : data.provider);
           if (!providerSel.value && providerSel.options.length) providerSel.selectedIndex = 0;
           providerSel.onchange = function () { loadModels(''); };
-          loadModels(providerSel.value === data.provider ? data.model : '');
+          var selectedProvider = switching ? chatProvider : (newProjectModel ? newProjectModel.provider : data.provider);
+          var selectedModel = switching ? chatModel : (newProjectModel ? newProjectModel.model : data.model);
+          loadModels(providerSel.value === selectedProvider ? selectedModel : '');
           confirmBtn.onclick = function () {
             var provider = providerSel.value;
             var model = modelSel.value;
+            if (switching) {
+              if (provider === chatProvider && model === (chatModel || '')) {
+                backdrop.remove();
+                inputEl.focus();
+                return;
+              }
+              var switchContext = saveChatContext();
+              var switchId = sessionId;
+              confirmBtn.disabled = true;
+              api('/sessions/' + encodeURIComponent(switchId) + '/model', {method: 'POST', body: JSON.stringify({
+                provider: provider, model: model, messages: switchContext.history
+              })}).then(function (result) {
+                if (result.__status !== 200) {
+                  statusEl.textContent = t(result.error === 'chat_busy' || result.error === 'chat_changed' ? 'mvmai_pub_model_change_busy' : 'mvmai_pub_model_change_failed');
+                  statusEl.hidden = false; confirmBtn.disabled = false; return;
+                }
+                if (result.unchanged) {
+                  backdrop.remove();
+                  if (switchContext === chatContext) inputEl.focus();
+                  return;
+                }
+                switchContext.history.push(result.marker);
+                addModelSwitchNote(result.marker, switchContext);
+                switchContext.chatProvider = result.provider;
+                switchContext.chatModel = result.model;
+                switchContext.chatLabel = result.provider_label;
+                backdrop.remove();
+                syncChatContext(switchContext);
+                refreshSessionList();
+                if (switchContext === chatContext) inputEl.focus();
+              }).catch(function () {
+                statusEl.textContent = t('mvmai_pub_model_change_failed');
+                statusEl.hidden = false; confirmBtn.disabled = false;
+              });
+              return;
+            }
             newProjectModel = {provider: provider, model: model, label: labelFor(provider, model)};
             backdrop.remove(); refreshComposer(); showWelcome(); inputEl.focus();
           };
@@ -889,7 +1023,7 @@
       function loadTerminalCode() {
         if (window.MvmaiPremium && window.MvmaiPremium.createTerminal) return Promise.resolve();
         if (termLoading) return termLoading;
-        termLoading = fetch(API + '/premium/terminal.js', {headers: {'X-Pub-Token': token, 'X-MvmAI-Surface': 'desktop'}, cache: 'no-store'}).then(function (r) {
+        termLoading = fetch(window.asset(API + '/premium/terminal.js'), {headers: {'X-Pub-Token': token, 'X-MvmAI-Surface': 'desktop'}, cache: 'no-store'}).then(function (r) {
           if (!r.ok) throw new Error(String(r.status));
           return r.text();
         }).then(function (code) {
@@ -908,8 +1042,12 @@
           colEl: root.querySelector('.mvmai-chat-col'),
           toggleEl: termBtn,
           t: t,
-          getCli: function () { return (me.cli_commands || {})[String(currentLabel() || '').split(' · ')[0]] || ''; },
-          getCwd: function () { return activeProject ? activeProject.path : ''; },
+          getActivity: function (id, after, signal) {
+            return api('/premium/activity/' + encodeURIComponent(id) + '?after=' + after, {signal: signal}).then(function (data) {
+              if (data.__status !== 200) throw new Error(String(data.__status));
+              return data;
+            });
+          },
         });
         return termPanel;
       }
@@ -945,10 +1083,12 @@
         widget.appendChild(panel);
         var bodyEl = panel.querySelector('.mvmai-gal-body');
         var tabsEl = panel.querySelector('.mvmai-gal-tabs');
-        var items = [], filter = 'all', urls = [];
+        var items = [], filter = 'all', urls = [], othersExpanded = false;
+        var galleryProject = activeProject;
         var headers = {'X-Pub-Token': token};
         function close() {
           urls.forEach(function (u) { URL.revokeObjectURL(u); });
+          if (observer) observer.disconnect();
           panel.remove();
           document.removeEventListener('keydown', onKey);
         }
@@ -1061,13 +1201,45 @@
             b.onclick = function () { filter = f[0]; render(); };
             tabsEl.appendChild(b);
           });
+          if (observer) observer.disconnect();
           bodyEl.innerHTML = '';
           var shown = items.filter(function (it) { return filter === 'all' || it.kind === filter; });
+          if (!galleryProject) { appendFiles(bodyEl, shown); return; }
+          var current = [], other = [];
+          shown.forEach(function (it) {
+            var belongs = (it.project_ids || []).indexOf(galleryProject.id) !== -1 || it.project_id === galleryProject.id;
+            (belongs ? current : other).push(it);
+          });
+          var heading = document.createElement('h3');
+          heading.textContent = t('mvmai_gal_project_files', {name: galleryProject.name});
+          bodyEl.appendChild(heading);
+          appendFiles(bodyEl, current);
+          if (other.length) {
+            var details = document.createElement('details');
+            details.className = 'mvmai-gal-other';
+            var summary = document.createElement('summary');
+            summary.textContent = t('mvmai_gal_other_files') + ' (' + other.length + ')';
+            summary.style.cssText = 'cursor:pointer;padding:12px 0;font-weight:600';
+            details.appendChild(summary);
+            var loaded = false;
+            function showOther() {
+              if (!loaded) { appendFiles(details, other); loaded = true; }
+            }
+            details.ontoggle = function () {
+              othersExpanded = details.open;
+              if (details.open) showOther();
+            };
+            bodyEl.appendChild(details);
+            details.open = othersExpanded;
+            if (othersExpanded) showOther();
+          }
+        }
+        function appendFiles(parent, shown) {
           if (!shown.length) {
             var empty = document.createElement('div');
             empty.className = 'mvmai-gal-empty';
             empty.textContent = t('mvmai_gal_empty');
-            bodyEl.appendChild(empty);
+            parent.appendChild(empty);
             return;
           }
           var wrap = document.createElement('div');
@@ -1080,7 +1252,7 @@
           shown.forEach(function (it) { tb.appendChild(row(it)); });
           table.appendChild(tb);
           wrap.appendChild(table);
-          bodyEl.appendChild(wrap);
+          parent.appendChild(wrap);
         }
         bodyEl.innerHTML = '<div class="mvmai-gal-empty">…</div>';
         fetch(API + '/gallery', {headers: headers}).then(function (r) {
@@ -1156,8 +1328,32 @@
       var newProjectBtn = root.querySelector('.mvmai-project-new-btn');
 
       var sidebarProjectHeaderEl = root.querySelector('.mvmai-sidebar-project-header');
+      var filetreeNavEl = root.querySelector('.mvmai-filetree-nav');
+      var filetreeLinkEl = root.querySelector('.mvmai-filetree-link');
       var sidebarFiletreeEl = root.querySelector('.mvmai-sidebar-filetree');
       var projectsSectionEl = root.querySelector('.mvmai-projects-section');
+      var filetreeExpanded = false;
+      var filetreeProjectId = null;
+
+      function syncFiletreeVisibility() {
+        var projectId = activeProject && activeProject.path ? activeProject.id : null;
+        if (projectId !== filetreeProjectId) {
+          filetreeProjectId = projectId;
+          filetreeExpanded = false;
+          lastGitSignature = '';
+          sidebarFiletreeEl.innerHTML = '';
+        }
+        filetreeNavEl.hidden = !projectId;
+        sidebarFiletreeEl.hidden = !projectId || !filetreeExpanded;
+        filetreeLinkEl.textContent = t('mvmai_pub_view_files') + ' ' + (filetreeExpanded ? '▴' : '▾');
+        filetreeLinkEl.setAttribute('aria-expanded', String(filetreeExpanded));
+      }
+
+      filetreeLinkEl.onclick = function () {
+        filetreeExpanded = !filetreeExpanded;
+        syncFiletreeVisibility();
+        if (filetreeExpanded) renderInlineFileTree();
+      };
 
       function updateProjectBadge() {
         if (!projectBadgeEl) return;
@@ -1207,7 +1403,11 @@
       }
 
       function enterProjectView(p) {
+        newChatView();
         activeProject = p;
+        api('/projects/' + encodeURIComponent(p.id) + '/open', {method: 'POST'}).then(function (data) {
+          if (data.__status === 200) loadProjects();
+        });
         sidebarProjectHeaderEl.hidden = false;
         sidebarProjectHeaderEl.querySelector('.mvmai-sidebar-project-title').textContent = '📁 ' + p.name;
         if (projectsSectionEl) projectsSectionEl.hidden = true;
@@ -1230,6 +1430,7 @@
       }
 
       function exitProjectView() {
+        newChatView();
         activeProject = null;
         newProjectModel = null;
         var modelDialog = root.querySelector('.mvmai-model-dialog');
@@ -1237,6 +1438,7 @@
         sidebarProjectHeaderEl.hidden = true;
         if (projectsSectionEl) projectsSectionEl.hidden = false;
         if (sidebarFiletreeEl) sidebarFiletreeEl.innerHTML = '';
+        syncFiletreeVisibility();
         updateProjectBadge();
         sessionId = null;
         archivedSession = false;
@@ -1302,17 +1504,18 @@
       var gitPending = false;
       projectPoll = setInterval(function () {
         if (!root.isConnected) { clearInterval(projectPoll); return; }
-        if (!document.hidden && activeProject && !gitPending) renderInlineFileTree(true);
+        if (!document.hidden && activeProject && filetreeExpanded && !gitPending) renderInlineFileTree(true);
       }, 5000);
 
       function renderInlineFileTree(quiet) {
         if (!sidebarFiletreeEl) return;
-        if (!activeProject || !activeProject.path) { sidebarFiletreeEl.innerHTML = ''; return; }
+        syncFiletreeVisibility();
+        if (!activeProject || !activeProject.path || !filetreeExpanded) return;
         var project = activeProject;
         if (!quiet) sidebarFiletreeEl.innerHTML = '<div class="mvmai-no-sessions">' + esc(t('mvmai_pub_loading')) + '</div>';
         gitPending = true;
         api('/projects/' + project.id + '/git-status').then(function (git) {
-          if (!activeProject || activeProject.id !== project.id || !root.isConnected) return;
+          if (!activeProject || activeProject.id !== project.id || !filetreeExpanded || !root.isConnected) return;
           var signature = project.id + JSON.stringify(git);
           if (quiet && signature === lastGitSignature) return;
           lastGitSignature = signature;
@@ -1455,6 +1658,13 @@
           '<button class="mvmai-confirm-no mvmai-proj-browse-btn" style="flex-shrink:0">' + esc(t('mvmai_pub_project_browse')) + '</button>' +
           '</div>' +
           '<div class="mvmai-pub-dialog-hint">' + esc(t('mvmai_pub_project_path_hint')) + '</div>' +
+          '<textarea class="mvmai-proj-instructions-input" rows="4" style="resize:vertical;min-height:90px" placeholder="' + esc(t('mvmai_pub_instructions_label')) + '"></textarea>' +
+          '<div style="display:flex;gap:.4rem">' +
+          '<input class="mvmai-proj-instr-file-input" placeholder="' + esc(t('mvmai_pub_instructions_file_label')) + '" style="flex:1">' +
+          '<button class="mvmai-confirm-no mvmai-proj-file-browse-btn" style="flex-shrink:0">' + esc(t('mvmai_pub_project_browse')) + '</button>' +
+          '<button class="mvmai-confirm-no mvmai-proj-file-clear-btn" title="' + esc(t('mvmai_pub_clear')) + '" style="flex-shrink:0">✕</button>' +
+          '</div>' +
+          '<div class="mvmai-pub-dialog-hint">' + esc(t('mvmai_pub_instructions_hint')) + '</div>' +
           '<div class="mvmai-pub-dialog-err" hidden></div>' +
           '<div class="mvmai-pub-dialog-actions">' +
           '<button class="mvmai-confirm-no mvmai-proj-cancel-btn">' + esc(t('mvmai_pub_cancel')) + '</button>' +
@@ -1463,18 +1673,24 @@
         document.body.appendChild(backdrop);
         var nameInput = backdrop.querySelector('.mvmai-proj-name-input');
         var pathInput = backdrop.querySelector('.mvmai-proj-path-input');
+        var instrInput = backdrop.querySelector('.mvmai-proj-instructions-input');
+        var fileInput = backdrop.querySelector('.mvmai-proj-instr-file-input');
         var errEl = backdrop.querySelector('.mvmai-pub-dialog-err');
         backdrop.querySelector('.mvmai-proj-cancel-btn').onclick = function () { backdrop.remove(); };
         backdrop.querySelector('.mvmai-proj-browse-btn').onclick = function () {
           showFolderPicker(pathInput.value || '/', function (chosen) { pathInput.value = chosen; });
         };
+        backdrop.querySelector('.mvmai-proj-file-browse-btn').onclick = function () {
+          showFilePicker(pathInput.value || '/', function (chosen) { fileInput.value = chosen; });
+        };
+        backdrop.querySelector('.mvmai-proj-file-clear-btn').onclick = function () { fileInput.value = ''; };
         backdrop.querySelector('.mvmai-proj-create-btn').onclick = function () {
           var name = nameInput.value.trim();
           var path = pathInput.value.trim();
           if (!name) { errEl.hidden = false; errEl.textContent = t('mvmai_pub_project_name_required'); return; }
           this.disabled = true; this.textContent = t('mvmai_pub_project_creating');
           var btn = this;
-          api('/projects', {method: 'POST', body: JSON.stringify({name: name, path: path})}).then(function (data) {
+          api('/projects', {method: 'POST', body: JSON.stringify({name: name, path: path, instructions: instrInput.value, instructions_file: fileInput.value.trim()})}).then(function (data) {
             if (data.__status !== 200) {
               errEl.hidden = false; errEl.textContent = data.error || 'Error';
               btn.disabled = false; btn.textContent = t('mvmai_pub_project_create');
@@ -1498,9 +1714,9 @@
           '<button class="mvmai-confirm-no mvmai-proj-browse-btn" style="flex-shrink:0">' + esc(t('mvmai_pub_project_browse')) + '</button>' +
           '<button class="mvmai-confirm-no mvmai-proj-path-clear-btn" title="' + esc(t('mvmai_pub_clear')) + '" style="flex-shrink:0">✕</button>' +
           '</div>' +
-          '<textarea class="mvmai-proj-instructions-input" rows="4" placeholder="' + esc(t('mvmai_pub_instructions_label')) + '"></textarea>' +
+          '<textarea class="mvmai-proj-instructions-input" rows="4" style="resize:vertical;min-height:90px" placeholder="' + esc(t('mvmai_pub_instructions_label')) + '"></textarea>' +
           '<div style="display:flex;gap:.4rem">' +
-          '<input class="mvmai-proj-instr-file-input" placeholder="' + esc(t('mvmai_pub_instructions_file_label')) + '" readonly style="flex:1">' +
+          '<input class="mvmai-proj-instr-file-input" placeholder="' + esc(t('mvmai_pub_instructions_file_label')) + '" style="flex:1">' +
           '<button class="mvmai-confirm-no mvmai-proj-file-browse-btn" style="flex-shrink:0">' + esc(t('mvmai_pub_project_browse')) + '</button>' +
           '<button class="mvmai-confirm-no mvmai-proj-file-clear-btn" title="' + esc(t('mvmai_pub_clear')) + '" style="flex-shrink:0">✕</button>' +
           '</div>' +
@@ -1612,7 +1828,7 @@
       function scrollDown() { listEl.scrollTop = listEl.scrollHeight; }
 
       function openSidebar() { sidebarEl.classList.add('open'); backdropEl.classList.add('open'); }
-      function closeSidebar() { sidebarEl.classList.remove('open'); backdropEl.classList.remove('open'); }
+      function closeSidebar() { closeSessionMenu(); closeSessionActions(); sidebarEl.classList.remove('open'); backdropEl.classList.remove('open'); }
       histBtn.onclick = function () { openSidebar(); refreshSessionList(); };
       backdropEl.onclick = closeSidebar;
       archiveLinkEl.onclick = function () {
@@ -1690,10 +1906,121 @@
         if (sessionId && archivedSession) restoreSession(sessionId);
       };
 
+      var sessionMenuEl = document.createElement('div');
+      sessionMenuEl.className = 'mvmai-session-menu';
+      sessionMenuEl.setAttribute('role', 'menu');
+      sessionMenuEl.setAttribute('aria-label', t('mvmai_pub_chat_actions_hint'));
+      sessionMenuEl.hidden = true;
+      sidebarEl.appendChild(sessionMenuEl);
+      var revealedSessionRow = null;
+
+      function closeSessionMenu() { sessionMenuEl.hidden = true; }
+      function closeSessionActions() {
+        if (revealedSessionRow) revealedSessionRow.classList.remove('revealed');
+        revealedSessionRow = null;
+      }
+      function revealSessionActions(row) {
+        closeSessionMenu();
+        closeSessionActions();
+        row.classList.add('revealed');
+        revealedSessionRow = row;
+      }
+
+      function toggleSessionPin(s) {
+        api('/sessions/' + encodeURIComponent(s.id) + '/pin', {
+          method: 'POST', body: JSON.stringify({pinned: !s.pinned_at})
+        }).then(function (data) { if (data.__status === 200) refreshSessionList(); });
+      }
+
+      function archiveActiveSession(s) {
+        if (chatContexts[s.id] && chatContexts[s.id].sending) return;
+        api('/sessions/' + encodeURIComponent(s.id) + '/archive', {method: 'POST'}).then(function (data) {
+          if (data.__status !== 200) return;
+          if (s.id === sessionId) { archivedSession = true; refreshComposer(); }
+          archiveExpanded = true;
+          refreshSessionList();
+        });
+      }
+
+      function renameSession(s, row) {
+        var titleEl = row.querySelector('.mvmai-session-title');
+        if (!titleEl) return;
+        var input = document.createElement('input');
+        var finished = false;
+        input.className = 'mvmai-session-edit';
+        input.type = 'text';
+        input.value = s.title || '';
+        input.setAttribute('aria-label', t('mvmai_pub_rename'));
+        titleEl.replaceWith(input);
+        input.focus();
+        input.select();
+
+        function finish(save) {
+          if (finished) return;
+          finished = true;
+          var next = input.value.trim();
+          if (!save || !next || next === (s.title || '')) {
+            refreshSessionList();
+            return;
+          }
+          api('/sessions/' + encodeURIComponent(s.id), {
+            method: 'PATCH', body: JSON.stringify({title: next})
+          }).then(function () { refreshSessionList(); });
+        }
+        input.addEventListener('click', function (event) { event.stopPropagation(); });
+        input.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter') { event.preventDefault(); finish(true); }
+          else if (event.key === 'Escape') { event.preventDefault(); finish(false); }
+        });
+        input.addEventListener('blur', function () { finish(true); });
+      }
+
+      function openSessionMenu(s, row, clientX, clientY, focusMenu) {
+        closeSessionActions();
+        sessionMenuEl.textContent = '';
+        function addAction(label, action, disabled) {
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.setAttribute('role', 'menuitem');
+          button.textContent = label;
+          button.disabled = !!disabled;
+          button.onclick = function (event) { event.stopPropagation(); closeSessionMenu(); action(); };
+          sessionMenuEl.appendChild(button);
+        }
+        addAction(t(s.pinned_at ? 'mvmai_pub_unpin' : 'mvmai_pub_pin'), function () { toggleSessionPin(s); });
+        addAction(t('mvmai_pub_rename'), function () { renameSession(s, row); });
+        if (!s.pinned_at) addAction(t('mvmai_pub_archive'), function () { archiveActiveSession(s); },
+          chatContexts[s.id] && chatContexts[s.id].sending);
+        sessionMenuEl.hidden = false;
+        var bounds = sidebarEl.getBoundingClientRect();
+        sessionMenuEl.style.left = Math.max(4, Math.min(clientX - bounds.left, bounds.width - sessionMenuEl.offsetWidth - 4)) + 'px';
+        sessionMenuEl.style.top = Math.max(4, Math.min(clientY - bounds.top, bounds.height - sessionMenuEl.offsetHeight - 4)) + 'px';
+        if (focusMenu) sessionMenuEl.querySelector('button').focus();
+      }
+
+      function onSessionMenuPointer(event) {
+        if (!sessionMenuEl.hidden && !sessionMenuEl.contains(event.target)) closeSessionMenu();
+        if (revealedSessionRow && !revealedSessionRow.contains(event.target)) closeSessionActions();
+      }
+      function onSessionMenuKey(event) {
+        if (event.key === 'Escape' && !sessionMenuEl.hidden) { closeSessionMenu(); event.preventDefault(); }
+      }
+      document.addEventListener('pointerdown', onSessionMenuPointer);
+      document.addEventListener('keydown', onSessionMenuKey);
+      function onSessionListScroll() { closeSessionMenu(); closeSessionActions(); }
+      sidebarListEl.addEventListener('scroll', onSessionListScroll);
+      sessionMenuCleanup = function () {
+        document.removeEventListener('pointerdown', onSessionMenuPointer);
+        document.removeEventListener('keydown', onSessionMenuKey);
+        sidebarListEl.removeEventListener('scroll', onSessionListScroll);
+      };
+
       function refreshSessionList() {
         if (titleRefreshTimer) { clearTimeout(titleRefreshTimer); titleRefreshTimer = null; }
         return api('/sessions').then(function (data) {
           if (data.__status !== 200) return;
+          closeSessionMenu();
+          closeSessionActions();
           sessionsCache = data.sessions || [];
           if (sessionsCache.some(function (s) { return s.title_pending; })) {
             titleRefreshTimer = setTimeout(refreshSessionList, 2500);
@@ -1714,66 +2041,98 @@
           sidebarListEl.innerHTML = '';
           sessions.forEach(function (s) {
             var row = document.createElement('div');
-            row.className = 'mvmai-session-row' + (s.id === sessionId ? ' active' : '');
+            row.className = 'mvmai-session-row mvmai-session-main' + (s.id === sessionId ? ' active' : '') + (s.pinned_at ? ' pinned' : '');
             row.innerHTML =
               '<div class="mvmai-session-text"><span class="mvmai-session-title"></span>' +
               (s.label ? '<span class="mvmai-session-label"></span>' : '') + '</div>' +
-              '<button class="mvmai-s-btn mvmai-s-rename" title="' + esc(t('mvmai_pub_rename')) + '">✎</button>' +
-              '<button class="mvmai-s-btn mvmai-s-archive" title="' + esc(t('mvmai_pub_archive')) + '">🗃</button>';
+              '<div class="mvmai-session-actions">' +
+              '<button class="mvmai-s-btn mvmai-s-pin" type="button" title="' +
+              esc(t(s.pinned_at ? 'mvmai_pub_unpin' : 'mvmai_pub_pin')) + '" aria-label="' +
+              esc(t(s.pinned_at ? 'mvmai_pub_unpin' : 'mvmai_pub_pin')) + '">📌</button>' +
+              '<button class="mvmai-s-btn mvmai-s-rename" type="button" title="' + esc(t('mvmai_pub_rename')) +
+              '" aria-label="' + esc(t('mvmai_pub_rename')) + '">✎</button>' +
+              (s.pinned_at ? '' : '<button class="mvmai-s-btn mvmai-s-archive" type="button" title="' +
+              esc(t('mvmai_pub_archive')) + '" aria-label="' + esc(t('mvmai_pub_archive')) + '">🗃</button>') + '</div>';
             row.querySelector('.mvmai-session-title').textContent = s.title || t('mvmai_pub_new_chat');
+            if (chatContexts[s.id] && chatContexts[s.id].sending) {
+              var working = document.createElement('span');
+              working.className = 'mvmai-session-label';
+              working.textContent = t('mvmai_pub_thinking');
+              row.querySelector('.mvmai-session-text').appendChild(working);
+            }
             if (s.label) row.querySelector('.mvmai-session-label').textContent = s.label;
-            row.onclick = function () { openSession(s.id); };
-            row.querySelector('.mvmai-s-rename').onclick = function (e) {
-              e.stopPropagation();
-              var titleEl = row.querySelector('.mvmai-session-title');
-              var input = document.createElement('input');
-              var finished = false;
-              input.className = 'mvmai-session-edit';
-              input.type = 'text';
-              input.value = s.title || '';
-              input.setAttribute('aria-label', t('mvmai_pub_rename'));
-              titleEl.replaceWith(input);
-              input.focus();
-              input.select();
-
-              function finish(save) {
-                if (finished) return;
-                finished = true;
-                var next = input.value.trim();
-                if (!save || !next || next === (s.title || '')) {
-                  refreshSessionList();
-                  return;
-                }
-                api('/sessions/' + encodeURIComponent(s.id), {
-                  method: 'PATCH',
-                  body: JSON.stringify({title: next})
-                }).then(function () { refreshSessionList(); });
-              }
-
-              input.addEventListener('click', function (event) { event.stopPropagation(); });
-              input.addEventListener('keydown', function (event) {
-                if (event.key === 'Enter') {
-                  event.preventDefault();
-                  finish(true);
-                } else if (event.key === 'Escape') {
-                  event.preventDefault();
-                  finish(false);
-                }
-              });
-              input.addEventListener('blur', function () { finish(true); });
+            row.tabIndex = 0;
+            row.setAttribute('role', 'group');
+            row.setAttribute('aria-label', s.title || t('mvmai_pub_new_chat'));
+            row.title = (s.title || t('mvmai_pub_new_chat')) + '\n' + t('mvmai_pub_chat_actions_hint');
+            row.querySelector('.mvmai-s-pin').onclick = function (event) {
+              event.stopPropagation(); closeSessionActions(); toggleSessionPin(s);
             };
-            row.querySelector('.mvmai-s-archive').onclick = function (e) {
-              e.stopPropagation();
-              if (sending) return;
-              api('/sessions/' + encodeURIComponent(s.id) + '/archive', {method: 'POST'}).then(function (data) {
-                if (data.__status !== 200) return;
-                if (s.id === sessionId) {
-                  archivedSession = true;
-                  refreshComposer();
+            row.querySelector('.mvmai-s-rename').onclick = function (event) {
+              event.stopPropagation(); closeSessionActions(); renameSession(s, row);
+            };
+            var mobileArchive = row.querySelector('.mvmai-s-archive');
+            if (mobileArchive) {
+              mobileArchive.disabled = !!(chatContexts[s.id] && chatContexts[s.id].sending);
+              mobileArchive.onclick = function (event) {
+                event.stopPropagation(); closeSessionActions(); archiveActiveSession(s);
+              };
+            }
+            var suppressClickUntil = 0;
+            var holdTimer = null;
+            var holdX = 0, holdY = 0;
+            var trackingTouch = false;
+            function cancelHold() { if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; } }
+            row.onclick = function () {
+              if (Date.now() < suppressClickUntil) return;
+              if (row.classList.contains('revealed')) { closeSessionActions(); return; }
+              closeSessionMenu();
+              openSession(s.id);
+            };
+            row.oncontextmenu = function (event) {
+              event.preventDefault();
+              cancelHold();
+              if (event.pointerType === 'touch') suppressClickUntil = Date.now() + 600;
+              openSessionMenu(s, row, event.clientX, event.clientY, false);
+            };
+            row.onpointerdown = function (event) {
+              if (event.pointerType !== 'touch' || row.querySelector('.mvmai-session-actions').contains(event.target)) return;
+              trackingTouch = true;
+              holdX = event.clientX; holdY = event.clientY;
+              cancelHold();
+              holdTimer = setTimeout(function () {
+                holdTimer = null;
+                suppressClickUntil = Date.now() + 600;
+                openSessionMenu(s, row, holdX, holdY, false);
+              }, 500);
+            };
+            row.onpointermove = function (event) {
+              if (holdTimer && (Math.abs(event.clientX - holdX) > 10 || Math.abs(event.clientY - holdY) > 10)) cancelHold();
+            };
+            row.onpointerup = function (event) {
+              cancelHold();
+              if (trackingTouch && window.matchMedia('(max-width:640px)').matches) {
+                var dx = event.clientX - holdX;
+                var dy = event.clientY - holdY;
+                if (Math.abs(dx) > 35 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+                  if (dx < 0) revealSessionActions(row);
+                  else closeSessionActions();
+                  suppressClickUntil = Date.now() + 600;
                 }
-                archiveExpanded = true;
-                refreshSessionList();
-              });
+              }
+              trackingTouch = false;
+            };
+            row.onpointercancel = function () { cancelHold(); trackingTouch = false; };
+            row.onkeydown = function (event) {
+              if (event.target !== row) return;
+              if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+                event.preventDefault();
+                var bounds = row.getBoundingClientRect();
+                openSessionMenu(s, row, bounds.left + 12, bounds.bottom, true);
+              } else if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openSession(s.id);
+              }
             };
             sidebarListEl.appendChild(row);
           });
@@ -1781,9 +2140,12 @@
       }
 
       function openSession(id) {
-        if (sending) return;
+        var requestVersion = ++viewVersion;
         api('/sessions/' + encodeURIComponent(id) + '/messages?lang=' + encodeURIComponent(uiLang() || 'en')).then(function (data) {
-          if (data.__status !== 200) return;
+          if (data.__status !== 200 || requestVersion !== viewVersion) return;
+          var cached = chatContexts[id];
+          if (cached === chatContext) { closeSidebar(); refreshSessionList(); if (me.is_admin) loadProjects(); return; }
+          if (cached) restoreChatContext(cached); else newChatView();
           sessionId = id;
           archivedSession = !!data.archived_at;
           newProjectModel = null;
@@ -1806,28 +2168,36 @@
             sidebarProjectHeaderEl.hidden = true;
             if (projectsSectionEl) projectsSectionEl.hidden = false;
             if (sidebarFiletreeEl) sidebarFiletreeEl.innerHTML = '';
+            syncFiletreeVisibility();
           }
           updateProjectBadge();
-          history = data.messages || [];
-          listEl.innerHTML = '';
-          var any = false;
-          history.forEach(function (m) {
-            if (m.role === 'summary' && m.content) {
-              addCompactedNote(m.content);
-              any = true;
-            } else if ((m.role === 'user' || m.role === 'assistant') && m.content) {
-              addBubble(m.role, m.content, null, m.created_at);
-              any = true;
-            }
-          });
-          if (!any) showWelcome();
+          if (!cached) {
+            history = data.messages || [];
+            listEl.innerHTML = '';
+            var any = false;
+            history.forEach(function (m) {
+              if (m.role === 'model_switch') {
+                addModelSwitchNote(m);
+                any = true;
+              } else if (m.role === 'summary' && m.content) {
+                addCompactedNote(m.content);
+                any = true;
+              } else if ((m.role === 'user' || m.role === 'assistant') && m.content) {
+                addBubble(m.role, m.content, null, m.created_at, null, m.provider_label);
+                any = true;
+              }
+            });
+            if (!any) showWelcome();
+          }
+          saveChatContext();
           closeSidebar();
           refreshSessionList();
+          if (me.is_admin) loadProjects();
         });
       }
 
       newChatBtn.onclick = function () {
-        if (sending) return;
+        newChatView();
         sessionId = null;
         archivedSession = false;
         newProjectModel = null;
@@ -1951,14 +2321,15 @@
         if (thumbs && thumbs.length) el.appendChild(box);
       }
 
-      function addBubble(role, content, thumbs, createdAt) {
+      function addBubble(role, content, thumbs, createdAt, ctx, savedLabel) {
+        var targetList = ctx ? ctx.listEl : listEl;
         var el = document.createElement('div');
         el.className = 'mvmai-msg ' + role;
         var offered = role === 'assistant' ? extractDownloads(content) : null;
         el.innerHTML = nl2br(offered ? offered.text : content);
         if (offered && offered.files.length) el.appendChild(downloadRow(offered.files));
         if (role === 'user') addThumbs(el, thumbs, content);
-        var label = role === 'assistant' ? currentLabel() : null;
+        var label = role === 'assistant' ? (savedLabel || (ctx ? ctx.chatLabel : currentLabel())) : null;
         var time = formatMessageTime(createdAt);
         if (label || time) {
           var meta = document.createElement('div');
@@ -1978,17 +2349,25 @@
           }
           el.appendChild(meta);
         }
-        listEl.appendChild(el);
-        scrollDown();
+        targetList.appendChild(el);
+        targetList.scrollTop = targetList.scrollHeight;
         return el;
       }
 
-      function addNote(text) {
+      function addNote(text, ctx) {
+        var targetList = ctx ? ctx.listEl : listEl;
         var el = document.createElement('div');
         el.className = 'mvmai-msg system-note';
         el.textContent = text;
-        listEl.appendChild(el);
-        scrollDown();
+        targetList.appendChild(el);
+        targetList.scrollTop = targetList.scrollHeight;
+      }
+
+      function addModelSwitchNote(message, ctx) {
+        try {
+          var details = JSON.parse(message.content || '{}');
+          addNote(t('mvmai_pub_model_changed', {model: details.to || ''}), ctx);
+        } catch (e) {}
       }
 
       function addCompactedNote(summaryText) {
@@ -2044,12 +2423,13 @@
         return details;
       }
 
-      function addTyping() {
+      function addTyping(ctx) {
+        var targetList = ctx ? ctx.listEl : listEl;
         var el = document.createElement('div');
         el.className = 'mvmai-typing';
         el.textContent = t('mvmai_pub_thinking');
-        listEl.appendChild(el);
-        scrollDown();
+        targetList.appendChild(el);
+        targetList.scrollTop = targetList.scrollHeight;
         return el;
       }
 
@@ -2057,18 +2437,21 @@
         try { return JSON.parse(raw || '{}'); } catch (e) { return {}; }
       }
 
-      function runToolCall(call) {
+      function runToolCall(call, ctx) {
+        ctx = ctx || saveChatContext();
+        var listEl = ctx.listEl, activeProject = ctx.activeProject;
+        function scrollDown() { listEl.scrollTop = listEl.scrollHeight; }
         var name = call.function && call.function.name;
         var args = parseArgs(call.function && call.function.arguments);
 
         if (name === 'run_command') {
-          return runCommandCall(args).then(function (resultText) {
+          return runCommandCall(args, ctx).then(function (resultText) {
             return {role: 'tool', tool_call_id: call.id, content: resultText};
           });
         }
 
         if (name === 'inspect_server') {
-          return inspectServerCall(args).then(function (resultText) {
+          return inspectServerCall(args, ctx).then(function (resultText) {
             return {role: 'tool', tool_call_id: call.id, content: resultText};
           });
         }
@@ -2077,8 +2460,8 @@
         // corrects and saves; reads run straight away.
         return api('/tool-preview', {method: 'POST', body: JSON.stringify({name: name, arguments: args, lang: uiLang()})})
           .then(function (pv) {
-            if (pv.__status === 200 && pv.write) return reviewToolCall(call, name, args, pv);
-            return readToolCall(call, name, args);
+            if (pv.__status === 200 && pv.write) return reviewToolCall(call, name, args, pv, ctx);
+            return readToolCall(call, name, args, ctx);
           });
       }
 
@@ -2171,7 +2554,10 @@
           });
       }
 
-      function reviewToolCall(call, name, args, pv) {
+      function reviewToolCall(call, name, args, pv, ctx) {
+        ctx = ctx || saveChatContext();
+        var listEl = ctx.listEl, activeProject = ctx.activeProject;
+        function scrollDown() { listEl.scrollTop = listEl.scrollHeight; }
         return new Promise(function (resolve) {
           var form = buildReview(pv);
           var card = form.card;
@@ -2204,7 +2590,10 @@
       // Several changes asked for in one reply become one card with a page
       // per change: the user goes through them, corrects or leaves out any,
       // and saves them all at once.
-      function reviewBatch(items) {
+      function reviewBatch(items, ctx) {
+        ctx = ctx || saveChatContext();
+        var listEl = ctx.listEl, activeProject = ctx.activeProject;
+        function scrollDown() { listEl.scrollTop = listEl.scrollHeight; }
         return new Promise(function (resolve) {
           var box = document.createElement('div');
           box.className = 'mvmai-tool-card mvmai-review mvmai-batch';
@@ -2310,12 +2699,15 @@
 
       // The tool calls of one reply, in their order: changes that need the
       // user's review are gathered into one paged card when there are several.
-      function runToolCalls(calls) {
+      function runToolCalls(calls, ctx) {
+        ctx = ctx || saveChatContext();
+        var listEl = ctx.listEl, activeProject = ctx.activeProject;
+        function scrollDown() { listEl.scrollTop = listEl.scrollHeight; }
         var plain = function (c) {
           var n = c.function && c.function.name;
           return n === 'run_command' || n === 'inspect_server';
         };
-        if (calls.length < 2) return Promise.all(calls.map(runToolCall));
+        if (calls.length < 2) return Promise.all(calls.map(function (call) { return runToolCall(call, ctx); }));
         return Promise.all(calls.map(function (call) {
           if (plain(call)) return {call: call};
           var name = call.function && call.function.name;
@@ -2324,19 +2716,22 @@
             .then(function (pv) { return {call: call, name: name, args: args, pv: pv}; });
         })).then(function (items) {
           var writes = items.filter(function (it) { return it.pv && it.pv.__status === 200 && it.pv.write; });
-          var batch = writes.length > 1 ? reviewBatch(writes) : Promise.resolve([]);
+          var batch = writes.length > 1 ? reviewBatch(writes, ctx) : Promise.resolve([]);
           return Promise.all(items.map(function (it) {
-            if (!it.pv) return runToolCall(it.call);
+            if (!it.pv) return runToolCall(it.call, ctx);
             if (writes.length > 1 && writes.indexOf(it) >= 0) {
               return batch.then(function (msgs) { return msgs[writes.indexOf(it)]; });
             }
-            if (it.pv.__status === 200 && it.pv.write) return reviewToolCall(it.call, it.name, it.args, it.pv);
-            return readToolCall(it.call, it.name, it.args);
+            if (it.pv.__status === 200 && it.pv.write) return reviewToolCall(it.call, it.name, it.args, it.pv, ctx);
+            return readToolCall(it.call, it.name, it.args, ctx);
           }));
         });
       }
 
-      function readToolCall(call, name, args) {
+      function readToolCall(call, name, args, ctx) {
+        ctx = ctx || saveChatContext();
+        var listEl = ctx.listEl, activeProject = ctx.activeProject;
+        function scrollDown() { listEl.scrollTop = listEl.scrollHeight; }
         var card = document.createElement('div');
         card.className = 'mvmai-tool-card';
         card.innerHTML = '<div class="mvmai-tool-head">🔧 ' + esc(t('mvmai_pub_using_tool', {name: name})) + '</div>';
@@ -2359,7 +2754,10 @@
           });
       }
 
-      function inspectServerCall(args) {
+      function inspectServerCall(args, ctx) {
+        ctx = ctx || saveChatContext();
+        var listEl = ctx.listEl, activeProject = ctx.activeProject;
+        function scrollDown() { listEl.scrollTop = listEl.scrollHeight; }
         var card = document.createElement('div');
         card.className = 'mvmai-tool-card';
         var fullCmd = args.command || '';
@@ -2388,7 +2786,10 @@
         });
       }
 
-      function runCommandCall(args) {
+      function runCommandCall(args, ctx) {
+        ctx = ctx || saveChatContext();
+        var listEl = ctx.listEl, activeProject = ctx.activeProject;
+        function scrollDown() { listEl.scrollTop = listEl.scrollHeight; }
         var card = document.createElement('div');
         card.className = 'mvmai-tool-card';
         var fullCmd = args.command || '';
@@ -2493,9 +2894,9 @@
         var prevSummary = history.filter(function (m) { return m.role === 'summary'; })[0];
         var prevText = prevSummary ? prevSummary.content : null;
         var historyLines = toSummarize
-          .filter(function (m) { return m.role === 'user' || m.role === 'assistant' || m.role === 'tool'; })
+          .filter(function (m) { return m.role === 'user' || m.role === 'assistant' || m.role === 'tool' || m.role === 'model_switch'; })
           .map(function (m) {
-            var label = m.role === 'user' ? 'User' : (m.role === 'assistant' ? 'Assistant' : 'Tool result');
+            var label = m.role === 'user' ? 'User' : (m.role === 'assistant' ? 'Assistant' : (m.role === 'model_switch' ? 'Model change' : 'Tool result'));
             return label + ': ' + (m.content || '');
           })
           .join('\n');
@@ -2503,6 +2904,7 @@
           ? 'Here is the previous summary:\n' + prevText + '\n\nHere is the new conversation to add to it:\n' + historyLines + '\n\nWrite an updated single summary covering everything. Be concise but include key topics, decisions, context, and which run_command/tool calls actually succeeded (with their real results) so that capability is not lost or doubted later.'
           : 'Summarize this conversation concisely. Include key topics, decisions, important context, and which run_command/tool calls actually succeeded (with their real results) so that capability is not lost or doubted later:\n' + historyLines;
 
+        var compactedChat = saveChatContext();
         var lengthBefore = history.length;
         api('/chat', {method: 'POST', body: JSON.stringify({
           messages: [{role: 'user', content: compactInstruction}],
@@ -2510,15 +2912,17 @@
         })}).then(function (data) {
           if (data.__status !== 200 || !data.message || !data.message.content) return;
           // A new message went out meanwhile; summarise after its answer.
-          if (sending || history.length !== lengthBefore) return;
+          if (chatContext !== compactedChat || sending || history.length !== lengthBefore) return;
           var recent = nonSummary.slice(nonSummary.length - keepRecent);
           history = [{role: 'summary', content: data.message.content}].concat(recent);
+          compactedChat.history = history;
           // Match what's actually stored from here on -- the summarized bubbles
           // are gone from the persisted history the moment the next real
           // message is sent, so keep the screen in sync now rather than lie.
           listEl.innerHTML = '';
           recent.forEach(function (m) {
-            if ((m.role === 'user' || m.role === 'assistant') && m.content) addBubble(m.role, m.content, null, m.created_at);
+            if (m.role === 'model_switch') addModelSwitchNote(m);
+            else if ((m.role === 'user' || m.role === 'assistant') && m.content) addBubble(m.role, m.content, null, m.created_at);
           });
           // Rendered after the recent bubbles (even though it summarizes the
           // older ones) so it lands as the newest, bottom-most item -- the
@@ -2535,7 +2939,7 @@
       // ── Attachments ──────────────────────────────────────────────────────
       // An administrator's files are uploaded to the server and the message
       // carries their path. Anyone else sends images inside the message and
-      // text or PDF text as plain text; nothing of theirs is stored.
+      // text or PDF text as plain text; originals are kept for their gallery.
       var attachEl = root.querySelector('.mvmai-attach');
       var fileEl = root.querySelector('.mvmai-file');
       var chipsEl = root.querySelector('.mvmai-chips');
@@ -2640,6 +3044,8 @@
       }
 
       function addFile(file) {
+        var uploadContext = saveChatContext();
+        var uploadPending = pending;
         if (file.size > (me.is_admin ? 500 * 1024 * 1024 : MAX_FILE)) { addNote(t('mvmai_pub_attach_big')); return; }
         var item = {name: file.name || 'file', busy: true};
         var isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name || '');
@@ -2665,6 +3071,7 @@
           jobs.push(fetch(API + '/attach', {method: 'POST', headers: headers, body: file}).then(function (r) {
             return r.json().catch(function () { return {}; }).then(function (d) {
               if (!r.ok || !d.path) throw new Error(d.error === 'too_big' ? 'big' : 'failed');
+              item.uploadId = d.id;
               item.path = d.path;
               item.dir = d.dir || '';
             });
@@ -2675,22 +3082,25 @@
           jobs.push(inline);
           // Kept only for the gallery; the model gets the file inside the message.
           jobs.push(fetch(API + '/attach', {method: 'POST', headers: {'X-Pub-Token': token, 'X-File-Name': encodeURIComponent(file.name || 'file'),
-            'Content-Type': 'application/octet-stream'}, body: file}).catch(function () {}));
+            'Content-Type': 'application/octet-stream'}, body: file}).then(function (r) {
+              return r.json().then(function (d) { if (r.ok) item.uploadId = d.id; });
+            }).catch(function () {}));
         }
         var job = Promise.all(jobs);
-        pending.push(item);
-        renderChips();
-        job.then(function () { item.busy = false; renderChips(); }).catch(function (e) {
-          pending.splice(pending.indexOf(item), 1);
-          renderChips();
-          addNote(t(e && e.message === 'big' ? 'mvmai_pub_attach_big' : 'mvmai_pub_attach_failed'));
+        uploadPending.push(item);
+        if (pending === uploadPending) renderChips();
+        job.then(function () { item.busy = false; if (pending === uploadPending) renderChips(); }).catch(function (e) {
+          uploadPending.splice(uploadPending.indexOf(item), 1);
+          if (pending === uploadPending) renderChips();
+          addNote(t(e && e.message === 'big' ? 'mvmai_pub_attach_big' : 'mvmai_pub_attach_failed'), uploadContext);
         });
       }
 
       // The message as the model gets it (content, images) and as the user sees it (shown).
       function buildMessage(text, att) {
-        var content = text, shown = text, images = [], thumbs = [];
+        var content = text, shown = text, images = [], thumbs = [], attachmentIds = [];
         att.forEach(function (a) {
+          if (a.uploadId) attachmentIds.push(a.uploadId);
           if (a.thumb) thumbs.push(a.thumb);
           shown += (shown ? '\n' : '') + '📎 ' + a.name;
           if (a.path) content += '\n\n[Attached file saved on the server: ' + a.path + ']';
@@ -2701,7 +3111,7 @@
             content += '\n\n[Attached ' + (a.images.length > 1 ? a.images.length + ' images' : 'image') + ': ' + a.name + ']';
           }
         });
-        return {content: content.trim(), shown: shown, images: images, thumbs: thumbs};
+        return {content: content.trim(), shown: shown, images: images, thumbs: thumbs, attachmentIds: attachmentIds};
       }
 
       attachEl.onclick = function () { fileEl.click(); };
@@ -2718,6 +3128,42 @@
 
       var queue = [];
       var turn = null;
+      var chatContexts = Object.create(null), chatContext = null, viewVersion = 0;
+
+      function saveChatContext() {
+        if (!chatContext) chatContext = {listEl: listEl};
+        Object.assign(chatContext, {history: history, sessionId: sessionId, sending: sending, turn: turn,
+          queue: queue, activeProject: activeProject, archivedSession: archivedSession,
+          chatLabel: chatLabel, chatProvider: chatProvider, chatModel: chatModel,
+          newProjectModel: newProjectModel, chosenApp: chosenApp, pending: pending, draft: inputEl.value});
+        if (sessionId) chatContexts[sessionId] = chatContext;
+        return chatContext;
+      }
+      function syncChatContext(ctx) {
+        if (chatContext !== ctx) return;
+        history = ctx.history; sessionId = ctx.sessionId; queue = ctx.queue;
+        turn = ctx.turn; sending = ctx.sending; archivedSession = ctx.archivedSession;
+        chatLabel = ctx.chatLabel; chatProvider = ctx.chatProvider; chatModel = ctx.chatModel;
+        newProjectModel = ctx.newProjectModel;
+        stopEl.hidden = !sending;
+        refreshComposer(); renderQueue();
+      }
+      function newChatView() {
+        saveChatContext(); viewVersion++;
+        var nextList = listEl.cloneNode(false);
+        listEl.replaceWith(nextList); listEl = nextList;
+        chatContext = {listEl: nextList};
+        queue = []; turn = null; pending = []; inputEl.value = ''; sending = false;
+        stopEl.hidden = true; renderQueue(); renderChips();
+      }
+      function restoreChatContext(ctx) {
+        saveChatContext();
+        listEl.replaceWith(ctx.listEl); listEl = ctx.listEl; chatContext = ctx;
+        activeProject = ctx.activeProject; chosenApp = ctx.chosenApp;
+        pending = ctx.pending || []; inputEl.value = ctx.draft || '';
+        syncChatContext(ctx); renderChips(); paintAppBtn();
+      }
+
 
       function renderQueue() {
         queueEl.hidden = !queue.length;
@@ -2732,7 +3178,13 @@
           item.querySelector('.mvmai-queue-text').textContent = q.text;
           item.querySelector('.mvmai-queue-text').title = q.text;
           var now = item.querySelector('.mvmai-queue-now');
-          if (now) now.onclick = function () { q.urgent = true; renderQueue(); };
+          if (now) now.onclick = function () {
+            var index = queue.indexOf(q);
+            if (index < 0) return;
+            queue.splice(index, 1);
+            queue.unshift(q);
+            if (turn) stopTurn(); else finishTurn();
+          };
           item.querySelector('.mvmai-queue-del').onclick = function () {
             queue.splice(queue.indexOf(q), 1);
             renderQueue();
@@ -2741,21 +3193,17 @@
         });
       }
 
-      function setBusy(busy) {
-        sending = busy;
-        stopEl.hidden = !busy;
-      }
-
       // Ends the answer: the next waiting message, if any, is sent on its own.
-      function finishTurn() {
-        turn = null;
-        setBusy(false);
+      function finishTurn(ctx) {
+        ctx = ctx || saveChatContext();
+        ctx.turn = null; ctx.sending = false;
+        syncChatContext(ctx);
         refreshSessionList();
-        if (!queue.length && !archivedSession) maybeCompact();
-        if (queue.length) {
-          var next = queue.shift();
-          renderQueue();
-          sendText(next.msg);
+        if (ctx === chatContext && !ctx.queue.length && !ctx.archivedSession) maybeCompact();
+        if (ctx.queue.length) {
+          var next = ctx.queue.shift();
+          if (ctx === chatContext) renderQueue();
+          sendText(next.msg, ctx);
         }
       }
 
@@ -2813,12 +3261,15 @@
         sendText(msg);
       }
 
-      function sendText(msg) {
-        setBusy(true);
+      function sendText(msg, ctx) {
+        ctx = ctx || saveChatContext();
+        ctx.sending = true;
+        var history = ctx.history, queue = ctx.queue;
+        var current = ctx.turn = {id: Math.random().toString(36).slice(2) + Date.now().toString(36), stopped: false};
+        syncChatContext(ctx);
         var sentAt = Math.floor(Date.now() / 1000);
-        addBubble('user', msg.shown, msg.thumbs, sentAt);
-        history.push({role: 'user', content: msg.content, images: msg.images.length ? msg.images : undefined, created_at: sentAt});
-        var current = turn = {id: Math.random().toString(36).slice(2) + Date.now().toString(36), stopped: false};
+        addBubble('user', msg.shown, msg.thumbs, sentAt, ctx);
+        history.push({role: 'user', content: msg.content, attachment_ids: msg.attachmentIds, images: msg.images.length ? msg.images : undefined, created_at: sentAt});
 
         function step() {
           if (current.stopped) return;
@@ -2827,21 +3278,23 @@
           queue.filter(function (q) { return q.urgent; }).forEach(function (q) {
             queue.splice(queue.indexOf(q), 1);
             var queuedAt = Math.floor(Date.now() / 1000);
-            addBubble('user', q.msg.shown, q.msg.thumbs, queuedAt);
-            history.push({role: 'user', content: q.msg.content, images: q.msg.images.length ? q.msg.images : undefined, created_at: queuedAt});
+            addBubble('user', q.msg.shown, q.msg.thumbs, queuedAt, ctx);
+            history.push({role: 'user', content: q.msg.content, attachment_ids: q.msg.attachmentIds, images: q.msg.images.length ? q.msg.images : undefined, created_at: queuedAt});
           });
-          renderQueue();
-          var typing = current.typing = addTyping();
+          if (ctx === chatContext) renderQueue();
+          var typing = current.typing = addTyping(ctx);
           current.controller = window.AbortController ? new AbortController() : null;
           // A new chat gets its id here, so it is saved and listed at once
           // instead of after the answer.
-          if (!sessionId) {
+          if (!ctx.sessionId) {
             var rnd = new Uint8Array(16);
             (window.crypto || {getRandomValues: function (a) { for (var i = 0; i < a.length; i++) a[i] = Math.floor(Math.random() * 256); }}).getRandomValues(rnd);
-            sessionId = Array.prototype.map.call(rnd, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
-            if (termPanel) termPanel.setChat(sessionId, true);
-            setTimeout(refreshSessionList, 1500);
+            ctx.sessionId = Array.prototype.map.call(rnd, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+            chatContexts[ctx.sessionId] = ctx;
+            syncChatContext(ctx);
+            if (ctx === chatContext && termPanel) termPanel.setChat(ctx.sessionId, true);
           }
+          setTimeout(function () { refreshSessionList(); if (me.is_admin) loadProjects(); }, 1500);
           function awaitTurn(data) {
             if (data.__status !== 202 || !data.pending) return Promise.resolve(data);
             return new Promise(function (resolve) { setTimeout(resolve, 2000); }).then(function () {
@@ -2851,9 +3304,9 @@
             }).then(awaitTurn);
           }
           api('/chat', {method: 'POST', signal: current.controller ? current.controller.signal : undefined,
-            body: JSON.stringify({messages: history, session_id: sessionId, project_id: activeProject ? activeProject.id : null,
-              project_model: newProjectModel && history.length === 1 ? {provider: newProjectModel.provider, model: newProjectModel.model} : null,
-              app_id: chosenApp ? chosenApp.id : null, turn_id: current.id, lang: uiLang()})}).then(awaitTurn).then(function (data) {
+            body: JSON.stringify({messages: history, session_id: ctx.sessionId, project_id: ctx.activeProject ? ctx.activeProject.id : null,
+              project_model: ctx.newProjectModel && history.length === 1 ? {provider: ctx.newProjectModel.provider, model: ctx.newProjectModel.model} : null,
+              app_id: ctx.chosenApp ? ctx.chosenApp.id : null, turn_id: current.id, lang: uiLang()})}).then(awaitTurn).then(function (data) {
             if (current.stopped) return;
             typing.remove();
             // The model has seen the images; they are not sent again.
@@ -2861,46 +3314,45 @@
             // A malformed response has no useful HTTP error code to display.
             if (data.__status !== 200 || data.error || !data.message) {
               if (data.error === 'archived') {
-                queue = [];
-                renderQueue();
-                archivedSession = true;
-                refreshComposer();
-                finishTurn();
-                if (sessionId) openSession(sessionId);
+                ctx.queue = [];
+                ctx.archivedSession = true;
+                finishTurn(ctx);
+                if (ctx === chatContext && ctx.sessionId) openSession(ctx.sessionId);
                 return;
               }
               var key = data.error === 'insufficient_credits' ? 'mvmai_pub_insufficient_credits'
                 : (data.__status === 401 ? 'mvmai_pub_unauthorized' : null);
               addNote(data.__invalidResponse ? t('mvmai_pub_err')
-                : (key ? t(key) : (t('mvmai_pub_err') + ': ' + (data.error || data.__status))));
-              if (data.images) addNote(t('mvmai_pub_images_failed'));
-              finishTurn();
+                : (key ? t(key) : (t('mvmai_pub_err') + ': ' + (data.error || data.__status))), ctx);
+              if (data.images) addNote(t('mvmai_pub_images_failed'), ctx);
+              finishTurn(ctx);
               return;
             }
-            if (data.session_id) sessionId = data.session_id;
+            if (data.session_id) { ctx.sessionId = data.session_id; chatContexts[ctx.sessionId] = ctx; }
             if (data.provider_label) {
-              chatLabel = data.provider_label; chatProvider = data.provider || null; chatModel = data.model || null;
-              newProjectModel = null; refreshComposer();
-              updateUsage(true);
+              ctx.chatLabel = data.provider_label; ctx.chatProvider = data.provider || null; ctx.chatModel = data.model || null;
+              ctx.newProjectModel = null;
+              if (ctx === chatContext) updateUsage(true);
             }
+            syncChatContext(ctx);
             var msg = data.message;
             history.push(msg);
-            if (msg.content) addBubble('assistant', msg.content, null, msg.created_at);
+            if (msg.content) addBubble('assistant', msg.content, null, msg.created_at, ctx);
 
             if (msg.tool_calls && msg.tool_calls.length) {
-              runToolCalls(msg.tool_calls).then(function (toolMsgs) {
+              runToolCalls(msg.tool_calls, ctx).then(function (toolMsgs) {
                 if (current.stopped) return;
                 toolMsgs.forEach(function (tm) { history.push(tm); });
                 step();
               });
             } else {
-              finishTurn();
+              finishTurn(ctx);
             }
           }).catch(function () {
             if (current.stopped) return;
             typing.remove();
-            addNote(t('mvmai_pub_err'));
-            finishTurn();
+            addNote(t('mvmai_pub_err'), ctx);
+            finishTurn(ctx);
           });
         }
         // Settings can change while this widget remains mounted in the
@@ -2926,6 +3378,7 @@
 
     return { destroy: function () {
       clearInterval(projectPoll); clearInterval(providerPoll); clearInterval(usagePoll); clearTimeout(titleRefreshTimer);
+      if (sessionMenuCleanup) sessionMenuCleanup();
       if (isDesktop) window.removeEventListener('settings-changed', refreshMessageTimes);
       if (termPanel) termPanel.destroy();
     } };

@@ -23,7 +23,7 @@ DEFAULTS = {
     "trump_raise": True, "plain_raise": False,
     "must_trump": True, "partner_winning_exempts": True,
     "must_overtrump": True, "allow_undertrump": False,
-    "announcements": True, "belote": True, "capot_bonus": 90,
+    "announcements": True, "belote": True, "capot_bonus": 90, "no_trump_capot_doubled": True,
     "allow_contra": True, "escape_contra": True, "capot_cancels_contra": True,
     "announcements_mode": "declare", "belote_mode": "declare",
     "all_trump_belote_follow": True, "no_trump_announcements": False,
@@ -35,8 +35,6 @@ DEFAULTS = {
     "finish_after_capot": False, "finish_on_tie": False,
     "french_second_round_same_suit": True,
 }
-# Pauses that let the table finish its animations before a bot acts.
-BOT_DELAY, DEAL_DELAY, EXTRA_DEAL_DELAY, TRICK_DELAY, RESULT_DELAY = 0.9, 3.6, 2.4, 1.9, 4.8
 FRENCH_DEFAULTS = {
     **DEFAULTS, "variant": "french", "contracts": "suits",
     "allow_contra": False, "escape_contra": False,
@@ -414,6 +412,14 @@ def _round_points(n, settings):
     return (n + 5) // 10
 
 
+def _capot_bonus(contract, settings):
+    """The capot bonus; in no trump it is doubled with the rest of the deal unless the table plays it plain."""
+    bonus = settings["capot_bonus"]
+    if contract == "NT" and settings.get("no_trump_capot_doubled", True):
+        bonus *= settings["no_trump_multiplier"]
+    return bonus
+
+
 def _deal_value(scores, taken, tricks, contract, caller, double, settings, my_team, belote=(0, 0)):
     """What a finished deal is worth to my_team, in game points.
 
@@ -423,13 +429,13 @@ def _deal_value(scores, taken, tricks, contract, caller, double, settings, my_te
     so a bot near the target plays for the win, not for the points.
     """
     raw = [taken[0] + belote[0], taken[1] + belote[1]]
+    if contract == "NT":
+        raw = [n * settings["no_trump_multiplier"] for n in raw]
     capot_cancels = False
     for team in (0, 1):
         if tricks[team] == 8:
-            raw[team] += settings["capot_bonus"]
+            raw[team] += _capot_bonus(contract, settings)
             capot_cancels = bool(settings["capot_cancels_contra"])
-    if contract == "NT":
-        raw = [n * settings["no_trump_multiplier"] for n in raw]
     scored = [0, 0]
     if capot_cancels:
         double = 0
@@ -463,6 +469,37 @@ def _belote_points(game):
                  for t in (0, 1)) if game.settings["belote"] else (0, 0)
 
 
+def _bid_claims(game, seat):
+    """What each other seat said in the bidding: its last suit, no trump or all trump call."""
+    claims = {}
+    for seat_, call in (getattr(game, "bid_events", None) or []):
+        if seat_ != seat and call in CONTRACTS:
+            claims[seat_] = call
+    return claims
+
+
+def _plausible_for(claims):
+    """Counts how many calls a deal contradicts: a seat that called a suit has
+    strength in it, one that called all trump has jacks, no trump has aces."""
+    def plausible(hands):
+        fails = 0
+        for who, call in claims.items():
+            h = hands.get(who) if isinstance(hands, dict) else hands[who]
+            if not h:
+                continue
+            if call in SUITS:
+                trumps = [c for c in h if c[1] == call]
+                # Strong enough that someone would really call it (the J and 9
+                # count most, then length).
+                fails += not (sum(TRUMP_POINTS[c[0]] for c in trumps) + 4 * len(trumps) >= 30)
+            elif call == "AT":
+                fails += not (sum(1 for c in h if c[0] == "J") >= 1 or sum(1 for c in h if c[0] == "9") >= 2)
+            else:
+                fails += not sum(1 for c in h if c[0] == "A") >= 1
+        return fails
+    return plausible
+
+
 def _bot_samples(game, seat, budget, minimum=10, maximum=90):
     """Random full deals the bot cannot tell apart from the real one."""
     rng = random.Random()
@@ -476,29 +513,11 @@ def _bot_samples(game, seat, budget, minimum=10, maximum=90):
     forced = None
     if settings["variant"] == "french" and game.upcard and game.bidder != seat and game.upcard in unseen:
         forced = {game.bidder: [game.upcard]}
-    # What each other seat said in the bidding shows what it holds: a seat that
-    # called a suit has strength in it, one that called all trump has jacks.
-    claims = {}
-    for seat_, call in (getattr(game, "bid_events", None) or []):
-        if seat_ != seat and call in CONTRACTS:
-            claims[seat_] = call
+    # What each other seat said in the bidding shows what it holds.
+    claims = _bid_claims(game, seat)
     if game.bidder is not None and game.bidder != seat and contract in CONTRACTS:
         claims[game.bidder] = contract
-
-    def plausible(hands):
-        fails = 0
-        for who, call in claims.items():
-            h = hands[who]
-            if call in SUITS:
-                trumps = [c for c in h if c[1] == call]
-                # Strong enough that someone would really call it (the J and 9
-                # count most, then length).
-                fails += not (sum(TRUMP_POINTS[c[0]] for c in trumps) + 4 * len(trumps) >= 30)
-            elif call == "AT":
-                fails += not (sum(1 for c in h if c[0] == "J") >= 1 or sum(1 for c in h if c[0] == "9") >= 2)
-            else:
-                fails += not sum(1 for c in h if c[0] == "A") >= 1
-        return fails
+    plausible = _plausible_for(claims)
 
     stop = time.perf_counter() + budget
     count = 0
@@ -623,6 +642,20 @@ def _strong_for_contra(hand, contract):
     return aces >= 4 or (aces >= 3 and tens >= 1)
 
 
+def _partner_answer(game, seat, available):
+    """The partner called another suit over this bot's suit: both are strong.
+    When our team leads the first trick that is all trump; otherwise the bot
+    leaves the partner on their suit, since they cut it knowing we do not lead."""
+    partner = (seat + 2) % 4
+    mine = next((call for s, call in reversed(getattr(game, "bid_events", None) or []) if s == seat), None)
+    if mine not in tuple(SUITS) or game.bidder != partner or game.bid not in tuple(SUITS) or game.bid == mine or game.double:
+        return None
+    leads = (game.dealer + 1) % 4 % 2 == seat % 2
+    if leads and "AT" in available:
+        return "AT"
+    return "PASS"
+
+
 def _bot_choose_bid(game, seat, budget=.3, detail=False):
     """Bulgarian bidding on five cards: try every contract, contra and recontra
     on random completions of the hand, and pick what is worth most."""
@@ -634,6 +667,13 @@ def _bot_choose_bid(game, seat, budget=.3, detail=False):
     my_team = seat % 2
     bidder_team = None if game.bidder is None else game.bidder % 2
     first = (game.dealer + 1) % 4
+    answer = _partner_answer(game, seat, available)
+    if answer is not None:
+        return (answer, [(answer, 0.0)]) if detail else answer
+    # Other seats' calls tell what they hold: the imagined deals respect them.
+    plausible = _plausible_for(_bid_claims(game, seat))
+    need = {s: (3 if s == seat else 8) for s in range(4)}
+    no_forb = {s: set() for s in range(4)}
     contra = bool(game.bid is not None and game._bid_valid(seat, "CONTRA"))
     recontra = bool(game.bid is not None and game._bid_valid(seat, "RECONTRA"))
     keys = [("C", c) for c in available]
@@ -649,13 +689,9 @@ def _bot_choose_bid(game, seat, budget=.3, detail=False):
     risky = any(k[0] in ("contra", "recontra") for k in keys)
     stop = time.perf_counter() + budget * (2 if risky else 1)
     while count < (80 if risky else 40) and (count < (24 if risky else 8) or time.perf_counter() < stop):
-        rng.shuffle(unseen)
-        mine = hand + unseen[:3]
-        others, pos = {}, 3
-        for s in range(4):
-            if s != seat:
-                others[s] = unseen[pos:pos + 8]
-                pos += 8
+        sample = _deal_unseen(unseen, need, no_forb, rng, None, plausible)
+        mine = hand + sample[seat]
+        others = {s: sample[s] for s in range(4) if s != seat}
         results = {}
         original = [list(others[s]) if s != seat else list(mine) for s in range(4)]
         for contract in {k[1] for k in keys}:
@@ -770,7 +806,7 @@ class Game:
         self.ai_seats = []
         self.ai_say = None
         self.ai_memory = {}
-        self._bot_busy = False
+        self._bots_running = False
 
     async def on_start(self, settings):
         self.settings = normalize(settings.get("rules"))
@@ -815,11 +851,12 @@ class Game:
                 self.last_capot = data.get("last_capot", False)
                 self.last_reveal = data.get("last_reveal", [])
                 await self._broadcast_state()
-                self._bot_turn()
+                await self._run_bots()
                 return
             except (KeyError, TypeError, ValueError):
                 pass
         await self._deal()
+        await self._run_bots()
 
     async def on_join(self, player):
         await self._send_state(str(player["id"]))
@@ -830,18 +867,33 @@ class Game:
     async def on_message(self, player, msg):
         pid = str(player["id"])
         seat = next((i for i, p in enumerate(self.seats) if p["id"] == pid), None)
+        if msg.get("type") == "bl_diag":
+            # A table noticed it was waiting too long; what it saw goes to the log next to what the server has.
+            info = msg.get("info") if isinstance(msg.get("info"), dict) else {}
+            print(f"[belot] diag room={self.ctx.room_id} seat={seat} reason={str(msg.get('reason'))[:40]} "
+                  f"server=(phase={self.phase} turn={self.turn} deals={self.deals} played={len(self.played)} trick={len(self.trick)}) "
+                  f"table={json.dumps(info)[:600]}")
+            return
         if msg.get("type") == "bl_sync":
             # A table that has heard nothing for a while asks for the current state.
             if seat is not None:
                 await self._send_state(pid)
             return
-        if seat is None or seat != self.turn:
+        if seat is None:
+            return
+        if seat != self.turn:
+            # This table acted on a picture that is out of date: show it the real one.
+            await self._send_state(pid)
             return
         if msg.get("type") == "bl_bid" and self.phase == "bidding":
             await self._bid(seat, str(msg.get("contract", "")))
         elif msg.get("type") == "bl_play" and self.phase == "playing":
             await self._play(seat, str(msg.get("card", "")),
                              msg.get("announcements"), msg.get("belote") is True)
+        else:
+            await self._send_state(pid)
+            return
+        await self._run_bots()
 
     def _start_ai_seats(self, settings):
         """Give the bots the host asked for an AI mentor, if this server offers one."""
@@ -947,7 +999,6 @@ class Game:
         if self.settings["variant"] != "french":
             self.deals += 1
         await self._broadcast_state()
-        self._bot_turn(delay=DEAL_DELAY)
 
     def _contracts(self):
         return CONTRACTS if self.settings["contracts"] == "all" else CONTRACTS[:4]
@@ -983,18 +1034,18 @@ class Game:
                         self.bid_log = [None] * 4
                         self.turn = (self.dealer + 1) % 4
                         await self._broadcast_state()
-                        self._bot_turn()
                     else:
                         self.dealer = (self.dealer + 1) % 4
                         await self._deal()
                     return
                 self.turn = (seat + 1) % 4
                 await self._broadcast_state()
-                self._bot_turn()
             elif contract in self._bid_options():
                 self.bid, self.bidder = contract, seat
                 self.deals += 1
                 await self._start_play()
+            else:
+                await self._send_state(self.seats[seat]["id"])
             return
         if contract == "PASS":
             self.passes += 1
@@ -1016,10 +1067,10 @@ class Game:
         elif contract in self._contracts() and (self.bid is None or self._contracts().index(contract) > self._contracts().index(self.bid)) and (self.double == 0 or self.settings["escape_contra"]):
             self.bid, self.bidder, self.double, self.passes = contract, seat, 0, 0
         else:
+            await self._send_state(self.seats[seat]["id"])
             return
         self.turn = (seat + 1) % 4
         await self._broadcast_state()
-        self._bot_turn()
 
     async def _start_play(self):
         if self.settings["variant"] == "french":
@@ -1038,7 +1089,6 @@ class Game:
         self.phase = "playing"
         self.turn = (self.dealer + 1) % 4
         await self._broadcast_state()
-        self._bot_turn(delay=EXTRA_DEAL_DELAY)
 
     def _can_belote(self, seat, card):
         if not self.settings["belote"] or self.bid == "NT" or card[0] not in "KQ":
@@ -1048,9 +1098,12 @@ class Game:
             return False
         if suit in self.belotes[seat] or not {"K" + suit, "Q" + suit} <= set(self.original_hands[seat]):
             return False
+        other = "Q" + suit if card[0] == "K" else "K" + suit
         if self.settings["variant"] == "french":
-            other = "Q" + suit if card[0] == "K" else "K" + suit
             return suit in self.belote_pending[seat] or other in self.hands[seat]
+        # Belote is said with the first of the pair; once its partner card is gone, the chance is gone with it.
+        if other not in self.hands[seat]:
+            return False
         return self.bid != "AT" or not self.settings["all_trump_belote_follow"] or not self.trick or self.trick[0][1][1] == suit
 
     async def _play(self, seat, card, announcements=None, belote=False):
@@ -1077,7 +1130,6 @@ class Game:
         if len(self.trick) < 4:
             self.turn = (seat + 1) % 4
             await self._broadcast_state()
-            self._bot_turn()
             return
         win_seat = self.trick[winner(self.trick, self.bid)][0]
         team = win_seat % 2
@@ -1092,7 +1144,6 @@ class Game:
             await self._score_deal(last)
         else:
             await self._broadcast_state(last)
-            self._bot_turn(delay=TRICK_DELAY)
 
     def _score_value(self, n):
         if self.settings["rounding"] == "raw":
@@ -1173,7 +1224,7 @@ class Game:
         if self.bid == "NT":
             raw = [n * self.settings["no_trump_multiplier"] for n in raw]
         if capot is not None:
-            raw[capot] += self.settings["capot_bonus"]
+            raw[capot] += _capot_bonus(self.bid, self.settings)
         self.last_capot = capot is not None
         caller = self.bidder % 2
         scored = [0, 0]
@@ -1285,7 +1336,7 @@ class Game:
             await self.ctx.finish(records, metadata={"variant": self.settings["variant"]})
         else:
             self.dealer = (self.dealer + 1) % 4
-            self.ctx.schedule(RESULT_DELAY, self._deal)
+            await self._deal()
 
     def _state(self, pid, last=None, result=None):
         seat = next((i for i, p in enumerate(self.seats) if p["id"] == pid), None)
@@ -1323,29 +1374,49 @@ class Game:
             if not p["bot"]:
                 await self._send_state(p["id"], last, result)
 
-    def _bot_turn(self, delay=BOT_DELAY):
-        if self.phase not in ("bidding", "playing") or not self.seats[self.turn]["bot"]:
-            return
-        self.bot_task += 1
-        token = self.bot_task
-        self.ctx.schedule(delay, lambda: self._bot_action(token))
-        # Safety net: if this bot's turn is still unplayed long after it should
-        # have been, try once more instead of leaving the table waiting.
-        self.ctx.schedule(delay + 25, lambda: self._bot_watch(token))
+    def _progress(self):
+        return (self.phase, self.turn, self.dealer, self.deals, self.french_round,
+                len(self.bid_events), len(self.played), len(self.trick))
 
-    async def _bot_watch(self, token):
-        if token == self.bot_task and not self._bot_busy and self.phase in ("bidding", "playing") \
-                and self.seats[self.turn]["bot"]:
-            await self._bot_action(token)
-
-    async def _bot_action(self, token):
-        if token != self.bot_task or not self.seats[self.turn]["bot"] or self._bot_busy:
+    async def _run_bots(self):
+        """Play every bot whose turn it is, one after another, until a person
+        has to act or the game is over. Nothing waits on a clock here: each
+        table shows the moves in order, at its own pace."""
+        if self._bots_running:
             return
-        self._bot_busy = True
+        self._bots_running = True
         try:
-            await self._bot_move(token)
+            for _ in range(1000):
+                if self.phase not in ("bidding", "playing") or not self.seats[self.turn]["bot"]:
+                    return
+                before = self._progress()
+                self.bot_task += 1
+                try:
+                    await self._bot_move(self.bot_task)
+                except Exception as e:
+                    print(f"[belot] bot move error: {e!r}")
+                if self._progress() == before:
+                    # A bot that did not move must still not hold up the table.
+                    try:
+                        await self._bot_fallback()
+                    except Exception as e:
+                        print(f"[belot] bot fallback error: {e!r}")
+                    if self._progress() == before:
+                        print(f"[belot] bot at seat {self.turn} cannot move in phase {self.phase}")
+                        return
         finally:
-            self._bot_busy = False
+            self._bots_running = False
+
+    async def _bot_fallback(self):
+        seat = self.turn
+        if not self.seats[seat]["bot"]:
+            return
+        if self.phase == "bidding":
+            await self._bid(seat, "PASS")
+        elif self.phase == "playing":
+            options = legal_for(self.hands[seat], self.trick, self.bid, self.settings, seat)
+            if options:
+                await self._play(seat, options[0], None, True)
 
     async def _bot_move(self, token):
         seat = self.turn

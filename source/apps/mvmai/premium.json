@@ -18,8 +18,8 @@
     },
     {
       "title": "Terminal next to the chat",
-      "short": "A real terminal beside the chat, started with your AI tool and kept running",
-      "description": "With the setting turned on, the mvmAI window on the desktop gets a terminal button. The terminal opens over the chat, at the bottom or on the right, and starts the command-line tool of the chat's provider, such as Claude, Codex or Gemini, so you can type that tool's own commands, like /usage, yourself. It hides when you click anywhere else. The pin button keeps it docked beside the chat and open every time you return to that chat, while a new chat starts without one. Its session keeps running while it is hidden or the window is closed, so the tool does not ask about trusting the folder every time; the close button ends it. This works only on the desktop. Without a subscription the setting is shown locked and the button opens the Premium dialog."
+      "short": "Observe the current chat’s real CLI session, commands and output",
+      "description": "With the setting enabled, the desktop chat offers a read-only view of its actual CLI activity, including its session identifier, commands, output and working status. Float the view over the chat, dock it on the right or bottom, or pin it to reopen with a chosen conversation. Opening, hiding or closing this view never launches another CLI or stops the chat’s AI process. This view is desktop-only. Without a subscription the setting stays visible and locked, and its button opens the Premium dialog."
     }
   ]
 }

@@ -185,7 +185,7 @@
       "name": "Belot",
       "icon": "🃏",
       "category": "Games",
-      "version": "1.0.1",
+      "version": "1.1.0",
       "description": "Play Bulgarian Belot or classic French Belote with friends or independent bots, and save custom rules for either style.",
       "tags": [
         "cards",
@@ -194,7 +194,7 @@
         "games"
       ],
       "min_core_version": "1.15.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/belot-1.0.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/belot-1.1.0.zip",
       "premium": true,
       "name_i18n": {
         "en": "Belot",

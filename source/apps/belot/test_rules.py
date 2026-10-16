@@ -128,11 +128,13 @@ class BelotRulesTests(unittest.TestCase):
     def test_balanced_rounding_and_hanging(self):
         async def run():
             table, _ = game()
+            table._deal = AsyncMock()
             table.bidder = 1
             table.trick_points = [34, 224]
             await table._score_deal([])
             self.assertEqual(table.scores, [4, 22])
             table, _ = game()
+            table._deal = AsyncMock()
             table.trick_points = [154, 154]
             await table._score_deal([])
             self.assertEqual((table.scores, table.hanging), ([0, 15], 16))
@@ -162,6 +164,7 @@ class BelotRulesTests(unittest.TestCase):
         table, _ = game(belote=True)
         table.bid = "AT"
         table.original_hands[0] = ["KH", "QH"]
+        table.hands[0] = ["KH", "QH"]
         table.trick = [(1, "7C")]
         self.assertFalse(table._can_belote(0, "KH"))
         table.trick = [(1, "7H")]
@@ -170,9 +173,22 @@ class BelotRulesTests(unittest.TestCase):
         table.trick = [(1, "7C")]
         self.assertTrue(table._can_belote(0, "KH"))
 
+    def test_no_belote_with_the_last_card_of_the_pair(self):
+        # The king went earlier without belote; the queen alone cannot say it.
+        table, _ = game(belote=True)
+        table.bid = "AT"
+        table.original_hands[0] = ["KH", "QH"]
+        table.hands[0] = ["QH"]
+        table.trick = [(1, "7H")]
+        self.assertFalse(table._can_belote(0, "QH"))
+        table.bid = "H"
+        table.trick = []
+        self.assertFalse(table._can_belote(0, "QH"))
+
     def test_only_declared_announcements_score_and_higher_run_wins(self):
         async def run():
             table, ctx = game(announcements=True)
+            table._deal = AsyncMock()
             table.bidder = 1
             table.trick_points = [81, 81]
             table.original_hands[0] = ["7C", "8C", "9C"]
@@ -181,6 +197,7 @@ class BelotRulesTests(unittest.TestCase):
             await table._score_deal([])
             self.assertEqual(ctx.messages[-1]["result"]["raw"], [81, 101])
             table, ctx = game(announcements=True)
+            table._deal = AsyncMock()
             table.trick_points = [81, 81]
             table.original_hands[0] = ["7C", "8C", "9C"]
             table.declared = [[], [], [], []]
@@ -334,6 +351,7 @@ class FrenchBeloteTests(unittest.TestCase):
     def test_french_belote_survives_failed_contract_and_capot(self):
         async def run():
             table, ctx = game(variant="french", belote=True)
+            table._deal = AsyncMock()
             table.bid = "H"
             table.trick_points = [70, 92]
             table.tricks_won = [3, 5]
@@ -342,6 +360,7 @@ class FrenchBeloteTests(unittest.TestCase):
             self.assertEqual(ctx.messages[-1]["result"]["awarded"], [20, 162])
 
             table, ctx = game(variant="french", belote=True)
+            table._deal = AsyncMock()
             table.bid = "H"
             table.trick_points = [162, 0]
             table.tricks_won = [8, 0]
@@ -350,12 +369,14 @@ class FrenchBeloteTests(unittest.TestCase):
             self.assertEqual(ctx.messages[-1]["result"]["awarded"], [252, 20])
 
             table, ctx = game(variant="french", target=51)
+            table._deal = AsyncMock()
             table.trick_points = [162, 0]
             table.tricks_won = [8, 0]
             await table._score_deal([])
             self.assertEqual(ctx.finish_metadata, {"variant": "french"})
 
             table, _ = game(variant="french")
+            table._deal = AsyncMock()
             table.trick_points = [81, 81]
             await table._score_deal([])
             self.assertEqual((table.scores, table.hanging), ([0, 81], 81))
@@ -364,6 +385,7 @@ class FrenchBeloteTests(unittest.TestCase):
     def test_french_trump_announcement_wins_same_height(self):
         async def run():
             table, ctx = game(variant="french", announcements=True)
+            table._deal = AsyncMock()
             table.bid = "H"
             table.trick_points = [81, 81]
             table.original_hands[0] = ["7H", "8H", "9H"]
@@ -505,3 +527,98 @@ class AiMentorTests(unittest.TestCase):
         self.assertTrue(module._wants_advice(close))
         self.assertFalse(module._wants_advice(clear))
         self.assertTrue(module._wants_advice({"kind": "bid", "options": [("CONTRA", 20.0), ("PASS", 0.0)]}))
+
+
+class BotsKeepTheTableMovingTests(unittest.TestCase):
+    """A person and three bots: after every move of the person the bots play
+    straight away, so the table is always waiting for the person or finished."""
+
+    def play_game(self, variant, seed):
+        import random
+
+        class Table(Context):
+            saved_state = None
+            host_id = room_id = "p"
+
+            def all_players(self):
+                return [{"id": "p", "display_name": "P", "connected": True}]
+
+        random.seed(seed)
+        ctx = Table()
+        table = rules.Game(ctx)
+        player = {"id": "p"}
+
+        async def run():
+            await table.on_start({"rules": {"variant": variant, "target": 151 if variant == "bulgarian" else 501}})
+            for _ in range(3000):
+                if ctx.finished:
+                    return
+                self.assertEqual(table.seats[table.turn]["id"], "p", "the table waits for a bot")
+                if table.phase == "bidding":
+                    options = table._bid_options()
+                    pick = random.choice(options) if options and random.random() < .3 else "PASS"
+                    await table.on_message(player, {"type": "bl_bid", "contract": pick})
+                else:
+                    legal = rules.legal_for(table.hands[table.turn], table.trick, table.bid, table.settings, table.turn)
+                    await table.on_message(player, {"type": "bl_play", "card": random.choice(legal)})
+            self.fail("the game never ended")
+        asyncio.run(run())
+
+    def test_bulgarian_game_never_waits_for_a_bot(self):
+        self.play_game("bulgarian", 1)
+
+    def test_french_game_never_waits_for_a_bot(self):
+        self.play_game("french", 7)
+
+
+class PartnerAnswerTests(unittest.TestCase):
+    """The bot said diamonds, its partner said hearts over it."""
+
+    def table(self, dealer):
+        table, _ = game()
+        table.bid, table.bidder, table.double = "H", 3, 0
+        table.dealer = dealer
+        table.bid_events = [[1, "D"], [2, "PASS"], [3, "H"]]
+        return table
+
+    def test_all_trump_when_our_team_leads(self):
+        table = self.table(dealer=0)          # seat 1 leads: the bot's team
+        self.assertEqual(rules._partner_answer(table, 1, ["NT", "AT"]), "AT")
+        self.assertEqual(rules._bot_choose_bid(table, 1, .01), "AT")
+
+    def test_stays_on_the_partner_suit_when_the_others_lead(self):
+        table = self.table(dealer=1)          # seat 2 leads: the other team
+        self.assertEqual(rules._partner_answer(table, 1, ["NT", "AT"]), "PASS")
+
+    def test_no_all_trump_where_the_rules_forbid_it(self):
+        table = self.table(dealer=0)
+        self.assertEqual(rules._partner_answer(table, 1, []), "PASS")
+
+    def test_only_when_the_partner_answered_our_suit(self):
+        table = self.table(dealer=0)
+        table.bid, table.bidder = "S", 2      # an opponent bid over the partner
+        table.bid_events.append([2, "S"])
+        self.assertIsNone(rules._partner_answer(table, 1, ["NT", "AT"]))
+        table = self.table(dealer=0)
+        table.bid_events = [[1, "PASS"], [3, "H"]]
+        self.assertIsNone(rules._partner_answer(table, 1, ["NT", "AT"]))
+
+
+class NoTrumpCapotTests(unittest.TestCase):
+    def score(self, **settings):
+        table, _ = game(**settings)
+        table._deal = AsyncMock()
+        table.bid, table.bidder = "NT", 0
+        table.trick_points, table.tricks_won = [130, 0], [8, 0]
+        asyncio.run(table._score_deal([]))
+        return table.scores
+
+    def test_capot_in_no_trump_is_44_by_default_and_35_when_not_doubled(self):
+        self.assertEqual(self.score(), [44, 0])
+        self.assertEqual(self.score(no_trump_capot_doubled=False), [35, 0])
+
+    def test_bots_count_the_capot_the_same_way(self):
+        doubled, plain = rules.normalize({}), rules.normalize({"no_trump_capot_doubled": False})
+        self.assertEqual(rules._capot_bonus("NT", doubled), 180)
+        self.assertEqual(rules._capot_bonus("NT", plain), 90)
+        self.assertEqual(rules._capot_bonus("AT", doubled), 90)

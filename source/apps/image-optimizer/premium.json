@@ -19,7 +19,7 @@
     {
       "title": "Public access and saved preferences",
       "short": "Choose public tools and remember each profile's setup",
-      "description": "The administrator decides which Premium tools appear on the Apps Hub public page. Enabled users keep their choices locally per profile and can reset them to defaults at any time."
+      "description": "The administrator decides which Premium tools appear on the Apps Hub public page. Users can choose whether to remember settings locally per profile and can reset them at any time. With remembering disabled, clearing results also restores defaults."
     }
   ]
 }

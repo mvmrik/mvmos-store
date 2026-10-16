@@ -25,6 +25,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import threading
 import uuid
 from glob import glob
 
@@ -121,16 +122,18 @@ def _projects_db():
         conn.execute("ALTER TABLE ai_projects ADD COLUMN instructions TEXT NOT NULL DEFAULT ''")
     if "instructions_file" not in cols:
         conn.execute("ALTER TABLE ai_projects ADD COLUMN instructions_file TEXT NOT NULL DEFAULT ''")
+    if "last_used_at" not in cols:
+        conn.execute("ALTER TABLE ai_projects ADD COLUMN last_used_at REAL")
     return conn
 
 
-_PROJECT_COLUMNS = "id, name, path, instructions, instructions_file, created_at"
+_PROJECT_COLUMNS = "id, name, path, instructions, instructions_file, created_at, last_used_at"
 
 
 def list_projects() -> list:
     with _projects_db() as conn:
         rows = conn.execute(
-            f"SELECT {_PROJECT_COLUMNS} FROM ai_projects ORDER BY name COLLATE NOCASE"
+            f"SELECT {_PROJECT_COLUMNS} FROM ai_projects ORDER BY COALESCE(last_used_at,created_at) DESC, name COLLATE NOCASE"
         ).fetchall()
     return [dict(row) for row in rows]
 
@@ -145,7 +148,7 @@ def _get_project(project_id: str):
     return dict(row) if row else None
 
 
-def create_project(name: str, path: str = "") -> dict:
+def create_project(name: str, path: str = "", instructions: str = "", instructions_file: str = "") -> dict:
     """A project's folder is optional — without one it's just a named group of
     chats sharing the same instructions, no file tree / git status / shell cwd."""
     name = (name or "").strip()
@@ -156,14 +159,33 @@ def create_project(name: str, path: str = "") -> dict:
         path = os.path.realpath(path)
         if not os.path.isdir(path):
             raise ValueError(f"Not a directory: {path}")
+    instructions_file = _project_rules_file(instructions_file, path)
     project_id = uuid.uuid4().hex
-    now = int(time.time())
+    used_at = time.time()
+    now = int(used_at)
     with _projects_db() as conn:
         conn.execute(
-            "INSERT INTO ai_projects (id, name, path, created_at) VALUES (?, ?, ?, ?)",
-            (project_id, name, path, now),
+            "INSERT INTO ai_projects (id, name, path, created_at, instructions, instructions_file, last_used_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (project_id, name, path, now, (instructions or "").strip(), instructions_file, used_at),
         )
     return _get_project(project_id)
+
+
+def _project_rules_file(path, project_path=""):
+    path = (path or "").strip()
+    if not path:
+        return ""
+    if not os.path.isabs(path) and project_path:
+        path = os.path.join(project_path, path)
+    path = os.path.realpath(path)
+    if not os.path.isfile(path):
+        raise ValueError(f"File not found: {path}")
+    return path
+
+
+def touch_project(project_id: str):
+    with _projects_db() as conn:
+        conn.execute("UPDATE ai_projects SET last_used_at=? WHERE id=?", (time.time(), project_id))
 
 
 def update_project(project_id: str, name: str = None, path: str = None,
@@ -188,10 +210,7 @@ def update_project(project_id: str, name: str = None, path: str = None,
     if instructions is not None:
         fields["instructions"] = instructions.strip()
     if instructions_file is not None:
-        instructions_file = instructions_file.strip()
-        if instructions_file and not os.path.isfile(instructions_file):
-            raise ValueError(f"File not found: {instructions_file}")
-        fields["instructions_file"] = instructions_file
+        fields["instructions_file"] = _project_rules_file(instructions_file, fields.get("path", project["path"]))
     if fields:
         with _projects_db() as conn:
             conn.execute(
@@ -229,8 +248,6 @@ def project_context_block(project: dict) -> str:
         try:
             with open(instr_file, "r", encoding="utf-8", errors="replace") as fh:
                 content = fh.read()
-            if len(content) > 20000:
-                content = content[:20000] + "\n...[truncated]"
             parts.append(f"Project instructions file ({instr_file}):\n{content}")
         except Exception as exc:
             parts.append(f"(Could not read project instructions file {instr_file}: {exc})")
@@ -704,6 +721,8 @@ async def inspect_server(body: InspectRequest, x_pub_token: str = Header(default
 class ProjectCreateBody(BaseModel):
     name: str
     path: str = ""
+    instructions: str = ""
+    instructions_file: str = ""
 
 
 class ProjectUpdateBody(BaseModel):
@@ -725,7 +744,7 @@ async def projects_create(body: ProjectCreateBody, x_pub_token: str = Header(def
     if not _is_apps_hub_admin(x_pub_token):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     try:
-        project = create_project(body.name, body.path)
+        project = create_project(body.name, body.path, body.instructions, body.instructions_file)
     except ValueError as exc:
         return JSONResponse({"error": str(exc)}, status_code=400)
     return JSONResponse({"project": project})
@@ -871,7 +890,7 @@ def kill_process(proc) -> None:
         pass
 
 
-def _run_turn_process(cmd, input=None, timeout=None, **kw):
+def _run_turn_process(cmd, input=None, timeout=None, output_callback=None, **kw):
     """subprocess.run for a chat turn's CLI, in its own process group and
     registered with the turn, so Stop ends it instead of letting it finish."""
     kw.pop("capture_output", None)
@@ -882,12 +901,45 @@ def _run_turn_process(cmd, input=None, timeout=None, **kw):
             turn["procs"].append(proc)
             if turn.get("stopped"):
                 kill_process(proc)
-        try:
-            out, err = proc.communicate(input, timeout=timeout)
-        except subprocess.TimeoutExpired:
-            kill_process(proc)
-            proc.communicate()
-            raise
+        if output_callback is None:
+            try:
+                out, err = proc.communicate(input, timeout=timeout)
+            except subprocess.TimeoutExpired:
+                kill_process(proc)
+                proc.communicate()
+                raise
+        else:
+            # Drain both pipes concurrently, retaining the complete output for
+            # the existing reply parser while an optional observer sees lines.
+            chunks = {"stdout": [], "stderr": []}
+            def read_pipe(stream, name):
+                for line in iter(stream.readline, "" if kw.get("text") else b""):
+                    chunks[name].append(line)
+                    try:
+                        output_callback({"type": "output", "stream": name, "text": line})
+                    except Exception:
+                        logging.getLogger(__name__).exception("mvmAI output observer failed")
+            readers = [threading.Thread(target=read_pipe, args=(getattr(proc, name), name), daemon=True)
+                       for name in ("stdout", "stderr")]
+            for reader in readers:
+                reader.start()
+            try:
+                if input is not None:
+                    try:
+                        proc.stdin.write(input)
+                        proc.stdin.close()
+                    except BrokenPipeError:
+                        pass
+                proc.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                kill_process(proc)
+                proc.wait()
+                raise
+            finally:
+                for reader in readers:
+                    reader.join()
+            empty = "" if kw.get("text") else b""
+            out, err = (empty.join(chunks[name]) for name in ("stdout", "stderr"))
         return subprocess.CompletedProcess(cmd, proc.returncode, out, err)
 
 
@@ -1119,6 +1171,7 @@ async def _run_cli_chat(
     extra_prompt: str = "",
     images: list | None = None,
     cli_resume: dict | None = None,
+    output_callback=None,
 ):
     images = images or []
     provider = next((p for p in CLI_PROVIDERS if p["id"] == body.provider_id), None)
@@ -1226,8 +1279,9 @@ async def _run_cli_chat(
             "In CONFIRMATION mode, request each server operation with the mvmai_tool_call response "
             "protocol; mvmAI itself shows the command to the user and collects confirmation."
         )
-    if project:
-        system_parts.append(project_context_block(project))
+    project_prompt = project_context_block(project) if project else ""
+    if project_prompt:
+        system_parts.append(project_prompt)
     if extra_prompt:
         system_parts.append(extra_prompt)
     if is_admin and not full_access and body.provider_id == "claude-cli":
@@ -1261,7 +1315,7 @@ async def _run_cli_chat(
         # Claude is given the instructions again by its own flag every turn;
         # the others only have them inside the first message, so they are
         # repeated here only when something in them changed (mode, language).
-        prompt = conversation_prompt if cli_resume.get("policy") == policy else (
+        prompt = ((f"[Project instructions]\n{project_prompt}\n\n" if project_prompt else "") + conversation_prompt) if cli_resume.get("policy") == policy else (
             f"[System instructions, updated]\n{system_prompt}\n\n[New messages]\n{conversation_prompt}")
 
     pid = body.provider_id
@@ -1338,7 +1392,7 @@ async def _run_cli_chat(
                     session_args = ["--resume", resume_id] if resume_id else ["--session-id", new_session]
                 cmd = [cmd_bin] + (["--model", model] if model else []) + safety_args + ["--disable-slash-commands"] + session_args + ["--print"]
                 if persist and not images:
-                    cmd += ["--output-format", "json"]
+                    cmd += ["--output-format", "stream-json", "--verbose"] if output_callback else ["--output-format", "json"]
                 stdin_input = conversation_prompt
                 if images:
                     # Images travel in the message itself (stream-json input),
@@ -1390,9 +1444,15 @@ async def _run_cli_chat(
                 stdin_input = prompt
             else:
                 cmd = [cmd_bin] + provider["args"] + [prompt]
+            if output_callback:
+                try:
+                    output_callback({"type": "session", "provider": pid, "session_id": resume_id or new_session,
+                                     "resumed": bool(resume_id)})
+                except Exception:
+                    logging.getLogger(__name__).exception("mvmAI output observer failed")
             proc = await asyncio.to_thread(
                 _run_turn_process,
-                _wrap_as_user(cmd, eu), input=stdin_input, capture_output=True, text=True, timeout=cli_timeout, cwd=effective_dir,
+                _wrap_as_user(cmd, eu), input=stdin_input, capture_output=True, text=True, timeout=cli_timeout, cwd=effective_dir, output_callback=output_callback,
                 env={**os.environ, "HOME": home, "USER": eu, "LOGNAME": eu, "PATH": _cli_search_path(home), **extra_env},
             )
         raw_out = proc.stdout.strip()
@@ -1425,7 +1485,7 @@ async def _run_cli_chat(
             # json / stream-json: the answer is the "result" entry, which also
             # names the model that really answered.
             result = None
-            for chunk in ([raw_out] if not images else raw_out.splitlines()):
+            for chunk in ([raw_out] if not images and not output_callback else raw_out.splitlines()):
                 try:
                     event = json.loads(chunk)
                 except Exception:

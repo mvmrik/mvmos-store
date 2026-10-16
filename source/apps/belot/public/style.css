@@ -79,9 +79,9 @@
 .bl-hand{display:flex;justify-content:center;align-items:flex-end;padding:0 6px 6px;box-sizing:border-box;flex:none;height:calc(var(--cw)*1.45 + 32px)}
 .bl-hand .bl-card{margin-left:calc(var(--cw)*-.4);cursor:default;transition:transform .15s,box-shadow .15s,filter .2s}.bl-hand .bl-card:first-child{margin-left:0}
 .bl-hand .bl-card.playable{cursor:pointer}
-.bl-hand .bl-card.hint{transform:translateY(-10px);box-shadow:0 0 0 2px #ffd78c,0 8px 16px #000a}
-.bl-hand .bl-card.hint:hover{transform:translateY(-22px) scale(1.04);z-index:2}
-.bl-hand .bl-card.dim{filter:brightness(.62) saturate(.7)}
+/* Allowed cards stay in line with the rest, so none hides another; they are marked by light, the others are dimmed. */
+.bl-hand .bl-card.hint{box-shadow:0 0 0 2px #ffd78c,0 0 14px #ffd06a99,0 6px 12px #0008}
+.bl-hand .bl-card.dim{filter:brightness(.5) saturate(.55)}
 .bl-actions{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);z-index:12;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:0 8px;pointer-events:none}.bl-actions>*{pointer-events:auto}.bl-actions button,.bl-actions a{border:1px solid #e7bf79;background:#143d36;color:#ffe8b9;border-radius:10px;padding:9px 13px;font-weight:700;text-decoration:none;cursor:pointer;animation:bl-pop .25s ease}.bl-actions button:hover{background:#346c51}.bl-actions .redsuit{color:#ff6b78}
 .bl-declarations{position:absolute;left:8px;right:8px;bottom:calc(var(--cw)*1.45 + 44px);z-index:15;box-shadow:0 8px 24px #000a;max-height:125px;overflow:auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:7px;background:#092b2dd9;border:1px solid #e7bf7966;border-radius:9px;font-size:.75rem}
 .bl-declarations[hidden]{display:none}.bl-declarations label{display:inline-flex;align-items:center;gap:4px;padding:5px 7px;background:#ffffff16;border-radius:7px;cursor:pointer}.bl-declarations input{accent-color:#e7bf79}
@@ -180,3 +180,10 @@ body:has(.bl-table) #gh-save-exit::before{content:'⏸';font-size:1rem;line-heig
 
 .bl-ask-fixed{position:fixed;z-index:80}
 .bl-ask-text{margin:0;color:#ffe8b9;font-size:.95rem;line-height:1.45;text-align:center}
+
+/* A tap is answered at once: the pressed call lights up, the played card dips and glows until the table takes it. */
+.bl-actions .bl-bidpanel button:active,.bl-decl:active{transform:scale(.96)}
+.bl-actions .bl-bidpanel button.sent{background:#346c51;box-shadow:0 0 0 3px #ffe1a1,0 0 18px #ffd06a;animation:bl-sending .8s ease-in-out infinite}
+.bl-bidpanel.waiting button:not(.sent){opacity:.4;pointer-events:none}
+.bl-hand .bl-card.sending{transform:translateY(-26px) scale(.94);filter:brightness(1.12);z-index:3;animation:bl-sending .8s ease-in-out infinite}
+@keyframes bl-sending{0%,100%{box-shadow:0 0 0 3px #fff,0 0 10px #ffd06a}50%{box-shadow:0 0 0 3px #fff,0 0 26px #ffd06a}}
