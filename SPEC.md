@@ -93,6 +93,7 @@ mvmOS.registerApp({
 
 ## Rules
 
+- **Keep app documentation in the Store.** Write application instructions in `docs/apps/<app-id>.md` of this repository and link them from `docs/README.md`. Do not document individual Store app features in Core or require a Core release for their changes.
 - **Translate everything.** No hard-coded text. Strings live in `public/i18n.js`, cover all nine languages (`en`, `bg`, `de`, `es`, `fr`, `ja`, `pt-BR`, `ru`, `zh-CN`) and are read with `t(key, vars)`. Never add keys to core's `frontend/i18n/`. See [DEVELOPER.md → i18n](DEVELOPER.md#i18n).
 - **Follow the theme.** Colours come from the theme variables, in the desktop window and on the public page. See [README.md → Following the theme](README.md#following-the-theme).
 - **Use mvmOS dialogs.** `mvmOS.confirm`, `mvmOS.prompt`, `mvmOS.toast` and `mvmOS.notify` instead of the browser's own.

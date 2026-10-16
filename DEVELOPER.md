@@ -4,6 +4,10 @@ Apps for mvmOS are written in JavaScript and registered via the global `mvmOS` o
 
 ---
 
+## Application documentation
+
+Keep documentation for each Store app in `docs/apps/<app-id>.md` in this repository, with a link from `docs/README.md`. Application features, settings, workflows and integration examples belong here. Core documentation covers platform behavior and shared interfaces only; changing a Store app does not require a Core documentation update or Core version bump. These documentation files are maintained separately from the installable app archive.
+
 ## App structure
 
 ```

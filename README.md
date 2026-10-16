@@ -4,6 +4,7 @@ This repository is the official Store of [mvmOS](https://github.com/mvmrik/mvmOS
 
 - **[DEVELOPER.md](DEVELOPER.md)** — the complete guide to writing an app: structure, `manifest.json`, `store.json`, `premium.json`, the `mvmOS` API, server code, Apps Hub, public pages, games, i18n and premium.
 - **[SPEC.md](SPEC.md)** — the short checklist of the rules every app follows.
+- **[Application documentation](docs/README.md)** — usage and workflows of individual Store apps, maintained with the Store.
 - This file — how the repository is laid out, how to run your own store, and the reference for widgets, themes and the shared CSS variables.
 
 ---
@@ -29,6 +30,7 @@ apps/<category>/
                                     version, description, tags, min_core_version, zip_url,
                                     premium (true when the app has Premium)
   <app-id>-<version>.zip          ← the release that mvmOS downloads
+docs/                            ← application documentation, kept out of Core
 source/apps/<app-id>/             ← the source of every app (see DEVELOPER.md → App structure)
 source/backend/apps/<app-id>/     ← the rare system backend of an app
 widgets/                          ← see Widgets

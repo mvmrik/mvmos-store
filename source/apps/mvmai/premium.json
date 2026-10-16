@@ -18,8 +18,8 @@
     },
     {
       "title": "Terminal next to the chat",
-      "short": "Observe the current chat’s real CLI session, commands and output",
-      "description": "With the setting enabled, the desktop chat offers a read-only view of its actual CLI activity, including its session identifier, commands, output and working status. Float the view over the chat, dock it on the right or bottom, or pin it to reopen with a chosen conversation. Opening, hiding or closing this view never launches another CLI or stops the chat’s AI process. This view is desktop-only. Without a subscription the setting stays visible and locked, and its button opens the Premium dialog."
+      "short": "Use an interactive shell in the active project folder",
+      "description": "With the setting enabled, the desktop chat offers an interactive terminal starting in the active project folder, or your home folder outside a project. Run commands yourself, float the terminal over the chat, dock it on the right or bottom, or pin it to reopen with a chosen conversation. Hiding the terminal keeps its shell running; closing it ends that terminal session. It works with any AI provider and is available only on the desktop. Without a subscription the setting stays visible and locked, and its button opens the Premium dialog."
     }
   ]
 }

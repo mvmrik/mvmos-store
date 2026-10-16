@@ -901,7 +901,7 @@ def _run_turn_process(cmd, input=None, timeout=None, output_callback=None, **kw)
             turn["procs"].append(proc)
             if turn.get("stopped"):
                 kill_process(proc)
-        if output_callback is None:
+        if output_callback is None and turn is None:
             try:
                 out, err = proc.communicate(input, timeout=timeout)
             except subprocess.TimeoutExpired:
@@ -915,6 +915,11 @@ def _run_turn_process(cmd, input=None, timeout=None, output_callback=None, **kw)
             def read_pipe(stream, name):
                 for line in iter(stream.readline, "" if kw.get("text") else b""):
                     chunks[name].append(line)
+                    if turn is not None and name == "stdout":
+                        turn["activity_seq"] = turn.get("activity_seq", 0) + 1
+                        turn["last_activity"] = time.monotonic()
+                    if output_callback is None:
+                        continue
                     try:
                         output_callback({"type": "output", "stream": name, "text": line})
                     except Exception:
@@ -1319,6 +1324,7 @@ async def _run_cli_chat(
             f"[System instructions, updated]\n{system_prompt}\n\n[New messages]\n{conversation_prompt}")
 
     pid = body.provider_id
+    stream_output = output_callback is not None or CHAT_TURN.get() is not None
     model = body.model if body.model is not None else _read_cfg().get("model")
     # A full-access turn is a whole task done in one go, not a single reply.
     cli_timeout = 1800 if full_access else 120
@@ -1391,8 +1397,8 @@ async def _run_cli_chat(
                 if persist:
                     session_args = ["--resume", resume_id] if resume_id else ["--session-id", new_session]
                 cmd = [cmd_bin] + (["--model", model] if model else []) + safety_args + ["--disable-slash-commands"] + session_args + ["--print"]
-                if persist and not images:
-                    cmd += ["--output-format", "stream-json", "--verbose"] if output_callback else ["--output-format", "json"]
+                if (persist or stream_output) and not images:
+                    cmd += ["--output-format", "stream-json", "--verbose", "--include-partial-messages"] if stream_output else ["--output-format", "json"]
                 stdin_input = conversation_prompt
                 if images:
                     # Images travel in the message itself (stream-json input),
@@ -1403,6 +1409,8 @@ async def _run_cli_chat(
                         blocks.append({"type": "image", "source": {"type": "base64", "media_type": head[5:].split(";")[0], "data": data}})
                     blocks.append({"type": "text", "text": conversation_prompt})
                     cmd += ["--input-format", "stream-json", "--output-format", "stream-json", "--verbose"]
+                    if stream_output:
+                        cmd += ["--include-partial-messages"]
                     stdin_input = json.dumps({"type": "user", "message": {"role": "user", "content": blocks}}) + "\n"
             elif pid == "gemini-cli":
                 safety_args = ["--yolo"] if full_access else ["--admin-policy", policy_path]
@@ -1427,7 +1435,7 @@ async def _run_cli_chat(
                 if resume_id:
                     cmd = [cmd_bin, "exec", "resume", "--skip-git-repo-check", "--json"] + safety_args + (["--model", model] if model else [])
                 else:
-                    cmd = [cmd_bin, "exec", "--skip-git-repo-check", "-C", effective_dir] + (["--json"] if persist else []) + safety_args + (["--model", model] if model else [])
+                    cmd = [cmd_bin, "exec", "--skip-git-repo-check", "-C", effective_dir] + (["--json"] if persist or stream_output else []) + safety_args + (["--model", model] if model else [])
                 for n, url in enumerate(images):
                     head, _, data = url.partition(",")
                     img_path = os.path.join(workdir, f"image-{n + 1}." + ("jpg" if "jpeg" in head else head[11:].split(";")[0]))
@@ -1460,7 +1468,7 @@ async def _run_cli_chat(
             return JSONResponse({"error": "The CLI session is gone.", "session_lost": True}, status_code=409)
         model_used = ""
         codex_thread = ""
-        if pid == "codex-cli" and persist:
+        if pid == "codex-cli" and (persist or stream_output):
             # --json prints one event per line: the thread id once, then every
             # message the agent wrote; the answer is the last one.
             answer, failure = None, ""
@@ -1481,11 +1489,11 @@ async def _run_cli_chat(
                 logging.getLogger(__name__).error("mvmai CLI provider %s failed (exit %s): %s", pid, proc.returncode, err)
                 return JSONResponse({"error": err}, status_code=502)
             content = (answer or "").strip()
-        elif pid == "claude-cli" and (images or persist):
+        elif pid == "claude-cli" and (images or persist or stream_output):
             # json / stream-json: the answer is the "result" entry, which also
             # names the model that really answered.
             result = None
-            for chunk in ([raw_out] if not images and not output_callback else raw_out.splitlines()):
+            for chunk in ([raw_out] if not images and not stream_output else raw_out.splitlines()):
                 try:
                     event = json.loads(chunk)
                 except Exception:

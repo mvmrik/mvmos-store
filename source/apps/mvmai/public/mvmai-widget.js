@@ -110,12 +110,22 @@
         border-top:1px solid var(--pub-border,#45475a);font-size:.76rem;line-height:1.35;overflow-wrap:anywhere}
       .mvmai-usage-list{display:flex;flex:1 1 22rem;min-width:0;gap:.4rem}
       .mvmai-usage-bar{position:relative;display:flex;align-items:center;justify-content:space-between;gap:.35rem;
-        flex:1;min-width:0;height:1.35rem;box-sizing:border-box;padding:0 .4rem;overflow:hidden;
-        border-radius:.2rem;background:#e9edf4;font-size:.69rem;white-space:nowrap}
-      .mvmai-usage-fill{position:absolute;inset:0 auto 0 0;background:var(--pub-accent,#89b4fa)}
-      .mvmai-usage-bar.near-limit .mvmai-usage-fill{background:color-mix(in srgb,#f9b36d 70%,white)}
-      .mvmai-usage-bar.at-limit .mvmai-usage-fill{background:color-mix(in srgb,#f38ba8 70%,white)}
-      .mvmai-usage-window,.mvmai-usage-percent,.mvmai-usage-reset{position:relative;z-index:1;color:#111}
+        flex:1;min-width:0;height:1.5rem;box-sizing:border-box;padding:0 .4rem;overflow:hidden;
+        border-radius:.2rem;background:color-mix(in srgb,var(--pub-bg,#1e1e2e) 90%,var(--pub-fg,#cdd6f4) 10%);
+        box-shadow:inset 0 0 0 1px var(--pub-border,#45475a);font-size:.69rem;white-space:nowrap}
+      .mvmai-usage-fill{position:absolute;inset:3px;--mvmai-usage-cell:calc(1.5rem - 6px);
+        background:linear-gradient(to right,#53c878 0%,#8bce55 35%,#e8ce49 55%,#ee9852 75%,#e55b63 100%);
+        --mvmai-usage-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 20'%3E%3Crect width='20' height='20' rx='2'/%3E%3C/svg%3E");
+        -webkit-mask-image:var(--mvmai-usage-mask);mask-image:var(--mvmai-usage-mask);
+        -webkit-mask-size:calc(var(--mvmai-usage-cell) + 2px) var(--mvmai-usage-cell);
+        mask-size:calc(var(--mvmai-usage-cell) + 2px) var(--mvmai-usage-cell);
+        -webkit-mask-position:left top;mask-position:left top;
+        -webkit-mask-repeat:repeat-x;mask-repeat:repeat-x}
+      .mvmai-usage-caption,.mvmai-usage-reset{position:relative;z-index:1;display:inline-flex;align-items:center;
+        gap:.3rem;min-width:0;box-sizing:border-box;height:1.1rem;padding:0 .28rem;border-radius:.25rem;
+        background:var(--pub-surface1,#181825);color:var(--pub-fg,#cdd6f4);
+        border:1px solid var(--pub-border,#45475a);box-shadow:0 1px 2px rgba(0,0,0,.16);
+        line-height:1;font-variant-numeric:tabular-nums}
       .mvmai-usage-window{min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis}
       .mvmai-usage-percent{font-weight:700;flex-shrink:0}
       .mvmai-usage-reset{font-weight:600;margin-left:auto;flex-shrink:0}
@@ -229,7 +239,10 @@
       .mvmai-review label.mvmai-batch-include{display:flex;align-items:center;gap:.4rem;font-size:.8rem;
         color:var(--pub-fg,#cdd6f4);margin-top:.6rem;cursor:pointer}
       .mvmai-confirm-yes:disabled{opacity:.5;cursor:default}
-      .mvmai-typing{align-self:flex-start;color:var(--pub-dim,#6c7086);font-size:.82rem}
+      .mvmai-typing{align-self:flex-start;color:var(--pub-dim,#6c7086);font-size:.82rem;
+        display:flex;align-items:center;gap:.6rem;height:20px}
+      .mvmai-typing canvas{width:100px;height:18px;display:block}
+      .mvmai-typing time{font-variant-numeric:tabular-nums;font-size:.75rem;min-width:3.2em}
       .mvmai-hist-btn{background:none;border:0;color:inherit;font-size:1.15rem;cursor:pointer;padding:.15rem .35rem;
         border-radius:.4rem;line-height:1}
       .mvmai-hist-btn:hover{background:var(--pub-surface2,#313244)}
@@ -270,7 +283,9 @@
       .mvmai-session-row.pinned{box-shadow:inset 3px 0 var(--pub-accent,#89b4fa)}
       .mvmai-session-row.mvmai-session-main{position:relative;overflow:hidden;--mvmai-actions-width:6.6rem}
       .mvmai-session-row.mvmai-session-main.pinned{--mvmai-actions-width:4.4rem}
-      .mvmai-session-text{flex:1;min-width:0}
+      .mvmai-session-activity{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;
+        opacity:.25;color:var(--pub-accent,#89b4fa)}
+      .mvmai-session-text{flex:1;min-width:0;position:relative;z-index:1}
       .mvmai-session-title{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       .mvmai-session-row.active .mvmai-session-title{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
       .mvmai-session-label{display:block;margin-top:.1rem;font-size:.68rem;color:var(--pub-fg2,#a6adc8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -329,6 +344,8 @@
       .mvmai-sidebar-filetree{flex-shrink:0;max-height:38%;overflow-y:auto;border-top:1px solid var(--pub-border,#45475a);
         padding:.4rem}
       .mvmai-sidebar-filetree[hidden]{display:none}
+      .mvmai-sidebar-filetree.collapsed .mvmai-sidebar-filetree-body,
+      .mvmai-sidebar-filetree.collapsed .mvmai-sidebar-filetree-hint{display:none}
       .mvmai-sidebar-filetree:empty{display:none;border-top:none;padding:0}
       .mvmai-sidebar-filetree-branch{font-size:.7rem;color:var(--pub-dim,#6c7086);padding:.1rem .4rem .3rem;
         display:block;text-decoration:none}
@@ -661,17 +678,20 @@
         if (!window || !Number.isFinite(Number(window.used_percent))) return null;
         var percent = Math.round(Number(window.used_percent));
         var bar = document.createElement('span');
-        bar.className = 'mvmai-usage-bar' + (percent >= 100 ? ' at-limit' : percent >= 80 ? ' near-limit' : '');
+        bar.className = 'mvmai-usage-bar';
         var fill = document.createElement('span');
         fill.className = 'mvmai-usage-fill';
-        fill.style.width = Math.max(0, Math.min(100, percent)) + '%';
+        fill.style.clipPath = 'inset(0 ' + (100 - Math.max(0, Math.min(100, percent))) + '% 0 0)';
         var name = document.createElement('span');
         name.className = 'mvmai-usage-window';
         name.textContent = label;
         var value = document.createElement('span');
         value.className = 'mvmai-usage-percent';
         value.textContent = percent + '%';
-        bar.append(fill, name, value);
+        var caption = document.createElement('span');
+        caption.className = 'mvmai-usage-caption';
+        caption.append(name, value);
+        bar.append(fill, caption);
         var description = label + ' ' + percent + '%';
         if (window.resets_at) {
           var reset = document.createElement('span');
@@ -1042,12 +1062,7 @@
           colEl: root.querySelector('.mvmai-chat-col'),
           toggleEl: termBtn,
           t: t,
-          getActivity: function (id, after, signal) {
-            return api('/premium/activity/' + encodeURIComponent(id) + '?after=' + after, {signal: signal}).then(function (data) {
-              if (data.__status !== 200) throw new Error(String(data.__status));
-              return data;
-            });
-          },
+          getProject: function () { return activeProject; },
         });
         return termPanel;
       }
@@ -1344,7 +1359,8 @@
           sidebarFiletreeEl.innerHTML = '';
         }
         filetreeNavEl.hidden = !projectId;
-        sidebarFiletreeEl.hidden = !projectId || !filetreeExpanded;
+        sidebarFiletreeEl.hidden = !projectId;
+        sidebarFiletreeEl.classList.toggle('collapsed', !filetreeExpanded);
         filetreeLinkEl.textContent = t('mvmai_pub_view_files') + ' ' + (filetreeExpanded ? '▴' : '▾');
         filetreeLinkEl.setAttribute('aria-expanded', String(filetreeExpanded));
       }
@@ -1352,7 +1368,7 @@
       filetreeLinkEl.onclick = function () {
         filetreeExpanded = !filetreeExpanded;
         syncFiletreeVisibility();
-        if (filetreeExpanded) renderInlineFileTree();
+        if (filetreeExpanded) renderInlineFileTree(true);
       };
 
       function updateProjectBadge() {
@@ -1456,7 +1472,7 @@
       sidebarProjectHeaderEl.querySelector('.mvmai-sidebar-back').onclick = exitProjectView;
 
       function fillDir(dirPath, container, statusMap, rootPath) {
-        fetch('/api/files?path=' + encodeURIComponent(dirPath), {headers: {'X-Pub-Token': token}})
+        return fetch('/api/files?path=' + encodeURIComponent(dirPath), {headers: {'X-Pub-Token': token}})
           .then(function (r) { return r.json(); })
           .then(function (data) {
             var entries = (data.entries || data.files || data || []).filter(function (f) { return f.name.indexOf('.') !== 0; });
@@ -1501,24 +1517,25 @@
       }
 
       var lastGitSignature = '';
+      var filetreeRenderId = 0;
       var gitPending = false;
       projectPoll = setInterval(function () {
         if (!root.isConnected) { clearInterval(projectPoll); return; }
-        if (!document.hidden && activeProject && filetreeExpanded && !gitPending) renderInlineFileTree(true);
+        if (!document.hidden && activeProject && !gitPending) renderInlineFileTree(true);
       }, 5000);
 
       function renderInlineFileTree(quiet) {
         if (!sidebarFiletreeEl) return;
         syncFiletreeVisibility();
-        if (!activeProject || !activeProject.path || !filetreeExpanded) return;
+        if (!activeProject || !activeProject.path) return;
         var project = activeProject;
-        if (!quiet) sidebarFiletreeEl.innerHTML = '<div class="mvmai-no-sessions">' + esc(t('mvmai_pub_loading')) + '</div>';
+        var renderId = ++filetreeRenderId;
         gitPending = true;
         api('/projects/' + project.id + '/git-status').then(function (git) {
-          if (!activeProject || activeProject.id !== project.id || !filetreeExpanded || !root.isConnected) return;
+          if (!activeProject || activeProject.id !== project.id || !root.isConnected || renderId !== filetreeRenderId) return;
           var signature = project.id + JSON.stringify(git);
-          if (quiet && signature === lastGitSignature) return;
-          lastGitSignature = signature;
+          var existingBody = sidebarFiletreeEl.querySelector('.mvmai-sidebar-filetree-body');
+          if (quiet && signature === lastGitSignature && (!filetreeExpanded || (existingBody && existingBody.dataset.loaded))) return;
           var statusMap = {};
           ((git && git.added) || []).forEach(function (f) { statusMap[f] = 'A'; });
           ((git && git.modified) || []).forEach(function (f) { statusMap[f] = 'M'; });
@@ -1528,22 +1545,35 @@
           var hasGitManager = typeof GitManager !== 'undefined';
           var canOpenGitManager = git && git.is_repo && hasGitManager;
           var showInstallHint = git && git.is_repo && !hasGitManager;
-          sidebarFiletreeEl.innerHTML =
+          // Keep the visible branch/tree in place until the complete replacement
+          // is ready, avoiding intermediate loading and empty-directory layouts.
+          var nextTree = document.createElement('div');
+          nextTree.innerHTML =
             (canOpenGitManager
               ? '<a href="#" class="mvmai-sidebar-filetree-branch mvmai-sidebar-filetree-branch-link">' + esc(branchLabel) + '</a>'
               : '<div class="mvmai-sidebar-filetree-branch">' + esc(branchLabel) + '</div>') +
-            (showInstallHint ? '<div class="mvmai-sidebar-filetree-hint">' + esc(t('mvmai_pub_install_git_manager_hint')) + '</div>' : '') +
+            (showInstallHint && filetreeExpanded ? '<div class="mvmai-sidebar-filetree-hint">' + esc(t('mvmai_pub_install_git_manager_hint')) + '</div>' : '') +
             '<div class="mvmai-sidebar-filetree-body"></div>';
           if (canOpenGitManager) {
-            var branchLink = sidebarFiletreeEl.querySelector('.mvmai-sidebar-filetree-branch-link');
+            var branchLink = nextTree.querySelector('.mvmai-sidebar-filetree-branch-link');
             var repoPath = activeProject.path;
             branchLink.addEventListener('click', function (e) {
               e.preventDefault();
               GitManager.openRepo(repoPath);
             });
           }
-          fillDir(project.path, sidebarFiletreeEl.querySelector('.mvmai-sidebar-filetree-body'), statusMap, project.path);
-        }).catch(function () { lastGitSignature = ''; }).finally(function () { gitPending = false; });
+          var nextBody = nextTree.querySelector('.mvmai-sidebar-filetree-body');
+          var ready = filetreeExpanded ? fillDir(project.path, nextBody, statusMap, project.path).then(function () {
+            nextBody.dataset.loaded = 'true';
+          }) : Promise.resolve();
+          return ready.then(function () {
+            if (!activeProject || activeProject.id !== project.id || !root.isConnected || renderId !== filetreeRenderId) return;
+            sidebarFiletreeEl.replaceChildren.apply(sidebarFiletreeEl, Array.from(nextTree.childNodes));
+            lastGitSignature = signature;
+          });
+        }).catch(function () {
+          if (renderId === filetreeRenderId) lastGitSignature = '';
+        }).finally(function () { if (renderId === filetreeRenderId) gitPending = false; });
       }
 
       function showFolderPicker(startPath, onSelect) {
@@ -2055,10 +2085,15 @@
               esc(t('mvmai_pub_archive')) + '" aria-label="' + esc(t('mvmai_pub_archive')) + '">🗃</button>') + '</div>';
             row.querySelector('.mvmai-session-title').textContent = s.title || t('mvmai_pub_new_chat');
             if (chatContexts[s.id] && chatContexts[s.id].sending) {
-              var working = document.createElement('span');
-              working.className = 'mvmai-session-label';
-              working.textContent = t('mvmai_pub_thinking');
-              row.querySelector('.mvmai-session-text').appendChild(working);
+              var workingTurn = chatContexts[s.id].turn;
+              if (workingTurn) {
+                var working = document.createElement('canvas');
+                working.className = 'mvmai-session-activity';
+                working.setAttribute('aria-hidden', 'true');
+                row.insertBefore(working, row.firstChild);
+                workingTurn.sidebarCanvas = working;
+                row.setAttribute('aria-busy', 'true');
+              }
             }
             if (s.label) row.querySelector('.mvmai-session-label').textContent = s.label;
             row.tabIndex = 0;
@@ -2151,7 +2186,6 @@
           newProjectModel = null;
           var modelDialog = root.querySelector('.mvmai-model-dialog');
           if (modelDialog) modelDialog.remove();
-          if (termPanel) termPanel.setChat(archivedSession ? null : id);
           chatLabel = data.provider_label || null;
           chatProvider = data.provider || null;
           chatModel = data.model || null;
@@ -2159,6 +2193,7 @@
           var row = sessionsCache.filter(function (s) { return s.id === id; })[0];
           var pid = row && row.project_id;
           activeProject = pid ? (projects.filter(function (p) { return p.id === pid; })[0] || {id: pid, name: pid, path: ''}) : null;
+          if (termPanel) termPanel.setChat(archivedSession ? null : id);
           if (activeProject) {
             sidebarProjectHeaderEl.hidden = false;
             sidebarProjectHeaderEl.querySelector('.mvmai-sidebar-project-title').textContent = '📁 ' + activeProject.name;
@@ -2183,7 +2218,7 @@
                 addCompactedNote(m.content);
                 any = true;
               } else if ((m.role === 'user' || m.role === 'assistant') && m.content) {
-                addBubble(m.role, m.content, null, m.created_at, null, m.provider_label);
+                addBubble(m.role, m.content, null, m.created_at, null, m.provider_label, m.duration_ms);
                 any = true;
               }
             });
@@ -2321,7 +2356,12 @@
         if (thumbs && thumbs.length) el.appendChild(box);
       }
 
-      function addBubble(role, content, thumbs, createdAt, ctx, savedLabel) {
+      function formatElapsed(milliseconds) {
+        var seconds = Math.max(0, Math.floor(milliseconds / 1000));
+        return Math.floor(seconds / 60) + ':' + ('0' + seconds % 60).slice(-2);
+      }
+
+      function addBubble(role, content, thumbs, createdAt, ctx, savedLabel, durationMs) {
         var targetList = ctx ? ctx.listEl : listEl;
         var el = document.createElement('div');
         el.className = 'mvmai-msg ' + role;
@@ -2345,6 +2385,9 @@
             timeEl.className = 'mvmai-msg-time';
             timeEl.dateTime = new Date(Number(createdAt) * 1000).toISOString();
             timeEl.textContent = time;
+            if (role === 'assistant' && Number.isFinite(durationMs) && durationMs >= 0) {
+              timeEl.textContent += ' (' + formatElapsed(durationMs) + ')';
+            }
             meta.appendChild(timeEl);
           }
           el.appendChild(meta);
@@ -2425,11 +2468,92 @@
 
       function addTyping(ctx) {
         var targetList = ctx ? ctx.listEl : listEl;
+        var current = ctx && ctx.turn;
+        if (current && current.activityCleanup) current.activityCleanup();
         var el = document.createElement('div');
         el.className = 'mvmai-typing';
-        el.textContent = t('mvmai_pub_thinking');
+        var canvas = document.createElement('canvas');
+        canvas.width = 200; canvas.height = 36;
+        canvas.setAttribute('role', 'img');
+        var clock = document.createElement('time');
+        el.appendChild(canvas); el.appendChild(clock);
+        var pen = canvas.getContext('2d');
+        var baseline = 16;
+        var samples = new Array(50).fill(baseline);
+        var energy = 0, energyAt = Date.now(), seq = 0, tick = 0;
+        var startedAt = current ? current.startedAt : Date.now();
+        var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        function decayEnergy(now) {
+          energy *= Math.exp(-Math.max(0, now - energyAt) / 1300);
+          if (energy < .15) energy = 0;
+          energyAt = now;
+        }
+        el.updateActivity = function (data) {
+          if (Number(data.activity_seq) > seq) {
+            var count = Number(data.activity_seq) - seq;
+            seq = Number(data.activity_seq);
+            decayEnergy(Date.now());
+            if (data.activity_age != null && data.activity_age < 4) {
+              // Event volume raises the peak; nearby bursts accumulate.
+              // This measures incoming activity, not reasoning complexity.
+              energy = Math.min(14, energy + 2 * Math.log2(1 + count));
+            }
+          }
+        };
+        function draw() {
+          clock.textContent = formatElapsed(Date.now() - startedAt);
+          decayEnergy(Date.now());
+          var active = energy > 0;
+          var label = t(active ? 'mvmai_pub_activity_active' : 'mvmai_pub_activity_waiting');
+          canvas.setAttribute('aria-label', label); el.title = label;
+          tick++;
+          var wave = energy * [0, .25, .7, 1, .45, 0][tick % 6];
+          samples.shift(); samples.push(baseline - wave);
+          if (current && current.sidebarCanvas && current.sidebarCanvas.isConnected) {
+            var background = current.sidebarCanvas;
+            var width = background.clientWidth || 200, height = background.clientHeight || 40;
+            if (background.width !== width * 2 || background.height !== height * 2) {
+              background.width = width * 2; background.height = height * 2;
+            }
+            var bg = background.getContext('2d');
+            if (bg) {
+              bg.setTransform(2, 0, 0, 2, 0, 0);
+              bg.clearRect(0, 0, width, height);
+              bg.strokeStyle = getComputedStyle(background).color;
+              bg.lineWidth = 1.5; bg.lineJoin = 'round';
+              bg.beginPath();
+              samples.forEach(function (y, i) {
+                var x = i * width / (samples.length - 1);
+                var scaledY = (reducedMotion ? baseline : y) / 18 * height;
+                if (i) bg.lineTo(x, scaledY); else bg.moveTo(x, scaledY);
+              });
+              bg.stroke();
+            }
+          }
+          if (!pen) return;
+          pen.setTransform(2, 0, 0, 2, 0, 0);
+          pen.clearRect(0, 0, 100, 18);
+          pen.strokeStyle = getComputedStyle(el).color;
+          pen.lineWidth = 1.2; pen.lineJoin = 'round';
+          pen.beginPath();
+          samples.forEach(function (y, i) {
+            if (i) pen.lineTo(i * 2, reducedMotion ? baseline : y); else pen.moveTo(0, reducedMotion ? baseline : y);
+          });
+          pen.stroke();
+          pen.beginPath(); pen.arc(98, reducedMotion ? baseline : samples[49], active ? 1.8 : 1, 0, Math.PI * 2);
+          pen.fillStyle = pen.strokeStyle; pen.fill();
+        }
         targetList.appendChild(el);
         targetList.scrollTop = targetList.scrollHeight;
+        draw();
+        var timer = setInterval(function () {
+          if (!root.isConnected || (ctx && ctx.turn !== current)) { clearInterval(timer); return; }
+          draw();
+        }, 120);
+        var remove = el.remove.bind(el);
+        if (current) current.activityCleanup = function () { clearInterval(timer); };
+        // The sidebar keeps settling while a tool runs between model steps.
+        el.remove = function () { if (!current) clearInterval(timer); remove(); };
         return el;
       }
 
@@ -2922,7 +3046,7 @@
           listEl.innerHTML = '';
           recent.forEach(function (m) {
             if (m.role === 'model_switch') addModelSwitchNote(m);
-            else if ((m.role === 'user' || m.role === 'assistant') && m.content) addBubble(m.role, m.content, null, m.created_at);
+            else if ((m.role === 'user' || m.role === 'assistant') && m.content) addBubble(m.role, m.content, null, m.created_at, null, m.provider_label, m.duration_ms);
           });
           // Rendered after the recent bubbles (even though it summarizes the
           // older ones) so it lands as the newest, bottom-most item -- the
@@ -3196,6 +3320,8 @@
       // Ends the answer: the next waiting message, if any, is sent on its own.
       function finishTurn(ctx) {
         ctx = ctx || saveChatContext();
+        if (ctx.turn && ctx.turn.activityCleanup) ctx.turn.activityCleanup();
+        if (ctx.turn && ctx.turn.sidebarCanvas) ctx.turn.sidebarCanvas.remove();
         ctx.turn = null; ctx.sending = false;
         syncChatContext(ctx);
         refreshSessionList();
@@ -3265,7 +3391,7 @@
         ctx = ctx || saveChatContext();
         ctx.sending = true;
         var history = ctx.history, queue = ctx.queue;
-        var current = ctx.turn = {id: Math.random().toString(36).slice(2) + Date.now().toString(36), stopped: false};
+        var current = ctx.turn = {id: Math.random().toString(36).slice(2) + Date.now().toString(36), stopped: false, startedAt: Date.now()};
         syncChatContext(ctx);
         var sentAt = Math.floor(Date.now() / 1000);
         addBubble('user', msg.shown, msg.thumbs, sentAt, ctx);
@@ -3296,6 +3422,7 @@
           }
           setTimeout(function () { refreshSessionList(); if (me.is_admin) loadProjects(); }, 1500);
           function awaitTurn(data) {
+            typing.updateActivity(data);
             if (data.__status !== 202 || !data.pending) return Promise.resolve(data);
             return new Promise(function (resolve) { setTimeout(resolve, 2000); }).then(function () {
               if (current.stopped) return {error: 'stopped'};
@@ -3306,7 +3433,8 @@
           api('/chat', {method: 'POST', signal: current.controller ? current.controller.signal : undefined,
             body: JSON.stringify({messages: history, session_id: ctx.sessionId, project_id: ctx.activeProject ? ctx.activeProject.id : null,
               project_model: ctx.newProjectModel && history.length === 1 ? {provider: ctx.newProjectModel.provider, model: ctx.newProjectModel.model} : null,
-              app_id: ctx.chosenApp ? ctx.chosenApp.id : null, turn_id: current.id, lang: uiLang()})}).then(awaitTurn).then(function (data) {
+              app_id: ctx.chosenApp ? ctx.chosenApp.id : null, turn_id: current.id, lang: uiLang(),
+              elapsed_ms: Math.max(0, Date.now() - current.startedAt)})}).then(awaitTurn).then(function (data) {
             if (current.stopped) return;
             typing.remove();
             // The model has seen the images; they are not sent again.
@@ -3337,7 +3465,7 @@
             syncChatContext(ctx);
             var msg = data.message;
             history.push(msg);
-            if (msg.content) addBubble('assistant', msg.content, null, msg.created_at, ctx);
+            if (msg.content) addBubble('assistant', msg.content, null, msg.created_at, ctx, null, msg.duration_ms);
 
             if (msg.tool_calls && msg.tool_calls.length) {
               runToolCalls(msg.tool_calls, ctx).then(function (toolMsgs) {

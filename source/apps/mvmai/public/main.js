@@ -25,7 +25,7 @@ const _mvmai18n = {
     compact_keep_hint: 'Older messages beyond this are folded into a running summary. Free plan is fixed at 20.',
     segment_premium: 'Premium', segment_terminal: "Terminal",
     terminal_label: "Show a terminal next to the chat",
-    terminal_hint: "Shows the current chat’s real CLI session, commands and output on the desktop. The read-only view can be docked on the right or bottom. Opening or closing it never starts or stops an AI process. It is not available on the public page.",
+    terminal_hint: "Opens an interactive terminal next to the desktop chat, starting in the active project folder or your home folder. Dock it on the right or bottom, or pin it to a chat. Hiding it keeps the shell running; closing it ends the terminal session. Not available on the public page.",
     premium_hint: "These settings require Premium.",
     sett_hint: 'Everything stays inside mvmOS — the API key is stored on the server and never leaves it.',
     exec_toggle: 'Server commands', exec_off: 'Read-only', exec_confirm: 'Confirm', exec_auto_short: 'Auto',
@@ -63,7 +63,7 @@ const _mvmai18n = {
     compact_keep_hint: 'По-старите съобщения след това се сгъват в текущо резюме. Безплатният план е фиксиран на 20.',
     segment_premium: 'Premium', segment_terminal: "Терминал",
     terminal_label: "Показвай терминал до чата",
-    terminal_hint: "Показва реалната CLI сесия, командите и резултатите на текущия чат в десктопа. Изгледът е само за наблюдение и може да се закачи вдясно или долу. Отварянето или затварянето му не стартира и не спира AI процес. Няма го на публичната страница.",
+    terminal_hint: "Отваря интерактивен терминал до чата в десктопа, в папката на активния проект или в домашната ти папка. Може да го закачиш вдясно или долу, или да го фиксираш за чат. Скриването запазва работещата обвивка, а затварянето прекратява терминалната сесия. Няма го на публичната страница.",
     premium_hint: "Тези настройки изискват Premium.",
     sett_hint: 'Всичко остава вътре в mvmOS — API ключът се пази на сървъра и никога не го напуска.',
     exec_toggle: 'Команди на сървъра', exec_off: 'Само преглед', exec_confirm: 'С потвърждение', exec_auto_short: 'Автоматично',
@@ -101,7 +101,7 @@ const _mvmai18n = {
     compact_keep_hint: 'Ältere Nachrichten werden darüber hinaus zu einer laufenden Zusammenfassung zusammengefasst. Der kostenlose Plan ist fest auf 20 eingestellt.',
     segment_premium: 'Premium', segment_terminal: "Terminal",
     terminal_label: "Ein Terminal neben dem Chat anzeigen",
-    terminal_hint: "Zeigt die echte CLI-Sitzung, Befehle und Ausgaben des aktuellen Chats auf dem Desktop. Die schreibgeschützte Ansicht kann rechts oder unten angedockt werden. Öffnen oder Schließen startet oder stoppt keinen KI-Prozess. Auf der öffentlichen Seite ist sie nicht verfügbar.",
+    terminal_hint: "Öffnet ein interaktives Terminal neben dem Desktop-Chat im Ordner des aktiven Projekts oder in Ihrem persönlichen Ordner. Rechts oder unten andocken oder an einen Chat anheften. Ausblenden lässt die Shell weiterlaufen; Schließen beendet die Terminalsitzung. Nicht auf der öffentlichen Seite verfügbar.",
     premium_hint: "Diese Einstellungen erfordern Premium.",
     sett_hint: 'Alles bleibt innerhalb von mvmOS — der API-Schlüssel wird auf dem Server gespeichert und verlässt ihn nie.',
     exec_toggle: 'Serverbefehle', exec_off: 'Nur Lesen', exec_confirm: 'Bestätigen', exec_auto_short: 'Automatisch',
@@ -139,7 +139,7 @@ const _mvmai18n = {
     compact_keep_hint: 'Los mensajes más antiguos más allá de este número se pliegan en un resumen continuo. El plan gratuito está fijado en 20.',
     segment_premium: 'Premium', segment_terminal: "Terminal",
     terminal_label: "Mostrar un terminal junto al chat",
-    terminal_hint: "Muestra la sesión CLI real, los comandos y la salida del chat actual en el escritorio. La vista de solo lectura puede acoplarse a la derecha o abajo. Abrirla o cerrarla no inicia ni detiene un proceso de IA. No está disponible en la página pública.",
+    terminal_hint: "Abre un terminal interactivo junto al chat del escritorio, en la carpeta del proyecto activo o en tu carpeta personal. Acóplalo a la derecha o abajo, o fíjalo a un chat. Al ocultarlo, la shell sigue ejecutándose; al cerrarlo, termina la sesión. No está disponible en la página pública.",
     premium_hint: "Estos ajustes requieren Premium.",
     sett_hint: 'Todo permanece dentro de mvmOS — la clave API se guarda en el servidor y nunca sale de él.',
     exec_toggle: 'Comandos del servidor', exec_off: 'Solo lectura', exec_confirm: 'Confirmar', exec_auto_short: 'Automático',
@@ -177,7 +177,7 @@ const _mvmai18n = {
     compact_keep_hint: "Les messages plus anciens au-delà de ce nombre sont repliés dans un résumé continu. Le plan gratuit est fixé à 20.",
     segment_premium: 'Premium', segment_terminal: "Terminal",
     terminal_label: "Afficher un terminal à côté du chat",
-    terminal_hint: "Affiche la vraie session CLI, les commandes et les résultats de la conversation actuelle sur le bureau. La vue en lecture seule peut être ancrée à droite ou en bas. Son ouverture ou sa fermeture ne lance ni n’arrête aucun processus IA. Elle n’est pas disponible sur la page publique.",
+    terminal_hint: "Ouvre un terminal interactif à côté du chat du bureau, dans le dossier du projet actif ou votre dossier personnel. Ancrez-le à droite ou en bas, ou épinglez-le à une conversation. Le masquer laisse le shell actif ; le fermer termine la session. Indisponible sur la page publique.",
     premium_hint: "Ces réglages nécessitent Premium.",
     sett_hint: "Tout reste à l'intérieur de mvmOS — la clé API est stockée sur le serveur et ne le quitte jamais.",
     exec_toggle: 'Commandes serveur', exec_off: 'Lecture seule', exec_confirm: 'Confirmation', exec_auto_short: 'Automatique',
@@ -215,7 +215,7 @@ const _mvmai18n = {
     compact_keep_hint: 'これを超える古いメッセージは、継続的な要約にまとめられます。無料プランは20件に固定されています。',
     segment_premium: 'Premium', segment_terminal: "ターミナル",
     terminal_label: "チャットの横にターミナルを表示する",
-    terminal_hint: "デスクトップで現在のチャットの実際の CLI セッション、コマンド、出力を表示します。読み取り専用の表示は右または下にドッキングできます。開閉しても AI プロセスは開始・停止されません。公開ページでは利用できません。",
+    terminal_hint: "デスクトップのチャットの横に対話型ターミナルを開きます。作業ディレクトリはアクティブなプロジェクトのフォルダー、またはホームフォルダーです。右側や下部に配置したり、チャットに固定できます。非表示にしてもシェルは動作を続け、閉じるとセッションが終了します。公開ページでは利用できません。",
     premium_hint: "これらの設定には Premium が必要です。",
     sett_hint: 'すべてmvmOS内に留まります — APIキーはサーバーに保存され、外部に出ることはありません。',
     exec_toggle: 'サーバーコマンド', exec_off: '読み取り専用', exec_confirm: '確認あり', exec_auto_short: '自動',
@@ -253,7 +253,7 @@ const _mvmai18n = {
     compact_keep_hint: 'Mensagens mais antigas além dessa quantidade são condensadas em um resumo contínuo. O plano gratuito é fixo em 20.',
     segment_premium: 'Premium', segment_terminal: "Terminal",
     terminal_label: "Mostrar um terminal ao lado do chat",
-    terminal_hint: "Mostra a sessão CLI real, os comandos e a saída da conversa atual no desktop. A visualização somente leitura pode ser fixada à direita ou embaixo. Abrir ou fechar não inicia nem interrompe um processo de IA. Não está disponível na página pública.",
+    terminal_hint: "Abre um terminal interativo ao lado do chat no desktop, na pasta do projeto ativo ou na sua pasta pessoal. Encaixe à direita ou embaixo, ou fixe a uma conversa. Ocultar mantém o shell em execução; fechar encerra a sessão do terminal. Não está disponível na página pública.",
     premium_hint: "Estas configurações exigem Premium.",
     sett_hint: 'Tudo permanece dentro do mvmOS — a chave de API fica armazenada no servidor e nunca sai dele.',
     exec_toggle: 'Comandos do servidor', exec_off: 'Somente leitura', exec_confirm: 'Confirmar', exec_auto_short: 'Automático',
@@ -291,7 +291,7 @@ const _mvmai18n = {
     compact_keep_hint: 'Более старые сообщения сверх этого сворачиваются в текущее резюме. В бесплатном плане зафиксировано значение 20.',
     segment_premium: 'Premium', segment_terminal: "Терминал",
     terminal_label: "Показывать терминал рядом с чатом",
-    terminal_hint: "Показывает реальную сессию CLI, команды и результаты текущего чата на рабочем столе. Просмотр доступен только для чтения и закрепляется справа или снизу. Открытие или закрытие не запускает и не останавливает процесс ИИ. На публичной странице недоступен.",
+    terminal_hint: "Открывает интерактивный терминал рядом с чатом на рабочем столе, в папке активного проекта или домашней папке. Закрепите его справа, снизу или за чатом. При скрытии оболочка продолжает работать, при закрытии сеанс терминала завершается. На публичной странице недоступен.",
     premium_hint: "Эти настройки требуют Premium.",
     sett_hint: 'Всё остаётся внутри mvmOS — API-ключ хранится на сервере и никогда не покидает его.',
     exec_toggle: 'Команды на сервере', exec_off: 'Только чтение', exec_confirm: 'С подтверждением', exec_auto_short: 'Автоматически',
@@ -329,7 +329,7 @@ const _mvmai18n = {
     compact_keep_hint: '超出此数量的较旧消息会被折叠进一个持续更新的摘要。免费版固定为 20。',
     segment_premium: 'Premium', segment_terminal: "终端",
     terminal_label: "在聊天旁边显示终端",
-    terminal_hint: "在桌面上显示当前聊天的真实 CLI 会话、命令和输出。只读视图可停靠在右侧或底部。打开或关闭视图不会启动或停止 AI 进程。公开页面不提供此功能。",
+    terminal_hint: "在桌面聊天旁打开交互式终端，起始目录为当前项目文件夹或个人主目录。可停靠在右侧或底部，也可固定到聊天。隐藏时 shell 继续运行，关闭时结束终端会话。公开页面不提供此功能。",
     premium_hint: "这些设置需要 Premium。",
     sett_hint: '一切都保留在 mvmOS 内部 — API 密钥保存在服务器上，永远不会离开。',
     exec_toggle: '服务器命令', exec_off: '只读', exec_confirm: '需确认', exec_auto_short: '自动',
@@ -352,7 +352,7 @@ function _ait(key) { const lang = window.mvmOS?.lang || 'en'; return (_mvmai18n[
 function _loadMvmaiScript(src) {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = src + '?_=' + Date.now();
+    script.src = window.asset(src);
     script.onload = resolve;
     script.onerror = reject;
     document.head.appendChild(script);

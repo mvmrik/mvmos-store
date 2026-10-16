@@ -47,7 +47,7 @@ import uuid
 import httpx
 from fastapi import APIRouter, Depends, Header, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response, StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 router = APIRouter()
 
@@ -86,6 +86,8 @@ def _ensure_tables():
         message_cols = {row[1] for row in conn.execute("PRAGMA table_info(pub_messages)")}
         if "created_at" not in message_cols:
             conn.execute("ALTER TABLE pub_messages ADD COLUMN created_at INTEGER")
+        if "duration_ms" not in message_cols:
+            conn.execute("ALTER TABLE pub_messages ADD COLUMN duration_ms INTEGER")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_pub_messages_session ON pub_messages(session_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_pub_sessions_user ON pub_sessions(user_id)")
         # additive migration — not declared via db.json since pub_sessions isn't
@@ -104,6 +106,13 @@ def _ensure_tables():
             conn.execute("ALTER TABLE pub_sessions ADD COLUMN title_kind TEXT")
         if "last_used_at" not in cols:
             conn.execute("ALTER TABLE pub_sessions ADD COLUMN last_used_at REAL")
+        if "last_sent_at" not in cols:
+            conn.execute("ALTER TABLE pub_sessions ADD COLUMN last_sent_at REAL")
+            conn.execute(
+                "UPDATE pub_sessions SET last_sent_at=COALESCE("
+                "(SELECT MAX(created_at) FROM pub_messages WHERE session_id=pub_sessions.id AND role='user'), "
+                "created_at)"
+            )
         if "pinned_at" not in cols:
             conn.execute("ALTER TABLE pub_sessions ADD COLUMN pinned_at INTEGER")
         if "last_message_at" not in cols:
@@ -344,22 +353,24 @@ def _persist_turn(user_id, session_id, messages, reply, project_id=None, meta=No
             conn.execute(
                 "UPDATE pub_sessions SET updated_at=?, last_used_at=?, provider=COALESCE(provider, ?), "
                 "model=CASE WHEN provider IS NULL THEN ? ELSE model END, cli_state=COALESCE(?, cli_state), "
-                "last_message_at=CASE WHEN ? THEN ? ELSE last_message_at END WHERE id=?",
+                "last_message_at=CASE WHEN ? THEN ? ELSE last_message_at END, "
+                "last_sent_at=CASE WHEN ? THEN ? ELSE last_sent_at END WHERE id=?",
                 (now, used_at, meta.get("provider"), meta.get("model"), meta.get("cli_state"),
-                 record_activity, now, session_id),
+                 record_activity, now, record_activity, used_at, session_id),
             )
         else:
             session_id = new_id or uuid.uuid4().hex
             conn.execute(
                 "INSERT INTO pub_sessions (id, user_id, title, project_id, created_at, updated_at, provider, model, "
-                "cli_state, title_kind, last_used_at, last_message_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                "cli_state, title_kind, last_used_at, last_message_at, last_sent_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (session_id, user_id, _make_title(messages), project_id, now, now,
-                 meta.get("provider"), meta.get("model"), meta.get("cli_state"), "initial", used_at, now),
+                 meta.get("provider"), meta.get("model"), meta.get("cli_state"), "initial", used_at, now, used_at),
             )
         previous = conn.execute(
-            "SELECT seq, role, content, created_at FROM pub_messages WHERE session_id=?", (session_id,)
+            "SELECT seq, role, content, created_at, duration_ms FROM pub_messages WHERE session_id=?", (session_id,)
         ).fetchall()
         previous_times = {(r["seq"], r["role"], r["content"]): r["created_at"] for r in previous}
+        previous_durations = {(r["seq"], r["role"], r["content"]): r["duration_ms"] for r in previous}
         conn.execute("DELETE FROM pub_messages WHERE session_id=?", (session_id,))
         full = list(messages) + ([reply] if reply else [])
         _record_session_files(conn, user_id, session_id, full)
@@ -371,12 +382,17 @@ def _persist_turn(user_id, session_id, messages, reply, project_id=None, meta=No
                 created_at = now
             if reply is m:
                 m["created_at"] = int(created_at)
+            duration_ms = m.get("duration_ms")
+            if not isinstance(duration_ms, int) or isinstance(duration_ms, bool) or not 0 <= duration_ms <= 172800000:
+                duration_ms = previous_durations.get((i, m.get("role"), m.get("content")))
+            if m.get("role") != "assistant":
+                duration_ms = None
             conn.execute(
-                "INSERT INTO pub_messages (session_id, role, content, tool_call_id, tool_calls, seq, created_at) "
-                "VALUES (?,?,?,?,?,?,?)",
+                "INSERT INTO pub_messages (session_id, role, content, tool_call_id, tool_calls, seq, created_at, duration_ms) "
+                "VALUES (?,?,?,?,?,?,?,?)",
                 (
                     session_id, m.get("role"), m.get("content"), m.get("tool_call_id"),
-                    json.dumps(m["tool_calls"]) if m.get("tool_calls") else None, i, created_at,
+                    json.dumps(m["tool_calls"]) if m.get("tool_calls") else None, i, created_at, duration_ms,
                 ),
             )
     return session_id
@@ -1190,9 +1206,7 @@ async def get_me(
         **({"provider_label": _label_from_cfg(desk, cfg) if desk else None,
             "provider": cfg.get("provider"), "model": cfg.get("model") or ""} if me.get("is_admin") else {}),
         # The terminal panel of the desktop chat (Premium module and setting);
-        # cli_commands is what each CLI provider is started with in it.
         "terminal": bool(is_desktop and me.get("is_admin") and prem and prem.terminal_enabled(desk._read_cfg())),
-        **({"cli_commands": {p["name"]: p["cmd"] for p in desk.CLI_PROVIDERS}} if is_desktop and me.get("is_admin") else {}),
     })
 
 
@@ -1241,23 +1255,6 @@ async def premium_asset(
     return Response(content=content, media_type="application/javascript", headers={"Cache-Control": "private, no-store"})
 
 
-@router.get("/premium/activity/{sid}")
-async def cli_activity(sid: str, after: int = 0, x_pub_token: str = Header(default=None),
-                       x_mvmai_surface: str = Header(default=""), os_session=Depends(_os_session_optional)):
-    me, prem, desk = _resolve(x_pub_token), _premium(), _desktop()
-    if not me or not me.get("is_admin") or x_mvmai_surface != "desktop" or not os_session or not prem or desk is None:
-        return JSONResponse({"error": "not_found"}, status_code=404)
-    if not prem.terminal_enabled(desk._read_cfg()) or not hasattr(prem, "cli_activity"):
-        return JSONResponse({"error": "not_found"}, status_code=404)
-    with _sdb() as conn:
-        owned = conn.execute("SELECT provider, cli_state FROM pub_sessions WHERE id=? AND user_id=?", (sid, me["id"])).fetchone()
-    if not owned:
-        return JSONResponse({"error": "not_found"}, status_code=404)
-    return JSONResponse(prem.cli_activity(me["id"], sid, max(0, after), owned["provider"],
-                                        _parse_cli_state(owned["cli_state"]).get("session_id")),
-                        headers={"Cache-Control": "private, no-store"})
-
-
 @router.get("/sessions")
 async def list_sessions(x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
@@ -1269,7 +1266,7 @@ async def list_sessions(x_pub_token: str = Header(default=None)):
             "SELECT id, title, title_kind, project_id, updated_at, archived_at, pinned_at, provider, model, cli_state "
             "FROM pub_sessions WHERE user_id=? ORDER BY "
             "CASE WHEN pinned_at IS NOT NULL AND archived_at IS NULL THEN 0 ELSE 1 END, "
-            "MAX(updated_at, COALESCE(last_used_at, 0)) DESC, rowid DESC",
+            "COALESCE(last_sent_at, created_at) DESC, rowid DESC",
             (me["id"],),
         ).fetchall()
     desk = _desktop() if me.get("is_admin") else None
@@ -1302,11 +1299,8 @@ async def get_session_messages(
         ).fetchone()
         if not owned:
             return JSONResponse({"error": "not_found"}, status_code=404)
-        if owned["archived_at"] is None:
-            conn.execute("UPDATE pub_sessions SET last_used_at=? WHERE id=? AND user_id=?",
-                         (time.time(), sid, me["id"]))
         rows = conn.execute(
-            "SELECT role, content, tool_call_id, tool_calls, created_at FROM pub_messages WHERE session_id=? ORDER BY seq",
+            "SELECT role, content, tool_call_id, tool_calls, created_at, duration_ms FROM pub_messages WHERE session_id=? ORDER BY seq",
             (sid,),
         ).fetchall()
     if me.get("is_admin") and owned["archived_at"] is None and owned["project_id"]:
@@ -1324,6 +1318,8 @@ async def get_session_messages(
     answer_label = first_switch.get("from") if first_switch else _session_label(_desktop(), owned)
     for r in rows:
         m = {"role": r["role"], "content": _safe_download_content(me["id"], r["content"]) if r["role"] == "assistant" else r["content"], "created_at": r["created_at"]}
+        if r["role"] == "assistant" and r["duration_ms"] is not None:
+            m["duration_ms"] = r["duration_ms"]
         if r["role"] == "model_switch":
             answer_label = switch_details(r["content"]).get("to") or answer_label
         elif r["role"] == "assistant" and me.get("is_admin"):
@@ -1479,9 +1475,6 @@ async def restore_session(sid: str, x_pub_token: str = Header(default=None)):
 
 
 def _forget_cli_sessions(rows):
-    prem = _premium()
-    if prem and hasattr(prem, "forget_cli_activity"):
-        prem.forget_cli_activity([row["id"] for row in rows])
     desk = _desktop()
     if desk is not None and hasattr(desk, "forget_cli_chat"):
         for row in rows:
@@ -1546,6 +1539,8 @@ async def delete_session(sid: str, x_pub_token: str = Header(default=None)):
 
 class ChatRequest(BaseModel):
     messages: list
+    # Time already spent in preceding steps of the same user request.
+    elapsed_ms: int = Field(default=0, ge=0, le=86400000)
     session_id: str | None = None
     project_id: str | None = None
     project_model: dict | None = None
@@ -1596,14 +1591,14 @@ async def chat(
         _TURNS[turn_id] = turn
         task.add_done_callback(lambda _t: turn.update(finished_at=time.monotonic()))
     stopped = JSONResponse({"error": "stopped"})
-    done, _ = await asyncio.wait({task}, timeout=_CHAT_KEEPALIVE_SECONDS)
+    done, _ = await asyncio.wait({task}, timeout=0.1 if turn_id else _CHAT_KEEPALIVE_SECONDS)
     if done:
         if turn_id:
             _TURNS.pop(turn_id, None)
         return stopped if task.cancelled() else task.result()
 
     if turn_id:
-        return JSONResponse({"pending": True}, status_code=202)
+        return JSONResponse(_turn_progress(turn), status_code=202)
 
     async def keepalive():
         while not task.done():
@@ -1630,7 +1625,7 @@ async def poll_chat_turn(turn_id: str, x_pub_token: str = Header(default=None)):
         return JSONResponse({"error": "turn_not_found"}, status_code=404)
     task = turn["task"]
     if not task.done():
-        return JSONResponse({"pending": True}, status_code=202)
+        return JSONResponse(_turn_progress(turn), status_code=202)
     _TURNS.pop(turn_id, None)
     if task.cancelled():
         return JSONResponse({"error": "stopped"})
@@ -1638,6 +1633,12 @@ async def poll_chat_turn(turn_id: str, x_pub_token: str = Header(default=None)):
         return task.result()
     except Exception as exc:
         return JSONResponse({"error": str(exc) or "mvmAI failed"}, status_code=500)
+
+
+def _turn_progress(turn):
+    last = turn.get("last_activity")
+    return {"pending": True, "activity_seq": turn.get("activity_seq", 0),
+            "activity_age": max(0, time.monotonic() - last) if last is not None else None}
 
 
 _CHAT_KEEPALIVE_SECONDS = 15
@@ -1686,6 +1687,7 @@ def _chat_reply(desk, is_admin, sid, msg, pin, model_used):
 
 
 async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session, me=None):
+    request_started = time.monotonic()
     me = me or _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -1769,7 +1771,8 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session, me=
     # its way (or never arrives).
     if not body.no_persist:
         if _persist_turn(me["id"], body.session_id, body.messages, None, project_id, meta=pin,
-                         new_id=chat_id, record_activity=True) is None:
+                         new_id=chat_id,
+                         record_activity=bool(body.messages and body.messages[-1].get("role") == "user")) is None:
             return JSONResponse({"error": "archived"}, status_code=409)
         # Name the chat while the first answer is running, not after it ends.
         _queue_session_title(chat_id, me["id"], x_mvmai_surface, os_session, body.lang)
@@ -1792,18 +1795,11 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session, me=
         unseen = _unseen_messages(body.messages, state.get("last")) if state.get("session_id") else None
         can_resume = unseen is not None
         lock = _CHAT_LOCKS.setdefault(chat_id, asyncio.Lock()) if chat_id else None
-        output_callback = None
-        activity_status = "failed"
         lock_acquired = False
         try:
             if lock:
                 await lock.acquire()
                 lock_acquired = True
-            if chat_id and is_admin and prem and prem.terminal_enabled(cfg) and hasattr(prem, "begin_cli_activity"):
-                try:
-                    output_callback = prem.begin_cli_activity(me["id"], chat_id, cli_provider["id"], state.get("session_id"))
-                except Exception:
-                    print("[mvmai] CLI activity observer unavailable")
             for attempt in (0, 1):
                 resuming = bool(chat_id) and can_resume and attempt == 0
                 if resuming:
@@ -1822,7 +1818,6 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session, me=
                     session=os_session,
                     extra_prompt=app_prompt,
                     images=images,
-                    output_callback=output_callback,
                     cli_resume=({
                         "chat_id": chat_id, "session_id": state.get("session_id") if resuming else None,
                         "user": state.get("user"), "policy": state.get("policy"), "model_used": state.get("model_used"),
@@ -1831,14 +1826,8 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session, me=
                 data = json.loads(r.body)
                 if resuming and data.get("session_lost"):
                     continue
-                activity_status = "idle" if r.status_code < 400 else "failed"
                 break
         finally:
-            if output_callback:
-                try:
-                    output_callback({"type": "status", "status": "stopped" if asyncio.current_task().cancelling() else activity_status})
-                except Exception:
-                    print("[mvmai] CLI activity observer update failed")
             if lock_acquired:
                 lock.release()
         if r.status_code >= 400:
@@ -1883,6 +1872,7 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session, me=
                 return JSONResponse({"error": "insufficient_credits", "price": price}, status_code=402)
         if cli_state:
             cli_state["last"] = _msg_fingerprint(msg)
+        msg["duration_ms"] = body.elapsed_ms + int((time.monotonic() - request_started) * 1000)
         sid = None if body.no_persist else _persist_turn(
             me["id"], body.session_id, body.messages, msg, project_id,
             meta={**pin, "cli_state": json.dumps(cli_state) if cli_state else None}, new_id=chat_id)
@@ -1951,6 +1941,7 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session, me=
         except hub.CreditError:
             return JSONResponse({"error": "insufficient_credits", "price": price}, status_code=402)
 
+    msg["duration_ms"] = body.elapsed_ms + int((time.monotonic() - request_started) * 1000)
     sid = None if body.no_persist else _persist_turn(
         me["id"], body.session_id, body.messages, msg, project_id, meta=pin, new_id=chat_id)
     if not body.no_persist and sid is None:
