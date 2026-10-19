@@ -20,7 +20,7 @@
     "multiplayer",
     "games"
   ],
-  "version": "1.1.0",
+  "version": "1.2.0",
   "min_core_version": "1.15.0",
   "description": "Play Bulgarian Belot or classic French Belote with friends or independent bots, and save custom rules for either style.",
   "entry": "main.js",
@@ -36,5 +36,126 @@
     }
   ],
   "public_api_only": true,
-  "public_directory": false
+  "public_directory": false,
+  "gamehub": {
+    "category": "cards",
+    "description": {
+      "en": "Bulgarian Belot or French Belote for four players, with friends or bots.",
+      "bg": "Българска белот или френска белот за четирима – с приятели или ботове.",
+      "de": "Bulgarische Belot oder französische Belote für vier Spieler – mit Freunden oder Bots.",
+      "es": "Belot búlgaro o belote francés para cuatro jugadores, con amigos o bots.",
+      "fr": "Belote bulgare ou belote française à quatre joueurs, entre amis ou avec des bots.",
+      "ja": "ブルガリア式ベロットまたはフランス式ベロットを4人で。友達やボットと遊べます。",
+      "pt-BR": "Belot búlgaro ou belote francesa para quatro jogadores, com amigos ou bots.",
+      "ru": "Болгарская белот или французская белот на четверых – с друзьями или ботами.",
+      "zh-CN": "四人玩的保加利亚贝洛特或法式贝洛特，可与朋友或机器人对战。"
+    },
+    "score": {
+      "label": {
+        "en": "Points",
+        "bg": "Точки",
+        "de": "Punkte",
+        "es": "Puntos",
+        "fr": "Points",
+        "ja": "ポイント",
+        "pt-BR": "Pontos",
+        "ru": "Очки",
+        "zh-CN": "得分"
+      }
+    },
+    "ranking": "win_rate",
+    "metrics": {
+      "deals": {
+        "label": {
+          "en": "Deals played",
+          "bg": "Изиграни раздавания",
+          "de": "Gespielte Runden",
+          "es": "Manos jugadas",
+          "fr": "Donnes jouées",
+          "ja": "プレイしたディール",
+          "pt-BR": "Mãos jogadas",
+          "ru": "Сыграно раздач",
+          "zh-CN": "已玩局数"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "deals_won": {
+        "label": {
+          "en": "Deals won",
+          "bg": "Спечелени раздавания",
+          "de": "Gewonnene Runden",
+          "es": "Manos ganadas",
+          "fr": "Donnes gagnées",
+          "ja": "勝ったディール",
+          "pt-BR": "Mãos ganhas",
+          "ru": "Выиграно раздач",
+          "zh-CN": "赢得局数"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "contracts": {
+        "label": {
+          "en": "Contracts taken",
+          "bg": "Поети договори",
+          "de": "Übernommene Spiele",
+          "es": "Contratos asumidos",
+          "fr": "Contrats pris",
+          "ja": "獲得した契約",
+          "pt-BR": "Contratos assumidos",
+          "ru": "Взято контрактов",
+          "zh-CN": "承接合约"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "contracts_made": {
+        "label": {
+          "en": "Contracts made",
+          "bg": "Изпълнени договори",
+          "de": "Erfüllte Spiele",
+          "es": "Contratos cumplidos",
+          "fr": "Contrats remplis",
+          "ja": "達成した契約",
+          "pt-BR": "Contratos cumpridos",
+          "ru": "Выполнено контрактов",
+          "zh-CN": "完成合约"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "contract_rate": {
+        "label": {
+          "en": "Contract success",
+          "bg": "Успех на договорите",
+          "de": "Erfolgsquote",
+          "es": "Éxito de contratos",
+          "fr": "Réussite des contrats",
+          "ja": "契約成功率",
+          "pt-BR": "Taxa de sucesso",
+          "ru": "Успешность контрактов",
+          "zh-CN": "合约成功率"
+        },
+        "type": "percent",
+        "better": "high"
+      },
+      "points_per_deal": {
+        "label": {
+          "en": "Points per deal",
+          "bg": "Точки на раздаване",
+          "de": "Punkte pro Runde",
+          "es": "Puntos por mano",
+          "fr": "Points par donne",
+          "ja": "ディールあたりのポイント",
+          "pt-BR": "Pontos por mão",
+          "ru": "Очки за раздачу",
+          "zh-CN": "每局得分"
+        },
+        "type": "decimal",
+        "better": "high",
+        "total": false
+      }
+    }
+  }
 }

@@ -12,7 +12,7 @@
     "lineup",
     "games"
   ],
-  "version": "1.2.0",
+  "version": "1.2.1",
   "min_core_version": "1.7.0",
   "description": "Squad, lineup, training and arena calculator for the online football manager game Hattrick (hattrick.org), with your players kept on your own profile.",
   "entry": "main.js",
@@ -20,5 +20,19 @@
   "max_players": 1,
   "themed": true,
   "public_directory": false,
-  "public_api_only": true
+  "public_api_only": true,
+  "gamehub": {
+    "category": "sports",
+    "description": {
+      "en": "Squad, lineup and training calculator for the football manager game Hattrick.",
+      "bg": "Калкулатор за състав, тактика и тренировки за футболния мениджър Hattrick.",
+      "de": "Rechner für Kader, Aufstellung und Training im Fußballmanager Hattrick.",
+      "es": "Calculadora de plantilla, alineación y entrenamiento para el juego de mánager de fútbol Hattrick.",
+      "fr": "Calculateur d'effectif, de composition et d'entraînement pour le jeu de manager de football Hattrick.",
+      "ja": "サッカー監督ゲーム Hattrick の選手層・布陣・トレーニング計算ツール。",
+      "pt-BR": "Calculadora de elenco, escalação e treino para o jogo de manager de futebol Hattrick.",
+      "ru": "Калькулятор состава, расстановки и тренировок для футбольного менеджера Hattrick.",
+      "zh-CN": "足球经理游戏 Hattrick 的阵容、排阵与训练计算器。"
+    }
+  }
 }

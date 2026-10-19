@@ -9,7 +9,8 @@
     "Eight kinds of enemies and five bosses: Warlord, Colossus, Wraith, Hive Queen and Juggernaut.",
     "A permanent shop paid with points from every game, so each new game starts stronger, and your best wave remembered.",
     "Save and exit at any point and pick the run back up later.",
-    "Runs recorded on your Game Hub profile and leaderboard, played full screen in your own language and theme."
+    "Runs recorded on your Game Hub profile and leaderboard, played full screen in your own language and theme.",
+    "Game Hub statistics for waves, kills and survival time."
   ],
   "integrations": [
     {

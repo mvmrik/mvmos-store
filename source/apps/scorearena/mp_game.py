@@ -1034,8 +1034,16 @@ class Game:
                                     {k: v for k, v in metadata.items() if k != "turn_history"})
         except Exception as e:
             print(f"[scorearena] could not save match statistics: {e}")
+        # Game Hub gets the headline numbers only; the scores of different
+        # modes are not comparable, so the manifest ranks by wins.
+        by_player = metadata.get("player_stats") or {}
+        for r in records:
+            turns = (by_player.get(r.get("player_id")) or {}).get("turns")
+            if isinstance(turns, (int, float)):
+                r["stats"] = {"turns": turns}
         await self.ctx.finish(records, metadata={k: metadata.get(k) for k in
-                                                 ("scorearena_mode", "rounds", "turns", "winner")})
+                                                 ("scorearena_mode", "rounds", "turns", "winner")},
+                              stats={"rounds": metadata.get("rounds") or 0})
 
     async def _finish_bitcoin(self):
         self.finished = True

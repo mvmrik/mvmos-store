@@ -3,13 +3,123 @@
   "name": "Stonehold",
   "icon": "🗿",
   "category": "Games",
-  "tags": ["strategy", "base building", "tower defense", "games"],
-  "version": "1.4.1",
+  "tags": [
+    "strategy",
+    "base building",
+    "tower defense",
+    "games"
+  ],
+  "version": "1.5.0",
   "min_core_version": "1.0.0",
   "description": "A map, four enemy camps in the corners and no hold yet: choose where to settle, build, and survive as long as you can while all four keep growing — alone, or racing up to three other holds in the same room.",
   "entry": "main.js",
   "multiplayer": true,
   "max_players": 4,
   "themed": true,
-  "public_directory": false
+  "public_directory": false,
+  "gamehub": {
+    "category": "strategy",
+    "description": {
+      "en": "Choose where to settle, build a hold and survive four growing enemy camps, alone or racing others.",
+      "bg": "Избери къде да се заселиш, изгради крепост и оцелей срещу четири растящи вражески лагера – сам или в надпревара с други.",
+      "de": "Wähle deinen Siedlungsplatz, baue eine Festung und überlebe vier wachsende Feindlager – allein oder im Wettlauf mit anderen.",
+      "es": "Elige dónde asentarte, construye una fortaleza y sobrevive a cuatro campamentos enemigos en crecimiento, solo o en carrera con otros.",
+      "fr": "Choisissez où vous installer, bâtissez un bastion et survivez à quatre camps ennemis grandissants, seul ou en course avec d'autres.",
+      "ja": "入植地を選び、砦を築き、成長する4つの敵陣営を生き延びよう。ひとりでも、他の人との競争でも。",
+      "pt-BR": "Escolha onde se estabelecer, construa uma fortaleza e sobreviva a quatro acampamentos inimigos em crescimento, sozinho ou em corrida com outros.",
+      "ru": "Выберите место для поселения, постройте крепость и переживите четыре растущих вражеских лагеря – в одиночку или наперегонки с другими.",
+      "zh-CN": "选择定居地点，建造据点，在四个不断壮大的敌营中生存——可单人，也可与他人竞速。"
+    },
+    "score": {
+      "label": {
+        "en": "Points",
+        "bg": "Точки",
+        "de": "Punkte",
+        "es": "Puntos",
+        "fr": "Points",
+        "ja": "ポイント",
+        "pt-BR": "Pontos",
+        "ru": "Очки",
+        "zh-CN": "得分"
+      }
+    },
+    "ranking": "score",
+    "metrics": {
+      "survived": {
+        "label": {
+          "en": "Survival time",
+          "bg": "Време за оцеляване",
+          "de": "Überlebenszeit",
+          "es": "Tiempo de supervivencia",
+          "fr": "Temps de survie",
+          "ja": "生存時間",
+          "pt-BR": "Tempo de sobrevivência",
+          "ru": "Время выживания",
+          "zh-CN": "生存时间"
+        },
+        "type": "duration",
+        "better": "high"
+      },
+      "kills": {
+        "label": {
+          "en": "Kills",
+          "bg": "Убити врагове",
+          "de": "Abschüsse",
+          "es": "Bajas",
+          "fr": "Éliminations",
+          "ja": "撃破数",
+          "pt-BR": "Abates",
+          "ru": "Убийства",
+          "zh-CN": "击杀"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "raids": {
+        "label": {
+          "en": "Raids",
+          "bg": "Нападения",
+          "de": "Überfälle",
+          "es": "Asaltos",
+          "fr": "Raids",
+          "ja": "襲撃",
+          "pt-BR": "Ataques",
+          "ru": "Набеги",
+          "zh-CN": "袭击"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "enemy_level": {
+        "label": {
+          "en": "Enemy level",
+          "bg": "Ниво на врага",
+          "de": "Gegnerstufe",
+          "es": "Nivel del enemigo",
+          "fr": "Niveau ennemi",
+          "ja": "敵レベル",
+          "pt-BR": "Nível do inimigo",
+          "ru": "Уровень врага",
+          "zh-CN": "敌人等级"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "buildings": {
+        "label": {
+          "en": "Buildings",
+          "bg": "Сгради",
+          "de": "Gebäude",
+          "es": "Edificios",
+          "fr": "Bâtiments",
+          "ja": "建物",
+          "pt-BR": "Construções",
+          "ru": "Здания",
+          "zh-CN": "建筑"
+        },
+        "type": "number",
+        "better": "high"
+      }
+    }
+  }
 }

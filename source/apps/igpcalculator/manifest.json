@@ -10,7 +10,7 @@
     "strategy",
     "games"
   ],
-  "version": "1.2.0",
+  "version": "1.2.1",
   "min_core_version": "1.7.0",
   "description": "Car setup and tyre strategy calculator for iGP Manager races, with every race you prepare kept on your own profile.",
   "entry": "main.js",
@@ -18,5 +18,19 @@
   "max_players": 1,
   "themed": true,
   "public_directory": false,
-  "public_api_only": true
+  "public_api_only": true,
+  "gamehub": {
+    "category": "sports",
+    "description": {
+      "en": "Car setup and tyre strategy calculator for iGP Manager races.",
+      "bg": "Калкулатор за настройки на колата и стратегия за гуми за състезанията в iGP Manager.",
+      "de": "Rechner für Fahrzeugsetup und Reifenstrategie bei iGP-Manager-Rennen.",
+      "es": "Calculadora de puesta a punto del coche y estrategia de neumáticos para las carreras de iGP Manager.",
+      "fr": "Calculateur de réglages de voiture et de stratégie de pneus pour les courses d'iGP Manager.",
+      "ja": "iGP Manager のレース向けに、車のセットアップとタイヤ戦略を計算します。",
+      "pt-BR": "Calculadora de acerto do carro e estratégia de pneus para as corridas do iGP Manager.",
+      "ru": "Калькулятор настроек машины и стратегии шин для гонок iGP Manager.",
+      "zh-CN": "iGP Manager 比赛的赛车调校与轮胎策略计算器。"
+    }
+  }
 }

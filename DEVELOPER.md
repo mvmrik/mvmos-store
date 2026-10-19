@@ -81,6 +81,7 @@ The one exception is an app that must genuinely reach the system — `subprocess
 | `replaces_widget` | no | A core widget slot the app takes over; `"calendar"` makes the taskbar clock open this app instead of its own calendar popup |
 | `credit_features` | no | Apps Hub credit prices the app charges for, `[{id, name, description, unit}]` (credits are a core Premium feature) |
 | `multiplayer`, `max_players`, `themed` | no | Game settings, see [Writing a game](#writing-a-game) |
+| `gamehub` | no | Game Hub category, translated description, score and metric declarations, and solo ranking rule; see [Statistics](#statistics-say-what-you-measure-game-hub-draws-it). |
 | `public_directory` | no | `false` to hide from the Apps Hub public directory card grid even though the app has a public `router` — see [Listing in the public directory](#listing-in-the-public-directory). Default `true`. |
 | `public_api_only` | no | `true` when the public router is only an endpoint another page calls with the visitor's token (for example a game's statistics fetched from inside Game Hub), not a page of its own. Apps Hub then does not offer the app as a public page to switch on. Needs mvmOS 1.5.0; older cores ignore it. |
 
@@ -1633,10 +1634,46 @@ ctx.all_players()     # including the disconnected
 await ctx.broadcast(msg, exclude=None)
 await ctx.send(player_id, msg)
 ctx.schedule(delay, coro_factory)             # timers
-await ctx.finish(records, duration=None, metadata={})
+await ctx.finish(records, duration=None, metadata={}, stats=None)
 ```
 
-`records` is `[{player_id, score, rank, is_winner}]`. Game Hub writes the session itself, and calls it **singleplayer** when there is one record — that is how a solo run reaches the player's history and stats. Do not mark a solo player `is_winner`: the leaderboard counts wins, and a win over nobody makes it meaningless.
+`records` is `[{player_id, score, rank, is_winner, stats?}]`. Game Hub writes the session itself, and calls it **singleplayer** when there is one record — that is how a solo run reaches the player's history and stats. Do not mark a solo player `is_winner`: the leaderboard counts wins, and a win over nobody makes it meaningless.
+
+#### Statistics: say what you measure, Game Hub draws it
+
+Score and win are all Game Hub can know about a game by itself. To get real statistics — boards per number, charts, a rating, records, a place among the other players and a place in the overall ranking — the game does two things and nothing else. Game Hub never contains code for a particular game.
+
+1. **Report numbers.** Each record may carry `"stats": {key: number}` about that player, and `ctx.finish(..., stats={key: number})` carries numbers about the whole session (they apply to every player in it). Keys are short snake_case (`^[a-z][a-z0-9_]{0,31}$`), values finite numbers, at most 40 keys.
+
+```python
+records.append({"player_id": pid, "score": 4264, "rank": 1, "is_winner": False,
+                "stats": {"waves": 13, "kills": 222, "survived": 1480}})
+await ctx.finish(records)
+```
+
+A solo browser game that records through `GameHub.recordSession` puts the same `stats` object on its player entry.
+
+2. **Declare them in `manifest.json`**, under `"gamehub"`, so Game Hub knows what the keys are called and which way is better:
+
+```json
+"gamehub": {
+  "score":   {"label": {"en": "Points", "bg": "Точки"}},
+  "ranking": "score",
+  "metrics": {
+    "waves":    {"label": {"en": "Waves"},         "type": "number"},
+    "survived": {"label": {"en": "Survival time"}, "type": "duration"},
+    "closest":  {"label": {"en": "Closest guess (km)"}, "type": "decimal", "better": "low", "total": false}
+  }
+}
+```
+
+- `label` is a table over all nine languages (a plain string means English only). Metric names live here, not in Game Hub's own i18n, so they travel with the game.
+- `type` is `number`, `decimal`, `duration` (seconds) or `percent` (0–100). `better` is `high` (default) or `low`. `total` says whether a sum over many sessions means anything (default true, false for percent).
+- `ranking` is the key that orders the solo ladder: `score` (default), any metric, or `win_rate` / `wins` / `played` for a game whose scores cannot be compared between sessions. Prefer `win_rate` there: it is smoothed toward 50% so one lucky game cannot lead, and it cannot be won by playing more. `"score": false` hides the session score from the boards for such a game.
+- `category` and `description` put the game in Game Hub's Store, where each player chooses which games appear on their own page. `category` is one of `strategy`, `cards`, `puzzle`, `simulation`, `quiz`, `sports`, `adventure`, `board`, `arcade` or `other` (the default); the names are translated by Game Hub. `description` is one short sentence, a table over all nine languages like `label`. Game Hub shows `name_i18n` from the top level of the manifest as the game's name.
+- A number the game already kept in `metadata` can be declared too: for solo sessions the old values are picked up automatically.
+
+Game Hub then offers, per game and separately for solo and multiplayer: a board for every declared number (best / average / total), a place and "better than N% of players", the distribution of all players with the viewer highlighted, the viewer's results over time against the field's average, records, head-to-head, a comparison with any other player, and — for multiplayer — an Elo rating replayed from every finished session (start 1000, every pair in a session counts). All of it can be filtered by period and by everyone / favourites / people played with. The **Ranking** tab adds the overall ranking: each mode of each game is a ladder on which a player earns up to 100 points for how many others they are ahead of, scaled down until 5 sessions have been played and until 3 players share the ladder, summed over all ladders.
 
 **Put anything that decides what the run looks like on this side.** The pattern that makes a solo game multiplayer-ready for free is to send a *seed*, not content: the server draws one seed per room, every client grows the same waves/board/sequence out of it with the same arithmetic, and a second player is then playing the identical run without a byte of per-entity traffic. Reconnects are free too — resend the same start message in `on_join`.
 
@@ -1679,7 +1716,7 @@ location.href = (await r.json()).play_url;
 
 ### Surviving a reload
 
-The room outlives the socket — five minutes after everyone disconnects, two hours in total — and the framework reconnects a returning player to the same slot by their Game Hub token, then calls `on_join` again. That is the framework's whole contribution: it gets the player back into the room. **Whether the player gets their *run* back is the game's job**, because only the game knows what a run is, and in most games the browser is the thing running it.
+The room outlives the socket — five minutes after everyone disconnects in a lobby, one hour during play, two hours in total — and the framework reconnects a returning player to the same slot by their Game Hub token, then calls `on_join` again. That is the framework's whole contribution: it gets the player back into the room. **Whether the player gets their *run* back is the game's job**, because only the game knows what a run is, and in most games the browser is the thing running it.
 
 The cheap pattern, and the one `towerdefense` uses:
 
@@ -1849,7 +1886,7 @@ Game Hub is the central player identity and stats system for multiplayer games. 
 
 ### Loading Game Hub
 
-Load only `widget.js` — there is no separate `avatar.js` anymore, everything is built into the widget:
+Load `widget.js` for the profile, session and multiplayer APIs; its `renderAvatar` helper is built in:
 
 ```js
 function _loadGameHub(cb) {
@@ -1890,7 +1927,7 @@ const html = window.GameHub.renderAvatar(player, 32);
 
 `renderAvatar` falls back gracefully: uses `avatar_svg` if present, otherwise generates a colored circle with the player's initial.
 
-**Never use `window.GHAvatar` — it no longer exists.**
+Game Hub also ships `avatar.js`, exposing `window.GHAvatar` for its standalone renderer and avatar builder. Loading `widget.js` alone does not load that module; use `GameHub.renderAvatar` when you need only an avatar beside a player.
 
 ### Recording a session (stats)
 
@@ -1899,7 +1936,7 @@ window.GameHub.recordSession({
   game_id: 'my-game',
   mode: 'singleplayer',  // or 'multiplayer'
   players: [
-    { player_id: player.id, score: 150, is_winner: true }
+    { player_id: player.id, score: 150, is_winner: false, stats: { waves: 9 } }
     // for guests: { guest_name: 'Name', score: 0, is_winner: false }
   ],
   duration_seconds: 120,

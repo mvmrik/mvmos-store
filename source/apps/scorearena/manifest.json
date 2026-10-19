@@ -10,7 +10,7 @@
     "custom games",
     "games"
   ],
-  "version": "1.4.0",
+  "version": "1.5.0",
   "min_core_version": "1.0.0",
   "description": "A shared scorekeeper for darts and board games, with eight darts modes, ready-made scoring for popular board games, custom games you design yourself, detailed personal statistics and a history-matched Ghost for solo practice.",
   "entry": "main.js",
@@ -18,5 +18,38 @@
   "max_players": 8,
   "themed": true,
   "public_directory": false,
-  "public_api_only": true
+  "public_api_only": true,
+  "gamehub": {
+    "category": "board",
+    "description": {
+      "en": "A scorekeeper for darts and board games, with statistics and a Ghost for solo practice.",
+      "bg": "Таблица за резултати за дартс и настолни игри, със статистики и Призрак за самостоятелна тренировка.",
+      "de": "Ein Punktezähler für Darts und Brettspiele, mit Statistiken und einem Geist zum Alleinüben.",
+      "es": "Marcador para dardos y juegos de mesa, con estadísticas y un Fantasma para practicar a solas.",
+      "fr": "Marqueur pour les fléchettes et les jeux de société, avec statistiques et un Fantôme pour s'entraîner seul.",
+      "ja": "ダーツとボードゲームのスコア記録。統計と、ひとりで練習できるゴーストつき。",
+      "pt-BR": "Placar para dardos e jogos de tabuleiro, com estatísticas e um Fantasma para treino solo.",
+      "ru": "Счёт для дартса и настольных игр со статистикой и Призраком для тренировки в одиночку.",
+      "zh-CN": "飞镖与桌游的计分工具，含统计数据和用于单人练习的幽灵对手。"
+    },
+    "score": false,
+    "ranking": "win_rate",
+    "metrics": {
+      "turns": {
+        "label": {
+          "en": "Turns",
+          "bg": "Ходове",
+          "de": "Züge",
+          "es": "Turnos",
+          "fr": "Tours",
+          "ja": "ターン",
+          "pt-BR": "Turnos",
+          "ru": "Ходы",
+          "zh-CN": "回合"
+        },
+        "type": "number",
+        "better": "high"
+      }
+    }
+  }
 }

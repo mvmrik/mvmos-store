@@ -7,7 +7,8 @@
     "Server-validated bidding, legal cards, tricks and scores.",
     "Game Hub profiles, invitations, match history and leaderboards.",
     "Responsive card table for desktop and phone.",
-    "Premium: bots with an AI mentor that advises them on close calls and sometimes comments."
+    "Premium: bots with an AI mentor that advises them on close calls and sometimes comments.",
+    "Game Hub statistics for deals played and won, contracts taken and made, contract success and points per deal."
   ],
   "integrations": [
     {

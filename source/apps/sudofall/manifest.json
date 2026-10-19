@@ -8,8 +8,84 @@
     "numbers",
     "games"
   ],
-  "version": "1.14.1",
+  "version": "1.15.0",
   "min_core_version": "1.0.0",
   "description": "A mix between Tetris and Sudoku — drop numbers into the grid, clear rows and 3x3 boxes to score points.",
-  "entry": "main.js"
+  "entry": "main.js",
+  "gamehub": {
+    "category": "puzzle",
+    "description": {
+      "en": "Tetris meets Sudoku: drop numbers, clear rows and boxes to score.",
+      "bg": "Тетрис среща Судоку: пускай числа и изчиствай редове и квадрати за точки.",
+      "de": "Tetris trifft Sudoku: Zahlen fallen lassen, Reihen und Blöcke räumen und Punkte holen.",
+      "es": "Tetris se une al sudoku: suelta números y despeja filas y cuadros para sumar puntos.",
+      "fr": "Tetris rencontre le sudoku : déposez des chiffres et videz lignes et blocs pour marquer.",
+      "ja": "テトリスと数独が合体。数字を落として、行やブロックを消して得点しよう。",
+      "pt-BR": "Tetris encontra Sudoku: solte números e limpe linhas e blocos para pontuar.",
+      "ru": "Тетрис встречает судоку: роняйте цифры, очищайте ряды и квадраты ради очков.",
+      "zh-CN": "俄罗斯方块遇上数独：投放数字，消除行和宫格来得分。"
+    },
+    "score": {
+      "label": {
+        "en": "Points",
+        "bg": "Точки",
+        "de": "Punkte",
+        "es": "Puntos",
+        "fr": "Points",
+        "ja": "ポイント",
+        "pt-BR": "Pontos",
+        "ru": "Очки",
+        "zh-CN": "得分"
+      }
+    },
+    "ranking": "score",
+    "metrics": {
+      "cleared": {
+        "label": {
+          "en": "Lines cleared",
+          "bg": "Изчистени линии",
+          "de": "Geleerte Linien",
+          "es": "Líneas eliminadas",
+          "fr": "Lignes effacées",
+          "ja": "消したライン",
+          "pt-BR": "Linhas limpas",
+          "ru": "Очищено линий",
+          "zh-CN": "消除行数"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "dropped": {
+        "label": {
+          "en": "Numbers dropped",
+          "bg": "Пуснати числа",
+          "de": "Gesetzte Zahlen",
+          "es": "Números colocados",
+          "fr": "Chiffres posés",
+          "ja": "置いた数字",
+          "pt-BR": "Números colocados",
+          "ru": "Поставлено чисел",
+          "zh-CN": "放置数字"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "score_per_minute": {
+        "label": {
+          "en": "Points per minute",
+          "bg": "Точки за минута",
+          "de": "Punkte pro Minute",
+          "es": "Puntos por minuto",
+          "fr": "Points par minute",
+          "ja": "1分あたりのポイント",
+          "pt-BR": "Pontos por minuto",
+          "ru": "Очки в минуту",
+          "zh-CN": "每分钟得分"
+        },
+        "type": "decimal",
+        "better": "high",
+        "total": false
+      }
+    }
+  }
 }

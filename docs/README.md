@@ -6,6 +6,7 @@ Documentation for individual Store applications lives in this repository. Update
 
 - [Belot](apps/belot.md)
 - [Classifieds](apps/classifieds.md)
+- [Game Hub](apps/gamehub.md)
 - [Git Manager](apps/git-manager.md)
 - [Hattrick Calculator](apps/hattrickcalculator.md)
 - [Health](apps/health.md)

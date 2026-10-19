@@ -100,6 +100,13 @@ def _db():
             created_at   TEXT NOT NULL,
             PRIMARY KEY (player_id, favourite_id)
         );
+        CREATE TABLE IF NOT EXISTS session_metrics (
+            session_id INTEGER NOT NULL REFERENCES game_sessions(id) ON DELETE CASCADE,
+            player_id  TEXT,
+            key        TEXT NOT NULL,
+            value      REAL NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_sm_session ON session_metrics(session_id);
         CREATE INDEX IF NOT EXISTS idx_sp_player  ON session_players(player_id);
         CREATE INDEX IF NOT EXISTS idx_sp_session ON session_players(session_id);
         CREATE INDEX IF NOT EXISTS idx_gs_game    ON game_sessions(game_id, played_at);
@@ -235,6 +242,7 @@ class SessionPlayer(BaseModel):
     score:      Optional[float] = None
     rank:       Optional[int] = None
     is_winner:  bool = False
+    stats:      dict = {}
 
 class SessionBody(BaseModel):
     game_id:          str
@@ -242,6 +250,7 @@ class SessionBody(BaseModel):
     players:          list[SessionPlayer]
     duration_seconds: Optional[int] = None
     metadata:         dict = {}
+    stats:            dict = {}
 
 @_pub.post("/session")
 async def record_session(body: SessionBody):
@@ -259,6 +268,9 @@ async def record_session(body: SessionBody):
                 "INSERT INTO session_players(session_id,player_id,guest_name,score,rank,is_winner) VALUES(?,?,?,?,?,?)",
                 (sid, p.player_id or None, p.guest_name or None, p.score, p.rank, 1 if p.is_winner else 0)
             )
+            if p.player_id:
+                _stats.write_metrics(conn, sid, p.player_id, p.stats)
+        _stats.write_metrics(conn, sid, None, body.stats)
         conn.commit()
     return JSONResponse({"ok": True, "session_id": sid})
 
@@ -277,19 +289,24 @@ async def get_stats(session=Depends(get_current_session)):
 
 # ── Stats builder ─────────────────────────────────────────────
 
-async def _build_stats():
+def _plugin_meta():
     # Fetch plugin metadata (name, icon) from main DB
     import sqlite3 as _sqlite3
     _main_db = os.path.join(os.path.dirname(__file__), "..", "..", "..", "data.db")
-    _plugin_meta = {}
+    meta = {}
     try:
         _pc = _sqlite3.connect(_main_db)
         _pc.row_factory = _sqlite3.Row
         for r in _pc.execute("SELECT id,name,icon FROM plugins").fetchall():
-            _plugin_meta[r["id"]] = {"name": r["name"], "icon": r["icon"]}
+            meta[r["id"]] = {"name": r["name"], "icon": r["icon"]}
         _pc.close()
     except Exception:
         pass
+    return meta
+
+
+async def _build_stats():
+    _plugin_meta_ = _plugin_meta()
 
     with _db() as conn:
         games   = [r["game_id"] for r in conn.execute("SELECT DISTINCT game_id FROM game_sessions ORDER BY game_id").fetchall()]
@@ -351,12 +368,159 @@ async def _build_stats():
 
     return JSONResponse({
         "games": games,
-        "game_meta": _plugin_meta,
+        "game_meta": _plugin_meta_,
         "leaderboard": leaderboard,
         "recent": recent_out,
         "head2head": [dict(r) for r in h2h_rows],
         "players": list(players.values()),
     })
+
+
+# ── Statistics (declared by each game, computed generically) ─────────────────
+# stats.py reads what a game says it measures from that game's manifest and
+# turns it into boards, ratings and charts. This file never names a game.
+
+import importlib.util as _ilu0
+_sspec = _ilu0.spec_from_file_location("gamehub_stats", os.path.join(os.path.dirname(__file__), "stats.py"))
+_stats = _ilu0.module_from_spec(_sspec)
+sys.modules["gamehub_stats"] = _stats
+_sspec.loader.exec_module(_stats)
+
+
+def _viewer_id(x_gh_token):
+    """The signed-in player, or None - these pages also work for a visitor
+    who only wants to look."""
+    hub = _apphub()
+    if not hub or not x_gh_token:
+        return None
+    u = hub.get_pub_session(x_gh_token)
+    return u["id"] if u else None
+
+
+def _with_profiles(rows):
+    """Names and avatars, always taken from Apps Hub where it is available."""
+    ids = list({r["player_id"] for r in rows})
+    if not ids:
+        return
+    with _db() as conn:
+        marks = ",".join("?" for _ in ids)
+        local = {r["id"]: dict(r) for r in conn.execute(
+            f"SELECT id,username,display_name,avatar_color,avatar_data,avatar_svg FROM players WHERE id IN ({marks})", ids)}
+    hub = _apphub()
+    if hub:
+        for prof in hub.get_users_by_ids(ids):
+            local.setdefault(prof["id"], {}).update(prof)
+    for r in rows:
+        p = local.get(r["player_id"], {})
+        r["display_name"] = p.get("display_name") or p.get("username") or "?"
+        r["username"] = p.get("username")
+        r["avatar_color"] = p.get("avatar_color")
+        r["avatar_data"] = p.get("avatar_data")
+        r["avatar_svg"] = p.get("avatar_svg")
+
+
+@_pub.get("/insights/{game_id}")
+async def game_insights(game_id: str, mode: str = "all", period: str = "all",
+                        x_gh_token: Optional[str] = Header(default=None)):
+    me_id = _viewer_id(x_gh_token)
+    with _db() as conn:
+        data = _stats.game_insights(conn, game_id, mode, period, me_id)
+    rows = list(data["players"])
+    for rec in data["records"].values():
+        rows += rec
+    for v in (data["me"] or {}).get("versus", []):
+        rows.append(v)
+    _with_profiles(rows)
+    return JSONResponse(data)
+
+
+@_pub.get("/overall")
+async def overall_ranking(period: str = "all", x_gh_token: Optional[str] = Header(default=None)):
+    me_id = _viewer_id(x_gh_token)
+    meta = _plugin_meta()
+    with _db() as conn:
+        games = [r[0] for r in conn.execute("SELECT DISTINCT game_id FROM game_sessions ORDER BY game_id")]
+        data = _stats.overall(conn, period, games, me_id)
+    _with_profiles(data["players"])
+    data["game_meta"] = {g: meta.get(g, {"name": g, "icon": "🎮"}) for g in games}
+    data["me_id"] = me_id
+    return JSONResponse(data)
+
+
+# ── Player summary (profile pages) ───────────────────────────────────────────
+# Totals are counted from the whole history. Only multiplayer sessions have
+# winners worth counting - a solo run has nobody to beat - so wins and win
+# rate are multiplayer figures and are labelled as such.
+
+@_pub.get("/summary/{player_id}")
+async def player_summary(player_id: str, game: str = "", x_gh_token: Optional[str] = Header(default=None)):
+    viewer = _viewer_id(x_gh_token)
+    with _db() as conn:
+        per_game = {}
+        for r in conn.execute("""
+            SELECT s.game_id, s.mode, COUNT(*) AS n,
+                   SUM(CASE WHEN s.mode='multiplayer' THEN sp.is_winner ELSE 0 END) AS wins,
+                   COALESCE(SUM(s.duration_seconds),0) AS secs, MAX(s.played_at) AS last
+            FROM session_players sp JOIN game_sessions s ON s.id=sp.session_id
+            WHERE sp.player_id=? GROUP BY s.game_id, s.mode""", (player_id,)):
+            g = per_game.setdefault(r["game_id"], {"game_id": r["game_id"], "solo": 0, "multi": 0, "wins": 0, "seconds": 0, "last": None})
+            g["solo" if r["mode"] == "singleplayer" else "multi"] += r["n"]
+            g["wins"] += r["wins"] or 0
+            g["seconds"] += r["secs"] or 0
+            g["last"] = max(g["last"] or "", r["last"] or "") or None
+        games = sorted(per_game.values(), key=lambda g: -(g["solo"] + g["multi"]))
+        for g in games:
+            g["win_rate"] = round(100.0 * g["wins"] / g["multi"], 1) if g["multi"] else None
+        solo = sum(g["solo"] for g in games)
+        multi = sum(g["multi"] for g in games)
+        wins = sum(g["wins"] for g in games)
+
+    return JSONResponse({
+        "player_id": player_id, "played": solo + multi, "solo": solo, "multi": multi, "wins": wins,
+        "win_rate": round(100.0 * wins / multi, 1) if multi else None,
+        "seconds": sum(g["seconds"] for g in games), "games": games,
+    })
+
+
+@_pub.get("/history/{player_id}")
+async def player_history(player_id: str, game: str = "", shared: int = 0,
+                         x_gh_token: Optional[str] = Header(default=None)):
+    """A player's recent games, newest first. Loaded only when somebody asks for
+    it - `shared` keeps just the ones the viewer was in as well."""
+    viewer = _viewer_id(x_gh_token)
+    if shared and not viewer:
+        raise HTTPException(401)
+    where, args = "sp.player_id=?", [player_id]
+    if game:
+        where += " AND s.game_id=?"
+        args.append(game)
+    if shared:
+        where += " AND EXISTS(SELECT 1 FROM session_players v WHERE v.session_id=s.id AND v.player_id=?)"
+        args.append(viewer)
+    with _db() as conn:
+        rows = conn.execute(f"""
+            SELECT s.id,s.game_id,s.mode,s.played_at,s.duration_seconds,s.metadata
+            FROM game_sessions s JOIN session_players sp ON sp.session_id=s.id
+            WHERE {where} ORDER BY s.played_at DESC LIMIT 40""", args).fetchall()
+        recent = []
+        for gs in rows:
+            plist = conn.execute("""
+                SELECT sp.player_id,sp.guest_name,sp.score,sp.is_winner,p.display_name,p.avatar_color
+                FROM session_players sp LEFT JOIN players p ON sp.player_id=p.id
+                WHERE sp.session_id=? ORDER BY sp.rank,sp.score DESC""", (gs["id"],)).fetchall()
+            recent.append({**dict(gs), "players": [dict(x) for x in plist]})
+    _with_profiles([x for s in recent for x in s["players"] if x.get("player_id")])
+    return JSONResponse(recent)
+
+
+@_pub.get("/versus/{other_id}")
+async def versus(other_id: str, game: str = "", x_gh_token: Optional[str] = Header(default=None)):
+    me_id = _viewer_id(x_gh_token)
+    if not me_id:
+        raise HTTPException(401)
+    with _db() as conn:
+        data = _stats.versus(conn, me_id, other_id, game)
+    return JSONResponse(data)
 
 # ── Hub settings ─────────────────────────────────────────────
 

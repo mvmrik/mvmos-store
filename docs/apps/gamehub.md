@@ -1,0 +1,31 @@
+# Game Hub
+
+Game Hub keeps player profiles and game results together. Open its public page from the desktop window to play under your Apps Hub account. Each profile has its own selection of games; the server owner installs the actual games through the mvmOS App Store.
+
+## Your games and the Store
+
+The Games tab shows the games you added. Filter by category or sort alphabetically, by most played or by recent play. The Store tab lists games available on this server, with categories and search. Add or remove a game to change your own page without deleting its results, rating or saved game. Existing profiles initially keep games they have already played; new profiles choose their games in the Store.
+
+Continue banners, saved games and invitations remain available from Games. A room lost during a server restart shows an explanation and a link back to Game Hub instead of reconnecting indefinitely.
+
+## Statistics and rankings
+
+Open a game and choose Statistics. Solo and multiplayer have separate views. Each game declares the numbers it reports: choose a board, then best, average or total where that sum makes sense. Filters cover all time, the last 7 or 30 days, or the last year, and everyone, favourites or players you played with.
+
+The page shows your position, a distribution of results, your progress against the field, records, direct comparisons and activity. Multiplayer adds an Elo rating starting at 1000; beating a stronger player earns more. Games whose scores cannot be compared between sessions can choose a win rate ranking instead.
+
+The Ranking tab combines each game's solo and multiplayer ladders. Points depend on standing, with reduced weight until a player has five sessions and until three people share the ladder. A lone player earns no ranking points. A period filter selects the sessions considered; multiplayer ratings themselves are calculated from the full history.
+
+The desktop Game Hub window also offers the shared statistics and overall ranking views.
+
+## Profiles and comparisons
+
+Profile totals cover the whole history. Solo games, multiplayer games and play time are counted separately; wins and win rate count multiplayer only. A table breaks these numbers down by game.
+
+Open another player's profile for head-to-head wins, draws and losses, recent form and streaks. Choose a game to compare metrics and rating history, including a rating-based estimate for the next result. Open Game history or Games together when you want the recent sessions; those lists load on demand.
+
+## Game integrations
+
+Belot reports deals, team contracts and points per deal. Find Yourself reports points per round, answered rounds and guess distances. Score Arena reports turns. Stonehold reports survival, kills, raids, enemy level and buildings. Tower Defense reports waves, kills and survival; Sudofall reports cleared lines, numbers dropped and points per minute from its browser session recorder. Existing solo session metadata is reused where its keys match declared metrics; unavailable older measurements are not invented.
+
+For the manifest fields and recording API, see the [Developer Guide](../../DEVELOPER.md#statistics-say-what-you-measure-game-hub-draws-it).

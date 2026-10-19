@@ -8,7 +8,7 @@
     "geography",
     "quiz"
   ],
-  "version": "1.14.1",
+  "version": "1.15.0",
   "min_core_version": "1.0.0",
   "description": "Drop into a random Street View location and guess where you are on the map. How well do you know the world?",
   "entry": "main.js",
@@ -38,5 +38,114 @@
       "default": 60,
       "min": 0
     }
-  ]
+  ],
+  "gamehub": {
+    "category": "quiz",
+    "description": {
+      "en": "Drop into a random Street View location and guess where on the map you are.",
+      "bg": "Озови се на случайно място от Street View и познай къде на картата си.",
+      "de": "Lande an einem zufälligen Street-View-Ort und rate, wo auf der Karte du bist.",
+      "es": "Aparece en un lugar aleatorio de Street View y adivina dónde estás en el mapa.",
+      "fr": "Atterrissez dans un lieu Street View au hasard et devinez où vous êtes sur la carte.",
+      "ja": "ストリートビューのランダムな場所に降り立ち、地図上で現在地を当てましょう。",
+      "pt-BR": "Caia em um lugar aleatório do Street View e adivinhe onde está no mapa.",
+      "ru": "Окажитесь в случайном месте Street View и угадайте, где вы на карте.",
+      "zh-CN": "降落在街景的随机地点，并在地图上猜出你所在的位置。"
+    },
+    "score": {
+      "label": {
+        "en": "Points",
+        "bg": "Точки",
+        "de": "Punkte",
+        "es": "Puntos",
+        "fr": "Points",
+        "ja": "ポイント",
+        "pt-BR": "Pontos",
+        "ru": "Очки",
+        "zh-CN": "得分"
+      }
+    },
+    "ranking": "score_per_round",
+    "metrics": {
+      "score_per_round": {
+        "label": {
+          "en": "Points per round",
+          "bg": "Точки на рунд",
+          "de": "Punkte pro Runde",
+          "es": "Puntos por ronda",
+          "fr": "Points par manche",
+          "ja": "ラウンドあたりのポイント",
+          "pt-BR": "Pontos por rodada",
+          "ru": "Очки за раунд",
+          "zh-CN": "每轮得分"
+        },
+        "type": "number",
+        "better": "high",
+        "total": false
+      },
+      "best_round": {
+        "label": {
+          "en": "Best round",
+          "bg": "Най-добър рунд",
+          "de": "Beste Runde",
+          "es": "Mejor ronda",
+          "fr": "Meilleure manche",
+          "ja": "最高のラウンド",
+          "pt-BR": "Melhor rodada",
+          "ru": "Лучший раунд",
+          "zh-CN": "最佳回合"
+        },
+        "type": "number",
+        "better": "high",
+        "total": false
+      },
+      "guessed": {
+        "label": {
+          "en": "Rounds answered",
+          "bg": "Рундове с отговор",
+          "de": "Beantwortete Runden",
+          "es": "Rondas respondidas",
+          "fr": "Manches jouées",
+          "ja": "回答したラウンド",
+          "pt-BR": "Rodadas respondidas",
+          "ru": "Раунды с ответом",
+          "zh-CN": "已作答回合"
+        },
+        "type": "percent",
+        "better": "high"
+      },
+      "avg_distance": {
+        "label": {
+          "en": "Average distance (km)",
+          "bg": "Средно разстояние (км)",
+          "de": "Ø Entfernung (km)",
+          "es": "Distancia media (km)",
+          "fr": "Distance moyenne (km)",
+          "ja": "平均距離 (km)",
+          "pt-BR": "Distância média (km)",
+          "ru": "Среднее расстояние (км)",
+          "zh-CN": "平均距离（公里）"
+        },
+        "type": "decimal",
+        "better": "low",
+        "total": false
+      },
+      "closest": {
+        "label": {
+          "en": "Closest guess (km)",
+          "bg": "Най-близък отговор (км)",
+          "de": "Beste Schätzung (km)",
+          "es": "Mejor acierto (km)",
+          "fr": "Meilleure estimation (km)",
+          "ja": "最も近い推測 (km)",
+          "pt-BR": "Palpite mais próximo (km)",
+          "ru": "Лучший ответ (км)",
+          "zh-CN": "最接近的猜测（公里）"
+        },
+        "type": "decimal",
+        "better": "low",
+        "total": false
+      }
+    }
+  }
 }

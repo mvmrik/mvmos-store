@@ -38,7 +38,12 @@ and may call back into the hub through `ctx`:
     await ctx.broadcast(msg, exclude=None)
     await ctx.send(player_id, msg)
     ctx.schedule(delay, coro_factory)   run an async fn after `delay` seconds
-    await ctx.finish(records)        end game, write session, broadcast game_over
+    await ctx.finish(records, stats=None)
+                                     end game, write session, broadcast game_over.
+                                     A record may carry "stats": {key: number} about
+                                     that player and `stats` numbers about the whole
+                                     session; the game declares what the keys mean in
+                                     its manifest.json under "gamehub" (see stats.py).
     ctx.resume / ctx.saved_state     the save this room was started from, if any
     ctx.save_state(player_id, data)  store a save and let the player walk away
     await ctx.close(reason)          end the room WITHOUT recording a session
@@ -152,12 +157,16 @@ def _is_invited(room_url: str, player_id: str) -> bool:
         return False
 
 
-def _record_session(game_id: str, records: list, duration: int | None, metadata: dict):
-    """Write a finished game into game_sessions / session_players."""
+def _record_session(game_id: str, records: list, duration: int | None, metadata: dict, stats: dict | None = None):
+    """Write a finished game into game_sessions / session_players, with the
+    numbers the game reported (see stats.py) in session_metrics."""
     try:
+        gs = sys.modules.get("gamehub_stats")
         mode = "singleplayer" if len(records) < 2 else "multiplayer"
         now = datetime.now(timezone.utc).isoformat()
         with _gh_conn() as conn:
+            if gs:
+                gs.ensure_schema(conn)
             cur = conn.execute(
                 "INSERT INTO game_sessions(game_id,mode,played_at,duration_seconds,metadata) VALUES(?,?,?,?,?)",
                 (game_id, mode, now, duration, json.dumps(metadata or {})),
@@ -172,6 +181,10 @@ def _record_session(game_id: str, records: list, duration: int | None, metadata:
                     (sid, pid, r.get("guest_name"), r.get("score"), r.get("rank"),
                      1 if r.get("is_winner") else 0),
                 )
+                if gs and pid:
+                    gs.write_metrics(conn, sid, pid, r.get("stats"))
+            if gs:
+                gs.write_metrics(conn, sid, None, stats)
             conn.commit()
     except Exception as e:
         print(f"[gamehub-mp] record_session failed: {e}")
@@ -423,7 +436,8 @@ class RoomCtx:
         await _broadcast(room, {"type": "room_closed", "reason": reason})
         _rooms.pop(room["id"], None)
 
-    async def finish(self, records: list, duration: int | None = None, metadata: dict | None = None):
+    async def finish(self, records: list, duration: int | None = None, metadata: dict | None = None,
+                     stats: dict | None = None):
         room = self._room
         if room["status"] == "finished":
             return
@@ -431,7 +445,7 @@ class RoomCtx:
         dur = duration
         if dur is None and room.get("started_at"):
             dur = int(time.time() - room["started_at"])
-        _record_session(room["game_id"], records, dur, metadata or {})
+        _record_session(room["game_id"], records, dur, metadata or {}, stats)
         await _broadcast(room, {"type": "game_over", "records": records})
 
 
@@ -553,6 +567,7 @@ async def create_room(request: Request, body: dict):
             if not resume:
                 _save_del(game_id, pid)
 
+    _touch_usage(pid, game_id)
     room_id = _make_id(10)
     _rooms[room_id] = {
         "id":          room_id,
@@ -673,11 +688,7 @@ async def delete_save(game_id: str, request: Request):
     return {"ok": True}
 
 
-@router.get("/games")
-async def list_mp_games():
-    """Multiplayer-capable games, discovered by convention (presence of
-    mp_game.py). Name/icon come from the installed plugins — the hub keeps no
-    hardcoded list of games."""
+def _plugin_meta():
     meta = {}
     try:
         main_db = os.path.join(_BASE, "..", "..", "..", "data.db")
@@ -688,7 +699,15 @@ async def list_mp_games():
         mc.close()
     except Exception:
         pass
+    return meta
 
+
+def _catalog() -> list:
+    """Every game Game Hub can run, discovered by convention (presence of
+    mp_game.py). Name and icon come from the installed plugins; category and
+    short description are whatever the game itself says in its manifest under
+    "gamehub" - the hub keeps no hardcoded list of games or of their genres."""
+    meta = _plugin_meta()
     games = []
     try:
         seen = set()
@@ -701,6 +720,7 @@ async def list_mp_games():
             # Absent means "as before": every game that predates this flag is
             # multiplayer, so only an explicit false makes a game solo-only.
             multiplayer = True
+            mani = {}
             mpath = os.path.join(FRONTEND_APPS, gid, "manifest.json")
             try:
                 with open(mpath) as f:
@@ -709,17 +729,147 @@ async def list_mp_games():
                 multiplayer = mani.get("multiplayer") is not False and max_players > 1
             except Exception:
                 pass
+            decl = mani.get("gamehub") if isinstance(mani.get("gamehub"), dict) else {}
+            desc = decl.get("description")
             m = meta.get(gid, {})
             games.append({
                 "id":          gid,
                 "name":        m.get("name", gid),
+                "name_i18n":   mani.get("name_i18n"),
                 "icon":        m.get("icon", "🎮"),
                 "max_players": max_players,
                 "multiplayer": multiplayer,
+                "category":    str(decl.get("category") or "other"),
+                "description": desc if isinstance(desc, (dict, str)) else (mani.get("description") or ""),
             })
     except Exception:
         pass
     return games
+
+
+@router.get("/games")
+async def list_mp_games():
+    """Multiplayer-capable games (solo-only ones included)."""
+    return _catalog()
+
+
+# ── The player's own games ───────────────────────────────────────────────────
+# Like the Apps Hub shelf: the server offers every game, and each profile
+# chooses which of them it wants on its own page. Removing a game deletes
+# nothing - history, ratings and saves stay, and the Store offers it back.
+
+_LIB_PREF_KEYS = {"games_sort", "games_category"}
+
+
+def _library_schema(conn):
+    conn.executescript("""
+        CREATE TABLE IF NOT EXISTS player_games (
+            player_id TEXT NOT NULL, game_id TEXT NOT NULL, added_at TEXT NOT NULL,
+            PRIMARY KEY (player_id, game_id));
+        CREATE TABLE IF NOT EXISTS player_game_usage (
+            player_id TEXT NOT NULL, game_id TEXT NOT NULL,
+            open_count INTEGER NOT NULL DEFAULT 0, last_opened_at TEXT,
+            PRIMARY KEY (player_id, game_id));
+        CREATE TABLE IF NOT EXISTS player_prefs (
+            player_id TEXT NOT NULL, key TEXT NOT NULL, value TEXT NOT NULL,
+            PRIMARY KEY (player_id, key));
+    """)
+
+
+def _library_seed(conn, pid: str):
+    """First contact: a profile that has been playing since before the shelf
+    existed keeps the games it has played, and its history becomes its usage.
+    New profiles start empty and pick from the Store. The marker means a
+    profile that deliberately removes everything is never handed games back."""
+    if conn.execute("SELECT 1 FROM player_prefs WHERE player_id=? AND key='library_seeded'", (pid,)).fetchone():
+        return
+    now = datetime.now(timezone.utc).isoformat()
+    rows = conn.execute("""
+        SELECT s.game_id, COUNT(*) AS n, MAX(s.played_at) AS last
+        FROM session_players sp JOIN game_sessions s ON s.id = sp.session_id
+        WHERE sp.player_id=? GROUP BY s.game_id""", (pid,)).fetchall()
+    for r in rows:
+        conn.execute("INSERT OR IGNORE INTO player_games(player_id,game_id,added_at) VALUES(?,?,?)", (pid, r["game_id"], now))
+        conn.execute("INSERT OR IGNORE INTO player_game_usage(player_id,game_id,open_count,last_opened_at) VALUES(?,?,?,?)",
+                     (pid, r["game_id"], r["n"], r["last"]))
+    conn.execute("INSERT OR REPLACE INTO player_prefs(player_id,key,value) VALUES(?,?,'1')", (pid, "library_seeded"))
+    conn.commit()
+
+
+def _touch_usage(pid: str, game_id: str):
+    """One more time this player started or joined this game."""
+    try:
+        with _gh_conn() as conn:
+            _library_schema(conn)
+            _library_seed(conn, pid)
+            conn.execute("""INSERT INTO player_game_usage(player_id,game_id,open_count,last_opened_at) VALUES(?,?,1,?)
+                            ON CONFLICT(player_id,game_id) DO UPDATE SET open_count=open_count+1, last_opened_at=excluded.last_opened_at""",
+                         (pid, game_id, datetime.now(timezone.utc).isoformat()))
+            conn.commit()
+    except Exception as e:
+        print(f"[gamehub-mp] usage not recorded: {e}")
+
+
+@router.get("/library")
+async def library(request: Request):
+    """Every game on offer, with this player's own flags and view preferences."""
+    games = _catalog()
+    player = _resolve_player(request.headers.get("X-GH-Token", ""))
+    prefs = {}
+    if player:
+        pid = str(player["id"])
+        with _gh_conn() as conn:
+            _library_schema(conn)
+            _library_seed(conn, pid)
+            kept = {r["game_id"] for r in conn.execute("SELECT game_id FROM player_games WHERE player_id=?", (pid,))}
+            usage = {r["game_id"]: r for r in conn.execute("SELECT * FROM player_game_usage WHERE player_id=?", (pid,))}
+            prefs = {r["key"]: r["value"] for r in conn.execute(
+                "SELECT key,value FROM player_prefs WHERE player_id=? AND key IN ('games_sort','games_category')", (pid,))}
+        for g in games:
+            u = usage.get(g["id"])
+            g["installed"] = g["id"] in kept
+            g["open_count"] = u["open_count"] if u else 0
+            g["last_opened_at"] = u["last_opened_at"] if u else None
+    else:
+        for g in games:
+            g.update(installed=True, open_count=0, last_opened_at=None)
+    return {"games": games, "prefs": prefs}
+
+
+@router.put("/library/prefs")
+async def library_prefs(request: Request, body: dict):
+    player = _resolve_player(request.headers.get("X-GH-Token", ""))
+    if not player:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    pid = str(player["id"])
+    with _gh_conn() as conn:
+        _library_schema(conn)
+        for k, v in (body or {}).items():
+            if k in _LIB_PREF_KEYS and v is not None:
+                conn.execute("INSERT OR REPLACE INTO player_prefs(player_id,key,value) VALUES(?,?,?)", (pid, k, str(v)[:64]))
+        conn.commit()
+    return {"ok": True}
+
+
+@router.put("/library/{game_id}")
+async def library_set(game_id: str, request: Request, body: dict):
+    """Put a game on this player's page, or take it off."""
+    player = _resolve_player(request.headers.get("X-GH-Token", ""))
+    if not player:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    if _mp_game_path(game_id) is None:
+        return JSONResponse({"error": "unknown game"}, status_code=404)
+    pid, want = str(player["id"]), bool((body or {}).get("installed"))
+    with _gh_conn() as conn:
+        _library_schema(conn)
+        _library_seed(conn, pid)
+        if want:
+            conn.execute("INSERT OR IGNORE INTO player_games(player_id,game_id,added_at) VALUES(?,?,?)",
+                         (pid, game_id, datetime.now(timezone.utc).isoformat()))
+        else:
+            conn.execute("DELETE FROM player_games WHERE player_id=? AND game_id=?", (pid, game_id))
+        conn.commit()
+    return {"ok": True, "installed": want}
 
 
 @router.post("/rooms/{room_id}/start")
@@ -836,24 +986,12 @@ def _game_manifest(game_id: str) -> dict:
 def _play_html(game_id: str, room_id: str) -> str:
     """Generic, game-agnostic play page. Loads the GameHub client + the game's
     mp.js bundle; GameHub.mp drives lobby → game."""
-    def _mt(rel):
-        # apps/<id>/public/<file> — the folder /apps/<id>/<file> is served from.
-        # Missing files fall back to "now", which simply means no caching.
-        app_id, _, name = rel.partition("/")
-        for d in (FRONTEND_APPS, _APPS_DIR):
-            try:
-                return int(os.path.getmtime(os.path.join(d, app_id, "public", name)))
-            except Exception:
-                continue
-        return int(time.time())
-    v_widget = _mt("gamehub/widget.js")
-    v_game   = _mt(f"{game_id}/mp.js")
-    v_gcss   = _mt(f"{game_id}/style.css")
+    from backend.assets import asset
     # Games ship their own string table beside mp.js, exactly like every store
     # app does; the core table is already on the page via the bootstrap above.
     i18n_tag = ""
     if os.path.isfile(os.path.join(FRONTEND_APPS, game_id, "public", "i18n.js")):
-        i18n_tag = f'<script src="/apps/{game_id}/i18n.js?v={_mt(f"{game_id}/i18n.js")}"></script>'
+        i18n_tag = f'<script src="{asset(f"/apps/{game_id}/i18n.js")}"></script>'
     themed = _game_manifest(game_id).get("themed") is True
     return f"""<!DOCTYPE html>
 <html>
@@ -871,7 +1009,7 @@ def _play_html(game_id: str, room_id: str) -> str:
       display:flex;flex-direction:column;height:100dvh;overflow:hidden}}
     #mp-root{{flex:1;min-height:0;display:flex;flex-direction:column}}
   </style>
-  <link rel="stylesheet" href="/apps/{game_id}/style.css?v={v_gcss}">
+  <link rel="stylesheet" href="{asset(f"/apps/{game_id}/style.css")}">
 </head>
 <body>
   <div id="mp-root"></div>
@@ -880,11 +1018,11 @@ def _play_html(game_id: str, room_id: str) -> str:
     window.mvmOS.lang = window.mvmOS.pubLang || 'en';
     window.GameHubRoom = {{ roomId: '{room_id}', gameId: '{game_id}' }};
   </script>
-  <script src="/i18n/i18n.js"></script>
-  <script src="/apps/gamehub/i18n.js?v={_mt("gamehub/i18n.js")}"></script>
+  <script src="{asset("/i18n/i18n.js")}"></script>
+  <script src="{asset("/apps/gamehub/i18n.js")}"></script>
   {i18n_tag}
-  <script src="/apps/gamehub/widget.js?v={v_widget}"></script>
-  <script src="/apps/{game_id}/mp.js?v={v_game}"></script>
+  <script src="{asset("/apps/gamehub/widget.js")}"></script>
+  <script src="{asset(f"/apps/{game_id}/mp.js")}"></script>
   <script>
     (function boot() {{
       if (!window.GameHub || !window.GameHub.mp) {{ return setTimeout(boot, 30); }}
@@ -905,6 +1043,13 @@ def _play_html(game_id: str, room_id: str) -> str:
 async def room_ws(websocket: WebSocket, room_id: str):
     room = _rooms.get(room_id)
     if not room:
+        # Answer rather than reject. A rejected handshake looks like a network
+        # failure to the browser, which keeps retrying a room that cannot come
+        # back (rooms live in memory, so a restart ends them) - and a socket
+        # that keeps failing holds up the others. A message the client
+        # understands ends the loop for good.
+        await websocket.accept()
+        await _send(websocket, {"type": "error", "message": "room_gone"})
         await websocket.close(code=4004)
         return
 
@@ -948,6 +1093,8 @@ async def room_ws(websocket: WebSocket, room_id: str):
                 await _send(websocket, {"type": "error", "message": "room_full"})
                 await websocket.close()
                 return
+            if not is_host:
+                _touch_usage(pid, room["game_id"])
             slot = len(room["players"])
             room["players"][pid] = {
                 "id":           pid,

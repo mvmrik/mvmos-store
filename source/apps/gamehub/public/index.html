@@ -48,20 +48,30 @@
 <script>
 window._ghI18nReady = new Promise(function(resolve){
   var s=document.createElement('script');
-  s.src='/apps/gamehub/i18n.js?_='+Date.now();
+  s.src=window.asset('/apps/gamehub/i18n.js');
   s.onload = resolve;
   s.onerror = resolve;
   document.head.appendChild(s);
 });
 (function(){
   var s2=document.createElement('script');
-  s2.src='/apps/gamehub/avatar.js?_='+Date.now();
+  s2.src=window.asset('/apps/gamehub/avatar.js');
   document.head.appendChild(s2);
+  var s3=document.createElement('script');
+  s3.src=window.asset('/apps/gamehub/stats-ui.js');
+  var s4=document.createElement('script');
+  s4.src=window.asset('/apps/gamehub/library.js');
+  window._ghStatsReady = Promise.all([
+    new Promise(function(res){ s3.onload = res; s3.onerror = res; }),
+    new Promise(function(res){ s4.onload = res; s4.onerror = res; })
+  ]);
+  document.head.appendChild(s3);
+  document.head.appendChild(s4);
 })();
 </script>
 <script>
 const BASE = '/api/pub/gamehub';
-const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const fmtDate = s => new Date(s).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
 const fmtDur = s => !s ? '—' : s < 60 ? s + 's' : Math.floor(s/60) + 'm' + (s%60 ? s%60+'s' : '');
 
@@ -95,7 +105,7 @@ async function boot() {
   if (!_me) { _token = null; localStorage.removeItem('gh_token'); }
 
   if (!_me) { showAuth(); return; }
-  await Promise.all([loadStats(), loadInvites(), _loadFavs()]);
+  await Promise.all([loadStats(), loadInvites(), _loadFavs(), window._ghStatsReady]);
   showDashboard();
 }
 
@@ -128,11 +138,15 @@ async function loadInvites() {
 // ── Dashboard ───────────────────────────────────────────────────
 
 function showDashboard() {
-  let dtab = 'profile';
+  let dtab = 'games';
+  const inviteBadge = () => _invites.length ? ` <span style="background:var(--red);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 6px;vertical-align:middle">${_invites.length}</span>` : '';
   app.innerHTML = `
-    <div class="tab-bar">
-      <button class="tab active" data-t="profile">${esc(t('gh_profile'))}${_invites.length?` <span style="background:var(--red);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 6px;vertical-align:middle">${_invites.length}</span>`:''}</button>
+    <div class="tab-bar" style="overflow-x:auto;flex-shrink:0">
+      <button class="tab active" data-t="games">${esc(t('gl_tab_games'))}${inviteBadge()}</button>
+      <button class="tab" data-t="store">${esc(t('gl_tab_store'))}</button>
+      <button class="tab" data-t="ranking">${esc(t('gs_ranking'))}</button>
       <button class="tab" data-t="favourites">${esc(t('gh_favourites'))}</button>
+      <button class="tab" data-t="profile">${esc(t('gl_tab_profile'))}</button>
     </div>
     <div id="d-body" style="flex:1;overflow-y:auto"></div>`;
 
@@ -142,12 +156,12 @@ function showDashboard() {
   clearInterval(_pollTimer);
   _pollTimer = setInterval(async () => {
     if (!_token) return;
-    const profileTab = app.querySelector('.tab[data-t="profile"]');
-    if (!profileTab) { clearInterval(_pollTimer); _pollTimer = null; return; }
+    const gamesTab = app.querySelector('.tab[data-t="games"]');
+    if (!gamesTab) { clearInterval(_pollTimer); _pollTimer = null; return; }
     await loadInvites();
-    profileTab.innerHTML = `${esc(t('gh_profile'))}${_invites.length ? ` <span style="background:var(--red);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 6px;vertical-align:middle">${_invites.length}</span>` : ''}`;
+    gamesTab.innerHTML = `${esc(t('gl_tab_games'))}${inviteBadge()}`;
     const activeTab = app.querySelector('.tab.active');
-    if (activeTab?.dataset.t === 'profile' && !app.querySelector('#d-body [data-view="detail"]')) renderProfile(app.querySelector('#d-body'));
+    if (activeTab?.dataset.t === 'games' && !app.querySelector('#d-body [data-view="detail"]')) renderGames(app.querySelector('#d-body'));
   }, 15000);
 
   app.querySelectorAll('.tab').forEach(btn => {
@@ -159,25 +173,92 @@ function showDashboard() {
     };
   });
 
-  renderDashTab('profile');
+  renderDashTab('games');
 }
 
 function renderDashTab(tab) {
   const c = app.querySelector('#d-body');
-  if (tab === 'profile')         renderProfile(c);
+  if (tab === 'games')           { c.innerHTML = '<div class="section"></div>'; renderGames(c.firstElementChild); }
+  else if (tab === 'store')      renderStoreTab(c);
+  else if (tab === 'profile')    renderProfile(c);
+  else if (tab === 'ranking')    renderRanking(c);
   else if (tab === 'favourites') renderFavourites(c);
 }
 
-// ── Profile tab ─────────────────────────────────────────────────
+// ── Store tab ───────────────────────────────────────────────────
 
-function renderProfile(c) {
+async function renderStoreTab(c) {
+  c.innerHTML = `<div class="section" style="max-width:720px"></div>`;
+  const box = c.firstElementChild;
+  box.innerHTML = `<div style="color:var(--fg2);text-align:center;padding:24px">${esc(t('gs_loading'))}</div>`;
+  await GHLibrary.load(_token, true);
+  GHLibrary.renderStore(box, { token: _token });
+}
+
+// ── Ranking tab ─────────────────────────────────────────────────
+
+function renderRanking(c) {
+  c.innerHTML = `<div class="section" style="max-width:720px"></div>`;
+  GHStats.renderOverall(c.firstElementChild, {
+    myId: _me.id, token: _token,
+    onPlayer: p => showOtherPlayerProfile((_stats?.players || []).find(pl => pl.id === p.id) || p),
+  });
+}
+
+// ── Profile tab ─────────────────────────────────────────────────
+// Every number comes from the server's own count of the whole history. Wins and
+// win rate are multiplayer figures: a solo run has nobody to beat, and mixing
+// the two used to make the percentage meaningless.
+
+const _fmtTime = s => !s ? '—' : s >= 3600 ? Math.floor(s/3600) + 'h ' + String(Math.floor(s%3600/60)).padStart(2,'0') + 'm' : Math.max(1, Math.round(s/60)) + 'm';
+
+async function renderProfile(c) {
   const myId = _me.id;
-  const pstats = _stats?.leaderboard
-    ? Object.values(_stats.leaderboard).flat().filter(s=>s.player_id===myId)
-    : [];
-  const totalPlayed = pstats.reduce((a,s)=>a+(s.played||0),0);
-  const totalWins   = pstats.reduce((a,s)=>a+(s.wins||0),0);
-  const winRate     = totalPlayed ? Math.round(totalWins / totalPlayed * 100) : 0;
+  c.innerHTML = `<div class="section" style="color:var(--fg2);text-align:center;padding:30px">${esc(t('gs_loading'))}</div>`;
+  const hdr = {headers:{'X-GH-Token':_token}};
+  let sum = null, overall = null;
+  try {
+    const [a, b] = await Promise.all([fetch(`${BASE}/summary/${encodeURIComponent(myId)}`, hdr), fetch(`${BASE}/overall`, hdr), GHLibrary.load(_token)]);
+    sum = a.ok ? await a.json() : null;
+    overall = b.ok ? await b.json() : null;
+  } catch(_) {}
+  const me = overall?.players?.find(p => p.player_id === myId);
+  const cell = (v, l) => `<div class="stat-cell"><div class="stat-val">${v}</div><div class="stat-lbl">${esc(l)}</div></div>`;
+
+  let body = '';
+  if (!sum || !sum.played) {
+    body = `<div style="color:var(--fg2);text-align:center;padding:20px 0">${esc(t('gp_nothing_yet'))}</div>`;
+  } else {
+    body = `
+      <div class="stat-box">
+        ${cell(me ? '#' + me.place : '—', t('gs_overall_place'))}
+        ${cell(me ? me.points.toLocaleString(undefined,{maximumFractionDigits:1}) : '0', t('gs_points'))}
+        ${cell(sum.games.length, t('gs_games'))}
+      </div>
+      <div class="stat-box">
+        ${cell(sum.played, t('gs_games_played'))}
+        ${cell(sum.solo, t('gp_solo_games'))}
+        ${cell(_fmtTime(sum.seconds), t('gs_time_played'))}
+      </div>
+      <div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2);margin-bottom:6px">${esc(t('gp_multi_section'))}</div>
+        <div class="stat-box">
+          ${cell(sum.multi, t('gp_multi_games'))}
+          ${cell(sum.wins, t('gs_wins'))}
+          ${cell(sum.win_rate == null ? '—' : Math.round(sum.win_rate) + '%', t('gs_win_rate'))}
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--fg2);margin-bottom:6px">${esc(t('gp_by_game'))}</div>
+        <div style="overflow-x:auto"><table class="lb-table">
+          <thead><tr><th>${esc(t('gp_col_game'))}</th><th>${esc(t('gp_col_solo'))}</th><th>${esc(t('gp_col_multi'))}</th><th>${esc(t('gp_col_wins'))}</th><th>${esc(t('gp_col_rate'))}</th></tr></thead>
+          <tbody>${sum.games.map(g => { const gm = _gameMeta(g.game_id); return `
+            <tr><td style="font-weight:600">${esc(gm.icon)} ${esc(gm.name)}</td><td>${g.solo}</td><td>${g.multi}</td>
+            <td>${g.multi ? g.wins : '—'}</td><td style="font-weight:700">${g.win_rate == null ? '—' : Math.round(g.win_rate) + '%'}</td></tr>`; }).join('')}</tbody>
+        </table></div>
+        <div style="font-size:11px;color:var(--fg2);margin-top:6px">${esc(t('gp_rate_hint'))}</div>
+      </div>`;
+  }
 
   c.innerHTML = `
     <div class="section" style="display:flex;flex-direction:column;gap:16px;max-width:600px">
@@ -188,15 +269,8 @@ function renderProfile(c) {
           <div style="font-size:.85rem;color:var(--fg2)">@${esc(_me.username)}</div>
         </div>
       </a>
-      <div class="stat-box">
-        <div class="stat-cell"><div class="stat-val">${totalPlayed}</div><div class="stat-lbl">${esc(t('gh_played'))}</div></div>
-        <div class="stat-cell"><div class="stat-val">${totalWins}</div><div class="stat-lbl">${esc(t('gh_wins'))}</div></div>
-        <div class="stat-cell"><div class="stat-val">${winRate}%</div><div class="stat-lbl">${esc(t('gh_win_rate'))}</div></div>
-      </div>
-      <div id="prof-games"></div>
+      ${body}
     </div>`;
-
-  renderGames(c.querySelector('#prof-games'));
 }
 
 
@@ -240,7 +314,7 @@ function showSessionDetail(s, myId) {
     const color = p.avatar_color || '#585b70';
     const isMe  = p.player_id === myId;
     const isOther = p.player_id && !isMe;
-    const isWin = p.is_winner;
+    const isWin = p.is_winner && s.mode === 'multiplayer';
     const row = document.createElement('div');
     row.style.cssText = `display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;margin-bottom:4px;background:${isWin?'rgba(166,227,161,.12)':'var(--surface2)'};${isMe?'outline:1px solid var(--accent)':''}${isOther?';cursor:pointer':''}`;
     if (isOther) {
@@ -267,15 +341,13 @@ function showSessionDetail(s, myId) {
 }
 
 function showOtherPlayerProfile(p) {
-  const allSessions = (_stats?.recent||[]).filter(s => s.players.some(sp=>sp.player_id===p.id));
-  const games = [...new Set(allSessions.map(s=>s.game_id))].sort();
-
   const ov = document.createElement('div');
   ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px';
 
   const box = document.createElement('div');
   box.className = 'card';
-  box.style.cssText = 'width:100%;max-width:440px;max-height:90dvh;overflow-y:auto;display:flex;flex-direction:column';
+  box.style.cssText = 'width:100%;max-width:480px;max-height:90dvh;overflow-y:auto;display:flex;flex-direction:column';
+  const isSelf = _me && _me.id === p.id;
   box.innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid var(--border);flex-shrink:0">
       ${GHAvatar.renderAvatar(p, 46)}
@@ -286,17 +358,11 @@ function showOtherPlayerProfile(p) {
       <button id="op-fav" class="btn btn-secondary" style="padding:5px 10px;font-size:12px">${_isFav(p.id)?esc(t('gh_fav_saved')):esc(t('gh_fav_add'))}</button>
       <button id="op-close" class="btn btn-secondary" style="padding:4px 10px;font-size:15px;line-height:1">✕</button>
     </div>
-    ${games.length > 1 ? `
-    <div style="padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;gap:8px">
-      <label style="font-size:12px;color:var(--fg2)">${esc(t('gh_game_label'))}</label>
-      <select class="inp" id="op-game" style="flex:1;max-width:220px">
-        <option value="">${esc(t('gh_all_games'))}</option>
-        ${games.map(g=>`<option value="${esc(g)}">${esc(_stats?.game_meta?.[g]?.name||g)}</option>`).join('')}
-      </select>
-    </div>` : ''}
-    <div id="op-stats" style="display:flex;border-bottom:1px solid var(--border);flex-shrink:0"></div>
-    <div id="op-vs" style="border-bottom:1px solid var(--border);flex-shrink:0;display:none"></div>
-    <div id="op-sessions" style="padding:14px;display:flex;flex-direction:column;gap:6px"></div>`;
+    <div id="op-filter" style="padding:10px 16px;border-bottom:1px solid var(--border);flex-shrink:0;display:none;align-items:center;gap:8px"></div>
+    <div id="op-stats" style="display:flex;flex-shrink:0"></div>
+    <div id="op-versus"></div>
+    <div id="op-hist" style="padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap"></div>
+    <div id="op-sessions" style="padding:0 14px 14px;display:flex;flex-direction:column;gap:6px"></div>`;
 
   ov.appendChild(box);
   document.body.appendChild(ov);
@@ -309,108 +375,108 @@ function showOtherPlayerProfile(p) {
     favBtn.textContent = _isFav(p.id) ? t('gh_fav_saved') : t('gh_fav_add');
   };
 
-  function renderProfile(gameFilter) {
-    const filteredSessions = gameFilter
-      ? allSessions.filter(s=>s.game_id===gameFilter)
-      : allSessions;
-    const pstats = _stats?.leaderboard
-      ? (gameFilter
-          ? (_stats.leaderboard[gameFilter]||[]).filter(s=>s.player_id===p.id)
-          : Object.values(_stats.leaderboard).flat().filter(s=>s.player_id===p.id))
-      : [];
-    const totalPlayed = pstats.reduce((a,s)=>a+(s.played||0),0);
-    const totalWins   = pstats.reduce((a,s)=>a+(s.wins||0),0);
-    const statsCols   = [[totalPlayed,t('gh_played')],[totalWins,t('gh_wins')],[filteredSessions.length,t('gh_sessions_suffix')]];
-    if (gameFilter) {
-      const best = pstats.reduce((a,s)=>Math.max(a,s.best_score||0),0);
-      statsCols.push([best||'—',t('gh_best')]);
-    }
+  let current = '';       // the game this view is narrowed to
+  let openList = null;    // which history list is showing: 'all', 'shared' or null
 
-    box.querySelector('#op-stats').innerHTML = statsCols.map(([v,l],i) => `
-      <div style="flex:1;text-align:center;padding:12px 8px;${i<statsCols.length-1?'border-right:1px solid var(--border)':''}">
-        <div style="font-size:20px;font-weight:700">${v}</div>
-        <div style="font-size:11px;color:var(--fg2);margin-top:2px">${l}</div>
-      </div>`).join('');
-
-    // Head-to-head vs me
-    const vsEl = box.querySelector('#op-vs');
-    if (_me && _me.id !== p.id) {
-      const sharedSessions = filteredSessions.filter(s =>
-        s.mode === 'multiplayer' &&
-        s.players.some(sp=>sp.player_id===_me.id) &&
-        s.players.some(sp=>sp.player_id===p.id)
-      );
-      if (sharedSessions.length) {
-        let myWins = 0, theirWins = 0;
-        sharedSessions.forEach(s => {
-          const me = s.players.find(sp=>sp.player_id===_me.id);
-          const them = s.players.find(sp=>sp.player_id===p.id);
-          if (me?.score != null && them?.score != null) {
-            if (me.score > them.score) myWins++;
-            else if (them.score > me.score) theirWins++;
-          } else {
-            if (me?.is_winner) myWins++;
-            else if (them?.is_winner) theirWins++;
-          }
-        });
-        vsEl.innerHTML = `
-          <div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 16px">
-            <div style="text-align:center">
-              <div style="font-size:22px;font-weight:800;color:var(--accent)">${myWins}</div>
-              <div style="font-size:11px;color:var(--fg2)">${esc(_me.display_name)}</div>
-            </div>
-            <div style="font-size:12px;color:var(--fg2);font-weight:600">${esc(t('gh_vs'))}</div>
-            <div style="text-align:center">
-              <div style="font-size:22px;font-weight:800">${theirWins}</div>
-              <div style="font-size:11px;color:var(--fg2)">${esc(p.display_name||p.username)}</div>
-            </div>
-            <div style="font-size:11px;color:var(--fg2);margin-left:4px">${sharedSessions.length} ${esc(t('gh_games_suffix',{s:sharedSessions.length!==1?'s':''}))}</div>
-          </div>`;
-        vsEl.style.display = '';
-      } else {
-        vsEl.style.display = 'none';
-      }
-    }
-
+  // The list of games is not loaded until somebody asks for it: it is long, and
+  // most of the time the comparison above it is all that is wanted.
+  async function showHistory(kind) {
     const sc = box.querySelector('#op-sessions');
     sc.innerHTML = '';
-    if (!filteredSessions.length) {
-      sc.innerHTML = `<div style="color:var(--fg2);text-align:center;padding:20px">${esc(t('gh_no_sessions'))}</div>`;
-      return;
-    }
-    filteredSessions.forEach(s => {
+    if (openList === kind) { openList = null; drawHistButtons(); return; }
+    openList = kind;
+    drawHistButtons();
+    sc.innerHTML = `<div style="color:var(--fg2);text-align:center;padding:14px">${esc(t('gs_loading'))}</div>`;
+    let list = [];
+    try {
+      const r = await fetch(`${BASE}/history/${encodeURIComponent(p.id)}?shared=${kind === 'shared' ? 1 : 0}${current ? '&game=' + encodeURIComponent(current) : ''}`, {headers:{'X-GH-Token':_token}});
+      list = r.ok ? await r.json() : [];
+    } catch(_) {}
+    if (openList !== kind) return;
+    sc.innerHTML = '';
+    if (!list.length) { sc.innerHTML = `<div style="color:var(--fg2);text-align:center;padding:14px">${esc(t('gh_no_sessions'))}</div>`; return; }
+    list.forEach(s => {
       let meta = {}; try { meta = JSON.parse(s.metadata||'{}'); } catch(_) {}
       const metaParts = [];
       if(meta.rounds!=null)         metaParts.push(`${meta.rounds} ${t('gh_rounds_suffix')}`);
       if(meta.time_per_round!=null) metaParts.push(meta.time_per_round===0?t('gh_no_limit_lower'):fmtDur(meta.time_per_round)+t('gh_per_round_suffix'));
       const modeLabel = s.mode==='singleplayer'?'👤':'👥';
       const pr = s.players.find(sp=>sp.player_id===p.id);
-      const { icon } = _gameMeta(s.game_id);
+      const gm = _gameMeta(s.game_id);
       const row = document.createElement('div');
       row.className = 'row';
       row.innerHTML = `
-        <div style="font-size:18px">${icon}</div>
+        <div style="font-size:18px">${esc(gm.icon)}</div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:600">${!gameFilter?esc(_stats?.game_meta?.[s.game_id]?.name||s.game_id)+' ':''}${modeLabel} ${fmtDate(s.played_at)}</div>
+          <div style="font-size:13px;font-weight:600">${!current?esc(gm.name)+' ':''}${modeLabel} ${fmtDate(s.played_at)}</div>
           ${metaParts.length?`<div style="font-size:11px;color:var(--fg2)">${metaParts.join(' · ')}</div>`:''}
         </div>
         <div style="text-align:right;flex-shrink:0">
           ${pr?.score!=null?`<div style="font-weight:700;font-size:14px">${pr.score} pts</div>`:''}
-          ${pr?.is_winner?`<div class="badge-win">🏆</div>`:''}
+          ${pr?.is_winner && s.mode==='multiplayer'?`<div class="badge-win">🏆</div>`:''}
         </div>`;
       row.onclick = () => showSessionDetail(s, _me.id);
       sc.appendChild(row);
     });
   }
 
-  renderProfile('');
-  const sel = box.querySelector('#op-game');
-  if (sel) sel.onchange = () => renderProfile(sel.value);
+  function drawHistButtons() {
+    const h = box.querySelector('#op-hist');
+    const btn = (kind, label) => `<button class="btn btn-secondary" data-h="${kind}" style="padding:6px 12px;font-size:.8rem${openList===kind?';background:var(--accent);color:#1e1e2e':''}">${esc(label)}${openList===kind?' ▴':' ▾'}</button>`;
+    h.innerHTML = btn('all', t('gv_history')) + (isSelf ? '' : btn('shared', t('gv_shared_history')));
+    h.querySelectorAll('[data-h]').forEach(b => b.onclick = () => showHistory(b.dataset.h));
+  }
+
+  // Totals are counted by the server over the whole history.
+  async function show(gameFilter) {
+    current = gameFilter;
+    openList = null;
+    box.querySelector('#op-sessions').innerHTML = '';
+    drawHistButtons();
+    let d = null;
+    try {
+      const r = await fetch(`${BASE}/summary/${encodeURIComponent(p.id)}`, {headers:{'X-GH-Token':_token}});
+      d = r.ok ? await r.json() : null;
+    } catch(_) {}
+    if (!d) return;
+    const rows = gameFilter ? d.games.filter(g => g.game_id === gameFilter) : d.games;
+    const solo = rows.reduce((a,g)=>a+g.solo,0), multi = rows.reduce((a,g)=>a+g.multi,0), wins = rows.reduce((a,g)=>a+g.wins,0);
+    const cols = [[solo+multi, t('gs_games_played')], [multi ? wins : '—', t('gs_wins')], [multi ? Math.round(100*wins/multi)+'%' : '—', t('gs_win_rate')]];
+    box.querySelector('#op-stats').innerHTML = cols.map(([v,l],i) => `
+      <div style="flex:1;text-align:center;padding:12px 8px;${i<cols.length-1?'border-right:1px solid var(--border)':''}">
+        <div style="font-size:20px;font-weight:700">${v}</div>
+        <div style="font-size:11px;color:var(--fg2);margin-top:2px">${esc(l)}</div>
+      </div>`).join('');
+
+    const filter = box.querySelector('#op-filter');
+    if (d.games.length > 1) {
+      filter.style.display = 'flex';
+      if (!filter.firstChild) {
+        filter.innerHTML = `<label style="font-size:12px;color:var(--fg2)">${esc(t('gh_game_label'))}</label>
+          <select class="inp" style="flex:1;max-width:220px"><option value="">${esc(t('gh_all_games'))}</option>
+          ${d.games.map(g=>`<option value="${esc(g.game_id)}">${esc(_gameMeta(g.game_id).name)}</option>`).join('')}</select>`;
+        filter.querySelector('select').onchange = e => show(e.target.value);
+      }
+      filter.querySelector('select').value = gameFilter;
+    }
+
+    const vs = box.querySelector('#op-versus');
+    if (isSelf) { vs.innerHTML = ''; return; }
+    GHStats.renderVersus(vs, {
+      otherId: p.id, otherName: p.display_name || p.username, myName: _me.display_name, token: _token, game: gameFilter,
+      gameInfo: id => _gameMeta(id),
+      onGame: id => show(id),
+    });
+  }
+
+  show('');
 }
 
 // ── Games tab ───────────────────────────────────────────────────
 
 function _gameMeta(gameId) {
+  const g = window.GHLibrary && GHLibrary.find(gameId);
+  if (g) return { name: GHLibrary.gameName(g), icon: g.icon || '🎮' };
   const m = _stats?.game_meta?.[gameId];
   return { name: m?.name || gameId, icon: m?.icon || '🎮' };
 }
@@ -538,6 +604,7 @@ async function renderGames(c) {
   c.innerHTML = `<div style="display:flex;flex-direction:column;gap:16px"></div>`;
   const sc = c.querySelector('div');
   const myId = _me.id;
+  await GHLibrary.load(_token, true);
 
   // ── Resume: games you are still in ─────────────────────────
   // Asked of the server, not of localStorage. The old version read a
@@ -591,33 +658,18 @@ async function renderGames(c) {
     sc.appendChild(invSec);
   }
 
-  // ── Game grid ─────────────────────────────────────────────────
-  let mpGames = [];
-  try { const r = await fetch(MP_API + '/games'); mpGames = r.ok ? await r.json() : []; } catch(_) {}
+  // ── The player's own games ───────────────────────────────────
+  // Every game on the server is offered in the Store tab; this page shows the
+  // ones this profile chose, filtered by category and sorted as it likes.
+  const lib = GHLibrary.find;
 
-  // Merge multiplayer games with games from stats history
-  const allGameIds = [...new Set([
-    ...mpGames.map(g => g.id),
-    ...(_stats?.games || []),
-  ])];
+  const shelf = document.createElement('div');
+  shelf.style.cssText = 'display:flex;flex-direction:column;gap:14px';
+  sc.appendChild(shelf);
 
-  if (!allGameIds.length) {
-    sc.appendChild(Object.assign(document.createElement('div'), {
-      style: 'color:var(--fg2);font-size:13px;padding:20px 0;text-align:center',
-      textContent: t('gh_no_games_yet'),
-    }));
-    return;
-  }
-
-  const grid = document.createElement('div');
-  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px';
-  sc.appendChild(grid);
-
-  for (const gameId of allGameIds) {
-    const mpGame = mpGames.find(g => g.id === gameId);
-    const { name, icon } = _gameMeta(gameId);
-    const myLb = (_stats?.leaderboard?.[gameId] || []).find(r => r.player_id === myId);
-    const mySess = (_stats?.recent || []).filter(s => s.game_id === gameId && s.players.some(p => p.player_id === myId));
+  const cardFor = game => {
+    const gameId = game.id;
+    const name = GHLibrary.gameName(game), icon = game.icon || '🎮';
     const hasInvite = _invites.some(inv => inv.game_id === gameId);
 
     const card = document.createElement('div');
@@ -628,29 +680,31 @@ async function renderGames(c) {
     const badge = hasInvite ? `<span style="position:absolute;top:10px;right:10px;background:var(--red);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:2px 7px">!</span>` : '';
     // A game that declares "multiplayer": false in its manifest is a solo
     // game, so it must not advertise itself as multiplayer on the card.
-    const modeLabel = mpGame ? (_isMultiplayer(mpGame) ? t('gh_multiplayer_short') : t('gh_singleplayer_short')) : '';
+    const modeLabel = _isMultiplayer(game) ? t('gh_multiplayer_short') : t('gh_singleplayer_short');
     // What is waiting in this game outranks how much of it you have played —
     // a saved game is easy to forget you have, and the card is where you look.
     const subtext = _myRoomFor(gameId) ? t('gh_run_in_progress_short')
       : _mySaveFor(gameId) ? t('gh_saved_game_short')
-      : myLb ? `${myLb.played} ${t('gh_played').toLowerCase()} · ${myLb.wins} ${t('gh_wins').toLowerCase()}`
-      : mySess.length ? `${mySess.length} ${t('gh_sessions_suffix').toLowerCase()}` : modeLabel;
+      : game.open_count ? `${game.open_count} ${t('gh_sessions_suffix').toLowerCase()}` : modeLabel;
 
     card.innerHTML = `
       ${badge}
       <div style="font-size:42px;line-height:1">${icon}</div>
       <div style="font-weight:700;font-size:13px">${esc(name)}</div>
       ${subtext ? `<div style="font-size:11px;color:var(--fg2)">${esc(subtext)}</div>` : ''}`;
-    card.onclick = () => renderGameDetail(c, gameId, mpGame || null);
-    grid.appendChild(card);
-  }
+    card.onclick = () => renderGameDetail(c, gameId, game);
+    return card;
+  };
+
+  GHLibrary.renderShelf(shelf, {
+    token: _token, cardFor,
+    openStore: () => app.querySelector('.tab[data-t="store"]')?.click(),
+  });
 
   if (_deepLinkGame) {
     const wanted = _deepLinkGame;
     _deepLinkGame = null;
-    if (allGameIds.includes(wanted)) {
-      renderGameDetail(c, wanted, mpGames.find(g => g.id === wanted) || null);
-    }
+    if (lib(wanted)) renderGameDetail(c, wanted, lib(wanted));
   }
 }
 
@@ -693,7 +747,7 @@ async function _createGame(btn, gameId, maxPlayers, resume) {
 async function renderGameDetail(c, gameId, mpGame) {
   const myId = _me.id;
   const { name, icon } = _gameMeta(gameId);
-  c.innerHTML = `<div class="section" data-view="detail" style="display:flex;flex-direction:column;gap:16px;max-width:560px"></div>`;
+  c.innerHTML = `<div class="section" data-view="detail" style="display:flex;flex-direction:column;gap:16px;max-width:720px"></div>`;
   const sc = c.querySelector('.section');
 
   // Back button
@@ -711,7 +765,7 @@ async function renderGameDetail(c, gameId, mpGame) {
   tabBar.innerHTML = `
     <button class="tab active" data-gt="play">${icon} ${esc(name)}</button>
     <button class="tab" data-gt="history">${esc(t('gh_history'))}</button>
-    <button class="tab" data-gt="leaderboard">${esc(t('gh_leaderboard'))}</button>`;
+    <button class="tab" data-gt="leaderboard">${esc(t('gs_stats'))}</button>`;
   sc.appendChild(tabBar);
 
   const tabBody = document.createElement('div');
@@ -837,7 +891,7 @@ async function renderGameDetail(c, gameId, mpGame) {
             </div>
             <div style="text-align:right;flex-shrink:0">
               ${myResult?.score!=null?`<div style="font-weight:700;font-size:14px">${myResult.score} pts</div>`:''}
-              ${myResult?.is_winner?`<div class="badge-win">🏆</div>`:''}
+              ${myResult?.is_winner && s.mode==='multiplayer'?`<div class="badge-win">🏆</div>`:''}
             </div>`;
           row.onclick = () => showSessionDetail(s, myId);
           tabBody.appendChild(row);
@@ -845,122 +899,13 @@ async function renderGameDetail(c, gameId, mpGame) {
       }
 
     } else if (tab === 'leaderboard') {
-      tabBody.innerHTML = '';
-
-      // Build full leaderboard from session data, normalised by rounds
-      const sessions = (_stats?.recent || []).filter(s => s.game_id === gameId);
-
-      function renderLbTable(lb) {
-        const tblWrap = tabBody.querySelector('#lb-table-wrap');
-        tblWrap.innerHTML = '';
-        if (!lb.length) {
-          tblWrap.innerHTML = `<div style="color:var(--fg2);font-size:13px;padding:20px 0;text-align:center">${esc(t('gh_no_data'))}</div>`;
-          return;
-        }
-        const hasSpr = lb.some(r => r.avg_spr != null);
-        // A game that never reports rounds — every solo game, for one — has no
-        // points-per-round to rank by, and wins mean nothing when nobody is
-        // being beaten. Best score is the ranking that game actually has.
-        const hasBest = !hasSpr && lb.some(r => r.best != null);
-        const tbl = document.createElement('table');
-        tbl.className = 'lb-table';
-        tbl.innerHTML = `<thead><tr><th>${esc(t('gh_col_num'))}</th><th>${esc(t('gh_col_player'))}</th><th>${esc(t('gh_col_played'))}</th><th>${esc(t('gh_col_wins'))}</th>${hasSpr?`<th>${esc(t('gh_col_pts_round'))}</th>`:hasBest?`<th>${esc(t('gh_col_best'))}</th>`:''}</tr></thead>`;
-        const tbody = document.createElement('tbody');
-        lb.forEach((r, i) => {
-          const isMe    = r.player_id === myId;
-          const isOther = r.player_id && !isMe;
-          const tr = document.createElement('tr');
-          if (isMe) tr.className = 'me';
-          if (isOther) tr.style.cursor = 'pointer';
-          tr.innerHTML = `
-            <td style="color:var(--fg2)">${i+1}</td>
-            <td style="font-weight:600">${esc(r.display_name)}${isMe?` <span style="font-size:10px;color:var(--accent)">(${esc(t('gh_you'))})</span>`:' <span style="font-size:10px;color:var(--fg2)">›</span>'}</td>
-            <td>${r.played}</td><td>${r.wins}</td>
-            ${hasSpr?`<td style="font-weight:700">${r.avg_spr!=null?r.avg_spr.toFixed(1):'—'}</td>`:hasBest?`<td style="font-weight:700">${r.best!=null?r.best:'—'}</td>`:''}`;
-          if (isOther) {
-            tr.onmouseenter = () => tr.style.background = 'var(--surface2)';
-            tr.onmouseleave = () => tr.style.background = '';
-            tr.onclick = () => { const full = (_stats?.players||[]).find(pl=>pl.id===r.player_id)||r; showOtherPlayerProfile(full); };
-          }
-          tbody.appendChild(tr);
-        });
-        tbl.appendChild(tbody);
-        tblWrap.appendChild(tbl);
-      }
-
-      const ctrl = document.createElement('div');
-      ctrl.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap';
-      ctrl.innerHTML = `
-        <select class="inp" id="lb-scope" style="flex:1;min-width:140px;padding:6px 10px">
-          <option value="global">${esc(t('gh_global_leaderboard'))}</option>
-          <option value="mine">${esc(t('gh_my_games_only'))}</option>
-        </select>
-        <select class="inp" id="lb-period" style="flex:1;min-width:120px;padding:6px 10px">
-          <option value="all">${esc(t('gh_all_time'))}</option>
-          <option value="week">${esc(t('gh_this_week'))}</option>
-          <option value="month">${esc(t('gh_this_month'))}</option>
-          <option value="year">${esc(t('gh_this_year'))}</option>
-        </select>`;
-      tabBody.appendChild(ctrl);
-
-      const tblWrap = document.createElement('div');
-      tblWrap.id = 'lb-table-wrap';
-      tabBody.appendChild(tblWrap);
-
-      function periodStart(p) {
-        const now = new Date();
-        if (p === 'week')  { const d = new Date(now); d.setDate(d.getDate() - d.getDay()); d.setHours(0,0,0,0); return d; }
-        if (p === 'month') { return new Date(now.getFullYear(), now.getMonth(), 1); }
-        if (p === 'year')  { return new Date(now.getFullYear(), 0, 1); }
-        return null;
-      }
-
-      function refresh() {
-        const mine = ctrl.querySelector('#lb-scope').value === 'mine';
-        const period = ctrl.querySelector('#lb-period').value;
-        const since = periodStart(period);
-        const filteredSessions = since
-          ? sessions.filter(s => new Date(s.played_at) >= since)
-          : sessions;
-        renderLbTable(buildLb(mine, filteredSessions));
-      }
-
-      // Update buildLb to accept sessions param
-      function buildLb(filterMine, src) {
-        const pool = src ?? sessions;
-        const mySrcIds = new Set();
-        pool.forEach(s => { if (s.players.some(p => p.player_id === myId)) s.players.forEach(p => { if (p.player_id) mySrcIds.add(p.player_id); }); });
-        const playerMap = {};
-        const filtered = filterMine ? pool.filter(s => s.players.some(p => p.player_id === myId)) : pool;
-        filtered.forEach(s => {
-          let rounds = null;
-          try { rounds = JSON.parse(s.metadata||'{}').rounds ?? null; } catch(_) {}
-          s.players.forEach(p => {
-            if (!p.player_id) return;
-            if (filterMine && !mySrcIds.has(p.player_id)) return;
-            if (!playerMap[p.player_id]) {
-              const full = (_stats?.players||[]).find(pl=>pl.id===p.player_id) || p;
-              playerMap[p.player_id] = { player_id: p.player_id, display_name: full.display_name || p.display_name || '?', played: 0, wins: 0, spr: [], best: null };
-            }
-            const entry = playerMap[p.player_id];
-            entry.played++;
-            if (p.is_winner) entry.wins++;
-            if (p.score != null && rounds) entry.spr.push(p.score / rounds);
-            if (p.score != null && (entry.best == null || p.score > entry.best)) entry.best = p.score;
-          });
-        });
-        const lb = Object.values(playerMap)
-          .map(e => ({ ...e, avg_spr: e.spr.length ? e.spr.reduce((a,b)=>a+b,0)/e.spr.length : null }));
-        // Points per round stays the ranking wherever it exists, so nothing
-        // changes for the games that report rounds.
-        return lb.some(e => e.avg_spr != null)
-          ? lb.sort((a, b) => (b.avg_spr ?? -1) - (a.avg_spr ?? -1))
-          : lb.sort((a, b) => (b.best ?? -1) - (a.best ?? -1));
-      }
-
-      refresh();
-      ctrl.querySelector('#lb-scope').onchange = refresh;
-      ctrl.querySelector('#lb-period').onchange = refresh;
+      // The numbers a game reports are drawn by the shared statistics module;
+      // nothing on this page knows which game it is looking at.
+      GHStats.renderGame(tabBody, {
+        gameId, name, icon, myId, token: _token,
+        favIds: () => (_favs || []).map(f => f.id),
+        onPlayer: p => showOtherPlayerProfile((_stats?.players || []).find(pl => pl.id === p.id) || p),
+      });
     }
   }
 

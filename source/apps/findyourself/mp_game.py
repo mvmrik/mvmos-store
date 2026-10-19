@@ -309,11 +309,29 @@ class Game:
             "score": s["total"],
             "rank": i + 1,
             "is_winner": i == 0 and len(standings) > 1,
+            "stats": self._player_stats(s["player_id"], s["total"]),
         } for i, s in enumerate(standings)]
         await self.ctx.finish(records, metadata={
             "rounds": self.rounds_total,
             "time_per_round": self.time_per_round,
-        })
+        }, stats={"rounds": self.rounds_total})
+
+    def _player_stats(self, pid, total):
+        """The numbers Game Hub's statistics page shows for this player. The
+        score is the sum over however many rounds were set, so points per round
+        is what makes a short game and a long one comparable."""
+        rounds = [self.guesses.get(r, {}).get(pid) for r in range(1, self.rounds_total + 1)]
+        scores = [(g or {}).get("score", 0) for g in rounds]
+        dists = [g["dist_km"] for g in rounds if g and g.get("dist_km") is not None]
+        stats = {
+            "score_per_round": total / max(1, self.rounds_total),
+            "best_round": max(scores) if scores else 0,
+            "guessed": 100.0 * len(dists) / max(1, self.rounds_total),
+        }
+        if dists:
+            stats["avg_distance"] = sum(dists) / len(dists)
+            stats["closest"] = min(dists)
+        return stats
 
     # ── state snapshot for (re)joiners ───────────────────────────────────────
 

@@ -3,7 +3,13 @@
   "name": "Hearthvale",
   "icon": "🏡",
   "category": "Games",
-  "tags": ["3d", "open world", "multiplayer", "farming", "games"],
+  "tags": [
+    "3d",
+    "open world",
+    "multiplayer",
+    "farming",
+    "games"
+  ],
   "version": "0.1.0",
   "beta": true,
   "min_core_version": "1.0.0",
@@ -12,5 +18,19 @@
   "multiplayer": false,
   "max_players": 1,
   "themed": true,
-  "public_directory": false
+  "public_directory": false,
+  "gamehub": {
+    "category": "adventure",
+    "description": {
+      "en": "One shared 3D valley: walk in, explore and meet the other players.",
+      "bg": "Една споделена 3D долина: влез, разгледай и срещни другите играчи.",
+      "de": "Ein gemeinsames 3D-Tal: hineingehen, erkunden und andere Spieler treffen.",
+      "es": "Un valle 3D compartido: entra, explora y conoce a otros jugadores.",
+      "fr": "Une vallée 3D partagée : entrez, explorez et rencontrez les autres joueurs.",
+      "ja": "みんなで共有する3Dの谷。入って探検し、ほかのプレイヤーに会いましょう。",
+      "pt-BR": "Um vale 3D compartilhado: entre, explore e conheça os outros jogadores.",
+      "ru": "Одна общая 3D-долина: заходите, исследуйте и встречайте других игроков.",
+      "zh-CN": "一个共享的 3D 山谷：随时进入、探索并结识其他玩家。"
+    }
+  }
 }

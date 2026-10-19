@@ -72,6 +72,16 @@ function _ght(k) { const l=window.mvmOS?.lang||'en'; return (_gh18n[l]||_gh18n.e
 
 const _GH_COLORS = ['#89b4fa','#a6e3a1','#f38ba8','#fab387','#f9e2af','#cba6f7','#94e2d5','#f5c2e7','#74c7ec','#eba0ac'];
 
+function _ghLoadScript(src) {
+  return new Promise(resolve => {
+    const el = document.createElement('script');
+    el.src = window.asset(src);
+    el.onload = resolve;
+    el.onerror = resolve;
+    document.head.appendChild(el);
+  });
+}
+
 mvmOS.registerApp({
   id: 'gamehub',
   name: _ght('title'),
@@ -85,7 +95,7 @@ mvmOS.registerApp({
       width: 860,
       height: 580,
       onMount(body) {
-        body.style.cssText = 'display:flex;flex-direction:column;height:100%;overflow:hidden;font-family:var(--font,sans-serif);background:var(--bg);color:var(--fg)';
+        body.style.cssText = '--surface1:var(--surface);--fg:var(--text);--fg2:var(--text-dim);--green:var(--success,#22863a);--red:var(--danger);--yellow:#a66f00;display:flex;flex-direction:column;height:100%;overflow:hidden;font-family:var(--font,sans-serif);background:var(--bg);color:var(--fg)';
 
         const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
         const btn = (bg) => `padding:4px 12px;border-radius:6px;border:none;cursor:pointer;font-size:13px;background:${bg||'var(--surface2)'};color:${bg?'#fff':'var(--fg)'}`;
@@ -107,19 +117,20 @@ mvmOS.registerApp({
             <span style="font-weight:700;font-size:15px">🎮 ${_ght('title')}</span>
             <div style="flex:1"></div>
             <div id="gh-me-avatar" style="cursor:default;flex-shrink:0"></div>
-            ${['games','favourites'].map(t=>`<button id="gh-t-${t}" style="${btn()}">${t==='games'?'Games':'Favourites'}</button>`).join('')}
+            ${['games','ranking','favourites'].map(t=>`<button id="gh-t-${t}" style="${btn()}">${t==='games'?window.t('gl_tab_games'):t==='ranking'?window.t('gs_ranking'):window.t('gh_favourites')}</button>`).join('')}
             <button id="gh-t-settings" style="${btn()}" title="Settings">⚙</button>
           </div>
           <div id="gh-body" style="flex:1;overflow-y:auto;padding:14px"></div>
         `;
 
-        ['games','favourites','settings'].forEach(t => {
+        ['games','ranking','favourites','settings'].forEach(t => {
           body.querySelector(`#gh-t-${t}`).onclick = () => { tab=t; renderTabs(); render(); };
         });
 
         function renderTabs() {
-          ['games','favourites','settings'].forEach(t => {
+          ['games','ranking','favourites','settings'].forEach(t => {
             const b = body.querySelector(`#gh-t-${t}`); if(!b) return;
+            if (t !== 'settings') b.textContent = window.t(t === 'games' ? 'gl_tab_games' : t === 'ranking' ? 'gs_ranking' : 'gh_favourites');
             b.style.background = tab===t ? 'var(--accent)' : 'var(--surface2)';
             b.style.color      = tab===t ? '#fff' : 'var(--fg)';
           });
@@ -142,16 +153,23 @@ mvmOS.registerApp({
         (function() {
           if (window.GameHub) { window.GameHub.init().then(() => { _ghMe = window.GameHub.currentPlayer(); _renderGhMeAvatar(); }); return; }
           const s = document.createElement('script');
-          s.src = `/apps/gamehub/widget.js?_=${Date.now()}`;
+          s.src = window.asset('/apps/gamehub/widget.js');
           s.onload = () => window.GameHub?.init().then(() => { _ghMe = window.GameHub.currentPlayer(); _renderGhMeAvatar(); });
           document.head.appendChild(s);
         })();
+
+        // Statistics views are shared with the public page (stats-ui.js) and
+        // read their texts from the app's own i18n.js.
+        const _statsReady = Promise.all([
+          window.GAMEHUB_I18N ? null : _ghLoadScript('/apps/gamehub/i18n.js'),
+          window.GHStats ? null : _ghLoadScript('/apps/gamehub/stats-ui.js'),
+        ]);
 
         // Load avatar renderer
         const _avatarReady = new Promise(resolve => {
           if (window.GHAvatar) { resolve(); return; }
           const s = document.createElement('script');
-          s.src = `/apps/gamehub/avatar.js?_=${Date.now()}`;
+          s.src = window.asset('/apps/gamehub/avatar.js');
           s.onload = resolve;
           document.head.appendChild(s);
         });
@@ -160,6 +178,7 @@ mvmOS.registerApp({
           const [sr] = await Promise.all([
             fetch('/api/gamehub/stats'),
             _avatarReady,
+            _statsReady,
           ]);
           stats   = sr.ok ? await sr.json() : null;
           _ghFavs = null; // reset cache so favourites tab reloads fresh
@@ -169,6 +188,7 @@ mvmOS.registerApp({
         function render() {
           renderTabs();
           if(tab==='games')           renderGames();
+          else if(tab==='ranking')    renderRanking();
           else if(tab==='favourites') renderFavourites();
           else if(tab==='settings')   renderSettings();
         }
@@ -497,6 +517,18 @@ mvmOS.registerApp({
           title.innerHTML = `<span>${icon}</span><span>${esc(name)}</span>`;
           c.appendChild(title);
 
+          // Statistics: boards, charts and rating, built from what the game reports.
+          const statsBox = document.createElement('div');
+          statsBox.style.marginBottom = '18px';
+          c.appendChild(statsBox);
+          _statsReady.then(() => window.GHStats && window.GHStats.renderGame(statsBox, {
+            gameId, name, icon,
+            myId: (_ghMe || window.GameHub?.currentPlayer())?.id || null,
+            token: _ghToken(),
+            favIds: () => (_ghFavs || []).map(f => f.id),
+            onPlayer: p => showPlayerProfile((stats?.players||[]).find(pl => pl.id === p.id) || p),
+          }));
+
           // Sessions
           const sessHead = document.createElement('div');
           sessHead.style.cssText = 'font-weight:600;font-size:13px;color:var(--accent);margin-bottom:8px';
@@ -537,94 +569,16 @@ mvmOS.registerApp({
               c.appendChild(row);
             });
           }
+        }
 
-          // Leaderboard
-          const lb = stats.leaderboard[gameId] || [];
-          const lbHead = document.createElement('div');
-          lbHead.style.cssText = 'font-weight:600;font-size:13px;color:var(--accent);margin-top:10px;margin-bottom:8px';
-          lbHead.textContent = 'Leaderboard';
-          c.appendChild(lbHead);
-
-          if(!lb.length) {
-            const empty = document.createElement('div');
-            empty.style.cssText = 'color:var(--fg2);font-size:13px';
-            empty.textContent = _ght('no_stats');
-            c.appendChild(empty);
-          } else {
-            const tbl = document.createElement('table');
-            tbl.style.cssText = 'width:100%;border-collapse:collapse;font-size:13px';
-            tbl.innerHTML = `<thead><tr style="color:var(--fg2);font-size:11px;text-align:left">
-              <th style="padding:4px 8px">#</th>
-              <th style="padding:4px 8px">${_ght('display_name')}</th>
-              <th style="padding:4px 8px;text-align:right">${_ght('played')}</th>
-              <th style="padding:4px 8px;text-align:right">${_ght('wins')}</th>
-              <th style="padding:4px 8px;text-align:right">${_ght('best')}</th>
-              <th style="padding:4px 8px;text-align:right">${_ght('avg')}</th>
-            </tr></thead>`;
-            const tbody = document.createElement('tbody');
-            lb.forEach((r,i) => {
-              const tr = document.createElement('tr');
-              tr.style.cssText = `background:${i%2?'var(--surface1)':'transparent'};cursor:pointer`;
-              tr.innerHTML = `
-                <td style="padding:5px 8px;color:var(--fg2)">${i+1}</td>
-                <td style="padding:5px 8px">
-                  <span style="display:inline-flex;align-items:center;gap:6px">
-                    <span style="width:10px;height:10px;border-radius:50%;background:${esc(r.avatar_color)};display:inline-block"></span>
-                    ${esc(r.display_name)} <span style="font-size:10px;color:var(--fg2)">›</span>
-                  </span>
-                </td>
-                <td style="padding:5px 8px;text-align:right">${r.played}</td>
-                <td style="padding:5px 8px;text-align:right;color:var(--accent)">${r.wins}</td>
-                <td style="padding:5px 8px;text-align:right">${r.best_score!=null?Math.round(r.best_score*10)/10:'—'}</td>
-                <td style="padding:5px 8px;text-align:right;color:var(--fg2)">${r.avg_score!=null?Math.round(r.avg_score*10)/10:'—'}</td>`;
-              tr.onmouseenter = () => tr.style.opacity = '.75';
-              tr.onmouseleave = () => tr.style.opacity = '1';
-              tr.onclick = () => {
-                const full = (stats?.players||[]).find(pl=>pl.id===r.player_id) || r;
-                showPlayerProfile(full);
-              };
-              tbody.appendChild(tr);
-            });
-            tbl.appendChild(tbody);
-            c.appendChild(tbl);
-          }
-
-          // Head to head for this game
-          const gameSess = sess.map(s=>s.id);
-          const h2h = (stats.head2head||[]).filter(r => {
-            const playerMap = Object.fromEntries((stats.players||[]).map(p=>[p.id,p]));
-            return playerMap[r.p1] && playerMap[r.p2];
-          });
-          if(h2h.length) {
-            const playerMap = Object.fromEntries((stats.players||[]).map(p=>[p.id,p]));
-            const h2hInGame = h2h.filter(r => {
-              const gamePlayerIds = new Set(sess.flatMap(s=>s.players.filter(p=>p.player_id).map(p=>p.player_id)));
-              return gamePlayerIds.has(r.p1) && gamePlayerIds.has(r.p2);
-            });
-            if(h2hInGame.length) {
-              const sec = document.createElement('div');
-              sec.style.marginTop = '16px';
-              sec.innerHTML = `<div style="font-weight:600;font-size:13px;color:var(--accent);margin-bottom:8px">${_ght('prof_head_to_head')}</div>`;
-              h2hInGame.forEach(r => {
-                const p1 = playerMap[r.p1], p2 = playerMap[r.p2];
-                if(!p1||!p2) return;
-                const row = document.createElement('div');
-                row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)';
-                row.innerHTML = `
-                  <span style="display:inline-flex;align-items:center;gap:4px;flex:1;justify-content:flex-end;font-size:13px">
-                    <span style="width:9px;height:9px;border-radius:50%;background:${esc(p1.avatar_color)};display:inline-block"></span>
-                    ${esc(p1.display_name)}
-                  </span>
-                  <span style="font-size:13px;font-weight:700;color:var(--accent);min-width:50px;text-align:center">${r.p1_wins} – ${r.p2_wins}</span>
-                  <span style="display:inline-flex;align-items:center;gap:4px;flex:1;font-size:13px">
-                    <span style="width:9px;height:9px;border-radius:50%;background:${esc(p2.avatar_color)};display:inline-block"></span>
-                    ${esc(p2.display_name)}
-                  </span>`;
-                sec.appendChild(row);
-              });
-              c.appendChild(sec);
-            }
-          }
+        function renderRanking() {
+          const c = body.querySelector('#gh-body');
+          c.innerHTML = '';
+          _statsReady.then(() => window.GHStats && window.GHStats.renderOverall(c, {
+            myId: (_ghMe || window.GameHub?.currentPlayer())?.id || null,
+            token: _ghToken(),
+            onPlayer: p => showPlayerProfile((stats?.players||[]).find(pl => pl.id === p.id) || p),
+          }));
         }
 
         // ── Favourites tab (read-only display) ──────────────────

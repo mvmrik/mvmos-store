@@ -237,6 +237,8 @@ class Game:
                 # leaderboard counts wins, and one-player wins would make it
                 # meaningless.
                 "is_winner": multi and i == 0,
+                "stats": {"waves": r.get("wave", 0), "kills": r.get("kills", 0),
+                          "survived": r.get("seconds", 0)},
             })
         # Every score is also paid into its player's bank, to be spent in the
         # permanent shop. The leaderboard below still gets the whole score.

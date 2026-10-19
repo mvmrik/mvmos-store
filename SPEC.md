@@ -60,7 +60,7 @@ The official Store keeps the same tree in `source/apps/<app-id>/` and ships each
 | `entry`            |          | Entry JS file in `public/` (default `main.js`) |
 | `css`              |          | CSS file in `public/` loaded with the app |
 
-Every other field (`settings`, `scheduler`, `file_types`, `requires_apphub`, `public_url`, games…) is in [DEVELOPER.md → manifest.json](DEVELOPER.md#manifestjson).
+Every other field (`settings`, `scheduler`, `file_types`, `requires_apphub`, `public_url`, `gamehub`, games…) is in [DEVELOPER.md → manifest.json](DEVELOPER.md#manifestjson).
 
 Official Store categories: `Productivity`, `Finance`, `Communication`, `Media`, `Creative`, `Business`, `AI`, `Developer Tools`, `System & Administration`, `Security & Privacy`, `Health & Fitness`, `Utilities`, `Games`. Use `tags` for anything narrower.
 
@@ -94,6 +94,7 @@ mvmOS.registerApp({
 ## Rules
 
 - **Keep app documentation in the Store.** Write application instructions in `docs/apps/<app-id>.md` of this repository and link them from `docs/README.md`. Do not document individual Store app features in Core or require a Core release for their changes.
+- **Declare game statistics in the game.** The optional `gamehub` manifest block supplies its category, translated description, metrics and ranking rule. Send finite numeric `stats` on player records or `ctx.finish`; Game Hub builds the library, statistics and rankings without game-specific logic. See [DEVELOPER.md → Statistics](DEVELOPER.md#statistics-say-what-you-measure-game-hub-draws-it).
 - **Translate everything.** No hard-coded text. Strings live in `public/i18n.js`, cover all nine languages (`en`, `bg`, `de`, `es`, `fr`, `ja`, `pt-BR`, `ru`, `zh-CN`) and are read with `t(key, vars)`. Never add keys to core's `frontend/i18n/`. See [DEVELOPER.md → i18n](DEVELOPER.md#i18n).
 - **Follow the theme.** Colours come from the theme variables, in the desktop window and on the public page. See [README.md → Following the theme](README.md#following-the-theme).
 - **Use mvmOS dialogs.** `mvmOS.confirm`, `mvmOS.prompt`, `mvmOS.toast` and `mvmOS.notify` instead of the browser's own.

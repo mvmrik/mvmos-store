@@ -1314,6 +1314,30 @@ class Game:
         await self._broadcast_state(last, {"raw": raw, "awarded": scored, "scores": self.scores})
         await self._complete_deal(capot)
 
+    def _seat_stats(self, seat):
+        """What the statistics page shows for the person sitting here, taken
+        from the deal log: how many deals the team won, how many it bid, and how
+        many of those bids it made."""
+        team = seat % 2
+        deals = [h for h in self.history if h.get("awarded")]
+        won = bid = made = 0
+        belotes = 0
+        for h in deals:
+            a = h["awarded"]
+            won += 1 if a[team] > a[1 - team] else 0
+            if h.get("bidder") is not None and h["bidder"] % 2 == team:
+                bid += 1
+                made += 1 if a[team] > a[1 - team] else 0
+            b = h.get("belotes") or []
+            belotes += b[seat] if seat < len(b) else 0
+        n = len(deals)
+        stats = {"deals": n, "deals_won": won, "contracts": bid, "contracts_made": made, "belotes": belotes}
+        if n:
+            stats["points_per_deal"] = self.scores[team] / n
+        if bid:
+            stats["contract_rate"] = 100.0 * made / bid
+        return stats
+
     def _log_deal(self, raw, scored):
         self.history.append({"bid": self.bid, "bidder": self.bidder, "double": self.double,
                              "raw": list(raw), "awarded": list(scored),
@@ -1332,7 +1356,8 @@ class Game:
                 team = i % 2
                 records.append({"player_id": p["id"], "score": self.scores[team],
                                 "rank": 1 if self.scores[team] >= self.scores[1-team] else 2,
-                                "is_winner": self.scores[team] > self.scores[1-team]})
+                                "is_winner": self.scores[team] > self.scores[1-team],
+                                "stats": self._seat_stats(i)})
             await self.ctx.finish(records, metadata={"variant": self.settings["variant"]})
         else:
             self.dealer = (self.dealer + 1) % 4

@@ -44,6 +44,8 @@ App categories: `ai`, `business`, `communication`, `creative`, `developer-tools`
 
 An app is written as a folder under `apps/<app-id>/` of a running mvmOS installation, and the official releases are built from it with `make-zip.sh <app-id> <version> <category>`. The script leaves out `store.json`, `premium.json`, the `premium/` folder, uploads and runtime data, and fills `premium` and `name_i18n` in the category entry. Set `version`, `zip_url` and `min_core_version` of that entry to match the release. The store listing on mvmos.org is imported from `store.json` and `premium.json` in `source/`. An app whose manifest says `"beta": true` is kept in `source/` for development but `make-zip.sh` refuses to release it, so it has no zip and no category entry and neither the App Store nor mvmos.org shows it.
 
+Games may declare categories, translated descriptions and statistics through the `gamehub` block of their own manifest. Game Hub uses these declarations for its personal game library, metric boards and rankings; see [DEVELOPER.md → Statistics](DEVELOPER.md#statistics-say-what-you-measure-game-hub-draws-it).
+
 ---
 
 ## Your own store

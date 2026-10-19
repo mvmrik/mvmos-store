@@ -21,12 +21,26 @@
     "people",
     "games"
   ],
-  "version": "0.6.2",
+  "version": "0.6.3",
   "min_core_version": "1.0.0",
   "description": "Guide a town that builds itself. Zone land, shape roads and public services, and follow every resident through work, travel, family and ownership.",
   "entry": "main.js",
   "multiplayer": false,
   "max_players": 1,
   "themed": true,
-  "public_directory": false
+  "public_directory": false,
+  "gamehub": {
+    "category": "simulation",
+    "description": {
+      "en": "Guide a town that builds itself: zone land, shape roads and follow every resident.",
+      "bg": "Води град, който се гради сам: зонирай земя, оформяй пътища и следи всеки жител.",
+      "de": "Lenke eine Stadt, die sich selbst baut: Land zonieren, Straßen planen und jeden Bewohner begleiten.",
+      "es": "Guía una ciudad que se construye sola: zonifica terreno, traza calles y sigue a cada habitante.",
+      "fr": "Guidez une ville qui se construit seule : zonez le terrain, tracez les routes et suivez chaque habitant.",
+      "ja": "自ら発展する街を導こう。土地を区画し、道路を整え、住民一人ひとりを見守ります。",
+      "pt-BR": "Conduza uma cidade que se constrói sozinha: zoneie terrenos, trace ruas e acompanhe cada morador.",
+      "ru": "Управляйте городом, который строится сам: зонируйте землю, прокладывайте дороги и следите за каждым жителем.",
+      "zh-CN": "引导一座会自己成长的城镇：划分土地、规划道路，并关注每位居民。"
+    }
+  }
 }

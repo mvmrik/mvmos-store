@@ -7,7 +7,8 @@
     "Jokers you can turn into any number.",
     "Score and elapsed time, with a final summary at game over.",
     "Save and exit a solo game at any point, then pick it back up days later.",
-    "Head-to-head multiplayer over a shared link, on the same sequence for both players."
+    "Head-to-head multiplayer over a shared link, on the same sequence for both players.",
+    "Reports cleared lines, numbers dropped and points per minute to Game Hub from completed browser sessions."
   ],
   "integrations": [
     {

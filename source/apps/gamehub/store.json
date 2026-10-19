@@ -1,16 +1,21 @@
 {
   "tagline": "One profile, every game, all the scores.",
-  "description": "Game Hub is the account and statistics layer the mvmOS games share. Players get a profile with a display name, a colour and an avatar they build in the app, and from then on every game they play is recorded against it.\n\nIt keeps sessions, scores, durations and winners, and turns them into leaderboards — per game or across all of them — plus head-to-head records between two players. Favourites let you keep the people you play with to hand, which is also where multiplayer invitations come from.\n\nGame Hub has its own public page, so players can check the standings without a desktop account. The page is translated into all nine of mvmOS's languages and follows the language chosen on the Apps Hub account, so a player sees it in their own language from the first screen.",
+  "description": "Game Hub is the account and statistics layer the mvmOS games share. Players get a profile with a display name, a colour and an avatar they build in the app, and from then on every game they play is recorded against it.\n\nIt keeps sessions, scores, durations and winners, and turns them into statistics: every game declares what it measures, and Game Hub draws boards, charts, ratings and records for it, separately for solo and multiplayer, plus an overall ranking across all games and head-to-head records between two players. Favourites let you keep the people you play with to hand, which is also where multiplayer invitations come from.\n\nGame Hub has its own public page, so players can check the standings without a desktop account. The page is translated into all nine of mvmOS's languages and follows the language chosen on the Apps Hub account, so a player sees it in their own language from the first screen.",
   "capabilities": [
     "Player profiles with username, display name, colour and password.",
     "Avatar editor built into the app.",
     "Session log: game, score, duration and winner.",
-    "Leaderboards per game and across all games.",
-    "Head-to-head records between two players.",
     "Favourite players, used for multiplayer invitations.",
     "Player search by name or username.",
     "Public page with a direct link, no domain mapping needed.",
-    "Fully translated into all nine of mvmOS's languages, following the language set on the Apps Hub account."
+    "Fully translated into all nine of mvmOS's languages, following the language set on the Apps Hub account.",
+    "Statistics page for every game, drawn from the numbers the game itself reports: boards per number, charts of your results against everyone else, records and a comparison with any player.",
+    "Separate solo and multiplayer views, with an Elo rating for multiplayer.",
+    "Overall ranking across all games, with points for how far up each game's ladder a player stands.",
+    "A Store inside Game Hub, like the one in Apps Hub: every profile chooses which games appear on its own page, with categories and search, and nothing is deleted when a game is removed.",
+    "Your games can be filtered by category and sorted A–Z, most played or recently played.",
+    "Profile with real totals from your whole history: overall place and points, solo and multiplayer games, multiplayer wins and win rate, and a table by game.",
+    "Player against player: head-to-head record with a verdict, recent form and streaks, the chance of winning the next game, a per-game breakdown and a side-by-side comparison of every number with a rating chart. The game history loads only when you open it."
   ],
   "integrations": [
     {

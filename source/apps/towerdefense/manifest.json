@@ -19,7 +19,7 @@
     "strategy",
     "games"
   ],
-  "version": "1.1.0",
+  "version": "1.2.0",
   "min_core_version": "1.0.0",
   "description": "Defend the tower in the middle against endless waves. Between waves spend your coins on weapons, rings and upgrades, and grow stronger with every game in the permanent shop.",
   "entry": "main.js",
@@ -27,5 +27,80 @@
   "max_players": 1,
   "themed": true,
   "public_directory": false,
-  "public_api_only": true
+  "public_api_only": true,
+  "gamehub": {
+    "category": "strategy",
+    "description": {
+      "en": "Defend the tower against endless waves and grow stronger in the permanent shop.",
+      "bg": "Защитавай кулата от безкрайни вълни и ставай по-силен в постоянния магазин.",
+      "de": "Verteidige den Turm gegen endlose Wellen und werde im dauerhaften Shop stärker.",
+      "es": "Defiende la torre contra oleadas sin fin y hazte más fuerte en la tienda permanente.",
+      "fr": "Défendez la tour contre des vagues sans fin et gagnez en puissance dans la boutique permanente.",
+      "ja": "終わりなく続くウェーブから塔を守り、常設ショップで強くなろう。",
+      "pt-BR": "Defenda a torre contra ondas sem fim e fique mais forte na loja permanente.",
+      "ru": "Защищайте башню от бесконечных волн и становитесь сильнее в постоянном магазине.",
+      "zh-CN": "抵御源源不断的敌潮、守住高塔，并在永久商店中不断变强。"
+    },
+    "score": {
+      "label": {
+        "en": "Points",
+        "bg": "Точки",
+        "de": "Punkte",
+        "es": "Puntos",
+        "fr": "Points",
+        "ja": "ポイント",
+        "pt-BR": "Pontos",
+        "ru": "Очки",
+        "zh-CN": "得分"
+      }
+    },
+    "ranking": "score",
+    "metrics": {
+      "waves": {
+        "label": {
+          "en": "Waves",
+          "bg": "Вълни",
+          "de": "Wellen",
+          "es": "Oleadas",
+          "fr": "Vagues",
+          "ja": "ウェーブ",
+          "pt-BR": "Ondas",
+          "ru": "Волны",
+          "zh-CN": "波数"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "kills": {
+        "label": {
+          "en": "Kills",
+          "bg": "Убити врагове",
+          "de": "Abschüsse",
+          "es": "Bajas",
+          "fr": "Éliminations",
+          "ja": "撃破数",
+          "pt-BR": "Abates",
+          "ru": "Убийства",
+          "zh-CN": "击杀"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "survived": {
+        "label": {
+          "en": "Survival time",
+          "bg": "Време за оцеляване",
+          "de": "Überlebenszeit",
+          "es": "Tiempo de supervivencia",
+          "fr": "Temps de survie",
+          "ja": "生存時間",
+          "pt-BR": "Tempo de sobrevivência",
+          "ru": "Время выживания",
+          "zh-CN": "生存时间"
+        },
+        "type": "duration",
+        "better": "high"
+      }
+    }
+  }
 }

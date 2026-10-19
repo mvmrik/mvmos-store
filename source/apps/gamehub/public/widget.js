@@ -219,7 +219,7 @@
   const _mp = (function () {
     const MP = '/api/pub/gamehub/mp';
     let _root = null, _roomId = null, _gameId = null;
-    let _ws = null, _connected = false, _closedByUs = false, _retry = 0;
+    let _ws = null, _connected = false, _closedByUs = false, _retry = 0, _everOpened = false;
     let _state = 'connecting';                 // connecting|lobby|playing|over
     let _roster = [], _you = null, _isHost = false, _hostId = null;
     let _maxPlayers = 8, _settings = {};
@@ -263,13 +263,27 @@
     function _connect() {
       _closedByUs = false;
       _state = 'connecting';
+      // Never leave the page blank while the socket is still coming up. The
+      // lobby and game screens clear the root, which removes this again.
+      if (!_root.querySelector('#gh-connecting')) {
+        const wait = document.createElement('div');
+        wait.id = 'gh-connecting';
+        wait.style.cssText = 'text-align:center;color:var(--fg2,#a6adc8);font-size:14px;padding:60px 16px';
+        wait.textContent = _tr('gh_connecting', 'Connecting…');
+        _root.appendChild(wait);
+      }
       _ws = new WebSocket(_wsUrl());
-      _ws.onopen = () => { _connected = true; _retry = 0; _send({ type: 'join', gh_token: _token }); };
+      _ws.onopen = () => { _connected = true; _everOpened = true; _retry = 0; _send({ type: 'join', gh_token: _token }); };
       _ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch (e) { return; } _dispatch(m); };
       _ws.onclose = () => {
         _connected = false;
         if (_closedByUs) return;
         _retry = Math.min(_retry + 1, 6);
+        // A room the server turns away before the socket ever opens is gone -
+        // rooms live in memory, so a restart closes them. Retrying a dead room
+        // for ever only left a blank page (and, in some browsers, held up the
+        // sockets of every other tab); say so and stop.
+        if (!_everOpened && _retry >= 4) { _closedByUs = true; _renderGone(); return; }
         setTimeout(() => { if (!_closedByUs) _connect(); }, 400 * _retry);
       };
       _ws.onerror = () => { try { _ws.close(); } catch (e) {} };
@@ -455,6 +469,18 @@
         + '</div>';
     }
 
+    function _tr(key, fallback) {
+      const v = window._i18n && window._i18n[key];
+      return v || fallback;
+    }
+
+    function _renderGone() {
+      _ensureStyle();
+      _root.innerHTML = '<div style="max-width:380px;margin:60px auto;text-align:center;padding:0 16px">'
+        + '<div style="font-size:15px;color:#f38ba8;line-height:1.5">' + _esc(_tr('gh_room_gone', 'This game room is no longer available. It may have closed when the server restarted.')) + '</div>'
+        + '<a href="/pub/gamehub/" style="display:inline-block;margin-top:16px;color:var(--accent,#89b4fa);text-decoration:none;font-weight:600">' + _esc(_tr('gh_back_to_hub', '‹ Game Hub')) + '</a></div>';
+    }
+
     function _renderError(message) {
       _ensureStyle();
       const map = {
@@ -463,6 +489,7 @@
         room_full: 'The room is full.',
         unauthorized: 'A Game Hub account is required.',
       };
+      if (message === 'room_gone') { _renderGone(); return; }
       _root.innerHTML = '<div style="max-width:360px;margin:60px auto;text-align:center;color:#f38ba8;font-size:15px;padding:0 16px">'
         + _esc(map[message] || message || 'Error') + '</div>';
     }

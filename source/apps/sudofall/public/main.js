@@ -62,6 +62,8 @@ const SudofallGame = (() => {
   let current = 0;
   let next = 0;
   let score = 0;
+  let clearedTotal = 0;   // cells cleared this game, for Game Hub statistics
+  let dropped = 0;        // numbers dropped this game
   let bombs = 0;
   let gameOver = false;
   let animating = false;
@@ -201,6 +203,7 @@ const SudofallGame = (() => {
           const { toRemove, cleared } = findClears();
           if (toRemove.size === 0) break;
           score += cleared * 9;
+          clearedTotal += cleared;
           bombs += cleared;
           if (_bombEl) _bombEl.textContent = `💣 ${bombs}`;
           toRemove.forEach(key => {
@@ -302,7 +305,8 @@ const SudofallGame = (() => {
     window.GameHub.recordSession({
       game_id: 'sudofall',
       mode: 'singleplayer',
-      players: [{ player_id: _ghPlayer.id, score, is_winner: true }],
+      players: [{ player_id: _ghPlayer.id, score, is_winner: false,
+                  stats: { cleared: clearedTotal, dropped, score_per_minute: elapsed ? score * 60 / elapsed : 0 } }],
       duration_seconds: elapsed,
       metadata: {},
     }).catch(() => {});
@@ -316,6 +320,8 @@ const SudofallGame = (() => {
       next = newNum();
     }
     score = 0;
+    clearedTotal = 0;
+    dropped = 0;
     bombs = 0;
     gameOver = false;
     animating = false;
@@ -585,6 +591,7 @@ const SudofallGame = (() => {
     }
 
     grid[row][col] = current;
+    dropped++;
 
     // +1 point if no conflict, 0 if conflict
     if (!wouldConflict(row, col, current)) score++;
@@ -602,6 +609,7 @@ const SudofallGame = (() => {
       const { toRemove, cleared } = findClears();
       if (toRemove.size === 0) break;
       score += cleared * 9;
+      clearedTotal += cleared;
       bombs += cleared;
       if (_bombEl) _bombEl.textContent = `💣 ${bombs}`;
 

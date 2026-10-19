@@ -20,7 +20,8 @@
     "One phone can score for everyone at the table, including favourite players who are not in the room.",
     "Statistics for every game, kept by Score Arena itself and shown before you start.",
     "Profile results, wins, losses and head-to-head history through Game Hub.",
-    "Available in all nine mvmOS languages."
+    "Available in all nine mvmOS languages.",
+    "Reports turns to Game Hub statistics, with a win rate ranking instead of comparing scores across different game types."
   ],
   "integrations": [
     {

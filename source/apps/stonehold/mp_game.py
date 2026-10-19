@@ -814,6 +814,8 @@ class Game:
             "player_id": s["player_id"], "score": s["score"], "rank": i + 1,
             # A solo run has nobody to beat, so it is not a "win".
             "is_winner": i == 0 and len(standings) > 1,
+            "stats": {"survived": s["elapsed"], "kills": s["kills"], "raids": s["raids"],
+                      "enemy_level": s["enemy"], "buildings": s["buildings"]},
         } for i, s in enumerate(standings)]
         await self.ctx.finish(records, metadata={
             "hours":     round(max((s["elapsed"] for s in standings), default=0) / 3600, 1),
