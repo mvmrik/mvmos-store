@@ -643,6 +643,7 @@
       var usageFetchedAt = 0;
       var usageRequest = 0;
       var usageVisibleIndex = 0;
+      var usageStore = {};          // the last good reading per account, kept when a refresh fails
       var usageDisplayKey = null;
       var histBtn = root.querySelector('.mvmai-hist-btn');
       var newChatBtn = root.querySelector('.mvmai-new-chat');
@@ -708,15 +709,22 @@
         bar.title = t('mvmai_pub_usage_used');
         return bar;
       }
+      function usageKey() {
+        var provider = currentUsageProvider();
+        return provider + '|' + (provider === 'gemini-cli' ? currentUsageModel() : '');
+      }
       function paintUsage() {
-        if (!composerModelEl || composerModelEl.hidden || !usageData || usageData.hide || usageData.unavailable) return;
-        var models = usageData.models || [];
+        // A refresh that fails or is still on its way never blanks the meter:
+        // the last good reading stays until a new one replaces it.
+        var data = usageData && !usageData.unavailable ? usageData : usageStore[usageKey()];
+        if (!composerModelEl || composerModelEl.hidden || !data || data.hide) return;
+        var models = data.models || [];
         var bars = currentUsageProvider() === 'gemini-cli'
           ? models.map(function (window) {
               return usageBar(window, models.length === 1 ? t('mvmai_pub_usage_day') : window.model_label);
             }).filter(Boolean)
-          : [usageBar(usageData.five_hour, t('mvmai_pub_usage_five_hour')),
-            usageBar(usageData.week, t('mvmai_pub_usage_week'))].filter(Boolean);
+          : [usageBar(data.five_hour, t('mvmai_pub_usage_five_hour')),
+            usageBar(data.week, t('mvmai_pub_usage_week'))].filter(Boolean);
         if (bars.length) {
           var displayKey = [viewVersion, sessionId || 'new', currentUsageProvider(), currentUsageModel()].join(':');
           if (displayKey !== usageDisplayKey) { usageDisplayKey = displayKey; usageVisibleIndex = 0; }
@@ -778,6 +786,7 @@
           if (request !== usageRequest || provider !== currentUsageProvider() ||
               model !== (provider === 'gemini-cli' ? currentUsageModel() : '') || !root.isConnected) return;
           usageData = data.__status === 200 ? data : {unavailable: true};
+          if (data.__status === 200 && !data.unavailable) usageStore[provider + '|' + model] = data;
           refreshComposer();
         }).catch(function () {
           if (request !== usageRequest || provider !== currentUsageProvider() ||
@@ -2484,7 +2493,7 @@
         var startedAt = current ? current.startedAt : Date.now();
         var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         function decayEnergy(now) {
-          energy *= Math.exp(-Math.max(0, now - energyAt) / 1300);
+          energy *= Math.exp(-Math.max(0, now - energyAt) / 2000);
           if (energy < .15) energy = 0;
           energyAt = now;
         }
@@ -2493,10 +2502,13 @@
             var count = Number(data.activity_seq) - seq;
             seq = Number(data.activity_seq);
             decayEnergy(Date.now());
-            if (data.activity_age != null && data.activity_age < 4) {
-              // Event volume raises the peak; nearby bursts accumulate.
-              // This measures incoming activity, not reasoning complexity.
-              energy = Math.min(14, energy + 2 * Math.log2(1 + count));
+            if (data.activity_age != null && data.activity_age < 6) {
+              // Any burst of activity lifts the line well up, and a bigger one
+              // lifts it to the top, so a CLI that reports a few big events
+              // (Codex) shows as clearly as one that streams every word
+              // (Claude). This measures incoming activity, not reasoning
+              // complexity.
+              energy = Math.max(energy, Math.min(14, 9 + 5 * Math.min(1, Math.log2(1 + count) / 6)));
             }
           }
         };
@@ -2507,7 +2519,9 @@
           var label = t(active ? 'mvmai_pub_activity_active' : 'mvmai_pub_activity_waiting');
           canvas.setAttribute('aria-label', label); el.title = label;
           tick++;
-          var wave = energy * [0, .25, .7, 1, .45, 0][tick % 6];
+          // Between bursts the line keeps a faint pulse, so a flat line never
+          // looks like a chat that has stopped.
+          var wave = active ? energy * [0, .25, .7, 1, .45, 0][tick % 6] : 1.6 * (1 + Math.sin(tick * .5)) / 2;
           samples.shift(); samples.push(baseline - wave);
           if (current && current.sidebarCanvas && current.sidebarCanvas.isConnected) {
             var background = current.sidebarCanvas;

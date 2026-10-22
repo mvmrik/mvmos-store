@@ -183,15 +183,27 @@ def _gemini_usage(desk, cmd_bin, user, home, model):
         return None
 
 
+_STALE_SECONDS = 6 * 3600      # a failed read may still show the last good one this long
+_RETRY_SECONDS = 20            # and is not retried more often than this
+_FAILED = {}
+
+
 def read_usage(desk, provider, user, home, cmd_bin, force=False, model=""):
     key = (provider, user, model)
+    now = time.monotonic()
     cached = _CACHE.get(key)
-    if not force and cached and time.monotonic() - cached[0] < _CACHE_SECONDS:
+    if not force and cached and now - cached[0] < _CACHE_SECONDS:
         return cached[1]
+    stale = cached[1] if cached and now - cached[0] < _STALE_SECONDS else None
+    if not force and now - _FAILED.get(key, -1e9) < _RETRY_SECONDS:
+        return stale
     data = (_claude_usage(home) if provider == "claude-cli" else
             _codex_usage(desk, cmd_bin, user, home) if provider == "codex-cli" else
             _gemini_usage(desk, cmd_bin, user, home, model) if provider == "gemini-cli" else None)
     if data and (data.get("hide") or data.get("models") or data.get("five_hour") or data.get("week")):
-        _CACHE[key] = (time.monotonic(), data)
+        _CACHE[key] = (now, data)
+        _FAILED.pop(key, None)
         return data
-    return None
+    # The service hiccuped: show the last good reading instead of nothing.
+    _FAILED[key] = now
+    return stale

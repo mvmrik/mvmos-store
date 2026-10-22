@@ -92,13 +92,11 @@
 
 .td-next {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 5px;
+  flex-direction: column;
   background: var(--surface1, #181825);
   border: 1px solid var(--border, #45475a);
   border-radius: 9px;
-  padding: 6px 8px;
+  padding: 6px 10px;
 }
 
 .td-next-h {
@@ -107,36 +105,54 @@
   text-transform: uppercase;
   letter-spacing: .5px;
   color: var(--fg2, #a6adc8);
-  margin-right: 4px;
+  padding: 2px 0 6px;
 }
 
-.td-chip {
-  display: inline-flex;
+.td-unit {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
   align-items: center;
-  gap: 5px;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border, #45475a);
+}
+
+.td-unit canvas {
+  width: 44px;
+  height: 44px;
+  justify-self: center;
+}
+
+.td-unit-n {
+  font-size: .86rem;
+}
+
+.td-unit-d {
+  margin-top: 2px;
   font-size: .74rem;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--surface2, #313244);
+  line-height: 1.35;
+  color: var(--fg2, #a6adc8);
 }
 
-.td-chip i {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--c);
-}
-
-.td-chip em {
+.td-unit-n em {
   font-style: normal;
   font-size: .6rem;
   font-weight: 700;
   text-transform: uppercase;
-  padding: 1px 4px;
+  margin-left: 6px;
+  padding: 1px 5px;
   border-radius: 4px;
   background: var(--accent, #89b4fa);
   color: #1e1e2e;
 }
+
+.td-unit-boss {
+  background: color-mix(in srgb, var(--c) 12%, transparent);
+  border-radius: 8px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
 
 .td-fresh {
   font-size: .72rem;
@@ -175,12 +191,14 @@
    right. On a narrow screen the figures drop under the name. */
 .td-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, auto) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   column-gap: 8px;
   row-gap: 3px;
   min-width: 0;
-  background: var(--surface1, #181825);
+  /* The green behind the card is its share of all the energy. */
+  background: linear-gradient(90deg, rgba(166, 227, 161, .26) var(--pct, 0%), transparent var(--pct, 0%)),
+    var(--surface1, #181825);
   border: 1px solid var(--border, #45475a);
   border-radius: 9px;
   padding: 5px 7px;
@@ -192,10 +210,56 @@
 
 .td-card > .td-stats {
   grid-area: 1 / 2;
+  justify-self: end;
+  max-width: 100%;
 }
 
 .td-card > .td-actions {
   grid-area: 1 / 3;
+}
+
+/* A bought thing: name and figures in the row, the buttons open under it. */
+.td-card.td-fold > .td-actions {
+  grid-area: auto;
+  grid-column: 1 / -1;
+  display: none;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 5px;
+}
+
+.td-card.td-fold.td-exp > .td-actions {
+  display: flex;
+}
+
+.td-card.td-fold .td-actions > button {
+  flex: 1 1 120px;
+  width: auto;
+  padding: 9px 10px;
+  font-size: .8rem;
+  border-radius: 8px;
+}
+
+.td-card.td-fold .td-up-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.td-chev {
+  grid-area: 1 / 3;
+  cursor: pointer;
+  padding: 0 4px;
+  color: var(--fg2, #a6adc8);
+  font-size: .8rem;
+}
+
+.td-chev::before {
+  content: '▸';
+}
+
+.td-exp .td-chev::before {
+  content: '▾';
 }
 
 .td-card.td-on {
@@ -349,22 +413,6 @@
   text-align: right;
 }
 
-/* The boss that follows the coming wave, under the wave preview. */
-.td-bossnext {
-  margin-top: 6px;
-  padding: 5px 9px;
-  border-radius: 8px;
-  font-size: .74rem;
-  line-height: 1.35;
-  color: var(--fg2, #a6adc8);
-  background: color-mix(in srgb, var(--c) 16%, transparent);
-  border: 1px solid color-mix(in srgb, var(--c) 55%, transparent);
-}
-
-.td-bossnext b {
-  color: var(--fg, #cdd6f4);
-}
-
 /* ── Game over: the permanent shop ───────────────────────────────────────── */
 .td-back {
   flex: none;
@@ -460,26 +508,6 @@
   display: none !important;
 }
 
-.td-chip[data-act],
-.td-bossnext[data-act] {
-  cursor: pointer;
-}
-
-.td-info {
-  margin-top: 6px;
-  font-size: .76rem;
-  line-height: 1.35;
-  color: var(--fg2, #a6adc8);
-}
-
-.td-info:empty {
-  display: none;
-}
-
-.td-info b {
-  color: var(--fg, #cdd6f4);
-}
-
 /* Cards that are not bought and cannot be bought yet wait behind the header. */
 .td-grid:not(.td-open) > .td-card.td-hide {
   display: none;
@@ -503,4 +531,144 @@
   padding: 0 5px;
   border-radius: 8px;
   background: var(--surface2, #313244);
+}
+
+/* ── Energy ────────────────────────────────────────────────────────────────── */
+/* Buttons have two rows: what it is, then its price and the energy it adds. */
+.td-up,
+.td-buy {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 2px;
+  text-align: left;
+}
+
+.td-b1,
+.td-b2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.td-b2 {
+  font-size: .72rem;
+}
+
+.td-en {
+  color: var(--green, #a6e3a1);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.td-card.td-fold > .td-meta {
+  display: none;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 5px;
+  font-size: .76rem;
+  color: var(--fg2, #a6adc8);
+}
+
+.td-card.td-fold.td-exp > .td-meta {
+  display: flex;
+}
+
+.td-tog {
+  flex: none;
+  position: relative;
+  width: 46px;
+  height: 26px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--border, #45475a);
+  background: var(--surface2, #313244);
+  cursor: pointer;
+  transition: background .18s, border-color .18s;
+}
+
+.td-tog > i {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--fg2, #a6adc8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .45);
+  transition: transform .18s, background .18s;
+}
+
+.td-tog.on {
+  background: color-mix(in srgb, var(--green, #a6e3a1) 70%, var(--surface2, #313244));
+  border-color: var(--green, #a6e3a1);
+}
+
+.td-tog.on > i {
+  transform: translateX(20px);
+  background: #fff;
+}
+
+.td-tog:disabled {
+  opacity: .5;
+  cursor: default;
+}
+
+.td-card.td-off > .td-card-top,
+.td-card.td-off > .td-stats {
+  opacity: .55;
+}
+
+.td-card.td-energy {
+  grid-column: 1 / -1;
+}
+
+.td-ebar {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 24px;
+  margin-top: 5px;
+  border-radius: 7px;
+  overflow: hidden;
+  background: var(--surface2, #313244);
+  border: 1px solid var(--border, #45475a);
+}
+
+.td-efill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: rgba(166, 227, 161, .6);
+  transition: width .2s;
+}
+
+.td-ebar > span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: .74rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .6);
+}
+
+.td-ebar.over {
+  border-color: var(--red, #f38ba8);
+}
+
+.td-ebar.over .td-efill {
+  background: rgba(243, 139, 168, .7);
+}
+
+.td-card.td-over {
+  border-color: var(--red, #f38ba8);
+}
+
+.td-go:disabled {
+  opacity: .45;
+  cursor: not-allowed;
 }

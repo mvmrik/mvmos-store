@@ -7,14 +7,14 @@
       "description": "Choose a speed from normal to ten times faster during a wave. The simulation uses the same steps and scoring; slower devices may run below the selected speed to stay responsive."
     },
     {
-      "title": "Auto waves",
-      "short": "Start the next waves by themselves",
-      "description": "Start successive waves automatically, with an optional stopping wave up to your existing record. At that stop the shop opens and speed returns to normal for this run. Controls remain available during waves."
+      "title": "Automatic waves",
+      "short": "Let waves follow one another by themselves",
+      "description": "Pick \"After wave N\" in the wave list to start successive waves automatically, up to your existing record; the first option, Intermediate stop, opens the shop after every wave. At the chosen wave the shop opens and speed returns to normal for this run. Controls remain available during waves."
     },
     {
       "title": "Saved Fast play settings",
       "short": "Keep your preferred setup for new games",
-      "description": "Press Save during a wave to remember the current speed, Auto waves setting and stopping wave in this browser. New games use that setup; changes during a run do not replace it until you save again."
+      "description": "A save button appears when you change the speed or the stopping wave. Press it to remember that setup in this browser; new games use it, and changes during a run do not replace it until you save again."
     },
     {
       "title": "Owner switch",

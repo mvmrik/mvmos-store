@@ -7,9 +7,9 @@
  * the game itself, and talks to mp_game.py over GameHub.mp.send/on.
  *
  * The rhythm of a run: during a wave the player does nothing at all — the
- * tower picks targets and fires with whatever it has mounted. Every decision
+ * tower picks targets and fires with whatever it has switched on. Every decision
  * is made in the shop between two waves, where the coins the last wave paid
- * buy weapons (three of the five can be mounted at once), power and fire
+ * buy weapons (each draws energy, which is bought too), power and fire
  * rate for each of them; for the tower integrity, range, regeneration, a
  * shield and a shockwave; and on the battlefield around it two rings,
  * soldiers, drones and tesla pylons.
@@ -38,11 +38,11 @@
   const BASE_RANGE   = 260;
   const RANGE_STEP   = 25;
   const SPAWN_RADIUS = 700;    // enemies walk in from outside the visible box
-  const MAX_MOUNTED  = 3;
   const RATE_STEP    = 0.88;   // each fire-rate level cuts the reload by 12 %
   const FIREBALL_R   = 14;
   const WAVE_POINTS  = 50;
   const BOSS_EVERY   = 10;     // a boss comes after every tenth wave
+  const ENERGY_CEILING = 500;  // matches td_bank.py
   const LEVEL_CEILING = 500;   // matches td_bank.py; only guards forged builds
 
   // ── Catalogue ──────────────────────────────────────────────────────────────
@@ -56,9 +56,12 @@
     // The laser is not a shot: its beam is there at once, has no end, and
     // burns through everything on its line, however far out.
     laser:  { icon: '🔆', color: '#cba6f7', price: 220, reload: 3.2,  dmg: 80, grow: 0.45 },
-    mine:   { icon: '💣', color: '#a6e3a1', price: 180, reload: 2.8,  dmg: 90, splash: 80, max: 8 },
+    // The sweep is a beam that turns round the tower and cuts everything it
+    // passes within the range. `reload` is the time of one full turn.
+    sweep:  { icon: '💫', color: '#f2cdcd', price: 210, reload: 3.0,  dmg: 22 },
+    mine:   { icon: '💣', color: '#a6e3a1', price: 180, reload: 2.8,  dmg: 90, splash: 80 },
   };
-  const WEAPON_ORDER = ['gun', 'fire', 'ice', 'laser', 'mine'];
+  const WEAPON_ORDER = ['gun', 'fire', 'ice', 'laser', 'sweep', 'mine'];
   // Things bought once that are not weapons.
   let EXTRAS = { regen: 90, shield: 150, nova: 170, fring: 200, iring: 160, soldiers: 180, drones: 240, tesla: 220 };
   // key -> [price of the first level, price growth per level, last level].
@@ -69,6 +72,7 @@
     'fire.p':   [45, 1.45, null], 'fire.r':   [45, 1.45, null],
     'ice.p':    [45, 1.45, null], 'ice.r':    [50, 1.45, null],
     'laser.p':  [60, 1.45, null], 'laser.r':  [60, 1.45, null],
+    'sweep.p':  [60, 1.45, null], 'sweep.r':  [60, 1.45, null],
     'mine.p':   [55, 1.45, null], 'mine.r':   [55, 1.45, null],
     'hp':       [60, 1.4, null],
     'range':    [70, 1.5, 17],
@@ -80,6 +84,14 @@
     'soldiers.f': [75, 1.45, null], 'soldiers.p': [70, 1.45, null],
     'drones.f':   [90, 1.45, null], 'drones.p':   [80, 1.45, null],
     'tesla.n':    [140, 1.55, 4],  'tesla.p':    [80, 1.45, null],
+  };
+  // Energy: what each module draws, and what a unit of it costs. Like the
+  // prices, the server's copy replaces this one in td_start.
+  let ENERGY = {
+    base: { gun: 0, fire: 5, ice: 5, laser: 9, sweep: 8, mine: 6, regen: 3, shield: 5, nova: 7, fring: 6, iring: 5,
+            soldiers: 7, drones: 7, tesla: 9 },
+    level: { 'fring.n': 2, 'tesla.n': 2 },
+    price: [8, 1.03],
   };
   // A permanent purchase costs the in-run price times this.
   let PERM_FACTOR = 10000 / 30;
@@ -136,7 +148,7 @@
 
   let _b = null;                   // what the tower owns: { own, eq, lv }
   let _tower, _enemies, _shots, _enemyShots, _mines, _lobs, _particles, _blasts;
-  let _cd, _aim, _ringAngle, _seen, _banner;
+  let _cd, _aim, _ringAngle, _sweepA, _seen, _banner;
   let _shield, _beams, _soldiers, _drones, _bolts, _soldierCd, _droneCd;
   let _novaCd, _waves, _teslaCd, _zaps;
   let _wave, _ws, _waveQueue, _nextList, _spawnTimer, _clearTimer, _breakTimer;
@@ -253,6 +265,9 @@
   // ── What the tower has ────────────────────────────────────────────────────
   function _lv(k)    { return _b.lv[k] || 0; }
   function _owns(k)  { return _b.own.indexOf(k) !== -1; }
+  // Owned and switched on: only that takes part in the fight.
+  function _on(k)    { return _isOn(k); }
+  function _weapons() { return WEAPON_ORDER.filter(_on); }
   function _range()  { return BASE_RANGE + RANGE_STEP * _lv('range'); }
   function _maxHp()  { return Math.round(_tuning.tower_hp * (1 + 0.2 * _lv('hp'))); }
 
@@ -267,7 +282,7 @@
     };
   }
   function _regen() {
-    return _owns('regen') ? _maxHp() * 0.004 * (1 + 0.45 * _lv('regen.r')) : 0;
+    return _on('regen') ? _maxHp() * 0.004 * (1 + 0.45 * _lv('regen.r')) : 0;
   }
   function _fring() {
     return {
@@ -331,7 +346,7 @@
     return out;
   }
   function _fullShield() {
-    _shield = { hp: _owns('shield') ? _shieldStat().max : 0, down: false, hit: 0 };
+    _shield = { hp: _on('shield') ? _shieldStat().max : 0, down: false, hit: 0 };
   }
   function _repairAmount() { return Math.round(_maxHp() * 0.25); }
   function _repairPrice()  { return 20 + Math.max(1, _wave) * 4; }
@@ -372,18 +387,70 @@
     for (const w in (shop.weapons || {})) if (WEAPONS[w]) WEAPONS[w].price = shop.weapons[w];
     if (shop.extras) EXTRAS = shop.extras;
     if (shop.upgrades) UPGRADES = shop.upgrades;
+    if (shop.energy) ENERGY = shop.energy;
     if (shop.perm_factor) PERM_FACTOR = shop.perm_factor;
   }
 
-  function _freshBuild() { return { own: ['gun'], eq: ['gun'], lv: {} }; }
-  function _copyBuild(b) { return { own: b.own.slice(), eq: b.eq.slice(), lv: Object.assign({}, b.lv) }; }
+  // What a tower has: the modules it owns, which of them are switched off, the
+  // energy it has bought, and its upgrade levels.
+  function _freshBuild() { return { own: ['gun'], off: [], en: 0, lv: {} }; }
+  function _copyBuild(b) { return { own: b.own.slice(), off: b.off.slice(), en: b.en, lv: Object.assign({}, b.lv) }; }
+
+  // ── Energy ────────────────────────────────────────────────────────────────
+  // Every module draws power while it is on. The tower can run only what its
+  // energy allows; going over is allowed in the shop, but the next wave will
+  // not start until something is switched off or more energy is bought.
+  function _upOwner(k) {
+    const o = k.indexOf('.') !== -1 ? k.split('.')[0] : null;
+    return o && ENERGY.base[o] != null ? o : null;
+  }
+  function _modCost(m, b) {
+    b = b || _b;
+    let n = ENERGY.base[m] || 0;
+    for (const k in UPGRADES) if (k.indexOf(m + '.') === 0) n += (b.lv[k] || 0) * (ENERGY.level[k] || 1);
+    return n;
+  }
+  function _isOn(m, b) { b = b || _b; return b.own.indexOf(m) !== -1 && b.off.indexOf(m) === -1; }
+  function _used(b) {
+    b = b || _b;
+    let n = 0;
+    for (const m of b.own) if (_isOn(m, b)) n += _modCost(m, b);
+    return n;
+  }
+  function _energyOk(b) { b = b || _b; return _used(b) <= b.en; }
+  // What one more level, or owning a new module, adds to the draw.
+  function _upEnergy(k) { return _upOwner(k) ? (ENERGY.level[k] || 1) : 0; }
+  function _enUnit(have) {
+    const e = ENERGY.price;
+    return _permMode ? _permPrice(e[0], e[1], have)
+      : Math.max(5, Math.round(e[0] * Math.pow(e[1], have) / 5) * 5);
+  }
+  function _enPrice(n) {
+    let sum = 0;
+    for (let i = 0; i < n; i++) sum += _enUnit(_b.en + i);
+    return sum;
+  }
+  // A tower that does not fit its energy at the start of a run (the permanent
+  // shop allows it) switches off the newest modules until it does.
+  function _fitEnergy(b) {
+    const order = b.own.filter(k => k !== 'gun').reverse().concat(['gun']);
+    for (const m of order) {
+      if (_energyOk(b)) break;
+      if (b.off.indexOf(m) === -1) b.off.push(m);
+    }
+  }
 
   // A saved run against what has been bought for good since: the run keeps
-  // its own mounts, and gets anything permanent it did not have yet.
+  // its own switches, and gets anything permanent it did not have yet.
   function _mergeBuild(run, perm) {
-    const b = _copyBuild(run);
-    for (const k of perm.own) if (b.own.indexOf(k) === -1) b.own.push(k);
+    const legacy = typeof run.en !== 'number';   // saved before energy existed
+    const b = _copyBuild(_cleanBuild(run));
+    for (const k of perm.own) {
+      if (b.own.indexOf(k) === -1) { b.own.push(k); if (perm.off.indexOf(k) !== -1) b.off.push(k); }
+    }
     for (const k in perm.lv) b.lv[k] = Math.max(b.lv[k] || 0, perm.lv[k]);
+    b.en = Math.max(b.en, perm.en);
+    if (legacy) b.en = Math.max(b.en, _used(b));
     return _cleanBuild(b);
   }
 
@@ -395,18 +462,26 @@
       if ((WEAPONS[k] || EXTRAS[k]) && own.indexOf(k) === -1) own.push(k);
     }
     if (own.indexOf('gun') === -1) own.unshift('gun');
-    const eq = [];
-    for (const k of (Array.isArray(b.eq) ? b.eq : [])) {
-      if (WEAPONS[k] && own.indexOf(k) !== -1 && eq.indexOf(k) === -1 && eq.length < MAX_MOUNTED) eq.push(k);
-    }
-    if (!eq.length) eq.push('gun');
     const lv = {};
     for (const k in UPGRADES) {
       const v = Math.floor(Number(b.lv && b.lv[k]) || 0);
       const cap = UPGRADES[k][2];
       if (v > 0) lv[k] = Math.min(cap == null ? LEVEL_CEILING : cap, v);
     }
-    return { own, eq, lv };
+    const out = { own, off: [], en: 0, lv };
+    if (typeof b.en === 'number' && isFinite(b.en)) {
+      out.en = Math.max(0, Math.min(ENERGY_CEILING, Math.floor(b.en)));
+      for (const k of (Array.isArray(b.off) ? b.off : [])) {
+        if (own.indexOf(k) !== -1 && out.off.indexOf(k) === -1) out.off.push(k);
+      }
+    } else {
+      // From before energy: only the mounted weapons were running, and the
+      // tower gets exactly the energy of what ran.
+      const eq = Array.isArray(b.eq) ? b.eq : ['gun'];
+      out.off = own.filter(k => WEAPONS[k] && eq.indexOf(k) === -1);
+      out.en = Math.min(ENERGY_CEILING, _used(out));
+    }
+    return out;
   }
 
   // ── Run lifecycle ─────────────────────────────────────────────────────────
@@ -420,12 +495,13 @@
     _bank = null; _earned = null; _permMode = false; _permMsg = '';
     clearTimeout(_bankTimer);
     _b = _copyBuild(_perm);
+    _fitEnergy(_b);
     _tower = { hp: _tuning.tower_hp, maxHp: _tuning.tower_hp, hit: 0 };
     _enemies = []; _shots = []; _enemyShots = []; _mines = []; _lobs = [];
     _particles = []; _blasts = [];
     _beams = []; _soldiers = []; _drones = []; _bolts = []; _soldierCd = 1; _droneCd = 1.5;
     _novaCd = 0; _waves = []; _teslaCd = []; _zaps = [];
-    _cd = {}; _aim = {}; _ringAngle = 0; _seen = {}; _banner = null;
+    _cd = {}; _aim = {}; _ringAngle = 0; _sweepA = 0; _seen = {}; _banner = null;
     _wave = 0; _ws = _waveStats(1);
     _waveQueue = []; _nextList = null;
     _spawnTimer = 0; _clearTimer = 0;
@@ -466,7 +542,7 @@
     _kills   = r.kills   || 0;
     _elapsed = r.seconds || 0;
     _coins   = Math.max(0, r.coins || 0);
-    if (r.build && typeof r.build === 'object') _b = _mergeBuild(_cleanBuild(r.build), _perm);
+    if (r.build && typeof r.build === 'object') _b = _mergeBuild(r.build, _perm);
     _tower.maxHp = _maxHp();
     _tower.hp = r.hp > 0 ? Math.min(_tower.maxHp, r.hp) : _tower.maxHp;
 
@@ -532,6 +608,10 @@
   }
 
   function _startWave() {
+    if (!_energyOk()) return;
+    _unitsOpen = false;
+    for (const k in _cardOpen) delete _cardOpen[k];   // the next pause starts with every card closed
+    _hud.querySelector('#td-units').style.borderColor = '';
     _wave += 1;
     _ws = _waveStats(_wave);
     _waveQueue = _nextList || _buildWave(_wave);
@@ -644,6 +724,7 @@
     _updateShots(dt);
     _updateMines(dt);
     _updateFireRing(dt, range);
+    _updateSweep(dt, range);
     _updateSoldiers(dt, range);
     _updateDrones(dt, range);
     _updateNova(dt);
@@ -666,7 +747,7 @@
   }
 
   function _updateEnemies(dt, range) {
-    const ice = _owns('iring') ? _iring() : null;
+    const ice = _on('iring') ? _iring() : null;
     for (const e of _enemies) {
       if (e.dead) continue;
       e.flash = Math.max(0, e.flash - dt);
@@ -772,7 +853,7 @@
   }
 
   function _hurtTower(dmg) {
-    if (_owns('shield') && !_shield.down && _shield.hp > 0) {
+    if (_on('shield') && !_shield.down && _shield.hp > 0) {
       const took = Math.min(dmg, _shield.hp);
       _shield.hp -= took;
       _shield.hit = 0.2;
@@ -829,7 +910,7 @@
     return best;
   }
 
-  // Each weapon has its own idea of a good target, so three mounted weapons
+  // Each weapon has its own idea of a good target, so several weapons
   // spread over the field instead of all hitting the same enemy.
   function _pick(w, range, st) {
     const all = _inRange(range);
@@ -840,28 +921,29 @@
   }
 
   // A mine goes where an enemy is about to be, not where it is now.
+  // A mine goes down anywhere in the tower's range, not where an enemy is
+  // heading: aimed mines were often spent on ground the enemy had already
+  // passed. A spot that already has a mine is skipped.
   function _mineSpot(range) {
-    const ground = _inRange(range + 60, e => !e.T.fly && !(e.stop && _dist(e) <= e.stop + 2))
-      .sort((a, b) => _dist(a) - _dist(b));
-    for (const e of ground) {
-      const d  = _dist(e);
-      const pd = Math.min(range, d - e.speed * 1.2);
-      if (pd < TOWER_R + 30) continue;
-      const x = CX + (e.x - CX) / d * pd, y = CY + (e.y - CY) / d * pd;
+    const lo = TOWER_R + 30;
+    if (range <= lo) return null;
+    for (let i = 0; i < 12; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const d = Math.sqrt(lo * lo + Math.random() * (range * range - lo * lo));
+      const x = CX + Math.cos(a) * d, y = CY + Math.sin(a) * d;
       const taken = _mines.some(m => Math.hypot(m.x - x, m.y - y) < 45) ||
                     _lobs.some(m => Math.hypot(m.x - x, m.y - y) < 45);
       if (!taken) return { x, y };
     }
     return null;
   }
-
   function _fireWeapons(dt, range) {
-    for (const w of _b.eq) {
+    for (const w of _weapons()) {
+      if (w === 'sweep') continue;          // it turns by itself, see _updateSweep
       _cd[w] = (_cd[w] || 0) - dt;
       if (_cd[w] > 0) continue;
       const st = _wstat(w);
       if (w === 'mine') {
-        if (_mines.length + _lobs.length >= WEAPONS.mine.max) continue;
         const spot = _mineSpot(range);
         if (!spot) continue;
         _aim[w] = Math.atan2(spot.y - CY, spot.x - CX);
@@ -916,14 +998,25 @@
     for (let i = _shots.length - 1; i >= 0; i--) {
       const s = _shots[i];
       s.life -= dt;
+      // A shot whose target has died goes on to the nearest enemy to it, and
+      // only with nothing left to hit flies on to where the target was.
+      if (s.target.dead) {
+        let next = null, nd = Infinity;
+        for (const e of _enemies) {
+          if (e.dead) continue;
+          const d = Math.hypot(e.x - s.x, e.y - s.y);
+          if (d < nd) { nd = d; next = e; }
+        }
+        if (next) { s.target = next; s.life = Math.max(s.life, 1.5); }
+      }
       if (!s.target.dead) { s.tx = s.target.x; s.ty = s.target.y; }
-      else { _shots.splice(i, 1); continue; }
       const dx = s.tx - s.x, dy = s.ty - s.y;
       const d  = Math.hypot(dx, dy) || 1;
       const step = s.v * dt;
       s.a = Math.atan2(dy, dx);
-      const reach = s.target.dead ? 4 : s.target.r;
-      if (d <= step + reach || s.life <= 0) { _shots.splice(i, 1); _impact(s); continue; }
+      if (s.target.dead) {
+        if (d <= step + 4 || s.life <= 0) { _shots.splice(i, 1); continue; }
+      } else if (d <= step + s.target.r || s.life <= 0) { _shots.splice(i, 1); _impact(s); continue; }
       s.x += dx / d * step;
       s.y += dy / d * step;
       if (s.w === 'fire' && Math.random() < 0.5) _spark(s.x, s.y, '#fab387', 0.25, 20);
@@ -982,7 +1075,7 @@
   }
 
   function _updateFireRing(dt, range) {
-    if (!_owns('fring')) return;
+    if (!_on('fring')) return;
     const fr = _fring();
     _ringAngle += fr.spin * dt;
     for (let k = 0; k < fr.n; k++) {
@@ -1000,9 +1093,33 @@
     }
   }
 
+  // The turning beam. It has no shots to land: every enemy whose body the beam
+  // sweeps across inside the range is cut once per pass, flyers too.
+  function _updateSweep(dt, range) {
+    if (!_on('sweep')) return;
+    const st = _wstat('sweep');
+    const a0 = _sweepA, turn = Math.PI * 2 / st.reload * dt;
+    _sweepA = a0 + turn;
+    _aim.sweep = _sweepA;
+    for (const e of _enemies) {
+      if (e.dead) continue;
+      if (e.sweepCd > 0) e.sweepCd -= dt;
+      const dx = e.x - CX, dy = e.y - CY, d = Math.hypot(dx, dy);
+      if (d > range + e.r || e.sweepCd > 0) continue;
+      const half = Math.atan2(e.r + 3, Math.max(d, 1));
+      const delta = (((Math.atan2(dy, dx) - a0) % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+      if (delta <= turn + half || delta >= Math.PI * 2 - half) {
+        e.sweepCd = st.reload * 0.5;
+        e.flash = 0.08;
+        _damage(e, st.dmg, true);
+        _burst(e.x, e.y, WEAPONS.sweep.color, 4);
+      }
+    }
+  }
+
   function _updateShield(dt) {
     _shield.hit = Math.max(0, _shield.hit - dt);
-    if (!_owns('shield') || !_shield.down) return;
+    if (!_on('shield') || !_shield.down) return;
     const sh = _shieldStat();
     _shield.hp += sh.max / sh.time * dt;
     if (_shield.hp >= sh.max) {
@@ -1024,7 +1141,7 @@
   }
 
   function _updateSoldiers(dt, range) {
-    if (_owns('soldiers')) {
+    if (_on('soldiers')) {
       const so = _soldierStat();
       _soldierCd -= dt;
       if (_soldierCd <= 0 && _soldiers.length < so.max && (_waveQueue.length || _enemies.length)) {
@@ -1070,7 +1187,7 @@
   }
 
   function _updateDrones(dt, range) {
-    if (_owns('drones')) {
+    if (_on('drones')) {
       const dr = _droneStat();
       _droneCd -= dt;
       if (_droneCd <= 0 && _drones.length < dr.max && (_waveQueue.length || _enemies.length)) {
@@ -1120,7 +1237,7 @@
   }
 
   function _updateNova(dt) {
-    if (!_owns('nova')) return;
+    if (!_on('nova')) return;
     _novaCd = Math.max(0, _novaCd - dt);
     if (_novaCd > 0) return;
     const nv = _novaStat();
@@ -1140,7 +1257,7 @@
   }
 
   function _updateTesla(dt) {
-    if (!_owns('tesla')) return;
+    if (!_on('tesla')) return;
     const ts = _teslaStat(), pylons = _pylons();
     pylons.forEach((py, k) => {
       _teslaCd[k] = (_teslaCd[k] == null ? k * 0.3 : _teslaCd[k]) - dt;
@@ -1336,7 +1453,7 @@
     const range  = _range();
 
     // Ice ring: a band just inside the range edge.
-    if (_owns('iring')) {
+    if (_on('iring')) {
       const ir = _iring();
       g.fillStyle = 'rgba(137,220,235,0.13)';
       g.beginPath();
@@ -1375,12 +1492,28 @@
       g.beginPath(); g.arc(x, y - lift * 40, 7 + lift * 4, 0, Math.PI * 2); g.fill();
     }
 
-    if (_owns('tesla')) for (const py of _pylons()) _drawPylon(g, py);
+    if (_on('tesla')) for (const py of _pylons()) _drawPylon(g, py);
 
     for (const e of _enemies) if (!e.dead) _drawEnemy(g, e);
 
+    // The sweep: a bright beam with a fading wake behind it.
+    if (_on('sweep')) {
+      g.lineCap = 'round';
+      for (let i = 5; i >= 0; i--) {
+        const a = _sweepA - i * 0.09;
+        g.globalAlpha = i ? 0.12 + (5 - i) * 0.04 : 0.9;
+        g.strokeStyle = i ? WEAPONS.sweep.color : '#ffffff';
+        g.lineWidth = i ? 9 : 3;
+        g.beginPath();
+        g.moveTo(CX + Math.cos(a) * TOWER_R, CY + Math.sin(a) * TOWER_R);
+        g.lineTo(CX + Math.cos(a) * range, CY + Math.sin(a) * range);
+        g.stroke();
+      }
+      g.globalAlpha = 1;
+    }
+
     // Fire ring
-    if (_owns('fring')) {
+    if (_on('fring')) {
       const fr = _fring();
       for (let k = 0; k < fr.n; k++) {
         const a = _ringAngle + k * Math.PI * 2 / fr.n;
@@ -1752,10 +1885,11 @@
   }
 
   function _drawTower(g, accent) {
-    // One barrel per mounted weapon, each turned to its own target. Before a
+    // One barrel per active weapon, each turned to its own target. Before a
     // weapon has fired its barrel rests at an even spacing around the tower.
-    _b.eq.forEach((w, i) => {
-      const a = _aim[w] != null ? _aim[w] : -Math.PI / 2 + i * Math.PI * 2 / _b.eq.length;
+    const ws = _weapons();
+    ws.forEach((w, i) => {
+      const a = _aim[w] != null ? _aim[w] : -Math.PI / 2 + i * Math.PI * 2 / ws.length;
       g.save();
       g.translate(CX, CY);
       g.rotate(a);
@@ -1778,7 +1912,7 @@
     }
     // The shield: a bubble that thins as it takes hits, and while it is down
     // only the arc of its recharge.
-    if (_owns('shield') && _shield) {
+    if (_on('shield') && _shield) {
       const R = TOWER_R + 16, pct = _shield.hp / _shieldStat().max;
       if (_shield.down) {
         g.strokeStyle = 'rgba(137,220,235,.5)';
@@ -1814,21 +1948,50 @@
       _cell('td-h-coins', _t('td_coins')) +
       _cell('td-h-hp', _t('td_integrity')) +
       '<span style="flex:0 0 100%;height:0"></span>' +
+      '<button id="td-units" style="display:none;align-self:center;background:var(--surface2,#313244);' +
+      'color:var(--fg,#cdd6f4);border:1px solid var(--border,#45475a);border-radius:10px;padding:9px 12px;' +
+      'font-size:.95rem;cursor:pointer">👾</button>' +
       '<button id="td-go" style="display:none;flex:1 1 auto;white-space:nowrap;align-self:center;background:var(--accent,#89b4fa);' +
       'color:#1e1e2e;border:none;border-radius:10px;padding:9px 12px;font-weight:800;font-size:.92rem;' +
       'cursor:pointer"></button>' +
-      '<button id="td-sound" style="margin-left:auto;align-self:center;background:var(--surface2,#313244);' +
-      'color:var(--fg,#cdd6f4);border:1px solid var(--border,#45475a);border-radius:10px;padding:7px 11px;' +
-      'font-size:.95rem;cursor:pointer"></button>' +
-      '<button id="td-exit" style="align-self:center;background:var(--surface2,#313244);' +
-      'color:var(--fg,#cdd6f4);border:1px solid var(--border,#45475a);border-radius:10px;padding:7px 11px;' +
-      'font-size:.95rem;cursor:pointer">⏸</button>';
+      // Everything that is not part of playing lives behind one menu button, so
+      // a new control has a place to go without crowding the row.
+      '<span id="td-menuwrap" style="position:relative;margin-left:auto;align-self:center">' +
+      '<button id="td-menu" style="background:var(--surface2,#313244);color:var(--fg,#cdd6f4);' +
+      'border:1px solid var(--border,#45475a);border-radius:10px;padding:7px 11px;font-size:.95rem;cursor:pointer">☰</button>' +
+      '<span id="td-menu-panel" style="display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:20;' +
+      'flex-direction:column;gap:6px;min-width:150px;padding:8px;background:var(--surface1,#181825);' +
+      'border:1px solid var(--border,#45475a);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.45)">' +
+      ['td-sound', 'td-exit'].map(id => '<button id="' + id + '" style="display:flex;align-items:center;gap:8px;' +
+        'background:var(--surface2,#313244);color:var(--fg,#cdd6f4);border:1px solid var(--border,#45475a);' +
+        'border-radius:9px;padding:10px 12px;font-size:.9rem;font-weight:600;cursor:pointer;text-align:left;' +
+        'white-space:nowrap"></button>').join('') +
+      '</span></span>';
+    const menu = _hud.querySelector('#td-menu'), panel = _hud.querySelector('#td-menu-panel');
+    menu.onclick = ev => {
+      ev.stopPropagation();
+      panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+    };
+    panel.onclick = () => { panel.style.display = 'none'; };
+    document.addEventListener('click', () => { panel.style.display = 'none'; });
+    const units = _hud.querySelector('#td-units');
+    units.title = _t('td_units');
+    units.onclick = () => {
+      _unitsOpen = !_unitsOpen;
+      const box = _overlay.querySelector('.td-next');
+      if (box) box.style.display = _unitsOpen ? '' : 'none';
+      units.style.borderColor = _unitsOpen ? 'var(--accent,#89b4fa)' : '';
+      const body = _overlay.querySelector('.td-shop-body');
+      if (body && _unitsOpen) body.scrollTop = 0;
+      _sfx('buy');
+    };
     _hud.querySelector('#td-go').onclick = () => { if (_inShop && !_over && !_permMode) _startWave(); };
     const ex = _hud.querySelector('#td-exit');
     ex.title = _t('td_exit');
+    ex.textContent = '⏸ ' + _t('td_exit');
     ex.onclick = () => mp.exitPrompt();
     const snd = _hud.querySelector('#td-sound');
-    const paint = () => { snd.textContent = _muted ? '🔇' : '🔊'; snd.title = _t('td_sound'); };
+    const paint = () => { snd.textContent = (_muted ? '🔇 ' : '🔊 ') + _t('td_sound'); snd.title = _t('td_sound'); };
     snd.onclick = () => {
       _muted = !_muted;
       try { localStorage.setItem('td_muted', _muted ? '1' : '0'); } catch (_) {}
@@ -1851,12 +2014,20 @@
     // comes and goes would keep resizing the HUD.
     hp.textContent = Math.ceil(_tower.hp) + ' / ' + _tower.maxHp;
     hp.style.color = pct > 50 ? 'var(--green,#a6e3a1)' : pct > 20 ? 'var(--yellow,#f9e2af)' : 'var(--red,#f38ba8)';
-    _hud.querySelector('#td-exit').style.display = _over ? 'none' : '';
+    _hud.querySelector('#td-exit').style.display = _over ? 'none' : 'flex';
     // Between waves the start button takes the place of the speed controls.
     const inShop = _inShop && !_over && !_permMode;
     const go = _hud.querySelector('#td-go');
     go.style.display = inShop ? '' : 'none';
-    if (inShop) go.textContent = _t('td_start_wave', { n: _wave + 1 });
+    _hud.querySelector('#td-units').style.display = inShop ? '' : 'none';
+    if (inShop) {
+      const ok = _energyOk();
+      go.textContent = _t('td_start_wave', { n: _wave + 1 });
+      go.disabled = !ok;
+      go.title = ok ? '' : _t('td_en_over');
+      go.style.opacity = ok ? '' : '.45';
+      go.style.cursor = ok ? 'pointer' : 'not-allowed';
+    }
     _hud.classList.toggle('td-in-shop', inShop);
   }
 
@@ -1874,28 +2045,78 @@
     return UP_ICON[key] || (key.slice(-2) === '.p' ? '⚔' : '⏱');
   }
 
+  // Two rows on every button: what it is, then what it costs and how much
+  // more energy the tower will draw for it.
+  function _enTag(n) { return n ? '<span class="td-en">⚡+' + n + '</span>' : ''; }
+
   function _upRow(key, label) {
     const lv = _lv(key), cap = UPGRADES[key][2], maxed = _maxed(key), p = _price(key);
     return '<button class="td-up" data-act="up:' + key + '"' + (maxed || _money() < p || _permBusy ? ' disabled' : '') +
       ' title="' + _esc(label) + '">' +
-      '<span class="td-up-name">' + _upIcon(key) + '</span>' +
-      '<span class="td-lv">' + (cap == null ? lv : lv + '/' + cap) + '</span>' +
-      '<span class="td-price">' + (maxed ? _esc(_t('td_max')) : _num(p)) + '</span></button>';
+      '<span class="td-b1"><span class="td-up-name">' + _upIcon(key) + ' <span class="td-up-lbl">' + _esc(label) + '</span></span>' +
+      '<span class="td-lv">' + (cap == null ? lv : lv + '/' + cap) + '</span></span>' +
+      '<span class="td-b2"><span class="td-price">' + (maxed ? _esc(_t('td_max')) : _num(p)) + '</span>' +
+      (maxed ? '' : _enTag(_upEnergy(key))) + '</span></button>';
   }
 
   function _buyRow(key) {
     const price = _buyPrice(key);
     return '<button class="td-buy" data-act="buy:' + key + '"' + (_money() < price || _permBusy ? ' disabled' : '') + '>' +
-      '<span>' + _esc(_t('td_buy')) + '</span><span class="td-price">' + _num(price) + '</span></button>';
+      '<span class="td-b1">' + _esc(_t('td_buy')) + '</span>' +
+      '<span class="td-b2"><span class="td-price">' + _num(price) + '</span>' + _enTag(ENERGY.base[key] || 0) + '</span></button>';
   }
 
-  function _card(icon, color, name, desc, stats, body, cls, act) {
-    return '<div class="td-card' + (cls ? ' ' + cls : '') + '" title="' + _esc(desc) + '">' +
-      '<div class="td-card-top"' + (act ? ' data-act="' + act + '" style="cursor:pointer" title="' + _esc(_t('td_unmount')) + '"' : '') +
-      '><span class="td-ico" style="--c:' + color + '">' + icon + '</span>' +
+  // A module's own line: what it draws now, and its switch.
+  function _meta(mod) {
+    const on = _isOn(mod), cost = _modCost(mod), den = Math.max(_b.en, _used()) || 1;
+    const pct = Math.round(cost * 100 / den);
+    return '<div class="td-meta"><span>⚡ ' + _esc(on ? _t('td_en_draw', { n: cost, p: pct }) : _t('td_en_off', { n: cost })) + '</span>' +
+      '<button class="td-tog' + (on ? ' on' : '') + '" data-act="tog:' + mod + '" role="switch" aria-checked="' + on +
+      '" title="' + _esc(_t(on ? 'td_on' : 'td_off')) + '"' + (_permBusy ? ' disabled' : '') + '><i></i></button></div>';
+  }
+
+  // The green behind a card is the share of all the energy it takes.
+  function _share(mod) {
+    if (!mod || !_isOn(mod)) return 0;
+    return Math.min(100, Math.round(_modCost(mod) * 100 / (Math.max(_b.en, _used()) || 1)));
+  }
+
+  // Whatever is bought shows only its name and current figures; a tap opens
+  // its energy line and the buttons under it. What can be bought keeps its
+  // Buy button in the row.
+  const _cardOpen = {};
+  function _card(icon, color, name, desc, stats, body, cls, mod, extra) {
+    const fold = !/td-locked/.test(cls || ''), open = fold && _cardOpen[icon];
+    const off = mod && !_isOn(mod);
+    return '<div class="td-card' + (cls ? ' ' + cls : '') + (off ? ' td-off' : '') +
+      (fold ? ' td-fold' + (open ? ' td-exp' : '') : '') + '" style="--pct:' + _share(mod) + '%"' +
+      (fold ? ' data-act="card:' + icon + '"' : '') + ' title="' + _esc(desc) + '">' +
+      '<div class="td-card-top"><span class="td-ico" style="--c:' + color + '">' + icon + '</span>' +
       '<b>' + _esc(name) + '</b></div>' +
-      (stats ? '<div class="td-stats">' + _esc(stats) + '</div>' : '') +
+      (stats || off ? '<div class="td-stats">' + _esc(off ? _t('td_off') : stats) + '</div>' : '') +
+      (fold ? '<span class="td-chev"></span>' : '') +
+      (extra || '') +
+      (fold && mod ? _meta(mod) : '') +
       '<div class="td-actions">' + body + '</div></div>';
+  }
+
+  // The energy of the whole tower: how much is drawn, how much is free, and
+  // where more is bought. It turns red when the tower asks for more than it has.
+  function _energyCard() {
+    const used = _used(), en = _b.en, free = en - used, over = free < 0;
+    const fill = en ? Math.min(100, used * 100 / en) : (used ? 100 : 0);
+    const bar = '<div class="td-ebar' + (over ? ' over' : '') + '"><div class="td-efill" style="width:' + fill.toFixed(1) +
+      '%"></div><span>' + _esc(_t('td_en_used', { n: used })) + ' · ' +
+      _esc(over ? _t('td_en_short', { n: -free }) : _t('td_en_free', { n: free })) + '</span></div>';
+    let btns = '';
+    for (const n of [1, 5, 10]) {
+      const p = _enPrice(n);
+      btns += '<button class="td-buy" data-act="en:' + n + '"' + (_money() < p || _permBusy || en + n > ENERGY_CEILING ? ' disabled' : '') + '>' +
+        '<span class="td-b1">' + _esc(_t('td_en_plus', { n })) + '</span>' +
+        '<span class="td-b2"><span class="td-price">' + _num(p) + '</span></span></button>';
+    }
+    return _card('⚡', '#f9e2af', _t('td_energy'), _t('td_energy_d'), used + ' / ' + en, btns,
+      'td-energy' + (over ? ' td-over' : ''), null, bar);
   }
 
   // Only what is bought, or can be bought right now, stays in view; the rest
@@ -1921,29 +2142,57 @@
     const st = _wstat(w), rate = _fmt(1 / st.reload, 1) + '/s';
     if (w === 'fire')   return '⚔' + _fmt(st.dmg) + ' 🔥' + _fmt(st.burn) + ' · ' + rate;
     if (w === 'ice')    return '❄' + _fmt(st.freeze, 1) + 's · ' + rate;
+    if (w === 'sweep')  return '⚔' + _fmt(st.dmg) + ' ↻ ' + _fmt(st.reload, 1) + 's';
     if (w === 'laser')  return '⚔' + _fmt(st.dmg) + ' ↦∞ · ' + rate;
     if (w === 'mine')   return '💥' + _fmt(st.dmg) + ' ◎' + _fmt(st.splash) + ' · ' + rate;
     return '⚔' + _fmt(st.dmg) + ' · ' + rate;
   }
 
+  // What the coming wave brings: hidden until the button in front of "Start
+  // wave" opens it, one unit to a row, drawn as it looks in the fight.
+  let _unitsOpen = false;
+  function _unitRow(k, extra) {
+    return '<div class="td-unit"><canvas data-u="' + k + '" width="48" height="48"></canvas><div class="td-unit-txt">' +
+      extra + '<div class="td-unit-d">' + _esc(_t('td_e_' + k + '_d')) + '</div></div></div>';
+  }
+
   function _nextPreview() {
     const counts = {};
     for (const s of _nextList || []) counts[s.type] = (counts[s.type] || 0) + 1;
-    let chips = '';
+    let rows = '';
     for (const k of PREVIEW_ORDER) {
       if (!counts[k]) continue;
-      const isNew = !_seen[k];
-      chips += '<span class="td-chip" style="--c:' + ENEMIES[k].color + '" data-act="info:' + k + '" title="' + _esc(_t('td_e_' + k + '_d')) + '"><i></i>' +
-        _esc(_t('td_e_' + k)) + ' ×' + counts[k] +
-        (isNew ? '<em>' + _esc(_t('td_new')) + '</em>' : '') + '</span>';
+      rows += _unitRow(k, '<div class="td-unit-n"><b>' + _esc(_t('td_e_' + k)) + '</b> ×' + counts[k] +
+        (_seen[k] ? '' : '<em>' + _esc(_t('td_new')) + '</em>') + '</div>');
     }
     const n = _wave + 1;
-    const boss = n % BOSS_EVERY === 0
-      ? '<div class="td-bossnext" data-act="info:' + _bossOf(n) + '" style="--c:' + ENEMIES[_bossOf(n)].color + '">👑 ' +
-        _esc(_t('td_boss_after')) + ' <b>' + _esc(_t('td_e_' + _bossOf(n))) + '</b></div>'
-      : '';
-    return '<div class="td-next"><span class="td-next-h">' + _esc(_t('td_next_wave', { n })) + '</span>' +
-      chips + '</div>' + boss + '<div class="td-info"></div>';
+    if (n % BOSS_EVERY === 0) {
+      const bk = _bossOf(n);
+      rows += '<div class="td-unit td-unit-boss" style="--c:' + ENEMIES[bk].color + '"><canvas data-u="' + bk +
+        '" width="48" height="48"></canvas><div class="td-unit-txt"><div class="td-unit-n">👑 ' + _esc(_t('td_boss_after')) +
+        ' <b>' + _esc(_t('td_e_' + bk)) + '</b></div><div class="td-unit-d">' + _esc(_t('td_e_' + bk + '_d')) + '</div></div></div>';
+    }
+    return '<div class="td-next"' + (_unitsOpen ? '' : ' style="display:none"') + '><div class="td-next-h">' +
+      _esc(_t('td_next_wave', { n })) + '</div>' + rows + '</div>';
+  }
+
+  // The same drawing the fight uses, on a small canvas each.
+  function _paintUnits() {
+    const dpr = window.devicePixelRatio || 1;
+    _overlay.querySelectorAll('canvas[data-u]').forEach(c => {
+      const T = ENEMIES[c.dataset.u];
+      if (!T) return;
+      c.width = c.height = Math.round(48 * dpr);
+      const g = c.getContext('2d');
+      g.scale(dpr, dpr);
+      g.translate(24, 24);
+      const sc = 15 / T.r;
+      g.scale(sc, sc);
+      const e = { T: Object.assign({}, T, { boss: false }), r: T.r, type: c.dataset.u, x: CX - 100, y: CY,
+                  hp: 1, maxHp: 1, wob: 0, flash: 0 };
+      g.translate(-e.x, -e.y);
+      _drawEnemy(g, e);
+    });
   }
 
   function _renderShop() {
@@ -1953,22 +2202,11 @@
     // Weapons
     let weapons = '';
     for (const w of WEAPON_ORDER) {
-      const d = WEAPONS[w], owned = _owns(w), mounted = _b.eq.indexOf(w) !== -1;
-      let body;
-      if (!owned) body = _buyRow(w);
-      else {
-        const lock = _permBusy || (mounted ? _b.eq.length <= 1 : _b.eq.length >= MAX_MOUNTED);
-        // A mounted weapon needs no button saying so; the card is the toggle
-        // that takes it off again, and only the unmounted ones show "Mount".
-        body = (mounted ? '' : '<button class="td-mount" data-act="eq:' + w + '"' +
-          (lock ? ' disabled' : '') + (lock ? ' title="' + _esc(_t('td_slots_full')) + '"' : '') + '>' +
-          _esc(_t('td_mount')) + '</button>') +
-          _upRow(w + '.p', _t('td_power')) + _upRow(w + '.r', _t('td_rate'));
-      }
+      const d = WEAPONS[w], owned = _owns(w);
+      const body = !owned ? _buyRow(w) : _upRow(w + '.p', _t('td_power')) + _upRow(w + '.r', _t(w === 'sweep' ? 'td_spin' : 'td_rate'));
       weapons += _card(d.icon, d.color, _t('td_w_' + w), _t('td_w_' + w + '_d'),
         owned ? _weaponStats(w) : '', body,
-        (!owned ? 'td-locked' : mounted ? 'td-on' : '') + _hideCls(w),
-        mounted && !_permBusy && _b.eq.length > 1 ? 'eq:' + w : '');
+        (!owned ? 'td-locked' : '') + _hideCls(w), owned ? w : null);
     }
 
     // The tower itself
@@ -1983,20 +2221,21 @@
         _permMode ? '♥ ' + _maxHp() : '♥ ' + Math.ceil(_tower.hp) + ' / ' + _tower.maxHp,
         (_permMode ? '' :
           '<button class="td-buy" data-act="repair" title="' + _esc(_t('td_repair', { n: _repairAmount() })) + '"' + (full || _coins < rp ? ' disabled' : '') + '>' +
-          '<span>🔧</span><span class="td-price">' + rp + '</span></button>') +
+          '<span class="td-b1">🔧 ' + _esc(_t('td_repair', { n: _repairAmount() })) + '</span>' +
+          '<span class="td-b2"><span class="td-price">' + rp + '</span></span></button>') +
         _upRow('hp', _t('td_reinforce'))) +
       _card('📡', '#b4befe', _t('td_x_range'), _t('td_x_range_d'), '◎ ' + _range(), _upRow('range', _t('td_x_range'))) +
       _card('💚', '#a6e3a1', _t('td_x_regen'), _t('td_x_regen_d'),
         _owns('regen') ? '+' + _fmt(_regen(), 1) + ' ♥/s' : '',
-        _owns('regen') ? _upRow('regen.r', _t('td_speed')) : _buyRow('regen'), own('regen')) +
+        _owns('regen') ? _upRow('regen.r', _t('td_speed')) : _buyRow('regen'), own('regen'), _owns('regen') ? 'regen' : null) +
       _card('🛡️', '#89dceb', _t('td_x_shield'), _t('td_x_shield_d'),
         _owns('shield') ? '🛡' + _fmt(sh.max) + ' ⟳' + _fmt(sh.time, 1) + 's' : '',
         _owns('shield') ? _upRow('shield.c', _t('td_capacity')) + _upRow('shield.r', _t('td_recharge')) : _buyRow('shield'),
-        own('shield')) +
+        own('shield'), _owns('shield') ? 'shield' : null) +
       _card('💥', '#b4befe', _t('td_x_nova'), _t('td_x_nova_d'),
         _owns('nova') ? '💥' + _fmt(nv.dmg) + ' ⟳' + _fmt(nv.every, 1) + 's' : '',
         _owns('nova') ? _upRow('nova.p', _t('td_power')) + _upRow('nova.r', _t('td_recharge')) : _buyRow('nova'),
-        own('nova'));
+        own('nova'), _owns('nova') ? 'nova' : null);
 
     // The battlefield around it
     const field =
@@ -2005,39 +2244,44 @@
         _owns('fring')
           ? _upRow('fring.n', _t('td_count')) + _upRow('fring.p', _t('td_power')) + _upRow('fring.s', _t('td_speed'))
           : _buyRow('fring'),
-        own('fring')) +
+        own('fring'), _owns('fring') ? 'fring' : null) +
       _card('🌀', '#89dceb', _t('td_r_ice'), _t('td_r_ice_d'),
         _owns('iring') ? '↔' + _fmt(ir.width) + ' ↓' + Math.round(ir.slow * 100) + '%' : '',
         _owns('iring')
           ? _upRow('iring.w', _t('td_width')) + _upRow('iring.s', _t('td_slowdown'))
           : _buyRow('iring'),
-        own('iring')) +
+        own('iring'), _owns('iring') ? 'iring' : null) +
       _card('⚔️', '#89b4fa', _t('td_x_soldiers'), _t('td_x_soldiers_d'),
         _owns('soldiers') ? '⚔' + _fmt(so.dmg) + ' ♥' + _fmt(so.hp) + ' ⏱' + _fmt(so.every, 1) + 's ×' + so.max : '',
         _owns('soldiers') ? _upRow('soldiers.f', _t('td_frequency')) + _upRow('soldiers.p', _t('td_power')) : _buyRow('soldiers'),
-        own('soldiers')) +
+        own('soldiers'), _owns('soldiers') ? 'soldiers' : null) +
       _card('🛸', '#94e2d5', _t('td_x_drones'), _t('td_x_drones_d'),
         _owns('drones') ? '⚔' + _fmt(dr.dmg) + ' ⏱' + _fmt(dr.every, 1) + 's ×' + dr.max : '',
         _owns('drones') ? _upRow('drones.f', _t('td_frequency')) + _upRow('drones.p', _t('td_power')) : _buyRow('drones'),
-        own('drones')) +
+        own('drones'), _owns('drones') ? 'drones' : null) +
       _card('⚡', '#f9e2af', _t('td_x_tesla'), _t('td_x_tesla_d'),
         _owns('tesla') ? '⚡×' + ts.n + ' ⚔' + _fmt(ts.dmg) + ' ⛓' + ts.chain : '',
         _owns('tesla') ? _upRow('tesla.n', _t('td_pylons')) + _upRow('tesla.p', _t('td_power')) : _buyRow('tesla'),
-        own('tesla'));
+        own('tesla'), _owns('tesla') ? 'tesla' : null);
 
     const grids =
-      _sec('weapons', _t('td_sec_weapons'), _t('td_slots', { n: _b.eq.length }), weapons) +
+      _sec('energy', _t('td_energy'), '', _energyCard()) +
+      _sec('weapons', _t('td_sec_weapons'), '', weapons) +
       _sec('tower', _t('td_sec_tower'), '', tower) +
       _sec('field', _t('td_sec_field'), '', field);
     if (_permMode) return grids;
 
     _overlay.style.display = 'flex';
+    // A purchase redraws the shop; the player stays where they were.
+    const prev = _overlay.querySelector('.td-shop-body'), keepTop = prev ? prev.scrollTop : 0;
     _overlay.innerHTML =
       '<div class="td-shop">' +
         '<div class="td-shop-body">' +
           _nextPreview() + grids +
         '</div>' +
       '</div>';
+    if (keepTop) _overlay.querySelector('.td-shop-body').scrollTop = keepTop;
+    _paintUnits();
     _renderHud();
   }
 
@@ -2055,27 +2299,24 @@
       head.classList.toggle('td-open', _secOpen[key]);
       return;
     }
-    if (kind === 'info') {
-      // Tap an enemy to read what it is; tap it again to close the note.
-      const box = _overlay.querySelector('.td-info');
-      if (!box || !ENEMIES[key]) return;
-      const open = box.dataset.k === key;
-      box.dataset.k = open ? '' : key;
-      box.innerHTML = open ? '' : '<b>' + _esc(_t('td_e_' + key)) + '</b> — ' + _esc(_t('td_e_' + key + '_d'));
+    if (kind === 'card') {
+      // Opens or closes the buttons of a bought thing without redrawing the shop.
+      const card = btn;
+      _cardOpen[key] = !card.classList.contains('td-exp');
+      card.classList.toggle('td-exp', _cardOpen[key]);
       return;
     }
     if (_permMode) { _permBuy(kind, key); return; }
     if (!_inShop || _over) return;
 
     if (kind === 'go') { _startWave(); return; }
-    _sfx(kind === 'eq' ? 'mount' : 'buy');
+    _sfx(kind === 'tog' ? 'mount' : 'buy');
 
     if (kind === 'buy') {
       const price = _buyPrice(key);
       if (price == null || _owns(key) || _coins < price) return;
       _coins -= price;
       _b.own.push(key);
-      if (WEAPONS[key] && _b.eq.length < MAX_MOUNTED) _b.eq.push(key);
       if (key === 'shield') _fullShield();
     } else if (kind === 'up') {
       const u = UPGRADES[key];
@@ -2093,10 +2334,17 @@
         _tower.hp += _tower.maxHp - before;
       }
       if (key === 'hp' || key.indexOf('shield') === 0) _fullShield();
-    } else if (kind === 'eq') {
-      const i = _b.eq.indexOf(key);
-      if (i !== -1) { if (_b.eq.length > 1) _b.eq.splice(i, 1); }
-      else if (_owns(key) && _b.eq.length < MAX_MOUNTED) _b.eq.push(key);
+    } else if (kind === 'tog') {
+      if (!_owns(key)) return;
+      const i = _b.off.indexOf(key);
+      if (i !== -1) _b.off.splice(i, 1); else _b.off.push(key);
+    } else if (kind === 'en') {
+      const n = Math.floor(+key);
+      if (!(n >= 1 && n <= 10) || _b.en + n > ENERGY_CEILING) return;
+      const p = _enPrice(n);
+      if (_coins < p) return;
+      _coins -= p;
+      _b.en += n;
     } else if (kind === 'repair') {
       const p = _repairPrice();
       if (_coins < p || _tower.hp >= _tower.maxHp) return;
@@ -2123,7 +2371,7 @@
       coins: _coins,
       hp: Math.max(1, Math.round(_tower.hp)),
       seconds: Math.round(_elapsed),
-      build: { own: _b.own.slice(), eq: _b.eq.slice(), lv: Object.assign({}, _b.lv) },
+      build: _copyBuild(_b),
     };
   }
 
@@ -2187,10 +2435,10 @@
   }
 
   function _permBuy(kind, key) {
-    if (_permBusy || _bank == null || ['buy', 'up', 'eq'].indexOf(kind) === -1) return;
+    if (_permBusy || _bank == null || ['buy', 'up', 'tog', 'en'].indexOf(kind) === -1) return;
     _permBusy = true;
     _permMsg = '';
-    _sfx(kind === 'eq' ? 'mount' : 'buy');
+    _sfx(kind === 'tog' ? 'mount' : 'buy');
     _showGameOver();
     _api('/buy', { act: kind, key }).then(({ ok, d }) => {
       if (!ok && d.error !== 'points' && d.error !== 'invalid') throw new Error('buy');
@@ -2215,6 +2463,7 @@
     }
     _permMode = _bank != null;
     _overlay.style.display = 'flex';
+    const prevBody = _overlay.querySelector('.td-shop-body'), keepTop = prevBody ? prevBody.scrollTop : 0;
     _overlay.innerHTML =
       '<div class="td-shop td-perm">' +
         '<div class="td-shop-head">' +
@@ -2225,7 +2474,7 @@
               (_earned ? ' · ' + _esc(_t('td_earned', { n: _num(_earned) })) : '') +
             '</div></div>' +
           '<div class="td-coins" title="' + _esc(_t('td_bank_d')) + '">🏦 ' + (_bank == null ? '…' : _num(_bank)) + '</div>' +
-          '<button class="td-go" data-act="again">' + _esc(_t('td_play_again')) + '</button>' +
+          '<button class="td-go" data-act="again"' + (_bank != null && !_energyOk(_perm) ? ' disabled title="' + _esc(_t('td_en_over')) + '"' : '') + '>' + _esc(_t('td_play_again')) + '</button>' +
           '<a class="td-back" href="/pub/gamehub/?game=' + GAME_ID + '">' + _esc(_t('td_back_to_hub')) + '</a>' +
         '</div>' +
         '<div class="td-shop-body">' +
@@ -2234,6 +2483,7 @@
           body +
         '</div>' +
       '</div>';
+    if (keepTop) _overlay.querySelector('.td-shop-body').scrollTop = keepTop;
   }
 
   // A room is one run: it is finished the moment the tower falls, so playing

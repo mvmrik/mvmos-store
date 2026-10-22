@@ -23,12 +23,24 @@ import time
 _APP_DIR = os.path.dirname(os.path.realpath(__file__))
 _DB_PATH = os.path.join(_APP_DIR, "data.db")
 
-MAX_MOUNTED = 3
-
 # Price of each weapon and of the extras bought once (in coins, in a run).
-WEAPONS = {"gun": 0, "fire": 120, "ice": 140, "laser": 220, "mine": 180}
+WEAPONS = {"gun": 0, "fire": 120, "ice": 140, "laser": 220, "sweep": 210, "mine": 180}
 EXTRAS  = {"regen": 90, "shield": 150, "nova": 170, "fring": 200, "iring": 160, "soldiers": 180, "drones": 240,
            "tesla": 220}
+
+# Energy. Every module (a weapon or one of the extras) draws power while it is
+# switched on: a base amount for having it, plus a little for every level of
+# its upgrades. The tower can only run what its energy allows; there is no
+# other limit on how many weapons it carries. Nothing is free but the gun's
+# first level, so a new tower starts with no energy at all.
+ENERGY_BASE = {"gun": 0, "fire": 5, "ice": 5, "laser": 9, "sweep": 8, "mine": 6,
+               "regen": 3, "shield": 5, "nova": 7, "fring": 6, "iring": 5, "soldiers": 7, "drones": 7, "tesla": 9}
+# Energy added by one level of an upgrade; 1 unless listed. The upgrades that
+# add a whole new fireball or pylon weigh double.
+ENERGY_LEVEL = {"fring.n": 2, "tesla.n": 2}
+# Price of a unit of energy: the first unit, and the growth with each unit the
+# tower already has.
+ENERGY_PRICE = [8, 1.03]
 
 # key -> [price of the first level, price growth per level, last level].
 # None means there is no last level: only things that physically run out keep
@@ -40,6 +52,7 @@ UPGRADES = {
     "fire.p":   [45, 1.45, None], "fire.r":   [45, 1.45, None],
     "ice.p":    [45, 1.45, None], "ice.r":    [50, 1.45, None],
     "laser.p":  [60, 1.45, None], "laser.r":  [60, 1.45, None],
+    "sweep.p":  [60, 1.45, None], "sweep.r":  [60, 1.45, None],
     "mine.p":   [55, 1.45, None], "mine.r":   [55, 1.45, None],
     "hp":       [60, 1.4, None],
     "range":    [70, 1.5, 17],
@@ -58,6 +71,8 @@ UPGRADES = {
 # points, and everything else keeps the in-run proportions and growth.
 PERM_FACTOR = 10000 / min(u[0] for u in UPGRADES.values())
 
+ENERGY_CEILING = 500
+
 # Far above anything reachable; only stops a forged build from asking for a
 # price that does not fit in a float.
 _LEVEL_CEILING = 500
@@ -69,7 +84,7 @@ def catalogue() -> dict:
         "extras":   EXTRAS,
         "upgrades": UPGRADES,
         "perm_factor": PERM_FACTOR,
-        "max_mounted": MAX_MOUNTED,
+        "energy": {"base": ENERGY_BASE, "level": ENERGY_LEVEL, "price": ENERGY_PRICE},
     }
 
 
@@ -77,8 +92,26 @@ def perm_price(base: float, mult: float = 1.0, level: int = 0) -> int:
     return int(math.floor(PERM_FACTOR * base * mult ** level / 50 + 0.5)) * 50
 
 
+def module_energy(key: str, lv: dict) -> int:
+    """What one module draws: its base plus its levels."""
+    n = ENERGY_BASE.get(key, 0)
+    for k in UPGRADES:
+        if k.startswith(key + "."):
+            n += lv.get(k, 0) * ENERGY_LEVEL.get(k, 1)
+    return n
+
+
+def energy_used(b: dict) -> int:
+    return sum(module_energy(k, b["lv"]) for k in b["own"] if k not in b["off"])
+
+
+def energy_price(units_have: int, n: int = 1) -> int:
+    """Permanent price of the next n units when the tower has units_have."""
+    return sum(perm_price(ENERGY_PRICE[0], ENERGY_PRICE[1], units_have + i) for i in range(n))
+
+
 def fresh_build() -> dict:
-    return {"own": ["gun"], "eq": ["gun"], "lv": {}}
+    return {"own": ["gun"], "off": [], "en": 0, "lv": {}}
 
 
 def clean_build(b) -> dict:
@@ -91,12 +124,6 @@ def clean_build(b) -> dict:
             own.append(k)
     if "gun" not in own:
         own.insert(0, "gun")
-    eq = []
-    for k in b.get("eq") or []:
-        if k in WEAPONS and k in own and k not in eq and len(eq) < MAX_MOUNTED:
-            eq.append(k)
-    if not eq:
-        eq.append("gun")
     lv = {}
     raw = b.get("lv") if isinstance(b.get("lv"), dict) else {}
     for k, u in UPGRADES.items():
@@ -107,7 +134,18 @@ def clean_build(b) -> dict:
         cap = u[2] if u[2] is not None else _LEVEL_CEILING
         if v > 0:
             lv[k] = min(cap, v)
-    return {"own": own, "eq": eq, "lv": lv}
+    out = {"own": own, "off": [], "en": 0, "lv": lv}
+    if isinstance(b.get("en"), (int, float)) and not isinstance(b.get("en"), bool):
+        out["en"] = max(0, min(ENERGY_CEILING, int(b["en"])))
+        out["off"] = [k for k in (b.get("off") or []) if k in own and isinstance(k, str)]
+        out["off"] = list(dict.fromkeys(out["off"]))
+    else:
+        # A build from before energy: only the mounted weapons were running.
+        # Give it exactly the energy of what ran, so nothing is lost.
+        eq = b.get("eq") if isinstance(b.get("eq"), list) else ["gun"]
+        out["off"] = [k for k in own if k in WEAPONS and k not in eq]
+        out["en"] = min(ENERGY_CEILING, energy_used(out))
+    return out
 
 
 # ── Storage ──────────────────────────────────────────────────────────────────
@@ -189,7 +227,7 @@ def buy(pid: str, act: str, key: str) -> tuple[dict | None, str]:
     try:
         c.execute("BEGIN IMMEDIATE")
         points, b = _row(c, pid)
-        own, eq, lv = b["own"], b["eq"], b["lv"]
+        own, off, lv = b["own"], b["off"], b["lv"]
         price = 0
         if act == "buy":
             base = WEAPONS.get(key, EXTRAS.get(key))
@@ -201,8 +239,6 @@ def buy(pid: str, act: str, key: str) -> tuple[dict | None, str]:
                 c.execute("ROLLBACK")
                 return None, "points"
             own.append(key)
-            if key in WEAPONS and len(eq) < MAX_MOUNTED:
-                eq.append(key)
         elif act == "up":
             u = UPGRADES.get(key)
             owner = key.split(".")[0] if "." in key else None
@@ -216,15 +252,27 @@ def buy(pid: str, act: str, key: str) -> tuple[dict | None, str]:
                 c.execute("ROLLBACK")
                 return None, "points"
             lv[key] = level + 1
-        elif act == "eq":
-            if key not in WEAPONS or key not in own:
+        elif act == "en":
+            try:
+                n = int(key)
+            except ValueError:
+                n = 0
+            if n < 1 or n > 10 or b["en"] + n > ENERGY_CEILING:
                 c.execute("ROLLBACK")
                 return None, "invalid"
-            if key in eq:
-                if len(eq) > 1:
-                    eq.remove(key)
-            elif len(eq) < MAX_MOUNTED:
-                eq.append(key)
+            price = energy_price(b["en"], n)
+            if points < price:
+                c.execute("ROLLBACK")
+                return None, "points"
+            b["en"] += n
+        elif act == "tog":
+            if key not in own:
+                c.execute("ROLLBACK")
+                return None, "invalid"
+            if key in off:
+                off.remove(key)
+            else:
+                off.append(key)
         else:
             c.execute("ROLLBACK")
             return None, "invalid"
