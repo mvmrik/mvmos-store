@@ -1,6 +1,6 @@
 # mvmOS Store
 
-This repository is the official Store of [mvmOS](https://github.com/mvmrik/mvmOS), a web-based desktop OS for your own server. It holds **50 apps, 5 widgets and 4 themes**. mvmOS reads it from the App Store; nothing here has to be installed by hand.
+This repository is the official Store of [mvmOS](https://github.com/mvmrik/mvmOS), a web-based desktop OS for your own server. It holds **51 apps, 5 widgets and 4 themes**. mvmOS reads it from the App Store; nothing here has to be installed by hand.
 
 - **[DEVELOPER.md](DEVELOPER.md)** — the complete guide to writing an app: structure, `manifest.json`, `store.json`, `premium.json`, the `mvmOS` API, server code, Apps Hub, public pages, games, i18n and premium.
 - **[SPEC.md](SPEC.md)** — the short checklist of the rules every app follows.
@@ -43,6 +43,10 @@ make-core-premium-zip.sh          ← publishes a core premium module to mvmos.o
 App categories: `ai`, `business`, `communication`, `creative`, `developer-tools`, `finance`, `games`, `health-fitness`, `media`, `productivity`, `security-privacy`, `system-administration`, `utilities`.
 
 An app is written as a folder under `apps/<app-id>/` of a running mvmOS installation, and the official releases are built from it with `make-zip.sh <app-id> <version> <category>`. The script leaves out `store.json`, `premium.json`, the `premium/` folder, uploads and runtime data, and fills `premium` and `name_i18n` in the category entry. Set `version`, `zip_url` and `min_core_version` of that entry to match the release. The store listing on mvmos.org is imported from `store.json` and `premium.json` in `source/`. An app whose manifest says `"beta": true` is kept in `source/` for development but `make-zip.sh` refuses to release it, so it has no zip and no category entry and neither the App Store nor mvmos.org shows it.
+
+Apps may declare a picture icon inside `public/` with `icon_image` in their own manifest
+(mvmOS 1.16.0). Keep `icon` as the emoji fallback; Store entries for apps not yet
+installed still show it. Game Hub 1.17.0 also uses declared pictures on game pages.
 
 Games may declare categories, translated descriptions and statistics through the `gamehub` block of their own manifest. Game Hub uses these declarations for its personal game library, metric boards and rankings; see [DEVELOPER.md → Statistics](DEVELOPER.md#statistics-say-what-you-measure-game-hub-draws-it).
 

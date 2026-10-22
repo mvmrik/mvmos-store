@@ -51,7 +51,8 @@ The official Store keeps the same tree in `source/apps/<app-id>/` and ships each
 | `id`               | ✓        | Unique identifier, lowercase, hyphens allowed |
 | `name`             | ✓        | Display name |
 | `name_i18n`        |          | The name in each of the nine languages |
-| `icon`             | ✓        | Emoji, or a path/URL to an image (`/apps/your-app/icon.png`) |
+| `icon`             | ✓        | Emoji fallback; declare a picture separately with `icon_image` |
+| `icon_image`       |          | Your own picture for the icon: a file inside `public/` (`icon.svg`, or `.png`, `.webp`, `.jpg`; at most 400 KB). Shown on the desktop, in the Start menu, window titles and taskbar, the App Store, Apps Hub (desktop and public pages) and Game Hub. `icon` stays the fallback wherever only an emoji fits, so always keep it. Apps without `icon_image` look exactly as before. Requires mvmOS 1.16.0; Game Hub 1.17.0 adds pictures on its game pages. Store entries for apps not yet installed keep the emoji. |
 | `category`         | ✓        | One broad Store category (below) |
 | `tags`             |          | 1–5 lowercase kebab-case discovery tags for Store search, not extra Start menu categories |
 | `version`          | ✓        | Semver — bump it for every change that ships, including premium-only changes |

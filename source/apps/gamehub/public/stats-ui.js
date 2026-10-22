@@ -13,6 +13,15 @@
 
   const BASE = '/api/pub/gamehub';
   const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  // A game's icon as HTML: its own picture where its manifest declares one,
+  // otherwise its emoji. `o` carries icon and icon_image / iconImage.
+  function iconHTML(o, fb) {
+    const img = o && (o.iconImage || o.icon_image);
+    if (img && /^\/apps\/[A-Za-z0-9_-]+\//.test(img)) {
+      return '<img src="' + esc(img) + '" alt="" draggable="false" style="width:1em;height:1em;object-fit:contain;vertical-align:-.15em">';
+    }
+    return esc((o && o.icon) || fb || '🎮');
+  }
   const tr = (k, vars) => (window.t ? window.t(k, vars) : k);
   const lang = () => (window.mvmOS && window.mvmOS.lang) || 'en';
 
@@ -561,7 +570,7 @@
         if (open) {
           row += `<div class="ghs-det">` + p.ladders.slice().sort((a, b) => b.points - a.points).map(l => {
             const g = d.game_meta[l.game_id] || {};
-            return `<div><span>${esc(g.icon || '🎮')}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(g.name || l.game_id)} ${l.mode === 'multi' ? '👥' : '👤'}</span>` +
+            return `<div><span>${iconHTML(g)}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(g.name || l.game_id)} ${l.mode === 'multi' ? '👥' : '👤'}</span>` +
               `<span class="ghs-muted">#${l.place} ${esc(tr('gs_of', { n: l.ladder_size }))}</span><b style="min-width:42px;text-align:right">${esc(num(l.points, 1))}</b></div>`;
           }).join('') + (opts.onPlayer ? `<button class="ghs-link" data-prof="${esc(p.player_id)}" style="text-align:left">${esc(tr('gs_open_profile'))}</button>` : '') + `</div>`;
         }
@@ -629,7 +638,7 @@
       h += `<div class="gv-sec"><h4>${esc(tr('gv_by_game'))}</h4>` + d.per_game.map(g => {
         const gi = o.gameInfo ? o.gameInfo(g.game_id) : { name: g.game_id, icon: '🎮' };
         const c = d.chance[g.game_id];
-        return `<div class="gv-g" data-g="${esc(g.game_id)}"><span>${esc(gi.icon)}</span><span class="nm">${esc(gi.name)}</span>
+        return `<div class="gv-g" data-g="${esc(g.game_id)}"><span>${gi.iconHTML || iconHTML(gi)}</span><span class="nm">${esc(gi.name)}</span>
           <span class="ghs-wld" style="max-width:90px" title="${g.mine} / ${g.draws} / ${g.theirs}"><i style="width:${100 * g.mine / g.n}%;background:var(--green)"></i><i style="width:${100 * g.draws / g.n}%;background:var(--fg2)"></i><i style="width:${100 * g.theirs / g.n}%;background:var(--red)"></i></span>
           <span style="min-width:54px;text-align:right"><span style="color:var(--green)">${g.mine}</span> · ${g.draws} · <span style="color:var(--red)">${g.theirs}</span></span>
           ${c ? `<span class="ghs-muted" style="min-width:36px;text-align:right" title="${esc(tr('gv_chance'))}">${Math.round(c.p)}%</span>` : ''}</div>`;

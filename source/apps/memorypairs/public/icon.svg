@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f7cff"/>
+      <stop offset="1" stop-color="#8b4df0"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e3e8ff"/>
+    </linearGradient>
+    <linearGradient id="star" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd84a"/>
+      <stop offset="1" stop-color="#ff9a1f"/>
+    </linearGradient>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#14143a" flood-opacity=".45"/>
+    </filter>
+    <path id="s" d="M0,-21 L6.2,-6.8 L21.6,-6.7 L9.2,3 L13.4,18.2 L0,9.6 L-13.4,18.2 L-9.2,3 L-21.6,-6.7 L-6.2,-6.8 Z"/>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <circle cx="102" cy="22" r="26" fill="#ffffff" opacity=".12"/>
+  <g filter="url(#sh)">
+    <g transform="translate(43 67) rotate(-13)">
+      <rect x="-27" y="-38" width="54" height="76" rx="9" fill="url(#card)"/>
+      <rect x="-23" y="-34" width="46" height="68" rx="6" fill="none" stroke="#9aa8f5" stroke-width="1.6"/>
+      <use href="#s" fill="url(#star)" stroke="#e57f0b" stroke-width="2" stroke-linejoin="round" transform="scale(.9)"/>
+    </g>
+    <g transform="translate(85 63) rotate(11)">
+      <rect x="-27" y="-38" width="54" height="76" rx="9" fill="url(#card)"/>
+      <rect x="-23" y="-34" width="46" height="68" rx="6" fill="none" stroke="#9aa8f5" stroke-width="1.6"/>
+      <use href="#s" fill="url(#star)" stroke="#e57f0b" stroke-width="2" stroke-linejoin="round" transform="scale(.9)"/>
+    </g>
+  </g>
+  <g fill="#ffffff">
+    <path d="M64 14 L66.2 20.8 L73 23 L66.2 25.2 L64 32 L61.8 25.2 L55 23 L61.8 20.8 Z" opacity=".95"/>
+    <path d="M110 80 L111.4 84.6 L116 86 L111.4 87.4 L110 92 L108.6 87.4 L104 86 L108.6 84.6 Z" opacity=".85"/>
+  </g>
+</svg>

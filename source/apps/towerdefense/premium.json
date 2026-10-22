@@ -3,13 +3,18 @@
   "features": [
     {
       "title": "Game speed",
-      "short": "Run the game up to three times faster",
-      "description": "A speed button on the game page switches between normal, double and triple speed. It is the same game with the same score, only with less waiting."
+      "short": "Run the game up to ten times faster",
+      "description": "Choose a speed from normal to ten times faster during a wave. The simulation uses the same steps and scoring; slower devices may run below the selected speed to stay responsive."
     },
     {
       "title": "Auto waves",
       "short": "Start the next waves by themselves",
-      "description": "Once you have a record, you choose up to which wave the next wave starts on its own instead of waiting in the shop, up to the furthest wave you have already reached."
+      "description": "Start successive waves automatically, with an optional stopping wave up to your existing record. At that stop the shop opens and speed returns to normal for this run. Controls remain available during waves."
+    },
+    {
+      "title": "Saved Fast play settings",
+      "short": "Keep your preferred setup for new games",
+      "description": "Press Save during a wave to remember the current speed, Auto waves setting and stopping wave in this browser. New games use that setup; changes during a run do not replace it until you save again."
     },
     {
       "title": "Owner switch",

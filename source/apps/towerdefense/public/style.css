@@ -167,19 +167,35 @@
 
 .td-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
 }
 
+/* One line per thing: icon and name, its figures, and the buttons on the
+   right. On a narrow screen the figures drop under the name. */
 .td-card {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto) auto;
+  align-items: center;
+  column-gap: 8px;
+  row-gap: 3px;
   min-width: 0;
   background: var(--surface1, #181825);
   border: 1px solid var(--border, #45475a);
   border-radius: 9px;
-  padding: 7px;
+  padding: 5px 7px;
+}
+
+.td-card > .td-card-top {
+  grid-area: 1 / 1;
+}
+
+.td-card > .td-stats {
+  grid-area: 1 / 2;
+}
+
+.td-card > .td-actions {
+  grid-area: 1 / 3;
 }
 
 .td-card.td-on {
@@ -236,9 +252,8 @@
 
 .td-actions {
   display: flex;
-  flex-direction: column;
   gap: 4px;
-  margin-top: auto;
+  justify-content: flex-end;
 }
 
 .td-up,
@@ -278,6 +293,22 @@
   background: color-mix(in srgb, var(--accent, #89b4fa) 18%, var(--surface2, #313244));
 }
 
+.td-buy,
+.td-mount {
+  flex: none;
+  width: auto;
+  white-space: nowrap;
+}
+
+.td-buy {
+  gap: 8px;
+}
+
+.td-up {
+  flex: none;
+  width: auto;
+}
+
 .td-buy > span:first-child {
   min-width: 0;
   line-height: 1.2;
@@ -298,6 +329,7 @@
    being cut off. */
 .td-up-name {
   flex: 1;
+  font-size: .9rem;
   min-width: 0;
   line-height: 1.2;
   overflow-wrap: break-word;
@@ -374,21 +406,32 @@
 
 @media (max-width: 760px) {
   .td-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 @media (max-width: 640px) {
+  #td-hud {
+    gap: 6px !important;
+  }
   #td-hud > div {
+    flex: 1 1 22% !important;
     min-width: 0 !important;
-    padding: 6px 6px !important;
+    padding: 6px 3px !important;
   }
   #td-hud > div > div:first-child {
-    font-size: .92rem !important;
+    font-size: .88rem !important;
     white-space: nowrap;
   }
+  #td-hud > div > div:last-child {
+    font-size: .56rem !important;
+    letter-spacing: 0 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   #td-hud > button {
-    padding: 6px 9px !important;
+    padding: 7px 10px !important;
   }
   .td-shop-head {
     flex-wrap: wrap;
@@ -407,7 +450,57 @@
     padding-left: 8px;
     padding-right: 8px;
   }
-  .td-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .td-card {
+    column-gap: 6px;
   }
+}
+
+/* Between waves the HUD row carries the start button instead of the speed controls. */
+#td-hud.td-in-shop .td-fast {
+  display: none !important;
+}
+
+.td-chip[data-act],
+.td-bossnext[data-act] {
+  cursor: pointer;
+}
+
+.td-info {
+  margin-top: 6px;
+  font-size: .76rem;
+  line-height: 1.35;
+  color: var(--fg2, #a6adc8);
+}
+
+.td-info:empty {
+  display: none;
+}
+
+.td-info b {
+  color: var(--fg, #cdd6f4);
+}
+
+/* Cards that are not bought and cannot be bought yet wait behind the header. */
+.td-grid:not(.td-open) > .td-card.td-hide {
+  display: none;
+}
+
+.td-sec-t {
+  cursor: pointer;
+  user-select: none;
+}
+
+.td-sec-t::before {
+  content: '▸ ';
+}
+
+.td-sec-t.td-open::before {
+  content: '▾ ';
+}
+
+.td-sec .td-more {
+  margin-left: 4px;
+  padding: 0 5px;
+  border-radius: 8px;
+  background: var(--surface2, #313244);
 }

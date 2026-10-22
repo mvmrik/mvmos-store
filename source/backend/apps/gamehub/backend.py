@@ -298,8 +298,17 @@ def _plugin_meta():
         _pc = _sqlite3.connect(_main_db)
         _pc.row_factory = _sqlite3.Row
         for r in _pc.execute("SELECT id,name,icon FROM plugins").fetchall():
-            meta[r["id"]] = {"name": r["name"], "icon": r["icon"]}
+            meta[r["id"]] = {"name": r["name"], "icon": r["icon"], "icon_image": None}
         _pc.close()
+        # A game's own picture icon, when its manifest declares one.
+        from backend.assets import icon_image as _icon_image
+        _apps = os.path.join(os.path.dirname(__file__), "..", "..", "..", "apps")
+        for gid in meta:
+            try:
+                with open(os.path.join(_apps, gid, "manifest.json")) as f:
+                    meta[gid]["icon_image"] = _icon_image(gid, json.load(f))
+            except Exception:
+                pass
     except Exception:
         pass
     return meta

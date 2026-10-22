@@ -66,6 +66,7 @@ The one exception is an app that must genuinely reach the system — `subprocess
 | `name` | yes | Display name |
 | `name_i18n` | no | The name in every language, e.g. `{"en": "Calendar", "bg": "Календар", ...}`. Wins over `name` in the Start menu, App Store, Apps Hub, Settings and public pages (mvmOS 1.10.0). Fill all nine languages. |
 | `icon` | yes | Emoji icon |
+| `icon_image` | no | Your own picture for the icon, a file inside `public/` (`icon.svg`, `.png`, `.webp` or `.jpg`, at most 400 KB). The desktop, Start menu, window titles, taskbar, App Store, Apps Hub and Game Hub show it instead of the emoji; `icon` stays the fallback wherever only an emoji fits, so keep it. An app without `icon_image` is shown exactly as before. Requires mvmOS 1.16.0; Game Hub 1.17.0 adds pictures on its game pages. |
 | `category` | yes | App Store category |
 | `tags` | no | Array of 1–5 lowercase discovery tags (for example `["notes", "planning"]`). Use short, stable kebab-case terms; tags are for Store search/filters, not extra Start Menu categories. |
 | `version` | yes | Semver version |
@@ -272,6 +273,17 @@ mvmOS.createWindow({
 **`appSettings: true` without `onAppSettings`** opens the App Store settings panel for this app directly (same as clicking ⚙ in the App Store listing). This is the standard pattern — define your fields in `manifest.json` and use `appSettings: true` alone.
 
 **`appSettings: true` with `onAppSettings`** calls your custom callback instead. Use this only when you need UI that can't be expressed as manifest settings fields (e.g. dynamic lists). In that case, render the custom UI inside the app window.
+
+---
+
+### mvmOS.iconHTML(app, fallback?)
+
+From mvmOS 1.16.0, returns escaped HTML for an app's picture icon or its emoji.
+Pass an app definition with `icon` and `iconImage` (or API metadata with
+`icon_image`). The backend resolves a manifest's relative file into a local,
+versioned `/apps/<id>/...` URL; do not pass the raw manifest filename here.
+Store entries for apps not yet installed keep the emoji. Game Hub 1.17.0
+also shows the picture in its library, history and statistics.
 
 ---
 

@@ -11,6 +11,16 @@
   const API = '/api/pub/gamehub/mp';
   const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   const tr = (k, v) => (window.t ? window.t(k, v) : k);
+  // A game's icon as HTML: its own picture where its manifest declares one,
+  // otherwise its emoji. `o` carries icon and icon_image / iconImage.
+  function iconHTML(o, fb) {
+    const img = o && (o.iconImage || o.icon_image);
+    if (img && /^\/apps\/[A-Za-z0-9_-]+\//.test(img)) {
+      return '<img src="' + esc(img) + '" alt="" draggable="false" style="width:1em;height:1em;object-fit:contain;vertical-align:-.15em">';
+    }
+    return esc((o && o.icon) || fb || '🎮');
+  }
+
   const lang = () => (window.mvmOS && window.mvmOS.lang) || 'en';
   const pick = v => typeof v === 'string' ? v : v ? (v[lang()] || v.en || Object.values(v)[0] || '') : '';
 
@@ -180,7 +190,7 @@
       content.querySelector('#gl-back')?.addEventListener('click', () => { storeView = null; drawCategories(); });
       const list = content.querySelector('#gl-list');
       list.innerHTML = rows.length ? rows.map(g => `
-        <div class="gl-row"><div class="ic">${esc(g.icon)}</div>
+        <div class="gl-row"><div class="ic">${iconHTML(g)}</div>
           <div class="inf"><div class="nm">${esc(gameName(g))}</div><div class="ds">${esc(pick(g.description))}</div></div>
           <button class="gl-btn${g.installed ? '' : ' add'}" data-id="${esc(g.id)}">${esc(tr(g.installed ? 'gl_remove' : 'gl_add'))}</button>
         </div>`).join('') : `<div class="gl-empty">${esc(tr('gl_no_results'))}</div>`;
@@ -217,5 +227,5 @@
     if (storeView) drawGames(); else drawCategories();
   }
 
-  window.GHLibrary = { load, renderShelf, renderStore, gameName, catName, pick, find: id => (L.games || []).find(g => g.id === id) };
+  window.GHLibrary = { load, renderShelf, renderStore, gameName, catName, pick, iconHTML, find: id => (L.games || []).find(g => g.id === id) };
 })();

@@ -470,9 +470,18 @@ mvmOS.registerApp({
         }
 
         // ── Games tab ───────────────────────────────────────────
+        // A game's icon as HTML: its own picture if its manifest declares one, else the emoji.
+        function _iconHTML(o) {
+          const img = o && o.iconImage;
+          if (img && /^\/apps\/[A-Za-z0-9_-]+\//.test(img)) {
+            return `<img src="${esc(img)}" alt="" draggable="false" style="width:1em;height:1em;object-fit:contain;vertical-align:-.15em">`;
+          }
+          return esc((o && o.icon) || '🎮');
+        }
+
         function _gameMeta(gameId) {
           const m = stats?.game_meta?.[gameId];
-          return { name: m?.name || gameId, icon: m?.icon || '🎮' };
+          return { name: m?.name || gameId, icon: m?.icon || '🎮', iconImage: m?.icon_image };
         }
 
         function renderGames() {
@@ -482,14 +491,15 @@ mvmOS.registerApp({
           stats.games.forEach(gameId => {
             const lb   = stats.leaderboard[gameId] || [];
             const sess = (stats.recent||[]).filter(s=>s.game_id===gameId);
-            const { name, icon } = _gameMeta(gameId);
+            const { name, icon, iconImage } = _gameMeta(gameId);
+            const iconH = _iconHTML({ icon, iconImage });
             const card = document.createElement('div');
             card.style.cssText = 'background:var(--surface1);border-radius:10px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:14px';
             card.onmouseenter = () => card.style.background = 'var(--surface2)';
             card.onmouseleave = () => card.style.background = 'var(--surface1)';
             const top3 = lb.slice(0,3).map(r=>`<span style="display:inline-flex;align-items:center;gap:4px;font-size:12px"><span style="width:8px;height:8px;border-radius:50%;background:${esc(r.avatar_color)};display:inline-block"></span>${esc(r.display_name)}</span>`).join('<span style="color:var(--fg2);padding:0 3px">·</span>');
             card.innerHTML = `
-              <div style="font-size:28px">${icon}</div>
+              <div style="font-size:28px">${iconH}</div>
               <div style="flex:1;min-width:0">
                 <div style="font-weight:700;font-size:15px">${esc(name)}</div>
                 <div style="font-size:12px;color:var(--fg2);margin-top:3px">${sess.length} sessions · ${lb.length} players</div>
@@ -503,7 +513,8 @@ mvmOS.registerApp({
 
         function renderGameDetail(gameId) {
           const c = body.querySelector('#gh-body');
-          const { name, icon } = _gameMeta(gameId);
+          const { name, icon, iconImage } = _gameMeta(gameId);
+          const iconH = _iconHTML({ icon, iconImage });
           c.innerHTML = '';
 
           const back = document.createElement('button');
@@ -514,7 +525,7 @@ mvmOS.registerApp({
 
           const title = document.createElement('div');
           title.style.cssText = 'font-weight:700;font-size:17px;margin-bottom:14px;display:flex;align-items:center;gap:8px';
-          title.innerHTML = `<span>${icon}</span><span>${esc(name)}</span>`;
+          title.innerHTML = `<span>${iconH}</span><span>${esc(name)}</span>`;
           c.appendChild(title);
 
           // Statistics: boards, charts and rating, built from what the game reports.

@@ -1,0 +1,29 @@
+{
+  "tagline": "Turn two cards, find the pairs, clear the table.",
+  "description": "Remember the Pairs is the classic memory game for Game Hub: turn over two cards, and if they match they leave the table and you play again; if they do not, the turn passes to the next player.\n\nChoose a table from 6 to 48 pairs, a time limit for each turn, and one of nine picture themes: animals, food, nature, transport, games and music, faces, numbers, colours and shapes. The size of the table decides how it looks: small tables are laid out flat, with cards big enough to tap on a phone, and from 24 pairs the cards go round a 3D cylinder on a turntable that you turn with a finger or the mouse. The whole cylinder always fits the screen from top to bottom, so there is nothing to scroll; only the front of it is in view at a time, and the cards on the far side wait for the next turn.\n\nPlay alone, or with up to six people on computers, phones and tablets in a web browser. Everyone sees each card as it is turned over, and the cylinder of every other player turns to it, but nobody can see what someone is doing before they choose. The server keeps the table, so no browser can peek at it.",
+  "capabilities": [
+    "Classic memory game: two cards per turn, matching pairs leave the table and you play again.",
+    "Single player and multiplayer for up to six players taking turns, with a clock for every turn.",
+    "Small tables laid out flat with cards big enough to tap, and from 24 pairs a spinning 3D cylinder that always fits the screen, on a phone or a computer.",
+    "Tables from 6 to 48 pairs, so large tables hold more cards than the front of the cylinder shows at once.",
+    "Nine picture themes: animals, food, nature, transport, games and music, faces, numbers, colours and shapes.",
+    "Other players see every card that is turned over and the 3D cylinder turns to it, without showing how the player explores the table.",
+    "The server owns the deck, so a browser never knows a card before it is turned over.",
+    "Fair points: pairs found per attempt, scaled for the size of the table, so playing with more people does not lower a player's score.",
+    "Save and exit a solo game, then pick it up again later.",
+    "Game Hub statistics for pairs found, accuracy, best streak, turns out of time and cards on the table, with a rating for multiplayer."
+  ],
+  "requirements": [
+    "WebGL for the 3D cylinder. Without it the flat table is used."
+  ],
+  "integrations": [
+    {
+      "app": "gamehub",
+      "name": "Game Hub",
+      "kind": "gamehub",
+      "direction": "consumes",
+      "summary": "Rooms, turns and players run on Game Hub accounts: your profile and avatar, invitations to other players, and your sessions, statistics and rating recorded in Game Hub.",
+      "requires": "Game Hub installed."
+    }
+  ]
+}

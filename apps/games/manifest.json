@@ -35,15 +35,15 @@
       "name": "Game Hub",
       "icon": "🎮",
       "category": "Games",
-      "version": "1.16.0",
+      "version": "1.17.0",
       "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.16.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.17.0.zip",
       "tags": [
         "multiplayer",
         "social",
         "games"
       ],
-      "min_core_version": "1.10.0",
+      "min_core_version": "1.16.0",
       "name_i18n": {
         "en": "Game Hub",
         "bg": "Гейм хъб",
@@ -77,15 +77,15 @@
       "name": "Tower Defense",
       "icon": "🏰",
       "category": "Games",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "description": "Defend the tower in the middle against endless waves. Between waves spend your coins on weapons, rings and upgrades, and grow stronger with every game in the permanent shop.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/towerdefense-1.2.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/towerdefense-1.3.0.zip",
       "tags": [
         "tower defense",
         "strategy",
         "games"
       ],
-      "min_core_version": "1.0.0",
+      "min_core_version": "1.16.0",
       "name_i18n": {
         "en": "Tower Defense",
         "bg": "Защита на кулата",
@@ -185,7 +185,7 @@
       "name": "Belot",
       "icon": "🃏",
       "category": "Games",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "description": "Play Bulgarian Belot or classic French Belote with friends or independent bots, and save custom rules for either style.",
       "tags": [
         "cards",
@@ -193,8 +193,8 @@
         "multiplayer",
         "games"
       ],
-      "min_core_version": "1.15.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/belot-1.2.0.zip",
+      "min_core_version": "1.16.0",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/belot-1.2.1.zip",
       "premium": true,
       "name_i18n": {
         "en": "Belot",
@@ -206,6 +206,34 @@
         "pt-BR": "Belote",
         "ru": "Белот",
         "zh-CN": "贝洛特"
+      }
+    },
+    {
+      "id": "memorypairs",
+      "name": "Remember the Pairs",
+      "icon": "🧠",
+      "category": "Games",
+      "version": "1.0.0",
+      "description": "Turn over two cards and find the matching pairs, alone or in turns with friends, on a flat table or on a spinning 3D cylinder. Nine picture themes, a table from 6 to 48 pairs and a time limit per turn.",
+      "tags": [
+        "memory",
+        "cards",
+        "3d",
+        "multiplayer",
+        "games"
+      ],
+      "min_core_version": "1.16.0",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/memorypairs-1.0.0.zip",
+      "name_i18n": {
+        "en": "Remember the Pairs",
+        "bg": "Запомни двойките",
+        "de": "Merk dir die Paare",
+        "es": "Recuerda las parejas",
+        "fr": "Retrouve les paires",
+        "ja": "ペアを覚えよう",
+        "pt-BR": "Lembre-se dos pares",
+        "ru": "Запомни пары",
+        "zh-CN": "记住配对"
       }
     }
   ]

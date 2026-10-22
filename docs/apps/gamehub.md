@@ -6,6 +6,8 @@ Game Hub keeps player profiles and game results together. Open its public page f
 
 The Games tab shows the games you added. Filter by category or sort alphabetically, by most played or by recent play. The Store tab lists games available on this server, with categories and search. Add or remove a game to change your own page without deleting its results, rating or saved game. Existing profiles initially keep games they have already played; new profiles choose their games in the Store.
 
+From Game Hub 1.17.0 on mvmOS 1.16.0, games that declare a picture icon use it in the library, game pages, history and statistics. Other games keep their emoji.
+
 Continue banners, saved games and invitations remain available from Games. A room lost during a server restart shows an explanation and a link back to Game Hub instead of reconnecting indefinitely.
 
 ## Statistics and rankings
@@ -26,6 +28,6 @@ Open another player's profile for head-to-head wins, draws and losses, recent fo
 
 ## Game integrations
 
-Belot reports deals, team contracts and points per deal. Find Yourself reports points per round, answered rounds and guess distances. Score Arena reports turns. Stonehold reports survival, kills, raids, enemy level and buildings. Tower Defense reports waves, kills and survival; Sudofall reports cleared lines, numbers dropped and points per minute from its browser session recorder. Existing solo session metadata is reused where its keys match declared metrics; unavailable older measurements are not invented.
+Remember the Pairs reports pairs found, accuracy, best streak, timeouts and cards on the table. Belot reports deals, team contracts and points per deal. Find Yourself reports points per round, answered rounds and guess distances. Score Arena reports turns. Stonehold reports survival, kills, raids, enemy level and buildings. Tower Defense reports waves, kills and survival; Sudofall reports cleared lines, numbers dropped and points per minute from its browser session recorder. Existing solo session metadata is reused where its keys match declared metrics; unavailable older measurements are not invented.
 
 For the manifest fields and recording API, see the [Developer Guide](../../DEVELOPER.md#statistics-say-what-you-measure-game-hub-draws-it).

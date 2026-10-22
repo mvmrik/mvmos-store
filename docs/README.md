@@ -16,7 +16,9 @@ Documentation for individual Store applications lives in this repository. Update
 - [mvmAI](apps/mvmai.md)
 - [mvmOffice](apps/mvmoffice.md)
 - [mvmPasswords](apps/mvmpasswords.md)
+- [Remember the Pairs](apps/memorypairs.md)
 - [Tasks](apps/tasks.md)
+- [Tower Defense](apps/towerdefense.md)
 
 ## Integrations
 

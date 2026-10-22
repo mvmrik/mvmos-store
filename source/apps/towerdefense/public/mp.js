@@ -128,6 +128,7 @@
 
   // ── State ──────────────────────────────────────────────────────────────────
   let _root = null, _canvas = null, _ctx2d = null;
+  let _view = { w: W, h: H, px: 1, py: 1, x: 0, y: 0 };
   let _hud = null, _overlay = null;
   let _pending = null;             // td_start that arrived before renderGame
   let _tuning = null, _rand = null;
@@ -224,17 +225,28 @@
   function _fitCanvas() {
     if (!_canvas) return;
     const box = _canvas.parentElement.getBoundingClientRect();
-    // Square arena: the tower sits in the middle and enemies come from every
-    // side, so a stretched field would give some directions more warning.
-    const side = Math.max(160, Math.min(box.width, box.height));
-    const dpr  = window.devicePixelRatio || 1;
-    _canvas.style.width  = side + 'px';
-    _canvas.style.height = side + 'px';
-    _canvas.style.left   = ((box.width  - side) / 2) + 'px';
-    _canvas.style.top    = ((box.height - side) / 2) + 'px';
-    _canvas.style.inset  = 'auto';
-    _canvas.width  = Math.round(side * dpr);
-    _canvas.height = Math.round(side * dpr);
+    const dpr = window.devicePixelRatio || 1;
+    // The simulation is always the same; only how much of the world is shown
+    // changes. A wide box shows a square of it. A tall one (a phone) is filled
+    // end to end: the width stays 1000 units, the view grows upwards and
+    // downwards, up to 1400 — the distance enemies are born at, so they never
+    // appear out of thin air. A box taller than that is zoomed in instead.
+    const aspect = box.height / Math.max(1, box.width);
+    if (aspect <= 1) {
+      const side = Math.max(160, Math.min(box.width, box.height));
+      _view = { w: W, h: H, px: side, py: side, x: (box.width - side) / 2, y: (box.height - side) / 2 };
+    } else {
+      let vw = W, vh = W * aspect;
+      if (vh > 1400) { vh = 1400; vw = 1400 / aspect; }
+      _view = { w: vw, h: vh, px: box.width, py: box.height, x: 0, y: 0 };
+    }
+    _canvas.style.inset = 'auto';
+    _canvas.style.width  = _view.px + 'px';
+    _canvas.style.height = _view.py + 'px';
+    _canvas.style.left   = _view.x + 'px';
+    _canvas.style.top    = _view.y + 'px';
+    _canvas.width  = Math.round(_view.px * dpr);
+    _canvas.height = Math.round(_view.py * dpr);
     _draw();
   }
 
@@ -530,6 +542,7 @@
     _bossPhase = false;
     _fullShield();
     _inShop = false;
+    _renderHud();
     _overlay.style.display = 'none';
     _overlay.innerHTML = '';
     _banner = { text: _t('td_incoming', { n: _wave }), t: 2 };
@@ -1311,12 +1324,12 @@
   function _draw() {
     if (!_ctx2d || !_b) return;
     const g = _ctx2d;
-    const size = _canvas.width;
-    const s = size / W;
+    const s = _canvas.width / _view.w;
 
     g.setTransform(1, 0, 0, 1, 0, 0);
-    g.clearRect(0, 0, size, size);
-    g.setTransform(s, 0, 0, s, 0, 0);
+    g.clearRect(0, 0, _canvas.width, _canvas.height);
+    // The tower stays in the middle of whatever part of the world is shown.
+    g.setTransform(s, 0, 0, s, (_view.w / 2 - CX) * s, (_view.h / 2 - CY) * s);
 
     const accent = _css('--accent', '#89b4fa');
     const dim    = _css('--fg2', '#a6adc8');
@@ -1800,13 +1813,20 @@
       _cell('td-h-score', _t('td_score')) +
       _cell('td-h-coins', _t('td_coins')) +
       _cell('td-h-hp', _t('td_integrity')) +
+      '<span style="flex:0 0 100%;height:0"></span>' +
+      '<button id="td-go" style="display:none;flex:1 1 auto;white-space:nowrap;align-self:center;background:var(--accent,#89b4fa);' +
+      'color:#1e1e2e;border:none;border-radius:10px;padding:9px 12px;font-weight:800;font-size:.92rem;' +
+      'cursor:pointer"></button>' +
       '<button id="td-sound" style="margin-left:auto;align-self:center;background:var(--surface2,#313244);' +
       'color:var(--fg,#cdd6f4);border:1px solid var(--border,#45475a);border-radius:10px;padding:7px 11px;' +
       'font-size:.95rem;cursor:pointer"></button>' +
       '<button id="td-exit" style="align-self:center;background:var(--surface2,#313244);' +
-      'color:var(--fg,#cdd6f4);border:1px solid var(--border,#45475a);border-radius:10px;padding:8px 14px;' +
-      'font-weight:600;font-size:.82rem;cursor:pointer">' + _esc(_t('td_exit')) + '</button>';
-    _hud.querySelector('#td-exit').onclick = () => mp.exitPrompt();
+      'color:var(--fg,#cdd6f4);border:1px solid var(--border,#45475a);border-radius:10px;padding:7px 11px;' +
+      'font-size:.95rem;cursor:pointer">⏸</button>';
+    _hud.querySelector('#td-go').onclick = () => { if (_inShop && !_over && !_permMode) _startWave(); };
+    const ex = _hud.querySelector('#td-exit');
+    ex.title = _t('td_exit');
+    ex.onclick = () => mp.exitPrompt();
     const snd = _hud.querySelector('#td-sound');
     const paint = () => { snd.textContent = _muted ? '🔇' : '🔊'; snd.title = _t('td_sound'); };
     snd.onclick = () => {
@@ -1832,16 +1852,33 @@
     hp.textContent = Math.ceil(_tower.hp) + ' / ' + _tower.maxHp;
     hp.style.color = pct > 50 ? 'var(--green,#a6e3a1)' : pct > 20 ? 'var(--yellow,#f9e2af)' : 'var(--red,#f38ba8)';
     _hud.querySelector('#td-exit').style.display = _over ? 'none' : '';
+    // Between waves the start button takes the place of the speed controls.
+    const inShop = _inShop && !_over && !_permMode;
+    const go = _hud.querySelector('#td-go');
+    go.style.display = inShop ? '' : 'none';
+    if (inShop) go.textContent = _t('td_start_wave', { n: _wave + 1 });
+    _hud.classList.toggle('td-in-shop', inShop);
   }
 
   // ── Shop ──────────────────────────────────────────────────────────────────
   // Everything on one screen: three rows of five small cards — the weapons,
   // the tower, and the battlefield around it. What each one does is in its
   // tooltip rather than on the card, so nothing needs scrolling to be seen.
+  // Upgrades are shown by a small icon, the name is in the tooltip.
+  const UP_ICON = {
+    hp: '♥', range: '◎', 'regen.r': '⏩', 'shield.c': '🔋', 'shield.r': '⟳', 'nova.p': '💥', 'nova.r': '⟳',
+    'fring.n': '☄', 'fring.p': '⚔', 'fring.s': '↻', 'iring.w': '↔', 'iring.s': '↓',
+    'soldiers.f': '⏱', 'soldiers.p': '⚔', 'drones.f': '⏱', 'drones.p': '⚔', 'tesla.n': '⚡', 'tesla.p': '⚔'
+  };
+  function _upIcon(key) {
+    return UP_ICON[key] || (key.slice(-2) === '.p' ? '⚔' : '⏱');
+  }
+
   function _upRow(key, label) {
     const lv = _lv(key), cap = UPGRADES[key][2], maxed = _maxed(key), p = _price(key);
-    return '<button class="td-up" data-act="up:' + key + '"' + (maxed || _money() < p || _permBusy ? ' disabled' : '') + '>' +
-      '<span class="td-up-name">' + _esc(label) + '</span>' +
+    return '<button class="td-up" data-act="up:' + key + '"' + (maxed || _money() < p || _permBusy ? ' disabled' : '') +
+      ' title="' + _esc(label) + '">' +
+      '<span class="td-up-name">' + _upIcon(key) + '</span>' +
       '<span class="td-lv">' + (cap == null ? lv : lv + '/' + cap) + '</span>' +
       '<span class="td-price">' + (maxed ? _esc(_t('td_max')) : _num(p)) + '</span></button>';
   }
@@ -1852,12 +1889,30 @@
       '<span>' + _esc(_t('td_buy')) + '</span><span class="td-price">' + _num(price) + '</span></button>';
   }
 
-  function _card(icon, color, name, desc, stats, body, cls) {
+  function _card(icon, color, name, desc, stats, body, cls, act) {
     return '<div class="td-card' + (cls ? ' ' + cls : '') + '" title="' + _esc(desc) + '">' +
-      '<div class="td-card-top"><span class="td-ico" style="--c:' + color + '">' + icon + '</span>' +
+      '<div class="td-card-top"' + (act ? ' data-act="' + act + '" style="cursor:pointer" title="' + _esc(_t('td_unmount')) + '"' : '') +
+      '><span class="td-ico" style="--c:' + color + '">' + icon + '</span>' +
       '<b>' + _esc(name) + '</b></div>' +
-      '<div class="td-stats">' + (stats ? _esc(stats) : '&nbsp;') + '</div>' +
+      (stats ? '<div class="td-stats">' + _esc(stats) + '</div>' : '') +
       '<div class="td-actions">' + body + '</div></div>';
+  }
+
+  // Only what is bought, or can be bought right now, stays in view; the rest
+  // is behind the category header.
+  const _secOpen = {};
+  function _hideCls(k) {
+    if (_owns(k)) return '';
+    const p = _buyPrice(k);
+    return p == null || _money() < p ? ' td-hide' : '';
+  }
+  function _sec(id, title, extra, cards) {
+    const hidden = (cards.match(/td-hide/g) || []).length;
+    const open = hidden && _secOpen[id];
+    return '<div class="td-sec' + (hidden ? ' td-sec-t' + (open ? ' td-open' : '') + '" data-act="sec:' + id : '') + '">' +
+      _esc(title) + (extra ? ' <span>' + _esc(extra) + '</span>' : '') +
+      (hidden ? ' <span class="td-more">+' + hidden + '</span>' : '') + '</div>' +
+      '<div class="td-grid' + (open ? ' td-open' : '') + '" data-sec="' + id + '">' + cards + '</div>';
   }
 
   function _fmt(n, d) { return Number(n.toFixed(d == null ? 0 : d)); }
@@ -1875,24 +1930,20 @@
     const counts = {};
     for (const s of _nextList || []) counts[s.type] = (counts[s.type] || 0) + 1;
     let chips = '';
-    const fresh = [];
     for (const k of PREVIEW_ORDER) {
       if (!counts[k]) continue;
       const isNew = !_seen[k];
-      chips += '<span class="td-chip" style="--c:' + ENEMIES[k].color + '" title="' + _esc(_t('td_e_' + k + '_d')) + '"><i></i>' +
+      chips += '<span class="td-chip" style="--c:' + ENEMIES[k].color + '" data-act="info:' + k + '" title="' + _esc(_t('td_e_' + k + '_d')) + '"><i></i>' +
         _esc(_t('td_e_' + k)) + ' ×' + counts[k] +
         (isNew ? '<em>' + _esc(_t('td_new')) + '</em>' : '') + '</span>';
-      if (isNew) fresh.push('<b>' + _esc(_t('td_e_' + k)) + '</b> — ' + _esc(_t('td_e_' + k + '_d')));
     }
     const n = _wave + 1;
     const boss = n % BOSS_EVERY === 0
-      ? '<div class="td-bossnext" style="--c:' + ENEMIES[_bossOf(n)].color + '">👑 ' +
-        _esc(_t('td_boss_after')) + ' <b>' + _esc(_t('td_e_' + _bossOf(n))) + '</b> — ' +
-        _esc(_t('td_e_' + _bossOf(n) + '_d')) + '</div>'
+      ? '<div class="td-bossnext" data-act="info:' + _bossOf(n) + '" style="--c:' + ENEMIES[_bossOf(n)].color + '">👑 ' +
+        _esc(_t('td_boss_after')) + ' <b>' + _esc(_t('td_e_' + _bossOf(n))) + '</b></div>'
       : '';
     return '<div class="td-next"><span class="td-next-h">' + _esc(_t('td_next_wave', { n })) + '</span>' +
-      chips + '</div>' + boss +
-      (fresh.length ? '<div class="td-fresh">' + fresh.join(' · ') + '</div>' : '');
+      chips + '</div>' + boss + '<div class="td-info"></div>';
   }
 
   function _renderShop() {
@@ -1907,14 +1958,17 @@
       if (!owned) body = _buyRow(w);
       else {
         const lock = _permBusy || (mounted ? _b.eq.length <= 1 : _b.eq.length >= MAX_MOUNTED);
-        body = '<button class="td-mount' + (mounted ? ' on' : '') + '" data-act="eq:' + w + '"' +
-          (lock ? ' disabled' : '') + (!mounted && lock ? ' title="' + _esc(_t('td_slots_full')) + '"' : '') + '>' +
-          _esc(mounted ? _t('td_mounted') : _t('td_mount')) + '</button>' +
+        // A mounted weapon needs no button saying so; the card is the toggle
+        // that takes it off again, and only the unmounted ones show "Mount".
+        body = (mounted ? '' : '<button class="td-mount" data-act="eq:' + w + '"' +
+          (lock ? ' disabled' : '') + (lock ? ' title="' + _esc(_t('td_slots_full')) + '"' : '') + '>' +
+          _esc(_t('td_mount')) + '</button>') +
           _upRow(w + '.p', _t('td_power')) + _upRow(w + '.r', _t('td_rate'));
       }
       weapons += _card(d.icon, d.color, _t('td_w_' + w), _t('td_w_' + w + '_d'),
         owned ? _weaponStats(w) : '', body,
-        !owned ? 'td-locked' : mounted ? 'td-on' : '');
+        (!owned ? 'td-locked' : mounted ? 'td-on' : '') + _hideCls(w),
+        mounted && !_permBusy && _b.eq.length > 1 ? 'eq:' + w : '');
     }
 
     // The tower itself
@@ -1922,14 +1976,14 @@
     const rp = _repairPrice();
     const fr = _fring(), ir = _iring(), sh = _shieldStat(), so = _soldierStat(), dr = _droneStat();
     const nv = _novaStat(), ts = _teslaStat();
-    const own = k => _owns(k) ? '' : 'td-locked';
+    const own = k => _owns(k) ? '' : 'td-locked' + _hideCls(k);
     // Repairs are for the run in hand; the permanent shop only sells strength.
     const tower =
       _card('🏰', '#89b4fa', _t('td_integrity'), _t('td_x_hp_d'),
         _permMode ? '♥ ' + _maxHp() : '♥ ' + Math.ceil(_tower.hp) + ' / ' + _tower.maxHp,
         (_permMode ? '' :
-          '<button class="td-buy" data-act="repair"' + (full || _coins < rp ? ' disabled' : '') + '>' +
-          '<span>' + _esc(_t('td_repair', { n: _repairAmount() })) + '</span><span class="td-price">' + rp + '</span></button>') +
+          '<button class="td-buy" data-act="repair" title="' + _esc(_t('td_repair', { n: _repairAmount() })) + '"' + (full || _coins < rp ? ' disabled' : '') + '>' +
+          '<span>🔧</span><span class="td-price">' + rp + '</span></button>') +
         _upRow('hp', _t('td_reinforce'))) +
       _card('📡', '#b4befe', _t('td_x_range'), _t('td_x_range_d'), '◎ ' + _range(), _upRow('range', _t('td_x_range'))) +
       _card('💚', '#a6e3a1', _t('td_x_regen'), _t('td_x_regen_d'),
@@ -1972,29 +2026,19 @@
         own('tesla'));
 
     const grids =
-      '<div class="td-sec">' + _esc(_t('td_sec_weapons')) +
-        ' <span>' + _esc(_t('td_slots', { n: _b.eq.length })) + '</span></div>' +
-      '<div class="td-grid">' + weapons + '</div>' +
-      '<div class="td-sec">' + _esc(_t('td_sec_tower')) + '</div>' +
-      '<div class="td-grid">' + tower + '</div>' +
-      '<div class="td-sec">' + _esc(_t('td_sec_field')) + '</div>' +
-      '<div class="td-grid">' + field + '</div>';
+      _sec('weapons', _t('td_sec_weapons'), _t('td_slots', { n: _b.eq.length }), weapons) +
+      _sec('tower', _t('td_sec_tower'), '', tower) +
+      _sec('field', _t('td_sec_field'), '', field);
     if (_permMode) return grids;
 
     _overlay.style.display = 'flex';
     _overlay.innerHTML =
       '<div class="td-shop">' +
-        '<div class="td-shop-head">' +
-          '<div class="td-shop-txt"><div class="td-shop-title">' +
-            _esc(_wave > 0 ? _t('td_shop_cleared', { n: _wave }) : _t('td_shop_ready')) + '</div>' +
-            '<div class="td-shop-hint">' + _esc(_t('td_shop_hint')) + '</div></div>' +
-          '<div class="td-coins">💰 ' + _coins + '</div>' +
-          '<button class="td-go" data-act="go">' + _esc(_t('td_start_wave', { n: _wave + 1 })) + '</button>' +
-        '</div>' +
         '<div class="td-shop-body">' +
           _nextPreview() + grids +
         '</div>' +
       '</div>';
+    _renderHud();
   }
 
   function _onOverlayClick(ev) {
@@ -2002,6 +2046,24 @@
     if (!btn || btn.disabled) return;
     const [kind, key] = btn.dataset.act.split(':');
     if (kind === 'again') { _playAgain(btn); return; }
+    if (kind === 'sec') {
+      // Opens or closes a category without redrawing the shop, so the scroll stays.
+      const head = btn, grid = _overlay.querySelector('.td-grid[data-sec="' + key + '"]');
+      if (!grid) return;
+      _secOpen[key] = !grid.classList.contains('td-open');
+      grid.classList.toggle('td-open', _secOpen[key]);
+      head.classList.toggle('td-open', _secOpen[key]);
+      return;
+    }
+    if (kind === 'info') {
+      // Tap an enemy to read what it is; tap it again to close the note.
+      const box = _overlay.querySelector('.td-info');
+      if (!box || !ENEMIES[key]) return;
+      const open = box.dataset.k === key;
+      box.dataset.k = open ? '' : key;
+      box.innerHTML = open ? '' : '<b>' + _esc(_t('td_e_' + key)) + '</b> — ' + _esc(_t('td_e_' + key + '_d'));
+      return;
+    }
     if (_permMode) { _permBuy(kind, key); return; }
     if (!_inShop || _over) return;
 

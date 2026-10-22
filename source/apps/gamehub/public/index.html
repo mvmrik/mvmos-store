@@ -20,7 +20,7 @@
   .inp{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--fg);font-size:.9rem;width:100%;outline:none}
   .inp:focus{border-color:var(--accent)}
   .err{color:var(--red);font-size:.82rem;min-height:18px}
-  .tab-bar{display:flex;gap:6px;border-bottom:1px solid var(--border);padding:0 16px}
+  .tab-bar{display:flex;gap:6px;border-bottom:1px solid var(--border);padding:0 16px;overflow-y:hidden}
   .tab{background:none;border:none;padding:10px 14px;font-size:.88rem;color:var(--fg2);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s}
   .tab.active{color:var(--accent);border-color:var(--accent)}
   .tab:hover:not(.active){color:var(--fg)}
@@ -72,6 +72,16 @@ window._ghI18nReady = new Promise(function(resolve){
 <script>
 const BASE = '/api/pub/gamehub';
 const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+
+// A game's icon as HTML: its own picture where its manifest declares one,
+// otherwise its emoji. `o` carries icon and icon_image / iconImage.
+function iconHTML(o, fb) {
+  const img = o && (o.iconImage || o.icon_image);
+  if (img && /^\/apps\/[A-Za-z0-9_-]+\//.test(img)) {
+    return '<img src="' + esc(img) + '" alt="" draggable="false" style="width:1em;height:1em;object-fit:contain;vertical-align:-.15em">';
+  }
+  return esc((o && o.icon) || fb || '🎮');
+}
 const fmtDate = s => new Date(s).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});
 const fmtDur = s => !s ? '—' : s < 60 ? s + 's' : Math.floor(s/60) + 'm' + (s%60 ? s%60+'s' : '');
 
@@ -141,7 +151,7 @@ function showDashboard() {
   let dtab = 'games';
   const inviteBadge = () => _invites.length ? ` <span style="background:var(--red);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 6px;vertical-align:middle">${_invites.length}</span>` : '';
   app.innerHTML = `
-    <div class="tab-bar" style="overflow-x:auto;flex-shrink:0">
+    <div class="tab-bar" style="overflow-x:auto;overflow-y:hidden;flex-shrink:0">
       <button class="tab active" data-t="games">${esc(t('gl_tab_games'))}${inviteBadge()}</button>
       <button class="tab" data-t="store">${esc(t('gl_tab_store'))}</button>
       <button class="tab" data-t="ranking">${esc(t('gs_ranking'))}</button>
@@ -253,7 +263,7 @@ async function renderProfile(c) {
         <div style="overflow-x:auto"><table class="lb-table">
           <thead><tr><th>${esc(t('gp_col_game'))}</th><th>${esc(t('gp_col_solo'))}</th><th>${esc(t('gp_col_multi'))}</th><th>${esc(t('gp_col_wins'))}</th><th>${esc(t('gp_col_rate'))}</th></tr></thead>
           <tbody>${sum.games.map(g => { const gm = _gameMeta(g.game_id); return `
-            <tr><td style="font-weight:600">${esc(gm.icon)} ${esc(gm.name)}</td><td>${g.solo}</td><td>${g.multi}</td>
+            <tr><td style="font-weight:600">${gm.iconHTML} ${esc(gm.name)}</td><td>${g.solo}</td><td>${g.multi}</td>
             <td>${g.multi ? g.wins : '—'}</td><td style="font-weight:700">${g.win_rate == null ? '—' : Math.round(g.win_rate) + '%'}</td></tr>`; }).join('')}</tbody>
         </table></div>
         <div style="font-size:11px;color:var(--fg2);margin-top:6px">${esc(t('gp_rate_hint'))}</div>
@@ -406,7 +416,7 @@ function showOtherPlayerProfile(p) {
       const row = document.createElement('div');
       row.className = 'row';
       row.innerHTML = `
-        <div style="font-size:18px">${esc(gm.icon)}</div>
+        <div style="font-size:18px">${gm.iconHTML}</div>
         <div style="flex:1;min-width:0">
           <div style="font-size:13px;font-weight:600">${!current?esc(gm.name)+' ':''}${modeLabel} ${fmtDate(s.played_at)}</div>
           ${metaParts.length?`<div style="font-size:11px;color:var(--fg2)">${metaParts.join(' · ')}</div>`:''}
@@ -476,9 +486,9 @@ function showOtherPlayerProfile(p) {
 
 function _gameMeta(gameId) {
   const g = window.GHLibrary && GHLibrary.find(gameId);
-  if (g) return { name: GHLibrary.gameName(g), icon: g.icon || '🎮' };
+  if (g) return { name: GHLibrary.gameName(g), icon: g.icon || '🎮', iconHTML: iconHTML(g) };
   const m = _stats?.game_meta?.[gameId];
-  return { name: m?.name || gameId, icon: m?.icon || '🎮' };
+  return { name: m?.name || gameId, icon: m?.icon || '🎮', iconHTML: iconHTML(m) };
 }
 
 const MP_API = '/api/pub/gamehub/mp';
@@ -574,14 +584,14 @@ function _mySaveFor(gameId) {
 // null (cancelled).
 function _askSavedGame(gameId, save) {
   return new Promise(resolve => {
-    const { name, icon } = _gameMeta(gameId);
+    const { name, icon, iconHTML: iconH } = _gameMeta(gameId);
     const ov = document.createElement('div');
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px';
     const box = document.createElement('div');
     box.className = 'card';
     box.style.cssText = 'width:100%;max-width:380px;padding:22px;text-align:center;display:flex;flex-direction:column;gap:12px';
     box.innerHTML = `
-      <div style="font-size:34px;line-height:1">${icon}</div>
+      <div style="font-size:34px;line-height:1">${iconH}</div>
       <div style="font-weight:700;font-size:16px">${esc(t('gh_saved_game_title'))}</div>
       <div style="font-size:13px;color:var(--fg2)">${esc(t('gh_saved_game_body', { game: name }))}</div>
       ${save && save.updated_at ? `<div style="font-size:11px;color:var(--fg2)">${esc(fmtDate(new Date(save.updated_at * 1000).toISOString()))}</div>` : ''}
@@ -615,11 +625,11 @@ async function renderGames(c) {
   await _loadMySaves();
   const _hidden = _dismissed();
   for (const active of _myRooms.filter(r => !_hidden.includes(r.room_id))) {
-    const { name, icon } = _gameMeta(active.game_id);
+    const { name, iconHTML: iconH } = _gameMeta(active.game_id);
     const sec = document.createElement('div');
     sec.style.cssText = 'background:rgba(137,180,250,.1);border:1px solid rgba(137,180,250,.3);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:12px';
     sec.innerHTML = `
-      <div style="font-size:24px">${icon}</div>
+      <div style="font-size:24px">${iconH}</div>
       <div style="flex:1">
         <div style="font-weight:700;font-size:14px">${esc(name)} ${esc(t('gh_active_game_suffix'))}</div>
         <div style="font-size:12px;color:var(--fg2);margin-top:2px">${esc(t('gh_rejoin_prompt'))}</div>
@@ -636,7 +646,7 @@ async function renderGames(c) {
     invSec.style.cssText = 'display:flex;flex-direction:column;gap:8px';
     invSec.innerHTML = `<div style="font-weight:700;font-size:13px;color:var(--red)">${esc(t('gh_invitations'))}</div>`;
     _invites.forEach(inv => {
-      const { name: gname, icon: gicon } = _gameMeta(inv.game_id);
+      const { name: gname, iconHTML: gicon } = _gameMeta(inv.game_id);
       const banner = document.createElement('div');
       banner.style.cssText = 'background:rgba(243,139,168,.1);border:1px solid rgba(243,139,168,.3);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px';
       banner.innerHTML = `
@@ -669,7 +679,7 @@ async function renderGames(c) {
 
   const cardFor = game => {
     const gameId = game.id;
-    const name = GHLibrary.gameName(game), icon = game.icon || '🎮';
+    const name = GHLibrary.gameName(game), icon = game.icon || '🎮', iconH = iconHTML(game);
     const hasInvite = _invites.some(inv => inv.game_id === gameId);
 
     const card = document.createElement('div');
@@ -689,7 +699,7 @@ async function renderGames(c) {
 
     card.innerHTML = `
       ${badge}
-      <div style="font-size:42px;line-height:1">${icon}</div>
+      <div style="font-size:42px;line-height:1">${iconH}</div>
       <div style="font-weight:700;font-size:13px">${esc(name)}</div>
       ${subtext ? `<div style="font-size:11px;color:var(--fg2)">${esc(subtext)}</div>` : ''}`;
     card.onclick = () => renderGameDetail(c, gameId, game);
@@ -746,7 +756,7 @@ async function _createGame(btn, gameId, maxPlayers, resume) {
 
 async function renderGameDetail(c, gameId, mpGame) {
   const myId = _me.id;
-  const { name, icon } = _gameMeta(gameId);
+  const { name, icon, iconHTML: iconH } = _gameMeta(gameId);
   c.innerHTML = `<div class="section" data-view="detail" style="display:flex;flex-direction:column;gap:16px;max-width:720px"></div>`;
   const sc = c.querySelector('.section');
 
@@ -763,7 +773,7 @@ async function renderGameDetail(c, gameId, mpGame) {
   tabBar.className = 'tab-bar';
   tabBar.style.cssText = 'margin:0 -16px;padding:0 16px';
   tabBar.innerHTML = `
-    <button class="tab active" data-gt="play">${icon} ${esc(name)}</button>
+    <button class="tab active" data-gt="play">${iconH} ${esc(name)}</button>
     <button class="tab" data-gt="history">${esc(t('gh_history'))}</button>
     <button class="tab" data-gt="leaderboard">${esc(t('gs_stats'))}</button>`;
   sc.appendChild(tabBar);
@@ -798,7 +808,7 @@ async function renderGameDetail(c, gameId, mpGame) {
       // by this — a match is not a thing you hold on to.
       const soloBlocked = !!solo;
       info.innerHTML = `
-        <div style="font-size:56px;line-height:1">${icon}</div>
+        <div style="font-size:56px;line-height:1">${iconH}</div>
         <div style="font-weight:700;font-size:20px">${esc(name)}</div>
         ${mpGame ? `
         <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">

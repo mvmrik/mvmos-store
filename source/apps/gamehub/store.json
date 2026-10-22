@@ -15,7 +15,8 @@
     "A Store inside Game Hub, like the one in Apps Hub: every profile chooses which games appear on its own page, with categories and search, and nothing is deleted when a game is removed.",
     "Your games can be filtered by category and sorted A–Z, most played or recently played.",
     "Profile with real totals from your whole history: overall place and points, solo and multiplayer games, multiplayer wins and win rate, and a table by game.",
-    "Player against player: head-to-head record with a verdict, recent form and streaks, the chance of winning the next game, a per-game breakdown and a side-by-side comparison of every number with a rating chart. The game history loads only when you open it."
+    "Player against player: head-to-head record with a verdict, recent form and streaks, the chance of winning the next game, a per-game breakdown and a side-by-side comparison of every number with a rating chart. The game history loads only when you open it.",
+    "Games with their own picture icon show it in the library, game pages, history and statistics, with emoji for games that do not declare a picture."
   ],
   "integrations": [
     {
@@ -24,7 +25,7 @@
       "kind": "gamehub",
       "direction": "provides",
       "summary": "Games use Game Hub for player identity, for recording sessions and scores, and for multiplayer rooms and invitations. FindYourself and Sudofall both do.",
-      "requires": "Game Hub installed. Games remain playable in single player without it."
+      "requires": "Game Hub installed. Games built around the public Game Hub play page require it; older games may offer independent single player."
     }
   ]
 }

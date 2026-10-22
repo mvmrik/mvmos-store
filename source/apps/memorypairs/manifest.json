@@ -1,0 +1,139 @@
+{
+  "id": "memorypairs",
+  "name": "Remember the Pairs",
+  "name_i18n": {
+    "en": "Remember the Pairs",
+    "bg": "Запомни двойките",
+    "de": "Merk dir die Paare",
+    "es": "Recuerda las parejas",
+    "fr": "Retrouve les paires",
+    "ja": "ペアを覚えよう",
+    "pt-BR": "Lembre-se dos pares",
+    "ru": "Запомни пары",
+    "zh-CN": "记住配对"
+  },
+  "icon": "🧠",
+  "icon_image": "icon.svg",
+  "category": "Games",
+  "tags": [
+    "memory",
+    "cards",
+    "3d",
+    "multiplayer",
+    "games"
+  ],
+  "version": "1.0.0",
+  "min_core_version": "1.16.0",
+  "description": "Turn over two cards and find the matching pairs, alone or in turns with friends, on a flat table or on a spinning 3D cylinder. Nine picture themes, a table from 6 to 48 pairs and a time limit per turn.",
+  "entry": "main.js",
+  "multiplayer": true,
+  "max_players": 6,
+  "themed": true,
+  "public_directory": false,
+  "gamehub": {
+    "category": "puzzle",
+    "description": {
+      "en": "Turn over two cards and find the matching pairs, alone or in turns with friends, on a flat table or a spinning 3D cylinder.",
+      "bg": "Обърни две карти и намери еднаквите двойки – сам или на ред с приятели, на плоска маса или върху въртящ се 3D цилиндър.",
+      "de": "Drehe zwei Karten um und finde die passenden Paare – allein oder abwechselnd mit Freunden, auf einem flachen Tisch oder einem drehenden 3D-Zylinder.",
+      "es": "Da la vuelta a dos cartas y encuentra las parejas iguales, solo o por turnos con amigos, en una mesa plana o en un cilindro 3D giratorio.",
+      "fr": "Retourne deux cartes et trouve les paires identiques, seul ou chacun son tour avec des amis, sur une table plate ou un cylindre 3D qui tourne.",
+      "ja": "2枚のカードをめくって同じペアを見つけよう。ひとりでも友達と交代でも、平らなテーブルでも回転する3D円柱でも遊べます。",
+      "pt-BR": "Vire duas cartas e encontre os pares iguais, sozinho ou em turnos com amigos, em uma mesa plana ou em um cilindro 3D giratório.",
+      "ru": "Переверни две карты и найди одинаковые пары – один или по очереди с друзьями, на плоском столе или вращающемся 3D-цилиндре.",
+      "zh-CN": "翻开两张牌找出相同的配对，可独自玩或与朋友轮流玩，桌面平铺或旋转的3D圆柱都行。"
+    },
+    "score": {
+      "label": {
+        "en": "Score",
+        "bg": "Точки",
+        "de": "Punkte",
+        "es": "Puntos",
+        "fr": "Points",
+        "ja": "ポイント",
+        "pt-BR": "Pontos",
+        "ru": "Очки",
+        "zh-CN": "得分"
+      }
+    },
+    "ranking": "score",
+    "metrics": {
+      "pairs": {
+        "label": {
+          "en": "Pairs found",
+          "bg": "Намерени двойки",
+          "de": "Gefundene Paare",
+          "es": "Parejas encontradas",
+          "fr": "Paires trouvées",
+          "ja": "見つけたペア",
+          "pt-BR": "Pares encontrados",
+          "ru": "Найденные пары",
+          "zh-CN": "找到的配对"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "accuracy": {
+        "label": {
+          "en": "Accuracy",
+          "bg": "Точност",
+          "de": "Trefferquote",
+          "es": "Precisión",
+          "fr": "Précision",
+          "ja": "正確さ",
+          "pt-BR": "Precisão",
+          "ru": "Точность",
+          "zh-CN": "准确率"
+        },
+        "type": "percent",
+        "better": "high"
+      },
+      "best_streak": {
+        "label": {
+          "en": "Best streak of pairs",
+          "bg": "Най-дълга серия двойки",
+          "de": "Längste Paarserie",
+          "es": "Mejor racha de parejas",
+          "fr": "Meilleure série de paires",
+          "ja": "最長連続ペア",
+          "pt-BR": "Maior sequência de pares",
+          "ru": "Лучшая серия пар",
+          "zh-CN": "最长连续配对"
+        },
+        "type": "number",
+        "better": "high",
+        "total": false
+      },
+      "timeouts": {
+        "label": {
+          "en": "Turns out of time",
+          "bg": "Ходове без време",
+          "de": "Züge ohne Zeit",
+          "es": "Turnos sin tiempo",
+          "fr": "Tours hors temps",
+          "ja": "時間切れのターン",
+          "pt-BR": "Vezes sem tempo",
+          "ru": "Ходы без времени",
+          "zh-CN": "超时回合"
+        },
+        "type": "number",
+        "better": "low"
+      },
+      "cards": {
+        "label": {
+          "en": "Cards on the table",
+          "bg": "Карти на масата",
+          "de": "Karten auf dem Tisch",
+          "es": "Cartas en la mesa",
+          "fr": "Cartes sur la table",
+          "ja": "テーブルのカード数",
+          "pt-BR": "Cartas na mesa",
+          "ru": "Карты на столе",
+          "zh-CN": "桌上的牌数"
+        },
+        "type": "number",
+        "total": false
+      }
+    }
+  }
+}

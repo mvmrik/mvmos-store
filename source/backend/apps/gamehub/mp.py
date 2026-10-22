@@ -688,6 +688,14 @@ async def delete_save(game_id: str, request: Request):
     return {"ok": True}
 
 
+def _icon_image(app_id, manifest):
+    try:
+        from backend.assets import icon_image
+        return icon_image(app_id, manifest)
+    except Exception:
+        return None
+
+
 def _plugin_meta():
     meta = {}
     try:
@@ -737,6 +745,8 @@ def _catalog() -> list:
                 "name":        m.get("name", gid),
                 "name_i18n":   mani.get("name_i18n"),
                 "icon":        m.get("icon", "🎮"),
+                # The game's own picture icon, when its manifest declares one.
+                "icon_image":  _icon_image(gid, mani),
                 "max_players": max_players,
                 "multiplayer": multiplayer,
                 "category":    str(decl.get("category") or "other"),
