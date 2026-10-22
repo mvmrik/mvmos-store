@@ -22,7 +22,7 @@
     "multiplayer",
     "games"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "min_core_version": "1.16.0",
   "description": "Turn over two cards and find the matching pairs, alone or in turns with friends, on a flat table or on a spinning 3D cylinder. Nine picture themes, a table from 6 to 48 pairs and a time limit per turn.",
   "entry": "main.js",

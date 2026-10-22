@@ -137,7 +137,6 @@
         '<div class="mp-status">' +
           '<div class="mp-line"><span class="mp-who"></span><span class="mp-found"></span></div>' +
           '<div class="mp-bar"><i></i></div>' +
-          '<div class="mp-hint"></div>' +
         '</div>' +
         '<div class="mp-board"><div class="mp-load">' + _esc(_t('mp_waiting')) + '</div></div>' +
         // Bottom right, beside the hub's Save & exit button at the bottom left.
@@ -149,7 +148,6 @@
       who: root.querySelector('.mp-who'),
       found: root.querySelector('.mp-found'),
       bar: root.querySelector('.mp-bar i'),
-      hint: root.querySelector('.mp-hint'),
       board: root.querySelector('.mp-board'),
       line: root.querySelector('.mp-line'),
     };
@@ -171,6 +169,8 @@
     } catch (e) { console.error(e); }
     if (gen !== _gen) return;
     _faces = window.MPFaces;
+    await _faces.preload(sm.theme);
+    if (gen !== _gen) return;
     const cards = [];
     for (let i = 0; i < sm.cards; i++) cards.push({ st: 'down', sym: null });
     (sm.matched || []).forEach(m => { cards[m[0]] = { st: 'gone', sym: m[1] }; });
@@ -213,12 +213,10 @@
         _no3d = true;                  // no WebGL: the flat table, smaller cards
         el.board.innerHTML = '';
         el.board.classList.remove('mp-cyl');
-        setTimeout(() => toast(_t('mp_no_webgl')), 300);
       }
     }
     if (!V) V = tableView();
     _viewName = used;
-    el.hint.textContent = _t(used === 'cylinder' ? 'mp_hint_cylinder' : 'mp_hint_table');
     V.sync();
   }
 
@@ -240,6 +238,12 @@
       btns.push(b);
     });
     const front = i => btns[i].querySelector('.f img');
+    function turn(i, up) {
+      const b = btns[i], inner = b.firstChild;
+      clearTimeout(b._t);
+      inner.classList.add('mid');
+      b._t = setTimeout(() => { b.classList.toggle('up', up); inner.classList.remove('mid'); }, 170);
+    }
     const setFace = (i, sym) => { front(i).src = _faces.faceURL(M.theme, M.picks[sym]); };
 
     function fit() {
@@ -265,8 +269,11 @@
         });
         this.can();
       },
-      flipUp(i, sym) { setFace(i, sym); btns[i].classList.add('up'); },
-      flipDown(i) { btns[i].classList.remove('up'); },
+      // The card narrows to a line, the face changes, and it widens again. This
+      // is plain 2D on purpose: a 3D flip (rotateY with a hidden back face)
+      // shows half a picture in Safari on an iPhone.
+      flipUp(i, sym) { setFace(i, sym); turn(i, true); },
+      flipDown(i) { turn(i, false); },
       remove(i) { btns[i].classList.add('gone'); btns[i].classList.remove('up'); },
       focus() {},
       can() { const on = canPlay(); btns.forEach(b => b.classList.toggle('can', on)); },
@@ -339,7 +346,6 @@
         const s = M.st[m.pid] || (M.st[m.pid] = { pairs: 0, attempts: 0 });
         s.pairs = m.pairs; s.attempts += 1;
         sfx.match();
-        toast(_t('mp_pair'), true);
         paintPlayers(); paintStatus();
         setTimeout(() => {
           [m.a, m.b].forEach(i => { M.cards[i].st = 'gone'; V.remove(i); });
@@ -351,7 +357,6 @@
         const s = M.st[M.turn] || (M.st[M.turn] = { pairs: 0, attempts: 0 });
         s.attempts += 1;
         sfx.miss();
-        toast(_t('mp_miss'));
         paintPlayers();
         setTimeout(() => {
           [m.a, m.b].forEach(i => { M.cards[i].st = 'down'; V.flipDown(i); });
@@ -361,7 +366,6 @@
       case 'mp_timeout':
         M.locked = true; _deadline = 0;
         (m.down || []).forEach(i => { M.cards[i].st = 'down'; V.flipDown(i); });
-        toast(_t('mp_timeout'));
         break;
       case 'mp_over':
         M.over = true; _deadline = 0;
@@ -400,15 +404,6 @@
     const left = Math.max(0, _deadline - performance.now()) / 1000;
     el.bar.style.transform = 'scaleX(' + Math.min(1, left / Math.max(1, M.time)) + ')';
     el.bar.classList.toggle('low', left < 5);
-  }
-
-  function toast(text, ok) {
-    if (!el.board) return;
-    const t = document.createElement('div');
-    t.className = 'mp-toast' + (ok ? ' ok' : '');
-    t.textContent = text;
-    el.board.appendChild(t);
-    setTimeout(() => t.remove(), 1200);
   }
 
   // ── End ────────────────────────────────────────────────────────────────────
@@ -456,7 +451,7 @@
     } catch (_) {
       btn.disabled = false;
       btn.textContent = _t('mp_play_again');
-      toast(_t('mp_error_new_game'));
+      alert(_t('mp_error_new_game'));
     }
   }
 

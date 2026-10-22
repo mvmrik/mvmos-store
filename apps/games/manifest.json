@@ -213,7 +213,7 @@
       "name": "Remember the Pairs",
       "icon": "🧠",
       "category": "Games",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "Turn over two cards and find the matching pairs, alone or in turns with friends, on a flat table or on a spinning 3D cylinder. Nine picture themes, a table from 6 to 48 pairs and a time limit per turn.",
       "tags": [
         "memory",
@@ -223,7 +223,7 @@
         "games"
       ],
       "min_core_version": "1.16.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/memorypairs-1.0.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/memorypairs-1.0.1.zip",
       "name_i18n": {
         "en": "Remember the Pairs",
         "bg": "Запомни двойките",

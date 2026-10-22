@@ -25,6 +25,30 @@
   // The same picture twice in a list would make an impossible pair.
   Object.keys(EMOJI).forEach(k => { EMOJI[k] = Array.from(new Set(EMOJI[k])); });
 
+  // The emoji are not drawn as text. Drawing colour-emoji text on a canvas
+  // comes out cropped and shifted on an iPhone, and looks different on every
+  // system, so each emoji theme has a picture sheet beside this file
+  // (emoji-<theme>.png, 8 per row, 128 px each, in the order of the lists
+  // above) and a card is drawn from it. The sheets were made from Noto Color
+  // Emoji (SIL Open Font License 1.1).
+  const SELF = document.currentScript && document.currentScript.src || '';
+  const BASE = SELF.replace(/[^/?]*(\?.*)?$/, '');
+  const STAMP = (SELF.match(/\?.*$/) || [''])[0];
+  const CELL = 128, COLS = 8;
+  const _sheet = {};
+  function preload(theme) {
+    if (!EMOJI[theme]) return Promise.resolve(true);
+    if (_sheet[theme]) return _sheet[theme].p;
+    const img = new Image();
+    const rec = _sheet[theme] = { img: img, ok: false };
+    rec.p = new Promise(res => {
+      img.onload = () => { rec.ok = true; res(true); };
+      img.onerror = () => res(false);
+    });
+    img.src = BASE + 'emoji-' + theme + '.png' + STAMP;
+    return rec.p;
+  }
+
   // Per-theme card back colour (hue).
   const BACK_HUE = { animals: 28, food: 350, nature: 140, travel: 205, fun: 270, faces: 48, numbers: 222, colors: 320, shapes: 175 };
 
@@ -130,12 +154,18 @@
     g.lineWidth = 4; g.strokeStyle = 'rgba(0,0,0,.25)'; g.stroke();
 
     if (EMOJI[theme]) {
-      const ch = EMOJI[theme][k % EMOJI[theme].length] + '️';
-      g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.font = Math.round(W * .62) + 'px ' + FONT;
-      g.shadowColor = 'rgba(0,0,0,.25)'; g.shadowBlur = 10; g.shadowOffsetY = 5;
-      g.fillText(ch, cx, cy + 6);
-      g.shadowColor = 'transparent';
+      const n = k % EMOJI[theme].length, sh = _sheet[theme];
+      if (sh && sh.ok) {
+        const d = Math.round(W * .66);
+        g.shadowColor = 'rgba(0,0,0,.25)'; g.shadowBlur = 10; g.shadowOffsetY = 5;
+        g.drawImage(sh.img, (n % COLS) * CELL, Math.floor(n / COLS) * CELL, CELL, CELL, cx - d / 2, cy - d / 2 + 2, d, d);
+        g.shadowColor = 'transparent';
+      } else {
+        // The sheet did not load: fall back to the text.
+        g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.font = Math.round(W * .62) + 'px ' + FONT;
+        g.fillText(EMOJI[theme][n] + '\uFE0F', cx, cy + 6);
+      }
     } else if (theme === 'numbers') {
       const n = (k % 99) + 1;
       g.textAlign = 'center'; g.textBaseline = 'middle';
@@ -191,7 +221,7 @@
 
   const _faceURL = {}, _backURL = {};
   window.MPFaces = {
-    SIZE, count, face, back, BACK_HUE,
+    SIZE, count, face, back, BACK_HUE, EMOJI, preload,
     faceURL(theme, k) { const key = theme + ':' + k; return _faceURL[key] || (_faceURL[key] = face(theme, k).toDataURL()); },
     backURL(theme) { return _backURL[theme] || (_backURL[theme] = back(theme).toDataURL()); }
   };
