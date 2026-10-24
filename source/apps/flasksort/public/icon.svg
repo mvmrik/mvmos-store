@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5a2fc2"/>
+      <stop offset="1" stop-color="#1b1052"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
+      <stop offset=".35" stop-color="#ffffff" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity=".3"/>
+    </linearGradient>
+    <clipPath id="t1"><path d="M20 24 h24 v62 a12 12 0 0 1 -24 0 z"/></clipPath>
+    <clipPath id="t2"><path d="M52 24 h24 v62 a12 12 0 0 1 -24 0 z"/></clipPath>
+    <clipPath id="t3"><path d="M84 24 h24 v62 a12 12 0 0 1 -24 0 z"/></clipPath>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <circle cx="104" cy="20" r="26" fill="#ffffff" opacity=".1"/>
+  <g clip-path="url(#t1)"><rect x="20" y="40" width="24" height="24" fill="#ff8a1f"/><rect x="20" y="64" width="24" height="24" fill="#35d6f0"/><rect x="20" y="88" width="24" height="24" fill="#f03cc4"/></g>
+  <g clip-path="url(#t2)"><rect x="52" y="40" width="24" height="24" fill="#ffd60a"/><rect x="52" y="64" width="24" height="24" fill="#1fae4b"/><rect x="52" y="88" width="24" height="24" fill="#2d4bff"/></g>
+  <g clip-path="url(#t3)"><rect x="84" y="56" width="24" height="32" fill="#e5383b"/><rect x="84" y="88" width="24" height="24" fill="#b03be0"/></g>
+  <g fill="url(#glass)" stroke="#ffffff" stroke-opacity=".85" stroke-width="2.4">
+    <path d="M20 24 h24 v62 a12 12 0 0 1 -24 0 z"/>
+    <path d="M52 24 h24 v62 a12 12 0 0 1 -24 0 z"/>
+    <path d="M84 24 h24 v62 a12 12 0 0 1 -24 0 z"/>
+  </g>
+  <g fill="#ffffff" opacity=".9">
+    <path d="M64 6 L65.6 11 L70.6 12.6 L65.6 14.2 L64 19.2 L62.4 14.2 L57.4 12.6 L62.4 11 Z"/>
+  </g>
+</svg>

@@ -20,7 +20,7 @@
     "strategy",
     "games"
   ],
-  "version": "1.4.0",
+  "version": "1.5.0",
   "min_core_version": "1.16.0",
   "description": "Defend the tower in the middle against endless waves. Between waves spend your coins on weapons, rings, energy and upgrades, and grow stronger with every game in the permanent shop.",
   "entry": "main.js",

@@ -12,7 +12,7 @@ Bought items show only their name and current values. Tap an item to open its en
 
 The Energy block at the top of the shop is the power of the whole tower. A new tower has none. Every weapon and extra draws energy while it is switched on: a base amount for having it plus a little for each upgrade level. The green background of an item shows its share of all the energy, and its energy line says how much it draws now. The switch on that line turns the module on or off, and the bar at the top changes at once.
 
-Buy energy with coins during a run, or with points in the permanent shop; permanent energy and the on/off choices are what every new game starts with. There is no limit on how many weapons you own or run, only the energy. When the tower asks for more than it has, the bar turns red and the next wave cannot start until something is switched off or more energy is bought. In the permanent shop "Play again" waits in the same way.
+Buy energy with coins during a run, or with points in the permanent shop, one, five or ten units at a time. A bigger bundle is cheaper for every unit than a smaller one (about 2% off for each extra unit, up to 20% off for ten), so buying ten at once always costs less than two fives; permanent energy and the on/off choices are what every new game starts with. There is no limit on how many weapons you own or run, only the energy. When the tower asks for more than it has, the bar turns red and the next wave cannot start until something is switched off or more energy is bought. In the permanent shop "Play again" waits in the same way.
 
 ## Weapons
 

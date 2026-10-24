@@ -92,6 +92,7 @@
             soldiers: 7, drones: 7, tesla: 9 },
     level: { 'fring.n': 2, 'tesla.n': 2 },
     price: [8, 1.03],
+    bulk: [0.0225, 0.8],
   };
   // A permanent purchase costs the in-run price times this.
   let PERM_FACTOR = 10000 / 30;
@@ -109,16 +110,16 @@
     healer:   { color: '#a6e3a1', hp: 1.1,  speed: 0.8,  r: 13, dmg: 0.8, bounty: 8,  from: 11, w: 2, heal: true },
     // The bosses. One comes alone after every tenth wave, in this order, and
     // the order starts over at wave 60 with every boss stronger than before.
-    boss:       { color: '#d20f39', hp: 22, speed: 0.42, r: 34, dmg: 3.5, bounty: 60, boss: true, armor: 0.2,
-                  shoot: 1.6, shotDmg: 0.8, summon: 7, summonKinds: ['grunt', 'grunt'] },
-    colossus:   { color: '#8c8fa1', hp: 34, speed: 0.3,  r: 44, dmg: 6,   bounty: 60, boss: true, armor: 0.6,
+    boss:       { color: '#d20f39', hp: 12, speed: 0.42, r: 34, dmg: 2.8, bounty: 60, boss: true, armor: 0.2,
+                  shoot: 2.4, shotDmg: 0.45, summon: 9, summonKinds: ['grunt', 'grunt'] },
+    colossus:   { color: '#8c8fa1', hp: 19, speed: 0.3,  r: 44, dmg: 4.5, bounty: 60, boss: true, armor: 0.6,
                   freezeRes: 0.1 },
-    wraith:     { color: '#b4befe', hp: 14, speed: 0.75, r: 30, dmg: 4,   bounty: 60, boss: true, fly: true,
-                  blink: 3.5, shoot: 2, shotDmg: 0.6 },
-    queen:      { color: '#40a02b', hp: 20, speed: 0.4,  r: 36, dmg: 3,   bounty: 60, boss: true, armor: 0.15,
-                  summon: 5, summonKinds: ['flyer', 'runner', 'flyer'] },
-    juggernaut: { color: '#fe640b', hp: 28, speed: 0.36, r: 38, dmg: 5,   bounty: 60, boss: true, armor: 0.3,
-                  regen: 0.012, shoot: 2.2, shotDmg: 0.55, spread: 3 },
+    wraith:     { color: '#b4befe', hp: 8,  speed: 0.75, r: 30, dmg: 3.2, bounty: 60, boss: true, fly: true,
+                  blink: 3.5, shoot: 2.6, shotDmg: 0.4 },
+    queen:      { color: '#40a02b', hp: 11, speed: 0.4,  r: 36, dmg: 2.6, bounty: 60, boss: true, armor: 0.15,
+                  summon: 7, summonKinds: ['flyer', 'runner', 'flyer'] },
+    juggernaut: { color: '#fe640b', hp: 15, speed: 0.36, r: 38, dmg: 4,   bounty: 60, boss: true, armor: 0.3,
+                  regen: 0.012, shoot: 2.8, shotDmg: 0.4, spread: 3 },
     // What a splitter breaks into; never part of a wave by itself.
     shard:    { color: '#94e2d5', hp: 0.35, speed: 1.4,  r: 8,  dmg: 0.5, bounty: 1 },
   };
@@ -423,12 +424,16 @@
   function _enUnit(have) {
     const e = ENERGY.price;
     return _permMode ? _permPrice(e[0], e[1], have)
-      : Math.max(5, Math.round(e[0] * Math.pow(e[1], have) / 5) * 5);
+      : Math.max(1, Math.round(e[0] * Math.pow(e[1], have)));
   }
+  // Several units at once cost less each, the more the cheaper (same as
+  // td_bank.energy_price, which charges the permanent one).
   function _enPrice(n) {
     let sum = 0;
     for (let i = 0; i < n; i++) sum += _enUnit(_b.en + i);
-    return sum;
+    const bk = ENERGY.bulk || [0.0225, 0.8];
+    const v = sum * Math.max(bk[1], 1 - bk[0] * (Math.max(1, n) - 1));
+    return _permMode ? Math.floor(v / 50 + 0.5) * 50 : Math.round(v);
   }
   // A tower that does not fit its energy at the start of a run (the permanent
   // shop allows it) switches off the newest modules until it does.
@@ -2088,7 +2093,14 @@
   function _card(icon, color, name, desc, stats, body, cls, mod, extra) {
     const fold = !/td-locked/.test(cls || ''), open = fold && _cardOpen[icon];
     const off = mod && !_isOn(mod);
-    return '<div class="td-card' + (cls ? ' ' + cls : '') + (off ? ' td-off' : '') +
+    // Something in a closed card can be bought right now: the card says so, so
+    // it does not have to be opened to find out.
+    let can = false;
+    if (fold) {
+      const tags = body.match(/<button class="td-(?:buy|up)"[^>]*>/g) || [];
+      can = tags.some(t => t.indexOf(' disabled') === -1);
+    }
+    return '<div class="td-card' + (cls ? ' ' + cls : '') + (off ? ' td-off' : '') + (can ? ' td-can' : '') +
       (fold ? ' td-fold' + (open ? ' td-exp' : '') : '') + '" style="--pct:' + _share(mod) + '%"' +
       (fold ? ' data-act="card:' + icon + '"' : '') + ' title="' + _esc(desc) + '">' +
       '<div class="td-card-top"><span class="td-ico" style="--c:' + color + '">' + icon + '</span>' +

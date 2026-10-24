@@ -17,6 +17,7 @@ Documentation for individual Store applications lives in this repository. Update
 - [mvmOffice](apps/mvmoffice.md)
 - [mvmPasswords](apps/mvmpasswords.md)
 - [Remember the Pairs](apps/memorypairs.md)
+- [Flask Sort](apps/flasksort.md)
 - [Tasks](apps/tasks.md)
 - [Tower Defense](apps/towerdefense.md)
 

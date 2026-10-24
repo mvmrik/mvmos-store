@@ -183,7 +183,7 @@
 
 .td-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 5px;
 }
 
@@ -452,12 +452,6 @@
   color: var(--fg2, #a6adc8);
 }
 
-@media (max-width: 760px) {
-  .td-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
 @media (max-width: 640px) {
   #td-hud {
     gap: 6px !important;
@@ -623,10 +617,6 @@
   opacity: .55;
 }
 
-.td-card.td-energy {
-  grid-column: 1 / -1;
-}
-
 .td-ebar {
   grid-column: 1 / -1;
   position: relative;
@@ -671,4 +661,20 @@
 .td-go:disabled {
   opacity: .45;
   cursor: not-allowed;
+}
+
+/* A card with something that can be bought now shows it while it is closed. */
+.td-card.td-can {
+  border-color: var(--green, #a6e3a1);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--green, #a6e3a1) 45%, transparent);
+}
+
+.td-card.td-can > .td-chev {
+  color: var(--green, #a6e3a1);
+}
+
+.td-card.td-can > .td-card-top b::after {
+  content: ' ＋';
+  color: var(--green, #a6e3a1);
+  font-weight: 800;
 }

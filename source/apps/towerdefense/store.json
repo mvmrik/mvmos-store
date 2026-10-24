@@ -14,7 +14,10 @@
     "Game Hub statistics for waves, kills and survival time.",
     "A compact shop where bought items show only their current values and open their buttons when tapped, with two-row buttons that show the price and the extra energy, and an enemy list with pictures and descriptions behind one button.",
     "A portrait arena that fills the available phone view while keeping the tower centred.",
-    "Premium Fast play offers speeds up to ten times normal, one list for stopping waves automatically and settings saved for new games in this browser."
+    "Premium Fast play offers speeds up to ten times normal, one list for stopping waves automatically and settings saved for new games in this browser.",
+    "Energy is sold in bundles of one, five or ten, and a bigger bundle is always cheaper for each unit than a smaller one.",
+    "A closed shop card shows a green mark when something inside it can be bought right now, so nothing has to be opened to find out.",
+    "Bosses are tuned for a tower that also pays for energy: less health, slower and weaker shots, and a first boss that a fresh build can beat."
   ],
   "integrations": [
     {

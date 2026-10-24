@@ -1,0 +1,31 @@
+{
+  "tagline": "Pour the colours, fill the flasks, clear all 100 levels.",
+  "description": "Flask Sort is a liquid sorting puzzle for Game Hub: pour layers of colour from flask to flask until every flask holds a single colour.\n\nA game runs through 100 levels and every one is harder than the last. The first has two colours in small flasks of three doses; as you climb, new colours arrive and the flasks gradually hold more doses, until the last levels have twenty colours in flasks of eight doses. The colours are chosen to be easy to tell apart. All the flasks of a level are always on the screen, on shelves that rearrange for a phone or a computer, and you can choose your next pour while the current one is still moving. Any dose can be parked on a different colour to free space, so a level is never stuck, and undo is always there.\n\nPoints come mostly from the doses you pour into place, 10 for each, the same for everyone on a level, with a speed bonus of one point for every second left and a golf-style bonus paid in flasks for finishing in par or under it. Being over par costs nothing. Between levels the result stays on screen until you choose Next level or Finish game. A game ends when you clear level 100 or finish it, and only then is your score recorded in Game Hub; Save & exit keeps the exact position without recording anything, and the next game starts from level 1.\n\nWith friends, everybody plays the same levels at their own pace on computers, phones and tablets in a web browser. The host chooses how many levels to play, up to 100. Everybody plays up to that level, scoring the same way as alone, and when all have finished the most total points win. The server builds every level and checks every pour.\n\nGame Hub records the level reached, levels cleared, moves and your record.",
+  "capabilities": [
+    "Pour liquid between glass flasks in 3D until every flask holds one colour.",
+    "A game of 100 levels, each harder than the last: from two colours in flasks of three doses to twenty colours in flasks of eight.",
+    "Every flask of a level is always on screen, on shelves that rearrange for a phone or a computer.",
+    "Carefully separated colours, so no two look alike.",
+    "Any dose can be parked on a different colour to free space, so no level is ever stuck. Undo and restart a level; pour one dose at a time quickly, or several at once more slowly.",
+    "A hint button shows the next move of a solution for the price of one flask in points, even if your points go below zero.",
+    "Points for every dose, so a flask is worth its doses, a speed bonus of a point for every second left and a golf-style bonus, paid in flasks, for beating par; you can choose your next pour while the current one is still moving.",
+    "The result of each level stays on screen until you go on; the next level's clock starts only then.",
+    "Multiplayer for up to six players: everybody plays up to the chosen level (up to 100) at their own pace, and when all are done the most total points win, so a faster player gets a speed bonus but not the win.",
+    "The server deals every level, proves it can be solved and checks every pour.",
+    "Finish a game after any level, or clear level 100: the score is recorded then. Save and exit keeps the exact position without recording.",
+    "Game Hub statistics for level reached, levels cleared, moves, undos and colours, with a rating for multiplayer."
+  ],
+  "requirements": [
+    "WebGL for the 3D flasks."
+  ],
+  "integrations": [
+    {
+      "app": "gamehub",
+      "name": "Game Hub",
+      "kind": "gamehub",
+      "direction": "consumes",
+      "summary": "Rooms, turns and players run on Game Hub accounts: your profile and avatar, invitations to other players, and your sessions, statistics and rating recorded in Game Hub.",
+      "requires": "Game Hub installed."
+    }
+  ]
+}

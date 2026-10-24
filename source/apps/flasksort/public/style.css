@@ -1,0 +1,435 @@
+/* Flask Sort — the HUD around the 3D board. Colours come from the page's
+   theme variables; the board itself is always a deep violet so the liquids
+   keep their colours. */
+
+.fs-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 10px 54px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+}
+
+.fs-players {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.fs-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px 4px 5px;
+  border-radius: 999px;
+  background: var(--surface1, #181825);
+  border: 2px solid var(--border, #45475a);
+  font-size: .85rem;
+  font-weight: 600;
+  min-width: 0;
+}
+
+.fs-chip.done {
+  border-color: var(--yellow, #f9e2af);
+}
+
+.fs-chip .fs-name {
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fs-chip b {
+  background: var(--surface2, #313244);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.fs-chip small {
+  color: var(--fg2, #a6adc8);
+  font-variant-numeric: tabular-nums;
+}
+
+.fs-status {
+  display: grid;
+  grid-template-columns: 0.9fr 1.3fr 0.9fr 0.9fr;
+  gap: 6px;
+}
+
+.fs-tile {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 5px 4px 6px;
+  border-radius: 12px;
+  background: var(--surface1, #181825);
+  border: 1px solid var(--border, #45475a);
+}
+
+.fs-tile small {
+  font-size: .62rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--fg2, #a6adc8);
+  white-space: nowrap;
+}
+
+.fs-tile b {
+  font-size: 1.05rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fs-t-lv b {
+  color: var(--accent, #89b4fa);
+}
+
+.fs-t-pts b {
+  color: #ffd60a;
+}
+
+.fs-t-bn b {
+  color: #9bf2c8;
+}
+
+@media (min-width: 700px) {
+  .fs-tile b {
+    font-size: 1.25rem;
+  }
+}
+
+.fs-board {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 30%, #4a2a9e 0%, #2b1668 38%, #120b33 100%);
+  border: 1px solid var(--border, #45475a);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.fs-foot {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fs-tools {
+  display: flex;
+  gap: 8px;
+}
+
+.fs-tools button,
+.fs-snd {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.fs-tools button {
+  border: 2px solid rgba(255, 255, 255, .22);
+  background: linear-gradient(180deg, #38d6c1, #1a9d92);
+  color: #fff;
+  box-shadow: 0 3px 0 #11675f;
+  transition: transform .08s;
+}
+
+.fs-tools button:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #11675f;
+}
+
+.fs-tools button:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+.fs-snd {
+  background: var(--surface2, #313244);
+  color: var(--fg, #cdd6f4);
+  border: 1px solid var(--border, #45475a);
+  opacity: .9;
+}
+
+.fs-snd:hover {
+  opacity: 1;
+}
+
+.fs-load {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #c9bdf5;
+  font-size: .9rem;
+  text-align: center;
+  padding: 20px;
+}
+
+/* ── Overlays ─────────────────────────────────────────────────────────────── */
+.fs-over,
+.fs-confirm,
+.fs-wait,
+.fs-banner {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  border-radius: 16px;
+}
+
+.fs-over,
+.fs-confirm {
+  background: rgba(8, 4, 24, .6);
+  backdrop-filter: blur(4px);
+}
+
+.fs-wait {
+  background: rgba(8, 4, 24, .45);
+}
+
+.fs-banner {
+  z-index: 4;
+  background: rgba(8, 4, 24, .35);
+}
+
+.fs-card,
+.fs-banner-card {
+  width: 100%;
+  max-width: 460px;
+  max-height: 100%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
+  border-radius: 16px;
+  background: var(--surface1, #181825);
+  border: 1px solid var(--border, #45475a);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, .5);
+  text-align: center;
+}
+
+.fs-banner-card {
+  align-items: stretch;
+  width: auto;
+  min-width: 220px;
+  background: rgba(24, 14, 60, .86);
+  animation: fs-pop .35s ease-out;
+}
+
+.fs-stars {
+  font-size: 2.4rem;
+  letter-spacing: 6px;
+  color: #ffd60a;
+  text-shadow: 0 2px 12px rgba(255, 214, 10, .6);
+}
+
+.fs-gain {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #9bf2c8;
+}
+
+@keyframes fs-pop {
+  from { transform: scale(.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.fs-card h2 {
+  font-size: 1.15rem;
+}
+
+.fs-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.fs-row {
+  display: grid;
+  grid-template-columns: 22px 30px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--surface2, #313244);
+  font-size: .85rem;
+}
+
+.fs-row.win {
+  box-shadow: inset 0 0 0 2px var(--yellow, #f9e2af);
+}
+
+.fs-row .n {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.fs-row small {
+  color: var(--fg2, #a6adc8);
+}
+
+.fs-row b {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.fs-acts {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.fs-btn {
+  background: var(--surface2, #313244);
+  color: var(--fg, #cdd6f4);
+  border: 1px solid var(--border, #45475a);
+  border-radius: 9px;
+  padding: 8px 14px;
+  font-size: .85rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.fs-btn.go {
+  background: var(--accent, #89b4fa);
+  color: #1e1e2e;
+  border-color: var(--accent, #89b4fa);
+}
+
+/* ── Lobby setup ──────────────────────────────────────────────────────────── */
+.fs-setup {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 12px;
+  align-items: center;
+  font-size: .88rem;
+}
+
+.fs-setup label {
+  color: var(--fg2, #a6adc8);
+}
+
+.fs-setup select {
+  background: var(--surface2, #313244);
+  color: var(--fg, #cdd6f4);
+  border: 1px solid var(--border, #45475a);
+  border-radius: 8px;
+  padding: 7px 9px;
+  font-size: .88rem;
+  font-family: inherit;
+}
+
+.fs-hint {
+  grid-column: 1 / -1;
+  color: var(--fg2, #a6adc8);
+  font-size: .8rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 560px) {
+  .fs-players {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .fs-chip {
+    flex: none;
+    font-size: .8rem;
+  }
+  .fs-chip .fs-name {
+    max-width: 72px;
+  }
+}
+
+/* The speed bonus melting away. */
+.fs-bar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--surface2, #313244);
+  overflow: hidden;
+  margin-top: -3px;
+}
+
+.fs-bar i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: #9bf2c8;
+  transform-origin: left;
+  transition: transform .25s linear;
+}
+
+.fs-bar i.low {
+  background: var(--yellow, #f9e2af);
+}
+
+.fs-bd {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: .9rem;
+}
+
+.fs-bd div {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.fs-bd span {
+  color: var(--fg2, #a6adc8);
+}
+
+.fs-toast {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  transform: translateX(-50%);
+  z-index: 6;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(24, 14, 60, .92);
+  border: 1px solid rgba(255, 255, 255, .2);
+  font-size: .85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: fs-pop .25s ease-out;
+}

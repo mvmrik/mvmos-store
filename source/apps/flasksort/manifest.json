@@ -1,0 +1,169 @@
+{
+  "id": "flasksort",
+  "name": "Flask Sort",
+  "name_i18n": {
+    "en": "Flask Sort",
+    "bg": "Подреди колбите",
+    "de": "Flaschen sortieren",
+    "es": "Ordena los frascos",
+    "fr": "Trie les flacons",
+    "ja": "フラスコ整理",
+    "pt-BR": "Organize os frascos",
+    "ru": "Разлей по колбам",
+    "zh-CN": "整理试管"
+  },
+  "icon": "🧪",
+  "icon_image": "icon.svg",
+  "category": "Games",
+  "tags": [
+    "puzzle",
+    "sorting",
+    "3d",
+    "multiplayer",
+    "games"
+  ],
+  "version": "1.0.0",
+  "min_core_version": "1.16.0",
+  "description": "Pour the liquids until every flask holds a single colour. A game runs through 100 levels that grow harder, from two colours in small flasks to twenty colours in tall ones, alone or racing friends through the same levels.",
+  "entry": "main.js",
+  "multiplayer": true,
+  "max_players": 6,
+  "themed": true,
+  "public_directory": false,
+  "gamehub": {
+    "category": "puzzle",
+    "description": {
+      "en": "Pour liquids between glass flasks until each holds one colour – endless levels alone, or a race through the same levels with friends.",
+      "bg": "Прелявай течности между стъклени колби, докато във всяка остане един цвят – безкрайни нива сам или състезание с приятели през едни и същи нива.",
+      "de": "Gieße Flüssigkeiten zwischen Glasflaschen um, bis jede nur eine Farbe enthält – endlose Level allein oder ein Wettlauf mit Freunden.",
+      "es": "Vierte líquidos entre frascos de cristal hasta que cada uno tenga un solo color: niveles infinitos en solitario o una carrera con amigos.",
+      "fr": "Verse des liquides entre des flacons en verre jusqu’à ce que chacun n’ait qu’une couleur : niveaux sans fin en solo ou course entre amis.",
+      "ja": "ガラスのフラスコ間で液体を注ぎ、各フラスコを1色にそろえよう。ひとりで終わりのないレベルに挑戦したり、友達と競争したりできます。",
+      "pt-BR": "Despeje líquidos entre frascos de vidro até que cada um tenha uma só cor: níveis infinitos sozinho ou uma corrida com amigos.",
+      "ru": "Переливай жидкости между стеклянными колбами, пока в каждой не останется один цвет: бесконечные уровни в одиночку или гонка с друзьями.",
+      "zh-CN": "在玻璃试管之间倒液体，直到每个试管只剩一种颜色：单人无尽关卡，或与朋友竞速。"
+    },
+    "score": {
+      "label": {
+        "en": "Points",
+        "bg": "Точки",
+        "de": "Punkte",
+        "es": "Puntos",
+        "fr": "Points",
+        "ja": "ポイント",
+        "pt-BR": "Pontos",
+        "ru": "Очки",
+        "zh-CN": "得分"
+      }
+    },
+    "ranking": "score",
+    "metrics": {
+      "level": {
+        "label": {
+          "en": "Level reached",
+          "bg": "Достигнато ниво",
+          "de": "Erreichtes Level",
+          "es": "Nivel alcanzado",
+          "fr": "Niveau atteint",
+          "ja": "到達レベル",
+          "pt-BR": "Nível alcançado",
+          "ru": "Достигнутый уровень",
+          "zh-CN": "到达关卡"
+        },
+        "type": "number",
+        "better": "high",
+        "total": false
+      },
+      "cleared": {
+        "label": {
+          "en": "Levels cleared",
+          "bg": "Минати нива",
+          "de": "Geschaffte Level",
+          "es": "Niveles superados",
+          "fr": "Niveaux réussis",
+          "ja": "クリアしたレベル",
+          "pt-BR": "Níveis concluídos",
+          "ru": "Пройдено уровней",
+          "zh-CN": "通过的关卡"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "perfect": {
+        "label": {
+          "en": "Levels at par",
+          "bg": "Нива в рамките на нормата",
+          "de": "Level im Par",
+          "es": "Niveles en par",
+          "fr": "Niveaux dans le par",
+          "ja": "目標内のレベル",
+          "pt-BR": "Níveis no par",
+          "ru": "Уровни в норме",
+          "zh-CN": "达标关卡"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "moves": {
+        "label": {
+          "en": "Moves",
+          "bg": "Ходове",
+          "de": "Züge",
+          "es": "Movimientos",
+          "fr": "Coups",
+          "ja": "手数",
+          "pt-BR": "Jogadas",
+          "ru": "Ходы",
+          "zh-CN": "步数"
+        },
+        "type": "number"
+      },
+      "undos": {
+        "label": {
+          "en": "Undos",
+          "bg": "Върнати ходове",
+          "de": "Rückgängig",
+          "es": "Deshacer",
+          "fr": "Annulations",
+          "ja": "元に戻した回数",
+          "pt-BR": "Desfeitos",
+          "ru": "Отменено ходов",
+          "zh-CN": "撤销次数"
+        },
+        "type": "number",
+        "better": "low"
+      },
+      "colors": {
+        "label": {
+          "en": "Most colours",
+          "bg": "Най-много цветове",
+          "de": "Meiste Farben",
+          "es": "Más colores",
+          "fr": "Plus de couleurs",
+          "ja": "最大色数",
+          "pt-BR": "Mais cores",
+          "ru": "Макс. цветов",
+          "zh-CN": "最多颜色"
+        },
+        "type": "number",
+        "better": "high",
+        "total": false
+      },
+      "hints": {
+        "label": {
+          "en": "Hints used",
+          "bg": "Използвани подсказки",
+          "de": "Verwendete Hinweise",
+          "es": "Pistas usadas",
+          "fr": "Indices utilisés",
+          "ja": "使ったヒント",
+          "pt-BR": "Dicas usadas",
+          "ru": "Использовано подсказок",
+          "zh-CN": "使用的提示"
+        },
+        "type": "number",
+        "better": "low"
+      }
+    }
+  }
+}

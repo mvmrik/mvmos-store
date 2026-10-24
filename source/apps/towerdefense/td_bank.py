@@ -41,6 +41,11 @@ ENERGY_LEVEL = {"fring.n": 2, "tesla.n": 2}
 # Price of a unit of energy: the first unit, and the growth with each unit the
 # tower already has.
 ENERGY_PRICE = [8, 1.03]
+# Buying several units at once is cheaper than one at a time, and the more at
+# once the cheaper each is: the price of n units is the sum of their single
+# prices times 1 - 0.0225 * (n - 1), never below 0.8. Each price grows by 3 %
+# a unit, so without this a bundle of ten would cost more a unit than five.
+ENERGY_BULK = [0.0225, 0.8]
 
 # key -> [price of the first level, price growth per level, last level].
 # None means there is no last level: only things that physically run out keep
@@ -84,7 +89,7 @@ def catalogue() -> dict:
         "extras":   EXTRAS,
         "upgrades": UPGRADES,
         "perm_factor": PERM_FACTOR,
-        "energy": {"base": ENERGY_BASE, "level": ENERGY_LEVEL, "price": ENERGY_PRICE},
+        "energy": {"base": ENERGY_BASE, "level": ENERGY_LEVEL, "price": ENERGY_PRICE, "bulk": ENERGY_BULK},
     }
 
 
@@ -105,9 +110,15 @@ def energy_used(b: dict) -> int:
     return sum(module_energy(k, b["lv"]) for k in b["own"] if k not in b["off"])
 
 
+def energy_bulk(n: int) -> float:
+    """What share of the single prices a purchase of n units costs."""
+    return max(ENERGY_BULK[1], 1 - ENERGY_BULK[0] * (max(1, n) - 1))
+
+
 def energy_price(units_have: int, n: int = 1) -> int:
     """Permanent price of the next n units when the tower has units_have."""
-    return sum(perm_price(ENERGY_PRICE[0], ENERGY_PRICE[1], units_have + i) for i in range(n))
+    total = sum(perm_price(ENERGY_PRICE[0], ENERGY_PRICE[1], units_have + i) for i in range(n))
+    return int(math.floor(total * energy_bulk(n) / 50 + 0.5)) * 50
 
 
 def fresh_build() -> dict:
