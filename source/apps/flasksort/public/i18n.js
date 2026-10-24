@@ -12,7 +12,7 @@
   var STRINGS = {
     en: {
       fs_title: 'Flask Sort',
-      fs_tagline: 'Pour the liquids until every flask holds a single colour. Start with a few flasks on a shelf and keep going through levels that never end, or race friends through the same levels.',
+      fs_tagline: 'Pour the liquids until every flask holds a single colour. Play through one hundred levels that grow harder, alone or racing friends through the same levels.',
       fs_setup_levels: 'Levels to play',
       fs_levels_opt: '{n} levels',
       fs_setup_hint: 'Everyone plays the same levels, each at their own pace, up to the level you choose. Points work as when playing alone, and when everyone has finished the most points win.',
@@ -67,7 +67,7 @@
     },
     bg: {
       fs_title: 'Подреди колбите',
-      fs_tagline: 'Прелявай течностите, докато във всяка колба остане един цвят. Започни с няколко колби на рафт и продължавай през нива, които никога не свършват, или се състезавай с приятели през едни и същи нива.',
+      fs_tagline: 'Прелявай течностите, докато във всяка колба остане един цвят. Мини през сто нива, които стават все по-трудни – сам или в състезание с приятели през едни и същи нива.',
       fs_setup_levels: 'Нива за игра',
       fs_levels_opt: '{n} нива',
       fs_setup_hint: 'Всички играят едни и същи нива със своето темпо до избраното ниво. Точките са както при игра сам, а когато всички приключат, печели този с най-много точки.',
@@ -122,7 +122,7 @@
     },
     de: {
       fs_title: 'Flaschen sortieren',
-      fs_tagline: 'Gieße die Flüssigkeiten um, bis jede Flasche nur noch eine Farbe enthält. Beginne mit wenigen Flaschen im Regal und spiele endlose Level oder tritt mit Freunden in denselben Leveln an.',
+      fs_tagline: 'Gieße die Flüssigkeiten um, bis jede Flasche nur noch eine Farbe enthält. Spiele hundert immer schwerere Level, allein oder im Wettlauf mit Freunden durch dieselben Level.',
       fs_setup_levels: 'Zu spielende Level',
       fs_levels_opt: '{n} Level',
       fs_setup_hint: 'Alle spielen dieselben Level in ihrem eigenen Tempo bis zum gewählten Level. Die Punkte funktionieren wie im Einzelspiel; wenn alle fertig sind, gewinnt, wer die meisten Punkte hat.',
@@ -177,7 +177,7 @@
     },
     es: {
       fs_title: 'Ordena los frascos',
-      fs_tagline: 'Vierte los líquidos hasta que cada frasco tenga un solo color. Empieza con pocos frascos en una estantería y sigue por niveles que nunca terminan, o compite con amigos en los mismos niveles.',
+      fs_tagline: 'Vierte los líquidos hasta que cada frasco tenga un solo color. Juega cien niveles cada vez más difíciles, solo o compitiendo con amigos en los mismos niveles.',
       fs_setup_levels: 'Niveles a jugar',
       fs_levels_opt: '{n} niveles',
       fs_setup_hint: 'Todos juegan los mismos niveles, cada uno a su ritmo, hasta el nivel elegido. Los puntos funcionan como en solitario y, cuando todos terminan, gana quien tenga más puntos.',
@@ -232,7 +232,7 @@
     },
     fr: {
       fs_title: 'Trie les flacons',
-      fs_tagline: 'Verse les liquides jusqu’à ce que chaque flacon ne contienne plus qu’une couleur. Commence avec quelques flacons sur une étagère et enchaîne des niveaux sans fin, ou affronte tes amis sur les mêmes niveaux.',
+      fs_tagline: 'Verse les liquides jusqu’à ce que chaque flacon ne contienne plus qu’une couleur. Enchaîne cent niveaux de plus en plus difficiles, seul ou en course avec des amis sur les mêmes niveaux.',
       fs_setup_levels: 'Niveaux à jouer',
       fs_levels_opt: '{n} niveaux',
       fs_setup_hint: 'Tout le monde joue les mêmes niveaux, chacun à son rythme, jusqu’au niveau choisi. Les points fonctionnent comme en solo et, quand tout le monde a fini, celui qui a le plus de points gagne.',
@@ -287,7 +287,7 @@
     },
     ja: {
       fs_title: 'フラスコ整理',
-      fs_tagline: '液体を注ぎ分けて、すべてのフラスコを1色にそろえよう。棚に並んだ少数のフラスコから始めて、終わりのないレベルに挑戦したり、友達と同じレベルで競争したりできます。',
+      fs_tagline: '液体を注ぎ分けて、すべてのフラスコを1色にそろえよう。だんだん難しくなる100のレベルを、ひとりで、または友達と同じレベルで競争しながら遊べます。',
       fs_setup_levels: 'プレイするレベル数',
       fs_levels_opt: '{n} レベル',
       fs_setup_hint: '全員が選んだレベルまで、同じレベルを自分のペースで進めます。得点はひとりのときと同じで、全員が終わったら最も得点の高い人が勝ちです。',
@@ -342,7 +342,7 @@
     },
     'pt-BR': {
       fs_title: 'Organize os frascos',
-      fs_tagline: 'Despeje os líquidos até que cada frasco tenha uma só cor. Comece com poucos frascos numa prateleira e siga por níveis sem fim, ou dispute com amigos nos mesmos níveis.',
+      fs_tagline: 'Despeje os líquidos até que cada frasco tenha uma só cor. Jogue cem níveis cada vez mais difíceis, sozinho ou disputando com amigos nos mesmos níveis.',
       fs_setup_levels: 'Níveis a jogar',
       fs_levels_opt: '{n} níveis',
       fs_setup_hint: 'Todos jogam os mesmos níveis, cada um no seu ritmo, até o nível escolhido. Os pontos funcionam como no modo solo e, quando todos terminam, vence quem tiver mais pontos.',
@@ -397,7 +397,7 @@
     },
     ru: {
       fs_title: 'Разлей по колбам',
-      fs_tagline: 'Переливай жидкости, пока в каждой колбе не останется один цвет. Начни с нескольких колб на полке и проходи бесконечные уровни или соревнуйся с друзьями на одних и тех же уровнях.',
+      fs_tagline: 'Переливай жидкости, пока в каждой колбе не останется один цвет. Пройди сто всё более сложных уровней – в одиночку или наперегонки с друзьями на одних и тех же уровнях.',
       fs_setup_levels: 'Сколько уровней играть',
       fs_levels_opt: '{n} ур.',
       fs_setup_hint: 'Все играют одни и те же уровни в своём темпе до выбранного уровня. Очки считаются как в одиночной игре, а когда все закончат, побеждает тот, у кого больше очков.',
@@ -452,7 +452,7 @@
     },
     'zh-CN': {
       fs_title: '整理试管',
-      fs_tagline: '把液体倒来倒去，直到每个试管只剩一种颜色。从架子上的几个试管开始，挑战永无止境的关卡，或与朋友在相同关卡中竞速。',
+      fs_tagline: '把液体倒来倒去，直到每个试管只剩一种颜色。通关一百个越来越难的关卡，可独自游玩，也可与朋友在相同关卡中竞速。',
       fs_setup_levels: '游戏关卡数',
       fs_levels_opt: '{n} 关',
       fs_setup_hint: '所有人在各自的节奏下玩相同的关卡，直到所选的关卡。得分规则与单人相同，所有人完成后得分最高者获胜。',

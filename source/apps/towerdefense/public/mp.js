@@ -501,7 +501,8 @@
     clearTimeout(_bankTimer);
     _b = _copyBuild(_perm);
     _fitEnergy(_b);
-    _tower = { hp: _tuning.tower_hp, maxHp: _tuning.tower_hp, hit: 0 };
+    // The integrity bought in the permanent shop counts from the first second.
+    _tower = { hp: _maxHp(), maxHp: _maxHp(), hit: 0 };
     _enemies = []; _shots = []; _enemyShots = []; _mines = []; _lobs = [];
     _particles = []; _blasts = [];
     _beams = []; _soldiers = []; _drones = []; _bolts = []; _soldierCd = 1; _droneCd = 1.5;

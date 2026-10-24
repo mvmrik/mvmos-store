@@ -170,6 +170,7 @@
     setLevel(sm.you, true);
     paintPlayers();
     _ready = true;
+    paintTools();                      // restart and hint are there from the first move
     const q = _queue; _queue = [];
     q.forEach(apply);
     if (M.done) showWait();
@@ -448,12 +449,12 @@
     el.board.appendChild(b);
     b.querySelector('[data-next]').onclick = () => proceed(m);
     const fin = b.querySelector('[data-finish]');
-    if (fin) fin.onclick = () => {
-      if (!confirm(_t('fs_finish_q'))) return;
+    if (fin) fin.onclick = () => confirmBox(_t('fs_finish_q'), _t('fs_finish'), () => {
       fin.disabled = true;
+      hideBanner();                      // the result of the game takes its place
       M.quit = true;
       mp.send({ type: 'fs_quit', seq: ++_seq });
-    };
+    });
   }
   function hideBanner() { const b = el.board && el.board.querySelector('.fs-banner'); if (b) b.remove(); }
 

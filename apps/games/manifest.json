@@ -77,9 +77,9 @@
       "name": "Tower Defense",
       "icon": "🏰",
       "category": "Games",
-      "version": "1.5.0",
+      "version": "1.5.1",
       "description": "Defend the tower in the middle against endless waves. Between waves spend your coins on weapons, rings, energy and upgrades, and grow stronger with every game in the permanent shop.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/towerdefense-1.5.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/towerdefense-1.5.1.zip",
       "tags": [
         "tower defense",
         "strategy",
@@ -241,7 +241,7 @@
       "name": "Flask Sort",
       "icon": "🧪",
       "category": "Games",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "description": "Pour the liquids until every flask holds a single colour. A game runs through 100 levels that grow harder, from two colours in small flasks to twenty colours in tall ones, alone or racing friends through the same levels.",
       "tags": [
         "puzzle",
@@ -251,7 +251,7 @@
         "games"
       ],
       "min_core_version": "1.16.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/flasksort-1.0.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/flasksort-1.0.1.zip",
       "name_i18n": {
         "en": "Flask Sort",
         "bg": "Подреди колбите",

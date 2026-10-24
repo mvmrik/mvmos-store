@@ -22,7 +22,9 @@ mvmOS.registerApp({
   launch() {
     window.GameLauncher.open({
       id: 'flasksort',
-      name: () => t('fs_title'),
+      // The window is made before the game's own strings are loaded the first
+      // time, so until then the name is the plain one.
+      name: () => { const n = t('fs_title'); return n === 'fs_title' ? 'Flask Sort' : n; },
       icon: '🧪',
       // Resolved lazily: the launcher merges this app's string table
       // (public/i18n.js) before it renders.

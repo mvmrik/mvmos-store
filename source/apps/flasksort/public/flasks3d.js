@@ -306,7 +306,9 @@ export function createFlasks(THREE, host, o) {
     probe.aspect = w / h;
     probe.updateProjectionMatrix();
     let best = null;
-    for (let rows = n > 16 ? 3 : 1; rows <= Math.min(n, 6); rows++) {
+    // A phone held upright gets at least three rows; a wide screen takes the
+    // arrangement that makes the flasks biggest.
+    for (let rows = n > 16 && probe.aspect < 1.2 ? 3 : 1; rows <= Math.min(n, 6); rows++) {
       const sl = shelfPositions(n, rows);
       const pos = sl.map(s => s.p);
       const pts = boxPoints(pos, 0.85);
