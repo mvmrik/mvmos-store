@@ -251,71 +251,13 @@ def _parking_move(start, cap, avoid):
     return None if best is None else (best[1], best[2], best[3])
 
 
-def _bfs_optimum(start, cap, limit=2500):
-    """The fewest pours that finish the level, when it can be found: a search of
-    every position, with any pour allowed the way a player may make it. Returns
-    None when the level is too big to search in full."""
-    s = tuple(tuple(t) for t in start)
-    seen = {_state_key(s)}
-    frontier = [s]
-    depth = 0
-    nodes = 0
-    while frontier:
-        nxt = []
-        for cur in frontier:
-            if _solved(cur, cap):
-                return depth
-            nodes += 1
-            if nodes > limit:
-                return None
-            for a, ta in enumerate(cur):
-                if not ta:
-                    continue
-                c, k = _top_run(ta)
-                for b, tb in enumerate(cur):
-                    if a == b or len(tb) >= cap:
-                        continue
-                    cnt = min(k, cap - len(tb))
-                    nt = list(cur)
-                    nt[a] = ta[:-cnt]
-                    nt[b] = tb + (c,) * cnt
-                    nt = tuple(nt)
-                    key = _state_key(nt)
-                    if key in seen:
-                        continue
-                    seen.add(key)
-                    nxt.append(nt)
-        frontier = nxt
-        depth += 1
-    return None
-
-
-def _greedy_length(start, cap, limit=400):
-    """How many pours a sensible player needs: the best-looking pour every time
-    (see _move_quality), never going back to a position already seen. None if it
-    does not finish."""
-    cur = tuple(tuple(t) for t in start)
-    seen = {_state_key(cur)}
-    for moves in range(limit):
-        if _solved(cur, cap):
-            return moves
-        best = None
-        for a, b, _, cnt in _moves(cur, cap):
-            nt = list(cur)
-            c = nt[a][-1]
-            nt[a] = nt[a][:-cnt]
-            nt[b] = nt[b] + (c,) * cnt
-            nt = tuple(nt)
-            if _state_key(nt) in seen:
-                continue
-            q = _move_quality(cur, cap, a, b, cnt)
-            if best is None or q > best[0]:
-                best = (q, nt)
-        if best is None:
-            return None
-        cur = best[1]
-        seen.add(_state_key(cur))
-    return None
+def count_layers(tubes) -> int:
+    """Colour layers in a deal: neighbouring doses of one colour are one layer."""
+    n = 0
+    for t in tubes:
+        if t:
+            n += 1 + sum(1 for i in range(1, len(t)) if t[i] != t[i - 1])
+    return n
 
 
 def make_level(seed: str, level: int) -> dict:
@@ -339,18 +281,13 @@ def make_level(seed: str, level: int) -> dict:
         # undo or restart, so the last deal stands with an estimated par.
         tubes = cand
         length = round(n * cap * 0.8)
-    # Par is what a good player can do. Where the level is small enough the
-    # fewest possible pours are worked out exactly, and that is par with nothing
-    # added: it is easy to match, and beating it is not possible. On bigger
-    # levels the best of the solver's way and a sensible player's way stands in
-    # for the minimum, with a tenth added, since it is not the true minimum.
-    exact = _bfs_optimum(tubes, cap)
-    if exact is not None:
-        par = max(1, exact)
-    else:
-        sensible = _greedy_length(tubes, cap)
-        best = min(x for x in (length, sensible) if x)
-        par = max(n, -(-best * 11 // 10))
+    # Par is the number of colour layers in the deal, counting the bottom one of
+    # every flask: a pour moves one top layer, so that many pours is about what
+    # a sensible player needs, with room to spare for the times a bottom layer
+    # has to move or a dose is parked. It follows from the deal alone, the same
+    # for every player and every level, so it can be worked out and checked by
+    # anyone.
+    par = max(1, count_layers(tubes))
     return {"level": level, "n": n, "cap": cap, "tubes": tubes, "par": par}
 
 
@@ -364,13 +301,13 @@ def level_score(n: int, cap: int, par: int, moves: int, elapsed: float):
     (as many seconds a move as there are doses in a flask, for the moves of
     par), so a quick player always gets a little more.
     Par: like golf, paid in flasks. Finishing in par moves earns the price of
-    one flask, one move under it two flasks, two under it three, and so on;
-    being over par costs nothing."""
+    one flask, one move under it two flasks, two or more under it three flasks
+    (the most); being over par costs nothing."""
     flask = cap * DOSE_POINTS
     base = n * flask
     speed = int(max(0.0, level_allow(par, cap) - elapsed))
     diff = par - moves
-    under = flask * (1 + diff) if diff >= 0 else 0
+    under = flask * min(3, 1 + diff) if diff >= 0 else 0
     return base, speed, under
 
 

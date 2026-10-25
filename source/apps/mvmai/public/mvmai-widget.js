@@ -643,7 +643,28 @@
       var usageFetchedAt = 0;
       var usageRequest = 0;
       var usageVisibleIndex = 0;
-      var usageStore = {};          // the last good reading per account, kept when a refresh fails
+      // The last good reading per account: kept when a refresh fails, and kept in
+      // the browser between visits, so the meter is there from the first moment of
+      // a chat instead of appearing only when the first reading arrives.
+      var USAGE_SAVED = 'mvmai_usage_v1';
+      function loadUsageStore() {
+        var out = {};
+        try {
+          var raw = JSON.parse(localStorage.getItem(USAGE_SAVED) || '{}');
+          Object.keys(raw).forEach(function (k) {
+            if (raw[k] && raw[k].data && Date.now() - raw[k].at < 86400000) out[k] = raw[k].data;
+          });
+        } catch (_) {}
+        return out;
+      }
+      function saveUsage(key, data) {
+        try {
+          var raw = JSON.parse(localStorage.getItem(USAGE_SAVED) || '{}');
+          raw[key] = {at: Date.now(), data: data};
+          localStorage.setItem(USAGE_SAVED, JSON.stringify(raw));
+        } catch (_) {}
+      }
+      var usageStore = loadUsageStore();
       var usageDisplayKey = null;
       var histBtn = root.querySelector('.mvmai-hist-btn');
       var newChatBtn = root.querySelector('.mvmai-new-chat');
@@ -786,7 +807,7 @@
           if (request !== usageRequest || provider !== currentUsageProvider() ||
               model !== (provider === 'gemini-cli' ? currentUsageModel() : '') || !root.isConnected) return;
           usageData = data.__status === 200 ? data : {unavailable: true};
-          if (data.__status === 200 && !data.unavailable) usageStore[provider + '|' + model] = data;
+          if (data.__status === 200 && !data.unavailable) { usageStore[provider + '|' + model] = data; saveUsage(provider + '|' + model, data); }
           refreshComposer();
         }).catch(function () {
           if (request !== usageRequest || provider !== currentUsageProvider() ||

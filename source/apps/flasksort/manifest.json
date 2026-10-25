@@ -22,7 +22,7 @@
     "multiplayer",
     "games"
   ],
-  "version": "1.0.1",
+  "version": "1.0.2",
   "min_core_version": "1.16.0",
   "description": "Pour the liquids until every flask holds a single colour. A game runs through 100 levels that grow harder, from two colours in small flasks to twenty colours in tall ones, alone or racing friends through the same levels.",
   "entry": "main.js",
