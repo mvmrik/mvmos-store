@@ -1139,6 +1139,9 @@ async def room_ws(websocket: WebSocket, room_id: str):
             "max_players": room["max_players"],
             "players":     _roster_public(room),
             "saved_state": _saved_client(room) if pid == room["host_id"] else None,
+            # The lobby of a room made to continue a saved game says so, so a game
+            # need not ask for what the save already holds (its difficulty, say).
+            "resume":      bool(room.get("resume")) and room["status"] == "lobby",
         })
         await _broadcast_roster(room)
 

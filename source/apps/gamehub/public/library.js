@@ -72,7 +72,8 @@
     const st = document.createElement('style');
     st.id = 'gl-style';
     st.textContent = `
-    .gl-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .gl-bar{display:flex;gap:8px;align-items:center}
+    .gl-bar select{flex:1 1 0;min-width:0}
     .gl-bar select,.gl-search{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--fg);padding:6px 10px;font-size:.82rem;font-family:inherit;max-width:100%}
     .gl-search{width:100%;padding:9px 12px;font-size:.9rem;outline:none}
     .gl-search:focus{border-color:var(--accent)}

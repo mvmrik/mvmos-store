@@ -1,0 +1,139 @@
+{
+  "id": "sudoku",
+  "name": "Sudoku",
+  "name_i18n": {
+    "en": "Sudoku",
+    "bg": "Судоку",
+    "de": "Sudoku",
+    "es": "Sudoku",
+    "fr": "Sudoku",
+    "ja": "数独",
+    "pt-BR": "Sudoku",
+    "ru": "Судоку",
+    "zh-CN": "数独"
+  },
+  "icon": "🧩",
+  "icon_image": "icon.svg",
+  "category": "Games",
+  "tags": [
+    "puzzle",
+    "numbers",
+    "multiplayer",
+    "games"
+  ],
+  "version": "1.0.0",
+  "min_core_version": "1.16.0",
+  "description": "Classic Sudoku in five difficulty levels with no time limit. Every puzzle has exactly one solution, and the server checks every number. Play alone for points, with hints that cost points, or race friends on the same puzzle – the first to finish wins.",
+  "entry": "main.js",
+  "multiplayer": true,
+  "max_players": 6,
+  "themed": true,
+  "public_directory": false,
+  "gamehub": {
+    "category": "puzzle",
+    "description": {
+      "en": "Fill the grid with the numbers 1 to 9 – five difficulty levels with no time limit, alone or a race with friends on the same puzzle.",
+      "bg": "Попълни мрежата с числата от 1 до 9 – пет нива на трудност без ограничение във времето, сам или състезание с приятели по едно и също судоку.",
+      "de": "Fülle das Gitter mit den Zahlen 1 bis 9 – fünf Schwierigkeitsstufen ohne Zeitlimit, allein oder im Wettlauf mit Freunden um dasselbe Rätsel.",
+      "es": "Rellena la cuadrícula con los números del 1 al 9: cinco niveles sin límite de tiempo, en solitario o en carrera con amigos sobre el mismo sudoku.",
+      "fr": "Remplis la grille avec les chiffres de 1 à 9 : cinq niveaux sans limite de temps, en solo ou en course entre amis sur la même grille.",
+      "ja": "1から9の数字でマスを埋めよう。時間制限なしの5段階の難易度で、ひとりでも、同じ問題で友達と競争でも遊べます。",
+      "pt-BR": "Preencha a grade com os números de 1 a 9: cinco níveis sem limite de tempo, sozinho ou em corrida com amigos no mesmo sudoku.",
+      "ru": "Заполни сетку числами от 1 до 9: пять уровней без ограничения по времени, в одиночку или наперегонки с друзьями на одной головоломке.",
+      "zh-CN": "用数字1到9填满方格：五个难度等级，没有时间限制，可单人游玩，或与朋友在同一道题上竞速。"
+    },
+    "score": {
+      "label": {
+        "en": "Points",
+        "bg": "Точки",
+        "de": "Punkte",
+        "es": "Puntos",
+        "fr": "Points",
+        "ja": "ポイント",
+        "pt-BR": "Pontos",
+        "ru": "Очки",
+        "zh-CN": "得分"
+      }
+    },
+    "ranking": "score",
+    "metrics": {
+      "difficulty": {
+        "label": {
+          "en": "Difficulty level (1–5)",
+          "bg": "Ниво на трудност (1–5)",
+          "de": "Schwierigkeitsstufe (1–5)",
+          "es": "Nivel de dificultad (1–5)",
+          "fr": "Niveau de difficulté (1–5)",
+          "ja": "難易度（1〜5）",
+          "pt-BR": "Nível de dificuldade (1–5)",
+          "ru": "Уровень сложности (1–5)",
+          "zh-CN": "难度等级（1–5）"
+        },
+        "type": "number",
+        "better": "high",
+        "total": false
+      },
+      "solved": {
+        "label": {
+          "en": "Puzzles solved",
+          "bg": "Решени судокута",
+          "de": "Gelöste Rätsel",
+          "es": "Sudokus resueltos",
+          "fr": "Grilles résolues",
+          "ja": "解いた問題",
+          "pt-BR": "Sudokus resolvidos",
+          "ru": "Решено головоломок",
+          "zh-CN": "已解题目"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "time": {
+        "label": {
+          "en": "Solving time",
+          "bg": "Време за решаване",
+          "de": "Lösungszeit",
+          "es": "Tiempo de resolución",
+          "fr": "Temps de résolution",
+          "ja": "解答時間",
+          "pt-BR": "Tempo de resolução",
+          "ru": "Время решения",
+          "zh-CN": "解题用时"
+        },
+        "type": "duration",
+        "better": "low",
+        "total": false
+      },
+      "mistakes": {
+        "label": {
+          "en": "Mistakes",
+          "bg": "Грешки",
+          "de": "Fehler",
+          "es": "Errores",
+          "fr": "Erreurs",
+          "ja": "ミス",
+          "pt-BR": "Erros",
+          "ru": "Ошибки",
+          "zh-CN": "错误"
+        },
+        "type": "number",
+        "better": "low"
+      },
+      "hints": {
+        "label": {
+          "en": "Hints used",
+          "bg": "Използвани подсказки",
+          "de": "Verwendete Hinweise",
+          "es": "Pistas usadas",
+          "fr": "Indices utilisés",
+          "ja": "使ったヒント",
+          "pt-BR": "Dicas usadas",
+          "ru": "Использовано подсказок",
+          "zh-CN": "使用的提示"
+        },
+        "type": "number",
+        "better": "low"
+      }
+    }
+  }
+}

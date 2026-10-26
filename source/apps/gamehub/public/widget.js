@@ -225,6 +225,7 @@
     let _maxPlayers = 8, _settings = {};
     let _game = null;                          // { id, name, renderSetup, renderGame }
     let _savedClient = null;                   // browser half of the save we resumed from
+    let _resumeLobby = false;                  // this lobby continues a saved game
     let _saveBusy = false, _saveBtn = null, _saveOv = null, _finished = false;
     const _handlers = {};
 
@@ -305,6 +306,7 @@
           _maxPlayers = msg.max_players; _settings = msg.settings || {};
           _roster = msg.players || [];
           if (msg.saved_state) _savedClient = msg.saved_state;
+          _resumeLobby = !!msg.resume;
           if (msg.status === 'playing') _enterGame(true);
           // A finished room cannot be played again — reloading its link used to
           // land back in the lobby, where Start only answers 409.
@@ -626,6 +628,8 @@
       // Saving: savedState() is the blob this run was resumed from (null for a
       // fresh one); the rest is the exit flow, shared by every solo game.
       savedState:  () => _savedClient,
+      // True in the lobby of a room that continues a saved game.
+      isResume:    () => _resumeLobby,
       canSave, exitPrompt, saveAndExit,
       leave: () => { _closedByUs = true; if (_ws) { try { _ws.close(); } catch (e) {} } },
     };

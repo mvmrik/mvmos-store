@@ -8,7 +8,7 @@ The Games tab shows the games you added. Filter by category or sort alphabetical
 
 From Game Hub 1.17.0 on mvmOS 1.16.0, games that declare a picture icon use it in the library, game pages, history and statistics. Other games keep their emoji.
 
-Continue banners, saved games and invitations remain available from Games. A room lost during a server restart shows an explanation and a link back to Game Hub instead of reconnecting indefinitely.
+The library filters share one row, also on a phone. When you start a game while another run of it is still open, Game Hub asks whether to continue it or throw it away and start a new one; a thrown-away run is not recorded anywhere. A game continued from a saved position can tell its lobby that it is resuming, so it does not ask again for what the save already holds. Continue banners, saved games and invitations remain available from Games. A room lost during a server restart shows an explanation and a link back to Game Hub instead of reconnecting indefinitely.
 
 ## Statistics and rankings
 

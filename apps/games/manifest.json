@@ -35,9 +35,9 @@
       "name": "Game Hub",
       "icon": "🎮",
       "category": "Games",
-      "version": "1.17.0",
+      "version": "1.18.0",
       "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.17.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.18.0.zip",
       "tags": [
         "multiplayer",
         "social",
@@ -262,6 +262,33 @@
         "pt-BR": "Organize os frascos",
         "ru": "Разлей по колбам",
         "zh-CN": "整理试管"
+      }
+    },
+    {
+      "id": "sudoku",
+      "name": "Sudoku",
+      "icon": "🧩",
+      "category": "Games",
+      "version": "1.0.0",
+      "description": "Classic Sudoku in five difficulty levels with no time limit. Every puzzle has exactly one solution, and the server checks every number. Play alone for points, with hints that cost points, or race friends on the same puzzle – the first to finish wins.",
+      "tags": [
+        "puzzle",
+        "numbers",
+        "multiplayer",
+        "games"
+      ],
+      "min_core_version": "1.16.0",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/sudoku-1.0.0.zip",
+      "name_i18n": {
+        "en": "Sudoku",
+        "bg": "Судоку",
+        "de": "Sudoku",
+        "es": "Sudoku",
+        "fr": "Sudoku",
+        "ja": "数独",
+        "pt-BR": "Sudoku",
+        "ru": "Судоку",
+        "zh-CN": "数独"
       }
     }
   ]

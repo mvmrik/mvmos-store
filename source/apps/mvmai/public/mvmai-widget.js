@@ -145,6 +145,7 @@
       .mvmai-thumbs{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem}
       .mvmai-thumb{height:64px;max-width:120px;border-radius:.4rem;object-fit:cover;cursor:zoom-in;
         border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244)}
+      .mvmai-thumb.mvmai-genimg{display:block;height:auto;max-height:280px;max-width:100%;object-fit:contain}
       .mvmai-chip .mvmai-thumb{height:28px;max-width:44px;border-radius:.25rem}
       .mvmai-lightbox{position:absolute;inset:0;z-index:80;background:rgba(0,0,0,.82);display:flex;
         align-items:center;justify-content:center;padding:1rem;cursor:zoom-out}
@@ -260,18 +261,21 @@
         background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);cursor:pointer;font-size:.84rem;
         font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       .mvmai-sidebar-list{flex:1;min-height:0;overflow-y:auto;padding:.4rem}
-      .mvmai-archive-nav{padding:.35rem .55rem;border-top:1px solid var(--pub-border,#45475a);flex-shrink:0}
-      .mvmai-archive-link,.mvmai-archive-delete-all{background:none;border:0;color:var(--pub-fg2,#a6adc8);
-        cursor:pointer;font:inherit;font-size:.78rem;padding:.2rem .1rem;text-align:left}
-      .mvmai-archive-link:hover,.mvmai-archive-delete-all:hover{text-decoration:underline}
-      .mvmai-archive-delete-all{color:var(--pub-red,#f38ba8);margin-left:.4rem}
+      .mvmai-sidebar-toolbar{display:flex;align-items:center;gap:.3rem;padding:.3rem .55rem;
+        border-top:1px solid var(--pub-border,#45475a);flex-shrink:0}
+      .mvmai-toolbar-branch{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .mvmai-toolbar-branch .mvmai-sidebar-filetree-branch{padding:0}
+      .mvmai-archive-link,.mvmai-filetree-link{background:none;border:1px solid transparent;border-radius:.4rem;
+        color:var(--pub-fg2,#a6adc8);cursor:pointer;font:inherit;font-size:.78rem;padding:.2rem .4rem;white-space:nowrap}
+      .mvmai-archive-link:hover,.mvmai-filetree-link:hover,.mvmai-archive-link.active,.mvmai-filetree-link.active{
+        background:var(--pub-surface2,#313244);border-color:var(--pub-border,#45475a)}
+      .mvmai-archive-actions{padding:0 .55rem;flex-shrink:0}
+      .mvmai-archive-delete-all{background:none;border:0;color:var(--pub-red,#f38ba8);cursor:pointer;font:inherit;
+        font-size:.78rem;padding:.2rem .1rem;text-align:left}
+      .mvmai-archive-delete-all:hover{text-decoration:underline}
       .mvmai-archive-list{max-height:38%;overflow-y:auto;padding:.2rem .4rem .5rem;flex-shrink:0}
       .mvmai-archive-list[hidden]{display:none}
-      .mvmai-filetree-nav{padding:.35rem .55rem;border-top:1px solid var(--pub-border,#45475a);flex-shrink:0}
       .mvmai-filetree-nav[hidden]{display:none}
-      .mvmai-filetree-link{background:none;border:0;color:var(--pub-fg2,#a6adc8);cursor:pointer;
-        font:inherit;font-size:.78rem;padding:.2rem .1rem;text-align:left}
-      .mvmai-filetree-link:hover{text-decoration:underline}
       .mvmai-archive-notice{padding:.7rem .9rem;border-top:1px solid var(--pub-border,#45475a);
         color:var(--pub-fg2,#a6adc8);font-size:.82rem}
       .mvmai-archive-notice[hidden]{display:none}
@@ -288,6 +292,7 @@
       .mvmai-session-text{flex:1;min-width:0;position:relative;z-index:1}
       .mvmai-session-title{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       .mvmai-session-row.active .mvmai-session-title{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
+      .mvmai-session-project,.mvmai-archive-project{display:block;margin-top:.1rem;font-size:.68rem;font-weight:600;color:var(--pub-accent,#89b4fa);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       .mvmai-session-label{display:block;margin-top:.1rem;font-size:.68rem;color:var(--pub-fg2,#a6adc8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       .mvmai-session-edit{flex:1;min-width:0;padding:.28rem .4rem;border:1px solid var(--pub-accent,#89b4fa);
         border-radius:.3rem;background:var(--pub-bg,#1e1e2e);color:inherit;font:inherit;outline:none}
@@ -461,6 +466,7 @@
     var newProjectModel = null; // Confirmed choice for the next new chat.
     var projects = [];
     var activeProject = null;   // {id, name, path} — fixed at session creation
+    var viewScope = 'all';      // what the sidebar lists: 'all' chats (home), 'none' (chats without a project) or 'project'
     var sessionsCache = [];
     var projectPoll = null;
     var providerPoll = null;
@@ -580,12 +586,13 @@
             <span class="mvmai-sidebar-project-title"></span>
           </div>
           <div class="mvmai-sidebar-list"></div>
-          <div class="mvmai-archive-nav">
-            <button class="mvmai-archive-link" type="button" aria-expanded="false"></button>
-            <button class="mvmai-archive-delete-all" type="button" hidden>${esc(t('mvmai_pub_delete_all_archived'))}</button>
+          <div class="mvmai-sidebar-toolbar">
+            <span class="mvmai-toolbar-branch"></span>
+            <div class="mvmai-filetree-nav" hidden><button class="mvmai-filetree-link" type="button" aria-expanded="false"></button></div>
+            <div class="mvmai-archive-nav"><button class="mvmai-archive-link" type="button" aria-expanded="false"></button></div>
           </div>
+          <div class="mvmai-archive-actions"><button class="mvmai-archive-delete-all" type="button" hidden>${esc(t('mvmai_pub_delete_all_archived'))}</button></div>
           <div class="mvmai-archive-list" hidden></div>
-          <div class="mvmai-filetree-nav" hidden><button class="mvmai-filetree-link" type="button" aria-expanded="false"></button></div>
           <div class="mvmai-sidebar-filetree" hidden></div>
           ${me.is_admin ? `<div class="mvmai-projects-section">
             <div class="mvmai-projects-head">
@@ -1377,6 +1384,7 @@
       var filetreeLinkEl = root.querySelector('.mvmai-filetree-link');
       var sidebarFiletreeEl = root.querySelector('.mvmai-sidebar-filetree');
       var projectsSectionEl = root.querySelector('.mvmai-projects-section');
+      var branchSlotEl = root.querySelector('.mvmai-toolbar-branch');
       var filetreeExpanded = false;
       var filetreeProjectId = null;
 
@@ -1387,11 +1395,15 @@
           filetreeExpanded = false;
           lastGitSignature = '';
           sidebarFiletreeEl.innerHTML = '';
+          branchSlotEl.innerHTML = '';
         }
         filetreeNavEl.hidden = !projectId;
-        sidebarFiletreeEl.hidden = !projectId;
+        sidebarFiletreeEl.hidden = !projectId || !filetreeExpanded;
         sidebarFiletreeEl.classList.toggle('collapsed', !filetreeExpanded);
-        filetreeLinkEl.textContent = t('mvmai_pub_view_files') + ' ' + (filetreeExpanded ? '▴' : '▾');
+        filetreeLinkEl.textContent = '📁';
+        filetreeLinkEl.title = t('mvmai_pub_view_files');
+        filetreeLinkEl.setAttribute('aria-label', t('mvmai_pub_view_files'));
+        filetreeLinkEl.classList.toggle('active', filetreeExpanded);
         filetreeLinkEl.setAttribute('aria-expanded', String(filetreeExpanded));
       }
 
@@ -1410,11 +1422,17 @@
 
       function renderProjects() {
         if (!projectsListEl) return;
+        projectsListEl.innerHTML = '';
+        var noneRow = document.createElement('div');
+        noneRow.className = 'mvmai-project-row mvmai-project-none';
+        noneRow.innerHTML = '<span class="mvmai-project-row-title"></span>';
+        noneRow.querySelector('.mvmai-project-row-title').textContent = '📂 ' + t('mvmai_pub_no_project');
+        noneRow.onclick = enterNoProjectView;
+        projectsListEl.appendChild(noneRow);
         if (!projects.length) {
-          projectsListEl.innerHTML = '<div class="mvmai-no-sessions">' + esc(t('mvmai_pub_no_projects')) + '</div>';
+          projectsListEl.insertAdjacentHTML('beforeend', '<div class="mvmai-no-sessions">' + esc(t('mvmai_pub_no_projects')) + '</div>');
           return;
         }
-        projectsListEl.innerHTML = '';
         projects.forEach(function (p) {
           var row = document.createElement('div');
           row.className = 'mvmai-project-row';
@@ -1445,12 +1463,46 @@
           if (data.__status !== 200) return;
           projects = data.projects || [];
           renderProjects();
+          if (viewScope === 'all' && me.is_admin) refreshSessionList();  // project labels need the names
         });
+      }
+
+      // Header, projects list and file tree follow what the sidebar is showing.
+      function applyScopeChrome() {
+        var inScope = viewScope !== 'all';
+        sidebarProjectHeaderEl.hidden = !inScope;
+        if (viewScope === 'none') sidebarProjectHeaderEl.querySelector('.mvmai-sidebar-project-title').textContent = '📂 ' + t('mvmai_pub_no_project');
+        else if (viewScope === 'project' && activeProject) sidebarProjectHeaderEl.querySelector('.mvmai-sidebar-project-title').textContent = '📁 ' + activeProject.name;
+        if (projectsSectionEl) projectsSectionEl.hidden = inScope;
+        if (activeProject) renderInlineFileTree();
+        else { if (sidebarFiletreeEl) sidebarFiletreeEl.innerHTML = ''; syncFiletreeVisibility(); }
+        updateProjectBadge();
+      }
+
+      function enterNoProjectView() {
+        newChatView();
+        activeProject = null;
+        viewScope = 'none';
+        newProjectModel = null;
+        var modelDialog = root.querySelector('.mvmai-model-dialog');
+        if (modelDialog) modelDialog.remove();
+        applyScopeChrome();
+        sessionId = null;
+        archivedSession = false;
+        chatLabel = null;
+        chatProvider = null;
+        chatModel = null;
+        history = [];
+        if (termPanel) termPanel.setChat(null);
+        refreshComposer();
+        showWelcome();
+        refreshSessionList();
       }
 
       function enterProjectView(p) {
         newChatView();
         activeProject = p;
+        viewScope = 'project';
         api('/projects/' + encodeURIComponent(p.id) + '/open', {method: 'POST'}).then(function (data) {
           if (data.__status === 200) loadProjects();
         });
@@ -1478,6 +1530,7 @@
       function exitProjectView() {
         newChatView();
         activeProject = null;
+        viewScope = 'all';
         newProjectModel = null;
         var modelDialog = root.querySelector('.mvmai-model-dialog');
         if (modelDialog) modelDialog.remove();
@@ -1578,14 +1631,15 @@
           // Keep the visible branch/tree in place until the complete replacement
           // is ready, avoiding intermediate loading and empty-directory layouts.
           var nextTree = document.createElement('div');
+          var nextBranch = document.createElement('div');
+          nextBranch.innerHTML = canOpenGitManager
+            ? '<a href="#" class="mvmai-sidebar-filetree-branch mvmai-sidebar-filetree-branch-link">' + esc(branchLabel) + '</a>'
+            : '<div class="mvmai-sidebar-filetree-branch">' + esc(branchLabel) + '</div>';
           nextTree.innerHTML =
-            (canOpenGitManager
-              ? '<a href="#" class="mvmai-sidebar-filetree-branch mvmai-sidebar-filetree-branch-link">' + esc(branchLabel) + '</a>'
-              : '<div class="mvmai-sidebar-filetree-branch">' + esc(branchLabel) + '</div>') +
             (showInstallHint && filetreeExpanded ? '<div class="mvmai-sidebar-filetree-hint">' + esc(t('mvmai_pub_install_git_manager_hint')) + '</div>' : '') +
             '<div class="mvmai-sidebar-filetree-body"></div>';
           if (canOpenGitManager) {
-            var branchLink = nextTree.querySelector('.mvmai-sidebar-filetree-branch-link');
+            var branchLink = nextBranch.querySelector('.mvmai-sidebar-filetree-branch-link');
             var repoPath = activeProject.path;
             branchLink.addEventListener('click', function (e) {
               e.preventDefault();
@@ -1599,6 +1653,7 @@
           return ready.then(function () {
             if (!activeProject || activeProject.id !== project.id || !root.isConnected || renderId !== filetreeRenderId) return;
             sidebarFiletreeEl.replaceChildren.apply(sidebarFiletreeEl, Array.from(nextTree.childNodes));
+            branchSlotEl.replaceChildren.apply(branchSlotEl, Array.from(nextBranch.childNodes));
             lastGitSignature = signature;
           });
         }).catch(function () {
@@ -1910,8 +1965,11 @@
       }
 
       function renderArchiveList() {
-        var archived = sessionsCache.filter(function (s) { return !!s.archived_at; });
-        archiveLinkEl.textContent = t('mvmai_pub_archived') + ' (' + archived.length + ') ' + (archiveExpanded ? '▴' : '▾');
+        var archived = sessionsCache.filter(function (s) { return !!s.archived_at && inViewScope(s); });
+        archiveLinkEl.textContent = '🗃 ' + archived.length;
+        archiveLinkEl.title = t('mvmai_pub_archived') + ' (' + archived.length + ')';
+        archiveLinkEl.setAttribute('aria-label', archiveLinkEl.title);
+        archiveLinkEl.classList.toggle('active', archiveExpanded);
         archiveLinkEl.setAttribute('aria-expanded', String(archiveExpanded));
         archiveListEl.hidden = !archiveExpanded;
         archiveDeleteAllEl.hidden = !archiveExpanded || !archived.length;
@@ -1924,10 +1982,13 @@
         archived.forEach(function (s) {
           var row = document.createElement('div');
           row.className = 'mvmai-session-row' + (s.id === sessionId ? ' active' : '');
-          row.innerHTML = '<div class="mvmai-session-text"><span class="mvmai-session-title"></span></div>' +
+          row.innerHTML = '<div class="mvmai-session-text"><span class="mvmai-session-title"></span>' +
+            (viewScope === 'all' && me.is_admin ? '<span class="mvmai-session-project"></span>' : '') + '</div>' +
             '<button class="mvmai-s-btn mvmai-s-restore" title="' + esc(t('mvmai_pub_restore')) + '">↩</button>' +
             '<button class="mvmai-s-btn mvmai-s-delete" title="' + esc(t('mvmai_pub_delete')) + '">🗑</button>';
           row.querySelector('.mvmai-session-title').textContent = s.title || t('mvmai_pub_new_chat');
+          var archTag = row.querySelector('.mvmai-session-project');
+          if (archTag) archTag.textContent = projectLabel(s);
           row.onclick = function () { openSession(s.id); };
           row.querySelector('.mvmai-s-restore').onclick = function (e) {
             e.stopPropagation();
@@ -1952,9 +2013,15 @@
 
       archiveDeleteAllEl.onclick = function () {
         if (sending || !confirm(t('mvmai_pub_delete_all_archived_confirm'))) return;
-        api('/sessions/archived', {method: 'DELETE'}).then(function (data) {
+        // At home that is every archived chat; inside a project or "No project" only the ones listed there.
+        var doomed = sessionsCache.filter(function (s) { return !!s.archived_at && inViewScope(s); });
+        var removal = viewScope === 'all'
+          ? api('/sessions/archived', {method: 'DELETE'})
+          : Promise.all(doomed.map(function (s) { return api('/sessions/' + encodeURIComponent(s.id), {method: 'DELETE'}); }))
+            .then(function (results) { return {__status: results.every(function (r) { return r.__status === 200; }) ? 200 : 500}; });
+        removal.then(function (data) {
           if (data.__status !== 200) return;
-          if (archivedSession) {
+          if (archivedSession && (viewScope === 'all' || doomed.some(function (s) { return s.id === sessionId; }))) {
             sessionId = null; archivedSession = false; chatLabel = null; chatProvider = null; chatModel = null; history = [];
             if (termPanel) termPanel.setChat(null);
             refreshComposer(); showWelcome();
@@ -2075,6 +2142,16 @@
         sidebarListEl.removeEventListener('scroll', onSessionListScroll);
       };
 
+      // Chats of what the sidebar shows (home = every project), and the label saying which project one belongs to.
+      function inViewScope(s) {
+        if (viewScope === 'all') return true;
+        return viewScope === 'project' && activeProject ? s.project_id === activeProject.id : !s.project_id;
+      }
+      function projectLabel(s) {
+        var owner = s.project_id ? projects.filter(function (p) { return p.id === s.project_id; })[0] : null;
+        return owner ? '📁 ' + owner.name : '📂 ' + t('mvmai_pub_no_project');
+      }
+
       function refreshSessionList() {
         if (titleRefreshTimer) { clearTimeout(titleRefreshTimer); titleRefreshTimer = null; }
         return api('/sessions').then(function (data) {
@@ -2091,7 +2168,7 @@
             refreshComposer();
           }
           var sessions = sessionsCache.filter(function (s) {
-            return !s.archived_at && (activeProject ? s.project_id === activeProject.id : !s.project_id);
+            return !s.archived_at && inViewScope(s);
           });
           renderArchiveList();
           if (!sessions.length) {
@@ -2104,6 +2181,7 @@
             row.className = 'mvmai-session-row mvmai-session-main' + (s.id === sessionId ? ' active' : '') + (s.pinned_at ? ' pinned' : '');
             row.innerHTML =
               '<div class="mvmai-session-text"><span class="mvmai-session-title"></span>' +
+              (viewScope === 'all' && me.is_admin ? '<span class="mvmai-session-project"></span>' : '') +
               (s.label ? '<span class="mvmai-session-label"></span>' : '') + '</div>' +
               '<div class="mvmai-session-actions">' +
               '<button class="mvmai-s-btn mvmai-s-pin" type="button" title="' +
@@ -2126,6 +2204,8 @@
               }
             }
             if (s.label) row.querySelector('.mvmai-session-label').textContent = s.label;
+            var projTag = row.querySelector('.mvmai-session-project');
+            if (projTag) projTag.textContent = projectLabel(s);
             row.tabIndex = 0;
             row.setAttribute('role', 'group');
             row.setAttribute('aria-label', s.title || t('mvmai_pub_new_chat'));
@@ -2224,18 +2304,9 @@
           var pid = row && row.project_id;
           activeProject = pid ? (projects.filter(function (p) { return p.id === pid; })[0] || {id: pid, name: pid, path: ''}) : null;
           if (termPanel) termPanel.setChat(archivedSession ? null : id);
-          if (activeProject) {
-            sidebarProjectHeaderEl.hidden = false;
-            sidebarProjectHeaderEl.querySelector('.mvmai-sidebar-project-title').textContent = '📁 ' + activeProject.name;
-            if (projectsSectionEl) projectsSectionEl.hidden = true;
-            renderInlineFileTree();
-          } else {
-            sidebarProjectHeaderEl.hidden = true;
-            if (projectsSectionEl) projectsSectionEl.hidden = false;
-            if (sidebarFiletreeEl) sidebarFiletreeEl.innerHTML = '';
-            syncFiletreeVisibility();
-          }
-          updateProjectBadge();
+          if (activeProject) { if (viewScope === 'none') viewScope = 'project'; }
+          else if (viewScope === 'project') viewScope = 'all';
+          applyScopeChrome();
           if (!cached) {
             history = data.messages || [];
             listEl.innerHTML = '';
@@ -2263,6 +2334,8 @@
 
       newChatBtn.onclick = function () {
         newChatView();
+        // From home or "No project" a new chat has no project; inside a project it belongs to it.
+        if (viewScope !== 'project') { activeProject = null; applyScopeChrome(); }
         sessionId = null;
         archivedSession = false;
         newProjectModel = null;
@@ -2309,6 +2382,25 @@
         var row = document.createElement('div');
         row.className = 'mvmai-downloads';
         files.forEach(function (f) {
+          // A picture the model offers is shown as a preview that opens larger on click.
+          var ext = f.path && /\.(png|jpe?g|webp|gif)$/i.exec(f.name);
+          if (ext) {
+            var headers = {'X-Pub-Token': token};
+            if (isDesktop) headers['X-MvmAI-Surface'] = 'desktop';
+            fetch(API + '/download?path=' + encodeURIComponent(f.path), {headers: headers})
+              .then(function (r) { if (!r.ok) throw new Error('gone'); return r.blob(); })
+              .then(function (blob) {
+                var type = {png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif'}[ext[1].toLowerCase()];
+                var img = makeThumb(URL.createObjectURL(new Blob([blob], {type: type})));
+                img.classList.add('mvmai-genimg');
+                img.alt = f.name;
+                var wrap = document.createElement('div');
+                wrap.style.flex = '0 0 100%';
+                wrap.appendChild(img);
+                row.insertBefore(wrap, row.firstChild);
+                scrollDown();
+              }).catch(function () {});
+          }
           var b = document.createElement('button');
           b.type = 'button';
           b.className = 'mvmai-download';

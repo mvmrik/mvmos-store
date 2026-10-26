@@ -1,0 +1,28 @@
+{
+  "tagline": "Classic Sudoku in five levels, with no time limit – alone or racing friends.",
+  "description": "Sudoku is a number puzzle for Game Hub: fill the grid so that every row, column and 3×3 box holds the numbers 1 to 9.\n\nChoose from five difficulty levels, Easy, Medium, Hard, Expert and Master. Every puzzle is made for the game and has exactly one solution. The easier levels can be solved by pure logic, while Expert and Master make you look further ahead. There is no time limit and time never ends the game, but the clock slowly costs points, one every 10 seconds on Easy and one every 30 seconds on Master, and the time is also kept for your statistics. The board is made to be played with a mouse or keyboard on a computer and with your finger on a phone, with pencil notes, undo, erase, highlights for the row, column, box and every matching number, and a number pad that shows how many of each are left.\n\nEvery correct number scores points, from 10 on Easy up to 18 on Master. A mistake costs twice a cell's points, so guessing does not pay, and a hint fills in one cell and earns nothing for it. A hint costs the points of two cells plus a few more for every cell already filled in, so the further the puzzle has gone, the dearer it is. Solving the whole puzzle with no mistakes and no hints adds a bonus. Hints can take your points below zero. The server keeps the solution and checks every number, so nobody can send a made-up result.\n\nAlone, a game is one puzzle. Your score is recorded when you solve it; Save & exit keeps the exact position, with your notes, without recording anything.\n\nWith friends, everybody solves the same puzzle at their own pace on computers, phones and tablets in a web browser. The host chooses the level. When everybody has finished, the player with the most points wins, so guessing and rushing do not pay: a mistake costs twice a cell. A player who has finished can watch the other players' boards fill in, or leave: the result is already recorded and counts when the game ends.\n\nGame Hub records your points, level, puzzles solved, solving time, mistakes and hints, with a rating for multiplayer.",
+  "capabilities": [
+    "Five difficulty levels, from Easy to Master, with puzzles that have exactly one solution.",
+    "No time limit: time never ends the game, but it slowly costs points (every 10 seconds on Easy, every 30 on Master), and the time is kept for your statistics.",
+    "A clear, colourful board for a computer and a phone: highlights for the row, column, box and matching numbers, a number pad that counts what is left, and ripples when a row, column or box is complete.",
+    "Pencil notes that clear themselves as numbers are placed, undo for notes and mistakes, erase, and keyboard control with the number keys, arrows, N for notes and H for a hint.",
+    "Points for every correct number, more on harder levels, a bonus for solving the puzzle with no mistakes and no hints.",
+    "A hint fills in one cell, picking the easiest next step, for the points of two cells plus more for every cell already filled in, so it costs more the further you are; a mistake costs twice a cell's points.",
+    "Multiplayer for up to six players on the same puzzle: when everybody is done, the most points win, so neither guessing nor speed alone decides it.",
+    "A player who has finished sees the other players' boards live and can leave at any time; the result is already recorded.",
+    "The server keeps the solution and checks every number.",
+    "Save and exit keeps the exact position and your notes without recording anything.",
+    "Game Hub statistics for level, puzzles solved, solving time, mistakes and hints, with a rating for multiplayer."
+  ],
+  "requirements": [],
+  "integrations": [
+    {
+      "app": "gamehub",
+      "name": "Game Hub",
+      "kind": "gamehub",
+      "direction": "consumes",
+      "summary": "Rooms, turns and players run on Game Hub accounts: your profile and avatar, invitations to other players, and your sessions, statistics and rating recorded in Game Hub.",
+      "requires": "Game Hub 1.18.0 or newer installed."
+    }
+  ]
+}

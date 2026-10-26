@@ -168,10 +168,15 @@ function showDashboard() {
     if (!_token) return;
     const gamesTab = app.querySelector('.tab[data-t="games"]');
     if (!gamesTab) { clearInterval(_pollTimer); _pollTimer = null; return; }
+    // The page is drawn again only when what it shows has changed: the same
+    // invitations and games in progress need no redraw, which would flash.
+    const seen = () => _invites.map(i => i.id).join(',') + '|' + _myRooms.map(r => r.room_id).join(',');
+    const before = seen();
     await loadInvites();
+    await _loadMyRooms(true);
     gamesTab.innerHTML = `${esc(t('gl_tab_games'))}${inviteBadge()}`;
     const activeTab = app.querySelector('.tab.active');
-    if (activeTab?.dataset.t === 'games' && !app.querySelector('#d-body [data-view="detail"]')) renderGames(app.querySelector('#d-body'));
+    if (seen() !== before && activeTab?.dataset.t === 'games' && !app.querySelector('#d-body [data-view="detail"]')) renderGames(app.querySelector('#d-body').firstElementChild);
   }, 15000);
 
   app.querySelectorAll('.tab').forEach(btn => {
@@ -582,7 +587,8 @@ function _mySaveFor(gameId) {
 
 // Continue the save, or start over and lose it. Resolves to true / false /
 // null (cancelled).
-function _askSavedGame(gameId, save) {
+// `live`: the run is still open (not saved); then the new game throws it away.
+function _askSavedGame(gameId, save, live) {
   return new Promise(resolve => {
     const { name, icon, iconHTML: iconH } = _gameMeta(gameId);
     const ov = document.createElement('div');
@@ -592,10 +598,10 @@ function _askSavedGame(gameId, save) {
     box.style.cssText = 'width:100%;max-width:380px;padding:22px;text-align:center;display:flex;flex-direction:column;gap:12px';
     box.innerHTML = `
       <div style="font-size:34px;line-height:1">${iconH}</div>
-      <div style="font-weight:700;font-size:16px">${esc(t('gh_saved_game_title'))}</div>
-      <div style="font-size:13px;color:var(--fg2)">${esc(t('gh_saved_game_body', { game: name }))}</div>
+      <div style="font-weight:700;font-size:16px">${esc(t(live ? 'gh_run_title' : 'gh_saved_game_title'))}</div>
+      <div style="font-size:13px;color:var(--fg2)">${esc(t(live ? 'gh_run_body' : 'gh_saved_game_body', { game: name }))}</div>
       ${save && save.updated_at ? `<div style="font-size:11px;color:var(--fg2)">${esc(fmtDate(new Date(save.updated_at * 1000).toISOString()))}</div>` : ''}
-      <button class="btn btn-primary" data-a="resume" style="padding:9px 18px">${esc(t('gh_resume_saved'))}</button>
+      <button class="btn btn-primary" data-a="resume" style="padding:9px 18px">${esc(t(live ? 'gh_resume_run' : 'gh_resume_saved'))}</button>
       <button class="btn btn-secondary" data-a="fresh" style="padding:9px 18px">${esc(t('gh_start_fresh'))}</button>
       <button class="btn btn-secondary" data-a="cancel" style="padding:6px 12px;font-size:.8rem;border:none;background:none;color:var(--fg2)">${esc(t('gh_cancel'))}</button>`;
     ov.appendChild(box);
@@ -603,7 +609,7 @@ function _askSavedGame(gameId, save) {
     const done = v => { ov.remove(); resolve(v); };
     box.querySelector('[data-a="resume"]').onclick = () => done(true);
     box.querySelector('[data-a="fresh"]').onclick  = () => {
-      if (confirm(t('gh_start_fresh_confirm'))) done(false);
+      if (confirm(t(live ? 'gh_run_fresh_confirm' : 'gh_start_fresh_confirm'))) done(false);
     };
     box.querySelector('[data-a="cancel"]').onclick = () => done(null);
     ov.onclick = e => { if (e.target === ov) done(null); };
@@ -611,8 +617,10 @@ function _askSavedGame(gameId, save) {
 }
 
 async function renderGames(c) {
-  c.innerHTML = `<div style="display:flex;flex-direction:column;gap:16px"></div>`;
-  const sc = c.querySelector('div');
+  // Built apart and put in place at the end, so a refresh swaps the page in one
+  // go instead of emptying it while the data is on its way.
+  const sc = document.createElement('div');
+  sc.style.cssText = 'display:flex;flex-direction:column;gap:16px';
   const myId = _me.id;
   await GHLibrary.load(_token, true);
 
@@ -710,6 +718,7 @@ async function renderGames(c) {
     token: _token, cardFor,
     openStore: () => app.querySelector('.tab[data-t="store"]')?.click(),
   });
+  c.replaceChildren(sc);
 
   if (_deepLinkGame) {
     const wanted = _deepLinkGame;
@@ -723,6 +732,17 @@ async function _createGame(btn, gameId, maxPlayers, resume) {
   btn.disabled = true; btn.textContent = t('gh_creating');
   const restore = () => { btn.disabled = false; btn.textContent = label; };
   try {
+    // A solo game that is still open: continue it, or throw it away for a new one.
+    if (maxPlayers === 1 && resume == null) {
+      await _loadMyRooms(true);
+      const open = _mySoloRunFor(gameId);
+      if (open) {
+        const answer = await _askSavedGame(gameId, null, true);
+        if (answer === null) { restore(); return; }
+        if (answer) { location.href = open.play_url; return; }
+        if (!await _discardRun(open.room_id)) { restore(); alert(t('gh_error_creating')); return; }
+      }
+    }
     const body = { game_id: gameId };
     if (maxPlayers) body.max_players = maxPlayers;
     if (resume != null) body.resume = !!resume;
@@ -802,33 +822,25 @@ async function renderGameDetail(c, gameId, mpGame) {
       const mine  = mpGame ? _myRoomFor(gameId) : null;
       const solo  = mpGame ? _mySoloRunFor(gameId) : null;
       const saved = mpGame ? _mySaveFor(gameId) : null;
-      // An unfinished solo run leaves no way to start a second one: two
-      // half-played runs of the same game is a state nobody can make sense of,
-      // and the run is what the player came back for. Multiplayer is untouched
-      // by this — a match is not a thing you hold on to.
-      const soloBlocked = !!solo;
+      // Two half-played runs of the same game is a state nobody can make sense
+      // of, so starting a solo game while one is open asks first: continue it,
+      // or throw it away and start again. Multiplayer is untouched by this — a
+      // match is not a thing you hold on to.
       info.innerHTML = `
         <div style="font-size:56px;line-height:1">${iconH}</div>
         <div style="font-weight:700;font-size:20px">${esc(name)}</div>
         ${mpGame ? `
         <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
           ${mine ? `<a href="${esc(mine.play_url)}" class="btn btn-primary" style="padding:9px 20px;font-size:.95rem;text-decoration:none">▶ ${esc(t('gh_continue'))}</a>` : ''}
-          ${soloBlocked ? `<button class="btn btn-secondary" id="gd-discard" style="padding:9px 14px;font-size:.95rem" title="${esc(t('gh_discard_run'))}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><path d="M10 10v6"/><path d="M14 10v6"/></svg></button>` : ''}
-          ${soloBlocked ? '' : `<button class="btn ${isMp || mine ? 'btn-secondary' : 'btn-primary'}" id="gd-solo" style="padding:9px 20px;font-size:.95rem">${esc(isMp ? t('gh_play_solo') : saved ? t('gh_play_saved') : t('gh_play'))}</button>`}
+          <button class="btn ${isMp || mine ? 'btn-secondary' : 'btn-primary'}" id="gd-solo" style="padding:9px 20px;font-size:.95rem">${esc(isMp ? t('gh_play_solo') : saved ? t('gh_play_saved') : t('gh_play'))}</button>
           ${isMp ? `<button class="btn ${mine ? 'btn-secondary' : 'btn-primary'}" id="gd-new" style="padding:9px 20px;font-size:.95rem">${esc(t('gh_new_game'))}</button>` : ''}
         </div>
-        ${mine ? `<div style="font-size:12px;color:var(--fg2);margin-top:-4px">${esc(t(soloBlocked ? 'gh_run_in_progress_hint' : 'gh_continue_hint'))}</div>` : ''}
+        ${mine ? `<div style="font-size:12px;color:var(--fg2);margin-top:-4px">${esc(t('gh_continue_hint'))}</div>` : ''}
         ${!mine && saved ? `<div style="font-size:12px;color:var(--fg2);margin-top:-4px">${esc(t('gh_has_saved_hint'))}</div>` : ''}` : ''}`;
       tabBody.appendChild(info);
       if (mpGame) {
         info.querySelector('#gd-new')?.addEventListener('click', e => _createGame(e.target, gameId));
         info.querySelector('#gd-solo')?.addEventListener('click', e => _createGame(e.target, gameId, 1));
-        info.querySelector('#gd-discard')?.addEventListener('click', async e => {
-          if (!confirm(t('gh_discard_run_confirm'))) return;
-          e.target.disabled = true;
-          if (await _discardRun(solo.room_id)) renderGdTab('play');
-          else { e.target.disabled = false; alert(t('gh_error_creating')); }
-        });
       }
 
       if (isMp) {

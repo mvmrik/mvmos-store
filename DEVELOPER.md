@@ -1784,6 +1784,8 @@ mp.registerGame({
 });
 
 mp.savedState()   // the browser's half of the save this run resumed from, or null
+mp.isResume()     // true in the lobby of a room that continues a saved game (Game Hub 1.18.0 and later),
+                  // so the setup screen need not ask for what the save already holds, such as a difficulty
 mp.exitPrompt()   // show the stop-for-now question (the built-in button calls this)
 mp.saveAndExit()  // save straight away, no question
 ```
