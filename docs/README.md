@@ -12,6 +12,7 @@ Documentation for individual Store applications lives in this repository. Update
 - [Health](apps/health.md)
 - [Hydration](apps/hydration.md)
 - [Image Optimizer](apps/image-optimizer.md)
+- [Jigsaw](apps/jigsaw.md)
 - [mvm2factor](apps/mvm2factor.md)
 - [mvmAI](apps/mvmai.md)
 - [mvmOffice](apps/mvmoffice.md)

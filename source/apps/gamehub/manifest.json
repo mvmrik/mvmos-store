@@ -19,7 +19,7 @@
     "social",
     "games"
   ],
-  "version": "1.18.0",
+  "version": "1.19.0",
   "min_core_version": "1.16.0",
   "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
   "entry": "main.js",

@@ -2,6 +2,7 @@
   var tables = {
     en: {
       io_title: 'Image Optimizer', io_subtitle: 'Convert and optimise images privately in your browser.',
+      io_err_webp: 'This browser cannot create WebP files. Choose Original format, or use Chrome, Edge or Firefox.', io_err_toobig: '{name} is too large for this browser to process. Try a smaller image, or another browser or computer.', io_err_decode: '{name} could not be read as an image. It may be damaged or in a format this browser cannot open.',
       io_drop_title: 'Drop images here', io_drop_hint: 'or click to choose JPEG, PNG or WebP files',
       io_format: 'Output format', io_format_webp: 'WebP', io_format_original: 'Original format', io_quality: 'Quality',
       io_processing: 'Processing {done} of {total}', io_ready: 'Ready for another batch',
@@ -14,6 +15,7 @@
     },
     bg: {
       io_title: 'Оптимизатор за изображения', io_subtitle: 'Конвертирай и оптимизирай изображения сигурно в браузъра.',
+      io_err_webp: 'Този браузър не може да създава WebP файлове. Избери „Оригинален формат“ или ползвай Chrome, Edge или Firefox.', io_err_toobig: '{name} е твърде голямо, за да го обработи този браузър. Опитай с по-малко изображение или с друг браузър или компютър.', io_err_decode: '{name} не може да се прочете като изображение. Възможно е да е повредено или във формат, който този браузър не отваря.',
       io_drop_title: 'Пусни изображенията тук', io_drop_hint: 'или кликни, за да избереш JPEG, PNG или WebP файлове',
       io_format: 'Изходен формат', io_format_webp: 'WebP', io_format_original: 'Оригинален формат', io_quality: 'Качество',
       io_processing: 'Обработване на {done} от {total}', io_ready: 'Готово за нова група',
@@ -26,6 +28,7 @@
     },
     de: {
       io_title: 'Bildoptimierer', io_subtitle: 'Bilder privat im Browser konvertieren und optimieren.',
+      io_err_webp: 'Dieser Browser kann keine WebP-Dateien erzeugen. Wähle „Originalformat“ oder nutze Chrome, Edge oder Firefox.', io_err_toobig: '{name} ist für diesen Browser zu groß. Versuche ein kleineres Bild oder einen anderen Browser oder Computer.', io_err_decode: '{name} konnte nicht als Bild gelesen werden. Es ist möglicherweise beschädigt oder in einem Format, das dieser Browser nicht öffnet.',
       io_drop_title: 'Bilder hier ablegen', io_drop_hint: 'oder klicken, um JPEG-, PNG- oder WebP-Dateien auszuwählen',
       io_format: 'Ausgabeformat', io_format_webp: 'WebP', io_format_original: 'Originalformat', io_quality: 'Qualität',
       io_processing: '{done} von {total} werden verarbeitet', io_ready: 'Bereit für einen weiteren Stapel',
@@ -38,6 +41,7 @@
     },
     es: {
       io_title: 'Optimizador de imágenes', io_subtitle: 'Convierte y optimiza imágenes de forma privada en tu navegador.',
+      io_err_webp: 'Este navegador no puede crear archivos WebP. Elige «Formato original» o usa Chrome, Edge o Firefox.', io_err_toobig: '{name} es demasiado grande para este navegador. Prueba con una imagen más pequeña o con otro navegador u ordenador.', io_err_decode: 'No se pudo leer {name} como imagen. Puede estar dañada o en un formato que este navegador no abre.',
       io_drop_title: 'Suelta imágenes aquí', io_drop_hint: 'o haz clic para elegir archivos JPEG, PNG o WebP',
       io_format: 'Formato de salida', io_format_webp: 'WebP', io_format_original: 'Formato original', io_quality: 'Calidad',
       io_processing: 'Procesando {done} de {total}', io_ready: 'Listo para otro lote',
@@ -50,6 +54,7 @@
     },
     fr: {
       io_title: 'Optimiseur d’images', io_subtitle: 'Convertissez et optimisez vos images en privé dans le navigateur.',
+      io_err_webp: 'Ce navigateur ne peut pas créer de fichiers WebP. Choisissez « Format d’origine » ou utilisez Chrome, Edge ou Firefox.', io_err_toobig: '{name} est trop grand pour ce navigateur. Essayez une image plus petite, ou un autre navigateur ou ordinateur.', io_err_decode: '{name} n’a pas pu être lu comme une image. Il est peut-être endommagé ou dans un format que ce navigateur n’ouvre pas.',
       io_drop_title: 'Déposez les images ici', io_drop_hint: 'ou cliquez pour choisir des fichiers JPEG, PNG ou WebP',
       io_format: 'Format de sortie', io_format_webp: 'WebP', io_format_original: 'Format original', io_quality: 'Qualité',
       io_processing: 'Traitement de {done} sur {total}', io_ready: 'Prêt pour un autre lot',
@@ -62,6 +67,7 @@
     },
     ja: {
       io_title: '画像オプティマイザー', io_subtitle: 'ブラウザー内で画像を非公開のまま変換・最適化します。',
+      io_err_webp: 'このブラウザーはWebPファイルを作成できません。「元の形式」を選ぶか、Chrome、Edge、Firefoxをお使いください。', io_err_toobig: '{name} はこのブラウザーで処理するには大きすぎます。小さい画像か、別のブラウザーやパソコンでお試しください。', io_err_decode: '{name} を画像として読み込めませんでした。破損しているか、このブラウザーで開けない形式の可能性があります。',
       io_drop_title: 'ここに画像をドロップ', io_drop_hint: 'またはクリックして JPEG、PNG、WebP ファイルを選択',
       io_format: '出力形式', io_format_webp: 'WebP', io_format_original: '元の形式', io_quality: '品質',
       io_processing: '{total} 件中 {done} 件を処理中', io_ready: '次の一括処理を開始できます',
@@ -74,6 +80,7 @@
     },
     'pt-BR': {
       io_title: 'Otimizador de imagens', io_subtitle: 'Converta e otimize imagens com privacidade no navegador.',
+      io_err_webp: 'Este navegador não consegue criar arquivos WebP. Escolha “Formato original” ou use Chrome, Edge ou Firefox.', io_err_toobig: '{name} é grande demais para este navegador. Tente uma imagem menor ou outro navegador ou computador.', io_err_decode: 'Não foi possível ler {name} como imagem. Ela pode estar danificada ou em um formato que este navegador não abre.',
       io_drop_title: 'Solte imagens aqui', io_drop_hint: 'ou clique para escolher arquivos JPEG, PNG ou WebP',
       io_format: 'Formato de saída', io_format_webp: 'WebP', io_format_original: 'Formato original', io_quality: 'Qualidade',
       io_processing: 'Processando {done} de {total}', io_ready: 'Pronto para outro lote',
@@ -86,6 +93,7 @@
     },
     ru: {
       io_title: 'Оптимизатор изображений', io_subtitle: 'Конвертируйте и оптимизируйте изображения прямо в браузере.',
+      io_err_webp: 'Этот браузер не умеет создавать файлы WebP. Выберите «Исходный формат» или используйте Chrome, Edge или Firefox.', io_err_toobig: '{name} слишком велико для этого браузера. Попробуйте изображение поменьше, другой браузер или другой компьютер.', io_err_decode: 'Не удалось прочитать {name} как изображение. Возможно, файл повреждён или в формате, который этот браузер не открывает.',
       io_drop_title: 'Перетащите изображения сюда', io_drop_hint: 'или нажмите, чтобы выбрать файлы JPEG, PNG или WebP',
       io_format: 'Выходной формат', io_format_webp: 'WebP', io_format_original: 'Исходный формат', io_quality: 'Качество',
       io_processing: 'Обработка: {done} из {total}', io_ready: 'Можно добавить следующую группу',
@@ -98,6 +106,7 @@
     },
     'zh-CN': {
       io_title: '图像优化器', io_subtitle: '直接在浏览器中私密地转换和优化图像。',
+      io_err_webp: '此浏览器无法生成WebP文件。请选择“原始格式”，或使用Chrome、Edge或Firefox。', io_err_toobig: '{name} 对此浏览器来说太大，无法处理。请尝试更小的图片，或换一个浏览器或电脑。', io_err_decode: '无法将 {name} 作为图片读取。文件可能已损坏，或是此浏览器无法打开的格式。',
       io_drop_title: '将图像拖放到这里', io_drop_hint: '或点击选择 JPEG、PNG 或 WebP 文件',
       io_format: '输出格式', io_format_webp: 'WebP', io_format_original: '原始格式', io_quality: '质量',
       io_processing: '正在处理第 {done} 个，共 {total} 个', io_ready: '可继续处理下一批',

@@ -10,6 +10,8 @@ From Game Hub 1.17.0 on mvmOS 1.16.0, games that declare a picture icon use it i
 
 The library filters share one row, also on a phone. When you start a game while another run of it is still open, Game Hub asks whether to continue it or throw it away and start a new one; a thrown-away run is not recorded anywhere. A game continued from a saved position can tell its lobby that it is resuming, so it does not ask again for what the save already holds. Continue banners, saved games and invitations remain available from Games. A room lost during a server restart shows an explanation and a link back to Game Hub instead of reconnecting indefinitely.
 
+On a game's page, **Start games in full screen** controls whether that game opens in browser full screen. The choice is saved for that game on the current device and starts on by default. Browsers without full-screen support do not show the option. A player joining a game already started enters full screen on the first touch or click; leaving the game exits full screen.
+
 ## Statistics and rankings
 
 Open a game and choose Statistics. Solo and multiplayer have separate views. Each game declares the numbers it reports: choose a board, then best, average or total where that sum makes sense. Filters cover all time, the last 7 or 30 days, or the last year, and everyone, favourites or players you played with.

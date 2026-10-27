@@ -357,8 +357,45 @@
         try { _game.renderGame(_root, { reconnect: !!isReconnect }); } catch (e) { console.error(e); }
       }
       _mountSave();
+      _fullscreenOnTouch();
       _emit('enter_game', { reconnect: !!isReconnect });
     }
+
+    // ── Full screen ───────────────────────────────────────────────────────
+    // A game that is started here takes the whole screen unless the player has
+    // turned "Start games in full screen" off for that game on its page in Game Hub
+    // (kept per device and per game in localStorage, on by default). A browser only allows
+    // it from a touch or click, so the host's Start tap asks for it
+    // (_goFullscreen runs in that very click); players whose game starts by
+    // itself, because the host pressed Start, get it on their first touch.
+    // Browsers that cannot show a page full screen (iPhone) are left alone, and
+    // leaving the game brings the normal screen back.
+    function _fullscreenWanted() {
+      let off = false;
+      try { off = localStorage.getItem('gh_fullscreen_' + _gameId) === '0'; } catch (e) {}
+      return !off && !!document.fullscreenEnabled && !!document.documentElement.requestFullscreen;
+    }
+    function _goFullscreen() {
+      if (!_fullscreenWanted()) return false;
+      if (document.fullscreenElement) return true;
+      document.documentElement.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+      return true;
+    }
+    let _fsArmed = false;
+    function _fullscreenOnTouch() {
+      if (_fsArmed || document.fullscreenElement || !_fullscreenWanted()) return;
+      _fsArmed = true;
+      const once = () => {
+        document.removeEventListener('pointerup', once, true);
+        _fsArmed = false;
+        _goFullscreen();
+      };
+      document.addEventListener('pointerup', once, true);
+    }
+    function _leaveFullscreen() {
+      if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    }
+    window.addEventListener('pagehide', _leaveFullscreen);
 
     // ── Stopping for now ──────────────────────────────────────────────────
     // Every solo run in every game can be put down and picked up again, so the
@@ -589,6 +626,7 @@
         startBtn.onclick = async () => {
           const settings = (typeof collect === 'function') ? collect() : {};
           if (settings === null) return;
+          _goFullscreen();
           startBtn.disabled = true; startBtn.textContent = 'Starting…';
           const r = await fetch(MP + '/rooms/' + _roomId + '/start', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -597,6 +635,7 @@
           if (!r.ok) {
             const e = await r.json().catch(() => ({}));
             startBtn.disabled = false; startBtn.textContent = 'Start';
+            _leaveFullscreen();
             const msg = e.error || 'Error';
             alert(msg);
           }
@@ -631,7 +670,7 @@
       // True in the lobby of a room that continues a saved game.
       isResume:    () => _resumeLobby,
       canSave, exitPrompt, saveAndExit,
-      leave: () => { _closedByUs = true; if (_ws) { try { _ws.close(); } catch (e) {} } },
+      leave: () => { _leaveFullscreen(); _closedByUs = true; if (_ws) { try { _ws.close(); } catch (e) {} } },
     };
   })();
 

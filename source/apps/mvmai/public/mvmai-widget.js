@@ -2286,10 +2286,17 @@
 
       function openSession(id) {
         var requestVersion = ++viewVersion;
+        function scrollOpenedChatDown() {
+          var openedContext = chatContext;
+          scrollDown();
+          requestAnimationFrame(function () {
+            if (chatContext === openedContext && sessionId === id) scrollDown();
+          });
+        }
         api('/sessions/' + encodeURIComponent(id) + '/messages?lang=' + encodeURIComponent(uiLang() || 'en')).then(function (data) {
           if (data.__status !== 200 || requestVersion !== viewVersion) return;
           var cached = chatContexts[id];
-          if (cached === chatContext) { closeSidebar(); refreshSessionList(); if (me.is_admin) loadProjects(); return; }
+          if (cached === chatContext) { closeSidebar(); scrollOpenedChatDown(); refreshSessionList(); if (me.is_admin) loadProjects(); return; }
           if (cached) restoreChatContext(cached); else newChatView();
           sessionId = id;
           archivedSession = !!data.archived_at;
@@ -2327,6 +2334,7 @@
           }
           saveChatContext();
           closeSidebar();
+          scrollOpenedChatDown();
           refreshSessionList();
           if (me.is_admin) loadProjects();
         });

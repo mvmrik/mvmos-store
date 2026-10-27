@@ -35,9 +35,9 @@
       "name": "Game Hub",
       "icon": "🎮",
       "category": "Games",
-      "version": "1.18.0",
+      "version": "1.19.0",
       "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.18.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.19.0.zip",
       "tags": [
         "multiplayer",
         "social",
@@ -289,6 +289,33 @@
         "pt-BR": "Sudoku",
         "ru": "Судоку",
         "zh-CN": "数独"
+      }
+    },
+    {
+      "id": "jigsaw",
+      "name": "Jigsaw",
+      "icon": "🧩",
+      "category": "Games",
+      "version": "1.0.0",
+      "description": "A 3D jigsaw puzzle with real pieces cut from beautiful pictures of nature, animals and travel. Five sizes from 24 to 216 pieces with no time limit, and the server checks every piece. Play alone for points, with hints that cost points, or race friends on the same picture – the most points win.",
+      "tags": [
+        "puzzle",
+        "pictures",
+        "multiplayer",
+        "games"
+      ],
+      "min_core_version": "1.16.1",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/jigsaw-1.0.0.zip",
+      "name_i18n": {
+        "en": "Jigsaw",
+        "bg": "Пъзел",
+        "de": "Puzzle",
+        "es": "Puzle",
+        "fr": "Puzzle",
+        "ja": "ジグソーパズル",
+        "pt-BR": "Quebra-cabeça",
+        "ru": "Пазл",
+        "zh-CN": "拼图"
       }
     }
   ]

@@ -1,0 +1,31 @@
+{
+  "tagline": "A 3D jigsaw puzzle with real pieces – alone or racing friends on the same picture.",
+  "description": "Jigsaw is a picture puzzle for Game Hub: build a beautiful picture piece by piece on a 3D wooden table.\n\nThe pictures are made for the game and come in three themes, Nature, Animals and Travel: mountain lakes, autumn forests, tropical waterfalls, lavender fields, parrots, savanna animals, coral reefs, Venetian canals, windmills and tulips, hot air balloons and more. The host picks a theme and then browses its pictures one at a time in a big gallery with previous and next arrows, or lets the game surprise everybody with a random one. The gallery marks the pictures you have already built, and each one lists your best time and points for every size, so you know what you have done before you start.\n\nChoose from five sizes, Easy with 24 pieces, Medium with 54, Hard with 96, Expert with 150 and Master with 216. Every piece is a real piece of thick cardboard cut out of the picture, with tabs and blanks that fit only its true neighbours. The pieces lie scattered over the table, which is bigger than the screen: drag the empty table to move around, pinch or use the mouse wheel to zoom, and carry a piece to the edge of the screen to scroll while you hold it. Let a piece go near its place and it clicks into the board. The board stays empty: the picture is not shown behind the pieces, so you can look at the picture on the box when you need it, and a hint shows it on the board for a moment. A phone gets the pieces in neat rows that scroll like a page, a computer gets them scattered around the board, and the Tidy button switches between shuffled rows below the board and all around it, whenever you like. There is also a flat view instead of the tilted 3D view, and a button to look at the picture on the box. The board never shows where a piece goes: when you let a piece go close to its place, even a little off to the side, it clicks into the board.\n\nThere is no time limit and time never ends the game, and a slow puzzle loses nothing. Every piece in its place scores points, from 10 on Easy up to 18 on Master, two more with every level. Finish within the time the size allows, 10 seconds a piece on Easy, 20 on Medium, 30 on Hard, 40 on Expert and 50 on Master, and every second left is a bonus point. The time is also kept for your statistics. A hint puts one piece in its place and earns nothing for it; it costs the points of two pieces at the start and, once more than that many pieces are placed, as many points as there are pieces placed: ten placed, a hint costs ten, a hundred placed, a hundred. So the further the puzzle has gone, the dearer it is. Finishing the whole picture with no hints adds a bonus. Hints can take your points below zero. The server checks every piece, so nobody can send a made-up result.\n\nAlone, a game is one puzzle. Your score is recorded when you finish it; Save & exit keeps the exact position, including where the loose pieces lie, without recording anything. A page that is reloaded or reopened on another device carries on where you were.\n\nWith friends, everybody builds the same picture at their own pace on computers, phones and tablets in a web browser. The host chooses the size and the picture. When everybody has finished, the player with the most points wins. A player who has finished can watch the other players' pictures fill in, or leave: the result is already recorded and counts when the game ends.\n\nGame Hub records your points, size, puzzles completed, pieces placed, building time and hints, with a rating for multiplayer.",
+  "capabilities": [
+    "A 3D wooden table with real jigsaw pieces cut from the picture, with tabs and blanks that fit only their true neighbours, thick edges and soft shadows.",
+    "Fifteen large pictures in three themes, Nature, Animals and Travel: pick a theme, browse its pictures in a big gallery with previous and next arrows, or take a surprise. The gallery marks the pictures you have built and shows your best time and points for every size.",
+    "Five sizes from 24 to 216 pieces, with no time limit. Finish within the time the size allows, from 10 seconds a piece on Easy to 50 on Master, and every second left is a bonus point; a slow puzzle loses nothing, and the time is kept for your statistics.",
+    "A table bigger than the screen: drag it to move, pinch or wheel to zoom, scroll at the screen edge while holding a piece. Built for a mouse on a computer and for fingers on a phone.",
+    "Pieces in neat scrolling rows on a phone and scattered around the board on a computer, a Tidy button that switches between shuffled rows below the board and all around it, a flat view, a look at the picture on the box, and a board that never shows where a piece goes: let a piece go close to its place and it clicks in.",
+    "Points for every piece in its place, two more per piece with every size, and a bonus for finishing with no hints.",
+    "A hint puts one piece in its place, preferring the piece you are holding. It costs the points of two pieces at the start and then as many points as there are pieces already placed.",
+    "Multiplayer for up to six players on the same picture: when everybody is done, the most points win.",
+    "A player who has finished sees the other players' pictures fill in live and can leave at any time; the result is already recorded.",
+    "The server checks every piece, so a result cannot be made up.",
+    "Save and exit keeps the exact position and where the loose pieces lie without recording anything; reloading the page carries on where you were.",
+    "Game Hub statistics for size, puzzles completed, pieces placed, building time and hints, with a rating for multiplayer."
+  ],
+  "requirements": [
+    "A browser with WebGL (3D graphics), which every current phone and computer has."
+  ],
+  "integrations": [
+    {
+      "app": "gamehub",
+      "name": "Game Hub",
+      "kind": "gamehub",
+      "direction": "consumes",
+      "summary": "Rooms, turns and players run on Game Hub accounts: your profile and avatar, invitations to other players, and your sessions, statistics and rating recorded in Game Hub.",
+      "requires": "Game Hub 1.18.0 or newer installed."
+    }
+  ]
+}

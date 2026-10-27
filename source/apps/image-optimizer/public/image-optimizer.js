@@ -10,7 +10,7 @@
 
   function tr(key, vars) {
     var text = (window.t && window.t(key)) || (window._i18n && window._i18n[key]) || key;
-    Object.keys(vars || {}).forEach(function (name) { text = text.replaceAll('{' + name + '}', vars[name]); });
+    Object.keys(vars || {}).forEach(function (name) { text = text.split('{' + name + '}').join(vars[name]); });
     return text;
   }
   function esc(value) {
@@ -40,16 +40,56 @@
       image.onerror = function () { URL.revokeObjectURL(url); reject(new Error('decode')); }; image.src = url;
     });
   }
+  // A browser encodes only what it can: Safari has no WebP encoder and hands back a PNG instead, so
+  // the type that came out is checked rather than trusted.
   function canvasBlob(canvas, mime, quality) {
     return new Promise(function (resolve, reject) {
-      canvas.toBlob(function (blob) { blob ? resolve(blob) : reject(new Error('encode')); }, mime, quality);
+      canvas.toBlob(function (blob) {
+        if (!blob) reject(new Error('encode'));
+        else if (blob.type !== mime) reject(new Error(mime === 'image/webp' ? 'webp' : 'encode'));
+        else resolve(blob);
+      }, mime, quality);
     });
+  }
+  var webpEncoder = null;
+  function canEncodeWebp() {
+    if (!webpEncoder) webpEncoder = new Promise(function (resolve) {
+      try { var c = document.createElement('canvas'); c.width = c.height = 1; c.toBlob(function (b) { resolve(!!b && b.type === 'image/webp'); }, 'image/webp', 0.8); }
+      catch (_) { resolve(false); }
+    });
+    return webpEncoder;
+  }
+  // A canvas has a size limit, much lower on iPhone and iPad; past it the picture comes out blank or not at all.
+  var IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  function fitsCanvas(width, height) { return width * height <= (IOS ? 16777216 : 268435456) && Math.max(width, height) <= 16384; }
+  // The type of a file is read from its first bytes: the one the system reports comes from its own
+  // file-type registry and is empty or wrong on some computers, which made good pictures "unsupported".
+  var EXT_TYPES = { jpg: 'image/jpeg', jpeg: 'image/jpeg', jfif: 'image/jpeg', png: 'image/png', webp: 'image/webp' };
+  async function normalizeFile(file) {
+    var type = '';
+    try {
+      var b = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+      if (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) type = 'image/jpeg';
+      else if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47) type = 'image/png';
+      else if (b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 && b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50) type = 'image/webp';
+    } catch (_) {}
+    if (!type) type = SUPPORTED.indexOf(file.type) !== -1 ? file.type : (EXT_TYPES[(file.name.split('.').pop() || '').toLowerCase()] || '');
+    if (!type || type === file.type) return type ? file : null;
+    return new File([file], file.name, { type: type, lastModified: file.lastModified });
+  }
+  function errorText(err, name) {
+    var code = err && err.message;
+    if (code === 'webp') return tr('io_err_webp');
+    if (code === 'toobig') return tr('io_err_toobig', { name: name });
+    if (code === 'decode') return tr('io_err_decode', { name: name });
+    return tr('io_error', { name: name });
   }
   async function convertFree(file, format, qualityPercent) {
     var mime = format === 'webp' ? 'image/webp' : file.type;
     var name = outputName(file, format);
     if (mime === 'image/png' && qualityPercent === 100) return { name: name, blob: file, passthrough: true };
     var image = await imageFromFile(file);
+    if (!fitsCanvas(image.naturalWidth, image.naturalHeight)) throw new Error('toobig');
     var canvas = document.createElement('canvas'); canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
     var context = canvas.getContext('2d', { alpha: mime !== 'image/jpeg' });
     if (!context) throw new Error('canvas');
@@ -287,15 +327,18 @@
     async function processFiles(list, paths) {
       if (processing || destroyed || toolsLoadFailed || !list.length) return;
       readSettings(); setProcessing(true); done = 0; total = list.length; errors = []; progressTrack.classList.remove('io-hidden'); status.classList.remove('io-hidden'); render();
+      if (settings.format === 'webp' && !(settings.renameOnly && allowed.bulk_rename) && !(await canEncodeWebp())) {
+        errors.push(tr('io_err_webp')); setProcessing(false); status.classList.add('io-hidden'); progressTrack.classList.add('io-hidden'); render(); return;
+      }
       for (var i = 0; i < list.length; i++) {
-        var file = list[i], sourcePath = paths ? paths[i] : file.name;
-        if (!SUPPORTED.includes(file.type)) errors.push(tr('io_unsupported', { name: sourcePath }));
+        var file = await normalizeFile(list[i]), sourcePath = paths ? paths[i] : list[i].name;
+        if (!file) errors.push(tr('io_unsupported', { name: sourcePath }));
         else {
           try {
             var result = premiumActive && window.ImageOptimizerPremium ? await window.ImageOptimizerPremium.processImage(file, sourcePath, settings.format, settings.quality, settings, allowed) : await convertFree(file, settings.format, settings.quality);
             if (items.some(function (item) { return item.name === result.name; })) errors.push(tr('io_duplicate', { name: result.name }));
             else items.unshift({ name: result.name, blob: result.blob, url: URL.createObjectURL(result.blob), originalSize: file.size, quality: settings.renameOnly && allowed.bulk_rename ? '—' : settings.quality, passthrough: result.passthrough, sourcePath: sourcePath });
-          } catch (_) { errors.push(tr('io_error', { name: sourcePath })); }
+          } catch (err) { errors.push(errorText(err, sourcePath)); }
         }
         done++; progress.style.width = Math.round(done / total * 100) + '%'; status.textContent = tr('io_processing', { done: done, total: total }); render();
       }

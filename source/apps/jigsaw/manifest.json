@@ -1,0 +1,140 @@
+{
+  "id": "jigsaw",
+  "name": "Jigsaw",
+  "name_i18n": {
+    "en": "Jigsaw",
+    "bg": "Пъзел",
+    "de": "Puzzle",
+    "es": "Puzle",
+    "fr": "Puzzle",
+    "ja": "ジグソーパズル",
+    "pt-BR": "Quebra-cabeça",
+    "ru": "Пазл",
+    "zh-CN": "拼图"
+  },
+  "icon": "🧩",
+  "icon_image": "icon.svg",
+  "category": "Games",
+  "tags": [
+    "puzzle",
+    "pictures",
+    "multiplayer",
+    "games"
+  ],
+  "version": "1.0.0",
+  "min_core_version": "1.16.1",
+  "description": "A 3D jigsaw puzzle with real pieces cut from beautiful pictures of nature, animals and travel. Five sizes from 24 to 216 pieces with no time limit, and the server checks every piece. Play alone for points, with hints that cost points, or race friends on the same picture – the most points win.",
+  "entry": "main.js",
+  "multiplayer": true,
+  "max_players": 6,
+  "themed": true,
+  "public_directory": false,
+  "public_api_only": true,
+  "gamehub": {
+    "category": "puzzle",
+    "description": {
+      "en": "Build a beautiful picture piece by piece on a 3D table – five sizes with no time limit, alone or a race with friends on the same puzzle.",
+      "bg": "Сглоби красива картина парче по парче върху 3D маса – пет размера без ограничение във времето, сам или състезание с приятели по един и същ пъзел.",
+      "de": "Setze ein schönes Bild Teil für Teil auf einem 3D-Tisch zusammen – fünf Größen ohne Zeitlimit, allein oder im Wettlauf mit Freunden um dasselbe Puzzle.",
+      "es": "Monta una bonita imagen pieza a pieza sobre una mesa en 3D: cinco tamaños sin límite de tiempo, en solitario o en carrera con amigos sobre el mismo puzle.",
+      "fr": "Assemble une belle image pièce par pièce sur une table en 3D : cinq tailles sans limite de temps, en solo ou en course entre amis sur le même puzzle.",
+      "ja": "3Dのテーブルでキレイな絵を1ピースずつ組み立てよう。時間制限なしの5サイズで、ひとりでも、同じパズルで友達と競争でも遊べます。",
+      "pt-BR": "Monte uma bela imagem peça por peça em uma mesa em 3D: cinco tamanhos sem limite de tempo, sozinho ou em corrida com amigos no mesmo quebra-cabeça.",
+      "ru": "Собери красивую картинку по кусочкам на 3D-столе: пять размеров без ограничения по времени, в одиночку или наперегонки с друзьями на одном пазле.",
+      "zh-CN": "在3D桌面上一块一块拼出美丽的图画：五种尺寸，没有时间限制，可单人游玩，或与朋友在同一幅拼图上竞速。"
+    },
+    "score": {
+      "label": {
+        "en": "Points",
+        "bg": "Точки",
+        "de": "Punkte",
+        "es": "Puntos",
+        "fr": "Points",
+        "ja": "ポイント",
+        "pt-BR": "Pontos",
+        "ru": "Очки",
+        "zh-CN": "得分"
+      }
+    },
+    "ranking": "score",
+    "metrics": {
+      "difficulty": {
+        "label": {
+          "en": "Size level (1–5)",
+          "bg": "Ниво на размера (1–5)",
+          "de": "Größenstufe (1–5)",
+          "es": "Nivel de tamaño (1–5)",
+          "fr": "Niveau de taille (1–5)",
+          "ja": "サイズレベル（1〜5）",
+          "pt-BR": "Nível de tamanho (1–5)",
+          "ru": "Уровень размера (1–5)",
+          "zh-CN": "大小等级（1–5）"
+        },
+        "type": "number",
+        "better": "high",
+        "total": false
+      },
+      "solved": {
+        "label": {
+          "en": "Puzzles completed",
+          "bg": "Завършени пъзели",
+          "de": "Fertige Puzzles",
+          "es": "Puzles completados",
+          "fr": "Puzzles terminés",
+          "ja": "完成したパズル",
+          "pt-BR": "Quebra-cabeças concluídos",
+          "ru": "Собрано пазлов",
+          "zh-CN": "已完成拼图"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "time": {
+        "label": {
+          "en": "Building time",
+          "bg": "Време за сглобяване",
+          "de": "Bauzeit",
+          "es": "Tiempo de montaje",
+          "fr": "Temps d’assemblage",
+          "ja": "組み立て時間",
+          "pt-BR": "Tempo de montagem",
+          "ru": "Время сборки",
+          "zh-CN": "拼图用时"
+        },
+        "type": "duration",
+        "better": "low",
+        "total": false
+      },
+      "hints": {
+        "label": {
+          "en": "Hints used",
+          "bg": "Използвани подсказки",
+          "de": "Verwendete Hinweise",
+          "es": "Pistas usadas",
+          "fr": "Indices utilisés",
+          "ja": "使ったヒント",
+          "pt-BR": "Dicas usadas",
+          "ru": "Использовано подсказок",
+          "zh-CN": "使用的提示"
+        },
+        "type": "number",
+        "better": "low"
+      },
+      "pieces": {
+        "label": {
+          "en": "Pieces placed",
+          "bg": "Поставени парчета",
+          "de": "Gelegte Teile",
+          "es": "Piezas colocadas",
+          "fr": "Pièces posées",
+          "ja": "置いたピース",
+          "pt-BR": "Peças colocadas",
+          "ru": "Поставлено деталей",
+          "zh-CN": "已放置拼块"
+        },
+        "type": "number",
+        "better": "high"
+      }
+    }
+  }
+}

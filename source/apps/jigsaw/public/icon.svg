@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2a8bb5"/>
+      <stop offset="1" stop-color="#0d2b4d"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="cTR"><rect x="65.5" y="17" width="45.5" height="45.5" rx="9"/></clipPath>
+    <clipPath id="cBL"><rect x="17" y="65.5" width="45.5" height="45.5" rx="9"/></clipPath>
+    <clipPath id="cTL"><rect x="17" y="17" width="45.5" height="45.5" rx="9"/></clipPath>
+    <clipPath id="cBR"><rect x="65.5" y="65.5" width="45.5" height="45.5" rx="9"/></clipPath>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <circle cx="104" cy="20" r="26" fill="#ffffff" opacity=".1"/>
+  <rect x="17" y="17" width="45.5" height="45.5" rx="9" fill="#ff8a5c"/>
+  <rect x="65.5" y="17" width="45.5" height="45.5" rx="9" fill="#ffd60a"/>
+  <rect x="17" y="65.5" width="45.5" height="45.5" rx="9" fill="#38d6c1"/>
+  <rect x="65.5" y="65.5" width="45.5" height="45.5" rx="9" fill="#a58bff"/>
+  <circle cx="64" cy="40" r="11" fill="#0d2b4d" clip-path="url(#cTR)"/>
+  <circle cx="64" cy="40" r="9" fill="#ff8a5c"/>
+  <circle cx="88" cy="64" r="11" fill="#0d2b4d" clip-path="url(#cBR)"/>
+  <circle cx="88" cy="64" r="9" fill="#ffd60a"/>
+  <circle cx="64" cy="88" r="11" fill="#0d2b4d" clip-path="url(#cBL)"/>
+  <circle cx="64" cy="88" r="9" fill="#a58bff"/>
+  <circle cx="40" cy="64" r="11" fill="#0d2b4d" clip-path="url(#cTL)"/>
+  <circle cx="40" cy="64" r="9" fill="#38d6c1"/>
+  <rect x="17" y="17" width="94" height="47" rx="9" fill="url(#shine)"/>
+</svg>
