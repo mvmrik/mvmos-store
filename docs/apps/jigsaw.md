@@ -1,6 +1,6 @@
 # Jigsaw
 
-Jigsaw is a picture puzzle played through Game Hub. Install both apps, open Jigsaw from the desktop and follow its Game Hub link, or find it in the Game Hub library. Sign in with an Apps Hub account to play. Friends can join the same room from computers, phones or tablets using a web browser.
+Jigsaw is a picture puzzle played through Game Hub 1.19.1 or newer. Install both apps, open Jigsaw from the desktop and follow its Game Hub link, or find it in the Game Hub library. Sign in with an Apps Hub account to play. Friends can join the same room from computers, phones or tablets using a web browser.
 
 ## Choose a puzzle
 

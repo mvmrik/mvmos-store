@@ -996,7 +996,7 @@ def _game_manifest(game_id: str) -> dict:
 def _play_html(game_id: str, room_id: str) -> str:
     """Generic, game-agnostic play page. Loads the GameHub client + the game's
     mp.js bundle; GameHub.mp drives lobby → game."""
-    from backend.assets import asset
+    from backend.assets import asset, manifest as assets_manifest
     # Games ship their own string table beside mp.js, exactly like every store
     # app does; the core table is already on the page via the bootstrap above.
     i18n_tag = ""
@@ -1009,6 +1009,8 @@ def _play_html(game_id: str, room_id: str) -> str:
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>mvmOS · Game Hub</title>
+  <script>window.__assets={assets_manifest()}</script>
+  <script src="{asset('/asset.js')}"></script>
   {_public_bootstrap(themed)}
   <style>
     *{{box-sizing:border-box;margin:0;padding:0}}
