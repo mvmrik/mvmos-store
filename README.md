@@ -1,6 +1,6 @@
 # mvmOS Store
 
-This repository is the official Store of [mvmOS](https://github.com/mvmrik/mvmOS), a web-based desktop OS for your own server. It holds **54 apps, 5 widgets and 4 themes**. mvmOS reads it from the App Store; nothing here has to be installed by hand.
+This repository is the official Store of [mvmOS](https://github.com/mvmrik/mvmOS), a web-based desktop OS for your own server. It holds **58 apps, 5 widgets and 4 themes**. mvmOS reads it from the App Store; nothing here has to be installed by hand.
 
 - **[DEVELOPER.md](DEVELOPER.md)** — the complete guide to writing an app: structure, `manifest.json`, `store.json`, `premium.json`, the `mvmOS` API, server code, Apps Hub, public pages, games, i18n and premium.
 - **[SPEC.md](SPEC.md)** — the short checklist of the rules every app follows.
@@ -49,6 +49,8 @@ Apps may declare a picture icon inside `public/` with `icon_image` in their own 
 installed still show it. Game Hub 1.17.0 also uses declared pictures on game pages.
 
 Games may declare categories, translated descriptions and statistics through the `gamehub` block of their own manifest. Game Hub uses these declarations for its personal game library, metric boards and rankings; see [DEVELOPER.md → Statistics](DEVELOPER.md#statistics-say-what-you-measure-game-hub-draws-it).
+
+Public apps may opt into **visibility per Apps Hub profile** using `public_profile_access: true` and their own private `_can_access_public(user_id)` hook. Core filters the public catalogue; ownership, sharing roles and route permissions remain in the app. Apps without this opt-in keep their existing visibility. See [DEVELOPER.md → Profile-specific visibility](DEVELOPER.md#profile-specific-visibility) and the [SPEC checklist](SPEC.md).
 
 ---
 

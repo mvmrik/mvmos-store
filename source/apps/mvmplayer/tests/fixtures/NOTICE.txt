@@ -1,0 +1,4 @@
+Synthetic 16-second silent 320x180 WebM video with a solid colour, generated for
+mvmPlayer development tests. No recordings or third-party media are included.
+This fixture may be used, copied and redistributed without restriction.
+Running the app or tests never requires an encoder, FFmpeg or ffprobe.

@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="referrer" content="no-referrer"><title>mvmPlayer</title><link rel="stylesheet" href="/apps/mvmplayer/style.css"><style>html,body{margin:0;height:100%;background:#0e141d}#mvmplayer-root{height:100dvh}</style></head><body><div id="mvmplayer-root"></div><script src="/i18n/i18n.js"></script><script>
+(async()=>{
+ if(!localStorage.getItem('apphub_token')){location.replace('/pub/apphub/?return='+encodeURIComponent(location.href));return;}
+ const load=src=>new Promise((ok,bad)=>{const s=document.createElement('script');s.src=window.asset(src);s.onload=ok;s.onerror=bad;document.head.appendChild(s)});
+ await (window.mvmOS?.i18nReady||Promise.resolve());
+ await load('/apps/mvmplayer/i18n.js');await load('/apps/mvmplayer/player.js');
+ window.MvmPlayer.mount(document.getElementById('mvmplayer-root'),{onNeedLogin(){location.replace('/pub/apphub/?return='+encodeURIComponent(location.href))}});
+})();
+</script></body></html>

@@ -1,0 +1,17 @@
+{
+  "tagline": "Your family story, beautifully connected.",
+  "description": "Family Tree is a private space for each Apps Hub profile to build and explore family trees. Connect parents and children on a richly styled, movable canvas, open each person's story and record birth and death years or exact dates. Track multiple partners, spouses and former relationships without requiring marriage, and identify fathers, mothers, sons and daughters from the recorded sex. Optional Apps Hub profile links identify family members without granting tree access.\n\nShare individual trees with viewers, editors or administrators. Editors submit changes for review; the owner or an administrator compares the before and after versions and approves or rejects them. Administrators can edit, review, share and delete the entire tree, while the owner's role remains protected. Concurrent edits and invalid ancestry links are checked on the server.",
+  "capabilities": [
+    "Multiple private trees per Apps Hub profile, with owned and shared trees together.",
+    "Interactive family canvas with connected person cards, pan, zoom, search and fit-to-view.",
+    "Names, sex, personal stories, birth and death years or exact dates, life ranges and up to two parents.",
+    "Multiple reciprocal partner and spouse relationships, including former partners, with shared children and sex-specific family labels.",
+    "Optional Apps Hub profile identification, independent from sharing permissions.",
+    "Per-tree viewer, editor and administrator sharing roles.",
+    "Editor proposals with before-and-after review, approval, rejection and comments.",
+    "Change history, conflict detection and prevention of circular ancestry.",
+    "Desktop and responsive Apps Hub web views with translations in nine languages.",
+    "Blue and pink person cards, Back navigation through relatives, current age or age at death, and birth-date age comparisons with clearly marked approximate values.",
+    "Live references to existing people from owned or shared trees, cross-tree parents and partners, and filtered side-by-side views with one card per shared person and independent permissions."
+  ]
+}

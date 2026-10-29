@@ -1,0 +1,30 @@
+const {chromium}=require(process.env.MVM_AUDIO_PLAYWRIGHT||'playwright-core');
+const assert=require('assert'),path=require('path');let browser;
+(async()=>{
+ const base='http://127.0.0.1:2087';browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ const ctx=await browser.newContext({viewport:{width:1280,height:900}});await ctx.addCookies([{name:'session',value:'admin',url:base}]);await ctx.addInitScript(()=>localStorage.setItem('apphub_token','a'));
+ const request=ctx.request,ids=[];
+ async function create(kind,title){const response=await request.post(base+'/api/apps/mvmaudio/media',{data:{kind,title,creator:'Example Author',url:kind==='radio'?'https://example.org/radio':''}});assert(response.ok());const id=(await response.json()).id;ids.push(id);return id}
+ const wav=Buffer.alloc(44+16000*15);wav.write('RIFF');wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(8000,24);wav.writeUInt32LE(16000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(wav.length-44,40);
+ const book=await create('books','The Quiet Atlas — Statistics'),other=await create('books','Unread Statistics Book'),song=await create('music','Statistics Song'),radio=await create('radio','Statistics Radio');
+ async function upload(id){const r=await request.post(base+'/api/apps/mvmaudio/media/'+id+'/tracks?filename=chapter.wav',{data:wav});assert(r.ok());return (await r.json()).id}
+ const track=await upload(book);await upload(other);const songTrack=await upload(song);
+ async function state(id,user,data){const r=await request.put(base+'/pub/mvmaudio/media/'+id+'/state',{headers:{'X-Pub-Token':user},data});assert(r.ok(),await r.text())}
+ await state(book,'a',{track_id:track,seconds:4.5,played:true});await state(book,'b',{completed:true});await state(song,'a',{track_id:songTrack,seconds:2,played:true});await state(radio,'b',{played:true});
+ const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(base+'/preview?desktop=true');await page.waitForSelector('[data-manage]');assert.equal(await page.locator('[data-statistics]').count(),0);await page.click('[data-manage]');await page.click('[data-statistics]');await page.waitForSelector('[data-stats-book="'+book+'"]');
+ assert.equal(await page.locator('.ma-stat-kpis>div').count(),6);await page.screenshot({path:path.join(require('os').tmpdir(),'mvmaudio-statistics-desktop.png')});
+ await page.click('[data-stats-book="'+book+'"]');assert((await page.locator('[data-reader-report]').textContent()).includes('30%'));assert((await page.locator('[data-reader-report]').textContent()).includes('Listener B'));
+ await page.fill('[data-reader-search]','listener_b');await page.waitForSelector('[data-track-reader=b]');await page.click('[data-track-reader=b]');await page.click('[data-readers-save]');await page.waitForSelector('[data-untrack=b]');await page.waitForFunction(()=>document.querySelector('.ma-stat-summary')?.textContent.includes('1 / 1'));
+ assert((await page.locator('.ma-stat-summary').textContent()).includes('1 / 1'));
+ await page.fill('[data-reader-search]','listener_c');await page.waitForSelector('[data-track-reader=c]');await page.click('[data-track-reader=c]');assert((await page.locator('[data-reader-report]').textContent()).includes('0%'));await page.click('[data-readers-save]');await page.waitForSelector('[data-untrack=c]');await page.waitForFunction(()=>document.querySelector('.ma-stat-summary')?.textContent.includes('1 / 2'));assert((await page.locator('.ma-stat-summary').textContent()).includes('1 / 2'));
+ await page.setViewportSize({width:390,height:844});await page.screenshot({path:path.join(require('os').tmpdir(),'mvmaudio-statistics-phone.png')});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ await page.click('[data-stats-delete]');await page.waitForSelector('[data-confirm-stat-delete]');assert((await page.locator('.ma-dialog').textContent()).includes('1 / 2'));await page.click('[data-cancel]');await page.click('[data-close]');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ await page.click('[data-stats-view="people"]');await page.click('[data-stats-person=a]');await page.waitForSelector('.ma-stat-table');assert((await page.locator('.ma-stat-table').textContent()).includes('Statistics Song'));assert(!(await page.locator('.ma-stat-table').textContent()).includes('Statistics Radio'));
+ await page.click('[data-stats-view="books"]');await page.selectOption('[data-stats-user]','');await page.selectOption('[data-stats-filter]','unread');assert.equal(await page.locator('[data-stats-book="'+book+'"]').count(),0);assert.equal(await page.locator('[data-stats-book="'+other+'"]').count(),1);
+ await state(book,'c',{completed:true});await page.click('[data-stats-refresh]');await page.waitForSelector('[data-stats-book="'+other+'"]');await page.selectOption('[data-stats-filter]','readyReview');await page.waitForSelector('[data-stats-book="'+book+'"]');
+ await page.click('[data-stats-book="'+book+'"]');await page.click('[data-stats-delete]');await page.click('[data-confirm-stat-delete]');await page.waitForSelector('.ma-modal',{state:'detached'});await page.waitForTimeout(200);
+ const stats=await (await request.get(base+'/api/apps/mvmaudio/statistics')).json();assert(!stats.items.some(i=>i.id===book));assert(stats.items.some(i=>i.id===other));
+ await page.goto(base+'/preview');await page.waitForSelector('.ma-card');assert.equal(await page.locator('[data-statistics]').count(),0);
+ for(const id of ids)await request.delete(base+'/api/apps/mvmaudio/media/'+id);
+ assert.deepEqual(errors,[]);console.log('Statistics UI: books, progress, reader groups, unstarted readers, listener/activity filters, review eligibility, explicit deletion/cancel, phone layout and public visibility; no page errors.');await browser.close();
+})().catch(async e=>{console.error(e);await browser?.close();process.exit(1)});

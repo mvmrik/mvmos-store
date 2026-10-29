@@ -1,0 +1,50 @@
+{
+  "id": "tesla",
+  "name": "Tesla",
+  "name_i18n": {
+    "en": "Tesla",
+    "bg": "Тесла",
+    "de": "Tesla",
+    "es": "Tesla",
+    "fr": "Tesla",
+    "ja": "テスラ",
+    "pt-BR": "Tesla",
+    "ru": "Тесла",
+    "zh-CN": "特斯拉"
+  },
+  "icon": "🚗",
+  "icon_image": "icon.svg",
+  "category": "Utilities",
+  "tags": [
+    "tesla",
+    "car",
+    "electric",
+    "charging"
+  ],
+  "version": "1.0.0",
+  "min_core_version": "1.17.0",
+  "description": "Your Tesla at a glance: live status, battery, trips with routes, charging sessions with cost, efficiency, battery health and sleep history, collected from the official Tesla Fleet API and kept on your own server, with a public web page for the phone or the car's browser.",
+  "entry": "main.js",
+  "public_url": "/pub/tesla/",
+  "public_directory": true,
+  "scheduler": "scheduler.py",
+  "settings": [
+    {
+      "key": "drive_interval",
+      "label": "While driving, ask the car every",
+      "type": "select",
+      "options": [
+        {
+          "value": "60",
+          "label": "60 seconds (fewer Tesla requests)"
+        },
+        {
+          "value": "30",
+          "label": "30 seconds (a more detailed route)"
+        }
+      ],
+      "default": "60"
+    }
+  ],
+  "public_profile_access": true
+}

@@ -6,6 +6,7 @@ Documentation for individual Store applications lives in this repository. Update
 
 - [Belot](apps/belot.md)
 - [Classifieds](apps/classifieds.md)
+- [Family Tree](apps/familytree.md)
 - [Game Hub](apps/gamehub.md)
 - [Git Manager](apps/git-manager.md)
 - [Hattrick Calculator](apps/hattrickcalculator.md)
@@ -15,12 +16,16 @@ Documentation for individual Store applications lives in this repository. Update
 - [Jigsaw](apps/jigsaw.md)
 - [mvm2factor](apps/mvm2factor.md)
 - [mvmAI](apps/mvmai.md)
+- [mvmAudio](apps/mvmaudio.md)
 - [mvmOffice](apps/mvmoffice.md)
 - [mvmPasswords](apps/mvmpasswords.md)
+- [mvmPlayer](apps/mvmplayer.md)
+- [qBit Dashboard](apps/qbit-dashboard.md)
 - [Remember the Pairs](apps/memorypairs.md)
 - [Flask Sort](apps/flasksort.md)
 - [Sudoku](apps/sudoku.md)
 - [Tasks](apps/tasks.md)
+- [Tesla](apps/tesla.md)
 - [Tower Defense](apps/towerdefense.md)
 
 ## Integrations

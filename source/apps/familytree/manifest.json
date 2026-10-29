@@ -1,0 +1,29 @@
+{
+  "id": "familytree",
+  "name": "Family Tree",
+  "name_i18n": {
+    "en": "Family Tree",
+    "bg": "Родословно дърво",
+    "de": "Stammbaum",
+    "es": "Árbol genealógico",
+    "fr": "Arbre généalogique",
+    "ja": "家系図",
+    "pt-BR": "Árvore genealógica",
+    "ru": "Родословное дерево",
+    "zh-CN": "家谱"
+  },
+  "icon": "🌳",
+  "icon_image": "icon.svg",
+  "category": "Productivity",
+  "tags": [
+    "family",
+    "genealogy",
+    "collaboration"
+  ],
+  "version": "1.0.0",
+  "description": "Beautiful private family trees with Apps Hub profile links, sharing roles and reviewed contributions.",
+  "entry": "main.js",
+  "public_url": "/pub/familytree/",
+  "public_directory": true,
+  "min_core_version": "1.16.1"
+}

@@ -1,0 +1,15 @@
+{
+  "summary": "Detailed family statistics across one tree or every tree a profile can access.",
+  "features": [
+    {
+      "title": "Family statistics and rankings",
+      "short": "Explore age, longevity, children, partners and generations",
+      "description": "Compare the oldest and youngest living people, longest lives, largest families and recorded partnerships. Review averages, age groups, birth decades and data completeness for one tree or all accessible trees. Linked people are counted once and private tree access is enforced. Includes recorded current and former marriages, living people with or without a recorded current marriage, adopted children and adoptive parents. Adoptive children remain included in family-size rankings, while adoptive relationships are excluded from parental age at childbirth."
+    },
+    {
+      "title": "Upcoming family birthdays",
+      "short": "See upcoming birthdays for living relatives",
+      "description": "Browse the next 30 days, 90 days or 12 months using known exact birth dates. See upcoming ages and open the original person record. February 29 birthdays are observed on February 28 in non-leap years for this calendar."
+    }
+  ]
+}

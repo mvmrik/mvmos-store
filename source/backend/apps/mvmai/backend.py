@@ -890,6 +890,135 @@ def kill_process(proc) -> None:
         pass
 
 
+def _record_turn_event(turn, line):
+    """Expose public messages/tool activity only, never reasoning or raw CLI metadata."""
+    try:
+        event = json.loads(line)
+    except (ValueError, TypeError):
+        return
+    if not isinstance(event, dict):
+        return
+    kind = event.get("type")
+    item = event.get("item") or {}
+    public = None
+    if kind in ("item.started", "item.updated", "item.completed") and isinstance(item, dict):
+        item_type = item.get("type")
+        key = str(item.get("id") or "message")[:120]
+        if item_type == "agent_message":
+            public = {"key": key, "kind": "message", "text": str(item.get("text") or "")[:12000]}
+        elif item_type in ("command_execution", "file_change", "mcp_tool_call", "web_search"):
+            label = item.get("command") or item.get("tool") or item.get("query") or ""
+            if item_type == "file_change":
+                label = ", ".join(str(change.get("path") or "") for change in (item.get("changes") or []) if isinstance(change, dict))
+            public = {"key": key, "kind": "tool", "text": str(label)[:2000],
+                      "status": "done" if kind == "item.completed" else "running",
+                      "output": str(item.get("aggregated_output") or "")[-4000:]}
+    elif kind in ("assistant", "user", "stream_event"):
+        _record_claude_event(turn, event)
+        return
+    if public and public.get("text"):
+        _append_turn_event(turn, public)
+
+
+def _claude_tool_progress(turn, block):
+    tools = turn.setdefault("claude_tools", {})
+    key = str(block.get("id") or "")[:120]
+    if not key:
+        return
+    previous = tools.get(key, {})
+    arguments = block.get("input") or {}
+    if not isinstance(arguments, dict):
+        return
+    command = arguments.get("command")
+    text = (command if isinstance(command, str) and command else
+            json.dumps(arguments, ensure_ascii=False, indent=2) if arguments else str(block.get("name") or "Tool"))
+    progress = {"key": key, "kind": "tool", "text": text[:12000],
+                "language": "bash" if command else "json" if arguments else "text",
+                "status": previous.get("status", "running"), "output": previous.get("output", "")}
+    tools[key] = progress
+    while len(tools) > 100:
+        del tools[next(iter(tools))]
+    _append_turn_event(turn, progress)
+
+
+def _record_claude_event(turn, event):
+    """Claude streams public text and tool JSON separately from reasoning."""
+    kind = event.get("type")
+    if kind == "stream_event":
+        frame = event.get("event") or {}
+        if not isinstance(frame, dict):
+            return
+        frame_type = frame.get("type")
+        if frame_type == "message_start":
+            turn["claude_stream"] = {"id": str((frame.get("message") or {}).get("id") or "assistant"), "blocks": {}}
+            return
+        stream = turn.setdefault("claude_stream", {"id": "assistant", "blocks": {}})
+        index = frame.get("index")
+        if not isinstance(index, int) or not 0 <= index < 100:
+            return
+        if frame_type == "content_block_start":
+            block = frame.get("content_block") or {}
+            if block.get("type") in ("text", "tool_use"):
+                stream["blocks"][index] = dict(block)
+            return
+        block = stream["blocks"].get(index)
+        if not block:
+            return
+        delta = frame.get("delta") or {}
+        if frame_type == "content_block_delta" and block.get("type") == "text" and delta.get("type") == "text_delta":
+            block["text"] = (block.get("text", "") + str(delta.get("text") or ""))[:12000]
+            if block["text"]:
+                _append_turn_event(turn, {"key": stream["id"] + ":" + str(index), "kind": "message", "text": block["text"]})
+        elif frame_type == "content_block_delta" and block.get("type") == "tool_use" and delta.get("type") == "input_json_delta":
+            # Do not publish incomplete JSON or retain arbitrarily large inputs.
+            block["partial"] = (block.get("partial", "") + str(delta.get("partial_json") or ""))[:64000]
+        elif frame_type == "content_block_stop" and block.get("type") == "tool_use":
+            if block.get("partial"):
+                try:
+                    block["input"] = json.loads(block["partial"])
+                except ValueError:
+                    return
+            _claude_tool_progress(turn, block)
+        return
+    message = event.get("message") or {}
+    blocks = message.get("content") or []
+    if not isinstance(blocks, list):
+        return
+    for index, block in enumerate(blocks):
+        if not isinstance(block, dict):
+            continue
+        block_type = block.get("type")
+        if kind == "assistant" and block_type == "text" and block.get("text"):
+            _append_turn_event(turn, {"key": str(message.get("id") or "assistant") + ":" + str(index),
+                                      "kind": "message", "text": str(block["text"])[:12000]})
+        elif kind == "assistant" and block_type == "tool_use":
+            _claude_tool_progress(turn, block)
+        elif kind == "user" and block_type == "tool_result":
+            key = str(block.get("tool_use_id") or "")[:120]
+            previous = turn.get("claude_tools", {}).get(key)
+            if not previous:
+                continue
+            content = block.get("content") or ""
+            if isinstance(content, list):
+                content = "\n".join(str(b.get("text") or "") for b in content if isinstance(b, dict) and b.get("type") == "text")
+            if not isinstance(content, str):
+                continue
+            progress = {**previous, "status": "done", "output": content[-4000:]}
+            turn["claude_tools"][key] = progress
+            _append_turn_event(turn, progress)
+
+
+def _append_turn_event(turn, event):
+    lock = turn.setdefault("events_lock", threading.Lock())
+    with lock:
+        turn["event_seq"] = turn.get("event_seq", 0) + 1
+        event = {**event, "seq": turn["event_seq"]}
+        events = turn.setdefault("events", [])
+        events.append(event)
+        # Bounded per-turn storage; repeated polls never grow it.
+        del events[:-100]
+
+
 def _run_turn_process(cmd, input=None, timeout=None, output_callback=None, **kw):
     """subprocess.run for a chat turn's CLI, in its own process group and
     registered with the turn, so Stop ends it instead of letting it finish."""
@@ -918,6 +1047,10 @@ def _run_turn_process(cmd, input=None, timeout=None, output_callback=None, **kw)
                     if turn is not None and name == "stdout":
                         turn["activity_seq"] = turn.get("activity_seq", 0) + 1
                         turn["last_activity"] = time.monotonic()
+                        try:
+                            _record_turn_event(turn, line)
+                        except Exception:
+                            logging.getLogger(__name__).exception("mvmAI live activity observer failed")
                     if output_callback is None:
                         continue
                     try:
@@ -1164,6 +1297,22 @@ class CliChatRequest(BaseModel):
     offer_run_command: bool = False
 
 
+def _claude_compaction_result(proc, session_id):
+    events = []
+    for line in proc.stdout.splitlines():
+        try:
+            event = json.loads(line)
+            if isinstance(event, dict) and event.get("session_id") == session_id:
+                events.append(event)
+        except ValueError:
+            continue
+    boundary = any(e.get("type") == "system" and e.get("subtype") == "compact_boundary" for e in events)
+    success = any(e.get("type") == "result" and e.get("subtype") == "success" and not e.get("is_error") for e in events)
+    if proc.returncode or not boundary or not success:
+        return JSONResponse({"error": "Claude context compaction was not confirmed."}, status_code=502)
+    return JSONResponse({"compacted": True})
+
+
 async def _run_cli_chat(
     body: CliChatRequest,
     tools: list,
@@ -1177,6 +1326,7 @@ async def _run_cli_chat(
     images: list | None = None,
     cli_resume: dict | None = None,
     output_callback=None,
+    native_compact: bool = False,
 ):
     images = images or []
     provider = next((p for p in CLI_PROVIDERS if p["id"] == body.provider_id), None)
@@ -1195,6 +1345,8 @@ async def _run_cli_chat(
     # the instructions the CLI last got}.
     persist = bool(cli_resume) and body.provider_id in _RESUMABLE_CLIS and bool(_CHAT_ID_RE.fullmatch(str(cli_resume.get("chat_id") or "")))
     resume_id = str(cli_resume.get("session_id") or "") if persist else ""
+    if native_compact and (body.provider_id != "claude-cli" or not resume_id):
+        return JSONResponse({"error": "An existing Claude session is required."}, status_code=409)
     if resume_id and (cli_resume.get("user") != eu or not _SESSION_ID_RE.fullmatch(resume_id)):
         return JSONResponse({"error": "The CLI session belongs to another account.", "session_lost": True}, status_code=409)
 
@@ -1324,7 +1476,7 @@ async def _run_cli_chat(
             f"[System instructions, updated]\n{system_prompt}\n\n[New messages]\n{conversation_prompt}")
 
     pid = body.provider_id
-    stream_output = output_callback is not None or CHAT_TURN.get() is not None
+    stream_output = native_compact or output_callback is not None or CHAT_TURN.get() is not None
     model = body.model if body.model is not None else _read_cfg().get("model")
     # A full-access turn is a whole task done in one go, not a single reply.
     cli_timeout = 1800 if full_access else 120
@@ -1396,10 +1548,10 @@ async def _run_cli_chat(
                 session_args = ["--no-session-persistence"]
                 if persist:
                     session_args = ["--resume", resume_id] if resume_id else ["--session-id", new_session]
-                cmd = [cmd_bin] + (["--model", model] if model else []) + safety_args + ["--disable-slash-commands"] + session_args + ["--print"]
+                cmd = [cmd_bin] + (["--model", model] if model else []) + safety_args + ([] if native_compact else ["--disable-slash-commands"]) + session_args + ["--print"]
                 if (persist or stream_output) and not images:
                     cmd += ["--output-format", "stream-json", "--verbose", "--include-partial-messages"] if stream_output else ["--output-format", "json"]
-                stdin_input = conversation_prompt
+                stdin_input = "/compact" if native_compact else conversation_prompt
                 if images:
                     # Images travel in the message itself (stream-json input),
                     # so no file tool is needed to see them.
@@ -1464,6 +1616,8 @@ async def _run_cli_chat(
                 env={**os.environ, "HOME": home, "USER": eu, "LOGNAME": eu, "PATH": _cli_search_path(home), **extra_env},
             )
         raw_out = proc.stdout.strip()
+        if native_compact:
+            return _claude_compaction_result(proc, resume_id)
         if proc.returncode != 0 and resume_id and _SESSION_LOST_RE.search(f"{proc.stderr}\n{raw_out}"):
             return JSONResponse({"error": "The CLI session is gone.", "session_lost": True}, status_code=409)
         model_used = ""

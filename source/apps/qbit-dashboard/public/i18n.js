@@ -7,6 +7,8 @@
   if (window.QBIT_I18N) return;
   window.QBIT_I18N = {
     en: {
+      search_torrents: "Search torrents…",
+      search_no_matches: "No matching torrents",
       add: "+ Add",
       resume_all_label: "Resume All",
       pause_all_label: "Pause All",
@@ -210,6 +212,8 @@
       st_seeded_for: "seeded {t}",
     },
     bg: {
+      search_torrents: "Търси торенти…",
+      search_no_matches: "Няма съвпадащи торенти",
       add: "+ Добави",
       resume_all_label: "Стартирай всички",
       pause_all_label: "Паузирай всички",
@@ -413,6 +417,8 @@
       st_seeded_for: "разпращан {t}",
     },
     de: {
+      search_torrents: "Torrents suchen…",
+      search_no_matches: "Keine passenden Torrents",
       add: "+ Hinzufügen",
       resume_all_label: "Alle fortsetzen",
       pause_all_label: "Alle pausieren",
@@ -616,6 +622,8 @@
       st_seeded_for: "{t} geseedet",
     },
     es: {
+      search_torrents: "Buscar torrents…",
+      search_no_matches: "No hay torrents coincidentes",
       add: "+ Añadir",
       resume_all_label: "Reanudar todo",
       pause_all_label: "Pausar todo",
@@ -819,6 +827,8 @@
       st_seeded_for: "sembrado {t}",
     },
     fr: {
+      search_torrents: "Rechercher des torrents…",
+      search_no_matches: "Aucun torrent correspondant",
       add: "+ Ajouter",
       resume_all_label: "Tout reprendre",
       pause_all_label: "Tout mettre en pause",
@@ -1022,6 +1032,8 @@
       st_seeded_for: "partagé {t}",
     },
     ja: {
+      search_torrents: "トレントを検索…",
+      search_no_matches: "一致するトレントはありません",
       add: "+ 追加",
       resume_all_label: "すべて再開",
       pause_all_label: "すべて一時停止",
@@ -1225,6 +1237,8 @@
       st_seeded_for: "シード {t}",
     },
     "pt-BR": {
+      search_torrents: "Buscar torrents…",
+      search_no_matches: "Nenhum torrent correspondente",
       add: "+ Adicionar",
       resume_all_label: "Retomar todos",
       pause_all_label: "Pausar todos",
@@ -1428,6 +1442,8 @@
       st_seeded_for: "semeado {t}",
     },
     ru: {
+      search_torrents: "Поиск торрентов…",
+      search_no_matches: "Нет подходящих торрентов",
       add: "+ Добавить",
       resume_all_label: "Возобновить все",
       pause_all_label: "Приостановить все",
@@ -1631,6 +1647,8 @@
       st_seeded_for: "раздаётся {t}",
     },
     "zh-CN": {
+      search_torrents: "搜索种子…",
+      search_no_matches: "没有匹配的种子",
       add: "+ 添加",
       resume_all_label: "全部继续",
       pause_all_label: "全部暂停",

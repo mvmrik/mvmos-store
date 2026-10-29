@@ -1,0 +1,23 @@
+{
+  "tagline": "Your Tesla history, collected on your own server.",
+  "description": "Tesla brings vehicle status, trip routes, charging history and costs into the mvmOS desktop and an Apps Hub page for phones or the car browser. Your installation connects directly to Tesla Fleet API and keeps its history locally. Sleep-aware polling avoids sending wake-up commands.\n\nThe server owner sets up a Tesla developer application, registers the installation's HTTPS domain and public key, and connects the Tesla account. The owner can share read-only access or delegate history and settings management to selected Apps Hub favourites, without sharing credentials or account control. Tesla API charges are separate from mvmOS; the app's request cost meter is an estimate, not a Tesla invoice.",
+  "capabilities": [
+    "Live vehicle status, battery, range, climate and available vehicle sensor readings.",
+    "Recorded trips with route maps, distance, duration and estimated energy efficiency.",
+    "Charging history with energy, locations, unit prices and manual session cost overrides.",
+    "Time-based charging tariffs with separate currencies and estimated cost splits.",
+    "Group recorded trips into journeys and review journey totals.",
+    "Battery health estimates and sleep history based on collected vehicle data.",
+    "Sleep-aware collection with configurable polling intervals and schedules.",
+    "Desktop-approved server setup, personal Fleet API credentials and OAuth connection.",
+    "Owner-controlled sharing with view and administrator roles, enforced on every route.",
+    "Desktop and responsive public views with translations in nine languages."
+  ],
+  "requirements": [
+    "mvmOS Core 1.17.0 or newer and an Apps Hub profile.",
+    "A compatible Tesla vehicle and Tesla Fleet API developer credentials with access to that vehicle.",
+    "A public HTTPS domain serving the installation and its Tesla public-key endpoint.",
+    "Desktop root access for initial server setup. The setup installs cryptography if it is missing.",
+    "Tesla Fleet API availability, permissions and usage charges apply separately."
+  ]
+}

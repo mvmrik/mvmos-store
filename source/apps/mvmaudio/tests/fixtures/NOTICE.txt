@@ -1,0 +1,11 @@
+Synthetic audio fixtures created for mvmAudio tests: one second of a generated
+440 Hz sine wave at 48 kHz, encoded in several containers/codecs. No recordings,
+commercial music or external samples are included. These test fixtures may be
+used, copied and redistributed without restriction.
+
+recorder.webm has no declared Duration and uses multiple clusters, to exercise
+browser-style recordings. video-only.m4a and video-only.webm are generated black
+16x16 frames with no audio and must be rejected.
+
+Fixtures were encoded once during development. Running the test suite does not
+require or invoke an encoder, decoder, FFmpeg, ffprobe, pip or network access.

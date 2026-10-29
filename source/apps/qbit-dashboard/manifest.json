@@ -2,14 +2,14 @@
   "id": "qbit-dashboard",
   "name": "qBit Dashboard",
   "icon": "🌊",
-  "category": "Media",
+  "category": "Utilities",
   "tags": [
     "downloads",
     "torrent",
     "media"
   ],
-  "version": "1.7.0",
-  "min_core_version": "1.0.0",
+  "version": "1.8.0",
+  "min_core_version": "1.10.0",
   "description": "Visual dashboard for qBittorrent. Connects to a local qBittorrent instance via WebUI API.",
   "entry": "main.js",
   "css": "style.css",

@@ -60,6 +60,7 @@ The official Store keeps the same tree in `source/apps/<app-id>/` and ships each
 | `description`      | ✓        | Short description |
 | `entry`            |          | Entry JS file in `public/` (default `main.js`) |
 | `css`              |          | CSS file in `public/` loaded with the app |
+| `public_profile_access` | | Requires mvmOS 1.17.0. `true` opts into profile-specific public visibility through `_can_access_public(user_id)` in the app’s own `app_api.py`; see [Profile-specific visibility](DEVELOPER.md#profile-specific-visibility). |
 
 Every other field (`settings`, `scheduler`, `file_types`, `requires_apphub`, `public_url`, `gamehub`, games…) is in [DEVELOPER.md → manifest.json](DEVELOPER.md#manifestjson).
 
@@ -101,6 +102,7 @@ mvmOS.registerApp({
 - **Use mvmOS dialogs.** `mvmOS.confirm`, `mvmOS.prompt`, `mvmOS.toast` and `mvmOS.notify` instead of the browser's own.
 - **Load files through `asset()`.** Every script, stylesheet or image the browser loads goes through `window.asset(url)`, which adds the file's change time so no cache serves an old copy.
 - **Stay in your folder.** An app reads and writes only its own `apps/<app-id>/` and reaches other apps only through `hub.call_app_api()`.
+- **Profile visibility is generic; permissions belong to the app.** For owner/member/shared-only public apps, set `public_profile_access: true` and implement synchronous `_can_access_public(user_id)` in your own `app_api.py`. Return exactly `True` only for an allowed profile, using current local permissions without side effects. Core hides restricted apps from unrelated/anonymous profiles and fails closed on hook errors; no app-specific checks go in Core. Independently enforce record access and read/write roles on every app route. Test owner, viewer, admin, stranger, anonymous, revocation and direct API requests. Require a Core release supporting the feature in `min_core_version` before publishing. See [the full contract](DEVELOPER.md#profile-specific-visibility).
 - **Premium stays in `premium/`.** Whatever does the premium work — server code or browser code — lives in `premium/`; the public part may only show the locked control. See [DEVELOPER.md → Premium features](DEVELOPER.md#premium-features).
 
 ---

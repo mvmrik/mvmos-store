@@ -1,0 +1,19 @@
+{
+  "id": "mvmaudio",
+  "name": "mvmAudio",
+  "icon": "🎧",
+  "category": "Media",
+  "tags": [
+    "music",
+    "audiobooks",
+    "radio",
+    "playlists"
+  ],
+  "version": "1.0.0",
+  "description": "Your music, audiobook shelves and online radio, with personal listening progress and shared playlists.",
+  "entry": "main.js",
+  "css": "style.css",
+  "public_url": "/pub/mvmaudio/",
+  "public_directory": true,
+  "min_core_version": "1.16.1"
+}

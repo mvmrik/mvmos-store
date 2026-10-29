@@ -1,0 +1,4 @@
+{
+  "summary": "Let Apps Hub profiles upload their own music and audiobooks under an administrator-controlled storage allowance.",
+  "features": [{"title":"Personal audio libraries","short":"Optional uploads with a per-profile storage limit","description":"The desktop administrator chooses a total allowance in MB for each profile. Zero disables personal uploads and is the default. Storage is checked on the server, including simultaneous uploads. Existing files, playlists and listening progress remain available when uploads are disabled."}]
+}

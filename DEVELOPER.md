@@ -84,6 +84,7 @@ The one exception is an app that must genuinely reach the system — `subprocess
 | `multiplayer`, `max_players`, `themed` | no | Game settings, see [Writing a game](#writing-a-game) |
 | `gamehub` | no | Game Hub category, translated description, score and metric declarations, and solo ranking rule; see [Statistics](#statistics-say-what-you-measure-game-hub-draws-it). |
 | `public_directory` | no | `false` to hide from the Apps Hub public directory card grid even though the app has a public `router` — see [Listing in the public directory](#listing-in-the-public-directory). Default `true`. |
+| `public_profile_access` | no | Requires mvmOS 1.17.0. `true` requires the app’s `_can_access_public(user_id)` hook to permit each Apps Hub profile before it can discover or add the app. Missing/failed hooks deny access. Route authorization remains the app’s responsibility; see [Profile-specific visibility](#profile-specific-visibility). |
 | `public_api_only` | no | `true` when the public router is only an endpoint another page calls with the visitor's token (for example a game's statistics fetched from inside Game Hub), not a page of its own. Apps Hub then does not offer the app as a public page to switch on. Needs mvmOS 1.5.0; older cores ignore it. |
 
 ### Official Store categories
@@ -284,6 +285,12 @@ Pass an app definition with `icon` and `iconImage` (or API metadata with
 versioned `/apps/<id>/...` URL; do not pass the raw manifest filename here.
 Store entries for apps not yet installed keep the emoji. Game Hub 1.17.0
 also shows the picture in its library, history and statistics.
+
+---
+
+### mvmOS.dateTimePicker
+
+From mvmOS 1.17.0, Core loads this shared regional date, time and datetime control on the desktop and public app pages. Await `ready()`, then use `create(host, options)` with `type`, canonical `value`, optional `min`/`max`, `label`, `required` and `onChange`. The handle provides `value`, `setValue`, `validate`, `open` and `destroy`. `format`, `fromEpoch` and `toEpoch` use mvmOS regional preferences; nonexistent DST minutes are rejected and repeated minutes select the first occurrence. See the Core README for the complete example and conversion limits. Set `min_core_version` accordingly when using it.
 
 ---
 
@@ -959,7 +966,7 @@ async def get_data(session=Depends(get_current_session)):
 
 **Rules:**
 - The file must define a `router` object at module level
-- All endpoints must require `session=Depends(get_current_session)` for authentication
+- All private endpoints must require `session=Depends(get_current_session)` for authentication. An approved backend may explicitly mark a deliberately public endpoint with `endpoint.no_session_auth = True` when a remote service must reach it without a desktop session, such as a public-key verification URL. The endpoint must return only intentionally public data and validate its own host/request constraints; this flag never authorizes private app data.
 - The prefix must be unique — recommended `/api/<app-id>`
 
 ---
@@ -1523,9 +1530,9 @@ This only makes sense if your app has a public `router` (see above) with a real 
 
 ### Listing in the public directory
 
-Any app with a public `router` is auto-detected and, once enabled (toggled Public) in Apps Hub admin, appears as a card in the public directory at `/pub/apphub/` (the "Apps" tab) linking to `/pub/<app-id>/`.
+Any app with a public `router` is auto-detected and, once enabled (toggled Public) in Apps Hub admin, is eligible for the public catalogue at `/pub/apphub/`, linking to `/pub/<app-id>/`. `public_directory` and the optional profile-specific check below determine which visitors actually see its card.
 
-This only makes sense for apps whose `/pub/<app-id>/` route is a real, generic landing page anyone can open (e.g. a reading list, a leaderboard). If your public `router` only serves **per-resource share links** with no generic index — e.g. `/pub/<app-id>/{token}` for a single shared document, and a bare `/pub/<app-id>/` would 404 or makes no sense to browse — opt out of the directory by adding to your `manifest.json`:
+This only makes sense for apps whose `/pub/<app-id>/` route is a real landing page its intended visitors can open (e.g. a reading list, a leaderboard or a profile-restricted shared app). If your public `router` only serves **per-resource share links** with no generic index — e.g. `/pub/<app-id>/{token}` for a single shared document, and a bare `/pub/<app-id>/` would 404 or makes no sense to browse — opt out of the directory by adding to your `manifest.json`:
 
 ```json
 {
@@ -1535,6 +1542,46 @@ This only makes sense for apps whose `/pub/<app-id>/` route is a real, generic l
 ```
 
 The app's toggle still works as usual (`is_app_public` still gates whether its share links resolve) — this flag only hides it from the generic browsable directory card grid. Default is `true` (listed) when the field is omitted.
+
+
+### Profile-specific visibility
+
+Use this generic Apps Hub mechanism when an app should be discoverable only by its owner, members or explicitly invited profiles. Do not add app IDs, role tables or app-specific conditions to Core.
+
+```json
+{
+  "public_directory": true,
+  "public_profile_access": true
+}
+```
+
+In the app’s own `apps/<app-id>/app_api.py`, provide a **synchronous private** function. The example assumes the app maintains an `app_members` table in its own database and a local `_db()` helper; adapt these to the app’s data model:
+
+```python
+def _can_access_public(user_id):
+    if not user_id:
+        return False
+    with _db() as conn:
+        member = conn.execute(
+            "SELECT 1 FROM app_members WHERE user_id=? AND role IN ('owner','view','admin')",
+            (user_id,),
+        ).fetchone()
+    return member is not None
+```
+
+Core supplies the authenticated Apps Hub profile ID. Only the literal boolean `True` permits visibility. For restricted apps, no authenticated profile, a missing module/function, an exception or any other return value denies access. The function runs within the app’s filesystem confinement. Keep it read-only, fast and local: read current owner/membership/grant records from your own database, do not call remote APIs, and do not cache permissions in a way that survives revocation. Prefixing the hook with `_` keeps it out of the normal app action list. This internal check works even when the administrator’s App API switch is off; it does not grant other apps permission to call the app API.
+
+Apps Hub applies the check to:
+
+- Public app discovery in the catalogue, home screen and shared app switcher.
+- Requests to add the app to a profile’s shelf or record an app open.
+- Live activity for that profile. An existing shelf entry cannot bypass a revoked grant.
+
+Without `public_profile_access: true`, existing catalogue behaviour is unchanged. `public_directory: false` still hides the app from the directory for everyone; `public_api_only: true` means the app has no independently browsable public page. These are different declarations. Public visibility also remains subject to the administrator enabling the app. The administrator’s installed Store app list is separate from a public profile’s catalogue.
+
+**This does not authorize your routes.** Validate the caller’s Apps Hub session, resolve the actual owner/shared resource, check access to every requested record and enforce write permissions on the server for every route. A viewer must not gain writes, manual remote refresh, credential access or permission to invite others merely because the card is visible. Role names and what an admin may do are app decisions; Core only consumes a yes/no visibility answer. Handle direct page visits, tokenless callbacks and public machine endpoints explicitly; a catalogue filter does not automatically protect them. Recheck access in an already open app so revocation/downgrades remove stale controls and displayed private data.
+
+Test the owner, a shared viewer, a shared admin, an unrelated signed-in profile and an anonymous visitor. Verify catalogue results, an already-installed shelf entry, direct read/write requests, role changes, revocation and hook failure. Before publishing, set `min_core_version` to a release that includes this Core mechanism; an older Core may ignore the manifest flag. Do not treat a working test on Dev as proof that an older installation supports it.
 
 ---
 

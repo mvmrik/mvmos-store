@@ -28,8 +28,36 @@
     });
   }
 
+  function highlightedCode(value, language) {
+    var lang = String(language || 'text').toLowerCase();
+    var code = String(value == null ? '' : value);
+    if (lang === 'diff' || lang === 'patch') return code.split('\n').map(function (line) {
+      var cls = line.startsWith('@@') ? 'hunk' : line.startsWith('+') && !line.startsWith('+++') ? 'add' : line.startsWith('-') && !line.startsWith('---') ? 'del' : '';
+      return '<span class="mvmai-diff-' + cls + '">' + esc(line) + '</span>';
+    }).join('\n');
+    if (!/^(js|javascript|jsx|ts|typescript|tsx|json|py|python|bash|sh|shell|sql|css|html|xml|php|c|cpp|java|go|rust|rb|ruby|yaml|yml)$/.test(lang)) return esc(code);
+    var token = /("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\/\/[^\n]*|\/\*[\s\S]*?\*\/|#[^\n]*|\b(?:const|let|var|function|return|if|else|for|while|class|new|await|async|import|export|from|def|print|try|except|raise|with|as|pass|in|is|not|and|or|None|True|False|true|false|null|undefined|SELECT|FROM|WHERE|INSERT|UPDATE|DELETE|CREATE|TABLE|echo|fi|then|do|done|sudo)\b|\b\d+(?:\.\d+)?\b)/g;
+    var result = '', cursor = 0, match;
+    while ((match = token.exec(code))) {
+      result += esc(code.slice(cursor, match.index));
+      var text = match[0], cls = /^['"`]/.test(text) ? 'string' : /^(\/\/|\/\*|#)/.test(text) ? 'comment' : /^\d/.test(text) ? 'number' : 'keyword';
+      result += '<span class="mvmai-code-' + cls + '">' + esc(text) + '</span>'; cursor = token.lastIndex;
+    }
+    return result + esc(code.slice(cursor));
+  }
+
+  function codeBlock(code, language) {
+    return '<pre class="mvmai-code-block"><code>' + highlightedCode(code, language) + '</code></pre>';
+  }
+
   function nl2br(value) {
-    return esc(value).replace(/\n/g, '<br>');
+    var source = String(value == null ? '' : value), pattern = /```([\w+-]*)[^\S\n]*\n([\s\S]*?)(?:```|$)/g;
+    var result = '', cursor = 0, match;
+    while ((match = pattern.exec(source))) {
+      result += esc(source.slice(cursor, match.index)).replace(/\n/g, '<br>');
+      result += codeBlock(match[2], match[1]); cursor = pattern.lastIndex;
+    }
+    return result + esc(source.slice(cursor)).replace(/\n/g, '<br>');
   }
 
   var stylesInjected = false;
@@ -38,6 +66,7 @@
     stylesInjected = true;
     var style = document.createElement('style');
     style.textContent = `
+      .mvmai-code-block{background:#151922;color:#d9e2f1;text-align:left;padding:12px;border:1px solid #45475a;border-radius:7px;white-space:pre;overflow:auto;max-height:440px;max-width:100%;font:12px/1.6 ui-monospace,monospace;margin:8px 0}.mvmai-code-keyword{color:#cba6f7}.mvmai-code-string{color:#a6e3a1}.mvmai-code-number{color:#fab387}.mvmai-code-comment{color:#94a3b8}.mvmai-diff-add{color:#b5f2c1;background:#1c3c2a;display:inline-block;min-width:100%}.mvmai-diff-del{color:#ffbdc5;background:#48252e;display:inline-block;min-width:100%}.mvmai-diff-hunk{color:#91caff}.mvmai-git-file{display:block;max-width:100%;overflow-wrap:anywhere;background:none;border:0;color:var(--pub-accent,#89b4fa);text-align:left;cursor:pointer;padding:5px 0;font:12px ui-monospace,monospace}.mvmai-diff-dialog .mvmai-pub-dialog{width:min(1100px,96vw);max-width:96vw;max-height:90vh}.mvmai-diff-dialog .mvmai-code-block{max-height:65vh}.mvmai-diff-content{min-height:0;overflow:auto}.mvmai-diff-title{overflow-wrap:anywhere}.mvmai-live-preview{min-width:0;text-align:left!important}.mvmai-live-row{min-width:0}.mvmai-live-tool>summary{display:flex;align-items:center;gap:8px;list-style:none;cursor:pointer;min-width:0}.mvmai-live-tool>summary::-webkit-details-marker{display:none}.mvmai-live-tool>summary::before{content:'▸';flex-shrink:0}.mvmai-live-tool[open]>summary::before{content:'▾'}.mvmai-live-tool-status{font-size:.7rem;color:var(--pub-dim,#94a3b8);flex-shrink:0}.mvmai-live-tool-summary{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;font:12px/1.5 ui-monospace,monospace;color:var(--pub-fg,#cdd6f4)}.mvmai-live-stream{display:flex;flex-direction:column;gap:.7rem;flex-shrink:0;width:100%;min-width:0}.mvmai-live-row{flex-shrink:0;animation:mvmai-live-enter .2s ease-out}.mvmai-live-archive{display:flex;flex-direction:column;gap:.7rem;margin-top:.7rem}.mvmai-git-plus{color:#a6e3a1;font-weight:700}.mvmai-git-minus{color:#f38ba8;font-weight:700}@keyframes mvmai-live-enter{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}@media(prefers-reduced-motion:reduce){.mvmai-live-row{animation:none}}
       .mvmai-widget,.mvmai-widget *{box-sizing:border-box}
       .mvmai-widget{height:100%;width:100%;display:flex;flex-direction:column;background:var(--pub-bg,#1e1e2e);
         color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif;overflow:hidden;position:relative}
@@ -2596,6 +2625,108 @@
         return details;
       }
 
+      function openGitDiff(project, path) {
+        var previous = document.activeElement, overlay = document.createElement('div');
+        overlay.className = 'mvmai-pub-dialog-backdrop mvmai-diff-dialog';
+        overlay.innerHTML = '<section class="mvmai-pub-dialog" role="dialog" aria-modal="true"><strong class="mvmai-diff-title"></strong><p class="mvmai-pub-dialog-hint"></p><div class="mvmai-diff-content"></div><button type="button" class="mvmai-confirm-no"></button></section>';
+        overlay.querySelector('section').setAttribute('aria-label',path);
+        overlay.querySelector('strong').textContent = path;
+        overlay.querySelector('p').textContent = t('mvmai_pub_git_diff_hint');
+        var content = overlay.querySelector('.mvmai-diff-content'), button = overlay.querySelector('button');button.textContent = t('mvmai_gal_close');
+        function close() {overlay.remove();if (previous && previous.isConnected) previous.focus({preventScroll:true});}
+        button.onclick = close;overlay.onmousedown = function(e){if(e.target === overlay) close();};
+        overlay.onkeydown = function(e){if(e.key === 'Escape') close();if(e.key === 'Tab'){e.preventDefault();button.focus();}};
+        root.appendChild(overlay);button.focus();
+        api('/projects/' + encodeURIComponent(project.id) + '/git-diff?path=' + encodeURIComponent(path)).then(function(data){
+          if(!overlay.isConnected)return;
+          if(data.__status !== 200 || !data.is_repo){content.textContent=t('mvmai_pub_git_diff_error');return;}
+          content.innerHTML = data.diff ? codeBlock(data.diff,'diff') : esc(t('mvmai_pub_git_diff_empty'));
+          if(data.truncated){var note=document.createElement('p');note.textContent=t('mvmai_pub_git_diff_truncated');content.appendChild(note);}
+        }).catch(function(){content.textContent=t('mvmai_pub_git_diff_error');});
+      }
+
+      function updateGitChanges(current, ctx, force) {
+        var project = ctx.activeProject;
+        if(!me.is_admin || !project || !project.path || (!force && current.gitPending) || (!force && Date.now()-(current.gitCheckedAt||0)<5000))return Promise.resolve();
+        current.gitPending=true;current.gitCheckedAt=Date.now();
+        var version=current.gitVersion=(current.gitVersion||0)+1;
+        var url='/projects/'+encodeURIComponent(project.id);
+        return api(url+'/git-status?stats=true&since='+encodeURIComponent(current.gitSince || current.startedAt / 1000)).then(function(git){
+          if(version!==current.gitVersion)return;
+          if(git.__status!==200 || !git.is_repo){if(current.gitPanel)current.gitPanel.remove();current.gitPanel=null;current.gitSignature=null;return;}
+          var files=[].concat(git.added||[],git.modified||[],git.deleted||[],git.untracked||[]).filter(function(path,i,all){return all.indexOf(path)===i;}).sort();
+          if(!files.length){if(current.gitPanel)current.gitPanel.remove();current.gitPanel=null;current.gitSignature=null;return;}
+          if(!current.gitPanel){var panel=document.createElement('details');panel.className='mvmai-msg system-note';panel.open=true;var title=document.createElement('summary');title.textContent=t('mvmai_pub_git_changes');panel.appendChild(title);var body=document.createElement('div');panel.appendChild(body);panel.open=ctx.turn===current;body.style.cssText='max-height:220px;overflow:auto';current.gitPanel=panel;current.gitBody=body;ctx.listEl.insertBefore(panel,current.livePanel || (current.typing && current.typing.isConnected ? current.typing : null));}
+          var signature=JSON.stringify([files,git.stats||{}]);if(signature===current.gitSignature)return;current.gitSignature=signature;current.gitBody.replaceChildren();
+          files.forEach(function(path){var button=document.createElement('button');button.type='button';button.className='mvmai-git-file';button.textContent=path;var count=(git.stats||{})[path];if(count && !count.binary && !count.unavailable){var plus=document.createElement('span'),minus=document.createElement('span');plus.className='mvmai-git-plus';minus.className='mvmai-git-minus';plus.textContent=' +'+count.added;minus.textContent=' −'+count.deleted;button.appendChild(plus);button.appendChild(minus);}button.onclick=function(){openGitDiff(project,path);};current.gitBody.appendChild(button);});
+          if(ctx.turn===current)ctx.listEl.scrollTop=ctx.listEl.scrollHeight;
+        }).catch(function(){}).finally(function(){if(version===current.gitVersion)current.gitPending=false;});
+      }
+
+      // Public progress is paced locally; it never enters model history.
+      function renderLiveEvent(event, current, ctx, typing) {
+        if (!current.livePanel) {
+          var stream=document.createElement('div');stream.className='mvmai-live-stream';
+          current.livePanel=stream;current.liveBody=stream;current.liveItems=Object.create(null);
+          ctx.listEl.insertBefore(stream,typing && typing.isConnected ? typing : null);
+        }
+        var key=event.kind+':'+event.key,row=current.liveItems[key];
+        if(!row){
+          row=document.createElement('div');row.className='mvmai-msg assistant mvmai-live-row';
+          current.liveItems[key]=row;current.liveBody.appendChild(row);
+          if(current.liveBody.children.length>100){var oldest=current.liveBody.firstChild;Object.keys(current.liveItems).forEach(function(k){if(current.liveItems[k]===oldest)delete current.liveItems[k];});oldest.remove();}
+        }
+        if(event.kind==='message'){row.innerHTML=nl2br(event.text);return;}
+        const wasOpen=!!row.querySelector('.mvmai-live-tool')?.open;
+        row.replaceChildren();
+        var details=document.createElement('details'),summary=document.createElement('summary'),status=document.createElement('span'),preview=document.createElement('code'),body=document.createElement('div');
+        details.className='mvmai-live-tool';details.open=wasOpen;
+        status.className='mvmai-live-tool-status';status.textContent=t(event.status==='done'?'mvmai_pub_live_done':'mvmai_pub_live_running');
+        preview.className='mvmai-live-tool-summary';preview.textContent=event.text.split(/\r?\n/)[0].slice(0,160)+(event.text.includes('\n')||event.text.length>160?' …':'');
+        summary.appendChild(status);summary.appendChild(preview);details.appendChild(summary);
+        body.innerHTML=codeBlock(event.text,event.language || 'bash');
+        if(event.output){var pre=document.createElement('pre');pre.className='mvmai-code-block';pre.textContent=event.output;body.appendChild(pre);}
+        details.appendChild(body);row.appendChild(details);
+      }
+
+      function showLiveActivity(data, current, ctx, typing) {
+        current.liveQueue=current.liveQueue||[];current.livePending=current.livePending||Object.create(null);
+        (data.events||[]).forEach(function(event){
+          if(event.seq<=(current.eventSeq||0))return;
+          current.eventSeq=event.seq;if(!event.text)return;
+          var key=event.kind+':'+event.key;
+          if(!current.livePending[key])current.liveQueue.push(key);
+          current.livePending[key]=event;
+        });
+        if(current.liveTimer || !current.liveQueue.length)return;
+        function next(){
+          current.liveTimer=null;
+          if(current.stopped || !ctx.listEl.isConnected)return;
+          var key=current.liveQueue.shift(),event=current.livePending[key];delete current.livePending[key];
+          if(event){renderLiveEvent(event,current,ctx,typing);ctx.listEl.scrollTop=ctx.listEl.scrollHeight;}
+          // Keep the cooldown even after the last item so two poll batches cannot burst.
+          current.liveTimer=setTimeout(function(){current.liveTimer=null;if(current.liveQueue.length)next();},350);
+        }
+        next();
+      }
+
+      function collapseLiveProgress(current, ctx) {
+        if(!current)return;
+        if(current.liveTimer){clearTimeout(current.liveTimer);current.liveTimer=null;}
+        if(current.livePanel && current.livePanel.tagName==='DETAILS'){current.livePanel.open=false;return;}
+        // Final answers are never delayed by the visual queue. Store its tail behind
+        // the collapsed summary, without flashing a batch of messages on screen.
+        var remaining=(current.liveQueue||[]).map(function(key){return current.livePending[key];}).filter(Boolean);
+        current.liveQueue=[];current.livePending=Object.create(null);
+        if(!current.livePanel && !remaining.length)return;
+        if(!current.livePanel)renderLiveEvent(remaining.shift(),current,ctx,current.typing);
+        var stream=current.livePanel,panel=document.createElement('details'),title=document.createElement('summary'),body=document.createElement('div');
+        panel.className='mvmai-live-preview mvmai-msg system-note';title.textContent=t('mvmai_pub_live_progress');body.className='mvmai-live-archive';panel.appendChild(title);panel.appendChild(body);
+        stream.replaceWith(panel);while(stream.firstChild)body.appendChild(stream.firstChild);
+        current.livePanel=panel;current.liveBody=body;
+        remaining.forEach(function(event){renderLiveEvent(event,current,ctx,current.typing);});
+      }
+
       function addTyping(ctx) {
         var targetList = ctx ? ctx.listEl : listEl;
         var current = ctx && ctx.turn;
@@ -3133,9 +3264,9 @@
       // Once a chat grows past 2x the keep-recent count, fold everything except
       // the most recent `keepRecent` messages into a single running summary, so
       // token cost per message stays bounded instead of re-sending the whole
-      // conversation forever. no_persist:true keeps this maintenance call off
-      // the visible history, off credit charging, and off the session it
-      // belongs to. keepRecent itself defaults to 20 and is only adjustable
+      // conversation forever. The summary is stateless and uncharged by mvmAI;
+      // Claude/Codex also compact their original session before it is shown.
+      // keepRecent itself defaults to 20 and is only adjustable
       // with a Premium licence (me.compact_keep_recent, resolved server-side
       // in premium/backend.py's resolve_compact_keep_recent).
       function compactKeepRecent() {
@@ -3168,8 +3299,18 @@
         api('/chat', {method: 'POST', body: JSON.stringify({
           messages: [{role: 'user', content: compactInstruction}],
           no_persist: true,
+          session_id: sessionId,
+          compact_cli: !!sessionId,
+          compact_last: history[history.length - 1],
+          app_id: chosenApp ? chosenApp.id : null,
+          lang: uiLang(),
         })}).then(function (data) {
-          if (data.__status !== 200 || !data.message || !data.message.content) return;
+          if (data.__status !== 200 || !data.message || !data.message.content) {
+            if (data.__status !== 409 && chatContext === compactedChat) {
+              addBubble('assistant', t('mvmai_pub_compact_failed'));
+            }
+            return;
+          }
           // A new message went out meanwhile; summarise after its answer.
           if (chatContext !== compactedChat || sending || history.length !== lengthBefore) return;
           var recent = nonSummary.slice(nonSummary.length - keepRecent);
@@ -3189,7 +3330,9 @@
           // it without having to scroll up looking for it.
           addCompactedNote(data.message.content);
           scrollDown();
-        }).catch(function () {});
+        }).catch(function () {
+          if (chatContext === compactedChat) addBubble('assistant', t('mvmai_pub_compact_failed'));
+        });
       }
 
       // Messages written while mvmAI is answering wait here, visible above the
@@ -3455,6 +3598,8 @@
       // Ends the answer: the next waiting message, if any, is sent on its own.
       function finishTurn(ctx) {
         ctx = ctx || saveChatContext();
+        if (ctx.turn && ctx.turn.gitPanel) ctx.turn.gitPanel.open = false;
+        collapseLiveProgress(ctx.turn, ctx);
         if (ctx.turn && ctx.turn.activityCleanup) ctx.turn.activityCleanup();
         if (ctx.turn && ctx.turn.sidebarCanvas) ctx.turn.sidebarCanvas.remove();
         ctx.turn = null; ctx.sending = false;
@@ -3543,6 +3688,7 @@
             history.push({role: 'user', content: q.msg.content, attachment_ids: q.msg.attachmentIds, images: q.msg.images.length ? q.msg.images : undefined, created_at: queuedAt});
           });
           if (ctx === chatContext) renderQueue();
+          current.eventSeq = 0; current.liveItems = null; current.livePanel = null;
           var typing = current.typing = addTyping(ctx);
           current.controller = window.AbortController ? new AbortController() : null;
           // A new chat gets its id here, so it is saved and listed at once
@@ -3557,11 +3703,14 @@
           }
           setTimeout(function () { refreshSessionList(); if (me.is_admin) loadProjects(); }, 1500);
           function awaitTurn(data) {
+            if (Number.isFinite(data.git_since) && !current.gitSince) current.gitSince = data.git_since;
             typing.updateActivity(data);
+            showLiveActivity(data, current, ctx, typing);
+            updateGitChanges(current, ctx, false);
             if (data.__status !== 202 || !data.pending) return Promise.resolve(data);
             return new Promise(function (resolve) { setTimeout(resolve, 2000); }).then(function () {
               if (current.stopped) return {error: 'stopped'};
-              return api('/chat/turn/' + encodeURIComponent(current.id),
+              return api('/chat/turn/' + encodeURIComponent(current.id) + '?after=' + (current.eventSeq || 0),
                 {signal: current.controller ? current.controller.signal : undefined});
             }).then(awaitTurn);
           }
@@ -3599,6 +3748,9 @@
             }
             syncChatContext(ctx);
             var msg = data.message;
+            updateGitChanges(current, ctx, true);
+            if (current.gitPanel) current.gitPanel.open = false;
+            collapseLiveProgress(current, ctx);
             history.push(msg);
             if (msg.content) addBubble('assistant', msg.content, null, msg.created_at, ctx, null, msg.duration_ms);
 

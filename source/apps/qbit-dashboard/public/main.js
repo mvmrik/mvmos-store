@@ -15,7 +15,7 @@ function _qbLoadI18n() {
   if (_qbI18nReady) return _qbI18nReady;
   _qbI18nReady = new Promise(resolve => {
     const s = document.createElement('script');
-    s.src = '/apps/qbit-dashboard/i18n.js?_=' + Date.now();
+    s.src = window.asset('/apps/qbit-dashboard/i18n.js');
     s.onload = resolve;
     s.onerror = () => { _qbI18nReady = null; resolve(); };
     document.head.appendChild(s);
@@ -27,7 +27,7 @@ mvmOS.registerApp({
   id: 'qbit-dashboard',
   name: _qbt('title'),
   icon: '🌊',
-  category: 'Media',
+  category: 'Utilities',
   trayable: true,
   settings: [
     { key: 'host',         label: 'Host',                  type: 'text',     default: 'localhost' },
@@ -171,6 +171,7 @@ const QB = (() => {
   };
   let _torrents = [];
   let _filter = 'all';
+  let _search = '';
   let _sortBy = 'added_on';
   let _sortDir = 'desc';
   let _selected = null;
@@ -280,14 +281,18 @@ const QB = (() => {
 
   // ── Filter ──
   function _filtered() {
+    const query = _search.trim().toLowerCase();
+    const torrents = query
+      ? _torrents.filter(t => (t.name || '').toLowerCase().includes(query))
+      : _torrents;
     switch (_filter) {
-      case 'downloading': return _torrents.filter(t => ['downloading','metaDL','forcedDL','stalledDL'].includes(t.state));
-      case 'seeding':     return _torrents.filter(t => ['uploading','forcedUP','stalledUP'].includes(t.state));
-      case 'paused':      return _torrents.filter(t => t.state.startsWith('paused'));
-      case 'completed':   return _torrents.filter(t => t.progress >= 1 || t.state.includes('UP'));
-      case 'active':      return _torrents.filter(t => (t.dlspeed > 0 || t.upspeed > 0));
-      case 'error':       return _torrents.filter(t => t.state === 'error' || t.state === 'missingFiles');
-      default:            return _torrents;
+      case 'downloading': return torrents.filter(t => ['downloading','metaDL','forcedDL','stalledDL'].includes(t.state));
+      case 'seeding':     return torrents.filter(t => ['uploading','forcedUP','stalledUP'].includes(t.state));
+      case 'paused':      return torrents.filter(t => t.state.startsWith('paused'));
+      case 'completed':   return torrents.filter(t => t.progress >= 1 || t.state.includes('UP'));
+      case 'active':      return torrents.filter(t => (t.dlspeed > 0 || t.upspeed > 0));
+      case 'error':       return torrents.filter(t => t.state === 'error' || t.state === 'missingFiles');
+      default:            return torrents;
     }
   }
   function _count(cat) {
@@ -326,7 +331,12 @@ const QB = (() => {
       <div class="qb-root" id="qb-root" style="display:flex;flex-direction:column;height:100%">
         <div class="qb-toolbar-wrap" id="qb-toolbar-wrap"></div>
         <div class="qb-body" style="flex:1;overflow:hidden;display:flex">
-          <div class="qb-sidebar as-sidebar" id="qb-sidebar"></div>
+          <div class="qb-sidebar as-sidebar" id="qb-sidebar">
+            <div class="qb-search-wrap">
+              <input id="qb-search" type="search" autocomplete="off" spellcheck="false">
+            </div>
+            <div id="qb-sidebar-filters"></div>
+          </div>
           <div style="flex:1;overflow:hidden;display:flex;flex-direction:column">
             <div id="qb-main-area" style="flex:1;overflow:hidden;display:flex;position:relative"></div>
             <div class="qb-statusbar" id="qb-statusbar"></div>
@@ -334,6 +344,15 @@ const QB = (() => {
         </div>
       </div>`;
     const root = body.querySelector('#qb-root');
+    const search = root.querySelector('#qb-search');
+    search.value = _search;
+    search.placeholder = _qbt('search_torrents');
+    search.setAttribute('aria-label', _qbt('search_torrents'));
+    search.addEventListener('input', () => {
+      _search = search.value;
+      _view = 'list';
+      _renderAll();
+    });
     mvmOS.initMobileSidebar?.(body);
 
 
@@ -503,7 +522,10 @@ const QB = (() => {
   }
 
   function _renderSidebar(root) {
-    const sidebar = root.querySelector('#qb-sidebar');
+    const search = root.querySelector('#qb-search');
+    search.placeholder = _qbt('search_torrents');
+    search.setAttribute('aria-label', _qbt('search_torrents'));
+    const sidebar = root.querySelector('#qb-sidebar-filters');
     const sortOptions = [
       { val: 'added_on',      label: _qbt('sort_added') },
       { val: 'name',          label: _qbt('sort_name') },
@@ -591,7 +613,7 @@ const QB = (() => {
   function _renderList(root, filtered, sel) {
     const list = root.querySelector('#qb-list');
     if (!filtered.length) {
-      list.innerHTML = `<div class="qb-empty">${_connected ? _qbt('no_torrents') : _qbt('connecting')}</div>`;
+      list.innerHTML = `<div class="qb-empty">${_connected ? _qbt(_search.trim() ? 'search_no_matches' : 'no_torrents') : _qbt('connecting')}</div>`;
       return;
     }
     list.innerHTML = filtered.map(t => {
@@ -1280,12 +1302,12 @@ const QB = (() => {
       const pathInput = ov.querySelector('#qb-add-path');
       fetch('/api/files').then(r => r.json()).then(d => {
         FolderPicker.open({
-          root: d.home || '/',
+          root: pathInput.value.trim() || d.home || '/',
           onSelect: (path) => { pathInput.value = path; },
         });
       }).catch(() => {
         FolderPicker.open({
-          root: '/',
+          root: pathInput.value.trim() || '/',
           asRoot: true,
           onSelect: (path) => { pathInput.value = path; },
         });
@@ -1603,7 +1625,7 @@ const QB = (() => {
               ov.querySelector('#ipt-browse-path').addEventListener('click', () => {
                 const pathInput = ov.querySelector('#ipt-add-path');
                 fetch('/api/files').then(r => r.json()).then(d => {
-                  FolderPicker.open({ root: d.home || '/', onSelect: p => { pathInput.value = p; } });
+                  FolderPicker.open({ root: pathInput.value.trim() || d.home || '/', onSelect: p => { pathInput.value = p; } });
                 });
               });
 

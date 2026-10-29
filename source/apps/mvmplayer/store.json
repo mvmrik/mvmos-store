@@ -1,0 +1,15 @@
+{
+  "tagline": "Your videos, one familiar place.",
+  "description": "Watch movies, series, lessons and personal recordings in the mvmOS desktop or an Apps Hub browser page. Administrators upload files or folders into a shared library; each profile keeps independent progress, favourites, history and collections. Filename recognition identifies movie years and season/episode numbers. Optional online suggestions come directly from TVmaze and Wikipedia, without user API keys. This initial version plays browser-compatible files directly and supports external SRT and WebVTT subtitles. It does not transcode video or extract embedded subtitles. Jellyfin integration is planned and is not included in this version.",
+  "capabilities": [
+    "Desktop and responsive Apps Hub interface with a shared video library.",
+    "Batch and folder uploads in retry-safe chunks, with filename and folder recognition.",
+    "Independent watching progress, completion, favourites and personal collections.",
+    "Browser playback with seeking, speed, fullscreen and external SRT/WebVTT subtitles.",
+    "TVmaze series suggestions and season/episode information, including unavailable episodes.",
+    "Wikipedia movie suggestions with source attribution and selected-field confirmation.",
+    "Administrator editing and cover/subtitle management without resetting viewer progress.",
+    "No separate service, FFmpeg, system backend folder or additional server package required."
+  ],
+  "requirements": ["A browser that supports the uploaded video's container and audio/video codecs."]
+}

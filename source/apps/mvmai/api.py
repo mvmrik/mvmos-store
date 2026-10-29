@@ -1548,6 +1548,9 @@ class ChatRequest(BaseModel):
     # tools, credit charging, and session persistence — it's not a real turn
     # the user sent, just internal upkeep on an existing conversation.
     no_persist: bool = False
+    # Maintenance must compact the provider's session too, after summarizing.
+    compact_cli: bool = False
+    compact_last: dict | None = None
     # The app picked in the chat: only its functions are offered to the model.
     app_id: str | None = None
     # The browser's id for this request, so its Stop can end it (see /stop).
@@ -1578,7 +1581,8 @@ async def chat(
         if old_turn.get("finished_at", float("inf")) < time.monotonic() - 3600:
             _TURNS.pop(old_id, None)
     desk = _desktop()
-    turn = {"procs": [], "stopped": False, "token": x_pub_token, "session_id": body.session_id}
+    turn = {"procs": [], "stopped": False, "token": x_pub_token, "session_id": body.session_id,
+            "started_at": time.time()}
     ctx_token = desk.CHAT_TURN.set(turn) if desk and hasattr(desk, "CHAT_TURN") else None
     try:
         task = asyncio.ensure_future(_chat(body, x_pub_token, x_mvmai_surface, os_session))
@@ -1595,7 +1599,10 @@ async def chat(
     if done:
         if turn_id:
             _TURNS.pop(turn_id, None)
-        return stopped if task.cancelled() else task.result()
+        response = stopped if task.cancelled() else task.result()
+        if isinstance(response, JSONResponse):
+            return JSONResponse({**json.loads(response.body), "git_since": turn["started_at"]}, status_code=response.status_code)
+        return response
 
     if turn_id:
         return JSONResponse(_turn_progress(turn), status_code=202)
@@ -1619,26 +1626,40 @@ async def chat(
 
 
 @router.get("/chat/turn/{turn_id}")
-async def poll_chat_turn(turn_id: str, x_pub_token: str = Header(default=None)):
+async def poll_chat_turn(turn_id: str, after: int = 0, x_pub_token: str = Header(default=None)):
     turn = _TURNS.get(turn_id)
     if not turn or not x_pub_token or turn["token"] != x_pub_token:
         return JSONResponse({"error": "turn_not_found"}, status_code=404)
     task = turn["task"]
     if not task.done():
-        return JSONResponse(_turn_progress(turn), status_code=202)
+        return JSONResponse(_turn_progress(turn, after), status_code=202)
     _TURNS.pop(turn_id, None)
     if task.cancelled():
         return JSONResponse({"error": "stopped"})
     try:
-        return task.result()
+        response = task.result()
+        if isinstance(response, JSONResponse):
+            payload = json.loads(response.body)
+            payload.update(_turn_progress(turn, after))
+            payload["pending"] = False
+            return JSONResponse(payload, status_code=response.status_code)
+        return response
     except Exception as exc:
         return JSONResponse({"error": str(exc) or "mvmAI failed"}, status_code=500)
 
 
-def _turn_progress(turn):
+def _turn_progress(turn, after=0):
     last = turn.get("last_activity")
+    lock = turn.get("events_lock")
+    if lock:
+        with lock:
+            events = [dict(event) for event in turn.get("events", []) if event["seq"] > max(0, after)]
+    else:
+        events = []
     return {"pending": True, "activity_seq": turn.get("activity_seq", 0),
-            "activity_age": max(0, time.monotonic() - last) if last is not None else None}
+            "git_since": turn.get("started_at"),
+            "activity_age": max(0, time.monotonic() - last) if last is not None else None,
+            "events": events}
 
 
 _CHAT_KEEPALIVE_SECONDS = 15
@@ -1687,6 +1708,15 @@ def _chat_reply(desk, is_admin, sid, msg, pin, model_used):
 
 
 async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session, me=None):
+    # Hold the lock through persistence, including maintenance. A queued send
+    # must load CLI state after compaction, not before acquiring the lock.
+    if body.session_id and (not body.no_persist or body.compact_cli):
+        async with _CHAT_LOCKS.setdefault(body.session_id, asyncio.Lock()):
+            return await _chat_unlocked(body, x_pub_token, x_mvmai_surface, os_session, me)
+    return await _chat_unlocked(body, x_pub_token, x_mvmai_surface, os_session, me)
+
+
+async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session, me=None):
     request_started = time.monotonic()
     me = me or _resolve(x_pub_token)
     if not me:
@@ -1724,6 +1754,18 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session, me=
             if not conn.execute("SELECT 1 FROM pub_sessions WHERE id=?", (body.session_id,)).fetchone():
                 chosen = body.session_id
     chat_id = None if body.no_persist else (saved["id"] if saved else (chosen or uuid.uuid4().hex))
+    if body.compact_cli:
+        if not body.no_persist or not saved or saved["archived_at"] is not None:
+            return JSONResponse({"error": "invalid_compaction"}, status_code=409)
+        with _sdb() as conn:
+            last = conn.execute(
+                "SELECT role, content, tool_calls FROM pub_messages WHERE session_id=? ORDER BY seq DESC LIMIT 1",
+                (saved["id"],),
+            ).fetchone()
+        latest = ({"role": last["role"], "content": last["content"],
+                   "tool_calls": json.loads(last["tool_calls"]) if last["tool_calls"] else None} if last else {})
+        if not body.compact_last or _msg_fingerprint(latest) != _msg_fingerprint(body.compact_last):
+            return JSONResponse({"error": "stale_compaction"}, status_code=409)
     project = desk._get_project(project_id) if is_admin and project_id else None
 
     price = 0
@@ -1794,44 +1836,76 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session, me=
         state = _parse_cli_state(saved["cli_state"]) if saved else {}
         unseen = _unseen_messages(body.messages, state.get("last")) if state.get("session_id") else None
         can_resume = unseen is not None
-        lock = _CHAT_LOCKS.setdefault(chat_id, asyncio.Lock()) if chat_id else None
-        lock_acquired = False
-        try:
-            if lock:
-                await lock.acquire()
-                lock_acquired = True
-            for attempt in (0, 1):
-                resuming = bool(chat_id) and can_resume and attempt == 0
-                if resuming:
-                    # Only what the CLI has not seen yet.
-                    flat = _cli_flatten_messages(unseen) or [{"role": "user", "content": "Continue."}]
-                else:
-                    flat = _cap_conversation(_cli_flatten_messages(body.messages))
-                r = await desk._run_cli_chat(
-                    desk.CliChatRequest(provider_id=cli_provider["id"], messages=flat, model=cfg.get("model") or ""),
-                    tools=tools,
-                    is_admin=is_admin,
-                    exec_enabled=exec_enabled,
-                    exec_auto=bool(cfg.get(f"{exec_prefix}exec_auto")),
-                    identity_prompt=public_identity,
-                    project=project,
-                    session=os_session,
-                    extra_prompt=app_prompt,
-                    images=images,
-                    cli_resume=({
-                        "chat_id": chat_id, "session_id": state.get("session_id") if resuming else None,
-                        "user": state.get("user"), "policy": state.get("policy"), "model_used": state.get("model_used"),
-                    } if chat_id else None),
-                )
-                data = json.loads(r.body)
-                if resuming and data.get("session_lost"):
-                    continue
-                break
-        finally:
-            if lock_acquired:
-                lock.release()
+        for attempt in (0, 1):
+            resuming = bool(chat_id) and can_resume and attempt == 0
+            if resuming:
+                # Only what the CLI has not seen yet.
+                flat = _cli_flatten_messages(unseen) or [{"role": "user", "content": "Continue."}]
+            else:
+                flat = _cap_conversation(_cli_flatten_messages(body.messages))
+            r = await desk._run_cli_chat(
+                desk.CliChatRequest(provider_id=cli_provider["id"], messages=flat, model=cfg.get("model") or ""),
+                tools=tools,
+                is_admin=is_admin,
+                exec_enabled=exec_enabled,
+                exec_auto=bool(cfg.get(f"{exec_prefix}exec_auto")),
+                identity_prompt=public_identity,
+                project=project,
+                session=os_session,
+                extra_prompt=app_prompt,
+                images=images,
+                cli_resume=({
+                    "chat_id": chat_id, "session_id": state.get("session_id") if resuming else None,
+                    "user": state.get("user"), "policy": state.get("policy"), "model_used": state.get("model_used"),
+                } if chat_id else None),
+            )
+            data = json.loads(r.body)
+            if resuming and data.get("session_lost"):
+                continue
+            break
         if r.status_code >= 400:
             return JSONResponse({"error": data.get("error") or "CLI provider error"}, status_code=r.status_code)
+        if body.compact_cli and cli_provider["id"] in ("claude-cli", "codex-cli") and state.get("session_id"):
+            # The summary request itself is stateless. Only this operation
+            # touches the original provider session, under the chat lock.
+            cli = cli_provider["id"]
+            runtime = await asyncio.to_thread(
+                desk._resolve_cli_runtime, cli_provider,
+                os_session.get("effective_user") if os_session else None,
+            )
+            if (not runtime or runtime[0] != state.get("user") or
+                    not desk._SESSION_ID_RE.fullmatch(str(state.get("session_id") or ""))):
+                return JSONResponse({"error": "CLI session is unavailable for compaction."}, status_code=409)
+            try:
+                if cli == "claude-cli":
+                    compact_tools = desk._server_tools(is_admin, exec_enabled)
+                    compact_prompt = ""
+                    if prem and prem.is_available() and cfg.get("pub_data_bridge_enabled") and body.app_id:
+                        bridge_tools = prem.list_tools(me["id"], body.app_id)
+                        if bridge_tools:
+                            compact_tools += bridge_tools
+                            compact_prompt = prem.app_prompt(body.app_id)
+                    compact_prompt = (compact_prompt + " " + _language_prompt(body.lang)).strip()
+                    if is_admin:
+                        compact_prompt += " " + _download_prompt(me["id"])
+                    compact_result = await desk._run_cli_chat(
+                        desk.CliChatRequest(provider_id=cli, messages=[], model=cfg.get("model") or ""),
+                        tools=compact_tools, is_admin=is_admin,
+                        exec_enabled=exec_enabled, exec_auto=bool(cfg.get(f"{exec_prefix}exec_auto")),
+                        identity_prompt=public_identity, project=project, session=os_session,
+                        extra_prompt=compact_prompt,
+                        cli_resume={**state, "chat_id": saved["id"]}, native_compact=True,
+                    )
+                    if compact_result.status_code >= 400:
+                        return compact_result
+                else:
+                    from backend.apps.mvmai.compaction import compact_codex
+                    full_access = is_admin and exec_enabled and bool(cfg.get(f"{exec_prefix}exec_auto"))
+                    cwd = (project.get("path") if project else None) or (
+                        runtime[1] if full_access else os.path.join(desk._CHATS_DIR, saved["id"]))
+                    await asyncio.to_thread(compact_codex, desk, runtime, state["session_id"], cwd, cfg.get("model") or "")
+            except Exception:
+                return JSONResponse({"error": "CLI context compaction failed. The session was kept."}, status_code=502)
         if data.get("cli_state"):
             cli_state = dict(data["cli_state"])
             label_model = cli_state.get("model_used") or ""
@@ -2187,7 +2261,7 @@ async def pub_projects_delete(project_id: str, x_pub_token: str = Header(default
 
 
 @router.get("/projects/{project_id}/git-status")
-async def pub_projects_git_status(project_id: str, x_pub_token: str = Header(default=None)):
+async def pub_projects_git_status(project_id: str, stats: bool = False, since: float | None = None, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me or not me.get("is_admin"):
         return JSONResponse({"error": "forbidden"}, status_code=403)
@@ -2197,7 +2271,136 @@ async def pub_projects_git_status(project_id: str, x_pub_token: str = Header(def
     project = desk._get_project(project_id)
     if not project:
         return JSONResponse({"error": "Project not found"}, status_code=404)
-    return JSONResponse(desk.project_git_status(project["path"]))
+    return JSONResponse(await asyncio.to_thread(_project_git_changes, desk, project, since) if stats else desk.project_git_status(project["path"]))
+
+
+def _project_git_changes(desk, project, since=None):
+    """Local numstat data; never added to the model's conversation."""
+    folder = os.path.realpath(project.get("path") or "")
+    status = desk.project_git_status(project.get("path") or "")
+    if not status.get("is_repo"):
+        return status
+    if since is not None:
+        # Only select paths by modification time. Counts/diffs still describe
+        # the complete working-tree changes against HEAD, as before.
+        for category in ("added", "modified", "deleted", "untracked"):
+            selected = []
+            for name in status.get(category, []):
+                target = os.path.realpath(os.path.join(folder, name))
+                if os.path.commonpath([folder, target]) != folder:
+                    continue
+                try:
+                    if os.path.getmtime(target) >= since:
+                        selected.append(name)
+                except OSError:
+                    # A deleted path has no file modification timestamp.
+                    continue
+            status[category] = selected
+        if not any(status.get(category) for category in ("added", "modified", "deleted", "untracked")):
+            return {**status, "stats": {}}
+    root = folder
+    while not os.path.exists(os.path.join(root, ".git")):
+        parent = os.path.dirname(root)
+        if root == parent:
+            return {"is_repo": False}
+        root = parent
+    command = ["git", "-c", "safe.directory=" + root, "-C", folder]
+    env = {**os.environ, "GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat"}
+    head = subprocess.run(command + ["rev-parse", "--verify", "HEAD"], capture_output=True, timeout=10, env=env)
+    modes = [["HEAD"]] if not head.returncode else [["--cached"], []]
+    counts = {}
+    for mode in modes:
+        result = subprocess.run(command + ["diff", "--numstat", "--relative", "--no-renames", "--no-ext-diff", "--no-textconv", "-z", *mode, "--", "."], capture_output=True, timeout=15, env=env)
+        if result.returncode:
+            continue
+        for entry in result.stdout.split(b"\0"):
+            fields = entry.split(b"\t", 2)
+            if len(fields) != 3:
+                continue
+            added, deleted, path = fields
+            name = path.decode("utf-8", errors="replace")
+            item = counts.setdefault(name, {"added": 0, "deleted": 0, "binary": False})
+            if added == b"-" or deleted == b"-":
+                item["binary"] = True
+            else:
+                item["added"] += int(added)
+                item["deleted"] += int(deleted)
+    for name in status.get("untracked", []):
+        target = os.path.realpath(os.path.join(folder, name))
+        if os.path.commonpath([folder, target]) != folder or not os.path.isfile(target):
+            continue
+        try:
+            # Bound work for large/binary files and skip symlinks outside the project.
+            with open(target, "rb") as handle:
+                raw = handle.read(2 * 1024 * 1024 + 1)
+            if len(raw) > 2 * 1024 * 1024:
+                counts[name] = {"unavailable": True}
+            elif b"\0" in raw:
+                counts[name] = {"added": 0, "deleted": 0, "binary": True}
+            else:
+                counts[name] = {"added": raw.count(b"\n") + int(bool(raw) and not raw.endswith(b"\n")), "deleted": 0, "binary": False}
+        except OSError:
+            pass
+    if since is not None:
+        names = set().union(*(status.get(category, []) for category in ("added", "modified", "deleted", "untracked")))
+        counts = {name: count for name, count in counts.items() if name in names}
+    status["stats"] = counts
+    return status
+
+
+def _project_file_diff(desk, project, file_path):
+    """Read-only Git diff of one literal path inside the selected project."""
+    folder = os.path.realpath(project.get("path") or "")
+    if not project.get("path") or not os.path.isdir(folder):
+        return {"is_repo": False}
+    target = os.path.realpath(os.path.join(folder, file_path))
+    if not file_path or len(file_path) > 4096 or os.path.commonpath([folder, target]) != folder:
+        raise ValueError("invalid_path")
+    status = desk.project_git_status(folder)
+    if not status.get("is_repo"):
+        return {"is_repo": False}
+    repo_root = folder
+    while not os.path.exists(os.path.join(repo_root, ".git")):
+        parent = os.path.dirname(repo_root)
+        if parent == repo_root:
+            return {"is_repo": False}
+        repo_root = parent
+    command = ["git", "--literal-pathspecs", "-c", "safe.directory=" + repo_root, "-C", folder]
+    environment = {**os.environ, "GIT_OPTIONAL_LOCKS": "0", "GIT_PAGER": "cat"}
+    relative = os.path.relpath(target, folder)
+    flags = ["--no-ext-diff", "--no-textconv", "--no-color"]
+    # HEAD includes staged and unstaged changes. An unborn repo needs two views.
+    head = subprocess.run(command + ["rev-parse", "--verify", "HEAD"], capture_output=True, timeout=10, env=environment)
+    if relative in status.get("untracked", []):
+        commands = [command + ["diff", *flags, "--no-index", "--", "/dev/null", target]]
+    elif head.returncode == 0:
+        commands = [command + ["diff", *flags, "HEAD", "--", relative]]
+    else:
+        commands = [command + ["diff", *flags, "--cached", "--", relative], command + ["diff", *flags, "--", relative]]
+    import tempfile
+    limit = 512000
+    with tempfile.TemporaryFile() as output:
+        for args in commands:
+            result = subprocess.run(args, stdout=output, stderr=subprocess.PIPE, timeout=15, env=environment)
+            if result.returncode not in (0, 1):
+                raise ValueError("git_diff_failed")
+        output.seek(0)
+        raw = output.read(limit + 1)
+    return {"is_repo": True, "path": relative, "diff": raw[:limit].decode("utf-8", errors="replace"), "truncated": len(raw) > limit}
+
+
+@router.get("/projects/{project_id}/git-diff")
+async def pub_project_git_diff(project_id: str, path: str, x_pub_token: str = Header(default=None)):
+    me, desk = _resolve(x_pub_token), _desktop()
+    if not me or not me.get("is_admin") or desk is None:
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    project = desk._get_project(project_id)
+    if not project:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    try:
+        return JSONResponse(await asyncio.to_thread(_project_file_diff, desk, project, path))
+    except (ValueError, OSError, subprocess.TimeoutExpired):
+        return JSONResponse({"error": "git_diff_unavailable"}, status_code=400)
 
 
 @router.get("/browse")

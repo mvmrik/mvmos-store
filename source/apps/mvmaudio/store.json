@@ -1,0 +1,17 @@
+{
+  "tagline": "One home for music, audiobooks and live radio.",
+  "description": "mvmAudio brings a shared music library, audiobook shelves and HTTPS radio stations to the mvmOS desktop and a responsive Apps Hub page. Books contain ordered chapters and each listener keeps an independent position, speed, completion status, favourites and bookmarks. Personal playlists can combine library items and be shared with other profiles. Premium optionally enables private uploads with an administrator-set allowance; uploads are disabled by default.",
+  "capabilities": [
+    "Separate music, audiobook and radio libraries with search and genre filters.",
+    "Administrator-managed common library and public playlists.",
+    "Independent chapter, position, percentage and remaining time per listener.",
+    "Playback speed, bookmarks, sleep timer, shuffle, repeat and queue.",
+    "Personal favourites, listening history and playlists shared with selected Apps Hub profiles.",
+    "Authenticated seeking and streaming of private audio files.",
+    "Mobile interface and Media Session controls for supported browsers.",
+    "Bundled audio inspection with no FFmpeg, system packages or additional installation steps.",
+    "Read embedded metadata and cover art automatically without changing original audio.",
+    "Search MusicBrainz and Open Library directly from your installation, preview matches and apply selected fields.",
+    "Manual cover upload, source attribution and per-title metadata editing, with no API keys."
+  ]
+}
