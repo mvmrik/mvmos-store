@@ -33,7 +33,7 @@ mvmOS.registerApp({
   launch() {
     mvmOS.createWindow({
       id: 'tesla',
-      title: mvmOS.iconHTML ? mvmOS.iconHTML(mvmOS._apps?.tesla || {icon: '🚗'}) + ' Tesla' : '🚗 Tesla',
+      title: '🚗 Tesla',
       width: 1040,
       height: 720,
       appSettings: true,
@@ -45,7 +45,13 @@ mvmOS.registerApp({
         let handle = null;
 
         _loadTeslaAssets().then(() => {
-          handle = window.TeslaWidget.mount(root, {desktop: true});
+          handle = window.TeslaWidget.mount(root, {
+            desktop: true,
+            async onSetupRequired(container, onSaved) {
+              if (!window.TeslaServerSettings) await _tslLoadScript('/apps/tesla/tesla-server.js');
+              if (container.isConnected) await window.TeslaServerSettings(container, { onSaved });
+            },
+          });
         });
 
         const observer = new MutationObserver(() => {

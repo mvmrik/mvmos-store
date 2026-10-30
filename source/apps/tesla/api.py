@@ -44,6 +44,10 @@ _spec_s = importlib.util.spec_from_file_location("_tesla_sharing_api", os.path.j
 sharing = importlib.util.module_from_spec(_spec_s)
 _spec_s.loader.exec_module(sharing)
 
+_spec_e = importlib.util.spec_from_file_location("_tesla_elevation_api", os.path.join(_DIR, "elevation.py"))
+elevation = importlib.util.module_from_spec(_spec_e)
+_spec_e.loader.exec_module(elevation)
+
 
 
 def _billing_prefs(c, me):
@@ -366,6 +370,49 @@ def disconnect(x_pub_token: Optional[str] = Header(default=None)):
 
 
 # ── Now ─────────────────────────────────────────────────────────────────────
+@router.post("/v/{vid}/refresh")
+def refresh(vid: str, x_pub_token: Optional[str] = Header(default=None)):
+    me, err = _gate(x_pub_token)
+    if err:
+        return err
+    if me["role"] not in ("owner", "admin"):
+        return _bad("view_only", 403)
+    with eng.db() as c:
+        v = _vehicle(c, me, vid)
+        if not v:
+            return _bad("not_found", 404)
+        acct = c.execute("SELECT * FROM accounts WHERE user_id=?", (me["id"],)).fetchone()
+        if not acct or acct["last_error"] == "reauth":
+            return _bad("reauth", 409)
+        if acct["backoff_until"] > time.time():
+            return _bad("refresh_busy", 429)
+        cfg = eng.settings(c, me["id"])
+        if not cfg["client_id"] or not cfg["client_secret"]:
+            return _bad("reauth", 409)
+        poll = eng.get_poll(c, vid)
+        if poll["busy_until"] >= int(time.time()):
+            return _bad("refresh_busy", 409)
+        # Request vehicle data immediately, even if the last list said offline.
+        # Keep the engine's lease, token retry, history and scheduling behavior.
+        # A manual reading never sends a wake-up command.
+        try:
+            mode = eng.sample_vehicle(c, cfg, acct, v, eng.pressure(c, cfg))
+        except eng.AuthError:
+            return _bad("reauth", 409)
+        if mode is not None:
+            return JSONResponse({"updated": True})
+        poll = eng.get_poll(c, vid)
+        if poll["busy_until"] >= int(time.time()):
+            return _bad("refresh_busy", 409)
+        latest_account = c.execute("SELECT last_error,backoff_until FROM accounts WHERE user_id=?", (me["id"],)).fetchone()
+        if latest_account["backoff_until"] > time.time():
+            return _bad("refresh_busy", 429)
+        account_error = latest_account["last_error"]
+        if not account_error and poll["last_state"] in ("asleep", "offline"):
+            return JSONResponse({"updated": False, "state": poll["last_state"]})
+        return _bad("refresh_failed", 502)
+
+
 @router.get("/v/{vid}/now")
 def now(vid: str, x_pub_token: Optional[str] = Header(default=None)):
     me, err = _gate(x_pub_token)
@@ -446,6 +493,18 @@ def trip(vid: str, tid: int, x_pub_token: Optional[str] = Header(default=None)):
             lambda r: _trip_out(r, places), lambda r: _charge_out(r, places, prefs), only_trip=tid)
     out["points"] = [list(r) for r in pts]
     return JSONResponse(out)
+
+
+@router.get("/v/{vid}/trips/{tid}/elevation")
+def trip_elevation(vid: str, tid: int, x_pub_token: Optional[str] = Header(default=None)):
+    me, err = _gate(x_pub_token)
+    if err: return err
+    with eng.db() as c:
+        if not _vehicle(c, me, vid): return _bad("not_found", 404)
+        if not c.execute("SELECT id FROM trips WHERE id=? AND vehicle=?", (tid, vid)).fetchone():
+            return _bad("not_found", 404)
+        rows = c.execute("SELECT trip,ts,lat,lng FROM trip_points WHERE trip=? ORDER BY ts LIMIT 100000", (tid,)).fetchall()
+    return elevation.profile(rows)
 
 
 # ── Charges ─────────────────────────────────────────────────────────────────
@@ -629,6 +688,91 @@ def _unpack(blob):
         return json.loads(zlib.decompress(blob).decode())
     except Exception:
         return {}
+
+
+@router.get("/v/{vid}/history")
+def car_history(vid: str, start: int = 0, end: int = 0, x_pub_token: Optional[str] = Header(default=None)):
+    """Local recorded snapshots only. Half-open browser-local day, including DST."""
+    me, err = _gate(x_pub_token)
+    if err:
+        return err
+    with eng.db() as c:
+        if not _vehicle(c, me, vid):
+            return _bad("not_found", 404)
+        bounds = c.execute("SELECT MIN(ts),MAX(ts) FROM samples WHERE vehicle=?", (vid,)).fetchone()
+        last_state = c.execute("SELECT MAX(start_ts) FROM states WHERE vehicle=?", (vid,)).fetchone()[0]
+        last = max(bounds[1], last_state or bounds[1]) if bounds[1] is not None else None
+        if not start and not end:
+            return JSONResponse({"first": bounds[0], "last": last})
+        if start < 0 or end <= start or end - start > 25 * 3600:
+            return _bad("invalid_day", 400)
+        rows = c.execute("SELECT * FROM samples WHERE vehicle=? AND ts>=? AND ts<? ORDER BY ts,id", (vid,start,end)).fetchall()
+        states = c.execute("SELECT * FROM states WHERE vehicle=? AND start_ts<? AND (end_ts IS NULL OR end_ts>?) ORDER BY start_ts,id", (vid,end,start)).fetchall()
+        events = {r["ts"]: r for r in rows}
+        for state in states:
+            if state["start_ts"] >= start:
+                events.setdefault(state["start_ts"], None)
+        previous = c.execute("SELECT * FROM samples WHERE vehicle=? AND ts<? ORDER BY ts DESC,id DESC LIMIT 1", (vid,start)).fetchone()
+        raw = {r["sample"]: r["data"] for r in c.execute("SELECT sample,data FROM raw WHERE vehicle=? AND ts>=? AND ts<?", (vid,start,end))}
+        if previous is not None:
+            prior_raw = c.execute("SELECT data FROM raw WHERE vehicle=? AND sample=?", (vid,previous["id"])).fetchone()
+            if prior_raw:
+                raw[previous["id"]] = prior_raw["data"]
+        charges = c.execute("SELECT id,start_ts,end_ts,start_batt,dc FROM charges WHERE vehicle=? AND start_ts<? AND (end_ts IS NULL OR end_ts>=?) ORDER BY start_ts", (vid,end,start)).fetchall()
+        electrical = {r["ts"]: r for r in c.execute("SELECT cp.ts,cp.voltage,cp.current FROM charge_points cp JOIN charges ch ON ch.id=cp.charge WHERE ch.vehicle=? AND cp.ts>=? AND cp.ts<?", (vid,previous["ts"] if previous is not None else start,end))}
+        places = _places(c, me)
+        anchors = []
+        for trip in c.execute("SELECT start_lat,start_lng,start_addr,end_lat,end_lng,end_addr FROM trips WHERE vehicle=? AND start_ts<? AND (end_ts>=? OR end_ts IS NULL) UNION ALL SELECT start_lat,start_lng,start_addr,end_lat,end_lng,end_addr FROM trips WHERE id=(SELECT id FROM trips WHERE vehicle=? AND end_ts<? ORDER BY end_ts DESC LIMIT 1)", (vid,end,start,vid,start)):
+            anchors.extend((trip[i],trip[i+1],trip[i+2]) for i in (0,3) if trip[i] is not None and trip[i+1] is not None and trip[i+2])
+        anchors.extend((ch["lat"],ch["lng"],ch["addr"]) for ch in c.execute("SELECT lat,lng,addr FROM charges WHERE vehicle=? AND start_ts<? AND (end_ts>=? OR end_ts IS NULL)", (vid,end,start)) if ch["lat"] is not None and ch["lng"] is not None and ch["addr"])
+        def location(sample):
+            lat, lng = sample["lat"], sample["lng"]
+            if lat is None or lng is None:
+                return ""
+            near = _near(places,lat,lng)
+            if near:
+                return near["name"]
+            closest = min(anchors,key=lambda a: eng.haversine(lat,lng,a[0],a[1]),default=None)
+            if closest and eng.haversine(lat,lng,closest[0],closest[1]) <= 100:
+                return closest[2]
+            return ""
+        frames, state_index = [], -1
+        for ts, row in sorted(events.items()):
+            if row is not None:
+                previous = row
+            if previous is None:
+                continue  # Never borrow a future reading for an earlier state.
+            while state_index + 1 < len(states) and states[state_index + 1]["start_ts"] <= ts:
+                state_index += 1
+            period = states[state_index] if state_index >= 0 else None
+            if period is not None and period["end_ts"] is not None and period["end_ts"] <= ts:
+                period = None
+            sample = dict(previous)
+            data = _unpack(raw[previous["id"]]) if previous["id"] in raw else {}
+            # Samples were stored as online before trip/charge classification.
+            # The state log is the historical authority, including list-only events.
+            mode = period["state"] if period is not None else sample["state"] or "unknown"
+            if period is None and mode not in ("asleep", "offline"):
+                cs = data.get("charge_state") or {}
+                if sample["shift"] in ("D", "R", "N") or (sample["speed"] or 0) > 0:
+                    mode = "driving"
+                elif (sample["charging_state"] or cs.get("charging_state")) in ("Charging", "Starting"):
+                    mode = "charging"
+            visual = {key: data[key] for key in ("climate_state", "charge_state", "vehicle_config", "vehicle_state") if isinstance(data.get(key),dict)}
+            visual.get("vehicle_state", {}).pop("vehicle_name", None)
+            frame = {"ts": ts, "state": mode, "since": period["start_ts"] if period is not None else ts,
+                     "sample": sample, "location": location(sample), "car": {"ts": previous["ts"], "data": visual}}
+            if mode == "charging":
+                session = next((ch for ch in reversed(charges) if ch["start_ts"] <= ts and (ch["end_ts"] is None or ts <= ch["end_ts"])), None)
+                if session is not None:
+                    # Session totals/end battery describe the future; use only
+                    # the energy actually recorded at this point in the charge.
+                    frame["charge"] = {"id": session["id"], "start_ts": session["start_ts"], "start_batt": session["start_batt"], "dc": bool(session["dc"]), "kwh": sample["energy_added"]}
+                if sample["ts"] in electrical:
+                    point = electrical[sample["ts"]]
+                    sample.update(voltage=point["voltage"], current=point["current"])
+            frames.append(frame)
+    return JSONResponse({"first": bounds[0], "last": last, "frames": frames})
 
 
 @router.get("/v/{vid}/car")
@@ -899,6 +1043,18 @@ def journey_detail(vid: str, jid: str, x_pub_token: Optional[str] = Header(defau
         analysis = journey_data.report(c, vid, row["start_ts"], row["end_ts"],
             lambda r: _trip_out(r, places), lambda r: _charge_out(r, places, prefs))
     return {"journey": _journey_out(row), "analysis": analysis}
+
+
+@router.get("/v/{vid}/journeys/{jid}/elevation")
+def journey_elevation(vid: str, jid: str, x_pub_token: Optional[str] = Header(default=None)):
+    me, err = _gate(x_pub_token)
+    if err: return err
+    with eng.db() as c:
+        if not _vehicle(c, me, vid): return _bad("not_found", 404)
+        row = c.execute("SELECT start_ts,end_ts FROM journeys WHERE id=? AND vehicle=? AND user_id=?", (jid, vid, me["id"])).fetchone()
+        if not row: return _bad("not_found", 404)
+        rows = c.execute("SELECT p.trip,p.ts,p.lat,p.lng FROM trip_points p JOIN trips t ON t.id=p.trip WHERE t.vehicle=? AND p.ts>=? AND p.ts<=? ORDER BY p.ts LIMIT 100000", (vid, row['start_ts'], row['end_ts'])).fetchall()
+    return elevation.profile(rows)
 
 
 @router.delete("/v/{vid}/journeys/{jid}")

@@ -1,5 +1,5 @@
 // Desktop-only server settings. No personal Tesla secret is sent to this view.
-window.TeslaServerSettings = async function(container) {
+window.TeslaServerSettings = async function(container, options) {
   const hub = typeof AppHub !== 'undefined' ? AppHub : window.AppHub;
   const t = key => window.t ? window.t(key) : key;
   const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -14,7 +14,7 @@ window.TeslaServerSettings = async function(container) {
   const form=container.querySelector('form'), result=form.querySelector('[role=status]'), button=form.querySelector('button');
   form.addEventListener('submit', async e=>{
     e.preventDefault();button.disabled=true;
-    try {await api('PUT',{origin:form.elements.origin.value});result.textContent=t('tsl_setup_server_saved');}
+    try {await api('PUT',{origin:form.elements.origin.value});result.textContent=t('tsl_setup_server_saved');if(options?.onSaved)await options.onSaved();}
     catch(e) {const key='tsl_setup_'+e.message;result.textContent=t(key)===key?t('tsl_error'):t(key);}
     finally {button.disabled=false;}
   });

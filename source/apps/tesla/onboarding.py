@@ -115,7 +115,7 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
 
 def verify_public_key(origin, expected):
     try:
-        req = urllib.request.Request(origin + KEY_PATH, headers={'Cache-Control':'no-cache'})
+        req = urllib.request.Request(origin + KEY_PATH, headers={'Cache-Control':'no-cache', 'User-Agent':'mvmOS-Tesla/1.0'})
         with urllib.request.build_opener(_NoRedirect()).open(req, timeout=12) as response:
             actual = response.read(8192).decode('ascii').strip()
             if response.status != 200 or actual != expected.strip():
@@ -124,6 +124,21 @@ def verify_public_key(origin, expected):
         raise
     except Exception:
         raise SetupError('key_unreachable')
+
+
+def matches_public_key(public, expected):
+    """Tesla returns an uncompressed SEC1 hex point; older responses may use PEM."""
+    if not isinstance(public, str):
+        return False
+    if public.strip() == expected.strip():
+        return True
+    try:
+        from cryptography.hazmat.primitives import serialization
+        key = serialization.load_pem_public_key(expected.encode())
+        point = key.public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)
+        return bytes.fromhex(public.strip()) == point
+    except (ValueError, TypeError, AttributeError):
+        return False
 
 
 def register(c, user_id):
@@ -154,10 +169,13 @@ def register(c, user_id):
                                   payload={'domain':urllib.parse.urlsplit(state['origin']).hostname})
         if status not in (200,201):
             raise SetupError('registration_failed')
-        # Verify the enrolled key too, rather than trusting a generic HTTP success.
-        status, result = eng.http('GET', api + '/api/1/partner_accounts/public_key?domain=' + urllib.parse.urlsplit(state['origin']).hostname, token=token['access_token'])
+        # Registration returns the enrolled EC point as hex. Verify it directly;
+        # a separate lookup can require scopes absent from the partner token.
         public = (result.get('response') or {}).get('public_key')
-        if status != 200 or not public or public.strip() != eng.cfg_get(c,'server_public_key').strip():
+        if not public:
+            status, result = eng.http('GET', api + '/api/1/partner_accounts/public_key?domain=' + urllib.parse.urlsplit(state['origin']).hostname, token=token['access_token'])
+            public = (result.get('response') or {}).get('public_key') if status == 200 else None
+        if not public or not matches_public_key(public, eng.cfg_get(c,'server_public_key')):
             raise SetupError('registration_failed')
         # Another request must not replace credentials during network calls.
         latest = eng.settings(c, user_id)

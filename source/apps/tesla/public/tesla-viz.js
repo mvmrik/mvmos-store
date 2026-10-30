@@ -157,10 +157,11 @@
       const v = y0 + nice * i, y = Y(v);
       g += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" class="tsl-grid"/><text x="${L - 6}" y="${y + 4}" text-anchor="end" class="tsl-ax">${esc(cfg.yFmt ? cfg.yFmt(v) : nf(v, v < 10 ? 1 : 0))}</text>`;
     }
-    const ticks = Math.min(Math.max(2, Math.floor(W / 120)), n, 6);
+    const tickData = cfg.segmented ? all.slice().sort((a,b)=>a[0]-b[0]) : cfg.series[0].data;
+    const ticks = Math.min(Math.max(2, Math.floor(W / 120)), tickData.length, 6);
     for (let i = 0; i < ticks; i++) {
-      const idx = ticks === 1 ? 0 : Math.round(i * (cfg.series[0].data.length - 1) / (ticks - 1));
-      const p = cfg.series[0].data[idx];
+      const idx = ticks === 1 ? 0 : Math.round(i * (tickData.length - 1) / (ticks - 1));
+      const p = tickData[idx];
       if (p) g += `<text x="${X(p[0])}" y="${H - 8}" text-anchor="${i===0?'start':i===ticks-1?'end':'middle'}" class="tsl-ax">${esc(cfg.xFmt ? cfg.xFmt(p[0]) : p[0])}</text>`;
     }
     const id = 'tslh' + (++seq);
@@ -184,7 +185,7 @@
     });
     el.innerHTML = `<div class="tsl-chart"><svg viewBox="0 0 ${W} ${H}" id="${id}">${g}${body}<line class="tsl-cross" y1="${T}" y2="${H - B}" x1="0" x2="0" style="display:none"/></svg><div class="tsl-tip" style="display:none"></div></div>`;
     const svg = el.querySelector('svg'), tip = el.querySelector('.tsl-tip'), cross = el.querySelector('.tsl-cross'), host = el.querySelector('.tsl-chart');
-    const base = cfg.series[0].data;
+    const base = cfg.segmented ? all : cfg.series[0].data;
     function hover(ev) {
       const rect = svg.getBoundingClientRect();
       const px = ((ev.touches ? ev.touches[0].clientX : ev.clientX) - rect.left) / rect.width * W;
@@ -192,7 +193,7 @@
       base.forEach((p, i) => { const d = Math.abs(X(p[0]) - px); if (d < bd) { bd = d; best = i; } });
       const p = base[best];
       cross.setAttribute('x1', X(p[0])); cross.setAttribute('x2', X(p[0])); cross.style.display = '';
-      const lines = cfg.series.map(s => { const sample=s.data.reduce((a,q)=>!a||Math.abs(q[0]-p[0])<Math.abs(a[0]-p[0])?q:a,null); return sample ? `<span style="color:${s.color}">●</span> ${esc(s.label ? s.label + ': ' : '')}${esc(cfg.tipFmt ? cfg.tipFmt(sample[1], s) : (cfg.yFmt ? cfg.yFmt(sample[1]) : nf(sample[1], 1)))}` : ''; }).join('<br>');
+      const lines = cfg.series.filter(s=>!cfg.segmented || s.data.some(q=>q===p)).map(s => { const sample=s.data.reduce((a,q)=>!a||Math.abs(q[0]-p[0])<Math.abs(a[0]-p[0])?q:a,null); return sample ? `<span style="color:${s.color}">●</span> ${esc(s.label ? s.label + ': ' : '')}${esc(cfg.tipFmt ? cfg.tipFmt(sample[1], s) : (cfg.yFmt ? cfg.yFmt(sample[1]) : nf(sample[1], 1)))}` : ''; }).join('<br>');
       tip.innerHTML = `<b>${esc(cfg.xFmt ? cfg.xFmt(p[0], true) : p[0])}</b><br>${lines}`;
       tip.style.display = '';
       const left = X(p[0]) / W * host.clientWidth;
@@ -268,6 +269,7 @@
       if (pts.length) {
         for (let i = 1; i < pts.length; i++) {
           const a = P(pts[i - 1]), b = P(pts[i]);
+          if(Math.max(a[0],b[0]) < -10 || Math.min(a[0],b[0]) > box.clientWidth+10 || Math.max(a[1],b[1]) < -10 || Math.min(a[1],b[1]) > box.clientHeight+10)continue;
           out += `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}" stroke="${opts.color ? opts.color(pts[i][2]) : '#3b82f6'}" stroke-width="5" stroke-linecap="round"/>`;
         }
         const a = P(pts[0]), b = P(pts[pts.length - 1]);
@@ -283,6 +285,29 @@
         out += `<circle cx="${m[0]}" cy="${m[1]}" r="18" fill="#3b82f6" opacity=".25"/><circle cx="${m[0]}" cy="${m[1]}" r="8" fill="#3b82f6" stroke="#fff" stroke-width="3"/>`;
       }
       svg.innerHTML = out;
+      drawCursor();
+    }
+    // Keep help inside the map; it must not initiate a map pan or zoom.
+    const help=document.createElement('div');help.className='tsl-map-help';
+    const helpId='tsl-map-legend-'+(++seq);
+    const closeHelp=()=>{const panel=help.querySelector('.tsl-map-legend'),button=help.querySelector('button');if(panel)panel.hidden=true;if(button)button.setAttribute('aria-expanded','false');};
+    function legend() {
+      help.hidden=!(opts.color && routes.some(r=>r.length>1));
+      if(help.hidden)return;
+      const speed=v=>nf(U.speed(v),U.imperial?1:0),unit=U.speedU();
+      const row=(color,label,point=false)=>`<div><i class="${point?'point':'line'}" style="--legend-color:${color}" aria-hidden="true"></i><span>${esc(label)}</span></div>`;
+      help.innerHTML=`<button type="button" class="tsl-map-help-btn" aria-label="${esc(t('tsl_map_legend'))}" title="${esc(t('tsl_map_legend'))}" aria-expanded="false" aria-controls="${helpId}">?</button><div class="tsl-map-legend" id="${helpId}" role="region" aria-label="${esc(t('tsl_map_legend'))}" hidden><b>${esc(t('tsl_map_speed'))}</b>${row('#22c55e','< '+speed(30)+' '+unit)}${row('#eab308',speed(30)+' – < '+speed(70)+' '+unit)}${row('#f97316',speed(70)+' – < '+speed(110)+' '+unit)}${row('#ef4444','≥ '+speed(110)+' '+unit)}${row('#3b82f6',t('tsl_map_unknown'))}<div class="tsl-map-ends">${row('#22c55e',t('tsl_map_start'),true)}${row('#ef4444',t('tsl_map_finish'),true)}</div><p>${esc(t('tsl_map_note'))}</p></div>`;
+      help.querySelector('button').onclick=()=>{const panel=help.querySelector('.tsl-map-legend');panel.hidden=!panel.hidden;help.querySelector('button').setAttribute('aria-expanded',String(!panel.hidden));};
+    }
+    box.appendChild(help);legend();
+    box.addEventListener('keydown',e=>{if(e.key==='Escape'&&!help.hidden){closeHelp();help.querySelector('button').focus();e.stopPropagation();}});
+    box.addEventListener('click',e=>{if(!e.target.closest('.tsl-map-help'))closeHelp();});
+    let cursor = null, following=false, followListener=null;
+    function releaseFollow(){if(following){following=false;if(followListener)followListener(false);}}
+    function drawCursor() {
+      const old=svg.querySelector('.tsl-replay-car');if(old)old.remove();if(!cursor)return;
+      const scale=TILE*Math.pow(2,z),x=(mx(cursor.lng)-cx)*scale+box.clientWidth/2,y=(my(cursor.lat)-cy)*scale+box.clientHeight/2;
+      const g=document.createElementNS('http://www.w3.org/2000/svg','g');g.setAttribute('class','tsl-replay-car');g.setAttribute('transform',`translate(${x} ${y})`);g.innerHTML=`<circle r="20" fill="#60a5fa" opacity=".22"/><g transform="rotate(${cursor.heading||0})"><path d="m0-25-5 7h10z" fill="#fff"/><rect x="-9" y="-16" width="18" height="32" rx="7" fill="#fff" stroke="#172033" stroke-width="2"/><path d="M-6-7h12l-1 7H-5zM-5 8H5v4H-5z" fill="#1d4266"/></g>`;svg.appendChild(g);
     }
     fit();
     const pointers = new Map();
@@ -298,7 +323,7 @@
       pinched = true;
     }
     box.addEventListener('pointerdown', e => {
-      if (e.target.closest('.tsl-zoom') || e.pointerType === 'mouse' && e.button !== 0) return;
+      if (e.target.closest('.tsl-zoom,.tsl-map-help') || e.pointerType === 'mouse' && e.button !== 0) return;
       pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
       if (pointers.size === 1) { start = { x:e.clientX,y:e.clientY }; pinched = false; }
       else if (pointers.size === 2) beginPinch();
@@ -308,6 +333,7 @@
       const previous = pointers.get(e.pointerId); if (!previous) return;
       pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
       if (pointers.size >= 2 && pinch) {
+        releaseFollow();
         const m = midpoint(), r = box.getBoundingClientRect();
         z = Math.max(3,Math.min(18,Math.round(pinch.z+Math.log2(Math.max(1,m.distance)/pinch.distance))));
         const s = TILE*Math.pow(2,z);
@@ -316,7 +342,7 @@
       } else {
         const s = TILE*Math.pow(2,z);
         cx -= (e.clientX-previous.x)/s; cy -= (e.clientY-previous.y)/s;
-        if (start && Math.hypot(e.clientX-start.x,e.clientY-start.y)>2) interacted = true;
+        if (start && Math.hypot(e.clientX-start.x,e.clientY-start.y)>2){interacted = true;releaseFollow();}
       }
       clamp(); draw();
     });
@@ -336,9 +362,10 @@
     function zoomTo(next, x, y) {
       const oldScale=TILE*Math.pow(2,z), anchorX=cx+(x-box.clientWidth/2)/oldScale, anchorY=cy+(y-box.clientHeight/2)/oldScale;
       z=Math.max(3,Math.min(18,next));const scale=TILE*Math.pow(2,z);
-      cx=anchorX-(x-box.clientWidth/2)/scale;cy=anchorY-(y-box.clientHeight/2)/scale;interacted=true;clamp();draw();
+      cx=anchorX-(x-box.clientWidth/2)/scale;cy=anchorY-(y-box.clientHeight/2)/scale;interacted=true;if(following&&cursor){cx=mx(cursor.lng);cy=my(cursor.lat);}clamp();draw();
     }
     box.addEventListener('wheel', e => {
+      if(e.target.closest('.tsl-map-help'))return;
       e.preventDefault();const r=box.getBoundingClientRect();zoomTo(z+(e.deltaY<0?1:-1),e.clientX-r.left,e.clientY-r.top);
     }, { passive:false });
     box.querySelector('.tsl-zoom').addEventListener('click', e => {
@@ -350,9 +377,18 @@
     requestAnimationFrame(redraw);
     return {
       element:el, redraw,
-      update(nextRoute,nextOpts) { if(dead)return;route=nextRoute||[];opts=nextOpts||{};geometry();redraw(); },
-      getView() { return { zoom:z, x:cx, y:cy, interacted }; },
-      destroy() { dead=true;if(observer)observer.disconnect();pointers.clear();tileNodes.clear(); }
+      setCursor(next) { if(dead)return;cursor=next;if(following&&cursor){cx=mx(cursor.lng);cy=my(cursor.lat);interacted=true;clamp();draw();}else drawCursor(); },
+      setFollow(enabled) {
+        if(dead)return;
+        const wasFollowing=following;following=!!enabled;
+        if(following){if(!wasFollowing)z=14;interacted=true;if(cursor){cx=mx(cursor.lng);cy=my(cursor.lat);}clamp();draw();}
+        else {interacted=false;fit();draw();}
+        if(followListener)followListener(following);
+      },
+      onFollowChange(listener) {followListener=listener;},
+      update(nextRoute,nextOpts) { if(dead)return;route=nextRoute||[];opts=nextOpts||{};geometry();legend();redraw(); },
+      getView() { return { zoom:z, x:cx, y:cy, interacted, following }; },
+      destroy() { dead=true;if(observer)observer.disconnect();pointers.clear();tileNodes.clear();followListener=null; }
     };
   }
 

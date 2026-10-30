@@ -134,6 +134,84 @@ class Onboarding(unittest.TestCase):
         self.assertEqual(r.json()['redirect'],'https://alice.example/pub/tesla/callback')
         self.assertEqual(self.client.get('/pub/tesla/connect?origin=https://wrong.example',headers={**self.alice,'Host':'wrong.example'}).status_code,409)
 
+    def test_public_key_probe_identifies_the_app_and_rejects_redirects(self):
+        import io
+        import urllib.request
+        import urllib.error
+        expected = 'test-public-key'
+        class Response(io.BytesIO):
+            status = 200
+        with patch.object(setup.urllib.request, 'build_opener') as build:
+            build.return_value.open.return_value = Response(expected.encode())
+            setup.verify_public_key('https://fresh.example', expected)
+            request = build.return_value.open.call_args.args[0]
+            self.assertEqual(request.full_url, 'https://fresh.example' + setup.KEY_PATH)
+            self.assertEqual(request.get_header('User-agent'), 'mvmOS-Tesla/1.0')
+            self.assertIsInstance(build.call_args.args[0], setup._NoRedirect)
+        with patch.object(setup.urllib.request, 'build_opener') as build:
+            build.return_value.open.side_effect = urllib.error.HTTPError('https://fresh.example', 307, 'Redirect', {}, None)
+            with self.assertRaisesRegex(setup.SetupError, 'key_unreachable'):
+                setup.verify_public_key('https://fresh.example', expected)
+
+    def test_successful_registration_with_wrong_key_is_not_marked_ready(self):
+        self.prepare()
+        answers = [(200, {'access_token': 'partner-test'}),
+                   (200, {'response': {'public_key': '04' + '00' * 64}})]
+        with patch.object(setup, 'verify_public_key'), patch.object(engine, 'http', side_effect=answers):
+            with self.assertRaisesRegex(setup.SetupError, 'registration_failed'):
+                setup.register(self.c, 'alice')
+        self.assertFalse(setup.ready(self.c, 'alice'))
+        self.assertEqual(engine.cfg_get(self.c, 'registration_busy_until'), 0)
+
+    def test_fresh_install_setup_to_registration_uses_only_the_users_inputs(self):
+        from backend.app_backends import allows_no_session
+        from fastapi.responses import RedirectResponse
+        client, module = self.server_client()
+
+        @client.app.middleware('http')
+        async def desktop_gate(request, call_next):
+            if not request.cookies.get('session') and not allows_no_session(request.app.routes, request.scope):
+                return RedirectResponse('/login')
+            return await call_next(request)
+
+        with client:
+            self.assertEqual(setup.server_state(self.c)['owner_id'], '')
+            client.cookies.set('session', 'test-desktop')
+            response = client.put('/api/apps/tesla/server', headers=self.alice,
+                                  json={'origin': 'https://fresh.example'})
+            self.assertEqual(response.status_code, 200, response.text)
+            client.cookies.clear()
+            response = client.get(setup.KEY_PATH, headers={'Host': 'fresh.example'}, follow_redirects=False)
+            self.assertEqual(response.status_code, 200, response.text)
+            self.assertEqual(client.get('/api/apps/tesla/server', follow_redirects=False).status_code, 307)
+            expected = engine.cfg_get(self.c, 'server_public_key')
+            self.assertEqual(response.text.strip(), expected.strip())
+            self.assertEqual(client.get(setup.KEY_PATH, headers={'Host': 'other.example'}).status_code, 404)
+            response = self.client.put('/pub/tesla/credentials', headers=self.alice,
+                                      json={'client_id': 'fresh-id', 'client_secret': 'fresh-secret', 'region': 'eu', 'budget': 10})
+            self.assertEqual(response.status_code, 200, response.text)
+            key = serialization.load_pem_public_key(expected.encode())
+            point = key.public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint).hex()
+            answers = [(200, {'access_token': 'fresh-partner'}), (200, {'response': {'public_key': point}})]
+            with patch.object(api.onboarding, 'verify_public_key') as verify, patch.object(api.onboarding.eng, 'http', side_effect=answers):
+                response = self.client.post('/pub/tesla/register', headers=self.alice)
+            self.assertEqual(response.status_code, 200, response.text)
+            self.assertTrue(response.json()['ready'])
+            verify.assert_called_once_with('https://fresh.example', expected)
+            self.assertTrue(self.client.get('/pub/tesla/status', headers=self.alice).json()['setup']['ready'])
+            self.assertEqual(self.client.get('/pub/tesla/status', headers=self.bob).status_code, 404)
+
+    def test_registration_accepts_verified_hex_key_without_extra_lookup(self):
+        self.prepare()
+        public = serialization.load_pem_public_key(engine.cfg_get(self.c, 'server_public_key').encode())
+        point = public.public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint).hex()
+        answers = [(200, {'access_token': 'partner-test'}), (200, {'response': {'public_key': point}})]
+        with patch.object(setup, 'verify_public_key'), patch.object(engine, 'http', side_effect=answers) as http:
+            self.assertTrue(setup.register(self.c, 'alice')['ready'])
+            self.assertEqual(http.call_count, 2)
+        self.assertFalse(setup.matches_public_key('04' + '00' * 64, engine.cfg_get(self.c, 'server_public_key')))
+        self.assertFalse(setup.matches_public_key('invalid', engine.cfg_get(self.c, 'server_public_key')))
+
     def test_key_unreachable_blocks_registration_without_tesla_calls(self):
         self.prepare()
         with patch.object(setup,'verify_public_key',side_effect=setup.SetupError('key_unreachable')),patch.object(engine,'http') as http:

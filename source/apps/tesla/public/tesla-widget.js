@@ -24,6 +24,30 @@
   .tsl-charge-tabs{gap:7px}.tsl-charge-tabs .tsl-btn{padding:9px 13px;min-height:40px}.tsl-billing-dialog .tsl-map{height:280px}
   @media(max-width:560px){.tsl-billing-columns{grid-template-columns:repeat(2,minmax(0,1fr))}.tsl-bill-total{font-size:1.65rem}.tsl-bill-rule{padding:10px}.tsl-charge-tabs .tsl-btn{flex:1;padding:8px;font-size:.8rem}.tsl-bill-place-total{align-items:flex-start;flex-wrap:wrap}}
 
+  .tsl-drive-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:14px;margin-top:12px}
+  .tsl-drive-card{display:block;width:100%;min-width:0;text-align:left;font:inherit;color:inherit;cursor:pointer;background:var(--pub-surface1,#1b2133);border:1px solid var(--pub-border,#ffffff18);border-radius:18px;padding:16px;box-shadow:0 3px 12px #0002;transition:border-color .15s,background .15s}
+  .tsl-drive-card:hover{border-color:var(--pub-accent,#60a5fa);background:color-mix(in srgb,var(--pub-accent,#60a5fa) 5%,var(--pub-surface1,#1b2133))}
+  .tsl-drive-card:focus-visible{outline:2px solid var(--pub-accent,#60a5fa);outline-offset:3px}
+  .tsl-drive-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:.76rem;color:var(--pub-fg2,#9aa4bd)}
+  .tsl-drive-meta time{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}.tsl-drive-meta time b{color:var(--pub-fg,#e6e9f2);font-weight:650}
+  .tsl-drive-duration{white-space:nowrap;padding:5px 8px;background:var(--pub-surface2,#252d45);border-radius:8px}
+  .tsl-drive-route{position:relative;display:grid;gap:13px;margin:18px 0;padding-left:23px;font-size:.98rem;font-weight:650;line-height:1.35}
+  .tsl-drive-route:before{content:'';position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(var(--pub-accent,#60a5fa),#34d399)}
+  .tsl-drive-route span{position:relative;overflow-wrap:anywhere}
+  .tsl-drive-route span:before{content:'';position:absolute;left:-22px;top:.35em;width:10px;height:10px;border:2px solid var(--pub-accent,#60a5fa);border-radius:50%;background:var(--pub-surface1,#1b2133)}
+  .tsl-drive-route span:last-child:before{border-color:#34d399;background:#34d399}
+  .tsl-drive-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .tsl-drive-metrics>span{min-width:0;padding:10px 6px;background:var(--pub-surface2,#252d45);border-radius:10px;text-align:center}
+  .tsl-drive-metrics b{display:block;font-size:.95rem;font-weight:650;overflow-wrap:anywhere;line-height:1.4;font-variant-numeric:tabular-nums}
+  .tsl-drive-metrics small{display:block;color:var(--pub-fg2,#9aa4bd);font-size:.62rem;line-height:1.3;margin-top:3px;overflow-wrap:anywhere}
+  .tsl-drive-metrics>span:first-child b{color:var(--pub-accent,#60a5fa)}
+  .tsl-drive-battery{display:flex;align-items:center;gap:10px;margin-top:13px;color:var(--pub-fg2,#9aa4bd);font-size:.72rem}
+  .tsl-drive-battery>span{white-space:nowrap;font-variant-numeric:tabular-nums}
+  .tsl-drive-battery-track{flex:1;min-width:20px;height:5px;background:var(--pub-bg,#0f1320);border-radius:9px;overflow:hidden;position:relative}
+  .tsl-drive-battery-track i{position:absolute;top:0;bottom:0;left:0;border-radius:9px;background:#34d399}
+  .tsl-drive-battery-track i.used{border-radius:0;background:#fbbf24}
+  @container(max-width:360px){.tsl-drive-card{padding:12px}.tsl-drive-metrics b{font-size:.84rem}.tsl-drive-meta{font-size:.7rem}.tsl-drive-list{gap:12px}}
+
   .tsl-journey-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:12px}
   .tsl-journey-card{position:relative;text-align:left;border:1px solid var(--pub-border,#ffffff12);color:inherit;font:inherit;cursor:pointer;min-width:0;width:100%;padding:20px}
   .tsl-journey-card:hover{border-color:#60a5fa}.tsl-journey-card h2,.tsl-journey-heading h2{font-size:1.5rem;margin:10px 0;overflow-wrap:anywhere}.tsl-journey-card p{color:var(--pub-fg2,#9aa4bd);font-size:.85rem;line-height:1.6;padding-right:20px}.tsl-journey-card>span{position:absolute;right:18px;bottom:22px;color:#60a5fa}
@@ -36,7 +60,7 @@
   .tsl-journey-dialog label{display:block;font-size:.85rem;margin:12px 0;color:var(--pub-fg2,#9aa4bd)}.tsl-journey-dialog input{display:block;width:100%;min-width:0;max-width:100%;margin-top:7px;padding:12px;border:1px solid var(--pub-border,#ffffff20);border-radius:10px;background:var(--pub-surface2,#252d45);color:var(--pub-fg,#e6e9f2);font:inherit;color-scheme:dark}.tsl-journey-dates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tsl-journey-dates>label{min-width:0}.tsl-journey-error{color:#fda4af;font-size:.85rem}.tsl-journey-dialog h2{font-size:1.3rem}.tsl-journey-dialog .tsl-note{line-height:1.6}
   @media(max-width:650px){.tsl-report-charts{grid-template-columns:1fr;gap:0}.tsl-journey-dates{grid-template-columns:1fr;gap:0}.tsl-report-summary .tsl-grid{grid-template-columns:1fr 1fr}.tsl-report-summary .tsl-tile{padding:10px}.tsl-report-summary .tsl-tile b{font-size:1.12rem}.tsl-journey-heading .tsl-btns{width:100%}.tsl-journey-heading .tsl-btns button{flex:1}}
 
-  .tsl{height:100%;overflow-y:auto;background:var(--pub-bg,#0f1320);color:var(--pub-fg,#e6e9f2);font-family:system-ui,sans-serif;-webkit-overflow-scrolling:touch}
+  .tsl{container-type:inline-size;height:100%;overflow-y:auto;background:var(--pub-bg,#0f1320);color:var(--pub-fg,#e6e9f2);font-family:system-ui,sans-serif;-webkit-overflow-scrolling:touch}
   .tsl *{box-sizing:border-box}
   .tsl-wrap{max-width:1100px;margin:0 auto;padding:12px 14px 40px}
   .tsl-bar{position:sticky;top:0;z-index:5;background:linear-gradient(var(--pub-bg,#0f1320) 80%,transparent);padding:10px 0 8px}
@@ -62,9 +86,6 @@
   .tsl-pressure:focus-visible{outline:2px solid var(--pub-accent,#60a5fa);outline-offset:2px;border-radius:8px}
   .tsl-glass-lock{fill:none;stroke:#e2eaf5;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
   .tsl-glass-lock.unlocked{stroke:#fbbf24}
-  .tsl-car-flags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-  .tsl-car-flags span{font-size:.76rem;line-height:1.5;padding:5px 10px;border-radius:9px;background:var(--pub-surface2,#252d45);color:var(--pub-fg2,#9aa4bd)}
-  .tsl-car-flags .warn{color:#fbbf24}.tsl-car-flags .active{color:#67e8f9}
   .tsl-energy{min-width:0;--energy:#74c3fa;padding:18px;border-radius:19px;border:1px solid color-mix(in srgb,var(--energy) 16%,var(--pub-border,#ffffff12));background:radial-gradient(ellipse at 0 0,color-mix(in srgb,var(--energy) 9%,transparent),transparent 75%),color-mix(in srgb,var(--pub-surface2,#252d45) 48%,transparent);box-shadow:inset 0 1px 0 #ffffff05}
   .tsl-energy-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
   .tsl-energy-label{display:flex;align-items:center;gap:7px;font-size:.69rem;color:var(--pub-fg2,#9aa4bd);font-weight:600;letter-spacing:.06em;text-transform:uppercase;min-width:0}
@@ -81,8 +102,6 @@
   .tsl-energy-track:before{content:'';position:absolute;left:0;top:0;height:100%;width:var(--level);border-radius:4px;background:linear-gradient(90deg,color-mix(in srgb,var(--energy) 76%,#fff),var(--energy));box-shadow:0 0 18px color-mix(in srgb,var(--energy) 14%,transparent)}
   .tsl-energy-track:after{content:'';position:absolute;inset:0;border-radius:4px;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 2px),var(--pub-surface1,#1b2133) calc(10% - 2px),var(--pub-surface1,#1b2133) 10%);opacity:.7;pointer-events:none}
   .tsl-energy-track i{position:absolute;top:-4px;bottom:-4px;left:clamp(0px,var(--limit),calc(100% - 2px));width:2px;background:var(--pub-fg,#e6e9f2);border-radius:2px;z-index:1;opacity:.85}
-  @container(max-width:600px){.tsl-cockpit{grid-template-columns:minmax(0,1fr);gap:0;max-width:430px}.tsl-energy{padding:16px}.tsl-energy-value{font-size:2.85rem}.tsl-energy-metrics{margin:16px 0}.tsl-car-stage{margin-top:6px;max-width:360px}.tsl-hero h2{font-size:1.4rem}}
-  @container(max-width:330px){.tsl-car-stage{aspect-ratio:.94}}
   .tsl-live-status{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
   .tsl-live-status .tsl-pill{margin:0;font-size:.78rem;padding:5px 9px}
   .tsl-refresh{font:inherit;cursor:pointer;color:var(--pub-fg2,#9aa4bd);border:1px solid var(--pub-border,#ffffff20);background:transparent;border-radius:999px;min-height:38px;padding:6px 9px;font-size:.76rem}
@@ -91,8 +110,6 @@
   .tsl-roof-temp{position:absolute;left:34%;top:40%;width:32%;text-align:center;pointer-events:none;font-size:1.2rem;color:#e2eaf5;font-weight:650;white-space:nowrap;text-shadow:0 1px 4px #000}
   .tsl-outside-temp{position:absolute;left:34%;top:13%;width:32%;text-align:center;line-height:1.25;color:#172333;background:#eef5fbe6;border-radius:7px;padding:2px 0}
   .tsl-outside-temp span{display:block;font-size:.6rem}.tsl-outside-temp b{font-size:.95rem}
-  .tsl-hero-tools{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px}
-  .tsl-hero-tools .tsl-car-flags{margin:0;gap:5px}.tsl-car-flags span{padding:3px 7px;font-size:.69rem}
   @container(max-width:330px){.tsl-roof-temp{font-size:1rem}.tsl-outside-temp b{font-size:.8rem}.tsl-outside-temp span{font-size:.55rem}}
   .tsl-climate-stream{fill:none;stroke:#a7edff;stroke-width:1.8;stroke-linecap:round;stroke-dasharray:12 24;animation:tsl-airflow 2.4s linear infinite;opacity:.8}
   .tsl-climate-haze{animation:tsl-airglow 3.5s ease-in-out infinite;opacity:.65}
@@ -136,7 +153,6 @@
   .tsl-status-readings{display:grid;grid-template-columns:1fr 1fr;gap:9px}.tsl-status-readings .tsl-tile{padding:12px}.tsl-status-readings .tsl-tile b{font-size:1.05rem}.tsl-status-readings .tsl-tile span{font-size:.65rem}
   .tsl-status-hot{fill:none;stroke:var(--status-color);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:12 9;animation:tsl-status-heat 2s linear infinite}
   @keyframes tsl-status-heat{to{stroke-dashoffset:-42}}
-  @container(max-width:600px){.tsl-energy-side{order:-1}.tsl-active-status{margin:8px 0 10px}.tsl-status-groups{gap:5px}}
   @media(max-width:560px){.tsl-status-detail{grid-template-columns:minmax(0,1fr);gap:8px}.tsl-status-art svg{height:240px}.tsl-status-headline{margin-bottom:10px}.tsl-status-headline b{font-size:1.6rem}}
   @media(prefers-reduced-motion:reduce){.tsl-status-hot{animation:none}}
   .tsl-ring{width:100%;max-width:210px;justify-self:end}
@@ -166,6 +182,8 @@
   .tsl-days button{border:0;border-radius:8px;background:var(--pub-bg,#0f1320);color:var(--pub-fg2,#9aa4bd);padding:7px 9px;cursor:pointer;font-size:.85rem}.tsl-days button.on{background:var(--pub-accent,#60a5fa);color:#0b1020;font-weight:700}
   .tsl-dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle}.tsl-pulse{animation:tslp 2.2s ease-in-out infinite}@keyframes tslp{50%{opacity:.55}}
   .tsl-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 12px;font-size:.85rem;font-weight:700;margin-top:8px;color:#0b1020}
+  .tsl-setup-feedback{box-sizing:border-box;margin:12px 0;padding:14px 16px;border:1px solid #60a5fa;border-radius:12px;background:#17283f;color:#e0efff;line-height:1.5;font-size:1rem;overflow-wrap:anywhere;scroll-margin:16px}
+  .tsl-setup-feedback[hidden]{display:none}.tsl-setup-feedback[data-state="error"]{border-color:#fb7185;background:#3d1b29;color:#ffe4e6}.tsl-setup-feedback[data-state="success"]{border-color:#4ade80;background:#143326;color:#dcfce7}
   .tsl-note{color:var(--pub-fg2,#9aa4bd);font-size:.85rem;margin-top:8px;line-height:1.4}
   .tsl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
   .tsl-tile{background:var(--pub-surface2,#252d45);border-radius:14px;padding:12px 14px}
@@ -223,6 +241,141 @@
   .tsl-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0 2px}
   .tsl-head h2{margin:0;font-size:1.3rem;flex:1}
   @media(max-width:560px){.tsl-tires{grid-template-columns:1fr 1fr}.tsl-tcar,.tsl-tgap{display:none}.tsl-row .m b{white-space:normal}.tsl-ring{justify-self:center;max-width:190px}.tsl-row .d{flex-basis:100%}}
+  /* Put compact side rails around the full-size car on narrow screens. */
+  @container(max-width:600px){
+    .tsl-wrap{padding:4px 10px 24px}.tsl-bar{padding:4px 0}.tsl-tab{padding:8px 13px;font-size:.85rem}
+    .tsl-hero{padding:12px;margin-top:6px;border-radius:16px}
+    .tsl-hero-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 8px;align-items:center}
+    .tsl-hero-head>div,.tsl-live-status{display:contents}
+    .tsl-hero h2{font-size:1.25rem;grid-column:1;grid-row:1}
+    .tsl-hero-head .tsl-sub{grid-column:1;grid-row:2;font-size:.7rem;margin:0;overflow-wrap:anywhere}
+    .tsl-live-status .tsl-pill{grid-column:2;grid-row:1;justify-self:end;font-size:.68rem;padding:4px 7px;white-space:nowrap}
+    .tsl-live-status .tsl-refresh{grid-column:2;grid-row:2;justify-self:end;min-height:36px;padding:4px 8px;font-size:.7rem}
+    .tsl-cockpit{position:relative;grid-template-columns:80px minmax(0,1fr) 40px;gap:6px;max-width:520px;margin:8px auto 0;align-items:center}
+    .tsl-energy-side{display:contents}
+    .tsl-car-stage{grid-column:2;grid-row:1;aspect-ratio:.6;max-width:240px}
+    .tsl-car,.tsl-climate-glass,.tsl-charge-cable{left:0;width:100%}
+    .tsl-pressure.fl,.tsl-pressure.rl{left:3%}.tsl-pressure.fr,.tsl-pressure.rr{right:3%}
+    .tsl-pressure b{font-size:.65rem}.tsl-roof-temp{left:25%;width:50%;font-size:1.3rem}
+    .tsl-outside-temp{left:25%;width:50%}.tsl-outside-temp b{font-size:.95rem}
+    .tsl-energy{grid-column:1;grid-row:1;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+    .tsl-energy-head{flex-direction:column;align-items:flex-start;gap:9px}
+    .tsl-energy-label{font-size:.6rem;letter-spacing:0;gap:4px;flex-wrap:wrap}
+    .tsl-energy-label svg{width:16px;height:16px;flex-basis:16px}
+    .tsl-energy-limit{font-size:.6rem;padding:4px 5px;white-space:normal}
+    .tsl-energy-metrics{grid-template-columns:minmax(0,1fr);gap:20px;margin:14px 0}
+    .tsl-energy-value{font-size:2.15rem}.tsl-energy-value small{font-size:.9rem;margin-left:1px}
+    .tsl-energy-distance{text-align:left;padding:0}.tsl-energy-distance>span{margin-bottom:5px}
+    .tsl-energy-range{font-size:1.3rem;white-space:normal}.tsl-energy-range small{display:block;margin-top:3px}
+    .tsl-energy-track{width:14px;height:88px;margin-top:18px}
+    .tsl-energy-track:before{top:auto;bottom:0;width:100%;height:var(--level);background:linear-gradient(0deg,color-mix(in srgb,var(--energy) 76%,#fff),var(--energy))}
+    .tsl-energy-track:after{background:repeating-linear-gradient(0deg,transparent 0,transparent calc(10% - 2px),var(--pub-surface1,#1b2133) calc(10% - 2px),var(--pub-surface1,#1b2133) 10%)}
+    .tsl-energy-track i{top:auto;bottom:clamp(0px,var(--limit),calc(100% - 2px));left:-3px;right:-3px;width:auto;height:2px}
+    .tsl-active-status{position:absolute;inset:0;grid-column:3;grid-row:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;margin:0;padding:2px 0;overscroll-behavior:contain}
+    .tsl-status-groups{flex-direction:column;flex-wrap:nowrap;gap:6px}
+    .tsl-charge-hit{left:0;width:30%}
+  }
+  @container(max-width:330px){
+    .tsl-cockpit{grid-template-columns:68px minmax(0,1fr) 40px;gap:4px}
+    .tsl-energy-value{font-size:1.9rem}.tsl-energy-label{font-size:.56rem}
+    .tsl-energy-track{height:64px;margin-top:12px}.tsl-energy-metrics{gap:14px}
+
+  }
+  .tsl-sit{margin-top:12px;padding:14px;background:color-mix(in srgb,var(--pub-surface2,#252d45) 55%,transparent);border:1px solid var(--pub-border,#ffffff0d);border-radius:12px}
+  .tsl-sit-h{gap:5px;margin-bottom:10px}.tsl-sit-h small{line-height:1.5}.tsl-share-row{margin-top:10px;padding:12px;background:var(--pub-surface2,#252d45);border:0;border-radius:12px}
+  .tsl-journey-period{display:grid;gap:9px;margin-top:15px;padding-left:12px;border-left:2px solid var(--pub-accent,#60a5fa);font-size:.85rem;line-height:1.5;color:var(--pub-fg2,#9aa4bd)}.tsl-journey-period span{overflow-wrap:anywhere}.tsl-journey-period small{display:block;font-size:.65rem;text-transform:uppercase;letter-spacing:.04em}
+  /* Shared history cards and readable report surfaces. */
+  .tsl-charge-card{--session-color:#34d399}.tsl-charge-card.dc{--session-color:#fbbf24}
+  .tsl-charge-location{display:flex;gap:10px;align-items:center;margin:18px 0;min-width:0}.tsl-charge-location strong{flex:1;min-width:0;font-size:1rem;line-height:1.4;overflow-wrap:anywhere}
+  .tsl-charge-location .tsl-badge{max-width:35%;margin:0;white-space:normal;font-size:.65rem;line-height:1.4;padding:4px 7px}
+  .tsl-session-icon{display:grid;place-items:center;flex:0 0 34px;height:42px;border-radius:11px;color:var(--session-color);background:color-mix(in srgb,var(--session-color) 12%,transparent)}
+  .tsl-session-icon svg{width:23px;height:27px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round}
+  .tsl-charge-card .tsl-drive-metrics>span:first-child b{color:var(--session-color)}.tsl-drive-battery-track i.before{background:#30876b}
+  .tsl-event-list{display:grid;gap:10px;margin-top:14px}
+  .tsl-state-event{display:flex;gap:12px;padding:14px;background:var(--pub-surface1,#1b2133);border:1px solid var(--pub-border,#ffffff15);border-left:3px solid var(--event-color);border-radius:14px;min-width:0}
+  .tsl-event-icon{flex:0 0 34px;height:34px;display:grid;place-items:center;border-radius:10px;color:var(--event-color);background:color-mix(in srgb,var(--event-color) 12%,transparent)}
+  .tsl-event-body{flex:1;min-width:0}.tsl-event-heading{display:flex;gap:8px;justify-content:space-between;align-items:baseline;flex-wrap:wrap;font-size:.95rem}.tsl-event-heading strong{font-size:.85rem;color:var(--event-color);font-variant-numeric:tabular-nums}
+  .tsl-event-body small{display:block;color:var(--pub-fg2,#9aa4bd);font-size:.75rem;line-height:1.5;margin-top:5px}.tsl-event-place{font-size:.85rem;margin-top:5px;overflow-wrap:anywhere}
+  .tsl-event-battery{display:inline-flex;gap:8px;flex-wrap:wrap;margin-top:9px;padding:4px 8px;border-radius:7px;background:var(--pub-surface2,#252d45);font-size:.7rem;color:var(--pub-fg2,#9aa4bd)}.tsl-event-battery b{color:var(--pub-fg,#e6e9f2);font-weight:500}
+  .tsl-state-share{height:5px;border-radius:9px;background:var(--pub-bg,#0f1320);overflow:hidden;margin-top:10px}.tsl-state-share i{display:block;height:100%;border-radius:9px}
+  .tsl-drain-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}.tsl-drain-entry{background:var(--pub-surface2,#252d45);padding:12px;border-radius:12px;min-width:0}.tsl-drain-values{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:12px;font-variant-numeric:tabular-nums}.tsl-drain-values strong{font-size:1.4rem;color:#fb923c}.tsl-drain-values span{font-size:.85rem;color:var(--pub-fg2,#9aa4bd)}
+  .tsl-two{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+  .tsl-card{min-width:0}.tsl-card h2{overflow-wrap:anywhere}.tsl-card>h3{display:flex;align-items:center;gap:8px;letter-spacing:.035em;line-height:1.5}
+  .tsl-card>h3:before{content:'';width:4px;height:14px;border-radius:3px;flex-shrink:0;background:var(--pub-accent,#60a5fa);opacity:.75}
+  .tsl-card .tsl-tile{border:1px solid var(--pub-border,#ffffff0a)}.tsl-tile b{font-variant-numeric:tabular-nums;line-height:1.3}.tsl-tile span{letter-spacing:.025em;line-height:1.5}
+  .tsl-journey-list>.tsl-card{margin-top:0;border:1px solid var(--pub-border,#ffffff18)}.tsl-journey-list{margin-top:12px}.tsl-journey-card h2{font-size:1.25rem}.tsl-journey-card .tsl-badge{margin-left:0;padding:5px 9px;border-radius:7px}
+  .tsl-journey-card:focus-visible,.tsl-btn:focus-visible,.tsl-tab:focus-visible,.tsl-seg button:focus-visible{outline:2px solid var(--pub-accent,#60a5fa);outline-offset:3px}
+  .tsl-history-event{margin-top:8px;padding:12px;background:var(--pub-surface2,#252d45);border:1px solid var(--pub-border,#ffffff0a);border-radius:12px}.tsl-history-event:hover{border-color:var(--pub-accent,#60a5fa)}
+  .tsl-sec summary{align-items:center;overflow-wrap:anywhere}.tsl-sec summary:before{content:'›';color:var(--pub-accent,#60a5fa);font-size:1.3rem}.tsl-sec[open]>summary:before{transform:rotate(90deg)}.tsl-sec summary small{margin-left:auto;background:var(--pub-surface2,#252d45);padding:3px 8px;border-radius:6px}
+  .tsl-kv{padding:10px 8px;border-radius:8px;gap:5px 12px}.tsl-kv:nth-child(even){background:color-mix(in srgb,var(--pub-surface2,#252d45) 45%,transparent)}.tsl-kv span{max-width:100%}
+  .tsl-place{padding:12px;background:var(--pub-surface2,#252d45);border:0;border-radius:12px;margin-top:8px;flex-wrap:wrap}.tsl-place div{overflow-wrap:anywhere}
+  .tsl-bill-bands>span{background:var(--pub-surface2,#252d45);padding:10px;border-radius:9px;line-height:1.6}
+  .tsl-note{line-height:1.6}.tsl-seg{max-width:100%;overflow-x:auto}.tsl-seg button{white-space:nowrap;min-height:40px}
+  @container(max-width:600px){
+    div.tsl-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .tsl-card .tsl-tile{padding:11px 10px}.tsl-tile b{font-size:1.15rem}.tsl-tile span{font-size:.65rem}.tsl-tile small{font-size:.72rem}
+    .tsl-card:not(.tsl-hero){padding:14px;border-radius:16px}.tsl-card>h3{font-size:.72rem}
+    .tsl-report-charts,.tsl-two{grid-template-columns:minmax(0,1fr);gap:0}.tsl-report-summary .tsl-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .tsl-charge-tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:5px}.tsl-charge-tabs .tsl-btn{flex:0 0 auto;white-space:nowrap;font-size:.8rem}
+    .tsl-head h2{font-size:1.1rem}.tsl-seg button{padding:8px 11px;font-size:.8rem}.tsl-note{font-size:.78rem}
+    .tsl-kv{flex-direction:column;align-items:stretch}.tsl-kv code{font-size:.75rem}.tsl-kv span{text-align:left;font-size:.9rem}
+    .tsl-state-event{gap:9px;padding:12px}.tsl-event-heading{font-size:.88rem}.tsl-event-icon{flex-basis:28px;height:30px}
+    .tsl-journey-list .tsl-btns .tsl-btn{font-size:.8rem;padding:9px 11px}
+  }
+  @media(prefers-reduced-motion:reduce){.tsl-drive-card{transition:none}}
+  /* Metrics have pictograms; binary readings use compact, non-interactive indicators. */
+  .tsl-metric-art{width:27px;height:27px;color:var(--pub-accent,#60a5fa);margin-bottom:9px}
+  .tsl-metric-art svg,.tsl-indicator-art svg,.tsl-percent-ring svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .tsl-visual-metric{position:relative;background:linear-gradient(145deg,color-mix(in srgb,var(--pub-accent,#60a5fa) 6%,var(--pub-surface1,#1b2133)),var(--pub-surface1,#1b2133));padding:14px}
+  .tsl-visual-metric>span,.tsl-percent-metric span{text-transform:none;letter-spacing:0;font-size:.76rem;line-height:1.4}
+  .tsl-visual-metric>b{font-size:1.3rem;letter-spacing:-.025em;margin-top:6px;line-height:1.25}
+  .tsl-report-summary .tsl-visual-metric{background:transparent;border:0;border-radius:0;border-bottom:1px solid var(--pub-border,#ffffff14)}
+  .tsl-indicator{display:flex;align-items:center;gap:10px;min-width:0;padding:12px 10px;border-bottom:1px solid var(--pub-border,#ffffff10);--indicator-color:var(--pub-fg2,#9aa4bd)}
+  .tsl-indicator.active{--indicator-color:#34d399}.tsl-indicator.attention{--indicator-color:#fbbf24}
+  .tsl-indicator-art{width:28px;height:28px;flex:0 0 28px;color:var(--indicator-color);opacity:.9}
+  .tsl-indicator-copy{flex:1;min-width:0}.tsl-indicator-copy>span{display:block;color:var(--pub-fg,#e6e9f2);font-size:.78rem;line-height:1.4;overflow-wrap:anywhere}
+  .tsl-indicator-copy>b{display:block;color:var(--indicator-color);font-size:.7rem;font-weight:500;line-height:1.4;margin-top:3px}.tsl-indicator-copy>small{display:block;font-size:.65rem;color:var(--pub-fg2,#9aa4bd);margin-top:4px;overflow-wrap:anywhere}
+  .tsl-check{display:grid;place-items:center;flex:0 0 19px;height:19px;border-radius:6px;background:color-mix(in srgb,var(--indicator-color) 13%,transparent);border:1px solid color-mix(in srgb,var(--indicator-color) 45%,transparent);font-style:normal;color:var(--indicator-color);font-size:.75rem;font-weight:700}
+  .tsl-heat-level{display:flex;gap:4px;margin-top:10px}.tsl-heat-level i{width:24px;height:5px;border-radius:4px;background:var(--pub-border,#ffffff20)}.tsl-heat-level i.lit{background:#fb923c}
+  .tsl-percent-metric{display:flex;gap:13px;align-items:center}.tsl-percent-ring{flex:0 0 50px;height:50px;display:grid;place-items:center;border-radius:50%;background:conic-gradient(#34d399 var(--pct),var(--pub-border,#ffffff18) 0);position:relative;color:#34d399}
+  .tsl-percent-ring:before{content:'';position:absolute;inset:4px;border-radius:50%;background:var(--pub-surface2,#252d45)}.tsl-percent-ring svg{position:relative;width:25px;height:25px}.tsl-percent-metric>div:last-child{min-width:0}
+  .tsl-report-battery-flow{height:7px;background:var(--pub-bg,#0f1320);border-radius:4px;position:relative;overflow:hidden;margin-top:13px}.tsl-report-battery-flow i{position:absolute;inset:0 auto 0 0;background:#fbbf24;border-radius:4px}.tsl-report-battery-flow i.remaining{background:#34d399}
+  @container(max-width:600px){
+    .tsl-card .tsl-visual-metric{padding:12px 9px}.tsl-visual-metric>b{font-size:1.1rem}.tsl-visual-metric>span{font-size:.7rem}.tsl-metric-art{width:23px;height:23px;margin-bottom:7px}
+    .tsl-card .tsl-grid:has(>.tsl-indicator){gap:5px 9px}.tsl-indicator{gap:7px;padding:10px 2px}.tsl-indicator-art{flex-basis:22px;width:22px;height:24px}.tsl-indicator-copy>span{font-size:.72rem}.tsl-indicator-copy>b{font-size:.66rem}.tsl-check{flex-basis:16px;height:16px;font-size:.65rem;border-radius:5px}
+    .tsl-percent-metric{gap:8px}.tsl-percent-ring{flex-basis:36px;height:36px}.tsl-percent-ring svg{width:20px;height:20px}
+  }
+  .tsl-tire{position:relative;padding-top:14px}.tsl-wheel-symbol{display:block;width:33px;height:33px;margin:0 auto 8px;fill:none;stroke:var(--pub-accent,#60a5fa);stroke-width:1.5;stroke-linecap:round}.tsl-tire.warn .tsl-wheel-symbol{stroke:#fbbf24}.tsl-tire.bad .tsl-wheel-symbol{stroke:#fb7185}.tsl-tire .tsl-tire-status{display:inline-block;border-radius:6px;padding:3px 6px;font-size:.68rem;color:#34d399;background:#34d39912}.tsl-tire.warn .tsl-tire-status{color:#fbbf24;background:#fbbf2412}.tsl-tire.bad .tsl-tire-status{color:#fb7185;background:#fb718512}
+  .tsl-elev-credit{color:var(--pub-fg2,#9aa4bd);font-size:.68rem}.tsl-elevation-summary{margin-bottom:14px}.tsl-elevation-summary .tsl-tile{background:transparent;border:0;padding:9px}.tsl-elevation-summary .tsl-metric-art{display:none}
+  .tsl-map-help{display:flex;flex-direction:column;max-height:calc(100% - 16px);position:absolute;top:8px;left:8px;z-index:2;max-width:calc(100% - 58px);cursor:default;touch-action:pan-y}.tsl-map-help[hidden],.tsl-map-legend[hidden]{display:none}
+  .tsl-map-help-btn{flex-shrink:0;display:grid;place-items:center;width:36px;height:36px;min-height:36px;border:1px solid #ffffff30;border-radius:10px;background:#172033f2;color:#e6e9f2;box-shadow:0 2px 8px #0005;font:700 1rem system-ui;cursor:pointer}.tsl-map-help-btn:hover{background:#293852}.tsl-map-help-btn:focus-visible{outline:2px solid #60a5fa;outline-offset:2px}
+  .tsl-map-legend{min-height:0;flex-shrink:1;margin-top:5px;width:240px;max-width:100%;max-height:240px;overflow-y:auto;overscroll-behavior:contain;padding:12px;border:1px solid #ffffff25;border-radius:12px;background:#131c2cf5;color:#e6e9f2;box-shadow:0 5px 24px #0007;font: .75rem/1.4 system-ui,sans-serif;cursor:default;scrollbar-width:thin}
+  .tsl-map-legend>b{display:block;margin-bottom:8px}.tsl-map-legend>div,.tsl-map-ends>div{display:flex;align-items:center;gap:9px;margin-top:6px}.tsl-map-legend i.line{display:block;width:23px;height:4px;flex:0 0 23px;background:var(--legend-color);border-radius:4px}.tsl-map-legend i.point{width:11px;height:11px;flex:0 0 11px;border:2px solid #fff;background:var(--legend-color);border-radius:50%}.tsl-map-legend .tsl-map-ends{display:flex;gap:18px;padding-top:7px;margin-top:9px;border-top:1px solid #ffffff20;flex-wrap:wrap}.tsl-map-ends>div{margin:0}.tsl-map-legend p{margin:10px 0 0;font-size:.68rem;color:#b4c0d3}
+  #tsl-replay{margin-top:14px}.tsl-replay-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:.85rem}.tsl-replay-head time{color:var(--pub-fg2,#9aa4bd);font-size:.75rem;font-variant-numeric:tabular-nums}
+  .tsl-replay-controls{display:flex;align-items:center;gap:9px;margin:12px 0;flex-wrap:wrap}.tsl-replay-controls .tsl-btn{font-size:.8rem;min-width:100px}.tsl-replay-controls select{font:inherit;font-size:.8rem;padding:9px;border:1px solid var(--pub-border,#ffffff20);border-radius:9px;background:var(--pub-surface2,#252d45);color:inherit;min-height:42px}.tsl-replay-controls input{flex:1;min-width:100px;accent-color:var(--pub-accent,#60a5fa);cursor:pointer;min-height:32px}
+  .tsl-replay-readings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.tsl-replay-readings>div{padding:11px 8px;background:var(--pub-surface2,#252d45);border-radius:10px;min-width:0}.tsl-replay-readings small{display:block;color:var(--pub-fg2,#9aa4bd);font-size:.65rem}.tsl-replay-readings b{display:block;font-size:1.1rem;margin-top:5px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.tsl-replay-readings>div:first-child b{color:var(--pub-accent,#60a5fa)}.tsl-replay-caption{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-top:9px;font-size:.65rem;color:var(--pub-fg2,#9aa4bd)}
+  @container(max-width:400px){.tsl-replay-controls input{flex-basis:100%}.tsl-replay-readings b{font-size:.95rem}}
+  .tsl-replay-activity{font-size:.75rem;font-weight:650;padding:4px 7px;border-radius:7px;background:var(--pub-surface2,#252d45)}
+  .tsl #tsl-page>[hidden],.tsl .tsl-hero [hidden]{display:none!important}.tsl-model-title{display:flex;align-items:center;gap:8px;min-width:0}.tsl-model-title h2{min-width:0;overflow-wrap:anywhere}.tsl-model-title [data-day-history]{flex-shrink:0;padding:3px 8px;min-height:32px}.tsl-day-history{border-top:1px solid #ffffff16;margin-top:16px;padding-top:14px}.tsl-day-toolbar,.tsl-day-playbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.tsl-day-toolbar{justify-content:space-between}.tsl-day-toolbar label{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--pub-fg2,#9aa4bd);font-size:12px}.tsl-day-toolbar input{min-width:0;max-width:100%;color:inherit;background:var(--pub-surface2,#252d45);border:1px solid #ffffff24;border-radius:10px;padding:8px;font:inherit;color-scheme:dark}.tsl-day-playbar{margin-top:12px}.tsl-day-playbar b{font-variant-numeric:tabular-nums}.tsl-day-playbar small{margin-left:auto;color:var(--pub-fg2,#9aa4bd)}.tsl-day-history input[type=range]{display:block;width:100%;margin:14px 0 6px;accent-color:#60a5fa;cursor:pointer}.tsl-day-ends{display:flex;justify-content:space-between;font-size:11px;color:var(--pub-fg2,#9aa4bd)}.tsl-day-history .tsl-note{font-size:11px;margin-bottom:0}.tsl-refresh.on{color:#60a5fa;border-color:#60a5fa}.tsl-day-history [data-day-metrics]{font-size:12px;color:#93c5fd}
+  @container(max-width:600px){
+    .tsl-history-open .tsl-cockpit{margin-top:6px;margin-bottom:0}
+    .tsl-history-open .tsl-car-stage{height:var(--tsl-history-stage,280px);max-width:calc(var(--tsl-history-stage,280px) * .6);width:100%;aspect-ratio:.6}
+    .tsl-history-open .tsl-energy-head{gap:5px}.tsl-history-open .tsl-energy-metrics{margin:8px 0;gap:8px}
+    .tsl-history-open .tsl-energy-value{font-size:1.8rem}.tsl-history-open .tsl-energy-range{font-size:1.1rem}
+    .tsl-history-open .tsl-energy-range small{display:inline;margin-left:3px}.tsl-history-open .tsl-energy-distance>span{margin-bottom:2px}
+    .tsl-history-open .tsl-energy-track{height:48px;margin-top:9px}
+    .tsl-history-open .tsl-day-history{margin-top:8px;padding-top:8px}
+    .tsl-day-toolbar{flex-wrap:nowrap;gap:8px}.tsl-day-toolbar label{flex:1;min-width:0}.tsl-day-toolbar [data-day-calendar]{min-width:0;max-width:100%}
+    .tsl-day-toolbar .tsl-day-label,.tsl-day-toolbar .tsl-day-live-copy{display:none}
+    .tsl-day-toolbar .mvm-picker-trigger{font-size:.75rem;min-height:36px;padding:7px 10px}
+    .tsl-day-toolbar [data-day-live]{font-size:1.1rem;min-width:40px;min-height:36px;padding:5px 10px}
+    .tsl-day-playbar{margin-top:6px;gap:8px;flex-wrap:nowrap}.tsl-day-playbar b{font-size:.8rem}.tsl-day-playbar small{font-size:.65rem;white-space:nowrap}
+    .tsl-day-playbar [data-day-play]{min-height:38px;min-width:42px;padding:6px 10px}.tsl-day-history [data-day-metrics]{font-size:.7rem}
+    .tsl-day-history input[type=range]{min-height:26px;margin:1px 0 0}.tsl-day-ends{font-size:.6rem}
+    .tsl-day-history [data-day-location]{font-size:.6rem;margin-top:5px;padding-right:24px}
+  }
+  .tsl-day-history [data-day-location]{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:24px;min-height:1.5em;line-height:1.5}.tsl-day-help{position:relative;margin-top:3px;font-size:11px;color:var(--pub-fg2,#9aa4bd)}.tsl-day-help summary{cursor:pointer;list-style:none;text-align:right;min-height:24px;line-height:24px}.tsl-day-help summary::-webkit-details-marker{display:none}.tsl-day-help p{margin:4px 0 0}.tsl-day-help:not([open]){height:0;margin:0}.tsl-day-help:not([open]) summary{position:absolute;right:0;bottom:0;width:24px}
+    .tsl-replay-view{margin-top:10px;display:flex;width:fit-content}.tsl-replay-view button{font-size:.75rem;padding:8px 10px}
   `;
   function injectStyles() {
     if (document.getElementById('tsl-css')) return;
@@ -274,7 +427,8 @@
       const d = document.createElement('div'); d.className = 'tsl-toast'; d.textContent = msg; scroller.appendChild(d);
       clearTimeout(toastTimer); toastTimer = setTimeout(() => d.remove(), 4500);
     }
-    function clearMaps() { costControls.forEach(p=>p.destroy());costControls=[];schedulePickers.forEach(p=>p.destroy());schedulePickers=[];maps.forEach(m => m && m.destroy && m.destroy()); maps = []; }
+    let replayCleanup=null,replayPlaying=false,dayHistory=null;
+    function clearMaps() { if(dayHistory)dayHistory.close(false); if(replayCleanup){replayCleanup();replayCleanup=null;} costControls.forEach(p=>p.destroy());costControls=[];schedulePickers.forEach(p=>p.destroy());schedulePickers=[];maps.forEach(m => m && m.destroy && m.destroy()); maps = []; }
 
     // Background updates keep the user's viewport and live map DOM intact.
     let pendingQuiet=null,quietTimer=null,lastInteraction=0;
@@ -377,17 +531,69 @@
 
     // ── Now ───────────────────────────────────────────────────────────────
     async function renderNow(p, quiet) {
+      if(dayHistory)return;
       const mySeq = ++seqLoad;
       if (!quiet) p.innerHTML = `<div class="tsl-center">${esc(t('tsl_loading'))}</div>`;
       try {
         const [d, tl, cr] = await Promise.all([api('/v/' + st.vid + '/now'), api('/v/' + st.vid + '/timeline?hours=48'), api('/v/' + st.vid + '/car').catch(() => null)]);
-        if (destroyed || mySeq !== seqLoad || st.tab !== 'now') return;
+        if (destroyed || dayHistory || mySeq !== seqLoad || st.tab !== 'now') return;
         st.now = d; st.tl = tl; st.carNow = cr;
-        const apply=()=>{if(!destroyed&&mySeq===seqLoad&&st.tab==='now'&&p===page())drawNow(p,quiet);};
+        const apply=()=>{if(!destroyed&&!dayHistory&&mySeq===seqLoad&&st.tab==='now'&&p===page())drawNow(p,quiet);};
         if(quiet)queueQuietRender(apply);else apply();
       } catch (e) { if (!quiet) p.innerHTML = `<div class="tsl-card tsl-center">${esc(t('tsl_error'))}</div>`; else if (st.refreshing) toast(t('tsl_error')); }
     }
-    function tile(label, val, sub, cls) { return `<div class="tsl-tile ${cls || ''}"><span>${esc(label)}</span><b>${val}</b>${sub ? `<small>${sub}</small>` : ''}</div>`; }
+    function metricArt(label) {
+      const groups = [
+        ['route', ['tsl_trip_distance','tsl_stats_total_km','tsl_odometer','tsl_c_ideal','tsl_bat_now']],
+        ['clock', ['tsl_trip_duration','tsl_chg_duration','tsl_st_asleep','tsl_c_departure','tsl_c_update_when']],
+        ['bolt', ['tsl_trip_energy','tsl_chg_added','tsl_stats_charged','tsl_power','tsl_chg_avg','tsl_chg_peak','tsl_c_voltage','tsl_c_amps','tsl_c_pilot','tsl_c_bat_heater']],
+        ['regen', ['tsl_j_regen','tsl_bat_change','tsl_elev_ascent','tsl_elev_descent','tsl_elev_min','tsl_elev_max']],
+        ['gauge', ['tsl_trip_avg','tsl_trip_max','tsl_trip_eff','tsl_stats_avg','tsl_c_rate','tsl_c_fan']],
+        ['battery', ['tsl_trip_batt','tsl_c_limit','tsl_bat_drain_avg']],
+        ['temp', ['tsl_inside','tsl_outside','tsl_c_driver_temp','tsl_c_pass_temp']],
+        ['coin', ['tsl_chg_cost','tsl_stats_cost','tsl_bill_total']],
+        ['chip', ['tsl_c_version','tsl_c_update','tsl_c_update_dl','tsl_c_update_in','tsl_c_model']]
+      ];
+      const kind = (groups.find(([,keys]) => keys.some(k => t(k) === label)) || ['detail'])[0];
+      return statusArt(kind);
+    }
+    function statusArt(kind) {
+      const paths = {
+        route:'<circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M5 7v7a4 4 0 0 0 4 4h6a4 4 0 0 0 0-8h-4"/>',
+        clock:'<circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>',
+        bolt:'<path d="m13 2-8 12h6l-1 8 9-13h-7z"/>',
+        regen:'<path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"/><path d="m13 8-4 5h4l-1 4"/>',
+        gauge:'<path d="M4 19a10 10 0 1 1 16 0M6 15h1m10 0h1M8 7l1 1m7-1-1 1M12 4v2m0 8 5-4"/><circle cx="12" cy="14" r="2"/>',
+        battery:'<rect x="2" y="6" width="18" height="12" rx="3"/><path d="M23 10v4M6 10v4m4-4v4m4-4v4"/>',
+        temp:'<path d="M9 14V5a3 3 0 0 1 6 0v9a5 5 0 1 1-6 0M12 8v10m6-12h3m-3 4h2"/>',
+        coin:'<ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 4 16 4 16 0V6M4 12v6c0 4 16 4 16 0v-6"/>',
+        chip:'<rect x="6" y="6" width="12" height="12" rx="3"/><path d="M9 2v4m6-4v4M9 18v4m6-4v4M2 9h4m-4 6h4m12-6h4m-4 6h4"/>',
+        lock:'<rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/>',
+        door:'<path d="M5 21V5l12-3v19zM17 5h3v16h-3M12 12v2"/>',
+        window:'<path d="M3 18V7a3 3 0 0 1 3-3h10l5 14zM3 21h18M8 7l-2 7m7-7-2 7"/>',
+        shield:'<path d="m12 2 8 4v6c0 5-8 10-8 10S4 17 4 12V6z"/><path d="m8 12 3 3 5-6"/>',
+        heat:'<path d="M6 21h13M5 17V8m0 9h10l3 4M9 3c-3 3 3 4 0 7m5-7c-3 3 3 4 0 7m5-7c-3 3 3 4 0 7"/>',
+        detail:'<path d="m12 3 9 5v8l-9 5-9-5V8zM3 8l9 5 9-5m-9 5v8"/>'
+      };
+      return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[kind] || paths.detail}</svg>`;
+    }
+    function tile(label, val, sub, cls) {
+      return `<div class="tsl-tile tsl-visual-metric ${cls || ''}"><div class="tsl-metric-art">${metricArt(label)}</div><span>${esc(label)}</span><b>${val}</b>${sub ? `<small>${sub}</small>` : ''}</div>`;
+    }
+    function batteryMetric(start, end) {
+      const lo=Math.max(0,Math.min(100,Math.min(start,end))), hi=Math.max(lo,Math.min(100,Math.max(start,end)));
+      return `<div class="tsl-tile tsl-visual-metric"><div class="tsl-metric-art">${statusArt('battery')}</div><span>${esc(t('tsl_trip_batt'))}</span><b>${esc(nf(start))}% → ${esc(nf(end))}%</b><div class="tsl-report-battery-flow" aria-hidden="true"><i style="width:${hi}%"></i><i class="remaining" style="width:${lo}%"></i></div></div>`;
+    }
+    function indicator(label, active, kind='detail', onText=t('tsl_c_on'), offText=t('tsl_c_off'), caution=false, sub='') {
+      return `<div class="tsl-indicator ${active ? 'active' : 'inactive'} ${caution ? 'attention' : ''}"><div class="tsl-indicator-art">${statusArt(kind)}</div><div class="tsl-indicator-copy"><span>${esc(label)}</span><b>${esc(active ? onText : offText)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</div><i class="tsl-check" aria-hidden="true">${caution ? '!' : active ? '✓' : '−'}</i></div>`;
+    }
+    function levelMetric(label, value) {
+      return `<div class="tsl-tile tsl-visual-metric"><div class="tsl-metric-art">${statusArt('heat')}</div><span>${esc(label)}</span><b>${esc(nf(value))}</b><div class="tsl-heat-level" aria-hidden="true">${[1,2,3].map(n=>`<i class="${value>=n?'lit':''}"></i>`).join('')}</div></div>`;
+    }
+    function percentMetric(label, value) {
+      const pct=Math.max(0,Math.min(100,value));
+      return `<div class="tsl-tile tsl-percent-metric"><div class="tsl-percent-ring" style="--pct:${pct}%" aria-hidden="true">${statusArt('battery')}</div><div><span>${esc(label)}</span><b>${esc(nf(value))}%</b></div></div>`;
+    }
     function compactAge(ts, now) {
       const minutes = Math.max(0, Math.floor(((now || Date.now() / 1000) - ts) / 60));
       const unit = minutes < 60 ? 'minute' : minutes < 1440 ? 'hour' : 'day';
@@ -508,7 +714,7 @@
         elapsed: session.start_ts != null ? Math.max(0, ((d.now || Date.now() / 1000) - session.start_ts) / 60) : null,
         targetRange: battery != null && battery > 0 && range != null && limit != null ? range / battery * limit : null,
         cost: numeric(session.cost),costCurrency:session.cost_currency,
-        dc: s.dc != null ? !!s.dc : !!cs.fast_charger_present,
+        dc: s.dc != null ? !!s.dc : cs.fast_charger_present != null ? !!cs.fast_charger_present : !!session.dc,
       };
     }
     function chargingCable() {
@@ -606,20 +812,16 @@
         const details = `${t(label)} · ${barFmt(pressure)} · ${status}${measured ? ' · ' + t('tsl_c_measured', { t: fmt.ago(seen, d.now) }) : ''}`;
         return `<button type="button" class="tsl-pressure ${key} ${warning}" data-tire="${key}" aria-haspopup="dialog" aria-label="${esc(t('tsl_c_tires') + ' · ' + details)}" title="${esc(details)}"><b>${esc(barFmt(pressure))}</b></button>`;
       }).join('');
-      const flags = [];
       const driverKeys = config.rhd ? { df: 'pf', pf: 'df', dr: 'pr', pr: 'dr' } : {};
       const visualDoors = {}, visualWindows = {};
       Object.keys(doors).forEach(key => {
         visualDoors[driverKeys[key] || key] = doors[key];
-        if (doors[key]) flags.push(`<span class="warn">${esc(t('tsl_c_door_' + key))} · ${esc(t('tsl_c_open'))}</span>`);
       });
       ['fd_window', 'fp_window', 'rd_window', 'rp_window'].forEach((key, i) => {
         const open = present(vs, key) ? vs[key] : s.windows != null && (s.windows & (1 << i));
         const doorKey = ['df', 'pf', 'dr', 'pr'][i];
         visualWindows[driverKeys[doorKey] || doorKey] = present(vs, key) || s.windows != null ? !!open : null;
-        if (open) flags.push(`<span class="warn">${esc(t('tsl_c_win_' + ['fd', 'fp', 'rd', 'rp'][i]))} · ${esc(t('tsl_c_open'))}</span>`);
       });
-      if (cs.charge_port_door_open) flags.push(`<span class="active">${esc(t('tsl_c_port'))} · ${esc(t('tsl_c_open'))}</span>`);
       const level = s.battery == null ? null : Math.max(0, Math.min(100, s.battery));
       const limit = s.charge_limit == null ? null : Math.max(0, Math.min(100, s.charge_limit));
       const energy = charging ? '#4ade80' : level != null && level <= 15 ? '#f87171' : level != null && level <= 30 ? '#fbbf24' : '#74c3fa';
@@ -633,9 +835,9 @@
       const glassSetting = (key, label, value, x, y) => `<g class="tsl-zone-setting" data-climate-zone="${key}" aria-label="${esc(t(label) + ': ' + fmt.temp(value))}"><title>${esc(t(label) + ': ' + fmt.temp(value))}</title><text class="tsl-zone-value" x="${x}" y="${y}">${esc(fmt.temp(value))}</text></g>`;
 
       return `<div class="tsl-card tsl-hero">
-        <div class="tsl-hero-head"><div><h2>${esc(v.name || modelName(v.model))}</h2><div class="tsl-sub">${esc(modelName(v.model))}${v.trim ? ' ' + esc(String(v.trim).toUpperCase()) : ''}${v.version ? ' · ' + esc(v.version) : ''}</div></div>
+        <div class="tsl-hero-head"><div><div class="tsl-model-title"><h2>${esc(v.name || modelName(v.model))}</h2><button type="button" class="tsl-refresh" data-day-history aria-expanded="false" title="${esc(t('tsl_history_title'))}" aria-label="${esc(t('tsl_history_title'))}">▷</button></div><div class="tsl-sub">${esc(modelName(v.model))}${v.trim ? ' ' + esc(String(v.trim).toUpperCase()) : ''}${s.odo_km != null ? ` · <span style="display:inline-block" title="${esc(t('tsl_odometer'))}">${esc(fmt.dist(s.odo_km, 0))}</span>` : ''}${v.version ? ' · ' + esc(v.version) : ''}</div></div>
           <div class="tsl-live-status"><span class="tsl-pill" style="background:${col}" title="${esc(note)}">${STATE_ICON[d.state] || ''} ${esc(t('tsl_st_' + d.state))}</span>
-          <button class="tsl-refresh" data-refresh title="${esc((canManage()?t('tsl_refresh_saved')+' · ':'')+t('tsl_updated', { t: fmt.ago(s.ts, d.now) }))}" aria-label="${esc(canManage()?t('tsl_refresh_saved'):t('tsl_updated', { t: fmt.ago(s.ts, d.now) }))}" ${st.refreshing || !canManage() ? 'disabled' : ''}>↻ ${esc(compactAge(s.ts, d.now))}</button></div></div>
+          <button class="tsl-refresh" data-refresh title="${esc((canManage()?t('tsl_refresh_live')+' · ':'')+t('tsl_updated', { t: fmt.ago(s.ts, d.now) }))}" aria-label="${esc(canManage()?t('tsl_refresh_live'):t('tsl_updated', { t: fmt.ago(s.ts, d.now) }))}" ${st.refreshing || !canManage() || !st.status.connected ? 'disabled' : ''}>↻ ${esc(compactAge(s.ts, d.now))}</button></div></div>
         <div class="tsl-cockpit"><div class="tsl-car-stage">
           ${V.car(v.color, { doors: visualDoors, windows: visualWindows, tires: tireStates, climate: climateOn, port: cs.charge_port_door_open })}${tires}${chargingData(d, cr) ? chargingCable() : ''}
           <b class="tsl-roof-temp" title="${esc(t('tsl_inside'))}" aria-label="${esc(t('tsl_inside'))}: ${s.inside_temp != null ? esc(fmt.temp(s.inside_temp)) : '–'}">${s.inside_temp != null ? esc(fmt.temp(s.inside_temp)) : '–'}</b>
@@ -650,8 +852,29 @@
             <div class="tsl-energy-metrics"><div class="tsl-energy-value">${level == null ? '–' : nf(level)}<small>%</small></div><div class="tsl-energy-distance"><span>${esc(t('tsl_energy_range'))}</span><div class="tsl-energy-range">${s.range_km != null ? `${esc(nf(U.dist(s.range_km), 0))}<small> ${esc(U.distU())}</small>` : '–'}</div></div></div>
             <div class="tsl-energy-track" ${level == null ? 'role="img"' : `role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${level}"`} aria-label="${esc(t('tsl_tab_battery'))}: ${level == null ? esc(t('tsl_st_unknown')) : nf(level) + '%'}">${limit != null ? '<i></i>' : ''}</div>
           </div></div></div>
-        ${flags.length ? `<div class="tsl-hero-tools"><div class="tsl-car-flags">${flags.join('')}</div></div>` : ''}
       </div>`;
+    }
+    function refreshNotice() {
+      return st.refreshNotice ? `<p class="tsl-note" role="status" aria-live="polite">${esc(t(st.refreshNotice))}</p>` : '';
+    }
+    function bindRefresh(p) {
+      const button = p.querySelector('[data-refresh]');
+      if (!button) return;
+      button.addEventListener('click', async () => {
+        if (st.refreshing || !canManage() || !st.status.connected) return;
+        const vid = st.vid;
+        st.refreshing = true; button.disabled = true; button.textContent = t('tsl_refresh_loading');
+        st.refreshNotice = 'tsl_refresh_loading';
+        try {
+          const result = await api('/v/' + vid + '/refresh', { method: 'POST' });
+          st.refreshNotice = result.updated ? 'tsl_refresh_done' : 'tsl_refresh_unavailable';
+        } catch (e) {
+          st.refreshNotice = e.message === 'refresh_busy' ? 'tsl_refresh_busy' : e.message === 'reauth' ? 'tsl_set_reauth' : 'tsl_refresh_failed';
+        } finally {
+          st.refreshing = false;
+          if (!destroyed && st.tab === 'now' && st.vid === vid && p === page()) await renderNow(p, true);
+        }
+      });
     }
     function drawNow(p, quiet) {
       if(!quiet)clearMaps();
@@ -660,9 +883,12 @@
       let note = '';
       if (state === 'asleep') note = t('tsl_note_asleep');
       else if (state === 'online' && d.mode === 'suspend') note = t('tsl_note_rest');
-      if (!s) { p.innerHTML = `<div class="tsl-card tsl-center">${esc(t('tsl_wait_first'))}</div>`; return; }
+      if (!s) {
+        p.innerHTML = `<div class="tsl-card tsl-center"><h3>${esc(v.name || modelName(v.model))}</h3><p>${esc(t('tsl_wait_first'))}</p>${canManage() && st.status.connected ? `<button class="tsl-btn pri" data-refresh ${st.refreshing ? 'disabled' : ''}>↻ ${esc(t('tsl_refresh_live'))}</button>` : ''}${refreshNotice()}</div>`;
+        bindRefresh(p); return;
+      }
       const charging = state === 'charging';
-      let html = nowHero(d, st.carNow, col, note, charging);
+      let html = nowHero(d, st.carNow, col, note, charging) + refreshNotice();
 
       if (state === 'driving' && d.trip) {
         html += `<div class="tsl-card"><h3>${esc(t('tsl_this_trip'))}</h3><div class="tsl-grid">
@@ -676,22 +902,6 @@
           ${tile(t('tsl_tab_battery'), `${d.charge.start_batt}% → ${s.battery}%`, s.charge_limit ? esc(t('tsl_limit', { n: s.charge_limit })) : '')}
           ${s.to_full ? tile(t('tsl_full_in_label'), fmt.dur(s.to_full * 60)) : ''}
           ${d.charge.cost_totals&&d.charge.cost_totals.length ? tile(t('tsl_chg_cost'),esc((d.charge.cost_complete?'':'≥ ')+costMoney(d.charge))) : d.charge.cost!=null?tile(t('tsl_chg_cost'),money(d.charge.cost,d.charge.cost_currency)):''}</div></div>`;
-      }
-
-      html += `<div class="tsl-card"><div class="tsl-grid">
-        ${tile(t('tsl_odometer'), s.odo_km != null ? fmt.dist(s.odo_km, 0) : '–')}
-        ${tile(t('tsl_inside'), s.inside_temp != null ? fmt.temp(s.inside_temp) : '–', s.climate ? esc(t('tsl_climate_on')) : '')}
-        ${tile(t('tsl_outside'), s.outside_temp != null ? fmt.temp(s.outside_temp) : '–')}
-        ${tile(t('tsl_lock'), esc(s.locked ? t('tsl_locked') : t('tsl_unlocked')), s.sentry ? esc(t('tsl_sentry')) : '')}</div></div>`;
-
-      const cr = st.carNow, tb = cr && cr.ts ? tiresBrief(cr) : null;
-      if (cr && cr.ts) {
-        const vs = sec(cr, 'vehicle_state'), sw = vs.software_update || {};
-        const opens = ['df', 'dr', 'pf', 'pr', 'ft', 'rt', 'fd_window', 'fp_window', 'rd_window', 'rp_window'].filter(k => vs[k]).length;
-        html += `<div class="tsl-card"><div class="tsl-grid">
-          ${tb ? tile(t('tsl_c_tires'), esc(barFmt(tb.min) + (tb.max - tb.min > 0.05 ? ' – ' + barFmt(tb.max) : '')), tb.cls ? esc(t(tb.cls === 'bad' ? 'tsl_c_warn_hard' : 'tsl_c_warn_soft')) : esc(t('tsl_c_ok')), tb.cls) : ''}
-          ${tile(t('tsl_now_doors'), esc(opens ? t('tsl_now_n_open', { n: opens }) : t('tsl_now_all_closed')), '', opens ? 'warn' : '')}
-          ${vs.car_version ? tile(t('tsl_c_software'), esc(String(vs.car_version).split(' ')[0]), sw.status && sw.status !== '' ? esc(t('tsl_c_update')) + ': ' + esc(sw.status) : '') : ''}</div></div>`;
       }
 
       const tdy = d.today;
@@ -715,12 +925,8 @@
       p.querySelectorAll('[data-charge-details],[data-charge-open]').forEach(cable => cable.addEventListener('click', openCharging));
       p.querySelectorAll('[data-status]').forEach(b => b.addEventListener('click', () => openStatus(b.dataset.status)));
       p.querySelectorAll('[data-tire]').forEach(b => b.addEventListener('click', () => openTires(b.dataset.tire)));
-      p.querySelector('[data-refresh]').addEventListener('click', async e => {
-        if (st.refreshing || !canManage()) return;
-        st.refreshing = true; e.currentTarget.disabled = true;
-        try { await renderNow(p, true); }
-        finally { st.refreshing = false; const b = p.querySelector('[data-refresh]'); if (b) b.disabled = false; }
-      });
+      bindRefresh(p);
+      p.querySelector('[data-day-history]')?.addEventListener('click',()=>openDayHistory(p));
       p.querySelectorAll('[data-open]').forEach(r => r.addEventListener('click', () => {
         const [kind, id] = r.dataset.open.split(':'); openDetail(kind, +id);
       }));
@@ -731,12 +937,92 @@
       restore();
     }
 
+    function openDayHistory(p) {
+      if(dayHistory){dayHistory.close(true);return;}
+      const liveNow=st.now,liveCar=st.carNow,vid=st.vid;
+      let closed=false,request=0,frames=[],position=0,playing=false,raf=0,lastTick=0,acc=0,dayPicker=null,layoutFrame=0;
+      const picker=window.mvmOS?.dateTimePicker,zone=picker?.settings({}).timeZone;
+      const panel=document.createElement('div');panel.className='tsl-day-history';
+      const localDate=ts=>{if(picker)return picker.fromEpoch(ts,{type:'date',timeZone:zone});const d=new Date(ts*1000);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+      panel.innerHTML=`<div class="tsl-day-toolbar"><label><span class="tsl-day-label">${esc(t('tsl_history_title'))}</span><span data-day-calendar><input type="date" data-day-date aria-label="${esc(t('tsl_history_date'))}"></span></label><button type="button" class="tsl-btn" data-day-live title="${esc(t('tsl_history_live'))}" aria-label="${esc(t('tsl_history_live'))}"><span aria-hidden="true">↩</span><span class="tsl-day-live-copy"> ${esc(t('tsl_history_live'))}</span></button></div><div data-day-content></div>`;
+      p.querySelector('.tsl-hero').appendChild(panel);p.querySelector('.tsl-hero').classList.add('tsl-history-open');
+      const siblings=[...p.children].filter(el=>!el.classList.contains('tsl-hero'));siblings.forEach(el=>el.hidden=true);
+      let date=panel.querySelector('[data-day-date]');const body=panel.querySelector('[data-day-content]');
+      const controller={close(redraw){if(closed)return;closed=true;++request;pause();cancelAnimationFrame(layoutFrame);layoutObserver.disconnect();if(dayPicker)dayPicker.destroy();document.removeEventListener('visibilitychange',visibility);dayHistory=null;st.now=liveNow;st.carNow=liveCar;panel.remove();p.querySelector('.tsl-hero')?.classList.remove('tsl-history-open');siblings.forEach(el=>el.hidden=false);closeDetails();if(redraw&&!destroyed&&st.tab==='now'&&p===page()){drawNow(p,true);renderNow(p,true);}}};
+      function fitHistory(){cancelAnimationFrame(layoutFrame);layoutFrame=requestAnimationFrame(()=>{
+        if(closed)return;const hero=p.querySelector('.tsl-hero');if(!hero)return;
+        const box=hero.getBoundingClientRect(),outer=scroller.getBoundingClientRect();
+        const top=box.top-outer.top+scroller.scrollTop;
+        const style=getComputedStyle(hero),head=hero.querySelector('.tsl-hero-head');
+        const room=scroller.clientHeight-top-head.offsetHeight-panel.offsetHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom)-30;
+        hero.style.setProperty('--tsl-history-stage',Math.max(160,Math.min(360,room))+'px');
+      });}
+      const layoutObserver=new ResizeObserver(fitHistory);layoutObserver.observe(scroller);layoutObserver.observe(panel);
+      dayHistory=controller;
+      const time=ts=>new Intl.DateTimeFormat(window.mvmOS?.lang||'en',{hour:'2-digit',minute:'2-digit',second:'2-digit',...(zone?{timeZone:zone}:{})}).format(new Date(ts*1000));
+      function closeDetails(){if(statusDialog)statusDialog.close();if(chargingDialog)chargingDialog.close();if(tireDialog)tireDialog.close();}
+      function pause(){playing=false;cancelAnimationFrame(raf);const b=panel.querySelector('[data-day-play]');if(b){b.textContent='▶';b.setAttribute('aria-label',t('tsl_replay_play'));}}
+      function visibility(){if(document.hidden)pause();}document.addEventListener('visibilitychange',visibility);
+      function show(){
+        const f=frames[position];if(!f)return;
+        closeDetails();const s=f.sample;
+        st.now={...liveNow,sample:s,state:f.state||s.state||'unknown',since:f.since??s.ts,now:f.ts??s.ts,trip:null,charge:f.charge||null,charge_power:s.charger_power};
+        st.now.vehicle={...liveNow.vehicle,version:s.version||''};
+        const data={...f.car.data},cl={...(data.climate_state||{})},vs={...(data.vehicle_state||{})};
+        if(cl.is_climate_on==null&&s.climate!=null)cl.is_climate_on=!!s.climate;
+        if(cl.inside_temp==null)cl.inside_temp=s.inside_temp;
+        if(cl.outside_temp==null)cl.outside_temp=s.outside_temp;
+        if(vs.sentry_mode==null&&s.sentry!=null)vs.sentry_mode=!!s.sentry;
+        st.carNow={...f.car,data:{...data,climate_state:cl,vehicle_state:vs}};
+        const hero=p.querySelector('.tsl-hero'),temp=document.createElement('div');
+        temp.innerHTML=nowHero(st.now,st.carNow,V.STATE_COL[st.now.state]||'#64748b',t('tsl_history_title'),st.now.state==='charging');
+        temp.firstElementChild.style.setProperty('--tsl-history-stage',hero.style.getPropertyValue('--tsl-history-stage')||'280px');
+        panel.remove();hero.replaceWith(temp.firstElementChild);p.querySelector('.tsl-hero').classList.add('tsl-history-open');p.querySelector('.tsl-hero').appendChild(panel);fitHistory();
+        const toggle=p.querySelector('[data-day-history]');toggle.classList.add('on');toggle.setAttribute('aria-expanded','true');toggle.onclick=()=>controller.close(true);
+        const refresh=p.querySelector('[data-refresh]');if(refresh)refresh.hidden=true;
+        p.querySelectorAll('[data-status]').forEach(b=>b.onclick=()=>openStatus(b.dataset.status));
+        p.querySelectorAll('[data-charge-details],[data-charge-open]').forEach(b=>b.onclick=openCharging);
+        p.querySelectorAll('[data-tire]').forEach(b=>{b.disabled=true;});
+        panel.querySelector('[data-day-seek]').value=position;
+        panel.querySelector('[data-day-time]').textContent=time(f.ts??s.ts);
+        panel.querySelector('[data-day-reading]').textContent=`${position+1} / ${frames.length}`;
+        const location=panel.querySelector('[data-day-location]');
+        location.textContent='⌖ '+(f.location||(Number.isFinite(s.lat)&&Number.isFinite(s.lng)?s.lat.toFixed(5)+', '+s.lng.toFixed(5):t('tsl_replay_no_position')));
+        location.title=location.textContent;location.setAttribute('aria-label',t('tsl_position')+': '+location.textContent);
+        panel.querySelector('[data-day-metrics]').textContent=[st.now.state==='driving'&&s.speed!=null?fmt.speed(s.speed):null,st.now.state==='charging'&&s.charger_power!=null?fmt.kw(s.charger_power):null].filter(Boolean).join(' · ');
+      }
+      function tick(now){if(!playing||closed)return;acc+=(now-lastTick)/1000;lastTick=now;if(acc>=1){const step=Math.floor(acc);acc-=step;position=Math.min(frames.length-1,position+step);show();if(position===frames.length-1){pause();return;}}raf=requestAnimationFrame(tick);}
+      async function load(){
+        pause();closeDetails();const serial=++request;frames=[];p.querySelector('.tsl-cockpit').hidden=true;p.querySelector('.tsl-sub').hidden=true;p.querySelector('.tsl-live-status .tsl-pill').hidden=true;p.querySelector('[data-refresh]').hidden=true;body.innerHTML=`<p class="tsl-note" role="status">${esc(t('tsl_loading'))}</p>`;
+        try{
+          const a=new Date(date.value+'T00:00:00'),b=new Date(a);b.setDate(b.getDate()+1);
+          if(!Number.isFinite(+a))throw Error('invalid_date');
+          const start=picker?picker.toEpoch(date.value,{type:'date',timeZone:zone}):Math.floor(+a/1000),end=picker?picker.toEpoch(datePlus(date.value,1),{type:'date',timeZone:zone}):Math.floor(+b/1000);
+          const result=await api('/v/'+vid+'/history?start='+start+'&end='+end);
+          if(closed||serial!==request)return;frames=result.frames||[];
+          if(!frames.length){body.innerHTML=`<p class="tsl-note" role="status">${esc(t('tsl_history_empty'))}</p>`;p.querySelector('.tsl-cockpit').hidden=true;return;}
+          body.innerHTML=`<div class="tsl-day-playbar"><button type="button" class="tsl-btn" data-day-play aria-label="${esc(t('tsl_replay_play'))}" ${frames.length<2?'disabled':''}>▶</button><b data-day-time></b><span data-day-metrics></span><small data-day-reading></small></div><input type="range" min="0" max="${frames.length-1}" step="1" value="0" data-day-seek aria-label="${esc(t('tsl_history_seek'))}"><div class="tsl-day-ends"><span>${esc(time(frames[0].ts??frames[0].sample.ts))}</span><span>${esc(time(frames.at(-1).ts??frames.at(-1).sample.ts))}</span></div><p class="tsl-note" data-day-location></p><details class="tsl-day-help"><summary aria-label="${esc(t('tsl_history_note'))}">ⓘ</summary><p>${esc(t('tsl_history_note'))}</p></details>`;
+          position=0;show();
+          panel.querySelector('[data-day-seek]').oninput=e=>{pause();position=+e.target.value;show();};
+          panel.querySelector('[data-day-play]').onclick=()=>{if(playing){pause();return;}if(position>=frames.length-1){position=0;show();}playing=true;acc=0;lastTick=performance.now();const btn=panel.querySelector('[data-day-play]');btn.textContent='Ⅱ';btn.setAttribute('aria-label',t('tsl_replay_pause'));raf=requestAnimationFrame(tick);};
+        }catch(e){if(!closed&&serial===request){body.innerHTML=`<p class="tsl-note" role="alert">${esc(t('tsl_error'))}</p><button type="button" class="tsl-btn" data-day-retry>${esc(t('tsl_elev_retry'))}</button>`;body.querySelector('button').onclick=load;}}
+      }
+      date.onchange=load;date.onfocus=pause;panel.querySelector('[data-day-live]').onclick=()=>controller.close(true);
+      const toggle=p.querySelector('[data-day-history]');toggle.setAttribute('aria-expanded','true');
+      (async()=>{try{const bounds=await api('/v/'+vid+'/history');if(closed)return;if(bounds.first!=null)date.min=localDate(bounds.first);if(bounds.last!=null)date.max=localDate(bounds.last);date.value=localDate(bounds.last??liveNow.sample.ts);if(picker){const value=date.value,min=date.min,max=date.max,host=panel.querySelector('[data-day-calendar]');host.replaceChildren();dayPicker=picker.create(host,{type:'date',timeZone:zone,label:t('tsl_history_date'),value,min,max,required:true});date=dayPicker.input;date.dataset.dayDate='';date.onchange=load;dayPicker.button.addEventListener('click',pause);}await load();}catch(e){if(!closed){body.innerHTML=`<p class="tsl-note" role="alert">${esc(t('tsl_error'))}</p>`;date.value=localDate(liveNow.sample.ts);}}})();
+    }
+
     // ── Trips ─────────────────────────────────────────────────────────────
-    function tripRow(r, src) {
-      return `<div class="tsl-row" data-open="trip:${r.id}"><div class="d">${esc(fmt.date(r.start_ts))}<br>${esc(fmt.time(r.start_ts))}</div>
-        <div class="m"><b>${esc(place(r.start_place, r.start_addr))} → ${esc(place(r.end_place, r.end_addr))}</b>
-        <small>${esc(fmt.dur(r.duration))}${r.start_batt != null ? ' · ' + r.start_batt + '% → ' + r.end_batt + '%' : ''}</small></div>
-        <div class="s"><span><b>${esc(fmt.dist(r.distance_km))}</b></span><span>${esc(fmt.kwh(r.energy_kwh))}</span>${r.wh_km ? `<span>${esc(fmt.eff(r.wh_km))}</span>` : ''}</div></div>`;
+    function tripRow(r) {
+      const start = r.start_batt == null ? null : Math.max(0, Math.min(100, r.start_batt));
+      const end = r.end_batt == null ? null : Math.max(0, Math.min(100, r.end_batt));
+      const metric = (label, value) => `<span><b>${esc(value)}</b><small>${esc(t(label))}</small></span>`;
+      return `<button type="button" class="tsl-drive-card" data-open="trip:${r.id}">
+        <div class="tsl-drive-meta"><time datetime="${new Date(r.start_ts * 1000).toISOString()}">${esc(fmt.date(r.start_ts))}<b>${esc(fmt.time(r.start_ts))}</b></time><span class="tsl-drive-duration">${esc(fmt.dur(r.duration))}</span></div>
+        <div class="tsl-drive-route"><span>${esc(place(r.start_place, r.start_addr))}</span><span>${esc(place(r.end_place, r.end_addr))}</span></div>
+        <div class="tsl-drive-metrics">${metric('tsl_trip_distance', fmt.dist(r.distance_km))}${metric('tsl_trip_energy', r.energy_kwh == null ? '–' : fmt.kwh(r.energy_kwh))}${metric('tsl_trip_eff', r.wh_km == null ? '–' : fmt.eff(r.wh_km))}</div>
+        ${start != null && end != null ? `<div class="tsl-drive-battery"><span>${esc(t('tsl_trip_batt'))}</span><div class="tsl-drive-battery-track" aria-hidden="true"><i style="width:${Math.min(start,end)}%"></i><i class="used" style="left:${Math.min(start,end)}%;width:${Math.abs(start-end)}%"></i></div><span>${esc(nf(start))}% → ${esc(nf(end))}%</span></div>` : ''}
+      </button>`;
     }
     async function renderTrips(p) {
       if (st.detail) return renderTripDetail(p);
@@ -750,8 +1036,8 @@
     }
     function drawTrips(p) {
       if (!st.trips.length) { p.innerHTML = `<div class="tsl-card tsl-center">${esc(t('tsl_trips_none'))}</div>`; return; }
-      p.innerHTML = `<div class="tsl-card">${st.trips.map(r => tripRow(r)).join('')}
-        ${st.trips.length < st.tripsTotal ? `<div class="tsl-btns" style="justify-content:center"><button class="tsl-btn" id="tsl-more">${esc(t('tsl_more'))}</button></div>` : ''}</div>`;
+      p.innerHTML = `<div class="tsl-drive-list">${st.trips.map(r => tripRow(r)).join('')}</div>
+        ${st.trips.length < st.tripsTotal ? `<div class="tsl-btns" style="justify-content:center"><button class="tsl-btn" id="tsl-more">${esc(t('tsl_more'))}</button></div>` : ''}`;
       p.querySelectorAll('[data-open]').forEach(r => r.addEventListener('click', () => openDetail('trip', +r.dataset.open.split(':')[1])));
       const more = p.querySelector('#tsl-more');
       if (more) more.addEventListener('click', async () => {
@@ -843,7 +1129,7 @@
       try {
         let offset=0, rows=[];
         const draw = () => {
-          const restore=replacePage(p,`<div class="tsl-head"><button class="tsl-btn pri" id="tsl-j-new">＋ ${esc(t('tsl_j_new'))}</button></div><p class="tsl-note">${esc(t('tsl_j_hint'))}</p><div class="tsl-journey-list">${rows.length ? rows.map(j => `<button class="tsl-card tsl-journey-card" data-journey="${esc(j.id)}"><div>${journeyStatus(j)}<h2>${esc(j.name)}</h2></div><p>${esc(journeyDate(j.start_ts))} → ${esc(journeyDate(j.end_ts))}</p><span aria-hidden="true">↗</span></button>`).join('') : `<div class="tsl-card tsl-center">${esc(t('tsl_j_empty'))}</div>`}</div>${offset < total ? `<button class="tsl-btn" id="tsl-j-more">${esc(t('tsl_more'))}</button>` : ''}`,quiet);
+          const restore=replacePage(p,`<div class="tsl-head"><button class="tsl-btn pri" id="tsl-j-new">＋ ${esc(t('tsl_j_new'))}</button></div><p class="tsl-note">${esc(t('tsl_j_hint'))}</p><div class="tsl-journey-list">${rows.length ? rows.map(j => `<button class="tsl-card tsl-journey-card" data-journey="${esc(j.id)}"><div>${journeyStatus(j)}<h2>${esc(j.name)}</h2></div><div class="tsl-journey-period"><span><small>${esc(t('tsl_j_from'))}</small>${esc(journeyDate(j.start_ts))}</span><span><small>${esc(t('tsl_j_to'))}</small>${esc(journeyDate(j.end_ts))}</span></div><span aria-hidden="true">↗</span></button>`).join('') : `<div class="tsl-card tsl-center">${esc(t('tsl_j_empty'))}</div>`}</div>${offset < total ? `<button class="tsl-btn" id="tsl-j-more">${esc(t('tsl_more'))}</button>` : ''}`,quiet);
           p.querySelector('#tsl-j-new').onclick=()=>journeyEditor();
           p.querySelectorAll('[data-journey]').forEach(b=>b.onclick=()=>openJourney(b.dataset.journey));
           restore();
@@ -865,6 +1151,7 @@
       }catch(e){if(seq!==seqLoad)return;if(quiet)toast(t('tsl_error'));else page().innerHTML=backBtn()+`<div class="tsl-card tsl-center">${esc(t('tsl_error'))}</div>`;if(!quiet)hookBack(page());}
     }
     function drawJourney(p, quiet) {
+      if(quiet && replayPlaying)return;
       const d=st.journey,j=d.journey;
       const restore=replacePage(p,backBtn()+`<div class="tsl-card tsl-journey-heading"><div>${journeyStatus(j)}<h2>${esc(j.name)}</h2><p class="tsl-sub">${esc(journeyDate(j.start_ts))} → ${esc(journeyDate(j.end_ts))}</p></div><div class="tsl-btns"><button class="tsl-btn" id="tsl-j-edit">${esc(t('tsl_edit'))}</button>${j.status!=='completed'?`<button class="tsl-btn pri" id="tsl-j-action">${esc(t(j.status==='planned'?'tsl_j_start':'tsl_j_stop'))}</button>`:''}<button class="tsl-btn" id="tsl-j-delete">${esc(t('tsl_delete'))}</button></div></div>`+analysisMarkup(d.analysis,true),quiet);
       hookBack(p);p.querySelector('#tsl-j-edit').onclick=()=>journeyEditor(j);p.querySelector('#tsl-j-delete').onclick=()=>journeyEditor(j,true);
@@ -873,20 +1160,87 @@
     }
     const reportDur = n => n > 0 ? fmt.dur(n) : n === 0 ? '0 '+t('tsl_u_min') : '–';
     function analysisMarkup(a,saved) {
-      const s=a.stats, readings=s.readings_stats, metric=(key,value,sub)=>tile(t(key),esc(value),sub?esc(sub):'');
+      const s=a.stats, readings=s.readings_stats, metric=(key,value,sub)=>key==='tsl_trip_batt' && s.start_battery!=null && s.end_battery!=null ? batteryMetric(s.start_battery,s.end_battery) : tile(t(key),esc(value),sub?esc(sub):'');
       const F={dist:v=>v==null?'–':fmt.dist(v),kwh:v=>v==null?'–':fmt.kwh(v),speed:v=>v==null?'–':fmt.speed(v)};
       const battery=s.start_battery!=null&&s.end_battery!=null?`${nf(s.start_battery)}% → ${nf(s.end_battery)}%`:'–';
       const range = r => r&&r.min!=null ? (fmt.temp(r.min)===fmt.temp(r.max)?fmt.temp(r.min):`${fmt.temp(r.min)} – ${fmt.temp(r.max)}`):'–';
       return `<div class="tsl-card tsl-report-summary"><div class="tsl-grid">${metric('tsl_trip_distance',(s.distance_complete?'':'≈ ')+F.dist(s.distance_km))}${metric('tsl_trip_duration',reportDur(s.driving_seconds),saved?`${nf(s.trips)} ${t('tsl_tab_trips')}`:'')}${metric('tsl_trip_energy',(s.energy_complete?'':'≈ ')+F.kwh(s.energy_kwh))}${metric('tsl_trip_eff',s.wh_km!=null?fmt.eff(s.wh_km):'–')}${metric('tsl_j_regen',F.kwh(s.regen_kwh))}${metric('tsl_trip_avg',F.speed(s.avg_speed))}${metric('tsl_trip_max',F.speed(s.max_speed))}${metric('tsl_trip_batt',battery)}${saved?`${metric('tsl_chg_added',(s.charged_complete?'':'≈ ')+F.kwh(s.charged_kwh),`${nf(s.charges)} ${t('tsl_tab_charges')} · ${nf(s.ac_charges)} AC / ${nf(s.dc_charges)} DC`)}${metric('tsl_chg_duration',reportDur(s.charging_seconds))}${metric('tsl_chg_cost',s.cost_totals&&s.cost_totals.length?s.cost_totals.map(c=>money(c.cost,c.currency)).join(' · '):s.cost!=null?money(s.cost):'–',s.cost_complete?'':t('tsl_j_unpriced'))}`:''}</div></div>
-        <div class="tsl-card"><h3>${esc(t('tsl_j_routes'))}</h3><div id="tsl-report-map"></div><p class="tsl-note">${esc(t('tsl_j_map_hint'))}</p></div>
+        <div class="tsl-card"><h3>${esc(t('tsl_elev_title'))}</h3><div id="tsl-elevation"><div class="tsl-empty">${esc(t('tsl_loading'))}</div></div><p class="tsl-note">${esc(t('tsl_elev_note'))}</p><a class="tsl-elev-credit" href="https://github.com/tilezen/joerd/blob/master/docs/attribution.md" target="_blank" rel="noopener noreferrer">Terrain Tiles · ${esc(t('tsl_elev_credits'))} ↗</a></div>
+        <div class="tsl-card"><h3>${esc(t('tsl_j_routes'))}</h3><div id="tsl-report-map"></div><div id="tsl-replay"></div><p class="tsl-note">${esc(t('tsl_j_map_hint'))}</p></div>
         ${a.end>a.start?`<div class="tsl-card"><h3>${esc(t('tsl_states_totals'))}</h3>${V.strip({since:a.start,now:a.end,rows:a.timeline,labels:{unknown:t('tsl_j_unknown')}})}<div class="tsl-report-states">${Object.entries(s.state_seconds).map(([k,v])=>`<span><i style="background:${V.STATE_COL[k]||'#64748b'}"></i>${esc(t(k==='unknown'?'tsl_j_unknown':'tsl_st_'+k))}<b>${esc(reportDur(v))}</b></span>`).join('')}</div></div>`:''}
         <div class="tsl-report-charts"><div class="tsl-card"><h3>${esc(t('tsl_trip_batt'))}</h3><div id="tsl-report-battery"></div></div><div class="tsl-card"><h3>${esc(t('tsl_j_temperatures'))}</h3><div class="tsl-legend"><span style="color:#60a5fa">● ${esc(t('tsl_inside'))}</span><span style="color:#fb923c">● ${esc(t('tsl_outside'))}</span></div><div id="tsl-report-temp"></div></div></div>
         <div class="tsl-card"><h3>${esc(t('tsl_j_observations'))}</h3><div class="tsl-grid">${metric('tsl_inside',range(readings.inside_temp))}${metric('tsl_outside',range(readings.outside_temp))}${Object.entries(s.flags).filter(([,v])=>v.observed_seconds>0).map(([k,v])=>metric('tsl_j_flag_'+k,reportDur(v.seconds))).join('')}${['fl','fr','rl','rr'].filter(k=>readings['tpms_'+k].min!=null).map(k=>tile(t('tsl_c_'+k),esc(nf(readings['tpms_'+k].min*(U.imperial?14.5038:1),U.imperial?0:2)+' – '+nf(readings['tpms_'+k].max*(U.imperial?14.5038:1),U.imperial?0:2)+(U.imperial?' psi':' bar')))).join('')}</div>${Object.values(s.flags).some(v=>v.observed_seconds>0)?`<p class="tsl-note">${esc(t('tsl_j_observed'))}</p>`:''}</div>
         <div class="tsl-card"><h3>${esc(t('tsl_j_history'))}</h3><div id="tsl-report-events"></div></div>
         <div class="tsl-card tsl-note"><b>${esc(t('tsl_j_coverage'))}</b><p>${esc(nf(s.readings))} ${esc(t('tsl_j_readings'))}${s.first_reading?` · ${esc(journeyDate(s.first_reading))} → ${esc(journeyDate(s.last_reading))}`:''}</p>${esc(t('tsl_j_coverage_hint'))}${a.partial?`<p>${esc(t('tsl_j_partial'))}</p>`:''}</div>`;
     }
+    function mountReplay(p,a,map) {
+      if(replayCleanup){replayCleanup();replayCleanup=null;}
+      const host=p.querySelector('#tsl-replay'),points=(a.playback||[]).filter(p=>Number.isFinite(p[0]));
+      if(!host || !map)return;
+      if(points.length<2){host.innerHTML=`<p class="tsl-note">${esc(t('tsl_replay_empty'))}</p>`;return;}
+      host.innerHTML=`<div class="tsl-replay-head"><b>${esc(t('tsl_replay_title'))}</b><time data-replay-clock></time></div><div class="tsl-seg tsl-replay-view"><button type="button" data-replay-view="follow" aria-pressed="true" class="on">◎ ${esc(t('tsl_replay_follow'))}</button><button type="button" data-replay-view="overview" aria-pressed="false">${esc(t('tsl_replay_overview'))}</button></div><div class="tsl-replay-controls"><button type="button" class="tsl-btn pri" data-replay-play>▶ ${esc(t('tsl_replay_play'))}</button><select data-replay-rate aria-label="${esc(t('tsl_replay_rate'))}">${[.5,1,2,4].map(n=>`<option value="${n}" ${n===1?'selected':''}>${nf(n)}×</option>`).join('')}</select><input data-replay-seek type="range" min="0" max="${points.length-1}" step="0.001" value="0" aria-label="${esc(t('tsl_replay_title'))}"></div><div class="tsl-replay-readings"><div><small>${esc(t('tsl_trip_avg'))}</small><b data-replay-speed></b></div><div><small>${esc(t('tsl_power'))}</small><b data-replay-power></b></div><div><small>${esc(t('tsl_trip_batt'))}</small><b data-replay-battery></b></div></div><div class="tsl-replay-caption"><span data-replay-reading></span><span class="tsl-replay-activity" data-replay-position></span></div><p class="tsl-note">${esc(t('tsl_replay_note'))}</p>`;
+      // Reuse the speed unit label, without implying this is an average.
+      host.querySelector('.tsl-replay-readings small').textContent=t('tsl_chart_speed');
+      const button=host.querySelector('[data-replay-play]'),seek=host.querySelector('[data-replay-seek]'),rate=host.querySelector('select');
+      const viewButtons=host.querySelectorAll('[data-replay-view]');
+      map.onFollowChange(enabled=>viewButtons.forEach(b=>{const active=(b.dataset.replayView==='follow')===enabled;b.classList.toggle('on',active);b.setAttribute('aria-pressed',String(active));}));
+      viewButtons.forEach(b=>b.onclick=()=>map.setFollow(b.dataset.replayView==='follow'));
+      map.setFollow(true);
+      let frame=null,position=0,last=null,closed=false;
+      const valid=q=>Number.isFinite(q[1])&&Number.isFinite(q[2])&&Math.abs(q[1])<90&&Math.abs(q[2])<=180;
+      function renderFrame(){
+        const i=Math.min(points.length-1,Math.floor(position)),q=points[i],next=points[Math.min(i+1,points.length-1)],fraction=position-i;
+        seek.value=position;
+        host.querySelector('[data-replay-clock]').textContent=fmt.dateTime(q[0]+(next[0]-q[0])*fraction);
+        host.querySelector('[data-replay-reading]').textContent=t('tsl_replay_reading')+' '+fmt.dateTime(q[0]);
+        host.querySelector('[data-replay-speed]').textContent=q[3]==null?'–':fmt.speed(q[3]);
+        const charging=q[6]==='charging',power=charging?q[7]:q[4];
+        host.querySelector('[data-replay-power]').textContent=power==null?'–':fmt.kw(power);
+        host.querySelector('[data-replay-power]').previousElementSibling.textContent=t(charging?'tsl_replay_charge_power':'tsl_power');
+        host.querySelector('[data-replay-battery]').textContent=q[5]==null?'–':nf(q[5])+'%';
+        const activity=host.querySelector('[data-replay-position]');activity.textContent=(q[6]?(STATE_ICON[q[6]]||'')+' '+t('tsl_st_'+q[6]):'')+(!valid(q)?' · '+t('tsl_replay_no_position'):'');activity.style.color=V.STATE_COL[q[6]]||'';
+        if(valid(q)){
+          const blend=valid(next),lat=q[1]+(blend?(next[1]-q[1])*fraction:0),deltaLng=blend?((next[2]-q[2]+540)%360-180):0,lng=((q[2]+deltaLng*fraction+540)%360)-180;
+          const heading=blend?Math.atan2(deltaLng*Math.cos(lat*Math.PI/180),next[1]-q[1])*180/Math.PI:0;
+          map.setCursor({lat,lng,heading});
+        }else map.setCursor(null);
+      }
+      function pause(){replayPlaying=false;last=null;if(frame!=null)cancelAnimationFrame(frame);frame=null;button.textContent=(position>=points.length-1?'↺ '+t('tsl_replay_restart'):'▶ '+t('tsl_replay_play'));button.setAttribute('aria-pressed','false');}
+      function tick(now){
+        if(closed || destroyed || !host.isConnected){pause();return;}
+        if(last!=null)position=Math.min(points.length-1,position+(now-last)/1000*Number(rate.value));
+        last=now;renderFrame();
+        if(position>=points.length-1)pause();else frame=requestAnimationFrame(tick);
+      }
+      button.onclick=()=>{if(replayPlaying){pause();return;}if(position>=points.length-1)position=0;replayPlaying=true;last=null;button.textContent='Ⅱ '+t('tsl_replay_pause');button.setAttribute('aria-pressed','true');frame=requestAnimationFrame(tick);};
+      seek.oninput=()=>{position=Number(seek.value);last=null;renderFrame();if(position>=points.length-1)pause();};
+      const visibility=()=>{if(document.hidden)pause();};document.addEventListener('visibilitychange',visibility);
+      replayCleanup=()=>{closed=true;pause();document.removeEventListener('visibilitychange',visibility);map.onFollowChange(null);map.setCursor(null);map.setFollow(false);};
+      renderFrame();
+    }
+    async function mountElevation(p, saved) {
+      const el=p.querySelector('#tsl-elevation'), vid=st.vid;
+      if(!el)return;
+      const id=saved ? st.journey.journey.id : st.detail.id;
+      try {
+        const d=await api('/v/'+vid+'/'+(saved?'journeys/':'trips/')+encodeURIComponent(id)+'/elevation');
+        if(destroyed || !el.isConnected || st.vid!==vid)return;
+        if(d.samples<2)throw Error('no_elevation');
+        const metres=v=>nf(U.imperial?v*3.28084:v,0)+' '+(U.imperial?'ft':'m');
+        el.innerHTML=`<div class="tsl-grid tsl-elevation-summary">${tile(t('tsl_elev_ascent'),'↗ '+esc(metres(d.ascent_m)))}${tile(t('tsl_elev_descent'),'↘ '+esc(metres(d.descent_m)))}${tile(t('tsl_elev_min'),esc(metres(d.min_m)))}${tile(t('tsl_elev_max'),esc(metres(d.max_m)))}</div><div data-elevation-chart></div>${d.partial?`<p class="tsl-note">${esc(t('tsl_elev_partial'))}</p>`:''}`;
+        const segments=[];let segment=[];for(const [km,m] of d.points){if(m==null){if(segment.length)segments.push({color:'#34d399',data:segment});segment=[];}else segment.push([U.dist(km),U.imperial?m*3.28084:m]);}if(segment.length)segments.push({color:'#34d399',data:segment});
+        V.chart(el.querySelector('[data-elevation-chart]'),{type:'line',segmented:true,series:segments,height:190,xFmt:v=>nf(v,1)+' '+U.distU(),yFmt:v=>nf(v,0),tipFmt:v=>nf(v,0)+' '+(U.imperial?'ft':'m'),yMin:Math.floor((U.imperial?d.min_m*3.28084:d.min_m)-5)});
+      } catch(e) {
+        if(destroyed || !el.isConnected)return;
+        el.innerHTML=`<div class="tsl-empty">${esc(t('tsl_elev_unavailable'))}</div><button type="button" class="tsl-btn">${esc(t('tsl_elev_retry'))}</button>`;
+        el.querySelector('button').onclick=()=>{el.innerHTML=`<div class="tsl-empty">${esc(t('tsl_loading'))}</div>`;mountElevation(p,saved);};
+      }
+    }
     function mountAnalysis(p,a,saved) {
-      mountPageMap(p.querySelector('#tsl-report-map'),[],{routes:a.routes.map(r=>r.points),markers:a.markers,color:speedColor});
+      mountElevation(p,saved);
+      const firstPosition=(a.playback||[]).find(q=>Number.isFinite(q[1])&&Number.isFinite(q[2]));
+      const replayMap=mountPageMap(p.querySelector('#tsl-report-map'),[],{routes:a.routes.map(r=>r.points),markers:a.markers,color:speedColor,marker:!a.routes.length&&firstPosition?[firstPosition[1],firstPosition[2]]:null});
+      mountReplay(p,a,replayMap);
       const mm=p.querySelector('.tsl-map');if(mm)mm.classList.add('tall');
       const chart=(id,series,yFmt,yMin)=>{
         series=series.filter(s=>s.data.length);const el=p.querySelector(id);
@@ -910,10 +1264,16 @@
 
     // ── Charges ───────────────────────────────────────────────────────────
     function chargeRow(r) {
-      return `<div class="tsl-row" data-open="charge:${r.id}"><div class="d">${esc(fmt.date(r.start_ts))}<br>${esc(fmt.time(r.start_ts))}</div>
-        <div class="m"><b>${esc(place(r.place, r.addr))}<span class="tsl-badge ${r.dc ? 'dc' : ''}">${esc(t(r.dc ? 'tsl_chg_dc' : 'tsl_chg_ac'))}</span></b>
-        <small>${esc(fmt.dur((r.end_ts || r.start_ts) - r.start_ts))} · ${r.start_batt??'–'}% → ${r.end_batt??'–'}%</small></div>
-        <div class="s"><span><b>+${esc(fmt.kwh(r.kwh))}</b></span>${r.cost_totals&&r.cost_totals.length ? `<span>${r.cost_complete?'':'≥ '}${r.pricing_estimated?'≈ ':''}${esc(costMoney(r))}</span>` : r.cost!=null?`<span>${esc(money(r.cost))}</span>`:''}</div></div>`;
+      const metric = (key, value) => `<span><b>${esc(value)}</b><small>${esc(t(key))}</small></span>`;
+      const start = r.start_batt == null ? null : Math.max(0, Math.min(100, r.start_batt));
+      const end = r.end_batt == null ? null : Math.max(0, Math.min(100, r.end_batt));
+      const cost = (r.cost_totals && r.cost_totals.length ? (r.cost_complete ? '' : '≥ ') : '') + (r.pricing_estimated ? '≈ ' : '') + costMoney(r);
+      return `<button type="button" class="tsl-drive-card tsl-charge-card ${r.dc ? 'dc' : ''}" data-open="charge:${r.id}">
+        <div class="tsl-drive-meta"><time datetime="${new Date(r.start_ts * 1000).toISOString()}">${esc(fmt.date(r.start_ts))}<b>${esc(fmt.time(r.start_ts))}</b></time><span class="tsl-drive-duration">${esc(fmt.dur((r.end_ts || r.start_ts) - r.start_ts))}</span></div>
+        <div class="tsl-charge-location"><span class="tsl-session-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2 5 14h6l-1 8 9-13h-7z"/></svg></span><strong>${esc(place(r.place, r.addr))}</strong><span class="tsl-badge ${r.dc ? 'dc' : ''}">${esc(t(r.dc ? 'tsl_chg_dc' : 'tsl_chg_ac'))}</span></div>
+        <div class="tsl-drive-metrics">${metric('tsl_chg_added',r.kwh == null ? '–' : '+' + fmt.kwh(r.kwh))}${metric('tsl_chg_peak',r.max_power == null ? '–' : fmt.kw(r.max_power))}${metric('tsl_chg_cost',cost)}</div>
+        ${start != null && end != null ? `<div class="tsl-drive-battery"><span>${esc(t('tsl_trip_batt'))}</span><div class="tsl-drive-battery-track" aria-hidden="true"><i style="width:${end}%"></i><i class="before" style="width:${start}%"></i></div><span>${esc(nf(start))}% → ${esc(nf(end))}%</span></div>` : ''}
+      </button>`;
     }
     async function renderCharges(p) {
       if (st.detail) return renderChargeDetail(p);
@@ -930,8 +1290,8 @@
     }
     function drawCharges(p) {
       if (!st.charges.length) { p.innerHTML = `<div class="tsl-card tsl-center">${esc(t('tsl_chg_none'))}</div>`; return; }
-      p.innerHTML = `<div class="tsl-card">${st.charges.map(r => chargeRow(r)).join('')}
-        ${st.charges.length < st.chargesTotal ? `<div class="tsl-btns" style="justify-content:center"><button class="tsl-btn" id="tsl-more">${esc(t('tsl_more'))}</button></div>` : ''}</div>`;
+      p.innerHTML = `<div class="tsl-drive-list">${st.charges.map(r => chargeRow(r)).join('')}</div>
+        ${st.charges.length < st.chargesTotal ? `<div class="tsl-btns" style="justify-content:center"><button class="tsl-btn" id="tsl-more">${esc(t('tsl_more'))}</button></div>` : ''}`;
       p.querySelectorAll('[data-open]').forEach(r => r.addEventListener('click', () => openDetail('charge', +r.dataset.open.split(':')[1])));
       const more = p.querySelector('#tsl-more');
       if (more) more.addEventListener('click', async () => {
@@ -1062,7 +1422,7 @@
       let loadSeq=0;
       async function load(){const n=++loadSeq,from=picker.toEpoch(start.value,{type:'date'}),until=picker.toEpoch(datePlus(end.value,1),{type:'date'}),place=p.querySelector('#tsl-cost-place').value,kind=p.querySelector('#tsl-cost-kind').value,button=p.querySelector('#tsl-cost-load'),box=p.querySelector('#tsl-cost-results');if(from==null||until==null||from>=until){toast(t('tsl_bill_invalid_period'));return;}button.disabled=true;st.costFilters={start:from,end:until,place_id:place,kind};
         try{const d=await api('/v/'+vid+'/costs?start='+from+'&end='+until+(place?'&place_id='+encodeURIComponent(place):'')+'&kind='+kind);if(destroyed||seq!==seqLoad||n!==loadSeq)return;const s=d.summary;
-          box.innerHTML=`<div class="tsl-card tsl-report-summary"><div class="tsl-grid">${tile(t('tsl_bill_total'),esc(s.currencies.map(c=>money(c.cost,c.currency)).join(' · ')||'–'))}${tile(t('tsl_stats_charged'),esc(fmt.kwh(s.kwh)))}${tile(t('tsl_tab_charges'),esc(nf(s.sessions)))}${tile(t('tsl_bill_unpriced'),esc(nf(s.unpriced_sessions)),esc(fmt.kwh(s.unpriced_kwh)))}</div><p class="tsl-note">${esc(t('tsl_bill_report_hint'))}${s.estimated_sessions?' · ≈ '+esc(nf(s.estimated_sessions))+' '+esc(t('tsl_bill_estimated')):''}</p></div><div class="tsl-card"><h3>${esc(t('tsl_bill_by_place'))}</h3>${s.places.map(pl=>`<div class="tsl-bill-place-total"><div><b>${esc(pl.name||t('tsl_unknown_place'))}</b><small>${esc(fmt.kwh(pl.kwh))} · ${nf(pl.sessions)} ${esc(t('tsl_tab_charges'))}${pl.unpriced_sessions?' · '+nf(pl.unpriced_sessions)+' '+esc(t('tsl_bill_unpriced')):''}</small></div><b>${esc(pl.currencies.map(c=>money(c.cost,c.currency)).join(' · ')||'–')}</b></div>`).join('')||`<p class="tsl-note">${esc(t('tsl_chg_none'))}</p>`}</div><div class="tsl-card">${d.charges.map(ch=>chargeRow(ch)).join('')}</div>`;
+          box.innerHTML=`<div class="tsl-card tsl-report-summary"><div class="tsl-grid">${tile(t('tsl_bill_total'),esc(s.currencies.map(c=>money(c.cost,c.currency)).join(' · ')||'–'))}${tile(t('tsl_stats_charged'),esc(fmt.kwh(s.kwh)))}${tile(t('tsl_tab_charges'),esc(nf(s.sessions)))}${tile(t('tsl_bill_unpriced'),esc(nf(s.unpriced_sessions)),esc(fmt.kwh(s.unpriced_kwh)))}</div><p class="tsl-note">${esc(t('tsl_bill_report_hint'))}${s.estimated_sessions?' · ≈ '+esc(nf(s.estimated_sessions))+' '+esc(t('tsl_bill_estimated')):''}</p></div><div class="tsl-card"><h3>${esc(t('tsl_bill_by_place'))}</h3>${s.places.map(pl=>`<div class="tsl-bill-place-total"><div><b>${esc(pl.name||t('tsl_unknown_place'))}</b><small>${esc(fmt.kwh(pl.kwh))} · ${nf(pl.sessions)} ${esc(t('tsl_tab_charges'))}${pl.unpriced_sessions?' · '+nf(pl.unpriced_sessions)+' '+esc(t('tsl_bill_unpriced')):''}</small></div><b>${esc(pl.currencies.map(c=>money(c.cost,c.currency)).join(' · ')||'–')}</b></div>`).join('')||`<p class="tsl-note">${esc(t('tsl_chg_none'))}</p>`}</div><div class="tsl-drive-list">${d.charges.map(ch=>chargeRow(ch)).join('')}</div>`;
           box.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{openDetail('charge',+b.dataset.open.split(':')[1]);});
         }catch(e){if(n===loadSeq)box.innerHTML=`<div class="tsl-card tsl-center">${esc(t('tsl_error'))}</div>`;}finally{if(button.isConnected)button.disabled=false;}}
       p.querySelector('#tsl-cost-load').onclick=load;load();
@@ -1080,22 +1440,23 @@
       if (destroyed || st.tab !== 'states') return;
       st.states = st.states.concat(d.states); st.statesTotal = d.total;
       if (tl) st.statesTl = tl;
+      const totalSeconds = Object.values(d.totals).reduce((sum, n) => sum + n, 0) || 1;
       const tot = d.totals, order = ['driving', 'charging', 'online', 'asleep', 'offline'].filter(k => tot[k]);
       const row = r => {
         const dur = (r.end || d.now) - r.start;
         const col = V.STATE_COL[r.state] || '#64748b';
         const day = x => new Date(x * 1000).toLocaleDateString((window.mvmOS && window.mvmOS.lang) || 'en', { day: 'numeric', month: 'short' });
         const sameDay = r.end && day(r.end) === day(r.start);
-        return `<div class="tsl-row" style="cursor:default"><div class="d dc"><span class="tsl-dot" style="background:${col}"></span></div>
-          <div class="m"><b>${esc(t('tsl_st_' + r.state))}${r.place ? ' · ' + esc(r.place) : ''}</b>
-          <small>${esc(fmt.dateTime(r.start))} – ${r.end ? esc(sameDay ? fmt.time(r.end) : fmt.dateTime(r.end)) : esc(t('tsl_states_now'))}</small></div>
-          <div class="s"><span><b>${esc(fmt.dur(dur))}</b></span>${r.batt_start != null && r.batt_end != null ? `<span>${r.batt_start}% → ${r.batt_end}%</span>` : ''}</div></div>`;
+        return `<div class="tsl-state-event" style="--event-color:${col}"><span class="tsl-event-icon" aria-hidden="true">${STATE_ICON[r.state] || '…'}</span>
+          <div class="tsl-event-body"><div class="tsl-event-heading"><b>${esc(t('tsl_st_' + r.state))}</b><strong>${esc(fmt.dur(dur))}</strong></div>
+          ${r.place ? `<div class="tsl-event-place">${esc(r.place)}</div>` : ''}<small>${esc(fmt.dateTime(r.start))} – ${r.end ? esc(sameDay ? fmt.time(r.end) : fmt.dateTime(r.end)) : esc(t('tsl_states_now'))}</small>
+          ${r.batt_start != null && r.batt_end != null ? `<span class="tsl-event-battery">${esc(t('tsl_trip_batt'))} <b>${esc(nf(r.batt_start))}% → ${esc(nf(r.batt_end))}%</b></span>` : ''}</div></div>`;
       };
       p.innerHTML = `<div class="tsl-head"><div class="tsl-seg">${[[24, 'tsl_states_day'], [168, 'tsl_stats_week'], [720, 'tsl_stats_month']].map(x =>
         `<button data-h="${x[0]}" class="${st.sHours === x[0] ? 'on' : ''}">${esc(t(x[1]))}</button>`).join('')}</div></div>
         <div class="tsl-card"><h3>${esc(t('tsl_states_totals'))}</h3>${V.strip(st.statesTl)}
-        <div class="tsl-grid" style="margin-top:12px">${order.map(k => `<div class="tsl-tile"><span><i class="tsl-dot" style="background:${V.STATE_COL[k]}"></i> ${esc(t('tsl_st_' + k))}</span><b>${esc(fmt.dur(tot[k]))}</b></div>`).join('')}</div></div>
-        <div class="tsl-card">${st.states.length ? st.states.map(row).join('') : `<div class="tsl-empty">${esc(t('tsl_states_none'))}</div>`}
+        <div class="tsl-grid" style="margin-top:12px">${order.map(k => `<div class="tsl-tile"><span><i class="tsl-dot" style="background:${V.STATE_COL[k]}"></i> ${esc(t('tsl_st_' + k))}</span><b>${esc(fmt.dur(tot[k]))}</b><div class="tsl-state-share" aria-hidden="true"><i style="width:${Math.min(100,tot[k]/totalSeconds*100)}%;background:${V.STATE_COL[k]}"></i></div></div>`).join('')}</div></div>
+        <div class="tsl-event-list">${st.states.length ? st.states.map(row).join('') : `<div class="tsl-empty">${esc(t('tsl_states_none'))}</div>`}
         ${st.states.length < st.statesTotal ? `<div class="tsl-btns" style="justify-content:center"><button class="tsl-btn" id="tsl-more">${esc(t('tsl_more'))}</button></div>` : ''}</div>`;
       p.querySelectorAll('[data-h]').forEach(b => b.addEventListener('click', () => { st.sHours = +b.dataset.h; renderStates(p); }));
       const mb = p.querySelector('#tsl-more'); if (mb) mb.addEventListener('click', () => renderStates(p, true));
@@ -1160,7 +1521,7 @@
         ${tile(t('tsl_st_asleep'), all ? nf(tot / all * 100) + '%' : '–')}</div>
         <div id="tsl-b1" style="margin-top:12px"></div><div class="tsl-note">${esc(t('tsl_bat_note'))}</div></div>
         <div class="tsl-card"><h3>${esc(t('tsl_bat_sleep'))}</h3><div id="tsl-b2"></div><div class="tsl-note">${esc(t('tsl_bat_sleep_note'))}</div></div>
-        <div class="tsl-card"><h3>${esc(t('tsl_bat_drain'))}</h3>${dr.length ? dr.slice().reverse().slice(0, 12).map(x => `<div class="tsl-row" style="cursor:default"><div class="d">${esc(fmt.date(x.start))}</div><div class="m"><b>${esc(fmt.dur(x.hours * 3600))}</b></div><div class="s"><span>−${x.lost_pct}%</span><span>−${esc(fmt.dist(x.lost_km, 1))}</span></div></div>`).join('') : `<div class="tsl-empty">${esc(t('tsl_bat_drain_none'))}</div>`}</div>`;
+        <div class="tsl-card"><h3>${esc(t('tsl_bat_drain'))}</h3>${dr.length ? `<div class="tsl-drain-list">` + dr.slice().reverse().slice(0, 12).map(x => `<div class="tsl-drain-entry"><div class="tsl-drive-meta"><b>${esc(fmt.date(x.start))}</b><span class="tsl-drive-duration">☾ ${esc(fmt.dur(x.hours * 3600))}</span></div><div class="tsl-drain-values"><strong>−${esc(nf(x.lost_pct,1))}%</strong><span>−${esc(fmt.dist(x.lost_km, 1))}</span></div><div class="tsl-state-share" aria-hidden="true"><i style="width:${Math.min(100,Math.max(0,x.lost_pct))}%;background:#fb923c"></i></div></div>`).join('') + '</div>' : `<div class="tsl-empty">${esc(t('tsl_bat_drain_none'))}</div>`}</div>`;
       const ms = k => { const [y, m, dd] = k.split('-').map(Number); return new Date(y, m - 1, dd); };
       V.chart(p.querySelector('#tsl-b1'), { type: 'line', series: [{ color: '#60a5fa', data: s.map((x, i) => [i, U.dist(x.full_km)]) }], xFmt: i => s[Math.round(i)] ? ms(s[Math.round(i)].day).toLocaleDateString((window.mvmOS && window.mvmOS.lang) || 'en', { day: 'numeric', month: 'short' }) : '', yFmt: v => nf(v), tipFmt: v => nf(v, 0) + ' ' + U.distU(), yMin: s.length ? Math.floor(Math.min.apply(null, s.map(x => U.dist(x.full_km))) * 0.97) : 0, height: 190, empty: t('tsl_bat_drain_none') });
       const days = d.sleep, pct = k => days.map((x, i) => { const sum = x.asleep + x.online + x.driving + x.charging + x.offline || 1; return [i, x[k] / sum * 100]; });
@@ -1197,7 +1558,7 @@
     async function renderSettings(p) {
       try { st.status = await api('/status'); } catch (e) { /* keep what we have */ }
       if (destroyed || st.tab !== 'settings') return;
-      const s = st.status, u = s.usage, pct = u.allowed ? Math.min(100, u.calls / u.allowed * 100) : 0;
+      const s = st.status, u = s.usage;
       const setup = s.setup || {}, origin = setup.origin || location.origin, redirect = setup.callback || origin + '/pub/tesla/callback';
       const setupAddress = (id, label, value) => `<div class="tsl-setup-address"><label id="${id}-label">${esc(label)}</label><div class="tsl-setup-copy"><div class="tsl-code" id="${id}" aria-labelledby="${id}-label">${esc(value)}</div><button type="button" class="tsl-btn" data-copy-address="${id}" aria-label="${esc(t('tsl_setup_copy') + ' · ' + label)}">${esc(t('tsl_setup_copy'))}</button></div></div>`;
       const connState = s.reauth ? t('tsl_set_reauth') : s.connected ? t('tsl_set_connected') : t('tsl_set_not_connected');
@@ -1212,19 +1573,20 @@
           <li>${esc(t('tsl_setup_credentials'))}</li><li>${esc(t('tsl_setup_register'))} <a href="https://developer.tesla.com/docs" target="_blank" rel="noopener noreferrer">${esc(t('tsl_setup_docs'))} ↗</a></li>
           <li>${esc(t('tsl_setup_finish'))}</li></ol>
         </details>
-        <div class="tsl-btns">${s.configured && setup.ready ? `<button class="tsl-btn pri" id="tsl-connect">${esc(s.connected || s.reauth ? t('tsl_set_reconnect') : t('tsl_set_connect'))}</button>` : ''}
+        <div class="tsl-btns">${s.connected && !s.reauth && s.configured && setup.ready ? `<button class="tsl-btn pri" id="tsl-connect">${esc(s.connected || s.reauth ? t('tsl_set_reconnect') : t('tsl_set_connect'))}</button>` : ''}
         ${s.connected || s.reauth ? `<button class="tsl-btn bad" id="tsl-disc">${esc(t('tsl_set_disconnect'))}</button>` : ''}</div></div>
-        <div class="tsl-card" data-owner-only><h3>${esc(t('tsl_setup_credentials_title'))}</h3><p class="tsl-note">${esc(t('tsl_setup_credentials_hint'))}</p>
+        <details class="tsl-card" data-owner-only ${s.connected && !s.reauth ? '' : 'open'}><summary>${esc(t('tsl_setup_credentials_title'))}</summary><p class="tsl-note">${esc(t('tsl_setup_credentials_hint'))}</p>
         ${setup.can_configure ? `<form id="tsl-credentials"><div class="tsl-billing-columns">
           <label>${esc(t('tsl_setup_client_id'))}<input name="client_id" required maxlength="256" autocomplete="off" value="${esc(setup.client_id || '')}"></label>
           <label>${esc(t('tsl_setup_client_secret'))}<input name="client_secret" type="password" maxlength="2048" autocomplete="new-password" ${setup.has_secret ? '' : 'required'}></label>
           <label>${esc(t('tsl_setup_region'))}<select name="region">${['eu','na','cn'].map(value=>`<option value="${value}" ${setup.region===value?'selected':''}>${esc(t('tsl_setup_region_'+value))}</option>`).join('')}</select></label>
           <label>${esc(t('tsl_setup_budget'))}<input name="budget" type="number" min="0" max="10000" step="0.01" required value="${esc(setup.budget ?? 10)}"></label></div>
           ${setup.has_secret ? `<p class="tsl-note">${esc(t('tsl_setup_secret_hint'))}</p>` : ''}
-          <div class="tsl-btns"><button class="tsl-btn" type="submit">${esc(t('tsl_setup_save'))}</button><button class="tsl-btn pri" type="button" id="tsl-register" ${setup.server_ready ? '' : 'disabled'}>${esc(t('tsl_setup_register_action'))}</button></div><p role="status" aria-live="polite" id="tsl-setup-result"></p></form>` : `<p class="tsl-note">${esc(t(setup.server_ready?'tsl_setup_owner_only':'tsl_setup_server_required'))}</p>`}</div>
+          <div class="tsl-setup-feedback" role="status" aria-live="polite" aria-atomic="true" tabindex="-1" id="tsl-setup-result" hidden></div>
+          <div class="tsl-btns"><button class="tsl-btn ${s.connected && !s.reauth ? '' : 'pri'}" type="submit" ${setup.server_ready ? '' : 'disabled'}>${esc(t(s.connected && !s.reauth ? 'tsl_setup_save' : 'tsl_set_connect'))}</button></div></form>` : `<p class="tsl-note">${esc(t(setup.server_ready?'tsl_setup_owner_only':'tsl_setup_server_required'))}</p>`}</details>
         <div class="tsl-card" data-owner-only><h3>${esc(t('tsl_set_usage'))}</h3>
-        <div style="font-size:1.15rem;font-weight:700">${esc(t('tsl_set_usage_of', { n: nf(u.calls), m: nf(u.allowed) }))} · ${esc(money(u.cost))}</div>
-        <div class="tsl-bar2"><div style="width:${pct}%"></div></div><div class="tsl-note">${esc(t('tsl_set_usage_note'))}</div></div>
+        <div style="font-size:1.15rem;font-weight:700">${esc(nf(u.calls))}</div>
+        <div class="tsl-note">${esc(t('tsl_set_usage_note'))}</div></div>
         <div class="tsl-card"><h3>${esc(t('tsl_set_units'))}</h3><div class="tsl-seg"><button data-u="m" class="${U.imperial ? '' : 'on'}">${esc(t('tsl_set_metric'))}</button><button data-u="i" class="${U.imperial ? 'on' : ''}">${esc(t('tsl_set_imperial'))}</button></div></div>
         <div id="tsl-sched"></div>
         `;
@@ -1240,30 +1602,47 @@
           toast(t('tsl_setup_copy_failed'));
         }
       }));
+      function showSetupResult(message, state = 'progress') {
+        const result = p.querySelector('#tsl-setup-result');
+        if (!result || !result.isConnected) return;
+        result.hidden = !message;
+        result.dataset.state = state;
+        result.setAttribute('role', state === 'error' ? 'alert' : 'status');
+        result.setAttribute('aria-live', state === 'error' ? 'assertive' : 'polite');
+        result.textContent = message;
+        if (message) {
+          if (state === 'error') result.focus({ preventScroll: true });
+          result.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+        }
+      }
       const credentials = p.querySelector('#tsl-credentials');
-      async function savePersonal(register) {
+      async function savePersonal(connect) {
         if (!credentials.reportValidity()) return;
-        const fields = credentials.elements, result = p.querySelector('#tsl-setup-result');
+        const fields = credentials.elements;
         const controls = [...credentials.querySelectorAll('button')];
         if (controls.some(b => b.dataset.busy)) return;
         controls.forEach(b => { b.dataset.busy = '1'; b.disabled = true; });
-        result.textContent = register ? t('tsl_setup_registering') : '';
+        showSetupResult(connect ? t('tsl_setup_registering') : '');
         try {
-          await api('/credentials', { method: 'PUT', body: JSON.stringify({ client_id: fields.client_id.value, client_secret: fields.client_secret.value, region: fields.region.value, budget: +fields.budget.value }) });
+          const saved = await api('/credentials', { method: 'PUT', body: JSON.stringify({ client_id: fields.client_id.value, client_secret: fields.client_secret.value, region: fields.region.value, budget: +fields.budget.value }) });
           fields.client_secret.value = ''; fields.client_secret.required = false;
-          if (register) await api('/register', { method: 'POST' });
-          toast(t(register ? 'tsl_setup_registered' : 'tsl_saved'));
-          await renderSettings(p);
+          if (connect) {
+            if (!saved.ready) await api('/register', { method: 'POST' });
+            const response = await api('/connect?origin=' + encodeURIComponent(location.origin));
+            location.href = response.url;
+          } else {
+            await renderSettings(p);
+            showSetupResult(t('tsl_saved'), 'success');
+          }
         } catch (e) {
           const key = 'tsl_setup_' + e.message;
-          result.textContent = t(key) === key ? t('tsl_error') : t(key);
+          showSetupResult(t(key) === key ? t('tsl_error') : t(key), 'error');
         } finally {
-          controls.forEach(b => { delete b.dataset.busy; b.disabled = b.id === 'tsl-register' && !setup.server_ready; });
+          controls.forEach(b => { delete b.dataset.busy; b.disabled = !setup.server_ready; });
         }
       }
       if (credentials) {
-        credentials.addEventListener('submit', e => { e.preventDefault(); savePersonal(false); });
-        p.querySelector('#tsl-register').addEventListener('click', () => savePersonal(true));
+        credentials.addEventListener('submit', e => { e.preventDefault(); savePersonal(!s.connected || s.reauth); });
       }
       renderSchedule(p.querySelector('#tsl-sched'));
       const c = p.querySelector('#tsl-connect');
@@ -1300,7 +1679,7 @@
       return { min: Math.min.apply(null, vals), max: Math.max.apply(null, vals), cls: worst };
     }
     function ctile(label, val, sub, cls) {
-      return `<div class="tsl-tile ${cls || ''}"><span>${esc(label)}</span><b>${val}</b>${sub ? `<small>${sub}</small>` : ''}</div>`;
+      return tile(label, val, sub, cls);
     }
     function carCard(title, tiles, extra) {
       const body = tiles.filter(Boolean).join('');
@@ -1314,7 +1693,7 @@
       const tireBox = k => {
         const val = present(vs, 'tpms_pressure_' + k[0]) ? vs['tpms_pressure_' + k[0]] : sample['tpms_' + k[0]], stt = tireState(vs, k[0]);
         const measured = Number(vs['tpms_last_seen_pressure_time_' + k[0]]);
-        return `<div class="tsl-tire ${k[0]} ${stt}"><span>${esc(t(k[1]))}</span><b>${esc(barFmt(val))}</b><small>${stt === 'bad' ? esc(t('tsl_c_warn_hard')) : stt === 'warn' ? esc(t('tsl_c_warn_soft')) : esc(t('tsl_c_ok'))}</small>${Number.isFinite(measured) && measured > 0 ? `<small class="tsl-measured" title="${esc(fmt.dateTime(measured))}">${esc(t('tsl_c_measured', { t: fmt.ago(measured) }))}</small>` : ''}</div>`;
+        return `<div class="tsl-tire ${k[0]} ${stt}"><svg class="tsl-wheel-symbol" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13"/><circle cx="16" cy="16" r="8"/><circle cx="16" cy="16" r="2"/><path d="M16 8v6m0 4v6M8 16h6m4 0h6M10 10l4 4m4 4 4 4m0-12-4 4m-4 4-4 4"/></svg><span>${esc(t(k[1]))}</span><b>${esc(barFmt(val))}</b><small class="tsl-tire-status">${val == null ? '–' : stt === 'bad' ? '!' + ' ' + esc(t('tsl_c_warn_hard')) : stt === 'warn' ? '!' + ' ' + esc(t('tsl_c_warn_soft')) : '✓ ' + esc(t('tsl_c_ok'))}</small>${Number.isFinite(measured) && measured > 0 ? `<small class="tsl-measured" title="${esc(fmt.dateTime(measured))}">${esc(t('tsl_c_measured', { t: fmt.ago(measured) }))}</small>` : ''}</div>`;
       };
       return `<div class="tsl-card"><h3>${esc(t('tsl_c_tires'))}</h3>
         <div class="tsl-tires">${tireBox(TIRE_KEYS[0])}<div class="tsl-tcar"><svg viewBox="0 0 90 170"><rect x="14" y="6" width="62" height="158" rx="26" fill="var(--pub-surface2,#252d45)" stroke="#8a93a6" stroke-width="3"/><rect x="24" y="40" width="42" height="26" rx="8" fill="#0b1020" opacity=".7"/><rect x="24" y="108" width="42" height="26" rx="8" fill="#0b1020" opacity=".7"/></svg></div>${tireBox(TIRE_KEYS[1])}${tireBox(TIRE_KEYS[2])}<div class="tsl-tgap"></div>${tireBox(TIRE_KEYS[3])}</div>
@@ -1365,24 +1744,23 @@
       if (!d.ts) { p.innerHTML = `<div class="tsl-card tsl-center">${esc(t('tsl_wait_first'))}</div>`; return; }
       const vs = sec(d, 'vehicle_state'), cs = sec(d, 'charge_state'), cl = sec(d, 'climate_state'), vc = sec(d, 'vehicle_config');
       const sw = vs.software_update || {};
-      const door = (k, label) => present(vs, k) ? ctile(t(label), esc(vs[k] ? t('tsl_c_open') : t('tsl_c_closed')), '', vs[k] ? 'warn' : '') : '';
-      const dc = k => (cl[k] != null ? cl[k] : null);
+      const door = (k, label) => present(vs, k) ? indicator(t(label), !vs[k], k.includes('window') ? 'window' : 'door', t('tsl_c_closed'), t('tsl_c_open'), !!vs[k]) : '';
 
       const tiresHtml = TIRE_KEYS.some(k => present(vs, 'tpms_pressure_' + k[0])) ? tireDetails(d) : '';
 
       // Doors, windows, locks
       const doors = carCard(t('tsl_c_doors'), [
-        ctile(t('tsl_lock'), esc(vs.locked ? t('tsl_locked') : t('tsl_unlocked')), '', vs.locked ? '' : 'warn'),
+        present(vs, 'locked') ? indicator(t('tsl_lock'), vs.locked, 'lock', t('tsl_locked'), t('tsl_unlocked'), !vs.locked) : '',
         door('df', 'tsl_c_door_df'), door('pf', 'tsl_c_door_pf'), door('dr', 'tsl_c_door_dr'), door('pr', 'tsl_c_door_pr'), door('ft', 'tsl_c_door_ft'), door('rt', 'tsl_c_door_rt'),
         door('fd_window', 'tsl_c_win_fd'), door('fp_window', 'tsl_c_win_fp'), door('rd_window', 'tsl_c_win_rd'), door('rp_window', 'tsl_c_win_rp'),
-        present(cs, 'charge_port_door_open') ? ctile(t('tsl_c_port'), esc(cs.charge_port_door_open ? t('tsl_c_open') : t('tsl_c_closed')), cs.charge_port_latch ? esc(cs.charge_port_latch) : '') : '',
-        present(vs, 'sentry_mode') ? ctile(t('tsl_c_sentry'), onoff(vs.sentry_mode)) : '',
-        present(vs, 'valet_mode') ? ctile(t('tsl_c_valet'), onoff(vs.valet_mode)) : '',
-        present(vs, 'is_user_present') ? ctile(t('tsl_c_user_present'), yn(vs.is_user_present)) : '',
+        present(cs, 'charge_port_door_open') ? indicator(t('tsl_c_port'), !cs.charge_port_door_open, 'bolt', t('tsl_c_closed'), t('tsl_c_open'), false, cs.charge_port_latch || '') : '',
+        present(vs, 'sentry_mode') ? indicator(t('tsl_c_sentry'), vs.sentry_mode, 'shield') : '',
+        present(vs, 'valet_mode') ? indicator(t('tsl_c_valet'), vs.valet_mode, 'detail') : '',
+        present(vs, 'is_user_present') ? indicator(t('tsl_c_user_present'), vs.is_user_present, 'detail', t('tsl_c_yes'), t('tsl_c_no')) : '',
         present(vs, 'dashcam_state') ? ctile(t('tsl_c_dashcam'), esc(vs.dashcam_state)) : '',
-        present(vs, 'remote_start') ? ctile(t('tsl_c_remote_start'), onoff(vs.remote_start)) : '',
-        vs.speed_limit_mode ? ctile(t('tsl_c_speed_limit'), onoff(vs.speed_limit_mode.active), vs.speed_limit_mode.current_limit_mph ? esc(fmt.speed(vs.speed_limit_mode.current_limit_mph * 1.609344)) : '') : '',
-        present(vs, 'service_mode') ? ctile(t('tsl_c_service'), onoff(vs.service_mode)) : '',
+        present(vs, 'remote_start') ? indicator(t('tsl_c_remote_start'), vs.remote_start, 'detail') : '',
+        vs.speed_limit_mode ? indicator(t('tsl_c_speed_limit'), vs.speed_limit_mode.active, 'gauge', t('tsl_c_on'), t('tsl_c_off'), false, vs.speed_limit_mode.current_limit_mph ? fmt.speed(vs.speed_limit_mode.current_limit_mph * 1.609344) : '') : '',
+        present(vs, 'service_mode') ? indicator(t('tsl_c_service'), vs.service_mode, 'detail') : '',
       ]);
 
       // Climate
@@ -1392,23 +1770,23 @@
         present(cl, 'outside_temp') ? ctile(t('tsl_outside'), esc(temp(cl.outside_temp))) : '',
         present(cl, 'driver_temp_setting') ? ctile(t('tsl_c_driver_temp'), esc(temp(cl.driver_temp_setting))) : '',
         present(cl, 'passenger_temp_setting') ? ctile(t('tsl_c_pass_temp'), esc(temp(cl.passenger_temp_setting))) : '',
-        present(cl, 'is_climate_on') ? ctile(t('tsl_climate_on'), onoff(cl.is_climate_on)) : '',
+        present(cl, 'is_climate_on') ? indicator(t('tsl_climate_on'), cl.is_climate_on, 'detail') : '',
         present(cl, 'fan_status') ? ctile(t('tsl_c_fan'), esc(cl.fan_status)) : '',
-        present(cl, 'is_front_defroster_on') ? ctile(t('tsl_c_defrost'), onoff(cl.is_front_defroster_on || cl.is_rear_defroster_on)) : '',
-        present(cl, 'steering_wheel_heat_level') || present(cl, 'steering_wheel_heater') ? ctile(t('tsl_c_steer_heat'), cl.steering_wheel_heat_level != null ? esc(cl.steering_wheel_heat_level) : onoff(cl.steering_wheel_heater)) : '',
-        present(cl, 'seat_heater_left') ? ctile(t('tsl_c_seat_l'), esc(cl.seat_heater_left)) : '',
-        present(cl, 'seat_heater_right') ? ctile(t('tsl_c_seat_r'), esc(cl.seat_heater_right)) : '',
-        present(cl, 'battery_heater') ? ctile(t('tsl_c_bat_heater'), onoff(cl.battery_heater)) : '',
-        present(cl, 'is_preconditioning') ? ctile(t('tsl_c_precond'), onoff(cl.is_preconditioning)) : '',
+        present(cl, 'is_front_defroster_on') ? indicator(t('tsl_c_defrost'), cl.is_front_defroster_on || cl.is_rear_defroster_on, 'heat') : '',
+        present(cl, 'steering_wheel_heat_level') || present(cl, 'steering_wheel_heater') ? (cl.steering_wheel_heat_level != null ? levelMetric(t('tsl_c_steer_heat'), cl.steering_wheel_heat_level) : indicator(t('tsl_c_steer_heat'), cl.steering_wheel_heater, 'heat')) : '',
+        present(cl, 'seat_heater_left') ? levelMetric(t('tsl_c_seat_l'), cl.seat_heater_left) : '',
+        present(cl, 'seat_heater_right') ? levelMetric(t('tsl_c_seat_r'), cl.seat_heater_right) : '',
+        present(cl, 'battery_heater') ? indicator(t('tsl_c_bat_heater'), cl.battery_heater, 'heat') : '',
+        present(cl, 'is_preconditioning') ? indicator(t('tsl_c_precond'), cl.is_preconditioning, 'heat') : '',
         present(cl, 'cabin_overheat_protection') ? ctile(t('tsl_c_overheat'), esc(cl.cabin_overheat_protection)) : '',
-        present(cl, 'side_mirror_heaters') ? ctile(t('tsl_c_mirrors'), onoff(cl.side_mirror_heaters)) : '',
-        present(cl, 'wiper_blade_heater') ? ctile(t('tsl_c_wiper'), onoff(cl.wiper_blade_heater)) : '',
+        present(cl, 'side_mirror_heaters') ? indicator(t('tsl_c_mirrors'), cl.side_mirror_heaters, 'heat') : '',
+        present(cl, 'wiper_blade_heater') ? indicator(t('tsl_c_wiper'), cl.wiper_blade_heater, 'heat') : '',
       ]);
 
       // Charging details
       const charging = carCard(t('tsl_c_charging'), [
         present(cs, 'charging_state') ? ctile(t('tsl_st_charging'), esc(cs.charging_state)) : '',
-        present(cs, 'charge_limit_soc') ? ctile(t('tsl_c_limit'), esc(cs.charge_limit_soc) + '%') : '',
+        present(cs, 'charge_limit_soc') ? percentMetric(t('tsl_c_limit'), cs.charge_limit_soc) : '',
         present(cs, 'conn_charge_cable') ? ctile(t('tsl_c_cable'), esc(cs.conn_charge_cable)) : '',
         present(cs, 'charger_voltage') ? ctile(t('tsl_c_voltage'), esc(nf(cs.charger_voltage)) + ' V') : '',
         present(cs, 'charger_actual_current') ? ctile(t('tsl_c_amps'), esc(nf(cs.charger_actual_current, 1)) + ' A', cs.charge_current_request ? esc(t('tsl_c_requested')) + ': ' + esc(cs.charge_current_request) + ' A' : '') : '',
@@ -1421,21 +1799,21 @@
         present(cs, 'fast_charger_present') && cs.fast_charger_present ? ctile(t('tsl_c_fast_brand'), esc(cs.fast_charger_brand || cs.fast_charger_type || '✓')) : '',
         present(cs, 'scheduled_charging_mode') ? ctile(t('tsl_c_sched_mode'), esc(cs.scheduled_charging_mode), cs.scheduled_charging_start_time ? epoch(cs.scheduled_charging_start_time) : '') : '',
         present(cs, 'scheduled_departure_time') && cs.scheduled_departure_time > 1e9 ? ctile(t('tsl_c_departure'), epoch(cs.scheduled_departure_time)) : '',
-        present(cs, 'off_peak_charging_enabled') ? ctile(t('tsl_c_offpeak'), onoff(cs.off_peak_charging_enabled)) : '',
+        present(cs, 'off_peak_charging_enabled') ? indicator(t('tsl_c_offpeak'), cs.off_peak_charging_enabled, 'detail') : '',
       ]);
 
       // Software
       const software = carCard(t('tsl_c_software'), [
         vs.car_version ? ctile(t('tsl_c_version'), esc(String(vs.car_version).split(' ')[0])) : '',
         sw.status !== undefined ? ctile(t('tsl_c_update'), esc(sw.status || t('tsl_c_update_none')), sw.version ? esc(t('tsl_c_update_ver')) + ': ' + esc(sw.version) : '') : '',
-        sw.download_perc ? ctile(t('tsl_c_update_dl'), esc(sw.download_perc) + '%') : '',
-        sw.install_perc ? ctile(t('tsl_c_update_in'), esc(sw.install_perc) + '%') : '',
+        sw.download_perc ? percentMetric(t('tsl_c_update_dl'), sw.download_perc) : '',
+        sw.install_perc ? percentMetric(t('tsl_c_update_in'), sw.install_perc) : '',
         sw.scheduled_time_ms ? ctile(t('tsl_c_update_when'), epoch(sw.scheduled_time_ms / 1000)) : '',
         vs.odometer != null ? ctile(t('tsl_odometer'), esc(fmt.dist(vs.odometer * 1.609344, 0))) : '',
       ]);
 
       // Configuration
-      const flag = (k, label) => present(vc, k) ? ctile(t(label), yn(vc[k])) : '';
+      const flag = (k, label) => present(vc, k) ? indicator(t(label), !!vc[k], 'detail', t('tsl_c_yes'), t('tsl_c_no')) : '';
       const val = (k, label) => present(vc, k) && vc[k] !== '' ? ctile(t(label), esc(vc[k])) : '';
       const config = carCard(t('tsl_c_config'), [
         vs.vehicle_name ? ctile(t('tsl_c_name'), esc(vs.vehicle_name)) : '',
@@ -1616,7 +1994,23 @@
       w.innerHTML = `<div class="tsl-center">${esc(t('tsl_loading'))}</div>`;
       try { const values=await Promise.all([api('/status'),window.mvmOS.dateTimePicker?window.mvmOS.dateTimePicker.ready():Promise.resolve()]);st.status=values[0]; }
       catch (e) {
-        w.innerHTML = `<div class="tsl-center">${esc(e.message === 'private' ? t('tsl_private') : t('tsl_error'))}</div>`; return;
+        if (destroyed) return;
+        // The access dependency returns HTTP 403 before /status can return "private".
+        const message = t(e.status === 403 || e.message === 'private' ? 'tsl_private' : e.status === 404 ? 'tsl_share_unavailable' : 'tsl_error');
+        w.innerHTML = `<div class="tsl-center">${esc(message)}</div>`;
+        // A fresh installation has no owner yet. Only the authenticated desktop
+        // may provision one; public visitors must never claim the integration.
+        if (opts.desktop && opts.onSetupRequired && [403, 404].includes(e.status)) {
+          try {
+            const response = await fetch('/api/apps/tesla/server');
+            const server = response.ok ? await response.json() : null;
+            if (!destroyed && server && !server.owner_id) {
+              w.innerHTML = `<div class="tsl-card"><p class="tsl-note">${esc(message)}</p><div data-server-setup></div></div>`;
+              await opts.onSetupRequired(w.querySelector('[data-server-setup]'), () => { if (!destroyed) return boot(); });
+            }
+          } catch (_) { /* Keep the access explanation if server setup is unavailable. */ }
+        }
+        return;
       }
       const q = new URLSearchParams(location.search);
       if (q.get('connected')) toast(t('tsl_ok_connected'));

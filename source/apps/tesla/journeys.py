@@ -89,8 +89,9 @@ def report(c, vid, start, end, trip_out, charge_out, only_trip=None, now=None):
     end = min(end, now)
     end = max(start, end)
     result = {'start': start, 'end': end, 'now': now, 'trips': [], 'charges': [], 'routes': [], 'markers': [],
-              'timeline': [], 'series': [], 'events': [], 'stats': {}, 'partial': False}
+              'timeline': [], 'series': [], 'events': [], 'stats': {}, 'partial': False, 'playback': []}
     trips = c.execute('SELECT * FROM trips WHERE vehicle=? AND start_ts<? AND (CASE WHEN open=1 THEN ? ELSE COALESCE(end_ts,start_ts) END)>? ORDER BY start_ts', (vid, end, now, start)).fetchall() if end > start else []
+    fallback_playback = {}
     for tr in trips:
         tr = dict(tr)
         if only_trip is not None and tr['id'] != only_trip:
@@ -99,6 +100,9 @@ def report(c, vid, start, end, trip_out, charge_out, only_trip=None, now=None):
         if hi <= lo:
             continue
         points = [dict(p) for p in c.execute('SELECT ts,lat,lng,speed,power,battery FROM trip_points WHERE trip=? ORDER BY ts', (tr['id'],))]
+        for point in points:
+            if lo <= point['ts'] <= hi:
+                fallback_playback[point['ts']] = [point['ts'],point['lat'],point['lng'],point['speed'],point['power'],point['battery'],'driving']
         clipped = _clip(points, lo, hi, ('lat', 'lng', 'speed', 'power', 'battery'))
         item = trip_out(tr)
         item.update({'start_ts': lo, 'end_ts': hi, 'duration': hi - lo, 'partial': partial})
@@ -180,6 +184,11 @@ def report(c, vid, start, end, trip_out, charge_out, only_trip=None, now=None):
     bucket_size = max(1, (end - start) / 1200)
     for row in c.execute('SELECT * FROM samples WHERE vehicle=? AND ts>=? AND ts<=? ORDER BY ts,id', (vid, start, end)) if end > start else []:
         row = dict(row)
+        frame = [row['ts'],row.get('lat'),row.get('lng'),row.get('speed'),row.get('power'),row.get('battery'),row.get('state'),row.get('charger_power')]
+        if result['playback'] and result['playback'][-1][0] == row['ts']:
+            result['playback'][-1] = frame
+        else:
+            result['playback'].append(frame)
         if first is None:
             first = row
         last = row
@@ -210,6 +219,8 @@ def report(c, vid, start, end, trip_out, charge_out, only_trip=None, now=None):
         previous = row
     if first and (not result['series'] or result['series'][0][0] != first['ts']):
         result['series'].insert(0, [first['ts'], first.get('battery'), first.get('inside_temp'), first.get('outside_temp'), first.get('speed'), first.get('power')])
+    if not result['playback']:
+        result['playback'] = [fallback_playback[k] for k in sorted(fallback_playback)]
     def total(items, field):
         values = [r[field] for r in items if _num(r.get(field))]
         return sum(values) if values else None
