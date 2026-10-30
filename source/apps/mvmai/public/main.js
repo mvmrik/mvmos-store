@@ -480,6 +480,16 @@ mvmOS.registerApp({
             value="${saved?.compact_keep_recent || ''}" placeholder="20">
           <div style="font-size:.74rem;color:var(--text-dim)">${_ait('compact_keep_hint')}</div>`)}
         </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:.85rem">
+            <input type="checkbox" id="mvmai-agents-chk" ${saved?.agents_enabled ? 'checked' : ''}>
+            <span id="mvmai-agents-label"></span>
+          </label>
+          <div id="mvmai-agents-hint" style="font-size:.74rem;color:var(--text-dim)"></div>
+          <label style="font-size:.8rem"><span id="mvmai-agent-search-label"></span>
+            <input id="mvmai-agent-search-key" type="password" class="s-input" autocomplete="new-password">
+          </label><div id="mvmai-agent-search-hint" style="font-size:.74rem;color:var(--text-dim)"></div>
+        </div>
         <div style="display:flex;flex-direction:column;gap:10px">
           <div style="font-weight:600;font-size:.85rem">${_ait('segment_terminal')}</div>
           ${_row(`<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
@@ -666,6 +676,12 @@ mvmOS.registerApp({
     // Premium they are locked and a click on the block opens the Premium dialog.
     // The enforcement lives server-side (premium/backend.py), this is only the
     // cosmetic desktop lock.
+    await _loadMvmaiWidget();
+    wrap.querySelector('#mvmai-agents-label').textContent = window.t('mvmai_agent_enable');
+    wrap.querySelector('#mvmai-agents-hint').textContent = window.t('mvmai_agent_setting_hint');
+    wrap.querySelector('#mvmai-agent-search-label').textContent = window.t('mvmai_agent_search_key');
+    wrap.querySelector('#mvmai-agent-search-hint').textContent = window.t('mvmai_agent_search_hint');
+    wrap.querySelector('#mvmai-agent-search-key').value = saved?.agent_search_key || '';
     const premiumSegment = wrap.querySelector('#mvmai-premium-segment');
     if (window.mvmOS?.premiumStatus !== 'premium') {
       premiumSegment.querySelectorAll('input, select').forEach(el => el.disabled = true);
@@ -713,6 +729,10 @@ mvmOS.registerApp({
     panel.querySelectorAll('select[data-cli-user]').forEach(el => saves.push(s(`cli_user_${el.dataset.cliUser}`, el.value)));
     if (pubBridgeChk) saves.push(s('pub_data_bridge_enabled', pubBridgeChk.checked));
     if (terminalChk) saves.push(s('terminal_enabled', terminalChk.checked));
+    const agentsChk = panel.querySelector('#mvmai-agents-chk');
+    if (agentsChk && !agentsChk.disabled) saves.push(s('agents_enabled', agentsChk.checked));
+    const searchKey = panel.querySelector('#mvmai-agent-search-key');
+    if (searchKey && !searchKey.disabled) saves.push(s('agent_search_key', searchKey.value.trim()));
     const compactKeepInp = panel.querySelector('#mvmai-compact-keep-inp');
     if (compactKeepInp) {
       const raw = compactKeepInp.value.trim();

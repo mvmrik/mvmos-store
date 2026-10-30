@@ -49,7 +49,7 @@
       "name": "mvmAudio",
       "icon": "🎧",
       "category": "Media",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Your music, audiobook shelves and online radio, with personal listening progress and shared playlists.",
       "tags": [
         "music",
@@ -58,7 +58,7 @@
         "playlists"
       ],
       "min_core_version": "1.16.1",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/mvmaudio-1.0.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/mvmaudio-1.1.0.zip",
       "premium": true
     },
     {

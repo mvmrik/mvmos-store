@@ -1,5 +1,5 @@
 {
-  "summary": "Let mvmAI act on your own data in your other installed apps.",
+  "summary": "Extend mvmAI with administrator agents, an interactive terminal, app data access and configurable public-page AI and history.",
   "features": [
     {
       "title": "Personal data bridge",
@@ -20,6 +20,11 @@
       "title": "Terminal next to the chat",
       "short": "Use an interactive shell in the active project folder",
       "description": "With the setting enabled, the desktop chat offers an interactive terminal starting in the active project folder, or your home folder outside a project. Run commands yourself, float the terminal over the chat, dock it on the right or bottom, or pin it to reopen with a chosen conversation. Hiding the terminal keeps its shell running; closing it ends that terminal session. It works with any AI provider and is available only on the desktop. Without a subscription the setting stays visible and locked, and its button opens the Premium dialog."
+    },
+    {
+      "title": "mvmAgent project workspaces",
+      "short": "One project conversation with evolving knowledge, graphical views and reusable tools",
+      "description": "Enable mvmAgent for administrators to create general project workspaces using the existing CLI and API models. The agent maintains a project overview, knowledge, resources, TODOs, findings and a single visible conversation, with internal tasks and execution sessions managed automatically. It can discover server directory candidates, inspect selected text resources, create forms, tables and notes, and receive the user’s exact graphical selections. Repeated work can become versioned Python tools with a shared form for the user and AI. Generated versions start as drafts; explicit activation and exact invocation reviews are required. Preview results and validated parameters are retained, and execution requires a successful preview of the same version and inputs. Saved operations run without another model request. Resource-description changes invalidate older tool approvals. Tool versions can be reactivated or archived, and obsolete views can be removed. Earlier standalone tasks remain available under Previous tasks. Long executions renew their internal context using persistent project records and checkpoints. This is an initial general-purpose implementation; activated code runs with the approved server account and is not a Python sandbox. An encrypted account vault, universal browser login and scheduled project monitoring are not included."
     }
   ]
 }

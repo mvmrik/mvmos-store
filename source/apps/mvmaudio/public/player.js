@@ -82,7 +82,9 @@ function mount(host,options={}){
    return `<button class="ma-cover ${item.kind}" style="--h:${hue}" ${attrs} aria-label="${esc(t(s.manage?'edit':'open')+': '+item.title)}">${artwork(item)}<small>${esc(item.creator||t(item.kind))}</small><strong>${esc(item.title)}</strong><small>${esc(item.category||item.album||'mvmAudio')}</small></button>`;
  }
  const percent=value=>Math.max(0,Math.min(100,Number(value)||0)).toLocaleString(lang,{maximumFractionDigits:1})+'%';
- function card(item){const st=item.state;return `<article class="ma-card">${cover(item,`data-detail="${item.id}"`)}<div class="ma-card-heading"><button class="ma-titlebtn" data-detail="${item.id}">${esc(item.title)}</button>${icon(st.favorite?'♥':'♡','favorites',`data-favorite="${item.id}"`)}</div><div class="ma-meta">${esc(item.creator||item.album||t(item.kind))}</div>${item.kind==='books'?`<div class="ma-progress"><span style="width:${item.percent}%"></span></div><div class="ma-card-progress"><span>${st.completed?'✓ '+esc(t('completed')):percent(item.percent)}</span><span>${fmt((item.duration-item.elapsed)/(st.speed||1))} ${esc(t('left'))}</span></div>`:''}</article>`}
+ const glyph=on=>on?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>';
+ const isPlaying=id=>s.current?.id===id&&!audio.paused;
+ function card(item){const st=item.state;return `<article class="ma-card"><div class="ma-cover-wrap">${cover(item,`data-detail="${item.id}"`)}${s.manage?'':`<button type="button" class="ma-quickplay" data-quick="${item.id}" aria-label="${esc(t(isPlaying(item.id)?'pause':'play')+': '+item.title)}">${glyph(isPlaying(item.id))}</button>`}</div><div class="ma-card-heading"><button class="ma-titlebtn" data-detail="${item.id}">${esc(item.title)}</button>${icon(st.favorite?'♥':'♡','favorites',`data-favorite="${item.id}"`)}</div><div class="ma-meta">${esc(item.creator||item.album||t(item.kind))}</div>${item.kind==='books'?`<div class="ma-progress"><span style="width:${item.percent}%"></span></div><div class="ma-card-progress"><span>${st.completed?'✓ '+esc(t('completed')):percent(item.percent)}</span><span>${fmt((item.duration-item.elapsed)/(st.speed||1))} ${esc(t('left'))}</span></div>`:''}</article>`}
  function filterItems(){let items=s.manage?s.admin.items:s.items;const q=s.q.toLocaleLowerCase();items=items.filter(i=>
    (!['music','books','radio'].includes(s.tab)||i.kind===s.tab)&&
    (s.tab!=='favorites'||i.state.favorite)&&(s.tab!=='history'||i.state.last_played)&&
@@ -122,8 +124,12 @@ function mount(host,options={}){
  }
  function paintPlayer(){
    if(s.dead)return;const i=s.current;
-   footer.innerHTML=`<div class="ma-playing"><button class="ma-thumb ma-icon" data-now aria-label="${esc(t('nowPlaying'))}">${i?(i.has_cover?artwork(i):icons[i.kind]):'♫'}</button><div style="min-width:0"><strong>${esc(i?.title||t('nothingPlaying'))}</strong><div class="ma-meta">${esc(i?(s.track?.title||i.creator||t(i.kind)):t('chooseAudio'))}</div></div></div><div class="ma-player-center"><div class="ma-controls">${icon('⤨','shuffle',`data-shuffle class="${s.shuffle?'active':''}"`)}${icon('◀','previous','data-previous')}${icon('−15','rewind','data-rewind')}<button class="ma-play" data-toggle aria-label="${esc(t(audio.paused?'play':'pause'))}">${audio.paused?'▶':'Ⅱ'}</button>${icon('+30','forward','data-forward')}${icon('▶','next','data-next')}${icon(s.repeat==='one'?'↻¹':'↻','repeat',`data-repeat`)}</div><div class="ma-timeline"><span data-time>00:00</span><input data-seek type="range" min="0" max="100" value="0" step="0.1" aria-label="${esc(t('seek'))}"><span data-duration>00:00</span></div></div><div class="ma-player-right"><select data-speed aria-label="${esc(t('speed'))}">${[.5,.75,1,1.25,1.5,1.75,2,2.5,3].map(n=>`<option value="${n}" ${n===(i?.state.speed||1)?'selected':''}>${n}×</option>`).join('')}</select>${icon('◷','sleep','data-sleep')}${icon('☷','queue','data-queue')}<input type="range" data-volume min="0" max="1" step="0.05" value="${audio.volume}" aria-label="${esc(t('volume'))}"></div>`;
-   footer.querySelector('[data-shuffle]').classList.toggle('active',s.shuffle);footer.querySelector('[data-repeat]').classList.toggle('active',s.repeat!=='off');tick();
+   footer.hidden=!i;if(!i){footer.innerHTML='';return}
+   const book=i.kind==='books',steps=!book||i.tracks.length>1;
+   footer.innerHTML=`<div class="ma-playing"><button class="ma-thumb ma-icon" data-now aria-label="${esc(t('nowPlaying'))}">${i?(i.has_cover?artwork(i):icons[i.kind]):'♫'}</button><div style="min-width:0"><strong>${esc(i?.title||t('nothingPlaying'))}</strong><div class="ma-meta">${esc(i?(s.track?.title||i.creator||t(i.kind)):t('chooseAudio'))}</div>${upNextTitle()?`<div class="ma-meta ma-upnext">${esc(t('upNext'))}: ${esc(upNextTitle())}</div>`:''}</div></div><div class="ma-player-center"><div class="ma-controls">${s.queue.length>1?icon('⤨','shuffle',`data-shuffle class="${s.shuffle?'active':''}"`):''}${steps?icon('◀',book?'previousChapter':'previous','data-previous'):''}${icon('−15','rewind','data-rewind')}<button class="ma-play" data-toggle aria-label="${esc(t(audio.paused?'play':'pause'))}">${glyph(!audio.paused)}</button>${icon('+30','forward','data-forward')}${steps?icon('▶',book?'nextChapter':'next','data-next'):''}${s.queue.length>1?icon(s.repeat==='one'?'↻¹':'↻','repeat',`data-repeat`):''}</div><div class="ma-timeline"><span data-time>00:00</span><input data-seek type="range" min="0" max="100" value="0" step="0.1" aria-label="${esc(t('seek'))}"><span data-duration>00:00</span></div></div><div class="ma-player-right"><select data-speed aria-label="${esc(t('speed'))}">${[.5,.75,1,1.25,1.5,1.75,2,2.5,3].map(n=>`<option value="${n}" ${n===(i?.state.speed||1)?'selected':''}>${n}×</option>`).join('')}</select>${icon('◷','sleep','data-sleep')}${icon('☷','queue','data-queue')}<input type="range" data-volume min="0" max="1" step="0.05" value="${audio.volume}" aria-label="${esc(t('volume'))}"></div>`;
+   footer.querySelector('[data-shuffle]')?.classList.toggle('active',s.shuffle);footer.querySelector('[data-repeat]')?.classList.toggle('active',s.repeat!=='off');tick();
+   root.querySelectorAll('[data-quick]').forEach(b=>{const on=isPlaying(b.dataset.quick);b.innerHTML=glyph(on)});
+   if(modal?.querySelector('[data-queue-live]'))queueDialog();else if(modal?.querySelector('[data-now-live]'))nowPlaying();
  }
  function snapshot(played=false){if(!s.current||switching||pendingPosition!==null||(s.track&&audio.readyState<1))return null;const d={speed:audio.playbackRate,played};if(s.track){d.track_id=s.track.id;d.seconds=audio.currentTime||0;}return {id:s.current.id,body:d};}
  function persist(played=false){if(switching||s.dead)return Promise.resolve();const data=snapshot(played);if(!data)return Promise.resolve();lastSave=Date.now();
@@ -133,12 +139,39 @@ function mount(host,options={}){
    saveChain.catch(()=>{});return saveChain;
  }
  async function stateChange(i,body){await api('/media/'+i.id+'/state','PUT',body);Object.assign(i.state,body);}
+ function shuffled(list,first){const rest=list.filter(id=>id!==first);for(let n=rest.length-1;n>0;n--){const k=Math.floor(Math.random()*(n+1));[rest[n],rest[k]]=[rest[k],rest[n]]}return list.includes(first)?[first,...rest]:rest}
+ function setShuffle(on){
+   if(on===s.shuffle)return;s.shuffle=on;const cur=s.current?.id;
+   if(on){s.queueBase=[...s.queue];s.queue=shuffled(s.queue,cur)}
+   else if(s.queueBase){const keep=s.queue,base=s.queueBase.filter(id=>keep.includes(id));s.queue=[...base,...keep.filter(id=>!base.includes(id))];s.queueBase=null}
+   paintPlayer();
+ }
+ function cycleRepeat(){s.repeat={off:'all',all:'one',one:'off'}[s.repeat];paintPlayer()}
+ const queueItems=()=>s.queue.map(id=>s.items.find(x=>x.id===id)).filter(Boolean);
+ function upcoming(){const items=queueItems(),at=items.findIndex(x=>x.id===s.current?.id);return at<0?[]:items.slice(at+1)}
+ function upNextTitle(){if(!s.current)return '';const i=s.current;if(s.track){const n=i.tracks.findIndex(x=>x.id===s.track.id);if(n>=0&&n<i.tracks.length-1)return i.tracks[n+1].title}return upcoming()[0]?.title||''}
+ function playFromLibrary(id){const i=s.items.find(x=>x.id===id);const q=i?.kind==='music'?filterItems().filter(x=>x.kind==='music').map(x=>x.id):[id];return play(id,null,null,q.includes(id)?q:[id])}
+ async function playList(ids,start=null){
+   const list=ids.filter(id=>s.items.some(i=>i.id===id));if(!list.length)throw Error(t('emptyPlaylist'));
+   return play(start&&list.includes(start)?start:list[0],null,null,list);
+ }
+ async function queueAdd(id,upNext){
+   const i=s.items.find(x=>x.id===id);if(!i)return;
+   if(!s.current){await playFromLibrary(id);return}
+   if(id===s.current.id)return;
+   s.queue=s.queue.filter(x=>x!==id);const at=s.queue.indexOf(s.current.id);
+   if(upNext)s.queue.splice(at+1,0,id);else s.queue.push(id);
+   if(s.queueBase&&!s.queueBase.includes(id))s.queueBase.push(id);
+   toast(t(upNext?'queuedNext':'queued'));paintPlayer();
+ }
  async function play(mid,trackId=null,seconds=null,queue=null,autoplay=true){
    const i=s.items.find(i=>i.id===mid);if(!i){throw Error(t('not_found'));}
    const load=++s.loadId;await persist();if(load!==s.loadId||s.dead)return;switching=true;audio.pause();
-   if(queue)s.queue=queue.filter(id=>s.items.some(i=>i.id===id));
-   else if(!s.queue.includes(mid))s.queue=i.kind==='music'?filterItems().filter(x=>x.kind==='music').map(x=>x.id):[mid];
-   if(!s.queue.includes(mid))s.queue=[mid];
+   let rebuilt=false;
+   if(queue){s.queue=queue.filter(id=>s.items.some(i=>i.id===id));rebuilt=true}
+   else if(!s.queue.includes(mid)){s.queue=i.kind==='music'?filterItems().filter(x=>x.kind==='music').map(x=>x.id):[mid];rebuilt=true}
+   if(!s.queue.includes(mid)){s.queue=[mid];rebuilt=true}
+   if(rebuilt){s.queueBase=null;if(s.shuffle&&s.queue.length>1){s.queueBase=[...s.queue];s.queue=shuffled(s.queue,mid)}}
    s.current=i;
    const resumed=i.kind==='books'&&!i.state.completed;
    s.track=i.kind==='radio'?null:i.tracks.find(t=>t.id===(trackId||(resumed?i.state.track_id:'')))||i.tracks[0];
@@ -169,9 +202,9 @@ function mount(host,options={}){
    }
    if(automatic&&i.kind==='books'){await stateChange(i,{completed:true});i.elapsed=i.duration;i.percent=100;render();}
    let n=s.queue.indexOf(i.id)+direction;
-   if(s.shuffle&&i.kind==='music'&&s.queue.length>1){const candidates=s.queue.filter(id=>id!==i.id);n=s.queue.indexOf(candidates[Math.floor(Math.random()*candidates.length)]);}
    if((n<0||n>=s.queue.length)&&s.repeat==='all')n=(n+s.queue.length)%s.queue.length;
-   if(n>=0&&n<s.queue.length)await play(s.queue[n],null,null,s.queue);
+   if(n>=0&&n<s.queue.length)await play(s.queue[n]);
+   else if(direction===-1){audio.currentTime=0}
    else {audio.pause();paintPlayer();}
  }
  function tick(){
@@ -192,6 +225,15 @@ function mount(host,options={}){
    const actions={play:()=>run(startPlayback),pause:()=>audio.pause(),previoustrack:()=>run(()=>next(-1)),nexttrack:()=>run(()=>next()),seekbackward:d=>seekBy(-(d.seekOffset||15)),seekforward:d=>seekBy(d.seekOffset||30),seekto:d=>{if(s.track&&Number.isFinite(d.seekTime))audio.currentTime=Math.min(d.seekTime,s.track.duration)},stop:()=>{audio.pause();}};
    for(const [name,fn]of Object.entries(actions))try{m.setActionHandler(name,fn)}catch{}
  }
+ function playChapter(mid,track,seconds=0){return s.current?.id===mid?play(mid,track,seconds):play(mid,track,seconds,[mid])}
+ async function clearPlayer(){
+   if(!s.current)return;
+   try{audio.pause();await persist()}catch{}
+   s.loadId++;switching=false;pendingPosition=null;s.current=null;s.track=null;s.queue=[];s.queueBase=null;s.sleep=0;
+   audio.removeAttribute('src');audio.load();
+   if('mediaSession'in navigator){navigator.mediaSession.metadata=null;try{navigator.mediaSession.playbackState='none'}catch{}}
+   paintPlayer();render();
+ }
  function seekBy(delta){if(s.track)audio.currentTime=Math.max(0,Math.min(s.track.duration,audio.currentTime+delta));}
  audio.addEventListener('timeupdate',()=>{tick();if(!audio.paused&&Date.now()-lastSave>10000)persist().catch(()=>toast(t('saveFailed')))});
  audio.addEventListener('play',()=>{paintPlayer();mediaSession()});
@@ -206,26 +248,28 @@ function mount(host,options={}){
  document.addEventListener('visibilitychange',visibility);window.addEventListener('pagehide',flush);
  async function detail(mid){
    const i=(s.manage?s.admin.items:s.items).find(i=>i.id===mid);if(!i)return;
-   if(!s.manage&&i.kind==='books'&&i.tracks.length&&s.current?.id!==mid)await play(mid,null,null,null,false);
    const editable=s.manage||i.mine;
-   const box=dialog(i.title,`<div class="ma-detail-top"><div class="ma-detail-cover">${cover(i)}</div><div><p>${esc(i.creator)}</p><p>${esc(i.category)}${i.album?' · '+esc(i.album):''}</p><p>${i.kind==='radio'?esc(t('live')):fmt(i.duration)}</p><span class="ma-scope">${esc(t(i.shared?'shared':i.mine?'mine':'sharedWithMe'))}</span></div></div>${i.description?`<p style="white-space:pre-wrap">${esc(i.description)}</p>`:''}${[i.year,i.narrator,i.language,i.isbn].filter(Boolean).length?`<p class="ma-hint">${[i.year,i.narrator,i.language,i.isbn].filter(Boolean).map(esc).join(' · ')}</p>`:''}${i.metadata_url?`<p class="ma-hint">${esc(t('source'))}: <a href="${esc(i.metadata_url)}" target="_blank" rel="noopener noreferrer">${esc(i.metadata_source)}</a></p>`:''}<div class="ma-actions">${!s.manage&&i.kind!=='books'?button('play',`data-detail-play="${i.id}"`,'ma-btn primary'):''}${!s.manage?button('addToPlaylist','data-add-to-playlist'):''}${!s.manage?button('share','data-share-item'):''}${editable?button('edit','data-edit-item'):''}${editable&&i.kind!=='radio'?button('metadata','data-metadata'):''}${i.kind==='books'&&!s.manage?button(i.state.completed?'markUnread':'markRead','data-complete'):''}${editable?button('delete','data-delete-item','ma-btn danger'):''}</div>${i.kind==='books'?`<div class="ma-progress"><span style="width:${i.percent}%"></span></div><p class="ma-muted">${percent(i.percent)} · ${fmt((i.duration-i.elapsed)/(i.state.speed||1))} ${esc(t('left'))}</p>`:''}${i.tracks.length?`<h3>${esc(t('chapters'))}</h3><div class="ma-list">${i.tracks.map((track,n)=>`<div class="ma-row"><span class="ma-queue-number">${n+1}</span><div class="ma-grow"><strong>${esc(track.title)}</strong><span class="ma-meta">${fmt(track.duration)}</span></div>${!s.manage?icon(i.kind==='books'?'↳':'▶',i.kind==='books'?'open':'play',`data-chapter="${track.id}"`):''}${editable?icon('↑','moveUp',`data-up="${n}" ${n===0?'disabled':''}`)+icon('↓','moveDown',`data-down="${n}" ${n===i.tracks.length-1?'disabled':''}`)+icon('×','delete',`data-remove-track="${track.id}"`):''}</div>`).join('')}</div>`:''}${editable&&i.kind!=='radio'?`<div class="ma-actions">${button('addChapters','data-add-chapters')}</div>`:''}${i.kind==='books'&&!s.manage?`<h3>${esc(t('bookmarks'))}</h3><div data-bookmarks></div>`:''}`);
+   const box=dialog(i.title,`<div class="ma-detail-top"><div class="ma-detail-cover">${cover(i)}</div><div><p>${esc(i.creator)}</p><p>${esc(i.category)}${i.album?' · '+esc(i.album):''}</p><p>${i.kind==='radio'?esc(t('live')):fmt(i.duration)}</p><span class="ma-scope">${esc(t(i.shared?'shared':i.mine?'mine':'sharedWithMe'))}</span></div></div>${i.description?`<p style="white-space:pre-wrap">${esc(i.description)}</p>`:''}${[i.year,i.narrator,i.language,i.isbn].filter(Boolean).length?`<p class="ma-hint">${[i.year,i.narrator,i.language,i.isbn].filter(Boolean).map(esc).join(' · ')}</p>`:''}${i.metadata_url?`<p class="ma-hint">${esc(t('source'))}: <a href="${esc(i.metadata_url)}" target="_blank" rel="noopener noreferrer">${esc(i.metadata_source)}</a></p>`:''}${!s.manage?`<div class="ma-actions ma-actions-main">${button(i.kind!=='books'?'play':(i.percent>0||i.state.completed?'resume':'startListening'),`data-detail-play="${i.id}"`,'ma-btn primary ma-big')}${s.current?.id===i.id?button('stopPlayback','data-detail-stop','ma-btn ma-big'):''}</div>`:''}<div class="ma-actions ma-actions-sub">${!s.manage&&i.kind!=='radio'?button('playNext','data-queue-next')+button('addToQueue','data-queue-add'):''}${!s.manage?button('addToPlaylist','data-add-to-playlist'):''}${!s.manage?button('share','data-share-item'):''}${editable?button('edit','data-edit-item'):''}${editable&&i.kind!=='radio'?button('metadata','data-metadata'):''}${i.kind==='books'&&!s.manage?button(i.state.completed?'markUnread':'markRead','data-complete'):''}${editable?button('delete','data-delete-item','ma-btn danger'):''}</div>${i.kind==='books'?`<div class="ma-progress ma-progress-big" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(i.percent)}"><span style="width:${Math.max(i.percent,i.percent>0?2:0)}%"></span></div><p class="ma-muted">${percent(i.percent)} · ${fmt((i.duration-i.elapsed)/(i.state.speed||1))} ${esc(t('left'))}</p>`:''}${i.tracks.length?`<h3>${esc(t('chapters'))}</h3><div class="ma-list">${i.tracks.map((track,n)=>`<div class="ma-row"><span class="ma-queue-number">${n+1}</span><div class="ma-grow"><strong>${esc(track.title)}</strong><span class="ma-meta">${fmt(track.duration)}</span></div>${!s.manage?icon('▶','play',`data-chapter="${track.id}"`):''}${editable?icon('↑','moveUp',`data-up="${n}" ${n===0?'disabled':''}`)+icon('↓','moveDown',`data-down="${n}" ${n===i.tracks.length-1?'disabled':''}`)+icon('×','delete',`data-remove-track="${track.id}"`):''}</div>`).join('')}</div>`:''}${editable&&i.kind!=='radio'?`<div class="ma-actions">${button('addChapters','data-add-chapters')}</div>`:''}${i.kind==='books'&&!s.manage?`<h3>${esc(t('bookmarks'))}</h3><div data-bookmarks></div>`:''}`);
    box.querySelector('.ma-detail-cover').onclick=null;
-   box.querySelector('[data-detail-play]')?.addEventListener('click',()=>run(()=>play(i.id)));
+   box.querySelector('[data-detail-play]')?.addEventListener('click',()=>run(async()=>{if(s.current?.id===i.id&&s.track&&audio.src){await startPlayback();closeModal();return}await playFromLibrary(i.id);closeModal()}));
+   box.querySelector('[data-detail-stop]')?.addEventListener('click',()=>run(async()=>{await clearPlayer();closeModal()}));
    box.querySelector('[data-edit-item]')?.addEventListener('click',()=>editMedia(i));
    box.querySelector('[data-metadata]')?.addEventListener('click',()=>run(()=>metadataDialog(i)));
    box.querySelector('[data-delete-item]')?.addEventListener('click',()=>confirmDelete(()=>api('/media/'+i.id,'DELETE',undefined,s.manage).then(()=>{closeModal();return refresh()})));
    box.querySelector('[data-complete]')?.addEventListener('click',()=>run(async()=>{await stateChange(i,{completed:!i.state.completed});await refresh();await detail(mid)}));
+   box.querySelector('[data-queue-next]')?.addEventListener('click',()=>run(()=>queueAdd(i.id,true)));
+   box.querySelector('[data-queue-add]')?.addEventListener('click',()=>run(()=>queueAdd(i.id,false)));
    box.querySelector('[data-add-to-playlist]')?.addEventListener('click',()=>addToPlaylist(i));
    box.querySelector('[data-share-item]')?.addEventListener('click',()=>run(async()=>{const p=await api('/playlists','POST',{title:i.title,items:[i.id]});await refresh();await sharing(p.id)}));
    box.querySelector('[data-add-chapters]')?.addEventListener('click',()=>uploadDialog(i));
-   box.querySelectorAll('[data-chapter]').forEach(b=>b.onclick=()=>run(()=>play(mid,b.dataset.chapter,0,null,i.kind!=='books')));
+   box.querySelectorAll('[data-chapter]').forEach(b=>b.onclick=()=>run(()=>playChapter(mid,b.dataset.chapter)));
    const reorder=(n,delta)=>run(async()=>{const ids=i.tracks.map(t=>t.id);[ids[n],ids[n+delta]]=[ids[n+delta],ids[n]];await api('/media/'+mid+'/tracks/order','PUT',{ids},s.manage);await refresh();await detail(mid)});
    box.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>reorder(Number(b.dataset.up),-1));box.querySelectorAll('[data-down]').forEach(b=>b.onclick=()=>reorder(Number(b.dataset.down),1));
    box.querySelectorAll('[data-remove-track]').forEach(b=>b.onclick=()=>confirmDelete(async()=>{await api('/media/'+mid+'/tracks/'+b.dataset.removeTrack,'DELETE',undefined,s.manage);await refresh();await detail(mid)}));
    if(box.querySelector('[data-bookmarks]')){
      const marks=await api('/media/'+mid+'/bookmarks');if(!box.isConnected)return;
      box.querySelector('[data-bookmarks]').innerHTML=marks.map(b=>`<div class="ma-row"><div class="ma-grow">${esc(b.title)}<div class="ma-meta">${fmt(b.seconds)}</div></div>${icon('▶','play',`data-mark="${b.id}"`)}${icon('×','delete',`data-delete-mark="${b.id}"`)}</div>`).join('')||`<p class="ma-hint">${esc(t('bookmarkHint'))}</p>`;
-     box.querySelectorAll('[data-mark]').forEach(b=>b.onclick=()=>run(()=>{const mark=marks.find(m=>m.id===b.dataset.mark);return play(mid,mark.track_id,mark.seconds,null,false)}));
+     box.querySelectorAll('[data-mark]').forEach(b=>b.onclick=()=>run(()=>{const mark=marks.find(m=>m.id===b.dataset.mark);return playChapter(mid,mark.track_id,mark.seconds)}));
      box.querySelectorAll('[data-delete-mark]').forEach(b=>b.onclick=()=>run(async()=>{await api('/bookmarks/'+b.dataset.deleteMark,'DELETE');await detail(mid)}));
    }
  }
@@ -417,12 +461,14 @@ function mount(host,options={}){
  async function playlistView(pid){
    const p=lists().find(p=>p.id===pid);if(!p)return;const editable=s.manage||p.mine;
    const source=s.manage?s.admin.items:s.items;
-   const box=dialog(p.title,`<div class="ma-actions">${button('play','data-list-play','ma-btn primary')}${editable?button('edit','data-list-edit'):''}${!s.manage&&p.mine?button('share','data-list-share'):''}${editable?button('delete','data-list-delete','ma-btn danger'):''}</div><div class="ma-list" style="margin-top:20px">${p.items.map(id=>source.find(i=>i.id===id)).filter(Boolean).map((i,n)=>`<div class="ma-row"><span class="ma-queue-number">${n+1}</span><div class="ma-grow"><strong>${esc(i.title)}</strong><span class="ma-meta">${esc(i.creator||t(i.kind))}</span></div>${icon('▶','play',`data-list-item="${i.id}"`)}</div>`).join('')}</div>`);
-   box.querySelector('[data-list-play]').onclick=()=>run(()=>play(p.items[0],null,null,p.items));
+   const box=dialog(p.title,`<div class="ma-actions ma-actions-main">${button('play','data-list-play','ma-btn primary ma-big')}${button('shuffle','data-list-shuffle','ma-btn ma-big')}</div><div class="ma-actions ma-actions-sub">${editable?button('edit','data-list-edit'):''}${!s.manage&&p.mine?button('share','data-list-share'):''}${editable?button('delete','data-list-delete','ma-btn danger'):''}</div><div class="ma-list" style="margin-top:20px">${p.items.map(id=>source.find(i=>i.id===id)).filter(Boolean).map((i,n)=>`<div class="ma-row"><span class="ma-queue-number">${n+1}</span><div class="ma-grow"><strong>${esc(i.title)}</strong><span class="ma-meta">${esc(i.creator||t(i.kind))}</span></div>${icon('▶','play',`data-list-item="${i.id}"`)}${icon('＋','addToQueue',`data-list-queue="${i.id}"`)}</div>`).join('')}</div>`);
+   box.querySelector('[data-list-play]').onclick=()=>run(async()=>{await playList(p.items);closeModal()});
+   box.querySelector('[data-list-shuffle]').onclick=()=>run(async()=>{const ok=p.items.filter(id=>s.items.some(x=>x.id===id));if(!ok.length)throw Error(t('emptyPlaylist'));s.shuffle=true;s.queueBase=null;await playList(ok,ok[Math.floor(Math.random()*ok.length)]);closeModal()});
+   box.querySelectorAll('[data-list-queue]').forEach(b=>b.onclick=()=>run(()=>queueAdd(b.dataset.listQueue,false)));
    box.querySelector('[data-list-edit]')?.addEventListener('click',()=>playlistEditor(p));
    box.querySelector('[data-list-share]')?.addEventListener('click',()=>run(()=>sharing(pid)));
    box.querySelector('[data-list-delete]')?.addEventListener('click',()=>confirmDelete(async()=>{await api('/playlists/'+pid,'DELETE',undefined,s.manage);closeModal();await refresh()}));
-   box.querySelectorAll('[data-list-item]').forEach(b=>b.onclick=()=>run(()=>play(b.dataset.listItem,null,null,p.items)));
+   box.querySelectorAll('[data-list-item]').forEach(b=>b.onclick=()=>run(()=>playList(p.items,b.dataset.listItem)));
  }
  function playlistEditor(p=null,initial=[]){
    const selected=[...(p?.items||initial)];const available=(s.manage?s.admin.items:s.items).filter(i=>i.shared||i.mine);
@@ -444,17 +490,30 @@ function mount(host,options={}){
    box.querySelectorAll('[data-remove-member]').forEach(b=>b.onclick=()=>run(async()=>{await api('/playlists/'+pid+'/members/'+b.dataset.removeMember,'DELETE');await sharing(pid)}));
  }
  function queueDialog(){
-   const box=dialog(t('queue'),`<p class="ma-hint">${esc(t('queueHint'))}</p><div class="ma-list">${s.queue.map((id,n)=>s.items.find(i=>i.id===id)).filter(Boolean).map((i,n)=>`<div class="ma-row"><span>${s.current?.id===i.id?'♫':n+1}</span><div class="ma-grow">${esc(i.title)}</div>${icon('▶','play',`data-q-play="${i.id}"`)}${icon('↑','moveUp',`data-q-up="${n}" ${n===0?'disabled':''}`)}${icon('×','remove',`data-q-remove="${i.id}"`)}</div>`).join('')}</div><div class="ma-actions">${button('shuffle','data-q-shuffle')}${button('repeat','data-q-repeat')}</div><p class="ma-hint">${esc(t('repeat'))}: ${esc(t(s.repeat==='off'?'off':s.repeat==='all'?'all':'one'))}</p>`);
-   box.querySelectorAll('[data-q-play]').forEach(b=>b.onclick=()=>run(()=>play(b.dataset.qPlay,null,null,s.queue)));
-   box.querySelectorAll('[data-q-up]').forEach(b=>b.onclick=()=>{const n=Number(b.dataset.qUp);[s.queue[n],s.queue[n-1]]=[s.queue[n-1],s.queue[n]];queueDialog()});
-   box.querySelectorAll('[data-q-remove]').forEach(b=>b.onclick=()=>{s.queue=s.queue.filter(id=>id!==b.dataset.qRemove);queueDialog()});
-   box.querySelector('[data-q-shuffle]').onclick=()=>{s.shuffle=!s.shuffle;paintPlayer();toast(t('shuffle')+': '+t(s.shuffle?'on':'off'))};
-   box.querySelector('[data-q-repeat]').onclick=()=>{s.repeat={off:'all',all:'one',one:'off'}[s.repeat];paintPlayer();queueDialog()};
+   const items=queueItems(),cur=s.current?.id,at=items.findIndex(x=>x.id===cur),last=s.queue.length-1;
+   const row=(i,n)=>{const now=i.id===cur,idx=s.queue.indexOf(i.id);return `<div class="ma-row ma-qrow ${now?'current':''}"><span class="ma-queue-number">${now?'♫':n}</span><div class="ma-grow"><strong>${esc(i.title)}</strong><span class="ma-meta">${esc(i.creator||t(i.kind))}</span></div>${now?'':icon('▶','play',`data-q-play="${i.id}"`)+icon('↑','moveUp',`data-q-up="${i.id}" ${idx<=0?'disabled':''}`)+icon('↓','moveDown',`data-q-down="${i.id}" ${idx>=last?'disabled':''}`)+icon('×','remove',`data-q-remove="${i.id}"`)}</div>`};
+   const next=at<0?items:items.slice(at+1),before=at<0?[]:items.slice(0,at);
+   const box=dialog(t('queue'),`<span data-queue-live hidden></span><div class="ma-actions ma-actions-sub"><button type="button" class="ma-btn ${s.shuffle?'active':''}" data-q-shuffle>⤨ ${esc(t('shuffle'))}: ${esc(t(s.shuffle?'on':'off'))}</button><button type="button" class="ma-btn ${s.repeat!=='off'?'active':''}" data-q-repeat>↻ ${esc(t('repeat'))}: ${esc(t(s.repeat==='off'?'off':s.repeat==='all'?'all':'one'))}</button></div>${at>=0?`<h3>${esc(t('nowPlaying'))}</h3><div class="ma-list">${row(items[at],'')}</div>`:''}<h3>${esc(t('upNext'))}${next.length?` · ${next.length}`:''}</h3>${next.length?`<div class="ma-list">${next.map((i,n)=>row(i,n+1)).join('')}</div><div class="ma-actions"><button type="button" class="ma-btn" data-q-clear>${esc(t('clearUpNext'))}</button></div>`:`<p class="ma-hint">${esc(t('queueEnd'))}</p>`}${before.length?`<h3>${esc(t('playedEarlier'))}</h3><div class="ma-list">${before.map((i,n)=>row(i,n+1)).join('')}</div>`:''}<p class="ma-hint">${esc(t('queueHint'))}</p>`);
+   box.querySelectorAll('[data-q-play]').forEach(b=>b.onclick=()=>run(()=>play(b.dataset.qPlay)));
+   const move=(id,d)=>{const n=s.queue.indexOf(id),m=n+d;if(n<0||m<0||m>=s.queue.length)return;[s.queue[n],s.queue[m]]=[s.queue[m],s.queue[n]];queueDialog()};
+   box.querySelectorAll('[data-q-up]').forEach(b=>b.onclick=()=>move(b.dataset.qUp,-1));
+   box.querySelectorAll('[data-q-down]').forEach(b=>b.onclick=()=>move(b.dataset.qDown,1));
+   box.querySelectorAll('[data-q-remove]').forEach(b=>b.onclick=()=>{s.queue=s.queue.filter(id=>id!==b.dataset.qRemove);if(s.queueBase)s.queueBase=s.queueBase.filter(id=>id!==b.dataset.qRemove);paintPlayer();queueDialog()});
+   box.querySelector('[data-q-clear]')?.addEventListener('click',()=>{const keep=new Set([cur,...before.map(x=>x.id)]);s.queue=s.queue.filter(id=>keep.has(id));if(s.queueBase)s.queueBase=s.queueBase.filter(id=>keep.has(id));paintPlayer();queueDialog()});
+   box.querySelector('[data-q-shuffle]').onclick=()=>{setShuffle(!s.shuffle);queueDialog()};
+   box.querySelector('[data-q-repeat]').onclick=()=>{cycleRepeat();queueDialog()};
  }
  function nowPlaying(){
    if(!s.current)return;const i=s.current;
-   const box=dialog(t('nowPlaying'),`<div class="ma-detail-top"><div class="ma-detail-cover">${cover(i)}</div><div><h2>${esc(i.title)}</h2><p>${esc(i.creator)}</p><p>${esc(s.track?.title||t('live'))}</p></div></div><div class="ma-actions">${button(audio.paused?'play':'pause','data-now-toggle','ma-btn primary')}${button('previous','data-now-previous')}${button('next','data-now-next')}${button('sleep','data-now-sleep')}${button('open','data-now-detail')}${s.track?button('bookmark','data-bookmark'):''}</div>${i.kind!=='radio'?`<label class="ma-field" style="margin-top:20px">${esc(t('speed'))}<select data-now-speed>${[.5,.75,1,1.25,1.5,1.75,2,2.5,3].map(n=>`<option value="${n}" ${audio.playbackRate===n?'selected':''}>${n}×</option>`).join('')}</select></label>`:''}`);
-   box.querySelector('[data-now-toggle]').onclick=()=>run(async()=>{if(audio.paused)await startPlayback();else audio.pause();nowPlaying()});box.querySelector('[data-now-previous]').onclick=()=>run(async()=>{await next(-1);nowPlaying()});box.querySelector('[data-now-next]').onclick=()=>run(async()=>{await next();nowPlaying()});box.querySelector('[data-now-sleep]').onclick=sleepDialog;box.querySelector('[data-now-detail]').onclick=()=>run(()=>detail(i.id));
+   const book=i.kind==='books',steps=!book||i.tracks.length>1,many=s.queue.length>1,coming=upcoming().slice(0,4);
+   const box=dialog(t('nowPlaying'),`<span data-now-live hidden></span><div class="ma-detail-top"><div class="ma-detail-cover">${cover(i)}</div><div><h2>${esc(i.title)}</h2><p>${esc(i.creator)}</p><p>${esc(s.track?.title||t('live'))}</p></div></div><div class="ma-actions ma-actions-main">${button(audio.paused?'play':'pause','data-now-toggle','ma-btn primary ma-big')}${button('stopPlayback','data-now-stop','ma-btn ma-big')}</div><div class="ma-actions ma-actions-sub">${steps?button(book?'previousChapter':'previous','data-now-previous')+button(book?'nextChapter':'next','data-now-next'):''}${many?`<button type="button" class="ma-btn ${s.shuffle?'active':''}" data-now-shuffle>⤨ ${esc(t('shuffle'))}: ${esc(t(s.shuffle?'on':'off'))}</button><button type="button" class="ma-btn ${s.repeat!=='off'?'active':''}" data-now-repeat>↻ ${esc(t('repeat'))}: ${esc(t(s.repeat==='off'?'off':s.repeat==='all'?'all':'one'))}</button>`:''}${button('sleep','data-now-sleep')}${s.track&&book?button('bookmark','data-bookmark'):''}${button('open','data-now-detail')}</div>${coming.length?`<h3>${esc(t('upNext'))}</h3><div class="ma-list">${coming.map((x,n)=>`<div class="ma-row"><span class="ma-queue-number">${n+1}</span><div class="ma-grow"><strong>${esc(x.title)}</strong><span class="ma-meta">${esc(x.creator||t(x.kind))}</span></div></div>`).join('')}</div>`:''}${many?`<div class="ma-actions"><button type="button" class="ma-btn ma-wide" data-now-queue>${esc(t('queue'))} · ${s.queue.length}</button></div>`:''}${book?`<label class="ma-field" style="margin-top:20px">${esc(t('speed'))}<select data-now-speed>${[.5,.75,1,1.25,1.5,1.75,2,2.5,3].map(n=>`<option value="${n}" ${audio.playbackRate===n?'selected':''}>${n}×</option>`).join('')}</select></label>`:''}`);
+   box.querySelector('[data-now-toggle]').onclick=()=>run(async()=>{if(audio.paused)await startPlayback();else audio.pause();nowPlaying()});
+   box.querySelector('[data-now-previous]')&&(box.querySelector('[data-now-previous]').onclick=()=>run(async()=>{await next(-1);nowPlaying()}),box.querySelector('[data-now-next]').onclick=()=>run(async()=>{await next();nowPlaying()}));
+   box.querySelector('[data-now-shuffle]')?.addEventListener('click',()=>{setShuffle(!s.shuffle);nowPlaying()});
+   box.querySelector('[data-now-repeat]')?.addEventListener('click',()=>{cycleRepeat();nowPlaying()});
+   box.querySelector('[data-now-queue]')?.addEventListener('click',queueDialog);
+   box.querySelector('[data-now-sleep]').onclick=sleepDialog;box.querySelector('[data-now-detail]').onclick=()=>run(()=>detail(i.id));
+   box.querySelector('[data-now-stop]').onclick=()=>run(async()=>{await clearPlayer();closeModal()});
    box.querySelector('[data-now-speed]')?.addEventListener('change',e=>{audio.playbackRate=Number(e.target.value);paintPlayer()});
    box.querySelector('[data-bookmark]')?.addEventListener('click',()=>{const mark=snapshot();const b=dialog(t('bookmark'),`<form class="ma-form">${field('title',fmt(mark.body.seconds),'text','required maxlength="200"')}<button class="ma-btn primary" type="submit">${esc(t('save'))}</button></form>`);b.querySelector('form').onsubmit=e=>{e.preventDefault();run(async()=>{await api('/media/'+mark.id+'/bookmarks','POST',{track_id:mark.body.track_id,seconds:mark.body.seconds,title:b.querySelector('input').value});closeModal();toast(t('saved'))})}});
  }
@@ -519,7 +578,8 @@ function mount(host,options={}){
  }
  root.addEventListener('click',e=>{
    if(modal&&modal.contains(e.target))return;
-   const b=e.target.closest('button');if(!b)return;
+   const b=e.target.closest('button');
+   if(!b){if(footer.contains(e.target)&&s.current&&!e.target.closest('input,select,a,label'))nowPlaying();return}
    if(b.hasAttribute('data-statistics')||b.hasAttribute('data-stats-refresh'))run(loadStatistics);
    else if(b.dataset.statsView){s.statsView=b.dataset.statsView;render()}
    else if(b.dataset.statsBook)statsBook(b.dataset.statsBook);
@@ -534,7 +594,8 @@ function mount(host,options={}){
    else if(b.dataset.importMetadata){const item=(s.manage?s.admin.items:s.items).find(i=>i.id===b.dataset.importMetadata);const row=s.importBatch.find(r=>r.id===b.dataset.importMetadata&&r.candidates);if(item)run(()=>metadataDialog(item,row?.candidates));}
    else if(b.hasAttribute('data-category')){s.category=b.dataset.category;render()}
    else if(b.hasAttribute('data-scope')){s.scope=b.dataset.scope;render()}
-   else if(b.dataset.play)run(()=>play(b.dataset.play));
+   else if(b.dataset.quick)run(async()=>{const id=b.dataset.quick;if(s.current?.id===id&&audio.getAttribute('src')){if(audio.paused)await startPlayback();else audio.pause();return}await playFromLibrary(id)});
+   else if(b.dataset.play)run(()=>playFromLibrary(b.dataset.play));
    else if(b.dataset.detail)run(()=>{const item=(s.manage?s.admin.items:s.items).find(i=>i.id===b.dataset.detail);return s.manage?editMedia(item):detail(b.dataset.detail)});
    else if(b.dataset.favorite)run(async()=>{const i=s.items.find(i=>i.id===b.dataset.favorite);if(i){await stateChange(i,{favorite:!i.state.favorite});render()}});
    else if(b.hasAttribute('data-toggle'))run(async()=>{if(!s.current)return;if(audio.paused)await startPlayback();else audio.pause()});
@@ -542,14 +603,14 @@ function mount(host,options={}){
    else if(b.hasAttribute('data-next'))run(()=>next());
    else if(b.hasAttribute('data-rewind'))seekBy(-15);
    else if(b.hasAttribute('data-forward'))seekBy(30);
-   else if(b.hasAttribute('data-shuffle')){s.shuffle=!s.shuffle;paintPlayer()}
+   else if(b.hasAttribute('data-shuffle'))setShuffle(!s.shuffle)
    else if(b.hasAttribute('data-repeat')){s.repeat={off:'all',all:'one',one:'off'}[s.repeat];paintPlayer();toast(t('repeat')+': '+t(s.repeat==='off'?'off':s.repeat==='all'?'all':'one'))}
    else if(b.hasAttribute('data-now'))nowPlaying();
    else if(b.hasAttribute('data-queue'))queueDialog();
    else if(b.hasAttribute('data-sleep'))sleepDialog();
    else if(b.hasAttribute('data-new-playlist'))playlistEditor();
    else if(b.dataset.playlist)run(()=>playlistView(b.dataset.playlist));
-   else if(b.dataset.playlistPlay)run(()=>{const p=lists().find(p=>p.id===b.dataset.playlistPlay);return play(p.items[0],null,null,p.items)});
+   else if(b.dataset.playlistPlay)run(()=>{const p=lists().find(p=>p.id===b.dataset.playlistPlay);return playList(p.items)});
  });
  root.querySelector('.ma-search').oninput=e=>{s.q=e.target.value;render()};
  root.addEventListener('change',e=>{const el=e.target;if(el.hasAttribute('data-sort')){s.sort=el.value;render()}if(el.hasAttribute('data-status')){s.status=el.value;render()}if(el.hasAttribute('data-speed'))audio.playbackRate=Number(el.value);if(el.hasAttribute('data-seek')){audio.currentTime=Number(el.value);tick()}if(el.hasAttribute('data-volume'))audio.volume=Number(el.value)});

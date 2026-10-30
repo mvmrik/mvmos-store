@@ -503,6 +503,9 @@
     var titleRefreshTimer = null;
     var termPanel = null;    // the Premium terminal panel, once made
     var termLoading = null;
+    var agentPanel = null;
+    var agentMode = false;
+    var agentModeSync = function () {};
     var sessionMenuCleanup = null;
 
     function api(path, options) {
@@ -657,6 +660,53 @@
         </div>
       </div>`;
 
+      // Switching mode preserves the mounted chat, its draft and any running turn.
+      var chatShell = root.querySelector('.mvmai-widget');
+      var modes = document.createElement('div');
+      modes.style.cssText = 'display:none;align-items:center;gap:8px;padding:8px 12px;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);border-bottom:1px solid var(--pub-border,#45475a);flex-shrink:0;font:13px system-ui';
+      modes.innerHTML = '<button type="button" class="mva-chat-mode"></button><button type="button" class="mva-agent-mode"></button>';
+      modes.querySelector('.mva-chat-mode').textContent = t('mvmai_agent_chats');
+      modes.querySelector('.mva-agent-mode').textContent = 'mvmAgent';
+      modes.querySelectorAll('button').forEach(function (b) { b.style.cssText = 'font:inherit;cursor:pointer;border:1px solid var(--pub-border,#45475a);border-radius:6px;padding:6px 12px;background:var(--pub-card,#313244);color:inherit'; });
+      var agentsRoot = document.createElement('div');
+      agentsRoot.style.cssText = 'flex:1;min-height:0;position:relative;display:none';
+      root.style.display = 'flex'; root.style.flexDirection = 'column';
+      chatShell.style.flex = '1'; chatShell.style.minHeight = '0'; chatShell.style.height = 'auto';
+      root.prepend(modes); root.appendChild(agentsRoot);
+      function setAgentMode(value) {
+        agentMode = value;
+        chatShell.style.display = value ? 'none' : '';
+        agentsRoot.style.display = value ? '' : 'none';
+        modes.querySelector('.mva-chat-mode').setAttribute('aria-pressed', String(!value));
+        modes.querySelector('.mva-agent-mode').setAttribute('aria-pressed', String(value));
+        if (agentPanel) agentPanel.show(value);
+      }
+      agentModeSync = function () {
+        var shown = me.is_admin && (me.agents || (isDesktop && !me.bridge_premium));
+        modes.style.display = shown ? 'flex' : 'none';
+        if (!me.agents && agentMode) {
+          setAgentMode(false);
+          if (agentPanel) { agentPanel.destroy(); agentPanel = null; }
+        }
+      };
+      modes.querySelector('.mva-chat-mode').onclick = function () { setAgentMode(false); };
+      var agentButton = modes.querySelector('.mva-agent-mode');
+      if (isDesktop && window.mvmOS && window.mvmOS.premiumGate) window.mvmOS.premiumGate(agentButton, t('mvmai_agent_premium'));
+      agentButton.onclick = async function () {
+        if (!me.agents) return;
+        agentButton.disabled = true;
+        try {
+          if (!agentPanel) {
+            var response = await fetch(window.asset(API + '/premium/agents.js'), {headers:{'X-Pub-Token':token},cache:'no-store'});
+            if (!response.ok) throw new Error('unavailable');
+            var script = document.createElement('script'); script.textContent = await response.text(); document.head.appendChild(script); script.remove();
+            agentPanel = window.MvmaiPremium.createAgents({root:agentsRoot,api:api,t:t,esc:esc,lang:uiLang});
+          }
+          setAgentMode(true);
+        } catch (_) { addNote(t('mvmai_pub_err')); }
+        finally { agentButton.disabled = false; }
+      };
+      agentModeSync();
       var listEl = root.querySelector('.mvmai-list');
       var inputEl = root.querySelector('.mvmai-input');
       var composerModelEl = root.querySelector('.mvmai-composer-model');
@@ -954,6 +1004,7 @@
         return api('/me').then(function (freshMe) {
           if (freshMe.__status !== 200) return;
           me = freshMe;
+          agentModeSync();
           refreshComposer();
         });
       }
@@ -1349,7 +1400,7 @@
       }
       if (galBtn) galBtn.onclick = openGallery;
 
-      if (isDesktop && me.is_admin) {
+      if (me.is_admin) {
         providerPoll = setInterval(function () {
           if (!root.isConnected) { clearInterval(providerPoll); return; }
           refreshProviderMetadata();
@@ -3796,6 +3847,7 @@
       if (sessionMenuCleanup) sessionMenuCleanup();
       if (isDesktop) window.removeEventListener('settings-changed', refreshMessageTimes);
       if (termPanel) termPanel.destroy();
+      if (agentPanel) agentPanel.destroy();
     } };
   }
 

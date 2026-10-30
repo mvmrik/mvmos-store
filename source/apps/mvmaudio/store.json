@@ -1,6 +1,6 @@
 {
   "tagline": "One home for music, audiobooks and live radio.",
-  "description": "mvmAudio brings a shared music library, audiobook shelves and HTTPS radio stations to the mvmOS desktop and a responsive Apps Hub page. Books contain ordered chapters and each listener keeps an independent position, speed, completion status, favourites and bookmarks. Personal playlists can combine library items and be shared with other profiles. Premium optionally enables private uploads with an administrator-set allowance; uploads are disabled by default.",
+  "description": "mvmAudio brings a shared music library, audiobook shelves and HTTPS radio stations to the mvmOS desktop and a responsive Apps Hub page. Books contain ordered chapters and each listener keeps an independent position, speed, completion status, favourites and bookmarks. Personal playlists can combine library items and be shared with other profiles. Premium optionally enables private uploads with an administrator-set allowance; uploads are disabled by default.\n\nStart or pause directly from a library cover, open the expanded player from its title or artwork, and manage what plays next. The queue separates the current title, upcoming titles and earlier items, with play-next, add, reorder, remove and clear controls. Opening audiobook details leaves current playback untouched; stop saves progress and hides the player.",
   "capabilities": [
     "Separate music, audiobook and radio libraries with search and genre filters.",
     "Administrator-managed common library and public playlists.",
@@ -12,6 +12,7 @@
     "Bundled audio inspection with no FFmpeg, system packages or additional installation steps.",
     "Read embedded metadata and cover art automatically without changing original audio.",
     "Search MusicBrainz and Open Library directly from your installation, preview matches and apply selected fields.",
-    "Manual cover upload, source attribution and per-title metadata editing, with no API keys."
+    "Manual cover upload, source attribution and per-title metadata editing, with no API keys.",
+    "Quick play and pause on library covers, an expanded player, and a live queue with play-next, add, reorder, remove, clear, shuffle and repeat controls."
   ]
 }

@@ -1,6 +1,7 @@
 """Provider confirmation and per-chat serialization without paid API calls."""
 
 import ast
+import contextvars
 import asyncio
 import importlib.util
 import json
@@ -118,9 +119,10 @@ class MaintenanceTests(unittest.IsolatedAsyncioTestCase):
     async def test_owned_current_session_only_and_failure_keeps_state(self):
         conn = sqlite3.connect(":memory:")
         conn.row_factory = sqlite3.Row
-        conn.execute("CREATE TABLE pub_sessions (id, user_id, project_id, provider, model, cli_state, archived_at)")
+        conn.execute("CREATE TABLE pub_sessions (id, user_id, project_id, provider, model, cli_state, archived_at, kind)")
         conn.execute("CREATE TABLE pub_messages (session_id, role, content, tool_calls, seq)")
         ns = {"ChatRequest": object, "asyncio": asyncio, "json": json, "hashlib": hashlib,
+              "_AGENT_CONTEXT": contextvars.ContextVar("test_agent_context", default=None),
               "re": re, "time": time, "uuid": uuid, "JSONResponse": JSONResponse,
               "_CLI_REPLAY_CHARS": 60000, "_sdb": lambda: conn,
               "_archive_stale": lambda *args: None, "_hub": lambda: None,
@@ -130,8 +132,8 @@ class MaintenanceTests(unittest.IsolatedAsyncioTestCase):
                   "_unseen_messages", "_cli_flatten_messages", "_cap_conversation", "_chat_reply"}, ns)
         last = {"role": "assistant", "content": "Original answer"}
         state = {"session_id": "12345678-abcd", "user": "test", "last": ns["_msg_fingerprint"](last)}
-        conn.execute("INSERT INTO pub_sessions VALUES (?,?,?,?,?,?,?)",
-                     ("a" * 32, "owner", None, "claude-cli", "haiku", json.dumps(state), None))
+        conn.execute("INSERT INTO pub_sessions VALUES (?,?,?,?,?,?,?,?)",
+                     ("a" * 32, "owner", None, "claude-cli", "haiku", json.dumps(state), None, "chat"))
         conn.execute("INSERT INTO pub_messages VALUES (?,?,?,?,?)", ("a" * 32, "assistant", last["content"], None, 0))
         conn.commit()
         calls = []

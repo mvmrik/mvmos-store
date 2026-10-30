@@ -1715,3 +1715,56 @@ async def cli_chat(body: CliChatRequest, x_pub_token: str = Header(default=None)
     exec_enabled = bool(cfg.get("exec_enabled"))
     exec_auto = bool(cfg.get("exec_auto"))
     return await _run_cli_chat(body, _server_tools(is_admin, exec_enabled), is_admin, exec_enabled, exec_auto, session=session)
+
+
+def _workspace_inventory(token: str, location: str = "", relative_file: str = "") -> dict:
+    """Bounded read-only discovery for a Premium administrator workspace.
+
+    Directory metadata is generic; the model decides what the project is.
+    File reads stay inside the explicitly selected directory and omit common
+    credential files. No commands are executed and nothing is changed.
+    """
+    if not _is_apps_hub_admin(token):
+        raise PermissionError("forbidden")
+    isolation = sys.modules.get("backend.app_isolation")
+    import contextlib
+    with isolation.release() if isolation else contextlib.nullcontext():
+        if not location:
+            roots = ["/var/www", "/srv", "/opt"]
+            entries = []
+            for root in roots:
+                try:
+                    for entry in sorted(os.scandir(root), key=lambda e: e.name)[:60]:
+                        if entry.is_dir(follow_symlinks=False):
+                            entries.append({"name": entry.name, "location": entry.path, "kind": "directory"})
+                except OSError:
+                    continue
+            return {"resources": entries, "known_projects": list_projects()}
+        root = os.path.realpath(location)
+        if not os.path.isabs(location) or not os.path.isdir(root):
+            raise ValueError("directory_required")
+        if relative_file:
+            path = os.path.realpath(os.path.join(root, relative_file))
+            if not path.startswith(root + os.sep):
+                raise ValueError("file_outside_resource")
+            parts = os.path.relpath(path, root).split(os.sep)
+            if any(part.startswith(".env") or part in {".ssh", ".aws", ".git", "credentials", "secrets"} for part in parts) or path.lower().endswith((".pem", ".key", ".p12")):
+                raise ValueError("credential_file_not_available")
+            with open(path, "rb") as handle:
+                raw = handle.read(32001)
+            if b"\x00" in raw:
+                raise ValueError("text_file_required")
+            safe_text = re.sub(r"(?im)^.*(?:password|passwd|api[_-]?key|secret|access[_-]?token|private[_-]?key|AUTH_KEY|dsn).*$", "[credential line omitted]", raw[:32000].decode("utf-8", errors="replace"))
+            return {"path": path, "text": safe_text, "truncated": len(raw) > 32000,
+                    "mtime": os.stat(path).st_mtime_ns}
+        entries = []
+        for entry in sorted(os.scandir(root), key=lambda e: e.name)[:200]:
+            if entry.name.startswith(".env") or entry.name in {".git", ".ssh", ".aws"}:
+                continue
+            try:
+                meta = entry.stat(follow_symlinks=False)
+                entries.append({"name": entry.name, "kind": "directory" if entry.is_dir(follow_symlinks=False) else "file",
+                                "size": meta.st_size, "mtime": meta.st_mtime_ns, "symlink": entry.is_symlink()})
+            except OSError:
+                continue
+        return {"location": root, "entries": entries, "limited": len(entries) >= 200}

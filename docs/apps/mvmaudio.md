@@ -1,6 +1,6 @@
 # mvmAudio
 
-mvmAudio combines music, chapter-based audiobooks and live radio. The mvmOS desktop and `/pub/mvmaudio/` use the same Apps Hub identity, library and listening state. The app is under development and is not published in a Store category or release archive.
+mvmAudio combines music, chapter-based audiobooks and live radio. The mvmOS desktop and `/pub/mvmaudio/` use the same Apps Hub identity, library and listening state. The app is available in the Media Store category.
 
 ## Listening
 
@@ -8,7 +8,11 @@ Discover shows recent additions and unfinished audiobooks. Music, Audiobooks and
 
 Each profile has its own favourites, recent listening history, playlists, bookmarks, completion flags and audiobook chapter/second/speed. A shared book never shares progress between listeners. The library shows percentage completed and remaining listening time adjusted for the saved speed. The player saves approximately every ten seconds, on pause and seeking, and attempts a final save when leaving the page. An internet connection is required for synchronization; concurrent devices use the last saved position.
 
-The player stays mounted while browsing. It supports a reorderable queue, shuffle for music, repeat, 15-second rewind, 30-second forward, chapter navigation, speed from 0.5× to 3×, bookmarks, and a sleep timer in minutes or at the end of the current chapter. On a narrow screen, tap the current artwork to open playback options. Books advance through their own ordered chapters before the next queue item.
+The player stays mounted while browsing. It supports a reorderable queue, shuffle for music, repeat, 15-second rewind, 30-second forward, chapter navigation, speed from 0.5× to 3×, bookmarks, and a sleep timer in minutes or at the end of the current chapter. Tap the current artwork or title to open playback options, including on narrow screens. Books advance through their own ordered chapters before the next queue item.
+
+Library covers offer quick play and pause. Opening audiobook details does not change current playback; choose Play or Continue to start it. The expanded player shows upcoming titles and a Stop control that saves progress, clears the active queue and hides the player. The player is hidden until a title is loaded.
+
+The queue groups Now playing, Up next and Played earlier. Add a title next or at the end, move upcoming titles up or down, remove them, or clear Up next. Shuffle creates a visible queue order while keeping the current title first; turning it off restores the original order of retained titles. Playlists offer Play all and Shuffle. The queue belongs to the mounted player; it is not a synchronized playlist.
 
 Supported browsers receive Media Session metadata and controls for the lock screen and headsets. Start playback before locking a phone. Browser and Android battery settings can affect background playback; real-device testing is required. The platform supplies its normal PWA install flow. PWA installation does not provide offline downloads or guarantee uninterrupted background playback.
 

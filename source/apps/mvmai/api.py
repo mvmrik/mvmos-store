@@ -33,6 +33,7 @@ Trust model:
 """
 
 import asyncio
+import contextvars
 import hashlib
 import json
 import os
@@ -70,6 +71,9 @@ def _sdb():
     return conn
 
 
+_AGENT_CONTEXT = contextvars.ContextVar("mvmai_agent_context", default=None)
+
+
 def _ensure_tables():
     with _sdb() as conn:
         conn.execute(
@@ -93,6 +97,8 @@ def _ensure_tables():
         # additive migration — not declared via db.json since pub_sessions isn't
         # exposed through the generic /api/plugins/mvmai/db proxy at all
         cols = {row[1] for row in conn.execute("PRAGMA table_info(pub_sessions)")}
+        if "kind" not in cols:
+            conn.execute("ALTER TABLE pub_sessions ADD COLUMN kind TEXT NOT NULL DEFAULT 'chat'")
         if "project_id" not in cols:
             conn.execute("ALTER TABLE pub_sessions ADD COLUMN project_id TEXT")
         # The provider and model a chat started with, which it keeps whatever
@@ -286,12 +292,12 @@ def _archive_stale(conn, user_id=None, now=None):
     now = int(time.time()) if now is None else now
     if user_id is None:
         conn.execute(
-            "UPDATE pub_sessions SET archived_at=? WHERE archived_at IS NULL AND pinned_at IS NULL AND last_message_at<=?",
+            "UPDATE pub_sessions SET archived_at=? WHERE kind='chat' AND archived_at IS NULL AND pinned_at IS NULL AND last_message_at<=?",
             (now, now - _ARCHIVE_AFTER_SECONDS),
         )
     else:
         conn.execute(
-            "UPDATE pub_sessions SET archived_at=? WHERE user_id=? AND archived_at IS NULL "
+            "UPDATE pub_sessions SET archived_at=? WHERE user_id=? AND kind='chat' AND archived_at IS NULL "
             "AND pinned_at IS NULL AND last_message_at<=?",
             (now, user_id, now - _ARCHIVE_AFTER_SECONDS),
         )
@@ -1206,6 +1212,7 @@ async def get_me(
         **({"provider_label": _label_from_cfg(desk, cfg) if desk else None,
             "provider": cfg.get("provider"), "model": cfg.get("model") or ""} if me.get("is_admin") else {}),
         # The terminal panel of the desktop chat (Premium module and setting);
+        "agents": bool(me.get("is_admin") and prem and hasattr(prem, "agents_enabled") and prem.agents_enabled(cfg)),
         "terminal": bool(is_desktop and me.get("is_admin") and prem and prem.terminal_enabled(desk._read_cfg())),
     })
 
@@ -1241,18 +1248,29 @@ async def premium_asset(
     x_mvmai_surface: str = Header(default=""),
     os_session=Depends(_os_session_optional),
 ):
-    """Browser code of the Premium terminal, only for the administrator on the desktop."""
-    me = _resolve(x_pub_token)
-    prem = _premium()
-    desk = _desktop()
-    if not me or not me.get("is_admin") or not (x_mvmai_surface == "desktop" and os_session) or not prem or desk is None:
+    """Premium browser assets, checked separately for each feature."""
+    me, prem, desk = _resolve(x_pub_token), _premium(), _desktop()
+    if not me or not me.get("is_admin") or not prem or desk is None:
         return Response(status_code=404, headers={"Cache-Control": "no-store"})
-    if not prem.terminal_enabled(desk._read_cfg()):
-        return Response(status_code=404, headers={"Cache-Control": "no-store"})
-    content = prem.get_asset(asset)
+    cfg = desk._read_cfg()
+    permitted = (asset == "terminal.js" and x_mvmai_surface == "desktop" and os_session and prem.terminal_enabled(cfg)) or (
+        asset == "agents.js" and hasattr(prem, "agents_enabled") and prem.agents_enabled(cfg))
+    content = prem.get_asset(asset) if permitted else None
     if content is None:
         return Response(status_code=404, headers={"Cache-Control": "no-store"})
     return Response(content=content, media_type="application/javascript", headers={"Cache-Control": "private, no-store"})
+
+
+@router.api_route("/agents/{path:path}", methods=["GET", "POST", "PATCH", "DELETE"])
+async def agent_api(request: Request, path: str, x_pub_token: str = Header(default=None),
+                    x_mvmai_surface: str = Header(default=""), os_session=Depends(_os_session_optional)):
+    me, prem, desk = _resolve(x_pub_token), _premium(), _desktop()
+    if not me or not me.get("is_admin"):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    if not prem or desk is None or not hasattr(prem, "agents_enabled") or not prem.agents_enabled(desk._read_cfg()):
+        return JSONResponse({"error": "not_available"}, status_code=403)
+    return await prem.agents_module().route(sys.modules[__name__], request, path, me, x_pub_token,
+                                           x_mvmai_surface, os_session)
 
 
 @router.get("/sessions")
@@ -1264,7 +1282,7 @@ async def list_sessions(x_pub_token: str = Header(default=None)):
         _archive_stale(conn, me["id"])
         rows = conn.execute(
             "SELECT id, title, title_kind, project_id, updated_at, archived_at, pinned_at, provider, model, cli_state "
-            "FROM pub_sessions WHERE user_id=? ORDER BY "
+            "FROM pub_sessions WHERE user_id=? AND kind='chat' ORDER BY "
             "CASE WHEN pinned_at IS NOT NULL AND archived_at IS NULL THEN 0 ELSE 1 END, "
             "COALESCE(last_sent_at, created_at) DESC, rowid DESC",
             (me["id"],),
@@ -1295,7 +1313,7 @@ async def get_session_messages(
     with _sdb() as conn:
         _archive_stale(conn, me["id"])
         owned = conn.execute(
-            "SELECT provider, model, cli_state, archived_at, project_id FROM pub_sessions WHERE id=? AND user_id=?", (sid, me["id"])
+            "SELECT provider, model, cli_state, archived_at, project_id FROM pub_sessions WHERE id=? AND user_id=? AND kind='chat'", (sid, me["id"])
         ).fetchone()
         if not owned:
             return JSONResponse({"error": "not_found"}, status_code=404)
@@ -1368,7 +1386,7 @@ async def switch_session_model(sid: str, body: SwitchModelRequest, x_pub_token: 
         return JSONResponse({"error": "chat_busy"}, status_code=409)
     with _sdb() as conn:
         row = conn.execute(
-            "SELECT id, provider, model, cli_state, archived_at FROM pub_sessions WHERE id=? AND user_id=?",
+            "SELECT id, provider, model, cli_state, archived_at FROM pub_sessions WHERE id=? AND user_id=? AND kind='chat'",
             (sid, me["id"]),
         ).fetchone()
         if not row:
@@ -1409,7 +1427,7 @@ async def switch_session_model(sid: str, body: SwitchModelRequest, x_pub_token: 
     if _persist_turn(me["id"], sid, body.messages + [marker], None) is None:
         return JSONResponse({"error": "archived"}, status_code=409)
     with _sdb() as conn:
-        conn.execute("UPDATE pub_sessions SET provider=?, model=?, cli_state=NULL WHERE id=? AND user_id=?",
+        conn.execute("UPDATE pub_sessions SET provider=?, model=?, cli_state=NULL WHERE id=? AND user_id=? AND kind='chat'",
                      (body.provider, body.model, sid, me["id"]))
     return JSONResponse({"provider": body.provider, "model": body.model, "provider_label": label,
                          "marker": marker})
@@ -1421,12 +1439,12 @@ async def archive_session(sid: str, x_pub_token: str = Header(default=None)):
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
     with _sdb() as conn:
-        owned = conn.execute("SELECT pinned_at FROM pub_sessions WHERE id=? AND user_id=? AND archived_at IS NULL",
+        owned = conn.execute("SELECT pinned_at FROM pub_sessions WHERE id=? AND user_id=? AND kind='chat' AND archived_at IS NULL",
                              (sid, me["id"])).fetchone()
         if owned and owned["pinned_at"] is not None:
             return JSONResponse({"error": "pinned"}, status_code=409)
         cur = conn.execute(
-            "UPDATE pub_sessions SET archived_at=? WHERE id=? AND user_id=? "
+            "UPDATE pub_sessions SET archived_at=? WHERE id=? AND user_id=? AND kind='chat' "
             "AND archived_at IS NULL AND pinned_at IS NULL",
             (int(time.time()), sid, me["id"]),
         )
@@ -1441,7 +1459,7 @@ async def pin_session(sid: str, body: PinRequest, x_pub_token: str = Header(defa
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
     with _sdb() as conn:
-        owned = conn.execute("SELECT pinned_at, archived_at FROM pub_sessions WHERE id=? AND user_id=?",
+        owned = conn.execute("SELECT pinned_at, archived_at FROM pub_sessions WHERE id=? AND user_id=? AND kind='chat'",
                              (sid, me["id"])).fetchone()
         if not owned:
             return JSONResponse({"error": "not_found"}, status_code=404)
@@ -1452,7 +1470,7 @@ async def pin_session(sid: str, body: PinRequest, x_pub_token: str = Header(defa
             conn.execute(
                 "UPDATE pub_sessions SET pinned_at=?, last_message_at=CASE WHEN ? THEN last_message_at ELSE ? END, "
                 "updated_at=CASE WHEN ? THEN updated_at ELSE ? END "
-                "WHERE id=? AND user_id=? AND archived_at IS NULL",
+                "WHERE id=? AND user_id=? AND kind='chat' AND archived_at IS NULL",
                 (now if body.pinned else None, body.pinned, now, body.pinned, now, sid, me["id"]),
             )
     return JSONResponse({"ok": True, "pinned": body.pinned})
@@ -1466,7 +1484,7 @@ async def restore_session(sid: str, x_pub_token: str = Header(default=None)):
     with _sdb() as conn:
         cur = conn.execute(
             "UPDATE pub_sessions SET archived_at=NULL, updated_at=?, last_message_at=? "
-            "WHERE id=? AND user_id=? AND archived_at IS NOT NULL",
+            "WHERE id=? AND user_id=? AND kind='chat' AND archived_at IS NOT NULL",
             (int(time.time()), int(time.time()), sid, me["id"]),
         )
         if cur.rowcount == 0:
@@ -1488,14 +1506,14 @@ async def delete_archived_sessions(x_pub_token: str = Header(default=None)):
         return JSONResponse({"error": "unauthorized"}, status_code=401)
     with _sdb() as conn:
         rows = conn.execute(
-            "SELECT id, cli_state FROM pub_sessions WHERE user_id=? AND archived_at IS NOT NULL", (me["id"],)
+            "SELECT id, cli_state FROM pub_sessions WHERE user_id=? AND kind='chat' AND archived_at IS NOT NULL", (me["id"],)
         ).fetchall()
         _delete_session_files(conn, me, [row["id"] for row in rows])
         conn.execute(
             "DELETE FROM pub_messages WHERE session_id IN "
-            "(SELECT id FROM pub_sessions WHERE user_id=? AND archived_at IS NOT NULL)", (me["id"],)
+            "(SELECT id FROM pub_sessions WHERE user_id=? AND kind='chat' AND archived_at IS NOT NULL)", (me["id"],)
         )
-        conn.execute("DELETE FROM pub_sessions WHERE user_id=? AND archived_at IS NOT NULL", (me["id"],))
+        conn.execute("DELETE FROM pub_sessions WHERE user_id=? AND kind='chat' AND archived_at IS NOT NULL", (me["id"],))
     _forget_cli_sessions(rows)
     return JSONResponse({"ok": True, "deleted": len(rows)})
 
@@ -1509,7 +1527,7 @@ async def rename_session(sid: str, body: RenameRequest, x_pub_token: str = Heade
     with _sdb() as conn:
         cur = conn.execute(
             "UPDATE pub_sessions SET title=?, title_kind='manual' "
-            "WHERE id=? AND user_id=? AND archived_at IS NULL",
+            "WHERE id=? AND user_id=? AND kind='chat' AND archived_at IS NULL",
             (title, sid, me["id"]),
         )
         if cur.rowcount == 0:
@@ -1524,7 +1542,7 @@ async def delete_session(sid: str, x_pub_token: str = Header(default=None)):
         return JSONResponse({"error": "unauthorized"}, status_code=401)
     with _sdb() as conn:
         owned = conn.execute(
-            "SELECT id, cli_state, archived_at FROM pub_sessions WHERE id=? AND user_id=?", (sid, me["id"])
+            "SELECT id, cli_state, archived_at FROM pub_sessions WHERE id=? AND user_id=? AND kind='chat'", (sid, me["id"])
         ).fetchone()
         if not owned:
             return JSONResponse({"error": "not_found"}, status_code=404)
@@ -1718,6 +1736,7 @@ async def _chat(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session, me=
 
 async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_session, me=None):
     request_started = time.monotonic()
+    agent_context = _AGENT_CONTEXT.get()
     me = me or _resolve(x_pub_token)
     if not me:
         return JSONResponse({"error": "unauthorized"}, status_code=401)
@@ -1737,10 +1756,14 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
         with _sdb() as conn:
             _archive_stale(conn, me["id"])
             saved = conn.execute(
-                "SELECT id, project_id, provider, model, cli_state, archived_at FROM pub_sessions WHERE id=? AND user_id=?",
+                "SELECT id, project_id, provider, model, cli_state, archived_at, kind FROM pub_sessions WHERE id=? AND user_id=?",
                 (body.session_id, me["id"]),
             ).fetchone()
             if saved:
+                if saved["kind"] == "agent" and (not agent_context or agent_context.get("session_id") != saved["id"]):
+                    return JSONResponse({"error": "agent_session"}, status_code=409)
+                if agent_context and saved["kind"] != "agent":
+                    return JSONResponse({"error": "invalid_agent_session"}, status_code=409)
                 if saved["archived_at"] is not None and not body.no_persist:
                     return JSONResponse({"error": "archived"}, status_code=409)
                 project_id = saved["project_id"]
@@ -1788,6 +1811,13 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
                 app_prompt = prem.app_prompt(body.app_id)
         if not is_desktop:
             cfg = prem.resolve_pub_cfg(cfg)
+    if agent_context:
+        # Internal context is set only by the Premium worker; HTTP clients cannot supply it.
+        if not is_admin or not prem or not hasattr(prem, "agents_enabled") or not prem.agents_enabled(cfg):
+            return JSONResponse({"error": "not_available"}, status_code=403)
+        exec_enabled = False  # Native CLI execution must never bypass the agent's review queue.
+        tools = agent_context["tools"]
+        app_prompt = agent_context["prompt"]
     # A confirmed model applies only to an admin's first turn in a new chat.
     # Existing chats always keep their pinned provider and model.
     if not saved and is_admin and body.project_model and not body.no_persist:
@@ -1817,7 +1847,8 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
                          record_activity=bool(body.messages and body.messages[-1].get("role") == "user")) is None:
             return JSONResponse({"error": "archived"}, status_code=409)
         # Name the chat while the first answer is running, not after it ends.
-        _queue_session_title(chat_id, me["id"], x_mvmai_surface, os_session, body.lang)
+        if not agent_context:
+            _queue_session_title(chat_id, me["id"], x_mvmai_surface, os_session, body.lang)
         if project:
             desk.touch_project(project["id"])
     for message in body.messages:
@@ -1944,6 +1975,9 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
                 hub.charge_credit_feature(me["id"], APP_ID, "chat_message", "mvmAI chat message")
             except hub.CreditError:
                 return JSONResponse({"error": "insufficient_credits", "price": price}, status_code=402)
+        if agent_context:
+            for call in msg.get("tool_calls") or []:
+                call["id"] = "agent-" + uuid.uuid4().hex
         if cli_state:
             cli_state["last"] = _msg_fingerprint(msg)
         msg["duration_ms"] = body.elapsed_ms + int((time.monotonic() - request_started) * 1000)
@@ -1952,7 +1986,7 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
             meta={**pin, "cli_state": json.dumps(cli_state) if cli_state else None}, new_id=chat_id)
         if not body.no_persist and sid is None:
             return JSONResponse({"error": "archived"}, status_code=409)
-        if sid:
+        if sid and not agent_context:
             _queue_session_title(sid, me["id"], x_mvmai_surface, os_session, body.lang)
         return _chat_reply(desk, is_admin, sid, msg, pin, label_model)
 
