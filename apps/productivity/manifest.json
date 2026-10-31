@@ -5,9 +5,9 @@
       "name": "Calendar",
       "icon": "📅",
       "category": "Productivity",
-      "version": "1.3.2",
+      "version": "1.3.3",
       "description": "Calendar with events and reminders, a public web page for Apps Hub accounts, and a Telegram mini-app.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/calendar-1.3.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/calendar-1.3.3.zip",
       "tags": [
         "calendar",
         "planning",
@@ -31,9 +31,9 @@
       "name": "Tasks",
       "icon": "✅",
       "category": "Productivity",
-      "version": "1.7.2",
+      "version": "1.7.3",
       "description": "Persistent, one-time and periodic tasks with multiple categories per task and optional Budget rewards/penalties on completion, plus a public web page.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/tasks-1.7.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/tasks-1.7.3.zip",
       "tags": [
         "tasks",
         "planning",
@@ -57,9 +57,9 @@
       "name": "Shopping List",
       "icon": "🛒",
       "category": "Productivity",
-      "version": "1.3.2",
+      "version": "1.3.3",
       "description": "Shared shopping lists that update live on every device, with warranty tracking and optional Budget category deduction when items are marked bought, plus a public web page.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/shoppinglist-1.3.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/shoppinglist-1.3.3.zip",
       "tags": [
         "shopping",
         "groceries",
@@ -83,9 +83,9 @@
       "name": "mvmCloud",
       "icon": "☁️",
       "category": "Productivity",
-      "version": "1.1.1",
+      "version": "1.1.2",
       "description": "A private folder for every Apps Hub profile, with browser file management and administrator-controlled external folder API access.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/mvmcloud-1.1.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/mvmcloud-1.1.2.zip",
       "tags": [
         "files",
         "cloud",
@@ -144,7 +144,7 @@
       "name": "Family Tree",
       "icon": "🌳",
       "category": "Productivity",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Beautiful private family trees with Apps Hub profile links, sharing roles and reviewed contributions.",
       "tags": [
         "family",
@@ -152,7 +152,7 @@
         "collaboration"
       ],
       "min_core_version": "1.16.1",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/familytree-1.0.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/familytree-1.1.0.zip",
       "premium": true,
       "name_i18n": {
         "en": "Family Tree",

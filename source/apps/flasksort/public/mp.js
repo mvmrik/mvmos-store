@@ -108,7 +108,7 @@
         '<div class="fs-status">' +
           tile('lv', 'fs_hud_level') + tile('pts', 'fs_hud_points') + tile('mv', 'fs_hud_moves') + tile('bn', 'fs_hud_bonus') +
         '</div>' +
-        '<div class="fs-bar"><i></i></div>' +
+        '<div data-gh-stage></div><div class="fs-bar"><i></i></div>' +
         '<div class="fs-board"><div class="fs-load">' + _esc(_t('fs_waiting')) + '</div></div>' +
         // Along the bottom, beside Game Hub's Save & exit at the left, so the
         // buttons take nothing from the board.
@@ -383,6 +383,7 @@
     el.mv.textContent = M.lv.moves + '/' + M.lv.par;
     paintClock();
     el.pts.textContent = fmt(M.lv.points);
+    if (mp.stageRecords) mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:level:' + M.lv.level, null, { hideScore: true });
     const me = meId();
     M.prog[me] = Object.assign({}, M.prog[me], { level: M.lv.level, points: M.lv.points });
     paintPlayers();
@@ -435,18 +436,24 @@
     const b = document.createElement('div');
     b.className = 'fs-banner';
     const stars = '★'.repeat(m.stars) + '☆'.repeat(3 - m.stars);
+    const levelScore = m.level_score == null ? m.gained : m.level_score;
     b.innerHTML = '<div class="fs-banner-card"><div class="fs-stars">' + stars + '</div>' +
       '<h3>' + _esc(m.done ? _t('fs_done_title') : _t('fs_cleared')) + '</h3>' +
       '<div class="fs-bd">' +
         '<div><span>' + _esc(_t('fs_bd_flasks')) + '</span><b>+' + fmt(m.base) + '</b></div>' +
         (m.speed ? '<div><span>' + _esc(_t('fs_bd_speed')) + '</span><b>+' + fmt(m.speed) + '</b></div>' : '') +
         (m.under ? '<div><span>' + _esc(_t('fs_bd_par')) + '</span><b>+' + fmt(m.under) + '</b></div>' : '') +
-      '</div><div class="fs-gain">+' + fmt(m.gained) + '</div>' +
-      '<button class="fs-btn go" data-next>' + _esc(m.done ? _t('fs_continue') : _t('fs_next_level')) + '</button>' +
+        (m.level_penalty ? '<div><span>' + _esc(_t('fs_hint')) + '</span><b>−' + fmt(m.level_penalty) + '</b></div>' : '') +
+      '</div><div class="fs-gain">' + (levelScore < 0 ? '−' : '+') + fmt(Math.abs(levelScore)) + '</div>' +
+      '<div data-gh-stage-clear></div><button class="fs-btn go" data-next>' + _esc(m.done ? _t('fs_continue') : _t('fs_next_level')) + '</button>' +
       // Alone, this is where a game is finished: the level is cleared, so the
       // score is recorded and the next game starts from level 1.
       (M.multi || m.done ? '' : '<button class="fs-btn" data-finish>' + _esc(_t('fs_finish')) + '</button>') + '</div>';
     el.board.appendChild(b);
+    if (mp.stageRecords) {
+      mp.stageRecords(b.querySelector('[data-gh-stage-clear]'), 'v1:level:' + m.level, levelScore, { refresh: true, records: m.stage_records });
+      mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:level:' + m.level, null, { hideScore: true });
+    }
     b.querySelector('[data-next]').onclick = () => proceed(m);
     const fin = b.querySelector('[data-finish]');
     if (fin) fin.onclick = () => confirmBox(_t('fs_finish_q'), _t('fs_finish'), () => {
@@ -493,7 +500,7 @@
     ov.innerHTML =
       '<div class="fs-card"><h2>' + _esc(title) + '</h2><div class="fs-rows">' + rows + '</div>' +
       (multi ? '' : '<p class="fs-hint">' + _esc(_t('fs_saved_note')) + '</p>') +
-      '<div class="fs-acts"><button class="fs-btn go" data-again>' + _esc(multi ? _t('fs_play_again') : _t('fs_new_game')) + '</button>' +
+      '<section data-gh-results></section><div class="fs-acts"><button class="fs-btn go" data-again>' + _esc(multi ? _t('fs_play_again') : _t('fs_new_game')) + '</button>' +
       '<a class="fs-btn" href="' + HUB_URL + '">' + _esc(_t('fs_back')) + '</a></div></div>';
     el.board.appendChild(ov);
     const mine = results.find(r => r.player_id === me);

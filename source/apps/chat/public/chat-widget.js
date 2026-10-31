@@ -99,7 +99,7 @@ const ChatWidget = (() => {
 .cw-conv-name{font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cw-conv-last{font-size:.78rem;color:var(--pub-dim, #6c7086);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cw-conv-last.cw-conv-typing{color:var(--pub-accent, #89b4fa);font-style:italic}
-.cw-conv-badge{background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e);font-size:.7rem;font-weight:700;border-radius:10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+.cw-conv-badge{background:var(--pub-accent, #89b4fa);color:var(--on-accent,var(--pub-bg, #1e1e2e));font-size:.7rem;font-weight:700;border-radius:10px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 5px}
 .cw-empty-hint{padding:20px;color:var(--pub-dim, #6c7086);font-size:.85rem;text-align:center}
 .cw-thread{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0}
 .cw-thread-empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--pub-dim, #6c7086);font-size:.9rem;text-align:center;padding:20px}
@@ -117,7 +117,7 @@ const ChatWidget = (() => {
 .cw-bubble-row.me{justify-content:flex-end}
 .cw-bubble-row.cw-failed .cw-bubble{opacity:.5}
 .cw-bubble{max-width:70%;padding:7px 11px;border-radius:12px;font-size:.86rem;line-height:1.35;word-wrap:break-word;background:var(--pub-surface2, #313244)}
-.cw-bubble-row.me .cw-bubble{background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e)}
+.cw-bubble-row.me .cw-bubble{background:var(--pub-accent, #89b4fa);color:var(--on-accent,var(--pub-bg, #1e1e2e))}
 .cw-bubble-name{display:block;font-size:.72rem;font-weight:700;margin-bottom:2px}
 .cw-bubble-time{font-size:.68rem;opacity:.6;margin-top:3px;display:block;text-align:right}
 .cw-bubble-edited{font-size:.68rem;opacity:.6;margin-left:4px}
@@ -125,7 +125,7 @@ const ChatWidget = (() => {
 .cw-input-row{position:relative;display:flex;align-items:center;gap:6px;padding:10px;border-top:1px solid var(--pub-surface2, #313244);flex-shrink:0}
 .cw-input{flex:1;background:var(--pub-surface1, #181825);border:1px solid var(--pub-surface2, #313244);border-radius:16px;color:var(--pub-fg, #cdd6f4);padding:9px 14px;font-size:.86rem;outline:none}
 .cw-input:focus{border-color:var(--pub-accent, #89b4fa)}
-.cw-send{background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e);border:none;border-radius:50%;width:36px;height:36px;font-size:1rem;cursor:pointer;flex-shrink:0}
+.cw-send{background:var(--pub-accent, #89b4fa);color:var(--on-accent,var(--pub-bg, #1e1e2e));border:none;border-radius:50%;width:36px;height:36px;font-size:1rem;cursor:pointer;flex-shrink:0}
 .cw-emoji-btn{background:none;border:none;font-size:1.3rem;cursor:pointer;flex-shrink:0;padding:0 2px;line-height:1}
 .cw-emoji-panel{position:absolute;bottom:54px;right:10px;width:260px;max-height:190px;overflow-y:auto;background:var(--pub-surface1, #181825);border:1px solid var(--pub-surface2, #313244);border-radius:10px;padding:8px;display:none;grid-template-columns:repeat(7,1fr);gap:4px;z-index:10}
 .cw-emoji-panel.show{display:grid}
@@ -142,7 +142,7 @@ const ChatWidget = (() => {
 .cw-modal-text{font-size:.85rem;color:var(--pub-fg2, #a6adc8)}
 .cw-modal-btn{background:var(--pub-surface2, #313244);border:none;color:var(--pub-fg, #cdd6f4);border-radius:8px;padding:10px;font-size:.85rem;cursor:pointer;text-align:center;font-family:inherit}
 .cw-modal-btn:hover{background:var(--pub-border, #3b3b54)}
-.cw-modal-btn.primary{background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e);font-weight:700}
+.cw-modal-btn.primary{background:var(--pub-accent, #89b4fa);color:var(--on-accent,var(--pub-bg, #1e1e2e));font-weight:700}
 .cw-modal-btn.primary:disabled{opacity:.4;cursor:default}
 .cw-modal-btn.danger{color:var(--pub-red, #f38ba8)}
 .cw-modal-btn.cancel{background:none;color:var(--pub-dim, #6c7086);margin-top:2px}
@@ -165,7 +165,7 @@ const ChatWidget = (() => {
 .cw-row-alt:hover{opacity:1}
 .cw-toast{position:absolute;left:50%;bottom:70px;transform:translateX(-50%);background:var(--pub-surface1, #181825);border:1px solid var(--pub-surface2, #313244);border-radius:8px;padding:8px 14px;font-size:.82rem;z-index:60;box-shadow:0 4px 16px rgba(0,0,0,.4)}
 .cw-login{display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:12px;color:var(--pub-fg2, #a6adc8)}
-.cw-login button{background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e);border:none;border-radius:8px;padding:10px 20px;font-weight:700;cursor:pointer}
+.cw-login button{background:var(--pub-accent, #89b4fa);color:var(--on-accent,var(--pub-bg, #1e1e2e));border:none;border-radius:8px;padding:10px 20px;font-weight:700;cursor:pointer}
 @media (max-width:768px){
   .cw-sidebar{width:100%}
   .cw-back{display:inline-flex}

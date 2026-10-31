@@ -83,7 +83,7 @@
 
 .mp-tools button.on {
   background: var(--accent, #89b4fa);
-  color: #1e1e2e;
+  color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));
   border-color: var(--accent, #89b4fa);
 }
 
@@ -298,7 +298,7 @@
 
 .mp-acts .mp-btn.go {
   background: var(--accent, #89b4fa);
-  color: #1e1e2e;
+  color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));
   border-color: var(--accent, #89b4fa);
 }
 

@@ -18,8 +18,8 @@
   width: 100%; display: flex; align-items: center; gap: 6px; justify-content: center;
   font-size: .78rem; padding: 5px 8px;
 }
-.mvmai-exec-btn.on { border-color: var(--accent); color: #fff; }
-.mvmai-exec-btn.auto { background: var(--accent); color: #fff; border-color: var(--accent); }
+.mvmai-exec-btn.on { border-color: var(--accent); color: var(--text); }
+.mvmai-exec-btn.auto { background: var(--accent); color:var(--on-accent,var(--surface,var(--surface1,#fff))); border-color: var(--accent); }
 .mvmai-exec-menu {
   position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20;
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
@@ -39,7 +39,7 @@
   cursor: pointer; transition: background .12s;
 }
 .mvmai-session:hover { background: var(--bg); }
-.mvmai-session.active { background: var(--accent); color: #fff; }
+.mvmai-session.active { background: var(--accent); color:var(--on-accent,var(--surface,var(--surface1,#fff))); }
 .mvmai-s-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .82rem; cursor: pointer; }
 .mvmai-s-del { background: none; border: none; color: inherit; opacity: 0; cursor: pointer; font-size: .75rem; padding: 2px 4px; border-radius: 4px; }
 .mvmai-session:hover .mvmai-s-del { opacity: .6; }
@@ -52,7 +52,7 @@
 .mvmai-projects-list { overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
 .mvmai-project { display: flex; align-items: center; gap: 4px; padding: 6px 8px; border-radius: var(--radius); cursor: pointer; transition: background .12s; }
 .mvmai-project:hover { background: var(--bg); }
-.mvmai-project.active { background: var(--accent); color: #fff; }
+.mvmai-project.active { background: var(--accent); color:var(--on-accent,var(--surface,var(--surface1,#fff))); }
 .mvmai-p-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .8rem; cursor: pointer; }
 
 .mvmai-project-bar {
@@ -74,9 +74,9 @@
 .mvmai-ft-name { flex: 1; overflow: hidden; text-overflow: ellipsis; }
 .mvmai-ft-children { padding-left: 14px; }
 .mvmai-ft-badge { font-size: .66rem; font-weight: 700; padding: 0 5px; border-radius: 4px; flex-shrink: 0; }
-.mvmai-ft-badge.mvmai-ft-M { background: rgba(224,160,0,.2); color: #e0a000; }
-.mvmai-ft-badge.mvmai-ft-A { background: rgba(76,174,90,.2); color: #4cae5a; }
-.mvmai-ft-badge.mvmai-ft-D { background: rgba(226,85,85,.2); color: #e25555; }
+.mvmai-ft-badge.mvmai-ft-M { background: rgba(224,160,0,.2); color:color-mix(in srgb,#e0a000 35%,var(--text,#cdd6f4)); }
+.mvmai-ft-badge.mvmai-ft-A { background: rgba(76,174,90,.2); color:color-mix(in srgb,#4cae5a 35%,var(--text,#cdd6f4)); }
+.mvmai-ft-badge.mvmai-ft-D { background: rgba(226,85,85,.2); color:color-mix(in srgb,#e25555 35%,var(--text,#cdd6f4)); }
 .mvmai-ft-badge.mvmai-ft-U { background: rgba(127,127,127,.2); color: var(--text-dim); }
 
 .mvmai-browse-row { padding: 6px 10px; cursor: pointer; font-size: .82rem; border-radius: 4px; }
@@ -97,7 +97,7 @@
 .mvmai-bubble {
   max-width: 80%; padding: 10px 13px; border-radius: 14px; line-height: 1.5; word-wrap: break-word; overflow-wrap: anywhere;
 }
-.mvmai-user .mvmai-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+.mvmai-user .mvmai-bubble { background: var(--accent); color:var(--on-accent,var(--surface,var(--surface1,#fff))); border-bottom-right-radius: 4px; }
 .mvmai-assistant .mvmai-bubble { background: var(--surface); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
 .mvmai-bubble h3, .mvmai-bubble h4 { margin: .4em 0 .2em; }
 .mvmai-bubble ul { margin: .3em 0; padding-left: 1.2em; }
@@ -107,7 +107,7 @@
 .mvmai-typing, .mvmai-running { color: var(--text-dim); font-style: italic; }
 .mvmai-typing::after { content: '▋'; animation: mvmai-blink 1s steps(2) infinite; }
 @keyframes mvmai-blink { 0%,50% { opacity: 1; } 50.01%,100% { opacity: 0; } }
-.mvmai-err { color: #e25555; }
+.mvmai-err { color:color-mix(in srgb,#e25555 35%,var(--text,#cdd6f4)); }
 
 /* ── code blocks ─────────────────────────────────────────────────────────── */
 .mvmai-code {
@@ -129,13 +129,13 @@
 .mvmai-cmd-actions { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
 .mvmai-cmd-actions:empty { display: none; }
 .mvmai-running { font-size: .8rem; }
-.mvmai-danger { color: #e0a000; font-size: .76rem; font-weight: 600; }
+.mvmai-danger { color:color-mix(in srgb,#e0a000 35%,var(--text,#cdd6f4)); font-size: .76rem; font-weight: 600; }
 .mvmai-cmd-output:empty { display: none; }
 .mvmai-out-head { font-size: .72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; margin-top: 6px; display: flex; align-items: center; gap: 8px; }
 .mvmai-exit { font-size: .7rem; padding: 1px 6px; border-radius: 6px; }
-.mvmai-exit.ok { background: rgba(60,180,90,.2); color: #4cae5a; }
-.mvmai-exit.bad { background: rgba(220,80,80,.2); color: #e25555; }
-.mvmai-blocked { color: #e0a000; font-size: .82rem; padding: 4px 0; }
+.mvmai-exit.ok { background: rgba(60,180,90,.2); color:color-mix(in srgb,#4cae5a 35%,var(--text,#cdd6f4)); }
+.mvmai-exit.bad { background: rgba(220,80,80,.2); color:color-mix(in srgb,#e25555 35%,var(--text,#cdd6f4)); }
+.mvmai-blocked { color:color-mix(in srgb,#e0a000 35%,var(--text,#cdd6f4)); font-size: .82rem; padding: 4px 0; }
 .mvmai-empty { color: var(--text-dim); }
 
 /* ── input ───────────────────────────────────────────────────────────────── */
@@ -148,7 +148,7 @@
 }
 .mvmai-input textarea:focus { border-color: var(--accent); }
 .mvmai-send {
-  width: 40px; height: 40px; flex-shrink: 0; border: none; border-radius: 50%; background: var(--accent); color: #fff;
+  width: 40px; height: 40px; flex-shrink: 0; border: none; border-radius: 50%; background: var(--accent); color:var(--on-accent,var(--surface,var(--surface1,#fff)));
   font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .12s;
 }
 .mvmai-send:hover { background: var(--accent-hover); }

@@ -292,6 +292,9 @@ also shows the picture in its library, history and statistics.
 
 From mvmOS 1.17.0, Core loads this shared regional date, time and datetime control on the desktop and public app pages. Await `ready()`, then use `create(host, options)` with `type`, canonical `value`, optional `min`/`max`, `label`, `required` and `onChange`. The handle provides `value`, `setValue`, `validate`, `open` and `destroy`. `format`, `fromEpoch` and `toEpoch` use mvmOS regional preferences; nonexistent DST minutes are rejected and repeated minutes select the first occurrence. See the Core README for the complete example and conversion limits. Set `min_core_version` accordingly when using it.
 
+Use the shared `createRange(host, options)` for inclusive date periods in one calendar. `value` is `{from: 'YYYY-MM-DD', to: 'YYYY-MM-DD'}`. `annual: true` uses recurring `MM-DD` endpoints, hides the year, permits February 29 and supports a period crossing New Year. The hidden form input contains JSON, or an empty string when cleared. `formatRange(value, options)` and `formatAnnual('MM-DD', options)` follow the configured day/month order. Await `ready()`, validate before saving and destroy range handles with their view. The range API requires the Core update that introduces it; update `min_core_version` for apps adopting it when preparing that release. See the Core README for the full contract. Do not create app-specific calendars or separate day/month dropdowns.
+
+
 ---
 
 ### mvmOS.db(appId)
@@ -1697,6 +1700,14 @@ await ctx.finish(records, duration=None, metadata={}, stats=None)
 ```
 
 `records` is `[{player_id, score, rank, is_winner, stats?}]`. Game Hub writes the session itself, and calls it **singleplayer** when there is one record — that is how a solo run reaches the player's history and stats. Do not mark a solo player `is_winner`: the leaderboard counts wins, and a win over nobody makes it meaningless.
+
+#### Final standings and stage records
+
+Place an empty `<section data-gh-results></section>` in the final result panel before its action buttons. The shared widget fills it after `ctx.finish()` commits the session: all-time top 10, highlighted personal position, and a separate personal row outside the top 10. Solo follows the manifest's `gamehub.ranking`; multiplayer follows the rating. Keep intermediate round panels unmarked. The framework's final `game_over` message includes `records`, `recorded`, `session_id` and `mode` (`single` or `multi`); `joined.result` carries the same persistence information when reopening a finished room. Game-specific opponent-end notifications without `records` do not finish the shared lifecycle. Standalone browser recorders can call `GameHub.showStandings(host, {gameId, mode, playerId, recorded})` after their recording request completes.
+
+After the server validates a completed level or puzzle, call `await ctx.record_stage(player_id, stage, score)`. Use a stable, versioned stage key such as `v1:level:3` or `v1:difficulty:easy`; change the version if the scoring system changes. Scores must be finite numbers, include penalties, and are compared with higher being better. The player must belong to the room. Repeated completion of the same stage by the same player in one room is ignored. The return value is `{stage, personal, overall}` or `None` on failure. This write is independent of the final session and must never be driven by a client-supplied score or by merely saving an unfinished puzzle.
+
+`GET /api/pub/gamehub/stage-records/{game_id}?stage=...` returns these bests, with `X-GH-Token` selecting the personal record. Anonymous visitors receive only the overall record. `null` means no completed record. The route respects Game Hub's public access gate and is never cached. On the client, `mp.stageRecords(host, stage, currentScore, {difficulty, hideScore, refresh, records})` renders the shared record strip. Use `refresh: true` after completion and optionally pass the server's `records` response. Old per-stage records must not be guessed from session totals.
 
 #### Statistics: say what you measure, Game Hub draws it
 

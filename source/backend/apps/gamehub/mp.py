@@ -44,6 +44,9 @@ and may call back into the hub through `ctx`:
                                      that player and `stats` numbers about the whole
                                      session; the game declares what the keys mean in
                                      its manifest.json under "gamehub" (see stats.py).
+    await ctx.record_stage(player_id, stage, score)
+                                     store a server-validated completed stage score;
+                                     returns personal and overall best (or None on failure).
     ctx.resume / ctx.saved_state     the save this room was started from, if any
     ctx.save_state(player_id, data)  store a save and let the player walk away
     await ctx.close(reason)          end the room WITHOUT recording a session
@@ -186,8 +189,10 @@ def _record_session(game_id: str, records: list, duration: int | None, metadata:
             if gs:
                 gs.write_metrics(conn, sid, None, stats)
             conn.commit()
+            return sid
     except Exception as e:
         print(f"[gamehub-mp] record_session failed: {e}")
+        return None
 
 
 def _mp_game_path(game_id: str):
@@ -436,6 +441,29 @@ class RoomCtx:
         await _broadcast(room, {"type": "room_closed", "reason": reason})
         _rooms.pop(room["id"], None)
 
+    async def record_stage(self, player_id: str, stage: str, score: float):
+        """A game calls this only after validating a completed stage, never from client data."""
+        import math
+        if player_id not in self._room["players"] or not isinstance(stage, str) or not 0 < len(stage) <= 100:
+            return None
+        if isinstance(score, bool) or not isinstance(score, (int, float)) or not math.isfinite(score):
+            return None
+        gs = sys.modules.get("gamehub_stats")
+        if not gs:
+            return None
+        try:
+            with _gh_conn() as conn:
+                gs.ensure_schema(conn)
+                conn.execute("""INSERT OR IGNORE INTO stage_results
+                    (game_id,stage,room_id,player_id,score,created_at) VALUES(?,?,?,?,?,?)""",
+                    (self._room["game_id"], stage, self._room["id"], player_id, score,
+                     datetime.now(timezone.utc).isoformat()))
+                conn.commit()
+                return gs.stage_records(conn, self._room["game_id"], stage, player_id)
+        except Exception as e:
+            print(f"[gamehub-mp] record_stage failed: {e}")
+            return None
+
     async def finish(self, records: list, duration: int | None = None, metadata: dict | None = None,
                      stats: dict | None = None):
         room = self._room
@@ -445,8 +473,10 @@ class RoomCtx:
         dur = duration
         if dur is None and room.get("started_at"):
             dur = int(time.time() - room["started_at"])
-        _record_session(room["game_id"], records, dur, metadata or {}, stats)
-        await _broadcast(room, {"type": "game_over", "records": records})
+        sid = _record_session(room["game_id"], records, dur, metadata or {}, stats)
+        room["result"] = {"recorded": sid is not None, "session_id": sid,
+                          "mode": "single" if len(records) < 2 else "multi"}
+        await _broadcast(room, {"type": "game_over", "records": records, **room["result"]})
 
 
 async def _send(ws: WebSocket, msg: dict):
@@ -1136,6 +1166,7 @@ async def room_ws(websocket: WebSocket, room_id: str):
             "reconnect":   reconnect,
             "game_id":     room["game_id"],
             "status":      room["status"],
+            "result":      room.get("result"),
             "settings":    room["settings"],
             "host_id":     room["host_id"],
             "max_players": room["max_players"],

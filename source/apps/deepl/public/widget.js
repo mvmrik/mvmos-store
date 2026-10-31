@@ -87,7 +87,7 @@
           '.dpl-pane textarea{flex:1;width:100%;min-width:0;min-height:0;resize:none;padding:10px;border-radius:8px;border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);color:inherit;font-size:14px}' +
           '@media(max-width:600px){.dpl-panes{flex-direction:column}.dpl-pane{min-height:120px}}' +
           '.dpl-actions{display:flex;justify-content:space-between;align-items:center}' +
-          '.dpl-btn{padding:8px 16px;border-radius:8px;border:none;background:var(--pub-accent,#2563eb);color:#fff;cursor:pointer;font-size:14px}' +
+          '.dpl-btn{padding:8px 16px;border-radius:8px;border:none;background:var(--pub-accent,#2563eb);color:var(--on-accent,var(--pub-surface1,#fff));cursor:pointer;font-size:14px}' +
           '.dpl-btn:disabled{opacity:.5;cursor:default}' +
           '.dpl-link-btn{background:none;border:none;color:inherit;opacity:.75;cursor:pointer;font-size:13px}' +
           '.dpl-link-btn:hover{opacity:1}' +

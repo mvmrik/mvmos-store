@@ -5,9 +5,9 @@
       "name": "mvmOS Chat",
       "icon": "💬",
       "category": "Communication",
-      "version": "1.4.1",
+      "version": "1.4.2",
       "description": "Chat between mvmOS users, with a public web page for Apps Hub accounts.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/chat-1.4.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/chat-1.4.2.zip",
       "tags": [
         "messaging",
         "social"
@@ -31,9 +31,9 @@
       "name": "Telegram Hub",
       "icon": "✈️",
       "category": "Communication",
-      "version": "1.1.4",
+      "version": "1.1.5",
       "description": "Bridges Apps Hub public apps into a Telegram bot. Any app can opt in by adding a telegram.py adapter next to its public.py.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/telegramhub-1.1.4.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/telegramhub-1.1.5.zip",
       "tags": [
         "messaging",
         "telegram",
@@ -58,9 +58,9 @@
       "name": "Nostradamus",
       "icon": "🔮",
       "category": "Communication",
-      "version": "1.2.1",
+      "version": "1.2.2",
       "description": "A Nostr client: manage your relays, read your feed, and publish notes and replies from an end-to-end encrypted key vault.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/nostradamus-1.2.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/communication/nostradamus-1.2.2.zip",
       "tags": [
         "nostr",
         "social",

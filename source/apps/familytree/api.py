@@ -168,6 +168,15 @@ def person_data(data):
     if not isinstance(adopted, list) or any(not isinstance(pid, str) or pid not in parents for pid in adopted) or len(set(adopted)) != len(adopted):
         fail('invalid_parents')
     out['adopted_parents'] = adopted
+    # Optional full list of this person's children. Children keep their parents on
+    # their own record, so the list is applied to them and never stored here.
+    # Absent means unchanged.
+    out['children'] = None
+    if data.get('children') is not None:
+        children = data['children']
+        if not isinstance(children, list) or len(children) > 200 or any(not isinstance(pid, str) for pid in children):
+            fail('invalid_children')
+        out['children'] = list(dict.fromkeys(children))
     if out['profile_id'] and out['profile_id'] not in profiles([out['profile_id']]):
         fail('profile_missing')
     return out
@@ -345,6 +354,23 @@ def validate_graph(c, tree_id, person_id, data, extra_refs=()):
         fail('invalid_parents')
     if any(p['person_id'] not in members or p['person_id'] == person_id for p in data['partners']):
         fail('invalid_partners')
+    children = data.get('children')
+    if children is not None:
+        natives = {r[0] for r in c.execute('SELECT id FROM people WHERE tree_id=?', (tree_id,))}
+        related = set(data['parents']) | {p['person_id'] for p in data['partners']}
+        if any(k == person_id or k not in natives or k in related for k in children):
+            fail('invalid_children')
+        # Children removed by this very change no longer lead to this person.
+        graph = {k:[x for x in v if x != person_id or k in children] for k,v in graph.items()}
+        stack = list(data['parents'])
+        seen = set()
+        while stack:
+            node = stack.pop()
+            if node in children:
+                fail('cycle')
+            if node not in seen:
+                seen.add(node)
+                stack.extend(graph.get(node, []))
     # Only this node's outgoing edges change. An ancestor reaching it creates a cycle.
     stack = list(data['parents'])
     seen = set()
@@ -363,6 +389,8 @@ def apply(c, tree_id, action, person_id, data):
     # Partnership changes are reciprocal, and participate in the same version
     # checks as personal details. All affected people commit atomically.
     partners = {p['person_id']: p['kind'] for p in data['partners']} if data else {}
+    children = data.pop('children', None) if data else None
+    children = None if children is None else set(children)
     for other in people(c, tree_id):
         if other['id'] == person_id:
             continue
@@ -370,6 +398,14 @@ def apply(c, tree_id, action, person_id, data):
         if action == 'delete' and person_id in other['parents']:
             other['parents'] = [p for p in other['parents'] if p != person_id]
             other['adopted_parents'] = [p for p in other.get('adopted_parents',[]) if p in other['parents']]
+        if children is not None and action != 'delete':
+            if other['id'] in children and person_id not in other['parents']:
+                if len(other['parents']) >= 2:
+                    fail('invalid_parents')
+                other['parents'] = other['parents'] + [person_id]
+            elif other['id'] not in children and person_id in other['parents']:
+                other['parents'] = [x for x in other['parents'] if x != person_id]
+                other['adopted_parents'] = [x for x in other.get('adopted_parents',[]) if x in other['parents']]
         links = [p for p in other['partners'] if p['person_id'] != person_id]
         if other['id'] in partners:
             links.append({'person_id': person_id, 'kind': partners[other['id']]})

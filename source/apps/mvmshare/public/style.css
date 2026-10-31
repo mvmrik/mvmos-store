@@ -89,7 +89,7 @@
 
 .msh-tab-on {
   background: var(--pub-accent, #89b4fa);
-  color: var(--pub-bg, #1e1e2e);
+  color:var(--on-accent,var(--pub-bg, #1e1e2e));
 }
 
 .msh-body {
@@ -145,7 +145,7 @@
 
 .msh-kind-on {
   background: var(--pub-accent, #89b4fa);
-  color: var(--pub-bg, #1e1e2e);
+  color:var(--on-accent,var(--pub-bg, #1e1e2e));
 }
 
 .msh-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
@@ -269,7 +269,7 @@
 .msh-btn:hover { filter: brightness(1.12); }
 .msh-btn:disabled { opacity: .6; cursor: default; filter: none; }
 
-.msh-btn-main { background: var(--pub-accent, #89b4fa); color: var(--pub-bg, #11111b); }
+.msh-btn-main { background: var(--pub-accent, #89b4fa); color:var(--on-accent,var(--pub-bg, #11111b)); }
 .msh-btn-ghost { background: transparent; border: 1px solid var(--pub-border, #45475a); }
 .msh-btn-danger { background: transparent; border: 1px solid var(--pub-red, #f38ba8); color: var(--pub-red, #f38ba8); }
 .msh-btn-sm { padding: 6px 10px; font-size: .78rem; }

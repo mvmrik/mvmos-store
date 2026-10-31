@@ -17,7 +17,7 @@ var GM = {
 };
 
 GM.changeColor = function(code) {
-  return code === 'M' || code === 'MM' ? '#fab387' : code === '??' ? 'var(--text-dim)' : code === 'A' ? '#a6e3a1' : code === 'D' ? '#f38ba8' : 'var(--text)';
+  return code === 'M' || code === 'MM' ? 'color-mix(in srgb,#fab387 35%,var(--text,#cdd6f4))' : code === '??' ? 'var(--text-dim)' : code === 'A' ? 'color-mix(in srgb,#a6e3a1 35%,var(--text,#cdd6f4))' : code === 'D' ? 'color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4))' : 'var(--text)';
 };
 
 // The tree marks changes the way VS Code does: the name takes the colour of
@@ -87,7 +87,7 @@ GM.injectStyles = function() {
   style.id = 'gm-styles';
   style.textContent = ''
     + '.gm-pane-bar{display:flex;gap:6px;margin-bottom:10px}'
-    + '.gm-pane-btn.gm-pane-on{background:var(--accent);color:#fff;border-color:var(--accent)}'
+    + '.gm-pane-btn.gm-pane-on{background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)}'
     + '.gm-pane-files+.gm-pane-changes{margin-top:14px}'
     + '.gm-status-wrap.gm-side{height:100%;display:flex;flex-direction:column}'
     + '.gm-side .gm-panes{flex:1;min-height:0;display:flex;gap:14px}'
@@ -374,10 +374,10 @@ GM.branchDialog = function(cfg) {
     + (cfg.name ? '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_branch_name') + '</div>'
       + '<input class="s-input" id="gm-branch-name" autocomplete="off" spellcheck="false"' + (cfg.name.readonly ? ' readonly' : '')
       + ' value="' + GM.escape(cfg.name.value || '') + '" style="width:100%;box-sizing:border-box;font-family:monospace' + (cfg.name.readonly ? ';opacity:.7' : '') + '"></div>' : '')
-    + '<div id="gm-branch-err" style="color:#f38ba8;font-size:.82rem;display:none;white-space:pre-wrap"></div>'
+    + '<div id="gm-branch-err" style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem;display:none;white-space:pre-wrap"></div>'
     + '<div style="display:flex;gap:8px;justify-content:flex-end">'
     + '<button class="s-btn" id="gm-branch-cancel">' + t('gm_cancel') + '</button>'
-    + '<button class="s-btn" id="gm-branch-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + GM.escape(cfg.confirmLabel) + '</button>'
+    + '<button class="s-btn" id="gm-branch-ok" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + GM.escape(cfg.confirmLabel) + '</button>'
     + '</div></div>';
   GM.contentEl.appendChild(overlay);
 
@@ -464,7 +464,7 @@ GM.init = function(body) {
         + '<div id="gm-term-right" style="display:none;flex:1;min-width:260px;border-left:1px solid var(--border);overflow:hidden;position:relative"></div>'
       + '</div>'
       + '<div id="gm-term-bottom" style="display:none;flex:1;min-height:120px;border-top:1px solid var(--border);overflow:hidden;position:relative"></div>'
-      + '<button id="gm-term-fab" title="' + t('gm_terminal') + '" style="display:none;position:absolute;right:14px;bottom:14px;width:46px;height:46px;border-radius:50%;background:var(--accent);color:#fff;border:none;box-shadow:0 2px 10px rgba(0,0,0,.35);font-size:1.35rem;z-index:50;align-items:center;justify-content:center;cursor:pointer">&#x1F5A5;&#xFE0F;</button>'
+      + '<button id="gm-term-fab" title="' + t('gm_terminal') + '" style="display:none;position:absolute;right:14px;bottom:14px;width:46px;height:46px;border-radius:50%;background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border:none;box-shadow:0 2px 10px rgba(0,0,0,.35);font-size:1.35rem;z-index:50;align-items:center;justify-content:center;cursor:pointer">&#x1F5A5;&#xFE0F;</button>'
       + '<div id="gm-term-mobile-overlay" style="display:none;position:absolute;inset:0;background:#0d1117;z-index:60;flex-direction:column">'
         + '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0">'
           + '<span style="font-size:.8rem;font-weight:600;color:var(--text-dim)">' + t('gm_terminal') + '</span>'
@@ -908,7 +908,7 @@ GM.loadRepos = async function(scan) {
       }
     }
   } catch(e) {
-    GM.listEl.innerHTML = '<div style="padding:14px 10px;color:#f38ba8;font-size:.8rem">' + GM.escape(e.message) + '</div>';
+    GM.listEl.innerHTML = '<div style="padding:14px 10px;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.8rem">' + GM.escape(e.message) + '</div>';
   }
 };
 
@@ -930,7 +930,7 @@ GM.repoItem = function(repo) {
   item.innerHTML = '<div style="display:flex;align-items:center;gap:5px">'
     + '<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;font-size:.83rem;pointer-events:none">' + GM.escape(GM.repoLabel(repo)) + '</span>'
     + (repo.locked ? '<span style="font-size:.72rem;flex-shrink:0;pointer-events:none" title="' + t('gm_locked') + '">&#x1F512;</span>' : '')
-    + (repo.changes > 0 ? '<span class="gm-repo-badge" style="font-size:.68rem;background:var(--accent);color:#fff;border-radius:10px;padding:1px 5px;flex-shrink:0;pointer-events:none">' + repo.changes + '</span>' : '')
+    + (repo.changes > 0 ? '<span class="gm-repo-badge" style="font-size:.68rem;background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-radius:10px;padding:1px 5px;flex-shrink:0;pointer-events:none">' + repo.changes + '</span>' : '')
     + '<button class="gm-rename" data-gm-rename="' + GM.escape(repo.path) + '" title="' + t('gm_edit_repo') + '" style="background:none;border:none;cursor:pointer;padding:0 2px;font-size:.8rem;line-height:1;flex-shrink:0;color:var(--text-dim);opacity:.45">&#x270E;</button>'
     + '<button class="gm-fav" data-gm-fav="' + GM.escape(repo.path) + '" title="' + t(repo.favorite ? 'gm_favorite_remove' : 'gm_favorite_add') + '" style="background:none;border:none;cursor:pointer;padding:0 3px;font-size:.9rem;line-height:1;flex-shrink:0;color:' + (repo.favorite ? '#f9e2af' : 'var(--text-dim)') + ';opacity:' + (repo.favorite ? '1' : '.45') + '">' + (repo.favorite ? '&#x2605;' : '&#x2606;') + '</button>'
     + '</div>'
@@ -950,7 +950,7 @@ GM.updateRepoBadge = function(repo) {
     if (!badge) {
       badge = document.createElement('span');
       badge.className = 'gm-repo-badge';
-      badge.style.cssText = 'font-size:.68rem;background:var(--accent);color:#fff;border-radius:10px;padding:1px 5px;flex-shrink:0;pointer-events:none';
+      badge.style.cssText = 'font-size:.68rem;background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-radius:10px;padding:1px 5px;flex-shrink:0;pointer-events:none';
       row.insertBefore(badge, row.querySelector('.gm-fav'));
     }
     badge.textContent = repo.changes;
@@ -1058,10 +1058,10 @@ GM.renameRepo = function(path) {
     + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_deploy_command') + ' <span style="opacity:.6">' + t('gm_optional') + '</span></div>'
     + '<input class="s-input" id="gm-edit-deploy" placeholder="php artisan deploy" spellcheck="false" autocomplete="off" style="width:100%;box-sizing:border-box;font-family:monospace">'
     + '<div style="font-size:.72rem;color:var(--text-dim);margin-top:4px;line-height:1.45">' + t('gm_deploy_command_hint') + '</div></div>'
-    + '<div id="gm-edit-err" style="color:#f38ba8;font-size:.82rem;display:none"></div>'
+    + '<div id="gm-edit-err" style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem;display:none"></div>'
     + '<div style="display:flex;gap:8px;justify-content:flex-end">'
     + '<button class="s-btn" id="gm-edit-cancel">' + t('gm_cancel') + '</button>'
-    + '<button class="s-btn" id="gm-edit-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_save') + '</button>'
+    + '<button class="s-btn" id="gm-edit-ok" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + t('gm_save') + '</button>'
     + '</div></div>';
   GM.contentEl.appendChild(overlay);
   var aliasInput = overlay.querySelector('#gm-edit-alias');
@@ -1201,8 +1201,8 @@ GM.showLockedRepo = function(container, repo) {
     + '<div style="font-size:1rem;font-weight:700">' + t('gm_foreign_locked_title') + '</div>'
     + '<div style="font-size:.84rem;line-height:1.55;color:var(--text-dim)">' + t('gm_foreign_locked_body', { owner: repo.owner }) + '</div>'
     + (access.premium ? '' : '<div style="font-size:.78rem;line-height:1.5;color:var(--text-dim);padding:8px 12px;background:var(--surface2,#313244);border-radius:7px">' + t('gm_foreign_switch_profile', { owner: repo.owner }) + '</div>')
-    + '<div id="gm-unlock-error" style="font-size:.8rem;color:#f38ba8;min-height:18px"></div>'
-    + '<button id="gm-unlock-all" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">'
+    + '<div id="gm-unlock-error" style="font-size:.8rem;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));min-height:18px"></div>'
+    + '<button id="gm-unlock-all" class="s-btn s-btn-sm" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">'
     + (access.premium ? '&#x1F513; ' + t('gm_unlock_all') : '&#x1F48E; ' + t('gm_unlock_premium')) + '</button>'
     + '</div></div>';
   container.style.display = 'flex';
@@ -1254,10 +1254,10 @@ GM.showClone = function() {
     + '<input class="s-input" id="gm-clone-url" placeholder="git@github.com:user/repo.git" style="width:100%;box-sizing:border-box"></div>'
     + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_dest_dir') + '</div>'
     + '<input class="s-input" id="gm-clone-dest" value="/var/www" style="width:100%;box-sizing:border-box"></div>'
-    + '<div id="gm-clone-err" style="color:#f38ba8;font-size:.82rem;display:none"></div>'
+    + '<div id="gm-clone-err" style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem;display:none"></div>'
     + '<div style="display:flex;gap:8px;justify-content:flex-end">'
     + '<button class="s-btn" id="gm-clone-cancel">' + t('gm_cancel') + '</button>'
-    + '<button class="s-btn" id="gm-clone-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_clone') + '</button>'
+    + '<button class="s-btn" id="gm-clone-ok" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + t('gm_clone') + '</button>'
     + '</div></div>';
   GM.contentEl.appendChild(overlay);
   overlay.querySelector('#gm-clone-url').focus();
@@ -1298,10 +1298,10 @@ GM.showInit = function() {
     + '<input class="s-input" id="gm-init-path" placeholder="/var/www/my-project" style="width:100%;box-sizing:border-box"></div>'
     + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_remote_url') + ' <span style="opacity:.6">' + t('gm_optional') + '</span></div>'
     + '<input class="s-input" id="gm-init-remote" placeholder="git@github.com:user/repo.git" style="width:100%;box-sizing:border-box"></div>'
-    + '<div id="gm-init-err" style="color:#f38ba8;font-size:.82rem;display:none"></div>'
+    + '<div id="gm-init-err" style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem;display:none"></div>'
     + '<div style="display:flex;gap:8px;justify-content:flex-end">'
     + '<button class="s-btn" id="gm-init-cancel">' + t('gm_cancel') + '</button>'
-    + '<button class="s-btn" id="gm-init-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_init') + '</button>'
+    + '<button class="s-btn" id="gm-init-ok" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + t('gm_init') + '</button>'
     + '</div></div>';
   GM.contentEl.appendChild(overlay);
   overlay.querySelector('#gm-init-path').focus();
@@ -1362,7 +1362,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
     + ((GM.state.foreignAccess || {}).premium ? '&#x1F500; ' : '&#x1F48E; ') + t('gm_issues_pull_request') + '</button>'
     + '<div id="gm-sync-info" style="font-size:.75rem;color:var(--text-dim);margin-left:4px"></div>'
     + '<div style="display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-left:auto;flex-shrink:0">'
-    + '<button id="gm-tab-status" style="border:none;padding:3px 10px;cursor:pointer;font-size:.78rem;background:var(--accent);color:#fff">' + t('gm_status') + '</button>'
+    + '<button id="gm-tab-status" style="border:none;padding:3px 10px;cursor:pointer;font-size:.78rem;background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)))">' + t('gm_status') + '</button>'
     + '<button id="gm-tab-log" style="border:none;padding:3px 10px;cursor:pointer;font-size:.78rem;background:none;color:var(--text-dim)">' + t('gm_log') + '</button>'
     + '</div></div>'
     + '<div id="gm-tab-content" style="flex:1;overflow-y:auto;padding:12px 14px"></div>'
@@ -1400,9 +1400,9 @@ GM.showRepoView = function(container, repo, autoFetch) {
   function switchTab(t) {
     tab = t;
     container.querySelector('#gm-tab-status').style.background = t === 'status' ? 'var(--accent)' : 'none';
-    container.querySelector('#gm-tab-status').style.color = t === 'status' ? '#fff' : 'var(--text-dim)';
+    container.querySelector('#gm-tab-status').style.color = t === 'status' ? 'var(--on-accent,var(--surface,var(--surface1,#1e1e2e)))' : 'var(--text-dim)';
     container.querySelector('#gm-tab-log').style.background = t === 'log' ? 'var(--accent)' : 'none';
-    container.querySelector('#gm-tab-log').style.color = t === 'log' ? '#fff' : 'var(--text-dim)';
+    container.querySelector('#gm-tab-log').style.color = t === 'log' ? 'var(--on-accent,var(--surface,var(--surface1,#1e1e2e)))' : 'var(--text-dim)';
     if (t === 'status') loadStatus();
     else loadLog();
   }
@@ -1418,11 +1418,11 @@ GM.showRepoView = function(container, repo, autoFetch) {
     try {
       var r = await GM.api('/repo/' + action, { method: 'POST', json: { path: repo.path } });
       out.textContent = r.output || t('gm_done');
-      out.style.color = '#a6e3a1';
+      out.style.color = 'color-mix(in srgb,#a6e3a1 35%,var(--text,var(--fg,#cdd6f4)))';
       if (action === 'fetch') loadStatus(true);
       else if (action === 'pull' || action === 'push') { loadStatus(); GM.loadRepos(); }
     } catch(e) {
-      out.textContent = e.message; out.style.color = '#f38ba8';
+      out.textContent = e.message; out.style.color = 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))';
     } finally {
       btn.disabled = false; btn.style.opacity = '';
     }
@@ -1446,10 +1446,10 @@ GM.showRepoView = function(container, repo, autoFetch) {
         var p = await GM.api('/repo/push', { method: 'POST', json: { path: repo.path } });
         output += '\n\n' + (p.output || t('gm_done'));
       }
-      if (out) { out.textContent = output; out.style.color = '#a6e3a1'; }
+      if (out) { out.textContent = output; out.style.color = 'color-mix(in srgb,#a6e3a1 35%,var(--text,var(--fg,#cdd6f4)))'; }
       loadStatus(); GM.loadRepos();
     } catch(e) {
-      if (out) { out.textContent = e.message; out.style.color = '#f38ba8'; }
+      if (out) { out.textContent = e.message; out.style.color = 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))'; }
       // A failed push after a successful commit still has to show the new commit.
       if (committed) { loadStatus(); GM.loadRepos(); }
       else buttons.forEach(function(b) { if (b) b.disabled = false; });
@@ -1620,7 +1620,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
       if (!treeEl.isConnected) return;
       renderFileTree(treeEl, d.files || [], s.files);
     } catch(e) {
-      treeEl.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + GM.escape(e.message) + '</div>';
+      treeEl.innerHTML = '<div style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem">' + GM.escape(e.message) + '</div>';
     }
   }
 
@@ -1760,7 +1760,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         if (s.ahead > 0) parts.push('&#x2191; ' + t('gm_ahead', { n: s.ahead }));
         if (s.behind > 0) parts.push('&#x2193; ' + t('gm_behind', { n: s.behind }));
         syncInfo.innerHTML = parts.join('&nbsp;&nbsp;');
-        syncInfo.style.color = s.behind > 0 ? '#f38ba8' : 'var(--text-dim)';
+        syncInfo.style.color = s.behind > 0 ? 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))' : 'var(--text-dim)';
       }
       // A pull request only makes sense from a branch other than the one it merges into.
       var prToolbar = container.querySelector('#gm-pr-toolbar');
@@ -1783,7 +1783,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
           + GM.escape(t('gm_commit_template_hint'))
           + '<code style="display:block;margin-top:6px;padding:4px 6px;border-radius:4px;background:rgba(127,127,127,.12);font-size:.74rem;white-space:pre-wrap;word-break:break-all;user-select:all">git config commit.template ' + GM.escape(repo.path.replace(/\/+$/, '') + '/.git/commit-template.txt') + '</code></div>')
         + '<textarea id="gm-commit-msg" class="s-input" rows="4" placeholder="' + t('gm_describe_changes') + '" style="resize:vertical;flex:none;max-width:none;min-height:80px;font-family:inherit;font-size:.83rem;width:100%;box-sizing:border-box"></textarea>'
-        + '<div style="display:flex;gap:6px;flex-wrap:wrap"><button id="gm-commit-btn" class="s-btn s-btn-sm" ' + (s.files.length ? 'style="background:var(--accent);color:#fff;border-color:var(--accent)"' : 'disabled') + '>&#x2713; ' + t('gm_commit_all') + '</button>'
+        + '<div style="display:flex;gap:6px;flex-wrap:wrap"><button id="gm-commit-btn" class="s-btn s-btn-sm" ' + (s.files.length ? 'style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)"' : 'disabled') + '>&#x2713; ' + t('gm_commit_all') + '</button>'
         + '<button id="gm-commit-push-btn" class="s-btn s-btn-sm" ' + (s.files.length ? '' : 'disabled') + '>&#x2713;&#x2B06; ' + t('gm_commit_push') + '</button></div>'
         + '</div>';
 
@@ -1791,7 +1791,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         ? '<div style="color:var(--text-dim);font-size:.82rem;opacity:.7;padding:20px 0;text-align:center">' + t('gm_nothing_to_commit') + '</div>'
         : '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
           + '<span style="font-size:.75rem;color:var(--text-dim)">' + t('gm_changed_files', { n: s.files.length, s: s.files.length !== 1 ? 's' : '' }) + '</span>'
-          + '<button id="gm-discard-all" class="s-btn s-btn-sm" style="font-size:.72rem;color:#f38ba8;border-color:#f38ba8">&#x21BA; ' + t('gm_discard_all') + '</button>'
+          + '<button id="gm-discard-all" class="s-btn s-btn-sm" style="font-size:.72rem;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));border-color:#f38ba8">&#x21BA; ' + t('gm_discard_all') + '</button>'
           + '</div>'
           + '<div id="gm-file-list" style="display:flex;flex-direction:column;gap:2px;margin-bottom:14px"></div>';
       renderStatusPanes(tc, changesHtml, commitHtml, s);
@@ -1840,8 +1840,8 @@ GM.showRepoView = function(container, repo, autoFetch) {
                   d.diff.split('\n').forEach(function(line) {
                     var span = document.createElement('div');
                     span.textContent = line;
-                    span.style.color = line.startsWith('+') && !line.startsWith('+++') ? '#a6e3a1'
-                      : line.startsWith('-') && !line.startsWith('---') ? '#f38ba8'
+                    span.style.color = line.startsWith('+') && !line.startsWith('+++') ? 'color-mix(in srgb,#a6e3a1 35%,var(--text,var(--fg,#cdd6f4)))'
+                      : line.startsWith('-') && !line.startsWith('---') ? 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))'
                       : line.startsWith('@@') ? '#89dceb'
                       : 'var(--text-dim)';
                     panel.appendChild(span);
@@ -1884,7 +1884,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         });
       }
     } catch(e) {
-      if (tab === 'status') tc.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + GM.escape(e.message) + '</div>';
+      if (tab === 'status') tc.innerHTML = '<div style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem">' + GM.escape(e.message) + '</div>';
     }
   }
 
@@ -1909,7 +1909,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         tc.appendChild(row);
       });
     } catch(e) {
-      tc.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + e.message + '</div>';
+      tc.innerHTML = '<div style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem">' + e.message + '</div>';
     }
   }
 
@@ -1940,7 +1940,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         renderIssueList(tc, 'open', status);
       }
     }).catch(function(e) {
-      tc.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + GM.escape(e.message) + '</div>';
+      tc.innerHTML = '<div style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem">' + GM.escape(e.message) + '</div>';
     });
   }
 
@@ -1949,10 +1949,10 @@ GM.showRepoView = function(container, repo, autoFetch) {
       + '<div style="font-size:1rem;font-weight:700">' + t('gm_issues_connect_title') + '</div>'
       + '<div style="font-size:.82rem;line-height:1.5;color:var(--text-dim)">' + t('gm_issues_connect_body') + '</div>'
       + '<div style="font-size:.76rem;color:var(--text-dim)">' + (status.gh_installed ? t('gm_issues_gh_not_logged') : t('gm_issues_gh_missing')) + '</div>'
-      + (status.error ? '<div style="font-size:.78rem;color:#f38ba8">' + GM.escape(status.error) + '</div>' : '')
+      + (status.error ? '<div style="font-size:.78rem;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4))">' + GM.escape(status.error) + '</div>' : '')
       + '<input id="gm-issues-token" class="s-input" type="password" autocomplete="off" placeholder="' + t('gm_issues_token_placeholder') + '" style="width:100%;box-sizing:border-box">'
-      + '<div id="gm-issues-token-error" style="display:none;color:#f38ba8;font-size:.78rem"></div>'
-      + '<div><button id="gm-issues-token-save" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_issues_connect') + '</button></div>'
+      + '<div id="gm-issues-token-error" style="display:none;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.78rem"></div>'
+      + '<div><button id="gm-issues-token-save" class="s-btn s-btn-sm" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + t('gm_issues_connect') + '</button></div>'
       + '</div>';
     tc.querySelector('#gm-issues-token-save').addEventListener('click', async function() {
       var token = tc.querySelector('#gm-issues-token').value.trim();
@@ -1976,14 +1976,14 @@ GM.showRepoView = function(container, repo, autoFetch) {
       + '<button id="gm-issues-closed" class="s-btn s-btn-sm" style="border:0;border-radius:0">' + t('gm_issues_closed') + '</button></div>'
       + '<span style="font-size:.72rem;color:var(--text-dim)">' + GM.escape(status.repository || '') + '</span>'
       + '<div style="flex:1"></div>'
-      + '<button id="gm-issues-new" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">+ ' + t('gm_issues_new') + '</button>'
+      + '<button id="gm-issues-new" class="s-btn s-btn-sm" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">+ ' + t('gm_issues_new') + '</button>'
       + '</div><div id="gm-issues-list"></div>';
     var openBtn = tc.querySelector('#gm-issues-open');
     var closedBtn = tc.querySelector('#gm-issues-closed');
     openBtn.style.background = state === 'open' ? 'var(--accent)' : 'none';
-    openBtn.style.color = state === 'open' ? '#fff' : 'var(--text-dim)';
+    openBtn.style.color = state === 'open' ? 'var(--on-accent,var(--surface,var(--surface1,#1e1e2e)))' : 'var(--text-dim)';
     closedBtn.style.background = state === 'closed' ? 'var(--accent)' : 'none';
-    closedBtn.style.color = state === 'closed' ? '#fff' : 'var(--text-dim)';
+    closedBtn.style.color = state === 'closed' ? 'var(--on-accent,var(--surface,var(--surface1,#1e1e2e)))' : 'var(--text-dim)';
     openBtn.onclick = function() { renderIssueList(tc, 'open', status); };
     closedBtn.onclick = function() { renderIssueList(tc, 'closed', status); };
     tc.querySelector('#gm-issues-new').onclick = function() { renderNewIssue(tc, status); };
@@ -2027,7 +2027,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         row.innerHTML = '<span style="color:' + (issue.state === 'open' ? '#a6e3a1' : '#a6adc8') + ';font-size:1rem">&#x25CF;</span>'
           + '<span style="flex:1;min-width:0"><span style="display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + GM.escape(issue.title) + '</span>'
           + '<span style="display:block;font-size:.7rem;color:var(--text-dim);margin-top:3px">#' + issue.number + ' · ' + GM.escape(issue.author) + ' · ' + t('gm_issues_comments', {n:issue.comments || 0})
-          + (issueBranches[issue.number] ? ' · <span style="color:#89b4fa">&#x1F33F; ' + GM.escape(issueBranches[issue.number]) + '</span>' : '')
+          + (issueBranches[issue.number] ? ' · <span style="color:color-mix(in srgb,#89b4fa 35%,var(--text,#cdd6f4))">&#x1F33F; ' + GM.escape(issueBranches[issue.number]) + '</span>' : '')
           + '</span></span>';
         row.onclick = function() { renderIssueDetail(tc, issue.number, status, state, true); };
         return row;
@@ -2074,7 +2074,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         list.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;text-align:center;padding:28px">' + t('gm_issues_none_in_view') + '</div>';
       }
     }).catch(function(e) {
-      list.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + GM.escape(e.message) + '</div>';
+      list.innerHTML = '<div style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem">' + GM.escape(e.message) + '</div>';
     });
   }
 
@@ -2148,8 +2148,8 @@ GM.showRepoView = function(container, repo, autoFetch) {
       + GM.mdToolbarHtml('gm-issue-body')
       + '<textarea id="gm-issue-body" class="s-input" rows="10" placeholder="' + t('gm_issues_body_placeholder') + '" style="resize:vertical;max-width:none;border-radius:0 0 6px 6px;margin-top:-1px"></textarea>'
       + issueMetaFieldsHtml()
-      + '<div id="gm-issue-create-error" style="display:none;color:#f38ba8;font-size:.8rem"></div>'
-      + '<div><button id="gm-issue-create" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_issues_create') + '</button></div></div>';
+      + '<div id="gm-issue-create-error" style="display:none;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.8rem"></div>'
+      + '<div><button id="gm-issue-create" class="s-btn s-btn-sm" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + t('gm_issues_create') + '</button></div></div>';
     tc.querySelector('#gm-issues-back').onclick = function() { renderIssueList(tc, 'open', status); };
     GM.wireMdToolbar(tc, tc.querySelector('#gm-issue-body'));
     loadIssueMeta(tc, {});
@@ -2201,10 +2201,10 @@ GM.showRepoView = function(container, repo, autoFetch) {
       + '<input id="gm-pr-title" class="s-input" style="width:100%;max-width:none;box-sizing:border-box" placeholder="' + GM.escape(headBranch) + '" value="' + GM.escape(issue ? (issue.title || headBranch) : '') + '"></div>'
       + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_pr_body_label') + '</div>'
       + '<textarea id="gm-pr-body" class="s-input" rows="6" style="resize:vertical;max-width:none;width:100%;box-sizing:border-box">' + GM.escape(issue ? (issue.body || '') : '') + '</textarea></div>'
-      + '<div id="gm-pr-error" style="color:#f38ba8;font-size:.82rem;display:none"></div>'
+      + '<div id="gm-pr-error" style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem;display:none"></div>'
       + '<div style="display:flex;gap:8px;justify-content:flex-end">'
       + '<button class="s-btn" id="gm-pr-cancel">' + t('gm_cancel') + '</button>'
-      + '<button class="s-btn" id="gm-pr-create" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_pr_create') + '</button>'
+      + '<button class="s-btn" id="gm-pr-create" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + t('gm_pr_create') + '</button>'
       + '</div></div>';
     container.appendChild(overlay);
 
@@ -2324,7 +2324,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         var r = await GM.api('/repo/pr', {method:'POST', json:{path:repo.path, head:head, base:base, title:title, body:body}});
         var box = overlay.firstChild;
         box.innerHTML = '<div style="font-weight:600;font-size:.95rem">&#x1F500; ' + t('gm_pr_title_heading') + '</div>'
-          + '<div style="color:#a6e3a1;font-size:.85rem">' + t(r.existing ? 'gm_pr_already_exists' : 'gm_pr_created', {number: r.number})
+          + '<div style="color:color-mix(in srgb,#a6e3a1 35%,var(--text,#cdd6f4));font-size:.85rem">' + t(r.existing ? 'gm_pr_already_exists' : 'gm_pr_created', {number: r.number})
           + ' <a href="' + GM.escape(r.url) + '" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">' + t('gm_pr_open_link') + '</a></div>'
           + '<div style="display:flex;justify-content:flex-end"><button class="s-btn" id="gm-pr-close">' + t('gm_close') + '</button></div>';
         box.querySelector('#gm-pr-close').addEventListener('click', function() { overlay.remove(); });
@@ -2370,7 +2370,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
     GM.branchDialog({
       title: t('gm_branch_issue_title', { number: issue.number }),
       info: '<div style="font-family:monospace;font-size:.82rem;margin-bottom:6px">' + GM.escape(state.branch) + '</div>' + GM.escape(info)
-        + (blocked ? '<div style="color:#f9e2af;margin-top:6px">' + GM.escape(t('gm_issues_dirty_no_switch')) + '</div>' : ''),
+        + (blocked ? '<div style="color:color-mix(in srgb,#f9e2af 35%,var(--text,#cdd6f4));margin-top:6px">' + GM.escape(t('gm_issues_dirty_no_switch')) + '</div>' : ''),
       choicesLabel: state.local_exists || state.remote_exists ? t('gm_branch_what_to_do') : t('gm_branch_from'),
       choices: choices,
       disabled: blocked,
@@ -2407,7 +2407,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
     GM.renderSidebar();
     loadStatus();
     updateIssueBranchButtons(tc, repo.branch === data.branch);
-    result.style.color = '#a6e3a1';
+    result.style.color = 'color-mix(in srgb,#a6e3a1 35%,var(--text,var(--fg,#cdd6f4)))';
     if (data.created_fresh && data.base) {
       result.textContent = t('gm_branch_created_from', {branch: data.branch, base: data.base});
     } else {
@@ -2428,8 +2428,8 @@ GM.showRepoView = function(container, repo, autoFetch) {
       + GM.mdToolbarHtml('gm-issue-edit-body')
       + '<textarea id="gm-issue-edit-body" class="s-input" rows="10" style="resize:vertical;flex:none;min-height:120px;max-width:none;border-radius:0 0 6px 6px;margin-top:-1px">' + GM.escape(issue.body || '') + '</textarea>'
       + issueMetaFieldsHtml()
-      + '<div id="gm-issue-edit-error" style="display:none;color:#f38ba8;font-size:.8rem"></div>'
-      + '<div style="display:flex;gap:8px"><button id="gm-issue-edit-save" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_save') + '</button></div></div>';
+      + '<div id="gm-issue-edit-error" style="display:none;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.8rem"></div>'
+      + '<div style="display:flex;gap:8px"><button id="gm-issue-edit-save" class="s-btn s-btn-sm" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + t('gm_save') + '</button></div></div>';
     var ta = tc.querySelector('#gm-issue-edit-body');
     GM.wireMdToolbar(tc, ta);
     loadIssueMeta(tc, {assignees: issue.assignees || [], labels: issue.labels || [], milestone: issue.milestone || null});
@@ -2474,7 +2474,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
       tc.querySelector('#gm-issue-edit').onclick = function() { renderEditIssue(tc, issue, status, previousState); };
       var actionResult = tc.querySelector('#gm-issue-action-result');
       if (notice) {
-        actionResult.style.color = notice.ok ? '#a6e3a1' : '#f9e2af';
+        actionResult.style.color = notice.ok ? 'color-mix(in srgb,#a6e3a1 35%,var(--text,var(--fg,#cdd6f4)))' : 'color-mix(in srgb,#f9e2af 35%,var(--text,var(--fg,#cdd6f4)))';
         actionResult.textContent = notice.text;
       }
       Array.prototype.forEach.call(tc.querySelectorAll('#gm-issue-body-view .gm-task-checkbox'), function(cb) {
@@ -2517,7 +2517,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         btn.disabled = true; btn.textContent = t('gm_issues_checking_branch');
         try {
           await showIssueBranchDialog(tc, issue);
-        } catch(e) { result.style.color = '#f38ba8'; result.textContent = e.message; }
+        } catch(e) { result.style.color = 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))'; result.textContent = e.message; }
         btn.innerHTML = '&#x1F33F; ' + t('gm_issues_create_branch'); btn.disabled = false;
         updateIssueBranchButtons(tc, repo.branch === issueBranch);
       };
@@ -2526,7 +2526,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         actionResult.textContent = t('gm_issues_checking_branch');
         GM.api('/repo/issues/' + issue.number + '/branch/sync', {method:'POST',json:{path:repo.path}}).then(function(state) {
           if (state.fetch_error) {
-            actionResult.style.color = '#f38ba8'; actionResult.textContent = state.fetch_error; return;
+            actionResult.style.color = 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))'; actionResult.textContent = state.fetch_error; return;
           }
           if (state.switched || state.redirected_default) {
             repo.branch = state.current;
@@ -2543,7 +2543,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
             return;
           }
           if (state.dirty && state.auto) {
-            actionResult.style.color = '#f9e2af'; actionResult.textContent = t('gm_issues_dirty_no_switch'); return;
+            actionResult.style.color = 'color-mix(in srgb,#f9e2af 35%,var(--text,var(--fg,#cdd6f4)))'; actionResult.textContent = t('gm_issues_dirty_no_switch'); return;
           }
           if (!state.auto && state.local_exists) {
             actionResult.style.color = 'var(--text-dim)';
@@ -2551,7 +2551,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
             return;
           }
           if (state.local_exists) {
-            actionResult.style.color = '#a6e3a1';
+            actionResult.style.color = 'color-mix(in srgb,#a6e3a1 35%,var(--text,var(--fg,#cdd6f4)))';
             actionResult.textContent = t(state.pulled ? 'gm_issues_branch_synced' : 'gm_switched_to', {branch: state.branch});
             return;
           }
@@ -2568,10 +2568,10 @@ GM.showRepoView = function(container, repo, autoFetch) {
                 updateBranchButton(data.branch);
                 GM.renderSidebar(); loadStatus();
                 updateIssueBranchButtons(tc, repo.branch === issueBranch);
-                actionResult.style.color = '#a6e3a1';
+                actionResult.style.color = 'color-mix(in srgb,#a6e3a1 35%,var(--text,var(--fg,#cdd6f4)))';
                 actionResult.textContent = t('gm_issues_branch_downloaded', {branch:data.branch});
               } catch(e) {
-                actionResult.style.color = '#f38ba8'; actionResult.textContent = e.message;
+                actionResult.style.color = 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))'; actionResult.textContent = e.message;
               }
             });
             return;
@@ -2583,10 +2583,10 @@ GM.showRepoView = function(container, repo, autoFetch) {
             actionResult.textContent = '';
           }
         }).catch(function(e) {
-          actionResult.style.color = '#f38ba8'; actionResult.textContent = e.message;
+          actionResult.style.color = 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))'; actionResult.textContent = e.message;
         });
       }
-    }).catch(function(e) { tc.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + GM.escape(e.message) + '</div>'; });
+    }).catch(function(e) { tc.innerHTML = '<div style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem">' + GM.escape(e.message) + '</div>'; });
   }
 
   container.querySelector('#gm-deploy').addEventListener('click', function() {
@@ -2638,7 +2638,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         if (out) {
           var msg = t('gm_branch_created_from', { branch: r.branch, base: r.base });
           if (r.local_only) msg += ' — ' + t('gm_branch_local_only');
-          out.style.display = 'block'; out.textContent = msg; out.style.color = '#a6e3a1';
+          out.style.display = 'block'; out.textContent = msg; out.style.color = 'color-mix(in srgb,#a6e3a1 35%,var(--text,var(--fg,#cdd6f4)))';
         }
       }
     });
@@ -2760,11 +2760,11 @@ GM.showRepoView = function(container, repo, autoFetch) {
             GM.api('/repo/checkout', { method: 'POST', json: { path: repo.path, branch: b } }).then(function(r) {
               repo.branch = r.branch;
               updateBranchButton(r.branch);
-              if (out) { out.textContent = r.output || t('gm_switched_to', { branch: r.branch }); out.style.color = '#a6e3a1'; }
+              if (out) { out.textContent = r.output || t('gm_switched_to', { branch: r.branch }); out.style.color = 'color-mix(in srgb,#a6e3a1 35%,var(--text,var(--fg,#cdd6f4)))'; }
               GM.loadRepos();
               loadStatus();
             }).catch(function(e) {
-              if (out) { out.style.display = 'block'; out.textContent = e.message; out.style.color = '#f38ba8'; }
+              if (out) { out.style.display = 'block'; out.textContent = e.message; out.style.color = 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))'; }
             });
           });
         }
@@ -2772,7 +2772,7 @@ GM.showRepoView = function(container, repo, autoFetch) {
         items.appendChild(row);
       });
     }).catch(function(e) {
-      dd.innerHTML = '<div style="padding:8px 12px;color:#f38ba8;font-size:.82rem">' + e.message + '</div>';
+      dd.innerHTML = '<div style="padding:8px 12px;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem">' + e.message + '</div>';
     });
 
     var close = function() { dd.remove(); document.removeEventListener('click', close); };
@@ -2848,10 +2848,10 @@ GM.showSSH = function(container) {
           result.textContent = t('gm_testing_host', { host: host });
           GM.api('/ssh/test', { method: 'POST', json: { host: host } }).then(function(r) {
             result.textContent = r.output || (r.ok ? t('gm_connection_ok') : t('gm_connection_failed'));
-            result.style.color = r.ok ? '#a6e3a1' : '#f38ba8';
+            result.style.color = r.ok ? 'color-mix(in srgb,#a6e3a1 35%,var(--text,var(--fg,#cdd6f4)))' : 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))';
             result.style.background = r.ok ? 'rgba(166,227,161,.1)' : 'rgba(243,139,168,.1)';
           }).catch(function(e) {
-            result.textContent = e.message; result.style.color = '#f38ba8';
+            result.textContent = e.message; result.style.color = 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))';
           });
         }
 
@@ -2869,7 +2869,7 @@ GM.showSSH = function(container) {
       note.innerHTML = t('gm_ssh_tip');
       c.appendChild(note);
     }).catch(function(e) {
-      c.innerHTML = '<div style="color:#f38ba8;font-size:.82rem">' + e.message + '</div>';
+      c.innerHTML = '<div style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem">' + e.message + '</div>';
     });
   }
 
@@ -2881,10 +2881,10 @@ GM.showSSH = function(container) {
       + '<div><div style="font-size:.75rem;color:var(--text-dim);margin-bottom:4px">' + t('gm_comment_optional') + '</div>'
       + '<input class="s-input" id="gm-gen-comment" placeholder="' + t('gm_comment_placeholder') + '" style="width:100%;box-sizing:border-box"></div>'
       + '<div style="font-size:.78rem;color:var(--text-dim);background:var(--surface2,#313244);border-radius:6px;padding:8px 10px">' + t('gm_gen_key_note') + '</div>'
-      + '<div id="gm-gen-err" style="color:#f38ba8;font-size:.82rem;display:none"></div>'
+      + '<div id="gm-gen-err" style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem;display:none"></div>'
       + '<div style="display:flex;gap:8px;justify-content:flex-end">'
       + '<button class="s-btn" id="gm-gen-cancel">' + t('gm_cancel') + '</button>'
-      + '<button class="s-btn" id="gm-gen-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + t('gm_generate') + '</button>'
+      + '<button class="s-btn" id="gm-gen-ok" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + t('gm_generate') + '</button>'
       + '</div></div>';
     container.style.position = 'relative';
     container.appendChild(overlay);
@@ -2934,7 +2934,7 @@ GM.renderSettingsExtra = async function(wrap) {
     + 'style="width:100%;max-width:none;box-sizing:border-box;font-family:monospace;resize:vertical"></textarea>'
     + '<div style="font-size:.75rem;color:var(--text-dim);line-height:1.5">'
     + t('gm_settings_scan_hint', { roots: (scan.roots || []).map(GM.escape).join(', ') }) + '</div>'
-    + '<div data-gm-scan-error style="display:none;color:#f38ba8;font-size:.78rem"></div>';
+    + '<div data-gm-scan-error style="display:none;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.78rem"></div>';
   var folders = reposBox.querySelector('textarea');
   folders.value = (scan.folders || []).join('\n');
   folders.dataset.saved = folders.value;

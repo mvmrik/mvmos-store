@@ -426,7 +426,7 @@ const CS = (() => {
       <div><label>${_cst('name')}</label><input id="cs-f-name" value="${isEdit ? _esc(member.name) : ''}"></div>
       <div><label>${_cst('email')}</label><input id="cs-f-email" type="email" value="${isEdit ? _esc(member.email || '') : ''}"></div>
       <div><label>${_cst('custom_share')}</label><input id="cs-f-share" type="number" step="0.01" min="0" value="${customVal}" placeholder="${_cst('auto')}"></div>
-      <div id="cs-f-err" style="color:#f38ba8;font-size:.75rem;display:none"></div>
+      <div id="cs-f-err" style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.75rem;display:none"></div>
       <div class="cs-dialog-btns">
         <button class="s-btn s-btn-sm" id="cs-f-cancel">${_cst('cancel')}</button>
         <button class="s-btn" id="cs-f-save">${isEdit ? _cst('save') : _cst('add')}</button>
@@ -459,7 +459,7 @@ const CS = (() => {
       <h3>${_cst('add_payment_title')} — ${_esc(member.name)}</h3>
       <div><label>${_cst('amount')}</label><input id="cs-p-amount" type="number" step="0.01" placeholder="0.00"></div>
       <div><label>${_cst('note')}</label><input id="cs-p-note" type="text"></div>
-      <div id="cs-p-err" style="color:#f38ba8;font-size:.75rem;display:none"></div>
+      <div id="cs-p-err" style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.75rem;display:none"></div>
       <div class="cs-dialog-btns">
         <button class="s-btn s-btn-sm" id="cs-p-cancel">${_cst('cancel')}</button>
         <button class="s-btn" id="cs-p-save">${_cst('add')}</button>

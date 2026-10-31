@@ -108,7 +108,7 @@ const SM = (() => {
     body.innerHTML = `
       <div style="display:flex;flex-direction:column;height:100%;background:var(--surface)">
         <div id="sm-sudo-bar" style="display:none;align-items:center;gap:8px;padding:8px 14px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:.82rem">
-          <span style="color:#f1fa8c">${_smt('sudo_msg')}</span>
+          <span style="color:color-mix(in srgb,#f1fa8c 35%,var(--text,#cdd6f4))">${_smt('sudo_msg')}</span>
           <input id="sm-sudo-input" type="password" placeholder="${_smt('sudo_ph')}"
             style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:4px 8px;color:var(--text);font-size:.82rem">
           <button class="s-btn s-btn-sm" id="sm-sudo-ok">${_smt('ok')}</button>
@@ -156,9 +156,9 @@ const SM = (() => {
           <div style="font-size:.75rem;color:var(--text-dim);font-family:monospace">${svc.name}</div>
         </div>
         <span class="sm-status-badge" style="font-size:.72rem;padding:2px 8px;border-radius:3px;font-weight:600;
-          ${isActive ? 'color:#50fa7b;background:rgba(80,250,123,.12);border:1px solid rgba(80,250,123,.3)'
-                     : isFailed ? 'color:#ff5555;background:rgba(255,85,85,.12);border:1px solid rgba(255,85,85,.3)'
-                     : 'color:#6272a4;background:rgba(98,114,164,.1);border:1px solid rgba(98,114,164,.25)'}">${svc.status}</span>
+          ${isActive ? 'color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4));background:rgba(80,250,123,.12);border:1px solid rgba(80,250,123,.3)'
+                     : isFailed ? 'color:color-mix(in srgb,#ff5555 35%,var(--text,#cdd6f4));background:rgba(255,85,85,.12);border:1px solid rgba(255,85,85,.3)'
+                     : 'color:color-mix(in srgb,#6272a4 35%,var(--text,#cdd6f4));background:rgba(98,114,164,.1);border:1px solid rgba(98,114,164,.25)'}">${svc.status}</span>
         <div style="display:flex;gap:4px">
           ${hasSettings ? `<button class="s-btn s-btn-sm sm-settings" data-name="${svc.name}">${_smt('settings')}</button>` : ''}
           ${isActive
@@ -217,9 +217,9 @@ const SM = (() => {
     if (badge) {
       badge.textContent = status;
       badge.style.cssText = `font-size:.72rem;padding:2px 8px;border-radius:3px;font-weight:600;
-        ${isActive ? 'color:#50fa7b;background:rgba(80,250,123,.12);border:1px solid rgba(80,250,123,.3)'
-                   : isFailed ? 'color:#ff5555;background:rgba(255,85,85,.12);border:1px solid rgba(255,85,85,.3)'
-                   : 'color:#6272a4;background:rgba(98,114,164,.1);border:1px solid rgba(98,114,164,.25)'}`;
+        ${isActive ? 'color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4));background:rgba(80,250,123,.12);border:1px solid rgba(80,250,123,.3)'
+                   : isFailed ? 'color:color-mix(in srgb,#ff5555 35%,var(--text,#cdd6f4));background:rgba(255,85,85,.12);border:1px solid rgba(255,85,85,.3)'
+                   : 'color:color-mix(in srgb,#6272a4 35%,var(--text,#cdd6f4));background:rgba(98,114,164,.1);border:1px solid rgba(98,114,164,.25)'}`;
     }
     const btns = row.querySelector('div[style*="gap:4px"]');
     if (btns) {
@@ -299,13 +299,13 @@ const SM = (() => {
       <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px">
         <button class="s-btn s-btn-sm" id="sm-back">${_smt('back')}</button>
         <span style="font-weight:600;font-size:.9rem;flex:1">${_smt('php_settings')}</span>
-        <button class="s-btn s-btn-sm" id="sm-save" style="background:var(--accent);color:#fff;border-color:var(--accent)">${_smt('save')}</button>
+        <button class="s-btn s-btn-sm" id="sm-save" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">${_smt('save')}</button>
       </div>
       <div id="sm-saved-bar" style="display:none;align-items:center;gap:10px;padding:8px 14px;background:rgba(80,250,123,.1);border-bottom:1px solid rgba(80,250,123,.3);font-size:.82rem">
-        <span style="color:#50fa7b;flex:1">✓ ${_smt('saved')} — ${_smt('restart_required')}</span>
-        <button class="s-btn s-btn-sm" id="sm-restart-svc" style="color:#50fa7b;border-color:#50fa7b">${_smt('restart')}</button>
+        <span style="color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4));flex:1">✓ ${_smt('saved')} — ${_smt('restart_required')}</span>
+        <button class="s-btn s-btn-sm" id="sm-restart-svc" style="color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4));border-color:#50fa7b">${_smt('restart')}</button>
       </div>
-      <div id="sm-error-bar" style="display:none;padding:8px 14px;background:rgba(255,85,85,.1);border-bottom:1px solid rgba(255,85,85,.3);font-size:.82rem;color:#ff5555"></div>
+      <div id="sm-error-bar" style="display:none;padding:8px 14px;background:rgba(255,85,85,.1);border-bottom:1px solid rgba(255,85,85,.3);font-size:.82rem;color:color-mix(in srgb,#ff5555 35%,var(--text,#cdd6f4))"></div>
       <div id="sm-php-content" style="flex:1;overflow-y:auto;padding:12px 16px">
         <div style="color:var(--text-dim);font-size:.85rem">${_smt('loading')}</div>
       </div>
@@ -434,13 +434,13 @@ const SM = (() => {
       <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px">
         <button class="s-btn s-btn-sm" id="sm-back">${_smt('back')}</button>
         <span style="font-weight:600;font-size:.9rem;flex:1">${_smt('mysql_settings')}</span>
-        <button class="s-btn s-btn-sm" id="sm-save" style="background:var(--accent);color:#fff;border-color:var(--accent)">${_smt('save')}</button>
+        <button class="s-btn s-btn-sm" id="sm-save" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">${_smt('save')}</button>
       </div>
       <div id="sm-saved-bar" style="display:none;align-items:center;gap:10px;padding:8px 14px;background:rgba(80,250,123,.1);border-bottom:1px solid rgba(80,250,123,.3);font-size:.82rem">
-        <span style="color:#50fa7b;flex:1">✓ ${_smt('saved')} — ${_smt('restart_required')}</span>
-        <button class="s-btn s-btn-sm" id="sm-restart-svc" style="color:#50fa7b;border-color:#50fa7b">${_smt('restart')}</button>
+        <span style="color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4));flex:1">✓ ${_smt('saved')} — ${_smt('restart_required')}</span>
+        <button class="s-btn s-btn-sm" id="sm-restart-svc" style="color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4));border-color:#50fa7b">${_smt('restart')}</button>
       </div>
-      <div id="sm-error-bar" style="display:none;padding:8px 14px;background:rgba(255,85,85,.1);border-bottom:1px solid rgba(255,85,85,.3);font-size:.82rem;color:#ff5555"></div>
+      <div id="sm-error-bar" style="display:none;padding:8px 14px;background:rgba(255,85,85,.1);border-bottom:1px solid rgba(255,85,85,.3);font-size:.82rem;color:color-mix(in srgb,#ff5555 35%,var(--text,#cdd6f4))"></div>
       <div id="sm-mysql-content" style="flex:1;overflow-y:auto;padding:12px 16px">
         <div style="color:var(--text-dim);font-size:.85rem">${_smt('loading')}</div>
       </div>
@@ -517,13 +517,13 @@ const SM = (() => {
         <button class="s-btn s-btn-sm" id="sm-back">${_smt('back')}</button>
         <span style="font-weight:600;font-size:.9rem;flex:1">${_smt('nginx_settings')}</span>
         <button class="s-btn s-btn-sm" id="sm-edit-cfg">${_smt('nginx_edit_config')}</button>
-        <button class="s-btn s-btn-sm" id="sm-save" style="background:var(--accent);color:#fff;border-color:var(--accent)">${_smt('save')}</button>
+        <button class="s-btn s-btn-sm" id="sm-save" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">${_smt('save')}</button>
       </div>
       <div id="sm-saved-bar" style="display:none;align-items:center;gap:10px;padding:8px 14px;background:rgba(80,250,123,.1);border-bottom:1px solid rgba(80,250,123,.3);font-size:.82rem">
-        <span style="color:#50fa7b;flex:1">✓ ${_smt('saved')} — ${_smt('restart_required')}</span>
-        <button class="s-btn s-btn-sm" id="sm-restart-svc" style="color:#50fa7b;border-color:#50fa7b">${_smt('restart')}</button>
+        <span style="color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4));flex:1">✓ ${_smt('saved')} — ${_smt('restart_required')}</span>
+        <button class="s-btn s-btn-sm" id="sm-restart-svc" style="color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4));border-color:#50fa7b">${_smt('restart')}</button>
       </div>
-      <div id="sm-error-bar" style="display:none;padding:8px 14px;background:rgba(255,85,85,.1);border-bottom:1px solid rgba(255,85,85,.3);font-size:.82rem;color:#ff5555"></div>
+      <div id="sm-error-bar" style="display:none;padding:8px 14px;background:rgba(255,85,85,.1);border-bottom:1px solid rgba(255,85,85,.3);font-size:.82rem;color:color-mix(in srgb,#ff5555 35%,var(--text,#cdd6f4))"></div>
       <div id="sm-nginx-content" style="flex:1;overflow-y:auto;padding:12px 16px">
         <div style="color:var(--text-dim);font-size:.85rem">${_smt('loading')}</div>
       </div>
@@ -619,13 +619,13 @@ const SM = (() => {
         <button class="s-btn s-btn-sm" id="sm-back">${_smt('back')}</button>
         <span style="font-weight:600;font-size:.9rem;flex:1">${_smt('ssh_settings')}</span>
         <button class="s-btn s-btn-sm" id="sm-edit-cfg">${_smt('ssh_edit_config')}</button>
-        <button class="s-btn s-btn-sm" id="sm-save" style="background:var(--accent);color:#fff;border-color:var(--accent)">${_smt('save')}</button>
+        <button class="s-btn s-btn-sm" id="sm-save" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">${_smt('save')}</button>
       </div>
       <div id="sm-saved-bar" style="display:none;align-items:center;gap:10px;padding:8px 14px;background:rgba(80,250,123,.1);border-bottom:1px solid rgba(80,250,123,.3);font-size:.82rem">
-        <span style="color:#50fa7b;flex:1">✓ ${_smt('saved')} — ${_smt('restart_required')}</span>
-        <button class="s-btn s-btn-sm" id="sm-restart-svc" style="color:#50fa7b;border-color:#50fa7b">${_smt('restart')}</button>
+        <span style="color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4));flex:1">✓ ${_smt('saved')} — ${_smt('restart_required')}</span>
+        <button class="s-btn s-btn-sm" id="sm-restart-svc" style="color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4));border-color:#50fa7b">${_smt('restart')}</button>
       </div>
-      <div id="sm-error-bar" style="display:none;padding:8px 14px;background:rgba(255,85,85,.1);border-bottom:1px solid rgba(255,85,85,.3);font-size:.82rem;color:#ff5555"></div>
+      <div id="sm-error-bar" style="display:none;padding:8px 14px;background:rgba(255,85,85,.1);border-bottom:1px solid rgba(255,85,85,.3);font-size:.82rem;color:color-mix(in srgb,#ff5555 35%,var(--text,#cdd6f4))"></div>
       <div id="sm-ssh-content" style="flex:1;overflow-y:auto;padding:12px 16px">
         <div style="color:var(--text-dim);font-size:.85rem">${_smt('loading')}</div>
       </div>
@@ -739,10 +739,10 @@ const SM = (() => {
 
     if (data.enabled) {
       toggleBtn.textContent = _smt('ufw_disable');
-      toggleBtn.style.cssText = 'color:#ff5555;border-color:#ff5555';
+      toggleBtn.style.cssText = 'color:color-mix(in srgb,#ff5555 35%,var(--text,#cdd6f4));border-color:#ff5555';
     } else {
       toggleBtn.textContent = _smt('ufw_enable');
-      toggleBtn.style.cssText = 'color:#50fa7b;border-color:#50fa7b';
+      toggleBtn.style.cssText = 'color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4));border-color:#50fa7b';
     }
 
     const newToggle = toggleBtn.cloneNode(true);
@@ -778,7 +778,7 @@ const SM = (() => {
         html += `<tr>
           <td style="padding:5px 8px;border-bottom:1px solid var(--border);color:var(--text-dim)">${r.num}</td>
           <td style="padding:5px 8px;border-bottom:1px solid var(--border);font-family:monospace">${r.to}</td>
-          <td style="padding:5px 8px;border-bottom:1px solid var(--border);color:#50fa7b">${r.action}</td>
+          <td style="padding:5px 8px;border-bottom:1px solid var(--border);color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4))">${r.action}</td>
           <td style="padding:5px 8px;border-bottom:1px solid var(--border);font-family:monospace">${r.from}</td>
           <td style="padding:5px 8px;border-bottom:1px solid var(--border);text-align:right">
             <button class="s-btn s-btn-sm s-btn-danger sm-ufw-del" data-num="${r.num}" data-rule="${r.to}">${_smt('ufw_delete')}</button>
@@ -791,7 +791,7 @@ const SM = (() => {
     html += `<div style="display:flex;gap:8px;margin-top:16px;align-items:center">
       <input type="text" id="sm-ufw-rule" class="s-input" placeholder="${_smt('ufw_rule_ph')}"
         style="flex:1;font-size:.82rem;padding:4px 8px">
-      <button class="s-btn s-btn-sm" id="sm-ufw-add" style="background:var(--accent);color:#fff;border-color:var(--accent)">${_smt('ufw_add')}</button>
+      <button class="s-btn s-btn-sm" id="sm-ufw-add" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">${_smt('ufw_add')}</button>
     </div>`;
 
     content.innerHTML = html;

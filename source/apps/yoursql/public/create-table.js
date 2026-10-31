@@ -45,7 +45,7 @@ YS.createTable = (() => {
     header.innerHTML = '<h2 style="margin:0;font-size:1rem;font-weight:600">' + _ysqlCtT('ysql_create_table_title', { db: YS.escHtml(YS.state.activeDb) }) + '</h2>';
     var saveBtn = document.createElement('button');
     saveBtn.className = 's-btn s-btn-sm';
-    saveBtn.style.cssText = 'background:var(--accent);color:#fff;border-color:var(--accent);padding:5px 18px;font-size:.85rem';
+    saveBtn.style.cssText = 'background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent);padding:5px 18px;font-size:.85rem';
     saveBtn.textContent = _ysqlCtT('ysql_save');
     header.appendChild(saveBtn);
     wrap.appendChild(header);
@@ -285,7 +285,7 @@ YS.createTable = (() => {
       delCel.style.cssText = 'text-align:center';
       var delBtn = document.createElement('button');
       delBtn.className = 's-btn s-btn-sm';
-      delBtn.style.cssText = 'padding:2px 6px;background:#f38ba820;border-color:#f38ba8;color:#f38ba8;font-size:.75rem';
+      delBtn.style.cssText = 'padding:2px 6px;background:#f38ba820;border-color:#f38ba8;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.75rem';
       delBtn.textContent = '🗑';
       delBtn.addEventListener('click', function() {
         cols.splice(i, 1);

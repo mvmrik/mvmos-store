@@ -553,8 +553,11 @@ class Game:
         st["points"] += st["clean"] - st["timecost"]
         self.finish_no += 1
         st["rank"] = self.finish_no
+        stage_best = None
+        if hasattr(self.ctx, "record_stage"):
+            stage_best = await self.ctx.record_stage(pid, f"v1:difficulty:{self.diff}", st["points"])
         await self.ctx.send(pid, {
-            "type": "sd_done", "rank": st["rank"], "points": st["points"], "time": st["time"],
+            "stage_records": stage_best, "type": "sd_done", "rank": st["rank"], "points": st["points"], "time": st["time"],
             "timecost": st["timecost"], "clean": st["clean"], "peers": self._peers_of(pid),
             "seq": st["seq"],
         })

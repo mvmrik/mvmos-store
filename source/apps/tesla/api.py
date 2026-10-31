@@ -1112,9 +1112,12 @@ def tariff_save(body: dict, tid: Optional[str] = None, x_pub_token: Optional[str
     with eng.db() as c:
         if not c.execute("SELECT id FROM places WHERE id=? AND user_id=?", (clean["place_id"],me["id"])).fetchone(): return _bad("not_found",404)
         if tid and not c.execute("SELECT id FROM tariffs WHERE id=? AND user_id=?", (tid,me["id"])).fetchone(): return _bad("not_found",404)
-        overlap = c.execute("SELECT id,kind FROM tariffs WHERE user_id=? AND place_id=? AND start_ts<? AND end_ts>? AND id!=?",
+        overlap = c.execute("SELECT * FROM tariffs WHERE user_id=? AND place_id=? AND start_ts<? AND end_ts>? AND id!=?",
                             (me["id"],clean["place_id"],clean["end_ts"],clean["start_ts"],tid or '')).fetchall()
-        if any(r["kind"]=="all" or clean["kind"]=="all" or r["kind"]==clean["kind"] for r in overlap): return _bad("overlapping_tariffs",409)
+        for row in overlap:
+            other = dict(row)
+            other['rules'] = json.loads(other['rules'])
+            if billing.plans_overlap(clean, other): return _bad("overlapping_tariffs",409)
         tid = tid or uuid.uuid4().hex
         now = int(time.time())
         c.execute("""INSERT INTO tariffs(id,user_id,place_id,name,start_ts,end_ts,currency,timezone,kind,rules,created_ts,updated_ts)

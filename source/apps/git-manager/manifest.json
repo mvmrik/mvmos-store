@@ -19,7 +19,7 @@
     "git",
     "source-control"
   ],
-  "version": "1.12.5",
+  "version": "1.12.6",
   "description": "Manage git repositories — auto-detect, pull, push, commit. SSH key setup included.",
   "entry": "main.js",
   "min_core_version": "1.7.0"

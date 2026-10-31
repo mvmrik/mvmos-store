@@ -250,8 +250,8 @@ const QD = (() => {
   function _iStyle(ex) { return `padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:.85rem;outline:none;${ex||''}`; }
   function _btnStyle(type) {
     const b = 'padding:5px 12px;border-radius:4px;cursor:pointer;font-size:.82rem;font-family:inherit;';
-    if (type === 'primary') return b + 'border:none;background:var(--accent);color:#fff;';
-    if (type === 'danger')  return b + 'border:1px solid #e05252;background:transparent;color:#e05252;';
+    if (type === 'primary') return b + 'border:none;background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));';
+    if (type === 'danger')  return b + 'border:1px solid #e05252;background:transparent;color:color-mix(in srgb,#e05252 35%,var(--text,#cdd6f4));';
     if (type === 'ghost')   return b + 'border:1px solid var(--border);background:transparent;color:var(--text-dim);';
     return b + 'border:1px solid var(--border);background:var(--surface);color:var(--text);';
   }

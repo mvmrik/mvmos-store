@@ -133,7 +133,7 @@
       .sl-toolbar .sl-quick-add{flex:0 0 34px;width:34px;height:34px;padding:0;font-size:1.25rem;line-height:1}
       .sl-btn{background:var(--pub-surface2, #313244);color:var(--pub-fg, #cdd6f4);border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.82rem;white-space:nowrap}
       .sl-btn:hover{background:var(--pub-border, #45475a)}
-      .sl-btn-primary{background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e);font-weight:600}
+      .sl-btn-primary{background:var(--pub-accent, #89b4fa);color:var(--on-accent,var(--pub-bg, #1e1e2e));font-weight:600}
       .sl-btn-primary:hover{background:var(--pub-accent-hover, #a6c8ff)}
       .sl-btn-icon{background:none;border:none;color:var(--pub-fg2, #a6adc8);cursor:pointer;font-size:.9rem;padding:4px 6px;border-radius:4px}
       .sl-btn-icon:hover{background:var(--pub-border, #45475a);color:var(--pub-fg, #cdd6f4)}

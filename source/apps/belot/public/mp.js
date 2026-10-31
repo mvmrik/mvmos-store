@@ -781,11 +781,11 @@
     const title = winner === null ? tr('bl_draw', 'Draw') : winner === mine ? tr('bl_win', 'You win!') : tr('bl_lose', 'You lose');
     box.innerHTML = `<div class="bl-end-card ${winner === null ? '' : winner === mine ? 'good' : 'bad'}"><div class="bl-end-trophy">${winner === null ? '🤝' : winner === mine ? '🏆' : '🎴'}</div><h2>${esc(title)}</h2>
       ${winner === null ? '' : `<p>${esc(tr('bl_winner', 'Winning team'))}<br><b>${esc(names(winner))}</b></p>`}
-      <div class="bl-end-score"><span class="${mine ? 'teamb' : 'teama'}">${esc(tr('bl_us', 'Us'))} <b>${s[mine]}</b></span><i>:</i><span class="${mine ? 'teama' : 'teamb'}"><b>${s[1 - mine]}</b> ${esc(tr('bl_them', 'Them'))}</span></div></div>`;
+      <div class="bl-end-score"><span class="${mine ? 'teamb' : 'teama'}">${esc(tr('bl_us', 'Us'))} <b>${s[mine]}</b></span><i>:</i><span class="${mine ? 'teama' : 'teamb'}"><b>${s[1 - mine]}</b> ${esc(tr('bl_them', 'Them'))}</span></div><section data-gh-results></section><a href="/pub/gamehub/?game=belot">${esc(tr('bl_back','Back to Game Hub'))}</a></div>`;
     box.hidden = false;
     sfx.play(winner === null ? 'bell' : winner === mine ? 'win' : 'lose');
     clearTimeout(showEnd.timer);
-    showEnd.timer = setTimeout(() => { box.hidden = true; }, 9000);
+
   }
   function drawMessage() {
     const me = state.seat, yourTurn = state.turn === me && !dealing();

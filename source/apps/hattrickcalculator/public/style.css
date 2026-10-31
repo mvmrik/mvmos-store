@@ -12,7 +12,7 @@
 
 .htc-btn{border:1px solid var(--border);background:var(--surface2);color:var(--fg);border-radius:10px;padding:9px 14px;font-weight:700;font-size:.88rem;cursor:pointer;white-space:nowrap;font-family:inherit}
 .htc-btn:disabled{opacity:.55;cursor:default}
-.htc-primary{background:var(--accent);border-color:transparent;color:var(--bg)}
+.htc-primary{background:var(--accent);border-color:transparent;color:var(--on-accent,var(--bg))}
 .htc-ghost{background:transparent}
 .htc-danger-btn{color:var(--red);background:transparent}
 .htc-link{border:0;background:none;color:var(--accent);font-weight:700;font-size:.8rem;cursor:pointer;padding:4px 2px;font-family:inherit;text-align:left}
@@ -21,7 +21,7 @@
 .htc-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
 .htc-tabs::-webkit-scrollbar{display:none}
 .htc-tab{flex:none;border:1px solid var(--border);background:var(--surface1);color:var(--fg2);border-radius:999px;padding:8px 16px;font-weight:800;font-size:.88rem;cursor:pointer;font-family:inherit}
-.htc-tab.on{background:var(--accent);border-color:transparent;color:var(--bg)}
+.htc-tab.on{background:var(--accent);border-color:transparent;color:var(--on-accent,var(--bg))}
 .htc-tab-ico{font-style:normal}
 
 .htc-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;font-size:.85rem;border:1px solid var(--border)}

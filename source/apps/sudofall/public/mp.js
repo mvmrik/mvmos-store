@@ -333,7 +333,7 @@
             </div>
             <div style="text-align:center">
               <div style="font-size:.7rem;color:var(--text-dim,#a6adc8);margin-bottom:3px">💣</div>
-              <div id="sfmp-bombs" style="font-size:1rem;font-weight:700;color:#f38ba8;min-width:24px;text-align:center">💣 0</div>
+              <div id="sfmp-bombs" style="font-size:1rem;font-weight:700;color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)));min-width:24px;text-align:center">💣 0</div>
             </div>
           </div>
         </div>
@@ -501,7 +501,7 @@
 
   // ── renderSetup ───────────────────────────────────────────────────────────
   function renderSetup(box) {
-    box.innerHTML = '<div style="font-size:.85rem;color:#a6adc8;text-align:center;padding:8px 0">🔢 Ready to play! Start when 2 players are in the lobby.</div>';
+    box.innerHTML = '<div style="font-size:.85rem;color:var(--fg2,var(--text-dim,#a6adc8));text-align:center;padding:8px 0">🔢 Ready to play! Start when 2 players are in the lobby.</div>';
     return () => ({});
   }
 
@@ -518,15 +518,15 @@
             <div id="sfmp-my-game" style="flex:1;min-height:0"></div>
           </div>
           <div id="sf-opp-side" style="flex:1;min-width:0;display:flex;flex-direction:column;display:none">
-            <div style="font-size:.7rem;color:#a6adc8;text-align:center;margin-bottom:4px" id="sfmp-opp-label">Opponent</div>
+            <div style="font-size:.7rem;color:var(--fg2,var(--text-dim,#a6adc8));text-align:center;margin-bottom:4px" id="sfmp-opp-label">Opponent</div>
             <div id="sfmp-opp-game" style="flex:1;min-height:0;opacity:.85"></div>
           </div>
         </div>
-        <div id="sfmp-gameover" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.85);z-index:10;flex-direction:column;align-items:center;justify-content:center;gap:12px;border-radius:8px">
-          <div id="sfmp-result" style="font-size:1.4rem;font-weight:700;color:#f9e2af"></div>
+        <div id="sfmp-gameover" style="display:none;position:absolute;inset:0;background:var(--surface,#1e1e2e);z-index:10;flex-direction:column;align-items:center;justify-content:flex-start;padding:16px 0;overflow:auto;gap:12px;border-radius:8px">
+          <div id="sfmp-result" style="font-size:1.4rem;font-weight:700;color:color-mix(in srgb,#f9e2af 35%,var(--fg,var(--text,#cdd6f4)))"></div>
           <div id="sfmp-go-score" style="font-size:1rem;color:var(--text,#cdd6f4)"></div>
           <div id="sfmp-go-time" style="font-size:.85rem;color:var(--text-dim,#a6adc8)"></div>
-          <button id="sfmp-play-again" style="padding:10px 28px;background:var(--accent,#6366f1);border:none;border-radius:8px;color:#fff;font-size:1rem;font-weight:600;cursor:pointer">Play Again</button>
+          <section data-gh-results style="width:min(420px,calc(100% - 24px))"></section><button id="sfmp-play-again" style="padding:10px 28px;background:var(--accent,#6366f1);border:none;border-radius:8px;color:var(--on-accent,var(--surface,var(--surface1,#fff)));font-size:1rem;font-weight:600;cursor:pointer">Play Again</button>
         </div>
       </div>`;
 
@@ -582,8 +582,8 @@
       box.innerHTML = `
         <div style="display:flex;flex-direction:column;height:100%;align-items:center;justify-content:center;gap:16px;padding:24px;background:var(--surface,#1e1e2e)">
           <div style="font-size:2rem">🚪</div>
-          <div style="font-size:1rem;font-weight:700;color:#f38ba8">Opponent disconnected</div>
-          <button onclick="location.reload()" style="padding:8px 20px;background:var(--accent,#6366f1);border:none;border-radius:8px;color:#fff;cursor:pointer">Back to Hub</button>
+          <div style="font-size:1rem;font-weight:700;color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)))">Opponent disconnected</div>
+          <button onclick="location.reload()" style="padding:8px 20px;background:var(--accent,#6366f1);border:none;border-radius:8px;color:var(--on-accent,var(--surface,var(--surface1,#fff)));cursor:pointer">Back to Hub</button>
         </div>`;
     });
 

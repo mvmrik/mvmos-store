@@ -152,7 +152,7 @@
 
 .sh-plr-count {
   background: var(--accent, #89b4fa);
-  color: #1e1e2e;
+  color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));
   border-radius: 999px;
   padding: 0 5px;
   font-size: .68rem;
@@ -344,7 +344,7 @@
 
 .sh-pb.ok {
   background: var(--green, #a6e3a1);
-  color: #1e1e2e;
+  color:var(--surface,var(--surface1, #1e1e2e));
   border-color: transparent;
   font-weight: 700;
 }
@@ -383,7 +383,7 @@
 
 .sh-pbtn.on {
   background: var(--accent, #89b4fa);
-  color: #1e1e2e;
+  color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));
   border-color: transparent;
 }
 
@@ -582,7 +582,7 @@
 
 .sh-go {
   background: var(--accent, #89b4fa);
-  color: #1e1e2e;
+  color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));
   border: none;
   border-radius: 9px;
   padding: 9px 14px;
@@ -777,3 +777,6 @@
     height: min(260px, 42vh);
   }
 }
+
+/* Final standings share the card with the game actions on small screens. */
+.sh-card:has([data-gh-results]) { max-height:calc(100% - 24px); overflow:auto; }

@@ -4579,7 +4579,7 @@
       '<div style="font-size:2.4rem;line-height:1">🏯</div>' +
       '<div class="sh-card-t">' + _esc(_t('sh_mp_over_title')) + '</div>' +
       '<div class="sh-rank-list">' + rows + '</div>' +
-      '<div class="sh-card-r">' +
+      '<section data-gh-results></section><div class="sh-card-r">' +
       '<a href="/pub/gamehub/?game=' + GAME_ID + '" class="sh-link">' + _esc(_t('sh_back_to_hub')) + '</a>' +
       '</div></div>';
   }
@@ -7109,7 +7109,7 @@
         threat: _worstLvl(), kills: _hold.stats.kills || 0,
         raids: _hold.stats.raids || 0, time: _fmtSpan(secs),
       })) + '</div>' +
-      '<div class="sh-card-r">' +
+      '<section data-gh-results></section><div class="sh-card-r">' +
       '<button id="sh-again" class="sh-go">' + _esc(_t('sh_play_again')) + '</button>' +
       '<a href="/pub/gamehub/?game=' + GAME_ID + '" class="sh-link">' + _esc(_t('sh_back_to_hub')) + '</a>' +
       '</div></div>';

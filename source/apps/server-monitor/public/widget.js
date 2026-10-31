@@ -116,13 +116,13 @@
           <div id="bgw-svg" style="cursor:pointer;flex-shrink:0"></div>
           <div style="flex:1;display:flex;flex-direction:column;gap:5px">
             <div>
-              <div style="display:flex;justify-content:space-between;font-size:.6rem;color:#64748b;margin-bottom:2px">
+              <div style="display:flex;justify-content:space-between;font-size:.6rem;color:#94a3b8;margin-bottom:2px">
                 <span>Health</span>
               </div>
               <div class="bgw-bar"><div id="bgw-hbar" class="bgw-fill"></div></div>
             </div>
             <div>
-              <div style="display:flex;justify-content:space-between;font-size:.6rem;color:#64748b;margin-bottom:2px">
+              <div style="display:flex;justify-content:space-between;font-size:.6rem;color:#94a3b8;margin-bottom:2px">
                 <span>Growth</span>
               </div>
               <div class="bgw-bar"><div id="bgw-gbar" class="bgw-fill" style="background:#3b82f6"></div></div>
@@ -138,12 +138,12 @@
           <div id="bgw-svg" style="cursor:pointer;flex-shrink:0"></div>
           <div style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:5px">
             <div style="background:rgba(255,255,255,.06);border-radius:6px;padding:5px 7px">
-              <div style="font-size:.6rem;color:#64748b">Health</div>
+              <div style="font-size:.6rem;color:#94a3b8">Health</div>
               <div id="bgw-hval" style="font-size:.88rem;font-weight:700"></div>
               <div class="bgw-bar" style="margin-top:3px"><div id="bgw-hbar" class="bgw-fill"></div></div>
             </div>
             <div style="background:rgba(255,255,255,.06);border-radius:6px;padding:5px 7px">
-              <div style="font-size:.6rem;color:#64748b">Growth</div>
+              <div style="font-size:.6rem;color:#94a3b8">Growth</div>
               <div id="bgw-gval" style="font-size:.88rem;font-weight:700;color:#3b82f6"></div>
               <div class="bgw-bar" style="margin-top:3px"><div id="bgw-gbar" class="bgw-fill" style="background:#3b82f6"></div></div>
             </div>
@@ -159,21 +159,21 @@
           <div style="flex:1;display:flex;flex-direction:column;gap:7px;min-width:0">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">
               <div style="background:rgba(255,255,255,.06);border-radius:6px;padding:6px 8px">
-                <div style="font-size:.6rem;color:#64748b">Health</div>
+                <div style="font-size:.6rem;color:#94a3b8">Health</div>
                 <div id="bgw-hval" style="font-size:1rem;font-weight:700"></div>
                 <div class="bgw-bar" style="margin-top:3px"><div id="bgw-hbar" class="bgw-fill"></div></div>
               </div>
               <div style="background:rgba(255,255,255,.06);border-radius:6px;padding:6px 8px">
-                <div style="font-size:.6rem;color:#64748b">Growth</div>
+                <div style="font-size:.6rem;color:#94a3b8">Growth</div>
                 <div id="bgw-gval" style="font-size:1rem;font-weight:700;color:#3b82f6"></div>
                 <div class="bgw-bar" style="margin-top:3px"><div id="bgw-gbar" class="bgw-fill" style="background:#3b82f6"></div></div>
               </div>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;font-size:.7rem">
-              <div style="color:#64748b">CPU: <span id="bgw-cpu" style="color:#94a3b8"></span></div>
-              <div style="color:#64748b">RAM: <span id="bgw-ram" style="color:#94a3b8"></span></div>
-              <div style="color:#64748b">Disk: <span id="bgw-disk" style="color:#94a3b8"></span></div>
-              <div style="color:#64748b">Net: <span id="bgw-net" style="color:#94a3b8"></span></div>
+              <div style="color:#94a3b8">CPU: <span id="bgw-cpu" style="color:#94a3b8"></span></div>
+              <div style="color:#94a3b8">RAM: <span id="bgw-ram" style="color:#94a3b8"></span></div>
+              <div style="color:#94a3b8">Disk: <span id="bgw-disk" style="color:#94a3b8"></span></div>
+              <div style="color:#94a3b8">Net: <span id="bgw-net" style="color:#94a3b8"></span></div>
             </div>
             <div id="bgw-boost" style="font-size:.68rem;color:#60a5fa;min-height:14px"></div>
           </div>
@@ -317,14 +317,14 @@
         <div id="bgt-plant" style="flex-shrink:0"></div>
         <div style="display:flex;flex-direction:column;gap:2px;min-width:80px">
           <div style="display:flex;align-items:center;gap:4px">
-            <span style="color:#64748b;width:14px;font-size:.6rem">H</span>
+            <span style="color:#94a3b8;width:14px;font-size:.6rem">H</span>
             <div style="flex:1;height:3px;background:#1e2433;border-radius:2px">
               <div id="bgt-hbar" style="height:3px;border-radius:2px;transition:width .6s"></div>
             </div>
             <span id="bgt-hval" style="min-width:34px;text-align:right;font-size:.65rem"></span>
           </div>
           <div style="display:flex;align-items:center;gap:4px">
-            <span style="color:#64748b;width:14px;font-size:.6rem">G</span>
+            <span style="color:#94a3b8;width:14px;font-size:.6rem">G</span>
             <div style="flex:1;height:3px;background:#1e2433;border-radius:2px">
               <div id="bgt-gbar" style="height:3px;background:#3b82f6;border-radius:2px;transition:width .6s"></div>
             </div>

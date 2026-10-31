@@ -312,7 +312,7 @@ function _ysqlRenderApp(container) {
 
     var dlBtn = document.createElement('button');
     dlBtn.className = 's-btn s-btn-sm';
-    dlBtn.style.cssText = 'background:var(--accent);color:#fff;border-color:var(--accent);display:flex;align-items:center;gap:5px';
+    dlBtn.style.cssText = 'background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent);display:flex;align-items:center;gap:5px';
     dlBtn.innerHTML = t('ysql_download');
     dlBtn.addEventListener('click', function() {
       var selected = checkboxes.filter(function(c){ return c.checked; }).map(function(c){ return c.value; });

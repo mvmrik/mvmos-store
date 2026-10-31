@@ -94,8 +94,8 @@
 }
 
 .jp-t-df b { color: var(--accent, #89b4fa); font-size: .82rem; }
-.jp-t-pts b { color: #ffd60a; }
-.jp-t-pc b { color: #ff8fa6; }
+.jp-t-pts b { color:color-mix(in srgb,#ffd60a 35%,var(--fg,#cdd6f4)); }
+.jp-t-pc b { color:color-mix(in srgb,#ff8fa6 35%,var(--fg,#cdd6f4)); }
 
 @media (min-width: 700px) {
   .jp-tile b { font-size: 1.25rem; }
@@ -220,7 +220,7 @@
   border-radius: 12px;
   border: 2px solid rgba(255, 255, 255, .22);
   background: linear-gradient(180deg, #38d6c1, #1a9d92);
-  color: #fff;
+  color: #10312c;
   box-shadow: 0 3px 0 #11675f;
   font-family: inherit;
   cursor: pointer;
@@ -344,7 +344,7 @@
 
 .jp-bd span { color: var(--fg2, #a6adc8); }
 .jp-bd .tot { border-top: 1px solid var(--border, #45475a); padding-top: 4px; margin-top: 2px; font-size: 1.05rem; font-weight: 800; }
-.jp-bd .tot b { color: #ffd60a; }
+.jp-bd .tot b { color:color-mix(in srgb,#ffd60a 35%,var(--fg,#cdd6f4)); }
 
 .jp-rows {
   display: flex;
@@ -398,7 +398,7 @@
 
 .jp-btn.go {
   background: var(--accent, #89b4fa);
-  color: #1e1e2e;
+  color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));
   border-color: var(--accent, #89b4fa);
 }
 
@@ -432,7 +432,7 @@
 }
 
 .jp-peer-h .jp-name { flex: 1; text-align: left; max-width: none; }
-.jp-peer-h small { color: #ffd60a; font-variant-numeric: tabular-nums; }
+.jp-peer-h small { color:color-mix(in srgb,#ffd60a 35%,var(--fg,#cdd6f4)); font-variant-numeric: tabular-nums; }
 .jp-peer-s { font-size: .72rem; color: var(--fg2, #a6adc8); }
 
 
@@ -673,7 +673,7 @@
   border: 1px solid var(--border, #45475a);
 }
 .jp-res-row em { font-style: normal; color: var(--fg2, #a6adc8); text-align: right; }
-.jp-res-row.done em { color: #7ee2a8; font-weight: 700; }
+.jp-res-row.done em { color:color-mix(in srgb,#7ee2a8 35%,var(--fg,#cdd6f4)); font-weight: 700; }
 .jp-res-row.on { border-color: var(--accent, #89b4fa); }
 
 /* ── A phone held sideways ────────────────────────────────────────────────────

@@ -5,11 +5,11 @@ const _ysqlQT = window.t || (k => k);
 YS.query = (() => {
 
   var _colors = {
-    kw:      'color:#bd93f9',
-    str:     'color:#f1fa8c',
-    col:     'color:#8be9fd',
-    num:     'color:#ffb86c',
-    comment: 'color:#6272a4;font-style:italic',
+    kw:      'color:color-mix(in srgb,#bd93f9 35%,var(--text,#cdd6f4))',
+    str:     'color:color-mix(in srgb,#f1fa8c 35%,var(--text,#cdd6f4))',
+    col:     'color:color-mix(in srgb,#8be9fd 35%,var(--text,#cdd6f4))',
+    num:     'color:color-mix(in srgb,#ffb86c 35%,var(--text,#cdd6f4))',
+    comment: 'color:color-mix(in srgb,#6272a4 35%,var(--text,#cdd6f4));font-style:italic',
     plain:   'color:var(--text)',
   };
 
@@ -106,7 +106,7 @@ YS.query = (() => {
       '<span style="font-size:.78rem;color:var(--text-dim)">' + _ysqlQT('ysql_ctrl_enter_hint') + '</span>' +
       '<span style="flex:1"></span>' +
       '<button class="s-btn s-btn-sm" id="ysql-q-clear">' + _ysqlQT('ysql_clear') + '</button>' +
-      '<button class="s-btn s-btn-sm" id="ysql-q-run" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlQT('ysql_run') + '</button>';
+      '<button class="s-btn s-btn-sm" id="ysql-q-run" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + _ysqlQT('ysql_run') + '</button>';
 
     // ── Result container ──
     // browse.showWithSql renders directly into this div
@@ -164,11 +164,11 @@ YS.query = (() => {
     }}).catch(function(e) { return { error: e.message }; });
 
     if (r.error || r.detail) {
-      resultDiv.innerHTML = '<div style="padding:14px;color:#f38ba8;font-family:monospace;font-size:.82rem;white-space:pre-wrap">' + YS.escHtml(r.error || r.detail) + '</div>';
+      resultDiv.innerHTML = '<div style="padding:14px;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-family:monospace;font-size:.82rem;white-space:pre-wrap">' + YS.escHtml(r.error || r.detail) + '</div>';
       return;
     }
     if (r.affected !== null && r.affected !== undefined) {
-      resultDiv.innerHTML = '<div style="padding:14px;color:#50fa7b;font-size:.85rem">' + _ysqlQT('ysql_query_ok_affected', { n: r.affected }) + '</div>';
+      resultDiv.innerHTML = '<div style="padding:14px;color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4));font-size:.85rem">' + _ysqlQT('ysql_query_ok_affected', { n: r.affected }) + '</div>';
       return;
     }
     if (!r.columns || !r.columns.length) {

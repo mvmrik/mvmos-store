@@ -194,6 +194,43 @@ class TreeTests(unittest.TestCase):
         self.change(people[b],parents=[a])
         self.review(proposal['proposal_id'],status=400)
 
+    def test_children_list_sets_parents_from_the_person_record(self):
+        me=self.person('Me')['id']
+        mother=self.person('Mother',children=[me])['id']
+        people={p['id']:p for p in self.get()['people']}
+        self.assertEqual(people[me]['parents'],[mother]);self.assertEqual(people[me]['version'],2)
+        self.assertNotIn('children',people[mother])
+        sister=self.person('Sister',children=[])['id']
+        mom=people[mother]
+        self.change(mom,children=[me,sister])
+        people={p['id']:p for p in self.get()['people']}
+        self.assertEqual(people[sister]['parents'],[mother])
+        self.change(people[mother],children=[sister])
+        people={p['id']:p for p in self.get()['people']}
+        self.assertEqual(people[me]['parents'],[]);self.assertEqual(people[sister]['parents'],[mother])
+        self.change(people[mother])
+        self.assertEqual({p['id']:p for p in self.get()['people']}[sister]['parents'],[mother])
+
+    def test_children_conflicts_are_rejected_atomically(self):
+        me=self.person('Me')['id']
+        mother=self.person('Mother',children=[me])['id']
+        grand=self.person('Grandmother',children=[mother])['id']
+        a=self.person('A')['id'];b=self.person('B')['id']
+        self.person('Kid',parents=[a,b])
+        kid=[p for p in self.get()['people'] if p['name']=='Kid'][0]['id']
+        people={p['id']:p for p in self.get()['people']}
+        def post(pid,status,**data):
+            self.request('POST',f'/trees/{self.tid}/changes',{'action':'update','person_id':pid,'version':people[pid]['version'],'data':{**people[pid],**data}},status=status)
+        post(me,400,children=[me])                      # own child
+        post(mother,400,children=[grand])               # own parent as child
+        post(me,400,children=[grand])                   # ancestor as child
+        post(grand,400,parents=[me])                    # descendant as parent
+        post(mother,400,children=[me],partners=[{'person_id':me,'kind':'partner'}])  # child and partner
+        post(me,400,children=[kid])                     # third parent for Kid
+        people={p['id']:p for p in self.get()['people']}
+        self.assertEqual(people[kid]['parents'],[a,b]);self.assertEqual(people[me]['parents'],[mother])
+        post(mother,200,children=[],parents=[me])        # removing the child frees the cycle
+
     def test_delete_parent_keeps_children_and_increments_version(self):
         parent=self.person()['id'];child=self.person('Child',[parent])['id']
         people={p['id']:p for p in self.get()['people']}

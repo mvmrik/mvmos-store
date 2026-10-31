@@ -1416,7 +1416,7 @@ const AI = (() => {
       <div class="mvmai-browse-list" style="flex:1;overflow-y:auto;border:1px solid var(--border);border-radius:6px;min-height:200px"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
         <button class="s-btn mvmai-browse-cancel">${_ait('cancel')}</button>
-        <button class="s-btn mvmai-browse-select" style="background:var(--accent);color:#fff;border-color:var(--accent)">${_ait('browse_select')}</button>
+        <button class="s-btn mvmai-browse-select" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">${_ait('browse_select')}</button>
       </div></div>`;
     _root.appendChild(overlay);
     let current = startPath || '/';
@@ -1467,7 +1467,7 @@ const AI = (() => {
       <div class="mvmai-proj-err" style="color:#f38ba8;font-size:.82rem;display:none"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
       <button class="s-btn mvmai-proj-cancel">${_ait('cancel')}</button>
-      <button class="s-btn mvmai-proj-create" style="background:var(--accent);color:#fff;border-color:var(--accent)">${_ait('project_create')}</button>
+      <button class="s-btn mvmai-proj-create" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">${_ait('project_create')}</button>
       </div></div>`;
     _root.appendChild(overlay);
     overlay.querySelector('.mvmai-proj-name').focus();

@@ -1,79 +1,11 @@
 // mvmOS App: FindYourself v1.3.0
-const _fyi18n = {
-  en: {
-    title: 'FindYourself', play: 'Play', settings_btn: '⚙ Settings',
-    no_api: 'Enter your Google Maps API key in App Settings to play.',
-    round: 'Round', of: 'of', score: 'Score', time: 'Time',
-    click_map: 'Click on the map to place your guess',
-    reset_pos: 'Reset position', expand_map: 'Expand map', collapse_map: 'Collapse map',
-    submit: 'Submit Guess', next_round: 'Next Round', see_result: 'See Result',
-    finish: 'Finish Game', play_again: 'Play Again',
-    distance: 'Distance', points: 'Points',
-    result_title: 'Round Result',
-    final_title: 'Game Over',
-    total_score: 'Total Score',
-    best: 'Best', rounds_label: 'rounds',
-    rounds_count: 'Rounds', time_per_round: 'Time per round', no_limit: 'No limit', region: 'Region',
-    location_pts: 'Location', time_bonus: 'Time bonus', total_pts: 'Total',
-    loading: 'Loading Street View…',
-    no_sv: 'No Street View found nearby, trying another location…',
-    singleplayer: 'Single player', multiplayer: 'Multiplayer',
-    mp_share: 'Share this link with your friends:', copy_link: 'Copy link', copied: 'Copied!',
-    host: 'Host', your_name: 'Your name', ready: 'Ready', waiting_host: 'Waiting for host…',
-    players: 'Players', start_game: 'Start game', need_players: 'Waiting for players…',
-    waiting_others: 'Waiting for other players…', times_up: "Time's up! Calculating…",
-    next_round: 'Next Round', final_standings: 'Final Standings', winner: 'Winner',
-    you: 'You', final_standings: 'Final Standings', winner: 'Winner',
-    mp_login: 'Log in to Game Hub to play multiplayer',
-    open_games: 'Open games', no_open_games: 'No open games right now',
-    create_game: 'Create game', join: 'Join', solo: 'Solo',
-    players_waiting: 'players waiting', in_round: 'In round',
-    start_game: 'Start game', preparing: 'Preparing round…',
-    waiting_start: 'Waiting for someone to start…', waiting_round: 'Waiting for next round…',
-    player_left_game: 'left the game',
-    next_auto: 'Next round in',
-    invite_players: 'Invite players', invite: 'Invite', invited: 'Invited ✓',
-    logout: 'Logout', back: '← Back',
-    maps_load_failed: 'Failed to load Google Maps. Check your API key.',
-  },
-  bg: {
-    title: 'FindYourself', play: 'Играй', settings_btn: '⚙ Настройки',
-    no_api: 'Въведи Google Maps API ключ в App Settings за да играеш.',
-    round: 'Рунд', of: 'от', score: 'Точки', time: 'Време',
-    click_map: 'Кликни на картата за да отбележиш позицията си',
-    submit: 'Потвърди', next_round: 'Следващ рунд', see_result: 'Виж резултата',
-    finish: 'Приключи', play_again: 'Играй пак',
-    distance: 'Разстояние', points: 'Точки',
-    result_title: 'Резултат',
-    final_title: 'Край на играта',
-    total_score: 'Общо точки',
-    best: 'Рекорд', rounds_label: 'рунда',
-    reset_pos: 'Начална позиция', expand_map: 'Разшири картата', collapse_map: 'Свий картата',
-    rounds_count: 'Брой рундове', time_per_round: 'Време за рунд', no_limit: 'Без време', region: 'Регион',
-    location_pts: 'Локация', time_bonus: 'Бонус за време', total_pts: 'Общо',
-    loading: 'Зареждане на Street View…',
-    no_sv: 'Няма Street View наблизо, опитваме друга локация…',
-    singleplayer: 'Сам', multiplayer: 'Мултиплеър',
-    mp_share: 'Сподели този линк с приятелите си:', copy_link: 'Копирай линка', copied: 'Копирано!',
-    host: 'Хост', your_name: 'Твоето име', ready: 'Готов', waiting_host: 'Чака хоста…',
-    players: 'Играчи', start_game: 'Старт', need_players: 'Чака играчи…',
-    waiting_others: 'Чака останалите играчи…', times_up: 'Времето изтече! Изчисляване…',
-    next_round: 'Следващ рунд', final_standings: 'Крайно класиране', winner: 'Победител',
-    you: 'Ти', final_standings: 'Крайно класиране', winner: 'Победител',
-    mp_login: 'Влез в Game Hub за мултиплеър',
-    open_games: 'Отворени игри', no_open_games: 'Няма отворени игри',
-    create_game: 'Създай игра', join: 'Присъедини се', solo: 'Сам',
-    players_waiting: 'играча чакат', in_round: 'В рунд',
-    start_game: 'Стартирай', preparing: 'Подготвяме рунда…',
-    waiting_start: 'Чака някой да стартира…', waiting_round: 'Чака следващия рунд…',
-    player_left_game: 'напусна играта',
-    next_auto: 'Следващ рунд след',
-    invite_players: 'Покани играчи', invite: 'Покани', invited: 'Поканен ✓',
-    logout: 'Изход', back: '← Назад',
-    maps_load_failed: 'Грешка при зареждане на Google Maps. Провери своя API ключ.',
-  },
-};
-function _fyt(key) { const l = window.mvmOS?.lang || 'en'; return (_fyi18n[l] || _fyi18n.en)[key] || key; }
+const _fyStringsReady = new Promise((resolve, reject) => {
+  const script = document.createElement('script');
+  script.src = window.asset('/apps/findyourself/i18n.js');
+  script.onload = resolve; script.onerror = reject;
+  document.head.appendChild(script);
+});
+function _fyt(key) { return window._i18n?.['fy_' + key] || key; }
 
 mvmOS.registerApp({
   id: 'findyourself',
@@ -97,7 +29,7 @@ mvmOS.registerApp({
       onMount(body) {
         body.style.padding = '0';
         body.style.overflow = 'hidden';
-        (window.mvmOS?.i18nReady || Promise.resolve()).then(() => FY.mount(body));
+        Promise.all([window.mvmOS?.i18nReady || Promise.resolve(), _fyStringsReady]).then(() => FY.mount(body));
       },
     });
   },
@@ -247,12 +179,16 @@ const FY = (() => {
   // ── Game Hub helpers ─────────────────────────────────────────────────────
 
   function _loadGameHub(cb, errCb) {
-    if (window.GameHub) { window.GameHub.init().then(cb); return; }
-    const s = document.createElement('script');
-    s.src = `/apps/gamehub/widget.js?_=${Date.now()}`;
-    s.onload  = () => window.GameHub?.init().then(cb) || cb();
-    s.onerror = errCb || cb;
-    document.head.appendChild(s);
+    const load = src => new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = window.asset(src); script.onload = resolve; script.onerror = reject;
+      document.head.appendChild(script);
+    });
+    (async () => {
+      if (!window.GAMEHUB_I18N) await load('/apps/gamehub/i18n.js');
+      if (!window.GameHub) await load('/apps/gamehub/widget.js');
+      await window.GameHub.init(); cb();
+    })().catch(errCb || cb);
   }
 
   function _avatar(player, size) {
@@ -272,7 +208,7 @@ const FY = (() => {
         <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.06);border-radius:8px;padding:8px 12px;width:100%;box-sizing:border-box">
           ${_avatar(p, 22)}
           <div style="flex:1;font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.display_name}</div>
-          <button id="fy-gh-out" style="border:none;background:none;color:#a6adc8;font-size:11px;cursor:pointer;padding:2px 6px;flex-shrink:0">${_fyt('logout')}</button>
+          <button id="fy-gh-out" style="border:none;background:none;color:var(--fg2,var(--text-dim,#a6adc8));font-size:11px;cursor:pointer;padding:2px 6px;flex-shrink:0">${_fyt('logout')}</button>
         </div>`;
       container.querySelector('#fy-gh-out').onclick = async () => {
         await window.GameHub.logout();
@@ -291,13 +227,13 @@ const FY = (() => {
 
   function _recordGhSession(durationSeconds) {
     if (!_ghPlayer || !window.GameHub) return;
-    window.GameHub.recordSession({
+    return window.GameHub.recordSession({
       game_id: 'findyourself',
       mode: 'singleplayer',
       players: [{ player_id: _ghPlayer.id, score: _totalScore, is_winner: true }],
       duration_seconds: durationSeconds,
       metadata: { rounds: _cfg.rounds, time_per_round: _cfg.time },
-    }).catch(() => {});
+    }).then(r => r.ok).catch(() => false);
   }
 
   function _recordMpSession(standings) {
@@ -373,10 +309,10 @@ const FY = (() => {
           <div style="font-size:3rem">🌍</div>
           <h1>${_fyt('title')}</h1>
           <p>Drop into a random Street View location anywhere in the world and guess where you are on the map.</p>
-          ${best ? `<div style="font-size:.82rem;color:#a6adc8">${_fyt('best')}: <strong>${best.total}</strong> pts / ${best.rounds} ${_fyt('rounds_label')}</div>` : ''}
+          ${best ? `<div style="font-size:.82rem;color:var(--fg2,var(--text-dim,#a6adc8))">${_fyt('best')}: <strong>${best.total}</strong> pts / ${best.rounds} ${_fyt('rounds_label')}</div>` : ''}
           ${!_cfg.api_key ? `
-            <p style="color:#f38ba8;font-size:.82rem">${_fyt('no_api')}</p>
-            <a href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com" target="_blank" style="font-size:.78rem;color:#89b4fa">Get API key from Google Cloud Console →</a>
+            <p style="color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)));font-size:.82rem">${_fyt('no_api')}</p>
+            <a href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com" target="_blank" style="font-size:.78rem;color:var(--accent,#89b4fa)">Get API key from Google Cloud Console →</a>
             <button class="fy-btn secondary" onclick="AppStore?.openWindow({section:'my-apps',appId:'findyourself'})">${_fyt('settings_btn')}</button>
           ` : `
             <div class="fy-setup-opts">
@@ -466,7 +402,7 @@ const FY = (() => {
     try {
       await _loadMaps(_cfg.api_key);
     } catch(e) {
-      _root.innerHTML = `<div class="fy-root"><div class="fy-screen"><p style="color:#f38ba8">${_fyt('maps_load_failed')}</p><button class="fy-btn secondary" id="fy-back">${_fyt('back')}</button></div></div>`;
+      _root.innerHTML = `<div class="fy-root"><div class="fy-screen"><p style="color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)))">${_fyt('maps_load_failed')}</p><button class="fy-btn secondary" id="fy-back">${_fyt('back')}</button></div></div>`;
       _root.querySelector('#fy-back').addEventListener('click', _showSetup);
       return;
     }
@@ -493,7 +429,7 @@ const FY = (() => {
           <button class="fy-guess-btn-map" id="fy-submit" disabled>${_fyt('submit')}</button>
         </div>
       </div>
-      <div id="fy-sv-loading" style="position:absolute;inset:0;background:#1e1e2e;display:flex;align-items:center;justify-content:center;z-index:5;font-size:.9rem;color:#a6adc8">${_fyt('loading')}</div>
+      <div id="fy-sv-loading" style="position:absolute;inset:0;background:#1e1e2e;display:flex;align-items:center;justify-content:center;z-index:5;font-size:.9rem;color:var(--fg2,var(--text-dim,#a6adc8))">${_fyt('loading')}</div>
     `;
   }
 
@@ -769,7 +705,7 @@ const FY = (() => {
 
   async function _showFinal() {
     _stopTimer();
-    _recordGhSession(Math.round((Date.now() - _gameStartTime) / 1000));
+    const recorded = _recordGhSession(Math.round((Date.now() - _gameStartTime) / 1000));
     await _db.run('INSERT INTO scores (total, rounds, date) VALUES (?,?,?)',
       [_totalScore, _cfg.rounds, new Date().toISOString()]);
 
@@ -789,13 +725,17 @@ const FY = (() => {
               </div>
             `).join('')}
           </div>
-          ${best ? `<div style="font-size:.8rem;color:#a6adc8">${_fyt('best')}: <strong>${best.total}</strong> pts</div>` : ''}
-          <div style="display:flex;gap:10px">
+          ${best ? `<div style="font-size:.8rem;color:var(--fg2,var(--text-dim,#a6adc8))">${_fyt('best')}: <strong>${best.total}</strong> pts</div>` : ''}
+          <section data-gh-results></section><div style="display:flex;gap:10px">
             <button class="fy-btn" id="fy-again">${_fyt('play_again')}</button>
             <button class="fy-btn secondary" id="fy-home">← Menu</button>
           </div>
         </div>
       </div>`;
+    const rankHost = _root.querySelector('[data-gh-results]');
+    if (recorded && window.GameHub.showStandings) Promise.resolve(recorded).then(ok => {
+      if (rankHost.isConnected) window.GameHub.showStandings(rankHost, { gameId: 'findyourself', mode: 'single', playerId: _ghPlayer.id, recorded: ok });
+    });
     _root.querySelector('#fy-again').addEventListener('click', _startGame);
     _root.querySelector('#fy-home').addEventListener('click', _showSetup);
   }

@@ -25,10 +25,10 @@ YS.rowEdit = (() => {
       '</div>' +
       '<div id="ysql-rem-body" style="overflow-y:auto;flex:1;padding:12px 16px;display:flex;flex-direction:column;gap:8px"></div>' +
       '<div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid var(--border);flex-shrink:0">' +
-        '<button id="ysql-rem-delete" class="s-btn s-btn-sm" style="color:#f38ba8">' + _ysqlReT('ysql_delete') + '</button>' +
+        '<button id="ysql-rem-delete" class="s-btn s-btn-sm" style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4))">' + _ysqlReT('ysql_delete') + '</button>' +
         '<span style="flex:1"></span>' +
         '<button id="ysql-rem-cancel" class="s-btn s-btn-sm">' + _ysqlReT('ysql_cancel') + '</button>' +
-        '<button id="ysql-rem-save" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlReT('ysql_save') + '</button>' +
+        '<button id="ysql-rem-save" class="s-btn s-btn-sm" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + _ysqlReT('ysql_save') + '</button>' +
       '</div>';
 
     overlay.appendChild(modal);
@@ -157,10 +157,10 @@ YS.rowInsert = (() => {
         '<button id="ysql-ins-close" class="s-btn s-btn-sm">✕</button>' +
       '</div>' +
       '<div id="ysql-ins-body" style="overflow-y:auto;flex:1;padding:12px 16px;display:flex;flex-direction:column;gap:8px"></div>' +
-      '<div id="ysql-ins-error" style="display:none;padding:6px 16px;color:#f38ba8;font-size:.82rem"></div>' +
+      '<div id="ysql-ins-error" style="display:none;padding:6px 16px;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem"></div>' +
       '<div style="display:flex;justify-content:flex-end;gap:8px;padding:10px 16px;border-top:1px solid var(--border);flex-shrink:0">' +
         '<button id="ysql-ins-cancel" class="s-btn s-btn-sm">' + _ysqlReT('ysql_cancel') + '</button>' +
-        '<button id="ysql-ins-save" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlReT('ysql_insert_row') + '</button>' +
+        '<button id="ysql-ins-save" class="s-btn s-btn-sm" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + _ysqlReT('ysql_insert_row') + '</button>' +
       '</div>';
 
     overlay.appendChild(modal);
@@ -258,10 +258,10 @@ YS.bulkEdit = (() => {
       '</div>' +
       '<div id="ysql-bem-body" style="overflow-y:auto;flex:1;padding:12px 16px;display:flex;flex-direction:column;gap:6px"></div>' +
       '<div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-top:1px solid var(--border);flex-shrink:0">' +
-        '<button id="ysql-bem-delete" class="s-btn s-btn-sm" style="color:#f38ba8">' + _ysqlReT('ysql_delete_n_rows_btn', { n: count, s: count!==1?'s':'' }) + '</button>' +
+        '<button id="ysql-bem-delete" class="s-btn s-btn-sm" style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4))">' + _ysqlReT('ysql_delete_n_rows_btn', { n: count, s: count!==1?'s':'' }) + '</button>' +
         '<span style="flex:1"></span>' +
         '<button id="ysql-bem-cancel" class="s-btn s-btn-sm">' + _ysqlReT('ysql_cancel') + '</button>' +
-        '<button id="ysql-bem-save" class="s-btn s-btn-sm" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlReT('ysql_apply') + '</button>' +
+        '<button id="ysql-bem-save" class="s-btn s-btn-sm" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + _ysqlReT('ysql_apply') + '</button>' +
       '</div>';
 
     overlay.appendChild(modal);

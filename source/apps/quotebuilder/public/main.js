@@ -291,7 +291,7 @@ const PC = (() => {
   function _iStyle(ex) { return `padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:.85rem;outline:none;${ex||''}`; }
   function _btnStyle(type) {
     const b = 'padding:5px 12px;border-radius:4px;cursor:pointer;font-size:.82rem;font-family:inherit;';
-    if (type === 'primary') return b + 'border:none;background:var(--accent);color:#fff;';
+    if (type === 'primary') return b + 'border:none;background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));';
     if (type === 'ghost')   return b + 'border:1px solid var(--border);background:transparent;color:var(--text-dim);';
     return b + 'border:1px solid var(--border);background:var(--surface);color:var(--text);';
   }
@@ -703,7 +703,7 @@ const PC = (() => {
             <span>${_fmtAmt(c.subtotal)}</span>
           </div>
           ${c.discountPct > 0 ? `
-          <div style="${_row()}color:#f38ba8">
+          <div style="${_row()}color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4))">
             <span>${_t('discount_row')} (${c.discountPct}%)</span>
             <span>−${_fmtAmt(c.discountAmt)}</span>
           </div>` : ''}
@@ -712,7 +712,7 @@ const PC = (() => {
             <span style="color:var(--accent)">${_fmtAmt(c.total)}</span>
           </div>
           ${c.depositPct > 0 ? `
-          <div style="${_row()}color:#a6e3a1">
+          <div style="${_row()}color:color-mix(in srgb,#a6e3a1 35%,var(--text,#cdd6f4))">
             <span>${_t('deposit_row')} (${c.depositPct}%)</span>
             <span>${_fmtAmt(c.depositAmt)}</span>
           </div>
@@ -853,7 +853,7 @@ const PC = (() => {
           const sel = c === _selCat;
           const base = 'border-radius:20px;padding:3px 11px;font-size:.76rem;cursor:pointer;white-space:nowrap;border:1px solid;font-family:inherit;';
           const style = sel
-            ? base + 'background:var(--accent);color:#1e1e2e;border-color:var(--accent);font-weight:600'
+            ? base + 'background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));border-color:var(--accent);font-weight:600'
             : base + 'background:transparent;color:var(--text-dim);border-color:var(--border)';
           return `<button class="pc-tpl-cat" data-cat="${_esc(c)}" style="${style}">${_esc(c || _t('uncategorized'))}</button>`;
         }).join('')}

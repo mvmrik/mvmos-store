@@ -63,3 +63,15 @@ On narrow screens, daily replay fits the car height to the available app area so
 The Now car illustration shows open doors, windows and the charge port directly, without duplicate text badges beneath it. Opening and closing these parts during daily replay does not add layout rows or change the car size.
 
 The line beneath the daily replay slider displays the position of the selected recording instead of repeating its date and time. It uses a saved place name or an existing trip/charging address within 100 metres, otherwise GPS coordinates; missing coordinates are reported explicitly. Long names stay on one line with the complete text in a tooltip, so position changes do not resize the car. Position labels are resolved locally, without extra Tesla or geocoding requests. During list-only sleep/offline transitions the position remains the last recorded one.
+
+
+## Seasonal charging tariffs
+
+A tariff record has a place, charging type, billing time zone and validity dates for price history. Its bands also have annual seasons, weekdays and hours. Separate summer (1 April–31 October) and winter (1 November–31 March) records may share validity dates: only actual overlapping coverage is rejected. The list shows each band's annual dates beside its hours and price.
+
+Annual seasons include both end dates and follow the current local calendar date, including the early hours after midnight. The weekday of an overnight band follows the day it starts. The billing time zone handles skipped and repeated clock hours. The matching record is selected across all applicable seasonal records; an out-of-season record does not hide another valid record.
+
+The single-rate and day/night buttons are explicitly labelled band templates. They replace the bands below with editable starting values, rather than selecting a separate pricing mode. Enter the provider's actual prices, hours, weekdays and seasons; add further bands as needed. Historical price changes still use separate validity periods.
+
+
+Tariff validity and each band's annual season use the shared mvmOS range calendar. Open one field, choose its start and end, and apply. The season calendar omits the year and supports November–March directly; its display follows the profile or desktop date format, including day before month for a Bulgarian DD/MM/YYYY preference. Existing records keep their stored dates; saving still sends the same validity timestamps and annual month/day values to the tariff API.

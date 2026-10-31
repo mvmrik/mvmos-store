@@ -73,7 +73,7 @@
 .whw-nav button{display:flex;gap:8px;align-items:center;width:100%;background:none;border:none;color:var(--pub-fg2,#a6adc8);font:inherit;
   padding:8px 10px;border-radius:7px;cursor:pointer;text-align:left}
 .whw-nav button:hover{background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4)}
-.whw-nav button.on{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:600}
+.whw-nav button.on{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e));font-weight:600}
 .whw-view{flex:1;overflow:auto;padding:14px;min-width:0}
 @container (max-width: 720px){
   .whw-main{flex-direction:column}
@@ -95,7 +95,7 @@
   font:inherit;white-space:nowrap}
 .whw-btn:hover{background:var(--pub-border,#45475a)}
 .whw-btn:disabled{opacity:.5;cursor:default}
-.whw-btn.pri{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:600}
+.whw-btn.pri{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e));font-weight:600}
 .whw-btn.pri:hover{background:var(--pub-accent-hover,#a6c8ff)}
 .whw-btn.dan{background:none;border-color:var(--pub-red,#f38ba8);color:var(--pub-red,#f38ba8)}
 .whw-btn.dan:hover{background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e)}

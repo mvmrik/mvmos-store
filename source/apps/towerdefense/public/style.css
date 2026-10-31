@@ -76,7 +76,7 @@
   border: none;
   border-radius: 10px;
   background: var(--accent, #89b4fa);
-  color: #1e1e2e;
+  color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));
   font-size: .92rem;
   font-weight: 800;
   white-space: nowrap;
@@ -143,7 +143,7 @@
   padding: 1px 5px;
   border-radius: 4px;
   background: var(--accent, #89b4fa);
-  color: #1e1e2e;
+  color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));
 }
 
 .td-unit-boss {

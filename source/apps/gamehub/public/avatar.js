@@ -377,7 +377,7 @@
       topPanel.innerHTML = `
         <div id="av-preview">${avatarSvg(d, 72)}</div>
         <div style="flex:1;font-weight:700;font-size:15px">Customize Avatar</div>
-        <button id="av-save" style="background:var(--accent,#6366f1);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer">Save</button>
+        <button id="av-save" style="background:var(--accent,#6366f1);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border:none;border-radius:8px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer">Save</button>
         <button id="av-x" style="background:none;border:none;color:var(--fg,#cdd6f4);cursor:pointer;font-size:22px;line-height:1;padding:2px 6px">✕</button>`;
       topPanel.querySelector('#av-x').onclick = () => ov.remove();
       topPanel.querySelector('#av-save').onclick = () => { ov.remove(); onSave(JSON.stringify(d)); };

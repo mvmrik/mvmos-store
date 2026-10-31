@@ -67,7 +67,7 @@ mvmOS.registerApp({
         // ── helpers ────────────────────────────────────────────
         const q  = s => body.querySelector(s);
         const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-        const btn = (bg) => `padding:4px 10px;border-radius:6px;border:none;cursor:pointer;font-size:13px;background:${bg||'var(--surface2)'};color:${bg?'#fff':'var(--fg)'}`;
+        const btn = (bg) => `padding:4px 10px;border-radius:6px;border:none;cursor:pointer;font-size:13px;background:${bg||'var(--surface2)'};color:${bg?'var(--on-accent,var(--surface,var(--surface1,#1e1e2e)))':'var(--fg)'}`;
         const inp = () => 'padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--fg);font-size:13px;width:100%;box-sizing:border-box';
         const fld = (label, inner) => `<label style="display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--fg2)">${label}${inner}</label>`;
         const uid = () => Math.random().toString(36).slice(2,8);
@@ -145,7 +145,7 @@ mvmOS.registerApp({
           ['day','week','month'].forEach(p => {
             const b=q(`#st-p-${p}`); if(!b) return;
             b.style.background = period===p?'var(--accent)':'var(--surface2)';
-            b.style.color = period===p?'#fff':'var(--fg)';
+            b.style.color = period===p?'var(--on-accent,var(--surface,var(--surface1,#1e1e2e)))':'var(--fg)';
           });
           const nb = q('#st-next'); if(nb) nb.disabled = offset>=0;
 
@@ -336,7 +336,7 @@ mvmOS.registerApp({
               const d = await r.json();
               testArea.innerHTML = d.ok
                 ? `<div style="font-size:12px;background:var(--surface2);padding:6px 10px;border-radius:6px">${_stt('test_val')}: <b>${esc(d.value)}</b> → ${_stt('test_state')}: <b style="color:${d.state?.color||'inherit'}">${esc(d.state?.name||'?')}</b></div>`
-                : `<div style="font-size:12px;color:#f38ba8;background:var(--surface2);padding:6px 10px;border-radius:6px">${_stt('test_err')}: ${esc(d.error)}</div>`;
+                : `<div style="font-size:12px;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));background:var(--surface2);padding:6px 10px;border-radius:6px">${_stt('test_err')}: ${esc(d.error)}</div>`;
               testBtn.textContent=_stt('test'); testBtn.disabled=false;
             };
             footer.append(delBtn, testBtn);

@@ -28,7 +28,7 @@ When you clear a level the result stays on screen, and the next level's clock on
 
 ## Playing alone
 
-A solo game runs from level 1 to level 100. It ends when you clear level 100, or when you choose Finish game on the screen after any level. Only then is your score recorded in Game Hub, and it is your total points for the game. The next game starts again from level 1, and your best finished game is your record. Game Hub's Save & exit keeps the exact position and records nothing; when you start again, Game Hub asks whether to continue the saved game or start a new one.
+A solo game runs from level 1 to level 100. It ends when you clear level 100, or when you choose Finish game on the screen after any level. Only then is your score recorded in Game Hub, and it is your total points for the game. The next game starts again from level 1, and your best finished game is your record. Game Hub's Save & exit keeps the exact position without recording an unfinished session; when you start again, Game Hub asks whether to continue the saved game or start a new one.
 
 ## Playing with others
 
@@ -37,3 +37,5 @@ The host chooses how many levels to play, up to 100. Everyone plays the same lev
 ## Statistics
 
 Game Hub records the level reached, levels cleared, levels solved within par, moves, undos, hints used and the most colours met, with a rating for multiplayer.
+
+The level display shows your personal best and the overall best for that numbered level. After a clear, the breakdown compares the level score with those records. This score includes the level bonuses and subtracts hints paid for on that level; the total run score remains separate. Completed level records survive Save & exit. Tracking starts with this feature because older runs did not preserve individual level scores. A continued older save with hints starts tracking records from its next fresh level.

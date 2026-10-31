@@ -476,7 +476,7 @@ const QB = (() => {
               <div id="qb-autoconfig-status" style="font-size:.75rem;margin-top:6px;display:none"></div>
             </div>
 
-            <div style="background:#f1fa8c18;border:1px solid #f1fa8c44;border-radius:6px;padding:8px 12px;font-size:.74rem;color:#f1fa8c">
+            <div style="background:#f1fa8c18;border:1px solid #f1fa8c44;border-radius:6px;padding:8px 12px;font-size:.74rem;color:color-mix(in srgb,#f1fa8c 35%,var(--text,#cdd6f4))">
               ⚠️ ${_qbt('setup_note')}
             </div>
 
@@ -505,12 +505,12 @@ const QB = (() => {
           status.style.color = 'var(--accent)';
           status.textContent = d.already ? _qbt('autoconfig_already') : _qbt('autoconfig_ok');
         } else {
-          status.style.color = '#ff5555';
+          status.style.color = 'color-mix(in srgb,#ff5555 35%,var(--text,var(--fg,#cdd6f4)))';
           status.textContent = _qbt('autoconfig_err') + (d.error || '');
         }
       } catch(e) {
         status.style.display = 'block';
-        status.style.color = '#ff5555';
+        status.style.color = 'color-mix(in srgb,#ff5555 35%,var(--text,var(--fg,#cdd6f4)))';
         status.textContent = _qbt('autoconfig_err') + e.message;
       }
       btn.disabled = false;
@@ -815,7 +815,7 @@ const QB = (() => {
             setTimeout(() => document.addEventListener('click', () => menu.remove(), { once: true }), 0);
           });
         });
-      }).catch(() => { body.innerHTML = `<div style="padding:8px;color:#ff5555">${_qbt('err_files')}</div>`; });
+      }).catch(() => { body.innerHTML = `<div style="padding:8px;color:color-mix(in srgb,#ff5555 35%,var(--text,#cdd6f4))">${_qbt('err_files')}</div>`; });
     } else if (_detailTab === 'peers') {
       body.innerHTML = `<div style="color:var(--text-dim);font-size:.75rem;padding:8px">${_qbt('connecting')}</div>`;
       _api(`/api/v2/sync/torrentPeers?hash=${t.hash}`).then(data => {
@@ -827,7 +827,7 @@ const QB = (() => {
             <span class="qb-detail-val" style="font-size:.68rem">${p.client || '?'} · ↓${_fmtSpeed(p.dl_speed)} ↑${_fmtSpeed(p.up_speed)}</span>
           </div>
         `).join('');
-      }).catch(() => { body.innerHTML = `<div style="padding:8px;color:#ff5555">${_qbt('err_peers')}</div>`; });
+      }).catch(() => { body.innerHTML = `<div style="padding:8px;color:color-mix(in srgb,#ff5555 35%,var(--text,#cdd6f4))">${_qbt('err_peers')}</div>`; });
     }
   }
 
@@ -1421,7 +1421,7 @@ const QB = (() => {
             <div style="display:flex;gap:8px">
               <input id="ipt-q" type="text" placeholder="${_qbt('ipt_q_ph')}" class="s-input" style="flex:1">
               <input id="ipt-filter" type="text" placeholder="${_qbt('ipt_filter_ph')}" class="s-input" style="width:200px">
-              <button id="ipt-search-btn" class="s-btn" style="background:var(--accent);color:#fff;padding:0 16px">${_qbt('ipt_search')}</button>
+              <button id="ipt-search-btn" class="s-btn" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));padding:0 16px">${_qbt('ipt_search')}</button>
             </div>
             <div id="ipt-local-filter-row" style="display:none;align-items:center;gap:8px">
               <input id="ipt-local-filter" type="text" placeholder="${_qbt('ipt_local_ph')}" class="s-input" style="flex:1">
@@ -1512,14 +1512,14 @@ const QB = (() => {
                   <div style="font-size:.71rem;color:var(--text-dim);margin-top:1px">
                     ${t.category ? `<span style="margin-right:8px">${t.category}</span>` : ''}
                     ${t.size ? `<span style="margin-right:8px">📦 ${t.size}</span>` : ''}
-                    ${t.seeds ? `<span style="margin-right:6px;color:#50fa7b">↑${t.seeds}</span>` : ''}
-                    ${t.peers ? `<span style="color:#ff79c6">↓${t.peers}</span>` : ''}
+                    ${t.seeds ? `<span style="margin-right:6px;color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4))">↑${t.seeds}</span>` : ''}
+                    ${t.peers ? `<span style="color:color-mix(in srgb,#ff79c6 35%,var(--text,#cdd6f4))">↓${t.peers}</span>` : ''}
                     ${t.subtitle ? `<span style="margin-left:8px">${t.subtitle}</span>` : ''}
                   </div>
                 </div>
                 <div style="display:flex;gap:5px;flex-shrink:0">
                   <a href="https://iptorrents.com${t.link}" target="_blank" class="s-btn s-btn-sm" title="${_qbt('ipt_open')}" onclick="event.stopPropagation()">🔗</a>
-                  ${t.download ? `<button class="s-btn s-btn-sm ipt-add-btn" data-download="${t.download}" style="background:var(--accent);color:#fff" onclick="event.stopPropagation()">⬇ ${_qbt('add_btn')}</button>` : ''}
+                  ${t.download ? `<button class="s-btn s-btn-sm ipt-add-btn" data-download="${t.download}" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)))" onclick="event.stopPropagation()">⬇ ${_qbt('add_btn')}</button>` : ''}
                 </div>
               </div>
             </div>

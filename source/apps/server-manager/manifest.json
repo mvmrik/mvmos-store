@@ -19,7 +19,7 @@
     "system",
     "administration"
   ],
-  "version": "1.6.3",
+  "version": "1.6.4",
   "min_core_version": "1.0.0",
   "description": "Monitor and control system services — start, stop, restart, and check status of web servers, databases, and more. Configure PHP, MySQL, Nginx, SSH and UFW firewall settings directly from the UI.",
   "entry": "main.js"

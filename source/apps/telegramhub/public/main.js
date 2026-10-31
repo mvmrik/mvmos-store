@@ -90,7 +90,7 @@ function _mount(body) {
           <span style="font-size:.72rem;color:var(--text-dim)">${t('tgh_public_base_url_hint')}</span>
         </label>
         <div style="display:flex;gap:8px">
-          <button class="s-btn" id="th-save" style="background:var(--accent);color:#1e1e2e;font-weight:600">${t('tgh_save')}</button>
+          <button class="s-btn" id="th-save" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));font-weight:600">${t('tgh_save')}</button>
           <button class="s-btn" id="th-reg">${t('tgh_register_webhook')}</button>
           <button class="s-btn" id="th-unreg">${t('tgh_unregister')}</button>
         </div>
@@ -138,7 +138,7 @@ function _mount(body) {
       fetch('/api/telegramhub/apps').catch(()=>null),
       fetch('/api/telegramhub/apps-sort').catch(()=>null),
     ]);
-    if (!r?.ok) { c.innerHTML = `<div style="padding:20px;color:#f38ba8;font-size:.85rem">${t('tgh_error_loading_apps')}</div>`; return; }
+    if (!r?.ok) { c.innerHTML = `<div style="padding:20px;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.85rem">${t('tgh_error_loading_apps')}</div>`; return; }
     const apps = await r.json();
     const sortMode = sortR?.ok ? (await sortR.json()).mode : 'alpha';
     if (!apps.length) {

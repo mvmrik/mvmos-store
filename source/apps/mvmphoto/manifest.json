@@ -10,7 +10,7 @@
     "layers",
     "paint"
   ],
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An image editor with layers: select, paint, draw, add text and shapes, adjust colors and export to PNG, JPEG or WebP.",
   "entry": "main.js",
   "public_directory": false,

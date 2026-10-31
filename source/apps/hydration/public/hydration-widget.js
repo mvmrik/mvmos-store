@@ -80,7 +80,7 @@
       .hy-btn{background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border:none;border-radius:6px;padding:7px 12px;cursor:pointer;font-size:.85rem;white-space:nowrap}
       .hy-btn:hover{background:var(--pub-border,#45475a)}
       .hy-btn:disabled{opacity:.4;cursor:default}
-      .hy-btn.on{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:600}
+      .hy-btn.on{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e));font-weight:600}
       .hy-bar .hy-settings-btn{flex:0 0 34px;width:34px;height:34px;padding:0;font-size:1.05rem}
       .hy-body{flex:1;overflow-y:auto;padding:14px 14px 24px;display:flex;flex-direction:column;gap:16px}
       .hy-days{display:flex;align-items:center;justify-content:center;gap:12px}
@@ -131,7 +131,7 @@
       .hy-addsrv{display:flex;gap:6px;margin-top:8px}
       .hy-chip .hy-x{opacity:.7}
       .hy-amounts{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-      .hy-amt{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);border:none;border-radius:8px;padding:11px 16px;min-height:42px;font-weight:600;cursor:pointer;font-size:.9rem}
+      .hy-amt{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e));border:none;border-radius:8px;padding:11px 16px;min-height:42px;font-weight:600;cursor:pointer;font-size:.9rem}
       .hy-amt:hover{background:var(--pub-accent-hover,#a6c8ff)}
       .hy-input{background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);border:1px solid var(--pub-border,#45475a);border-radius:6px;padding:8px 10px;font-size:.9rem;width:100%}
       .hy-custom{display:flex;gap:6px;width:170px}
@@ -159,7 +159,7 @@
       .hy-hint{font-size:.75rem;color:var(--pub-dim,#6c7086)}
       .hy-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
       .hy-actions .hy-del{margin-right:auto;background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e);font-weight:600}
-      .hy-primary{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:600}
+      .hy-primary{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e));font-weight:600}
       .hy-check{display:flex;align-items:center;gap:8px;min-height:32px;cursor:pointer;font-size:.9rem}
       .hy-note{background:var(--pub-surface2,#313244);border-left:4px solid var(--pub-green,#a6e3a1);border-radius:8px;padding:10px 12px;font-size:.88rem}
       .hy-err{color:var(--pub-red,#f38ba8);font-size:.82rem;min-height:1em}

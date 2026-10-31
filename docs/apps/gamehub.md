@@ -22,6 +22,12 @@ The Ranking tab combines each game's solo and multiplayer ladders. Points depend
 
 The desktop Game Hub window also offers the shared statistics and overall ranking views.
 
+## Results at the end of a game
+
+Finished games show the all-time top 10 and your own position alongside the game actions. If you are outside the top 10, your row appears separately below them. Solo uses the game's declared primary ranking; multiplayer uses its Elo rating. The table loads after the session is saved, including when you reopen a finished room. A save-and-exit does not add an unfinished session to the ranking.
+
+Flask Sort also tracks personal and overall records per numbered level. Sudoku and Jigsaw track completed puzzle records per difficulty. These records are independent of the final session: successfully completing a stage records it even if you save the remaining run for later. Only results completed since this feature was installed are available; earlier level scores were not stored separately.
+
 ## Profiles and comparisons
 
 Profile totals cover the whole history. Solo games, multiplayer games and play time are counted separately; wins and win rate count multiplayer only. A table breaks these numbers down by game.

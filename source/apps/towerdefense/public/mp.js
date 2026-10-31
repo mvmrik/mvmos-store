@@ -1958,7 +1958,7 @@
       'color:var(--fg,#cdd6f4);border:1px solid var(--border,#45475a);border-radius:10px;padding:9px 12px;' +
       'font-size:.95rem;cursor:pointer">👾</button>' +
       '<button id="td-go" style="display:none;flex:1 1 auto;white-space:nowrap;align-self:center;background:var(--accent,#89b4fa);' +
-      'color:#1e1e2e;border:none;border-radius:10px;padding:9px 12px;font-weight:800;font-size:.92rem;' +
+      'color:var(--on-accent,#1e1e2e);border:none;border-radius:10px;padding:9px 12px;font-weight:800;font-size:.92rem;' +
       'cursor:pointer"></button>' +
       // Everything that is not part of playing lives behind one menu button, so
       // a new control has a place to go without crowding the row.
@@ -2490,7 +2490,7 @@
           '<button class="td-go" data-act="again"' + (_bank != null && !_energyOk(_perm) ? ' disabled title="' + _esc(_t('td_en_over')) + '"' : '') + '>' + _esc(_t('td_play_again')) + '</button>' +
           '<a class="td-back" href="/pub/gamehub/?game=' + GAME_ID + '">' + _esc(_t('td_back_to_hub')) + '</a>' +
         '</div>' +
-        '<div class="td-shop-body">' +
+        '<div class="td-shop-body"><section data-gh-results></section>' +
           '<div class="td-perm-intro"><b>' + _esc(_t('td_perm_title')) + '</b> — ' + _esc(_t('td_perm_hint')) +
             (_permMsg && _bank != null ? ' <span class="td-perm-msg">' + _esc(_permMsg) + '</span>' : '') + '</div>' +
           body +

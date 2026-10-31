@@ -95,10 +95,10 @@ mvmOS.registerApp({
       width: 860,
       height: 580,
       onMount(body) {
-        body.style.cssText = '--surface1:var(--surface);--fg:var(--text);--fg2:var(--text-dim);--green:var(--success,#22863a);--red:var(--danger);--yellow:#a66f00;display:flex;flex-direction:column;height:100%;overflow:hidden;font-family:var(--font,sans-serif);background:var(--bg);color:var(--fg)';
+        body.style.cssText = '--surface1:var(--surface);--fg:var(--text);--fg2:var(--text-dim);--green:color-mix(in srgb,#a6e3a1 35%,var(--text));--red:var(--danger);--yellow:color-mix(in srgb,#f9e2af 35%,var(--text));display:flex;flex-direction:column;height:100%;overflow:hidden;font-family:var(--font,sans-serif);background:var(--bg);color:var(--fg)';
 
         const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-        const btn = (bg) => `padding:4px 12px;border-radius:6px;border:none;cursor:pointer;font-size:13px;background:${bg||'var(--surface2)'};color:${bg?'#fff':'var(--fg)'}`;
+        const btn = (bg) => `padding:4px 12px;border-radius:6px;border:none;cursor:pointer;font-size:13px;background:${bg||'var(--surface2)'};color:${bg?'var(--on-accent,var(--surface,var(--surface1,#1e1e2e)))':'var(--fg)'}`;
         const inp = (w) => `padding:5px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--fg);font-size:13px;${w?'width:'+w+';':'width:100%;'}box-sizing:border-box`;
         const fld = (label,inner) => `<label style="display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--fg2)">${label}${inner}</label>`;
         const fmtDur = s => !s?'—':s<60?s+_ght('sec'):Math.floor(s/60)+_ght('min')+(s%60?s%60+_ght('sec'):'');
@@ -132,7 +132,7 @@ mvmOS.registerApp({
             const b = body.querySelector(`#gh-t-${t}`); if(!b) return;
             if (t !== 'settings') b.textContent = window.t(t === 'games' ? 'gl_tab_games' : t === 'ranking' ? 'gs_ranking' : 'gh_favourites');
             b.style.background = tab===t ? 'var(--accent)' : 'var(--surface2)';
-            b.style.color      = tab===t ? '#fff' : 'var(--fg)';
+            b.style.color      = tab===t ? 'var(--on-accent,var(--surface,var(--surface1,#1e1e2e)))' : 'var(--fg)';
           });
         }
 
@@ -252,7 +252,7 @@ mvmOS.registerApp({
           if (vsBtn) vsBtn.onclick = () => {
             vsMode = !vsMode;
             vsBtn.style.background = vsMode ? 'var(--accent)' : 'var(--surface2)';
-            vsBtn.style.color = vsMode ? '#fff' : 'var(--fg)';
+            vsBtn.style.color = vsMode ? 'var(--on-accent,var(--surface,var(--surface1,#1e1e2e)))' : 'var(--fg)';
             render();
           };
 

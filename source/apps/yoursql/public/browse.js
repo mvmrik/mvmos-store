@@ -199,7 +199,7 @@ YS.browse = (() => {
       }}).catch(function(e) { return { error: e.message }; });
 
       if (res.error || res.detail) {
-        tbody.innerHTML = '<tr><td colspan="99" style="padding:20px;color:#f38ba8">' + YS.escHtml(res.error || res.detail) + '</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="99" style="padding:20px;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4))">' + YS.escHtml(res.error || res.detail) + '</td></tr>';
         return;
       }
       _renderTable(content, res.columns || [], res.rows || []);
@@ -221,7 +221,7 @@ YS.browse = (() => {
     res = await YS.api('/table-data', { method: 'POST', json: body }).catch(function(e) { return { error: e.message }; });
 
     if (res.error || res.detail) {
-      tbody.innerHTML = '<tr><td colspan="99" style="padding:20px;color:#f38ba8">' + YS.escHtml(res.error || res.detail) + '</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="99" style="padding:20px;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4))">' + YS.escHtml(res.error || res.detail) + '</td></tr>';
       return;
     }
 
@@ -658,12 +658,12 @@ YS.browse = (() => {
     parts.push({ t: 'num', v: ' ' + ((YS.state.page - 1) * YS.state.pageSize) });
 
     var colors = {
-      kw:    'color:#bd93f9',
-      tbl:   'color:#50fa7b',
-      col:   'color:#8be9fd',
-      str:   'color:#f1fa8c',
-      num:   'color:#ffb86c',
-      op:    'color:#ff79c6',
+      kw:    'color:color-mix(in srgb,#bd93f9 35%,var(--text,#cdd6f4))',
+      tbl:   'color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4))',
+      col:   'color:color-mix(in srgb,#8be9fd 35%,var(--text,#cdd6f4))',
+      str:   'color:color-mix(in srgb,#f1fa8c 35%,var(--text,#cdd6f4))',
+      num:   'color:color-mix(in srgb,#ffb86c 35%,var(--text,#cdd6f4))',
+      op:    'color:color-mix(in srgb,#ff79c6 35%,var(--text,#cdd6f4))',
       plain: 'color:var(--text-dim)',
     };
     el.innerHTML = parts.map(function(p) {
@@ -736,7 +736,7 @@ YS.browse = (() => {
         tdX.style.cssText = 'padding:3px 6px;width:24px';
         var xBtn = document.createElement('button');
         xBtn.textContent = '×';
-        xBtn.style.cssText = 'background:none;border:none;cursor:pointer;color:#f38ba8;font-size:1rem;padding:0 2px';
+        xBtn.style.cssText = 'background:none;border:none;cursor:pointer;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:1rem;padding:0 2px';
         xBtn.addEventListener('click', function() {
           pendingRows.splice(ri, 1);
           if (!pendingRows.length) { section.remove(); return; }
@@ -797,7 +797,7 @@ YS.browse = (() => {
       var saveBtn = document.createElement('button');
       saveBtn.className = 's-btn s-btn-sm';
       saveBtn.textContent = _ysqlBrT('ysql_save_all');
-      saveBtn.style.cssText = 'background:var(--accent);color:#fff;border-color:var(--accent)';
+      saveBtn.style.cssText = 'background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)';
       saveBtn.addEventListener('click', async function() {
         saveBtn.disabled = true; saveBtn.textContent = _ysqlBrT('ysql_saving');
         var errors = 0;

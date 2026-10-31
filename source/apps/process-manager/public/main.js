@@ -66,13 +66,13 @@ const PM = (() => {
         </div>
 
         <div style="display:flex;gap:0;border-bottom:1px solid var(--border)">
-          <button class="pm-tab" data-tab="system" style="flex:1;padding:7px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:.8rem;font-family:inherit">${_pmt('tab_system')}</button>
+          <button class="pm-tab" data-tab="system" style="flex:1;padding:7px;background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border:none;cursor:pointer;font-size:.8rem;font-family:inherit">${_pmt('tab_system')}</button>
           <button class="pm-tab" data-tab="mvmos" style="flex:1;padding:7px;background:var(--surface2);color:var(--text-dim);border:none;cursor:pointer;font-size:.8rem;font-family:inherit">${_pmt('tab_mvmos')}</button>
         </div>
 
         <div id="pm-tab-system" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
           <div id="pm-sudo-bar" style="display:none;align-items:center;gap:8px;padding:6px 14px;background:var(--surface2);border-bottom:1px solid var(--border)">
-            <span style="color:#f1fa8c;font-size:.8rem">${_pmt('sudo_msg')}</span>
+            <span style="color:color-mix(in srgb,#f1fa8c 35%,var(--text,#cdd6f4));font-size:.8rem">${_pmt('sudo_msg')}</span>
             <input id="pm-sudo-input" type="password" placeholder="${_pmt('sudo_ph')}"
               style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:3px 8px;color:var(--text);font-size:.8rem">
             <button class="s-btn s-btn-sm" id="pm-sudo-ok">${_pmt('ok')}</button>
@@ -108,7 +108,7 @@ const PM = (() => {
         _activeTab = btn.dataset.tab;
         body.querySelectorAll('.pm-tab').forEach(b => {
           b.style.background = b === btn ? 'var(--accent)' : 'var(--surface2)';
-          b.style.color = b === btn ? '#fff' : 'var(--text-dim)';
+          b.style.color = b === btn ? 'var(--on-accent,var(--surface,var(--surface1,#1e1e2e)))' : 'var(--text-dim)';
         });
         body.querySelector('#pm-tab-system').style.display = _activeTab === 'system' ? 'flex' : 'none';
         body.querySelector('#pm-tab-system').style.flexDirection = 'column';
@@ -165,8 +165,8 @@ const PM = (() => {
       <div style="padding:8px 16px 4px;font-size:.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;font-weight:600">${title}</div>
       ${rows.length ? rows.join('') : `<div style="padding:6px 16px 10px;color:var(--text-dim);font-size:.8rem;font-style:italic">—</div>`}`;
 
-    const stopBtn  = (id) => `<button class="pm-svc-stop" data-id="${id}" style="background:#f38ba820;border:1px solid #f38ba850;color:#f38ba8;border-radius:3px;padding:2px 8px;cursor:pointer;font-size:.75rem">${_pmt('stop')}</button>`;
-    const closeBtn = (id) => `<button class="pm-win-close" data-id="${id}" style="background:#f38ba820;border:1px solid #f38ba850;color:#f38ba8;border-radius:3px;padding:2px 8px;cursor:pointer;font-size:.75rem">${_pmt('close')}</button>`;
+    const stopBtn  = (id) => `<button class="pm-svc-stop" data-id="${id}" style="background:#f38ba820;border:1px solid #f38ba850;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));border-radius:3px;padding:2px 8px;cursor:pointer;font-size:.75rem">${_pmt('stop')}</button>`;
+    const closeBtn = (id) => `<button class="pm-win-close" data-id="${id}" style="background:#f38ba820;border:1px solid #f38ba850;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));border-radius:3px;padding:2px 8px;cursor:pointer;font-size:.75rem">${_pmt('close')}</button>`;
     const rmBtn    = () => ``;
 
     const svcRows = services.map(s => {
@@ -263,7 +263,7 @@ const PM = (() => {
         <td style="padding:4px 8px;text-align:right;color:var(--text-dim);font-family:monospace">${p.stat}</td>
         <td style="padding:4px 8px;color:var(--text);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${p.command}">${p.command}</td>
         <td style="padding:4px 6px;text-align:center">
-          <button class="pm-kill s-btn-sm" data-pid="${p.pid}" style="background:#f38ba820;border:1px solid #f38ba850;color:#f38ba8;border-radius:3px;padding:2px 7px;cursor:pointer;font-size:.75rem">✕</button>
+          <button class="pm-kill s-btn-sm" data-pid="${p.pid}" style="background:#f38ba820;border:1px solid #f38ba850;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));border-radius:3px;padding:2px 7px;cursor:pointer;font-size:.75rem">✕</button>
         </td>`;
       tr.addEventListener('mouseenter', () => tr.style.background = 'var(--surface2)');
       tr.addEventListener('mouseleave', () => tr.style.background = '');

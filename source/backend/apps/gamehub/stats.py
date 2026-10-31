@@ -62,6 +62,22 @@ def ensure_schema(conn):
             value      REAL NOT NULL
         )""")
     conn.execute("CREATE INDEX IF NOT EXISTS idx_sm_session ON session_metrics(session_id)")
+    conn.execute("""CREATE TABLE IF NOT EXISTS stage_results (
+        game_id TEXT NOT NULL, stage TEXT NOT NULL, room_id TEXT NOT NULL,
+        player_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+        score REAL NOT NULL, created_at TEXT NOT NULL,
+        UNIQUE(game_id, stage, room_id, player_id)
+    )""")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_stage_best ON stage_results(game_id,stage,player_id,score)")
+
+
+def stage_records(conn, game_id, stage, player_id):
+    ensure_schema(conn)
+    row = conn.execute("""SELECT MAX(score) AS overall,
+        MAX(CASE WHEN player_id=? THEN score END) AS personal
+        FROM stage_results WHERE game_id=? AND stage=?""", (player_id, game_id, stage)).fetchone()
+    return {"stage": stage, "personal": row["personal"], "overall": row["overall"]}
+
 
 
 def clean_stats(raw):

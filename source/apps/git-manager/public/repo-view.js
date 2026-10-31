@@ -31,7 +31,7 @@ GM.repoView = (function() {
         <div id="gm-sync-info" style="font-size:.75rem;color:var(--text-dim);margin-left:4px"></div>
         <div style="flex:1"></div>
         <div style="display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden">
-          <button id="gm-tab-status" style="border:none;padding:3px 10px;cursor:pointer;font-size:.78rem;background:var(--accent);color:#fff">${t('gm_status')}</button>
+          <button id="gm-tab-status" style="border:none;padding:3px 10px;cursor:pointer;font-size:.78rem;background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)))">${t('gm_status')}</button>
           <button id="gm-tab-log" style="border:none;padding:3px 10px;cursor:pointer;font-size:.78rem;background:none;color:var(--text-dim)">${t('gm_log')}</button>
         </div>
       </div>
@@ -53,9 +53,9 @@ GM.repoView = (function() {
     const sBtn = container.querySelector('#gm-tab-status');
     const lBtn = container.querySelector('#gm-tab-log');
     sBtn.style.background = tab === 'status' ? 'var(--accent)' : 'none';
-    sBtn.style.color = tab === 'status' ? '#fff' : 'var(--text-dim)';
+    sBtn.style.color = tab === 'status' ? 'var(--on-accent,var(--surface,var(--surface1,#1e1e2e)))' : 'var(--text-dim)';
     lBtn.style.background = tab === 'log' ? 'var(--accent)' : 'none';
-    lBtn.style.color = tab === 'log' ? '#fff' : 'var(--text-dim)';
+    lBtn.style.color = tab === 'log' ? 'var(--on-accent,var(--surface,var(--surface1,#1e1e2e)))' : 'var(--text-dim)';
     if (tab === 'status') _loadStatus(container, repo);
     else _loadLog(container, repo);
   }
@@ -73,7 +73,7 @@ GM.repoView = (function() {
         if (s.ahead > 0) parts.push(`↑ ${t('gm_ahead', { n: s.ahead })}`);
         if (s.behind > 0) parts.push(`↓ ${t('gm_behind', { n: s.behind })}`);
         syncInfo.textContent = parts.join('  ');
-        syncInfo.style.color = s.behind > 0 ? '#f38ba8' : 'var(--text-dim)';
+        syncInfo.style.color = s.behind > 0 ? 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))' : 'var(--text-dim)';
       }
 
       if (!s.files.length) {
@@ -92,10 +92,10 @@ GM.repoView = (function() {
           const row = document.createElement('div');
           row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:3px 8px;border-radius:4px;font-size:.8rem;font-family:monospace';
           const code = f.code.trim();
-          const color = code === 'M' || code === 'MM' ? '#fab387'
+          const color = code === 'M' || code === 'MM' ? 'color-mix(in srgb,#fab387 35%,var(--text,#cdd6f4))'
             : code === '??' ? 'var(--text-dim)'
-            : code === 'A' ? '#a6e3a1'
-            : code === 'D' ? '#f38ba8' : 'var(--text)';
+            : code === 'A' ? 'color-mix(in srgb,#a6e3a1 35%,var(--text,#cdd6f4))'
+            : code === 'D' ? 'color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4))' : 'var(--text)';
           row.innerHTML = `<span style="color:${color};width:20px;flex-shrink:0">${f.code}</span><span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.file}</span>`;
           fl.appendChild(row);
         });
@@ -111,7 +111,7 @@ GM.repoView = (function() {
         });
       }
     } catch(e) {
-      tc.innerHTML = `<div style="color:#f38ba8;font-size:.82rem">${e.message}</div>`;
+      tc.innerHTML = `<div style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem">${e.message}</div>`;
     }
   }
 
@@ -121,7 +121,7 @@ GM.repoView = (function() {
         <div style="font-size:.75rem;color:var(--text-dim)">${t('gm_commit_message')} <span style="opacity:.6">${t('gm_ctrl_enter')}</span></div>
         <textarea id="gm-commit-msg" class="s-input" rows="4" placeholder="${t('gm_describe_changes')}" style="resize:vertical;flex:none;max-width:none;min-height:80px;font-family:inherit;font-size:.83rem;width:100%;box-sizing:border-box"></textarea>
         <div>
-          <button id="gm-commit-btn" class="s-btn s-btn-sm" ${clean ? 'disabled' : ''} style="${clean ? '' : 'background:var(--accent);color:#fff;border-color:var(--accent)'}">
+          <button id="gm-commit-btn" class="s-btn s-btn-sm" ${clean ? 'disabled' : ''} style="${clean ? '' : 'background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)'}">
             ✓ ${t('gm_commit_all')}
           </button>
         </div>
@@ -152,7 +152,7 @@ GM.repoView = (function() {
         tc.appendChild(row);
       });
     } catch(e) {
-      tc.innerHTML = `<div style="color:#f38ba8;font-size:.82rem">${e.message}</div>`;
+      tc.innerHTML = `<div style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem">${e.message}</div>`;
     }
   }
 
@@ -170,14 +170,14 @@ GM.repoView = (function() {
     try {
       const r = await GM.api('/repo/' + action, { method: 'POST', json: { path: repo.path } });
       out.textContent = r.output || t('gm_done');
-      out.style.color = '#a6e3a1';
+      out.style.color = 'color-mix(in srgb,#a6e3a1 35%,var(--text,var(--fg,#cdd6f4)))';
       if (action === 'pull' || action === 'fetch' || action === 'push') {
         _loadStatus(container, repo);
         GM.loadRepos();
       }
     } catch(e) {
       out.textContent = e.message;
-      out.style.color = '#f38ba8';
+      out.style.color = 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))';
     } finally {
       btn.disabled = false;
       btn.style.opacity = '';
@@ -194,11 +194,11 @@ GM.repoView = (function() {
     try {
       const r = await GM.api('/repo/commit', { method: 'POST', json: { path: repo.path, message: msg } });
       msgInput.value = '';
-      if (out) { out.textContent = r.output; out.style.color = '#a6e3a1'; }
+      if (out) { out.textContent = r.output; out.style.color = 'color-mix(in srgb,#a6e3a1 35%,var(--text,var(--fg,#cdd6f4)))'; }
       _loadStatus(container, repo);
       GM.loadRepos();
     } catch(e) {
-      if (out) { out.textContent = e.message; out.style.color = '#f38ba8'; }
+      if (out) { out.textContent = e.message; out.style.color = 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))'; }
       btn.disabled = false;
     }
   }

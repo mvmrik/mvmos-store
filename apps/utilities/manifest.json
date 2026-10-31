@@ -30,9 +30,9 @@
       "name": "qBit Dashboard",
       "icon": "🌊",
       "category": "Utilities",
-      "version": "1.8.0",
+      "version": "1.8.1",
       "description": "Visual dashboard for qBittorrent. Connects to a local qBittorrent instance via WebUI API. Auto-discovers running instance or configure manually.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/qbit-dashboard-1.8.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/qbit-dashboard-1.8.1.zip",
       "tags": [
         "downloads",
         "torrent",
@@ -45,9 +45,9 @@
       "name": "Image Optimizer",
       "icon": "🖼️",
       "category": "Utilities",
-      "version": "1.2.1",
+      "version": "1.2.2",
       "description": "Convert and optimise JPEG, PNG and WebP images in the browser, with batch processing, quality control, ZIP folders and Premium transformation tools.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/image-optimizer-1.2.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/image-optimizer-1.2.2.zip",
       "tags": [
         "images",
         "webp",
@@ -73,9 +73,9 @@
       "name": "DeepL Translator",
       "icon": "🌐",
       "category": "Utilities",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "description": "Translate text with your own DeepL API key and keep a history of your translations.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/deepl-1.0.3.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/deepl-1.0.4.zip",
       "tags": [
         "translate",
         "language",
@@ -99,7 +99,7 @@
       "name": "Tesla",
       "icon": "🚗",
       "category": "Utilities",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "description": "Your Tesla at a glance: live status, battery, trips with routes, charging sessions with cost, efficiency, battery health and sleep history, collected from the official Tesla Fleet API and kept on your own server, with a public web page for the phone or the car's browser.",
       "tags": [
         "tesla",
@@ -107,8 +107,8 @@
         "electric",
         "charging"
       ],
-      "min_core_version": "1.17.1",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/tesla-1.1.0.zip",
+      "min_core_version": "1.19.0",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/tesla-1.2.0.zip",
       "name_i18n": {
         "en": "Tesla",
         "bg": "Тесла",

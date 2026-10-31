@@ -187,3 +187,7 @@ body:has(.bl-table) #gh-save-exit::before{content:'⏸';font-size:1rem;line-heig
 .bl-bidpanel.waiting button:not(.sent){opacity:.4;pointer-events:none}
 .bl-hand .bl-card.sending{transform:translateY(-26px) scale(.94);filter:brightness(1.12);z-index:3;animation:bl-sending .8s ease-in-out infinite}
 @keyframes bl-sending{0%,100%{box-shadow:0 0 0 3px #fff,0 0 10px #ffd06a}50%{box-shadow:0 0 0 3px #fff,0 0 26px #ffd06a}}
+
+.bl-end-card:has([data-gh-results]) { width:min(460px,calc(100vw - 28px)); max-height:calc(100% - 24px); overflow:auto; }
+
+.bl-end-card > a { display:inline-block; color:#ffe1a1; padding:8px 12px; border:1px solid #e7bf79; border-radius:8px; text-decoration:none; }

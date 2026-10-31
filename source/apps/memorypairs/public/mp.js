@@ -426,7 +426,7 @@
     ov.innerHTML =
       '<div class="mp-over-card"><h2>' + _esc(multi ? '🏆 ' + _t('mp_winner') + ': ' + (playerOf(results[0].player_id).display_name || '') : '🎉 ' + _t('mp_over')) + '</h2>' +
       '<div class="mp-rows">' + rows + '</div>' +
-      '<div class="mp-acts"><button class="mp-btn go" data-again>' + _esc(_t('mp_play_again')) + '</button>' +
+      '<section data-gh-results></section><div class="mp-acts"><button class="mp-btn go" data-again>' + _esc(_t('mp_play_again')) + '</button>' +
       '<a class="mp-btn" href="' + HUB_URL + '">' + _esc(_t('mp_back')) + '</a></div></div>';
     el.board.appendChild(ov);
     const mine = results.find(r => r.player_id === me);

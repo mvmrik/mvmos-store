@@ -19,7 +19,7 @@
     "habits",
     "wellbeing"
   ],
-  "version": "1.1.4",
+  "version": "1.1.5",
   "min_core_version": "1.0.0",
   "description": "Track state changes of anything over time — ping, HTTP checks, API values, or manual push.",
   "entry": "main.js",

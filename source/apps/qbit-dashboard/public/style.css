@@ -91,7 +91,7 @@
   user-select: none;
 }
 .qb-sidebar-item:hover { background: var(--surface3, rgba(255,255,255,.05)); }
-.qb-sidebar-item.active { background: var(--accent, #6272a4); color: #fff; }
+.qb-sidebar-item.active { background: var(--accent, #6272a4); color:var(--on-accent,var(--surface,var(--surface1,#fff))); }
 .qb-sidebar-item .qb-count {
   margin-left: auto;
   font-size: .68rem;
@@ -100,7 +100,7 @@
   padding: 1px 5px;
   color: var(--text-dim);
 }
-.qb-sidebar-item.active .qb-count { background: rgba(255,255,255,.2); color: #fff; }
+.qb-sidebar-item.active .qb-count { background: transparent; color: inherit; }
 
 /* ── Torrent list ── */
 .qb-list {
@@ -155,13 +155,13 @@
 .qb-item-bottom .qb-spacer { flex: 1; }
 
 /* status colours */
-.qb-st-downloading { color: #50fa7b; }
-.qb-st-seeding     { color: #8be9fd; }
-.qb-st-paused      { color: #f1fa8c; }
-.qb-st-error       { color: #ff5555; }
-.qb-st-checking    { color: #ffb86c; }
+.qb-st-downloading { color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4)); }
+.qb-st-seeding     { color:color-mix(in srgb,#8be9fd 35%,var(--text,#cdd6f4)); }
+.qb-st-paused      { color:color-mix(in srgb,#f1fa8c 35%,var(--text,#cdd6f4)); }
+.qb-st-error       { color:color-mix(in srgb,#ff5555 35%,var(--text,#cdd6f4)); }
+.qb-st-checking    { color:color-mix(in srgb,#ffb86c 35%,var(--text,#cdd6f4)); }
 .qb-st-queued      { color: var(--text-dim); }
-.qb-st-complete    { color: #6272a4; }
+.qb-st-complete    { color:color-mix(in srgb,#6272a4 35%,var(--text,#cdd6f4)); }
 
 /* bar colours */
 .qb-bar-downloading { background: #50fa7b; }
@@ -291,7 +291,7 @@
 }
 .qb-dialog-btns button.primary {
   background: var(--accent, #6272a4);
-  color: #fff;
+  color:var(--on-accent,var(--surface,var(--surface1,#fff)));
   border-color: transparent;
 }
 .qb-dialog label { font-size: .78rem; color: var(--text-dim); }

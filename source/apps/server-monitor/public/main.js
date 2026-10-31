@@ -96,11 +96,11 @@ mvmOS.registerApp({
         body.innerHTML = `
           <style>
             .sm-tabs { display:flex; gap:2px; padding:10px 12px 0; background:#0f1117; border-bottom:1px solid #1e2433; flex-wrap:wrap; }
-            .sm-tab  { padding:6px 16px; border-radius:6px 6px 0 0; cursor:pointer; font-size:.82rem; color:#64748b; background:transparent; border:none; transition:all .15s; white-space:nowrap; }
+            .sm-tab  { padding:6px 16px; border-radius:6px 6px 0 0; cursor:pointer; font-size:.82rem; color:#94a3b8; background:transparent; border:none; transition:all .15s; white-space:nowrap; }
             .sm-tab.active { background:#1e2433; color:#e2e8f0; }
             .sm-tab:hover:not(.active) { color:#94a3b8; }
             .sm-periods { display:flex; gap:6px; padding:10px 14px 6px; flex-wrap:wrap; border-bottom:1px solid #1e2433; }
-            .sm-period { padding:3px 12px; border-radius:20px; cursor:pointer; font-size:.78rem; color:#64748b; background:#1e2433; border:none; transition:all .15s; }
+            .sm-period { padding:3px 12px; border-radius:20px; cursor:pointer; font-size:.78rem; color:#94a3b8; background:#1e2433; border:none; transition:all .15s; }
             .sm-period.active { background:#3b82f6; color:#fff; }
             .sm-period:hover:not(.active) { background:#263142; color:#94a3b8; }
             .sm-content { flex:1; overflow-y:auto; padding:14px; }
@@ -108,12 +108,12 @@ mvmOS.registerApp({
             .sm-chart-title { font-size:.8rem; color:#94a3b8; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; }
             .sm-chart-name { font-weight:600; color:#e2e8f0; }
             .sm-stats { display:flex; gap:14px; font-size:.72rem; }
-            .sm-stat { color:#64748b; } .sm-stat span { color:#e2e8f0; font-weight:600; }
+            .sm-stat { color:#94a3b8; } .sm-stat span { color:#e2e8f0; font-weight:600; }
             .sm-chart-svg { width:100%; height:90px; display:block; margin-top:6px; }
             .sm-no-data { text-align:center; padding:60px 20px; color:#475569; font-size:.85rem; line-height:1.6; }
             .sm-sensor-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; }
             .sm-sensor-card { background:#1e2433; border-radius:10px; padding:12px 14px; }
-            .sm-sensor-label { font-size:.72rem; color:#64748b; margin-bottom:4px; }
+            .sm-sensor-label { font-size:.72rem; color:#94a3b8; margin-bottom:4px; }
             .sm-sensor-val { font-size:1.5rem; font-weight:700; }
           </style>
 
@@ -277,7 +277,7 @@ mvmOS.registerApp({
               return `<tr style="${isMx ? 'color:#f59e0b' : ''}">
                 <td style="padding:5px 10px;border-bottom:1px solid #263142;white-space:nowrap">${fmt(p.ts)}</td>
                 <td style="padding:5px 10px;border-bottom:1px solid #263142;text-align:right;font-weight:600">${avg.toFixed(2)}${unit}</td>
-                <td style="padding:5px 10px;border-bottom:1px solid #263142;text-align:right;color:#64748b">${mn.toFixed(2)}</td>
+                <td style="padding:5px 10px;border-bottom:1px solid #263142;text-align:right;color:#94a3b8">${mn.toFixed(2)}</td>
                 <td style="padding:5px 10px;border-bottom:1px solid #263142;text-align:right;color:${isMx?'#f59e0b':'#64748b'}">${mx.toFixed(2)}</td>
               </tr>`;
             }).join('');
@@ -289,7 +289,7 @@ mvmOS.registerApp({
             <div style="background:#1e2433;border-radius:12px;width:90%;max-width:600px;max-height:80%;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6)">
               <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #263142">
                 <span style="font-weight:700;font-size:.9rem">${name} — ${points.filter(p=>p[`avg_${field}`]!=null).length} ${_smt('records')}</span>
-                <button id="sm-modal-close" style="background:none;border:none;color:#64748b;font-size:1.2rem;cursor:pointer;line-height:1">✕</button>
+                <button id="sm-modal-close" style="background:none;border:none;color:#94a3b8;font-size:1.2rem;cursor:pointer;line-height:1">✕</button>
               </div>
               <div style="overflow-y:auto;flex:1">
                 <table style="width:100%;border-collapse:collapse;font-size:.8rem">
@@ -662,7 +662,7 @@ mvmOS.registerApp({
                 <div style="text-align:center">
                   <div style="font-size:.7rem;color:#60a5fa;margin-bottom:4px;font-weight:600">#${gen} ${plantName}</div>
                   <div style="font-size:1rem;color:#e2e8f0;margin-bottom:6px">${_smt('seed_title')}</div>
-                  <div style="font-size:.8rem;color:#64748b;margin-bottom:20px">${_smt('seed_sub')}</div>
+                  <div style="font-size:.8rem;color:#94a3b8;margin-bottom:20px">${_smt('seed_sub')}</div>
                   <button id="sm-plant-btn" style="background:#22c55e;color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:.9rem;cursor:pointer;font-weight:600">
                     🌱 ${_smt('plant_btn')}
                   </button>
@@ -762,7 +762,7 @@ mvmOS.registerApp({
                     </div>
                     <div>
                       <div style="font-size:.75rem;color:#60a5fa;font-weight:600">#${a.generation} ${a.name}</div>
-                      <div style="font-size:.65rem;color:#64748b">${a.days} ${_smt('days_label')} · health ${a.health}%</div>
+                      <div style="font-size:.65rem;color:#94a3b8">${a.days} ${_smt('days_label')} · health ${a.health}%</div>
                     </div>
                   </div>`).join('')}
               </div>
@@ -774,7 +774,7 @@ mvmOS.registerApp({
               <!-- Plant visual -->
               <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:200px;flex:0 0 auto;gap:8px">
                 <div style="font-size:.65rem;color:#60a5fa;font-weight:600">#${gen} ${plantName}</div>
-                <div style="font-size:.7rem;color:#64748b;text-transform:uppercase;letter-spacing:.05em">${stage}</div>
+                <div style="font-size:.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">${stage}</div>
                 <div id="sm-plant-svg" style="cursor:${p.boost_active ? 'default' : 'pointer'}" title="${p.boost_active ? _smt('boost_active') : _smt('water_btn')}">
                   ${drawPlant(growth, health, seed)}
                 </div>
@@ -799,7 +799,7 @@ mvmOS.registerApp({
                   <div style="font-size:.7rem;color:#475569;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">${_smt('health_lbl')} & ${_smt('growth_lbl')}</div>
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
                     <div>
-                      <div style="font-size:.7rem;color:#64748b">${_smt('health_lbl')}</div>
+                      <div style="font-size:.7rem;color:#94a3b8">${_smt('health_lbl')}</div>
                       <div style="font-size:1.6rem;font-weight:700;color:${hColor}">${health.toFixed(1)}%</div>
                       <div style="height:4px;background:#263142;border-radius:2px;margin-top:4px">
                         <div style="height:4px;width:${health}%;background:${hColor};border-radius:2px;transition:width .4s"></div>
@@ -809,12 +809,12 @@ mvmOS.registerApp({
                       </div>
                     </div>
                     <div>
-                      <div style="font-size:.7rem;color:#64748b">${_smt('growth_lbl')}</div>
+                      <div style="font-size:.7rem;color:#94a3b8">${_smt('growth_lbl')}</div>
                       <div style="font-size:1.6rem;font-weight:700;color:${gColor}">${growth.toFixed(1)}%</div>
                       <div style="height:4px;background:#263142;border-radius:2px;margin-top:4px">
                         <div style="height:4px;width:${growth}%;background:${gColor};border-radius:2px;transition:width .4s"></div>
                       </div>
-                      <div style="margin-top:5px;font-size:.72rem;color:#64748b">
+                      <div style="margin-top:5px;font-size:.72rem;color:#94a3b8">
                         <span id="sm-growth-rate" style="cursor:pointer" title="breakdown">${_smt('daily_rate')}: <span style="color:#e2e8f0">${dailyRate}% / ${_smt('per_day')}</span></span>
                       </div>
                     </div>
@@ -824,7 +824,7 @@ mvmOS.registerApp({
                 <div style="background:#1e2433;border-radius:10px;padding:12px 14px">
                   <div style="font-size:.7rem;color:#475569;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">
                     ${_smt('influence')}
-                    ${!lastLog ? `<span style="color:#334155;font-weight:400;text-transform:none">${_smt('waiting_first')}</span>` : ''}
+                    ${!lastLog ? `<span style="color:#94a3b8;font-weight:400;text-transform:none">${_smt('waiting_first')}</span>` : ''}
                   </div>
                   <div style="display:flex;flex-direction:column;gap:5px;font-size:.75rem">
 
@@ -836,15 +836,15 @@ mvmOS.registerApp({
                     <div style="height:1px;background:#263142;margin:2px 0"></div>
 
                     <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:4px;align-items:center">
-                      <span style="color:#64748b">CPU</span>
+                      <span style="color:#94a3b8">CPU</span>
                       <span style="color:${lastCpu!==null?(lastCpu>60?'#ef4444':lastCpu>20?'#f59e0b':'#22c55e'):'#334155'}">${lastCpu !== null ? lastCpu.toFixed(1)+'%' : '—'}</span>
-                      <span style="font-size:.7rem">${cpuEffect !== null ? _fmtEff(cpuEffect) : '—'} <span style="color:#334155">${_smt('on_health')}</span></span>
+                      <span style="font-size:.7rem">${cpuEffect !== null ? _fmtEff(cpuEffect) : '—'} <span style="color:#94a3b8">${_smt('on_health')}</span></span>
                     </div>
 
                     <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:4px;align-items:center">
-                      <span style="color:#64748b">RAM</span>
+                      <span style="color:#94a3b8">RAM</span>
                       <span style="color:${lastRam!==null?(lastRam>80?'#ef4444':lastRam>50?'#f59e0b':'#22c55e'):'#334155'}">${lastRam !== null ? lastRam.toFixed(1)+'%' : '—'}</span>
-                      <span style="font-size:.7rem;color:#64748b">${lastRam !== null
+                      <span style="font-size:.7rem;color:#94a3b8">${lastRam !== null
                         ? (Math.abs(ramMod) < 0.01 ? _smt('ram_neutral')
                           : ramMod > 0 ? `+${(ramMod*100).toFixed(0)}% ${_smt('ram_cpu_more')}`
                           : `${(ramMod*100).toFixed(0)}% ${_smt('ram_cpu_less')}`)
@@ -852,7 +852,7 @@ mvmOS.registerApp({
                     </div>
 
                     <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:4px;align-items:center">
-                      <span style="color:#64748b">Disk</span>
+                      <span style="color:#94a3b8">Disk</span>
                       <span style="color:${lastDisk!==null?(lastDisk>80?'#ef4444':lastDisk>50?'#f59e0b':'#22c55e'):'#334155'}">${lastDisk !== null ? lastDisk.toFixed(1)+'%' : '—'}</span>
                       <span style="font-size:.7rem">${lastDisk !== null
                         ? (lastDisk > 50
@@ -862,29 +862,29 @@ mvmOS.registerApp({
                     </div>
 
                     <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:4px;align-items:center">
-                      <span style="color:#64748b">Net↓</span>
+                      <span style="color:#94a3b8">Net↓</span>
                       <span style="color:#94a3b8">${lastNetMb !== null ? (lastNetMb*60).toFixed(1)+' MB/h' : '—'}</span>
-                      <span style="font-size:.7rem">${dlBonus !== null ? _fmtEff(dlBonus) : '—'} <span style="color:#334155">${_smt('on_health')}</span></span>
+                      <span style="font-size:.7rem">${dlBonus !== null ? _fmtEff(dlBonus) : '—'} <span style="color:#94a3b8">${_smt('on_health')}</span></span>
                     </div>
 
                     <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:4px;align-items:center">
-                      <span style="color:#64748b">Net↑</span>
+                      <span style="color:#94a3b8">Net↑</span>
                       <span style="color:#94a3b8">${lastNetMb !== null ? (lastNetMb*60).toFixed(1)+' MB/h' : '—'}</span>
-                      <span style="font-size:.7rem">${ulBonus !== null ? _fmtEff(ulBonus) : '—'} <span style="color:#334155">${_smt('on_growth')}</span></span>
+                      <span style="font-size:.7rem">${ulBonus !== null ? _fmtEff(ulBonus) : '—'} <span style="color:#94a3b8">${_smt('on_growth')}</span></span>
                     </div>
 
                     <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:4px;align-items:center">
-                      <span style="color:#64748b">${_smt('disk_r')}</span>
+                      <span style="color:#94a3b8">${_smt('disk_r')}</span>
                       <span style="color:#94a3b8">${lastDiskR !== null ? lastDiskR.toFixed(2)+' MB/s' : '—'}</span>
-                      <span style="font-size:.7rem;color:#334155">—</span>
+                      <span style="font-size:.7rem;color:#94a3b8">—</span>
                     </div>
 
                     <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:4px;align-items:center">
-                      <span style="color:#64748b">${_smt('disk_w')}</span>
+                      <span style="color:#94a3b8">${_smt('disk_w')}</span>
                       <span style="color:#94a3b8">${lastDiskW !== null ? lastDiskW.toFixed(2)+' MB/s' : '—'}</span>
                       <span style="font-size:.7rem">${_weedPct > 0
-                        ? `<span style="color:#ef4444">-${_weedPct.toFixed(2)}%/day</span> <span style="color:#334155">health+growth</span>`
-                        : `<span style="color:#334155">W≤R → ок</span>`}</span>
+                        ? `<span style="color:#ef4444">-${_weedPct.toFixed(2)}%/day</span> <span style="color:#94a3b8">health+growth</span>`
+                        : `<span style="color:#94a3b8">W≤R → ок</span>`}</span>
                     </div>
 
                   </div>
@@ -903,7 +903,7 @@ mvmOS.registerApp({
                   <button id="sm-taskbar-btn" style="flex:1;background:#1e2433;border:1px solid #334155;color:#94a3b8;border-radius:8px;padding:8px 14px;font-size:.78rem;cursor:pointer;text-align:left">
                     🌱 Add to taskbar
                   </button>
-                  <button id="sm-preview-btn" style="background:#1e2433;border:1px solid #334155;color:#64748b;border-radius:8px;padding:8px 12px;font-size:.78rem;cursor:pointer" title="Preview">
+                  <button id="sm-preview-btn" style="background:#1e2433;border:1px solid #334155;color:#94a3b8;border-radius:8px;padding:8px 12px;font-size:.78rem;cursor:pointer" title="Preview">
                     🔍
                   </button>
                 </div>
@@ -1081,13 +1081,13 @@ mvmOS.registerApp({
               const rows = PHASES.map(ph => {
                 const cells = HEALTHS.map(hv => `<td style="padding:4px 6px;text-align:center;border-bottom:1px solid #0f1623">${scaledPlant(ph.g, hv.h, s)}</td>`).join('');
                 return `<tr>
-                  <td style="padding:4px 10px;font-size:.65rem;color:#64748b;white-space:nowrap;border-bottom:1px solid #0f1623;border-right:1px solid #1e2433">${ph.label}</td>
+                  <td style="padding:4px 10px;font-size:.65rem;color:#94a3b8;white-space:nowrap;border-bottom:1px solid #0f1623;border-right:1px solid #1e2433">${ph.label}</td>
                   ${cells}
                 </tr>`;
               }).join('');
               return `<table style="border-collapse:collapse;margin:0 auto">
                 <thead><tr>
-                  <th style="padding:6px 10px;font-size:.65rem;color:#334155;text-align:left;border-bottom:1px solid #1e2433;border-right:1px solid #1e2433">${_smt('prev_growth')}</th>
+                  <th style="padding:6px 10px;font-size:.65rem;color:#94a3b8;text-align:left;border-bottom:1px solid #1e2433;border-right:1px solid #1e2433">${_smt('prev_growth')}</th>
                   ${cols}
                 </tr></thead>
                 <tbody>${rows}</tbody>
@@ -1106,7 +1106,7 @@ mvmOS.registerApp({
                 <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #1e2433">
                   <span style="font-weight:700;font-size:.9rem">🌱 Plant Preview</span>
                   <select id="sm-seed-sel" style="background:#1e2433;border:1px solid #334155;color:#94a3b8;border-radius:6px;padding:4px 8px;font-size:.75rem;cursor:pointer">${seedOpts}</select>
-                  <button id="sm-modal-close" style="background:none;border:none;color:#64748b;font-size:1.2rem;cursor:pointer;margin-left:auto">✕</button>
+                  <button id="sm-modal-close" style="background:none;border:none;color:#94a3b8;font-size:1.2rem;cursor:pointer;margin-left:auto">✕</button>
                 </div>
                 <div id="sm-preview-body" style="overflow-y:auto;padding:16px">${buildTable(seed)}</div>
               </div>`;

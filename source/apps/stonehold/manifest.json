@@ -9,7 +9,7 @@
     "tower defense",
     "games"
   ],
-  "version": "1.5.0",
+  "version": "1.5.1",
   "min_core_version": "1.0.0",
   "description": "A map, four enemy camps in the corners and no hold yet: choose where to settle, build, and survive as long as you can while all four keep growing — alone, or racing up to three other holds in the same room.",
   "entry": "main.js",

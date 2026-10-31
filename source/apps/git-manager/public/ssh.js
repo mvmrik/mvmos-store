@@ -92,7 +92,7 @@ GM.ssh = (function() {
       c.appendChild(note);
 
     } catch(e) {
-      c.innerHTML = `<div style="color:#f38ba8;font-size:.82rem">${e.message}</div>`;
+      c.innerHTML = `<div style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem">${e.message}</div>`;
     }
   }
 
@@ -105,11 +105,11 @@ GM.ssh = (function() {
     try {
       const r = await GM.api('/ssh/test', { method: 'POST', json: { host } });
       result.textContent = r.output || (r.ok ? t('gm_connection_ok') : t('gm_connection_failed'));
-      result.style.color = r.ok ? '#a6e3a1' : '#f38ba8';
+      result.style.color = r.ok ? 'color-mix(in srgb,#a6e3a1 35%,var(--text,var(--fg,#cdd6f4)))' : 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))';
       result.style.background = r.ok ? 'rgba(166,227,161,.1)' : 'rgba(243,139,168,.1)';
     } catch(e) {
       result.textContent = e.message;
-      result.style.color = '#f38ba8';
+      result.style.color = 'color-mix(in srgb,#f38ba8 35%,var(--text,var(--fg,#cdd6f4)))';
     }
   }
 
@@ -126,10 +126,10 @@ GM.ssh = (function() {
         <div style="font-size:.78rem;color:var(--text-dim);background:var(--surface2,#313244);border-radius:6px;padding:8px 10px">
           ${t('gm_gen_key_note')}
         </div>
-        <div id="gm-gen-err" style="color:#f38ba8;font-size:.82rem;display:none"></div>
+        <div id="gm-gen-err" style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem;display:none"></div>
         <div style="display:flex;gap:8px;justify-content:flex-end">
           <button class="s-btn" id="gm-gen-cancel">${t('gm_cancel')}</button>
-          <button class="s-btn" id="gm-gen-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">${t('gm_generate')}</button>
+          <button class="s-btn" id="gm-gen-ok" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">${t('gm_generate')}</button>
         </div>
       </div>
     `;

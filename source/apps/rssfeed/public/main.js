@@ -618,7 +618,7 @@ const RSS = (() => {
   function _wrap()  { return _root?.querySelector('#rss-wrap'); }
   function _btnS(type) {
     const b = 'padding:5px 11px;border-radius:4px;cursor:pointer;font-size:.82rem;font-family:inherit;';
-    if (type === 'primary')   return b + 'border:none;background:var(--accent);color:#fff;';
+    if (type === 'primary')   return b + 'border:none;background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));';
     if (type === 'ghost')     return b + 'border:1px solid var(--border);background:transparent;color:var(--text-dim);';
     if (type === 'link')      return 'background:none;border:none;cursor:pointer;font-size:.82rem;color:var(--accent);padding:0;font-family:inherit;';
     return b + 'border:1px solid var(--border);background:var(--surface);color:var(--text);';
@@ -698,7 +698,7 @@ const RSS = (() => {
   function _feedChip(id, name, unread, selected) {
     const base = 'border-radius:20px;padding:4px 12px;font-size:.78rem;cursor:pointer;white-space:nowrap;border:1px solid;flex-shrink:0;font-family:inherit;';
     const style = selected
-      ? base + 'background:var(--accent);color:#1e1e2e;border-color:var(--accent);font-weight:600'
+      ? base + 'background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));border-color:var(--accent);font-weight:600'
       : base + 'background:transparent;color:var(--text-dim);border-color:var(--border)';
     const cnt = unread > 0 ? ` <span style="background:${selected?'rgba(0,0,0,.2)':'var(--accent)'};color:${selected?'#1e1e2e':'#1e1e2e'};border-radius:99px;font-size:.65rem;padding:1px 5px">${unread}</span>` : '';
     return `<button class="rss-feed-chip" data-id="${id}" style="${style}">${_esc(name)}${cnt}</button>`;
@@ -722,9 +722,9 @@ const RSS = (() => {
           <div id="rss-feeds-list"></div>
           <div style="display:flex;gap:6px;margin-top:8px">
             <input id="rss-add-url" placeholder="${_t('feed_url_ph')}" style="flex:1;padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:.84rem;outline:none">
-            <button id="rss-add-btn" style="padding:6px 12px;border-radius:4px;cursor:pointer;font-size:.82rem;font-family:inherit;border:1px solid var(--accent);background:var(--accent);color:#1e1e2e;white-space:nowrap">${_t('add')}</button>
+            <button id="rss-add-btn" style="padding:6px 12px;border-radius:4px;cursor:pointer;font-size:.82rem;font-family:inherit;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));white-space:nowrap">${_t('add')}</button>
           </div>
-          <div id="rss-add-err" style="color:#f38ba8;font-size:.78rem;margin-top:4px;min-height:16px"></div>
+          <div id="rss-add-err" style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.78rem;margin-top:4px;min-height:16px"></div>
         </div>
       </div>`;
 
@@ -739,7 +739,7 @@ const RSS = (() => {
           <span style="flex:1;font-size:.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_esc(f.name)}</span>
           ${f.unread_count ? `<span style="font-size:.7rem;color:var(--accent)">${f.unread_count} unread</span>` : ''}
           <button class="rss-del-feed" data-id="${f.id}"
-            style="background:none;border:none;cursor:pointer;color:#f38ba8;font-size:.78rem;padding:2px 6px;border-radius:4px;font-family:inherit">${_t('del_feed')}</button>
+            style="background:none;border:none;cursor:pointer;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.78rem;padding:2px 6px;border-radius:4px;font-family:inherit">${_t('del_feed')}</button>
         </div>`).join('');
       list.querySelectorAll('.rss-del-feed').forEach(btn => {
         btn.onclick = async () => {

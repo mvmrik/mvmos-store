@@ -176,10 +176,10 @@ function _bbHTML() {
     <button class="bb-btn" id="bb-btn-edit-sel" style="display:none">📐 ${_bbt('editSelected')}</button>
     <button class="bb-btn" id="bb-btn-dup-sel" style="display:none">⧉ ${_bbt('duplicateSelected')}</button>
     <div style="flex:1"></div>
-    <label style="font-size:.75rem;color:#888;display:flex;align-items:center;gap:4px">
+    <label style="font-size:.75rem;color:#b0b5c8;display:flex;align-items:center;gap:4px">
       <input type="checkbox" id="bb-snap" checked> ${_bbt('snap')}
     </label>
-    <label style="font-size:.75rem;color:#888;display:flex;align-items:center;gap:4px">
+    <label style="font-size:.75rem;color:#b0b5c8;display:flex;align-items:center;gap:4px">
       <input type="checkbox" id="bb-floor" checked> ${_bbt('floor')}
     </label>
     <select id="bb-unit" style="background:#252545;color:#ccc;border:1px solid #3a3a6a;border-radius:5px;padding:3px 6px;font-size:.78rem;cursor:pointer">
@@ -193,12 +193,12 @@ function _bbHTML() {
   <div style="flex:1;display:flex;overflow:hidden">
     <!-- Left panel: materials -->
     <div id="bb-panel" style="width:180px;min-width:180px;background:#12122a;border-right:1px solid #2a2a4a;display:flex;flex-direction:column;overflow:hidden">
-      <div style="padding:6px 8px;font-size:.72rem;text-transform:uppercase;color:#666;border-bottom:1px solid #2a2a4a;letter-spacing:.05em">${_bbt('materials')}</div>
+      <div style="padding:6px 8px;font-size:.72rem;text-transform:uppercase;color:#b0b5c8;border-bottom:1px solid #2a2a4a;letter-spacing:.05em">${_bbt('materials')}</div>
       <div id="bb-mat-list" style="flex:1;overflow-y:auto;padding:4px"></div>
       <div style="padding:6px">
         <button class="bb-btn" id="bb-btn-add-mat" style="width:100%">+ ${_bbt('addMaterial')}</button>
       </div>
-      <div style="border-top:1px solid #2a2a4a;padding:6px 8px;font-size:.72rem;text-transform:uppercase;color:#666;letter-spacing:.05em">${_bbt('materialList')}</div>
+      <div style="border-top:1px solid #2a2a4a;padding:6px 8px;font-size:.72rem;text-transform:uppercase;color:#b0b5c8;letter-spacing:.05em">${_bbt('materialList')}</div>
       <div id="bb-summary" style="padding:4px 8px 8px;font-size:.75rem;color:#aaa;overflow-y:auto;max-height:160px"></div>
     </div>
 
@@ -229,7 +229,7 @@ function _bbHTML() {
   .bb-mat-card.selected{border-color:#6a6aff;background:#252550}
   .bb-mat-card .bb-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0}
   .bb-input{background:#0d0d1a;color:#ccc;border:1px solid #3a3a6a;border-radius:5px;padding:4px 8px;font-size:.82rem;width:100%;box-sizing:border-box}
-  .bb-label{font-size:.75rem;color:#888;margin-bottom:3px;display:block}
+  .bb-label{font-size:.75rem;color:#b0b5c8;margin-bottom:3px;display:block}
 </style>
 `;
 }
@@ -874,20 +874,20 @@ function _bbStart(body) {
     selInfoEl.style.display = 'block';
     selInfoEl.innerHTML = `
       <div style="font-weight:600;margin-bottom:4px">${_bbt('selected')}</div>
-      <div style="color:#888;font-size:.72rem">${mat ? mat.name : '?'}</div>
+      <div style="color:#b0b5c8;font-size:.72rem">${mat ? mat.name : '?'}</div>
       <div style="margin-top:4px;margin-bottom:8px">${_bbt('length')}: <b>${len}</b></div>
-      <div style="font-size:.7rem;color:#666;line-height:1.7">
+      <div style="font-size:.7rem;color:#b0b5c8;line-height:1.7">
         ${_bbt('dragEndRotate')}<br>
-        <span style="color:#555">${_bbt('dragEndRotateHint')}</span><br>
+        <span style="color:#b0b5c8">${_bbt('dragEndRotateHint')}</span><br>
         ${_bbt('dragMidMove')}<br>
-        <span style="color:#555">${_bbt('dragMidMoveHint')}</span>
+        <span style="color:#b0b5c8">${_bbt('dragMidMoveHint')}</span>
       </div>
     `;
   }
 
   function updateSummary() {
     if (!state.beams.length) {
-      summaryEl.innerHTML = `<span style="color:#555">${_bbt('noBeams')}</span>`;
+      summaryEl.innerHTML = `<span style="color:#b0b5c8">${_bbt('noBeams')}</span>`;
       return;
     }
     const groups = {};
@@ -934,7 +934,7 @@ function _bbStart(body) {
             <span style="display:inline-block;width:8px;height:8px;background:${g.mat.color};border-radius:2px"></span>
             <span style="color:#ccc">${g.mat.name}</span>
           </div>
-          <div style="color:#888;margin-top:2px">
+          <div style="color:#b0b5c8;margin-top:2px">
             ${g.count} ${_bbt('pcs')} · ${qtyStr}${costStr}
           </div>
         </div>`;
@@ -959,7 +959,7 @@ function _bbStart(body) {
         const leftStr = fmtLen(bar.left);
         const leftExtra = isSheet && bar.left > 0.001 ? ` = ${(bar.left * hm).toFixed(2)} m²` : '';
         const leftColor = bar.left < 0.05 ? '#555' : '#f0c060';
-        return `<div style="font-size:.7rem;color:#888;margin-top:2px">
+        return `<div style="font-size:.7rem;color:#b0b5c8;margin-top:2px">
           <span style="color:#aaa">${_bbt('stockBar')} ${i+1}:</span> ${usedStr}
           <span style="color:${leftColor};margin-left:4px">(${_bbt('stockLeft')}: ${leftStr}${leftExtra})</span>
         </div>`;
@@ -1086,8 +1086,8 @@ function _bbStart(body) {
       const isHidden = mat.hidden || false;
       card.innerHTML = `
         <span class="bb-dot" data-toggle="${mat.id}" title="${isHidden ? 'Show' : 'Hide'}" style="background:${isHidden ? '#333' : mat.color};border:2px solid ${mat.color};cursor:pointer;opacity:${isHidden ? 0.4 : 1}"></span>
-        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:${isHidden ? 0.4 : 1}">${mat.name}<span style="color:#555;font-size:.68rem">${priceStr}</span></span>
-        <span style="color:#444;font-size:.7rem;cursor:pointer;padding:0 2px" data-edit="${mat.id}" title="Edit">⋯</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:${isHidden ? 0.4 : 1}">${mat.name}<span style="color:#b0b5c8;font-size:.68rem">${priceStr}</span></span>
+        <span style="color:#b0b5c8;font-size:.7rem;cursor:pointer;padding:0 2px" data-edit="${mat.id}" title="Edit">⋯</span>
       `;
       card.addEventListener('click', e => {
         if (e.target.dataset.toggle) {
@@ -1165,7 +1165,7 @@ function _bbStart(body) {
   function showAddMaterial() {
     const groupsHtml = MAT_TEMPLATES.map(g => `
       <div style="margin-bottom:10px">
-        <div style="font-size:.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${_bbt(g.group)}</div>
+        <div style="font-size:.7rem;color:#b0b5c8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">${_bbt(g.group)}</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px">
           ${g.items.map((t, i) => `
             <button class="bb-btn bb-tpl-btn" data-group="${g.group}" data-idx="${i}"
@@ -1178,7 +1178,7 @@ function _bbStart(body) {
     showModal(`
       <div style="font-weight:600;margin-bottom:10px">+ ${_bbt('addMaterial')}</div>
       <div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #2a2a4a">
-        <div style="font-size:.72rem;color:#888;margin-bottom:6px">${_bbt('chooseTemplate')}</div>
+        <div style="font-size:.72rem;color:#b0b5c8;margin-bottom:6px">${_bbt('chooseTemplate')}</div>
         ${groupsHtml}
         <button class="bb-btn bb-tpl-btn" data-custom="1" style="font-size:.72rem;padding:3px 10px;background:#111128;border:1px solid #333">+ ${_bbt('tplCustom')}</button>
       </div>
@@ -1379,7 +1379,7 @@ function _bbStart(body) {
   function showLoadModal(projects) {
     if (!projects.length) {
       showModal(`
-        <div style="margin-bottom:12px;color:#888">${_bbt('noProjects')}</div>
+        <div style="margin-bottom:12px;color:#b0b5c8">${_bbt('noProjects')}</div>
         <button class="bb-btn" id="bl-close">${_bbt('close')}</button>
       `, el => { el.querySelector('#bl-close').onclick = hideModal; });
       return;

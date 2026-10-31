@@ -157,7 +157,7 @@ YS.filters = (() => {
     var searchBtn = document.createElement('button');
     searchBtn.className = 's-btn s-btn-sm';
     searchBtn.textContent = _ysqlFiT('ysql_search');
-    searchBtn.style.cssText = 'background:var(--accent);color:#fff;border-color:var(--accent)';
+    searchBtn.style.cssText = 'background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)';
     searchBtn.addEventListener('click', function() {
       _readFiltersFromDOM(filterRows);
       _readSortFromDOM(sortTags);
@@ -236,7 +236,7 @@ YS.filters = (() => {
       var rmBtn = document.createElement('button');
       rmBtn.className = 's-btn s-btn-sm';
       rmBtn.innerHTML = '&times;';
-      rmBtn.style.cssText = 'color:#f38ba8;padding:2px 7px;flex-shrink:0';
+      rmBtn.style.cssText = 'color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));padding:2px 7px;flex-shrink:0';
       rmBtn.addEventListener('click', function() {
         _readFiltersFromDOM(container);
         YS.state.filters.splice(idx, 1);
@@ -284,7 +284,7 @@ YS.filters = (() => {
       var rmBtn = document.createElement('button');
       rmBtn.className = 's-btn s-btn-sm';
       rmBtn.innerHTML = '&times;';
-      rmBtn.style.cssText = 'border:none;border-left:1px solid var(--border);border-radius:0;padding:3px 6px;color:#f38ba8;background:transparent;font-size:.8rem';
+      rmBtn.style.cssText = 'border:none;border-left:1px solid var(--border);border-radius:0;padding:3px 6px;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));background:transparent;font-size:.8rem';
       rmBtn.addEventListener('click', function() {
         YS.state.sort.splice(idx, 1);
         _renderSortRows(container, columns, outerContainer, content);

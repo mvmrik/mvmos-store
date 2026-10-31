@@ -100,11 +100,11 @@
 }
 
 .fs-t-pts b {
-  color: #ffd60a;
+  color:color-mix(in srgb,#ffd60a 35%,var(--fg,#cdd6f4));
 }
 
 .fs-t-bn b {
-  color: #9bf2c8;
+  color:color-mix(in srgb,#9bf2c8 35%,var(--fg,#cdd6f4));
 }
 
 @media (min-width: 700px) {
@@ -155,7 +155,7 @@
 .fs-tools button {
   border: 2px solid rgba(255, 255, 255, .22);
   background: linear-gradient(180deg, #38d6c1, #1a9d92);
-  color: #fff;
+  color: #10312c;
   box-shadow: 0 3px 0 #11675f;
   transition: transform .08s;
 }
@@ -329,7 +329,7 @@
 
 .fs-btn.go {
   background: var(--accent, #89b4fa);
-  color: #1e1e2e;
+  color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));
   border-color: var(--accent, #89b4fa);
 }
 
@@ -433,3 +433,7 @@
   pointer-events: none;
   animation: fs-pop .25s ease-out;
 }
+
+/* The celebration and toast remain dark over the 3D board in either theme. */
+.fs-banner-card,.fs-toast{color:#f5f2ff}
+.fs-banner-card .fs-bd span{color:#c9bdf5}

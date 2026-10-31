@@ -206,7 +206,7 @@
   }
 
   // 48 hour activity strip.
-  const STATE_COL = { online: '#60a5fa', asleep: '#475569', offline: '#7c3aed', driving: '#fbbf24', charging: '#4ade80' };
+  const STATE_COL = { online: 'var(--tsl-blue,#60a5fa)', asleep: '#64748b', offline: '#7c3aed', driving: 'var(--tsl-warning,#fbbf24)', charging: 'var(--tsl-green,#4ade80)' };
   function strip(tl) {
     const span = tl.now - tl.since;
     const segs = tl.rows.map(r => `<div style="left:${(r.start - tl.since) / span * 100}%;width:${Math.max(0.3, (r.end - r.start) / span * 100)}%;background:${STATE_COL[r.state] || '#64748b'}" title="${esc(tl.labels&&tl.labels[r.state]||t('tsl_st_' + r.state))} ${esc(fmt.dateTime(r.start))} – ${esc(fmt.time(r.end))}"></div>`).join('');

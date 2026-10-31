@@ -184,7 +184,7 @@
     root.innerHTML =
       '<div class="jp-wrap">' +
         '<div class="jp-players"></div>' +
-        '<div class="jp-status">' + tile('df', 'jp_hud_diff') + tile('tm', 'jp_hud_time') + tile('pts', 'jp_hud_points') + tile('pc', 'jp_hud_pieces') + '</div>' +
+        '<div class="jp-status">' + tile('df', 'jp_hud_diff') + tile('tm', 'jp_hud_time') + tile('pts', 'jp_hud_points') + tile('pc', 'jp_hud_pieces') + '</div><div data-gh-stage></div>' +
         '<div class="jp-stage"><div class="jp-load">' + _esc(_t('jp_waiting')) + '</div></div>' +
         '<div class="jp-foot"><button class="jp-snd" data-snd title="' + _esc(_t('jp_sound')) + '"></button></div>' +
       '</div>';
@@ -327,6 +327,7 @@
     if (!M || !el.df) return;
     el.df.textContent = _t('jp_diff_' + M.diff);
     el.pts.textContent = fmt(myPts());
+    if (mp.stageRecords) mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:difficulty:' + M.diff, myPts(), { difficulty: true });
     el.pc.textContent = placedN() + '/' + N;
     paintClock();
     const me = meId();
@@ -339,6 +340,7 @@
     if (_stopClock) return;
     el.tm.textContent = clock((performance.now() - _t0) / 1000);
     el.pts.textContent = fmt(myPts());
+    if (mp.stageRecords) mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:difficulty:' + M.diff, myPts(), { difficulty: true });
     if (M.order.length > 1) paintPlayers();
   }
 
@@ -528,6 +530,7 @@
         paintPlayers();
         break;
       case 'jp_done':
+        if (mp.stageRecords) mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:difficulty:' + M.diff, m.points, { difficulty: true, refresh: true, records: m.stage_records });
         M.done = true; _stopClock = true;
         pts = m.points; paintStatus(); paintTools();
         el.tm.textContent = clock(m.time);
@@ -618,11 +621,12 @@
         (m.speed ? '<div><span>' + _esc(_t('jp_bd_speed')) + '</span><b>+' + fmt(m.speed) + '</b></div>' : '') +
         '<div class="tot"><span>' + _esc(_t('jp_hud_points')) + '</span><b>' + fmt(m.points) + '</b></div>' +
       '</div>' +
-      '<h4>' + _esc(_t('jp_watching')) + '</h4>' +
+      '<div data-gh-stage-done></div><h4>' + _esc(_t('jp_watching')) + '</h4>' +
       '<div class="jp-peers"></div>' +
       '<p class="jp-hint">' + _esc(_t('jp_leave_note')) + '</p>' +
       '<div class="jp-acts"><a class="jp-btn" href="' + HUB_URL + '">' + _esc(_t('jp_back')) + '</a></div></div>';
     el.stage.appendChild(d);
+    if (mp.stageRecords) mp.stageRecords(d.querySelector('[data-gh-stage-done]'), 'v1:difficulty:' + M.diff, m.points, { difficulty: true });
     closable(d);
     paintPeers();
   }
@@ -656,9 +660,10 @@
     ov.innerHTML =
       '<div class="jp-card"><h2>' + _esc(title) + '</h2>' + breakdown + '<div class="jp-rows">' + rows + '</div>' +
       (multi ? '' : '<p class="jp-hint">' + _esc(_t('jp_saved_note')) + '</p>') +
-      '<div class="jp-acts"><button class="jp-btn go" data-again>' + _esc(multi ? _t('jp_play_again') : _t('jp_new_game')) + '</button>' +
+      '<div data-gh-stage-final></div><section data-gh-results></section><div class="jp-acts"><button class="jp-btn go" data-again>' + _esc(multi ? _t('jp_play_again') : _t('jp_new_game')) + '</button>' +
       '<a class="jp-btn" href="' + HUB_URL + '">' + _esc(_t('jp_back')) + '</a></div></div>';
     el.stage.appendChild(ov);
+    if (mp.stageRecords) mp.stageRecords(ov.querySelector('[data-gh-stage-final]'), 'v1:difficulty:' + M.diff, mine ? mine.points : null, { difficulty: true });
     closable(ov);
     if (multi && mine && mine.rank === 1 && mine.points > 0) { sfx.win(); confetti(); }
     ov.querySelector('[data-again]').onclick = e => playAgain(e.currentTarget);

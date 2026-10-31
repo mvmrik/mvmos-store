@@ -1712,7 +1712,7 @@
 .mp-seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
 .mp-seg-btn{background:var(--bg);border:none;border-right:1px solid var(--border);padding:4px 9px;cursor:pointer;min-width:30px}
 .mp-seg-btn:last-child{border-right:none}
-.mp-seg-btn.mp-on{background:var(--accent);color:#fff}
+.mp-seg-btn.mp-on{background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)))}
 .mp-root select{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:5px;padding:3px 5px;font:inherit}
 .mp-main{flex:1;display:flex;min-height:0}
 .mp-tools{width:46px;flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;border-right:1px solid var(--border);background:var(--surface);overflow-y:auto}
@@ -1773,7 +1773,7 @@
 .mp-btn:hover{border-color:var(--accent)}
 .mp-btn:disabled{opacity:.5;cursor:default}
 .mp-small{padding:3px 9px;font-size:12px}
-.mp-primary{background:var(--accent);border-color:var(--accent);color:#fff!important}
+.mp-primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)))!important}
 .mp-input{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font:inherit;box-sizing:border-box}
 .mp-modal-body>.mp-input{width:100%}
 .mp-toasts{position:absolute;right:12px;bottom:40px;display:flex;flex-direction:column;gap:6px;z-index:30;pointer-events:none}
@@ -1805,7 +1805,7 @@
 .mp-fb-row:hover{background:var(--surface2)}
 .mp-fb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mp-empty{padding:16px;text-align:center;color:var(--text-dim)}
-.mp-bad{color:#f38ba8}
+.mp-bad{color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4))}
 .mp-menu{position:absolute;z-index:50;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:4px;min-width:240px}
 .mp-menu-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:5px;cursor:pointer;white-space:nowrap}
 .mp-menu-item:hover{background:var(--surface2)}

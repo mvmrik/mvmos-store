@@ -113,5 +113,102 @@ class ChargingCosts(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.add(rules=[band('A','00:00','12:00',1),band('B','10:00','23:00',2)])
 
+class SeasonalRecords(unittest.TestCase):
+    setUp = ChargingCosts.setUp
+    tearDown = ChargingCosts.tearDown
+    add = ChargingCosts.add
+    def plan(self, rules, **extra):
+        return billing.validate({'name':'Season', 'place_id':'home',
+            'start_ts':stamp('2026-01-01'), 'end_ts':stamp('2027-01-01'),
+            'currency':'EUR', 'timezone':'Europe/Sofia', 'kind':'all', 'rules':rules, **extra})
+
+    def seasonal(self, summer=True):
+        season = {'season_from':401 if summer else 1101, 'season_to':1031 if summer else 331}
+        return [band('Day', '07:00' if summer else '06:00', '23:00' if summer else '22:00', .2, **season),
+                band('Night', '23:00' if summer else '22:00', '07:00' if summer else '06:00', .1, **season)]
+
+    def test_april_october_and_november_march_do_not_conflict(self):
+        self.assertFalse(billing.plans_overlap(self.plan(self.seasonal()), self.plan(self.seasonal(False))))
+        # The same four bands also work together inside one record.
+        self.plan(self.seasonal() + self.seasonal(False))
+
+    def test_season_follows_local_calendar_date_even_before_dawn(self):
+        summer, winter = self.seasonal(), self.seasonal(False)
+        for iso, yes, no in [('2026-04-01T02:00',summer,winter), ('2026-11-01T02:00',winter,summer),
+                             ('2026-03-31T02:00',winter,summer), ('2026-10-31T02:00',summer,winter)]:
+            local = dt.datetime.fromisoformat(iso).replace(tzinfo=ZONE)
+            self.assertTrue(any(billing.matches(r, local) for r in yes), iso)
+            self.assertFalse(any(billing.matches(r, local) for r in no), iso)
+
+    def test_rate_search_continues_to_other_seasonal_record(self):
+        self.add('summer', rules=self.seasonal())
+        self.add('winter', rules=self.seasonal(False))
+        context=billing.Billing(self.c,'owner',{},[self.place],lambda *args:self.place)
+        for date, expected in [('2026-07-10T10:00','summer'),('2026-01-12T23:00','winter'),
+                                ('2026-04-01T02:00','summer'),('2026-11-01T02:00','winter')]:
+            self.assertEqual(context.rate(stamp(date),self.place,False)[0],expected)
+
+    def test_cost_is_split_at_the_season_boundary(self):
+        self.add('summer',rules=[band('Summer','00:00','00:00',.2,season_from=401,season_to=1031)])
+        self.add('winter',rules=[band('Winter','00:00','00:00',.1,season_from=1101,season_to=331)])
+        start,end=stamp('2026-10-31T23:50'),stamp('2026-11-01T00:10')
+        self.c.execute('UPDATE charges SET start_ts=?,end_ts=? WHERE id=1',(start,end))
+        self.c.execute('DELETE FROM charge_points')
+        self.c.executemany('INSERT INTO charge_points(charge,ts,energy) VALUES(1,?,?)',
+                           [(start,0),((start+end)//2,5),(end,10)])
+        context=billing.Billing(self.c,'owner',{},[self.place],lambda *args:self.place)
+        row=dict(self.c.execute('SELECT * FROM charges WHERE id=1').fetchone())
+        result=context.decorate(row)
+        self.assertEqual(result['cost'],1.5)
+        self.assertEqual({b['tariff_id'] for b in result['cost_breakdown']},{'summer','winter'})
+        self.assertFalse(result['pricing_estimated'])
+
+    def test_actual_overlap_still_rejected_including_shared_end_date(self):
+        a=self.plan([band('First','00:00','00:00',1,season_from=401,season_to=1031)])
+        b=self.plan([band('Second','00:00','00:00',2,season_from=1031,season_to=331)])
+        self.assertTrue(billing.plans_overlap(a,b))
+        self.assertTrue(billing.plans_overlap(a,a))
+        self.assertFalse(billing.plans_overlap({**a,'kind':'ac'},{**a,'kind':'dc'}))
+
+    def test_disjoint_times_days_and_validity(self):
+        a=self.plan([band('Day','07:00','22:00',1)])
+        b=self.plan([band('Night','22:00','07:00',1)])
+        self.assertFalse(billing.plans_overlap(a,b))
+        a=self.plan([band('Monday','00:00','00:00',1,days=[0])])
+        b=self.plan([band('Tuesday','00:00','00:00',1,days=[1])])
+        self.assertFalse(billing.plans_overlap(a,b))
+        b={**a,'start_ts':a['end_ts'],'end_ts':stamp('2028-01-01')}
+        self.assertFalse(billing.plans_overlap(a,b))
+
+    def test_partial_validity_boundary_does_not_create_false_overlap(self):
+        a=self.plan([band('Morning','01:00','02:00',1)],start_ts=stamp('2026-01-12T02:00'),end_ts=stamp('2026-01-12T03:00'))
+        self.assertFalse(billing.plans_overlap(a,a))
+
+    def test_february_29_and_year_wrap(self):
+        leap=self.plan([band('Leap','00:00','00:00',1,season_from=229,season_to=229)])
+        self.assertFalse(billing.plans_overlap(leap,leap)) # no leap day in 2026
+        leap.update(start_ts=stamp('2028-01-01'),end_ts=stamp('2029-01-01'))
+        self.assertTrue(billing.plans_overlap(leap,leap))
+        winter=self.plan(self.seasonal(False))
+        self.assertTrue(billing.plans_overlap(winter,winter))
+
+    def test_different_timezones_compare_real_instants(self):
+        a=self.plan([band('Local','10:00','11:00',1)],start_ts=stamp('2026-01-12'),end_ts=stamp('2026-01-13'))
+        b=self.plan([band('UTC','08:00','09:00',1)],timezone='UTC',start_ts=a['start_ts'],end_ts=a['end_ts'])
+        self.assertTrue(billing.plans_overlap(a,b))
+        b['rules']=[band('UTC','09:00','10:00',1)]
+        self.assertFalse(billing.plans_overlap(a,b))
+
+    def test_dst_gap_and_both_repeated_hours(self):
+        a=self.plan([band('Missing','03:10','03:20',1)],start_ts=stamp('2026-03-29'),end_ts=stamp('2026-03-30'))
+        self.assertFalse(billing.plans_overlap(a,a))
+        a=self.plan([band('Before jump','02:30','03:30',1)],start_ts=a['start_ts'],end_ts=a['end_ts'])
+        self.assertTrue(billing.plans_overlap(a,a))
+        for utc in ['2026-10-25T00:30:00+00:00','2026-10-25T01:30:00+00:00']:
+            ts=int(dt.datetime.fromisoformat(utc).timestamp())
+            a=self.plan([band('Repeated','03:00','04:00',1)],start_ts=ts,end_ts=ts+60)
+            self.assertTrue(billing.plans_overlap(a,a))
+
+
 if __name__ == '__main__':
     unittest.main()

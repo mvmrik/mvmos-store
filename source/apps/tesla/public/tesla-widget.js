@@ -9,16 +9,17 @@
   const STATE_ICON = { online: '●', asleep: '☾', offline: '○', driving: '➤', charging: '⚡', unknown: '…' };
 
   const CSS = `
+  .tsl{--tsl-pink:light-dark(#b62a78,#f472b6);--tsl-purple:light-dark(#7541bd,#a78bfa);--tsl-warning:light-dark(#946000,#fbbf24);--tsl-amber:light-dark(#996000,#f59e0b);--tsl-success:light-dark(#087552,#34d399);--tsl-mint:light-dark(#087552,#6ee7b7);--tsl-green:light-dark(#167739,#4ade80);--tsl-danger:light-dark(#b42335,#f87171);--tsl-rose:light-dark(#b4234b,#fb7185);--tsl-error:light-dark(#b42335,#fda4af);--tsl-info:light-dark(#245ea8,#93c5fd);--tsl-blue:light-dark(#2563b5,#60a5fa);--tsl-orange:light-dark(#a3470b,#fb923c);--tsl-muted:light-dark(#45566f,#a7bcdb);--tsl-seats:light-dark(#9b4b0e,#f4ad70);--tsl-heat:light-dark(#8d6200,#f9c56c);--tsl-climate:light-dark(#096e8d,#75d5f4);--tsl-security:light-dark(#6841bc,#b7a3fc)}
   .tsl.in-os{--pub-bg:var(--surface);--pub-surface1:var(--surface);--pub-surface2:var(--surface2);--pub-fg:var(--text);--pub-fg2:var(--text-dim);--pub-dim:var(--text-dim);--pub-border:var(--border);--pub-accent:var(--accent);--pub-accent-hover:var(--accent-hover);--pub-red:var(--danger)}
 
   .tsl-readonly #tsl-j-new,.tsl-readonly #tsl-j-edit,.tsl-readonly #tsl-j-delete,.tsl-readonly #tsl-j-action,.tsl-readonly #tsl-edit-charge-cost,.tsl-readonly #tsl-saveplace,.tsl-readonly #tsl-place-new,.tsl-readonly #tsl-tariff-new,.tsl-readonly [data-place-edit],.tsl-readonly [data-place-tariff],.tsl-readonly [data-tariff-edit],.tsl-readonly [data-tariff-delete]{display:none!important}
   .tsl-readonly .tsl-refresh:disabled{opacity:1;cursor:default;border-color:transparent}
   .tsl-shared-banner{padding:8px 12px;border:1px solid var(--pub-border,#ffffff20);border-radius:12px}.tsl-share-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 0;border-top:1px solid var(--pub-border,#ffffff15)}.tsl-share-row>div{flex:1;min-width:120px;overflow-wrap:anywhere}.tsl-share-row select{max-width:100%}.tsl-share-form select,.tsl-share-row select{padding:10px;background:var(--pub-surface2,#252d45);color:inherit;border:1px solid var(--pub-border,#ffffff20);border-radius:10px;font:inherit}
 
-  .tsl-billing-dialog select,.tsl-billing-columns select{display:block;width:100%;max-width:100%;min-width:0;padding:11px;margin-top:7px;border:1px solid var(--pub-border,#ffffff20);border-radius:10px;background:var(--pub-surface2,#252d45);color:var(--pub-fg,#e6e9f2);font:inherit;color-scheme:dark}
+  .tsl-billing-dialog select,.tsl-billing-columns select{display:block;width:100%;max-width:100%;min-width:0;padding:11px;margin-top:7px;border:1px solid var(--pub-border,#ffffff20);border-radius:10px;background:var(--pub-surface2,#252d45);color:var(--pub-fg,#e6e9f2);font:inherit;color-scheme:inherit}
   .tsl-billing-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}.tsl-billing-columns>label{min-width:0;display:block;font-size:.85rem;margin:12px 0;color:var(--pub-fg2,#9aa4bd)}.tsl-billing-dialog label:has([type=hidden]){min-width:0}.tsl-billing-dialog input[type=hidden]{display:none}
   .tsl-bill-season{display:flex;gap:8px}.tsl-bill-season select{flex:1}
-  .tsl-bill-rule{padding:14px;border:1px solid var(--pub-border,#ffffff18);border-radius:14px;margin:12px 0;background:#889dc808}.tsl-bill-days{display:flex;flex-wrap:wrap;gap:8px}.tsl-bill-days label{display:flex;align-items:center;gap:5px;margin:5px 0}.tsl-bill-days input[type=checkbox]{width:18px;height:18px;display:inline;margin:0;padding:0}
+  .tsl-bill-rule{padding:14px;border:1px solid var(--pub-border,#ffffff18);border-radius:14px;margin:12px 0;background:#889dc808}.tsl-bill-daysrow{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:4px 16px}.tsl-bill-season-field{display:block;font-size:.85rem;color:var(--pub-fg2,#9aa4bd);min-width:230px}.tsl-bill-days{display:flex;flex-wrap:wrap;gap:8px}.tsl-bill-days label{display:flex;align-items:center;gap:5px;margin:5px 0}.tsl-bill-days input[type=checkbox]{width:18px;height:18px;display:inline;margin:0;padding:0}
   .tsl-bill-bands{display:grid;gap:8px;margin:14px 0;font-size:.85rem;color:var(--pub-fg2,#9aa4bd)}.tsl-bill-bands b{color:var(--pub-fg,#e6e9f2);margin-right:5px}.tsl-bill-total{font-size:2.1rem;letter-spacing:-.04em;font-weight:750;margin:14px 0;overflow-wrap:anywhere}
   .tsl-bill-breakdown>div,.tsl-bill-place-total{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--pub-border,#ffffff12)}.tsl-bill-breakdown small,.tsl-bill-place-total small{display:block;color:var(--pub-fg2,#9aa4bd);font-size:.8rem;margin-top:5px}.tsl-bill-place-total>div{min-width:0}.tsl-bill-place-total>div b{overflow-wrap:anywhere}.tsl-bill-place-total>b{text-align:right;flex-shrink:0}
   .tsl-charge-tabs{gap:7px}.tsl-charge-tabs .tsl-btn{padding:9px 13px;min-height:40px}.tsl-billing-dialog .tsl-map{height:280px}
@@ -26,38 +27,38 @@
 
   .tsl-drive-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:14px;margin-top:12px}
   .tsl-drive-card{display:block;width:100%;min-width:0;text-align:left;font:inherit;color:inherit;cursor:pointer;background:var(--pub-surface1,#1b2133);border:1px solid var(--pub-border,#ffffff18);border-radius:18px;padding:16px;box-shadow:0 3px 12px #0002;transition:border-color .15s,background .15s}
-  .tsl-drive-card:hover{border-color:var(--pub-accent,#60a5fa);background:color-mix(in srgb,var(--pub-accent,#60a5fa) 5%,var(--pub-surface1,#1b2133))}
-  .tsl-drive-card:focus-visible{outline:2px solid var(--pub-accent,#60a5fa);outline-offset:3px}
+  .tsl-drive-card:hover{border-color:var(--pub-accent,var(--tsl-blue,#60a5fa));background:color-mix(in srgb,var(--pub-accent,var(--tsl-blue,#60a5fa)) 5%,var(--pub-surface1,#1b2133))}
+  .tsl-drive-card:focus-visible{outline:2px solid var(--pub-accent,var(--tsl-blue,#60a5fa));outline-offset:3px}
   .tsl-drive-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:.76rem;color:var(--pub-fg2,#9aa4bd)}
   .tsl-drive-meta time{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}.tsl-drive-meta time b{color:var(--pub-fg,#e6e9f2);font-weight:650}
   .tsl-drive-duration{white-space:nowrap;padding:5px 8px;background:var(--pub-surface2,#252d45);border-radius:8px}
   .tsl-drive-route{position:relative;display:grid;gap:13px;margin:18px 0;padding-left:23px;font-size:.98rem;font-weight:650;line-height:1.35}
-  .tsl-drive-route:before{content:'';position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(var(--pub-accent,#60a5fa),#34d399)}
+  .tsl-drive-route:before{content:'';position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:linear-gradient(var(--pub-accent,var(--tsl-blue,#60a5fa)),var(--tsl-success,#34d399))}
   .tsl-drive-route span{position:relative;overflow-wrap:anywhere}
-  .tsl-drive-route span:before{content:'';position:absolute;left:-22px;top:.35em;width:10px;height:10px;border:2px solid var(--pub-accent,#60a5fa);border-radius:50%;background:var(--pub-surface1,#1b2133)}
-  .tsl-drive-route span:last-child:before{border-color:#34d399;background:#34d399}
+  .tsl-drive-route span:before{content:'';position:absolute;left:-22px;top:.35em;width:10px;height:10px;border:2px solid var(--pub-accent,var(--tsl-blue,#60a5fa));border-radius:50%;background:var(--pub-surface1,#1b2133)}
+  .tsl-drive-route span:last-child:before{border-color:var(--tsl-success,#34d399);background:var(--tsl-success,#34d399)}
   .tsl-drive-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
   .tsl-drive-metrics>span{min-width:0;padding:10px 6px;background:var(--pub-surface2,#252d45);border-radius:10px;text-align:center}
   .tsl-drive-metrics b{display:block;font-size:.95rem;font-weight:650;overflow-wrap:anywhere;line-height:1.4;font-variant-numeric:tabular-nums}
   .tsl-drive-metrics small{display:block;color:var(--pub-fg2,#9aa4bd);font-size:.62rem;line-height:1.3;margin-top:3px;overflow-wrap:anywhere}
-  .tsl-drive-metrics>span:first-child b{color:var(--pub-accent,#60a5fa)}
+  .tsl-drive-metrics>span:first-child b{color:var(--pub-accent,var(--tsl-blue,#60a5fa))}
   .tsl-drive-battery{display:flex;align-items:center;gap:10px;margin-top:13px;color:var(--pub-fg2,#9aa4bd);font-size:.72rem}
   .tsl-drive-battery>span{white-space:nowrap;font-variant-numeric:tabular-nums}
   .tsl-drive-battery-track{flex:1;min-width:20px;height:5px;background:var(--pub-bg,#0f1320);border-radius:9px;overflow:hidden;position:relative}
-  .tsl-drive-battery-track i{position:absolute;top:0;bottom:0;left:0;border-radius:9px;background:#34d399}
-  .tsl-drive-battery-track i.used{border-radius:0;background:#fbbf24}
+  .tsl-drive-battery-track i{position:absolute;top:0;bottom:0;left:0;border-radius:9px;background:var(--tsl-success,#34d399)}
+  .tsl-drive-battery-track i.used{border-radius:0;background:var(--tsl-warning,#fbbf24)}
   @container(max-width:360px){.tsl-drive-card{padding:12px}.tsl-drive-metrics b{font-size:.84rem}.tsl-drive-meta{font-size:.7rem}.tsl-drive-list{gap:12px}}
 
   .tsl-journey-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,310px),1fr));gap:12px}
   .tsl-journey-card{position:relative;text-align:left;border:1px solid var(--pub-border,#ffffff12);color:inherit;font:inherit;cursor:pointer;min-width:0;width:100%;padding:20px}
-  .tsl-journey-card:hover{border-color:#60a5fa}.tsl-journey-card h2,.tsl-journey-heading h2{font-size:1.5rem;margin:10px 0;overflow-wrap:anywhere}.tsl-journey-card p{color:var(--pub-fg2,#9aa4bd);font-size:.85rem;line-height:1.6;padding-right:20px}.tsl-journey-card>span{position:absolute;right:18px;bottom:22px;color:#60a5fa}
-  .tsl-journey-heading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}.tsl-journey-heading>div{min-width:0}.journey-active{background:#34d39926;color:#6ee7b7}.journey-planned{color:#93c5fd}.journey-completed{color:var(--pub-fg2,#9aa4bd)}
+  .tsl-journey-card:hover{border-color:var(--tsl-blue,#60a5fa)}.tsl-journey-card h2,.tsl-journey-heading h2{font-size:1.5rem;margin:10px 0;overflow-wrap:anywhere}.tsl-journey-card p{color:var(--pub-fg2,#9aa4bd);font-size:.85rem;line-height:1.6;padding-right:20px}.tsl-journey-card>span{position:absolute;right:18px;bottom:22px;color:var(--tsl-blue,#60a5fa)}
+  .tsl-journey-heading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}.tsl-journey-heading>div{min-width:0}.journey-active{background:#34d39926;color:var(--tsl-mint,#6ee7b7)}.journey-planned{color:var(--tsl-info,#93c5fd)}.journey-completed{color:var(--pub-fg2,#9aa4bd)}
   .tsl-report-summary{background:radial-gradient(ellipse at top left,#2563eb22,transparent),var(--pub-surface1,#1b2133)}.tsl-report-summary .tsl-tile{background:#8ca4df0a}.tsl-report-summary .tsl-tile b{font-variant-numeric:tabular-nums}
   .tsl-report-states{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.tsl-report-states>span{display:flex;align-items:center;gap:7px;font-size:.8rem;background:#8ca4df0a;border-radius:10px;padding:9px}.tsl-report-states i{width:7px;height:7px;border-radius:50%}.tsl-report-states b{margin-left:5px}
   .tsl-report-charts{display:grid;grid-template-columns:1fr 1fr;gap:12px;min-width:0}.tsl-report-charts>.tsl-card{min-width:0}
-  .tsl-history-event{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;background:transparent;color:inherit;font:inherit;border:0;border-bottom:1px solid var(--pub-border,#ffffff0d);padding:16px 0;min-width:0}.tsl-history-event>div{flex:1;min-width:0}.tsl-history-event b{font-size:.95rem;overflow-wrap:anywhere}.tsl-history-event small{display:block;color:var(--pub-fg2,#9aa4bd);font-size:.75rem;margin-top:5px;line-height:1.6}.tsl-history-event p{margin:8px 0 0;color:#a7bcdb;font-size:.85rem}button.tsl-history-event{cursor:pointer}button.tsl-history-event:hover{background:#8ca4df08}.tsl-history-icon{background:#60a5fa18;border-radius:12px;width:34px;height:34px;display:grid;place-items:center;flex-shrink:0;color:#93c5fd}.charge .tsl-history-icon{color:#6ee7b7;background:#34d39918}
+  .tsl-history-event{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;background:transparent;color:inherit;font:inherit;border:0;border-bottom:1px solid var(--pub-border,#ffffff0d);padding:16px 0;min-width:0}.tsl-history-event>div{flex:1;min-width:0}.tsl-history-event b{font-size:.95rem;overflow-wrap:anywhere}.tsl-history-event small{display:block;color:var(--pub-fg2,#9aa4bd);font-size:.75rem;margin-top:5px;line-height:1.6}.tsl-history-event p{margin:8px 0 0;color:var(--tsl-muted,#a7bcdb);font-size:.85rem}button.tsl-history-event{cursor:pointer}button.tsl-history-event:hover{background:#8ca4df08}.tsl-history-icon{background:#60a5fa18;border-radius:12px;width:34px;height:34px;display:grid;place-items:center;flex-shrink:0;color:var(--tsl-info,#93c5fd)}.charge .tsl-history-icon{color:var(--tsl-mint,#6ee7b7);background:#34d39918}
   .tsl-journey-dialog,.tsl-journey-dialog *{box-sizing:border-box}.tsl-tire-dialog.tsl-journey-dialog{font-family:system-ui,sans-serif;color:var(--pub-fg,#e6e9f2)}
-  .tsl-journey-dialog label{display:block;font-size:.85rem;margin:12px 0;color:var(--pub-fg2,#9aa4bd)}.tsl-journey-dialog input{display:block;width:100%;min-width:0;max-width:100%;margin-top:7px;padding:12px;border:1px solid var(--pub-border,#ffffff20);border-radius:10px;background:var(--pub-surface2,#252d45);color:var(--pub-fg,#e6e9f2);font:inherit;color-scheme:dark}.tsl-journey-dates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tsl-journey-dates>label{min-width:0}.tsl-journey-error{color:#fda4af;font-size:.85rem}.tsl-journey-dialog h2{font-size:1.3rem}.tsl-journey-dialog .tsl-note{line-height:1.6}
+  .tsl-journey-dialog label{display:block;font-size:.85rem;margin:12px 0;color:var(--pub-fg2,#9aa4bd)}.tsl-journey-dialog input{display:block;width:100%;min-width:0;max-width:100%;margin-top:7px;padding:12px;border:1px solid var(--pub-border,#ffffff20);border-radius:10px;background:var(--pub-surface2,#252d45);color:var(--pub-fg,#e6e9f2);font:inherit;color-scheme:inherit}.tsl-journey-dates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tsl-journey-dates>label{min-width:0}.tsl-journey-error{color:var(--tsl-error,#fda4af);font-size:.85rem}.tsl-journey-dialog h2{font-size:1.3rem}.tsl-journey-dialog .tsl-note{line-height:1.6}
   @media(max-width:650px){.tsl-report-charts{grid-template-columns:1fr;gap:0}.tsl-journey-dates{grid-template-columns:1fr;gap:0}.tsl-report-summary .tsl-grid{grid-template-columns:1fr 1fr}.tsl-report-summary .tsl-tile{padding:10px}.tsl-report-summary .tsl-tile b{font-size:1.12rem}.tsl-journey-heading .tsl-btns{width:100%}.tsl-journey-heading .tsl-btns button{flex:1}}
 
   .tsl{container-type:inline-size;height:100%;overflow-y:auto;background:var(--pub-bg,#0f1320);color:var(--pub-fg,#e6e9f2);font-family:system-ui,sans-serif;-webkit-overflow-scrolling:touch}
@@ -66,7 +67,7 @@
   .tsl-bar{position:sticky;top:0;z-index:5;background:linear-gradient(var(--pub-bg,#0f1320) 80%,transparent);padding:10px 0 8px}
   .tsl-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
   .tsl-tab{flex:0 0 auto;border:0;border-radius:999px;background:var(--pub-surface1,#1b2133);color:var(--pub-fg2,#9aa4bd);padding:10px 16px;font-size:.95rem;cursor:pointer;white-space:nowrap;min-height:42px}
-  .tsl-tab.on{background:var(--pub-accent,#60a5fa);color:#0b1020;font-weight:700}
+  .tsl-tab.on{background:var(--pub-accent,var(--tsl-blue,#60a5fa));color:#0b1020;font-weight:700}
   .tsl-card{background:var(--pub-surface1,#1b2133);border-radius:18px;padding:16px;margin-top:12px;box-shadow:0 2px 14px #0004}
   .tsl-card h3{margin:0 0 10px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--pub-fg2,#9aa4bd);font-weight:600}
   .tsl-hero{padding:16px;overflow:hidden;container-type:inline-size;background:radial-gradient(ellipse at 56% 52%,var(--pub-surface2,#252d45),var(--pub-surface1,#1b2133) 72%)}
@@ -81,9 +82,9 @@
   .tsl-pressure.fl,.tsl-pressure.rl{left:25%;justify-content:flex-start}.tsl-pressure.fr,.tsl-pressure.rr{right:25%;justify-content:flex-end}
   .tsl-pressure.rl,.tsl-pressure.rr{top:69%}
   .tsl-pressure b{writing-mode:vertical-rl;text-orientation:mixed;font-size:.68rem;font-weight:550;white-space:nowrap;line-height:1.3}
-  .tsl-pressure.warn{color:#fbbf24}.tsl-pressure.bad{color:#f87171}
+  .tsl-pressure.warn{color:var(--tsl-warning,#fbbf24)}.tsl-pressure.bad{color:var(--tsl-danger,#f87171)}
   .tsl-pressure:hover{color:var(--pub-fg,#e6e9f2)}.tsl-pressure:hover b{background:var(--pub-surface2,#252d45);border-radius:5px}
-  .tsl-pressure:focus-visible{outline:2px solid var(--pub-accent,#60a5fa);outline-offset:2px;border-radius:8px}
+  .tsl-pressure:focus-visible{outline:2px solid var(--pub-accent,var(--tsl-blue,#60a5fa));outline-offset:2px;border-radius:8px}
   .tsl-glass-lock{fill:none;stroke:#e2eaf5;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
   .tsl-glass-lock.unlocked{stroke:#fbbf24}
   .tsl-energy{min-width:0;--energy:#74c3fa;padding:18px;border-radius:19px;border:1px solid color-mix(in srgb,var(--energy) 16%,var(--pub-border,#ffffff12));background:radial-gradient(ellipse at 0 0,color-mix(in srgb,var(--energy) 9%,transparent),transparent 75%),color-mix(in srgb,var(--pub-surface2,#252d45) 48%,transparent);box-shadow:inset 0 1px 0 #ffffff05}
@@ -106,7 +107,7 @@
   .tsl-live-status .tsl-pill{margin:0;font-size:.78rem;padding:5px 9px}
   .tsl-refresh{font:inherit;cursor:pointer;color:var(--pub-fg2,#9aa4bd);border:1px solid var(--pub-border,#ffffff20);background:transparent;border-radius:999px;min-height:38px;padding:6px 9px;font-size:.76rem}
   .tsl-refresh:hover{background:var(--pub-surface2,#252d45);color:var(--pub-fg,#e6e9f2)}
-  .tsl-refresh:disabled{opacity:.5;cursor:wait}.tsl-refresh:focus-visible{outline:2px solid var(--pub-accent,#60a5fa);outline-offset:2px}
+  .tsl-refresh:disabled{opacity:.5;cursor:wait}.tsl-refresh:focus-visible{outline:2px solid var(--pub-accent,var(--tsl-blue,#60a5fa));outline-offset:2px}
   .tsl-roof-temp{position:absolute;left:34%;top:40%;width:32%;text-align:center;pointer-events:none;font-size:1.2rem;color:#e2eaf5;font-weight:650;white-space:nowrap;text-shadow:0 1px 4px #000}
   .tsl-outside-temp{position:absolute;left:34%;top:13%;width:32%;text-align:center;line-height:1.25;color:#172333;background:#eef5fbe6;border-radius:7px;padding:2px 0}
   .tsl-outside-temp span{display:block;font-size:.6rem}.tsl-outside-temp b{font-size:.95rem}
@@ -123,13 +124,13 @@
   .tsl-charge-current{fill:none;stroke:#a7ffd9;stroke-width:3;stroke-linecap:round;stroke-dasharray:4 18;animation:tsl-charge-flow 1.7s linear infinite}
   @keyframes tsl-charge-flow{to{stroke-dashoffset:-66}}
   .tsl-charge-hit{position:absolute;left:2%;top:83%;width:34%;height:15%;min-height:44px;cursor:pointer;background:transparent;border:0;border-radius:12px;z-index:3}
-  .tsl-charge-hit:hover{background:#5ff5bc0a}.tsl-charge-hit:focus-visible{outline:2px solid #6ee7b7;outline-offset:2px}
-  .tsl-tire-dialog.tsl-charge-dialog{width:min(980px,calc(100vw - 24px));padding:18px;background:radial-gradient(ellipse at 24% 35%,#203841,var(--pub-surface1,#1b2133) 65%)}
+  .tsl-charge-hit:hover{background:#5ff5bc0a}.tsl-charge-hit:focus-visible{outline:2px solid var(--tsl-mint,#6ee7b7);outline-offset:2px}
+  .tsl-tire-dialog.tsl-charge-dialog{width:min(980px,calc(100vw - 24px));padding:18px;background:radial-gradient(ellipse at 24% 35%,color-mix(in srgb,var(--tsl-success) 12%,var(--pub-surface1,#1b2133)),var(--pub-surface1,#1b2133) 65%)}
   .tsl-charge-dialog header{position:sticky;top:-18px;z-index:2;background:var(--pub-surface1,#1b2133);border-radius:12px;padding:8px;margin:-4px -4px 12px}
   .tsl-charge-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;align-items:center;margin-top:14px}
   .tsl-charge-floor{min-width:0;text-align:center}.tsl-charge-floor>svg{display:block;width:100%;max-height:490px}
   .tsl-charge-floor small{display:block;font-size:.75rem;color:var(--pub-fg2,#9aa4bd);margin-top:4px}
-  .tsl-charge-summary{min-width:0}.tsl-charge-pct{font-size:3.6rem;line-height:1;font-weight:650;letter-spacing:-.05em;margin:0 0 12px;color:#b5ffdb}.tsl-charge-pct small{font-size:1.35rem;margin-left:4px;font-weight:400}
+  .tsl-charge-summary{min-width:0}.tsl-charge-pct{font-size:3.6rem;line-height:1;font-weight:650;letter-spacing:-.05em;margin:0 0 12px;color:var(--tsl-success)}.tsl-charge-pct small{font-size:1.35rem;margin-left:4px;font-weight:400}
   .tsl-charge-target{display:flex;align-items:baseline;justify-content:space-between;gap:12px;color:var(--pub-fg2,#9aa4bd);font-size:.8rem}
   .tsl-charge-target strong{color:var(--pub-fg,#e6e9f2);font-size:1rem}
   .tsl-charge-progress{height:9px;background:var(--pub-bg,#0f1320);border-radius:9px;overflow:hidden;margin:10px 0 18px}.tsl-charge-progress i{display:block;height:100%;background:linear-gradient(90deg,#21bfa0,#b3ffcb);border-radius:9px}
@@ -157,11 +158,11 @@
   @media(prefers-reduced-motion:reduce){.tsl-status-hot{animation:none}}
   .tsl-ring{width:100%;max-width:210px;justify-self:end}
   .tsl-ring-v{font-size:46px;font-weight:700;fill:var(--pub-fg,#e6e9f2)}.tsl-ring-u{font-size:20px;fill:var(--pub-fg2,#9aa4bd)}.tsl-ring-s{font-size:15px;fill:var(--pub-fg2,#9aa4bd)}
-  .tsl-row .d.dc{flex:0 0 18px}.tsl-tile.warn{box-shadow:inset 0 0 0 2px #f59e0b}.tsl-tile.bad{box-shadow:inset 0 0 0 2px #ef4444}
+  .tsl-row .d.dc{flex:0 0 18px}.tsl-tile.warn{box-shadow:inset 0 0 0 2px var(--tsl-amber,#f59e0b)}.tsl-tile.bad{box-shadow:inset 0 0 0 2px #ef4444}
   .tsl-tires{display:grid;grid-template-columns:1fr minmax(70px,110px) 1fr;gap:10px;align-items:center}
   .tsl-tire{background:var(--pub-surface2,#252d45);border-radius:14px;padding:12px 14px;text-align:center}.tsl-tire span{display:block;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--pub-fg2,#9aa4bd)}
   .tsl-tire b{display:block;font-size:1.3rem;margin:3px 0}.tsl-tire small{color:var(--pub-fg2,#9aa4bd)}
-  .tsl-tire.warn{box-shadow:inset 0 0 0 2px #f59e0b}.tsl-tire.warn small{color:#f59e0b}.tsl-tire.bad{box-shadow:inset 0 0 0 2px #ef4444}.tsl-tire.bad small{color:#ef4444}
+  .tsl-tire.warn{box-shadow:inset 0 0 0 2px var(--tsl-amber,#f59e0b)}.tsl-tire.warn small{color:var(--tsl-amber,#f59e0b)}.tsl-tire.bad{box-shadow:inset 0 0 0 2px #ef4444}.tsl-tire.bad small{color:#ef4444}
   .tsl-tire-dialog{color:inherit;background:var(--pub-surface1,#1b2133);border:1px solid var(--pub-border,#ffffff22);border-radius:20px;padding:16px;width:min(860px,calc(100vw - 24px));max-width:none;max-height:calc(100dvh - 32px);overflow:auto;overscroll-behavior:contain;box-shadow:0 24px 100px #0008}
   .tsl-tire-dialog::backdrop{background:#070c18b8;backdrop-filter:blur(5px)}
   .tsl-tire-dialog header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.tsl-tire-dialog header h2{font-size:1.1rem;margin:0}
@@ -179,11 +180,11 @@
   .tsl-every{display:inline-flex;gap:6px;align-items:center}.tsl-every input,.tsl-sit input[type=time],.tsl-sit input[type=number]{background:var(--pub-bg,#0f1320);color:inherit;border:1px solid var(--pub-border,#ffffff22);border-radius:10px;padding:9px;font-size:1rem}
   .tsl-every input{width:84px}.tsl-every select{background:var(--pub-bg,#0f1320);color:inherit;border:1px solid var(--pub-border,#ffffff22);border-radius:10px;padding:9px;font-size:1rem}
   .tsl-rule{background:var(--pub-surface2,#252d45);border-radius:12px;padding:8px 10px;margin:6px 0}.tsl-days{display:flex;gap:4px;flex-wrap:wrap}
-  .tsl-days button{border:0;border-radius:8px;background:var(--pub-bg,#0f1320);color:var(--pub-fg2,#9aa4bd);padding:7px 9px;cursor:pointer;font-size:.85rem}.tsl-days button.on{background:var(--pub-accent,#60a5fa);color:#0b1020;font-weight:700}
+  .tsl-days button{border:0;border-radius:8px;background:var(--pub-bg,#0f1320);color:var(--pub-fg2,#9aa4bd);padding:7px 9px;cursor:pointer;font-size:.85rem}.tsl-days button.on{background:var(--pub-accent,var(--tsl-blue,#60a5fa));color:#0b1020;font-weight:700}
   .tsl-dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle}.tsl-pulse{animation:tslp 2.2s ease-in-out infinite}@keyframes tslp{50%{opacity:.55}}
   .tsl-pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 12px;font-size:.85rem;font-weight:700;margin-top:8px;color:#0b1020}
-  .tsl-setup-feedback{box-sizing:border-box;margin:12px 0;padding:14px 16px;border:1px solid #60a5fa;border-radius:12px;background:#17283f;color:#e0efff;line-height:1.5;font-size:1rem;overflow-wrap:anywhere;scroll-margin:16px}
-  .tsl-setup-feedback[hidden]{display:none}.tsl-setup-feedback[data-state="error"]{border-color:#fb7185;background:#3d1b29;color:#ffe4e6}.tsl-setup-feedback[data-state="success"]{border-color:#4ade80;background:#143326;color:#dcfce7}
+  .tsl-setup-feedback{box-sizing:border-box;margin:12px 0;padding:14px 16px;border:1px solid var(--tsl-blue,#60a5fa);border-radius:12px;background:#17283f;color:#e0efff;line-height:1.5;font-size:1rem;overflow-wrap:anywhere;scroll-margin:16px}
+  .tsl-setup-feedback[hidden]{display:none}.tsl-setup-feedback[data-state="error"]{border-color:var(--tsl-rose,#fb7185);background:#3d1b29;color:#ffe4e6}.tsl-setup-feedback[data-state="success"]{border-color:var(--tsl-green,#4ade80);background:#143326;color:#dcfce7}
   .tsl-note{color:var(--pub-fg2,#9aa4bd);font-size:.85rem;margin-top:8px;line-height:1.4}
   .tsl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
   .tsl-tile{background:var(--pub-surface2,#252d45);border-radius:14px;padding:12px 14px}
@@ -191,9 +192,9 @@
   .tsl-tile b{display:block;font-size:1.3rem;margin-top:3px;overflow-wrap:break-word}
   .tsl-tile small{display:block;color:var(--pub-fg2,#9aa4bd);margin-top:2px;font-size:.8rem}
   .tsl-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
-  .tsl-map{position:relative;height:300px;border-radius:14px;overflow:hidden;background:#1d2230;touch-action:none;cursor:grab}
+  .tsl-map{position:relative;height:300px;border-radius:14px;overflow:hidden;background:var(--tsl-map-bg,#1d2230);touch-action:none;cursor:grab}
   .tsl-map.tall{height:380px}
-  .tsl-tiles img{position:absolute;width:256px;height:256px;max-width:none;filter:invert(1) hue-rotate(180deg) brightness(.82) contrast(.92) saturate(.7);user-select:none}
+  .tsl-tiles img{position:absolute;width:256px;height:256px;max-width:none;filter:var(--tsl-map-filter,invert(1) hue-rotate(180deg) brightness(.82) contrast(.92) saturate(.7));user-select:none}
   .tsl-route{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
   .tsl-zoom{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:4px}
   .tsl-zoom button{width:34px;height:34px;border:0;border-radius:9px;background:#fffd;color:#111;font-size:1.2rem;cursor:pointer}
@@ -208,9 +209,9 @@
   .tsl-row .s{display:flex;gap:14px;flex-wrap:wrap;font-size:.92rem}
   .tsl-row .s span{white-space:nowrap}
   .tsl-badge{display:inline-block;border-radius:6px;padding:1px 7px;font-size:.72rem;font-weight:700;background:var(--pub-surface2,#252d45);margin-left:6px;vertical-align:middle}
-  .tsl-badge.dc{background:#f59e0b;color:#1a1204}
+  .tsl-badge.dc{background:var(--tsl-amber,#f59e0b);color:#1a1204}
   .tsl-btn{border:0;border-radius:12px;background:var(--pub-surface2,#252d45);color:inherit;font-size:.95rem;padding:10px 16px;cursor:pointer;min-height:42px}
-  .tsl-btn.pri{background:var(--pub-accent,#60a5fa);color:#0b1020;font-weight:700}
+  .tsl-btn.pri{background:var(--pub-accent,var(--tsl-blue,#60a5fa));color:#0b1020;font-weight:700}
   .tsl-btn.bad{background:#7f1d1d;color:#fff}
   .tsl-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
   .tsl-chart{position:relative}.tsl-chart svg{width:100%;height:auto;display:block;overflow:visible}
@@ -223,14 +224,14 @@
   .tsl-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
   .tsl-seg{display:inline-flex;background:var(--pub-surface2,#252d45);border-radius:12px;padding:3px;gap:2px;margin:0 0 4px}
   .tsl-seg button{border:0;background:none;color:var(--pub-fg2,#9aa4bd);padding:8px 14px;border-radius:9px;cursor:pointer;font-size:.9rem}
-  .tsl-seg button.on{background:var(--pub-accent,#60a5fa);color:#0b1020;font-weight:700}
+  .tsl-seg button.on{background:var(--pub-accent,var(--tsl-blue,#60a5fa));color:#0b1020;font-weight:700}
   .tsl-bar2{height:10px;border-radius:6px;background:var(--pub-surface2,#252d45);overflow:hidden;margin:10px 0 6px}
-  .tsl-bar2 div{height:100%;background:linear-gradient(90deg,#60a5fa,#4ade80)}
+  .tsl-bar2 div{height:100%;background:linear-gradient(90deg,var(--tsl-blue,#60a5fa),var(--tsl-green,#4ade80))}
   .tsl-field{display:flex;flex-direction:column;gap:4px;margin:10px 0}
   .tsl-field label{font-size:.82rem;color:var(--pub-fg2,#9aa4bd)}
   .tsl-field input{background:var(--pub-bg,#0f1320);color:inherit;border:1px solid var(--pub-border,#ffffff22);border-radius:10px;padding:11px;font-size:1rem;width:100%}
   #tsl-credentials input{display:block;box-sizing:border-box;width:100%;min-width:0;margin-top:7px;padding:11px;border:1px solid var(--pub-border,#ffffff20);border-radius:10px;background:var(--pub-surface2,#252d45);color:var(--pub-fg,#e6e9f2);font:inherit}
-  .tsl-setup summary{cursor:pointer;font-weight:650;padding:8px 0}.tsl-setup ol{padding-left:24px;margin:12px 0}.tsl-setup li{padding:7px 0;line-height:1.6}.tsl-setup a{color:var(--pub-accent,#79c8ff)}.tsl-setup-address{margin:12px 0;min-width:0}.tsl-setup-address label{display:block;font-size:.85rem;margin-bottom:6px;color:var(--pub-fg2,#9aa4bd)}.tsl-setup-copy{display:flex;align-items:flex-start;gap:8px;min-width:0}.tsl-setup-copy .tsl-code{flex:1;min-width:0}.tsl-setup-copy button{flex-shrink:0}.tsl-setup-warning{color:#fbbf24}
+  .tsl-setup summary{cursor:pointer;font-weight:650;padding:8px 0}.tsl-setup ol{padding-left:24px;margin:12px 0}.tsl-setup li{padding:7px 0;line-height:1.6}.tsl-setup a{color:var(--pub-accent,#79c8ff)}.tsl-setup-address{margin:12px 0;min-width:0}.tsl-setup-address label{display:block;font-size:.85rem;margin-bottom:6px;color:var(--pub-fg2,#9aa4bd)}.tsl-setup-copy{display:flex;align-items:flex-start;gap:8px;min-width:0}.tsl-setup-copy .tsl-code{flex:1;min-width:0}.tsl-setup-copy button{flex-shrink:0}.tsl-setup-warning{color:var(--tsl-warning,#fbbf24)}
   .tsl-code{background:var(--pub-bg,#0f1320);border-radius:10px;padding:10px 12px;font-family:monospace;font-size:.85rem;word-break:break-all;user-select:all}
   .tsl-toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#111c;color:#fff;border-radius:12px;padding:12px 18px;z-index:30;max-width:90vw;text-align:center;backdrop-filter:blur(6px)}
   .tsl-dlg{position:fixed;inset:0;background:#000a;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px}
@@ -283,9 +284,9 @@
   }
   .tsl-sit{margin-top:12px;padding:14px;background:color-mix(in srgb,var(--pub-surface2,#252d45) 55%,transparent);border:1px solid var(--pub-border,#ffffff0d);border-radius:12px}
   .tsl-sit-h{gap:5px;margin-bottom:10px}.tsl-sit-h small{line-height:1.5}.tsl-share-row{margin-top:10px;padding:12px;background:var(--pub-surface2,#252d45);border:0;border-radius:12px}
-  .tsl-journey-period{display:grid;gap:9px;margin-top:15px;padding-left:12px;border-left:2px solid var(--pub-accent,#60a5fa);font-size:.85rem;line-height:1.5;color:var(--pub-fg2,#9aa4bd)}.tsl-journey-period span{overflow-wrap:anywhere}.tsl-journey-period small{display:block;font-size:.65rem;text-transform:uppercase;letter-spacing:.04em}
+  .tsl-journey-period{display:grid;gap:9px;margin-top:15px;padding-left:12px;border-left:2px solid var(--pub-accent,var(--tsl-blue,#60a5fa));font-size:.85rem;line-height:1.5;color:var(--pub-fg2,#9aa4bd)}.tsl-journey-period span{overflow-wrap:anywhere}.tsl-journey-period small{display:block;font-size:.65rem;text-transform:uppercase;letter-spacing:.04em}
   /* Shared history cards and readable report surfaces. */
-  .tsl-charge-card{--session-color:#34d399}.tsl-charge-card.dc{--session-color:#fbbf24}
+  .tsl-charge-card{--session-color:var(--tsl-success,#34d399)}.tsl-charge-card.dc{--session-color:var(--tsl-warning,#fbbf24)}
   .tsl-charge-location{display:flex;gap:10px;align-items:center;margin:18px 0;min-width:0}.tsl-charge-location strong{flex:1;min-width:0;font-size:1rem;line-height:1.4;overflow-wrap:anywhere}
   .tsl-charge-location .tsl-badge{max-width:35%;margin:0;white-space:normal;font-size:.65rem;line-height:1.4;padding:4px 7px}
   .tsl-session-icon{display:grid;place-items:center;flex:0 0 34px;height:42px;border-radius:11px;color:var(--session-color);background:color-mix(in srgb,var(--session-color) 12%,transparent)}
@@ -298,15 +299,15 @@
   .tsl-event-body small{display:block;color:var(--pub-fg2,#9aa4bd);font-size:.75rem;line-height:1.5;margin-top:5px}.tsl-event-place{font-size:.85rem;margin-top:5px;overflow-wrap:anywhere}
   .tsl-event-battery{display:inline-flex;gap:8px;flex-wrap:wrap;margin-top:9px;padding:4px 8px;border-radius:7px;background:var(--pub-surface2,#252d45);font-size:.7rem;color:var(--pub-fg2,#9aa4bd)}.tsl-event-battery b{color:var(--pub-fg,#e6e9f2);font-weight:500}
   .tsl-state-share{height:5px;border-radius:9px;background:var(--pub-bg,#0f1320);overflow:hidden;margin-top:10px}.tsl-state-share i{display:block;height:100%;border-radius:9px}
-  .tsl-drain-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}.tsl-drain-entry{background:var(--pub-surface2,#252d45);padding:12px;border-radius:12px;min-width:0}.tsl-drain-values{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:12px;font-variant-numeric:tabular-nums}.tsl-drain-values strong{font-size:1.4rem;color:#fb923c}.tsl-drain-values span{font-size:.85rem;color:var(--pub-fg2,#9aa4bd)}
+  .tsl-drain-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}.tsl-drain-entry{background:var(--pub-surface2,#252d45);padding:12px;border-radius:12px;min-width:0}.tsl-drain-values{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:12px;font-variant-numeric:tabular-nums}.tsl-drain-values strong{font-size:1.4rem;color:var(--tsl-orange,#fb923c)}.tsl-drain-values span{font-size:.85rem;color:var(--pub-fg2,#9aa4bd)}
   .tsl-two{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
   .tsl-card{min-width:0}.tsl-card h2{overflow-wrap:anywhere}.tsl-card>h3{display:flex;align-items:center;gap:8px;letter-spacing:.035em;line-height:1.5}
-  .tsl-card>h3:before{content:'';width:4px;height:14px;border-radius:3px;flex-shrink:0;background:var(--pub-accent,#60a5fa);opacity:.75}
+  .tsl-card>h3:before{content:'';width:4px;height:14px;border-radius:3px;flex-shrink:0;background:var(--pub-accent,var(--tsl-blue,#60a5fa));opacity:.75}
   .tsl-card .tsl-tile{border:1px solid var(--pub-border,#ffffff0a)}.tsl-tile b{font-variant-numeric:tabular-nums;line-height:1.3}.tsl-tile span{letter-spacing:.025em;line-height:1.5}
   .tsl-journey-list>.tsl-card{margin-top:0;border:1px solid var(--pub-border,#ffffff18)}.tsl-journey-list{margin-top:12px}.tsl-journey-card h2{font-size:1.25rem}.tsl-journey-card .tsl-badge{margin-left:0;padding:5px 9px;border-radius:7px}
-  .tsl-journey-card:focus-visible,.tsl-btn:focus-visible,.tsl-tab:focus-visible,.tsl-seg button:focus-visible{outline:2px solid var(--pub-accent,#60a5fa);outline-offset:3px}
-  .tsl-history-event{margin-top:8px;padding:12px;background:var(--pub-surface2,#252d45);border:1px solid var(--pub-border,#ffffff0a);border-radius:12px}.tsl-history-event:hover{border-color:var(--pub-accent,#60a5fa)}
-  .tsl-sec summary{align-items:center;overflow-wrap:anywhere}.tsl-sec summary:before{content:'›';color:var(--pub-accent,#60a5fa);font-size:1.3rem}.tsl-sec[open]>summary:before{transform:rotate(90deg)}.tsl-sec summary small{margin-left:auto;background:var(--pub-surface2,#252d45);padding:3px 8px;border-radius:6px}
+  .tsl-journey-card:focus-visible,.tsl-btn:focus-visible,.tsl-tab:focus-visible,.tsl-seg button:focus-visible{outline:2px solid var(--pub-accent,var(--tsl-blue,#60a5fa));outline-offset:3px}
+  .tsl-history-event{margin-top:8px;padding:12px;background:var(--pub-surface2,#252d45);border:1px solid var(--pub-border,#ffffff0a);border-radius:12px}.tsl-history-event:hover{border-color:var(--pub-accent,var(--tsl-blue,#60a5fa))}
+  .tsl-sec summary{align-items:center;overflow-wrap:anywhere}.tsl-sec summary:before{content:'›';color:var(--pub-accent,var(--tsl-blue,#60a5fa));font-size:1.3rem}.tsl-sec[open]>summary:before{transform:rotate(90deg)}.tsl-sec summary small{margin-left:auto;background:var(--pub-surface2,#252d45);padding:3px 8px;border-radius:6px}
   .tsl-kv{padding:10px 8px;border-radius:8px;gap:5px 12px}.tsl-kv:nth-child(even){background:color-mix(in srgb,var(--pub-surface2,#252d45) 45%,transparent)}.tsl-kv span{max-width:100%}
   .tsl-place{padding:12px;background:var(--pub-surface2,#252d45);border:0;border-radius:12px;margin-top:8px;flex-wrap:wrap}.tsl-place div{overflow-wrap:anywhere}
   .tsl-bill-bands>span{background:var(--pub-surface2,#252d45);padding:10px;border-radius:9px;line-height:1.6}
@@ -324,39 +325,39 @@
   }
   @media(prefers-reduced-motion:reduce){.tsl-drive-card{transition:none}}
   /* Metrics have pictograms; binary readings use compact, non-interactive indicators. */
-  .tsl-metric-art{width:27px;height:27px;color:var(--pub-accent,#60a5fa);margin-bottom:9px}
+  .tsl-metric-art{width:27px;height:27px;color:var(--pub-accent,var(--tsl-blue,#60a5fa));margin-bottom:9px}
   .tsl-metric-art svg,.tsl-indicator-art svg,.tsl-percent-ring svg{display:block;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-  .tsl-visual-metric{position:relative;background:linear-gradient(145deg,color-mix(in srgb,var(--pub-accent,#60a5fa) 6%,var(--pub-surface1,#1b2133)),var(--pub-surface1,#1b2133));padding:14px}
+  .tsl-visual-metric{position:relative;background:linear-gradient(145deg,color-mix(in srgb,var(--pub-accent,var(--tsl-blue,#60a5fa)) 6%,var(--pub-surface1,#1b2133)),var(--pub-surface1,#1b2133));padding:14px}
   .tsl-visual-metric>span,.tsl-percent-metric span{text-transform:none;letter-spacing:0;font-size:.76rem;line-height:1.4}
   .tsl-visual-metric>b{font-size:1.3rem;letter-spacing:-.025em;margin-top:6px;line-height:1.25}
   .tsl-report-summary .tsl-visual-metric{background:transparent;border:0;border-radius:0;border-bottom:1px solid var(--pub-border,#ffffff14)}
   .tsl-indicator{display:flex;align-items:center;gap:10px;min-width:0;padding:12px 10px;border-bottom:1px solid var(--pub-border,#ffffff10);--indicator-color:var(--pub-fg2,#9aa4bd)}
-  .tsl-indicator.active{--indicator-color:#34d399}.tsl-indicator.attention{--indicator-color:#fbbf24}
+  .tsl-indicator.active{--indicator-color:var(--tsl-success,#34d399)}.tsl-indicator.attention{--indicator-color:var(--tsl-warning,#fbbf24)}
   .tsl-indicator-art{width:28px;height:28px;flex:0 0 28px;color:var(--indicator-color);opacity:.9}
   .tsl-indicator-copy{flex:1;min-width:0}.tsl-indicator-copy>span{display:block;color:var(--pub-fg,#e6e9f2);font-size:.78rem;line-height:1.4;overflow-wrap:anywhere}
   .tsl-indicator-copy>b{display:block;color:var(--indicator-color);font-size:.7rem;font-weight:500;line-height:1.4;margin-top:3px}.tsl-indicator-copy>small{display:block;font-size:.65rem;color:var(--pub-fg2,#9aa4bd);margin-top:4px;overflow-wrap:anywhere}
   .tsl-check{display:grid;place-items:center;flex:0 0 19px;height:19px;border-radius:6px;background:color-mix(in srgb,var(--indicator-color) 13%,transparent);border:1px solid color-mix(in srgb,var(--indicator-color) 45%,transparent);font-style:normal;color:var(--indicator-color);font-size:.75rem;font-weight:700}
-  .tsl-heat-level{display:flex;gap:4px;margin-top:10px}.tsl-heat-level i{width:24px;height:5px;border-radius:4px;background:var(--pub-border,#ffffff20)}.tsl-heat-level i.lit{background:#fb923c}
-  .tsl-percent-metric{display:flex;gap:13px;align-items:center}.tsl-percent-ring{flex:0 0 50px;height:50px;display:grid;place-items:center;border-radius:50%;background:conic-gradient(#34d399 var(--pct),var(--pub-border,#ffffff18) 0);position:relative;color:#34d399}
+  .tsl-heat-level{display:flex;gap:4px;margin-top:10px}.tsl-heat-level i{width:24px;height:5px;border-radius:4px;background:var(--pub-border,#ffffff20)}.tsl-heat-level i.lit{background:var(--tsl-orange,#fb923c)}
+  .tsl-percent-metric{display:flex;gap:13px;align-items:center}.tsl-percent-ring{flex:0 0 50px;height:50px;display:grid;place-items:center;border-radius:50%;background:conic-gradient(var(--tsl-success,#34d399) var(--pct),var(--pub-border,#ffffff18) 0);position:relative;color:var(--tsl-success,#34d399)}
   .tsl-percent-ring:before{content:'';position:absolute;inset:4px;border-radius:50%;background:var(--pub-surface2,#252d45)}.tsl-percent-ring svg{position:relative;width:25px;height:25px}.tsl-percent-metric>div:last-child{min-width:0}
-  .tsl-report-battery-flow{height:7px;background:var(--pub-bg,#0f1320);border-radius:4px;position:relative;overflow:hidden;margin-top:13px}.tsl-report-battery-flow i{position:absolute;inset:0 auto 0 0;background:#fbbf24;border-radius:4px}.tsl-report-battery-flow i.remaining{background:#34d399}
+  .tsl-report-battery-flow{height:7px;background:var(--pub-bg,#0f1320);border-radius:4px;position:relative;overflow:hidden;margin-top:13px}.tsl-report-battery-flow i{position:absolute;inset:0 auto 0 0;background:var(--tsl-warning,#fbbf24);border-radius:4px}.tsl-report-battery-flow i.remaining{background:var(--tsl-success,#34d399)}
   @container(max-width:600px){
     .tsl-card .tsl-visual-metric{padding:12px 9px}.tsl-visual-metric>b{font-size:1.1rem}.tsl-visual-metric>span{font-size:.7rem}.tsl-metric-art{width:23px;height:23px;margin-bottom:7px}
     .tsl-card .tsl-grid:has(>.tsl-indicator){gap:5px 9px}.tsl-indicator{gap:7px;padding:10px 2px}.tsl-indicator-art{flex-basis:22px;width:22px;height:24px}.tsl-indicator-copy>span{font-size:.72rem}.tsl-indicator-copy>b{font-size:.66rem}.tsl-check{flex-basis:16px;height:16px;font-size:.65rem;border-radius:5px}
     .tsl-percent-metric{gap:8px}.tsl-percent-ring{flex-basis:36px;height:36px}.tsl-percent-ring svg{width:20px;height:20px}
   }
-  .tsl-tire{position:relative;padding-top:14px}.tsl-wheel-symbol{display:block;width:33px;height:33px;margin:0 auto 8px;fill:none;stroke:var(--pub-accent,#60a5fa);stroke-width:1.5;stroke-linecap:round}.tsl-tire.warn .tsl-wheel-symbol{stroke:#fbbf24}.tsl-tire.bad .tsl-wheel-symbol{stroke:#fb7185}.tsl-tire .tsl-tire-status{display:inline-block;border-radius:6px;padding:3px 6px;font-size:.68rem;color:#34d399;background:#34d39912}.tsl-tire.warn .tsl-tire-status{color:#fbbf24;background:#fbbf2412}.tsl-tire.bad .tsl-tire-status{color:#fb7185;background:#fb718512}
+  .tsl-tire{position:relative;padding-top:14px}.tsl-wheel-symbol{display:block;width:33px;height:33px;margin:0 auto 8px;fill:none;stroke:var(--pub-accent,var(--tsl-blue,#60a5fa));stroke-width:1.5;stroke-linecap:round}.tsl-tire.warn .tsl-wheel-symbol{stroke:var(--tsl-warning,#fbbf24)}.tsl-tire.bad .tsl-wheel-symbol{stroke:var(--tsl-rose,#fb7185)}.tsl-tire .tsl-tire-status{display:inline-block;border-radius:6px;padding:3px 6px;font-size:.68rem;color:var(--tsl-success,#34d399);background:#34d39912}.tsl-tire.warn .tsl-tire-status{color:var(--tsl-warning,#fbbf24);background:#fbbf2412}.tsl-tire.bad .tsl-tire-status{color:var(--tsl-rose,#fb7185);background:#fb718512}
   .tsl-elev-credit{color:var(--pub-fg2,#9aa4bd);font-size:.68rem}.tsl-elevation-summary{margin-bottom:14px}.tsl-elevation-summary .tsl-tile{background:transparent;border:0;padding:9px}.tsl-elevation-summary .tsl-metric-art{display:none}
   .tsl-map-help{display:flex;flex-direction:column;max-height:calc(100% - 16px);position:absolute;top:8px;left:8px;z-index:2;max-width:calc(100% - 58px);cursor:default;touch-action:pan-y}.tsl-map-help[hidden],.tsl-map-legend[hidden]{display:none}
-  .tsl-map-help-btn{flex-shrink:0;display:grid;place-items:center;width:36px;height:36px;min-height:36px;border:1px solid #ffffff30;border-radius:10px;background:#172033f2;color:#e6e9f2;box-shadow:0 2px 8px #0005;font:700 1rem system-ui;cursor:pointer}.tsl-map-help-btn:hover{background:#293852}.tsl-map-help-btn:focus-visible{outline:2px solid #60a5fa;outline-offset:2px}
+  .tsl-map-help-btn{flex-shrink:0;display:grid;place-items:center;width:36px;height:36px;min-height:36px;border:1px solid #ffffff30;border-radius:10px;background:#172033f2;color:#e6e9f2;box-shadow:0 2px 8px #0005;font:700 1rem system-ui;cursor:pointer}.tsl-map-help-btn:hover{background:#293852}.tsl-map-help-btn:focus-visible{outline:2px solid var(--tsl-blue,#60a5fa);outline-offset:2px}
   .tsl-map-legend{min-height:0;flex-shrink:1;margin-top:5px;width:240px;max-width:100%;max-height:240px;overflow-y:auto;overscroll-behavior:contain;padding:12px;border:1px solid #ffffff25;border-radius:12px;background:#131c2cf5;color:#e6e9f2;box-shadow:0 5px 24px #0007;font: .75rem/1.4 system-ui,sans-serif;cursor:default;scrollbar-width:thin}
   .tsl-map-legend>b{display:block;margin-bottom:8px}.tsl-map-legend>div,.tsl-map-ends>div{display:flex;align-items:center;gap:9px;margin-top:6px}.tsl-map-legend i.line{display:block;width:23px;height:4px;flex:0 0 23px;background:var(--legend-color);border-radius:4px}.tsl-map-legend i.point{width:11px;height:11px;flex:0 0 11px;border:2px solid #fff;background:var(--legend-color);border-radius:50%}.tsl-map-legend .tsl-map-ends{display:flex;gap:18px;padding-top:7px;margin-top:9px;border-top:1px solid #ffffff20;flex-wrap:wrap}.tsl-map-ends>div{margin:0}.tsl-map-legend p{margin:10px 0 0;font-size:.68rem;color:#b4c0d3}
   #tsl-replay{margin-top:14px}.tsl-replay-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:.85rem}.tsl-replay-head time{color:var(--pub-fg2,#9aa4bd);font-size:.75rem;font-variant-numeric:tabular-nums}
-  .tsl-replay-controls{display:flex;align-items:center;gap:9px;margin:12px 0;flex-wrap:wrap}.tsl-replay-controls .tsl-btn{font-size:.8rem;min-width:100px}.tsl-replay-controls select{font:inherit;font-size:.8rem;padding:9px;border:1px solid var(--pub-border,#ffffff20);border-radius:9px;background:var(--pub-surface2,#252d45);color:inherit;min-height:42px}.tsl-replay-controls input{flex:1;min-width:100px;accent-color:var(--pub-accent,#60a5fa);cursor:pointer;min-height:32px}
-  .tsl-replay-readings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.tsl-replay-readings>div{padding:11px 8px;background:var(--pub-surface2,#252d45);border-radius:10px;min-width:0}.tsl-replay-readings small{display:block;color:var(--pub-fg2,#9aa4bd);font-size:.65rem}.tsl-replay-readings b{display:block;font-size:1.1rem;margin-top:5px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.tsl-replay-readings>div:first-child b{color:var(--pub-accent,#60a5fa)}.tsl-replay-caption{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-top:9px;font-size:.65rem;color:var(--pub-fg2,#9aa4bd)}
+  .tsl-replay-controls{display:flex;align-items:center;gap:9px;margin:12px 0;flex-wrap:wrap}.tsl-replay-controls .tsl-btn{font-size:.8rem;min-width:100px}.tsl-replay-controls select{font:inherit;font-size:.8rem;padding:9px;border:1px solid var(--pub-border,#ffffff20);border-radius:9px;background:var(--pub-surface2,#252d45);color:inherit;min-height:42px}.tsl-replay-controls input{flex:1;min-width:100px;accent-color:var(--pub-accent,var(--tsl-blue,#60a5fa));cursor:pointer;min-height:32px}
+  .tsl-replay-readings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.tsl-replay-readings>div{padding:11px 8px;background:var(--pub-surface2,#252d45);border-radius:10px;min-width:0}.tsl-replay-readings small{display:block;color:var(--pub-fg2,#9aa4bd);font-size:.65rem}.tsl-replay-readings b{display:block;font-size:1.1rem;margin-top:5px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.tsl-replay-readings>div:first-child b{color:var(--pub-accent,var(--tsl-blue,#60a5fa))}.tsl-replay-caption{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-top:9px;font-size:.65rem;color:var(--pub-fg2,#9aa4bd)}
   @container(max-width:400px){.tsl-replay-controls input{flex-basis:100%}.tsl-replay-readings b{font-size:.95rem}}
   .tsl-replay-activity{font-size:.75rem;font-weight:650;padding:4px 7px;border-radius:7px;background:var(--pub-surface2,#252d45)}
-  .tsl #tsl-page>[hidden],.tsl .tsl-hero [hidden]{display:none!important}.tsl-model-title{display:flex;align-items:center;gap:8px;min-width:0}.tsl-model-title h2{min-width:0;overflow-wrap:anywhere}.tsl-model-title [data-day-history]{flex-shrink:0;padding:3px 8px;min-height:32px}.tsl-day-history{border-top:1px solid #ffffff16;margin-top:16px;padding-top:14px}.tsl-day-toolbar,.tsl-day-playbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.tsl-day-toolbar{justify-content:space-between}.tsl-day-toolbar label{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--pub-fg2,#9aa4bd);font-size:12px}.tsl-day-toolbar input{min-width:0;max-width:100%;color:inherit;background:var(--pub-surface2,#252d45);border:1px solid #ffffff24;border-radius:10px;padding:8px;font:inherit;color-scheme:dark}.tsl-day-playbar{margin-top:12px}.tsl-day-playbar b{font-variant-numeric:tabular-nums}.tsl-day-playbar small{margin-left:auto;color:var(--pub-fg2,#9aa4bd)}.tsl-day-history input[type=range]{display:block;width:100%;margin:14px 0 6px;accent-color:#60a5fa;cursor:pointer}.tsl-day-ends{display:flex;justify-content:space-between;font-size:11px;color:var(--pub-fg2,#9aa4bd)}.tsl-day-history .tsl-note{font-size:11px;margin-bottom:0}.tsl-refresh.on{color:#60a5fa;border-color:#60a5fa}.tsl-day-history [data-day-metrics]{font-size:12px;color:#93c5fd}
+  .tsl #tsl-page>[hidden],.tsl .tsl-hero [hidden]{display:none!important}.tsl-model-title{display:flex;align-items:center;gap:8px;min-width:0}.tsl-model-title h2{min-width:0;overflow-wrap:anywhere}.tsl-model-title [data-day-history]{flex-shrink:0;padding:3px 8px;min-height:32px}.tsl-day-history{border-top:1px solid #ffffff16;margin-top:16px;padding-top:14px}.tsl-day-toolbar,.tsl-day-playbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.tsl-day-toolbar{justify-content:space-between}.tsl-day-toolbar label{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--pub-fg2,#9aa4bd);font-size:12px}.tsl-day-toolbar input{min-width:0;max-width:100%;color:inherit;background:var(--pub-surface2,#252d45);border:1px solid #ffffff24;border-radius:10px;padding:8px;font:inherit;color-scheme:inherit}.tsl-day-playbar{margin-top:12px}.tsl-day-playbar b{font-variant-numeric:tabular-nums}.tsl-day-playbar small{margin-left:auto;color:var(--pub-fg2,#9aa4bd)}.tsl-day-history input[type=range]{display:block;width:100%;margin:14px 0 6px;accent-color:var(--tsl-blue,#60a5fa);cursor:pointer}.tsl-day-ends{display:flex;justify-content:space-between;font-size:11px;color:var(--pub-fg2,#9aa4bd)}.tsl-day-history .tsl-note{font-size:11px;margin-bottom:0}.tsl-refresh.on{color:var(--tsl-blue,#60a5fa);border-color:var(--tsl-blue,#60a5fa)}.tsl-day-history [data-day-metrics]{font-size:12px;color:var(--tsl-info,#93c5fd)}
   @container(max-width:600px){
     .tsl-history-open .tsl-cockpit{margin-top:6px;margin-bottom:0}
     .tsl-history-open .tsl-car-stage{height:var(--tsl-history-stage,280px);max-width:calc(var(--tsl-history-stage,280px) * .6);width:100%;aspect-ratio:.6}
@@ -376,6 +377,29 @@
   }
   .tsl-day-history [data-day-location]{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:24px;min-height:1.5em;line-height:1.5}.tsl-day-help{position:relative;margin-top:3px;font-size:11px;color:var(--pub-fg2,#9aa4bd)}.tsl-day-help summary{cursor:pointer;list-style:none;text-align:right;min-height:24px;line-height:24px}.tsl-day-help summary::-webkit-details-marker{display:none}.tsl-day-help p{margin:4px 0 0}.tsl-day-help:not([open]){height:0;margin:0}.tsl-day-help:not([open]) summary{position:absolute;right:0;bottom:0;width:24px}
     .tsl-replay-view{margin-top:10px;display:flex;width:fit-content}.tsl-replay-view button{font-size:.75rem;padding:8px 10px}
+
+  .tsl-light .tsl-wrap .tsl-card{box-shadow:0 2px 10px #1523350d;border:1px solid var(--pub-border,#cbd1da)}
+  .tsl-tire-history{margin-top:12px;border-top:1px solid var(--pub-border,#ffffff20);padding-top:10px}
+  .tsl-tire-history summary{cursor:pointer;color:var(--pub-fg2,#9aa4bd);font-size:.78rem;min-height:28px;line-height:28px}
+  /* Tire readings share the scale of the other vehicle metrics. */
+  .tsl-tires{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:stretch}
+  .tsl-tires .tsl-tcar,.tsl-tires .tsl-tgap{display:none}
+  .tsl-tire{min-width:0;padding:10px;text-align:left;border-radius:12px}
+  .tsl-wheel-symbol{width:22px;height:22px;margin:0 0 6px}
+  .tsl-tire b{font-size:1.15rem}.tsl-tire span{font-size:.65rem;letter-spacing:.025em}
+  .tsl-tire .tsl-measured{display:block;font-size:.65rem;margin-top:5px;color:var(--pub-fg2,#9aa4bd)}
+  .tsl-tire small{font-size:.68rem;overflow-wrap:anywhere}
+  .tsl-tire-dialog .tsl-tires{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tsl-charge-card{--session-color:var(--tsl-success)}.tsl-charge-card.dc{--session-color:var(--tsl-warning)}
+  .tsl-tab.on,.tsl-btn.pri,.tsl-seg button.on,.tsl-days button.on{color:var(--on-accent,var(--pub-bg,#0f1320))}
+  .tsl-day-history{border-color:var(--pub-border,#ffffff16)}
+  .tsl-cross{stroke:var(--pub-fg,#fff)}
+  .tsl-map-help-btn,.tsl-map-legend{background:var(--pub-surface1,#1b2133);color:var(--pub-fg,#e6e9f2);border-color:var(--pub-border,#ffffff25)}
+  .tsl-map-legend p{color:var(--pub-fg2,#9aa4bd)}
+  .tsl.tsl-light{--tsl-map-filter:none;--tsl-map-bg:#e5eaf0}
+  .tsl.tsl-light .tsl-zoom button{background:var(--pub-surface1,#fff);color:var(--pub-fg,#1f2328);border:1px solid var(--pub-border,#d0d7de)}
+  .tsl.tsl-light .tsl-attr{color:var(--pub-fg,#1f2328);background:var(--pub-surface1,#fff);text-shadow:none;padding:2px 5px;border-radius:4px}
+  @container(max-width:600px){.tsl-tires{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}}
   `;
   function injectStyles() {
     if (document.getElementById('tsl-css')) return;
@@ -401,9 +425,29 @@
     root.innerHTML = '<div class="tsl"><div class="tsl-wrap"></div></div>';
     const scroller = root.firstChild, w = scroller.firstChild;
     if (opts.desktop) scroller.classList.add('in-os');
+    const themePixel = document.createElement('canvas'); themePixel.width = themePixel.height = 1;
+    const themeContext = themePixel.getContext('2d', {willReadFrequently:true});
+    function syncTheme() {
+      // Normalize modern CSS colors (including color-mix/oklch) to sRGB too.
+      themeContext.clearRect(0, 0, 1, 1);
+      themeContext.fillStyle = getComputedStyle(scroller).backgroundColor;
+      themeContext.fillRect(0, 0, 1, 1);
+      const rgb = themeContext.getImageData(0, 0, 1, 1).data;
+      const light = rgb[0] * .299 + rgb[1] * .587 + rgb[2] * .114 > 140;
+      const scheme = light ? 'light' : 'dark';
+      if (scroller.style.colorScheme !== scheme) scroller.style.colorScheme = scheme;
+      scroller.classList.toggle('tsl-light', !!light);
+    }
+    syncTheme();
+    const themeObserver = new MutationObserver(syncTheme);
+    for (let el = scroller.parentElement; el; el = el.parentElement) themeObserver.observe(el, {attributes:true,attributeFilter:['class','style','data-theme']});
+    themeObserver.observe(document.head, {childList:true,characterData:true,subtree:true,attributes:true,attributeFilter:['href','media']});
+    document.addEventListener('load', syncTheme, true);
+
     if (!token) {
       w.innerHTML = `<div class="tsl-center">${esc(t('tsl_login_required'))}</div>`;
       if (opts.onNeedLogin) opts.onNeedLogin(root);
+      themeObserver.disconnect(); document.removeEventListener('load',syncTheme,true);
       return { destroy() {} };
     }
 
@@ -496,7 +540,7 @@
       w.innerHTML = `${!isOwner()?`<p class="tsl-note tsl-shared-banner">${esc(t('tsl_share_shared'))} · ${esc(t(canManage()?'tsl_share_admin':'tsl_share_view'))}</p>`:''}<div class="tsl-bar"><div class="tsl-tabs">${tabsToShow.map(k =>
         `<button class="tsl-tab ${(st.tab === k || k === 'trips' && st.tab === 'journeys') ? 'on' : ''}" data-tab="${k}">${esc(t('tsl_tab_' + k))}</button>`).join('')}</div>
         ${veh && veh.length > 1 ? `<div style="margin-top:8px"><select class="tsl-btn" id="tsl-veh">${veh.map(v => `<option value="${esc(v.id)}" ${v.id === st.vid ? 'selected' : ''}>${esc(v.name || modelName(v.model))}</option>`).join('')}</select></div>` : ''}
-        ${st.status && st.status.reauth && st.tab !== 'settings' ? `<div class="tsl-note" style="color:#fbbf24;margin-top:8px">${esc(t('tsl_set_reauth'))}</div>` : ''}
+        ${st.status && st.status.reauth && st.tab !== 'settings' ? `<div class="tsl-note" style="color:var(--tsl-warning);margin-top:8px">${esc(t('tsl_set_reauth'))}</div>` : ''}
         </div>${['trips','journeys'].includes(st.tab)?`<div class="tsl-head tsl-trip-tabs" role="tablist" aria-label="${esc(t('tsl_tab_trips'))}"><button class="tsl-btn ${st.tab==='trips'?'pri':''}" role="tab" aria-selected="${st.tab==='trips'}" data-trip-tab="trips">${esc(t('tsl_trips_auto'))}</button><button class="tsl-btn ${st.tab==='journeys'?'pri':''}" role="tab" aria-selected="${st.tab==='journeys'}" data-trip-tab="journeys">${esc(t('tsl_tab_journeys'))}</button></div>`:''}<div id="tsl-page"></div>`;
       if(st.tab==='charges'){
         const nav=document.createElement('div');nav.className='tsl-head tsl-charge-tabs';nav.setAttribute('role','tablist');
@@ -653,7 +697,7 @@
       add('present', 'security', 'tsl_c_user_present', 'person', vs.is_user_present === true, []);
       return entries;
     }
-    const STATUS_COLORS = { seats: '#f4ad70', heat: '#f9c56c', climate: '#75d5f4', security: '#b7a3fc' };
+    const STATUS_COLORS = { seats: 'var(--tsl-seats)', heat: 'var(--tsl-heat)', climate: 'var(--tsl-climate)', security: 'var(--tsl-security)' };
     function statusStrip() {
       const entries = activeStatuses();
       if (!entries.length) return '';
@@ -824,7 +868,7 @@
       });
       const level = s.battery == null ? null : Math.max(0, Math.min(100, s.battery));
       const limit = s.charge_limit == null ? null : Math.max(0, Math.min(100, s.charge_limit));
-      const energy = charging ? '#4ade80' : level != null && level <= 15 ? '#f87171' : level != null && level <= 30 ? '#fbbf24' : '#74c3fa';
+      const energy = charging ? 'var(--tsl-green)' : level != null && level <= 15 ? 'var(--tsl-danger)' : level != null && level <= 30 ? 'var(--tsl-warning)' : 'var(--tsl-blue)';
       const validSetpoint = key => typeof cl[key] === 'number' && Number.isFinite(cl[key]) && cl[key] > 0;
       const frontZones = [['driver', 'tsl_climate_driver', 'driver_temp_setting'], ['passenger', 'tsl_climate_passenger', 'passenger_temp_setting']];
       if (config.rhd) frontZones.reverse();
@@ -944,7 +988,7 @@
       const picker=window.mvmOS?.dateTimePicker,zone=picker?.settings({}).timeZone;
       const panel=document.createElement('div');panel.className='tsl-day-history';
       const localDate=ts=>{if(picker)return picker.fromEpoch(ts,{type:'date',timeZone:zone});const d=new Date(ts*1000);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
-      panel.innerHTML=`<div class="tsl-day-toolbar"><label><span class="tsl-day-label">${esc(t('tsl_history_title'))}</span><span data-day-calendar><input type="date" data-day-date aria-label="${esc(t('tsl_history_date'))}"></span></label><button type="button" class="tsl-btn" data-day-live title="${esc(t('tsl_history_live'))}" aria-label="${esc(t('tsl_history_live'))}"><span aria-hidden="true">↩</span><span class="tsl-day-live-copy"> ${esc(t('tsl_history_live'))}</span></button></div><div data-day-content></div>`;
+      panel.innerHTML=`<div class="tsl-day-toolbar"><label><span class="tsl-day-label">${esc(t('tsl_history_title'))}</span><span data-day-calendar><input type="hidden" data-day-date aria-label="${esc(t('tsl_history_date'))}"></span></label><button type="button" class="tsl-btn" data-day-live title="${esc(t('tsl_history_live'))}" aria-label="${esc(t('tsl_history_live'))}"><span aria-hidden="true">↩</span><span class="tsl-day-live-copy"> ${esc(t('tsl_history_live'))}</span></button></div><div data-day-content></div>`;
       p.querySelector('.tsl-hero').appendChild(panel);p.querySelector('.tsl-hero').classList.add('tsl-history-open');
       const siblings=[...p.children].filter(el=>!el.classList.contains('tsl-hero'));siblings.forEach(el=>el.hidden=true);
       let date=panel.querySelector('[data-day-date]');const body=panel.querySelector('[data-day-content]');
@@ -959,7 +1003,7 @@
       });}
       const layoutObserver=new ResizeObserver(fitHistory);layoutObserver.observe(scroller);layoutObserver.observe(panel);
       dayHistory=controller;
-      const time=ts=>new Intl.DateTimeFormat(window.mvmOS?.lang||'en',{hour:'2-digit',minute:'2-digit',second:'2-digit',...(zone?{timeZone:zone}:{})}).format(new Date(ts*1000));
+      const time=ts=>new Intl.DateTimeFormat(window.mvmOS?.lang||'en',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:picker.settings({}).timeFormat==='12',timeZone:zone}).format(new Date(ts*1000));
       function closeDetails(){if(statusDialog)statusDialog.close();if(chargingDialog)chargingDialog.close();if(tireDialog)tireDialog.close();}
       function pause(){playing=false;cancelAnimationFrame(raf);const b=panel.querySelector('[data-day-play]');if(b){b.textContent='▶';b.setAttribute('aria-label',t('tsl_replay_play'));}}
       function visibility(){if(document.hidden)pause();}document.addEventListener('visibilitychange',visibility);
@@ -1056,7 +1100,7 @@
     function hookBack(p) { p.querySelector('#tsl-back').addEventListener('click', () => { if(st.returnJourney){const id=st.returnJourney;st.returnJourney=null;openJourney(id);}else{st.detail=null;st.journey=null;frame();render();} }); }
     function renderTripDetail(p) {
       const d = st.detail;
-      if(d.analysis){p.innerHTML=backBtn()+`<div class="tsl-card"><h3>${esc(fmt.dateTime(d.start_ts))}</h3><b>${esc(place(d.start_place,d.start_addr))} → ${esc(place(d.end_place,d.end_addr))}</b></div>`+analysisMarkup(d.analysis,false)+`<div class="tsl-card"><h3>${esc(t('tsl_chart_speed'))}</h3><div id="tsl-drive-speed"></div></div><div class="tsl-card"><h3>${esc(t('tsl_chart_power'))}</h3><div id="tsl-drive-power"></div></div>`;hookBack(p);mountAnalysis(p,d.analysis,false);[[3,'#tsl-drive-speed','#60a5fa',v=>U.speed(v),v=>fmt.speed(v)],[4,'#tsl-drive-power','#f59e0b',v=>v,v=>fmt.kw(v)]].forEach(([i,id,color,convert,format])=>{const data=d.points.filter(x=>x[i]!=null).map(x=>[x[0],convert(x[i])]);if(data.length)V.chart(p.querySelector(id),{type:'line',series:[{color,data}],height:180,xFmt:x=>fmt.time(x),yFmt:v=>nf(v),tipFmt:i===3?v=>nf(v)+' '+U.speedU():format});});return;}
+      if(d.analysis){p.innerHTML=backBtn()+`<div class="tsl-card"><h3>${esc(fmt.dateTime(d.start_ts))}</h3><b>${esc(place(d.start_place,d.start_addr))} → ${esc(place(d.end_place,d.end_addr))}</b></div>`+analysisMarkup(d.analysis,false)+`<div class="tsl-card"><h3>${esc(t('tsl_chart_speed'))}</h3><div id="tsl-drive-speed"></div></div><div class="tsl-card"><h3>${esc(t('tsl_chart_power'))}</h3><div id="tsl-drive-power"></div></div>`;hookBack(p);mountAnalysis(p,d.analysis,false);[[3,'#tsl-drive-speed','var(--tsl-blue,#60a5fa)',v=>U.speed(v),v=>fmt.speed(v)],[4,'#tsl-drive-power','var(--tsl-amber,#f59e0b)',v=>v,v=>fmt.kw(v)]].forEach(([i,id,color,convert,format])=>{const data=d.points.filter(x=>x[i]!=null).map(x=>[x[0],convert(x[i])]);if(data.length)V.chart(p.querySelector(id),{type:'line',series:[{color,data}],height:180,xFmt:x=>fmt.time(x),yFmt:v=>nf(v),tipFmt:i===3?v=>nf(v)+' '+U.speedU():format});});return;}
       p.innerHTML = `${backBtn()}<div class="tsl-card"><h3>${esc(fmt.dateTime(d.start_ts))}</h3>
         <div style="font-size:1.15rem;font-weight:700">${esc(place(d.start_place, d.start_addr))} → ${esc(place(d.end_place, d.end_addr))}</div>
         <div id="tsl-tmap" style="margin-top:12px"></div></div>
@@ -1072,8 +1116,8 @@
       maps.push(V.tileMap(p.querySelector('#tsl-tmap'), pts.map(x => [x[1], x[2], x[3]]), { color: speedColor }));
       const mm = p.querySelector('.tsl-map'); if (mm) mm.classList.add('tall');
       setTimeout(() => maps[0] && maps[0].redraw(), 50);
-      V.chart(p.querySelector('#tsl-c1'), { type: 'line', series: [{ color: '#60a5fa', data: pts.map(x => [x[0], U.speed(x[3] || 0)]) }], xFmt: (x, full) => full ? fmt.time(x) : fmt.time(x), yFmt: v => nf(v), tipFmt: v => nf(v) + ' ' + U.speedU(), height: 180 });
-      V.chart(p.querySelector('#tsl-c2'), { type: 'line', series: [{ color: '#f59e0b', data: pts.map(x => [x[0], x[4] || 0]) }], xFmt: x => fmt.time(x), yFmt: v => nf(v), tipFmt: v => nf(v) + ' ' + t('tsl_u_kw'), yMin: Math.min(0, Math.min.apply(null, pts.map(x => x[4] || 0))), height: 180 });
+      V.chart(p.querySelector('#tsl-c1'), { type: 'line', series: [{ color: 'var(--tsl-blue,#60a5fa)', data: pts.map(x => [x[0], U.speed(x[3] || 0)]) }], xFmt: (x, full) => full ? fmt.time(x) : fmt.time(x), yFmt: v => nf(v), tipFmt: v => nf(v) + ' ' + U.speedU(), height: 180 });
+      V.chart(p.querySelector('#tsl-c2'), { type: 'line', series: [{ color: 'var(--tsl-amber,#f59e0b)', data: pts.map(x => [x[0], x[4] || 0]) }], xFmt: x => fmt.time(x), yFmt: v => nf(v), tipFmt: v => nf(v) + ' ' + t('tsl_u_kw'), yMin: Math.min(0, Math.min.apply(null, pts.map(x => x[4] || 0))), height: 180 });
     }
 
     // Saved journeys and automatic drives share the same history report.
@@ -1168,7 +1212,7 @@
         <div class="tsl-card"><h3>${esc(t('tsl_elev_title'))}</h3><div id="tsl-elevation"><div class="tsl-empty">${esc(t('tsl_loading'))}</div></div><p class="tsl-note">${esc(t('tsl_elev_note'))}</p><a class="tsl-elev-credit" href="https://github.com/tilezen/joerd/blob/master/docs/attribution.md" target="_blank" rel="noopener noreferrer">Terrain Tiles · ${esc(t('tsl_elev_credits'))} ↗</a></div>
         <div class="tsl-card"><h3>${esc(t('tsl_j_routes'))}</h3><div id="tsl-report-map"></div><div id="tsl-replay"></div><p class="tsl-note">${esc(t('tsl_j_map_hint'))}</p></div>
         ${a.end>a.start?`<div class="tsl-card"><h3>${esc(t('tsl_states_totals'))}</h3>${V.strip({since:a.start,now:a.end,rows:a.timeline,labels:{unknown:t('tsl_j_unknown')}})}<div class="tsl-report-states">${Object.entries(s.state_seconds).map(([k,v])=>`<span><i style="background:${V.STATE_COL[k]||'#64748b'}"></i>${esc(t(k==='unknown'?'tsl_j_unknown':'tsl_st_'+k))}<b>${esc(reportDur(v))}</b></span>`).join('')}</div></div>`:''}
-        <div class="tsl-report-charts"><div class="tsl-card"><h3>${esc(t('tsl_trip_batt'))}</h3><div id="tsl-report-battery"></div></div><div class="tsl-card"><h3>${esc(t('tsl_j_temperatures'))}</h3><div class="tsl-legend"><span style="color:#60a5fa">● ${esc(t('tsl_inside'))}</span><span style="color:#fb923c">● ${esc(t('tsl_outside'))}</span></div><div id="tsl-report-temp"></div></div></div>
+        <div class="tsl-report-charts"><div class="tsl-card"><h3>${esc(t('tsl_trip_batt'))}</h3><div id="tsl-report-battery"></div></div><div class="tsl-card"><h3>${esc(t('tsl_j_temperatures'))}</h3><div class="tsl-legend"><span style="color:var(--tsl-blue)">● ${esc(t('tsl_inside'))}</span><span style="color:var(--tsl-orange)">● ${esc(t('tsl_outside'))}</span></div><div id="tsl-report-temp"></div></div></div>
         <div class="tsl-card"><h3>${esc(t('tsl_j_observations'))}</h3><div class="tsl-grid">${metric('tsl_inside',range(readings.inside_temp))}${metric('tsl_outside',range(readings.outside_temp))}${Object.entries(s.flags).filter(([,v])=>v.observed_seconds>0).map(([k,v])=>metric('tsl_j_flag_'+k,reportDur(v.seconds))).join('')}${['fl','fr','rl','rr'].filter(k=>readings['tpms_'+k].min!=null).map(k=>tile(t('tsl_c_'+k),esc(nf(readings['tpms_'+k].min*(U.imperial?14.5038:1),U.imperial?0:2)+' – '+nf(readings['tpms_'+k].max*(U.imperial?14.5038:1),U.imperial?0:2)+(U.imperial?' psi':' bar')))).join('')}</div>${Object.values(s.flags).some(v=>v.observed_seconds>0)?`<p class="tsl-note">${esc(t('tsl_j_observed'))}</p>`:''}</div>
         <div class="tsl-card"><h3>${esc(t('tsl_j_history'))}</h3><div id="tsl-report-events"></div></div>
         <div class="tsl-card tsl-note"><b>${esc(t('tsl_j_coverage'))}</b><p>${esc(nf(s.readings))} ${esc(t('tsl_j_readings'))}${s.first_reading?` · ${esc(journeyDate(s.first_reading))} → ${esc(journeyDate(s.last_reading))}`:''}</p>${esc(t('tsl_j_coverage_hint'))}${a.partial?`<p>${esc(t('tsl_j_partial'))}</p>`:''}</div>`;
@@ -1228,7 +1272,7 @@
         if(d.samples<2)throw Error('no_elevation');
         const metres=v=>nf(U.imperial?v*3.28084:v,0)+' '+(U.imperial?'ft':'m');
         el.innerHTML=`<div class="tsl-grid tsl-elevation-summary">${tile(t('tsl_elev_ascent'),'↗ '+esc(metres(d.ascent_m)))}${tile(t('tsl_elev_descent'),'↘ '+esc(metres(d.descent_m)))}${tile(t('tsl_elev_min'),esc(metres(d.min_m)))}${tile(t('tsl_elev_max'),esc(metres(d.max_m)))}</div><div data-elevation-chart></div>${d.partial?`<p class="tsl-note">${esc(t('tsl_elev_partial'))}</p>`:''}`;
-        const segments=[];let segment=[];for(const [km,m] of d.points){if(m==null){if(segment.length)segments.push({color:'#34d399',data:segment});segment=[];}else segment.push([U.dist(km),U.imperial?m*3.28084:m]);}if(segment.length)segments.push({color:'#34d399',data:segment});
+        const segments=[];let segment=[];for(const [km,m] of d.points){if(m==null){if(segment.length)segments.push({color:'var(--tsl-success,#34d399)',data:segment});segment=[];}else segment.push([U.dist(km),U.imperial?m*3.28084:m]);}if(segment.length)segments.push({color:'var(--tsl-success,#34d399)',data:segment});
         V.chart(el.querySelector('[data-elevation-chart]'),{type:'line',segmented:true,series:segments,height:190,xFmt:v=>nf(v,1)+' '+U.distU(),yFmt:v=>nf(v,0),tipFmt:v=>nf(v,0)+' '+(U.imperial?'ft':'m'),yMin:Math.floor((U.imperial?d.min_m*3.28084:d.min_m)-5)});
       } catch(e) {
         if(destroyed || !el.isConnected)return;
@@ -1247,8 +1291,8 @@
         if(!series.length){el.innerHTML=`<div class="tsl-empty">${esc(t('tsl_j_no_readings'))}</div>`;return;}
         V.chart(el,{type:'line',series,height:180,xFmt:(x,full)=>full?journeyDate(x):a.end-a.start>86400?fmt.date(x):fmt.time(x),yFmt,tipFmt:yFmt,yMin});
       };
-      chart('#tsl-report-battery',[{color:'#34d399',data:a.series.filter(x=>x[1]!=null).map(x=>[x[0],x[1]])}],v=>nf(v)+'%',0);
-      chart('#tsl-report-temp',[{label:t('tsl_inside'),color:'#60a5fa',data:a.series.filter(x=>x[2]!=null).map(x=>[x[0],U.temp(x[2])])},{label:t('tsl_outside'),color:'#fb923c',data:a.series.filter(x=>x[3]!=null).map(x=>[x[0],U.temp(x[3])])}],v=>nf(v,1)+'°',undefined);
+      chart('#tsl-report-battery',[{color:'var(--tsl-success,#34d399)',data:a.series.filter(x=>x[1]!=null).map(x=>[x[0],x[1]])}],v=>nf(v)+'%',0);
+      chart('#tsl-report-temp',[{label:t('tsl_inside'),color:'var(--tsl-blue,#60a5fa)',data:a.series.filter(x=>x[2]!=null).map(x=>[x[0],U.temp(x[2])])},{label:t('tsl_outside'),color:'var(--tsl-orange,#fb923c)',data:a.series.filter(x=>x[3]!=null).map(x=>[x[0],U.temp(x[3])])}],v=>nf(v,1)+'°',undefined);
       let count=40;
       const drawEvents=()=>{
         const el=p.querySelector('#tsl-report-events');el.innerHTML=a.events.slice(0,count).map(e=>{
@@ -1315,8 +1359,8 @@
       hookBack(p);
       if (d.lat != null) { maps.push(V.tileMap(p.querySelector('#tsl-cmap'), [], { marker: [d.lat, d.lng] })); setTimeout(() => maps[0] && maps[0].redraw(), 50); }
       const pts = d.points;
-      V.chart(p.querySelector('#tsl-c1'), { type: 'line', series: [{ color: '#4ade80', data: pts.map(x => [x[0], x[1] || 0]) }], xFmt: x => fmt.time(x), yFmt: v => nf(v), tipFmt: v => nf(v) + ' ' + t('tsl_u_kw'), height: 180 });
-      V.chart(p.querySelector('#tsl-c2'), { type: 'line', series: [{ color: '#60a5fa', data: pts.map(x => [x[0], x[2] || 0]) }], xFmt: x => fmt.time(x), yFmt: v => nf(v) + '%', tipFmt: v => nf(v) + '%', yMin: 0, yMax: 100, height: 180 });
+      V.chart(p.querySelector('#tsl-c1'), { type: 'line', series: [{ color: 'var(--tsl-green,#4ade80)', data: pts.map(x => [x[0], x[1] || 0]) }], xFmt: x => fmt.time(x), yFmt: v => nf(v), tipFmt: v => nf(v) + ' ' + t('tsl_u_kw'), height: 180 });
+      V.chart(p.querySelector('#tsl-c2'), { type: 'line', series: [{ color: 'var(--tsl-blue,#60a5fa)', data: pts.map(x => [x[0], x[2] || 0]) }], xFmt: x => fmt.time(x), yFmt: v => nf(v) + '%', tipFmt: v => nf(v) + '%', yMin: 0, yMax: 100, height: 180 });
       p.querySelector('#tsl-edit-charge-cost').onclick=()=>chargeCostDialog(d);
       const sp = p.querySelector('#tsl-saveplace');
       if (sp) sp.addEventListener('click', () => placeDialog({ name: '', lat: d.lat, lng: d.lng, radius: 100 }, () => { st.charges = []; st.trips = []; st.detail = null; frame(); render(); }));
@@ -1359,10 +1403,13 @@
       draw();billingCleanup=()=>{if(map)map.destroy();};d.querySelectorAll('[name=lat],[name=lng],[name=radius]').forEach(el=>el.onchange=()=>{if(el.checkValidity())draw();});
       const del=d.querySelector('[data-remove-place]');if(del)del.onclick=()=>billingDelete('/places/'+pl.id,pl.name,done);
     }
+    const tariffDate = (ts, timeZone) => {const picker=window.mvmOS.dateTimePicker;return picker.format(picker.fromEpoch(ts,{type:'date',timeZone}),{type:'date'});};
+    const monthDay = md => String(Math.floor(md/100)).padStart(2,'0')+'-'+String(md%100).padStart(2,'0');
+    const seasonDate = md => window.mvmOS.dateTimePicker.formatAnnual(monthDay(md),{monthNames:true});
     async function renderTariffs(p){
       const seq=++seqLoad;p.innerHTML=`<div class="tsl-center">${esc(t('tsl_loading'))}</div>`;
-      try{const [d,pl]=await Promise.all([api('/tariffs'),api('/places')]);if(destroyed||seq!==seqLoad)return;
-        p.innerHTML=`<div class="tsl-head"><button class="tsl-btn pri" id="tsl-tariff-new">＋ ${esc(t('tsl_bill_new_tariff'))}</button></div><p class="tsl-note">${esc(t('tsl_bill_tariff_hint'))}</p><div class="tsl-journey-list">${d.tariffs.map(r=>`<div class="tsl-card"><h2>${esc(r.name)}</h2><p>${esc((pl.places.find(x=>x.id===r.place_id)||{}).name||'')}</p><p class="tsl-sub">${esc(fmt.date(r.start_ts))} → ${esc(fmt.date(r.end_ts-1))} · ${esc(r.currency)} · ${esc(r.timezone)}</p><div class="tsl-bill-bands">${r.rules.map(rule=>`<span><b>${esc(rule.name)}</b> ${esc(rule.from)}–${esc(rule.to)} · ${esc(unitPrice(rule.price,r.currency))}/kWh</span>`).join('')}</div><div class="tsl-btns"><button class="tsl-btn" data-tariff-edit="${esc(r.id)}">${esc(t('tsl_edit'))}</button><button class="tsl-btn" data-tariff-report="${esc(r.id)}">${esc(t('tsl_bill_report'))}</button><button class="tsl-btn" data-tariff-delete="${esc(r.id)}">${esc(t('tsl_delete'))}</button></div></div>`).join('')||`<div class="tsl-card tsl-center">${esc(t('tsl_bill_no_tariffs'))}</div>`}</div>        <div class="tsl-card" id="tsl-default-prices"><h3>${esc(t('tsl_set_prices'))}</h3><p class="tsl-note">${esc(t('tsl_bill_defaults_hint'))}</p>
+      try{await window.mvmOS.dateTimePicker.ready();const [d,pl]=await Promise.all([api('/tariffs'),api('/places')]);if(destroyed||seq!==seqLoad)return;
+        p.innerHTML=`<div class="tsl-head"><button class="tsl-btn pri" id="tsl-tariff-new">＋ ${esc(t('tsl_bill_new_tariff'))}</button></div><p class="tsl-note">${esc(t('tsl_bill_tariff_hint'))}</p><div class="tsl-journey-list">${d.tariffs.map(r=>`<div class="tsl-card"><h2>${esc(r.name)}</h2><p>${esc((pl.places.find(x=>x.id===r.place_id)||{}).name||'')}</p><p class="tsl-sub">${esc(tariffDate(r.start_ts,r.timezone))} → ${esc(tariffDate(r.end_ts-1,r.timezone))} · ${esc(r.currency)} · ${esc(r.timezone)}</p><div class="tsl-bill-bands">${r.rules.map(rule=>`<span><b>${esc(rule.name)}</b> ${esc(window.mvmOS.dateTimePicker.format(rule.from,{type:'time'}))}–${esc(window.mvmOS.dateTimePicker.format(rule.to,{type:'time'}))} · ${esc(unitPrice(rule.price,r.currency))}/kWh <small>· ${esc(t('tsl_bill_yearly'))} ${esc(seasonDate(rule.season_from||101))}–${esc(seasonDate(rule.season_to||1231))}</small></span>`).join('')}</div><div class="tsl-btns"><button class="tsl-btn" data-tariff-edit="${esc(r.id)}">${esc(t('tsl_edit'))}</button><button class="tsl-btn" data-tariff-report="${esc(r.id)}">${esc(t('tsl_bill_report'))}</button><button class="tsl-btn" data-tariff-delete="${esc(r.id)}">${esc(t('tsl_delete'))}</button></div></div>`).join('')||`<div class="tsl-card tsl-center">${esc(t('tsl_bill_no_tariffs'))}</div>`}</div>        <div class="tsl-card" id="tsl-default-prices"><h3>${esc(t('tsl_set_prices'))}</h3><p class="tsl-note">${esc(t('tsl_bill_defaults_hint'))}</p>
         <div class="tsl-field"><label for="tsl-pac">${esc(t('tsl_set_price_ac'))} (${esc(currency)})</label><input ${canManage() ? '' : 'disabled'} min="0" id="tsl-pac" type="number" step="0.001" value="${(pl.prefs || {}).default_ac_price != null ? (pl.prefs || {}).default_ac_price : ''}"></div>
         <div class="tsl-field"><label for="tsl-pdc">${esc(t('tsl_set_price_dc'))} (${esc(currency)})</label><input ${canManage() ? '' : 'disabled'} min="0" id="tsl-pdc" type="number" step="0.001" value="${(pl.prefs || {}).default_dc_price != null ? (pl.prefs || {}).default_dc_price : ''}"></div>
         ${canManage() ? `<div class="tsl-btns"><button class="tsl-btn pri" id="tsl-saveprices">${esc(t('tsl_save'))}</button></div>` : ''}</div>
@@ -1389,22 +1436,30 @@
       const zone=plan.timezone||picker.settings({}).timeZone, dateOpts={type:'date',timeZone:zone};
       const nowDate=picker.fromEpoch(Date.now()/1000,dateOpts),year=nowDate.slice(0,4);
       let rules=plan.rules?JSON.parse(JSON.stringify(plan.rules)):[{name:t('tsl_bill_flat'),from:'00:00',to:'00:00',days:[0,1,2,3,4,5,6],price:null,season_from:101,season_to:1231}],rulePickers=[];
-      const d=billingModal(t(plan.id?'tsl_edit':'tsl_bill_new_tariff'),`<div class="tsl-billing-columns"><label>${esc(t('tsl_bill_name'))}<input name="tariff_name" required maxlength="120" value="${esc(plan.name||'')}"></label><label>${esc(t('tsl_bill_place'))}<select name="place_id">${data.places.map(pl=>`<option value="${esc(pl.id)}" ${pl.id===plan.place_id?'selected':''}>${esc(pl.name)}</option>`).join('')}</select></label></div><div class="tsl-billing-columns"><label>${esc(t('tsl_bill_valid_from'))}<div data-plan-start></div></label><label>${esc(t('tsl_bill_valid_to'))}<div data-plan-end></div></label><label>${esc(t('tsl_bill_currency'))}<select name="currency">${currencyOptions(plan.currency||currency)}</select></label><label>${esc(t('tsl_bill_zone'))}<input name="timezone" required value="${esc(zone)}"></label><label>${esc(t('tsl_bill_kind'))}<select name="kind">${['all','ac','dc'].map(k=>`<option value="${k}" ${(plan.kind||'all')===k?'selected':''}>${esc(k==='all'?t('tsl_bill_all'):k.toUpperCase())}</option>`).join('')}</select></label></div><div class="tsl-btns"><button type="button" class="tsl-btn" data-flat>${esc(t('tsl_bill_flat'))}</button><button type="button" class="tsl-btn" data-dual>${esc(t('tsl_bill_dual'))}</button></div><details class="tsl-note"><summary>${esc(t('tsl_bill_how'))}</summary><p>${esc(t('tsl_bill_rules_hint'))}</p></details><div data-rules></div><button type="button" class="tsl-btn" data-add-rule>＋ ${esc(t('tsl_bill_add_band'))}</button>`,async()=>{
+      const d=billingModal(t(plan.id?'tsl_edit':'tsl_bill_new_tariff'),`<div class="tsl-billing-columns"><label>${esc(t('tsl_bill_name'))}<input name="tariff_name" required maxlength="120" value="${esc(plan.name||'')}"></label><label>${esc(t('tsl_bill_place'))}<select name="place_id">${data.places.map(pl=>`<option value="${esc(pl.id)}" ${pl.id===plan.place_id?'selected':''}>${esc(pl.name)}</option>`).join('')}</select></label></div><div class="tsl-billing-columns"><label>${esc(t('tsl_bill_validity'))}<div data-plan-range></div></label><label>${esc(t('tsl_bill_currency'))}<select name="currency">${currencyOptions(plan.currency||currency)}</select></label><label>${esc(t('tsl_bill_zone'))}<input name="timezone" required value="${esc(zone)}"></label><label>${esc(t('tsl_bill_kind'))}<select name="kind">${['all','ac','dc'].map(k=>`<option value="${k}" ${(plan.kind||'all')===k?'selected':''}>${esc(k==='all'?t('tsl_bill_all'):k.toUpperCase())}</option>`).join('')}</select></label></div><details class="tsl-note"><summary>${esc(t('tsl_bill_how'))}</summary><p>${esc(t('tsl_bill_rules_hint'))}</p></details><div data-rules></div><button type="button" class="tsl-btn" data-add-rule>＋ ${esc(t('tsl_bill_add_band'))}</button>`,async()=>{
         collect();const f=d.querySelector('form').elements, tz=f.timezone.value.trim();
-        const start=picker.toEpoch(startPicker.value,{type:'date',timeZone:tz}),end=picker.toEpoch(datePlus(endPicker.value,1),{type:'date',timeZone:tz});
+        if(!validityPicker.validate())throw Error('invalid_period');
+        const period=validityPicker.value,start=picker.toEpoch(period.from,{type:'date',timeZone:tz}),end=picker.toEpoch(datePlus(period.to,1),{type:'date',timeZone:tz});
         if(start==null||end==null||start>=end)throw Error('invalid_period');
         await api('/tariffs'+(plan.id?'/'+plan.id:''),{method:plan.id?'PUT':'POST',body:JSON.stringify({name:f.tariff_name.value,place_id:f.place_id.value,start_ts:start,end_ts:end,currency:f.currency.value,timezone:tz,kind:f.kind.value,rules})});done();});
-      const startPicker=picker.create(d.querySelector('[data-plan-start]'),{type:'date',required:true,value:plan.start_ts?picker.fromEpoch(plan.start_ts,dateOpts):year+'-01-01',label:t('tsl_bill_valid_from')});
-      const endPicker=picker.create(d.querySelector('[data-plan-end]'),{type:'date',required:true,value:plan.end_ts?picker.fromEpoch(plan.end_ts-1,dateOpts):year+'-12-31',label:t('tsl_bill_valid_to')});
+      const validityPicker=picker.createRange(d.querySelector('[data-plan-range]'),{required:true,label:t('tsl_bill_validity'),timeZone:zone,value:{from:plan.start_ts?picker.fromEpoch(plan.start_ts,dateOpts):year+'-01-01',to:plan.end_ts?picker.fromEpoch(plan.end_ts-1,dateOpts):year+'-12-31'}});
       const weekdayNames=Array.from({length:7},(_,i)=>new Intl.DateTimeFormat(window.mvmOS.lang||'en',{weekday:'short',timeZone:'UTC'}).format(new Date(Date.UTC(2024,0,1+i))));
-      function collect(){d.querySelectorAll('[data-band]').forEach((el,i)=>{const r=rules[i];r.name=el.querySelector('[data-name]').value;r.price=el.querySelector('[data-price]').value===''?null:+el.querySelector('[data-price]').value;r.days=[...el.querySelectorAll('[data-day]:checked')].map(x=>+x.dataset.day);r.from=rulePickers[i*2].value;r.to=rulePickers[i*2+1].value;for(const key of ['from','to'])r['season_'+key]=(+el.querySelector('[data-season-month="'+key+'"]').value)*100+(+el.querySelector('[data-season-day="'+key+'"]').value);});}
-      function draw(){rulePickers.forEach(p=>p.destroy());rulePickers=[];d.querySelector('[data-rules]').innerHTML=rules.map((r,i)=>`<section class="tsl-bill-rule" data-band="${i}"><div class="tsl-billing-columns"><label>${esc(t('tsl_bill_name'))}<input data-name required maxlength="80" value="${esc(r.name)}"></label><label>${esc(t('tsl_bill_unit_price'))}<input data-price type="number" step="any" min="0" max="100000" required value="${r.price??''}"></label><label>${esc(t('tsl_j_from'))}<div data-band-from></div></label><label>${esc(t('tsl_j_to'))}<div data-band-to></div></label></div><div class="tsl-bill-days">${weekdayNames.map((name,day)=>`<label><input type="checkbox" data-day="${day}" ${r.days.includes(day)?'checked':''}>${esc(name)}</label>`).join('')}</div><div class="tsl-billing-columns">${['from','to'].map(key=>{const md=r['season_'+key]|| (key==='from'?101:1231);return `<label>${esc(t('tsl_bill_season_'+key))}<div class="tsl-bill-season"><select data-season-month="${key}" aria-label="${esc(t('picker_month'))}">${Array.from({length:12},(_,i)=>`<option value="${i+1}" ${i+1===Math.floor(md/100)?'selected':''}>${esc(new Intl.DateTimeFormat(window.mvmOS.lang||'en',{month:'short',timeZone:'UTC'}).format(new Date(Date.UTC(2024,i,1))))}</option>`).join('')}</select><select data-season-day="${key}" aria-label="${esc(t('picker_date'))}">${Array.from({length:31},(_,i)=>`<option value="${i+1}" ${i+1===md%100?'selected':''}>${i+1}</option>`).join('')}</select></div></label>`;}).join('')}</div><button type="button" class="tsl-btn" data-remove-band="${i}">${esc(t('tsl_delete'))}</button></section>`).join('');
-        d.querySelectorAll('[data-band]').forEach((el,i)=>{for(const k of ['from','to'])rulePickers.push(picker.create(el.querySelector('[data-band-'+k+']'),{type:'time',required:true,value:rules[i][k],label:t(k==='from'?'tsl_j_from':'tsl_j_to')}));});
+      function collect(){d.querySelectorAll('[data-band]').forEach((el,i)=>{
+        const r=rules[i],fields=rulePickers[i],season=fields.season.value;
+        if(!fields.season.validate())throw Error('invalid_tariff');
+        r.name=el.querySelector('[data-name]').value;r.price=el.querySelector('[data-price]').value===''?null:+el.querySelector('[data-price]').value;
+        r.days=[...el.querySelectorAll('[data-day]:checked')].map(x=>+x.dataset.day);r.from=fields.from.value;r.to=fields.to.value;
+        r.season_from=+season.from.replace('-','');r.season_to=+season.to.replace('-','');
+      });}
+      function draw(){rulePickers.forEach(fields=>Object.values(fields).forEach(p=>p.destroy()));rulePickers=[];d.querySelector('[data-rules]').innerHTML=rules.map((r,i)=>`<section class="tsl-bill-rule" data-band="${i}"><div class="tsl-billing-columns"><label>${esc(t('tsl_bill_name'))}<input data-name required maxlength="80" value="${esc(r.name)}"></label><label>${esc(t('tsl_bill_unit_price'))}<input data-price type="number" step="any" min="0" max="100000" required value="${r.price??''}"></label><label>${esc(t('tsl_j_from'))}<div data-band-from></div></label><label>${esc(t('tsl_j_to'))}<div data-band-to></div></label></div><div class="tsl-bill-daysrow"><div class="tsl-bill-days">${weekdayNames.map((name,day)=>`<label><input type="checkbox" data-day="${day}" ${r.days.includes(day)?'checked':''}>${esc(name)}</label>`).join('')}</div><label class="tsl-bill-season-field">${esc(t('tsl_bill_season'))}<div data-band-season></div></label></div><button type="button" class="tsl-btn" data-remove-band="${i}">${esc(t('tsl_delete'))}</button></section>`).join('');
+        d.querySelectorAll('[data-band]').forEach((el,i)=>{
+          const fields={};for(const k of ['from','to'])fields[k]=picker.create(el.querySelector('[data-band-'+k+']'),{type:'time',required:true,value:rules[i][k],label:t(k==='from'?'tsl_j_from':'tsl_j_to')});
+          fields.season=picker.createRange(el.querySelector('[data-band-season]'),{annual:true,monthNames:true,required:true,timeZone:zone,label:t('tsl_bill_season'),value:{from:monthDay(rules[i].season_from||101),to:monthDay(rules[i].season_to||1231)}});
+          rulePickers.push(fields);
+        });
         d.querySelectorAll('[data-remove-band]').forEach(b=>b.onclick=()=>{collect();rules.splice(+b.dataset.removeBand,1);draw();});}
       d.querySelector('[data-add-rule]').onclick=()=>{collect();rules.push({name:'',from:'00:00',to:'00:00',days:[0,1,2,3,4,5,6],price:null,season_from:101,season_to:1231});draw();};
-      d.querySelector('[data-flat]').onclick=()=>{rules=[{name:t('tsl_bill_flat'),from:'00:00',to:'00:00',days:[0,1,2,3,4,5,6],price:null,season_from:101,season_to:1231}];draw();};
-      d.querySelector('[data-dual]').onclick=()=>{rules=[{name:t('tsl_bill_day'),from:'07:00',to:'22:00',days:[0,1,2,3,4,5,6],price:null,season_from:101,season_to:1231},{name:t('tsl_bill_night'),from:'22:00',to:'07:00',days:[0,1,2,3,4,5,6],price:null,season_from:101,season_to:1231}];draw();};
-      billingCleanup=()=>{startPicker.destroy();endPicker.destroy();rulePickers.forEach(p=>p.destroy());};draw();
+      billingCleanup=()=>{validityPicker.destroy();rulePickers.forEach(fields=>Object.values(fields).forEach(p=>p.destroy()));};draw();
     }
     async function chargeCostDialog(ch){
       if (!canManage()) return;
@@ -1445,7 +1500,7 @@
       const row = r => {
         const dur = (r.end || d.now) - r.start;
         const col = V.STATE_COL[r.state] || '#64748b';
-        const day = x => new Date(x * 1000).toLocaleDateString((window.mvmOS && window.mvmOS.lang) || 'en', { day: 'numeric', month: 'short' });
+        const day = x => window.mvmOS.dateTimePicker.fromEpoch(x,{type:'date'});
         const sameDay = r.end && day(r.end) === day(r.start);
         return `<div class="tsl-state-event" style="--event-color:${col}"><span class="tsl-event-icon" aria-hidden="true">${STATE_ICON[r.state] || '…'}</span>
           <div class="tsl-event-body"><div class="tsl-event-heading"><b>${esc(t('tsl_st_' + r.state))}</b><strong>${esc(fmt.dur(dur))}</strong></div>
@@ -1476,10 +1531,7 @@
       const costTotals={};for(const row of rows)for(const [code,value] of Object.entries(row.cost_totals||{}))costTotals[code]=(costTotals[code]||0)+value;
       const codes=Object.keys(costTotals),costText=codes.map(c=>money(costTotals[c],c)).join(' · ');
       const label = (key, full) => {
-        const parts = key.split('-').map(Number);
-        const dt = new Date(parts[0], parts[1] - 1, parts[2] || 1);
-        return per.group === 'month' ? dt.toLocaleDateString((window.mvmOS && window.mvmOS.lang) || 'en', { month: 'short', year: full ? 'numeric' : '2-digit' })
-          : dt.toLocaleDateString((window.mvmOS && window.mvmOS.lang) || 'en', { day: 'numeric', month: 'short' });
+        return window.mvmOS.dateTimePicker.format(key.length === 7 ? key + '-01' : key,{type:'date'});
       };
       const series = (k, conv) => rows.map((r, i) => [i, conv ? conv(r[k]) : r[k]]);
       const xf = i => rows[Math.round(i)] ? label(rows[Math.round(i)].key, true) : '';
@@ -1496,11 +1548,11 @@
         <div class="tsl-card"><h3>${esc(t('tsl_stats_cost'))}</h3><div id="tsl-s4"></div></div>
         <div class="tsl-card"><h3>${esc(t('tsl_stats_temp'))}</h3><div id="tsl-s5"></div></div>`;
       p.querySelectorAll('[data-per]').forEach(b => b.addEventListener('click', () => { st.period = b.dataset.per; renderStats(p); }));
-      V.chart(p.querySelector('#tsl-s1'), { type: 'bars', series: [{ color: '#60a5fa', data: series('km', U.dist) }], xFmt: xf, yFmt: v => nf(v), tipFmt: v => nf(v, 1) + ' ' + U.distU(), height: 190 });
-      V.chart(p.querySelector('#tsl-s2'), { type: 'bars', series: [{ color: '#f59e0b', data: series('drive_kwh') }], xFmt: xf, yFmt: v => nf(v), tipFmt: v => nf(v, 1) + ' ' + t('tsl_u_kwh'), height: 170 });
-      V.chart(p.querySelector('#tsl-s3'), { type: 'bars', series: [{ color: '#4ade80', data: series('charged_kwh') }], xFmt: xf, yFmt: v => nf(v), tipFmt: v => nf(v, 1) + ' ' + t('tsl_u_kwh'), height: 170 });
-      V.chart(p.querySelector('#tsl-s4'), { type: 'bars', series: codes.map((code,i)=>({label:code,color:['#a78bfa','#34d399','#60a5fa'][i%3],data:rows.map((r,n)=>[n,(r.cost_totals||{})[code]||0])})), xFmt: xf, yFmt: v => nf(v), tipFmt:(v,series)=>money(v,series.label), height: 170 });
-      V.chart(p.querySelector('#tsl-s5'), { type: 'dots', series: [{ color: '#f472b6', data: d.efficiency.map(e => [U.temp(e.t), U.eff(e.wh_km)]) }], xFmt: x => nf(x) + U.tempU(), yFmt: v => nf(v), tipFmt: v => nf(v) + ' ' + U.effU(), yMin: 0, height: 190 });
+      V.chart(p.querySelector('#tsl-s1'), { type: 'bars', series: [{ color: 'var(--tsl-blue,#60a5fa)', data: series('km', U.dist) }], xFmt: xf, yFmt: v => nf(v), tipFmt: v => nf(v, 1) + ' ' + U.distU(), height: 190 });
+      V.chart(p.querySelector('#tsl-s2'), { type: 'bars', series: [{ color: 'var(--tsl-amber,#f59e0b)', data: series('drive_kwh') }], xFmt: xf, yFmt: v => nf(v), tipFmt: v => nf(v, 1) + ' ' + t('tsl_u_kwh'), height: 170 });
+      V.chart(p.querySelector('#tsl-s3'), { type: 'bars', series: [{ color: 'var(--tsl-green,#4ade80)', data: series('charged_kwh') }], xFmt: xf, yFmt: v => nf(v), tipFmt: v => nf(v, 1) + ' ' + t('tsl_u_kwh'), height: 170 });
+      V.chart(p.querySelector('#tsl-s4'), { type: 'bars', series: codes.map((code,i)=>({label:code,color:['var(--tsl-purple,#a78bfa)','var(--tsl-success,#34d399)','var(--tsl-blue,#60a5fa)'][i%3],data:rows.map((r,n)=>[n,(r.cost_totals||{})[code]||0])})), xFmt: xf, yFmt: v => nf(v), tipFmt:(v,series)=>money(v,series.label), height: 170 });
+      V.chart(p.querySelector('#tsl-s5'), { type: 'dots', series: [{ color: 'var(--tsl-pink,#f472b6)', data: d.efficiency.map(e => [U.temp(e.t), U.eff(e.wh_km)]) }], xFmt: x => nf(x) + U.tempU(), yFmt: v => nf(v), tipFmt: v => nf(v) + ' ' + U.effU(), yMin: 0, height: 190 });
     }
 
     // ── Battery and sleep ─────────────────────────────────────────────────
@@ -1522,13 +1574,12 @@
         <div id="tsl-b1" style="margin-top:12px"></div><div class="tsl-note">${esc(t('tsl_bat_note'))}</div></div>
         <div class="tsl-card"><h3>${esc(t('tsl_bat_sleep'))}</h3><div id="tsl-b2"></div><div class="tsl-note">${esc(t('tsl_bat_sleep_note'))}</div></div>
         <div class="tsl-card"><h3>${esc(t('tsl_bat_drain'))}</h3>${dr.length ? `<div class="tsl-drain-list">` + dr.slice().reverse().slice(0, 12).map(x => `<div class="tsl-drain-entry"><div class="tsl-drive-meta"><b>${esc(fmt.date(x.start))}</b><span class="tsl-drive-duration">☾ ${esc(fmt.dur(x.hours * 3600))}</span></div><div class="tsl-drain-values"><strong>−${esc(nf(x.lost_pct,1))}%</strong><span>−${esc(fmt.dist(x.lost_km, 1))}</span></div><div class="tsl-state-share" aria-hidden="true"><i style="width:${Math.min(100,Math.max(0,x.lost_pct))}%;background:#fb923c"></i></div></div>`).join('') + '</div>' : `<div class="tsl-empty">${esc(t('tsl_bat_drain_none'))}</div>`}</div>`;
-      const ms = k => { const [y, m, dd] = k.split('-').map(Number); return new Date(y, m - 1, dd); };
-      V.chart(p.querySelector('#tsl-b1'), { type: 'line', series: [{ color: '#60a5fa', data: s.map((x, i) => [i, U.dist(x.full_km)]) }], xFmt: i => s[Math.round(i)] ? ms(s[Math.round(i)].day).toLocaleDateString((window.mvmOS && window.mvmOS.lang) || 'en', { day: 'numeric', month: 'short' }) : '', yFmt: v => nf(v), tipFmt: v => nf(v, 0) + ' ' + U.distU(), yMin: s.length ? Math.floor(Math.min.apply(null, s.map(x => U.dist(x.full_km))) * 0.97) : 0, height: 190, empty: t('tsl_bat_drain_none') });
+      V.chart(p.querySelector('#tsl-b1'), { type: 'line', series: [{ color: 'var(--tsl-blue,#60a5fa)', data: s.map((x, i) => [i, U.dist(x.full_km)]) }], xFmt: i => s[Math.round(i)] ? window.mvmOS.dateTimePicker.format(s[Math.round(i)].day,{type:'date'}) : '', yFmt: v => nf(v), tipFmt: v => nf(v, 0) + ' ' + U.distU(), yMin: s.length ? Math.floor(Math.min.apply(null, s.map(x => U.dist(x.full_km))) * 0.97) : 0, height: 190, empty: t('tsl_bat_drain_none') });
       const days = d.sleep, pct = k => days.map((x, i) => { const sum = x.asleep + x.online + x.driving + x.charging + x.offline || 1; return [i, x[k] / sum * 100]; });
       V.chart(p.querySelector('#tsl-b2'), { type: 'stack', yMax: 100, series: [
         { label: t('tsl_st_asleep'), color: V.STATE_COL.asleep, data: pct('asleep') }, { label: t('tsl_st_online'), color: V.STATE_COL.online, data: pct('online') },
         { label: t('tsl_st_charging'), color: V.STATE_COL.charging, data: pct('charging') }, { label: t('tsl_st_driving'), color: V.STATE_COL.driving, data: pct('driving') }],
-        xFmt: i => days[Math.round(i)] ? ms(days[Math.round(i)].day).toLocaleDateString((window.mvmOS && window.mvmOS.lang) || 'en', { day: 'numeric', month: 'short' }) : '', yFmt: v => nf(v) + '%', tipFmt: v => nf(v) + '%', height: 190 });
+        xFmt: i => days[Math.round(i)] ? window.mvmOS.dateTimePicker.format(days[Math.round(i)].day,{type:'date'}) : '', yFmt: v => nf(v) + '%', tipFmt: v => nf(v) + '%', height: 190 });
     }
 
     // ── Settings ──────────────────────────────────────────────────────────
@@ -1686,7 +1737,7 @@
       return body || extra ? `<div class="tsl-card"><h3>${esc(title)}</h3>${body ? `<div class="tsl-grid">${body}</div>` : ''}${extra || ''}</div>` : '';
     }
     const epoch = x => x && x > 1e9 ? esc(fmt.dateTime(x)) : '–';
-    function tireDetails(d, sample) {
+    function tireDetails(d, sample, compact) {
       const vs = sec(d, 'vehicle_state');
       sample = sample || {};
       const rcpF = vs.tpms_rcp_front_value, rcpR = vs.tpms_rcp_rear_value;
@@ -1698,12 +1749,12 @@
       return `<div class="tsl-card"><h3>${esc(t('tsl_c_tires'))}</h3>
         <div class="tsl-tires">${tireBox(TIRE_KEYS[0])}<div class="tsl-tcar"><svg viewBox="0 0 90 170"><rect x="14" y="6" width="62" height="158" rx="26" fill="var(--pub-surface2,#252d45)" stroke="#8a93a6" stroke-width="3"/><rect x="24" y="40" width="42" height="26" rx="8" fill="#0b1020" opacity=".7"/><rect x="24" y="108" width="42" height="26" rx="8" fill="#0b1020" opacity=".7"/></svg></div>${tireBox(TIRE_KEYS[1])}${tireBox(TIRE_KEYS[2])}<div class="tsl-tgap"></div>${tireBox(TIRE_KEYS[3])}</div>
         <div class="tsl-note">${rcpF || rcpR ? esc(t('tsl_c_rcp')) + ': ' + esc(barFmt(rcpF)) + (rcpR && rcpR !== rcpF ? ' / ' + esc(barFmt(rcpR)) : '') : ''}</div>
-        <h3 style="margin-top:14px">${esc(t('tsl_c_tires_chart'))}</h3><div data-tirechart></div><div class="tsl-tire-legend">${TIRE_KEYS.map((k, i) => `<span><i style="color:${['#60a5fa', '#4ade80', '#fbbf24', '#f472b6'][i]}">●</i> ${esc(t(k[1]))}</span>`).join('')}</div></div>`;
+        ${compact ? `<details class="tsl-tire-history"><summary>${esc(t('tsl_c_tires_chart'))}</summary>` : `<h3 style="margin-top:14px">${esc(t('tsl_c_tires_chart'))}</h3>`}<div data-tirechart></div><div class="tsl-tire-legend">${TIRE_KEYS.map((k, i) => `<span><i style="color:${['var(--tsl-blue,#60a5fa)', 'var(--tsl-green,#4ade80)', 'var(--tsl-warning,#fbbf24)', 'var(--tsl-pink,#f472b6)'][i]}">●</i> ${esc(t(k[1]))}</span>`).join('')}</div>${compact ? '</details>' : ''}</div>`;
 
     }
     function drawTireChart(el, tr) {
         const rows = (tr.rows || []).filter(r => r.slice(1, 5).some(v => v != null && Number.isFinite(v)));
-        const names = ['fl', 'fr', 'rl', 'rr'], cols = ['#60a5fa', '#4ade80', '#fbbf24', '#f472b6'];
+        const names = ['fl', 'fr', 'rl', 'rr'], cols = ['var(--tsl-blue,#60a5fa)', 'var(--tsl-green,#4ade80)', 'var(--tsl-warning,#fbbf24)', 'var(--tsl-pink,#f472b6)'];
         const conv = x => U.imperial ? x * 14.5038 : x;
         V.chart(el, { type: 'line', area: false,
           series: names.map((n, i) => ({ label: t(TIRE_KEYS[i][1]), color: cols[i], data: rows.map((r, j) => [j, r[i + 1] != null ? conv(r[i + 1]) : null]).filter(x => x[1] != null) })).filter(series => series.data.length),
@@ -1746,7 +1797,7 @@
       const sw = vs.software_update || {};
       const door = (k, label) => present(vs, k) ? indicator(t(label), !vs[k], k.includes('window') ? 'window' : 'door', t('tsl_c_closed'), t('tsl_c_open'), !!vs[k]) : '';
 
-      const tiresHtml = TIRE_KEYS.some(k => present(vs, 'tpms_pressure_' + k[0])) ? tireDetails(d) : '';
+      const tiresHtml = TIRE_KEYS.some(k => present(vs, 'tpms_pressure_' + k[0])) ? tireDetails(d, null, true) : '';
 
       // Doors, windows, locks
       const doors = carCard(t('tsl_c_doors'), [
@@ -1826,7 +1877,7 @@
       ]);
 
       p.innerHTML = `<div class="tsl-note" style="margin:10px 4px 0">${esc(t('tsl_d_last', { t: fmt.ago(d.ts) }))}</div>${tiresHtml}${doors}${climate}${charging}${software}${config}`;
-      if (tiresHtml) drawTireChart(p.querySelector('[data-tirechart]'), tr);
+      if (tiresHtml) p.querySelector('.tsl-tire-history').addEventListener('toggle', e => {if(e.currentTarget.open)drawTireChart(p.querySelector('[data-tirechart]'),tr);});
     }
 
     // ── Data: every field the car reports, with its history ───────────────
@@ -1896,7 +1947,7 @@
         const pts = r.points.map(x => [x[0], convField(path, x[1]).num]).filter(x => x[1] != null);
         if (pts.length < 2) { box.innerHTML = `<div class="tsl-empty">${esc(t('tsl_d_no_series'))}</div>`; return; }
         const unit = convField(path, r.points[0][1]).unit || '';
-        V.chart(box, { type: 'line', series: [{ color: '#60a5fa', data: pts }], xFmt: (x, full) => full ? fmt.dateTime(x) : (pts[pts.length - 1][0] - pts[0][0] < 129600 ? fmt.time(x) : fmt.date(x)),
+        V.chart(box, { type: 'line', series: [{ color: 'var(--tsl-blue,#60a5fa)', data: pts }], xFmt: (x, full) => full ? fmt.dateTime(x) : (pts[pts.length - 1][0] - pts[0][0] < 129600 ? fmt.time(x) : fmt.date(x)),
           yFmt: v => nf(v, Math.abs(v) < 10 ? 1 : 0), tipFmt: v => nf(v, 2) + (unit ? ' ' + unit : ''), height: 220, yMin: Math.min.apply(null, pts.map(x => x[1])) });
       }
       dlg.querySelectorAll('[data-h]').forEach(b => b.addEventListener('click', () => { hours = +b.dataset.h; dlg.querySelectorAll('[data-h]').forEach(x => x.classList.toggle('on', x === b)); load(); }));
@@ -2044,7 +2095,7 @@
     boot();
 
     return {
-      destroy() { destroyed = true;window.removeEventListener('blur',releasePointers);document.removeEventListener('visibilitychange',visibilityChanged);pendingQuiet=null;clearTimeout(quietTimer);document.removeEventListener('pointerdown',pointerDown,true);document.removeEventListener('pointerup',pointerEnd,true);document.removeEventListener('pointercancel',pointerEnd,true);scroller.removeEventListener('scroll',interacted);scroller.removeEventListener('wheel',interacted);closeBillingDialog(); closeJourneyDialog(); if (statusDialog) { statusDialog.close(); statusDialog.remove(); statusDialog = null; } if (chargingDialog) { chargingDialog.close(); chargingDialog.remove(); chargingDialog = null; } if (tireDialog) { tireDialog.close(); tireDialog.remove(); tireDialog = null; } clearInterval(timer); clearMaps(); const x = document.querySelector('.tsl-toast'); if (x) x.remove(); },
+      destroy() { themeObserver.disconnect();document.removeEventListener('load',syncTheme,true);destroyed = true;window.removeEventListener('blur',releasePointers);document.removeEventListener('visibilitychange',visibilityChanged);pendingQuiet=null;clearTimeout(quietTimer);document.removeEventListener('pointerdown',pointerDown,true);document.removeEventListener('pointerup',pointerEnd,true);document.removeEventListener('pointercancel',pointerEnd,true);scroller.removeEventListener('scroll',interacted);scroller.removeEventListener('wheel',interacted);closeBillingDialog(); closeJourneyDialog(); if (statusDialog) { statusDialog.close(); statusDialog.remove(); statusDialog = null; } if (chargingDialog) { chargingDialog.close(); chargingDialog.remove(); chargingDialog = null; } if (tireDialog) { tireDialog.close(); tireDialog.remove(); tireDialog = null; } clearInterval(timer); clearMaps(); const x = document.querySelector('.tsl-toast'); if (x) x.remove(); },
     };
   }
 

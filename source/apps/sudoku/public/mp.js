@@ -110,7 +110,7 @@
     root.innerHTML =
       '<div class="sd-wrap">' +
         '<div class="sd-players"></div>' +
-        '<div class="sd-status">' + tile('df', 'sd_hud_diff') + tile('tm', 'sd_hud_time') + tile('pts', 'sd_hud_points') + tile('er', 'sd_hud_errors') + '</div>' +
+        '<div class="sd-status">' + tile('df', 'sd_hud_diff') + tile('tm', 'sd_hud_time') + tile('pts', 'sd_hud_points') + tile('er', 'sd_hud_errors') + '</div><div data-gh-stage></div>' +
         '<div class="sd-stage"><div class="sd-load">' + _esc(_t('sd_waiting')) + '</div></div>' +
         '<div class="sd-foot"><button class="sd-snd" data-snd title="' + _esc(_t('sd_sound')) + '"></button></div>' +
       '</div>';
@@ -290,6 +290,7 @@
     if (!M || !el.df) return;
     el.df.textContent = _t('sd_diff_' + M.diff);
     el.pts.textContent = fmt(myPts());
+    if (mp.stageRecords) mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:difficulty:' + M.diff, myPts(), { difficulty: true });
     el.er.textContent = mist;
     paintClock();
     const me = meId();
@@ -302,6 +303,7 @@
     if (_stopClock) return;
     el.tm.textContent = clock((performance.now() - _t0) / 1000);
     el.pts.textContent = fmt(myPts());
+    if (mp.stageRecords) mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:difficulty:' + M.diff, myPts(), { difficulty: true });
     if (M.order.length > 1) paintPlayers();
   }
 
@@ -574,6 +576,7 @@
         paintPlayers();
         break;
       case 'sd_done':
+        if (mp.stageRecords) mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:difficulty:' + M.diff, m.points, { difficulty: true, refresh: true, records: m.stage_records });
         M.done = true; _stopClock = true;
         pts = m.points; paintStatus(); paintTools();
         el.tm.textContent = clock(m.time);
@@ -646,11 +649,12 @@
         (m.timecost ? '<div><span>' + _esc(_t('sd_bd_time')) + '</span><b>−' + fmt(m.timecost) + '</b></div>' : '') +
         '<div class="tot"><span>' + _esc(_t('sd_hud_points')) + '</span><b>' + fmt(m.points) + '</b></div>' +
       '</div>' +
-      '<h4>' + _esc(_t('sd_watching')) + '</h4>' +
+      '<div data-gh-stage-done></div><h4>' + _esc(_t('sd_watching')) + '</h4>' +
       '<div class="sd-peers"></div>' +
       '<p class="sd-hint">' + _esc(_t('sd_leave_note')) + '</p>' +
       '<div class="sd-acts"><a class="sd-btn" href="' + HUB_URL + '">' + _esc(_t('sd_back')) + '</a></div></div>';
     el.stage.appendChild(d);
+    if (mp.stageRecords) mp.stageRecords(d.querySelector('[data-gh-stage-done]'), 'v1:difficulty:' + M.diff, m.points, { difficulty: true });
     paintPeers();
   }
 
@@ -683,9 +687,10 @@
     ov.innerHTML =
       '<div class="sd-card"><h2>' + _esc(title) + '</h2>' + breakdown + '<div class="sd-rows">' + rows + '</div>' +
       (multi ? '' : '<p class="sd-hint">' + _esc(_t('sd_saved_note')) + '</p>') +
-      '<div class="sd-acts"><button class="sd-btn go" data-again>' + _esc(multi ? _t('sd_play_again') : _t('sd_new_game')) + '</button>' +
+      '<div data-gh-stage-final></div><section data-gh-results></section><div class="sd-acts"><button class="sd-btn go" data-again>' + _esc(multi ? _t('sd_play_again') : _t('sd_new_game')) + '</button>' +
       '<a class="sd-btn" href="' + HUB_URL + '">' + _esc(_t('sd_back')) + '</a></div></div>';
     el.stage.appendChild(ov);
+    if (mp.stageRecords) mp.stageRecords(ov.querySelector('[data-gh-stage-final]'), 'v1:difficulty:' + M.diff, mine ? mine.points : null, { difficulty: true });
     if (multi && mine && mine.rank === 1 && mine.points > 0) { sfx.win(); confetti(); }
     ov.querySelector('[data-again]').onclick = e => playAgain(e.currentTarget);
   }

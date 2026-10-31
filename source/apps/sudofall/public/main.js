@@ -15,7 +15,8 @@ mvmOS.registerApp({
       height: 660,
       minWidth: 380,
       minHeight: 520,
-      onMount(body) {
+      async onMount(body) {
+        await _sfStringsReady;
         body.style.cssText = 'padding:0;overflow:hidden;display:flex;flex-direction:column;height:100%;background:var(--surface,#1e1e2e)';
         if (isMP && roomId) {
           SudofallGame.joinMultiplayer(body, roomId);
@@ -27,36 +28,14 @@ mvmOS.registerApp({
   }
 });
 
-const _sf18n = {
-  en: {
-    score: 'Score', drop: 'DROP', next: 'Next', time: 'Time',
-    new_game: '↺ New', game_over: 'Game Over!', final_score: 'Final Score:',
-    time_label: 'Time:', play_again: 'Play Again', joker_title: 'Joker — choose a number',
-    mp_waiting: 'Waiting for opponent…', mp_share_link: 'Share the link with your friend',
-    mp_link_expired: 'Link Expired',
-    mp_room_gone: 'This game room no longer exists.<br>Ask your opponent to create a new game.',
-    mp_room_ttl: 'Rooms expire after 1 hour of inactivity',
-    mp_opponent_disconnected: 'Opponent Disconnected',
-    mp_opponent_left: 'Your opponent has left the game.',
-    back_to_menu: 'Back to Menu',
-    mp_draw: 'Draw!', mp_win: '🏆 You win!', mp_lose: '😔 You lose',
-  },
-  bg: {
-    score: 'Точки', drop: 'ПУСНИ', next: 'Следващо', time: 'Време',
-    new_game: '↺ Ново', game_over: 'Край на играта!', final_score: 'Резултат:',
-    time_label: 'Време:', play_again: 'Играй пак', joker_title: 'Джокер — избери число',
-    mp_waiting: 'Изчакване на опонент…', mp_share_link: 'Сподели линка с приятел',
-    mp_link_expired: 'Линкът е изтекъл',
-    mp_room_gone: 'Тази стая вече не съществува.<br>Помоли опонента си да създаде нова игра.',
-    mp_room_ttl: 'Стаите изтичат след 1 час неактивност',
-    mp_opponent_disconnected: 'Опонентът се разкачи',
-    mp_opponent_left: 'Опонентът напусна играта.',
-    back_to_menu: 'Обратно в менюто',
-    mp_draw: 'Равенство!', mp_win: '🏆 Ти печелиш!', mp_lose: '😔 Ти губиш',
-  },
-};
+const _sfStringsReady = new Promise((resolve, reject) => {
+  const script = document.createElement('script');
+  script.src = window.asset('/apps/sudofall/i18n.js');
+  script.onload = resolve; script.onerror = reject;
+  document.head.appendChild(script);
+});
 const SudofallGame = (() => {
-  const t = k => { const lang = window.mvmOS?.lang || 'en'; return (_sf18n[lang] || _sf18n.en)[k] || k; };
+  const t = k => window._i18n?.['sf_' + k] || k;
 
   let grid = [];
   let current = 0;
@@ -131,7 +110,7 @@ const SudofallGame = (() => {
     // Highlight all non-empty cells and wait for click
     const cells = _body.querySelectorAll('.sf-cell');
     const instruction = document.createElement('div');
-    instruction.style.cssText = 'position:absolute;top:8px;left:0;right:0;z-index:40;text-align:center;font-size:.8rem;color:#f38ba8;font-weight:600;pointer-events:none';
+    instruction.style.cssText = 'position:absolute;top:8px;left:0;right:0;z-index:40;text-align:center;font-size:.8rem;color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)));font-weight:600;pointer-events:none';
     instruction.textContent = '💣 Choose a cell to destroy';
     _body.appendChild(instruction);
 
@@ -256,12 +235,16 @@ const SudofallGame = (() => {
   // ── Game Hub helpers ───────────────────────────────────────────────────────
 
   function _loadGameHub(cb) {
-    if (window.GameHub) { window.GameHub.init().then(cb); return; }
-    const s = document.createElement('script');
-    s.src = `/apps/gamehub/widget.js?_=${Date.now()}`;
-    s.onload  = () => window.GameHub?.init().then(cb) || cb();
-    s.onerror = cb;
-    document.head.appendChild(s);
+    const load = src => new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = window.asset(src); script.onload = resolve; script.onerror = reject;
+      document.head.appendChild(script);
+    });
+    (async () => {
+      if (!window.GAMEHUB_I18N) await load('/apps/gamehub/i18n.js');
+      if (!window.GameHub) await load('/apps/gamehub/widget.js');
+      await window.GameHub.init(); cb();
+    })().catch(cb);
   }
 
   function _avatar(player, size) {
@@ -302,6 +285,8 @@ const SudofallGame = (() => {
 
   function _recordGhSession() {
     if (!_ghPlayer || !window.GameHub) return;
+    const host = _msgEl && _msgEl.querySelector('[data-gh-results]');
+    const run = host && host._ghRun;
     window.GameHub.recordSession({
       game_id: 'sudofall',
       mode: 'singleplayer',
@@ -309,10 +294,13 @@ const SudofallGame = (() => {
                   stats: { cleared: clearedTotal, dropped, score_per_minute: elapsed ? score * 60 / elapsed : 0 } }],
       duration_seconds: elapsed,
       metadata: {},
-    }).catch(() => {});
+    }).then(r => { if (host && host._ghRun === run && gameOver) window.GameHub.showStandings(host, { gameId: 'sudofall', mode: 'single', playerId: _ghPlayer.id, recorded: r.ok }); })
+      .catch(() => { if (host && host._ghRun === run && gameOver) window.GameHub.showStandings(host, { recorded: false }); });
   }
 
   function initState() {
+    const previousRank = _msgEl && _msgEl.querySelector('[data-gh-results]');
+    if (previousRank) { previousRank.innerHTML = ''; previousRank._ghRequest = null; previousRank._ghRun = {}; }
     grid = Array.from({length: 9}, () => Array(9).fill(0));
     if (!_mpMode) {
       current = newNum();
@@ -797,11 +785,11 @@ if (msg.type === 'joined') _mp.playerIndex = msg.player;
             <div id="sf-opp-game" style="flex:1;min-height:0;opacity:.7"></div>
           </div>
         </div>
-        <div id="sf-gameover" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.85);z-index:10;flex-direction:column;align-items:center;justify-content:center;gap:12px;border-radius:8px">
-          <div id="sf-mp-result" style="font-size:1.4rem;font-weight:700;color:#f9e2af"></div>
+        <div id="sf-gameover" style="display:none;position:absolute;inset:0;background:var(--surface,#1e1e2e);z-index:10;flex-direction:column;align-items:center;justify-content:center;gap:12px;border-radius:8px">
+          <div id="sf-mp-result" style="font-size:1.4rem;font-weight:700;color:color-mix(in srgb,#f9e2af 35%,var(--fg,var(--text,#cdd6f4)))"></div>
           <div id="sf-go-score" style="font-size:1rem;color:var(--text,#cdd6f4)"></div>
           <div id="sf-go-time" style="font-size:.85rem;color:var(--text-dim,#a6adc8)"></div>
-          <button id="sf-mp-play-again" style="padding:10px 28px;background:var(--accent,#6366f1);border:none;border-radius:8px;color:#fff;font-size:1rem;font-weight:600;cursor:pointer">${t('play_again')}</button>
+          <button id="sf-mp-play-again" style="padding:10px 28px;background:var(--accent,#6366f1);border:none;border-radius:8px;color:var(--on-accent,var(--surface,var(--surface1,#fff)));font-size:1rem;font-weight:600;cursor:pointer">${t('play_again')}</button>
         </div>
       </div>`;
 
@@ -935,9 +923,9 @@ if (msg.type === 'joined') _mp.playerIndex = msg.player;
     if (existing) return;
     const el = document.createElement('div');
     el.id = 'sf-mp-waiting';
-    el.style.cssText = 'position:absolute;inset:0;background:rgba(0,0,0,.8);z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border-radius:8px';
-    el.innerHTML = `<div style="font-size:1.2rem;font-weight:700;color:#cdd6f4">${t('mp_waiting')}</div>
-      <div style="font-size:.85rem;color:#a6adc8">${t('mp_share_link')}</div>`;
+    el.style.cssText = 'position:absolute;inset:0;background:var(--surface,#1e1e2e);z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border-radius:8px';
+    el.innerHTML = `<div style="font-size:1.2rem;font-weight:700;color:var(--fg,var(--text,#cdd6f4))">${t('mp_waiting')}</div>
+      <div style="font-size:.85rem;color:var(--fg2,var(--text-dim,#a6adc8))">${t('mp_share_link')}</div>`;
     _body.appendChild(el);
   }
 
@@ -947,7 +935,7 @@ if (msg.type === 'joined') _mp.playerIndex = msg.player;
       <div style="display:flex;flex-direction:column;height:100%;align-items:center;justify-content:center;gap:20px;padding:32px;background:var(--surface,#1e1e2e)">
         <div style="width:72px;height:72px;border-radius:50%;background:rgba(243,139,168,.15);border:2px solid rgba(243,139,168,.3);display:flex;align-items:center;justify-content:center;font-size:2rem">⏰</div>
         <div style="text-align:center">
-          <div style="font-size:1.1rem;font-weight:700;color:#f38ba8;margin-bottom:8px">${t('mp_link_expired')}</div>
+          <div style="font-size:1.1rem;font-weight:700;color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)));margin-bottom:8px">${t('mp_link_expired')}</div>
           <div style="font-size:.82rem;color:var(--text-dim,#a6adc8);line-height:1.6">${t('mp_room_gone')}</div>
         </div>
         <div style="width:100%;max-width:280px;height:1px;background:var(--border,#45475a)"></div>
@@ -961,11 +949,11 @@ if (msg.type === 'joined') _mp.playerIndex = msg.player;
       <div style="display:flex;flex-direction:column;height:100%;align-items:center;justify-content:center;gap:20px;padding:32px;background:var(--surface,#1e1e2e)">
         <div style="width:72px;height:72px;border-radius:50%;background:rgba(243,139,168,.15);border:2px solid rgba(243,139,168,.3);display:flex;align-items:center;justify-content:center;font-size:2rem">🔌</div>
         <div style="text-align:center">
-          <div style="font-size:1.1rem;font-weight:700;color:#f38ba8;margin-bottom:8px">${t('mp_opponent_disconnected')}</div>
+          <div style="font-size:1.1rem;font-weight:700;color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)));margin-bottom:8px">${t('mp_opponent_disconnected')}</div>
           <div style="font-size:.82rem;color:var(--text-dim,#a6adc8);line-height:1.6">${t('mp_opponent_left')}</div>
         </div>
         <div style="width:100%;max-width:280px;height:1px;background:var(--border,#45475a)"></div>
-        <button id="sf-disconnect-back" style="padding:10px 28px;background:var(--accent,#6366f1);border:none;border-radius:8px;color:#fff;font-size:.95rem;font-weight:600;cursor:pointer">${t('back_to_menu')}</button>
+        <button id="sf-disconnect-back" style="padding:10px 28px;background:var(--accent,#6366f1);border:none;border-radius:8px;color:var(--on-accent,var(--surface,var(--surface1,#fff)));font-size:.95rem;font-weight:600;cursor:pointer">${t('back_to_menu')}</button>
       </div>`;
     _body.querySelector('#sf-disconnect-back').addEventListener('click', () => {
       _mpLeave();
@@ -990,7 +978,7 @@ if (msg.type === 'joined') _mp.playerIndex = msg.player;
       <div style="display:flex;flex-direction:column;height:100%;align-items:center;justify-content:center;gap:16px;padding:24px;background:var(--surface,#1e1e2e)">
         <div style="font-size:1.8rem">🔢</div>
         <div style="font-size:1.3rem;font-weight:700;color:var(--text,#cdd6f4)">Sudofall</div>
-        <button id="sf-btn-single" style="width:200px;padding:12px;background:var(--accent,#6366f1);border:none;border-radius:8px;color:#fff;font-size:1rem;font-weight:600;cursor:pointer">🎮 Single Player</button>
+        <button id="sf-btn-single" style="width:200px;padding:12px;background:var(--accent,#6366f1);border:none;border-radius:8px;color:var(--on-accent,var(--surface,var(--surface1,#fff)));font-size:1rem;font-weight:600;cursor:pointer">🎮 Single Player</button>
         <button id="sf-btn-multi" style="width:200px;padding:12px;background:var(--surface2,#313244);border:1px solid var(--border,#45475a);border-radius:8px;color:var(--text,#cdd6f4);font-size:1rem;font-weight:600;cursor:pointer">👥 Multiplayer</button>
         <div id="sf-gh-section" style="width:200px"></div>
       </div>`;
@@ -1030,7 +1018,7 @@ if (msg.type === 'joined') _mp.playerIndex = msg.player;
           <div style="font-size:1.1rem;font-weight:700;color:var(--text,#cdd6f4)">👥 Multiplayer</div>
           <div style="font-size:.8rem;color:var(--text-dim,#a6adc8);text-align:center">Share this link with your opponent:</div>
           <div style="background:var(--surface2,#313244);border:1px solid var(--border,#45475a);border-radius:8px;padding:10px 14px;font-size:.75rem;word-break:break-all;color:#89b4fa;max-width:320px;text-align:center;user-select:all">${link}</div>
-          <button id="sf-copy-link" style="padding:8px 24px;background:var(--accent,#6366f1);border:none;border-radius:6px;color:#fff;cursor:pointer;font-size:.9rem;font-weight:600">📋 Copy link</button>
+          <button id="sf-copy-link" style="padding:8px 24px;background:var(--accent,#6366f1);border:none;border-radius:6px;color:var(--on-accent,var(--surface,var(--surface1,#fff)));cursor:pointer;font-size:.9rem;font-weight:600">📋 Copy link</button>
           <div id="sf-invite-wrap"></div>
           <div id="sf-players-status" style="font-size:.85rem;color:var(--text-dim,#a6adc8);text-align:center;line-height:1.8">✅ ${_myName()}<br>⏳ Waiting for opponent…</div>
           <button id="sf-ready" style="padding:10px 28px;background:var(--surface2,#313244);border:1px solid var(--border,#45475a);border-radius:8px;color:var(--text-dim,#a6adc8);cursor:pointer;font-size:.9rem" disabled>⏳ Waiting for opponent…</button>
@@ -1063,10 +1051,10 @@ if (msg.type === 'joined') _mp.playerIndex = msg.player;
         const wrap = body.querySelector('#sf-invite-wrap');
         wrap.style.cssText = 'width:100%;max-width:320px;text-align:left';
         wrap.innerHTML = `
-          <div style="font-size:.75rem;color:#a6adc8;margin-bottom:6px">🎮 Invite from Game Hub:</div>
+          <div style="font-size:.75rem;color:var(--fg2,var(--text-dim,#a6adc8));margin-bottom:6px">🎮 Invite from Game Hub:</div>
           <div id="sf-fav-list" style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px"></div>
-          <button id="sf-invite-send" style="width:100%;padding:7px 0;background:var(--surface2,#313244);border:1px solid var(--border,#45475a);border-radius:6px;color:#cdd6f4;cursor:pointer;font-size:.82rem" disabled>Send invitations</button>
-          <div id="sf-invite-status" style="font-size:.75rem;color:#a6adc8;text-align:center;margin-top:4px;min-height:16px"></div>`;
+          <button id="sf-invite-send" style="width:100%;padding:7px 0;background:var(--surface2,#313244);border:1px solid var(--border,#45475a);border-radius:6px;color:var(--fg,var(--text,#cdd6f4));cursor:pointer;font-size:.82rem" disabled>Send invitations</button>
+          <div id="sf-invite-status" style="font-size:.75rem;color:var(--fg2,var(--text-dim,#a6adc8));text-align:center;margin-top:4px;min-height:16px"></div>`;
 
         const listEl = wrap.querySelector('#sf-fav-list');
         const sendBtn = wrap.querySelector('#sf-invite-send');
@@ -1080,7 +1068,7 @@ if (msg.type === 'joined') _mp.playerIndex = msg.player;
           row.innerHTML = `
             <input type="checkbox" id="sf-cb-${f.id}" style="accent-color:#89b4fa;cursor:pointer;width:15px;height:15px;flex-shrink:0">
             ${avatarHtml}
-            <span style="font-size:.83rem;font-weight:600;color:#cdd6f4">${f.display_name||f.username||'?'}</span>`;
+            <span style="font-size:.83rem;font-weight:600;color:var(--fg,var(--text,#cdd6f4))">${f.display_name||f.username||'?'}</span>`;
           const cb = row.querySelector('input');
           row.addEventListener('click', e => { if (e.target !== cb) cb.click(); });
           cb.addEventListener('change', () => {
@@ -1201,7 +1189,7 @@ if (msg.type === 'joined') _mp.playerIndex = msg.player;
             </div>
             <div style="text-align:center">
               <div style="font-size:.7rem;color:var(--text-dim,#a6adc8);margin-bottom:3px">💣</div>
-              <div id="sf-bombs" style="font-size:1rem;font-weight:700;color:#f38ba8;min-width:24px;text-align:center">💣 0</div>
+              <div id="sf-bombs" style="font-size:1rem;font-weight:700;color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)));min-width:24px;text-align:center">💣 0</div>
             </div>
           </div>
           <button id="sf-restart" style="padding:5px 14px;font-size:.8rem;background:var(--surface2,#313244);border:1px solid var(--border,#45475a);border-radius:6px;color:var(--text,#cdd6f4);cursor:pointer">${t('new_game')}</button>
@@ -1220,11 +1208,11 @@ if (msg.type === 'joined') _mp.playerIndex = msg.player;
         </div>
 
         <!-- Game over -->
-        <div id="sf-gameover" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,.8);z-index:10;flex-direction:column;align-items:center;justify-content:center;gap:16px;border-radius:8px">
-          <div style="font-size:1.8rem;font-weight:700;color:#f9e2af">${t('game_over')}</div>
+        <div id="sf-gameover" style="display:none;position:absolute;inset:0;background:var(--surface,#1e1e2e);z-index:10;flex-direction:column;align-items:center;justify-content:flex-start;padding:16px 0;overflow:auto;gap:16px;border-radius:8px">
+          <div style="font-size:1.8rem;font-weight:700;color:color-mix(in srgb,#f9e2af 35%,var(--fg,var(--text,#cdd6f4)))">${t('game_over')}</div>
           <div id="sf-go-score" style="font-size:1.1rem;color:var(--text,#cdd6f4)"></div>
           <div id="sf-go-time" style="font-size:.9rem;color:var(--text-dim,#a6adc8)"></div>
-          <button id="sf-play-again" style="padding:10px 28px;background:var(--accent,#6366f1);border:none;border-radius:8px;color:#fff;font-size:1rem;font-weight:600;cursor:pointer">${t('play_again')}</button>
+          <section data-gh-results style="width:min(420px,calc(100% - 24px))"></section><button id="sf-play-again" style="padding:10px 28px;background:var(--accent,#6366f1);border:none;border-radius:8px;color:var(--on-accent,var(--surface,var(--surface1,#fff)));font-size:1rem;font-weight:600;cursor:pointer">${t('play_again')}</button>
         </div>
       </div>
     `;

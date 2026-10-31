@@ -18,7 +18,7 @@
     "messaging",
     "social"
   ],
-  "version": "1.4.1",
+  "version": "1.4.2",
   "min_core_version": "1.0.0",
   "description": "Chat between mvmOS users, with a public web page for Apps Hub accounts.",
   "entry": "main.js",

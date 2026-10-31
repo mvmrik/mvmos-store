@@ -16,21 +16,7 @@
   const mp = window.GameHub.mp;
 
   // ── i18n ────────────────────────────────────────────────────────────────
-  const _I18N = {
-    en: { round:'Round', of:'of', score:'Score', submit:'Guess', loading:'Loading…', region:'Region',
-      result:'Result', waiting_others:'waiting…', next_round:'Next round', waiting_round:'Waiting for host…',
-      final:'Final standings', winner:'Winner', reset:'Reset view', preparing:'Preparing',
-      rounds:'rounds', time_round:'Time per round', api_key:'Google Maps API key', api_missing:'Enter a Google Maps API key to play.',
-      no_limit:'no limit', you:'You', players:'Players', start_fail:'Could not start.', maps_fail:'Failed to load Google Maps. Check the API key.',
-      change:'Change' },
-    bg: { round:'Рунд', of:'от', score:'Точки', submit:'Познай', loading:'Зареждане…', region:'Регион',
-      result:'Резултат', waiting_others:'изчакване…', next_round:'Следващ рунд', waiting_round:'Изчакване на домакина…',
-      final:'Крайно класиране', winner:'Победител', reset:'Нулирай изгледа', preparing:'Подготовка',
-      rounds:'рунда', time_round:'Време за рунд', api_key:'Google Maps API ключ', api_missing:'Въведи Google Maps API ключ за да играеш.',
-      no_limit:'без лимит', you:'Ти', players:'Играчи', start_fail:'Неуспешен старт.', maps_fail:'Грешка при зареждане на Google Maps. Провери ключа.',
-      change:'Смени' },
-  };
-  const _t = k => { const lang = (window.mvmOS && window.mvmOS.lang) === 'bg' ? 'bg' : 'en'; return (_I18N[lang] || _I18N.en)[k] || k; };
+  const _t = k => window._i18n?.['fy_mp_' + k] || k;
 
   // ── small helpers ───────────────────────────────────────────────────────
   const _isMobile = window.innerWidth < 768;
@@ -179,7 +165,7 @@
           ${_countryOptions((settings && settings.country) || 'world')}
         </select>
       </div>
-      <div id="fy-s-key-row"><div style="font-size:12px;color:#a6adc8">⏳</div></div>
+      <div id="fy-s-key-row"><div style="font-size:12px;color:var(--fg2,var(--text-dim,#a6adc8))">⏳</div></div>
     </div>`;
 
     let _resolvedKey = (settings && settings.api_key) || '';
@@ -218,9 +204,9 @@
     const row = box.querySelector('#fy-s-key-row');
     if (!row) return;
     if (key) {
-      row.innerHTML = `<div style="font-size:12px;color:#a6e3a1">✓ Google Maps API key</div>`;
+      row.innerHTML = `<div style="font-size:12px;color:color-mix(in srgb,#a6e3a1 35%,var(--fg,var(--text,#cdd6f4)))">✓ Google Maps API key</div>`;
     } else {
-      row.innerHTML = `<div style="font-size:12px;color:#f38ba8">⚠ No Google Maps API key — set it in FindYourself settings.</div>`;
+      row.innerHTML = `<div style="font-size:12px;color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)))">⚠ No Google Maps API key — set it in FindYourself settings.</div>`;
     }
   }
 
@@ -230,7 +216,7 @@
   function renderGame(root) {
     _root = root;
     _stopTimer();
-    root.innerHTML = '<div class="fy-root"><div class="fy-game" id="fy-game"><div class="fy-screen"><div style="font-size:1.6rem">⏳</div><p style="color:#a6adc8">' + _t('preparing') + '…</p></div></div></div>';
+    root.innerHTML = '<div class="fy-root"><div class="fy-game" id="fy-game"><div class="fy-screen"><div style="font-size:1.6rem">⏳</div><p style="color:var(--fg2,var(--text-dim,#a6adc8))">' + _t('preparing') + '…</p></div></div></div>';
     // Persist active room so the public hub can offer "resume" after a disconnect.
     try { localStorage.setItem('gh_active_room', JSON.stringify({ roomId: mp.roomId(), gameId: mp.gameId(), ts: Date.now() })); } catch (e) {}
   }
@@ -256,7 +242,7 @@
           <button class="fy-guess-btn-map" id="fy-submit" disabled>${_t('submit')}</button>
         </div>
       </div>
-      <div id="fy-sv-loading" style="position:absolute;inset:0;background:#1e1e2e;display:flex;align-items:center;justify-content:center;z-index:5;font-size:.9rem;color:#a6adc8">${_t('loading')}</div>`;
+      <div id="fy-sv-loading" style="position:absolute;inset:0;background:#1e1e2e;display:flex;align-items:center;justify-content:center;z-index:5;font-size:.9rem;color:var(--fg2,var(--text-dim,#a6adc8))">${_t('loading')}</div>`;
   }
 
   function _renderRound(gameEl, actual, heading, elapsed) {
@@ -374,7 +360,7 @@
     ov.innerHTML = `
       <div class="fy-result-box fy-mp-result">
         <h2>${_t('result')} — ${_t('round')} ${_round}/${_total}</h2>
-        <div style="text-align:center;font-size:.78rem;color:#a6adc8;margin-bottom:4px"><span id="fy-live-status">${done}/${_liveTotal} ${_t('waiting_others')}</span></div>
+        <div style="text-align:center;font-size:.78rem;color:var(--fg2,var(--text-dim,#a6adc8));margin-bottom:4px"><span id="fy-live-status">${done}/${_liveTotal} ${_t('waiting_others')}</span></div>
         <div class="fy-result-map" id="fy-live-map"></div>
         <div class="fy-mp-scores" id="fy-live-scores"></div>
       </div>`;
@@ -428,7 +414,7 @@
       } else {
         return `<div class="fy-mp-score-row${isMe?' you':''}">
           <span class="rank">—</span>${_avatar(p, 22)}<span class="nm">${_esc(p.display_name)}${isMe?' ('+_t('you')+')':''}</span>
-          <span class="ds" style="color:#a6adc8">⏳</span><span class="rs" style="color:#a6adc8">—</span>
+          <span class="ds" style="color:var(--fg2,var(--text-dim,#a6adc8))">⏳</span><span class="rs" style="color:var(--fg2,var(--text-dim,#a6adc8))">—</span>
         </div>`;
       }
     }).join('');
@@ -444,13 +430,13 @@
     const key = localStorage.getItem('fy_api_key') || settings.api_key || '';
     const countryKey = settings.country || 'world';
     const gameEl = _gameEl();
-    if (!key) { if (gameEl) gameEl.innerHTML = `<div class="fy-screen"><p style="color:#f38ba8">${_t('api_missing')}</p></div>`; return; }
+    if (!key) { if (gameEl) gameEl.innerHTML = `<div class="fy-screen"><p style="color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)))">${_t('api_missing')}</p></div>`; return; }
     try { await _loadMaps(key); }
-    catch (e) { if (gameEl) gameEl.innerHTML = `<div class="fy-screen"><p style="color:#f38ba8">${_t('maps_fail')}</p></div>`; return; }
+    catch (e) { if (gameEl) gameEl.innerHTML = `<div class="fy-screen"><p style="color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)))">${_t('maps_fail')}</p></div>`; return; }
     const n = msg.rounds || _total;
     const locs = [];
     for (let i = 0; i < n; i++) {
-      if (gameEl) gameEl.innerHTML = `<div class="fy-screen"><div style="font-size:1.6rem">🌍</div><p style="color:#a6adc8">${_t('preparing')} (${i}/${n})</p></div>`;
+      if (gameEl) gameEl.innerHTML = `<div class="fy-screen"><div style="font-size:1.6rem">🌍</div><p style="color:var(--fg2,var(--text-dim,#a6adc8))">${_t('preparing')} (${i}/${n})</p></div>`;
       try { locs.push(await _resolveLocation(countryKey)); } catch (e) { /* retry budget exhausted — skip */ }
     }
     mp.send({ type: 'fy_locations', locations: locs });
@@ -459,7 +445,7 @@
   mp.on('fy_preparing', (msg) => {
     _total = msg.rounds || _total;
     const gameEl = _gameEl();
-    if (gameEl && !mp.isHost()) gameEl.innerHTML = `<div class="fy-screen"><div style="font-size:1.6rem">⏳</div><p style="color:#a6adc8">${_t('preparing')}…</p></div>`;
+    if (gameEl && !mp.isHost()) gameEl.innerHTML = `<div class="fy-screen"><div style="font-size:1.6rem">⏳</div><p style="color:var(--fg2,var(--text-dim,#a6adc8))">${_t('preparing')}…</p></div>`;
   });
 
   mp.on('fy_round_start', async (msg) => {
@@ -471,7 +457,7 @@
     const gameEl = _gameEl(); if (!gameEl) return;
     _buildRoundUI(gameEl);
     try { await _loadMaps(_apiKey); }
-    catch (e) { gameEl.innerHTML = `<div class="fy-screen"><p style="color:#f38ba8">${_t('maps_fail')}</p></div>`; return; }
+    catch (e) { gameEl.innerHTML = `<div class="fy-screen"><p style="color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)))">${_t('maps_fail')}</p></div>`; return; }
     const elapsed = msg.started_at ? Math.floor(Date.now()/1000 - msg.started_at) : 0;
     if (_time > 0 && elapsed >= _time) { _renderRound(gameEl, { lat: msg.lat, lng: msg.lng }, msg.heading, elapsed); _timeUp(); return; }
     _renderRound(gameEl, { lat: msg.lat, lng: msg.lng }, msg.heading, elapsed);
@@ -623,7 +609,7 @@
               <span class="nm">${_esc(s.display_name)}</span><span class="ts">${s.total}</span>
             </div>`).join('')}
         </div>
-        <a href="/pub/gamehub/" class="fy-btn" style="text-decoration:none;display:inline-block">← Game Hub</a>
+        <section data-gh-results></section><a href="/pub/gamehub/" class="fy-btn" style="text-decoration:none;display:inline-block">← Game Hub</a>
       </div></div>`;
   }
 

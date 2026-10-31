@@ -79,10 +79,10 @@
       .tk-tabs{display:flex;gap:4px;min-width:0;overflow-x:auto;scrollbar-width:none;background:var(--pub-surface2, #313244);border-radius:6px;padding:2px}
       .tk-tabs::-webkit-scrollbar{display:none}
       .tk-tab{background:none;border:none;color:var(--pub-fg2, #a6adc8);padding:5px 10px;border-radius:5px;cursor:pointer;font-size:.78rem;white-space:nowrap}
-      .tk-tab.active{background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e);font-weight:600}
+      .tk-tab.active{background:var(--pub-accent, #89b4fa);color:var(--on-accent,var(--pub-bg, #1e1e2e));font-weight:600}
       .tk-btn{background:var(--pub-surface2, #313244);color:var(--pub-fg, #cdd6f4);border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:.82rem;white-space:nowrap}
       .tk-btn:hover{background:var(--pub-border, #45475a)}
-      .tk-btn-primary{background:var(--pub-accent, #89b4fa);color:var(--pub-bg, #1e1e2e);font-weight:600}
+      .tk-btn-primary{background:var(--pub-accent, #89b4fa);color:var(--on-accent,var(--pub-bg, #1e1e2e));font-weight:600}
       .tk-btn-primary:hover{background:var(--pub-accent-hover, #a6c8ff)}
       .tk-toolbar-add{margin-left:auto;flex:0 0 34px;width:34px;height:34px;padding:0;font-size:1.35rem;line-height:1}
       .tk-btn-danger{background:var(--pub-red, #f38ba8);color:var(--pub-bg, #1e1e2e)}
@@ -104,7 +104,7 @@
       .tk-acc-section .tk-acc-section{margin:12px 0 0;background:rgba(255,255,255,.02)}
       .tk-acc-section .tk-acc-section .tk-acc-header{font-size:.85rem}
       .tk-acc-count{font-size:.72rem;font-weight:400;color:var(--pub-dim, #6c7086);background:var(--pub-surface2, #313244);border-radius:10px;padding:1px 8px}
-      .tk-acc-count.tk-active{color:#fff;background:var(--pub-accent, #89b4fa);font-weight:700}
+      .tk-acc-count.tk-active{color:var(--on-accent,#fff);background:var(--pub-accent, #89b4fa);font-weight:700}
       .tk-todo-list{display:flex;flex-direction:column;gap:4px;max-height:280px;overflow-y:auto}
       .tk-todo-item{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--pub-surface2, #313244)}
       .tk-todo-item-title{flex:1;min-width:0;word-break:break-word;font-size:.85rem}

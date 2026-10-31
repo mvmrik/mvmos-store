@@ -89,7 +89,7 @@
     .gl-row .nm{font-weight:700;font-size:14px}
     .gl-row .ds{font-size:12px;color:var(--fg2);margin-top:2px;line-height:1.35}
     .gl-btn{background:var(--surface2);color:var(--fg);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;flex-shrink:0}
-    .gl-btn.add{background:var(--accent);color:#1e1e2e;border-color:var(--accent)}
+    .gl-btn.add{background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));border-color:var(--accent)}
     .gl-btn:disabled{opacity:.5;cursor:default}
     .gl-empty{color:var(--fg2);text-align:center;padding:30px 10px}
     `;

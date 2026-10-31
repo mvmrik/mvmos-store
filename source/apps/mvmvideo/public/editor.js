@@ -1574,7 +1574,7 @@
 .mv-btn{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 10px;cursor:pointer;white-space:nowrap}
 .mv-btn:hover:not(:disabled){border-color:var(--accent)}
 .mv-btn:disabled,.mv-ibtn:disabled{opacity:.4;cursor:default}
-.mv-btn.mv-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.mv-btn.mv-primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)))}
 .mv-btn.mv-on{border-color:var(--accent);color:var(--accent)}
 .mv-small{padding:3px 8px;font-size:12px}
 .mv-ibtn{background:none;border:1px solid transparent;color:var(--text);border-radius:6px;padding:3px 7px;cursor:pointer;line-height:1.2}

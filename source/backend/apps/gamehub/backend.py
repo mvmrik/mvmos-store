@@ -428,6 +428,17 @@ def _with_profiles(rows):
         r["avatar_svg"] = p.get("avatar_svg")
 
 
+@_pub.get("/stage-records/{game_id}")
+async def stage_records(game_id: str, stage: str,
+                        x_gh_token: Optional[str] = Header(default=None)):
+    # Only the server game engine writes records. The token selects one's own best.
+    if not stage or len(stage) > 100:
+        raise HTTPException(status_code=400, detail="Invalid stage")
+    with _db() as conn:
+        data = _stats.stage_records(conn, game_id, stage, _viewer_id(x_gh_token))
+    return JSONResponse(data, headers={"Cache-Control": "private, no-store"})
+
+
 @_pub.get("/insights/{game_id}")
 async def game_insights(game_id: str, mode: str = "all", period: str = "all",
                         x_gh_token: Optional[str] = Header(default=None)):

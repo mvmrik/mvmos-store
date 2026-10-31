@@ -286,7 +286,7 @@ YS.connections = (() => {
     const menu = document.createElement('div');
     menu.className = 'ysql-ctx-menu';
     menu.style.cssText = `position:fixed;z-index:99999;left:${x}px;top:${y}px;background:var(--surface);border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.35);min-width:150px;padding:4px 0;font-size:.83rem`;
-    menu.innerHTML = `<div class="ysql-ctx-drop" style="padding:7px 14px;cursor:pointer;color:#f38ba8">${_ysqlConnT('ysql_delete_database_ctx')}</div>`;
+    menu.innerHTML = `<div class="ysql-ctx-drop" style="padding:7px 14px;cursor:pointer;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4))">${_ysqlConnT('ysql_delete_database_ctx')}</div>`;
     document.body.appendChild(menu);
     const close = () => menu.remove();
     setTimeout(() => document.addEventListener('click', close, { once: true }), 0);
@@ -297,10 +297,10 @@ YS.connections = (() => {
     const modal = YS.modal(container, `
       <div style="font-weight:600;font-size:.95rem">${_ysqlConnT('ysql_new_database_title')}</div>
       <input class="s-input" id="ys-newdb-name" placeholder="${_ysqlConnT('ysql_database_name_ph')}" autofocus>
-      <div id="ys-newdb-err" style="color:#f38ba8;font-size:.82rem;display:none"></div>
+      <div id="ys-newdb-err" style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem;display:none"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
         <button class="s-btn" id="ys-newdb-cancel">${_ysqlConnT('ysql_cancel')}</button>
-        <button class="s-btn" id="ys-newdb-ok" style="background:var(--accent);color:#fff;border-color:var(--accent)">${_ysqlConnT('ysql_create')}</button>
+        <button class="s-btn" id="ys-newdb-ok" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">${_ysqlConnT('ysql_create')}</button>
       </div>
     `);
     modal.querySelector('#ys-newdb-cancel').addEventListener('click', () => modal.close());
@@ -325,7 +325,7 @@ YS.connections = (() => {
     const modal = YS.modal(container, `
       <div style="font-weight:600;font-size:.95rem">${_ysqlConnT('ysql_delete_database_title')}</div>
       <div style="font-size:.88rem">${_ysqlConnT('ysql_delete_database_confirm', { db: '<strong>' + db + '</strong>' })}</div>
-      <div id="ys-dropdb-err" style="color:#f38ba8;font-size:.82rem;display:none"></div>
+      <div id="ys-dropdb-err" style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem;display:none"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
         <button class="s-btn" id="ys-dropdb-cancel">${_ysqlConnT('ysql_cancel')}</button>
         <button class="s-btn" id="ys-dropdb-ok" style="background:#f38ba8;color:#1e1e2e;border-color:#f38ba8">${_ysqlConnT('ysql_delete')}</button>
@@ -367,11 +367,11 @@ YS.connections = (() => {
         <input class="s-input" id="yc-pass" type="password" placeholder="${_ysqlConnT('ysql_password_ph')}">
         <input class="s-input" id="yc-db" placeholder="${_ysqlConnT('ysql_default_database_ph')}" value="${existing?.database || ''}">
       </div>
-      <div id="yc-error" style="color:#f38ba8;font-size:.82rem;display:none"></div>
+      <div id="yc-error" style="color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4));font-size:.82rem;display:none"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
-        ${existing ? `<button class="s-btn" id="yc-delete" style="margin-right:auto;color:#f38ba8">${_ysqlConnT('ysql_delete')}</button>` : ''}
+        ${existing ? `<button class="s-btn" id="yc-delete" style="margin-right:auto;color:color-mix(in srgb,#f38ba8 35%,var(--text,#cdd6f4))">${_ysqlConnT('ysql_delete')}</button>` : ''}
         <button class="s-btn" id="yc-cancel">${_ysqlConnT('ysql_cancel')}</button>
-        <button class="s-btn" id="yc-save" style="background:var(--accent);color:#fff;border-color:var(--accent)">${_ysqlConnT('ysql_save')}</button>
+        <button class="s-btn" id="yc-save" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">${_ysqlConnT('ysql_save')}</button>
       </div>
     `);
 

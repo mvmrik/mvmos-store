@@ -131,7 +131,7 @@ YS.structure = (() => {
         '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0">' +
           '<span style="font-size:.82rem;font-weight:500">' + _ysqlStT('ysql_structure_title', { table: esc(YS.state.activeTable) }) + '</span>' +
           '<span style="flex:1"></span>' +
-          '<button class="s-btn s-btn-sm" id="ys-struct-edit" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlStT('ysql_edit_btn') + '</button>' +
+          '<button class="s-btn s-btn-sm" id="ys-struct-edit" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + _ysqlStT('ysql_edit_btn') + '</button>' +
           '<button class="s-btn s-btn-sm" id="ys-struct-back">' + _ysqlStT('ysql_back_to_data') + '</button>' +
         '</div>' +
         '<div style="display:flex;gap:0;border-bottom:1px solid var(--border);flex-shrink:0">' +
@@ -237,7 +237,7 @@ YS.structure = (() => {
 
     body.innerHTML =
       '<div style="margin-bottom:8px;display:flex;gap:6px;flex-wrap:wrap">' +
-        '<button class="s-btn s-btn-sm" id="ys-col-add" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlStT('ysql_add_column') + '</button>' +
+        '<button class="s-btn s-btn-sm" id="ys-col-add" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + _ysqlStT('ysql_add_column') + '</button>' +
         '<button class="s-btn s-btn-sm" id="ys-col-save" style="background:#27ae60;color:#fff;border-color:#27ae60">' + _ysqlStT('ysql_save_structure') + '</button>' +
       '</div>' +
       '<div style="overflow-x:auto">' +
@@ -413,7 +413,7 @@ YS.structure = (() => {
           '<td style="padding:5px 10px;color:' + (isPK?'var(--accent)':'') + '">' + esc(name) + '</td>' +
           '<td style="padding:5px 10px;font-size:.78rem">' + esc(first.Index_type || first.index_type || 'BTREE') + '</td>' +
           '<td style="padding:5px 10px">' + esc(colNames) + '</td>' +
-          '<td style="padding:5px 10px">' + (isUniq ? '<span style="color:#50fa7b">✓</span>' : '') + '</td>' +
+          '<td style="padding:5px 10px">' + (isUniq ? '<span style="color:color-mix(in srgb,#50fa7b 35%,var(--text,#cdd6f4))">✓</span>' : '') + '</td>' +
           '<td style="padding:5px 10px">' + (isPK ? '' : '<button class="s-btn s-btn-sm ys-idx-drop" data-name="' + esc(name) + '" style="color:var(--danger,#e74c3c);border-color:var(--danger,#e74c3c);background:transparent;padding:2px 6px">' + _ysqlStT('ysql_drop') + '</button>') + '</td>' +
           '</tr>';
       });
@@ -443,7 +443,7 @@ YS.structure = (() => {
           '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">' + _ysqlStT('ysql_columns') + '</div>' +
           '<select id="ys-idx-cols" multiple style="width:100%;padding:4px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem;height:80px">' + colOptions + '</select>' +
         '</div>' +
-        '<button class="s-btn s-btn-sm" id="ys-idx-add-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlStT('ysql_add_index') + '</button>' +
+        '<button class="s-btn s-btn-sm" id="ys-idx-add-btn" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + _ysqlStT('ysql_add_index') + '</button>' +
         '<span id="ys-idx-msg" style="font-size:.78rem;margin-left:8px;color:var(--text-dim)"></span>' +
       '</div>';
 
@@ -539,7 +539,7 @@ YS.structure = (() => {
           '<div><div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">' + _ysqlStT('ysql_fk_col_on_update') + '</div><select id="ys-fk-onupd" style="width:100%;padding:4px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem">' + ruleOpts + '</select></div>' +
           '<div><div style="font-size:.78rem;color:var(--text-dim);margin-bottom:2px">' + _ysqlStT('ysql_fk_col_on_delete') + '</div><select id="ys-fk-ondel" style="width:100%;padding:4px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:3px;font-size:.82rem">' + ruleOpts + '</select></div>' +
         '</div>' +
-        '<button class="s-btn s-btn-sm" id="ys-fk-add-btn" style="background:var(--accent);color:#fff;border-color:var(--accent)">' + _ysqlStT('ysql_add_foreign_key') + '</button>' +
+        '<button class="s-btn s-btn-sm" id="ys-fk-add-btn" style="background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)));border-color:var(--accent)">' + _ysqlStT('ysql_add_foreign_key') + '</button>' +
         '<span id="ys-fk-msg" style="font-size:.78rem;margin-left:8px;color:var(--text-dim)"></span>' +
       '</div>';
 

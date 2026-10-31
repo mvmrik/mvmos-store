@@ -5,9 +5,9 @@
       "name": "FindYourself",
       "icon": "🌍",
       "category": "Games",
-      "version": "1.15.0",
+      "version": "1.16.0",
       "description": "Drop into a random Street View location anywhere in the world and guess where you are on the map. Requires a Google Maps API key.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/findyourself-1.15.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/findyourself-1.16.0.zip",
       "tags": [
         "multiplayer",
         "geography",
@@ -20,9 +20,9 @@
       "name": "Sudofall",
       "icon": "🔢",
       "category": "Games",
-      "version": "1.15.0",
+      "version": "1.16.0",
       "description": "A mix between Tetris and Sudoku — drop numbers into the grid, clear rows and 3x3 boxes to score points.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/sudofall-1.15.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/sudofall-1.16.0.zip",
       "tags": [
         "puzzle",
         "numbers",
@@ -35,9 +35,9 @@
       "name": "Game Hub",
       "icon": "🎮",
       "category": "Games",
-      "version": "1.19.1",
+      "version": "1.20.0",
       "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.19.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.20.0.zip",
       "tags": [
         "multiplayer",
         "social",
@@ -61,9 +61,9 @@
       "name": "Stonehold",
       "icon": "🗿",
       "category": "Games",
-      "version": "1.5.0",
+      "version": "1.5.1",
       "description": "A map, four enemy camps in the corners and no hold yet: choose where to settle, build, and survive as long as you can while all four keep growing — alone, or racing up to three other holds in the same room.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/stonehold-1.5.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/stonehold-1.5.1.zip",
       "tags": [
         "strategy",
         "base building",
@@ -77,9 +77,9 @@
       "name": "Tower Defense",
       "icon": "🏰",
       "category": "Games",
-      "version": "1.5.1",
+      "version": "1.5.2",
       "description": "Defend the tower in the middle against endless waves. Between waves spend your coins on weapons, rings, energy and upgrades, and grow stronger with every game in the permanent shop.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/towerdefense-1.5.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/towerdefense-1.5.2.zip",
       "tags": [
         "tower defense",
         "strategy",
@@ -132,9 +132,9 @@
       "name": "Score Arena",
       "icon": "🎯",
       "category": "Games",
-      "version": "1.5.0",
+      "version": "1.5.1",
       "description": "A shared scorekeeper for darts and board games, with eight darts modes, ready-made scoring for popular board games, custom games you design yourself, detailed personal statistics and a history-matched Ghost for solo practice.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/scorearena-1.5.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/scorearena-1.5.1.zip",
       "tags": [
         "darts",
         "scorekeeper",
@@ -149,9 +149,9 @@
       "name": "IGP Calculator",
       "icon": "🏎️",
       "category": "Games",
-      "version": "1.2.1",
+      "version": "1.2.2",
       "description": "Car setup and tyre strategy calculator for iGP Manager races, with every race you prepare kept on your own profile.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/igpcalculator-1.2.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/igpcalculator-1.2.2.zip",
       "tags": [
         "igp manager",
         "racing",
@@ -166,9 +166,9 @@
       "name": "Hattrick Calculator",
       "icon": "⚽",
       "category": "Games",
-      "version": "1.2.1",
+      "version": "1.2.2",
       "description": "Squad, lineup, training and arena calculator for the online football manager game Hattrick (hattrick.org), with your players kept on your own profile.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/hattrickcalculator-1.2.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/hattrickcalculator-1.2.2.zip",
       "tags": [
         "hattrick",
         "football",
@@ -185,7 +185,7 @@
       "name": "Belot",
       "icon": "🃏",
       "category": "Games",
-      "version": "1.2.1",
+      "version": "1.2.2",
       "description": "Play Bulgarian Belot or classic French Belote with friends or independent bots, and save custom rules for either style.",
       "tags": [
         "cards",
@@ -194,7 +194,7 @@
         "games"
       ],
       "min_core_version": "1.16.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/belot-1.2.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/belot-1.2.2.zip",
       "premium": true,
       "name_i18n": {
         "en": "Belot",
@@ -213,7 +213,7 @@
       "name": "Remember the Pairs",
       "icon": "🧠",
       "category": "Games",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "description": "Turn over two cards and find the matching pairs, alone or in turns with friends, on a flat table or on a spinning 3D cylinder. Nine picture themes, a table from 6 to 48 pairs and a time limit per turn.",
       "tags": [
         "memory",
@@ -223,7 +223,7 @@
         "games"
       ],
       "min_core_version": "1.16.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/memorypairs-1.0.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/memorypairs-1.0.2.zip",
       "name_i18n": {
         "en": "Remember the Pairs",
         "bg": "Запомни двойките",
@@ -241,7 +241,7 @@
       "name": "Flask Sort",
       "icon": "🧪",
       "category": "Games",
-      "version": "1.0.2",
+      "version": "1.1.0",
       "description": "Pour the liquids until every flask holds a single colour. A game runs through 100 levels that grow harder, from two colours in small flasks to twenty colours in tall ones, alone or racing friends through the same levels.",
       "tags": [
         "puzzle",
@@ -251,7 +251,7 @@
         "games"
       ],
       "min_core_version": "1.16.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/flasksort-1.0.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/flasksort-1.1.0.zip",
       "name_i18n": {
         "en": "Flask Sort",
         "bg": "Подреди колбите",
@@ -269,7 +269,7 @@
       "name": "Sudoku",
       "icon": "🧩",
       "category": "Games",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Classic Sudoku in five difficulty levels with no time limit. Every puzzle has exactly one solution, and the server checks every number. Play alone for points, with hints that cost points, or race friends on the same puzzle – the first to finish wins.",
       "tags": [
         "puzzle",
@@ -278,7 +278,7 @@
         "games"
       ],
       "min_core_version": "1.16.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/sudoku-1.0.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/sudoku-1.1.0.zip",
       "name_i18n": {
         "en": "Sudoku",
         "bg": "Судоку",
@@ -296,7 +296,7 @@
       "name": "Jigsaw",
       "icon": "🧩",
       "category": "Games",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "A 3D jigsaw puzzle with real pieces cut from beautiful pictures of nature, animals and travel. Five sizes from 24 to 216 pieces with no time limit, and the server checks every piece. Play alone for points, with hints that cost points, or race friends on the same picture – the most points win.",
       "tags": [
         "puzzle",
@@ -305,7 +305,7 @@
         "games"
       ],
       "min_core_version": "1.16.1",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/jigsaw-1.0.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/jigsaw-1.1.0.zip",
       "name_i18n": {
         "en": "Jigsaw",
         "bg": "Пъзел",

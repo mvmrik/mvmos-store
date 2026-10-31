@@ -19,7 +19,7 @@
     "telegram",
     "bot"
   ],
-  "version": "1.1.4",
+  "version": "1.1.5",
   "min_core_version": "1.0.0",
   "description": "Bridges Apps Hub public apps into a Telegram bot. Any app can opt in by adding a telegram.py adapter next to its public.py.",
   "entry": "main.js"

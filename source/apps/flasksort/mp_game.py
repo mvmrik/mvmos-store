@@ -405,7 +405,7 @@ class Game:
     def _fresh(level):
         return {
             "level": level, "tubes": None, "start": None, "par": 1, "hist": [],
-            "moves": 0, "points": 0, "cleared": 0, "perfect": 0,
+            "level_penalties": 0, "stage_eligible": True, "moves": 0, "points": 0, "cleared": 0, "perfect": 0,
             "moves_total": 0, "undos": 0, "restarts": 0, "maxn": 0, "hints": 0,
             "done": False, "quit": False, "rank": 0, "left": False, "at": 0.0, "seq": 0, "t0": 0.0,
         }
@@ -427,6 +427,8 @@ class Game:
             st["start"], st["tubes"], st["par"] = start, tubes, lv["par"]
             for k in ("moves", "points", "cleared", "perfect", "moves_total", "undos", "restarts", "maxn", "hints"):
                 st[k] = max(0, int(saved.get(k, 0)))
+            st["level_penalties"] = max(0, int(saved.get("level_penalties", 0)))
+            st["stage_eligible"] = bool(saved.get("stage_eligible", not st["hints"]))
             st["hist"] = [[int(x) for x in h] for h in saved.get("hist", [])][-200:]
             self.p[pid] = st
             return True
@@ -436,14 +438,14 @@ class Game:
 
     def snapshot(self):
         """Save & exit (framework-driven, solo only): the game as it stands.
-        Nothing is recorded in Game Hub; that happens when the game ends."""
+        Completed stage records are independent of the unfinished run."""
         if not self.started or self.over or self.multi:
             return None
         st = self.p.get(self.ctx.host_id)
         if not st or st["tubes"] is None:
             return None
         out = {k: st[k] for k in ("level", "moves", "points", "cleared", "perfect", "moves_total", "undos", "restarts", "maxn", "hints")}
-        out.update(seed=self.seed, start=st["start"], tubes=st["tubes"], hist=st["hist"])
+        out.update(level_penalties=st["level_penalties"], stage_eligible=st["stage_eligible"], seed=self.seed, start=st["start"], tubes=st["tubes"], hist=st["hist"])
         return out
 
     async def on_join(self, player):
@@ -524,6 +526,7 @@ class Game:
         # The price is the same whatever the player has: the points can go below
         # zero, so that a hint is never free.
         paid = cap * DOSE_POINTS
+        st["level_penalties"] += paid
         st["points"] -= paid
         st["hints"] += 1
         await self.ctx.send(pid, {"type": "fs_hint_res", "a": move[0], "b": move[1], "cost": paid,
@@ -574,6 +577,11 @@ class Game:
         elapsed = time.time() - st["t0"] if st["t0"] else 0.0
         base, speed, under = level_score(n, cap, st["par"], st["moves"], elapsed)
         gained = base + speed + under
+        stage_penalty = st["level_penalties"]
+        stage_score = gained - stage_penalty
+        stage_best = None
+        if st["stage_eligible"] and hasattr(self.ctx, "record_stage"):
+            stage_best = await self.ctx.record_stage(pid, f"v1:level:{level}", stage_score)
         st["points"] += gained
         st["cleared"] += 1
         st["perfect"] += 1 if stars == 3 else 0
@@ -585,12 +593,12 @@ class Game:
         else:
             st["level"] = level + 1
             lv = await self._level(st["level"])
-            st.update(start=_clone(lv["tubes"]), tubes=_clone(lv["tubes"]), par=lv["par"], hist=[], moves=0, t0=0.0)
+            st.update(start=_clone(lv["tubes"]), tubes=_clone(lv["tubes"]), par=lv["par"], hist=[], moves=0, t0=0.0, level_penalties=0, stage_eligible=True)
             st.pop("hint_seen", None)
             self._prefetch(st["level"] + 1)
             nxt = self._level_msg(st)
         await self.ctx.send(pid, {
-            "type": "fs_cleared", "level": level, "gained": gained, "stars": stars,
+            "type": "fs_cleared", "level_penalty": stage_penalty, "level_score": stage_score, "stage_records": stage_best, "level": level, "gained": gained, "stars": stars,
             "base": base, "speed": speed, "under": under,
             "points": st["points"], "done": st["done"], "rank": st["rank"], "next": nxt,
         })
@@ -673,7 +681,7 @@ class Game:
     def _level_msg(self, st):
         n, cap, _ = params(st["level"])
         return {
-            "type": "fs_level", "level": st["level"], "n": n, "cap": cap,
+            "type": "fs_level", "level_penalties": st["level_penalties"], "level": st["level"], "n": n, "cap": cap,
             "tubes": st["tubes"], "start": st["start"], "par": st["par"], "moves": st["moves"],
             "points": st["points"], "hist": st["hist"], "seq": st["seq"],
             "allow": level_allow(st["par"], cap), "elapsed": max(0.0, time.time() - st["t0"]) if st["t0"] else 0.0,

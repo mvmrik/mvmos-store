@@ -80,9 +80,9 @@
       .gh-w input:focus{border-color:var(--accent,#89b4fa)}
       .gh-w .gh-btn{border:none;border-radius:6px;padding:7px 14px;cursor:pointer;font-size:13px;width:100%;transition:opacity .1s}
       .gh-w .gh-btn:hover{opacity:.85}
-      .gh-w .gh-p{background:var(--accent,#89b4fa);color:#1e1e2e;font-weight:600}
+      .gh-w .gh-p{background:var(--accent,#89b4fa);color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));font-weight:600}
       .gh-w .gh-s{background:var(--surface2,#313244);color:var(--fg,#cdd6f4)}
-      .gh-w .gh-err{color:#f38ba8;font-size:12px;margin-top:2px;display:none}
+      .gh-w .gh-err{color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)));font-size:12px;margin-top:2px;display:none}
       .gh-w .gh-back{color:var(--accent,#89b4fa);cursor:pointer;font-size:12px;text-decoration:underline;background:none;border:none;padding:0}
       #gh-save-exit{position:fixed;left:10px;bottom:10px;z-index:9000;background:var(--surface2,#313244);color:var(--fg,#cdd6f4);border:1px solid var(--border,#45475a);border-radius:10px;padding:8px 14px;font-size:.82rem;font-weight:600;font-family:inherit;cursor:pointer;opacity:.85}
       #gh-save-exit:hover{opacity:1}
@@ -179,14 +179,14 @@
       if (!list.length) {
         container.innerHTML = `
           <div class="gh-w" style="display:flex;flex-direction:column;gap:6px">
-            <div style="font-size:.72rem;color:#a6adc8;text-transform:uppercase;letter-spacing:.5px">Invite players</div>
-            <div style="font-size:.8rem;color:#a6adc8">No favourites yet — add some in Game Hub to invite them here.</div>
+            <div style="font-size:.72rem;color:var(--fg2,var(--text-dim,#a6adc8));text-transform:uppercase;letter-spacing:.5px">Invite players</div>
+            <div style="font-size:.8rem;color:var(--fg2,var(--text-dim,#a6adc8))">No favourites yet — add some in Game Hub to invite them here.</div>
           </div>`;
         return;
       }
       container.innerHTML = `
         <div class="gh-w" style="display:flex;flex-direction:column;gap:6px">
-          <div style="font-size:.72rem;color:#a6adc8;text-transform:uppercase;letter-spacing:.5px">Invite players</div>
+          <div style="font-size:.72rem;color:var(--fg2,var(--text-dim,#a6adc8));text-transform:uppercase;letter-spacing:.5px">Invite players</div>
           <div style="display:flex;flex-direction:column;gap:4px;max-height:160px;overflow-y:auto" id="gh-inv-list">
             ${list.map(p => `
               <div style="display:flex;align-items:center;gap:8px;background:var(--surface2,#313244);border-radius:6px;padding:5px 8px">
@@ -229,6 +229,137 @@
     let _saveBusy = false, _saveBtn = null, _saveOv = null, _finished = false;
     const _handlers = {};
 
+    // Final standings are loaded only after the server commits the session.
+    let _result = null, _resultPromise = null, _resultObserver = null, _resultEpoch = 0;
+    const _stageCache = new Map();
+    function _label(key, vars) {
+      return _t(key).replace(/\{(\w+)\}/g, (m, k) => vars && vars[k] != null ? vars[k] : m);
+    }
+    function _number(v) {
+      return v == null ? '—' : Number(v).toLocaleString(document.documentElement.lang || undefined, { maximumFractionDigits: 2 });
+    }
+    function _resultsStyle() {
+      if (document.getElementById('gh-results-style')) return;
+      const style = document.createElement('style'); style.id = 'gh-results-style';
+      style.textContent = `
+        .gh-results,.gh-stage-records{box-sizing:border-box;width:100%;min-width:0;flex-shrink:0;color:var(--fg,var(--text,#cdd6f4));background:var(--surface,var(--surface1,#1e1e2e));border:1px solid var(--border,#45475a);border-radius:12px;padding:12px;text-align:left;font:13px/1.4 system-ui,sans-serif}
+        .gh-results{margin:12px 0}.gh-results h3{font:700 16px/1.4 system-ui,sans-serif;margin:0 0 4px;color:inherit}
+        .gh-result-sub{color:var(--fg2,var(--text-dim,#a6adc8));font-size:12px;margin:4px 0 9px}
+        .gh-result-scroll{max-height:238px;overflow:auto;overscroll-behavior:contain}
+        .gh-result-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px;border-radius:6px;font-size:13px;color:inherit}
+        .gh-result-row>span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .gh-result-row b{font-variant-numeric:tabular-nums;color:inherit}
+        .gh-result-row.own{background:color-mix(in srgb,var(--accent,#89b4fa) 16%,var(--surface,var(--surface1,#1e1e2e)));font-weight:700}
+        .gh-result-separator{border-top:1px dashed var(--border,#45475a);margin-top:6px;padding-top:6px}
+        .gh-result-retry{font:inherit;color:var(--fg,var(--text,#cdd6f4));background:var(--surface2,#313244);border:1px solid var(--border,#45475a);border-radius:6px;padding:6px 12px;cursor:pointer}
+        .gh-stage-records{padding:7px 10px;margin:6px 0;font-size:11px}
+        .gh-stage-title{font-weight:600;margin-bottom:4px}
+        .gh-stage-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+        .gh-stage-grid span{display:block;color:var(--fg2,var(--text-dim,#a6adc8));font-size:11px}
+        .gh-stage-grid b{display:block;font-size:14px;font-variant-numeric:tabular-nums;color:inherit}
+        [data-gh-results]:empty{display:none}
+      `; document.head.appendChild(style);
+    }
+    function _resetResults() {
+      _resultEpoch++; _result = null; _resultPromise = null; _stageCache.clear();
+      if (_resultObserver) _resultObserver.disconnect(); _resultObserver = null;
+    }
+    function _watchResults(result) {
+      _result = result; _resultsStyle();
+      if (_resultObserver) _resultObserver.disconnect();
+      _resultObserver = new MutationObserver(_fillResults);
+      _resultObserver.observe(_root, { childList: true, subtree: true });
+      _fillResults();
+    }
+    function _fillResults() {
+      if (!_result || !_root) return;
+      _root.querySelectorAll('[data-gh-results]').forEach(host => {
+        if (host.dataset.ghMounted) return;
+        host.dataset.ghMounted = '1'; host.classList.add('gh-results');
+        if (_result.recorded === false) { host.textContent = _label('gh_finish_unsaved'); return; }
+        host.textContent = _t('gh_loading', 'Loading…');
+        const epoch = _resultEpoch;
+        if (!_resultPromise) {
+          const mode = _result.mode || (_maxPlayers > 1 ? 'multi' : 'single');
+          _resultPromise = fetch(BASE + '/insights/' + encodeURIComponent(_gameId) + '?mode=' + mode + '&period=all',
+            { headers: { 'X-GH-Token': _token }, cache: 'no-store' })
+            .then(r => { if (!r.ok) throw new Error('ranking'); return r.json(); });
+        }
+        _resultPromise.then(data => {
+          if (epoch !== _resultEpoch || !host.isConnected) return;
+          _paintResults(host, data);
+        }).catch(() => {
+          if (epoch !== _resultEpoch || !host.isConnected) return;
+          host.innerHTML = '<p>' + _esc(_label('gh_finish_error')) + '</p><button class="gh-result-retry">' + _esc(_label('gh_finish_retry')) + '</button>';
+          host.querySelector('button').onclick = () => { _resultPromise = null; delete host.dataset.ghMounted; _fillResults(); };
+        });
+      });
+    }
+    function _paintResults(host, data, you = _you) {
+      const multi = data.mode === 'multi', key = data.decl.ranking || 'score';
+      const placeKey = multi ? 'rating_place' : 'place';
+      const rows = data.players.filter(r => r[placeKey] != null).sort((a,b) => a[placeKey] - b[placeKey] || String(a.player_id).localeCompare(String(b.player_id)));
+      const me = rows.find(r => r.player_id === you), top = rows.slice(0,10);
+      const spec = (data.decl.metrics || []).find(m => m.key === key);
+      const lang = (window.mvmOS && window.mvmOS.lang) || document.documentElement.lang || 'en';
+      const label = multi ? _t('gs_rating','Rating') : key === 'wins' ? _t('gh_wins','Wins') : key === 'played' ? _t('gh_played','Played') : key === 'win_rate' ? _t('gh_win_rate','Win rate') : ((spec || {}).label || {})[lang] || ((spec || {}).label || {}).en || _t('gh_stage_score','Score');
+      function value(r) {
+        const v = multi ? r.rating : key === 'wins' || key === 'played' || key === 'win_rate' ? r[key] : r.best[key];
+        if (!multi && spec && spec.type === 'duration' && v != null) return Math.floor(v / 60) + ':' + String(Math.round(v % 60)).padStart(2,'0');
+        return _number(v) + (!multi && spec && spec.type === 'percent' || key === 'win_rate' ? '%' : '');
+      }
+      function row(r) {
+        return '<div class="gh-result-row' + (r.player_id === you ? ' own' : '') + '"><b>#' + r[placeKey] + '</b><span>' + _esc(r.display_name || r.username || '?') + (r.player_id === you ? ' · ' + _esc(_t('gh_you','you')) : '') + '</span><b>' + _esc(value(r)) + '</b></div>';
+      }
+      host.innerHTML = '<h3>' + _esc(_label('gh_finish_title')) + '</h3><div>' + _esc(me ? _label('gh_finish_position', { rank: me[placeKey], total: _number(rows.length) }) : _label('gh_finish_none')) + '</div>' +
+        '<div class="gh-result-sub">' + _esc(_label('gh_finish_top')) + ' · ' + _esc(multi ? _t('gh_multiplayer_full','Multiplayer') : _t('gh_single_player_full','Single player')) + ' · ' + _esc(label) + '</div>' +
+        '<div class="gh-result-scroll">' + top.map(row).join('') + '</div>' +
+        (me && !top.includes(me) ? '<div class="gh-result-separator">' + row(me) + '</div>' : '');
+    }
+    function showStandings(host, options) {
+      if (!host) return; _resultsStyle(); host.classList.add('gh-results');
+      const marker = {}; host._ghRequest = marker;
+      host.textContent = options.recorded === false ? _label('gh_finish_unsaved') : _t('gh_loading','Loading…');
+      if (options.recorded === false) return;
+      fetch(BASE + '/insights/' + encodeURIComponent(options.gameId) + '?mode=' + (options.mode === 'multi' ? 'multi' : 'single') + '&period=all',
+        { headers: { 'X-GH-Token': _token }, cache: 'no-store' })
+        .then(r => { if (!r.ok) throw new Error('ranking'); return r.json(); })
+        .then(d => { if (host.isConnected && host._ghRequest === marker) _paintResults(host, d, options.playerId); })
+        .catch(() => {
+          if (!host.isConnected || host._ghRequest !== marker) return;
+          host.innerHTML = '<p>' + _esc(_label('gh_finish_error')) + '</p><button class="gh-result-retry">' + _esc(_label('gh_finish_retry')) + '</button>';
+          host.querySelector('button').onclick = () => showStandings(host, options);
+        });
+    }
+    // Same record strip for numbered stages and difficulty-based puzzles.
+    function stageRecords(host, stage, score, options) {
+      if (!host || !stage) return; options = options || {}; _resultsStyle();
+      const cacheKey = _gameId + ':' + stage + ':' + _you;
+      if (options.refresh) _stageCache.delete(cacheKey);
+      if (options.records) _stageCache.set(cacheKey, Promise.resolve(options.records));
+      let promise = _stageCache.get(cacheKey);
+      if (!promise) {
+        promise = fetch(BASE + '/stage-records/' + encodeURIComponent(_gameId) + '?stage=' + encodeURIComponent(stage),
+          { headers: { 'X-GH-Token': _token }, cache: 'no-store' }).then(r => { if (!r.ok) throw new Error('stage'); return r.json(); });
+        _stageCache.set(cacheKey, promise);
+      }
+      if (host.dataset.stage !== cacheKey) { host.innerHTML = ''; host.removeAttribute('title'); }
+      host.classList.add('gh-stage-records'); host.dataset.stage = cacheKey;
+      if (!host.querySelector('.gh-stage-grid')) {
+        host.innerHTML = '<div class="gh-stage-title">' + _esc(_label(options.difficulty ? 'gh_stage_difficulty' : 'gh_stage_title')) + '</div><div class="gh-stage-grid">' +
+          (options.hideScore ? ['personal','global'] : ['score','personal','global']).map(k => '<div><span>' + _esc(_label('gh_stage_' + k)) + '</span><b data-gh-stage-' + k + '>—</b></div>').join('') + '</div>';
+      }
+      host.querySelector('.gh-stage-grid').style.gridTemplateColumns = options.hideScore ? 'repeat(2,minmax(0,1fr))' : '';
+      const scoreEl = host.querySelector('[data-gh-stage-score]'); if (scoreEl) scoreEl.textContent = _number(score);
+      promise.then(d => {
+        if (host.dataset.stage !== cacheKey || _stageCache.get(cacheKey) !== promise) return;
+        host.querySelector('[data-gh-stage-personal]').textContent = _number(d.personal);
+        host.querySelector('[data-gh-stage-global]').textContent = _number(d.overall);
+      }).catch(() => {
+        if (host.dataset.stage === cacheKey) host.title = _label('gh_finish_error');
+      });
+    }
+
     function _onEv(type, cb) { (_handlers[type] = _handlers[type] || []).push(cb); }
     function _emit(type, msg) { (_handlers[type] || []).forEach(cb => { try { cb(msg); } catch (e) { console.error(e); } }); }
     function _send(msg) { if (_ws && _connected) { try { _ws.send(JSON.stringify(msg)); } catch (e) {} } }
@@ -240,6 +371,8 @@
     }
 
     function start(rootEl, room) {
+      _resetResults();
+      _finished = false; _savedClient = null; _everOpened = false;
       _root = rootEl; _roomId = room.roomId; _gameId = room.gameId;
       if (!_token || !_player) { _renderLoginGate(); return; }
       _connect();
@@ -296,10 +429,13 @@
         case 'pong': return;
         case 'error': _closedByUs = true; _unmountSave(); _renderError(msg.message); return;
         case 'game_over':
+          // Some games also forward an opponent's local end before the room ends.
+          if (!msg.records && msg.recorded == null) { _emit(msg.type, msg); return; }
           // The run ended on its own — there is nothing left to save.
           _finished = true;
           _unmountSave();
           _emit(msg.type, msg);
+          _watchResults(msg);
           return;
         case 'joined':
           _you = msg.you; _isHost = msg.is_host; _hostId = msg.host_id;
@@ -310,7 +446,7 @@
           if (msg.status === 'playing') _enterGame(true);
           // A finished room cannot be played again — reloading its link used to
           // land back in the lobby, where Start only answers 409.
-          else if (msg.status === 'finished') { _state = 'finished'; _renderFinished(); }
+          else if (msg.status === 'finished') { _state = 'finished'; _finished = true; _renderFinished(); if (msg.result) _watchResults(msg.result); }
           else { _state = 'lobby'; _renderLobby(); }
           return;
         case 'roster':
@@ -449,7 +585,7 @@
         + '<div style="font-size:.82rem;color:var(--fg2,#a6adc8);max-width:290px;line-height:1.5">'
         + _esc(_t('gh_save_body', 'Saving keeps this run for later and closes it here. Nothing is recorded — the game has not ended.')) + '</div>'
         + '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:4px">'
-        + '<button id="gh-save-go" style="background:var(--accent,#89b4fa);color:#1e1e2e;border:none">'
+        + '<button id="gh-save-go" style="background:var(--accent,#89b4fa);color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));border:none">'
         + _esc(_t('gh_save_and_exit', '💾 Save & exit')) + '</button>'
         + '<button id="gh-save-back" style="background:var(--surface2,#313244);color:var(--fg,#cdd6f4);border:1px solid var(--border,#45475a)">'
         + _esc(_t('gh_keep_playing', '▶ Keep playing')) + '</button>'
@@ -502,7 +638,8 @@
         + '<div style="font-size:1.05rem;font-weight:700">' + _esc(_t('gh_room_finished_title', 'This game is over')) + '</div>'
         + '<div style="font-size:.88rem;color:var(--fg2,#a6adc8);line-height:1.5">'
         + _esc(_t('gh_room_finished_body', 'The room has closed. Start a new game from Game Hub.')) + '</div>'
-        + '<a href="' + hub + '" style="background:var(--accent,#89b4fa);color:#1e1e2e;border-radius:8px;'
+        + '<section data-gh-results></section>'
+        + '<a href="' + hub + '" style="background:var(--accent,#89b4fa);color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));border-radius:8px;'
         + 'padding:9px 20px;font-weight:700;font-size:.9rem;text-decoration:none">'
         + _esc(_t('gh_back_to_hub', '‹ Game Hub')) + '</a>'
         + '</div>';
@@ -516,7 +653,7 @@
     function _renderGone() {
       _ensureStyle();
       _root.innerHTML = '<div style="max-width:380px;margin:60px auto;text-align:center;padding:0 16px">'
-        + '<div style="font-size:15px;color:#f38ba8;line-height:1.5">' + _esc(_tr('gh_room_gone', 'This game room is no longer available. It may have closed when the server restarted.')) + '</div>'
+        + '<div style="font-size:15px;color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)));line-height:1.5">' + _esc(_tr('gh_room_gone', 'This game room is no longer available. It may have closed when the server restarted.')) + '</div>'
         + '<a href="/pub/gamehub/" style="display:inline-block;margin-top:16px;color:var(--accent,#89b4fa);text-decoration:none;font-weight:600">' + _esc(_tr('gh_back_to_hub', '‹ Game Hub')) + '</a></div>';
     }
 
@@ -529,7 +666,7 @@
         unauthorized: 'A Game Hub account is required.',
       };
       if (message === 'room_gone') { _renderGone(); return; }
-      _root.innerHTML = '<div style="max-width:360px;margin:60px auto;text-align:center;color:#f38ba8;font-size:15px;padding:0 16px">'
+      _root.innerHTML = '<div style="max-width:360px;margin:60px auto;text-align:center;color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)));font-size:15px;padding:0 16px">'
         + _esc(map[message] || message || 'Error') + '</div>';
     }
 
@@ -537,7 +674,7 @@
       const pcol = _root.querySelector('#gh-lobby-pcol');
       if (!pcol) { _renderLobby(); return; }
       const connectedCount = _roster.filter(p => p.connected).length;
-      pcol.innerHTML = '<div style="font-size:.72rem;color:#a6adc8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Players:' + connectedCount + '</div>';
+      pcol.innerHTML = '<div style="font-size:.72rem;color:var(--fg2,var(--text-dim,#a6adc8));text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Players:' + connectedCount + '</div>';
       const plist = document.createElement('div');
       plist.style.cssText = 'display:flex;flex-direction:column;gap:6px';
       _roster.forEach(p => {
@@ -582,7 +719,7 @@
       const pcol = document.createElement('div');
       pcol.id = 'gh-lobby-pcol';
       pcol.style.cssText = 'flex:1;min-width:240px';
-      pcol.innerHTML = '<div style="font-size:.72rem;color:#a6adc8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Players:' + connectedCount + '</div>';
+      pcol.innerHTML = '<div style="font-size:.72rem;color:var(--fg2,var(--text-dim,#a6adc8));text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Players:' + connectedCount + '</div>';
       const plist = document.createElement('div');
       plist.style.cssText = 'display:flex;flex-direction:column;gap:6px';
       _roster.forEach(p => {
@@ -643,7 +780,7 @@
         footer.appendChild(startBtn);
       } else {
         const w = document.createElement('div');
-        w.style.cssText = 'text-align:center;color:#a6adc8;font-size:.9rem;padding:10px';
+        w.style.cssText = 'text-align:center;color:var(--fg2,var(--text-dim,#a6adc8));font-size:.9rem;padding:10px';
         w.textContent = 'Waiting for host to start…';
         footer.appendChild(w);
       }
@@ -652,7 +789,7 @@
     }
 
     return {
-      start, registerGame,
+      start, registerGame, stageRecords, showStandings,
       on: _onEv, send: _send,
       players:  () => _roster.slice(),
       me:       () => _roster.find(p => p.id === _you) || null,
@@ -670,7 +807,7 @@
       // True in the lobby of a room that continues a saved game.
       isResume:    () => _resumeLobby,
       canSave, exitPrompt, saveAndExit,
-      leave: () => { _leaveFullscreen(); _closedByUs = true; if (_ws) { try { _ws.close(); } catch (e) {} } },
+      leave: () => { _resetResults(); _leaveFullscreen(); _closedByUs = true; if (_ws) { try { _ws.close(); } catch (e) {} } },
     };
   })();
 
@@ -691,6 +828,7 @@
     renderWidget,
     renderInviteSection,
     mp: _mp,
+    showStandings: _mp.showStandings,
     recordSession: (data) => fetch(BASE + '/session', {
       method:  'POST',
       headers: {'Content-Type':'application/json'},

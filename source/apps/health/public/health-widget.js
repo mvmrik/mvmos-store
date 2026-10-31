@@ -86,8 +86,8 @@
       .hl-tabs::-webkit-scrollbar{display:none}
       .hl-btn{background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border:none;border-radius:6px;padding:8px 10px;min-height:38px;cursor:pointer;font-size:.82rem;white-space:nowrap}
       .hl-btn:hover{background:var(--pub-border,#45475a)}
-      .hl-btn.on{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:600}
-      .hl-primary{background:var(--pub-accent,#89b4fa);color:var(--pub-bg,#1e1e2e);font-weight:600}
+      .hl-btn.on{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e));font-weight:600}
+      .hl-primary{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e));font-weight:600}
       .hl-body{flex:1;overflow-y:auto;padding:14px 14px 28px;display:flex;flex-direction:column;gap:16px}
       .hl-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
       .hl-chips{display:flex;gap:6px;flex-wrap:wrap}

@@ -69,16 +69,16 @@
 @media(prefers-color-scheme:dark){.cl-banned{background:#3a1f22;color:#f3c6c6;border-color:#5c3035}}
 .cl-root.cl-desktop{--cl-bg:var(--bg);--cl-card:var(--surface);--cl-text:var(--text);--cl-muted:var(--text-dim);--cl-line:var(--border);--cl-accent:var(--accent);color-scheme:normal;font-family:var(--font,system-ui,sans-serif)}
 .cl-root.cl-desktop button,.cl-root.cl-desktop input:not([type=checkbox]),.cl-root.cl-desktop select,.cl-root.cl-desktop textarea{border-radius:var(--radius,6px)}
-.cl-root.cl-desktop .cl-primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.cl-root.cl-desktop .cl-primary:hover{background:var(--accent-hover,var(--accent));color:#fff}
+.cl-root.cl-desktop .cl-primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#fff)))}
+.cl-root.cl-desktop .cl-primary:hover{background:var(--accent-hover,var(--accent));color:var(--on-accent,var(--surface,var(--surface1,#fff)))}
 .cl-root.cl-desktop .cl-header,.cl-root.cl-desktop .cl-card,.cl-root.cl-desktop .cl-dialog,.cl-root.cl-desktop .cl-mod-table,.cl-root.cl-desktop .cl-mod-form,.cl-root.cl-desktop .cl-mod-side,.cl-root.cl-desktop .cl-mod-msg:not(.cl-system){border-color:var(--border)}
 .cl-root.cl-desktop .cl-dialog{border:1px solid var(--border)}
 .cl-root.cl-desktop .cl-mod-th,.cl-root.cl-desktop .cl-seller,.cl-root.cl-desktop .cl-stats-panel,.cl-root.cl-desktop .cl-vip-picker,.cl-root.cl-desktop .cl-messages{background:var(--surface2)}
 .cl-root.cl-desktop .cl-cover,.cl-root.cl-desktop .cl-mod-thumb{background:var(--surface2)}
 .cl-root.cl-desktop .cl-cover>span{color:var(--text-dim)}
 .cl-root.cl-desktop .cl-status{background:var(--surface2);color:var(--text-dim)}
-.cl-root.cl-desktop .cl-active{background:color-mix(in srgb,#3fb950 18%,transparent);color:#3fb950}
-.cl-root.cl-desktop .cl-expired{background:color-mix(in srgb,#d29922 20%,transparent);color:#d29922}
+.cl-root.cl-desktop .cl-active{background:color-mix(in srgb,#3fb950 18%,transparent);color:color-mix(in srgb,#3fb950 35%,var(--text,#cdd6f4))}
+.cl-root.cl-desktop .cl-expired{background:color-mix(in srgb,#d29922 20%,transparent);color:color-mix(in srgb,#d29922 35%,var(--text,#cdd6f4))}
 .cl-root.cl-desktop .cl-danger{color:var(--danger)}
 .cl-root.cl-desktop .cl-danger:hover{border-color:var(--danger)}
 .cl-root.cl-desktop .cl-form-error{color:var(--danger)}

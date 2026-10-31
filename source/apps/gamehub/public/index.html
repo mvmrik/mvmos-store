@@ -13,7 +13,7 @@
   input{font-family:inherit}
   .card{background:var(--surface1);border:1px solid var(--border);border-radius:12px}
   .btn{border:none;border-radius:8px;padding:9px 20px;font-size:.9rem;font-weight:600}
-  .btn-primary{background:var(--accent);color:#1e1e2e}
+  .btn-primary{background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)))}
   .btn-primary:hover{opacity:.9}
   .btn-secondary{background:var(--surface2);color:var(--fg);border:1px solid var(--border)}
   .btn-secondary:hover{background:var(--border)}
@@ -437,7 +437,7 @@ function showOtherPlayerProfile(p) {
 
   function drawHistButtons() {
     const h = box.querySelector('#op-hist');
-    const btn = (kind, label) => `<button class="btn btn-secondary" data-h="${kind}" style="padding:6px 12px;font-size:.8rem${openList===kind?';background:var(--accent);color:#1e1e2e':''}">${esc(label)}${openList===kind?' ▴':' ▾'}</button>`;
+    const btn = (kind, label) => `<button class="btn btn-secondary" data-h="${kind}" style="padding:6px 12px;font-size:.8rem${openList===kind?';background:var(--accent);color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)))':''}">${esc(label)}${openList===kind?' ▴':' ▾'}</button>`;
     h.innerHTML = btn('all', t('gv_history')) + (isSelf ? '' : btn('shared', t('gv_shared_history')));
     h.querySelectorAll('[data-h]').forEach(b => b.onclick = () => showHistory(b.dataset.h));
   }

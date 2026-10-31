@@ -21,7 +21,7 @@
     "multiplayer",
     "games"
   ],
-  "version": "1.0.0",
+  "version": "1.1.0",
   "min_core_version": "1.16.1",
   "description": "A 3D jigsaw puzzle with real pieces cut from beautiful pictures of nature, animals and travel. Five sizes from 24 to 216 pieces with no time limit, and the server checks every piece. Play alone for points, with hints that cost points, or race friends on the same picture – the most points win.",
   "entry": "main.js",

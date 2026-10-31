@@ -37,6 +37,7 @@ def matches(rule, local):
     m = local.hour * 60 + local.minute
     a, b = minute(rule['from']), minute(rule['to'])
     date = local.date()
+    if not season(rule, date): return False
     if a == b:
         pass
     elif a < b:
@@ -47,7 +48,113 @@ def matches(rule, local):
         date -= dt.timedelta(days=1)
     else:
         return False
-    return date.weekday() in rule['days'] and season(rule, date)
+    return date.weekday() in rule['days']
+
+
+def local_windows(rules, date, weekday=None):
+    """Effective bands on this calendar date; overnight weekdays follow the start."""
+    windows = []
+    weekday = date.weekday() if weekday is None else weekday
+    for rule in rules:
+        if not season(rule, date):
+            continue
+        a, b = minute(rule['from']), minute(rule['to'])
+        if a == b:
+            if weekday in rule['days']: windows.append((0, 1440))
+        elif a < b:
+            if weekday in rule['days']: windows.append((a, b))
+        else:
+            if weekday in rule['days']: windows.append((a, 1440))
+            if (weekday - 1) % 7 in rule['days']: windows.append((0, b))
+    return windows
+
+
+def intersect_windows(first, second):
+    return [(max(a, c), min(b, d)) for a, b in first for c, d in second
+            if max(a, c) < min(b, d)]
+
+
+def utc_windows(date, zone, windows, lo, hi):
+    """Map wall-clock bands to real instants, preserving DST folds and gaps."""
+    midnight = dt.datetime.combine(date, dt.time())
+    start = midnight.replace(tzinfo=zone).timestamp()
+    end = (midnight + dt.timedelta(days=1)).replace(tzinfo=zone).timestamp()
+    left, right = max(lo, start), min(hi, end)
+    if right <= left or not windows:
+        return []
+    cuts = {left, right}
+    for a, b in windows:
+        for m in (a, b):
+            wall = midnight + dt.timedelta(minutes=m)
+            for fold in (0, 1):
+                ts = wall.replace(tzinfo=zone, fold=fold).timestamp()
+                if left < ts < right: cuts.add(ts)
+    # A skipped/repeated hour can cut a band even when its endpoints are not
+    # in that hour. Find the exact offset transition on such calendar dates.
+    offset = lambda ts: dt.datetime.fromtimestamp(ts, zone).utcoffset()
+    if offset(start) != offset(end - 1):
+        t = start
+        while t < end:
+            nxt = min(t + 3600, end - 1)
+            if offset(t) != offset(nxt):
+                a, b = int(t), int(nxt)
+                old = offset(a)
+                while b - a > 1:
+                    mid = (a + b) // 2
+                    if offset(mid) == old: a = mid
+                    else: b = mid
+                if left < b < right: cuts.add(b)
+            if nxt <= t: break
+            t = nxt
+    out = []
+    cuts = sorted(cuts)
+    for a, b in zip(cuts, cuts[1:]):
+        local = dt.datetime.fromtimestamp((a + b) / 2, zone)
+        m = local.hour * 60 + local.minute
+        if any(x <= m < y for x, y in windows):
+            out.append((a, b))
+    return out
+
+
+def plans_overlap(first, second):
+    """Validity alone is insufficient: compare the actual seasonal time bands."""
+    lo, hi = max(first['start_ts'], second['start_ts']), min(first['end_ts'], second['end_ts'])
+    if lo >= hi or (first['kind'] != 'all' and second['kind'] != 'all' and first['kind'] != second['kind']):
+        return False
+    zones = [ZoneInfo(p['timezone']) for p in (first, second)]
+    if zones[0] == zones[1]:
+        # First eliminate disjoint recurring schedules without scanning years.
+        common = {}
+        for day in range(366):
+            date = dt.date(2024, 1, 1) + dt.timedelta(days=day)
+            for wd in range(7):
+                shared = intersect_windows(local_windows(first['rules'], date, wd),
+                                           local_windows(second['rules'], date, wd))
+                if shared: common[(date.month, date.day, wd)] = shared
+        if not common:
+            return False
+        date = dt.datetime.fromtimestamp(lo, zones[0]).date()
+        last = dt.datetime.fromtimestamp(hi - 1, zones[0]).date()
+        while date <= last:
+            windows = common.get((date.month, date.day, date.weekday()), [])
+            if utc_windows(date, zones[0], windows, lo, hi): return True
+            date += dt.timedelta(days=1)
+        return False
+
+    # Different billing zones may still describe disjoint real instants.
+    def intervals(plan, zone):
+        date = dt.datetime.fromtimestamp(lo, zone).date()
+        last = dt.datetime.fromtimestamp(hi - 1, zone).date()
+        while date <= last:
+            yield from utc_windows(date, zone, local_windows(plan['rules'], date), lo, hi)
+            date += dt.timedelta(days=1)
+    a, b = iter(intervals(first, zones[0])), iter(intervals(second, zones[1]))
+    x, y = next(a, None), next(b, None)
+    while x and y:
+        if max(x[0], y[0]) < min(x[1], y[1]): return True
+        if x[1] <= y[1]: x = next(a, None)
+        else: y = next(b, None)
+    return False
 
 
 def validate(body):
@@ -83,7 +190,7 @@ def validate(body):
             date = dt.date(2024, 1, 1) + dt.timedelta(days=day)
             if not season(r, date): continue
             for weekday in r['days']:
-                chunks = [(date, weekday, a, b)] if a < b else [(date, weekday, 0, 1440)] if a == b else [(date, weekday, a, 1440), (date + dt.timedelta(days=1), (weekday+1)%7, 0, b)]
+                chunks = [(date, weekday, a, b)] if a < b else [(date, weekday, 0, 1440)] if a == b else [(date, weekday, a, 1440), (date, (weekday+1)%7, 0, b)]
                 for date2, wd, lo, hi in chunks:
                     if hi <= lo: continue
                     key = (date2.month, date2.day, wd)
@@ -108,7 +215,6 @@ class Billing:
                 local = dt.datetime.fromtimestamp(ts, p['zone'])
                 for rule in p['rules']:
                     if matches(rule, local): return (p['id'], rule['name'], p['currency'], rule['price'], 'tariff')
-                return None
         if applicable: return None
         price = place['dc_price' if dc else 'ac_price'] if place else None
         if price is None: price = self.prefs.get('default_dc_price' if dc else 'default_ac_price')
