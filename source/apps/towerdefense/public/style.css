@@ -5,6 +5,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* The board, its shop and its dialogs are a fixed dark scene on every
+     theme, so the drawing and the controls over it always contrast. */
+  --bg: #11111b;
+  --surface: #1e1e2e;
+  --surface1: #181825;
+  --surface2: #313244;
+  --border: #45475a;
+  --fg: #cdd6f4;
+  --fg2: #a6adc8;
+  --text: #cdd6f4;
+  --text-dim: #a6adc8;
+  --accent: #89b4fa;
+  --on-accent: #1e1e2e;
+  --green: #a6e3a1;
+  --yellow: #f9e2af;
+  --red: #f38ba8;
+  color: var(--fg);
 }
 
 #td-canvas {
@@ -75,8 +92,8 @@
   padding: 9px 16px;
   border: none;
   border-radius: 10px;
-  background: var(--accent, #89b4fa);
-  color:var(--on-accent,var(--surface,var(--surface1,#1e1e2e)));
+  background: #89b4fa;
+  color: #1e1e2e;
   font-size: .92rem;
   font-weight: 800;
   white-space: nowrap;

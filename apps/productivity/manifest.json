@@ -144,7 +144,7 @@
       "name": "Family Tree",
       "icon": "🌳",
       "category": "Productivity",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "description": "Beautiful private family trees with Apps Hub profile links, sharing roles and reviewed contributions.",
       "tags": [
         "family",
@@ -152,7 +152,7 @@
         "collaboration"
       ],
       "min_core_version": "1.16.1",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/familytree-1.1.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/familytree-1.1.1.zip",
       "premium": true,
       "name_i18n": {
         "en": "Family Tree",

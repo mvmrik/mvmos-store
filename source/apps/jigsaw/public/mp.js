@@ -184,7 +184,7 @@
     root.innerHTML =
       '<div class="jp-wrap">' +
         '<div class="jp-players"></div>' +
-        '<div class="jp-status">' + tile('df', 'jp_hud_diff') + tile('tm', 'jp_hud_time') + tile('pts', 'jp_hud_points') + tile('pc', 'jp_hud_pieces') + '</div><div data-gh-stage></div>' +
+        '<div class="jp-status">' + tile('df', 'jp_hud_diff') + tile('tm', 'jp_hud_time') + tile('pts', 'jp_hud_points') + tile('pc', 'jp_hud_pieces') + '</div>' +
         '<div class="jp-stage"><div class="jp-load">' + _esc(_t('jp_waiting')) + '</div></div>' +
         '<div class="jp-foot"><button class="jp-snd" data-snd title="' + _esc(_t('jp_sound')) + '"></button></div>' +
       '</div>';
@@ -327,7 +327,6 @@
     if (!M || !el.df) return;
     el.df.textContent = _t('jp_diff_' + M.diff);
     el.pts.textContent = fmt(myPts());
-    if (mp.stageRecords) mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:difficulty:' + M.diff, myPts(), { difficulty: true });
     el.pc.textContent = placedN() + '/' + N;
     paintClock();
     const me = meId();
@@ -340,7 +339,6 @@
     if (_stopClock) return;
     el.tm.textContent = clock((performance.now() - _t0) / 1000);
     el.pts.textContent = fmt(myPts());
-    if (mp.stageRecords) mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:difficulty:' + M.diff, myPts(), { difficulty: true });
     if (M.order.length > 1) paintPlayers();
   }
 
@@ -530,7 +528,6 @@
         paintPlayers();
         break;
       case 'jp_done':
-        if (mp.stageRecords) mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:difficulty:' + M.diff, m.points, { difficulty: true, refresh: true, records: m.stage_records });
         M.done = true; _stopClock = true;
         pts = m.points; paintStatus(); paintTools();
         el.tm.textContent = clock(m.time);
@@ -626,7 +623,7 @@
       '<p class="jp-hint">' + _esc(_t('jp_leave_note')) + '</p>' +
       '<div class="jp-acts"><a class="jp-btn" href="' + HUB_URL + '">' + _esc(_t('jp_back')) + '</a></div></div>';
     el.stage.appendChild(d);
-    if (mp.stageRecords) mp.stageRecords(d.querySelector('[data-gh-stage-done]'), 'v1:difficulty:' + M.diff, m.points, { difficulty: true });
+    if (mp.stageRecords) mp.stageRecords(d.querySelector('[data-gh-stage-done]'), 'v1:difficulty:' + M.diff, m.points, { difficulty: true, refresh: true, records: m.stage_records });
     closable(d);
     paintPeers();
   }

@@ -24,4 +24,4 @@ The host chooses the level and everybody solves the same puzzle at their own pac
 
 Game Hub records points, level, puzzles solved, solving time, mistakes and hints, with a rating for multiplayer.
 
-The score display and completed puzzle screen compare your current score with your personal best and the overall best for the selected difficulty. Only successfully completed puzzles set these records, including multiplayer puzzles while the other players are still playing. Tracking starts with this feature; historical difficulty records are not reconstructed from incomplete session data. The final game screen also shows the Game Hub top 10 and your ranking position.
+The completed puzzle screen compares your score with your personal best and the overall best for the selected difficulty; nothing about records is shown while you are solving. Only successfully completed puzzles set these records, including multiplayer puzzles while the other players are still playing. Tracking starts with this feature; historical difficulty records are not reconstructed from incomplete session data. The final game screen also shows the Game Hub top 10 and your ranking position.

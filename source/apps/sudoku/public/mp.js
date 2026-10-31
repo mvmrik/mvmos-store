@@ -110,7 +110,7 @@
     root.innerHTML =
       '<div class="sd-wrap">' +
         '<div class="sd-players"></div>' +
-        '<div class="sd-status">' + tile('df', 'sd_hud_diff') + tile('tm', 'sd_hud_time') + tile('pts', 'sd_hud_points') + tile('er', 'sd_hud_errors') + '</div><div data-gh-stage></div>' +
+        '<div class="sd-status">' + tile('df', 'sd_hud_diff') + tile('tm', 'sd_hud_time') + tile('pts', 'sd_hud_points') + tile('er', 'sd_hud_errors') + '</div>' +
         '<div class="sd-stage"><div class="sd-load">' + _esc(_t('sd_waiting')) + '</div></div>' +
         '<div class="sd-foot"><button class="sd-snd" data-snd title="' + _esc(_t('sd_sound')) + '"></button></div>' +
       '</div>';
@@ -290,7 +290,6 @@
     if (!M || !el.df) return;
     el.df.textContent = _t('sd_diff_' + M.diff);
     el.pts.textContent = fmt(myPts());
-    if (mp.stageRecords) mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:difficulty:' + M.diff, myPts(), { difficulty: true });
     el.er.textContent = mist;
     paintClock();
     const me = meId();
@@ -303,7 +302,6 @@
     if (_stopClock) return;
     el.tm.textContent = clock((performance.now() - _t0) / 1000);
     el.pts.textContent = fmt(myPts());
-    if (mp.stageRecords) mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:difficulty:' + M.diff, myPts(), { difficulty: true });
     if (M.order.length > 1) paintPlayers();
   }
 
@@ -576,7 +574,6 @@
         paintPlayers();
         break;
       case 'sd_done':
-        if (mp.stageRecords) mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:difficulty:' + M.diff, m.points, { difficulty: true, refresh: true, records: m.stage_records });
         M.done = true; _stopClock = true;
         pts = m.points; paintStatus(); paintTools();
         el.tm.textContent = clock(m.time);
@@ -654,7 +651,7 @@
       '<p class="sd-hint">' + _esc(_t('sd_leave_note')) + '</p>' +
       '<div class="sd-acts"><a class="sd-btn" href="' + HUB_URL + '">' + _esc(_t('sd_back')) + '</a></div></div>';
     el.stage.appendChild(d);
-    if (mp.stageRecords) mp.stageRecords(d.querySelector('[data-gh-stage-done]'), 'v1:difficulty:' + M.diff, m.points, { difficulty: true });
+    if (mp.stageRecords) mp.stageRecords(d.querySelector('[data-gh-stage-done]'), 'v1:difficulty:' + M.diff, m.points, { difficulty: true, refresh: true, records: m.stage_records });
     paintPeers();
   }
 

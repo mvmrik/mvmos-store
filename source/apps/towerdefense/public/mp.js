@@ -1439,9 +1439,10 @@
   }
 
   // ── Drawing ───────────────────────────────────────────────────────────────
+  // The board is always dark, whatever the page theme is: its colours are fixed.
+  const _BOARD = { '--accent': '#89b4fa', '--fg2': '#a6adc8', '--fg': '#cdd6f4', '--surface1': '#181825' };
   function _css(name, fallback) {
-    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-    return v || fallback;
+    return _BOARD[name] || fallback;
   }
 
   function _draw() {
@@ -1957,8 +1958,8 @@
       '<button id="td-units" style="display:none;align-self:center;background:var(--surface2,#313244);' +
       'color:var(--fg,#cdd6f4);border:1px solid var(--border,#45475a);border-radius:10px;padding:9px 12px;' +
       'font-size:.95rem;cursor:pointer">👾</button>' +
-      '<button id="td-go" style="display:none;flex:1 1 auto;white-space:nowrap;align-self:center;background:var(--accent,#89b4fa);' +
-      'color:var(--on-accent,#1e1e2e);border:none;border-radius:10px;padding:9px 12px;font-weight:800;font-size:.92rem;' +
+      '<button id="td-go" style="display:none;flex:1 1 auto;white-space:nowrap;align-self:center;background:#89b4fa;' +
+      'color:#1e1e2e;border:none;border-radius:10px;padding:9px 12px;font-weight:800;font-size:.92rem;' +
       'cursor:pointer"></button>' +
       // Everything that is not part of playing lives behind one menu button, so
       // a new control has a place to go without crowding the row.

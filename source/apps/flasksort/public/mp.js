@@ -108,7 +108,7 @@
         '<div class="fs-status">' +
           tile('lv', 'fs_hud_level') + tile('pts', 'fs_hud_points') + tile('mv', 'fs_hud_moves') + tile('bn', 'fs_hud_bonus') +
         '</div>' +
-        '<div data-gh-stage></div><div class="fs-bar"><i></i></div>' +
+        '<div class="fs-bar"><i></i></div>' +
         '<div class="fs-board"><div class="fs-load">' + _esc(_t('fs_waiting')) + '</div></div>' +
         // Along the bottom, beside Game Hub's Save & exit at the left, so the
         // buttons take nothing from the board.
@@ -383,7 +383,6 @@
     el.mv.textContent = M.lv.moves + '/' + M.lv.par;
     paintClock();
     el.pts.textContent = fmt(M.lv.points);
-    if (mp.stageRecords) mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:level:' + M.lv.level, null, { hideScore: true });
     const me = meId();
     M.prog[me] = Object.assign({}, M.prog[me], { level: M.lv.level, points: M.lv.points });
     paintPlayers();
@@ -452,7 +451,6 @@
     el.board.appendChild(b);
     if (mp.stageRecords) {
       mp.stageRecords(b.querySelector('[data-gh-stage-clear]'), 'v1:level:' + m.level, levelScore, { refresh: true, records: m.stage_records });
-      mp.stageRecords(_root.querySelector('[data-gh-stage]'), 'v1:level:' + m.level, null, { hideScore: true });
     }
     b.querySelector('[data-next]').onclick = () => proceed(m);
     const fin = b.querySelector('[data-finish]');
