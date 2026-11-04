@@ -21,6 +21,7 @@ Documentation for individual Store applications lives in this repository. Update
 - [mvmPasswords](apps/mvmpasswords.md)
 - [mvmPlayer](apps/mvmplayer.md)
 - [qBit Dashboard](apps/qbit-dashboard.md)
+- [Racelandia](apps/racelandia.md)
 - [Remember the Pairs](apps/memorypairs.md)
 - [Flask Sort](apps/flasksort.md)
 - [Sudoku](apps/sudoku.md)

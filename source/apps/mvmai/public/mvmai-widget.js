@@ -73,7 +73,7 @@
       .mvmai-chat-col{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden}
       /* Desktop mvmOS window: persistent side-by-side sidebar, never an off-canvas
          overlay — unlike the public page, which stays a mobile-style slide-over. */
-      .mvmai-widget.mvmai-desktop{flex-direction:row}
+      .mvmai-widget.mvmai-desktop{flex-direction:row;--pub-accent:var(--accent,#89b4fa);--pub-on-accent:var(--on-accent,#1e1e2e)}
       .mvmai-widget.mvmai-desktop .mvmai-sidebar-backdrop{display:none}
       .mvmai-widget.mvmai-desktop .mvmai-hist-btn{display:none}
       .mvmai-widget.mvmai-desktop .mvmai-sidebar{
@@ -86,24 +86,26 @@
       .mvmai-header-title{font-weight:700;font-size:1rem}
       .mvmai-header-title{display:none}
       .mvmai-badge{font-size:.68rem;font-weight:700;padding:.15rem .5rem;border-radius:1rem;
-        background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-surface1,#1e1e2e));white-space:nowrap}
+        background:var(--pub-accent,#89b4fa);color:var(--pub-on-accent,var(--pub-surface1,#1e1e2e));white-space:nowrap}
       .mvmai-price{margin-left:auto;font-size:.72rem;color:var(--pub-dim,#6c7086);white-space:nowrap}
       .mvmai-list{flex:1;min-height:0;overflow-y:auto;padding:.9rem;display:flex;flex-direction:column;gap:.7rem}
       .mvmai-start{margin:auto;display:flex;flex-direction:column;align-items:center;gap:.9rem;padding:1rem;width:100%;max-width:26rem}
       .mvmai-start-title{font-weight:600;font-size:1rem;color:var(--pub-fg,#cdd6f4)}
       .mvmai-start-new{border:0;border-radius:.6rem;padding:.55rem 1.3rem;font:inherit;font-size:.9rem;font-weight:600;cursor:pointer;
-        background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-surface1,#1e1e2e))}
+        background:var(--pub-accent,#89b4fa);color:var(--pub-on-accent,var(--pub-surface1,#1e1e2e))}
       .mvmai-start-new:hover{filter:brightness(1.08)}
       .mvmai-start-list{display:flex;flex-direction:column;gap:.15rem;width:100%;text-align:left}
       .mvmai-start-empty{color:var(--pub-fg2,#a6adc8);font-size:.8rem;text-align:center}
       .mvmai-welcome{color:var(--pub-fg2,#a6adc8);font-size:.85rem;text-align:center;margin:auto;padding:1rem}
       .mvmai-widget .mvmai-msg{display:block;max-width:85%;padding:.55rem .75rem;border-radius:.7rem;font-size:.88rem;line-height:1.45;
         overflow-wrap:anywhere;white-space:normal;user-select:text;-webkit-user-select:text}
-      .mvmai-msg.user{align-self:flex-end;background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-surface1,#1e1e2e))}
+      .mvmai-msg.user{align-self:flex-end;background:var(--pub-accent,#89b4fa);color:var(--pub-on-accent,var(--pub-surface1,#1e1e2e))}
       .mvmai-msg.assistant{align-self:flex-start;background:var(--pub-surface2,#313244)}
       .mvmai-msg-meta{display:flex;flex-wrap:wrap;gap:.2rem .55rem;margin-top:.45rem;padding-top:.35rem;
         border-top:1px solid var(--pub-border,rgba(255,255,255,.09));color:var(--pub-dim,#6c7086);
         font-size:.68rem;line-height:1.2;min-width:0}
+      .mvmai-msg.user .mvmai-msg-meta{color:inherit;border-top-color:currentColor}
+      .mvmai-msg.user a{color:inherit}
       .mvmai-provider-label{min-width:0;overflow-wrap:anywhere}
       .mvmai-msg-time{margin-left:auto;white-space:nowrap}
       .mvmai-msg.system-note{align-self:center;background:none;color:var(--pub-dim,#6c7086);font-size:.78rem;
@@ -130,7 +132,7 @@
       .mvmai-confirm-row{display:flex;gap:.5rem;margin-top:.4rem}
       .mvmai-confirm-row button{border:0;border-radius:.4rem;padding:.35rem .8rem;font-size:.8rem;
         font-weight:600;cursor:pointer}
-      .mvmai-confirm-yes{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-surface1,#1e1e2e))}
+      .mvmai-confirm-yes{background:var(--pub-accent,#89b4fa);color:var(--pub-on-accent,var(--pub-surface1,#1e1e2e))}
       .mvmai-confirm-no{background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4)}
       .mvmai-inputbar{display:flex;gap:.5rem;padding:.75rem .9rem;flex-shrink:0;
         border-top:1px solid var(--pub-border,#45475a)}
@@ -168,7 +170,7 @@
       .mvmai-input{flex:1;resize:none;min-height:2.3rem;max-height:8rem;background:var(--pub-surface2,#313244);
         color:var(--pub-fg,#cdd6f4);border:1px solid var(--pub-border,#45475a);border-radius:.5rem;
         padding:.5rem .65rem;font:inherit;font-size:.88rem;outline:none}
-      .mvmai-send{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-surface1,#1e1e2e));border:0;border-radius:.5rem;
+      .mvmai-send{background:var(--pub-accent,#89b4fa);color:var(--pub-on-accent,var(--pub-surface1,#1e1e2e));border:0;border-radius:.5rem;
         padding:0 1rem;font-weight:700;cursor:pointer;font-size:.88rem}
       .mvmai-send:disabled{opacity:.5;cursor:default}
       .mvmai-thumbs{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem}
@@ -191,7 +193,7 @@
       .mvmai-gal-head b{font-size:.95rem;margin-right:auto}
       .mvmai-gal-tabs{display:flex;gap:.3rem}
       .mvmai-gal-tabs button,.mvmai-gal-close{background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border:1px solid var(--pub-border,#45475a);border-radius:.4rem;padding:.25rem .6rem;font-size:.78rem;cursor:pointer}
-      .mvmai-gal-tabs button.on{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-surface1,#1e1e2e));border-color:transparent;font-weight:700}
+      .mvmai-gal-tabs button.on{background:var(--pub-accent,#89b4fa);color:var(--pub-on-accent,var(--pub-surface1,#1e1e2e));border-color:transparent;font-weight:700}
       .mvmai-gal-body{flex:1;min-height:0;overflow-y:auto;padding:.8rem .9rem}
       .mvmai-gal-wrap{overflow-x:auto}
       .mvmai-gal-table{width:100%;border-collapse:collapse;font-size:.8rem}
@@ -226,7 +228,7 @@
       .mvmai-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:14rem}
       .mvmai-chip button{background:none;border:0;color:var(--pub-fg2,#a6adc8);cursor:pointer;padding:0 .3rem;font-size:.8rem}
       .mvmai-stop{flex-shrink:0;min-height:2.3rem;width:2.3rem;border:0;border-radius:.5rem;cursor:pointer;
-        background:var(--pub-red,#f38ba8);color:var(--on-accent,var(--pub-surface1,#1e1e2e));font-size:.95rem;font-weight:700}
+        background:var(--pub-red,#f38ba8);color:var(--pub-surface1,#1e1e2e);font-size:.95rem;font-weight:700}
       .mvmai-stop[hidden]{display:none}
       .mvmai-queue{display:flex;flex-direction:column;gap:.35rem;padding:.5rem .9rem 0;flex-shrink:0;max-height:10rem;overflow-y:auto}
       .mvmai-queue[hidden]{display:none}
@@ -344,7 +346,7 @@
         padding:.4rem .5rem;border:1px solid var(--pub-border,#45475a);border-radius:.5rem;
         background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);cursor:pointer;font-size:.78rem}
       .mvmai-exec-btn.on{border-color:var(--pub-accent,#89b4fa);color:var(--pub-accent,#89b4fa)}
-      .mvmai-exec-btn.auto{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-surface1,#1e1e2e));border-color:var(--pub-accent,#89b4fa)}
+      .mvmai-exec-btn.auto{background:var(--pub-accent,#89b4fa);color:var(--pub-on-accent,var(--pub-surface1,#1e1e2e));border-color:var(--pub-accent,#89b4fa)}
       .mvmai-exec-menu{position:absolute;top:3rem;left:.6rem;width:240px;max-width:calc(100% - 1.2rem);z-index:40;
         background:var(--pub-surface1,#181825);border:1px solid var(--pub-border,#45475a);border-radius:.5rem;
         padding:.6rem;display:flex;flex-direction:column;gap:.5rem;font-size:.78rem}
@@ -431,7 +433,7 @@
       .mvmai-model-dialog .mvmai-model-fields select{min-height:2.75rem;border-radius:.55rem;padding:.55rem .7rem}
       .mvmai-model-dialog .mvmai-pub-dialog-actions{display:block}
       .mvmai-model-dialog .mvmai-model-confirm{width:100%;min-height:2.8rem;border:0;border-radius:.6rem;
-        background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-surface1,#1e1e2e));font-size:.9rem;font-weight:700;
+        background:var(--pub-accent,#89b4fa);color:var(--pub-on-accent,var(--pub-surface1,#1e1e2e));font-size:.9rem;font-weight:700;
         cursor:pointer;transition:filter .15s,transform .15s}
       .mvmai-model-dialog .mvmai-model-confirm:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
       .mvmai-model-dialog .mvmai-model-confirm:focus-visible{outline:2px solid var(--pub-fg,#cdd6f4);outline-offset:3px}

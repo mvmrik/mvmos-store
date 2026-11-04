@@ -7,7 +7,7 @@
     "Charging history with energy, locations, unit prices and manual session cost overrides.",
     "Time-based charging tariffs with separate currencies and estimated cost splits.",
     "Group recorded trips into journeys and review journey totals.",
-    "Battery health estimates and sleep history based on collected vehicle data.",
+    "Battery health estimates, a usable-capacity estimate from your charging sessions with its change over time or distance, and sleep history based on collected vehicle data.",
     "Sleep-aware collection with configurable polling intervals and schedules.",
     "Desktop-approved server setup, personal Fleet API credentials and OAuth connection.",
     "Owner-controlled sharing with view and administrator roles, enforced on every route.",

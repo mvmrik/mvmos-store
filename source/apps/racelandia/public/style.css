@@ -1,0 +1,964 @@
+/* Racelandia - the garage follows the page theme; the 3D view, its HUD and the
+   training simulators are fixed dark scenes with their own light text. */
+
+.ap-app { display: flex; flex-direction: column; height: 100%; min-height: 0; color: var(--fg); background: var(--bg); font-size: 14px; }
+.ap-top { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--surface1); border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.ap-brand { font-size: 15px; white-space: nowrap; }
+.ap-tabs { display: flex; gap: 4px; }
+.ap-tabs button { background: transparent; color: var(--fg2); border: 1px solid transparent; border-radius: 8px; padding: 6px 12px; cursor: pointer; font: inherit; }
+.ap-tabs button.on { background: var(--accent); color: var(--on-accent, #fff); }
+.ap-status { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ap-chip { background: var(--surface2); border-radius: 999px; padding: 4px 10px; font-weight: 600; white-space: nowrap; }
+.ap-btn { background: var(--accent); color: var(--on-accent, #fff); border: 0; border-radius: 8px; padding: 9px 16px; cursor: pointer; font: inherit; font-weight: 600; }
+.ap-btn:hover { filter: brightness(1.08); }
+.ap-btn:disabled { opacity: .45; cursor: not-allowed; }
+.ap-btn.ap-sm { padding: 5px 11px; font-size: 12.5px; }
+.ap-btn.ap-sm small { display: block; font-weight: 500; opacity: .85; font-size: 10.5px; }
+.ap-btn.ap-ghost { background: transparent; color: var(--fg); border: 1px solid var(--border); }
+.ap-btn.ap-go { width: 100%; font-size: 16px; padding: 13px; background: var(--green); color: var(--on-accent, #10151f); }
+.ap-main { flex: 1; min-height: 0; position: relative; overflow: hidden; }
+.ap-screen { position: absolute; inset: 0; overflow: auto; padding: 12px; }
+#ap-track.ap-screen { padding: 0; overflow: hidden; }
+.ap-empty { padding: 40px; text-align: center; color: var(--fg2); }
+
+.ap-garage, .ap-driverpg { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 14px; max-width: 1200px; margin: 0 auto; }
+.ap-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.ap-card, .ap-grp { background: var(--surface1); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+.ap-card h2, .ap-bar h2 { margin: 0 0 6px; font-size: 16px; }
+.ap-card h3, .ap-grp h3 { margin: 12px 0 6px; font-size: 13px; color: var(--fg2); text-transform: uppercase; letter-spacing: .04em; }
+.ap-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ap-setups { gap: 10px; }
+.ap-set { padding: 7px 0; border-top: 1px solid var(--border); }
+.ap-set:first-of-type { border-top: 0; }
+.ap-set-h { display: flex; justify-content: space-between; gap: 8px; font-weight: 600; }
+.ap-set-h output { color: var(--accent); font-variant-numeric: tabular-nums; }
+.ap-set input[type=range], .ap-card input[type=range] { width: 100%; accent-color: var(--accent); }
+.ap-hint { color: var(--fg2); font-size: 12px; line-height: 1.35; }
+.ap-comps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.ap-comp { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; border: 2px solid var(--border); background: var(--surface2); color: var(--fg); border-radius: 10px; cursor: pointer; font: inherit; text-align: center; }
+.ap-comp.on { border-color: var(--accent); }
+.ap-comp { position: relative; }
+.ap-rec { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--yellow); color: #10151f; font-size: 10px; font-weight: 800; border-radius: 999px; padding: 1px 7px; white-space: nowrap; }
+.ap-comp i { width: 22px; height: 22px; border-radius: 50%; border: 3px solid #111; box-shadow: 0 0 0 1px var(--border); }
+.ap-comp small { font-size: 10.5px; color: var(--fg2); line-height: 1.2; }
+.ap-comp em { font-style: normal; font-size: 11px; color: var(--fg2); }
+.ap-hours { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
+.ap-hr { display: flex; flex-direction: column; align-items: center; padding: 5px 2px; border: 2px solid var(--border); background: var(--surface2); color: var(--fg); border-radius: 8px; font: inherit; }
+.ap-hr.on { border-color: var(--accent); }
+.ap-hr b { font-size: 11px; } .ap-hr span { font-size: 17px; } .ap-hr small { font-size: 11px; color: var(--fg2); }
+.ap-hr:disabled { cursor: default; opacity: .8; }
+.ap-cond { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+.ap-cond div { background: var(--surface2); border-radius: 8px; padding: 6px 8px; display: flex; flex-direction: column; }
+.ap-cond span { font-size: 11px; color: var(--fg2); } .ap-cond b { font-size: 14px; }
+.ap-tip { margin: 10px 0; padding: 8px 10px; border-left: 3px solid var(--accent); background: var(--surface2); border-radius: 6px; font-size: 12.5px; }
+.ap-cost { display: flex; justify-content: space-between; align-items: center; margin: 8px 0; font-size: 15px; }
+.ap-bad { color: var(--red); } .ap-good { color: var(--green); }
+.ap-warn { margin-top: 8px; color: var(--red); font-size: 12.5px; }
+.ap-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.ap-table td, .ap-table th { padding: 5px 6px; text-align: left; border-bottom: 1px solid var(--border); }
+.ap-table th { color: var(--fg2); font-size: 12px; font-weight: 600; }
+.ap-table tr.best td { color: var(--green); font-weight: 700; }
+.ap-table tr.inv td { color: var(--fg2); text-decoration: line-through; }
+.ap-table .sec { font-size: 12px; color: var(--fg2); }
+
+.ap-who { display: flex; gap: 12px; align-items: center; margin: 8px 0; }
+.ap-avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 30px; flex: none; }
+.ap-who input { background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font: inherit; font-weight: 700; width: 100%; max-width: 260px; }
+.ap-stars { color: var(--yellow); letter-spacing: 1px; }
+.ap-meter { height: 9px; border-radius: 6px; background: var(--surface2); overflow: hidden; }
+.ap-meter i { display: block; height: 100%; border-radius: 6px; }
+.ap-energy i { background: var(--yellow); }
+.ap-skills { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+.ap-skill output em { color: var(--green); font-style: normal; font-size: 12px; }
+.ap-train { display: grid; grid-template-columns: 42px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--border); }
+.ap-train-i { font-size: 28px; text-align: center; }
+.ap-train-b p { margin: 2px 0 4px; color: var(--fg2); font-size: 12px; line-height: 1.3; }
+.ap-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.ap-tags span { background: var(--surface2); border-radius: 999px; padding: 2px 9px; font-size: 11.5px; }
+.ap-modal { position: absolute; inset: 0; background: rgba(0, 0, 0, .6); display: flex; align-items: center; justify-content: center; z-index: 30; padding: 10px; }
+.ap-modal[hidden] { display: none; }
+.ap-dlg { background: var(--surface1); color: var(--fg); border: 1px solid var(--border); border-radius: 14px; padding: 14px; width: min(600px, 100%); max-height: 100%; overflow: auto; }
+.ap-tg { margin-top: 8px; }
+.ap-tg-wrap { display: flex; justify-content: center; }
+.ap-tg-canvas { border-radius: 10px; max-width: 100%; background: #10151f; }
+.ap-result { text-align: center; padding: 8px; }
+.ap-result ul { list-style: none; padding: 0; margin: 10px 0; }
+.ap-score { font-size: 48px; font-weight: 800; color: var(--accent); }
+
+/* the track */
+.ap-load { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: var(--fg); }
+.ap-bar2 { width: min(320px, 70%); height: 8px; background: var(--surface2); border-radius: 6px; overflow: hidden; }
+.ap-bar2 i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .1s; }
+.ap-view { --fg: #e8ecf4; --fg2: #aab4c8; --bg: #10151f; --surface1: #171e2b; --surface2: #263046; --border: #384560; --accent: #5aa9ff; --on-accent: #08121f; --green: #4fd18b; --red: #ff6b6b; --yellow: #f2c230;
+  position: absolute; inset: 0; background: #0b0f17; color: var(--fg); }
+.ap-3d { position: absolute; inset: 0; }
+.ap-hud { position: absolute; inset: 0; pointer-events: none; font-variant-numeric: tabular-nums; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+.ap-hud-l { position: absolute; left: 12px; bottom: 58px; display: flex; flex-direction: column; gap: 6px; width: 170px; }
+.ap-speed { background: rgba(8,12,20,.72); border-radius: 12px; padding: 6px 12px; display: flex; align-items: baseline; gap: 6px; }
+.ap-speed b { font-size: 38px; line-height: 1; } .ap-speed small { color: var(--fg2); } .ap-speed span { margin-left: auto; font-size: 24px; font-weight: 800; color: var(--yellow); }
+.ap-hud-t { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); text-align: center; background: rgba(8,12,20,.72); border-radius: 12px; padding: 6px 16px; min-width: 190px; }
+.ap-laptxt { font-size: 12px; color: var(--fg2); text-transform: uppercase; letter-spacing: .06em; } .ap-laptime { font-size: 26px; font-weight: 800; }
+.ap-hud-r { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.ap-hud-r canvas { background: rgba(8,12,20,.72); border-radius: 10px; }
+.ap-gauges { background: rgba(8,12,20,.72); border-radius: 10px; padding: 6px 10px; display: grid; gap: 3px; font-size: 13px; }
+.ap-lights { position: absolute; top: 18%; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; background: rgba(8,12,20,.8); padding: 14px 20px; border-radius: 16px; }
+.ap-lights[hidden], .ap-banner[hidden] { display: none; }
+.ap-lights i { width: 36px; height: 36px; border-radius: 50%; background: #3a0d0d; border: 3px solid #000; } .ap-lights i.on { background: #ff2a1f; box-shadow: 0 0 18px #ff2a1f; }
+.ap-banner { position: absolute; top: 22%; left: 50%; transform: translateX(-50%); background: rgba(8,12,20,.85); padding: 10px 22px; border-radius: 12px; font-size: 22px; font-weight: 800; color: var(--yellow); }
+.ap-tag { position: absolute; transform: translate(-50%, -100%); background: rgba(8,12,20,.75); border-radius: 6px; padding: 1px 6px; font-size: 11px; white-space: nowrap; }
+.ap-ctl { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; gap: 8px; padding: 8px 10px; flex-wrap: wrap; background: linear-gradient(transparent, rgba(8,12,20,.85)); }
+.ap-cams, .ap-speeds { display: flex; gap: 4px; flex-wrap: wrap; }
+.ap-ctl button { background: rgba(38,48,70,.9); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; cursor: pointer; font: inherit; font-size: 12.5px; }
+.ap-ctl button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.ap-sum { position: absolute; inset: 0; background: rgba(6,9,15,.82); display: flex; align-items: center; justify-content: center; padding: 10px; overflow: auto; z-index: 5; }
+.ap-sum-in { background: #171e2b; border: 1px solid #384560; border-radius: 14px; padding: 16px; width: min(980px, 100%); max-height: 100%; overflow: auto; }
+.ap-sum-in h2 { margin: 0 0 8px; }
+.ap-sum-top { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.ap-big { background: #263046; border-radius: 10px; padding: 8px 14px; display: flex; flex-direction: column; } .ap-big small { color: #aab4c8; font-size: 11px; text-transform: uppercase; } .ap-big b { font-size: 21px; }
+.ap-sum-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; }
+.ap-sum-grid canvas { width: 100%; height: auto; border-radius: 8px; margin-top: 8px; }
+.ap-sum-grid h3 { margin: 4px 0 6px; }
+.ap-fb { padding-left: 18px; margin: 0 0 10px; line-height: 1.4; } .ap-fb li { margin-bottom: 6px; }
+.ap-sum-btns { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.ap-final { max-width: 640px; margin: 0 auto; }
+
+@media (max-width: 860px) {
+  .ap-garage, .ap-driverpg, .ap-sum-grid { grid-template-columns: 1fr; }
+  .ap-skills { grid-template-columns: 1fr; }
+  .ap-tabs span { display: none; }
+  .ap-top { padding: 6px 8px; }
+  .ap-hud-l { width: 132px; bottom: 96px; } .ap-speed b { font-size: 28px; }
+  .ap-hud-r canvas { width: 118px; height: 84px; }
+  .ap-hud-t { min-width: 0; padding: 4px 10px; } .ap-laptime { font-size: 20px; }
+  .ap-gauges { font-size: 11.5px; }
+}
+
+/* v2: the car and its parts, per-circuit setups, history, statistics, sectors, the pit box */
+.ap-part { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--border); }
+.ap-part-i { font-size: 22px; text-align: center; }
+.ap-part-a { display: flex; flex-direction: column; gap: 4px; }
+.ap-part-prod { grid-template-columns: 1fr auto; align-items: start; }
+.ap-part-prod .ap-part-a { min-width: 120px; }
+.ap-trackcard { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--surface2); }
+.ap-trackcard .ap-bar h3 { margin: 0; text-transform: none; font-size: 15px; color: var(--fg); letter-spacing: 0; }
+.ap-title2 { font-size: 16px; margin-left: 6px; }
+.ap-kinds { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ap-kind { text-align: left; border: 2px solid var(--border); background: var(--surface2); color: var(--fg); border-radius: 10px; padding: 8px 10px; cursor: pointer; font: inherit; display: flex; flex-direction: column; gap: 2px; }
+.ap-kind.on { border-color: var(--accent); }
+.ap-kind small { color: var(--fg2); font-size: 11.5px; line-height: 1.3; }
+.ap-tipwarn { border-left-color: var(--yellow); }
+.ap-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #111; }
+.ap-scroll { overflow-x: auto; }
+.ap-hist td, .ap-table td { white-space: nowrap; }
+.ap-chips { font-size: 12px; color: var(--fg2); }
+.ap-chips span { display: inline-block; background: var(--surface2); border-radius: 6px; padding: 1px 6px; margin: 1px 2px 1px 0; }
+.ap-chips-l { margin: 6px 0; }
+.ap-click { cursor: pointer; } .ap-click:hover td { background: var(--surface2); }
+.neg { color: var(--red) !important; }
+.ap-statspg { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.ap-cond4 { grid-template-columns: repeat(4, 1fr); }
+.ap-sectiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ap-sectile { background: var(--surface2); border-radius: 10px; padding: 8px 12px; display: flex; flex-direction: column; border-left: 5px solid var(--border); }
+.ap-sectile small { color: var(--fg2); } .ap-sectile b { font-size: 20px; } .ap-sectile em { font-style: normal; font-size: 11px; color: var(--fg2); }
+.ap-sectile.purple { border-left-color: #b45cff; } .ap-sectile.green { border-left-color: #3fd07a; }
+.ap-sc.purple { color: #c78bff; font-weight: 700; } .ap-sc.green { color: #4fd18b; font-weight: 700; } .ap-sc.yellow { color: #f2c230; } .ap-sc.grey { color: var(--fg2); }
+.ap-sum .ap-sc { margin-right: 8px; display: inline-block; }
+.ap-dnfbar { background: rgba(255,90,90,.18); border: 1px solid #ff5a5a; color: #ffb4b4; border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; font-weight: 600; }
+.ap-sectors { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 4px 0 2px; }
+.ap-sectors .sc { background: rgba(38,48,70,.9); border-radius: 6px; padding: 2px 6px; display: flex; justify-content: space-between; gap: 6px; font-size: 13px; border-bottom: 3px solid transparent; }
+.ap-sectors .sc small { color: #aab4c8; }
+.ap-sectors .sc.cur { border-bottom-color: #5aa9ff; } .ap-sectors .sc.old { opacity: .6; }
+.ap-sectors .sc.purple { background: #7b2cc9; border-bottom-color: #c78bff; } .ap-sectors .sc.green { background: #1c7e45; border-bottom-color: #4fd18b; }
+.ap-sectors .sc.yellow { background: #806a10; border-bottom-color: #f2c230; } .ap-sectors .sc.grey { background: #3a4152; }
+.ap-banner.sec-purple { background: #7b2cc9; color: #fff; } .ap-banner.sec-green { background: #1f8a4c; color: #fff; } .ap-banner.sec-yellow { background: #8d7512; color: #fff; } .ap-banner.sec-grey { background: #3a4152; color: #fff; }
+.ap-boxbtn { background: rgba(38,48,70,.9); color: #e8ecf4; border: 2px solid #5aa9ff; border-radius: 10px; padding: 6px 18px; font-weight: 800; font-size: 14px; cursor: pointer; letter-spacing: .04em; }
+.ap-boxbtn.armed { background: #1f8a4c; border-color: #4fd18b; animation: apPulse 1s infinite; }
+.ap-boxbtn:disabled { opacity: .45; cursor: default; }
+@keyframes apPulse { 50% { box-shadow: 0 0 0 6px rgba(79,209,139,.25); } }
+.ap-pitpanel { position: absolute; inset: 0; background: rgba(6,9,15,.72); display: flex; align-items: center; justify-content: center; padding: 10px; overflow: auto; z-index: 6; }
+.ap-pit-in { --bg: #171e2b; --surface1: #1e2838; --surface2: #263247; --fg: #edf1f8; --fg2: #c2cbdc; --border: #384560; color: var(--fg); background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; width: min(760px, 100%); max-height: 100%; overflow: auto; }
+.ap-pit-in .ap-set-h output { color: #79b9ff; }
+.ap-comps6 { grid-template-columns: repeat(6, 1fr); }
+.ap-pit-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; margin-top: 8px; }
+@media (max-width: 860px) { .ap-cond4 { grid-template-columns: 1fr 1fr; } .ap-comps6 { grid-template-columns: repeat(3, 1fr); } .ap-pit-cols { grid-template-columns: 1fr; } .ap-boxbtn { padding: 5px 10px; font-size: 12px; } .ap-part { grid-template-columns: 28px 1fr; } .ap-part-prod { grid-template-columns: 1fr; } .ap-part-a { grid-column: 1 / -1; flex-direction: row; } }
+
+/* Fixed dark studio: the canvas keeps the same contrast in either desktop theme. */
+.ap-car-preview { height: clamp(210px, 24vw, 300px); position: relative; overflow: hidden; border-radius: 12px; background: #121923; color: #edf3fc; margin: 10px 0 14px; }
+.ap-car-preview canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: pan-y; }
+.ap-car-preview canvas:active { cursor: grabbing; }
+
+/* Timing tower and current-lap sectors, like a qualifying broadcast. */
+.ap-tower { position: absolute; top: 10px; left: 10px; width: 252px; overflow: hidden; border-radius: 8px; background: rgba(8,12,20,.88); color: #f5f7fc; }
+.ap-tower-head { display: flex; justify-content: space-between; gap: 6px; padding: 7px 9px; border-top: 3px solid #e53945; font-size: 11px; color: #d6dfef; }
+.ap-tower-head span { font-size: 10px; }
+.ap-order-row { display: grid; grid-template-columns: 24px minmax(0,1fr) auto; gap: 6px; align-items: center; padding: 7px 9px; border-top: 1px solid #364052; font-size: 12px; }
+.ap-order-row.mine { background: rgba(54,94,139,.48); border-left: 3px solid #e53945; padding-left: 6px; }
+.ap-order-row > b { color: #fff; font-size: 15px; }
+.ap-order-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ap-order-row strong { font-size: 12px; }
+.ap-sectors .sc { display: grid; grid-template-columns: auto 1fr; gap: 1px 7px; min-width: 62px; }
+.ap-sectors .sc b { text-align: right; }
+.ap-sectors .sc em { grid-column: 1 / -1; text-align: right; font-size: 11px; font-style: normal; min-height: 13px; color: #fff; }
+.ap-sectors .sc.purple, .ap-banner.sec-purple { background: #6920ad; color: #fff; }
+.ap-sectors .sc.green, .ap-banner.sec-green { background: #17613a; color: #fff; }
+.ap-sectors .sc.yellow, .ap-banner.sec-yellow { background: #65510a; color: #fff; }
+.ap-sectors .sc small { color: #e7ecf5; }
+@media (max-width: 860px) {
+  .ap-tower { width: 185px; }
+  .ap-order-row { font-size: 11px; gap: 4px; padding: 5px 7px; grid-template-columns: 19px minmax(0,1fr) auto; }
+  .ap-order-row strong { font-size: 10px; }
+}
+@media (max-width: 600px) {
+  .ap-tower { width: 166px; }
+  .ap-tower-head { font-size: 10px; padding: 5px 6px; }
+  .ap-hud-t { top: 88px; max-width: calc(100% - 20px); width: 278px; }
+  .ap-hud-r canvas { width: 96px; height: 68px; }
+  .ap-banner { top: 210px; font-size: 15px; max-width: calc(100% - 20px); width: max-content; text-align: center; padding: 8px 12px; }
+}
+@media (max-width: 600px) {
+  .ap-hud-r { bottom: 100px; }
+  .ap-hud-r .ap-gauges { position: absolute; bottom: 0; right: 0; }
+}
+.ap-lap-deleted { color: #ffb4ad; font-size: 10px; display: inline-block; margin-left: 4px; }
+
+.ap-car-loading { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: #d7e1ef; font-size: 13px; }
+
+/* Career ownership, recruitment and official solo qualifying. */
+.ap-career h2, .ap-recruitment h2, .ap-buy-car h2 { margin: 0; font-size: 16px; }
+.ap-career p, .ap-recruitment p, .ap-buy-car p { line-height: 1.45; }
+.ap-team-assets { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.ap-team-assets span { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-weight: 600; }
+.ap-empty-car { font-size: 58px; padding: 20px 0; text-align: center; filter: grayscale(1); opacity: .55; }
+.ap-buy-car { text-align: center; }
+.ap-recruit-offers { display: grid; gap: 8px; margin: 12px 0; }
+.ap-recruit-offer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 9px; }
+.ap-recruit-offer > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ap-recruit-offer small { color: var(--fg2); }
+.ap-recruit-offer .ap-btn { flex-shrink: 0; }
+.ap-multiplayer-coming { display: flex; flex-direction: column; gap: 4px; border: 1px dashed var(--border); border-radius: 9px; padding: 9px 11px; margin: 10px 0; color: var(--fg2); }
+.ap-multiplayer-coming small { line-height: 1.4; }
+.ap-qual-targets { border: 1px solid var(--border); border-radius: 9px; overflow: hidden; }
+.ap-qual-targets > div { display: grid; grid-template-columns: .8fr 1fr 1fr 1fr; gap: 6px; align-items: center; padding: 8px; font-size: 12px; background: var(--surface2); }
+.ap-qual-targets > div + div { border-top: 1px solid var(--border); }
+.ap-qual-targets strong { text-align: right; }
+.ap-session-clock { color: #f4d678; font-size: 12px; font-weight: 700; }
+@media (max-width: 480px) {
+  .ap-qual-targets > div { grid-template-columns: .8fr 1fr 1fr; }
+  .ap-qual-targets strong { grid-column: 2 / -1; }
+  .ap-recruitment > .ap-bar { flex-wrap: wrap; gap: 7px; }
+}
+
+/* Solo divisions, race weekends and the shared 20-car field. */
+.ap-season-page h2 { margin: 0 0 12px; font-size: 17px; }
+.ap-division-ladder { display: grid; gap: 6px; }
+.ap-division-level { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px solid var(--border); border-radius: 8px; padding: 9px; flex-wrap: wrap; }
+.ap-division-level span,.ap-division-level small { font-size: 12px; color: var(--fg2); }
+.ap-division-level.current,.ap-weekend-stages .current { border-color: var(--accent); box-shadow: inset 3px 0 var(--accent); }
+.ap-weekend-stages { display: grid; grid-template-columns: repeat(5,1fr); gap: 4px; margin: 12px 0; }
+.ap-weekend-stages > div { padding: 9px 5px; border: 1px solid var(--border); border-radius: 6px; text-align: center; font-size: 12px; }
+.ap-weekend-stages .done { color: var(--green); }
+.ap-rest-clock { padding: 10px; background: var(--surface2); border-radius: 8px; margin: 8px 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ap-season-calendar { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; }
+.ap-season-calendar > div { display: flex; flex-direction: column; gap: 4px; padding: 9px; background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; }
+.ap-season-calendar .ready { border-color: var(--accent); }
+.ap-season-calendar .complete { border-color: var(--green); }
+.ap-season-calendar span,.ap-season-calendar small { font-size: 12px; color: var(--fg2); }
+.ap-season-page details { margin: 10px 0; }
+.ap-season-page summary { cursor: pointer; }
+.ap-race-tower { max-height: 68%; overflow-y: auto; pointer-events: auto; }
+.ap-race-tower .ap-order-row { font-size: 11px; padding-top: 3px; padding-bottom: 3px; }
+.ap-race-pit { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.ap-race-pit select { color: var(--fg); background: var(--surface1); border: 1px solid var(--border); padding: 7px; border-radius: 6px; max-width: 170px; }
+.ap-race-telemetry { padding: 7px; border-radius: 7px; background: rgba(8,12,20,.85); color: #e8ecf4; font-size: 12px; }
+.ap-yellow-flag { color: #ffd23f; }
+.ap-race-view .ap-ctl { flex-wrap: wrap; }
+@media(max-width:650px) {
+  .ap-weekend-stages { grid-template-columns: repeat(3,1fr); }
+  .ap-race-tower { max-height: 43%; width: 175px; }
+    .ap-race-view .ap-hud-t { top: 8px; left: auto; right: 6px; transform: none; min-width: 140px; max-width: 48%; padding: 6px; font-size: 10px; }
+  .ap-race-view .ap-hud-r { top: 90px; }
+  .ap-race-view .ap-hud-r canvas { width: 120px; height: 85px; }
+  .ap-race-view .ap-hud-l { bottom: 112px; left: 8px; width: 160px; }
+}
+.ap-season-page .ap-table tr.best { color: var(--fg); background: var(--surface2); font-weight: 700; }
+/* Session timing uses only completed current-session laps. */
+.ap-session-tower { width: 278px; max-height: 68%; }
+.ap-session-tower #h-order { max-height: min(54vh,550px); overflow-y: auto; pointer-events: auto; scrollbar-width: thin; }
+.ap-session-tower .ap-order-row { padding-top: 4px; padding-bottom: 4px; }
+.ap-session-tower strong { text-align: right; font-variant-numeric: tabular-nums; }
+.ap-session-tower strong small { display: block; color: #b7c6de; font-size: 10px; margin-top: 2px; }
+.ap-session-tower .ap-order-row:first-child strong { color: #dbacff; }
+.ap-own-position { padding: 6px 9px; background: #263f5c; color: #fff; font-size: 12px; font-weight: 700; }
+@media(max-width:650px){
+  .ap-session-tower { width: 176px; max-height: 45%; }
+  .ap-session-tower #h-order { max-height: 32vh; }
+  .ap-session-tower .ap-order-row { grid-template-columns: 17px minmax(0,1fr) 65px; padding: 4px; gap: 3px; font-size: 10px; }
+  .ap-session-tower .ap-order-row strong { font-size: 10px; }
+  .ap-session-tower strong small { font-size: 9px; }
+  .ap-own-position { font-size: 10px; padding: 5px; }
+}
+@media(max-width:650px){
+  .ap-session-tower ~ .ap-hud-t { top: 10px; right: 8px; left: auto; transform: none; width: calc(100% - 204px); min-width: 0; max-width: none; padding: 6px 4px; }
+  .ap-session-tower ~ .ap-hud-t .ap-laptxt,.ap-session-tower ~ .ap-hud-t .ap-hint,.ap-session-tower ~ .ap-hud-t .ap-session-clock { font-size: 10px; }
+  .ap-session-tower ~ .ap-hud-t .ap-laptime { font-size: 22px; }
+  .ap-session-tower ~ .ap-hud-t .ap-sectors { gap: 3px; justify-content: center; }
+  .ap-session-tower ~ .ap-hud-t .ap-sectors .sc { display: block; min-width: 0; flex: 1; padding: 3px; }
+  .ap-session-tower ~ .ap-hud-t .sc small,.ap-session-tower ~ .ap-hud-t .sc b,.ap-session-tower ~ .ap-hud-t .sc em { display: block; font-size: 9px; text-align: center; }
+  .ap-session-tower ~ .ap-hud-r { top: 174px; }
+}
+/* Persistent personal references and asynchronous solo session timing. */
+.ap-sectors .sc { display: grid; grid-template-columns: auto 1fr; gap: 2px 5px; }
+.ap-sectors .sc b,.ap-sectors .sc em { text-align: right; }
+.ap-sectors .sc em { grid-column: 2; }
+.ap-sectors .sc .ap-sector-best { grid-column: 1 / -1; white-space: nowrap; font-size: 10px; color: #fff; opacity: .95; }
+.ap-sectors .sc small { color: #fff; }
+.ap-session-tower { width: 296px; }
+.ap-session-tower .ap-rival-info { min-width: 0; display: block; }
+.ap-rival-name { display: block; }
+.ap-rival-meta { display: flex; align-items: center; gap: 6px; margin-top: 3px; height: 15px; }
+.ap-tyre-badge { display: inline-flex; flex: 0 0 16px; align-items: center; justify-content: center; width: 16px; height: 16px; border: 2px solid currentColor; border-radius: 50%; font: bold 9px Arial; color: #f6d84a; }
+.ap-tyre-badge.tyre-S { color: #ff737f; }.ap-tyre-badge.tyre-H { color: #fff; }.ap-tyre-badge.tyre-I { color: #66e58d; }.ap-tyre-badge.tyre-W { color: #78b8ff; }
+.ap-track-status { font-style: normal; font-weight: 700; width: 12px; color: #dbe5f5; font-size: 10px; }
+.ap-sector-bars { display: flex; gap: 3px; width: 58px; }
+.ap-sector-bars i { height: 5px; flex: 1; background: #505d70; border-radius: 1px; }
+.ap-sector-bars i.purple { background: #cb87ff; }.ap-sector-bars i.green { background: #50dc8e; }.ap-sector-bars i.yellow { background: #ffd24a; }
+.ap-active-rivals { position: absolute; bottom: 52px; left: 50%; transform: translateX(-50%); display: flex; gap: 7px; max-width: calc(100% - 370px); color: #f6f8ff; }
+.ap-rival-card { width: 175px; padding: 7px; border-radius: 7px; background: rgba(8,12,20,.92); font-variant-numeric: tabular-nums; }
+.ap-rival-card-head { display: flex; justify-content: space-between; gap: 5px; align-items: center; margin-bottom: 5px; font-size: 11px; }
+.ap-rival-card-head b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ap-rival-splits { display: grid; grid-template-columns: repeat(3,1fr); gap: 3px; }
+.ap-rival-splits > div { display: grid; gap: 3px; text-align: center; padding: 4px 2px; border-top: 3px solid #505d70; background: #222e40; }
+.ap-rival-splits small,.ap-rival-splits em { font-size: 9px; color: #e4eaf4; font-style: normal; }.ap-rival-splits b { font-size: 11px; }
+.ap-rival-splits .purple { border-color: #cb87ff; }.ap-rival-splits .green { border-color: #50dc8e; }.ap-rival-splits .yellow { border-color: #ffd24a; }
+@media(max-width:650px){
+ .ap-session-tower { width: 176px; }.ap-session-tower .ap-rival-meta { gap: 4px; }
+ .ap-session-tower .ap-sector-bars { width: 37px; gap: 2px; }
+ .ap-active-rivals { bottom: 76px; left: auto; right: 8px; transform: none; flex-direction: column; max-width: none; gap: 4px; }
+ .ap-rival-card { width: 155px; padding: 5px; }.ap-rival-card-head { margin-bottom: 3px; font-size: 10px; }
+ .ap-rival-splits > div { padding: 2px; gap: 1px; }.ap-rival-splits b { font-size: 10px; }
+ .ap-session-tower ~ .ap-hud-t .sc .ap-sector-best { font-size: 8px; }
+ .ap-session-tower ~ .ap-hud-r .ap-gauges { top: 76px; bottom: auto; }
+}
+.ap-driver-energy { border-top: 1px solid var(--border); margin: 10px 0; padding-top: 10px; }
+.ap-driver-energy > b { font-size: 13px; color: var(--fg); }
+.ap-driver-energy .ap-hint { margin: 5px 0; }
+
+/* v3: weekend weather and tyre sets, the pit analysis, per-tyre wear in the race */
+.ap-forecast { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 6px 0; }
+.ap-forecast > div { position: relative; background: var(--surface2); border-radius: 10px; padding: 6px 4px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1px; border: 2px solid transparent; }
+.ap-forecast > div.current { border-color: var(--accent); }
+.ap-forecast > div.done { opacity: .6; }
+.ap-forecast small { color: var(--fg2); font-size: 11px; } .ap-forecast span { font-size: 20px; } .ap-forecast b { font-size: 15px; } .ap-forecast em { font-style: normal; font-size: 10.5px; color: var(--fg2); }
+.ap-trust { display: block; width: 70%; height: 4px; border-radius: 3px; margin-top: 3px; background: linear-gradient(90deg, var(--accent) calc(var(--t) * 100%), var(--border) 0); }
+.ap-tyre-notes { display: grid; gap: 4px; }
+.ap-tyre-notes > div { display: grid; grid-template-columns: 14px 1fr auto auto; gap: 8px; align-items: center; background: var(--surface2); border-radius: 8px; padding: 5px 10px; font-size: 13px; }
+.ap-tyre-notes small { grid-column: 2 / -1; color: var(--fg2); font-size: 11px; margin-top: -3px; }
+.ap-setrow { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 4px 0; }
+.ap-setrow-h { width: 118px; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13px; }
+.ap-setchip { border: 2px solid var(--border); background: var(--surface2); color: var(--fg); border-radius: 8px; padding: 3px 8px; cursor: pointer; font: inherit; display: flex; flex-direction: column; align-items: center; min-width: 46px; line-height: 1.15; }
+.ap-setchip small { color: var(--fg2); font-size: 10.5px; } .ap-setchip.on { border-color: var(--accent); } .ap-setchip.used b { opacity: .85; } .ap-setchip:disabled { opacity: .35; cursor: not-allowed; }
+
+.ap-pit-tabs { display: flex; gap: 6px; margin: 6px 0; }
+.ap-pit-tabs button { flex: 1; background: var(--surface2); color: var(--fg); border: 2px solid var(--border); border-radius: 8px; padding: 6px 10px; cursor: pointer; font: inherit; font-weight: 600; }
+.ap-pit-tabs button.on { border-color: var(--accent); }
+.ap-pit-clock { color: var(--yellow); font-variant-numeric: tabular-nums; }
+.ap-an-table td, .ap-an-table th { font-size: 12.5px; }
+.ap-tyretiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.ap-tyretile { background: var(--surface2); border-radius: 8px; padding: 6px 8px; display: flex; flex-direction: column; gap: 3px; text-align: center; }
+.ap-tyretile small { color: var(--fg2); } .ap-tyretile b { font-size: 18px; } .ap-tyretile em { font-style: normal; font-size: 11px; color: var(--fg2); }
+.ap-sugs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; }
+.ap-sug .ap-set-h output { font-size: 12.5px; }
+.ap-sug.ok .ap-set-h output { color: var(--green); }
+.ap-sugbar { position: relative; height: 10px; background: var(--surface2); border-radius: 6px; margin-top: 3px; }
+.ap-sugbar i { position: absolute; top: 0; bottom: 0; background: rgba(79, 209, 139, .55); border-radius: 6px; }
+.ap-sugbar b { position: absolute; top: -3px; width: 3px; height: 16px; background: var(--fg); border-radius: 2px; transform: translateX(-1px); }
+.ap-rng { position: relative; }
+.ap-rngband { position: absolute; pointer-events: none; }
+.ap-rng input[type=range] { position: relative; width: 100%; background: transparent; }
+
+/* Shared driving HUD: two horizontal instruments and compound-coloured tyres. */
+.ap-view .ap-hud-l { --ap-hud-bottom: 58px; bottom: var(--ap-hud-bottom); width: 196px; gap: 5px; }
+.ap-view .ap-speed { padding: 5px 10px; }
+.ap-view .ap-speed b { font-size: 30px; }
+.ap-view .ap-speed span { font-size: 22px; }
+.ap-driving-meters, .ap-view .ap-race-telemetry, .ap-view .ap-tyres { background: rgba(8,12,20,.88); border-radius: 10px; padding: 7px 9px; color: #edf1f8; }
+.ap-driving-meters { display: grid; gap: 4px; }
+.ap-instrument-head { display: flex; align-items: center; justify-content: space-between; font-size: 10px; line-height: 1.2; color: #c2cbdc; }
+.ap-instrument-head b { color: #edf1f8; font-size: 10px; font-weight: 600; }
+.ap-instrument-track { height: 6px; border-radius: 3px; background: #354154; overflow: hidden; }
+.ap-instrument-track i { display: block; height: 100%; width: 0; border-radius: inherit; }
+.ap-rpm-track i { background: linear-gradient(90deg,#4fd18b,#f2ce39 65%,#ff626b); }
+.ap-pedals { display: grid; gap: 6px; }
+.ap-pedals > div { display: grid; gap: 4px; min-width: 0; }
+.ap-throttle-track i { background: #4fd18b; }
+.ap-brake-track i { background: #ff737a; }
+.ap-view .ap-race-telemetry { width: 100%; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box; }
+.ap-wheel-meta { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 11px; line-height: 1.3; }
+.ap-wheel-meta span { white-space: nowrap; }
+.ap-wheel-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 5px; }
+.ap-wheel-cell { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 0; }
+.ap-wheel-cell small { color: #c2cbdc; font-size: 9px; line-height: 1.2; }
+.ap-wheel-cell b { font-size: 12px; line-height: 1.2; }
+.ap-hud-wheel { width: 33px; height: 33px; flex-shrink: 0; position: relative; display: grid; place-items: center; border-radius: 50%; border: 2px solid #47505c; background: linear-gradient(110deg,#343944,#080b10 42%,#1b2028 75%,#080b10); box-shadow: inset 0 0 0 2px #090c12,0 2px 3px #0008; box-sizing: border-box; }
+.ap-hud-wheel::before { content: ''; position: absolute; inset: 4px; border: 2px solid var(--compound-color); border-radius: 50%; }
+.ap-hud-wheel i { color: var(--compound-color); font-size: 11px; font-weight: 800; font-style: normal; line-height: 1; }
+.ap-wheel-cell em { font-size: 10px; font-style: normal; line-height: 1.2; font-weight: 600; }
+.ap-wheel-footer { display: flex; flex-direction: column; gap: 2px; color: #c2cbdc; font-size: 10px; line-height: 1.3; margin-top: 4px; }
+.ap-wheel-footer span { white-space: nowrap; }
+/* fitHud() limits the timing tower to the room above the instruments. */
+.ap-view .ap-tower { max-height: none; min-height: 60px; overflow: hidden; }
+.ap-view .ap-tower #h-order, .ap-view .ap-tower [data-race-order] { overflow-y: auto; pointer-events: auto; overscroll-behavior: contain; overflow-anchor: none; }
+@media (max-width: 860px) {
+  .ap-forecast { grid-template-columns: repeat(5,1fr); }
+  .ap-forecast em { display: none; }
+  .ap-sugs { grid-template-columns: 1fr; }
+  .ap-setrow-h { width: 100%; }
+  .ap-view .ap-hud-l { --ap-hud-bottom: 92px; width: 170px; }
+  .ap-view .ap-speed b { font-size: 26px; }
+  .ap-view .ap-tower { width: 190px; }
+  .ap-view .ap-order-row { padding-top: 2px; padding-bottom: 2px; }
+}
+
+.ap-service-option { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 12px 0; }
+.ap-service-option b { margin-left: auto; }
+.ap-plan-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+
+.ap-character { margin: 10px 0; font-size: 12px; }
+.ap-character > strong { display: block; margin-bottom: 8px; color: var(--fg); }
+.ap-character-traits { display: grid; grid-template-columns: repeat(auto-fit,minmax(110px,1fr)); gap: 10px; }
+.ap-character-traits span { display: flex; justify-content: space-between; gap: 8px; color: var(--fg2); font-size: 11px; margin-bottom: 4px; }
+.ap-character-traits b { color: var(--fg); }
+.ap-character-traits .ap-meter { height: 5px; }
+.ap-character-traits .ap-meter i { display: block; height: 100%; background: var(--accent); }
+.ap-character.compact { margin: 5px 0 0; }
+.ap-character.compact .ap-character-traits { grid-template-columns: 1fr; gap: 5px; }
+.ap-character.compact > strong { margin-bottom: 6px; font-size: 11px; }
+.ap-blue-flag { color: #79bcff; }
+
+/* lab and parts */
+.ap-stats { margin-top: 4px; }
+.ap-stat { display: grid; grid-template-columns: minmax(84px, 36%) 1fr 64px; gap: 8px; align-items: center; font-size: 12px; margin: 3px 0; }
+.ap-stat span { color: var(--fg2); } .ap-stat b { text-align: right; } .ap-stat small { margin-left: 4px; }
+.ap-risk { border-radius: 8px; height: 14px; display: flex; align-items: center; margin: 4px 0 2px; }
+.ap-risk input[type=range] { width: 100%; margin: 0; height: 14px; background: transparent; -webkit-appearance: none; appearance: none; }
+.ap-risk input[type=range]::-webkit-slider-runnable-track { background: transparent; height: 14px; }
+.ap-risk input[type=range]::-moz-range-track { background: transparent; height: 14px; }
+.ap-risk input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; margin-top: -3px; border-radius: 50%; background: var(--fg); border: 3px solid var(--surface); }
+.ap-risk input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--fg); border: 3px solid var(--surface); }
+.ap-queue { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; padding: 6px 0; border-top: 1px solid var(--border); font-size: 13px; }
+.ap-part-a select, label.ap-hint select { background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 4px 6px; font: inherit; }
+
+/* The circuit designer */
+.ap-tb-canvas { display: block; width: 100%; height: min(58vh, 520px); min-height: 280px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface2); touch-action: none; cursor: crosshair; }
+.ap-tb-tools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
+.ap-tb select { background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; font: inherit; }
+.ap-tb-field { display: flex; flex-direction: column; gap: 4px; }
+.ap-tb-field span { color: var(--fg2); font-size: 12px; }
+.ap-tb input[type=text], .ap-tb input[type=number] { background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 7px 9px; font: inherit; min-width: 0; width: 100%; box-sizing: border-box; }
+.ap-tb-search { display: flex; gap: 6px; margin-bottom: 6px; }
+.ap-tb-search .ap-btn { white-space: nowrap; }
+.ap-tb-place { display: block; width: 100%; text-align: left; margin: 3px 0; }
+.ap-tb-widths { display: flex; gap: 6px; flex-wrap: wrap; }
+.ap-tb-seats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.ap-tb-seat { display: flex; flex-direction: column; gap: 3px; }
+.ap-tb-seat span { font-size: 12px; font-weight: 600; }
+.ap-tb-seat small { color: var(--fg2); font-size: 11px; }
+.ap-tb-need { padding: 2px 0; color: var(--fg2); font-size: 13px; }
+.ap-tb-need.ok { color: var(--fg); }
+.ap-tb-need.ok::first-letter { color: var(--green); }
+.ap-tb-err { margin: 8px 0; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--red, #e5484d); color: var(--fg); background: color-mix(in srgb, var(--red, #e5484d) 14%, transparent); }
+.ap-neg { color: var(--red, #e5484d); }
+.ap-tb-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; align-items: center; }
+@media (max-width: 760px) { .ap-tb.ap-garage { grid-template-columns: minmax(0, 1fr); } .ap-tb-canvas { height: 46vh; } }
+.ap-sugbar u { position: absolute; top: -4px; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid var(--accent); transform: translateX(-5px); }
+
+/* The race classification: rows slide to their new place */
+.ap-race-order { position: relative; }
+.ap-race-order .ap-order-row { position: absolute; left: 0; right: 0; top: calc(var(--i, 0) * var(--rh, 27px)); height: var(--rh, 27px); box-sizing: border-box; padding-top: 0; padding-bottom: 0;
+  grid-template-columns: 22px minmax(0,1fr) 20px 16px 58px; gap: 5px; transition: top .6s cubic-bezier(.3,.7,.2,1); }
+.ap-tyrebadge { display: inline-block; width: 17px; height: 17px; box-sizing: border-box; border: 2px solid var(--tc, #f2ce39); border-radius: 50%; color: #fff; font: 700 10px/13px sans-serif; text-align: center; font-style: normal; }
+.ap-stopn { font-style: normal; text-align: center; color: #c2cbdc; font-size: 11px; }
+.ap-gap-toggle { background: transparent; border: 1px solid rgba(255,255,255,.28); color: inherit; border-radius: 6px; padding: 1px 7px; font: inherit; font-size: 11px; cursor: pointer; }
+.ap-gap-toggle:hover { background: rgba(255,255,255,.12); }
+@media(max-width:650px) { .ap-tyrebadge { width: 14px; height: 14px; font-size: 8px; line-height: 10px; } }
+@media(max-width:650px) { .ap-race-order .ap-order-row { grid-template-columns: 18px minmax(0,1fr) 16px 13px 46px; font-size: 10px; gap: 3px; } }
+.ap-race-order .ap-order-row strong { text-align: right; white-space: nowrap; }
+.ap-tyre-rule { font-size: 11px; margin-top: 3px; color: #9fe3b8; }
+.ap-tyre-rule.todo { color: #ffd23f; }
+
+/* The race status: a coloured flag and the lap, in one compact line above the classification */
+.ap-race-status { display: flex; align-items: center; gap: 8px; padding: 6px 9px; font-size: 13px; border-bottom: 1px solid #364052; }
+.ap-race-status b { font-size: 13px; font-weight: 700; }
+.ap-race-status small { color: #ffd23f; font-size: 11px; }
+.ap-flag { font-style: normal; font-size: 17px; line-height: 1; }
+.ap-flag.green { color: #35d07f; }
+.ap-flag.yellow { color: #ffd23f; }
+.ap-flag.red { color: #ff4d4d; }
+.ap-flag.blue { color: #4aa3ff; }
+
+/* own row pinned to the bottom of the classification when it is scrolled out of view */
+.ap-order-pin { z-index: 3; background: #243b57 !important; box-shadow: 0 -2px 6px rgba(0,0,0,.45); }
+.ap-order-pin[hidden] { display: none !important; }
+
+.ap-rival-card { overflow: hidden; box-sizing: border-box; }
+.ap-rival-card.entering { animation: ap-card-in .6s cubic-bezier(.2,.8,.2,1) both; animation-delay: var(--enter-delay,0s); }
+.ap-rival-card.leaving { animation: ap-card-out .9s ease-in forwards; pointer-events: none; }
+@keyframes ap-card-in { from { opacity: 0; transform: translateX(90px); max-width: 0; padding-left: 0; padding-right: 0; margin-right: -7px; } 35% { max-width: 175px; padding-left: 7px; padding-right: 7px; margin-right: 0; opacity: 0; } to { opacity: 1; transform: none; max-width: 175px; } }
+@keyframes ap-card-out { from { opacity: 1; transform: none; max-width: 175px; } 55% { opacity: 0; transform: translateX(-40px); max-width: 175px; } to { opacity: 0; transform: translateX(-40px); max-width: 0; padding-left: 0; padding-right: 0; margin-right: -7px; } }
+@media (max-width: 650px) {
+ .ap-rival-card.entering { animation-name: ap-card-in-v; }
+ .ap-rival-card.leaving { animation-name: ap-card-out-v; }
+ @keyframes ap-card-in-v { from { opacity: 0; transform: translateX(60px); max-height: 0; padding-top: 0; padding-bottom: 0; } 35% { max-height: 120px; padding-top: 5px; padding-bottom: 5px; opacity: 0; } to { opacity: 1; transform: none; max-height: 120px; } }
+ @keyframes ap-card-out-v { from { opacity: 1; transform: none; max-height: 120px; } 55% { opacity: 0; transform: translateX(-40px); max-height: 120px; } to { opacity: 0; transform: translateX(-40px); max-height: 0; padding-top: 0; padding-bottom: 0; } }
+}
+
+/* Practice and qualifying classification: rows slide to their new place like in the race */
+.ap-session-order { position: relative; }
+.ap-session-order > .ap-order-row:not(.ap-order-pin) { position: absolute; left: 0; right: 0; top: calc(var(--i, 0) * var(--rh, 44px)); height: var(--rh, 44px); box-sizing: border-box; padding-top: 0; padding-bottom: 0; transition: top .6s cubic-bezier(.3,.7,.2,1), background-color .6s; }
+.ap-session-order > .ap-order-row.gain { z-index: 2; background: rgba(60,170,110,.38); }
+.ap-session-order > .ap-order-row.mine.gain { background: rgba(70,150,160,.55); }
+
+.ap-sectors .sc.sc-fade { opacity: 0; transform: translateY(-6px); transition: opacity .7s ease-in, transform .7s ease-in; }
+.ap-sectors .sc.sc-fresh { animation: ap-sec-in .7s ease-out both; }
+@keyframes ap-sec-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.ap-session-order > .ap-order-pin { height: var(--rh, 44px); box-sizing: border-box; margin-top: calc(-1 * var(--rh, 44px)); padding-top: 0; padding-bottom: 0; }
+.ap-order-spacer { pointer-events: none; }
+
+/* Paddock interface. These rules deliberately exclude the live circuit and its HUD. */
+.ap-top { display: grid; grid-template-columns: auto 1fr; gap: 12px 24px; padding: 14px 22px 0; background: var(--surface1); }
+.ap-brand { font-size: 18px; font-style: italic; letter-spacing: -.5px; }
+.ap-brand b { font-weight: 900; }
+.ap-status { grid-column: 2; grid-row: 1; justify-content: flex-end; gap: 8px; }
+.ap-chip { border: 1px solid var(--border); background: var(--surface2); border-radius: 8px; padding: 8px 12px; font-variant-numeric: tabular-nums; }
+.ap-tabs { grid-column: 1 / -1; grid-row: 2; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; gap: 5px; padding-bottom: 9px; }
+.ap-tabs button { flex: 1 0 auto; min-height: 44px; border-radius: 9px; padding: 10px 14px; font-weight: 650; white-space: nowrap; }
+.ap-tabs button:hover { background: var(--surface2); color: var(--fg); }
+.ap-tabs button.on { background: var(--accent); color: var(--on-accent, #fff); box-shadow: 0 3px 0 color-mix(in srgb,var(--accent) 35%,transparent); }
+.ap-tabs button:focus-visible, .ap-app button:focus-visible, .ap-app input:focus-visible, .ap-app select:focus-visible, .ap-app summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.ap-tabs span { display: inline; }
+.ap-screen:not(#ap-track) { padding: 22px; background: radial-gradient(ellipse at 10% 0%,color-mix(in srgb,var(--accent) 7%,transparent),transparent 55%),var(--bg); }
+.ap-screen:not(#ap-track) :is(.ap-garage,.ap-driverpg,.ap-statspg) { max-width: 1440px; gap: 20px; }
+.ap-pagehead { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; overflow: hidden; max-width: 1440px; margin: 0 auto 22px; min-height: 150px; padding: 22px 30px; border-radius: 16px; border: 1px solid #344353; background: repeating-linear-gradient(125deg,transparent 0 38px,#ffffff04 38px 39px),linear-gradient(110deg,#101925,#23384d); color: #f2f6fc; box-sizing: border-box; isolation: isolate; }
+.ap-pagehead::before { content: ''; position: absolute; left: 0; top: 25px; bottom: 25px; width: 5px; background: #fa604b; border-radius: 0 4px 4px 0; }
+.ap-pagehead::after { content: ''; position: absolute; right: 10%; top: -100px; width: 85px; height: 360px; background: #fa604b0d; transform: rotate(28deg); z-index: -1; }
+.ap-pagehead > div { max-width: 780px; position: relative; z-index: 1; }
+.ap-eyebrow { color: #b8c9dc; font-size: 10px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
+.ap-pagehead h1 { color: #f2f6fc; font-size: clamp(24px,2.5vw,34px); font-weight: 900; letter-spacing: -.035em; margin: 6px 0 8px; line-height: 1.1; }
+.ap-pagehead p { color: #c2d1e1; font-size: 13px; line-height: 1.5; margin: 0; max-width: 660px; }
+.ap-art { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.ap-pagehead > .ap-art { width: 210px; height: 140px; flex: 0 0 210px; margin: -18px 0; filter: drop-shadow(0 10px 14px #0005); }
+.ap-screen:not(#ap-track) :is(.ap-card,.ap-grp) { border-radius: 15px; padding: 20px; box-shadow: 0 5px 16px #00000006; }
+.ap-screen:not(#ap-track) .ap-col { gap: 18px; }
+.ap-screen:not(#ap-track) .ap-card h2 { font-size: 18px; letter-spacing: -.025em; margin-bottom: 12px; font-weight: 800; }
+.ap-screen:not(#ap-track) :is(.ap-card,.ap-grp) h3 { font-size: 11px; letter-spacing: .1em; margin: 20px 0 12px; }
+.ap-screen:not(#ap-track) .ap-hint { line-height: 1.6; font-size: 12px; }
+.ap-screen:not(#ap-track) .ap-btn { border-radius: 8px; min-height: 44px; padding: 10px 14px; transition: transform .15s,filter .15s; }
+.ap-screen:not(#ap-track) .ap-btn:active:not(:disabled) { transform: translateY(1px); }
+.ap-screen:not(#ap-track) .ap-btn.ap-go { background: var(--accent); color: var(--on-accent,#fff); font-weight: 800; padding: 16px; margin-top: 8px; }
+.ap-screen:not(#ap-track) .ap-btn.ap-ghost { background: var(--surface1); }
+.ap-screen:not(#ap-track) .ap-cost { background: var(--surface2); border-radius: 10px; padding: 12px; gap: 12px; font-size: 13px; }
+.ap-screen:not(#ap-track) .ap-cost b { font-size: 17px; white-space: nowrap; }
+.ap-screen:not(#ap-track) .ap-set { padding: 14px 0; }
+.ap-screen:not(#ap-track) .ap-set-h { gap: 8px; flex-wrap: wrap; font-size: 13px; }
+.ap-screen:not(#ap-track) .ap-set-h output { margin-left: auto; color: var(--fg); }
+.ap-screen:not(#ap-track) output[style*="color"], .ap-screen:not(#ap-track) .ap-stat small[style*="color"] { color: var(--fg) !important; }
+.ap-screen:not(#ap-track) input[type=range] { min-height: 30px; cursor: pointer; }
+.ap-screen:not(#ap-track) .ap-risk { margin: 12px 0; }
+.ap-screen:not(#ap-track) .ap-risk input[type=range] { height: 30px; }
+.ap-screen:not(#ap-track) .ap-group-title { display: flex; align-items: center; gap: 10px; color: var(--fg); margin: -4px 0 4px; font-size: 14px; }
+.ap-group-title .ap-art { width: 74px; height: 48px; background: #152231; border-radius: 8px; }
+.ap-equipment { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,220px),1fr)); gap: 12px; margin-top: 12px; }
+.ap-screen:not(#ap-track) .ap-equipment > .ap-part { display: flex; flex-direction: column; align-items: stretch; border: 1px solid var(--border); border-radius: 12px; padding: 12px; background: var(--surface2); gap: 10px; min-width: 0; overflow: hidden; }
+.ap-screen:not(#ap-track) .ap-part-i { display: grid; place-items: center; height: 110px; background: radial-gradient(ellipse at 50% 60%,#34475c,#121e2c 80%); border-radius: 8px; }
+.ap-screen:not(#ap-track) .ap-part-b { flex: 1; min-width: 0; }
+.ap-screen:not(#ap-track) .ap-part-b label { font-size: 14px; }
+.ap-screen:not(#ap-track) .ap-part-b > .ap-meter { margin: 10px 0; }
+.ap-screen:not(#ap-track) .ap-equipment .ap-part-a { display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.ap-screen:not(#ap-track) .ap-equipment .ap-part-a > * { flex: 1; }
+.ap-screen:not(#ap-track) .ap-equipment .ap-part-a > select { flex: 0 0 60px; }
+.ap-screen:not(#ap-track) .ap-stat { grid-template-columns: minmax(75px,40%) minmax(20px,1fr) 46px; font-size: 11px; gap: 6px; margin: 7px 0; }
+.ap-screen:not(#ap-track) .ap-stat .ap-meter { background: var(--border); height: 5px; }
+.ap-screen:not(#ap-track) .ap-comps { grid-template-columns: repeat(auto-fit,minmax(90px,1fr)); gap: 8px; margin: 14px 0; }
+.ap-screen:not(#ap-track) .ap-comp { border-width: 1px; padding: 12px 7px; gap: 6px; transition: border-color .15s,background .15s; min-width: 0; }
+.ap-screen:not(#ap-track) .ap-comp.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: color-mix(in srgb,var(--accent) 10%,var(--surface1)); }
+.ap-screen:not(#ap-track) .ap-comp:hover:not(:disabled) { border-color: var(--accent); }
+.ap-screen:not(#ap-track) .ap-comp:disabled { opacity: .5; cursor: not-allowed; }
+.ap-screen:not(#ap-track) .ap-comp .ap-art { height: 70px; }
+.ap-screen:not(#ap-track) .ap-comp b { font-size: 12px; }
+.ap-screen:not(#ap-track) .ap-comp em { color: var(--fg); font-weight: 700; font-size: 12px; }
+.ap-screen:not(#ap-track) .ap-comp i { width: 38px; height: 38px; border-width: 8px; box-shadow: 0 0 0 1px #52657a,inset 0 0 0 4px #14202f; }
+.ap-screen:not(#ap-track) .ap-production-group { margin-top: 20px; }
+.ap-screen:not(#ap-track) .ap-queue { display: grid; grid-template-columns: 64px 1fr; gap: 5px 12px; align-items: center; padding: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; margin: 8px 0; }
+.ap-queue .ap-art { grid-row: span 3; height: 60px; background: #172738; border-radius: 6px; }
+.ap-queue small { color: var(--fg2); }
+.ap-screen:not(#ap-track) .ap-trackcard { border-radius: 12px; padding: 16px; margin-top: 12px; border-left: 3px solid var(--accent); }
+.ap-screen:not(#ap-track) .ap-trackcard .ap-bar { align-items: flex-start; flex-wrap: wrap; }
+.ap-screen:not(#ap-track) .ap-cond { gap: 8px; }
+.ap-screen:not(#ap-track) .ap-cond > div { border: 1px solid var(--border); padding: 10px; gap: 5px; background: var(--surface1); }
+.ap-screen:not(#ap-track) .ap-cond b { font-size: 16px; letter-spacing: -.025em; }
+.ap-screen:not(#ap-track) .ap-team-assets { gap: 8px; }
+.ap-screen:not(#ap-track) .ap-team-assets span { border: 1px solid var(--border); padding: 9px 12px; border-radius: 8px; }
+.ap-screen:not(#ap-track) .ap-avatar { width: 100px; height: 90px; border-radius: 12px; background: #192b3e; }
+.ap-screen:not(#ap-track) .ap-who { margin-bottom: 20px; }
+.ap-screen:not(#ap-track) .ap-who > div:last-child { flex: 1; min-width: 0; }
+.ap-screen:not(#ap-track) .ap-skills { gap: 16px 20px; }
+.ap-screen:not(#ap-track) .ap-skill { padding: 10px; background: var(--surface2); border-radius: 8px; }
+.ap-screen:not(#ap-track) .ap-skill .ap-meter { margin-top: 8px; background: var(--border); height: 6px; }
+.ap-screen:not(#ap-track) .ap-train { padding: 16px 12px; margin-top: 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface2); grid-template-columns: 48px minmax(0,1fr) auto; }
+.ap-screen:not(#ap-track) .ap-train-i { background: var(--surface1); border-radius: 10px; padding: 8px; }
+.ap-screen:not(#ap-track) .ap-division-level { padding: 15px; border-radius: 10px; background: var(--surface2); }
+.ap-screen:not(#ap-track) .ap-division-level b { font-style: italic; font-size: 17px; }
+.ap-screen:not(#ap-track) .ap-division-level.current { padding-left: 18px; }
+.ap-screen:not(#ap-track) .ap-season-calendar > div { padding: 14px; border-radius: 10px; min-height: 90px; border-top-width: 3px; }
+.ap-screen:not(#ap-track) .ap-weekend-stages { gap: 6px; }
+.ap-screen:not(#ap-track) .ap-weekend-stages > div { border-radius: 8px; padding: 10px 5px; }
+.ap-screen:not(#ap-track) .ap-forecast > div { padding: 12px 4px; }
+.ap-screen:not(#ap-track) .ap-table { border-collapse: separate; border-spacing: 0 5px; font-size: 12px; }
+.ap-screen:not(#ap-track) .ap-table td { background: var(--surface2); padding: 10px; border: 0; }
+.ap-screen:not(#ap-track) .ap-table td:first-child { border-radius: 8px 0 0 8px; }
+.ap-screen:not(#ap-track) .ap-table td:last-child { border-radius: 0 8px 8px 0; }
+.ap-screen:not(#ap-track) .ap-table tr.best td { background: color-mix(in srgb,var(--accent) 13%,var(--surface2)); color: var(--fg); }
+.ap-screen:not(#ap-track) .ap-table tr.best td:first-child { box-shadow: inset 3px 0 var(--accent); }
+.ap-screen:not(#ap-track) .ap-table tr.best .sec { color: var(--fg2); }
+.ap-screen:not(#ap-track) .ap-sectile { padding: 20px 14px; border-radius: 12px; }
+.ap-screen:not(#ap-track) .ap-sectile b { font-size: 27px; }
+.ap-screen:not(#ap-track) .ap-scroll { scrollbar-width: thin; }
+.ap-screen:not(#ap-track) .ap-empty-car { opacity: 1; filter: none; height: 160px; background: #192b3e; border-radius: 12px; padding: 5px; }
+.ap-screen:not(#ap-track) .ap-good { color: color-mix(in srgb,var(--fg) 55%,var(--green)); }
+.ap-screen:not(#ap-track) :is(.ap-bad,.ap-warn,.ap-neg,.neg) { color: color-mix(in srgb,var(--fg) 55%,var(--red)); }
+@media (min-width: 1500px) { .ap-screen:not(#ap-track) { padding: 28px 36px; } }
+@media (max-width: 860px) {
+ .ap-top { padding: 10px 12px 0; gap: 10px; }
+ .ap-brand { font-size: 16px; }
+ .ap-tabs span { display: inline; }
+ .ap-tabs button { flex: 0 0 auto; padding: 9px 12px; font-size: 12px; }
+ .ap-screen:not(#ap-track) { padding: 14px; }
+ .ap-pagehead { padding: 22px; min-height: 130px; margin-bottom: 16px; }
+ .ap-pagehead > .ap-art { width: 140px; flex-basis: 140px; height: 120px; }
+ .ap-screen:not(#ap-track) :is(.ap-garage,.ap-driverpg,.ap-statspg) { gap: 16px; }
+ .ap-screen:not(#ap-track) .ap-equipment { grid-template-columns: repeat(auto-fit,minmax(min(100%,210px),1fr)); }
+ .ap-screen:not(#ap-track) .ap-skills { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 480px) {
+ .ap-top { padding: 9px 10px 0; grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
+ .ap-brand { font-size: 14px; }
+ .ap-status { gap: 5px; }
+ .ap-status .ap-chip { padding: 5px 7px; font-size: 11px; }
+ .ap-status .ap-btn { padding: 7px; font-size: 10px; min-height: 32px; }
+ .ap-tabs { padding-bottom: 8px; }
+ .ap-tabs button { font-size: 12px; min-height: 44px; }
+ .ap-screen:not(#ap-track) { padding: 10px; }
+ .ap-pagehead { min-height: 124px; padding: 18px; gap: 0; }
+ .ap-pagehead > div { max-width: 75%; }
+ .ap-pagehead > .ap-art { width: 105px; flex: 0 0 105px; margin-right: -14px; }
+ .ap-pagehead p { font-size: 11px; }
+ .ap-eyebrow { font-size: 9px; }
+ .ap-screen:not(#ap-track) :is(.ap-card,.ap-grp) { padding: 14px; border-radius: 12px; }
+ .ap-screen:not(#ap-track) .ap-equipment { grid-template-columns: minmax(0,1fr); gap: 10px; }
+ .ap-screen:not(#ap-track) .ap-equipment > .ap-part { display: grid; grid-template-columns: 86px minmax(0,1fr); padding: 10px; }
+ .ap-screen:not(#ap-track) .ap-part-i { height: 90px; align-self: start; }
+ .ap-screen:not(#ap-track) .ap-equipment .ap-part-a { grid-column: 1 / -1; }
+ .ap-screen:not(#ap-track) .ap-comps { grid-template-columns: repeat(3,minmax(0,1fr)); }
+ .ap-screen:not(#ap-track) .ap-comp .ap-art { height: 62px; }
+ .ap-screen:not(#ap-track) .ap-skills { grid-template-columns: minmax(0,1fr); }
+ .ap-screen:not(#ap-track) .ap-train { grid-template-columns: 40px minmax(0,1fr); gap: 10px; }
+ .ap-screen:not(#ap-track) .ap-train > button { grid-column: 2; justify-self: stretch; }
+ .ap-screen:not(#ap-track) .ap-train-i { padding: 6px; font-size: 24px; }
+ .ap-screen:not(#ap-track) .ap-avatar { width: 74px; height: 76px; }
+ .ap-screen:not(#ap-track) .ap-cond { grid-template-columns: repeat(2,minmax(0,1fr)); }
+ .ap-screen:not(#ap-track) .ap-cond b { font-size: 15px; }
+ .ap-screen:not(#ap-track) .ap-forecast { gap: 3px; }
+ .ap-screen:not(#ap-track) .ap-forecast small { font-size: 9px; }
+ .ap-screen:not(#ap-track) .ap-sectile { padding: 14px 7px; }
+ .ap-screen:not(#ap-track) .ap-sectile b { font-size: 21px; }
+ .ap-screen:not(#ap-track) .ap-sectile em { font-size: 10px; }
+ .ap-screen:not(#ap-track) .ap-bar { flex-wrap: wrap; }
+ .ap-screen:not(#ap-track) .ap-setchip { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { .ap-screen:not(#ap-track) .ap-btn { transition: none; } }
+/* Recruitment cards read like a driver line-up, with the existing traits and actions. */
+.ap-screen:not(#ap-track) .ap-recruit-offers { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.ap-screen:not(#ap-track) .ap-recruit-offer { flex-direction: column; align-items: stretch; padding: 14px; border-top: 3px solid var(--accent); }
+.ap-screen:not(#ap-track) .ap-recruit-offer > div { flex: 1; }
+.ap-screen:not(#ap-track) .ap-recruit-offer > div > b { font-size: 15px; }
+.ap-screen:not(#ap-track) .ap-recruit-offer .ap-btn { width: 100%; }
+.ap-screen:not(#ap-track) .ap-stars { color: color-mix(in srgb,var(--fg) 55%,var(--yellow)); }
+.ap-screen:not(#ap-track) .ap-session-clock { color: var(--fg); }
+.ap-app:not([data-screen="track"]) .ap-dlg { padding: 24px; border-radius: 16px; box-shadow: 0 20px 80px #0005; }
+@media(max-width:480px) {
+ .ap-top { display: flex; flex-wrap: wrap; }
+ .ap-status { margin-left: auto; }
+ .ap-tabs { flex-basis: 100%; }
+ .ap-screen:not(#ap-track) .ap-recruit-offers { grid-template-columns: 1fr; }
+}
+.ap-lab-production { grid-column: 1 / -1; min-width: 0; }
+.ap-production-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,240px),1fr)); gap: 16px; }
+.ap-production-grid .ap-production-group { min-width: 0; }
+.ap-production-grid .ap-equipment { grid-template-columns: minmax(0,1fr); }
+.ap-screen:not(#ap-track) .ap-production-grid .ap-equipment > .ap-part { height: 100%; }
+/* A consistent racing accent belongs to the paddock; circuit colours stay as configured. */
+.ap-top, .ap-screen:not(#ap-track) { --accent: #c83c2d; --on-accent: #fff; }
+@media (max-width:860px) {
+ #ap-lab .ap-garage > .ap-col:first-child { order: 3; }
+ #ap-lab .ap-garage > .ap-col:nth-child(2) { order: 1; }
+ #ap-lab .ap-lab-production { order: 2; }
+}
+@media (max-width:480px) {
+ .ap-brand { order: 0; }
+ .ap-status { order: 1; }
+ .ap-tabs { order: 2; }
+}
+/* Session records are readable cards; timing and championship tables keep their sporting layout. */
+.ap-session-records { display: grid; gap: 12px; }
+.ap-record-grid { grid-template-columns: repeat(auto-fit,minmax(min(100%,320px),1fr)); }
+.ap-session-record { display: block; position: relative; width: 100%; min-width: 0; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface2); color: var(--fg); text-align: left; font: inherit; box-sizing: border-box; }
+.ap-record-open { cursor: pointer; }
+.ap-record-open:hover { border-color: var(--accent); }
+.ap-record-head { display: flex; gap: 12px; align-items: center; }
+.ap-record-art { display: block; width: 52px; height: 54px; background: #172738; border-radius: 8px; flex-shrink: 0; }
+.ap-record-head > span:nth-child(2) { flex: 1; min-width: 0; }
+.ap-record-head b { display: block; font-size: 14px; }
+.ap-record-head small { display: block; margin-top: 5px; font-size: 11px; color: var(--fg2); }
+.ap-record-result { text-align: right; }
+.ap-record-metrics { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 10px; margin: 16px 0 10px; }
+.ap-record-metrics > span { color: var(--fg2); font-size: 11px; }
+.ap-record-metrics b { display: block; color: var(--fg); font-size: 14px; margin-top: 5px; }
+.ap-record-setup { display: block; padding-top: 10px; border-top: 1px solid var(--border); }
+.ap-record-more { display: block; color: var(--accent); font-size: 19px; text-align: right; margin-top: 5px; }
+.ap-session-record > button { margin-top: 12px; width: 100%; }
+#ap-lab [data-chance] { color: var(--fg) !important; }
+.ap-screen:not(#ap-track) .ap-skill output em { color: color-mix(in srgb,var(--fg) 55%,var(--green)); }
+.ap-research-art { height: 150px; margin: 16px 0; border-radius: 12px; background: radial-gradient(ellipse at center,#34475c,#121e2c); }
+/* The team roster is always the entry point, including teams with a single car or driver. */
+.ap-tabs button[hidden] { display: none !important; }
+.ap-roster-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,250px),1fr)); gap: 16px; }
+.ap-roster-card { overflow: hidden; border: 1px solid var(--border); border-radius: 15px; background: var(--surface1); min-width: 0; }
+.ap-roster-picture { position: relative; height: 185px; background: radial-gradient(ellipse at center,#344d64,#111d2c 85%); }
+.ap-roster-picture .ap-art { filter: drop-shadow(0 8px 10px #0006); }
+.ap-roster-number { position: absolute; bottom: 12px; left: 16px; font-size: 38px; font-weight: 900; font-style: italic; color: #e8f0fa; opacity: .8; }
+.ap-roster-body { padding: 18px; }
+.ap-roster-body h2 { margin: 0 0 10px; font-size: 20px; }
+.ap-roster-body > .ap-meter { margin: 9px 0 18px; }
+.ap-roster-body > .ap-btn { width: 100%; }
+.ap-roster-body .ap-tags { margin: 8px 0 16px; }
+.ap-roster-back { max-width: 1440px; margin: 0 auto 14px; }
+.ap-assigned-pilot { display: flex; gap: 14px; align-items: center; margin: 15px 0; }
+.ap-assigned-pilot > .ap-art { width: 85px; height: 85px; flex: 0 0 85px; background: #192c40; border-radius: 10px; }
+.ap-assignment-controls { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+.ap-assignment-controls select { flex: 1; min-width: 0; }
+.ap-assignment-controls select,.ap-fin-filter select { border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--fg); font: inherit; padding: 10px; min-height: 44px; }
+.ap-offer-skill { display: flex; gap: 10px; justify-content: space-between; font-size: 11px; padding: 4px 0; color: var(--fg2); }
+.ap-offer-skill b { color: var(--fg); }
+.ap-recruit-offer details { margin: 8px 0; }
+.ap-recruit-offer summary { font-size: 12px; cursor: pointer; }
+.ap-finance-page .ap-garage { width: 100%; margin: 0; }
+.ap-fin-contract { display: flex; gap: 16px; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.ap-fin-contract small,.ap-fin-entry small { display: block; font-size: 11px; line-height: 1.5; margin-top: 5px; font-weight: 400; color: var(--fg2); }
+.ap-fin-contract > b { text-align: right; white-space: nowrap; }
+.ap-fin-filter { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 12px; margin: 12px 0 20px; color: var(--fg2); }
+.ap-fin-ledger { display: grid; gap: 8px; }
+.ap-fin-entry { display: grid; grid-template-columns: 36px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface2); font-size: 13px; }
+.ap-fin-symbol { display: grid; place-items: center; background: var(--surface1); color: var(--fg); width: 36px; height: 36px; border-radius: 8px; font-size: 23px; }
+.ap-fin-symbol.expense { border-bottom: 3px solid #f36c57; }
+.ap-fin-symbol.income { border-bottom: 3px solid #4fd18b; }
+.ap-fin-amount { text-align: right; font-variant-numeric: tabular-nums; }
+[data-fin-more] { width: 100%; margin-top: 14px; }
+@media(max-width:480px) {
+ .ap-roster-grid { grid-template-columns: minmax(0,1fr); }
+ .ap-fin-entry { padding: 10px; gap: 8px; grid-template-columns: 30px minmax(0,1fr); }
+ .ap-fin-amount { grid-column: 2; text-align: left; }
+ .ap-fin-symbol { width: 30px; height: 34px; }
+}
+
+/* ── staff: the drivers and the pit crew ── */
+.ap-subtabs { display: flex; gap: 6px; max-width: 1200px; margin: 0 auto 12px; }
+.ap-subtabs button { background: var(--surface2); color: var(--fg2); border: 1px solid var(--border); border-radius: 999px; padding: 7px 16px; font: inherit; font-weight: 650; cursor: pointer; }
+.ap-subtabs button.on { background: var(--accent); color: var(--on-accent, #fff); border-color: transparent; }
+.ap-staff-hint { max-width: 1200px; margin: 0 auto 10px; }
+.ap-crewpg { display: flex; flex-direction: column; gap: 12px; max-width: 1200px; margin: 0 auto; }
+.ap-crew-cars { display: flex; flex-wrap: wrap; gap: 8px; }
+.ap-crew-tag { background: var(--surface2); border-radius: 999px; padding: 2px 9px; font-size: 11.5px; color: var(--fg2); }
+.ap-stop-times { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 8px 0 10px; }
+.ap-stop-times > div { background: var(--surface2); border-radius: 10px; padding: 10px 12px; }
+.ap-stop-times small { display: block; color: var(--fg2); font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; }
+.ap-stop-times b { display: block; font-size: 26px; font-variant-numeric: tabular-nums; margin: 2px 0 6px; }
+.ap-crew-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.ap-crew-card { display: flex; flex-direction: column; gap: 6px; }
+.ap-crew-card h3 { margin: 0; color: var(--fg); text-transform: none; font-size: 15px; letter-spacing: 0; }
+.ap-crew-card.empty { border-style: dashed; }
+.ap-crew-who { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ap-crew-card .ap-skills { display: grid; gap: 4px; }
+.ap-crew-card .ap-skill.key label { color: var(--fg); font-weight: 650; }
+.ap-crew-card .ap-skill:not(.key) { opacity: .72; }
+.ap-crew-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.ap-offer { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface2); border-radius: 10px; padding: 8px 10px; }
+.ap-offer .ap-hint { margin: 2px 0 0; }
+
+/* ── the team's two cars in a weekend and in the race ── */
+.ap-teamcars { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.ap-teamcar { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; background: var(--surface2); color: var(--fg); border: 2px solid var(--border); border-radius: 10px; padding: 10px 12px; font: inherit; cursor: pointer; }
+.ap-teamcar.on { border-color: var(--accent); }
+.ap-teamcar:disabled:not(.on) { opacity: .5; cursor: not-allowed; }
+.ap-teamcar small, .ap-teamcar span { color: var(--fg2); font-size: 12px; }
+.ap-watch { display: flex; gap: 4px; margin-right: 8px; }
+.ap-watch button { background: rgba(20, 26, 38, .82); color: #eaf0fb; border: 1px solid #4a566d; border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 12.5px; cursor: pointer; }
+.ap-watch button.on { background: #e53945; border-color: #e53945; color: #fff; }
+.ap-order-row.mine { cursor: pointer; }
+.ap-order-row.teammate { background: rgba(255, 209, 102, .14); border-left: 3px solid #ffd166; padding-left: 6px; }
+.ap-order-row.watched { background: rgba(229, 57, 69, .38); }
+.ap-sum-cars { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0; }
+.ap-sum-cars > div { background: rgba(255, 255, 255, .08); border-radius: 10px; padding: 8px 12px; display: grid; gap: 2px; min-width: 150px; }
+.ap-sum-cars span { font-size: 20px; font-weight: 700; }
+
+.ap-teamname { display: flex; align-items: center; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
+.ap-teamname span { color: var(--fg2); font-size: 12.5px; }
+.ap-teamname input { background: var(--surface2); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font: inherit; min-width: 200px; }
+.ap-team-sub { display: block; color: var(--fg2); font-size: 11px; }
+.ap-order-row.teammate { cursor: pointer; }
+
+/* Car cards open directly; the preview uses the circuit's own car model. */
+.ap-car-choice { display: block; width: 100%; padding: 0; font: inherit; color: var(--fg); text-align: start; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.ap-car-choice:hover:not(:disabled) { border-color: var(--accent); box-shadow: 0 4px 16px #0002; }
+.ap-car-choice:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.ap-car-choice:disabled { cursor: not-allowed; opacity: .6; }
+.ap-roster-car { background: #121923; color: #edf3fc; }
+.ap-roster-car canvas { display: block; width: 100%; height: 100%; pointer-events: none; }
+.ap-roster-car .ap-roster-number { pointer-events: none; font-size: 28px; bottom: 8px; }
+
+/* Keep illustrations inside their frame and give production cards equal space. */
+.ap-screen:not(#ap-track) .ap-part-i { display: block; flex: 0 0 110px; min-height: 0; overflow: hidden; }
+.ap-screen:not(#ap-track) .ap-part-i .ap-art { width: 100%; height: 100%; min-height: 0; max-height: 100%; }
+.ap-screen:not(#ap-track) .ap-part-b .ap-set-h { display: grid; grid-template-columns: minmax(0,1fr); gap: 6px; margin-bottom: 12px; }
+.ap-screen:not(#ap-track) .ap-part-b .ap-set-h label { line-height: 1.4; overflow-wrap: anywhere; }
+.ap-screen:not(#ap-track) .ap-part-b .ap-set-h output { margin: 0; font-size: 12px; line-height: 1.5; }
+.ap-production-grid { grid-auto-rows: 1fr; }
+.ap-production-grid .ap-production-group { display: flex; flex-direction: column; }
+.ap-production-grid .ap-production-group > h3 { line-height: 1.5; }
+.ap-production-grid .ap-equipment { flex: 1; grid-auto-rows: 1fr; }
+.ap-screen:not(#ap-track) .ap-production-grid .ap-equipment > .ap-part { height: auto; box-sizing: border-box; }
+.ap-screen:not(#ap-track) .ap-production-grid .ap-part-b label { min-height: 2.8em; }
+.ap-screen:not(#ap-track) .ap-production-grid .ap-stat { min-height: 28px; margin: 4px 0; grid-template-columns: minmax(0,1.2fr) minmax(25px,1fr) 28px; }
+
+/* Button prices must inherit the contrasting button foreground, including in light themes. */
+.ap-screen .ap-btn:not(.ap-ghost) small { color: inherit; opacity: 1; }
+.ap-recruit-offer .ap-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 12px 14px; min-height: 62px; line-height: 1.3; }
+.ap-recruit-offer .ap-btn small { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.ap-livery-preview { height: clamp(280px,38vw,480px); margin-top: 18px; }
+.ap-livery-preview canvas { touch-action: none; }
+.ap-livery-colors { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 18px 0; }
+.ap-livery-color { display: grid; grid-template-columns: 44px minmax(0,1fr); align-items: center; gap: 5px 10px; border: 1px solid var(--border); background: var(--surface2); border-radius: 10px; padding: 10px; font-size: 12px; }
+.ap-livery-color > span { grid-column: 1 / -1; font-weight: 600; line-height: 1.4; }
+.ap-livery-color input { width: 44px; height: 38px; padding: 2px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface1); cursor: pointer; }
+.ap-livery-color output { font: 11px monospace; color: var(--fg); }
+.ap-livery-tools,.ap-livery-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.ap-livery-tools .ap-btn { font-size: 12px; }
+.ap-livery-actions > .ap-btn { flex: 1; min-height: 44px; }
+.ap-livery-message { min-height: 2.8em; }
+.ap-livery-color input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 480px) { .ap-livery-colors { gap: 8px; } .ap-livery-color { padding: 8px; gap: 6px; } .ap-livery-tools .ap-btn { flex: 1 1 100%; } }
+.ap-livery-editor > .ap-col:first-child { position: sticky; top: 0; align-self: start; z-index: 2; }
+@media (max-width: 760px) { .ap-livery-preview { height: 200px; } }
+@media (max-width: 760px) { .ap-livery-editor { display: block; } .ap-livery-editor > .ap-col + .ap-col { margin-top: 16px; } }
+
+.ap-circuit-map:empty { display: none; }
+.ap-circuit-map { float: right; width: 150px; height: 100px; margin: 8px 0 10px 14px; color: var(--fg); }
+.ap-circuit-map svg { width: 100%; height: 100%; overflow: visible; }
+.ap-circuit-map path { fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.ap-circuit-map circle { fill: var(--accent); stroke: var(--surface1); stroke-width: 1.5; }
+.ap-trackcard:has(.ap-circuit-map)::after { content: ''; display: block; clear: both; }
+@media (max-width: 480px) { .ap-circuit-map { float: none; width: 100%; height: 105px; margin: 10px 0; } }
+
+.ap-venue-map { display: block; width: 100%; height: clamp(330px,55vh,660px); touch-action: none; border: 1px solid var(--border); border-radius: 12px; background: var(--surface2); }
+.ap-venue-tools { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0; }
+.ap-venue-fields { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; margin-top: 12px; }
+.ap-venue-fields label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--fg2); }
+.ap-venue-fields input { min-width: 0; width: 100%; padding: 10px; min-height: 44px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); color: var(--fg); font: inherit; }
+.ap-venue-save { width: 100%; min-height: 44px; margin-top: 12px; }
+.ap-venue [data-venue-status] { min-height: 2.8em; }
+.ap-venue .ap-cond { flex-wrap: wrap; }
+.ap-venue .ap-cond > div { min-width: 115px; }
+.ap-venue > .ap-col:first-child { position: sticky; top: 0; align-self: start; z-index: 2; }
+@media(max-width:760px) { .ap-venue { display: block; } .ap-venue > .ap-col:first-child { position: static; } .ap-venue > .ap-col + .ap-col { margin-top: 16px; } .ap-venue-map { height: 44vh; min-height: 300px; } .ap-venue-fields { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+
+.ap-sp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px;margin:14px 0 24px}
+.ap-sp-contract{display:flex;flex-direction:column;gap:8px;padding:18px;border:1px solid var(--border);border-radius:12px;background:var(--bg)}
+.ap-sp-contract h3,.ap-sp-contract p{margin:0;overflow-wrap:anywhere}.ap-sp-contract>small{color:var(--fg2)}
+.ap-sp-contract>.ap-btn{margin-top:auto;width:100%;color:var(--on-accent,#fff)}
+
+.ap-hall{max-width:1440px;margin:0 auto 18px;padding:18px 20px;border:1px solid var(--border);border-radius:15px;background:var(--surface1);color:var(--fg)}
+.ap-hall-main{display:flex;align-items:center;gap:14px}.ap-hall-main>div{flex:1;min-width:0}.ap-hall h2{font-size:16px;margin:0 0 5px}.ap-hall-main p{margin:0;color:var(--fg2);font-size:13px;line-height:1.5}
+.ap-hall-icon{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--surface2);font-size:24px;flex-shrink:0}
+.ap-hall-main>strong{font-size:26px;letter-spacing:.02em;font-variant-numeric:tabular-nums;white-space:nowrap}.ap-hall .ap-hint{margin:10px 0 0;line-height:1.6}
+.ap-hall-slots{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px;margin-top:14px}.ap-hall-slots i{height:5px;border-radius:4px;background:var(--surface2)}.ap-hall-slots .available{background:var(--green,#28b487)}
+.ap-pilot-choice{display:flex;flex-direction:column;width:100%;padding:0;color:var(--fg);font:inherit;text-align:left;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s}
+.ap-pilot-choice:hover:not(:disabled){border-color:var(--accent);box-shadow:0 5px 20px #00000012;transform:translateY(-2px)}.ap-pilot-choice:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.ap-pilot-choice:disabled{cursor:default;opacity:.6}
+.ap-pilot-identity{display:flex;align-items:center;gap:12px;padding:18px;background:var(--surface2);width:100%;min-width:0}.ap-pilot-avatar{display:grid;place-items:center;flex:0 0 66px;height:66px;border-radius:14px;background:#192d40}.ap-pilot-avatar .ap-art{width:75px;height:66px;max-width:none;object-fit:contain}
+.ap-pilot-name{display:grid;gap:6px;flex:1;min-width:0}.ap-pilot-name>b{font-size:19px;overflow-wrap:anywhere}.ap-pilot-name>small{color:var(--fg2);font-size:12px}.ap-pilot-arrow{font-size:24px;color:var(--fg2)}
+.ap-pilot-choice .ap-roster-body{width:100%;flex:1}.ap-pilot-choice .ap-meter{margin-bottom:0}.ap-pilot-facts{display:flex;justify-content:space-between;gap:12px}.ap-pilot-facts>div{display:grid;gap:5px;min-width:0}.ap-pilot-facts small{font-size:12px;color:var(--fg2)}.ap-pilot-facts strong{font-size:17px;overflow-wrap:anywhere}
+@media(max-width:520px){.ap-hall{padding:15px}.ap-hall-main{gap:10px;flex-wrap:wrap}.ap-hall-main>strong{font-size:23px;margin-left:auto}.ap-hall-icon{width:36px;height:36px;font-size:21px}.ap-hall-main>div{flex-basis:calc(100% - 50px)}.ap-hall-main>strong{margin-top:3px}.ap-pilot-identity{padding:16px}}
+
+.ap-subtabs,.ap-staff-hint{max-width:1440px}
+
+.ap-screen:not(#ap-track) .ap-car-list{grid-template-columns:minmax(0,1fr)}
+#ap-team .ap-teamname{margin:0 0 14px}#ap-team [data-team-name-status]:empty{display:none}
+
+/* In-game messages use the browser top layer, above fullscreen and training. */
+.ap-app .ap-message { box-sizing: border-box; width: min(460px, calc(100% - 32px)); max-height: calc(100dvh - 32px); margin: auto; padding: 24px; overflow: auto; border: 1px solid var(--border); border-radius: 16px; background: var(--surface1); color: var(--fg); box-shadow: 0 24px 90px #0006; font: inherit; }
+.ap-message::backdrop { background: #0009; }
+.ap-message-heading { display: flex; align-items: center; gap: 10px; }
+.ap-message-heading > span { font-size: 26px; }
+.ap-message-heading h2 { margin: 0; font-size: 19px; }
+.ap-message p { margin: 18px 0 24px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ap-message-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.ap-message-actions .ap-btn { min-height: 44px; }
+.ap-message-actions .ap-btn:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
+
+.ap-crew-drill { flex-direction: column; align-items: center; gap: 12px; }
+.ap-crew-trained { margin-bottom: 12px; }
+.ap-crew-trained .key { font-weight: 700; border: 1px solid var(--accent); }
+
+.ap-skill-link { font: inherit; color: var(--fg); border: 1px solid transparent; text-align: left; cursor: pointer; width: 100%; }
+.ap-skill-link:hover { border-color: var(--accent); }
+.ap-skill-link .ap-set-h > span { text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
+.ap-screen:not(#ap-track) .ap-training-target { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); scroll-margin-block: 24px; }
+.ap-practice-training { margin-top: 18px; }
+
+.ap-wxsteps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin: 6px 0; }
+.ap-wxsteps > div { display: flex; flex-direction: column; align-items: center; padding: 5px 2px; border: 2px solid var(--border); background: var(--surface2); border-radius: 8px; }
+.ap-wxsteps > div:first-child { border-color: var(--accent); }
+.ap-wxsteps small, .ap-wxsteps em { font-size: 11px; color: var(--fg2); font-style: normal; }
+.ap-wxsteps span { font-size: 17px; } .ap-wxsteps b { font-size: 12px; }
+#h-wx { line-height: 1.35; font-size: 12px; text-align: left; }
+
+.ap-range { position: relative; }
+.ap-range .ap-advice { position: absolute; pointer-events: none; }
+.ap-range .ap-advice[hidden] { display: none; }
+.ap-range input { position: relative; background: transparent; }
+.ap-rng.has-advice, .ap-range.has-advice { padding-bottom: 14px; }
+.ap-rng.has-advice::after, .ap-range.has-advice::after { content: ''; position: absolute; left: 0; right: 0; bottom: 3px; height: 6px; background: var(--border); border-radius: 3px; pointer-events: none; }
+.ap-rngband, .ap-range .ap-advice { bottom: 2px; height: 8px; z-index: 1; box-sizing: border-box; background: #4fd18b; border: 1px solid #17623e; border-radius: 2px; }
+.ap-rngband::before, .ap-rngband::after, .ap-advice::before, .ap-advice::after { content: ''; position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--fg); }
+.ap-rngband::before, .ap-advice::before { left: -1px; }
+.ap-rngband::after, .ap-advice::after { right: -1px; }
+.ap-advice-tag { display: block; margin: 5px 0 2px; color: var(--fg); font-size: 12px; line-height: 1.4; }
+.ap-wxbox { background: rgba(8,12,20,.72); color: #e8edf7; border: 0; border-radius: 10px; padding: 6px 10px; font-size: 12px; line-height: 1.35; text-align: left; cursor: pointer; display: grid; gap: 2px; max-width: 190px; }
+.ap-wxbox:empty { display: none; }
+.ap-wxbox small { color: #aeb8cc; }
+#h-wx { cursor: pointer; }
+.ap-wxlaps { max-width: min(520px, 100%); }
+.ap-fb { display: grid; gap: 8px; padding: 6px 2px; }
+.ap-fb-top { display: flex; justify-content: space-between; font-size: 14px; }
+.ap-fb-row { display: grid; grid-template-columns: 110px 1fr 44px; gap: 8px; align-items: center; font-size: 13px; }
+.ap-fb-tried { display: flex; flex-wrap: wrap; gap: 4px; padding-left: 118px; min-height: 18px; }
+.ap-fb-tried i { font-style: normal; font-size: 12px; font-weight: 700; padding: 1px 6px; border-radius: 8px; background: color-mix(in srgb, var(--text) 10%, transparent); font-variant-numeric: tabular-nums; }
+.ap-fb-tried i.ok { color: var(--green, #2e9e5b); }
+.ap-fb-row output { text-align: right; font-variant-numeric: tabular-nums; }
+.ap-tg-ref { margin: 4px 0 8px; }
+
+/* the strategist's race plan */
+.ap-strategy { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0; }
+.ap-strategy span { display: inline-flex; align-items: center; gap: 6px; background: var(--surface2); border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: 15px; }
+
+.ap-career .ap-btn { margin: 10px 0 22px; }
+.ap-career .ap-hint { margin-top: 18px; }

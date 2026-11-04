@@ -99,7 +99,7 @@
       "name": "Tesla",
       "icon": "🚗",
       "category": "Utilities",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "description": "Your Tesla at a glance: live status, battery, trips with routes, charging sessions with cost, efficiency, battery health and sleep history, collected from the official Tesla Fleet API and kept on your own server, with a public web page for the phone or the car's browser.",
       "tags": [
         "tesla",
@@ -108,7 +108,7 @@
         "charging"
       ],
       "min_core_version": "1.19.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/tesla-1.2.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/tesla-1.3.0.zip",
       "name_i18n": {
         "en": "Tesla",
         "bg": "Тесла",

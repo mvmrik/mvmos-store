@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a3d"/><stop offset="1" stop-color="#5a1230"/></linearGradient>
+    <linearGradient id="sh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <path d="M-10 96 C 30 70, 62 100, 138 52" fill="none" stroke="#1b1b24" stroke-width="30" stroke-linecap="round"/>
+  <path d="M-10 96 C 30 70, 62 100, 138 52" fill="none" stroke="#f4f4f0" stroke-width="2.5" stroke-dasharray="10 9"/>
+  <g transform="translate(40 40) rotate(-16)"><rect x="0" y="6" width="50" height="12" rx="6" fill="#f4f4f0"/><rect x="8" y="1" width="20" height="8" rx="3" fill="#ffd23f"/><rect x="-4" y="2" width="6" height="20" rx="2" fill="#111"/><rect x="44" y="4" width="6" height="16" rx="2" fill="#111"/><circle cx="14" cy="20" r="5" fill="#111"/><circle cx="38" cy="20" r="5" fill="#111"/></g>
+  <rect width="128" height="64" rx="28" fill="url(#sh)"/>
+</svg>

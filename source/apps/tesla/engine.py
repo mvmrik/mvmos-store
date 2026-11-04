@@ -585,7 +585,9 @@ def trip_update(c, p, v, s, ts, prev):
             return False
         if tid is None:
             # The car may have been left alone while parked: its last parked sample is where the trip began.
-            o = prev if prev and prev["shift"] not in ("D", "R", "N") and prev["lat"] is not None else None
+            o = prev if (prev and prev["shift"] not in ("D", "R", "N")
+                         and not (prev["speed"] or 0) and prev["lat"] is not None
+                         and prev["lng"] is not None and prev["ts"] < ts) else None
             c.execute("""INSERT INTO trips (vehicle, start_ts, start_odo, start_batt, start_range, start_lat, start_lng, temp_out, last_pts)
                          VALUES (?,?,?,?,?,?,?,?,?)""",
                       (v["id"], ts, (o["odo_km"] if o and o["odo_km"] is not None else s["odo_km"]),

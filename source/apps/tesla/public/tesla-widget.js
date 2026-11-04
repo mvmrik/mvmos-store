@@ -305,6 +305,8 @@
   .tsl-card>h3:before{content:'';width:4px;height:14px;border-radius:3px;flex-shrink:0;background:var(--pub-accent,var(--tsl-blue,#60a5fa));opacity:.75}
   .tsl-card .tsl-tile{border:1px solid var(--pub-border,#ffffff0a)}.tsl-tile b{font-variant-numeric:tabular-nums;line-height:1.3}.tsl-tile span{letter-spacing:.025em;line-height:1.5}
   .tsl-journey-list>.tsl-card{margin-top:0;border:1px solid var(--pub-border,#ffffff18)}.tsl-journey-list{margin-top:12px}.tsl-journey-card h2{font-size:1.25rem}.tsl-journey-card .tsl-badge{margin-left:0;padding:5px 9px;border-radius:7px}
+  .tsl-cap-hero{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}.tsl-cap-hero span{display:block;color:var(--pub-fg2,#9aa4bd);font-size:.85rem}.tsl-cap-hero>div>b{font-size:2.3rem;font-variant-numeric:tabular-nums;line-height:1.1}.tsl-cap-hero small{font-size:1rem;font-weight:500}.tsl-cap-change{text-align:right}.tsl-cap-change b{display:block;font-size:1.5rem;font-variant-numeric:tabular-nums}.tsl-cap-change.warn b{color:var(--tsl-warning,#fbbf24)}.tsl-cap-state{font-size:1.15rem;font-weight:700;margin-bottom:8px}.tsl-cap-axis{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 6px}.tsl-cap-x{margin:4px 0 8px}.tsl-cap-x .tsl-btn{padding:6px 12px;min-height:34px;font-size:.85rem}.tsl-cap-axis:empty{display:none}
+  .tsl-vin{margin:12px 0 10px;font:600 1.05rem/1.3 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.08em;word-break:break-all;user-select:all}
   .tsl-journey-card:focus-visible,.tsl-btn:focus-visible,.tsl-tab:focus-visible,.tsl-seg button:focus-visible{outline:2px solid var(--pub-accent,var(--tsl-blue,#60a5fa));outline-offset:3px}
   .tsl-history-event{margin-top:8px;padding:12px;background:var(--pub-surface2,#252d45);border:1px solid var(--pub-border,#ffffff0a);border-radius:12px}.tsl-history-event:hover{border-color:var(--pub-accent,var(--tsl-blue,#60a5fa))}
   .tsl-sec summary{align-items:center;overflow-wrap:anywhere}.tsl-sec summary:before{content:'›';color:var(--pub-accent,var(--tsl-blue,#60a5fa));font-size:1.3rem}.tsl-sec[open]>summary:before{transform:rotate(90deg)}.tsl-sec summary small{margin-left:auto;background:var(--pub-surface2,#252d45);padding:3px 8px;border-radius:6px}
@@ -1222,14 +1224,14 @@
       const host=p.querySelector('#tsl-replay'),points=(a.playback||[]).filter(p=>Number.isFinite(p[0]));
       if(!host || !map)return;
       if(points.length<2){host.innerHTML=`<p class="tsl-note">${esc(t('tsl_replay_empty'))}</p>`;return;}
-      host.innerHTML=`<div class="tsl-replay-head"><b>${esc(t('tsl_replay_title'))}</b><time data-replay-clock></time></div><div class="tsl-seg tsl-replay-view"><button type="button" data-replay-view="follow" aria-pressed="true" class="on">◎ ${esc(t('tsl_replay_follow'))}</button><button type="button" data-replay-view="overview" aria-pressed="false">${esc(t('tsl_replay_overview'))}</button></div><div class="tsl-replay-controls"><button type="button" class="tsl-btn pri" data-replay-play>▶ ${esc(t('tsl_replay_play'))}</button><select data-replay-rate aria-label="${esc(t('tsl_replay_rate'))}">${[.5,1,2,4].map(n=>`<option value="${n}" ${n===1?'selected':''}>${nf(n)}×</option>`).join('')}</select><input data-replay-seek type="range" min="0" max="${points.length-1}" step="0.001" value="0" aria-label="${esc(t('tsl_replay_title'))}"></div><div class="tsl-replay-readings"><div><small>${esc(t('tsl_trip_avg'))}</small><b data-replay-speed></b></div><div><small>${esc(t('tsl_power'))}</small><b data-replay-power></b></div><div><small>${esc(t('tsl_trip_batt'))}</small><b data-replay-battery></b></div></div><div class="tsl-replay-caption"><span data-replay-reading></span><span class="tsl-replay-activity" data-replay-position></span></div><p class="tsl-note">${esc(t('tsl_replay_note'))}</p>`;
+      host.innerHTML=`<div class="tsl-replay-head"><b>${esc(t('tsl_replay_title'))}</b><time data-replay-clock></time></div><div class="tsl-seg tsl-replay-view"><button type="button" data-replay-view="overview" aria-pressed="true" class="on">${esc(t('tsl_replay_overview'))}</button><button type="button" data-replay-view="follow" aria-pressed="false">◎ ${esc(t('tsl_replay_follow'))}</button></div><div class="tsl-replay-controls"><button type="button" class="tsl-btn pri" data-replay-play>▶ ${esc(t('tsl_replay_play'))}</button><select data-replay-rate aria-label="${esc(t('tsl_replay_rate'))}">${[.5,1,2,4].map(n=>`<option value="${n}" ${n===1?'selected':''}>${nf(n)}×</option>`).join('')}</select><input data-replay-seek type="range" min="0" max="${points.length-1}" step="0.001" value="0" aria-label="${esc(t('tsl_replay_title'))}"></div><div class="tsl-replay-readings"><div><small>${esc(t('tsl_trip_avg'))}</small><b data-replay-speed></b></div><div><small>${esc(t('tsl_power'))}</small><b data-replay-power></b></div><div><small>${esc(t('tsl_trip_batt'))}</small><b data-replay-battery></b></div></div><div class="tsl-replay-caption"><span data-replay-reading></span><span class="tsl-replay-activity" data-replay-position></span></div><p class="tsl-note">${esc(t('tsl_replay_note'))}</p>`;
       // Reuse the speed unit label, without implying this is an average.
       host.querySelector('.tsl-replay-readings small').textContent=t('tsl_chart_speed');
       const button=host.querySelector('[data-replay-play]'),seek=host.querySelector('[data-replay-seek]'),rate=host.querySelector('select');
       const viewButtons=host.querySelectorAll('[data-replay-view]');
       map.onFollowChange(enabled=>viewButtons.forEach(b=>{const active=(b.dataset.replayView==='follow')===enabled;b.classList.toggle('on',active);b.setAttribute('aria-pressed',String(active));}));
       viewButtons.forEach(b=>b.onclick=()=>map.setFollow(b.dataset.replayView==='follow'));
-      map.setFollow(true);
+      map.setFollow(false);
       let frame=null,position=0,last=null,closed=false;
       const valid=q=>Number.isFinite(q[1])&&Number.isFinite(q[2])&&Math.abs(q[1])<90&&Math.abs(q[2])<=180;
       function renderFrame(){
@@ -1308,14 +1310,21 @@
 
     // ── Charges ───────────────────────────────────────────────────────────
     function chargeRow(r) {
-      const metric = (key, value) => `<span><b>${esc(value)}</b><small>${esc(t(key))}</small></span>`;
+      const metric = (label, value, singleLine = false) => `<span><b>${esc(value)}</b>${label ? `<small${singleLine ? ' style="white-space:nowrap"' : ''}>${esc(label)}</small>` : ''}</span>`;
+      const breakdown = r.cost_breakdown || [];
+      const tariffs = [...new Set(breakdown.filter(b => b.source === 'tariff' && b.name).map(b => b.name))];
+      const rates = [...new Set(breakdown.filter(b => Number.isFinite(b.price)).map(b => unitPrice(b.price, b.currency) + '/kWh'))];
+      const price = rates.length ? rates.join(' · ') : Number.isFinite(r.price) ? unitPrice(r.price, r.cost_currency) + '/kWh' : '– /kWh';
+      const duration = (r.end_ts || r.start_ts) - r.start_ts;
+      const avg = Number.isFinite(r.kwh) && duration > 0 ? r.kwh * 3600 / duration : null;
+      const peak = Number.isFinite(r.max_power) ? t('tsl_chg_peak') + ': ' + fmt.kw(r.max_power) : '';
       const start = r.start_batt == null ? null : Math.max(0, Math.min(100, r.start_batt));
       const end = r.end_batt == null ? null : Math.max(0, Math.min(100, r.end_batt));
       const cost = (r.cost_totals && r.cost_totals.length ? (r.cost_complete ? '' : '≥ ') : '') + (r.pricing_estimated ? '≈ ' : '') + costMoney(r);
       return `<button type="button" class="tsl-drive-card tsl-charge-card ${r.dc ? 'dc' : ''}" data-open="charge:${r.id}">
         <div class="tsl-drive-meta"><time datetime="${new Date(r.start_ts * 1000).toISOString()}">${esc(fmt.date(r.start_ts))}<b>${esc(fmt.time(r.start_ts))}</b></time><span class="tsl-drive-duration">${esc(fmt.dur((r.end_ts || r.start_ts) - r.start_ts))}</span></div>
         <div class="tsl-charge-location"><span class="tsl-session-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2 5 14h6l-1 8 9-13h-7z"/></svg></span><strong>${esc(place(r.place, r.addr))}</strong><span class="tsl-badge ${r.dc ? 'dc' : ''}">${esc(t(r.dc ? 'tsl_chg_dc' : 'tsl_chg_ac'))}</span></div>
-        <div class="tsl-drive-metrics">${metric('tsl_chg_added',r.kwh == null ? '–' : '+' + fmt.kwh(r.kwh))}${metric('tsl_chg_peak',r.max_power == null ? '–' : fmt.kw(r.max_power))}${metric('tsl_chg_cost',cost)}</div>
+        <div class="tsl-drive-metrics">${metric(tariffs.length ? tariffs.join(' · ') : t('tsl_chg_added'),r.kwh == null ? '–' : '+' + fmt.kwh(r.kwh))}${metric(peak,avg == null ? '–' : fmt.kw(avg),true)}${metric(price,cost)}</div>
         ${start != null && end != null ? `<div class="tsl-drive-battery"><span>${esc(t('tsl_trip_batt'))}</span><div class="tsl-drive-battery-track" aria-hidden="true"><i style="width:${end}%"></i><i class="before" style="width:${start}%"></i></div><span>${esc(nf(start))}% → ${esc(nf(end))}%</span></div>` : ''}
       </button>`;
     }
@@ -1555,18 +1564,101 @@
       V.chart(p.querySelector('#tsl-s5'), { type: 'dots', series: [{ color: 'var(--tsl-pink,#f472b6)', data: d.efficiency.map(e => [U.temp(e.t), U.eff(e.wh_km)]) }], xFmt: x => nf(x) + U.tempU(), yFmt: v => nf(v), tipFmt: v => nf(v) + ' ' + U.effU(), yMin: 0, height: 190 });
     }
 
+    // ── Battery capacity from charging sessions ───────────────────────────
+    const capDate = ts => { const pk = window.mvmOS.dateTimePicker; return pk.format(pk.fromEpoch(ts, { type: 'date' }), { type: 'date' }); };
+    const capPct = v => (v > 0 ? '+' : v < 0 ? '−' : '') + nf(Math.abs(v), 1) + '%';
+    function capacityCards(d) {
+      const c = d.capacity;
+      if (!c || c.status === 'none') return '';
+      const bar = (n, m) => `<div class="tsl-state-share" aria-hidden="true"><i style="width:${Math.min(100, n / m * 100)}%;background:var(--tsl-blue,#60a5fa)"></i></div>`;
+      const ref = c.reference, exp = !!ref && (st.capView || 'exp') === 'exp';
+      let head;
+      if (c.status === 'collecting') {
+        head = `<div class="tsl-cap-state">${esc(t('tsl_cap_collecting'))}</div>${bar(c.count, c.show_at)}<p class="tsl-note">${esc(t('tsl_cap_progress', { n: c.count, m: c.show_at }))}. ${esc(t('tsl_cap_collecting_hint', { n: c.show_at }))}</p>`;
+      } else {
+        const trend = c.status === 'trend', neg = trend && c.change_pct <= -10;
+        const left = exp ? `<span>${esc(t('tsl_cap_of_expected'))}</span><b>${esc(nf(ref.pct, 1))}<small>%</small></b>` : `<span>${esc(t('tsl_cap_now'))}</span><b>${esc(nf(c.current_kwh, 1))} <small>${esc(t('tsl_u_kwh'))}</small></b>`;
+        const right = exp ? `<b>${esc(nf(c.current_kwh, 1))} ${esc(t('tsl_u_kwh'))}</b><span>${esc(t('tsl_cap_vs', { kwh: nf(ref.kwh, 1) }))}</span>`
+          : trend ? `<b>${esc(capPct(c.change_pct))}</b><span>${esc(t('tsl_cap_since', { date: capDate(c.baseline_ts) }))}</span>` : `<span class="tsl-badge">${esc(t('tsl_cap_prelim'))}</span>`;
+        head = `<div class="tsl-cap-hero"><div>${left}</div><div class="tsl-cap-change${neg && !exp ? ' warn' : ''}">${right}</div></div>
+          ${exp && trend ? `<p class="tsl-note">${esc(t('tsl_cap_since', { date: capDate(c.baseline_ts) }))}: ${esc(capPct(c.change_pct))}</p>` : ''}
+          ${trend ? '' : `${bar(Math.min(c.count / c.trend_at, c.span_days / c.trend_days), 1)}<p class="tsl-note">${esc(t('tsl_cap_prelim_hint', { n: c.trend_at, d: c.trend_days }))} (${esc(t('tsl_cap_progress', { n: c.count, m: c.trend_at }))})</p>`}
+          ${ref && ref.far_off ? `<p class="tsl-note" role="alert">${esc(t('tsl_cap_far_off'))}</p>` : ''}`;
+      }
+      const hasOdo = c.points.length > 1 && c.points.every(x => x.odo != null);
+      const views = ref && c.status !== 'collecting' ? ['exp', 'est'].map(k => `<button class="tsl-btn ${(exp ? 'exp' : 'est') === k ? 'pri' : ''}" data-cap-view="${k}">${esc(t(k === 'exp' ? 'tsl_cap_view_exp' : 'tsl_cap_view_est'))}</button>`).join('') : '';
+      const axes = hasOdo ? ['time', 'odo'].map(k => `<button class="tsl-btn ${(st.capX || 'time') === k ? 'pri' : ''}" data-cap-x="${k}">${esc(t(k === 'time' ? 'tsl_cap_by_time' : 'tsl_cap_by_dist'))}</button>`).join('') : '';
+      const chart = c.status === 'collecting' ? '' : `<div class="tsl-cap-axis">${views}</div><div id="tsl-capchart"></div><div class="tsl-cap-axis tsl-cap-x">${axes}</div><div class="tsl-note">${esc(t('tsl_cap_legend'))}${ref ? ' ' + esc(t('tsl_cap_legend_ref')) : ''}</div>`;
+      const tiles = `<div class="tsl-grid">${tile(t('tsl_cap_used'), esc(nf(c.count)))}${tile(t('tsl_cap_fulls'), esc(nf(c.full_count)))}${tile(t('tsl_cap_span'), esc(nf(c.span_days)))}</div>`;
+      const hint = c.since_full_days == null ? t('tsl_cap_full_none') : c.since_full_days > 45 ? t('tsl_cap_full_hint', { d: c.since_full_days }) : '';
+      const setHint = !ref && canManage() ? `<p class="tsl-note">${esc(t('tsl_cap_set_prompt'))} <button class="tsl-btn" data-cap-settings>${esc(t('tsl_tab_settings'))}</button></p>` : '';
+      return `<div class="tsl-card"><h3>${esc(t('tsl_cap_title'))}</h3>${head}${chart}${c.status === 'collecting' ? '' : tiles}${hint && c.status !== 'collecting' ? `<p class="tsl-note">${esc(hint)}</p>` : ''}${setHint}<div class="tsl-note">${esc(t('tsl_cap_note'))}</div></div>`;
+    }
+    function bindCapacity(p, d) {
+      const c = d.capacity;
+      p.querySelectorAll('[data-cap-x]').forEach(b => b.onclick = () => { st.capX = b.dataset.capX; renderBattery(p); });
+      p.querySelectorAll('[data-cap-view]').forEach(b => b.onclick = () => { st.capView = b.dataset.capView; renderBattery(p); });
+      const toSettings = p.querySelector('[data-cap-settings]');
+      if (toSettings) toSettings.onclick = () => go('settings');
+      const el = p.querySelector('#tsl-capchart');
+      if (!el || !c) return;
+      const ref = c.reference, exp = !!ref && (st.capView || 'exp') === 'exp';
+      const odo = (st.capX === 'odo') && c.points.every(x => x.odo != null);
+      const X = x => odo ? U.dist(x.odo) : x.ts, Yv = v => exp ? v / ref.kwh * 100 : v;
+      const ys = c.points.map(x => Yv(x.smooth)).concat(c.points.map(x => Yv(x.kwh)), ref ? [Yv(ref.kwh)] : []);
+      const unit = exp ? '%' : ' ' + t('tsl_u_kwh');
+      let lo = Math.floor(Math.min.apply(null, ys) - 1), hi = Math.ceil(Math.max.apply(null, ys) + 1);
+      if (exp) {   // whole-number gridlines with one exactly on 100%
+        const ymin = Math.min.apply(null, ys), ymax = Math.max.apply(null, ys);
+        let step = Math.max(1, Math.ceil((ymax - ymin + 2) / 4));
+        for (;; step++) {
+          lo = 100 - step * Math.ceil((100 - (ymin - 1)) / step); hi = lo + step * 4;
+          if (hi >= ymax + 0.5) break;
+        }
+      }
+      V.chart(el, { type: 'line', area: false, series: [{ color: 'var(--tsl-blue,#60a5fa)', data: c.points.map(x => [X(x), Yv(x.smooth)]) }],
+        marks: [{ color: 'var(--tsl-blue,#60a5fa)', data: c.points.map(x => [X(x), Yv(x.kwh), x.full]) }],
+        refLine: ref ? { y: Yv(ref.kwh), label: t('tsl_cap_expected') } : null,
+        xFmt: v => odo ? nf(v) + ' ' + U.distU() : capDate(v), yFmt: v => nf(v, exp ? 0 : 1), tipFmt: v => nf(v, 1) + unit,
+        yMin: lo, yMax: hi, height: 220 });
+    }
+    // The expected capacity lives in Settings: whoever knows the pack size can compare the estimate with it.
+    async function renderCapacitySetting(host) {
+      if (!host || !canManage()) return;
+      let pr = {};
+      try { pr = (await api('/places')).prefs || {}; } catch (e) { return; }
+      if (destroyed || !host.isConnected) return;
+      host.innerHTML = `<div class="tsl-card"><h3>${esc(t('tsl_cap_set_title'))}</h3><p class="tsl-note">${esc(t('tsl_cap_set_hint'))}</p>
+        <div class="tsl-field"><label for="tsl-capkwh">${esc(t('tsl_cap_set_kwh'))} (${esc(t('tsl_u_kwh'))})</label><input id="tsl-capkwh" type="number" min="10" max="250" step="0.1" value="${pr.capacity_kwh != null ? pr.capacity_kwh : ''}"></div>
+        <div class="tsl-btns"><button class="tsl-btn pri" id="tsl-capsave">${esc(t('tsl_save'))}</button>${pr.capacity_kwh != null ? `<button class="tsl-btn" id="tsl-capclear">${esc(t('tsl_cap_set_remove'))}</button>` : ''}</div></div>`;
+      const save = async value => {
+        try { await api('/prefs', { method: 'PUT', body: JSON.stringify({ capacity_kwh: value }) }); toast(t('tsl_saved')); renderCapacitySetting(host); }
+        catch (e) { toast(t('tsl_error')); }
+      };
+      host.querySelector('#tsl-capsave').onclick = () => {
+        const f = host.querySelector('#tsl-capkwh');
+        if (f.value.trim() === '' || !f.reportValidity()) { toast(t('tsl_error')); return; }
+        save(Number(f.value));
+      };
+      const clr = host.querySelector('#tsl-capclear');
+      if (clr) clr.onclick = () => save(null);
+    }
+
     // ── Battery and sleep ─────────────────────────────────────────────────
     async function renderBattery(p) {
       p.innerHTML = `<div class="tsl-center">${esc(t('tsl_loading'))}</div>`;
       let d;
       try { d = await api('/v/' + st.vid + '/battery'); }
       catch (e) { p.innerHTML = `<div class="tsl-card tsl-center">${esc(t('tsl_error'))}</div>`; return; }
+      const picker = window.mvmOS.dateTimePicker;
+      try { await picker.ready(); } catch (e) { /* dates fall back to the plain format */ }
       if (destroyed || st.tab !== 'battery') return;
+      clearMaps();
       const s = d.series, last = s.length ? s[s.length - 1].full_km : null, first = s.length ? s[0].full_km : null;
       const dr = d.drain, hrs = dr.reduce((a, x) => a + x.hours, 0), lost = dr.reduce((a, x) => a + x.lost_pct, 0);
       const perDay = hrs >= 12 ? lost / hrs * 24 : null;
       const tot = d.sleep.reduce((a, x) => a + x.asleep, 0), all = d.sleep.reduce((a, x) => a + x.asleep + x.online + x.driving + x.charging + x.offline, 0);
-      p.innerHTML = `<div class="tsl-card"><h3>${esc(t('tsl_bat_full'))}</h3><div class="tsl-grid">
+      p.innerHTML = `${capacityCards(d)}<div class="tsl-card"><h3>${esc(t('tsl_bat_full'))}</h3><div class="tsl-grid">
         ${tile(t('tsl_bat_now'), last != null ? fmt.dist(last, 0) : '–')}
         ${tile(t('tsl_bat_change'), last != null && first ? (last >= first ? '+' : '') + nf((last - first) / first * 100, 1) + '%' : '–')}
         ${tile(t('tsl_bat_drain_avg'), perDay != null ? nf(perDay, 1) + '% ' + esc(t('tsl_bat_per_day')) : '–')}
@@ -1574,6 +1666,7 @@
         <div id="tsl-b1" style="margin-top:12px"></div><div class="tsl-note">${esc(t('tsl_bat_note'))}</div></div>
         <div class="tsl-card"><h3>${esc(t('tsl_bat_sleep'))}</h3><div id="tsl-b2"></div><div class="tsl-note">${esc(t('tsl_bat_sleep_note'))}</div></div>
         <div class="tsl-card"><h3>${esc(t('tsl_bat_drain'))}</h3>${dr.length ? `<div class="tsl-drain-list">` + dr.slice().reverse().slice(0, 12).map(x => `<div class="tsl-drain-entry"><div class="tsl-drive-meta"><b>${esc(fmt.date(x.start))}</b><span class="tsl-drive-duration">☾ ${esc(fmt.dur(x.hours * 3600))}</span></div><div class="tsl-drain-values"><strong>−${esc(nf(x.lost_pct,1))}%</strong><span>−${esc(fmt.dist(x.lost_km, 1))}</span></div><div class="tsl-state-share" aria-hidden="true"><i style="width:${Math.min(100,Math.max(0,x.lost_pct))}%;background:#fb923c"></i></div></div>`).join('') + '</div>' : `<div class="tsl-empty">${esc(t('tsl_bat_drain_none'))}</div>`}</div>`;
+      bindCapacity(p, d);
       V.chart(p.querySelector('#tsl-b1'), { type: 'line', series: [{ color: 'var(--tsl-blue,#60a5fa)', data: s.map((x, i) => [i, U.dist(x.full_km)]) }], xFmt: i => s[Math.round(i)] ? window.mvmOS.dateTimePicker.format(s[Math.round(i)].day,{type:'date'}) : '', yFmt: v => nf(v), tipFmt: v => nf(v, 0) + ' ' + U.distU(), yMin: s.length ? Math.floor(Math.min.apply(null, s.map(x => U.dist(x.full_km))) * 0.97) : 0, height: 190, empty: t('tsl_bat_drain_none') });
       const days = d.sleep, pct = k => days.map((x, i) => { const sum = x.asleep + x.online + x.driving + x.charging + x.offline || 1; return [i, x[k] / sum * 100]; });
       V.chart(p.querySelector('#tsl-b2'), { type: 'stack', yMax: 100, series: [
@@ -1639,6 +1732,7 @@
         <div style="font-size:1.15rem;font-weight:700">${esc(nf(u.calls))}</div>
         <div class="tsl-note">${esc(t('tsl_set_usage_note'))}</div></div>
         <div class="tsl-card"><h3>${esc(t('tsl_set_units'))}</h3><div class="tsl-seg"><button data-u="m" class="${U.imperial ? '' : 'on'}">${esc(t('tsl_set_metric'))}</button><button data-u="i" class="${U.imperial ? 'on' : ''}">${esc(t('tsl_set_imperial'))}</button></div></div>
+        <div id="tsl-capset"></div>
         <div id="tsl-sched"></div>
         `;
       if (!isOwner()) p.querySelectorAll('[data-owner-only]').forEach(el=>el.remove());
@@ -1696,6 +1790,7 @@
         credentials.addEventListener('submit', e => { e.preventDefault(); savePersonal(!s.connected || s.reauth); });
       }
       renderSchedule(p.querySelector('#tsl-sched'));
+      renderCapacitySetting(p.querySelector('#tsl-capset'));
       const c = p.querySelector('#tsl-connect');
       if (c) c.addEventListener('click', async () => {
         try { const r = await api('/connect?origin=' + encodeURIComponent(location.origin)); location.href = r.url; }
@@ -1876,7 +1971,16 @@
         val('charge_port_type', 'tsl_c_port_type'),
       ]);
 
-      p.innerHTML = `<div class="tsl-note" style="margin:10px 4px 0">${esc(t('tsl_d_last', { t: fmt.ago(d.ts) }))}</div>${tiresHtml}${doors}${climate}${charging}${software}${config}`;
+      // Identification: read from the VIN itself, no lookup online
+      const vinInfo = V.decodeVin(d.data && d.data.vin);
+      let region = '';
+      if (vinInfo && vinInfo.country) { try { region = new Intl.DisplayNames([window.mvmOS.lang || 'en'], { type: 'region' }).of(vinInfo.country); } catch (e) { region = vinInfo.country; } }
+      const vinCard = !vinInfo ? '' : carCard(t('tsl_vin_title'), vinInfo.tesla ? [
+        ctile(t('tsl_vin_maker'), 'Tesla'), region ? ctile(t('tsl_vin_country'), esc(region)) : '',
+        vinInfo.plant ? ctile(t('tsl_vin_plant'), esc(t('tsl_vin_plant_' + vinInfo.plant))) : '',
+        vinInfo.year ? ctile(t('tsl_vin_year'), esc(String(vinInfo.year))) : '', vinInfo.model ? ctile(t('tsl_vin_model'), esc(vinInfo.model)) : '',
+      ] : [], `<p class="tsl-vin" aria-label="${esc(t('tsl_vin_number'))}">${esc(vinInfo.vin)}</p><p class="tsl-note">${esc(t(vinInfo.tesla ? 'tsl_vin_note' : 'tsl_vin_unknown'))}</p>`);
+      p.innerHTML = `<div class="tsl-note" style="margin:10px 4px 0">${esc(t('tsl_d_last', { t: fmt.ago(d.ts) }))}</div>${tiresHtml}${doors}${climate}${charging}${software}${config}${vinCard}`;
       if (tiresHtml) p.querySelector('.tsl-tire-history').addEventListener('toggle', e => {if(e.currentTarget.open)drawTireChart(p.querySelector('[data-tirechart]'),tr);});
     }
 

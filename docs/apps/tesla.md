@@ -16,6 +16,8 @@ Select a connected vehicle to inspect available battery, range, climate and sens
 
 Group recorded trips into journeys to inspect combined travel. The app also shows battery health estimates and recorded sleep history. These depend on the samples available and are not diagnostic measurements.
 
+The Battery tab also estimates the pack's usable capacity from finished charging sessions. Each charge that raises the battery by at least 30% gives one reading (energy added divided by the change in percentage); charges that reach 100% count double and cold charges count less. After three usable charges the tab shows the estimated capacity in kWh, and after eight charges spread over at least four weeks it shows the change since tracking started, against time or distance. You can enter the factory capacity in Settings to see the estimate as a percentage of it, with a dashed reference line on the chart. The figure is an estimate accurate to within a few percent, not a battery diagnosis.
+
 ## Route replay
 
 Trip details and saved journeys have a map playback control with play/pause, a seek slider and 0.5×, 1×, 2× and 4× rates. At 1×, each pair of consecutive recorded readings takes one second to play, regardless of whether the real interval was five minutes or thirty minutes. The displayed timeline follows the original timestamps, so longer waits pass more quickly.

@@ -54,7 +54,7 @@ def _integrate(points, start, end):
     return (consumed, regen) if known else (None, None)
 
 
-def _routes(points, max_points=1200):
+def _routes(points, max_points=1200, origin=None):
     routes, current, previous = [], [], None
     for p in points:
         if not (_num(p.get('lat')) and _num(p.get('lng'))):
@@ -70,6 +70,10 @@ def _routes(points, max_points=1200):
         previous = p
     if current:
         routes.append(current)
+    # A parked reading locates the departure, but its timestamp is not the
+    # departure time. Join it only to the first observed route; keep later gaps.
+    if origin and routes:
+        routes[0].insert(0, [origin['lat'], origin['lng'], None, origin['ts']])
     for route in routes:
         step = max(1, math.ceil(len(route) / max_points))
         reduced = route[::step]
@@ -90,16 +94,24 @@ def report(c, vid, start, end, trip_out, charge_out, only_trip=None, now=None):
     end = max(start, end)
     result = {'start': start, 'end': end, 'now': now, 'trips': [], 'charges': [], 'routes': [], 'markers': [],
               'timeline': [], 'series': [], 'events': [], 'stats': {}, 'partial': False, 'playback': []}
-    trips = c.execute('SELECT * FROM trips WHERE vehicle=? AND start_ts<? AND (CASE WHEN open=1 THEN ? ELSE COALESCE(end_ts,start_ts) END)>? ORDER BY start_ts', (vid, end, now, start)).fetchall() if end > start else []
+    trips = c.execute('SELECT * FROM trips WHERE vehicle=? AND start_ts<? AND (CASE WHEN open=1 THEN ? ELSE COALESCE(end_ts,start_ts) END)>=? ORDER BY start_ts', (vid, end, now, start)).fetchall() if end > start else []
+    if only_trip is not None:
+        # A short drive can have just one moving reading and zero observed duration.
+        trips = c.execute('SELECT * FROM trips WHERE vehicle=? AND id=?', (vid, only_trip)).fetchall()
     fallback_playback = {}
     for tr in trips:
         tr = dict(tr)
         if only_trip is not None and tr['id'] != only_trip:
             continue
         lo, hi, partial = _bounds(tr, start, end, now)
-        if hi <= lo:
+        if hi < lo or (hi == lo and (lo != tr['start_ts'] or (only_trip is None and lo >= end))):
             continue
         points = [dict(p) for p in c.execute('SELECT ts,lat,lng,speed,power,battery FROM trip_points WHERE trip=? ORDER BY ts', (tr['id'],))]
+        origin = next((p for p in points if p['ts'] < tr['start_ts']
+                       and _num(p.get('lat')) and _num(p.get('lng'))
+                       and p['lat'] == tr.get('start_lat') and p['lng'] == tr.get('start_lng')), None)
+        # Parked points supply geometry only, never driving energy or duration.
+        points = [p for p in points if p['ts'] >= tr['start_ts']]
         for point in points:
             if lo <= point['ts'] <= hi:
                 fallback_playback[point['ts']] = [point['ts'],point['lat'],point['lng'],point['speed'],point['power'],point['battery'],'driving']
@@ -125,10 +137,10 @@ def report(c, vid, start, end, trip_out, charge_out, only_trip=None, now=None):
             item['start_batt'] = clipped[0].get('battery') if clipped else None
             item['end_batt'] = clipped[-1].get('battery') if clipped else None
             item['max_speed'] = max((p['speed'] for p in clipped if _num(p.get('speed'))), default=None)
-        item['avg_speed'] = item['distance_km'] / ((hi - lo) / 3600) if item['distance_km'] is not None else None
+        item['avg_speed'] = item['distance_km'] / ((hi - lo) / 3600) if hi > lo and item['distance_km'] is not None else None
         item['wh_km'] = item['energy_kwh'] * 1000 / item['distance_km'] if item['distance_km'] and item['energy_kwh'] is not None else None
         result['trips'].append(item)
-        for route in _routes(clipped):
+        for route in _routes(clipped, origin=origin if lo == tr['start_ts'] else None):
             result['routes'].append({'trip': tr['id'], 'points': route})
         result['events'].append({'kind': 'trip', 'id': tr['id'], 'start': lo, 'end': hi, 'partial': partial})
         result['partial'] |= partial

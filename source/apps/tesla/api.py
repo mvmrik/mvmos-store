@@ -44,6 +44,10 @@ _spec_s = importlib.util.spec_from_file_location("_tesla_sharing_api", os.path.j
 sharing = importlib.util.module_from_spec(_spec_s)
 _spec_s.loader.exec_module(sharing)
 
+_spec_h = importlib.util.spec_from_file_location("_tesla_battery_health_api", os.path.join(_DIR, "battery_health.py"))
+battery_health = importlib.util.module_from_spec(_spec_h)
+_spec_h.loader.exec_module(battery_health)
+
 _spec_e = importlib.util.spec_from_file_location("_tesla_elevation_api", os.path.join(_DIR, "elevation.py"))
 elevation = importlib.util.module_from_spec(_spec_e)
 _spec_e.loader.exec_module(elevation)
@@ -593,6 +597,15 @@ def battery(vid: str, days: int = 120, x_pub_token: Optional[str] = Header(defau
                             WHERE vehicle=? AND ts>=? AND battery IS NOT NULL ORDER BY ts""", (vid, since)).fetchall()
         states = c.execute("SELECT * FROM states WHERE vehicle=? AND COALESCE(end_ts, ?)>=? ORDER BY start_ts",
                            (vid, int(time.time()), since)).fetchall()
+        crows = []
+        for ch in c.execute("SELECT * FROM charges WHERE vehicle=? AND open=0 ORDER BY start_ts", (vid,)).fetchall():
+            d = dict(ch)
+            o = c.execute("SELECT odo_km FROM samples WHERE vehicle=? AND ts<=? AND odo_km IS NOT NULL ORDER BY ts DESC LIMIT 1",
+                          (vid, ch["end_ts"] or ch["start_ts"])).fetchone()
+            d["odo"] = round(o["odo_km"]) if o else None
+            crows.append(d)
+        prefs = _prefs(c, me)
+    cap = battery_health.capacity(crows, prefs.get("capacity_kwh"))
     # Range at 100%, one value per day (the median), from readings with enough charge to be meaningful.
     per_day = {}
     for r in rows:
@@ -626,7 +639,8 @@ def battery(vid: str, days: int = 120, x_pub_token: Optional[str] = Header(defau
             d = sleep.setdefault(day, {"day": day, "asleep": 0, "online": 0, "driving": 0, "charging": 0, "offline": 0})
             d[s["state"] if s["state"] in d else "online"] += nxt - a
             a = nxt
-    return JSONResponse({"series": series, "drain": drain[-60:], "sleep": [sleep[k] for k in sorted(sleep)]})
+    return JSONResponse({"series": series, "drain": drain[-60:], "sleep": [sleep[k] for k in sorted(sleep)],
+                         "capacity": cap, "prefs": {"capacity_kwh": prefs.get("capacity_kwh")}})
 
 
 @router.get("/v/{vid}/timeline")
@@ -964,6 +978,7 @@ def delete_place(pid: str, x_pub_token: Optional[str] = Header(default=None)):
 class PrefsBody(BaseModel):
     default_ac_price: Optional[float] = None
     default_dc_price: Optional[float] = None
+    capacity_kwh: Optional[float] = None
 
 
 @router.put("/prefs")
@@ -971,9 +986,13 @@ def set_prefs(body: PrefsBody, x_pub_token: Optional[str] = Header(default=None)
     me, err = _gate(x_pub_token)
     if err:
         return err
+    sent = body.model_fields_set
+    if body.capacity_kwh is not None and not 10 <= body.capacity_kwh <= 250:
+        return _bad("invalid_capacity")
     with eng.db() as c:
-        for k, v in (("default_ac_price", body.default_ac_price), ("default_dc_price", body.default_dc_price)):
-            if v is not None and (v < 0 or v > 100000):
+        fields = [(k, getattr(body, k)) for k in ("default_ac_price", "default_dc_price", "capacity_kwh") if k in sent]
+        for k, v in fields:
+            if k.startswith("default_") and v is not None and (v < 0 or v > 100000):
                 return _bad("invalid_price")
             c.execute("INSERT INTO prefs (user_id, key, value) VALUES (?,?,?) ON CONFLICT(user_id, key) DO UPDATE SET value=excluded.value",
                       (me["id"], k, "" if v is None else str(v)))

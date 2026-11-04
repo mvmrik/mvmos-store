@@ -1,0 +1,124 @@
+{
+  "id": "racelandia",
+  "name": "Racelandia",
+  "name_i18n": {
+    "en": "Racelandia",
+    "bg": "Racelandia",
+    "de": "Racelandia",
+    "es": "Racelandia",
+    "fr": "Racelandia",
+    "ja": "Racelandia",
+    "pt-BR": "Racelandia",
+    "ru": "Racelandia",
+    "zh-CN": "Racelandia"
+  },
+  "icon": "🏁",
+  "icon_image": "icon.svg",
+  "category": "Games",
+  "tags": [
+    "racing",
+    "simulation",
+    "drivers",
+    "games"
+  ],
+  "version": "1.0.0",
+  "min_core_version": "1.17.0",
+  "description": "Build a race team from an empty garage, buy a basic car and recruit a young driver. Develop their skills, tune the car and test it on a physically simulated circuit. Earn prizes, sponsor bonuses and a future racing license in ten-minute solo qualifying. Drivers age gradually over real time. Run two cars with two drivers and a pit crew for each car, and enter solo Division 5 for a twenty-round championship against eighteen rivals that develop every day, with three practices, qualifying, pit stops and safety-car periods.",
+  "entry": "main.js",
+  "multiplayer": true,
+  "max_players": 6,
+  "themed": true,
+  "public_directory": false,
+  "public_api_only": true,
+  "gamehub": {
+    "category": "simulation",
+    "description": {
+      "en": "Prepare a race car, train a young driver and send them out for the fastest lap on a physically simulated circuit.",
+      "bg": "Подготви състезателна кола, тренирай млад пилот и го изпрати за най-бърза обиколка по писта с реална физика.",
+      "de": "Bereite einen Rennwagen vor, trainiere einen jungen Fahrer und schicke ihn auf die schnellste Runde auf einer physikalisch simulierten Strecke.",
+      "es": "Prepara un coche de carreras, entrena a un joven piloto y envíalo a por la vuelta más rápida en un circuito con física simulada.",
+      "fr": "Prépare une voiture de course, entraîne un jeune pilote et envoie-le chercher le tour le plus rapide sur un circuit à la physique simulée.",
+      "ja": "レースカーを仕上げ、若いドライバーを鍛え、物理シミュレーションされたサーキットで最速ラップを狙おう。",
+      "pt-BR": "Prepare um carro de corrida, treine um jovem piloto e mande-o buscar a volta mais rápida em um circuito com física simulada.",
+      "ru": "Подготовь гоночный болид, тренируй молодого пилота и отправляй его за быстрейшим кругом на трассе с реальной физикой.",
+      "zh-CN": "调校赛车、培养年轻车手，在物理模拟的赛道上冲击最快圈速。"
+    },
+    "score": {
+      "label": {
+        "en": "Points",
+        "bg": "Точки",
+        "de": "Punkte",
+        "es": "Puntos",
+        "fr": "Points",
+        "ja": "ポイント",
+        "pt-BR": "Pontos",
+        "ru": "Очки",
+        "zh-CN": "得分"
+      }
+    },
+    "ranking": "score",
+    "metrics": {
+      "best_lap": {
+        "label": {
+          "en": "Best lap",
+          "bg": "Най-бърза обиколка",
+          "de": "Schnellste Runde",
+          "es": "Vuelta rápida",
+          "fr": "Meilleur tour",
+          "ja": "ベストラップ",
+          "pt-BR": "Melhor volta",
+          "ru": "Лучший круг",
+          "zh-CN": "最快圈速"
+        },
+        "type": "duration",
+        "better": "low",
+        "total": false
+      },
+      "laps": {
+        "label": {
+          "en": "Valid laps",
+          "bg": "Валидни обиколки",
+          "de": "Gültige Runden",
+          "es": "Vueltas válidas",
+          "fr": "Tours valides",
+          "ja": "有効ラップ",
+          "pt-BR": "Voltas válidas",
+          "ru": "Зачтённые круги",
+          "zh-CN": "有效圈数"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "crashes": {
+        "label": {
+          "en": "Crashes",
+          "bg": "Катастрофи",
+          "de": "Unfälle",
+          "es": "Accidentes",
+          "fr": "Accidents",
+          "ja": "クラッシュ",
+          "pt-BR": "Acidentes",
+          "ru": "Аварии",
+          "zh-CN": "事故"
+        },
+        "type": "number",
+        "better": "low"
+      },
+      "runs": {
+        "label": {
+          "en": "Runs",
+          "bg": "Излизания на пистата",
+          "de": "Ausfahrten",
+          "es": "Salidas",
+          "fr": "Sorties",
+          "ja": "走行回数",
+          "pt-BR": "Saídas",
+          "ru": "Выезды",
+          "zh-CN": "出场次数"
+        },
+        "type": "number",
+        "better": "high"
+      }
+    }
+  }
+}

@@ -166,6 +166,10 @@
     }
     const id = 'tslh' + (++seq);
     let body = '';
+    if (cfg.refLine && cfg.refLine.y >= y0 && cfg.refLine.y <= y1) {
+      const ry = Y(cfg.refLine.y);
+      body += `<line x1="${L}" x2="${W - R}" y1="${ry}" y2="${ry}" stroke="var(--tsl-warning,#fbbf24)" stroke-width="1.8" stroke-dasharray="7 5"/><text x="${W - R - 2}" y="${ry - 5}" text-anchor="end" class="tsl-ax">${esc(cfg.refLine.label || '')}</text>`;
+    }
     cfg.series.forEach((s, si) => {
       const col = s.color || '#60a5fa';
       if (cfg.type === 'line') {
@@ -182,6 +186,9 @@
           return `<rect x="${(X(p[0]) - bw / 2).toFixed(1)}" y="${Y(below + p[1]).toFixed(1)}" width="${bw}" height="${Math.max(0, Y(below) - Y(below + p[1])).toFixed(1)}" fill="${col}"/>`;
         }).join('');
       }
+    });
+    (cfg.marks || []).forEach(m => {
+      body += m.data.map(p => `<circle cx="${X(p[0]).toFixed(1)}" cy="${Y(p[1]).toFixed(1)}" r="${p[2] ? 5.5 : 3.4}" fill="${p[2] ? 'none' : m.color}" stroke="${m.color}" stroke-width="${p[2] ? 2.4 : 0}" opacity="${p[2] ? 1 : .5}"/>`).join('');
     });
     el.innerHTML = `<div class="tsl-chart"><svg viewBox="0 0 ${W} ${H}" id="${id}">${g}${body}<line class="tsl-cross" y1="${T}" y2="${H - B}" x1="0" x2="0" style="display:none"/></svg><div class="tsl-tip" style="display:none"></div></div>`;
     const svg = el.querySelector('svg'), tip = el.querySelector('.tsl-tip'), cross = el.querySelector('.tsl-cross'), host = el.querySelector('.tsl-chart');
@@ -392,5 +399,19 @@
     };
   }
 
-  window.TeslaViz = { U, fmt, nf, esc, ring, car, chart, strip, tileMap, STATE_COL };
+
+  // Offline VIN reading: only what the code itself states reliably. Nothing is looked up online.
+  const VIN_MAKER = { '5YJ': 'US', '7SA': 'US', '7G2': 'US', 'LRW': 'CN', 'XP7': 'DE', 'SFZ': 'GB' };
+  const VIN_MODEL = { S: 'Model S', '3': 'Model 3', X: 'Model X', Y: 'Model Y', R: 'Roadster', C: 'Cybertruck', T: 'Semi' };
+  const VIN_PLANT = { F: 'F', C: 'C', B: 'B', A: 'A' };   // Fremont, Shanghai, Berlin, Austin
+  const VIN_YEARS = 'ABCDEFGHJKLMNPRSTVWXY';
+  function decodeVin(vin) {
+    vin = String(vin || '').trim().toUpperCase();
+    if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) return null;
+    const maker = VIN_MAKER[vin.slice(0, 3)], yc = vin[9], i = VIN_YEARS.indexOf(yc);
+    const year = i >= 0 ? 2010 + i : /[1-9]/.test(yc) ? 2030 + Number(yc) : null;
+    return { vin, tesla: !!maker, country: maker || null, model: maker ? VIN_MODEL[vin[3]] || null : null,
+             plant: maker ? VIN_PLANT[vin[10]] || null : null, year: maker ? year : null };
+  }
+  window.TeslaViz = { decodeVin, U, fmt, nf, esc, ring, car, chart, strip, tileMap, STATE_COL };
 })();
