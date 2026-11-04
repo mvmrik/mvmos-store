@@ -1,6 +1,6 @@
 {
   "tagline": "A community marketplace powered by Apps Hub profiles.",
-  "description": "Publish classified listings with photos, descriptions, categories, prices or free items. Browse a public catalog and manage your own listings with your existing Apps Hub account. Watch interesting listings, see owner-only view and watcher statistics, and start private conversations from either side. Desktop settings control categories, subcategories and listing validity. A free Moderation panel lets the administrator manage every listing, read and delete every conversation with its delivery and read status, and ban a profile from posting, and each affected person is told what changed in their own language. Premium adds credit-paid VIP packages that place promoted listings first, and photo verification of users before they can post in chosen categories.",
+  "description": "Publish classified listings with photos, descriptions, categories, prices or free items. Browse a public catalog and manage your own listings with your existing Apps Hub account. Watch interesting listings, see owner-only view and watcher statistics, and start private conversations from either side, including photos that can disappear a few seconds after the other person opens them. Desktop settings control categories, subcategories and listing validity. A free Moderation panel lets the administrator manage every listing, read and delete every conversation with its delivery and read status, see only the messages that are new to you with a count badge, and ban a profile from posting, and each affected person is told what changed in their own language. Premium adds credit-paid VIP packages that place promoted listings first, and photo verification of users before they can post in chosen categories.",
   "capabilities": [
     "Public catalog with search, category and price filters.",
     "Apps Hub accounts own and manage their listings.",
@@ -23,7 +23,11 @@
     "System messages that tell people, in their own language, what moderation changed on their listings.",
     "Premium user verification that asks for a photo before posting in chosen categories, triggered after registration, after a number of days or after a number of listings.",
     "Open the listing from its conversation without closing the chat, with clear seller details and scrolling in mobile desktop windows.",
-    "Every listing has a direct link, also returned to scripts and apps that use the External API."
+    "Every listing has a direct link, also returned to scripts and apps that use the External API.",
+    "Send a photo in a message, with an optional caption, so people can exchange pictures of an item.",
+    "Photos in messages can disappear 10 seconds, 30 seconds, 1 minute or 5 minutes after the other person opens them, and the file is deleted from the server.",
+    "Message moderation opens on new messages only, with filters for seen messages and system notices, and a mark-all-as-seen button that moves only the administrator's own marker.",
+    "A count of new messages on the Moderation button and its Messages tab."
   ],
   "integrations": [
     {

@@ -165,6 +165,19 @@ function mount(root, options = {}) {
     }catch(e){f.querySelector('[role="alert"]').textContent=t(e.message);}};
     setPending(v.pending.length);
   }
+  // Messages the administrator has not marked as seen yet (own mark, see the
+  // mark-all-seen button); shown on Moderation and on its Messages tab.
+  let adminNew = 0;
+  const badge = n => n ? ` <span class="cl-unread">${n}</span>` : '';
+  function setAdminNew(n) {
+    if(!options.desktop) return;
+    adminNew = n;
+    $('[data-action="moderation"]').innerHTML = esc(t('moderation')) + badge(n);
+    const tab = modPage.querySelector('[data-tab="messages"]');
+    if(tab) tab.innerHTML = esc(t('mod_messages')) + badge(n);
+  }
+  const refreshAdminNew = () => options.desktop ? api('/admin/messages/new','GET',undefined,true).then(d=>setAdminNew(d.count)).catch(()=>{}) : Promise.resolve();
+  const ttlText = n => !n ? t('ttl_off') : n < 60 ? t('ttl_sec').replace('{n}', n) : t('ttl_min').replace('{n}', n / 60);
   function setPending(n) {
     if(!options.desktop) return;
     $('[data-action="settings"]').textContent=t('settings')+(n?` (${n})`:'');
@@ -188,11 +201,11 @@ function mount(root, options = {}) {
   // Moderation (desktop only): its own page beside the listings, not a
   // dialog — every listing and every profile Classifieds knows, whoever owns
   // them. State survives going into a listing and back.
-  const mod={tab:'listings',q:'',category:'',status:'all',owner:'',ownerName:'',offset:0,uq:'',ufilter:'all',uoffset:0,mq:'',muser:'',muserName:'',moffset:0,selected:new Set(),page:50};
+  const mod={tab:'listings',q:'',category:'',status:'all',owner:'',ownerName:'',offset:0,uq:'',ufilter:'all',uoffset:0,mq:'',muser:'',muserName:'',moffset:0,mstate:'new',msystem:false,selected:new Set(),page:50};
   const nav=action=>root.querySelectorAll('.cl-header nav [data-action]').forEach(x=>x.classList.toggle('cl-current',x.dataset.action===action));
   function showMod(html){close();mainView.hidden=true;modPage.hidden=false;modPage.innerHTML=html;nav('moderation');root.scrollTop=0;hydrate(modPage);}
   function leaveMod(action){if(modPage.hidden&&action)return nav(action);modPage.hidden=true;modPage.innerHTML='';mainView.hidden=false;nav(action);}
-  const modHead=(extra='')=>`<div class="cl-mod-head"><h2>${esc(t('moderation'))}</h2><div class="cl-mod-tabs" role="tablist">${['listings','messages','users'].map(k=>btn('mod_'+k,'mod_tab',`role="tab" data-tab="${k}" aria-selected="${mod.tab===k}" ${mod.tab===k?'class="cl-current"':''}`)).join('')}</div>${extra}</div>`;
+  const modHead=(extra='')=>`<div class="cl-mod-head"><h2>${esc(t('moderation'))}</h2><div class="cl-mod-tabs" role="tablist">${['listings','messages','users'].map(k=>btn('mod_'+k,'mod_tab',`role="tab" data-tab="${k}" aria-selected="${mod.tab===k}" ${mod.tab===k?'class="cl-current"':''}`).replace('</button>',k==='messages'?badge(adminNew)+'</button>':'</button>')).join('')}</div>${extra}</div>`;
   const pager=(off,total,action)=>`<div class="cl-pager">${btn('previous',action,'data-step="-1" '+(off?'':'disabled'))}<span>${total?`${off+1}–${Math.min(off+mod.page,total)} / ${total}`:'0'}</span>${btn('next',action,'data-step="1" '+(off+mod.page<total?'':'disabled'))}</div>`;
   const banned=()=>`<span class="cl-mod-banned">${esc(t('mod_banned'))}</span>`;
   async function moderation() {
@@ -227,22 +240,22 @@ function mount(root, options = {}) {
   // message shows who sent it to whom and whether it reached and was opened.
   const who=p=>p.system?`<span class="cl-system-badge">${esc(t('sys_badge'))}</span>`:`${esc(p.name||p.id)}${p.username?` <small>@${esc(p.username)}</small>`:''}`;
   async function modMessages() {
-    const data=await api('/admin/conversations?'+new URLSearchParams({q:mod.mq,user:mod.muser,offset:String(mod.moffset)}),'GET',undefined,true);
+    const data=await api('/admin/conversations?'+new URLSearchParams({q:mod.mq,user:mod.muser,offset:String(mod.moffset),state:mod.mstate,system:String(mod.msystem)}),'GET',undefined,true);
     if(mod.moffset&&!data.items.length){mod.moffset=Math.max(0,mod.moffset-data.page);return modMessages();}
-    mod.page=data.page;
-    const row=r=>`<div class="cl-mod-row" role="row"><div class="cl-mod-main"><button type="button" class="cl-mod-title" data-action="mod_conversation" data-id="${r.id}">${r.system?esc(t('mod_sys_conversation')):esc(r.listing_title)}</button><small>${esc(r.preview_system?sysText(r.preview_system):r.preview)}</small></div><div class="cl-mod-who"><span>${who(r.buyer)}</span><span>${who(r.seller)}</span></div><div class="cl-mod-state"><small>${esc(t('mod_msg_count').replace('{n}',r.messages))}</small><small>${esc(date(r.updated_at))}</small></div><div class="cl-mod-acts">${btn('mod_open','mod_conversation',`data-id="${r.id}"`)}${btn('delete','mod_delete_conversation',`data-id="${r.id}" class="cl-danger"`)}</div></div>`;
-    showMod(`${modHead()}<form class="cl-mod-toolbar"><input name="q" type="search" maxlength="160" value="${esc(mod.mq)}" placeholder="${esc(t('mod_search_messages'))}" aria-label="${esc(t('mod_search_messages'))}"><button class="cl-primary">${esc(t('search_button'))}</button></form>${mod.muser?`<div class="cl-mod-chip">${esc(t('mod_profile'))}: <strong>${esc(mod.muserName)}</strong>${btn('mod_show_all_messages','mod_clear_muser','class="cl-link"')}</div>`:''}<p class="cl-mod-hint">${esc(t('mod_messages_hint'))}</p><div class="cl-form-error cl-mod-error" role="alert"></div>
+    mod.page=data.page;adminNew=data.new;$('[data-action="moderation"]').innerHTML=esc(t('moderation'))+badge(adminNew);
+    const row=r=>`<div class="cl-mod-row" role="row"><div class="cl-mod-main"><button type="button" class="cl-mod-title" data-action="mod_conversation" data-id="${r.id}">${r.system?esc(t('mod_sys_conversation')):esc(r.listing_title)}</button>${r.new?` <span class="cl-unread" title="${esc(t('mod_msg_new'))}">${r.new}</span>`:''}<small>${esc(r.preview_system?sysText(r.preview_system):(r.preview_photo?'📷 ':'')+(r.preview||(r.preview_photo?t('photo_message'):'')))}</small></div><div class="cl-mod-who"><span>${who(r.buyer)}</span><span>${who(r.seller)}</span></div><div class="cl-mod-state"><small>${esc(t('mod_msg_count').replace('{n}',r.messages))}</small><small>${esc(date(r.updated_at))}</small></div><div class="cl-mod-acts">${btn('mod_open','mod_conversation',`data-id="${r.id}"`)}${btn('delete','mod_delete_conversation',`data-id="${r.id}" class="cl-danger"`)}</div></div>`;
+    showMod(`${modHead()}<form class="cl-mod-toolbar"><input name="q" type="search" maxlength="160" value="${esc(mod.mq)}" placeholder="${esc(t('mod_search_messages'))}" aria-label="${esc(t('mod_search_messages'))}"><select name="state" aria-label="${esc(t('mod_filter_state'))}">${['new','read','all'].map(k=>`<option value="${k}" ${mod.mstate===k?'selected':''}>${esc(t('mod_filter_'+k))}</option>`).join('')}</select><label class="cl-inline"><input name="system" type="checkbox" ${mod.msystem?'checked':''}>${esc(t('mod_include_system'))}</label><button class="cl-primary">${esc(t('search_button'))}</button>${btn('mod_mark_seen','mod_mark_seen',`title="${esc(t('mod_mark_seen_hint'))}" ${adminNew?'':'disabled'}`)}</form>${mod.muser?`<div class="cl-mod-chip">${esc(t('mod_profile'))}: <strong>${esc(mod.muserName)}</strong>${btn('mod_show_all_messages','mod_clear_muser','class="cl-link"')}</div>`:''}<p class="cl-mod-hint">${esc(t('mod_messages_hint'))}</p><div class="cl-form-error cl-mod-error" role="alert"></div>
       <div class="cl-mod-table cl-mod-convs" role="table">${data.items.length?`<div class="cl-mod-row cl-mod-th" role="row"><span>${esc(t('mod_conversation'))}</span><span>${esc(t('mod_participants'))}</span><span>${esc(t('messages'))}</span><span></span></div>${data.items.map(row).join('')}`:`<p class="cl-mod-empty">${esc(t('mod_no_messages'))}</p>`}</div>
       ${pager(mod.moffset,data.total,'mod_mpage')}`);
-    modPage.querySelector('.cl-mod-toolbar').onsubmit=e=>{e.preventDefault();mod.mq=e.target.elements.q.value.trim();mod.moffset=0;modMessages().catch(fail);};
+    modPage.querySelector('.cl-mod-toolbar').onsubmit=e=>{e.preventDefault();mod.mq=e.target.elements.q.value.trim();mod.mstate=e.target.elements.state.value;mod.msystem=e.target.elements.system.checked;mod.moffset=0;modMessages().catch(fail);};
   }
   async function modConversation(cid) {
     let data=await api('/admin/conversations/'+cid+'/messages','GET',undefined,true),rows=data.items;
     const state=(done,at,yes,no)=>done?(at?t(yes+'_at').replace('{date}',date(at)):t(yes)):t(no);
-    const card=m=>`<div class="cl-mod-msg${m.from.system?' cl-system':''}"><div class="cl-mod-msg-head"><span>${who(m.from)} → ${who(m.to)}</span>${btn('delete','mod_delete_message',`data-id="${m.id}" class="cl-danger"`)}</div><p>${esc(m.system?sysText(m.system):m.body)}</p><div class="cl-mod-msg-state"><small>${esc(t('mod_msg_sent').replace('{date}',date(m.created_at)))}</small><small class="${m.delivered?'cl-mod-yes':''}">${esc(state(m.delivered,m.delivered_at,'mod_msg_delivered','mod_msg_not_delivered'))}</small><small class="${m.seen?'cl-mod-yes':''}">${esc(state(m.seen,m.seen_at,'mod_msg_seen','mod_msg_not_seen'))}</small></div></div>`;
+    const card=m=>`<div class="cl-mod-msg${m.from.system?' cl-system':''}"><div class="cl-mod-msg-head"><span>${who(m.from)} → ${who(m.to)}${m.new?` <span class="cl-unread">${esc(t('mod_msg_new'))}</span>`:''}</span>${btn('delete','mod_delete_message',`data-id="${m.id}" class="cl-danger"`)}</div>${m.ttl?`<small class="cl-ttl-note">⏱ ${esc(m.photo_state==='expired'?t('ttl_expired'):t('ttl_admin').replace('{n}',ttlText(m.ttl)))}${m.opened_at&&m.photo_state!=='expired'?' · '+esc(t('ttl_opened_at').replace('{date}',date(m.opened_at))):''}</small>`:''}${m.photo?`<img class="cl-message-img" data-src="${esc(m.photo)}" alt="${esc(t('photo_message'))}">`:''}${m.body||!m.photo&&!m.ttl?`<p>${esc(m.system?sysText(m.system):m.body)}</p>`:''}<div class="cl-mod-msg-state"><small>${esc(t('mod_msg_sent').replace('{date}',date(m.created_at)))}</small><small class="${m.delivered?'cl-mod-yes':''}">${esc(state(m.delivered,m.delivered_at,'mod_msg_delivered','mod_msg_not_delivered'))}</small><small class="${m.seen?'cl-mod-yes':''}">${esc(state(m.seen,m.seen_at,'mod_msg_seen','mod_msg_not_seen'))}</small></div></div>`;
     showMod(`<div class="cl-mod-head">${btn('mod_back','mod_tab','data-tab="messages" class="cl-link cl-mod-back"')}<h2>${data.system?esc(t('mod_sys_conversation')):esc(data.listing_title)}</h2>${btn('mod_delete_conversation','mod_delete_conversation',`data-id="${cid}" class="cl-danger"`)}</div><p class="cl-mod-hint">${who(data.buyer)} · ${who(data.seller)}</p><div class="cl-form-error cl-mod-error" role="alert"></div>${btn('older_messages','mod_older',data.more?'':'hidden')}<div class="cl-mod-thread"></div>`);
     const thread=modPage.querySelector('.cl-mod-thread'),older=modPage.querySelector('[data-action="mod_older"]');
-    const render=()=>{thread.innerHTML=rows.map(card).join('')||`<p class="cl-mod-empty">${esc(t('mod_no_messages'))}</p>`;};render();
+    const render=()=>{thread.innerHTML=rows.map(card).join('')||`<p class="cl-mod-empty">${esc(t('mod_no_messages'))}</p>`;hydrate(thread);};render();thread.addEventListener('click',e=>{const img=e.target.closest('.cl-message-img');if(img?.src)window.open(img.src,'_blank','noopener');});
     older.onclick=async e=>{e.stopPropagation();try{const more=await api('/admin/conversations/'+cid+'/messages?before='+rows[0].id,'GET',undefined,true);rows=[...more.items,...rows];older.hidden=!more.more;render();}catch(err){fail(err);}};
     thread.onclick=async e=>{const b=e.target.closest('[data-action="mod_delete_message"]');if(!b)return;e.stopPropagation();if(!confirm(t('mod_confirm_delete_message')))return;b.disabled=true;try{await api('/admin/messages/'+b.dataset.id,'DELETE',undefined,true);rows=rows.filter(m=>String(m.id)!==b.dataset.id);render();}catch(err){b.disabled=false;fail(err);}};
   }
@@ -274,37 +287,91 @@ function mount(root, options = {}) {
   async function inbox() {
     if(!requireLogin()) return;
     const data=await api('/conversations?offset='+inboxOffset);
-    open(`<div class="cl-dialog-head"><h2>${esc(t('messages'))}</h2>${btn('close','close')}</div><div class="cl-inbox">${data.items.length?data.items.map(c=>`<button data-action="conversation" data-id="${c.id}" ${c.system?'class="cl-system"':''}><strong>${c.system?`<span class="cl-system-badge">${esc(t('sys_badge'))}</span> ${esc(t('sys_sender'))}`:esc(c.peer)} ${c.unread?`<span class="cl-unread">${c.unread}</span>`:''}</strong><span>${esc(c.system?t('sys_title'):c.listing_title)}</span><small>${esc(c.preview_system?sysText(c.preview_system):c.preview||t('start_chat'))}</small></button>`).join(''):`<p>${esc(t('no_messages'))}</p>`}</div><div class="cl-pager">${btn('previous','inbox_previous',inboxOffset?'':'disabled')}${btn('next','inbox_next',inboxOffset+50<data.total?'':'disabled')}</div>`);
+    open(`<div class="cl-dialog-head"><h2>${esc(t('messages'))}</h2>${btn('close','close')}</div><div class="cl-inbox">${data.items.length?data.items.map(c=>`<button data-action="conversation" data-id="${c.id}" ${c.system?'class="cl-system"':''}><strong>${c.system?`<span class="cl-system-badge">${esc(t('sys_badge'))}</span> ${esc(t('sys_sender'))}`:esc(c.peer)} ${c.unread?`<span class="cl-unread">${c.unread}</span>`:''}</strong><span>${esc(c.system?t('sys_title'):c.listing_title)}</span><small>${esc(c.preview_system?sysText(c.preview_system):(c.preview_photo?'📷 ':'')+(c.preview||(c.preview_photo?t('photo_message'):t('start_chat'))))}</small></button>`).join(''):`<p>${esc(t('no_messages'))}</p>`}</div><div class="cl-pager">${btn('previous','inbox_previous',inboxOffset?'':'disabled')}${btn('next','inbox_next',inboxOffset+50<data.total?'':'disabled')}</div>`);
     await unread();
   }
   async function chat(cid) {
     const data=await api('/conversations/'+cid+'/messages');
-    open(`<div class="cl-dialog-head"><div><small>${esc(data.system?t('sys_sender'):t('messages'))}</small><h2>${data.system?`<span class="cl-system-badge">${esc(t('sys_badge'))}</span> ${esc(t('sys_title'))}`:esc(data.listing_title)}</h2></div>${btn('close','close')}</div><div class="cl-chat-acts">${btn('back_messages','messages')}${data.system?'':btn('view_listing','peek_listing',`data-id="${esc(data.listing_id)}"`)}</div>${btn('older_messages','older_messages',data.more?'':'hidden')}<div class="cl-messages" aria-live="polite"></div>${data.system?`<p class="cl-system-note">${esc(t('sys_no_reply'))}</p>`:''}<form class="cl-message-form" ${data.system?'hidden':''}>${field('message','<textarea name="message" required maxlength="4000" rows="3"></textarea>')}<button class="cl-primary">${esc(t('send'))}</button><div role="alert"></div></form>`);
+    open(`<div class="cl-dialog-head"><div><small>${esc(data.system?t('sys_sender'):t('messages'))}</small><h2>${data.system?`<span class="cl-system-badge">${esc(t('sys_badge'))}</span> ${esc(t('sys_title'))}`:esc(data.listing_title)}</h2></div>${btn('close','close')}</div><div class="cl-chat-acts">${btn('back_messages','messages')}${data.system?'':btn('view_listing','peek_listing',`data-id="${esc(data.listing_id)}"`)}</div>${btn('older_messages','older_messages',data.more?'':'hidden')}<div class="cl-messages" aria-live="polite"></div>${data.system?`<p class="cl-system-note">${esc(t('sys_no_reply'))}</p>`:''}<form class="cl-message-form" ${data.system?'hidden':''}>${field('message','<textarea name="message" required maxlength="4000" rows="3"></textarea>')}<div class="cl-message-photo"><label class="cl-attach"><input type="file" name="photo" accept="image/jpeg,image/png,image/webp" hidden><span>📷 ${esc(t('attach_photo'))}</span></label><span class="cl-attached" hidden><img alt=""><button type="button" data-clear-photo aria-label="${esc(t('remove_photo'))}">✕</button></span><label class="cl-ttl-pick" hidden>${esc(t('ttl_label'))} <select name="ttl">${[0,10,30,60,300].map(n=>`<option value="${n}">${esc(ttlText(n))}</option>`).join('')}</select></label></div><button class="cl-primary">${esc(t('send'))}</button><div role="alert"></div></form>`);
     currentConversation=cid;
     let messageRows=data.items, pendingId=null, pendingText=null;
     const area=dialog.querySelector('.cl-messages');
-    const render=()=>{area.innerHTML=messageRows.map(m=>m.system?`<div class="cl-bubble cl-system"><small class="cl-system-badge">${esc(t('sys_badge'))}</small><p>${esc(sysText(m.system))}</p><small>${esc(date(m.created_at))}</small></div>`:`<div class="cl-bubble ${m.mine?'cl-own':''}"><p>${esc(m.body)}</p><small>${esc(date(m.created_at))}</small></div>`).join('')||`<p>${esc(t('start_chat'))}</p>`;};
+    // Photos that disappear are never cached: they are fetched on a tap, kept
+    // only in memory for the time the server grants, then dropped.
+    const live=new Map();
+    const photoHtml=m=>{
+      if(!m.ttl) return m.photo?`<img class="cl-message-img" data-src="${esc(m.photo)}" alt="${esc(t('photo_message'))}">`:'';
+      const l=live.get(m.id);
+      if(l) return `<img class="cl-message-img cl-ttl-img" src="${l.blob}" draggable="false" alt="${esc(t('photo_message'))}"><small class="cl-ttl-left" data-mid="${m.id}">${esc(t('ttl_left').replace('{n}',Math.max(0,Math.ceil((l.until-Date.now())/1000))))}</small>`;
+      if(m.photo_state==='ready') return `<button type="button" class="cl-ttl-open" data-mid="${m.id}" data-url="${esc(m.photo)}">🔒 ${esc(t('ttl_tap').replace('{n}',ttlText(m.ttl)))}</button>`;
+      return `<p class="cl-ttl-gone">⏱ ${esc(m.photo_state==='sent'?t('ttl_sent').replace('{n}',ttlText(m.ttl)):t(m.photo_state==='opened'?'ttl_opened':'ttl_expired'))}</p>`;
+    };
+    const render=()=>{area.innerHTML=messageRows.map(m=>m.system?`<div class="cl-bubble cl-system"><small class="cl-system-badge">${esc(t('sys_badge'))}</small><p>${esc(sysText(m.system))}</p><small>${esc(date(m.created_at))}</small></div>`:`<div class="cl-bubble ${m.mine?'cl-own':''}">${photoHtml(m)}${m.body?`<p>${esc(m.body)}</p>`:''}<small>${esc(date(m.created_at))}</small></div>`).join('')||`<p>${esc(t('start_chat'))}</p>`;hydrate(area).then(()=>{if(stick)area.scrollTop=area.scrollHeight;});};
+    let stick=true;
+    area.oncontextmenu=e=>{if(e.target.closest('.cl-ttl-img'))e.preventDefault();};
+    area.onclick=async e=>{
+      const open=e.target.closest('.cl-ttl-open');
+      if(open){open.disabled=true;
+        try{
+          const r=await fetch(open.dataset.url,{headers:token()?{'X-Pub-Token':token()}:{},signal:abort.signal});
+          if(!r.ok){const d=await r.json().catch(()=>({}));throw new Error(d.detail||'error');}
+          const left=parseFloat(r.headers.get('X-Expires-In'))||0,blob=URL.createObjectURL(await r.blob());
+          live.set(Number(open.dataset.mid),{blob,until:Date.now()+left*1000});render();
+        }catch(err){
+          if(err.message==='photo_expired'){const row=messageRows.find(m=>String(m.id)===open.dataset.mid);if(row){row.photo_state='expired';row.photo=null;}render();}
+          else{open.disabled=false;fail(err);}
+        }
+        return;}
+      const img=e.target.closest('.cl-message-img:not(.cl-ttl-img)');if(img?.src)window.open(img.src,'_blank','noopener');};
+    const tick=setInterval(()=>{
+      if(destroyed||currentConversation!==cid){clearInterval(tick);for(const l of live.values())URL.revokeObjectURL(l.blob);live.clear();return;}
+      let changed=false;
+      for(const [id,l] of live){
+        const left=Math.ceil((l.until-Date.now())/1000);
+        if(left<=0){URL.revokeObjectURL(l.blob);live.delete(id);const row=messageRows.find(m=>m.id===id);if(row){row.photo_state='expired';row.photo=null;}changed=true;}
+        else{const el=area.querySelector(`.cl-ttl-left[data-mid="${id}"]`);if(el)el.textContent=t('ttl_left').replace('{n}',left);}
+      }
+      if(changed)render();
+    },250);
     render();area.scrollTop=area.scrollHeight;
     async function markRead(){const last=messageRows.at(-1);if(last && document.visibilityState==='visible'){await api('/conversations/'+cid+'/read','POST',{message_id:last.id});await unread();}}
     await markRead();
-    dialog.querySelector('[data-action="older_messages"]').onclick=async e=>{try{const older=await api('/conversations/'+cid+'/messages?before='+messageRows[0].id);const h=area.scrollHeight;messageRows=[...older.items,...messageRows];render();area.scrollTop=area.scrollHeight-h;e.target.hidden=!older.more;}catch(e){fail(e);}};
+    dialog.querySelector('[data-action="older_messages"]').onclick=async e=>{try{const older=await api('/conversations/'+cid+'/messages?before='+messageRows[0].id);const h=area.scrollHeight;messageRows=[...older.items,...messageRows];stick=false;render();area.scrollTop=area.scrollHeight-h;e.target.hidden=!older.more;}catch(e){fail(e);}};
     const refresh=async()=>{
       const fresh=await api('/conversations/'+cid+'/messages?after='+(messageRows.at(-1)?.id||0));if(currentConversation!==cid)return;
       const atBottom=area.scrollHeight-area.scrollTop-area.clientHeight<60;
       const known=new Set(messageRows.map(m=>m.id));const additions=fresh.items.filter(m=>!known.has(m.id));
-      if(additions.length){messageRows.push(...additions);render();if(atBottom)area.scrollTop=area.scrollHeight;}
+      if(additions.length){messageRows.push(...additions);stick=atBottom;render();if(atBottom)area.scrollTop=area.scrollHeight;}
+      // The sender's photo notes follow the recipient: sent, opened, expired.
+      if(messageRows.some(m=>m.ttl&&(m.photo_state==='sent'||m.photo_state==='opened'))){
+        const all=await api('/conversations/'+cid+'/messages');let changed=false;
+        for(const n of all.items){const o=messageRows.find(m=>m.id===n.id);if(o&&o.photo_state!==n.photo_state&&!live.has(o.id)){o.photo_state=n.photo_state;changed=true;}}
+        if(changed&&!additions.length)render();
+      }
       await markRead();
       if(fresh.more && fresh.items.length) await refresh();
     };
     dialog._refreshChat=refresh;
-    dialog.querySelector('.cl-message-form').onsubmit=async e=>{
-      e.preventDefault();const f=e.target,b=f.querySelector('button'),text=f.elements.message.value.trim();if(!text)return;b.disabled=true;
-      if(text!==pendingText){pendingText=text;pendingId=crypto.randomUUID();}
-      try{await api('/conversations/'+cid+'/messages','POST',{body:text,client_id:pendingId});f.elements.message.value='';pendingText=pendingId=null;f.querySelector('[role="alert"]').textContent='';await refresh();area.scrollTop=area.scrollHeight;}
+    const form=dialog.querySelector('.cl-message-form'),picker=form.elements.photo,chip=form.querySelector('.cl-attached'),label=form.querySelector('.cl-attach');
+    let chipUrl='';
+    const ttlPick=form.querySelector('.cl-ttl-pick');
+    const clearPhoto=()=>{picker.value='';chip.hidden=true;ttlPick.hidden=true;form.elements.ttl.value='0';label.hidden=false;if(chipUrl)URL.revokeObjectURL(chipUrl);chipUrl='';pendingId=null;pendingText=null;};
+    picker.onchange=()=>{const file=picker.files[0];if(!file)return;const alert=form.querySelector('[role="alert"]');
+      if(file.size>5*1024*1024){clearPhoto();alert.textContent=t('image_size');return;}
+      alert.textContent='';chipUrl=URL.createObjectURL(file);chip.querySelector('img').src=chipUrl;chip.hidden=false;label.hidden=true;ttlPick.hidden=false;pendingId=null;pendingText=null;form.elements.message.required=false;};
+    form.querySelector('[data-clear-photo]').onclick=()=>{clearPhoto();form.elements.message.required=true;};
+    form.onsubmit=async e=>{
+      e.preventDefault();const f=e.target,b=f.querySelector('button.cl-primary'),text=f.elements.message.value.trim(),file=picker.files[0];if(!text&&!file)return;b.disabled=true;
+      const key=text+'|'+(file?file.name+file.size+file.lastModified+f.elements.ttl.value:'');
+      if(key!==pendingText){pendingText=key;pendingId=crypto.randomUUID();}
+      try{
+        if(file){const fd=new FormData();fd.append('file',file);fd.append('client_id',pendingId);fd.append('body',text);fd.append('ttl',f.elements.ttl.value);await api('/conversations/'+cid+'/messages/photo','POST',fd);}
+        else await api('/conversations/'+cid+'/messages','POST',{body:text,client_id:pendingId});
+        f.elements.message.value='';clearPhoto();f.elements.message.required=true;f.querySelector('[role="alert"]').textContent='';stick=true;await refresh();area.scrollTop=area.scrollHeight;}
       catch(e){f.querySelector('[role="alert"]').textContent=t(e.message);}finally{b.disabled=false;}
     };
   }
-  const poll=setInterval(async()=>{if(destroyed||pollBusy||document.visibilityState!=='visible'||!token())return;pollBusy=true;try{if(currentConversation)await dialog._refreshChat?.();else await unread();}catch{}finally{pollBusy=false;}},10000);
+  const poll=setInterval(async()=>{if(destroyed||pollBusy||document.visibilityState!=='visible'||!token())return;pollBusy=true;try{if(currentConversation)await dialog._refreshChat?.();else await unread();await refreshAdminNew();}catch{}finally{pollBusy=false;}},10000);
   root.addEventListener('click',async e=>{
     const b=e.target.closest('[data-action]'); if(!b||b.disabled)return;
     const action=b.dataset.action,id=b.dataset.id; notice.hidden=true;
@@ -341,11 +408,12 @@ function mount(root, options = {}) {
       else if(action==='remove_photo'){if(confirm(t('confirm_delete'))){await api('/listings/'+id+'/photos/'+b.dataset.photo,'DELETE');b.parentElement.remove();}}
       else if(action==='delete_category'){if(confirm(t('confirm_delete'))){await api('/categories/'+id,'DELETE',undefined,true);await admin();search.elements.category.innerHTML=catOptions();}}
       else if(action==='moderation') await moderation();
+      else if(action==='mod_mark_seen') {b.disabled=true;await api('/admin/messages/seen','POST',undefined,true);setAdminNew(0);await modMessages();}
       else if(action==='mod_tab') {mod.tab=b.dataset.tab;await moderation();}
       else if(action==='mod_page') {mod.offset=Math.max(0,mod.offset+Number(b.dataset.step)*mod.page);await moderation();}
       else if(action==='mod_upage') {mod.uoffset=Math.max(0,mod.uoffset+Number(b.dataset.step)*mod.page);await modUsers();}
       else if(action==='mod_mpage') {mod.moffset=Math.max(0,mod.moffset+Number(b.dataset.step)*mod.page);await modMessages();}
-      else if(action==='mod_user_messages') {mod.tab='messages';mod.muser=id;mod.muserName=b.dataset.name||id;mod.mq='';mod.moffset=0;await modMessages();}
+      else if(action==='mod_user_messages') {mod.tab='messages';mod.mstate='all';mod.msystem=true;mod.muser=id;mod.muserName=b.dataset.name||id;mod.mq='';mod.moffset=0;await modMessages();}
       else if(action==='mod_clear_muser') {mod.muser='';mod.muserName='';mod.moffset=0;await modMessages();}
       else if(action==='mod_conversation') await modConversation(id);
       else if(action==='mod_delete_conversation') {if(confirm(t('mod_confirm_delete_conversation'))){b.disabled=true;await api('/admin/conversations/'+id,'DELETE',undefined,true);mod.tab='messages';await modMessages();}}
@@ -428,6 +496,7 @@ function mount(root, options = {}) {
       nav('browse');await load();await unread();
       bannedNotice().catch(()=>{});
       if(options.desktop) api('/verifications','GET',undefined,true).then(v=>setPending(v.pending.length)).catch(()=>{});
+      refreshAdminNew();
       const lid=new URLSearchParams(location.search).get('listing');if(lid)await detail(lid);
     } catch(e) { fail(e); }
   })();

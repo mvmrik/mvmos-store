@@ -90,3 +90,22 @@
 .cl-bubble.cl-system .cl-system-badge{margin-bottom:6px}
 .cl-inbox button.cl-system{border-color:color-mix(in srgb,var(--cl-accent) 50%,var(--cl-line))}
 .cl-system-note{color:var(--cl-muted);text-align:center;font-size:13px;margin:0 0 8px}
+
+.cl-message-photo{display:flex;align-items:center;gap:10px;margin:8px 0}
+.cl-attach{display:inline-block;cursor:pointer;padding:7px 12px;border:1px solid var(--cl-line);border-radius:8px;background:var(--cl-card);color:var(--cl-text)}
+.cl-attach:hover,.cl-attach:focus-within{border-color:var(--cl-accent)}
+.cl-attached{display:inline-flex;align-items:center;gap:8px}
+.cl-attached img{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--cl-line)}
+.cl-message-img{display:block;max-width:100%;max-height:260px;border-radius:8px;margin:0 0 6px;cursor:zoom-in;object-fit:contain;background:var(--cl-bg)}
+.cl-mod-tabs .cl-unread,.cl-header nav .cl-unread{font-size:11px;font-weight:700;margin-left:4px;vertical-align:1px}
+.cl-mod-main .cl-unread{justify-self:start;font-size:11px;font-weight:700}
+.cl-mod-msg-head .cl-unread{font-size:11px;font-weight:700}
+.cl-root.cl-desktop .cl-unread{color:var(--on-accent,var(--surface,#fff))}
+.cl-mod-toolbar select[name=state]{flex:0 0 auto}
+.cl-root .cl-mod-tabs button.cl-current .cl-unread{background:var(--on-accent,#fff);color:var(--cl-accent)}
+.cl-ttl-pick{display:inline-flex;align-items:center;gap:6px;color:var(--cl-muted)}
+.cl-root button.cl-ttl-open{display:block;width:100%;text-align:left;margin:0 0 6px}
+.cl-ttl-img{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;cursor:default}
+.cl-ttl-left{display:block;color:var(--cl-accent);font-weight:650;margin-bottom:4px}
+.cl-bubble p.cl-ttl-gone{color:var(--cl-muted);font-style:italic}
+.cl-ttl-note{display:block;color:var(--cl-muted)}

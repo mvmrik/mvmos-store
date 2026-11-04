@@ -6,7 +6,7 @@ import time
 import uuid
 import sqlite3
 from contextlib import contextmanager
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, UploadFile, File, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, UploadFile, File, Form, Query
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field, field_validator
 
@@ -86,11 +86,12 @@ def _gc_uploads():
         return
     with db() as c:
         keep = {row[0] for row in c.execute('SELECT filename FROM photos')}
+        keep |= {row[0] for row in c.execute('SELECT image FROM messages WHERE image IS NOT NULL')}
     for name in os.listdir(UPLOADS):
         if name not in keep:
             try: os.unlink(os.path.join(UPLOADS, name))
             except OSError: pass
-_gc_uploads()
+# Called once the messages table exists (further down).
 
 # Where people open this server, as the last request to the app saw it, so
 # a listing's link can also be given to callers without a request of their
@@ -887,6 +888,22 @@ with db() as c:
     if 'read_at' not in cols:
         c.execute('ALTER TABLE messages ADD COLUMN read_at REAL NOT NULL DEFAULT 0')
     c.execute('CREATE INDEX IF NOT EXISTS messages_undelivered ON messages(conversation_id) WHERE delivered_at=0')
+    # A message can carry one photo: the file name in uploads/, NULL for text only.
+    if 'image' not in cols:
+        c.execute('ALTER TABLE messages ADD COLUMN image TEXT')
+    # Self-destructing photos: ttl is the seconds the photo stays visible after
+    # the recipient first opens it (0 = for good), opened_at when that happened.
+    # Once it ends the file is deleted and image is NULL while ttl stays set.
+    if 'ttl' not in cols:
+        c.execute('ALTER TABLE messages ADD COLUMN ttl INTEGER NOT NULL DEFAULT 0')
+    if 'opened_at' not in cols:
+        c.execute('ALTER TABLE messages ADD COLUMN opened_at REAL NOT NULL DEFAULT 0')
+    # The administrator's own "seen up to here" mark for messages. It never
+    # touches the participants' read state. Existing messages start as seen.
+    if 'admin_messages_seen_at' not in {r['name'] for r in c.execute("PRAGMA table_info(settings)")}:
+        c.execute('ALTER TABLE settings ADD COLUMN admin_messages_seen_at REAL NOT NULL DEFAULT 0')
+        c.execute('UPDATE settings SET admin_messages_seen_at=? WHERE id=1', (time.time(),))
+_gc_uploads()
 
 # What moderation did to someone reaches them as a message in their own
 # Classifieds inbox: one conversation per person whose other side is SYSTEM,
@@ -956,6 +973,7 @@ async def start_conversation(lid: str, x_pub_token: str | None = Header(None)):
 @router.get('/conversations')
 async def conversations(offset: int = Query(0,ge=0), x_pub_token: str | None = Header(None)):
     me=user(x_pub_token)
+    expire_due()
     with db() as c:
         rows=c.execute('SELECT * FROM conversations WHERE buyer_id=? OR seller_id=? ORDER BY updated_at DESC,id LIMIT 50 OFFSET ?', (me['id'],me['id'],offset)).fetchall()
         result=[]
@@ -972,14 +990,15 @@ async def conversations(offset: int = Query(0,ge=0), x_pub_token: str | None = H
             peer=row['seller_id'] if row['buyer_id']==me['id'] else row['buyer_id']
             read_at=row['buyer_read_at'] if row['buyer_id']==me['id'] else row['seller_read_at']
             unread=c.execute('SELECT COUNT(*) FROM messages WHERE conversation_id=? AND sender_id!=? AND created_at>?',(row['id'],me['id'],read_at)).fetchone()[0]
-            last=c.execute('SELECT body,system FROM messages WHERE conversation_id=? ORDER BY id DESC LIMIT 1',(row['id'],)).fetchone()
+            last=c.execute('SELECT body,system,image,ttl FROM messages WHERE conversation_id=? ORDER BY id DESC LIMIT 1',(row['id'],)).fetchone()
             result.append({'id':row['id'],'listing_id':row['listing_id'],'listing_title':row['listing_title'],'peer':profiles.get(peer,''),'unread':unread,'preview':last['body'][:100] if last else '', 'updated_at':row['updated_at'],
-                           'system':row['buyer_id']==SYSTEM,'preview_system':system_part(last['system']) if last else None})
+                           'system':row['buyer_id']==SYSTEM,'preview_system':system_part(last['system']) if last else None,'preview_photo':bool(last and (last['image'] or last['ttl']))})
     return {'items':result,'unread':unread_total,'total':total}
 
 @router.get('/conversations/{cid}/messages')
 async def messages(cid: str, before: int = Query(0,ge=0), after: int = Query(0,ge=0), x_pub_token: str | None = Header(None)):
     me=user(x_pub_token)
+    expire_due()
     with db() as c:
         conversation=participant(c,cid,me)
         if after:
@@ -989,7 +1008,8 @@ async def messages(cid: str, before: int = Query(0,ge=0), after: int = Query(0,g
         more=len(rows)>50
         rows=rows[:50] if after else list(reversed(rows[:50]))
         c.execute('UPDATE messages SET delivered_at=? WHERE delivered_at=0 AND sender_id!=? AND conversation_id=?',(time.time(),me['id'],cid))
-        return {'items':[{'id':r['id'],'body':r['body'],'mine':r['sender_id']==me['id'],'created_at':r['created_at'],'system':system_part(r['system'])} for r in rows],
+        return {'items':[{'id':r['id'],'body':r['body'],'mine':r['sender_id']==me['id'],'created_at':r['created_at'],'system':system_part(r['system']),'photo':f"/pub/classifieds/conversations/{cid}/messages/{r['id']}/photo" if r['image'] and (not r['ttl'] or r['sender_id']!=me['id']) else None,
+                 'ttl':r['ttl'],'photo_state':photo_state(r,r['sender_id']==me['id'])} for r in rows],
                 'more':more,'listing_title':conversation['listing_title'],'listing_id':conversation['listing_id'],'system':conversation['buyer_id']==SYSTEM}
 
 class ReadBody(BaseModel):
@@ -1036,6 +1056,76 @@ async def send_message(cid: str, body: MessageBody, x_pub_token: str | None = He
         c.execute('UPDATE conversations SET updated_at=? WHERE id=?',(now,cid))
     return {'id':mid}
 
+PHOTO_TTLS = (0, 10, 30, 60, 300)
+
+def expire_due():
+    """Deletes the photos whose visible time after opening has run out."""
+    now = time.time()
+    with db() as c:
+        rows = c.execute('SELECT id,image FROM messages WHERE ttl>0 AND image IS NOT NULL AND opened_at>0 AND opened_at+ttl<=?', (now,)).fetchall()
+        for r in rows: c.execute('UPDATE messages SET image=NULL WHERE id=?', (r['id'],))
+    remove_files([r['image'] for r in rows])
+
+def photo_state(r, mine):
+    """None for text and permanent photos; otherwise sent, opened (the sender's
+    view), ready (the recipient may open it) or expired."""
+    if not r['ttl']: return None
+    if not r['image']: return 'expired'
+    if mine: return 'opened' if r['opened_at'] else 'sent'
+    return 'ready'
+
+@router.post('/conversations/{cid}/messages/photo', status_code=201)
+async def send_message_photo(cid: str, file: UploadFile = File(...), client_id: str = Form(min_length=16,max_length=64,pattern=r'^[a-zA-Z0-9-]+$'), body: str = Form('',max_length=4000), ttl: int = Form(0), x_pub_token: str | None = Header(None)):
+    """A message with one photo and an optional caption."""
+    me=user(x_pub_token)
+    if ttl not in PHOTO_TTLS: raise HTTPException(400,'error')
+    with db() as c:
+        if participant(c,cid,me)['buyer_id']==SYSTEM: raise HTTPException(403,'system_reply')
+    data = await file.read(MAX_BYTES + 1)
+    await file.close()
+    if len(data) > MAX_BYTES: raise HTTPException(413,'image_size')
+    ext = image_ext(data)
+    name = uuid.uuid4().hex + '.' + ext
+    os.makedirs(UPLOADS,exist_ok=True)
+    path = os.path.join(UPLOADS,name)
+    try:
+        with db() as c:
+            c.execute('BEGIN IMMEDIATE')
+            if participant(c,cid,me)['buyer_id']==SYSTEM: raise HTTPException(403,'system_reply')
+            previous=c.execute('SELECT id,conversation_id FROM messages WHERE sender_id=? AND client_id=?',(me['id'],client_id)).fetchone()
+            if previous:
+                if previous['conversation_id']!=cid: raise HTTPException(409,'error')
+                return {'id':previous['id']}
+            now=time.time()
+            count=c.execute('SELECT COUNT(*) FROM messages WHERE sender_id=? AND created_at>?',(me['id'],now-60)).fetchone()[0]
+            if count>=30: raise HTTPException(429,'message_rate')
+            with open(path,'wb') as f: f.write(data)
+            mid=c.execute('INSERT INTO messages(conversation_id,sender_id,body,created_at,client_id,image,ttl) VALUES(?,?,?,?,?,?,?)',(cid,me['id'],body.strip(),now,client_id,name,ttl)).lastrowid
+            c.execute('UPDATE conversations SET updated_at=? WHERE id=?',(now,cid))
+    except Exception:
+        if os.path.exists(path): os.unlink(path)
+        raise
+    return {'id':mid}
+
+@router.get('/conversations/{cid}/messages/{mid}/photo')
+async def message_photo(cid: str, mid: int, x_pub_token: str | None = Header(None)):
+    me=user(x_pub_token)
+    expire_due()
+    headers={'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}
+    with db() as c:
+        c.execute('BEGIN IMMEDIATE')
+        participant(c,cid,me)
+        m=c.execute('SELECT * FROM messages WHERE id=? AND conversation_id=?',(mid,cid)).fetchone()
+        if not m: raise HTTPException(404,'not_found')
+        if not m['image']: raise HTTPException(404,'photo_expired' if m['ttl'] else 'not_found')
+        if m['ttl']:
+            # Only the recipient opens it; the first opening starts the clock.
+            if m['sender_id']==me['id']: raise HTTPException(404,'not_found')
+            opened=m['opened_at'] or time.time()
+            if not m['opened_at']: c.execute('UPDATE messages SET opened_at=? WHERE id=?',(opened,mid))
+            headers['X-Expires-In']=f"{max(0.0,opened+m['ttl']-time.time()):.2f}"
+    return FileResponse(os.path.join(UPLOADS,m['image']), headers=headers)
+
 # Message moderation (desktop only): every conversation with who wrote what to
 # whom, when it was sent, reached the recipient's app and was opened. The
 # administrator can delete a message or a whole conversation, never write or
@@ -1047,11 +1137,35 @@ def person(uid, profiles):
     name, username = profiles.get(uid, ('', ''))
     return {'id': uid, 'name': name, 'username': username, 'system': uid == SYSTEM}
 
+def admin_seen_at(c):
+    return c.execute('SELECT admin_messages_seen_at FROM settings WHERE id=1').fetchone()[0]
+
+NEW_MESSAGE = "EXISTS(SELECT 1 FROM messages m WHERE m.conversation_id=conversations.id AND m.sender_id!=? AND m.created_at>?)"
+
+@desktop_router.get('/admin/messages/new')
+async def admin_new_messages():
+    expire_due()
+    with db() as c:
+        count = c.execute('SELECT COUNT(*) FROM messages WHERE sender_id!=? AND created_at>?', (SYSTEM, admin_seen_at(c))).fetchone()[0]
+    return {'count': count}
+
+@desktop_router.post('/admin/messages/seen')
+async def admin_mark_messages_seen():
+    """Moves only the administrator's own mark to now; nobody else's read state changes."""
+    with db() as c:
+        c.execute('UPDATE settings SET admin_messages_seen_at=? WHERE id=1', (time.time(),))
+    return {'count': 0}
+
 @desktop_router.get('/admin/conversations')
-async def admin_conversations(q: str = Query('', max_length=160), user: str = Query('', max_length=64), offset: int = Query(0, ge=0)):
+async def admin_conversations(q: str = Query('', max_length=160), user: str = Query('', max_length=64), offset: int = Query(0, ge=0),
+                              state: str = Query('all', pattern='^(new|read|all)$'), system: bool = True):
     clauses, params = ['1=1'], []
+    if not system: clauses.append('buyer_id!=?'); params.append(SYSTEM)
     if user: clauses.append('(buyer_id=? OR seller_id=?)'); params += [user, user]
     with db() as c:
+        seen = admin_seen_at(c)
+        if state != 'all':
+            clauses.append(('' if state == 'new' else 'NOT ') + NEW_MESSAGE); params += [SYSTEM, seen]
         if q.strip():
             text = q.strip()
             # Names live in Apps Hub, so the profiles whose name matches are
@@ -1070,19 +1184,24 @@ async def admin_conversations(q: str = Query('', max_length=160), user: str = Qu
         items = []
         for r in rows:
             count = c.execute('SELECT COUNT(*) FROM messages WHERE conversation_id=?', (r['id'],)).fetchone()[0]
-            last = c.execute('SELECT body,system,created_at FROM messages WHERE conversation_id=? ORDER BY id DESC LIMIT 1', (r['id'],)).fetchone()
+            last = c.execute('SELECT body,system,created_at,image,ttl FROM messages WHERE conversation_id=? ORDER BY id DESC LIMIT 1', (r['id'],)).fetchone()
             items.append({'id': r['id'], 'listing_id': r['listing_id'], 'listing_title': r['listing_title'],
                           'buyer': person(r['buyer_id'], profiles), 'seller': person(r['seller_id'], profiles),
                           'system': r['buyer_id'] == SYSTEM, 'messages': count, 'updated_at': r['updated_at'],
-                          'preview': last['body'][:140] if last else '', 'preview_system': system_part(last['system']) if last else None})
-    return {'items': items, 'total': total, 'page': ADMIN_PAGE}
+                          'preview': last['body'][:140] if last else '', 'preview_system': system_part(last['system']) if last else None,
+                          'preview_photo': bool(last and (last['image'] or last['ttl'])),
+                          'new': c.execute('SELECT COUNT(*) FROM messages WHERE conversation_id=? AND sender_id!=? AND created_at>?', (r['id'], SYSTEM, seen)).fetchone()[0]})
+        unseen = c.execute('SELECT COUNT(*) FROM messages WHERE sender_id!=? AND created_at>?', (SYSTEM, seen)).fetchone()[0]
+    return {'items': items, 'total': total, 'page': ADMIN_PAGE, 'new': unseen}
 
 @desktop_router.get('/admin/conversations/{cid}/messages')
 async def admin_messages(cid: str, before: int = Query(0, ge=0)):
+    expire_due()
     with db() as c:
         conv = c.execute('SELECT * FROM conversations WHERE id=?', (cid,)).fetchone()
         if not conv: raise HTTPException(404, 'not_found')
         rows = c.execute('SELECT * FROM messages WHERE conversation_id=? AND (?=0 OR id<?) ORDER BY id DESC LIMIT 101', (cid, before, before)).fetchall()
+        seen_mark = admin_seen_at(c)
     more, rows = len(rows) > 100, list(reversed(rows[:100]))
     profiles = names({conv['buyer_id'], conv['seller_id']})
     items = []
@@ -1092,20 +1211,38 @@ async def admin_messages(cid: str, before: int = Query(0, ge=0)):
         # remembers how far the recipient has read, only not when.
         seen = bool(m['read_at']) or m['created_at'] <= (conv['buyer_read_at'] if to == conv['buyer_id'] else conv['seller_read_at'])
         items.append({'id': m['id'], 'body': m['body'], 'system': system_part(m['system']), 'created_at': m['created_at'],
+                      'photo': f"/api/apps/classifieds/admin/messages/{m['id']}/photo" if m['image'] else None,
+                      'new': m['sender_id'] != SYSTEM and m['created_at'] > seen_mark,
+                      'ttl': m['ttl'], 'photo_state': photo_state(m, False) if m['ttl'] else None, 'opened_at': m['opened_at'] or None,
                       'from': person(m['sender_id'], profiles), 'to': person(to, profiles),
                       'delivered': seen or bool(m['delivered_at']), 'delivered_at': m['delivered_at'] or None,
                       'seen': seen, 'seen_at': m['read_at'] or None})
     return {'items': items, 'more': more, 'listing_id': conv['listing_id'], 'listing_title': conv['listing_title'],
             'system': conv['buyer_id'] == SYSTEM, 'buyer': person(conv['buyer_id'], profiles), 'seller': person(conv['seller_id'], profiles)}
 
+@desktop_router.get('/admin/messages/{mid}/photo')
+async def admin_message_photo(mid: int):
+    expire_due()
+    with db() as c:
+        m = c.execute('SELECT image FROM messages WHERE id=? AND image IS NOT NULL', (mid,)).fetchone()
+    if not m: raise HTTPException(404, 'not_found')
+    return FileResponse(os.path.join(UPLOADS, m['image']), headers={'Cache-Control': 'private, no-store', 'X-Content-Type-Options': 'nosniff'})
+
 @desktop_router.delete('/admin/messages/{mid}')
 async def admin_delete_message(mid: int):
     with db() as c:
-        if not c.execute('DELETE FROM messages WHERE id=?', (mid,)).rowcount: raise HTTPException(404, 'not_found')
+        m = c.execute('SELECT image FROM messages WHERE id=?', (mid,)).fetchone()
+        if not m: raise HTTPException(404, 'not_found')
+        c.execute('DELETE FROM messages WHERE id=?', (mid,))
+    if m['image']: remove_files([m['image']])
     return {'ok': True}
 
 @desktop_router.delete('/admin/conversations/{cid}')
 async def admin_delete_conversation(cid: str):
     with db() as c:
+        files = [r[0] for r in c.execute('SELECT image FROM messages WHERE conversation_id=? AND image IS NOT NULL', (cid,))]
         if not c.execute('DELETE FROM conversations WHERE id=?', (cid,)).rowcount: raise HTTPException(404, 'not_found')
+    remove_files(files)
     return {'ok': True}
+
+expire_due()

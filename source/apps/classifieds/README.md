@@ -38,6 +38,8 @@ The Users tab lists everyone Classifieds knows: sellers, people in conversations
 
 The Messages tab lists every conversation, between profiles and from the administration, searchable by profile name, listing title or message text, and the Users tab opens the conversations of one profile. Opening a conversation shows each message with who sent it to whom, when it was sent, when it reached the recipient's app and when the recipient opened it. Messages from before Classifieds 1.10.0 show only whether they were seen, without the time. The administrator can delete a single message or a whole conversation, which disappears for both participants without telling them, but can never write or edit a message.
 
+By default the Messages tab shows only conversations with messages that are new to the administrator, without system notices; filters show the seen ones or everything, and can include system notices. "Mark all as seen" moves only the administrator's own marker (`settings.admin_messages_seen_at`) to the current time: the participants' read state never changes. A count of messages newer than the marker appears on the Moderation button and the Messages tab.
+
 Whenever the administrator changes something of a person's, that person gets a system message in their Classifieds Messages: a ban (with the reason, if one was given), lifting it, an edit, a deletion, a move to another category, deactivating or activating a listing, ending its VIP period and removing a photo. All of these arrive in one conversation from the Classifieds administration, marked as a system message and shown in the reader's own language; it cannot be replied to. Actions that change nothing, such as saving an unchanged listing or deactivating one that is already hidden, send no message.
 
 ## Views and watching
@@ -49,6 +51,10 @@ Any signed-in visitor other than the owner can watch a listing from its card or 
 ## Personal messages
 
 Visitors can start a private conversation with a seller from a listing, and a seller can just as well start one with a specific watcher first. Conversations are unique per listing and interested account regardless of who opened it. Only the buyer and seller may reply or mark messages read; the desktop Moderation panel can read and delete them. Deleting a listing retains the conversation and its original title. Messages are plain text, limited to 4,000 characters, with a limit of 30 messages per sender per minute. Client request ids prevent duplicate sends on retry. The interface refreshes unread counts and open conversations every ten seconds while visible. A message counts as delivered the first time the recipient's app loads their inbox or the conversation after it was sent, and as seen when the recipient opens it. Older messages and conversations are paginated.
+
+A message can carry one photo (JPEG, PNG or WebP, up to 5 MB) with an optional caption, so people can exchange pictures of an item. The photo is stored in `uploads/`, served only to the two participants (and to the administrator in message moderation), and deleted with its message or conversation.
+
+When attaching a photo the sender can choose that it disappears 10 seconds, 30 seconds, 1 minute or 5 minutes after the recipient first opens it. The recipient taps to open it and sees a countdown; it is held only in memory, never cached, and when the time runs out the server deletes the file. The sender sees whether it was opened, and the administrator can see such photos in message moderation until they expire. A browser cannot prevent screenshots, so this limits storage and casual copying only.
 
 ## Storage and packaging
 
