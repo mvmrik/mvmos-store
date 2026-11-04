@@ -127,7 +127,7 @@ export function skillSpeed(e,base,upcoming,water,t,distance,length,fatigue){
   factor*=1-.18*(1-sk.focus)*lapse;
   factor*=1-.20*Math.min(1,water/.6)*(1-sk.wet);
   factor*=1-.015*(1-sk.feedback)*Math.exp(-Math.max(0,distance)/(length*3));
-  factor*=1-.08*fatigue*(1-sk.fitness);
+  factor*=1-.08*fatigue*bend*(1+(1-sk.fitness));   // a tired driver loses time in the bends, never on the straights
   return factor;
 }
 
@@ -270,7 +270,7 @@ export class Race {
       const [grip,wear_rate]=TYRES[c.compound],base=P.speeds[Math.min(P.speeds.length-1,Math.trunc(frac*P.speeds.length))];
       let target=base*65/e.target*grip*waterFactor(c.compound,waterAt(this.cfg,t))*(1-Math.min(.30,c.wear*.32))*(1-c.fuel*(this.cfg.fuel_k??.0007));
       const fatigue=1-Math.max(0,(e.energy??100)-(e.energy_cost??0)*Math.min(1,Math.max(0,old)/(this.cfg.laps*L)))/100;
-      target*=(1-.08*fatigue)*(1+.08*((e.front_wing_wear||0)-c.wing));
+      target*=(1+.08*((e.front_wing_wear||0)-c.wing));
       const upcoming=P.speeds[Math.trunc(mod(frac+.012,1)*P.speeds.length)];
       target*=skillSpeed(e,base,upcoming,waterAt(this.cfg,t),t,old,L,fatigue);
       if(neutral&&(this.flag==='green'||c.e.id===this.leader))target=Math.min(target,SC_SPEED);   // only the leader sets the pace; the others close up on the car ahead

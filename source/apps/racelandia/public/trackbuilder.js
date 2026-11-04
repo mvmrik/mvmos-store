@@ -20,7 +20,7 @@ export function openBuilder(o) {
   let seats = Object.assign({ seated: 0, free: 0, vip: 0 }, own ? own.seats : {});
   let name = own ? own.name : _t('ap_tb_name_def');
   let place = own ? { lat: own.lat, lon: own.lon, label: '' } : null;
-  let quote = null, quoteTimer = 0, quoteSeq = 0, building = false, message = '', places = null, zoom = 1, drag = -1, destroyed = false;
+  let quote = null, drive = null, driveTimer = 0, driveSeq = 0, quoteTimer = 0, quoteSeq = 0, building = false, message = '', places = null, zoom = 1, drag = -1, destroyed = false;
   const fmtKm = m => (m / 1000).toFixed(2) + ' km';
   const num = v => Math.max(0, Math.floor(Number(v) || 0));
 
@@ -38,7 +38,7 @@ export function openBuilder(o) {
   // the world is metres; the window shows a fixed area around the middle of the drawing
   function frame() {
     const W = canvas.clientWidth || 600, H = canvas.clientHeight || 400, dpr = window.devicePixelRatio || 1;
-    if (canvas.width !== Math.round(W * dpr)) { canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); }
+    if (canvas.width !== Math.round(W * dpr) || canvas.height !== Math.round(H * dpr)) { canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); }
     return { W, H, dpr, s: W / (2600 / zoom), cx: 300, cy: 200 };
   }
   const toScreen = (f, p) => [f.W / 2 + (p[0] - f.cx) * f.s, f.H / 2 - (p[1] - f.cy) * f.s];
@@ -57,9 +57,9 @@ export function openBuilder(o) {
     for (let y = Math.ceil(y0 / 100) * 100; y <= y1; y += 100) { g.strokeStyle = y % 500 ? 'rgba(128,128,128,.12)' : 'rgba(128,128,128,.3)'; const [, sy] = toScreen(f, [0, y]); g.beginPath(); g.moveTo(0, sy); g.lineTo(f.W, sy); g.stroke(); }
     const pts = rebuilding ? (quote && quote.points) : own.points;
     if (pts && pts.length > 2) {
-      const road = Math.max(3, (rebuilding ? width : own.width) * f.s);
+      const road = Math.max(5, (rebuilding ? width : own.width) * f.s);
       g.lineJoin = 'round'; g.lineCap = 'round';
-      g.strokeStyle = quote && !quote.ok && rebuilding ? 'rgba(220,80,80,.85)' : 'rgba(60,64,72,.95)'; g.lineWidth = road;
+      g.strokeStyle = quote && !quote.ok && rebuilding ? 'rgba(220,80,80,.85)' : 'rgba(138,146,160,.95)'; g.lineWidth = road;
       g.beginPath(); pts.forEach((p, i) => { const [x, y] = toScreen(f, p); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath(); g.stroke();
       g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = Math.max(1, road * 0.08); g.setLineDash([road * 1.2, road * 1.2]);
       g.beginPath(); pts.forEach((p, i) => { const [x, y] = toScreen(f, p); i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath(); g.stroke(); g.setLineDash([]);
@@ -68,6 +68,11 @@ export function openBuilder(o) {
       g.strokeStyle = fg; g.globalAlpha = .35; g.lineWidth = 1; g.setLineDash([4, 4]); g.beginPath();
       ctrl.forEach((p, i) => { const [x, y] = toScreen(f, p); i ? g.lineTo(x, y) : g.moveTo(x, y); }); if (ctrl.length > 2) g.closePath(); g.stroke(); g.setLineDash([]); g.globalAlpha = 1;
       ctrl.forEach((p, i) => { const [x, y] = toScreen(f, p); g.fillStyle = i === 0 ? '#ffd23f' : accent; g.beginPath(); g.arc(x, y, i === drag ? 9 : 7, 0, 7); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 2; g.stroke(); });
+    }
+    if (rebuilding && drive && drive.at) {
+      const [x, y] = toScreen(f, drive.at);
+      g.strokeStyle = '#ff4d4d'; g.lineWidth = 3; g.beginPath(); g.arc(x, y, Math.max(16, 30 * f.s * 4), 0, 7); g.stroke();
+      g.fillStyle = '#ff4d4d'; g.beginPath(); g.arc(x, y, 4, 0, 7); g.fill();
     }
     // scale bar
     const bar = 500 * f.s; g.fillStyle = fg; g.fillRect(12, f.H - 16, bar, 3); g.font = '11px sans-serif'; g.fillText('500 m', 12, f.H - 22);
@@ -88,7 +93,12 @@ export function openBuilder(o) {
     }
     ctrl.splice(at, 0, p);
   }
-  const point = e => { const r = canvas.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  // pointer in the canvas's own CSS pixels: the page may be scaled (zoom, fullscreen), so the box on screen and clientWidth can differ
+  const point = e => {
+    const r = canvas.getBoundingClientRect(), bx = canvas.clientLeft, by = canvas.clientTop;
+    const kx = canvas.clientWidth / Math.max(1, r.width - 2 * bx), ky = canvas.clientHeight / Math.max(1, r.height - 2 * by);
+    return [(e.clientX - r.left - bx) * kx, (e.clientY - r.top - by) * ky];
+  };
   canvas.addEventListener('pointerdown', e => {
     if (!rebuilding || building) return;
     const f = frame(), [x, y] = point(e), i = hit(f, x, y);
@@ -112,6 +122,7 @@ export function openBuilder(o) {
 
   function changed(soft) {
     message = '';
+    drive = null; driveSeq++; clearTimeout(driveTimer);
     clearTimeout(quoteTimer);
     quoteTimer = setTimeout(askQuote, soft ? 400 : 120);
     if (!soft) paintSide(true);
@@ -123,6 +134,16 @@ export function openBuilder(o) {
     const r = await api('/track/quote', { ctrl, width, seats });
     if (seq !== quoteSeq || destroyed) return;
     quote = r.ok ? r.d : { ok: false, error: 'shape' };
+    drive = quote.ok ? 'checking' : null;
+    paintSide(true); draw();
+    if (quote.ok) driveTimer = setTimeout(() => verify(seq), 700);
+  }
+  // the quote only checks the shape; the car itself must also be able to get round: a test drive shows where it cannot
+  async function verify(seq) {
+    const mine = ++driveSeq;
+    const r = await api('/track/verify', { ctrl, width });
+    if (destroyed || mine !== driveSeq || seq !== quoteSeq) return;
+    drive = r.ok ? r.d : { ok: true };
     paintSide(true); draw();
   }
 
@@ -162,7 +183,7 @@ export function openBuilder(o) {
       ${row(_t('ap_tb_stands_cost'), rebuilding ? money(info.seats_cost || 0) : money(extra))}
       ${rebuilding && info.demolition ? row(_t('ap_tb_demolition'), money(info.demolition)) : ''}
       ${row(_t('ap_tb_total'), '<span class="' + (afford ? '' : 'ap-neg') + '">' + money(total) + '</span>')}${row(_t('ap_tb_budget'), money(G.driver.budget))}</div>` : '';
-    const msg = building ? `<p class="ap-hint">${esc(_t('ap_tb_working'))}</p>` : message ? `<p class="ap-tb-err">${esc(message)}</p>` : (rebuilding && quote && !quote.ok ? `<p class="ap-tb-err">${esc(errText(quote.error))}</p>` : '');
+    const msg = building ? `<p class="ap-hint">${esc(_t('ap_tb_working'))}</p>` : message ? `<p class="ap-tb-err">${esc(message)}</p>` : (rebuilding && quote && !quote.ok ? `<p class="ap-tb-err">${esc(errText(quote.error))}</p>` : rebuilding && drive === 'checking' ? `<p class="ap-hint">${esc(_t('ap_tb_checking'))}</p>` : rebuilding && drive && drive.ok === false ? `<p class="ap-tb-err">${esc(_t('ap_tb_err_undrivable_at'))}</p>` : rebuilding && drive && drive.ok ? `<p class="ap-hint">✓ ${esc(_t('ap_tb_drive_ok'))}</p>` : '');
     const placeRow = rebuilding ? `<div class="ap-card"><h3>${esc(_t('ap_tb_place'))}</h3>
       <div class="ap-tb-search"><input type="text" data-keep="q" placeholder="${esc(_t('ap_tb_place_ph'))}" maxlength="60"><button class="ap-btn ap-sm" data-tb-search>${esc(_t('ap_tb_search'))}</button></div>
       ${places ? (places.length ? places.map((p, i) => `<button class="ap-btn ap-sm ap-ghost ap-tb-place" data-pick="${i}">${esc([p.name, p.region, p.country].filter(Boolean).join(', '))}</button>`).join('') : `<p class="ap-hint">${esc(_t('ap_tb_no_results'))}</p>`) : ''}
@@ -175,7 +196,7 @@ export function openBuilder(o) {
       <div class="ap-card">${stats}${msg}
         ${h ? `<h3>${esc(_t('ap_tb_host_title'))}</h3><p class="ap-hint">${esc(_t('ap_tb_host_hint'))}</p>${checks(h)}<div class="ap-cond">${row(_t('ap_tb_income'), money(h.income.total))}${row(_t('ap_tb_upkeep'), money((info && info.upkeep) || 0))}</div><p class="ap-hint"><b>${esc(_t(h.ok ? 'ap_tb_ready' : 'ap_tb_notyet'))}</b></p>` : ''}
         <div class="ap-tb-actions">${rebuilding
-          ? `<button class="ap-btn" data-tb-build ${building || !quote || !quote.ok || !place || !afford ? 'disabled' : ''}>${esc(_t(own ? 'ap_tb_rebuild' : 'ap_tb_build'))}</button>`
+          ? `<button class="ap-btn" data-tb-build ${building || !quote || !quote.ok || drive === 'checking' || (drive && drive.ok === false) || !place || !afford ? 'disabled' : ''}>${esc(_t(own ? 'ap_tb_rebuild' : 'ap_tb_build'))}</button>`
           : `<button class="ap-btn" data-tb-stands ${building ? 'disabled' : ''}>${esc(_t('ap_venue_open'))}</button>
              <button class="ap-btn ap-ghost" data-tb-rebuild ${building ? 'disabled' : ''}>${esc(_t('ap_tb_rebuild'))}</button><p class="ap-hint">${esc(_t('ap_tb_rebuild_hint'))}</p>`}</div></div>`;
     bindSide();
@@ -218,5 +239,5 @@ export function openBuilder(o) {
   $('cancel').addEventListener('click', () => onCancel());
   paintTools(); paintSide();
   requestAnimationFrame(() => { draw(); if (rebuilding && ctrl.length >= 4) askQuote(); });
-  return { destroy() { destroyed = true; clearTimeout(quoteTimer); resizeObs && resizeObs.disconnect(); } };
+  return { destroy() { destroyed = true; clearTimeout(quoteTimer); clearTimeout(driveTimer); resizeObs && resizeObs.disconnect(); } };
 }

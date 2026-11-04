@@ -59,17 +59,87 @@ export function focusClassification(rows){
 }
 // The timing tower sits above the speed and tyre panels and must never overlap them: it gets
 // exactly the height that is left, on any screen, and scrolls inside when there is less.
-export function fitHud(view){
+// ── The phone layout of the track screens (practice, qualifying and races) ──
+// Cameras, watched car and replay speed go into one menu button; the classification shrinks to the
+// player's position and three letters; the lap timer to the time and sector colours. A tap opens each
+// in full. The nodes are only moved, so every button keeps its handler, and move back on a wide screen.
+const PHONE_MAX=640;
+function phoneHudBuild(view,t){
+  const ph=document.createElement('div');ph.className='ap-ph';
+  ph.innerHTML=`<button class="ap-ph-pos" type="button"></button>`;
+  view.appendChild(ph);
+  // the menu button and its panel live in the bottom bar, next to the pit buttons; the panel opens upwards
+  const ctl=view.querySelector('.ap-ctl'),label=t?t('ap_menu'):'Menu';
+  const menu=document.createElement('button');menu.type='button';menu.className='ap-ph-menu';menu.setAttribute('aria-label',label);menu.title=label;menu.textContent='☰';
+  const panel=document.createElement('div');panel.className='ap-ph-panel';
+  if(ctl){ctl.insertBefore(menu,ctl.firstChild);ctl.appendChild(panel);}
+  ph._menu=[menu,panel];
+  const moved=[];
+  for(const sel of ['.ap-cams','.ap-watch','.ap-speeds']){
+    const el=view.querySelector(sel);
+    if(el&&!panel.contains(el)){moved.push({el,parent:el.parentNode,next:el.nextSibling});panel.appendChild(el);}
+  }
+  ph._moved=moved;
+  const toggle=cls=>{const on=!view.classList.contains(cls);view.classList.remove('ap-menu-open','ap-tw-open','ap-hud-open');if(on)view.classList.add(cls);};
+  menu.addEventListener('click',()=>toggle('ap-menu-open'));
+  ph.querySelector('.ap-ph-pos').addEventListener('click',()=>toggle('ap-tw-open'));
+  const tw=view.querySelector('.ap-tower');if(tw)tw.addEventListener('click',()=>view.classList.remove('ap-tw-open'));
+  panel.addEventListener('click',e=>{if(e.target.closest('button'))setTimeout(()=>view.classList.remove('ap-menu-open'),160);});
+  const timer=view.querySelector('.ap-hud-t');
+  if(timer)timer.addEventListener('click',()=>toggle('ap-hud-open'));
+  return ph;
+}
+function phoneHudRestore(view,ph){
+  for(const {el,parent,next} of (ph._moved||[]).slice().reverse())parent.insertBefore(el,next&&next.parentNode===parent?next:null);
+  for(const n of ph._menu||[])n.remove();
+  view.querySelector('.ap-hud-t>.ap-ph-who')?.remove();
+  view.classList.remove('ap-has-laps');
+  ph.remove();view.classList.remove('ap-menu-open','ap-tw-open','ap-hud-open');
+}
+export function phoneHud(view,t){
+  if(!view)return false;
+  let ph=view.querySelector(':scope>.ap-ph');
+  if(innerWidth>PHONE_MAX){if(ph)phoneHudRestore(view,ph);return false;}
+  if(!ph)ph=phoneHudBuild(view,t);
+  // the player's position and the first three letters of the name, from the classification itself
+  const row=view.querySelector('.ap-tower .ap-order-row.mine:not(.ap-order-pin)')||view.querySelector('.ap-tower .ap-order-row.mine');
+  const pos=row?.querySelector('b')?.textContent.trim()||'–',name=(row?.querySelector('span')?.textContent||'').trim().slice(0,3);
+  const chip=ph.querySelector('.ap-ph-pos');
+  const html=`<b>${esc(pos)}</b><span>${esc(name)}</span>`;
+  if(chip._html!==html){chip.innerHTML=html;chip._html=html;}
+  // the lap timer on the right names its driver: position and three letters before the time
+  const timer=view.querySelector('.ap-hud-t');
+  if(timer){let who=timer.querySelector(':scope>.ap-ph-who');
+    if(!who){who=document.createElement('div');who.className='ap-ph-who';timer.insertBefore(who,timer.firstChild);}
+    const w=pos+' '+name;if(who.textContent!==w)who.textContent=w;}
+  // above the names of the classification: which lap it is and how long the session lasts (a race has its own status bar)
+  const tower=view.querySelector('.ap-tower'),lapEl=view.querySelector('#h-lap');
+  if(tower&&lapEl&&!tower.querySelector('.ap-race-status')){
+    let bar=ph.querySelector('.ap-ph-laps');
+    if(!bar){bar=document.createElement('div');bar.className='ap-ph-laps';ph.insertBefore(bar,ph.firstChild);}
+    const cnt=lapEl.dataset.n!=null?lapEl.dataset.n+(lapEl.dataset.m?'/'+lapEl.dataset.m:''):lapEl.textContent.trim();
+    const txt=['🏁 '+cnt,view.querySelector('#h-session-clock')?.textContent.trim()].filter(Boolean).join(' · ');
+    if(bar.textContent!==txt)bar.textContent=txt;
+    view.classList.add('ap-has-laps');
+  }
+  return true;
+}
+export function fitHud(view,t){
+  const phone=phoneHud(view,t);
   const hud=view?.querySelector('.ap-hud'),tower=hud?.querySelector('.ap-tower'),left=hud?.querySelector('.ap-hud-l');
   if(!hud||!tower||!left)return;
   const controls=view.querySelector('.ap-ctl'),base=parseFloat(getComputedStyle(left).getPropertyValue('--ap-hud-bottom'))||58;
   // Camera and speed controls wrap into several rows on phones.
   const bottom=Math.max(base,controls?controls.offsetHeight+(parseFloat(getComputedStyle(controls).bottom)||0)+8:0);
-  left.style.bottom=bottom+'px';
+  left.style.bottom=phone?(controls?controls.offsetHeight+8:8)+'px':bottom+'px';
   const top=parseFloat(getComputedStyle(tower).top)||0;
   // a phone shows only the head of the classification; a big screen may show most of it
   const room=Math.min(hud.clientHeight-left.offsetHeight-bottom-top-8,hud.clientHeight*(innerWidth<=860?.3:.7));
   tower.style.maxHeight=Math.max(130,room)+'px';
+  // on a phone the fuel, energy and weather row sits right above the speed strip
+  const gauges=hud.querySelector('.ap-gauges');
+  if(gauges&&phone)gauges.style.bottom=(parseFloat(left.style.bottom)+left.offsetHeight+6)+'px';
+  else if(gauges)gauges.style.removeProperty('bottom');
   const rows=tower.querySelector('#h-order,[data-race-order]');
   if(rows){const head=(tower.querySelector('.ap-tower-head')?.offsetHeight||0)+(tower.querySelector('.ap-race-status')?.offsetHeight||0),own=tower.querySelector('#h-own-position')?.offsetHeight||0;rows.style.maxHeight=Math.max(78,room-head-own)+'px';rows.style.overflowY='auto';if(rows._classificationFocus)focusClassification(rows);}
 }
@@ -276,7 +346,7 @@ export function playRace({host,M,track,payload,t,money,time,sendPit,onFinish,onG
     view.setField(rendered.filter((_,i)=>i!==oi).map(c=>({...pose(c),col:c.e.col,livery:c.e.livery,compound:c.compound,hidden:c.finish!==null||c.dnf&&race.t>=(c.clear_at??race.sc_until)})));
     if(neutral&&race.flag!=='red'){const lead=race.order().find(c=>!c.dnf&&c.finish===null&&!c.pit);view.setSafetyCar(lead?pose({...rendered[race.cars.indexOf(lead)],p:rendered[race.cars.indexOf(lead)].p+35,lane:0,dnf:null,pit:false}):null);}else view.setSafetyCar(null);
     const n=race.t<race.cfg.lights?Math.min(5,Math.max(0,Math.floor((race.t-1)/.8)+1)):0;view.lights(n);q('[data-race-lights]').hidden=!n;q('[data-race-lights]').innerHTML=[0,1,2,3,4].map(i=>`<i class="${i<n?'on':''}"></i>`).join('');
-    drawAcc+=dt;if(drawAcc>.15){drawAcc=0;fitHud(host.querySelector('.ap-view'));const order=race.order(),leader=order.find(c=>!c.dnf),position=order.indexOf(own)+1;
+    drawAcc+=dt;if(drawAcc>.15){drawAcc=0;fitHud(host.querySelector('.ap-view'),t);const order=race.order(),leader=order.find(c=>!c.dnf),position=order.indexOf(own)+1;
       q('[data-race-lap]').textContent=t('ap_lapn',{n:Math.min(payload.laps,own.laps+1),m:payload.laps});
       {const flag=q('[data-race-flags]'),kind=race.flag==='red'?'red':neutral?'yellow':own.blue_for?'blue':'green',name=race.flag==='red'?t('ap_red_flag'):neutral?t('ap_safety_car'):own.blue_for?t('ap_blue_flag'):t('ap_green_flag');
         if(flag.dataset.kind!==kind){flag.dataset.kind=kind;flag.className='ap-flag '+kind;flag.title=name;}

@@ -1635,7 +1635,7 @@
       if (pb.t >= lo) lights.hidden = true;
     } else { lights.hidden = true; view.lights(0); }
     hudAcc += dt;
-    if (hudAcc > 0.05) { hudAcc = 0; hud(S); paintBox(); if (++fitN % 6 === 0) mods.DIVISION.fitHud($('#ap-track .ap-view')); }
+    if (hudAcc > 0.05) { hudAcc = 0; hud(S); paintBox(); if (++fitN % 6 === 0) mods.DIVISION.fitHud($('#ap-track .ap-view'), _t); }
     posAcc += dt;
     if (posAcc > 0.125 && pb.playing && !pb.sent) { posAcc = 0; send({type:'ap_pos', x: S.x, y: S.y, psi: S.psi, v: Math.hypot(S.u, S.v), lap: S.lap, col: myCol, best: mods.TIMING.qualifyingTiming(run,S.t,S.lap,{...sec,field:pb.msg.timing_field,offset:pb.lightsOut}).bestLap }); }
     mods.DIVISION.updateDrivingMeters($('#ap-track'),S,_t);
@@ -1676,6 +1676,7 @@
     if(pb.msg.duration&&lp>=1){const phase=pb.msg.weekend?.phase||(pb.msg.kind==='qualifying'?'qualifying':'practice');label=_t(phase==='qualifying'?'ap_qual_lap':'ap_practice_lap',{n:lp});}
     const remaining=pb.msg.duration==null ? null : Math.max(0,pb.msg.duration-Math.max(0,S.t-pb.lightsOut));
     $('#h-session-clock').textContent=remaining==null ? '' : remaining>0 ? _t('ap_time_left',{time:Math.floor(remaining/60)+':'+String(Math.floor(remaining%60)).padStart(2,'0')}) : _t('ap_finish_current_lap');
+    $('#h-lap').dataset.n = Math.max(0, race ? lp + 1 : lp); if (pb.msg.duration) delete $('#h-lap').dataset.m; else $('#h-lap').dataset.m = race ? run.pushLaps + 1 : run.pushLaps;
     $('#h-lap').textContent = (race ? '🏁 ' : '') + label + (S.pit === 1 || S.pit === 2 ? ' · 🅿' : '');
     $('#h-time').textContent = lp >= 0 ? lapStr(Math.max(0, S.t - start)) : '–:––.–––';
     const timing = mods.TIMING.qualifyingTiming(run, S.t, lp, {...sec, field: pb.msg.timing_field, offset: pb.lightsOut});
@@ -1807,13 +1808,16 @@
         const cumStr=x=>x==null?'—':x>=60?lapStr(x):x.toFixed(3),deltaText=d=>d==null?'—':(d>0?'+':d<0?'−':'±')+Math.abs(d).toFixed(3);
         const body=r=>{
           let cum=0,ref=0,ok=true,refOk=true;
-          return `<div class="ap-rival-card-head"><b>${esc(r.name)}</b>${tyre(r)}</div><div class="ap-rival-splits">${[0,1,2].map(i=>{
+          const splits=[0,1,2].map(i=>{
             const c=r.cells?.[i];
             ok=ok&&!!c;cum+=c?c.time:0;
             const rec=timing.overallBests[i];refOk=refOk&&rec!=null;ref+=rec??0;
             const gap=c&&refOk?cum-ref:null;
-            return `<div class="${c?.color||''}"><small>S${i+1}</small><b>${c?cumStr(cum):'…'}</b><em>${c?deltaText(gap):''}</em></div>`;}).join('')}</div>`;
+            return `<div class="${c?.color||''}"><small>S${i+1}</small><b>${c?cumStr(cum):'…'}</b><em>${c?deltaText(gap):''}</em></div>`;});
+          // a phone shows the small chip (position, three letters, time to the last sector) until it is tapped
+          return `<div class="ap-rival-chip"><b>${r.position??''}</b><span>${esc(String(r.name).slice(0,3))}</span><i>${r.cells?.[0]?cumStr(cum):'—'}</i><u>${[0,1,2].map(i=>`<s class="${r.cells?.[i]?.color||''}"></s>`).join('')}</u></div><div class="ap-rival-card-head"><b>${r.position??''} ${esc(r.name)}</b>${tyre(r)}</div><div class="ap-rival-splits">${splits.join('')}</div>`;
         };
+        if(!active._tap){active._tap=true;active.addEventListener('click',e=>{const card=e.target.closest('.ap-rival-card');if(!card||innerWidth>640)return;const on=!card.classList.contains('open');active.querySelectorAll('.ap-rival-card.open').forEach(c=>c.classList.remove('open'));if(on)card.classList.add('open');});}
         // Cards are kept per rival: a new one slides in, one that has finished its last sector stays readable, then fades out while the next ones close the gap.
         const els=active._els||(active._els=new Map()),wanted=new Set(slots.map(x=>x.pid));
         for(const [pid,el] of els) if(!wanted.has(pid)){

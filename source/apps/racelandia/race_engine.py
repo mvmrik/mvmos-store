@@ -18,6 +18,15 @@ TYRES={'S':(1.018,.000015),'M':(1.0,.000009),'H':(.986,.000005),'I':(.91,.000011
 WD={'S':.7,'M':.7,'H':.7,'I':2.2,'W':4.5}
 
 
+def _node_helper(name):
+    """A Store install puts everything but .py files into public/, so look there as well as beside this file."""
+    here=os.path.dirname(os.path.realpath(__file__))
+    for folder in (here,os.path.join(here,'public')):
+        p=os.path.join(folder,name)
+        if os.path.isfile(p):return p
+    return os.path.join(here,name)
+
+
 def water_at(cfg,t):
     w=cfg.get('weather') or {}
     u=min(1,max(0,(t-cfg['lights'])/max(1,w.get('span',840))))
@@ -561,7 +570,7 @@ def simulate(cfg,commands):
     """The result of a race. A full-distance race takes minutes in Python, so the same engine the browser runs
     (public/race.js) is run by node when it is there; Python is the fallback and gives the same result."""
     try:
-        out=subprocess.run(['node',os.path.join(os.path.dirname(os.path.realpath(__file__)),'race_node.mjs')],input=json.dumps(dict(cfg=cfg,commands=list(commands))),
+        out=subprocess.run(['node',_node_helper('race_node.mjs')],input=json.dumps(dict(cfg=cfg,commands=list(commands))),
                            capture_output=True,text=True,timeout=300)
         if out.returncode==0 and out.stdout:return json.loads(out.stdout)
     except (OSError,ValueError,subprocess.TimeoutExpired):pass

@@ -687,7 +687,13 @@ def _load_warehouse(raw) -> dict:
                 parts.append({"id": u["id"], "part": u["part"], "design": u["design"], "wear": min(1.0, max(0.0, float(u.get("wear", 0))))})
         except (KeyError, TypeError, ValueError):
             continue
-    return {"seq": max(seq, len(tyres) + len(parts)), "tyres": tyres, "parts": parts}
+    tyre_seq = {}
+    for k, v in (w.get("tyre_seq") if isinstance(w.get("tyre_seq"), dict) else {}).items():
+        try:
+            if k in TYRE_COST: tyre_seq[k] = max(0, int(v))
+        except (TypeError, ValueError):
+            pass
+    return {"seq": max(seq, len(tyres) + len(parts)), "tyres": tyres, "parts": parts, "tyre_seq": tyre_seq}
 
 
 def public_warehouse(d: dict) -> dict:
@@ -724,8 +730,11 @@ def buy_tyres(player_id: str, compound: str, count=1):
         if d["budget"] < cost:
             return "budget"
         for _ in range(count):
-            w["seq"] += 1
-            w["tyres"].append({"id": f"{compound}{w['seq']}", "compound": compound, "wear": [0.0] * 4, "laps": 0, "runs": 0})
+            # every compound counts its own sets: S1, S2, M1, M2 ... never reusing a number
+            used = [int(t["id"][1:]) for t in w["tyres"] if t["compound"] == compound and t["id"][1:].isdigit()]
+            n = max([w["tyre_seq"].get(compound, 0)] + used) + 1
+            w["tyre_seq"][compound] = n
+            w["tyres"].append({"id": f"{compound}{n}", "compound": compound, "wear": [0.0] * 4, "laps": 0, "runs": 0})
         team.note(conn,player_id,"tyres",{'compound':compound,'qty':count})
         conn.execute("UPDATE driver SET budget=budget-? WHERE player_id=?", (cost, player_id))
         _save_warehouse(conn, player_id, w)
@@ -2056,7 +2065,8 @@ def _settle_car(conn,player_id,token,started,run,d,msg,weekend_result=None,car_r
             "floor":1+min(5,_f(msg.get("bottoming"),0,600))*.35+max(0,28-setup["rideF"])*.04}
     # Parts swapped for spares at the box: each one wears to the moment it came off and goes to the warehouse with that wear;
     # the spare wears from there to the end. The units of the warehouse are the team's, not a car's.
-    fitted=dict(d["fitted"]);warehouse=json.loads(json.dumps(d["warehouse"]));events=[]
+    # the warehouse as it is now: apply_warehouse_wear has just stored the wear of the tyres this run used
+    fitted=dict(d["fitted"]);warehouse=_load_warehouse(conn.execute("SELECT warehouse FROM driver WHERE player_id=?",(player_id,)).fetchone()[0]);events=[]
     if kind=='d5_race':
         total=max(1e-9,length*max(1,run["laps"]))
         for stop in (run.get("race_result") or {}).get("service_stops") or []:
@@ -2327,6 +2337,14 @@ def own_quote(d: dict, ctrl, width, seats) -> dict:
     q["total"] = q["cost"] + q["seats_cost"] + demolition
     q["budget"] = d["budget"]
     return q
+
+
+def own_verify(d: dict, ctrl, width) -> dict:
+    """The geometric check plus the test drive, with the point where the car left the track."""
+    q = tracks.quote(ctrl, width, {})
+    if not q["ok"]:
+        return {"ok": False, "error": q["error"]}
+    return tracks.drive_check(q)
 
 
 def own_build(player_id: str, ctrl, width, seats, name, lat, lon):

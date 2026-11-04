@@ -4,8 +4,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-const dir = path.dirname(fileURLToPath(import.meta.url));
-const { Race } = await import('data:text/javascript;base64,' + fs.readFileSync(path.join(dir, 'public', 'race.js')).toString('base64'));
+const here = path.dirname(fileURLToPath(import.meta.url));
+// beside public/ in a development tree, inside public/ when installed from the Store
+const dir = fs.existsSync(path.join(here, 'public', 'sim.js')) ? path.join(here, 'public') : here;
+const { Race } = await import('data:text/javascript;base64,' + fs.readFileSync(path.join(dir, 'race.js')).toString('base64'));
 const { cfg, commands } = JSON.parse(fs.readFileSync(0, 'utf8'));
 const race = new Race(cfg, commands);
 while (!race.done) race.step();

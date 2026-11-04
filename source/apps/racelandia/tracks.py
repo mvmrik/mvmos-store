@@ -9,6 +9,7 @@ checks it, prices it and measures it with the same simulation code the browser
 runs (track_ref.mjs), so the lap-time floor and the race model of every
 circuit come from one source.
 """
+import hashlib
 import json
 import math
 import os
@@ -40,7 +41,7 @@ RACE_MIN_KM = 305.0
 # Building the own circuit
 WIDTHS = (10, 12, 14, 16)
 MIN_LENGTH, MAX_LENGTH = 800.0, 9000.0
-MIN_RADIUS = 16.0           # a tight hairpin; the test drive decides whether the car can really take it
+MIN_RADIUS = 8.0            # as tight as the tightest official corner; the test drive decides whether the car can really take it
 MIN_CORNERS = 2
 LAND_COST, PIT_COST = 120_000, 80_000
 ASPHALT_PER_M2 = 28
@@ -323,13 +324,49 @@ def maintenance_per_day(own: dict) -> int:
 
 # ── Measuring and storing the own circuit ───────────────────────────────────
 
+_measured = {}
+
+
+def _helper(name):
+    """A node helper of this app. A Store install puts everything but .py files into public/, so look there too."""
+    for folder in (_DIR, os.path.join(_DIR, "public")):
+        p = os.path.join(folder, name)
+        if os.path.isfile(p):
+            return p
+    return os.path.join(_DIR, name)
+
+
 def measure(definition: dict):
     """Run the simulator on a circuit definition in a separate process: start line, best lap, race profile."""
+    key = hashlib.sha1(json.dumps(definition, sort_keys=True).encode()).hexdigest()
+    if key in _measured:
+        return _measured[key]
+    m = _measure(definition)
+    if m is not None:
+        if len(_measured) >= 24:
+            _measured.pop(next(iter(_measured)))
+        _measured[key] = m
+    return m
+
+
+def drive_check(q: dict) -> dict:
+    """Test drive of a quoted circuit by a perfect driver: ok, or where the car left the track."""
+    m = measure({"points": q["points"], "width": q["width"], "runoff": 18, "sectors": [0.34, 0.68]})
+    if m and m.get("best"):
+        return {"ok": True, "error": None}
+    out = {"ok": False, "error": "undrivable"}
+    if m and m.get("crash") is not None:
+        pts = q["points"]
+        out["at"] = pts[min(len(pts) - 1, int(m["crash"] * len(pts)))]
+    return out
+
+
+def _measure(definition: dict):
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
         json.dump(definition, f)
         path = f.name
     try:
-        r = subprocess.run(["node", os.path.join(_DIR, "track_ref.mjs"), path], capture_output=True, text=True, timeout=90, cwd=_DIR)
+        r = subprocess.run(["node", _helper("track_ref.mjs"), path], capture_output=True, text=True, timeout=90, cwd=_DIR)
         if r.returncode != 0:
             return None
         return json.loads(r.stdout)

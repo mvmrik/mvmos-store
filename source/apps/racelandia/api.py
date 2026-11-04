@@ -277,6 +277,15 @@ async def track_quote(request: Request):
     return JSONResponse(data.own_quote(d,body.get("ctrl"),body.get("width",12),body.get("seats")))
 
 
+@router.post("/track/verify")
+def track_verify(request: Request, body: dict = None):
+    user=_user(request)
+    if not user:return JSONResponse({"error":"signin"},status_code=401)
+    body=body or {}
+    d=data.get_driver(user["id"],user.get("display_name",""))
+    return JSONResponse(data.own_verify(d,body.get("ctrl"),body.get("width",12)))
+
+
 @router.post("/track/build")
 def track_build(request: Request, body: dict = None):
     user=_user(request)

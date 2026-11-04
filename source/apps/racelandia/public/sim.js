@@ -210,23 +210,70 @@ function buildPit(T) {
   T.pit = P;
 }
 
-// The line a driver aims for: the corridor smoothed until it stops bending more
-// than it must (a shortest path that hugs the apexes), then its own curvature.
+// The line a driver aims for: the one with the gentlest bends the corridor allows, not the shortest
+// path (which hugs the inside of every bend, even on the way in). It enters a corner from the outside,
+// touches the inside at the apex and leaves on the outside, so the corner has the widest arc it can.
+// Solved on a coarser grid of offsets across the track (every ~12 m) by relaxing the second difference
+// of the path with the limits of the track, then spread back to every point.
+const FINE = 150;
 function racingLine(T) {
   const N = T.N, lim = T.half - 1.7;
-  const px = new Float64Array(T.x), py = new Float64Array(T.y);
-  const off = new Float64Array(N);
-  for (let it = 0; it < 4000; it++) {
-    for (let i = 0; i < N; i++) {
-      const a = (i + N - 1) % N, b = (i + 1) % N;
-      const mx = (px[a] + px[b]) * 0.5, my = (py[a] + py[b]) * 0.5;
-      let o = (mx - T.x[i]) * T.nx[i] + (my - T.y[i]) * T.ny[i];
-      o = off[i] + (o - off[i]) * 0.6;
-      off[i] = clamp(o, -lim, lim);
-      px[i] = T.x[i] + off[i] * T.nx[i]; py[i] = T.y[i] + off[i] * T.ny[i];
+  const step = Math.max(1, Math.round(12 / T.ds)), M = Math.ceil(N / step);
+  const at = j => ((j % M) + M) % M;
+  const cx = new Float64Array(M), cy = new Float64Array(M), nx = new Float64Array(M), ny = new Float64Array(M);
+  for (let j = 0; j < M; j++) { const i = Math.min(N - 1, Math.round(j * N / M)); cx[j] = T.x[i]; cy[j] = T.y[i]; nx[j] = T.nx[i]; ny[j] = T.ny[i]; }
+  const o = new Float64Array(M);
+  const px = new Float64Array(M), py = new Float64Array(M);
+  for (let j = 0; j < M; j++) { px[j] = cx[j]; py[j] = cy[j]; }
+  // the shortest path first: a good start, with no crossing over the middle of a bend
+  for (let it = 0; it < 400; it++) {
+    for (let j = 0; j < M; j++) {
+      const a = at(j - 1), b = at(j + 1);
+      const t = ((px[a] + px[b]) * 0.5 - cx[j]) * nx[j] + ((py[a] + py[b]) * 0.5 - cy[j]) * ny[j];
+      o[j] = clamp(o[j] + (t - o[j]) * 0.6, -lim, lim);
+      px[j] = cx[j] + o[j] * nx[j]; py[j] = cy[j] + o[j] * ny[j];
     }
   }
-  return lineFromPoints(T, px, py, off);
+  // then the gentlest bends: Gauss-Seidel on the second difference, over-relaxed, kept inside the track
+  for (let it = 0; it < 6000; it++) {
+    let moved = 0;
+    for (let j = 0; j < M; j++) {
+      const a = at(j - 1), b = at(j + 1), c = at(j - 2), d = at(j + 2);
+      const tx = (4 * (px[a] + px[b]) - px[c] - px[d]) / 6, ty = (4 * (py[a] + py[b]) - py[c] - py[d]) / 6;
+      const t = (tx - cx[j]) * nx[j] + (ty - cy[j]) * ny[j];
+      const n = clamp(o[j] + (t - o[j]) * 1.6, -lim, lim);
+      moved = Math.max(moved, Math.abs(n - o[j]));
+      o[j] = n; px[j] = cx[j] + n * nx[j]; py[j] = cy[j] + n * ny[j];
+    }
+    if (moved < 0.002) break;
+  }
+  const off = new Float64Array(N), qx = new Float64Array(N), qy = new Float64Array(N);
+  for (let i = 0; i < N; i++) {
+    // cubic (Catmull-Rom) blend between the solved offsets: no kinks in the heading at the grid points
+    const f = i * M / N, j = Math.floor(f), u = f - j;
+    const p0 = o[at(j - 1)], p1 = o[at(j)], p2 = o[at(j + 1)], p3 = o[at(j + 2)];
+    off[i] = 0.5 * (2 * p1 + (p2 - p0) * u + (2 * p0 - 5 * p1 + 4 * p2 - p3) * u * u + (3 * p1 - p0 - 3 * p2 + p3) * u * u * u);
+  }
+  // the same relaxation at full resolution: the curvature of the line varies smoothly, so the speed the
+  // driver aims for has no ripple (the coarse grid alone leaves a faint one every 12 m)
+  {
+    const px = new Float64Array(N), py = new Float64Array(N);
+    for (let i = 0; i < N; i++) { px[i] = T.x[i] + off[i] * T.nx[i]; py[i] = T.y[i] + off[i] * T.ny[i]; }
+    for (let it = 0; it < FINE; it++) {
+      for (let i = 0; i < N; i++) {
+        const a = (i + N - 1) % N, b = (i + 1) % N, c = (i + N - 2) % N, d = (i + 2) % N;
+        const tx = (4 * (px[a] + px[b]) - px[c] - px[d]) / 6, ty = (4 * (py[a] + py[b]) - py[c] - py[d]) / 6;
+        const t = (tx - T.x[i]) * T.nx[i] + (ty - T.y[i]) * T.ny[i];
+        off[i] = clamp(off[i] + (t - off[i]) * 1.6, -lim, lim);
+        px[i] = T.x[i] + off[i] * T.nx[i]; py[i] = T.y[i] + off[i] * T.ny[i];
+      }
+    }
+  }
+  for (let i = 0; i < N; i++) {
+    off[i] = clamp(off[i], -lim, lim);
+    qx[i] = T.x[i] + off[i] * T.nx[i]; qy[i] = T.y[i] + off[i] * T.ny[i];
+  }
+  return lineFromPoints(T, qx, qy, off);
 }
 
 // A path through the circuit given as points, with its heading, curvature,
@@ -573,10 +620,10 @@ export class Run {
     // per-corner confidence × noise × mistake
     // on a wet or damp track a driver gives away a margin that his wet-weather skill earns back
     const gw = 1 / (1 + Math.pow(c.water / P.comp.d, 1.2));
-    const base = (1-.08*this.fatigue()) * d.pace * (.80 + .20*d.corner**3) * this.lapPaceMul * (1 - (1 - gw) * 0.20 * (1.0 - 0.55 * d.wet));
+    const base = d.pace * (.80 + .20*d.corner**3) * this.lapPaceMul * (1 - (1 - gw) * 0.20 * (1.0 - 0.55 * d.wet));
     for (let ci = 0; ci < T.line.corners.length; ci++) {
       const [a, b] = T.line.corners[ci];
-      let f = base * this.kc[ci] * (1 + this.lapNoise[ci]);
+      let f = base * (1-.08*this.fatigue()) * this.kc[ci] * (1 + this.lapNoise[ci]);
       if (ci === this.mistakeAt) f *= 1 + this.mistakeAmt;
       for (let i = a - 8; i <= b + 6; i++) {
         const j = ((i % N) + N) % N;
