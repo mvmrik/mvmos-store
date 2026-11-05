@@ -1,37 +1,47 @@
-"""The pilot's training games: one small game for each skill, scored as a share of that skill.
+"""The pilot's training games: one small game for each skill, all scored by one rule.
 
-Every game reports one number. The server compares it with the reference of the pilot's
-current skill and turns the difference into a percentage p between -1 and +1. The skill then
-moves by p points: +10% on the reference is +0.1 on the skill, +100% is +1, and a worse
-result takes the same amount away. There is no ceiling: the better the pilot gets, the
-tighter the reference becomes.
-
-Two kinds of game:
-  ratio  the number has a unit (milliseconds, metres, seconds). Its reference follows the skill
-         (b50 at skill 50, tighter as the skill grows), p = (reference - result) / reference.
-  score  the number is a 0..1 share (or -1..1) and the exercise itself gets faster and
-         smaller with the level; p is the distance from a fixed reference share.
+Every game reports one number. The skill alone decides how exact that number must be: a
+tolerance that is loose at skill 1 and tight at skill 100 (TOLERANCE below, straight between
+the two). Dead on is +100%, the edge of the tolerance is +1%, a small miss outside it is -20%
+and a whole tolerance further out is -100%. The skill then moves by that percentage in
+hundredths of a point: +100% is +1 point, -100% takes 1 point away. There are no other
+references, no neutral result and no difference between the games.
 """
 import math
 
-EXPONENT = .6          # how quickly the reference tightens with the skill
 SKILL_FLOOR = 25.0
 
 # game id == skill id.  minimum = seconds a real session takes at least.
 GAMES = {
-    'reaction':    dict(kind='ratio', low=True,  b50=400.0, unit='ms',  minimum=10),
-    'reflexes':    dict(kind='score', lo=-1.0, ref=0.0,  minimum=10),
-    'pace':        dict(kind='score', lo=0.0,  ref=.62, minimum=15),
-    'braking':     dict(kind='ratio', low=True,  b50=8.0,   unit='m',   minimum=10),
-    'cornering':   dict(kind='ratio', low=True,  b50=.30,   unit='',    minimum=20),
-    'traction':    dict(kind='ratio', low=True,  b50=.20,   unit='',    minimum=20),
-    'consistency': dict(kind='ratio', low=True,  b50=90.0,  unit='ms',  minimum=20),
-    'focus':       dict(kind='ratio', low=True,  b50=.24,   unit='',    minimum=20),
-    'composure':   dict(kind='ratio', low=True,  b50=1.2,   unit='s',   minimum=15),
-    'tyreCare':    dict(kind='ratio', low=True,  b50=.35,   unit='',    minimum=20),
-    'wet':         dict(kind='ratio', low=True,  b50=18.0,  unit='m',   minimum=12),
-    'fitness':     dict(kind='ratio', low=False, b50=3.4,   unit='/s',  minimum=60),
-    'feedback':    dict(kind='ratio', low=True,  b50=.07,   unit='',    minimum=15),
+    'reaction':    dict(kind='ratio', low=True,  unit='ms',  minimum=10),
+    'reflexes':    dict(kind='ratio', low=True,  unit='',    minimum=10),
+    'pace':        dict(kind='ratio', low=False, unit='',    minimum=15),
+    'braking':     dict(kind='ratio', low=True,  unit='m',   minimum=10),
+    'cornering':   dict(kind='ratio', low=True,  unit='',    minimum=20),
+    'traction':    dict(kind='ratio', low=True,  unit='',    minimum=20),
+    'consistency': dict(kind='ratio', low=True,  unit='s',   minimum=20),
+    'focus':       dict(kind='ratio', low=True,  unit='',    minimum=20),
+    'composure':   dict(kind='ratio', low=True,  unit='s',   minimum=15),
+    'tyreCare':    dict(kind='ratio', low=True,  unit='',    minimum=20),
+    'wet':         dict(kind='ratio', low=True,  unit='m',   minimum=12),
+    'fitness':     dict(kind='ratio', low=False, unit='/s',  minimum=60),
+    'feedback':    dict(kind='ratio', low=True,  unit='',    minimum=15),
+}
+
+# (tolerance at skill 1, tolerance at skill 100), in the unit of the game's number
+TOLERANCE = {
+    'reflexes':    (2.0, .5),       # average distance from the centre, in ball radii
+    'pace':        (.60, .15),      # share of the balls that may be missed
+    'braking':     (16.0, 4.0),
+    'cornering':   (.60, .15),
+    'traction':    (.40, .10),
+    'consistency': (1.0, .5),
+    'focus':       (.48, .12),
+    'composure':   (2.4, .6),
+    'tyreCare':    (.70, .18),
+    'wet':         (36.0, 9.0),
+    'fitness':     (1.7, 5.5),      # taps per second needed, rising with the skill
+    'feedback':    (.14, .035),
 }
 
 
@@ -53,17 +63,16 @@ def _list(res, key, count, lo, hi, default):
 
 
 def level(skill):
-    """How far above the starting value the pilot is (0 at 50), for the games that speed up."""
-    return round(max(0.0, (float(skill) - 50.0) / 50.0), 4)
+    """The games themselves no longer change with the skill: only the tolerance above does."""
+    return 0.0
 
 
 def reference(game, skill):
-    """The result that counts as 'as good as now' for a pilot with this skill."""
-    g = GAMES[game]
-    if g['kind'] == 'score':
-        return g['ref']
-    s = max(SKILL_FLOOR, float(skill))
-    return g['b50'] * ((50.0 / s) ** EXPONENT if g['low'] else (s / 50.0) ** EXPONENT)
+    """How exact the number must be for this skill (the edge of the +1% zone). Skill 1..100, held at 100 beyond."""
+    if game not in TOLERANCE:
+        return GAMES[game].get('ref', 0.0)      # reflexes and the start lights have no skill tolerance
+    t1, t100 = TOLERANCE[game]
+    return t1 + (t100 - t1) * min(1.0, max(0.0, (float(skill) - 1.0) / 99.0))
 
 
 def metric(game, res):
@@ -74,15 +83,7 @@ def metric(game, res):
         return None if times is None else times
     if game == 'reflexes':
         errs = _list(res, 'errors', 8, 0, 50, 50)
-        if errs is None:
-            return None
-        out = []
-        for e in errs:
-            if e <= 1:
-                out.append(1 - .99 * e)                         # dead centre 100%, edge of the ball 1%
-            else:
-                out.append(-min(1.0, .2 + .8 * (e - 1)))        # a small miss -20%, a whole ball away -100%
-        return sum(out) / len(out)
+        return None if errs is None else sum(errs) / len(errs)    # in ball radii
     if game == 'pace':
         total = int(_num(res.get('total'), 0, 200, 0))
         caught = int(_num(res.get('caught'), 0, 200, 0))
@@ -104,36 +105,43 @@ def metric(game, res):
         stops = _list(res, 'stops', 10, 0, 6000, 0)
         if stops is None:
             return None
-        mean = sum(stops) / len(stops)
-        return math.sqrt(sum((x - mean) ** 2 for x in stops) / (len(stops) - 1))
+        goal = _num(res.get('goal'), 1500, 3000, 1500)           # a random target of 1.5-3 s for each game
+        return min(abs(x - goal) for x in stops) / 1000.0        # the best stop counts, in seconds off target
     if game == 'composure':
         times = _list(res, 'times', 6, 0, 6, 6)
         return None if times is None else sum(times) / len(times)
     if game == 'fitness':
         taps = _list(res, 'buckets', 6, 0, 1000, 0)
-        return None if taps is None else sum(taps[-2:]) / 20.0   # taps per second over the last twenty seconds
+        return None if taps is None else sum(taps) / 60.0         # taps per second over the whole minute
     return None
 
 
-def percent(game, skill, res):
-    """(p, result, reference): p is -1..+1, the share of a whole 1% skill step this session earned."""
-    g = GAMES[game]
-    ref = reference(game, skill)
+def curve(x):
+    """x = miss / tolerance: 0 is +100%, 1 is +1%, then -20% and down to -100% a whole tolerance further."""
+    return 1 - .99 * x if x <= 1 else -min(1.0, .2 + .8 * (x - 1))
+
+
+MISSED_REACTION = 600.0     # ms counted for a false start or no press
+
+
+def percent(game, skill, res, best=None):
+    """(p, result, tolerance): p is -1..+1, the share of a whole skill point this session earned.
+
+    Only the start lights compare with something other than the skill: the pilot's best
+    average reaction so far (`best`, ms). The first session just sets it."""
+    ref = best if game == 'reaction' else reference(game, skill)
     m = metric(game, res)
     if m is None:
         return 0.0, None, ref
     if game == 'reaction':
-        # a false start or no press counts twice the reference time
-        valid = [t for t in m if t >= 110]
-        timed = [t if t >= 110 else 2 * ref for t in m]
-        if len(valid) < 2:
-            return -1.0, round(sum(timed) / 5, 1), ref
-        m = sum(timed) / 5
-    if g['kind'] == 'score':
-        lo, r = g['lo'], g['ref']
-        p = (m - r) / (1 - r) if m >= r else (m - r) / (r - lo)
-    elif g['low']:
-        p = (ref - m) / ref
+        m = sum(t if t >= 110 else MISSED_REACTION for t in m) / 5
+        if not best:
+            return 0.0, m, m
+        return max(-1.0, min(1.0, (best - m) / best)), m, best
+    if game == 'pace':
+        x = (1 - m) / ref
+    elif game == 'fitness':
+        x = max(0.0, (1.5 * ref - m) / (.5 * ref))
     else:
-        p = (m - ref) / ref
-    return max(-1.0, min(1.0, p)), m, ref
+        x = m / ref
+    return max(-1.0, min(1.0, curve(x))), m, ref

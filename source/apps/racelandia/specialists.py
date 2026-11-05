@@ -328,6 +328,6 @@ def apply_training(profile, perf, valid=True):
     """The score becomes a percentage between -100% and +100% (half is neutral) and the level moves by that many points."""
     p = max(-1.0, min(1.0, 2.0 * perf - 1.0)) if valid else 0.0
     before = profile['level']
-    profile['level'] = round(max(SKILL_MIN, before + p), 4)
+    profile['level'] = round(D['training_rules'].capped(before, p, SKILL_MIN), 4)
     profile['trainings'] = profile.get('trainings', 0) + 1
     return p, round(profile['level'] - before, 3)

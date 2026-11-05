@@ -788,6 +788,15 @@
     if (screen === 'garage' && gview === 'setup') { paintReco(); paintHistory(); }
   }
 
+  // plus / minus beside a setup slider: one step of the slider per press
+  function nudgeWire(root) {
+    root.querySelectorAll('.ap-nudge').forEach(b => b.addEventListener('click', () => {
+      const i = b.parentNode.querySelector('input[type=range]'); if (!i || i.disabled) return;
+      i.value = String(Math.round((+i.value + (+b.dataset.nudge) * (+i.step || 1)) * 1e4) / 1e4);
+      i.dispatchEvent(new Event('input', { bubbles: true }));
+    }));
+  }
+
   function paintSetup() {
     const host = $('#ap-garage');
     const t = tinfo(), c = cond(cfg.hour), S = setup(), locked=!!G.division?.locked_setup;
@@ -795,7 +804,7 @@
     const groups = GROUPS.map(gr => {
       const items = G.defs.filter(d => d.group === gr).map(d => `<div class="ap-set" data-k="${d.key}">
           <div class="ap-set-h"><label>${esc(_t('ap_s_' + d.key))}</label><output>${fmtSet(d, S[d.key])}</output></div>
-          <div class="ap-range"><i class="ap-advice" hidden></i><input type="range" min="${d.min}" max="${d.max}" step="${d.step}" value="${S[d.key]}" data-k="${d.key}" ${locked?'disabled':''}></div>
+          <div class="ap-step"><button type="button" class="ap-nudge" data-nudge="-1" ${locked?'disabled':''} aria-label="−">−</button><div class="ap-range"><i class="ap-advice" hidden></i><input type="range" min="${d.min}" max="${d.max}" step="${d.step}" value="${S[d.key]}" data-k="${d.key}" ${locked?'disabled':''}></div><button type="button" class="ap-nudge" data-nudge="1" ${locked?'disabled':''} aria-label="+">+</button></div>
           <div class="ap-hint">${esc(_t('ap_h_' + d.key))}</div></div>`).join('');
       return `<div class="ap-grp"><h3 class="ap-group-title">${menuArt(({aero:'frontWing',chassis:'suspension',tyres:'tyre-M',drive:'engine'})[gr])}${esc(_t('ap_g_' + gr))}</h3>${items}</div>`;
     }).join('');
@@ -816,6 +825,7 @@
         ${multi ? boardHtml() : ''}
       </div></div>`;
     host.scrollTop = 0;
+    nudgeWire(host);
     host.querySelectorAll('input[data-k]').forEach(i => i.addEventListener('input', () => {
       const d = G.defs.find(x => x.key === i.dataset.k); S[d.key] = +i.value;
       i.closest('.ap-set').querySelector('output').textContent = fmtSet(d, +i.value);
@@ -988,7 +998,7 @@
     const cards = G.games.map(g => `<div class="ap-train" data-training-game="${g}" tabindex="-1">
         <div class="ap-train-i">${GAMEICON[g]}</div>
         <div class="ap-train-b"><b>${esc(_t('ap_tr_' + g))}</b><p>${esc(_t('ap_trd_' + g))}</p>
-        <div class="ap-hint">${esc(_t('ap_tg_reference'))}: <b>${esc(trainVal(g, G.training_refs?.[g]?.ref))}</b></div><div class="ap-tags">${GAMESKILLS[g].map(k => `<span>${esc(_t('ap_k_' + k))}</span>`).join('')}</div></div>
+        <div class="ap-hint"></div><div class="ap-tags">${GAMESKILLS[g].map(k => `<span>${esc(_t('ap_k_' + k))}</span>`).join('')}</div></div>
         <button class="ap-btn ap-sm" data-g="${g}" ${d.energy >= G.costs.train_energy && !G.career.active_session && G.training_hall?.remaining ? '' : 'disabled'}>${esc(_t('ap_train'))}<small>⚡ ${G.costs.train_energy}%</small></button></div>`).join('');
     host.innerHTML = `${rosterBack('pilots')}${pageHeading('ap_tab_driver', 'ap_paddock_driver', 'helmet')}${trainingHall()}<div class="ap-driverpg">
       <div class="ap-col"><div class="ap-card">
@@ -1252,7 +1262,7 @@
     G.driver = r.d.driver; G.crew=r.d.crew;if(r.d.specialists)G.specialists=r.d.specialists;G.training_hall=r.d.training_hall;if(r.d.training_refs)G.training_refs=r.d.training_refs;paintStatus();
     const staffGame = game.startsWith('staff_'), tid = r.d.tid, mechanic = member && !staffGame ? G.crew.trainings[game].game : game;
     const m = modal(`<div class="ap-dlg"><div class="ap-bar"><h2>${GAMEICON[game] || ''} ${esc(_t('ap_tr_' + game))}</h2><button class="ap-btn ap-sm ap-ghost" id="ap-tg-x">✕</button></div>
-      <p class="ap-hint">${esc(_t('ap_trd_' + game))}</p>${member ? '' : `<p class="ap-hint ap-tg-ref">${esc(_t('ap_tg_reference'))}: <b>${esc(trainVal(game, G.training_refs?.[game]?.ref))}</b></p>`}<div id="ap-tg" class="ap-tg"></div></div>`);
+      <p class="ap-hint">${esc(_t('ap_trd_' + game))}</p><div id="ap-tg" class="ap-tg"></div></div>`);
     const trainingBox = $('#ap-tg', m);
     let h = null, finished = false;
     const close = () => { if (h) h.destroy(); modal(''); if (member) load2().then(() => { if (screen === 'driver') paintDriver(); }); else paintDriver(); };
@@ -1271,7 +1281,7 @@
       const gains = f.ok ? Object.entries(f.d.gains).map(([k, v]) => `<li>${esc(_t('ap_k_' + k))} <b class="${v < 0 ? 'neg' : ''}">${v > 0 ? '+' : ''}${v.toFixed(2)}</b></li>`).join('') : '';
       const lost = f.ok && Object.values(f.d.gains).some(v => v < 0);
       if (!trainingBox.isConnected) return;
-      trainingBox.innerHTML = `<div class="ap-result" tabindex="-1"><div class="ap-score">${pct > 0 ? '+' : ''}${pct}%</div><div class="ap-hint">${esc(_t('ap_tg_step'))}</div>${member || !f.ok ? '' : `<p class="ap-hint">${esc(_t('ap_tg_measured'))}: <b>${esc(trainVal(game, f.d.measured))}</b> · ${esc(_t('ap_tg_reference'))}: <b>${esc(trainVal(game, f.d.reference))}</b></p>`}
+      trainingBox.innerHTML = `<div class="ap-result" tabindex="-1"><div class="ap-score">${pct > 0 ? '+' : ''}${pct}%</div><div class="ap-hint">${esc(_t('ap_tg_step'))}</div>${member || !f.ok ? '' : `<p class="ap-hint">${esc(_t('ap_tg_measured'))}: <b>${esc(trainVal(game, f.d.measured))}</b> · </p>`}
         ${f.ok && f.d.coach ? `<p class="ap-hint">${esc(_t('ap_tg_coach', { n: f.d.coach }))}</p>` : ''}${fatigue!==null?`<p class="ap-hint">${esc(_t('ap_endurance_drop',{n:fatigue}))}</p>`:''}${lost ? `<div class="ap-warn">${esc(_t('ap_tg_loss'))}</div>` : ''}
         <ul>${gains || `<li>${esc(_t('ap_tg_nogain'))}</li>`}</ul>
         <button class="ap-btn" id="ap-tg-ok">${esc(_t('ap_close'))}</button> <button class="ap-btn ap-ghost" id="ap-tg-again" ${(staffGame ? Object.values(G.specialists.members).some(x => x && x.id === member && x.energy >= G.specialists.train_energy) : member ? (G.crew.cars && Object.values(G.crew.cars).some(c => Object.values(c.members).some(x => x && x.id === member && x.energy >= G.crew.train_energy))) : G.driver.energy >= G.costs.train_energy) && !G.career.active_session && G.training_hall?.remaining ? '' : 'disabled'}>${esc(_t('ap_again'))}</button></div>`;
@@ -1912,7 +1922,7 @@
     const sliderHtml = k => {
       const d = G.defs.find(x => x.key === k), sg = sugOf(k), band = sg ? `<i class="ap-rngband" aria-hidden="true" style="left:${(sg.lo - d.min) / (d.max - d.min) * 100}%;width:${Math.max(2, (sg.hi - sg.lo) / (d.max - d.min) * 100)}%"></i>` : '';
       const note = sg ? _t('ap_an_range', { lo: fmtSet(d, sg.lo), hi: fmtSet(d, sg.hi) }) : _t('ap_an_no_suggestion');
-      return `<div class="ap-set"><div class="ap-set-h"><label>${esc(_t('ap_s_' + k))}</label><output>${fmtSet(d, s[k])}</output></div><div class="ap-rng${sg ? ' has-advice' : ''}">${band}<input type="range" data-pk="${k}" min="${d.min}" max="${d.max}" step="${d.step}" value="${s[k]}"></div><small class="ap-advice-tag">${esc(note)}</small>${k === 'engine' ? `<p class="ap-hint">${esc(_t('ap_h_engine'))}</p>` : ''}</div>`;
+      return `<div class="ap-set"><div class="ap-set-h"><label>${esc(_t('ap_s_' + k))}</label><output>${fmtSet(d, s[k])}</output></div><div class="ap-step"><button type="button" class="ap-nudge" data-nudge="-1" aria-label="−">−</button><div class="ap-rng${sg ? ' has-advice' : ''}">${band}<input type="range" data-pk="${k}" min="${d.min}" max="${d.max}" step="${d.step}" value="${s[k]}"></div><button type="button" class="ap-nudge" data-nudge="1" aria-label="+">+</button></div><small class="ap-advice-tag">${esc(note)}</small>${k === 'engine' ? `<p class="ap-hint">${esc(_t('ap_h_engine'))}</p>` : ''}</div>`;
     };
     const sl = (locked ? [] : PIT_SET).map(sliderHtml).join(''), pr = (locked ? [] : ['pressF', 'pressR']).map(sliderHtml).join('');
     const tyreChoice = weekend
@@ -1954,6 +1964,7 @@
     ov.querySelectorAll('[data-ptab]').forEach(b => b.addEventListener('click', () => { ov.querySelectorAll('[data-ptab]').forEach(x => x.classList.toggle('on', x === b)); $('#ap-pit-an').hidden = b.dataset.ptab !== 'an'; $('#ap-pit-ch').hidden = b.dataset.ptab !== 'ch'; }));
     ov.querySelectorAll('[data-pc]').forEach(b => b.addEventListener('click', () => { pc = b.dataset.pc; ov.querySelectorAll('[data-pc]').forEach(x => x.classList.toggle('on', x === b)); info(); }));
     ov.querySelectorAll('[data-pset]').forEach(b => b.addEventListener('click', () => { pset = b.dataset.pset || null; ov.querySelectorAll('[data-pset]').forEach(x => x.classList.toggle('on', x === b)); info(); }));
+    nudgeWire(ov);
     ov.querySelectorAll('[data-pk]').forEach(i => i.addEventListener('input', () => { const d = G.defs.find(x => x.key === i.dataset.pk); i.closest('.ap-set').querySelector('output').textContent = fmtSet(d, +i.value); info(); }));
     $('#ap-refuel').addEventListener('input', info);
     ov.querySelectorAll('[data-swap]').forEach(i => i.addEventListener('change', info));

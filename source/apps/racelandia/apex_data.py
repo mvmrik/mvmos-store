@@ -1481,12 +1481,13 @@ def train_finish(player_id: str, tid: str, result: dict):
             game=t['game']
             if game not in GAMES:return None,'session'
             before=profile['skills'][game]
-            p,measured,ref=pilot_games.percent(game,before,result)
+            p,measured,ref=pilot_games.percent(game,before,result,profile.get('best_reaction'))
             real=measured is not None and time.time()-t['started'] >= GAMES[game]['minimum']
             if not real:p=0.0
+            if real and game=='reaction' and measured is not None:profile['best_reaction']=round(min(measured,profile.get('best_reaction') or measured),1)
             # the coach adds points to every real session, good or bad
             bonus=specialists.coach_bonus(conn,player_id) if real else 0.0
-            profile['skills'][game]=max(SKILL_FLOOR,before+p+bonus)
+            profile['skills'][game]=min(100.0,max(SKILL_FLOOR,before+p+bonus)) if before<=100 else max(100.0,before+min(0,p))
             gains={game:round(profile['skills'][game]-before,3)} if profile['skills'][game]!=before else {}
             profile['trainings']=profile.get('trainings',0)+1
             conn.execute('UPDATE team_pilot SET profile=? WHERE id=?',(json.dumps(profile),t['pilot_id']))

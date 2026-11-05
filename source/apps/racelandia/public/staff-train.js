@@ -2,7 +2,7 @@
 // meteorologist, chief mechanic, scout, manager). Each game is six short rounds; a round ends with one
 // number between 0 and 1. The server turns the mean of the six into a percentage and moves the specialist's
 // level by that many points, so the browser only reports what happened: {version:1, rounds:[six numbers]}.
-// `opts.difficulty` makes the rounds harder as the level grows (0 at level 50).
+// `opts.difficulty` makes the rounds harder as the level grows (0 at level 1, 1 at level 100).
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const FONT = 'system-ui,-apple-system,Segoe UI,sans-serif';
@@ -50,7 +50,9 @@ export function run(game, box, tr, done, opts = {}) {
   const point = e => { const r = canvas.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; };
   const active = () => started && !finished && flash <= 0 && !document.querySelector('dialog.ap-message[open]');
   const onDown = e => { if (!active()) return; e.preventDefault(); const p = point(e); finishRound(G.click?.(s, p, u)); };
-  const onMove = e => { if (active()) G.move?.(s, point(e), u); };
+  const onMove = e => { if (active()) { G.move?.(s, point(e), u); if (e.buttons & 1) G.drag?.(s, point(e), u); } };
+  const onKey = e => { if (!active() || document.activeElement !== canvas || !G.key) return; if (G.key(s, e.code)) e.preventDefault(); };
+  window.addEventListener('keydown', onKey);
   canvas.addEventListener('pointerdown', onDown); canvas.addEventListener('pointermove', onMove);
   canvas.addEventListener('contextmenu', e => e.preventDefault());
   start.onclick = () => { if (started) return; started = true; start.remove(); canvas.focus(); previous = performance.now(); };
@@ -60,6 +62,7 @@ export function run(game, box, tr, done, opts = {}) {
     if (active()) {
       s.t += dt;
       finishRound(G.tick?.(s, dt));
+      if (s.done != null) finishRound(s.done);
       if (s.t >= G.limit) finishRound(G.end(s));
     } else if (flash > 0 && !finished) {
       flash -= dt;
@@ -82,7 +85,7 @@ export function run(game, box, tr, done, opts = {}) {
     raf = requestAnimationFrame(frame);
   };
   raf = requestAnimationFrame(frame);
-  return { destroy() { if (dead) return; dead = true; cancelAnimationFrame(raf); resize.disconnect(); canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointermove', onMove); } };
+  return { destroy() { if (dead) return; dead = true; cancelAnimationFrame(raf); resize.disconnect(); canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointermove', onMove); window.removeEventListener('keydown', onKey); } };
 }
 
 // Doctor: three vital signs drift out of their green zones; tap a bar on the side you want it to move.
@@ -205,6 +208,14 @@ function meteorologist() {
       if (u_hit(p, 290, 112, 90, 40)) return 1 - Math.abs(s.guess - s.real) / s.tol;
       if (u_hit(p, 240, 214, 140, 28)) s.guess = clamp((p.x - 240) / 140, 0, 1);
     },
+    drag(s, p) { if (s.t >= s.show + .3 && p.x >= 230 && p.y >= 200 && p.y <= 250) s.guess = clamp((p.x - 240) / 140, 0, 1); },
+    key(s, code) {
+      if (s.t < s.show + .3) return false;
+      if (code === 'ArrowLeft') s.guess = clamp(s.guess - .01, 0, 1); else if (code === 'ArrowRight') s.guess = clamp(s.guess + .01, 0, 1);
+      else if (code === 'Enter' || code === 'Space') { s.done = 1 - Math.abs(s.guess - s.real) / s.tol; return true; }
+      else return false;
+      return true;
+    },
     end() { return 0; },
     draw(g, s, u) {
       const visible = s.t < s.show;
@@ -291,6 +302,14 @@ function manager() {
         return Math.max(0, 1 - (s.ask - s.budget) / (.22 * s.budget)) * .45;
       }
       if (u_hit(p, 20, 120, 360, 26)) s.ask = clamp(Math.round((p.x - 20) / 360 * 100), 1, 100);
+    },
+    drag(s, p) { if (s.t >= s.wait && p.y >= 108 && p.y <= 158) s.ask = clamp(Math.round((p.x - 20) / 360 * 100), 1, 100); },
+    key(s, code) {
+      if (s.t < s.wait) return false;
+      if (code === 'ArrowLeft') s.ask = clamp(s.ask - 1, 1, 100); else if (code === 'ArrowRight') s.ask = clamp(s.ask + 1, 1, 100);
+      else if (code === 'Enter' || code === 'Space') { s.done = s.ask <= s.budget ? s.ask / s.budget : Math.max(0, 1 - (s.ask - s.budget) / (.22 * s.budget)) * .45; }
+      else return false;
+      return true;
     },
     end() { return 0; },
     draw(g, s, u) {

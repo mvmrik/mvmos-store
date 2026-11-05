@@ -327,7 +327,7 @@ def apply_training(profile, training, perf, legacy=False, valid=True):
     gains = {}
     for k, w in weights.items():
         before = profile['skills'][k]
-        profile['skills'][k] = max(D['SKILL_FLOOR']*.4, before+p*w/total)
+        profile['skills'][k] = D['training_rules'].capped(before, p*w/total, D['SKILL_FLOOR']*.4)
         if profile['skills'][k] != before:
             gains[k] = round(profile['skills'][k]-before, 3)
     profile['trainings'] = profile.get('trainings', 0) + 1

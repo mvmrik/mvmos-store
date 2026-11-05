@@ -7,8 +7,16 @@ DAY = 86400
 
 
 def difficulty(level):
-    # No final level: difficulty keeps rising beyond a skill value of 100.
-    return round(max(0.0, (level-50.0)/50.0), 4)
+    # Same rule as the pilot games: the current skill alone sets the challenge, from the easiest at
+    # skill 1 to 1.0 at skill 100. There is no final level: it keeps rising beyond 100.
+    return round(max(0.0, (level-1.0)/99.0), 4)
+
+
+def capped(before, step, floor=0.0, top=100.0):
+    """A skill after a step: never above 100; a value already above it can only lose, and not below 100."""
+    if before > top:
+        return max(top, before+min(0.0, step))
+    return min(top, max(floor, before+step))
 
 
 def gain(skill, aptitude, weight, performance, threshold=.4):

@@ -950,7 +950,7 @@
 .ap-wxlaps { max-width: min(520px, 100%); }
 .ap-fb { display: grid; gap: 8px; padding: 6px 2px; }
 .ap-fb-top { display: flex; justify-content: space-between; font-size: 14px; }
-.ap-fb-row { display: grid; grid-template-columns: 110px 1fr 44px; gap: 8px; align-items: center; font-size: 13px; }
+.ap-fb-row { display: grid; grid-template-columns: 110px 30px 1fr 30px 44px; gap: 8px; align-items: center; font-size: 13px; }
 .ap-fb-tried { display: flex; flex-wrap: wrap; gap: 4px; padding-left: 118px; min-height: 18px; }
 .ap-fb-tried i { font-style: normal; font-size: 12px; font-weight: 700; padding: 1px 6px; border-radius: 8px; background: color-mix(in srgb, var(--text) 10%, transparent); font-variant-numeric: tabular-nums; }
 .ap-fb-tried i.ok { color: var(--green, #2e9e5b); }
@@ -1069,3 +1069,8 @@
   .ap-view .ap-banner { top: 150px; max-width: calc(100% - 20px); }
   .ap-view .ap-lights { top: 150px; }
 }
+
+.ap-step { display: flex; align-items: center; gap: 6px; }
+.ap-step > .ap-range, .ap-step > .ap-rng { flex: 1; min-width: 0; }
+.ap-nudge { flex: none; width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px; background: var(--card, transparent); color: var(--fg); cursor: pointer; font-size: 14px; padding: 0; }
+.ap-nudge:disabled { opacity: .4; cursor: default; }

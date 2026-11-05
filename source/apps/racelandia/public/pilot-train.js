@@ -16,21 +16,22 @@ const keysOf = () => {
 };
 const axis = k => (k.ArrowRight || k.KeyD ? 1 : 0) - (k.ArrowLeft || k.KeyA ? 1 : 0);
 
-// ── reflexes: a ball falls, click exactly where it is ────────────────────────
+// ── reflexes: a ball falls down the middle, hit it exactly on the centre line ────────────────────────
 function reflexes(box, tr, done, d) {
   const S = stage(box, 1.0), { g, W, H } = S;
   const N = 8, R = 26 / (1 + .5 * d), V = 230 * (1 + .8 * d);
-  let n = 0, ball = null, wait = .8, errors = [], note = '', noteT = 0, mark = null, finished = false;
-  const spawn = () => { ball = { x: rnd(60, W - 60), y: -R, hit: false }; mark = null; };
-  function hitAt(y) {
+  let n = 0, ball = null, wait = .8, errors = [], note = '', noteT = 0, finished = false;
+  const spawn = () => { ball = { x: W / 2, y: -R, hit: false }; };
+  function hitAt() {
     if (!ball || ball.hit || finished) return;
-    const err = Math.min(50, Math.abs(y - ball.y) / R);
-    ball.hit = true; errors.push(Math.round(err * 1000) / 1000); mark = y;
+    const err = Math.min(50, Math.abs(H / 2 - ball.y) / R);
+    ball.hit = true; errors.push(Math.round(err * 1000) / 1000);
     const pct = err <= 1 ? Math.round(100 - 99 * err) : -Math.round(Math.min(100, 20 + 80 * (err - 1)));
     note = (pct > 0 ? '+' : '') + pct + '%'; noteT = 1; beep(pct > 0 ? 400 + pct * 3 : 180, .08, .05);
   }
-  const press = e => hitAt(S.pt(e).y);
-  S.c.addEventListener('pointerdown', press);
+  const press = () => hitAt();
+  const key = e => { if (e.code !== 'Space') return; e.preventDefault(); if (!e.repeat) hitAt(); };
+  S.c.addEventListener('pointerdown', press); window.addEventListener('keydown', key);
   const stop = loop(dt => {
     noteT = Math.max(0, noteT - dt);
     if (!ball) { wait -= dt; if (wait <= 0 && n < N) { n++; spawn(); } }
@@ -40,13 +41,14 @@ function reflexes(box, tr, done, d) {
     }
     S.scale(); panel(g, W, H);
     g.strokeStyle = '#26324a'; g.lineWidth = 1; for (let y = 40; y < H; y += 40) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+    g.strokeStyle = '#ffffff55'; g.lineWidth = 2; g.setLineDash([8, 6]); g.beginPath(); g.moveTo(0, H / 2); g.lineTo(W, H / 2); g.stroke(); g.setLineDash([]);
     if (ball) { g.fillStyle = ball.hit ? '#7bf0a8' : '#ffd166'; g.beginPath(); g.arc(ball.x, ball.y, R, 0, 7); g.fill(); g.strokeStyle = '#0008'; g.lineWidth = 2; g.stroke(); }
-    if (mark != null) { g.strokeStyle = '#ff6b5e'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, mark); g.lineTo(W, mark); g.stroke(); }
+
     text(g, Math.min(n, N) + ' / ' + N, 40, 22, 16, '#e8ecf4');
     if (noteT) text(g, note, W / 2, 60, 30, note.startsWith('+') ? '#7bf0a8' : '#ff8a5e');
     text(g, tr('ap_tg_rf_hint'), W / 2, H - 14, 12, '#8a95ab', 'center', '500');
   });
-  return { destroy() { stop(); S.c.removeEventListener('pointerdown', press); } };
+  return { destroy() { stop(); S.c.removeEventListener('pointerdown', press); window.removeEventListener('keydown', key); } };
 }
 
 // ── pace: catch the falling balls, the grip meter shows how it goes ──────────
@@ -81,42 +83,57 @@ function pace(box, tr, done, d) {
   return { destroy() { stop(); K.off(); } };
 }
 
-// ── cornering: stay on the line through six bends, a little faster each time ─
+// ── cornering: stay on the road through six bends, a little faster each time ─
+// The camera stays on the road's straight reference, so the road never swings across the
+// screen: it bulges to one side and back, and the car sits in the middle of the view. Every
+// click turns the wheel one notch, which sets the car's heading; the road's heading changes
+// through the bend, so you turn in, follow it, and turn back out.
 function cornering(box, tr, done, d = 0) {
   const S = stage(box, 1.15), { g, W, H } = S;
-  const HALFW = 6 / (1 + .3 * d), AHEAD = 150, PX = 1.35;
-  const bends = [[40, 1], [120, -1], [200, 1], [280, -1], [360, 1], [440, -1]].map(([s, dir], i) => ({ s, dir, len: 90, peak: (1 / (130 - i * 7)) }));
-  const END = 560;
-  const curv = s => { for (const b of bends) { if (s >= b.s && s < b.s + b.len) return b.dir * b.peak * Math.sin(Math.PI * (s - b.s) / b.len); } return 0; };
-  let s = 0, e = 0, psi = 0, steer = 0, sum = 0, time = 0, ptr = 0, finished = false;
-  const K = keysOf();
-  const move = ev => { ptr = clamp((S.pt(ev).x - W / 2) / (W / 2) * 1.6, -1, 1); };
-  S.c.addEventListener('pointermove', move); S.c.addEventListener('pointerdown', move);
+  const HALFW = 6 / (1 + .3 * d), AHEAD = 150, PX = 6, STEER = 1.2, STEP = .1;
+  const bends = [[40, 1], [130, -1], [220, 1], [310, -1], [400, 1], [490, -1]].map(([s, dir], i) => ({ s, dir, len: 80, amp: 6 + (i % 3) }));
+  const END = 600;
+  // lateral position of the road centre and its heading (the slope) along the distance s
+  const bend = s => { for (const b of bends) { if (s >= b.s && s < b.s + b.len) return { b, u: (s - b.s) / b.len }; } return null; };
+  const lat = s => { let x = 0; for (const b of bends) { const u = clamp((s - b.s) / b.len, 0, 1); x += b.dir * b.amp * (1 - Math.cos(2 * Math.PI * u)) / 2; } return x; };
+  const head = s => { const k = bend(s); return k ? k.b.dir * k.b.amp * Math.PI / k.b.len * Math.sin(2 * Math.PI * k.u) : 0; };
+  let s = 0, e = 0, psi = 0, want = 0, sum = 0, time = 0, finished = false;
+  // every click or key press turns the wheel one notch and it stays there until you turn it back
+  const nudge = dir => { want = clamp(Math.round((want + dir * STEP) * 100) / 100, -1, 1); };
+  const press = ev => { nudge(S.pt(ev).x < W / 2 ? -1 : 1); };
+  const key = ev => {
+    const dir = ev.code === 'ArrowLeft' || ev.code === 'KeyA' ? -1 : ev.code === 'ArrowRight' || ev.code === 'KeyD' ? 1 : 0;
+    if (!dir) return; ev.preventDefault(); if (!ev.repeat) nudge(dir);
+  };
+  S.c.addEventListener('pointerdown', press); window.addEventListener('keydown', key);
   const stop = loop(dt => {
     if (!finished) {
-      const v = (20 + 10 * Math.min(1, s / END)) * (1 + .45 * d), want = axis(K.k) || ptr;
-      steer += (want - steer) * Math.min(1, dt / .14);
-      psi += (steer * 1.1 - curv(s) * v) * dt;
-      e += v * Math.sin(psi) * dt; s += v * dt; time += dt;
+      const v = (20 + 10 * Math.min(1, s / END)) * (1 + .45 * d);
+      psi += (want * STEER - psi) * Math.min(1, dt / .14);
+      e = clamp(e + v * (psi - head(s)) * dt, -4 * HALFW, 4 * HALFW); s += v * dt; time += dt;
       sum += Math.min(2, Math.abs(e) / HALFW) * dt;
       if (s >= END) { finished = true; done({ error: sum / time }); }
     }
     S.scale(); panel(g, W, H);
-    // the road ahead, drawn relative to the car
-    // the road's heading relative to the car accumulates the curvature: positive turns to the right of the screen
-    let cx = -e, ch = -psi; const line = [];
-    for (let a = 0; a <= AHEAD; a += 4) { line.push([cx, a]); ch += curv(s + a) * 4; cx += ch * 4; }
-    const toX = v => W / 2 + v * PX * 2.4, toY = a => H - 60 - a * 1.9;
+    // the road ahead, relative to the car
+    const line = []; for (let a = 0; a <= AHEAD; a += 4) line.push([lat(s + a) - lat(s) - e, a]);
+    const toX = v => W / 2 + v * PX, toY = a => H - 70 - a * 1.9;
     g.fillStyle = '#2a2f3a'; g.beginPath();
     line.forEach(([px, a], i) => { const X = toX(px - HALFW), Y = toY(a); i ? g.lineTo(X, Y) : g.moveTo(X, Y); });
     for (let i = line.length - 1; i >= 0; i--) g.lineTo(toX(line[i][0] + HALFW), toY(line[i][1]));
     g.closePath(); g.fill();
     g.strokeStyle = '#4ce0a0'; g.lineWidth = 2; g.setLineDash([8, 8]); g.beginPath(); line.forEach(([px, a], i) => { const X = toX(px), Y = toY(a); i ? g.lineTo(X, Y) : g.moveTo(X, Y); }); g.stroke(); g.setLineDash([]);
-    g.save(); g.translate(W / 2, H - 60); g.rotate(psi * 0.8); g.fillStyle = '#ff5a4d'; g.fillRect(-9, -16, 18, 32); g.fillStyle = '#fff'; g.fillRect(-4, -8, 8, 8); g.restore();
+    g.save(); g.translate(W / 2, H - 70); g.rotate(psi); g.fillStyle = '#ff5a4d'; g.fillRect(-9, -16, 18, 32); g.fillStyle = '#fff'; g.fillRect(-4, -8, 8, 8); g.restore();
     g.fillStyle = '#1b2434'; g.fillRect(20, 14, W - 40, 8); g.fillStyle = '#4da3ff'; g.fillRect(20, 14, (W - 40) * Math.min(1, s / END), 8);
-    text(g, tr('ap_tg_corner_hint'), W / 2, H - 14, 12, '#8a95ab', 'center', '500');
+    // the wheel: the notch you have dialled in, left or right of centre
+    const WX = W / 2, WY = H - 34, WW = Math.min(180, W / 2 - 30);
+    g.fillStyle = '#1b2434'; g.fillRect(WX - WW, WY - 5, WW * 2, 10);
+    g.fillStyle = '#8a95ab'; g.fillRect(WX - 1, WY - 9, 2, 18);
+    g.fillStyle = '#4da3ff'; g.fillRect(Math.min(WX, WX + want * WW), WY - 5, Math.abs(want) * WW, 10);
+    g.fillStyle = '#e8ecf4'; g.beginPath(); g.arc(WX + want * WW, WY, 7, 0, 7); g.fill();
+    text(g, tr('ap_tg_corner_hint'), W / 2, H - 12, 12, '#8a95ab', 'center', '500');
   });
-  return { destroy() { stop(); K.off(); } };
+  return { destroy() { stop(); S.c.removeEventListener('pointerdown', press); window.removeEventListener('keydown', key); } };
 }
 
 // ── traction: hold the pedal where the green band is ─────────────────────────
@@ -151,10 +168,10 @@ function traction(box, tr, done, d = 0) {
   return { destroy() { stop(); S.c.removeEventListener('pointerdown', dn); window.removeEventListener('pointerup', up); window.removeEventListener('keydown', kd); window.removeEventListener('keyup', ku); } };
 }
 
-// ── consistency: stop the clock at the same time, ten times ──────────────────
+// ── consistency: stop the clock on a random target time, ten tries, the best one counts ──────────────────
 function consistency(box, tr, done, d = 0) {
   const S = stage(box, .7), { g, W, H } = S;
-  const GOAL = 1500, N = 10;
+  const GOAL = Math.round(rnd(1500, 3000) / 100) * 100, N = 10;   // one random target for the whole game
   let state = 'idle', started = 0, stops = [], msg = '', hold = 0, shownAt = 0, finished = false;
   function press() {
     if (finished) return;
@@ -169,7 +186,7 @@ function consistency(box, tr, done, d = 0) {
   S.c.addEventListener('pointerdown', press); window.addEventListener('keydown', key);
   const stop = loop(() => {
     const now = performance.now();
-    if (state === 'show' && now >= hold) { if (stops.length >= N) { if (!finished) { finished = true; done({ stops }); } } else state = 'idle'; }
+    if (state === 'show' && now >= hold) { if (stops.length >= N) { if (!finished) { finished = true; done({ stops, goal: GOAL }); } } else state = 'idle'; }
     const el = state === 'run' ? now - started : 0;
     S.scale(); panel(g, W, H);
     text(g, tr('ap_tg_cons_goal', { n: (GOAL / 1000).toFixed(1) }), W / 2, 42, 22, '#e8ecf4');
@@ -193,16 +210,18 @@ function focus(box, tr, done, d = 0) {
   flashes.sort((a, b) => a - b);
   let t = 0, x = W / 2, sum = 0, fi = 0, active = null, missed = 0, hits = 0, finished = false, note = '', noteT = 0;
   const K = keysOf();
-  const move = e => { x = clamp(S.pt(e).x, 20, W - 20); };
+  // the marker moves with the keys or while the left or right side is held, so the pointer never has to leave the screen sides to answer a signal
+  let hold = 0;
   function tap() { if (active) { hits++; active = null; note = '✓'; noteT = .6; beep(620, .06, .04); } }
-  const onDown = e => { const p = S.pt(e); if (active && Math.hypot(p.x - W / 2, p.y - 54) < 34) tap(); else move(e); };
-  S.c.addEventListener('pointermove', move); S.c.addEventListener('pointerdown', onDown);
+  const onDown = e => { const p = S.pt(e); if (p.y < 90) tap(); else hold = p.x < W / 2 ? -1 : 1; };
+  const onUp = () => { hold = 0; };
+  S.c.addEventListener('pointerdown', onDown); window.addEventListener('pointerup', onUp);
   const sp = e => { if (e.code === 'Space') { e.preventDefault(); tap(); } };
   window.addEventListener('keydown', sp);
   const target = tt => 200 + 120 * Math.sin(.55 * FQ * tt + ph[0]) + 55 * Math.sin(1.45 * FQ * tt + ph[1]) + 25 * Math.sin(2.7 * FQ * tt + ph[2]);
   const stop = loop(dt => {
     t += dt; noteT = Math.max(0, noteT - dt);
-    const dir = (K.k.ArrowRight ? 1 : 0) - (K.k.ArrowLeft ? 1 : 0); if (dir) x = clamp(x + dir * 300 * dt, 20, W - 20);
+    const dir = axis(K.k) || hold; if (dir) x = clamp(x + dir * 300 * dt, 20, W - 20);
     const tg = target(t); sum += Math.min(1, Math.abs(x - tg) / 200) * dt;
     if (fi < flashes.length && t >= flashes[fi]) { active = { until: t + WIN }; fi++; }
     if (active && t > active.until) { active = null; missed++; note = '✗'; noteT = .6; beep(170, .12, .05); }
@@ -217,7 +236,7 @@ function focus(box, tr, done, d = 0) {
     text(g, tr('ap_tg_focus_hint'), W / 2, H - 14, 12, '#8a95ab', 'center', '500');
     if (t >= DUR && !finished) { finished = true; done({ error: sum / DUR + .04 * missed }); }
   });
-  return { destroy() { stop(); K.off(); window.removeEventListener('keydown', sp); } };
+  return { destroy() { stop(); K.off(); S.c.removeEventListener('pointerdown', onDown); window.removeEventListener('pointerup', onUp); window.removeEventListener('keydown', sp); } };
 }
 
 // ── composure: the car steps out, counter-steer and settle it ────────────────
@@ -226,8 +245,9 @@ function composure(box, tr, done, d = 0) {
   const N = 6, LIMIT = 3;
   let th = 0, om = 0, ptr = 0, wait = 1.4, evT = -1, calm = 0, times = [], note = '', noteT = 0, finished = false;
   const K = keysOf();
-  const move = e => { ptr = clamp((S.pt(e).x - W / 2) / (W / 2) * 1.5, -1, 1); };
-  S.c.addEventListener('pointermove', move); S.c.addEventListener('pointerdown', move);
+  // steer by holding the side the nose should turn towards: ← → or the left or right half of the screen
+  const down = e => { ptr = S.pt(e).x < W / 2 ? -1 : 1; }, up = () => { ptr = 0; };
+  S.c.addEventListener('pointerdown', down); window.addEventListener('pointerup', up);
   const stop = loop(dt => {
     const u = axis(K.k) || ptr;
     om += (150 * u + 1.6 * th - 2.2 * om) * dt; th += om * dt;
@@ -254,7 +274,7 @@ function composure(box, tr, done, d = 0) {
     if (noteT) text(g, note, W / 2, 50, 30, note === '✗' ? '#ff8a5e' : '#7bf0a8');
     text(g, tr('ap_tg_slide_hint'), W / 2, H - 14, 12, '#8a95ab', 'center', '500');
   });
-  return { destroy() { stop(); K.off(); } };
+  return { destroy() { stop(); K.off(); S.c.removeEventListener('pointerdown', down); window.removeEventListener('pointerup', up); } };
 }
 
 // ── tyre care: keep the tyre temperature in the window ───────────────────────
@@ -344,10 +364,11 @@ function feedback(box, tr, done, d = 0) {
   box.appendChild(wrap);
   function paint() {
     wrap.innerHTML = `<div class="ap-fb-top"><b>${tr('ap_tg_fb_round', { n: Math.min(round + 1, ROUNDS), m: ROUNDS })}</b><span>${last ? tr('ap_tg_fb_lap', { n: last.lap.toFixed(2) }) : ''}</span></div>
-      ${names.map((k, i) => `<div class="ap-fb-item"><label class="ap-fb-row"><span>${tr('ap_s_' + k)}</span><input type="range" min="0" max="100" step="1" value="${val[i]}" data-i="${i}"><output>${val[i]}</output></label>
+      ${names.map((k, i) => `<div class="ap-fb-item"><div class="ap-fb-row"><span>${tr('ap_s_' + k)}</span><button type="button" class="ap-nudge" data-d="-1" aria-label="−">−</button><input type="range" min="0" max="100" step="1" value="${val[i]}" data-i="${i}"><button type="button" class="ap-nudge" data-d="1" aria-label="+">+</button><output>${val[i]}</output></div>
         <div class="ap-fb-tried">${tried[i].map(x => `<i class="${x.h === '✓' ? 'ok' : ''}">${x.v} ${x.h}</i>`).join('')}</div></div>`).join('')}
       <button class="ap-btn" data-run>${tr('ap_tg_fb_run')}</button><p class="ap-hint">${tr('ap_tg_fb_hint')}</p>`;
-    wrap.querySelectorAll('input[type=range]').forEach(r => r.addEventListener('input', () => { val[+r.dataset.i] = +r.value; r.nextElementSibling.textContent = r.value; }));
+    wrap.querySelectorAll('input[type=range]').forEach(r => r.addEventListener('input', () => { val[+r.dataset.i] = +r.value; r.parentNode.querySelector('output').textContent = r.value; }));
+    wrap.querySelectorAll('.ap-nudge').forEach(b => b.addEventListener('click', () => { const r = b.parentNode.querySelector('input'); r.value = clamp(+r.value + +b.dataset.d, 0, 100); r.dispatchEvent(new Event('input')); }));
     wrap.querySelector('[data-run]').onclick = run;
   }
   function run() {
