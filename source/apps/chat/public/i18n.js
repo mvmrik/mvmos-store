@@ -1,5 +1,5 @@
 // mvmOS Chat translations. Loaded before chat-widget.js by main.js (desktop
-// window), index.html (public page) and telegram.html (Telegram mini-app).
+// window) and index.html (public page).
 // Every language carries the full key set; {n} and {name} are placeholders.
 window.CHAT_I18N = {
   en: {

@@ -145,7 +145,6 @@ The two directions are written differently on purpose:
 | `kind` | What it is | Gated by |
 |--------|------------|----------|
 | `app_api` | The Apps Hub app-to-app API — `call_app_api()` from server code, or `POST /api/platform/apps/<id>/call` from the frontend. Both end up at the same gate | **Apps Hub → Settings → App APIs, off by default** |
-| `telegram` | The app ships a `telegram.py` adapter and appears in the Telegram Hub bot | Telegram Hub installed with a configured bot |
 | `gamehub` | Game Hub profiles, sessions, leaderboards and multiplayer rooms | Game Hub installed |
 | `http` | A plain HTTP call to another app's desktop API | the other app installed and configured |
 
@@ -1002,6 +1001,18 @@ users = hub.get_users_by_ids([recipient_id])
 if users and users[0].get("username"):
     _notify(users[0]["username"], "New message", body, ref=sender_id)
 ```
+
+### Listening to every notification
+
+A module that wants every stored notification — Telegram Hub forwards them to a person's bot — registers a listener once, with a name of its own so that a reloaded module replaces its listener instead of adding a second one:
+
+```python
+notif = sys.modules.get("backend.notifications")
+notif.register_listener("my-app", lambda row: handle(row))   # row: the stored notification as a dict
+# notif.unregister_listener("my-app") when your module stops
+```
+
+It runs right after the notification is stored, in the thread that created it, so it must return quickly and hand slow work elsewhere. An error in it never reaches the app that created the notification. This needs Core 1.20.0 or later; set `min_core_version` accordingly.
 
 ### The `ref` field — precise "mark read on view"
 

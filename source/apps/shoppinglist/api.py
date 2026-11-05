@@ -74,7 +74,6 @@ same as it always has for items still on a live list.
 
 import asyncio
 import json
-import html
 import os
 import re
 import shutil
@@ -1321,11 +1320,3 @@ def _notify_share(hub, from_user: dict, to_id: str, list_id: str, list_title: st
             title_key="sl_notif_shared", vars={"name": sender, "title": list_title},
             title=f'{sender} shared the shopping list "{list_title}" with you',
         )
-
-    # Telegram gets one finished text and has no table to translate it with,
-    # so it says it without words, the way Chat does.
-    tg = sys.modules.get("app_backend_telegramhub")
-    if tg:
-        base = tg.get_public_base_url() or ""
-        url = f"{base.rstrip('/')}/pub/shoppinglist/"
-        tg.notify(to_id, "shoppinglist", f"🛒 {html.escape(sender)} → {html.escape(list_title)}", web_app=url)

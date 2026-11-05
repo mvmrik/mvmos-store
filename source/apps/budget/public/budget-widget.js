@@ -1,5 +1,5 @@
 // Budget — shared widget used by the desktop app window, the standalone
-// Apps Hub public page, and the Telegram mini-app (same three-surface
+// Apps Hub public page (same two-surface
 // pattern as apps/calendar/calendar-widget.js / apps/chat/chat-widget.js).
 (function () {
   if (window.BudgetWidget) return;
@@ -17,7 +17,7 @@
   }
   // Fixed list — symbol-only display, never real FX conversion. Kept in
   // sync manually with frontend/settings.js and backend/apps/budget/public.py's
-  // own copies, since public/Telegram surfaces never load core desktop JS.
+  // own copies, since public surfaces never load core desktop JS.
   const CURRENCIES = [
     { value: 'EUR', symbol: '€' }, { value: 'USD', symbol: '$' },
     { value: 'GBP', symbol: '£' },

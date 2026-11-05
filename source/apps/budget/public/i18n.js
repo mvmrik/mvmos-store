@@ -1,8 +1,7 @@
 // Budget — every user-facing string, in all nine languages mvmOS ships.
 //
-// These live here rather than inside budget-widget.js because all three
-// surfaces (the desktop window, the Apps Hub public page and the Telegram
-// mini-app) load the same widget and each loads this file first, and because
+// These live here rather than inside budget-widget.js because both
+// surfaces (the desktop window and the Apps Hub public page) load the same widget and each loads this file first, and because
 // a store app's translations have to travel inside its archive — a string in
 // a core i18n table simply would not exist on someone else's installation.
 (function () {

@@ -9,7 +9,7 @@ reasoning as backend/apps/chat/public.py).
 An event with no start_time is all-day. One with a start_time but no
 end_time is a reminder (a single point in time, not a range). One with both
 is a timed event. reminder_scheduler.py (run every minute by the core
-scheduler) fires a push notification + Telegram message the minute an
+scheduler) fires a push notification the minute an
 event/reminder's start_time arrives.
 """
 
@@ -103,13 +103,6 @@ async def public_index():
         return hub.private_page("Calendar", "📅")
     return FileResponse(os.path.join(_PUBLIC_DIR, "index.html"))
 
-
-@router.get("/telegram")
-async def telegram_mini_app():
-    hub = _hub()
-    if hub and not hub.is_app_public(APP_ID):
-        return hub.private_page("Calendar", "📅")
-    return FileResponse(os.path.join(_PUBLIC_DIR, "telegram.html"))
 
 
 def _row_to_event(r) -> dict:

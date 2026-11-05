@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Telegram Hub — mvmOS</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  html,body{margin:0;padding:0;height:100%;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);
+    font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;text-align:center}
+  #msg{padding:24px;font-size:.95rem;color:var(--pub-fg2,#a6adc8)}
+</style>
+</head>
+<body>
+<div id="msg"></div>
+<script src="/i18n/i18n.js"></script>
+<script>
+(function () {
+  var msg = document.getElementById('msg');
+  var tg = window.Telegram && window.Telegram.WebApp;
+  if (tg) { tg.ready(); tg.expand(); }
+  var params = new URLSearchParams(location.search);
+  var botId = params.get('bot');
+  var to = params.get('to') || '/pub/apphub/';
+  // Only ever a public page of this same server.
+  if (!/^\/pub\/[a-z0-9][a-z0-9_-]*\/[A-Za-z0-9_.\/?=&%-]*$/.test(to) || to.indexOf('..') >= 0 || to.indexOf('//') >= 0) {
+    to = '/pub/apphub/';
+  }
+
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = (window.asset ? window.asset(src) : src);
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+  function fail(key) {
+    msg.textContent = (window.t ? window.t(key) : key);
+  }
+
+  (window.mvmOS && window.mvmOS.i18nReady || Promise.resolve()).then(function () {
+    return loadScript('/apps/telegramhub/i18n.js');
+  }).then(function () {
+    if (!tg || !tg.initData || !botId) { fail('tgh_open_from_bot'); return; }
+    return fetch('/api/pub/telegramhub/miniapp/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ init_data: tg.initData, bot_id: botId }),
+    }).then(function (r) {
+      if (!r.ok) throw new Error('auth');
+      return r.json();
+    }).then(function (data) {
+      localStorage.setItem('apphub_token', data.pub_token);
+      location.replace(to);
+    });
+  }).catch(function () { fail('tgh_open_failed'); });
+})();
+</script>
+</body>
+</html>

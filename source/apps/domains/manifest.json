@@ -1,0 +1,27 @@
+{
+  "id": "domains",
+  "name": "Domains",
+  "name_i18n": {
+    "en": "Domains",
+    "bg": "Домейни",
+    "de": "Domains",
+    "es": "Dominios",
+    "fr": "Domaines",
+    "ja": "ドメイン",
+    "pt-BR": "Domínios",
+    "ru": "Домены",
+    "zh-CN": "域名"
+  },
+  "icon": "🌐",
+  "category": "System & Administration",
+  "tags": [
+    "domain",
+    "tunnel",
+    "cloudflare",
+    "internet"
+  ],
+  "version": "1.0.0",
+  "min_core_version": "1.20.0",
+  "description": "Opens mvmOS, Apps Hub or a single public app at your own domains through a Cloudflare Tunnel. Enter a domain, sign in to Cloudflare once, and the app downloads the connector, creates the tunnel, adds the DNS record and keeps it running, with no router settings and no certificates.",
+  "entry": "main.js"
+}

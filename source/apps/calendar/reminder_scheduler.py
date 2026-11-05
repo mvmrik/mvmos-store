@@ -1,6 +1,6 @@
 """
 Run every minute by the core scheduler (backend/scheduler.py) via
-GET/POST /api/scheduler/tick. Fires a push notification + Telegram message
+GET/POST /api/scheduler/tick. Fires a push notification
 the minute an event/reminder's start_time arrives.
 
 All-day events (start_time IS NULL) never get a reminder push — only
@@ -32,12 +32,6 @@ def _fire(row):
             users[0]["username"], row["title"], (row["description"] or "")[:200],
             kind="push", source="calendar", action_app="calendar", ref=row["id"],
         )
-
-    tg = sys.modules.get("app_backend_telegramhub")
-    if tg:
-        base = tg.get_public_base_url() or ""
-        url = f"{base.rstrip('/')}/pub/calendar/telegram?event={row['id']}"
-        tg.notify(row["user_id"], "calendar", f"⏰ {row['title']}", web_app=url)
 
 
 def run(now, db_path, config):

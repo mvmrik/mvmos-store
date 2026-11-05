@@ -5,58 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Telegram Hub — mvmOS</title>
 <style>
-  html,body{margin:0;padding:0;min-height:100%;background:var(--bg,#1e1e2e);color:var(--fg,#cdd6f4);
-    font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center}
-  .card{max-width:380px;padding:28px;text-align:center}
-  .icon{font-size:2.6rem;margin-bottom:8px}
-  h1{font-size:1.15rem;margin:0 0 10px}
-  p{font-size:.85rem;color:#a6adc8;margin:0 0 18px;line-height:1.5}
-  .btn{display:inline-block;background:#89b4fa;color:#1e1e2e;font-weight:600;
-    text-decoration:none;padding:10px 20px;border-radius:8px;font-size:.9rem}
-  .btn:hover{background:#a6c8ff}
-  .hint{margin-top:16px;font-size:.75rem;color:#6c7086}
+  html,body{margin:0;padding:0;min-height:100%;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);
+    font-family:system-ui,sans-serif}
+  #app{max-width:560px;margin:0 auto;padding:20px 16px 40px;box-sizing:border-box}
 </style>
 </head>
 <body>
-<div class="card">
-  <div class="icon">✈️</div>
-  <h1>Telegram Hub</h1>
-  <p id="msg"></p>
-  <a id="botLink" class="btn" href="#" style="display:none"></a>
-  <div class="hint" id="hint"></div>
-</div>
+<div id="app"></div>
 <script src="/i18n/i18n.js"></script>
 <script>
 (function () {
-  var t = function (key, vars) { return window.t ? window.t(key, vars) : key; };
-
   function loadScript(src) {
     return new Promise(function (resolve, reject) {
       var s = document.createElement('script');
-      s.src = src + '?_=' + Date.now();
+      s.src = (window.asset ? window.asset(src) : src);
       s.onload = resolve;
       s.onerror = reject;
       document.head.appendChild(s);
     });
   }
-
-  function boot() {
-    loadScript('/apps/telegramhub/i18n.js').then(function () {
-      document.getElementById('msg').textContent = t('tgh_pub_index_intro');
-      document.getElementById('botLink').textContent = t('tgh_pub_open_bot');
-      fetch('/api/pub/telegramhub/info').then(function (r) { return r.json(); }).then(function (data) {
-        if (data.bot_username) {
-          var a = document.getElementById('botLink');
-          a.href = 'https://t.me/' + data.bot_username;
-          a.style.display = 'inline-block';
-        } else {
-          document.getElementById('hint').textContent = t('tgh_pub_not_configured');
-        }
-      }).catch(function () {});
-    });
-  }
-
-  (window.mvmOS && window.mvmOS.i18nReady || Promise.resolve()).then(boot);
+  (window.mvmOS && window.mvmOS.i18nReady || Promise.resolve()).then(function () {
+    return loadScript('/apps/telegramhub/i18n.js');
+  }).then(function () {
+    return loadScript('/apps/telegramhub/page.js');
+  });
 })();
 </script>
 </body>

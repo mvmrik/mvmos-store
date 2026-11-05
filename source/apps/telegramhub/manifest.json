@@ -19,8 +19,10 @@
     "telegram",
     "bot"
   ],
-  "version": "1.1.5",
-  "min_core_version": "1.0.0",
-  "description": "Bridges Apps Hub public apps into a Telegram bot. Any app can opt in by adding a telegram.py adapter next to its public.py.",
-  "entry": "main.js"
+  "version": "1.2.0",
+  "min_core_version": "1.20.0",
+  "description": "Every Apps Hub profile connects its own Telegram bots: an Apps Hub bot with notifications from all apps, bots for a single app, and custom menu bots.",
+  "entry": "main.js",
+  "public_url": "/pub/telegramhub/",
+  "public_directory": true
 }

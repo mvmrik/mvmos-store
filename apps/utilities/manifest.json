@@ -30,9 +30,9 @@
       "name": "qBit Dashboard",
       "icon": "🌊",
       "category": "Utilities",
-      "version": "1.8.1",
-      "description": "Visual dashboard for qBittorrent. Connects to a local qBittorrent instance via WebUI API. Auto-discovers running instance or configure manually.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/qbit-dashboard-1.8.1.zip",
+      "version": "1.8.2",
+      "description": "Visual dashboard for qBittorrent. Connects to a local qBittorrent instance via WebUI API.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/utilities/qbit-dashboard-1.8.2.zip",
       "tags": [
         "downloads",
         "torrent",

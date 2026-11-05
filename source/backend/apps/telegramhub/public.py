@@ -1,9 +1,8 @@
 """
-Telegram Hub public surface — a small directory page (since there is one
-shared bot for the whole server, not a per-app browser view) plus the
-account-linking confirmation page. Mounted at /pub/telegramhub by
-public_loader.py. The bot webhook and link-confirm API live in backend.py,
-auto-loaded by app_backends.py.
+Telegram Hub public surface, mounted at /pub/telegramhub by public_loader.py:
+the page where a profile connects and manages its own bots, and the small page a
+bot's Mini App button opens to sign the person in. The bot webhook and the
+management API live in backend.py, auto-loaded by app_backends.py.
 """
 
 import os
@@ -20,6 +19,6 @@ async def index_page():
     return FileResponse(os.path.join(_PUBLIC_DIR, "index.html"))
 
 
-@router.get("/link")
-async def link_page():
-    return FileResponse(os.path.join(_PUBLIC_DIR, "link.html"))
+@router.get("/open")
+async def open_page():
+    return FileResponse(os.path.join(_PUBLIC_DIR, "open.html"))

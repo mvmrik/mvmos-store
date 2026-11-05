@@ -1,0 +1,21 @@
+{
+  "tagline": "Put your own domain on mvmOS in a few clicks.",
+  "description": "Domains is for anyone who wants to open mvmOS and its public pages at their own web address, such as mycompany.com, without learning about tunnels, DNS records or certificates. You type the domain, sign in to Cloudflare once in your browser, and the app does the rest on the server.\n\nIt downloads the open-source Cloudflare connector into its own folder, creates one secure tunnel, adds the DNS record for each domain and keeps the connection running as a system service. You can connect several domains, check that each one opens, and remove any of them again. Nothing is opened on your router and no certificate has to be managed.\n\nIf you already created a tunnel in Cloudflare, you can paste its token instead and the app only installs and runs the connector. Removing the app takes the service, the tunnel, the DNS records it created and its files off again.",
+  "capabilities": [
+    "Connects your own domain or subdomain to mvmOS through a Cloudflare Tunnel.",
+    "Signs in to Cloudflare with the official browser sign-in, so no key has to be created or copied.",
+    "Downloads and runs the connector by itself and keeps it running as a system service.",
+    "Lets you choose per domain what it opens: the whole installation, only Apps Hub, or a single public app, so a visitor never sees the rest of the server.",
+    "Connects several domains through the same tunnel and lets you check or remove each one.",
+    "Alternatively runs an existing Cloudflare tunnel from its token.",
+    "Leaves a cloudflared you already run on the server untouched.",
+    "Removes the service, tunnel, DNS records and files when you disconnect or remove the app.",
+    "Every change asks for your sudo password."
+  ],
+  "requirements": [
+    "A Linux server with systemd.",
+    "A domain added to a free Cloudflare account.",
+    "An internet connection on the server.",
+    "A Linux user allowed to use sudo."
+  ]
+}

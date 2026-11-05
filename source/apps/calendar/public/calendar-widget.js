@@ -1,5 +1,5 @@
 // Calendar — shared widget used by the desktop app window, the standalone
-// Apps Hub public page, and the Telegram mini-app (same three-surface
+// Apps Hub public page (same two-surface
 // pattern as apps/chat/chat-widget.js).
 (function () {
   if (window.CalendarWidget) return;

@@ -31,7 +31,6 @@ The server never sees an encrypted message in the clear.
 """
 
 import asyncio
-import html
 import json
 import os
 import sqlite3
@@ -727,27 +726,6 @@ def _notify_members(uid: str, sender_name: str, conv: dict, cid: str, body: str,
             pass
 
 
-def _telegram_fallback(sender_name: str, conv: dict, cid: str, body: str, offline: list):
-    """Only for people with no open chat connection at all. Must run on the
-    event loop: Telegram Hub schedules its send with asyncio.create_task."""
-    tg = sys.modules.get("app_backend_telegramhub")
-    if not tg or not offline:
-        return
-    base = (tg.get_public_base_url() or "").rstrip("/")
-    url = f"{base}/pub/chat/telegram?conv={cid}"
-    who = html.escape(sender_name)
-    if conv.get("encrypted"):
-        text, head = "🔒", f"💬 {who}"
-    else:
-        text = html.escape(body)
-        head = f"💬 {html.escape(conv['title'])} · {who}" if conv["type"] == "group" else f"💬 {who}"
-    for rid in offline:
-        try:
-            tg.notify(rid, "chat", f"{head}: {text}", web_app=url)
-        except Exception:
-            pass
-
-
 def _private_page():
     return HTMLResponse("""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>mvmOS Chat</title>
@@ -769,13 +747,6 @@ async def public_index():
         return _private_page()
     return FileResponse(os.path.join(_PUBLIC_DIR, "index.html"))
 
-
-@router.get("/telegram")
-async def telegram_mini_app():
-    hub = _hub()
-    if hub and not hub.is_app_public(APP_ID):
-        return _private_page()
-    return FileResponse(os.path.join(_PUBLIC_DIR, "telegram.html"))
 
 
 # ── WebSocket delivery ───────────────────────────────────────────────────
@@ -1048,11 +1019,9 @@ async def _on_send(ws, me: dict, uid: str, msg: dict):
         "encrypted": res["encrypted"], "key_version": res["key_version"],
     })
     others  = [m for m in res["members"] if m != uid]
-    offline = [m for m in others if not _conns.get(m)]
     name    = me.get("display_name", "?")
     conv    = {"type": res["type"], "title": res["title"], "encrypted": res["encrypted"]}
     _spawn(asyncio.to_thread(_notify_members, uid, name, conv, cid, body, others))
-    _telegram_fallback(name, conv, cid, body, offline)
 
 
 async def _on_edit(ws, uid: str, msg: dict):

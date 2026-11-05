@@ -18,8 +18,7 @@ const ChatWidget = (() => {
   _loadPrefs();
 
   // Strings live in public/i18n.js so they travel inside the store archive and
-  // are loaded before this file by all three surfaces (window, public page,
-  // Telegram mini-app).
+  // are loaded before this file by both surfaces (window, public page).
   const I18N = window.CHAT_I18N || { en: {} };
   function t(key, vars) {
     const lang = (window.mvmOS && window.mvmOS.lang) || 'en';
@@ -226,7 +225,7 @@ const ChatWidget = (() => {
   }
 
   // opts.onNeedLogin, opts.openPeer (a user id to open a direct chat with on
-  // first load), opts.openConv (a conversation id, e.g. from a Telegram link)
+  // first load), opts.openConv (a conversation id, e.g. from a link)
   function mount(root, opts) {
     opts = opts || {};
     injectStyles();

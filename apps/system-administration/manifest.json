@@ -156,6 +156,33 @@
         "ru": "Локальный дисплей",
         "zh-CN": "本地显示屏"
       }
+    },
+    {
+      "id": "domains",
+      "name": "Domains",
+      "icon": "🌐",
+      "category": "System & Administration",
+      "version": "1.0.0",
+      "description": "Opens mvmOS, Apps Hub or a single public app at your own domains through a Cloudflare Tunnel. Enter a domain, sign in to Cloudflare once, and the app downloads the connector, creates the tunnel, adds the DNS record and keeps it running, with no router settings and no certificates.",
+      "tags": [
+        "domain",
+        "tunnel",
+        "cloudflare",
+        "internet"
+      ],
+      "min_core_version": "1.20.0",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/system-administration/domains-1.0.0.zip",
+      "name_i18n": {
+        "en": "Domains",
+        "bg": "Домейни",
+        "de": "Domains",
+        "es": "Dominios",
+        "fr": "Domaines",
+        "ja": "ドメイン",
+        "pt-BR": "Domínios",
+        "ru": "Домены",
+        "zh-CN": "域名"
+      }
     }
   ]
 }

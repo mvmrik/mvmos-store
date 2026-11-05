@@ -1,10 +1,10 @@
 {
-  "summary": "Restrict individual bot apps to admins only.",
+  "summary": "Lets a profile build its own Telegram bot menu from the functions of its apps.",
   "features": [
     {
-      "title": "Admin-only apps in the bot",
-      "short": "Hide a bot app from everyone but admins",
-      "description": "Mark an app in the bot menu as admin only and it becomes visible — and usable — only to Telegram accounts linked to an Apps Hub admin profile. Useful when the same bot serves both your household and yourself. Without a subscription the checkbox is still there and still remembers its value; it simply does not restrict anything, and every app in the bot stays visible to all linked accounts."
+      "title": "Custom menu bot",
+      "short": "Your own buttons, your own answers",
+      "description": "Build a Telegram bot with a menu of your own. Add a button, give it a name, choose an app and one of the functions that app offers, and decide how each value is obtained: the bot can ask for it in the chat, offer the app's own choices as buttons, or always use a value you fix. Then write the answer the bot sends back and place values in it, for example “In {category_id} there is now {balance}”. A button can add an amount to a Budget category, show a list, or run any other function an app offers through its App API on your behalf. The administrator switches custom bots on in the Telegram Hub settings, and the App API of each app must be enabled in Apps Hub."
     }
   ]
 }

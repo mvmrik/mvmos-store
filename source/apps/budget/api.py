@@ -3,7 +3,7 @@ mvmOS Budget — category-based budget tracking per Apps Hub account.
 
 Mounted at /pub/budget by public_loader.py. Identity is always the Apps Hub
 token (X-Pub-Token header) — used identically by the in-app mvmOS window and
-by the standalone public page / Telegram mini-app, so there is no separate
+by the standalone public page, so there is no separate
 backend.py (same reasoning as backend/apps/chat/public.py and
 backend/apps/calendar/public.py).
 
@@ -21,7 +21,6 @@ someone else. No pending-invite step: sharing is immediate, like Favourites,
 but the recipient gets a notification the moment they're added.
 """
 
-import html
 import json
 import os
 import sqlite3
@@ -43,7 +42,7 @@ _DB_PATH     = os.path.join(_DIR, "data.db")
 _PUBLIC_DIR  = os.path.join(_DIR, "public")
 
 # Fixed list — symbol-only display, never real FX conversion. Kept in sync
-# manually with frontend/settings.js's own copy (public/Telegram surfaces
+# manually with frontend/settings.js's own copy (public surfaces
 # never load core desktop JS, so there's no shared module to import from).
 ALLOWED_CURRENCIES = {
     "EUR", "USD", "GBP", "CHF", "JPY", "CNY", "TRY", "UAH", "PLN",
@@ -239,13 +238,6 @@ async def public_index():
         return hub.private_page("Budget", "💰")
     return FileResponse(os.path.join(_PUBLIC_DIR, "index.html"))
 
-
-@router.get("/telegram")
-async def telegram_mini_app():
-    hub = _hub()
-    if hub and not hub.is_app_public(APP_ID):
-        return hub.private_page("Budget", "💰")
-    return FileResponse(os.path.join(_PUBLIC_DIR, "telegram.html"))
 
 
 # ── Helpers ──────────────────────────────────────────────────────
@@ -1132,9 +1124,9 @@ async def remove_member(category_id: str, user_id: str, x_pub_token: str = Heade
 
 
 def _notify_share(hub, from_user: dict, to_id: str, category_id: str, category_title: str):
-    """Unconditional notification + Telegram push when a category is shared —
-    mirrors reminder_scheduler.py's "always notify both channels" pattern,
-    since budget has no realtime connection to check for presence."""
+    """Unconditional notification when a category is shared — budget has no
+    realtime connection to check for presence. Telegram Hub forwards it to the
+    recipient's bot on its own."""
     users = hub.get_users_by_ids([to_id])
     if not users or not users[0].get("username"):
         return
@@ -1150,11 +1142,3 @@ def _notify_share(hub, from_user: dict, to_id: str, category_id: str, category_t
             title_key="budget_notif_shared", vars={"name": sender, "title": category_title},
             title=f'{sender} shared the budget category "{category_title}" with you',
         )
-
-    # Telegram gets one finished text and has no table to translate it with,
-    # so it says it without words, the way Chat does.
-    tg = sys.modules.get("app_backend_telegramhub")
-    if tg:
-        base = tg.get_public_base_url() or ""
-        url = f"{base.rstrip('/')}/pub/budget/telegram?category={category_id}"
-        tg.notify(to_id, "budget", f"💰 {html.escape(sender)} → {html.escape(category_title)}", web_app=url)
