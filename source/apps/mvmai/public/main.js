@@ -23,6 +23,8 @@ const _mvmai18n = {
     pub_bridge_hint: "Off by default. When on, mvmAI can read or change a user's own data in their other installed apps.",
     segment_compaction: 'History', compact_keep_label: 'Recent messages kept in full',
     compact_keep_hint: 'Older messages beyond this are folded into a running summary. Free plan is fixed at 20.',
+    cli_cache_label: 'Minutes before a chat starts a new session',
+    cli_cache_hint: "After this many minutes without a message, a chat starts a new AI session from its summary and recent messages instead of continuing the old one, whose cache has expired. Default and free plan: 60.",
     segment_premium: 'Premium', segment_terminal: "Terminal",
     terminal_label: "Show a terminal next to the chat",
     terminal_hint: "Opens an interactive terminal next to the desktop chat, starting in the active project folder or your home folder. Dock it on the right or bottom, or pin it to a chat. Hiding it keeps the shell running; closing it ends the terminal session. Not available on the public page.",
@@ -61,6 +63,8 @@ const _mvmai18n = {
     pub_bridge_hint: 'По подразбиране е изключено. Когато е включено, mvmAI може да чете или променя собствените данни на потребителя в другите му инсталирани приложения.',
     segment_compaction: 'История', compact_keep_label: 'Скорошни съобщения, пазени изцяло',
     compact_keep_hint: 'По-старите съобщения след това се сгъват в текущо резюме. Безплатният план е фиксиран на 20.',
+    cli_cache_label: 'Минути, след които чатът започва нова сесия',
+    cli_cache_hint: "След толкова минути без съобщение чатът започва нова AI сесия от резюмето и последните съобщения, вместо да продължи старата, чийто кеш е изтекъл. По подразбиране и в безплатния план: 60.",
     segment_premium: 'Premium', segment_terminal: "Терминал",
     terminal_label: "Показвай терминал до чата",
     terminal_hint: "Отваря интерактивен терминал до чата в десктопа, в папката на активния проект или в домашната ти папка. Може да го закачиш вдясно или долу, или да го фиксираш за чат. Скриването запазва работещата обвивка, а затварянето прекратява терминалната сесия. Няма го на публичната страница.",
@@ -99,6 +103,8 @@ const _mvmai18n = {
     pub_bridge_hint: 'Standardmäßig deaktiviert. Wenn aktiviert, kann mvmAI die eigenen Daten des Nutzers in dessen anderen installierten Apps lesen oder ändern.',
     segment_compaction: 'Verlauf', compact_keep_label: 'Vollständig behaltene, aktuelle Nachrichten',
     compact_keep_hint: 'Ältere Nachrichten werden darüber hinaus zu einer laufenden Zusammenfassung zusammengefasst. Der kostenlose Plan ist fest auf 20 eingestellt.',
+    cli_cache_label: 'Minuten, nach denen ein Chat eine neue Sitzung beginnt',
+    cli_cache_hint: "Nach so vielen Minuten ohne Nachricht beginnt ein Chat eine neue KI-Sitzung aus Zusammenfassung und letzten Nachrichten, statt die alte fortzusetzen, deren Cache abgelaufen ist. Standard und kostenloser Plan: 60.",
     segment_premium: 'Premium', segment_terminal: "Terminal",
     terminal_label: "Ein Terminal neben dem Chat anzeigen",
     terminal_hint: "Öffnet ein interaktives Terminal neben dem Desktop-Chat im Ordner des aktiven Projekts oder in Ihrem persönlichen Ordner. Rechts oder unten andocken oder an einen Chat anheften. Ausblenden lässt die Shell weiterlaufen; Schließen beendet die Terminalsitzung. Nicht auf der öffentlichen Seite verfügbar.",
@@ -137,6 +143,8 @@ const _mvmai18n = {
     pub_bridge_hint: 'Desactivado por defecto. Cuando está activado, mvmAI puede leer o modificar los propios datos del usuario en sus otras apps instaladas.',
     segment_compaction: 'Historial', compact_keep_label: 'Mensajes recientes conservados por completo',
     compact_keep_hint: 'Los mensajes más antiguos más allá de este número se pliegan en un resumen continuo. El plan gratuito está fijado en 20.',
+    cli_cache_label: 'Minutos tras los cuales un chat inicia una sesión nueva',
+    cli_cache_hint: "Tras estos minutos sin mensajes, un chat inicia una sesión de IA nueva a partir de su resumen y los mensajes recientes, en vez de continuar la anterior, cuya caché ha caducado. Valor por defecto y plan gratuito: 60.",
     segment_premium: 'Premium', segment_terminal: "Terminal",
     terminal_label: "Mostrar un terminal junto al chat",
     terminal_hint: "Abre un terminal interactivo junto al chat del escritorio, en la carpeta del proyecto activo o en tu carpeta personal. Acóplalo a la derecha o abajo, o fíjalo a un chat. Al ocultarlo, la shell sigue ejecutándose; al cerrarlo, termina la sesión. No está disponible en la página pública.",
@@ -175,6 +183,8 @@ const _mvmai18n = {
     pub_bridge_hint: "Désactivé par défaut. Une fois activé, mvmAI peut lire ou modifier les propres données de l'utilisateur dans ses autres applications installées.",
     segment_compaction: 'Historique', compact_keep_label: 'Messages récents conservés en entier',
     compact_keep_hint: "Les messages plus anciens au-delà de ce nombre sont repliés dans un résumé continu. Le plan gratuit est fixé à 20.",
+    cli_cache_label: "Minutes avant qu'un chat démarre une nouvelle session",
+    cli_cache_hint: "Après ce nombre de minutes sans message, un chat démarre une nouvelle session d'IA à partir de son résumé et des messages récents, au lieu de poursuivre l'ancienne dont le cache a expiré. Valeur par défaut et plan gratuit : 60.",
     segment_premium: 'Premium', segment_terminal: "Terminal",
     terminal_label: "Afficher un terminal à côté du chat",
     terminal_hint: "Ouvre un terminal interactif à côté du chat du bureau, dans le dossier du projet actif ou votre dossier personnel. Ancrez-le à droite ou en bas, ou épinglez-le à une conversation. Le masquer laisse le shell actif ; le fermer termine la session. Indisponible sur la page publique.",
@@ -213,6 +223,8 @@ const _mvmai18n = {
     pub_bridge_hint: '初期設定ではオフです。オンにすると、mvmAIはユーザー自身の他のインストール済みアプリのデータを読み書きできます。',
     segment_compaction: '履歴', compact_keep_label: '完全な形で保持する直近メッセージ数',
     compact_keep_hint: 'これを超える古いメッセージは、継続的な要約にまとめられます。無料プランは20件に固定されています。',
+    cli_cache_label: 'チャットが新しいセッションを始めるまでの分数',
+    cli_cache_hint: "この分数だけメッセージがないと、チャットはキャッシュが切れた古いセッションを続けず、要約と最近のメッセージから新しいAIセッションを始めます。既定値と無料プランは60分です。",
     segment_premium: 'Premium', segment_terminal: "ターミナル",
     terminal_label: "チャットの横にターミナルを表示する",
     terminal_hint: "デスクトップのチャットの横に対話型ターミナルを開きます。作業ディレクトリはアクティブなプロジェクトのフォルダー、またはホームフォルダーです。右側や下部に配置したり、チャットに固定できます。非表示にしてもシェルは動作を続け、閉じるとセッションが終了します。公開ページでは利用できません。",
@@ -251,6 +263,8 @@ const _mvmai18n = {
     pub_bridge_hint: 'Desativado por padrão. Quando ativado, o mvmAI pode ler ou alterar os próprios dados do usuário em seus outros apps instalados.',
     segment_compaction: 'Histórico', compact_keep_label: 'Mensagens recentes mantidas na íntegra',
     compact_keep_hint: 'Mensagens mais antigas além dessa quantidade são condensadas em um resumo contínuo. O plano gratuito é fixo em 20.',
+    cli_cache_label: 'Minutos para um chat iniciar uma nova sessão',
+    cli_cache_hint: "Após esse número de minutos sem mensagens, um chat inicia uma nova sessão de IA a partir do resumo e das mensagens recentes, em vez de continuar a anterior, cujo cache expirou. Padrão e plano gratuito: 60.",
     segment_premium: 'Premium', segment_terminal: "Terminal",
     terminal_label: "Mostrar um terminal ao lado do chat",
     terminal_hint: "Abre um terminal interativo ao lado do chat no desktop, na pasta do projeto ativo ou na sua pasta pessoal. Encaixe à direita ou embaixo, ou fixe a uma conversa. Ocultar mantém o shell em execução; fechar encerra a sessão do terminal. Não está disponível na página pública.",
@@ -289,6 +303,8 @@ const _mvmai18n = {
     pub_bridge_hint: 'По умолчанию выключено. Когда включено, mvmAI может читать или изменять собственные данные пользователя в его других установленных приложениях.',
     segment_compaction: 'История', compact_keep_label: 'Недавние сообщения, сохраняемые полностью',
     compact_keep_hint: 'Более старые сообщения сверх этого сворачиваются в текущее резюме. В бесплатном плане зафиксировано значение 20.',
+    cli_cache_label: 'Минуты до начала новой сессии в чате',
+    cli_cache_hint: "Если за это число минут не было сообщений, чат начинает новую сессию ИИ из резюме и последних сообщений, а не продолжает старую, кэш которой истёк. По умолчанию и в бесплатном плане: 60.",
     segment_premium: 'Premium', segment_terminal: "Терминал",
     terminal_label: "Показывать терминал рядом с чатом",
     terminal_hint: "Открывает интерактивный терминал рядом с чатом на рабочем столе, в папке активного проекта или домашней папке. Закрепите его справа, снизу или за чатом. При скрытии оболочка продолжает работать, при закрытии сеанс терминала завершается. На публичной странице недоступен.",
@@ -327,6 +343,8 @@ const _mvmai18n = {
     pub_bridge_hint: '默认关闭。开启后，mvmAI 可以读取或更改用户自己在其他已安装应用中的数据。',
     segment_compaction: '历史记录', compact_keep_label: '完整保留的最近消息数',
     compact_keep_hint: '超出此数量的较旧消息会被折叠进一个持续更新的摘要。免费版固定为 20。',
+    cli_cache_label: '聊天开启新会话前的分钟数',
+    cli_cache_hint: "超过此分钟数没有消息时，聊天会根据摘要和最近的消息开启新的 AI 会话，而不是继续缓存已过期的旧会话。默认值和免费版：60。",
     segment_premium: 'Premium', segment_terminal: "终端",
     terminal_label: "在聊天旁边显示终端",
     terminal_hint: "在桌面聊天旁打开交互式终端，起始目录为当前项目文件夹或个人主目录。可停靠在右侧或底部，也可固定到聊天。隐藏时 shell 继续运行，关闭时结束终端会话。公开页面不提供此功能。",
@@ -479,6 +497,10 @@ mvmOS.registerApp({
           <input id="mvmai-compact-keep-inp" type="number" min="4" max="200" step="1" class="s-input"
             value="${saved?.compact_keep_recent || ''}" placeholder="20">
           <div style="font-size:.74rem;color:var(--text-dim)">${_ait('compact_keep_hint')}</div>`)}
+        ${_row(`${_lbl(_ait('cli_cache_label'))}
+          <input id="mvmai-cli-cache-inp" type="number" min="1" max="1440" step="1" class="s-input"
+            value="${saved?.cli_cache_minutes || ''}" placeholder="60">
+          <div style="font-size:.74rem;color:var(--text-dim)">${_ait('cli_cache_hint')}</div>`)}
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <label style="display:flex;align-items:center;gap:8px;font-size:.85rem">
@@ -738,6 +760,12 @@ mvmOS.registerApp({
       const raw = compactKeepInp.value.trim();
       const n = raw ? parseInt(raw, 10) : NaN;
       saves.push(s('compact_keep_recent', (Number.isFinite(n) && n > 0) ? n : null));
+    }
+    const cliCacheInp = panel.querySelector('#mvmai-cli-cache-inp');
+    if (cliCacheInp) {
+      const raw = cliCacheInp.value.trim();
+      const n = raw ? parseInt(raw, 10) : NaN;
+      saves.push(s('cli_cache_minutes', (Number.isFinite(n) && n > 0) ? n : null));
     }
     return Promise.all(saves);
   },

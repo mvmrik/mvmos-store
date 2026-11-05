@@ -17,6 +17,11 @@
       "description": "mvmAI keeps a chat's most recent messages in full and folds everything older into a running summary, so long conversations don't grow more expensive per reply forever. With a subscription the administrator can raise or lower how many recent messages stay in full, on both the desktop app and the public page. Without a subscription this is fixed at 20 messages."
     },
     {
+      "title": "Adjustable session restart time",
+      "short": "Choose how long a chat may rest before it starts a fresh AI session",
+      "description": "A chat continues the same AI session while you keep writing, which is cheap because the provider remembers it. After a longer pause that memory is gone and continuing the old session would re-read everything at full price, so mvmAI starts a new session from the chat's summary and recent messages instead. The administrator can change how many minutes of pause trigger this, on both the desktop app and the public page. Without a subscription it is fixed at 60 minutes."
+    },
+    {
       "title": "Terminal next to the chat",
       "short": "Use an interactive shell in the active project folder",
       "description": "With the setting enabled, the desktop chat offers an interactive terminal starting in the active project folder, or your home folder outside a project. Run commands yourself, float the terminal over the chat, dock it on the right or bottom, or pin it to reopen with a chosen conversation. Hiding the terminal keeps its shell running; closing it ends that terminal session. It works with any AI provider and is available only on the desktop. Without a subscription the setting stays visible and locked, and its button opens the Premium dialog."

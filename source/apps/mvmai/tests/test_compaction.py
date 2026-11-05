@@ -124,7 +124,7 @@ class MaintenanceTests(unittest.IsolatedAsyncioTestCase):
         ns = {"ChatRequest": object, "asyncio": asyncio, "json": json, "hashlib": hashlib,
               "_AGENT_CONTEXT": contextvars.ContextVar("test_agent_context", default=None),
               "re": re, "time": time, "uuid": uuid, "JSONResponse": JSONResponse,
-              "_CLI_REPLAY_CHARS": 60000, "_sdb": lambda: conn,
+              "_CLI_REPLAY_CHARS": 60000, "_CLI_CACHE_MINUTES_DEFAULT": 60, "_sdb": lambda: conn,
               "_archive_stale": lambda *args: None, "_hub": lambda: None,
               "_premium": lambda: None, "_safe_download_content": lambda user, text: text,
               "_language_prompt": lambda lang: "Keep the user's language."}
@@ -169,6 +169,52 @@ class MaintenanceTests(unittest.IsolatedAsyncioTestCase):
             result = await ns["_chat_unlocked"](body, None, "", None, {"id": user, "is_admin": False})
             self.assertEqual(result.status_code, expected)
             self.assertFalse(calls)
+        conn.close()
+
+    async def test_resting_chat_starts_new_session_only_after_cache_time(self):
+        conn = sqlite3.connect(":memory:")
+        conn.row_factory = sqlite3.Row
+        conn.execute("CREATE TABLE pub_sessions (id, user_id, project_id, provider, model, cli_state, archived_at, kind)")
+        conn.execute("CREATE TABLE pub_messages (session_id, role, content, tool_calls, seq)")
+        ns = {"ChatRequest": object, "asyncio": asyncio, "json": json, "hashlib": hashlib,
+              "_AGENT_CONTEXT": contextvars.ContextVar("test_agent_context2", default=None),
+              "re": re, "time": time, "uuid": uuid, "JSONResponse": JSONResponse,
+              "_CLI_REPLAY_CHARS": 60000, "_CLI_CACHE_MINUTES_DEFAULT": 60, "_sdb": lambda: conn,
+              "_archive_stale": lambda *args: None, "_hub": lambda: None,
+              "_premium": lambda: None, "_safe_download_content": lambda user, text: text,
+              "_language_prompt": lambda lang: "",
+              "_clean_images": lambda m: [], "_persist_turn": lambda *a, **k: "a" * 32, "_queue_session_title": lambda *a, **k: None}
+        functions("apps/mvmai/api.py", {"_chat_unlocked", "_parse_cli_state", "_msg_fingerprint",
+                  "_unseen_messages", "_cli_flatten_messages", "_cap_conversation", "_chat_reply"}, ns)
+        last = {"role": "assistant", "content": "Earlier answer"}
+        calls = []
+
+        async def run(body, **kwargs):
+            calls.append({**kwargs, "messages": body.messages})
+            return JSONResponse({"content": "Reply"})
+
+        desk = types.SimpleNamespace(
+            _read_cfg=lambda: {"provider": "claude-cli", "model": "haiku"},
+            CLI_PROVIDERS=[{"id": "claude-cli"}], CliChatRequest=lambda **kw: types.SimpleNamespace(**kw),
+            _run_cli_chat=run, _SESSION_ID_RE=re.compile(r"[0-9a-fA-F-]{8,64}"), _server_tools=lambda *args: [])
+        ns["_desktop"] = lambda: desk
+        for age_minutes, resumes in ((30, True), (90, False), (None, True)):
+            state = {"session_id": "12345678-abcd", "user": "test", "last": ns["_msg_fingerprint"](last)}
+            if age_minutes is not None:
+                state["at"] = time.time() - age_minutes * 60
+            conn.execute("DELETE FROM pub_sessions")
+            conn.execute("INSERT INTO pub_sessions VALUES (?,?,?,?,?,?,?,?)",
+                         ("a" * 32, "owner", None, "claude-cli", "haiku", json.dumps(state), None, "chat"))
+            conn.commit()
+            body = types.SimpleNamespace(session_id="a" * 32, no_persist=False, compact_cli=False, compact_last=None,
+                                         project_id=None, project_model=None, app_id=None, lang="en", elapsed_ms=0,
+                                         messages=[{"role": "summary", "content": "Before"}, last,
+                                                   {"role": "user", "content": "New"}])
+            calls.clear()
+            await ns["_chat_unlocked"](body, None, "", None, {"id": "owner", "is_admin": False})
+            self.assertEqual(bool(calls[0]["cli_resume"]["session_id"]), resumes, age_minutes)
+            if not resumes:
+                self.assertEqual(calls[0]["messages"][0]["content"], "[Conversation summary]:\nBefore")
         conn.close()
 
 

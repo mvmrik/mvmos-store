@@ -18,6 +18,10 @@ When mvmAI summarizes older messages, chats with a saved Claude or Codex session
 
 This maintenance uses the chat’s pinned provider and model and consumes provider usage, including the summary request. Gemini continues to use its existing automatic context management; this integration does not add manual Gemini compression. Providers without an mvmAI-managed persistent CLI session receive the summarized conversation on subsequent requests.
 
+## Resting chats and session restart
+
+A chat with a saved CLI session (Claude, Codex, Gemini and others) continues that same session while you keep writing, because the provider keeps the conversation cached for a limited time after each answer. When the time since the chat's last answer is longer than the restart time, continuing the old session would make the provider read everything again at full price. In that case mvmAI starts a new session instead and sends it the latest summary, the messages after it and the new message, with both your questions and the assistant's answers. Work the old session did only internally, such as files it read, is not carried over. Chats saved before this behaviour have no recorded answer time and keep continuing their session until their next answer. The default is 60 minutes for every provider. With Premium the administrator can change it under **History** in the mvmAI settings, from 1 to 1440 minutes, for both the desktop and the public page; without Premium it stays at 60.
+
 ## Desktop terminal
 
 mvmAI’s Premium terminal is an interactive shell beside the desktop chat. It starts in the active project folder, or the signed-in Linux user’s home folder outside a project, and works with any AI provider. It can float over the chat, dock on the right or bottom, or stay pinned to a conversation. With `tmux` installed, hiding or reconnecting keeps the shell running; closing the terminal ends its shell session. The terminal is available only on the desktop.

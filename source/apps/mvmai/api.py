@@ -1128,6 +1128,14 @@ def _unseen_messages(messages, last):
 # the conversation so far, but never more than this much of it.
 _CLI_REPLAY_CHARS = 60000
 
+# How long a CLI provider keeps a chat's context cheaply cached after its
+# last request is unknown for most of them, so every chat uses the same
+# default (an hour, which Claude's own session logs show). Past it, resuming
+# would re-read the whole session at full price, so the chat starts a new
+# session from the summary and the messages after it instead. Premium can
+# change the time (premium/backend.py resolve_cli_cache_minutes).
+_CLI_CACHE_MINUTES_DEFAULT = 60
+
 # One turn at a time per chat, so two windows can never both advance the same
 # CLI session.
 _CHAT_LOCKS: dict = {}
@@ -1867,6 +1875,10 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
         state = _parse_cli_state(saved["cli_state"]) if saved else {}
         unseen = _unseen_messages(body.messages, state.get("last")) if state.get("session_id") else None
         can_resume = unseen is not None
+        cache_minutes = prem.resolve_cli_cache_minutes(desk._read_cfg()) if prem else _CLI_CACHE_MINUTES_DEFAULT
+        # Chats saved before the time was recorded have none: keep resuming them.
+        if can_resume and state.get("at") and time.time() - float(state["at"]) > cache_minutes * 60:
+            can_resume = False
         for attempt in (0, 1):
             resuming = bool(chat_id) and can_resume and attempt == 0
             if resuming:
@@ -1980,6 +1992,7 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
                 call["id"] = "agent-" + uuid.uuid4().hex
         if cli_state:
             cli_state["last"] = _msg_fingerprint(msg)
+            cli_state["at"] = int(time.time())
         msg["duration_ms"] = body.elapsed_ms + int((time.monotonic() - request_started) * 1000)
         sid = None if body.no_persist else _persist_turn(
             me["id"], body.session_id, body.messages, msg, project_id,
