@@ -8,7 +8,11 @@ import os
 import re
 
 _DIR = os.path.dirname(__file__)
-BUNDLED_DIR = os.path.join(_DIR, "fonts")
+# The Store installer puts every folder it does not know under public/, so an
+# installed copy keeps the bundled fonts in public/fonts; a source checkout has
+# them next to this file.
+BUNDLED_DIR = next((d for d in (os.path.join(_DIR, "public", "fonts"), os.path.join(_DIR, "fonts"))
+                    if os.path.isfile(os.path.join(d, "catalog.json"))), os.path.join(_DIR, "fonts"))
 CUSTOM_DIR = os.path.join(_DIR, "storage", "custom")
 CUSTOM_INDEX = os.path.join(CUSTOM_DIR, "index.json")
 
