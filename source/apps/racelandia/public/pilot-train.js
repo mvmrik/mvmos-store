@@ -5,7 +5,8 @@
 // pilot's current skill and decides how much the skill moves (pilot_games.py).
 //
 // run(skill, box, tr, done, { difficulty }) -> { destroy() }
-import { run as runLegacy, stage, loop, text, panel, beep, clamp } from './train.js';
+// loaded through asset() so a changed train.js is never served from a cache
+const { run: runLegacy, stage, loop, text, panel, beep, clamp } = await import(window.asset ? window.asset('/apps/racelandia/train.js') : '/apps/racelandia/train.js');
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 const keysOf = () => {

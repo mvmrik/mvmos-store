@@ -24,6 +24,7 @@
   let staffTab = 'pilots', crewCar = null, weekendSet2 = null;
   // The cars of a weekend session run together: each has its own simulation, setup, tyres and pit; one of them is watched.
   let cars = [], carIdx = 0;
+  const scrollMemo = {};
   let screen = 'team', gview = 'cars', teamView = 'overview', pview = 'list', curTrack = 'own', setups = {}, compound = 'M', weekendSet = null;
   let markedCars = null, carSets = {};   // the cars ticked for a practice (null: only the open one) and the warehouse tyre set of each
   let resumeBusy=false,resumeTimer=null,resumeError='',deferredGo=null;
@@ -206,12 +207,27 @@
         <div id="ap-modal" class="ap-modal" hidden></div>
       </div>`;
     root.querySelectorAll('.ap-tabs button').forEach(b => b.addEventListener('click', () => {
-      if (b.dataset.tab === 'team') teamView = 'overview';
-      if (b.dataset.tab === 'garage') gview = 'cars';
-      if (b.dataset.tab === 'driver') pview = 'list';
+      // a menu click returns to the screen as it was left: same sub-view, same scroll position
+      const from = $('#ap-' + screen), to = $('#ap-' + b.dataset.tab);
+      if (from) scrollMemo[screen] = from.scrollTop;
       go(b.dataset.tab);
-      $('#ap-'+b.dataset.tab).scrollTop=0;
+      if (to) to.scrollTop = scrollMemo[b.dataset.tab] || 0;
     }));
+    // An action inside a screen repaints it from the server's answer. Keep the scroll position across that
+    // repaint instead of letting it jump to the top; a tab click is a deliberate change of screen and is left alone.
+    {
+      let hold = null;
+      root.querySelectorAll('.ap-screen').forEach(sc => {
+        sc.addEventListener('click', e => {
+          if (e.target.closest('.ap-tabs')) return;
+          hold = { sc, top: sc.scrollTop, until: Date.now() + 4000 };
+        }, true);
+        new MutationObserver(() => {
+          if (hold && hold.sc === sc && Date.now() < hold.until && screen === sc.id.slice(3) && sc.scrollTop < hold.top) sc.scrollTop = hold.top;
+        }).observe(sc, { childList: true, subtree: true });
+      });
+      root.querySelector('.ap-tabs')?.addEventListener('click', () => { hold = null; }, true);
+    }
     $('#ap-finish').addEventListener('click', async () => { if (!pending && await confirmGame(_t('ap_finish_confirm'))) mp.send({ type: 'ap_finish' }); });
     $('#ap-leave').addEventListener('click', () => { location.href = '/pub/gamehub/?game=' + GAME_ID; });
     window.addEventListener('resize', () => view && view.resize());
@@ -337,6 +353,25 @@
   const recommend = c => (c.water > 1.2 ? 'W' : c.water > 0.08 || c.rain > 0.2 ? 'I' : c.track < 22 ? 'S' : c.track > 44 ? 'H' : 'M');
   const tinfo = () => G.tracks.find(t => t.id === curTrack) || G.tracks[0];
   const setup = () => setups[curTrack];
+  // The setup is saved for the open car shortly after the last slider move. Anything still waiting is sent at once
+  // before another car is opened, otherwise it would be stored on the wrong car and the open car would lose it.
+  let setupSave = null;
+  function queueSetupSave(track, S) {
+    clearTimeout(saveTimer); setupSave = { track, setup: { ...S } };
+    saveTimer = setTimeout(flushSetup, 600);
+  }
+  async function flushSetup() {
+    clearTimeout(saveTimer); saveTimer = 0;
+    const job = setupSave; setupSave = null;
+    if (job) await api('/setup', job);
+  }
+  // opening another car keeps the page where it was instead of jumping back to the top
+  async function openCar(id) {
+    await flushSetup();
+    const r = await api('/team/select-car', { id });
+    if (!r.ok) { notifyGame(careerError(r.d.error)); return false; }
+    return r;
+  }
   const isHost = () => { try { return mp.isHost(); } catch (_) { return true; } };
   const canChange = () => !multi || isHost();
   const sessLaps = () => cfg.laps;
@@ -368,12 +403,13 @@
       const current=screen,driver=G.driver,node=root;let response;
       try{response=await api('/state');}catch(_){return;}
       if(!response.ok||screen!==current||root!==node||G.driver!==driver||busy||pending||!$('#ap-modal')?.hidden)return;
-      const oldOffers=G.career.offers.map(o=>o.id).join(','),oldHall=G.training_hall?.remaining;
-      const keep=setups;adopt(response.d);setups=keep;paintStatus();
-      if(screen==='division')paintDivision();
-      else if(screen==='garage'&&gview==='setup')paintSession(true);
+      const oldOffers=G.career.offers.map(o=>o.id).join(','),oldHall=G.training_hall?.remaining,oldDiv=JSON.stringify(G.division?.weekend||G.division?.round||0);
+      const keep=setups,sc=$('#ap-'+screen),top=sc?sc.scrollTop:0;adopt(response.d);setups=keep;paintStatus();
+      // the background refresh never rebuilds a screen the player is working in; division only when its weekend moved on
+      if(screen==='division'){if(oldDiv!==JSON.stringify(G.division?.weekend||G.division?.round||0)){paintDivision();if(sc)sc.scrollTop=top;}}
+      else if(screen==='garage'&&gview==='setup'){}
       else if(screen==='driver'){
-        if(oldHall!==G.training_hall?.remaining || pview==='list'&&oldOffers!==G.career.offers.map(o=>o.id).join(',')){paintDriver();return;}
+        if(oldHall!==G.training_hall?.remaining || pview==='list'&&oldOffers!==G.career.offers.map(o=>o.id).join(',')){paintDriver();if(sc)sc.scrollTop=top;return;}
         const panel=$('[data-driver-energy]');if(panel)panel.outerHTML=driverEnergy();
         const meter=$('.ap-meter.ap-energy i');if(meter)meter.style.width=G.driver.energy+'%';
         $('#ap-driver').querySelectorAll('[data-crew-train]').forEach(b=>{const member=Object.values(G.crew.cars).flatMap(c=>Object.values(c.members)).find(m=>m?.id===b.dataset.member);b.disabled=!member||member.energy<G.crew.train_energy||!!G.career.active_session||!G.training_hall?.remaining;});
@@ -808,6 +844,21 @@
     }));
   }
 
+  // Another car was opened while its setup is on screen: put its values into the sliders and refresh the side
+  // panel, without rebuilding the page, so nothing jumps and the scroll position stays.
+  function refreshSetupInPlace() {
+    const host = $('#ap-garage'), S = setup();
+    if (!host || !S || !host.querySelector('input[data-k]')) return false;
+    host.querySelectorAll('input[data-k]').forEach(i => {
+      const d = G.defs.find(x => x.key === i.dataset.k); if (!d) return;
+      i.value = String(S[d.key]);
+      const o = i.closest('.ap-set').querySelector('output'); if (o) o.textContent = fmtSet(d, +S[d.key]);
+    });
+    paintReco(); paintSession(); paintHistory();
+    if (anaMod) paintAdvice(host);
+    return true;
+  }
+
   function paintSetup() {
     const host = $('#ap-garage');
     const t = tinfo(), c = cond(cfg.hour), S = setup(), locked=!!G.division?.locked_setup;
@@ -838,13 +889,13 @@
     host.scrollTop = 0;
     nudgeWire(host);
     host.querySelectorAll('input[data-k]').forEach(i => i.addEventListener('input', () => {
-      const d = G.defs.find(x => x.key === i.dataset.k); S[d.key] = +i.value;
+      const d = G.defs.find(x => x.key === i.dataset.k), cur = setup(); cur[d.key] = +i.value;
       i.closest('.ap-set').querySelector('output').textContent = fmtSet(d, +i.value);
       paintSession(true); paintAdvice(host);
-      clearTimeout(saveTimer); saveTimer = setTimeout(() => api('/setup', { track: curTrack, setup: S }), 600);
+      queueSetupSave(curTrack, cur);
     }));
     $('#ap-back', host).addEventListener('click', () => { gview = 'car'; paintGarage(); });
-    $('#ap-reset', host).addEventListener('click', () => { G.defs.forEach(d => { S[d.key] = d.def; }); api('/setup', { track: curTrack, setup: S }); paintGarage(); });
+    $('#ap-reset', host).addEventListener('click', () => { const cur = setup(); G.defs.forEach(d => { cur[d.key] = d.def; }); api('/setup', { track: curTrack, setup: cur }); paintGarage(); });
     void comps; void hours;
     paintReco();
     paintSession();
@@ -957,7 +1008,7 @@
       <button class="ap-btn ap-go" id="ap-send" ${ready&&okMoney&&d.has_car&&!career.active_session&&!G.division?.locked_setup&&!busy?'':'disabled'}>${esc(_t(ids.length>1?'ap_send_cars':'ap_send'))}</button>
       ${!d.has_driver?`<p class="ap-warn">${esc(_t('ap_need_driver'))}</p>`:''}${activeRunPanel()}
       ${!okMoney?`<p class="ap-warn">${esc(_t('ap_no_budget'))}</p>`:''}`;
-    box.querySelectorAll('[data-test-car]').forEach(b=>b.onclick=async()=>{if(!markedCars)markedCars=markedIds();b.disabled=true;const r=await api('/team/select-car',{id:b.dataset.testCar});if(!r.ok){notifyGame(careerError(r.d.error));b.disabled=false;return;}setups={};weekendSet=null;weekendSet2=null;adopt(r.d);paintStatus();paintGarage();});
+    box.querySelectorAll('[data-test-car]').forEach(b=>b.onclick=async()=>{if(!markedCars)markedCars=markedIds();b.disabled=true;const r=await openCar(b.dataset.testCar);if(!r){b.disabled=false;return;}const host=$('#ap-garage'),top=host.scrollTop;setups={};weekendSet=null;weekendSet2=null;adopt(r.d);paintStatus();if(!(gview==='setup'&&refreshSetupInPlace()))paintGarage();host.scrollTop=top;});
     box.querySelectorAll('[data-mark-car]').forEach(b=>b.addEventListener('change',()=>{const id=b.dataset.markCar,now=markedIds();markedCars=now.includes(id)?now.filter(x=>x!==id):[...now,id];paintSession();}));
     box.querySelectorAll('[data-carset]').forEach(b=>b.addEventListener('click',()=>{const id=b.closest('[data-carset-box]').dataset.carsetBox,want=b.dataset.carset,holder=markedIds().find(x=>x!==id&&carSets[x]===want);if(holder)carSets[holder]=carSets[id];carSets[id]=want;paintSession();}));
     box.querySelector('[data-open-warehouse]')?.addEventListener('click',()=>go('warehouse'));
@@ -1234,7 +1285,7 @@
 
     host.querySelectorAll('[data-wset]').forEach(b=>b.onclick=()=>{weekendSet=b.dataset.wset;paintDivision();});
     host.querySelectorAll('[data-wset2]').forEach(b=>b.onclick=()=>{weekendSet2=b.dataset.wset2;paintDivision();});
-    host.querySelectorAll('[data-pick-car]').forEach(b=>b.onclick=async()=>{b.disabled=true;const r=await api('/team/select-car',{id:b.dataset.pickCar});if(!r.ok){notifyGame(careerError(r.d.error));b.disabled=false;return;}setups={};weekendSet=null;weekendSet2=null;adopt(r.d);paintStatus();paintDivision();});
+    host.querySelectorAll('[data-pick-car]').forEach(b=>b.onclick=async()=>{b.disabled=true;const r=await openCar(b.dataset.pickCar);if(!r){b.disabled=false;return;}setups={};weekendSet=null;weekendSet2=null;adopt(r.d);paintStatus();paintDivision();});
     host.querySelector('[data-weekend-start]')?.addEventListener('click',e=>{busy=true;e.target.disabled=true;curTrack=roundTrack(s);mp.send({type:'ap_run',kind:'d5_'+s.phase,compound:chosenSet?.compound||'M',tyre_set:weekendSet,tyre_set2:weekendSet2,setup:setup(),track:curTrack});});
     startEnergyRefresh();
   }
@@ -1426,8 +1477,8 @@
     // what is highlighted on the screen is what goes out
     for (const id of ids) { const on = $('#ap-sess')?.querySelector(`[data-carset-box="${id}"] .ap-setchip.on`)?.dataset.carset; if (on) sets[id] = on; }
     if (leadId !== team.active_car) {
-      const r = await api('/team/select-car', { id: leadId });
-      if (!r.ok) { notifyGame(careerError(r.d.error)); busy = false; paintSession(); return; }
+      const r = await openCar(leadId);
+      if (!r) { busy = false; paintSession(); return; }
       setups = {}; weekendSet = null; weekendSet2 = null; adopt(r.d); paintStatus();
     }
     setups[curTrack] = leadSetup;

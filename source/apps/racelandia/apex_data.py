@@ -491,7 +491,8 @@ def save_setup(player_id: str, setup, track: str = TRACK) -> dict:
     conn=_connect()
     try:
         weekend=season.ensure(conn,d);conn.commit()
-        if weekend['stage']>=3 and weekend.get('locked_setup'):return dict(weekend['locked_setup'])
+        key=team.slot_of(conn,d)
+        if season.parc_ferme(weekend,key):return dict(weekend['slots'][key]['locked_setup'])
     finally:conn.close()
     setups = dict(d["setups"])
     setups[track] = s
