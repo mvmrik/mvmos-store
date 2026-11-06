@@ -9,10 +9,24 @@
     "spreadsheet",
     "word processor"
   ],
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Text documents on A4 pages and spreadsheets in one file, with tables inside the text, formulas across tables and pages, and calculated values right in your sentences.",
   "entry": "main.js",
   "public_url": "/pub/mvmoffice/",
   "public_directory": true,
-  "min_core_version": "1.8.0"
+  "min_core_version": "1.15.0",
+  "credit_features": [
+    {
+      "id": "ai_message",
+      "name": "Writing assistant message",
+      "description": "Charged once for each message the writing assistant answers; given back when it cannot answer.",
+      "unit": "message"
+    },
+    {
+      "id": "ai_image",
+      "name": "Picture by the writing assistant",
+      "description": "Charged once for each picture the assistant makes for a cover or a chapter; given back when no picture is made.",
+      "unit": "picture"
+    }
+  ]
 }

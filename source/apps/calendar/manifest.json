@@ -19,12 +19,12 @@
     "planning",
     "events"
   ],
-  "version": "1.3.4",
+  "version": "1.3.5",
   "description": "Calendar with events and reminders, and a public web page for Apps Hub accounts.",
   "entry": "main.js",
   "public_url": "/pub/calendar/",
   "public_directory": true,
   "scheduler": "reminder_scheduler.py",
   "replaces_widget": "calendar",
-  "min_core_version": "1.0.0"
+  "min_core_version": "1.17.0"
 }

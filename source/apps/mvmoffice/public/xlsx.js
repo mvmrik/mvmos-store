@@ -225,7 +225,7 @@
 
   // ── The zip around it ────────────────────────────────────────────────────
   // Stored without compression: every spreadsheet program reads that, and it
-  // needs no library.
+  // needs no library. A file is text or bytes (a picture).
   const CRC = (() => {
     const t = new Uint32Array(256);
     for (let n = 0; n < 256; n++) {
@@ -248,7 +248,7 @@
     const dosTime = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
     const dosDate = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
     for (const [name, text] of files) {
-      const nameB = enc.encode(name), data = enc.encode(text), crc = crc32(data);
+      const nameB = enc.encode(name), data = typeof text === 'string' ? enc.encode(text) : text, crc = crc32(data);
       const local = new DataView(new ArrayBuffer(30));
       local.setUint32(0, 0x04034b50, true); local.setUint16(4, 20, true); local.setUint16(6, 0x0800, true);
       local.setUint16(8, 0, true); local.setUint16(10, dosTime, true); local.setUint16(12, dosDate, true);

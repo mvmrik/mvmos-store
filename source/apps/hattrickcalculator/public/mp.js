@@ -1962,6 +1962,23 @@
     draft = null; view = tabView; render();
   }
 
+  // Dates are chosen with the shared mvmOS calendar, in the regional format; the hidden field keeps the id and
+  // the YYYY-MM-DD value, so the form reads it as it read the native field.
+  let _pickers = [];
+  function mountPickers(scope) {
+    const P = window.mvmOS && window.mvmOS.dateTimePicker;
+    if (!P) return;
+    _pickers = _pickers.filter(h => h.button.isConnected || (h.destroy(), false));
+    scope.querySelectorAll('[data-pk]').forEach(host => {
+      const o = { type: host.dataset.pk, label: host.dataset.label || '', required: true };
+      let f;
+      try { f = P.create(host, Object.assign({}, o, { value: host.dataset.value || '' })); } catch (e) { f = P.create(host, o); }
+      if (host.dataset.id) f.input.id = host.dataset.id;
+      for (const k of Object.keys(host.dataset)) if (/^attr/.test(k)) f.input.setAttribute(host.dataset[k].split('=')[0], host.dataset[k].split('=').slice(1).join('='));
+      _pickers.push(f);
+    });
+  }
+
   function renderPlayerForm() {
     const p = draft;
     const field = (label, inner, cls) => '<label class="htc-field' + (cls ? ' ' + cls : '') + '"><span>' + esc(tr(label)) + '</span>' + inner + '</label>';
@@ -2004,7 +2021,7 @@
         + '<select class="htc-input" data-skill="' + s + '">' + levelOptions(0, MAX_LEVEL, p.skills[s]) + '</select>'
         + '<button class="htc-step" data-dir="1" aria-label="+">+</button>'
         + '</div>').join('') + '</div>'
-      + (p.id ? '<label class="htc-field htc-change-date"><span>' + esc(tr('htc_change_date')) + '</span><input class="htc-input" type="date" id="htc-change-date" value="' + esc(changeDate) + '"></label>'
+      + (p.id ? '<label class="htc-field htc-change-date"><span>' + esc(tr('htc_change_date')) + '</span><span data-pk="date" data-id="htc-change-date" data-label="' + esc(tr('htc_change_date')) + '" data-value="' + esc(changeDate) + '"></span></label>'
         + '<p class="htc-note">' + esc(tr('htc_change_note')) + '</p>' : '')
       + '</section>'
       + (p.id ? '<section class="htc-card"><h3>' + esc(tr('htc_history')) + '</h3>'
@@ -2037,6 +2054,7 @@
         };
       });
     });
+    mountPickers(root);
     const cd = root.querySelector('#htc-change-date');
     if (cd) cd.onchange = () => { changeDate = validDate(cd.value) || today(); };
     root.querySelectorAll('[data-hist]').forEach(b => {

@@ -19,6 +19,7 @@ const _mvmai18n = {
     base_url: 'Custom base URL (only for Custom provider)',
     segment_desktop: 'Desktop', segment_public: 'Public page',
     pub_provider_label: 'Public page AI', pub_provider_same: '(same as desktop)',
+    segment_images: "Pictures", image_backend_label: "Image generator", image_backend_hint: "Used by every model that has no picture generator of its own (API providers, Claude and Gemini CLI, and administrators without full access), for public users and for connected apps. Codex with full access draws with its own tool.", image_backend_auto: "Automatic (first one that is ready)", image_backend_off: "Off", image_backend_ready: "ready", image_backend_wait: "not ready (no key or not signed in)", pub_images_label: "Let public users make pictures", pub_images_hint: "Off by default. A picture takes a minute or more and uses the generator’s account; set a price per picture in Apps Hub (Credit services) and a daily limit below.", pub_images_daily_label: "Pictures per public user per day (empty = no limit)",
     pub_bridge_label: 'Let public users use the app-data API integration',
     pub_bridge_hint: "Off by default. When on, mvmAI can read or change a user's own data in their other installed apps.",
     segment_compaction: 'History', compact_keep_label: 'Recent messages kept in full',
@@ -59,6 +60,7 @@ const _mvmai18n = {
     base_url: 'Custom base URL (само за Custom провайдър)',
     segment_desktop: 'Работен плот', segment_public: 'Публична страница',
     pub_provider_label: 'AI за публичната страница', pub_provider_same: '(същия като вътрешния)',
+    segment_images: "Картинки", image_backend_label: "Генератор на картинки", image_backend_hint: "Ползва се от всички модели, които нямат собствен генератор на картинки (API доставчици, Claude и Gemini CLI и администратори без пълен достъп), за публичните потребители и за свързаните приложения. Codex с пълен достъп рисува със собствения си инструмент.", image_backend_auto: "Автоматично (първият готов)", image_backend_off: "Изключен", image_backend_ready: "готов", image_backend_wait: "не е готов (няма ключ или не е влязъл)", pub_images_label: "Публичните потребители да могат да правят картини", pub_images_hint: "Изключено по подразбиране. Всяка картина отнема минута или повече и харчи акаунта на генератора; цена за картина се задава в Apps Hub (Кредитни услуги), а дневен лимит — по-долу.", pub_images_daily_label: "Картини на публичен потребител на ден (празно = без лимит)",
     pub_bridge_label: 'Позволи на публичните потребители да ползват API интеграцията с приложенията',
     pub_bridge_hint: 'По подразбиране е изключено. Когато е включено, mvmAI може да чете или променя собствените данни на потребителя в другите му инсталирани приложения.',
     segment_compaction: 'История', compact_keep_label: 'Скорошни съобщения, пазени изцяло',
@@ -99,6 +101,7 @@ const _mvmai18n = {
     base_url: 'Eigene Basis-URL (nur für Custom-Anbieter)',
     segment_desktop: 'Desktop', segment_public: 'Öffentliche Seite',
     pub_provider_label: 'KI für die öffentliche Seite', pub_provider_same: '(wie im Desktop)',
+    segment_images: "Bilder", image_backend_label: "Bildgenerator", image_backend_hint: "Wird von allen Modellen genutzt, die keinen eigenen Bildgenerator haben (API-Anbieter, Claude und Gemini CLI sowie Administratoren ohne Vollzugriff), für öffentliche Nutzer und für verbundene Apps. Codex mit Vollzugriff zeichnet mit seinem eigenen Werkzeug.", image_backend_auto: "Automatisch (der erste bereite)", image_backend_off: "Aus", image_backend_ready: "bereit", image_backend_wait: "nicht bereit (kein Schlüssel oder nicht angemeldet)", pub_images_label: "Öffentlichen Nutzern erlauben, Bilder zu erstellen", pub_images_hint: "Standardmäßig aus. Ein Bild dauert eine Minute oder länger und nutzt das Konto des Generators; einen Preis pro Bild stellen Sie im Apps Hub (Credit-Dienste) ein, ein Tageslimit unten.", pub_images_daily_label: "Bilder pro öffentlichem Nutzer und Tag (leer = kein Limit)",
     pub_bridge_label: 'Öffentlichen Nutzern die App-Daten-API-Integration erlauben',
     pub_bridge_hint: 'Standardmäßig deaktiviert. Wenn aktiviert, kann mvmAI die eigenen Daten des Nutzers in dessen anderen installierten Apps lesen oder ändern.',
     segment_compaction: 'Verlauf', compact_keep_label: 'Vollständig behaltene, aktuelle Nachrichten',
@@ -139,6 +142,7 @@ const _mvmai18n = {
     base_url: 'URL base personalizada (solo para proveedor Custom)',
     segment_desktop: 'Escritorio', segment_public: 'Página pública',
     pub_provider_label: 'IA de la página pública', pub_provider_same: '(igual que en el escritorio)',
+    segment_images: "Imágenes", image_backend_label: "Generador de imágenes", image_backend_hint: "Lo usan todos los modelos que no tienen un generador de imágenes propio (proveedores de API, Claude y Gemini CLI y administradores sin acceso completo), para los usuarios públicos y las aplicaciones conectadas. Codex con acceso completo dibuja con su propia herramienta.", image_backend_auto: "Automático (el primero listo)", image_backend_off: "Desactivado", image_backend_ready: "listo", image_backend_wait: "no listo (sin clave o sin sesión)", pub_images_label: "Permitir que los usuarios públicos creen imágenes", pub_images_hint: "Desactivado por defecto. Una imagen tarda un minuto o más y usa la cuenta del generador; el precio por imagen se fija en Apps Hub (Servicios de créditos) y el límite diario abajo.", pub_images_daily_label: "Imágenes por usuario público al día (vacío = sin límite)",
     pub_bridge_label: 'Permitir a los usuarios públicos usar la integración de API con las apps',
     pub_bridge_hint: 'Desactivado por defecto. Cuando está activado, mvmAI puede leer o modificar los propios datos del usuario en sus otras apps instaladas.',
     segment_compaction: 'Historial', compact_keep_label: 'Mensajes recientes conservados por completo',
@@ -179,6 +183,7 @@ const _mvmai18n = {
     base_url: 'URL de base personnalisée (uniquement pour le fournisseur Custom)',
     segment_desktop: 'Bureau', segment_public: 'Page publique',
     pub_provider_label: 'IA de la page publique', pub_provider_same: '(identique au bureau)',
+    segment_images: "Images", image_backend_label: "Générateur d’images", image_backend_hint: "Utilisé par tous les modèles qui n’ont pas de générateur d’images propre (fournisseurs d’API, Claude et Gemini CLI, et administrateurs sans accès complet), pour les utilisateurs publics et les applications connectées. Codex avec accès complet dessine avec son propre outil.", image_backend_auto: "Automatique (le premier prêt)", image_backend_off: "Désactivé", image_backend_ready: "prêt", image_backend_wait: "non prêt (pas de clé ou non connecté)", pub_images_label: "Autoriser les utilisateurs publics à créer des images", pub_images_hint: "Désactivé par défaut. Une image prend une minute ou plus et utilise le compte du générateur ; fixez un prix par image dans Apps Hub (Services de crédits) et une limite quotidienne ci-dessous.", pub_images_daily_label: "Images par utilisateur public et par jour (vide = sans limite)",
     pub_bridge_label: "Autoriser les utilisateurs publics à utiliser l'intégration API avec les applications",
     pub_bridge_hint: "Désactivé par défaut. Une fois activé, mvmAI peut lire ou modifier les propres données de l'utilisateur dans ses autres applications installées.",
     segment_compaction: 'Historique', compact_keep_label: 'Messages récents conservés en entier',
@@ -219,6 +224,7 @@ const _mvmai18n = {
     base_url: 'カスタムベースURL (Customプロバイダーのみ)',
     segment_desktop: 'デスクトップ', segment_public: '公開ページ',
     pub_provider_label: '公開ページのAI', pub_provider_same: '(デスクトップと同じ)',
+    segment_images: "画像", image_backend_label: "画像生成", image_backend_hint: "独自の画像生成機能を持たないすべてのモデル（API プロバイダー、Claude と Gemini CLI、フルアクセスのない管理者）が、公開ユーザーや接続されたアプリのために使います。フルアクセスの Codex は自身のツールで描画します。", image_backend_auto: "自動（最初に利用可能なもの）", image_backend_off: "オフ", image_backend_ready: "利用可能", image_backend_wait: "未準備（キーなし、またはサインインしていません）", pub_images_label: "公開ページのユーザーに画像作成を許可", pub_images_hint: "デフォルトはオフです。画像は1分以上かかり、生成元のアカウントを使います。画像ごとの価格は Apps Hub（クレジットサービス）で、1日の上限は下で設定します。", pub_images_daily_label: "公開ユーザー1人あたり1日の画像数（空欄＝無制限）",
     pub_bridge_label: '公開ユーザーにアプリデータAPI連携の利用を許可する',
     pub_bridge_hint: '初期設定ではオフです。オンにすると、mvmAIはユーザー自身の他のインストール済みアプリのデータを読み書きできます。',
     segment_compaction: '履歴', compact_keep_label: '完全な形で保持する直近メッセージ数',
@@ -259,6 +265,7 @@ const _mvmai18n = {
     base_url: 'URL base personalizada (apenas para provedor Custom)',
     segment_desktop: 'Desktop', segment_public: 'Página pública',
     pub_provider_label: 'IA da página pública', pub_provider_same: '(igual ao desktop)',
+    segment_images: "Imagens", image_backend_label: "Gerador de imagens", image_backend_hint: "Usado por todos os modelos que não têm um gerador de imagens próprio (provedores de API, Claude e Gemini CLI e administradores sem acesso total), para usuários públicos e aplicativos conectados. O Codex com acesso total desenha com a sua própria ferramenta.", image_backend_auto: "Automático (o primeiro pronto)", image_backend_off: "Desligado", image_backend_ready: "pronto", image_backend_wait: "não pronto (sem chave ou sem login)", pub_images_label: "Permitir que usuários públicos criem imagens", pub_images_hint: "Desligado por padrão. Uma imagem leva um minuto ou mais e usa a conta do gerador; defina o preço por imagem no Apps Hub (Serviços de créditos) e o limite diário abaixo.", pub_images_daily_label: "Imagens por usuário público por dia (vazio = sem limite)",
     pub_bridge_label: 'Permitir que usuários públicos usem a integração de API com os apps',
     pub_bridge_hint: 'Desativado por padrão. Quando ativado, o mvmAI pode ler ou alterar os próprios dados do usuário em seus outros apps instalados.',
     segment_compaction: 'Histórico', compact_keep_label: 'Mensagens recentes mantidas na íntegra',
@@ -299,6 +306,7 @@ const _mvmai18n = {
     base_url: 'Свой базовый URL (только для провайдера Custom)',
     segment_desktop: 'Рабочий стол', segment_public: 'Публичная страница',
     pub_provider_label: 'ИИ для публичной страницы', pub_provider_same: '(как на десктопе)',
+    segment_images: "Картинки", image_backend_label: "Генератор картинок", image_backend_hint: "Используется всеми моделями, у которых нет собственного генератора картинок (API-провайдеры, Claude и Gemini CLI и администраторы без полного доступа), для публичных пользователей и подключённых приложений. Codex с полным доступом рисует собственным инструментом.", image_backend_auto: "Автоматически (первый готовый)", image_backend_off: "Выключен", image_backend_ready: "готов", image_backend_wait: "не готов (нет ключа или не выполнен вход)", pub_images_label: "Разрешить публичным пользователям создавать картинки", pub_images_hint: "По умолчанию выключено. Картинка создаётся минуту и дольше и расходует аккаунт генератора; цену за картинку задайте в Apps Hub (Кредитные услуги), дневной лимит — ниже.", pub_images_daily_label: "Картинок на публичного пользователя в день (пусто = без лимита)",
     pub_bridge_label: 'Разрешить публичным пользователям использовать API-интеграцию с приложениями',
     pub_bridge_hint: 'По умолчанию выключено. Когда включено, mvmAI может читать или изменять собственные данные пользователя в его других установленных приложениях.',
     segment_compaction: 'История', compact_keep_label: 'Недавние сообщения, сохраняемые полностью',
@@ -339,6 +347,7 @@ const _mvmai18n = {
     base_url: '自定义基础 URL (仅适用于 Custom 提供商)',
     segment_desktop: '桌面端', segment_public: '公开页面',
     pub_provider_label: '公开页面 AI', pub_provider_same: '(与桌面端相同)',
+    segment_images: "图片", image_backend_label: "图片生成器", image_backend_hint: "供所有没有自带图片生成器的模型使用（API 提供商、Claude 和 Gemini CLI，以及没有完全访问权限的管理员），也适用于公开用户和已连接的应用。拥有完全访问权限的 Codex 使用自己的工具绘图。", image_backend_auto: "自动（第一个可用的）", image_backend_off: "关闭", image_backend_ready: "可用", image_backend_wait: "不可用（没有密钥或未登录）", pub_images_label: "允许公开页面用户生成图片", pub_images_hint: "默认关闭。一张图片需要一分钟或更久，并使用生成器的账户；每张图片的价格在 Apps Hub（点数服务）中设置，每日上限见下方。", pub_images_daily_label: "每位公开用户每天的图片数（留空 = 不限）",
     pub_bridge_label: '允许公开用户使用应用数据 API 集成',
     pub_bridge_hint: '默认关闭。开启后，mvmAI 可以读取或更改用户自己在其他已安装应用中的数据。',
     segment_compaction: '历史记录', compact_keep_label: '完整保留的最近消息数',
@@ -469,6 +478,21 @@ mvmOS.registerApp({
       <div id="mvmai-baseurl-row" style="display:none;flex-direction:column;gap:4px">
         ${_lbl(isBg ? 'Base URL (само за Custom)' : 'Base URL (Custom provider only)')}
         <input id="mvmai-baseurl-inp" type="text" class="s-input" value="${saved?.base_url || ''}">
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:4px 0;opacity:.6">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-weight:600;font-size:.85rem">${_ait('segment_images')}</div>
+        ${_row(`${_lbl(_ait('image_backend_label'))}
+          <select id="mvmai-image-backend-sel" class="s-input"></select>
+          <div id="mvmai-image-backend-status" style="font-size:.75rem;color:var(--text-dim);min-height:1.2em"></div>
+          <div style="font-size:.74rem;color:var(--text-dim)">${_ait('image_backend_hint')}</div>`)}
+        ${_row(`<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
+            <input type="checkbox" id="mvmai-pub-images-chk" ${saved?.pub_images_enabled ? 'checked' : ''}>
+            ${_ait('pub_images_label')}
+          </label>
+          <div style="font-size:.74rem;color:var(--text-dim)">${_ait('pub_images_hint')}</div>`)}
+        ${_row(`${_lbl(_ait('pub_images_daily_label'))}
+          <input id="mvmai-pub-images-daily" type="number" min="0" max="1000" step="1" class="s-input" value="${saved?.pub_images_daily || ''}">`)}
       </div>
       <hr style="border:none;border-top:1px solid var(--border);margin:4px 0;opacity:.6">
       <div id="mvmai-premium-segment" style="display:flex;flex-direction:column;gap:10px">
@@ -681,6 +705,26 @@ mvmOS.registerApp({
     const pubStatus    = wrap.querySelector('#mvmai-pub-models-status');
     const pubBridgeChk = wrap.querySelector('#mvmai-pub-bridge-chk');
 
+    // The picture generators this server has, and which are ready.
+    (async () => {
+      const sel = wrap.querySelector('#mvmai-image-backend-sel');
+      const status = wrap.querySelector('#mvmai-image-backend-status');
+      if (!sel) return;
+      let info = { backends: [], choice: saved?.image_backend || 'auto', active: null };
+      try { const r = await fetch('/api/mvmai/image-backends'); if (r.ok) info = await r.json(); } catch (e) { /* the list stays short */ }
+      const choice = saved?.image_backend || info.choice || 'auto';
+      sel.innerHTML = `<option value="auto">${_ait('image_backend_auto')}</option>` +
+        info.backends.map(b => `<option value="${b.id}">${b.name} — ${b.ready ? _ait('image_backend_ready') : _ait('image_backend_wait')}</option>`).join('') +
+        `<option value="off">${_ait('image_backend_off')}</option>`;
+      sel.value = [...sel.options].some(o => o.value === choice) ? choice : 'auto';
+      const show = () => {
+        const b = info.backends.find(x => x.id === sel.value);
+        status.textContent = sel.value === 'off' ? '' : (sel.value === 'auto' ? (info.active ? '✓ ' + (info.backends.find(x => x.id === info.active) || {}).name : '') : (b ? (b.ready ? '✓ ' : '⚠ ') + b.name : ''));
+      };
+      sel.addEventListener('change', show);
+      show();
+    })();
+
     function _pubEffectiveProvider() { return pubProvSel.value || savedProvider; }
     async function _updatePubModel(current) {
       await _updateModelControls(
@@ -717,6 +761,9 @@ mvmOS.registerApp({
     const baseUrlInp  = panel.querySelector('#mvmai-baseurl-inp');
     const pubProvSel   = panel.querySelector('#mvmai-pub-provider-sel');
     const pubBridgeChk = panel.querySelector('#mvmai-pub-bridge-chk');
+    const imageSel = panel.querySelector('#mvmai-image-backend-sel');
+    const pubImagesChk = panel.querySelector('#mvmai-pub-images-chk');
+    const pubImagesDaily = panel.querySelector('#mvmai-pub-images-daily');
     const terminalChk  = panel.querySelector('#mvmai-terminal-chk');
     const db = mvmOS.db('mvmai');
     const s = (k, v) => db.run('INSERT OR REPLACE INTO cfg (key,value) VALUES (?,?)', [k, JSON.stringify(v)]);
@@ -750,6 +797,12 @@ mvmOS.registerApp({
     if (pubModelVal !== undefined) saves.push(s('pub_model', pubModelVal));
     panel.querySelectorAll('select[data-cli-user]').forEach(el => saves.push(s(`cli_user_${el.dataset.cliUser}`, el.value)));
     if (pubBridgeChk) saves.push(s('pub_data_bridge_enabled', pubBridgeChk.checked));
+    if (imageSel && imageSel.options.length) saves.push(s('image_backend', imageSel.value));
+    if (pubImagesChk) saves.push(s('pub_images_enabled', pubImagesChk.checked));
+    if (pubImagesDaily) {
+      const n = parseInt(pubImagesDaily.value.trim(), 10);
+      saves.push(s('pub_images_daily', Number.isFinite(n) && n > 0 ? n : null));
+    }
     if (terminalChk) saves.push(s('terminal_enabled', terminalChk.checked));
     const agentsChk = panel.querySelector('#mvmai-agents-chk');
     if (agentsChk && !agentsChk.disabled) saves.push(s('agents_enabled', agentsChk.checked));

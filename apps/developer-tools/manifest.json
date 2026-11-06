@@ -5,15 +5,15 @@
       "name": "YourSQL",
       "icon": "🗄️",
       "category": "Developer Tools",
-      "version": "2.2.4",
+      "version": "2.2.5",
       "description": "MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL and Greenplum database manager — browse databases, edit data, run queries, import and export.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/developer-tools/yoursql-2.2.4.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/developer-tools/yoursql-2.2.5.zip",
       "tags": [
         "database",
         "sql",
         "developer"
       ],
-      "min_core_version": "1.0.0"
+      "min_core_version": "1.17.0"
     },
     {
       "id": "git-manager",

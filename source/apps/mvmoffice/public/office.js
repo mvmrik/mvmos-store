@@ -85,8 +85,19 @@
       this.build();
       if (!this.token) { if (this.opts.onNeedLogin) this.opts.onNeedLogin(); return; }
       // Numbers and dates are shown and typed the way this person writes them.
+      this.loadAiStatus();
+      this.loadFonts();
       this.api('/region').then(r => F.setRegion(r)).catch(() => {})
         .then(() => (this.opts.openPath ? this.openServerFile(this.opts.openPath) : this.showList()));
+    }
+    // The fonts of mvmFonts, when that app is installed and answers; if not, no font button appears.
+    async loadFonts() {
+      const FN = window.MvmOfficeFonts;
+      if (!FN || !this.token) return;
+      try {
+        FN.set(await this.api('/fonts'));
+      } catch (e) { FN.set(null); }
+      this.root.classList.toggle('mo-has-fonts', FN.families.length > 0);
     }
     // A file handed over by File Manager or the desktop while the window is open.
     async openPath(path) {
@@ -94,10 +105,14 @@
       if (await this.leaveDoc()) this.openServerFile(path);
     }
 
+    // The desktop window says so, so the server can tell it from a public page
+    // (it checks that an mvmOS session really stands behind the claim).
+    surfaceHeaders() { return this.opts.desktop ? { 'X-Mvmoffice-Surface': 'desktop' } : {}; }
+
     // ── Server ─────────────────────────────────────────────────────────────
     async api(path, o) {
       o = o || {};
-      const headers = Object.assign({ 'X-Pub-Token': this.token }, o.headers || {});
+      const headers = Object.assign({ 'X-Pub-Token': this.token }, this.surfaceHeaders(), o.headers || {});
       if (o.body != null && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
       const r = await fetch(API + path, Object.assign({}, o, { headers }));
       const data = await r.json().catch(() => ({}));
@@ -120,6 +135,7 @@
             <span class="mo-where"></span>
             <span class="mo-status"></span>
             <span class="mo-grow"></span>
+            <button class="mo-btn mo-ai-btn" data-a="ai" hidden>✨ ${esc(t('mo_ai'))}</button>
             <button class="mo-btn" data-a="file">${esc(t('mo_file'))} ▾</button>
           </div>
           <div class="mo-conflict" hidden>
@@ -137,12 +153,14 @@
                 <option value="h1">${esc(t('mo_heading'))} 1</option>
                 <option value="h2">${esc(t('mo_heading'))} 2</option>
                 <option value="h3">${esc(t('mo_heading'))} 3</option>
+                <option value="h4">${esc(t('mo_heading'))} 4</option>
               </select>
             </span>
             <button class="mo-ib mo-b" data-a="b" title="${esc(t('mo_bold'))} (Ctrl+B)">B</button>
             <button class="mo-ib mo-i" data-a="i" title="${esc(t('mo_italic'))} (Ctrl+I)">I</button>
             <button class="mo-ib mo-u" data-a="u" title="${esc(t('mo_underline'))} (Ctrl+U)">U</button>
             <button class="mo-ib mo-s" data-a="s" title="${esc(t('mo_strike'))}">S</button>
+            <span class="mo-tg-text"><button class="mo-ib mo-fontbtn" data-a="font" title="${esc(t('mo_font'))}">Aa▾</button></span>
             <button class="mo-ib" data-a="color" title="${esc(t('mo_text_color'))}"><span class="mo-a-color">A</span></button>
             <span class="mo-tg-cell"><button class="mo-ib" data-a="fill" title="${esc(t('mo_fill_color'))}">▧</button></span>
             <span class="mo-sep"></span>
@@ -158,6 +176,11 @@
               <button class="mo-btn mo-ins" data-a="table" title="${esc(t('mo_insert_table'))}">▦ ${esc(t('mo_table'))}</button>
               <button class="mo-btn mo-ins mo-fx-btn" data-a="fx" title="${esc(t('mo_insert_formula_hint'))}">ƒx</button>
               <button class="mo-ib" data-a="pb" title="${esc(t('mo_page_break'))} (Ctrl+Enter)">⤓</button>
+              <span class="mo-sep"></span>
+              <button class="mo-ib" data-a="link" title="${esc(t('mo_insert_link'))}">🔗</button>
+              <button class="mo-ib" data-a="img" title="${esc(t('mo_insert_image'))}">🖼</button>
+              <button class="mo-ib" data-a="note" title="${esc(t('mo_insert_note'))}">¹</button>
+              <button class="mo-ib" data-a="toc" title="${esc(t('mo_insert_toc'))}">☰</button>
             </span>
             <span class="mo-tg-cell">
               <span class="mo-sep"></span>
@@ -174,7 +197,7 @@
           <div class="mo-body">
             <aside class="mo-side"></aside>
             <main class="mo-main">
-              <div class="mo-desk"><div class="mo-paper"><div class="mo-page-host"></div></div></div>
+              <div class="mo-desk"><div class="mo-notes-hint" hidden></div><div class="mo-paper"><div class="mo-page-host"></div></div></div>
               <div class="mo-sheet-host" hidden></div>
               <div class="mo-empty" hidden></div>
             </main>
@@ -196,6 +219,9 @@
       this.sideEl = q('.mo-side');
       this.deskEl = q('.mo-desk');
       this.pageHost = q('.mo-page-host');
+      this.aiBtn = q('.mo-ai-btn');
+      this.notesHint = q('.mo-notes-hint');
+      this.notesHint.textContent = t('mo_notes_hint');
       this.sheetHost = q('.mo-sheet-host');
       this.emptyEl = q('.mo-empty');
       this.blockSel = q('.mo-sel-block');
@@ -292,7 +318,7 @@
       }
       body.innerHTML = `<div class="mo-docs">${docs.map(d => `
           <div class="mo-doc" data-l="doc" data-id="${d.id}">
-            <span class="mo-doc-ico">📄</span>
+            <span class="mo-doc-ico${d.type === 'book' ? ' mo-doc-book' : ''}">${d.type === 'book' ? BOOK_ICO : '📄'}</span>
             <span class="mo-doc-main"><span class="mo-doc-title">${esc(d.title || t('mo_untitled'))}</span>
               <span class="mo-doc-meta">${esc(this.when(d.updated))} · ${esc(this.size(d.size))}</span></span>
             <button class="mo-ib" data-l="dl" data-id="${d.id}" title="${esc(t('mo_download'))}">⬇</button>
@@ -420,6 +446,7 @@
       else this.showEmpty();
     }
     closeDoc(silent) {
+      if (window.MvmOfficeAssistant) window.MvmOfficeAssistant.close(this);
       this.closeFormulaBox();
       this.closeMenus();
       if (this.editor) { this.editor.destroy(); this.editor = null; }
@@ -457,8 +484,12 @@
           <span class="mo-si-ico">${icon}</span><span class="mo-si-name">${esc(label)}</span>
           <button class="mo-ib mo-si-more" data-s="more-${kind}" data-id="${id}" title="${esc(t('mo_more'))}">⋯</button>
         </div>`;
+      const book = M.isBook(d);
       this.sideEl.innerHTML = `
-        <div class="mo-sh"><span>${esc(t('mo_pages'))}</span><button class="mo-ib" data-s="addpage" title="${esc(t('mo_add_page'))}">+</button></div>
+        ${book ? `<div class="mo-si" data-s="cover" data-id="front"><span class="mo-si-ico">📕</span><span class="mo-si-name">${esc(t('mo_front_cover'))}</span></div>
+        <div class="mo-si" data-s="cover" data-id="back"><span class="mo-si-ico">📘</span><span class="mo-si-name">${esc(t('mo_back_cover'))}</span></div>` : ''}
+        ${item('page', 'notes', '📝', t('mo_doc_notes')).replace(/<button class="mo-ib mo-si-more"[\s\S]*?<\/button>/, '')}
+        <div class="mo-sh"><span>${esc(t(book ? 'mo_chapters' : 'mo_pages'))}</span><button class="mo-ib" data-s="addpage" title="${esc(t('mo_add_page'))}">+</button></div>
         ${d.pages.map(p => item('page', p.id, '📄', p.title || t('mo_untitled'))).join('') || `<div class="mo-snone">${esc(t('mo_no_pages'))}</div>`}
         <div class="mo-sh"><span>${esc(t('mo_data'))}</span><button class="mo-ib" data-s="addsheet" title="${esc(t('mo_add_sheet'))}">+</button></div>
         ${d.sheets.map(s => item('sheet', s.id, '📊', (d.tables[s.tableId] || {}).name || '?')).join('') || `<div class="mo-snone">${esc(t('mo_no_sheets'))}</div>`}
@@ -473,6 +504,7 @@
           if (carrying) this.resumeCarry();
           this.root.classList.remove('mo-side-open');
         }
+        else if (a === 'cover') { this.coverEditor(id); this.root.classList.remove('mo-side-open'); }
         else if (a === 'addpage') this.addPage();
         else if (a === 'addsheet') this.addSheet();
         else if (a === 'more-page' || a === 'more-sheet') {
@@ -488,6 +520,7 @@
       this.sideEl.ondblclick = e => {
         const b = e.target.closest('.mo-si');
         if (!b) return;
+        if (b.dataset.s === 'page' && b.dataset.id === 'notes') return;
         if (b.dataset.s === 'page') this.renamePage(b.dataset.id);
         else this.renameSheet(b.dataset.id);
       };
@@ -515,7 +548,7 @@
       ];
     }
     addPage() {
-      const p = M.addPage(this.doc, t('mo_page_base') + ' ' + (this.doc.pages.length + 1));
+      const p = M.addPage(this.doc, t(M.isBook(this.doc) ? 'mo_chapter_base' : 'mo_page_base') + ' ' + (this.doc.pages.length + 1));
       this.renderSide();
       this.showPage(p.id);
       this.scheduleSave();
@@ -548,7 +581,7 @@
     }
     afterRemoval() {
       const v = this.view;
-      const stillThere = v && (v.kind === 'page' ? this.doc.pages.some(p => p.id === v.id) : this.doc.sheets.some(s => s.id === v.id));
+      const stillThere = v && (v.kind === 'page' ? v.id === 'notes' || this.doc.pages.some(p => p.id === v.id) : this.doc.sheets.some(s => s.id === v.id));
       if (!stillThere) {
         this.view = null;
         if (this.doc.pages.length) this.showPage(this.doc.pages[0].id);
@@ -612,7 +645,7 @@
 
     // ── Views ──────────────────────────────────────────────────────────────
     showPage(id) {
-      const page = this.doc.pages.find(p => p.id === id);
+      const page = id === 'notes' ? this.doc.notes : this.doc.pages.find(p => p.id === id);
       if (!page) return;
       if (this.sheetGrid) { this.sheetGrid.destroy(); this.sheetGrid = null; }
       if (!this.editor || this.editor.page !== page) {
@@ -622,6 +655,7 @@
         this.editor = new E.PageEditor(this, this.pageHost, page);
       }
       this.view = { kind: 'page', id };
+      if (this.notesHint) this.notesHint.hidden = id !== 'notes';
       this.deskEl.hidden = false;
       this.sheetHost.hidden = true;
       this.emptyEl.hidden = true;
@@ -687,7 +721,12 @@
       if (this._tsRaf) return;
       this._tsRaf = requestAnimationFrame(() => { this._tsRaf = null; if (this.mode === 'text') this.updateTextTools(); });
     }
-    textChanged() { this.scheduleSave(); }
+    textChanged() {
+      this.scheduleSave();
+      // Headings changed: the contents follow, once the typing pauses.
+      clearTimeout(this._tocT);
+      this._tocT = setTimeout(() => { if (this.editor) this.editor.tocs.forEach(x => x.refresh()); }, 400);
+    }
     onSelect(grid) {
       if (grid !== this.activeGrid) return;
       this.updateFbar();
@@ -810,7 +849,7 @@
     }
     tableIdsInText(ed) {
       const ids = new Set();
-      for (const p of this.doc.pages) {
+      for (const p of this.doc.pages.concat([this.doc.notes])) {
         const content = ed && ed.page === p && ed.view ? ed.view.state.doc.toJSON() : p.content;
         M.walkJSON(content, n => { if (n.type === 'table_embed' && n.attrs) ids.add(n.attrs.tableId); });
       }
@@ -842,6 +881,7 @@
         case 'side': this.root.classList.toggle('mo-side-open'); return;
         case 'back': this.leaveDoc().then(ok => { if (ok) this.showList(); }); return;
         case 'file': this.fileMenu(btn); return;
+        case 'ai': this.openAssistant(); return;
         case 'theirs': this.reloadTheirs(); return;
         case 'mine': this.keepMine(); return;
         case 'undo': if (this.lastFocus === 'text' && ed && this.mode === 'text') ed.undo(); else this.undo(); return;
@@ -868,6 +908,7 @@
         case 'u': ed.toggleMark('underline'); break;
         case 's': ed.toggleMark('strike'); break;
         case 'color': this.palette(btn, COLORS, c => ed.setColor(c)); return;
+        case 'font': this.fontMenu(btn); return;
         case 'al': ed.setAlign('left'); break;
         case 'ac': ed.setAlign('center'); break;
         case 'ar': ed.setAlign('right'); break;
@@ -877,6 +918,10 @@
         case 'table': this.insertTable(); return;
         case 'fx': ed.insertFormula(); return;
         case 'pb': ed.insertPageBreak(); break;
+        case 'link': this.editLink(); return;
+        case 'img': this.imageAction(btn); return;
+        case 'note': ed.insertNote(); return;
+        case 'toc': ed.insertToc(); break;
       }
       this.updateTextTools();
     }
@@ -898,16 +943,23 @@
       if (this.desktop) items.push({ icon: '🗄', label: t('mo_save_to_folder'), onClick: () => this.saveToFolder() });
       if (this.exportables().length) items.push({ icon: '📊', label: t('mo_export_xlsx'), hint: '.xlsx', onClick: () => this.exportDialog() });
       if (this.doc.pages.length) {
+        items.push({ icon: '📖', label: t('mo_export_epub'), hint: '.epub', onClick: () => this.exportEpub() });
         items.push({ icon: '📄', label: t('mo_export_docx'), hint: '.docx', onClick: () => this.exportDocx() });
         items.push({ icon: '📕', label: t('mo_export_pdf'), hint: '.pdf', onClick: () => this.exportPdf() });
       }
       items.push('-');
+      items.push({ icon: '⚙', label: t('mo_doc_props'), onClick: () => this.docProps() });
+      if (M.isBook(this.doc)) {
+        items.push({ icon: '📕', label: t('mo_front_cover') + '…', onClick: () => this.coverEditor('front') });
+        items.push({ icon: '📘', label: t('mo_back_cover') + '…', onClick: () => this.coverEditor('back') });
+      }
       items.push({ icon: '📐', label: t('mo_page_setup'), onClick: () => this.pageSetup() });
       if (this.doc.pages.length) items.push({ icon: '🖨', label: t('mo_print_doc'), onClick: () => this.printDoc() });
       if (this.view && this.view.kind === 'sheet') items.push({ icon: '🖨', label: t('mo_print_sheet'), onClick: () => this.printSheet(this.view.id) });
       // The preview shows what Print would print from where the user is now.
       if (this.view && this.view.kind === 'sheet') items.push({ icon: '🔍', label: t('mo_print_preview'), onClick: () => this.printSheet(this.view.id, true) });
       else if (this.doc.pages.length) items.push({ icon: '🔍', label: t('mo_print_preview'), onClick: () => this.printDoc(true) });
+      if (this.doc.pages.length) items.push({ icon: '📖', label: t('mo_book_preview'), onClick: () => this.bookPreview() });
       items.push('-');
       items.push({ icon: '✕', label: t('mo_close'), onClick: () => this.leaveDoc().then(ok => { if (ok) this.showList(); }) });
       this.menu(r.right - 240, r.bottom + 4, items);
@@ -923,6 +975,7 @@
       on('s', ed.markActive('strike'));
       const al = ed.align();
       on('al', al === 'left'); on('ac', al === 'center'); on('ar', al === 'right'); on('aj', al === 'justify');
+      on('link', ed.linkHref());
       on('ul', ed.inList('bullet_list'));
       on('ol', ed.inList('ordered_list'));
       if (document.activeElement !== this.blockSel) this.blockSel.value = ed.blockType();
@@ -1568,11 +1621,364 @@
       });
     }
 
-    // ── Printing ───────────────────────────────────────────────────────────
-    printDoc(preview) {
+    // ── Links, pictures, notes, contents, book details ────────────────────
+    async editLink() {
+      const ed = this.editor;
+      if (!ed || this.mode !== 'text') return;
+      const cur = ed.linkHref();
+      if (!cur && !ed.hasSelection()) { this.toast(t('mo_link_select'), 'bad'); return; }
+      const v = await this.prompt(t('mo_link_prompt'), cur || 'https://');
+      if (v == null) { ed.focus(); return; }
+      if (!v.trim()) { ed.setLink(null); return; }
+      if (!/^(https?:\/\/|mailto:)/i.test(v.trim())) { this.toast(t('mo_link_invalid'), 'bad'); ed.focus(); return; }
+      ed.setLink(v);
+    }
+    // A picture from the user's device, shrunk to a size that is sharp on
+    // paper and light in the file, kept once in the document's image table.
+    pickImage() {
+      return new Promise(resolve => {
+        const inp = document.createElement('input');
+        inp.type = 'file';
+        inp.accept = 'image/png,image/jpeg,image/gif,image/webp';
+        inp.addEventListener('change', () => {
+          const f = inp.files && inp.files[0];
+          if (!f) { resolve(null); return; }
+          const fail = () => { this.toast(t('mo_image_failed'), 'bad'); resolve(null); };
+          const rd = new FileReader();
+          rd.onerror = fail;
+          rd.onload = () => this.imageFromData(rd.result, f.type).then(resolve, fail);
+          rd.readAsDataURL(f);
+        });
+        inp.click();
+      });
+    }
+    // A picture as a data URL (from a file, or made for the author), shrunk to
+    // a size that is sharp on paper and light in the file, kept once in the
+    // document's image table. `flat` says it has no transparency worth
+    // keeping, so a heavy PNG may become a JPEG.
+    imageFromData(url, type, flat) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('image'));
+        img.onload = () => {
+          const MAX = 1600;
+          const k = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
+          const w = Math.max(1, Math.round(img.naturalWidth * k)), h = Math.max(1, Math.round(img.naturalHeight * k));
+          const cv = document.createElement('canvas');
+          cv.width = w; cv.height = h;
+          const cx = cv.getContext('2d');
+          let png = type !== 'image/jpeg' && !flat;
+          if (!png) { cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h); }
+          cx.drawImage(img, 0, 0, w, h);
+          let src = png ? cv.toDataURL('image/png') : cv.toDataURL('image/jpeg', 0.88);
+          // A large screenshot as PNG can be huge; a photograph-like one is better as JPEG.
+          if (png && src.length > 2.5e6) {
+            cx.globalCompositeOperation = 'destination-over'; cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h);
+            src = cv.toDataURL('image/jpeg', 0.85);
+          }
+          if (src.length > 6e6) { reject(new Error('large')); return; }
+          const id = M.uid();
+          this.doc.images[id] = { src, w, h };
+          resolve({ id });
+        };
+        img.src = url;
+      });
+    }
+    async imageAction(btn) {
+      const ed = this.editor;
+      if (!ed || this.mode !== 'text') return;
+      const im = ed.selectedImage();
+      if (!im) {
+        const r = await this.pickImage();
+        if (r) ed.insertImage(r.id);
+        else ed.focus();
+        return;
+      }
+      const r = btn.getBoundingClientRect();
+      const cur = im.node.attrs.width;
+      const items = [25, 50, 75, 100].map(w => ({ icon: cur === w ? '✓' : '', label: t('mo_image_size') + ' ' + w + ' %', onClick: () => ed.setImage({ width: w }) }));
+      items.push('-');
+      items.push({ icon: '✎', label: t('mo_image_alt'), onClick: async () => {
+        const v = await this.prompt(t('mo_image_alt'), im.node.attrs.alt || '');
+        if (v != null) ed.setImage({ alt: v.trim() });
+        else ed.focus();
+      } });
+      items.push({ icon: '🗑', label: t('mo_image_remove'), danger: true, onClick: () => ed.removeImage() });
+      this.menu(r.left, r.bottom + 4, items);
+    }
+    noteBox(o) {
+      const ov = this.dialog(`
+        <h3>${esc(t('mo_note'))}</h3>
+        <textarea class="mo-dlg-in mo-note-in" rows="5" maxlength="2000" spellcheck="true"></textarea>
+        <p class="mo-dlg-hint">${esc(t('mo_note_hint'))}</p>
+        <div class="mo-dlg-foot">
+          ${o.editing ? `<button class="mo-btn mo-danger" data-d="rm">${esc(t('mo_remove'))}</button><span class="mo-grow"></span>` : ''}
+          <button class="mo-btn" data-d="no">${esc(t('mo_cancel'))}</button>
+          <button class="mo-btn mo-primary" data-d="ok">${esc(o.editing ? t('mo_update') : t('mo_insert'))}</button>
+        </div>`);
+      const ta = ov.querySelector('textarea');
+      ta.value = o.text || '';
+      const end = what => {
+        document.removeEventListener('keydown', key, true);
+        const text = ta.value.trim();
+        ov.remove();
+        if (what === 'ok' && text) o.onDone(text);
+        else if (what === 'rm') o.onRemove();
+        else o.onCancel();
+      };
+      const key = e => {
+        if (e.key === 'Escape') { e.preventDefault(); end('no'); }
+        else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); end('ok'); }
+      };
+      document.addEventListener('keydown', key, true);
+      ov.addEventListener('click', e => {
+        const b = e.target.closest('[data-d]');
+        if (b) end(b.dataset.d);
+        else if (e.target === ov) end('no');
+      });
+      setTimeout(() => { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }, 0);
+    }
+    // The contents list: every heading down to `depth`, in reading order.
+    // The page numbers are filled in when the sheets are laid out.
+    tocDOM(depth) {
+      const ul = document.createElement('ul');
+      ul.className = 'mo-toc';
+      ul.setAttribute('data-depth', depth);
+      const title = document.createElement('li');
+      title.className = 'mo-toc-title';
+      title.textContent = t('mo_toc');
+      ul.appendChild(title);
+      const list = M.headings(this.doc, depth);
+      if (!list.length) {
+        const li = document.createElement('li');
+        li.className = 'mo-toc-empty';
+        li.textContent = t('mo_toc_empty');
+        ul.appendChild(li);
+      }
+      for (const h of list) {
+        const li = document.createElement('li');
+        li.className = 'l' + h.level;
+        const a = document.createElement('a');
+        a.href = '#mo-h' + h.n;
+        a.textContent = h.text;
+        const dots = document.createElement('span');
+        dots.className = 'mo-toc-dots';
+        const num = document.createElement('span');
+        num.className = 'mo-toc-n';
+        num.setAttribute('data-t', 'mo-h' + h.n);
+        li.append(a, dots, num);
+        ul.appendChild(li);
+      }
+      return ul;
+    }
+    docProps() {
+      const d = this.doc;
+      const opt = (v, label, cur) => `<option value="${v}"${v === cur ? ' selected' : ''}>${esc(label)}</option>`;
+      const ov = this.dialog(`
+        <h3>${esc(t('mo_doc_props'))}</h3>
+        <div class="mo-ps-form">
+          <label>${esc(t('mo_doc_type'))}<select data-k="type">${opt('text', t('mo_type_text'), d.type)}${opt('book', t('mo_type_book'), d.type)}</select></label>
+          <p class="mo-dlg-hint mo-book-only">${esc(t('mo_type_book_hint'))}</p>
+          <label>${esc(t('mo_author'))}<input data-k="author" maxlength="200" value="${esc(d.meta.author)}"></label>
+          <label>${esc(t('mo_language'))}<input data-k="lang" maxlength="20" placeholder="en, bg, de…" value="${esc(d.meta.lang)}"></label>
+          <label>${esc(t('mo_description'))}<textarea class="mo-dlg-in" data-k="description" rows="3" maxlength="2000">${esc(d.meta.description)}</textarea></label>
+          <label class="mo-ps-chk mo-book-only"><input type="checkbox" data-k="right"${d.book.chapterRight ? ' checked' : ''}> <span>${esc(t('mo_chapter_right'))}</span></label>
+        </div>
+        <div class="mo-dlg-foot"><button class="mo-btn" data-d="no">${esc(t('mo_cancel'))}</button><button class="mo-btn mo-primary" data-d="ok">OK</button></div>`);
+      const q = k => ov.querySelector(`[data-k="${k}"]`);
+      const sync = () => ov.querySelectorAll('.mo-book-only').forEach(el => { el.hidden = q('type').value !== 'book'; });
+      q('type').addEventListener('change', sync);
+      sync();
+      const key = e => { if (e.key === 'Escape') { e.preventDefault(); end(false); } };
+      const end = ok => {
+        document.removeEventListener('keydown', key, true);
+        if (ok) {
+          const was = d.type;
+          d.type = q('type').value === 'book' ? 'book' : 'text';
+          d.meta = M.normMeta({ author: q('author').value.trim(), lang: q('lang').value.trim(), description: q('description').value.trim() });
+          d.book.chapterRight = q('right').checked;
+          if (d.type === 'book' && was !== 'book') { M.applyBookPage(d); M.ensureCovers(d); }
+          this.applyPage();
+          this.renderSide();
+          this.scheduleSave();
+        }
+        ov.remove();
+        this.focusWork();
+      };
+      document.addEventListener('keydown', key, true);
+      ov.addEventListener('click', e => {
+        const b = e.target.closest('[data-d]');
+        if (b) end(b.dataset.d === 'ok');
+        else if (e.target === ov) end(false);
+      });
+    }
+    // The cover editor: a free layout on a page of the book's size. The
+    // result is kept in the document as items, and drawn as a picture of the
+    // finished page wherever the cover is printed or exported.
+    async coverEditor(side) {
+      if (!M.isBook(this.doc) || !window.MvmOfficeCover) return;
+      M.ensureCovers(this.doc);
+      const r = await window.MvmOfficeCover.open(this, side);
+      if (r) {
+        this.doc.cover = r.cover;
+        this.doc.back = r.back;
+        this.scheduleSave();
+      }
+      this.focusWork();
+    }
+    // Both covers as pictures, made again only when something changed.
+    async coverImages() {
+      const d = this.doc, C = window.MvmOfficeCover, box = M.pageBox(d);
+      M.ensureCovers(d);
+      const key = JSON.stringify([d.cover, d.back, box.w, box.h, Object.keys(d.images).map(k => k + d.images[k].src.length)]);
+      if (this._covers && this._covers.key === key) return this._covers;
+      this._covers = { key, front: await C.toImage(d, d.cover, box, 2000), back: await C.toImage(d, d.back, box, 2000) };
+      return this._covers;
+    }
+    // The names of the mvmFonts fonts the text uses.
+    usedFonts() {
+      const FN = window.MvmOfficeFonts, used = new Set();
+      const walk = n => {
+        if (!n) return;
+        (n.marks || []).forEach(m => { if (m.type === 'font' && m.attrs && FN && FN.has(m.attrs.family)) used.add(m.attrs.family); });
+        (n.content || []).forEach(walk);
+      };
+      this.doc.pages.forEach(p => walk(p.content));
+      return [...used];
+    }
+    // Their files, fetched so the book can carry them: { family: { fallback, faces: [...] } }.
+    async fontsForEpub() {
+      const FN = window.MvmOfficeFonts, out = {}, cache = new Map();
+      const fmt = { woff2: ['woff2', 'font/woff2'], woff: ['woff', 'font/woff'], ttf: ['truetype', 'font/ttf'], otf: ['opentype', 'font/otf'] };
+      for (const family of this.usedFonts()) {
+        const f = FN.by[family];
+        const faces = [];
+        for (const s of f.styles) {
+          for (const sub in s.files) {
+            const url = s.files[sub];
+            const file = url.split('/').pop().split('?')[0];
+            const ext = file.split('.').pop();
+            if (!cache.has(url)) {
+              cache.set(url, fetch(window.asset ? window.asset(url) : url).then(r => (r.ok ? r.arrayBuffer() : null)).then(b => (b ? new Uint8Array(b) : null)).catch(() => null));
+            }
+            const data = await cache.get(url);
+            if (!data || !fmt[ext]) continue;
+            faces.push({ style: s.style, weight: String(s.weight).split(' ')[0], file, format: fmt[ext][0], mime: fmt[ext][1], range: FN.ranges[sub] || '', data });
+          }
+        }
+        if (faces.length) out[family] = { fallback: f.category === 'mono' ? 'monospace' : f.category === 'serif' ? 'serif' : 'sans-serif', faces };
+      }
+      return out;
+    }
+    async exportEpub() {
       if (!this.doc.pages.length) return;
-      const html = this.doc.pages.map(p => E.pageHTML(this, p.content)).join('<div class="mo-page-break"></div>');
-      this.printHTML(html, this.doc.title, preview);
+      this.engine.invalidate();
+      const book = M.isBook(this.doc);
+      const covers = book ? await this.coverImages() : null;
+      const fonts = await this.fontsForEpub();
+      const blob = window.MvmOfficeEpub.book(this.doc, this, {
+        fonts,
+        lang: this.doc.meta.lang || (window.mvmOS && window.mvmOS.lang) || 'en',
+        cover: { title: this.doc.title, author: this.doc.meta.author, image: covers ? covers.front : null },
+        notes: t('mo_notes'), toc: t('mo_toc'),
+      });
+      this.download(blob, this.doc.title || t('mo_untitled'), '.epub');
+    }
+    // The book on the screen: closed, then opening, its leaves turning.
+    async bookPreview() {
+      const d = this.doc;
+      if (!window.MvmOfficeBookView || !d.pages.length) return;
+      const covers = M.isBook(d) ? await this.coverImages() : null;
+      // The pages are laid out exactly as for print, in a frame nobody sees.
+      const frame = document.createElement('iframe');
+      frame.style.cssText = 'position:fixed;left:-99999px;top:0;width:1200px;height:900px;border:0';
+      document.body.appendChild(frame);
+      const box = this.printBox();
+      await renderPages(frame.contentDocument, this.docHTML(!!covers, false), d.title, box);
+      const pages = [...frame.contentDocument.querySelectorAll('.pv-page:not(.pv-cover)')].map(p => p.outerHTML);
+      frame.remove();
+      const paper = { src: null };
+      const blank = () => {
+        const c = document.createElement('canvas'); c.width = 8; c.height = 8;
+        c.getContext('2d').fillStyle = '#fff'; c.getContext('2d').fillRect(0, 0, 8, 8);
+        return c.toDataURL();
+      };
+      window.MvmOfficeBookView.open(this.root, {
+        t, title: d.title, w: box.w, h: box.h, pages, css: pageStyles(box),
+        front: covers ? covers.front.src : blank(), back: covers ? covers.back.src : blank(),
+      });
+    }
+
+    // ── The writing assistant (a premium module: the server says whether it exists) ──
+    async loadAiStatus() {
+      try { this.ai = await this.api('/ai/status'); } catch (e) { this.ai = { premium: false }; }
+      // The desktop always shows the button, and without the module it opens the
+      // subscription dialog; a public page shows it only when the module is there.
+      const desktop = !!(window.mvmOS && window.mvmOS.premiumGate);
+      // Licensed: it is there while the administrator leaves it on. Not
+      // licensed: only the desktop shows it, locked.
+      this.aiBtn.hidden = !((desktop && !this.ai.premium) || (this.ai.premium && this.ai.enabled));
+      if (desktop && !this.ai.premium) window.mvmOS.premiumStatus = 'free';
+      if (desktop && !this._aiGated) { this._aiGated = true; window.mvmOS.premiumGate(this.aiBtn, t('mo_ai_premium')); }
+    }
+    async openAssistant() {
+      if (!this.ai || !this.ai.premium || !this.ai.enabled) return;
+      if (!window.MvmOfficeAssistant) {
+        try {
+          const res = await fetch(API + '/ai/assistant.js', { headers: Object.assign({ 'X-Pub-Token': this.token }, this.surfaceHeaders()) });
+          if (!res.ok) throw new Error('missing');
+          const url = URL.createObjectURL(new Blob([await res.text()], { type: 'text/javascript;charset=utf-8' }));
+          await new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = url; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); });
+          URL.revokeObjectURL(url);
+        } catch (e) { this.toast(t('mo_ai_unavailable'), 'bad'); return; }
+      }
+      window.MvmOfficeAssistant.toggle(this);
+    }
+    // The page on the screen is drawn again from the document (after the
+    // assistant has changed it).
+    refreshView() {
+      const v = this.view;
+      if (this.editor) { this.closeFormulaBox(); this.editor.destroy(); this.editor = null; }
+      this.renderSide();
+      if (v && v.kind === 'page') {
+        const ok = v.id === 'notes' || this.doc.pages.some(p => p.id === v.id);
+        if (ok) { this.showPage(v.id); return; }
+      }
+      const first = this.doc.pages[0];
+      if (first) this.showPage(first.id); else this.showEmpty();
+    }
+
+    // ── Printing ───────────────────────────────────────────────────────────
+    async printDoc(preview) {
+      if (!this.doc.pages.length) return;
+      const covers = M.isBook(this.doc) ? await this.coverImages() : null;
+      this.printHTML(this.docHTML(!!covers, true), this.doc.title, preview);
+    }
+    // The document as the printer gets it: the front cover of a book, then
+    // every page of text as a chapter, then the back cover. The chapter
+    // markers tell the running header where each one begins; the page breaks
+    // may ask for a right-hand page. `covers` says whether the covers exist,
+    // `withBack` whether the back cover belongs on paper.
+    docHTML(covers, withBack) {
+      const d = this.doc, ctx = { h: 0 };
+      const book = M.isBook(d);
+      let html = '';
+      const cv = covers && this._covers;
+      if (book && cv) html += `<div class="mo-cover"><img src="${cv.front.src}" alt=""></div>`;
+      const right = book && d.book.chapterRight ? ' data-odd="1"' : '';
+      d.pages.forEach((p, i) => {
+        if (i > 0 || (book && cv)) html += `<div class="mo-page-break"${right}></div>`;
+        html += `<div class="mo-chapter" data-t="${esc(p.title)}"></div>` + E.pageHTML(this, p.content, ctx);
+      });
+      if (book && cv && withBack) html += `<div class="mo-back"><img src="${cv.back.src}" alt=""></div>`;
+      return html;
+    }
+    printBox() {
+      const d = this.doc;
+      return Object.assign(M.pageBox(d), {
+        book: M.isBook(d), docTitle: d.title, lang: d.meta.lang || (window.mvmOS && window.mvmOS.lang) || 'en',
+        noteLabel: t('mo_notes'),
+      });
     }
     printSheet(id, preview) {
       const s = this.doc.sheets.find(x => x.id === id);
@@ -1620,12 +2026,11 @@
       const frame = document.createElement('iframe');
       frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden';
       document.body.appendChild(frame);
-      renderPages(frame.contentDocument, body, title, M.pageBox(this.doc));
-      setTimeout(() => {
+      renderPages(frame.contentDocument, body, title, this.printBox()).then(() => setTimeout(() => {
         frame.contentWindow.focus();
         frame.contentWindow.print();
         setTimeout(() => frame.remove(), 60000);
-      }, 50);
+      }, 50));
     }
 
     // The same HTML Print sends, laid out on A4 sheets: top-level blocks are
@@ -1653,8 +2058,6 @@
         if (b.dataset.p === 'print') { close(); this.printHTML(body, title); } else close();
       });
       const d = ov.querySelector('iframe').contentDocument;
-      const n = renderPages(d, body, title, M.pageBox(this.doc));
-      ov.querySelector('.mo-pv-count').textContent = t('mo_pages_count', { n });
       // A narrow window shows the whole width of a sheet, smaller.
       const frame = ov.querySelector('iframe');
       const fit = () => {
@@ -1662,8 +2065,12 @@
         if (!sheet || !ov.isConnected) return;
         d.body.style.zoom = Math.min(1, (frame.clientWidth - 24) / sheet.offsetWidth);
       };
-      fit();
-      new ResizeObserver(fit).observe(frame);
+      renderPages(d, body, title, this.printBox()).then(n => {
+        if (!ov.isConnected) return;
+        ov.querySelector('.mo-pv-count').textContent = t('mo_pages_count', { n });
+        fit();
+        new ResizeObserver(fit).observe(frame);
+      });
     }
 
     // ── Page setup ─────────────────────────────────────────────────────────
@@ -1673,6 +2080,7 @@
       st.setProperty('--mo-pw', b.w + 'mm');
       st.setProperty('--mo-ph', b.h + 'mm');
       st.setProperty('--mo-pm', `${b.t}mm ${b.r}mm ${b.b}mm ${b.l}mm`);
+      this.root.classList.toggle('mo-book', M.isBook(this.doc));
       if (this.editor) this.editor.repaginate();
     }
     pageSetup() {
@@ -1690,6 +2098,8 @@
             <label>${esc(t('mo_margins'))}<select data-k="preset">${['normal', 'narrow', 'wide', 'custom'].map(k => opt(k, t('mo_margins_' + k), presetOf(pg.margins))).join('')}</select></label>
             <div class="mo-ps-m">${sides.map(([k, key]) => `<label>${esc(t(key))}<span><input type="number" min="0" step="0.5" data-m="${k}" value="${pg.margins[idx[k]]}"> mm</span></label>`).join('')}</div>
             <label>${esc(t('mo_page_numbers'))}<select data-k="numbers">${M.PAGE_NUMBERS.map(k => opt(k, t('mo_pn_' + k), pg.numbers)).join('')}</select></label>
+            <label>${esc(t('mo_running_head'))}<select data-k="header">${M.HEADERS.map(k => opt(k, t('mo_rh_' + k), pg.header)).join('')}</select></label>
+            <label class="mo-ps-chk"><input type="checkbox" data-k="mirror"${pg.mirror ? ' checked' : ''}> <span>${esc(t('mo_mirror'))}</span></label>
           </div>
           <div class="mo-ps-view"><div class="mo-ps-sheet"><div class="mo-ps-text"></div><div class="mo-ps-num">1</div></div></div>
         </div>
@@ -1702,6 +2112,8 @@
         orient: q('[data-k="orient"]').value,
         margins: ['t', 'r', 'b', 'l'].map(k => q(`[data-m="${k}"]`).value),
         numbers: q('[data-k="numbers"]').value,
+        header: q('[data-k="header"]').value,
+        mirror: q('[data-k="mirror"]').checked,
       });
       // A small picture of the sheet, to scale, with the area the text uses.
       const draw = () => {
@@ -1711,7 +2123,7 @@
         sh.style.width = b.w * k + 'px'; sh.style.height = b.h * k + 'px';
         Object.assign(tx.style, { top: b.t * k + 'px', right: b.r * k + 'px', bottom: b.b * k + 'px', left: b.l * k + 'px' });
         nm.hidden = b.numbers === 'none';
-        nm.style.textAlign = b.numbers === 'right' ? 'right' : 'center';
+        nm.style.textAlign = b.numbers === 'right' || b.numbers === 'outside' ? 'right' : 'center';
         Object.assign(nm.style, { left: b.l * k + 'px', right: b.r * k + 'px', bottom: Math.max(1, b.b * k / 2 - 5) + 'px' });
       };
       q('[data-k="preset"]').addEventListener('change', e => {
@@ -1784,11 +2196,12 @@
     }
     // The pages as a Word file: what Print prints, the tables in the text
     // included, the data sheets left for Excel.
-    exportDocx() {
+    async exportDocx() {
       const D = window.MvmOfficeDocx;
       if (!D || !this.doc.pages.length) return;
       this.engine.invalidate();
-      this.download(D.document(this.doc, this), this.doc.title || t('mo_untitled'), '.docx');
+      const covers = M.isBook(this.doc) ? await this.coverImages() : null;
+      this.download(D.document(this.doc, this, covers), this.doc.title || t('mo_untitled'), '.docx');
     }
     // A PDF is the printed document saved by the browser's own "Save as PDF":
     // the same sheets as on paper, with text that can be selected and
@@ -1906,6 +2319,43 @@
       setTimeout(() => { document.addEventListener('mousedown', away, true); document.addEventListener('keydown', key, true); }, 0);
       this._menu = { el: m, away, key };
     }
+    // The fonts mvmFonts offers, each drawn in its own shape. Without any, the button is not there.
+    fontMenu(btn) {
+      const FN = window.MvmOfficeFonts, ed = this.editor;
+      if (!FN || !FN.families.length || !ed) return;
+      this.closeMenus();
+      const rr = this.root.getBoundingClientRect();
+      const br = btn.getBoundingClientRect();
+      const cur = ed.fontAt();
+      const m = document.createElement('div');
+      m.className = 'mo-menu mo-fontmenu';
+      const groups = ['sans', 'serif', 'mono', 'display'];
+      let h = `<button class="mo-fm-item" data-f="">${esc(t('mo_font_default'))}</button>`;
+      const row = f => `<button class="mo-fm-item${f.family === cur ? ' on' : ''}" data-f="${esc(f.family)}" style="font-family:${esc(FN.stack(f.family))}">${esc(f.family)}</button>`;
+      const mine = FN.families.filter(f => f.custom);
+      if (mine.length) h += `<div class="mo-menu-title">${esc(t('mo_fontcat_custom'))}</div>` + mine.map(row).join('');
+      for (const g of groups) {
+        const list = FN.families.filter(f => !f.custom && f.category === g);
+        if (list.length) h += `<div class="mo-menu-title">${esc(t('mo_fontcat_' + g))}</div>` + list.map(row).join('');
+      }
+      m.innerHTML = h;
+      this.root.appendChild(m);
+      m.style.left = Math.max(4, Math.min(br.left - rr.left, rr.width - m.offsetWidth - 4)) + 'px';
+      m.style.top = (br.bottom - rr.top + 4) + 'px';
+      const on = m.querySelector('.on');
+      if (on) m.scrollTop = on.offsetTop - 60;
+      m.addEventListener('mousedown', e => e.preventDefault());
+      m.addEventListener('click', e => {
+        const b = e.target.closest('[data-f]');
+        if (!b) return;
+        this.closeMenus();
+        ed.setFont(b.dataset.f || null);
+      });
+      const away = e => { if (!m.contains(e.target)) this.closeMenus(); };
+      const key = e => { if (e.key === 'Escape') this.closeMenus(); };
+      setTimeout(() => { document.addEventListener('mousedown', away, true); document.addEventListener('keydown', key, true); }, 0);
+      this._menu = { el: m, away, key };
+    }
     dialog(html) {
       const ov = document.createElement('div');
       ov.className = 'mo-overlay';
@@ -1960,6 +2410,7 @@
     }
   }
 
+  const BOOK_ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>';
   const ICON = {
     left: '<svg viewBox="0 0 16 16" width="14" height="14"><path d="M2 3h12M2 6.5h8M2 10h12M2 13.5h8" stroke="currentColor" stroke-width="1.6"/></svg>',
     center: '<svg viewBox="0 0 16 16" width="14" height="14"><path d="M2 3h12M4 6.5h8M2 10h12M4 13.5h8" stroke="currentColor" stroke-width="1.6"/></svg>',
@@ -1983,6 +2434,34 @@
     table.mo-print-table tr { break-inside: avoid; page-break-inside: avoid; }
     .mo-print-title { font-size: 12pt; margin: 0 0 .5em; }
     .mo-fx { }
+    h4 { font-size: 11.5pt; margin: .4em 0 .3em; }
+    a { color: inherit; text-decoration: underline; }
+    img.mo-img { display: block; margin: .5em auto; max-width: 100%; height: auto; break-inside: avoid; }
+    .mo-note { font-size: .75em; vertical-align: super; line-height: 0; }
+    .mo-notes-title { font-weight: 700; margin: 1.2em 0 .3em; padding-top: .5em; border-top: 1px solid #999; break-after: avoid; }
+    ol.mo-notes { font-size: 9.5pt; margin: 0 0 .5em; padding-left: 1.6em; }
+    ul.mo-toc { list-style: none; margin: 0 0 .8em; padding: 0; }
+    .mo-toc li { display: flex; align-items: baseline; gap: .4em; margin: 0 0 .25em; }
+    .mo-toc li a { text-decoration: none; }
+    .mo-toc .mo-toc-dots { flex: 1; border-bottom: 1px dotted #888; transform: translateY(-.25em); min-width: 1em; }
+    .mo-toc .mo-toc-n { flex: none; min-width: 1.5em; text-align: right; }
+    .mo-toc .l2 { padding-left: 1.2em; } .mo-toc .l3 { padding-left: 2.4em; } .mo-toc .l4 { padding-left: 3.6em; }
+    .mo-toc .mo-toc-title { display: block; font-size: 16pt; font-weight: 700; margin: 0 0 .7em; }
+    .mo-toc .mo-toc-empty { color: #777; font-style: italic; }
+    .mo-chapter { display: none; }
+    .mo-cover, .mo-back { display: block; width: 100%; height: 100%; margin: 0; padding: 0; }
+    .mo-cover img, .mo-back img { display: block; width: 100%; height: 100%; object-fit: fill; margin: 0; max-width: none; max-height: none; }
+  `;
+  // A book sets its text like one: a serif face, justified, the first line of
+  // a paragraph indented instead of a blank line between paragraphs.
+  const BOOK_CSS = `
+    body, .pv-page { font-family: Georgia, Cambria, "Times New Roman", "Liberation Serif", serif; }
+    .pv-body { line-height: 1.4; text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+    .pv-body p { margin: 0; text-indent: 1.4em; }
+    .pv-body h1 + p, .pv-body h2 + p, .pv-body h3 + p, .pv-body h4 + p, .pv-body li p, .pv-body blockquote p, .pv-body .mo-notes-title + * p { text-indent: 0; }
+    .pv-body h1 { text-align: center; font-size: 22pt; margin: 1.6em 0 .9em; }
+    .pv-body h2, .pv-body h3, .pv-body h4 { text-align: left; }
+    .pv-body .mo-toc li, .pv-body .mo-notes { text-align: left; }
   `;
 
   const PREVIEW_CSS = `
@@ -1992,7 +2471,9 @@
       box-shadow: 0 2px 10px rgba(0,0,0,.25); overflow: hidden; }
     .pv-body { height: 100%; display: flow-root; }
     .pv-src { position: absolute; left: -10000px; top: 0; }
-    .pv-num { position: absolute; font-size: 9pt; color: #444; }
+    .pv-num, .pv-head { position: absolute; font-size: 9pt; color: #444; }
+    .pv-head { font-style: italic; }
+    .pv-cover .pv-body { display: flex; }
     .mo-page-break { display: none; }
     @media print {
       html, body { background: #fff; padding: 0; }
@@ -2001,38 +2482,86 @@
     }
   `;
   // The sheet size, margins and page number place of one document.
+  // Mirrored margins: on a left-hand (even) sheet the inner margin is on the
+  // right, so the two facing sheets are bound on the same side.
   function pageCSS(b) {
     return `@page { size: ${b.w}mm ${b.h}mm; margin: 0; }
-      .pv-page { width: ${b.w}mm; height: ${b.h}mm; padding: ${b.t}mm ${b.r}mm ${b.b}mm ${b.l}mm; }
+      .pv-page { --pl: ${b.l}mm; --pr: ${b.r}mm; width: ${b.w}mm; height: ${b.h}mm; padding: ${b.t}mm var(--pr) ${b.b}mm var(--pl); }
+      ${b.mirror ? `.pv-page.pv-even { --pl: ${b.r}mm; --pr: ${b.l}mm; }` : ''}
       .pv-src { width: ${Math.max(20, b.w - b.l - b.r)}mm; }
-      .pv-num { left: ${b.l}mm; right: ${b.r}mm; bottom: ${Math.max(3, b.b / 2 - 2.5)}mm; text-align: ${b.numbers === 'right' ? 'right' : 'center'}; }`;
+      .pv-num { left: var(--pl); right: var(--pr); bottom: ${Math.max(3, b.b / 2 - 2.5)}mm; text-align: ${b.numbers === 'right' ? 'right' : 'center'}; }
+      .pv-num.pv-out-l { text-align: left; } .pv-num.pv-out-r { text-align: right; }
+      .pv-head { left: var(--pl); right: var(--pr); top: ${Math.max(3, b.t / 2 - 2.5)}mm; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .pv-head.pv-out-l { text-align: left; } .pv-head.pv-out-r { text-align: right; }`;
   }
   // Writes `body` into the frame's document as numbered sheets; returns how
   // many there are.
-  function renderPages(d, body, title, box) {
+  // All the styles of the sheets of one document.
+  function pageStyles(box) {
+    return PRINT_CSS + PREVIEW_CSS + (box.book ? BOOK_CSS : '') + pageCSS(box) +
+      `\n.pv-page.pv-cover { padding: 0; } .pv-cover .pv-body { display: block; }`;
+  }
+  async function renderPages(d, body, title, box) {
+    const FN = window.MvmOfficeFonts;
     d.open();
-    d.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title || 'mvmOffice')}</title><style>${PRINT_CSS}${PREVIEW_CSS}${pageCSS(box)}</style></head><body><div class="pv-src">${body}</div><div class="pv-pages"></div></body></html>`);
+    d.write(`<!doctype html><html lang="${esc(box.lang || 'en')}"><head><meta charset="utf-8"><title>${esc(title || 'mvmOffice')}</title><style>${pageStyles(box)}</style></head><body><div class="pv-src">${body}</div><div class="pv-pages"></div></body></html>`);
     d.close();
-    const n = paginate(d);
-    if (box.numbers !== 'none') {
-      d.querySelectorAll('.pv-page').forEach((pg, i) => {
-        const num = d.createElement('div');
-        num.className = 'pv-num';
-        num.textContent = String(i + 1);
-        pg.appendChild(num);
-      });
+    // Sheets are measured with the real shapes of the fonts in the text, so wait for them first.
+    if (FN && FN.css) {
+      FN.inject(d);
+      const used = [...d.querySelectorAll('[style*="font-family"]')].map(el => (el.style.fontFamily || '').split(',')[0].replace(/["']/g, '').trim());
+      await FN.ready(d, used);
     }
+    const n = paginate(d);
+    decoratePages(d, box);
     return n;
+  }
+
+  // Once the sheets exist: the number of each (the cover is not counted),
+  // the number and the running header in the margins, and the page numbers
+  // of the table of contents.
+  function decoratePages(d, box) {
+    let k = 0;
+    d.querySelectorAll('.pv-page').forEach(pg => {
+      if (pg.classList.contains('pv-cover')) return;
+      k++;
+      pg.dataset.no = k;
+      const odd = k % 2 === 1;
+      pg.classList.add(odd ? 'pv-odd' : 'pv-even');
+      if (pg.classList.contains('pv-blank')) return;
+      const side = () => (odd ? ' pv-out-r' : ' pv-out-l');
+      if (box.numbers !== 'none') {
+        const num = d.createElement('div');
+        num.className = 'pv-num' + (box.numbers === 'outside' ? side() : '');
+        num.textContent = String(k);
+        pg.appendChild(num);
+      }
+      if (box.header !== 'none' && !pg.dataset.start) {
+        const text = box.header === 'title' ? box.docTitle : box.header === 'chapter' ? pg.dataset.ch : (odd ? pg.dataset.ch : box.docTitle);
+        if (text) {
+          const head = d.createElement('div');
+          head.className = 'pv-head' + (box.header === 'book' ? side() : '');
+          head.textContent = text;
+          pg.appendChild(head);
+        }
+      }
+    });
+    d.querySelectorAll('.mo-toc-n').forEach(el => {
+      const h = d.getElementById(el.getAttribute('data-t'));
+      const pg = h && h.closest('.pv-page');
+      el.textContent = pg && pg.dataset.no ? pg.dataset.no : '';
+    });
   }
 
   function paginate(d) {
     const src = d.querySelector('.pv-src');
     const out = d.querySelector('.pv-pages');
-    let page = null, box = null, count = 0;
+    let page = null, box = null, count = 0, numbered = 0, chapter = '';
     const newPage = () => {
       page = d.createElement('div'); page.className = 'pv-page';
+      page.dataset.ch = chapter;
       box = d.createElement('div'); box.className = 'pv-body';
-      page.appendChild(box); out.appendChild(page); count++;
+      page.appendChild(box); out.appendChild(page); count++; numbered++;
     };
     const fits = () => box.scrollHeight <= box.clientHeight + 1;
     const empty = () => !box.firstChild;
@@ -2067,7 +2596,32 @@
     while (nodes.length) {
       let node = nodes.shift();
       if (node.nodeType === 3 && !node.textContent.trim()) continue;
-      if (node.nodeType === 1 && node.classList.contains('mo-page-break')) { if (!empty()) newPage(); continue; }
+      if (node.nodeType === 1 && node.classList.contains('mo-chapter')) {
+        chapter = node.getAttribute('data-t') || '';
+        if (empty()) { page.dataset.ch = chapter; page.dataset.start = '1'; }
+        continue;
+      }
+      if (node.nodeType === 1 && node.classList.contains('mo-cover')) {
+        if (!empty()) newPage();
+        page.classList.add('pv-cover');
+        numbered--;
+        box.appendChild(node);
+        newPage();
+        continue;
+      }
+      if (node.nodeType === 1 && node.classList.contains('mo-back')) {
+        if (!empty()) newPage();
+        page.classList.add('pv-cover', 'pv-back');
+        numbered--;
+        box.appendChild(node);
+        continue;
+      }
+      if (node.nodeType === 1 && node.classList.contains('mo-page-break')) {
+        if (!empty()) newPage();
+        // A chapter that starts on a right-hand sheet leaves a blank one when it would fall on the left.
+        if (node.getAttribute('data-odd') && numbered % 2 === 0) { page.classList.add('pv-blank'); newPage(); }
+        continue;
+      }
       box.appendChild(node);
       if (fits()) continue;
       box.removeChild(node);
@@ -2128,7 +2682,9 @@
   .mo-docs{display:flex;flex-direction:column;gap:6px}
   .mo-doc{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:var(--mo-s1);cursor:pointer;border:1px solid transparent}
   .mo-doc:hover{border-color:var(--mo-border)}
-  .mo-doc-ico{font-size:1.2rem}
+  .mo-doc-ico{font-size:1.2rem;width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;flex:none}
+  .mo-doc-book{background:#8c2f39;color:#fff;border-radius:6px;box-shadow:inset 3px 0 0 rgba(0,0,0,.28)}
+  .mo-doc-book svg{width:1.15rem;height:1.15rem;display:block}
   .mo-doc-main{flex:1;min-width:0;display:flex;flex-direction:column}
   .mo-doc-title{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .mo-doc-meta{color:var(--mo-dim);font-size:.75rem}
@@ -2196,6 +2752,101 @@
   .mo-text ul,.mo-text ol{margin:0 0 .5em;padding-left:1.6em}
   .mo-text blockquote{margin:0 0 .5em;padding-left:1em;border-left:3px solid #ccc;color:#444}
   .mo-text hr{border:0;border-top:1px solid #999;margin:1em 0}
+  .mo-text h4{font-size:11.5pt;margin:.4em 0 .3em}
+  .mo-text a{color:#1a55c8;text-decoration:underline;cursor:text}
+  .mo-text img.mo-img{display:block;margin:.5em auto;max-width:100%;height:auto}
+  .mo-text img.mo-img.ProseMirror-selectednode{outline:2px solid var(--mo-accent)}
+  .mo-note{font-size:.75em;vertical-align:super;line-height:0}
+  sup.mo-note{background:#e3ecff;color:#1d3f91;border-radius:3px;padding:1px 3px;cursor:pointer;font-size:.7em;font-weight:700}
+  sup.mo-note.mo-note-sel,sup.mo-note:hover{background:#d2e0ff;outline:1px solid #6f8fd8}
+  .mo-text ul.mo-toc{list-style:none;padding:0;margin:0 0 .8em;border:1px dashed #c3cad8;border-radius:4px;padding:8px 12px}
+  .mo-text ul.mo-toc.mo-toc-sel{border-color:var(--mo-accent)}
+  .mo-toc li{display:flex;align-items:baseline;gap:.4em;margin:0 0 .25em}
+  .mo-toc li a{color:inherit;text-decoration:none;cursor:default}
+  .mo-toc .mo-toc-dots{flex:1;border-bottom:1px dotted #aaa}
+  .mo-toc .l2{padding-left:1.2em}.mo-toc .l3{padding-left:2.4em}.mo-toc .l4{padding-left:3.6em}
+  .mo-toc .mo-toc-title{display:block;font-size:16pt;font-weight:700;margin:0 0 .5em}
+  .mo-toc .mo-toc-empty{color:#888;font-style:italic;font-size:.85em}
+  .mo-book .mo-text{font-family:Georgia,Cambria,"Times New Roman","Liberation Serif",serif;line-height:1.4;text-align:justify;hyphens:auto}
+  .mo-book .mo-text p{margin:0;text-indent:1.4em}
+  .mo-book .mo-text h1+p,.mo-book .mo-text h2+p,.mo-book .mo-text h3+p,.mo-book .mo-text h4+p,.mo-book .mo-text li p,.mo-book .mo-text blockquote p{text-indent:0}
+  .mo-book .mo-text h1{text-align:center;font-size:22pt}
+  .mo-ps-chk{flex-direction:row!important;align-items:center;gap:6px}
+  .mo-ps-chk input{width:auto}
+  /* Cover editor */
+  .mo-cv{position:absolute;inset:0;z-index:135;display:flex;flex-direction:column;background:var(--mo-bg)}
+  .mo-cv-bar{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid var(--mo-s2);flex-wrap:wrap}
+  .mo-cv-tabs{display:flex;gap:4px;margin-right:6px}
+  .mo-cv-main{flex:1;min-height:0;display:grid;grid-template-columns:76px minmax(0,1fr) 270px;grid-template-rows:minmax(0,1fr)}
+  .mo-cv-tools{display:flex;flex-direction:column;gap:6px;padding:8px 6px;border-right:1px solid var(--mo-s2);overflow:auto}
+  .mo-cv-tools .mo-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px;font-size:1.05rem}
+  .mo-cv-tools .mo-btn span{font-size:.62rem;color:var(--mo-fg2)}
+  .mo-cv-stage{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;overflow:hidden;
+    background:color-mix(in srgb,var(--mo-bg) 78%,#000);padding:12px}
+  .mo-cv-page{position:relative;box-shadow:0 4px 24px rgba(0,0,0,.5);background:#fff;flex:none}
+  .mo-cv-page canvas{display:block}
+  .mo-cv-ov{position:absolute;inset:0;touch-action:none;cursor:default;user-select:none;-webkit-user-select:none;overflow:visible}
+  .mo-cv-safe{position:absolute;border:1px dashed rgba(60,120,255,.45);pointer-events:none}
+  .mo-cv-sel{position:absolute;border:1.5px solid #3b82f6;pointer-events:none;box-sizing:border-box}
+  .mo-cv-h{position:absolute;width:11px;height:11px;margin:-6px 0 0 -6px;background:#fff;border:1.5px solid #3b82f6;border-radius:3px;pointer-events:auto;box-sizing:border-box}
+  .mo-cv-h:before{content:'';position:absolute;inset:-9px}
+  .mo-cv-h-nw{left:0;top:0;cursor:nwse-resize}.mo-cv-h-n{left:50%;top:0;cursor:ns-resize}.mo-cv-h-ne{left:100%;top:0;cursor:nesw-resize}
+  .mo-cv-h-e{left:100%;top:50%;cursor:ew-resize}.mo-cv-h-se{left:100%;top:100%;cursor:nwse-resize}.mo-cv-h-s{left:50%;top:100%;cursor:ns-resize}
+  .mo-cv-h-sw{left:0;top:100%;cursor:nesw-resize}.mo-cv-h-w{left:0;top:50%;cursor:ew-resize}
+  .mo-cv-rot{left:50%;top:-26px;border-radius:50%;cursor:grab;width:13px;height:13px}
+  .mo-cv-rot:after{content:'';position:absolute;left:50%;top:100%;width:1.5px;height:14px;margin-left:-.75px;background:#3b82f6}
+  .mo-cv-line{position:absolute;pointer-events:none}
+  .mo-cv-snap{border-left:1px solid #ff3b9a;border-top:1px solid #ff3b9a}
+  .mo-cv-gap{border-left:1px dashed #8a93a6;border-top:1px dashed #8a93a6}
+  .mo-cv-eq{border-left:1.5px solid #ff3b9a;border-top:1.5px solid #ff3b9a}
+  .mo-cv-lbl{position:absolute;pointer-events:none;font-size:.62rem;line-height:1;padding:2px 4px;border-radius:3px;background:#59606f;color:#fff;white-space:nowrap}
+  .mo-cv-lbl.eq{background:#ff3b9a}
+  .mo-cv-panel{border-left:1px solid var(--mo-s2);padding:10px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+  .mo-cv-h3{font-weight:700;font-size:.95rem}
+  .mo-cv-r{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.78rem;color:var(--mo-fg2)}
+  .mo-cv-r input[type=range]{flex:1;min-width:0;max-width:150px}
+  .mo-cv-r input[type=color]{width:42px;height:28px;padding:0;border:1px solid var(--mo-border);border-radius:5px;background:none}
+  .mo-cv-r select,.mo-cv-rowb select,.mo-cv-rowb input[type=number],.mo-cv-r input[type=number]{background:var(--mo-bg);border:1px solid var(--mo-border);color:var(--mo-fg);border-radius:6px;padding:5px;font-family:inherit;font-size:.82rem;min-width:0}
+  .mo-cv-r input[type=number]{width:70px}
+  .mo-cv-rowb{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+  .mo-cv-rowb select{flex:1}.mo-cv-rowb input[type=number]{width:64px}
+  .mo-cv-b{padding:5px 9px}.mo-cv-b.on,.mo-cv-bar .mo-ib.on{background:var(--mo-accent);color:var(--mo-on-accent)}
+  .mo-cv-lab{font-size:.7rem;color:var(--mo-dim);margin-top:2px}
+  .mo-cv-sw{display:flex;gap:6px;flex-wrap:wrap}
+  .mo-cv-swb{width:26px;height:26px;border-radius:50%;border:1px solid var(--mo-border);cursor:pointer;padding:0}
+  .mo-cv-fxc{display:flex;flex-direction:column;gap:6px}
+  @media (pointer:coarse){.mo-cv-h{width:20px;height:20px;margin:-10px 0 0 -10px}.mo-cv-rot{width:22px;height:22px;top:-38px}.mo-cv-rot:after{height:18px}}
+  /* Phone and narrow windows: tools in a row, the page above the panel. */
+  .mo-narrow .mo-cv-main{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) minmax(0,42%)}
+  .mo-narrow .mo-cv-tools{flex-direction:row;border-right:0;border-bottom:1px solid var(--mo-s2);order:0;padding:6px;gap:6px}
+  .mo-narrow .mo-cv-tools .mo-btn{flex-direction:row;gap:5px;padding:6px 9px;font-size:.9rem;flex:none}
+  .mo-narrow .mo-cv-tools .mo-btn span{font-size:.72rem}
+  .mo-narrow .mo-cv-stage{order:1;padding:8px}
+  .mo-narrow .mo-cv-panel{order:2;border-left:0;border-top:1px solid var(--mo-s2)}
+  .mo-narrow .mo-cv-bar{padding:6px}
+  /* Book view */
+  .mo-bk{position:absolute;inset:0;z-index:146;display:flex;flex-direction:column;background:radial-gradient(ellipse at 50% 40%,#3a3f4d,#14161c 75%);color:#e8eaf0}
+  .mo-bk-bar{display:flex;align-items:center;gap:10px;padding:8px 12px}
+  .mo-bk-title{color:#a9afbf;font-size:.8rem}
+  .mo-bk-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;perspective:2200px;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+  .mo-bk-scale{transform-origin:center center;flex:none;transform-style:preserve-3d}
+  .mo-bk-book{position:relative;transform-style:preserve-3d;transition:transform .9s ease;filter:drop-shadow(0 18px 24px rgba(0,0,0,.55))}
+  .mo-bk-leaf{position:absolute;top:0;transform-origin:left center;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.45,.05,.25,1)}
+  .mo-bk-leaf.mo-bk-gone{visibility:hidden}
+  .mo-bk-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;background:#fff}
+  .mo-bk-face img{display:block;width:100%;height:100%;object-fit:fill}
+  .mo-bk-back{transform:rotateY(180deg)}
+  .mo-bk-paper{background:#f4f0e6}
+  .mo-bk-r:after,.mo-bk-l:after{content:'';position:absolute;inset:0;pointer-events:none}
+  .mo-bk-r:after{background:linear-gradient(to right,rgba(0,0,0,.28),rgba(0,0,0,0) 7%)}
+  .mo-bk-l:after{background:linear-gradient(to left,rgba(0,0,0,.28),rgba(0,0,0,0) 7%)}
+  .mo-bk-stack{position:absolute;top:3px;background:repeating-linear-gradient(to right,#f8f6ef 0,#f8f6ef 1px,#cfc9b8 1px,#cfc9b8 2px);box-shadow:inset 0 0 4px rgba(0,0,0,.25)}
+  .mo-bk-ctl{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px 12px}
+  .mo-bk-ctl .mo-ib{color:#e8eaf0;font-size:1rem;min-width:36px;height:36px}
+  .mo-bk-ctl .mo-ib:disabled{opacity:.35;cursor:default}
+  .mo-bk-label{min-width:90px;text-align:center;font-size:.8rem;color:#a9afbf}
+  .mo-note-in{resize:vertical;min-height:90px}
+  .mo-notes-hint{max-width:560px;margin:0 auto 12px;padding:10px 14px;border-radius:8px;background:var(--mo-s1);color:var(--mo-fg2);font-size:.8rem;line-height:1.5;border:1px dashed var(--mo-border)}
   .mo-text .mo-page-break{border-top:2px dashed #b5bcc9;margin:18px 0;height:0}
   .mo-text .mo-page-break.ProseMirror-selectednode{outline:none;border-top-color:var(--mo-accent)}
   .mo-fx{background:#e3ecff;color:#1d3f91;border-radius:3px;padding:0 3px;cursor:pointer;border-bottom:1px dashed #6f8fd8;white-space:nowrap}
@@ -2310,6 +2961,12 @@
   .mo-mi-hint{color:var(--mo-dim);font-size:.72rem}
   .mo-danger-mi{color:var(--mo-red)}
   .mo-menu-sep{height:1px;background:var(--mo-s2);margin:4px 2px}
+  .mo-fontbtn{display:none;font-weight:600}
+  .mo.mo-has-fonts .mo-fontbtn{display:inline-flex;align-items:center}
+  .mo-fontmenu{min-width:230px;max-height:min(70%,420px);padding:4px}
+  .mo-fm-item{display:block;width:100%;text-align:left;background:none;border:none;color:var(--mo-fg);padding:5px 10px;border-radius:5px;cursor:pointer;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mo-fm-item:hover{background:var(--mo-s2)}
+  .mo-fm-item.on{background:color-mix(in srgb,var(--mo-accent) 28%,transparent)}
   .mo-palette{min-width:0;display:grid;grid-template-columns:repeat(5,24px);gap:5px;padding:8px}
   .mo-sw{width:24px;height:24px;border-radius:5px;border:1px solid var(--mo-border);cursor:pointer}
   .mo-sw-none{grid-column:1/-1;background:var(--mo-s2);border:none;color:var(--mo-fg);border-radius:5px;padding:4px;cursor:pointer;font-size:.75rem;font-family:inherit}

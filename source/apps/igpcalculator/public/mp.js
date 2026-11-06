@@ -525,6 +525,23 @@
   // view opens at the top.
   let shownView = null;
   const scrollMemo = {};
+  // Dates are chosen with the shared mvmOS calendar, in the regional format; the hidden field keeps the id and
+  // the YYYY-MM-DD value, so the form reads it as it read the native field.
+  let _pickers = [];
+  function mountPickers(scope) {
+    const P = window.mvmOS && window.mvmOS.dateTimePicker;
+    if (!P) return;
+    _pickers = _pickers.filter(h => h.button.isConnected || (h.destroy(), false));
+    scope.querySelectorAll('[data-pk]').forEach(host => {
+      const o = { type: host.dataset.pk, label: host.dataset.label || '', required: true };
+      let f;
+      try { f = P.create(host, Object.assign({}, o, { value: host.dataset.value || '' })); } catch (e) { f = P.create(host, o); }
+      if (host.dataset.id) f.input.id = host.dataset.id;
+      for (const k of Object.keys(host.dataset)) if (/^attr/.test(k)) f.input.setAttribute(host.dataset[k].split('=')[0], host.dataset[k].split('=').slice(1).join('='));
+      _pickers.push(f);
+    });
+  }
+
   function render() {
     if (!root) return;
     const before = root.querySelector('.igp-page');
@@ -742,7 +759,7 @@
       + '<div class="igp-grid4">'
       + '<label class="igp-field"><span>' + esc(tr('igp_track')) + '</span>'
       + '<button class="igp-input igp-track-btn" id="igp-track">' + t.flag + ' ' + esc(trackName(draft.track)) + '<span class="igp-dim">' + esc(tr('igp_change')) + '</span></button></label>'
-      + '<label class="igp-field"><span>' + esc(tr('igp_date')) + '</span><input class="igp-input" type="date" id="igp-date" value="' + esc(draft.race_date) + '"></label>'
+      + '<label class="igp-field"><span>' + esc(tr('igp_date')) + '</span><span data-pk="date" data-id="igp-date" data-label="' + esc(tr('igp_date')) + '" data-value="' + esc(draft.race_date) + '"></span></label>'
       + '<label class="igp-field"><span>' + esc(tr('igp_total_laps')) + '</span><input class="igp-input" type="number" inputmode="numeric" min="1" max="120" id="igp-laps" value="' + (draft.laps ?? '') + '"></label>'
       + '<label class="igp-field"><span>' + esc(tr('igp_reserve')) + '</span><input class="igp-input" type="number" inputmode="decimal" min="0" max="5" step="0.1" id="igp-reserve" value="' + (draft.reserve ?? '') + '"></label>'
       + '<label class="igp-field"><span>' + esc(tr('igp_min_life')) + '</span><input class="igp-input" type="number" inputmode="numeric" min="10" max="80" step="1" id="igp-minlife" value="' + (draft.minLife ?? '') + '"></label>'
@@ -1038,6 +1055,7 @@
     const bx = $('#igp-banner-x');
     if (bx) bx.onclick = () => { banner = null; bx.parentElement.remove(); };
     $('#igp-track').onclick = (e) => { e.preventDefault(); view = 'pick'; render(); };
+    mountPickers(root);
     $('#igp-date').onchange = e => { if (e.target.value) draft.race_date = e.target.value; };
     $('#igp-notes').oninput = e => { draft.notes = e.target.value; };
     $('#igp-laps').oninput = e => { draft.laps = num(e.target.value); renderResults(); };
@@ -1421,7 +1439,7 @@
           if (existing && !r.laps) r.laps = existing.data.laps;
           return '<section class="igp-card"><div class="igp-card-head"><h3><label><input type="checkbox" data-import-select="' + i + '"' + (r.selected ? ' checked' : '') + '> '
             + esc(tr(r.kind === 'next' ? 'igp_import_next' : 'igp_import_previous')) + ' · ' + esc(trackName(r.track)) + ' · iGP ' + esc(r.igpRaceId) + '</label></h3></div>'
-            + '<div class="igp-grid2"><label class="igp-field"><span>' + esc(tr('igp_date')) + '</span><input type="date" class="igp-input" data-import-date="' + i + '" value="' + esc(r.race_date) + '"></label>'
+            + '<div class="igp-grid2"><label class="igp-field"><span>' + esc(tr('igp_date')) + '</span><span data-pk="date" data-attr1="data-import-date=' + i + '" data-label="' + esc(tr('igp_date')) + '" data-value="' + esc(r.race_date) + '"></span></label>'
             + '<label class="igp-field"><span>' + esc(tr('igp_total_laps')) + '</span><input type="number" min="1" max="200" class="igp-input" data-import-laps="' + i + '" value="' + (r.laps || '') + '"></label></div>'
             + ((!r.race_date || !r.laps) ? '<p class="igp-note">' + esc(tr('igp_import_date')) + (r.start ? ' ' + esc(r.start) : '') + '</p>' : '')
             + '<label class="igp-field"><span>' + esc(tr('igp_import_merge')) + '</span><select class="igp-input" data-import-id="' + i + '"' + (existing ? ' disabled' : '') + '><option value="">' + esc(tr(existing ? 'igp_import_update' : 'igp_import_create')) + '</option>'
@@ -1435,6 +1453,7 @@
     root.querySelector('#igp-import-back').onclick = () => { view = 'list'; render(); };
     const retry = root.querySelector('#igp-import-retry'); if (retry) retry.onclick = startImport;
     root.querySelectorAll('[data-import-select]').forEach(el => { el.onchange = () => { importPlan.races[+el.dataset.importSelect].selected = el.checked; }; });
+    mountPickers(root);
     root.querySelectorAll('[data-import-date]').forEach(el => { el.onchange = () => { importPlan.races[+el.dataset.importDate].race_date = el.value; }; });
     root.querySelectorAll('[data-import-laps]').forEach(el => { el.oninput = () => { importPlan.races[+el.dataset.importLaps].laps = num(el.value); }; });
     root.querySelectorAll('[data-import-id]').forEach(el => { el.onchange = () => { importPlan.races[+el.dataset.importId].id = num(el.value); }; });

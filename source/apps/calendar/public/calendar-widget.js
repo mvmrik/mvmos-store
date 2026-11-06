@@ -284,134 +284,25 @@
       return hhmm;
     }
 
-    // Native <input type=time> renders in whatever format the browser's own
-    // locale prefers (Chrome ignores our setting entirely) — build our own
-    // so the displayed format always matches mvmOS's time_format setting.
-    function makeTimeInput(initial24) {
-      const is12 = settings.time_format === '12';
+    // Times and dates are chosen with the shared mvmOS calendar and clock, which follow the regional
+    // format of mvmOS settings. The element keeps the interface the form already used: value
+    // (HH:mm or YYYY-MM-DD, empty when none), onChange(fn) and setDisabled(bool).
+    function makePicker(type, initial, label) {
+      const P = window.mvmOS.dateTimePicker;
       const wrap = document.createElement('div');
-      wrap.className = 'cal-time-input';
-
-      const hInput = document.createElement('input');
-      hInput.type = 'number';
-      hInput.min = is12 ? '1' : '0';
-      hInput.max = is12 ? '12' : '23';
-      hInput.placeholder = 'HH';
-
-      const mInput = document.createElement('input');
-      mInput.type = 'number';
-      mInput.min = '0';
-      mInput.max = '59';
-      mInput.placeholder = 'MM';
-
-      let ampmSel = null;
-      if (is12) {
-        ampmSel = document.createElement('select');
-        ampmSel.innerHTML = '<option value="AM">AM</option><option value="PM">PM</option>';
-      }
-
-      wrap.appendChild(hInput);
-      wrap.appendChild(document.createTextNode(':'));
-      wrap.appendChild(mInput);
-      if (ampmSel) wrap.appendChild(ampmSel);
-
-      hInput.addEventListener('input', () => {
-        if (hInput.value !== '' && mInput.value === '') mInput.value = '00';
-      });
-
-      function setValue(v) {
-        if (!v) { hInput.value = ''; mInput.value = ''; if (ampmSel) ampmSel.value = 'AM'; return; }
-        const [hh, mm] = v.split(':').map(Number);
-        if (is12) {
-          const period = hh < 12 ? 'AM' : 'PM';
-          let h12 = hh % 12; if (h12 === 0) h12 = 12;
-          hInput.value = h12;
-          ampmSel.value = period;
-        } else {
-          hInput.value = hh;
-        }
-        mInput.value = pad2(mm);
-      }
-      setValue(initial24);
-
-      Object.defineProperty(wrap, 'value', {
-        get() {
-          if (hInput.value === '' || mInput.value === '') return '';
-          let hh = parseInt(hInput.value, 10) || 0;
-          const mm = Math.min(59, Math.max(0, parseInt(mInput.value, 10) || 0));
-          if (is12) {
-            hh = Math.min(12, Math.max(1, hh));
-            hh = hh % 12;
-            if (ampmSel.value === 'PM') hh += 12;
-          } else {
-            hh = Math.min(23, Math.max(0, hh));
-          }
-          return `${pad2(hh)}:${pad2(mm)}`;
-        },
-        set: setValue,
-      });
-
-      wrap.setDisabled = (disabled) => {
-        hInput.disabled = disabled;
-        mInput.disabled = disabled;
-        if (ampmSel) ampmSel.disabled = disabled;
-      };
-      wrap.onChange = (fn) => {
-        hInput.addEventListener('input', fn);
-        mInput.addEventListener('input', fn);
-        if (ampmSel) ampmSel.addEventListener('change', fn);
-      };
+      wrap.className = 'cal-picker';
+      const listeners = [];
+      const o = { type, label, onChange: () => listeners.forEach(fn => fn()) };
+      let field;
+      try { field = P.create(wrap, Object.assign({}, o, { value: initial || '' })); } catch (e) { field = P.create(wrap, o); }
+      Object.defineProperty(wrap, 'value', { get: () => field.value || '', set: v => field.setValue(v || '') });
+      wrap.setDisabled = disabled => { field.button.disabled = !!disabled; };
+      wrap.onChange = fn => { listeners.push(fn); };
+      wrap.destroy = () => field.destroy();
       return wrap;
     }
-
-    // Same reasoning as makeTimeInput — native <input type=date> also
-    // displays in the browser's own locale format, not ours.
-    function makeDateInput(initialISO) {
-      const wrap = document.createElement('div');
-      wrap.className = 'cal-time-input';
-
-      const dInput = document.createElement('input');
-      dInput.type = 'number'; dInput.min = '1'; dInput.max = '31'; dInput.placeholder = 'DD';
-      const mInput = document.createElement('input');
-      mInput.type = 'number'; mInput.min = '1'; mInput.max = '12'; mInput.placeholder = 'MM';
-      const yInput = document.createElement('input');
-      yInput.type = 'number'; yInput.min = '1970'; yInput.max = '9999'; yInput.placeholder = 'YYYY';
-      yInput.style.width = '64px';
-
-      const fmt = settings.date_format;
-      const sep = fmt === 'YYYY-MM-DD' ? '-' : '/';
-      const order = fmt === 'MM/DD/YYYY' ? [mInput, dInput, yInput]
-        : fmt === 'YYYY-MM-DD' ? [yInput, mInput, dInput]
-        : [dInput, mInput, yInput];
-      order.forEach((el, i) => {
-        wrap.appendChild(el);
-        if (i < order.length - 1) wrap.appendChild(document.createTextNode(sep));
-      });
-
-      function setValue(iso) {
-        if (!iso) { dInput.value = ''; mInput.value = ''; yInput.value = ''; return; }
-        const [y, m, d] = iso.split('-').map(Number);
-        dInput.value = d; mInput.value = m; yInput.value = y;
-      }
-      setValue(initialISO);
-
-      Object.defineProperty(wrap, 'value', {
-        get() {
-          if (!dInput.value || !mInput.value || !yInput.value) return '';
-          const d = Math.min(31, Math.max(1, parseInt(dInput.value, 10) || 1));
-          const m = Math.min(12, Math.max(1, parseInt(mInput.value, 10) || 1));
-          const y = parseInt(yInput.value, 10) || new Date().getFullYear();
-          return `${y}-${pad2(m)}-${pad2(d)}`;
-        },
-        set: setValue,
-      });
-      wrap.onChange = (fn) => {
-        dInput.addEventListener('input', fn);
-        mInput.addEventListener('input', fn);
-        yInput.addEventListener('input', fn);
-      };
-      return wrap;
-    }
+    const makeTimeInput = (initial24, label) => makePicker('time', initial24, label);
+    const makeDateInput = (initialISO, label) => makePicker('date', initialISO, label);
 
     function formatDMY(d) {
       const dd = pad2(d.getDate()), mm = pad2(d.getMonth() + 1), yyyy = d.getFullYear();
@@ -741,11 +632,11 @@
         </div>`;
       widgetEl.appendChild(overlay);
 
-      const dateInput = makeDateInput(fmtDate(d));
+      const dateInput = makeDateInput(fmtDate(d), t('date'));
       overlay.querySelector('#cal-f-date-slot').appendChild(dateInput);
 
-      const startInput = makeTimeInput(existing && existing.start_time ? existing.start_time : '');
-      const endInput = makeTimeInput(existing && existing.end_time ? existing.end_time : '');
+      const startInput = makeTimeInput(existing && existing.start_time ? existing.start_time : '', t('start_time'));
+      const endInput = makeTimeInput(existing && existing.end_time ? existing.end_time : '', t('end_time'));
       overlay.querySelector('#cal-f-start-slot').appendChild(startInput);
       overlay.querySelector('#cal-f-end-slot').appendChild(endInput);
       function syncEndDisabled() {
@@ -756,7 +647,7 @@
       startInput.onChange(syncEndDisabled);
       syncEndDisabled();
 
-      const untilInput = makeDateInput(existing && existing.recur_until ? existing.recur_until : fmtDate(d));
+      const untilInput = makeDateInput(existing && existing.recur_until ? existing.recur_until : fmtDate(d), t('repeat_until'));
       overlay.querySelector('#cal-f-until-slot').appendChild(untilInput);
 
       const repeatSel = overlay.querySelector('#cal-f-repeat');

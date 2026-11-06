@@ -1,0 +1,32 @@
+{
+  "tagline": "Free fonts with Cyrillic for the apps that write, kept on your own server.",
+  "description": "mvmFonts keeps about one hundred free fonts with Latin and Cyrillic letters on your server, from classic serif and sans-serif text faces to monospace, poster and handwriting styles. Search them, type your own sample and see every weight and style before you choose.\n\nWriting apps use the shelf through the Apps Hub app-to-app API. In mvmOffice the fonts appear in the text toolbar and in the cover editor, and in mvmPhoto in the Text tool; PDF, print and e-book export use the real shapes, and an EPUB carries the fonts the book uses. Nothing is fetched from a font service while people read, so public pages and offline-minded servers stay private and fast.\n\nAn administrator can add fonts of their own. Each file is a woff2, woff, ttf or otf up to 6 MB, and a family can have several weights and italics.",
+  "capabilities": [
+    "About one hundred open-licence font families with Latin and Cyrillic.",
+    "Sans-serif, serif, monospace, display and handwriting groups.",
+    "Search, filter by group and preview your own sample text in every font.",
+    "All weights and styles of a family, each shown in its own shape.",
+    "Licence of every family shown and included.",
+    "Upload your own fonts and remove them again, administrators only.",
+    "Fonts served from your own server with no third-party font service.",
+    "Used by mvmOffice and mvmPhoto through the Apps Hub app-to-app API."
+  ],
+  "integrations": [
+    {
+      "app": "mvmoffice",
+      "name": "mvmOffice",
+      "kind": "app_api",
+      "direction": "provides",
+      "summary": "Lets mvmOffice list the installed fonts, so its text toolbar and cover editor can offer them and its exports can use them.",
+      "requires": "mvmOffice installed, and the App API of mvmFonts enabled in Apps Hub → Settings → App APIs. The switch is off by default."
+    },
+    {
+      "app": "mvmphoto",
+      "name": "mvmPhoto",
+      "kind": "app_api",
+      "direction": "provides",
+      "summary": "Lets mvmPhoto list the installed fonts, so its Text tool can draw text in them.",
+      "requires": "mvmPhoto installed, and the App API of mvmFonts enabled in Apps Hub → Settings → App APIs. The switch is off by default."
+    }
+  ]
+}

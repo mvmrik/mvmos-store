@@ -19,10 +19,10 @@
     "money",
     "planning"
   ],
-  "version": "1.6.6",
+  "version": "1.6.7",
   "description": "Category-based budget tracking with shared categories, goals, mass-add, and per-app source visibility for entries added by other apps, plus a public web page.",
   "entry": "main.js",
   "public_url": "/pub/budget/",
   "public_directory": true,
-  "min_core_version": "1.0.0"
+  "min_core_version": "1.19.0"
 }

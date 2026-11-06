@@ -456,6 +456,23 @@ YS.browse = (() => {
       else { row[col] = val; if (YS.tabs) YS.tabs.markDirty(); }
     }
 
+    if (input.isPicker) {
+      // The calendar opens over the cell: the cell is saved when a date is applied, and left as it was when the
+      // calendar is dismissed and the person clicks elsewhere.
+      var done = false;
+      var away = function(ev) {
+        if (td.contains(ev.target) || document.querySelector('dialog.mvm-picker[open]')) return;
+        done = true; document.removeEventListener('pointerdown', away, true);
+        _renderCellValue(td, isNull ? null : orig, meta);
+      };
+      input.addEventListener('change', function() {
+        if (done) return;
+        done = true; document.removeEventListener('pointerdown', away, true);
+        save();
+      });
+      setTimeout(function() { document.addEventListener('pointerdown', away, true); }, 0);
+      return;
+    }
     input.addEventListener('blur', save);
     input.addEventListener('keydown', function(e) {
       if (e.key === 'Enter') input.blur();

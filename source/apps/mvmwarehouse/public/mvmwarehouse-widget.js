@@ -267,13 +267,23 @@
       catch (_) { return (n || 0).toFixed(2) + ' ' + (c || cur()); }
     }
     function qtyf(n) { return new Intl.NumberFormat(lang(), { maximumFractionDigits: 4 }).format(n || 0); }
+    // Dates and times follow the regional format and time zone of mvmOS settings.
+    const picker = () => window.mvmOS && window.mvmOS.dateTimePicker;
     function fdate(s) {
       if (!s) return '';
+      const P = picker();
+      if (P) {
+        const day = s.length === 10 ? s : P.fromEpoch(Date.parse(s) / 1000, { type: 'date' });
+        const shown = P.format(day, { type: 'date' });
+        if (shown) return shown;
+      }
       try { return new Intl.DateTimeFormat(lang(), { dateStyle: 'medium' }).format(new Date(s.length === 10 ? s + 'T00:00:00' : s)); }
       catch (_) { return s; }
     }
     function fdatetime(s) {
       if (!s) return '';
+      const P = picker();
+      if (P) { const shown = P.format(P.fromEpoch(Date.parse(s) / 1000), { type: 'datetime' }); if (shown) return shown; }
       try { return new Intl.DateTimeFormat(lang(), { dateStyle: 'short', timeStyle: 'short' }).format(new Date(s)); }
       catch (_) { return s; }
     }
@@ -330,6 +340,24 @@
       setTimeout(() => d.remove(), bad ? 5000 : 2500);
     }
     function fail(e) { toast(errText(e), true); }
+    // Dates are chosen with the shared mvmOS calendar. [data-pk] is a single date (the hidden field keeps the
+    // name and the YYYY-MM-DD value, so forms read it as before); [data-range] is a period, reported to onRange.
+    let pickers = [];
+    function mountPickers(scope, onRange) {
+      const P = picker();
+      if (!P) return;
+      pickers = pickers.filter(h => h.button.isConnected || (h.destroy(), false));
+      scope.querySelectorAll('[data-pk]').forEach(host => {
+        const o = { type: 'date', name: host.dataset.name || '', label: host.dataset.label || '', required: host.hasAttribute('data-required'), disabled: host.hasAttribute('data-disabled') };
+        let f;
+        try { f = P.create(host, Object.assign({}, o, { value: host.dataset.value || '' })); } catch (e) { f = P.create(host, o); }
+        pickers.push(f);
+      });
+      scope.querySelectorAll('[data-range]').forEach(host => {
+        pickers.push(P.createRange(host, { required: true, label: host.dataset.label || '', value: { from: host.dataset.from, to: host.dataset.to },
+          onChange: v => { if (v.from && v.to && onRange) onRange(v); } }));
+      });
+    }
     function modal(title, html, wide) {
       const ov = document.createElement('div');
       ov.className = 'whw-ov';
@@ -339,6 +367,7 @@
       const m = ov.querySelector('.whw-modal');
       m.close = () => ov.remove();
       m.body = ov.querySelector('.whw-mb');
+      mountPickers(m.body);
       m.setTitle = s => { ov.querySelector('.whw-mh b').textContent = s; };
       ov.querySelector('[data-x]').onclick = m.close;
       ov.addEventListener('mousedown', e => { if (e.target === ov) m.close(); });
@@ -969,7 +998,7 @@
           ${kind === 'transfer' ? f(t('wh_f_to_warehouse'), `<select name="to_warehouse_id" ${dis}><option value=""></option>${whOptions(d.to_warehouse_id)}</select>`) : ''}
           ${hasPartner ? f(kind === 'receipt' ? t('wh_f_supplier') : t('wh_f_customer'), `<select name="partner_id" ${dis}><option value=""></option>
             ${partners.map(p => `<option value="${esc(p.id)}" ${p.id === d.partner_id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select>`) : ''}
-          ${f(t('wh_f_date'), `<input type="date" name="doc_date" value="${esc(d.doc_date)}" ${dis}>`)}
+          ${f(t('wh_f_date'), `<span data-pk data-name="doc_date" data-label="${esc(t('wh_f_date'))}" data-required data-value="${esc(d.doc_date)}" ${dis ? 'data-disabled' : ''}></span>`)}
           ${f(t('wh_f_reference'), inp('reference', d.reference, `placeholder="${esc(t('wh_reference_ph'))}" ${dis}`))}
           ${f(t('wh_f_note'), inp('note', d.note, dis), 'wide')}
         </div>
@@ -1254,7 +1283,7 @@
             ${ed && can('partners', 2) ? `<button class="whw-btn" data-newpartner title="${esc(t('wh_new_partner'))}">+</button>` : ''}</div>`)}
           ${f(t('wh_f_warehouse'), `<select name="warehouse_id" ${dis}>${whOptions(o.warehouse_id)}</select>`)}
           ${f(t('wh_f_price_list'), `<select name="price_list_id" ${dis}>${plOptions(o.price_list_id)}</select>`)}
-          ${f(t('wh_f_date'), `<input type="date" name="order_date" value="${esc(o.order_date)}" ${dis}>`)}
+          ${f(t('wh_f_date'), `<span data-pk data-name="order_date" data-label="${esc(t('wh_f_date'))}" data-required data-value="${esc(o.order_date)}" ${dis ? 'data-disabled' : ''}></span>`)}
           ${f(t('wh_f_ship_to'), `<textarea name="ship_to" ${dis}>${esc(o.ship_to)}</textarea>`, 'wide')}
           ${f(t('wh_f_note'), inp('note', o.note, dis), 'wide')}
         </div>
@@ -1467,8 +1496,8 @@
       });
     }
     function invoiceHeadFields(kind) {
-      return `${f(t('wh_f_issue_date'), `<input type="date" name="issue_date" value="${today()}">`)}
-        ${f(t('wh_f_due_date'), `<input type="date" name="due_date">`)}
+      return `${f(t('wh_f_issue_date'), `<span data-pk data-name="issue_date" data-label="${esc(t('wh_f_issue_date'))}" data-required data-value="${today()}"></span>`)}
+        ${f(t('wh_f_due_date'), `<span data-pk data-name="due_date" data-label="${esc(t('wh_f_due_date'))}"></span>`)}
         ${f(t('wh_f_payment_method'), `<select name="payment_method">${opts2(PAY_METHODS, 'bank', 'wh_pay_')}</select>`)}
         ${f(t('wh_f_note'), inp('note', '', `placeholder="${esc(S.info.company.invoice_note || '')}"`), 'wide')}
         <input type="hidden" name="kind" value="${kind}">`;
@@ -1527,7 +1556,7 @@
       const d = new Date();
       const F = S.sub.payments = S.sub.payments || { from: new Date(d.getFullYear(), d.getMonth(), 1, 12).toISOString().slice(0, 10), to: today() };
       el.innerHTML = head(t('wh_nav_payments'), can('payments', 2) ? `<button class="whw-btn pri" data-new>${esc(t('wh_add_payment'))}</button>` : '') +
-        `<div class="whw-bar"><input type="date" data-from value="${esc(F.from)}"><span>—</span><input type="date" data-to value="${esc(F.to)}"></div><div data-list></div>`;
+        `<div class="whw-bar"><span data-range data-label="${esc(t('wh_nav_payments'))}" data-from="${esc(F.from)}" data-to="${esc(F.to)}"></span></div><div data-list></div>`;
       const list = el.querySelector('[data-list]');
       async function load() {
         list.innerHTML = loading();
@@ -1551,8 +1580,7 @@
           });
         } catch (e) { list.innerHTML = `<div class="whw-error">${esc(errText(e))}</div>`; }
       }
-      el.querySelector('[data-from]').onchange = e => { F.from = e.target.value; load(); };
-      el.querySelector('[data-to]').onchange = e => { F.to = e.target.value; load(); };
+      mountPickers(el, v => { F.from = v.from; F.to = v.to; load(); });
       const nb = el.querySelector('[data-new]');
       if (nb) nb.onclick = () => openPaymentDialog({}, refreshView);
       return load();
@@ -1572,7 +1600,7 @@
       m.body.innerHTML = `<div class="whw-form" data-form>
           ${f(t('wh_f_amount'), inp('amount', pre.amount != null ? pre.amount : '', 'inputmode="decimal"'))}
           ${f(t('wh_f_method'), `<select name="method">${opts2(PAY_METHODS, 'bank', 'wh_pay_')}</select>`)}
-          ${f(t('wh_f_date'), `<input type="date" name="pay_date" value="${today()}">`)}
+          ${f(t('wh_f_date'), `<span data-pk data-name="pay_date" data-label="${esc(t('wh_f_date'))}" data-required data-value="${today()}"></span>`)}
           ${f(t('wh_f_reference'), inp('reference', ''))}
           ${fixed ? '' : f(t('wh_col_partner'), `<select name="partner_id"><option value=""></option>${partners.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('')}</select>`)}
           ${fixed || !invoices.length ? '' : f(t('wh_col_invoice'), `<select name="invoice_id"><option value="">${esc(t('wh_no_invoice'))}</option>
@@ -1616,7 +1644,7 @@
             r.sales.net ? qtyf(Math.round((r.sales.net - r.cogs) / r.sales.net * 1000) / 10) + '%' : ''));
         }
         el.innerHTML = head(t('wh_nav_reports')) +
-          `<div class="whw-bar"><input type="date" data-from value="${esc(r.from)}"><span>—</span><input type="date" data-to value="${esc(r.to)}"></div>
+          `<div class="whw-bar"><span data-range data-label="${esc(t('wh_nav_reports'))}" data-from="${esc(r.from)}" data-to="${esc(r.to)}"></span></div>
           <div class="whw-cards">${cards.join('')}</div>
           <div class="whw-sec">${esc(t('wh_sales_by_month'))}</div>
           <div class="whw-bars">${r.monthly.map(x => `<div title="${esc(x.month)}: ${esc(money(x.net))}"><i style="height:${Math.max(0, x.net) / max * 100}%"></i>
@@ -1635,8 +1663,7 @@
               ${r.low_stock.map(p => `<tr><td>${esc(p.name)}</td><td class="num neg">${qtyf(p.on_hand)} / ${qtyf(p.min_stock)} ${esc(p.unit || '')}</td></tr>`).join('')}
               </tbody></table></div>` : empty('wh_stock_ok')}</div>
           </div>`;
-        el.querySelector('[data-from]').onchange = e => { F.from = e.target.value; viewReports(el); };
-        el.querySelector('[data-to]').onchange = e => { F.to = e.target.value; viewReports(el); };
+        mountPickers(el, v => { F.from = v.from; F.to = v.to; viewReports(el); });
       });
     }
 

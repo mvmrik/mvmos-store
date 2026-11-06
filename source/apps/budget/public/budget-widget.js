@@ -475,6 +475,7 @@
     let statsCategory = 'all';
     let statsFrom = '';
     let statsTo = '';
+    let statsRange = null;
     let statsCats = null;   // the category tree, as the last answer described it
     let statsSeq = 0;       // guards against a slow answer overwriting a newer one
 
@@ -563,10 +564,8 @@
             <select id="bw-stats-preset">${STAT_PRESETS.map(k =>
               `<option value="${k}"${statsPreset === k ? ' selected' : ''}>${esc(t('stats_preset_' + k))}</option>`
             ).join('')}</select></label>
-          <label class="bw-filter"><span>${esc(t('stats_from'))}</span>
-            <input type="date" id="bw-stats-from" value="${esc(statsFrom)}"></label>
-          <label class="bw-filter"><span>${esc(t('stats_to'))}</span>
-            <input type="date" id="bw-stats-to" value="${esc(statsTo)}"></label>
+          <div class="bw-filter"><span>${esc(t('stats_from'))} – ${esc(t('stats_to'))}</span>
+            <span id="bw-stats-dates"></span></div>
         </div>
         <div class="bw-period-note" id="bw-period-note" style="display:none"></div>
         <div class="bw-stats-body" id="bw-stats-body"><div class="bw-empty">…</div></div>`;
@@ -588,15 +587,31 @@
         statsCategory = e.target.value; statsFocus = null; loadStats();
       };
       const presetEl = statsViewEl.querySelector('#bw-stats-preset');
-      const fromEl = statsViewEl.querySelector('#bw-stats-from');
-      const toEl = statsViewEl.querySelector('#bw-stats-to');
+      // The period is chosen with the shared mvmOS calendar, in the regional date format.
+      if (statsRange) { statsRange.destroy(); statsRange = null; }
+      const picker = window.mvmOS && window.mvmOS.dateTimePicker;
+      if (picker) {
+        statsRange = picker.createRange(statsViewEl.querySelector('#bw-stats-dates'), {
+          required: true, label: `${t('stats_from')} – ${t('stats_to')}`, value: { from: statsFrom, to: statsTo },
+          onChange(v) {
+            if (!v.from || !v.to) return;
+            statsFrom = v.from; statsTo = v.to;
+            // Choosing the dates is the same statement as picking a preset, so the preset follows the dates.
+            statsPreset = presetEl.value = 'custom';
+            statsFocus = null;
+            if (!_periodAllowed(statsPeriod)) statsPeriod = statsPeriod === 'day' ? 'week' : 'month';
+            _markPeriodTab();
+            loadStats();
+          },
+        });
+      }
       presetEl.onchange = () => {
         statsPreset = presetEl.value;
         statsFocus = null;
         if (statsPreset !== 'custom') {
           const r = _presetRange(statsPreset);
-          statsFrom = fromEl.value = r[0];
-          statsTo = toEl.value = r[1];
+          statsFrom = r[0]; statsTo = r[1];
+          if (statsRange) statsRange.setValue({ from: statsFrom, to: statsTo });
         }
         // A shorter range can make a finer grouping possible again, and a longer
         // one can take the current grouping away; the tabs say so before the
@@ -605,19 +620,6 @@
         _markPeriodTab();
         loadStats();
       };
-      // Typing a date is the same statement as picking a preset, so the preset
-      // follows the dates rather than contradicting them.
-      [fromEl, toEl].forEach(el => {
-        el.onchange = () => {
-          if (!fromEl.value || !toEl.value) return;
-          statsFrom = fromEl.value; statsTo = toEl.value;
-          statsPreset = presetEl.value = 'custom';
-          statsFocus = null;
-          if (!_periodAllowed(statsPeriod)) statsPeriod = statsPeriod === 'day' ? 'week' : 'month';
-          _markPeriodTab();
-          loadStats();
-        };
-      });
       loadStats();
     }
 

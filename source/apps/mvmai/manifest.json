@@ -8,7 +8,7 @@
     "assistant",
     "developer"
   ],
-  "version": "0.19.3",
+  "version": "0.20.0",
   "min_core_version": "1.10.0",
   "description": "AI chat assistant with shell access. Talk to any OpenAI-compatible provider (Gemini, OpenAI, Groq, OpenRouter, Qwen, DeepSeek, Mistral, Ollama, custom). The assistant can run commands on the server on your behalf, with configurable confirmation and safety levels.",
   "entry": "main.js",
@@ -22,6 +22,12 @@
       "name": "AI chat message",
       "description": "Charged once per message sent to mvmAI from its public page.",
       "unit": "message"
+    },
+    {
+      "id": "chat_image",
+      "name": "AI picture",
+      "description": "Charged once for each picture mvmAI makes in a chat; given back when no picture is made.",
+      "unit": "picture"
     }
   ]
 }

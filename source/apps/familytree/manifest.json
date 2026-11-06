@@ -20,10 +20,10 @@
     "genealogy",
     "collaboration"
   ],
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Beautiful private family trees with Apps Hub profile links, sharing roles and reviewed contributions.",
   "entry": "main.js",
   "public_url": "/pub/familytree/",
   "public_directory": true,
-  "min_core_version": "1.16.1"
+  "min_core_version": "1.17.0"
 }

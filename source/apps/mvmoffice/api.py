@@ -24,10 +24,12 @@ import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Header, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from pydantic import BaseModel
+from fastapi.responses import FileResponse, JSONResponse, Response
 
 router = APIRouter()
+desktop_router = APIRouter()
 
 APP_ID = "mvmoffice"
 
@@ -117,21 +119,24 @@ def _write(path: str, doc: dict) -> None:
         raise
 
 
-def _title_of(path: str) -> str:
-    # Only the title is needed for the list; it sits near the start of the
-    # file, but a document is small enough to just read.
+def _head_of(path: str) -> dict:
+    # Only the title and the type are needed for the list, but a document is
+    # small enough to just read.
     try:
         with open(path, encoding="utf-8") as f:
-            return str(json.load(f).get("title") or "")
+            doc = json.load(f)
+        return {"title": str(doc.get("title") or ""), "type": "book" if doc.get("type") == "book" else "text"}
     except Exception:
-        return ""
+        return {"title": "", "type": "text"}
 
 
-def _meta(doc_id: str, path: str, title: Optional[str] = None) -> dict:
+def _meta(doc_id: str, path: str, doc: Optional[dict] = None) -> dict:
     st = os.stat(path)
+    head = ({"title": str(doc.get("title") or ""), "type": "book" if doc.get("type") == "book" else "text"}
+            if doc is not None else _head_of(path))
     return {
         "id": doc_id,
-        "title": title if title is not None else _title_of(path),
+        **head,
         "updated": _iso(st.st_mtime),
         "size": st.st_size,
         "revision": str(st.st_mtime_ns),
@@ -144,6 +149,24 @@ async def public_index():
     if hub and not hub.is_app_public(APP_ID):
         return hub.private_page("mvmOffice", "📝")
     return FileResponse(os.path.join(_PUBLIC_DIR, "index.html"))
+
+
+@router.get("/fonts")
+async def fonts(x_pub_token: Optional[str] = Header(None)):
+    """The fonts mvmFonts has installed, when that app is there and its App API is on.
+    Anything else (not installed, switched off) is simply no fonts: the editor then
+    offers none, and nothing else changes."""
+    user = _user(x_pub_token)
+    if not user:
+        return _err(401, "unauthorized")
+    hub = _hub()
+    try:
+        data = hub.call_app_api("mvmfonts", "list_fonts", user.get("id")) if hub else None
+    except Exception:
+        data = None
+    if not isinstance(data, dict) or not isinstance(data.get("families"), list):
+        return {"families": [], "ranges": {}}
+    return {"families": data["families"], "ranges": data.get("ranges") or {}}
 
 
 @router.get("/region")
@@ -202,7 +225,7 @@ async def create_doc(request: Request, x_pub_token: Optional[str] = Header(None)
     doc_id = uuid.uuid4().hex
     path = os.path.join(folder, doc_id + EXT)
     _write(path, doc)
-    return _meta(doc_id, path, str(doc.get("title") or ""))
+    return _meta(doc_id, path, doc)
 
 
 @router.get("/docs/{doc_id}")
@@ -244,7 +267,7 @@ async def save_doc(doc_id: str, request: Request,
     if x_base_revision and x_base_revision != _revision(path):
         return JSONResponse({"error": "conflict", "revision": _revision(path)}, status_code=409)
     _write(path, doc)
-    return _meta(doc_id, path, str(doc.get("title") or ""))
+    return _meta(doc_id, path, doc)
 
 
 @router.delete("/docs/{doc_id}")
@@ -279,4 +302,132 @@ async def duplicate_doc(doc_id: str, request: Request, x_pub_token: Optional[str
     new_id = uuid.uuid4().hex
     new_path = os.path.join(_user_dir(user["id"]), new_id + EXT)
     _write(new_path, doc)
-    return _meta(new_id, new_path, str(doc.get("title") or ""))
+    return _meta(new_id, new_path, doc)
+
+
+# ── The writing assistant ─────────────────────────────────────────────────
+# Everything it does lives in premium/backend.py, which exists only on an
+# installation with a licence. These routes only ask for it: without the module
+# there is no assistant, whatever a browser claims.
+
+def _premium():
+    module = sys.modules.get("backend.premium")
+    return module.load_premium_backend(APP_ID) if module else None
+
+
+def _ai_module():
+    module = _premium()
+    return module if module is not None and getattr(module, "is_available", lambda: False)() else None
+
+
+def _surface(request: Request) -> str:
+    """"desktop" only for the desktop window of someone who is also signed in to
+    mvmOS; everything else is a public page."""
+    if request.headers.get("x-mvmoffice-surface") != "desktop":
+        return "public"
+    auth = sys.modules.get("backend.auth")
+    try:
+        return "desktop" if auth and auth.get_current_session_optional(request) else "public"
+    except Exception:
+        return "public"
+
+
+@router.get("/ai/status")
+async def ai_status(request: Request, x_pub_token: Optional[str] = Header(None)):
+    user = _user(x_pub_token)
+    if not user:
+        return _err(401, "unauthorized")
+    module = _ai_module()
+    ready = bool(module and module.ready())
+    surface = _surface(request)
+    info = {"premium": module is not None, "ready": ready, "enabled": bool(module and module.enabled(surface))}
+    if module is not None and info["enabled"]:
+        info["images"] = bool(ready and module.images_enabled(surface) and module.images_ready())
+        info["credits"] = module.credits(user["id"])
+    return JSONResponse(info, headers={"Cache-Control": "no-store"})
+
+
+@router.get("/ai/assistant.js")
+async def ai_script(request: Request, x_pub_token: Optional[str] = Header(None)):
+    if not _user(x_pub_token):
+        return Response(status_code=401, headers={"Cache-Control": "no-store"})
+    module = _ai_module()
+    content = module.get_asset("assistant.js") if module and module.enabled(_surface(request)) else None
+    if content is None:
+        return Response(status_code=404, headers={"Cache-Control": "no-store"})
+    return Response(content=content, media_type="application/javascript", headers={"Cache-Control": "private, no-store"})
+
+
+@router.post("/ai/chat")
+async def ai_chat(request: Request, x_pub_token: Optional[str] = Header(None)):
+    user = _user(x_pub_token)
+    if not user:
+        return _err(401, "unauthorized")
+    module = _ai_module()
+    if module is None:
+        return _err(402, "premium_required")
+    raw = await request.body()
+    if len(raw) > 4 * 1024 * 1024:
+        return _err(413, "too_large")
+    try:
+        body = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return _err(400, "bad_json")
+    if not isinstance(body, dict):
+        return _err(400, "bad_json")
+    result = await module.chat(user["id"], body, _surface(request))
+    status = 200 if not result.get("error") else (403 if result["error"] == "disabled" else 402 if result["error"] == "no_credits" else 503 if result["error"] in ("mvmai_unavailable", "mvmai_disabled") else 502)
+    return JSONResponse(result, status_code=status, headers={"Cache-Control": "no-store"})
+
+
+@router.post("/ai/image")
+async def ai_image(request: Request, x_pub_token: Optional[str] = Header(None)):
+    user = _user(x_pub_token)
+    if not user:
+        return _err(401, "unauthorized")
+    module = _ai_module()
+    if module is None:
+        return _err(402, "premium_required")
+    try:
+        body = json.loads((await request.body()).decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return _err(400, "bad_json")
+    if not isinstance(body, dict):
+        return _err(400, "bad_json")
+    result = await module.image(user["id"], body, _surface(request))
+    if result.get("error"):
+        status = 403 if result["error"] == "disabled" else 402 if result["error"] == "no_credits" else 503 if result["error"] in ("image_unavailable", "mvmai_unavailable", "mvmai_disabled") else 502
+        return JSONResponse(result, status_code=status, headers={"Cache-Control": "no-store"})
+    return JSONResponse(result, headers={"Cache-Control": "no-store"})
+
+
+# The administrator's switches for the assistant (desktop settings of the app).
+# Without the premium module there is nothing to switch and the form is locked.
+
+def _desktop_session(session):
+    if not session or not session.get("effective_user"):
+        raise HTTPException(401, "Desktop session required")
+    return session
+
+
+class AiSettingsBody(BaseModel):
+    assistant: bool = True
+    images: bool = True
+    public: bool = True
+
+
+@desktop_router.get("/admin/settings")
+async def admin_settings(session=Depends(sys.modules["backend.auth"].get_current_session)):
+    _desktop_session(session)
+    module = _ai_module()
+    return {"premium": module is not None, **(module.get_settings() if module else {"assistant": False, "images": False, "public": False})}
+
+
+@desktop_router.put("/admin/settings")
+async def save_admin_settings(body: AiSettingsBody, session=Depends(sys.modules["backend.auth"].get_current_session)):
+    _desktop_session(session)
+    module = _ai_module()
+    if module is None:
+        raise HTTPException(402, "premium_required")
+    module.save_settings(body.model_dump())
+    return {"ok": True}

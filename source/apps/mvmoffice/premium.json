@@ -1,0 +1,20 @@
+{
+  "summary": "A writing assistant that works inside the document: it reads your notes and chapters, writes and edits them, keeps the notes true and can design the covers.",
+  "features": [
+    {
+      "title": "Writing assistant",
+      "short": "Chat with an assistant that writes and edits your chapters",
+      "description": "Open the assistant next to the text and talk to it like a co-author. Ask it to write a chapter from your plan, continue the one you started and explain how, fix spelling and grammar, rewrite a passage you selected, change the tone, move or rename chapters. It sees the chapter you are working on and can read any other chapter when it needs it. Every change is shown first, with the text it would put in, and you accept or skip each one; a button undoes what you accepted. With review turned off it applies changes at once. It uses the AI that mvmAI is set up with, so mvmAI has to be installed and its app API switched on by the administrator. Each message can cost a few credits, which the administrator sets in Apps Hub; a message that fails is not charged. In the app's settings the administrator can switch the assistant, its pictures and its use on public pages on or off."
+    },
+    {
+      "title": "Book notes that the assistant keeps true",
+      "short": "A plan and summary page the assistant reads, writes and updates",
+      "description": "Every document has a Notes page under the covers, never printed or exported, where you write the plan of the book: what happens in each chapter, the characters, the places and the dates. The assistant treats the notes as the truth when it writes, so a chapter follows the plan. Ask it to make the notes from a finished book, or to update them after you change something. When new text disagrees with the notes or with an earlier chapter, for example a different year, it tells you and asks which one is right instead of choosing silently."
+    },
+    {
+      "title": "Pictures and covers made by the assistant",
+      "short": "Describe a cover or an illustration and get a picture made from your book",
+      "description": "Ask the assistant for a cover, a back cover or an illustration for a chapter. It draws the picture from your notes and chapters, so you do not have to retell the book, and what you add in your message comes first: a style, a scene, a colour, whether the title should appear in the picture or no text at all. The picture is placed behind the cover text, or in the chapter, and you can move and resize it like any other picture, ask for another one, or have the assistant lay out the title and author over it. Pictures are made by whichever image generator mvmAI has available on the server, so it works with the AI the administrator has chosen. It needs mvmAI with an image generator ready; a picture can cost credits, which the administrator sets in Apps Hub, and is not charged if none is made. The assistant also lays out the covers with colours, texts, effects and shapes."
+    }
+  ]
+}

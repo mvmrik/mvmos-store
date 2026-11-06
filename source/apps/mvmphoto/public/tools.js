@@ -39,7 +39,19 @@
   }
   function hexOf(r, g, b) { return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join(''); }
 
+  // The fonts of mvmFonts, when that app is installed and its App API is on; the list of the text tool grows by them.
+  function askFonts(ed) {
+    const go = () => window.MvmFontsClient.load().then(list => { if (list.length && ed.renderOptions) ed.renderOptions(); });
+    if (window.MvmFontsClient) { go(); return; }
+    const s = document.createElement('script');
+    s.src = '/pub/mvmfonts/client.js?_=' + Date.now();
+    s.onload = go;
+    s.onerror = () => {};
+    document.head.appendChild(s);
+  }
+
   function create(ed) {
+    askFonts(ed);
     const doc = () => ed.doc;
     const opt = g => ed.options[g];
     const tools = {};
@@ -532,7 +544,7 @@
       editing: null,
       fields() {
         return [
-          { type: 'select', key: 'font', label: 'mp_font', choices: FONTS.map(f => ({ v: f })) },
+          { type: 'select', key: 'font', label: 'mp_font', choices: FONTS.concat(window.MvmFontsClient ? window.MvmFontsClient.families.map(f => f.family) : []).map(f => ({ v: f })) },
           { type: 'range', key: 'size', label: 'mp_size', min: 4, max: 800, unit: 'px' },
           { type: 'check', key: 'bold', label: 'mp_bold' },
           { type: 'check', key: 'italic', label: 'mp_italic' },
@@ -540,10 +552,16 @@
         ];
       },
       action(a) { if (a === 'commit') this.commit(); else this.cancel(); },
-      optionChanged() { this.restyle(); },
+      optionChanged() {
+        this.restyle();
+        // A font of mvmFonts is drawn only once loaded; place the text again when it is there.
+        const FC = window.MvmFontsClient, f = opt('text').font;
+        if (FC && FC.has(f)) FC.ready([f]).then(() => this.place());
+      },
       font(size) {
         const o = opt('text');
-        const fam = /\s/.test(o.font) ? `"${o.font}"` : o.font;
+        const FC = window.MvmFontsClient;
+        const fam = FC && FC.has(o.font) ? FC.stack(o.font) : /\s/.test(o.font) ? `"${o.font}"` : o.font;
         return `${o.italic ? 'italic ' : ''}${o.bold ? 'bold ' : ''}${size}px ${fam}`;
       },
       down(p) {
@@ -599,10 +617,20 @@
         d.checkpoint();
         const l = d.newLayer(text.split('\n')[0].trim().slice(0, 30) || t('mp_tool_text'));
         const ctx = l.canvas.getContext('2d');
-        ctx.font = this.font(o.size);
-        ctx.fillStyle = ed.fg;
-        ctx.textBaseline = 'top';
-        text.split('\n').forEach((line, i) => ctx.fillText(line, ed_.p.x, ed_.p.y + o.size * 0.1 + i * o.size * 1.2));
+        const fg = ed.fg;
+        const draw = () => {
+          ctx.font = this.font(o.size);
+          ctx.fillStyle = fg;
+          ctx.textBaseline = 'top';
+          text.split('\n').forEach((line, i) => ctx.fillText(line, ed_.p.x, ed_.p.y + o.size * 0.1 + i * o.size * 1.2));
+        };
+        const FC = window.MvmFontsClient;
+        if (FC && FC.has(o.font) && !document.fonts.check(this.font(o.size), text)) {
+          // Not loaded yet: wait for it, then draw, so the layer never keeps the stand-in font.
+          FC.ready([o.font], text).then(() => { draw(); ed.insertLayer(l); ed.changed(); });
+          return;
+        }
+        draw();
         ed.insertLayer(l);
         ed.changed();
       },

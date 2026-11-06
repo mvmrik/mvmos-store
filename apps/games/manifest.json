@@ -149,9 +149,9 @@
       "name": "IGP Calculator",
       "icon": "🏎️",
       "category": "Games",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "description": "Car setup and tyre strategy calculator for iGP Manager races, with every race you prepare kept on your own profile.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/igpcalculator-1.2.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/igpcalculator-1.2.3.zip",
       "tags": [
         "igp manager",
         "racing",
@@ -159,16 +159,16 @@
         "strategy",
         "games"
       ],
-      "min_core_version": "1.7.0"
+      "min_core_version": "1.17.0"
     },
     {
       "id": "hattrickcalculator",
       "name": "Hattrick Calculator",
       "icon": "⚽",
       "category": "Games",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "description": "Squad, lineup, training and arena calculator for the online football manager game Hattrick (hattrick.org), with your players kept on your own profile.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/hattrickcalculator-1.2.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/hattrickcalculator-1.2.3.zip",
       "tags": [
         "hattrick",
         "football",
@@ -178,7 +178,7 @@
         "lineup",
         "games"
       ],
-      "min_core_version": "1.7.0"
+      "min_core_version": "1.17.0"
     },
     {
       "id": "belot",

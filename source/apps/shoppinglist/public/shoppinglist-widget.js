@@ -53,46 +53,16 @@
       return `${dd}/${mm}/${yyyy}`;
     } catch (e) { return iso; }
   }
-  // Segmented D/M/Y number-input triplet, ordered per _dateFmt — same
-  // reasoning as calendar-widget.js's makeDateInput: a native
-  // <input type=date> renders in the browser's locale format, not ours.
-  function makeDateInput(initialDateOnly) {
+  // A date is chosen with the shared mvmOS calendar, in the regional date format. The element keeps the
+  // interface the forms already used: value (YYYY-MM-DD, empty when none).
+  function makeDateInput(initialDateOnly, label) {
+    const P = window.mvmOS.dateTimePicker;
     const wrap = document.createElement('div');
     wrap.className = 'sl-date-input';
-    const dInput = document.createElement('input');
-    dInput.type = 'number'; dInput.min = '1'; dInput.max = '31'; dInput.placeholder = 'DD';
-    const mInput = document.createElement('input');
-    mInput.type = 'number'; mInput.min = '1'; mInput.max = '12'; mInput.placeholder = 'MM';
-    const yInput = document.createElement('input');
-    yInput.type = 'number'; yInput.min = '1970'; yInput.max = '9999'; yInput.placeholder = 'YYYY';
-    yInput.style.width = '64px';
-
-    const sep = _dateFmt === 'YYYY-MM-DD' ? '-' : '/';
-    const order = _dateFmt === 'MM/DD/YYYY' ? [mInput, dInput, yInput]
-      : _dateFmt === 'YYYY-MM-DD' ? [yInput, mInput, dInput]
-      : [dInput, mInput, yInput];
-    order.forEach((el, i) => {
-      wrap.appendChild(el);
-      if (i < order.length - 1) wrap.appendChild(document.createTextNode(sep));
-    });
-
-    function setValue(dateOnly) {
-      if (!dateOnly) { dInput.value = ''; mInput.value = ''; yInput.value = ''; return; }
-      const [y, m, d] = dateOnly.split('-').map(Number);
-      dInput.value = d; mInput.value = m; yInput.value = y;
-    }
-    setValue(initialDateOnly);
-
-    Object.defineProperty(wrap, 'value', {
-      get() {
-        if (!dInput.value || !mInput.value || !yInput.value) return '';
-        const d = Math.min(31, Math.max(1, parseInt(dInput.value, 10) || 1));
-        const m = Math.min(12, Math.max(1, parseInt(mInput.value, 10) || 1));
-        const y = parseInt(yInput.value, 10) || new Date().getFullYear();
-        return `${y}-${pad2(m)}-${pad2(d)}`;
-      },
-      set: setValue,
-    });
+    const o = { type: 'date', label: label || '' };
+    let field;
+    try { field = P.create(wrap, Object.assign({}, o, { value: initialDateOnly || '' })); } catch (e) { field = P.create(wrap, o); }
+    Object.defineProperty(wrap, 'value', { get: () => field.value || '', set: v => field.setValue(v || '') });
     return wrap;
   }
   function warrantyClass(w) {
@@ -752,8 +722,8 @@
               <input type="file" id="sl-w-photos-new" accept="image/*" capture="environment" multiple>
             </div>
             <button class="sl-btn sl-btn-primary" id="sl-w-set">${esc(t('sl_warranty_set'))}</button>`;
-          const startInput = makeDateInput(todayPlusYears(0));
-          const endInput = makeDateInput(todayPlusYears(2));
+          const startInput = makeDateInput(todayPlusYears(0), t('sl_warranty_start_date'));
+          const endInput = makeDateInput(todayPlusYears(2), t('sl_warranty_end_date'));
           bodyEl.querySelector('#sl-w-start-new').appendChild(startInput);
           bodyEl.querySelector('#sl-w-end-new').appendChild(endInput);
           bodyEl.querySelector('#sl-w-set').onclick = async () => {
@@ -795,8 +765,8 @@
           ${!photos.length ? `<div class="sl-field-hint">${esc(t('sl_warranty_no_photos'))}</div>` : ''}
           <button class="sl-btn" id="sl-w-remove" style="color:var(--pub-red, #f38ba8)">${esc(t('sl_warranty_remove'))}</button>`;
 
-        const startInput = makeDateInput(w.start.slice(0, 10));
-        const endInput = makeDateInput(w.expires_at.slice(0, 10));
+        const startInput = makeDateInput(w.start.slice(0, 10), t('sl_warranty_start_date'));
+        const endInput = makeDateInput(w.expires_at.slice(0, 10), t('sl_warranty_end_date'));
         bodyEl.querySelector('#sl-w-start').appendChild(startInput);
         bodyEl.querySelector('#sl-w-end').appendChild(endInput);
         bodyEl.querySelector('#sl-w-update').onclick = async () => {

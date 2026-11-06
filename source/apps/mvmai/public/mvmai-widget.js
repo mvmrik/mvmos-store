@@ -2410,6 +2410,19 @@
               } else if ((m.role === 'user' || m.role === 'assistant') && m.content) {
                 addBubble(m.role, m.content, null, m.created_at, null, m.provider_label, m.duration_ms);
                 any = true;
+              } else if (m.role === 'tool' && m.content && m.content.indexOf('"image_id"') >= 0) {
+                // A picture made earlier in this chat.
+                try {
+                  var made = JSON.parse(m.content);
+                  if (made.image_id) {
+                    var pic = document.createElement('div');
+                    pic.className = 'mvmai-tool-card';
+                    pic.innerHTML = '<div class="mvmai-tool-head">🖼 ' + esc(t('mvmai_pub_image_done')) + '</div>';
+                    listEl.appendChild(pic);
+                    showGeneratedImage(pic, made.image_id, function () {});
+                    any = true;
+                  }
+                } catch (e) { /* not a picture */ }
               }
             });
             if (!any) showWelcome();
@@ -3171,19 +3184,56 @@
         });
       }
 
+      // A picture the generator made, shown in a card; it is fetched with the
+      // token, so it is a blob here and never a link anyone could share.
+      function showGeneratedImage(card, imageId, scrollDown) {
+        var box = document.createElement('div');
+        box.className = 'mvmai-gen';
+        card.appendChild(box);
+        fetch(API + '/generated/' + encodeURIComponent(imageId), {headers: {'X-Pub-Token': token}}).then(function (r) {
+          if (!r.ok) throw new Error('missing');
+          return r.blob();
+        }).then(function (blob) {
+          var url = URL.createObjectURL(blob);
+          box.innerHTML = '<img class="mvmai-gen-img" alt="" src="' + url + '"><a class="mvmai-gen-dl" download="' + esc(imageId) + '" href="' + url + '">⬇ ' + esc(t('mvmai_pub_image_download')) + '</a>';
+          box.querySelector('img').addEventListener('load', scrollDown);
+          scrollDown();
+        }).catch(function () { box.textContent = t('mvmai_pub_image_failed'); });
+      }
+      function imageErrorText(code) {
+        if (code === 'insufficient_credits') return t('mvmai_pub_image_credits');
+        if (code === 'daily_limit') return t('mvmai_pub_image_limit');
+        if (code === 'image_refused') return t('mvmai_pub_image_refused');
+        return t('mvmai_pub_image_failed');
+      }
+
       function readToolCall(call, name, args, ctx) {
         ctx = ctx || saveChatContext();
         var listEl = ctx.listEl, activeProject = ctx.activeProject;
         function scrollDown() { listEl.scrollTop = listEl.scrollHeight; }
         var card = document.createElement('div');
         card.className = 'mvmai-tool-card';
-        card.innerHTML = '<div class="mvmai-tool-head">🔧 ' + esc(t('mvmai_pub_using_tool', {name: name})) + '</div>';
+        card.innerHTML = name === 'generate_image'
+          ? '<div class="mvmai-tool-head">🖼 ' + esc(t('mvmai_pub_image_making')) + '</div>'
+          : '<div class="mvmai-tool-head">🔧 ' + esc(t('mvmai_pub_using_tool', {name: name})) + '</div>';
         listEl.appendChild(card);
         scrollDown();
 
         return api('/tool-call', {method: 'POST', body: JSON.stringify({name: name, arguments: args, lang: uiLang()})})
           .then(function (data) {
             var content;
+            if (name === 'generate_image') {
+              var head = card.querySelector('.mvmai-tool-head');
+              if (data.__status === 200 && data.result && data.result.image_id) {
+                if (head) head.textContent = '🖼 ' + t('mvmai_pub_image_done');
+                showGeneratedImage(card, data.result.image_id, scrollDown);
+                content = JSON.stringify(data.result);
+              } else {
+                if (head) head.textContent = '🖼 ' + imageErrorText(data.error);
+                content = JSON.stringify({error: data.error || 'image_failed'});
+              }
+              return {role: 'tool', tool_call_id: call.id, content: content};
+            }
             if (data.__status === 200) {
               content = JSON.stringify(data.result);
             } else {

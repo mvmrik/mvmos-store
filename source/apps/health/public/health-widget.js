@@ -896,7 +896,7 @@
           <input class="hl-input" data-f="high" type="number" step="any" inputmode="decimal" placeholder="${esc(t('hb_labs_ref_high'))}" value="${r.high == null ? '' : r.high}"></div></div>`;
       dialog(`<h3>📄 ${esc(t('hb_labs_import'))}</h3>
         <div class="hl-hint">${esc(t('hb_labs_import_found', { n: nRec, m: rows.length - nRec }))}</div>
-        <div class="hl-two"><div class="hl-field"><label>${esc(t('hb_date'))}</label><input class="hl-input" id="hl-id" type="date" value="${esc(day)}"></div>
+        <div class="hl-two"><div class="hl-field"><label>${esc(t('hb_date'))}</label><span data-pk="date" data-id="hl-id" data-label="${esc(t('hb_date'))}" data-value="${esc(day)}"></span></div>
           <div class="hl-field"><label>${esc(t('hb_labs_lab'))}</label><input class="hl-input" id="hl-il" list="hl-ilabs" autocomplete="off">${labList('hl-ilabs')}</div></div>
         <div class="hl-hint">${esc(t('hb_labs_import_hint'))}</div>
         <div class="hl-imp-list">${rows.map(rowHtml).join('')}</div><div class="hl-err"></div>
@@ -947,6 +947,18 @@
     }
 
     // ── Dialogs ────────────────────────────────────────────────────
+    // Dates and times are chosen with the shared mvmOS calendar and clock, in the regional format.
+    function mountPickers(root) {
+      const P = window.mvmOS && window.mvmOS.dateTimePicker;
+      if (!P) return;
+      root.querySelectorAll('[data-pk]').forEach(host => {
+        const o = { type: host.dataset.pk, label: host.dataset.label || '', required: true };
+        if (host.dataset.max) o.max = host.dataset.max;
+        let f;
+        try { f = P.create(host, Object.assign({}, o, { value: host.dataset.value || '' })); } catch (e) { f = P.create(host, o); }
+        if (host.dataset.id) f.input.id = host.dataset.id;
+      });
+    }
     function dialog(html, onMount) {
       closeDialog();
       const ov = document.createElement('div');
@@ -955,6 +967,7 @@
       ov.addEventListener('mousedown', e => { if (e.target === ov) closeDialog(); });
       w.appendChild(ov);
       ov.querySelector('[data-close]')?.addEventListener('click', closeDialog);
+      mountPickers(ov);
       onMount(ov);
       ov.querySelector('input')?.focus();
     }
@@ -974,8 +987,8 @@
         ? `<div class="hl-two">${one('hl-v1', t('hb_systolic') + ' (mmHg)', v[0])}${one('hl-v2', t('hb_diastolic') + ' (mmHg)', v[1])}</div>${one('hl-v3', t('hb_pulse') + ' (bpm) · ' + t('hb_optional'), v[2])}`
         : one('hl-v1', t('hb_m_weight') + ' (' + unitOf('weight') + ')', v[0] == null ? null : rnd(dispVal('weight', v[0]), 1));
       dialog(`<h3>${iconOf(m)} ${esc(t('hb_m_' + m))}</h3>${fields}
-        <div class="hl-two"><div class="hl-field"><label>${esc(t('hb_date'))}</label><input class="hl-input" id="hl-d" type="date" value="${esc(at.slice(0, 10))}"></div>
-        <div class="hl-field"><label>${esc(t('hb_time'))}</label><input class="hl-input" id="hl-tm" type="time" value="${esc(at.slice(11, 16))}"></div></div>
+        <div class="hl-two"><div class="hl-field"><label>${esc(t('hb_date'))}</label><span data-pk="date" data-id="hl-d" data-label="${esc(t('hb_date'))}" data-value="${esc(at.slice(0, 10))}"></span></div>
+        <div class="hl-field"><label>${esc(t('hb_time'))}</label><span data-pk="time" data-id="hl-tm" data-label="${esc(t('hb_time'))}" data-value="${esc(at.slice(11, 16))}"></span></div></div>
         <div class="hl-field"><label>${esc(t('hb_note'))}</label><input class="hl-input" id="hl-note" maxlength="500" value="${esc(existing ? existing.note : '')}"></div>
         <div class="hl-err"></div>
         <div class="hl-actions">${existing ? `<button class="hl-btn hl-del" id="hl-del">${esc(t('hb_delete'))}</button>` : ''}<button class="hl-btn" data-close>${esc(t('hb_cancel'))}</button><button class="hl-btn hl-primary" id="hl-ok">${esc(t('hb_save'))}</button></div>`,
@@ -1004,7 +1017,7 @@
       const others = p ? p.sources.filter(x => x.source !== 'manual') : [];
       const digits = m === 'water' && oz() ? 1 : 0;
       dialog(`<h3>${iconOf(m)} ${esc(t('hb_m_' + m))}</h3>
-        <div class="hl-field"><label>${esc(t('hb_date'))}</label><input class="hl-input" id="hl-d" type="date" value="${esc(day || st.today)}" max="${esc(st.today)}"></div>
+        <div class="hl-field"><label>${esc(t('hb_date'))}</label><span data-pk="date" data-id="hl-d" data-label="${esc(t('hb_date'))}" data-value="${esc(day || st.today)}" data-max="${esc(st.today)}"></span></div>
         ${others.length ? `<div class="hl-hint">${esc(others.map(x => (x.name || x.source) + ' ' + num(m, x.value)).join(' · '))}</div>` : ''}
         <div class="hl-field"><label>${esc(t('hb_amount_by_hand'))} (${esc(unitOf(m))})</label><input class="hl-input" id="hl-v1" type="number" min="0" step="any" inputmode="decimal" value="${manual ? rnd(dispVal(m, manual.value), digits + 1) : ''}"></div>
         <div class="hl-hint">${esc(t('hb_daily_hint'))}</div><div class="hl-err"></div>

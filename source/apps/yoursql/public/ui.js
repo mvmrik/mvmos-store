@@ -125,6 +125,46 @@ YS.isTextType = function(base) {
   return ['CHAR','VARCHAR','TINYTEXT','TEXT','MEDIUMTEXT','LONGTEXT','ENUM','SET'].indexOf(base) !== -1;
 };
 
+// A date, time or timestamp cell is chosen with the shared mvmOS calendar and clock, in the regional format.
+// The element keeps the interface of an input: value (the database text, 'YYYY-MM-DD', 'HH:MM:SS' or
+// 'YYYY-MM-DD HH:MM:SS'), focus() (opens the calendar), disabled, and bubbling 'change' events. The calendar
+// has no seconds, so the seconds of the stored value are kept; a value it cannot show (a zero date, a time
+// past 24 hours) is returned as it was until the person picks another.
+YS.buildDatePicker = function(base, strVal) {
+  var P = window.mvmOS && window.mvmOS.dateTimePicker;
+  if (!P) return null;
+  var type = base === 'DATE' ? 'date' : base === 'TIME' ? 'time' : 'datetime';
+  var m = type === 'date' ? /^(\d{4}-\d{2}-\d{2})$/.exec(strVal)
+    : type === 'time' ? /^(\d{2}:\d{2})(?::(\d{2}))?(?:\.\d+)?$/.exec(strVal)
+    : /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})(?::(\d{2}))?(?:\.\d+)?$/.exec(strVal);
+  var seconds = '00', canonical = '';
+  if (m) {
+    if (type === 'date') canonical = m[1];
+    else if (type === 'time') { canonical = m[1]; seconds = m[2] || '00'; }
+    else { canonical = m[1] + 'T' + m[2]; seconds = m[3] || '00'; }
+  }
+  var touched = false, field;
+  var wrap = document.createElement('span');
+  wrap.className = 's-input'; wrap.style.display = 'inline-flex';
+  var o = { type: type, label: base };
+  try { field = P.create(wrap, Object.assign({}, o, { value: canonical })); } catch (e) { field = P.create(wrap, o); }
+  // Listening on the hidden field itself, so it is known as changed before anything above it hears the event.
+  field.input.addEventListener('change', function() { touched = true; });
+  Object.defineProperty(wrap, 'value', {
+    get: function() {
+      if (!touched) return strVal;
+      var v = field.value;
+      if (!v) return '';
+      return type === 'date' ? v : type === 'time' ? v + ':' + seconds : v.replace('T', ' ') + ':' + seconds;
+    },
+    set: function(v) { strVal = v == null ? '' : String(v); touched = false; }
+  });
+  Object.defineProperty(wrap, 'disabled', { get: function() { return field.button.disabled; }, set: function(v) { field.button.disabled = !!v; } });
+  wrap.focus = function() { field.open(); };
+  wrap.isPicker = true; wrap.picker = field;
+  return wrap;
+};
+
 // Build smart input for a cell
 YS.buildCellInput = function(meta, val, inline) {
   meta = meta || {};
@@ -136,6 +176,10 @@ YS.buildCellInput = function(meta, val, inline) {
     ta.className = 's-input'; ta.value = strVal;
     ta.style.cssText = 'width:100%;min-height:80px;font-family:monospace;font-size:.82rem;resize:vertical';
     return ta;
+  }
+  if (base === 'DATE' || base === 'DATETIME' || base === 'TIMESTAMP' || base === 'TIME') {
+    var picked = YS.buildDatePicker(base, strVal);
+    if (picked) return picked;
   }
   if (base === 'DATE') {
     var inp = document.createElement('input');

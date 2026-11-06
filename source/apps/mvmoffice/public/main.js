@@ -28,10 +28,14 @@ async function _loadMvmOfficeAssets() {
     ['MVMOFFICE_I18N', 'i18n.js'],
     ['MvmOfficeFormula', 'formula.js'],
     ['MvmOfficeModel', 'model.js'],
+    ['MvmOfficeFonts', 'fonts.js'],
     ['MvmOfficeGrid', 'grid.js'],
     ['MvmOfficeEditor', 'editor.js'],
     ['MvmOfficeXlsx', 'xlsx.js'],
     ['MvmOfficeDocx', 'docx.js'],
+    ['MvmOfficeEpub', 'epub.js'],
+    ['MvmOfficeCover', 'cover.js'],
+    ['MvmOfficeBookView', 'bookview.js'],
     ['MvmOffice', 'office.js'],
   ];
   for (const [global, file] of files) {
@@ -78,12 +82,37 @@ function _moOpenWindow(path) {
   });
 }
 
+// The administrator's switches for the writing assistant. Without the premium
+// module they are locked, and a click on them opens the subscription dialog.
+const _MO_AI_KEYS = ['assistant', 'images', 'public'];
+
 mvmOS.registerApp({
   id: 'mvmoffice',
   name: _mott('title'),
   icon: '📝',
   category: 'Productivity',
   requires_apphub: true,
+  appSettings: true,
+  settings: [],
+  onAppSettings() { AppStore.openWindow({ section: 'my-apps', appId: 'mvmoffice' }); },
+  async renderSettingsExtra(wrap) {
+    if (!window.MVMOFFICE_I18N) await _moLoadScript('/apps/mvmoffice/i18n.js');
+    const tt = k => (window.t && window.t(k)) || k;
+    const data = await fetch('/api/apps/mvmoffice/admin/settings').then(r => r.json()).catch(() => ({ premium: false }));
+    wrap.style.cssText = 'position:relative;display:flex;flex-direction:column;gap:10px';
+    wrap.innerHTML = '<div style="font-size:.82rem;font-weight:700">' + tt('mo_admin_title') + '</div>' +
+      '<div style="font-size:.75rem;color:var(--text-dim);line-height:1.5">' + tt('mo_admin_hint') + '</div>' +
+      _MO_AI_KEYS.map(k => '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem"><input type="checkbox" data-mo-ai="' + k + '" ' +
+        (data[k] ? 'checked' : '') + (data.premium ? '' : ' disabled') + '> ' + tt('mo_admin_' + k) + '</label>').join('');
+    if (!data.premium && window.mvmOS && window.mvmOS.premiumGate) window.mvmOS.premiumGate(wrap, tt('mo_ai_premium'));
+  },
+  async saveSettingsExtra(panel) {
+    const values = {};
+    panel.querySelectorAll('[data-mo-ai]').forEach(el => { values[el.dataset.moAi] = el.checked; });
+    if (!Object.keys(values).length) return;
+    const res = await fetch('/api/apps/mvmoffice/admin/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(values) });
+    if (!res.ok) throw new Error('premium_required');
+  },
   file_types: ['mvmoffice'],
   launch() { _moOpenWindow(null); },
   openFile(path) { _moOpenWindow(path); },

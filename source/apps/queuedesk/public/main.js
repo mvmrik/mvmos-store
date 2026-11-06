@@ -436,16 +436,35 @@ const QD = (() => {
   // SCHEDULE MODE: BOOKINGS TAB
   // ══════════════════════════════════════════════════════════════════════════
 
+  // Dates and times are chosen with the shared mvmOS calendar and clock, in the regional format. The hidden
+  // field keeps the id and the YYYY-MM-DD or HH:mm value, so the code reads it like the native field.
+  let _pickers = [];
+  function _mountPickers(scope) {
+    const P = window.mvmOS && window.mvmOS.dateTimePicker;
+    if (!P) return;
+    _pickers = _pickers.filter(h => h.button.isConnected || (h.destroy(), false));
+    scope.querySelectorAll('[data-pk]').forEach(host => {
+      const label = host.closest('label');
+      const o = { type: host.dataset.pk, label: label ? label.firstElementChild.textContent : '', required: true };
+      if (host.dataset.max) o.max = host.dataset.max;
+      let f;
+      try { f = P.create(host, Object.assign({}, o, { value: host.dataset.value || '' })); } catch (e) { f = P.create(host, o); }
+      f.input.id = host.dataset.id;
+      _pickers.push(f);
+    });
+  }
+
   function _renderBookingsTab(el) {
     el.innerHTML = `
       <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:14px;flex-wrap:wrap">
         <label style="${_lblStyle()}"><span>${_t('date_from')}</span>
-          <input id="qd-bf" type="date" value="${_bookFrom}" style="${_iStyle()}"></label>
+          <span data-pk="date" data-id="qd-bf" data-value="${_bookFrom}"></span></label>
         <label style="${_lblStyle()}"><span>${_t('date_to')}</span>
-          <input id="qd-bt" type="date" value="${_bookTo}" style="${_iStyle()}"></label>
+          <span data-pk="date" data-id="qd-bt" data-value="${_bookTo}"></span></label>
       </div>
       <div id="qd-booking-list"></div>
     `;
+    _mountPickers(el);
     const reload = async () => {
       _bookFrom = el.querySelector('#qd-bf').value;
       _bookTo = el.querySelector('#qd-bt').value;
@@ -500,15 +519,16 @@ const QD = (() => {
         <label style="${_lblStyle()}"><span>${_t('mode_label')==='Mode'?'Day':'Ден'}</span>
           <select id="qd-r-wd" style="${_iStyle()}">${wd.map((d,i)=>`<option value="${i}">${d}</option>`).join('')}</select></label>
         <label style="${_lblStyle()}"><span>${_t('start_time')}</span>
-          <input id="qd-r-start" type="time" value="09:00" style="${_iStyle()}"></label>
+          <span data-pk="time" data-id="qd-r-start" data-value="09:00"></span></label>
         <label style="${_lblStyle()}"><span>${_t('end_time')}</span>
-          <input id="qd-r-end" type="time" value="17:00" style="${_iStyle()}"></label>
+          <span data-pk="time" data-id="qd-r-end" data-value="17:00"></span></label>
         <label style="${_lblStyle()}"><span>${_t('slot_minutes')}</span>
           <input id="qd-r-slot" type="number" min="5" step="5" value="30" style="${_iStyle('width:70px')}"></label>
         <button id="qd-r-add" style="${_btnStyle('primary')}">${_t('add_rule')}</button>
       </div>
       <div id="qd-rules-list"></div>
     `;
+    _mountPickers(el);
     el.querySelector('#qd-r-add').onclick = async () => {
       const weekday = parseInt(el.querySelector('#qd-r-wd').value);
       const start_time = el.querySelector('#qd-r-start').value;
@@ -551,13 +571,14 @@ const QD = (() => {
     el.innerHTML = `
       <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px;padding:12px;border:1px solid var(--border);border-radius:6px;background:var(--surface)">
         <label style="${_lblStyle()}"><span>${_t('override_date')}</span>
-          <input id="qd-o-date" type="date" value="${_todayStr()}" style="${_iStyle()}"></label>
+          <span data-pk="date" data-id="qd-o-date" data-value="${_todayStr()}"></span></label>
         <label style="${_lblStyle()}"><span>${_t('override_note')}</span>
           <input id="qd-o-note" style="${_iStyle('width:180px')}"></label>
         <button id="qd-o-add" style="${_btnStyle('primary')}">${_t('add_override')}</button>
       </div>
       <div id="qd-overrides-list"></div>
     `;
+    _mountPickers(el);
     el.querySelector('#qd-o-add').onclick = async () => {
       const date = el.querySelector('#qd-o-date').value;
       const note = el.querySelector('#qd-o-note').value.trim();
@@ -697,10 +718,11 @@ const QD = (() => {
     el.innerHTML = `
       <div style="display:flex;gap:10px;align-items:flex-end;margin-bottom:14px">
         <label style="${_lblStyle()}"><span>${_t('history_date')}</span>
-          <input id="qd-h-date" type="date" value="${_historyDate}" max="${_todayStr()}" style="${_iStyle()}"></label>
+          <span data-pk="date" data-id="qd-h-date" data-value="${_historyDate}" data-max="${_todayStr()}"></span></label>
       </div>
       <div id="qd-history-list"></div>
     `;
+    _mountPickers(el);
     el.querySelector('#qd-h-date').onchange = async () => {
       _historyDate = el.querySelector('#qd-h-date').value;
       await _loadHistory();

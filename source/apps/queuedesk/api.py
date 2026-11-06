@@ -519,14 +519,18 @@ if (MODE === 'schedule') renderSchedule(); else renderQueue();
 
 // ── Schedule mode ────────────────────────────────────────────────────────
 function renderSchedule() {{
-  const today = new Date().toISOString().slice(0,10);
+  // The day is chosen with the shared mvmOS calendar, which follows the regional date format.
+  const P = window.mvmOS.dateTimePicker;
+  const today = P.fromEpoch(Date.now() / 1000, {{ type: 'date' }});
   app.innerHTML = `
     <label>${{esc(T.pick_date)}}</label>
-    <input type="date" id="qd-date" value="${{today}}" min="${{today}}">
+    <div id="qd-date-host"></div>
     <div id="qd-slots" class="slots"></div>
     <div id="qd-form"></div>
   `;
-  const dateEl = document.getElementById('qd-date');
+  const dateField = P.create(document.getElementById('qd-date-host'), {{ type: 'date', required: true, value: today, min: today, label: T.pick_date }});
+  const dateEl = dateField.input;
+  dateEl.id = 'qd-date';
   dateEl.addEventListener('change', loadSlots);
   loadSlots();
 

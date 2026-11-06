@@ -1,0 +1,16 @@
+{
+  "id": "mvmfonts",
+  "name": "mvmFonts",
+  "icon": "🔤",
+  "category": "Productivity",
+  "tags": [
+    "fonts",
+    "typography",
+    "cyrillic",
+    "writing"
+  ],
+  "version": "1.0.0",
+  "description": "A shelf of free fonts with Latin and Cyrillic that writing apps such as mvmOffice can use, with a place to add your own.",
+  "entry": "main.js",
+  "min_core_version": "1.8.0"
+}

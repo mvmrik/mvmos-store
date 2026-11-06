@@ -54,14 +54,30 @@
     const timeStr = _tkPrefs.time_format ? d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',hour12:_tkPrefs.time_format==='12'}) : d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
     return dateStr + ' ' + timeStr;
   }
+  // Due dates are chosen with the shared mvmOS calendar, in the time zone and clock of mvmOS settings.
+  const _tkPicker = () => window.mvmOS && window.mvmOS.dateTimePicker;
+  function mountPickers(root) {
+    const P = _tkPicker();
+    if (!P) return;
+    root.querySelectorAll('[data-pk]').forEach(host => {
+      const o = { type: host.dataset.pk, name: host.dataset.name || '', label: host.dataset.label || '' };
+      let f;
+      try { f = P.create(host, Object.assign({}, o, { value: host.dataset.value || '' })); } catch (e) { f = P.create(host, o); }
+      if (host.dataset.id) f.input.id = host.dataset.id;
+    });
+  }
   function toLocalInputValue(iso) {
     if (!iso) return '';
+    const P = _tkPicker();
+    if (P) return P.fromEpoch(Date.parse(iso) / 1000);
     const d = new Date(iso);
     const pad = n => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
   function fromLocalInputValue(val) {
     if (!val) return null;
+    const P = _tkPicker();
+    if (P) { const e = P.toEpoch(val); return e == null ? null : new Date(e * 1000).toISOString(); }
     return new Date(val).toISOString();
   }
 
@@ -269,6 +285,7 @@
       ov.className = 'tk-overlay';
       ov.innerHTML = contentHtml;
       widgetEl.appendChild(ov);
+      mountPickers(ov);
       ov.addEventListener('click', e => { if (e.target === ov) ov.remove(); });
       return ov;
     }
@@ -845,7 +862,7 @@
         </div>
         <div id="tk-f-onetime-wrap" style="display:none">
           <div class="tk-field"><label>${esc(t('tk_due_at'))}</label>
-            <input type="datetime-local" id="tk-f-due-at" value="${existing && existing.due_at ? toLocalInputValue(existing.due_at) : ''}"></div>
+            <span data-pk="datetime" data-id="tk-f-due-at" data-label="${esc(t('tk_due_at'))}" data-value="${existing && existing.due_at ? toLocalInputValue(existing.due_at) : ''}"></span></div>
         </div>
         <div id="tk-f-periodic-wrap" style="display:none">
           <div class="tk-field"><label>${esc(t('tk_period'))}</label>
@@ -1140,6 +1157,7 @@
     }
 
     async function init() {
+      try { await (_tkPicker() && _tkPicker().ready()); } catch (e) {}
       try { settings = await api('/me'); } catch (e) { settings = { budget_integration: false }; }
       if (destroyed) return;
       await ensureBudgetCategories();

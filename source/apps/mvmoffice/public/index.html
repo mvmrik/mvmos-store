@@ -28,7 +28,7 @@
       document.head.appendChild(s);
     });
   }
-  var files = ['lib/prosemirror.min.js', 'i18n.js', 'formula.js', 'model.js', 'grid.js', 'editor.js', 'xlsx.js', 'docx.js', 'office.js'];
+  var files = ['lib/prosemirror.min.js', 'i18n.js', 'formula.js', 'model.js', 'fonts.js', 'grid.js', 'editor.js', 'xlsx.js', 'docx.js', 'epub.js', 'cover.js', 'bookview.js', 'office.js'];
   function boot() {
     files.reduce(function (p, f) {
       return p.then(function () { return loadScript('/apps/mvmoffice/' + f); });

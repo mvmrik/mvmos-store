@@ -65,7 +65,12 @@
   // lay out the pages on screen, in the print preview and on paper.
   const PAPER = { A4: [210, 297], A5: [148, 210], A3: [297, 420], Letter: [215.9, 279.4], Legal: [215.9, 355.6] };
   const MARGINS = { normal: [20, 20, 20, 20], narrow: [12.7, 12.7, 12.7, 12.7], wide: [25.4, 30, 25.4, 30] };  // top right bottom left
-  const PAGE_NUMBERS = ['none', 'center', 'right'];
+  const PAGE_NUMBERS = ['none', 'center', 'right', 'outside'];
+  const HEADERS = ['none', 'title', 'chapter', 'book'];
+  // What a book starts from: a small page, mirrored margins (the inner one
+  // is the wider one, where the pages are bound), the number on the outer
+  // edge and the title / chapter running along the top.
+  const BOOK_PAGE = { size: 'A5', orient: 'portrait', margins: [20, 16, 22, 20], mirror: true, numbers: 'outside', header: 'book' };
   function normPage(pg) {
     pg = pg && typeof pg === 'object' ? pg : {};
     const size = PAPER[pg.size] ? pg.size : 'A4';
@@ -76,14 +81,134 @@
     const clamp = (v, max) => Math.round(Math.max(0, Math.min(max, +v || 0)) * 10) / 10;
     const margins = [clamp(m[0], h / 3), clamp(m[1], w / 3), clamp(m[2], h / 3), clamp(m[3], w / 3)];
     const numbers = PAGE_NUMBERS.includes(pg.numbers) ? pg.numbers : 'none';
-    return { size, orient, margins, numbers };
+    const header = HEADERS.includes(pg.header) ? pg.header : 'none';
+    return { size, orient, margins, numbers, mirror: !!pg.mirror, header };
   }
   // The page setup in millimetres, ready for layout.
   function pageBox(doc) {
     const pg = normPage(doc && doc.page);
     const [w, h] = pg.orient === 'landscape' ? [PAPER[pg.size][1], PAPER[pg.size][0]] : PAPER[pg.size];
     const [t, r, b, l] = pg.margins;
-    return { w, h, t, r, b, l, numbers: pg.numbers };
+    return { w, h, t, r, b, l, numbers: pg.numbers, mirror: pg.mirror, header: pg.header };
+  }
+
+  // The kinds of document, the details of the author and the cover. Images
+  // live in one table of the document and are referenced by id, so a long
+  // text never carries picture data inside it.
+  function normMeta(m) {
+    m = m && typeof m === 'object' ? m : {};
+    const s = (v, n) => String(v == null ? '' : v).slice(0, n);
+    return { author: s(m.author, 200), lang: s(m.lang, 20), description: s(m.description, 2000) };
+  }
+  // A cover is a page of its own, laid out freely: a background colour and
+  // items in the order they are stacked — texts, pictures and shapes. x, y
+  // and w are shares of the page's width and height; text sizes are shares
+  // of its width, so the same cover fits whatever the page size is.
+  const COVER_FONTS = {
+    serif: 'Georgia, "Times New Roman", "Liberation Serif", serif',
+    sans: '"Helvetica Neue", Arial, "Liberation Sans", sans-serif',
+    display: 'Impact, "Arial Black", "Haettenschweiler", "Liberation Sans", sans-serif',
+    condensed: '"Arial Narrow", "Liberation Sans Narrow", "Roboto Condensed", sans-serif',
+    script: '"Segoe Script", "Brush Script MT", "URW Chancery L", "Apple Chancery", cursive',
+    mono: '"Courier New", "Liberation Mono", monospace',
+  };
+  const TEXT_FX = ['none', 'shadow', 'outline', 'glow', 'gradient', 'band', 'long'];
+  const SHAPES = ['rect', 'ellipse', 'line'];
+  const hexOf = (v, d) => (/^#[0-9a-f]{6}$/i.test(String(v || '')) ? String(v).toLowerCase() : d);
+  const numIn = (v, lo, hi, d) => { v = +v; return isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d; };
+
+  function normItem(it) {
+    if (!it || typeof it !== 'object') return null;
+    const type = ['text', 'image', 'shape'].includes(it.type) ? it.type : null;
+    if (!type) return null;
+    const o = {
+      id: String(it.id || uid()).slice(0, 40), type,
+      x: numIn(it.x, -3, 4, 0.1), y: numIn(it.y, -3, 4, 0.1), w: numIn(it.w, 0.005, 5, 0.5),
+      rot: numIn(it.rot, -360, 360, 0), opacity: numIn(it.opacity, 0, 1, 1),
+    };
+    if (type === 'text') {
+      Object.assign(o, {
+        text: String(it.text == null ? '' : it.text).slice(0, 2000),
+        size: numIn(it.size, 0.005, 0.6, 0.06),
+        color: hexOf(it.color, '#111111'),
+        font: COVER_FONTS[it.font] ? it.font : 'serif',
+        ff: /^[^<>"'{};\\\/]{1,60}$/.test(String(it.ff || '')) ? String(it.ff) : '',
+        bold: !!it.bold, italic: !!it.italic, caps: !!it.caps,
+        align: ['left', 'center', 'right'].includes(it.align) ? it.align : 'center',
+        lh: numIn(it.lh, 0.8, 3, 1.2), ls: numIn(it.ls, -0.2, 1, 0),
+        fx: TEXT_FX.includes(it.fx) ? it.fx : 'none',
+        fx1: hexOf(it.fx1, '#000000'), fx2: hexOf(it.fx2, '#ffcc00'),
+      });
+    } else if (type === 'image') {
+      Object.assign(o, { imageId: String(it.imageId || '').slice(0, 40), flip: !!it.flip });
+    } else {
+      Object.assign(o, {
+        shape: SHAPES.includes(it.shape) ? it.shape : 'rect',
+        h: numIn(it.h, 0.001, 5, 0.2),
+        fill: it.fill === '' ? '' : hexOf(it.fill, '#cccccc'),
+        stroke: it.stroke === '' ? '' : hexOf(it.stroke, ''),
+        sw: numIn(it.sw, 0, 0.1, 0.004),
+        radius: numIn(it.radius, 0, 0.5, 0),
+      });
+    }
+    return o;
+  }
+  const text = (o, d) => Object.assign({ type: 'text', id: uid() }, d, o);
+  // What a cover starts as: the title and author of the book, or on the back
+  // the description, in the middle of a plain page.
+  function coverDefaults(doc, side, legacy) {
+    legacy = legacy || {};
+    const items = [];
+    if (side === 'front') {
+      const title = legacy.title || doc.title || '';
+      if (legacy.image) items.push({ type: 'image', id: uid(), imageId: legacy.image, x: 0.2, y: 0.08, w: 0.6, rot: 0, opacity: 1 });
+      const top = legacy.image ? 0.55 : 0.3;
+      items.push(text({ text: title, x: 0.1, y: top, w: 0.8, size: 0.09, bold: true, lh: 1.1 }));
+      if (legacy.subtitle) items.push(text({ text: legacy.subtitle, x: 0.1, y: top + 0.17, w: 0.8, size: 0.045, color: '#444444' }));
+      const author = legacy.author || doc.meta.author;
+      if (author) items.push(text({ text: author, x: 0.1, y: 0.86, w: 0.8, size: 0.04, ls: 0.1, caps: true }));
+    } else if (doc.meta.description) {
+      items.push(text({ text: doc.meta.description, x: 0.12, y: 0.22, w: 0.76, size: 0.032, align: 'left', lh: 1.45 }));
+    }
+    return { v: 2, bg: '#ffffff', items: items.map(normItem).filter(Boolean) };
+  }
+  function normCover(c, doc, side) {
+    c = c && typeof c === 'object' ? c : {};
+    if (c.v !== 2) return coverDefaults(doc, side, side === 'front' ? c : null);
+    const items = (Array.isArray(c.items) ? c.items : []).slice(0, 80).map(normItem).filter(Boolean);
+    return { v: 2, bg: hexOf(c.bg, '#ffffff'), items };
+  }
+  function ensureCovers(doc) {
+    if (!doc.cover || doc.cover.v !== 2) doc.cover = normCover(doc.cover, doc, 'front');
+    if (!doc.back || doc.back.v !== 2) doc.back = normCover(doc.back, doc, 'back');
+  }
+  function isBook(doc) { return !!doc && doc.type === 'book'; }
+  // Switching a document to a book.
+  function applyBookPage(doc) { doc.page = normPage(Object.assign({}, BOOK_PAGE, { margins: BOOK_PAGE.margins.slice() })); }
+
+  // The headings of the whole document, in reading order: what the table of
+  // contents lists. `n` is the position among all headings, the same number
+  // the printed and exported headings get as their anchor.
+  function headings(doc, depth) {
+    const out = [];
+    let n = 0;
+    doc.pages.forEach((p, pi) => {
+      walkJSON(p.content, node => {
+        if (node.type !== 'heading') return;
+        n++;
+        const level = (node.attrs && node.attrs.level) || 1;
+        if (level > (depth || 4)) return;
+        out.push({ n, level, page: pi, text: plainText(node).trim() });
+      });
+    });
+    return out.filter(h => h.text);
+  }
+  function plainText(node) {
+    if (!node) return '';
+    if (node.type === 'text') return node.text || '';
+    if (node.type === 'formula' || node.type === 'note') return '';
+    if (node.type === 'hard_break') return ' ';
+    return (node.content || []).map(plainText).join('');
   }
 
   // A document read from a file or the server: fill in anything missing and
@@ -93,6 +218,23 @@
     doc.version = doc.version || VERSION;
     doc.title = String(doc.title || '');
     doc.page = normPage(doc.page);
+    doc.type = doc.type === 'book' ? 'book' : 'text';
+    doc.meta = normMeta(doc.meta);
+    // The covers of a book start from the title and author as they are when it becomes a book.
+    for (const [k, side] of [['cover', 'front'], ['back', 'back']]) {
+      const c = doc[k];
+      doc[k] = doc.type === 'book' || (c && c.v === 2) ? normCover(c, doc, side) : { v: 0, bg: '#ffffff', items: [] };
+    }
+    doc.book = { chapterRight: !!(doc.book && doc.book.chapterRight) };
+    // The author's notes: the plan, the characters, the dates. A page of text
+    // like the others, but kept apart — never printed, exported or numbered.
+    const nt = doc.notes && typeof doc.notes === 'object' ? doc.notes : {};
+    doc.notes = { id: 'notes', title: '', content: nt.content && nt.content.type === 'doc' ? nt.content : emptyPageContent() };
+    doc.images = doc.images && typeof doc.images === 'object' ? doc.images : {};
+    for (const [id, im] of Object.entries(doc.images)) {
+      if (!im || typeof im.src !== 'string' || !/^data:image\/(png|jpeg|gif|webp);base64,/.test(im.src)) delete doc.images[id];
+      else { im.w = im.w | 0; im.h = im.h | 0; }
+    }
     doc.pages = Array.isArray(doc.pages) ? doc.pages : [];
     doc.sheets = Array.isArray(doc.sheets) ? doc.sheets : [];
     doc.tables = doc.tables && typeof doc.tables === 'object' ? doc.tables : {};
@@ -120,8 +262,12 @@
   // so undoing a deletion always finds its table.
   function dropOrphans(doc) {
     const used = new Set(doc.sheets.map(s => s.tableId));
-    for (const p of doc.pages) walkJSON(p.content, n => { if (n.type === 'table_embed' && n.attrs) used.add(n.attrs.tableId); });
+    for (const p of doc.pages.concat(doc.notes ? [doc.notes] : [])) walkJSON(p.content, n => { if (n.type === 'table_embed' && n.attrs) used.add(n.attrs.tableId); });
     for (const id of Object.keys(doc.tables)) if (!used.has(id)) delete doc.tables[id];
+    const pics = new Set();
+    for (const side of [doc.cover, doc.back]) for (const it of (side && side.items) || []) if (it.type === 'image') pics.add(it.imageId);
+    for (const p of doc.pages.concat(doc.notes ? [doc.notes] : [])) walkJSON(p.content, n => { if (n.type === 'image' && n.attrs) pics.add(n.attrs.imageId); });
+    for (const id of Object.keys(doc.images || {})) if (!pics.has(id)) delete doc.images[id];
   }
 
   function walkJSON(node, fn) {
@@ -342,6 +488,7 @@
     uid, clone, newDoc, newTable, addPage, addSheet, normalize, dropOrphans, walkJSON,
     tableByName, uniqueName, validateName, eachFormula, eachTextFormula,
     renameRewriter, shiftRewriter, moveFormula, shiftCells, cellsFromHtmlTable, parseTSV, toTSV,
-    emptyPageContent, PAPER, MARGINS, PAGE_NUMBERS, normPage, pageBox,
+    emptyPageContent, PAPER, MARGINS, PAGE_NUMBERS, HEADERS, BOOK_PAGE, normPage, pageBox,
+    isBook, applyBookPage, headings, plainText, normMeta, normCover, ensureCovers, normItem, coverDefaults, COVER_FONTS, TEXT_FX,
   };
 })();

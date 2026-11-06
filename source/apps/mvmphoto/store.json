@@ -12,7 +12,17 @@
     "Crop, resize the image or the canvas, rotate, flip and trim transparent edges.",
     "Undo and redo for every change, zoom and pan, and keyboard shortcuts for all tools.",
     "Export to PNG, JPEG or WebP into a server folder or download it to your computer.",
-    "Save the whole work with its layers as a .mvmphoto project and continue editing later."
+    "Save the whole work with its layers as a .mvmphoto project and continue editing later.",
+    "Add text in any of the free fonts of mvmFonts, with Cyrillic, when that app is installed."
   ],
-  "integrations": []
+  "integrations": [
+    {
+      "app": "mvmfonts",
+      "name": "mvmFonts",
+      "kind": "app_api",
+      "direction": "consumes",
+      "summary": "With mvmFonts installed, the Text tool's font list also offers its free fonts with Latin and Cyrillic letters.",
+      "requires": "mvmFonts installed, and its App API enabled in Apps Hub → Settings → App APIs. The switch is off by default; without it the Text tool keeps its usual font list."
+    }
+  ]
 }

@@ -163,3 +163,7 @@
    off-canvas mobile panel. This overrides any leftover .mobile-open toggle
    from the shared initMobileSidebar() helper with a hard, unconditional rule. */
 .mvmai-sidebar { transform: none !important; position: relative !important; }
+
+.mvmai-gen{margin-top:8px}
+.mvmai-gen-img{display:block;max-width:100%;max-height:420px;border-radius:8px;border:1px solid var(--pub-border,#45475a)}
+.mvmai-gen-dl{display:inline-block;margin-top:6px;font-size:.78rem;color:var(--pub-accent,#89b4fa);text-decoration:none}

@@ -5,15 +5,15 @@
       "name": "Calendar",
       "icon": "📅",
       "category": "Productivity",
-      "version": "1.3.4",
+      "version": "1.3.5",
       "description": "Calendar with events and reminders, and a public web page for Apps Hub accounts.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/calendar-1.3.4.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/calendar-1.3.5.zip",
       "tags": [
         "calendar",
         "planning",
         "events"
       ],
-      "min_core_version": "1.0.0",
+      "min_core_version": "1.17.0",
       "name_i18n": {
         "en": "Calendar",
         "bg": "Календар",
@@ -31,15 +31,15 @@
       "name": "Tasks",
       "icon": "✅",
       "category": "Productivity",
-      "version": "1.7.3",
+      "version": "1.7.4",
       "description": "Persistent, one-time and periodic tasks with multiple categories per task and optional Budget rewards/penalties on completion, plus a public web page.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/tasks-1.7.3.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/tasks-1.7.4.zip",
       "tags": [
         "tasks",
         "planning",
         "to-do"
       ],
-      "min_core_version": "1.13.0",
+      "min_core_version": "1.17.0",
       "name_i18n": {
         "en": "Tasks",
         "bg": "Задачи",
@@ -57,15 +57,15 @@
       "name": "Shopping List",
       "icon": "🛒",
       "category": "Productivity",
-      "version": "1.3.4",
+      "version": "1.3.5",
       "description": "Shared shopping lists that update live on every device, with warranty tracking and optional Budget category deduction when items are marked bought, plus a public web page.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/shoppinglist-1.3.4.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/shoppinglist-1.3.5.zip",
       "tags": [
         "shopping",
         "groceries",
         "planning"
       ],
-      "min_core_version": "1.0.0",
+      "min_core_version": "1.17.0",
       "name_i18n": {
         "en": "Shopping List",
         "bg": "Списък за пазаруване",
@@ -100,16 +100,17 @@
       "name": "mvmOffice",
       "icon": "📝",
       "category": "Productivity",
-      "version": "1.0.1",
+      "version": "1.1.0",
       "description": "Text documents on A4 pages and spreadsheets in one file, with tables inside the text, formulas across tables and pages, and calculated values right in your sentences.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/mvmoffice-1.0.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/mvmoffice-1.1.0.zip",
       "tags": [
         "office",
         "documents",
         "spreadsheet",
         "word processor"
       ],
-      "min_core_version": "1.8.0"
+      "min_core_version": "1.15.0",
+      "premium": true
     },
     {
       "id": "cardbox",
@@ -144,15 +145,15 @@
       "name": "Family Tree",
       "icon": "🌳",
       "category": "Productivity",
-      "version": "1.1.1",
+      "version": "1.1.2",
       "description": "Beautiful private family trees with Apps Hub profile links, sharing roles and reviewed contributions.",
       "tags": [
         "family",
         "genealogy",
         "collaboration"
       ],
-      "min_core_version": "1.16.1",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/familytree-1.1.1.zip",
+      "min_core_version": "1.17.0",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/familytree-1.1.2.zip",
       "premium": true,
       "name_i18n": {
         "en": "Family Tree",
@@ -165,6 +166,22 @@
         "ru": "Родословное дерево",
         "zh-CN": "家谱"
       }
+    },
+    {
+      "id": "mvmfonts",
+      "name": "mvmFonts",
+      "icon": "🔤",
+      "category": "Productivity",
+      "version": "1.0.0",
+      "description": "A shelf of free fonts with Latin and Cyrillic that writing apps such as mvmOffice can use, with a place to add your own.",
+      "tags": [
+        "fonts",
+        "typography",
+        "cyrillic",
+        "writing"
+      ],
+      "min_core_version": "1.8.0",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/mvmfonts-1.0.0.zip"
     }
   ]
 }

@@ -1190,6 +1190,31 @@ def _resolve_cli_runtime(provider: dict, explicit: str | None = None, persist: b
     return (eu, _home_for(eu), own_bins.get(eu) or any_bin)
 
 
+def generate_image(prompt: str, aspect: str = "portrait", timeout: int = 240) -> dict:
+    """A picture for another app (see images.py): {"data", "mime", "backend"}.
+    Raises images.ImageError. Runs outside public-app isolation, because the
+    generator may start a CLI as the Linux account that is signed in to it."""
+    from backend.app_isolation import release
+    with release():
+        from backend.apps.mvmai import images
+        return images.generate(sys.modules[__name__], prompt, aspect, timeout)
+
+
+def image_listing() -> dict:
+    from backend.app_isolation import release
+    with release():
+        from backend.apps.mvmai import images
+        return images.listing(sys.modules[__name__])
+
+
+def image_status() -> dict:
+    """{"available": bool, "backend": id or None} — whether a generator is ready."""
+    from backend.app_isolation import release
+    with release():
+        from backend.apps.mvmai import images
+        return images.status(sys.modules[__name__])
+
+
 def _read_cli_usage(provider: str, user: str, home: str, cmd_bin: str,
                     force: bool = False, model: str = ""):
     """Read the selected Linux account's limits outside public-app isolation."""
@@ -1270,6 +1295,15 @@ def _cli_usable_accounts() -> dict:
         if state is not False:
             out[provider["id"]].append(eu)
     return out
+
+
+@router.get("/image-backends")
+async def image_backends(session=Depends(get_current_session)):
+    """Which picture generators this server has, for the settings."""
+    try:
+        return await asyncio.to_thread(image_listing)
+    except Exception:
+        return {"backends": [], "choice": "auto", "active": None}
 
 
 @router.get("/cli-users")

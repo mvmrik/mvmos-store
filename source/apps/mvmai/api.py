@@ -33,6 +33,7 @@ Trust model:
 """
 
 import asyncio
+import base64
 import contextvars
 import hashlib
 import json
@@ -1215,6 +1216,8 @@ async def get_me(
         # install without the premium module; the public page never shows it.
         "bridge_premium": bool(prem and prem.is_available()),
         "credit_price": price,
+        "image_tool": bool(_image_allowed(me, desk._read_cfg(), _native_images(me, cfg, "" if is_desktop else "pub_"))) if desk is not None else False,
+        "image_price": (hub.get_credit_feature_price(APP_ID, "chat_image") if hub and hub.credits_available() else 0),
         "credit_balance": hub.get_credit_balance(me["id"]) if hub else 0,
         "compact_keep_recent": prem.resolve_compact_keep_recent(desk._read_cfg()) if (prem and desk is not None) else 20,
         **({"provider_label": _label_from_cfg(desk, cfg) if desk else None,
@@ -1842,6 +1845,10 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
     if saved and saved["provider"]:
         cfg = {**cfg, "provider": saved["provider"], "model": saved["model"] or ""}
     pin = {"provider": cfg.get("provider") or "", "model": cfg.get("model") or ""}
+    if not body.no_persist and not agent_context and _image_allowed(
+            me, desk._read_cfg(), _native_images(me, cfg, exec_prefix)):
+        tools = tools + [_IMAGE_TOOL]
+        app_prompt = (app_prompt + " " + _IMAGE_PROMPT).strip()
     if not body.no_persist:
         app_prompt = (app_prompt + " " + _language_prompt(body.lang)).strip()
         if is_admin:
@@ -2072,7 +2079,7 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
     return _chat_reply(desk, is_admin, sid, msg, pin, "")
 
 
-async def ask_once(user_id: str, prompt: str, lang: str = None) -> dict:
+async def ask_once(user_id: str, prompt: str, lang: str = None, max_chars: int = 20000) -> dict:
     """One stateless question to the public-page AI, for another app's server
     code (see app_api.py). It uses the provider and model set for the public
     page, keeps no chat, offers no tools and charges no chat credits; the
@@ -2083,7 +2090,12 @@ async def ask_once(user_id: str, prompt: str, lang: str = None) -> dict:
     prompt = str(prompt or "").strip()
     if not prompt:
         return {"error": "empty_prompt"}
-    body = ChatRequest(messages=[{"role": "user", "content": prompt[:20000]}], no_persist=True, lang=lang)
+    # 20000 characters is a question; an app that sends a document asks for more.
+    try:
+        limit = max(1000, min(200000, int(max_chars)))
+    except (TypeError, ValueError):
+        limit = 20000
+    body = ChatRequest(messages=[{"role": "user", "content": prompt[:limit]}], no_persist=True, lang=lang)
     res = await _chat(body, None, "", None, me={"id": user_id, "is_admin": False})
     try:
         data = json.loads(res.body)
@@ -2485,6 +2497,131 @@ class ToolCallRequest(BaseModel):
     confirmed: bool = False
 
 
+# ── Pictures ──────────────────────────────────────────────────────────────
+# The chat can make a picture when a generator is ready (see images.py in the
+# desktop backend), for everyone except an administrator whose full-access Codex
+# draws pictures itself, when the administrator has allowed it ("pub_images_enabled"), at the price in credits set for
+# "chat_image" and within the daily limit ("pub_images_daily", 0 = none).
+
+_GEN_DIR = os.path.join(_UPLOAD_DIR, "generated")   # inside uploads/: the release scripts never ship it
+_GEN_ID = re.compile(r"^[a-f0-9]{32}\.(png|jpg|webp)$")
+_GEN_KEEP_DAYS = 90
+
+_IMAGE_TOOL = {"type": "function", "function": {
+    "name": "generate_image",
+    "description": ("Make a picture with the image generator and show it to the user. Use it only when the user asks for "
+                    "a picture or an illustration. A picture takes a minute or more and may cost the user credits, so make "
+                    "one at a time."),
+    "parameters": {"type": "object", "properties": {
+        "prompt": {"type": "string", "description": "A full description of the picture: subject, setting, mood, light, style, colours, "
+                                                    "and whether any text may appear in it (by default none)."},
+        "aspect": {"type": "string", "enum": ["portrait", "landscape", "square"]}},
+        "required": ["prompt"]}}}
+_IMAGE_PROMPT = ("You can make pictures with generate_image. Write its prompt in full from what the user asked for, "
+                 "saying whether any text may appear in the picture (none unless the user wants some, and then the exact words). "
+                 "The picture is shown to the user by the app; do not try to show or describe a link to it.")
+
+
+def _native_images(me, cfg, prefix) -> bool:
+    """An administrator with full access (same rule as _run_cli_chat) on a CLI that draws pictures itself.
+    Only Codex has such a tool; Claude and Gemini with full access get generate_image like everyone else."""
+    desk = _desktop()
+    return bool(desk is not None and me.get("is_admin") and cfg.get(f"{prefix}exec_enabled")
+                and cfg.get(f"{prefix}exec_auto") and cfg.get("provider") == "codex-cli")
+
+
+def _image_allowed(me, cfg, native=False) -> bool:
+    desk = _desktop()
+    if desk is None or native or not (me.get("is_admin") or cfg.get("pub_images_enabled")):
+        return False
+    try:
+        return bool(desk.image_status().get("available"))
+    except Exception:
+        return False
+
+
+def _gen_user_dir(user_id: str) -> str:
+    return os.path.join(_GEN_DIR, re.sub(r"[^A-Za-z0-9_-]", "_", str(user_id)))
+
+
+def _images_today(user_id: str) -> int:
+    folder = _gen_user_dir(user_id)
+    if not os.path.isdir(folder):
+        return 0
+    start = time.mktime(time.localtime()[:3] + (0, 0, 0, 0, 0, -1))
+    return sum(1 for f in os.listdir(folder) if os.path.getmtime(os.path.join(folder, f)) >= start)
+
+
+def _prune_generated(folder: str) -> None:
+    cutoff = time.time() - _GEN_KEEP_DAYS * 86400
+    for f in os.listdir(folder):
+        path = os.path.join(folder, f)
+        try:
+            if os.path.getmtime(path) < cutoff:
+                os.unlink(path)
+        except OSError:
+            pass
+
+
+def _make_picture(me, args, native=False) -> dict:
+    """The result of the generate_image tool for the model and the page, or {"error"}."""
+    desk, hub = _desktop(), _hub()
+    cfg = desk._read_cfg() if desk is not None else {}
+    if not _image_allowed(me, cfg, native):
+        return {"error": "not_available"}
+    prompt = str((args or {}).get("prompt") or "").strip()
+    if not prompt:
+        return {"error": "empty_prompt"}
+    aspect = (args or {}).get("aspect") if (args or {}).get("aspect") in ("portrait", "landscape", "square") else "square"
+    if not me.get("is_admin"):
+        try:
+            limit = int(cfg.get("pub_images_daily") or 0)
+        except (TypeError, ValueError):
+            limit = 0
+        if limit > 0 and _images_today(me["id"]) >= limit:
+            return {"error": "daily_limit", "limit": limit}
+    price, key = 0, uuid.uuid4().hex
+    if hub and hub.credits_available():
+        price = hub.get_credit_feature_price(APP_ID, "chat_image")
+        if price:
+            try:
+                hub.charge_credit_feature(me["id"], APP_ID, "chat_image", "mvmAI picture", key)
+            except Exception:
+                return {"error": "insufficient_credits", "price": price}
+    try:
+        made = desk.generate_image(prompt, aspect, 240)
+    except Exception as exc:
+        if price:
+            try:
+                hub.grant_credits(me["id"], APP_ID, price, "mvmAI picture", "refund:" + key)
+            except Exception:
+                pass
+        return {"error": getattr(exc, "code", None) or "image_failed"}
+    ext = {"image/png": "png", "image/jpeg": "jpg", "image/webp": "webp"}.get(made["mime"], "png")
+    folder = _gen_user_dir(me["id"])
+    os.makedirs(folder, exist_ok=True)
+    _prune_generated(folder)
+    image_id = uuid.uuid4().hex + "." + ext
+    with open(os.path.join(folder, image_id), "wb") as handle:
+        handle.write(base64.b64decode(made["data"]))
+    return {"image_id": image_id,
+            "note": "The picture was made and is shown to the user by the app. Say briefly what it shows; do not include a link."}
+
+
+@router.get("/generated/{image_id}")
+async def generated_image(image_id: str, x_pub_token: str = Header(default=None)):
+    me = _resolve(x_pub_token)
+    if not me:
+        return JSONResponse({"error": "unauthorized"}, status_code=401)
+    if not _GEN_ID.match(image_id):
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    path = os.path.join(_gen_user_dir(me["id"]), image_id)
+    if not os.path.isfile(path):
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    media = {"png": "image/png", "jpg": "image/jpeg", "webp": "image/webp"}[image_id.rsplit(".", 1)[1]]
+    return FileResponse(path, media_type=media, headers={"Cache-Control": "private, max-age=86400"})
+
+
 def _bridge(x_pub_token):
     """(user, premium module) when the caller may use the data bridge, else
     the JSONResponse refusing it."""
@@ -2510,6 +2647,9 @@ async def bridge_apps(x_pub_token: str = Header(default=None)):
 async def tool_preview(body: ToolCallRequest, x_pub_token: str = Header(default=None)):
     """The review form for a tool call: whether it changes data and, when it
     does, its fields with the model's values filled in."""
+    if body.name == "generate_image":
+        me = _resolve(x_pub_token)
+        return JSONResponse({"write": False}) if me else JSONResponse({"error": "unauthorized"}, status_code=401)
     me, prem = _bridge(x_pub_token)
     if me is None:
         return prem
@@ -2522,12 +2662,24 @@ async def tool_preview(body: ToolCallRequest, x_pub_token: str = Header(default=
 
 
 @router.post("/tool-call")
-async def tool_call(body: ToolCallRequest, x_pub_token: str = Header(default=None)):
+async def tool_call(body: ToolCallRequest, x_pub_token: str = Header(default=None),
+                    x_mvmai_surface: str = Header(default=""), os_session=Depends(_os_session_optional)):
     """Dispatches one personal-data bridge tool call. Never used for
     run_command — that stays the dedicated, admin-only /exec endpoint.
     user_id is always the caller's own session id, resolved here from the
     token and never taken from the request body, so no argument the model or
     a tampered client sends can reach another user's data."""
+    if body.name == "generate_image":
+        me = _resolve(x_pub_token)
+        if not me:
+            return JSONResponse({"error": "unauthorized"}, status_code=401)
+        desk = _desktop()
+        surface_cfg = desk._read_cfg() if desk is not None else {}
+        prefix = "" if x_mvmai_surface == "desktop" and os_session else "pub_"
+        result = await asyncio.to_thread(_make_picture, me, body.arguments or {}, _native_images(me, surface_cfg, prefix))
+        if result.get("error"):
+            return JSONResponse({"error": result["error"], **{k: v for k, v in result.items() if k != "error"}}, status_code=402 if result["error"] == "insufficient_credits" else 429 if result["error"] == "daily_limit" else 400)
+        return JSONResponse({"result": result})
     me, prem = _bridge(x_pub_token)
     if me is None:
         return prem

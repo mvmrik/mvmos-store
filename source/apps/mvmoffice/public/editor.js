@@ -2,6 +2,10 @@
 //   table_embed  a table living in the text, drawn by the grid
 //   formula      a value inside a sentence, computed from the tables
 //   page_break   the next text starts on a new sheet
+//   image        a picture kept in the document's image table
+//   note         a number in the sentence; its text is listed at the end of
+//                the page (the chapter), in print and in e-books
+//   toc          the table of contents, built from the headings
 (function () {
   if (window.MvmOfficeEditor) return;
   const PM = window.MvmPM;
@@ -34,6 +38,8 @@
     return ['left', 'center', 'right', 'justify'].includes(a) ? a : null;
   };
 
+  const safeHref = h => (/^(https?:\/\/|mailto:)/i.test(String(h || '').trim()) ? String(h).trim() : null);
+
   // One schema per document window: embedded tables and text formulas are
   // drawn from that window's document.
   function makeSchema(office) {
@@ -47,7 +53,7 @@
       .update('heading', {
         attrs: Object.assign({ level: { default: 1 } }, alignAttr),
         content: 'inline*', group: 'block', defining: true,
-        parseDOM: [1, 2, 3, 4, 5, 6].map(level => ({ tag: 'h' + level, getAttrs: dom => ({ level: Math.min(level, 3), align: alignOf(dom) }) })),
+        parseDOM: [1, 2, 3, 4, 5, 6].map(level => ({ tag: 'h' + level, getAttrs: dom => ({ level: Math.min(level, 4), align: alignOf(dom) }) })),
         toDOM: n => ['h' + n.attrs.level, alignStyle(n.attrs.align), 0],
       })
       .remove('image')
@@ -89,17 +95,59 @@
         parseDOM: [{ tag: 'div.mo-page-break' }],
         toDOM: () => ['div', { class: 'mo-page-break' }],
       },
+      image: {
+        group: 'block', atom: true, selectable: true, draggable: true,
+        attrs: { imageId: { default: '' }, alt: { default: '' }, width: { default: 60 } },
+        parseDOM: [{ tag: 'img[data-mo-img]', getAttrs: dom => ({ imageId: dom.getAttribute('data-mo-img'), alt: dom.getAttribute('alt') || '', width: +dom.getAttribute('data-mo-w') || 60 }) }],
+        toDOM: n => {
+          const im = office.doc.images[n.attrs.imageId];
+          return ['img', {
+            'data-mo-img': n.attrs.imageId, 'data-mo-w': n.attrs.width, alt: n.attrs.alt, class: 'mo-img',
+            src: im ? im.src : '', style: 'width:' + n.attrs.width + '%',
+          }];
+        },
+      },
+      note: {
+        group: 'inline', inline: true, atom: true, selectable: true,
+        attrs: { text: { default: '' } },
+        parseDOM: [{ tag: 'span.mo-note', getAttrs: dom => ({ text: dom.getAttribute('data-note') || '' }) }],
+        toDOM: n => ['span', { class: 'mo-note', 'data-note': n.attrs.text }, '*'],
+      },
+      toc: {
+        group: 'block', atom: true, selectable: true,
+        attrs: { depth: { default: 2 } },
+        parseDOM: [{ tag: 'ul.mo-toc', getAttrs: dom => ({ depth: +dom.getAttribute('data-depth') || 2 }) }],
+        toDOM: n => office.tocDOM(n.attrs.depth),
+      },
     });
     const marks = base.marks
       .remove('link')
       .remove('code')
       .append({
+        link: {
+          attrs: { href: {} }, inclusive: false,
+          parseDOM: [{ tag: 'a[href]', getAttrs: dom => { const h = safeHref(dom.getAttribute('href')); return h ? { href: h } : false; } }],
+          toDOM: m => ['a', { href: m.attrs.href, rel: 'noopener noreferrer', target: '_blank' }, 0],
+        },
         underline: { parseDOM: [{ tag: 'u' }, { style: 'text-decoration=underline' }], toDOM: () => ['u', 0] },
         strike: { parseDOM: [{ tag: 's' }, { tag: 'del' }, { style: 'text-decoration=line-through' }], toDOM: () => ['s', 0] },
         color: {
           attrs: { color: {} },
           parseDOM: [{ style: 'color', getAttrs: v => (/^#[0-9a-f]{3,8}$/i.test(v) ? { color: v } : false) }],
           toDOM: m => ['span', { style: 'color:' + m.attrs.color }, 0],
+        },
+        // A font from mvmFonts. Only a name is stored; a machine without that font falls back to its category.
+        font: {
+          attrs: { family: {} },
+          parseDOM: [{ style: 'font-family', getAttrs: v => {
+            const n = String(v).split(',')[0].replace(/["']/g, '').trim();
+            return window.MvmOfficeFonts && window.MvmOfficeFonts.has(n) ? { family: n } : false;
+          } }],
+          toDOM: m => {
+            const FN = window.MvmOfficeFonts;
+            if (!/^[^<>"'{};\\\/]{1,60}$/.test(String(m.attrs.family))) return ['span', 0];
+            return ['span', { style: 'font-family:' + (FN ? FN.stack(m.attrs.family) : '"' + m.attrs.family + '"') }, 0];
+          },
         },
       });
     return new Schema({ nodes, marks });
@@ -236,6 +284,70 @@
     destroy() { this.ed.formulas.delete(this); }
   }
 
+  // A note shows its number among the notes of the page (the chapter); a
+  // click opens its text.
+  class NoteView {
+    constructor(node, view, getPos, ed) {
+      this.node = node;
+      this.ed = ed;
+      this.v = view;
+      this.getPos = getPos;
+      this.dom = document.createElement('sup');
+      this.dom.className = 'mo-note';
+      this.dom.contentEditable = 'false';
+      this.dom.addEventListener('mousedown', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.ed.editNoteAt(this.getPos());
+      });
+      this.refresh();
+      ed.notes.add(this);
+    }
+    update(node) {
+      if (node.type !== this.node.type) return false;
+      this.node = node;
+      this.refresh();
+      return true;
+    }
+    refresh() {
+      let n = 0, at = this.getPos();
+      this.v.state.doc.descendants((node, pos) => {
+        if (node.type.name === 'note' && pos <= at) n++;
+      });
+      this.dom.textContent = String(n || 1);
+      this.dom.title = this.node.attrs.text;
+    }
+    selectNode() { this.dom.classList.add('mo-note-sel'); }
+    deselectNode() { this.dom.classList.remove('mo-note-sel'); }
+    stopEvent(e) { return e.type === 'mousedown'; }
+    ignoreMutation() { return true; }
+    destroy() { this.ed.notes.delete(this); }
+  }
+
+  class TocView {
+    constructor(node, view, getPos, ed) {
+      this.node = node;
+      this.ed = ed;
+      this.dom = ed.office.tocDOM(node.attrs.depth);
+      this.dom.contentEditable = 'false';
+      ed.tocs.add(this);
+    }
+    update(node) {
+      if (node.type !== this.node.type) return false;
+      this.node = node;
+      this.refresh();
+      return true;
+    }
+    refresh() {
+      const fresh = this.ed.office.tocDOM(this.node.attrs.depth);
+      if (fresh.innerHTML !== this.dom.innerHTML) this.dom.innerHTML = fresh.innerHTML;
+    }
+    selectNode() { this.dom.classList.add('mo-toc-sel'); }
+    deselectNode() { this.dom.classList.remove('mo-toc-sel'); }
+    ignoreMutation() { return true; }
+    destroy() { this.ed.tocs.delete(this); }
+  }
+
   // ── Sheets on screen ─────────────────────────────────────────────────────
   // The text is one flowing column. It is shown on separate sheets the way
   // print lays it out: a block that would cross the bottom margin moves to
@@ -274,13 +386,15 @@
       this.schema = office.schema;
       this.embeds = new Set();
       this.formulas = new Set();
+      this.notes = new Set();
+      this.tocs = new Set();
       const s = this.schema;
 
       let content;
       try { content = s.nodeFromJSON(page.content); } catch (e) { content = s.nodeFromJSON(M.emptyPageContent()); }
 
       const rules = [
-        IR.textblockTypeInputRule(/^(#{1,3})\s$/, s.nodes.heading, m => ({ level: m[1].length })),
+        IR.textblockTypeInputRule(/^(#{1,4})\s$/, s.nodes.heading, m => ({ level: m[1].length })),
         IR.wrappingInputRule(/^\s*([-+*])\s$/, s.nodes.bullet_list),
         IR.wrappingInputRule(/^(\d+)\.\s$/, s.nodes.ordered_list, m => ({ order: +m[1] }), (m, n) => n.childCount + n.attrs.order === +m[1]),
         IR.wrappingInputRule(/^\s*>\s$/, s.nodes.blockquote),
@@ -335,12 +449,15 @@
         nodeViews: {
           table_embed: (n, v, g) => new EmbedView(n, v, g, this),
           formula: (n, v, g) => new FormulaView(n, v, g, this),
+          note: (n, v, g) => new NoteView(n, v, g, this),
+          toc: (n, v, g) => new TocView(n, v, g, this),
         },
         dispatchTransaction: tr => {
           const next = this.view.state.apply(tr);
           this.view.updateState(next);
           if (tr.docChanged) {
             this.page.content = next.doc.toJSON();
+            this.notes.forEach(x => x.refresh());
             office.textChanged(this);
           }
           if (tr.docChanged || tr.selectionSet || tr.getMeta(pagerKey) === undefined) office.onTextSelection(this);
@@ -467,6 +584,7 @@
     refresh() {
       this.formulas.forEach(f => f.refresh());
       this.embeds.forEach(e => e.refresh());
+      this.tocs.forEach(x => x.refresh());
     }
 
     // ── Pasting tables ─────────────────────────────────────────────────────
@@ -520,6 +638,28 @@
         if (dispatch) dispatch(tr);
         return true;
       });
+    }
+    setFont(family) {
+      const type = this.schema.marks.font;
+      this.run((state, dispatch) => {
+        const { from, to, empty } = state.selection;
+        if (empty) {
+          if (dispatch) dispatch(family ? state.tr.addStoredMark(type.create({ family })) : state.tr.removeStoredMark(type));
+          return true;
+        }
+        let tr = state.tr.removeMark(from, to, type);
+        if (family) tr = tr.addMark(from, to, type.create({ family }));
+        if (dispatch) dispatch(tr);
+        return true;
+      });
+    }
+    fontAt() {
+      const { from, $from, to, empty } = this.state.selection;
+      const type = this.schema.marks.font;
+      if (empty) { const m = type.isInSet(this.state.storedMarks || $from.marks()); return m ? m.attrs.family : ''; }
+      let fam = '';
+      this.state.doc.nodesBetween(from, to, n => { const m = n.isText && type.isInSet(n.marks); if (m && !fam) fam = m.attrs.family; });
+      return fam;
     }
     blockType() {
       const { $from } = this.state.selection;
@@ -579,6 +719,98 @@
         }
       }, 0);
     }
+    insertToc() { this.insertBlock(this.schema.nodes.toc.create({ depth: 2 })); }
+    insertImage(imageId, width) {
+      this.insertBlock(this.schema.nodes.image.create({ imageId, width: width || 60 }));
+    }
+    // The image the selection sits on, if any.
+    selectedImage() {
+      const sel = this.state.selection;
+      return sel.node && sel.node.type.name === 'image' ? { node: sel.node, pos: sel.from } : null;
+    }
+    setImage(attrs) {
+      const im = this.selectedImage();
+      if (!im) return;
+      this.view.dispatch(this.view.state.tr.setNodeMarkup(im.pos, null, Object.assign({}, im.node.attrs, attrs)));
+      this.view.focus();
+    }
+    removeImage() {
+      const im = this.selectedImage();
+      if (!im) return;
+      this.view.dispatch(this.view.state.tr.delete(im.pos, im.pos + im.node.nodeSize));
+      this.view.focus();
+    }
+
+    // ── Links ──────────────────────────────────────────────────────────────
+    linkHref() {
+      const { $from, from, to, empty } = this.state.selection;
+      const type = this.schema.marks.link;
+      const m = empty ? type.isInSet(this.state.storedMarks || $from.marks()) : null;
+      if (m) return m.attrs.href;
+      let href = null;
+      this.state.doc.nodesBetween(from, to, n => { const k = type.isInSet(n.marks); if (k && href == null) href = k.attrs.href; });
+      return href;
+    }
+    setLink(href) {
+      const type = this.schema.marks.link;
+      href = safeHref(href);
+      this.run((state, dispatch) => {
+        let { from, to, empty, $from } = state.selection;
+        if (empty) {
+          // A caret inside a link means the whole link.
+          const m = type.isInSet($from.marks());
+          if (!m) return false;
+          let a = from, b = from;
+          const parent = $from.parent, start = $from.start();
+          let off = 0;
+          parent.forEach((child, o) => {
+            if (type.isInSet(child.marks) && o <= from - start && from - start <= o + child.nodeSize) { a = start + o; b = start + o + child.nodeSize; }
+            off = o;
+          });
+          from = a; to = b;
+        }
+        let tr = state.tr.removeMark(from, to, type);
+        if (href) tr = tr.addMark(from, to, type.create({ href }));
+        if (dispatch) dispatch(tr);
+        return true;
+      });
+    }
+    hasSelection() { return !this.state.selection.empty; }
+
+    // ── Notes ──────────────────────────────────────────────────────────────
+    insertNote() {
+      const view = this.view;
+      this.office.noteBox({
+        text: '',
+        onDone: text => {
+          view.dispatch(view.state.tr.replaceSelectionWith(this.schema.nodes.note.create({ text }), false).scrollIntoView());
+          this.notes.forEach(x => x.refresh());
+          view.focus();
+        },
+        onCancel: () => view.focus(),
+      });
+    }
+    editNoteAt(pos) {
+      const view = this.view;
+      const node = view.state.doc.nodeAt(pos);
+      if (!node || node.type.name !== 'note') return;
+      view.dispatch(view.state.tr.setSelection(NodeSelection.create(view.state.doc, pos)));
+      this.office.noteBox({
+        text: node.attrs.text, editing: true,
+        onDone: text => {
+          const cur = view.state.doc.nodeAt(pos);
+          if (cur && cur.type.name === 'note') view.dispatch(view.state.tr.setNodeMarkup(pos, null, { text }));
+          view.focus();
+        },
+        onRemove: () => {
+          const cur = view.state.doc.nodeAt(pos);
+          if (cur && cur.type.name === 'note') view.dispatch(view.state.tr.delete(pos, pos + cur.nodeSize));
+          view.focus();
+        },
+        onCancel: () => view.focus(),
+      });
+    }
+
     insertPageBreak() { this.insertBlock(this.schema.nodes.page_break.create()); }
     insertRule() { this.insertBlock(this.schema.nodes.horizontal_rule.create()); }
 
@@ -679,13 +911,34 @@
     }
   }
 
-  // The HTML of a page for printing.
-  function pageHTML(office, content) {
+  // The HTML of a page for printing. With `ctx` the headings get anchors
+  // that run through the whole document (the table of contents points at
+  // them) and the notes of the page are listed at its end.
+  function pageHTML(office, content, ctx) {
     const schema = office.schema;
     const node = schema.nodeFromJSON(content);
     const frag = DOMSerializer.fromSchema(schema).serializeFragment(node.content);
     const div = document.createElement('div');
     div.appendChild(frag);
+    if (ctx) {
+      div.querySelectorAll('h1,h2,h3,h4').forEach(h => { if (h.textContent.trim()) h.id = 'mo-h' + (++ctx.h); else ctx.h++; });
+      const notes = [...div.querySelectorAll('.mo-note')];
+      if (notes.length) {
+        const list = document.createElement('ol');
+        list.className = 'mo-notes';
+        notes.forEach(el => {
+          const li = document.createElement('li');
+          li.textContent = el.getAttribute('data-note') || '';
+          list.appendChild(li);
+        });
+        notes.forEach((el, i) => { el.textContent = String(i + 1); });
+        const title = document.createElement('p');
+        title.className = 'mo-notes-title';
+        title.textContent = office.t('mo_notes');
+        div.appendChild(title);
+        div.appendChild(list);
+      }
+    }
     return div.innerHTML;
   }
 

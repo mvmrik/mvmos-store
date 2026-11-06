@@ -34,7 +34,8 @@
     "Syntax-colored fenced code and expandable command output, with escaped previews.",
     "Administrator Git projects show changed-file counters and read-only diffs; the list uses modification times while each preview includes the full current file diff.",
     "Saved Claude and Codex sessions request confirmed native context compaction when older messages are summarized; failures preserve visible history.",
-    "Premium mvmAgent workspaces for administrators: a project conversation, knowledge, resources, tasks, graphical forms and versioned reusable tools with explicit activation and invocation reviews."
+    "Premium mvmAgent workspaces for administrators: a project conversation, knowledge, resources, tasks, graphical forms and versioned reusable tools with explicit activation and invocation reviews.",
+    "Pictures in the chat: when an image generator is ready (Codex, or an OpenAI or Gemini key), the assistant makes a picture on request; administrators choose the generator, whether public users may make pictures, a price per picture in credits and a daily limit."
   ],
   "requirements": [
     "An API key for one of the supported providers, or a local Ollama install, or another supported CLI tool already installed on the server."
@@ -52,8 +53,8 @@
       "name": "Any app",
       "kind": "app_api",
       "direction": "provides",
-      "summary": "mvmAI exposes an app-to-app API with one function: another app's server code can put a single question to the AI of mvmAI's public page and get plain text back. Nothing is stored, no tools are offered and the asker has no server access. Belot Premium uses it to give bots an AI mentor.",
-      "requires": "The mvmAI App API has to be switched on in Apps Hub → Settings → App APIs. It is off by default."
+      "summary": "mvmAI exposes an app-to-app API to other apps: their server code can put a single question to the AI of mvmAI's public page and get plain text back, or ask mvmAI to make a picture and receive it. Nothing is stored for the asker and the asker has no server access. Belot Premium uses the question to give bots an AI mentor, and the mvmOffice writing assistant uses the questions and pictures.",
+      "requires": "The mvmAI App API has to be switched on in Apps Hub → Settings → App APIs. It is off by default. Pictures also need a picture generator ready in the mvmAI settings."
     }
   ]
 }
