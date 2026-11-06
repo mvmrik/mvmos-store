@@ -1,3 +1,4 @@
+const { render, on } = window.RacelandiaUI;
 // Racelandia - the circuit designer.
 //
 // The player draws the outline of the own circuit as control points; the server turns them
@@ -26,12 +27,12 @@ export function openBuilder(o) {
 
   const errText = code => _t(({ budget: 'ap_no_budget', busy: 'ap_active_run_hint' })[code] || ('ap_tb_err_' + code)) ;
 
-  host.innerHTML = `<div class="ap-garage ap-tb">
+  render(host, `<div class="ap-garage ap-tb">
     <div class="ap-col"><div class="ap-card"><div class="ap-bar"><h2>${esc(_t('ap_tb_title'))}</h2><button class="ap-btn ap-sm ap-ghost" data-tb="cancel">${esc(_t('ap_tb_cancel'))}</button></div>
       <p class="ap-hint" data-tb="intro"></p>
       <canvas class="ap-tb-canvas" data-tb="canvas"></canvas>
       <div class="ap-tb-tools" data-tb="tools"></div></div></div>
-    <div class="ap-col" data-tb="side"></div></div>`;
+    <div class="ap-col" data-tb="side"></div></div>`);
   const $ = k => host.querySelector(`[data-tb="${k}"]`);
   const canvas = $('canvas'), g = canvas.getContext('2d');
 
@@ -99,20 +100,20 @@ export function openBuilder(o) {
     const kx = canvas.clientWidth / Math.max(1, r.width - 2 * bx), ky = canvas.clientHeight / Math.max(1, r.height - 2 * by);
     return [(e.clientX - r.left - bx) * kx, (e.clientY - r.top - by) * ky];
   };
-  canvas.addEventListener('pointerdown', e => {
+  on(canvas, 'pointerdown', e => {
     if (!rebuilding || building) return;
     const f = frame(), [x, y] = point(e), i = hit(f, x, y);
     if (i >= 0) { drag = i; canvas.setPointerCapture(e.pointerId); }
     else if (ctrl.length < 40) { insertAt(toWorld(f, x, y)); changed(); }
     draw();
   });
-  canvas.addEventListener('pointermove', e => {
+  on(canvas, 'pointermove', e => {
     if (drag < 0) return;
     const f = frame(), [x, y] = point(e); ctrl[drag] = toWorld(f, x, y); draw(); changed(true);
   });
   const release = () => { if (drag >= 0) { drag = -1; changed(); } };
-  canvas.addEventListener('pointerup', release); canvas.addEventListener('pointercancel', release);
-  canvas.addEventListener('dblclick', e => {
+  on(canvas, 'pointerup', release); on(canvas, 'pointercancel', release);
+  on(canvas, 'dblclick', e => {
     if (!rebuilding || building) return;
     const f = frame(), [x, y] = point(e), i = hit(f, x, y);
     if (i >= 0) { ctrl.splice(i, 1); changed(); draw(); }
@@ -148,16 +149,16 @@ export function openBuilder(o) {
   }
 
   function paintTools() {
-    $('tools').innerHTML = rebuilding
+    render($('tools'), rebuilding
       ? `<span class="ap-hint">${esc(_t('ap_tb_templates'))}:</span> ${Object.keys(TEMPLATES).map(k => `<button class="ap-btn ap-sm ap-ghost" data-tpl="${k}">${esc(_t('ap_tb_tpl_' + k))}</button>`).join(' ')}
          <button class="ap-btn ap-sm ap-ghost" data-tb-undo>⌫</button> <button class="ap-btn ap-sm ap-ghost" data-tb-clear>${esc(_t('ap_tb_clear'))}</button>
          <button class="ap-btn ap-sm ap-ghost" data-zoom="-1">−</button><button class="ap-btn ap-sm ap-ghost" data-zoom="1">+</button>`
-      : `<button class="ap-btn ap-sm ap-ghost" data-zoom="-1">−</button><button class="ap-btn ap-sm ap-ghost" data-zoom="1">+</button>`;
+      : `<button class="ap-btn ap-sm ap-ghost" data-zoom="-1">−</button><button class="ap-btn ap-sm ap-ghost" data-zoom="1">+</button>`);
     $('intro').textContent = rebuilding ? _t('ap_tb_intro') : '';
-    host.querySelectorAll('[data-tpl]').forEach(b => b.addEventListener('click', () => { ctrl = TEMPLATES[b.dataset.tpl].map(p => p.slice()); changed(); draw(); }));
-    host.querySelector('[data-tb-undo]')?.addEventListener('click', () => { ctrl.pop(); changed(); draw(); });
-    host.querySelector('[data-tb-clear]')?.addEventListener('click', () => { ctrl = []; quote = null; changed(); draw(); });
-    host.querySelectorAll('[data-zoom]').forEach(b => b.addEventListener('click', () => { zoom = Math.max(.6, Math.min(3, zoom * (b.dataset.zoom === '1' ? 1.25 : .8))); draw(); }));
+    host.querySelectorAll('[data-tpl]').forEach(b => on(b, 'click', () => { ctrl = TEMPLATES[b.dataset.tpl].map(p => p.slice()); changed(); draw(); }));
+    on(host.querySelector('[data-tb-undo]'), 'click', () => { ctrl.pop(); changed(); draw(); });
+    on(host.querySelector('[data-tb-clear]'), 'click', () => { ctrl = []; quote = null; changed(); draw(); });
+    host.querySelectorAll('[data-zoom]').forEach(b => on(b, 'click', () => { zoom = Math.max(.6, Math.min(3, zoom * (b.dataset.zoom === '1' ? 1.25 : .8))); draw(); }));
   }
 
   const row = (k, v) => `<div><span>${esc(k)}</span><b>${v}</b></div>`;
@@ -189,7 +190,7 @@ export function openBuilder(o) {
       ${places ? (places.length ? places.map((p, i) => `<button class="ap-btn ap-sm ap-ghost ap-tb-place" data-pick="${i}">${esc([p.name, p.region, p.country].filter(Boolean).join(', '))}</button>`).join('') : `<p class="ap-hint">${esc(_t('ap_tb_no_results'))}</p>`) : ''}
       ${place ? `<p><b>📍 ${esc(place.label || place.lat.toFixed(2) + ', ' + place.lon.toFixed(2))}</b></p>` : ''}
       <p class="ap-hint">${esc(_t('ap_tb_place_hint'))}</p></div>` : '';
-    side.innerHTML = `${rebuilding ? `<div class="ap-card"><label class="ap-tb-field"><span>${esc(_t('ap_tb_name'))}</span><input type="text" maxlength="30" value="${esc(name)}" data-keep="name" data-tb-name></label>
+    render(side, `${rebuilding ? `<div class="ap-card"><label class="ap-tb-field"><span>${esc(_t('ap_tb_name'))}</span><input type="text" maxlength="30" value="${esc(name)}" data-keep="name" data-tb-name></label>
         <h3>${esc(_t('ap_tb_width'))}</h3><div class="ap-tb-widths">${rules.widths.map(w => `<button class="ap-btn ap-sm ${w === width ? '' : 'ap-ghost'}" data-width="${w}">${w} m</button>`).join('')}</div>
         <p class="ap-hint">${esc(_t('ap_tb_limits', { min: (rules.min_length / 1000).toFixed(1), max: (rules.max_length / 1000).toFixed(0), r: rules.min_radius }))}</p></div>${placeRow}` : `<div class="ap-card"><h2>${esc(own.name)}</h2><p class="ap-hint">📍 ${own.lat.toFixed(2)}, ${own.lon.toFixed(2)}</p></div>`}
       <div class="ap-card"><h3>${esc(_t('ap_tb_stands'))}</h3><div class="ap-cond">${seatIn}</div><p class="ap-hint">${esc(_t(rebuilding?'ap_venue_after_build':'ap_venue_hint'))}</p></div>
@@ -198,23 +199,23 @@ export function openBuilder(o) {
         <div class="ap-tb-actions">${rebuilding
           ? `<button class="ap-btn" data-tb-build ${building || !quote || !quote.ok || drive === 'checking' || (drive && drive.ok === false) || !place || !afford ? 'disabled' : ''}>${esc(_t(own ? 'ap_tb_rebuild' : 'ap_tb_build'))}</button>`
           : `<button class="ap-btn" data-tb-stands ${building ? 'disabled' : ''}>${esc(_t('ap_venue_open'))}</button>
-             <button class="ap-btn ap-ghost" data-tb-rebuild ${building ? 'disabled' : ''}>${esc(_t('ap_tb_rebuild'))}</button><p class="ap-hint">${esc(_t('ap_tb_rebuild_hint'))}</p>`}</div></div>`;
+             <button class="ap-btn ap-ghost" data-tb-rebuild ${building ? 'disabled' : ''}>${esc(_t('ap_tb_rebuild'))}</button><p class="ap-hint">${esc(_t('ap_tb_rebuild_hint'))}</p>`}</div></div>`);
     bindSide();
     if (focus) { const el = side.querySelector(`[data-keep="${focus}"]`); if (el) { el.focus(); if (el.setSelectionRange && el.type === 'text') try { el.setSelectionRange(el.value.length, el.value.length); } catch (_) { /* number inputs */ } } }
   }
 
   function bindSide() {
     const side = $('side');
-    side.querySelector('[data-tb-name]')?.addEventListener('input', e => { name = e.target.value; });
-    side.querySelectorAll('[data-width]').forEach(b => b.addEventListener('click', () => { width = +b.dataset.width; changed(); draw(); }));
-    side.querySelector('[data-tb-search]')?.addEventListener('click', search);
-    side.querySelector('input[data-keep="q"]')?.addEventListener('keydown', e => { if (e.key === 'Enter') search(); });
-    side.querySelectorAll('[data-pick]').forEach(b => b.addEventListener('click', () => {
+    on(side.querySelector('[data-tb-name]'), 'input', e => { name = e.target.value; });
+    side.querySelectorAll('[data-width]').forEach(b => on(b, 'click', () => { width = +b.dataset.width; changed(); draw(); }));
+    on(side.querySelector('[data-tb-search]'), 'click', search);
+    on(side.querySelector('input[data-keep="q"]'), 'keydown', e => { if (e.key === 'Enter') search(); });
+    side.querySelectorAll('[data-pick]').forEach(b => on(b, 'click', () => {
       const p = places[+b.dataset.pick]; place = { lat: p.lat, lon: p.lon, label: [p.name, p.country].filter(Boolean).join(', ') }; places = null; paintSide();
     }));
-    side.querySelector('[data-tb-rebuild]')?.addEventListener('click', () => { rebuilding = true; seats={seated:0,free:0,vip:0}; quote = null; paintTools(); paintSide(); askQuote(); draw(); });
-    side.querySelector('[data-tb-build]')?.addEventListener('click', build);
-    side.querySelector('[data-tb-stands]')?.addEventListener('click', addStands);
+    on(side.querySelector('[data-tb-rebuild]'), 'click', () => { rebuilding = true; seats={seated:0,free:0,vip:0}; quote = null; paintTools(); paintSide(); askQuote(); draw(); });
+    on(side.querySelector('[data-tb-build]'), 'click', build);
+    on(side.querySelector('[data-tb-stands]'), 'click', addStands);
   }
 
   async function search() {
@@ -236,7 +237,7 @@ export function openBuilder(o) {
   }
   function addStands() { if(!building)o.onVenueEdit(); }
 
-  $('cancel').addEventListener('click', () => onCancel());
+  on($('cancel'), 'click', () => onCancel());
   paintTools(); paintSide();
   requestAnimationFrame(() => { draw(); if (rebuilding && ctrl.length >= 4) askQuote(); });
   return { destroy() { destroyed = true; clearTimeout(quoteTimer); clearTimeout(driveTimer); resizeObs && resizeObs.disconnect(); } };

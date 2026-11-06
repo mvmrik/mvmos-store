@@ -1,3 +1,4 @@
+const { render, on } = window.RacelandiaUI;
 // Racelandia - the pit crew page of the Staff tab.
 //
 // Each car has its own crew: one person for every position of a pit stop. The page shows how fast the crew
@@ -51,7 +52,7 @@ function offerCard(c, car, pos, offers) {
 export function paintCrew(host, c) {
   const G = c.G, crew = G.crew, cars = G.team.cars;
   if (!cars.length) {
-    host.innerHTML = `${c.heading}${c.nav}${c.hall}<div class="ap-card"><p class="ap-hint">${c.esc(c.t('ap_crew_need_car'))}</p></div>`;
+    render(host, `${c.heading}${c.nav}${c.hall}<div class="ap-card"><p class="ap-hint">${c.esc(c.t('ap_crew_need_car'))}</p></div>`);
     c.bind(host);
     return;
   }
@@ -70,7 +71,7 @@ export function paintCrew(host, c) {
     return member ? memberCard(c, car, pos, member) : offerCard(c, car, pos, crew.market[pos.id] || []);
   }).join('');
   const staffed = Object.values(info.members).filter(Boolean).length;
-  host.innerHTML = `${c.heading}${c.nav}${c.hall}<div class="ap-crewpg">
+  render(host, `${c.heading}${c.nav}${c.hall}<div class="ap-crewpg">
     <div class="ap-crew-cars">${tabs}</div>
     <div class="ap-card ap-crew-summary"><h2>${c.esc(c.t('ap_crew_speed'))}${pilot ? ' · ' + c.esc(pilot.name) : ''}</h2>
       <p class="ap-hint">${c.esc(c.t('ap_crew_speed_hint'))}</p>
@@ -80,7 +81,7 @@ export function paintCrew(host, c) {
       <div class="ap-tags"><span>${c.esc(c.t('ap_crew_staffed', { n: staffed, m: crew.positions.length }))}</span><span>${c.esc(c.t('ap_crew_cost_day'))}: ${c.money(info.daily)}</span>${median != null ? `<span>${c.esc(c.t('ap_crew_rivals', { n: median.toFixed(1) }))}</span>` : ''}</div>
       ${staffed < crew.positions.length ? `<p class="ap-warn">${c.esc(c.t('ap_crew_incomplete'))}</p>` : ''}
       <p class="ap-hint">${c.esc(c.t('ap_crew_market_hint'))}</p></div>
-    <div class="ap-crew-grid">${positions}</div></div>`;
+    <div class="ap-crew-grid">${positions}</div></div>`);
   c.bind(host);
   host.querySelectorAll('[data-crew-car]').forEach(b => b.onclick = () => { c.setCar(b.dataset.crewCar); paintCrew(host, c); });
   host.querySelectorAll('[data-crew-train]').forEach(b => b.onclick = () => c.train(b.dataset.crewTrain, b.dataset.member));
@@ -132,10 +133,10 @@ const stars = v => '★'.repeat(Math.floor(v)) + (v % 1 >= 0.5 ? '½' : '') + '�
 
 export function paintSpecialists(host, c) {
   const S = c.G.specialists, retired = (S.retired || []).map(r => `<p class="ap-warn">${c.esc(c.t('ap_spec_retired', { name: r.name, role: c.t('ap_role_' + r.role) }))}</p>`).join('');
-  host.innerHTML = `${c.heading}${c.nav}${c.hall}<div class="ap-crewpg">
+  render(host, `${c.heading}${c.nav}${c.hall}<div class="ap-crewpg">
     <div class="ap-card ap-crew-summary"><h2>${c.esc(c.t('ap_specialists'))}</h2><p class="ap-hint">${c.esc(c.t('ap_specialists_hint'))}</p>
       <div class="ap-tags"><span>${c.esc(c.t('ap_crew_staffed', { n: Object.values(S.members).filter(Boolean).length, m: S.roles.length }))}</span><span>${c.esc(c.t('ap_crew_cost_day'))}: ${c.money(S.daily)}</span></div>${retired}</div>
-    <div class="ap-crew-grid">${S.roles.map(r => specialistCard(c, r, S.members[r], S.market[r] || [])).join('')}</div></div>`;
+    <div class="ap-crew-grid">${S.roles.map(r => specialistCard(c, r, S.members[r], S.market[r] || [])).join('')}</div></div>`);
   c.bind(host);
   host.querySelectorAll('[data-staff-train]').forEach(b => b.onclick = () => c.train(b.dataset.staffTrain, b.dataset.member));
   host.querySelectorAll('[data-spec-hire]').forEach(b => b.onclick = async () => { b.disabled = true; await c.act('/specialists/hire', { role: b.dataset.role, offer: b.dataset.specHire }); });

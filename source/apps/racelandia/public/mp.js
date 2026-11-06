@@ -19,16 +19,24 @@
   const asset = p => (window.asset ? window.asset(p) : p);
   const token = () => (window.GameHub.getToken && window.GameHub.getToken()) || '';
 
+  let render, on;
+  const uiReady = import(asset('/apps/' + GAME_ID + '/ui.js')).then(ui => { render = ui.render; on = ui.on; });
+
   // ── state ──
   let root = null, G = null, cfg = { laps: 3, hour: 12 }, multi = false, board = [];
   let staffTab = 'pilots', crewCar = null, weekendSet2 = null;
   // The cars of a weekend session run together: each has its own simulation, setup, tyres and pit; one of them is watched.
   let cars = [], carIdx = 0;
   const scrollMemo = {};
+  const screenCache = new Map();
+  let stateRevision = 0;
+  let appNode = null, lastFocus = null;
   let screen = 'team', gview = 'cars', teamView = 'overview', pview = 'list', curTrack = 'own', setups = {}, compound = 'M', weekendSet = null;
   let markedCars = null, carSets = {};   // the cars ticked for a practice (null: only the open one) and the warehouse tyre set of each
   let resumeBusy=false,resumeTimer=null,resumeError='',deferredGo=null;
   let garageView = null, garageRevision = 0, divisionPlayback=null, divisionTimer=null, hallTimer=null, hallRefreshing=false;
+  let venueView = null, venueRevision = 0;
+  const closeVenueView = () => { venueRevision++; venueView?.destroy(); venueView = null; };
   const closeGarageView = () => { garageRevision++; if (garageView) { garageView.destroy(); garageView = null; } };
   const send = m => mp.send(m);
   let mods = null, builder = null, tracksCat = null, builtTracks = {}, view = null, run = null, runGroup = null, track = null, summary = null, pending = null, busy = false;
@@ -109,6 +117,7 @@
   async function api(path, body) {
     const r = await fetch('/pub/' + GAME_ID + path, {
       method: body ? 'POST' : 'GET',
+      cache: 'no-store',
       headers: Object.assign({ 'X-GH-Token': token() }, body ? { 'Content-Type': 'application/json' } : {}),
       body: body ? JSON.stringify(body) : undefined,
     });
@@ -165,8 +174,17 @@
   }
 
   // ── skeleton ──
-  function renderGame(r) {
-    closeGarageView();sndStop();clearInterval(divisionTimer);divisionTimer=null;clearInterval(hallTimer);hallTimer=null;
+  function renderGame(r, options = {}) {
+    if (options.reconnect && appNode && G) {
+      root = r;
+      if (appNode.parentNode !== root) root.appendChild(appNode);
+      if (lastFocus?.isConnected) lastFocus.focus({ preventScroll: true });
+      startEnergyRefresh();
+      view?.resize();
+      return;
+    }
+    screenCache.clear();
+    closeGarageView();closeVenueView();sndStop();clearInterval(divisionTimer);divisionTimer=null;clearInterval(hallTimer);hallTimer=null;
     clearTimeout(resumeTimer);resumeBusy=false;resumeError='';pending=null;pitModal=false;G=null;
     if(view){view.destroy();view=null;}
     if(divisionPlayback){divisionPlayback.destroy();divisionPlayback=null;}
@@ -206,6 +224,8 @@
         </main>
         <div id="ap-modal" class="ap-modal" hidden></div>
       </div>`;
+    appNode = root.querySelector('.ap-app');
+    appNode.addEventListener('focusin', e => { lastFocus = e.target; });
     root.querySelectorAll('.ap-tabs button').forEach(b => b.addEventListener('click', () => {
       // a menu click returns to the screen as it was left: same sub-view, same scroll position
       const from = $('#ap-' + screen), to = $('#ap-' + b.dataset.tab);
@@ -213,21 +233,6 @@
       go(b.dataset.tab);
       if (to) to.scrollTop = scrollMemo[b.dataset.tab] || 0;
     }));
-    // An action inside a screen repaints it from the server's answer. Keep the scroll position across that
-    // repaint instead of letting it jump to the top; a tab click is a deliberate change of screen and is left alone.
-    {
-      let hold = null;
-      root.querySelectorAll('.ap-screen').forEach(sc => {
-        sc.addEventListener('click', e => {
-          if (e.target.closest('.ap-tabs')) return;
-          hold = { sc, top: sc.scrollTop, until: Date.now() + 4000 };
-        }, true);
-        new MutationObserver(() => {
-          if (hold && hold.sc === sc && Date.now() < hold.until && screen === sc.id.slice(3) && sc.scrollTop < hold.top) sc.scrollTop = hold.top;
-        }).observe(sc, { childList: true, subtree: true });
-      });
-      root.querySelector('.ap-tabs')?.addEventListener('click', () => { hold = null; }, true);
-    }
     $('#ap-finish').addEventListener('click', async () => { if (!pending && await confirmGame(_t('ap_finish_confirm'))) mp.send({ type: 'ap_finish' }); });
     $('#ap-leave').addEventListener('click', () => { location.href = '/pub/gamehub/?game=' + GAME_ID; });
     window.addEventListener('resize', () => view && view.resize());
@@ -235,8 +240,9 @@
   }
 
   async function load() {
+    await uiReady;
     const { ok, d } = await api('/state');
-    if (!ok) { $('#ap-garage').innerHTML = `<div class="ap-empty">${esc(_t('ap_error'))}</div>`; go('garage'); return; }
+    if (!ok) { render($('#ap-garage'), `<div class="ap-empty">${esc(_t('ap_error'))}</div>`); go('garage'); return; }
     if (!FX) FX = await import(asset('/apps/' + GAME_ID + '/specialist-fx.js'));
     adopt(d);
     if (!cfg.hourSet) cfg.hour = G.hour;
@@ -249,6 +255,7 @@
     if(active)requestResume();
   }
   function adopt(d) {
+    stateRevision++;
     G = d; G.live = !!d.weather_live;
     if(!d.tracks.some(t=>t.id===curTrack))curTrack=d.tracks[0]?.id || 'own';
     { const f = forecasts[curTrack + ':' + Math.floor(Date.now() / 3600e3)]; if (f) { G.forecast = f.forecast; G.live = f.live; G.fc = f; cfg.hour = Math.floor(nowFrac()); } }
@@ -265,13 +272,12 @@
     if(s==='division' && G?.team){
       const car=G.team.cars.find(c=>c.id===G.team.active_car);
       if(car?.pilot_id && car.pilot_id!==G.team.active_pilot){
-        api('/team/select-car',{id:car.id}).then(r=>{if(r.ok){setups={};adopt(r.d);paintStatus();go('division');}else notifyGame(careerError(r.d.error));});return;
+        flushSetup().then(ok=>ok?api('/team/select-car',{id:car.id}):null).then(r=>{if(!r)return;if(r.ok){setups={};adopt(r.d);paintStatus();go('division');}else notifyGame(careerError(r.d.error));});return;
       }
     }
     updateTrackTab();
     if (s === 'track' && !hasTrackContent()) s = 'garage';
-    if (s !== 'garage') closeGarageView();
-    if(builder&&(s!=='team'||teamView!=='builder')){builder.destroy();builder=null;}
+    if(builder&&teamView!=='builder'){builder.destroy();builder=null;}
     if (s !== 'lab') labMod?.stop();
     if(s==='division'&&!['S','M','H'].includes(compound))compound='M';
     screen = s;clearInterval(divisionTimer);divisionTimer=null;clearInterval(hallTimer);hallTimer=null;
@@ -282,8 +288,20 @@
       const active = b.dataset.tab === s;
       b.classList.toggle('on', active);
       if (active) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
-      if (active) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      if (active) {
+        const nav = b.parentElement, left = b.offsetLeft, right = left + b.offsetWidth;
+        if (left < nav.scrollLeft) nav.scrollLeft = left;
+        else if (right > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = right - nav.clientWidth;
+      }
     });
+    const signature = JSON.stringify([stateRevision, s === 'garage' ? gview : s === 'team' ? teamView : s === 'driver' ? [pview, staffTab] : '', curTrack]);
+    const refresh = screenCache.get(s) !== signature;
+    screenCache.set(s, signature);
+    if (!refresh && s !== 'track' && s !== 'lab') {
+      startEnergyRefresh();
+      if (view) setTimeout(() => view?.resize(), 30);
+      return;
+    }
     if (s === 'team') paintTeam();
     else if (s === 'garage') paintGarage();
     else if (s === 'warehouse') paintWarehouse();
@@ -356,6 +374,7 @@
   // The setup is saved for the open car shortly after the last slider move. Anything still waiting is sent at once
   // before another car is opened, otherwise it would be stored on the wrong car and the open car would lose it.
   let setupSave = null;
+  let setupSaving = Promise.resolve(true);
   function queueSetupSave(track, S) {
     clearTimeout(saveTimer); setupSave = { track, setup: { ...S } };
     saveTimer = setTimeout(flushSetup, 600);
@@ -363,11 +382,20 @@
   async function flushSetup() {
     clearTimeout(saveTimer); saveTimer = 0;
     const job = setupSave; setupSave = null;
-    if (job) await api('/setup', job);
+    if (job) setupSaving = setupSaving.then(async () => {
+      try {
+        const result = await api('/setup', job);
+        if (result.ok) return true;
+      } catch (_) { /* retain the draft so switching cannot silently lose it */ }
+      if (!setupSave) setupSave = job;
+      notifyGame(_t('ap_error'));
+      return false;
+    });
+    return setupSaving;
   }
   // opening another car keeps the page where it was instead of jumping back to the top
   async function openCar(id) {
-    await flushSetup();
+    if (!await flushSetup()) return false;
     const r = await api('/team/select-car', { id });
     if (!r.ok) { notifyGame(careerError(r.d.error)); return false; }
     return r;
@@ -436,7 +464,7 @@
     if(!root)return;
     root.querySelectorAll('[data-resume-run]').forEach(b=>{b.disabled=resumeBusy;b.textContent=_t(resumeBusy?'ap_resuming_run':'ap_resume_run');});
   }
-  function bindResume(host){host.querySelectorAll('[data-resume-run]').forEach(b=>b.addEventListener('click',requestResume));}
+  function bindResume(host){host.querySelectorAll('[data-resume-run]').forEach(b=>on(b, 'click',requestResume));}
   function requestResume(){
     if(!G?.career.active_session||resumeBusy)return;
     const id=G.career.active_session.id;
@@ -494,30 +522,30 @@
       <p class="ap-hint">${esc(_t('ap_aging_hint'))}</p></div>`;
   }
   function bindCareer(host) {
-    host.querySelector('[data-sponsor-open]')?.addEventListener('click',()=>go('finance'));
+    on(host.querySelector('[data-sponsor-open]'), 'click',()=>go('finance'));
     bindResume(host);
     const refresh=async(path,body)=>{
       const r=await api(path,body);if(!r.ok){notifyGame(careerError(r.d.error));await load2();if(screen==='driver')paintDriver();else if(screen==='team')paintTeam();else paintGarage();return;}
-      if(path==='/session/abandon'){summary=null;sndStop();if(divisionPlayback){divisionPlayback.destroy();divisionPlayback=null;}pb.playing=false;pb.sent=true;busy=false;pending=null;run=null;if(view){view.destroy();view=null;}$('#ap-track').innerHTML='';}
+      if(path==='/session/abandon'){summary=null;sndStop();if(divisionPlayback){divisionPlayback.destroy();divisionPlayback=null;}pb.playing=false;pb.sent=true;busy=false;pending=null;run=null;if(view){view.destroy();view=null;}render($('#ap-track'), '');}
       adopt(r.d);lastGains=null;paintStatus();if(path==='/driver/recruit')pview='list';if(screen==='driver')paintDriver();else if(screen==='team')paintTeam();else paintGarage();
     };
     host.querySelectorAll('[data-season]').forEach(b=>b.onclick=()=>go('division'));
-    host.querySelectorAll('[data-new-career]').forEach(b=>b.addEventListener('click',async()=>{
+    host.querySelectorAll('[data-new-career]').forEach(b=>on(b, 'click',async()=>{
       if(!await confirmGame(_t('ap_new_career_confirm')))return;
       b.disabled=true;mp.send({type:'ap_new_career',started:G.career.started});
     }));
-    host.querySelectorAll('[data-restore-career]').forEach(b=>b.addEventListener('click',async()=>{
+    host.querySelectorAll('[data-restore-career]').forEach(b=>on(b, 'click',async()=>{
       if(!await confirmGame(_t('ap_restore_confirm')))return;
       b.disabled=true;mp.send({type:'ap_restore_career',started:G.career.started});
     }));
-    host.querySelectorAll('[data-recruit]').forEach(b=>b.addEventListener('click',async()=>{
+    host.querySelectorAll('[data-recruit]').forEach(b=>on(b, 'click',async()=>{
       if(!await confirmGame(_t('ap_recruit_team_confirm',{name:b.dataset.name,price:money(G.career.offers.find(o=>o.id===b.dataset.recruit)?.price || 0)})))return;
       b.disabled=true;refresh('/driver/recruit',{offer:b.dataset.recruit}).catch(()=>{b.disabled=false;});
     }));
-    host.querySelectorAll('[data-abandon]').forEach(b=>b.addEventListener('click',async()=>{if(await confirmGame(_t('ap_abandon_confirm')))refresh('/session/abandon',{});}));
+    host.querySelectorAll('[data-abandon]').forEach(b=>on(b, 'click',async()=>{if(await confirmGame(_t('ap_abandon_confirm')))refresh('/session/abandon',{});}));
   }
   function paintEmptyGarage(host) {
-    host.innerHTML=`${pageHeading('ap_tab_garage','ap_car_list_hint','frontWing')}<div class="ap-card"><p class="ap-hint">${esc(_t('ap_need_car'))}</p><button class="ap-btn" data-open-team>${esc(_t('ap_tab_team'))}</button></div>`;
+    render(host, `${pageHeading('ap_tab_garage','ap_car_list_hint','frontWing')}<div class="ap-card"><p class="ap-hint">${esc(_t('ap_need_car'))}</p><button class="ap-btn" data-open-team>${esc(_t('ap_tab_team'))}</button></div>`);
     host.querySelector('[data-open-team]').onclick=()=>{teamView='overview';go('team');};
   }
 
@@ -533,15 +561,16 @@
     return `<div class="ap-roster-back"><button class="ap-btn ap-sm ap-ghost" data-roster-back="${kind}">◂ ${esc(_t(kind === 'cars' ? 'ap_your_cars' : 'ap_tab_drivers'))}</button></div>`;
   }
   function bindRosterBack(host) {
-    host.querySelectorAll('[data-roster-back]').forEach(b => b.addEventListener('click', () => {
+    host.querySelectorAll('[data-roster-back]').forEach(b => on(b, 'click', () => {
       if (b.dataset.rosterBack === 'cars') { gview='cars'; paintGarage(); }
       else { pview='list'; paintDriver(); }
       host.scrollTop=0;
     }));
   }
   async function selectRoster(kind, id, button) {
-    button.disabled=true;clearTimeout(saveTimer);
+    button.disabled=true;
     try {
+      if (!await flushSetup()) return;
       const r=await api('/team/select-' + kind, { id });
       if (!r.ok) { notifyGame(careerError(r.d.error)); return; }
       setups={};adopt(r.d);lastGains=null;paintStatus();
@@ -571,12 +600,12 @@
   }
   function paintTeam() {
     if(!G)return;
-    if(teamView==='builder'){closeGarageView();paintBuilder();return;}
+    if(teamView==='builder'){if(!builder)paintBuilder();return;}
     if(builder){builder.destroy();builder=null;}
-    if(teamView==='stands'&&G.own){paintVenue();return;}
-    teamView='overview';closeGarageView();
+    if(teamView==='stands'&&G.own){if(!venueView)paintVenue();return;}
+    teamView='overview';closeVenueView();
     const host=$('#ap-team');
-    host.innerHTML=`${pageHeading('ap_tab_team','ap_team_page_hint','staff')}<div class="ap-garage"><div class="ap-col"><div class="ap-card"><h2>${esc(_t('ap_team_name'))}</h2><form data-team-name-form><label class="ap-teamname"><span>${esc(_t('ap_team_name'))}</span><input id="ap-team-name" maxlength="28" value="${esc(teamRoster().team_name||'')}" placeholder="${esc(_t('ap_your_team'))}" ${G.career.active_session?'disabled':''}></label><button type="submit" class="ap-btn" ${G.career.active_session?'disabled':''}>${esc(_t('ap_team_save'))}</button><p class="ap-hint" data-team-name-status role="status"></p></form></div>${careerCard()}</div><div class="ap-col">${homeCircuitCard()}${circuitsCard()}</div></div>`;
+    render(host, `${pageHeading('ap_tab_team','ap_team_page_hint','staff')}<div class="ap-garage"><div class="ap-col"><div class="ap-card"><h2>${esc(_t('ap_team_name'))}</h2><form data-team-name-form><label class="ap-teamname"><span>${esc(_t('ap_team_name'))}</span><input id="ap-team-name" maxlength="28" value="${esc(teamRoster().team_name||'')}" placeholder="${esc(_t('ap_your_team'))}" ${G.career.active_session?'disabled':''}></label><button type="submit" class="ap-btn" ${G.career.active_session?'disabled':''}>${esc(_t('ap_team_save'))}</button><p class="ap-hint" data-team-name-status role="status"></p></form></div>${careerCard()}</div><div class="ap-col">${homeCircuitCard()}${circuitsCard()}</div></div>`);
     bindCareer(host);paintCircuitMaps(host);
     host.querySelector('[data-home-circuit]').onclick=()=>{teamView='builder';paintTeam();};
     host.querySelector('[data-team-name-form]').onsubmit=async e=>{
@@ -603,10 +632,10 @@
         <div class="ap-set-h"><span>${esc(_t('ap_condition'))}</span><output>${condition}%</output></div><div class="ap-meter"><i style="width:${condition}%;background:${healthCol(1-condition/100)}"></i></div>
         </div></button>`;
     }).join('');
-    host.innerHTML=`${pageHeading('ap_your_cars','ap_car_list_hint','frontWing')}<div class="ap-garage ap-car-list"><div class="ap-col"><div class="ap-roster-grid">${cards}</div>
-      </div></div>`;
+    render(host, `${pageHeading('ap_your_cars','ap_car_list_hint','frontWing')}<div class="ap-garage ap-car-list"><div class="ap-col"><div class="ap-roster-grid">${cards}</div>
+      </div></div>`);
     bindCareer(host);
-    host.querySelectorAll('[data-select-car]').forEach(b=>b.addEventListener('click',()=>selectRoster('car',b.dataset.selectCar,b)));
+    host.querySelectorAll('[data-select-car]').forEach(b=>on(b, 'click',()=>selectRoster('car',b.dataset.selectCar,b)));
     const revision = garageRevision, previews = [];
     garageView = { destroy: () => previews.forEach(v => v.destroy()) };
     loadMods().then(M => {
@@ -632,7 +661,7 @@
     });
   }
   const staffNav = () => `<div class="ap-subtabs" role="tablist">${[['pilots', 'ap_pilots'], ['crew', 'ap_pit_crew'], ['specialists', 'ap_specialists']].map(([k, label]) => `<button role="tab" aria-selected="${staffTab === k}" class="${staffTab === k ? 'on' : ''}" data-staff-tab="${k}">${esc(_t(label))}</button>`).join('')}</div>`;
-  const bindStaffNav = host => host.querySelectorAll('[data-staff-tab]').forEach(b => b.addEventListener('click', () => { staffTab = b.dataset.staffTab; pview = 'list'; paintDriver(); host.scrollTop = 0; }));
+  const bindStaffNav = host => host.querySelectorAll('[data-staff-tab]').forEach(b => on(b, 'click', () => { staffTab = b.dataset.staffTab; pview = 'list'; paintDriver(); host.scrollTop = 0; }));
   async function crewAction(path, body) {
     const r = await api(path, body);
     if (!r.ok) { notifyGame(careerError(r.d.error)); await load2(); }
@@ -659,9 +688,9 @@
       <div class="ap-roster-body"><div class="ap-pilot-facts"><div><small>${esc(_t('ap_overall'))}</small><strong>${p.overall.toFixed(1)}</strong></div><div><small>${esc(_t('ap_daily_salary'))}</small><strong>${money(p.salary)}</strong></div></div>
       <div class="ap-tags">${p.id===team.active_pilot?`<span>${esc(_t('ap_selected'))}</span>`:''}${team.cars.filter(car=>car.pilot_id===p.id).map(car=>`<span>${esc(carName(car))}</span>`).join('')}</div>
       <div class="ap-set-h"><span>${esc(_t('ap_driver_energy_label'))}</span><output>${Math.floor(p.energy)}%</output></div><div class="ap-meter ap-energy"><i style="width:${p.energy}%;background:${healthCol(1-p.energy/100)}"></i></div></div></button>`).join('');
-    host.innerHTML=`${pageHeading('ap_staff','ap_staff_hint','staff')}${staffNav()}${trainingHall()}<p class="ap-hint ap-staff-hint">${esc(_t('ap_pilot_list_hint'))}</p><div class="ap-driverpg"><div class="ap-col">${cards?`<div class="ap-roster-grid">${cards}</div>`:`<div class="ap-card"><p class="ap-hint">${esc(_t('ap_need_driver'))}</p></div>`}</div><div class="ap-col">${recruitmentCard()}</div></div>`;
+    render(host, `${pageHeading('ap_staff','ap_staff_hint','staff')}${staffNav()}${trainingHall()}<p class="ap-hint ap-staff-hint">${esc(_t('ap_pilot_list_hint'))}</p><div class="ap-driverpg"><div class="ap-col">${cards?`<div class="ap-roster-grid">${cards}</div>`:`<div class="ap-card"><p class="ap-hint">${esc(_t('ap_need_driver'))}</p></div>`}</div><div class="ap-col">${recruitmentCard()}</div></div>`);
     bindCareer(host);bindStaffNav(host);
-    host.querySelectorAll('[data-select-pilot]').forEach(b=>b.addEventListener('click',()=>selectRoster('pilot',b.dataset.selectPilot,b)));
+    host.querySelectorAll('[data-select-pilot]').forEach(b=>on(b, 'click',()=>selectRoster('pilot',b.dataset.selectPilot,b)));
   }
   function assignmentCard() {
     const team=teamRoster(), car=team.cars.find(c=>c.id===team.active_car),pilot=team.pilots.find(p=>p.id===car?.pilot_id);
@@ -671,10 +700,11 @@
   }
   function bindAssignment(host) {
     bindRosterBack(host);
-    host.querySelector('[data-pilots]')?.addEventListener('click',()=>{pview='list';go('driver');});
-    host.querySelector('[data-assign-pilot]')?.addEventListener('click',async e=>{
+    on(host.querySelector('[data-pilots]'), 'click',()=>{pview='list';go('driver');});
+    on(host.querySelector('[data-assign-pilot]'), 'click',async e=>{
       const button=e.currentTarget;button.disabled=true;
       try {
+        if (!await flushSetup()) return;
         const r=await api('/team/assign',{car:teamRoster().active_car,pilot:host.querySelector('#ap-assignment-pilot').value || null});
         if(!r.ok){notifyGame(careerError(r.d.error));return;}
         setups={};adopt(r.d);paintStatus();paintCar();
@@ -685,14 +715,14 @@
   // ── the garage: first the car, then a circuit ──
   function paintGarage() {
     if (!G) return;
-    if (builder) { builder.destroy(); builder = null; }
-    if (gview === 'livery' && G.driver.has_car) { paintLivery(); }
+    if (gview === 'livery' && G.driver.has_car) { if (!garageView) paintLivery(); }
     else if (gview === 'cars') paintCarList($('#ap-garage'));
     else if (gview === 'setup' && G.driver.has_car) { closeGarageView(); paintSetup(); } else paintCar();
   }
 
   async function paintBuilder() {
-    const host=$('#ap-team');host.innerHTML=`<div class="ap-empty">${esc(_t('ap_preparing'))}</div>`;
+    closeVenueView();
+    const host=$('#ap-team');if (!host.hasChildNodes()) render(host, `<div class="ap-empty">${esc(_t('ap_preparing'))}</div>`);
     const mod=await import(asset('/apps/'+GAME_ID+'/trackbuilder.js'));
     if(teamView!=='builder'||screen!=='team')return;
     if(builder)builder.destroy();
@@ -705,21 +735,21 @@
     host.insertAdjacentHTML('afterbegin',pageHeading('ap_tb_title','ap_team_page_hint','telemetry'));host.scrollTop=0;
   }
   async function paintVenue() {
-    closeGarageView();const host=$('#ap-team'),revision=garageRevision;
-    host.innerHTML=`<div class="ap-empty">${esc(_t('ap_preparing'))}</div>`;
+    closeVenueView();const host=$('#ap-team'),revision=venueRevision;
+    if (!host.hasChildNodes()) render(host, `<div class="ap-empty">${esc(_t('ap_preparing'))}</div>`);
     try{
       const editor=await import(asset('/apps/'+GAME_ID+'/venue.js'));
-      if(revision!==garageRevision||teamView!=='stands'||screen!=='team')return;
-      garageView=editor.openVenueEditor({host,G,api,t:_t,esc,money,
-        onDone:state=>{adopt(state);builtTracks={};paintStatus();if(revision===garageRevision&&screen==='team'){teamView='builder';paintTeam();}},
+      if(revision!==venueRevision||teamView!=='stands'||screen!=='team')return;
+      venueView=editor.openVenueEditor({host,G,api,t:_t,esc,money,
+        onDone:state=>{adopt(state);builtTracks={};paintStatus();if(revision===venueRevision&&screen==='team'){teamView='builder';paintTeam();}},
         onCancel:()=>{teamView='builder';paintTeam();}});host.scrollTop=0;
-    }catch(e){if(revision===garageRevision){teamView='builder';paintTeam();notifyGame(_t('ap_venue_err_stand_invalid'));}console.warn('Racelandia venue editor unavailable',e);}
+    }catch(e){if(revision===venueRevision){teamView='builder';paintTeam();notifyGame(_t('ap_venue_err_stand_invalid'));}console.warn('Racelandia venue editor unavailable',e);}
   }
 
   async function paintLivery() {
     closeGarageView();
     const host=$('#ap-garage'), revision=garageRevision;
-    host.innerHTML=`<div class="ap-empty">${esc(_t('ap_preparing'))}</div>`;
+    if (!host.hasChildNodes()) render(host, `<div class="ap-empty">${esc(_t('ap_preparing'))}</div>`);
     try {
       const [M, editor]=await Promise.all([loadMods(),import(asset('/apps/' + GAME_ID + '/livery.js'))]);
       if(revision!==garageRevision||gview!=='livery'||screen!=='garage')return;
@@ -730,7 +760,7 @@
       host.scrollTop=0;
     } catch(e) {
       if(revision!==garageRevision)return;
-      host.innerHTML=`<div class="ap-card"><p>${esc(_t('ap_livery_error'))}</p><button class="ap-btn" data-paint-back>${esc(_t('ap_cancel'))}</button></div>`;
+      render(host, `<div class="ap-card"><p>${esc(_t('ap_livery_error'))}</p><button class="ap-btn" data-paint-back>${esc(_t('ap_cancel'))}</button></div>`);
       host.querySelector('[data-paint-back]').onclick=()=>{gview='car';paintGarage();};
       console.warn('Racelandia paint editor unavailable',e);
     }
@@ -745,7 +775,7 @@
       const x=p=>((p[0]-minX)*scale+(180-w*scale)/2).toFixed(1),y=p=>((maxY-p[1])*scale+(110-h*scale)/2).toFixed(1);
       const path=pts.filter((_,i)=>i%3===0).map((p,i)=>(i?'L':'M')+x(p)+','+y(p)).join(' ')+' Z';
       const start=pts[Math.round((def.start||0)*pts.length/Math.max(1,Math.round(def.length/3)))%pts.length];
-      el.innerHTML=`<svg viewBox="0 0 180 110" aria-hidden="true" focusable="false"><path d="${path}"/><circle cx="${x(start)}" cy="${y(start)}" r="3.5"/></svg>`;
+      render(el, `<svg viewBox="0 0 180 110" aria-hidden="true" focusable="false"><path d="${path}"/><circle cx="${x(start)}" cy="${y(start)}" r="3.5"/></svg>`);
     });
   }
 
@@ -768,11 +798,11 @@
           <button class="ap-btn ap-sm" data-replace-part="${k}" ${G.career.active_session ? 'disabled' : ''}>${esc(_t('ap_replace_btn'))}<small>${G.warehouse.parts.filter(u => u.part === k).length} ${esc(_t('ap_in_warehouse'))}</small></button>
         </div></div>`;
     }).join('');
-    host.innerHTML = `${rosterBack('cars')}${pageHeading('ap_tab_garage', 'ap_paddock_garage', 'frontWing')}<div class="ap-garage">
+    render(host, `${rosterBack('cars')}${pageHeading('ap_tab_garage', 'ap_paddock_garage', 'frontWing')}<div class="ap-garage">
       <div class="ap-col"><div class="ap-card"><div class="ap-bar"><h2>${esc(_t('ap_car_title'))}</h2><button class="ap-btn ap-sm ap-ghost" data-edit-livery ${G.career.active_session?'disabled':''}>${esc(_t('ap_livery_title'))}</button></div><div class="ap-car-preview" aria-label="${esc(_t('ap_car_title'))}" aria-busy="true"><div class="ap-car-loading" role="status">${esc(_t('ap_car_loading'))}</div></div>
         <div class="ap-hint">${esc(_t('ap_parts_hint'))}</div></div>
         <div class="ap-card"><h3>${esc(_t('ap_parts'))}</h3><div class="ap-equipment">${rows}</div></div></div>
-      <div class="ap-col">${assignmentCard()}</div></div>`;
+      <div class="ap-col">${assignmentCard()}</div></div>`);
     bindCareer(host);bindAssignment(host);paintCircuitMaps(host);
     host.querySelector('[data-edit-livery]').onclick=()=>{gview='livery';paintGarage();};
     const preview = host.querySelector('.ap-car-preview'), revision = garageRevision;
@@ -799,7 +829,7 @@
       }
     }).catch(previewFailed);
     // A part is replaced from the warehouse; what is not there is produced in Development first.
-    host.querySelectorAll('[data-replace-part]').forEach(b => b.addEventListener('click', () => {
+    host.querySelectorAll('[data-replace-part]').forEach(b => on(b, 'click', () => {
       const k = b.dataset.replacePart, units = G.warehouse.parts.filter(u => u.part === k);
       const list = units.map(u => {
         const dsg = G.lab.designs[k].find(x => x.id === u.design), left = Math.round((1 - u.wear) * 100);
@@ -808,16 +838,16 @@
       }).join('');
       const m = modal(`<div class="ap-dlg"><div class="ap-bar"><h2>${esc(_t('ap_replace_title', { part: _t('ap_part_' + k) }))}</h2><button class="ap-btn ap-sm ap-ghost" id="ap-rp-x">✕</button></div>
         ${units.length ? `<p class="ap-hint">${esc(_t('ap_replace_hint'))}</p>${list}` : `<p class="ap-warn">${esc(_t('ap_replace_none', { part: _t('ap_part_' + k) }))}</p><button class="ap-btn" id="ap-rp-lab">${esc(_t('ap_go_lab'))}</button>`}</div>`);
-      $('#ap-rp-x', m).addEventListener('click', () => modal(''));
-      $('#ap-rp-lab', m)?.addEventListener('click', () => { modal(''); go('lab'); });
-      m.querySelectorAll('[data-fit-unit]').forEach(f => f.addEventListener('click', async () => {
+      on($('#ap-rp-x', m), 'click', () => modal(''));
+      on($('#ap-rp-lab', m), 'click', () => { modal(''); go('lab'); });
+      m.querySelectorAll('[data-fit-unit]').forEach(f => on(f, 'click', async () => {
         f.disabled = true;
         const ok = await warehouseAction('/warehouse/fit', { unit: f.dataset.fitUnit });
         modal('');
         if (ok) paintGarage();
       }));
     }));
-    host.querySelectorAll('[data-part]').forEach(b => b.addEventListener('click', async () => {
+    host.querySelectorAll('[data-part]').forEach(b => on(b, 'click', async () => {
       b.disabled = true;
       const r = await api('/parts', { part: b.dataset.part, mode: b.dataset.mode });
       if (r.d && r.d.driver) { G.driver = r.d.driver; paintStatus(); }
@@ -837,7 +867,7 @@
 
   // plus / minus beside a setup slider: one step of the slider per press
   function nudgeWire(root) {
-    root.querySelectorAll('.ap-nudge').forEach(b => b.addEventListener('click', () => {
+    root.querySelectorAll('.ap-nudge').forEach(b => on(b, 'click', () => {
       const i = b.parentNode.querySelector('input[type=range]'); if (!i || i.disabled) return;
       i.value = String(Math.round((+i.value + (+b.dataset.nudge) * (+i.step || 1)) * 1e4) / 1e4);
       i.dispatchEvent(new Event('input', { bubbles: true }));
@@ -873,7 +903,7 @@
     const comps = G.compounds.map(k => `<button class="ap-comp${k === compound ? ' on' : ''}" data-c="${k}">
         ${k === rec ? `<span class="ap-rec">★ ${esc(_t('ap_suggested'))}</span>` : ''}<i style="background:${ICON[k]}"></i><b>${esc(_t('ap_c_' + k))}</b><small>${esc(_t('ap_ch_' + k))}</small><em>${money(G.tyre_cost[k])}</em></button>`).join('');
     const hours = G.hours.map(h => { const x = cond(h); return `<button class="ap-hr${h === cfg.hour ? ' on' : ''}" data-h="${h}" ${canChange() ? '' : 'disabled'}><b>${esc(hourStr(h))}</b><span>${sky(x)}</span><small>${Math.round(x.air)}°</small></button>`; }).join('');
-    host.innerHTML = `${pageHeading('ap_setup', 'ap_setup_track_hint', 'suspension')}<div class="ap-garage">
+    render(host, `${pageHeading('ap_setup', 'ap_setup_track_hint', 'suspension')}<div class="ap-garage">
       <div class="ap-col ap-setups">
         <div class="ap-bar"><div><button class="ap-btn ap-sm ap-ghost" id="ap-back">◂ ${esc(_t('ap_back'))}</button> <b class="ap-title2">${esc(trackName(t.id))}</b></div><button class="ap-btn ap-sm ap-ghost" id="ap-reset" ${locked?'disabled':''}>${esc(_t('ap_reset'))}</button></div>
         <div class="ap-hint">${esc(_t(locked?'ap_parc_ferme':'ap_setup_track_hint'))}</div>
@@ -881,21 +911,20 @@
         ${groups}
       </div>
       <div class="ap-col ap-session">
-        <div class="ap-card" id="ap-reco"></div>
-        <div class="ap-card" id="ap-sess"></div>
-        <div class="ap-card" id="ap-hist"></div>
+        <div class="ap-card" id="ap-reco" data-ui-preserve></div>
+        <div class="ap-card" id="ap-sess" data-ui-preserve></div>
+        <div class="ap-card" id="ap-hist" data-ui-preserve></div>
         ${multi ? boardHtml() : ''}
-      </div></div>`;
-    host.scrollTop = 0;
+      </div></div>`);
     nudgeWire(host);
-    host.querySelectorAll('input[data-k]').forEach(i => i.addEventListener('input', () => {
+    host.querySelectorAll('input[data-k]').forEach(i => on(i, 'input', () => {
       const d = G.defs.find(x => x.key === i.dataset.k), cur = setup(); cur[d.key] = +i.value;
       i.closest('.ap-set').querySelector('output').textContent = fmtSet(d, +i.value);
       paintSession(true); paintAdvice(host);
       queueSetupSave(curTrack, cur);
     }));
-    $('#ap-back', host).addEventListener('click', () => { gview = 'car'; paintGarage(); });
-    $('#ap-reset', host).addEventListener('click', () => { const cur = setup(); G.defs.forEach(d => { cur[d.key] = d.def; }); api('/setup', { track: curTrack, setup: cur }); paintGarage(); });
+    on($('#ap-back', host), 'click', () => { gview = 'car'; paintGarage(); });
+    on($('#ap-reset', host), 'click', () => { const cur = setup(); G.defs.forEach(d => { cur[d.key] = d.def; }); queueSetupSave(curTrack, cur); flushSetup(); paintGarage(); });
     void comps; void hours;
     paintReco();
     paintSession();
@@ -950,10 +979,10 @@
       else if (!(c.water > 0.3) && a.water > 0.3) html += `<p class="ap-hint">⚠️ ${esc(_t('ap_reco_dry'))}</p>`;
     } else html += `<p class="ap-hint">${esc(_t('ap_reco_none'))}</p>`;
     if (b.record_by && b.record != null) html += `<p class="ap-hint">🏆 ${esc(_t(b.record_by.mine ? 'ap_reco_record_you' : 'ap_reco_record', { time: lapStr(b.record), who: b.record_by.who || '—' }))}</p>`;
-    box.innerHTML = html;
-    box.querySelector('[data-reco-use]')?.addEventListener('click', () => {
+    render(box, html);
+    on(box.querySelector('[data-reco-use]'), 'click', () => {
       setups[curTrack] = Object.assign({}, a.setup);
-      api('/setup', { track: curTrack, setup: setups[curTrack] }); paintGarage();
+      queueSetupSave(curTrack, setups[curTrack]); flushSetup(); paintGarage();
     });
   }
 
@@ -997,7 +1026,7 @@
     const hours=G.hours.length?Array.from({length:Math.max(1,24-cfg.hour)},(_,i)=>cfg.hour+i).map(h=>{const x=cond(h),half=wxH(),now=h===cfg.hour,rg=FX&&!now?FX.wxRange(rainPct(x),'h'+h,half):null;return `<div class="ap-hr${now?' on':''}"><b>${esc(now?_t('ap_now'):hourStr(h))}</b><span>${now||(rg&&rg.exact)?sky(x):rg?chanceIcon((rg.mid??rg.lo)/100):'·'}</span><small>${now||half!=null?Math.round(x.air)+'°':'·'}</small></div>`;}).join(''):'';
     const free=curTrack==='own';
     const outlook=simMod&&FX?`<h3>${esc(_t('ap_wx_next_hour'))}</h3>${FX.wxShortOn(wxH())?wxStepsHtml(wxOutlook(simMod,G.forecast,nowFrac()),nowFrac()):''}<p class="ap-hint">${esc(wxAheadText(simMod,G.forecast,nowFrac(),wxOutlook(simMod,G.forecast,nowFrac()),60))}</p>`:'';
-    box.innerHTML=`<h2>🧪 ${esc(_t('ap_practice'))}</h2><p class="ap-hint">${esc(_t('ap_test_description'))}</p>
+    render(box, `<h2>🧪 ${esc(_t('ap_practice'))}</h2><p class="ap-hint">${esc(_t('ap_test_description'))}</p>
       ${testCarHtml(live,rec)}
       <h3>${esc(_t('ap_laps'))}: <b id="ap-laps-v">${cfg.laps}</b></h3><input type="range" id="ap-laps" min="${G.laps.min}" max="${G.laps.max}" step="1" value="${cfg.laps}" ${canChange()?'':'disabled'}><div class="ap-hint">${esc(_t('ap_laps_hint'))}</div><h3>${esc(_t('ap_time'))}</h3><div class="ap-hours">${hours}</div>${outlook}<div class="ap-hint">${esc(G.live ? _t('ap_live_weather', { place: trackName(curTrack) }) : _t('ap_sim_weather'))} ${esc(_t('ap_test_now_hint'))}</div>
       <div class="ap-cond"><div><span>${esc(_t('ap_air'))}</span><b>${c.air.toFixed(0)}°C</b></div><div><span>${esc(_t('ap_asphalt'))}</span><b>${c.track.toFixed(0)}°C</b></div><div><span>${esc(_t('ap_water'))}</span><b>${c.water>.02?c.water.toFixed(1)+' mm':esc(_t('ap_dry'))}</b></div><div><span>${esc(_t('ap_rubber'))}</span><b>${(c.rubber*100).toFixed(1)}%</b></div></div>
@@ -1007,14 +1036,14 @@
       <div class="ap-cost"><span>${esc(_t('ap_cost'))}</span><b class="${okMoney?'':'ap-bad'}">${free?esc(_t('ap_free')):money(need)}</b></div>${driverEnergy(en)}
       <button class="ap-btn ap-go" id="ap-send" ${ready&&okMoney&&d.has_car&&!career.active_session&&!G.division?.locked_setup&&!busy?'':'disabled'}>${esc(_t(ids.length>1?'ap_send_cars':'ap_send'))}</button>
       ${!d.has_driver?`<p class="ap-warn">${esc(_t('ap_need_driver'))}</p>`:''}${activeRunPanel()}
-      ${!okMoney?`<p class="ap-warn">${esc(_t('ap_no_budget'))}</p>`:''}`;
+      ${!okMoney?`<p class="ap-warn">${esc(_t('ap_no_budget'))}</p>`:''}`);
     box.querySelectorAll('[data-test-car]').forEach(b=>b.onclick=async()=>{if(!markedCars)markedCars=markedIds();b.disabled=true;const r=await openCar(b.dataset.testCar);if(!r){b.disabled=false;return;}const host=$('#ap-garage'),top=host.scrollTop;setups={};weekendSet=null;weekendSet2=null;adopt(r.d);paintStatus();if(!(gview==='setup'&&refreshSetupInPlace()))paintGarage();host.scrollTop=top;});
-    box.querySelectorAll('[data-mark-car]').forEach(b=>b.addEventListener('change',()=>{const id=b.dataset.markCar,now=markedIds();markedCars=now.includes(id)?now.filter(x=>x!==id):[...now,id];paintSession();}));
-    box.querySelectorAll('[data-carset]').forEach(b=>b.addEventListener('click',()=>{const id=b.closest('[data-carset-box]').dataset.carsetBox,want=b.dataset.carset,holder=markedIds().find(x=>x!==id&&carSets[x]===want);if(holder)carSets[holder]=carSets[id];carSets[id]=want;paintSession();}));
-    box.querySelector('[data-open-warehouse]')?.addEventListener('click',()=>go('warehouse'));
+    box.querySelectorAll('[data-mark-car]').forEach(b=>on(b, 'change',()=>{const id=b.dataset.markCar,now=markedIds();markedCars=now.includes(id)?now.filter(x=>x!==id):[...now,id];paintSession();}));
+    box.querySelectorAll('[data-carset]').forEach(b=>on(b, 'click',()=>{const id=b.closest('[data-carset-box]').dataset.carsetBox,want=b.dataset.carset,holder=markedIds().find(x=>x!==id&&carSets[x]===want);if(holder)carSets[holder]=carSets[id];carSets[id]=want;paintSession();}));
+    on(box.querySelector('[data-open-warehouse]'), 'click',()=>go('warehouse'));
         const laps=$('#ap-laps',box);
-    if(laps){laps.addEventListener('input',()=>{cfg.laps=+laps.value;$('#ap-laps-v').textContent=cfg.laps;paintSession(true);});laps.addEventListener('change',()=>{mp.send({type:'ap_cfg',laps:cfg.laps,hour:cfg.hour});paintSession();});}
-    $('#ap-send',box).addEventListener('click',sendOut);bindResume(box);
+    if(laps){on(laps, 'input',()=>{cfg.laps=+laps.value;$('#ap-laps-v').textContent=cfg.laps;paintSession(true);});on(laps, 'change',()=>{mp.send({type:'ap_cfg',laps:cfg.laps,hour:cfg.hour});paintSession();});}
+    on($('#ap-send',box), 'click',sendOut);bindResume(box);
   }
 
   function setupChips(s) {
@@ -1039,10 +1068,10 @@
     const box = $('#ap-hist'); if (!box) return;
     const rows = history.slice(0, 12).map((r, i) => `<div class="ap-session-record">${sessionCardHtml(r)}
       <button class="ap-btn ap-sm ap-ghost" data-use="${i}" ${G.division?.locked_setup?'disabled':''}>${esc(_t('ap_use_setup'))}</button></div>`).join('');
-    box.innerHTML = `<h3>${esc(_t('ap_history'))}</h3>` + (rows
+    render(box, `<h3>${esc(_t('ap_history'))}</h3>` + (rows
       ? `<div class="ap-session-records">${rows}</div><div class="ap-hint">${esc(_t('ap_history_hint'))}</div>`
-      : `<div class="ap-hint">${esc(_t('ap_no_runs'))}</div>`);
-    box.querySelectorAll('[data-use]').forEach(b => b.addEventListener('click', () => {
+      : `<div class="ap-hint">${esc(_t('ap_no_runs'))}</div>`));
+    box.querySelectorAll('[data-use]').forEach(b => on(b, 'click', () => {
       const r = history[+b.dataset.use]; setups[curTrack] = Object.assign({}, r.setup);
       api('/setup', { track: curTrack, setup: setups[curTrack] }); paintGarage();
     }));
@@ -1069,7 +1098,7 @@
     if (!G) return;
     if(pview==='list'){if(staffTab==='crew')paintCrew(host);else if(staffTab==='specialists')paintSpecialists(host);else paintPilotList(host);return;}
     const d = G.driver;
-    if(!d.has_driver){host.innerHTML=`${pageHeading('ap_tab_driver', 'ap_paddock_driver', 'helmet')}<div class="ap-driverpg"><div class="ap-col"><div class="ap-card"><p class="ap-hint">${esc(_t('ap_need_driver'))}</p></div></div><div class="ap-col">${recruitmentCard()}</div></div>`;bindCareer(host);return;}
+    if(!d.has_driver){render(host, `${pageHeading('ap_tab_driver', 'ap_paddock_driver', 'helmet')}<div class="ap-driverpg"><div class="ap-col"><div class="ap-card"><p class="ap-hint">${esc(_t('ap_need_driver'))}</p></div></div><div class="ap-col">${recruitmentCard()}</div></div>`);bindCareer(host);return;}
     const bars = G.skills.map(k => {
       const v = d.skills[k], gain = lastGains && lastGains[k];
       return `<button type="button" class="ap-skill ap-skill-link" data-train-skill="${k}" title="${esc(_t('ap_training'))}"><div class="ap-set-h"><span>${esc(_t('ap_k_' + k))}</span><output>${v.toFixed(1)}${gain ? ` <em class="${gain < 0 ? 'neg' : ''}">${gain > 0 ? '+' : ''}${gain.toFixed(2)}</em>` : ''}</output></div>
@@ -1081,7 +1110,7 @@
         <div class="ap-train-b"><b>${esc(_t('ap_tr_' + g))}</b><p>${esc(_t('ap_trd_' + g))}</p>
         <div class="ap-hint"></div><div class="ap-tags">${GAMESKILLS[g].map(k => `<span>${esc(_t('ap_k_' + k))}</span>`).join('')}</div></div>
         <button class="ap-btn ap-sm" data-g="${g}" ${d.energy >= G.costs.train_energy && !G.career.active_session && G.training_hall?.remaining ? '' : 'disabled'}>${esc(_t('ap_train'))}<small>⚡ ${G.costs.train_energy}%</small></button></div>`).join('');
-    host.innerHTML = `${rosterBack('pilots')}${pageHeading('ap_tab_driver', 'ap_paddock_driver', 'helmet')}${trainingHall()}<div class="ap-driverpg">
+    render(host, `${rosterBack('pilots')}${pageHeading('ap_tab_driver', 'ap_paddock_driver', 'helmet')}${trainingHall()}<div class="ap-driverpg">
       <div class="ap-col"><div class="ap-card">
         <div class="ap-bar"><h2>${esc(_t('ap_tab_driver'))}</h2></div>
         <div class="ap-who"><div class="ap-avatar">${menuArt('helmet')}</div><div>
@@ -1089,11 +1118,11 @@
         <div class="ap-meter ap-energy"><i style="width:${d.energy}%"></i></div>${driverEnergy()}
         <p class="ap-hint">${esc(_t('ap_start_effect',{n:d.start_reaction_ms,e:Math.round((d.driving_energy_factor??1)*100)}))}</p>${characterHtml(d.character)}<p class="ap-hint">${esc(_t('ap_aging_hint'))}</p>${d.aging ? `<p class="ap-warn">${esc(_t('ap_aging_decline'))}</p>` : ''}<div class="ap-skills">${bars}</div>
       </div></div>
-      <div class="ap-col">${recruitmentCard()}<div class="ap-card"><div class="ap-bar"><h2>${esc(_t('ap_training'))}</h2></div><div class="ap-hint">${esc(_t('ap_training_hint'))}</div>${cards}</div></div></div>`;
+      <div class="ap-col">${recruitmentCard()}<div class="ap-card"><div class="ap-bar"><h2>${esc(_t('ap_training'))}</h2></div><div class="ap-hint">${esc(_t('ap_training_hint'))}</div>${cards}</div></div></div>`);
     bindCareer(host);bindRosterBack(host);
-    $('#ap-name', host).addEventListener('change', async e => { const r = await api('/name', { name: e.target.value }); if (r.ok) { G.driver = r.d.driver; paintStatus(); } });
-    host.querySelectorAll('button[data-g]').forEach(b => b.addEventListener('click', () => startTraining(b.dataset.g)));
-    host.querySelectorAll('[data-train-skill]').forEach(b => b.addEventListener('click', () => {
+    on($('#ap-name', host), 'change', async e => { const r = await api('/name', { name: e.target.value }); if (r.ok) { G.driver = r.d.driver; paintStatus(); } });
+    host.querySelectorAll('button[data-g]').forEach(b => on(b, 'click', () => startTraining(b.dataset.g)));
+    host.querySelectorAll('[data-train-skill]').forEach(b => on(b, 'click', () => {
       const skill = b.dataset.trainSkill;
       const games = G.games.filter(g => GAMESKILLS[g].includes(skill));
       const game = games[0];
@@ -1150,7 +1179,7 @@
         ${free <= 0 ? `<p class="ap-warn">${esc(_t('ap_wh_full'))}</p>` : ''}</div>` : '';
     const tyreCards = whFilter === 'all' || whFilter === 'tyres' ? w.tyres.map(t => {
       const avg = avgWear(t), dead = Math.max(...t.wear) >= 0.98;
-      return `<div class="ap-part"><div class="ap-part-i">${menuArt('tyre-' + t.compound)}</div>
+      return `<div class="ap-part" data-ui-key="tyre-${esc(t.id)}"><div class="ap-part-i">${menuArt('tyre-' + t.compound)}</div>
         <div class="ap-part-b"><div class="ap-set-h"><label>${esc(t.id)} · ${esc(_t('ap_c_' + t.compound))}</label><output style="color:${healthCol(avg)}">${dead ? esc(_t('ap_wh_worn_out')) : esc(_t('ap_wh_left', { pct: health(avg) }))}</output></div>
           <div class="ap-meter"><i style="width:${health(avg)}%;background:${healthCol(avg)}"></i></div>
           <div class="ap-hint">${t.runs ? esc(_t('ap_wh_laps', { laps: t.laps })) : esc(_t('ap_set_new'))}</div></div>
@@ -1158,21 +1187,21 @@
     }) : [];
     const partCards = w.parts.filter(u => whFilter === 'all' || u.part === whFilter).map(u => lm.partRowHtml(labCtx(), u));
     const cards = [...tyreCards, ...partCards].join('');
-    host.innerHTML = `${pageHeading('ap_wh_title', 'ap_paddock_warehouse', 'warehouse')}
+    render(host, `${pageHeading('ap_wh_title', 'ap_paddock_warehouse', 'warehouse')}
       <div class="ap-whbar"><div class="ap-chipsf">${filters}</div><button class="ap-btn ap-cartbtn${whCartOpen ? ' on' : ''}" data-wcart>🛒 ${esc(_t('ap_wh_cart'))}${inCart ? `<span class="ap-badge">${inCart}</span>` : ''}</button></div>
       ${cart}
       <div class="ap-card"><div class="ap-bar"><small>${esc(_t('ap_wh_tyres'))}: ${w.tyres.length}/${w.max_tyres} · ${esc(_t('ap_wh_parts'))}: ${w.parts.length}/${w.max_parts}</small></div>
-        ${cards ? `<div class="ap-equipment">${cards}</div>` : `<p class="ap-hint">${esc(_t(w.tyres.length + w.parts.length ? 'ap_wh_none' : 'ap_wh_empty'))}</p>`}</div>`;
+        ${cards ? `<div class="ap-equipment">${cards}</div>` : `<p class="ap-hint">${esc(_t(w.tyres.length + w.parts.length ? 'ap_wh_none' : 'ap_wh_empty'))}</p>`}</div>`);
     lm.bindPartRows(host, labCtx());
-    host.querySelectorAll('[data-wfilter]').forEach(b => b.addEventListener('click', () => { whFilter = b.dataset.wfilter; paintWarehouse(); }));
-    host.querySelector('[data-wcart]').addEventListener('click', () => { whCartOpen = !whCartOpen; paintWarehouse(); });
-    host.querySelectorAll('[data-wqty]').forEach(b => b.addEventListener('click', () => { const c = b.dataset.wqty; whCart[c] = Math.max(0, (whCart[c] || 0) + +b.dataset.d); paintWarehouse(); }));
-    host.querySelector('[data-wbuynow]')?.addEventListener('click', async e => {
+    host.querySelectorAll('[data-wfilter]').forEach(b => on(b, 'click', () => { whFilter = b.dataset.wfilter; paintWarehouse(); }));
+    on(host.querySelector('[data-wcart]'), 'click', () => { whCartOpen = !whCartOpen; paintWarehouse(); });
+    host.querySelectorAll('[data-wqty]').forEach(b => on(b, 'click', () => { const c = b.dataset.wqty; whCart[c] = Math.max(0, (whCart[c] || 0) + +b.dataset.d); paintWarehouse(); }));
+    on(host.querySelector('[data-wbuynow]'), 'click', async e => {
       host.querySelectorAll('button').forEach(x => { x.disabled = true; });
       const items = { ...whCart };
       if (await warehouseAction('/warehouse/buy-many', { items })) { whCart = {}; whCartOpen = false; if (screen === 'warehouse') paintWarehouse(); }
     });
-    host.querySelectorAll('[data-wsell]').forEach(b => b.addEventListener('click', async () => { const t = w.tyres.find(x => x.id === b.dataset.wsell); if (t && await confirmGame(_t('ap_wh_sell_confirm', { price: money(t.sale) }))) warehouseAction('/warehouse/sell', { set: t.id }); }));
+    host.querySelectorAll('[data-wsell]').forEach(b => on(b, 'click', async () => { const t = w.tyres.find(x => x.id === b.dataset.wsell); if (t && await confirmGame(_t('ap_wh_sell_confirm', { price: money(t.sale) }))) warehouseAction('/warehouse/sell', { set: t.id }); }));
   }
 
   // ── solo division and persistent championship ──
@@ -1234,7 +1263,7 @@
     if(!G)return;
     clearInterval(divisionTimer);divisionTimer=null;clearInterval(hallTimer);hallTimer=null;
     const host=$('#ap-division'),d=G.driver,s=G.division;
-    if(!s){host.innerHTML='';return;}
+    if(!s){render(host, '');return;}
     const phases=['fp1','fp2','fp3','qualifying','race'],complete=s.round>20;
     if (s.tyres && (!weekendSet || !s.tyres.some(t => t.id === weekendSet))) weekendSet = suggestedSet(s).id;
     const chosenSet = s.tyres?.find(t => t.id === weekendSet), laps = s.phase === 'race' ? s.race_laps : Math.floor((s.durations?.[s.stage] || 1800) / 55) + 2;
@@ -1251,7 +1280,7 @@
     const teamTable=(s.team_standings||[]).map((r,i)=>`<tr class="${r.mine?'best':''}"><td>${i+1}</td><td>${esc(teamLabel(r.name,r.mine))}</td><td>${r.points}</td><td>${r.wins}</td></tr>`).join('');
     const standing=s.standings.map((r,i)=>`<tr class="${r.mine?'best':''}"><td>${i+1}</td><td>${esc(r.name||_t('ap_you'))}<small class="ap-team-sub">${esc(teamLabel(r.team,r.mine))}</small></td><td>${r.points}</td><td>${r.wins}</td></tr>`).join('');
     const opponents=s.roster.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.team)}</td><td>${r.overall}</td><td>${Math.round(r.car)}</td><td>${r.pit!=null?r.pit.toFixed(1)+' s':'—'}</td><td>${r.character?esc(_t('ap_style_'+characterStyle(r.character))):'—'}</td></tr>`).join('');
-    host.innerHTML=`${pageHeading('ap_divisions', 'ap_paddock_division', 'trophy')}<div class="ap-garage ap-season-page"><div class="ap-col">
+    render(host, `${pageHeading('ap_divisions', 'ap_paddock_division', 'trophy')}<div class="ap-garage ap-season-page"><div class="ap-col">
       <div class="ap-card"><h2>${esc(_t('ap_divisions'))}</h2><p class="ap-hint">${esc(_t('ap_division_intro'))}</p><div class="ap-division-ladder">${ladder}</div>
       <p class="ap-hint">${esc(_t('ap_division_requirements'))}</p>
       <div class="ap-tags"><span>${esc(_t('ap_car_level',{n:d.car_level||0}))}</span><span>${esc(_t('ap_driver_level',{n:d.overall}))}</span></div>
@@ -1278,15 +1307,15 @@
       <div class="ap-card"><h2>${esc(_t('ap_championship_standings'))}</h2><div class="ap-scroll"><table class="ap-table"><tr><th>#</th><th>${esc(_t('ap_tab_driver'))}</th><th>${esc(_t('ap_points'))}</th><th>${esc(_t('ap_wins'))}</th></tr>${standing}</table></div></div>
       <div class="ap-card"><h2>${esc(_t('ap_division_field'))}</h2><div class="ap-scroll"><table class="ap-table"><tr><th>${esc(_t('ap_tab_driver'))}</th><th>${esc(_t('ap_team_col'))}</th><th>${esc(_t('ap_overall'))}</th><th>${esc(_t('ap_car_level',{n:''}))}</th><th>${esc(_t('ap_stop_short'))}</th><th>${esc(_t('ap_character'))}</th></tr>${opponents}</table></div></div>
       ${s.results.length?`<div class="ap-card"><h2>${esc(_t('ap_race_history'))}</h2>${s.results.slice().reverse().map(r=>`<details><summary>${esc(_t('ap_round',{n:r.round}))} · ${r.points} ${esc(_t('ap_points'))} · ${money(r.prize)}</summary><div class="ap-scroll"><table class="ap-table">${r.classification.map(c=>`<tr class="${isMine(c.id)?'best':''}"><td>${c.position}</td><td>${esc(c.name)}</td><td>${c.dnf?'DNF':lapStr(c.time)}</td><td>${c.points}</td></tr>`).join('')}</table></div></details>`).join('')}</div>`:''}
-      </div></div>`;
+      </div></div>`);
     bindResume(host);
-    host.querySelector('[data-enter-division]')?.addEventListener('click',e=>{e.target.disabled=true;mp.send({type:'ap_division_enter'});});
-    host.querySelector('[data-weekend-setup]')?.addEventListener('click',async()=>{curTrack=roundTrack(s);gview='setup';await loadForecast(curTrack);go('garage');});
+    on(host.querySelector('[data-enter-division]'), 'click',e=>{e.target.disabled=true;mp.send({type:'ap_division_enter'});});
+    on(host.querySelector('[data-weekend-setup]'), 'click',async()=>{curTrack=roundTrack(s);gview='setup';await loadForecast(curTrack);go('garage');});
 
     host.querySelectorAll('[data-wset]').forEach(b=>b.onclick=()=>{weekendSet=b.dataset.wset;paintDivision();});
     host.querySelectorAll('[data-wset2]').forEach(b=>b.onclick=()=>{weekendSet2=b.dataset.wset2;paintDivision();});
     host.querySelectorAll('[data-pick-car]').forEach(b=>b.onclick=async()=>{b.disabled=true;const r=await openCar(b.dataset.pickCar);if(!r){b.disabled=false;return;}setups={};weekendSet=null;weekendSet2=null;adopt(r.d);paintStatus();paintDivision();});
-    host.querySelector('[data-weekend-start]')?.addEventListener('click',e=>{busy=true;e.target.disabled=true;curTrack=roundTrack(s);mp.send({type:'ap_run',kind:'d5_'+s.phase,compound:chosenSet?.compound||'M',tyre_set:weekendSet,tyre_set2:weekendSet2,setup:setup(),track:curTrack});});
+    on(host.querySelector('[data-weekend-start]'), 'click',async e=>{busy=true;e.target.disabled=true;if(!await flushSetup()){busy=false;paintDivision();return;}curTrack=roundTrack(s);mp.send({type:'ap_run',kind:'d5_'+s.phase,compound:chosenSet?.compound||'M',tyre_set:weekendSet,tyre_set2:weekendSet2,setup:setup(),track:curTrack});});
     startEnergyRefresh();
   }
 
@@ -1329,7 +1358,7 @@
     dialog.className = 'ap-message';
     dialog.setAttribute('aria-labelledby', 'ap-message-title');
     dialog.setAttribute('aria-describedby', 'ap-message-text');
-    dialog.innerHTML = `<div class="ap-message-heading"><span aria-hidden="true">🏁</span><h2 id="ap-message-title">${esc(_t('ap_title'))}</h2></div><p id="ap-message-text">${esc(message)}</p><div class="ap-message-actions">${question ? `<button type="button" class="ap-btn ap-ghost" data-message-cancel>${esc(_t('ap_cancel'))}</button>` : ''}<button type="button" class="ap-btn" data-message-accept>${esc(_t(question ? 'ap_confirm' : 'ap_close'))}</button></div>`;
+    render(dialog, `<div class="ap-message-heading"><span aria-hidden="true">🏁</span><h2 id="ap-message-title">${esc(_t('ap_title'))}</h2></div><p id="ap-message-text">${esc(message)}</p><div class="ap-message-actions">${question ? `<button type="button" class="ap-btn ap-ghost" data-message-cancel>${esc(_t('ap_cancel'))}</button>` : ''}<button type="button" class="ap-btn" data-message-accept>${esc(_t(question ? 'ap_confirm' : 'ap_close'))}</button></div>`);
     host.append(dialog);
     let settled = false;
     const done = value => {
@@ -1345,9 +1374,9 @@
     const observer = new MutationObserver(() => { if (!dialog.isConnected) done(false); });
     observer.observe(document.documentElement, { childList: true, subtree: true });
     dialog.querySelector('[data-message-accept]').onclick = () => done(true);
-    dialog.querySelector('[data-message-cancel]')?.addEventListener('click', () => done(false));
-    dialog.addEventListener('cancel', e => { e.preventDefault(); done(false); });
-    dialog.addEventListener('close', () => done(false));
+    on(dialog.querySelector('[data-message-cancel]'), 'click', () => done(false));
+    on(dialog, 'cancel', e => { e.preventDefault(); done(false); });
+    on(dialog, 'close', () => done(false));
     dialog.showModal();
     dialog.querySelector(question ? '[data-message-cancel]' : '[data-message-accept]').focus();
     return result;
@@ -1355,7 +1384,7 @@
   const confirmGame = message => gameMessage(message, true);
   const notifyGame = message => gameMessage(message);
 
-  function modal(html) { const m = $('#ap-modal'); m.hidden = !html; m.innerHTML = html || ''; return m; }
+  function modal(html) { const m = $('#ap-modal'); m.hidden = !html; render(m, html || ''); return m; }
   async function startTraining(game, member) {
     if (trainingStarting || !$('#ap-modal')?.hidden) return;
     trainingStarting = true;
@@ -1370,7 +1399,7 @@
     const trainingBox = $('#ap-tg', m);
     let h = null, finished = false;
     const close = () => { if (h) h.destroy(); modal(''); if (member) load2().then(() => { if (screen === 'driver') paintDriver(); }); else paintDriver(); };
-    $('#ap-tg-x', m).addEventListener('click', async () => { if (finished || await confirmGame(_t('ap_tg_quit'))) close(); });
+    on($('#ap-tg-x', m), 'click', async () => { if (finished || await confirmGame(_t('ap_tg_quit'))) close(); });
     const T = await import(asset('/apps/' + GAME_ID + (staffGame ? '/staff-train.js' : member ? '/crew-train.js' : '/pilot-train.js')));
     if (!trainingBox.isConnected) return;
     h = T.run(mechanic, trainingBox, _t, async raw => {
@@ -1385,10 +1414,10 @@
       const gains = f.ok ? Object.entries(f.d.gains).map(([k, v]) => `<li>${esc(_t('ap_k_' + k))} <b class="${v < 0 ? 'neg' : ''}">${v > 0 ? '+' : ''}${v.toFixed(2)}</b></li>`).join('') : '';
       const lost = f.ok && Object.values(f.d.gains).some(v => v < 0);
       if (!trainingBox.isConnected) return;
-      trainingBox.innerHTML = `<div class="ap-result" tabindex="-1"><div class="ap-score">${pct > 0 ? '+' : ''}${pct}%</div><div class="ap-hint">${esc(_t('ap_tg_step'))}</div>${member || !f.ok ? '' : `<p class="ap-hint">${esc(_t('ap_tg_measured'))}: <b>${esc(trainVal(game, f.d.measured))}</b> · </p>`}
+      render(trainingBox, `<div class="ap-result" tabindex="-1"><div class="ap-score">${pct > 0 ? '+' : ''}${pct}%</div><div class="ap-hint">${esc(_t('ap_tg_step'))}</div>${member || !f.ok ? '' : `<p class="ap-hint">${esc(_t('ap_tg_measured'))}: <b>${esc(trainVal(game, f.d.measured))}</b> · </p>`}
         ${f.ok && f.d.coach ? `<p class="ap-hint">${esc(_t('ap_tg_coach', { n: f.d.coach }))}</p>` : ''}${fatigue!==null?`<p class="ap-hint">${esc(_t('ap_endurance_drop',{n:fatigue}))}</p>`:''}${lost ? `<div class="ap-warn">${esc(_t('ap_tg_loss'))}</div>` : ''}
         <ul>${gains || `<li>${esc(_t('ap_tg_nogain'))}</li>`}</ul>
-        <button class="ap-btn" id="ap-tg-ok">${esc(_t('ap_close'))}</button> <button class="ap-btn ap-ghost" id="ap-tg-again" ${(staffGame ? Object.values(G.specialists.members).some(x => x && x.id === member && x.energy >= G.specialists.train_energy) : member ? (G.crew.cars && Object.values(G.crew.cars).some(c => Object.values(c.members).some(x => x && x.id === member && x.energy >= G.crew.train_energy))) : G.driver.energy >= G.costs.train_energy) && !G.career.active_session && G.training_hall?.remaining ? '' : 'disabled'}>${esc(_t('ap_again'))}</button></div>`;
+        <button class="ap-btn" id="ap-tg-ok">${esc(_t('ap_close'))}</button> <button class="ap-btn ap-ghost" id="ap-tg-again" ${(staffGame ? Object.values(G.specialists.members).some(x => x && x.id === member && x.energy >= G.specialists.train_energy) : member ? (G.crew.cars && Object.values(G.crew.cars).some(c => Object.values(c.members).some(x => x && x.id === member && x.energy >= G.crew.train_energy))) : G.driver.energy >= G.costs.train_energy) && !G.career.active_session && G.training_hall?.remaining ? '' : 'disabled'}>${esc(_t('ap_again'))}</button></div>`);
       const result = $('.ap-result', m);
       // A key held during play must be released before it can activate a result button.
       const guardKey = e => {
@@ -1398,11 +1427,11 @@
         if (e.type === 'keyup') blockedKeys.delete(e.code);
         if (blocked) { e.preventDefault(); e.stopImmediatePropagation(); }
       };
-      result.addEventListener('keydown', guardKey, true);
-      result.addEventListener('keyup', guardKey, true);
+      on(result, 'keydown', guardKey, true);
+      on(result, 'keyup', guardKey, true);
       result.focus({preventScroll:true});
-      $('#ap-tg-ok', m).addEventListener('click', close);
-      $('#ap-tg-again', m).addEventListener('click', () => { modal(''); startTraining(game, member); });
+      on($('#ap-tg-ok', m), 'click', close);
+      on($('#ap-tg-again', m), 'click', () => { modal(''); startTraining(game, member); });
     }, { difficulty: r.d.difficulty, settings: r.d.settings });
     const canvas = $('canvas', m);
     if (canvas) { canvas.tabIndex = 0; canvas.focus({preventScroll:true}); }
@@ -1410,7 +1439,7 @@
 
   async function paintFinances() {
     const host=$('#ap-finance');
-    host.innerHTML=`<div class="ap-empty">${esc(_t('ap_preparing'))}</div>`;
+    if (!host.hasChildNodes()) render(host, `<div class="ap-empty">${esc(_t('ap_preparing'))}</div>`);
     const mod=await import(asset('/apps/' + GAME_ID + '/finance.js'));
     if(screen!=='finance')return;
     await mod.paint(host,{t:_t,esc,money,api,asset,heading:()=>pageHeading('ap_finances','ap_finance_hint','telemetry'),
@@ -1421,9 +1450,9 @@
   async function paintStats() {
     const host = $('#ap-stats');
     if (!G) return;
-    host.innerHTML = `<div class="ap-empty">…</div>`;
+    if (!host.hasChildNodes()) render(host, `<div class="ap-empty">…</div>`);
     const r = await api('/runs?track=' + encodeURIComponent(curTrack));
-    if (!r.ok) { host.innerHTML = `<div class="ap-empty">${esc(_t('ap_error'))}</div>`; return; }
+    if (!r.ok) { render(host, `<div class="ap-empty">${esc(_t('ap_error'))}</div>`); return; }
     history = r.d.runs; histTrack = curTrack; const b = r.d.bests; tinfo().bests = b;
     const secCells = [0, 1, 2].map(i => {
       const mine = b.sectors && b.sectors[i], rec = b.record_sectors && b.record_sectors[i];
@@ -1431,14 +1460,14 @@
       return `<div class="ap-sectile ${mine == null ? '' : cls}"><small>S${i + 1}</small><b>${secStr(mine)}</b><em>${esc(_t('ap_record_s'))} ${secStr(rec)}</em></div>`;
     }).join('');
     const rows = history.map(x => `<button type="button" data-run="${x.id}" class="ap-session-record ap-record-open">${sessionCardHtml(x)}<span class="ap-record-more" aria-hidden="true">↗</span></button>`).join('');
-    host.innerHTML = `${pageHeading('ap_tab_stats', 'ap_paddock_stats', 'telemetry')}<div class="ap-statspg">
+    render(host, `${pageHeading('ap_tab_stats', 'ap_paddock_stats', 'telemetry')}<div class="ap-statspg">
       <div class="ap-card"><div class="ap-bar"><h2>${esc(trackName(curTrack))}</h2></div>
         <div class="ap-cond ap-cond4"><div><span>${esc(_t('ap_your_best'))}</span><b>${lapStr(b.best)}</b></div><div><span>${esc(_t('ap_theoretical'))}</span><b>${lapStr(b.theoretical)}</b></div>
           <div><span>${esc(_t('ap_track_record'))}</span><b>${lapStr(b.record)}</b></div><div><span>${esc(_t('ap_runs_n'))}</span><b>${b.runs || 0} · 🏁 ${b.races || 0}</b></div></div>
         <h3>${esc(_t('ap_best_sectors'))}</h3><div class="ap-sectiles">${secCells}</div></div>
       <div class="ap-card"><h3>${esc(_t('ap_all_runs'))}</h3>${rows ? `<div class="ap-session-records ap-record-grid">${rows}</div>` : `<div class="ap-hint">${esc(_t('ap_no_runs'))}</div>`}</div>
-      <div id="ap-rundetail"></div></div>`;
-    host.querySelectorAll('[data-run]').forEach(tr => tr.addEventListener('click', () => showRun(+tr.dataset.run)));
+      <div id="ap-rundetail" data-ui-preserve></div></div>`);
+    host.querySelectorAll('[data-run]').forEach(tr => on(tr, 'click', () => showRun(+tr.dataset.run)));
   }
 
   async function showRun(id) {
@@ -1456,12 +1485,12 @@
       }).join('');
       return `<tr class="${l.valid ? '' : 'inv'}"><td>${l.n}</td><td>${lapStr(l.lap_time)}${l.pen ? ` <small>+${l.pen}s</small>` : ''}${l.pit ? ' 🅿' : ''}</td>${cells}</tr>`;
     }).join('');
-    box.innerHTML = `<div class="ap-card"><div class="ap-bar"><h3>${x.weekend?esc(_t('ap_round',{n:x.weekend.round}))+' · '+esc(_t('ap_phase_'+x.weekend.phase)):x.kind==='qualifying' ? '⏱' : x.kind === 'race' ? '🏁' : '🧪'} ${esc(dateStr(x.at))}</h3><button class="ap-btn ap-sm ap-ghost" id="ap-rd-x">✕</button></div>
+    render(box, `<div class="ap-card"><div class="ap-bar"><h3>${x.weekend?esc(_t('ap_round',{n:x.weekend.round}))+' · '+esc(_t('ap_phase_'+x.weekend.phase)):x.kind==='qualifying' ? '⏱' : x.kind === 'race' ? '🏁' : '🧪'} ${esc(dateStr(x.at))}</h3><button class="ap-btn ap-sm ap-ghost" id="ap-rd-x">✕</button></div>
       <div class="ap-chips ap-chips-l">${setupChips(x.setup)} ${x.final_setup && JSON.stringify(x.final_setup) !== JSON.stringify(x.setup) ? '→ ' + setupChips(x.final_setup) : ''}</div>
       <table class="ap-table"><tr><th>#</th><th>${esc(_t('ap_time_h'))}</th><th>S1</th><th>S2</th><th>S3</th></tr>${rows}</table>
       ${x.weekend?.classification?.length&&mods ? mods.DIVISION.classificationHtml(x.weekend.classification,_t,lapStr) : ''}
-      ${x.kind === 'race' && x.position ? `<div class="ap-hint">${esc(_t('ap_position', { n: x.position, m: 11 }))} · ${lapStr(x.race_time)} · ${money(x.prize)}</div>` : ''}</div>`;
-    $('#ap-rd-x').addEventListener('click', () => { box.innerHTML = ''; });
+      ${x.kind === 'race' && x.position ? `<div class="ap-hint">${esc(_t('ap_position', { n: x.position, m: 11 }))} · ${lapStr(x.race_time)} · ${money(x.prize)}</div>` : ''}</div>`);
+    on($('#ap-rd-x'), 'click', () => { render(box, ''); });
     box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
@@ -1471,6 +1500,7 @@
     const ids = markedIds(), team = teamRoster();
     if (!ids.length) return;
     busy = true; $('#ap-send').disabled = true;
+    if (!await flushSetup()) { busy = false; paintSession(); return; }
     // the open car leads; with only another car ticked, that car is opened first
     const leadId = ids.includes(team.active_car) ? team.active_car : ids[0], otherId = ids.find(id => id !== leadId) || null;
     const leadSetup = { ...carSetupOf(leadId) }, otherSetup = otherId ? { ...carSetupOf(otherId) } : null, sets = { ...carSets };
@@ -1482,7 +1512,8 @@
       setups = {}; weekendSet = null; weekendSet2 = null; adopt(r.d); paintStatus();
     }
     setups[curTrack] = leadSetup;
-    api('/setup', { track: curTrack, setup: leadSetup });
+    queueSetupSave(curTrack, leadSetup);
+    if (!await flushSetup()) { busy = false; paintSession(); return; }
     mp.send({ type: 'ap_run', kind: 'practice', compound: G.warehouse.tyres.find(t => t.id === sets[leadId])?.compound, tyre_set: sets[leadId], setup: leadSetup, track: curTrack,
       ...(otherId ? { both: true, tyre_set2: sets[otherId], setup2: otherSetup } : {}) });
   }
@@ -1493,16 +1524,16 @@
     if(msg.kind==='d5_race'){
       if(view){view.destroy();view=null;}run=null;sndStop();pb.playing=false;
       pending=msg;busy=true;G.driver=msg.driver;G.career.active_session={id:msg.session,kind:msg.kind};paintStatus();
-      go('track');const host=$('#ap-track');host.innerHTML=`<div class="ap-load">${esc(_t('ap_preparing'))}</div>`;
+      go('track');const host=$('#ap-track');render(host, `<div class="ap-load">${esc(_t('ap_preparing'))}</div>`);
       try{
         const M=await loadMods();track=useTrack(msg.track);if(!track)throw new Error('track');
         divisionPlayback=M.DIVISION.playRace({host,M,track,payload:{...msg,tyre_cost:G.tyre_cost,spares:G.warehouse.parts,wx_half:wxH(),tyre_err:FX.tyreErr(lvl('strategist'))},t:_t,money,time:lapStr,RaceModel:M.RACE.Race,sound:{factory:M.AUDIO.createEngineAudio,context:audioContext,enabled:sndOn,changed:value=>{sndOn=value;}},
           sendPit:command=>new Promise(resolve=>{pitAck=resolve;send({type:'ap_pit',compound:command.compound,set:command.set,at:command.t,wing:command.wing===true,wing_unit:command.wing_unit,service:command.service,pass:command.pass===true,car:command.car||'player'});}),
           saveProgress:value=>send({type:'ap_progress',session:msg.session,progress:{t:value,pbt:value,armed:false,inputs:[]}}),
           onFinish:report=>send({type:'ap_result',session:msg.session,...report}),
-          onGarage:()=>{divisionPlayback.destroy();divisionPlayback=null;host.innerHTML='';go('division');}});
+          onGarage:()=>{divisionPlayback.destroy();divisionPlayback=null;render(host, '');go('division');}});
         divisionPlayback.session=msg.session;pending=null;
-      }catch(e){console.error(e);pending=null;busy=false;host.innerHTML=`<div class="ap-empty">${esc(_t('ap_no_webgl'))}</div>`;}
+      }catch(e){console.error(e);pending=null;busy=false;render(host, `<div class="ap-empty">${esc(_t('ap_no_webgl'))}</div>`);}
       return;
     }
     if(msg.locked_setup&&G.division)G.division.locked_setup={...msg.setup};
@@ -1510,12 +1541,12 @@
     G.driver = msg.driver; G.career.active_session={id:msg.session,kind:msg.kind};paintStatus();
     go('track');
     const host = $('#ap-track');
-    host.innerHTML = `<div class="ap-load"><div class="ap-load-t">${esc(_t('ap_preparing'))}</div><div class="ap-bar2"><i style="width:60%"></i></div></div>`;
+    render(host, `<div class="ap-load"><div class="ap-load-t">${esc(_t('ap_preparing'))}</div><div class="ap-bar2"><i style="width:60%"></i></div></div>`);
     let M;
-    try { M = await loadMods(); } catch (e) { console.error(e); host.innerHTML = `<div class="ap-empty">${esc(_t('ap_no_webgl'))}</div>`; pending = null; busy = false; return; }
+    try { M = await loadMods(); } catch (e) { console.error(e); render(host, `<div class="ap-empty">${esc(_t('ap_no_webgl'))}</div>`); pending = null; busy = false; return; }
     const SIM = M.SIM;
     track = useTrack(msg.track);
-    if (!track) { host.innerHTML = `<div class="ap-empty">${esc(_t('ap_error'))}</div>`; pending = null; busy = false; return; }
+    if (!track) { render(host, `<div class="ap-empty">${esc(_t('ap_error'))}</div>`); pending = null; busy = false; return; }
     const mk = m => new SIM.Run({ track, setup: m.setup, skills: m.skills, forecast: msg.forecast, startHour: msg.hour_frac ?? msg.hour, laps: msg.laps, compound: m.compound,
       seed: m.seed, mods: m.mods || null, character:m.character, tyreSet: m.tyre_set || null, energy:m.start_energy??100, energyCost:msg.energy??0, race: false, lockedSetup:!!msg.locked_setup, duration: msg.duration, parts: m.parts, fail: m.fail, crash: m.crash, lazy: true });
     const mates = [{ key: msg.key || (msg.other?.key === 'player' ? 'player2' : 'player'), name: msg.driver?.name || G.driver.name, msg, saved: msg.progress && msg.progress.inputs ? msg.progress : null }];
@@ -2343,7 +2374,7 @@
     exitButton: false,
     saveable: false,
     snapshot: () => null,
-    pause: () => { snd?.update({playing:false});clearInterval(divisionTimer);clearInterval(hallTimer);if(divisionPlayback)divisionPlayback.pause();pb.playing = false; closeGarageView(); },
+    pause: () => { snd?.update({playing:false});clearInterval(divisionTimer);clearInterval(hallTimer);if(divisionPlayback)divisionPlayback.pause();pb.playing = false; },
     resume: () => { startEnergyRefresh();if(divisionPlayback&&screen==='track')divisionPlayback.resume();if(screen==='division')paintDivision();if (screen === 'garage' && gview === 'car' && root && !over) paintGarage(); if (run && !pb.sent && !pitModal) pb.playing = true; },
   });
 })();

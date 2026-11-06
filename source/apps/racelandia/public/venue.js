@@ -1,3 +1,4 @@
+const { render, on } = window.RacelandiaUI;
 // Physical spectator facilities; the server validates space, derives capacity and prices the draft.
 const TYPES=['seated','free','vip'];
 export const sizeOf=s=>({depth:s.rows*({seated:.85,free:1,vip:4}[s.kind])+(s.kind==='seated'?3:0),capacity:s.kind==='seated'?Math.floor(s.length/.5)*s.rows:s.kind==='free'?Math.floor(s.length*s.rows*2):Math.floor(s.length/2)*s.rows});
@@ -5,11 +6,11 @@ export function openVenueEditor({host,G,api,t,esc,money,onDone,onCancel}){
  const own=G.own,land=own.venue_bounds;
  let layout=(own.grandstands||[]).map(s=>({...s})),selected=null,mode='select',kind='seated',drag=null,dead=false,saving=false,dirty=false,quote=null,timer=0,revision=0;
  let cx=0,cy=0,scale=1;
- host.innerHTML=`<div class="ap-garage ap-venue"><div class="ap-col"><div class="ap-card"><div class="ap-bar"><h2>${esc(t('ap_venue_title'))}</h2><button class="ap-btn ap-ghost" data-venue-cancel>${esc(t('ap_cancel'))}</button></div><p class="ap-hint">${esc(t('ap_venue_hint'))}</p>
+ render(host, `<div class="ap-garage ap-venue"><div class="ap-col"><div class="ap-card"><div class="ap-bar"><h2>${esc(t('ap_venue_title'))}</h2><button class="ap-btn ap-ghost" data-venue-cancel>${esc(t('ap_cancel'))}</button></div><p class="ap-hint">${esc(t('ap_venue_hint'))}</p>
  <div class="ap-venue-tools"><button class="ap-btn ap-sm" data-mode="select">${esc(t('ap_venue_select'))}</button><button class="ap-btn ap-sm ap-ghost" data-mode="pan">${esc(t('ap_venue_pan'))}</button><button class="ap-btn ap-sm ap-ghost" data-fit>${esc(t('ap_venue_fit'))}</button><button class="ap-btn ap-sm ap-ghost" data-zoom=".8" aria-label="${esc(t('ap_venue_zoom_out'))}">−</button><button class="ap-btn ap-sm ap-ghost" data-zoom="1.25" aria-label="${esc(t('ap_venue_zoom_in'))}">+</button></div>
  <canvas class="ap-venue-map" aria-label="${esc(t('ap_venue_title'))}" tabindex="0"></canvas><p class="ap-hint" data-venue-status role="status" aria-live="polite"></p></div></div>
  <div class="ap-col"><div class="ap-card"><h2>${esc(t('ap_tb_stands'))}</h2><div class="ap-venue-tools">${TYPES.map(k=>`<button class="ap-btn ap-sm ap-ghost" data-kind="${k}">${esc(t('ap_tb_'+k))}</button>`).join('')}</div><p class="ap-hint">${esc(t('ap_venue_add_hint'))}</p><div data-venue-selection></div></div>
- <div class="ap-card"><h2>${esc(t('ap_venue_plan'))}</h2><div data-venue-quote></div><p class="ap-hint">${esc(t('ap_venue_economy'))}</p>${!('grandstands' in own)&&Object.values(own.seats||{}).some(v=>v>0)?`<p class="ap-hint">${esc(t('ap_venue_legacy'))}</p>`:''}<button class="ap-btn ap-venue-save" data-venue-save disabled>${esc(t('ap_venue_save'))}</button></div></div></div>`;
+ <div class="ap-card"><h2>${esc(t('ap_venue_plan'))}</h2><div data-venue-quote></div><p class="ap-hint">${esc(t('ap_venue_economy'))}</p>${!('grandstands' in own)&&Object.values(own.seats||{}).some(v=>v>0)?`<p class="ap-hint">${esc(t('ap_venue_legacy'))}</p>`:''}<button class="ap-btn ap-venue-save" data-venue-save disabled>${esc(t('ap_venue_save'))}</button></div></div></div>`);
  const canvas=host.querySelector('canvas'),ctx=canvas.getContext('2d'),status=host.querySelector('[data-venue-status]'),details=host.querySelector('[data-venue-selection]'),totals=host.querySelector('[data-venue-quote]'),save=host.querySelector('[data-venue-save]');
  const world=(x,y)=>[cx+(x-canvas.clientWidth/2)/scale,cy-(y-canvas.clientHeight/2)/scale];
  const screen=(x,y)=>[(x-cx)*scale+canvas.clientWidth/2,(cy-y)*scale+canvas.clientHeight/2];
@@ -31,18 +32,18 @@ export function openVenueEditor({host,G,api,t,esc,money,onDone,onCancel}){
  function picked(x,y){return [...layout].reverse().find(s=>{const dx=x-s.x,dy=y-s.y,c=Math.cos(s.angle),n=Math.sin(s.angle);return Math.abs(dx*c+dy*n)<=s.length/2+6/scale&&Math.abs(-dx*n+dy*c)<=sizeOf(s).depth/2+6/scale;});}
  function setMode(next){mode=next;host.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('ap-ghost',b.dataset.mode!==mode));host.querySelectorAll('[data-kind]').forEach(b=>b.classList.toggle('ap-ghost',mode!=='add'||b.dataset.kind!==kind));canvas.style.cursor=mode==='pan'?'grab':mode==='add'?'crosshair':'default';status.textContent=t(mode==='add'?'ap_venue_place':mode==='pan'?'ap_venue_pan_hint':'ap_venue_hint');}
  function selection(){
-  const s=layout.find(s=>s.id===selected);if(!s){details.innerHTML=`<p class="ap-hint">${esc(t('ap_venue_none'))}</p>`;return;}
-  details.innerHTML=`<b>${esc(t('ap_tb_'+s.kind))}</b><div class="ap-venue-fields">${[['length','ap_venue_length',s.length,4,.5],['rows',s.kind==='free'?'ap_venue_depth':'ap_venue_rows',s.rows,1,1],['angle','ap_venue_angle',Math.round(s.angle*180/Math.PI),null,1]].map(([k,label,v,min,step])=>`<label><span>${esc(t(label))}</span><input type="number" data-field="${k}" ${min===null?'':`min="${min}"`} step="${step}" value="${v}"></label>`).join('')}</div><p class="ap-hint" data-footprint></p><div class="ap-venue-tools"><button class="ap-btn ap-sm ap-ghost" data-copy>${esc(t('ap_venue_copy'))}</button><button class="ap-btn ap-sm ap-ghost" data-remove>${esc(t('ap_venue_remove'))}</button></div>`;
+  const s=layout.find(s=>s.id===selected);if(!s){render(details, `<p class="ap-hint">${esc(t('ap_venue_none'))}</p>`);return;}
+  render(details, `<b>${esc(t('ap_tb_'+s.kind))}</b><div class="ap-venue-fields">${[['length','ap_venue_length',s.length,4,.5],['rows',s.kind==='free'?'ap_venue_depth':'ap_venue_rows',s.rows,1,1],['angle','ap_venue_angle',Math.round(s.angle*180/Math.PI),null,1]].map(([k,label,v,min,step])=>`<label><span>${esc(t(label))}</span><input type="number" data-field="${k}" ${min===null?'':`min="${min}"`} step="${step}" value="${v}"></label>`).join('')}</div><p class="ap-hint" data-footprint></p><div class="ap-venue-tools"><button class="ap-btn ap-sm ap-ghost" data-copy>${esc(t('ap_venue_copy'))}</button><button class="ap-btn ap-sm ap-ghost" data-remove>${esc(t('ap_venue_remove'))}</button></div>`);
   details.querySelectorAll('[data-field]').forEach(input=>input.oninput=()=>{const v=Number(input.value);if(!Number.isFinite(v))return;s[input.dataset.field]=input.dataset.field==='angle'?v*Math.PI/180:Math.max(input.dataset.field==='rows'?1:4,input.dataset.field==='rows'?Math.floor(v):v);footprint();changed();});
   details.querySelector('[data-remove]').onclick=()=>{layout=layout.filter(x=>x!==s);selected=null;selection();changed();};
   details.querySelector('[data-copy]').onclick=()=>{const copy={...s,id:uid(),x:s.x+Math.cos(s.angle)*(s.length+4),y:s.y+Math.sin(s.angle)*(s.length+4)};layout.push(copy);selected=copy.id;selection();changed();};footprint();
  }
  function footprint(){const s=layout.find(s=>s.id===selected),el=details.querySelector('[data-footprint]');if(s&&el){const d=sizeOf(s);el.textContent=t('ap_venue_capacity',{n:d.capacity.toLocaleString(),w:s.length.toLocaleString(),d:d.depth.toLocaleString()});}}
  function paintQuote(){
-  if(!quote){totals.innerHTML=`<p class="ap-hint">${esc(t('ap_venue_checking'))}</p>`;save.disabled=true;return;}
-  if(!quote.ok){totals.innerHTML=`<p class="ap-warn">${esc(t('ap_venue_err_'+quote.error))}</p>`;save.disabled=true;return;}
+  if(!quote){render(totals, `<p class="ap-hint">${esc(t('ap_venue_checking'))}</p>`);save.disabled=true;return;}
+  if(!quote.ok){render(totals, `<p class="ap-warn">${esc(t('ap_venue_err_'+quote.error))}</p>`);save.disabled=true;return;}
   const rows=[...TYPES.map(k=>[t('ap_tb_'+k),quote.seats[k].toLocaleString()]),[t('ap_venue_build_cost'),money(quote.price)],[t('ap_tb_upkeep'),money(quote.upkeep)],[t('ap_tb_income'),money(quote.host.income.total)]];
-  totals.innerHTML=`<div class="ap-cond">${rows.map(([a,b])=>`<div><span>${esc(a)}</span><b>${esc(b)}</b></div>`).join('')}</div>${quote.price>G.driver.budget?`<p class="ap-warn">${esc(t('ap_no_budget'))}</p>`:''}`;
+  render(totals, `<div class="ap-cond">${rows.map(([a,b])=>`<div><span>${esc(a)}</span><b>${esc(b)}</b></div>`).join('')}</div>${quote.price>G.driver.budget?`<p class="ap-warn">${esc(t('ap_no_budget'))}</p>`:''}`);
   save.disabled=saving||!dirty||quote.price>G.driver.budget;
  }
  const uid=()=> 'stand-'+(globalThis.crypto?.randomUUID?.()||Math.random().toString(36).slice(2));

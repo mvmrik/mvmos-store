@@ -1,3 +1,4 @@
+const { render, on } = window.RacelandiaUI;
 // Racelandia - the research team, the production line and the parts in the warehouse.
 //
 // Only the picture: every number (what a research may find, what a part costs,
@@ -67,7 +68,7 @@ function balanceNotes(c, bal) {
 // ── a part in the warehouse ──
 export function partRowHtml(c, u) {
   const wear = u.wear, left = Math.round((1 - wear) * 100);
-  return `<div class="ap-part"><div class="ap-part-i">${partArt(u.part)}</div>
+  return `<div class="ap-part" data-ui-key="part-${c.esc(u.id)}"><div class="ap-part-i">${partArt(u.part)}</div>
       <div class="ap-part-b"><div class="ap-set-h"><label>${c.esc(designName(c, u.part, u))}</label><output style="color:${c.healthCol(wear)}">${left}%</output></div>
         <div class="ap-meter"><i style="width:${left}%;background:${c.healthCol(wear)}"></i></div>
         <div class="ap-stats">${statBars(c, u.part, u.stats)}</div></div>
@@ -82,8 +83,8 @@ export function partRowsHtml(c) {
 }
 
 export function bindPartRows(host, c) {
-  host.querySelectorAll('[data-fit]').forEach(b => b.addEventListener('click', () => c.act('/warehouse/fit', { unit: b.dataset.fit })));
-  host.querySelectorAll('[data-sellunit]').forEach(b => b.addEventListener('click', async () => { { const u = c.G.warehouse.parts.find(x => x.id === b.dataset.sellunit); if (u && await c.confirm(c.t('ap_wh_sell_confirm', { price: c.money(u.sale) }))) c.act('/warehouse/sell-part', { unit: u.id }); }; }));
+  host.querySelectorAll('[data-fit]').forEach(b => on(b, 'click', () => c.act('/warehouse/fit', { unit: b.dataset.fit })));
+  host.querySelectorAll('[data-sellunit]').forEach(b => on(b, 'click', async () => { { const u = c.G.warehouse.parts.find(x => x.id === b.dataset.sellunit); if (u && await c.confirm(c.t('ap_wh_sell_confirm', { price: c.money(u.sale) }))) c.act('/warehouse/sell-part', { unit: u.id }); }; }));
 }
 
 // ── the sliders: green where there is no risk, red where the team may fail ──
@@ -143,7 +144,7 @@ function reportCard(c, L, r) {
 function updateForm(host, c, L) {
   const K = L.consts, base = L.designs[ui.part].find(d => d.id === ui.base), push = ui.push;
   SEGS.forEach(s => {
-    host.querySelector(`[data-out="${s}"]`).innerHTML = `${Math.round(base.stats[s])} → <b>${Math.round(base.stats[s] + push[s])}</b>`;
+    render(host.querySelector(`[data-out="${s}"]`), `${Math.round(base.stats[s])} → <b>${Math.round(base.stats[s] + push[s])}</b>`);
     host.querySelector(`[data-push="${s}"]`).parentElement.style.background = sliderBackground(push, s, K);
   });
   const r = risk(push, K), el = host.querySelector('[data-chance]');
@@ -196,15 +197,15 @@ export function paintLab(host, c) {
   const L = c.G.lab;
   mech = c.G.specialists?.levels?.mechanic ?? null;
   skew = L.now * 1000 - Date.now();
-  host.innerHTML = `<div class="ap-pagehead"><div><span class="ap-eyebrow">${c.esc(c.t('ap_title'))}</span><h1>${c.esc(c.t('ap_lab_title'))}</h1><p>${c.esc(c.t('ap_paddock_lab'))}</p></div>${partArt('factory')}</div><div class="ap-garage"><div class="ap-col">${carCard(c, L)}</div>
-    <div class="ap-col"><div class="ap-card"><h2>🔬 ${c.esc(c.t('ap_lab_title'))}</h2>${researchCard(c, L)}</div></div><div class="ap-lab-production">${productionCard(c, L)}</div></div>`;
-  host.querySelectorAll('[data-rpart]').forEach(b => b.addEventListener('click', () => { ui.part = b.dataset.rpart; ui.base = null; ui.push = {}; paintLab(host, c); }));
-  host.querySelector('[data-rbase]')?.addEventListener('change', e => { ui.base = e.target.value; paintLab(host, c); });
-  host.querySelectorAll('[data-push]').forEach(i => i.addEventListener('input', () => { ui.push[i.dataset.push] = +i.value; updateForm(host, c, L); }));
-  host.querySelector('[data-rstart]')?.addEventListener('click', e => { e.target.disabled = true; c.act('/lab/research', { part: ui.part, base: ui.base, push: ui.push }).then(ok => { if (ok) ui.push = {}; }); });
-  host.querySelectorAll('[data-rdecide]').forEach(b => b.addEventListener('click', () => { host.querySelectorAll('button').forEach(x => { x.disabled = true; }); c.act('/lab/decide', { action: b.dataset.rdecide }); }));
-  host.querySelectorAll('[data-qty]').forEach(s => s.addEventListener('change', () => { ui.qty[s.dataset.qty] = +s.value; paintLab(host, c); }));
-  host.querySelectorAll('[data-build]').forEach(b => b.addEventListener('click', () => { b.disabled = true; c.act('/lab/build', { design: b.dataset.build, qty: ui.qty[b.dataset.build] || 1 }); }));
+  render(host, `<div class="ap-pagehead"><div><span class="ap-eyebrow">${c.esc(c.t('ap_title'))}</span><h1>${c.esc(c.t('ap_lab_title'))}</h1><p>${c.esc(c.t('ap_paddock_lab'))}</p></div>${partArt('factory')}</div><div class="ap-garage"><div class="ap-col">${carCard(c, L)}</div>
+    <div class="ap-col"><div class="ap-card"><h2>🔬 ${c.esc(c.t('ap_lab_title'))}</h2>${researchCard(c, L)}</div></div><div class="ap-lab-production">${productionCard(c, L)}</div></div>`);
+  host.querySelectorAll('[data-rpart]').forEach(b => on(b, 'click', () => { ui.part = b.dataset.rpart; ui.base = null; ui.push = {}; paintLab(host, c); }));
+  on(host.querySelector('[data-rbase]'), 'change', e => { ui.base = e.target.value; paintLab(host, c); });
+  host.querySelectorAll('[data-push]').forEach(i => on(i, 'input', () => { ui.push[i.dataset.push] = +i.value; updateForm(host, c, L); }));
+  on(host.querySelector('[data-rstart]'), 'click', e => { e.target.disabled = true; c.act('/lab/research', { part: ui.part, base: ui.base, push: ui.push }).then(ok => { if (ok) ui.push = {}; }); });
+  host.querySelectorAll('[data-rdecide]').forEach(b => on(b, 'click', () => { host.querySelectorAll('button').forEach(x => { x.disabled = true; }); c.act('/lab/decide', { action: b.dataset.rdecide }); }));
+  host.querySelectorAll('[data-qty]').forEach(s => on(s, 'change', () => { ui.qty[s.dataset.qty] = +s.value; paintLab(host, c); }));
+  host.querySelectorAll('[data-build]').forEach(b => on(b, 'click', () => { b.disabled = true; c.act('/lab/build', { design: b.dataset.build, qty: ui.qty[b.dataset.build] || 1 }); }));
   stop();
   const due = [L.research && L.research.status === 'running' ? L.research.done_at : null, ...L.queue.map(o => o.start + o.per_unit * (o.delivered + 1))].filter(Boolean);
   if (due.length) {

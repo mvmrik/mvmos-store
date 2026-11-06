@@ -10,13 +10,14 @@
 // Units are SI (m, s, kg, N, rad) unless a name says otherwise.
 
 const G = 9.81;
-// Tyre wear per unit of slip energy. A set lasts roughly 12 laps (soft), 24 (medium) or 40 (hard) on the test circuit.
+// Tyre wear per unit of slip energy. Set life varies with pace, weather and circuit; soft tyres wear fastest and hard tyres slowest.
 const WEAR_SCALE = 50;
-// The rear tyres carry the drive and the weight, so they wear faster than the front ones - but by about half again, not
-// twice: the share of each axle keeps the average wear of a set as it was.
+// Axle calibration for the simplified slip-energy estimate. The wear update
+// below shares common tread work across the set while retaining wheel differences.
 const AXLE_WEAR = { front: 1.4, rear: 0.83 };
-// A used set goes on the way a mechanic would fit it: when the rears are the more worn pair, the axles swap places.
-const mounted = w => { const a = Array.from(w, Number); while (a.length < 4) a.push(0); return a[2] + a[3] > a[0] + a[1] ? [a[2], a[3], a[0], a[1], ...a.slice(4)].slice(0, 4) : a.slice(0, 4); };
+// A tyre keeps its wheel position when a used set is fitted again. Front and
+// rear tyres are not interchangeable, and mounting must not swap their wear.
+const mounted = w => Array.from({ length: 4 }, (_, i) => clamp(Number(w[i]) || 0, 0, 1));
 const TAU = Math.PI * 2;
 
 export function rng(seed) {
@@ -544,7 +545,8 @@ export class Run {
     const dx = this.x - L.x[i], dy = this.y - L.y[i];
     return { id: this.pitId ?? 0, p: (((i - T.pit.box + T.N * 1.5) % T.N) - T.N / 2) * T.ds + dx * Math.cos(T.psi[i]) + dy * Math.sin(T.psi[i]),
       lane: dx * T.nx[i] + dy * T.ny[i], v: Math.hypot(this.u, this.v), pit: this.pitState, sub: this.sub, done: this.done,
-      idx: i, off: (this.x - T.x[i]) * T.nx[i] + (this.y - T.y[i]) * T.ny[i] };
+      idx: i, along: dx * Math.cos(T.psi[i]) + dy * Math.sin(T.psi[i]),
+      off: (this.x - T.x[i]) * T.nx[i] + (this.y - T.y[i]) * T.ny[i] };
   }
   pitPeers() { return (this.pitSnapshot || []).filter(p => p.id !== (this.pitId ?? 0) && p.pit && !p.done); }
   pitBoxFree() { return !this.pitPeers().some(p => p.sub === 'service' || p.pit === 'out' && p.p > -8 && p.p < 14); }
@@ -569,18 +571,44 @@ export class Run {
   _traffic(bi, V, dt) {
     const T = this.T, N = T.N, me = this.pitId ?? 0, L = this.path, half = T.half - 1.3;
     let want = null, cap = Infinity;
+    const along = (this.x - T.x[bi]) * Math.cos(T.psi[bi]) + (this.y - T.y[bi]) * Math.sin(T.psi[bi]);
     if (!this.pitState && this.state !== 'grid') for (const p of this.trafficSnap || []) {
-      if (p.id === me || p.pit || p.done || p.sub) continue;
-      const gap = (((p.idx - bi + N * 1.5) % N) - N / 2) * T.ds;
-      if (gap < -7 || gap > 55 || (gap > 0 && p.v > V + 4 && gap > 14)) { if (this.passId === p.id) this.passId = null; continue; }
-      if (this.passId !== p.id) { this.passId = p.id; this.passSide = p.off >= L.off[bi] + this.lineErr ? -1 : 1; }
+      if (p.id === me || p.pit || p.done) continue;
+      const gap = (((p.idx - bi + N * 1.5) % N) - N / 2) * T.ds + (p.along || 0) - along;
+      if (gap < -10 || gap > 55 || (gap > 0 && p.v > V + 4 && gap > 14)) { if (this.passId === p.id) this.passId = null; continue; }
+      if (gap > 0 && Math.abs(p.off - (L.off[bi] + this.lineErr)) < 2.4) {
+        const safe = 8 + Math.max(0, V - p.v) * .45;
+        cap = Math.min(cap, Math.max(0, p.v + (gap - safe) * .5));
+      }
+      // Only the following car starts a pass. The leader must not copy its
+      // teammate's move because that teammate is just behind it. Keep an
+      // existing manoeuvre until the passed car is safely behind.
+      if (this.passId !== p.id && (gap <= 7 || p.v > V + 1.5)) {
+        // Do not sweep back across a car that is already alongside.
+        if (Math.abs(gap) < 10 && Math.abs(p.off - (L.off[bi] + this.lineErr)) > 1.4) want = this.lineErr;
+        continue;
+      }
+      if (this.passId !== p.id) {
+        // Commit where the road stays open long enough to move out. Starting
+        // a lane change at a tight apex only pushes both cars off the track.
+        let open = true;
+        for (let metres = 0; metres <= Math.max(90, V * 3); metres += 12) {
+          const j = (bi + Math.round(metres / T.ds)) % N;
+          if (Math.abs(L.kap[j]) > 1 / 400) { open = false; break; }
+        }
+        if (!open) continue;
+        this.passId = p.id;
+        this.passSide = p.off >= L.off[bi] + this.lineErr ? -1 : 1;
+        const room = s => s > 0 ? half - L.off[bi] : half + L.off[bi];
+        if (room(this.passSide) < 2) this.passSide = -this.passSide;
+      }
       let side = this.passSide;
-      const room = s => s > 0 ? half - L.off[bi] : half + L.off[bi];
-      if (room(side) < 2) side = -side;
-      const k = Math.abs(L.kap[bi]), ease = 1 / (1 + 150 * k);
-      const target = clamp(p.off + side * 2.7 - L.off[bi], -(half + L.off[bi]), half - L.off[bi]) * ease;
+      const k = Math.abs(L.kap[bi]);
+      // Ease the initial approach in a bend, but never shrink the lateral
+      // clearance once alongside: that steers the cars into each other.
+      const ease = 1 / (1 + 150 * k * clamp((gap - 12) / 35, 0, 1));
+      const target = clamp(p.off + side * 2.9 - L.off[bi], -(half + L.off[bi]), half - L.off[bi]) * ease;
       if (want === null || Math.abs(target) > Math.abs(want)) want = target;
-      if (gap > 0 && Math.abs(p.off - (L.off[bi] + this.lineErr)) < 2.3) cap = Math.min(cap, Math.max(2, p.v + (gap - 6) * .5));
     }
     const step = 1.8 * dt, to = want ?? 0;
     this.passOff = (this.passOff || 0) + clamp(to - (this.passOff || 0), -step, step);
@@ -650,7 +678,8 @@ export class Run {
     // per-corner confidence × noise × mistake
     // on a wet or damp track a driver gives away a margin that his wet-weather skill earns back
     const gw = 1 / (1 + Math.pow(c.water / P.comp.d, 1.2));
-    const base = d.pace * (.80 + .20*d.corner**3) * this.lapPaceMul * (1 - (1 - gw) * 0.20 * (1.0 - 0.55 * d.wet));
+    const straightPace = d.pace * (.80 + .20*d.corner**3) * (1 - (1 - gw) * 0.20 * (1.0 - 0.55 * d.wet));
+    const base = straightPace * this.lapPaceMul;
     for (let ci = 0; ci < T.line.corners.length; ci++) {
       const [a, b] = T.line.corners[ci];
       let f = base * (1-.08*this.fatigue()) * this.kc[ci] * (1 + this.lapNoise[ci]);
@@ -660,7 +689,9 @@ export class Run {
         vlat[j] = Math.min(vlat[j] * f, vTop);
       }
     }
-    for (let i = 0; i < N; i++) if (!this._inCorner(i)) vlat[i] = Math.min(vTop, vlat[i] * Math.min(1, base * 1.04));
+    // Warming the tyres calls for care in corners, not a speed limit on an
+    // open straight that disappears at the timing line.
+    for (let i = 0; i < N; i++) if (!this._inCorner(i)) vlat[i] = Math.min(vTop, vlat[i] * Math.min(1, straightPace * 1.04));
     const v = Float64Array.from(vlat);
     const ds = L.len / N;
     if (this.pitState) {
@@ -820,7 +851,8 @@ export class Run {
     let aff = lerp(gradient(ja), gradient(jb), mix);
     const pitLimit = this.pitSpeedLimit();
     if (pitLimit < vt) { vt = pitLimit; aff = Math.min(0, aff); }
-    const trafficCap = this._traffic(bi, V, dt);
+    // Steering decisions run at 60 Hz, independently of the 240 Hz physics.
+    const trafficCap = this._traffic(bi, V, 1 / 60);
     if (trafficCap < vt) { vt = trafficCap; aff = Math.min(0, aff); }
     let thr = 0, brk = 0;
     const startPhase = this.state === 'grid';
@@ -850,7 +882,7 @@ export class Run {
     const Ld = 6 + 0.21 * V;
     const jl = (bi + Math.round(Ld / lsi)) % N;
     // Lower skill produces a small, smooth apex placement error, never a teleport.
-    const offset = this.pitState ? 0 : .55 * (1-d.corner+this.fatigue()*.35) * Math.sin(bi*.023 + this.lap*.7) + (this.passOff || 0);
+    const offset = this.pitState ? 0 : .55 * (1-d.corner+this.fatigue()*.35) * Math.sin(TAU * 4 * bi / N) + (this.passOff || 0);
     const dx = L.x[jl] - Math.sin(L.psi[jl])*offset - this.x, dy = L.y[jl] + Math.cos(L.psi[jl])*offset - this.y;
     const eta = wrap(Math.atan2(dy, dx) - this.psi);
     let del = Math.atan2(2 * CAR.L * Math.sin(eta), Math.max(Ld, 1));
@@ -1119,6 +1151,8 @@ export class Run {
     else this.stuck = 0;
     if (this.stuck > (outside ? 6 : 12)) this._rejoin();
     // ── thermal, wear, fuel, ERS
+    let wearSum = 0;
+    const wearStep = this.wearStep || (this.wearStep = new Float64Array(4));
     for (let i = 0; i < 4; i++) {
       const front = i < 2;
       const vwx = this.u - this.r * wy[i], vwy = this.v + this.r * wx[i];
@@ -1134,12 +1168,17 @@ export class Run {
       const over = Math.max(0, (this.Tt[i] - k.Topt - 12) / 22);
       const camW = 1 + 0.06 * (Math.abs((front ? P.camF : P.camR)) - 2.5) ** 2 * 0.2;
       const careF = 1.12 - 0.22 * this.drv.care;
-      this.wear[i] += slipP * 1.0e-9 * WEAR_SCALE * k.wear * (front ? AXLE_WEAR.front : AXLE_WEAR.rear) * (1 + 2.5 * over * over) * camW * careF * (c.water > 0.5 && P.compKey !== 'I' && P.compKey !== 'W' ? 1.3 : 1) * dt * 240 / 240;
-      if (this.wear[i] > 1) this.wear[i] = 1;
+      wearStep[i] = slipP * 1.0e-9 * WEAR_SCALE * k.wear * (front ? AXLE_WEAR.front : AXLE_WEAR.rear) * Math.min(3, 1 + 2.5 * over * over) * camW * careF * (c.water > 0.5 && P.compKey !== 'I' && P.compKey !== 'W' ? 1.3 : 1) * dt;
+      wearSum += wearStep[i];
       this.lapAcc.tSum[i] += this.Tt[i]; if (this.Tt[i] > this.lapAcc.tMax[i]) this.lapAcc.tMax[i] = this.Tt[i];
       this.metrics.maxT = Math.max(this.metrics.maxT, this.Tt[i]);
       this.metrics.minT = Math.min(this.metrics.minT, this.Tt[i]);
     }
+    // The simplified slip model does not simulate tread deformation or wheel
+    // rotation. Most wear follows the common distance/work of the set; a
+    // smaller share follows each wheel's slip. Preserve total wear while
+    // avoiding a runaway axle split caused by that approximation.
+    for (let i = 0; i < 4; i++) this.wear[i] = Math.min(1, this.wear[i] + .75 * wearSum / 4 + .25 * wearStep[i]);
     this.lapAcc.n++;
     if (this.state === 'going') {
       // Fuel and electrical energy follow delivered power, not pedal travel:
@@ -1551,7 +1590,48 @@ export class RunGroup {
     const snapshot = this.runs.map(r => r.pitPosition());
     for (const r of this.runs) r.pitSnapshot = r.trafficSnap = snapshot;
     for (const r of this.runs) if (!r.done) r.step();
+    // Steering and braking have reaction time. A late correction must produce
+    // physical contact, not let two rendered cars pass through each other.
+    for (let i = 0; i < this.runs.length; i++) for (let j = i + 1; j < this.runs.length; j++) {
+      const a = this.runs[i], b = this.runs[j];
+      if (a.done || b.done || a.pitState || b.pitState) continue;
+      this._contact(a, b);
+    }
     return true;
+  }
+  _contact(a, b) {
+    const dx = b.x - a.x, dy = b.y - a.y;
+    if (dx * dx + dy * dy > 40) return;
+    const ca = Math.cos(a.psi), sa = Math.sin(a.psi), cb = Math.cos(b.psi), sb = Math.sin(b.psi);
+    let overlap = Infinity, nx = 0, ny = 0;
+    // Separating-axis test for the full car bodies, including the wheels.
+    for (const [x, y] of [[ca, sa], [-sa, ca], [cb, sb], [-sb, cb]]) {
+      const ra = 2.7 * Math.abs(x * ca + y * sa) + 1.1 * Math.abs(-x * sa + y * ca);
+      const rb = 2.7 * Math.abs(x * cb + y * sb) + 1.1 * Math.abs(-x * sb + y * cb);
+      const distance = dx * x + dy * y, depth = ra + rb - Math.abs(distance);
+      if (depth <= 0) return;
+      if (depth < overlap) { overlap = depth; nx = x * (distance < 0 ? -1 : 1); ny = y * (distance < 0 ? -1 : 1); }
+    }
+    const correction = (overlap + .001) / 2;
+    a.x -= nx * correction; a.y -= ny * correction;
+    b.x += nx * correction; b.y += ny * correction;
+    let ax = a.u * ca - a.v * sa, ay = a.u * sa + a.v * ca;
+    let bx = b.u * cb - b.v * sb, by = b.u * sb + b.v * cb;
+    const closing = (bx - ax) * nx + (by - ay) * ny;
+    if (closing < 0) {
+      const impulse = -closing / 2;
+      ax -= impulse * nx; ay -= impulse * ny; bx += impulse * nx; by += impulse * ny;
+      a.u = ax * ca + ay * sa; a.v = -ax * sa + ay * ca;
+      b.u = bx * cb + by * sb; b.v = -bx * sb + by * cb;
+    }
+    // If this step recorded telemetry, store the resolved pose as well.
+    for (const r of [a, b]) {
+      const k = r.frames.length - r.FRAME;
+      if (k >= 0 && r.t - r.frames[k] <= r.dt * 1.1) {
+        r.frames[k + 1] = r.x; r.frames[k + 2] = r.y;
+        r.frames[k + 4] = r.u; r.frames[k + 5] = r.v;
+      }
+    }
   }
   advance(ms, until) {
     const now = () => performance.now(), start = now();

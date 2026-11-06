@@ -323,7 +323,7 @@
       "name": "Racelandia",
       "icon": "🏁",
       "category": "Games",
-      "version": "1.1.1",
+      "version": "1.1.2",
       "description": "Manage a two-car racing team, recruit and train drivers, develop parts and setups, and run private tests or a twenty-round Division 5 championship with practice, qualifying, pit stops and changing weather.",
       "tags": [
         "racing",
@@ -332,7 +332,7 @@
         "games"
       ],
       "min_core_version": "1.17.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/racelandia-1.1.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/racelandia-1.1.2.zip",
       "name_i18n": {
         "en": "Racelandia",
         "bg": "Racelandia",
