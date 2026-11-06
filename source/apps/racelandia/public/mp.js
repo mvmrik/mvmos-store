@@ -2091,8 +2091,11 @@
     const table = rows.length ? `<div class="ap-scroll"><table class="ap-table ap-an-table"><tr><th>#</th><th>${esc(_t('ap_time_h'))}</th><th>${esc(_t('ap_an_balance'))}</th><th>${esc(_t('ap_an_locks'))}</th><th>${esc(_t('ap_an_spin'))}</th><th>${esc(_t('ap_an_temps'))}</th><th>${esc(_t('ap_an_wear_lap'))}</th></tr>${rows.map(r => `<tr class="${r.valid ? '' : 'inv'}"><td>${r.n}</td><td>${lapStr(r.time)}${r.pit ? ' 🅿' : ''}</td>
         <td>${r.m ? esc(bal(r.m.us)) : '–'}</td><td>${r.m ? r.m.lockF.toFixed(1) + ' / ' + r.m.lockR.toFixed(1) + ' s' : '–'}</td><td>${r.m ? r.m.spin.toFixed(1) + ' s' : '–'}</td>
         <td>${r.m ? Math.round(r.m.tAvg.reduce((a, b) => a + b, 0) / 4) + '°' : '–'}</td><td>${(r.wearDelta.reduce((a, b) => a + b, 0) / 4 * 100).toFixed(1)}%</td></tr>`).join('')}</table></div>` : `<p class="ap-hint">${esc(_t('ap_an_no_data'))}</p>`;
-    const ty = an.tyres, tiles = ty.wear.map((w, i) => `<div class="ap-tyretile"><small>${TYRE_NAMES[i]}</small><b style="color:${wearCol(w)}">${Math.round(w * 100)}%</b><div class="ap-meter"><i style="width:${Math.min(100, w * 100)}%;background:${wearCol(w)}"></i></div><em>${Math.round(rows.length ? rows[rows.length - 1].tyreT[i] : 0)}°</em></div>`).join('');
-    const tyreBlock = `<h3>${esc(_t('ap_an_tyres'))} · ${esc(_t('ap_c_' + ty.compound))}</h3><div class="ap-tyretiles">${tiles}</div>
+    const ty = an.tyres, tiles = ty.wear.map((w, i) => {
+      const left = 100 - Math.round(Math.max(0, Math.min(1, w)) * 100);
+      return `<div class="ap-tyretile"><small>${TYRE_NAMES[i]}</small><b style="color:${wearCol(w)}">${left}%</b><div class="ap-meter"><i style="width:${left}%;background:${wearCol(w)}"></i></div><em>${Math.round(rows.length ? rows[rows.length - 1].tyreT[i] : 0)}°</em></div>`;
+    }).join('');
+    const tyreBlock = `<h3>${esc(_t('ap_an_tyres'))} · ${esc(_t('ap_c_' + ty.compound))} · ${esc(_t('ap_hud_left'))}</h3><div class="ap-tyretiles">${tiles}</div>
       <p class="ap-hint">${ty.samples ? esc(_t('ap_an_tyre_rate', { rate: (ty.mean * 100).toFixed(1), n: ty.samples })) + (ty.lapsLeft != null && FX && FX.tyreErr(lvl('strategist')) != null ? ' ' + esc(_t('ap_an_laps_left', { n: lapsSpan(ty.lapsLeft, FX.tyreErr(lvl('strategist'))) })) : '') : esc(_t('ap_an_no_data'))}</p>`;
     let sug = '';
     if (locked) sug = `<p class="ap-hint">${esc(_t('ap_an_locked'))}</p>`;
@@ -2151,8 +2154,10 @@
       : `<div class="ap-comps ap-comps6">${['keep'].concat(G.compounds).map(k => k === 'keep'
         ? `<button class="ap-comp on" data-pc="keep"><b>${esc(_t('ap_pit_keep'))}</b><small>${esc(_t('ap_c_' + cur))}</small></button>`
         : `<button class="ap-comp" data-pc="${k}">${k === rec ? `<span class="ap-rec">★</span>` : ''}<i style="background:${ICON[k]}"></i><b>${esc(_t('ap_c_' + k))}</b><em>${money(G.tyre_cost[k])}</em></button>`).join('')}</div>`;
+    const entry = cars[carIdx], car = teamRoster().cars.find(c => c.id === entry?.msg.car_id);
+    const carLabel = car ? _t('ap_car_number', { n: car.number }) + (car.name ? ' · ' + car.name : '') : _t('ap_car_number', { n: entry?.key === 'player2' ? 2 : 1 });
     const ov = document.createElement('div'); ov.className = 'ap-pitpanel'; ov.id = 'ap-pitpanel';
-    ov.innerHTML = `<div class="ap-pit-in"><div class="ap-bar"><h2>🅿 ${esc(_t('ap_pit_title'))}</h2><b id="ap-pit-clock" class="ap-pit-clock"></b></div>
+    ov.innerHTML = `<div class="ap-pit-in"><div class="ap-pit-heading"><div class="ap-bar"><h2>🅿 ${esc(_t('ap_pit_title'))}</h2><b id="ap-pit-clock" class="ap-pit-clock"></b></div><p class="ap-pit-car"><b>${esc(carLabel)}</b> · ${esc(entry?.name || pb.msg.driver?.name || G.driver.name)}</p></div>
       <div class="ap-pit-tabs"><button data-ptab="an" class="on">📊 ${esc(_t('ap_pit_tab_analysis'))}</button><button data-ptab="ch">🔧 ${esc(_t('ap_pit_tab_changes'))}</button></div>
       <p class="ap-hint">${esc(_t('ap_pit_hint_running'))}</p>${carConditionHtml()}
       <div id="ap-pit-an">${analysisHtml(an, locked)}</div>
@@ -2244,39 +2249,57 @@
     if(msg.weekend?.phase?.startsWith('fp')&&cars.length)setups[curTrack]={...cars[0].run.setup};
     lastGains = msg.gains; tinfo().bests = msg.bests; histTrack = ''; paintStatus();
     const host = $('#ap-track');
-    const ov = document.createElement('div'); ov.className = 'ap-sum'; ov.innerHTML = summaryHtml(msg);
+    const ov = document.createElement('div'); ov.className = 'ap-sum';
+    let selected = 0;
+    const show = i => {
+      selected = i;
+      render(ov, summaryHtml(msg, i));
+      drawChart(ov.querySelector('#ap-chart'), cars[i]?.run || run);
+    };
+    show(selected);
     host.querySelector('.ap-view').appendChild(ov);
-    ov.querySelector('#ap-s-garage').addEventListener('click', () => { ov.remove(); go(msg.weekend?'division':'garage'); });
-    ov.querySelector('#ap-s-replay').addEventListener('click', () => { ov.remove(); radioClear(); pb.t = 0; pb.playing = true; pb.sent = true; pb.speed = 1; sec.shown = 0; markSpeed(); sndStart(); });
-    drawChart(ov.querySelector('#ap-chart'));
+    ov.addEventListener('click', e => {
+      const pick = e.target.closest('[data-summary-car]');
+      if (pick && ov.contains(pick)) { show(+pick.dataset.summaryCar); return; }
+      if (e.target.closest('#ap-s-garage')) { ov.remove(); go(msg.weekend?'division':'garage'); }
+      if (e.target.closest('#ap-s-replay')) {
+        ov.remove(); switchCar(selected); radioClear(); pb.t = 0; pb.playing = true; pb.sent = true; pb.speed = 1; sec.shown = 0; markSpeed(); sndStart();
+      }
+    });
     load2();
   }
   async function load2() { const r = await api('/state'); if (r.ok) { const keep = setups; adopt(r.d); setups = keep; G.driver = r.d.driver; paintStatus(); } }
 
-  function comments() {
-    const r = run.report(), fb = run.drv.fb, k = 1 - 0.35 * fb, out = [];
-    const T = run.P.comp.Topt;
+  function comments(simulation = run) {
+    const r = simulation.report(), fb = simulation.drv.fb, k = 1 - 0.35 * fb, out = [];
+    const T = simulation.P.comp.Topt;
     if (r.dnf === 'crash') out.push('crash');
     if (r.understeer > 0.012 * k + 0.008) out.push('under'); else if (r.understeer < -0.012 * k - 0.008) out.push('over'); else out.push('balanced');
     if (r.lockF > 0.5 * k) out.push('lockF');
     if (r.lockR > 0.25 * k) out.push('lockR');
     if (r.spin > 7 * k) out.push('spin');
     if (r.bottoming > 0.8 * k) out.push('bottom');
-    if (r.maxT > T + 16) out.push('hot'); else if (r.minT < T - 28 && run.laps.length > 2) out.push('cold');
+    if (r.maxT > T + 16) out.push('hot'); else if (r.minT < T - 28 && simulation.laps.length > 2) out.push('cold');
     if (r.wear > 0.18) out.push('wear');
     if (r.fuelLeft < 0.4) out.push('fuelLow'); else if (r.fuelLeft > 14 && !r.dnf) out.push('fuelHeavy');
     return out;
   }
 
-  function summaryHtml(m) {
-    const race = m.kind === 'race',q=m.qualification,fin=mods.TIMING.finalSectorColours(m.laps,pb.msg?.timing_field,ownSectors());
+  function summaryHtml(result, selected = 0) {
+    const entry = cars[selected] || cars[0], simulation = entry?.run || run;
+    const m = selected === 1 && result.other
+      ? { ...result, ...result.other, qualification: result.other.qualification || null }
+      : { ...result, cost: result.other ? result.cost - (result.other.cost || 0) : result.cost };
+    const reference = entry?.msg || pb.msg, personal = entry?.sec?.personal;
+    const own = reference?.kind === 'practice' && !reference.weekend && personal?.some(x => x > 0) ? personal : null;
+    const race = m.kind === 'race',q=m.qualification,fin=mods.TIMING.finalSectorColours(m.laps,reference?.timing_field,own);
     const rows = m.laps.map((l, i) => {
       const cells = l.sectors.map((s, n) => `<span class="ap-sc ${fin[i + ':' + n] || ''}">${secStr(s)}</span>`).join('');
       return `<tr class="${l.valid ? (m.best && l.time === m.best.time ? 'best' : '') : 'inv'}"><td>${l.out ? _t('ap_out') : race ? i + 1 : i}</td><td>${lapStr(l.time)}${!l.valid && !l.out ? ' <small class="ap-lap-deleted">'+esc(_t('ap_invalid'))+'</small>' : ''}${l.pen ? ` <small>+${l.pen}s</small>` : ''}${l.pit ? ' 🅿' : ''}</td>
       <td class="sec">${cells}</td><td>${race || q ? '' : (l.valid ? l.points : (l.out ? '–' : esc(_t('ap_invalid'))))}</td></tr>`;
     }).join('');
     const gains = Object.entries(m.gains || {}).map(([k, v]) => `<span class="${v < 0 ? 'neg' : ''}">${esc(_t('ap_k_' + k))} ${v > 0 ? '+' : ''}${v.toFixed(2)}</span>`).join('');
-    const cm = comments().map(c => `<li>${esc(_t('ap_fb_' + c))}</li>`).join('');
+    const cm = comments(simulation).map(c => `<li>${esc(_t('ap_fb_' + c))}</li>`).join('');
     const wear = Object.entries(m.wear || {}).filter(([, v]) => v > 0.004).map(([k, v]) => `<span>${esc(_t('ap_part_' + k))} −${Math.round(v * 100)}%</span>`).join('');
     const dmg = Object.entries(m.damage || {}).filter(([, v]) => v > 0.01).map(([k, v]) => `<span class="neg">${esc(_t('ap_part_' + k))} −${Math.round(v * 100)}%</span>`).join('');
     const top = q ? `<div class="ap-big"><small>${esc(_t('ap_qualifying'))}</small><b>${esc(_t(q.medal ? 'ap_medal_'+q.medal : 'ap_no_medal'))}</b></div><div class="ap-big"><small>${esc(_t('ap_best_three'))}</small><b>${lapStr(q.average)}</b></div><div class="ap-big"><small>${esc(_t('ap_valid_laps'))}</small><b>${q.clean_laps} / ${q.timed_laps}</b></div><div class="ap-big"><small>${esc(_t('ap_prize'))}</small><b>+${money(m.reward)}</b></div><div class="ap-big"><small>${esc(_t('ap_sponsor_bonus'))}</small><b>+${money(m.sponsor_bonus)}</b></div>` : race
@@ -2291,8 +2314,7 @@
       ${q ? `<p class="ap-hint">${esc(_t('ap_qual_result_hint'))}</p><p class="ap-hint">${esc(m.career?.licensed ? _t('ap_license_ready') : _t('ap_license_progress',{n:m.career?.qualifications || 0,s:m.career?.silver_sessions ? 1 : 0}))}</p>` : ''}
       ${m.cheat ? `<div class="ap-dnfbar">${esc(_t('ap_cheat'))}</div>` : ''}
       <div class="ap-sum-top">${top}<div class="ap-big"><small>${esc(_t('ap_spent_h'))}</small><b class="ap-bad">−${money(m.cost)}</b></div></div>
-      ${m.other ? `<div class="ap-sum-cars"><div><b>${esc(G.driver.name)}</b><span>${m.best ? lapStr(m.best.time) : '–'}</span><small>${m.laps.filter(l=>l.valid).length} ${esc(_t('ap_valid_laps'))}</small></div>
-        <div><b>${esc(m.other.name)}</b><span>${m.other.best ? lapStr(m.other.best.time) : '–'}</span><small>${(m.other.laps||[]).filter(l=>l.valid).length} ${esc(_t('ap_valid_laps'))}</small></div></div>` : ''}
+      ${result.other ? `<div class="ap-sum-cars">${[result, result.other].map((r, i) => `<button type="button" data-summary-car="${i}" class="${selected === i ? 'on' : ''}" aria-pressed="${selected === i}"><b>${esc(cars[i]?.name || (i ? result.other.name : result.driver?.name || G.driver.name))}</b><span>${r.best ? lapStr(r.best.time) : '–'}</span><small>${(r.laps || []).filter(l=>l.valid).length} ${esc(_t('ap_valid_laps'))}</small></button>`).join('')}</div>` : ''}
       <div class="ap-sum-grid">
         <div><table class="ap-table"><tr><th>#</th><th>${esc(_t('ap_time_h'))}</th><th>${esc(_t('ap_sectors'))}</th><th>${race || q ? '' : esc(_t('ap_points'))}</th></tr>${rows}</table>
           <canvas id="ap-chart" width="520" height="170"></canvas><div class="ap-hint">${esc(_t('ap_chart_hint'))}</div></div>
@@ -2306,10 +2328,11 @@
       <div class="ap-sum-btns"><button class="ap-btn" id="ap-s-garage">🔧 ${esc(_t('ap_to_garage'))}</button><button class="ap-btn ap-ghost" id="ap-s-replay">⟲ ${esc(_t('ap_replay'))}</button></div></div>`;
   }
 
-  function drawChart(c) {
-    if (!c) return; const g = c.getContext('2d'), W = c.width, H = c.height, F = run.frames, FS = run.FRAME;
+  function drawChart(c, simulation = run) {
+    if (!c) return; const g = c.getContext('2d'), W = c.width, H = c.height, F = simulation.frames, FS = simulation.FRAME;
+    g.clearRect(0, 0, W, H); g.lineWidth = 1;
     g.fillStyle = 'rgba(10,14,22,.9)'; g.fillRect(0, 0, W, H);
-    const lapsV = run.laps.filter(l => !l.out);
+    const lapsV = simulation.laps.filter(l => !l.out);
     const pick = [];
     const bl = lapsV.filter(l => l.valid && !l.pit).sort((a, b) => a.time - b.time)[0]; const ll = lapsV[lapsV.length - 1];
     if (bl) pick.push([bl, '#4fd18b']); if (ll && ll !== bl) pick.push([ll, '#f2c230']);

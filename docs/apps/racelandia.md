@@ -270,3 +270,12 @@ Private tests can send one car or both cars out, each with its own setup and war
 The warehouse supports a basket containing several tyre compounds and quantities. Selling a tyre set or a stored part returns half its new price multiplied by its remaining life. The value is shown before confirmation. Fitted parts retain their wear when moved into warehouse stock.
 
 Fuel consumed per lap is retained with session results and informs later fuel-load ranges. Fine setup increments and explicit adjustment buttons help place settings inside those ranges. Driver radio reports recorded incidents, temperatures, wear, fuel and track changes. It does not promise automatic setup changes or recommend an unavailable softer compound. Wear reports begin at 40% and warn again at 65%, close to the model's 72% grip cliff.
+
+
+## Pit and result details
+
+Pit tyre percentages and bars show remaining tyre life, matching the track HUD. The pit header identifies the car number, custom name and driver and stays visible when scrolling.
+
+After a two-car run, select either driver card to view that driver’s laps, sectors, best time, cost, radio feedback, wear, damage, development and speed chart. Replay starts with the selected car.
+
+Tyre and stored-part sales have separate income categories in the financial history. A zero-cost session clears its accounting label without creating a transaction, so it cannot mislabel later income. Existing historical entries and balances are preserved.

@@ -1,0 +1,24 @@
+// Verify each result card owns its full summary, without changing the watched replay.
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright-core');
+const fs=require('fs'),assert=require('assert/strict'),base=require('path').resolve(__dirname,'../public')+'/';
+const src=fs.readFileSync(base+'mp.js','utf8');
+const funcs=src.slice(src.indexOf('  function onSummary('),src.indexOf('  async function load2('))+src.slice(src.indexOf('  function comments('),src.indexOf('  // ── the room is over'));
+(async()=>{const browser=await chromium.launch({args:['--no-sandbox']});try{for(const width of [1360,390]){const page=await browser.newPage({viewport:{width,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.setContent('<style>body{--fg:#111;--fg2:#333;--border:#ddd;font:14px Arial}#ap-track{position:relative;height:800px}</style><div id="ap-track"><div class="ap-view"></div></div>');await page.addStyleTag({content:fs.readFileSync(base+'style.css','utf8')});
+await page.evaluate(async cfg=>{
+const {render}=await import(cfg.ui),$=s=>document.querySelector(s),esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;'),_t=k=>k,lapStr=n=>n==null?'–':n.toFixed(3),secStr=lapStr,money=n=>'$'+n;
+let summary,busy,lastGains,histTrack,divisionPlayback=null,run,carIdx=1,sec={shown:0};const setups={},curTrack='baku',G={driver:{name:'Alex'},career:{}},pb={msg:{},t:900};
+const noop=()=>{},paintStatus=noop,tinfo=()=>({}),load2=noop,radioClear=noop,markSpeed=noop,sndStart=noop;window.actions=[];const go=s=>window.actions.push(s),switchCar=i=>{carIdx=i;window.actions.push(i)};
+const mods={TIMING:{finalSectorColours:()=>({})},DIVISION:{classificationHtml:()=>''}},track={N:4};
+const make=(i)=>{const frame=Array(36).fill(0);frame[4]=20+40*i;frame[22]=i+1;return {name:i?'Drew':'Noah',msg:{kind:'practice'},sec:{personal:[1,2,3]},run:{drv:{fb:1},P:{comp:{Topt:100}},FRAME:36,frames:Array.from({length:3},(_,j)=>{const f=[...frame];f[22]=j;return f}).flat(),laps:[{time:75+i,valid:true,out:false,pit:false,from:0,to:3}],report:()=>({understeer:i?-.1:.1,lockF:i?2:0,lockR:0,spin:0,bottoming:0,maxT:100,minT:100,wear:.1,fuelLeft:5})}}};
+const cars=[make(0),make(1)];run=cars[1].run;
+const result=i=>({laps:[{time:75+i,valid:true,sectors:[25,25,25+i],points:10+i}],best:{time:75+i,points:10+i},gains:{braking:i?2:1},wear:{engine:i?.2:.1},damage:{frontWing:i?.3:0},cost:i?200:300,qualification:null,cheat:false});
+const msg={...result(0),kind:'practice',cost:500,driver:{name:'Noah'},other:{...result(1),name:'Drew'}};
+eval(cfg.funcs+';window.mount=()=>onSummary(msg);');window.mount();
+window.snap=()=>({active:document.querySelector('[data-summary-car][aria-pressed="true"]').dataset.summaryCar,table:document.querySelector('.ap-sum-grid table').textContent,feedback:document.querySelector('.ap-fb').textContent,tags:[...document.querySelectorAll('.ap-tags')].map(e=>e.textContent),top:document.querySelector('.ap-sum-top').textContent,chart:document.querySelector('#ap-chart').toDataURL(),color:getComputedStyle(document.querySelector('.ap-sum-cars button')).color});
+},{funcs,ui:'data:text/javascript;base64,'+Buffer.from(fs.readFileSync(base+'ui.js','utf8')).toString('base64')});
+const first=await page.evaluate(()=>window.snap());assert.equal(first.active,'0');assert(first.table.includes('75.000'));assert(first.feedback.includes('ap_fb_under'));assert(first.tags[0].includes('10%'));assert(first.top.includes('$300'));assert.equal(first.color,'rgb(237, 241, 248)');
+await page.locator('[data-summary-car="1"]').click();const second=await page.evaluate(()=>window.snap());assert.equal(second.active,'1');assert(second.table.includes('76.000'));assert(second.feedback.includes('ap_fb_over'));assert(second.feedback.includes('ap_fb_lockF'));assert(second.tags[0].includes('20%'));assert(second.tags[1].includes('30%'));assert(second.tags[2].includes('+2.00'));assert(second.top.includes('$200'));assert.notEqual(second.chart,first.chart);
+await page.locator('[data-summary-car="0"]').focus();await page.keyboard.press('Enter');assert.deepEqual(await page.evaluate(()=>window.snap()),first);
+await page.locator('[data-summary-car="1"]').click();await page.screenshot({path:`/tmp/racelandia-summary-${width}.png`});await page.locator('#ap-s-replay').click();assert.deepEqual(await page.evaluate(()=>window.actions),[1]);assert.equal(await page.locator('.ap-sum').count(),0);
+await page.evaluate(()=>window.mount());await page.locator('#ap-s-garage').click();assert.deepEqual(await page.evaluate(()=>window.actions),[1,'garage']);assert.deepEqual(errors,[]);await page.close();}
+console.log('PASS: both driver cards switch laps, sectors, top results, costs, feedback, wear, damage, gains and chart consistently; keyboard, selected replay and garage work at desktop/phone widths, including light-theme text contrast.');}finally{await browser.close()}})().catch(e=>{console.error(e);process.exit(1)});

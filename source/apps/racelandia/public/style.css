@@ -111,7 +111,7 @@
 .ap-ctl button { background: rgba(38,48,70,.9); color: #f5f7fc; border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; cursor: pointer; font: inherit; font-size: 12.5px; }
 .ap-ctl button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 .ap-sum { position: absolute; inset: 0; background: rgba(6,9,15,.82); display: flex; align-items: center; justify-content: center; padding: 10px; overflow: auto; z-index: 5; }
-.ap-sum-in { background: #171e2b; border: 1px solid #384560; border-radius: 14px; padding: 16px; width: min(980px, 100%); max-height: 100%; overflow: auto; }
+.ap-sum-in { --fg: #edf1f8; --fg2: #c2cbdc; --border: #384560; color: var(--fg); background: #171e2b; border: 1px solid #384560; border-radius: 14px; padding: 16px; width: min(980px, 100%); max-height: 100%; overflow: auto; }
 .ap-sum-in h2 { margin: 0 0 8px; }
 .ap-sum-top { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
 .ap-big { background: #263046; border-radius: 10px; padding: 8px 14px; display: flex; flex-direction: column; } .ap-big small { color: #aab4c8; font-size: 11px; text-transform: uppercase; } .ap-big b { font-size: 21px; }
@@ -177,6 +177,8 @@
 @keyframes apPulse { 50% { box-shadow: 0 0 0 6px rgba(79,209,139,.25); } }
 .ap-pitpanel { position: absolute; inset: 0; background: rgba(6,9,15,.72); display: flex; align-items: center; justify-content: center; padding: 10px; overflow: auto; z-index: 6; }
 .ap-pit-in { --bg: #171e2b; --surface1: #1e2838; --surface2: #263247; --fg: #edf1f8; --fg2: #c2cbdc; --border: #384560; color: var(--fg); background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; width: min(760px, 100%); max-height: 100%; overflow: auto; }
+.ap-pit-heading { position: sticky; top: -14px; z-index: 2; margin: -14px -16px 10px; padding: 14px 16px 8px; background: var(--bg); border-bottom: 1px solid var(--border); }
+.ap-pit-car { margin: 2px 0 0; color: var(--fg); overflow-wrap: anywhere; }
 .ap-pit-in .ap-set-h output { color: #79b9ff; }
 .ap-comps6 { grid-template-columns: repeat(6, 1fr); }
 .ap-pit-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; margin-top: 8px; }
@@ -813,7 +815,10 @@
 .ap-order-row.teammate { background: rgba(255, 209, 102, .14); border-left: 3px solid #ffd166; padding-left: 6px; }
 .ap-order-row.watched { background: rgba(229, 57, 69, .38); }
 .ap-sum-cars { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0; }
-.ap-sum-cars > div { background: rgba(255, 255, 255, .08); border-radius: 10px; padding: 8px 12px; display: grid; gap: 2px; min-width: 150px; }
+.ap-sum-cars > button { color: var(--fg); font: inherit; text-align: left; cursor: pointer; border: 2px solid transparent; background: rgba(255, 255, 255, .08); border-radius: 10px; padding: 8px 12px; display: grid; gap: 2px; min-width: 150px; }
+.ap-sum-cars > button.on { border-color: #79b9ff; background: #263b56; }
+.ap-sum-cars > button:hover { border-color: #79b9ff; }
+.ap-sum-cars > button:focus-visible { outline: 2px solid #edf1f8; outline-offset: 2px; }
 .ap-sum-cars span { font-size: 20px; font-weight: 700; }
 
 .ap-teamname { display: flex; align-items: center; gap: 8px; margin: 8px 0; flex-wrap: wrap; }

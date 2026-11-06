@@ -27,6 +27,10 @@ def schema(conn):
     for key, spec in {'staff_ts':'REAL NOT NULL DEFAULT 0', 'finance_category':"TEXT NOT NULL DEFAULT 'adjustment'", 'finance_detail':"TEXT NOT NULL DEFAULT '{}'"}.items():
         if key not in cols:
             conn.execute(f'ALTER TABLE driver ADD COLUMN {key} {spec}')
+    old = conn.execute("SELECT sql FROM sqlite_master WHERE type='trigger' AND name='apex_budget_ledger'").fetchone()
+    migrate_ledger = bool(old and 'WHEN NEW.budget != OLD.budget BEGIN' in old[0])
+    if migrate_ledger:
+        conn.execute('DROP TRIGGER apex_budget_ledger')
     conn.executescript("""
     CREATE TABLE IF NOT EXISTS team_car (
       id TEXT PRIMARY KEY, player_id TEXT NOT NULL, number INTEGER NOT NULL,
@@ -45,9 +49,10 @@ def schema(conn):
       category TEXT NOT NULL, detail TEXT NOT NULL, amount INTEGER NOT NULL, balance INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS idx_finance_owner ON finance_ledger(player_id,id);
     CREATE TRIGGER IF NOT EXISTS apex_budget_ledger AFTER UPDATE OF budget ON driver
-    WHEN NEW.budget != OLD.budget BEGIN
+    BEGIN
       INSERT INTO finance_ledger(player_id,at,category,detail,amount,balance)
-      VALUES(NEW.player_id,(julianday('now')-2440587.5)*86400,NEW.finance_category,NEW.finance_detail,NEW.budget-OLD.budget,NEW.budget);
+      SELECT NEW.player_id,(julianday('now')-2440587.5)*86400,NEW.finance_category,NEW.finance_detail,NEW.budget-OLD.budget,NEW.budget
+      WHERE NEW.budget != OLD.budget;
       UPDATE driver SET finance_category='adjustment',finance_detail='{}' WHERE player_id=NEW.player_id;
     END;
     """)
@@ -305,7 +310,7 @@ def finances(conn,d,before=None,category=None):
                 categories=FINANCE_CATEGORIES)
 
 
-FINANCE_CATEGORIES=['opening','sponsor','track_maintenance','driver_salary','crew_salary','staff_salary','car_purchase','driver_recruitment','crew_recruitment','specialist_salary','specialist_recruitment','tyres','research','production','repair','session','pit','prize','sponsor_bonus','refund','hosting','track_build','grandstands','adjustment']
+FINANCE_CATEGORIES=['opening','sponsor','track_maintenance','driver_salary','crew_salary','staff_salary','car_purchase','driver_recruitment','crew_recruitment','specialist_salary','specialist_recruitment','tyres','tyre_sale','part_sale','research','production','repair','session','pit','prize','sponsor_bonus','refund','hosting','track_build','grandstands','adjustment']
 
 
 LIVERY_PARTS = frozenset(('body', 'nose', 'engineCover', 'sidepods', 'accents', 'frontWing',

@@ -823,6 +823,7 @@ def sell_tyres(player_id: str, set_id) -> str | None:
         if not sold:
             return "tyre_set"
         w["tyres"] = [t for t in w["tyres"] if t is not sold]
+        team.note(conn,player_id,'tyre_sale',{'set':sold['id'],'compound':sold['compound'],'qty':1})
         conn.execute("UPDATE driver SET budget=budget+? WHERE player_id=?", (resale_value(TYRE_COST[sold["compound"]], sold["wear"]), player_id))
         _save_warehouse(conn, player_id, w)
         conn.commit()
@@ -1038,6 +1039,7 @@ def sell_part(player_id: str, unit_id) -> str | None:
         if not sold:
             return "unit"
         w["parts"] = [u for u in w["parts"] if u is not sold]
+        team.note(conn,player_id,'part_sale',{'unit':sold['id'],'part':sold['part'],'qty':1})
         conn.execute("UPDATE driver SET budget=budget+? WHERE player_id=?", (resale_value(part_new_price(d, sold["part"], sold["design"]), sold["wear"]), player_id))
         _save_warehouse(conn, player_id, w)
         conn.commit()
@@ -2057,7 +2059,7 @@ def _settle_pair(conn,player_id,token,session,run,d,msg):
     if second is None:return None
     d3=_row(conn.execute("SELECT * FROM driver WHERE player_id=?",(player_id,)).fetchone())
     team.switch(conn,d3,run['car_id'],run['pilot_id'])
-    keep=('key','run_id','laps','best','gains','wear','damage','dnf','failed','reward','cost','refund','sponsor_bonus')
+    keep=('key','run_id','laps','best','qualification','cheat','gains','wear','damage','dnf','failed','reward','cost','refund','sponsor_bonus')
     first['other']={f:second.get(f) for f in keep};first['other']['key']=o['key'];first['other']['name']=o['name']
     first['weekend']=second['weekend'] or first['weekend']
     first['cost']=first['cost']+second['cost']
