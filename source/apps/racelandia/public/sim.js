@@ -12,6 +12,11 @@
 const G = 9.81;
 // Tyre wear per unit of slip energy. A set lasts roughly 12 laps (soft), 24 (medium) or 40 (hard) on the test circuit.
 const WEAR_SCALE = 50;
+// The rear tyres carry the drive and the weight, so they wear faster than the front ones - but by about half again, not
+// twice: the share of each axle keeps the average wear of a set as it was.
+const AXLE_WEAR = { front: 1.4, rear: 0.83 };
+// A used set goes on the way a mechanic would fit it: when the rears are the more worn pair, the axles swap places.
+const mounted = w => { const a = Array.from(w, Number); while (a.length < 4) a.push(0); return a[2] + a[3] > a[0] + a[1] ? [a[2], a[3], a[0], a[1], ...a.slice(4)].slice(0, 4) : a.slice(0, 4); };
 const TAU = Math.PI * 2;
 
 export function rng(seed) {
@@ -369,7 +374,7 @@ const CAR = {
   Fz0: 2500,
 };
 const MODE_P = [0, 0.93, 0.965, 1.0, 1.025, 1.045];
-const MODE_F = [0, 0.86, 0.93, 1.0, 1.08, 1.17];
+export const MODE_F = [0, 0.86, 0.93, 1.0, 1.08, 1.17];
 
 function prep(setup, comp, hp, mods) {
   const s = setup, c = COMPOUNDS[comp];
@@ -494,7 +499,7 @@ export class Run {
     this.wear = new Float64Array(4);
     // the set on the car, so the wear of each set of a weekend can be handed back
     this.tyreLog = []; this.mount = null;
-    if (o.tyreSet) { this.wear.set((o.tyreSet.wear || [0, 0, 0, 0]).slice(0, 4).map(Number)); this.mount = { id: o.tyreSet.id, lapAt: 0 }; }
+    if (o.tyreSet) { this.wear.set(mounted(o.tyreSet.wear || [0, 0, 0, 0])); this.mount = { id: o.tyreSet.id, lapAt: 0 }; }
     this.fuel = Math.min(CAR.fuelMax, this.P.fuel0);
     this.ersMax = CAR.ersMax * this.P.ersK; this.pErs = CAR.pErs * this.P.ersPK;
     this.ers = this.ersMax; this.ersDep = 0; this.ersHarv = 0;
@@ -538,7 +543,8 @@ export class Run {
     const T = this.T, i = this.idx, L = T.pit.line;
     const dx = this.x - L.x[i], dy = this.y - L.y[i];
     return { id: this.pitId ?? 0, p: (((i - T.pit.box + T.N * 1.5) % T.N) - T.N / 2) * T.ds + dx * Math.cos(T.psi[i]) + dy * Math.sin(T.psi[i]),
-      lane: dx * T.nx[i] + dy * T.ny[i], v: Math.hypot(this.u, this.v), pit: this.pitState, sub: this.sub, done: this.done };
+      lane: dx * T.nx[i] + dy * T.ny[i], v: Math.hypot(this.u, this.v), pit: this.pitState, sub: this.sub, done: this.done,
+      idx: i, off: (this.x - T.x[i]) * T.nx[i] + (this.y - T.y[i]) * T.ny[i] };
   }
   pitPeers() { return (this.pitSnapshot || []).filter(p => p.id !== (this.pitId ?? 0) && p.pit && !p.done); }
   pitBoxFree() { return !this.pitPeers().some(p => p.sub === 'service' || p.pit === 'out' && p.p > -8 && p.p < 14); }
@@ -555,6 +561,30 @@ export class Run {
     }
     if (this.pitState === 'out' && own.p < 9 && !this.pitExitClear()) limit = Math.min(limit, Math.sqrt(8 * Math.max(0, 7 - own.p)));
     return limit;
+  }
+
+  // Other cars of the group on the track: a driver closing on a slower car moves off the line to
+  // pass it on the freer side, and holds back when there is no room, so cars race instead of
+  // driving through each other.
+  _traffic(bi, V, dt) {
+    const T = this.T, N = T.N, me = this.pitId ?? 0, L = this.path, half = T.half - 1.3;
+    let want = null, cap = Infinity;
+    if (!this.pitState && this.state !== 'grid') for (const p of this.trafficSnap || []) {
+      if (p.id === me || p.pit || p.done || p.sub) continue;
+      const gap = (((p.idx - bi + N * 1.5) % N) - N / 2) * T.ds;
+      if (gap < -7 || gap > 55 || (gap > 0 && p.v > V + 4 && gap > 14)) { if (this.passId === p.id) this.passId = null; continue; }
+      if (this.passId !== p.id) { this.passId = p.id; this.passSide = p.off >= L.off[bi] + this.lineErr ? -1 : 1; }
+      let side = this.passSide;
+      const room = s => s > 0 ? half - L.off[bi] : half + L.off[bi];
+      if (room(side) < 2) side = -side;
+      const k = Math.abs(L.kap[bi]), ease = 1 / (1 + 150 * k);
+      const target = clamp(p.off + side * 2.7 - L.off[bi], -(half + L.off[bi]), half - L.off[bi]) * ease;
+      if (want === null || Math.abs(target) > Math.abs(want)) want = target;
+      if (gap > 0 && Math.abs(p.off - (L.off[bi] + this.lineErr)) < 2.3) cap = Math.min(cap, Math.max(2, p.v + (gap - 6) * .5));
+    }
+    const step = 1.8 * dt, to = want ?? 0;
+    this.passOff = (this.passOff || 0) + clamp(to - (this.passOff || 0), -step, step);
+    return cap;
   }
 
   // ── the plan for one lap: noise per corner, the odd mistake ──
@@ -790,6 +820,8 @@ export class Run {
     let aff = lerp(gradient(ja), gradient(jb), mix);
     const pitLimit = this.pitSpeedLimit();
     if (pitLimit < vt) { vt = pitLimit; aff = Math.min(0, aff); }
+    const trafficCap = this._traffic(bi, V, dt);
+    if (trafficCap < vt) { vt = trafficCap; aff = Math.min(0, aff); }
     let thr = 0, brk = 0;
     const startPhase = this.state === 'grid';
     if (this.sub === 'error') return [0, 0, 0];
@@ -818,7 +850,7 @@ export class Run {
     const Ld = 6 + 0.21 * V;
     const jl = (bi + Math.round(Ld / lsi)) % N;
     // Lower skill produces a small, smooth apex placement error, never a teleport.
-    const offset = this.pitState ? 0 : .55 * (1-d.corner+this.fatigue()*.35) * Math.sin(bi*.023 + this.lap*.7);
+    const offset = this.pitState ? 0 : .55 * (1-d.corner+this.fatigue()*.35) * Math.sin(bi*.023 + this.lap*.7) + (this.passOff || 0);
     const dx = L.x[jl] - Math.sin(L.psi[jl])*offset - this.x, dy = L.y[jl] + Math.cos(L.psi[jl])*offset - this.y;
     const eta = wrap(Math.atan2(dy, dx) - this.psi);
     let del = Math.atan2(2 * CAR.L * Math.sin(eta), Math.max(Ld, 1));
@@ -1102,7 +1134,7 @@ export class Run {
       const over = Math.max(0, (this.Tt[i] - k.Topt - 12) / 22);
       const camW = 1 + 0.06 * (Math.abs((front ? P.camF : P.camR)) - 2.5) ** 2 * 0.2;
       const careF = 1.12 - 0.22 * this.drv.care;
-      this.wear[i] += slipP * 1.0e-9 * WEAR_SCALE * k.wear * (1 + 2.5 * over * over) * camW * careF * (c.water > 0.5 && P.compKey !== 'I' && P.compKey !== 'W' ? 1.3 : 1) * dt * 240 / 240;
+      this.wear[i] += slipP * 1.0e-9 * WEAR_SCALE * k.wear * (front ? AXLE_WEAR.front : AXLE_WEAR.rear) * (1 + 2.5 * over * over) * camW * careF * (c.water > 0.5 && P.compKey !== 'I' && P.compKey !== 'W' ? 1.3 : 1) * dt * 240 / 240;
       if (this.wear[i] > 1) this.wear[i] = 1;
       this.lapAcc.tSum[i] += this.Tt[i]; if (this.Tt[i] > this.lapAcc.tMax[i]) this.lapAcc.tMax[i] = this.Tt[i];
       this.metrics.maxT = Math.max(this.metrics.maxT, this.Tt[i]);
@@ -1249,11 +1281,12 @@ export class Run {
     if(this.fuel+added<=0)return 0;
     this.fuel+=added;this.fuelEmpty=false;
     const s = Object.assign({}, this.setup);
-    let dur = 0.5, tyres = false, wings = 0;
+    let dur = 0.5, tyres = false, wings = 0, bars = 0;
     if (ch.set) { tyres = true; this.compoundNow = ch.set.compound; } else if (ch.compound) { tyres = true; this.compoundNow = ch.compound; } else if (ch.newTyres) tyres = true;
     for (const k of ['frontWing', 'rearWing']) if (ch[k] != null && +ch[k] !== s[k]) { s[k] = +ch[k]; wings++; }
     for (const k of ['brakeBias', 'diff', 'engine']) if (ch[k] != null) s[k] = +ch[k];
-    if (tyres) for (const k of ['pressF', 'pressR']) if (ch[k] != null) s[k] = +ch[k];
+    for (const k of ['arbF', 'arbR']) if (ch[k] != null && +ch[k] !== s[k]) { s[k] = +ch[k]; bars++; }
+    if (tyres) for (const k of ['pressF', 'pressR', 'camberF', 'camberR']) if (ch[k] != null) s[k] = +ch[k];
     if(ch.swap&&typeof ch.swap==='object'){
       // spare parts of the team's warehouse go on, one by one: a new part is not hurt; the car is as hurt as what is left
       const total=()=>Object.values(this.partDamage).reduce((a,b)=>a+b,0),before=total();
@@ -1265,7 +1298,7 @@ export class Run {
       this.damage=before>0?this.damage*total()/before:0;
       if(ch.mods)this.mods=ch.mods;
     }
-    dur += (tyres ? 2.0 : 0) + wings * 1.6 + added/2;
+    dur += (tyres ? 2.0 : 0) + wings * 1.6 + bars * 0.8 + added/2;
     this.setup = s;
     this.P = prep(s, this.compoundNow, this.hp, this.mods);
     if (this.failed === 'brakes') this.P.brakeK = Math.min(this.P.brakeK, 0.3);
@@ -1274,7 +1307,7 @@ export class Run {
     if (tyres) {
       this.Tt.fill(COMPOUNDS[this.compoundNow].start - 12);
       this._closeMount();
-      if (ch.set) { this.wear.set((ch.set.wear || [0, 0, 0, 0]).slice(0, 4).map(Number)); this.mount = { id: ch.set.id, lapAt: this.laps.length }; } else this.wear.fill(0);
+      if (ch.set) { this.wear.set(mounted(ch.set.wear || [0, 0, 0, 0])); this.mount = { id: ch.set.id, lapAt: this.laps.length }; } else this.wear.fill(0);
     }
     this.pits.push({ t: this.t, lap: this.lap, compound: this.compoundNow, tyres, fuel:added, changes: ch });
     if (this.lazy) this.inputs.push({ k: 'svc', t: this.t, ch });
@@ -1516,7 +1549,7 @@ export class RunGroup {
   step() {
     if (this.runs.some(r => !r.done && r.waiting === 'decide')) return false;
     const snapshot = this.runs.map(r => r.pitPosition());
-    for (const r of this.runs) r.pitSnapshot = snapshot;
+    for (const r of this.runs) r.pitSnapshot = r.trafficSnap = snapshot;
     for (const r of this.runs) if (!r.done) r.step();
     return true;
   }

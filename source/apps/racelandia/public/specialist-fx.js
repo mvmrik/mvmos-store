@@ -62,5 +62,6 @@ export const zoneErr = level => (level == null ? null : .3 * Math.max(0, 100 - l
 export const zoneShift = (key, err) => (hash(key) - .5) * 2 * err;
 
 // ── race engineer ─────────────────────────────────────────────────────────
-// The suggested ranges of the setup get this much narrower (30% at level 100).
-export const rangeFactor = level => (level == null ? 1 : 1 - .3 * clamp(level, 0, 100) / 100);
+// The suggested ranges of the setup: without an engineer they are twice as wide as the data alone would give, and only a
+// very good engineer narrows them well below that (the effect grows quickly above level 50).
+export const rangeFactor = level => (level == null ? 2 : 2 - 1.55 * Math.pow(clamp(level, 0, 100) / 100, 2.5));

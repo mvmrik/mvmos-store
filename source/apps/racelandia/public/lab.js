@@ -65,23 +65,25 @@ function balanceNotes(c, bal) {
 }
 
 // ── a part in the warehouse ──
-export function partRowsHtml(c) {
-  const w = c.G.warehouse;
-  if (!w.parts.length) return `<p class="ap-hint">${c.esc(c.t('ap_wh_parts_empty'))}</p>`;
-  return `<div class="ap-equipment">` + w.parts.map(u => {
-    const wear = u.wear, left = Math.round((1 - wear) * 100);
-    return `<div class="ap-part"><div class="ap-part-i">${partArt(u.part)}</div>
+export function partRowHtml(c, u) {
+  const wear = u.wear, left = Math.round((1 - wear) * 100);
+  return `<div class="ap-part"><div class="ap-part-i">${partArt(u.part)}</div>
       <div class="ap-part-b"><div class="ap-set-h"><label>${c.esc(designName(c, u.part, u))}</label><output style="color:${c.healthCol(wear)}">${left}%</output></div>
         <div class="ap-meter"><i style="width:${left}%;background:${c.healthCol(wear)}"></i></div>
         <div class="ap-stats">${statBars(c, u.part, u.stats)}</div></div>
       <div class="ap-part-a"><button class="ap-btn ap-sm" data-fit="${c.esc(u.id)}" ${c.G.career.active_session ? 'disabled' : ''}>${c.esc(c.t('ap_wh_fit'))}</button>
-        <button class="ap-btn ap-sm ap-ghost" data-dropunit="${c.esc(u.id)}" ${c.G.career.active_session ? 'disabled' : ''}>${c.esc(c.t('ap_wh_remove'))}</button></div></div>`;
-  }).join('') + '</div>';
+        <button class="ap-btn ap-sm ap-ghost" data-sellunit="${c.esc(u.id)}" ${c.G.career.active_session ? 'disabled' : ''}>${c.esc(c.t('ap_wh_sell', { price: c.money(u.sale) }))}</button></div></div>`;
+}
+
+export function partRowsHtml(c) {
+  const w = c.G.warehouse;
+  if (!w.parts.length) return `<p class="ap-hint">${c.esc(c.t('ap_wh_parts_empty'))}</p>`;
+  return `<div class="ap-equipment">` + w.parts.map(u => partRowHtml(c, u)).join('') + '</div>';
 }
 
 export function bindPartRows(host, c) {
   host.querySelectorAll('[data-fit]').forEach(b => b.addEventListener('click', () => c.act('/warehouse/fit', { unit: b.dataset.fit })));
-  host.querySelectorAll('[data-dropunit]').forEach(b => b.addEventListener('click', async () => { if (await c.confirm(c.t('ap_wh_remove_confirm'))) c.act('/warehouse/discard-part', { unit: b.dataset.dropunit }); }));
+  host.querySelectorAll('[data-sellunit]').forEach(b => b.addEventListener('click', async () => { { const u = c.G.warehouse.parts.find(x => x.id === b.dataset.sellunit); if (u && await c.confirm(c.t('ap_wh_sell_confirm', { price: c.money(u.sale) }))) c.act('/warehouse/sell-part', { unit: u.id }); }; }));
 }
 
 // ── the sliders: green where there is no risk, red where the team may fail ──

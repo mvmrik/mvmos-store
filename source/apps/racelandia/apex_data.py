@@ -83,21 +83,21 @@ RACE_POINTS = []
 # ── Setup: the one place that knows the ranges ──────────────────────────────
 # (key, group, min, max, step, default, unit)
 SETUP_DEFS = [
-    ("frontWing", "aero", 1, 12, 1, 6, ""),
-    ("rearWing", "aero", 1, 12, 1, 6, ""),
-    ("rideF", "chassis", 20, 48, 1, 32, "mm"),
-    ("rideR", "chassis", 50, 95, 1, 68, "mm"),
-    ("springF", "chassis", 100, 420, 10, 240, "N/mm"),
-    ("springR", "chassis", 100, 420, 10, 200, "N/mm"),
-    ("arbF", "chassis", 1, 10, 1, 5, ""),
-    ("arbR", "chassis", 1, 10, 1, 5, ""),
+    ("frontWing", "aero", 1, 12, 0.5, 6, ""),
+    ("rearWing", "aero", 1, 12, 0.5, 6, ""),
+    ("rideF", "chassis", 20, 48, 0.5, 32, "mm"),
+    ("rideR", "chassis", 50, 95, 0.5, 68, "mm"),
+    ("springF", "chassis", 100, 420, 5, 240, "N/mm"),
+    ("springR", "chassis", 100, 420, 5, 200, "N/mm"),
+    ("arbF", "chassis", 1, 10, 0.5, 5, ""),
+    ("arbR", "chassis", 1, 10, 0.5, 5, ""),
     ("camberF", "tyres", -5.0, -1.0, 0.1, -3.2, "°"),
     ("camberR", "tyres", -3.5, -0.5, 0.1, -1.8, "°"),
     ("pressF", "tyres", 18.0, 26.0, 0.1, 21.5, "psi"),
     ("pressR", "tyres", 18.0, 26.0, 0.1, 20.5, "psi"),
-    ("brakeBias", "drive", 50, 68, 1, 59, "%"),
-    ("diff", "drive", 10, 90, 5, 40, "%"),
-    ("gearing", "drive", -5, 5, 1, 2, ""),
+    ("brakeBias", "drive", 50, 68, 0.5, 59, "%"),
+    ("diff", "drive", 10, 90, 2.5, 40, "%"),
+    ("gearing", "drive", -5, 5, 0.5, 2, ""),
     ("engine", "drive", 1, 5, 1, 3, ""),
     ("fuel", "drive", 3, 110, 1, 28, "kg"),
 ]
@@ -253,6 +253,8 @@ def _connect():
     for key in ("qualification", "pilot_id", "session_token", "weekend", "profile"):
         if key not in run_cols:
             conn.execute(f"ALTER TABLE runs ADD COLUMN {key} TEXT")
+    if "fuel_lap" not in run_cols:
+        conn.execute("ALTER TABLE runs ADD COLUMN fuel_lap REAL")
     conn.executescript("""
     CREATE TABLE IF NOT EXISTS division_season (player_id TEXT PRIMARY KEY, state TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS weather_cache (key TEXT PRIMARY KEY, fetched REAL NOT NULL, data TEXT NOT NULL);
@@ -433,7 +435,7 @@ def clean_setup(raw) -> dict:
             v = dflt
         v = min(hi, max(lo, v))
         v = round(round((v - lo) / step) * step + lo, 4)
-        out[key] = int(v) if isinstance(dflt, int) and step >= 1 else v
+        out[key] = int(v) if isinstance(dflt, int) and float(step).is_integer() else v
     return out
 
 
@@ -696,10 +698,26 @@ def _load_warehouse(raw) -> dict:
     return {"seq": max(seq, len(tyres) + len(parts)), "tyres": tyres, "parts": parts, "tyre_seq": tyre_seq}
 
 
+RESALE_SHARE = .5   # a used item sells for half of its new price, then in proportion to what is left of it
+
+
+def resale_value(new_price: int, wear) -> int:
+    """Half the new price, scaled by the life left: 1000 new, 50% worn -> 500 resale, minus 250 for the wear."""
+    if isinstance(wear, (list, tuple)):
+        wear = sum(wear) / max(1, len(wear))
+    return int(round(RESALE_SHARE * new_price * (1 - min(1., max(0., float(wear))))))
+
+
+def part_new_price(d: dict, part: str, design: str) -> int:
+    return parts_lab.unit_cost(part, parts_lab.design_of(d["lab"], part, design)["stats"], PARTS[part]["new"])
+
+
 def public_warehouse(d: dict) -> dict:
     parts = [dict(u, stats=parts_lab.design_of(d["lab"], u["part"], u["design"])["stats"],
-                  ver=parts_lab.design_of(d["lab"], u["part"], u["design"])["ver"]) for u in d["warehouse"]["parts"]]
-    return {"tyres": d["warehouse"]["tyres"], "max_tyres": WAREHOUSE_MAX_TYRES, "parts": parts, "max_parts": parts_lab.MAX_STORED_PARTS}
+                  ver=parts_lab.design_of(d["lab"], u["part"], u["design"])["ver"],
+                  sale=resale_value(part_new_price(d, u["part"], u["design"]), u["wear"])) for u in d["warehouse"]["parts"]]
+    tyres = [dict(t, sale=resale_value(TYRE_COST[t["compound"]], t["wear"])) for t in d["warehouse"]["tyres"]]
+    return {"tyres": tyres, "max_tyres": WAREHOUSE_MAX_TYRES, "parts": parts, "max_parts": parts_lab.MAX_STORED_PARTS}
 
 
 def _save_warehouse(conn, player_id: str, w: dict):
@@ -744,8 +762,52 @@ def buy_tyres(player_id: str, compound: str, count=1):
         conn.close()
 
 
-def discard_tyres(player_id: str, set_id) -> str | None:
-    """Throw a set away, worn or not. Not while a run is out with the tyres."""
+def buy_tyres_many(player_id: str, items) -> str | None:
+    """The shopping basket: several compounds and counts in one purchase, paid at once. Returns an error code, or None."""
+    if not isinstance(items, dict):
+        return "tyre"
+    order = []
+    for compound, n in items.items():
+        try:
+            n = int(n)
+        except (TypeError, ValueError, OverflowError):
+            return "tyre"
+        if compound not in TYRE_COST or n < 0 or n > WAREHOUSE_MAX_TYRES:
+            return "tyre"
+        if n:
+            order.append((compound, n))
+    if not order:
+        return "tyre"
+    get_driver(player_id)
+    conn = _connect()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        d = _row(conn.execute("SELECT * FROM driver WHERE player_id=?", (player_id,)).fetchone())
+        if not d["has_car"]:
+            return "car"
+        w = d["warehouse"]
+        if len(w["tyres"]) + sum(n for _, n in order) > WAREHOUSE_MAX_TYRES:
+            return "warehouse_full"
+        cost = sum(TYRE_COST[c] * n for c, n in order)
+        if d["budget"] < cost:
+            return "budget"
+        for compound, count in order:
+            for _ in range(count):
+                used = [int(t["id"][1:]) for t in w["tyres"] if t["compound"] == compound and t["id"][1:].isdigit()]
+                n = max([w["tyre_seq"].get(compound, 0)] + used) + 1
+                w["tyre_seq"][compound] = n
+                w["tyres"].append({"id": f"{compound}{n}", "compound": compound, "wear": [0.0] * 4, "laps": 0, "runs": 0})
+            team.note(conn, player_id, "tyres", {'compound': compound, 'qty': count})
+        conn.execute("UPDATE driver SET budget=budget-? WHERE player_id=?", (cost, player_id))
+        _save_warehouse(conn, player_id, w)
+        conn.commit()
+        return None
+    finally:
+        conn.close()
+
+
+def sell_tyres(player_id: str, set_id) -> str | None:
+    """Sell a set back, worn or not, for what it is still worth. Not while a run is out with the tyres."""
     if not isinstance(set_id, str):
         return "tyre_set"
     get_driver(player_id)
@@ -756,10 +818,11 @@ def discard_tyres(player_id: str, set_id) -> str | None:
             return "busy"
         d = _row(conn.execute("SELECT * FROM driver WHERE player_id=?", (player_id,)).fetchone())
         w = d["warehouse"]
-        left = [t for t in w["tyres"] if t["id"] != set_id]
-        if len(left) == len(w["tyres"]):
+        sold = next((t for t in w["tyres"] if t["id"] == set_id), None)
+        if not sold:
             return "tyre_set"
-        w["tyres"] = left
+        w["tyres"] = [t for t in w["tyres"] if t is not sold]
+        conn.execute("UPDATE driver SET budget=budget+? WHERE player_id=?", (resale_value(TYRE_COST[sold["compound"]], sold["wear"]), player_id))
         _save_warehouse(conn, player_id, w)
         conn.commit()
         return None
@@ -923,9 +986,9 @@ def build_order(player_id: str, design_id: str, qty) -> str | None:
 
 
 def _park_fitted(d: dict, part: str):
-    """The part that comes off the car goes to the warehouse with its wear, unless it is finished."""
+    """The part that comes off the car goes to the warehouse with its wear, however worn: the player decides when to sell it."""
     w = d["warehouse"]
-    if d["parts"][part] >= .999 or len(w["parts"]) >= parts_lab.MAX_STORED_PARTS:
+    if len(w["parts"]) >= parts_lab.MAX_STORED_PARTS:
         return
     w["seq"] += 1
     w["parts"].append({"id": f"u{w['seq']}", "part": part, "design": d["fitted"].get(part, parts_lab.stock_id(part)), "wear": round(d["parts"][part], 4)})
@@ -959,7 +1022,7 @@ def fit_part(player_id: str, unit_id) -> str | None:
         conn.close()
 
 
-def discard_part(player_id: str, unit_id) -> str | None:
+def sell_part(player_id: str, unit_id) -> str | None:
     if not isinstance(unit_id, str):
         return "unit"
     get_driver(player_id)
@@ -970,10 +1033,11 @@ def discard_part(player_id: str, unit_id) -> str | None:
             return "busy"
         d = _load_for_update(conn, player_id)
         w = d["warehouse"]
-        left = [u for u in w["parts"] if u["id"] != unit_id]
-        if len(left) == len(w["parts"]):
+        sold = next((u for u in w["parts"] if u["id"] == unit_id), None)
+        if not sold:
             return "unit"
-        w["parts"] = left
+        w["parts"] = [u for u in w["parts"] if u is not sold]
+        conn.execute("UPDATE driver SET budget=budget+? WHERE player_id=?", (resale_value(part_new_price(d, sold["part"], sold["design"]), sold["wear"]), player_id))
         _save_warehouse(conn, player_id, w)
         conn.commit()
         return None
@@ -1140,14 +1204,14 @@ def current_profile(d: dict) -> dict:
 
 
 def record_run(player_id, track, kind, compound, hour, cond, laps, rows, best, points, race_time, position, prize, cost,
-               dnf, pits, setup, final_setup, _conn=None, qualification=None, pilot_id=None, session_token=None, who=None, profile=None) -> int:
+               dnf, pits, setup, final_setup, _conn=None, qualification=None, pilot_id=None, session_token=None, who=None, profile=None, fuel_lap=None) -> int:
     conn = _conn or _connect()
     try:
         cur = conn.execute(
-            "INSERT INTO runs (player_id,track,kind,compound,hour,water,air,asphalt,laps,best,points,race_time,position,prize,cost,dnf,pits,setup,final_setup,at,qualification,pilot_id,session_token,profile)"
-            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO runs (player_id,track,kind,compound,hour,water,air,asphalt,laps,best,points,race_time,position,prize,cost,dnf,pits,setup,final_setup,at,qualification,pilot_id,session_token,profile,fuel_lap)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (player_id, track, kind, compound, hour, cond["water"], cond["air"], cond["track"], laps, best, points, race_time,
-             position, prize, cost, dnf, pits, json.dumps(setup), json.dumps(final_setup), time.time(),json.dumps(qualification) if qualification else None,pilot_id,session_token,json.dumps(profile) if profile else None))
+             position, prize, cost, dnf, pits, json.dumps(setup), json.dumps(final_setup), time.time(),json.dumps(qualification) if qualification else None,pilot_id,session_token,json.dumps(profile) if profile else None,fuel_lap))
         rid = cur.lastrowid
         for r in rows:
             sec = (r.get("sectors") or [])
@@ -1199,11 +1263,11 @@ def best_laps(player_id: str, track: str = TRACK, profile: dict = None) -> dict:
         b = conn.execute("SELECT r.setup s, r.best t, r.compound c, r.air a, r.water w, r.at at FROM runs r WHERE r.player_id=? AND r.track=? AND r.best IS NOT NULL "
                          "AND (? IS NULL OR r.pilot_id=?) ORDER BY r.best LIMIT 1", (player_id, track, pil["pilot_id"] if pil else None, pil["pilot_id"] if pil else None)).fetchone()
         # every valid-timed run here by anyone on this account: the team weighs them by driver, time and conditions
-        pool = conn.execute("SELECT r.setup s, r.best t, r.laps n, r.air a, r.asphalt k, r.water w, r.pilot_id p, r.profile pr FROM runs r WHERE r.player_id=? AND r.track=? AND r.best IS NOT NULL "
+        pool = conn.execute("SELECT r.setup s, r.best t, r.laps n, r.air a, r.asphalt k, r.water w, r.pilot_id p, r.profile pr, r.fuel_lap f FROM runs r WHERE r.player_id=? AND r.track=? AND r.best IS NOT NULL "
                             "ORDER BY r.best LIMIT 60", (player_id, track)).fetchall()
         cur_p = pil["pilot_id"] if pil else None
         out["pool"] = [{"setup": clean_setup(json.loads(x["s"])), "best": x["t"], "laps": x["n"], "air": x["a"], "asphalt": x["k"], "water": x["w"],
-                        "mine": x["p"] is None or x["p"] == cur_p, "profile": json.loads(x["pr"]) if x["pr"] else None} for x in pool]
+                        "mine": x["p"] is None or x["p"] == cur_p, "fuelLap": x["f"], "profile": json.loads(x["pr"]) if x["pr"] else None} for x in pool]
         out["now"] = profile or current_profile(get_driver(player_id))
         out["advice"] = {"setup": clean_setup(json.loads(b["s"])), "best": b["t"], "compound": b["c"], "air": b["a"], "water": b["w"], "at": b["at"]} if b else None
         return out
@@ -1481,10 +1545,9 @@ def train_finish(player_id: str, tid: str, result: dict):
             game=t['game']
             if game not in GAMES:return None,'session'
             before=profile['skills'][game]
-            p,measured,ref=pilot_games.percent(game,before,result,profile.get('best_reaction'))
+            p,measured,ref=pilot_games.percent(game,before,result)
             real=measured is not None and time.time()-t['started'] >= GAMES[game]['minimum']
             if not real:p=0.0
-            if real and game=='reaction' and measured is not None:profile['best_reaction']=round(min(measured,profile.get('best_reaction') or measured),1)
             # the coach adds points to every real session, good or bad
             bonus=specialists.coach_bonus(conn,player_id) if real else 0.0
             profile['skills'][game]=min(100.0,max(SKILL_FLOOR,before+p+bonus)) if before<=100 else max(100.0,before+min(0,p))
@@ -1740,7 +1803,7 @@ def _entries(conn, d):
     return out
 
 
-def reserve_session(player_id: str, kind: str, setup: dict, compound: str, laps: int, hour: int, tyre_set=None, track=None, tyre_set2=None):
+def reserve_session(player_id: str, kind: str, setup: dict, compound: str, laps: int, hour: int, tyre_set=None, track=None, tyre_set2=None, both=False, setup2=None):
     d=get_driver(player_id)
     competition=kind in tuple("d5_"+p for p in season.PHASES)
     if kind not in KINDS and not competition:return None,"future"
@@ -1800,6 +1863,18 @@ def reserve_session(player_id: str, kind: str, setup: dict, compound: str, laps:
             cars=2
             fuel_of=lambda st:race_fuel_kg(meta) if race else st['fuel']
             cost=(35000 if race else 15000)*cars+meta['tyre_fee']+meta['trip_fee']+LAP_COST*(laps+int(not race))*cars+FUEL_COST*sum(fuel_of(e['setup']) for e in meta['entries'].values())
+        pair=None
+        if both is True and kind=="practice":
+            # a private practice with both cars of the team: the second one has its own tyres and its own setup
+            pair=next((m for m in mine if m["key"]!=key),None)
+            if not pair or not pair["pilot_id"] or not pair["pilot"]:return None,"second_car"
+            if season.parc_ferme(weekend_state,pair["key"]):return None,'parc_ferme'
+            chosen2=next((t for t in current["warehouse"]["tyres"] if t["id"]==tyre_set2),None)
+            if not chosen2 or tyre_set2==tyre_set or max(chosen2["wear"])>=TYRE_DEAD:return None,"tyre_set"
+            oview=team.slot_view(current,pair)
+            setup2=clean_setup(setup2) if isinstance(setup2,dict) else track_setup(oview,track)
+            cost2=0 if track==tracks.OWN else session_cost(setup2,chosen2["compound"],laps,kind,track=track,tyres=False,extra=practice_extra(d,track))
+            cost+=cost2
         if current["budget"]<cost:return None,"budget"
         car=car_mods_of(current);current["car_mods"]=car
         crash,fail=plan_incidents(current["skills"],current["parts"],laps,kind,fc[hour]["water"],random.Random(),((track_of(current,track) or {}).get("length") or 3000)/1000.0/WEAR_KM)
@@ -1832,11 +1907,18 @@ def reserve_session(player_id: str, kind: str, setup: dict, compound: str, laps:
                                           pilot_id=oview['pilot_id'],start_energy=oview['energy'],energy=training_rules.driving_energy(meta['energy_base'],oview['skills']['fitness']),crash=ocrash,fail=ofail,seed=random.getrandbits(31))
         elif stocked:
             payload.update(tyre_set=chosen,tyres=current["warehouse"]["tyres"],mounted=[],stocked=True)
+            if pair:
+                oview["car_mods"]=car_mods_of(oview)
+                ocrash,ofail=plan_incidents(oview["skills"],oview["parts"],laps,kind,fc[hour]["water"],random.Random(),((track_of(current,track) or {}).get("length") or 3000)/1000.0/WEAR_KM)
+                payload['other']=dict(livery=team.livery_of(conn,player_id,oview['car_id']),key=pair['key'],name=pair['name'],setup=setup2,compound=chosen2['compound'],tyre_set=chosen2,tyres=current["warehouse"]["tyres"],mounted=[],
+                                      skills=oview['skills'],parts=oview['parts'],mods=oview['car_mods']['sim'],car_mods=oview['car_mods'],character=dict(oview['character']),car_id=oview['car_id'],
+                                      pilot_id=oview['pilot_id'],start_energy=oview['energy'],energy=training_rules.driving_energy(energy_cost(kind,laps),oview['skills']['fitness']),crash=ocrash,fail=ofail,seed=random.getrandbits(31),cost=cost2)
         conn.execute("INSERT INTO career_session(id,player_id,pilot_id,kind,payload,started) VALUES(?,?,?,?,?,?)",
                      (token,player_id,current["pilot_id"],kind,json.dumps(payload),time.time()))
         team.note(conn,player_id,"session",{"name":current["name"],"track":track,"kind":kind,"car":current["car_id"]})
         conn.execute("UPDATE driver SET budget=budget-?,runs=runs+1 WHERE player_id=?",(cost,player_id))
         team.spend_energy(conn,current,current["pilot_id"],energy)
+        if pair:team.spend_energy(conn,current,pair["pilot_id"],payload['other']['energy'])
         if meta:
             for m in mine:
                 if m["pilot_id"] and m["pilot_id"]!=current["pilot_id"]:team.spend_energy(conn,current,m["pilot_id"],training_rules.driving_energy(meta['energy_base'],m['pilot']['skills']['fitness']))
@@ -1947,7 +2029,7 @@ def settle_session(player_id: str, token: str, msg: dict):
             run['race_result']=result
             weekend_result=season.settle(conn,d,run,[],None,False,specialists.regen(conn,player_id))
             out=_settle_race(conn,player_id,token,session,run,d,msg,result,weekend_result)
-        elif run.get('other') and run.get('weekend'):
+        elif run.get('other'):
             out=_settle_pair(conn,player_id,token,session,run,d,msg)
         else:
             out=_settle_car(conn,player_id,token,session["started"],run,d,msg)
@@ -1962,14 +2044,14 @@ def _settle_pair(conn,player_id,token,session,run,d,msg):
     """A practice or qualifying with both cars: each car's laps settle on its own, the weekend learns both."""
     o=run['other'];om=msg.get('other')
     if not isinstance(om,dict):return None
-    lead_run=dict(run,cost=run['cost']//2)
+    lead_run=dict(run,cost=run['cost']-o['cost'] if 'cost' in o else run['cost']//2)
     first=_settle_car(conn,player_id,token,session["started"],lead_run,d,msg)
     if first is None:return None
     d1=_row(conn.execute("SELECT * FROM driver WHERE player_id=?",(player_id,)).fetchone())
     team.switch(conn,d1,o['car_id'],o['pilot_id'])
     d2=_row(conn.execute("SELECT * FROM driver WHERE player_id=?",(player_id,)).fetchone())
-    orun=dict(run,setup=o['setup'],compound=o['compound'],tyre_set=o['tyre_set'],tyres=o['tyres'],mounted=o['mounted'],car_mods=o['car_mods'],cost=run['cost']-run['cost']//2,pit_cost=0,
-              parts=o['parts'],skills=o['skills'],weekend=dict(run['weekend'],key=o['key'],tyre_set=o['tyre_set']),car_id=o['car_id'],pilot_id=o['pilot_id'])
+    orun=dict(run,setup=o['setup'],compound=o['compound'],tyre_set=o['tyre_set'],tyres=o['tyres'],mounted=o['mounted'],car_mods=o['car_mods'],cost=o['cost'] if 'cost' in o else run['cost']-run['cost']//2,pit_cost=0,
+              parts=o['parts'],skills=o['skills'],weekend=dict(run['weekend'],key=o['key'],tyre_set=o['tyre_set']) if run.get('weekend') else {},car_id=o['car_id'],pilot_id=o['pilot_id'])
     second=_settle_car(conn,player_id,token,session["started"],orun,d2,om,record_token=token+':2',key=o['key'])
     if second is None:return None
     d3=_row(conn.execute("SELECT * FROM driver WHERE player_id=?",(player_id,)).fetchone())
@@ -2086,7 +2168,7 @@ def _settle_car(conn,player_id,token,started,run,d,msg,weekend_result=None,car_r
             unit=next((u for u in warehouse["parts"] if u["id"]==e["unit"] and u["part"]==k),None)
             if not unit:continue
             w=min(1,w+rate*driven*(e["frac"]-done)+e["dmg"])
-            if w<.999 and len(warehouse["parts"])<parts_lab.MAX_STORED_PARTS:
+            if len(warehouse["parts"])<parts_lab.MAX_STORED_PARTS:
                 warehouse["seq"]+=1
                 warehouse["parts"].append({"id":f"u{warehouse['seq']}","part":k,"design":design or parts_lab.stock_id(k),"wear":round(w,4)})
             warehouse["parts"]=[u for u in warehouse["parts"] if u["id"]!=unit["id"]]
@@ -2145,7 +2227,8 @@ def _settle_car(conn,player_id,token,started,run,d,msg,weekend_result=None,car_r
     rid=record_run(player_id,tkey(player_id,trk),kind,run["compound"],run["hour"],cond,len(rows),rows,best["time"] if best else None,
                    points,race_own["time"] if race_own else None,race_own["position"] if race_own else None,reward,cost,dnf,len(msg["pits"]) if isinstance(msg.get("pits"),list) else 0,setup,clean_setup(msg.get("final_setup") or setup),
                    _conn=conn,qualification=q,pilot_id=d["pilot_id"],session_token=record_token or token,who=d["name"],
-                   profile=profile_of(run.get("car_id") or d.get("car_id"),d["pilot_id"],(run.get("car_mods") or {}).get("sim"),run.get("skills") or d.get("skills")))
+                   profile=profile_of(run.get("car_id") or d.get("car_id"),d["pilot_id"],(run.get("car_mods") or {}).get("sim"),run.get("skills") or d.get("skills")),
+                   fuel_lap=_f(msg.get("fuel_lap"),0,110) or None)
     if weekend_result:conn.execute("UPDATE runs SET weekend=? WHERE id=?",(json.dumps(weekend_result),rid))
     return dict(run_id=rid,kind=kind,weekend=weekend_result,laps=rows,best=best,qualification=q,reward=reward,sponsor_bonus=bonus,refund=refund,
                 cost=cost,wear=wear,damage=damage,gains=gains,dnf=dnf,failed=failed,cheat=cheat,water=water,track=trk,licence_new=licence_new,hosting_income=hosting_income,

@@ -6,10 +6,17 @@ the two). Dead on is +100%, the edge of the tolerance is +1%, a small miss outsi
 and a whole tolerance further out is -100%. The skill then moves by that percentage in
 hundredths of a point: +100% is +1 point, -100% takes 1 point away. There are no other
 references, no neutral result and no difference between the games.
+
+The start lights are the one exception: the reference is the reaction time of the current skill (REACTION_MS at skill
+50, shorter as the skill grows) and the window is a quarter of it each way. Equal to the reference is 0, 25% quicker is
++100%, 25% slower is -100%, and in between it is straight, so +-12.5% gives +-50%.
 """
 import math
 
 SKILL_FLOOR = 25.0
+REACTION_MS = 400.0         # the average reaction time of a pilot with skill 50
+REACTION_EXPONENT = .6      # how quickly it shortens with the skill
+REACTION_WINDOW = .25       # a quarter of the reference each way is the whole +-100%
 
 # game id == skill id.  minimum = seconds a real session takes at least.
 GAMES = {
@@ -69,8 +76,10 @@ def level(skill):
 
 def reference(game, skill):
     """How exact the number must be for this skill (the edge of the +1% zone). Skill 1..100, held at 100 beyond."""
+    if game == 'reaction':
+        return REACTION_MS * (50.0 / max(SKILL_FLOOR, float(skill))) ** REACTION_EXPONENT
     if game not in TOLERANCE:
-        return GAMES[game].get('ref', 0.0)      # reflexes and the start lights have no skill tolerance
+        return GAMES[game].get('ref', 0.0)      # reflexes has no skill tolerance
     t1, t100 = TOLERANCE[game]
     return t1 + (t100 - t1) * min(1.0, max(0.0, (float(skill) - 1.0) / 99.0))
 
@@ -121,23 +130,19 @@ def curve(x):
     return 1 - .99 * x if x <= 1 else -min(1.0, .2 + .8 * (x - 1))
 
 
-MISSED_REACTION = 600.0     # ms counted for a false start or no press
-
-
-def percent(game, skill, res, best=None):
-    """(p, result, tolerance): p is -1..+1, the share of a whole skill point this session earned.
-
-    Only the start lights compare with something other than the skill: the pilot's best
-    average reaction so far (`best`, ms). The first session just sets it."""
-    ref = best if game == 'reaction' else reference(game, skill)
+def percent(game, skill, res):
+    """(p, result, reference): p is -1..+1, the share of a whole skill point this session earned."""
+    ref = reference(game, skill)
     m = metric(game, res)
     if m is None:
         return 0.0, None, ref
     if game == 'reaction':
-        m = sum(t if t >= 110 else MISSED_REACTION for t in m) / 5
-        if not best:
-            return 0.0, m, m
-        return max(-1.0, min(1.0, (best - m) / best)), m, best
+        # a false start or no press counts as the reference time itself; fewer than two real presses is the worst result
+        timed = [t if t >= 110 else ref for t in m]
+        m = sum(timed) / 5
+        if sum(1 for t in [t for t in (res.get('times') or [])][:5] if t >= 110) < 2:
+            return -1.0, m, ref
+        return max(-1.0, min(1.0, (ref - m) / (REACTION_WINDOW * ref))), m, ref
     if game == 'pace':
         x = (1 - m) / ref
     elif game == 'fitness':

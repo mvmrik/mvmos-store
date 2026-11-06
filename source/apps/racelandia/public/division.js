@@ -47,10 +47,11 @@ export function focusClassification(rows){
   if(!rows)return;
   rows.tabIndex=0;
   let pin=rows.querySelector(':scope > .ap-order-pin');
-  const own=rows.querySelector('.ap-order-row.mine:not(.ap-order-pin)');
+  const own=rows.querySelector('.ap-order-row.watched:not(.ap-order-pin)')||rows.querySelector('.ap-order-row.mine:not(.ap-order-pin)');
   if(!own){if(pin)pin.hidden=true;return;}
   if(!pin){pin=document.createElement('div');rows.appendChild(pin);}
   else if(rows.lastElementChild!==pin)rows.appendChild(pin);
+  pin.dataset.car=own.dataset.car||'';pin.dataset.teamCar=own.dataset.teamCar||'';
   pin.className=own.className+' ap-order-pin';pin.innerHTML=own.innerHTML;pin.title=own.title||'';
   Object.assign(pin.style,{position:'sticky',top:'auto',bottom:'0',left:'0',right:'0',transform:'none'});
   pin.style.removeProperty('--i');
@@ -83,7 +84,7 @@ function phoneHudBuild(view,t){
   const toggle=cls=>{const on=!view.classList.contains(cls);view.classList.remove('ap-menu-open','ap-tw-open','ap-hud-open');if(on)view.classList.add(cls);};
   menu.addEventListener('click',()=>toggle('ap-menu-open'));
   ph.querySelector('.ap-ph-pos').addEventListener('click',()=>toggle('ap-tw-open'));
-  const tw=view.querySelector('.ap-tower');if(tw)tw.addEventListener('click',()=>view.classList.remove('ap-tw-open'));
+  const tw=view.querySelector('.ap-tower');if(tw)tw.addEventListener('click',e=>{if(e.target.closest('.ap-tower-head')&&!e.target.closest('button'))view.classList.remove('ap-tw-open');});
   panel.addEventListener('click',e=>{if(e.target.closest('button'))setTimeout(()=>view.classList.remove('ap-menu-open'),160);});
   const timer=view.querySelector('.ap-hud-t');
   if(timer)timer.addEventListener('click',()=>toggle('ap-hud-open'));
@@ -93,7 +94,9 @@ function phoneHudRestore(view,ph){
   for(const {el,parent,next} of (ph._moved||[]).slice().reverse())parent.insertBefore(el,next&&next.parentNode===parent?next:null);
   for(const n of ph._menu||[])n.remove();
   view.querySelector('.ap-hud-t>.ap-ph-who')?.remove();
-  view.classList.remove('ap-has-laps');
+  view.querySelector(':scope > .ap-phone-switch')?.remove();
+  view.classList.remove('ap-has-laps','ap-has-team');
+  view.style.removeProperty('--ap-team-height');
   ph.remove();view.classList.remove('ap-menu-open','ap-tw-open','ap-hud-open');
 }
 export function phoneHud(view,t){
@@ -102,19 +105,46 @@ export function phoneHud(view,t){
   if(innerWidth>PHONE_MAX){if(ph)phoneHudRestore(view,ph);return false;}
   if(!ph)ph=phoneHudBuild(view,t);
   // the player's position and the first three letters of the name, from the classification itself
-  const row=view.querySelector('.ap-tower .ap-order-row.mine:not(.ap-order-pin)')||view.querySelector('.ap-tower .ap-order-row.mine');
+  const row=view.querySelector('.ap-tower .ap-order-row.watched:not(.ap-order-pin)')||view.querySelector('.ap-tower .ap-order-row.mine:not(.ap-order-pin)')||view.querySelector('.ap-tower .ap-order-row.mine');
   const pos=row?.querySelector('b')?.textContent.trim()||'–',name=(row?.querySelector('span')?.textContent||'').trim().slice(0,3);
   const chip=ph.querySelector('.ap-ph-pos');
+  chip.removeAttribute('title');chip.setAttribute('aria-label',pos+' '+name);chip.setAttribute('aria-expanded',String(view.classList.contains('ap-tw-open')));
   const html=`<b>${esc(pos)}</b><span>${esc(name)}</span>`;
   if(chip._html!==html){chip.innerHTML=html;chip._html=html;}
+  // Reuse the original compact timing style for every car on track, without a second heading.
+  let runners=ph.querySelector('.ap-ph-runners');
+  if(!runners){runners=document.createElement('div');runners.className='ap-ph-runners';ph.appendChild(runners);}
+  const driving=[...view.querySelectorAll('.ap-tower .ap-order-row:not(.ap-order-pin)')]
+    .filter(r=>r!==row&&!['pit','finished','dnf'].includes(r.dataset.trackStatus))
+    .sort((a,b)=>Number(a.querySelector('b')?.textContent)-Number(b.querySelector('b')?.textContent));
+  driving.forEach((entry,i)=>{
+    let button=runners.children[i];
+    if(!button){button=document.createElement('button');button.type='button';runners.appendChild(button);}
+    const driver=(entry.querySelector('.ap-rival-name')||entry.querySelector('span'))?.textContent.trim()||'';
+    const rank=entry.querySelector('b')?.textContent.trim()||'–';
+    const html=`<b>${esc(rank)}</b><span>${esc(driver.slice(0,3))}</span>`;
+    if(button._html!==html){button.innerHTML=html;button._html=html;}
+    button.title=driver;button.onclick=()=>{view.classList.add('ap-tw-open');entry.scrollIntoView({block:'nearest'});};
+  });
+  while(runners.children.length>driving.length)runners.lastElementChild.remove();
+  // One explicit car switch sits under the phone radio, separate from the timing tower.
+  const watch=[...view.querySelectorAll('.ap-watch button')];
+  let switcher=view.querySelector(':scope > .ap-phone-switch');
+  if(watch.length>1){
+    if(!switcher){switcher=document.createElement('button');switcher.type='button';switcher.className='ap-phone-switch';view.appendChild(switcher);}
+    const current=Math.max(0,watch.findIndex(b=>b.classList.contains('on'))),next=watch[(current+1)%watch.length];
+    switcher.textContent='⇄';
+    switcher.title=(t?t('ap_watch_car'):'Watch this car')+' · '+next.textContent.trim();
+    switcher.setAttribute('aria-label',switcher.title);switcher.onclick=()=>next.click();
+  }else switcher?.remove();
   // the lap timer on the right names its driver: position and three letters before the time
   const timer=view.querySelector('.ap-hud-t');
   if(timer){let who=timer.querySelector(':scope>.ap-ph-who');
     if(!who){who=document.createElement('div');who.className='ap-ph-who';timer.insertBefore(who,timer.firstChild);}
     const w=pos+' '+name;if(who.textContent!==w)who.textContent=w;}
   // above the names of the classification: which lap it is and how long the session lasts (a race has its own status bar)
-  const tower=view.querySelector('.ap-tower'),lapEl=view.querySelector('#h-lap');
-  if(tower&&lapEl&&!tower.querySelector('.ap-race-status')){
+  const tower=view.querySelector('.ap-tower'),lapEl=view.querySelector('#h-lap,[data-race-lap]');
+  if(tower&&lapEl){
     let bar=ph.querySelector('.ap-ph-laps');
     if(!bar){bar=document.createElement('div');bar.className='ap-ph-laps';ph.insertBefore(bar,ph.firstChild);}
     const cnt=lapEl.dataset.n!=null?lapEl.dataset.n+(lapEl.dataset.m?'/'+lapEl.dataset.m:''):lapEl.textContent.trim();
@@ -131,6 +161,7 @@ export function fitHud(view,t){
   const controls=view.querySelector('.ap-ctl'),base=parseFloat(getComputedStyle(left).getPropertyValue('--ap-hud-bottom'))||58;
   // Camera and speed controls wrap into several rows on phones.
   const bottom=Math.max(base,controls?controls.offsetHeight+(parseFloat(getComputedStyle(controls).bottom)||0)+8:0);
+  view.style.setProperty('--ap-controls-clearance', bottom+'px');
   left.style.bottom=phone?(controls?controls.offsetHeight+8:8)+'px':bottom+'px';
   const top=parseFloat(getComputedStyle(tower).top)||0;
   // a phone shows only the head of the classification; a big screen may show most of it
@@ -140,6 +171,15 @@ export function fitHud(view,t){
   const gauges=hud.querySelector('.ap-gauges');
   if(gauges&&phone)gauges.style.bottom=(parseFloat(left.style.bottom)+left.offsetHeight+6)+'px';
   else if(gauges)gauges.style.removeProperty('bottom');
+  const switcher=view.querySelector(':scope > .ap-phone-switch');
+  if(phone&&switcher){
+    const anchor=view.querySelector('.ap-radio')||view.querySelector('[data-race-wx]')||view.querySelector('.ap-hud-t');
+    const rect=view.getBoundingClientRect();
+    const floor=left.getBoundingClientRect().top-rect.top-switcher.offsetHeight-8;
+    if(anchor?.classList.contains('ap-radio'))anchor.style.maxHeight=Math.max(0,floor-(anchor.getBoundingClientRect().top-rect.top)-8)+'px';
+    const a=anchor?.getBoundingClientRect();
+    switcher.style.top=Math.max(0,Math.min(floor,Math.max(156,a&&a.height?a.bottom-rect.top+6:156)))+'px';
+  }
   const rows=tower.querySelector('#h-order,[data-race-order]');
   if(rows){const head=(tower.querySelector('.ap-tower-head')?.offsetHeight||0)+(tower.querySelector('.ap-race-status')?.offsetHeight||0),own=tower.querySelector('#h-own-position')?.offsetHeight||0;rows.style.maxHeight=Math.max(78,room-head-own)+'px';rows.style.overflowY='auto';if(rows._classificationFocus)focusClassification(rows);}
 }
@@ -207,7 +247,7 @@ export function playRace({host,M,track,payload,t,money,time,sendPit,onFinish,onG
   }
   const flushProgress=()=>checkpoint(true);
   window.addEventListener('pagehide',flushProgress);document.addEventListener('visibilitychange',flushProgress);
-  let paused=false,dead=false,reported=false,speed=1,drawAcc=0,pending=false,shown=null;
+  let paused=false,dead=false,reported=false,speed=1,drawAcc=1,pending=false,shown=null;
   // The team has two cars in the race: the one being watched is the one the camera, the instruments and the pit calls belong to.
   const ownIds=race.cars.filter(c=>c.e.mine).map(c=>c.e.id);let watched=ownIds[0]||'player';
   const ownCar=()=>race.by_id[watched],ownIndex=()=>race.cars.indexOf(ownCar()),entryOf=()=>payload.entries?.[watched]||{tyre_set:payload.tyre_set,tyres:payload.tyres};
@@ -315,7 +355,7 @@ export function playRace({host,M,track,payload,t,money,time,sendPit,onFinish,onG
       let el=rowEls.get(c.e.id);
       if(!el){el=document.createElement('div');el.className='ap-order-row';el.innerHTML='<b></b><span></span><i class="ap-tyrebadge"></i><em class="ap-stopn"></em><strong></strong>';rowEls.set(c.e.id,el);orderBox.appendChild(el);}
       el.style.setProperty('--i',i);
-      el.classList.toggle('mine',!!c.e.mine);el.classList.toggle('watched',c===own);el.dataset.car=c.e.id;
+      el.classList.toggle('mine',!!c.e.mine);el.classList.toggle('watched',c===own);el.dataset.car=c.e.id;el.dataset.trackStatus=c.dnf?'dnf':c.finish!==null?'finished':c.pit?'pit':'flying';
       const [pos,name,tyre,stops,gap]=el.children;
       setText(pos,String(i+1));
       setText(name,c.e.name+(c.pit?' 🅿':c.blue_for?' 🔵':'')+(c.pen_due&&!c.dnf?' ! +'+c.pen_due+'s':''));
@@ -346,12 +386,13 @@ export function playRace({host,M,track,payload,t,money,time,sendPit,onFinish,onG
     view.setField(rendered.filter((_,i)=>i!==oi).map(c=>({...pose(c),col:c.e.col,livery:c.e.livery,compound:c.compound,hidden:c.finish!==null||c.dnf&&race.t>=(c.clear_at??race.sc_until)})));
     if(neutral&&race.flag!=='red'){const lead=race.order().find(c=>!c.dnf&&c.finish===null&&!c.pit);view.setSafetyCar(lead?pose({...rendered[race.cars.indexOf(lead)],p:rendered[race.cars.indexOf(lead)].p+35,lane:0,dnf:null,pit:false}):null);}else view.setSafetyCar(null);
     const n=race.t<race.cfg.lights?Math.min(5,Math.max(0,Math.floor((race.t-1)/.8)+1)):0;view.lights(n);q('[data-race-lights]').hidden=!n;q('[data-race-lights]').innerHTML=[0,1,2,3,4].map(i=>`<i class="${i<n?'on':''}"></i>`).join('');
-    drawAcc+=dt;if(drawAcc>.15){drawAcc=0;fitHud(host.querySelector('.ap-view'),t);const order=race.order(),leader=order.find(c=>!c.dnf),position=order.indexOf(own)+1;
+    drawAcc+=dt;if(drawAcc>.15){drawAcc=0;const order=race.order(),leader=order.find(c=>!c.dnf),position=order.indexOf(own)+1;
       q('[data-race-lap]').textContent=t('ap_lapn',{n:Math.min(payload.laps,own.laps+1),m:payload.laps});
       {const flag=q('[data-race-flags]'),kind=race.flag==='red'?'red':neutral?'yellow':own.blue_for?'blue':'green',name=race.flag==='red'?t('ap_red_flag'):neutral?t('ap_safety_car'):own.blue_for?t('ap_blue_flag'):t('ap_green_flag');
         if(flag.dataset.kind!==kind){flag.dataset.kind=kind;flag.className='ap-flag '+kind;flag.title=name;}
         setText(q('[data-race-sc]'),neutral?(race.flag==='restart'?'':Math.max(0,Math.ceil(race.sc_until-race.t))+' s'):'');}
       renderOrder(order,leader);
+      fitHud(host.querySelector('.ap-view'),t);
       {const evs=race.events||[],nameOf=id=>race.by_id[id]?.e.name||id;
         while(evSeen<evs.length){const e=evs[evSeen++];
           const text=e.type==='penalty'?t('ap_ev_penalty',{a:nameOf(e.id),b:nameOf(e.other),n:e.secs}):e.type==='served'?t('ap_ev_served',{a:nameOf(e.id),n:e.secs}):e.tier==='touch'?t('ap_ev_touch',{a:nameOf(e.id),b:nameOf(e.other)}):e.tier==='spin'?t('ap_ev_spin',{a:nameOf(e.id),b:nameOf(e.other)}):t('ap_ev_crash',{a:nameOf(e.id),b:nameOf(e.other)});

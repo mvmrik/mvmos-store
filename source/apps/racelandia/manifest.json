@@ -21,9 +21,9 @@
     "drivers",
     "games"
   ],
-  "version": "1.0.2",
+  "version": "1.1.0",
   "min_core_version": "1.17.0",
-  "description": "Build a race team from an empty garage, buy a basic car and recruit a young driver. Develop their skills, tune the car and test it on a physically simulated circuit. Earn prizes, sponsor bonuses and a future racing license in ten-minute solo qualifying. Drivers age gradually over real time. Run two cars with two drivers and a pit crew for each car, and enter solo Division 5 for a twenty-round championship against eighteen rivals that develop every day, with three practices, qualifying, pit stops and safety-car periods.",
+  "description": "Manage a two-car racing team, recruit and train drivers, develop parts and setups, and run private tests or a twenty-round Division 5 championship with practice, qualifying, pit stops and changing weather.",
   "entry": "main.js",
   "multiplayer": true,
   "max_players": 6,

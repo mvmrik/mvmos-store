@@ -36,19 +36,20 @@ const T = S.buildTrack(S.TRACKS.test);
 const make = n => new S.Run({ track: T, setup: { ...S.DEFAULT_SETUP }, skills: S.DEFAULT_SKILLS,
   forecast: S.dryDay(), startHour: 12, laps: 5, compound: 'M', seed: n + 1, lazy: true });
 const runs = [0, 1, 2].map(make), group = new S.RunGroup(runs);
-let firstStop = null, queued = false, passed = false, through = false, complete = false;
+let firstStop = null, holder = null, queued = false, passed = false, through = false, complete = false;
 for (let k = 0; k < 240 * 500; k++) {
   for (const [i, r] of runs.entries()) {
     if (r.waiting === 'decide') { r.pitRequest = i === 2 ? 'pass' : true; r.resolve(); }
     if (r.waiting === 'service') {
-      if (i === 0 && firstStop == null) firstStop = r.t;
-      if (i !== 0 || r.t > firstStop + 20) r.service({ compound: 'H' });
+      if (i !== 2 && holder == null) { holder = i; firstStop = r.t; }
+      if (i !== holder || r.t > firstStop + 20) r.service({ compound: 'H' });
     }
   }
   assert.ok(group.step());
   assert.ok(runs.every(r => Math.abs(r.t - runs[0].t) < 1e-9), 'One shared session clock');
-  if (runs[0].sub === 'service' && runs[1].pitState === 'in' && runs[1].pitPosition().p > -20) {
-    queued = true; assert.notEqual(runs[1].waiting, 'service', 'A teammate cannot use an occupied box');
+  const wait = holder == null ? null : runs[1 - holder];
+  if (wait && runs[holder].sub === 'service' && wait.pitState === 'in' && wait.pitPosition().p > -20) {
+    queued = true; assert.notEqual(wait.waiting, 'service', 'A teammate cannot use an occupied box');
   }
   if (runs[2].pitState === 'through') through = true;
   if (through && runs[2].pitState === null) passed = true;

@@ -110,7 +110,7 @@ def salary(p):
 
 def roster(conn, d):
     now=time.time();pid=d['player_id'];regen=D['specialists'].regen(conn,pid)
-    cars=[dict(id=r['id'],number=r['number'],key=SLOT_KEYS[min(i,len(SLOT_KEYS)-1)],pilot_id=r['pilot_id'],level=json.loads(r['profile'])['car_level'],parts=json.loads(r['profile'])['parts'],livery=json.loads(r['livery']))
+    cars=[dict(id=r['id'],number=r['number'],key=SLOT_KEYS[min(i,len(SLOT_KEYS)-1)],pilot_id=r['pilot_id'],level=json.loads(r['profile'])['car_level'],parts=json.loads(r['profile'])['parts'],setups=(d['setups'] if r['id']==d['car_id'] else json.loads(r['profile']).get('setups')) or {},livery=json.loads(r['livery']))
           for i,r in enumerate(conn.execute('SELECT * FROM team_car WHERE player_id=? ORDER BY number',(pid,)))]
     pilots=[]
     for r in conn.execute('SELECT * FROM team_pilot WHERE player_id=? ORDER BY created,id',(pid,)):

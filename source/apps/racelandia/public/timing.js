@@ -17,6 +17,11 @@ function overallBests(field, ownMarks, time, offset = 0) {
   return out;
 }
 
+// A personal practice is judged against the driver's best sectors ever set on this circuit (`own`, from before the
+// session): purple is a new best of all, green is level with it or within this much of it, yellow is slower.
+const OWN_CLOSE = 0.005;
+const withOwn = (overall, own) => own ? overall.map((o, i) => Number.isFinite(own[i]) && own[i] > 0 && (!o || own[i] <= o.time + 1e-9) ? { time: own[i], at: -Infinity, who: 'own', key: 'own' } : o) : overall;
+
 export function qualifyingTiming(run, time, lap, baseline = {}) {
   const events = run.events.filter(e => e.t <= time + 1e-6);
   const completed = run.laps.filter(l => l.t0 + l.time <= time + 1e-6);
@@ -30,14 +35,17 @@ export function qualifyingTiming(run, time, lap, baseline = {}) {
     const valid = !invalidAt(e.lap, time) && !(finished && !clean(finished));
     marks.push({ ...e, valid });
   }
-  const overall = overallBests(baseline.field, marks, time, baseline.offset || 0);
+  const own = baseline.own || null;
+  const overall = withOwn(overallBests(baseline.field, marks, time, baseline.offset || 0), own);
   const personal = [0, 1, 2].map(i => marks.filter(m => m.valid && m.sec === i).reduce((b, m) => !b || m.time < b.time - 1e-9 || (Math.abs(m.time - b.time) <= 1e-9 && m.t < b.t) ? m : b, null));
   const colors = {};
   for (const m of marks) {
     let color = 'grey';
     if (m.valid) {
       const o = overall[m.sec], p = personal[m.sec];
-      color = o && o.who === 'player' && o.key === m.lap ? 'purple' : p && p.lap === m.lap ? 'green' : 'yellow';
+      color = o && o.who === 'player' && o.key === m.lap ? 'purple'
+        : own && Number.isFinite(own[m.sec]) ? (o && m.time <= o.time * (1 + OWN_CLOSE) ? 'green' : 'yellow')
+        : p && p.lap === m.lap ? 'green' : 'yellow';
     }
     m.color = color; colors[m.lap + ':' + m.sec] = color;
     const o = overall[m.sec];
@@ -54,28 +62,30 @@ export function qualifyingTiming(run, time, lap, baseline = {}) {
 }
 
 // The colours of finished laps (summary, statistics) with every time already known.
-export function finalSectorColours(laps, field) {
+export function finalSectorColours(laps, field, own = null) {
   const marks = [];
   laps.forEach((l, n) => { if (!l.valid || l.out || l.pit || l.pen) return; (l.sectors || []).forEach((v, i) => marks.push({ lap: n, sec: i, time: v, t: n * 1000 + i, valid: true })); });
-  const overall = overallBests(field, marks, Infinity);
+  const overall = withOwn(overallBests(field, marks, Infinity), own);
   const personal = [0, 1, 2].map(i => marks.filter(m => m.sec === i).reduce((b, m) => !b || m.time < b.time - 1e-9 ? m : b, null));
   const out = {};
   for (const m of marks) {
     const o = overall[m.sec];
-    out[m.lap + ':' + m.sec] = o && o.who === 'player' && o.key === m.lap ? 'purple' : personal[m.sec] && personal[m.sec].lap === m.lap ? 'green' : 'yellow';
+    out[m.lap + ':' + m.sec] = o && o.who === 'player' && o.key === m.lap ? 'purple'
+      : own && Number.isFinite(own[m.sec]) ? (o && m.time <= o.time * (1 + OWN_CLOSE) ? 'green' : 'yellow')
+      : personal[m.sec] && personal[m.sec].lap === m.lap ? 'green' : 'yellow';
   }
   return out;
 }
 
 // A fresh session starts with empty times, never with a previous room best.
-export function sessionClassification(field,elapsed,player,best,own=[],teammates=[]){
+export function sessionClassification(field,elapsed,player,best,own=[],teammates=[],playerId='player'){
   const rows=field.map(r=>{
     const laps=r.laps.filter(l=>l.valid&&l.at<=elapsed+1e-6);
     return {pid:r.id,name:r.name,best:laps.length?Math.min(...laps.map(l=>l.time)):null,mine:false,...rivalTiming(r,field,elapsed,own)};
   });
-  rows.push({pid:'player',name:player,best:Number.isFinite(best)&&best>0?best:null,mine:true});
+  rows.push({pid:playerId,name:player,best:Number.isFinite(best)&&best>0?best:null,mine:true});
   // the team's other car stands in the garage: its best of this session so far, if it has run
-  for(const t of teammates)rows.push({pid:t.id,name:t.name,best:Number.isFinite(t.best)&&t.best>0?t.best:null,mine:false,teammate:true,status:'pit',cells:[]});
+  for(const t of teammates)rows.push({pid:t.id,name:t.name,best:Number.isFinite(t.best)&&t.best>0?t.best:null,mine:false,teammate:true,compound:t.compound,status:t.status||'pit',cells:[]});
   rows.sort((a,b)=>(a.best??Infinity)-(b.best??Infinity)||String(a.pid).localeCompare(String(b.pid)));
   const lead=rows.find(r=>r.best!=null)?.best;
   return rows.map((r,i)=>({...r,position:i+1,gap:lead!=null&&r.best!=null?r.best-lead:null,toPlayer:best!=null&&r.best!=null?r.best-best:null}));

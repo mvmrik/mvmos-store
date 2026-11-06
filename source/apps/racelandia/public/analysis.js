@@ -41,7 +41,7 @@ function likeness(r, me) {
   return car * skill * (p.pilot === me.pilot ? 1 : 0.35);
 }
 
-export function advise(pool, cond, defs, me) {
+export function advise(pool, cond, defs, me, modeF) {
   const runs = (pool || []).filter(r => r && r.setup && r.best > 0);
   const near = runs.map(r => ({ r, c: Math.exp(-Math.abs((r.water || 0) - (cond.water || 0)) / 0.8) * Math.exp(-Math.abs((r.air || 0) - (cond.air || 0)) / 15)
     * Math.exp(-Math.abs((r.asphalt || 0) - (cond.track || 0)) / 20) * likeness(r, me) }));
@@ -51,7 +51,10 @@ export function advise(pool, cond, defs, me) {
   const n = near.reduce((a, x) => a + x.c * Math.min(x.r.laps || 0, 8), 0);
   const prior = {};
   for (const d of defs) prior[d.key] = wsum > 1e-6 ? w.reduce((a, x) => a + x.w * (x.r.setup[d.key] ?? d.def), 0) / wsum : d.def;
-  return { prior, n, scale: 0.45 + 2.6 / (1 + n / 5), weight: 2 + Math.min(6, n / 6), laps: runs.filter(r => r.mine).reduce((a, r) => a + (r.laps || 0), 0) };
+  // fuel burnt per lap by the runs here, scaled to the standard engine mode (the engine mode multiplies the burn)
+  let fw = 0, fs = 0;
+  for (const x of near) if (x.r.fuelLap > 0 && x.c > 1e-6) { const k = modeF?.[x.r.setup.engine] || 1; fw += x.c; fs += x.c * x.r.fuelLap / k; }
+  return { prior, fuelLap: fw > 1e-6 ? fs / fw : null, fuelRuns: near.filter(x => x.r.fuelLap > 0).length, n, scale: 0.45 + 2.6 / (1 + n / 5), weight: 2 + Math.min(6, n / 6), laps: runs.filter(r => r.mine).reduce((a, r) => a + (r.laps || 0), 0) };
 }
 
 // The state of the tyres now and how long they should last, from the laps driven on them.
@@ -64,12 +67,23 @@ export function tyreStats(rows, run) {
   return { compound: run.compoundNow, wear: now, perLap, mean, lapsLeft: left, samples: useful.length, cliff: CLIFF };
 }
 
-const WIDTH = { frontWing: 3, rearWing: 3, arbF: 3, arbR: 3, camberF: 1.0, camberR: 1.0, brakeBias: 5, diff: 20, rideF: 5, pressF: 1.8, pressR: 1.8, gearing: 2 };
+const WIDTH = { frontWing: 3, rearWing: 3, arbF: 3, arbR: 3, camberF: 1.0, camberR: 1.0, brakeBias: 5, diff: 20, rideF: 5, rideR: 6, springF: 50, springR: 50, pressF: 1.8, pressR: 1.8, gearing: 2, engine: 1 };
 
 // Where each slider could move, as a range that gets narrower with more laps. The team starts from
 // what worked best before on this circuit with this driver (`prior`, the advice shown before the run) and
 // leans on the measurements more with every lap, so the ranges keep following the current conditions.
 const PRIOR_WEIGHT = 2;
+
+// The fuel to load: what the laps ahead burn at the consumption seen on this circuit with the engine mode set now, plus a
+// reserve that is wide while there is little data and narrows with more runs and a better engineer. Nothing without a measured run.
+function fuelItem(opts, defs, s) {
+  const f = opts.fuel, d = defs.find(x => x.key === 'fuel');
+  if (!f || !d || !(f.perLap > 0)) return null;
+  const burn = f.perLap * (f.modeF?.[s.engine] || 1), need = burn * f.laps, k = opts.scale / 3;
+  const snap = v => clamp(Math.ceil(v / d.step - 1e-9) * d.step, d.min, d.max);
+  const lo = snap(need + burn * 0.25 * k), hi = Math.max(lo, snap(need + burn * 1.2 * k)), mid = (lo + hi) / 2, cur = s.fuel;
+  return { key: 'fuel', cur, lo, hi, move: mid - cur, prior: null, inRange: cur >= lo - 1e-9 && cur <= hi + 1e-9, min: d.min, max: d.max, unit: d.unit, step: d.step, fuelOnly: true };
+}
 export function suggestions(run, rows, defs, prior, opts = {}) {
   const scale = (opts.scale || 1) * (opts.narrow || 1), priorWeight = opts.weight || PRIOR_WEIGHT;
   const every = rows.filter(r => !r.out && !r.pit && r.m);
@@ -85,7 +99,9 @@ export function suggestions(run, rows, defs, prior, opts = {}) {
       const half = WIDTH[key] * scale / 2, lo = snap(prior[key] - half), hi = snap(prior[key] + half), cur = s[key];
       items.push({ key, cur, lo, hi, move: prior[key] - cur, inRange: cur >= lo - 1e-9 && cur <= hi + 1e-9, min: d.min, max: d.max, unit: d.unit, step: d.step, prior: prior[key] });
     }
-    items.sort((a, b) => Math.abs(b.move / WIDTH[b.key]) - Math.abs(a.move / WIDTH[a.key]));
+    const fuel = fuelItem({ ...opts, scale, narrow: 1 }, defs, s);
+    if (fuel) items.push(fuel);
+    items.sort((a, b) => Math.abs(b.move / (WIDTH[b.key] || 5)) - Math.abs(a.move / (WIDTH[a.key] || 5)));
     return { n: 0, items, fromPrior: true };
   }
   const us = avg(useful.map(r => r.m.us)), lockF = avg(useful.map(r => r.m.lockF)), lockR = avg(useful.map(r => r.m.lockR));
@@ -103,10 +119,10 @@ export function suggestions(run, rows, defs, prior, opts = {}) {
     gearing: top >= 0.985 * vmax ? 1 : top < 0.9 * vmax ? -1 : 0,
   };
   const items = [];
-  for (const key of Object.keys(raw)) {
+  for (const key of Object.keys(WIDTH)) {
     const d = defs.find(x => x.key === key); if (!d) continue;
     const cur = s[key], w = (WIDTH[key] || 2) * scale / Math.sqrt(n);
-    let c = cur + raw[key];
+    let c = cur + (raw[key] || 0);
     const pv = prior && prior[key] != null ? prior[key] : null;
     if (pv != null) c = (priorWeight * pv + n * c) / (priorWeight + n);
     c = clamp(c, d.min, d.max);

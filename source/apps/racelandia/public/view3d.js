@@ -94,7 +94,7 @@ function carFactory(THREE, low) {
   }
   function build(col) {
     const [main, acc] = LIVERY[col % LIVERY.length];
-    const body = keep(new THREE.MeshStandardMaterial({ color: main, roughness: 0.27, metalness: 0.32 }));
+    const body = keep(new THREE.MeshStandardMaterial({ color: main, roughness: 0.3, metalness: 0.16 }));
     const accent = keep(new THREE.MeshStandardMaterial({ color: acc, roughness: 0.32, metalness: 0.25 }));
     const carbon = keep(new THREE.MeshStandardMaterial({ color: 0x171b22, roughness: 0.52, metalness: 0.22 }));
     const rubber = keep(new THREE.MeshStandardMaterial({ color: 0x191a1d, roughness: 0.88 }));
@@ -428,7 +428,7 @@ export function createView(THREE, host, T, opts) {
   }
   const hw = T.half;
   const asphaltTex = canvasTex(THREE, 256, 256, (c, w, h) => {
-    noise(c, w, h, '#45484c', 26, 6200, 3);
+    noise(c, w, h, '#50555a', 26, 6200, 3);
     c.fillStyle = 'rgba(255,255,255,0.9)'; c.fillRect(2, 0, 7, h); c.fillRect(w - 9, 0, 7, h);
   });
   const trackMat = new THREE.MeshStandardMaterial({ map: asphaltTex, roughness: 0.92, metalness: 0 });
@@ -819,11 +819,12 @@ export function createView(THREE, host, T, opts) {
     const hor = new THREE.Color(0xbcd8f0).lerp(new THREE.Color(0xa7aeb6), cl * 0.9).lerp(new THREE.Color(0xf0b58a), warm * 0.6 * (1 - cl * 0.6));
     skyMat.uniforms.top.value.copy(top); skyMat.uniforms.hor.value.copy(hor);
     skyMat.uniforms.sunAmt.value = (1 - cl) * (1 - wet);
-    sun.intensity = (0.4 + el * 2.4) * (1 - cl * 0.75);
+    const dim = 1 - el;     // low sun (dawn, dusk): lift the light so the track and the car stay readable
+    sun.intensity = (0.4 + el * 2.4) * (1 - cl * 0.75) + dim * 0.6 * (1 - cl * 0.5);
     sun.color.set(0xffffff).lerp(new THREE.Color(0xffc48a), warm * 0.7);
-    hemi.intensity = 1.0 + el * 0.5 + cl * 0.15; hemi.color.copy(hor).lerp(new THREE.Color(0xe2e9f2),.45);
+    hemi.intensity = 1.0 + el * 0.5 + cl * 0.15 + dim * 0.55; hemi.color.copy(hor).lerp(new THREE.Color(0xe2e9f2),.45);
     scene.fog = new THREE.FogExp2(hor.clone().multiplyScalar(0.92), 0.00035 + 0.0013 * c.rain + 0.0004 * cl);
-    renderer.toneMappingExposure = 0.95 + (1 - cl) * 0.1;
+    renderer.toneMappingExposure = 0.95 + (1 - cl) * 0.1 + dim * 0.25;
     trackMat.roughness = 0.92 - 0.66 * wet; trackMat.color.setScalar(1 - 0.45 * wet);
     trackMat.metalness = 0.15 * wet;
     clouds.forEach(m => { m.material.opacity = Math.max(0, (cl - 0.12 * (m.userData.k)) * 0.9) * (0.5 + 0.5 * m.userData.k); m.material.color.setScalar(1 - cl * 0.45); });

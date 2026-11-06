@@ -43,7 +43,7 @@ export function run(game, box, tr, done, opts = {}) {
     const dt=Math.min(.05,Math.max(0,(now-previous)/1000));previous=now;
     if(api.active()){
       time=Math.min(cfg.roundSeconds,time+dt);drill.tick?.(dt);
-      if(time>=cfg.roundSeconds-1e-8){results.push(drill.result());round++;if(round>=cfg.rounds){finished=true;done({version:1,rounds:results});if(dead)return;}else next();}
+      if(time>=cfg.roundSeconds-1e-8||drill.done?.()){results.push(drill.result());round++;if(round>=cfg.rounds){finished=true;done({version:1,rounds:results});if(dead)return;}else next();}
     }
     g.setTransform(canvas.width/W,0,0,canvas.height/H,0,0);
     g.fillStyle='#111c2a';g.fillRect(0,0,W,H);
@@ -57,34 +57,35 @@ export function run(game, box, tr, done, opts = {}) {
   return {destroy(){if(dead)return;dead=true;cancelAnimationFrame(raf);resize.disconnect();listeners.forEach(f=>f());drill.cancel?.();}};
 }
 
-// Rotate a wheel gun around the hub and release at one full turn. Radial
-// wandering and overshooting torque both count; the handle works with touch.
+// Take every wheel nut off in the lit order, then put them all back on before
+// the round ends. Missed taps cost a little; more nuts and heavier penalties with skill.
 function wheel(a) {
-  const {g,cfg,label,circle}=a, hub={x:200,y:192}, radius=82;
-  let held=false, angle=0, last=0, radial=0, count=0, released=false, seconds=5, turning=false;
-  function turn(p){
-    const current=Math.atan2(p.y-hub.y,p.x-hub.x);
-    let delta=current-last;if(delta>Math.PI)delta-=TAU;if(delta<-Math.PI)delta+=TAU;
-    // Ignore discontinuous pointer jumps instead of counting them as turns.
-    if(Math.abs(delta)<.7)angle=Math.max(0,angle+delta);
-    radial+=Math.abs(Math.hypot(p.x-hub.x,p.y-hub.y)-radius);count++;last=current;
+  const {g,cfg,label,circle}=a, hub={x:200,y:192}, n=cfg.wheelNuts, ring=58;
+  const order={4:[0,2,1,3],5:[0,2,4,1,3],6:[0,3,1,4,2,5]}[n]||[...Array(n).keys()];
+  const pos=i=>{const t=i*TAU/n-Math.PI/2;return {x:hub.x+Math.cos(t)*ring,y:hub.y+Math.sin(t)*ring};};
+  let step=0, faults=0, seconds=cfg.roundSeconds, flash=0;
+  const total=n*2, target=()=>order[step%n], off=()=>step<n;
+  function tap(p){
+    if(step>=total)return;
+    if(Math.hypot(p.x-hub.x,p.y-hub.y)>115)return;
+    const lit=pos(target());
+    if(Math.hypot(p.x-lit.x,p.y-lit.y)<=28){step++;flash=.18;if(step>=total)seconds=a.clock();}
+    else faults++;
   }
-  function finish(){if(!held||released)return;held=false;released=true;turning=false;seconds=a.clock();}
   return {
-    down(p,e){if(released)return;const dist=Math.hypot(p.x-hub.x,p.y-hub.y);if(Math.abs(dist-radius)>45)return;held=true;last=Math.atan2(p.y-hub.y,p.x-hub.x);a.capture(e);},
-    move(p){if(held&&!released)turn(p);}, up:finish,
-    cancel(){held=false;turning=false;},
-    key(code,on){if(code!=='ArrowRight'||released)return;if(on){held=true;turning=true;}else finish();},
-    tick(dt){if(turning){angle+=dt*2.4;count++;}},
-    result:()=>({released,angle,radial:count?radial/count:999,seconds}),
+    down:tap, done:()=>step>=total, cancel(){}, tick(dt){flash=Math.max(0,flash-dt);},
+    result:()=>({steps:step,faults,seconds:step>=total?seconds:cfg.roundSeconds}),
     draw(){
-      circle(200,192,111,'#080e16');circle(200,192,97,'#33445b');circle(200,192,68,'#142235');
-      for(let i=0;i<6;i++){const t=i*TAU/6;circle(200+Math.cos(t)*49,192+Math.sin(t)*49,8,'#a9bacd');}
-      g.beginPath();g.arc(200,192,radius,-Math.PI/2,-Math.PI/2+Math.min(TAU,angle));g.strokeStyle='#6ee4ae';g.lineWidth=11;g.stroke();
-      const t=angle-Math.PI/2;circle(200+Math.cos(t)*radius,192+Math.sin(t)*radius,16,'#ffd166');
-      g.strokeStyle='#f0f6ff';g.lineWidth=3;g.beginPath();g.moveTo(200,92);g.lineTo(200,120);g.stroke();
-      label(Math.round(angle/TAU*100)+'%',200,192,25);
-      label(released?(Math.abs(angle-TAU)<cfg.wheelTolerance?'✓':'✕'):'↻',200,320,25,released?'#ffd166':'#d4e4f7');
+      circle(200,192,111,'#080e16');circle(200,192,97,'#33445b');circle(200,192,34,'#142235');
+      const removed=new Set(order.slice(0,Math.min(step,n))), back=new Set(step>n?order.slice(0,step-n):[]);
+      for(let i=0;i<n;i++){
+        const p=pos(i), isOff=removed.has(i)&&!back.has(i), lit=step<total&&i===target();
+        circle(p.x,p.y,19,'#0b121c');circle(p.x,p.y,7,'#6d7f96');
+        if(!isOff)circle(p.x,p.y,15,'#a9bacd'),circle(p.x,p.y,7,'#5d6f86');
+        if(lit){g.beginPath();g.arc(p.x,p.y,24,0,TAU);g.strokeStyle=off()?'#ffd166':'#6ee4ae';g.lineWidth=4;g.stroke();}
+      }
+      label(Math.min(step,total)+'/'+total,200,192,24,step>=total?'#70edb4':'#edf3ff');
+      label(step>=total?'✓':(off()?'⟲ −':'⟳ +'),200,320,25,step>=total?'#70edb4':'#ffd166');
     }
   };
 }

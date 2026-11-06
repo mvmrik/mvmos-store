@@ -165,7 +165,10 @@ class Game:
         compound=msg.get("compound")
         if kind.startswith('d5_') and len(self.ctx.all_players())>1:
             await self.ctx.send(pid,{"type":"ap_err","code":"solo_only"});return
-        payload,error=data.reserve_session(pid,kind,msg.get("setup"),compound,self.cfg["laps"],self.cfg["hour"],msg.get("tyre_set"),msg.get("track"),msg.get("tyre_set2"))
+        both=msg.get("both") is True
+        if both and len(self.ctx.all_players())>1:
+            await self.ctx.send(pid,{"type":"ap_err","code":"solo_only"});return
+        payload,error=data.reserve_session(pid,kind,msg.get("setup"),compound,self.cfg["laps"],self.cfg["hour"],msg.get("tyre_set"),msg.get("track"),msg.get("tyre_set2"),both,msg.get("setup2"))
         if error:
             await self.ctx.send(pid,{"type":"ap_err","code":error})
             return

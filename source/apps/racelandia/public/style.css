@@ -108,7 +108,7 @@
 .ap-tag { position: absolute; transform: translate(-50%, -100%); background: rgba(8,12,20,.75); border-radius: 6px; padding: 1px 6px; font-size: 11px; white-space: nowrap; }
 .ap-ctl { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; gap: 8px; padding: 8px 10px; flex-wrap: wrap; background: linear-gradient(transparent, rgba(8,12,20,.85)); }
 .ap-cams, .ap-speeds { display: flex; gap: 4px; flex-wrap: wrap; }
-.ap-ctl button { background: rgba(38,48,70,.9); color: var(--fg); border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; cursor: pointer; font: inherit; font-size: 12.5px; }
+.ap-ctl button { background: rgba(38,48,70,.9); color: #f5f7fc; border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; cursor: pointer; font: inherit; font-size: 12.5px; }
 .ap-ctl button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 .ap-sum { position: absolute; inset: 0; background: rgba(6,9,15,.82); display: flex; align-items: center; justify-content: center; padding: 10px; overflow: auto; z-index: 5; }
 .ap-sum-in { background: #171e2b; border: 1px solid #384560; border-radius: 14px; padding: 16px; width: min(980px, 100%); max-height: 100%; overflow: auto; }
@@ -797,9 +797,14 @@
 
 /* ── the team's two cars in a weekend and in the race ── */
 .ap-teamcars { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
-.ap-teamcar { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; background: var(--surface2); color: var(--fg); border: 2px solid var(--border); border-radius: 10px; padding: 10px 12px; font: inherit; cursor: pointer; }
+.ap-teamcar { display: flex; align-items: stretch; background: var(--surface2); color: var(--fg); border: 2px solid var(--border); border-radius: 10px; overflow: hidden; }
 .ap-teamcar.on { border-color: var(--accent); }
-.ap-teamcar:disabled:not(.on) { opacity: .5; cursor: not-allowed; }
+.ap-teamcar.open { background: var(--surface1); }
+.ap-markbox { display: flex; align-items: center; justify-content: center; flex: 0 0 56px; cursor: pointer; border-right: 1px solid var(--border); }
+.ap-markbox input { width: 26px; height: 26px; margin: 0; cursor: pointer; accent-color: var(--accent); }
+.ap-teamcar-body { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; background: none; color: inherit; border: 0; padding: 10px 12px; font: inherit; cursor: pointer; }
+.ap-teamcar-body:disabled { cursor: default; }
+.ap-teamcar:has(input:disabled):not(.on) { opacity: .5; }
 .ap-teamcar small, .ap-teamcar span { color: var(--fg2); font-size: 12px; }
 .ap-watch { display: flex; gap: 4px; margin-right: 8px; }
 .ap-watch button { background: rgba(20, 26, 38, .82); color: #eaf0fb; border: 1px solid #4a566d; border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 12.5px; cursor: pointer; }
@@ -991,7 +996,7 @@
   .ap-view .ap-ph-panel button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
   /* classification: only the chip until it is tapped */
   .ap-view .ap-tower { display: none; top: 56px; left: 8px; width: calc(100% - 178px); max-width: 240px; max-height: 46vh !important; z-index: 3; }
-  .ap-view.ap-tw-open .ap-tower { display: block; top: 8px; }
+  .ap-view.ap-tw-open .ap-tower { display: block; top: 8px; pointer-events: auto; }
   .ap-view.ap-tw-open .ap-ph-pos { display: none; }
   .ap-view.ap-has-laps.ap-tw-open .ap-tower { top: 36px; }
   .ap-view .ap-ph-laps { position: absolute; left: 0; top: 0; padding: 3px 10px; font-size: 12px; font-weight: 700; white-space: nowrap; background: rgba(8,12,20,.82); border: 1px solid rgba(255,255,255,.22); border-radius: 10px; }
@@ -1074,3 +1079,114 @@
 .ap-step > .ap-range, .ap-step > .ap-rng { flex: 1; min-width: 0; }
 .ap-nudge { flex: none; width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px; background: var(--card, transparent); color: var(--fg); cursor: pointer; font-size: 14px; padding: 0; }
 .ap-nudge:disabled { opacity: .4; cursor: default; }
+
+/* The driver's radio: a block at the right of the track view, newest message on top */
+.ap-view .ap-radio { position: absolute; right: 10px; bottom: var(--ap-controls-clearance, 58px); width: 290px; display: flex; flex-direction: column; max-height: max(0px, calc(100% - var(--ap-controls-clearance, 58px) - 12px)); max-width: calc(100% - 20px); z-index: 2; pointer-events: none; border-radius: 10px; overflow: hidden; background: rgba(8,12,20,.8); color: #f5f7fc; border: 1px solid rgba(255,255,255,.12); text-shadow: none; }
+.ap-radio-head { all: unset; flex: none; box-sizing: border-box; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 10px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #d6dfef; border-top: 3px solid #e53945; cursor: pointer; pointer-events: auto; }
+.ap-radio-head:focus-visible { outline: 2px solid var(--accent, #6fa8ff); outline-offset: -2px; }
+.ap-radio-head i { font-style: normal; transition: transform .15s; }
+.ap-radio.shut .ap-radio-head i { transform: rotate(-90deg); }
+.ap-radio.shut .ap-radio-list { display: none; }
+.ap-radio.peek .ap-radio-msg:nth-child(n+2) { display: none; }
+.ap-view .ap-radio.open { pointer-events: auto; }
+.ap-radio.open .ap-radio-list { max-height: min(280px, 42vh); overflow-y: auto; overscroll-behavior: contain; }
+.ap-radio.open .ap-radio-msg { opacity: 1; display: grid; }
+.ap-radio-list { min-height: 0; flex-shrink: 1; display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
+.ap-radio-list:empty { display: none; }
+.ap-radio-msg { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; align-items: start; padding: 6px 10px 7px; font-size: 12.5px; line-height: 1.35; border-left: 3px solid #5f7599; background: rgba(255,255,255,.04); }
+.ap-radio-msg em { font-style: normal; font-size: 10.5px; color: #9fb0cc; padding-top: 2px; font-variant-numeric: tabular-nums; }
+.ap-radio-msg.good { border-left-color: #4fd18b; } .ap-radio-msg.warn { border-left-color: #f2c230; } .ap-radio-msg.bad { border-left-color: #ff5a4d; } .ap-radio-msg.best { border-left-color: #b56cff; }
+.ap-radio-msg:nth-child(n+2) { opacity: .86; } .ap-radio-msg:nth-child(n+3) { opacity: .7; } .ap-radio-msg:nth-child(n+5) { opacity: .5; }
+.ap-radio-msg.new { animation: ap-radio-in .35s ease-out; }
+@keyframes ap-radio-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .ap-radio-msg.new { animation: none; } }
+@media (max-width: 860px) { .ap-view .ap-radio { width: 250px; } }
+@media (max-height: 640px) and (min-width: 641px) { .ap-radio-msg:nth-child(n+4) { display: none; } .ap-radio.open .ap-radio-list { max-height: 180px; } }
+@media (max-width: 640px) {
+  .ap-view .ap-radio { top: 156px; bottom: auto; right: 8px; width: 138px; max-height: max(0px, calc(100% - 156px - var(--ap-controls-clearance, 58px))); }
+  .ap-radio-head { padding: 4px 8px; font-size: 10px; }
+  .ap-radio-msg { font-size: 11px; line-height: 1.3; padding: 5px 7px 6px; gap: 6px; overflow-wrap: anywhere; }
+  .ap-radio-msg em { display: none; }
+  .ap-radio-msg:nth-child(n+4) { display: none; }
+  .ap-radio.open .ap-radio-list { max-height: 44vh; }
+  /* on a phone: just the small microphone until there is something to say, and then a see-through note */
+  .ap-view .ap-radio { background: rgba(8,12,20,.5); border-color: rgba(255,255,255,.08); }
+  .ap-radio-tt { display: none; }
+  .ap-radio-head { border-top: 0; justify-content: flex-start; gap: 4px; padding: 5px 8px; }
+  .ap-view .ap-radio.shut { width: auto; background: rgba(8,12,20,.4); border-radius: 50%; border-color: transparent; }
+  .ap-radio.shut .ap-radio-head { padding: 6px; }
+  .ap-radio.shut .ap-radio-head i { display: none; }
+  .ap-radio.shut .ap-radio-ic { font-size: 16px; line-height: 1; opacity: .8; }
+  .ap-radio-msg { background: rgba(255,255,255,.02); }
+  .ap-radio.open { background: rgba(8,12,20,.72); }
+  .ap-view.ap-hud-open .ap-radio, .ap-view.ap-menu-open .ap-radio, .ap-view.ap-tw-open .ap-radio { display: none; }
+}
+
+
+/* Buttons under a card keep their distance from it */
+.ap-card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.ap-trackcard + .ap-card-actions { margin-top: 16px; }
+
+/* Choice cards (tyre compounds, research parts): the same rows in every card - picture, name, short text, price */
+.ap-screen:not(#ap-track) .ap-comp { align-items: stretch; justify-content: flex-start; gap: 6px; padding: 12px 8px 0; overflow: hidden; }
+.ap-screen:not(#ap-track) .ap-comp > .ap-art, .ap-screen:not(#ap-track) .ap-comp > i { align-self: center; flex: 0 0 auto; }
+.ap-screen:not(#ap-track) .ap-comp > b { display: flex; align-items: center; justify-content: center; min-height: 2.5em; line-height: 1.25; text-align: center; }
+.ap-screen:not(#ap-track) .ap-comp > small { flex: 1 1 auto; min-height: 2.4em; text-align: center; line-height: 1.3; }
+.ap-screen:not(#ap-track) .ap-comp > em { margin: auto -8px 0; padding: 9px 8px 10px; border-top: 1px solid var(--border); background: rgba(255,255,255,.035); text-align: center; }
+
+/* track list cards: same flow as the other cards, circuit floats right, details beside it */
+.ap-screen:not(#ap-track) .ap-trackcard > .ap-tc-info { overflow: hidden; }
+.ap-screen:not(#ap-track) .ap-trackcard .ap-cond { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
+
+.ap-mate { margin: 8px 0 4px; padding: 10px 12px; border-radius: 10px; background: var(--surface2); }
+.ap-mate h3 { margin-top: 0; }
+.ap-mate .ap-setupchips { font-size: 12px; margin: 6px 0; }
+.ap-mate .ap-setupchips span { display: inline-block; background: var(--surface1); border-radius: 6px; padding: 1px 6px; margin: 1px 2px 1px 0; }
+
+/* warehouse: filter, basket, one list */
+.ap-whbar { display: flex; gap: 10px; align-items: center; margin: 4px 0 12px; }
+.ap-chipsf { display: flex; gap: 6px; overflow-x: auto; flex: 1; min-width: 0; padding-bottom: 4px; scrollbar-width: thin; }
+.ap-chipf { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface2); color: var(--fg); font: inherit; cursor: pointer; white-space: nowrap; }
+.ap-chipf.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--surface1)); }
+.ap-chipf small { color: var(--fg2); font-size: 11px; }
+.ap-cartbtn { flex: 0 0 auto; position: relative; white-space: nowrap; }
+.ap-badge { display: inline-block; min-width: 18px; margin-left: 6px; padding: 0 5px; border-radius: 9px; background: var(--on-accent, #fff); color: var(--accent); font-size: 11px; font-weight: 700; text-align: center; }
+.ap-cart { margin-bottom: 12px; }
+.ap-cartrow { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--border); }
+.ap-cartrow:first-child { border-top: 0; }
+.ap-cartrow .ap-art, .ap-cartrow > i { width: 44px; height: 44px; }
+.ap-cartrow small { display: block; color: var(--fg2); font-size: 11.5px; line-height: 1.3; }
+.ap-cartrow em { font-style: normal; font-weight: 700; white-space: nowrap; }
+.ap-qty { display: inline-flex; align-items: center; gap: 4px; }
+.ap-qty button { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--fg); font-size: 20px; line-height: 1; cursor: pointer; }
+.ap-qty button:disabled { opacity: .4; cursor: not-allowed; }
+.ap-qty output { min-width: 34px; text-align: center; font-weight: 700; }
+.ap-carttotal { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+@media (max-width: 600px) { .ap-cartrow { grid-template-columns: 40px minmax(0, 1fr) auto; } .ap-cartrow .ap-qty { grid-column: 1 / -1; justify-content: flex-end; } .ap-whbar { flex-direction: column; align-items: stretch; } }
+
+.ap-setchip.held { opacity: .55; border-style: dashed; }
+
+.ap-sendsum { margin: 8px 0 4px; }
+.ap-sendrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "n t" "c t"; gap: 0 10px; width: 100%; text-align: left; align-items: center; margin: 4px 0; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--fg); font: inherit; cursor: pointer; }
+.ap-sendrow.open { border-color: var(--accent); cursor: default; }
+.ap-sendrow b { grid-area: n; } .ap-sendrow span { grid-area: c; color: var(--fg2); font-size: 12px; }
+.ap-sendrow em { grid-area: t; font-style: normal; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+
+/* Direct phone car switch, placed below the radio by fitHud. */
+.ap-phone-switch { display: none; }
+@media (max-width: 640px) {
+  .ap-view > .ap-phone-switch { display: block; position: absolute; right: 8px; width: 32px; height: 32px; padding: 0; border: 1px solid rgba(255,255,255,.3); border-radius: 9px; background: rgba(8,12,20,.88); color: #eef2fa; font: inherit; font-size: 20px; text-align: center; white-space: nowrap; overflow: hidden; z-index: 4; cursor: pointer; }
+  .ap-view .ap-radio { max-height: max(0px, calc(100% - 196px - var(--ap-controls-clearance, 58px))); }
+  .ap-view .ap-ph-pos::after { content: '▾'; }
+}
+
+/* Keep mobile timing compact; the full tower appears only after a driver is tapped. */
+.ap-ph-runners { display: none; }
+@media (max-width: 640px) {
+  .ap-view .ap-ph-runners { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; position: absolute; left: 0; top: 34px; width: min(190px, calc(100vw - 166px)); max-height: min(24vh, 180px); overflow-y: auto; pointer-events: auto; scrollbar-width: thin; }
+  .ap-view.ap-has-laps .ap-ph-runners { top: 60px; }
+  .ap-view .ap-ph-runners button { flex: none; display: grid; grid-template-columns: auto auto auto; align-items: center; gap: 6px; padding: 4px 10px 5px; font-size: 12px; white-space: nowrap; }
+  .ap-view .ap-active-rivals { display: none; }
+  .ap-view.ap-tw-open .ap-ph-runners { display: none; }
+  .ap-view .ap-ph-pos::after { content: none; }
+}

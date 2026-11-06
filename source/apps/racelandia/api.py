@@ -213,12 +213,20 @@ async def warehouse_buy(request: Request):
     return JSONResponse(garage(user))
 
 
-@router.post("/warehouse/discard")
-async def warehouse_discard(request: Request):
+@router.post("/warehouse/buy-many")
+async def warehouse_buy_many(request: Request):
     user=_user(request)
     if not user:return JSONResponse({"error":"signin"},status_code=401)
     body=await _body(request)
-    error=data.discard_tyres(user["id"],body.get("set"))
+    return _answer(user,data.buy_tyres_many(user["id"],body.get("items")))
+
+
+@router.post("/warehouse/sell")
+async def warehouse_sell(request: Request):
+    user=_user(request)
+    if not user:return JSONResponse({"error":"signin"},status_code=401)
+    body=await _body(request)
+    error=data.sell_tyres(user["id"],body.get("set"))
     if error:return JSONResponse({"error":error},status_code=400)
     return JSONResponse(garage(user))
 
@@ -260,12 +268,12 @@ async def warehouse_fit(request: Request):
     return _answer(user,data.fit_part(user["id"],body.get("unit")))
 
 
-@router.post("/warehouse/discard-part")
-async def warehouse_discard_part(request: Request):
+@router.post("/warehouse/sell-part")
+async def warehouse_sell_part(request: Request):
     user=_user(request)
     if not user:return JSONResponse({"error":"signin"},status_code=401)
     body=await _body(request)
-    return _answer(user,data.discard_part(user["id"],body.get("unit")))
+    return _answer(user,data.sell_part(user["id"],body.get("unit")))
 
 
 @router.post("/track/quote")

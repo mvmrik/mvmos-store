@@ -9,8 +9,7 @@ ROUND_SECONDS = 5
 def settings(difficulty):
     d = max(0, float(difficulty)); q = d*(1+d)/2
     return dict(rounds=ROUNDS, roundSeconds=ROUND_SECONDS,
-                wheelTolerance=1.8/(1+9*q), wheelRadius=32/(1+5*q),
-                wheelTime=4.5/(1+2.5*q),
+                wheelNuts=4 if d < .34 else 5 if d < .67 else 6, wheelFault=.08+.1*min(d, 1),
                 jackBand=.34/(1+3*q), jackLeak=.10+.12*q,
                 jackCharge=.22/(1+3*q), jackHold=min(3.6, 1.8*(1+.5*d)), wireWidth=30/(1+5*q),
                 wireTime=4.8/(1+3*q), releaseGap=.65*(1+.4*d),
@@ -37,10 +36,10 @@ def score(game, result, difficulty):
         seconds = _number(row.get('seconds'), 99)
         if seconds < .15 or seconds > ROUND_SECONDS+.1: continue
         if game == 'wheel_service':
-            if row.get('released') is not True: continue
-            angle = abs(_number(row.get('angle'), 99)-math.tau)
-            radial = max(0, _number(row.get('radial'), 999))
-            total += cap(1-angle/cfg['wheelTolerance'])*cap(1-radial/cfg['wheelRadius'])*min(1,cfg['wheelTime']/seconds)
+            # Every nut is taken off and put back: two steps per nut, wrong taps cost a little.
+            steps = max(0, _number(row.get('steps')))
+            faults = max(0, _number(row.get('faults'), 99))
+            total += cap(min(steps, 2*cfg['wheelNuts'])/(2*cfg['wheelNuts'])-cfg['wheelFault']*faults)
         elif game == 'jack_balance':
             held = max(0, min(seconds, _number(row.get('stable'))))
             strokes = max(0, _number(row.get('strokes')))

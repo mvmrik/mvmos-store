@@ -39,13 +39,13 @@ export function run(game, box, tr, done, opts = {}) {
     hit: (p, x, y, w, h) => p.x >= x && p.x <= x + w && p.y >= y && p.y <= y + h,
     tr,
   };
-  let raf = 0, dead = false, started = false, finished = false, round = 0, s = null, flash = 0, flashValue = 0, previous = performance.now();
+  let raf = 0, dead = false, started = false, finished = false, round = 0, s = null, flash = 0, flashValue = 0, flashLabel = null, previous = performance.now();
   const values = [];
   const begin = () => { s = G.init(d, tr); s.t = 0; };
   begin();
   const finishRound = v => {
     if (flash > 0 || v == null) return;
-    flashValue = clamp(v, 0, 1); values.push(flashValue); flash = FLASH;
+    flashValue = clamp(v, 0, 1); flashLabel = s.label || null; values.push(flashValue); flash = FLASH;
   };
   const point = e => { const r = canvas.getBoundingClientRect(); return { x: (e.clientX - r.left) * W / r.width, y: (e.clientY - r.top) * H / r.height }; };
   const active = () => started && !finished && flash <= 0 && !document.querySelector('dialog.ap-message[open]');
@@ -63,7 +63,7 @@ export function run(game, box, tr, done, opts = {}) {
       s.t += dt;
       finishRound(G.tick?.(s, dt));
       if (s.done != null) finishRound(s.done);
-      if (s.t >= G.limit) finishRound(G.end(s));
+      if (s.t >= (s.limit || G.limit)) finishRound(G.end(s));
     } else if (flash > 0 && !finished) {
       flash -= dt;
       if (flash <= 0) {
@@ -74,12 +74,12 @@ export function run(game, box, tr, done, opts = {}) {
     }
     g.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
     u.rect(0, 0, W, H, '#111c2a');
-    u.rect(20, 14, 360, 6, '#26364a', 3); u.rect(20, 14, 360 * clamp(round / ROUNDS + (s && started ? Math.min(1, s.t / G.limit) / ROUNDS : 0), 0, 1), 6, '#5cbdff', 3);
+    u.rect(20, 14, 360, 6, '#26364a', 3); u.rect(20, 14, 360 * clamp(round / ROUNDS + (s && started ? Math.min(1, s.t / (s.limit || G.limit)) / ROUNDS : 0), 0, 1), 6, '#5cbdff', 3);
     u.text(tr('ap_crew_drill_round', { n: Math.min(round + 1, ROUNDS), total: ROUNDS }), 200, 36, 13, '#bdcce0');
     if (s) G.draw(g, s, u);
     if (flash > 0) {
       u.rect(0, 52, W, H - 52, '#0d1622c0');
-      u.text(Math.round(flashValue * 100) + '%', 200, 150, 52, flashValue > .66 ? '#4fd18b' : flashValue > .33 ? '#f2c230' : '#ff5a5a');
+      u.text(flashLabel || Math.round(flashValue * 100) + '%', 200, 150, 52, flashLabel ? '#ff5a5a' : flashValue > .66 ? '#4fd18b' : flashValue > .33 ? '#f2c230' : '#ff5a5a');
     }
     if (!started) { u.rect(0, 52, W, H - 52, '#111c2abf'); u.text(tr('ap_tr_' + game), 200, 140, 18, '#ecf2fc'); }
     raf = requestAnimationFrame(frame);
@@ -118,10 +118,18 @@ function coach() {
   return {
     limit: 9,
     init(d) {
+      // The higher the level the noisier the traces, the shallower the real loss, the more decoy dips of
+      // nearly the same size (never bigger than the real one), the tighter the click margin and the shorter the round.
       const x0 = rnd(90, 310), width = 36 / (1 + .3 * d), depth = 36 / (1 + .55 * d), tol = 70 / (1 + .8 * d);
+      const noise = 3 * (1 + 1.5 * Math.min(d, 2)), decoys = d < .25 ? 0 : d < .55 ? 1 : d < .85 ? 2 : 3;
+      const bumps = [{ x: x0, h: depth }];
+      for (let tries = 0; bumps.length <= decoys && tries < 60; tries++) {
+        const x = rnd(40, 360);
+        if (bumps.every(b => Math.abs(b.x - x) > 70)) bumps.push({ x, h: depth * rnd(.35, .35 + .4 * Math.min(1, d)) });
+      }
       const base = Array.from({ length: 41 }, (_, i) => 150 - 55 * Math.sin(i / 41 * Math.PI * 3) + gauss() * 2);
-      const driver = base.map((v, i) => { const x = 20 + i * 9; return v + gauss() * 3 + depth * Math.exp(-Math.pow((x - x0) / (width / 2), 2)); });
-      return { base, driver, x0, tol, wait: 2.2 };
+      const driver = base.map((v, i) => { const x = 20 + i * 9; return v + gauss() * noise + bumps.reduce((sum, b) => sum + b.h * Math.exp(-Math.pow((x - b.x) / (width / 2), 2)), 0); });
+      return { base, driver, x0, tol, wait: 2.2, limit: Math.max(6, 9 - 3 * Math.min(d, 1)) };
     },
     click(s, p) { if (s.t < s.wait || p.y < 70) return; return 1 - Math.abs(p.x - s.x0) / s.tol; },
     end() { return 0; },
@@ -231,29 +239,39 @@ function meteorologist() {
   };
 }
 
-// Chief mechanic: five parts of the car are shown by colour only; click the most worn.
+// Chief mechanic: the parts flash up one after another by colour only, then hide again; afterwards pick
+// the one that was most worn. The score is how close the pick's wear is to the worst one. With skill there
+// are more parts, each shows for less time and the colours are closer together.
 function mechanic() {
-  const parts = ['engine', 'gearbox', 'brakes', 'suspension', 'floor'];
   const color = w => `hsl(${Math.round(120 * (1 - w))} 68% 46%)`;
+  const GAP = .3, WAIT = 1, CHOOSE = 6;
   return {
-    limit: 8,
+    limit: 20,
     init(d) {
+      const k = Math.min(d, 1), n = 5 + Math.floor(3 * k + .01), show = 1.2 - .7 * k;
       const base = rnd(.15, .55), gap = .16 / (1 + .9 * d);
-      const worst = Math.floor(Math.random() * 5);
-      const wear = parts.map((_, i) => i === worst ? base + gap : base + rnd(-.1, .6) * gap);
-      return { wear, worst, wait: 1.8 };
+      const worst = Math.floor(Math.random() * n);
+      const wear = Array.from({ length: n }, (_, i) => i === worst ? base + gap : base + rnd(-.1, .6) * gap);
+      return { wear, worst, n, show, wait: WAIT, limit: WAIT + n * (show + GAP) + CHOOSE };
     },
+    phase(s) { return s.t < s.wait ? 0 : s.t < s.wait + s.n * (s.show + GAP) ? 1 : 2; },
+    current(s) { const k = Math.floor((s.t - s.wait) / (s.show + GAP)); return (s.t - s.wait) - k * (s.show + GAP) < s.show ? k : -1; },
     click(s, p) {
-      if (s.t < s.wait) return;
-      for (let i = 0; i < 5; i++) if (u_hit(p, 20 + i * 72, 100, 66, 100)) {
-        const order = s.wear.map((w, j) => [w, j]).sort((a, b) => b[0] - a[0]).map(x => x[1]);
-        return [1, .4, .15, 0, 0][order.indexOf(i)];
+      if (this.phase(s) !== 2) return;
+      const tw = (360 - (s.n - 1) * 6) / s.n;
+      for (let i = 0; i < s.n; i++) if (u_hit(p, 20 + i * (tw + 6), 100, tw, 100)) {
+        const hi = Math.max(...s.wear), lo = Math.min(...s.wear);
+        return clamp(1 - (hi - s.wear[i]) / Math.max(1e-6, hi - lo), 0, 1);
       }
     },
     end() { return 0; },
     draw(g, s, u) {
-      parts.forEach((n, i) => { u.rect(20 + i * 72, 100, 66, 100, color(s.wear[i]), 10); u.text(u.tr('ap_part_' + n), 53 + i * 72, 222, 10, '#bdcce0'); });
-      u.text(u.tr(s.t < s.wait ? 'ap_stg_analysing' : 'ap_stg_mech_hint'), 200, 270, 12, '#9fb2cc');
+      const ph = this.phase(s), cur = ph === 1 ? this.current(s) : -1, tw = (360 - (s.n - 1) * 6) / s.n;
+      for (let i = 0; i < s.n; i++) {
+        u.rect(20 + i * (tw + 6), 100, tw, 100, i === cur ? color(s.wear[i]) : '#1e2c3f', 10);
+        u.text(String(i + 1), 20 + i * (tw + 6) + tw / 2, 222, 12, i === cur ? '#ecf2fc' : '#8196b2');
+      }
+      u.text(u.tr(ph === 0 ? 'ap_stg_analysing' : ph === 1 ? 'ap_stg_mech_watch' : 'ap_stg_mech_hint'), 200, 270, 12, '#9fb2cc');
     },
   };
 }
@@ -290,35 +308,48 @@ function scout() {
   };
 }
 
-// Manager: the sponsor has a hidden budget; ask for as much as you dare, but not more than they have.
+// Manager: the sponsor has a hidden limit between 0 and 100. Set what you offer (the green part of your bar)
+// and try it; each try narrows the sponsor's bar towards the real limit, and the last try shows it exactly.
+// Settle (Deal) whenever you like. Asking exactly the limit is 100%, less pays proportionally, more than the
+// limit falls from 100% at the limit to 0% at 100 (the worst result). Higher skill means fewer tries.
 function manager() {
+  const value = (ask, budget) => ask <= budget ? ask / budget : Math.max(0, 1 - (ask - budget) / (100 - budget));
+  const BAR = { x: 20, y: 110, w: 360, h: 36 };
+  const attempts = d => clamp(11 - Math.floor((Math.round(1 + 99 * d) - 1) / 10), 2, 10);
+  const setAsk = (s, x) => { s.ask = clamp(Math.round((x - BAR.x) / BAR.w * 100), s.lo, 100); };
   return {
-    limit: 9,
-    init(d) { const budget = rnd(45, 100); return { budget, ask: 50, hint: budget + gauss() * 12 * (1 + .7 * d), wait: 1.6 }; },
-    click(s, p) {
-      if (s.t < s.wait) return;
-      if (u_hit(p, 290, 150, 90, 40)) {
-        if (s.ask <= s.budget) return s.ask / s.budget;
-        return Math.max(0, 1 - (s.ask - s.budget) / (.22 * s.budget)) * .45;
-      }
-      if (u_hit(p, 20, 120, 360, 26)) s.ask = clamp(Math.round((p.x - 20) / 360 * 100), 1, 100);
+    limit: 120,
+    init(d) { const n = attempts(d), lo = clamp(100 - Math.round(1 + 99 * d), 5, 85), budget = rnd(lo, 95); return { budget, lo, ask: lo, n, used: 0, last: null, ceiling: 100 }; },
+    offer(s) {
+      s.last = s.ask;
+      if (s.ask > s.budget) { s.label = '-' + Math.round((s.ask - s.budget) / (100 - s.budget) * 100) + '%'; s.ceiling = s.budget; return value(s.ask, s.budget); }
+      s.used++; s.lo = s.ask; s.ceiling = s.budget + (100 - s.budget) * (1 - s.used / s.n);
+      return s.used >= s.n ? value(s.last, s.budget) : undefined;
     },
-    drag(s, p) { if (s.t >= s.wait && p.y >= 108 && p.y <= 158) s.ask = clamp(Math.round((p.x - 20) / 360 * 100), 1, 100); },
+    click(s, p) {
+      if (u_hit(p, 20, 190, 170, 40)) return this.offer(s);
+      if (u_hit(p, 210, 190, 170, 40)) return s.used ? value(s.last, s.budget) : undefined;
+      if (u_hit(p, BAR.x, BAR.y - 10, BAR.w, BAR.h + 20)) setAsk(s, p.x);
+    },
+    drag(s, p) { if (p.y >= BAR.y - 24 && p.y <= BAR.y + BAR.h + 24) setAsk(s, p.x); },
     key(s, code) {
-      if (s.t < s.wait) return false;
-      if (code === 'ArrowLeft') s.ask = clamp(s.ask - 1, 1, 100); else if (code === 'ArrowRight') s.ask = clamp(s.ask + 1, 1, 100);
-      else if (code === 'Enter' || code === 'Space') { s.done = s.ask <= s.budget ? s.ask / s.budget : Math.max(0, 1 - (s.ask - s.budget) / (.22 * s.budget)) * .45; }
+      if (code === 'ArrowLeft') s.ask = clamp(s.ask - 1, s.lo, 100); else if (code === 'ArrowRight') s.ask = clamp(s.ask + 1, 1, 100);
+      else if (code === 'Enter') { const v = this.offer(s); if (v != null) s.done = v; }
+      else if (code === 'Space') { if (s.used) s.done = value(s.last, s.budget); }
       else return false;
       return true;
     },
-    end() { return 0; },
+    end(s) { return s.used ? value(s.last, s.budget) : 0; },
     draw(g, s, u) {
-      u.text(u.tr('ap_stg_budget_hint'), 200, 74, 12, '#bdcce0');
-      u.rect(20, 86, 360, 8, '#26364a', 4); u.circle(20 + 360 * clamp(s.hint, 0, 100) / 100, 90, 9, '#f2c230');
-      u.rect(20, 120, 360, 26, '#26364a', 6); u.rect(20, 120, 360 * s.ask / 100, 26, '#3a77c9', 6);
-      u.text(u.tr('ap_stg_ask') + ': ' + s.ask, 120, 168, 14);
-      u.button(290, 150, 90, 40, u.tr('ap_stg_ok'));
-      u.text(u.tr(s.t < s.wait ? 'ap_stg_analysing' : 'ap_stg_neg_hint'), 200, 250, 12, '#9fb2cc');
+      u.text(u.tr('ap_stg_neg_bar'), 200, 84, 13, '#bdcce0');
+      u.rect(BAR.x, BAR.y, BAR.w, BAR.h, '#26364a', 8);
+      u.rect(BAR.x + BAR.w * s.ceiling / 100, BAR.y, BAR.w * (1 - s.ceiling / 100), BAR.h, '#d94a3b', 8);
+      u.rect(BAR.x, BAR.y, BAR.w * s.ask / 100, BAR.h, '#2fae75', 8);
+      u.text(String(s.ask), BAR.x + clamp(BAR.w * s.ask / 100, 16, BAR.w - 16), BAR.y + BAR.h / 2, 15, '#fff');
+      u.text(Math.round(s.ceiling), BAR.x + clamp(BAR.w * s.ceiling / 100, 16, BAR.w - 16) + (s.ceiling > 92 ? -14 : 14), BAR.y + BAR.h + 14, 12, '#ff9b8f');
+      u.button(20, 190, 170, 40, u.tr('ap_stg_neg_offer'));
+      u.button(210, 190, 170, 40, u.tr('ap_stg_neg_deal'), s.used > 0);
+      u.text(u.tr('ap_stg_neg_left', { n: s.n - s.used }), 200, 258, 13, '#9fb2cc');
     },
   };
 }
