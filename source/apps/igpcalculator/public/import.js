@@ -47,6 +47,17 @@
     const explicit = date(value);
     if (explicit) return explicit;
     const normalized = value.normalize('NFKC').toLocaleLowerCase().trim();
+    // The schedule can also say "Today, 21:00" or "Tomorrow, 21:00".
+    const relative = new Map([
+      ['today', 0], ['tomorrow', 1], ['днес', 0], ['утре', 1], ['heute', 0], ['morgen', 1], ['hoy', 0], ['mañana', 1],
+      ["aujourd'hui", 0], ['demain', 1], ['今日', 0], ['明日', 1], ['hoje', 0], ['amanhã', 1], ['сегодня', 0], ['завтра', 1], ['今天', 0], ['明天', 1]]);
+    const word = [...relative].sort((x, y) => y[0].length - x[0].length).find(([name]) =>
+      normalized.startsWith(name) && !/[\p{L}\p{N}]/u.test(normalized.slice(name.length, name.length + 1)));
+    const at = /\b(\d{1,2}):(\d{2})\b/.exec(normalized);
+    if (word && at && +at[1] <= 23 && +at[2] <= 59) {
+      const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + word[1]);
+      return day.getFullYear() + '-' + String(day.getMonth() + 1).padStart(2, '0') + '-' + String(day.getDate()).padStart(2, '0');
+    }
     const weekdays = new Map();
     for (const lang of ['en', 'bg', 'de', 'es', 'fr', 'ja', 'pt-BR', 'ru', 'zh-CN']) {
       for (let day = 0; day < 7; day++) {

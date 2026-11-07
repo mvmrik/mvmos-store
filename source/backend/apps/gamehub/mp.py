@@ -1041,6 +1041,7 @@ def _play_html(game_id: str, room_id: str) -> str:
   <title>mvmOS · Game Hub</title>
   <script>window.__assets={assets_manifest()}</script>
   <script src="{asset('/asset.js')}"></script>
+  <script src="{asset('/datetime-picker.js')}"></script>
   {_public_bootstrap(themed)}
   <style>
     *{{box-sizing:border-box;margin:0;padding:0}}

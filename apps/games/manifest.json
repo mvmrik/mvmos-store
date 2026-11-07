@@ -35,15 +35,15 @@
       "name": "Game Hub",
       "icon": "🎮",
       "category": "Games",
-      "version": "1.20.0",
+      "version": "1.20.1",
       "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.20.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.20.1.zip",
       "tags": [
         "multiplayer",
         "social",
         "games"
       ],
-      "min_core_version": "1.16.0",
+      "min_core_version": "1.17.0",
       "name_i18n": {
         "en": "Game Hub",
         "bg": "Гейм хъб",
@@ -149,9 +149,9 @@
       "name": "IGP Calculator",
       "icon": "🏎️",
       "category": "Games",
-      "version": "1.2.3",
+      "version": "1.2.4",
       "description": "Car setup and tyre strategy calculator for iGP Manager races, with every race you prepare kept on your own profile.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/igpcalculator-1.2.3.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/igpcalculator-1.2.4.zip",
       "tags": [
         "igp manager",
         "racing",

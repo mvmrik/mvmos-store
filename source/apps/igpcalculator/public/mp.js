@@ -19,7 +19,8 @@
   const API = '/pub/igpcalculator';
   const HUB_URL = '/pub/gamehub/?game=' + GAME_ID;
   const importScript = new URL('import.js', document.currentScript?.src || location.origin + '/apps/igpcalculator/mp.js');
-  importScript.searchParams.set('v', '20260930-progress');
+  // The version follows the file itself, so a changed import.js is never served from an old copy.
+  if (window.asset) importScript.search = new URL(window.asset('/apps/igpcalculator/import.js'), location.origin).search;
 
   function tr(k, vars) {
     let s = window.t ? window.t(k) : k;
