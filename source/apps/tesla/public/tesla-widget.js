@@ -1310,21 +1310,21 @@
 
     // ── Charges ───────────────────────────────────────────────────────────
     function chargeRow(r) {
-      const metric = (label, value, singleLine = false) => `<span><b>${esc(value)}</b>${label ? `<small${singleLine ? ' style="white-space:nowrap"' : ''}>${esc(label)}</small>` : ''}</span>`;
+      const metric = (lines, value) => { const rows = [].concat(lines).filter(Boolean); return `<span><b>${esc(value)}</b>${rows.length ? `<small>${rows.map(esc).join('<br>')}</small>` : ''}</span>`; };
       const breakdown = r.cost_breakdown || [];
       const tariffs = [...new Set(breakdown.filter(b => b.source === 'tariff' && b.name).map(b => b.name))];
       const rates = [...new Set(breakdown.filter(b => Number.isFinite(b.price)).map(b => unitPrice(b.price, b.currency) + '/kWh'))];
-      const price = rates.length ? rates.join(' · ') : Number.isFinite(r.price) ? unitPrice(r.price, r.cost_currency) + '/kWh' : '– /kWh';
+      const price = rates.length ? rates : [Number.isFinite(r.price) ? unitPrice(r.price, r.cost_currency) + '/kWh' : '– /kWh'];
       const duration = (r.end_ts || r.start_ts) - r.start_ts;
       const avg = Number.isFinite(r.kwh) && duration > 0 ? r.kwh * 3600 / duration : null;
-      const peak = Number.isFinite(r.max_power) ? t('tsl_chg_peak') + ': ' + fmt.kw(r.max_power) : '';
+      const peak = Number.isFinite(r.max_power) ? [t('tsl_chg_peak') + ':', fmt.kw(r.max_power)] : [];
       const start = r.start_batt == null ? null : Math.max(0, Math.min(100, r.start_batt));
       const end = r.end_batt == null ? null : Math.max(0, Math.min(100, r.end_batt));
       const cost = (r.cost_totals && r.cost_totals.length ? (r.cost_complete ? '' : '≥ ') : '') + (r.pricing_estimated ? '≈ ' : '') + costMoney(r);
       return `<button type="button" class="tsl-drive-card tsl-charge-card ${r.dc ? 'dc' : ''}" data-open="charge:${r.id}">
         <div class="tsl-drive-meta"><time datetime="${new Date(r.start_ts * 1000).toISOString()}">${esc(fmt.date(r.start_ts))}<b>${esc(fmt.time(r.start_ts))}</b></time><span class="tsl-drive-duration">${esc(fmt.dur((r.end_ts || r.start_ts) - r.start_ts))}</span></div>
         <div class="tsl-charge-location"><span class="tsl-session-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2 5 14h6l-1 8 9-13h-7z"/></svg></span><strong>${esc(place(r.place, r.addr))}</strong><span class="tsl-badge ${r.dc ? 'dc' : ''}">${esc(t(r.dc ? 'tsl_chg_dc' : 'tsl_chg_ac'))}</span></div>
-        <div class="tsl-drive-metrics">${metric(tariffs.length ? tariffs.join(' · ') : t('tsl_chg_added'),r.kwh == null ? '–' : '+' + fmt.kwh(r.kwh))}${metric(peak,avg == null ? '–' : fmt.kw(avg),true)}${metric(price,cost)}</div>
+        <div class="tsl-drive-metrics">${metric(tariffs.length ? tariffs : t('tsl_chg_added'),r.kwh == null ? '–' : '+' + fmt.kwh(r.kwh))}${metric(peak,avg == null ? '–' : fmt.kw(avg))}${metric(price,cost)}</div>
         ${start != null && end != null ? `<div class="tsl-drive-battery"><span>${esc(t('tsl_trip_batt'))}</span><div class="tsl-drive-battery-track" aria-hidden="true"><i style="width:${end}%"></i><i class="before" style="width:${start}%"></i></div><span>${esc(nf(start))}% → ${esc(nf(end))}%</span></div>` : ''}
       </button>`;
     }
