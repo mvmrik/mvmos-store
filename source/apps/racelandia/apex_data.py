@@ -1271,6 +1271,15 @@ def best_laps(player_id: str, track: str = TRACK, profile: dict = None) -> dict:
         cur_p = pil["pilot_id"] if pil else None
         out["pool"] = [{"setup": clean_setup(json.loads(x["s"])), "best": x["t"], "laps": x["n"], "air": x["a"], "asphalt": x["k"], "water": x["w"],
                         "mine": x["p"] is None or x["p"] == cur_p, "fuelLap": x["f"], "profile": json.loads(x["pr"]) if x["pr"] else None} for x in pool]
+        # the fastest valid-timed lap of each car on this circuit, from the car kept in the profile of every run
+        out["car_bests"] = {}
+        for x in conn.execute("SELECT best, profile FROM runs WHERE player_id=? AND track=? AND best IS NOT NULL AND profile IS NOT NULL", (player_id, track)).fetchall():
+            try:
+                cid = (json.loads(x["profile"]) or {}).get("car")
+            except Exception:
+                cid = None
+            if cid and (cid not in out["car_bests"] or x["best"] < out["car_bests"][cid]):
+                out["car_bests"][cid] = x["best"]
         out["now"] = profile or current_profile(get_driver(player_id))
         out["advice"] = {"setup": clean_setup(json.loads(b["s"])), "best": b["t"], "compound": b["c"], "air": b["a"], "water": b["w"], "at": b["at"]} if b else None
         return out
@@ -1290,6 +1299,10 @@ def list_runs(player_id: str, track: str = TRACK, limit: int = 40) -> list:
             d["weekend"] = json.loads(d["weekend"]) if d.get("weekend") else None
             d["setup"] = json.loads(d["setup"])
             d["final_setup"] = json.loads(d["final_setup"]) if d["final_setup"] else d["setup"]
+            try:
+                d["car"] = (json.loads(d["profile"]) if d.get("profile") else {}).get("car")
+            except Exception:
+                d["car"] = None
             out.append(d)
         return out
     finally:

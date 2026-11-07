@@ -118,8 +118,104 @@
       ap_stg_neg_offer: "Offer",
       ap_stg_neg_deal: "Deal",
       ap_stg_neg_left: "Tries left: {n}",
-      ap_tab_team: "Team",
-      ap_team_page_hint: "Manage your team name, career, sponsors and circuits.",
+      ap_tab_team: "Tracks",
+
+      ap_tab_home: "Home",
+
+      ap_hm_page_hint: "What your team would tell you today.",
+
+      ap_hm_hint: "A report from each specialist: how things stand in their field and what could be better.",
+
+      ap_hm_team: "Team",
+
+      ap_hm_daily: "Daily salaries",
+
+      ap_hm_trainings: "Trainings left today",
+
+      ap_hm_lab_ready: "The research report is ready. Accept or reject the result.",
+
+      ap_hm_lab_running: "Research on {part} will be ready in {time}.",
+
+      ap_hm_lab_idle: "The research team is idle. Start a new research to find a faster part.",
+
+      ap_hm_money_low: "The budget covers only about {days} days of salaries. Check sponsors and costs.",
+
+      ap_hm_sponsor_none: "No sponsor yet. Sponsors pay every day, and a manager raises every offer.",
+
+      ap_hm_tyres_few: "Only {n} usable tyre sets for {m} cars. Buy more in the warehouse before sending them out.",
+
+      ap_hm_tyres_ok: "{n} tyre sets are ready for {m} cars.",
+
+      ap_hm_tyres_ok_rec: "{n} tyre sets are ready for {m} cars. For the conditions now I would run {compound}.",
+
+      ap_hm_tyres_worn: "{n} tyre sets are nearly worn out. Plan replacements.",
+
+      ap_hm_parts_worn: "{car}: {list} are worn. Repair or replace them before the next run.",
+
+      ap_hm_coach_rest: "{name} has only {e}% energy. Let the pilot rest before the next training.",
+
+      ap_hm_coach_wait: "No trainings left today. The training hall opens again later.",
+
+      ap_hm_coach_train: "{name} is weakest in {skill} ({v}). The {game} exercise trains it; {n} trainings left today.",
+
+      ap_hm_test_new: "Nobody has driven {track} yet. A test run gives the team its first data.",
+
+      ap_hm_test_gap: "Your best at {track} is {gap} s off the record. Another test run could close the gap.",
+
+      ap_hm_energy_low: "{name} is tired ({e}% energy). Let them rest.",
+
+      ap_hm_crew_empty: "{car}: {n} of {m} pit positions are empty. A short-handed crew loses seconds in the pit.",
+
+      ap_hm_crew_train: "{car}: the weakest crew member is {name} at {pos} (level {level}). A training would help.",
+
+      ap_hm_spec_train: "{name} ({role}, level {level}) can still improve by {n}. Train them in their own game.",
+
+      ap_hm_spec_hire: "You have no {role} yet. {does}",
+
+      ap_hm_v2: "Needs attention",
+
+      ap_hm_v1: "Can be improved",
+
+      ap_hm_v0: "In order",
+
+      ap_hm_nothing: "Nothing to report. Everything in my field is in order.",
+
+      ap_hm_money_ok: "The budget covers about {days} days of salaries.",
+
+      ap_hm_sponsor_ok: "Sponsors bring {income} a day against {costs} of daily salaries.",
+
+      ap_hm_test_ok: "Every usable track has been driven and your times are close to the records.",
+
+      ap_hm_energy_ok: "Everyone is rested.",
+
+      ap_hm_wx_short_off: "Short-term forecasts need level 50 or more.",
+
+      ap_hm_scout_market: "{n} pilots are on the market now.",
+
+      ap_hm_pilot_car: "{name} drives {car}: overall {overall}, energy {e}%.",
+
+      ap_hm_pilot_reserve: "{name} has no car and is on the reserve: overall {overall}, energy {e}%.",
+
+      ap_hm_pilot_nocar: "{car} has no pilot. Assign one in the garage.",
+
+      ap_hm_pilot_skills: "{name} is strongest in {best} ({bv}) and weakest in {weak} ({wv}).",
+
+      ap_hm_pilot_nocoach: "Without a driver coach every training session adds fewer points. Hire one in Specialists.",
+
+      ap_hm_tyres_sets: "Tyre sets: {list}. The most worn set is at {pct}%.",
+
+      ap_hm_parts_ok: "{car}: all parts are in good shape; the most worn is {part}, {pct}% left.",
+
+      ap_hm_test_count: "{n} of {m} usable tracks have been driven.",
+
+      ap_hm_energy_min: "Lowest energy in the team: {name}, {e}%.",
+
+      ap_hm_wx_short_on: "Short-term forecasts are available.",
+
+      ap_hm_season: "Round {n}: {phase}. Your car is waiting.",
+
+      ap_hm_season_open: "You can enter a division. Open the season to see the rules.",
+      ap_team_page_hint: "Your own circuit and the circuits you can race on.",
       ap_team_save: "Save team name",
       ap_team_saved: "Team name saved.",
       ap_hall_title: "Training hall",
@@ -400,6 +496,8 @@
       ap_license_progress: "Successful qualifying sessions: {n} / 3. Silver or better: {s} / 1.",
       ap_abandon_run: "Abandon active run",
       ap_recruit_title: "Driver market",
+      ap_recruit_open: "Open the driver market",
+      ap_recruit_close: "Close the market",
       ap_recruit_hint: "Four 17-year-old prospects are always available, with each skill randomly set from 40 to 50. Permanent character traits range from 0 to 100. Skills and development potential affect the signing fee; skills also affect salary. Hiring immediately replaces that offer; the others refresh weekly.",
       ap_recruit_wait: "Next recruitment in {days} d {hours} h.",
       ap_starting_skills: "All skills: 50",
@@ -440,8 +538,7 @@
       ap_tab_track: "Track",
       ap_budget: "Budget",
       ap_energy: "Driver energy",
-      ap_finish: "Finish session",
-      ap_finish_confirm: "Finish the session? Your current run is abandoned and the room is closed. Your career is kept.",
+      ap_leave_confirm: "Leave the game? Your current run is abandoned. Your career is kept.",
       ap_leave: "Leave",
       ap_error: "Could not load the garage.",
       ap_setup: "Car setup",
@@ -519,6 +616,8 @@
       ap_your_best: "Your best",
       ap_points: "Points",
       ap_track_record: "Track record",
+
+      ap_fastest_lap: "Fastest lap",
       ap_laps_done: "Valid laps",
       ap_board: "Room standings",
       ap_g_aero: "Aerodynamics",
@@ -1087,8 +1186,8 @@
       ap_dnf_dsq: "Disqualified: tyre rule",
       ap_tyre_rule_ok: "Tyre rule met",
       ap_tyre_rule_todo: "Required: two different dry compounds (or rain tyres)",
-      ap_staff: "Staff",
-      ap_staff_hint: "Your drivers and the pit crews of your cars. Everybody can be trained and everybody is paid every real day.",
+      ap_staff: "Team",
+      ap_staff_hint: "Your team name, career and sponsors, your drivers and the pit crews of your cars. Everybody can be trained and everybody is paid every real day.",
       ap_pilots: "Drivers",
       ap_pit_crew: "Pit crew",
       ap_pos_front_left: "Front-left tyre",
@@ -1262,8 +1361,104 @@
       ap_stg_neg_offer: "Предложи",
       ap_stg_neg_deal: "Съгласен съм",
       ap_stg_neg_left: "Оставащи опити: {n}",
-      ap_tab_team: "Отбор",
-      ap_team_page_hint: "Управлявай името на отбора, кариерата, спонсорите и пистите.",
+      ap_tab_team: "Писти",
+
+      ap_tab_home: "Начало",
+
+      ap_hm_page_hint: "Какво би ти казал отборът днес.",
+
+      ap_hm_hint: "Доклад от всеки специалист: какво е положението в неговата област и какво може да се подобри.",
+
+      ap_hm_team: "Отбор",
+
+      ap_hm_daily: "Дневни заплати",
+
+      ap_hm_trainings: "Тренировки днес",
+
+      ap_hm_lab_ready: "Докладът от проучването е готов. Приеми или откажи резултата.",
+
+      ap_hm_lab_running: "Проучването на {part} ще е готово след {time}.",
+
+      ap_hm_lab_idle: "Екипът за проучване няма работа. Започни ново проучване за по-бърза част.",
+
+      ap_hm_money_low: "Бюджетът стига само за около {days} дни заплати. Провери спонсорите и разходите.",
+
+      ap_hm_sponsor_none: "Още няма спонсор. Спонсорите плащат всеки ден, а мениджърът вдига всяка оферта.",
+
+      ap_hm_tyres_few: "Само {n} годни комплекта гуми за {m} коли. Купи още от склада преди да ги пуснеш.",
+
+      ap_hm_tyres_ok: "{n} комплекта гуми са готови за {m} коли.",
+
+      ap_hm_tyres_ok_rec: "{n} комплекта гуми са готови за {m} коли. При сегашните условия бих пуснал {compound}.",
+
+      ap_hm_tyres_worn: "{n} комплекта гуми са почти износени. Планирай смяна.",
+
+      ap_hm_parts_worn: "{car}: {list} са износени. Поправи или смени ги преди следващото каране.",
+
+      ap_hm_coach_rest: "{name} има само {e}% енергия. Нека пилотът си почине преди следващата тренировка.",
+
+      ap_hm_coach_wait: "Днес няма повече тренировки. Залата за тренировки ще се отвори пак по-късно.",
+
+      ap_hm_coach_train: "{name} е най-слаб в „{skill}“ ({v}). Упражнението „{game}“ го тренира; остават {n} тренировки днес.",
+
+      ap_hm_test_new: "Още никой не е карал на {track}. Тестова обиколка дава първите данни на отбора.",
+
+      ap_hm_test_gap: "Най-доброто ти време на {track} е с {gap} с по-бавно от рекорда. Още една тестова обиколка може да скъси разликата.",
+
+      ap_hm_energy_low: "{name} е уморен ({e}% енергия). Нека си почине.",
+
+      ap_hm_crew_empty: "{car}: {n} от {m} места в питстоп екипа са празни. Непълен екип губи секунди в бокса.",
+
+      ap_hm_crew_train: "{car}: най-слаб в екипа е {name} на позиция „{pos}“ (ниво {level}). Тренировка ще помогне.",
+
+      ap_hm_spec_train: "{name} ({role}, ниво {level}) още може да се подобри с {n}. Тренирай го в неговата игра.",
+
+      ap_hm_spec_hire: "Още нямаш {role}. {does}",
+
+      ap_hm_v2: "Иска внимание",
+
+      ap_hm_v1: "Може да се подобри",
+
+      ap_hm_v0: "В ред",
+
+      ap_hm_nothing: "Няма какво да докладвам. Всичко в моята област е в ред.",
+
+      ap_hm_money_ok: "Бюджетът стига за около {days} дни заплати.",
+
+      ap_hm_sponsor_ok: "Спонсорите носят {income} на ден срещу {costs} дневни заплати.",
+
+      ap_hm_test_ok: "Карано е на всяка използваема писта и времената ти са близо до рекордите.",
+
+      ap_hm_energy_ok: "Всички са отпочинали.",
+
+      ap_hm_wx_short_off: "Краткосрочните прогнози изискват ниво 50 или повече.",
+
+      ap_hm_scout_market: "В момента на пазара има {n} пилоти.",
+
+      ap_hm_pilot_car: "{name} кара {car}: общо ниво {overall}, енергия {e}%.",
+
+      ap_hm_pilot_reserve: "{name} няма кола и е в резерва: общо ниво {overall}, енергия {e}%.",
+
+      ap_hm_pilot_nocar: "{car} няма пилот. Определи го в гаража.",
+
+      ap_hm_pilot_skills: "{name} е най-силен в {best} ({bv}) и най-слаб в {weak} ({wv}).",
+
+      ap_hm_pilot_nocoach: "Без треньор на пилотите всяка тренировка носи по-малко точки. Наеми такъв от Специалисти.",
+
+      ap_hm_tyres_sets: "Комплекти гуми: {list}. Най-износеният е на {pct}%.",
+
+      ap_hm_parts_ok: "{car}: всички части са в добро състояние; най-износена е {part}, остава {pct}%.",
+
+      ap_hm_test_count: "Карано е на {n} от {m} използваеми писти.",
+
+      ap_hm_energy_min: "Най-ниска енергия в отбора: {name}, {e}%.",
+
+      ap_hm_wx_short_on: "Краткосрочните прогнози са налични.",
+
+      ap_hm_season: "Кръг {n}: {phase}. Колата те чака.",
+
+      ap_hm_season_open: "Можеш да влезеш в дивизия. Отвори сезона, за да видиш правилата.",
+      ap_team_page_hint: "Собствената ти писта и пистите, на които можеш да се състезаваш.",
       ap_team_save: "Запази името на отбора",
       ap_team_saved: "Името на отбора е запазено.",
       ap_hall_title: "Тренировъчна зала",
@@ -1544,6 +1739,8 @@
       ap_license_progress: "Успешни квалификации: {n} / 3. Сребро или повече: {s} / 1.",
       ap_abandon_run: "Прекрати активното излизане",
       ap_recruit_title: "Пазар на пилоти",
+      ap_recruit_open: "Отвори пазара за пилоти",
+      ap_recruit_close: "Затвори пазара",
       ap_recruit_hint: "Винаги има четирима млади кандидати на 17 години, с всяко умение на случаен принцип от 40 до 50. Постоянните черти на характера са от 0 до 100. Уменията и потенциалът за развитие влияят на цената, а уменията — и на заплатата. При наемане веднага идва нов кандидат; останалите се обновяват седмично.",
       ap_recruit_wait: "Следващо привличане след {days} д {hours} ч.",
       ap_starting_skills: "Всички умения: 50",
@@ -1584,8 +1781,7 @@
       ap_tab_track: "Писта",
       ap_budget: "Бюджет",
       ap_energy: "Енергия на пилота",
-      ap_finish: "Приключи сесията",
-      ap_finish_confirm: "Да приключиш ли сесията? Текущото каране се прекратява и играта се затваря. Кариерата ти се запазва.",
+      ap_leave_confirm: "Да напуснеш ли играта? Текущото каране се прекратява. Кариерата ти се запазва.",
       ap_leave: "Напусни",
       ap_error: "Гаражът не можа да се зареди.",
       ap_setup: "Настройки на колата",
@@ -1663,6 +1859,8 @@
       ap_your_best: "Твоята най-бърза",
       ap_points: "Точки",
       ap_track_record: "Рекорд на пистата",
+
+      ap_fastest_lap: "Най-бърза обиколка",
       ap_laps_done: "Валидни обиколки",
       ap_board: "Класиране в стаята",
       ap_g_aero: "Аеродинамика",
@@ -2231,8 +2429,8 @@
       ap_dnf_dsq: "Дисквалифициран: правило за гумите",
       ap_tyre_rule_ok: "Правилото за гумите е изпълнено",
       ap_tyre_rule_todo: "Задължително: два различни вида гуми за сухо (или гуми за дъжд)",
-      ap_staff: "Персонал",
-      ap_staff_hint: "Пилотите ти и питстоп екипите на колите ти. Всеки може да се тренира и всеки получава заплата всеки реален ден.",
+      ap_staff: "Отбор",
+      ap_staff_hint: "Името на отбора, кариерата и спонсорите, пилотите ти и питстоп екипите на колите ти. Всеки може да се тренира и всеки получава заплата всеки реален ден.",
       ap_pilots: "Пилоти",
       ap_pit_crew: "Питстоп екип",
       ap_pos_front_left: "Предна лява гума",
@@ -2406,8 +2604,104 @@
       ap_stg_neg_offer: "Anbieten",
       ap_stg_neg_deal: "Abschluss",
       ap_stg_neg_left: "Verbleibende Versuche: {n}",
-      ap_tab_team: "Team",
-      ap_team_page_hint: "Verwalte Teamnamen, Karriere, Sponsoren und Strecken.",
+      ap_tab_team: "Strecken",
+
+      ap_tab_home: "Start",
+
+      ap_hm_page_hint: "Was dein Team dir heute sagen würde.",
+
+      ap_hm_hint: "Ein Bericht jedes Spezialisten: wie es in seinem Bereich steht und was besser werden könnte.",
+
+      ap_hm_team: "Team",
+
+      ap_hm_daily: "Tägliche Gehälter",
+
+      ap_hm_trainings: "Trainings heute übrig",
+
+      ap_hm_lab_ready: "Der Forschungsbericht ist fertig. Nimm das Ergebnis an oder lehne es ab.",
+
+      ap_hm_lab_running: "Die Forschung an {part} ist in {time} fertig.",
+
+      ap_hm_lab_idle: "Das Forschungsteam hat nichts zu tun. Starte eine neue Forschung für ein schnelleres Teil.",
+
+      ap_hm_money_low: "Das Budget reicht nur für etwa {days} Tage Gehälter. Prüfe Sponsoren und Kosten.",
+
+      ap_hm_sponsor_none: "Noch kein Sponsor. Sponsoren zahlen täglich, und ein Manager verbessert jedes Angebot.",
+
+      ap_hm_tyres_few: "Nur {n} nutzbare Reifensätze für {m} Autos. Kauf im Lager mehr, bevor du sie losschickst.",
+
+      ap_hm_tyres_ok: "{n} Reifensätze sind für {m} Autos bereit.",
+
+      ap_hm_tyres_ok_rec: "{n} Reifensätze sind für {m} Autos bereit. Bei den aktuellen Bedingungen würde ich {compound} fahren.",
+
+      ap_hm_tyres_worn: "{n} Reifensätze sind fast abgefahren. Plane Ersatz.",
+
+      ap_hm_parts_worn: "{car}: {list} sind verschlissen. Repariere oder ersetze sie vor der nächsten Fahrt.",
+
+      ap_hm_coach_rest: "{name} hat nur {e}% Energie. Lass den Fahrer vor dem nächsten Training ruhen.",
+
+      ap_hm_coach_wait: "Heute keine Trainings mehr. Die Trainingshalle öffnet später wieder.",
+
+      ap_hm_coach_train: "{name} ist am schwächsten bei {skill} ({v}). Die Übung „{game}“ trainiert das; heute noch {n} Trainings.",
+
+      ap_hm_test_new: "Auf {track} ist noch niemand gefahren. Eine Testrunde liefert dem Team erste Daten.",
+
+      ap_hm_test_gap: "Deine Bestzeit auf {track} liegt {gap} s hinter dem Rekord. Eine weitere Testrunde könnte den Abstand verkürzen.",
+
+      ap_hm_energy_low: "{name} ist müde ({e}% Energie). Lass die Person ruhen.",
+
+      ap_hm_crew_empty: "{car}: {n} von {m} Boxenpositionen sind leer. Eine unterbesetzte Crew verliert Sekunden.",
+
+      ap_hm_crew_train: "{car}: Das schwächste Crewmitglied ist {name} bei {pos} (Stufe {level}). Ein Training würde helfen.",
+
+      ap_hm_spec_train: "{name} ({role}, Stufe {level}) kann sich noch um {n} verbessern. Trainiere in seinem eigenen Spiel.",
+
+      ap_hm_spec_hire: "Du hast noch kein(e) {role}. {does}",
+
+      ap_hm_v2: "Braucht Aufmerksamkeit",
+
+      ap_hm_v1: "Kann verbessert werden",
+
+      ap_hm_v0: "In Ordnung",
+
+      ap_hm_nothing: "Nichts zu melden. In meinem Bereich ist alles in Ordnung.",
+
+      ap_hm_money_ok: "Das Budget reicht für etwa {days} Tage Gehälter.",
+
+      ap_hm_sponsor_ok: "Sponsoren bringen {income} pro Tag bei {costs} Tagesgehältern.",
+
+      ap_hm_test_ok: "Jede nutzbare Strecke wurde gefahren, und deine Zeiten liegen nahe an den Rekorden.",
+
+      ap_hm_energy_ok: "Alle sind ausgeruht.",
+
+      ap_hm_wx_short_off: "Kurzfristige Vorhersagen brauchen Stufe 50 oder mehr.",
+
+      ap_hm_scout_market: "Derzeit sind {n} Piloten auf dem Markt.",
+
+      ap_hm_pilot_car: "{name} fährt {car}: Gesamt {overall}, Energie {e}%.",
+
+      ap_hm_pilot_reserve: "{name} hat kein Auto und ist in Reserve: Gesamt {overall}, Energie {e}%.",
+
+      ap_hm_pilot_nocar: "{car} hat keinen Piloten. Weise in der Garage einen zu.",
+
+      ap_hm_pilot_skills: "{name} ist am stärksten in {best} ({bv}) und am schwächsten in {weak} ({wv}).",
+
+      ap_hm_pilot_nocoach: "Ohne Fahrertrainer bringt jedes Training weniger Punkte. Stelle einen unter Spezialisten ein.",
+
+      ap_hm_tyres_sets: "Reifensätze: {list}. Der am stärksten abgenutzte liegt bei {pct}%.",
+
+      ap_hm_parts_ok: "{car}: Alle Teile sind in gutem Zustand; am stärksten abgenutzt ist {part}, {pct}% übrig.",
+
+      ap_hm_test_count: "{n} von {m} nutzbaren Strecken wurden gefahren.",
+
+      ap_hm_energy_min: "Niedrigste Energie im Team: {name}, {e}%.",
+
+      ap_hm_wx_short_on: "Kurzfristige Vorhersagen sind verfügbar.",
+
+      ap_hm_season: "Runde {n}: {phase}. Dein Auto wartet.",
+
+      ap_hm_season_open: "Du kannst in eine Division einsteigen. Öffne die Saison für die Regeln.",
+      ap_team_page_hint: "Deine eigene Strecke und die Strecken, auf denen du fahren kannst.",
       ap_team_save: "Teamnamen speichern",
       ap_team_saved: "Teamname gespeichert.",
       ap_hall_title: "Trainingshalle",
@@ -2688,6 +2982,8 @@
       ap_license_progress: "Erfolgreiche Qualifikationen: {n} / 3. Silber oder besser: {s} / 1.",
       ap_abandon_run: "Aktiven Lauf abbrechen",
       ap_recruit_title: "Fahrermarkt",
+      ap_recruit_open: "Fahrermarkt öffnen",
+      ap_recruit_close: "Markt schließen",
       ap_recruit_hint: "Es stehen immer vier 17-jährige Nachwuchsfahrer bereit. Jede Fähigkeit liegt zufällig zwischen 40 und 50, feste Charakterzüge zwischen 0 und 100. Fähigkeiten und Entwicklungspotenzial beeinflussen die Ablöse, Fähigkeiten auch das Gehalt. Nach einer Verpflichtung folgt sofort ein neuer Kandidat; die übrigen wechseln wöchentlich.",
       ap_recruit_wait: "Nächste Verpflichtung in {days} T {hours} Std.",
       ap_starting_skills: "Alle Fähigkeiten: 50",
@@ -2728,8 +3024,7 @@
       ap_tab_track: "Strecke",
       ap_budget: "Budget",
       ap_energy: "Energie des Fahrers",
-      ap_finish: "Sitzung beenden",
-      ap_finish_confirm: "Sitzung beenden? Die aktuelle Fahrt wird abgebrochen und das Spiel geschlossen. Deine Karriere bleibt erhalten.",
+      ap_leave_confirm: "Spiel verlassen? Die aktuelle Fahrt wird abgebrochen. Deine Karriere bleibt erhalten.",
       ap_leave: "Verlassen",
       ap_error: "Die Garage konnte nicht geladen werden.",
       ap_setup: "Fahrzeug-Setup",
@@ -2807,6 +3102,8 @@
       ap_your_best: "Deine Bestzeit",
       ap_points: "Punkte",
       ap_track_record: "Streckenrekord",
+
+      ap_fastest_lap: "Schnellste Runde",
       ap_laps_done: "Gültige Runden",
       ap_board: "Wertung im Raum",
       ap_g_aero: "Aerodynamik",
@@ -3375,8 +3672,8 @@
       ap_dnf_dsq: "Disqualifiziert: Reifenregel",
       ap_tyre_rule_ok: "Reifenregel erfüllt",
       ap_tyre_rule_todo: "Pflicht: zwei verschiedene Trockenreifen (oder Regenreifen)",
-      ap_staff: "Personal",
-      ap_staff_hint: "Deine Fahrer und die Boxencrews deiner Autos. Alle lassen sich trainieren und alle werden jeden echten Tag bezahlt.",
+      ap_staff: "Team",
+      ap_staff_hint: "Dein Teamname, Karriere und Sponsoren, deine Fahrer und die Boxencrews deiner Autos. Alle lassen sich trainieren und alle werden jeden echten Tag bezahlt.",
       ap_pilots: "Fahrer",
       ap_pit_crew: "Boxencrew",
       ap_pos_front_left: "Reifen vorne links",
@@ -3550,8 +3847,104 @@
       ap_stg_neg_offer: "Ofrecer",
       ap_stg_neg_deal: "Cerrar trato",
       ap_stg_neg_left: "Intentos restantes: {n}",
-      ap_tab_team: "Equipo",
-      ap_team_page_hint: "Gestiona el nombre del equipo, la carrera, los patrocinadores y los circuitos.",
+      ap_tab_team: "Circuitos",
+
+      ap_tab_home: "Inicio",
+
+      ap_hm_page_hint: "Lo que tu equipo te diría hoy.",
+
+      ap_hm_hint: "Un informe de cada especialista: cómo está su área y qué se podría mejorar.",
+
+      ap_hm_team: "Equipo",
+
+      ap_hm_daily: "Salarios diarios",
+
+      ap_hm_trainings: "Entrenamientos de hoy",
+
+      ap_hm_lab_ready: "El informe de investigación está listo. Acepta o rechaza el resultado.",
+
+      ap_hm_lab_running: "La investigación de {part} estará lista en {time}.",
+
+      ap_hm_lab_idle: "El equipo de investigación está parado. Empieza una investigación para encontrar una pieza más rápida.",
+
+      ap_hm_money_low: "El presupuesto solo cubre unos {days} días de salarios. Revisa patrocinadores y gastos.",
+
+      ap_hm_sponsor_none: "Aún no tienes patrocinador. Pagan cada día y un director mejora cada oferta.",
+
+      ap_hm_tyres_few: "Solo {n} juegos de neumáticos útiles para {m} coches. Compra más en el almacén antes de salir.",
+
+      ap_hm_tyres_ok: "{n} juegos de neumáticos listos para {m} coches.",
+
+      ap_hm_tyres_ok_rec: "{n} juegos de neumáticos listos para {m} coches. Con las condiciones actuales saldría con {compound}.",
+
+      ap_hm_tyres_worn: "{n} juegos de neumáticos casi gastados. Planea reemplazos.",
+
+      ap_hm_parts_worn: "{car}: {list} están desgastadas. Repáralas o cámbialas antes de la próxima salida.",
+
+      ap_hm_coach_rest: "{name} solo tiene {e}% de energía. Deja descansar al piloto antes del próximo entrenamiento.",
+
+      ap_hm_coach_wait: "Hoy no quedan entrenamientos. La sala abrirá de nuevo más tarde.",
+
+      ap_hm_coach_train: "{name} es más débil en {skill} ({v}). El ejercicio «{game}» lo entrena; hoy quedan {n} entrenamientos.",
+
+      ap_hm_test_new: "Nadie ha rodado aún en {track}. Una vuelta de prueba da al equipo sus primeros datos.",
+
+      ap_hm_test_gap: "Tu mejor tiempo en {track} está a {gap} s del récord. Otra vuelta de prueba podría acortar la diferencia.",
+
+      ap_hm_energy_low: "{name} está cansado ({e}% de energía). Déjale descansar.",
+
+      ap_hm_crew_empty: "{car}: {n} de {m} puestos de boxes están vacíos. Un equipo incompleto pierde segundos.",
+
+      ap_hm_crew_train: "{car}: el más débil del equipo es {name} en {pos} (nivel {level}). Un entrenamiento ayudaría.",
+
+      ap_hm_spec_train: "{name} ({role}, nivel {level}) aún puede mejorar {n}. Entrénalo en su propio juego.",
+
+      ap_hm_spec_hire: "Aún no tienes {role}. {does}",
+
+      ap_hm_v2: "Requiere atención",
+
+      ap_hm_v1: "Se puede mejorar",
+
+      ap_hm_v0: "En orden",
+
+      ap_hm_nothing: "Nada que informar. Todo en mi área está en orden.",
+
+      ap_hm_money_ok: "El presupuesto cubre unos {days} días de salarios.",
+
+      ap_hm_sponsor_ok: "Los patrocinadores aportan {income} al día frente a {costs} de salarios diarios.",
+
+      ap_hm_test_ok: "Se ha conducido en todos los circuitos utilizables y tus tiempos están cerca de los récords.",
+
+      ap_hm_energy_ok: "Todos están descansados.",
+
+      ap_hm_wx_short_off: "Las previsiones a corto plazo requieren nivel 50 o más.",
+
+      ap_hm_scout_market: "Ahora hay {n} pilotos en el mercado.",
+
+      ap_hm_pilot_car: "{name} conduce {car}: global {overall}, energía {e}%.",
+
+      ap_hm_pilot_reserve: "{name} no tiene coche y está en reserva: global {overall}, energía {e}%.",
+
+      ap_hm_pilot_nocar: "{car} no tiene piloto. Asigna uno en el garaje.",
+
+      ap_hm_pilot_skills: "{name} es más fuerte en {best} ({bv}) y más débil en {weak} ({wv}).",
+
+      ap_hm_pilot_nocoach: "Sin entrenador de pilotos cada entrenamiento suma menos puntos. Ficha uno en Especialistas.",
+
+      ap_hm_tyres_sets: "Juegos de neumáticos: {list}. El más gastado está al {pct}%.",
+
+      ap_hm_parts_ok: "{car}: todas las piezas están en buen estado; la más gastada es {part}, queda {pct}%.",
+
+      ap_hm_test_count: "Se ha conducido en {n} de {m} circuitos utilizables.",
+
+      ap_hm_energy_min: "Energía más baja del equipo: {name}, {e}%.",
+
+      ap_hm_wx_short_on: "Las previsiones a corto plazo están disponibles.",
+
+      ap_hm_season: "Ronda {n}: {phase}. Tu coche te espera.",
+
+      ap_hm_season_open: "Puedes entrar en una división. Abre la temporada para ver las reglas.",
+      ap_team_page_hint: "Tu propio circuito y los circuitos en los que puedes correr.",
       ap_team_save: "Guardar nombre del equipo",
       ap_team_saved: "Nombre del equipo guardado.",
       ap_hall_title: "Sala de entrenamiento",
@@ -3832,6 +4225,8 @@
       ap_license_progress: "Clasificaciones superadas: {n} / 3. Plata o superior: {s} / 1.",
       ap_abandon_run: "Abandonar tanda activa",
       ap_recruit_title: "Mercado de pilotos",
+      ap_recruit_open: "Abrir el mercado de pilotos",
+      ap_recruit_close: "Cerrar el mercado",
       ap_recruit_hint: "Siempre hay cuatro jóvenes de 17 años, con cada habilidad aleatoria entre 40 y 50. Los rasgos permanentes de carácter van de 0 a 100. Las habilidades y el potencial influyen en el precio; las habilidades también en el salario. Cada contratación genera un nuevo candidato; los demás se renuevan semanalmente.",
       ap_recruit_wait: "Próxima contratación en {days} d {hours} h.",
       ap_starting_skills: "Todas las habilidades: 50",
@@ -3872,8 +4267,7 @@
       ap_tab_track: "Pista",
       ap_budget: "Presupuesto",
       ap_energy: "Energía del piloto",
-      ap_finish: "Terminar sesión",
-      ap_finish_confirm: "¿Terminar la sesión? La carrera actual se abandona y la partida se cierra. Tu carrera se conserva.",
+      ap_leave_confirm: "¿Salir del juego? La carrera actual se abandona. Tu carrera se conserva.",
       ap_leave: "Salir",
       ap_error: "No se pudo cargar el garaje.",
       ap_setup: "Reglajes del coche",
@@ -3951,6 +4345,8 @@
       ap_your_best: "Tu mejor",
       ap_points: "Puntos",
       ap_track_record: "Récord de la pista",
+
+      ap_fastest_lap: "Vuelta rápida",
       ap_laps_done: "Vueltas válidas",
       ap_board: "Clasificación de la sala",
       ap_g_aero: "Aerodinámica",
@@ -4519,8 +4915,8 @@
       ap_dnf_dsq: "Descalificado: norma de neumáticos",
       ap_tyre_rule_ok: "Norma de neumáticos cumplida",
       ap_tyre_rule_todo: "Obligatorio: dos compuestos de seco distintos (o neumáticos de lluvia)",
-      ap_staff: "Personal",
-      ap_staff_hint: "Tus pilotos y los equipos de boxes de tus coches. Todos se pueden entrenar y todos cobran cada día real.",
+      ap_staff: "Equipo",
+      ap_staff_hint: "El nombre del equipo, la carrera y los patrocinadores, tus pilotos y los equipos de boxes de tus coches. Todos se pueden entrenar y todos cobran cada día real.",
       ap_pilots: "Pilotos",
       ap_pit_crew: "Equipo de boxes",
       ap_pos_front_left: "Neumático delantero izquierdo",
@@ -4694,8 +5090,104 @@
       ap_stg_neg_offer: "Proposer",
       ap_stg_neg_deal: "Conclure",
       ap_stg_neg_left: "Essais restants : {n}",
-      ap_tab_team: "Équipe",
-      ap_team_page_hint: "Gérez le nom de votre équipe, la carrière, les sponsors et les circuits.",
+      ap_tab_team: "Circuits",
+
+      ap_tab_home: "Accueil",
+
+      ap_hm_page_hint: "Ce que votre équipe vous dirait aujourd'hui.",
+
+      ap_hm_hint: "Un rapport de chaque spécialiste : où en est son domaine et ce qui pourrait être amélioré.",
+
+      ap_hm_team: "Équipe",
+
+      ap_hm_daily: "Salaires par jour",
+
+      ap_hm_trainings: "Entraînements restants",
+
+      ap_hm_lab_ready: "Le rapport de recherche est prêt. Acceptez ou refusez le résultat.",
+
+      ap_hm_lab_running: "La recherche sur {part} sera prête dans {time}.",
+
+      ap_hm_lab_idle: "L'équipe de recherche est inactive. Lancez une recherche pour trouver une pièce plus rapide.",
+
+      ap_hm_money_low: "Le budget ne couvre que {days} jours de salaires environ. Vérifiez sponsors et dépenses.",
+
+      ap_hm_sponsor_none: "Pas encore de sponsor. Les sponsors paient chaque jour et un manager améliore chaque offre.",
+
+      ap_hm_tyres_few: "Seulement {n} jeux de pneus utilisables pour {m} voitures. Achetez-en d'autres à l'entrepôt avant de partir.",
+
+      ap_hm_tyres_ok: "{n} jeux de pneus prêts pour {m} voitures.",
+
+      ap_hm_tyres_ok_rec: "{n} jeux de pneus prêts pour {m} voitures. Dans les conditions actuelles, je roulerais en {compound}.",
+
+      ap_hm_tyres_worn: "{n} jeux de pneus presque usés. Prévoyez leur remplacement.",
+
+      ap_hm_parts_worn: "{car} : {list} sont usées. Réparez ou remplacez-les avant la prochaine sortie.",
+
+      ap_hm_coach_rest: "{name} n'a que {e}% d'énergie. Laissez le pilote se reposer avant le prochain entraînement.",
+
+      ap_hm_coach_wait: "Plus d'entraînements aujourd'hui. La salle rouvrira plus tard.",
+
+      ap_hm_coach_train: "{name} est le plus faible en {skill} ({v}). L'exercice « {game} » l'entraîne ; il reste {n} entraînements aujourd'hui.",
+
+      ap_hm_test_new: "Personne n'a encore roulé sur {track}. Un tour d'essai donne les premières données à l'équipe.",
+
+      ap_hm_test_gap: "Votre meilleur temps sur {track} est à {gap} s du record. Un autre test pourrait réduire l'écart.",
+
+      ap_hm_energy_low: "{name} est fatigué ({e}% d'énergie). Laissez-le se reposer.",
+
+      ap_hm_crew_empty: "{car} : {n} postes sur {m} sont vides. Une équipe incomplète perd des secondes au stand.",
+
+      ap_hm_crew_train: "{car} : le maillon faible est {name} au poste {pos} (niveau {level}). Un entraînement aiderait.",
+
+      ap_hm_spec_train: "{name} ({role}, niveau {level}) peut encore progresser de {n}. Entraînez-le dans son propre jeu.",
+
+      ap_hm_spec_hire: "Vous n'avez pas encore de {role}. {does}",
+
+      ap_hm_v2: "Demande de l'attention",
+
+      ap_hm_v1: "Peut être amélioré",
+
+      ap_hm_v0: "En ordre",
+
+      ap_hm_nothing: "Rien à signaler. Tout est en ordre dans mon domaine.",
+
+      ap_hm_money_ok: "Le budget couvre environ {days} jours de salaires.",
+
+      ap_hm_sponsor_ok: "Les sponsors rapportent {income} par jour contre {costs} de salaires quotidiens.",
+
+      ap_hm_test_ok: "Chaque circuit utilisable a été roulé et tes temps sont proches des records.",
+
+      ap_hm_energy_ok: "Tout le monde est reposé.",
+
+      ap_hm_wx_short_off: "Les prévisions à court terme demandent le niveau 50 ou plus.",
+
+      ap_hm_scout_market: "{n} pilotes sont actuellement sur le marché.",
+
+      ap_hm_pilot_car: "{name} pilote {car} : global {overall}, énergie {e}%.",
+
+      ap_hm_pilot_reserve: "{name} n'a pas de voiture et est en réserve : global {overall}, énergie {e}%.",
+
+      ap_hm_pilot_nocar: "{car} n'a pas de pilote. Assigne-en un dans le garage.",
+
+      ap_hm_pilot_skills: "{name} est le plus fort en {best} ({bv}) et le plus faible en {weak} ({wv}).",
+
+      ap_hm_pilot_nocoach: "Sans entraîneur de pilotes, chaque entraînement rapporte moins de points. Embauche-en un dans Spécialistes.",
+
+      ap_hm_tyres_sets: "Jeux de pneus : {list}. Le plus usé est à {pct}%.",
+
+      ap_hm_parts_ok: "{car} : toutes les pièces sont en bon état ; la plus usée est {part}, il reste {pct}%.",
+
+      ap_hm_test_count: "{n} circuits utilisables sur {m} ont été roulés.",
+
+      ap_hm_energy_min: "Énergie la plus basse de l'équipe : {name}, {e}%.",
+
+      ap_hm_wx_short_on: "Les prévisions à court terme sont disponibles.",
+
+      ap_hm_season: "Manche {n} : {phase}. Votre voiture vous attend.",
+
+      ap_hm_season_open: "Vous pouvez entrer dans une division. Ouvrez la saison pour voir les règles.",
+      ap_team_page_hint: "Votre propre circuit et les circuits sur lesquels vous pouvez courir.",
       ap_team_save: "Enregistrer le nom de l’équipe",
       ap_team_saved: "Nom de l’équipe enregistré.",
       ap_hall_title: "Salle d’entraînement",
@@ -4976,6 +5468,8 @@
       ap_license_progress: "Qualifications réussies : {n} / 3. Argent ou mieux : {s} / 1.",
       ap_abandon_run: "Abandonner le roulage actif",
       ap_recruit_title: "Marché des pilotes",
+      ap_recruit_open: "Ouvrir le marché des pilotes",
+      ap_recruit_close: "Fermer le marché",
       ap_recruit_hint: "Quatre espoirs de 17 ans sont toujours disponibles, avec chaque compétence tirée au sort entre 40 et 50. Les traits de caractère permanents vont de 0 à 100. Compétences et potentiel influencent la prime de recrutement ; les compétences influencent aussi le salaire. Chaque recrutement remplace immédiatement son offre ; les autres changent chaque semaine.",
       ap_recruit_wait: "Prochain recrutement dans {days} j {hours} h.",
       ap_starting_skills: "Toutes les compétences : 50",
@@ -5016,8 +5510,7 @@
       ap_tab_track: "Piste",
       ap_budget: "Budget",
       ap_energy: "Énergie du pilote",
-      ap_finish: "Terminer la session",
-      ap_finish_confirm: "Terminer la session ? Le run en cours est abandonné et la partie est fermée. Ta carrière est conservée.",
+      ap_leave_confirm: "Quitter la partie ? Le run en cours est abandonné. Ta carrière est conservée.",
       ap_leave: "Quitter",
       ap_error: "Impossible de charger le garage.",
       ap_setup: "Réglages de la voiture",
@@ -5095,6 +5588,8 @@
       ap_your_best: "Ton meilleur",
       ap_points: "Points",
       ap_track_record: "Record de la piste",
+
+      ap_fastest_lap: "Meilleur tour",
       ap_laps_done: "Tours valides",
       ap_board: "Classement de la salle",
       ap_g_aero: "Aérodynamique",
@@ -5663,8 +6158,8 @@
       ap_dnf_dsq: "Disqualifié : règle des pneus",
       ap_tyre_rule_ok: "Règle des pneus respectée",
       ap_tyre_rule_todo: "Obligatoire : deux gommes sèches différentes (ou pneus pluie)",
-      ap_staff: "Personnel",
-      ap_staff_hint: "Tes pilotes et les équipes de stand de tes voitures. Tout le monde peut être entraîné et tout le monde est payé chaque jour réel.",
+      ap_staff: "Équipe",
+      ap_staff_hint: "Le nom de l'équipe, la carrière et les sponsors, tes pilotes et les équipes de stand de tes voitures. Tout le monde peut être entraîné et tout le monde est payé chaque jour réel.",
       ap_pilots: "Pilotes",
       ap_pit_crew: "Équipe de stand",
       ap_pos_front_left: "Pneu avant gauche",
@@ -5838,8 +6333,104 @@
       ap_stg_neg_offer: "提示する",
       ap_stg_neg_deal: "合意する",
       ap_stg_neg_left: "残り試行回数：{n}",
-      ap_tab_team: "チーム",
-      ap_team_page_hint: "チーム名、キャリア、スポンサー、サーキットを管理します。",
+      ap_tab_team: "サーキット",
+
+      ap_tab_home: "ホーム",
+
+      ap_hm_page_hint: "今日、チームがあなたに伝えたいこと。",
+
+      ap_hm_hint: "各スペシャリストからの報告：担当分野の状況と、改善できる点。",
+
+      ap_hm_team: "チーム",
+
+      ap_hm_daily: "1日の給料",
+
+      ap_hm_trainings: "今日の残りトレーニング",
+
+      ap_hm_lab_ready: "研究レポートが完成しました。結果を採用するか破棄するか決めてください。",
+
+      ap_hm_lab_running: "{part}の研究は{time}後に完了します。",
+
+      ap_hm_lab_idle: "研究チームは待機中です。新しい研究を始めて、より速いパーツを見つけましょう。",
+
+      ap_hm_money_low: "予算は給料約{days}日分しかありません。スポンサーと支出を確認してください。",
+
+      ap_hm_sponsor_none: "スポンサーがまだいません。毎日支払われ、マネージャーが各オファーを引き上げます。",
+
+      ap_hm_tyres_few: "使えるタイヤは{n}セットのみで、マシンは{m}台です。出走前に倉庫で買い足しましょう。",
+
+      ap_hm_tyres_ok: "{m}台に対し、タイヤが{n}セット用意されています。",
+
+      ap_hm_tyres_ok_rec: "{m}台に対し、タイヤが{n}セット用意されています。今の条件なら{compound}で走ります。",
+
+      ap_hm_tyres_worn: "{n}セットのタイヤがほぼ摩耗しています。交換を計画しましょう。",
+
+      ap_hm_parts_worn: "{car}：{list}が摩耗しています。次の走行前に修理または交換してください。",
+
+      ap_hm_coach_rest: "{name}の体力は{e}%だけです。次のトレーニングの前に休ませましょう。",
+
+      ap_hm_coach_wait: "今日のトレーニングは終了です。トレーニングホールは後で再開します。",
+
+      ap_hm_coach_train: "{name}は{skill}が最も弱く({v})、「{game}」で鍛えられます。今日はあと{n}回トレーニングできます。",
+
+      ap_hm_test_new: "{track}はまだ誰も走っていません。テスト走行でチームに最初のデータが入ります。",
+
+      ap_hm_test_gap: "{track}での自己ベストはレコードより{gap}秒遅れです。もう一度テストすれば縮められるかもしれません。",
+
+      ap_hm_energy_low: "{name}は疲れています(体力{e}%)。休ませましょう。",
+
+      ap_hm_crew_empty: "{car}：ピット要員の{m}ポジション中{n}が空席です。人手不足はピットで数秒を失います。",
+
+      ap_hm_crew_train: "{car}：最も弱いのは{pos}担当の{name}(レベル{level})です。トレーニングが有効です。",
+
+      ap_hm_spec_train: "{name}({role}、レベル{level})はまだ{n}伸びます。専用のゲームで鍛えましょう。",
+
+      ap_hm_spec_hire: "{role}はまだいません。{does}",
+
+      ap_hm_v2: "要対応",
+
+      ap_hm_v1: "改善できます",
+
+      ap_hm_v0: "問題なし",
+
+      ap_hm_nothing: "報告事項はありません。私の担当分野はすべて問題ありません。",
+
+      ap_hm_money_ok: "予算で約{days}日分の給与をまかなえます。",
+
+      ap_hm_sponsor_ok: "スポンサー収入は1日{income}、1日の給与は{costs}です。",
+
+      ap_hm_test_ok: "使えるコースはすべて走行済みで、タイムはレコードに近いです。",
+
+      ap_hm_energy_ok: "全員が休養十分です。",
+
+      ap_hm_wx_short_off: "短期予報にはレベル50以上が必要です。",
+
+      ap_hm_scout_market: "現在マーケットに{n}人のパイロットがいます。",
+
+      ap_hm_pilot_car: "{name}は{car}に乗っています：総合{overall}、エネルギー{e}%。",
+
+      ap_hm_pilot_reserve: "{name}は車がなく控えです：総合{overall}、エネルギー{e}%。",
+
+      ap_hm_pilot_nocar: "{car}にパイロットがいません。ガレージで割り当ててください。",
+
+      ap_hm_pilot_skills: "{name}は{best}（{bv}）が最も強く、{weak}（{wv}）が最も弱いです。",
+
+      ap_hm_pilot_nocoach: "ドライバーコーチがいないと、各トレーニングで得られるポイントが減ります。スペシャリストで雇いましょう。",
+
+      ap_hm_tyres_sets: "タイヤセット：{list}。最も摩耗したセットは{pct}%です。",
+
+      ap_hm_parts_ok: "{car}：すべてのパーツが良好です。最も摩耗しているのは{part}で、残り{pct}%です。",
+
+      ap_hm_test_count: "使えるコース{m}件中{n}件を走行済みです。",
+
+      ap_hm_energy_min: "チームで最もエネルギーが低いのは{name}、{e}%です。",
+
+      ap_hm_wx_short_on: "短期予報が利用できます。",
+
+      ap_hm_season: "第{n}ラウンド:{phase}。マシンが待っています。",
+
+      ap_hm_season_open: "ディビジョンに参加できます。シーズンを開いてルールを確認しましょう。",
+      ap_team_page_hint: "自分のサーキットと走行できるサーキット。",
       ap_team_save: "チーム名を保存",
       ap_team_saved: "チーム名を保存しました。",
       ap_hall_title: "トレーニング施設",
@@ -6120,6 +6711,8 @@
       ap_license_progress: "成功した予選：{n} / 3。銀以上：{s} / 1。",
       ap_abandon_run: "現在の走行を中止",
       ap_recruit_title: "ドライバー市場",
+      ap_recruit_open: "ドライバー市場を開く",
+      ap_recruit_close: "市場を閉じる",
       ap_recruit_hint: "常に17歳の若手候補が4人います。各スキルは40～50でランダムに決まり、変化しない性格の各特性は0～100です。スキルと成長適性は契約金に、スキルは給与にも影響します。採用するとすぐに新候補が補充され、残りは毎週更新されます。",
       ap_recruit_wait: "次の採用まで{days}日{hours}時間。",
       ap_starting_skills: "全スキル：50",
@@ -6160,8 +6753,7 @@
       ap_tab_track: "コース",
       ap_budget: "予算",
       ap_energy: "ドライバーの体力",
-      ap_finish: "セッション終了",
-      ap_finish_confirm: "セッションを終了しますか？現在の走行は中止され、ゲームが閉じられます。キャリアは保持されます。",
+      ap_leave_confirm: "ゲームを退出しますか？現在の走行は中止されます。キャリアは保持されます。",
       ap_leave: "退出",
       ap_error: "ガレージを読み込めませんでした。",
       ap_setup: "マシンセットアップ",
@@ -6239,6 +6831,8 @@
       ap_your_best: "自己のベスト",
       ap_points: "ポイント",
       ap_track_record: "コースレコード",
+
+      ap_fastest_lap: "ファステストラップ",
       ap_laps_done: "有効ラップ",
       ap_board: "ルームの順位",
       ap_g_aero: "空力",
@@ -6807,8 +7401,8 @@
       ap_dnf_dsq: "失格：タイヤ規則",
       ap_tyre_rule_ok: "タイヤ規則を満たしました",
       ap_tyre_rule_todo: "必須：異なるドライタイヤ2種（またはレインタイヤ）",
-      ap_staff: "スタッフ",
-      ap_staff_hint: "ドライバーと各マシンのピットクルー。全員を鍛えることができ、実時間で毎日給料が支払われます。",
+      ap_staff: "チーム",
+      ap_staff_hint: "チーム名、キャリア、スポンサー、ドライバー、各マシンのピットクルー。全員を鍛えることができ、実時間で毎日給料が支払われます。",
       ap_pilots: "ドライバー",
       ap_pit_crew: "ピットクルー",
       ap_pos_front_left: "左フロントタイヤ",
@@ -6982,8 +7576,104 @@
       ap_stg_neg_offer: "Oferecer",
       ap_stg_neg_deal: "Fechar",
       ap_stg_neg_left: "Tentativas restantes: {n}",
-      ap_tab_team: "Equipe",
-      ap_team_page_hint: "Gerencie o nome da equipe, a carreira, os patrocinadores e os circuitos.",
+      ap_tab_team: "Pistas",
+
+      ap_tab_home: "Início",
+
+      ap_hm_page_hint: "O que a sua equipe diria hoje.",
+
+      ap_hm_hint: "Um relatório de cada especialista: como está a sua área e o que poderia melhorar.",
+
+      ap_hm_team: "Equipe",
+
+      ap_hm_daily: "Salários diários",
+
+      ap_hm_trainings: "Treinos restantes hoje",
+
+      ap_hm_lab_ready: "O relatório da pesquisa está pronto. Aceite ou rejeite o resultado.",
+
+      ap_hm_lab_running: "A pesquisa de {part} ficará pronta em {time}.",
+
+      ap_hm_lab_idle: "A equipe de pesquisa está parada. Inicie uma pesquisa para achar uma peça mais rápida.",
+
+      ap_hm_money_low: "O orçamento cobre apenas cerca de {days} dias de salários. Verifique patrocinadores e custos.",
+
+      ap_hm_sponsor_none: "Ainda sem patrocinador. Eles pagam todo dia e um gerente melhora cada oferta.",
+
+      ap_hm_tyres_few: "Apenas {n} jogos de pneus utilizáveis para {m} carros. Compre mais no depósito antes de sair.",
+
+      ap_hm_tyres_ok: "{n} jogos de pneus prontos para {m} carros.",
+
+      ap_hm_tyres_ok_rec: "{n} jogos de pneus prontos para {m} carros. Nas condições de agora eu sairia com {compound}.",
+
+      ap_hm_tyres_worn: "{n} jogos de pneus quase gastos. Planeje a troca.",
+
+      ap_hm_parts_worn: "{car}: {list} estão desgastadas. Conserte ou troque antes da próxima saída.",
+
+      ap_hm_coach_rest: "{name} tem só {e}% de energia. Deixe o piloto descansar antes do próximo treino.",
+
+      ap_hm_coach_wait: "Sem treinos hoje. A sala de treino abre de novo mais tarde.",
+
+      ap_hm_coach_train: "{name} é mais fraco em {skill} ({v}). O exercício “{game}” treina isso; restam {n} treinos hoje.",
+
+      ap_hm_test_new: "Ninguém correu em {track} ainda. Uma volta de teste dá à equipe os primeiros dados.",
+
+      ap_hm_test_gap: "Seu melhor em {track} está {gap} s do recorde. Outro teste pode diminuir a diferença.",
+
+      ap_hm_energy_low: "{name} está cansado ({e}% de energia). Deixe descansar.",
+
+      ap_hm_crew_empty: "{car}: {n} de {m} posições do box estão vazias. Equipe incompleta perde segundos.",
+
+      ap_hm_crew_train: "{car}: o mais fraco da equipe é {name} em {pos} (nível {level}). Um treino ajudaria.",
+
+      ap_hm_spec_train: "{name} ({role}, nível {level}) ainda pode melhorar {n}. Treine no jogo dele.",
+
+      ap_hm_spec_hire: "Você ainda não tem {role}. {does}",
+
+      ap_hm_v2: "Precisa de atenção",
+
+      ap_hm_v1: "Pode melhorar",
+
+      ap_hm_v0: "Em ordem",
+
+      ap_hm_nothing: "Nada a reportar. Tudo na minha área está em ordem.",
+
+      ap_hm_money_ok: "O orçamento cobre cerca de {days} dias de salários.",
+
+      ap_hm_sponsor_ok: "Os patrocinadores trazem {income} por dia contra {costs} de salários diários.",
+
+      ap_hm_test_ok: "Todos os circuitos utilizáveis foram percorridos e seus tempos estão perto dos recordes.",
+
+      ap_hm_energy_ok: "Todos estão descansados.",
+
+      ap_hm_wx_short_off: "Previsões de curto prazo exigem nível 50 ou mais.",
+
+      ap_hm_scout_market: "Há {n} pilotos no mercado agora.",
+
+      ap_hm_pilot_car: "{name} pilota {car}: geral {overall}, energia {e}%.",
+
+      ap_hm_pilot_reserve: "{name} não tem carro e está na reserva: geral {overall}, energia {e}%.",
+
+      ap_hm_pilot_nocar: "{car} não tem piloto. Atribua um na garagem.",
+
+      ap_hm_pilot_skills: "{name} é mais forte em {best} ({bv}) e mais fraco em {weak} ({wv}).",
+
+      ap_hm_pilot_nocoach: "Sem treinador de pilotos, cada treino rende menos pontos. Contrate um em Especialistas.",
+
+      ap_hm_tyres_sets: "Jogos de pneus: {list}. O mais desgastado está em {pct}%.",
+
+      ap_hm_parts_ok: "{car}: todas as peças estão em bom estado; a mais desgastada é {part}, restam {pct}%.",
+
+      ap_hm_test_count: "{n} de {m} circuitos utilizáveis foram percorridos.",
+
+      ap_hm_energy_min: "Menor energia da equipe: {name}, {e}%.",
+
+      ap_hm_wx_short_on: "As previsões de curto prazo estão disponíveis.",
+
+      ap_hm_season: "Rodada {n}: {phase}. Seu carro está esperando.",
+
+      ap_hm_season_open: "Você pode entrar em uma divisão. Abra a temporada para ver as regras.",
+      ap_team_page_hint: "Seu próprio circuito e os circuitos em que você pode correr.",
       ap_team_save: "Salvar nome da equipe",
       ap_team_saved: "Nome da equipe salvo.",
       ap_hall_title: "Sala de treino",
@@ -7264,6 +7954,8 @@
       ap_license_progress: "Classificações concluídas com sucesso: {n} / 3. Prata ou melhor: {s} / 1.",
       ap_abandon_run: "Abandonar saída ativa",
       ap_recruit_title: "Mercado de pilotos",
+      ap_recruit_open: "Abrir o mercado de pilotos",
+      ap_recruit_close: "Fechar o mercado",
       ap_recruit_hint: "Sempre há quatro jovens de 17 anos, com cada habilidade aleatória entre 40 e 50. Os traços permanentes de personalidade vão de 0 a 100. Habilidades e potencial influenciam o valor da contratação; habilidades também afetam o salário. Uma contratação gera um novo candidato imediatamente; os demais são renovados semanalmente.",
       ap_recruit_wait: "Próxima contratação em {days} d {hours} h.",
       ap_starting_skills: "Todas as habilidades: 50",
@@ -7304,8 +7996,7 @@
       ap_tab_track: "Pista",
       ap_budget: "Orçamento",
       ap_energy: "Energia do piloto",
-      ap_finish: "Encerrar sessão",
-      ap_finish_confirm: "Encerrar a sessão? A corrida atual é abandonada e o jogo é fechado. Sua carreira é mantida.",
+      ap_leave_confirm: "Sair do jogo? A corrida atual é abandonada. Sua carreira é mantida.",
       ap_leave: "Sair",
       ap_error: "Não foi possível carregar a garagem.",
       ap_setup: "Acerto do carro",
@@ -7383,6 +8074,8 @@
       ap_your_best: "Seu melhor",
       ap_points: "Pontos",
       ap_track_record: "Recorde da pista",
+
+      ap_fastest_lap: "Volta mais rápida",
       ap_laps_done: "Voltas válidas",
       ap_board: "Classificação da sala",
       ap_g_aero: "Aerodinâmica",
@@ -7952,7 +8645,7 @@
       ap_tyre_rule_ok: "Regra dos pneus cumprida",
       ap_tyre_rule_todo: "Obrigatório: dois compostos de seco diferentes (ou pneus de chuva)",
       ap_staff: "Equipe",
-      ap_staff_hint: "Seus pilotos e as equipes de box dos seus carros. Todos podem ser treinados e todos recebem a cada dia real.",
+      ap_staff_hint: "O nome da equipe, a carreira e os patrocinadores, seus pilotos e as equipes de box dos seus carros. Todos podem ser treinados e todos recebem a cada dia real.",
       ap_pilots: "Pilotos",
       ap_pit_crew: "Equipe de box",
       ap_pos_front_left: "Pneu dianteiro esquerdo",
@@ -8126,8 +8819,104 @@
       ap_stg_neg_offer: "Предложить",
       ap_stg_neg_deal: "Согласен",
       ap_stg_neg_left: "Осталось попыток: {n}",
-      ap_tab_team: "Команда",
-      ap_team_page_hint: "Управляй названием команды, карьерой, спонсорами и трассами.",
+      ap_tab_team: "Трассы",
+
+      ap_tab_home: "Главная",
+
+      ap_hm_page_hint: "Что команда сказала бы тебе сегодня.",
+
+      ap_hm_hint: "Отчёт каждого специалиста: как дела в его области и что можно улучшить.",
+
+      ap_hm_team: "Команда",
+
+      ap_hm_daily: "Зарплаты в день",
+
+      ap_hm_trainings: "Тренировок осталось",
+
+      ap_hm_lab_ready: "Отчёт об исследовании готов. Прими или отклони результат.",
+
+      ap_hm_lab_running: "Исследование «{part}» будет готово через {time}.",
+
+      ap_hm_lab_idle: "Команда исследований простаивает. Начни новое исследование, чтобы найти более быструю деталь.",
+
+      ap_hm_money_low: "Бюджета хватит примерно на {days} дн. зарплат. Проверь спонсоров и расходы.",
+
+      ap_hm_sponsor_none: "Спонсора пока нет. Спонсоры платят каждый день, а менеджер повышает любое предложение.",
+
+      ap_hm_tyres_few: "Годных комплектов шин только {n} на {m} болидов. Докупи на складе перед выездом.",
+
+      ap_hm_tyres_ok: "{n} комплектов шин готовы для {m} болидов.",
+
+      ap_hm_tyres_ok_rec: "{n} комплектов шин готовы для {m} болидов. В нынешних условиях я бы выехал на {compound}.",
+
+      ap_hm_tyres_worn: "{n} комплектов шин почти изношены. Запланируй замену.",
+
+      ap_hm_parts_worn: "{car}: {list} изношены. Отремонтируй или замени до следующего выезда.",
+
+      ap_hm_coach_rest: "У {name} всего {e}% энергии. Дай пилоту отдохнуть перед следующей тренировкой.",
+
+      ap_hm_coach_wait: "Тренировок на сегодня нет. Зал откроется снова позже.",
+
+      ap_hm_coach_train: "{name} слабее всего в «{skill}» ({v}). Упражнение «{game}» тренирует это; сегодня осталось {n} тренировок.",
+
+      ap_hm_test_new: "На {track} ещё никто не ездил. Тестовый заезд даст команде первые данные.",
+
+      ap_hm_test_gap: "Твой лучший круг на {track} на {gap} с медленнее рекорда. Ещё один тестовый заезд может сократить разрыв.",
+
+      ap_hm_energy_low: "{name} устал ({e}% энергии). Дай отдохнуть.",
+
+      ap_hm_crew_empty: "{car}: {n} из {m} мест пит-команды свободны. Неполная команда теряет секунды.",
+
+      ap_hm_crew_train: "{car}: слабее всех {name} на позиции «{pos}» (уровень {level}). Тренировка поможет.",
+
+      ap_hm_spec_train: "{name} ({role}, уровень {level}) ещё может вырасти на {n}. Потренируй в его игре.",
+
+      ap_hm_spec_hire: "У тебя ещё нет роли «{role}». {does}",
+
+      ap_hm_v2: "Требует внимания",
+
+      ap_hm_v1: "Можно улучшить",
+
+      ap_hm_v0: "В порядке",
+
+      ap_hm_nothing: "Докладывать нечего. В моей области всё в порядке.",
+
+      ap_hm_money_ok: "Бюджета хватит примерно на {days} дн. зарплат.",
+
+      ap_hm_sponsor_ok: "Спонсоры приносят {income} в день при {costs} дневных зарплат.",
+
+      ap_hm_test_ok: "Все доступные трассы пройдены, а твои времена близки к рекордам.",
+
+      ap_hm_energy_ok: "Все отдохнули.",
+
+      ap_hm_wx_short_off: "Краткосрочные прогнозы требуют уровня 50 или выше.",
+
+      ap_hm_scout_market: "Сейчас на рынке {n} пилотов.",
+
+      ap_hm_pilot_car: "{name} ведёт {car}: общий уровень {overall}, энергия {e}%.",
+
+      ap_hm_pilot_reserve: "{name} без машины и в резерве: общий уровень {overall}, энергия {e}%.",
+
+      ap_hm_pilot_nocar: "У {car} нет пилота. Назначь его в гараже.",
+
+      ap_hm_pilot_skills: "{name} сильнее всего в «{best}» ({bv}) и слабее всего в «{weak}» ({wv}).",
+
+      ap_hm_pilot_nocoach: "Без тренера пилотов каждая тренировка даёт меньше очков. Найми его в разделе «Специалисты».",
+
+      ap_hm_tyres_sets: "Комплекты шин: {list}. Самый изношенный — {pct}%.",
+
+      ap_hm_parts_ok: "{car}: все детали в хорошем состоянии; больше всего изношена деталь «{part}», осталось {pct}%.",
+
+      ap_hm_test_count: "Пройдено {n} из {m} доступных трасс.",
+
+      ap_hm_energy_min: "Самая низкая энергия в команде: {name}, {e}%.",
+
+      ap_hm_wx_short_on: "Краткосрочные прогнозы доступны.",
+
+      ap_hm_season: "Раунд {n}: {phase}. Болид ждёт.",
+
+      ap_hm_season_open: "Ты можешь войти в дивизион. Открой сезон, чтобы увидеть правила.",
+      ap_team_page_hint: "Твоя собственная трасса и трассы, на которых можно гоняться.",
       ap_team_save: "Сохранить название команды",
       ap_team_saved: "Название команды сохранено.",
       ap_hall_title: "Тренировочный зал",
@@ -8408,6 +9197,8 @@
       ap_license_progress: "Успешные квалификации: {n} / 3. Серебро или выше: {s} / 1.",
       ap_abandon_run: "Прекратить активный выезд",
       ap_recruit_title: "Рынок пилотов",
+      ap_recruit_open: "Открыть рынок пилотов",
+      ap_recruit_close: "Закрыть рынок",
       ap_recruit_hint: "Всегда доступны четыре юных кандидата 17 лет. Каждый навык случайно задаётся от 40 до 50, постоянные черты характера — от 0 до 100. Навыки и потенциал влияют на стоимость найма, навыки также влияют на зарплату. После найма сразу появляется новый кандидат; остальные обновляются еженедельно.",
       ap_recruit_wait: "Следующее привлечение через {days} д {hours} ч.",
       ap_starting_skills: "Все навыки: 50",
@@ -8448,8 +9239,7 @@
       ap_tab_track: "Трасса",
       ap_budget: "Бюджет",
       ap_energy: "Энергия пилота",
-      ap_finish: "Завершить сессию",
-      ap_finish_confirm: "Завершить сессию? Текущий заезд будет прерван, а игра закрыта. Твоя карьера сохранится.",
+      ap_leave_confirm: "Выйти из игры? Текущий заезд будет прерван. Твоя карьера сохранится.",
       ap_leave: "Выйти",
       ap_error: "Не удалось загрузить гараж.",
       ap_setup: "Настройки болида",
@@ -8527,6 +9317,8 @@
       ap_your_best: "Твой лучший",
       ap_points: "Очки",
       ap_track_record: "Рекорд трассы",
+
+      ap_fastest_lap: "Лучший круг",
       ap_laps_done: "Зачтённые круги",
       ap_board: "Результаты комнаты",
       ap_g_aero: "Аэродинамика",
@@ -9095,8 +9887,8 @@
       ap_dnf_dsq: "Дисквалифицирован: правило о шинах",
       ap_tyre_rule_ok: "Правило о шинах выполнено",
       ap_tyre_rule_todo: "Обязательно: два разных вида шин для сухой трассы (или дождевые шины)",
-      ap_staff: "Персонал",
-      ap_staff_hint: "Твои пилоты и пит-команды твоих болидов. Каждого можно тренировать, и каждому платят за каждый реальный день.",
+      ap_staff: "Команда",
+      ap_staff_hint: "Название команды, карьера и спонсоры, твои пилоты и пит-команды твоих болидов. Каждого можно тренировать, и каждому платят за каждый реальный день.",
       ap_pilots: "Пилоты",
       ap_pit_crew: "Пит-команда",
       ap_pos_front_left: "Передняя левая шина",
@@ -9270,8 +10062,104 @@
       ap_stg_neg_offer: "报价",
       ap_stg_neg_deal: "成交",
       ap_stg_neg_left: "剩余尝试：{n}",
-      ap_tab_team: "车队",
-      ap_team_page_hint: "管理车队名称、生涯、赞助商和赛道。",
+      ap_tab_team: "赛道",
+
+      ap_tab_home: "主页",
+
+      ap_hm_page_hint: "今天车队想告诉你的事。",
+
+      ap_hm_hint: "每位专家的汇报：其领域的现状以及可以改进的地方。",
+
+      ap_hm_team: "车队",
+
+      ap_hm_daily: "每日工资",
+
+      ap_hm_trainings: "今日剩余训练",
+
+      ap_hm_lab_ready: "研发报告已就绪，请接受或拒绝结果。",
+
+      ap_hm_lab_running: "{part}的研发将在{time}后完成。",
+
+      ap_hm_lab_idle: "研发团队目前空闲，开始新的研发来寻找更快的零件。",
+
+      ap_hm_money_low: "预算只够支付约{days}天的工资，请检查赞助商和开支。",
+
+      ap_hm_sponsor_none: "还没有赞助商。赞助商每天付款，经理能提高每份报价。",
+
+      ap_hm_tyres_few: "可用轮胎只有{n}套，赛车有{m}辆。出发前请到仓库补货。",
+
+      ap_hm_tyres_ok: "{n}套轮胎已备好，供{m}辆赛车使用。",
+
+      ap_hm_tyres_ok_rec: "{n}套轮胎已备好，供{m}辆赛车使用。就目前条件，我会选{compound}。",
+
+      ap_hm_tyres_worn: "{n}套轮胎几乎磨损殆尽，请计划更换。",
+
+      ap_hm_parts_worn: "{car}：{list}已磨损，下次出赛前请维修或更换。",
+
+      ap_hm_coach_rest: "{name}只剩{e}%体力，下次训练前让车手先休息。",
+
+      ap_hm_coach_wait: "今天的训练次数已用完，训练馆稍后重新开放。",
+
+      ap_hm_coach_train: "{name}的{skill}最弱({v})，可通过“{game}”训练提升，今天还剩{n}次训练。",
+
+      ap_hm_test_new: "还没有人在{track}跑过，测试圈会给车队带来第一批数据。",
+
+      ap_hm_test_gap: "你在{track}的最佳成绩比纪录慢{gap}秒，再测试一次也许能缩小差距。",
+
+      ap_hm_energy_low: "{name}累了(体力{e}%)，让TA休息一下。",
+
+      ap_hm_crew_empty: "{car}：进站团队{m}个岗位中有{n}个空缺，人手不足会在维修区损失时间。",
+
+      ap_hm_crew_train: "{car}：最弱的是{pos}的{name}(等级{level})，训练会有帮助。",
+
+      ap_hm_spec_train: "{name}({role}，等级{level})还能提升{n}，用他专属的小游戏训练吧。",
+
+      ap_hm_spec_hire: "你还没有{role}。{does}",
+
+      ap_hm_v2: "需要关注",
+
+      ap_hm_v1: "可以改进",
+
+      ap_hm_v0: "一切正常",
+
+      ap_hm_nothing: "没有需要汇报的。我负责的一切都正常。",
+
+      ap_hm_money_ok: "预算大约够支付{days}天的工资。",
+
+      ap_hm_sponsor_ok: "赞助商每天带来{income}，每日工资为{costs}。",
+
+      ap_hm_test_ok: "所有可用赛道都已跑过，你的成绩接近纪录。",
+
+      ap_hm_energy_ok: "大家都休息好了。",
+
+      ap_hm_wx_short_off: "短期预报需要50级或更高。",
+
+      ap_hm_scout_market: "市场上现在有{n}名车手。",
+
+      ap_hm_pilot_car: "{name}驾驶{car}：综合{overall}，精力{e}%。",
+
+      ap_hm_pilot_reserve: "{name}没有赛车，处于替补：综合{overall}，精力{e}%。",
+
+      ap_hm_pilot_nocar: "{car}没有车手。请在车库中指派。",
+
+      ap_hm_pilot_skills: "{name}最强的是{best}（{bv}），最弱的是{weak}（{wv}）。",
+
+      ap_hm_pilot_nocoach: "没有车手教练，每次训练得分更少。请在专家中雇用一位。",
+
+      ap_hm_tyres_sets: "轮胎套：{list}。磨损最多的一套为{pct}%。",
+
+      ap_hm_parts_ok: "{car}：所有部件状况良好；磨损最多的是{part}，剩余{pct}%。",
+
+      ap_hm_test_count: "已跑过{m}条可用赛道中的{n}条。",
+
+      ap_hm_energy_min: "全队精力最低：{name}，{e}%。",
+
+      ap_hm_wx_short_on: "短期预报可用。",
+
+      ap_hm_season: "第{n}轮:{phase}。你的赛车在等你。",
+
+      ap_hm_season_open: "你可以加入赛区，打开赛季查看规则。",
+      ap_team_page_hint: "你自己的赛道和可以参赛的赛道。",
       ap_team_save: "保存车队名称",
       ap_team_saved: "车队名称已保存。",
       ap_hall_title: "训练馆",
@@ -9552,6 +10440,8 @@
       ap_license_progress: "成功的排位挑战：{n} / 3。银牌及以上：{s} / 1。",
       ap_abandon_run: "放弃当前出场",
       ap_recruit_title: "车手市场",
+      ap_recruit_open: "打开车手市场",
+      ap_recruit_close: "关闭市场",
       ap_recruit_hint: "始终有四名17岁的年轻候选人，每项技能随机为40至50，固定性格特质为0至100。技能和成长潜力影响签约费，技能也影响薪水。雇用后立即补充新候选人，其余每周更新。",
       ap_recruit_wait: "距离下次招募还有{days}天{hours}小时。",
       ap_starting_skills: "所有技能：50",
@@ -9592,8 +10482,7 @@
       ap_tab_track: "赛道",
       ap_budget: "预算",
       ap_energy: "车手体力",
-      ap_finish: "结束本次",
-      ap_finish_confirm: "要结束本次吗？当前的跑圈将被放弃，游戏将关闭。你的生涯会保留。",
+      ap_leave_confirm: "要离开游戏吗？当前的跑圈将被放弃。你的生涯会保留。",
       ap_leave: "离开",
       ap_error: "无法加载车库。",
       ap_setup: "赛车调校",
@@ -9671,6 +10560,8 @@
       ap_your_best: "你的最佳",
       ap_points: "得分",
       ap_track_record: "赛道纪录",
+
+      ap_fastest_lap: "最快圈速",
       ap_laps_done: "有效圈数",
       ap_board: "房间排名",
       ap_g_aero: "空气动力",
@@ -10239,8 +11130,8 @@
       ap_dnf_dsq: "取消资格：轮胎规则",
       ap_tyre_rule_ok: "已满足轮胎规则",
       ap_tyre_rule_todo: "必须：两种不同的干胎（或雨胎）",
-      ap_staff: "人员",
-      ap_staff_hint: "你的车手和每辆赛车的进站团队。每个人都可以训练，每个真实日都会发放工资。",
+      ap_staff: "车队",
+      ap_staff_hint: "车队名称、生涯和赞助商，你的车手和每辆赛车的进站团队。每个人都可以训练，每个真实日都会发放工资。",
       ap_pilots: "车手",
       ap_pit_crew: "进站团队",
       ap_pos_front_left: "左前轮胎",

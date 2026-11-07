@@ -21,7 +21,7 @@
     "drivers",
     "games"
   ],
-  "version": "1.1.3",
+  "version": "1.2.0",
   "min_core_version": "1.17.0",
   "description": "Manage a two-car racing team, recruit and train drivers, develop parts and setups, and run private tests or a twenty-round Division 5 championship with practice, qualifying, pit stops and changing weather.",
   "entry": "main.js",

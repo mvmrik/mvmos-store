@@ -234,3 +234,14 @@
 .igp-progress i{display:block;height:100%;background:var(--accent);transition:width .3s}
 .igp-imp-step{font-size:.85rem}
 .igp-imp-failed b{color:var(--red,#e5484d)}
+
+/* Strategy header: the tyres on one line, pit stops, fuel and time under them on a phone. */
+.igp-strat-meta{display:contents}
+@media (max-width:640px){
+  .igp-strat-head{flex-wrap:wrap;row-gap:6px}
+  .igp-strat-head .igp-combo{flex-wrap:nowrap}
+  .igp-strat-head .igp-tyre-sm{width:22px;height:22px;font-size:.6rem;box-shadow:0 0 0 2px var(--ring)}
+  .igp-strat-head .igp-arrow{font-size:.75rem;padding:0 1px}
+  .igp-strat-head .igp-chev{order:3}
+  .igp-strat-meta{order:4;flex:1 0 100%;display:flex;flex-wrap:wrap;align-items:center;gap:2px 12px;padding-left:30px}
+}

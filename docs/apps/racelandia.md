@@ -6,6 +6,8 @@ You never steer. You run the team: you look after the car, train the driver, rea
 
 ## Team and garage
 
+The first screen, **Home**, is a set of reports, one for each team specialist you have hired: the strategist on tyres, the mechanic on parts and the lab, the coach, engineer, doctor, manager, meteorologist and scout each say how things stand in their area and what could be better, and a pilots report shows who drives which car and which skills to train. A specialist you have not hired is shown as missing, with a button to hire one. Cards with the most serious problem come first. The single **Leave** button in the header asks for confirmation only when a session is running.
+
 A new team starts with **two ready base cars and $6,000,000**, with no drivers or pit crews. **Team** is the first tab, before Garage, and opens by default. It contains an explicit team-name field with **Save team name**, the shared career controls, sponsor-management link and all circuits. **Your circuit** offers **Design your circuit** when none exists or **Edit** for the existing circuit. Circuit construction, editing and grandstand placement stay inside Team and do not require choosing a car or hiring a pilot first. Practice buttons open the currently selected car's circuit setup in Garage when a driver is assigned and the circuit is usable.
 
 Garage contains the car list, individual parts, paint, driver assignment and setup. Staff contains employees, recruitment and training. Click the whole car or employed-pilot card to open its details; both support keyboard activation and have no separate selection button. The Staff header uses a team illustration rather than a driver helmet. Recruiting returns to the driver list. The Track tab appears only when a live session, pending session or retained replay/result is available.
@@ -52,6 +54,8 @@ Under the setup, the garage lists what you tried on that circuit: date, session 
 ### Weather and the circuit
 
 Every circuit has a place, and the weather is the real forecast for that place, taken from the free Open-Meteo service when you open the circuit and kept for a few hours, so browsing the garage does not ask it again and again. You see the forecast of the day, hour by hour (the garage says whose forecast it is), and choose the hour to drive in. A championship weekend takes the real forecast of its circuit as if you drove the five sessions one after another from now, and shows the chance of rain for each. Air and asphalt temperature, cloud, rain and a film of water that builds while it rains and dries in the sun come from it. Tyres heat, wear and lose grip outside their working temperature, the track gains grip as rubber is laid down, and standing water can make a car aquaplane. When the weather service cannot be reached, the garage says so and uses a simulated day instead.
+
+The 3D view follows the real time of day at the circuit: the sun stands where it really is for that place and hour, a clear day has a clear sky with few clouds, and an overcast or rainy one a heavy cloud cover. At night the sky is dark with stars and the moon, the clouds almost vanish, and floodlights along the track light the asphalt and its surroundings. Cars have no headlights.
 
 ### Team advice and the record
 

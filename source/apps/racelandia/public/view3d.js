@@ -391,6 +391,31 @@ export function createView(THREE, host, T, opts) {
   });
   const sky = new THREE.Mesh(new THREE.SphereGeometry(2500, 24, 16), skyMat); sky.frustumCulled = false; scene.add(sky);
 
+  // where on Earth the circuit is and which day it is decide how the sun and the moon cross the sky
+  const clamp01 = v => Math.max(0, Math.min(1, v));
+  const siteHash = id => { let h = 2166136261; for (const ch of String(id || '')) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; };
+  const site = Object.assign({ lat: 45, lon: 0, id: '', doy: Math.floor((Date.now() - Date.UTC(new Date().getFullYear(), 0, 0)) / 864e5) }, opts.site || {});
+  // the circuit's heading on the map is not known: each circuit gets its own fixed turn of the sky instead of the same sun everywhere
+  const solar = hour => {
+    const rad = Math.PI / 180, lat = (site.lat || 0) * rad, dec = 23.44 * rad * Math.sin(2 * Math.PI * (284 + site.doy) / 365);
+    const H = (hour + (site.lon || 0) / 15 - Math.round((site.lon || 0) / 15) - 12) * 15 * rad;
+    const sinE = Math.sin(lat) * Math.sin(dec) + Math.cos(lat) * Math.cos(dec) * Math.cos(H), cosE = Math.sqrt(Math.max(0, 1 - sinE * sinE));
+    const e = -Math.cos(dec) * Math.sin(H), n = Math.sin(dec) * Math.cos(lat) - Math.cos(dec) * Math.sin(lat) * Math.cos(H);
+    const rot = siteHash(site.id) * Math.PI * 2, ex = e * Math.cos(rot) - n * Math.sin(rot), nz = e * Math.sin(rot) + n * Math.cos(rot), hl = Math.hypot(ex, nz) || 1;
+    return { sinE, dir: new THREE.Vector3(ex / hl * cosE, sinE, -nz / hl * cosE) };
+  };
+
+  // night sky: stars, a moon and its weak light
+  const starPos = new Float32Array(900 * 3);
+  { const r = mulberry(23); for (let i = 0; i < 900; i++) { const a = r() * Math.PI * 2, y = 0.05 + r() * 0.95, q = Math.sqrt(1 - y * y); starPos.set([Math.cos(a) * q * 2300, y * 2300, Math.sin(a) * q * 2300], i * 3); } }
+  const starGeo = new THREE.BufferGeometry(); starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+  const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xdfe8ff, size: 2.2, sizeAttenuation: false, transparent: true, opacity: 0, depthWrite: false, fog: false }));
+  stars.frustumCulled = false; stars.visible = false; scene.add(stars);
+  const moon = new THREE.Mesh(new THREE.SphereGeometry(55, 24, 16), new THREE.MeshBasicMaterial({ color: 0xeef2ff, transparent: true, opacity: 0, fog: false, depthWrite: false }));
+  moon.frustumCulled = false; moon.visible = false; scene.add(moon);
+  const moonDir = new THREE.Vector3(0, 0.5, -1);
+  const moonLight = new THREE.DirectionalLight(0x9fb5ff, 0); scene.add(moonLight); scene.add(moonLight.target);
+
   const cloudTex = canvasTex(THREE, 128, 128, (c, w, h) => {
     const g = c.createRadialGradient(w / 2, h / 2, 4, w / 2, h / 2, w / 2);
     g.addColorStop(0, 'rgba(255,255,255,0.95)'); g.addColorStop(0.5, 'rgba(255,255,255,0.5)'); g.addColorStop(1, 'rgba(255,255,255,0)');
@@ -809,25 +834,37 @@ export function createView(THREE, host, T, opts) {
   const cond = { cloud: 0.2, rain: 0, water: 0, sun: 1, hour: 14 };
   function setConditions(c, hour) {
     Object.assign(cond, c, { hour });
-    const a = Math.max(0.05, Math.min(1, (hour - 6) / 14)) * Math.PI;
-    const el = Math.sin(a);
-    sun.position.set(Math.cos(a) * -0.8, 0.12 + el * 0.9, 0.55).normalize();
-    skyMat.uniforms.sunDir.value.copy(sun.position);
+    const sol = solar(hour), sinE = sol.sinE;
+    sun.position.copy(sol.dir);
+    skyMat.uniforms.sunDir.value.copy(sol.dir);
+    moonDir.set(-sol.dir.x, Math.max(0.3, Math.min(0.85, 0.55 - sol.dir.y * 0.5)), -sol.dir.z).normalize();
     const cl = Math.min(1, c.cloud), wet = Math.min(1, c.water / 2);
-    const warm = Math.pow(1 - el, 2);
-    const top = new THREE.Color(0x2f6fd0).lerp(new THREE.Color(0x66707c), cl * 0.85).lerp(new THREE.Color(0x4a4f7a), warm * 0.5);
+    const el = clamp01(sinE / 0.75);                       // 0 at the horizon, 1 with the sun high
+    const dayK = clamp01((sinE + 0.05) / 0.30), nightK = clamp01((-sinE - 0.02) / 0.16), twK = clamp01((sinE + 0.1) / 0.25);
+    const warm = Math.pow(1 - clamp01(sinE / 0.5), 2) * (1 - nightK);
+    const top = new THREE.Color(0x2763c8).lerp(new THREE.Color(0x66707c), cl * 0.85).lerp(new THREE.Color(0x4a4f7a), warm * 0.5);
     const hor = new THREE.Color(0xbcd8f0).lerp(new THREE.Color(0xa7aeb6), cl * 0.9).lerp(new THREE.Color(0xf0b58a), warm * 0.6 * (1 - cl * 0.6));
+    top.lerp(new THREE.Color(0x050a1c), nightK); hor.lerp(new THREE.Color(0x101c3a).lerp(new THREE.Color(0x2a2630), cl * 0.7), nightK);
     skyMat.uniforms.top.value.copy(top); skyMat.uniforms.hor.value.copy(hor);
-    skyMat.uniforms.sunAmt.value = (1 - cl) * (1 - wet);
+    skyMat.uniforms.sunAmt.value = (1 - cl) * (1 - wet) * (1 - nightK);
     const dim = 1 - el;     // low sun (dawn, dusk): lift the light so the track and the car stay readable
-    sun.intensity = (0.4 + el * 2.4) * (1 - cl * 0.75) + dim * 0.6 * (1 - cl * 0.5);
+    const sunFade = clamp01((sinE + 0.02) / 0.1);
+    sun.intensity = ((0.4 + el * 2.4) * (1 - cl * 0.75) + dim * 0.6 * (1 - cl * 0.5)) * sunFade;
     sun.color.set(0xffffff).lerp(new THREE.Color(0xffc48a), warm * 0.7);
-    hemi.intensity = 1.0 + el * 0.5 + cl * 0.15 + dim * 0.55; hemi.color.copy(hor).lerp(new THREE.Color(0xe2e9f2),.45);
+    const dayHemi = 1.0 + el * 0.5 + cl * 0.15 + dim * 0.55;
+    hemi.intensity = 0.6 + (dayHemi - 0.6) * twK; hemi.color.copy(hor).lerp(new THREE.Color(0xe2e9f2), .45 * (1 - nightK)).lerp(new THREE.Color(0x3a4c82), nightK * 0.6);
+    moonLight.color.set(0x9fb5ff); moonLight.intensity = 0.6 * nightK * (1 - cl * 0.6);
     scene.fog = new THREE.FogExp2(hor.clone().multiplyScalar(0.92), 0.00035 + 0.0013 * c.rain + 0.0004 * cl);
-    renderer.toneMappingExposure = 0.95 + (1 - cl) * 0.1 + dim * 0.25;
+    renderer.toneMappingExposure = 0.95 + (1 - cl) * 0.1 + dim * 0.25 + nightK * 0.3;
     trackMat.roughness = 0.92 - 0.66 * wet; trackMat.color.setScalar(1 - 0.45 * wet);
     trackMat.metalness = 0.15 * wet;
-    clouds.forEach(m => { m.material.opacity = Math.max(0, (cl - 0.12 * (m.userData.k)) * 0.9) * (0.5 + 0.5 * m.userData.k); m.material.color.setScalar(1 - cl * 0.45); });
+    // a clear sky has no clouds at all; the more cloud the forecast says, the more of them there are and the thicker they get
+    const cloudTone = (1 - cl * 0.45) * (1 - 0.93 * nightK) + 0.02;
+    clouds.forEach(m => { const k = m.userData.k; m.material.opacity = clamp01((cl - k * 0.85) * 3.5) * (0.55 + 0.45 * k) * (1 - 0.45 * nightK); m.material.color.setScalar(cloudTone).lerp(new THREE.Color(0x0a0f1c), nightK * 0.8); });
+    stars.visible = nightK > 0.02 && cl < 0.95; stars.material.opacity = nightK * Math.pow(1 - cl, 1.5) * 0.95;
+    moon.visible = nightK > 0.02 && cl < 0.9; moon.material.opacity = nightK * (1 - cl * 0.9);
+    lampK = 1 - dayK; glow.visible = lampK > 0.02; glow.material.opacity = lampK * 0.75;
+    headMat.color.set(0x555555).lerp(new THREE.Color(0xfff0c8), lampK);
     rainAmt = c.rain; rain.visible = c.rain > 0.02; rainGeo.setDrawRange(0, Math.floor(RAIN * 2 * Math.min(1, c.rain * 1.3)));
   }
 
@@ -856,6 +893,30 @@ export function createView(THREE, host, T, opts) {
     c.holder.position.set(x, 0, -y); c.holder.rotation.y = psi;
     if (o) { c.car.rotation.x = -o.roll || 0; c.car.rotation.z = o.pitch || 0; }
     else { c.car.rotation.x = 0; c.car.rotation.z = 0; }
+  }
+
+  // ── floodlights: poles along the circuit; a few real lights follow the car, the rest are glow points ──
+  const lampPts = [];
+  { const step = Math.max(1, Math.round(80 / T.ds));
+    for (let i = 0, j = 0; i < N; i += step, j++) {
+      const side = j % 2 ? 1 : -1, off = hw + 9;
+      lampPts.push({ cx: T.x[i], cz: -T.y[i], x: T.x[i] + T.nx[i] * side * off, z: -(T.y[i] + T.ny[i] * side * off), hx: T.x[i] + T.nx[i] * side * (off - 3.5), hz: -(T.y[i] + T.ny[i] * side * (off - 3.5)) });
+    } }
+  const poleMesh = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.16, 0.24, 16, 6), new THREE.MeshStandardMaterial({ color: 0x3b4047, roughness: 0.8, metalness: 0.4 }), lampPts.length);
+  const headMat = new THREE.MeshBasicMaterial({ color: 0x555555, toneMapped: false });
+  const headMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(2.2, 0.3, 1.1), headMat, lampPts.length);
+  { const m = new THREE.Matrix4(); lampPts.forEach((p, i) => { m.makeTranslation(p.x, 8, p.z); poleMesh.setMatrixAt(i, m); m.makeTranslation(p.hx, 16.1, p.hz); headMesh.setMatrixAt(i, m); }); }
+  poleMesh.frustumCulled = false; headMesh.frustumCulled = false; poleMesh.castShadow = !low; scene.add(poleMesh); scene.add(headMesh);
+  const glowGeo = new THREE.BufferGeometry(); glowGeo.setAttribute('position', new THREE.Float32BufferAttribute(lampPts.flatMap(p => [p.hx, 16.1, p.hz]), 3));
+  const glow = new THREE.Points(glowGeo, new THREE.PointsMaterial({ map: cloudTex, color: 0xffe2b0, size: 16, sizeAttenuation: true, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
+  glow.frustumCulled = false; glow.visible = false; scene.add(glow);
+  const spots = Array.from({ length: low ? 5 : 9 }, () => { const l = new THREE.SpotLight(0xffe6c0, 0, 0, 1.45, 0.55, 1); scene.add(l); scene.add(l.target); return l; });
+  let lampK = 0;
+  function updateLamps() {
+    spots.forEach(l => { l.intensity = 0; });
+    if (lampK <= 0.01 || !lampPts.length) return;
+    const cz = -S.y, near = lampPts.map((p, i) => [(p.x - S.x) ** 2 + (p.z - cz) ** 2, i]).sort((a, b) => a[0] - b[0]).slice(0, spots.length);
+    near.forEach(([, i], k) => { const p = lampPts[i], l = spots[k]; l.position.set(p.hx, 18, p.hz); l.target.position.set(p.cx, 0, p.cz); l.intensity = 85 * lampK; });
   }
 
   // ── cameras ──
@@ -919,6 +980,7 @@ export function createView(THREE, host, T, opts) {
   let raf = 0, last = performance.now(), dead = false;
   const view = {
     el: renderer.domElement, cams, sample, S, setRun, setConditions, setCamera,
+    setSite(o) { Object.assign(site, o || {}); setConditions(cond, cond.hour); },
     setEvents(e) { events=e || []; },
     setField,
     setSafetyCar(p) {safetyCar.visible=!!p;if(p){safetyCar.position.set(p.x,0,-p.y);safetyCar.rotation.y=p.psi;safetyLamp.visible=Math.floor(performance.now()/200)%2===0;}},
@@ -991,6 +1053,9 @@ export function createView(THREE, host, T, opts) {
     ground.position.x = S.x; ground.position.z = -S.y;
     ground.material.map.offset.set(S.x / 9000 * 260, S.y / 9000 * 260);
     sky.position.copy(camera.position);
+    stars.position.copy(camera.position); moon.position.copy(camera.position).addScaledVector(moonDir, 2200);
+    moonLight.target.position.set(S.x, 0, -S.y); moonLight.position.copy(moonLight.target.position).addScaledVector(moonDir, 160);
+    updateLamps();
     clouds.forEach(m => { m.position.x += dt * 2; if (m.position.x > camera.position.x + 2400) m.position.x -= 4800; });
     if (rain.visible) {
       rainT += dt;

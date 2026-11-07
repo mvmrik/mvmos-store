@@ -263,7 +263,7 @@ export function playRace({host,M,track,payload,t,money,time,sendPit,onFinish,onG
   const mountedSet=()=>new Set([entryOf().tyre_set.id,...race.commands.filter(c=>(c.car||'player')===watched).map(c=>c.set)]);
   const free=()=>{const mounted=mountedSet();return (entryOf().tyres||[]).filter(x=>!mounted.has(x.id)&&!asked.has(x.id)&&Math.max(...x.wear)<.98);};
   const wearOf=x=>x.wear.reduce((a,b)=>a+b,0)/4;
-  const q=s=>host.querySelector(s),view=M.VIEW.createView(M.THREE,q('#ap-race-3d'),track,{low:matchMedia('(pointer:coarse)').matches,venue:payload.venue,livery:ownCar().e.livery,compound:entryOf().tyre_set?.compound||payload.compound});
+  const q=s=>host.querySelector(s),view=M.VIEW.createView(M.THREE,q('#ap-race-3d'),track,{low:matchMedia('(pointer:coarse)').matches,venue:payload.venue,site:payload.site,livery:ownCar().e.livery,compound:entryOf().tyre_set?.compound||payload.compound});
   view.setConditions(M.SIM.condAt(payload.forecast,payload.hour||12),payload.hour||12);view.setCamera('chase');let setLapStart=0,lastStops=0,weatherAt=-9;
   q('[data-race-wx]').onclick=()=>{if(!M.FX.wxShortOn(payload.wx_half))return;
     const own=ownCar(),prog=own.laps+Math.max(0,(own.p%L)/L),lapSec=prog>.7?race.t/prog:L/50,hf=(payload.hour||12)+race.t/3600;

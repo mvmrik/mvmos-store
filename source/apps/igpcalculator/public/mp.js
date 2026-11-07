@@ -39,8 +39,9 @@
   const WET = ['I', 'W'];
   const ALL_TYRES = TYRES.concat(WET);
   // Race wear against practice wear, until the player's own pit stops say
-  // otherwise. The player never sets it: learnedFor() works it out.
-  const DEFAULT_COEF = 1.2;
+  // otherwise. The player never sets it: learnedFor() works it out. Tracks
+  // differ by about a fifth either way, so 1.0 is the neutral guess.
+  const DEFAULT_COEF = 1.0;
   const TYRE_RING = { SS: '#e63232', S: '#e6c832', M: '#d0d0d0', H: '#e87820', I: '#3cb44b', W: '#2f7fe0' };
 
   const TRACKS = [
@@ -160,6 +161,8 @@
       driver: (c && c.driver) || null, driverName: (c && typeof c.driverName === 'string') ? c.driverName : '',
       actual: cleanActual(c && c.actual), planned: cleanPlanned(c && c.strategy), learn: cleanLearn(c && c.learn),
       igpDriverId: c?.igpDriverId || null, igpResultId: c?.igpResultId || null,
+      // A race that came from the game has no coefficient stored: openEditor() gives it the learned one.
+      coefMissing: !!c && !Object.values(c.tyres || {}).some(x => x && x.coef !== undefined),
       setupMissing: !!(c?.setupMissing || (c?.igpDriverId && !c.setup)),
       practice: Array.isArray(c?.practice) ? c.practice : [], report: Array.isArray(c?.report) ? c.report : [],
       position: num(c?.position), finish: c?.finish || '', bestLap: num(c?.bestLap) };
@@ -168,7 +171,8 @@
   function cleanLearn(l) {
     if (!l || !['driver', 'track', 'all', 'none'].includes(l.kind)) return null;
     return { kind: l.kind, date: typeof l.date === 'string' ? l.date : null,
-      driverName: typeof l.driverName === 'string' ? l.driverName : '' };
+      driverName: typeof l.driverName === 'string' ? l.driverName : '',
+      lo: num(l.lo), hi: num(l.hi) };
   }
   // The strategy the race was saved with. Practice data or the formula may
   // change later; the race keeps the plan it was actually run on.
@@ -236,7 +240,7 @@
   function learnFrom(track, driverId, has) {
     const past = races.filter(r => !draft || r.id !== draft.id).map(r => ({
       r, cars: (r.data && Array.isArray(r.data.cars) ? r.data.cars : []).filter(Boolean)
-        .map(c => ({ driver: c.driver || null, f: raceFacts(cleanCar(c)) })).filter(c => c.f && has(c.f)),
+        .map(c => ({ driver: c.driver || null, f: Object.assign(raceFacts(cleanCar(c)) || {}, { track: r.track }) })).filter(c => c.f.rows && has(c.f)),
     })).filter(x => x.cars.length);
     const here = past.filter(x => x.r.track === track);
     if (driverId) {
@@ -255,7 +259,8 @@
   // the default stays. New practice wear is entered as usual and multiplied.
   function learnedFor(track, driverId) {
     const L = learnFrom(track, driverId, f => f.base > 0);
-    if (!L) return { learn: { kind: 'none', date: null }, coefs: null };
+    if (!L) return { learn: { kind: 'none', date: null, lo: BAND_LO, hi: BAND_HI }, coefs: null };
+    if (L.kind === 'all') return learnedAcrossTracks(L);
     const sum = {};
     let worn = 0, base = 0;
     L.facts.forEach(f => {
@@ -266,7 +271,37 @@
       worn += f.worn; base += f.base;
     });
     const coefs = Object.fromEntries(ALL_TYRES.map(t => [t, round2(sum[t] ? sum[t].worn / sum[t].base : worn / base)]));
-    return { learn: { kind: L.kind, date: L.date }, coefs };
+    return { learn: { kind: L.kind, date: L.date, lo: SAME_LO, hi: SAME_HI }, coefs };
+  }
+
+  // The same track again repeats its coefficient closely (within about a
+  // twentieth); a track never raced can be a fifth off either way.
+  const SAME_LO = 0.93, SAME_HI = 1.07, BAND_LO = 0.85, BAND_HI = 1.15;
+
+  // Nothing raced on this track yet: every track counts once, however many
+  // laps it was raced for, so one long race does not outweigh the others.
+  // The spread between the tracks gives the range the forecast can be off.
+  function learnedAcrossTracks(L) {
+    const tracks = {};
+    L.facts.forEach(f => {
+      const t = tracks[f.track] || (tracks[f.track] = { all: { worn: 0, base: 0 }, tyre: {} });
+      Object.keys(f.ratio).forEach(k => {
+        const x = t.tyre[k] || (t.tyre[k] = { worn: 0, base: 0 });
+        x.worn += f.ratio[k].worn; x.base += f.ratio[k].base;
+      });
+      t.all.worn += f.worn; t.all.base += f.base;
+    });
+    const list = Object.values(tracks).filter(t => t.all.base > 0);
+    const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+    const overall = list.map(t => t.all.worn / t.all.base);
+    const avg = mean(overall);
+    const coefs = Object.fromEntries(ALL_TYRES.map(k => {
+      const per = list.filter(t => t.tyre[k] && t.tyre[k].base > 0).map(t => t.tyre[k].worn / t.tyre[k].base);
+      return [k, round2(per.length ? mean(per) : avg)];
+    }));
+    const lo = overall.length > 1 ? Math.max(0.7, Math.min(...overall) / avg) : BAND_LO;
+    const hi = overall.length > 1 ? Math.min(1.3, Math.max(...overall) / avg) : BAND_HI;
+    return { learn: { kind: 'all', date: null, lo: round2(Math.min(lo, 0.95)), hi: round2(Math.max(hi, 1.05)) }, coefs };
   }
 
   // Real wear per lap of intermediates and wets, from the same sources.
@@ -307,21 +342,39 @@
     return Math.min(200, Math.max(1, Math.ceil((1 - minLifePct / 100) / rw - 1e-9)));
   }
 
+  // A stint shorter than this is a stop for nothing.
+  const MIN_STINT = 3;
+
   function calcStints(combo, data, total, rsv, minLifePct) {
     const maxPer = combo.map(t => Math.max(1, data[t].maxLaps));
     const totalMax = maxPer.reduce((a, b) => a + b, 0);
     if (totalMax < total) return null;
 
     const n = combo.length;
-    const raw = maxPer.map(m => total * m / totalMax);
-    const laps = raw.map(r => Math.floor(r));
-    const diff = total - laps.reduce((s, l) => s + l, 0);
-    raw.map((r, i) => ({ i, frac: r - Math.floor(r) }))
-      .sort((a, b) => b.frac - a.frac)
-      .slice(0, diff)
-      .forEach(({ i }) => laps[i]++);
-
-    for (let i = 0; i < n; i++) laps[i] = Math.max(1, Math.min(laps[i], maxPer[i]));
+    const timed = combo.every(t => data[t].time > 0);
+    let laps;
+    if (timed) {
+      // Every stint gets a few laps, the rest goes to the faster tyres first,
+      // each up to the laps it lasts.
+      const floor = Math.min(MIN_STINT, ...maxPer);
+      if (total < n * floor) return null;
+      laps = combo.map(() => floor);
+      let left = total - n * floor;
+      combo.map((t, i) => i).sort((x, y) => data[combo[x]].time - data[combo[y]].time || x - y).forEach(i => {
+        const add = Math.min(left, maxPer[i] - laps[i]);
+        laps[i] += add; left -= add;
+      });
+      if (left > 0) return null;
+    } else {
+      const raw = maxPer.map(m => total * m / totalMax);
+      laps = raw.map(r => Math.floor(r));
+      const diff = total - laps.reduce((s, l) => s + l, 0);
+      raw.map((r, i) => ({ i, frac: r - Math.floor(r) }))
+        .sort((a, b) => b.frac - a.frac)
+        .slice(0, diff)
+        .forEach(({ i }) => laps[i]++);
+      for (let i = 0; i < n; i++) laps[i] = Math.max(1, Math.min(laps[i], maxPer[i]));
+    }
     if (laps.reduce((s, l) => s + l, 0) !== total) return null;
 
     const fuel = +(laps.reduce((s, l, i) => s + l * data[combo[i]].fuel, 0) + rsv).toFixed(1);
@@ -334,7 +387,7 @@
 
     const capacity = combo.reduce((s, t) => s + data[t].maxLaps, 0);
 
-    const drivingTime = combo.every(t => data[t].time > 0) ? laps.reduce((sum, l, i) => sum + l * data[combo[i]].time, 0) : null;
+    const drivingTime = timed ? laps.reduce((sum, l, i) => sum + l * data[combo[i]].time, 0) : null;
     return { combo, stintLaps: laps, totalFuel: fuel, nPits: n - 1, score, capacity, drivingTime };
   }
 
@@ -346,7 +399,7 @@
 
   // A dry race runs on SS/S/M/H and needs two different compounds; a wet one
   // runs on intermediates and wets, where one compound is enough.
-  function strategies(tyres, totalLaps, reserve, minLife, rain) {
+  function plan(tyres, totalLaps, reserve, minLife, rain) {
     const need = rain ? 1 : 2;
     const readyTyres = (rain ? WET : TYRES).filter(t => tyres[t].fuel > 0 && tyres[t].wear > 0 && tyres[t].coef != null);
     const hasEnoughData = readyTyres.length >= need && totalLaps > 0;
@@ -357,7 +410,7 @@
 
     const bestMax = Math.max(...readyTyres.map(t => Math.max(1, d[t].maxLaps)));
     const minStints = Math.max(need, Math.ceil(total / bestMax));
-    const maxStints = Math.min(6, Math.max(minStints, 6)); // up to 5 pit stops
+    const maxStints = 5; // the game allows at most 4 pit stops
 
     const all = [];
 
@@ -379,18 +432,68 @@
     }
     buildCombos([], total);
 
-    const timed = readyTyres.every(t => d[t].time > 0);
-    all.sort((a, b) => {
+    return { empty: false, all, data: d, timed: readyTyres.every(t => d[t].time > 0) };
+  }
+
+  const MAX_PITS = 4;       // the game allows at most 4 pit stops
+  const PER_PITS = 4;       // variants listed for each number of stops
+  const FLOOR_LIFE = 25;    // tyres are never planned below this
+  const DEFAULT_PIT_TIME = 22;
+
+  // Every plan that keeps the tyres above the minimum, the best few for each
+  // number of pit stops, ranked by the race time they should take: laps on
+  // each compound plus the time lost in the pits. A plan with fewer stops than
+  // the minimum allows is also offered, with the lowest the tyres must go.
+  function strategies(tyres, totalLaps, reserve, minLife, rain, pitTime) {
+    const main = plan(tyres, totalLaps, reserve, minLife, rain);
+    if (main.empty) return { empty: true, error: false, strategies: [] };
+    const pit = pitTime > 0 ? pitTime : DEFAULT_PIT_TIME;
+    const rank = (a, b) => {
+      if (main.timed && a.totalTime !== b.totalTime) return a.totalTime - b.totalTime;
       if (a.nPits !== b.nPits) return a.nPits - b.nPits;
-      if (timed && a.drivingTime !== b.drivingTime) return a.drivingTime - b.drivingTime;
       if (a.totalFuel !== b.totalFuel) return a.totalFuel - b.totalFuel;
       return a.score - b.score;
-    });
+    };
+    const stamp = (r, life) => { r.totalTime = main.timed ? r.drivingTime + r.nPits * pit : null; r.life = life; return r; };
 
-    const list = all.slice(0, 20);
+    const groups = {};
+    main.all.forEach(r => (groups[r.nPits] || (groups[r.nPits] = [])).push(stamp(r, minLife)));
+    let list = [];
+    Object.keys(groups).forEach(k => list.push(...groups[k].sort(rank).slice(0, PER_PITS)));
+    list.sort(rank);
 
-    if (!list.length) return { empty: false, error: true, strategies: [], data: d };
-    return { empty: false, error: false, strategies: list, best: list[0], data: d };
+    // Fewer stops than that need the tyres to wear further: shown after the
+    // plans that respect the minimum, never ahead of them.
+    const fewest = list.length ? Math.min(...list.map(r => r.nPits)) : MAX_PITS + 1;
+    const want = new Set();
+    for (let p = 1; p < fewest && p <= MAX_PITS; p++) want.add(p);
+    const relaxed = [];
+    for (let life = minLife - 5; want.size && life >= FLOOR_LIFE; life -= 5) {
+      const alt = plan(tyres, totalLaps, reserve, life, rain);
+      if (alt.empty) break;
+      const by = {};
+      alt.all.forEach(r => { if (want.has(r.nPits)) (by[r.nPits] || (by[r.nPits] = [])).push(stamp(r, life)); });
+      Object.keys(by).forEach(k => {
+        relaxed.push(...by[k].sort(rank).slice(0, 2));
+        want.delete(Number(k));
+      });
+    }
+    relaxed.sort((a, b) => a.nPits - b.nPits || rank(a, b));
+    list = list.concat(relaxed);
+
+    if (!list.length) return { empty: false, error: true, strategies: [], data: main.data };
+    return { empty: false, error: false, strategies: list, best: list[0], data: main.data, timed: main.timed };
+  }
+
+  // What the tyre may really have left: the same stint with the wear a
+  // fraction lower and higher, by how sure the forecast is.
+  function remainingBand(car, d, stintLaps) {
+    if (!d || !d.wear || !d.coef || !stintLaps) return null;
+    const l = car.learn || {};
+    const lo = l.lo || BAND_LO, hi = l.hi || BAND_HI;
+    const at = f => Math.round(lifeLeft((d.wear * d.coef * f) / 100, stintLaps) * 100);
+    const a = at(hi), b = at(lo);
+    return a === b ? null : [a, b];
   }
 
   function tyreRemaining(d, stintLaps) {
@@ -470,9 +573,9 @@
   function serialize(dr) {
     return {
       igpRaceId: dr.igpRaceId || null,
-      laps: dr.laps, reserve: dr.reserve, minLife: dr.minLife, rain: !!dr.rain, notes: dr.notes || '',
+      laps: dr.laps, reserve: dr.reserve, minLife: dr.minLife, pitTime: dr.pitTime ?? DEFAULT_PIT_TIME, rain: !!dr.rain, notes: dr.notes || '',
       cars: dr.cars.filter(Boolean).map(c => {
-        const res = strategies(c.tyres, dr.laps, dr.reserve, dr.minLife, dr.rain);
+        const res = strategies(c.tyres, dr.laps, dr.reserve, dr.minLife, dr.rain, dr.pitTime);
         const chosen = raceStrategy(c, res);
         return {
           driver: c.driver || null, driverName: driverName(c),
@@ -513,6 +616,7 @@
       laps: num(d.laps) || (TRACK[r.track] ? TRACK[r.track].laps : 50),
       reserve: d.reserve == null ? 1 : num(d.reserve),
       minLife: d.minLife == null ? 50 : num(d.minLife),
+      pitTime: d.pitTime == null ? DEFAULT_PIT_TIME : num(d.pitTime),
       rain: d.rain === true,
       notes: typeof d.notes === 'string' ? d.notes : '',
       cars: [cars[0], cars[1] || null],
@@ -670,7 +774,7 @@
           render();
           return;
         }
-        const fresh = { id: null, track: key, race_date: today(), laps: TRACK[key].laps, reserve: 1, minLife: 50, rain: false, notes: '', cars: [newCar(seatOf(1)), null] };
+        const fresh = { id: null, track: key, race_date: today(), laps: TRACK[key].laps, reserve: 1, minLife: 50, pitTime: DEFAULT_PIT_TIME, rain: false, notes: '', cars: [newCar(seatOf(1)), null] };
         draft = fresh;
         const note = applyTrackDefaults(key);
         openEditor(draft, note);
@@ -693,9 +797,9 @@
 
     if (prev) {
       const p = fromRace(prev);
-      draft.laps = p.laps; draft.reserve = p.reserve; draft.minLife = p.minLife;
+      draft.laps = p.laps; draft.reserve = p.reserve; draft.minLife = p.minLife; draft.pitTime = p.pitTime;
     } else {
-      draft.laps = TRACK[key].laps; draft.reserve = 1; draft.minLife = 50;
+      draft.laps = TRACK[key].laps; draft.reserve = 1; draft.minLife = 50; draft.pitTime = DEFAULT_PIT_TIME;
     }
 
     const lines = [];
@@ -725,6 +829,7 @@
 
   function openEditor(d, note) {
     draft = d;
+    d.cars.forEach(c => { if (c && c.coefMissing) { applyLearned(c); c.coefMissing = false; } });
     banner = note || null;
     savedJson = draftJson();
     activeCar = 0;
@@ -764,6 +869,7 @@
       + '<label class="igp-field"><span>' + esc(tr('igp_total_laps')) + '</span><input class="igp-input" type="number" inputmode="numeric" min="1" max="120" id="igp-laps" value="' + (draft.laps ?? '') + '"></label>'
       + '<label class="igp-field"><span>' + esc(tr('igp_reserve')) + '</span><input class="igp-input" type="number" inputmode="decimal" min="0" max="5" step="0.1" id="igp-reserve" value="' + (draft.reserve ?? '') + '"></label>'
       + '<label class="igp-field"><span>' + esc(tr('igp_min_life')) + '</span><input class="igp-input" type="number" inputmode="numeric" min="10" max="80" step="1" id="igp-minlife" value="' + (draft.minLife ?? '') + '"></label>'
+      + '<label class="igp-field"><span>' + esc(tr('igp_pit_time')) + '</span><input class="igp-input" type="number" inputmode="decimal" min="5" max="60" step="0.5" id="igp-pittime" value="' + (draft.pitTime ?? '') + '"></label>'
       + '<div class="igp-field"><span>' + esc(tr('igp_weather')) + '</span>'
       + '<button class="igp-input igp-rain-btn' + (draft.rain ? ' on' : '') + '" id="igp-rain" aria-pressed="' + !!draft.rain + '">'
       + (draft.rain ? '🌧 ' + esc(tr('igp_rain')) : '☀️ ' + esc(tr('igp_dry'))) + '</button></div>'
@@ -890,7 +996,7 @@
     const box = root.querySelector('#igp-results');
     if (!box) return;
     const car = draft.cars[activeCar];
-    const res = strategies(car.tyres, draft.laps, draft.reserve, draft.minLife, draft.rain);
+    const res = strategies(car.tyres, draft.laps, draft.reserve, draft.minLife, draft.rain, draft.pitTime);
     const chosen = pickedStrategy(car, res);
     renderActual(car, raceStrategy(car, res));
     const head = learnHtml(car) + realHtml(car);
@@ -915,19 +1021,25 @@
           + '<button class="igp-pick" data-pick="' + key + '" title="' + esc(tr(isChosen ? 'igp_chosen' : 'igp_use_strategy')) + '" aria-label="' + esc(tr(isChosen ? 'igp_chosen' : 'igp_use_strategy')) + '">' + (isChosen ? '✓' : '') + '</button>'
           + (idx === 0 ? '<span class="igp-star">★</span>' : '')
           + '<span class="igp-combo">' + comboHtml(s.combo, 'sm') + '</span>'
+          + '<span class="igp-strat-meta">'
           + '<span class="igp-dim igp-nowrap">' + esc(pitsLabel(s.nPits)) + '</span>'
           + '<span class="igp-fuel igp-nowrap">' + s.totalFuel + ' ' + esc(tr('igp_fuel_unit')) + '</span>'
-          + (s.drivingTime != null ? '<span class="igp-dim" title="' + esc(tr('igp_driving_time')) + '">⏱ ' + esc(formatTime(s.drivingTime)) + '</span>' : '')
+          + (s.totalTime != null ? '<span class="igp-dim" title="' + esc(tr('igp_race_time')) + '">⏱ ' + esc(formatTime(s.totalTime))
+            + (s.life === draft.minLife && idx > 0 && s.totalTime > res.best.totalTime ? ' (+' + (s.totalTime - res.best.totalTime).toFixed(1) + ' s)' : '') + '</span>' : '')
+          + (s.life < draft.minLife ? '<span class="igp-dim igp-nowrap">⚠ ' + esc(tr('igp_relaxed', { n: s.life })) + '</span>' : '')
+          + '</span>'
           + '<span class="igp-chev' + (open ? ' open' : '') + '">▾</span>'
           + '</div>'
           + (open ? '<div class="igp-stints">' + s.combo.map((ty, si) => {
             const rem = tyreRemaining(d[ty], s.stintLaps[si]);
+            const band = remainingBand(car, d[ty], s.stintLaps[si]);
             return '<div class="igp-stint"><div class="igp-stint-top">' + tyreChip(ty, 'md')
               + '<span class="igp-dim">' + esc(si === 0 ? tr('igp_start') : tr('igp_pit') + ' ' + si) + '</span></div>'
               + '<div class="igp-stint-laps">' + s.stintLaps[si] + '<small>' + esc(tr('igp_laps')) + '</small></div>'
               + '<div class="igp-dim igp-small">' + (s.stintLaps[si] * d[ty].fuel).toFixed(1) + ' ' + esc(tr('igp_fuel_unit')) + ' · ' + esc(tr('igp_max')) + ' ' + d[ty].maxLaps + '</div>'
               + '<div class="igp-bar"><div class="' + remainingClass(rem) + '" style="width:' + (rem ?? 0) + '%"></div></div>'
               + '<div class="igp-dim igp-small">' + rem + esc(tr('igp_of_life')) + '</div>'
+              + (band ? '<div class="igp-dim igp-small">' + esc(tr('igp_range_life', { lo: band[0], hi: band[1] })) + '</div>' : '')
               + '</div>';
           }).join('') + '</div>' : '')
           + '</div>';
@@ -1062,6 +1174,7 @@
     $('#igp-laps').oninput = e => { draft.laps = num(e.target.value); renderResults(); };
     $('#igp-reserve').oninput = e => { draft.reserve = num(e.target.value) ?? 0; renderResults(); };
     $('#igp-minlife').oninput = e => { draft.minLife = num(e.target.value) ?? 0; renderResults(); };
+    $('#igp-pittime').oninput = e => { draft.pitTime = num(e.target.value) ?? 0; renderResults(); };
     $('#igp-rain').onclick = () => { draft.rain = !draft.rain; openAccords = new Set(); render(); };
 
     root.querySelectorAll('.igp-car-tab[data-car]').forEach(b => {

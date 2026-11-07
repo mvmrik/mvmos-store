@@ -13,7 +13,7 @@ const GOOD = '#4fd18b', MID = '#f2c230', BAD = '#ff5a5a';
 const partArt = name => `<img class="ap-art" src="${cAsset('/apps/racelandia/art/' + name + '.svg')}" alt="" decoding="async">`;
 const cAsset = path => (window.asset ? window.asset(path) : path).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 
-let ui = { part: 'engine', base: null, push: {}, qty: {} };
+let ui = { open: null, part: 'engine', base: null, push: {}, qty: {} };
 let timer = null, skew = 0;
 // The chief mechanic's level (null: nobody). Without one the sliders have no zones and nothing says how risky a request is;
 // a weaker mechanic draws the zone edges and the chance a little off, a better one closer to the real figures.
@@ -115,9 +115,7 @@ function researchForm(c, L) {
   const r = risk(push, K), ch = chance(push, K), any = SEGS.some(s => push[s] > 0);
   const col = r === 0 ? GOOD : r < 0.5 ? MID : BAD;
   const ready = c.G.driver.budget >= info.cost && any;
-  const chips = PARTS.map(p => `<button class="ap-comp${p === part ? ' on' : ''}" data-rpart="${p}">${partArt(p)}<b>${c.esc(c.t('ap_part_' + p))}</b><small>${c.esc(spanText(L.info[p].seconds, c.t))}</small><em>${c.money(L.info[p].cost)}</em></button>`).join('');
   return `<h3>${c.esc(c.t('ap_lab_new'))}</h3><p class="ap-hint">${c.esc(c.t('ap_lab_hint'))}</p>
-    <div class="ap-comps ap-comps6">${chips}</div>
     ${designs.length > 1 ? `<label class="ap-hint">${c.esc(c.t('ap_lab_base'))} <select data-rbase>${designs.map(d => `<option value="${c.esc(d.id)}" ${d.id === ui.base ? 'selected' : ''}>${c.esc(designName(c, part, d))}</option>`).join('')}</select></label>` : ''}
     ${rows}
     <p class="ap-hint">${c.esc(c.t(mech == null ? 'ap_lab_zones_none' : 'ap_lab_zones'))}</p>
@@ -164,8 +162,8 @@ function researchCard(c, L) {
     <p class="ap-hint">${c.esc(c.t('ap_lab_paid'))}</p>`;
 }
 
-function productionCard(c, L) {
-  const blocks = PARTS.map(p => {
+function productionCard(c, L, only) {
+  const blocks = (only ? [only] : PARTS).map(p => {
     const made = L.designs[p];
     return `<section class="ap-production-group"><h3>${c.esc(c.t('ap_part_' + p))}</h3><div class="ap-equipment">${made.map(d => {
       const qty = ui.qty[d.id] || 1;
@@ -175,7 +173,7 @@ function productionCard(c, L) {
         <button class="ap-btn ap-sm" data-build="${c.esc(d.id)}" ${c.G.driver.budget >= d.cost * qty && L.queue.length < L.consts.max_queue ? '' : 'disabled'}>${c.esc(c.t('ap_lab_build'))}<small>${c.money(d.cost * qty)}</small></button></div></div>`;
     }).join('')}</div></section>`;
   }).join('');
-  const queue = L.queue.map(o => {
+  const queue = L.queue.filter(o => !only || o.part === only).map(o => {
     const left = o.done_at - nowS(), d = L.designs[o.part].find(x => x.id === o.design);
     return `<div class="ap-queue">${partArt(o.part)}<b>${c.esc(designName(c, o.part, d || { ver: 1 }))} ×${o.qty}</b><span>${c.esc(c.t('ap_lab_ready_n', { n: o.delivered, m: o.qty }))}</span><small>${c.esc(c.t('ap_lab_left', { time: spanText(left, c.t) }))}</small></div>`;
   }).join('');
@@ -186,8 +184,8 @@ function productionCard(c, L) {
 function carCard(c, L) {
   const rows = PARTS.map(p => {
     const d = L.designs[p].find(x => x.id === L.fitted[p]) || L.designs[p][0], wear = c.G.driver.parts[p] || 0;
-    return `<div class="ap-part ap-part-prod"><div class="ap-part-i">${partArt(p)}</div><div class="ap-part-b"><div class="ap-set-h"><label>${c.esc(designName(c, p, d))}</label><output style="color:${c.healthCol(wear)}">${Math.round((1 - wear) * 100)}%</output></div>
-      <div class="ap-stats">${statBars(c, p, d.stats)}</div></div></div>`;
+    return `<button type="button" class="ap-part ap-part-prod ap-lab-open" data-open-part="${p}"><div class="ap-part-i">${partArt(p)}</div><div class="ap-part-b"><div class="ap-set-h"><label>${c.esc(designName(c, p, d))}</label><output style="color:${c.healthCol(wear)}">${L.research?.part === p ? (L.research.status === 'ready' ? '🔬✔ ' : '🔬 ') : ''}${L.queue.some(o => o.part === p) ? '🏭 ' : ''}${Math.round((1 - wear) * 100)}% ↗</output></div>
+      <div class="ap-stats">${statBars(c, p, d.stats)}</div></div></button>`;
   }).join('');
   return `<div class="ap-card"><h2>🏎️ ${c.esc(c.t('ap_lab_car'))}</h2><p class="ap-hint">${c.esc(c.t('ap_lab_car_hint'))}</p>${balanceNotes(c, L.balance)}
     <p class="ap-hint">${c.esc(c.t('ap_lab_car_pace', { pace: (L.pace * 100).toFixed(1), mass: (L.mass > 0 ? '+' : '') + L.mass.toFixed(1) }))}</p><div class="ap-equipment">${rows}</div></div>`;
@@ -197,9 +195,19 @@ export function paintLab(host, c) {
   const L = c.G.lab;
   mech = c.G.specialists?.levels?.mechanic ?? null;
   skew = L.now * 1000 - Date.now();
-  render(host, `<div class="ap-pagehead"><div><span class="ap-eyebrow">${c.esc(c.t('ap_title'))}</span><h1>${c.esc(c.t('ap_lab_title'))}</h1><p>${c.esc(c.t('ap_paddock_lab'))}</p></div>${partArt('factory')}</div><div class="ap-garage"><div class="ap-col">${carCard(c, L)}</div>
-    <div class="ap-col"><div class="ap-card"><h2>🔬 ${c.esc(c.t('ap_lab_title'))}</h2>${researchCard(c, L)}</div></div><div class="ap-lab-production">${productionCard(c, L)}</div></div>`);
-  host.querySelectorAll('[data-rpart]').forEach(b => on(b, 'click', () => { ui.part = b.dataset.rpart; ui.base = null; ui.push = {}; paintLab(host, c); }));
+  const head = `<div class="ap-pagehead"><div><span class="ap-eyebrow">${c.esc(c.t('ap_title'))}</span><h1>${c.esc(c.t('ap_lab_title'))}</h1><p>${c.esc(c.t('ap_paddock_lab'))}</p></div>${partArt('factory')}</div>`;
+  if (ui.open && !PARTS.includes(ui.open)) ui.open = null;
+  if (!ui.open) {
+    // the list: only the parts of the car; research and production are inside each part (a marker shows where something is going on)
+    render(host, `${head}<div class="ap-garage ap-lab-list"><div class="ap-col">${carCard(c, L)}</div></div>`);
+  } else {
+    ui.part = ui.open;
+    render(host, `${head}<div class="ap-bar"><div><button class="ap-btn ap-sm ap-ghost" data-lab-back>◂ ${c.esc(c.t('ap_back'))}</button> <b class="ap-title2">${c.esc(c.t('ap_part_' + ui.open))}</b></div></div>
+      <div class="ap-garage"><div class="ap-col"><div class="ap-card"><h2>🔬 ${c.esc(c.t('ap_lab_title'))}</h2>${researchCard(c, L)}</div></div>
+      <div class="ap-lab-production">${productionCard(c, L, ui.open)}</div></div>`);
+  }
+  host.querySelectorAll('[data-open-part]').forEach(b => on(b, 'click', () => { ui.open = b.dataset.openPart; ui.base = null; ui.push = {}; paintLab(host, c); host.scrollTop = 0; }));
+  on(host.querySelector('[data-lab-back]'), 'click', () => { ui.open = null; paintLab(host, c); host.scrollTop = 0; });
   on(host.querySelector('[data-rbase]'), 'change', e => { ui.base = e.target.value; paintLab(host, c); });
   host.querySelectorAll('[data-push]').forEach(i => on(i, 'input', () => { ui.push[i.dataset.push] = +i.value; updateForm(host, c, L); }));
   on(host.querySelector('[data-rstart]'), 'click', e => { e.target.disabled = true; c.act('/lab/research', { part: ui.part, base: ui.base, push: ui.push }).then(ok => { if (ok) ui.push = {}; }); });
