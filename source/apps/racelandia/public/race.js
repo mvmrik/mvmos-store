@@ -268,7 +268,7 @@ export class Race {
       if(c.request&&!c.pit&&frac>=P.pitIn&&frac<P.pitIn+.025&&old>0){c.pit=true;c.box=Math.floor(old/L)*L+P.pitBox*L+(boxes?(e.box_off||0):0);c.serviced=!!c.request_pass;c.pass_through=!!c.request_pass;c.request_pass=false;if(c.pass_through)c.request=null;c.lap_pit=true;if(boxes){c.exit=(Math.floor(old/L)+1+P.pitOut)*L;c.ready_at=null;}}
       if(c.pit&&c.serviced&&old>=(c.exit!=null?c.exit:c.box+(1-P.pitBox+P.pitOut)*L)){c.pit=false;c.box=null;c.serviced=false;c.exit=null;c.ready_at=null;c.pass_through=false;}
       const [grip,wear_rate]=TYRES[c.compound],base=P.speeds[Math.min(P.speeds.length-1,Math.trunc(frac*P.speeds.length))];
-      let target=base*65/e.target*grip*waterFactor(c.compound,waterAt(this.cfg,t))*(1-Math.min(.30,c.wear*.32))*(1-c.fuel*(this.cfg.fuel_k??.0007));
+      let target=base*65/e.target*grip*(1+.012*(1-Math.exp(-t/540))*Math.max(0,1-waterAt(this.cfg,t)/.5))*waterFactor(c.compound,waterAt(this.cfg,t))*(1-.08*c.wear**2-.27*c.wear**6)*(1-c.fuel*(this.cfg.fuel_k??.0007));
       const fatigue=1-Math.max(0,(e.energy??100)-(e.energy_cost??0)*Math.min(1,Math.max(0,old)/(this.cfg.laps*L)))/100;
       target*=(1+.08*((e.front_wing_wear||0)-c.wing));
       const upcoming=P.speeds[Math.trunc(mod(frac+.012,1)*P.speeds.length)];

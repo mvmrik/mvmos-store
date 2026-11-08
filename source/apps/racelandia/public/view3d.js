@@ -863,7 +863,7 @@ export function createView(THREE, host, T, opts) {
     clouds.forEach(m => { const k = m.userData.k; m.material.opacity = clamp01((cl - k * 0.85) * 3.5) * (0.55 + 0.45 * k) * (1 - 0.45 * nightK); m.material.color.setScalar(cloudTone).lerp(new THREE.Color(0x0a0f1c), nightK * 0.8); });
     stars.visible = nightK > 0.02 && cl < 0.95; stars.material.opacity = nightK * Math.pow(1 - cl, 1.5) * 0.95;
     moon.visible = nightK > 0.02 && cl < 0.9; moon.material.opacity = nightK * (1 - cl * 0.9);
-    lampK = 1 - dayK; glow.visible = lampK > 0.02; glow.material.opacity = lampK * 0.75;
+    lampK = clamp01((0.04 - sinE) / 0.12); glow.visible = lampK > 0.02; glow.material.opacity = lampK * 0.75;
     headMat.color.set(0x555555).lerp(new THREE.Color(0xfff0c8), lampK);
     rainAmt = c.rain; rain.visible = c.rain > 0.02; rainGeo.setDrawRange(0, Math.floor(RAIN * 2 * Math.min(1, c.rain * 1.3)));
   }

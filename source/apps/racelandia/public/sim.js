@@ -498,6 +498,7 @@ export class Run {
     this.idx = i;                         // nearest racing-line index
     this.Tt = new Float64Array(4).fill(COMPOUNDS[o.compound].start);
     this.wear = new Float64Array(4);
+    this.driven = 0;   // metres driven in this session: the cars warm the asphalt and lay rubber on the line
     // the set on the car, so the wear of each set of a weekend can be handed back
     this.tyreLog = []; this.mount = null;
     if (o.tyreSet) { this.wear.set(mounted(o.tyreSet.wear || [0, 0, 0, 0])); this.mount = { id: o.tyreSet.id, lapAt: 0 }; }
@@ -773,7 +774,8 @@ export class Run {
     const k = this.P.comp;
     const dT = (T - k.Topt) / k.Wd;
     const gT = 0.78 + 0.22 * Math.exp(-dT * dT);
-    const gW = 1 - 0.10 * wear - 0.30 * Math.max(0, (wear - 0.72) / 0.28) ** 2;
+    // Almost nothing is lost down to half a tyre (-2%), then it grows: -12% at 20% left, -35% at nothing left.
+    const gW = 1 - 0.08 * wear ** 2 - 0.27 * wear ** 6;
     const pHot = press * (273 + T) / (273 + 60);
     const gP = 1 - 0.0016 * (pHot - 25.5) ** 2;
     const camOpt = -3.2;
@@ -926,7 +928,11 @@ export class Run {
     const dt = this.dt, T = this.T, P = this.P, k = P.comp, m = this.P.mass + this.fuel;
     const hour = this.startHour + this.t / 3600;
     if (((this.t * 4) | 0) !== this._ct) { this._ct = (this.t * 4) | 0; this.condNow = condAt(this.forecast, hour); }
-    const c = this.condNow;
+    // Driving warms the track and lays rubber: each lap is a little better than the one before, fading in the wet.
+    this.driven += Math.abs(this.u) * dt;
+    const c = this.condNow, laps = this.driven / T.len, dry = 1 - Math.min(1, c.water / 0.5);
+    c.track += 8 * (1 - Math.exp(-laps / 5)) * dry;
+    c.rubber += 0.045 * (1 - Math.exp(-laps / 6)) * dry;
     // Shift selection runs once per physics step; force queries remain pure.
     const speed = Math.hypot(this.u,this.v), limits=GEAR_RATIOS;
     this.gear = this.gear || 1;

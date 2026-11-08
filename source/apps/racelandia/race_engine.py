@@ -462,7 +462,7 @@ class Race:
                 c['pit']=False;c['box']=None;c['serviced']=False;c['exit']=None;c['ready_at']=None;c['pass_through']=False
             grip,wear_rate=TYRES[c['compound']]
             base=P['speeds'][min(len(P['speeds'])-1,int(frac*len(P['speeds'])))]
-            target=base*65/e['target']*grip*water_factor(c['compound'],water_at(self.cfg,t))*(1-min(.30,c['wear']*.32))*(1-c['fuel']*self.cfg.get('fuel_k',.0007))
+            target=base*65/e['target']*grip*(1+.012*(1-math.exp(-t/540))*max(0,1-water_at(self.cfg,t)/.5))*water_factor(c['compound'],water_at(self.cfg,t))*(1-.08*c['wear']**2-.27*c['wear']**6)*(1-c['fuel']*self.cfg.get('fuel_k',.0007))
             fatigue=1-max(0,e.get('energy',100)-e.get('energy_cost',0)*min(1,max(0,old)/(self.cfg['laps']*L)))/100
             target*=(1-.08*fatigue)*(1+.08*(e.get('front_wing_wear',0)-c['wing']))
             upcoming=P['speeds'][int((frac+.012)%1*len(P['speeds']))]

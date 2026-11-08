@@ -978,14 +978,14 @@
   // The same advice for every kind of session: the pool of what this driver did here, judged against the weather now.
   function adviceFor(ANA, run, rows, trackId, c) {
     const adv = ANA.advise(G.tracks.find(t => t.id === trackId)?.bests?.pool, c, G.defs, G.tracks.find(t => t.id === trackId)?.bests?.now);
-    return ANA.suggestions(run, rows, G.defs, adv.prior, { scale: adv.scale, weight: adv.weight, narrow: FX ? FX.rangeFactor(lvl('engineer')) : 1 });
+    return ANA.suggestions(run, rows, G.defs, adv.prior, { scale: adv.scale, weight: adv.weight, narrow: FX ? FX.rangeFactor(lvl('engineer')) : 1, floor: FX ? FX.rangeFloor(lvl('engineer')) : 1.2 });
   }
   function paintAdvice(host) {
     if (!anaMod || !host) return;
     const adv = anaMod.advise(tinfo().bests?.pool, cond(cfg.hour), G.defs, tinfo().bests?.now, simMod.MODE_F);
     // the fuel follows the laps chosen for this session (the outlap counts), at the consumption seen here before
     const fuel = { perLap: adv.fuelLap, laps: sessLaps() + 1, modeF: simMod.MODE_F };
-    const items = Object.fromEntries(anaMod.suggestions({ setup: setup(), P: { comp: { Topt: 0 } } }, [], G.defs, adv.prior, { scale: adv.scale, weight: adv.weight, fuel, narrow: FX ? FX.rangeFactor(lvl('engineer')) : 1 }).items.map(it => [it.key, it]));
+    const items = Object.fromEntries(anaMod.suggestions({ setup: setup(), P: { comp: { Topt: 0 } } }, [], G.defs, adv.prior, { scale: adv.scale, weight: adv.weight, fuel, narrow: FX ? FX.rangeFactor(lvl('engineer')) : 1, floor: FX ? FX.rangeFloor(lvl('engineer')) : 1.2 }).items.map(it => [it.key, it]));
     const basis = host.querySelector('[data-advice-basis]');
     if (basis) basis.textContent = _t(adv.laps ? 'ap_advice_basis' : 'ap_advice_none', { n: adv.laps });
     host.querySelectorAll('.ap-set[data-k]').forEach(row => {
@@ -1267,10 +1267,18 @@
   // The compound the forecast calls for in the coming session, and the best set of it to use.
   function suggestedSet(s) {
     const f = s.forecast?.[s.stage], p = f && stratOn() && wxH() != null ? f.chance : 0;
-    const want = p >= 0.8 ? 'W' : p >= 0.5 ? 'I' : s.phase === 'qualifying' ? 'S' : 'M';
+    // A dry track is started on dry tyres whatever the forecast says; rain tyres only when the track is already wet.
+    let now = null; try { now = f ? recommend(cond(f.hour)) : null; } catch (_) {}
+    const wetNow = now === 'W' || now === 'I';
+    const want = now && !wetNow ? (s.phase === 'qualifying' ? 'S' : 'M') : wetNow && p < 0.5 ? now : p >= 0.8 ? 'W' : p >= 0.5 ? 'I' : s.phase === 'qualifying' ? 'S' : 'M';
     const fresh = s.tyres.filter(t => t.compound === want && Math.max(...t.wear) < 0.98).sort((a, b) => avgWear(a) - avgWear(b));
     const pick = s.phase === 'race' || s.phase === 'qualifying' ? fresh[0] : fresh[fresh.length - 1] || fresh[0];
-    return pick || s.tyres.find(t => Math.max(...t.wear) < 0.98) || s.tyres[0];
+    if (pick) return pick;
+    // Never swap dry for rain tyres (or the other way round) because the wanted compound is missing or the sets are worn:
+    // the same kind of tyre comes first, the least worn of it; the other kind only when there is none at all.
+    const wetKind = want === 'W' || want === 'I', kind = t => (t.compound === 'W' || t.compound === 'I') === wetKind;
+    const same = s.tyres.filter(kind).sort((a, b) => (Math.max(...a.wear) >= 0.98) - (Math.max(...b.wear) >= 0.98) || avgWear(a) - avgWear(b));
+    return same[0] || s.tyres.find(t => Math.max(...t.wear) < 0.98) || s.tyres[0];
   }
   function forecastHtml(s) {
     if (!s.forecast?.length) return '';
@@ -2189,7 +2197,7 @@
   function openPit() {
     pitModal = true; pb.skip = false; pb.speed = 1; markSpeed();
     const M = mods, weekend = !!pb.msg.tyres, locked = !!pb.msg.locked_setup;
-    const cur = run.compoundNow, s = run.setup, rec = recShown(cond(pb.msg.hour));
+    const cur = run.compoundNow, s = run.setup, rec = recShown(run.condNow || cond(pb.msg.hour));
     const maxFuel = Math.max(0, Math.floor(110 - run.fuel));
     const rows = M.ANALYSIS.lapRows(run), an = { rows, tyres: M.ANALYSIS.tyreStats(rows, run), sug: adviceFor(M.ANALYSIS, run, rows, pb.msg.track, run.condNow || cond(pb.msg.hour)) };
     const sugOf = k => an.sug.items.find(x => x.key === k);

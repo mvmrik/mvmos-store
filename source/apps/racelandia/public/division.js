@@ -107,16 +107,19 @@ export function phoneHud(view,t){
   // the player's position and the first three letters of the name, from the classification itself
   const row=view.querySelector('.ap-tower .ap-order-row.watched:not(.ap-order-pin)')||view.querySelector('.ap-tower .ap-order-row.mine:not(.ap-order-pin)')||view.querySelector('.ap-tower .ap-order-row.mine');
   const pos=row?.querySelector('b')?.textContent.trim()||'–',name=(row?.querySelector('span')?.textContent||'').trim().slice(0,3);
+  // the small classification is in race order: the leader on top, the car being watched only marked in its place
+  const order=[...view.querySelectorAll('.ap-tower .ap-order-row:not(.ap-order-pin)')]
+    .filter(r=>r===row||!['pit','finished','dnf'].includes(r.dataset.trackStatus))
+    .sort((a,b)=>Number(a.querySelector('b')?.textContent)-Number(b.querySelector('b')?.textContent));
+  const top=order[0]||row,topPos=top?.querySelector('b')?.textContent.trim()||'–',topName=((top?.querySelector('.ap-rival-name')||top?.querySelector('span'))?.textContent||'').trim().slice(0,3);
   const chip=ph.querySelector('.ap-ph-pos');
-  chip.removeAttribute('title');chip.setAttribute('aria-label',pos+' '+name);chip.setAttribute('aria-expanded',String(view.classList.contains('ap-tw-open')));
-  const html=`<b>${esc(pos)}</b><span>${esc(name)}</span>`;
+  chip.removeAttribute('title');chip.setAttribute('aria-label',topPos+' '+topName);chip.classList.toggle('watched',top===row);chip.setAttribute('aria-expanded',String(view.classList.contains('ap-tw-open')));
+  const html=`<b>${esc(topPos)}</b><span>${esc(topName)}</span>`;
   if(chip._html!==html){chip.innerHTML=html;chip._html=html;}
   // Reuse the original compact timing style for every car on track, without a second heading.
   let runners=ph.querySelector('.ap-ph-runners');
   if(!runners){runners=document.createElement('div');runners.className='ap-ph-runners';ph.appendChild(runners);}
-  const driving=[...view.querySelectorAll('.ap-tower .ap-order-row:not(.ap-order-pin)')]
-    .filter(r=>r!==row&&!['pit','finished','dnf'].includes(r.dataset.trackStatus))
-    .sort((a,b)=>Number(a.querySelector('b')?.textContent)-Number(b.querySelector('b')?.textContent));
+  const driving=order.slice(1);
   driving.forEach((entry,i)=>{
     let button=runners.children[i];
     if(!button){button=document.createElement('button');button.type='button';runners.appendChild(button);}
@@ -124,7 +127,7 @@ export function phoneHud(view,t){
     const rank=entry.querySelector('b')?.textContent.trim()||'–';
     const html=`<b>${esc(rank)}</b><span>${esc(driver.slice(0,3))}</span>`;
     if(button._html!==html){button.innerHTML=html;button._html=html;}
-    button.title=driver;button.onclick=()=>{view.classList.add('ap-tw-open');entry.scrollIntoView({block:'nearest'});};
+    button.classList.toggle('watched',entry===row);button.title=driver;button.onclick=()=>{view.classList.add('ap-tw-open');entry.scrollIntoView({block:'nearest'});};
   });
   while(runners.children.length>driving.length)runners.lastElementChild.remove();
   // One explicit car switch sits under the phone radio, separate from the timing tower.

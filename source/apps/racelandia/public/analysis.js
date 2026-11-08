@@ -4,7 +4,7 @@
 
 const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 const avg = a => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0);
-const CLIFF = 0.72;                       // the wear after which grip falls away quickly
+const CLIFF = 0.72;                       // the wear at which a set is called finished for planning (grip is already about 8% lower)
 
 // How a lap looks to the engineers.
 export function lapRows(run) {
@@ -96,7 +96,7 @@ export function suggestions(run, rows, defs, prior, opts = {}) {
     for (const key of Object.keys(WIDTH)) {
       const d = defs.find(x => x.key === key); if (!d || prior[key] == null) continue;
       const snap = v => clamp(Math.round((v - d.min) / d.step) * d.step + d.min, d.min, d.max);
-      const half = WIDTH[key] * scale / 2, lo = snap(prior[key] - half), hi = snap(prior[key] + half), cur = s[key];
+      const half = WIDTH[key] * Math.max(scale, opts.floor || 0) / 2, lo = snap(prior[key] - half), hi = snap(prior[key] + half), cur = s[key];
       items.push({ key, cur, lo, hi, move: prior[key] - cur, inRange: cur >= lo - 1e-9 && cur <= hi + 1e-9, min: d.min, max: d.max, unit: d.unit, step: d.step, prior: prior[key] });
     }
     const fuel = fuelItem({ ...opts, scale, narrow: 1 }, defs, s);
@@ -121,7 +121,7 @@ export function suggestions(run, rows, defs, prior, opts = {}) {
   const items = [];
   for (const key of Object.keys(WIDTH)) {
     const d = defs.find(x => x.key === key); if (!d) continue;
-    const cur = s[key], w = (WIDTH[key] || 2) * scale / Math.sqrt(n);
+    const cur = s[key], w = (WIDTH[key] || 2) * Math.max(scale / Math.sqrt(n), opts.floor || 0);
     let c = cur + (raw[key] || 0);
     const pv = prior && prior[key] != null ? prior[key] : null;
     if (pv != null) c = (priorWeight * pv + n * c) / (priorWeight + n);

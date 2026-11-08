@@ -64,4 +64,7 @@ export const zoneShift = (key, err) => (hash(key) - .5) * 2 * err;
 // ── race engineer ─────────────────────────────────────────────────────────
 // The suggested ranges of the setup: without an engineer they are twice as wide as the data alone would give, and only a
 // very good engineer narrows them well below that (the effect grows quickly above level 50).
+// The narrowest a setting's advised range may get, in widths: laps and earlier runs narrow it, but only a high level
+// reaches a precise one. No engineer: 1.2 widths; level 50: about 0.46; level 80: 0.15; level 100: 0.05.
+export const rangeFloor = level => (level == null ? 1.2 : 0.05 + 1.15 * Math.pow(1 - clamp(level, 0, 100) / 100, 1.5));
 export const rangeFactor = level => (level == null ? 2 : 2 - 1.55 * Math.pow(clamp(level, 0, 100) / 100, 2.5));
