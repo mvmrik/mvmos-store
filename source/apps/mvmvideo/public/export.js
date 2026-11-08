@@ -47,11 +47,57 @@
     return d * (videoBitrate(p, quality, media) + (hasAudio ? AUDIO_BITRATE[quality] || 0 : 0)) / 8;
   }
 
+
+  // ── Audio effects of a clip ──
+  // c.fx = { fadeIn, fadeOut (seconds), rumble, voice, level, hiss (booleans) }.
+  // The very same node chain is used by the preview and the export, so what
+  // is heard while editing is what is written to the file.
+  function fxActive(fx) {
+    return !!(fx && (fx.fadeIn > 0 || fx.fadeOut > 0 || fx.rumble || fx.voice || fx.level || fx.hiss));
+  }
+  function fxChainNeeded(fx) { return !!(fx && (fx.rumble || fx.voice || fx.level || fx.hiss)); }
+  // Builds high-pass → presence boost → low-pass → compressor, each one
+  // neutral until switched on by setFx.
+  function makeFxChain(ctx) {
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass';
+    const eq = ctx.createBiquadFilter(); eq.type = 'peaking';
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass';
+    const comp = ctx.createDynamicsCompressor();
+    hp.connect(eq); eq.connect(lp); lp.connect(comp);
+    return { input: hp, output: comp, hp, eq, lp, comp };
+  }
+  function setFx(ch, fx) {
+    fx = fx || {};
+    ch.hp.frequency.value = fx.rumble ? 90 : 10;
+    ch.hp.Q.value = 0.707;
+    ch.eq.frequency.value = 3000; ch.eq.Q.value = 0.9;
+    ch.eq.gain.value = fx.voice ? 4 : 0;
+    ch.lp.frequency.value = fx.hiss ? 7500 : 22000;
+    ch.lp.Q.value = 0.707;
+    if (fx.level) {
+      ch.comp.threshold.value = -26; ch.comp.knee.value = 18; ch.comp.ratio.value = 4;
+      ch.comp.attack.value = 0.005; ch.comp.release.value = 0.2;
+    } else {
+      ch.comp.threshold.value = 0; ch.comp.knee.value = 0; ch.comp.ratio.value = 1;
+    }
+  }
+  // Volume of a clip at timeline time T, with its fades.
+  function trackVol(tr) { return tr && tr.volume != null ? tr.volume : 1; }
+  function gainAt(c, T, tv) {
+    let g = c.volume * (tv == null ? 1 : tv);
+    const fx = c.fx;
+    if (fx) {
+      if (fx.fadeIn > 0) g *= Math.min(1, Math.max(0, (T - c.start) / fx.fadeIn));
+      if (fx.fadeOut > 0) g *= Math.min(1, Math.max(0, (clipEnd(c) - T) / fx.fadeOut));
+    }
+    return g;
+  }
+
   function trackOf(p, c) { return p.tracks.find(t => t.id === c.track); }
   function audible(p, c, media) {
     const tr = trackOf(p, c);
     const m = media[c.media];
-    if (!tr || tr.muted || !m || !(c.volume > 0)) return false;
+    if (!tr || tr.muted || !m || c.silent || !(c.volume > 0) || !(trackVol(tr) > 0)) return false;
     return m.info.kind === 'audio' || (m.info.kind === 'video' && m.info.hasAudio);
   }
 
@@ -254,8 +300,24 @@
         const node = octx.createBufferSource();
         node.buffer = buf;
         const gain = octx.createGain();
-        gain.gain.value = c.volume;
-        node.connect(gain).connect(octx.destination);
+        const tv = trackVol(trackOf(p, c));
+        if (c.fx && (c.fx.fadeIn > 0 || c.fx.fadeOut > 0) && b - a > 0.02) {
+          const n = Math.max(2, Math.ceil((b - a) * 200));
+          const curve = new Float32Array(n);
+          for (let i = 0; i < n; i++) curve[i] = gainAt(c, a + (b - a) * i / (n - 1), tv);
+          gain.gain.setValueCurveAtTime(curve, a - from, b - a);
+        } else {
+          gain.gain.value = gainAt(c, (a + b) / 2, tv);
+        }
+        if (fxChainNeeded(c.fx)) {
+          const ch = makeFxChain(octx);
+          setFx(ch, c.fx);
+          node.connect(ch.input);
+          ch.output.connect(gain);
+        } else {
+          node.connect(gain);
+        }
+        gain.connect(octx.destination);
         node.start(a - from, padBefore, b - a);
       }
       return octx.startRendering();
@@ -318,5 +380,5 @@
     }
   }
 
-  window.MvmVideoExport = { run, pickFormat, describeFormat, videoBitrate, estimateBytes, projectDuration, clipEnd, clipLen, audible };
+  window.MvmVideoExport = { run, pickFormat, describeFormat, videoBitrate, estimateBytes, projectDuration, clipEnd, clipLen, audible, fxActive, makeFxChain, setFx, gainAt, trackVol };
 })();

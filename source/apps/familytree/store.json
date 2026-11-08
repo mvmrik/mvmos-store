@@ -12,6 +12,8 @@
     "Change history, conflict detection and prevention of circular ancestry.",
     "Desktop and responsive Apps Hub web views with translations in nine languages.",
     "Blue and pink person cards, Back navigation through relatives, current age or age at death, and birth-date age comparisons with clearly marked approximate values.",
-    "Live references to existing people from owned or shared trees, cross-tree parents and partners, and filtered side-by-side views with one card per shared person and independent permissions."
+    "Live references to existing people from owned or shared trees, cross-tree parents and partners, and filtered side-by-side views with one card per shared person and independent permissions.",
+    "Share by picking a role and clicking a name; the panel lists everyone with access, with their role, and never offers a person twice.",
+    "Kinship labels for great-grandparents, great-grandchildren, second and third cousins, cousins once or twice removed, relatives by marriage and step relatives, using only terms each language reliably has."
   ]
 }

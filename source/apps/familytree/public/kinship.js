@@ -19,6 +19,8 @@
     }
     return found;
   }
+  // Relatives by marriage and step relatives, recognised only from short, unambiguous marriage paths.
+  const AFFINITY={'spouse>parent':'parentInLaw','child>spouse':'childInLaw','spouse>parent>child':'spouseSibling','parent>child>spouse':'siblingSpouse','parent>spouse':'stepParent','spouse>child':'stepChild'};
   function relationships(people,selected){
     const g=graph(people),result=new Map();if(!g.nodes.has(selected))return result;
     const a=ancestors(g,selected),paths=new Map([[selected,[]]]),queue=[selected];
@@ -42,20 +44,23 @@
             const {up,down}=common;const bloodPath=[...common.a,...common.b.slice().reverse().map((e,i,arr)=>({id:i===arr.length-1?target.id:arr[i+1].id,kind:'child'}))];
             // A shorter marriage connection takes precedence over a distant common ancestor.
             if(common.score<=path.length||path.every(e=>['parent','child'].includes(e.kind))){
-              if(down===0)relation={key:up===2?'grandparent':'ancestor',generations:up,path:bloodPath};
-              else if(up===0)relation={key:down===2?'grandchild':'descendant',generations:down,path:bloodPath};
+              if(down===0)relation={key:up===2?'grandparent':up===3?'greatGrandparent':up===4?'greatGreatGrandparent':'ancestor',generations:up,path:bloodPath};
+              else if(up===0)relation={key:down===2?'grandchild':down===3?'greatGrandchild':down===4?'greatGreatGrandchild':'descendant',generations:down,path:bloodPath};
               else if(up===1&&down===1){
                 const own=g.nodes.get(selected).parents||[],other=target.parents||[];
                 const shared=own.filter(id=>other.includes(id)).length;
                 relation={key:shared===1&&own.length===2&&other.length===2?'halfSibling':'sibling',path:bloodPath};
               } else if(up===2&&down===1)relation={key:'auntUncle',path:bloodPath};
               else if(up===1&&down===2)relation={key:'nieceNephew',path:bloodPath};
-              else if(up===down)relation={key:'cousin',degree:up-1,path:bloodPath};
+              else if(up===3&&down===1)relation={key:'grandAuntUncle',path:bloodPath};
+              else if(up===1&&down===3)relation={key:'grandNieceNephew',path:bloodPath};
+              else if(up>=2&&down>=2)relation={key:'cousin',degree:Math.min(up,down)-1,removed:Math.abs(up-down),path:bloodPath};
               else relation={key:'connectionPath',path:bloodPath};
             }
           }
         }
       }
+      if(relation.key==='connectionPath'&&path){const key=AFFINITY[path.map(e=>e.kind).join('>')];if(key)relation={key,path}}
       result.set(target.id,{...relation,gender:target.gender||'unknown'});
     }
     return result;
@@ -75,8 +80,35 @@
     if(key==='selectedPerson')return '';
     const nodes=new Map(people.map(p=>[p.id,p]));
     const path=relation.path||[],first=nodes.get(path[0]?.id),origin=nodes.get(selected);
-    if(key==='ancestor'||key==='descendant')return '';
+    if(key==='ancestor')return lang==='zh-CN'?'':'distantAncestor';
+    if(key==='descendant')return lang==='zh-CN'?'':'distantDescendant';
     if(sex==='unknown'&&!['parent','child','partner','spouse','former_partner','former_spouse'].includes(key))return '';
+    const male=sex==='male',zh=lang==='zh-CN',ja=lang==='ja',pick=(m,f)=>male?m:f;
+    if(key==='greatGrandparent')return zh?'':pick('greatGrandfather','greatGrandmother');
+    if(key==='greatGreatGrandparent')return zh?'':pick('greatGreatGrandfather','greatGreatGrandmother');
+    if(key==='greatGrandchild')return zh?'':pick('greatGrandson','greatGranddaughter');
+    if(key==='greatGreatGrandchild')return zh?'':pick('greatGreatGrandson','greatGreatGranddaughter');
+    // Bulgarian has no firmly established single words for these, so they stay hidden rather than guessed.
+    // Japanese distinguishes elder/younger and sibling's gender for these, which the tree cannot always tell.
+    if(ja&&['grandAuntUncle','grandNieceNephew'].includes(key))return '';
+    if(lang==='bg'&&['grandAuntUncle','grandNieceNephew'].includes(key))return '';
+    if(lang==='bg'&&key==='stepParent'&&male)return '';
+    if(key==='grandAuntUncle')return zh?'':pick('grandUncle','grandAunt');
+    if(key==='grandNieceNephew')return zh?'':pick('grandNephew','grandNiece');
+    if(key==='childInLaw')return pick('sonInLaw','daughterInLaw');
+    if(key==='stepParent')return pick('stepFather','stepMother');
+    if(key==='stepChild')return pick('stepSon','stepDaughter');
+    if(['parentInLaw','spouseSibling','siblingSpouse'].includes(key)){
+      const og=origin?.gender,regional=['bg','ru'].includes(lang)||(zh&&key==='parentInLaw');
+      if(regional){
+        if(key==='siblingSpouse')return pick('inlawSiblingHusband','inlawSiblingWife');
+        if(!['male','female'].includes(og))return '';
+        const side=og==='female'?'Husband':'Wife';
+        return 'inlaw'+(key==='parentInLaw'?pick('Father','Mother'):pick('Brother','Sister'))+side;
+      }
+      if(zh)return '';
+      return key==='parentInLaw'?pick('fatherInLaw','motherInLaw'):pick('brotherInLaw','sisterInLaw');
+    }
     if(lang==='bg'&&key==='auntUncle'){
       if(sex==='female')return 'aunt';
       return first?.gender==='male'?'paternalUncle':first?.gender==='female'?'maternalUncle':'';
@@ -111,7 +143,11 @@
         return (sibling.gender==='male'?'brothers':'sisters')+(sex==='male'?'Nephew':'Niece');
       }
     }
-    if(key==='cousin')return relation.degree===1?(sex==='male'?'firstCousinMale':'firstCousinFemale'):'';
+    if(key==='cousin'){
+      const d=relation.degree,r=relation.removed||0;
+      if(d>3||r>2||(ja&&(d>2||r))||(lang==='fr'&&d>2))return '';
+      return (['first','second','third'][d-1])+'Cousin'+(male?'Male':'Female');
+    }
     return termKey(key,sex);
   }
   function termKey(key,sex){

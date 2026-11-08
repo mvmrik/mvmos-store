@@ -66,7 +66,10 @@
         try {
           const src = ac.createMediaElementSource(el);
           e.gain = ac.createGain();
-          src.connect(e.gain).connect(ac.destination);
+          e.fx = X().makeFxChain(ac);
+          src.connect(e.fx.input);
+          e.fx.output.connect(e.gain);
+          e.gain.connect(ac.destination);
         } catch (err) { e.gain = null; }
       }
       this.els.set(c.id, e);
@@ -77,7 +80,7 @@
       const e = this.els.get(id);
       if (!e) return;
       try { e.el.pause(); e.el.removeAttribute('src'); e.el.load(); } catch (err) { /* gone */ }
-      if (e.gain) try { e.gain.disconnect(); } catch (err) { /* gone */ }
+      if (e.gain) try { e.gain.disconnect(); e.fx.output.disconnect(); } catch (err) { /* gone */ }
       this.els.delete(id);
     }
 
@@ -146,14 +149,15 @@
         const inside = T >= c.start && T < end;
         const soon = !inside && c.start > T && c.start - T < PRELOAD;
         const shown = tr.kind === 'video' && !tr.hidden;
-        const heard = !tr.muted && c.volume > 0;
+        const tv = X().trackVol(tr);
+        const heard = !tr.muted && !c.silent && c.volume > 0 && tv > 0 && !this.hushed;
         if (!inside && !soon) continue;
         if (!inside && !this.els.has(c.id)) { if (!this.playing) continue; }
         const e = this.element(c);
         if (!e) continue;
         active.add(c.id);
         const el = e.el;
-        if (e.gain) e.gain.gain.value = heard ? c.volume : 0;
+        if (e.gain) { e.gain.gain.value = heard ? X().gainAt(c, T, tv) : 0; X().setFx(e.fx, c.fx); }
         else el.muted = !heard;
         if (!inside) {
           if (!el.paused) el.pause();
@@ -163,7 +167,9 @@
         const rel = c.in + (T - c.start);
         if (this.playing && (shown || heard)) {
           if (el.paused) {
-            el.currentTime = rel;
+            // A clip waiting on its first frame is already there: seeking
+            // again would drop the frame and flash black at the cut.
+            if (Math.abs(el.currentTime - rel) > 0.04) el.currentTime = rel;
             el.play().catch(() => {});
           } else if (Math.abs(el.currentTime - rel) > DRIFT) {
             el.currentTime = rel;
@@ -188,6 +194,19 @@
       const ctx = this.ctx;
       const W = this.canvas.width, H = this.canvas.height;
       ctx.imageSmoothingQuality = 'high';
+      // While the picture of a clip that should be showing is not decoded
+      // yet, the last frame stays instead of a black one.
+      if (this.drawn) {
+        const T0 = this.time;
+        for (const tr of p.tracks) {
+          if (tr.kind !== 'video' || tr.hidden) continue;
+          const c = p.clips.find(x => x.track === tr.id && T0 >= x.start && T0 < X().clipEnd(x));
+          const m = c && this.host.media(c.media);
+          if (!m || !m.info || m.info.kind === 'image') continue;
+          const e = this.els.get(c.id);
+          if (!e || e.el.readyState < 2 || e.el.seeking) return;
+        }
+      }
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, W, H);
       const T = this.time;
@@ -209,6 +228,7 @@
         const s = Math.min(W / sw, H / sh);
         ctx.drawImage(src, (W - sw * s) / 2, (H - sh * s) / 2, sw * s, sh * s);
       }
+      this.drawn = true;
     }
 
     destroy() {

@@ -54,10 +54,10 @@
       format: 'mvmvideo', version: 1,
       name: '', width: 1920, height: 1080, fps: 30, auto: true,
       tracks: [
-        { id: uid('t'), kind: 'video', muted: false, hidden: false },
-        { id: uid('t'), kind: 'video', muted: false, hidden: false },
-        { id: uid('t'), kind: 'audio', muted: false, hidden: false },
-        { id: uid('t'), kind: 'audio', muted: false, hidden: false },
+        { id: uid('t'), kind: 'video', muted: false, hidden: false, volume: 1 },
+        { id: uid('t'), kind: 'video', muted: false, hidden: false, volume: 1 },
+        { id: uid('t'), kind: 'audio', muted: false, hidden: false, volume: 1 },
+        { id: uid('t'), kind: 'audio', muted: false, hidden: false, volume: 1 },
       ],
       media: [],
       clips: [],
@@ -74,7 +74,7 @@
     p.fps = +raw.fps > 0 && +raw.fps <= 240 ? +raw.fps : 30;
     p.auto = !!raw.auto;
     const tracks = Array.isArray(raw.tracks) ? raw.tracks.filter(x => x && (x.kind === 'video' || x.kind === 'audio')) : [];
-    if (tracks.length) p.tracks = tracks.map(x => ({ id: String(x.id || uid('t')), kind: x.kind, muted: !!x.muted, hidden: !!x.hidden }));
+    if (tracks.length) p.tracks = tracks.map(x => ({ id: String(x.id || uid('t')), kind: x.kind, muted: !!x.muted, hidden: !!x.hidden, volume: x.volume == null ? 1 : Math.min(2, Math.max(0, +x.volume || 0)) }));
     p.media = (Array.isArray(raw.media) ? raw.media : []).filter(m => m && m.id && ['video', 'audio', 'image'].includes(m.kind)).map(m => ({
       id: String(m.id), name: String(m.name || ''), kind: m.kind,
       path: m.path ? String(m.path) : null, size: +m.size || 0,
@@ -83,12 +83,26 @@
     }));
     const mids = new Set(p.media.map(m => m.id));
     const tids = new Set(p.tracks.map(x => x.id));
-    p.clips = (Array.isArray(raw.clips) ? raw.clips : []).filter(c => c && mids.has(c.media) && tids.has(c.track)).map(c => ({
-      id: String(c.id || uid('c')), track: String(c.track), media: String(c.media),
-      start: Math.max(0, +c.start || 0), in: Math.max(0, +c.in || 0), out: Math.max(0, +c.out || 0),
-      volume: c.volume == null ? 1 : Math.min(2, Math.max(0, +c.volume)),
-    })).filter(c => c.out > c.in);
+    p.clips = (Array.isArray(raw.clips) ? raw.clips : []).filter(c => c && mids.has(c.media) && tids.has(c.track)).map(c => {
+      const o = {
+        id: String(c.id || uid('c')), track: String(c.track), media: String(c.media),
+        start: Math.max(0, +c.start || 0), in: Math.max(0, +c.in || 0), out: Math.max(0, +c.out || 0),
+        volume: c.volume == null ? 1 : Math.min(2, Math.max(0, +c.volume)),
+      };
+      const fx = normFx(c.fx);
+      if (fx) o.fx = fx;
+      if (c.silent) o.silent = true;
+      if (c.link) o.link = String(c.link);
+      return o;
+    }).filter(c => c.out > c.in);
     return p;
+  }
+
+  function normFx(f) {
+    if (!f || typeof f !== 'object') return null;
+    const n = (v, max) => Math.min(max, Math.max(0, Math.round((+v || 0) * 10) / 10));
+    const o = { fadeIn: n(f.fadeIn, 60), fadeOut: n(f.fadeOut, 60), rumble: !!f.rumble, voice: !!f.voice, level: !!f.level, hiss: !!f.hiss };
+    return window.MvmVideoExport.fxActive(o) ? o : null;
   }
 
   const clipLen = c => c.out - c.in;
@@ -154,9 +168,9 @@
                 <button class="mv-ibtn" data-a="end">⏭</button>
                 <span class="mv-time"></span>
               </div>
-              <div class="mv-inspector"></div>
             </div>
           </div>
+          <div class="mv-panel"><div class="mv-tabs"></div><div class="mv-pbody"></div></div>
         </div>
         <div class="mv-tl">
           <div class="mv-tl-tools"></div>
@@ -178,7 +192,8 @@
       this.canvas = q('.mv-canvas');
       this.timeEl = q('.mv-time');
       this.playBtn = q('.mv-play');
-      this.inspector = q('.mv-inspector');
+      this.tabsEl = q('.mv-tabs');
+      this.pbody = q('.mv-pbody');
       this.tlTools = q('.mv-tl-tools');
       this.scroll = q('.mv-tl-scroll');
       this.inner = q('.mv-tl-inner');
@@ -349,6 +364,8 @@
         <button class="mv-btn mv-small" data-a="zfit" title="${esc(t('mv_zoom_fit'))}">↔</button>
         <button class="mv-ibtn mv-small" data-a="zin" title="${esc(t('mv_zoom_in'))}">＋</button>
         <span class="mv-grow"></span>
+        <button class="mv-btn mv-small mv-rec" data-a="rec" title="${esc(t('mv_rec_hint'))}">🎙 ${esc(t('mv_rec'))}</button>
+        <span class="mv-sep"></span>
         <button class="mv-btn mv-small" data-a="addv">＋ ${esc(t('mv_add_video_track'))}</button>
         <button class="mv-btn mv-small" data-a="adda">＋ ${esc(t('mv_add_audio_track'))}</button>`;
       this.tlTools.onclick = e => {
@@ -361,6 +378,7 @@
         else if (a === 'zin') this.zoomAt(this.pps * 1.5);
         else if (a === 'zout') this.zoomAt(this.pps / 1.5);
         else if (a === 'zfit') this.zoomFit();
+        else if (a === 'rec') this.recordDialog();
         else if (a === 'addv') this.addTrack('video');
         else if (a === 'adda') this.addTrack('audio');
       };
@@ -369,8 +387,8 @@
       this.inner.style.width = (HEADER_W + width) + 'px';
       this.rows.innerHTML = p.tracks.map(tr => `
         <div class="mv-row mv-row-${tr.kind}" data-track="${esc(tr.id)}">
-          <div class="mv-th">
-            <span class="mv-th-name">${this.trackLabel(tr)}</span>
+          <div class="mv-th${this.selTrack === tr.id ? ' mv-th-sel' : ''}">
+            <span class="mv-th-name" data-ta="sel" title="${esc(t('mv_track_settings'))}">${this.trackLabel(tr)}</span>
             ${tr.kind === 'video' ? `<button class="mv-ibtn mv-tiny${tr.hidden ? ' mv-off' : ''}" data-ta="hide" title="${esc(t(tr.hidden ? 'mv_show_track' : 'mv_hide_track'))}">${tr.hidden ? '🙈' : '👁'}</button>` : ''}
             <button class="mv-ibtn mv-tiny${tr.muted ? ' mv-off' : ''}" data-ta="mute" title="${esc(t(tr.muted ? 'mv_unmute_track' : 'mv_mute_track'))}">${tr.muted ? '🔇' : '🔊'}</button>
             <button class="mv-ibtn mv-tiny" data-ta="remove" title="${esc(t('mv_remove_track'))}">✕</button>
@@ -382,7 +400,8 @@
           const b = e.target.closest('[data-ta]');
           if (!b) return;
           const id = th.parentElement.dataset.track;
-          if (b.dataset.ta === 'hide') this.commit(() => { const tr = this.track(id); tr.hidden = !tr.hidden; });
+          if (b.dataset.ta === 'sel') this.selectTrack(id);
+          else if (b.dataset.ta === 'hide') this.commit(() => { const tr = this.track(id); tr.hidden = !tr.hidden; });
           else if (b.dataset.ta === 'mute') this.commit(() => { const tr = this.track(id); tr.muted = !tr.muted; });
           else this.removeTrack(id);
         });
@@ -396,13 +415,23 @@
       const m = this.mediaDesc(c.media);
       const r = this.rt.get(c.media) || {};
       const w = Math.max(2, clipLen(c) * this.pps);
-      const bg = r.thumb && m.kind !== 'audio' ? `background-image:url(${r.thumb})` : '';
-      const wave = m.kind === 'audio' && r.peaks ? `<canvas class="mv-wave" data-clip="${esc(c.id)}"></canvas>` : '';
-      const vol = c.volume !== 1 && (m.kind === 'audio' || m.hasAudio) ? ` · ${Math.round(c.volume * 100)}%` : '';
+      const onAudio = this.clipKind(c) === 'audio';
+      const bg = r.thumb && !onAudio && m.kind !== 'audio' ? `background-image:url(${r.thumb})` : '';
+      const sounds = (m.kind === 'audio' || m.hasAudio) && !c.silent;
+      const canvas = `<canvas class="mv-wave" data-clip="${esc(c.id)}"></canvas>`;
+      // The sound of a video that is still part of it is drawn as a strip
+      // under the picture, like a track of its own.
+      const strip = m.kind === 'video' && !onAudio && sounds && r.peaks;
+      const wave = !strip && onAudio && r.peaks ? canvas : '';
+      const vol = c.volume !== 1 && sounds ? ` · ${Math.round(c.volume * 100)}%` : '';
+      const off = m.kind === 'video' && !onAudio && m.hasAudio && c.silent ? ' · 🔇' : '';
       const bad = r.status !== 'ready' ? ' mv-clip-bad' : '';
-      return `<div class="mv-clip mv-clip-${m.kind}${this.selected === c.id ? ' mv-sel' : ''}${bad}" data-clip="${esc(c.id)}" style="left:${c.start * this.pps}px;width:${w}px;${bg}">
+      const cls = onAudio && m.kind === 'video' ? 'audio' : m.kind;
+      return `<div class="mv-clip mv-clip-${cls}${strip ? ' mv-clip-split' : ''}${this.selected === c.id ? ' mv-sel' : ''}${bad}" data-clip="${esc(c.id)}" style="left:${c.start * this.pps}px;width:${w}px;${bg}">
         ${wave}
-        <div class="mv-clip-label">${esc(m.name)}${vol}</div>
+        ${strip ? `<div class="mv-snd">${canvas}${w > 24 ? this.fadeHTML(c) : ''}</div>` : ''}
+        ${!strip && sounds && (onAudio || m.kind === 'audio') && w > 24 ? this.fadeHTML(c) : ''}
+        <div class="mv-clip-label">${esc(m.name)}${vol}${off}${window.MvmVideoExport.fxActive(c.fx) ? ' · 🎚' : ''}</div>
         <div class="mv-h mv-h-l" data-h="l"></div><div class="mv-h mv-h-r" data-h="r"></div>
       </div>`;
     }
@@ -420,7 +449,7 @@
       ctx.fillStyle = 'rgba(255,255,255,.55)';
       const pps = Media().PEAKS_PER_SEC;
       const from = c.in * pps, to = c.out * pps;
-      const scale = Math.max(0.05, c.volume);
+      const scale = Math.max(0.05, c.volume * window.MvmVideoExport.trackVol(this.track(c.track)));
       for (let x = 0; x < w; x++) {
         const a = Math.floor(from + (to - from) * x / w), b = Math.max(a + 1, Math.floor(from + (to - from) * (x + 1) / w));
         let peak = 0;
@@ -461,38 +490,168 @@
       ctx.stroke();
     }
 
+    // The panel to the right of the preview: tabs for the selected clip, or
+    // the settings of a selected track.
     renderInspector() {
+      const X = window.MvmVideoExport;
       const c = this.selectedClip();
-      if (!c) { this.inspector.innerHTML = ''; return; }
-      const m = this.mediaDesc(c.media);
-      const hasSound = m.kind === 'audio' || m.hasAudio;
-      this.inspector.innerHTML = `
-        <span class="mv-insp-name" title="${esc(m.name)}">${esc(m.name)}</span>
-        ${m.kind === 'image' ? `<label>${esc(t('mv_duration'))} <input type="number" class="mv-num" data-f="dur" min="0.1" step="0.5" value="${Math.round(clipLen(c) * 100) / 100}"> s</label>` : `<span class="mv-dim">${fmtTime(clipLen(c), this.project.fps)}</span>`}
-        ${hasSound ? `<label title="${esc(t('mv_volume'))}">🔊 <input type="range" data-f="vol" min="0" max="200" step="5" value="${Math.round(c.volume * 100)}"> <span class="mv-vol">${Math.round(c.volume * 100)}%</span></label>` : ''}`;
-      const vol = this.inspector.querySelector('[data-f="vol"]');
-      if (vol) {
-        vol.addEventListener('input', () => {
-          this.inspector.querySelector('.mv-vol').textContent = vol.value + '%';
-          c.volume = vol.value / 100;
+      const tr = !c && this.selTrack ? this.track(this.selTrack) : null;
+      this.tabsEl.innerHTML = '';
+      if (!c && !tr) { this.pbody.innerHTML = `<div class="mv-empty">${esc(t('mv_panel_empty'))}</div>`; return; }
+      const box = this.pbody;
+      const volRow = (id, label, v) => `<div class="mv-prow"><span>${esc(label)}</span><div class="mv-vrow"><input type="range" data-r="${id}" min="0" max="200" step="1" value="${v}"><input type="number" class="mv-num" data-n="${id}" min="0" max="200" step="1" value="${v}"><b>%</b></div></div>`;
+      const bindVol = (id, apply) => {
+        const r = box.querySelector(`[data-r="${id}"]`), n = box.querySelector(`[data-n="${id}"]`);
+        let before = null;
+        const set = v => {
+          v = Math.min(200, Math.max(0, Math.round(+v || 0)));
+          r.value = v; n.value = v;
+          apply(v / 100);
+          this.rows.querySelectorAll('canvas.mv-wave').forEach(cv => this.drawWave(cv));
           this.preview.sync();
-        });
-        vol.addEventListener('pointerdown', () => { this.volBefore = this.snapshot(); });
-        vol.addEventListener('change', () => {
-          if (this.volBefore) this.pushHistory(this.volBefore);
-          this.volBefore = null;
-          this.changed();
-        });
+        };
+        r.addEventListener('pointerdown', () => { before = this.snapshot(); });
+        r.addEventListener('input', () => { if (!before) before = this.snapshot(); set(r.value); });
+        r.addEventListener('change', () => { if (before) this.pushHistory(before); before = null; this.changed(); });
+        n.addEventListener('change', () => { const b = this.snapshot(); set(n.value); this.pushHistory(b); this.changed(); });
+      };
+
+      if (tr) {
+        const pct = Math.round(X.trackVol(tr) * 100);
+        box.innerHTML = `<div class="mv-ptitle">${esc(t('mv_track'))} ${esc(this.trackLabel(tr))}</div>
+          ${volRow('track', t('mv_track_volume'), pct)}
+          <label class="mv-fx-toggle"><input type="checkbox" data-tm ${tr.muted ? 'checked' : ''}><span>${esc(t('mv_mute_track'))}</span></label>
+          ${tr.kind === 'video' ? `<label class="mv-fx-toggle"><input type="checkbox" data-th ${tr.hidden ? 'checked' : ''}><span>${esc(t('mv_hide_track'))}</span></label>` : ''}`;
+        bindVol('track', v => { tr.volume = v; });
+        box.querySelector('[data-tm]').addEventListener('change', e => this.commit(() => { tr.muted = e.target.checked; }));
+        const hb = box.querySelector('[data-th]');
+        if (hb) hb.addEventListener('change', e => this.commit(() => { tr.hidden = e.target.checked; }));
+        return;
       }
-      const dur = this.inspector.querySelector('[data-f="dur"]');
-      if (dur) {
-        dur.addEventListener('change', () => {
+
+      const m = this.mediaDesc(c.media);
+      const onAudio = this.clipKind(c) === 'audio';
+      const hasSound = (m.kind === 'audio' || m.hasAudio) && !c.silent;
+      const tabs = onAudio || m.kind === 'audio' ? ['audio', 'fx', 'clip'] : ['clip', 'audio', 'fx'];
+      const avail = tabs.filter(k => k === 'clip' || (k === 'audio' && (hasSound || (m.kind === 'video' && m.hasAudio))) || (k === 'fx' && hasSound));
+      if (!avail.includes(this.tab)) this.tab = avail[0];
+      const label = { clip: t('mv_tab_clip'), audio: t('mv_tab_audio'), fx: t('mv_tab_fx') };
+      this.tabsEl.innerHTML = avail.map(k => `<button class="mv-tab${k === this.tab ? ' mv-on' : ''}" data-tab="${k}">${esc(label[k])}</button>`).join('');
+      this.tabsEl.onclick = e => { const b = e.target.closest('[data-tab]'); if (b) { this.tab = b.dataset.tab; this.renderInspector(); } };
+      const fx = c.fx || {};
+
+      if (this.tab === 'clip') {
+        const bits = [fmtTime(clipLen(c), this.project.fps)];
+        if (m.width) bits.push(`${m.width}×${m.height}`);
+        if (m.fps) bits.push(fmtFps(m.fps) + ' fps');
+        box.innerHTML = `<div class="mv-ptitle" title="${esc(m.name)}">${esc(m.name)}</div><div class="mv-dim">${esc(bits.join(' · '))}</div>
+          ${m.kind === 'image' ? `<div class="mv-prow"><span>${esc(t('mv_duration'))}</span><input type="number" class="mv-num" data-f="dur" min="0.1" step="0.5" value="${Math.round(clipLen(c) * 100) / 100}"> s</div>` : ''}
+          ${m.kind === 'video' && !onAudio && m.hasAudio && c.silent ? `<div class="mv-note">🔇 ${esc(t('mv_sound_detached'))}</div>` : ''}`;
+        const dur = box.querySelector('[data-f="dur"]');
+        if (dur) dur.addEventListener('change', () => {
           const v = Math.max(0.1, +dur.value || IMAGE_SECONDS);
           const next = this.project.clips.filter(x => x.track === c.track && x.start >= clipEnd(c) - 1e-6 && x.id !== c.id).sort((a, b) => a.start - b.start)[0];
           const maxLen = next ? next.start - c.start : Infinity;
           this.commit(() => { c.out = c.in + Math.min(v, maxLen); });
         });
+      } else if (this.tab === 'audio') {
+        if (!hasSound) {
+          box.innerHTML = `<div class="mv-note">🔇 ${esc(t('mv_sound_detached'))}</div>`;
+          return;
+        }
+        const canDetach = m.kind === 'video' && !onAudio && m.hasAudio && !c.silent;
+        const canJoin = !!this.joinTarget(c);
+        const trk = this.track(c.track);
+        const fade = (k, l) => `<div class="mv-prow"><span>${esc(t(l))}</span><input type="number" class="mv-num" data-fade="${k}" min="0" max="60" step="0.1" value="${(fx[k] || 0).toFixed(1)}"> s</div>`;
+        box.innerHTML = `<div class="mv-ptitle" title="${esc(m.name)}">${esc(m.name)}</div>
+          ${volRow('clip', t('mv_clip_volume'), Math.round(c.volume * 100))}
+          ${volRow('track', t('mv_track_volume') + ' (' + this.trackLabel(trk) + ')', Math.round(X.trackVol(trk) * 100))}
+          ${fade('fadeIn', 'mv_fx_fade_in')}${fade('fadeOut', 'mv_fx_fade_out')}
+          <div class="mv-dim mv-hint">${esc(t('mv_fade_drag_hint'))}</div>
+          ${canDetach ? `<button class="mv-btn mv-wide" data-f="detach" title="${esc(t('mv_detach_hint'))}">⛓ ${esc(t('mv_detach'))}</button>` : ''}
+          ${canJoin ? `<button class="mv-btn mv-wide" data-f="attach" title="${esc(t('mv_attach_hint'))}">🔗 ${esc(t('mv_attach'))}</button>` : ''}`;
+        bindVol('clip', v => { c.volume = v; });
+        bindVol('track', v => { trk.volume = v; });
+        box.querySelectorAll('[data-fade]').forEach(inp => inp.addEventListener('change', () => this.commit(() => this.setFade(c, inp.dataset.fade, +inp.value))));
+        const d = box.querySelector('[data-f="detach"]'); if (d) d.addEventListener('click', () => this.detachAudio());
+        const a = box.querySelector('[data-f="attach"]'); if (a) a.addEventListener('click', () => this.attachAudio());
+      } else {
+        const toggles = [
+          ['rumble', 'mv_fx_rumble', 'mv_fx_rumble_hint'],
+          ['voice', 'mv_fx_voice', 'mv_fx_voice_hint'],
+          ['level', 'mv_fx_level', 'mv_fx_level_hint'],
+          ['hiss', 'mv_fx_hiss', 'mv_fx_hiss_hint'],
+        ];
+        box.innerHTML = `<div class="mv-dim mv-hint">${esc(t('mv_fx_hint'))}</div>` + toggles.map(([k, l, h]) => `<label class="mv-fx-toggle"><input type="checkbox" data-fx="${k}" ${fx[k] ? 'checked' : ''}><span><b>${esc(t(l))}</b><br><small class="mv-dim">${esc(t(h))}</small></span></label>`).join('');
+        box.querySelectorAll('[data-fx]').forEach(inp => inp.addEventListener('change', () => this.commit(() => {
+          const f = c.fx = Object.assign({ fadeIn: 0, fadeOut: 0, rumble: false, voice: false, level: false, hiss: false }, c.fx);
+          f[inp.dataset.fx] = inp.checked;
+          if (!X.fxActive(f)) delete c.fx;
+        })));
       }
+    }
+
+    // Sets one fade of a clip in seconds; the two never add up to more than
+    // the clip itself.
+    setFade(c, key, v) {
+      const fx = c.fx = Object.assign({ fadeIn: 0, fadeOut: 0, rumble: false, voice: false, level: false, hiss: false }, c.fx);
+      const other = key === 'fadeIn' ? fx.fadeOut : fx.fadeIn;
+      const max = Math.max(0, Math.min(60, clipLen(c) - other));
+      fx[key] = Math.min(max, Math.max(0, Math.round((+v || 0) * 10) / 10));
+      if (!window.MvmVideoExport.fxActive(fx)) delete c.fx;
+    }
+
+    fadeHTML(c) {
+      const fx = c.fx || {};
+      const wi = (fx.fadeIn || 0) * this.pps, wo = (fx.fadeOut || 0) * this.pps;
+      const svg = (cls, w, pts, line) => `<svg class="mv-fade ${cls}" style="width:${w}px" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="${pts}" fill="rgba(0,0,0,.5)"/><line ${line} stroke="#fff" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>`;
+      return svg('mv-fade-in', wi, '0,0 100,0 0,100', 'x1="0" y1="100" x2="100" y2="0"')
+        + svg('mv-fade-out', wo, '0,0 100,0 100,100', 'x1="0" y1="0" x2="100" y2="100"')
+        + `<div class="mv-fh mv-fh-in" data-f="in" style="left:${Math.max(0, wi - 5)}px" title="${esc(t('mv_fx_fade_in'))}: ${(fx.fadeIn || 0).toFixed(1)} s"></div>`
+        + `<div class="mv-fh mv-fh-out" data-f="out" style="right:${Math.max(0, wo - 5)}px" title="${esc(t('mv_fx_fade_out'))}: ${(fx.fadeOut || 0).toFixed(1)} s"></div>`;
+    }
+
+    paintFade(el, c) {
+      const fx = c.fx || {};
+      const wi = (fx.fadeIn || 0) * this.pps, wo = (fx.fadeOut || 0) * this.pps;
+      const q = s => el.querySelector(s);
+      q('.mv-fade-in').style.width = wi + 'px';
+      q('.mv-fade-out').style.width = wo + 'px';
+      q('.mv-fh-in').style.left = Math.max(0, wi - 5) + 'px';
+      q('.mv-fh-out').style.right = Math.max(0, wo - 5) + 'px';
+      q('.mv-fh-in').title = t('mv_fx_fade_in') + ': ' + (fx.fadeIn || 0).toFixed(1) + ' s';
+      q('.mv-fh-out').title = t('mv_fx_fade_out') + ': ' + (fx.fadeOut || 0).toFixed(1) + ' s';
+    }
+
+    // Dragging the round handle at either end of a clip's sound.
+    dragFade(e, c, clipEl, which) {
+      const key = which === 'in' ? 'fadeIn' : 'fadeOut';
+      const before = this.snapshot();
+      const edge = which === 'in' ? c.start : clipEnd(c);
+      const secs = ev => which === 'in' ? this.timeAt(ev.clientX) - edge : edge - this.timeAt(ev.clientX);
+      const grab = secs(e) - ((c.fx && c.fx[key]) || 0);
+      const move = ev => {
+        this.setFade(c, key, secs(ev) - grab);
+        this.paintFade(clipEl, c);
+        this.preview.sync();
+      };
+      const up = () => {
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+        if (this.snapshot() !== before) { this.pushHistory(before); this.changed(); }
+      };
+      window.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', up);
+    }
+
+    selectTrack(id) {
+      this.selected = null;
+      this.selTrack = id;
+      this.rows.querySelectorAll('.mv-clip').forEach(el => el.classList.remove('mv-sel'));
+      this.rows.querySelectorAll('.mv-th').forEach(el => el.classList.toggle('mv-th-sel', el.parentElement.dataset.track === id));
+      const del = this.tlTools.querySelector('[data-a="delete"]');
+      if (del) del.disabled = true;
+      this.renderInspector();
     }
 
     layout() {
@@ -530,6 +689,9 @@
     mediaDesc(id) { return this.project.media.find(x => x.id === id); }
     selectedClip() { return this.selected ? this.clip(this.selected) : null; }
     isReady(id) { const r = this.rt.get(id); return !!(r && r.status === 'ready'); }
+    // What a clip counts as for placing it: sound that was detached from a
+    // video sits on an audio track and moves only between audio tracks.
+    clipKind(c) { const tr = this.track(c.track); const m = this.mediaDesc(c.media); return tr && tr.kind === 'audio' && m ? 'audio' : (m ? m.kind : 'video'); }
     fits(kind, trackKind) { return kind === 'audio' ? trackKind === 'audio' : trackKind === 'video'; }
 
     seek(tm) {
@@ -633,13 +795,15 @@
         const c = this.clip(clipEl.dataset.clip);
         if (!c) return;
         this.select(c.id);
+        const fh = e.target.closest('.mv-fh');
+        if (fh) { this.dragFade(e, c, clipEl, fh.dataset.f); return; }
         const h = e.target.closest('.mv-h');
         if (h) this.dragTrim(e, c, clipEl, h.dataset.h);
         else this.dragMove(e, c, clipEl);
         return;
       }
       // Empty lane or ruler: move the playhead, and keep following the mouse.
-      if (this.selected) this.select(null);
+      if (this.selected || this.selTrack) this.select(null);
       const move = ev => this.seek(this.timeAt(ev.clientX));
       move(e);
       const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
@@ -649,6 +813,8 @@
 
     select(id) {
       this.selected = id;
+      this.selTrack = null;
+      this.rows.querySelectorAll('.mv-th-sel').forEach(el => el.classList.remove('mv-th-sel'));
       this.rows.querySelectorAll('.mv-clip').forEach(el => el.classList.toggle('mv-sel', el.dataset.clip === id));
       const del = this.tlTools.querySelector('[data-a="delete"]');
       if (del) del.disabled = !id;
@@ -679,7 +845,7 @@
         let trackId = target.track;
         if (row) {
           const tr = this.track(row.dataset.track);
-          if (tr && this.fits(m.kind, tr.kind)) trackId = tr.id;
+          if (tr && this.fits(this.clipKind(c), tr.kind)) trackId = tr.id;
         }
         const start = this.place(trackId, Math.max(0, want), len, c.id);
         target = { track: trackId, start };
@@ -830,11 +996,70 @@
           const m = this.mediaDesc(c.media);
           const cut = T - c.start;
           const second = { ...c, id: uid('c'), start: T };
+          delete second.link;
+          if (c.fx) {
+            // Each piece keeps its own end of the fades.
+            second.fx = { ...c.fx, fadeIn: 0 };
+            c.fx = { ...c.fx, fadeOut: 0 };
+          }
           if (m.kind === 'image') { second.in = 0; second.out = clipLen(c) - cut; c.out = cut; }
           else { second.in = c.in + cut; c.out = c.in + cut; }
           this.project.clips.push(second);
         }
       });
+    }
+
+    // Taking the sound of a video out of it, as a clip of its own on an audio
+    // track at exactly the same place. It is the same file and the same
+    // range, so nothing is re-encoded or degraded; the video clip is only
+    // marked as silent.
+    detachAudio() {
+      const c = this.selectedClip();
+      if (!c) return;
+      const m = this.mediaDesc(c.media);
+      const vt = this.track(c.track);
+      if (!m || m.kind !== 'video' || !m.hasAudio || c.silent || !vt || vt.kind !== 'video') return;
+      const free = tr => !this.project.clips.some(x => x.track === tr.id && x.start < clipEnd(c) - 1e-6 && clipEnd(x) > c.start + 1e-6);
+      const a = { id: uid('c'), track: '', media: c.media, start: c.start, in: c.in, out: c.out, volume: c.volume, link: c.id };
+      this.commit(() => {
+        let tr = this.project.tracks.find(x => x.kind === 'audio' && free(x));
+        if (!tr) {
+          tr = { id: uid('t'), kind: 'audio', muted: false, hidden: false, volume: 1 };
+          this.project.tracks.push(tr);
+        }
+        a.track = tr.id;
+        if (c.fx) { a.fx = { ...c.fx }; delete c.fx; }
+        c.silent = true;
+        c.volume = 1;
+        this.project.clips.push(a);
+      });
+      this.select(a.id);
+      this.toast(t('mv_detached'));
+    }
+
+    // The video this sound was taken from, if both are still exactly
+    // together.
+    joinTarget(a) {
+      if (!a || !a.link || this.clipKind(a) !== 'audio') return null;
+      const v = this.clip(a.link);
+      const m = this.mediaDesc(a.media);
+      const vt = v && this.track(v.track);
+      if (!v || !m || m.kind !== 'video' || !v.silent || !vt || vt.kind !== 'video' || v.media !== a.media) return null;
+      const e = 1e-4;
+      return Math.abs(v.start - a.start) < e && Math.abs(v.in - a.in) < e && Math.abs(v.out - a.out) < e ? v : null;
+    }
+
+    attachAudio() {
+      const a = this.selectedClip();
+      const v = this.joinTarget(a);
+      if (!v) return;
+      this.commit(() => {
+        v.silent = false;
+        v.volume = a.volume;
+        if (a.fx) v.fx = { ...a.fx };
+        this.project.clips = this.project.clips.filter(x => x.id !== a.id);
+      });
+      this.select(v.id);
     }
 
     deleteSelected() {
@@ -846,7 +1071,7 @@
 
     addTrack(kind) {
       this.commit(() => {
-        const tr = { id: uid('t'), kind, muted: false, hidden: false };
+        const tr = { id: uid('t'), kind, muted: false, hidden: false, volume: 1 };
         if (kind === 'video') this.project.tracks.unshift(tr);
         else this.project.tracks.push(tr);
       });
@@ -883,7 +1108,7 @@
 
     onKey(e) {
       if (e.target.closest('input, textarea, select') || e.target.isContentEditable) return;
-      if (this.root.querySelector('.mv-modal')) return;
+      if (this.root.querySelector('.mv-modal') || this.rec) return;
       const k = e.key;
       const mod = e.ctrlKey || e.metaKey;
       const frame = 1 / this.project.fps;
@@ -988,7 +1213,7 @@
         else if (info.kind === 'video') r.thumb = await Media().videoThumb(info.url, info.duration);
         this.renderLibrary();
         this.renderTimeline();
-        if (info.hasAudio && info.kind === 'audio') {
+        if (info.hasAudio && (info.kind === 'audio' || info.kind === 'video')) {
           r.peaks = await Media().computePeaks(blob, info);
           this.renderTimeline();
         }
@@ -1247,6 +1472,277 @@
         const sel = box.querySelector('[data-f="preset"]');
         sel.addEventListener('change', () => { box.querySelector('.mv-custom').hidden = sel.value !== 'custom'; });
       });
+    }
+
+
+    // ── Audio effects ────────────────────────────────────────────────────
+    // ── Voice recording ──────────────────────────────────────────────────
+    recPrefs() {
+      let o = {};
+      try { o = JSON.parse(localStorage.getItem('mvmvideo.rec2') || '{}') || {}; } catch (e) { o = {}; }
+      return Object.assign({ deviceId: '', noise: true, echo: true, gain: true, headphones: false, keep: false }, o);
+    }
+
+    // One click from the playhead: pick the microphone, check the level,
+    // record while the video plays, and the voice lands on a free audio
+    // track right where the recording started.
+    async recordDialog() {
+      if (this.rec || this.recDialog) return;
+      if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { this.toast(t('mv_rec_insecure'), 'bad'); return; }
+      const prefs = this.recPrefs();
+      const st = { stream: null, ac: null, raf: 0, gen: 0 };
+      this.recDialog = true;
+      const stopTest = () => {
+        st.gen++;
+        cancelAnimationFrame(st.raf);
+        if (st.stream) st.stream.getTracks().forEach(x => x.stop());
+        if (st.ac) st.ac.close().catch(() => {});
+        st.stream = null; st.ac = null;
+      };
+      const body = `
+        <label class="mv-field"><span>${esc(t('mv_rec_mic'))}</span><select data-f="dev"><option value="">${esc(t('mv_rec_default_mic'))}</option></select></label>
+        <div class="mv-field"><span>${esc(t('mv_rec_level'))}</span><div class="mv-meter"><i data-f="meter"></i></div></div>
+        <p class="mv-hint" data-f="status">${esc(t('mv_rec_waiting'))}</p>
+        <label class="mv-fx-toggle"><input type="checkbox" data-f="noise" ${prefs.noise ? 'checked' : ''}><span><b>${esc(t('mv_rec_noise'))}</b><br><small class="mv-dim">${esc(t('mv_rec_noise_hint'))}</small></span></label>
+        <label class="mv-fx-toggle"><input type="checkbox" data-f="echo" ${prefs.echo ? 'checked' : ''}><span><b>${esc(t('mv_rec_echo'))}</b></span></label>
+        <label class="mv-fx-toggle"><input type="checkbox" data-f="gain" ${prefs.gain ? 'checked' : ''}><span><b>${esc(t('mv_rec_gain'))}</b></span></label>
+        <label class="mv-fx-toggle"><input type="checkbox" data-f="phones" ${prefs.headphones ? 'checked' : ''}><span><b>${esc(t('mv_rec_headphones'))}</b><br><small class="mv-dim">${esc(t('mv_rec_headphones_hint'))}</small></span></label>
+        <label class="mv-fx-toggle"><input type="checkbox" data-f="keep" ${prefs.keep ? 'checked' : ''}><span><b>${esc(t('mv_rec_keep'))}</b><br><small class="mv-dim">${esc(t('mv_rec_keep_hint'))}</small></span></label>`;
+      const finish = () => { stopTest(); this.recDialog = false; };
+      this.modal(t('mv_rec_title'), body, [
+        { label: t('mv_cancel'), onClick: finish },
+        { label: '● ' + t('mv_rec_start'), primary: true, onClick: box => {
+          if (!st.stream) return false;
+          const o = this.readRecBox(box);
+          localStorage.setItem('mvmvideo.rec2', JSON.stringify(o));
+          const stream = st.stream;
+          st.stream = null;
+          finish();
+          this.startRecording(stream, o);
+        } },
+      ], box => {
+        const q = f => box.querySelector(`[data-f="${f}"]`);
+        const startBtn = box.querySelector('.mv-modal-foot .mv-primary');
+        startBtn.disabled = true;
+        const open = async () => {
+          const gen = ++st.gen;
+          cancelAnimationFrame(st.raf);
+          if (st.stream) st.stream.getTracks().forEach(x => x.stop());
+          if (st.ac) st.ac.close().catch(() => {});
+          st.stream = null; st.ac = null;
+          startBtn.disabled = true;
+          const o = this.readRecBox(box);
+          let stream;
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({ audio: {
+              deviceId: o.deviceId ? { exact: o.deviceId } : undefined,
+              echoCancellation: o.echo, noiseSuppression: o.noise, autoGainControl: o.gain,
+              channelCount: 1,
+            } });
+          } catch (e) {
+            if (gen !== st.gen) return;
+            q('status').textContent = t(e && e.name === 'NotFoundError' ? 'mv_rec_no_device' : 'mv_rec_denied');
+            return;
+          }
+          if (gen !== st.gen || !box.isConnected) { stream.getTracks().forEach(x => x.stop()); return; }
+          st.stream = stream;
+          q('status').textContent = t('mv_rec_ready');
+          startBtn.disabled = false;
+          try {
+            const devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'audioinput');
+            const cur = stream.getAudioTracks()[0] && stream.getAudioTracks()[0].getSettings().deviceId;
+            const sel = q('dev');
+            sel.innerHTML = devs.map((d, i) => `<option value="${esc(d.deviceId)}">${esc(d.label || t('mv_rec_mic') + ' ' + (i + 1))}</option>`).join('');
+            if (cur && devs.some(d => d.deviceId === cur)) sel.value = cur;
+          } catch (e) { /* the list is only a convenience */ }
+          const AC = window.AudioContext || window.webkitAudioContext;
+          st.ac = new AC();
+          const an = st.ac.createAnalyser();
+          an.fftSize = 1024;
+          st.ac.createMediaStreamSource(stream).connect(an);
+          const buf = new Float32Array(an.fftSize);
+          const tick = () => {
+            an.getFloatTimeDomainData(buf);
+            let pk = 0;
+            for (let i = 0; i < buf.length; i++) pk = Math.max(pk, Math.abs(buf[i]));
+            q('meter').style.width = Math.min(100, Math.sqrt(pk) * 100) + '%';
+            st.raf = requestAnimationFrame(tick);
+          };
+          tick();
+        };
+        for (const f of ['dev', 'noise', 'echo', 'gain']) q(f).addEventListener('change', open);
+        open();
+      });
+    }
+
+    readRecBox(box) {
+      const q = f => box.querySelector(`[data-f="${f}"]`);
+      return { deviceId: q('dev').value, noise: q('noise').checked, echo: q('echo').checked, gain: q('gain').checked, headphones: q('phones').checked, keep: q('keep').checked };
+    }
+
+    async startRecording(stream, o) {
+      const T0 = this.preview.time;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      const ac = new AC();
+      ac.resume().catch(() => {});
+      const src = ac.createMediaStreamSource(stream);
+      const an = ac.createAnalyser();
+      an.fftSize = 1024;
+      src.connect(an);
+      const chunks = [];
+      let capturing = false, samples = 0;
+      const take = d => { if (!capturing) return; chunks.push(d); samples += d.length; };
+      // The samples are collected on the audio thread, so a busy page
+      // (video playing, the timeline redrawing) can never make it skip.
+      let node = null, workletUrl = null;
+      try {
+        const code = "class R extends AudioWorkletProcessor{constructor(){super();this.b=new Float32Array(2048);this.n=0}process(i){const c=i[0]&&i[0][0];if(c){for(let k=0;k<c.length;k++){this.b[this.n++]=c[k];if(this.n===2048){this.port.postMessage(this.b);this.b=new Float32Array(2048);this.n=0}}}return true}}registerProcessor('mvrec',R)";
+        workletUrl = URL.createObjectURL(new Blob([code], { type: 'application/javascript' }));
+        await ac.audioWorklet.addModule(workletUrl);
+        node = new AudioWorkletNode(ac, 'mvrec', { numberOfOutputs: 0 });
+        node.port.onmessage = e => take(e.data);
+        src.connect(node);
+      } catch (e) {
+        node = ac.createScriptProcessor(16384, 1, 1);
+        node.onaudioprocess = e => take(new Float32Array(e.inputBuffer.getChannelData(0)));
+        const mute = ac.createGain();
+        mute.gain.value = 0;
+        src.connect(node);
+        node.connect(mute).connect(ac.destination);
+      }
+      if (workletUrl) URL.revokeObjectURL(workletUrl);
+
+      // The track the voice goes to is decided now, so it shows up there
+      // while it is being recorded: the first audio track with nothing at
+      // or after this position, or a new one.
+      const free = tr => !this.project.clips.some(c => c.track === tr.id && clipEnd(c) > T0 - 1e-6);
+      let tr = this.project.tracks.find(x => x.kind === 'audio' && !x.muted && free(x));
+      let madeTrack = false;
+      if (!tr) {
+        this.addTrack('audio');
+        tr = this.project.tracks[this.project.tracks.length - 1];
+        madeTrack = true;
+      }
+      const trackId = tr.id;
+
+      const bar = document.createElement('div');
+      bar.className = 'mv-recbar mv-counting';
+      bar.innerHTML = `<span class="mv-rec-dot"></span><span class="mv-rec-count"></span><span class="mv-rec-time">0:00</span>
+        <div class="mv-meter"><i></i></div>
+        <button class="mv-btn mv-primary" data-r="stop">■ ${esc(t('mv_rec_stop'))}</button>
+        <button class="mv-btn" data-r="discard">✕ ${esc(t('mv_rec_discard'))}</button>`;
+      this.root.appendChild(bar);
+      const meter = bar.querySelector('.mv-meter i'), timeEl = bar.querySelector('.mv-rec-time'), countEl = bar.querySelector('.mv-rec-count');
+      let raf = 0, timer = 0, dead = false, live = null;
+      const buf = new Float32Array(an.fftSize);
+      const tick = () => {
+        an.getFloatTimeDomainData(buf);
+        let pk = 0;
+        for (let i = 0; i < buf.length; i++) pk = Math.max(pk, Math.abs(buf[i]));
+        meter.style.width = Math.min(100, Math.sqrt(pk) * 100) + '%';
+        const len = samples / ac.sampleRate;
+        timeEl.textContent = fmtShort(len);
+        if (capturing) {
+          // The take grows on its track under the playhead.
+          if (!this.preview.playing) this.preview.seek(T0 + len);
+          const lane = this.rows.querySelector(`[data-track="${trackId}"] .mv-lane`);
+          if (lane) {
+            if (!live || live.parentNode !== lane) {
+              live = document.createElement('div');
+              live.className = 'mv-clip mv-clip-audio mv-live';
+              live.innerHTML = `<div class="mv-clip-label">● ${esc(t('mv_rec_name'))}</div>`;
+              lane.appendChild(live);
+            }
+            live.style.left = T0 * this.pps + 'px';
+            live.style.width = Math.max(4, len * this.pps) + 'px';
+          }
+          this.follow();
+        }
+        raf = requestAnimationFrame(tick);
+      };
+      tick();
+      const teardown = () => {
+        dead = true;
+        clearTimeout(timer);
+        cancelAnimationFrame(raf);
+        try { node.port && (node.port.onmessage = null); node.onaudioprocess = null; src.disconnect(); node.disconnect(); } catch (e) { /* gone */ }
+        stream.getTracks().forEach(x => x.stop());
+        ac.close().catch(() => {});
+        bar.remove();
+        if (live) live.remove();
+        this.preview.hushed = false;
+        this.preview.pause();
+        this.rec = null;
+        this.root.focus({ preventScroll: true });
+      };
+      const dropEmptyTrack = () => {
+        if (madeTrack && !this.project.clips.some(c => c.track === trackId)) {
+          this.commit(() => { this.project.tracks = this.project.tracks.filter(x => x.id !== trackId); });
+        }
+      };
+      const rec = {
+        discard: () => { if (!dead) { teardown(); dropEmptyTrack(); } },
+        stop: async () => {
+          if (dead) return;
+          const len = samples / ac.sampleRate;
+          const rate = ac.sampleRate;
+          teardown();
+          if (len < 0.3) { this.toast(t('mv_rec_too_short'), 'bad'); dropEmptyTrack(); return; }
+          await this.addRecording(chunks, samples, rate, T0, len, o, trackId);
+        },
+      };
+      this.rec = rec;
+      bar.addEventListener('click', e => {
+        const b = e.target.closest('[data-r]');
+        if (!b) return;
+        if (b.dataset.r === 'stop') rec.stop(); else rec.discard();
+      });
+      // 3-2-1, then the video starts and the recording with it.
+      let n = 3;
+      const count = () => {
+        if (dead) return;
+        if (n > 0) { countEl.textContent = String(n--); timer = setTimeout(count, 1000); return; }
+        countEl.textContent = '';
+        bar.classList.remove('mv-counting');
+        capturing = true;
+        this.preview.hushed = !o.headphones;
+        if (T0 < Exporter().projectDuration(this.project) - 0.01) this.preview.play();
+      };
+      count();
+    }
+
+    wavBlob(chunks, total, rate) {
+      const data = new DataView(new ArrayBuffer(44 + total * 2));
+      const w = (off, str) => { for (let i = 0; i < str.length; i++) data.setUint8(off + i, str.charCodeAt(i)); };
+      w(0, 'RIFF'); data.setUint32(4, 36 + total * 2, true); w(8, 'WAVE'); w(12, 'fmt ');
+      data.setUint32(16, 16, true); data.setUint16(20, 1, true); data.setUint16(22, 1, true);
+      data.setUint32(24, rate, true); data.setUint32(28, rate * 2, true); data.setUint16(32, 2, true); data.setUint16(34, 16, true);
+      w(36, 'data'); data.setUint32(40, total * 2, true);
+      let off = 44;
+      for (const ch of chunks) {
+        for (let i = 0; i < ch.length; i++) {
+          const v = Math.max(-1, Math.min(1, ch[i]));
+          data.setInt16(off, v < 0 ? v * 0x8000 : v * 0x7fff, true);
+          off += 2;
+        }
+      }
+      return new Blob([data], { type: 'audio/wav' });
+    }
+
+    async addRecording(chunks, total, rate, T0, len, o, trackId) {
+      const used = this.project.media.filter(m => !m.path && m.name.startsWith(t('mv_rec_name'))).length;
+      const name = t('mv_rec_name') + ' ' + (used + 1) + '.wav';
+      const file = new File([this.wavBlob(chunks, total, rate)], name, { type: 'audio/wav' });
+      const m = { id: uid('m'), name, kind: 'audio', path: null, size: file.size, duration: 0, width: 0, height: 0, hasAudio: false, fps: 0 };
+      this.project.media.push(m);
+      this.dirty = true;
+      this.renderBar();
+      await this.loadMedia(m, file);
+      if (!this.isReady(m.id)) { this.toast(t('mv_rec_failed'), 'bad'); return; }
+      this.insertClip(m.id, this.track(trackId) ? trackId : this.project.tracks.find(x => x.kind === 'audio').id, T0);
+      this.seek(T0);
+      this.toast(t('mv_rec_added'), 'good');
+      if (o.keep) this.download(file, name);
     }
 
     // ── Export ───────────────────────────────────────────────────────────
@@ -1559,6 +2055,7 @@
     destroy() {
       this.dead = true;
       if (this.exporting) this.exporting.abort();
+      if (this.rec) this.rec.discard();
       this.closeMenu();
       this.ro.disconnect();
       this.preview.destroy();
@@ -1614,11 +2111,28 @@
 .mv-tp-left{display:flex;align-items:center;gap:2px}
 .mv-play{font-size:15px;min-width:34px}
 .mv-time{font-variant-numeric:tabular-nums;margin-left:8px;font-size:12px}
-.mv-inspector{display:flex;align-items:center;gap:12px;margin-left:auto;flex-wrap:wrap}
-.mv-inspector label{display:flex;align-items:center;gap:5px}
-.mv-insp-name{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
 .mv-num{width:64px}
-.mv-inspector input[type=range]{width:110px}
+
+.mv-panel{width:268px;flex:none;border-left:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;min-width:0}
+.mv-tabs{display:flex;border-bottom:1px solid var(--border);min-height:0}
+.mv-tabs:empty{display:none}
+.mv-tab{flex:1;padding:8px 4px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-dim);cursor:pointer;font:inherit}
+.mv-tab:hover{color:var(--text)}
+.mv-tab.mv-on{color:var(--text);border-bottom-color:var(--accent);font-weight:600}
+.mv-pbody{flex:1;overflow:auto;padding:12px}
+.mv-ptitle{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px}
+.mv-prow{margin:12px 0}
+.mv-prow>span{display:block;font-size:12px;color:var(--text-dim);margin-bottom:4px}
+.mv-vrow{display:flex;align-items:center;gap:6px}
+.mv-vrow input[type=range]{flex:1;min-width:0}
+.mv-hint{margin:8px 0 14px;line-height:1.4}
+.mv-note{margin-top:10px;color:var(--text-dim)}
+.mv-wide{width:100%;margin-top:8px}
+.mv-th-sel{background:var(--surface2)!important}
+.mv-th-name{cursor:pointer}
+.mv-fade{position:absolute;top:0;height:100%;display:block;pointer-events:none}
+.mv-fade-in{left:0}.mv-fade-out{right:0}
+.mv-fh{position:absolute;top:3px;width:11px;height:11px;border-radius:50%;background:#fff;border:2px solid #0b2a40;box-sizing:border-box;cursor:ew-resize;z-index:4;pointer-events:auto}
 .mv-root input[type=text],.mv-root input[type=number],.mv-root select{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 6px;font:inherit}
 .mv-tl{flex:1 1 45%;display:flex;flex-direction:column;border-top:1px solid var(--border);min-height:140px;background:var(--surface)}
 .mv-tl-tools{display:flex;align-items:center;gap:4px;padding:5px 8px;border-bottom:1px solid var(--border);flex-wrap:wrap}
@@ -1628,8 +2142,9 @@
 .mv-corner{position:sticky;left:0;width:${HEADER_W}px;box-sizing:border-box;flex:none;background:var(--surface);z-index:5;border-right:1px solid var(--border)}
 .mv-ruler{position:sticky;left:${HEADER_W}px;display:block;cursor:pointer}
 .mv-row{display:flex;height:52px;border-bottom:1px solid var(--border)}
+.mv-row-video{height:78px}
 .mv-row-audio{height:44px}
-.mv-th{position:sticky;left:0;z-index:3;width:${HEADER_W}px;box-sizing:border-box;flex:none;display:flex;align-items:center;gap:2px;padding:0 6px;background:var(--surface);border-right:1px solid var(--border)}
+.mv-th{position:sticky;left:0;z-index:3;width:${HEADER_W}px;box-sizing:border-box;flex:none;display:flex;flex-wrap:wrap;align-content:center;align-items:center;gap:2px;padding:0 6px;background:var(--surface);border-right:1px solid var(--border)}
 .mv-th-name{font-weight:600;width:28px;color:var(--text-dim)}
 .mv-lane{position:relative;flex:none;background:var(--bg)}
 .mv-row-audio .mv-lane{background:color-mix(in srgb,var(--bg) 92%,#2a9d8f)}
@@ -1641,6 +2156,9 @@
 .mv-clip.mv-dragging{opacity:.85;cursor:grabbing;z-index:3}
 .mv-clip-label{position:absolute;left:6px;right:6px;top:2px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.9);pointer-events:none}
 .mv-wave{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.mv-clip-split{background-size:auto 56%;background-position:left top;background-color:#27408b}
+.mv-snd{position:absolute;left:0;right:0;bottom:0;height:44%;background:rgba(10,30,40,.72);border-top:1px solid rgba(255,255,255,.18);pointer-events:none}
+.mv-snd .mv-wave{background:none}
 .mv-h{position:absolute;top:0;bottom:0;width:8px;cursor:ew-resize;z-index:2}
 .mv-h-l{left:0}.mv-h-r{right:0}
 .mv-h:hover,.mv-sel .mv-h{background:rgba(255,255,255,.28)}
@@ -1679,11 +2197,24 @@
 .mv-fb-row:hover{background:var(--surface2)}
 .mv-fb-row.mv-on{background:color-mix(in srgb,var(--accent) 18%,transparent)}
 .mv-fb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mv-rec{color:#e03131}
+.mv-live{opacity:.85;pointer-events:none;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.12) 0 8px,transparent 8px 16px)}
+.mv-recbar{position:absolute;left:50%;top:56px;transform:translateX(-50%);z-index:35;display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow)}
+.mv-rec-dot{width:12px;height:12px;border-radius:50%;background:#e03131;animation:mv-blink 1s infinite}
+.mv-counting .mv-rec-dot{animation:none;background:var(--text-dim)}
+.mv-rec-count{font-size:22px;font-weight:700;min-width:16px;text-align:center}
+.mv-rec-time{font-variant-numeric:tabular-nums;min-width:40px}
+.mv-meter{flex:1;min-width:120px;height:10px;background:var(--surface2);border-radius:5px;overflow:hidden}
+.mv-meter i{display:block;height:100%;width:0;background:#40c057;transition:width .06s}
+@keyframes mv-blink{50%{opacity:.25}}
+.mv-fx-row{display:flex;align-items:center;gap:8px}.mv-fx-row input{flex:1}.mv-fx-row b{min-width:44px;text-align:right;font-weight:500}
+.mv-fx-toggle{display:flex;gap:10px;align-items:flex-start;margin:0 0 10px;cursor:pointer}
+.mv-fx-toggle input{margin-top:3px}
 .mv-menu{position:absolute;z-index:50;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:4px;min-width:220px}
 .mv-menu-item{display:flex;gap:8px;padding:7px 10px;border-radius:5px;cursor:pointer;white-space:nowrap}
 .mv-menu-item:hover{background:var(--surface2)}
 .mv-menu-sep{height:1px;background:var(--border);margin:4px 0}
-@media (max-width:760px){.mv-lib{width:170px;min-width:0}.mv-spec{display:none}}
+@media (max-width:760px){.mv-lib{width:170px;min-width:0}.mv-panel{width:190px}.mv-spec{display:none}}
 `;
 
   window.MvmVideo = {
