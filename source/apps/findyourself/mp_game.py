@@ -15,7 +15,7 @@ Message protocol (all game messages are prefixed `fy_`):
   server → client
     fy_preparing  {rounds}                           waiting for host to resolve locations
     fy_need_locations {rounds}                        (host only) please resolve & send
-    fy_round_start {round,total,time,lat,lng,heading,started_at,api_key}
+    fy_round_start {round,total,time,lat,lng,heading,started_at}
     fy_guess_update {player_id,display_name,avatar_svg,avatar_color,lat,lng}
     fy_round_end  {round,total,actual:{lat,lng},results:[...],host_id}
     fy_state      {...}                               full state for a (re)joiner
@@ -53,7 +53,6 @@ class Game:
         self.ctx = ctx
         self.rounds_total = 5
         self.time_per_round = 60
-        self.api_key = ""
         self.scale = 2000
         self.country_center = None
         self.country_zoom = 2
@@ -71,7 +70,6 @@ class Game:
     async def on_start(self, settings):
         self.rounds_total   = max(1, min(50, int(settings.get("rounds", 5))))
         self.time_per_round = max(0, int(settings.get("time", 60)))
-        self.api_key        = settings.get("api_key", "") or ""
         self.scale          = max(50, min(2000, int(settings.get("scale", 2000))))
         self.country_center = settings.get("country_center") or None
         self.country_zoom   = int(settings.get("country_zoom", 2))
@@ -188,7 +186,6 @@ class Game:
             "lat": loc["lat"],
             "lng": loc["lng"],
             "heading": loc["heading"],
-            "api_key": self.api_key,
             "started_at": self.round_started_at,
             "country_center": self.country_center,
             "country_zoom": self.country_zoom,
@@ -345,7 +342,6 @@ class Game:
             "round": r,
             "total": self.rounds_total,
             "time": self.time_per_round,
-            "api_key": self.api_key,
             "started_at": self.round_started_at,
             "country_center": self.country_center,
             "country_zoom": self.country_zoom,

@@ -13,7 +13,6 @@ mvmOS.registerApp({
   icon: '🌍',
   category: 'Games',
   settings: [
-    { key: 'api_key', label: 'Google Maps API Key', type: 'password', default: '' },
     { key: 'rounds',  label: 'Rounds per game',     type: 'number',  default: 5, min: 1, max: 10 },
     { key: 'time',    label: 'Time per round (sec, 0 = unlimited)', type: 'number', default: 60, min: 0 },
   ],
@@ -287,16 +286,26 @@ const FY = (() => {
       (id INTEGER PRIMARY KEY AUTOINCREMENT, total INTEGER, rounds INTEGER, date TEXT)`);
   }
 
+  // The Google Maps key is not an app setting: it is the signed-in Apps Hub
+  // profile's own key, or the one the administrator shares with it (Apps Hub ->
+  // Settings -> API keys). The server decides which, so it is asked every time.
   async function _loadCfg() {
     const rows = await _db.query('SELECT key, value FROM cfg');
     const s = {};
     rows.forEach(r => { try { s[r.key] = JSON.parse(r.value); } catch(_) { s[r.key] = r.value; } });
     _cfg = {
-      api_key: s.api_key || '',
+      api_key: '',
+      signed_in: false,
       rounds:  parseInt(s.rounds) || 5,
       time:    parseInt(s.time) || 60,
       country: s.country || 'world',
     };
+    const token = localStorage.getItem('apphub_token');
+    if (!token) return;
+    try {
+      const r = await fetch('/pub/findyourself/config', { headers: { 'X-GH-Token': token } });
+      if (r.ok) { const c = await r.json(); _cfg.api_key = c.api_key || ''; _cfg.signed_in = !!c.signed_in; }
+    } catch (_) { /* offline: no key */ }
   }
 
   // ── Setup screen ──────────────────────────────────────────────────────────
@@ -311,9 +320,9 @@ const FY = (() => {
           <p>Drop into a random Street View location anywhere in the world and guess where you are on the map.</p>
           ${best ? `<div style="font-size:.82rem;color:var(--fg2,var(--text-dim,#a6adc8))">${_fyt('best')}: <strong>${best.total}</strong> pts / ${best.rounds} ${_fyt('rounds_label')}</div>` : ''}
           ${!_cfg.api_key ? `
-            <p style="color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)));font-size:.82rem">${_fyt('no_api')}</p>
-            <a href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com" target="_blank" style="font-size:.78rem;color:var(--accent,#89b4fa)">Get API key from Google Cloud Console →</a>
-            <button class="fy-btn secondary" onclick="AppStore?.openWindow({section:'my-apps',appId:'findyourself'})">${_fyt('settings_btn')}</button>
+            <p style="color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)));font-size:.82rem;max-width:340px">${_fyt(_cfg.signed_in ? 'no_api' : 'key_signin')}</p>
+            ${_cfg.signed_in ? `<a href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com" target="_blank" style="font-size:.78rem;color:var(--accent,#89b4fa)">Google Cloud Console →</a>` : ''}
+            <button class="fy-btn secondary" id="fy-key-btn">${_cfg.signed_in ? _fyt('settings_btn') : '🔑'}</button>
           ` : `
             <div class="fy-setup-opts">
               <label class="fy-setup-field">
@@ -337,6 +346,10 @@ const FY = (() => {
           `}
         </div>
       </div>`;
+    _root.querySelector('#fy-key-btn')?.addEventListener('click', () => {
+      if (_cfg.signed_in) window.open('/pub/apphub/?token=' + encodeURIComponent(localStorage.getItem('apphub_token') || '') + '&tab=settings&section=keys', '_blank');
+      else if (window.AppHub) AppHub.requireLogin(async () => { await _loadCfg(); _showSetup(); });
+    });
     const startBtn   = _root.querySelector('#fy-start');
     const startMpBtn = _root.querySelector('#fy-start-mp');
     if (startBtn) startBtn.disabled = true;

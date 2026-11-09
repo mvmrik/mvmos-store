@@ -333,6 +333,8 @@ Because both are CSS variables, a theme change applies at once without reloading
 ## File uploads
 
 
+New code should use the shared `mvmOS.uploader` (Core 1.21.0), which chooses what and where, uploads to the server or to a folder shared from another mvmOS, and keeps every upload in one queue panel with Stop and Try again; see DEVELOPER.md → mvmOS.filePicker and mvmOS.uploader. The older manager below stays for existing apps.
+
 mvmOS has a global upload manager (`mvmOS.upload`) available to all apps. It handles chunked uploads (80 MB per chunk, no Cloudflare 100 MB limit), shows a floating OS window with progress and speed, and supports a sequential queue.
 
 ```js

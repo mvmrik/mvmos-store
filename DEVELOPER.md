@@ -85,6 +85,7 @@ The one exception is an app that must genuinely reach the system — `subprocess
 | `gamehub` | no | Game Hub category, translated description, score and metric declarations, and solo ranking rule; see [Statistics](#statistics-say-what-you-measure-game-hub-draws-it). |
 | `public_directory` | no | `false` to hide from the Apps Hub public directory card grid even though the app has a public `router` — see [Listing in the public directory](#listing-in-the-public-directory). Default `true`. |
 | `public_profile_access` | no | Requires mvmOS 1.17.0. `true` requires the app’s `_can_access_public(user_id)` hook to permit each Apps Hub profile before it can discover or add the app. Missing/failed hooks deny access. Route authorization remains the app’s responsibility; see [Profile-specific visibility](#profile-specific-visibility). |
+| `services` | no | Requires mvmOS 1.21.0. Outside services the app uses (`["google_maps"]`); the keys come from Apps Hub, not from the app's settings. See [Service keys](#service-keys). |
 | `public_api_only` | no | `true` when the public router is only an endpoint another page calls with the visitor's token (for example a game's statistics fetched from inside Game Hub), not a page of its own. Apps Hub then does not offer the app as a public page to switch on. Needs mvmOS 1.5.0; older cores ignore it. |
 
 ### Official Store categories
@@ -293,6 +294,16 @@ From mvmOS 1.17.0, Core loads this shared regional date, time and datetime contr
 
 Use the shared `createRange(host, options)` for inclusive date periods in one calendar. `value` is `{from: 'YYYY-MM-DD', to: 'YYYY-MM-DD'}`. `annual: true` uses recurring `MM-DD` endpoints, hides the year, permits February 29 and supports a period crossing New Year. The hidden form input contains JSON, or an empty string when cleared. `formatRange(value, options)` and `formatAnnual('MM-DD', options)` follow the configured day/month order. Await `ready()`, validate before saving and destroy range handles with their view. The range API requires the Core update that introduces it; update `min_core_version` for apps adopting it when preparing that release. See the Core README for the full contract. Do not create app-specific calendars or separate day/month dropdowns.
 
+
+---
+
+### mvmOS.filePicker and mvmOS.uploader
+
+Core 1.21.0 loads a shared file and folder picker and a shared uploader on the desktop and on public app pages. Use them instead of a hand-made folder browser or a native file input when an app takes files from the server, from a folder shared by another mvmOS, or from the device.
+
+`mvmOS.filePicker.open({mode, sources, accept, server: {roots, start}, shared: {ids, permission}})` asks where the files are, shows only the sources you allow, and returns the chosen files or folder, or `null`. `mode` is `file`, `files`, `folder` or `directory` (a place to save to). Server roots limit where a person can go, always inside what their Linux account may read; a start folder that is gone opens the root. A shared-folder file is not copied: play or read it from the sharing server so the traffic is spent there.
+
+`mvmOS.uploader.choose({mode, accept, destination})` asks what to upload and where, and `mvmOS.uploader.upload({files, destination, extract})` sends files already at hand. `destination` is `{type: 'server', path}` or `{type: 'shared', folderId, path}`. Uploads are split under Cloudflare's limit, queued and shown in one panel where each can be stopped or retried. The options only narrow the window: your `api.py` must check every path again with `sys.modules["backend.filepicker"]` (`resolve_server_path`, `copy_server_file`, `shared_file_url`). Set `min_core_version` to 1.21.0. See the Core README for the full contract.
 
 ---
 
@@ -1557,6 +1568,25 @@ This only makes sense for apps whose `/pub/<app-id>/` route is a real landing pa
 
 The app's toggle still works as usual (`is_app_public` still gates whether its share links resolve) — this flag only hides it from the generic browsable directory card grid. Default is `true` (listed) when the field is omitted.
 
+
+### Service keys
+
+An app that needs a key for an outside service, today `google_maps`, must not add a key field to its `settings`. Name the service in `manifest.json`:
+
+```json
+"services": ["google_maps"],
+"min_core_version": "1.21.0"
+```
+
+and ask Apps Hub from the app's own server code, passing the app's own id:
+
+```python
+hub = sys.modules.get("backend.apphub")
+res = hub.resolve_service_key(user["id"], "google_maps", "<app-id>")
+# {"key": "...", "source": "own" | "shared" | ""}
+```
+
+The profile's own keys win (Apps Hub → Settings → Service keys: a person may keep several, each for all apps or only for ticked apps; one limited to this app comes first, then a general one). Otherwise the first administrator key that is valid for this app and covers this profile is returned (set in Apps Hub → Service keys, per key: apps, and per app all or selected people). An empty `key` means the person has no key: show a message that points to Apps Hub, never a field to type one. Return the key from a route that needs the signed-in profile, and never put it in room or broadcast messages, because other people may not be allowed to use it. The administrator cannot read profiles' own keys.
 
 ### Profile-specific visibility
 

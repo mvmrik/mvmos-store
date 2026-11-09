@@ -13,6 +13,7 @@
     "Read embedded metadata and cover art automatically without changing original audio.",
     "Search MusicBrainz and Open Library directly from your installation, preview matches and apply selected fields.",
     "Manual cover upload, source attribution and per-title metadata editing, with no API keys.",
-    "Quick play and pause on library covers, an expanded player, and a live queue with play-next, add, reorder, remove, clear, shuffle and repeat controls."
+    "Quick play and pause on library covers, an expanded player, and a live queue with play-next, add, reorder, remove, clear, shuffle and repeat controls.",
+    "Add audio from this device, from the mvmOS server or from a folder shared by another mvmOS: shared files are linked, not copied, and play straight from the sharing server."
   ]
 }

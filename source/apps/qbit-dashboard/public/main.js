@@ -212,6 +212,18 @@ const QB = (() => {
   }
 
   // ── API proxy ──
+  // Folder choice for downloads: this server only, inside the signed-in user's
+  // own folder, opening at the last used path (typed, remembered or current).
+  async function _pickFolder(start) {
+    const first = (start || _cfg.saved_dl_path || '').trim();
+    const result = await mvmOS.filePicker.open({
+      mode: 'directory',
+      sources: ['server'],
+      server: { roots: ['~'], start: first.startsWith('/') ? first : '~' },
+    });
+    return result && result.folder ? result.folder.path : null;
+  }
+
   async function _api(path, method = 'GET', data = null) {
     const res = await fetch('/api/qbit/proxy', {
       method: 'POST',
@@ -750,20 +762,15 @@ const QB = (() => {
         </div>
       `).join('');
       body.querySelectorAll('.qb-move-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          fetch('/api/files').then(r => r.json()).then(d => {
-            FolderPicker.open({
-              root: d.home || '/',
-              onSelect: async (path) => {
-                await fetch('/api/qbit/proxy', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ host: _cfg.host, port: _cfg.port, username: _cfg.username, password: _cfg.password, path: '/api/v2/torrents/setLocation', method: 'POST', data: { hashes: btn.dataset.hash, location: path } }),
-                });
-                _renderDetail(root, t, true);
-              },
-            });
+        btn.addEventListener('click', async () => {
+          const path = await _pickFolder(t.save_path);
+          if (!path) return;
+          await fetch('/api/qbit/proxy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ host: _cfg.host, port: _cfg.port, username: _cfg.username, password: _cfg.password, path: '/api/v2/torrents/setLocation', method: 'POST', data: { hashes: btn.dataset.hash, location: path } }),
           });
+          _renderDetail(root, t, true);
         });
       });
     } else if (_detailTab === 'files') {
@@ -1298,20 +1305,10 @@ const QB = (() => {
     ov.style.zIndex = '99990';
     document.body.appendChild(ov);
     ov.querySelector('#qb-add-cancel').addEventListener('click', () => ov.remove());
-    ov.querySelector('#qb-browse-path').addEventListener('click', () => {
+    ov.querySelector('#qb-browse-path').addEventListener('click', async () => {
       const pathInput = ov.querySelector('#qb-add-path');
-      fetch('/api/files').then(r => r.json()).then(d => {
-        FolderPicker.open({
-          root: pathInput.value.trim() || d.home || '/',
-          onSelect: (path) => { pathInput.value = path; },
-        });
-      }).catch(() => {
-        FolderPicker.open({
-          root: pathInput.value.trim() || '/',
-          asRoot: true,
-          onSelect: (path) => { pathInput.value = path; },
-        });
-      });
+      const path = await _pickFolder(pathInput.value.trim());
+      if (path) pathInput.value = path;
     });
     ov.querySelector('#qb-add-ok').addEventListener('click', async () => {
       const url = ov.querySelector('#qb-add-url').value.trim();
@@ -1622,11 +1619,10 @@ const QB = (() => {
               document.body.appendChild(ov);
 
               ov.querySelector('#ipt-add-cancel').addEventListener('click', () => { ov.remove(); btn.textContent = '⬇ ' + _qbt('add_btn'); btn.disabled = false; });
-              ov.querySelector('#ipt-browse-path').addEventListener('click', () => {
+              ov.querySelector('#ipt-browse-path').addEventListener('click', async () => {
                 const pathInput = ov.querySelector('#ipt-add-path');
-                fetch('/api/files').then(r => r.json()).then(d => {
-                  FolderPicker.open({ root: pathInput.value.trim() || d.home || '/', onSelect: p => { pathInput.value = p; } });
-                });
+                const path = await _pickFolder(pathInput.value.trim());
+                if (path) pathInput.value = path;
               });
 
               ov.querySelector('#ipt-add-ok').addEventListener('click', async () => {

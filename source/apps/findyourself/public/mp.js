@@ -93,6 +93,24 @@
   }
 
   let _mapsLoaded = false;
+  // Each player uses their own Google Maps key: their own, or the one the
+  // administrator shares with them. The host's key is never passed on to the room.
+  let _keyPromise = null;
+  function _myKey() {
+    if (_keyPromise) return _keyPromise;
+    const token = window.GameHub && window.GameHub.getToken ? window.GameHub.getToken() : null;
+    _keyPromise = token
+      ? fetch('/pub/findyourself/config', { headers: { 'X-GH-Token': token } })
+          .then(r => r.ok ? r.json() : null).then(c => (c && c.api_key) || '').catch(() => '')
+      : Promise.resolve('');
+    _keyPromise.then(k => { if (!k) _keyPromise = null; });
+    return _keyPromise;
+  }
+
+  function _noKeyHtml() {
+    return `<div class="fy-screen"><p style="color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)))">${_t('key_missing')}</p></div>`;
+  }
+
   function _loadMaps(apiKey) {
     return new Promise((resolve, reject) => {
       if (_mapsLoaded && window.google && window.google.maps) return resolve();
@@ -168,21 +186,9 @@
       <div id="fy-s-key-row"><div style="font-size:12px;color:var(--fg2,var(--text-dim,#a6adc8))">⏳</div></div>
     </div>`;
 
-    let _resolvedKey = (settings && settings.api_key) || '';
+    let _resolvedKey = '';
 
-    // Try to fetch the saved key from the server (where it lives in FindYourself settings DB).
-    const token = mp.me() ? window.GameHub.getToken() : null;
-    if (token) {
-      fetch('/pub/findyourself/config', { headers: { 'X-GH-Token': token } })
-        .then(r => r.ok ? r.json() : null)
-        .then(cfg => {
-          _resolvedKey = (cfg && cfg.api_key) || _resolvedKey;
-          _renderKeyRow(box, _resolvedKey);
-        })
-        .catch(() => _renderKeyRow(box, _resolvedKey));
-    } else {
-      _renderKeyRow(box, _resolvedKey);
-    }
+    _myKey().then(k => { _resolvedKey = k; _renderKeyRow(box, _resolvedKey); });
 
     return function collect() {
       if (!_resolvedKey) { alert(_t('api_missing')); return null; }
@@ -191,7 +197,6 @@
       return {
         rounds: parseInt(box.querySelector('#fy-s-rounds').value),
         time:   parseInt(box.querySelector('#fy-s-time').value),
-        api_key: _resolvedKey,
         country: countryKey,
         scale: cd.scale,
         country_center: cd.center,
@@ -204,9 +209,9 @@
     const row = box.querySelector('#fy-s-key-row');
     if (!row) return;
     if (key) {
-      row.innerHTML = `<div style="font-size:12px;color:color-mix(in srgb,#a6e3a1 35%,var(--fg,var(--text,#cdd6f4)))">✓ Google Maps API key</div>`;
+      row.innerHTML = `<div style="font-size:12px;color:color-mix(in srgb,#a6e3a1 35%,var(--fg,var(--text,#cdd6f4)))">${_t('key_ok')}</div>`;
     } else {
-      row.innerHTML = `<div style="font-size:12px;color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)))">⚠ No Google Maps API key — set it in FindYourself settings.</div>`;
+      row.innerHTML = `<div style="font-size:12px;color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)))">${_t('key_missing')}</div>`;
     }
   }
 
@@ -427,7 +432,7 @@
   // Host: resolve Street View locations and deliver them to the server.
   mp.on('fy_need_locations', async (msg) => {
     const settings = mp.settings() || {};
-    const key = localStorage.getItem('fy_api_key') || settings.api_key || '';
+    const key = await _myKey();
     const countryKey = settings.country || 'world';
     const gameEl = _gameEl();
     if (!key) { if (gameEl) gameEl.innerHTML = `<div class="fy-screen"><p style="color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)))">${_t('api_missing')}</p></div>`; return; }
@@ -450,12 +455,14 @@
 
   mp.on('fy_round_start', async (msg) => {
     _stopTimer();
-    _round = msg.round; _total = msg.total; _time = msg.time; _apiKey = msg.api_key || _apiKey;
+    _round = msg.round; _total = msg.total; _time = msg.time;
     _countryCenter = msg.country_center || { lat: 20, lng: 0 };
     _countryZoom = msg.country_zoom || 2;
     _submitted = false; _guess = null; _liveGuesses = {};
     const gameEl = _gameEl(); if (!gameEl) return;
     _buildRoundUI(gameEl);
+    _apiKey = await _myKey();
+    if (!_apiKey) { gameEl.innerHTML = _noKeyHtml(); return; }
     try { await _loadMaps(_apiKey); }
     catch (e) { gameEl.innerHTML = `<div class="fy-screen"><p style="color:color-mix(in srgb,#f38ba8 35%,var(--fg,var(--text,#cdd6f4)))">${_t('maps_fail')}</p></div>`; return; }
     const elapsed = msg.started_at ? Math.floor(Date.now()/1000 - msg.started_at) : 0;
@@ -615,7 +622,7 @@
 
   // ── reconnect: rebuild current state ─────────────────────────────────────
   async function _applyState(s) {
-    _total = s.total; _time = s.time; _apiKey = s.api_key || _apiKey;
+    _total = s.total; _time = s.time;
     _countryCenter = s.country_center || { lat: 20, lng: 0 };
     _countryZoom = s.country_zoom || 2;
     if (!s.started) return; // still in preparing
@@ -627,6 +634,8 @@
     }
     if (s.location) {
       _buildRoundUI(gameEl);
+      _apiKey = await _myKey();
+      if (!_apiKey) { gameEl.innerHTML = _noKeyHtml(); return; }
       try { await _loadMaps(_apiKey); } catch (e) { return; }
       const elapsed = s.started_at ? Math.floor(Date.now()/1000 - s.started_at) : 0;
       _renderRound(gameEl, { lat: s.location.lat, lng: s.location.lng }, s.location.heading, elapsed);

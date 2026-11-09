@@ -295,6 +295,8 @@ async def scan_tags(mid, owner, fields, replace=False, lang=''):
         rows=c.execute('SELECT * FROM tracks WHERE media_id=? ORDER BY position,id',(mid,)).fetchall()
     found={}; cover=None
     for track in rows:
+        # A file that stays in a shared folder has no local copy to read tags from.
+        if not track['filename']:continue
         tags,image=await asyncio.to_thread(embedded,os.path.join(app.UPLOADS,track['filename']))
         if row['kind']=='books':
             # M4B album usually identifies the book; title often identifies a chapter.

@@ -61,6 +61,7 @@ The official Store keeps the same tree in `source/apps/<app-id>/` and ships each
 | `entry`            |          | Entry JS file in `public/` (default `main.js`) |
 | `css`              |          | CSS file in `public/` loaded with the app |
 | `public_profile_access` | | Requires mvmOS 1.17.0. `true` opts into profile-specific public visibility through `_can_access_public(user_id)` in the app’s own `app_api.py`; see [Profile-specific visibility](DEVELOPER.md#profile-specific-visibility). |
+| `services` | | Requires mvmOS 1.21.0. List of outside services the app uses, currently `["google_maps"]`. The app does not keep the key in its settings: it asks `hub.resolve_service_key(user_id, service, app_id)` and gets the profile's own key or the one the administrator shares. See [Service keys](DEVELOPER.md#service-keys). |
 
 Every other field (`settings`, `scheduler`, `file_types`, `requires_apphub`, `public_url`, `gamehub`, games…) is in [DEVELOPER.md → manifest.json](DEVELOPER.md#manifestjson).
 

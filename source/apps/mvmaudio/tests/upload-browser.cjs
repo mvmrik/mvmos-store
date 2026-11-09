@@ -1,5 +1,6 @@
 const {chromium}=require(process.env.MVM_AUDIO_PLAYWRIGHT||'playwright-core');
 const assert=require('assert');
+async function pickFiles(page,files,mode='files'){await page.click('[data-pick="'+mode+'"]');const [chooser]=await Promise.all([page.waitForEvent('filechooser'),page.click('.mvm-fp [data-native]')]);await chooser.setFiles(files);await page.click('.mvm-fp [data-confirm]');await page.waitForSelector('.mvm-fp',{state:'detached'});}
 let browser;
 (async()=>{
  const base='http://127.0.0.1:2087';browser=await chromium.launch({headless:true,args:['--no-sandbox']});
@@ -14,7 +15,7 @@ let browser;
  const pattern='**/api/apps/mvmaudio/uploads/**';
  const reject=route=>route.request().method()==='PUT'?route.fulfill({status:413,contentType:'text/html',body:'Proxy rejected upload'}):route.continue();
  await page.route(pattern,reject);
- await page.setInputFiles('[type=file]',{name:'large-book.wav',mimeType:'audio/wav',buffer:wav});await page.click('[data-upload]');
+ await pickFiles(page,{name:'large-book.wav',mimeType:'audio/wav',buffer:wav});await page.click('[data-upload]');
  await page.waitForFunction(()=>document.querySelector('.ma-error')?.textContent.includes('rejected'));
  await page.waitForFunction(()=>document.querySelector('[data-upload-status]')?.textContent.includes('No files were confirmed'));
  assert.equal(await page.locator('progress').isVisible(),false);

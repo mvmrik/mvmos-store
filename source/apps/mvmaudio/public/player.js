@@ -11,7 +11,7 @@ function mount(host,options={}){
  let dict=window.MA_I18N[lang]||window.MA_I18N.en;
  const t=k=>dict[k]||window.MA_I18N.en[k]||k;
  const s={items:[],playlists:[],tab:'home',q:'',category:'',status:'all',sort:'recent',scope:'all',admin:null,manage:false,stats:null,statsView:'books',statsUser:'',statsFilter:'all',statsSort:'size',importBatch:[],importError:'',importKind:'music',limit:0,used:0,queue:[],current:null,track:null,shuffle:false,repeat:'off',sleep:0,sleepChapter:false,dead:false,loadId:0};
- let saveChain=Promise.resolve(),lastSave=0,modal=null,toastTimer,activeRequest=null,switching=false,pendingPosition=null;
+ let saveChain=Promise.resolve(),lastSave=0,modal=null,toastTimer,activeRequest=null,switching=false,pendingPosition=null,renewTimer=null;
  const token=()=>localStorage.getItem('apphub_token')||'';
  const coverCache=new Map();let coverRequests=0;
  const root=document.createElement('div');root.className='ma'+(options.desktop?' in-os':'');host.appendChild(root);
@@ -180,13 +180,29 @@ function mount(host,options={}){
    const rate=i.kind==='radio'?1:(i.kind==='books'?i.state.speed||1:1);audio.defaultPlaybackRate=rate;audio.playbackRate=rate;
    let url=i.url;
    if(s.track){try{url=(await api('/tracks/'+s.track.id+'/ticket','POST')).url}catch(e){switching=false;throw e}}
+   clearTimeout(renewTimer);
    if(load!==s.loadId||s.dead)return;
    if(autoplay&&i.state.completed&&i.kind==='books'){await stateChange(i,{completed:false,track_id:s.track.id,seconds:pos});}
    pendingPosition=s.track?Math.max(0,Math.min(pos,Math.max(0,s.track.duration-.25))):null;
    audio.src=window.asset(url);audio.playbackRate=rate;
+   if(s.track?.remote)scheduleRenewal(s.track.id);
    paintPlayer();
    if(!autoplay){switching=false;return;}
    try{await audio.play();if(load!==s.loadId)return;switching=false;await persist(true)}catch(e){switching=false;if(e.name!=='AbortError'){paintPlayer();throw Error(t('playFailed'))}}
+ }
+function scheduleRenewal(tid){
+   clearTimeout(renewTimer);
+   renewTimer=setTimeout(async()=>{
+     if(s.dead||s.track?.id!==tid)return;
+     try{
+       const next=(await api('/tracks/'+tid+'/ticket','POST')).url;
+       if(s.dead||s.track?.id!==tid)return;
+       const resume=!audio.paused;pendingPosition=audio.currentTime||0;
+       if(resume)audio.addEventListener('loadedmetadata',()=>audio.play().catch(()=>{}),{once:true});
+       audio.src=next;
+     }catch{}
+     scheduleRenewal(tid);
+   },45*60*1000);
  }
  async function startPlayback(){
    if(!s.current||switching)return;
@@ -363,6 +379,40 @@ function mount(host,options={}){
    callbacks.finishing(true);
    try{await retry(()=>api('/uploads/'+session+'/finish','POST',undefined,isAdmin));callbacks.session(null);}finally{callbacks.finishing(false);}
  }
+const AUDIO_TYPES=['.mp3','.m4a','.m4b','.aac','.ogg','.opus','.flac','.wav','.webm'];
+ function pickButtons(){return `<div class="ma-actions ma-pick"><button type="button" class="ma-btn" data-pick="files">${esc(t('chooseFiles'))}</button><button type="button" class="ma-btn" data-pick="folder">${esc(t('chooseFolder'))}</button></div>`}
+ // Everyone can send files from this device; only the library manager can also
+ // take them from the server or play them straight from a shared folder.
+ function wirePick(box,admin,set){
+   box.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>run(async()=>{
+     const picker=window.mvmOS?.filePicker;if(!picker)throw Error(t('failed'));
+     const r=await picker.open({mode:b.dataset.pick,sources:admin?['device','server','shared']:['device'],accept:AUDIO_TYPES,server:{roots:['~','/'],start:'~'},shared:{permission:'read'},maxFiles:200,maxSize:MAX_AUDIO});
+     if(r)set(r.files);
+   }));
+ }
+ const MAX_AUDIO=4*1024**3;
+ const byPath=(a,b)=>(a.relativePath||a.name).localeCompare(b.relativePath||b.name,lang,{numeric:true});
+ function remoteDuration(url){return new Promise((ok,no)=>{
+   const a=new Audio(),end=(fn,v)=>{clearTimeout(timer);a.onloadedmetadata=a.onerror=null;a.removeAttribute('src');a.load();fn(v)};
+   const timer=setTimeout(()=>end(no,Error(t('sharedUnreadable'))),20000);
+   a.preload='metadata';a.referrerPolicy='no-referrer';
+   a.onloadedmetadata=()=>Number.isFinite(a.duration)&&a.duration>0?end(ok,a.duration):end(no,Error(t('sharedUnreadable')));
+   a.onerror=()=>end(no,Error(t('sharedUnreadable')));a.src=url;
+ })}
+ // One chosen file, from whichever place it came: this device (uploaded in parts),
+ // the server (copied by the server) or a shared folder (only linked, never copied).
+ async function transferEntry(target,entry,isAdmin,callbacks){
+   if(entry.file)return transferAudio(target,entry.file,isAdmin,callbacks);
+   if(!isAdmin)throw Error(t('failed'));
+   if(entry.path){
+     callbacks.finishing(true);callbacks.note?.(t('uploadCopying').replace('{name}',entry.name));
+     try{await api('/media/'+target+'/server-files','POST',{path:entry.path},true)}finally{callbacks.finishing(false)}
+     return;
+   }
+   callbacks.note?.(t('uploadLinking').replace('{name}',entry.name));
+   const duration=await remoteDuration(await window.mvmOS.filePicker.sharedFileUrl(entry.shared));
+   await api('/media/'+target+'/shared-files','POST',{folder_id:entry.shared.folderId,path:entry.shared.path,bytes:entry.size,duration},true);
+ }
  function inferredNames(file,kind){
    let title=file.name.replace(/\.[^.]+$/,'').replace(/^\d{1,3}[ ._-]+/,'').trim()||file.name;let creator='';
    if(kind==='music'){const parts=title.split(/\s+[-–—]\s+/);if(parts.length>1){creator=parts.shift();title=parts.join(' — ');}}
@@ -375,15 +425,15 @@ function mount(host,options={}){
  }
  function importDialog(){
    const admin=s.manage,kind=['books','music'].includes(s.tab)?s.tab:s.tab==='imports'?s.importKind:'music';
-   const box=dialog(t('upload'),`<p class="ma-hint">${esc(t('importHint'))}</p><div class="ma-form two"><label class="ma-field">${esc(t('type'))}<select data-import-kind>${['music','books'].map(k=>`<option value="${k}" ${k===kind?'selected':''}>${esc(t(k))}</option>`).join('')}</select></label><label class="ma-field">${esc(t('language'))}<select data-import-lang>${languages().map(l=>`<option value="${l}" ${l===lang?'selected':''}>${esc(languageName(l))}</option>`).join('')}</select></label><label class="ma-field wide" data-import-group-label>${esc(t('importGrouping'))}<select data-import-group><option value="files">${esc(t('importSeparateBooks'))}</option><option value="chapters">${esc(t('importBookChapters'))}</option></select></label></div><input type="file" multiple accept=".mp3,.m4a,.m4b,.aac,.ogg,.opus,.flac,.wav,.webm" aria-label="${esc(t('files'))}"><p class="ma-hint" data-import-count></p><label class="ma-import-online"><input type="checkbox" data-import-online checked> ${esc(t('importOnline'))}</label><p class="ma-hint">${esc(t('importOnlineHint'))}</p>${!admin?`<p class="ma-hint">${mb(s.used)} / ${s.limit} MB</p>`:''}<div class="ma-actions">${button('upload','data-import-upload','ma-btn primary')}${button('manualEntry','data-manual-entry')}${button('cancel','data-cancel')}</div><p class="ma-hint" data-import-status></p><progress class="ma-upload-progress" max="100" value="0" hidden></progress><div class="ma-error" role="alert"></div>`);
-   const input=box.querySelector('[type=file]'),kindSelect=box.querySelector('[data-import-kind]'),progress=box.querySelector('progress'),status=box.querySelector('[data-import-status]');
+   const box=dialog(t('upload'),`<p class="ma-hint">${esc(t('importHint'))}</p><div class="ma-form two"><label class="ma-field">${esc(t('type'))}<select data-import-kind>${['music','books'].map(k=>`<option value="${k}" ${k===kind?'selected':''}>${esc(t(k))}</option>`).join('')}</select></label><label class="ma-field">${esc(t('language'))}<select data-import-lang>${languages().map(l=>`<option value="${l}" ${l===lang?'selected':''}>${esc(languageName(l))}</option>`).join('')}</select></label><label class="ma-field wide" data-import-group-label>${esc(t('importGrouping'))}<select data-import-group><option value="files">${esc(t('importSeparateBooks'))}</option><option value="chapters">${esc(t('importBookChapters'))}</option></select></label></div>${pickButtons()}<p class="ma-hint" data-import-count></p>${admin?`<p class="ma-hint">${esc(t('sharedHint'))}</p>`:''}<label class="ma-import-online"><input type="checkbox" data-import-online checked> ${esc(t('importOnline'))}</label><p class="ma-hint">${esc(t('importOnlineHint'))}</p>${!admin?`<p class="ma-hint">${mb(s.used)} / ${s.limit} MB</p>`:''}<div class="ma-actions">${button('upload','data-import-upload','ma-btn primary')}${button('manualEntry','data-manual-entry')}${button('cancel','data-cancel')}</div><p class="ma-hint" data-import-status></p><progress class="ma-upload-progress" max="100" value="0" hidden></progress><div class="ma-error" role="alert"></div>`);
+   let picked=[];const kindSelect=box.querySelector('[data-import-kind]'),progress=box.querySelector('progress'),status=box.querySelector('[data-import-status]');
    kindSelect.onchange=()=>{box.querySelector('[data-import-group-label]').hidden=kindSelect.value!=='books';};kindSelect.onchange();
-   input.onchange=()=>{box.querySelector('[data-import-count]').textContent=input.files.length+' · '+t('files')+' · '+storage([...input.files].reduce((n,f)=>n+f.size,0));};
+   wirePick(box,admin,list=>{picked=list;box.querySelector('[data-import-count]').textContent=picked.length+' · '+t('files')+' · '+storage(picked.reduce((n,f)=>n+f.size,0));});
    box.querySelector('[data-manual-entry]').onclick=()=>editMedia(null,kindSelect.value);
    let aborted=false,session=null,finishing=false;
    box.querySelector('[data-cancel]').onclick=()=>{if(finishing)return;aborted=true;activeRequest?.abort();if(!box._busy)closeModal();};
    box.querySelector('[data-import-upload]').onclick=async()=>{
-     const files=[...input.files].sort((a,b)=>a.name.localeCompare(b.name,lang,{numeric:true}));if(!files.length)return;if(files.length>200){box.querySelector('.ma-error').textContent=t('importTooMany');return;}
+     const files=[...picked].sort(byPath);if(!files.length)return;if(files.length>200){box.querySelector('.ma-error').textContent=t('importTooMany');return;}
      const type=kindSelect.value,entryLang=box.querySelector('[data-import-lang]').value,group=type==='books'&&box.querySelector('[data-import-group]').value==='chapters',online=box.querySelector('[data-import-online]').checked;
      const results=[];s.importError='';s.importKind=type;let groupId=null;box._busy=true;aborted=false;box.querySelector('.ma-error').textContent='';box.querySelectorAll('button,input,select').forEach(el=>el.disabled=true);box.querySelector('[data-cancel]').disabled=false;
      try{
@@ -396,7 +446,7 @@ function mount(host,options={}){
            target=groupId;
            if(!target){target=(await api('/media','POST',{kind:type,...names,translations:{[entryLang]:names},import_mode:group?'chapters':'files'},admin)).id;if(group)groupId=target;}
            row.id=target;progress.hidden=false;progress.max=file.size;progress.value=0;status.textContent=`${n+1} / ${files.length} · ${file.name}`;
-           await transferAudio(target,file,admin,{cancelled:()=>aborted,session:value=>session=value,progress:sent=>{progress.value=Math.min(file.size,sent);status.textContent=t('uploadSending').replace('{name}',file.name).replace('{percent}',Math.floor(100*Math.min(file.size,sent)/file.size));},finishing:value=>{finishing=value;box.querySelector('[data-cancel]').disabled=value;if(value){status.textContent=t('uploadVerifying');progress.removeAttribute('value');}}});
+           await transferEntry(target,file,admin,{note:text=>{status.textContent=text},cancelled:()=>aborted,session:value=>session=value,progress:sent=>{progress.value=Math.min(file.size,sent);status.textContent=t('uploadSending').replace('{name}',file.name).replace('{percent}',Math.floor(100*Math.min(file.size,sent)/file.size));},finishing:value=>{finishing=value;box.querySelector('[data-cancel]').disabled=value;if(value){status.textContent=t('uploadVerifying');progress.removeAttribute('value');}}});
            row.saved=true;
          }catch(e){
            row.error=e.message;
@@ -427,14 +477,15 @@ function mount(host,options={}){
  }
  function uploadDialog(item){
    const isAdmin=s.manage;
-   const box=dialog(t('upload'),`<p>${esc(item.title)}</p><p class="ma-hint">${esc(t('uploadHint'))}</p>${!isAdmin?`<p class="ma-hint">${mb(s.used)} / ${s.limit} MB</p>`:''}${item.kind==='music'&&!item.tracks.length?`<label class="ma-field"><input type="checkbox" data-separate checked> ${esc(t('separateSongs'))}</label>`:''}<input type="file" accept=".mp3,.m4a,.m4b,.aac,.ogg,.opus,.flac,.wav,.webm" multiple aria-label="${esc(t('files'))}"><div class="ma-actions">${button('upload','data-upload','ma-btn primary')}${button('cancel','data-cancel')}</div><p class="ma-hint" data-upload-status></p><progress class="ma-upload-progress" value="0" max="100" hidden></progress><div class="ma-error" role="alert"></div>`);
-   let abort=false,session=null,finishing=false;
+   const box=dialog(t('upload'),`<p>${esc(item.title)}</p><p class="ma-hint">${esc(t('uploadHint'))}</p>${!isAdmin?`<p class="ma-hint">${mb(s.used)} / ${s.limit} MB</p>`:''}${item.kind==='music'&&!item.tracks.length?`<label class="ma-field"><input type="checkbox" data-separate checked> ${esc(t('separateSongs'))}</label>`:''}${pickButtons()}<p class="ma-hint" data-pick-count></p>${isAdmin?`<p class="ma-hint">${esc(t('sharedHint'))}</p>`:''}<div class="ma-actions">${button('upload','data-upload','ma-btn primary')}${button('cancel','data-cancel')}</div><p class="ma-hint" data-upload-status></p><progress class="ma-upload-progress" value="0" max="100" hidden></progress><div class="ma-error" role="alert"></div>`);
+   let abort=false,session=null,finishing=false,picked=[];
    const progress=box.querySelector('progress'),status=box.querySelector('[data-upload-status]');
+   wirePick(box,isAdmin,list=>{picked=list;box.querySelector('[data-pick-count]').textContent=picked.length+' · '+t('files')+' · '+storage(picked.reduce((n,f)=>n+f.size,0));});
    box.querySelector('[data-cancel]').onclick=()=>{if(finishing)return;abort=true;activeRequest?.abort();if(!box._busy)closeModal()};
    box.querySelector('[data-upload]').onclick=async()=>{
-     const files=[...box.querySelector('[type=file]').files].sort((a,b)=>a.name.localeCompare(b.name,lang,{numeric:true}));if(!files.length)return;
+     const files=[...picked].sort(byPath);if(!files.length)return;
      abort=false;box._busy=true;box.querySelector('.ma-error').textContent='';
-     box.querySelector('[data-upload]').disabled=true;box.querySelector('[data-close]').disabled=true;box.querySelector('[type=file]').disabled=true;
+     box.querySelector('[data-upload]').disabled=true;box.querySelector('[data-close]').disabled=true;box.querySelectorAll('[data-pick]').forEach(b=>b.disabled=true);
      let failed=false,saved=0;
      try{
        for(let n=0;n<files.length;n++){
@@ -442,7 +493,7 @@ function mount(host,options={}){
          const file=files[n];if(!file.size||file.size>4*1024**3)throw Error(t('quota'));
          let target=item.id;if(n>0&&box.querySelector('[data-separate]')?.checked){target=(await api('/media','POST',{kind:'music',title:file.name.replace(/\.[^.]+$/,''),creator:item.creator,category:item.category,album:item.album,description:''},isAdmin)).id;}
          progress.hidden=false;progress.max=file.size;progress.value=0;status.textContent=`${n+1} / ${files.length} · ${file.name}`;
-         await transferAudio(target,file,isAdmin,{cancelled:()=>abort,session:value=>session=value,progress:sent=>{progress.hidden=false;progress.max=file.size;progress.value=Math.min(file.size,sent);status.textContent=t('uploadSending').replace('{name}',file.name).replace('{percent}',Math.floor(100*Math.min(file.size,sent)/file.size));},finishing:value=>{finishing=value;box.querySelector('[data-cancel]').disabled=value;if(value){status.textContent=t('uploadVerifying');progress.removeAttribute('value');}}});
+         await transferEntry(target,file,isAdmin,{note:text=>{status.textContent=text},cancelled:()=>abort,session:value=>session=value,progress:sent=>{progress.hidden=false;progress.max=file.size;progress.value=Math.min(file.size,sent);status.textContent=t('uploadSending').replace('{name}',file.name).replace('{percent}',Math.floor(100*Math.min(file.size,sent)/file.size));},finishing:value=>{finishing=value;box.querySelector('[data-cancel]').disabled=value;if(value){status.textContent=t('uploadVerifying');progress.removeAttribute('value');}}});
          saved++;
 
        }
@@ -453,7 +504,7 @@ function mount(host,options={}){
        box._busy=false;if(s.dead)return;
        try{await refresh()}catch(e){box.querySelector('.ma-error').textContent=e.message;failed=true;}
        if(!failed&&!abort){await detail(item.id);toast(t('uploadSaved').replace('{count}',saved))}
-       else{box.querySelector('[data-upload]').disabled=false;box.querySelector('[data-close]').disabled=false;box.querySelector('[type=file]').disabled=false;box.querySelector('[data-cancel]').disabled=false;progress.hidden=true;status.textContent=saved?t('uploadPartial'):t('uploadNoneSaved');}
+       else{box.querySelector('[data-upload]').disabled=false;box.querySelector('[data-close]').disabled=false;box.querySelectorAll('[data-pick]').forEach(b=>b.disabled=false);box.querySelector('[data-cancel]').disabled=false;progress.hidden=true;status.textContent=saved?t('uploadPartial'):t('uploadNoneSaved');}
      }
    };
  }
@@ -616,7 +667,7 @@ function mount(host,options={}){
  root.addEventListener('change',e=>{const el=e.target;if(el.hasAttribute('data-sort')){s.sort=el.value;render()}if(el.hasAttribute('data-status')){s.status=el.value;render()}if(el.hasAttribute('data-speed'))audio.playbackRate=Number(el.value);if(el.hasAttribute('data-seek')){audio.currentTime=Number(el.value);tick()}if(el.hasAttribute('data-volume'))audio.volume=Number(el.value)});
  const clock=setInterval(()=>{if(s.sleep)tick()},1000);
  paintPlayer();main.innerHTML=`<div class="ma-empty" role="status">${esc(t('loading'))}</div>`;run(refresh);
- return {destroy(){if(s.dead)return;flush();s.dead=true;s.loadId++;activeRequest?.abort();audio.pause();audio.removeAttribute('src');audio.load();clearInterval(clock);clearTimeout(toastTimer);artObserver.disconnect();for(const record of coverCache.values())if(record.url?.startsWith('blob:'))URL.revokeObjectURL(record.url);coverCache.clear();document.removeEventListener('visibilitychange',visibility);window.removeEventListener('pagehide',flush);closeModal();if('mediaSession'in navigator){navigator.mediaSession.metadata=null;for(const k of ['play','pause','previoustrack','nexttrack','seekbackward','seekforward','seekto','stop'])try{navigator.mediaSession.setActionHandler(k,null)}catch{}}root.remove();host.classList.remove('ma-host');}};
+ return {destroy(){if(s.dead)return;flush();s.dead=true;s.loadId++;activeRequest?.abort();audio.pause();audio.removeAttribute('src');audio.load();clearInterval(clock);clearTimeout(renewTimer);clearTimeout(toastTimer);artObserver.disconnect();for(const record of coverCache.values())if(record.url?.startsWith('blob:'))URL.revokeObjectURL(record.url);coverCache.clear();document.removeEventListener('visibilitychange',visibility);window.removeEventListener('pagehide',flush);closeModal();if('mediaSession'in navigator){navigator.mediaSession.metadata=null;for(const k of ['play','pause','previoustrack','nexttrack','seekbackward','seekforward','seekto','stop'])try{navigator.mediaSession.setActionHandler(k,null)}catch{}}root.remove();host.classList.remove('ma-host');}};
 }
 window.MvmAudio={mount};
 })();

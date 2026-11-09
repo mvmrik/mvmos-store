@@ -114,6 +114,10 @@ def init():
           media_id TEXT NOT NULL REFERENCES media(id) ON DELETE CASCADE,
           user_id TEXT NOT NULL, PRIMARY KEY(media_id,user_id)
         );
+        CREATE TABLE IF NOT EXISTS remote_tracks (
+          track_id TEXT PRIMARY KEY REFERENCES tracks(id) ON DELETE CASCADE,
+          owner TEXT NOT NULL, folder_id TEXT NOT NULL, path TEXT NOT NULL
+        );
         CREATE TABLE IF NOT EXISTS cfg (key TEXT PRIMARY KEY,value TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS upload_reservations (
           id TEXT PRIMARY KEY,user_id TEXT NOT NULL,bytes INTEGER NOT NULL,expires REAL NOT NULL
@@ -171,7 +175,7 @@ def playlist(c, pid, user_id, write=False):
 
 
 def tracks(c, media_id):
-    return [dict(r) for r in c.execute("SELECT id,title,duration,position,bytes FROM tracks WHERE media_id=? ORDER BY position,id", (media_id,))]
+    return [dict(r) for r in c.execute("SELECT id,title,duration,position,bytes,EXISTS(SELECT 1 FROM remote_tracks r WHERE r.track_id=tracks.id) AS remote FROM tracks WHERE media_id=? ORDER BY position,id", (media_id,))]
 
 
 def present(c, row, uid):
@@ -441,7 +445,7 @@ def personal_edit(mid: str, body: MediaBody, user=Depends(me)):
 def delete_media(mid, owner):
     with db() as c:
         owned(c, mid, owner)
-        names = [r[0] for r in c.execute("SELECT filename FROM tracks WHERE media_id=?", (mid,))]
+        names = [r[0] for r in c.execute("SELECT filename FROM tracks WHERE media_id=? AND filename!=''", (mid,))]
         pending = c.execute("SELECT id,actor FROM chunk_uploads WHERE media_id=?", (mid,)).fetchall()
         c.execute("DELETE FROM media WHERE id=?", (mid,))
     for upload in pending:
@@ -715,6 +719,78 @@ async def personal_upload(mid: str, request: Request, filename: str, user=Depend
     return await p.upload(user["id"], mid, request, filename)
 
 
+def _picker():
+    return sys.modules["backend.filepicker"]
+
+
+# Library files may be chosen anywhere on the server the signed-in Linux user can
+# read, exactly as in File Manager; the picker only offers the same places.
+SERVER_ROOTS = ["~", "/"]
+
+
+class ServerFileBody(BaseModel):
+    path: str = Field(min_length=1, max_length=4096)
+
+
+@desktop_router.post("/media/{mid}/server-files")
+async def admin_server_file(mid: str, body: ServerFileBody, request: Request, session=Depends(desktop_session)):
+    """Copy one audio file from the server into the library, read as the signed-in user."""
+    picker = _picker()
+    with db() as c:
+        row = owned(c, mid, "")
+        if row["kind"] == "radio":
+            fail("invalid", 400)
+    real = await asyncio.to_thread(picker.resolve_server_path, session, body.path, SERVER_ROOTS, kind="file",
+                                   extensions=set(EXTENSIONS), max_bytes=MAX_FILE)
+    tid = uuid.uuid4().hex
+    path = os.path.join(UPLOADS, tid + os.path.splitext(real)[1].lower())
+    saved = False
+    try:
+        size = await asyncio.to_thread(picker.copy_server_file, session, real, path, MAX_FILE)
+        if not size:
+            fail("format", 400)
+        result = await finalize_audio(mid, "", os.path.basename(real), path, size, tid)
+        saved = True
+        return result
+    finally:
+        if not saved:
+            with contextlib.suppress(FileNotFoundError):
+                os.unlink(path)
+
+
+class SharedFileBody(BaseModel):
+    folder_id: str = Field(min_length=1, max_length=64)
+    path: str = Field(min_length=1, max_length=4096)
+    bytes: int = Field(gt=0, le=MAX_FILE)
+    duration: float = Field(gt=0, le=1e6, allow_inf_nan=False)
+
+
+@desktop_router.post("/media/{mid}/shared-files")
+def admin_shared_file(mid: str, body: SharedFileBody, session=Depends(desktop_session)):
+    """Add a file that stays in a shared folder: nothing is copied to this server."""
+    picker = _picker()
+    folder = picker.shared_folder(session, body.folder_id)
+    ext = os.path.splitext(body.path)[1].lower()
+    if ext not in EXTENSIONS:
+        fail("format", 400)
+    try:
+        picker.shared_file_url(session["effective_user"], folder["id"], body.path, 60)
+    except HTTPException:
+        fail("invalid", 400)
+    tid = uuid.uuid4().hex
+    with db() as c:
+        c.execute("BEGIN IMMEDIATE")
+        row = owned(c, mid, "")
+        if row["kind"] == "radio":
+            fail("invalid", 400)
+        pos = c.execute("SELECT COALESCE(MAX(position),-1)+1 FROM tracks WHERE media_id=?", (mid,)).fetchone()[0]
+        title = os.path.splitext(os.path.basename(body.path))[0][:200]
+        c.execute("INSERT INTO tracks VALUES(?,?,?,?,?,?,?,?)", (tid, mid, title, "", EXTENSIONS[ext], body.bytes, body.duration, pos))
+        c.execute("INSERT INTO remote_tracks VALUES(?,?,?,?)", (tid, session["effective_user"], folder["id"], body.path))
+        c.execute("UPDATE media SET updated=? WHERE id=?", (time.time(), mid))
+    return {"id": tid, "duration": body.duration, "bytes": body.bytes}
+
+
 class OrderBody(BaseModel):
     ids: list[str] = Field(max_length=5000)
 
@@ -747,8 +823,9 @@ def remove_track(mid, tid, owner):
             fail()
         c.execute("DELETE FROM tracks WHERE id=?", (tid,))
         c.execute("UPDATE state SET track_id='',seconds=0,completed=0 WHERE media_id=? AND track_id=?", (mid, tid))
-    with contextlib.suppress(FileNotFoundError):
-        os.unlink(os.path.join(UPLOADS, row["filename"]))
+    if row["filename"]:
+        with contextlib.suppress(FileNotFoundError):
+            os.unlink(os.path.join(UPLOADS, row["filename"]))
     return {"ok": True}
 
 
@@ -803,6 +880,15 @@ def ticket(tid: str, x_pub_token: str = Header(default=""), user=Depends(me)):
         track = c.execute("SELECT * FROM tracks WHERE id=?", (tid,)).fetchone()
         if not track or not access(c, user["id"], track["media_id"]):
             fail()
+        remote = c.execute("SELECT * FROM remote_tracks WHERE track_id=?", (tid,)).fetchone()
+        if remote:
+            # The file stays on the sharing server: the listener's browser loads it
+            # from there with a short-lived link, so the traffic is spent there.
+            try:
+                url = _picker().shared_file_url(remote["owner"], remote["folder_id"], remote["path"], 3600)
+            except HTTPException:
+                fail("sourceGone", 410)
+            return {"url": url, "remote": True, "expires_in": 3600}
         token = secrets.token_urlsafe(32)
         c.execute("DELETE FROM tickets WHERE expires<?", (time.time(),))
         c.execute("INSERT INTO tickets VALUES(?,?,?,?,?)", (token, user["id"], tid, x_pub_token, time.time() + 86400))
@@ -817,6 +903,8 @@ def stream(tid: str, ticket: str = ""):
         if not grant or not hub().get_pub_session(grant["pub_token"]) or not access(c, grant["user_id"], c.execute("SELECT media_id FROM tracks WHERE id=?", (tid,)).fetchone()[0]):
             fail("login", 401)
         t = c.execute("SELECT * FROM tracks WHERE id=?", (tid,)).fetchone()
+    if not t["filename"]:
+        fail()
     return FileResponse(os.path.join(UPLOADS, t["filename"]), media_type=t["mime"], headers={"Cache-Control": "private, no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff"})
 
 

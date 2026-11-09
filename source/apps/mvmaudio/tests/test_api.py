@@ -49,6 +49,33 @@ def build():
             raise HTTPException(401)
         return {'token':'admin', 'effective_user':'root'}
     sys.modules['backend.auth'] = types.SimpleNamespace(get_current_session=session)
+    # The real helpers (backend/filepicker.py) are covered by tests/test_filepicker.py;
+    # this stand-in keeps the same contract inside the app's temporary folder.
+    source = root/'server-files'
+    source.mkdir(exist_ok=True)
+    folders = {'f1': {'id': 'f1', 'name': 'Studio NAS', 'origin': 'https://nas.example', 'grant_id': 'g'*32}}
+    def resolve(session, path, roots=None, kind='file', extensions=None, max_bytes=None):
+        real = os.path.realpath(path)
+        if not os.path.isabs(path) or not (real == str(source) or real.startswith(str(source) + '/')):
+            raise HTTPException(403, 'This location is not allowed here')
+        if not os.path.isfile(real):
+            raise HTTPException(404, 'Not found')
+        if extensions and os.path.splitext(real)[1].lower() not in extensions:
+            raise HTTPException(400, 'type')
+        return real
+    def copy(session, real, destination, max_bytes=None):
+        shutil.copyfile(real, destination)
+        return os.path.getsize(destination)
+    def shared_folder(session, folder_id):
+        if folder_id not in folders:
+            raise HTTPException(404, 'Shared folder not found')
+        return folders[folder_id]
+    def shared_url(owner, folder_id, path, ttl=3600):
+        if folder_id not in folders:
+            raise HTTPException(404, 'gone')
+        return f"https://nas.example/pub/shared-files/v1/{'g'*32}/file?ticket={path.replace('/', '_')}.{ttl}"
+    sys.modules['backend.filepicker'] = types.SimpleNamespace(resolve_server_path=resolve, copy_server_file=copy,
+        shared_folder=shared_folder, shared_file_url=shared_url, folders=folders, source=source)
     sys.modules['backend.apphub'] = hub
     spec = importlib.util.spec_from_file_location('app_public_mvmaudio', root/'api.py')
     mod = importlib.util.module_from_spec(spec)
@@ -75,9 +102,19 @@ def build():
             return {'recordings':[{'id':'11111111-1111-1111-1111-111111111111','title':'Catalogue Song','artist-credit':[{'name':'Catalogue Artist'}],'tags':[{'name':'Jazz'}],'releases':[{'id':'22222222-2222-2222-2222-222222222222','title':'Catalogue Album','date':'2022-01-01'}]}]}
         mod._metadata.fetch=fetch
         return {'ok':True}
+    @app.put('/test-only/server-file')
+    def test_server_file():
+        # A file the stand-in server helper accepts, for browser tests of the picker.
+        (source/'Chapter One.wav').write_bytes(audio_bytes())
+        return {'home': str(root), 'dir': str(source), 'path': str(source/'Chapter One.wav')}
+    @app.get('/file-picker.js')
+    def picker_script():
+        # The shared picker belongs to Core; the preview borrows this installation's copy.
+        core = Path(os.environ.get('MVM_CORE_FRONTEND') or SOURCE.parents[1] / 'frontend')
+        return Response((core/'file-picker.js').read_text(), media_type='text/javascript')
     @app.get('/preview')
     def preview(desktop: bool = False):
-        html = (root/'public/index.html').read_text().replace('<script src="/i18n/i18n.js"></script>', '<script>window.asset=x=>x;</script>')
+        html = (root/'public/index.html').read_text().replace('<script src="/i18n/i18n.js"></script>', '<script>window.asset=x=>x;</script><script src="/file-picker.js"></script>')
         html = html.replace("window.MvmAudio.mount(document.getElementById('mvmaudio-root'),{onNeedLogin(){location.replace('/pub/apphub/?return='+encodeURIComponent(location.href))}})", "window.testPlayer=window.MvmAudio.mount(document.getElementById('mvmaudio-root'),{desktop:"+str(desktop).lower()+"})")
         return HTMLResponse(html)
     app.mount('/apps/mvmaudio', StaticFiles(directory=root/'public'))
@@ -126,6 +163,84 @@ class AudioTests(unittest.TestCase):
             self.assertEqual(item['title'],'Renamed book')
             self.assertEqual(item['state'],before[user])
             self.assertEqual(item['tracks'][0]['id'],tid)
+
+    def test_import_from_the_server_copies_and_checks_the_file(self):
+        picker=sys.modules['backend.filepicker']
+        (picker.source/'Chapter 1.wav').write_bytes(audio_bytes())
+        (picker.source/'notes.txt').write_text('x')
+        mid=self.create()
+        r=self.admin('POST','/media/'+mid+'/server-files',json={'path':str(picker.source/'Chapter 1.wav')})
+        self.assertEqual(r.status_code,200,r.text)
+        track=self.items()[0]['tracks'][0]
+        self.assertEqual(track['id'],r.json()['id'])
+        self.assertFalse(track['remote'])
+        self.assertAlmostEqual(track['duration'],12,delta=.5)
+        # The copy lives in the app's own storage and streams like an upload.
+        token=self.pub('POST','/tracks/'+track['id']+'/ticket').json()['url']
+        self.assertEqual(self.client.get(token,headers={'Range':'bytes=0-9'}).status_code,206)
+        # Refusals: type, outside the allowed place, missing, not a media of the library, not a manager.
+        self.assertEqual(self.admin('POST','/media/'+mid+'/server-files',json={'path':str(picker.source/'notes.txt')}).status_code,400)
+        self.assertEqual(self.admin('POST','/media/'+mid+'/server-files',json={'path':'/etc/passwd'}).status_code,403)
+        self.assertEqual(self.admin('POST','/media/'+mid+'/server-files',json={'path':str(picker.source/'none.wav')}).status_code,404)
+        radio=self.create('radio',url='https://example.com/stream')
+        self.assertEqual(self.admin('POST','/media/'+radio+'/server-files',json={'path':str(picker.source/'Chapter 1.wav')}).status_code,400)
+        self.admin('PUT','/settings',json={'upload_limit_mb':2})
+        personal=self.create(personal=True)
+        self.assertEqual(self.admin('POST','/media/'+personal+'/server-files',json={'path':str(picker.source/'Chapter 1.wav')}).status_code,404)
+        self.client.cookies.clear()
+        self.assertEqual(self.client.post('/api/apps/mvmaudio/media/'+mid+'/server-files',json={'path':str(picker.source/'Chapter 1.wav')}).status_code,401)
+        self.assertEqual(len(os.listdir(self.mod.UPLOADS)),1,'a refused or failed copy must leave nothing behind')
+
+    def test_shared_folder_file_is_linked_never_copied(self):
+        picker=sys.modules['backend.filepicker']
+        mid=self.create()
+        body={'folder_id':'f1','path':'Albums/Part 1.m4b','bytes':73000000,'duration':3600.5}
+        r=self.admin('POST','/media/'+mid+'/shared-files',json=body)
+        self.assertEqual(r.status_code,200,r.text)
+        self.assertEqual(os.listdir(self.mod.UPLOADS),[],'nothing may be copied to this server')
+        track=self.items('b')[0]['tracks'][0]
+        self.assertTrue(track['remote'])
+        self.assertEqual(track['title'],'Part 1')
+        self.assertEqual(track['duration'],3600.5)
+        # Any listener gets a direct link to the sharing server, not a link to this one.
+        t=self.pub('POST','/tracks/'+track['id']+'/ticket','b').json()
+        self.assertTrue(t['remote'])
+        self.assertTrue(t['url'].startswith('https://nas.example/pub/shared-files/v1/'))
+        self.assertEqual(self.client.get('/pub/mvmaudio/stream/'+track['id']).status_code,401)
+        self.assertEqual(self.pub('POST','/tracks/'+track['id']+'/ticket','nobody').status_code,401)
+        # A shared-library track is playable for every profile; private ones are not.
+        self.admin('PUT','/settings',json={'upload_limit_mb':2})
+        personal=self.create(personal=True)
+        self.assertEqual(self.pub('POST','/tracks/'+track['id']+'/ticket','c').status_code,200)
+        self.assertEqual(self.admin('POST','/media/'+personal+'/shared-files',json=body).status_code,404)
+        # Refusals.
+        self.assertEqual(self.admin('POST','/media/'+mid+'/shared-files',json={**body,'folder_id':'zz'}).status_code,404)
+        self.assertEqual(self.admin('POST','/media/'+mid+'/shared-files',json={**body,'path':'Albums/a.txt'}).status_code,400)
+        self.assertEqual(self.admin('POST','/media/'+mid+'/shared-files',json={**body,'duration':0}).status_code,422)
+        self.assertEqual(self.admin('POST','/media/'+mid+'/shared-files',json={**body,'bytes':5*1024**4}).status_code,422)
+        self.client.cookies.clear()
+        self.assertEqual(self.client.post('/api/apps/mvmaudio/media/'+mid+'/shared-files',json=body).status_code,401)
+        self.client.cookies.set('session','admin')
+        # The sharing can go away: playback then reports it instead of failing silently.
+        picker.folders.pop('f1')
+        gone=self.pub('POST','/tracks/'+track['id']+'/ticket','b')
+        self.assertEqual(gone.status_code,410)
+        picker.folders['f1']={'id':'f1','name':'Studio NAS','origin':'https://nas.example','grant_id':'g'*32}
+
+    def test_shared_tracks_reorder_and_delete_without_local_files(self):
+        mid=self.create()
+        ids=[]
+        for n in range(2):
+            ids.append(self.admin('POST','/media/'+mid+'/shared-files',json={'folder_id':'f1','path':f'Book/{n}.mp3','bytes':5,'duration':10}).json()['id'])
+        local=self.upload(mid).json()['id']
+        self.assertEqual(self.admin('PUT','/media/'+mid+'/tracks/order',json={'ids':[local,ids[1],ids[0]]}).status_code,200)
+        self.assertEqual([t['id'] for t in self.items()[0]['tracks']],[local,ids[1],ids[0]])
+        self.assertEqual(self.admin('DELETE','/media/'+mid+'/tracks/'+ids[1]).status_code,200)
+        self.assertEqual(len(os.listdir(self.mod.UPLOADS)),1)
+        self.assertEqual(self.admin('DELETE','/media/'+mid).status_code,200)
+        self.assertEqual(os.listdir(self.mod.UPLOADS),[])
+        with self.mod.db() as c:
+            self.assertEqual(c.execute('SELECT COUNT(*) FROM remote_tracks').fetchone()[0],0)
 
     def test_multilingual_media_edit_metadata_and_progress(self):
         entries={'bg':{'title':'Възпламеняване','creator':'Сюзан Колинс','category':'Фантастика'},'en':{'title':'Catching Fire','creator':'Suzanne Collins'},'de':{'title':'Gefährliche Liebe','creator':'Suzanne Collins'}}
