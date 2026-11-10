@@ -5,6 +5,11 @@ import unittest
 from unittest.mock import AsyncMock
 
 from apps.belot import mp_game as rules
+from apps.gamehub.tools.name_service_fixture import install as install_name_service
+
+
+def setUpModule():
+    install_name_service()
 
 
 class Context:

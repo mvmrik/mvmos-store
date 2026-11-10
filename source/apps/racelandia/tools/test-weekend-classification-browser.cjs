@@ -25,7 +25,7 @@ const mp=read('mp.js'),paint=mp.slice(mp.indexOf('  function mateRows()'),mp.ind
     const make=(key,name,best)=>({key,name,msg:{compound:'M'},run:{frames:[0,1],FRAME:1,pits:[],done:false,laps:[{n:1,t0:10,time:best,valid:true}]}});
     const cars=[make('player','Driver Alpha',110),make('player2','Driver Bravo',105)];let carIdx=0,run=cars[0].run;
     const field=Array.from({length:18},(_,i)=>({id:'ai-'+i,name:'Rival '+i,laps:[{valid:true,start:0,at:80+i,time:80+i,sectors:[25,25,30+i]}]}));
-    const pb={t:130,lightsOut:0,msg:{timing_field:field}},mods={TIMING:T,DIVISION:D},$=s=>host.querySelector(s),G={driver:{name:'Driver Alpha'}},simMod=S,secStr=String,lapStr=x=>x==null?'—':x.toFixed(3),esc=String,_t=t;
+    const pb={t:130,lightsOut:0,msg:{timing_field:field}},mods={TIMING:T,DIVISION:D},$=s=>host.querySelector(s),G={driver:{name:'Driver Alpha'}},simMod=S,secStr=String,lapStr=x=>x==null?'—':x.toFixed(3),esc=String,personName=p=>p?.name||'',_t=t;
     eval(cfg.paint+';window.draw=()=>{paintOrder(run.laps[0].time,{marks:[],cells:[]},{lap:2,pit:0});D.fitHud(host.querySelector(".ap-view"),t)};');
     host.querySelectorAll('[data-car]').forEach(b=>b.onclick=()=>{carIdx=+b.dataset.car;run=cars[carIdx].run;host.querySelectorAll('[data-car]').forEach(x=>x.classList.toggle('on',x===b));const order=$('#h-order');order._timingTick=-1;window.draw();});window.draw();
    }

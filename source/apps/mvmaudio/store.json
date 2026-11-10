@@ -1,6 +1,6 @@
 {
   "tagline": "One home for music, audiobooks and live radio.",
-  "description": "mvmAudio brings a shared music library, audiobook shelves and HTTPS radio stations to the mvmOS desktop and a responsive Apps Hub page. Books contain ordered chapters and each listener keeps an independent position, speed, completion status, favourites and bookmarks. Personal playlists can combine library items and be shared with other profiles. Premium optionally enables private uploads with an administrator-set allowance; uploads are disabled by default.\n\nStart or pause directly from a library cover, open the expanded player from its title or artwork, and manage what plays next. The queue separates the current title, upcoming titles and earlier items, with play-next, add, reorder, remove and clear controls. Opening audiobook details leaves current playback untouched; stop saves progress and hides the player.",
+  "description": "mvmAudio brings music, chapter-based audiobooks and HTTPS radio to the mvmOS desktop and a responsive Apps Hub page. Every listener keeps independent progress, favourites, bookmarks and playlists.\n\nLibrary folders\nAdd a folder from this server or a connected folder shared by another mvmOS. Audio stays in place: subfolders become albums or books, files follow natural chapter order, and scans read tags and covers. Refresh manually or set a scan interval; removing a source leaves its original files alone.\n\nListening\nStart or pause from a cover, open the expanded player and manage the queue. Speed, sleep timers, shuffle, repeat and chapter controls stay available while browsing. Open an audio file from File Manager in the same player without adding it to the library.\n\nPersonal libraries\nPlaylists can combine library items and be shared with selected profiles. Premium optionally enables personal uploads with administrator-set allowances; those uploads are off by default.",
   "capabilities": [
     "Separate music, audiobook and radio libraries with search and genre filters.",
     "Administrator-managed common library and public playlists.",
@@ -14,6 +14,13 @@
     "Search MusicBrainz and Open Library directly from your installation, preview matches and apply selected fields.",
     "Manual cover upload, source attribution and per-title metadata editing, with no API keys.",
     "Quick play and pause on library covers, an expanded player, and a live queue with play-next, add, reorder, remove, clear, shuffle and repeat controls.",
-    "Add audio from this device, from the mvmOS server or from a folder shared by another mvmOS: shared files are linked, not copied, and play straight from the sharing server."
+    "Library folders on this server or another mvmOS, with manual or scheduled scans and no copying of the audio.",
+    "Natural chapter ordering, automatic tag and cover reading, and removal of records for files no longer present.",
+    "Upload files or folders into a chosen library location through the shared uploader.",
+    "Open audio files directly from File Manager without importing them into the library."
+  ],
+  "requirements": [
+    "mvmOS 1.22.0 or later.",
+    "A browser that supports the audio formats in your library."
   ]
 }

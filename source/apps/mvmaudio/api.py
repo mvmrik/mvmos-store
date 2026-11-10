@@ -5,18 +5,22 @@ Apps Hub identities own listening state, playlists and subscriber uploads.
 """
 import asyncio
 import contextlib
+import io
 import os
+import posixpath
+import re
 import secrets
 import sqlite3
 import json
 import sys
+import threading
 import time
 import types
 import uuid
 from urllib.parse import urlsplit
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
-from fastapi.responses import FileResponse, Response, RedirectResponse
+from fastapi.responses import FileResponse, Response, RedirectResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 APP_ID = "mvmaudio"
@@ -124,6 +128,24 @@ def init():
         );
         """)
         _metadata.init(c)
+        c.executescript("""
+        CREATE TABLE IF NOT EXISTS sources (
+          id TEXT PRIMARY KEY, kind TEXT NOT NULL, folder_id TEXT NOT NULL DEFAULT '', name TEXT NOT NULL,
+          path TEXT NOT NULL, owner TEXT NOT NULL, media_kind TEXT NOT NULL DEFAULT 'music',
+          auto INTEGER NOT NULL DEFAULT 0, last_scan REAL NOT NULL DEFAULT 0,
+          scan_state TEXT NOT NULL DEFAULT '', scan_error TEXT NOT NULL DEFAULT '', created REAL NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS library_tracks (
+          track_id TEXT PRIMARY KEY REFERENCES tracks(id) ON DELETE CASCADE,
+          source_id TEXT NOT NULL REFERENCES sources(id) ON DELETE CASCADE,
+          relpath TEXT NOT NULL, mtime REAL NOT NULL DEFAULT 0, missing INTEGER NOT NULL DEFAULT 0
+        );
+        CREATE INDEX IF NOT EXISTS library_tracks_source ON library_tracks(source_id,relpath);
+        """)
+        for column, spec in (("source_id", "TEXT NOT NULL DEFAULT ''"), ("relpath", "TEXT NOT NULL DEFAULT ''"), ("missing", "INTEGER NOT NULL DEFAULT 0")):
+            if column not in [r[1] for r in c.execute("PRAGMA table_info(media)")]:
+                c.execute("ALTER TABLE media ADD COLUMN %s %s" % (column, spec))
+        c.execute("UPDATE sources SET scan_state='' WHERE scan_state='running'")
 
 
 init()
@@ -175,7 +197,7 @@ def playlist(c, pid, user_id, write=False):
 
 
 def tracks(c, media_id):
-    return [dict(r) for r in c.execute("SELECT id,title,duration,position,bytes,EXISTS(SELECT 1 FROM remote_tracks r WHERE r.track_id=tracks.id) AS remote FROM tracks WHERE media_id=? ORDER BY position,id", (media_id,))]
+    return [dict(r) for r in c.execute("SELECT id,title,duration,position,bytes,EXISTS(SELECT 1 FROM remote_tracks r WHERE r.track_id=tracks.id) AS remote FROM tracks WHERE media_id=? AND NOT EXISTS(SELECT 1 FROM library_tracks l WHERE l.track_id=tracks.id AND l.missing=1) ORDER BY position,id", (media_id,))]
 
 
 def present(c, row, uid):
@@ -279,10 +301,10 @@ async def index():
 def library(user=Depends(me)):
     uid = user["id"]
     with db() as c:
-        rows = c.execute("""SELECT DISTINCT m.* FROM media m WHERE m.owner IN ('',?) OR EXISTS(
+        rows = c.execute("""SELECT DISTINCT m.* FROM media m WHERE m.missing=0 AND (m.owner IN ('',?) OR EXISTS(
           SELECT 1 FROM playlist_items i JOIN playlists p ON p.id=i.playlist_id
           LEFT JOIN members s ON s.playlist_id=p.id AND s.user_id=?
-          WHERE i.media_id=m.id AND (p.owner='' OR p.owner=? OR s.user_id IS NOT NULL)) ORDER BY m.created DESC""", (uid, uid, uid)).fetchall()
+          WHERE i.media_id=m.id AND (p.owner='' OR p.owner=? OR s.user_id IS NOT NULL))) ORDER BY m.created DESC""", (uid, uid, uid)).fetchall()
         items = [present(c, r, uid) for r in rows]
         lists = []
         for p in c.execute("SELECT DISTINCT p.* FROM playlists p LEFT JOIN members s ON s.playlist_id=p.id AND s.user_id=? WHERE p.owner IN ('',?) OR s.user_id IS NOT NULL ORDER BY p.title", (uid, uid)):
@@ -298,11 +320,20 @@ def library(user=Depends(me)):
     return {"items": items, "playlists": lists, "upload_limit_mb": limit, "used_bytes": used, "user_id": uid, "languages": supported_languages(), "user_language": user.get("language","auto")}
 
 
+@desktop_router.get("/file")
+@desktop_router.head("/file")
+def open_file(path: str, request: Request, session=Depends(desktop_session)):
+    """A single audio file of this server opened from the file manager, read as the signed-in Linux user."""
+    real = _picker().resolve_server_path(session, path, roots=["/"], kind="file", extensions=list(EXTENSIONS))
+    f, size = _picker().open_server_file(session["effective_user"], os.path.dirname(real), os.path.basename(real))
+    return ranged_response(f, size, EXTENSIONS[os.path.splitext(real)[1].lower()], request)
+
+
 @desktop_router.get("/admin")
 def admin():
     p = premium()
     with db() as c:
-        items = [present(c, r, "@admin") for r in c.execute("SELECT * FROM media WHERE owner='' ORDER BY created DESC")]
+        items = [present(c, r, "@admin") for r in c.execute("SELECT * FROM media WHERE owner='' AND missing=0 ORDER BY created DESC")]
         lists = []
         for row in c.execute("SELECT * FROM playlists WHERE owner='' ORDER BY title"):
             d = dict(row)
@@ -444,7 +475,7 @@ def personal_edit(mid: str, body: MediaBody, user=Depends(me)):
 
 def delete_media(mid, owner):
     with db() as c:
-        owned(c, mid, owner)
+        plain(owned(c, mid, owner))
         names = [r[0] for r in c.execute("SELECT filename FROM tracks WHERE media_id=? AND filename!=''", (mid,))]
         pending = c.execute("SELECT id,actor FROM chunk_uploads WHERE media_id=?", (mid,)).fetchall()
         c.execute("DELETE FROM media WHERE id=?", (mid,))
@@ -528,7 +559,7 @@ async def finalize_audio(mid, owner, filename, path, size, tid, reservation=None
     tags, art = await asyncio.to_thread(_metadata.embedded, path)
     with db() as c:
         c.execute("BEGIN IMMEDIATE")
-        media_row = owned(c, mid, owner)
+        media_row = plain(owned(c, mid, owner))
         if reservation:
             reservation(c, size)
         pos = c.execute("SELECT COALESCE(MAX(position),-1)+1 FROM tracks WHERE media_id=?", (mid,)).fetchone()[0]
@@ -580,7 +611,7 @@ def start_upload(mid, owner, actor, body, reserve=None):
     uid = uuid.uuid4().hex
     with db() as c:
         c.execute('BEGIN IMMEDIATE')
-        row = owned(c, mid, owner)
+        row = plain(owned(c, mid, owner))
         if row['kind'] == 'radio':
             fail('invalid', 400)
         if c.execute('SELECT COUNT(*) FROM chunk_uploads WHERE actor=?', (actor,)).fetchone()[0] >= 5:
@@ -720,7 +751,15 @@ async def personal_upload(mid: str, request: Request, filename: str, user=Depend
 
 
 def _picker():
-    return sys.modules["backend.filepicker"]
+    import importlib
+    return sys.modules.get("backend.filepicker") or importlib.import_module("backend.filepicker")
+
+
+def plain(row):
+    """Files that belong to a library folder are only changed on the disk, never here."""
+    if row["source_id"]:
+        fail("sourceMedia", 409)
+    return row
 
 
 # Library files may be chosen anywhere on the server the signed-in Linux user can
@@ -737,7 +776,7 @@ async def admin_server_file(mid: str, body: ServerFileBody, request: Request, se
     """Copy one audio file from the server into the library, read as the signed-in user."""
     picker = _picker()
     with db() as c:
-        row = owned(c, mid, "")
+        row = plain(owned(c, mid, ""))
         if row["kind"] == "radio":
             fail("invalid", 400)
     real = await asyncio.to_thread(picker.resolve_server_path, session, body.path, SERVER_ROOTS, kind="file",
@@ -780,7 +819,7 @@ def admin_shared_file(mid: str, body: SharedFileBody, session=Depends(desktop_se
     tid = uuid.uuid4().hex
     with db() as c:
         c.execute("BEGIN IMMEDIATE")
-        row = owned(c, mid, "")
+        row = plain(owned(c, mid, ""))
         if row["kind"] == "radio":
             fail("invalid", 400)
         pos = c.execute("SELECT COALESCE(MAX(position),-1)+1 FROM tracks WHERE media_id=?", (mid,)).fetchone()[0]
@@ -797,7 +836,7 @@ class OrderBody(BaseModel):
 
 def order_tracks(mid, owner, ids):
     with db() as c:
-        owned(c, mid, owner)
+        plain(owned(c, mid, owner))
         actual = {r[0] for r in c.execute("SELECT id FROM tracks WHERE media_id=?", (mid,))}
         if len(ids) != len(actual) or set(ids) != actual:
             fail("invalid", 400)
@@ -817,7 +856,7 @@ def personal_order(mid: str, body: OrderBody, user=Depends(me)):
 
 def remove_track(mid, tid, owner):
     with db() as c:
-        owned(c, mid, owner)
+        plain(owned(c, mid, owner))
         row = c.execute("SELECT * FROM tracks WHERE id=? AND media_id=?", (tid, mid)).fetchone()
         if not row:
             fail()
@@ -881,6 +920,11 @@ def ticket(tid: str, x_pub_token: str = Header(default=""), user=Depends(me)):
         if not track or not access(c, user["id"], track["media_id"]):
             fail()
         remote = c.execute("SELECT * FROM remote_tracks WHERE track_id=?", (tid,)).fetchone()
+        lib = c.execute("SELECT l.relpath,l.missing,s.kind,s.owner,s.folder_id,s.path FROM library_tracks l JOIN sources s ON s.id=l.source_id WHERE l.track_id=?", (tid,)).fetchone()
+        if lib and lib["missing"]:
+            fail("sourceGone", 410)
+        if lib and lib["kind"] == "shared":
+            remote = dict(owner=lib["owner"], folder_id=lib["folder_id"], path="/".join(x for x in (lib["path"], lib["relpath"]) if x))
         if remote:
             # The file stays on the sharing server: the listener's browser loads it
             # from there with a short-lived link, so the traffic is spent there.
@@ -897,15 +941,67 @@ def ticket(tid: str, x_pub_token: str = Header(default=""), user=Depends(me)):
 
 @router.get("/stream/{tid}")
 @router.head("/stream/{tid}")
-def stream(tid: str, ticket: str = ""):
+def stream(tid: str, request: Request, ticket: str = ""):
     with db() as c:
         grant = c.execute("SELECT * FROM tickets WHERE token=? AND track_id=? AND expires>?", (ticket, tid, time.time())).fetchone()
         if not grant or not hub().get_pub_session(grant["pub_token"]) or not access(c, grant["user_id"], c.execute("SELECT media_id FROM tracks WHERE id=?", (tid,)).fetchone()[0]):
             fail("login", 401)
         t = c.execute("SELECT * FROM tracks WHERE id=?", (tid,)).fetchone()
     if not t["filename"]:
-        fail()
+        return library_response(t, request)
     return FileResponse(os.path.join(UPLOADS, t["filename"]), media_type=t["mime"], headers={"Cache-Control": "private, no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff"})
+
+
+def library_response(t, request):
+    """A file of a library folder on this server, read as the Linux user who added the folder, with ranges."""
+    with db() as c:
+        lib = c.execute("SELECT l.relpath,l.missing,s.kind,s.owner,s.path FROM library_tracks l JOIN sources s ON s.id=l.source_id WHERE l.track_id=?", (t["id"],)).fetchone()
+    if not lib or lib["kind"] != "server" or lib["missing"]:
+        fail()
+    f, size = _picker().open_server_file(lib["owner"], lib["path"], lib["relpath"])
+    return ranged_response(f, size, t["mime"], request)
+
+
+def ranged_response(f, size, mime, request):
+    """Stream an opened file with byte ranges; the caller hands over ``f`` and it is closed here."""
+    start, end, status = 0, size - 1, 200
+    spec = request.headers.get("range", "").strip()
+    if spec:
+        m = re.fullmatch(r"bytes=(\d*)-(\d*)", spec)
+        if not m or (not m[1] and not m[2]):
+            f.close()
+            raise HTTPException(416, "range", headers={"Content-Range": "bytes */%d" % size})
+        if m[1]:
+            start = int(m[1])
+            end = min(int(m[2]), size - 1) if m[2] else size - 1
+        else:
+            start = max(0, size - int(m[2]))
+        if start >= size or start > end:
+            f.close()
+            raise HTTPException(416, "range", headers={"Content-Range": "bytes */%d" % size})
+        status = 206
+    length = end - start + 1
+    headers = {"Cache-Control": "private, no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff",
+               "Accept-Ranges": "bytes", "Content-Length": str(length)}
+    if status == 206:
+        headers["Content-Range"] = "bytes %d-%d/%d" % (start, end, size)
+    if request.method == "HEAD":
+        f.close()
+        return Response(status_code=status, headers=headers, media_type=mime)
+
+    def body():
+        try:
+            f.seek(start)
+            left = length
+            while left > 0:
+                part = f.read(min(1024 * 1024, left))
+                if not part:
+                    break
+                left -= len(part)
+                yield part
+        finally:
+            f.close()
+    return StreamingResponse(body(), status_code=status, headers=headers, media_type=mime)
 
 
 class PlaylistBody(BaseModel):
@@ -1151,3 +1247,270 @@ def admin_delete_cover(mid: str):
 @router.delete('/media/{mid}/cover')
 def user_delete_cover(mid: str, user=Depends(me)):
     return delete_cover(mid,user['id'])
+
+
+# ── Library folders: audio that stays where it is ─────────────────
+#
+# An administrator adds a folder from this server or a folder shared from another
+# mvmOS. Every folder with audio inside becomes one title (an album or a book),
+# its files the tracks, in natural name order. Nothing is copied: the server files
+# are read as the Linux user who added the folder, shared ones are played straight
+# from the sharing server. Scanning only adds, updates or marks files that vanished.
+
+_scanning = set()
+_scan_lock = threading.Lock()
+
+
+class _Head(io.RawIOBase):
+    """The first bytes of a remote file that look as long as the whole file, so a tag reader can run on it."""
+
+    def __init__(self, data, size):
+        self.data, self.size, self.pos = data, size, 0
+
+    def seekable(self):
+        return True
+
+    def readable(self):
+        return True
+
+    def tell(self):
+        return self.pos
+
+    def seek(self, offset, whence=os.SEEK_SET):
+        self.pos = offset if whence == os.SEEK_SET else self.pos + offset if whence == os.SEEK_CUR else self.size + offset
+        return self.pos
+
+    def read(self, n=-1):
+        n = self.size - self.pos if n is None or n < 0 else min(n, self.size - self.pos)
+        have = self.data[self.pos:self.pos + n]
+        out = have + b"\0" * (n - len(have))
+        self.pos += n
+        return out
+
+
+def natural(text):
+    return [int(x) if x.isdigit() else x.lower() for x in re.split(r"(\d+)", text)]
+
+
+def probe_library_file(src, f):
+    """``(seconds, tags, cover)`` of one library file, or ``None`` when it is not playable audio."""
+    rel = f["rel"]
+    if src["kind"] == "shared":
+        remote = "/".join(x for x in (src["path"], rel) if x)
+        # Only as much of the remote file as the tags need: the ID3 header says how big they are.
+        data = _picker().shared_read_head(src["owner"], src["folder_id"], remote, 64 * 1024)
+        if len(data) >= 10 and data[:3] == b"ID3" and len(data) < f["size"]:
+            tag = 10 + ((data[6] & 0x7F) << 21 | (data[7] & 0x7F) << 14 | (data[8] & 0x7F) << 7 | (data[9] & 0x7F))
+            want = min(tag + 64 * 1024, 2 * 1024 ** 2)
+            if want > len(data):
+                data = _picker().shared_read_head(src["owner"], src["folder_id"], remote, want)
+        elif len(data) < f["size"]:
+            # Other formats (flac, m4a, ogg): a somewhat larger head, still far below the old 2 MB.
+            data = _picker().shared_read_head(src["owner"], src["folder_id"], remote, 256 * 1024)
+        make = lambda: _Head(data, f["size"])
+        estimate = f["size"] * 8 / 128000
+    else:
+        make = lambda: _picker().open_server_file(src["owner"], src["path"], rel)[0]
+        estimate = None
+    try:
+        with make() as h:
+            seconds = _probe.inspect_audio(rel, h)
+    except _probe.InvalidAudio:
+        if estimate is None:
+            return None
+        seconds = estimate
+    except HTTPException:
+        return None
+    try:
+        with make() as h:
+            tags, art = _metadata.embedded(rel, h)
+    except HTTPException:
+        tags, art = {}, None
+    return seconds, tags, art
+
+
+def scan_source(sid):
+    with _scan_lock:
+        if sid in _scanning:
+            return
+        _scanning.add(sid)
+    try:
+        with db() as c:
+            src = c.execute("SELECT * FROM sources WHERE id=?", (sid,)).fetchone()
+            if not src:
+                return
+            c.execute("UPDATE sources SET scan_state='running',scan_error='' WHERE id=?", (sid,))
+        try:
+            wanted = set(EXTENSIONS)
+            files = (_picker().shared_folder_files(src["owner"], src["folder_id"], src["path"], wanted) if src["kind"] == "shared"
+                     else _picker().folder_files(src["owner"], src["path"], wanted))
+            groups = {}
+            for f in files:
+                folder = posixpath.dirname(f["rel"])
+                groups.setdefault(folder or f["rel"], []).append(f)
+            with db() as c:
+                media_ids = {r["relpath"]: r["id"] for r in c.execute("SELECT id,relpath FROM media WHERE source_id=?", (sid,))}
+                known = {r["relpath"]: dict(r) for r in c.execute("SELECT * FROM library_tracks WHERE source_id=?", (sid,))}
+            now = time.time()
+            for key, group in groups.items():
+                group.sort(key=lambda f: natural(f["rel"]))
+                mid = media_ids.get(key)
+                if not mid:
+                    mid = uuid.uuid4().hex
+                    title = (posixpath.basename(key) if posixpath.dirname(group[0]["rel"]) else posixpath.splitext(key)[0])[:200] or "Untitled"
+                    with db() as c:
+                        c.execute("INSERT INTO media(id,owner,kind,title,created,updated,source_id,relpath) VALUES(?,?,?,?,?,?,?,?)",
+                                  (mid, "", src["media_kind"], title, now, now, sid, key))
+                for pos, f in enumerate(group):
+                    old = known.get(f["rel"])
+                    if old and old["mtime"] == f["mtime"]:
+                        with db() as c:
+                            c.execute("UPDATE library_tracks SET missing=0 WHERE track_id=?", (old["track_id"],))
+                            c.execute("UPDATE tracks SET position=? WHERE id=?", (pos, old["track_id"]))
+                        continue
+                    probed = probe_library_file(src, f)
+                    if not probed:
+                        continue
+                    seconds, tags, art = probed
+                    ext = posixpath.splitext(f["rel"])[1].lower()
+                    with db() as c:
+                        if old:
+                            c.execute("UPDATE tracks SET duration=?,bytes=?,position=? WHERE id=?", (seconds, f["size"], pos, old["track_id"]))
+                            c.execute("UPDATE library_tracks SET mtime=?,missing=0 WHERE track_id=?", (f["mtime"], old["track_id"]))
+                            # A changed file brings its new tags: they replace the remembered ones.
+                            stem = posixpath.splitext(posixpath.basename(f["rel"]))[0]
+                            c.execute("UPDATE tracks SET title=? WHERE id=?", ((tags.get("title") or stem)[:200], old["track_id"]))
+                            c.execute("INSERT OR REPLACE INTO embedded_tags VALUES(?,?)", (old["track_id"], json.dumps(tags, ensure_ascii=False)))
+                            row = c.execute("SELECT * FROM media WHERE id=?", (mid,)).fetchone()
+                            values = {k: v for k, v in tags.items() if v and (k != "title" or row["kind"] == "music")}
+                            if values:
+                                _metadata.write_fields(c, row, values, next(iter(_metadata.variants(row)), ""))
+                            if art:
+                                _metadata.set_cover(c, mid, art)
+                        else:
+                            tid = uuid.uuid4().hex
+                            stem = posixpath.splitext(posixpath.basename(f["rel"]))[0]
+                            c.execute("INSERT INTO tracks VALUES(?,?,?,?,?,?,?,?)", (tid, mid, (tags.get("title") or stem)[:200], "", EXTENSIONS[ext], f["size"], seconds, pos))
+                            c.execute("INSERT INTO library_tracks VALUES(?,?,?,?,0)", (tid, sid, f["rel"], f["mtime"]))
+                            row = c.execute("SELECT * FROM media WHERE id=?", (mid,)).fetchone()
+                            _metadata.apply_embedded(c, row, tid, tags, art, f["rel"])
+                        c.execute("UPDATE media SET updated=? WHERE id=?", (time.time(), mid))
+            present = {f["rel"] for f in files}
+            with db() as c:
+                for rel, row in known.items():
+                    if rel not in present:
+                        # A file that is gone from the folder is forgotten; if it comes back it is scanned as new.
+                        mid = c.execute("SELECT media_id FROM tracks WHERE id=?", (row["track_id"],)).fetchone()
+                        c.execute("DELETE FROM tracks WHERE id=?", (row["track_id"],))
+                        if mid:
+                            c.execute("UPDATE state SET track_id='',seconds=0,completed=0 WHERE media_id=? AND track_id=?", (mid[0], row["track_id"]))
+                for r in c.execute("SELECT id FROM media WHERE source_id=?", (sid,)).fetchall():
+                    if not c.execute("SELECT 1 FROM tracks WHERE media_id=?", (r["id"],)).fetchone():
+                        c.execute("DELETE FROM media WHERE id=?", (r["id"],))
+                c.execute("UPDATE sources SET scan_state='done',last_scan=?,scan_error='' WHERE id=?", (time.time(), sid))
+        except HTTPException as e:
+            with db() as c:
+                c.execute("UPDATE sources SET scan_state='failed',scan_error=? WHERE id=?", (str(e.detail)[:200], sid))
+        except Exception as e:
+            with db() as c:
+                c.execute("UPDATE sources SET scan_state='failed',scan_error=? WHERE id=?", (type(e).__name__, sid))
+    finally:
+        _scanning.discard(sid)
+
+
+def scan_in_background(sid):
+    threading.Thread(target=scan_source, args=(sid,), daemon=True).start()
+
+
+def auto_scanner(module):
+    while sys.modules.get(module.__name__) is module:
+        time.sleep(60)
+        try:
+            with db() as c:
+                due = [r["id"] for r in c.execute("SELECT id FROM sources WHERE auto>0 AND scan_state!='running' AND last_scan+auto*60<?", (time.time(),))]
+            for sid in due:
+                scan_source(sid)
+        except Exception:
+            pass
+
+
+threading.Thread(target=auto_scanner, args=(sys.modules[__name__],), daemon=True).start()
+
+
+class SourceBody(BaseModel):
+    kind: str = Field(default="server", pattern="^(server|shared)$")
+    media_kind: str = Field(default="music", pattern="^(music|books)$")
+    folder_id: str = Field(default="", max_length=64)
+    path: str = Field(default="", max_length=4000)
+    name: str = Field(default="", max_length=200)
+    auto: int = Field(default=0, ge=0, le=10080)
+
+
+def present_source(c, r):
+    return dict(id=r["id"], kind=r["kind"], media_kind=r["media_kind"], folder_id=r["folder_id"], name=r["name"], path=r["path"], auto=r["auto"],
+                last_scan=r["last_scan"], state=r["scan_state"], error=r["scan_error"],
+                titles=c.execute("SELECT COUNT(*) FROM media WHERE source_id=? AND missing=0", (r["id"],)).fetchone()[0],
+                missing=c.execute("SELECT COUNT(*) FROM media WHERE source_id=? AND missing=1", (r["id"],)).fetchone()[0])
+
+
+@desktop_router.get("/sources")
+def list_sources():
+    with db() as c:
+        return {"sources": [present_source(c, r) for r in c.execute("SELECT * FROM sources ORDER BY name")]}
+
+
+@desktop_router.post("/sources")
+def add_source(body: SourceBody, session=Depends(desktop_session)):
+    owner = session["effective_user"]
+    if body.kind == "shared":
+        sub = body.path.strip("/")
+        try:
+            _picker().shared_listing(owner, body.folder_id, sub)
+        except HTTPException:
+            fail("sourceUnreadable", 403)
+        real, name = sub, body.name.strip()[:200] or sub.split("/")[-1] or "Shared"
+        with db() as c:
+            if c.execute("SELECT 1 FROM sources WHERE kind='shared' AND folder_id=? AND path=?", (body.folder_id, real)).fetchone():
+                fail("sourceExists", 409)
+    else:
+        real = _picker().resolve_server_path(session, body.path, roots=["/"], kind="dir")
+        if real == "/":
+            fail("invalid", 400)
+        name = body.name.strip()[:200] or os.path.basename(real) or real
+        with db() as c:
+            if c.execute("SELECT 1 FROM sources WHERE kind='server' AND path=?", (real,)).fetchone():
+                fail("sourceExists", 409)
+    sid = uuid.uuid4().hex
+    with db() as c:
+        c.execute("INSERT INTO sources(id,kind,folder_id,name,path,owner,media_kind,auto,created) VALUES(?,?,?,?,?,?,?,?,?)",
+                  (sid, body.kind, body.folder_id if body.kind == "shared" else "", name, real, owner, body.media_kind, body.auto, time.time()))
+    return {"id": sid}
+
+
+@desktop_router.put("/sources/{sid}")
+def edit_source(sid: str, body: SourceBody):
+    with db() as c:
+        if not c.execute("SELECT 1 FROM sources WHERE id=?", (sid,)).fetchone():
+            fail()
+        c.execute("UPDATE sources SET name=?,auto=? WHERE id=?", (body.name.strip()[:200] or "Library", body.auto, sid))
+    return {"ok": True}
+
+
+@desktop_router.post("/sources/{sid}/scan")
+def scan_now(sid: str):
+    with db() as c:
+        if not c.execute("SELECT 1 FROM sources WHERE id=?", (sid,)).fetchone():
+            fail()
+    scan_in_background(sid)
+    return {"ok": True}
+
+
+@desktop_router.delete("/sources/{sid}")
+def remove_source(sid: str):
+    # Only what mvmAudio remembers is removed; the files in the folder are never touched.
+    with db() as c:
+        if not c.execute("SELECT 1 FROM sources WHERE id=?", (sid,)).fetchone():
+            fail()
+        c.execute("DELETE FROM media WHERE source_id=?", (sid,))
+        c.execute("DELETE FROM sources WHERE id=?", (sid,))
+    return {"ok": True}

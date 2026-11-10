@@ -28,7 +28,7 @@ def build():
     people={uid:dict(id=uid,language='en') for uid in ('a','b')}
     def desktop(request: Request):
         if request.cookies.get('session')!='admin':raise HTTPException(401,'login')
-        return dict(token='admin')
+        return dict(token='admin',effective_user='root')
     sys.modules['backend.auth']=types.SimpleNamespace(get_current_session=desktop)
     sys.modules['backend.apphub']=types.SimpleNamespace(get_pub_session=lambda token:people.get(token),is_app_public=lambda _:True,valid_languages=lambda:set(['bg','de','en','es','fr','ja','pt-BR','ru','zh-CN']))
     spec=importlib.util.spec_from_file_location('app_public_mvmplayer',root/'api.py');mod=importlib.util.module_from_spec(spec);sys.modules[spec.name]=mod;spec.loader.exec_module(mod)
@@ -72,6 +72,109 @@ class PlayerTests(unittest.TestCase):
         r=self.admin('POST','/uploads/'+uid+'/finish');self.assertEqual(r.status_code,200,r.text)
         return r.json()['id']
     def items(self,user='a'):return self.pub('GET','/library',user).json()['items']
+    def test_library_scan_sidecars_ranges_and_removal_leave_originals(self):
+        folder=Path(self.temp.name)/'source-videos';folder.mkdir()
+        video=folder/'Example.Movie.2024.webm';video.write_bytes(FIXTURE)
+        sub=folder/'Example.Movie.2024.en.srt';sub.write_text('1\n00:00:00,000 --> 00:00:02,000\nHello\n')
+        def resolve(session,path,**kwargs):
+            self.assertEqual(session['effective_user'],'root');return str(folder)
+        def files(*args):
+            return [dict(rel=f.name,size=f.stat().st_size,mtime=f.stat().st_mtime) for f in folder.iterdir()]
+        fp=types.SimpleNamespace(resolve_server_path=resolve,folder_files=files,
+            open_server_file=lambda owner,root,rel:(open(Path(root)/rel,'rb'),(Path(root)/rel).stat().st_size))
+        with patch.object(self.mod,'fp',return_value=fp),patch.object(self.mod,'scan_in_background'):
+            source=self.admin('POST','/sources',json=dict(path=str(folder),name='Movies')).json()['id']
+            self.mod.scan_source(source)
+            items=self.items();self.assertEqual(len(items),1);item=items[0]
+            self.assertEqual(len(item['subtitles']),1)
+            ticket=self.pub('POST','/media/'+item['id']+'/ticket').json()['ticket']
+            response=self.c.get('/pub/mvmplayer/stream/'+item['id']+'?ticket='+ticket,headers={'Range':'bytes=0-9'})
+            self.assertEqual(response.status_code,206);self.assertEqual(response.content,FIXTURE[:10])
+            self.assertEqual(self.admin('DELETE','/media/'+item['id']).status_code,409)
+            self.assertEqual(self.admin('DELETE','/sources/'+source).status_code,200)
+            self.assertEqual(self.items(),[]);self.assertTrue(video.exists());self.assertTrue(sub.exists())
+
+    def test_embedded_mp4_webvtt_cues_preserve_timing(self):
+        import io
+        import struct
+        spec=importlib.util.spec_from_file_location('subtitle_reader',SOURCE/'premium/subtitles.py')
+        reader=importlib.util.module_from_spec(spec);spec.loader.exec_module(reader)
+        def box(kind,data):return struct.pack('>I4s',len(data)+8,kind)+data
+        def integer(*values):return struct.pack('>'+'I'*len(values),*values)
+        sample=box(b'vttc',box(b'payl',b'Hello from a text track'))
+        ftyp=box(b'ftyp',b'isom'+integer(0))
+        mdat=box(b'mdat',sample)
+        tables=box(b'stsd',integer(0,1)+box(b'wvtt',b''))
+        tables+=box(b'stsz',integer(0,0,1,len(sample)))
+        tables+=box(b'stsc',integer(0,1,1,1,1))
+        tables+=box(b'stts',integer(0,1,1,2000))
+        tables+=box(b'stco',integer(0,1,len(ftyp)+8))
+        mdhd=box(b'mdhd',integer(0,0,0,1000,2000)+struct.pack('>HH',0,0))
+        hdlr=box(b'hdlr',integer(0,0)+b'subt'+b'\0'*12)
+        track=box(b'trak',box(b'mdia',mdhd+hdlr+box(b'minf',box(b'stbl',tables))))
+        video=ftyp+mdat+box(b'moov',track)
+        tracks=reader.container_tracks(io.BytesIO(video),1)
+        self.assertEqual(tracks[0]['codec'],'wvtt')
+        self.assertEqual(tracks[0]['cues'],[(0,2000,'Hello from a text track')])
+
+    def test_translation_gate_quote_jobs_ownership_and_refund(self):
+        mid=self.upload('Example.webm')
+        subtitle=self.admin('POST','/media/'+mid+'/subtitles?language=en',content=b'1\n00:00:00,000 --> 00:00:02,000\nHello\n').json()['id']
+        self.assertEqual(self.pub('POST','/media/'+mid+'/translate/quote',json=dict(source='db:'+subtitle,language='bg')).status_code,403)
+        spec=importlib.util.spec_from_file_location('test_player_premium',SOURCE/'premium/backend.py')
+        premium=importlib.util.module_from_spec(spec);spec.loader.exec_module(premium)
+        premium._base=lambda:self.mod
+        charges=[];refunds=[]
+        hub=types.SimpleNamespace(credits_available=lambda:True,get_credit_feature_price=lambda *a:3,get_credit_balance=lambda uid:99,
+            charge_credit_feature=lambda *a:charges.append(a),grant_credits=lambda *a:refunds.append(a))
+        premium._hub=lambda:hub
+        class Immediate:
+            def __init__(self,target,args,**kwargs):self.target,self.args=target,args
+            def start(self):self.target(*self.args)
+        with patch.object(self.mod,'premium',return_value=premium),patch.object(self.mod,'translation_available',return_value=True),patch.object(premium,'_ask',return_value=lambda prompt:'1| Здравей'),patch.object(premium.threading,'Thread',Immediate):
+            body=dict(source='db:'+subtitle,language='bg')
+            quote=self.pub('POST','/media/'+mid+'/translate/quote',json=body).json()
+            self.assertEqual(quote['total'],3)
+            job=self.pub('POST','/media/'+mid+'/translate',json=body).json()['id']
+            self.assertEqual(self.pub('GET','/translate/'+job).json()['status'],'done')
+            self.assertEqual(self.pub('GET','/translate/'+job,user='b').status_code,404)
+            self.assertEqual(len(charges),1);self.assertEqual(refunds,[])
+            with patch.object(premium,'_ask',return_value=lambda prompt:'wrong reply'):
+                failed=self.pub('POST','/media/'+mid+'/translate',json=body).json()['id']
+            self.assertEqual(self.pub('GET','/translate/'+failed).json()['status'],'failed')
+            self.assertEqual(len(refunds),1);self.assertEqual(refunds[0][2],3)
+
+    def test_simkl_series_seasons_marks_and_watchlist(self):
+        self.key='A'*32;self.mod.simkl.resolver=lambda uid:self.key;self.mod.simkl.save_token('a','T'*20,'A'*32)
+        sent=[]
+        watched=[[1,1]]
+        def call(creds,method,path,params=None,body=None,auth=False):
+            if path=='/tv/8':return dict(title='Saved Series',ids=dict(simkl=8))
+            if path=='/tv/episodes/8':return []
+            if path=='/tv/7':return dict(title='Example Series',year=2020,ids=dict(simkl=7,slug='example-series'),poster='ab/abc',overview='Story',genres=['Drama'],status='ended')
+            if path=='/tv/episodes/7':return [dict(season=1,episode=n,title='E%d'%n,aired=True,date='2020-01-0%d'%n) for n in (1,2)]+[dict(season=2,episode=1,title='F',aired=False,date='2099-01-01')]
+            if path=='/sync/all-items/shows':return dict(shows=[dict(status='watching',watched_episodes_count=len(watched),total_episodes_count=3,show=dict(title='Example Series',ids=dict(simkl=7)),seasons=[dict(number=1,episodes=[dict(number=e) for _,e in watched])]),
+                dict(status='plantowatch',watched_episodes_count=0,total_episodes_count=0,added_to_watchlist_at='2025-01-01',show=dict(title='Saved Series',ids=dict(simkl=8)))])
+            if path=='/sync/history':
+                sent.append(('add',body));[watched.append([a['number'],e['number']]) for a in body['shows'][0]['seasons'] for e in a['episodes'] if a['number']==1 and [1,e['number']] not in watched];return dict(added=dict(episodes=1))
+            if path=='/sync/all-items/movies/completed':return dict(movies=[])
+            if path=='/sync/history/remove':sent.append(('remove',body));return dict(deleted=dict(episodes=1))
+            raise AssertionError(path)
+        with patch.object(self.mod.simkl,'call',call):
+            h=self.pub('GET','/simkl/history').json()
+            self.assertEqual([x['title'] for x in h['plan']],['Saved Series']);self.assertEqual([x['title'] for x in h['shows']],['Example Series'])
+            d=self.pub('GET','/simkl/show/7').json()
+            self.assertEqual([(x['number'],len(x['episodes'])) for x in d['seasons']],[(1,2),(2,1)])
+            self.assertEqual([e['watched'] for e in d['seasons'][0]['episodes']],[True,False]);self.assertEqual(d['status'],'watching')
+            r=self.pub('POST','/simkl/show/7/watched',json=dict(watched=True,season=1,episode=2));self.assertEqual(r.status_code,200,r.text)
+            self.assertEqual(sent[-1],('add',dict(shows=[dict(ids=dict(simkl=7),seasons=[dict(number=1,episodes=[dict(number=2,watched_at=sent[-1][1]['shows'][0]['seasons'][0]['episodes'][0]['watched_at'])])])])))
+            self.assertTrue(all(e['watched'] for e in r.json()['seasons'][0]['episodes']))
+            r=self.pub('POST','/simkl/show/7/watched',json=dict(watched=True));self.assertEqual([[a['number'],[e['number'] for e in a['episodes']]] for a in sent[-1][1]['shows'][0]['seasons']],[[1,[1,2]]])
+            r=self.pub('POST','/simkl/show/7/watched',json=dict(watched=False,season=1));self.assertEqual(sent[-1][0],'remove')
+            self.assertEqual(self.pub('POST','/simkl/show/7/plan',json=dict(on=False)).status_code,400)
+            self.assertEqual(self.pub('POST','/simkl/show/8/plan',json=dict(on=True)).status_code,400)
+        self.assertEqual(self.pub('GET','/simkl/show/7',user='b').status_code,403)
+        self.key='B'*32;self.assertEqual(self.mod.simkl.credentials('a')['token'],'')
     def test_authentication_and_admin_separation(self):
         mid=self.upload()
         self.assertEqual(self.pub('GET','/library','invalid').status_code,401)

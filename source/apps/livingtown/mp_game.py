@@ -4,7 +4,7 @@ The browser owns the live simulation. The server owns the starting rules and a
 durable copy of the town. No wall-clock time passes while the town is closed.
 """
 
-import random
+import sys
 import time
 
 AUTOSAVE_EVERY = 10.0
@@ -96,47 +96,23 @@ TUNING = {
     # Hours reserved for sleep each day when deciding if a special mid-week
     # park trip still leaves enough time before the next work departure.
     "sleep_hours": 8,
-    "names": {
-        "female": ["Mira", "Lina", "Nora", "Eva", "Maya", "Iris", "Sara", "Nina",
-                   "Elena", "Anna", "Sofia", "Clara", "Emma", "Lucia", "Amara", "Zoe",
-                   "Hana", "Yuki", "Mei", "Leila", "Freya", "Ada"],
-        "male": ["Toma", "Leo", "Noah", "Milo", "Theo", "Alex", "Niko", "Ivan",
-                 "Daniel", "Luca", "Elias", "Amir", "Kenji", "Haru", "Wei", "Omar",
-                 "Felix", "Jonas", "Mateo", "Adam"],
-        "families": ["Vale", "Stone", "Hart", "Rowan", "Novak", "Marin", "Silva", "Costa",
-                     "Laurent", "Weber", "Petrov", "Sato", "Tanaka", "Chen", "Wang", "Santos"],
-        "outsider_surname": "Reed",
-    },
 }
 
 
-def _new_town():
-    mid = TUNING["world_size"] / 2
+def _hub():
+    return sys.modules['app_backend_gamehub']
+
+
+def _new_town(language='en'):
     people = []
-    families = random.sample(TUNING["names"]["families"], 3)
-    for index, family in enumerate(families):
-        woman_id = index * 2 + 1
-        man_id = woman_id + 1
-        people.extend([
-            {"id": woman_id, "name": f"{random.choice(TUNING['names']['female'])} {family}",
-             "sex": "f", "age_days": (23 + index) * 365, "money": TUNING["starter_money"],
-             "partner": man_id, "parents": [], "children": [], "home": None,
-             "work": None, "x": mid, "y": mid, "inside": "waiting", "goal": None,
-             "happiness": TUNING["happiness_start"], "history": ["lt_hist_founded"]},
-            {"id": man_id, "name": f"{random.choice(TUNING['names']['male'])} {family}",
-             "sex": "m", "age_days": (25 + index) * 365, "money": TUNING["starter_money"],
-             "partner": woman_id, "parents": [], "children": [], "home": None,
-             "work": None, "x": mid, "y": mid, "inside": "waiting", "goal": None,
-             "happiness": TUNING["happiness_start"], "history": ["lt_hist_founded"]},
-        ])
     buildings = []
     roads = []
     return {
-        "version": 9, "founding": True, "elapsed": 0, "day": 0, "year": 1,
+        "version": 9, "start_country": _hub().name_country(language), "founding": True, "elapsed": 0, "day": 0, "year": 1,
         "treasury": TUNING["starter_treasury"], "tax_rate": 0.10,
         "people": people, "buildings": buildings, "roads": roads, "zones": [],
         "busStops": [], "busLines": [], "buses": [], "cars": [],
-        "next_person": 7, "next_building": 1, "next_road": 1,
+        "next_person": 1, "next_building": 1, "next_road": 1,
         "next_zone": 1, "next_zone_group": 1,
         "next_bus_stop": 1, "next_bus_line": 1, "next_bus": 1, "next_car": 1,
         "transit_version": 0,
@@ -156,7 +132,8 @@ class Game:
         saved = self.ctx.saved_state
         state = saved.get("state") if isinstance(saved, dict) and isinstance(saved.get("state"), dict) else None
         # Version 9 turns each visible day into one demographic/economic year.
-        self.state = state if state and int(state.get("version", 0)) >= 9 else _new_town()
+        self.state = state if state and int(state.get("version", 0)) >= 9 else _new_town(settings.get("name_language", "en"))
+        self.state.setdefault("start_country", _hub().name_country(settings.get("name_language", "en")))
         self.wall = {"real": time.time(), "elapsed": float(self.state.get("elapsed", 0))}
         await self.ctx.send(self.ctx.host_id, self._start())
 
@@ -187,7 +164,8 @@ class Game:
         return {"state": self.state} if self.state else None
 
     def _start(self):
-        return {"type": "lt_start", "tuning": TUNING, "state": self.state, "solo": True}
+        return {"type": "lt_start", "tuning": TUNING, "state": self.state, "solo": True,
+                "name_catalogue": _hub().name_catalogue(), "name_display_rules": _hub().name_display_rules()}
 
     def snapshot_for_debug(self):
         return self.state

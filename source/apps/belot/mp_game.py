@@ -826,7 +826,14 @@ class Game:
             # Older clients still get a playable table.
             defaults = ([0], [0, 1], [0, 1, 2], [0, 1, 2, 3])[len(people)-1]
             positions = {str(p["id"]): i for p, i in zip(people, defaults)}
-        self.seats = [{"id": None, "name": f"Bot {i+1}", "bot": True} for i in range(4)]
+        hub = sys.modules['app_backend_gamehub']
+        country = hub.name_country(settings.get('name_language', 'en'))
+        saved_names = saved.get('bot_identities', {}) if isinstance(saved, dict) else {}
+        identities = iter(hub.generate_names(country=country, count=4))
+        self.seats = []
+        for i in range(4):
+            identity = saved_names.get(str(i)) or next(identities)
+            self.seats.append(dict(id=None, name=identity['latin'], name_identity=identity, bot=True))
         for p in people:
             pos = positions[str(p["id"])]
             self.seats[pos] = {"id": str(p["id"]), "name": p["display_name"], "bot": False}
@@ -961,7 +968,8 @@ class Game:
     def snapshot(self):
         if self.phase == "finished":
             return None
-        return {"settings": self.settings, "seat_ids": [p["id"] for p in self.seats], "hands": self.hands, "extra_hands": self.extra_hands, "original_hands": self.original_hands, "scores": self.scores, "hanging": self.hanging,
+        return {"bot_identities": {str(i): p["name_identity"] for i, p in enumerate(self.seats) if p.get("name_identity")},
+                "settings": self.settings, "seat_ids": [p["id"] for p in self.seats], "hands": self.hands, "extra_hands": self.extra_hands, "original_hands": self.original_hands, "scores": self.scores, "hanging": self.hanging,
                 "upcard": self.upcard, "stock": self.stock, "french_round": self.french_round, "bid_log": self.bid_log, "bid_events": self.bid_events, "history": self.history,
                 "dealer": self.dealer, "deals": self.deals, "phase": self.phase,
                 "bid": self.bid, "bidder": self.bidder, "double": self.double, "passes": self.passes,
@@ -1366,6 +1374,7 @@ class Game:
     def _state(self, pid, last=None, result=None):
         seat = next((i for i, p in enumerate(self.seats) if p["id"] == pid), None)
         return {"type": "bl_state", "seat": seat, "seats": self.seats,
+                "name_display_rules": sys.modules["app_backend_gamehub"].name_display_rules(),
                 "hand": list(self.hands[seat]) if seat is not None else [],
                 "counts": [len(h) for h in self.hands], "scores": self.scores, "hanging": self.hanging,
                 "dealer": self.dealer, "deals": self.deals, "phase": self.phase,

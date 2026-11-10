@@ -1,5 +1,7 @@
 # Isolated browser fixture: venv/bin/python apps/racelandia/tools/test-ui-server.py
 # Uses a temporary database and synthetic users; listens on localhost only.
+from name_service_fixture import install as install_name_service
+install_name_service()
 import importlib.util,json,tempfile,os,sys
 from pathlib import Path
 from fastapi import FastAPI,Request
@@ -55,6 +57,8 @@ def catalog():return FileResponse(ROOT/'apps/racelandia/public/tracks.json')
 def favicon():return HTMLResponse('',status_code=204)
 @app.get('/datetime-picker.js')
 def dates():return FileResponse(ROOT/'frontend/datetime-picker.js')
+@app.get('/apps/gamehub/name-display.js')
+def names_formatter():return FileResponse(ROOT/'apps/gamehub/public/name-display.js',media_type='text/javascript')
 @app.get('/apps/racelandia/{file:path}')
 def static(file:str):
  # App public assets are available through both production URL conventions.

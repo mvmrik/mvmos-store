@@ -49,7 +49,7 @@
       "name": "mvmAudio",
       "icon": "🎧",
       "category": "Media",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "description": "Your music, audiobook shelves and online radio, with personal listening progress and shared playlists.",
       "tags": [
         "music",
@@ -57,8 +57,8 @@
         "radio",
         "playlists"
       ],
-      "min_core_version": "1.21.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/mvmaudio-1.2.0.zip",
+      "min_core_version": "1.22.0",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/mvmaudio-1.3.0.zip",
       "premium": true
     },
     {
@@ -66,7 +66,7 @@
       "name": "mvmPlayer",
       "icon": "▶️",
       "category": "Media",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "A browser video library for movies, series and personal recordings, with subtitles and individual watching progress.",
       "tags": [
         "video",
@@ -75,8 +75,9 @@
         "subtitles",
         "player"
       ],
-      "min_core_version": "1.16.1",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/mvmplayer-1.0.0.zip"
+      "min_core_version": "1.22.0",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/media/mvmplayer-1.1.0.zip",
+      "premium": true
     }
   ]
 }

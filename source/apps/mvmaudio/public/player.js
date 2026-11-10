@@ -10,7 +10,7 @@ function mount(host,options={}){
  let lang=window.mvmOS?.lang||document.documentElement.lang||'en';
  let dict=window.MA_I18N[lang]||window.MA_I18N.en;
  const t=k=>dict[k]||window.MA_I18N.en[k]||k;
- const s={items:[],playlists:[],tab:'home',q:'',category:'',status:'all',sort:'recent',scope:'all',admin:null,manage:false,stats:null,statsView:'books',statsUser:'',statsFilter:'all',statsSort:'size',importBatch:[],importError:'',importKind:'music',limit:0,used:0,queue:[],current:null,track:null,shuffle:false,repeat:'off',sleep:0,sleepChapter:false,dead:false,loadId:0};
+ const s={items:[],playlists:[],tab:'home',q:'',category:'',status:'all',sort:'recent',scope:'all',admin:null,stats:null,statsView:'books',statsUser:'',statsFilter:'all',statsSort:'size',importBatch:[],importError:'',importKind:'music',limit:0,used:0,queue:[],current:null,track:null,shuffle:false,repeat:'off',sleep:0,sleepChapter:false,dead:false,loadId:0};
  let saveChain=Promise.resolve(),lastSave=0,modal=null,toastTimer,activeRequest=null,switching=false,pendingPosition=null,renewTimer=null;
  const token=()=>localStorage.getItem('apphub_token')||'';
  const coverCache=new Map();let coverRequests=0;
@@ -61,13 +61,13 @@ function mount(host,options={}){
    for(const img of root.querySelectorAll('[data-cover-id]:not([data-cover-loaded])')){
      if(coverRequests>=4)break;
      img.dataset.coverLoaded='1';const id=img.dataset.coverId,rev=img.dataset.coverRevision,remote=img.dataset.coverRemote;
-     const key=(s.manage?'admin':'user')+':'+id+':'+rev;
+     const key='user:'+id+':'+rev;
      for(const [k,record]of coverCache)if(record.id===id&&record.rev!==rev){if(record.url?.startsWith('blob:'))URL.revokeObjectURL(record.url);coverCache.delete(k)}
      if(!coverCache.has(key)){
        const record={id,rev,url:''};coverCache.set(key,record);
        record.promise=(async()=>{
          if(remote&&/^https:\/\/covers\.openlibrary\.org\/b\/id\/[0-9]+-L\.jpg\?default=false$/.test(remote))return record.url=window.asset(remote);
-         const r=await fetch((s.manage?'/api/apps/mvmaudio':'/pub/mvmaudio')+'/media/'+id+'/cover',{headers:{'X-Pub-Token':token()}});
+         const r=await fetch('/pub/mvmaudio/media/'+id+'/cover',{headers:{'X-Pub-Token':token()}});
          if(!r.ok)return '';
          const url=URL.createObjectURL(await r.blob());if(s.dead||coverCache.get(key)!==record){URL.revokeObjectURL(url);return '';}return record.url=url;
        })().catch(()=>'');
@@ -79,13 +79,13 @@ function mount(host,options={}){
  const artObserver=new MutationObserver(hydrateCovers);artObserver.observe(root,{childList:true,subtree:true});
  function cover(item,attrs=''){
    let hue=0;for(const c of item.id)hue=(hue*31+c.charCodeAt(0))%360;
-   return `<button class="ma-cover ${item.kind}" style="--h:${hue}" ${attrs} aria-label="${esc(t(s.manage?'edit':'open')+': '+item.title)}">${artwork(item)}<small>${esc(item.creator||t(item.kind))}</small><strong>${esc(item.title)}</strong><small>${esc(item.category||item.album||'mvmAudio')}</small></button>`;
+   return `<button class="ma-cover ${item.kind}" style="--h:${hue}" ${attrs} aria-label="${esc(t('open')+': '+item.title)}">${artwork(item)}<small>${esc(item.creator||t(item.kind))}</small><strong>${esc(item.title)}</strong><small>${esc(item.category||item.album||'mvmAudio')}</small></button>`;
  }
  const percent=value=>Math.max(0,Math.min(100,Number(value)||0)).toLocaleString(lang,{maximumFractionDigits:1})+'%';
  const glyph=on=>on?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>';
  const isPlaying=id=>s.current?.id===id&&!audio.paused;
- function card(item){const st=item.state;return `<article class="ma-card"><div class="ma-cover-wrap">${cover(item,`data-detail="${item.id}"`)}${s.manage?'':`<button type="button" class="ma-quickplay" data-quick="${item.id}" aria-label="${esc(t(isPlaying(item.id)?'pause':'play')+': '+item.title)}">${glyph(isPlaying(item.id))}</button>`}</div><div class="ma-card-heading"><button class="ma-titlebtn" data-detail="${item.id}">${esc(item.title)}</button>${icon(st.favorite?'♥':'♡','favorites',`data-favorite="${item.id}"`)}</div><div class="ma-meta">${esc(item.creator||item.album||t(item.kind))}</div>${item.kind==='books'?`<div class="ma-progress"><span style="width:${item.percent}%"></span></div><div class="ma-card-progress"><span>${st.completed?'✓ '+esc(t('completed')):percent(item.percent)}</span><span>${fmt((item.duration-item.elapsed)/(st.speed||1))} ${esc(t('left'))}</span></div>`:''}</article>`}
- function filterItems(){let items=s.manage?s.admin.items:s.items;const q=s.q.toLocaleLowerCase();items=items.filter(i=>
+ function card(item){const st=item.state;return `<article class="ma-card"><div class="ma-cover-wrap">${cover(item,`data-detail="${item.id}"`)}${`<button type="button" class="ma-quickplay" data-quick="${item.id}" aria-label="${esc(t(isPlaying(item.id)?'pause':'play')+': '+item.title)}">${glyph(isPlaying(item.id))}</button>`}</div><div class="ma-card-heading"><button class="ma-titlebtn" data-detail="${item.id}">${esc(item.title)}</button>${icon(st.favorite?'♥':'♡','favorites',`data-favorite="${item.id}"`)}</div><div class="ma-meta">${esc(item.creator||item.album||t(item.kind))}</div>${item.kind==='books'?`<div class="ma-progress"><span style="width:${item.percent}%"></span></div><div class="ma-card-progress"><span>${st.completed?'✓ '+esc(t('completed')):percent(item.percent)}</span><span>${fmt((item.duration-item.elapsed)/(st.speed||1))} ${esc(t('left'))}</span></div>`:''}</article>`}
+ function filterItems(){let items=s.items;const q=s.q.toLocaleLowerCase();items=items.filter(i=>!i.temp&&
    (!['music','books','radio'].includes(s.tab)||i.kind===s.tab)&&
    (s.tab!=='favorites'||i.state.favorite)&&(s.tab!=='history'||i.state.last_played)&&
    (!q||[i.title,i.creator,i.category,i.album,...Object.values(i.translations||{}).flatMap(v=>[v.title,v.creator])].some(x=>(x||'').toLocaleLowerCase().includes(q)))&&
@@ -93,31 +93,32 @@ function mount(host,options={}){
    (s.status==='all'||s.status==='completed'&&i.state.completed||s.status==='unread'&&!i.state.completed&&!i.elapsed||s.status==='started'&&!i.state.completed&&i.elapsed>0));
    return [...items].sort((a,b)=>s.sort==='title'?a.title.localeCompare(b.title,lang):s.sort==='creator'?a.creator.localeCompare(b.creator,lang):s.tab==='history'?b.state.last_played-a.state.last_played:b.created-a.created);
  }
- function renderTop(){root.querySelector('.ma-top-actions').innerHTML=`${options.desktop&&s.admin?`<button type="button" class="ma-btn" data-manage title="${esc(t(s.manage?'listen':'manage'))}" aria-label="${esc(t(s.manage?'listen':'manage'))}">▦ <span>${esc(t(s.manage?'listen':'manage'))}</span></button>` :''}${s.manage?`<button type="button" class="ma-btn" data-statistics title="${esc(t('statistics'))}" aria-label="${esc(t('statistics'))}">▥ <span>${esc(t('statistics'))}</span></button>`:''}${s.manage||s.limit>0?button('add','data-add','ma-btn primary'):''}${icon('☷','queue','data-queue')}${icon('⚙','settings','data-settings')}`;}
+ const adm=x=>!!(options.desktop&&s.admin&&x&&x.shared);
+ function renderTop(){root.querySelector('.ma-top-actions').innerHTML=`${options.desktop&&s.admin?`<button type="button" class="ma-btn" data-sources title="${esc(t('libTitle'))}" aria-label="${esc(t('libTitle'))}">▤ <span>${esc(t('libTitle'))}</span></button><button type="button" class="ma-btn" data-statistics title="${esc(t('statistics'))}" aria-label="${esc(t('statistics'))}">▥ <span>${esc(t('statistics'))}</span></button>`:''}${s.limit>0||(s.admin&&s.tab==='radio')?button(s.admin?'addStation':'add','data-add','ma-btn primary'):''}${icon('☷','queue','data-queue')}${icon('⚙','settings','data-settings')}`;}
  function render(){
    if(s.dead)return;
    renderTop();root.querySelectorAll('[data-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.tab===s.tab);b.innerHTML=`<i>${icons[b.dataset.tab]}</i>${esc(t(b.dataset.tab))}`});root.querySelector('.ma-search').placeholder=t('search');root.querySelector('.ma-search').setAttribute('aria-label',t('search'));root.querySelector('.ma-side small').textContent=t('library');
    if(s.tab==='imports'){renderImports();return;}
-   if(s.tab==='statistics'&&s.manage){renderStatistics();return;}
-   if(s.tab==='home'&&!s.q&&!s.manage){
+   if(s.tab==='statistics'&&s.admin){renderStatistics();return;}
+   if(s.tab==='home'&&!s.q){
      const continuing=s.items.filter(i=>i.kind==='books'&&i.elapsed>0&&!i.state.completed).sort((a,b)=>b.state.last_played-a.state.last_played).slice(0,5);
-     main.innerHTML=`<div class="ma-hero"><div class="ma-eyebrow">${esc(t('yourSpace'))}</div><h1>${esc(t('welcome'))}</h1><p>${esc(t('subtitle'))}</p><div class="ma-actions">${button('books','data-go="books"','ma-btn primary')}${button('music','data-go="music"')}</div></div>${continuing.length?`<h2>${esc(t('continue'))}</h2><div class="ma-grid">${continuing.map(card).join('')}</div>`:''}<h2>${esc(t('recent'))}</h2><div class="ma-grid">${s.items.slice(0,10).map(card).join('')}</div>${!s.items.length?empty():''}`;return;
+     main.innerHTML=`${continuing.length?`<h2>${esc(t('continue'))}</h2><div class="ma-grid">${continuing.map(card).join('')}</div>`:''}<h2>${esc(t('recent'))}</h2><div class="ma-grid">${s.items.slice(0,10).map(card).join('')}</div>${!s.items.length?empty():''}`;return;
    }
    if(s.tab==='playlists'){
-     const lists=s.manage?s.admin.playlists:s.playlists;
-     main.innerHTML=`<div class="ma-heading"><h1>${esc(t('playlists'))}</h1>${button('newPlaylist','data-new-playlist','ma-btn primary')}</div><p class="ma-muted">${esc(t(s.manage?'sharedPlaylists':'playlistHint'))}</p><div class="ma-list">${lists.map(p=>`<div class="ma-row"><span class="ma-thumb">☷</span><div class="ma-grow"><strong>${esc(p.title)}</strong><span class="ma-meta">${p.items.length} · ${esc(t(p.shared||s.manage?'shared':p.mine?'mine':'sharedWithMe'))}</span></div>${icon('▶','play',`data-playlist-play="${p.id}"`)}${button('open',`data-playlist="${p.id}"`)}</div>`).join('')}</div>${!lists.length?empty():''}`;return;
+     const lists=s.playlists;
+     main.innerHTML=`<div class="ma-heading"><h1>${esc(t('playlists'))}</h1>${button('newPlaylist','data-new-playlist','ma-btn primary')}</div><p class="ma-muted">${esc(t('playlistHint'))}</p><div class="ma-list">${lists.map(p=>`<div class="ma-row"><span class="ma-thumb">☷</span><div class="ma-grow"><strong>${esc(p.title)}</strong><span class="ma-meta">${p.items.length} · ${esc(t(p.shared?'shared':p.mine?'mine':'sharedWithMe'))}</span></div>${icon('▶','play',`data-playlist-play="${p.id}"`)}${button('open',`data-playlist="${p.id}"`)}</div>`).join('')}</div>${!lists.length?empty():''}`;return;
    }
-   const items=filterItems();const categories=[...new Set((s.manage?s.admin.items:s.items).filter(i=>!['music','books','radio'].includes(s.tab)||i.kind===s.tab).map(i=>i.category).filter(Boolean))].sort();
-   main.innerHTML=`<div class="ma-heading"><div><div class="ma-eyebrow">${esc(t(s.manage?'commonLibrary':'library'))}</div><h1>${esc(t(s.tab))}</h1></div><select data-sort aria-label="${esc(t('sort'))}">${['recent','title','creator'].map(k=>`<option value="${k}" ${s.sort===k?'selected':''}>${esc(t(k))}</option>`).join('')}</select></div><div class="ma-chips">${['all',...categories].map(c=>`<button class="ma-chip ${(c==='all'?!s.category:s.category===c)?'active':''}" data-category="${esc(c==='all'?'':c)}">${esc(c==='all'?t('all'):c)}</button>`).join('')}</div><div class="ma-chips">${!s.manage?['all','shared','mine'].map(k=>`<button class="ma-chip ${s.scope===k?'active':''}" data-scope="${k}">${esc(t(k))}</button>`).join(''):''}${s.tab==='books'?`<select data-status aria-label="${esc(t('status'))}">${['all','started','unread','completed'].map(k=>`<option value="${k}" ${s.status===k?'selected':''}>${esc(t(k))}</option>`).join('')}</select>`:''}</div><div class="ma-grid">${items.map(card).join('')}</div>${!items.length?empty():''}`;
+   const items=filterItems();const categories=[...new Set(s.items.filter(i=>!['music','books','radio'].includes(s.tab)||i.kind===s.tab).map(i=>i.category).filter(Boolean))].sort();
+   main.innerHTML=`<div class="ma-heading"><div><div class="ma-eyebrow">${esc(t('library'))}</div><h1>${esc(t(s.tab))}</h1></div><select data-sort aria-label="${esc(t('sort'))}">${['recent','title','creator'].map(k=>`<option value="${k}" ${s.sort===k?'selected':''}>${esc(t(k))}</option>`).join('')}</select></div><div class="ma-chips">${['all',...categories].map(c=>`<button class="ma-chip ${(c==='all'?!s.category:s.category===c)?'active':''}" data-category="${esc(c==='all'?'':c)}">${esc(c==='all'?t('all'):c)}</button>`).join('')}</div><div class="ma-chips">${['all','shared','mine'].map(k=>`<button class="ma-chip ${s.scope===k?'active':''}" data-scope="${k}">${esc(t(k))}</button>`).join('')}${s.tab==='books'?`<select data-status aria-label="${esc(t('status'))}">${['all','started','unread','completed'].map(k=>`<option value="${k}" ${s.status===k?'selected':''}>${esc(t(k))}</option>`).join('')}</select>`:''}</div><div class="ma-grid">${items.map(card).join('')}</div>${!items.length?empty():''}`;
  }
- function empty(){return `<div class="ma-empty"><b>${esc(t('empty'))}</b>${esc(t(s.manage?'emptyAdmin':'emptyHint'))}</div>`}
+ function empty(){return `<div class="ma-empty"><b>${esc(t('empty'))}</b>${esc(t(s.admin?'emptyAdmin':'emptyHint'))}</div>`}
  async function refresh(){
    await persist();
    const data=await api('/library');if(s.dead)return;
    s.languages=data.languages||Object.keys(window.MA_I18N);
    if(!options.desktop&&data.user_language&&data.user_language!=='auto'&&languages().includes(data.user_language)){lang=data.user_language;dict=window.MA_I18N[lang]||window.MA_I18N.en;}
-   s.items=data.items.map(localized);s.playlists=data.playlists;s.limit=data.upload_limit_mb;s.used=data.used_bytes;s.uid=data.user_id;
-   if(options.desktop){try{s.admin=await api('/admin','GET',undefined,true);s.admin.items=s.admin.items.map(localized)}catch{s.admin=null;s.manage=false}}
+   s.items=data.items.map(localized);if(s.fileItem)s.items.push(s.fileItem);s.playlists=data.playlists;s.limit=data.upload_limit_mb;s.used=data.used_bytes;s.uid=data.user_id;
+   if(options.desktop){try{s.admin=await api('/admin','GET',undefined,true);s.admin.items=s.admin.items.map(localized)}catch{s.admin=null}}
    if(s.current){const fresh=s.items.find(i=>i.id===s.current.id);if(fresh){fresh.state={...fresh.state,...s.current.state};s.current=fresh}else{audio.pause();s.current=null;s.track=null;s.queue=[];audio.removeAttribute('src');audio.load();}}
    if(s.admin)for(const item of s.admin.items){const personal=s.items.find(i=>i.id===item.id);if(personal){item.state=personal.state;item.elapsed=personal.elapsed;item.percent=personal.percent;}}
    render();paintPlayer();
@@ -131,7 +132,7 @@ function mount(host,options={}){
    root.querySelectorAll('[data-quick]').forEach(b=>{const on=isPlaying(b.dataset.quick);b.innerHTML=glyph(on)});
    if(modal?.querySelector('[data-queue-live]'))queueDialog();else if(modal?.querySelector('[data-now-live]'))nowPlaying();
  }
- function snapshot(played=false){if(!s.current||switching||pendingPosition!==null||(s.track&&audio.readyState<1))return null;const d={speed:audio.playbackRate,played};if(s.track){d.track_id=s.track.id;d.seconds=audio.currentTime||0;}return {id:s.current.id,body:d};}
+ function snapshot(played=false){if(!s.current||s.current.temp||switching||pendingPosition!==null||(s.track&&audio.readyState<1))return null;const d={speed:audio.playbackRate,played};if(s.track){d.track_id=s.track.id;d.seconds=audio.currentTime||0;}return {id:s.current.id,body:d};}
  function persist(played=false){if(switching||s.dead)return Promise.resolve();const data=snapshot(played);if(!data)return Promise.resolve();lastSave=Date.now();
    if(s.track){s.current.state.track_id=s.track.id;s.current.state.seconds=data.body.seconds;}
    s.current.state.speed=data.body.speed;if(played)s.current.state.last_played=Date.now()/1000;
@@ -179,7 +180,7 @@ function mount(host,options={}){
    const pos=seconds!==null?seconds:resumed&&s.track.id===i.state.track_id?i.state.seconds:0;
    const rate=i.kind==='radio'?1:(i.kind==='books'?i.state.speed||1:1);audio.defaultPlaybackRate=rate;audio.playbackRate=rate;
    let url=i.url;
-   if(s.track){try{url=(await api('/tracks/'+s.track.id+'/ticket','POST')).url}catch(e){switching=false;throw e}}
+   if(s.track?.direct)url=s.track.direct;else if(s.track){try{url=(await api('/tracks/'+s.track.id+'/ticket','POST')).url}catch(e){switching=false;throw e}}
    clearTimeout(renewTimer);
    if(load!==s.loadId||s.dead)return;
    if(autoplay&&i.state.completed&&i.kind==='books'){await stateChange(i,{completed:false,track_id:s.track.id,seconds:pos});}
@@ -263,15 +264,15 @@ function scheduleRenewal(tid){
  function visibility(){if(document.hidden)persist().catch(()=>{});else run(refresh)}
  document.addEventListener('visibilitychange',visibility);window.addEventListener('pagehide',flush);
  async function detail(mid){
-   const i=(s.manage?s.admin.items:s.items).find(i=>i.id===mid);if(!i)return;
-   const editable=s.manage||i.mine;
-   const box=dialog(i.title,`<div class="ma-detail-top"><div class="ma-detail-cover">${cover(i)}</div><div><p>${esc(i.creator)}</p><p>${esc(i.category)}${i.album?' · '+esc(i.album):''}</p><p>${i.kind==='radio'?esc(t('live')):fmt(i.duration)}</p><span class="ma-scope">${esc(t(i.shared?'shared':i.mine?'mine':'sharedWithMe'))}</span></div></div>${i.description?`<p style="white-space:pre-wrap">${esc(i.description)}</p>`:''}${[i.year,i.narrator,i.language,i.isbn].filter(Boolean).length?`<p class="ma-hint">${[i.year,i.narrator,i.language,i.isbn].filter(Boolean).map(esc).join(' · ')}</p>`:''}${i.metadata_url?`<p class="ma-hint">${esc(t('source'))}: <a href="${esc(i.metadata_url)}" target="_blank" rel="noopener noreferrer">${esc(i.metadata_source)}</a></p>`:''}${!s.manage?`<div class="ma-actions ma-actions-main">${button(i.kind!=='books'?'play':(i.percent>0||i.state.completed?'resume':'startListening'),`data-detail-play="${i.id}"`,'ma-btn primary ma-big')}${s.current?.id===i.id?button('stopPlayback','data-detail-stop','ma-btn ma-big'):''}</div>`:''}<div class="ma-actions ma-actions-sub">${!s.manage&&i.kind!=='radio'?button('playNext','data-queue-next')+button('addToQueue','data-queue-add'):''}${!s.manage?button('addToPlaylist','data-add-to-playlist'):''}${!s.manage?button('share','data-share-item'):''}${editable?button('edit','data-edit-item'):''}${editable&&i.kind!=='radio'?button('metadata','data-metadata'):''}${i.kind==='books'&&!s.manage?button(i.state.completed?'markUnread':'markRead','data-complete'):''}${editable?button('delete','data-delete-item','ma-btn danger'):''}</div>${i.kind==='books'?`<div class="ma-progress ma-progress-big" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(i.percent)}"><span style="width:${Math.max(i.percent,i.percent>0?2:0)}%"></span></div><p class="ma-muted">${percent(i.percent)} · ${fmt((i.duration-i.elapsed)/(i.state.speed||1))} ${esc(t('left'))}</p>`:''}${i.tracks.length?`<h3>${esc(t('chapters'))}</h3><div class="ma-list">${i.tracks.map((track,n)=>`<div class="ma-row"><span class="ma-queue-number">${n+1}</span><div class="ma-grow"><strong>${esc(track.title)}</strong><span class="ma-meta">${fmt(track.duration)}</span></div>${!s.manage?icon('▶','play',`data-chapter="${track.id}"`):''}${editable?icon('↑','moveUp',`data-up="${n}" ${n===0?'disabled':''}`)+icon('↓','moveDown',`data-down="${n}" ${n===i.tracks.length-1?'disabled':''}`)+icon('×','delete',`data-remove-track="${track.id}"`):''}</div>`).join('')}</div>`:''}${editable&&i.kind!=='radio'?`<div class="ma-actions">${button('addChapters','data-add-chapters')}</div>`:''}${i.kind==='books'&&!s.manage?`<h3>${esc(t('bookmarks'))}</h3><div data-bookmarks></div>`:''}`);
+   const i=s.items.find(i=>i.id===mid);if(!i)return;
+   const editable=i.mine||adm(i),libItem=!!i.source_id,changeable=editable&&!libItem;
+   const box=dialog(i.title,`<div class="ma-detail-top"><div class="ma-detail-cover">${cover(i)}</div><div><p>${esc(i.creator)}</p><p>${esc(i.category)}${i.album?' · '+esc(i.album):''}</p><p>${i.kind==='radio'?esc(t('live')):fmt(i.duration)}</p><span class="ma-scope">${esc(t(i.shared?'shared':i.mine?'mine':'sharedWithMe'))}</span></div></div>${i.description?`<p style="white-space:pre-wrap">${esc(i.description)}</p>`:''}${[i.year,i.narrator,i.language,i.isbn].filter(Boolean).length?`<p class="ma-hint">${[i.year,i.narrator,i.language,i.isbn].filter(Boolean).map(esc).join(' · ')}</p>`:''}${i.metadata_url?`<p class="ma-hint">${esc(t('source'))}: <a href="${esc(i.metadata_url)}" target="_blank" rel="noopener noreferrer">${esc(i.metadata_source)}</a></p>`:''}${`<div class="ma-actions ma-actions-main">${button(i.kind!=='books'?'play':(i.percent>0||i.state.completed?'resume':'startListening'),`data-detail-play="${i.id}"`,'ma-btn primary ma-big')}${s.current?.id===i.id?button('stopPlayback','data-detail-stop','ma-btn ma-big'):''}</div>`}<div class="ma-actions ma-actions-sub">${i.kind!=='radio'?button('playNext','data-queue-next')+button('addToQueue','data-queue-add'):''}${button('addToPlaylist','data-add-to-playlist')}${button('share','data-share-item')}${editable?button('edit','data-edit-item'):''}${editable&&i.kind!=='radio'?button('metadata','data-metadata'):''}${i.kind==='books'?button(i.state.completed?'markUnread':'markRead','data-complete'):''}${changeable?button('delete','data-delete-item','ma-btn danger'):''}</div>${i.kind==='books'?`<div class="ma-progress ma-progress-big" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(i.percent)}"><span style="width:${Math.max(i.percent,i.percent>0?2:0)}%"></span></div><p class="ma-muted">${percent(i.percent)} · ${fmt((i.duration-i.elapsed)/(i.state.speed||1))} ${esc(t('left'))}</p>`:''}${i.tracks.length?`<h3>${esc(t('chapters'))}</h3><div class="ma-list">${i.tracks.map((track,n)=>`<div class="ma-row"><span class="ma-queue-number">${n+1}</span><div class="ma-grow"><strong>${esc(track.title)}</strong><span class="ma-meta">${fmt(track.duration)}</span></div>${icon('▶','play',`data-chapter="${track.id}"`)}${changeable?icon('↑','moveUp',`data-up="${n}" ${n===0?'disabled':''}`)+icon('↓','moveDown',`data-down="${n}" ${n===i.tracks.length-1?'disabled':''}`)+icon('×','delete',`data-remove-track="${track.id}"`):''}</div>`).join('')}</div>`:''}${changeable&&i.kind!=='radio'?`<div class="ma-actions">${button('addChapters','data-add-chapters')}</div>`:''}${i.kind==='books'?`<h3>${esc(t('bookmarks'))}</h3><div data-bookmarks></div>`:''}`);
    box.querySelector('.ma-detail-cover').onclick=null;
    box.querySelector('[data-detail-play]')?.addEventListener('click',()=>run(async()=>{if(s.current?.id===i.id&&s.track&&audio.src){await startPlayback();closeModal();return}await playFromLibrary(i.id);closeModal()}));
    box.querySelector('[data-detail-stop]')?.addEventListener('click',()=>run(async()=>{await clearPlayer();closeModal()}));
    box.querySelector('[data-edit-item]')?.addEventListener('click',()=>editMedia(i));
    box.querySelector('[data-metadata]')?.addEventListener('click',()=>run(()=>metadataDialog(i)));
-   box.querySelector('[data-delete-item]')?.addEventListener('click',()=>confirmDelete(()=>api('/media/'+i.id,'DELETE',undefined,s.manage).then(()=>{closeModal();return refresh()})));
+   box.querySelector('[data-delete-item]')?.addEventListener('click',()=>confirmDelete(()=>api('/media/'+i.id,'DELETE',undefined,adm(i)).then(()=>{closeModal();return refresh()})));
    box.querySelector('[data-complete]')?.addEventListener('click',()=>run(async()=>{await stateChange(i,{completed:!i.state.completed});await refresh();await detail(mid)}));
    box.querySelector('[data-queue-next]')?.addEventListener('click',()=>run(()=>queueAdd(i.id,true)));
    box.querySelector('[data-queue-add]')?.addEventListener('click',()=>run(()=>queueAdd(i.id,false)));
@@ -279,9 +280,9 @@ function scheduleRenewal(tid){
    box.querySelector('[data-share-item]')?.addEventListener('click',()=>run(async()=>{const p=await api('/playlists','POST',{title:i.title,items:[i.id]});await refresh();await sharing(p.id)}));
    box.querySelector('[data-add-chapters]')?.addEventListener('click',()=>uploadDialog(i));
    box.querySelectorAll('[data-chapter]').forEach(b=>b.onclick=()=>run(()=>playChapter(mid,b.dataset.chapter)));
-   const reorder=(n,delta)=>run(async()=>{const ids=i.tracks.map(t=>t.id);[ids[n],ids[n+delta]]=[ids[n+delta],ids[n]];await api('/media/'+mid+'/tracks/order','PUT',{ids},s.manage);await refresh();await detail(mid)});
+   const reorder=(n,delta)=>run(async()=>{const ids=i.tracks.map(t=>t.id);[ids[n],ids[n+delta]]=[ids[n+delta],ids[n]];await api('/media/'+mid+'/tracks/order','PUT',{ids},adm(i));await refresh();await detail(mid)});
    box.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>reorder(Number(b.dataset.up),-1));box.querySelectorAll('[data-down]').forEach(b=>b.onclick=()=>reorder(Number(b.dataset.down),1));
-   box.querySelectorAll('[data-remove-track]').forEach(b=>b.onclick=()=>confirmDelete(async()=>{await api('/media/'+mid+'/tracks/'+b.dataset.removeTrack,'DELETE',undefined,s.manage);await refresh();await detail(mid)}));
+   box.querySelectorAll('[data-remove-track]').forEach(b=>b.onclick=()=>confirmDelete(async()=>{await api('/media/'+mid+'/tracks/'+b.dataset.removeTrack,'DELETE',undefined,adm(i));await refresh();await detail(mid)}));
    if(box.querySelector('[data-bookmarks]')){
      const marks=await api('/media/'+mid+'/bookmarks');if(!box.isConnected)return;
      box.querySelector('[data-bookmarks]').innerHTML=marks.map(b=>`<div class="ma-row"><div class="ma-grow">${esc(b.title)}<div class="ma-meta">${fmt(b.seconds)}</div></div>${icon('▶','play',`data-mark="${b.id}"`)}${icon('×','delete',`data-delete-mark="${b.id}"`)}</div>`).join('')||`<p class="ma-hint">${esc(t('bookmarkHint'))}</p>`;
@@ -293,7 +294,7 @@ function scheduleRenewal(tid){
  function editMedia(item=null,initialKind=null){
    const kind=item?.kind||initialKind||(['music','books','radio'].includes(s.tab)?s.tab:'music');
    const entries=translations(item);
-   const box=dialog(t(item?'edit':'add'),`<form class="ma-form two"><label class="ma-field">${esc(t('type'))}<select name="kind" ${item?'disabled':''}>${['music','books','radio'].map(k=>`<option value="${k}" ${k===kind?'selected':''}>${esc(t(k))}</option>`).join('')}</select></label>${field('url',item?.url||'','url','placeholder="https://…"')}<div class="wide" data-variants></div><div class="ma-actions wide"><select data-new-lang aria-label="${esc(t('language'))}"></select>${button('addLanguage','data-add-language')}</div>${field('year',item?.year||'','text','maxlength="20"')}${field('language',item?.language||'','text','maxlength="40"','audioLanguage')}${field('isbn',item?.isbn||'','text','maxlength="32"')}<p class="ma-hint wide">${esc(t('mediaHint'))}</p><div class="ma-actions wide"><button class="ma-btn primary" type="submit">${esc(t('save'))}</button>${button('cancel','data-cancel')}${item&&kind!=='radio'?button('metadata','data-edit-metadata')+button('addChapters','data-edit-upload')+button('chapters','data-edit-chapters'):''}${item&&kind==='books'&&s.manage?button('statistics','data-edit-statistics'):''}${item?button('delete','data-edit-delete','ma-btn danger'):''}</div><div class="ma-error wide" role="alert"></div></form>`);
+   const box=dialog(t(item?'edit':'add'),`<form class="ma-form two"><label class="ma-field">${esc(t('type'))}<select name="kind" ${item?'disabled':''}>${['music','books','radio'].map(k=>`<option value="${k}" ${k===kind?'selected':''}>${esc(t(k))}</option>`).join('')}</select></label>${field('url',item?.url||'','url','placeholder="https://…"')}<div class="wide" data-variants></div><div class="ma-actions wide"><select data-new-lang aria-label="${esc(t('language'))}"></select>${button('addLanguage','data-add-language')}</div>${field('year',item?.year||'','text','maxlength="20"')}${field('language',item?.language||'','text','maxlength="40"','audioLanguage')}${field('isbn',item?.isbn||'','text','maxlength="32"')}<p class="ma-hint wide">${esc(t('mediaHint'))}</p><div class="ma-actions wide"><button class="ma-btn primary" type="submit">${esc(t('save'))}</button>${button('cancel','data-cancel')}${item&&kind!=='radio'?button('metadata','data-edit-metadata')+(item.source_id?'':button('addChapters','data-edit-upload')+button('chapters','data-edit-chapters')):''}${item&&kind==='books'&&adm(item)?button('statistics','data-edit-statistics'):''}${item&&!item.source_id?button('delete','data-edit-delete','ma-btn danger'):''}</div><div class="ma-error wide" role="alert"></div></form>`);
    const form=box.querySelector('form'),holder=box.querySelector('[data-variants]');
    let syncFields=()=>{};
    const read=()=>Object.fromEntries([...holder.querySelectorAll('[data-variant]')].map(el=>[el.querySelector('[data-variant-lang]').value,Object.fromEntries(localFields.map(k=>[k,el.querySelector(`[name="${k}"]`).value.trim()]))]));
@@ -310,7 +311,7 @@ function scheduleRenewal(tid){
    box.querySelector('[data-cancel]').onclick=closeModal;
    box.querySelector('[data-edit-statistics]')?.addEventListener('click',()=>run(async()=>{await loadStatistics();statsBook(item.id)}));
    box.querySelector('[data-edit-upload]')?.addEventListener('click',()=>uploadDialog(item));
-   box.querySelector('[data-edit-delete]')?.addEventListener('click',()=>confirmDelete(async()=>{await api('/media/'+item.id,'DELETE',undefined,s.manage);closeModal();await refresh()}));
+   box.querySelector('[data-edit-delete]')?.addEventListener('click',()=>confirmDelete(async()=>{await api('/media/'+item.id,'DELETE',undefined,adm(item));closeModal();await refresh()}));
    box.querySelector('[data-edit-metadata]')?.addEventListener('click',()=>run(()=>metadataDialog(item)));
    box.querySelector('[data-edit-chapters]')?.addEventListener('click',()=>run(()=>detail(item.id)));
    const url=form.elements.url.closest('label');
@@ -325,10 +326,10 @@ function scheduleRenewal(tid){
        label.firstChild.nodeValue=t(mediaLabel(selected,key));
      }
    };syncFields=change;change();form.elements.kind.onchange=change;
-   form.onsubmit=async e=>{e.preventDefault();const save=form.querySelector('[type=submit]');save.disabled=true;try{const names=read(),body=Object.fromEntries(new FormData(form));Object.assign(body,Object.values(names)[0]);body.translations=names;body.kind=form.elements.kind.value;const d=await api('/media'+(item?'/'+item.id:''),item?'PUT':'POST',body,s.manage);await refresh();if(item&&s.tab==='statistics')await loadStatistics();if(!item&&body.kind!=='radio')uploadDialog((s.manage?s.admin.items:s.items).find(i=>i.id===d.id));else closeModal()}catch(e){box.querySelector('.ma-error').textContent=e.message}finally{save.disabled=false}};
+   form.onsubmit=async e=>{e.preventDefault();const save=form.querySelector('[type=submit]');save.disabled=true;try{const names=read(),body=Object.fromEntries(new FormData(form));Object.assign(body,Object.values(names)[0]);body.translations=names;body.kind=form.elements.kind.value;const d=await api('/media'+(item?'/'+item.id:''),item?'PUT':'POST',body,item?adm(item):!!s.admin);await refresh();if(item&&s.tab==='statistics')await loadStatistics();if(!item&&body.kind!=='radio')uploadDialog(s.items.find(i=>i.id===d.id));else closeModal()}catch(e){box.querySelector('.ma-error').textContent=e.message}finally{save.disabled=false}};
  }
  async function metadataDialog(item,initialResults=null){
-   const admin=s.manage,entries=translations(item),codes=Object.keys(entries);
+   const admin=adm(item),entries=translations(item),codes=Object.keys(entries);
    if(!Object.keys(item.translations||{}).length){await api('/media/'+item.id,'PUT',{...item,translations:entries},admin);item.translations=entries;await refresh();}
    let lookupLang=codes.includes(lang)?lang:codes.includes('en')?'en':codes[0];
    const entry=()=>entries[lookupLang];
@@ -419,12 +420,52 @@ const AUDIO_TYPES=['.mp3','.m4a','.m4b','.aac','.ogg','.opus','.flac','.wav','.w
    return {title:title.slice(0,200),creator:creator.slice(0,200)};
  }
  function renderImports(){
-   const source=s.manage?s.admin.items:s.items,byId=new Map(),failures=s.importBatch.filter(r=>!r.saved);
+   const source=s.items,byId=new Map(),failures=s.importBatch.filter(r=>!r.saved);
    for(const row of s.importBatch.filter(r=>r.saved)){if(!byId.has(row.id))byId.set(row.id,{...row,files:0});byId.get(row.id).files++;}
-   main.innerHTML=`<div class="ma-heading"><div><div class="ma-eyebrow">${esc(t('library'))}</div><h1>${esc(t('importReview'))}</h1></div>${s.manage||s.limit>0?button('importMore','data-add','ma-btn primary'):''}</div><p class="ma-muted">${s.importBatch.filter(r=>r.saved).length} / ${s.importBatch.length} · ${esc(t('filesSaved'))}</p><p class="ma-hint">${esc(t('importReviewHint'))}</p>${s.importError?`<p class="ma-error">${esc(s.importError)}</p>${button('refreshStats','data-import-refresh')}`:''}<div class="ma-import-results">${[...byId.values()].map(row=>{const item=source.find(i=>i.id===row.id);if(!item)return '';const needs=!item.creator||!item.has_cover;return `<article class="ma-import-result"><div class="ma-import-art">${cover(item,`data-import-edit="${item.id}"`)}</div><div class="ma-grow"><strong>${esc(item.title)}</strong><div class="ma-meta">${esc(item.creator)}</div><p class="ma-hint ma-import-filename">${esc(row.filename)}</p><p class="ma-hint">${row.files} · ${esc(t('files'))} · ${esc(storage(item.bytes))}</p><span class="ma-stat-badge ${needs?'':'done'}">${esc(t(row.candidates?.results.length?'importMatches':needs?'importNeedsDetails':'importTagged'))}</span>${row.lookupFailed?`<p class="ma-hint">${esc(t('metadataUnavailable'))}</p>`:''}<div class="ma-actions">${button('edit',`data-import-edit="${item.id}"`)}${button(row.candidates?.results.length?'importMatches':'metadata',`data-import-metadata="${item.id}"`)}</div></div></article>`}).join('')}${failures.map(row=>`<article class="ma-import-result"><div class="ma-grow"><strong>${esc(row.filename)}</strong><p class="ma-error">${esc(row.error||t('cancelled'))}</p></div></article>`).join('')}</div>`;
+   main.innerHTML=`<div class="ma-heading"><div><div class="ma-eyebrow">${esc(t('library'))}</div><h1>${esc(t('importReview'))}</h1></div>${s.limit>0?button('importMore','data-add','ma-btn primary'):''}</div><p class="ma-muted">${s.importBatch.filter(r=>r.saved).length} / ${s.importBatch.length} · ${esc(t('filesSaved'))}</p><p class="ma-hint">${esc(t('importReviewHint'))}</p>${s.importError?`<p class="ma-error">${esc(s.importError)}</p>${button('refreshStats','data-import-refresh')}`:''}<div class="ma-import-results">${[...byId.values()].map(row=>{const item=source.find(i=>i.id===row.id);if(!item)return '';const needs=!item.creator||!item.has_cover;return `<article class="ma-import-result"><div class="ma-import-art">${cover(item,`data-import-edit="${item.id}"`)}</div><div class="ma-grow"><strong>${esc(item.title)}</strong><div class="ma-meta">${esc(item.creator)}</div><p class="ma-hint ma-import-filename">${esc(row.filename)}</p><p class="ma-hint">${row.files} · ${esc(t('files'))} · ${esc(storage(item.bytes))}</p><span class="ma-stat-badge ${needs?'':'done'}">${esc(t(row.candidates?.results.length?'importMatches':needs?'importNeedsDetails':'importTagged'))}</span>${row.lookupFailed?`<p class="ma-hint">${esc(t('metadataUnavailable'))}</p>`:''}<div class="ma-actions">${button('edit',`data-import-edit="${item.id}"`)}${button(row.candidates?.results.length?'importMatches':'metadata',`data-import-metadata="${item.id}"`)}</div></div></article>`}).join('')}${failures.map(row=>`<article class="ma-import-result"><div class="ma-grow"><strong>${esc(row.filename)}</strong><p class="ma-error">${esc(row.error||t('cancelled'))}</p></div></article>`).join('')}</div>`;
+ }
+
+ // The administrator's library: folders from this server or from another mvmOS, read where they are.
+ async function addToSource(x,mode){
+   const picker=window.mvmOS?.filePicker,uploader=window.mvmOS?.uploader;if(!picker||!uploader)throw Error(t('failed'));
+   const r=await picker.open({mode,sources:['device'],accept:AUDIO_TYPES,maxFiles:2000});
+   if(!r?.files?.length)return;
+   const destination=x.kind==='shared'?{type:'shared',folderId:x.folder_id,path:x.path,name:x.name}:{type:'server',path:x.path};
+   uploader.upload({files:r.files,destination,onDone(){run(async()=>{await api('/sources/'+x.id+'/scan','POST',{},true);await refresh()})},onError(){toast(t('failed'))}});
+   toast(t('libUploadStarted'));
+ }
+ async function sourcesDialog(){
+   const dp=window.mvmOS?.dateTimePicker;if(dp)await dp.ready();
+   const fill=(text,n)=>Object.entries(n).reduce((a,[k,v])=>a.replace('{'+k+'}',v),text);
+   const when=ts=>!ts?t('libNever'):dp?dp.format(dp.fromEpoch(ts)):new Date(ts*1000).toLocaleString(lang);
+   let timer=0,box=null,st={sources:[]},kind='music';
+   const row=x=>`<div class="ma-folder" data-source="${x.id}"><div><strong>${esc(x.name)}</strong> <span class="ma-scope">${esc(t(x.media_kind))}</span><p class="ma-hint ma-folder-path">${x.kind==='shared'?esc(t('libShared'))+' · ':''}${esc(x.path||'/')}</p><p class="${x.state==='failed'?'ma-error':'ma-muted'}">${esc(x.state==='running'?t('libScanning'):x.state==='failed'?(window.MA_I18N.en[x.error]?t(x.error):t('sourceUnreadable')):fill(t('libSummary'),{n:x.titles,time:when(x.last_scan)}))}${x.missing?' · '+esc(fill(t('libMissing'),{n:x.missing})):''}</p></div><label class="ma-field">${esc(t('libAutoScan'))}<select data-auto>${[0,15,60,360,1440].map(n=>`<option value="${n}" ${n===x.auto?'selected':''}>${esc(t('libAuto'+n))}</option>`).join('')}</select></label><div class="ma-actions">${button('libUploadFiles','data-add-files')}${button('libUploadFolder','data-add-dir')}${button('libScanNow','data-scan')}${button('libRemove','data-remove','ma-btn danger')}</div></div>`;
+   async function load(){st=await api('/sources','GET',undefined,true);if(!box?.isConnected)return;
+     box.querySelector('[data-list]').innerHTML=st.sources.length?st.sources.map(row).join(''):`<p class="ma-muted">${esc(t('libNone'))}</p>`;
+     clearTimeout(timer);timer=setTimeout(()=>{if(box?.isConnected&&!s.dead)load().catch(()=>{})},st.sources.some(x=>x.state==='running')?2000:15000);
+   }
+   box=dialog(t('libTitle'),`<p class="ma-hint">${esc(t('libHint'))}</p><div class="ma-folder-list" data-list></div><div class="ma-actions"><label class="ma-field">${esc(t('libContains'))}<select data-kind>${['music','books'].map(k=>`<option value="${k}">${esc(t(k))}</option>`).join('')}</select></label>${button('libAddFolder','data-add-folder','ma-btn primary')}</div><p class="ma-error" role="alert"></p>`);
+   const err=box.querySelector('.ma-error');
+   box.querySelector('[data-kind]').onchange=e=>{kind=e.target.value};
+   box.querySelector('[data-add-folder]').onclick=()=>run(async()=>{
+     const picker=window.mvmOS?.filePicker;if(!picker)throw Error(t('failed'));
+     const r=await picker.open({mode:'directory',sources:['server','shared'],server:{roots:['/'],start:'~'},shared:{permission:'read'},labels:{title_directory:t('libPickTitle'),where_directory:t('libPickWhere'),use_here:t('libPickUse'),use_folder:t('libPickUse')}});
+     if(!r?.folder)return;err.textContent='';
+     const shared=r.folder.shared,body=shared?{kind:'shared',media_kind:kind,folder_id:shared.folderId,path:shared.path||'',name:r.folder.name||shared.folderName,auto:0}:{media_kind:kind,path:r.folder.path,name:r.folder.name,auto:0};
+     if(!shared&&!r.folder.path)return;
+     try{await api('/sources','POST',body,true);await load()}catch(e){err.textContent=e.message}
+   });
+   box.addEventListener('change',e=>{const el=e.target.closest('[data-source]');if(!el||!e.target.matches('[data-auto]'))return;const x=st.sources.find(v=>v.id===el.dataset.source);run(async()=>{await api('/sources/'+x.id,'PUT',{name:x.name,auto:Number(e.target.value)},true);await load()})});
+   box.addEventListener('click',e=>{const el=e.target.closest('[data-source]'),b=e.target.closest('button');if(!el||!b)return;const x=st.sources.find(v=>v.id===el.dataset.source);
+     if(b.hasAttribute('data-scan'))run(async()=>{err.textContent='';await api('/sources/'+x.id+'/scan','POST',{},true);await load()});
+     else if(b.hasAttribute('data-add-files')||b.hasAttribute('data-add-dir'))run(()=>addToSource(x,b.hasAttribute('data-add-dir')?'folder':'files'));
+     else if(b.hasAttribute('data-remove')&&confirm(fill(t('libRemoveConfirm'),{name:x.name})))run(async()=>{await api('/sources/'+x.id,'DELETE',undefined,true);await refresh();await load()});
+   });
+   box.querySelector('[data-close]')?.addEventListener('click',()=>{clearTimeout(timer);refresh().catch(()=>{})});
+   await load();
  }
  function importDialog(){
-   const admin=s.manage,kind=['books','music'].includes(s.tab)?s.tab:s.tab==='imports'?s.importKind:'music';
+   const admin=false,kind=['books','music'].includes(s.tab)?s.tab:s.tab==='imports'?s.importKind:'music';
    const box=dialog(t('upload'),`<p class="ma-hint">${esc(t('importHint'))}</p><div class="ma-form two"><label class="ma-field">${esc(t('type'))}<select data-import-kind>${['music','books'].map(k=>`<option value="${k}" ${k===kind?'selected':''}>${esc(t(k))}</option>`).join('')}</select></label><label class="ma-field">${esc(t('language'))}<select data-import-lang>${languages().map(l=>`<option value="${l}" ${l===lang?'selected':''}>${esc(languageName(l))}</option>`).join('')}</select></label><label class="ma-field wide" data-import-group-label>${esc(t('importGrouping'))}<select data-import-group><option value="files">${esc(t('importSeparateBooks'))}</option><option value="chapters">${esc(t('importBookChapters'))}</option></select></label></div>${pickButtons()}<p class="ma-hint" data-import-count></p>${admin?`<p class="ma-hint">${esc(t('sharedHint'))}</p>`:''}<label class="ma-import-online"><input type="checkbox" data-import-online checked> ${esc(t('importOnline'))}</label><p class="ma-hint">${esc(t('importOnlineHint'))}</p>${!admin?`<p class="ma-hint">${mb(s.used)} / ${s.limit} MB</p>`:''}<div class="ma-actions">${button('upload','data-import-upload','ma-btn primary')}${button('manualEntry','data-manual-entry')}${button('cancel','data-cancel')}</div><p class="ma-hint" data-import-status></p><progress class="ma-upload-progress" max="100" value="0" hidden></progress><div class="ma-error" role="alert"></div>`);
    let picked=[];const kindSelect=box.querySelector('[data-import-kind]'),progress=box.querySelector('progress'),status=box.querySelector('[data-import-status]');
    kindSelect.onchange=()=>{box.querySelector('[data-import-group-label]').hidden=kindSelect.value!=='books';};kindSelect.onchange();
@@ -476,7 +517,7 @@ const AUDIO_TYPES=['.mp3','.m4a','.m4b','.aac','.ogg','.opus','.flac','.wav','.w
    };
  }
  function uploadDialog(item){
-   const isAdmin=s.manage;
+   const isAdmin=adm(item);
    const box=dialog(t('upload'),`<p>${esc(item.title)}</p><p class="ma-hint">${esc(t('uploadHint'))}</p>${!isAdmin?`<p class="ma-hint">${mb(s.used)} / ${s.limit} MB</p>`:''}${item.kind==='music'&&!item.tracks.length?`<label class="ma-field"><input type="checkbox" data-separate checked> ${esc(t('separateSongs'))}</label>`:''}${pickButtons()}<p class="ma-hint" data-pick-count></p>${isAdmin?`<p class="ma-hint">${esc(t('sharedHint'))}</p>`:''}<div class="ma-actions">${button('upload','data-upload','ma-btn primary')}${button('cancel','data-cancel')}</div><p class="ma-hint" data-upload-status></p><progress class="ma-upload-progress" value="0" max="100" hidden></progress><div class="ma-error" role="alert"></div>`);
    let abort=false,session=null,finishing=false,picked=[];
    const progress=box.querySelector('progress'),status=box.querySelector('[data-upload-status]');
@@ -508,27 +549,27 @@ const AUDIO_TYPES=['.mp3','.m4a','.m4b','.aac','.ogg','.opus','.flac','.wav','.w
      }
    };
  }
- function lists(){return s.manage?s.admin.playlists:s.playlists}
+ function lists(){return s.playlists}
  async function playlistView(pid){
-   const p=lists().find(p=>p.id===pid);if(!p)return;const editable=s.manage||p.mine;
-   const source=s.manage?s.admin.items:s.items;
-   const box=dialog(p.title,`<div class="ma-actions ma-actions-main">${button('play','data-list-play','ma-btn primary ma-big')}${button('shuffle','data-list-shuffle','ma-btn ma-big')}</div><div class="ma-actions ma-actions-sub">${editable?button('edit','data-list-edit'):''}${!s.manage&&p.mine?button('share','data-list-share'):''}${editable?button('delete','data-list-delete','ma-btn danger'):''}</div><div class="ma-list" style="margin-top:20px">${p.items.map(id=>source.find(i=>i.id===id)).filter(Boolean).map((i,n)=>`<div class="ma-row"><span class="ma-queue-number">${n+1}</span><div class="ma-grow"><strong>${esc(i.title)}</strong><span class="ma-meta">${esc(i.creator||t(i.kind))}</span></div>${icon('▶','play',`data-list-item="${i.id}"`)}${icon('＋','addToQueue',`data-list-queue="${i.id}"`)}</div>`).join('')}</div>`);
+   const p=lists().find(p=>p.id===pid);if(!p)return;const editable=p.mine||adm(p);
+   const source=s.items;
+   const box=dialog(p.title,`<div class="ma-actions ma-actions-main">${button('play','data-list-play','ma-btn primary ma-big')}${button('shuffle','data-list-shuffle','ma-btn ma-big')}</div><div class="ma-actions ma-actions-sub">${editable?button('edit','data-list-edit'):''}${p.mine?button('share','data-list-share'):''}${editable?button('delete','data-list-delete','ma-btn danger'):''}</div><div class="ma-list" style="margin-top:20px">${p.items.map(id=>source.find(i=>i.id===id)).filter(Boolean).map((i,n)=>`<div class="ma-row"><span class="ma-queue-number">${n+1}</span><div class="ma-grow"><strong>${esc(i.title)}</strong><span class="ma-meta">${esc(i.creator||t(i.kind))}</span></div>${icon('▶','play',`data-list-item="${i.id}"`)}${icon('＋','addToQueue',`data-list-queue="${i.id}"`)}</div>`).join('')}</div>`);
    box.querySelector('[data-list-play]').onclick=()=>run(async()=>{await playList(p.items);closeModal()});
    box.querySelector('[data-list-shuffle]').onclick=()=>run(async()=>{const ok=p.items.filter(id=>s.items.some(x=>x.id===id));if(!ok.length)throw Error(t('emptyPlaylist'));s.shuffle=true;s.queueBase=null;await playList(ok,ok[Math.floor(Math.random()*ok.length)]);closeModal()});
    box.querySelectorAll('[data-list-queue]').forEach(b=>b.onclick=()=>run(()=>queueAdd(b.dataset.listQueue,false)));
    box.querySelector('[data-list-edit]')?.addEventListener('click',()=>playlistEditor(p));
    box.querySelector('[data-list-share]')?.addEventListener('click',()=>run(()=>sharing(pid)));
-   box.querySelector('[data-list-delete]')?.addEventListener('click',()=>confirmDelete(async()=>{await api('/playlists/'+pid,'DELETE',undefined,s.manage);closeModal();await refresh()}));
+   box.querySelector('[data-list-delete]')?.addEventListener('click',()=>confirmDelete(async()=>{await api('/playlists/'+pid,'DELETE',undefined,adm(p));closeModal();await refresh()}));
    box.querySelectorAll('[data-list-item]').forEach(b=>b.onclick=()=>run(()=>playList(p.items,b.dataset.listItem)));
  }
  function playlistEditor(p=null,initial=[]){
-   const selected=[...(p?.items||initial)];const available=(s.manage?s.admin.items:s.items).filter(i=>i.shared||i.mine);
+   const selected=[...(p?.items||initial)];const available=s.items.filter(i=>i.shared||i.mine);
    const box=dialog(t(p?'edit':'newPlaylist'),`<form class="ma-form">${field('title',p?.title||'','text','required maxlength="200"')}<div data-order></div><input class="ma-search" data-picker-search placeholder="${esc(t('search'))}" aria-label="${esc(t('search'))}"><div class="ma-checklist">${available.map(i=>`<label data-picker-label="${esc((i.title+' '+i.creator).toLocaleLowerCase())}"><input type="checkbox" value="${i.id}" ${selected.includes(i.id)?'checked':''}><span>${esc(i.title)}<span class="ma-meta"> · ${esc(t(i.kind))}</span></span></label>`).join('')}</div><div class="ma-actions"><button class="ma-btn primary" type="submit">${esc(t('save'))}</button>${button('cancel','data-cancel')}</div><div class="ma-error" role="alert"></div></form>`);
    function drawOrder(){box.querySelector('[data-order]').innerHTML=selected.map((id,n)=>`<div class="ma-row"><span class="ma-grow">${esc(available.find(i=>i.id===id)?.title||id)}</span>${icon('↑','moveUp',`data-move="${n}" ${n===0?'disabled':''}`)}${icon('↓','moveDown',`data-move-down="${n}" ${n===selected.length-1?'disabled':''}`)}</div>`).join('');box.querySelectorAll('[data-move],[data-move-down]').forEach(b=>b.onclick=()=>{const n=Number(b.dataset.move??b.dataset.moveDown),next=n+(b.hasAttribute('data-move')?-1:1);[selected[n],selected[next]]=[selected[next],selected[n]];drawOrder()})}
    drawOrder();box.querySelector('[data-picker-search]').oninput=e=>box.querySelectorAll('[data-picker-label]').forEach(l=>l.hidden=!l.dataset.pickerLabel.includes(e.target.value.toLocaleLowerCase()));
    box.querySelectorAll('[type=checkbox]').forEach(c=>c.onchange=()=>{if(c.checked)selected.push(c.value);else selected.splice(selected.indexOf(c.value),1);drawOrder()});
    box.querySelector('[data-cancel]').onclick=closeModal;
-   box.querySelector('form').onsubmit=async e=>{e.preventDefault();const b=box.querySelector('[type=submit]');b.disabled=true;try{const r=await api('/playlists'+(p?'/'+p.id:''),p?'PUT':'POST',{title:box.querySelector('[name=title]').value,items:selected},s.manage);await refresh();await playlistView(r.id)}catch(e){box.querySelector('.ma-error').textContent=e.message;b.disabled=false}};
+   box.querySelector('form').onsubmit=async e=>{e.preventDefault();const b=box.querySelector('[type=submit]');b.disabled=true;try{const r=await api('/playlists'+(p?'/'+p.id:''),p?'PUT':'POST',{title:box.querySelector('[name=title]').value,items:selected},p?adm(p):!!s.admin);await refresh();await playlistView(r.id)}catch(e){box.querySelector('.ma-error').textContent=e.message;b.disabled=false}};
  }
  function addToPlaylist(i){
    const own=s.playlists.filter(p=>p.mine);const box=dialog(t('addToPlaylist'),`<div class="ma-list">${own.map(p=>`<div class="ma-row"><span class="ma-grow">${esc(p.title)}</span>${button('add',`data-choose-list="${p.id}"`)}</div>`).join('')}</div><div class="ma-actions">${button('newPlaylist','data-create')}</div>`);
@@ -575,7 +616,7 @@ const AUDIO_TYPES=['.mp3','.m4a','.m4b','.aac','.ogg','.opus','.flac','.wav','.w
  const statPerson=id=>s.stats.people.find(p=>p.id===id);
  const statItem=id=>localized(s.stats.items.find(i=>i.id===id));
  async function loadStatistics(){
-   if(!s.manage||!s.admin)return;
+   if(!s.admin)return;
    await persist();const data=await api('/statistics','GET',undefined,true);if(s.dead)return;
    s.stats=data;s.tab='statistics';render();
  }
@@ -637,17 +678,17 @@ const AUDIO_TYPES=['.mp3','.m4a','.m4b','.aac','.ogg','.opus','.flac','.wav','.w
    else if(b.dataset.statsPerson){s.statsUser=b.dataset.statsPerson;s.statsView='activity';s.q='';root.querySelector('.ma-search').value='';render()}
    else if(b.dataset.tab){s.tab=b.dataset.tab;s.category='';s.status='all';render()}
    else if(b.dataset.go){s.tab=b.dataset.go;render()}
-   else if(b.hasAttribute('data-manage')){s.manage=!s.manage;s.tab='music';s.category='';s.scope='all';s.status='all';render()}
+   else if(b.hasAttribute('data-sources'))run(sourcesDialog);
    else if(b.hasAttribute('data-settings'))settingsDialog();
-   else if(b.hasAttribute('data-add')){if(s.tab==='radio')editMedia();else importDialog();}
+   else if(b.hasAttribute('data-add')){if(s.admin||s.tab==='radio')editMedia(null,'radio');else importDialog();}
    else if(b.hasAttribute('data-import-refresh'))run(async()=>{await refresh();s.importError='';render()});
-   else if(b.dataset.importEdit){const item=(s.manage?s.admin.items:s.items).find(i=>i.id===b.dataset.importEdit);if(item)editMedia(item);}
-   else if(b.dataset.importMetadata){const item=(s.manage?s.admin.items:s.items).find(i=>i.id===b.dataset.importMetadata);const row=s.importBatch.find(r=>r.id===b.dataset.importMetadata&&r.candidates);if(item)run(()=>metadataDialog(item,row?.candidates));}
+   else if(b.dataset.importEdit){const item=s.items.find(i=>i.id===b.dataset.importEdit);if(item)editMedia(item);}
+   else if(b.dataset.importMetadata){const item=s.items.find(i=>i.id===b.dataset.importMetadata);const row=s.importBatch.find(r=>r.id===b.dataset.importMetadata&&r.candidates);if(item)run(()=>metadataDialog(item,row?.candidates));}
    else if(b.hasAttribute('data-category')){s.category=b.dataset.category;render()}
    else if(b.hasAttribute('data-scope')){s.scope=b.dataset.scope;render()}
    else if(b.dataset.quick)run(async()=>{const id=b.dataset.quick;if(s.current?.id===id&&audio.getAttribute('src')){if(audio.paused)await startPlayback();else audio.pause();return}await playFromLibrary(id)});
    else if(b.dataset.play)run(()=>playFromLibrary(b.dataset.play));
-   else if(b.dataset.detail)run(()=>{const item=(s.manage?s.admin.items:s.items).find(i=>i.id===b.dataset.detail);return s.manage?editMedia(item):detail(b.dataset.detail)});
+   else if(b.dataset.detail)run(()=>{const item=s.items.find(i=>i.id===b.dataset.detail);return detail(b.dataset.detail)});
    else if(b.dataset.favorite)run(async()=>{const i=s.items.find(i=>i.id===b.dataset.favorite);if(i){await stateChange(i,{favorite:!i.state.favorite});render()}});
    else if(b.hasAttribute('data-toggle'))run(async()=>{if(!s.current)return;if(audio.paused)await startPlayback();else audio.pause()});
    else if(b.hasAttribute('data-previous'))run(()=>next(-1));
@@ -666,8 +707,19 @@ const AUDIO_TYPES=['.mp3','.m4a','.m4b','.aac','.ogg','.opus','.flac','.wav','.w
  root.querySelector('.ma-search').oninput=e=>{s.q=e.target.value;render()};
  root.addEventListener('change',e=>{const el=e.target;if(el.hasAttribute('data-sort')){s.sort=el.value;render()}if(el.hasAttribute('data-status')){s.status=el.value;render()}if(el.hasAttribute('data-speed'))audio.playbackRate=Number(el.value);if(el.hasAttribute('data-seek')){audio.currentTime=Number(el.value);tick()}if(el.hasAttribute('data-volume'))audio.volume=Number(el.value)});
  const clock=setInterval(()=>{if(s.sleep)tick()},1000);
- paintPlayer();main.innerHTML=`<div class="ma-empty" role="status">${esc(t('loading'))}</div>`;run(refresh);
- return {destroy(){if(s.dead)return;flush();s.dead=true;s.loadId++;activeRequest?.abort();audio.pause();audio.removeAttribute('src');audio.load();clearInterval(clock);clearTimeout(renewTimer);clearTimeout(toastTimer);artObserver.disconnect();for(const record of coverCache.values())if(record.url?.startsWith('blob:'))URL.revokeObjectURL(record.url);coverCache.clear();document.removeEventListener('visibilitychange',visibility);window.removeEventListener('pagehide',flush);closeModal();if('mediaSession'in navigator){navigator.mediaSession.metadata=null;for(const k of ['play','pause','previoustrack','nexttrack','seekbackward','seekforward','seekto','stop'])try{navigator.mediaSession.setActionHandler(k,null)}catch{}}root.remove();host.classList.remove('ma-host');}};
+ paintPlayer();main.innerHTML=`<div class="ma-empty" role="status">${esc(t('loading'))}</div>`;
+ const firstLoad=run(refresh);
+ // A file opened from the file manager ("Open with"): it plays in this same player without joining the library.
+ async function playFile(path){
+   await firstLoad;if(s.dead)return;
+   const name=path.split('/').pop(),title=name.replace(/\.[^.]+$/,'')||name,id='file:'+path;
+   s.items=s.items.filter(i=>!i.temp);
+   s.fileItem={id,temp:true,kind:'music',title,creator:'',category:'',album:'',description:'',narrator:'',created:Date.now()/1000,has_cover:false,shared:false,mine:true,duration:0,elapsed:0,percent:0,state:{},translations:{},
+     tracks:[{id,title,duration:0,position:0,bytes:0,remote:false,direct:'/api/apps/mvmaudio/file?path='+encodeURIComponent(path)}]};
+   s.items.push(s.fileItem);
+   await play(id,null,0,[id]);
+ }
+ return {playFile,destroy(){if(s.dead)return;flush();s.dead=true;s.loadId++;activeRequest?.abort();audio.pause();audio.removeAttribute('src');audio.load();clearInterval(clock);clearTimeout(renewTimer);clearTimeout(toastTimer);artObserver.disconnect();for(const record of coverCache.values())if(record.url?.startsWith('blob:'))URL.revokeObjectURL(record.url);coverCache.clear();document.removeEventListener('visibilitychange',visibility);window.removeEventListener('pagehide',flush);closeModal();if('mediaSession'in navigator){navigator.mediaSession.metadata=null;for(const k of ['play','pause','previoustrack','nexttrack','seekbackward','seekforward','seekto','stop'])try{navigator.mediaSession.setActionHandler(k,null)}catch{}}root.remove();host.classList.remove('ma-host');}};
 }
 window.MvmAudio={mount};
 })();

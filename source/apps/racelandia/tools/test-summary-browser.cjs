@@ -5,7 +5,7 @@ const src=fs.readFileSync(base+'mp.js','utf8');
 const funcs=src.slice(src.indexOf('  function onSummary('),src.indexOf('  async function load2('))+src.slice(src.indexOf('  function comments('),src.indexOf('  // ── the room is over'));
 (async()=>{const browser=await chromium.launch({args:['--no-sandbox']});try{for(const width of [1360,390]){const page=await browser.newPage({viewport:{width,height:844}}),errors=[];page.on('pageerror',e=>errors.push(e.message));await page.setContent('<style>body{--fg:#111;--fg2:#333;--border:#ddd;font:14px Arial}#ap-track{position:relative;height:800px}</style><div id="ap-track"><div class="ap-view"></div></div>');await page.addStyleTag({content:fs.readFileSync(base+'style.css','utf8')});
 await page.evaluate(async cfg=>{
-const {render}=await import(cfg.ui),$=s=>document.querySelector(s),esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;'),_t=k=>k,lapStr=n=>n==null?'–':n.toFixed(3),secStr=lapStr,money=n=>'$'+n;
+const {render}=await import(cfg.ui),$=s=>document.querySelector(s),esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;'),_t=k=>k,lapStr=n=>n==null?'–':n.toFixed(3),secStr=lapStr,personName=p=>p?.name||'',money=n=>'$'+n;
 let summary,busy,lastGains,histTrack,divisionPlayback=null,run,carIdx=1,sec={shown:0};const setups={},curTrack='baku',G={driver:{name:'Alex'},career:{}},pb={msg:{},t:900};
 const noop=()=>{},paintStatus=noop,tinfo=()=>({}),load2=noop,radioClear=noop,markSpeed=noop,sndStart=noop;window.actions=[];const go=s=>window.actions.push(s),switchCar=i=>{carIdx=i;window.actions.push(i)};
 const mods={TIMING:{finalSectorColours:()=>({})},DIVISION:{classificationHtml:()=>''}},track={N:4};

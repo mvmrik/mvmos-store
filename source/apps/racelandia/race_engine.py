@@ -259,7 +259,7 @@ def config(cars,meta,directory):
         pit_times=crew.stop_table(crew_levels,f"stops:{meta['seed']}:{ident}")
         team=row.get('team') or ident if not mine else 'mine'
         if team not in teams:teams.append(team)
-        entries.append(dict(team=team,box_off=(min(9,teams.index(team))-5)*BOX_SPACING,livery=row.get('livery',{}) if mine else {},mine=mine,car_level=car_level,character=dict(character),racecraft=(skills['cornering']+skills['reflexes']+skills['composure'])/300,id=ident,name=name,col=col,grid=grid.get(ident,total-1),target=round(target*meta.get('pace',1),6),
+        entries.append(dict(name_identity=d.get('name_identity') if mine else row.get('name_identity'),team=team,box_off=(min(9,teams.index(team))-5)*BOX_SPACING,livery=row.get('livery',{}) if mine else {},mine=mine,car_level=car_level,character=dict(character),racecraft=(skills['cornering']+skills['reflexes']+skills['composure'])/300,id=ident,name=name,col=col,grid=grid.get(ident,total-1),target=round(target*meta.get('pace',1),6),
                             care=skills['tyreCare']/100,reaction=driver_rules.start_delay(row['view']['skills']['reaction'] if mine else row['skills']['reaction'],energy),
                             driver_skills={k:v/100 for k,v in skills.items()},
                             compound=start,pit_tyre=pit_tyre,pit_plan=plan,wear0=sets.get((row.get('tyre_set') or {}).get('id'),0) if mine else 0,fuel=fuel_load if long_race else (setup['fuel'] if mine else 30),
@@ -553,7 +553,7 @@ class Race:
     def result(self):
         classification=[]
         for i,c in enumerate(self.order()):
-            classification.append(dict(id=c['e']['id'],name=c['e']['name'],position=i+1,time=round(c['finish']+c['penalty'],3) if c['finish'] is not None else None,
+            classification.append(dict(name_identity=c['e'].get('name_identity'),id=c['e']['id'],name=c['e']['name'],position=i+1,time=round(c['finish']+c['penalty'],3) if c['finish'] is not None else None,
                                        laps=c['laps'],dnf=c['dnf'] or ('recovery' if c['finish'] is None else None),stops=c['stops'],pen_due=c['pen_due'],penalty=c['penalty']))
         return dict(classification=classification,laps=self.laps_by.get('player',[]),laps_by=self.laps_by,duration=round(self.t-self.cfg['lights'],3),safety_cars=self.safety_cars,red_flags=self.red_flags,events=self.events,contact_damage=self.contact_damage,
                     wing_replacements={i:c['wing_stops'] for i,c in self.by_id.items() if c['e'].get('mine')},

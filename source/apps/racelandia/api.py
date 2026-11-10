@@ -48,6 +48,7 @@ def garage(user) -> dict:
     for t in data.circuit_menu(d):
         tracks.append({**t, "rent_practice": t["practice_cost"], "setup": data.track_setup(d, t["id"]), "bests": data.best_laps(user["id"], t["id"], prof)})
     return {
+        "name_display_rules": data.name_source.display_rules(),
         "driver": data.public_driver(d),
         "team": data.public_team(d),
         "crew": data.public_crew(d),

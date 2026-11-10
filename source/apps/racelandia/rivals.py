@@ -25,14 +25,6 @@ CEILING = 97.0
 CAR_RANGE = 45          # how far above its division's floor a rival's car can be developed
 MAX_CATCH_UP_DAYS = 730
 
-FIRST = ['Alex', 'Jamie', 'Robin', 'Sam', 'Casey', 'Jordan', 'Riley', 'Charlie', 'Taylor', 'Drew', 'Avery', 'Logan', 'Morgan', 'Cameron', 'Blake',
-         'Quinn', 'Skyler', 'Hayden', 'Reese', 'Marco', 'Elena', 'Tomas', 'Lena', 'Viktor', 'Sofia', 'Ivo', 'Nadia', 'Rafa', 'Mila', 'Jonas',
-         'Anya', 'Dario', 'Petra', 'Luka', 'Irene', 'Hugo', 'Zoe', 'Felix', 'Nora', 'Axel']
-LAST = ['Stone', 'Bennett', 'Hayes', 'Reid', 'Adams', 'Parker', 'Ellis', 'Brooks', 'Scott', 'Hart', 'Lane', 'West', 'Fox', 'Cole', 'Reed', 'Hill',
-        'Wells', 'Novak', 'Rossi', 'Keller', 'Moreau', 'Silva', 'Costa', 'Lind', 'Sato', 'Weber', 'Duval', 'Ortiz', 'Berg', 'Vogel', 'Marin',
-        'Petrov', 'Kovac', 'Larsen', 'Fischer', 'Romano', 'Dubois', 'Mendes', 'Aalto', 'Holm']
-BRANDS = ['Falcon', 'Summit', 'Aurora', 'Vector', 'Nova', 'Atlas', 'Orion', 'Cobalt', 'Vertex', 'Apex', 'Zenith', 'Meridian', 'Helix', 'Titan',
-          'Ember', 'Quasar', 'Bolt', 'Sterling', 'Onyx', 'Pioneer', 'Radian', 'Corsair', 'Mirage', 'Torque', 'Pulse']
 
 D = None
 
@@ -58,16 +50,17 @@ def _crew(rnd, base):
     from_crew = D['crew']
     crew = {}
     for p in from_crew.ORDER:
-        person = from_crew.person(rnd, base=base + rnd.uniform(-5, 5), spread=4, ceiling=rnd.uniform(max(75, base + 12), 99))
+        person = from_crew.person(rnd, name='', base=base + rnd.uniform(-5, 5), spread=4, ceiling=rnd.uniform(max(75, base + 12), 99))
         crew[p] = dict(skills=person['skills'], potential=person['potential'])
     return crew
 
 
 def make_division(rnd, division, skill_keys):
     driver_floor, car_floor, crew_floor = FLOOR[division]
-    brands = rnd.sample(BRANDS, TEAMS)
-    firsts = rnd.sample(FIRST, 2 * TEAMS)
-    lasts = rnd.sample(LAST, 2 * TEAMS)
+    # Identity generation has its own random stream, separate from race development.
+    names_rng = random.Random(rnd.getrandbits(128))
+    people = D['name_source'].generate(count=2 * TEAMS, rng=names_rng)
+    teams = D['name_source'].generate(country='teams', count=TEAMS, rng=names_rng)
     entries = []
     for t in range(TEAMS):
         # each team has its own appetite for development, fixed for the whole career
@@ -80,7 +73,8 @@ def make_division(rnd, division, skill_keys):
             potential = {s: round(min(99, ceiling + rnd.gauss(0, 3)), 2) for s in skill_keys}
             skills = {s: round(min(potential[s], max(driver_floor - 2, base + rnd.gauss(0, 3.5))), 2) for s in skill_keys}
             ident = f'd{division}-{i}'
-            entries.append(dict(id=ident, name=f'{firsts[i]} {lasts[i]}', team=f'{brands[t]} Racing', team_index=t, age=rnd.randint(18, 34),
+            entries.append(dict(id=ident, name=people[i]['latin'], name_identity=people[i], country=people[i]['country'],
+                                gender=people[i]['gender'], team=teams[t]['latin'], team_index=t, age=rnd.randint(18, 34),
                                 car=round(car_floor + team_start * .9 + rnd.uniform(0, 3), 2), car_cap=car_floor + CAR_RANGE, potential=potential, skills=skills, drive=drive,
                                 luck=round(rnd.uniform(.8, 1.2), 3), col=1 + t % 7,
                                 crew=_crew(rnd, crew_floor + team_start * .8 + rnd.uniform(0, 3))))
@@ -145,7 +139,7 @@ def roster(conn, d, division=5, now=None):
     state = ensure(conn, d['player_id'], d['created'], D['SKILLS'], now)
     out = []
     for e in state['divisions'][str(division)]:
-        out.append(dict(id=e['id'], name=e['name'], team=e['team'], age=e['age'], car=round(e['car'], 2), skills={k: round(v, 2) for k, v in e['skills'].items()},
+        out.append(dict(id=e['id'], name=e['name'], name_identity=e.get('name_identity'), country=e.get('country'), gender=e.get('gender'), team=e['team'], age=e['age'], car=round(e['car'], 2), skills={k: round(v, 2) for k, v in e['skills'].items()},
                         col=e['col'], crew={p: dict(skills={k: round(v, 2) for k, v in m['skills'].items()}) for p, m in e['crew'].items()}))
     return out
 
@@ -156,6 +150,6 @@ def summary(conn, d, division=5):
     crew = D['crew']
     for r in roster(conn, d, division):
         lv = crew.levels(r['crew'])
-        out.append(dict(id=r['id'], name=r['name'], team=r['team'], age=r['age'], car=r['car'],
+        out.append(dict(id=r['id'], name=r['name'], name_identity=r.get('name_identity'), country=r.get('country'), gender=r.get('gender'), team=r['team'], age=r['age'], car=r['car'],
                         overall=round(sum(r['skills'].values()) / len(r['skills']), 1), pit=crew.typical(lv)['tyre']))
     return out

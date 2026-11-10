@@ -1,3 +1,4 @@
+const personName = (c, p) => c.personName ? c.personName(p) : p?.name || '';
 const { render, on } = window.RacelandiaUI;
 // Racelandia - the home dashboard: what the team's people would tell the owner today.
 //
@@ -74,7 +75,7 @@ function reports(c) {
     if (empty) say('mechanic', 1, '🛠️', t('ap_hm_crew_empty', { car: carName(car), n: empty, m: slots.length }), staff('ap_pit_crew', 'crew'));
     else {
       const weak = slots.slice().sort((a, b) => a[1].level - b[1].level)[0];
-      if (weak) say('mechanic', 0, '🛠️', t('ap_hm_crew_train', { car: carName(car), name: weak[1].name, pos: t('ap_pos_' + weak[0]), level: Math.round(weak[1].level) }), staff('ap_pit_crew', 'crew'));
+      if (weak) say('mechanic', 0, '🛠️', t('ap_hm_crew_train', { car: carName(car), name: personName(c, weak[1]), pos: t('ap_pos_' + weak[0]), level: Math.round(weak[1].level) }), staff('ap_pit_crew', 'crew'));
     }
   });
 
@@ -84,9 +85,9 @@ function reports(c) {
     const hall = c.hall(), skills = G.skills.map(k => [k, d.skills[k]]).sort((a, b) => a[1] - b[1]);
     const [weak, value] = skills[0], game = G.games.find(g => (c.gameSkills[g] || []).includes(weak));
     const pilots = staff('ap_pilots', 'pilots');
-    if (d.energy < TIRED) say('coach', 1, '🎓', t('ap_hm_coach_rest', { name: d.name, e: Math.floor(d.energy) }), pilots);
+    if (d.energy < TIRED) say('coach', 1, '🎓', t('ap_hm_coach_rest', { name: personName(c, d), e: Math.floor(d.energy) }), pilots);
     else if (!hall.remaining) say('coach', 0, '🎓', t('ap_hm_coach_wait'), pilots);
-    else if (game) say('coach', 1, '🎓', t('ap_hm_coach_train', { name: d.name, skill: t('ap_k_' + weak), v: value.toFixed(1), game: t('ap_tr_' + game), n: hall.remaining }), pilots);
+    else if (game) say('coach', 1, '🎓', t('ap_hm_coach_train', { name: personName(c, d), skill: t('ap_k_' + weak), v: value.toFixed(1), game: t('ap_tr_' + game), n: hall.remaining }), pilots);
   }
 
   // ── the race engineer: where a test run would teach the team the most ──
@@ -102,8 +103,8 @@ function reports(c) {
 
   // ── the team doctor: tired people ──
   const tired = team.pilots.filter(p => p.energy < TIRED && p.id !== d.pilot_id);
-  tired.forEach(p => say('doctor', 1, '🩺', t('ap_hm_energy_low', { name: p.name, e: Math.floor(p.energy) }), staff('ap_pilots', 'pilots')));
-  const lows = [[d.name, d.energy], ...team.pilots.map(p => [p.name, p.energy])].sort((a, b) => a[1] - b[1])[0];
+  tired.forEach(p => say('doctor', 1, '🩺', t('ap_hm_energy_low', { name: personName(c, p), e: Math.floor(p.energy) }), staff('ap_pilots', 'pilots')));
+  const lows = [[personName(c, d), d.energy], ...team.pilots.map(p => [personName(c, p), p.energy])].sort((a, b) => a[1] - b[1])[0];
   if (lows) say('doctor', 0, '🩺', t('ap_hm_energy_min', { name: lows[0], e: Math.floor(lows[1]) }), staff('ap_pilots', 'pilots'));
   if (!tired.length) say('doctor', 0, '🩺', t('ap_hm_energy_ok'), staff('ap_pilots', 'pilots'));
 
@@ -120,18 +121,18 @@ function reports(c) {
   team.cars.forEach(car => { if (!car.pilot_id) say('pilots', 2, '🏎️', t('ap_hm_pilot_nocar', { car: carName(car) }), to('ap_tab_garage', 'garage')); });
   team.pilots.forEach(p => {
     const car = team.cars.find(x => x.pilot_id === p.id);
-    say('pilots', 0, '🧑‍✈️', car ? t('ap_hm_pilot_car', { name: p.name, car: carName(car), overall: p.overall, e: Math.floor(p.energy) }) : t('ap_hm_pilot_reserve', { name: p.name, overall: p.overall, e: Math.floor(p.energy) }), pilots);
+    say('pilots', 0, '🧑‍✈️', car ? t('ap_hm_pilot_car', { name: personName(c, p), car: carName(car), overall: p.overall, e: Math.floor(p.energy) }) : t('ap_hm_pilot_reserve', { name: personName(c, p), overall: p.overall, e: Math.floor(p.energy) }), pilots);
   });
   if (d.has_driver && G.skills?.length) {
     const sk = G.skills.map(k => [k, d.skills[k]]).sort((a, b) => a[1] - b[1]), weak = sk[0], best = sk[sk.length - 1];
-    say('pilots', 0, '📊', t('ap_hm_pilot_skills', { name: d.name, best: t('ap_k_' + best[0]), bv: best[1].toFixed(1), weak: t('ap_k_' + weak[0]), wv: weak[1].toFixed(1) }), pilots);
+    say('pilots', 0, '📊', t('ap_hm_pilot_skills', { name: personName(c, d), best: t('ap_k_' + best[0]), bv: best[1].toFixed(1), weak: t('ap_k_' + weak[0]), wv: weak[1].toFixed(1) }), pilots);
   }
   if (!M.coach) say('pilots', 1, '🎓', t('ap_hm_pilot_nocoach'), staff('ap_specialists', 'specialists'));
 
   // ── every specialist: their own training ──
   const need = S.train_energy || 30;
   Object.values(M).filter(Boolean).forEach(m => {
-    if (m.energy >= need && m.headroom > .5) say(m.role, 1, '🎯', t('ap_hm_spec_train', { name: m.name, role: t('ap_role_' + m.role), level: Math.round(m.level), n: Math.round(m.headroom) }), staff('ap_specialists', 'specialists'));
+    if (m.energy >= need && m.headroom > .5) say(m.role, 1, '🎯', t('ap_hm_spec_train', { name: personName(c, m), role: t('ap_role_' + m.role), level: Math.round(m.level), n: Math.round(m.headroom) }), staff('ap_specialists', 'specialists'));
   });
 
   const out = [{ role: 'pilots', items: items.pilots || [] }];
@@ -140,7 +141,7 @@ function reports(c) {
 }
 
 const worst = r => r.items.reduce((a, i) => Math.max(a, i.sev), 0);
-const voice = (c, r) => r.role === 'pilots' ? c.t('ap_pilots') : `${c.t('ap_role_' + r.role)} · ${r.member.name} · ${c.t('ap_spec_level')} ${Math.round(r.member.level)}`;
+const voice = (c, r) => r.role === 'pilots' ? c.t('ap_pilots') : `${c.t('ap_role_' + r.role)} · ${personName(c, r.member)} · ${c.t('ap_spec_level')} ${Math.round(r.member.level)}`;
 
 export function paintHome(host, c) {
   const { t, esc } = c, all = reports(c);

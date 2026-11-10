@@ -3,6 +3,7 @@
 Requests go directly to the providers. Cached responses and a SQLite-backed
 request schedule are local to this app; no mvmOS central service or key is used.
 """
+import contextlib
 import asyncio
 import hashlib
 import json
@@ -72,13 +73,13 @@ def set_cover(c, mid, data=None, remote=''):
     c.execute('INSERT INTO media_covers VALUES(?,?,?,?,?) ON CONFLICT(media_id) DO UPDATE SET data=excluded.data,mime=excluded.mime,remote=excluded.remote,revision=excluded.revision', (mid, data, mime, remote, str(time.time_ns())))
 
 
-def embedded(path):
+def embedded(path, handle=None):
     """Best-effort tag reading must never turn a valid audio upload into a failure."""
     app = base()
     if os.path.splitext(path)[1].lower() == '.webm':
         return {}, None
     try:
-        with open(path, 'rb') as f:
+        with (contextlib.nullcontext(handle) if handle is not None else open(path, 'rb')) as f:
             tag = app._probe.TinyTag.get(file_obj=app._probe.Reader(f), tags=True, duration=False, image=True)
         other = tag.other
         first = lambda k: (other.get(k) or [''])[0]

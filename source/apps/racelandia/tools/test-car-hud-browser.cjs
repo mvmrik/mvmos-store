@@ -18,7 +18,7 @@ const moduleUrl=n=>'data:text/javascript;base64,'+Buffer.from(read(n)).toString(
   const result=await page.evaluate(async cfg=>{
    const [D,T,A,SIM]=await Promise.all(cfg.modules.map(u=>import(u)));
    document.querySelector('#meters').innerHTML=D.drivingMetersHtml(k=>k);
-   const $=s=>document.querySelector(s),root=document,esc=String,_t=(k,v)=>k+(v?' '+JSON.stringify(v):''),lapStr=x=>x==null?'—':x.toFixed(3),secStr=lapStr;
+   const $=s=>document.querySelector(s),root=document,esc=String,personName=p=>p?.name||'',_t=(k,v)=>k+(v?' '+JSON.stringify(v):''),lapStr=x=>x==null?'—':x.toFixed(3),secStr=lapStr;
    const FX={tyreErr:()=>0},lvl=()=>1,lapsSpan=(n)=>String(Math.floor(n)),wxNowHtml=()=>'',FUEL_KG_PER_L=.75,CLIFF=.72;
    const board=[{pid:'room',best:60}],multi=false,peers={},G={driver:{name:'A'}},simMod=SIM;
    const mods={SIM,TIMING:T,ANALYSIS:A,DIVISION:{...D,focusClassification(){},fitHud(){}}};

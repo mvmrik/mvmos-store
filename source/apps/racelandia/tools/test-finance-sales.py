@@ -1,4 +1,6 @@
 """Sales record their own income category after a zero-cost session."""
+from name_service_fixture import install as install_name_service
+install_name_service()
 import importlib.util
 import json
 import tempfile

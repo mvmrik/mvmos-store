@@ -5,6 +5,7 @@ import json
 import os
 import random
 import sqlite3
+import sys
 import time
 
 # mp_game.py is loaded by Game Hub via importlib.spec_from_file_location every
@@ -206,7 +207,7 @@ class Game:
         self.halving_count = 0
         self.targets = []
         self.ghost = None                # Ghost instance, solo-vs-ghost matches only
-        self.ghost_name = "Ghost"
+        self.ghost_identity = None
         self.rules = None                # rule set of a custom game (mode "custom" only)
         self.owner_id = None             # who made that custom game
         self.owner_name = ""
@@ -271,6 +272,7 @@ class Game:
         self.players = {pid: self._fresh_player() for pid in participants}
         if ghost_wanted:
             self.ghost = _ghost_for(self.mode, ids[0])
+            self.ghost_identity = sys.modules["app_backend_gamehub"].generate_names(count=1)[0]
         self.started = True
         self.started_at = time.time()
         if self.mode == "bitcoin":
@@ -292,6 +294,7 @@ class Game:
             "rules": self.rules, "owner_id": self.owner_id, "owner_name": self.owner_name, "local": self.local,
             "rounds": self.rounds, "difficulty": self.difficulty, "block_count": self.block_count, "total_blocks": self.total_blocks,
             "halving_reward": self.halving_reward, "halving_count": self.halving_count, "targets": self.targets,
+            "ghost_identity": self.ghost_identity,
             "ghost": ({"base_sigma": self.ghost.base_sigma, "sigma": self.ghost.sigma, "par": self.ghost.par,
                        "confidence": self.ghost.confidence} if self.ghost else None),
         }
@@ -331,6 +334,9 @@ class Game:
             human = next((pid for pid in self.order if pid != GHOST_ID), None)
             self.ghost = _ghost_for(self.mode, human)
             self.ghost.confidence = gdata.get("confidence", 0.0)
+        self.ghost_identity = data.get("ghost_identity")
+        if self.ghost and not self.ghost_identity:
+            self.ghost_identity = sys.modules["app_backend_gamehub"].generate_names(count=1)[0]
         self.started = True
 
     async def on_join(self, player):
@@ -1150,9 +1156,9 @@ class Game:
                   for p in self.ctx.all_players()}
         roster.update(self.local)
         if self.ghost and GHOST_ID in self.players:
-            roster[GHOST_ID] = {"id": GHOST_ID, "display_name": self.ghost_name, "avatar_color": "#8b5cf6",
+            roster[GHOST_ID] = {"id": GHOST_ID, "display_name": self.ghost_identity["latin"], "name_identity": self.ghost_identity, "avatar_color": "#8b5cf6",
                                  "avatar_svg": None, "connected": True, "is_ghost": True, "mood": self.ghost.mood()}
-        return {"type": kind, "mode": self.mode, "target_wins": self.target_wins, "order": self.order,
+        return {"type": kind, "name_display_rules": sys.modules["app_backend_gamehub"].name_display_rules(), "mode": self.mode, "target_wins": self.target_wins, "order": self.order,
                 "turn_index": self.turn_index, "current_player_id": self.order[self.turn_index] if self.order else None,
                 "players": self.players, "roster": roster, "history": self.history[-20:], "round": self.round_no,
                 "dice": self.dice, "targets": self.targets, "difficulty": self.difficulty,

@@ -172,6 +172,8 @@ Only for apps that ship a `premium/` folder. It is a separate file, not a sectio
 }
 ```
 
+Long Store and Premium descriptions must remain readable: begin with one or two introductory sentences, separate topics with `\n\n`, and use short section titles and `• ` lists when needed. Use plain text, not HTML or Markdown. Verify the rendered desktop and phone pages, because source newlines must survive the template.
+
 `short` is what the premium comparison list shows; `title` and `description` are what the app's own page shows. Both forms are required for every feature — the premium page must never have to shorten a description itself.
 
 Describe what happens **without** a subscription too. The base app always stays whole: the control is present and inert, never missing, and nothing breaks. Saying so in the description is what stops the listing reading as a paywall on a broken app.
@@ -246,7 +248,7 @@ mvmOS.registerApp({
 });
 ```
 
-`file_types` + `openFile(path)` register the app as the default for those extensions when no built-in handler claims them (mvmOS 1.8.0). Double-clicking such a file in File Manager or on the desktop calls `openFile`, the app appears in **Open with** for them, and the user can change the default in **Settings → Default apps**. When the app is uninstalled its types fall back to their default.
+`file_types` + `openFile(path)` register the app as the default for those extensions when no built-in handler claims them (mvmOS 1.8.0). Double-clicking such a file in File Manager or on the desktop calls `openFile`, the app appears in **Open with** for them, and the user can change the default in **Settings → Default apps**. When the app is uninstalled its types fall back to their default. From Core 1.22.0, an extension with competing handlers including an installed Store app opens the chooser until the person saves a default.
 
 Inside `registerApp` the definition also gets `this.storage` — a per-app wrapper over the browser's `localStorage` (`get`, `set`, `remove`), namespaced by the app id. It is per browser, not per server; use the database for anything that must follow the user.
 
@@ -270,6 +272,8 @@ mvmOS.createWindow({
   onAppSettings() { ... } // called when gear button is clicked
 });
 ```
+
+From Core 1.22.0, desktop windows of apps registered with `requires_apphub: true` show the profile avatar and a menu for the account, app settings and logout. Their settings move into this menu; other windows keep the gear. Mobile controls retain their previous behavior.
 
 **`appSettings: true` without `onAppSettings`** opens the App Store settings panel for this app directly (same as clicking ⚙ in the App Store listing). This is the standard pattern — define your fields in `manifest.json` and use `appSettings: true` alone.
 
@@ -306,6 +310,10 @@ Core 1.21.0 loads a shared file and folder picker and a shared uploader on the d
 `mvmOS.uploader.choose({mode, accept, destination})` asks what to upload and where, and `mvmOS.uploader.upload({files, destination, extract})` sends files already at hand. `destination` is `{type: 'server', path}` or `{type: 'shared', folderId, path}`. Uploads are split under Cloudflare's limit, queued and shown in one panel where each can be stopped or retried. The options only narrow the window: your `api.py` must check every path again with `sys.modules["backend.filepicker"]` (`resolve_server_path`, `copy_server_file`, `shared_file_url`). Set `min_core_version` to 1.21.0. See the Core README for the full contract.
 
 ---
+
+Core 1.22.0 adds `createFolder` to picker options (default enabled for folder and directory modes). The New folder control is available on the server and on shared folders with upload permission; `createFolder: false` hides it. In directory mode the newly created folder is returned immediately.
+
+For in-place libraries, use the Core 1.22.0 server helpers: `folder_files(user, root, extensions, limit)`, `open_server_file(user, root, rel) -> (handle, size)`, `write_beside(user, root, rel, bytes)`, `shared_folder_files(owner, folder_id, base, extensions)`, `shared_read_head(owner, folder_id, path, max_bytes)`, `shared_can_write(owner, folder_id, path)` and `shared_write_beside(owner, folder_id, path, bytes)`. Resolve and authorize a server root first, save its Linux owner, and close each opened handle. Shared files play directly through `shared_file_url`; source permissions are checked again on use.
 
 ### mvmOS.db(appId)
 
@@ -1571,7 +1579,7 @@ The app's toggle still works as usual (`is_app_public` still gates whether its s
 
 ### Service keys
 
-An app that needs a key for an outside service, today `google_maps`, must not add a key field to its `settings`. Name the service in `manifest.json`:
+An app that needs a key for an outside service, `google_maps` or `simkl`, must not add a key field to its `settings`. Name the service in `manifest.json`:
 
 ```json
 "services": ["google_maps"],
@@ -1587,6 +1595,8 @@ res = hub.resolve_service_key(user["id"], "google_maps", "<app-id>")
 ```
 
 The profile's own keys win (Apps Hub → Settings → Service keys: a person may keep several, each for all apps or only for ticked apps; one limited to this app comes first, then a general one). Otherwise the first administrator key that is valid for this app and covers this profile is returned (set in Apps Hub → Service keys, per key: apps, and per app all or selected people). An empty `key` means the person has no key: show a message that points to Apps Hub, never a field to type one. Return the key from a route that needs the signed-in profile, and never put it in room or broadcast messages, because other people may not be allowed to use it. The administrator cannot read profiles' own keys.
+
+Simkl requires Core 1.22.0. Its client ID is administrator managed: Apps Hub does not offer personal Simkl keys and ignores any such stored key during resolution. The administrator form supplies the installation origin as the return address to register. Each app manages its own per-profile account connection separately from the shared client ID. Google Maps keeps the personal-key precedence described above.
 
 ### Profile-specific visibility
 
@@ -2012,7 +2022,7 @@ function _loadGameHub(cb) {
 }
 ```
 
-Game Hub is optional — always handle the case where `window.GameHub` is `undefined` (not installed).
+For legacy non-game consumers Game Hub can be optional; handle an undefined `window.GameHub`. New Game Hub games require it as described in Writing a game.
 
 ### Login widget
 

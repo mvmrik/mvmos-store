@@ -1,8 +1,26 @@
 # Racelandia
 
-Racelandia is a motorsport game played through Game Hub 1.19.1 or newer. Install both apps, open Racelandia from the desktop and follow its Game Hub link, or find it in the Game Hub library. Sign in with an Apps Hub account to play.
+Racelandia is a motorsport game played through Game Hub 1.21.0 or newer. Install both apps, open Racelandia from the desktop and follow its Game Hub link, or find it in the Game Hub library. Sign in with an Apps Hub account to play.
 
 You never steer. You run the team: you look after the car, train the driver, read the weather, and the driver does the lap. The lap is a physical simulation computed in your browser from the car setup, the driver's skills, the weather and a seed, and played back in 3D. A computer or a phone with a browser that supports WebGL is enough.
+
+New careers obtain their computer rivals and team names from Game Hub's shared name
+generator. Each rival has a randomly selected country and gender, a matching name,
+and a country flag in the rival list. The two drivers of each team share its
+English team name. Original and Latin name spellings persist with the career, and
+the shared Game Hub script policy chooses the spelling shown in rival lists,
+standings, session timing and results. Bulgarian and Russian viewers both see
+Cyrillic names. Existing careers retain their saved names and teams; resetting and
+restoring a career also preserves the archived identities. Game Hub must include
+the name-generator service to create a new career.
+
+Pilot recruitment, specialist recruitment and pit crews also use Game Hub's country
+and gender name pools. Offers and hired people retain their identity through hiring,
+car assignment, training, career archives and restoration. Flags appear in their
+markets, staff cards, driver details and championship rows. Existing generated
+personnel receive identities once while keeping their skills, contracts, ages and
+assignments. Personally edited pilot names remain as entered, with their nationality
+retained when the name is edited again.
 
 ## Team and garage
 

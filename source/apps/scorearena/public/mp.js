@@ -1,6 +1,8 @@
 (function(){
   if(!window.GameHub||!window.GameHub.mp)return;
   const mp=window.GameHub.mp, tr=(k,v)=>window.t?window.t(k,v):k;
+  let nameDisplay;
+  const namesReady = import(window.asset('/apps/gamehub/name-display.js')).then(module => { nameDisplay = module; });
   const NUMBERS=[20,1,18,4,13,6,10,15,2,17,3,19,7,16,8,11,14,9,12,5];
   let root=null,state=null,pending=[],toastTimer=0,ghostPending=[],awaitingState=false;
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -390,7 +392,10 @@
     ghostPin(msg.dart,msg.index);
   });
   function submit(){if(!pending.length){notice(tr('sa_need_dart'));return}mp.send({type:'sa_turn',darts:pending});awaitingState=true;pending=[];drawPending();drawCheckout();drawTargetMark()}
-  function playerName(id){return state?.roster?.[id]?.display_name||id||''}
+  function playerName(id){
+    const profile=state?.roster?.[id], identity=profile?.name_identity;
+    return identity && nameDisplay ? nameDisplay.countryFlag(identity.country)+' '+nameDisplay.displayName(identity,window.mvmOS?.lang||'en',state.name_display_rules) : profile?.display_name||id||'';
+  }
   function isCustom(){return state?.mode==='custom'&&!!state.rules}
   // Custom games have no board: the turn's points are typed in and the server applies the rules.
   function customPad(){
@@ -422,7 +427,7 @@
     if(!isGhostTurn()){ghostPending=[];clearGhostMarks()}
     drawCustom();
     const players=Math.max(1,Math.min(state.order.length,2));
-    root.querySelector('#sa-score').innerHTML=`<div class="sa-scoreboard" style="--sa-players:${players}">${state.order.map(id=>{const p=state.players[id];return `<div class="sa-player ${id===current?'current':''}"><div class="sa-player-name">${esc(playerName(id))}${ghostMoodBadge(id)}</div>${bigSubLine(p)}<div class="sa-big">${bigValue(p)}</div></div>`}).join('')}</div>${roundStarterLine()}`;
+    root.querySelector('#sa-score').innerHTML=`<div class="sa-scoreboard" style="--sa-players:${players}">${state.order.map(id=>{const p=state.players[id];return `<div class="sa-player ${id===current?'current':''}"><div class="sa-player-name" title="${esc(playerName(id))}">${esc(playerName(id))}${ghostMoodBadge(id)}</div>${bigSubLine(p)}<div class="sa-big">${bigValue(p)}</div></div>`}).join('')}</div>${roundStarterLine()}`;
     drawCheckout();
     root.querySelector('#sa-cricket').innerHTML=state.mode==='cricket'?cricketTable():'';
     root.querySelector('#sa-bitcoin-info').innerHTML=state.mode==='bitcoin'?bitcoinInfo():'';
@@ -494,7 +499,7 @@
       el.innerHTML=on?`<circle cx="0" cy="0" r="${s}" fill="#f5bf4f" stroke="#7a5300" stroke-width="2"/><circle cx="0" cy="0" r="${Math.round(s*.45)}" fill="#df3345" stroke="#7a5300" stroke-width="1.5"/>`:'';
     });
   }
-  function cricketTable(){const targets=[20,19,18,17,16,15,25];return `<div class="sa-cricket"><table><thead><tr><th>${tr('sa_targets')}</th>${state.order.map(id=>`<th>${esc(playerName(id).split(' ')[0])}</th>`).join('')}</tr></thead><tbody>${targets.map(n=>`<tr><th>${n===25?esc(tr('sa_bull')):n}</th>${state.order.map(id=>`<td class="sa-mark">${marks(state.players[id].marks[String(n)])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
+  function cricketTable(){const targets=[20,19,18,17,16,15,25];return `<div class="sa-cricket"><table><thead><tr><th>${tr('sa_targets')}</th>${state.order.map(id=>`<th>${esc(playerName(id))}</th>`).join('')}</tr></thead><tbody>${targets.map(n=>`<tr><th>${n===25?esc(tr('sa_bull')):n}</th>${state.order.map(id=>`<td class="sa-mark">${marks(state.players[id].marks[String(n)])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`}
   function marks(n){return n<=0?'—':n===1?'╱':n===2?'╳':'●'}
   function drawHistory(){const el=root.querySelector('#sa-history'),items=[...state.history].reverse();el.innerHTML=items.length?items.map(h=>`<div class="sa-history-row"><span><b>${esc(playerName(h.player_id))}</b> · ${h.kind==='custom'?(state.rules?.direction==='down'?'−':'+')+h.value:(h.darts||[]).map(dartName).join(', ')}</span><span>${historyResult(h)}</span></div>`).join(''):`<span class="sa-sub">${tr('sa_no_throws')}</span>`}
   function historyResult(h){
@@ -514,7 +519,7 @@
     return `<div class="sa-dice">🔁 ${tr('sa_sum_round')} ${state.round} · ${tr('sa_starts')}: ${esc(sumName(state.order[(state.round-1)%state.order.length]))}</div>`;
   }
   // ── Stats between games: after every decided game, and for the whole match at the end ──
-  const sumName=id=>state?.roster?.[id]?.is_ghost?`👻 ${tr('sa_ghost')}`:playerName(id);
+  const sumName=id=>(state?.roster?.[id]?.is_ghost?'👻 ':'')+playerName(id);
   function statTiles(mode,s,scope,won){
     const t=[],add=(label,value)=>t.push([label,value]),pct=v=>`${Math.round(v||0)}%`,round=scope==='round';
     if(mode==='501'||mode==='301'){
@@ -571,6 +576,6 @@
   }
   function finish(msg){state=msg;draw();if(!root)return;if(msg.summary&&!isCustom()){showSummary(msg);return}const ws=msg.winners&&msg.winners.length?msg.winners:[msg.winner];root.querySelector('#sa-overlay').innerHTML=`<div class="sa-finished"><div><div style="font-size:3.2rem">🏆</div><div class="sa-eyebrow">${tr('sa_winner')}</div><h1 style="margin:6px 0 18px">${ws.map(id=>esc(playerName(id))).join(' & ')}</h1><section data-gh-results></section><button class="sa-btn primary" onclick="location.reload()">${tr('sa_back')}</button></div></div>`}
   function notice(text){const el=root?.querySelector('#sa-hint');if(!el)return;el.textContent=text;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.textContent='',1800)}
-  mp.on('sa_start',msg=>{state=msg;pending=[];ghostPending=[];clearGhostMarks();awaitingState=false;draw();resetPad();showBetween()});mp.on('sa_state',msg=>{state=msg;pending=[];ghostPending=[];clearGhostMarks();awaitingState=false;draw();resetPad();showBetween()});mp.on('sa_finished',msg=>{ghostPending=[];finish(msg)});mp.on('sa_error',msg=>notice(msg.message==='empty_turn'?tr(isCustom()?'sa_custom_need_value':'sa_need_dart'):msg.message));
+  mp.on('sa_start',async msg=>{await namesReady;state=msg;pending=[];ghostPending=[];clearGhostMarks();awaitingState=false;draw();resetPad();showBetween()});mp.on('sa_state',async msg=>{await namesReady;state=msg;pending=[];ghostPending=[];clearGhostMarks();awaitingState=false;draw();resetPad();showBetween()});mp.on('sa_finished',async msg=>{await namesReady;ghostPending=[];finish(msg)});mp.on('sa_error',msg=>notice(msg.message==='empty_turn'?tr(isCustom()?'sa_custom_need_value':'sa_need_dart'):msg.message));
   mp.registerGame({id:'scorearena',name:'Score Arena',renderSetup,renderGame,exitButton:false});
 })();

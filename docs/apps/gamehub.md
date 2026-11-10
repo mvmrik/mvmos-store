@@ -39,3 +39,21 @@ Open another player's profile for head-to-head wins, draws and losses, recent fo
 Remember the Pairs reports pairs found, accuracy, best streak, timeouts and cards on the table. Belot reports deals, team contracts and points per deal. Find Yourself reports points per round, answered rounds and guess distances. Score Arena reports turns. Stonehold reports survival, kills, raids, enemy level and buildings. Tower Defense reports waves, kills and survival; Sudofall reports cleared lines, numbers dropped and points per minute from its browser session recorder. Existing solo session metadata is reused where its keys match declared metrics; unavailable older measurements are not invented.
 
 For the manifest fields and recording API, see the [Developer Guide](../../DEVELOPER.md#statistics-say-what-you-measure-game-hub-draws-it).
+
+## Names and teams
+
+In the desktop window, open Settings, then **Names and teams**. Browse nine country
+catalogues with male and female given names and surnames, each with original and
+Latin spellings. Each category starts with 100 entries. The administrator can add
+and remove local entries; bundled defaults remain available. English team names
+combine words from two separate lists. Preview combinations by country and gender.
+
+The generator is a general service: its callers request a country, gender and count;
+it contains no game-specific rules. Identities retain both spellings and their
+origin. Display follows a shared script policy: Bulgarian and Russian both show
+Cyrillic names; other viewers see their Latin spellings. Japanese and Simplified
+Chinese names use their native writing for the corresponding interface language.
+Latin-script names preserve their accents. Adding names does not rename identities
+already stored by an application.
+
+Belot, Living Town, Score Arena and Racelandia consume this service. Their new name features require Game Hub 1.21.0 or later; update the hub before using those consumer versions.

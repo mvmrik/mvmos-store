@@ -1,12 +1,14 @@
 # mvmPlayer
 
-mvmPlayer is a general browser video player and shared library for the mvmOS desktop and Apps Hub. It is separate from **mvmVideo**, the video editor. The initial version runs entirely inside `apps/mvmplayer/`; it has no system backend component, FFmpeg dependency or separate service.
+mvmPlayer is a general browser video player and shared library for the mvmOS desktop and Apps Hub. It is separate from **mvmVideo**, the video editor. The app runs entirely inside `apps/mvmplayer/`; it has no system backend component, FFmpeg dependency or separate service.
 
 ## Add videos
 
-Open mvmPlayer on the desktop and choose **Manage → Upload videos**. Select multiple video files, or select a folder to preserve the names used for recognition. Uploading happens before editing metadata. Review the saved records afterwards; an invalid file does not discard the successful uploads. Uploads use retry-safe chunks of up to 8 MiB, automatically reduced when a proxy rejects that size. The current limits are 200 videos per batch and 32 GiB per file. Cancelling keeps completed videos. Incomplete uploads expire after 24 hours and are cleaned when another upload starts.
+Open **Library** on the desktop and add a folder on this server or a connected folder shared by another mvmOS. Videos stay in place. Scan manually or select a scan interval; filename recognition adds movie years, series, seasons and episodes. The source manager can upload files or folders into that location through the shared uploader. Removing a source removes its records, never its original files. Scans remove records for videos no longer present in the source, including their associated viewing state.
 
-Only desktop administrators upload, edit and delete shared media in this first version. Apps Hub profiles can watch, maintain their own progress, favourites, history and collections, and load a subtitle file locally. Personal server uploads and Jellyfin integration are not part of this version.
+Server files are read with the access of the Linux user who added the source. Shared videos play directly from the sharing server. Existing uploaded videos remain available. Open a single video from File Manager to play it in the existing window without adding it to the library.
+
+Desktop administrators manage sources and shared metadata. Apps Hub profiles watch and maintain their own progress, favourites, history and collections. Personal video uploads and Jellyfin integration are not included.
 
 Recognised examples:
 
@@ -22,7 +24,7 @@ Open a card to inspect the description and progress, then choose **Play** or **R
 
 Progress is independent for each Apps Hub profile. It is saved periodically during playback, on pauses and seeks, and when leaving the page or closing the player. Network/session failures are reported. Completion is recorded when playback ends or the viewer explicitly marks the item as watched. Marking an item unwatched preserves its saved position. Renaming, changing an online match or replacing a cover does not replace the media identifier or reset progress.
 
-Personal collections contain existing library items and do not copy video files. Collections are private to the profile in this version. Desktop **Manage** uses the same library cards as editing entry points.
+Personal collections contain existing library items and do not copy video files. Collections are private to the profile in this version. Desktop administrators can edit shared metadata from the ordinary detail cards.
 
 ## Formats and subtitles
 
@@ -33,7 +35,8 @@ External SRT and WebVTT subtitles are supported:
 - Administrators add shared subtitles from a video's editing screen, with a title and language. These are converted to a safe text-only WebVTT subset and stored with the record.
 - A viewer may choose **Open subtitle file** in the player. That file stays on their device, is not uploaded, and applies only to the current playback.
 - UTF-8, BOM-marked UTF-16 and Windows-1251 subtitle input are supported. Formatting markup is removed.
-- Embedded subtitle extraction, ASS styling and bitmap subtitles are not supported in this version.
+- Scans detect SRT/WebVTT files beside videos, such as `Movie.en.srt`. Playback selects an available subtitle matching the viewer’s language.
+- Optional Premium translation can read supported embedded text tracks; picture subtitles and ASS styling are not rendered.
 
 ## Optional online details
 
@@ -46,12 +49,26 @@ Choose which fields to replace. Existing values remain selectable so another mat
 
 ## Storage and access
 
-Videos live under `apps/mvmplayer/uploads/`, outside the public folder. SQLite stores metadata, covers, shared subtitles, collections and per-profile state. Streaming uses a random short-lived playback ticket rather than placing the Apps Hub login token in a video URL. Every request rechecks the associated profile session. Byte-range requests support seeking. Cover and subtitle requests require authentication.
+Existing uploads live under `apps/mvmplayer/uploads/`, outside the public folder. Source videos stay in their configured server or shared folder. SQLite stores metadata, covers, shared subtitles, collections and per-profile state. Streaming uses a random short-lived playback ticket rather than placing the Apps Hub login token in a video URL. Every request rechecks the associated profile session. Byte-range requests support seeking. Cover and subtitle requests require authentication.
 
-Deleting a video removes its file, stored cover, shared subtitles, playback tickets, collection references and all profiles' state for that video. A confirmation explains the scope. There is no automatic deletion based on watching progress.
+Source files are removed only through their folder, not from a video card. Deleting an old uploaded video removes its file, stored cover, shared subtitles, playback tickets, collection references and all profiles' state for that video. A confirmation explains the scope. There is no automatic deletion based on watching progress.
 
 Cloudflare Tunnel does not change browser codec support, and video delivery through a public tunnel remains subject to Cloudflare's service conditions.
 
 ## Validation
 
 `tests/test_api.py` builds isolated temporary libraries with fictional users. `venv/bin/python apps/mvmplayer/tests/test_api.py --serve` starts an isolated fixture server on `127.0.0.1:2088`. Run `tests/browser.cjs` against it, setting `MVM_PLAYER_PLAYWRIGHT` to an existing Playwright Core installation if needed. The browser test exercises: desktop and phone layouts, playback/resume, subtitles, independent progress, metadata replacement, series structure, collections, a 20-file import plus an invalid file, proxy chunk rejection, lost finish responses, automatic next episode, and profile-language selection. The synthetic video fixture is bundled; running the application or tests does not invoke FFmpeg or install packages.
+
+## Simkl
+
+Ask the administrator to add a Simkl client ID in Apps Hub → Service keys and allow mvmPlayer and your profile to use it. The form shows the installation origin to register with Simkl. Each profile then connects its own account using Simkl’s device code. The shared client ID is not a personal access token.
+
+Trending titles are available with a shared key. After connecting, browse personal history and planned series, open seasons and episode lists, mark episodes, a season or a series watched or unwatched, and plan an unwatched series. Completed library videos are reported to that profile’s connected account. Ratings and links come from Simkl; unavailable services do not prevent ordinary local playback. A connection belongs to the client ID used to create it; changing the shared key requires reconnecting.
+
+## Optional AI subtitle translation
+
+The administrator enables translation in mvmPlayer settings. It requires Premium, an installed and configured mvmAI, and its App API enabled in Apps Hub → Settings → App APIs (off by default). The desktop keeps the activation control visible without Premium; public pages omit translation while unavailable.
+
+In a video’s subtitle selector choose AI translation. Choose an existing subtitle or a supported embedded text track, select one of the nine mvmOS languages and review the credit quote. Text is translated in groups of up to 40 cues while original timings remain unchanged. Jobs show progress and can be cancelled. Failed or cancelled jobs refund their translation charges; completed jobs retain them. Only the requesting profile can inspect or cancel its job.
+
+Completed translations appear in the subtitle selector and are saved as SRT beside the video when permitted. Otherwise the app keeps its own subtitle copy. Picture subtitles are unsupported. Embedded tracks in videos hosted on another server cannot be read for translation; sidecar subtitles can be used. Ordinary playback, existing subtitles and the shared library work without translation.

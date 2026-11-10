@@ -10,11 +10,22 @@
     "subtitles",
     "player"
   ],
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A browser video library for movies, series and personal recordings, with subtitles and individual watching progress.",
   "entry": "main.js",
   "css": "style.css",
   "public_url": "/pub/mvmplayer/",
   "public_directory": true,
-  "min_core_version": "1.16.1"
+  "min_core_version": "1.22.0",
+  "services": [
+    "simkl"
+  ],
+  "credit_features": [
+    {
+      "id": "translate_segment",
+      "name": "Subtitle translation",
+      "description": "Charged for each segment of up to 40 subtitle lines that mvmAI translates; given back when the translation does not finish.",
+      "unit": "segment"
+    }
+  ]
 }

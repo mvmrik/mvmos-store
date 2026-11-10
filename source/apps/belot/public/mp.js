@@ -193,7 +193,7 @@
     return () => {
       const custom = chosenVariant.startsWith('custom:') ? saved()[chosenVariant.slice(7)] : null;
       pendingStartedVariant = {room: mp.roomId(), variant: chosenVariant};
-      return {rules:custom ? {...standardFor(baseOf(custom)), ...custom} : {...standardFor(chosenVariant)}, seats:seatIds.slice(), ai: aiInfo?.available ? aiSeats.slice() : undefined};
+      return {name_language:window.mvmOS?.lang || 'en', rules:custom ? {...standardFor(baseOf(custom)), ...custom} : {...standardFor(chosenVariant)}, seats:seatIds.slice(), ai: aiInfo?.available ? aiSeats.slice() : undefined};
     };
   }
   let pickedSeat = null;
@@ -590,6 +590,7 @@
       el.classList.toggle('active', state.turn === seat && state.phase !== 'finished' && !state.result);
       el.classList.toggle('self', pos === 0 && state.seat !== null);
       el.querySelector('.bl-pname').textContent = p.name;
+      el.querySelector('.bl-pname').title = p.name;
       el.querySelector('.bl-pmeta').textContent = pos === 0 && state.seat !== null ? tr('bl_you','You') : pos === 2 ? tr('bl_partner','Partner') : `${tr('bl_team','Team')} ${seat % 2 ? 'B' : 'A'}`;
       el.querySelector('.bl-chips').innerHTML =
         (state.dealer === seat ? `<span class="chip dealer">${esc(tr('bl_dealer','Dealer'))}</span>` : '') +
@@ -915,7 +916,14 @@
       pace = item.type === 'game_over' ? 0 : pauseAfter(prev, item);
     }
   }
-  mp.on('bl_state', s => { lastStateAt = Date.now(); queue.push(s); pump(); });
+  const namesReady = import(window.asset('/apps/gamehub/name-display.js'));
+  mp.on('bl_state', async s => {
+    const names = await namesReady;
+    for (const seat of s.seats) if (seat.name_identity) {
+      seat.name = names.countryFlag(seat.name_identity.country) + ' ' + names.displayName(seat.name_identity, window.mvmOS?.lang || 'en', s.name_display_rules);
+    }
+    lastStateAt = Date.now(); queue.push(s); pump();
+  });
   function handleState(s) {
     if (pendingStartedVariant?.room === mp.roomId()) {
       rememberVariant(pendingStartedVariant.variant);

@@ -5,3 +5,7 @@ Belot offers a rule for doubling the capot bonus in no-trump deals. It is enable
 Bot moves arrive in order and the table presents each with its own animation pause. Played cards and submitted bids show immediate feedback, and legal-card highlighting keeps the hand aligned. If a move is unanswered, its control becomes available again and the table requests the current state.
 
 Game Hub statistics now include deals played and won, contracts taken and made, contract success and points per deal. These are calculated from the completed deal log.
+
+## Shared names
+
+Bots receive names from the host interface’s country catalogue in Game Hub. Native and Latin spellings stay attached to the same identity; each viewer sees a readable spelling and a country flag. Bot identities survive save and resume. Human profile names remain unchanged. This version requires Game Hub 1.21.0 or later; update Game Hub before starting.

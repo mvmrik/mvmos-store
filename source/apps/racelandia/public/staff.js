@@ -1,3 +1,4 @@
+const personName = (c, p) => c.personName ? c.personName(p) : p?.name || '';
 const { render, on } = window.RacelandiaUI;
 // Racelandia - the pit crew page of the Staff tab.
 //
@@ -28,12 +29,12 @@ function memberCard(c, car, pos, member) {
   const trained = Object.entries(c.G.crew.trainings[game].skills).sort((a,b)=>b[1]-a[1]);
   const stars = '★'.repeat(Math.floor(member.stars)) + (member.stars % 1 >= 0.5 ? '½' : '') + '☆'.repeat(Math.max(0, 5 - Math.ceil(member.stars)));
   return `<div class="ap-card ap-crew-card"><div class="ap-bar"><h3>${c.esc(c.t('ap_pos_' + pos.id))}</h3><span class="ap-crew-tag">${c.esc(c.t('ap_crew_group_' + pos.group))}</span></div>
-    <div class="ap-crew-who"><b>${c.esc(member.name)}</b><span class="ap-stars">${stars}</span></div>
+    <div class="ap-crew-who"><b>${c.esc(personName(c, member))}</b><span class="ap-stars">${stars}</span></div>
     <p class="ap-hint">${c.esc(c.t('ap_age', { n: member.age }))} · ${c.esc(c.t('ap_crew_fit'))} <b>${Math.round(member.level)}%</b> · ${c.esc(c.t('ap_daily_salary'))}: <b>${c.money(member.salary)}</b></p>
     <div class="ap-skills">${skillBars(c, member, pos)}</div>
     <div class="ap-set-h"><span>${c.esc(c.t('ap_driver_energy_label'))}</span><output>${Math.floor(member.energy)}%</output></div><div class="ap-meter ap-energy"><i style="width:${member.energy}%"></i></div>
     <p class="ap-hint">${c.esc(c.t('ap_crew_drill_skills'))}</p><div class="ap-tags ap-crew-trained">${trained.map(([k,w])=>`<span class="${w>=.3 ? 'key' : ''}">${c.esc(c.t('ap_k_'+k))} ×${w}</span>`).join('')}</div><div class="ap-crew-actions"><button class="ap-btn ap-sm" data-crew-train="${c.esc(game)}" data-member="${c.esc(member.id)}" ${member.energy >= c.G.crew.train_energy && !busy && c.G.training_hall?.remaining ? '' : 'disabled'}>${c.esc(c.t('ap_train'))}<small>⚡ ${c.G.crew.train_energy}%</small></button>
-      <button class="ap-btn ap-sm ap-ghost" data-crew-dismiss="${c.esc(member.id)}" data-name="${c.esc(member.name)}" ${busy ? 'disabled' : ''}>${c.esc(c.t('ap_crew_dismiss'))}</button></div>
+      <button class="ap-btn ap-sm ap-ghost" data-crew-dismiss="${c.esc(member.id)}" data-name="${c.esc(personName(c, member))}" ${busy ? 'disabled' : ''}>${c.esc(c.t('ap_crew_dismiss'))}</button></div>
     <div class="ap-hint">${c.esc(c.t('ap_training_level',{n:1+Math.round((member.training_levels?.[game]||0)*9)}))}</div><div class="ap-hint">${c.esc(c.t('ap_trd_' + game))}</div></div>`;
 }
 
@@ -41,7 +42,7 @@ function offerCard(c, car, pos, offers) {
   const busy = !!c.G.career.active_session, budget = c.G.driver.budget;
   const rows = offers.map(o => {
     const stars = '★'.repeat(Math.floor(o.stars)) + (o.stars % 1 >= 0.5 ? '½' : '') + '☆'.repeat(Math.max(0, 5 - Math.ceil(o.stars)));
-    return `<div class="ap-offer"><div><b>${c.esc(o.name)}</b> <span class="ap-stars">${stars}</span><div class="ap-hint">${c.esc(c.t('ap_age', { n: o.age }))} · ${c.esc(c.t('ap_crew_fit'))} ${Math.round(o.level)}% · ${c.esc(c.t('ap_overall'))} ${o.overall.toFixed(1)}</div>
+    return `<div class="ap-offer"><div><b>${c.esc(personName(c, o))}</b> <span class="ap-stars">${stars}</span><div class="ap-hint">${c.esc(c.t('ap_age', { n: o.age }))} · ${c.esc(c.t('ap_crew_fit'))} ${Math.round(o.level)}% · ${c.esc(c.t('ap_overall'))} ${o.overall.toFixed(1)}</div>
       <div class="ap-hint">${c.esc(c.t('ap_daily_salary'))}: ${c.money(o.salary)}</div></div>
       <button class="ap-btn ap-sm" data-crew-hire="${c.esc(o.id)}" data-position="${c.esc(pos.id)}" ${!busy && budget >= o.price ? '' : 'disabled'}>${c.esc(c.t('ap_crew_hire'))} · ${c.money(o.price)}</button></div>`;
   }).join('');
@@ -62,7 +63,7 @@ export function paintCrew(host, c) {
   const pilot = G.team.pilots.find(p => p.id === car.pilot_id);
   const tabs = cars.map(x => {
     const p = G.team.pilots.find(q => q.id === x.pilot_id);
-    return `<button class="ap-btn ap-sm${x.id === carId ? '' : ' ap-ghost'}" data-crew-car="${c.esc(x.id)}">${c.esc(c.t('ap_car_number', { n: x.number }))} · ${c.esc(p?.name || c.t('ap_no_assigned_driver'))}</button>`;
+    return `<button class="ap-btn ap-sm${x.id === carId ? '' : ' ap-ghost'}" data-crew-car="${c.esc(x.id)}">${c.esc(c.t('ap_car_number', { n: x.number }))} · ${c.esc(p ? personName(c, p) : c.t('ap_no_assigned_driver'))}</button>`;
   }).join('');
   const rivals = (G.division?.roster || []).map(r => r.pit).filter(v => v != null).sort((a, b) => a - b);
   const median = rivals.length ? rivals[Math.floor(rivals.length / 2)] : null;
@@ -73,7 +74,7 @@ export function paintCrew(host, c) {
   const staffed = Object.values(info.members).filter(Boolean).length;
   render(host, `${c.heading}${c.nav}${c.hall}<div class="ap-crewpg">
     <div class="ap-crew-cars">${tabs}</div>
-    <div class="ap-card ap-crew-summary"><h2>${c.esc(c.t('ap_crew_speed'))}${pilot ? ' · ' + c.esc(pilot.name) : ''}</h2>
+    <div class="ap-card ap-crew-summary"><h2>${c.esc(c.t('ap_crew_speed'))}${pilot ? ' · ' + c.esc(personName(c, pilot)) : ''}</h2>
       <p class="ap-hint">${c.esc(c.t('ap_crew_speed_hint'))}</p>
       <div class="ap-stop-times"><div><small>${c.esc(c.t('ap_stop_tyres'))}</small><b>${seconds(times.tyre)}</b>${stopMeter(c, times.tyre)}</div>
         <div><small>${c.esc(c.t('ap_stop_repair'))}</small><b>${seconds(times.repair)}</b>${stopMeter(c, times.repair)}</div>
@@ -111,7 +112,7 @@ function specialistCard(c, role, m, offers) {
   const busy = !!c.G.career.active_session, S = c.G.specialists;
   const title = `<div class="ap-bar"><h3>${ROLE_ICON[role]} ${c.esc(c.t('ap_role_' + role))}</h3><span class="ap-crew-tag">${c.esc(c.t('ap_spec_alone'))}</span></div>`;
   if (!m) {
-    const rows = offers.map(o => `<div class="ap-offer"><div><b>${c.esc(o.name)}</b> <span class="ap-stars">${stars(o.stars)}</span>
+    const rows = offers.map(o => `<div class="ap-offer"><div><b>${c.esc(personName(c, o))}</b> <span class="ap-stars">${stars(o.stars)}</span>
       <div class="ap-hint">${c.esc(c.t('ap_age', { n: o.age }))} · ${c.esc(c.t('ap_spec_retires', { n: o.retire }))} · ${c.esc(c.t('ap_spec_level'))} ${Math.round(o.level)}</div>
       <div class="ap-hint">${c.esc(c.t('ap_daily_salary'))}: ${c.money(o.salary)}</div></div>
       <button class="ap-btn ap-sm" data-spec-hire="${c.esc(o.id)}" data-role="${c.esc(role)}" ${!busy && c.G.driver.budget >= o.price ? '' : 'disabled'}>${c.esc(c.t('ap_crew_hire'))} · ${c.money(o.price)}</button></div>`).join('');
@@ -119,20 +120,20 @@ function specialistCard(c, role, m, offers) {
   }
   const can = m.energy >= S.train_energy && !busy && c.G.training_hall?.remaining;
   return `<div class="ap-card ap-crew-card">${title}
-    <div class="ap-crew-who"><b>${c.esc(m.name)}</b><span class="ap-stars">${stars(m.stars)}</span></div>
+    <div class="ap-crew-who"><b>${c.esc(personName(c, m))}</b><span class="ap-stars">${stars(m.stars)}</span></div>
     <p class="ap-hint">${c.esc(c.t('ap_role_' + role + '_does'))}</p>
     <p class="ap-hint">${c.esc(c.t('ap_age', { n: m.age }))} · ${c.esc(c.t('ap_spec_retires', { n: m.retire }))} · ${c.esc(c.t('ap_spec_years', { n: Math.floor(m.years) }))} · ${c.esc(c.t('ap_daily_salary'))}: <b>${c.money(m.salary)}</b></p>
     <div class="ap-set-h"><label>${c.esc(c.t('ap_spec_level'))}</label><output>${m.level.toFixed(1)}</output></div><div class="ap-meter"><i style="width:${Math.min(100, m.level)}%;background:${c.skillCol(m.level)}"></i></div>
     <p class="ap-good">${c.esc(c.t('ap_fx_' + role, { n: specialistEffect(role, m.level) }))}</p>
     <div class="ap-set-h"><span>${c.esc(c.t('ap_driver_energy_label'))}</span><output>${Math.floor(m.energy)}%</output></div><div class="ap-meter ap-energy"><i style="width:${m.energy}%"></i></div>
     <div class="ap-crew-actions"><button class="ap-btn ap-sm" data-staff-train="${c.esc(S.games[role])}" data-member="${c.esc(m.id)}" ${can ? '' : 'disabled'}>${c.esc(c.t('ap_train'))}<small>⚡ ${S.train_energy}%</small></button>
-      <button class="ap-btn ap-sm ap-ghost" data-spec-dismiss="${c.esc(m.id)}" data-name="${c.esc(m.name)}" ${busy ? 'disabled' : ''}>${c.esc(c.t('ap_crew_dismiss'))}</button></div>
+      <button class="ap-btn ap-sm ap-ghost" data-spec-dismiss="${c.esc(m.id)}" data-name="${c.esc(personName(c, m))}" ${busy ? 'disabled' : ''}>${c.esc(c.t('ap_crew_dismiss'))}</button></div>
     <div class="ap-hint">${c.esc(c.t('ap_trd_' + S.games[role]))}</div></div>`;
 }
 const stars = v => '★'.repeat(Math.floor(v)) + (v % 1 >= 0.5 ? '½' : '') + '☆'.repeat(Math.max(0, 5 - Math.ceil(v)));
 
 export function paintSpecialists(host, c) {
-  const S = c.G.specialists, retired = (S.retired || []).map(r => `<p class="ap-warn">${c.esc(c.t('ap_spec_retired', { name: r.name, role: c.t('ap_role_' + r.role) }))}</p>`).join('');
+  const S = c.G.specialists, retired = (S.retired || []).map(r => `<p class="ap-warn">${c.esc(c.t('ap_spec_retired', { name: personName(c, r), role: c.t('ap_role_' + r.role) }))}</p>`).join('');
   render(host, `${c.heading}${c.nav}${c.hall}<div class="ap-crewpg">
     <div class="ap-card ap-crew-summary"><h2>${c.esc(c.t('ap_specialists'))}</h2><p class="ap-hint">${c.esc(c.t('ap_specialists_hint'))}</p>
       <div class="ap-tags"><span>${c.esc(c.t('ap_crew_staffed', { n: Object.values(S.members).filter(Boolean).length, m: S.roles.length }))}</span><span>${c.esc(c.t('ap_crew_cost_day'))}: ${c.money(S.daily)}</span></div>${retired}</div>

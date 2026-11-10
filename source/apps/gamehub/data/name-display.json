@@ -1,0 +1,24 @@
+{
+  "language_scripts": {
+    "bg": ["Latn", "Cyrl"],
+    "de": ["Latn"],
+    "en": ["Latn"],
+    "es": ["Latn"],
+    "fr": ["Latn"],
+    "ja": ["Latn", "Jpan"],
+    "pt-BR": ["Latn"],
+    "ru": ["Latn", "Cyrl"],
+    "zh-CN": ["Latn", "Hans"]
+  },
+  "native_scripts": {
+    "bg": "Cyrl",
+    "de": "Latn",
+    "en": "Latn",
+    "es": "Latn",
+    "fr": "Latn",
+    "ja": "Jpan",
+    "pt-BR": "Latn",
+    "ru": "Cyrl",
+    "zh-CN": "Hans"
+  }
+}

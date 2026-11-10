@@ -197,16 +197,29 @@ def public(conn,d,real=None,laps_of=None,mine=(),key=None):
         t=totals.setdefault(team,dict(name=team,points=0,wins=0,mine=False))
         t['points']+=s['points'].get(ident,0);t['wins']+=s['wins'].get(ident,0);t['mine']=t['mine'] or is_mine(ident)
     team_standings=sorted(totals.values(),key=lambda t:(-t['points'],-t['wins'],t['name']))
-    for r in standings:r['team']=team_of.get(r['id'],'')
+    people={r['id']:r for r in s['roster']}
+    people.update({m['key']:m for m in mine})
+    for r in standings:
+        r['team']=team_of.get(r['id'],'')
+        r.update(D['name_source'].public(people.get(r['id'],{})))
     slot=s['slots'].get(key) or s['slots']['player'];stage=slot['stage']
     characters={x['id']:x.get('character') for x in s['roster']}
-    slot_info=[dict(key=m['key'],car_id=m['car_id'],number=m['number'],pilot_id=m['pilot_id'],name=m['name'],stage=s['slots'][m['key']]['stage'],
+    slot_info=[dict(**D['name_source'].public(m),key=m['key'],car_id=m['car_id'],number=m['number'],pilot_id=m['pilot_id'],name=m['name'],stage=s['slots'][m['key']]['stage'],
                     phase=PHASES[s['slots'][m['key']]['stage']] if s['round']<=20 else None,locked_setup=bool(s['slots'][m['key']]['locked_setup']),
                     times=s['slots'][m['key']]['times'],tyres=s['slots'][m['key']]['tyres'],tyre_fee=0 if s['slots'][m['key']]['tyre_paid'] else TYRE_FEE) for m in mine]
+    results=[]
+    for old in s['results']:
+        rows=[]
+        for row in old.get('classification',[]):
+            if is_mine(row['id']) and not row.get('name_identity'):
+                name=row['name']
+                row=dict(row,name_identity=dict(native=name,latin=name,native_script='Latn'))
+            rows.append(row)
+        results.append(dict(old,classification=rows))
     return dict(divisions=DIVISIONS,eligible=eligible(mine),entered=s['entered'],round=s['round'],stage=stage,team_stage=team_stage(s),
                 phase=PHASES[stage] if s['round']<=20 else None,remaining=0,slot=key,slots=slot_info,
                 calendar=s['calendar'],standings=standings,team_standings=team_standings,roster=[dict(r,character=characters.get(r['id'])) for r in D['rivals'].summary(conn,d,5)],
-                results=s['results'],grid=s['grid'],locked_setup=slot['locked_setup'],race_laps=(laps_of(s['calendar'][s['round']-1].get('track','zandvoort')) if laps_of and s['calendar'] and s['round']<=20 else RACE_LAPS),energy=D['training_rules'].driving_energy(ENERGY[stage],d['skills']['fitness']),
+                results=results,grid=s['grid'],locked_setup=slot['locked_setup'],race_laps=(laps_of(s['calendar'][s['round']-1].get('track','zandvoort')) if laps_of and s['calendar'] and s['round']<=20 else RACE_LAPS),energy=D['training_rules'].driving_energy(ENERGY[stage],d['skills']['fitness']),
                 tyres=slot['tyres'],tyre_notes=slot.get('tyre_notes',{}),tyre_fee=0 if slot.get('tyre_paid') else TYRE_FEE,forecast=forecast(dict(s,stage=stage),real) if s['round']<=20 else [],durations=DURATIONS,
                 regen_hour=15,recovery_multiplier=1)
 
@@ -257,7 +270,7 @@ def prepare(conn,d,kind,setup,key,mine,set_id=None,set_ids=None,trip=None,usable
     fc,w=real_state(real,stage,stage) if real else weather_state(s,stage)
     meta=dict(forecast=fc,hour=w['hour'],weather=dict(w0=w['water0'],w1=w['water1'],rain0=w['rain0'],rain1=w['rain1']),tyre_set=chosen[key],tyres=slot['tyres'],tyre_fee=fee,track=tid,trip_fee=trip_fee,round=s['round'],phase=PHASES[stage],stage=stage,energy=ENERGY[stage],
               setup=setups[key],laps=((race_laps(tid) if race_laps else RACE_LAPS) if race else session_laps(DURATIONS[stage])),duration=DURATIONS[stage],roster=s['roster'],grid=s['grid'],seed=s['seed']+s['round']*997,key=key,
-              mine=[dict(key=m['key'],name=m['name'],team=m.get('team',''),car_id=m['car_id'],pilot_id=m['pilot_id']) for m in mine])
+              mine=[dict(**D['name_source'].public(m),key=m['key'],name=m['name'],team=m.get('team',''),car_id=m['car_id'],pilot_id=m['pilot_id']) for m in mine])
     meta['entries']={k:dict(tyre_set=chosen[k],tyres=s['slots'][k]['tyres'],setup=setups[k]) for k in chosen}
     return meta,None
 
@@ -287,7 +300,7 @@ def apply_tyres(conn,d,run,msg,rows):
 
 def _grid(s,mine):
     grid=[dict(r) for r in s.get('ai_grid',[])]
-    for m in mine:grid.append(dict(id=m['key'],name=m['name'],team=m.get('team',''),time=s['slots'][m['key']]['times'].get('qualifying')))
+    for m in mine:grid.append(dict(**D['name_source'].public(m),id=m['key'],name=m['name'],team=m.get('team',''),time=s['slots'][m['key']]['times'].get('qualifying')))
     grid.sort(key=lambda r:(r['time'] is None,r['time'] or 999,r['id']))
     return grid
 
@@ -304,7 +317,7 @@ def settle(conn,d,run,rows,dnf,cheat,energy_regen):
         team_of={r['id']:r.get('team','') for r in s['roster']}
         ai=[dict(id=r['id'],name=r['name'],team=team_of.get(r['id'],''),time=min((l['time'] for l in r['laps'] if l['valid']),default=None)) for r in field]
         grid=[dict(r) for r in ai]
-        for m in mine:grid.append(dict(id=m['key'],name=m['name'],team=m.get('team',''),time=s['slots'][m['key']]['times'].get(phase)))
+        for m in mine:grid.append(dict(**D['name_source'].public(m),id=m['key'],name=m['name'],team=m.get('team',''),time=s['slots'][m['key']]['times'].get(phase)))
         grid.sort(key=lambda r:(r['time'] is None,r['time'] or 999,r['id']))
         if phase=='qualifying':s['ai_grid']=ai;s['grid']=_grid(s,mine)
         out['classification']=grid

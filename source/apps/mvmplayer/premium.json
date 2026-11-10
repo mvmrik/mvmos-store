@@ -1,0 +1,10 @@
+{
+  "summary": "Translate subtitles through your configured mvmAI.",
+  "features": [
+    {
+      "title": "AI subtitle translation",
+      "short": "Translate subtitle text while keeping its timings",
+      "description": "Choose an existing subtitle or a supported embedded text track and translate it into one of the nine mvmOS languages through mvmAI. Review the credit quote before starting, follow progress and cancel if needed; failed or cancelled jobs refund their translation charges.\n\nThe result appears in the subtitle selector and is saved beside the video when the source location allows writing. Picture subtitles are unsupported, and embedded tracks in videos on another server cannot be read for translation.\n\nThe administrator must enable translation and configure mvmAI with its App API switched on. Without Premium, existing subtitles and ordinary playback remain available; the desktop shows the activation option and public pages omit translation."
+    }
+  ]
+}

@@ -77,6 +77,11 @@ def plain(value):
     return html.unescape(re.sub(r'<[^>]*>','',value or '')).strip()[:10000]
 
 
+def rating_value(show):
+    value=(show.get('rating') or {}).get('average')
+    return round(float(value),1) if isinstance(value,(int,float)) and 0<value<=10 else 0
+
+
 def candidate(data):
     data['id']=hashlib.sha256(json.dumps(data,sort_keys=True).encode()).hexdigest()[:32]
     cache('candidate:'+data['id'],data)
@@ -85,7 +90,7 @@ def candidate(data):
 
 async def search(row,query,language):
     season,number=int(row.get('season',0)),int(row.get('episode',0))
-    key='search:v2:'+json.dumps([row['kind'],query.casefold(),language,season,number])
+    key='search:v3:'+json.dumps([row['kind'],query.casefold(),language,season,number])
     result=cached(key)
     if result is not None:
         for item in result:cache('candidate:'+item['id'],item)
@@ -102,7 +107,7 @@ async def search(row,query,language):
             result.append(candidate(dict(title=show['name'][:250],description=plain(show.get('summary')),category=', '.join(show.get('genres',[]))[:250],year=(show.get('premiered') or '')[:4],
                 cover=cover if allowed(cover,True) else '',source='TVmaze',url=show['url'],show_id=int(show['id']),
                 premiered=show.get('premiered') or '',ended=show.get('ended') or '',network=network.get('name',''),country=country.get('name',''),
-                language=show.get('language',''),episode=exact)))
+                language=show.get('language',''),rating=rating_value(show),episode=exact)))
         result.sort(key=lambda item: {'found':0,'unavailable':1,'missing':2}.get(item['episode']['status'],1))
     else:
         code=WIKIS[language]

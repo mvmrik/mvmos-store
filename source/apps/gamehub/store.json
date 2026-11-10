@@ -1,6 +1,6 @@
 {
   "tagline": "One profile, every game, all the scores.",
-  "description": "Game Hub is the account and statistics layer the mvmOS games share. Players get a profile with a display name, a colour and an avatar they build in the app, and from then on every game they play is recorded against it.\n\nIt keeps sessions, scores, durations and winners, and turns them into statistics: every game declares what it measures, and Game Hub draws boards, charts, ratings and records for it, separately for solo and multiplayer, plus an overall ranking across all games and head-to-head records between two players. Favourites let you keep the people you play with to hand, which is also where multiplayer invitations come from.\n\nGame Hub has its own public page, so players can check the standings without a desktop account. The page is translated into all nine of mvmOS's languages and follows the language chosen on the Apps Hub account, so a player sees it in their own language from the first screen.",
+  "description": "Game Hub is the account and statistics layer the mvmOS games share. Players get a profile with a display name, a colour and an avatar they build in the app, and from then on every game they play is recorded against it.\n\nIt keeps sessions, scores, durations and winners, and turns them into statistics: every game declares what it measures, and Game Hub draws boards, charts, ratings and records for it, separately for solo and multiplayer, plus an overall ranking across all games and head-to-head records between two players. Favourites let you keep the people you play with to hand, which is also where multiplayer invitations come from.\n\nGame Hub has its own public page, so players can check the standings without a desktop account. The page is translated into all nine of mvmOS's languages and follows the language chosen on the Apps Hub account, so a player sees it in their own language from the first screen.\n\nShared names\nGame Hub includes a catalogue of personal names from nine countries and English team-name parts. Browse names by country and gender, preview native and Latin spellings, and add your own entries as administrator. Games use the same identities while choosing a readable spelling for each viewer.",
   "capabilities": [
     "Player profiles with username, display name, colour and password.",
     "Avatar editor built into the app.",
@@ -16,7 +16,8 @@
     "Your games can be filtered by category and sorted A–Z, most played or recently played.",
     "Profile with real totals from your whole history: overall place and points, solo and multiplayer games, multiplayer wins and win rate, and a table by game.",
     "Player against player: head-to-head record with a verdict, recent form and streaks, the chance of winning the next game, a per-game breakdown and a side-by-side comparison of every number with a rating chart. The game history loads only when you open it.",
-    "Games with their own picture icon show it in the library, game pages, history and statistics, with emoji for games that do not declare a picture."
+    "Games with their own picture icon show it in the library, game pages, history and statistics, with emoji for games that do not declare a picture.",
+    "Shared personal and team-name catalogue, with native and Latin spellings, gender-aware family names, administrator additions, search and previews."
   ],
   "integrations": [
     {

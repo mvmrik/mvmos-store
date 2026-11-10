@@ -38,8 +38,8 @@ export function tyreHudHtml({compound,wear,temps,tempColor,remaining},t){
     return `<div class="ap-wheel-cell" title="${title}" aria-label="${title}"><small>${name}</small><span class="ap-hud-wheel" aria-hidden="true"><i>${esc(compound)}</i></span><b style="color:${level}">${shown}%</b>${temps?`<em style="color:${tempColor(temps[i])}">${Math.round(temps[i])}°</em>`:''}</div>`;
   }).join('')}</div>`;
 }
-export function classificationHtml(rows,t,time){
-  return `<div class="ap-scroll"><table class="ap-table"><tr><th>#</th><th>${esc(t('ap_tab_driver'))}</th><th>${esc(t('ap_time_h'))}</th><th>${esc(t('ap_laps'))}</th><th>${esc(t('ap_points'))}</th></tr>${rows.map((r,i)=>`<tr class="${isMine(r.id)?'best':''}"><td>${i+1}</td><td>${esc(r.name)}${r.dnf?' · '+esc(t('ap_dnf_'+r.dnf,{part:t('ap_part_engine')})):''}${r.penalty?' +'+r.penalty+'s':''}</td><td>${r.time==null?'—':time(r.time)}</td><td>${r.laps??'—'}</td><td>${r.points??'—'}</td></tr>`).join('')}</table></div>`;
+export function classificationHtml(rows,t,time,personName=r=>r.name){
+  return `<div class="ap-scroll"><table class="ap-table"><tr><th>#</th><th>${esc(t('ap_tab_driver'))}</th><th>${esc(t('ap_time_h'))}</th><th>${esc(t('ap_laps'))}</th><th>${esc(t('ap_points'))}</th></tr>${rows.map((r,i)=>`<tr class="${isMine(r.id)?'best':''}"><td>${i+1}</td><td>${esc(personName(r))}${r.dnf?' · '+esc(t('ap_dnf_'+r.dnf,{part:t('ap_part_engine')})):''}${r.penalty?' +'+r.penalty+'s':''}</td><td>${r.time==null?'—':time(r.time)}</td><td>${r.laps??'—'}</td><td>${r.points??'—'}</td></tr>`).join('')}</table></div>`;
 }
 // The first places always stay at the top and the list scrolls freely. When our own row is outside the
 // visible part it is shown again, pinned to the bottom edge with its position.
@@ -233,7 +233,7 @@ export function openWeatherLaps(host,html){
   const ov=document.createElement('div');ov.className='ap-sum';ov.innerHTML=html;host.appendChild(ov);
   const close=()=>ov.remove();ov.querySelector('[data-wx-close]').onclick=close;ov.addEventListener('click',e=>{if(e.target===ov)close();});return ov;
 }
-export function playRace({host,M,track,payload,t,money,time,sendPit,onFinish,onGarage,RaceModel,sound,saveProgress}){
+export function playRace({host,M,track,payload,t,money,time,sendPit,onFinish,onGarage,RaceModel,sound,saveProgress,personName=p=>p?.name||''}){
   const race=new RaceModel(payload.race_config,payload.race_commands||[]),L=race.length;
   // a reloaded page runs the race again, with the stored pit calls, up to where it was
   const checkpointKey='racelandia:race:'+payload.session;
@@ -259,7 +259,7 @@ export function playRace({host,M,track,payload,t,money,time,sendPit,onFinish,onG
     <div class="ap-hud-l"><div class="ap-speed"><b data-race-speed>0</b><small>km/h</small><span data-race-gear>N</span></div>${drivingMetersHtml(t)}<div class="ap-race-telemetry" data-race-tyres></div></div>
     <div class="ap-hud-r"><canvas data-race-map width="170" height="120"></canvas><button class="ap-wxbox" data-race-wx title="${esc(t('ap_wx_tap'))}"></button></div><div class="ap-lights" data-race-lights></div><div class="ap-banner" data-race-msg hidden></div>
     </div><div class="ap-ctl"><div class="ap-cams">${['chase','cockpit','tv','heli','nose','orbit'].map(c=>`<button data-race-cam="${c}">${esc(t('ap_cam_'+c))}</button>`).join('')}</div>
-    <div class="ap-race-pit">${ownIds.length>1?`<div class="ap-watch">${ownIds.map(id=>`<button data-race-watch="${id}" title="${esc(t('ap_watch_car'))}">${esc(payload.entries?.[id]?.name||id)}</button>`).join('')}</div>`:''}<button class="ap-boxbtn" data-race-box>${esc(t('ap_box'))}</button><button class="ap-boxbtn" data-race-through>${esc(t('ap_pit_through'))}</button></div>
+    <div class="ap-race-pit">${ownIds.length>1?`<div class="ap-watch">${ownIds.map(id=>`<button data-race-watch="${id}" title="${esc(t('ap_watch_car'))}">${esc(personName(payload.entries?.[id])||id)}</button>`).join('')}</div>`:''}<button class="ap-boxbtn" data-race-box>${esc(t('ap_box'))}</button><button class="ap-boxbtn" data-race-through>${esc(t('ap_pit_through'))}</button></div>
     <div class="ap-speeds"><button data-race-sound>${sound?.enabled===false?'🔇':'🔊'}</button>${[1,2,4,8,64].map(v=>`<button data-race-speed-set="${v}">${v===64?esc(t('ap_skip')):'×'+v}</button>`).join('')}</div></div></div>`;
   const FACT=[.92,1.10,.96,1.02];                       // a left-handed circuit works the right-hand tyres harder
   const asked=new Set();
@@ -361,7 +361,7 @@ export function playRace({host,M,track,payload,t,money,time,sendPit,onFinish,onG
       el.classList.toggle('mine',!!c.e.mine);el.classList.toggle('watched',c===own);el.dataset.car=c.e.id;el.dataset.trackStatus=c.dnf?'dnf':c.finish!==null?'finished':c.pit?'pit':'flying';
       const [pos,name,tyre,stops,gap]=el.children;
       setText(pos,String(i+1));
-      setText(name,c.e.name+(c.pit?' 🅿':c.blue_for?' 🔵':'')+(c.pen_due&&!c.dnf?' ! +'+c.pen_due+'s':''));
+      setText(name,personName(c.e)+(c.pit?' 🅿':c.blue_for?' 🔵':'')+(c.pen_due&&!c.dnf?' ! +'+c.pen_due+'s':''));
       setText(tyre,c.compound);tyre.style.setProperty('--tc',TYRE_COL[c.compound]||TYRE_COL.M);tyre.title=t('ap_c_'+c.compound);
       setText(stops,String(c.stops));stops.title=t('ap_pit_stops')+': '+c.stops;
       const before=i>0?order[i-1]:null;
@@ -425,7 +425,7 @@ export function playRace({host,M,track,payload,t,money,time,sendPit,onFinish,onG
   view.onTick=draw;draw(.01);
   return {race,pause(){paused=true;engine?.update({playing:false});},resume(){paused=false;engine?.resume();},destroy(){checkpoint(true);dead=true;closePitDialog();window.removeEventListener('pagehide',flushProgress);document.removeEventListener('visibilitychange',flushProgress);engine?.destroy();view.destroy();},showResult(m){
     if(shown)return;try{localStorage.removeItem(checkpointKey);}catch(_){}shown=m;paused=true;engine?.update({playing:false});
-    const ov=document.createElement('div');ov.className='ap-sum';ov.innerHTML=`<div class="ap-sum-in"><h2>${esc(t('ap_race_result'))} · ${esc(t('ap_round',{n:m.weekend.round}))}</h2><div class="ap-sum-top"><div class="ap-big"><small>${esc(t('ap_prize'))}</small><b>+${money(m.reward)}</b></div><div class="ap-big"><small>${esc(t('ap_points'))}</small><b>${m.weekend.points}</b></div><div class="ap-big"><small>${esc(t('ap_spent_h'))}</small><b>−${money(m.cost)}</b></div></div>${m.cars?`<div class="ap-sum-cars">${Object.entries(m.cars).map(([k,c])=>`<div><b>${esc(payload.entries?.[k]?.name||k)}</b><span>P${c.position}</span><small>+${money(c.reward)}</small></div>`).join('')}</div>`:''}${classificationHtml(m.weekend.classification,t,time)}<p class="ap-hint">${esc(t('ap_recovery_rule'))}</p><button class="ap-btn" data-race-return>${esc(t('ap_to_season'))}</button></div>`;
+    const ov=document.createElement('div');ov.className='ap-sum';ov.innerHTML=`<div class="ap-sum-in"><h2>${esc(t('ap_race_result'))} · ${esc(t('ap_round',{n:m.weekend.round}))}</h2><div class="ap-sum-top"><div class="ap-big"><small>${esc(t('ap_prize'))}</small><b>+${money(m.reward)}</b></div><div class="ap-big"><small>${esc(t('ap_points'))}</small><b>${m.weekend.points}</b></div><div class="ap-big"><small>${esc(t('ap_spent_h'))}</small><b>−${money(m.cost)}</b></div></div>${m.cars?`<div class="ap-sum-cars">${Object.entries(m.cars).map(([k,c])=>`<div><b>${esc(personName(payload.entries?.[k])||k)}</b><span>P${c.position}</span><small>+${money(c.reward)}</small></div>`).join('')}</div>`:''}${classificationHtml(m.weekend.classification,t,time,personName)}<p class="ap-hint">${esc(t('ap_recovery_rule'))}</p><button class="ap-btn" data-race-return>${esc(t('ap_to_season'))}</button></div>`;
     q('.ap-view').appendChild(ov);ov.querySelector('[data-race-return]').onclick=()=>onGarage();
   }};
 }

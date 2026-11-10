@@ -1,6 +1,6 @@
 {
   "tagline": "Your table. Your rules.",
-  "description": "Play four-seat Bulgarian Belot or classic French Belote with friends or independent bots. The standard Bulgarian preset uses optional raising on no trump, declarations before the first card, balanced scoring and continued play after capot. The host can choose whether declarations name their combinations during play or only say they have one, along with other disputed bidding, card and scoring rules, then save named presets. Choose whether the capot bonus is doubled in no-trump deals. Bot bidding considers earlier calls and partner suits, while ordered table animations and immediate card and bid feedback keep every move clear. Game Hub records completed matches, wins and head-to-head results.",
+  "description": "Play four-seat Bulgarian Belot or classic French Belote with friends or independent bots. The standard Bulgarian preset uses optional raising on no trump, declarations before the first card, balanced scoring and continued play after capot.\n\nThe host can choose whether declarations name their combinations during play or only say they have one, along with other disputed bidding, card and scoring rules, then save named presets. Choose whether the capot bonus is doubled in no-trump deals.\n\nBot bidding considers earlier calls and partner suits, while ordered table animations and immediate card and bid feedback keep every move clear. Game Hub records completed matches, wins and head-to-head results.\n\nNames and identities\nBots receive country-specific names from Game Hub, shown in a readable spelling for each viewer and kept when a saved game resumes.",
   "capabilities": [
     "Four-seat team play with one to four human players and bots in empty seats.",
     "Custom rules and named presets for each player on this device.",
@@ -8,7 +8,8 @@
     "Game Hub profiles, invitations, match history and leaderboards.",
     "Responsive card table for desktop and phone.",
     "Premium: bots with an AI mentor that advises them on close calls and sometimes comments.",
-    "Game Hub statistics for deals played and won, contracts taken and made, contract success and points per deal."
+    "Game Hub statistics for deals played and won, contracts taken and made, contract success and points per deal.",
+    "Bots receive country-specific names from Game Hub, shown in a readable spelling for each viewer and kept when a saved game resumes."
   ],
   "integrations": [
     {
@@ -27,5 +28,8 @@
       "summary": "Premium: the AI of mvmAI's public page mentors the bots at a table.",
       "requires": "mvmAI installed with its App API enabled in Apps Hub → Settings → App APIs. This switch is off by default."
     }
+  ],
+  "requirements": [
+    "Game Hub 1.21.0 or later, installed and updated before using this version."
   ]
 }

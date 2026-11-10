@@ -135,6 +135,27 @@ class AudioTests(unittest.TestCase):
     def tearDown(self):
         self.client.close()
         self.temp.cleanup()
+    def test_library_sources_order_ranges_and_removal_preserve_files(self):
+        folder=Path(self.temp.name)/'source-audio';folder.mkdir()
+        book=folder/'Book';book.mkdir()
+        for name in ['Chapter 10.wav','Chapter 2.wav']:(book/name).write_bytes(audio_bytes(2))
+        def files(*args):
+            return [dict(rel=str(f.relative_to(folder)),size=f.stat().st_size,mtime=f.stat().st_mtime) for f in folder.rglob('*.wav')]
+        fp=types.SimpleNamespace(resolve_server_path=lambda *a,**kw:str(folder),folder_files=files,
+            open_server_file=lambda owner,root,rel:(open(Path(root)/rel,'rb'),(Path(root)/rel).stat().st_size))
+        with patch.object(self.mod,'_picker',return_value=fp),patch.object(self.mod,'scan_in_background'):
+            source=self.admin('POST','/sources',json=dict(path=str(folder),media_kind='books')).json()['id']
+            self.mod.scan_source(source)
+            items=self.pub('GET','/library').json()['items'];self.assertEqual(len(items),1)
+            item=items[0];self.assertEqual([t['title'] for t in item['tracks']],['Chapter 2','Chapter 10'])
+            tid=item['tracks'][0]['id'];url=self.pub('POST','/tracks/'+tid+'/ticket').json()['url']
+            response=self.client.get(url,headers={'Range':'bytes=0-9'})
+            self.assertEqual(response.status_code,206);self.assertEqual(response.content,audio_bytes(2)[:10])
+            self.assertEqual(self.admin('DELETE','/media/'+item['id']).status_code,409)
+            self.assertEqual(self.admin('DELETE','/sources/'+source).status_code,200)
+            self.assertEqual(self.pub('GET','/library').json()['items'],[])
+            self.assertEqual(len(list(book.glob('*.wav'))),2)
+
     def pub(self,method,path,user='a',**kw):
         return self.client.request(method,'/pub/mvmaudio'+path,headers={'X-Pub-Token':user,**kw.pop('headers',{})},**kw)
     def admin(self,method,path,**kw):

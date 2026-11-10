@@ -35,6 +35,7 @@ specialists = _local_module('specialists')
 training_rules = _local_module('training_rules')
 pilot_games = _local_module('pilot_games')
 sponsors = _local_module('sponsors')
+name_source = _local_module('name_source')
 rivals = _local_module('rivals')
 team.bind(globals())
 crew.bind(globals())
@@ -280,6 +281,7 @@ def _connect():
 
 def _row(r):
     d = dict(r)
+    d["name_identity"] = json.loads(d.get("name_identity") or "{}")
     d["character"] = json.loads(d.get("character") or "{}")
     d["skills"] = json.loads(d["skills"])
     d["potential"] = json.loads(d["potential"])
@@ -335,6 +337,7 @@ def get_driver(player_id: str, display_name: str = "") -> dict:
         r = conn.execute("SELECT * FROM driver WHERE player_id=?", (player_id,)).fetchone()
         d = _row(r)
         _age_driver(conn,d,now)
+        name_source.migrate(conn,d)
         team.sync(conn,d)
         team.accrue(conn,d)
         season.ensure(conn,d)
@@ -389,6 +392,7 @@ def public_driver(d: dict) -> dict:
     # the potential is only shown as a rough star rating
     gap = sum(pot[k] - sk[k] for k in SKILLS) / len(SKILLS)
     return {
+        **name_source.public(d),
         "character":dict(d.get("character") or {}) if d["has_driver"] else {},
         "name": d["name"] if d["has_driver"] else "", "age": d["age"] if d["has_driver"] else None,
         "start_reaction_ms":round(training_rules.start_delay(d["skills"]["reaction"],d["energy"])*1000), "driving_energy_factor":training_rules.driving_energy(1,d["skills"]["fitness"]),
@@ -417,7 +421,7 @@ def set_team_name(player_id: str, name: str):
 def set_name(player_id: str, name: str):
     name = (name or "").strip()[:24]
     if name and get_driver(player_id)["has_driver"]:
-        _update(player_id, name=name)
+        _update(player_id, name=name, name_identity=dict(get_driver(player_id).get('name_identity') or {}, custom_name=name))
 
 
 # ── Setup ───────────────────────────────────────────────────────────────────
@@ -1704,7 +1708,7 @@ def recruit_driver(player_id: str, offer_id: str):
         if d['budget']<offer['price']:return 'budget'
         team.sync(conn,d)
         ident=uuid.uuid4().hex
-        p=dict(pilot_id=ident,name=offer['name'],age=offer['age'],skills=offer['skills'],potential=offer['potential'],character=offer['character'],
+        p=dict(pilot_id=ident,name=offer['name'],name_identity=offer['name_identity'],age=offer['age'],skills=offer['skills'],potential=offer['potential'],character=offer['character'],
                energy=100,energy_ts=now,age_origin=now-(offer['age']-17)*AGE_YEAR_SECONDS,age_checked=now,recruited_at=now,trainings=0)
         team.write_projection(conn,player_id,dict(p,has_driver=1,last_recruit_at=now))
         conn.execute('INSERT INTO team_pilot VALUES(?,?,?,?,?)',(ident,player_id,json.dumps(p),now,now))
@@ -1815,6 +1819,7 @@ def _entries(conn, d):
     out = team.slots(conn, d)
     for e in out:
         e["name"] = e["pilot"]["name"] if e["pilot"] else ""
+        e.update(name_source.public(e['pilot'] or {}))
         e["team"] = d.get("team_name") or ""
     return out
 
@@ -1909,7 +1914,7 @@ def reserve_session(player_id: str, kind: str, setup: dict, compound: str, laps:
                     cars_cfg.append(dict(key=m['key'],view=view,setup=entry['setup'] if m['key']!=key else setup,compound=entry['tyre_set']['compound'],tyre_set=entry['tyre_set'],
                                          tyres=entry['tyres'],livery=team.livery_of(conn,player_id,m['car_id']),crew=crew.crew_of(conn,m['car_id'])))
                 payload['race_config']=race_engine.config(cars_cfg,meta,_DIR);payload['race_config'].update(spares={u['id']:u['wear'] for u in current['warehouse']['parts']},wear_rates={k:v['rate'] for k,v in PARTS.items()},wear_km=WEAR_KM)
-                payload['entries']={c['key']:dict(tyre_set=c['tyre_set'],tyres=c['tyres'],compound=c['compound'],car_id=c['view']['car_id'],pilot_id=c['view']['pilot_id'],name=c['view']['name'],livery=c['livery']) for c in cars_cfg}
+                payload['entries']={c['key']:dict(tyre_set=c['tyre_set'],tyres=c['tyres'],compound=c['compound'],car_id=c['view']['car_id'],pilot_id=c['view']['pilot_id'],name=c['view']['name'],name_identity=c['view'].get('name_identity'),livery=c['livery']) for c in cars_cfg}
                 payload['pit_times']={e['id']:e['pit_typical'] for e in payload['race_config']['entries'] if e.get('mine')}
                 payload['entry_setups']={c['key']:c['setup'] for c in cars_cfg}
             else:
@@ -1918,7 +1923,7 @@ def reserve_session(player_id: str, kind: str, setup: dict, compound: str, laps:
                 if other:
                     oe=meta['entries'][other['key']];oview["car_mods"]=car_mods_of(oview)
                     ocrash,ofail=plan_incidents(oview["skills"],oview["parts"],laps,kind,fc[hour]["water"],random.Random(),((track_of(current,track) or {}).get("length") or 3000)/1000.0/WEAR_KM)
-                    payload['other']=dict(livery=team.livery_of(conn,player_id,oview['car_id']),key=other['key'],name=other['name'],setup=oe['setup'],compound=oe['tyre_set']['compound'],tyre_set=oe['tyre_set'],tyres=oe['tyres'],mounted=[],
+                    payload['other']=dict(livery=team.livery_of(conn,player_id,oview['car_id']),key=other['key'],name=other['name'],name_identity=oview.get('name_identity'),setup=oe['setup'],compound=oe['tyre_set']['compound'],tyre_set=oe['tyre_set'],tyres=oe['tyres'],mounted=[],
                                           skills=oview['skills'],parts=oview['parts'],mods=oview['car_mods']['sim'],car_mods=oview['car_mods'],character=dict(oview['character']),car_id=oview['car_id'],
                                           pilot_id=oview['pilot_id'],start_energy=oview['energy'],energy=training_rules.driving_energy(meta['energy_base'],oview['skills']['fitness']),crash=ocrash,fail=ofail,seed=random.getrandbits(31))
         elif stocked:
@@ -2330,6 +2335,9 @@ def reset_career(player_id: str, expected_started):
             (player_id, "Driver", 17, json.dumps(START_SKILLS), json.dumps(POTENTIAL), START_BUDGET,
              ENERGY_MAX, now, json.dumps(DEFAULT_SETUP), now, now, 0, 0))
         _starter_cars(conn, player_id, now)
+        fresh = _row(conn.execute('SELECT * FROM driver WHERE player_id=?', (player_id,)).fetchone())
+        team.sync(conn, fresh)
+        season.ensure(conn, fresh)
         conn.commit()
         return None
     finally:

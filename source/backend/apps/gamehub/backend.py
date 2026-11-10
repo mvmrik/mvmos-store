@@ -652,6 +652,44 @@ async def cancel_my_invites(room_url: str, x_gh_token: Optional[str] = Header(de
 router.include_router(_admin)
 router.include_router(_pub, dependencies=[Depends(_gate_public)])
 
+# Desktop name catalogue, kept in Game Hub alongside its other shared services.
+import importlib.util as _names_ilu
+_names_spec = _names_ilu.spec_from_file_location("gamehub_names", os.path.join(os.path.dirname(__file__), "names.py"))
+_names = _names_ilu.module_from_spec(_names_spec)
+_names_spec.loader.exec_module(_names)
+router.include_router(_names.make_router(_db, get_current_session))
+
+
+def generate_names(*, country='', gender='mixed', count=1, rng=None):
+    """Public in-process service: return identities without knowing the caller.
+
+    Game Hub owns its catalogue. Its trusted backend reads it on behalf of a
+    confined consumer, which never receives filesystem access to Game Hub.
+    """
+    from backend.app_isolation import release
+    with release(), _db() as conn:
+        return _names.generate(conn, country=country, gender=gender, count=count, rng=rng)
+
+
+def name_display_rules():
+    from backend.app_isolation import release
+    with release():
+        # Callers receive a copy, so they cannot modify the shared cached policy.
+        return json.loads(json.dumps(_names.display_rules()))
+
+
+def name_country(language='en'):
+    from backend.app_isolation import release
+    with release():
+        return _names.country_for_language(language)
+
+
+def name_catalogue():
+    from backend.app_isolation import release
+    with release(), _db() as conn:
+        return _names.catalogue(conn)
+
+
 # ── Multiplayer framework ─────────────────────────────────────
 # Generic, game-agnostic multiplayer host lives in mp.py (sibling file).
 # Loaded here because the app loader only execs backend.py per app.

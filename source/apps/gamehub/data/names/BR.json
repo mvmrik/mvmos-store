@@ -1,0 +1,1622 @@
+{
+  "name": "Brazil",
+  "language": "pt-BR",
+  "family_first": false,
+  "separator": " ",
+  "groups": {
+    "male_first": [
+      [
+        "Alexandre",
+        "Alexandre"
+      ],
+      [
+        "André",
+        "André"
+      ],
+      [
+        "Anthony",
+        "Anthony"
+      ],
+      [
+        "Anthony Gabriel",
+        "Anthony Gabriel"
+      ],
+      [
+        "Antony",
+        "Antony"
+      ],
+      [
+        "Antônio",
+        "Antônio"
+      ],
+      [
+        "Apollo",
+        "Apollo"
+      ],
+      [
+        "Arthur",
+        "Arthur"
+      ],
+      [
+        "Arthur Gabriel",
+        "Arthur Gabriel"
+      ],
+      [
+        "Arthur Miguel",
+        "Arthur Miguel"
+      ],
+      [
+        "Asafe",
+        "Asafe"
+      ],
+      [
+        "Augusto",
+        "Augusto"
+      ],
+      [
+        "Benicio",
+        "Benicio"
+      ],
+      [
+        "Benjamim",
+        "Benjamim"
+      ],
+      [
+        "Benjamin",
+        "Benjamin"
+      ],
+      [
+        "Bento",
+        "Bento"
+      ],
+      [
+        "Benício",
+        "Benício"
+      ],
+      [
+        "Bernardo",
+        "Bernardo"
+      ],
+      [
+        "Brayan",
+        "Brayan"
+      ],
+      [
+        "Breno",
+        "Breno"
+      ],
+      [
+        "Bruno",
+        "Bruno"
+      ],
+      [
+        "Bryan",
+        "Bryan"
+      ],
+      [
+        "Caio",
+        "Caio"
+      ],
+      [
+        "Caleb",
+        "Caleb"
+      ],
+      [
+        "Calebe",
+        "Calebe"
+      ],
+      [
+        "Carlos Eduardo",
+        "Carlos Eduardo"
+      ],
+      [
+        "Cauã",
+        "Cauã"
+      ],
+      [
+        "Cauê",
+        "Cauê"
+      ],
+      [
+        "Daniel",
+        "Daniel"
+      ],
+      [
+        "Danilo",
+        "Danilo"
+      ],
+      [
+        "Dante",
+        "Dante"
+      ],
+      [
+        "Davi",
+        "Davi"
+      ],
+      [
+        "Davi Lucas",
+        "Davi Lucas"
+      ],
+      [
+        "Davi Lucca",
+        "Davi Lucca"
+      ],
+      [
+        "Davi Luiz",
+        "Davi Luiz"
+      ],
+      [
+        "Davi Miguel",
+        "Davi Miguel"
+      ],
+      [
+        "Diego",
+        "Diego"
+      ],
+      [
+        "Diogo",
+        "Diogo"
+      ],
+      [
+        "Dom",
+        "Dom"
+      ],
+      [
+        "Eduardo",
+        "Eduardo"
+      ],
+      [
+        "Emanuel",
+        "Emanuel"
+      ],
+      [
+        "Enrico",
+        "Enrico"
+      ],
+      [
+        "Enzo",
+        "Enzo"
+      ],
+      [
+        "Enzo Gabriel",
+        "Enzo Gabriel"
+      ],
+      [
+        "Erick",
+        "Erick"
+      ],
+      [
+        "Felipe",
+        "Felipe"
+      ],
+      [
+        "Fernando",
+        "Fernando"
+      ],
+      [
+        "Francisco",
+        "Francisco"
+      ],
+      [
+        "Gabriel",
+        "Gabriel"
+      ],
+      [
+        "Gael",
+        "Gael"
+      ],
+      [
+        "Gael Henrique",
+        "Gael Henrique"
+      ],
+      [
+        "Guilherme",
+        "Guilherme"
+      ],
+      [
+        "Gustavo",
+        "Gustavo"
+      ],
+      [
+        "Gustavo Henrique",
+        "Gustavo Henrique"
+      ],
+      [
+        "Heitor",
+        "Heitor"
+      ],
+      [
+        "Henrique",
+        "Henrique"
+      ],
+      [
+        "Henry",
+        "Henry"
+      ],
+      [
+        "Henry Gabriel",
+        "Henry Gabriel"
+      ],
+      [
+        "Ian",
+        "Ian"
+      ],
+      [
+        "Igor",
+        "Igor"
+      ],
+      [
+        "Isaac",
+        "Isaac"
+      ],
+      [
+        "Isaque",
+        "Isaque"
+      ],
+      [
+        "Joaquim",
+        "Joaquim"
+      ],
+      [
+        "Josué",
+        "Josué"
+      ],
+      [
+        "José",
+        "José"
+      ],
+      [
+        "José Miguel",
+        "José Miguel"
+      ],
+      [
+        "José Pedro",
+        "José Pedro"
+      ],
+      [
+        "João",
+        "João"
+      ],
+      [
+        "João Felipe",
+        "João Felipe"
+      ],
+      [
+        "João Gabriel",
+        "João Gabriel"
+      ],
+      [
+        "João Guilherme",
+        "João Guilherme"
+      ],
+      [
+        "João Lucas",
+        "João Lucas"
+      ],
+      [
+        "João Miguel",
+        "João Miguel"
+      ],
+      [
+        "João Pedro",
+        "João Pedro"
+      ],
+      [
+        "João Vitor",
+        "João Vitor"
+      ],
+      [
+        "Juan",
+        "Juan"
+      ],
+      [
+        "Kaique",
+        "Kaique"
+      ],
+      [
+        "Kevin",
+        "Kevin"
+      ],
+      [
+        "Leandro",
+        "Leandro"
+      ],
+      [
+        "Leonardo",
+        "Leonardo"
+      ],
+      [
+        "Levi",
+        "Levi"
+      ],
+      [
+        "Liam",
+        "Liam"
+      ],
+      [
+        "Lorenzo",
+        "Lorenzo"
+      ],
+      [
+        "Luan",
+        "Luan"
+      ],
+      [
+        "Lucas",
+        "Lucas"
+      ],
+      [
+        "Lucas Gabriel",
+        "Lucas Gabriel"
+      ],
+      [
+        "Lucca",
+        "Lucca"
+      ],
+      [
+        "Luigi",
+        "Luigi"
+      ],
+      [
+        "Luiz Felipe",
+        "Luiz Felipe"
+      ],
+      [
+        "Luiz Fernando",
+        "Luiz Fernando"
+      ],
+      [
+        "Luiz Gustavo",
+        "Luiz Gustavo"
+      ],
+      [
+        "Luiz Henrique",
+        "Luiz Henrique"
+      ],
+      [
+        "Luiz Miguel",
+        "Luiz Miguel"
+      ],
+      [
+        "Luiz Otávio",
+        "Luiz Otávio"
+      ],
+      [
+        "Léo",
+        "Léo"
+      ],
+      [
+        "Marcelo",
+        "Marcelo"
+      ],
+      [
+        "Marcos Vinicius",
+        "Marcos Vinicius"
+      ],
+      [
+        "Mateus",
+        "Mateus"
+      ],
+      [
+        "Matheus",
+        "Matheus"
+      ],
+      [
+        "Mathias",
+        "Mathias"
+      ]
+    ],
+    "female_first": [
+      [
+        "Agatha",
+        "Agatha"
+      ],
+      [
+        "Alana",
+        "Alana"
+      ],
+      [
+        "Alexia",
+        "Alexia"
+      ],
+      [
+        "Alice",
+        "Alice"
+      ],
+      [
+        "Allana",
+        "Allana"
+      ],
+      [
+        "Alícia",
+        "Alícia"
+      ],
+      [
+        "Amanda",
+        "Amanda"
+      ],
+      [
+        "Ana",
+        "Ana"
+      ],
+      [
+        "Ana Beatriz",
+        "Ana Beatriz"
+      ],
+      [
+        "Ana Carolina",
+        "Ana Carolina"
+      ],
+      [
+        "Ana Cecília",
+        "Ana Cecília"
+      ],
+      [
+        "Ana Clara",
+        "Ana Clara"
+      ],
+      [
+        "Ana Julia",
+        "Ana Julia"
+      ],
+      [
+        "Ana Júlia",
+        "Ana Júlia"
+      ],
+      [
+        "Ana Laura",
+        "Ana Laura"
+      ],
+      [
+        "Ana Liz",
+        "Ana Liz"
+      ],
+      [
+        "Ana Luiza",
+        "Ana Luiza"
+      ],
+      [
+        "Ana Lívia",
+        "Ana Lívia"
+      ],
+      [
+        "Ana Sophia",
+        "Ana Sophia"
+      ],
+      [
+        "Ana Vitória",
+        "Ana Vitória"
+      ],
+      [
+        "Anna Liz",
+        "Anna Liz"
+      ],
+      [
+        "Antonella",
+        "Antonella"
+      ],
+      [
+        "Aurora",
+        "Aurora"
+      ],
+      [
+        "Ayla",
+        "Ayla"
+      ],
+      [
+        "Aylla",
+        "Aylla"
+      ],
+      [
+        "Beatriz",
+        "Beatriz"
+      ],
+      [
+        "Bella",
+        "Bella"
+      ],
+      [
+        "Bianca",
+        "Bianca"
+      ],
+      [
+        "Brenda",
+        "Brenda"
+      ],
+      [
+        "Bruna",
+        "Bruna"
+      ],
+      [
+        "Bárbara",
+        "Bárbara"
+      ],
+      [
+        "Camila",
+        "Camila"
+      ],
+      [
+        "Carolina",
+        "Carolina"
+      ],
+      [
+        "Caroline",
+        "Caroline"
+      ],
+      [
+        "Catarina",
+        "Catarina"
+      ],
+      [
+        "Cecilia",
+        "Cecilia"
+      ],
+      [
+        "Cecília",
+        "Cecília"
+      ],
+      [
+        "Clara",
+        "Clara"
+      ],
+      [
+        "Clarice",
+        "Clarice"
+      ],
+      [
+        "Daniela",
+        "Daniela"
+      ],
+      [
+        "Eduarda",
+        "Eduarda"
+      ],
+      [
+        "Elisa",
+        "Elisa"
+      ],
+      [
+        "Eloah",
+        "Eloah"
+      ],
+      [
+        "Eloá",
+        "Eloá"
+      ],
+      [
+        "Emanuella",
+        "Emanuella"
+      ],
+      [
+        "Emanuelly",
+        "Emanuelly"
+      ],
+      [
+        "Emilly",
+        "Emilly"
+      ],
+      [
+        "Ester",
+        "Ester"
+      ],
+      [
+        "Esther",
+        "Esther"
+      ],
+      [
+        "Evelyn",
+        "Evelyn"
+      ],
+      [
+        "Fernanda",
+        "Fernanda"
+      ],
+      [
+        "Gabriela",
+        "Gabriela"
+      ],
+      [
+        "Gabrielly",
+        "Gabrielly"
+      ],
+      [
+        "Giovanna",
+        "Giovanna"
+      ],
+      [
+        "Hadassa",
+        "Hadassa"
+      ],
+      [
+        "Helena",
+        "Helena"
+      ],
+      [
+        "Hellena",
+        "Hellena"
+      ],
+      [
+        "Heloisa",
+        "Heloisa"
+      ],
+      [
+        "Heloísa",
+        "Heloísa"
+      ],
+      [
+        "Isabel",
+        "Isabel"
+      ],
+      [
+        "Isabela",
+        "Isabela"
+      ],
+      [
+        "Isabella",
+        "Isabella"
+      ],
+      [
+        "Isabelly",
+        "Isabelly"
+      ],
+      [
+        "Isadora",
+        "Isadora"
+      ],
+      [
+        "Isis",
+        "Isis"
+      ],
+      [
+        "Jade",
+        "Jade"
+      ],
+      [
+        "Joana",
+        "Joana"
+      ],
+      [
+        "Julia",
+        "Julia"
+      ],
+      [
+        "Juliana",
+        "Juliana"
+      ],
+      [
+        "Júlia",
+        "Júlia"
+      ],
+      [
+        "Kamilly",
+        "Kamilly"
+      ],
+      [
+        "Lara",
+        "Lara"
+      ],
+      [
+        "Larissa",
+        "Larissa"
+      ],
+      [
+        "Laura",
+        "Laura"
+      ],
+      [
+        "Lavínia",
+        "Lavínia"
+      ],
+      [
+        "Laís",
+        "Laís"
+      ],
+      [
+        "Letícia",
+        "Letícia"
+      ],
+      [
+        "Liz",
+        "Liz"
+      ],
+      [
+        "Lorena",
+        "Lorena"
+      ],
+      [
+        "Luana",
+        "Luana"
+      ],
+      [
+        "Luara",
+        "Luara"
+      ],
+      [
+        "Luiza",
+        "Luiza"
+      ],
+      [
+        "Luna",
+        "Luna"
+      ],
+      [
+        "Lunna",
+        "Lunna"
+      ],
+      [
+        "Luísa",
+        "Luísa"
+      ],
+      [
+        "Lívia",
+        "Lívia"
+      ],
+      [
+        "Maitê",
+        "Maitê"
+      ],
+      [
+        "Manuela",
+        "Manuela"
+      ],
+      [
+        "Manuella",
+        "Manuella"
+      ],
+      [
+        "Marcela",
+        "Marcela"
+      ],
+      [
+        "Maria",
+        "Maria"
+      ],
+      [
+        "Maria Alice",
+        "Maria Alice"
+      ],
+      [
+        "Maria Cecília",
+        "Maria Cecília"
+      ],
+      [
+        "Maria Clara",
+        "Maria Clara"
+      ],
+      [
+        "Maria Eduarda",
+        "Maria Eduarda"
+      ],
+      [
+        "Maria Fernanda",
+        "Maria Fernanda"
+      ],
+      [
+        "Maria Flor",
+        "Maria Flor"
+      ],
+      [
+        "Maria Helena",
+        "Maria Helena"
+      ],
+      [
+        "Maria Isis",
+        "Maria Isis"
+      ],
+      [
+        "Maria Julia",
+        "Maria Julia"
+      ]
+    ],
+    "male_last": [
+      [
+        "Abreu",
+        "Abreu"
+      ],
+      [
+        "Albuquerque",
+        "Albuquerque"
+      ],
+      [
+        "Almeida",
+        "Almeida"
+      ],
+      [
+        "Alves",
+        "Alves"
+      ],
+      [
+        "Andrade",
+        "Andrade"
+      ],
+      [
+        "Aparecida",
+        "Aparecida"
+      ],
+      [
+        "Aragão",
+        "Aragão"
+      ],
+      [
+        "Araújo",
+        "Araújo"
+      ],
+      [
+        "Azevedo",
+        "Azevedo"
+      ],
+      [
+        "Barbosa",
+        "Barbosa"
+      ],
+      [
+        "Barros",
+        "Barros"
+      ],
+      [
+        "Borges",
+        "Borges"
+      ],
+      [
+        "Brito",
+        "Brito"
+      ],
+      [
+        "Caldeira",
+        "Caldeira"
+      ],
+      [
+        "Camargo",
+        "Camargo"
+      ],
+      [
+        "Campos",
+        "Campos"
+      ],
+      [
+        "Cardoso",
+        "Cardoso"
+      ],
+      [
+        "Carvalho",
+        "Carvalho"
+      ],
+      [
+        "Casa Grande",
+        "Casa Grande"
+      ],
+      [
+        "Cassiano",
+        "Cassiano"
+      ],
+      [
+        "Castro",
+        "Castro"
+      ],
+      [
+        "Cavalcante",
+        "Cavalcante"
+      ],
+      [
+        "Cavalcanti",
+        "Cavalcanti"
+      ],
+      [
+        "Cirino",
+        "Cirino"
+      ],
+      [
+        "Correia",
+        "Correia"
+      ],
+      [
+        "Costa",
+        "Costa"
+      ],
+      [
+        "Costela",
+        "Costela"
+      ],
+      [
+        "Cunha",
+        "Cunha"
+      ],
+      [
+        "Câmara",
+        "Câmara"
+      ],
+      [
+        "da Conceição",
+        "da Conceição"
+      ],
+      [
+        "da Costa",
+        "da Costa"
+      ],
+      [
+        "da Cruz",
+        "da Cruz"
+      ],
+      [
+        "da Cunha",
+        "da Cunha"
+      ],
+      [
+        "da Luz",
+        "da Luz"
+      ],
+      [
+        "da Mata",
+        "da Mata"
+      ],
+      [
+        "da Mota",
+        "da Mota"
+      ],
+      [
+        "da Paz",
+        "da Paz"
+      ],
+      [
+        "da Rocha",
+        "da Rocha"
+      ],
+      [
+        "da Rosa",
+        "da Rosa"
+      ],
+      [
+        "das Neves",
+        "das Neves"
+      ],
+      [
+        "Dias",
+        "Dias"
+      ],
+      [
+        "Duarte",
+        "Duarte"
+      ],
+      [
+        "Farias",
+        "Farias"
+      ],
+      [
+        "Fernandes",
+        "Fernandes"
+      ],
+      [
+        "Ferreira",
+        "Ferreira"
+      ],
+      [
+        "Fogaça",
+        "Fogaça"
+      ],
+      [
+        "Fonseca",
+        "Fonseca"
+      ],
+      [
+        "Freitas",
+        "Freitas"
+      ],
+      [
+        "Garcia",
+        "Garcia"
+      ],
+      [
+        "Gomes",
+        "Gomes"
+      ],
+      [
+        "Gonçalves",
+        "Gonçalves"
+      ],
+      [
+        "Guerra",
+        "Guerra"
+      ],
+      [
+        "Jesus",
+        "Jesus"
+      ],
+      [
+        "Leão",
+        "Leão"
+      ],
+      [
+        "Lima",
+        "Lima"
+      ],
+      [
+        "Lopes",
+        "Lopes"
+      ],
+      [
+        "Macedo",
+        "Macedo"
+      ],
+      [
+        "Machado",
+        "Machado"
+      ],
+      [
+        "Marques",
+        "Marques"
+      ],
+      [
+        "Martins",
+        "Martins"
+      ],
+      [
+        "Melo",
+        "Melo"
+      ],
+      [
+        "Mendes",
+        "Mendes"
+      ],
+      [
+        "Mendonça",
+        "Mendonça"
+      ],
+      [
+        "Monteiro",
+        "Monteiro"
+      ],
+      [
+        "Montenegro",
+        "Montenegro"
+      ],
+      [
+        "Moraes",
+        "Moraes"
+      ],
+      [
+        "Moreira",
+        "Moreira"
+      ],
+      [
+        "Moura",
+        "Moura"
+      ],
+      [
+        "Nascimento",
+        "Nascimento"
+      ],
+      [
+        "Nogueira",
+        "Nogueira"
+      ],
+      [
+        "Novaes",
+        "Novaes"
+      ],
+      [
+        "Novais",
+        "Novais"
+      ],
+      [
+        "Nunes",
+        "Nunes"
+      ],
+      [
+        "Oliveira",
+        "Oliveira"
+      ],
+      [
+        "Pacheco",
+        "Pacheco"
+      ],
+      [
+        "Pastor",
+        "Pastor"
+      ],
+      [
+        "Peixoto",
+        "Peixoto"
+      ],
+      [
+        "Pereira",
+        "Pereira"
+      ],
+      [
+        "Pimenta",
+        "Pimenta"
+      ],
+      [
+        "Pinto",
+        "Pinto"
+      ],
+      [
+        "Pires",
+        "Pires"
+      ],
+      [
+        "Porto",
+        "Porto"
+      ],
+      [
+        "Ramos",
+        "Ramos"
+      ],
+      [
+        "Rezende",
+        "Rezende"
+      ],
+      [
+        "Ribeiro",
+        "Ribeiro"
+      ],
+      [
+        "Rios",
+        "Rios"
+      ],
+      [
+        "Rocha",
+        "Rocha"
+      ],
+      [
+        "Rodrigues",
+        "Rodrigues"
+      ],
+      [
+        "Sales",
+        "Sales"
+      ],
+      [
+        "Sampaio",
+        "Sampaio"
+      ],
+      [
+        "Santos",
+        "Santos"
+      ],
+      [
+        "Silva",
+        "Silva"
+      ],
+      [
+        "Silveira",
+        "Silveira"
+      ],
+      [
+        "Siqueira",
+        "Siqueira"
+      ],
+      [
+        "Sousa",
+        "Sousa"
+      ],
+      [
+        "Souza",
+        "Souza"
+      ],
+      [
+        "Sá",
+        "Sá"
+      ],
+      [
+        "Teixeira",
+        "Teixeira"
+      ],
+      [
+        "Vargas",
+        "Vargas"
+      ],
+      [
+        "Vasconcelos",
+        "Vasconcelos"
+      ]
+    ],
+    "female_last": [
+      [
+        "Abreu",
+        "Abreu"
+      ],
+      [
+        "Albuquerque",
+        "Albuquerque"
+      ],
+      [
+        "Almeida",
+        "Almeida"
+      ],
+      [
+        "Alves",
+        "Alves"
+      ],
+      [
+        "Andrade",
+        "Andrade"
+      ],
+      [
+        "Aparecida",
+        "Aparecida"
+      ],
+      [
+        "Aragão",
+        "Aragão"
+      ],
+      [
+        "Araújo",
+        "Araújo"
+      ],
+      [
+        "Azevedo",
+        "Azevedo"
+      ],
+      [
+        "Barbosa",
+        "Barbosa"
+      ],
+      [
+        "Barros",
+        "Barros"
+      ],
+      [
+        "Borges",
+        "Borges"
+      ],
+      [
+        "Brito",
+        "Brito"
+      ],
+      [
+        "Caldeira",
+        "Caldeira"
+      ],
+      [
+        "Camargo",
+        "Camargo"
+      ],
+      [
+        "Campos",
+        "Campos"
+      ],
+      [
+        "Cardoso",
+        "Cardoso"
+      ],
+      [
+        "Carvalho",
+        "Carvalho"
+      ],
+      [
+        "Casa Grande",
+        "Casa Grande"
+      ],
+      [
+        "Cassiano",
+        "Cassiano"
+      ],
+      [
+        "Castro",
+        "Castro"
+      ],
+      [
+        "Cavalcante",
+        "Cavalcante"
+      ],
+      [
+        "Cavalcanti",
+        "Cavalcanti"
+      ],
+      [
+        "Cirino",
+        "Cirino"
+      ],
+      [
+        "Correia",
+        "Correia"
+      ],
+      [
+        "Costa",
+        "Costa"
+      ],
+      [
+        "Costela",
+        "Costela"
+      ],
+      [
+        "Cunha",
+        "Cunha"
+      ],
+      [
+        "Câmara",
+        "Câmara"
+      ],
+      [
+        "da Conceição",
+        "da Conceição"
+      ],
+      [
+        "da Costa",
+        "da Costa"
+      ],
+      [
+        "da Cruz",
+        "da Cruz"
+      ],
+      [
+        "da Cunha",
+        "da Cunha"
+      ],
+      [
+        "da Luz",
+        "da Luz"
+      ],
+      [
+        "da Mata",
+        "da Mata"
+      ],
+      [
+        "da Mota",
+        "da Mota"
+      ],
+      [
+        "da Paz",
+        "da Paz"
+      ],
+      [
+        "da Rocha",
+        "da Rocha"
+      ],
+      [
+        "da Rosa",
+        "da Rosa"
+      ],
+      [
+        "das Neves",
+        "das Neves"
+      ],
+      [
+        "Dias",
+        "Dias"
+      ],
+      [
+        "Duarte",
+        "Duarte"
+      ],
+      [
+        "Farias",
+        "Farias"
+      ],
+      [
+        "Fernandes",
+        "Fernandes"
+      ],
+      [
+        "Ferreira",
+        "Ferreira"
+      ],
+      [
+        "Fogaça",
+        "Fogaça"
+      ],
+      [
+        "Fonseca",
+        "Fonseca"
+      ],
+      [
+        "Freitas",
+        "Freitas"
+      ],
+      [
+        "Garcia",
+        "Garcia"
+      ],
+      [
+        "Gomes",
+        "Gomes"
+      ],
+      [
+        "Gonçalves",
+        "Gonçalves"
+      ],
+      [
+        "Guerra",
+        "Guerra"
+      ],
+      [
+        "Jesus",
+        "Jesus"
+      ],
+      [
+        "Leão",
+        "Leão"
+      ],
+      [
+        "Lima",
+        "Lima"
+      ],
+      [
+        "Lopes",
+        "Lopes"
+      ],
+      [
+        "Macedo",
+        "Macedo"
+      ],
+      [
+        "Machado",
+        "Machado"
+      ],
+      [
+        "Marques",
+        "Marques"
+      ],
+      [
+        "Martins",
+        "Martins"
+      ],
+      [
+        "Melo",
+        "Melo"
+      ],
+      [
+        "Mendes",
+        "Mendes"
+      ],
+      [
+        "Mendonça",
+        "Mendonça"
+      ],
+      [
+        "Monteiro",
+        "Monteiro"
+      ],
+      [
+        "Montenegro",
+        "Montenegro"
+      ],
+      [
+        "Moraes",
+        "Moraes"
+      ],
+      [
+        "Moreira",
+        "Moreira"
+      ],
+      [
+        "Moura",
+        "Moura"
+      ],
+      [
+        "Nascimento",
+        "Nascimento"
+      ],
+      [
+        "Nogueira",
+        "Nogueira"
+      ],
+      [
+        "Novaes",
+        "Novaes"
+      ],
+      [
+        "Novais",
+        "Novais"
+      ],
+      [
+        "Nunes",
+        "Nunes"
+      ],
+      [
+        "Oliveira",
+        "Oliveira"
+      ],
+      [
+        "Pacheco",
+        "Pacheco"
+      ],
+      [
+        "Pastor",
+        "Pastor"
+      ],
+      [
+        "Peixoto",
+        "Peixoto"
+      ],
+      [
+        "Pereira",
+        "Pereira"
+      ],
+      [
+        "Pimenta",
+        "Pimenta"
+      ],
+      [
+        "Pinto",
+        "Pinto"
+      ],
+      [
+        "Pires",
+        "Pires"
+      ],
+      [
+        "Porto",
+        "Porto"
+      ],
+      [
+        "Ramos",
+        "Ramos"
+      ],
+      [
+        "Rezende",
+        "Rezende"
+      ],
+      [
+        "Ribeiro",
+        "Ribeiro"
+      ],
+      [
+        "Rios",
+        "Rios"
+      ],
+      [
+        "Rocha",
+        "Rocha"
+      ],
+      [
+        "Rodrigues",
+        "Rodrigues"
+      ],
+      [
+        "Sales",
+        "Sales"
+      ],
+      [
+        "Sampaio",
+        "Sampaio"
+      ],
+      [
+        "Santos",
+        "Santos"
+      ],
+      [
+        "Silva",
+        "Silva"
+      ],
+      [
+        "Silveira",
+        "Silveira"
+      ],
+      [
+        "Siqueira",
+        "Siqueira"
+      ],
+      [
+        "Sousa",
+        "Sousa"
+      ],
+      [
+        "Souza",
+        "Souza"
+      ],
+      [
+        "Sá",
+        "Sá"
+      ],
+      [
+        "Teixeira",
+        "Teixeira"
+      ],
+      [
+        "Vargas",
+        "Vargas"
+      ],
+      [
+        "Vasconcelos",
+        "Vasconcelos"
+      ]
+    ]
+  },
+  "sources": [
+    {
+      "title": "Faker Python person provider (pt_BR)",
+      "url": "https://github.com/joke2k/faker/blob/v40.52.0/faker/providers/person/pt_BR/__init__.py"
+    }
+  ]
+}

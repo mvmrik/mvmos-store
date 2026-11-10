@@ -61,7 +61,7 @@ The official Store keeps the same tree in `source/apps/<app-id>/` and ships each
 | `entry`            |          | Entry JS file in `public/` (default `main.js`) |
 | `css`              |          | CSS file in `public/` loaded with the app |
 | `public_profile_access` | | Requires mvmOS 1.17.0. `true` opts into profile-specific public visibility through `_can_access_public(user_id)` in the app’s own `app_api.py`; see [Profile-specific visibility](DEVELOPER.md#profile-specific-visibility). |
-| `services` | | Requires mvmOS 1.21.0. List of outside services the app uses, currently `["google_maps"]`. The app does not keep the key in its settings: it asks `hub.resolve_service_key(user_id, service, app_id)` and gets the profile's own key or the one the administrator shares. See [Service keys](DEVELOPER.md#service-keys). |
+| `services` | | Requires mvmOS 1.21.0. List of outside services the app uses, `google_maps` or `simkl` (Simkl requires Core 1.22.0 and uses only administrator-shared keys). The app does not keep the key in its settings: it asks `hub.resolve_service_key(user_id, service, app_id)` and gets the profile's own key or the one the administrator shares. See [Service keys](DEVELOPER.md#service-keys). |
 
 Every other field (`settings`, `scheduler`, `file_types`, `requires_apphub`, `public_url`, `gamehub`, games…) is in [DEVELOPER.md → manifest.json](DEVELOPER.md#manifestjson).
 
@@ -98,6 +98,7 @@ mvmOS.registerApp({
 
 - **Keep app documentation in the Store.** Write application instructions in `docs/apps/<app-id>.md` of this repository and link them from `docs/README.md`. Do not document individual Store app features in Core or require a Core release for their changes.
 - **Declare game statistics in the game.** The optional `gamehub` manifest block supplies its category, translated description, metrics and ranking rule. Send finite numeric `stats` on player records or `ctx.finish`; Game Hub builds the library, statistics and rankings without game-specific logic. See [DEVELOPER.md → Statistics](DEVELOPER.md#statistics-say-what-you-measure-game-hub-draws-it).
+- **Format long listings.** Store and Premium text starts with a short introduction and uses short paragraphs separated by `\n\n`, section titles and bullet lists where needed. Keep it plain text and verify actual desktop and phone rendering.
 - **Translate everything.** No hard-coded text. Strings live in `public/i18n.js`, cover all nine languages (`en`, `bg`, `de`, `es`, `fr`, `ja`, `pt-BR`, `ru`, `zh-CN`) and are read with `t(key, vars)`. Never add keys to core's `frontend/i18n/`. See [DEVELOPER.md → i18n](DEVELOPER.md#i18n).
 - **Follow the theme.** Colours come from the theme variables, in the desktop window and on the public page. See [README.md → Following the theme](README.md#following-the-theme).
 - **Use mvmOS dialogs.** `mvmOS.confirm`, `mvmOS.prompt`, `mvmOS.toast` and `mvmOS.notify` instead of the browser's own.
@@ -279,3 +280,9 @@ https://raw.githubusercontent.com/yourname/your-store/main/manifest.json
 ```
 
 Its apps appear in the App Store next to the official ones and install like any other. See [README.md → Your own store](README.md#your-own-store).
+
+## Core 1.22.0 interfaces
+
+Folder and destination pickers offer New folder, controlled by `createFolder` and shared upload permission. In-place libraries use the shared `backend.filepicker` folder listing, opened-file and sidecar read/write helpers; resolve the root and retain the Linux owner. See the full developer guide for signatures. Apps using these helpers must require Core 1.22.0.
+
+Desktop Apps Hub app windows show a profile menu containing account, optional app settings and logout. Competing file handlers including a Store app prompt for a choice until the person saves a default.

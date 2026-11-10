@@ -35,12 +35,6 @@ RETIRE_AGES = (62, 68)
 NO_SCOUT_CAP = 45.0          # the best potential a pilot can have on the market without a scout
 SALARY_BASE = 60
 
-FIRST = ['Ada', 'Ben', 'Cleo', 'Dario', 'Elsa', 'Felix', 'Greta', 'Hugo', 'Iris', 'Jonas', 'Kira', 'Lars', 'Mara', 'Nils', 'Olga', 'Pablo',
-         'Quinn', 'Rosa', 'Stan', 'Tara', 'Uri', 'Vera', 'Walt', 'Yara', 'Zoe']
-LAST = ['Abbott', 'Brandt', 'Chase', 'Dalton', 'Ellery', 'Fischer', 'Garner', 'Hollis', 'Ingram', 'Jansen', 'Kessler', 'Lawson', 'Mercer',
-        'Norris', 'Orlov', 'Prescott', 'Quill', 'Rennick', 'Sutton', 'Thorne', 'Underhill', 'Vance', 'Whitlock', 'Yates', 'Zimmer']
-
-
 def schema(conn):
     conn.executescript("""
     CREATE TABLE IF NOT EXISTS staff_member (
@@ -52,6 +46,8 @@ def schema(conn):
     CREATE TABLE IF NOT EXISTS staff_retired (
       id INTEGER PRIMARY KEY AUTOINCREMENT, player_id TEXT NOT NULL, role TEXT NOT NULL, name TEXT NOT NULL, at REAL NOT NULL);
     """)
+    if 'name_identity' not in {r[1] for r in conn.execute('PRAGMA table_info(staff_retired)')}:
+        conn.execute("ALTER TABLE staff_retired ADD COLUMN name_identity TEXT NOT NULL DEFAULT '{}'")
 
 
 # ── people ──────────────────────────────────────────────────────────────────
@@ -96,12 +92,12 @@ def person(rnd, now):
     if age > 45:
         level = min(99.0, level + (age - 45) * 1.2)
         ceiling = max(level, ceiling - (age - 45))
-    return dict(name=rnd.choice(FIRST) + ' ' + rnd.choice(LAST), age=age, age_at=now, retire=retire, level=round(level, 1),
+    return dict(**D['name_source'].person(rnd), age=age, age_at=now, retire=retire, level=round(level, 1),
                 potential=round(ceiling, 1), energy=100, energy_ts=now, trainings=0)
 
 
 def _public_offer(o, now):
-    return dict(id=o['id'], role=o['role'], name=o['name'], age=int(age_of(o, now)), retire=o['retire'], level=round(o['level'], 1),
+    return dict(**D['name_source'].public(o), id=o['id'], role=o['role'], name=o['name'], age=int(age_of(o, now)), retire=o['retire'], level=round(o['level'], 1),
                 stars=stars(o, now), salary=salary(o, now), price=price(o, now), years=round(years_left(o, now), 1))
 
 
@@ -140,7 +136,7 @@ def retire_due(conn, pid, now):
         if years_left(p, now) <= 0:
             pay(conn, pid, r, p, now)
             conn.execute('DELETE FROM staff_member WHERE id=?', (r['id'],))
-            conn.execute('INSERT INTO staff_retired(player_id,role,name,at) VALUES(?,?,?,?)', (pid, r['role'], p['name'], now))
+            conn.execute('INSERT INTO staff_retired(player_id,role,name,at,name_identity) VALUES(?,?,?,?,?)', (pid, r['role'], p['name'], now, json.dumps(p.get('name_identity') or {})))
 
 
 def alive(conn, pid, now=None):
@@ -264,7 +260,7 @@ def daily_cost(conn, pid):
 
 def public_member(row, p, now, regen_rate):
     m = member_at(p, now, regen_rate)
-    return dict(id=row['id'], role=row['role'], name=p['name'], age=int(age_of(p, now)), retire=p['retire'], years=round(years_left(p, now), 1),
+    return dict(**D['name_source'].public(p), id=row['id'], role=row['role'], name=p['name'], age=int(age_of(p, now)), retire=p['retire'], years=round(years_left(p, now), 1),
                 level=round(p['level'], 2), energy=math.floor(m['energy'] * 100) / 100, salary=salary(p, now), stars=stars(p, now),
                 headroom=round(max(0.0, p['potential'] - p['level']), 1))
 
@@ -277,7 +273,7 @@ def public(conn, d, now=None):
     members = {r: None for r in ROLES}
     for role, (row, p) in alive(conn, pid, now).items():
         members[role] = public_member(row, p, now, rate)
-    notes = [dict(role=r['role'], name=r['name'], at=r['at']) for r in
+    notes = [dict(**D['name_source'].public({'name_identity':json.loads(r['name_identity'])}),role=r['role'], name=r['name'], at=r['at']) for r in
              conn.execute('SELECT * FROM staff_retired WHERE player_id=? AND at>? ORDER BY id DESC LIMIT 8', (pid, now - 14 * 86400))]
     return dict(roles=list(ROLES), games={r: GAME[r] for r in ROLES}, members=members, market=market, retired=notes, train_energy=TRAIN_ENERGY,
                 levels={r: (m['level'] if m else None) for r, m in members.items()}, daily=daily_cost(conn, pid),

@@ -6,6 +6,7 @@ No decoders, external executables, package installs or network calls are used.
 Like any metadata reader this validates structure, not every compressed sample.
 """
 import math
+import contextlib
 import os
 import struct
 import time
@@ -319,11 +320,14 @@ def webm(f):
     return duration(declared * scale / 1e9 if declared is not None else last_end)
 
 
-def inspect_audio(path):
-    """Return a finite duration for an accepted audio container, or raise."""
+def inspect_audio(path, handle=None):
+    """Return a finite duration for an accepted audio container, or raise.
+
+    ``handle`` is an already opened seekable file (a library file read as another
+    Linux user); ``path`` then only supplies the extension."""
     ext = os.path.splitext(path)[1].lower()
     try:
-        with open(path, 'rb') as source:
+        with (contextlib.nullcontext(handle) if handle is not None else open(path, 'rb')) as source:
             reader = Reader(source)
             if ext == '.aac':
                 return adts(reader)

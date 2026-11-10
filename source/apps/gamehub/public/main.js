@@ -1,74 +1,4 @@
-const _gh18n = {
-  en: {
-    title:'Game Hub', players:'Players', sessions:'Sessions', leaderboard:'Leaderboard',
-    add_player:'+ Add player', edit:'Edit', del:'Delete', del_confirm:'Delete this player?',
-    username:'Username', display_name:'Display name', avatar_color:'Color',
-    password:'Password', password_edit:'New password (leave blank to keep)',
-    save:'Save', cancel:'Cancel', no_players:'No players yet.',
-    no_sessions:'No sessions recorded yet.', no_stats:'No stats yet.',
-    played:'played', wins:'wins', best:'best', avg:'avg',
-    vs:'vs', winner:'Winner', guests:'guests',
-    duration:'Duration', game:'Game', score:'Score',
-    username_taken:'Username already taken.',
-    sec:'s', min:'m',
-    fav_login_required:'Log in to Game Hub to use favourites.',
-    fav_find_player:'Find a player',
-    fav_search_ph:'Search by name or username…',
-    fav_no_players_found:'No players found.',
-    fav_saved_header:'Saved favourites',
-    fav_none_yet:"No favourites yet. Add favourites in Apps Hub.",
-    fav_profile_btn:'Profile',
-    fav_saved:'★ Saved',
-    fav_favourite:'☆ Favourite',
-    fav_login_first:'Log in to GH first',
-    prof_game_label:'Game:',
-    prof_all_games:'All games',
-    set_my_avatar:'My Avatar',
-    set_edit_avatar:'Edit Avatar',
-    set_direct_link:'Direct link (no domain mapping needed):',
-    set_open_link:'Open ↗',
-    set_domain_hint:'For a cleaner URL, map a domain or subpath to this app in mvmOS Domains settings.',
-    password_required:'Password required',
-    error:'Error',
-    prof_no_shared:'No shared sessions.',
-    prof_head_to_head:'Head to Head',
-  },
-  bg: {
-    title:'Game Hub', players:'Играчи', sessions:'Сесии', leaderboard:'Класация',
-    add_player:'+ Добави играч', edit:'Редактирай', del:'Изтрий', del_confirm:'Изтриване на играча?',
-    username:'Потребителско Ime', display_name:'Показвано Ime', avatar_color:'Цвят',
-    password:'Парола', password_edit:'Нова парола (остави празно за без промяна)',
-    save:'Запази', cancel:'Отказ', no_players:'Няма играчи.',
-    no_sessions:'Няма записани сесии.', no_stats:'Няма статистики.',
-    played:'изиграни', wins:'победи', best:'най-добър', avg:'средно',
-    vs:'срещу', winner:'Победител', guests:'гости',
-    duration:'Продължителност', game:'Игра', score:'Резултат',
-    username_taken:'Потребителското ime вече съществува.',
-    sec:'с', min:'м',
-    fav_login_required:'Влез в Game Hub, за да ползваш любими.',
-    fav_find_player:'Намери играч',
-    fav_search_ph:'Търсене по име или потребителско име…',
-    fav_no_players_found:'Няма намерени играчи.',
-    fav_saved_header:'Запазени любими',
-    fav_none_yet:'Все още няма любими. Добави любими от Apps Hub.',
-    fav_profile_btn:'Профил',
-    fav_saved:'★ Запазен',
-    fav_favourite:'☆ Любим',
-    fav_login_first:'Първо влез в GH',
-    prof_game_label:'Игра:',
-    prof_all_games:'Всички игри',
-    set_my_avatar:'Моят аватар',
-    set_edit_avatar:'Редактирай аватар',
-    set_direct_link:'Директен линк (не изисква мапване на домейн):',
-    set_open_link:'Отвори ↗',
-    set_domain_hint:'За по-чист URL, мапни домейн или подпът към това приложение в Настройки → Домейни на mvmOS.',
-    password_required:'Изисква се парола',
-    error:'Грешка',
-    prof_no_shared:'Няма общи сесии.',
-    prof_head_to_head:'Един срещу друг',
-  },
-};
-function _ght(k) { const l=window.mvmOS?.lang||'en'; return (_gh18n[l]||_gh18n.en)[k]||k; }
+function _ght(k) { return k === 'title' ? 'Game Hub' : window.t('gd_' + k); }
 
 const _GH_COLORS = ['#89b4fa','#a6e3a1','#f38ba8','#fab387','#f9e2af','#cba6f7','#94e2d5','#f5c2e7','#74c7ec','#eba0ac'];
 
@@ -118,7 +48,7 @@ mvmOS.registerApp({
             <div style="flex:1"></div>
             <div id="gh-me-avatar" style="cursor:default;flex-shrink:0"></div>
             ${['games','ranking','favourites'].map(t=>`<button id="gh-t-${t}" style="${btn()}">${t==='games'?window.t('gl_tab_games'):t==='ranking'?window.t('gs_ranking'):window.t('gh_favourites')}</button>`).join('')}
-            <button id="gh-t-settings" style="${btn()}" title="Settings">⚙</button>
+            <button id="gh-t-settings" style="${btn()}" title="">⚙</button>
           </div>
           <div id="gh-body" style="flex:1;overflow-y:auto;padding:14px"></div>
         `;
@@ -130,6 +60,7 @@ mvmOS.registerApp({
         function renderTabs() {
           ['games','ranking','favourites','settings'].forEach(t => {
             const b = body.querySelector(`#gh-t-${t}`); if(!b) return;
+            if (t === 'settings') b.title = window.t('gn_settings');
             if (t !== 'settings') b.textContent = window.t(t === 'games' ? 'gl_tab_games' : t === 'ranking' ? 'gs_ranking' : 'gh_favourites');
             b.style.background = tab===t ? 'var(--accent)' : 'var(--surface2)';
             b.style.color      = tab===t ? 'var(--on-accent,var(--surface,var(--surface1,#1e1e2e)))' : 'var(--fg)';
@@ -474,7 +405,7 @@ mvmOS.registerApp({
         function _iconHTML(o) {
           const img = o && o.iconImage;
           if (img && /^\/apps\/[A-Za-z0-9_-]+\//.test(img)) {
-            return `<img src="${esc(img)}" alt="" draggable="false" style="width:1em;height:1em;object-fit:contain;vertical-align:-.15em">`;
+            return `<img src="${esc(window.asset(img))}" alt="" draggable="false" style="width:1em;height:1em;object-fit:contain;vertical-align:-.15em">`;
           }
           return esc((o && o.icon) || '🎮');
         }
@@ -638,6 +569,7 @@ mvmOS.registerApp({
           const c = body.querySelector('#gh-body');
           c.innerHTML = `
             <div style="max-width:420px;display:flex;flex-direction:column;gap:20px">
+              <button id="gh-set-names" style="${btn()};padding:14px;text-align:left">${esc(window.t('gn_title'))} ›</button>
               <div id="gh-set-publink">
                 <div style="font-size:12px;color:var(--fg2);margin-bottom:8px">${_ght('set_direct_link')}</div>
                 <div style="display:flex;align-items:center;gap:8px">
@@ -648,6 +580,10 @@ mvmOS.registerApp({
               </div>
             </div>`;
 
+          c.querySelector('#gh-set-names').onclick = async () => {
+            if (!window.GHNames) await _ghLoadScript('/apps/gamehub/names.js');
+            if (tab === 'settings' && c.querySelector('#gh-set-names')) window.GHNames?.mount(c, {onBack:renderSettings});
+          };
           c.querySelector('#gh-set-open')?.addEventListener('click', () => window.open('/pub/gamehub/', '_blank'));
         }
 

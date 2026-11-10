@@ -35,9 +35,9 @@
       "name": "Game Hub",
       "icon": "🎮",
       "category": "Games",
-      "version": "1.20.1",
+      "version": "1.21.0",
       "description": "Central hub for player profiles and game statistics. Tracks sessions, scores and leaderboards across all games.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.20.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/gamehub-1.21.0.zip",
       "tags": [
         "multiplayer",
         "social",
@@ -104,9 +104,9 @@
       "name": "Living Town",
       "icon": "🏘️",
       "category": "Games",
-      "version": "0.6.3",
-      "description": "Zone land, draw roads and build public services for a town that grows itself — every resident is a persistent person with a home, a job and a life of their own.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/livingtown-0.6.3.zip",
+      "version": "0.7.0",
+      "description": "Guide a town that builds itself. Zone land, shape roads and public services, and follow every resident through work, travel, family and ownership.",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/livingtown-0.7.0.zip",
       "tags": [
         "simulation",
         "city building",
@@ -132,9 +132,9 @@
       "name": "Score Arena",
       "icon": "🎯",
       "category": "Games",
-      "version": "1.5.1",
+      "version": "1.6.0",
       "description": "A shared scorekeeper for darts and board games, with eight darts modes, ready-made scoring for popular board games, custom games you design yourself, detailed personal statistics and a history-matched Ghost for solo practice.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/scorearena-1.5.1.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/scorearena-1.6.0.zip",
       "tags": [
         "darts",
         "scorekeeper",
@@ -185,7 +185,7 @@
       "name": "Belot",
       "icon": "🃏",
       "category": "Games",
-      "version": "1.2.2",
+      "version": "1.3.0",
       "description": "Play Bulgarian Belot or classic French Belote with friends or independent bots, and save custom rules for either style.",
       "tags": [
         "cards",
@@ -194,7 +194,7 @@
         "games"
       ],
       "min_core_version": "1.16.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/belot-1.2.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/belot-1.3.0.zip",
       "premium": true,
       "name_i18n": {
         "en": "Belot",
@@ -323,7 +323,7 @@
       "name": "Racelandia",
       "icon": "🏁",
       "category": "Games",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "description": "Manage a two-car racing team, recruit and train drivers, develop parts and setups, and run private tests or a twenty-round Division 5 championship with practice, qualifying, pit stops and changing weather.",
       "tags": [
         "racing",
@@ -332,7 +332,7 @@
         "games"
       ],
       "min_core_version": "1.17.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/racelandia-1.3.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/racelandia-1.4.0.zip",
       "name_i18n": {
         "en": "Racelandia",
         "bg": "Racelandia",

@@ -54,6 +54,8 @@ Public apps may opt into **visibility per Apps Hub profile** using `public_profi
 
 ---
 
+Core 1.22.0 adds folder creation to the shared picker and helpers for media libraries that keep files in place. Apps Hub app windows show a profile menu; conflicting file handlers prompt until a default is saved. Service keys now include administrator-shared Simkl client IDs. See the developer guide for the contracts and required versions.
+
 ## Your own store
 
 Any installation can add more stores in **App Store → Stores → + Add store**, with a name and the URL of a `manifest.json`. Two formats are accepted:

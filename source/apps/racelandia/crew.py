@@ -146,12 +146,6 @@ def hire_price(profile):
     return int(round((4000 + o ** 2 * 7 + headroom * 250) / 500) * 500)
 
 
-FIRST = ['Ben', 'Cal', 'Dan', 'Eli', 'Finn', 'Gus', 'Hal', 'Ian', 'Jon', 'Kit', 'Leo', 'Max', 'Ned', 'Oli', 'Pat', 'Ray', 'Sid', 'Tom', 'Vic', 'Wes',
-         'Ana', 'Bea', 'Cora', 'Dina', 'Eva', 'Fay', 'Gia', 'Hana', 'Ivy', 'Jo', 'Kay', 'Lia', 'Mia', 'Nia', 'Opal', 'Pia', 'Rae', 'Sia', 'Tess', 'Una']
-LAST = ['Archer', 'Baker', 'Carter', 'Dunn', 'Evans', 'Frost', 'Grant', 'Holt', 'Irwin', 'Jones', 'Kerr', 'Lowe', 'Marsh', 'Nash', 'Owen', 'Pike',
-        'Quick', 'Rowe', 'Shaw', 'Tate', 'Vale', 'Ward', 'York', 'Zane', 'Boyd', 'Cross', 'Drake', 'Finch', 'Hale', 'Knox', 'Lane', 'Moss']
-
-
 def person(rnd, base=None, spread=None, ceiling=None, name=None):
     """A crew member with skills around `base`; each skill has its own ceiling to be trained to."""
     base = rnd.uniform(18, 62) if base is None else base
@@ -159,7 +153,7 @@ def person(rnd, base=None, spread=None, ceiling=None, name=None):
     ceiling = rnd.uniform(max(60, base + 10), 99) if ceiling is None else ceiling
     potential = {k: round(min(POTENTIAL_MAX, max(45, ceiling + rnd.gauss(0, 4))), 2) for k in SKILLS}
     skills = {k: round(min(potential[k], max(10, base + rnd.gauss(0, spread))), 2) for k in SKILLS}
-    return dict(name=name or rnd.choice(FIRST) + ' ' + rnd.choice(LAST), age=rnd.randint(19, 45), skills=skills, potential=potential)
+    return dict(**(D['name_source'].person(rnd) if name is None else {'name':name}), age=rnd.randint(19, 45), skills=skills, potential=potential)
 
 
 def schema(conn):
@@ -227,7 +221,7 @@ def crew_of(conn, car_id, now=None):
 
 
 def public_member(p, position):
-    return dict(id=p['id'], name=p['name'], age=p['age'], skills={k: round(v, 1) for k, v in p['skills'].items()}, overall=overall(p),
+    return dict(**D['name_source'].public(p), id=p['id'], name=p['name'], age=p['age'], skills={k: round(v, 1) for k, v in p['skills'].items()}, overall=overall(p),
                 level=round(level(p, position) * 100, 1), energy=math.floor(p['energy'] * 100) / 100, salary=salary(p), stars=stars(p),
                 headroom=round(sum(p['potential'][k] - p['skills'][k] for k in p['skills']) / len(p['skills']), 1),
                 training_levels=training_levels(p))
@@ -264,7 +258,7 @@ def hire(conn, d, car_id, position, offer_id):
     offer = json.loads(row['profile'])
     if d['budget'] < offer['price']:
         return 'budget'
-    p = dict(name=offer['name'], age=offer['age'], skills=offer['skills'], potential=offer['potential'], energy=100, energy_ts=now, trainings=0)
+    p = dict(name=offer['name'], name_identity=offer['name_identity'], age=offer['age'], skills=offer['skills'], potential=offer['potential'], energy=100, energy_ts=now, trainings=0)
     ident = uuid.uuid4().hex
     conn.execute('INSERT INTO crew_member VALUES(?,?,?,?,?,?,?)', (ident, d['player_id'], car_id, position, json.dumps(p), now, now))
     D['team'].note(conn, d['player_id'], 'crew_recruitment', {'name': p['name'], 'position': position, 'car': car_id})

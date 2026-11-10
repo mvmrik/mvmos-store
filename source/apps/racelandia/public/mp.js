@@ -18,6 +18,24 @@
   const _t = (k, v) => (window.t ? window.t(k, v) : k);
   const asset = p => (window.asset ? window.asset(p) : p);
   const token = () => (window.GameHub.getToken && window.GameHub.getToken()) || '';
+  let nameFormatter = null, nameRules = {};
+  const nameIdentities = new Map();
+  const namesReady = import(asset('/apps/gamehub/name-display.js')).then(module => { nameFormatter = module; }).catch(() => {});
+  function displayNames(payload) {
+    if (payload.name_display_rules) nameRules = payload.name_display_rules;
+    return nameFormatter ? nameFormatter.formatTree(payload, {lang:window.mvmOS?.lang || 'en', rules:nameRules, identities:nameIdentities}) : payload;
+  }
+
+
+  function personFlag(person) {
+    const identity = person?.name_identity || nameIdentities.get(person?.id || person?.pid || person?.pilot_id || person?.key);
+    return nameFormatter?.countryFlag(person?.country || identity?.country) || '';
+  }
+  function personName(person, fallback = '') {
+    const name = person?.name || fallback;
+    const flag = personFlag(person);
+    return flag && name ? flag + ' ' + name : name;
+  }
 
   let render, on;
   const uiReady = import(asset('/apps/' + GAME_ID + '/ui.js')).then(ui => { render = ui.render; on = ui.on; });
@@ -121,7 +139,8 @@
       headers: Object.assign({ 'X-GH-Token': token() }, body ? { 'Content-Type': 'application/json' } : {}),
       body: body ? JSON.stringify(body) : undefined,
     });
-    const d = await r.json().catch(() => ({}));
+    await namesReady;
+    const d = displayNames(await r.json().catch(() => ({})));
     if(d.training_hall)d.training_hall.received_at=performance.now();
     return { ok: r.ok, d };
   }
@@ -524,7 +543,7 @@
     return `<div class="ap-card ap-recruitment"><div class="ap-bar"><h2>${esc(_t('ap_recruit_title'))}</h2>${always?'':`<button class="ap-btn ap-sm ap-ghost" data-market-toggle>${esc(_t('ap_recruit_close'))}</button>`}</div>
       <p class="ap-hint">${esc(_t('ap_recruit_market_hint'))}</p><p class="ap-hint">${esc(_t('ap_character_hint'))}</p>
       ${wait ? `<p class="ap-warn">${esc(_t('ap_recruit_wait',{days,hours}))}</p>` : ''}
-      <div class="ap-recruit-offers">${c.offers.map(o=>`<div class="ap-recruit-offer"><div><b>${esc(o.name)}</b><small>${esc(_t('ap_age',{n:o.age}))} · ${esc(_t('ap_overall'))} ${o.overall}</small><span class="ap-stars">${'★'.repeat(Math.floor(o.stars))}${o.stars%1>=.5 ? '½' : ''}</span>${characterHtml(o.character,true)}<p class="ap-hint">${esc(_t('ap_daily_salary'))}: <b>${money(o.salary)}</b></p><details><summary>${esc(_t('ap_driver_skills'))}</summary>${G.skills.map(k=>`<div class="ap-offer-skill"><span>${esc(_t('ap_k_'+k))}</span><b>${o.skills[k].toFixed(1)}</b></div>`).join('')}</details></div>
+      <div class="ap-recruit-offers">${c.offers.map(o=>`<div class="ap-recruit-offer"><div><b>${esc(personName(o))}</b><small>${esc(_t('ap_age',{n:o.age}))} · ${esc(_t('ap_overall'))} ${o.overall}</small><span class="ap-stars">${'★'.repeat(Math.floor(o.stars))}${o.stars%1>=.5 ? '½' : ''}</span>${characterHtml(o.character,true)}<p class="ap-hint">${esc(_t('ap_daily_salary'))}: <b>${money(o.salary)}</b></p><details><summary>${esc(_t('ap_driver_skills'))}</summary>${G.skills.map(k=>`<div class="ap-offer-skill"><span>${esc(_t('ap_k_'+k))}</span><b>${o.skills[k].toFixed(1)}</b></div>`).join('')}</details></div>
         <button class="ap-btn ap-sm" data-recruit="${esc(o.id)}" data-name="${esc(o.name)}" ${c.active_session || d.budget<o.price ? 'disabled' : ''}>${esc(_t('ap_recruit'))}<small>${money(o.price)}</small></button></div>`).join('')}</div>
       <p class="ap-hint">${esc(_t('ap_aging_hint'))}</p></div>`;
   }
@@ -615,7 +634,7 @@
     if (!homeMod) homeMod = await import(asset('/apps/' + GAME_ID + '/home.js'));
     if (screen !== 'home' || !G) return;
     homeMod.paintHome(host, {
-      G, t: _t, esc, money, go, hall: hallView, gameSkills: GAMESKILLS, carName, trackName, pilotOk: !!assignedPilot(),
+      G, t: _t, esc, personName, money, go, hall: hallView, gameSkills: GAMESKILLS, carName, trackName, pilotOk: !!assignedPilot(),
       heading: pageHeading('ap_tab_home', 'ap_hm_page_hint', 'staff'),
       recCompound: () => { try { return recShown(cond(cfg.hour)); } catch (_) { return null; } },
       openStaff: tab => { staffTab = tab; pview = 'list'; go('driver'); },
@@ -700,19 +719,19 @@
   async function paintCrew(host) {
     const m = await import(asset('/apps/' + GAME_ID + '/staff.js'));
     if (screen !== 'driver' || staffTab !== 'crew' || pview !== 'list') return;
-    m.paintCrew(host, { G, t: _t, esc, money, skillCol, confirm: confirmGame, heading: pageHeading('ap_staff', 'ap_staff_hint', 'staff'), nav: staffNav(), bind: bindStaffNav,
+    m.paintCrew(host, { G, t: _t, esc, personName, money, skillCol, confirm: confirmGame, heading: pageHeading('ap_staff', 'ap_staff_hint', 'staff'), nav: staffNav(), bind: bindStaffNav,
       hall:trainingHall(), getCar: () => crewCar, setCar: id => { crewCar = id; }, act: crewAction, train: (game, member) => startTraining(game, member) });
   }
   async function paintSpecialists(host) {
     const m = await import(asset('/apps/' + GAME_ID + '/staff.js'));
     if (screen !== 'driver' || staffTab !== 'specialists' || pview !== 'list') return;
-    m.paintSpecialists(host, { G, t: _t, esc, money, skillCol, confirm: confirmGame, heading: pageHeading('ap_staff', 'ap_staff_hint', 'staff'), nav: staffNav(), bind: bindStaffNav,
+    m.paintSpecialists(host, { G, t: _t, esc, personName, money, skillCol, confirm: confirmGame, heading: pageHeading('ap_staff', 'ap_staff_hint', 'staff'), nav: staffNav(), bind: bindStaffNav,
       hall: trainingHall(), act: crewAction, train: (game, member) => startTraining(game, member) });
   }
   function paintPilotList(host) {
     const team=teamRoster(),locked=!!G.career.active_session;
     const cards=team.pilots.map(p=>`<button type="button" class="ap-roster-card ap-pilot-choice" data-select-pilot="${esc(p.id)}" aria-label="${esc(_t('ap_open_driver'))}: ${esc(p.name)}" ${locked&&p.id!==team.active_pilot?'disabled':''}>
-      <div class="ap-pilot-identity"><span class="ap-pilot-avatar">${menuArt('helmet')}</span><span class="ap-pilot-name"><b>${esc(p.name)}</b><small>${esc(_t('ap_age',{n:p.age}))}</small></span><span class="ap-pilot-arrow" aria-hidden="true">↗</span></div>
+      <div class="ap-pilot-identity"><span class="ap-pilot-avatar">${menuArt('helmet')}</span><span class="ap-pilot-name"><b>${esc(personName(p))}</b><small>${esc(_t('ap_age',{n:p.age}))}</small></span><span class="ap-pilot-arrow" aria-hidden="true">↗</span></div>
       <div class="ap-roster-body"><div class="ap-pilot-facts"><div><small>${esc(_t('ap_overall'))}</small><strong>${p.overall.toFixed(1)}</strong></div><div><small>${esc(_t('ap_daily_salary'))}</small><strong>${money(p.salary)}</strong></div></div>
       <div class="ap-tags">${p.id===team.active_pilot?`<span>${esc(_t('ap_selected'))}</span>`:''}${team.cars.filter(car=>car.pilot_id===p.id).map(car=>`<span>${esc(carName(car))}</span>`).join('')}</div>
       <div class="ap-set-h"><span>${esc(_t('ap_driver_energy_label'))}</span><output>${Math.floor(p.energy)}%</output></div><div class="ap-meter ap-energy"><i style="width:${p.energy}%;background:${healthCol(1-p.energy/100)}"></i></div></div></button>`).join('');
@@ -728,7 +747,7 @@
   function assignmentCard() {
     const team=teamRoster(), car=team.cars.find(c=>c.id===team.active_car),pilot=team.pilots.find(p=>p.id===car?.pilot_id);
     return `<div class="ap-assignment ap-assignment-in"><h3>${esc(_t('ap_car_driver'))}</h3><div class="ap-assigned-pilot">${menuArt('helmet')}<div><b>${esc(pilot?.name || _t('ap_no_assigned_driver'))}</b><p class="ap-hint">${esc(_t('ap_assignment_hint'))}</p></div></div>
-      <label class="ap-hint" for="ap-assignment-pilot">${esc(_t('ap_tab_driver'))}</label><div class="ap-assignment-controls"><select id="ap-assignment-pilot" ${G.career.active_session?'disabled':''}><option value="">${esc(_t('ap_no_assigned_driver'))}</option>${team.pilots.map(p=>`<option value="${esc(p.id)}" ${p.id===car?.pilot_id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
+      <label class="ap-hint" for="ap-assignment-pilot">${esc(_t('ap_tab_driver'))}</label><div class="ap-assignment-controls"><select id="ap-assignment-pilot" ${G.career.active_session?'disabled':''}><option value="">${esc(_t('ap_no_assigned_driver'))}</option>${team.pilots.map(p=>`<option value="${esc(p.id)}" ${p.id===car?.pilot_id?'selected':''}>${esc(personName(p))}</option>`).join('')}</select>
       <button class="ap-btn" data-assign-pilot ${G.career.active_session?'disabled':''}>${esc(_t('ap_assign_driver'))}</button></div>${!car?.pilot_id?`<p class="ap-warn">${esc(_t('ap_assignment_required'))}</p>`:''}${!team.pilots.length?`<button class="ap-btn ap-ghost" data-pilots>${esc(_t('ap_tab_drivers'))} ▸</button>`:''}</div>`;
   }
   function bindAssignment(host) {
@@ -927,7 +946,7 @@
       // the open car: its setup and its tyres, without the lap time statistics
       render(host, `${pageHeading('ap_setup', 'ap_setup_track_hint', 'suspension')}<div class="ap-garage ap-garage-one">
         <div class="ap-col ap-setups">
-          <div class="ap-bar"><div><button class="ap-btn ap-sm ap-ghost" id="ap-back">◂ ${esc(_t('ap_back'))}</button> <b class="ap-title2">${esc(trackName(t.id))} · ${esc(pilot?.name||_t('ap_no_assigned_driver'))} · ${esc(carName(car))}</b></div><button class="ap-btn ap-sm ap-ghost" id="ap-reset" ${locked?'disabled':''}>${esc(_t('ap_reset'))}</button></div>
+          <div class="ap-bar"><div><button class="ap-btn ap-sm ap-ghost" id="ap-back">◂ ${esc(_t('ap_back'))}</button> <b class="ap-title2">${esc(trackName(t.id))} · ${esc(personName(pilot,_t('ap_no_assigned_driver')))} · ${esc(carName(car))}</b></div><button class="ap-btn ap-sm ap-ghost" id="ap-reset" ${locked?'disabled':''}>${esc(_t('ap_reset'))}</button></div>
           <div class="ap-hint">${esc(_t(locked?'ap_parc_ferme':'ap_setup_track_hint'))}</div>
           <div class="ap-hint" data-advice-basis></div>
           <div class="ap-card" id="ap-cartyres"></div>
@@ -950,7 +969,7 @@
       // the lap time statistics of this circuit: the team's advice, the record and what was tried here
       render(host, `${pageHeading('ap_tab_stats', 'ap_setup_track_hint', 'telemetry')}<div class="ap-garage ap-garage-one">
         <div class="ap-col ap-session">
-          <div class="ap-bar"><div><button class="ap-btn ap-sm ap-ghost" id="ap-back">◂ ${esc(_t('ap_back'))}</button> <b class="ap-title2">${esc(trackName(t.id))} · ${esc(pilot?.name||_t('ap_no_assigned_driver'))} · ${car?esc(carName(car)):''}</b></div></div>
+          <div class="ap-bar"><div><button class="ap-btn ap-sm ap-ghost" id="ap-back">◂ ${esc(_t('ap_back'))}</button> <b class="ap-title2">${esc(trackName(t.id))} · ${esc(personName(pilot,_t('ap_no_assigned_driver')))} · ${car?esc(carName(car)):''}</b></div></div>
           <div class="ap-card" id="ap-reco" data-ui-preserve></div>
           <div class="ap-card" id="ap-hist" data-ui-preserve></div>
           ${multi ? boardHtml() : ''}
@@ -1043,7 +1062,7 @@
     const team=teamRoster(),ids=markedIds(),locked=!!G.career.active_session,many=team.cars.length>1,cb=tinfo().bests?.car_bests||{};
     return `<h3>${esc(_t('ap_test_car'))}</h3><div class="ap-teamcars ap-trackcars">${team.cars.map(car=>{
       const pilot=team.pilots.find(p=>p.id===car.pilot_id),on=ids.includes(car.id),t=live.find(x=>x.id===carSets[car.id]);
-      return `<div class="ap-teamcar${on?' on':''}">${many?`<label class="ap-markbox"><input type="checkbox" data-mark-car="${esc(car.id)}" ${on?'checked':''} ${locked?'disabled':''} aria-label="${esc(_t('ap_selected'))}"></label>`:''}<div class="ap-carwrap"><button class="ap-teamcar-body" data-test-car="${esc(car.id)}" ${locked?'disabled':''}><b>${esc(pilot?.name||_t('ap_no_assigned_driver'))}</b><span>${esc(carName(car))} · ${esc(_t('ap_car_level',{n:car.level}))}</span>
+      return `<div class="ap-teamcar${on?' on':''}">${many?`<label class="ap-markbox"><input type="checkbox" data-mark-car="${esc(car.id)}" ${on?'checked':''} ${locked?'disabled':''} aria-label="${esc(_t('ap_selected'))}"></label>`:''}<div class="ap-carwrap"><button class="ap-teamcar-body" data-test-car="${esc(car.id)}" ${locked?'disabled':''}><b>${esc(personName(pilot,_t('ap_no_assigned_driver')))}</b><span>${esc(carName(car))} · ${esc(_t('ap_car_level',{n:car.level}))}</span>
         <em class="ap-carcomp">${t?`<i class="ap-dot" style="background:${ICON[t.compound]}"></i>${esc(t.id)} · ${esc(_t('ap_c_'+t.compound))}`:esc(_t('ap_both_need_sets'))}</em>
         <span class="ap-setupchips">${setupChips(carSetupOf(car.id))}</span>${pilot?'':`<small class="ap-warn">${esc(_t('ap_both_need_driver'))}</small>`}<small>${esc(_t('ap_setup'))} ▸</small></button>
         <div class="ap-carfoot"><span>${esc(_t('ap_fastest_lap'))}<b>${lapStr(cb[car.id])}</b></span><button class="ap-btn ap-sm ap-ghost" data-car-stats="${esc(car.id)}" ${locked?'disabled':''}>${esc(_t('ap_tab_stats'))}</button></div></div></div>`;}).join('')}</div>`;
@@ -1143,7 +1162,7 @@
   }
   function boardHtml() {
     return `<div class="ap-card"><h3>${esc(_t('ap_board'))}</h3><table class="ap-table">${board.map((r, i) =>
-      `<tr><td>${i + 1}</td><td>${esc(r.name)}${r.running ? ' 🏎️' : ''}${r.done ? ' ✔' : ''}</td><td>${r.best != null ? lapStr(r.best) : '–'}</td><td>${r.points}</td></tr>`).join('')}</table></div>`;
+      `<tr><td>${i + 1}</td><td>${esc(personName(r))}${r.running ? ' 🏎️' : ''}${r.done ? ' ✔' : ''}</td><td>${r.best != null ? lapStr(r.best) : '–'}</td><td>${r.points}</td></tr>`).join('')}</table></div>`;
   }
 
   // ── the driver ──
@@ -1168,7 +1187,7 @@
       <div class="ap-col"><div class="ap-card">
         <div class="ap-bar"><h2>${esc(_t('ap_tab_driver'))}</h2></div>
         <div class="ap-who"><div class="ap-avatar">${menuArt('helmet')}</div><div>
-          <input id="ap-name" maxlength="24" value="${esc(d.name)}"><div class="ap-hint">${esc(_t('ap_age', { n: d.age }))} · ${esc(_t('ap_potential'))}: <span class="ap-stars">${stars}</span> · ${esc(_t('ap_overall'))} ${d.overall.toFixed(1)}</div></div></div>
+          ${personFlag(d) ? `<span class="ap-person-flag">${personFlag(d)}</span> ` : ''}<input id="ap-name" maxlength="24" value="${esc(d.name)}"><div class="ap-hint">${esc(_t('ap_age', { n: d.age }))} · ${esc(_t('ap_potential'))}: <span class="ap-stars">${stars}</span> · ${esc(_t('ap_overall'))} ${d.overall.toFixed(1)}</div></div></div>
         <div class="ap-meter ap-energy"><i style="width:${d.energy}%"></i></div>${driverEnergy()}
         <p class="ap-hint">${esc(_t('ap_start_effect',{n:d.start_reaction_ms,e:Math.round((d.driving_energy_factor??1)*100)}))}</p>${characterHtml(d.character)}<p class="ap-hint">${esc(_t('ap_aging_hint'))}</p>${d.aging ? `<p class="ap-warn">${esc(_t('ap_aging_decline'))}</p>` : ''}<div class="ap-skills">${bars}</div>
       </div></div>
@@ -1337,11 +1356,15 @@
     const can=!!assignedPilot()&&s.entered&&!complete&&!G.career.active_session&&!busy&&!multi&&d.budget>=cost&&raceReady;
     const ladder=s.divisions.map(x=>`<div class="ap-division-level ${x.available?'current':''}"><b>${esc(_t('ap_division',{n:x.level}))}</b><span>${esc(_t('ap_car_level',{n:x.car}))} · ${esc(_t('ap_driver_level',{n:x.driver}))}</span><small>${esc(_t(x.available?'ap_available':'ap_coming_later'))}</small></div>`).join('');
     const teamCars=(s.slots||[]).map(x=>{const car=teamRoster().cars.find(c=>c.id===x.car_id),active=x.key===s.slot,ph=x.stage>=5?'—':_t('ap_phase_'+['fp1','fp2','fp3','qualifying','race'][x.stage]);
-      return `<button class="ap-teamcar${active?' on':''}" data-pick-car="${esc(x.car_id)}" ${active||G.career.active_session?'disabled':''} title="${esc(_t('ap_watch_car'))}"><b>${esc(x.name||_t('ap_no_assigned_driver'))}</b><span>${esc(_t('ap_car_number',{n:x.number}))}${car?' · '+esc(_t('ap_car_level',{n:car.level})):''}</span><small>${active?esc(_t('ap_selected'))+' · ':''}${esc(_t('ap_next_session'))}: ${esc(ph)}${x.times?.[['fp1','fp2','fp3','qualifying'][Math.max(0,x.stage-1)]]!=null&&x.stage>0&&x.stage<5?' · '+esc(lapStr(x.times[['fp1','fp2','fp3','qualifying'][x.stage-1]])):''}</small></button>`;}).join('');
+      return `<button class="ap-teamcar${active?' on':''}" data-pick-car="${esc(x.car_id)}" ${active||G.career.active_session?'disabled':''} title="${esc(_t('ap_watch_car'))}"><b>${esc(personName(x,_t('ap_no_assigned_driver')))}</b><span>${esc(_t('ap_car_number',{n:x.number}))}${car?' · '+esc(_t('ap_car_level',{n:car.level})):''}</span><small>${active?esc(_t('ap_selected'))+' · ':''}${esc(_t('ap_next_session'))}: ${esc(ph)}${x.times?.[['fp1','fp2','fp3','qualifying'][Math.max(0,x.stage-1)]]!=null&&x.stage>0&&x.stage<5?' · '+esc(lapStr(x.times[['fp1','fp2','fp3','qualifying'][x.stage-1]])):''}</small></button>`;}).join('');
     const teamLabel=(name,mine)=>name||(mine?_t('ap_your_team'):'—');
+    const countries = new Map([...s.roster.map(r => [r.id, r.country]), ...(s.slots || []).map(p => [p.key, p.country])]);
+    const countryFlag = country => country && /^[A-Z]{2}$/.test(country)
+      ? `<span title="${esc(new Intl.DisplayNames([window.mvmOS?.lang || 'en'],{type:'region'}).of(country))}">${String.fromCodePoint(...[...country].map(c=>c.charCodeAt(0)+127397))}</span> ` : '';
+
     const teamTable=(s.team_standings||[]).map((r,i)=>`<tr class="${r.mine?'best':''}"><td>${i+1}</td><td>${esc(teamLabel(r.name,r.mine))}</td><td>${r.points}</td><td>${r.wins}</td></tr>`).join('');
-    const standing=s.standings.map((r,i)=>`<tr class="${r.mine?'best':''}"><td>${i+1}</td><td>${esc(r.name||_t('ap_you'))}<small class="ap-team-sub">${esc(teamLabel(r.team,r.mine))}</small></td><td>${r.points}</td><td>${r.wins}</td></tr>`).join('');
-    const opponents=s.roster.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.team)}</td><td>${r.overall}</td><td>${Math.round(r.car)}</td><td>${r.pit!=null?r.pit.toFixed(1)+' s':'—'}</td><td>${r.character?esc(_t('ap_style_'+characterStyle(r.character))):'—'}</td></tr>`).join('');
+    const standing=s.standings.map((r,i)=>`<tr class="${r.mine?'best':''}"><td>${i+1}</td><td>${countryFlag(r.country || countries.get(r.id))}${esc(r.name||_t('ap_you'))}<small class="ap-team-sub">${esc(teamLabel(r.team,r.mine))}</small></td><td>${r.points}</td><td>${r.wins}</td></tr>`).join('');
+    const opponents=s.roster.map(r=>`<tr><td>${countryFlag(r.country)}${esc(r.name)}</td><td>${esc(r.team)}</td><td>${r.overall}</td><td>${Math.round(r.car)}</td><td>${r.pit!=null?r.pit.toFixed(1)+' s':'—'}</td><td>${r.character?esc(_t('ap_style_'+characterStyle(r.character))):'—'}</td></tr>`).join('');
     render(host, `${pageHeading('ap_divisions', 'ap_paddock_division', 'trophy')}<div class="ap-garage ap-season-page"><div class="ap-col">
       <div class="ap-card"><h2>${esc(_t('ap_divisions'))}</h2><p class="ap-hint">${esc(_t('ap_division_intro'))}</p><div class="ap-division-ladder">${ladder}</div>
       <p class="ap-hint">${esc(_t('ap_division_requirements'))}</p>
@@ -1363,12 +1386,12 @@
           <div class="ap-cost"><span>${esc(_t('ap_cost'))}</span><b>${money(cost)}</b></div>${driverEnergy(s.energy)}
           <button class="ap-btn ap-go" data-weekend-start ${can?'':'disabled'}>${esc(_t('ap_start_phase',{phase:_t('ap_phase_'+s.phase)}))}</button>
           ${activeRunPanel()}`:''}
-        ${s.grid.length?`<h3>${esc(_t('ap_starting_grid'))}</h3><div class="ap-scroll"><table class="ap-table">${s.grid.map((r,i)=>`<tr class="${isMine(r.id)?'best':''}"><td>${i+1}</td><td>${esc(r.name)}</td><td>${lapStr(r.time)}</td></tr>`).join('')}</table></div>`:''}</div>
+        ${s.grid.length?`<h3>${esc(_t('ap_starting_grid'))}</h3><div class="ap-scroll"><table class="ap-table">${s.grid.map((r,i)=>`<tr class="${isMine(r.id)?'best':''}"><td>${i+1}</td><td>${esc(personName(r))}</td><td>${lapStr(r.time)}</td></tr>`).join('')}</table></div>`:''}</div>
         <div class="ap-card"><h2>${esc(_t('ap_calendar'))}</h2><div class="ap-season-calendar">${s.calendar.map(r=>`<div class="${r.status}"><b>${esc(_t('ap_round',{n:r.round}))}</b><span>${esc(trackName(r.track))}</span><small>${r.status==='complete'?'P'+r.position+' · '+r.points+' '+esc(_t('ap_points')):r.round===s.round?esc(_t('ap_weekend')):'—'}</small></div>`).join('')}</div></div>`:''}
       </div><div class="ap-col"><div class="ap-card"><h2>${esc(_t('ap_team_standings'))}</h2><div class="ap-scroll"><table class="ap-table"><tr><th>#</th><th>${esc(_t('ap_team_col'))}</th><th>${esc(_t('ap_points'))}</th><th>${esc(_t('ap_wins'))}</th></tr>${teamTable}</table></div></div>
       <div class="ap-card"><h2>${esc(_t('ap_championship_standings'))}</h2><div class="ap-scroll"><table class="ap-table"><tr><th>#</th><th>${esc(_t('ap_tab_driver'))}</th><th>${esc(_t('ap_points'))}</th><th>${esc(_t('ap_wins'))}</th></tr>${standing}</table></div></div>
       <div class="ap-card"><h2>${esc(_t('ap_division_field'))}</h2><div class="ap-scroll"><table class="ap-table"><tr><th>${esc(_t('ap_tab_driver'))}</th><th>${esc(_t('ap_team_col'))}</th><th>${esc(_t('ap_overall'))}</th><th>${esc(_t('ap_car_level',{n:''}))}</th><th>${esc(_t('ap_stop_short'))}</th><th>${esc(_t('ap_character'))}</th></tr>${opponents}</table></div></div>
-      ${s.results.length?`<div class="ap-card"><h2>${esc(_t('ap_race_history'))}</h2>${s.results.slice().reverse().map(r=>`<details><summary>${esc(_t('ap_round',{n:r.round}))} · ${r.points} ${esc(_t('ap_points'))} · ${money(r.prize)}</summary><div class="ap-scroll"><table class="ap-table">${r.classification.map(c=>`<tr class="${isMine(c.id)?'best':''}"><td>${c.position}</td><td>${esc(c.name)}</td><td>${c.dnf?'DNF':lapStr(c.time)}</td><td>${c.points}</td></tr>`).join('')}</table></div></details>`).join('')}</div>`:''}
+      ${s.results.length?`<div class="ap-card"><h2>${esc(_t('ap_race_history'))}</h2>${s.results.slice().reverse().map(r=>`<details><summary>${esc(_t('ap_round',{n:r.round}))} · ${r.points} ${esc(_t('ap_points'))} · ${money(r.prize)}</summary><div class="ap-scroll"><table class="ap-table">${r.classification.map(c=>`<tr class="${isMine(c.id)?'best':''}"><td>${c.position}</td><td>${esc(personName(c))}</td><td>${c.dnf?'DNF':lapStr(c.time)}</td><td>${c.points}</td></tr>`).join('')}</table></div></details>`).join('')}</div>`:''}
       </div></div>`);
     bindResume(host);
     on(host.querySelector('[data-enter-division]'), 'click',e=>{e.target.disabled=true;mp.send({type:'ap_division_enter'});});
@@ -1550,7 +1573,7 @@
     render(box, `<div class="ap-card"><div class="ap-bar"><h3>${x.weekend?esc(_t('ap_round',{n:x.weekend.round}))+' · '+esc(_t('ap_phase_'+x.weekend.phase)):x.kind==='qualifying' ? '⏱' : x.kind === 'race' ? '🏁' : '🧪'} ${esc(dateStr(x.at))}</h3><button class="ap-btn ap-sm ap-ghost" id="ap-rd-x">✕</button></div>
       <div class="ap-chips ap-chips-l">${setupChips(x.setup)} ${x.final_setup && JSON.stringify(x.final_setup) !== JSON.stringify(x.setup) ? '→ ' + setupChips(x.final_setup) : ''}</div>
       <table class="ap-table"><tr><th>#</th><th>${esc(_t('ap_time_h'))}</th><th>S1</th><th>S2</th><th>S3</th></tr>${rows}</table>
-      ${x.weekend?.classification?.length&&mods ? mods.DIVISION.classificationHtml(x.weekend.classification,_t,lapStr) : ''}
+      ${x.weekend?.classification?.length&&mods ? mods.DIVISION.classificationHtml(x.weekend.classification,_t,lapStr,personName) : ''}
       ${x.kind === 'race' && x.position ? `<div class="ap-hint">${esc(_t('ap_position', { n: x.position, m: 11 }))} · ${lapStr(x.race_time)} · ${money(x.prize)}</div>` : ''}</div>`);
     on($('#ap-rd-x'), 'click', () => { render(box, ''); });
     box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1588,7 +1611,7 @@
       go('track');const host=$('#ap-track');render(host, `<div class="ap-load">${esc(_t('ap_preparing'))}</div>`);
       try{
         const M=await loadMods();track=useTrack(msg.track);if(!track)throw new Error('track');
-        divisionPlayback=M.DIVISION.playRace({host,M,track,payload:{...msg,site:siteOf(msg.track),tyre_cost:G.tyre_cost,spares:G.warehouse.parts,wx_half:wxH(),tyre_err:FX.tyreErr(lvl('strategist'))},t:_t,money,time:lapStr,RaceModel:M.RACE.Race,sound:{factory:M.AUDIO.createEngineAudio,context:audioContext,enabled:sndOn,changed:value=>{sndOn=value;}},
+        divisionPlayback=M.DIVISION.playRace({host,M,track,payload:{...msg,site:siteOf(msg.track),tyre_cost:G.tyre_cost,spares:G.warehouse.parts,wx_half:wxH(),tyre_err:FX.tyreErr(lvl('strategist'))},t:_t,money,time:lapStr,personName,RaceModel:M.RACE.Race,sound:{factory:M.AUDIO.createEngineAudio,context:audioContext,enabled:sndOn,changed:value=>{sndOn=value;}},
           sendPit:command=>new Promise(resolve=>{pitAck=resolve;send({type:'ap_pit',compound:command.compound,set:command.set,at:command.t,wing:command.wing===true,wing_unit:command.wing_unit,service:command.service,pass:command.pass===true,car:command.car||'player'});}),
           saveProgress:value=>send({type:'ap_progress',session:msg.session,progress:{t:value,pbt:value,armed:false,inputs:[]}}),
           onFinish:report=>send({type:'ap_result',session:msg.session,...report}),
@@ -1667,7 +1690,7 @@
         </div>
         <div class="ap-ctl">
           <div class="ap-cams" id="h-cams">${['chase', 'cockpit', 'tv', 'heli', 'nose', 'orbit'].map(c => `<button data-cam="${c}">${esc(_t('ap_cam_' + c))}</button>`).join('')}</div>
-          ${cars.length > 1 ? `<div class="ap-watch" id="h-cars">${cars.map((c, i) => `<button data-car="${i}" data-team-car="${esc(c.key)}" title="${esc(_t('ap_watch_car'))}">${esc(c.name)}</button>`).join('')}</div>` : ''}
+          ${cars.length > 1 ? `<div class="ap-watch" id="h-cars">${cars.map((c, i) => `<button data-car="${i}" data-team-car="${esc(c.key)}" title="${esc(_t('ap_watch_car'))}">${esc(personName(c))}</button>`).join('')}</div>` : ''}
           <button class="ap-boxbtn" id="h-box"></button><button class="ap-boxbtn" id="h-through">${esc(_t('ap_pit_through'))}</button>
           <div class="ap-speeds" id="h-speeds">${[1, 2, 4, 8].map(s => `<button data-sp="${s}">×${s}</button>`).join('')}<button data-sp="skip">${esc(_t('ap_skip'))}</button><button id="h-snd">${sndOn ? '🔊' : '🔇'}</button></div>
         </div>
@@ -1878,7 +1901,7 @@
     drawMap(S);
     radioTick(S);
     const nm = $('#h-names');
-    if (nm) nm.innerHTML = view.ghostList().map(g => { const p = view.project(g.x, g.y); return p.ok ? `<div class="ap-tag" style="left:${p.x}px;top:${p.y}px">${esc(g.name)}</div>` : ''; }).join('');
+    if (nm) nm.innerHTML = view.ghostList().map(g => { const p = view.project(g.x, g.y); return p.ok ? `<div class="ap-tag" style="left:${p.x}px;top:${p.y}px">${esc(personName(g))}</div>` : ''; }).join('');
   }
 
   // The driver's radio: what happens on the track, said as it happens, in a block at the right of the picture.
@@ -2054,7 +2077,7 @@
       const status=r=>_t('ap_status_'+(r.status||'pit'));
       const code=r=>r.status==='pit'?'P':r.status==='out'?'↗':r.status==='in'?'↘':'●';
       const bars=r=>`<span class="ap-sector-bars">${[0,1,2].map(i=>`<i class="${r.cells?.[i]?.color||''}" title="S${i+1}${r.cells?.[i]?' '+secStr(r.cells[i].time):''}"></i>`).join('')}</span>`;
-      const rowHtml=r=>`<b>${r.position}</b><span class="ap-rival-info"><span class="ap-rival-name">${esc(r.name)}</span><span class="ap-rival-meta">${tyre(r)}<i class="ap-track-status" aria-label="${esc(status(r))}">${code(r)}</i>${bars(r)}</span></span><strong>${lapStr(r.best)}<small>${delta(r.gap)}</small></strong>`;
+      const rowHtml=r=>`<b>${r.position}</b><span class="ap-rival-info"><span class="ap-rival-name">${esc(personName(r))}</span><span class="ap-rival-meta">${tyre(r)}<i class="ap-track-status" aria-label="${esc(status(r))}">${code(r)}</i>${bars(r)}</span></span><strong>${lapStr(r.best)}<small>${delta(r.gap)}</small></strong>`;
       // Keyed rows slide to their new place; a driver who climbs is lifted and lit, and a long climb takes longer so it can be followed.
       const rh=innerWidth<=650?38:44,keep=host._rows||(host._rows=new Map()),ids=new Set(rows.map(r=>r.pid));
       host.classList.add('ap-session-order');host.style.setProperty('--rh',rh+'px');let spacer=host.querySelector(':scope > .ap-order-spacer');
@@ -2106,7 +2129,7 @@
             const gap=c&&refOk?cum-ref:null;
             return `<div class="${c?.color||''}"><small>S${i+1}</small><b>${c?cumStr(cum):'…'}</b><em>${c?deltaText(gap):''}</em></div>`;});
           // a phone shows the small chip (position, three letters, time to the last sector) until it is tapped
-          return `<div class="ap-rival-chip"><b>${r.position??''}</b><span>${esc(String(r.name).slice(0,3))}</span><i>${r.cells?.[0]?cumStr(cum):'—'}</i><u>${[0,1,2].map(i=>`<s class="${r.cells?.[i]?.color||''}"></s>`).join('')}</u></div><div class="ap-rival-card-head"><b>${r.position??''} ${esc(r.name)}</b>${tyre(r)}</div><div class="ap-rival-splits">${splits.join('')}</div>`;
+          return `<div class="ap-rival-chip"><b>${r.position??''}</b><span>${esc(String(r.name).slice(0,3))}</span><i>${r.cells?.[0]?cumStr(cum):'—'}</i><u>${[0,1,2].map(i=>`<s class="${r.cells?.[i]?.color||''}"></s>`).join('')}</u></div><div class="ap-rival-card-head"><b>${r.position??''} ${esc(personName(r))}</b>${tyre(r)}</div><div class="ap-rival-splits">${splits.join('')}</div>`;
         };
         if(!active._tap){active._tap=true;active.addEventListener('click',e=>{const card=e.target.closest('.ap-rival-card');if(!card||innerWidth>640)return;const on=!card.classList.contains('open');active.querySelectorAll('.ap-rival-card.open').forEach(c=>c.classList.remove('open'));if(on)card.classList.add('open');});}
         // Cards are kept per rival: a new one slides in, one that has finished its last sector stays readable, then fades out while the next ones close the gap.
@@ -2128,7 +2151,7 @@
     rows.push({pid:cars[carIdx]?.key||'player',name:cars[carIdx]?.name || pb.msg.name || G.driver.name || _t('ap_you'),best,mine:true});
     for(const t of mateRows())rows.push({pid:t.id,name:t.name,best:t.best,teammate:true});
     rows.sort((a,b) => (a.best ?? Infinity)-(b.best ?? Infinity) || String(a.pid).localeCompare(String(b.pid)));
-    host.innerHTML=rows.map((r,i) => `<div data-team-car="${esc(r.pid)}" class="ap-order-row ${r.mine ? 'mine' : ''}${r.teammate ? ' teammate' : ''}"><b>${i+1}</b><span>${esc(r.name)}</span><strong>${lapStr(r.best)}</strong></div>`).join('');
+    host.innerHTML=rows.map((r,i) => `<div data-team-car="${esc(r.pid)}" class="ap-order-row ${r.mine ? 'mine' : ''}${r.teammate ? ' teammate' : ''}"><b>${i+1}</b><span>${esc(personName(r))}</span><strong>${lapStr(r.best)}</strong></div>`).join('');
     mods.DIVISION.focusClassification(host,state?.lap);
   }
   function lapStartOf(n) { const l = run.laps.find(x => x.n === n - 1); return l ? l.t0 + l.time : 0; }
@@ -2218,7 +2241,7 @@
     const entry = cars[carIdx], car = teamRoster().cars.find(c => c.id === entry?.msg.car_id);
     const carLabel = car ? _t('ap_car_number', { n: car.number }) + (car.name ? ' · ' + car.name : '') : _t('ap_car_number', { n: entry?.key === 'player2' ? 2 : 1 });
     const ov = document.createElement('div'); ov.className = 'ap-pitpanel'; ov.id = 'ap-pitpanel';
-    ov.innerHTML = `<div class="ap-pit-in"><div class="ap-pit-heading"><div class="ap-bar"><h2>🅿 ${esc(_t('ap_pit_title'))}</h2><b id="ap-pit-clock" class="ap-pit-clock"></b></div><p class="ap-pit-car"><b>${esc(carLabel)}</b> · ${esc(entry?.name || pb.msg.driver?.name || G.driver.name)}</p></div>
+    ov.innerHTML = `<div class="ap-pit-in"><div class="ap-pit-heading"><div class="ap-bar"><h2>🅿 ${esc(_t('ap_pit_title'))}</h2><b id="ap-pit-clock" class="ap-pit-clock"></b></div><p class="ap-pit-car"><b>${esc(carLabel)}</b> · ${esc(personName(entry || pb.msg.driver || G.driver))}</p></div>
       <div class="ap-pit-tabs"><button data-ptab="an" class="on">📊 ${esc(_t('ap_pit_tab_analysis'))}</button><button data-ptab="ch">🔧 ${esc(_t('ap_pit_tab_changes'))}</button></div>
       <p class="ap-hint">${esc(_t('ap_pit_hint_running'))}</p>${carConditionHtml()}
       <div id="ap-pit-an">${analysisHtml(an, locked)}</div>
@@ -2375,7 +2398,7 @@
       ${q ? `<p class="ap-hint">${esc(_t('ap_qual_result_hint'))}</p><p class="ap-hint">${esc(m.career?.licensed ? _t('ap_license_ready') : _t('ap_license_progress',{n:m.career?.qualifications || 0,s:m.career?.silver_sessions ? 1 : 0}))}</p>` : ''}
       ${m.cheat ? `<div class="ap-dnfbar">${esc(_t('ap_cheat'))}</div>` : ''}
       <div class="ap-sum-top">${top}<div class="ap-big"><small>${esc(_t('ap_spent_h'))}</small><b class="ap-bad">−${money(m.cost)}</b></div></div>
-      ${result.other ? `<div class="ap-sum-cars">${[result, result.other].map((r, i) => `<button type="button" data-summary-car="${i}" class="${selected === i ? 'on' : ''}" aria-pressed="${selected === i}"><b>${esc(cars[i]?.name || (i ? result.other.name : result.driver?.name || G.driver.name))}</b><span>${r.best ? lapStr(r.best.time) : '–'}</span><small>${(r.laps || []).filter(l=>l.valid).length} ${esc(_t('ap_valid_laps'))}</small></button>`).join('')}</div>` : ''}
+      ${result.other ? `<div class="ap-sum-cars">${[result, result.other].map((r, i) => `<button type="button" data-summary-car="${i}" class="${selected === i ? 'on' : ''}" aria-pressed="${selected === i}"><b>${esc(personName(cars[i] || (i ? result.other : result.driver || G.driver)))}</b><span>${r.best ? lapStr(r.best.time) : '–'}</span><small>${(r.laps || []).filter(l=>l.valid).length} ${esc(_t('ap_valid_laps'))}</small></button>`).join('')}</div>` : ''}
       <div class="ap-sum-grid">
         <div><table class="ap-table"><tr><th>#</th><th>${esc(_t('ap_time_h'))}</th><th>${esc(_t('ap_sectors'))}</th><th>${race || q ? '' : esc(_t('ap_points'))}</th></tr>${rows}</table>
           <canvas id="ap-chart" width="520" height="170"></canvas><div class="ap-hint">${esc(_t('ap_chart_hint'))}</div></div>
@@ -2384,7 +2407,7 @@
           ${dmg ? `<h3>${esc(_t('ap_damage'))}</h3><div class="ap-tags">${dmg}</div>` : ''}
           ${gains ? `<h3>${esc(_t(Object.values(m.gains).some(v => v < 0) ? 'ap_learned' : 'ap_learned'))}</h3><div class="ap-tags">${gains}</div>` : (race ? `<div class="ap-hint">${esc(_t('ap_race_no_xp'))}</div>` : '')}</div>
       </div>
-      ${m.weekend?.classification?.length ? mods.DIVISION.classificationHtml(m.weekend.classification,_t,lapStr) : ''}
+      ${m.weekend?.classification?.length ? mods.DIVISION.classificationHtml(m.weekend.classification,_t,lapStr,personName) : ''}
       ${m.weekend ? `<p class="ap-hint">${esc(_t('ap_recovery_rule'))}</p>` : ''}
       <div class="ap-sum-btns"><button class="ap-btn" id="ap-s-garage">🔧 ${esc(_t('ap_to_garage'))}</button><button class="ap-btn ap-ghost" id="ap-s-replay">⟲ ${esc(_t('ap_replay'))}</button></div></div>`;
   }
@@ -2416,7 +2439,7 @@
     go('garage');
     closeGarageView();
     const host = $('#ap-garage');
-    const rows = msg.board.map((r, i) => `<tr><td>${i + 1}</td><td>${esc(r.name)}</td><td>${r.best != null ? lapStr(r.best) : '–'}</td><td>${r.points}</td></tr>`).join('');
+    const rows = msg.board.map((r, i) => `<tr><td>${i + 1}</td><td>${esc(personName(r))}</td><td>${r.best != null ? lapStr(r.best) : '–'}</td><td>${r.points}</td></tr>`).join('');
     host.innerHTML = `<div class="ap-final"><h2>🏁 ${esc(_t('ap_final'))}</h2>
       <table class="ap-table"><tr><th>#</th><th></th><th>${esc(_t('ap_best'))}</th><th>${esc(_t('ap_points'))}</th></tr>${rows}</table>
       <section data-gh-results></section>
@@ -2436,6 +2459,7 @@
   mp.on('ap_board', m => { board = m.board || []; if (root && screen === 'garage' && gview === 'setup' && multi && G && !over) paintGarage(); });
   mp.on('ap_division_updated', async()=>{busy=false;await load2();go('division');});
   mp.on('ap_career_reset', async () => {
+    nameIdentities.clear();
     if(divisionPlayback){divisionPlayback.destroy();divisionPlayback=null;}
     pb.playing=false;pb.sent=true;busy=false;pending=null;run=null;summary=null;lastGains=null;
     if(view){view.destroy();view=null;}closeGarageView();
@@ -2443,10 +2467,10 @@
     $('#ap-track').innerHTML='';$('#ap-stats').innerHTML='';$('#ap-driver').innerHTML='';
     await load();
   });
-  mp.on('ap_go',receiveGo);
+  mp.on('ap_go',async m => { await namesReady; receiveGo(displayNames(m)); });
   mp.on('ap_err', async m => { clearTimeout(resumeTimer);resumeBusy=false;busy = false; notifyGame(careerError(m.code)); await load2();if(screen==='division')paintDivision();if(screen==='team')paintTeam(); if (screen === 'garage') paintGarage(); });
   mp.on('ap_pit_ok', m => { if (m.budget != null && G) { G.driver.budget = m.budget; paintStatus(); } if (pitAck) { pb.lastAck = m; pitAck(!!m.ok); pitAck = null; } });
-  mp.on('ap_summary', m => { if (root) onSummary(m); });
+  mp.on('ap_summary', m => { if (root) onSummary(displayNames(m)); });
   mp.on('ap_pos', m => { peers[m.pid] = { x: m.x, y: m.y, best: m.best }; if (view && pb.msg?.kind!=='qualifying') view.ghost(m.pid, { x: m.x, y: m.y, psi: m.psi, col: m.col, livery: m.livery, name: m.name }); });
   mp.on('ap_gone', m => { delete peers[m.pid]; if (view) view.removeGhost(m.pid); });
   mp.on('ap_over', m => { if (root) onOver(m); });

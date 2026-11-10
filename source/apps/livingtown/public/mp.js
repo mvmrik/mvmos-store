@@ -6,6 +6,35 @@
   const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const escAttr = s => esc(s).replace(/"/g, '&quot;');
 
+  const asset = path => window.asset ? window.asset(path) : path;
+  let nameTools, nameDisplay, nameCatalogue = {}, nameRules = {};
+  const namesReady = Promise.all([
+    import(asset('/apps/gamehub/name-generator.js')).then(module => { nameTools = module; }),
+    import(asset('/apps/gamehub/name-display.js')).then(module => { nameDisplay = module; }),
+  ]);
+  const language = () => window.mvmOS?.lang || 'en';
+  function personName(p) {
+    if (!p?.name_identity) return p?.name || '';
+    return nameDisplay.countryFlag(p.name_identity.country) + ' ' + nameDisplay.displayName(p.name_identity, language(), nameRules);
+  }
+  function createPersonName(gender, family = null, country = '') {
+    const identity = nameTools.generatePerson(nameCatalogue, {country, gender, family});
+    return {name:identity.latin, name_identity:identity, country:identity.country};
+  }
+  function inheritedFamily(parent) {
+    if (parent.name_identity?.family_names) return parent.name_identity;
+    // Existing towns keep their names. Match a legacy surname to the catalogue
+    // where possible; never split the stored names of new residents.
+    const country = parent.country || town.start_country;
+    const last = String(parent.name || '').trim().split(/\s+/).pop();
+    const data = nameCatalogue[country];
+    for (const gender of ['male', 'female']) {
+      const match = data.groups[gender + '_last'].find(row => row.latin === last || row.native === last);
+      if (match) return {country, family_names:match.family_names};
+    }
+    return {country, native_script:'Latn', family_names:{male:{native:last, latin:last}, female:{native:last, latin:last}}};
+  }
+
   let B, town, root, canvas, g, hud, tools, subtools, panel, toast, eventButton, eventLog;
   let unreadEvents = 0;
   let eventPreviewTimer = 0, eventPreviewVisible = false;
@@ -250,6 +279,7 @@
   function renderSetup(box) {
     box.innerHTML = '<div class="lt-setup"><div class="lt-mark">🏘️</div><h2>' + esc(tr('lt_title')) +
       '</h2><p>' + esc(tr('lt_setup')) + '</p></div>';
+    return () => ({name_language:language()});
   }
 
   function renderGame(at) {
@@ -286,6 +316,7 @@
 
   function begin(msg) {
     B = msg.tuning; town = msg.state;
+    nameCatalogue = msg.name_catalogue; nameRules = msg.name_display_rules;
     // A business should cost exactly what a home does at the same level,
     // so the choice between the two comes down to which one someone can
     // actually afford right now, not one tier being structurally pricier.
@@ -398,16 +429,17 @@
       // automatically, same as it would anyone else.
       town.people = []; town.buildings = []; town.founding = false;
       for (let i = 0; i < 5; i++) {
-        const family = B.names.families[Math.floor(Math.random() * B.names.families.length)];
+        const manName = createPersonName('male', null, town.start_country);
+        const womanName = createPersonName('female', manName.name_identity);
         const manId = town.next_person++, womanId = town.next_person++;
         const base = { age_days: (20 + Math.floor(Math.random() * 10)) * 365,
           home: null, work: null, x: world() / 2, y: world() / 2, inside: 'waiting', goal: null,
           happiness: B.happiness_start, health: 100, strength: 0, energy: 100 };
         const manHasMoney = Math.random() < 0.5;
         town.people.push(
-          { id: manId, name: B.names.male[Math.floor(Math.random() * B.names.male.length)] + ' ' + family,
+          { id: manId, ...manName,
             sex: 'm', partner: womanId, money: manHasMoney ? 1200 : 0, parents: [], children: [], history: [], ...base },
-          { id: womanId, name: B.names.female[Math.floor(Math.random() * B.names.female.length)] + ' ' + family,
+          { id: womanId, ...womanName,
             sex: 'f', partner: manId, money: manHasMoney ? 0 : 1200, parents: [], children: [], history: [], ...base });
       }
     }
@@ -692,7 +724,7 @@
       const worthAtDeath = netWorth(deceased);
       const richerAlive = town.people.some(other => other.id !== deceased.id && netWorth(other) > worthAtDeath);
       if (!richerAlive && (!town.richest_dead || worthAtDeath > town.richest_dead.worth)) {
-        town.richest_dead = { name: deceased.name, sex: deceased.sex, age: age(deceased), worth: worthAtDeath };
+        town.richest_dead = { name: deceased.name, name_identity:deceased.name_identity, country:deceased.country, sex: deceased.sex, age: age(deceased), worth: worthAtDeath };
       }
       const children = (deceased.children || []).map(person).filter(Boolean);
       const partner = person(deceased.partner);
@@ -827,9 +859,7 @@
       const home = building(mother.home);
       if (!home || (home.residents || []).length >= (home.capacity || 2)) continue;
       const id = town.next_person++, female = Math.random() < .5;
-      const firstNames = female ? B.names.female : B.names.male;
-      const fatherSurname = String(partner.name || '').trim().split(/\s+/).pop() || 'Vale';
-      const child = { id, name: firstNames[Math.floor(Math.random() * firstNames.length)] + ' ' + fatherSurname, sex: female ? 'f' : 'm',
+      const child = { id, ...createPersonName(female ? 'female' : 'male', inheritedFamily(partner)), sex: female ? 'f' : 'm',
         age_days: 0, money: 0, partner: null, parents: [mother.id, partner.id], children: [],
         home: mother.home, work: null, x: mother.x, y: mother.y, inside: mother.home,
         goal: null, happiness: B.happiness_start, health: 100, strength: 0, energy: 100, history: [] };
@@ -3048,7 +3078,7 @@
         potential.sort((a, b) => b[2] - a[2]);
         const matchedIds = new Set(potential.flatMap(([p, q]) => [p.id, q.id]));
         const unmatched = singles.filter(p => !matchedIds.has(p.id));
-        const personTag = p => (p.sex === 'f' ? '♀' : '♂') + ' ' + esc(p.name) + ' (' + age(p) + ')';
+        const personTag = p => (p.sex === 'f' ? '♀' : '♂') + ' ' + esc(personName(p)) + ' (' + age(p) + ')';
         const pairRow = (p, q) => '<button data-person="' + p.id + '"><span>' + personTag(p) + ' + ' + personTag(q) + '</span></button>';
         body = '<h3>' + esc(tr('lt_couples_current')) + '</h3>' +
           (couples.length ? '<div class="lt-list">' + couples.map(([p, q]) => pairRow(p, q)).join('') + '</div>' :
@@ -3072,7 +3102,7 @@
           '<div class="lt-list">' + ranked.map(([p, worth, alive]) =>
             (alive ? '<button data-person="' + p.id + '">' : '<button disabled>') +
             '<i aria-hidden="true">' + (p.sex === 'f' ? '♀' : '♂') + '</i>' +
-            '<span>' + (alive ? age(p) : p.age) + ' · ' + esc(p.name) + (alive ? '' : ' ✝ ' + esc(tr(p.sex === 'f' ? 'lt_deceased_f' : 'lt_deceased'))) +
+            '<span>' + (alive ? age(p) : p.age) + ' · ' + esc(personName(p)) + (alive ? '' : ' ✝ ' + esc(tr(p.sex === 'f' ? 'lt_deceased_f' : 'lt_deceased'))) +
             '</span><b style="margin-left:auto">' + money(worth) + '</b></button>'
           ).join('') + '</div>';
       }
@@ -3113,7 +3143,7 @@
       if (p.work) personRows.push([tr('lt_shift'), esc(tr('lt_shift_' + shiftTypeOf(p)))]);
       const partner = p.partner ? person(p.partner) : null;
       personRows.push(
-        [tr('lt_partner'), partner ? goToLink('person', partner.id, partner.name) : esc(tr('lt_none'))],
+        [tr('lt_partner'), partner ? goToLink('person', partner.id, personName(partner)) : esc(tr('lt_none'))],
         // "Now" jumps to wherever this same person currently is (a building
         // if inside one, their live position otherwise) - handy to re-center
         // the camera on them after panning away to check a linked building.
@@ -3125,7 +3155,7 @@
         [tr('lt_strength'), esc(Math.round(p.strength ?? 0) + '%')],
         [tr('lt_energy'), esc(Math.round(p.energy ?? 100) + '%')],
       );
-      panel.innerHTML = closeButton() + '<h2>' + (p.sex === 'f' ? '♀' : '♂') + ' ' + esc(p.name) + '</h2><p class="lt-lead">' +
+      panel.innerHTML = closeButton() + '<h2>' + (p.sex === 'f' ? '♀' : '♂') + ' ' + esc(personName(p)) + '</h2><p class="lt-lead">' +
         esc(tr('lt_person_line', { age: age(p), money: money(p.money) })) + '</p>' + rowsRaw(personRows) +
         '<h3>' + esc(tr('lt_history')) + '</h3><div class="lt-history">' +
         (p.history || []).slice(0, 6).map(k => '<p>' + esc(tr(k)) + '</p>').join('') + '</div>';
@@ -3141,7 +3171,7 @@
           ]) + peopleList(visitors, b.id);
       } else {
       const construction = (b.built || 0) < 1 ? (b.built || 0) : (b.target_development ? (b.upgrade_progress || 0) : 1);
-      const ownerNames = (b.owners || [b.owner]).map(person).filter(Boolean).map(p => p.name).join(', ');
+      const ownerNames = (b.owners || [b.owner]).map(person).filter(Boolean).map(p => personName(p)).join(', ');
       const details = [
         [tr('lt_type'), tr('lt_b_' + b.type)], [tr('lt_owner'), ownerNames || tr('lt_municipal')],
         [tr('lt_road'), buildingRoadAccess(b, false) ? '✓' : '✕'],
@@ -3332,7 +3362,7 @@
       const present = p.inside === buildingId;
       return '<button data-person="' + id + '" class="' + (present ? 'present' : 'away') + '" title="' +
         escAttr(personState(p)) + '"><i aria-hidden="true">●</i><b aria-label="' + (p.sex === 'f' ? 'female' : 'male') + '">' +
-        (p.sex === 'f' ? '♀' : '♂') + '</b><span>' + age(p) + ' · ' + esc(p.name) + '</span></button>';
+        (p.sex === 'f' ? '♀' : '♂') + '</b><span>' + age(p) + ' · ' + esc(personName(p)) + '</span></button>';
     }).join('') + '</div>';
   }
 
@@ -4396,7 +4426,7 @@
       if (window.requestIdleCallback) window.requestIdleCallback(send, { timeout: 1500 }); else send();
     }, 450);
   }
-  mp.on('lt_start', msg => { if (root && canvas) begin(msg); else pending = msg; });
+  mp.on('lt_start', async msg => { await namesReady; if (root && canvas) begin(msg); else pending = msg; });
   mp.registerGame({
     id: GAME_ID, name: tr('lt_title'), renderSetup, renderGame,
     snapshot: () => { push(true); return null; },

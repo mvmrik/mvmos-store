@@ -12,7 +12,7 @@ import time
 import uuid
 
 CAR_FIELDS = ('car_id', 'car_level', 'parts', 'fitted', 'setup', 'setups')
-PILOT_FIELDS = ('pilot_id', 'name', 'age', 'age_origin', 'age_checked', 'recruited_at',
+PILOT_FIELDS = ('pilot_id', 'name', 'name_identity', 'age', 'age_origin', 'age_checked', 'recruited_at',
                 'skills', 'potential', 'character', 'energy', 'energy_ts', 'trainings')
 D = None
 
@@ -24,7 +24,7 @@ def bind(context):
 
 def schema(conn):
     cols = {r[1] for r in conn.execute('PRAGMA table_info(driver)')}
-    for key, spec in {'staff_ts':'REAL NOT NULL DEFAULT 0', 'finance_category':"TEXT NOT NULL DEFAULT 'adjustment'", 'finance_detail':"TEXT NOT NULL DEFAULT '{}'"}.items():
+    for key, spec in {'name_identity':"TEXT NOT NULL DEFAULT '{}'", 'staff_ts':'REAL NOT NULL DEFAULT 0', 'finance_category':"TEXT NOT NULL DEFAULT 'adjustment'", 'finance_detail':"TEXT NOT NULL DEFAULT '{}'"}.items():
         if key not in cols:
             conn.execute(f'ALTER TABLE driver ADD COLUMN {key} {spec}')
     old = conn.execute("SELECT sql FROM sqlite_master WHERE type='trigger' AND name='apex_budget_ledger'").fetchone()
@@ -96,7 +96,7 @@ def sync(conn, d):
 
 
 def pilot_at(profile, now, regen=None):
-    p=dict(profile);p['skills']=dict(p['skills']);p['potential']=dict(p['potential'])
+    p=dict(profile);p.setdefault('name_identity',{});p['skills']=dict(p['skills']);p['potential']=dict(p['potential'])
     age=17+max(0,now-p['age_origin'])/D['AGE_YEAR_SECONDS']
     before=17+max(0,(p['age_checked'] or now)-p['age_origin'])/D['AGE_YEAR_SECONDS']
     for key in D['SKILLS']:
@@ -120,7 +120,7 @@ def roster(conn, d):
     pilots=[]
     for r in conn.execute('SELECT * FROM team_pilot WHERE player_id=? ORDER BY created,id',(pid,)):
         p=pilot_at(json.loads(r['profile']),now,regen)
-        pilots.append(dict(id=r['id'],name=p['name'],age=p['age'],overall=round(sum(p['skills'].values())/len(D['SKILLS']),1),
+        pilots.append(dict(**D['name_source'].public(p),id=r['id'],name=p['name'],age=p['age'],overall=round(sum(p['skills'].values())/len(D['SKILLS']),1),
                            energy=p['energy'],salary=salary(p),stars=round(min(5,max(1,2+(sum(p["potential"].values())/len(D["SKILLS"])-70)/8)),1)))
     return dict(cars=cars,pilots=pilots,active_car=d['car_id'],active_pilot=d['pilot_id'],team_name=d.get('team_name',''))
 
@@ -239,10 +239,9 @@ def new_offer(pid,cap=98):
     age=17;potential={k:round(min(cap,max(min(cap,40),ceiling+rnd.gauss(0,5))),2) for k in D['SKILLS']}
     skills={k:min(rnd.randint(40,50),int(potential[k])) for k in D['SKILLS']}
     overall=sum(skills.values())/len(skills);headroom=sum(potential[k]-skills[k] for k in skills)/len(skills)
-    first=rnd.choice(['Alex','Jamie','Robin','Sam','Casey','Jordan','Riley','Taylor','Drew','Avery','Logan','Morgan','Sasha','Noah','Nico','Mika','Luca','Emil','Kai','Toni'])
-    last=rnd.choice(['Morgan','Taylor','Blake','Bennett','Brooks','Hayes','Adams','Reid','Quinn','Parker','Scott','Ellis','Silva','Moreau','Keller','Costa','Sato','Novak','Rossi','Lind'])
+    person=D['name_source'].person(rnd)
     ident=uuid.uuid4().hex
-    return dict(id=ident,youth_version=1,cap=int(cap//5*5),name=first+' '+last,age=age,skills=skills,potential=potential,
+    return dict(id=ident,youth_version=1,cap=int(cap//5*5),**person,age=age,skills=skills,potential=potential,
                 character={k:rnd.randint(0,100) for k in ('aggression','defence','patience')},
                 overall=round(overall,1),stars=round(min(5,max(1,2+(sum(potential.values())/len(potential)-70)/8)),1),
                 price=int(round((20000+overall**2*45+headroom*2500)/1000)*1000),salary=salary({'skills':skills}))
