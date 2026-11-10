@@ -9,7 +9,13 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-DATA_DIR = Path(__file__).resolve().parents[3] / 'apps' / 'gamehub' / 'data' / 'names'
+_APP_DIR = Path(__file__).resolve().parents[3] / 'apps' / 'gamehub'
+# The installer routes bundled data into public/. The development tree keeps
+# its source data beside public/; prefer the installed layout when present.
+_DATA_ROOT = _APP_DIR / 'public' / 'data'
+if not _DATA_ROOT.is_dir():
+    _DATA_ROOT = _APP_DIR / 'data'
+DATA_DIR = _DATA_ROOT / 'names'
 PERSON_GROUPS = ('male_first', 'female_first', 'male_last', 'female_last')
 TEAM_GROUPS = ('prefix', 'suffix')
 

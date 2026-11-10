@@ -56,4 +56,4 @@ Chinese names use their native writing for the corresponding interface language.
 Latin-script names preserve their accents. Adding names does not rename identities
 already stored by an application.
 
-Belot, Living Town, Score Arena and Racelandia consume this service. Their new name features require Game Hub 1.21.0 or later; update the hub before using those consumer versions.
+Belot, Living Town, Score Arena and Racelandia consume this service. Their new name features require Game Hub 1.21.1 or later; update the hub before using those consumer versions.

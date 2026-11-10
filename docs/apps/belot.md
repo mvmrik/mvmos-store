@@ -8,4 +8,4 @@ Game Hub statistics now include deals played and won, contracts taken and made, 
 
 ## Shared names
 
-Bots receive names from the host interface’s country catalogue in Game Hub. Native and Latin spellings stay attached to the same identity; each viewer sees a readable spelling and a country flag. Bot identities survive save and resume. Human profile names remain unchanged. This version requires Game Hub 1.21.0 or later; update Game Hub before starting.
+Bots receive names from the host interface’s country catalogue in Game Hub. Native and Latin spellings stay attached to the same identity; each viewer sees a readable spelling and a country flag. Bot identities survive save and resume. Human profile names remain unchanged. This version requires Game Hub 1.21.1 or later; update Game Hub before starting.

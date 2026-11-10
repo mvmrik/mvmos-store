@@ -1,6 +1,6 @@
 # Racelandia
 
-Racelandia is a motorsport game played through Game Hub 1.21.0 or newer. Install both apps, open Racelandia from the desktop and follow its Game Hub link, or find it in the Game Hub library. Sign in with an Apps Hub account to play.
+Racelandia is a motorsport game played through Game Hub 1.21.1 or newer. Install both apps, open Racelandia from the desktop and follow its Game Hub link, or find it in the Game Hub library. Sign in with an Apps Hub account to play.
 
 You never steer. You run the team: you look after the car, train the driver, read the weather, and the driver does the lap. The lap is a physical simulation computed in your browser from the car setup, the driver's skills, the weather and a seed, and played back in 3D. A computer or a phone with a browser that supports WebGL is enough.
 

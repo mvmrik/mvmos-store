@@ -21,7 +21,7 @@
   ],
   "requirements": [
     "A browser with WebGL enabled for the 3D view.",
-    "Game Hub 1.21.0 or later, installed and updated before using this version."
+    "Game Hub 1.21.1 or later, installed and updated before using this version."
   ],
   "integrations": [
     {
