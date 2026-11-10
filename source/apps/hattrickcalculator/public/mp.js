@@ -2205,7 +2205,9 @@
     const rawLineups = matchLineups(Object.assign({}, opts, { formation: 'auto' }));
     const profile = l.useOpponent ? opponentProfile() : null;
     const all = rankLineups(rawLineups, profile);
-    const best = l.formation === 'auto' ? all[0] : rankLineups(matchLineups(opts), profile)[0];
+    const bestFull = l.formation === 'auto' ? all[0] : rankLineups(matchLineups(opts), profile)[0];
+    const top = topChanges(bestFull, avail, profile);
+    const best = limitOrders(bestFull, top);
     const hasTrainees = matchGroup().some(id => playerById(id));
     const subs = benchFor(best, resolvedFocus(), avail);
     const used = new Set(Object.values(best.assigned).concat(subs.map(x => x.player)).map(p => p.id));
@@ -2290,7 +2292,7 @@
       + aimHtml()
       + tacticHtml(best, profile)
       + attitudeHtml()
-      + substitutionHtml(best, avail, profile) + behaviourHtml(best) + swapHtml(best)
+      + topCardHtml('plan', top) + topCardHtml('behave', top) + topCardHtml('swap', top)
       + accHtml('ratings', '📊 ' + esc(tr('htc_ratings')), '',
         bar('m')
         + '<div class="htc-rgroup">' + ['dr', 'dc', 'dl'].map(bar).join('') + '</div>'
@@ -2610,21 +2612,13 @@
     const tactic = rankLineups([best], profile, c.focus)[0].tactic;
     return { c, swaps, tactic };
   }
-  function substitutionHtml(best, avail, profile) {
+  function planRows(best, avail, profile) {
     const started = new Set(Object.values(best.assigned).map(p => p.id));
     const subs = avail.filter(p => !started.has(p.id));
     const sw = lineupOpts().sw;
     const all = PLAN_CASES.map(c => planFor(c, best, subs, profile, sw));
-    const rows = prioritize(all.filter(r => r.swaps.length).map(r => Object.assign(r, { id: r.c.id, gain: gainOf(r.swaps) })));
-    if (!rows.length) return accHtml('plan', '🔄 ' + esc(tr('htc_plan')), '', '<div class="htc-plan-swap htc-dim">' + esc(tr('htc_plan_none')) + '</div>', true);
-    return accHtml('plan', '🔄 ' + esc(tr('htc_plan')), countSummary(rows),
-      rows.map(r => caseHtml(r, '<b>' + (r.star ? '⭐ ' : '') + esc(tr('htc_cond_' + r.c.id)) + '</b> <span class="htc-dim">≈ ' + esc(tr('htc_plan_min', { n: r.c.minute })) + '</span>'
-        + (r.swaps.length ? r.swaps.map(w => '<div class="htc-plan-swap">⬅ ' + esc(w.out.name) + ' → ➡ <b>' + esc(w.in.name) + '</b> <span class="htc-dim">' + esc(posShort(w.pos) + (w.order ? ' · ' + tr('htc_order_' + w.order) : '')) + '</span></div>')
-          .join('') : '<div class="htc-plan-swap htc-dim">' + esc(tr('htc_plan_none')) + '</div>')
-        + '<div class="htc-plan-swap htc-dim">🧭 ' + esc(tr('htc_tactic_' + r.tactic)) + '</div>')).join('')
-      + '<p class="htc-note">' + esc(tr('htc_plan_note')) + ' ' + esc(tr('htc_cond_inverse')) + esc(starNote()) + '</p>');
+    return prioritize(all.filter(r => r.swaps.length).map(r => Object.assign(r, { id: r.c.id, gain: gainOf(r.swaps) })));
   }
-
   const BEHAVE_CASES = [
     { id: 'any', focus: 'balanced', minute: 60 },
     { id: 'tied', focus: 'balanced', minute: 70 },
@@ -2661,13 +2655,75 @@
     }
     return { c, changes };
   }
-  function behaviourHtml(best) {
+  function behaviourRows(best) {
     const sw = lineupOpts().sw;
-    const rows = prioritize(BEHAVE_CASES.map(c => behaviourFor(c, best, sw)).filter(r => r.changes.length).map(r => Object.assign(r, { id: r.c.id, gain: gainOf(r.changes) })));
-    return accHtml('behave', '🎯 ' + esc(tr('htc_behave')), countSummary(rows),
-      (rows.length ? rows.map(r => caseHtml(r, '<b>' + (r.star ? '⭐ ' : '') + esc(tr('htc_cond_' + r.c.id)) + '</b> <span class="htc-dim">≈ ' + esc(tr('htc_plan_min', { n: r.c.minute })) + '</span>'
-        + r.changes.map(w => '<div class="htc-plan-swap">' + esc(w.p.name) + ' → <b>' + esc(tr('htc_order_' + w.order)) + '</b> <span class="htc-dim">' + esc(posShort(w.pos)) + '</span></div>').join(''))).join('') : '<div class="htc-plan-swap htc-dim">' + esc(tr('htc_behave_none')) + '</div>')
-      + '<p class="htc-note">' + esc(tr('htc_behave_note')) + ' ' + esc(tr('htc_cond_inverse')) + esc(starNote()) + '</p>', !rows.length);
+    return prioritize(BEHAVE_CASES.map(c => behaviourFor(c, best, sw)).filter(r => r.changes.length).map(r => Object.assign(r, { id: r.c.id, gain: gainOf(r.changes) })));
+  }
+  // Hattrick allows only this many changes in all (substitutions, behaviour orders and
+  // position swaps together), so the single changes of the three plans are ranked
+  // together: the gain of the change times how likely its situation is.
+  const TOP_MAX = 5;
+  function topChanges(best, avail, profile) {
+    const s = attitudeInfo().strength;
+    const st = s === null || s === undefined ? 0 : s;
+    const pool = [], seen = new Set();
+    const add = (kind, situation, minute, text, gain, slot, tactic) => {
+      const key = kind + '|' + text;
+      if (seen.has(key)) return;
+      seen.add(key);
+      pool.push({ kind, situation, minute, text, slot, tactic, gain, score: gain * (kind === 'start' ? 1 : likelihood(situation.id, st)) });
+    };
+    // Orders given in the starting lineup use the same allowance as the ones changed in the match.
+    Object.keys(best.orders || {}).forEach(id => {
+      const sl = best.slots.find(x => x.id === id), p = best.assigned[id];
+      if (!sl || !p) return;
+      const o = best.orders[id];
+      const gain = weigh(contrib(p, sl.pos, sl.side, sl.crowd, o), 'balanced') / (weigh(contrib(p, sl.pos, sl.side, sl.crowd), 'balanced') || 1) - 1;
+      add('start', { id: 'start', title: tr('htc_top_start') }, 0,
+        esc(p.name) + ' → <b>' + esc(tr('htc_order_' + o)) + '</b> <span class="htc-dim">' + esc(posShort(sl.pos)) + '</span>', gain, id);
+    });
+    planRows(best, avail, profile).forEach(r => r.swaps.forEach(w => add('plan', { id: r.c.id, title: tr('htc_cond_' + r.c.id) }, r.c.minute,
+      esc(w.out.name) + ' → <b>' + esc(w.in.name) + '</b> <span class="htc-dim">' + esc(posShort(w.pos) + (w.order ? ' · ' + tr('htc_order_' + w.order) : '')) + '</span>', w.gain, null, r.tactic)));
+    behaviourRows(best).forEach(r => r.changes.forEach(w => add('behave', { id: r.c.id, title: tr('htc_cond_' + r.c.id) }, r.c.minute,
+      esc(w.p.name) + ' → <b>' + esc(tr('htc_order_' + w.order)) + '</b> <span class="htc-dim">' + esc(posShort(w.pos)) + '</span>', w.gain)));
+    swapGroups(best).forEach(g => g.items.forEach(w => add('swap', { id: g.id, title: g.title }, g.minute, w.kind === 'swap'
+      ? esc(w.a.name) + ' ⇄ <b>' + esc(w.b.name) + '</b> <span class="htc-dim">' + esc(posShort(w.s1.pos) + ' ' + w.s1.side + ' ⇄ ' + posShort(w.s2.pos) + ' ' + w.s2.side) + '</span>'
+      : esc(w.q.name) + ' → <b>' + esc(posShort(w.to.pos) + ' ' + w.to.side) + '</b> <span class="htc-dim">' + esc(tr('htc_swap_instead', { name: w.gone.name })) + '</span>', w.gain)));
+    return pool.filter(x => x.score > 0).sort((a, b) => b.score - a.score).slice(0, TOP_MAX);
+  }
+  // Keep only the starting orders that made the list, so the lineup shows nothing beyond the allowance.
+  function limitOrders(best, top) {
+    const keep = new Set(top.filter(x => x.kind === 'start').map(x => x.slot));
+    const orders = {};
+    Object.keys(best.orders || {}).forEach(id => { if (keep.has(id)) orders[id] = best.orders[id]; });
+    const ratings = { m: 0, dr: 0, dc: 0, dl: 0, ar: 0, ac: 0, al: 0 };
+    best.slots.forEach(sl => {
+      const p = best.assigned[sl.id];
+      if (!p) return;
+      const c = contrib(p, sl.pos, sl.side, sl.crowd, orders[sl.id]);
+      SECTORS.forEach(k => { ratings[k] += c[k]; });
+    });
+    return Object.assign({}, best, { orders, ratings });
+  }
+  // The three cards keep their own kind of change; each shows only what made the overall
+  // list of TOP_MAX, grouped by situation in the order of importance.
+  const CARDS = { plan: ['🔄', 'plan', 'htc_plan', 'htc_plan_note', 'htc_plan_none'], behave: ['🎯', 'behave', 'htc_behave', 'htc_behave_note', 'htc_behave_none'], swap: ['🔀', 'swap', 'htc_swap', 'htc_swap_note', 'htc_swap_none'] };
+  function topCardHtml(kind, top) {
+    const [icon, id, title, note, none] = CARDS[kind];
+    const mine = top.filter(x => x.kind === kind);
+    const groups = [];
+    mine.forEach(x => {
+      let g = groups.find(y => y.key === x.situation.id + '|' + x.situation.title);
+      if (!g) groups.push(g = { key: x.situation.id + '|' + x.situation.title, x, items: [] });
+      g.items.push(x);
+    });
+    const summary = '<b title="' + esc(tr('htc_top_note', { n: TOP_MAX })) + '">' + mine.length + '/' + TOP_MAX + '</b>';
+    return accHtml(id, icon + ' ' + esc(tr(title)), summary, (groups.length ? groups.map(g => '<div class="htc-plan-case"><b>' + esc(g.x.situation.title) + '</b>'
+      + (g.x.minute ? ' <span class="htc-dim">≈ ' + esc(tr('htc_plan_min', { n: g.x.minute })) + '</span>' : '')
+      + g.items.map(x => '<div class="htc-plan-swap">' + x.text + '</div>').join('')
+      + (kind === 'plan' && g.x.tactic ? '<div class="htc-plan-swap htc-dim">🧭 ' + esc(tr('htc_tactic_' + g.x.tactic)) + '</div>' : '') + '</div>').join('')
+      : '<div class="htc-plan-swap htc-dim">' + esc(tr(none)) + '</div>')
+      + '<p class="htc-note">' + esc(tr(note)) + ' ' + esc(tr('htc_cond_inverse')) + ' ' + esc(tr('htc_top_note', { n: TOP_MAX })) + '</p>', !groups.length);
   }
 
   // Swapping the positions of two players on the pitch.
@@ -2716,21 +2772,13 @@
     return pick ? [{ kind: 'move', gone: lost.p, q: pick.q, from: pick.from, to: lost.s, gain: pick.net / (weigh(at2(lost.p, lost.s), 'balanced') || 1) }] : [];
   }
   function at2(p, s) { return contrib(p, s.pos, s.side, s.crowd); }
-  function swapHtml(best) {
+  function swapGroups(best) {
     const sw = lineupOpts().sw;
     const groups = [];
-    const line = w => w.kind === 'swap'
-      ? '<div class="htc-plan-swap">' + esc(w.a.name) + ' ⇄ <b>' + esc(w.b.name) + '</b> <span class="htc-dim">' + esc(posShort(w.s1.pos) + ' ' + w.s1.side + ' ⇄ ' + posShort(w.s2.pos) + ' ' + w.s2.side) + '</span></div>'
-      : '<div class="htc-plan-swap">' + esc(w.q.name) + ' → <b>' + esc(posShort(w.to.pos) + ' ' + w.to.side) + '</b> <span class="htc-dim">' + esc(tr('htc_swap_instead', { name: w.gone.name })) + '</span></div>';
-    const block = x => caseHtml(x, '<b>' + (x.star ? '⭐ ' : '') + esc(x.title) + '</b>'
-      + (x.minute ? ' <span class="htc-dim">≈ ' + esc(tr('htc_plan_min', { n: x.minute })) + '</span>' : '') + x.items.map(line).join(''));
     SWAP_CASES.forEach(c => { const r = swapsFor(c.focus, best, sw); if (r.length) groups.push({ id: c.id, title: tr('htc_cond_' + c.id), minute: c.minute, items: r, gain: gainOf(r) }); });
     SWAP_ROLES.forEach(role => { const r = coverFor(role, best); if (r.length) groups.push({ id: 'own', title: tr('htc_swap_own') + ' · ' + posFull(role), minute: 0, items: r, gain: gainOf(r) }); });
     SWAP_ROLES.forEach(role => { const r = swapsFor(SWAP_OPP_FOCUS[role], best, sw); if (r.length) groups.push({ id: 'opp', title: tr('htc_swap_opp') + ' · ' + posFull(role), minute: 0, items: r, gain: gainOf(r) }); });
-    const ranked = prioritize(groups);
-    return accHtml('swap', '🔀 ' + esc(tr('htc_swap')), countSummary(ranked),
-      (groups.length ? ranked.map(block).join('') : '<div class="htc-plan-swap htc-dim">' + esc(tr('htc_swap_none')) + '</div>')
-      + '<p class="htc-note">' + esc(tr('htc_swap_note')) + ' ' + esc(tr('htc_cond_inverse')) + esc(starNote()) + '</p>', !groups.length);
+    return groups;
   }
 
   function attitudeHtml() {
