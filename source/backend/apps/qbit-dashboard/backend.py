@@ -77,6 +77,7 @@ _SAMPLE_EVERY = 300
 _KEEP_SECONDS = 400 * 86400
 
 _loop_task = None
+_subs_task = None
 _bg_rid = 0
 _bg_state: dict = {}
 
@@ -144,10 +145,15 @@ async def _stats_loop():
 
 
 def _ensure_loop():
-    global _loop_task
+    global _loop_task, _subs_task
     if _loop_task is None or _loop_task.done():
         try:
             _loop_task = asyncio.get_running_loop().create_task(_stats_loop())
+        except RuntimeError:
+            pass
+    if _subs_task is None or _subs_task.done():
+        try:
+            _subs_task = asyncio.get_running_loop().create_task(_subs_loop())
         except RuntimeError:
             pass
 
@@ -155,6 +161,112 @@ def _ensure_loop():
 async def on_startup():
     await asyncio.sleep(0)
     _ensure_loop()
+
+
+# ── Subtitle extraction (premium) ────────────────────────────────────────────
+# The work itself — reading the video, choosing the language, writing the .srt —
+# lives in premium/backend.py, which only a licensed installation receives. This
+# is just the scaffold: it asks for the module on every call and does nothing
+# when it is missing, so an unlicensed install has no such feature at all.
+
+_SUBS_EVERY = 30
+_HASH_RE = re.compile(r"^[0-9a-fA-F]{40,64}$")
+_premium_cache: dict = {"stamp": None, "mod": None}
+
+
+def _premium():
+    """The premium module (loaded once per file change), or None."""
+    path = os.path.join(os.path.dirname(__file__), "premium", "backend.py")
+    app_path = os.path.join(sys.modules["backend.db"].APPS_DIR, "qbit-dashboard", "premium", "backend.py")
+    for p in (app_path, path):
+        try:
+            stamp = (p, os.path.getmtime(p))
+            break
+        except OSError:
+            continue
+    else:
+        _premium_cache.update(stamp=None, mod=None)
+        return None
+    if _premium_cache["stamp"] != stamp:
+        loader = sys.modules.get("backend.premium")
+        _premium_cache.update(stamp=stamp, mod=loader.load_premium_backend("qbit-dashboard") if loader else None)
+    mod = _premium_cache["mod"]
+    return mod if mod and mod.is_available() else None
+
+
+async def _subs_tick():
+    mod = _premium()
+    if not mod or not os.path.isdir(os.path.dirname(_DB_PATH)):
+        return
+    cfg = await asyncio.to_thread(_read_cfg)
+    if not cfg:
+        return
+    args = (cfg.get("host") or "localhost", int(cfg.get("port") or 8080),
+            cfg.get("username") or "", cfg.get("password") or "")
+    r = await _proxy_request(*args, "/api/v2/torrents/info?filter=completed", "GET", None)
+    todo = await asyncio.to_thread(mod.torrents_to_check, r.json())
+    for t in todo:
+        rf = await _proxy_request(*args, f"/api/v2/torrents/files?hash={t['hash']}", "GET", None)
+        await asyncio.to_thread(mod.process_torrent, t, rf.json())
+
+
+async def _subs_loop():
+    await asyncio.sleep(20)
+    while True:
+        try:
+            await _subs_tick()
+        except Exception as e:
+            print(f"[qbit-dashboard] subtitle extraction error: {e}")
+        await asyncio.sleep(_SUBS_EVERY)
+
+
+@router.get("/subtitles/settings")
+def subtitles_settings(session=Depends(get_current_session)):
+    mod = _premium()
+    if not mod:
+        return {"available": False, "enabled": False, "mode": "choose", "languages": [], "supported": []}
+    return {"available": True, **mod.get_settings(), "supported": mod.languages()}
+
+
+@router.put("/subtitles/settings")
+async def save_subtitles_settings(request: Request, session=Depends(get_current_session)):
+    mod = _premium()
+    if not mod:
+        return JSONResponse({"error": "premium_required"}, status_code=402)
+    body = await request.json()
+    try:
+        mod.save_settings(bool(body.get("enabled")), body.get("mode"), body.get("languages") or [])
+    except ValueError:
+        return JSONResponse({"error": "invalid"}, status_code=400)
+    return {"ok": True}
+
+
+@router.post("/subtitles/files")
+async def subtitles_files(request: Request, session=Depends(get_current_session)):
+    mod = _premium()
+    if not mod:
+        return {"available": False, "files": {}}
+    body = await request.json()
+    h = str(body.get("hash") or "")
+    if not _HASH_RE.match(h):
+        return JSONResponse({"error": "invalid"}, status_code=400)
+    names = {int(i): str(n) for i, n in (body.get("names") or {}).items()}
+    states = await asyncio.to_thread(mod.file_states, h, str(body.get("tags") or ""), names)
+    return {"available": True, "enabled": mod.get_settings()["enabled"], "files": states}
+
+
+@router.put("/subtitles/file")
+async def subtitles_file(request: Request, session=Depends(get_current_session)):
+    mod = _premium()
+    if not mod:
+        return JSONResponse({"error": "premium_required"}, status_code=402)
+    body = await request.json()
+    h = str(body.get("hash") or "")
+    if not _HASH_RE.match(h):
+        return JSONResponse({"error": "invalid"}, status_code=400)
+    on = body.get("on")
+    await asyncio.to_thread(mod.set_file, h, int(body.get("index")), None if on is None else bool(on))
+    return {"ok": True}
 
 
 @router.get("/discover")
@@ -429,6 +541,7 @@ async def upload_torrent(
     password: str = Form(""),
     savepath: Optional[str] = Form(None),
     category: Optional[str] = Form(None),
+    tags: Optional[str] = Form(None),
     torrents: UploadFile = File(...),
     session=Depends(get_current_session),
 ):
@@ -439,6 +552,7 @@ async def upload_torrent(
         data = {}
         if savepath: data["savepath"] = savepath
         if category: data["category"] = category
+        if tags: data["tags"] = tags
         r = await client.post("/api/v2/torrents/add", files=files, data=data)
         return JSONResponse({"ok": True, "result": r.text})
     except httpx.ConnectError:

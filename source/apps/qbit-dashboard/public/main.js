@@ -23,6 +23,119 @@ function _qbLoadI18n() {
   return _qbI18nReady;
 }
 
+// ── Subtitle extraction settings (Premium) ───────────────────────────────────
+// Lives outside QB because the settings panel is opened from the App Store, not
+// from the app window. The work is done by the server's premium module; this
+// only edits its three settings.
+const _QB_SUB_LANGS = ['en','bg','de','es','fr','it','pt','ru','uk','pl','cs','sk','ro','el','tr','sr','hr','sl','mk','sq','hu','nl','sv','no','da','fi','et','lv','lt','ar','he','fa','hi','ja','ko','zh','th','vi','id','ca'];
+
+async function _qbSubsSettings(wrap) {
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  let st = { available: false, enabled: false, mode: 'choose', languages: [], supported: [] };
+  try {
+    const r = await fetch('/api/qbit/subtitles/settings');
+    if (r.ok) st = await r.json();
+  } catch (_) {}
+  const locked = !st.available;
+  const state = { enabled: !!st.enabled, mode: st.mode === 'always' ? 'always' : 'choose', languages: [...(st.languages || [])] };
+  const codes = st.supported?.length ? st.supported : _QB_SUB_LANGS;
+  const name = c => { try { return new Intl.DisplayNames([window.mvmOS?.lang || 'en'], { type: 'language' }).of(c) || c; } catch (_) { return c; } };
+
+  const box = document.createElement('div');
+  box.className = 'qb-subs-set';
+  box._state = state;
+  box._locked = locked;
+  box.style.cssText = 'border-top:1px solid var(--border);margin-top:14px;padding-top:12px;display:flex;flex-direction:column;gap:10px';
+  box.innerHTML = `
+    <div style="font-size:.8rem;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em">${esc(_qbt('subs_title'))}</div>
+    <label class="qb-gated" style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem">
+      <input type="checkbox" data-subs="enabled"> ${esc(_qbt('subs_enable'))}
+    </label>
+    <div style="font-size:.76rem;color:var(--text-dim);line-height:1.45">${esc(_qbt('subs_enable_help'))}</div>
+    <div class="qb-gated" style="display:flex;flex-direction:column;gap:4px">
+      <label style="font-size:.8rem;color:var(--text-dim)">${esc(_qbt('subs_mode'))}</label>
+      <select data-subs="mode" class="s-input">
+        <option value="always">${esc(_qbt('subs_mode_always'))}</option>
+        <option value="choose">${esc(_qbt('subs_mode_choose'))}</option>
+      </select>
+    </div>
+    <div class="qb-gated" style="display:flex;flex-direction:column;gap:6px">
+      <label style="font-size:.8rem;color:var(--text-dim)">${esc(_qbt('subs_languages'))}</label>
+      <div data-subs="list" style="display:flex;flex-direction:column;gap:4px"></div>
+      <select data-subs="add" class="s-input"></select>
+      <div style="font-size:.74rem;color:var(--text-dim);line-height:1.4">${esc(_qbt('subs_languages_help'))}</div>
+    </div>`;
+  wrap.appendChild(box);
+
+  const gate = document.createElement('span');
+  gate.hidden = true;
+  box.appendChild(gate);
+  window.mvmOS?.premiumGate?.(gate, _qbt('subs_premium'));
+
+  const enabledBox = box.querySelector('[data-subs="enabled"]');
+  const modeSel = box.querySelector('[data-subs="mode"]');
+  const list = box.querySelector('[data-subs="list"]');
+  const addSel = box.querySelector('[data-subs="add"]');
+
+  const paint = () => {
+    enabledBox.checked = state.enabled && !locked;
+    modeSel.value = state.mode;
+    const off = !locked && !state.enabled;       // premium but switched off: controls wait
+    modeSel.disabled = off;
+    addSel.disabled = off;
+    list.innerHTML = state.languages.length ? state.languages.map((c, i) => `
+      <div style="display:flex;align-items:center;gap:6px;font-size:.84rem">
+        <span style="width:18px;color:var(--text-dim)">${i + 1}.</span>
+        <span style="flex:1">${esc(name(c))} <span style="color:var(--text-dim)">(${esc(c)})</span></span>
+        <button type="button" class="s-btn s-btn-sm" data-act="up" data-i="${i}" title="${esc(_qbt('subs_up'))}" ${i === 0 || off ? 'disabled' : ''}>↑</button>
+        <button type="button" class="s-btn s-btn-sm" data-act="down" data-i="${i}" title="${esc(_qbt('subs_down'))}" ${i === state.languages.length - 1 || off ? 'disabled' : ''}>↓</button>
+        <button type="button" class="s-btn s-btn-sm" data-act="del" data-i="${i}" title="${esc(_qbt('subs_remove'))}" ${off ? 'disabled' : ''}>✕</button>
+      </div>`).join('') : `<div style="font-size:.8rem;color:var(--text-dim)">${esc(_qbt('subs_no_languages'))}</div>`;
+    const free = codes.filter(c => !state.languages.includes(c)).sort((a, b) => name(a).localeCompare(name(b), window.mvmOS?.lang || 'en'));
+    addSel.innerHTML = `<option value="">${esc(_qbt('subs_add_language'))}</option>` + free.map(c => `<option value="${c}">${esc(name(c))} (${c})</option>`).join('');
+    box.querySelectorAll('.qb-gated').forEach(el => { el.style.opacity = locked ? '.55' : ''; });
+  };
+  paint();
+
+  // Without Premium every control stays visible and opens the Premium dialog instead.
+  if (locked) {
+    box.querySelectorAll('.qb-gated').forEach(el => {
+      const stop = e => { e.preventDefault(); e.stopPropagation(); if (e.type === 'click') gate.click(); };
+      el.addEventListener('mousedown', stop, true);
+      el.addEventListener('click', stop, true);
+      el.style.cursor = 'pointer';
+    });
+    return;
+  }
+  enabledBox.addEventListener('change', () => { state.enabled = enabledBox.checked; paint(); });
+  modeSel.addEventListener('change', () => { state.mode = modeSel.value; });
+  addSel.addEventListener('change', () => {
+    if (addSel.value && state.languages.length < 12) state.languages.push(addSel.value);
+    paint();
+  });
+  list.addEventListener('click', e => {
+    const b = e.target.closest('button[data-act]');
+    if (!b) return;
+    const i = Number(b.dataset.i);
+    if (b.dataset.act === 'del') state.languages.splice(i, 1);
+    else {
+      const j = b.dataset.act === 'up' ? i - 1 : i + 1;
+      if (j >= 0 && j < state.languages.length) [state.languages[i], state.languages[j]] = [state.languages[j], state.languages[i]];
+    }
+    paint();
+  });
+}
+
+async function _qbSubsSave(panel) {
+  const box = panel.querySelector('.qb-subs-set');
+  if (!box || box._locked) return;
+  const r = await fetch('/api/qbit/subtitles/settings', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(box._state),
+  });
+  if (!r.ok) throw new Error(_qbt('subs_save_failed'));
+}
+
 mvmOS.registerApp({
   id: 'qbit-dashboard',
   name: _qbt('title'),
@@ -118,6 +231,7 @@ mvmOS.registerApp({
     } catch(err) {
       wrap.innerHTML = `<div style="font-size:.75rem;color:var(--text-dim);margin-top:8px;border-top:1px solid var(--border);padding-top:8px">${_qbt('opts_unavailable')} (${err.message || _qbt('opts_not_connected')})</div>`;
     }
+    await _qbSubsSettings(wrap);
   },
 
   async saveSettingsExtra(panel) {
@@ -130,6 +244,7 @@ mvmOS.registerApp({
       else if (el.tagName === 'SELECT' || el.type === 'number') prefs[key] = Number(el.value);
       else prefs[key] = el.value;
     });
+    try { await _qbSubsSave(panel); } catch (e) { window.mvmOS?.toast?.(_qbt('title'), e.message || String(e)); }
     if (!Object.keys(prefs).length) return;
     try {
       const host = panel.querySelector('[data-key="host"]')?.value || this._lastSaved?.host || 'localhost';
@@ -189,6 +304,8 @@ const QB = (() => {
   let _lastSnap = 0;
   const _SPEED_WINDOW = 10 * 60 * 1000;
   const _SNAP_EVERY = 60 * 1000;
+  let _subs = { available: false, enabled: false, mode: 'choose', languages: [], supported: [] };
+  let _gateEl = null;      // hidden element that carries the Premium dialog
 
   // ── Settings DB ──
   async function _initDb() {
@@ -367,12 +484,18 @@ const QB = (() => {
     });
     mvmOS.initMobileSidebar?.(body);
 
+    _gateEl = document.createElement('span');
+    _gateEl.hidden = true;
+    body.appendChild(_gateEl);
+    mvmOS.premiumGate?.(_gateEl, _qbt('subs_premium'));
+    _loadSubs();
 
     _renderAll();
     _startPoll();
     window.mvmOS?.onLangChange(() => _renderAll());
     window.addEventListener('settings-changed', e => {
       if (e.detail?.app === 'qbit-dashboard') {
+        _loadSubs();
         _loadCfg().then(() => {
           _connected = false;
           _renderAll();
@@ -687,6 +810,32 @@ const QB = (() => {
     });
   }
 
+  // ── Subtitle extraction helpers ──
+  const _VIDEO_RE = /\.(mkv|webm|mp4|m4v|mov)$/i;
+  const _PRIOS = [[0, 'prio_skip'], [1, 'prio_normal'], [6, 'prio_high'], [7, 'prio_max']];
+
+  async function _loadSubs() {
+    try {
+      const r = await fetch('/api/qbit/subtitles/settings');
+      if (r.ok) _subs = await r.json();
+    } catch (_) {}
+    return _subs;
+  }
+  // A control that needs Premium looks normal but opens the Premium dialog instead of acting.
+  function _askPremium() { _gateEl?.click(); }
+  function _langName(code) {
+    try { return new Intl.DisplayNames([window.mvmOS?.lang || 'en'], { type: 'language' }).of(code) || code; } catch (_) { return code; }
+  }
+  function _subsChip(st) {
+    if (!st || !st.status) return '';
+    const key = { done: 'subs_st_done', exists: 'subs_st_exists', none: 'subs_st_none', missing: 'subs_st_missing', error: 'subs_st_error' }[st.status];
+    if (!key) return '';
+    return `<span class="qb-chip qb-chip-${st.status}">${_esc(_qbt(key, { lang: st.lang ? _langName(st.lang) : '' }))}</span>`;
+  }
+  function _shownTags(tags) {
+    return (tags || '').split(',').map(x => x.trim()).filter(x => x && !x.startsWith('mvmos-')).join(', ');
+  }
+
   function _renderDetail(root, t, force = false) {
     const detail = root.querySelector('#qb-detail');
     if (!detail) return;
@@ -695,72 +844,98 @@ const QB = (() => {
     if (isNew) {
       detail.innerHTML = `
         <div class="qb-detail-header">
-          <div class="qb-detail-tabs">
-            ${tabs.map(tb => `<div class="qb-detail-tab ${_detailTab === tb ? 'active' : ''}" data-tab="${tb}">${_qbt(tb)}</div>`).join('')}
+          <div class="qb-detail-title">
+            <div class="qb-detail-name" id="qb-detail-name"></div>
+            <div class="qb-detail-sub" id="qb-detail-sub"></div>
           </div>
-          <button class="qb-detail-close" id="qb-detail-close">✕</button>
+          <button class="qb-detail-close" id="qb-detail-close" aria-label="✕">✕</button>
+        </div>
+        <div class="qb-detail-tabs">
+          ${tabs.map(tb => `<div class="qb-detail-tab ${_detailTab === tb ? 'active' : ''}" data-tab="${tb}">${_qbt(tb)}</div>`).join('')}
         </div>
         <div class="qb-detail-body" id="qb-detail-body"></div>
       `;
       detail.querySelectorAll('.qb-detail-tab').forEach(el => {
-        el.addEventListener('click', () => { _detailTab = el.dataset.tab; _renderDetail(root, t, true); });
+        // the panel outlives a torrent selection, so look the current torrent up instead of closing over the first one
+        el.addEventListener('click', () => { _detailTab = el.dataset.tab; _renderDetail(root, _torrents.find(x => x.hash === _selected) || t, true); });
       });
       detail.querySelector('#qb-detail-close')?.addEventListener('click', () => {
         _selected = null;
         _renderAll();
       });
     } else {
-      // update active tab indicator
       detail.querySelectorAll('.qb-detail-tab').forEach(el => {
         el.classList.toggle('active', el.dataset.tab === _detailTab);
       });
-      // on poll, only refresh info tab silently — skip files/peers to avoid flicker
-      if (!force && _detailTab !== 'info') return;
     }
+    // The header follows the torrent on every poll; the tab content is rebuilt only when needed.
+    detail.querySelector('#qb-detail-name').textContent = t.name;
+    detail.querySelector('#qb-detail-name').title = t.name;
+    detail.querySelector('#qb-detail-sub').innerHTML =
+      `<span class="qb-item-status qb-st-${_stateClass(t.state)}">${_esc(_stateLabel(t.state))}</span><span>${Math.round((t.progress || 0) * 100)}%</span><span>${_fmtSize(t.size)}</span>`;
     const body = detail.querySelector('#qb-detail-body');
+    if (!force && !isNew && _detailTab !== 'info') {
+      if (_detailTab === 'files') _refreshFiles(body, t);
+      else if (_detailTab === 'peers') _renderPeers(body, t, true);
+      return;
+    }
     if (_detailTab === 'info') {
       const p = _props.hash === t.hash ? _props.data : null;
       _loadProps(root, t);
-      const rows = [
-        [_qbt('status'), _stateLabel(t.state)],
-        [_qbt('size'), _fmtSize(t.size)],
-        [_qbt('progress'), Math.round((t.progress || 0) * 100) + '%'],
-        [_qbt('st_downloaded'), _withSession(t.downloaded, t.downloaded_session)],
-        [_qbt('st_uploaded'), _withSession(t.uploaded, t.uploaded_session)],
-        [_qbt('ratio'), _fmtRatio(t.ratio)],
-        t.amount_left > 0 ? [_qbt('det_remaining'), _sz(t.amount_left)] : null,
-        [_qbt('dl_speed'), _fmtSpeed(t.dlspeed)],
-        [_qbt('ul_speed'), _fmtSpeed(t.upspeed)],
-        [_qbt('eta'), _fmtEta(t.eta)],
-        [_qbt('seeds'), _withSwarm(t.num_seeds, t.num_complete)],
-        [_qbt('peers_lbl'), _withSwarm(t.num_leechs, t.num_incomplete)],
-        t.availability >= 0 && t.progress < 1 ? [_qbt('det_availability'), Number(t.availability).toFixed(2)] : null,
-        p && p.nb_connections != null ? [_qbt('det_connections'), p.nb_connections_limit > 0 ? `${p.nb_connections} / ${p.nb_connections_limit}` : p.nb_connections] : null,
-        p && (p.dl_speed_avg > 0 || p.up_speed_avg > 0) ? [_qbt('det_avg_speed'), `↓ ${_fmtSpeed(p.dl_speed_avg)} &nbsp; ↑ ${_fmtSpeed(p.up_speed_avg)}`] : null,
-        p && p.total_wasted > 0 ? [_qbt('st_wasted'), _sz(p.total_wasted)] : null,
-        p && p.pieces_num > 0 ? [_qbt('det_pieces'), `${_fmtNum(p.pieces_have)} / ${_fmtNum(p.pieces_num)} × ${_sz(p.piece_size)}`] : null,
-        t.dl_limit > 0 || t.up_limit > 0 ? [_qbt('det_limits'), `↓ ${t.dl_limit > 0 ? _fmtSpeed(t.dl_limit) : '∞'} &nbsp; ↑ ${t.up_limit > 0 ? _fmtSpeed(t.up_limit) : '∞'}`] : null,
-        [_qbt('added'), _fmtDate(t.added_on)],
-        t.completion_on > 0 ? [_qbt('det_completed_on'), _fmtDate(t.completion_on)] : null,
-        [_qbt('det_time_active'), _fmtDuration(t.time_active)],
-        [_qbt('det_seeding_time'), _fmtDuration(t.seeding_time)],
-        t.last_activity > 0 ? [_qbt('det_last_activity'), _esc(new Date(t.last_activity * 1000).toLocaleString(window.mvmOS?.lang || 'en'))] : null,
-        t.progress < 1 && t.seen_complete > 0 ? [_qbt('det_seen_complete'), _fmtDate(t.seen_complete)] : null,
-        [_qbt('save_path'), `<span style="flex:1">${t.save_path || '—'}</span><button class="qb-move-btn s-btn s-btn-sm" data-hash="${t.hash}" style="margin-left:6px;flex-shrink:0">📁</button>`],
-        [_qbt('category'), t.category || '—'],
-        t.tags ? [_qbt('det_tags'), _esc(t.tags)] : null,
-        [_qbt('st_col_tracker'), _esc(_trackerHost(t)) || '—'],
-        _isPrivate(t, p) != null ? [_qbt('det_private'), _isPrivate(t, p) ? _qbt('det_yes') : _qbt('det_no')] : null,
-        p && p.creation_date > 0 ? [_qbt('det_created'), _esc(_fmtDate(p.creation_date) + (p.created_by ? ' · ' + p.created_by : ''))] : null,
-        p && p.comment ? [_qbt('det_comment'), `<span title="${_esc(p.comment)}">${_esc(p.comment)}</span>`] : null,
-        [_qbt('hash'), (t.hash || '').slice(0, 16) + '…'],
-      ];
-      body.innerHTML = rows.filter(Boolean).map(([l, v]) => `
-        <div class="qb-detail-row">
-          <span class="qb-detail-label">${l}</span>
-          <span class="qb-detail-val" style="display:flex;align-items:center">${v}</span>
+      const pct = Math.round((t.progress || 0) * 100);
+      const section = (title, rows) => {
+        const r = rows.filter(Boolean);
+        return r.length ? `<div class="qb-card"><div class="qb-card-title">${title}</div>${r.map(([l, v]) => `
+          <div class="qb-detail-row"><span class="qb-detail-label">${l}</span><span class="qb-detail-val">${v}</span></div>`).join('')}</div>` : '';
+      };
+      const tile = (label, value) => `<div class="qb-tile"><div class="qb-tile-val">${value}</div><div class="qb-tile-label">${label}</div></div>`;
+      const tags = _shownTags(t.tags);
+      body.innerHTML = `
+        <div class="qb-hero">
+          <div class="qb-hero-bar"><div class="qb-hero-fill qb-bar-${_stateClass(t.state)}" style="width:${pct}%"></div></div>
+          <div class="qb-tiles">
+            ${tile(_qbt('dl_speed'), _fmtSpeed(t.dlspeed))}
+            ${tile(_qbt('ul_speed'), _fmtSpeed(t.upspeed))}
+            ${tile(_qbt('eta'), _fmtEta(t.eta))}
+            ${tile(_qbt('ratio'), _fmtRatio(t.ratio))}
+          </div>
         </div>
-      `).join('');
+        <div class="qb-cards">
+          ${section(_qbt('det_sec_transfer'), [
+            [_qbt('status'), _stateLabel(t.state)],
+            [_qbt('size'), _fmtSize(t.size)],
+            [_qbt('progress'), pct + '%'],
+            [_qbt('st_downloaded'), _withSession(t.downloaded, t.downloaded_session)],
+            [_qbt('st_uploaded'), _withSession(t.uploaded, t.uploaded_session)],
+            t.amount_left > 0 ? [_qbt('det_remaining'), _sz(t.amount_left)] : null,
+            [_qbt('seeds'), _withSwarm(t.num_seeds, t.num_complete)],
+            [_qbt('peers_lbl'), _withSwarm(t.num_leechs, t.num_incomplete)],
+            t.availability >= 0 && t.progress < 1 ? [_qbt('det_availability'), Number(t.availability).toFixed(2)] : null,
+            p && p.nb_connections != null ? [_qbt('det_connections'), p.nb_connections_limit > 0 ? `${p.nb_connections} / ${p.nb_connections_limit}` : p.nb_connections] : null,
+            p && (p.dl_speed_avg > 0 || p.up_speed_avg > 0) ? [_qbt('det_avg_speed'), `↓ ${_fmtSpeed(p.dl_speed_avg)} &nbsp; ↑ ${_fmtSpeed(p.up_speed_avg)}`] : null,
+            p && p.total_wasted > 0 ? [_qbt('st_wasted'), _sz(p.total_wasted)] : null,
+            p && p.pieces_num > 0 ? [_qbt('det_pieces'), `${_fmtNum(p.pieces_have)} / ${_fmtNum(p.pieces_num)} × ${_sz(p.piece_size)}`] : null,
+            t.dl_limit > 0 || t.up_limit > 0 ? [_qbt('det_limits'), `↓ ${t.dl_limit > 0 ? _fmtSpeed(t.dl_limit) : '∞'} &nbsp; ↑ ${t.up_limit > 0 ? _fmtSpeed(t.up_limit) : '∞'}`] : null,
+          ])}
+          ${section(_qbt('det_sec_time'), [
+            [_qbt('added'), _fmtDate(t.added_on)],
+            t.completion_on > 0 ? [_qbt('det_completed_on'), _fmtDate(t.completion_on)] : null,
+            [_qbt('det_time_active'), _fmtDuration(t.time_active)],
+            [_qbt('det_seeding_time'), _fmtDuration(t.seeding_time)],
+            t.last_activity > 0 ? [_qbt('det_last_activity'), _esc(new Date(t.last_activity * 1000).toLocaleString(window.mvmOS?.lang || 'en'))] : null,
+            t.progress < 1 && t.seen_complete > 0 ? [_qbt('det_seen_complete'), _fmtDate(t.seen_complete)] : null,
+          ])}
+          ${section(_qbt('det_sec_details'), [
+            [_qbt('save_path'), `<span class="qb-path" title="${_esc(t.save_path || '')}">${_esc(t.save_path || '—')}</span><button class="qb-move-btn s-btn s-btn-sm" data-hash="${t.hash}">📁</button>`],
+            [_qbt('category'), _esc(t.category || '—')],
+            tags ? [_qbt('det_tags'), _esc(tags)] : null,
+            [_qbt('st_col_tracker'), _esc(_trackerHost(t)) || '—'],
+            _isPrivate(t, p) != null ? [_qbt('det_private'), _isPrivate(t, p) ? _qbt('det_yes') : _qbt('det_no')] : null,
+            p && p.creation_date > 0 ? [_qbt('det_created'), _esc(_fmtDate(p.creation_date) + (p.created_by ? ' · ' + p.created_by : ''))] : null,
+            p && p.comment ? [_qbt('det_comment'), `<span class="qb-path" title="${_esc(p.comment)}">${_esc(p.comment)}</span>`] : null,
+            [_qbt('hash'), (t.hash || '').slice(0, 16) + '…'],
+          ])}
+        </div>`;
       body.querySelectorAll('.qb-move-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
           const path = await _pickFolder(t.save_path);
@@ -774,67 +949,144 @@ const QB = (() => {
         });
       });
     } else if (_detailTab === 'files') {
-      body.innerHTML = `<div style="color:var(--text-dim);font-size:.75rem;padding:8px">${_qbt('connecting')}</div>`;
-      _api(`/api/v2/torrents/files?hash=${t.hash}`).then(files => {
-        if (!Array.isArray(files) || !files.length) { body.innerHTML = `<div style="padding:8px;color:var(--text-dim)">${_qbt('no_files')}</div>`; return; }
-        const prioLabel = { 0: _qbt('prio_skip'), 1: _qbt('prio_normal'), 6: _qbt('prio_high'), 7: _qbt('prio_max') };
-        body.innerHTML = files.map((f, i) => `
-          <div class="qb-detail-row qb-file-row" data-idx="${i}" data-hash="${t.hash}" style="gap:6px;align-items:center">
-            <input type="checkbox" data-idx="${i}" data-hash="${t.hash}" ${f.priority !== 0 ? 'checked' : ''} style="flex-shrink:0;cursor:pointer">
-            <div style="flex:1;overflow:hidden">
-              <div class="qb-detail-label" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${f.name}">${f.name.split('/').pop()}</div>
-              <div style="font-size:.7rem;color:var(--text-dim)">${_fmtSize(f.size)} · ${Math.round((f.progress || 0) * 100)}% · <span class="qb-file-prio">${prioLabel[f.priority] ?? _qbt('prio_normal')}</span></div>
-            </div>
-          </div>
-        `).join('');
-        body.querySelectorAll('input[type=checkbox]').forEach(cb => {
-          cb.addEventListener('change', () => {
-            const prio = cb.checked ? 1 : 0;
-            _api('/api/v2/torrents/filePrio', 'POST', { hash: cb.dataset.hash, id: cb.dataset.idx, priority: prio }).then(() => {
-              cb.closest('.qb-file-row').querySelector('.qb-file-prio').textContent = { 0: _qbt('prio_skip'), 1: _qbt('prio_normal') }[prio];
-            }).catch(() => {});
-          });
-        });
-        body.querySelectorAll('.qb-file-row').forEach(row => {
-          row.addEventListener('contextmenu', e => {
-            e.preventDefault();
-            document.querySelectorAll('.qb-ctx-menu').forEach(m => m.remove());
-            const menu = document.createElement('div');
-            menu.className = 'qb-ctx-menu';
-            menu.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 0;z-index:9999;min-width:140px;box-shadow:var(--shadow)`;
-            [0, 1, 6, 7].forEach(prio => {
-              const item = document.createElement('div');
-              item.textContent = prioLabel[prio];
-              item.style.cssText = 'padding:6px 14px;font-size:.82rem;cursor:pointer;color:var(--text)';
-              item.onmouseenter = () => item.style.background = 'var(--accent)';
-              item.onmouseleave = () => item.style.background = '';
-              item.addEventListener('click', () => {
-                _api('/api/v2/torrents/filePrio', 'POST', { hash: row.dataset.hash, id: row.dataset.idx, priority: prio }).then(() => {
-                  row.querySelector('.qb-file-prio').textContent = prioLabel[prio];
-                  const cb = row.querySelector('input[type=checkbox]');
-                  if (cb) cb.checked = prio !== 0;
-                }).catch(() => {});
-                menu.remove();
-              });
-              menu.appendChild(item);
-            });
-            document.body.appendChild(menu);
-            setTimeout(() => document.addEventListener('click', () => menu.remove(), { once: true }), 0);
-          });
-        });
-      }).catch(() => { body.innerHTML = `<div style="padding:8px;color:color-mix(in srgb,#ff5555 35%,var(--text,#cdd6f4))">${_qbt('err_files')}</div>`; });
+      _renderFiles(body, t);
     } else if (_detailTab === 'peers') {
-      body.innerHTML = `<div style="color:var(--text-dim);font-size:.75rem;padding:8px">${_qbt('connecting')}</div>`;
-      _api(`/api/v2/sync/torrentPeers?hash=${t.hash}`).then(data => {
-        const peers = data?.peers ? Object.values(data.peers) : [];
-        if (!peers.length) { body.innerHTML = `<div style="padding:8px;color:var(--text-dim)">${_qbt('no_peers')}</div>`; return; }
-        body.innerHTML = peers.map(p => `
-          <div class="qb-detail-row">
-            <span class="qb-detail-label">${p.ip}:${p.port}</span>
-            <span class="qb-detail-val" style="font-size:.68rem">${p.client || '?'} · ↓${_fmtSpeed(p.dl_speed)} ↑${_fmtSpeed(p.up_speed)}</span>
-          </div>
-        `).join('');
-      }).catch(() => { body.innerHTML = `<div style="padding:8px;color:color-mix(in srgb,#ff5555 35%,var(--text,#cdd6f4))">${_qbt('err_peers')}</div>`; });
+      _renderPeers(body, t, false);
+    }
+  }
+
+  async function _renderFiles(body, t) {
+    body.innerHTML = `<div class="qb-note">${_qbt('connecting')}</div>`;
+    let files;
+    try {
+      files = await _api(`/api/v2/torrents/files?hash=${t.hash}`);
+    } catch (_) {
+      if (_selected === t.hash && _detailTab === 'files') body.innerHTML = `<div class="qb-note qb-note-err">${_qbt('err_files')}</div>`;
+      return;
+    }
+    if (_selected !== t.hash || _detailTab !== 'files') return;
+    if (!Array.isArray(files) || !files.length) { body.innerHTML = `<div class="qb-note">${_qbt('no_files')}</div>`; return; }
+    const names = {};
+    files.forEach((f, i) => { if (_VIDEO_RE.test(f.name)) names[i] = f.name; });
+    let states = {};
+    if (_subs.available && Object.keys(names).length) {
+      try {
+        const r = await fetch('/api/qbit/subtitles/files', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ hash: t.hash, tags: t.tags || '', names }),
+        });
+        if (r.ok) states = (await r.json()).files || {};
+      } catch (_) {}
+      if (_selected !== t.hash || _detailTab !== 'files') return;
+    }
+    const total = files.reduce((a, f) => a + (f.size || 0), 0);
+    const featureOff = _subs.available && !_subs.enabled;
+    body.innerHTML = `
+      <div class="qb-files-head">${_esc(_qbt('files_summary', { n: files.length, size: _fmtSize(total) }))}</div>
+      <div class="qb-files">${files.map((f, i) => {
+        const base = f.name.split('/').pop();
+        const dir = f.name.includes('/') ? f.name.slice(0, f.name.lastIndexOf('/')) : '';
+        const p = Math.floor((f.progress || 0) * 100);
+        const prios = _PRIOS.some(x => x[0] === f.priority) ? _PRIOS : [..._PRIOS, [f.priority, 'prio_normal']];
+        const st = states[i];
+        const subs = names[i] === undefined ? '' : `
+          <label class="qb-file-subs ${!_subs.available ? 'locked' : ''} ${featureOff ? 'off' : ''}" title="${_esc(featureOff ? _qbt('subs_add_off') : _qbt('file_subs_tip'))}">
+            <input type="checkbox" class="qb-file-subs-cb" ${st?.wanted ? 'checked' : ''} ${featureOff ? 'disabled' : ''}>
+            <span>${_qbt('file_subs')}</span>
+          </label>`;
+        return `
+          <div class="qb-file ${f.priority === 0 ? 'skipped' : ''}" data-idx="${i}">
+            <div class="qb-file-main">
+              <div class="qb-file-name" title="${_esc(f.name)}">${_esc(base)}</div>
+              <div class="qb-file-meta">${dir ? `<span class="qb-file-dir" title="${_esc(dir)}">${_esc(dir)}</span>` : ''}<span>${_fmtSize(f.size)}</span><span class="qb-file-pct">${p}%</span>${_subsChip(st)}</div>
+              <div class="qb-file-bar"><div class="qb-file-bar-fill" style="width:${p}%"></div></div>
+            </div>
+            <div class="qb-file-ctl">
+              <label class="qb-file-field"><span>${_qbt('file_priority')}</span>
+                <select class="qb-file-prio" ${f.progress >= 1 ? `disabled title="${_esc(_qbt('file_priority_done'))}"` : ''}>
+                  ${prios.map(([v, k]) => `<option value="${v}" ${v === f.priority ? 'selected' : ''}>${_qbt(k)}</option>`).join('')}
+                </select>
+              </label>
+              ${subs}
+            </div>
+          </div>`;
+      }).join('')}</div>`;
+    body.querySelectorAll('.qb-file-prio').forEach(sel => {
+      sel.addEventListener('change', () => {
+        const row = sel.closest('.qb-file');
+        const prio = Number(sel.value);
+        _api('/api/v2/torrents/filePrio', 'POST', { hash: t.hash, id: row.dataset.idx, priority: prio })
+          .then(() => row.classList.toggle('skipped', prio === 0))
+          .catch(() => _renderFiles(body, t));
+      });
+    });
+    body.querySelectorAll('.qb-file-subs').forEach(label => {
+      const cb = label.querySelector('input');
+      label.addEventListener('click', e => {
+        if (_subs.available) return;
+        e.preventDefault();
+        _askPremium();
+      });
+      cb.addEventListener('change', async () => {
+        const row = cb.closest('.qb-file');
+        try {
+          const r = await fetch('/api/qbit/subtitles/file', {
+            method: 'PUT', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ hash: t.hash, index: Number(row.dataset.idx), on: cb.checked }),
+          });
+          if (!r.ok) throw new Error();
+          const chip = label.querySelector('.qb-chip');
+          if (chip) chip.remove();
+        } catch (_) { cb.checked = !cb.checked; }
+      });
+    });
+  }
+
+  // Keeps the progress of a running download current without rebuilding the rows.
+  let _filesBusy = false;
+  async function _refreshFiles(body, t) {
+    if (_filesBusy || !body.querySelector('.qb-file')) return;
+    if (t.progress >= 1 && !body.querySelector('.qb-file-prio:not(:disabled)')) return;
+    _filesBusy = true;
+    try {
+      const files = await _api(`/api/v2/torrents/files?hash=${t.hash}`);
+      if (_selected !== t.hash || _detailTab !== 'files' || !Array.isArray(files)) return;
+      files.forEach((f, i) => {
+        const row = body.querySelector(`.qb-file[data-idx="${i}"]`);
+        if (!row) return;
+        const p = Math.floor((f.progress || 0) * 100);
+        row.querySelector('.qb-file-pct').textContent = p + '%';
+        row.querySelector('.qb-file-bar-fill').style.width = p + '%';
+        const sel = row.querySelector('.qb-file-prio');
+        if (f.progress >= 1) sel.disabled = true;
+        else if (document.activeElement !== sel && [...sel.options].some(o => Number(o.value) === f.priority)) sel.value = String(f.priority);
+        row.classList.toggle('skipped', f.priority === 0);
+      });
+    } catch (_) {} finally { _filesBusy = false; }
+  }
+
+  async function _renderPeers(body, t, quiet) {
+    if (!quiet) body.innerHTML = `<div class="qb-note">${_qbt('connecting')}</div>`;
+    try {
+      const data = await _api(`/api/v2/sync/torrentPeers?hash=${t.hash}`);
+      if (_selected !== t.hash || _detailTab !== 'peers') return;
+      const peers = data?.peers ? Object.values(data.peers) : [];
+      if (!peers.length) { body.innerHTML = `<div class="qb-note">${_qbt('no_peers')}</div>`; return; }
+      peers.sort((a, b) => (b.dl_speed + b.up_speed) - (a.dl_speed + a.up_speed));
+      body.innerHTML = `
+        <div class="qb-peers">
+          <div class="qb-peer qb-peer-head"><span>${_qbt('peer_address')}</span><span>${_qbt('peer_client')}</span><span>${_qbt('progress')}</span><span>${_qbt('dl_speed')}</span><span>${_qbt('ul_speed')}</span></div>
+          ${peers.map(p => `
+            <div class="qb-peer">
+              <span class="qb-peer-addr">${_esc(p.ip)}:${p.port}</span>
+              <span class="qb-peer-client" title="${_esc(p.client || '')}">${_esc(p.client || '?')}</span>
+              <span>${Math.round((p.progress || 0) * 100)}%</span>
+              <span>${_fmtSpeed(p.dl_speed)}</span>
+              <span>${_fmtSpeed(p.up_speed)}</span>
+            </div>`).join('')}
+        </div>`;
+    } catch (_) {
+      if (!quiet && _selected === t.hash && _detailTab === 'peers') body.innerHTML = `<div class="qb-note qb-note-err">${_qbt('err_peers')}</div>`;
     }
   }
 
@@ -1295,6 +1547,11 @@ const QB = (() => {
         </label>
         <label>${_qbt('category_label')}</label>
         <input id="qb-add-cat" type="text" placeholder="">
+        <label class="qb-add-subs" id="qb-add-subs-row">
+          <input type="checkbox" id="qb-add-subs">
+          <span>${_qbt('subs_add_label')}</span>
+        </label>
+        <div class="qb-add-hint" id="qb-add-subs-hint"></div>
         <div class="qb-dialog-btns">
           <button id="qb-add-cancel">${_qbt('cancel')}</button>
           <button id="qb-add-ok" class="primary">${_qbt('add_btn')}</button>
@@ -1305,6 +1562,27 @@ const QB = (() => {
     ov.style.zIndex = '99990';
     document.body.appendChild(ov);
     ov.querySelector('#qb-add-cancel').addEventListener('click', () => ov.remove());
+    const subsRow = ov.querySelector('#qb-add-subs-row');
+    const subsBox = ov.querySelector('#qb-add-subs');
+    const subsHint = ov.querySelector('#qb-add-subs-hint');
+    // Without Premium the box looks normal and opens the Premium dialog; with it, "always"
+    // starts ticked and "choose" starts empty, and either can be changed for this torrent.
+    let subsTouched = false;
+    const applySubs = () => {
+      subsRow.classList.toggle('locked', !_subs.available);
+      subsBox.disabled = _subs.available && !_subs.enabled;
+      subsRow.classList.toggle('off', subsBox.disabled);
+      if (!subsTouched) subsBox.checked = !!(_subs.available && _subs.enabled && _subs.mode === 'always');
+      subsHint.textContent = subsBox.disabled ? _qbt('subs_add_off') : '';
+    };
+    applySubs();
+    _loadSubs().then(applySubs);
+    subsRow.addEventListener('click', e => {
+      if (_subs.available) return;
+      e.preventDefault();
+      _askPremium();
+    });
+    subsBox.addEventListener('change', () => { subsTouched = true; });
     ov.querySelector('#qb-browse-path').addEventListener('click', async () => {
       const pathInput = ov.querySelector('#qb-add-path');
       const path = await _pickFolder(pathInput.value.trim());
@@ -1316,6 +1594,7 @@ const QB = (() => {
       const path = ov.querySelector('#qb-add-path').value.trim();
       const remember = ov.querySelector('#qb-remember-path').checked;
       const cat = ov.querySelector('#qb-add-cat').value.trim();
+      const subsTag = _subs.available && _subs.enabled ? (subsBox.checked ? 'mvmos-subs' : 'mvmos-nosubs') : '';
       // save/clear remembered path
       if (remember && path) {
         await _saveCfg('saved_dl_path', path);
@@ -1337,12 +1616,14 @@ const QB = (() => {
           fd.append('password', _cfg.password || '');
           if (path) fd.append('savepath', path);
           if (cat) fd.append('category', cat);
+          if (subsTag) fd.append('tags', subsTag);
           fd.append('torrents', file, file.name);
           await fetch('/api/qbit/upload', { method: 'POST', body: fd });
         } else {
           const data = { urls: url };
           if (path) data.savepath = path;
           if (cat) data.category = cat;
+          if (subsTag) data.tags = subsTag;
           await _api('/api/v2/torrents/add', 'POST', data);
         }
       } catch(_) {}

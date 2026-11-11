@@ -39,6 +39,13 @@ async def index():return HTMLResponse('<style>html,body{height:100%;margin:0}#ro
 async def state():return {'model_calls':calls}
 @app.get('/pub/mvmai/me')
 async def me():return {'id':'a','is_admin':True,'agents':True,'bridge_premium':True,'provider':'fake','model':'model-a'}
+@app.get('/pub/mvmai/model-options')
+async def model_options():return {'provider':'fake','model':'model-a','label':'fake · model-a','cli_providers':[],'api_providers':[{'id':'fake','name':'fake'},{'id':'other','name':'other'}]}
+@app.post('/pub/mvmai/model-options/models')
+async def model_list(request:Request):return {'models':['model-a','model-b']}
+@app.post('/pub/mvmai/attach')
+async def attach(request:Request,x_file_name:str=Header(default='file')):
+    data=await request.body();return {'id':'u1','path':'/srv/uploads/1700000000000_'+x_file_name,'name':x_file_name,'size':len(data),'dir':''}
 @app.get('/pub/mvmai/premium/agents.js')
 async def asset():return Response((root/'premium/public/workspaces.js').read_text()+'\n'+(root/'premium/public/agents.js').read_text(),media_type='application/javascript')
 @app.api_route('/pub/mvmai/agents/{path:path}',methods=['GET','POST','DELETE','PATCH'])

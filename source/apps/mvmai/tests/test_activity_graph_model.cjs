@@ -1,0 +1,12 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync(require('path').join(__dirname,'../premium/public/workspaces.js'),'utf8');
+const window={};vm.runInNewContext(source,{window});const build=window.MvmaiPremium.buildActivityGraph;
+const node=(data,kind)=>data.nodes.find(n=>n.kind===kind);
+let data=build({tasks:[],knowledge:[],resources:[]});assert.equal(data.records.length,0);assert(data.nodes.every(n=>n.state==='idle'));
+const task={id:'t',status:'awaiting_approval',items:[],pending:[{name:'agent_run_command',status:'pending'}],trace:[{id:'q',kind:'prepare',status:'awaiting_approval',detail:'Prepare a command'}]};
+data=build({tasks:[task]});assert.equal(node(data,'command').state,'awaiting_approval');assert.equal(node(data,'user').state,'awaiting_approval');assert.equal(data.current,null);assert.equal(data.records.some(r=>r.status==='completed'),false);
+task.status='running';task.pending=[];task.trace=[{id:'m',kind:'model',status:'running'}];task.activity={id:'m',kind:'model'};task.items=[{id:'s',status:'awaiting_user',next_action:'Choose a target'}];
+data=build({tasks:[task]});assert.equal(data.current.id,'m');assert.equal(node(data,'user').state,'awaiting_user');assert.equal(data.waitingItems[0].id,'s');
+task.status='paused';data=build({tasks:[task]});assert.equal(data.current,null);assert.equal(node(data,'model').state,'paused');
+data=build({tasks:[{id:'old',status:'completed',items:[{status:'completed'}],events:[{code:'command_result',detail:'{"code":1,"error":"failed"}',at:1}]}]});assert.equal(node(data,'command').state,'failed');assert.equal(node(data,'plan').state,'completed');
+console.log('PASS: empty, review-only, independent waiting step, paused activity and failed legacy command remain factual');

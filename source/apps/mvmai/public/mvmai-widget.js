@@ -173,6 +173,7 @@
       .mvmai-send{background:var(--pub-accent,#89b4fa);color:var(--pub-on-accent,var(--pub-surface1,#1e1e2e));border:0;border-radius:.5rem;
         padding:0 1rem;font-weight:700;cursor:pointer;font-size:.88rem}
       .mvmai-send:disabled{opacity:.5;cursor:default}
+      .mva-chat-mode,.mva-agent-mode{cursor:pointer}
       .mvmai-thumbs{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem}
       .mvmai-thumb{height:64px;max-width:120px;border-radius:.4rem;object-fit:cover;cursor:zoom-in;
         border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244)}
@@ -702,7 +703,16 @@
             var response = await fetch(window.asset(API + '/premium/agents.js'), {headers:{'X-Pub-Token':token},cache:'no-store'});
             if (!response.ok) throw new Error('unavailable');
             var script = document.createElement('script'); script.textContent = await response.text(); document.head.appendChild(script); script.remove();
-            agentPanel = window.MvmaiPremium.createAgents({root:agentsRoot,api:api,t:t,esc:esc,lang:uiLang});
+            agentPanel = window.MvmaiPremium.createAgents({root:agentsRoot,api:api,t:t,esc:esc,lang:uiLang,
+              // An administrator's file goes to their own folder on the server; the agent gets its path.
+              upload:function (file) {
+                return fetch(API + '/attach', {method:'POST',headers:{'X-Pub-Token':token,'X-File-Name':encodeURIComponent(file.name || 'file'),'Content-Type':'application/octet-stream'},body:file}).then(function (r) {
+                  return r.json().catch(function () { return {}; }).then(function (d) {
+                    if (!r.ok || !d.path) throw new Error(d.error === 'too_big' ? 'big' : 'failed');
+                    return {name:d.name || file.name || 'file',path:d.path,dir:d.dir || ''};
+                  });
+                });
+              }});
           }
           setAgentMode(true);
         } catch (_) { addNote(t('mvmai_pub_err')); }

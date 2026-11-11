@@ -1,0 +1,10 @@
+{
+  "summary": "Saves the subtitles built into your downloaded videos next to them, automatically, on the server where the film is.",
+  "features": [
+    {
+      "title": "Subtitle extraction after download",
+      "short": "Get the subtitles inside a film as separate .srt files without downloading the film",
+      "description": "When a torrent finishes, qBit Dashboard reads the video files on the server and saves the text subtitles built into MKV and MP4 videos next to the video as Name.xx.srt, so players and translation tools can use them without reading the whole film. You list languages in order of preference; the first one that exists is saved and the next ones are tried only when it is missing. You can extract for every new file or only for the torrents and files you choose: a switch when adding a torrent sets it for that torrent, and each video in the Files list has its own toggle that shows whether the subtitles were saved, were already there or were not found. Nothing has to be installed on the server."
+    }
+  ]
+}

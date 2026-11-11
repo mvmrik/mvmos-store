@@ -45,8 +45,8 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
         self.users = {'admin':{'id':'a','is_admin':True},'other':{'id':'b','is_admin':True},'member':{'id':'c','is_admin':False}}
         self.premium = True
         self.prem = types.SimpleNamespace(agents_enabled=lambda cfg:self.premium and cfg.get('agents_enabled'),resolve_pub_cfg=lambda cfg:cfg,is_available=lambda:self.premium)
-        self.desk = types.SimpleNamespace(CHAT_TURN=contextvars.ContextVar('turn',default=None),_read_cfg=lambda:dict(self.cfg),PROVIDERS={'fake':{}},CLI_PROVIDERS=[],_get_project=lambda pid:{'id':pid} if pid=='project' else None,kill_process=lambda proc:None,_wrap_as_user=lambda argv,user:argv,resolve_project_cwd=lambda pid:self.folder.name,_home_for=lambda user:self.folder.name)
-        self.api = types.SimpleNamespace(_sdb=db,_DB_PATH=path,_resolve=lambda token:self.users.get(token),_premium=lambda:self.prem,_desktop=lambda:self.desk,_LANG_NAMES={'en':'English'},_AGENT_CONTEXT=contextvars.ContextVar('agent',default=None),ChatRequest=lambda **kw:types.SimpleNamespace(**kw),_forget_cli_sessions=lambda rows:None)
+        self.desk = types.SimpleNamespace(CHAT_TURN=contextvars.ContextVar('turn',default=None),_read_cfg=lambda:dict(self.cfg),PROVIDERS={'fake':{},'other':{}},CLI_PROVIDERS=[],_get_project=lambda pid:{'id':pid} if pid=='project' else None,kill_process=lambda proc:None,_wrap_as_user=lambda argv,user:argv,resolve_project_cwd=lambda pid:self.folder.name,_home_for=lambda user:self.folder.name)
+        self.api = types.SimpleNamespace(_sdb=db,_DB_PATH=path,_resolve=lambda token:self.users.get(token),_premium=lambda:self.prem,_desktop=lambda:self.desk,_LANG_NAMES={'en':'English'},_AGENT_CONTEXT=contextvars.ContextVar('agent',default=None),ChatRequest=lambda **kw:types.SimpleNamespace(**kw),_forget_cli_sessions=lambda rows:None,_label_from_cfg=lambda desk,cfg,used='':(cfg.get('provider') or '')+(' · '+cfg['model'] if cfg.get('model') else ''))
         self.outputs = []
         async def model(body,*args):
             self.assertIsNotNone(self.api._AGENT_CONTEXT.get())

@@ -45,6 +45,7 @@ class ProviderPipelineTests(unittest.IsolatedAsyncioTestCase):
         # unrestricted native execution, even with ordinary chat auto enabled.
         cfg.update(provider='fake-cli', model='cli-model', pub_exec_enabled=True, pub_exec_auto=True)
         desk.CLI_PROVIDERS=[{'id':'fake-cli','name':'Fake CLI'}]
+        prem.resolve_cli_cache_minutes=lambda cfg:60
         desk.CliChatRequest=lambda **kw:types.SimpleNamespace(**kw)
         async def cli_reply(body, **kwargs):
             assert body.provider_id=='fake-cli' and body.model=='cli-model'
