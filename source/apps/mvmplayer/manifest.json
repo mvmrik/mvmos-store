@@ -10,13 +10,13 @@
     "subtitles",
     "player"
   ],
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A browser video library for movies, series and personal recordings, with subtitles and individual watching progress.",
   "entry": "main.js",
   "css": "style.css",
   "public_url": "/pub/mvmplayer/",
   "public_directory": true,
-  "min_core_version": "1.22.0",
+  "min_core_version": "1.22.1",
   "services": [
     "simkl"
   ],

@@ -44,7 +44,7 @@ def build():
             if image:
                 import base64
                 return base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==')
-            if url.endswith('/search/shows'):return [dict(show=dict(id=123,name='Example Series',url='https://www.tvmaze.com/shows/123/example',image=None,genres=['Drama'],premiered='2020-01-01',summary='<p>A series description.</p>'))]
+            if url.endswith('/search/shows'):return [dict(show=dict(id=123,name='Example Series',url='https://www.tvmaze.com/shows/123/example',image=dict(original='https://static.tvmaze.com/uploads/images/original_untouched/1/1.jpg'),genres=['Drama'],premiered='2020-01-01',summary='<p>A series description.</p>'))]
             if url.endswith('/episodebynumber'):return dict(season=params['season'],number=params['number'],name=f"Episode {params['number']}",summary=f"<p>Story {params['number']}</p>",airdate='2020-02-05',url='https://www.tvmaze.com/episodes/123/example')
             if url.endswith('/seasons'):return [dict(number=n,episodeOrder=10) for n in range(1,6)]
             if url.endswith('/episodes'):return [dict(id=200+s*10+e,season=s,number=e,name=f'Episode {e}',summary=f'Story {e}',airdate='2020-01-01') for s in range(1,6) for e in range(1,11)]
@@ -233,6 +233,34 @@ class PlayerTests(unittest.TestCase):
         self.assertEqual(self.items()[0]['title'],'Renamed')
         self.assertEqual(self.items()[0]['series'],'Example Series')
         self.assertEqual(self.items()[0]['show_id'],123)
+    def test_series_lookup_fills_chosen_episodes_and_series_record(self):
+        mid=self.upload()
+        self.assertEqual(self.admin('PUT','/media/'+mid,json={'kind':'episode','title':'file','series':'My Show','season':1,'episode':3,'description':''}).status_code,200)
+        self.c.put('/test-only/catalogue')
+        found=self.admin('POST','/series/lookup',json={'query':'Example','language':'en'});self.assertEqual(found.status_code,200,found.text)
+        candidate=found.json()['results'][0]
+        self.assertEqual(self.admin('POST','/series/remote',json={'candidate':candidate['id']}).status_code,200)
+        self.assertEqual(self.admin('POST','/series/apply',json={'name':'My Show','candidate':candidate['id'],'fields':[],'episodes':[],'episode_fields':[]}).status_code,400)
+        done=self.admin('POST','/series/apply',json={'name':'My Show','candidate':candidate['id'],'fields':['description','cover'],'episodes':[mid],'episode_fields':['title','description']})
+        self.assertEqual(done.status_code,200,done.text);self.assertEqual(done.json()['updated'],1)
+        item=self.items()[0];self.assertEqual(item['title'],'Episode 3');self.assertEqual(item['description'],'Story 3');self.assertEqual(item['series'],'My Show');self.assertEqual(item['show_id'],123)
+        lib=self.c.get('/pub/mvmplayer/library',headers={'X-Pub-Token':'a'}).json()
+        self.assertEqual(lib['series'][0]['name'],'My Show');self.assertTrue(lib['series'][0]['has_cover'])
+        self.assertEqual(self.c.get('/pub/mvmplayer/series-cover',params={'name':'My Show'},headers={'X-Pub-Token':'a'}).status_code,200)
+        self.assertEqual(self.admin('POST','/series/apply',json={'name':'No Such','candidate':candidate['id'],'fields':['description'],'episodes':[],'episode_fields':[]}).status_code,404)
+    def test_known_series_fills_new_episodes_by_itself(self):
+        first=self.upload('One.S01E01.webm');second=self.upload('One.S01E02.webm');other=self.upload('Other.S01E01.webm')
+        for mid,series,ep in ((first,'My Show',1),(second,'My Show',2),(other,'Other Show',1)):
+            self.admin('PUT','/media/'+mid,json={'kind':'episode','title':'file','series':series,'season':1,'episode':ep,'description':''})
+        self.c.put('/test-only/catalogue')
+        candidate=self.admin('POST','/series/lookup',json={'query':'Example','language':'en'}).json()['results'][0]
+        self.admin('POST','/series/apply',json={'name':'My Show','candidate':candidate['id'],'fields':['description'],'episodes':[first],'episode_fields':['title','description']})
+        by={i['id']:i for i in self.items()}
+        self.assertEqual(by[second]['description'],'')
+        self.mod.enrich_known_series()
+        by={i['id']:i for i in self.items()}
+        self.assertEqual(by[second]['description'],'Story 2');self.assertEqual(by[second]['title'],'Episode 2')
+        self.assertEqual(by[other]['description'],'')
     def test_state_validation_and_completion(self):
         mid=self.upload()
         for values in [{'seconds':-1},{'seconds':float('inf')},{'speed':10},{'duration':0}]:

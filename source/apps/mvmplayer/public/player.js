@@ -3,6 +3,80 @@
 if(window.MvmPlayer)return;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>{n=Math.max(0,Math.floor(Number(n)||0));return(n>=3600?Math.floor(n/3600)+':':'')+String(Math.floor(n/60)%60).padStart(2,'0')+':'+String(n%60).padStart(2,'0')};
+
+// Matroska reader for the browser: lists the subtitle tracks from the first bytes of the file, and reads the text of one track
+// by streaming the file once. The browser reads straight from wherever the video is, so nothing goes through the server.
+const MKV_TEXT=['S_TEXT/UTF8','S_TEXT/ASCII','S_TEXT/ASS','S_TEXT/SSA','S_TEXT/WEBVTT'];
+function mkvEach(d,fn){
+ let p=0;
+ while(p<d.length){
+  let n=1,b=d[p];while(n<=8&&!(b&(0x80>>(n-1))))n++;if(n>8||p+n>d.length)return;
+  let id=0;for(let k=0;k<n;k++)id=id*256+d[p+k];p+=n;
+  b=d[p];let m=1;while(m<=8&&!(b&(0x80>>(m-1))))m++;if(m>8||p+m>d.length)return;
+  let size=b&(0xFF>>m);for(let k=1;k<m;k++)size=size*256+d[p+k];p+=m;
+  if(p+size>d.length)size=d.length-p;fn(id,d.subarray(p,p+size));p+=size;
+ }
+}
+const mkvUint=d=>{let v=0;for(const x of d)v=v*256+x;return v};
+const mkvText=d=>new TextDecoder().decode(d).replace(/\0+$/,'');
+function mkvTracks(d){
+ const out=[];
+ mkvEach(d,(id,body)=>{
+  if(id!==0xAE)return;const tr={};
+  mkvEach(body,(k,v)=>{
+   if(k===0xD7)tr.number=mkvUint(v);else if(k===0x83)tr.type=mkvUint(v);else if(k===0x86)tr.codec=mkvText(v);
+   else if(k===0x22B59C)tr.lang=mkvText(v);else if(k===0x22B59D)tr.bcp47=mkvText(v);else if(k===0x536E)tr.name=mkvText(v);
+   else if(k===0x55AA)tr.forced=!!mkvUint(v);else if(k===0x88)tr.default=!!mkvUint(v);
+  });
+  if(tr.type===17&&tr.number)out.push({number:tr.number,codec:tr.codec||'',language:tr.bcp47||tr.lang||'und',title:tr.name||'',text:MKV_TEXT.includes(tr.codec),forced:!!tr.forced,default:!!tr.default});
+ });
+ return out;
+}
+function mkvCueText(codec,raw){
+ let text=new TextDecoder().decode(raw);
+ if(codec==='S_TEXT/ASS'||codec==='S_TEXT/SSA'){const parts=text.split(',');text=parts.length>=9?parts.slice(8).join(','):parts.slice(-1)[0]}
+ return text.replace(/\{[^}]*\}/g,'').replace(/\\[Nn]/g,'\n').replace(/\\h/g,' ').replace(/<[^>]*>/g,'').replace(/\r\n?/g,'\n').trim();
+}
+// onTracks(list) comes first. With `wanted` (a track number) the stream goes on and onCue(startSeconds,endSeconds,text) is called per line.
+async function mkvSubtitles(url,{wanted=0,signal,onTracks,onCue,onProgress}){
+ const res=await fetch(url,{signal});if(!res.ok)throw Error('HTTP '+res.status);
+ const total=Number(res.headers.get('content-length'))||0,reader=res.body.getReader();
+ let buf=new Uint8Array(0),eof=false,pos=0;
+ const fill=async n=>{while(buf.length<n&&!eof){const {done,value}=await reader.read();if(done){eof=true;break}const nb=new Uint8Array(buf.length+value.length);nb.set(buf);nb.set(value,buf.length);buf=nb}return buf.length>=n};
+ const take=async n=>{if(!(await fill(n)))throw Error('eof');const r=buf.subarray(0,n);buf=buf.subarray(n);pos+=n;return r};
+ const skip=async n=>{while(n>0){if(!buf.length&&!(await fill(1)))throw Error('eof');const k=Math.min(buf.length,n);buf=buf.subarray(k);pos+=k;n-=k}};
+ const vint=async keep=>{
+  if(!(await fill(1)))return null;let n=1;const b=buf[0];while(n<=8&&!(b&(0x80>>(n-1))))n++;if(n>8)throw Error('bad');
+  const d=await take(n);let v=keep?d[0]:d[0]&(0xFF>>n);for(let k=1;k<n;k++)v=v*256+d[k];
+  if(!keep&&v===Math.pow(2,7*n)-1)return -1;return v;
+ };
+ let scale=1000000,clusterTime=0,codec='',last=null,lastReport=0,mine=false;
+ try{
+  for(;;){
+   const id=await vint(true);if(id===null)break;const size=await vint(false);if(size===null)break;
+   if(id===0x18538067||id===0x1F43B675||id===0xA0)continue;
+   if(size<0)break;
+   if(id===0x1654AE6B){const list=mkvTracks(await take(size));onTracks?.(list);if(!wanted)break;codec=(list.find(x=>x.number===wanted)||{}).codec||'';continue}
+   if(id===0x1549A966){mkvEach(await take(size),(k,v)=>{if(k===0x2AD7B1)scale=mkvUint(v)||1000000});continue}
+   if(id===0xE7){clusterTime=mkvUint(await take(size));continue}
+   if(id===0x9B){const dur=mkvUint(await take(size));if(last&&mine)last.end=last.start+dur*scale/1e9;continue}
+   if(id===0xA3||id===0xA1){
+    const p0=pos,tn=await vint(false),headLen=pos-p0;
+    if(tn===wanted){
+     const d=await take(size-headLen),rel=(d[0]<<8|d[1])<<16>>16,text=mkvCueText(codec,d.subarray(3));
+     const start=(clusterTime+rel)*scale/1e9;
+     if(last)onCue(last.start,last.end,last.text);
+     last=text?{start,end:start+3,text}:null;mine=true;
+    }else{mine=false;await skip(size-headLen)}
+    if(total&&pos-lastReport>2e6){lastReport=pos;onProgress?.(pos/total)}
+    continue;
+   }
+   await skip(size);
+  }
+  if(last)onCue(last.start,last.end,last.text);
+  onProgress?.(1);
+ }finally{try{reader.cancel()}catch{}}
+}
 function mount(host,options={}){
  host.classList.add('mp-host');
  let lang=window.mvmOS?.lang||document.documentElement.lang||'en';
@@ -10,11 +84,11 @@ function mount(host,options={}){
  const token=()=>localStorage.getItem('apphub_token')||'';
  const base='/pub/mvmplayer',adminBase='/api/apps/mvmplayer';
  const s={items:[],collections:[],tab:'home',query:'',category:'',status:'all',sort:'recent',manage:false,admin:false,current:null,ready:false,played:false,load:0,dead:false,autoNext:false,collection:''};
- let modal=null,toastTimer,lastSave=0,saveChain=Promise.resolve(),subtitleUrl='',tempSubtitleUrl='',lastFocus=null,selectedSubtitle='';
+ let modal=null,toastTimer,lastSave=0,saveChain=Promise.resolve(),subtitleUrl='',tempSubtitleUrl='',lastFocus=null,selectedSubtitle='',subAbort=null,videoUrl='';
  const root=document.createElement('div');root.className='mp'+(options.desktop?' in-os':'');host.appendChild(root);
  const navs=['home','movies','series','videos','favorites','history','collections'];
  const glyphs={home:'⌂',movies:'▣',series:'▤',videos:'▷',favorites:'♡',history:'◷',collections:'☷'};
- root.innerHTML=`<aside class="mp-side"><div class="mp-brand"><span>▶</span>mvmPlayer</div><small data-library-label></small><nav>${navs.map(k=>`<button data-tab="${k}"><i>${glyphs[k]}</i><span>${esc(t(k))}</span></button>`).join('')}</nav><div class="mp-side-note">${esc(t('directHint'))}</div></aside><section class="mp-work"><header class="mp-top"><input type="search" data-search placeholder="${esc(t('search'))}" aria-label="${esc(t('search'))}"><div data-top-actions></div></header><section class="mp-stage" hidden><div class="mp-now"><div><strong data-now-title></strong><span data-now-meta></span></div><button data-close-player aria-label="${esc(t('closePlayer'))}">✕</button></div><div class="mp-screen"><video controls playsinline preload="metadata"></video><p class="mp-video-error" role="alert" hidden></p></div><div class="mp-tools"><button data-back-ten title="${esc(t('backTen'))}">−10 s</button><button data-forward-ten title="${esc(t('forwardTen'))}">+10 s</button><label>${esc(t('speed'))}<select data-speed>${[0.5,0.75,1,1.25,1.5,1.75,2].map(n=>`<option value="${n}" ${n===1?'selected':''}>${n}×</option>`).join('')}</select></label><label>${esc(t('subtitles'))}<select data-subtitles><option value="">${esc(t('off'))}</option></select></label><button data-pip class="mp-icon" title="${esc(t('pip'))}" aria-label="${esc(t('pip'))}">⧉</button><button data-fullscreen class="mp-icon" title="${esc(t('fullscreen'))}" aria-label="${esc(t('fullscreen'))}">⛶</button><label class="mp-check"><input type="checkbox" data-auto-next>${esc(t('autoNext'))}</label><button data-next>${esc(t('next'))} →</button></div></section><main class="mp-main" tabindex="-1"></main></section><div class="mp-toast" role="status" hidden></div>`;
+ root.innerHTML=`<aside class="mp-side"><div class="mp-brand"><span>▶</span>mvmPlayer</div><small data-library-label></small><nav>${navs.map(k=>`<button data-tab="${k}"><i>${glyphs[k]}</i><span>${esc(t(k))}</span></button>`).join('')}</nav><div class="mp-side-note">${esc(t('directHint'))}</div></aside><section class="mp-work"><header class="mp-top"><input type="search" data-search placeholder="${esc(t('search'))}" aria-label="${esc(t('search'))}"><div data-top-actions></div></header><section class="mp-stage" hidden><div class="mp-now"><div><strong data-now-title></strong><span data-now-meta></span></div><button data-close-player aria-label="${esc(t('closePlayer'))}">✕</button></div><div class="mp-screen"><video controls playsinline preload="metadata"></video><p class="mp-video-error" role="alert" hidden></p></div><div class="mp-tools"><button data-back-ten title="${esc(t('backTen'))}">−10 s</button><button data-forward-ten title="${esc(t('forwardTen'))}">+10 s</button><label>${esc(t('speed'))}<select data-speed>${[0.5,0.75,1,1.25,1.5,1.75,2].map(n=>`<option value="${n}" ${n===1?'selected':''}>${n}×</option>`).join('')}</select></label><label>${esc(t('subtitles'))}<select data-subtitles><option value="">${esc(t('off'))}</option></select></label><span class="mp-sub-status" data-sub-status role="status"></span><button data-pip class="mp-icon" title="${esc(t('pip'))}" aria-label="${esc(t('pip'))}">⧉</button><button data-fullscreen class="mp-icon" title="${esc(t('fullscreen'))}" aria-label="${esc(t('fullscreen'))}">⛶</button><label class="mp-check"><input type="checkbox" data-auto-next>${esc(t('autoNext'))}</label><button data-next>${esc(t('next'))} →</button></div></section><main class="mp-main" tabindex="-1"></main></section><div class="mp-toast" role="status" hidden></div>`;
  const main=root.querySelector('main'),stage=root.querySelector('.mp-stage'),video=root.querySelector('video'),toastNode=root.querySelector('.mp-toast');
  const coverCache=new Map();let coverCount=0,subtitleGeneration=0;
  const pct=value=>Number(value||0).toLocaleString(lang,{maximumFractionDigits:1})+'%';
@@ -43,7 +117,7 @@ function mount(host,options={}){
   root.appendChild(el);modal=el;el.querySelector('[data-close]').onclick=()=>closeModal();el.onpointerdown=e=>{if(e.target===el)closeModal()};
   el.onkeydown=e=>{if(e.key==='Escape'){e.stopPropagation();closeModal()}if(e.key==='Tab'){const all=[...el.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled),textarea:not(:disabled),a[href]')].filter(x=>x.offsetParent!==null);if(!all.length){e.preventDefault();return}const first=all[0],last=all.at(-1);if(e.shiftKey&&(document.activeElement===first||document.activeElement===el.querySelector('section'))){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}};el.querySelector('section').focus();return el;
  }
- function art(i){return `<span class="mp-art ${i.kind}" style="--h:${parseInt(i.id.slice(0,4),16)%360}">${i.has_cover?`<img data-cover="${i.id}" data-revision="${esc(i.cover_revision)}" alt="" referrerpolicy="no-referrer">`:''}<span class="mp-art-icon">${i.kind==='episode'?'▤':'▷'}</span><span class="mp-art-caption">${esc(i.kind==='episode'?i.series:i.title)}</span></span>`}
+ function art(i){if(i.kind==='episode'&&!i.has_cover&&!i.cover_id){const sr=seriesOf(i.series);if(sr?.has_cover)i={...i,has_cover:true,cover_id:'s:'+i.series,cover_revision:sr.cover_revision}}return `<span class="mp-art ${i.kind}" style="--h:${parseInt(i.id.slice(0,4),16)%360}">${i.has_cover?`<img data-cover="${i.cover_id||i.id}" data-revision="${esc(i.cover_revision)}" alt="" referrerpolicy="no-referrer">`:''}<span class="mp-art-icon">${i.kind==='episode'?'▤':'▷'}</span><span class="mp-art-caption">${esc(i.kind==='episode'?i.series:i.title)}</span></span>`}
  function hydrateCovers(){
   if(s.dead)return;
   for(const img of root.querySelectorAll('[data-cover]:not([data-loaded])')){
@@ -52,7 +126,7 @@ function mount(host,options={}){
    for(const [k,r]of coverCache)if(r.id===id&&r.revision!==revision){if(r.url)URL.revokeObjectURL(r.url);coverCache.delete(k)}
    if(!coverCache.has(key)){
     const record={id,revision,url:''};coverCache.set(key,record);
-    record.promise=(async()=>{const r=await fetch(base+'/media/'+id+'/cover',{headers:{'X-Pub-Token':token()}});if(!r.ok)return '';const url=URL.createObjectURL(await r.blob());if(s.dead||coverCache.get(key)!==record){URL.revokeObjectURL(url);return ''}record.url=url;return url})().catch(()=>'');
+    record.promise=(async()=>{const r=await fetch(base+(id.startsWith('s:')?'/series-cover?name='+encodeURIComponent(id.slice(2)):'/media/'+id+'/cover'),{headers:{'X-Pub-Token':token()}});if(!r.ok)return '';const url=URL.createObjectURL(await r.blob());if(s.dead||coverCache.get(key)!==record){URL.revokeObjectURL(url);return ''}record.url=url;return url})().catch(()=>'');
    }
    coverCount++;
    coverCache.get(key).promise.then(url=>{if(url&&img.isConnected){img.src=window.asset(url);img.parentElement.classList.add('mp-has-art')}}).finally(()=>{coverCount--;hydrateCovers()});
@@ -60,8 +134,10 @@ function mount(host,options={}){
  }
  const observer=new MutationObserver(hydrateCovers);observer.observe(root,{childList:true,subtree:true});
  function card(i){return `<article class="mp-card"><button class="mp-poster" data-open="${i.id}" aria-label="${esc(t('open')+': '+i.title)}">${art(i)}${i.state.completed?`<span class="mp-badge">✓ ${esc(t('watched'))}</span>`:''}</button><div class="mp-card-title"><button data-open="${i.id}">${esc(i.title)}</button>${true?`<button data-favorite="${i.id}" aria-label="${esc(t('favorites'))}" aria-pressed="${!!i.state.favorite}">${i.state.favorite?'♥':'♡'}</button>`:''}</div><div class="mp-meta">${esc(subtitleMeta(i))}</div>${i.state.duration?`<div class="mp-progress"><span style="width:${i.percent}%"></span></div><div class="mp-progress-text"><span>${pct(i.percent)}</span><span>${fmt(i.state.completed?0:Math.max(0,i.state.duration-i.state.seconds))} ${esc(t('left'))}</span></div>`:''}</article>`}
+ const seriesOf=name=>(s.series||[]).find(x=>x.name===name);
+ function seriesArt(name,items){const sr=seriesOf(name),i=items.find(i=>i.has_cover)||items[0];return art(sr?.has_cover?{...i,title:name,has_cover:true,cover_id:'s:'+name,cover_revision:sr.cover_revision}:{...i,title:name})}
  function groups(items=s.items){const map=new Map();for(const i of items.filter(i=>i.kind==='episode')){const key=i.series||t('unknownSeries');if(!map.has(key))map.set(key,[]);map.get(key).push(i)}return [...map].sort((a,b)=>a[0].localeCompare(b[0],lang))}
- function groupCard(name,items){const i=items.find(i=>i.has_cover)||items[0],n=new Set(items.map(i=>i.season)).size;return `<article class="mp-card"><button class="mp-poster" data-series="${esc(name)}">${art({...i,title:name})}<span class="mp-badge">${items.length} ${esc(t('episodes'))}</span></button><div class="mp-card-title"><button data-series="${esc(name)}">${esc(name)}</button></div><div class="mp-meta">${n} ${esc(t('seasons'))} · ${items.filter(i=>i.state.completed).length}/${items.length} ${esc(t('watched'))}</div></article>`}
+ function groupCard(name,items){const i=items.find(i=>i.has_cover)||items[0],n=new Set(items.map(i=>i.season)).size;return `<article class="mp-card"><button class="mp-poster" data-series="${esc(name)}">${seriesArt(name,items)}<span class="mp-badge">${items.length} ${esc(t('episodes'))}</span></button><div class="mp-card-title"><button data-series="${esc(name)}">${esc(name)}</button></div><div class="mp-meta">${n} ${esc(t('seasons'))} · ${items.filter(i=>i.state.completed).length}/${items.length} ${esc(t('watched'))}</div></article>`}
  function filtered(){
   let items=s.items.filter(i=>s.tab!=='movies'||i.kind==='movie').filter(i=>s.tab!=='videos'||i.kind==='video');
   if(s.tab==='favorites')items=items.filter(i=>i.state.favorite);
@@ -108,7 +184,7 @@ function mount(host,options={}){
  async function refresh(){
   await saveProgress(true);
   const data=await api('/library');if(s.dead)return;
-  s.items=data.items;s.collections=data.collections;s.languages=data.languages;s.translation=!!data.translation;
+  s.items=data.items;s.series=data.series||[];s.collections=data.collections;s.languages=data.languages;s.translation=!!data.translation;
   try{s.simkl=await api('/simkl')}catch{s.simkl={enabled:false,history:false}}
   const preferred=!options.desktop&&data.user_language&&data.user_language!=='auto'?data.user_language:window.mvmOS?.lang;
   if(preferred&&window.MP_I18N[preferred])lang=preferred;
@@ -126,11 +202,11 @@ function mount(host,options={}){
  function saveProgress(final=false){
   const snap=snapshot();if(!snap)return saveChain;
   if(!final&&Date.now()-lastSave<5000)return saveChain;lastSave=Date.now();
-  const i=itemById(snap.id);if(i){Object.assign(i.state,snap.body);i.percent=i.state.completed?100:Math.min(100,100*i.state.seconds/i.state.duration)}
+  const i=itemById(snap.id);if(i){Object.assign(i.state,snap.body);i.state.last_played=Date.now()/1000;i.percent=i.state.completed?100:Math.min(100,100*i.state.seconds/i.state.duration)}
   saveChain=saveChain.catch(()=>{}).then(async()=>{const r=await fetch(base+'/media/'+snap.id+'/state',{method:'PUT',headers:{'X-Pub-Token':snap.auth,'Content-Type':'application/json'},body:JSON.stringify(snap.body),keepalive:final});if(!r.ok)throw Error(t('progressError'))}).catch(e=>{if(!s.dead)toast(e.message)});
   return saveChain;
  }
- function clearSubtitle(){subtitleGeneration++;for(const track of video.textTracks)track.mode='disabled';video.querySelectorAll('track').forEach(n=>n.remove());if(subtitleUrl){URL.revokeObjectURL(subtitleUrl);subtitleUrl=''}}
+ function clearSubtitle(){subtitleGeneration++;if(subAbort){subAbort.abort();subAbort=null}const st=root.querySelector('[data-sub-status]');if(st)st.textContent='';for(const track of video.textTracks)track.mode='disabled';video.querySelectorAll('track').forEach(n=>n.remove());if(subtitleUrl){URL.revokeObjectURL(subtitleUrl);subtitleUrl=''}}
  async function stopPlayer(){
   const saved=saveProgress(true);s.load++;s.ready=false;s.played=false;video.pause();video.removeAttribute('src');video.load();clearSubtitle();if(tempSubtitleUrl){URL.revokeObjectURL(tempSubtitleUrl);tempSubtitleUrl=''}selectedSubtitle='';s.current=null;stage.hidden=true;render();await saved;
  }
@@ -141,7 +217,7 @@ function mount(host,options={}){
  }
  function updateNow(){
   const i=s.current;if(!i)return;root.querySelector('[data-now-title]').textContent=i.title;root.querySelector('[data-now-meta]').textContent=subtitleMeta(i);
-  const sub=root.querySelector('[data-subtitles]');sub.innerHTML=`<option value="">${esc(t('off'))}</option>${i.subtitles.map(st=>`<option value="${st.id}">${esc(st.title)} · ${esc(languageName(st.language))}</option>`).join('')}${tempSubtitleUrl?`<option value="local">${esc(t('localSubtitle'))}</option>`:''}<option disabled>──────────</option>${s.translation?`<option value="@translate">✨ ${esc(t('aiTranslateOption'))}</option>`:''}<option value="@file">${esc(t('openSubtitle'))}…</option>`;sub.value=selectedSubtitle;
+  const sub=root.querySelector('[data-subtitles]');sub.innerHTML=`<option value="">${esc(t('off'))}</option>${i.subtitles.map(st=>`<option value="${st.id}">${esc(st.title)} · ${esc(languageName(st.language))}</option>`).join('')}${(s.embedded||[]).filter(e=>!i.subtitles.some(x=>x.origin==='emb:'+e.number)).map(e=>`<option value="emb:${e.number}" ${e.text?'':'disabled'}>${esc(t('aiEmbedded'))} · ${esc(e.title||e.codec.replace(/^S_/,''))} · ${esc(languageName(e.language))}${e.text?'':' · '+esc(t('subPicture'))}</option>`).join('')}${tempSubtitleUrl?`<option value="local">${esc(t('localSubtitle'))}</option>`:''}<option disabled>──────────</option>${s.translation?`<option value="@translate">✨ ${esc(t('aiTranslateOption'))}</option>`:''}<option value="@file">${esc(t('openSubtitle'))}…</option>`;sub.value=selectedSubtitle;
   root.querySelector('[data-next]').disabled=!nextItem();root.querySelector('[data-speed]').value=String(video.playbackRate);
  }
  function preferredSubtitle(i){
@@ -153,10 +229,10 @@ function mount(host,options={}){
  }
  async function loadVideo(i,play=false){
   saveProgress(true);const generation=++s.load;s.ready=false;s.played=false;video.pause();clearSubtitle();if(tempSubtitleUrl){URL.revokeObjectURL(tempSubtitleUrl);tempSubtitleUrl=''}selectedSubtitle='';
-  s.current=i;stage.hidden=false;video.removeAttribute('src');video.load();root.querySelector('.mp-video-error').hidden=true;
+  s.current=i;s.embedded=[];videoUrl='';stage.hidden=false;video.removeAttribute('src');video.load();root.querySelector('.mp-video-error').hidden=true;
   const auto=preferredSubtitle(i);if(auto)selectedSubtitle=auto;updateNow();if(auto)run(()=>setSubtitle(auto));
   const info=i.temp?{url:i.direct}:await api('/media/'+i.id+'/ticket','POST');if(s.dead||generation!==s.load)return;
-  video.src=window.asset(info.url);
+  video.src=window.asset(info.url);videoUrl=info.url;discoverSubtitles(i,info.url,generation);
   const speed=i.state.speed||1;video.defaultPlaybackRate=speed;
   const position=i.state.completed?0:i.state.seconds||0;
   video.onloadedmetadata=()=>{
@@ -167,9 +243,26 @@ function mount(host,options={}){
   };
   video.load();stage.scrollIntoView({block:'nearest',behavior:'smooth'});
  }
+ function discoverSubtitles(i,url,generation){
+  if(!/\.(mkv|webm|mka)$/i.test(i.original||i.title||''))return;
+  const ctl=new AbortController();
+  mkvSubtitles(url,{signal:ctl.signal,onTracks:list=>{if(generation!==s.load||s.dead)return;s.embedded=list;updateNow()}}).catch(()=>{});
+ }
+ async function embeddedSubtitle(number,generation,choice){
+  const track=document.createElement('track');track.kind='subtitles';track.label=t('subtitles');track.default=true;video.appendChild(track);track.track.mode='showing';
+  const ctl=subAbort=new AbortController(),status=root.querySelector('[data-sub-status]'),alive=()=>generation===s.load&&choice===subtitleGeneration&&!s.dead;
+  status.textContent=t('subReading')+' 0%';
+  try{
+   await mkvSubtitles(videoUrl,{wanted:number,signal:ctl.signal,
+    onCue:(a,b,text)=>{if(alive())try{track.track.addCue(new VTTCue(a,b,text))}catch{}},
+    onProgress:p=>{if(alive())status.textContent=p>=1?'':t('subReading')+' '+Math.round(p*100)+'%'}});
+   if(alive())status.textContent='';
+  }catch(e){if(alive()&&e.name!=='AbortError'){status.textContent='';toast(t('subReadFailed'))}}
+ }
  async function setSubtitle(value){
   const generation=s.load;selectedSubtitle=value;clearSubtitle();if(!value)return;
   const choice=subtitleGeneration;
+  if(value.startsWith('emb:'))return embeddedSubtitle(Number(value.slice(4)),generation,choice);
   let url=tempSubtitleUrl;
   if(value!=='local'){
    const r=await fetch(base+'/media/'+s.current.id+'/subtitles/'+value,{headers:{'X-Pub-Token':token()}});if(!r.ok)throw Error(t('error'));
@@ -194,17 +287,21 @@ function mount(host,options={}){
  }
  async function translateDialog(){
   const i=s.current;if(!i)return;const adm=!!options.desktop,call=(path,method,body)=>api(path,method,body,adm);
-  const list=(await call('/media/'+i.id+'/translate/sources','GET')).sources.filter(x=>!x.unsupported);
+  const server=(await call('/media/'+i.id+'/translate/sources','GET')).sources.filter(x=>!x.unsupported);
+  // Subtitles inside a film on another server are read by this browser, where the film is; the server only gets their text.
+  const known=new Set(server.map(x=>x.origin||x.id));
+  const list=[...server,...(s.embedded||[]).filter(e=>e.text&&!known.has('emb:'+e.number)).map(e=>({id:'web:'+e.number,title:e.title||e.codec.replace(/^S_/,''),language:e.language,kind:'embedded',web:e}))];
   if(!list.length){toast(t('aiNoSource'));return}
   const two=c=>({eng:'en',bul:'bg',fre:'fr',fra:'fr',ger:'de',deu:'de',spa:'es',jpn:'ja',por:'pt',rus:'ru',chi:'zh',zho:'zh'}[c]||String(c).slice(0,2).toLowerCase());
   const target=l=>{const from=two(list[0].language);return (s.languages||[]).find(x=>x===lang&&two(x)!==from)||(s.languages||[]).find(x=>two(x)!==from)||lang};
   const name=x=>`${x.kind==='embedded'?t('aiEmbedded')+' · ':''}${x.title} · ${languageName(x.language)}`;
   const box=dialog(t('aiTranslateTitle'),`<form class="mp-form"><label>${esc(t('aiFrom'))}<select name="source">${list.map(x=>`<option value="${esc(x.id)}">${esc(name(x))}</option>`).join('')}</select></label><label>${esc(t('aiTo'))}<select name="language">${(s.languages||[]).map(l=>`<option value="${l}" ${l===target()?'selected':''}>${esc(languageName(l))}</option>`).join('')}</select></label><p class="mp-muted wide" data-quote role="status"></p><p class="mp-muted wide">${esc(t('aiNote'))}</p><progress max="100" value="0" hidden class="wide"></progress><p class="mp-error wide" role="alert"></p><div class="mp-actions wide"><button class="mp-btn primary" type="submit" data-go disabled>${esc(t('aiStart'))}</button><button class="mp-btn" type="button" data-stop hidden>${esc(t('aiStop'))}</button></div></form>`);
   const form=box.querySelector('form'),quote=box.querySelector('[data-quote]'),go=box.querySelector('[data-go]'),stop=box.querySelector('[data-stop]'),bar=box.querySelector('progress'),err=box.querySelector('.mp-error');
-  let job='',gen=0;const body=()=>({source:form.elements.source.value,language:form.elements.language.value});
+  let job='',gen=0,resolved='',reading=null;const body=()=>({source:resolved||form.elements.source.value,language:form.elements.language.value});
   const fill=(text,n)=>Object.entries(n).reduce((a,[k,v])=>a.replace('{'+k+'}',v),text);
   async function price(){
    const g=++gen;go.disabled=true;err.textContent='';quote.textContent='…';
+   if(!resolved&&form.elements.source.value.startsWith('web:')){quote.textContent=t('subWillRead');go.disabled=false;return}
    try{const q=await call('/media/'+i.id+'/translate/quote','POST',body());if(g!==gen||s.dead)return;
     const lines=fill(t('aiQuote'),{lines:q.cues,segments:q.segments});
     if(!q.price_each){quote.textContent=lines+' · '+t('aiFree');go.disabled=false}
@@ -231,10 +328,23 @@ function mount(host,options={}){
    return fill(t('aiProgress'),{percent:pct,done,total})+' · '+eta;
   };
   const explainCode=c=>window.MP_I18N.en[c]?t(c):t('error');
+  async function readEmbedded(){
+   const pick=list.find(x=>x.id===form.elements.source.value).web,cues=[];reading=new AbortController();
+   modal._busy=true;bar.hidden=false;bar.value=0;stop.hidden=false;stop.disabled=false;quote.textContent=t('subReading')+' 0%';
+   try{
+    await mkvSubtitles(videoUrl,{wanted:pick.number,signal:reading.signal,onCue:(a,b,x)=>cues.push([a,b,x]),onProgress:p=>{bar.value=100*p;quote.textContent=t('subReading')+' '+Math.round(p*100)+'%'}});
+    if(!cues.length)throw Error(t('invalidSubtitle'));
+    resolved=(await call('/media/'+i.id+'/translate/cues','POST',{number:pick.number,title:pick.title,language:pick.language,cues})).id;
+   }finally{reading=null;stop.hidden=true;bar.hidden=true}
+  }
   form.onsubmit=e=>{e.preventDefault();run(async()=>{err.textContent='';go.disabled=true;form.elements.source.disabled=form.elements.language.disabled=true;
+   if(!resolved&&form.elements.source.value.startsWith('web:')){
+    try{await readEmbedded()}catch(x){modal._busy=false;form.elements.source.disabled=form.elements.language.disabled=false;quote.textContent='';if(x.name!=='AbortError'&&!s.dead)err.textContent=x.message==='Failed to fetch'?t('subReadFailed'):x.message;else quote.textContent=t('aiCancelled');go.disabled=false;return}
+    if(s.dead||modal?.querySelector('form')!==form)return;await refresh();const cur=itemById(i.id);if(cur&&s.current?.id===i.id){s.current=cur;updateNow()}
+   }
    try{job=(await call('/media/'+i.id+'/translate','POST',body())).id}catch(x){form.elements.source.disabled=form.elements.language.disabled=false;err.textContent=x.message;price();return}
    modal._busy=true;bar.hidden=false;stop.hidden=false;startedAt=Date.now();quote.textContent=progressText(0,1);await poll()})};
-  stop.onclick=()=>run(async()=>{stop.disabled=true;await call('/translate/'+job+'/cancel','POST')});
+  stop.onclick=()=>run(async()=>{stop.disabled=true;if(reading){reading.abort();return}await call('/translate/'+job+'/cancel','POST')});
  }
  function openLocalSubtitle(){pickFile('.srt,.vtt',async file=>{if(file.size>5*1024**2)throw Error(t('tooLarge'));const generation=s.load,data=await file.arrayBuffer();if(generation!==s.load||s.dead)return;const head=new Uint8Array(data);let text=new TextDecoder(head[0]===255&&head[1]===254?'utf-16le':head[0]===254&&head[1]===255?'utf-16be':'utf-8').decode(data);if(text.includes('\ufffd'))text=new TextDecoder('windows-1251').decode(data);const vtt=convertSubtitle(text);if(tempSubtitleUrl)URL.revokeObjectURL(tempSubtitleUrl);tempSubtitleUrl=URL.createObjectURL(new Blob([vtt],{type:'text/vtt'}));selectedSubtitle='local';updateNow();await setSubtitle('local')});}
  async function addToSource(x,mode){
@@ -280,17 +390,19 @@ function mount(host,options={}){
  }
  function openDetail(id){
   const i=itemById(id);if(!i)return;
-  const box=dialog(i.title,`<div class="mp-detail"><div class="mp-detail-art">${art(i)}</div><div><p class="mp-eyebrow">${esc(subtitleMeta(i))}</p><h2>${esc(i.title)}</h2><p class="mp-description">${esc(i.description||t('noDescription'))}</p><p class="mp-muted">${i.state.completed?esc(t('watched')):i.state.duration?`${pct(i.percent)} · ${fmt(i.state.seconds)} / ${fmt(i.state.duration)}`:esc(t('notStarted'))}</p><div class="mp-actions">${button(i.state.seconds&&!i.state.completed?'resume':'play','data-detail-play','primary')}${button(i.state.completed?'markUnwatched':'markWatched','data-completed')}${button('addCollection','data-add-collection')}${s.simkl?.enabled?button('simkl','data-simkl-details'):''}${s.admin?button('edit','data-edit-item'):''}</div><div data-simkl-slot></div>${i.rating?`<p class="mp-rating">★ ${esc(i.rating.toFixed(1))}/10 · ${esc(i.source)}</p>`:''}${i.source_url?`<p class="mp-source"><a href="${esc(i.source_url)}" target="_blank" rel="noopener noreferrer">${esc(i.source)}</a>${i.source==='TVmaze'?' · CC BY-SA':i.source==='Wikipedia'?' · CC BY-SA':''}</p>`:''}<p class="mp-muted mp-filename">${esc(i.original)} · ${bytes(i.bytes)}</p></div></div>`);
+  const box=dialog(i.title,`<div class="mp-detail"><div class="mp-detail-art">${art(i)}</div><div><p class="mp-eyebrow">${esc(subtitleMeta(i))}</p><h2>${esc(i.title)}</h2><p class="mp-description">${esc(i.description||t('noDescription'))}</p><p class="mp-muted">${i.state.completed?esc(t('watched')):i.state.duration?`${pct(i.percent)} · ${fmt(i.state.seconds)} / ${fmt(i.state.duration)}`:esc(t('notStarted'))}</p><div class="mp-actions">${button(i.state.seconds&&!i.state.completed?'resume':'play','data-detail-play','primary')}${button(i.state.completed?'markUnwatched':'markWatched','data-completed')}${button('addCollection','data-add-collection')}${s.simkl?.enabled?button('simkl','data-simkl-details'):''}${s.admin?button('edit','data-edit-item'):''}${s.admin&&i.kind!=='episode'?button('lookup','data-lookup-item'):''}</div><div data-simkl-slot></div>${i.rating?`<p class="mp-rating">★ ${esc(i.rating.toFixed(1))}/10 · ${esc(i.source)}</p>`:''}${i.source_url?`<p class="mp-source"><a href="${esc(i.source_url)}" target="_blank" rel="noopener noreferrer">${esc(i.source)}</a>${i.source==='TVmaze'?' · CC BY-SA':i.source==='Wikipedia'?' · CC BY-SA':''}</p>`:''}<p class="mp-muted mp-filename">${esc(i.original)} · ${bytes(i.bytes)}</p></div></div>`);
   box.querySelector('[data-detail-play]').onclick=()=>{closeModal();run(()=>loadVideo(i,true))};
   box.querySelector('[data-completed]').onclick=()=>run(async()=>{await patchState(i,{completed:!i.state.completed});openDetail(i.id)});
   box.querySelector('[data-add-collection]').onclick=()=>chooseCollection(i);
   box.querySelector('[data-edit-item]')?.addEventListener('click',()=>editDialog(i));
+  box.querySelector('[data-lookup-item]')?.addEventListener('click',()=>lookupDialog(i,i.title));
   box.querySelector('[data-simkl-details]')?.addEventListener('click',()=>simklDetails(i,box));
  }
  async function seriesDialog(name){
   const list=s.items.filter(i=>i.kind==='episode'&&i.series===name).sort((a,b)=>a.season-b.season||a.episode-b.episode);
   const first=list.find(i=>i.show_id)||list[0];if(!first)return;
-  const box=dialog(name,`<div class="mp-series-head"><div>${art(first)}</div><section><p class="mp-eyebrow">${esc(t('series'))}</p><h2>${esc(name)}</h2><p class="mp-description">${esc(first.description||'')}</p><p>${list.length} ${esc(t('availableEpisodes'))} · ${list.filter(i=>i.state.completed).length} ${esc(t('watched'))}</p><p data-series-status class="mp-muted">${esc(t('loading'))}</p></section></div><div data-season-tabs class="mp-chips"></div><div data-episode-list></div>`);
+  const box=dialog(name,`<div class="mp-series-head"><div>${seriesArt(name,list)}</div><section><p class="mp-eyebrow">${esc(t('series'))}</p><h2>${esc(name)}</h2><p class="mp-description">${esc(seriesOf(name)?.description||'')}</p><p>${list.length} ${esc(t('availableEpisodes'))} · ${list.filter(i=>i.state.completed).length} ${esc(t('watched'))}</p><p data-series-status class="mp-muted">${esc(t('loading'))}</p>${s.admin?`<p>${button('findSeriesData','data-series-lookup','primary')}</p>`:''}</section></div><div data-season-tabs class="mp-chips"></div><div data-episode-list></div>`);
+  box.querySelector('[data-series-lookup]')?.addEventListener('click',()=>seriesLookupDialog(name));
   let remote={seasons:[],episodes:[]};
   try{remote=await api('/series/'+first.id,'GET')}catch(e){if(box.isConnected)box.querySelector('[data-series-status]').textContent=e.message}
   if(!box.isConnected)return;
@@ -304,6 +416,36 @@ function mount(host,options={}){
    box.querySelectorAll('[data-episode-open]').forEach(b=>b.onclick=()=>openDetail(b.dataset.episodeOpen));
   }
   box.querySelector('[data-season-tabs]').innerHTML=numbers.map(n=>`<button data-season="${n}">${esc(t('season'))} ${n}</button>`).join('');box.querySelectorAll('[data-season]').forEach(b=>b.onclick=()=>season(Number(b.dataset.season)));season(list.find(i=>!i.state.completed)?.season??numbers[0]);
+ }
+ async function seriesLookupDialog(name){
+  const list=s.items.filter(i=>i.kind==='episode'&&i.series===name).sort((a,b)=>a.season-b.season||a.episode-b.episode);
+  const box=dialog(t('findSeriesData'),`<p class="mp-muted">${esc(t('seriesLookupHint'))}</p><form class="mp-form"><label>${esc(t('searchOnline'))}<input name="query" value="${esc(name)}" maxlength="250" required></label><label>${esc(t('language'))}<select name="language">${(s.languages||Object.keys(window.MP_I18N)).map(l=>`<option value="${l}" ${l===lang?'selected':''}>${esc(languageName(l))}</option>`).join('')}</select></label><div class="wide">${button('searchOnline','data-lookup-search','primary')}</div></form><p class="mp-error" role="alert"></p><div data-lookup-results></div><div data-lookup-fields></div>`);
+  let chosen=null,remote=null,serial=0;
+  const err=box.querySelector('.mp-error');
+  const search=async()=>{const b=box.querySelector('[data-lookup-search]');b.disabled=true;err.textContent='';try{const form=box.querySelector('form');const data=await api('/series/lookup','POST',{query:form.elements.query.value,language:form.elements.language.value},true);if(!box.isConnected)return;chosen=null;box.querySelector('[data-lookup-fields]').innerHTML='';const results=box.querySelector('[data-lookup-results]');results.innerHTML=data.results.length?data.results.map((r,n)=>`<button class="mp-result" data-result="${n}"><strong>${esc(r.title)} ${esc(r.year)}</strong><small>${r.rating?'★ '+esc(r.rating.toFixed(1))+' · ':''}${esc(t('seriesPremiere'))}: ${esc(r.premiered||r.year||'—')}${r.ended?' – '+esc(r.ended):''} · ${esc([r.country,r.network,r.language].filter(Boolean).join(' · '))}</small><span>${esc((r.description||'').slice(0,220))}</span><small>${esc(r.source)}</small></button>`).join(''):`<p class="mp-muted">${esc(t('noResults'))}</p>`;results.querySelectorAll('[data-result]').forEach(b=>b.onclick=()=>pick(data.results[Number(b.dataset.result)],b,results))}catch(e){err.textContent=e.message}finally{b.disabled=false}};
+  async function pick(r,b,results){
+   chosen=r;remote=null;const mine=++serial;results.querySelectorAll('button').forEach(el=>el.classList.toggle('active',el===b));
+   const out=box.querySelector('[data-lookup-fields]');out.innerHTML=`<p class="mp-muted">${esc(t('loading'))}</p>`;err.textContent='';
+   try{remote=await api('/series/remote','POST',{candidate:r.id},true)}catch(e){if(mine===serial)err.textContent=e.message;remote={episodes:[]}}
+   if(!box.isConnected||mine!==serial)return;
+   const known=new Map(remote.episodes.filter(e=>e.number!==null).map(e=>[e.season+':'+e.number,e]));
+   const seriesKeys=['description','category','year','cover'].filter(k=>!!r[k]);
+   const seasons=[...new Set(list.map(i=>i.season))];
+   out.innerHTML=`<h3>${esc(t('seriesPart'))}</h3><div class="mp-checklist">${seriesKeys.map(k=>`<label><input type="checkbox" data-series-field="${k}" checked><span><strong>${esc(t(k==='description'?'seriesDescription':k))}</strong><small>${esc(k==='cover'?t('cover'):String(r[k]).slice(0,300))}</small></span></label>`).join('')}</div><h3>${esc(t('episodesPart'))}</h3><p class="mp-muted">${esc(t('withoutDataHint'))}</p><div class="mp-actions"><button type="button" class="mp-btn" data-pick="missing">${esc(t('selectMissing'))}</button><button type="button" class="mp-btn" data-pick="all">${esc(t('selectAll'))}</button><button type="button" class="mp-btn" data-pick="none">${esc(t('clearSelection'))}</button></div>${seasons.map(n=>`<section class="mp-pick-season"><label class="mp-check"><input type="checkbox" data-season-all="${n}"><strong>${esc(t('season'))} ${n}</strong></label>${list.filter(i=>i.season===n).map(i=>{const e=known.get(i.season+':'+i.episode);return `<label class="mp-pick-episode"><input type="checkbox" data-episode="${i.id}" data-season="${n}" data-has="${i.description?1:0}" ${i.description||!e?'':'checked'}><span><strong>${esc(i.episode)} · ${esc(i.title)}</strong><small>${esc(i.description?t('detailsPresent'):t('detailsMissing'))}${e?' · '+esc(e.title):' · '+esc(t('episodeMissing'))}</small></span></label>`}).join('')}</section>`).join('')}<div class="mp-checklist"><label><input type="checkbox" data-episode-field="title" checked><span><strong>${esc(t('episode_title'))}</strong></span></label><label><input type="checkbox" data-episode-field="description" checked><span><strong>${esc(t('episode_description'))}</strong></span></label></div><p><a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.source)}</a> · CC BY-SA</p>${button('apply','data-apply','primary')}`;
+   const boxes=()=>[...out.querySelectorAll('[data-episode]')];
+   const syncSeasons=()=>out.querySelectorAll('[data-season-all]').forEach(c=>{const m=boxes().filter(x=>x.dataset.season===c.dataset.seasonAll);c.checked=m.length>0&&m.every(x=>x.checked)});
+   syncSeasons();
+   out.querySelectorAll('[data-pick]').forEach(x=>x.onclick=()=>{boxes().forEach(c=>c.checked=x.dataset.pick==='all'||(x.dataset.pick==='missing'&&c.dataset.has==='0'));syncSeasons()});
+   out.querySelectorAll('[data-season-all]').forEach(c=>c.onchange=()=>{boxes().filter(x=>x.dataset.season===c.dataset.seasonAll).forEach(x=>x.checked=c.checked)});
+   boxes().forEach(c=>c.onchange=syncSeasons);
+   out.querySelector('[data-apply]').onclick=async()=>{const ab=out.querySelector('[data-apply]');ab.disabled=true;err.textContent='';try{
+    const fields=[...out.querySelectorAll('[data-series-field]:checked')].map(el=>el.dataset.seriesField),episodes=boxes().filter(c=>c.checked).map(c=>c.dataset.episode),episode_fields=[...out.querySelectorAll('[data-episode-field]:checked')].map(el=>el.dataset.episodeField);
+    if(!fields.length&&!(episodes.length&&episode_fields.length))throw Error(t('chooseEpisodes'));
+    const res=await api('/series/apply','POST',{name,candidate:chosen.id,fields,episodes,episode_fields:episodes.length?episode_fields:[]},true);
+    await refresh();toast(res.cover_missing?t('coverMissing'):(res.updated||res.missing)?t('seriesApplied').replace('{n}',res.updated).replace('{m}',res.missing):t('saved'));seriesDialog(name)
+   }catch(e){err.textContent=e.message;ab.disabled=false}};
+  }
+  box.querySelector('form').onsubmit=e=>{e.preventDefault();search()};box.querySelector('[data-lookup-search]').onclick=search;
  }
  function editDialog(i){
   const keys=['title','series','season','episode','year','category'];
@@ -336,9 +478,9 @@ function mount(host,options={}){
   function preview(){
    const exact=chosen.episode?.status==='found'?chosen.episode:null;
    const values={...chosen,series:chosen.title,episode_title:exact?.title||'',episode_description:exact?.description||''};
-   const keys=[i.kind==='episode'?'series':'title',...(i.kind==='episode'?['episode_title','episode_description']:[]),'description','category','year','cover'].filter(k=>!!values[k]);
-   box.querySelector('[data-lookup-fields]').innerHTML=`${episodePreview(chosen)}<h3>${esc(t('chooseFields'))}</h3><div class="mp-checklist">${keys.map(k=>`<label><input type="checkbox" data-field="${k}" ${k==='description'&&exact?.description?'':'checked'}><span><strong>${esc(t(k==='description'&&i.kind==='episode'?'seriesDescription':k))}</strong><small>${esc(k==='cover'?t('cover'):String(values[k]).slice(0,350))}</small></span></label>`).join('')}</div>${i.kind==='episode'?`<label class="mp-check"><input type="checkbox" data-series-group checked>${esc(t('applySeries'))}</label><p class="mp-muted">${esc(t('episodeApplyHint'))}</p>`:''}<p><a href="${esc(chosen.url)}" target="_blank" rel="noopener noreferrer">${esc(chosen.source)}</a> · CC BY-SA</p>${button('apply','data-apply','primary')}`;
-   box.querySelector('[data-apply]').onclick=async()=>{const b=box.querySelector('[data-apply]');b.disabled=true;try{const fields=[...box.querySelectorAll('[data-field]:checked')].map(el=>el.dataset.field);if(!fields.length)throw Error(t('chooseFields'));const r=await api('/media/'+i.id+'/lookup/apply','POST',{candidate:chosen.id,fields,series_group:!!box.querySelector('[data-series-group]')?.checked},true);await refresh();editDialog(itemById(i.id));toast(t(r.cover_missing?'coverMissing':'saved'))}catch(e){box.querySelector('.mp-error').textContent=e.message;b.disabled=false}};
+   const keys=(i.kind==='episode'?['episode_title','episode_description']:['title','description','category','year','cover']).filter(k=>!!values[k]);
+   box.querySelector('[data-lookup-fields]').innerHTML=`${episodePreview(chosen)}<h3>${esc(t('chooseFields'))}</h3><div class="mp-checklist">${keys.map(k=>`<label><input type="checkbox" data-field="${k}" checked><span><strong>${esc(t(k==='description'&&i.kind==='episode'?'seriesDescription':k))}</strong><small>${esc(k==='cover'?t('cover'):String(values[k]).slice(0,350))}</small></span></label>`).join('')}</div><p><a href="${esc(chosen.url)}" target="_blank" rel="noopener noreferrer">${esc(chosen.source)}</a> · CC BY-SA</p>${keys.length?button('apply','data-apply','primary'):''}`;
+   if(keys.length)box.querySelector('[data-apply]').onclick=async()=>{const b=box.querySelector('[data-apply]');b.disabled=true;try{const fields=[...box.querySelectorAll('[data-field]:checked')].map(el=>el.dataset.field);if(!fields.length)throw Error(t('chooseFields'));const r=await api('/media/'+i.id+'/lookup/apply','POST',{candidate:chosen.id,fields,series_group:!!box.querySelector('[data-series-group]')?.checked},true);await refresh();editDialog(itemById(i.id));toast(t(r.cover_missing?'coverMissing':'saved'))}catch(e){box.querySelector('.mp-error').textContent=e.message;b.disabled=false}};
   }
   box.querySelector('form').onsubmit=e=>{e.preventDefault();search()};box.querySelector('[data-lookup-search]').onclick=search;
  }

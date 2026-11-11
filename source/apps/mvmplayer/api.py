@@ -4,6 +4,7 @@ Videos are uploaded here or stay in a library folder on the server, read as the
 Linux user who added the folder. No transcoding or external server is required.
 Media bytes are never placed in public/. Only desktop sessions manage files.
 """
+import asyncio
 import contextlib
 import html
 import json
@@ -18,7 +19,7 @@ import types
 import uuid
 from pathlib import PurePosixPath
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from fastapi.responses import FileResponse, Response, StreamingResponse
 from pydantic import BaseModel, Field
 
@@ -114,13 +115,19 @@ def init():
           token TEXT PRIMARY KEY, media_id TEXT NOT NULL REFERENCES media(id) ON DELETE CASCADE,
           user_id TEXT NOT NULL, pub_token TEXT NOT NULL, expires REAL NOT NULL
         );
+        CREATE TABLE IF NOT EXISTS series (
+          name TEXT PRIMARY KEY, show_id INTEGER NOT NULL DEFAULT 0, description TEXT NOT NULL DEFAULT '',
+          category TEXT NOT NULL DEFAULT '', year TEXT NOT NULL DEFAULT '', rating REAL NOT NULL DEFAULT 0,
+          source TEXT NOT NULL DEFAULT '', source_url TEXT NOT NULL DEFAULT '',
+          cover BLOB, cover_mime TEXT NOT NULL DEFAULT '', cover_revision TEXT NOT NULL DEFAULT '', updated REAL NOT NULL DEFAULT 0
+        );
         CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, data TEXT NOT NULL, expires REAL NOT NULL);
         CREATE TABLE IF NOT EXISTS limits (host TEXT PRIMARY KEY, next_request REAL NOT NULL);
         ''')
         # Files that stay in a library folder instead of being uploaded here.
         for table,column,spec in (('media','source_id',"TEXT NOT NULL DEFAULT ''"),('media','relpath',"TEXT NOT NULL DEFAULT ''"),
                                   ('media','missing','INTEGER NOT NULL DEFAULT 0'),('media','file_mtime','REAL NOT NULL DEFAULT 0'),('media','rating','REAL NOT NULL DEFAULT 0'),
-                                  ('subtitles','path',"TEXT NOT NULL DEFAULT ''"),('subtitles','file_mtime','REAL NOT NULL DEFAULT 0')):
+                                  ('subtitles','path',"TEXT NOT NULL DEFAULT ''"),('subtitles','file_mtime','REAL NOT NULL DEFAULT 0'),('subtitles','origin',"TEXT NOT NULL DEFAULT ''")):
             if column not in [r[1] for r in c.execute('PRAGMA table_info(%s)'%table)]:
                 c.execute('ALTER TABLE %s ADD COLUMN %s %s'%(table,column,spec))
         for column,spec in (('kind',"TEXT NOT NULL DEFAULT 'server'"),('folder_id',"TEXT NOT NULL DEFAULT ''")):
@@ -189,7 +196,7 @@ def present(c, row, uid):
     item['state'] = {k:st[k] for k in ('seconds','duration','speed','completed','favorite','last_played')} if st else dict(seconds=0,duration=0,speed=1,completed=False,favorite=False,last_played=0)
     state = item['state']
     item['percent'] = 100 if state['completed'] else round(min(100,100*state['seconds']/state['duration']),1) if state['duration'] else 0
-    item['subtitles'] = [dict(r) for r in c.execute('SELECT id,title,language FROM subtitles WHERE media_id=? ORDER BY title', (row['id'],))]
+    item['subtitles'] = [dict(r) for r in c.execute('SELECT id,title,language,origin FROM subtitles WHERE media_id=? ORDER BY title', (row['id'],))]
     return item
 
 
@@ -201,7 +208,10 @@ def library_for(uid):
             entry = dict(row); entry.pop('user_id')
             entry['items'] = [r[0] for r in c.execute('SELECT media_id FROM collection_items WHERE collection_id=? ORDER BY position',(row['id'],))]
             lists.append(entry)
-    return dict(items=items, collections=lists, languages=language_codes(), translation=translation_available())
+        shows = [dict(name=r['name'], show_id=r['show_id'], description=r['description'], category=r['category'], year=r['year'], rating=r['rating'],
+                      source=r['source'], source_url=r['source_url'], has_cover=r['cover'] is not None, cover_revision=r['cover_revision'])
+                 for r in c.execute('SELECT * FROM series')]
+    return dict(items=items, collections=lists, series=shows, languages=language_codes(), translation=translation_available())
 
 
 @router.get('/')
@@ -237,6 +247,7 @@ def save_translation(body: TranslationBody):
 
 @desktop_router.get('/admin')
 def admin():
+    threading.Thread(target=enrich_known_series, daemon=True).start()
     return library_for('@management')
 
 
@@ -831,8 +842,89 @@ async def apply_metadata(mid: str, body: ApplyBody):
 
 @router.get('/series/{mid}')
 async def series_info(mid: str, user=Depends(me)):
-    with db() as c:row=media(c,mid)
-    return await catalogue.show(row['show_id']) if row['show_id'] else dict(seasons=[],episodes=[])
+    with db() as c:
+        row=media(c,mid)
+        show_id=row['show_id'] or (c.execute('SELECT show_id FROM series WHERE name=?',(row['series'],)).fetchone() or [0])[0]
+    return await catalogue.show(show_id) if show_id else dict(seasons=[],episodes=[])
+
+
+def series_cover_response(name):
+    with db() as c:
+        row=c.execute('SELECT cover,cover_mime FROM series WHERE name=?',(name,)).fetchone()
+    if not row or row['cover'] is None:fail()
+    return Response(bytes(row['cover']),media_type=row['cover_mime'],headers={'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'})
+
+
+@router.get('/series-cover')
+def series_cover(name: str = Query(max_length=250), user=Depends(me)):
+    return series_cover_response(name)
+
+
+@desktop_router.get('/series-cover')
+def admin_series_cover(name: str = Query(max_length=250)):
+    return series_cover_response(name)
+
+
+@desktop_router.post('/series/lookup')
+async def series_lookup(body: SearchBody):
+    if body.language not in language_codes() or not body.query.strip():fail('invalid',400)
+    return dict(results=await catalogue.search(dict(kind='episode',season=0,episode=0),body.query.strip(),body.language))
+
+
+class SeriesRemoteBody(BaseModel):
+    candidate: str = Field(max_length=100)
+
+
+@desktop_router.post('/series/remote')
+async def series_remote(body: SeriesRemoteBody):
+    candidate=catalogue.cached('candidate:'+body.candidate)
+    if not candidate or not candidate.get('show_id'):fail('invalid',400)
+    return await catalogue.show(candidate['show_id'])
+
+
+class SeriesApplyBody(BaseModel):
+    name: str = Field(min_length=1,max_length=250)
+    candidate: str = Field(max_length=100)
+    fields: list[str] = Field(default=[],max_length=4)
+    episodes: list[str] = Field(default=[],max_length=5000)
+    episode_fields: list[str] = Field(default=[],max_length=2)
+
+
+@desktop_router.post('/series/apply')
+async def series_apply(body: SeriesApplyBody):
+    candidate=catalogue.cached('candidate:'+body.candidate)
+    if not candidate or not candidate.get('show_id') or set(body.fields)-{'description','category','year','cover'} or set(body.episode_fields)-{'title','description'}:fail('invalid',400)
+    if not body.fields and not (body.episodes and body.episode_fields):fail('invalid',400)
+    remote=await catalogue.show(candidate['show_id']) if body.episodes and body.episode_fields else dict(episodes=[])
+    remote_episodes={(e['season'],e['number']):e for e in remote['episodes'] if e.get('number') is not None}
+    cover=None
+    if 'cover' in body.fields and candidate.get('cover'):
+        try:
+            cover=await catalogue.fetch(candidate['cover'],image=True)
+            if cover:valid_image(cover)
+        except HTTPException:
+            cover=None
+    updated=missing=0
+    with db() as c:
+        if not c.execute('SELECT 1 FROM media WHERE kind=? AND series=?',('episode',body.name)).fetchone():fail()
+        c.execute('INSERT OR IGNORE INTO series(name) VALUES(?)',(body.name,))
+        values=dict(show_id=candidate['show_id'],rating=float(candidate.get('rating') or 0),source=candidate['source'],source_url=candidate['url'],updated=time.time())
+        values.update({k:candidate[k] for k in body.fields if k in ('description','category','year') and k in candidate})
+        if cover:values.update(cover=cover,cover_mime=valid_image(cover),cover_revision=uuid.uuid4().hex)
+        c.execute('UPDATE series SET '+','.join(k+'=?' for k in values)+' WHERE name=?',(*values.values(),body.name))
+        c.execute('UPDATE media SET show_id=? WHERE kind=? AND series=?',(candidate['show_id'],'episode',body.name))
+        for mid in body.episodes:
+            row=c.execute('SELECT * FROM media WHERE id=? AND kind=? AND series=?',(mid,'episode',body.name)).fetchone()
+            if not row:continue
+            found=remote_episodes.get((row['season'],row['episode']))
+            changes={}
+            if found:
+                if 'title' in body.episode_fields and found.get('title'):changes['title']=found['title'][:250]
+                if 'description' in body.episode_fields and found.get('description'):changes['description']=found['description']
+            if changes:
+                c.execute('UPDATE media SET '+','.join(k+'=?' for k in changes)+',source=?,source_url=?,updated=? WHERE id=?',(*changes.values(),candidate['source'],candidate['url'],time.time(),mid));updated+=1
+            else:missing+=1
+    return dict(ok=True,updated=updated,missing=missing,cover_missing='cover' in body.fields and not cover)
 
 
 @desktop_router.get('/series/{mid}')
@@ -932,8 +1024,42 @@ def scan_source(sid):
             with db() as c:c.execute("UPDATE sources SET scan_state='failed',scan_error=? WHERE id=?", (str(e.detail)[:200], sid))
         except Exception as e:
             with db() as c:c.execute("UPDATE sources SET scan_state='failed',scan_error=? WHERE id=?", (type(e).__name__, sid))
+        enrich_known_series()
     finally:
         _scanning.discard(sid)
+
+
+_enrich_lock = threading.Lock()
+
+
+def enrich_known_series():
+    """New episodes of a series that was already identified get their title and description by themselves.
+
+    Only a series the owner has identified once (it has a catalogue id in ``series``) is touched, and only
+    episodes that still have no description; a series never searched for stays as it is until then.
+    """
+    if not _enrich_lock.acquire(blocking=False):return
+    try:
+        with db() as c:
+            known = [(r['name'], r['show_id']) for r in c.execute(
+                "SELECT s.name,s.show_id FROM series s WHERE s.show_id>0 AND EXISTS("
+                "SELECT 1 FROM media m WHERE m.kind='episode' AND m.series=s.name AND m.description='' AND m.missing=0)")]
+        for name, show_id in known:
+            try:
+                remote = asyncio.run(catalogue.show(show_id))
+            except Exception:
+                continue
+            found = {(e['season'], e['number']): e for e in remote.get('episodes', []) if e.get('number') is not None}
+            with db() as c:
+                for row in c.execute("SELECT id,season,episode FROM media WHERE kind='episode' AND series=? AND description='' AND missing=0", (name,)).fetchall():
+                    e = found.get((row['season'], row['episode']))
+                    if e and e.get('description'):
+                        c.execute('UPDATE media SET title=?,description=?,show_id=?,updated=? WHERE id=?',
+                                  ((e.get('title') or '')[:250] or row['id'], e['description'], show_id, time.time(), row['id']))
+    except Exception:
+        pass
+    finally:
+        _enrich_lock.release()
 
 
 def scan_in_background(sid):
@@ -1035,6 +1161,13 @@ def profile(x_pub_token: str = Header(default='')):
     return user
 
 
+class EmbeddedCues(BaseModel):
+    number: int = Field(ge=1, le=100000)
+    title: str = Field(default='', max_length=200)
+    language: str = Field(default='und', max_length=20)
+    cues: list = Field(max_length=20000)
+
+
 class TranslateBody(BaseModel):
     source: str = Field(min_length=1, max_length=60)
     language: str = Field(min_length=2, max_length=10)
@@ -1059,6 +1192,10 @@ def make_translation_routes(target, who):
     @target.get('/media/{mid}/translate/sources')
     def translate_sources(mid: str, user=Depends(who)):
         return dict(sources=guarded(lambda m: m.sources(mid)))
+
+    @target.post('/media/{mid}/translate/cues')
+    def translate_cues(mid: str, body: EmbeddedCues, user=Depends(who)):
+        return guarded(lambda m: m.add_embedded(mid, body.number, body.title, body.language, body.cues))
 
     @target.post('/media/{mid}/translate/quote')
     def translate_quote(mid: str, body: TranslateBody, user=Depends(who)):
