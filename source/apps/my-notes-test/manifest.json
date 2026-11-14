@@ -1,0 +1,29 @@
+{
+ "id": "my-notes-test",
+ "name": "Notes Test",
+ "name_i18n": {
+  "bg": "Notes Test",
+  "de": "Notes Test",
+  "en": "Notes Test",
+  "es": "Notes Test",
+  "fr": "Notes Test",
+  "ja": "Notes Test",
+  "pt-BR": "Notes Test",
+  "ru": "Notes Test",
+  "zh-CN": "Notes Test"
+ },
+ "icon": "✅",
+ "icon_image": "icon.svg",
+ "category": "Productivity",
+ "tags": [],
+ "version": "1.0.0",
+ "min_core_version": "1.25.0",
+ "description": "Notes Test",
+ "entry": "main.js",
+ "builder": {
+  "format": 1,
+  "template": "0657924f32ab765d"
+ },
+ "public_url": "/pub/my-notes-test/",
+ "public_directory": true
+}

@@ -18,6 +18,7 @@ Documentation for individual Store applications lives in this repository. Update
 - [mvm2factor](apps/mvm2factor.md)
 - [mvmAI](apps/mvmai.md)
 - [mvmAudio](apps/mvmaudio.md)
+- [mvmDesign](apps/mvmdesign.md)
 - [mvmFonts](apps/mvmfonts.md)
 - [mvmOffice](apps/mvmoffice.md)
 - [mvmPasswords](apps/mvmpasswords.md)

@@ -1,0 +1,24 @@
+{
+  "tagline": "Design pages once, reuse them to music, and export pictures or animated videos.",
+  "description": "mvmDesign combines a page designer with a music-driven video workflow. Create pictures, posters, lyric pages and stories using editable text, shapes and uploaded images. Use the same page several times in a song: editing its design updates every occurrence. Duplicate a page when you want an independent variation.\n\nText supports the installed mvmFonts library, outlines, gradients, shadows, glow, background panels, alignment, line spacing and letter spacing. Elements can slide, fade or zoom in and out, while text can appear by character or word. Static picture exports always show the complete design.\n\nAdd music, arrange page references, repeat selected blocks, and listen while pressing Next page to record the changes. Subtitle tools include pasted lyrics, timing while listening, SRT import and export, outlined and boxed captions, glow, typewriter text and a karaoke highlight. A subtitle track below the music shows every cue: drag a block to move it or either edge to trim it against the waveform. Active cues light up during playback; individual cues can be previewed with the design and music. Entry and exit animations are configurable. Karaoke distributes words evenly within a cue; it does not recognize singing.\n\nSave a .mvmdesign project with its pictures, audio, designs, animation settings and timing. Export one page as PNG, JPEG or WebP, multiple pages as a ZIP of images, or an animated video at the chosen resolution, frame rate and quality. Video is rendered frame by frame in the browser, with MP4 or WebM availability depending on its encoders.",
+  "capabilities": [
+    "Editable pages with pictures, text and shapes, starter templates and independent page duplicates.",
+    "Text outlines, gradients, shadows, glow, background panels and fonts from mvmFonts.",
+    "Object movement, resizing, rotation, opacity, locking and layer ordering.",
+    "Entry and exit animations, typewriter and word-by-word text, and page crossfades.",
+    "Reusable page references, repeated blocks and page timing recorded while listening to music.",
+    "Visual subtitle timing with draggable blocks and trim handles, waveform seeking, active playback highlighting, per-cue preview, exact seconds, SRT and five visual styles with entry/exit animations.",
+    "Portable project files containing pictures and audio, server-folder saving and browser draft recovery.",
+    "Single-image or images-ZIP export and frame-by-frame video export with resolution and quality options."
+  ],
+  "integrations": [
+    {
+      "app": "mvmfonts",
+      "name": "mvmFonts",
+      "kind": "app_api",
+      "direction": "consumes",
+      "summary": "Use the server's installed fonts in page designs and subtitles.",
+      "requires": "mvmFonts installed and its App API enabled in Apps Hub settings. Otherwise generic sans, serif and monospace fonts remain available. Custom fonts need to be installed on a server where the project is reopened."
+    }
+  ]
+}

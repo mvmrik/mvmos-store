@@ -80,7 +80,7 @@ The one exception is an app that must genuinely reach the system — `subprocess
 | `public_url` | no | `"/pub/<app-id>/"` — shows a "Public page" link in the window footer, see [Window footer](#window-footer) |
 | `public_chrome` | no | `false` switches off the shared header, footer and theme injection on the public page, see [Theming & text size on public pages](#theming--text-size-on-public-pages) |
 | `replaces_widget` | no | A core widget slot the app takes over; `"calendar"` makes the taskbar clock open this app instead of its own calendar popup |
-| `credit_features` | no | Apps Hub credit prices the app charges for, `[{id, name, description, unit}]` (credits are a core Premium feature) |
+| `credit_features` | no | Apps Hub credit prices the app charges for, `[{id, name, description, unit}]` (credits are a core Premium feature). See [What Apps Hub owns](#what-apps-hub-owns) |
 | `multiplayer`, `max_players`, `themed` | no | Game settings, see [Writing a game](#writing-a-game) |
 | `gamehub` | no | Game Hub category, translated description, score and metric declarations, and solo ranking rule; see [Statistics](#statistics-say-what-you-measure-game-hub-draws-it). |
 | `public_directory` | no | `false` to hide from the Apps Hub public directory card grid even though the app has a public `router` — see [Listing in the public directory](#listing-in-the-public-directory). Default `true`. |
@@ -1226,6 +1226,17 @@ def run(now, db_path, config):
 - Errors are logged in the `/api/scheduler/tick` response and do not stop other apps
 
 ---
+
+## What Apps Hub owns
+
+Apps Hub owns profiles, the shared header and credit prices. The reference for an app with an AI assistant and credits is `apps/mvmoffice`; copy its pattern.
+
+• **Profile, avatar, logout:** `requires_apphub: true` on the desktop, and the header injected automatically on `/pub/<app-id>/`. Do not draw your own profile area, account menu or logout button.
+• **Settings:** `appSettings: true` with `onAppSettings` opening `AppStore.openWindow({section: 'my-apps', appId})`. Extra administrator fields go in `renderSettingsExtra` / `saveSettingsExtra`.
+• **AI switches:** exactly three, `assistant`, `images` and `public`, kept in the app's own database. Without the premium module they are locked and open the premium prompt. Do not add limits, quotas or other fields unless the owner asks.
+• **Credits:** declare `credit_features` (`ai_message`, `ai_image`). The administrator sets prices in Apps Hub → Paid Apps. Charge from the premium backend through `charge_credit_feature` with an idempotency key and refund with `grant_credits` on failure. Return `credits` (balance and prices) from the status and call responses and show only a small balance badge in the assistant, hidden when credits are not active.
+
+If something seems missing, ask the owner instead of building a private version.
 
 ## Apps Hub integration
 

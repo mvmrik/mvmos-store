@@ -1,0 +1,23 @@
+{
+ "format": "mvmos-app-builder",
+ "format_version": 1,
+ "generator": "mvmos-app-builder/1.25.0",
+ "name": "Notes Test",
+ "name_i18n": {
+  "en": "Notes Test"
+ },
+ "description": "",
+ "description_i18n": {},
+ "category": "Productivity",
+ "emoji": "✅",
+ "tags": [],
+ "profiles": true,
+ "public": true,
+ "integrations": [],
+ "version": "1.0.0",
+ "game": {
+  "metrics": {}
+ },
+ "multiplayer": false,
+ "max_players": 1
+}

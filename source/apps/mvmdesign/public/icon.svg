@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="tile" x1="16" y1="5" x2="115" y2="128" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7865EE"/>
+      <stop offset="1" stop-color="#4231A4"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="45" y1="24" x2="93" y2="99" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF"/>
+      <stop offset="1" stop-color="#E8E8FF"/>
+    </linearGradient>
+    <linearGradient id="play" x1="82" y1="79" x2="116" y2="114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFAF75"/>
+      <stop offset="1" stop-color="#F06472"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="120" height="120" rx="29" fill="url(#tile)"/>
+  <rect x="5" y="5" width="118" height="118" rx="28" stroke="#FFF" stroke-opacity=".18" stroke-width="2"/>
+  <rect x="22" y="27" width="65" height="79" rx="11" transform="rotate(-12 22 27)" fill="#211862" fill-opacity=".25"/>
+  <rect x="18" y="24" width="65" height="79" rx="11" transform="rotate(-12 18 24)" fill="#62DFD6"/>
+  <rect x="38" y="26" width="65" height="79" rx="11" fill="#211862" fill-opacity=".22"/>
+  <rect x="35" y="20" width="65" height="79" rx="11" fill="url(#paper)"/>
+  <path d="m48 72 15-34a5 5 0 0 1 9 0l15 34M55 59h25" stroke="#6650CC" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M49 85h22" stroke="#A6A1D1" stroke-width="5" stroke-linecap="round"/>
+  <rect x="78" y="77" width="37" height="37" rx="13" fill="#372677" fill-opacity=".3"/>
+  <rect x="76" y="74" width="37" height="37" rx="13" fill="url(#play)"/>
+  <path d="M91 85a1.5 1.5 0 0 1 2.3-1.3l12 7.5a1.5 1.5 0 0 1 0 2.6l-12 7.5a1.5 1.5 0 0 1-2.3-1.3V85Z" fill="#FFF" transform="translate(-3 0)"/>
+</svg>

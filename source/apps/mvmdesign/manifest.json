@@ -1,0 +1,35 @@
+{
+  "id": "mvmdesign",
+  "name": "mvmDesign",
+  "icon": "✨",
+  "category": "Creative",
+  "tags": [
+    "design",
+    "pages",
+    "lyrics",
+    "video",
+    "animation",
+    "subtitles"
+  ],
+  "version": "1.0.0",
+  "description": "Design reusable pages with styled text, pictures and shapes, then time them to music and export images or an animated video.",
+  "entry": "main.js",
+  "public_directory": true,
+  "min_core_version": "1.22.0",
+  "public_url": "/pub/mvmdesign/",
+  "icon_image": "icon.svg",
+  "credit_features": [
+    {
+      "id": "ai_message",
+      "name": "Design assistant message",
+      "description": "One project assistant reply; refunded on failure. Daily per-profile limits also apply.",
+      "unit": "message"
+    },
+    {
+      "id": "ai_image",
+      "name": "AI design image",
+      "description": "One image including context planning; refunded if generation fails. Daily per-profile limits also apply.",
+      "unit": "picture"
+    }
+  ]
+}

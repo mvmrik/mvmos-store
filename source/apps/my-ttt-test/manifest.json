@@ -1,0 +1,52 @@
+{
+ "id": "my-ttt-test",
+ "name": "TTT Test",
+ "name_i18n": {
+  "bg": "TTT Test",
+  "de": "TTT Test",
+  "en": "TTT Test",
+  "es": "TTT Test",
+  "fr": "TTT Test",
+  "ja": "TTT Test",
+  "pt-BR": "TTT Test",
+  "ru": "TTT Test",
+  "zh-CN": "TTT Test"
+ },
+ "icon": "🎮",
+ "icon_image": "icon.svg",
+ "category": "Games",
+ "tags": [],
+ "version": "1.0.0",
+ "min_core_version": "1.25.0",
+ "description": "TTT Test",
+ "entry": "main.js",
+ "builder": {
+  "format": 1,
+  "template": "0657924f32ab765d"
+ },
+ "multiplayer": true,
+ "max_players": 2,
+ "themed": true,
+ "public_directory": false,
+ "gamehub": {
+  "category": "arcade",
+  "description": {
+   "bg": "",
+   "de": "",
+   "en": "",
+   "es": "",
+   "fr": "",
+   "ja": "",
+   "pt-BR": "",
+   "ru": "",
+   "zh-CN": ""
+  },
+  "score": {
+   "label": {
+    "en": "Score"
+   }
+  },
+  "ranking": "score",
+  "metrics": {}
+ }
+}

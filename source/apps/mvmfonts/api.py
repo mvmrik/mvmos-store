@@ -60,6 +60,19 @@ async def client_js():
                         media_type="application/javascript", headers={"Cache-Control": "no-cache"})
 
 
+@router.get("/picker.js")
+async def picker_js():
+    """Optional reusable font preview picker for desktop and public apps."""
+    return FileResponse(os.path.join(os.path.dirname(__file__), "public", "picker.js"),
+                        media_type="application/javascript", headers={"Cache-Control": "no-cache"})
+
+
+@router.get("/i18n.js")
+async def picker_i18n_js():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "public", "i18n.js"),
+                        media_type="application/javascript", headers={"Cache-Control": "no-cache"})
+
+
 @desktop_router.get("/catalog")
 async def catalog(session=Depends(sys.modules["backend.auth"].get_current_session)):
     _session(session)

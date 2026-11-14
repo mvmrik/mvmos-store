@@ -1,0 +1,23 @@
+{
+ "format": "mvmos-app-builder",
+ "format_version": 1,
+ "generator": "mvmos-app-builder/1.25.0",
+ "name": "TTT Test",
+ "name_i18n": {
+  "en": "TTT Test"
+ },
+ "description": "",
+ "description_i18n": {},
+ "category": "Games",
+ "emoji": "🎮",
+ "tags": [],
+ "profiles": false,
+ "public": false,
+ "integrations": [],
+ "version": "1.0.0",
+ "game": {
+  "metrics": {}
+ },
+ "multiplayer": true,
+ "max_players": 2
+}

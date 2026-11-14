@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>mvmDesign</title>
+    <link rel="icon" type="image/svg+xml" href="/apps/mvmdesign/icon.svg" />
+    <link rel="stylesheet" href="/apps/mvmdesign/design.css" />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        background: var(--pub-bg, #171b29);
+        color: var(--pub-fg, #edf0ff);
+        font-family: system-ui, sans-serif;
+      }
+      #design-public-root {
+        height: calc(100dvh - var(--pub-nav-height, 52px));
+        min-height: 400px;
+        --bg: var(--pub-bg, #171b29);
+        --surface: var(--pub-surface1, #252b3b);
+        --text: var(--pub-fg, #edf0ff);
+        --border: var(--pub-border, #515b70);
+        --accent: var(--pub-accent, #6352d8);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="design-public-root" aria-busy="true"></div>
+    <script src="/i18n/i18n.js"></script>
+    <script src="/apps/mvmdesign/public-app.js"></script>
+  </body>
+</html>

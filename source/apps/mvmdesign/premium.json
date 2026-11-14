@@ -1,0 +1,20 @@
+{
+  "summary": "Create images from your design's context and edit projects through an AI conversation, using the providers configured in mvmAI.",
+  "features": [
+    {
+      "title": "Images that understand the project",
+      "short": "Generate a background or separate image from your project and an additional description.",
+      "description": "The AI reads the project name, page dimensions, text and subtitles to plan a fitting scene. Add the subject, mood or style you want, preview the generated image, then insert it as a page background or separate editable element. Image generation uses the provider configured in mvmAI and is also available as a tool in the design chat. The original image is embedded in the project."
+    },
+    {
+      "title": "A design assistant with editing tools",
+      "short": "Ask for changes to pages, text, layers, saved subtitle styles and video timing.",
+      "description": "Chat alongside the editor. The assistant reads structured project content and proposes specific edits. Review and apply changes together, then undo them in one step. Only the properties you request are changed; saved styles retain their positions and individual subtitle overrides. Existing media can be reused and new images can be generated. The assistant does not listen to audio, recognise speech or synchronise subtitles automatically. Server saving and sharing continue to use the project's existing access rules."
+    },
+    {
+      "title": "Administrator controls",
+      "short": "Choose whether chat, images and public pages may use the AI; prices are set in Apps Hub.",
+      "description": "AI is off until the administrator enables it in the application's settings. Chat and images can be switched on separately, with another switch for public pages. Each message and picture is charged at the price set for this app in Apps Hub → Paid Apps, and a failed request is refunded automatically. One request per profile runs at a time. mvmAI must be installed and its App API enabled in Apps Hub."
+    }
+  ]
+}

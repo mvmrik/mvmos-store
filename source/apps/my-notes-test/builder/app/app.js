@@ -1,0 +1,1 @@
+async function load(){var r=await mvm.server.get('/notes');document.getElementById('l').innerHTML=r.map(function(n){return '<li>'+n.text.replace(/</g,'&lt;')+'</li>'}).join('')}document.getElementById('b').onclick=async function(){await mvm.server.post('/note',{text:document.getElementById('i').value});load()};load();
