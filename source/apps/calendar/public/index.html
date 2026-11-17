@@ -20,8 +20,11 @@
     return;
   }
   (window.mvmOS && window.mvmOS.i18nReady || Promise.resolve()).then(function () {
+    var words = document.createElement('script');
+    words.src = window.asset('/apps/calendar/i18n.js');
+    words.onload = function () {
     var s = document.createElement('script');
-    s.src = '/apps/calendar/calendar-widget.js?_=' + Date.now();
+    s.src = window.asset('/apps/calendar/calendar-widget.js');
     s.onload = function () {
       CalendarWidget.mount(document.getElementById('calendar-root'), {
         onNeedLogin: function () {
@@ -30,6 +33,8 @@
       });
     };
     document.head.appendChild(s);
+    };
+    document.head.appendChild(words);
   });
 })();
 </script>

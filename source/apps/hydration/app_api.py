@@ -140,9 +140,12 @@ def get_day(user_id: str, day: str = None):
     with totals: amount_ml, water_ml (only the water in the drinks),
     caffeine_mg, alcohol_g, calories_kcal, sugar_g and protein_g. Each entry has
     id, name, amount_ml, water_ml, caffeine_mg, alcohol_g, calories_kcal,
-    sugar_g and protein_g."""
+    sugar_g and protein_g. When the person takes other apps' water from
+    Health, other lists the apps that sent water for the day (name and
+    water_ml, not what it came from), water_total_ml is the water of the drinks
+    here plus theirs and percent is that total against target_ml."""
     pub = _pub()
-    return pub._get_day(user_id, day or pub._today(user_id))
+    return pub._get_day(user_id, day or pub._today(user_id), True)
 
 
 def get_history(user_id: str, days: int = 7, end: str = None):
@@ -167,14 +170,19 @@ def add_entry(user_id: str, amount_ml: float, drink: str = "water", day: str = N
     name, or a label from list_drinks, and defaults to water; day defaults to today.
     Returns the entry with the water, caffeine and alcohol it counts, and
     today: the water_ml of the whole day so far, the target_ml and the percent
-    of the target reached (rounded)."""
+    of the target reached (rounded). Health is asked again for each drink, so
+    when the person takes other apps' water from Health, water_ml and percent
+    already include what those apps sent (other_ml is that part, with the
+    apps in other_from)."""
     pub = _pub()
     day = day or pub._today(user_id)
     out = pub._add_entry(user_id, day, amount_ml, _resolve_drink(pub, user_id, drink))
-    total = pub._get_day(user_id, day)
+    total = pub._get_day(user_id, day, True)
     target = total["target_ml"]
-    out["today"] = {"water_ml": total["totals"]["water_ml"], "target_ml": target,
-                    "percent": round(total["totals"]["water_ml"] / target * 100) if target else None}
+    other = total.get("other")
+    out["today"] = {"water_ml": total["water_total_ml"], "target_ml": target, "percent": total["percent"],
+                    "other_ml": other["water_ml"] if other else 0,
+                    "other_from": [x["name"] for x in other["sources"]] if other else []}
     return out
 
 

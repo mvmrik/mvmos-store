@@ -9,10 +9,10 @@
     "storage",
     "encrypted"
   ],
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "A private folder for every Apps Hub profile, with browser file management and administrator-controlled external folder API access.",
   "entry": "main.js",
-  "min_core_version": "1.0.0",
+  "min_core_version": "1.23.0",
   "public_url": "/pub/mvmcloud/",
   "public_directory": true,
   "credit_features": [

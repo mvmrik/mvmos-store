@@ -184,7 +184,7 @@
       calc: { sex: 'm', age: '', weight: '', note: '', open: false }, view: 'main', unit: 'ml', target: 2000, dayEnd: 0, drinks: [], sel: null, picked: false, hm: null, hday: null, hentries: [],
       entries: [], totals: null, history: [], ready: false, error: '',
       health: { loaded: false, enabled: false, available: false, msg: '' },
-      rewardOffered: false, reward: { enabled: false, amount: 0, to_category: '', from_category: '' },
+      rewardOffered: false, reward: { enabled: false, amount: 0, to_category: '', to_categories: [], from_category: '' },
       cats: { loaded: false, available: false, categories: [], currency: null }, rewardMsg: '', notice: '',
     };
 
@@ -258,7 +258,7 @@
 
     async function loadDay() {
       const d = await api('/day?day=' + encodeURIComponent(st.day));
-      st.entries = d.entries; st.totals = d.totals; st.dayTarget = d.target_ml;
+      st.entries = d.entries; st.totals = d.totals; st.dayTarget = d.target_ml; st.other = d.other || null;
     }
     // The history shows one calendar month at a time (never beyond today).
     function monthOf(day) { const [y, m] = day.split('-').map(Number); return { y, m }; }
@@ -317,7 +317,7 @@
     // it, is what everything drunk today was made of, water included.
     function ring() {
       // Today follows the goal setting; a day that is over keeps the goal it had.
-      const tt = st.totals || ZERO, water = tt.water_ml, target = goalOf(st.day, st.dayTarget);
+      const tt = st.totals || ZERO, otherMl = st.other ? st.other.water_ml : 0, water = tt.water_ml + otherMl, target = goalOf(st.day, st.dayTarget);
       const R = 86, W = 18, C = 2 * Math.PI * R, R2 = 71, W2 = 10, C2 = 2 * Math.PI * R2;
       const list = st.entries.filter(e => e.water_ml > 0).reverse();
       const gap = list.length > 1 ? 1.4 : 0;
@@ -328,6 +328,8 @@
         outer += arc(R, W, look(e).color, len - gap, pos, C);
         pos += len;
       }
+      // Water other apps sent Health: one more piece, after the drinks.
+      if (otherMl > 0 && pos < C) outer += arc(R, W, '#9aa7b8', Math.min(otherMl / target * C, C - pos) - gap, pos, C);
       // Tiny parts, such as caffeine, would be invisible at their true size,
       // so each one is drawn at least 2% of the ring, taken from the largest.
       const comp = composition(tt).filter(p => p.g > 0), total = comp.reduce((a, p) => a + p.g, 0);
@@ -420,7 +422,15 @@
       return `
         <div class="hy-hero">${ring()}</div>
         ${picker}
-        <div class="hy-list">${rows || `<div class="hy-empty">${esc(t('hy_no_entries'))}</div>`}</div>`;
+        ${otherRows()}
+        <div class="hy-list">${rows || (st.other ? '' : `<div class="hy-empty">${esc(t('hy_no_entries'))}</div>`)}</div>`;
+    }
+    // Water other apps sent Health for the day, by app. Health keeps the amount, not what it was.
+    function otherRows() {
+      if (!st.other || !st.other.sources.length) return '';
+      return `<div class="hy-list"><div class="hy-h">${esc(t('hy_other_title'))}</div>` + st.other.sources.map(s =>
+        `<div class="hy-row">${badge({ icon: '💧', color: '#9aa7b8' })}<div class="hy-row-main"><div class="hy-row-name">${esc(s.name)}</div></div>
+          <div class="hy-row-amt">${esc(fmtVol(s.water_ml))}</div></div>`).join('') + `</div>`;
     }
 
     function historyView() {
@@ -475,7 +485,9 @@
         ? `<div class="hy-hint">${esc(t('hy_health_unavailable'))}</div>`
         : `<label class="hy-check"><input type="checkbox" id="hy-health"${h.enabled ? ' checked' : ''}> ${esc(t('hy_health_enable'))}</label>
            ${!h.available ? `<div class="hy-hint">${esc(t('hy_health_unavailable'))}</div>` : ''}
-           ${h.msg ? `<div class="hy-hint">${esc(h.msg)}</div>` : ''}`;
+           ${h.msg ? `<div class="hy-hint">${esc(h.msg)}</div>` : ''}
+           ${h.available ? `<label class="hy-check"><input type="checkbox" id="hy-health-other"${h.read_other ? ' checked' : ''}> ${esc(t('hy_health_read_other'))}</label>
+           <div class="hy-hint">${esc(t('hy_health_read_other_hint'))}</div>` : ''}`;
       return `<div class="hy-h">${esc(t('hy_health_title'))}</div><div class="hy-card"><div class="hy-hint">${esc(t('hy_health_hint'))}</div>${body}</div>`;
     }
 
@@ -486,6 +498,9 @@
       const r = st.reward, cats = st.cats.categories;
       const opts = (sel, none) => (none ? `<option value="">${esc(t('hy_reward_none'))}</option>` : `<option value="">${esc(t('hy_reward_choose'))}</option>`) +
         cats.map(c => `<option value="${esc(c.id)}"${c.has_children ? ' disabled' : ''}${sel === c.id ? ' selected' : ''}>${esc(c.title)}</option>`).join('');
+      const picked = new Set(r.to_categories && r.to_categories.length ? r.to_categories : (r.to_category ? [r.to_category] : []));
+      const checks = cats.filter(c => !c.has_children).map(c =>
+        `<label class="hy-check"><input type="checkbox" class="hy-rw-to" value="${esc(c.id)}"${picked.has(c.id) ? ' checked' : ''}> ${esc(c.title)}</label>`).join('');
       let body;
       if (!st.cats.loaded) body = `<div class="hy-hint">…</div>`;
       else if (!st.cats.available) body = `<div class="hy-hint">${esc(t('hy_reward_unavailable'))}</div>`;
@@ -494,7 +509,7 @@
         <label class="hy-check"><input type="checkbox" id="hy-rw-on"${r.enabled ? ' checked' : ''}> ${esc(t('hy_reward_enable'))}</label>
         <div class="hy-field"><label>${esc(t('hy_reward_amount'))}${curLabel() ? ' (' + esc(curLabel()) + ')' : ''}</label>
           <input class="hy-input" id="hy-rw-amount" type="number" min="0" step="any" value="${r.amount ? esc(String(r.amount)) : ''}"></div>
-        <div class="hy-field"><label>${esc(t('hy_reward_to'))}</label><select class="hy-input" id="hy-rw-to">${opts(r.to_category, false)}</select></div>
+        <div class="hy-field"><label>${esc(t('hy_reward_to'))}</label><div id="hy-rw-to">${checks}</div><div class="hy-hint">${esc(t('hy_reward_to_hint'))}</div></div>
         <div class="hy-field"><label>${esc(t('hy_reward_from'))}</label><select class="hy-input" id="hy-rw-from">${opts(r.from_category, true)}</select></div>
         <div class="hy-hint">${esc(t('hy_reward_from_hint'))}</div>
         ${st.rewardMsg ? `<div class="hy-hint">${esc(st.rewardMsg)}</div>` : ''}`;
@@ -505,13 +520,13 @@
     async function saveReward() {
       const g = id => w.querySelector(id);
       const body = { enabled: g('#hy-rw-on').checked, amount: Number(g('#hy-rw-amount').value || 0),
-        to_category: g('#hy-rw-to').value || null, from_category: g('#hy-rw-from').value || null };
+        to_categories: Array.from(w.querySelectorAll('.hy-rw-to:checked')).map(x => x.value), from_category: g('#hy-rw-from').value || null };
       try {
         st.reward = await api('/reward', { method: 'PUT', body: JSON.stringify(body) });
         st.rewardMsg = st.reward.enabled ? t('hy_reward_saved') : t('hy_reward_off'); st.error = '';
       } catch (er) {
         st.rewardMsg = t(er.message === 'same_category' ? 'hy_reward_same' : er.message === 'invalid_reward' ? 'hy_reward_invalid' : 'hy_error');
-        st.reward = Object.assign({}, st.reward, { enabled: body.enabled, amount: body.amount, to_category: body.to_category || '', from_category: body.from_category || '' });
+        st.reward = Object.assign({}, st.reward, { enabled: body.enabled, amount: body.amount, to_category: body.to_categories[0] || '', to_categories: body.to_categories, from_category: body.from_category || '' });
       }
       render();
     }
@@ -803,7 +818,14 @@
           render();
         }).catch(() => { st.health.msg = t('hy_error'); e.target.checked = !on; render(); });
       }
-      else if (['hy-rw-on', 'hy-rw-amount', 'hy-rw-to', 'hy-rw-from'].includes(e.target.id)) saveReward();
+      else if (e.target.id === 'hy-health-other') {
+        const on = e.target.checked;
+        api('/health', { method: 'PUT', body: JSON.stringify({ read_other: on }) }).then(r => {
+          st.health = Object.assign(st.health, { read_other: r.read_other, available: r.available });
+          return loadDay();
+        }).then(render).catch(() => { st.health.msg = t('hy_error'); e.target.checked = !on; render(); });
+      }
+      else if (['hy-rw-on', 'hy-rw-amount', 'hy-rw-from'].includes(e.target.id) || e.target.classList?.contains('hy-rw-to')) saveReward();
       else if (e.target.id === 'hy-sex') st.calc.sex = e.target.value;
       else if (e.target.id === 'hy-dayend') savePrefs(st.unit, st.target, Number(e.target.value));
       else if (e.target.id === 'hy-unit') savePrefs(e.target.value === 'oz' ? 'oz' : 'ml', st.target);

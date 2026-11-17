@@ -6,6 +6,7 @@ public page."""
 import os
 import sqlite3
 import sys
+from typing import Optional
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -34,6 +35,7 @@ def _init_db():
                 value TEXT
             )""")
         c.execute("INSERT OR IGNORE INTO cfg (key,value) VALUES ('deepl_enabled','0')")
+        c.execute("INSERT OR IGNORE INTO cfg (key,value) VALUES ('ai_enabled','0')")
         c.commit()
 
 
@@ -58,23 +60,29 @@ async def get_settings(session=Depends(get_current_session)):
     with _conn() as c:
         row = c.execute("SELECT value FROM cfg WHERE key='deepl_enabled'").fetchone()
     value = row["value"] if row else "0"
+    with _conn() as c:
+        arow = c.execute("SELECT value FROM cfg WHERE key='ai_enabled'").fetchone()
     # Reported exactly as stored: this is the administrator's own choice and it
     # outlives a lapsed subscription, so the box is still ticked when one comes
     # back. Whether the feature can run is separate and has its own field.
     return JSONResponse({
         "deepl_enabled": value,
+        "ai_enabled": arow["value"] if arow else "0",
         "deepl_available": _deepl_integration_available(),
     })
 
 
 class SettingsBody(BaseModel):
-    deepl_enabled: str = "0"
+    deepl_enabled: Optional[str] = None
+    ai_enabled: Optional[str] = None
 
 
 @router.post("/settings")
 async def save_settings(body: SettingsBody, session=Depends(get_current_session)):
-    deepl_enabled = body.deepl_enabled
+    # Each switch is saved only when it is sent, so changing one never resets the other.
     with _conn() as c:
-        c.execute("INSERT OR REPLACE INTO cfg (key,value) VALUES ('deepl_enabled',?)", (deepl_enabled,))
+        for key, value in (("deepl_enabled", body.deepl_enabled), ("ai_enabled", body.ai_enabled)):
+            if value is not None:
+                c.execute("INSERT OR REPLACE INTO cfg (key,value) VALUES (?,?)", (key, "1" if value == "1" else "0"))
         c.commit()
     return JSONResponse({"ok": True})

@@ -1,0 +1,46 @@
+{
+  "tagline": "Your meals, nutrients, recipes and daily goals in one food journal.",
+  "description": "Nutrition is a food journal for each Apps Hub profile. Log meals and portions to follow calories, protein, carbohydrates, sugar, fat, saturated fat, fibre and salt in the desktop app or its public web page.\n\nFoods and recipes\nSearch the built-in food catalogue, create your own foods, or build recipes from ingredients and portions. Search Open Food Facts by name or look up a barcode; supported browsers can scan with the camera. Every journal entry keeps its own copy of the food's nutrient values, so changing a saved food does not rewrite earlier meals.\n\nDaily goals and restrictions\nSet a calorie range and nutrient goals, use the goal suggestion form, and review daily totals and recent history. Keep allergies, intolerances and foods to avoid, and check a food against these restrictions and the day's goals before adding it. Rename meals, set their times and choose when your food day ends. Food data and restriction warnings depend on the information available for each product.\n\nOptional integrations\nWith permission, Nutrition can send daily nutrient totals and goals to Health, use body data from the Health profile, and include contributions recorded by other apps through Health. The Budget reward is a separate Premium feature; food logging, recipes, goals and restrictions work without it. Other apps, Automations and External API clients can use Nutrition's functions when their corresponding access is enabled.",
+  "capabilities": [
+    "Daily food journal with portions in grams or millilitres and nutrient totals.",
+    "Built-in food catalogue with names in all nine interface languages.",
+    "Personal foods and recipes calculated from ingredients and portions.",
+    "Open Food Facts search, barcode lookup and camera scanning on supported browsers.",
+    "Calorie ranges, nutrient goals, goal suggestions and history.",
+    "Allergies, intolerances, avoided foods and checks before adding a portion.",
+    "Custom meal names, icons and times, and a configurable end of day.",
+    "Edit or delete entries without changing another profile's journal.",
+    "Desktop window and public web page using the same Apps Hub profile.",
+    "Optional Health integration for daily totals, goals and body data.",
+    "App API for reading the journal, logging meals and managing foods, goals and restrictions."
+  ],
+  "requirements": [
+    "An Apps Hub account. Online food lookup requires access to Open Food Facts; camera scanning requires a supported browser and camera permission."
+  ],
+  "integrations": [
+    {
+      "app": "health",
+      "name": "Health",
+      "kind": "app_api",
+      "direction": "consumes",
+      "summary": "Optionally sends daily nutrient totals and goals to Health, reads the profile's body data for goal suggestions, and includes totals from other sources. Each profile chooses which links to enable.",
+      "requires": "Health installed and its App API enabled in Apps Hub → Settings → App APIs. The App API is off by default."
+    },
+    {
+      "app": "budget",
+      "name": "Budget",
+      "kind": "app_api",
+      "direction": "consumes",
+      "summary": "The Premium Budget reward credits selected categories once for a finished day within the profile's calorie range, optionally transferring from another category. The server owner enables the feature and each profile chooses its reward.",
+      "requires": "Nutrition Premium build, the owner's reward switch, Budget installed and its App API enabled in Apps Hub → Settings → App APIs. The App API is off by default."
+    },
+    {
+      "app": "",
+      "name": "Any app",
+      "kind": "app_api",
+      "direction": "provides",
+      "summary": "Lets other apps search foods, check portions, read the journal, log and edit entries, and manage foods, recipes, meals, goals and restrictions for the calling profile.",
+      "requires": "Nutrition's App API enabled in Apps Hub → Settings → App APIs. The App API is off by default."
+    }
+  ]
+}

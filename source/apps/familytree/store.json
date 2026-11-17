@@ -1,6 +1,6 @@
 {
   "tagline": "Your family story, beautifully connected.",
-  "description": "Family Tree is a private space for each Apps Hub profile to build and explore family trees. Connect parents and children on a richly styled, movable canvas, open each person's story and record birth and death years or exact dates. Track multiple partners, spouses and former relationships without requiring marriage, and identify fathers, mothers, sons and daughters from the recorded sex. Optional Apps Hub profile links identify family members without granting tree access.\n\nShare individual trees with viewers, editors or administrators. Editors submit changes for review; the owner or an administrator compares the before and after versions and approves or rejects them. Administrators can edit, review, share and delete the entire tree, while the owner's role remains protected. Concurrent edits and invalid ancestry links are checked on the server.",
+  "description": "Family Tree is a private space for each Apps Hub profile to build and explore family trees. Connect parents and children on a richly styled, movable canvas, open each person's story and record birth and death years or exact dates. Track multiple partners, spouses and former relationships without requiring marriage, and identify fathers, mothers, sons and daughters from the recorded sex. Optional Apps Hub profile links identify family members without granting tree access.\n\nShare individual trees with viewers, editors or administrators. Editors submit changes for review; the owner or an administrator compares the before and after versions and approves or rejects them. Administrators can edit, review, share and delete the entire tree, while the owner's role remains protected. Concurrent edits and invalid ancestry links are checked on the server.\n\nFinding and arranging people\nSearch inside parent, child and partner selectors instead of scrolling a long list. When adding a person with a man or woman selected on the tree, that person is offered in the corresponding parent field. The branch layout keeps families and descendants together with clearer space between unrelated branches, and panel headings stay aligned while scrolling.",
   "capabilities": [
     "Multiple private trees per Apps Hub profile, with owned and shared trees together.",
     "Interactive family canvas with connected person cards, pan, zoom, search and fit-to-view.",
@@ -14,6 +14,9 @@
     "Blue and pink person cards, Back navigation through relatives, current age or age at death, and birth-date age comparisons with clearly marked approximate values.",
     "Live references to existing people from owned or shared trees, cross-tree parents and partners, and filtered side-by-side views with one card per shared person and independent permissions.",
     "Share by picking a role and clicking a name; the panel lists everyone with access, with their role, and never offers a person twice.",
-    "Kinship labels for great-grandparents, great-grandchildren, second and third cousins, cousins once or twice removed, relatives by marriage and step relatives, using only terms each language reliably has."
+    "Kinship labels for great-grandparents, great-grandchildren, second and third cousins, cousins once or twice removed, relatives by marriage and step relatives, using only terms each language reliably has.",
+    "Searchable parent, child and partner selectors.",
+    "Branch layout that keeps families together and separates unrelated branches.",
+    "Offers a selected person as the appropriate parent when adding someone new."
   ]
 }

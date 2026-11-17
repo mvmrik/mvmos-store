@@ -344,6 +344,33 @@
         "ru": "Racelandia",
         "zh-CN": "Racelandia"
       }
+    },
+    {
+      "id": "dealornot",
+      "name": "Deal or Not",
+      "icon": "💼",
+      "category": "Games",
+      "version": "1.0.0",
+      "description": "Draw one of 36 numbered boxes, open the others and answer the banker's calls: take his offer or keep your box. Up to six players share one board and the banker calls each of them in private. Amounts go up to one million and bonuses for smart play keep the top score open.",
+      "tags": [
+        "multiplayer",
+        "cards",
+        "luck",
+        "games"
+      ],
+      "min_core_version": "1.16.0",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/dealornot-1.0.0.zip",
+      "name_i18n": {
+        "en": "Deal or Not",
+        "bg": "Сделка или не",
+        "de": "Deal oder nicht",
+        "es": "Trato o no",
+        "fr": "Deal ou pas",
+        "ja": "取引する？しない？",
+        "pt-BR": "Acordo ou nada",
+        "ru": "Сделка или нет",
+        "zh-CN": "成交还是不成交"
+      }
     }
   ]
 }

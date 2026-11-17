@@ -6,6 +6,7 @@ relays directly over WebSocket. This service only stores the encrypted nsec
 server never sees a plaintext private key or a master password.
 """
 
+import asyncio
 import base64
 import hashlib
 import ipaddress
@@ -23,7 +24,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Header
 from fastapi.responses import HTMLResponse, JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 router = APIRouter()
 APP_ID = "nostradamus"
@@ -142,6 +143,8 @@ class RelaysIn(BaseModel):
 class PrefsIn(BaseModel):
     translate_lang: Optional[str] = None
     publish_lang: Optional[str] = None
+    ai_reply_lang: Optional[str] = None
+    ai_reply_style: Optional[str] = Field(default=None, max_length=1000)
 
 
 _DEEPL_LANG_RE = re.compile(r"^[A-Z]{2}(-[A-Z]{2})?$")
@@ -474,6 +477,98 @@ def link_preview(url: str, x_pub_token: str = Header(default=None)):
     return JSONResponse(data)
 
 
+def _ai_offered() -> bool:
+    """The Ask-AI chat exists only when the owner switched it on and the premium
+    module that runs it is present and licensed (same rule as DeepL)."""
+    with _conn() as conn:
+        row = conn.execute("SELECT value FROM cfg WHERE key='ai_enabled'").fetchone()
+    if not (row and row["value"] == "1"):
+        return False
+    prem = _premium()
+    return bool(prem and prem.is_available())
+
+
+class AiChatIn(BaseModel):
+    chat_id: Optional[str] = None
+    mode: str = "explain"
+    text: Optional[str] = None
+    lang: Optional[str] = None
+    note: Optional[dict] = None
+
+
+def _ai_user(x_pub_token):
+    """(user, error response) for the AI routes."""
+    hub = _hub()
+    if hub and not hub.is_app_public(APP_ID):
+        return None, JSONResponse({"error": "private"}, status_code=403)
+    me = _user(x_pub_token)
+    if not me:
+        return None, JSONResponse({"error": "unauthorized"}, status_code=401)
+    if not _ai_offered():
+        return None, JSONResponse({"error": "not_found"}, status_code=404)
+    return me, None
+
+
+@router.get("/ai/status")
+async def ai_status(x_pub_token: str = Header(default=None)):
+    me = _user(x_pub_token)
+    if not me or not _ai_offered():
+        return JSONResponse({"enabled": False}, headers={"Cache-Control": "no-store"})
+    prem = _premium()
+    return JSONResponse({"enabled": True, "ready": bool(prem.ai_ready()), "credits": prem.credits(me["id"])},
+                        headers={"Cache-Control": "no-store"})
+
+
+@router.post("/ai/chat")
+async def ai_chat(data: AiChatIn, x_pub_token: str = Header(default=None)):
+    me, err = _ai_user(x_pub_token)
+    if err:
+        return err
+    result = await asyncio.to_thread(_premium().ask, me["id"], data.dict())
+    if result.get("error"):
+        e = result["error"]
+        status = 402 if e == "no_credits" else 404 if e == "not_found" else 400 if e in ("empty_message", "empty_post", "chat_full") else 503 if e in ("mvmai_unavailable", "mvmai_disabled") else 502
+        return JSONResponse(result, status_code=status, headers={"Cache-Control": "no-store"})
+    return JSONResponse(result, headers={"Cache-Control": "no-store"})
+
+
+class AiDiscussIn(BaseModel):
+    chat_id: str
+    lang: Optional[str] = None
+
+
+@router.post("/ai/discuss")
+async def ai_discuss(data: AiDiscussIn, x_pub_token: str = Header(default=None)):
+    me, err = _ai_user(x_pub_token)
+    if err:
+        return err
+    result = await asyncio.to_thread(_premium().discuss, me["id"], data.chat_id, (data.lang or "").upper())
+    if result.get("error"):
+        e = result["error"]
+        status = 404 if e == "not_found" else 503 if e in ("mvmai_unavailable", "mvmai_disabled") else 502
+        return JSONResponse(result, status_code=status, headers={"Cache-Control": "no-store"})
+    return JSONResponse(result, headers={"Cache-Control": "no-store"})
+
+
+@router.get("/ai/history")
+async def ai_history(x_pub_token: str = Header(default=None)):
+    me, err = _ai_user(x_pub_token)
+    if err:
+        return err
+    return JSONResponse({"chats": _premium().history(me["id"])}, headers={"Cache-Control": "no-store"})
+
+
+@router.get("/ai/history/{chat_id}")
+async def ai_history_one(chat_id: str, x_pub_token: str = Header(default=None)):
+    me, err = _ai_user(x_pub_token)
+    if err:
+        return err
+    chat = _premium().get_chat(me["id"], chat_id)
+    if not chat:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    return JSONResponse(chat, headers={"Cache-Control": "no-store"})
+
+
 @router.get("/deepl-status")
 async def deepl_status():
     hub = _hub()
@@ -663,7 +758,10 @@ async def get_prefs(x_pub_token: str = Header(default=None)):
         row = conn.execute(
             "SELECT translate_lang,publish_lang FROM lang_prefs WHERE owner_id=?", (me["id"],)
         ).fetchone()
-    return {"translate_lang": row["translate_lang"] if row else None, "publish_lang": row["publish_lang"] if row else None}
+    out = {"translate_lang": row["translate_lang"] if row else None, "publish_lang": row["publish_lang"] if row else None}
+    if _ai_offered():
+        out.update(_premium().comment_prefs(me["id"]))
+    return out
 
 
 @router.put("/prefs")
@@ -675,6 +773,12 @@ async def put_prefs(data: PrefsIn, x_pub_token: str = Header(default=None)):
         return JSONResponse({"error": "invalid_lang"}, status_code=400)
     if data.publish_lang and not _DEEPL_LANG_RE.fullmatch(data.publish_lang):
         return JSONResponse({"error": "invalid_lang"}, status_code=400)
+    if data.ai_reply_lang is not None or data.ai_reply_style is not None:
+        if not _ai_offered():
+            return JSONResponse({"error": "not_found"}, status_code=404)
+        result = _premium().save_comment_prefs(me["id"], data.ai_reply_lang, data.ai_reply_style)
+        if result.get("error"):
+            return JSONResponse(result, status_code=400)
     with _conn() as conn:
         conn.execute(
             "INSERT INTO lang_prefs(owner_id,translate_lang,publish_lang) VALUES(?,?,?) "

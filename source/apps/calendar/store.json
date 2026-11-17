@@ -1,6 +1,6 @@
 {
   "tagline": "Events, reminders and a calendar widget on your desktop.",
-  "description": "Calendar keeps your events in month, week and day views, and replaces the core desktop calendar widget so the next few days are visible without opening anything.\n\nEvents can be timed or all-day, repeat daily, weekly or monthly until a date you set, and be ticked off as done. When you edit a recurring event it asks what you meant — just this one, this and everything after it, or all of them.\n\nA scheduler runs in the background and sends you a notification when a reminder is due, whether or not the window is open. The same calendar is reachable from a public web page for your Apps Hub account.",
+  "description": "Calendar keeps your events in month, week and day views, and replaces the core desktop calendar widget so the next few days are visible without opening anything.\n\nEvents can be timed or all-day, repeat daily, weekly or monthly until a date you set, and be ticked off as done. When you edit a recurring event it asks what you meant — just this one, this and everything after it, or all of them.\n\nA scheduler runs in the background and sends you a notification when a reminder is due, whether or not the window is open. The same calendar is reachable from a public web page for your Apps Hub account.\n\nProfile and language\nOpening Calendar on the desktop first signs you in to Apps Hub, so events use the right profile. All interface text, month names and weekday labels are available in the nine mvmOS languages.",
   "capabilities": [
     "Month, week and day views, plus a Today shortcut.",
     "Timed and all-day events with a title and description.",
@@ -9,7 +9,9 @@
     "Mark events done or not done.",
     "Reminder notifications delivered by the mvmOS scheduler even with the app closed.",
     "Replaces the core calendar widget on the desktop.",
-    "Public web page for your Apps Hub account."
+    "Public web page for your Apps Hub account.",
+    "Apps Hub sign-in before the desktop calendar opens.",
+    "Complete interface translations in all nine mvmOS languages."
   ],
   "integrations": [
     {

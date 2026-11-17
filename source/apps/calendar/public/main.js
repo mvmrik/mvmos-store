@@ -1,23 +1,19 @@
 // mvmOS App: Calendar v1.0.0
-const _cali18n = {
-  en: { title: 'Calendar', login: 'Log in to Apps Hub to use Calendar' },
-  bg: { title: 'Календар', login: 'Влез в Apps Hub, за да ползваш календара' },
-};
-function _calt(key) { const lang = window.mvmOS?.lang || 'en'; return (_cali18n[lang] || _cali18n.en)[key] || key; }
+const _calNames = {"en": "Calendar", "bg": "Календар", "de": "Kalender", "es": "Calendario", "fr": "Calendrier", "ja": "カレンダー", "pt-BR": "Calendário", "ru": "Календарь", "zh-CN": "日历"};
+function _calt() { return _calNames[window.mvmOS?.lang] || _calNames.en; }
 
 function _loadCalendarWidget() {
-  if (window.CalendarWidget) return Promise.resolve();
-  return new Promise((resolve, reject) => {
-    const s = document.createElement('script');
-    s.src = '/apps/calendar/calendar-widget.js?_=' + Date.now();
-    s.onload = resolve;
-    s.onerror = reject;
-    document.head.appendChild(s);
-  });
+  function load(path) { return new Promise((resolve, reject) => {
+    const s = document.createElement('script'); s.src = window.asset(path);
+    s.onload = resolve; s.onerror = reject; document.head.appendChild(s);
+  }); }
+  return (window.CALENDAR_I18N ? Promise.resolve() : load('/apps/calendar/i18n.js'))
+    .then(() => window.CalendarWidget ? null : load('/apps/calendar/calendar-widget.js'));
 }
 
 mvmOS.registerApp({
   id: 'calendar',
+  requires_apphub: true,
   name: _calt('title'),
   icon: '📅',
   category: 'Productivity',

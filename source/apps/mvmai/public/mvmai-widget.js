@@ -510,6 +510,8 @@
     var agentMode = false;
     var agentModeSync = function () {};
     var sessionMenuCleanup = null;
+    var openChatCleanup = null;
+    var reviewCleanups = new Set();
 
     function api(path, options) {
       options = options || {};
@@ -2942,7 +2944,7 @@
         pv.fields.forEach(function (f) {
           var label = document.createElement('label');
           label.textContent = f.label + (f.required ? ' *' : '');
-          var input;
+          var input, picker = null;
           var value = f.value === null || f.value === undefined ? '' : f.value;
           if (f.options && f.options.length) {
             input = document.createElement('select');
@@ -2965,6 +2967,13 @@
           } else if (f.type === 'json' || (f.type === 'text' && String(value).length > 60)) {
             input = document.createElement('textarea');
             input.value = String(value);
+          } else if ((f.type === 'date' || f.type === 'time') && window.mvmOS && window.mvmOS.dateTimePicker) {
+            // The shared mvmOS picker, so the date follows the person's own
+            // display settings instead of the browser's.
+            var host = document.createElement('div');
+            try { picker = window.mvmOS.dateTimePicker.create(host, {type: f.type, required: !!f.required, label: f.label, value: String(value)}); }
+            catch (e) { picker = window.mvmOS.dateTimePicker.create(host, {type: f.type, required: !!f.required, label: f.label}); }
+            input = picker.input;
           } else {
             input = document.createElement('input');
             input.type = f.type === 'number' ? 'number' : (f.type === 'date' || f.type === 'time' ? f.type : 'text');
@@ -2972,22 +2981,31 @@
             input.value = String(value);
           }
           card.appendChild(label);
-          card.appendChild(input);
-          inputs.push({f: f, el: input, before: f.type === 'bool' ? input.checked : input.value});
+          card.appendChild(picker ? picker.button.parentNode : input);
+          inputs.push({f: f, el: input, picker: picker, before: f.type === 'bool' ? input.checked : input.value});
         });
+        var observer = new MutationObserver(function () { if (!card.isConnected) cleanupPickers(); });
+        function cleanupPickers() {
+          inputs.forEach(function (i) { if (i.picker) { i.picker.destroy(); i.picker = null; } });
+          observer.disconnect(); reviewCleanups.delete(cleanupPickers);
+        }
+        reviewCleanups.add(cleanupPickers);
+        observer.observe(root, {childList: true, subtree: true});
         var state = document.createElement('div');
         state.className = 'mvmai-review-state';
         return {
           card: card,
           state: state,
-          lock: function () { inputs.forEach(function (i) { i.el.disabled = true; }); },
+          lock: function () { inputs.forEach(function (i) { i.el.disabled = true; if (i.picker) i.picker.button.disabled = true; }); },
           collect: function () {
             var values = {}, changed = {}, missing = false;
             inputs.forEach(function (i) {
               var v = i.f.type === 'bool' ? i.el.checked : i.el.value;
               i.el.style.borderColor = '';
+              if (i.picker) i.picker.button.style.borderColor = '';
               if (i.f.type !== 'bool' && i.f.required && String(v).trim() === '') {
                 i.el.style.borderColor = 'var(--pub-red,#f38ba8)';
+                if (i.picker) i.picker.button.style.borderColor = 'var(--pub-red,#f38ba8)';
                 missing = true;
               }
               if (i.f.type === 'bool' || String(v).trim() !== '') values[i.f.id] = v;
@@ -3020,7 +3038,8 @@
           });
       }
 
-      function reviewToolCall(call, name, args, pv, ctx) {
+      async function reviewToolCall(call, name, args, pv, ctx) {
+        if (window.mvmOS && window.mvmOS.dateTimePicker) await window.mvmOS.dateTimePicker.ready();
         ctx = ctx || saveChatContext();
         var listEl = ctx.listEl, activeProject = ctx.activeProject;
         function scrollDown() { listEl.scrollTop = listEl.scrollHeight; }
@@ -3056,7 +3075,8 @@
       // Several changes asked for in one reply become one card with a page
       // per change: the user goes through them, corrects or leaves out any,
       // and saves them all at once.
-      function reviewBatch(items, ctx) {
+      async function reviewBatch(items, ctx) {
+        if (window.mvmOS && window.mvmOS.dateTimePicker) await window.mvmOS.dateTimePicker.ready();
         ctx = ctx || saveChatContext();
         var listEl = ctx.listEl, activeProject = ctx.activeProject;
         function scrollDown() { listEl.scrollTop = listEl.scrollHeight; }
@@ -3902,11 +3922,31 @@
         inputEl.style.height = 'auto';
         inputEl.style.height = Math.min(inputEl.scrollHeight, 128) + 'px';
       });
+
+      // Another app (Nostradamus "Start a discussion") can ask for one of the user's
+      // chats to be opened: by an event when mvmAI is already open, by a one-shot
+      // key when it is only now being opened.
+      function takeOpenRequest(id) {
+        try { if (!id || localStorage.getItem('mvmai_open_chat') === id) localStorage.removeItem('mvmai_open_chat'); } catch (_) {}
+      }
+      function onOpenChatRequest(event) {
+        var id = event && event.detail;
+        if (!id) return;
+        takeOpenRequest(id);
+        openSession(String(id));
+      }
+      window.addEventListener('mvmai-open-chat', onOpenChatRequest);
+      openChatCleanup = function () { window.removeEventListener('mvmai-open-chat', onOpenChatRequest); };
+      var requestedChat = null;
+      try { requestedChat = localStorage.getItem('mvmai_open_chat'); } catch (_) {}
+      if (requestedChat) { takeOpenRequest(requestedChat); openSession(requestedChat); }
     }
 
     return { destroy: function () {
       clearInterval(projectPoll); clearInterval(providerPoll); clearInterval(usagePoll); clearTimeout(titleRefreshTimer);
       if (sessionMenuCleanup) sessionMenuCleanup();
+      if (openChatCleanup) openChatCleanup();
+      reviewCleanups.forEach(function (cleanup) { cleanup(); });
       if (isDesktop) window.removeEventListener('settings-changed', refreshMessageTimes);
       if (termPanel) termPanel.destroy();
       if (agentPanel) agentPanel.destroy();

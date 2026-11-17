@@ -11,8 +11,8 @@
   // Sections are built from the server's metric list, grouped by what the
   // numbers describe (body, intake, ...), never by the app that sends them.
   // A metric or group the server adds later shows up with no change here.
-  const ICON = { weight: '⚖️', bp: '🩺', water: '💧', caffeine: '☕', alcohol: '🍷', calories: '🔥', sugar: '🍬', protein: '💪' };
-  const COLOR = { weight: '#89b4fa', bp: '#f38ba8', water: '#74c7ec', caffeine: '#fab387', alcohol: '#cba6f7', calories: '#f9e2af', sugar: '#f5c2e7', protein: '#a6e3a1' };
+  const ICON = { weight: '⚖️', height: '📏', bp: '🩺', water: '💧', caffeine: '☕', alcohol: '🍷', calories: '🔥', sugar: '🍬', protein: '💪', carbs: '🍞', fat: '🥑', sat_fat: '🧈', fiber: '🌾', salt: '🧂' };
+  const COLOR = { weight: '#89b4fa', height: '#94e2d5', bp: '#f38ba8', water: '#74c7ec', caffeine: '#fab387', alcohol: '#cba6f7', calories: '#f9e2af', sugar: '#f5c2e7', protein: '#a6e3a1', carbs: '#eba0ac', fat: '#94e2d5', sat_fat: '#f2cdcd', fiber: '#b4befe', salt: '#9399b2' };
   const FALLBACK = ['#a6e3a1', '#f9e2af', '#94e2d5', '#eba0ac', '#b4befe'];
   const iconOf = id => ICON[id] || '📈';
   const colorOf = id => COLOR[id] || FALLBACK[[...id].reduce((a, c) => a + c.charCodeAt(0), 0) % FALLBACK.length];
@@ -267,7 +267,7 @@
     }
 
     const st = {
-      tab: 'overview', sub: null, groups: [], labs: { catalog: [], ov: null, test: null, detail: null }, range: 30, today: ymd(new Date()),
+      tab: 'overview', sub: null, groups: [], profile: null, labs: { catalog: [], ov: null, test: null, detail: null }, range: 30, today: ymd(new Date()),
       settings: { weight_unit: 'kg', volume_unit: 'ml' }, overview: null, series: null, sel: null,
       ready: false, loading: false, error: '',
     };
@@ -299,7 +299,7 @@
     function unitOf(metric) {
       if (metric === 'weight') return lb() ? 'lb' : 'kg';
       if (metric === 'water') return oz() ? 'oz' : 'ml';
-      return { bp: 'mmHg', caffeine: 'mg', alcohol: 'g', calories: 'kcal', sugar: 'g', protein: 'g' }[metric];
+      return { height: 'cm', bp: 'mmHg', caffeine: 'mg', alcohol: 'g', calories: 'kcal', sugar: 'g', protein: 'g', carbs: 'g', fat: 'g', sat_fat: 'g', fiber: 'g', salt: 'g' }[metric];
     }
     function num(metric, v, forceUnit) {
       let d = dispVal(metric, v), s;
@@ -340,9 +340,12 @@
       st.series = await api('/series?metric=' + curMetric() + '&days=' + st.range + '&end=' + encodeURIComponent(st.today));
       st.sel = null;
     }
+    async function loadProfile() {
+      st.profile = await api('/profile');
+    }
     async function refresh() {
       try {
-        if (st.tab === 'overview') await loadOverview(); else if (st.tab === 'labs') await loadLabs(); else await loadSeries();
+        if (st.tab === 'overview') await loadOverview(); else if (st.tab === 'labs') await loadLabs(); else if (st.tab === 'profile') await loadProfile(); else await loadSeries();
         st.error = '';
       } catch (e) { st.error = t('hb_error'); }
       render();
@@ -940,22 +943,24 @@
     function render() {
       const scroll = w.querySelector('.hl-body')?.scrollTop || 0;
       w.innerHTML = `
-        <div class="hl-bar"><div class="hl-tabs">${[{ id: 'overview' }].concat(st.groups, [{ id: 'labs' }]).map(x => `<button class="hl-btn${st.tab === x.id ? ' on' : ''}" data-act="tab" data-tab="${x.id}">${esc(t(x.id === 'overview' ? 'hb_overview' : 'hb_group_' + x.id))}</button>`).join('')}</div>
+        <div class="hl-bar"><div class="hl-tabs">${[{ id: 'overview' }].concat(st.groups, [{ id: 'labs' }, { id: 'profile' }]).map(x => `<button class="hl-btn${st.tab === x.id ? ' on' : ''}" data-act="tab" data-tab="${x.id}">${esc(t(x.id === 'overview' ? 'hb_overview' : 'hb_group_' + x.id))}</button>`).join('')}</div>
           <button class="hl-btn" data-act="settings" title="${esc(t('hb_settings'))}">⚙</button></div>
-        <div class="hl-body">${st.error ? `<div class="hl-err">${esc(st.error)}</div>` : ''}${st.ready ? (st.tab === 'overview' ? overviewView() : st.tab === 'labs' ? labsView() : detailView()) : ''}</div>`;
+        <div class="hl-body">${st.error ? `<div class="hl-err">${esc(st.error)}</div>` : ''}${st.ready ? (st.tab === 'overview' ? overviewView() : st.tab === 'labs' ? labsView() : st.tab === 'profile' ? profileView() : detailView()) : ''}</div>`;
       const b = w.querySelector('.hl-body'); if (b) b.scrollTop = scroll;
     }
 
     // ── Dialogs ────────────────────────────────────────────────────
     // Dates and times are chosen with the shared mvmOS calendar and clock, in the regional format.
+    const activePickers = [];
     function mountPickers(root) {
       const P = window.mvmOS && window.mvmOS.dateTimePicker;
       if (!P) return;
       root.querySelectorAll('[data-pk]').forEach(host => {
-        const o = { type: host.dataset.pk, label: host.dataset.label || '', required: true };
+        const o = { type: host.dataset.pk, label: host.dataset.label || '', required: !host.dataset.optional };
         if (host.dataset.max) o.max = host.dataset.max;
         let f;
         try { f = P.create(host, Object.assign({}, o, { value: host.dataset.value || '' })); } catch (e) { f = P.create(host, o); }
+        activePickers.push(f);
         if (host.dataset.id) f.input.id = host.dataset.id;
       });
     }
@@ -971,21 +976,21 @@
       onMount(ov);
       ov.querySelector('input')?.focus();
     }
-    function closeDialog() { w.querySelector('.hl-overlay')?.remove(); }
+    function closeDialog() { activePickers.splice(0).forEach(f => f.destroy()); w.querySelector('.hl-overlay')?.remove(); }
     function fail(ov, e) {
       const k = e && e.message && t('hb_e_' + e.message) !== 'hb_e_' + e.message ? 'hb_e_' + e.message : 'hb_error';
       ov.querySelector('.hl-err').textContent = t(k);
     }
     const val = (ov, id) => ov.querySelector(id).value;
 
-    function readingDialog(existing) {
-      const m = existing ? existing.metric : curMetric(), now = new Date();
+    function readingDialog(existing, metric) {
+      const m = existing ? existing.metric : (metric || curMetric()), now = new Date();
       const at = existing ? existing.at : ymd(now) + 'T' + hm(now);
       const v = existing ? existing.v : [null, null, null];
       const one = (id, label, x) => `<div class="hl-field"><label>${esc(label)}</label><input class="hl-input" id="${id}" type="number" step="any" inputmode="decimal" value="${x == null ? '' : esc(x)}"></div>`;
       const fields = m === 'bp'
         ? `<div class="hl-two">${one('hl-v1', t('hb_systolic') + ' (mmHg)', v[0])}${one('hl-v2', t('hb_diastolic') + ' (mmHg)', v[1])}</div>${one('hl-v3', t('hb_pulse') + ' (bpm) · ' + t('hb_optional'), v[2])}`
-        : one('hl-v1', t('hb_m_weight') + ' (' + unitOf('weight') + ')', v[0] == null ? null : rnd(dispVal('weight', v[0]), 1));
+        : one('hl-v1', t('hb_m_' + m) + ' (' + unitOf(m) + ')', v[0] == null ? null : rnd(dispVal(m, v[0]), 1));
       dialog(`<h3>${iconOf(m)} ${esc(t('hb_m_' + m))}</h3>${fields}
         <div class="hl-two"><div class="hl-field"><label>${esc(t('hb_date'))}</label><span data-pk="date" data-id="hl-d" data-label="${esc(t('hb_date'))}" data-value="${esc(at.slice(0, 10))}"></span></div>
         <div class="hl-field"><label>${esc(t('hb_time'))}</label><span data-pk="time" data-id="hl-tm" data-label="${esc(t('hb_time'))}" data-value="${esc(at.slice(11, 16))}"></span></div></div>
@@ -1038,6 +1043,47 @@
       });
     }
 
+    // ── Profile ────────────────────────────────────────────────────
+    const BLOOD = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+    function profileView() {
+      const p = st.profile;
+      if (!p) return '';
+      const none = `<span class="hl-hint" style="margin:0">${esc(t('hb_p_not_set'))}</span>`;
+      const row = (label, value, extra) => `<div class="hl-item"><div class="hl-item-main"><div class="hl-item-m">${esc(label)}</div><div class="hl-item-v" style="font-size:1rem">${value}</div></div>${extra || ''}</div>`;
+      const meas = (metric, v, day) => row(t('hb_m_' + metric), v == null ? none : esc(num(metric, v)) + `<div class="hl-item-m">${esc(t('hb_p_measured', { d: fmtDate(day) }))}</div>`,
+        `<button class="hl-ico" data-act="pmeasure" data-m="${metric}" title="${esc(t('hb_p_add_measurement'))}">＋</button>`);
+      const text = v => v ? esc(v).replace(/\n/g, '<br>') : none;
+      return `<div class="hl-h">${esc(t('hb_group_profile'))}</div>
+        <div class="hl-hint">${esc(t('hb_p_hint'))}</div>
+        <div class="hl-card"><div class="hl-list">
+          ${row(t('hb_p_sex'), p.sex ? esc(t('hb_sex_' + p.sex)) : none)}
+          ${row(t('hb_p_birth'), p.birth_date ? esc(fmtDate(p.birth_date)) + `<div class="hl-item-m">${esc(t('hb_p_age', { n: p.age }))}</div>` : none)}
+          ${row(t('hb_p_blood'), p.blood_type ? esc(p.blood_type) : none)}
+          ${meas('height', p.height_cm, p.height_day)}${meas('weight', p.weight_kg, p.weight_day)}
+          ${row(t('hb_p_conditions'), text(p.conditions))}
+          ${row(t('hb_p_medications'), text(p.medications))}
+        </div></div>
+        <div class="hl-actions" style="margin-top:10px"><button class="hl-btn hl-primary" data-act="pedit">${esc(t('hb_edit'))}</button></div>`;
+    }
+    function profileDialog() {
+      const p = st.profile || {};
+      const sexes = [['', t('hb_p_not_set')], ['m', t('hb_sex_m')], ['f', t('hb_sex_f')]];
+      dialog(`<h3>${esc(t('hb_group_profile'))}</h3>
+        <div class="hl-field"><label>${esc(t('hb_p_sex'))}</label><select class="hl-input" id="hl-ps">${sexes.map(x => `<option value="${x[0]}"${(p.sex || '') === x[0] ? ' selected' : ''}>${esc(x[1])}</option>`).join('')}</select></div>
+        <div class="hl-field"><label>${esc(t('hb_p_birth'))}</label><span data-pk="date" data-optional="1" data-id="hl-pb" data-label="${esc(t('hb_p_birth'))}" data-value="${esc(p.birth_date || '')}" data-max="${esc(st.today)}"></span></div>
+        <div class="hl-field"><label>${esc(t('hb_p_blood'))}</label><select class="hl-input" id="hl-pt"><option value="">${esc(t('hb_p_not_set'))}</option>${BLOOD.map(b => `<option value="${b}"${p.blood_type === b ? ' selected' : ''}>${b}</option>`).join('')}</select></div>
+        <div class="hl-field"><label>${esc(t('hb_p_conditions'))}</label><textarea class="hl-input" id="hl-pc" rows="2" maxlength="1000">${esc(p.conditions || '')}</textarea></div>
+        <div class="hl-field"><label>${esc(t('hb_p_medications'))}</label><textarea class="hl-input" id="hl-pm" rows="2" maxlength="1000">${esc(p.medications || '')}</textarea></div>
+        <div class="hl-hint">${esc(t('hb_p_measure_hint'))}</div><div class="hl-err"></div>
+        <div class="hl-actions"><button class="hl-btn" data-close>${esc(t('hb_cancel'))}</button><button class="hl-btn hl-primary" id="hl-ok">${esc(t('hb_save'))}</button></div>`,
+      ov => {
+        ov.querySelector('#hl-ok').addEventListener('click', async () => {
+          const body = { sex: val(ov, '#hl-ps'), birth_date: val(ov, '#hl-pb') || '', blood_type: val(ov, '#hl-pt'), conditions: val(ov, '#hl-pc'), medications: val(ov, '#hl-pm') };
+          try { st.profile = await api('/profile', { method: 'PUT', body: JSON.stringify(body) }); closeDialog(); render(); } catch (e) { fail(ov, e); }
+        });
+      });
+    }
+
     function settingsDialog() {
       const sel = (id, label, opts2, cur) => `<div class="hl-field"><label>${esc(label)}</label><select class="hl-input" id="${id}">${opts2.map(o => `<option value="${o}"${cur === o ? ' selected' : ''}>${o}</option>`).join('')}</select></div>`;
       dialog(`<h3>${esc(t('hb_settings'))}</h3>${sel('hl-wu', t('hb_weight_unit'), ['kg', 'lb'], st.settings.weight_unit)}${sel('hl-vu', t('hb_volume_unit'), ['ml', 'oz'], st.settings.volume_unit)}
@@ -1078,6 +1124,8 @@
       else if (act === 'editreading') { const p = st.series.points.find(x => x.id === el.dataset.id); if (p) readingDialog(p); }
       else if (act === 'editday') dayDialog(el.dataset.day);
       else if (act === 'settings') settingsDialog();
+      else if (act === 'pedit') profileDialog();
+      else if (act === 'pmeasure') readingDialog(null, el.dataset.m);
     });
 
     // A new calendar day starts by itself when the page is left open overnight.
@@ -1092,7 +1140,7 @@
 
     (async () => {
       try {
-        const [, me] = await Promise.all([loadRegional(token), api('/me')]);
+        const [, me] = await Promise.all([loadRegional(token), api('/me'), window.mvmOS.dateTimePicker.ready()]);
         st.settings = me.settings; st.ready = true;
         (me.metrics || []).forEach(m => {
           let g = st.groups.find(x => x.id === m.group);
@@ -1104,7 +1152,7 @@
       render();
     })();
 
-    return { destroy() { document.removeEventListener('visibilitychange', onVisible); } };
+    return { destroy() { closeDialog(); document.removeEventListener('visibilitychange', onVisible); } };
   }
 
   window.HealthWidget = { mount };

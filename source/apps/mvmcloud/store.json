@@ -1,6 +1,6 @@
 {
   "tagline": "Personal cloud folders for every Apps Hub profile.",
-  "description": "mvmCloud creates a separate server-backed folder for every Apps Hub profile. Users work only inside their own folder from the desktop, public page or optional browser extension, with a gallery view that generates thumbnails and previews for photos and videos as you browse. An administrator can create tightly scoped API keys for selected folders in their current Linux home directory, and users can spend Apps Hub credits to create their own scoped key for one of their own folders, for use with an AI assistant or a script; those keys provide file operations, never shell access. With a subscription, administrators can apply individual quotas and choose who may create encrypted browser-unlocked vault folders or issue their own API keys.",
+  "description": "mvmCloud gives every Apps Hub profile a private server-backed folder, accessible from the desktop, public web page or optional browser extension. Upload, browse, download and organize files, with a photo and video gallery that generates thumbnails as you browse.\n\nSharing with people\nShare a file or folder with selected profiles and choose independent permissions for preview, download, upload and deletion. Change those permissions or revoke a share. Shared places appear alongside the profile's own files; a shared single file stays limited to that file.\n\nPublic links\nCreate a link to a file or folder for someone without an account, optionally protected by a password. The owner can change or remove the password and revoke the link. Public links are available only while the app's public page is enabled. Encrypted folders and folders containing them cannot be published this way.\n\nAdministrator shared places\nAn administrator can offer a folder within their Linux home or a folder connected from another mvmOS server, to everyone or selected profiles. Permissions cannot exceed what the sharing server permits. Remote file uploads go directly from the browser when both servers support one-file upload tickets; otherwise they pass through this server. Those tickets do not expose the folder access key. Remote places do not support moving files or recursively deleting a nonempty folder.\n\nStorage, encryption and API access\nThe usage display shows available server space and any profile quota. Administrators can create scoped API keys for selected folders in their current Linux home, and eligible profiles can spend Apps Hub credits to create a key for one of their own folders. These keys expose file operations, never a shell. Premium controls quotas and permission to create encrypted browser-unlocked folders or personal API keys. Normal file storage and sharing stay available without Premium.",
   "capabilities": [
     "Separate private folder for every Apps Hub profile.",
     "Upload, download, create folders, move and delete files in the browser.",
@@ -8,6 +8,15 @@
     "Scoped Bearer-token API for administrator-selected Linux folders.",
     "Users can create their own scoped API key for one of their folders, spending Apps Hub credits.",
     "Optional encrypted subfolders unlocked in the browser.",
-    "Subscription controls for user quotas, encrypted-folder permissions and user-issued API keys."
+    "Subscription controls for user quotas, encrypted-folder permissions and user-issued API keys.",
+    "Share files or folders with selected profiles and independently control preview, download, upload and deletion.",
+    "Create revocable public links with an optional password.",
+    "Administrator shared places backed by local Linux home folders or connected mvmOS folders.",
+    "Direct browser uploads to remote places with scoped upload tickets and a fallback for older sharing servers.",
+    "Free-space and quota readouts in the file browser."
+  ],
+  "requirements": [
+    "mvmOS Core 1.23.0 or later for shared folder operations and the shared picker. Direct ticket uploads require Core 1.26.0 on both servers.",
+    "The app's system backend requires administrator confirmation when installing."
   ]
 }

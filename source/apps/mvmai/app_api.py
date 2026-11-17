@@ -9,7 +9,7 @@ import concurrent.futures
 import contextvars
 import sys
 
-INTERNAL_ONLY = {"ask", "image", "image_status"}
+INTERNAL_ONLY = {"ask", "image", "image_status", "start_chat"}
 
 
 def ask(user_id: str, prompt: str, lang: str = None, timeout: int = 60, max_chars: int = 20000):
@@ -36,6 +36,48 @@ def ask(user_id: str, prompt: str, lang: str = None, timeout: int = 60, max_char
             return {"error": "timeout"}
         except Exception as exc:
             return {"error": str(exc) or "mvmai_failed"}
+
+
+def start_chat(user_id: str, title: str, messages: list):
+    """Start a saved mvmAI chat for an Apps Hub user, already holding a conversation.
+
+    messages is a list of {"role": "user"|"assistant", "content": "..."}; the user
+    continues it in mvmAI like any chat of their own. Nothing is sent to the AI
+    here and no credits are charged.
+
+    Returns {"session_id": "..."} or {"error": "..."}: unknown_user,
+    empty_messages or mvmai_unavailable.
+    """
+    api = sys.modules.get("app_public_mvmai")
+    if api is None:
+        return {"error": "mvmai_unavailable"}
+    hub = api._hub()
+    try:
+        if not hub or not hub.get_users_by_ids([user_id]):
+            return {"error": "unknown_user"}
+    except Exception:
+        return {"error": "unknown_user"}
+    clean = []
+    for m in (messages if isinstance(messages, list) else [])[:60]:
+        if not isinstance(m, dict) or m.get("role") not in ("user", "assistant"):
+            continue
+        content = str(m.get("content") or "").replace("\x00", "").strip()[:20000]
+        if content:
+            clean.append({"role": m["role"], "content": content})
+    if not clean:
+        return {"error": "empty_messages"}
+    import uuid
+    sid = uuid.uuid4().hex
+    try:
+        api._persist_turn(user_id, None, clean, None, new_id=sid)
+        title = " ".join(str(title or "").split())[:80]
+        if title:
+            with api._sdb() as conn:
+                conn.execute("UPDATE pub_sessions SET title=?, title_kind='manual' WHERE id=? AND user_id=?",
+                             (title, sid, user_id))
+    except Exception as exc:
+        return {"error": str(exc) or "mvmai_failed"}
+    return {"session_id": sid}
 
 
 def image_status():

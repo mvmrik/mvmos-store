@@ -248,7 +248,9 @@ def _init_db():
                                  ("drink_prefs", "color", "TEXT"), ("products", "icon", "TEXT"),
                                  ("preset_overrides", "name", "TEXT NOT NULL DEFAULT ''"),
                                  ("entries", "color", "TEXT"), ("entries", "icon", "TEXT"),
-                                 ("health_link", "goals_sent", "INTEGER NOT NULL DEFAULT 0")):
+                                 ("health_link", "goals_sent", "INTEGER NOT NULL DEFAULT 0"),
+                                 ("health_link", "read_other", "INTEGER NOT NULL DEFAULT 0"),
+                                 ("rewards", "to_categories", "TEXT")):
             if col not in {r["name"] for r in c.execute(f"PRAGMA table_info({table})")}:
                 c.execute(f"ALTER TABLE {table} ADD COLUMN {col} {decl}")
         # Days logged before each day kept its own goal get the goal of today.
@@ -281,11 +283,20 @@ def _reward_offered():
 
 
 def _reward_settings(c, uid):
-    row = c.execute("SELECT enabled,amount,to_category,from_category FROM rewards WHERE user_id=?", (uid,)).fetchone()
+    """to_categories is the list the amount is added to (each one gets the
+    whole amount); to_category stays as the first of them for older clients."""
+    row = c.execute("SELECT enabled,amount,to_category,to_categories,from_category FROM rewards WHERE user_id=?", (uid,)).fetchone()
     if not row:
-        return {"enabled": False, "amount": 0, "to_category": None, "from_category": None}
+        return {"enabled": False, "amount": 0, "to_category": None, "to_categories": [], "from_category": None}
+    try:
+        cats = [x for x in json.loads(row["to_categories"] or "[]") if isinstance(x, str) and x]
+    except ValueError:
+        cats = []
+    if not cats and row["to_category"]:
+        cats = [row["to_category"]]
     return {"enabled": bool(row["enabled"]), "amount": row["amount"],
-            "to_category": row["to_category"], "from_category": row["from_category"]}
+            "to_category": cats[0] if cats else None, "to_categories": cats,
+            "from_category": row["from_category"]}
 
 
 def _goal_hook(uid, day):
@@ -300,16 +311,17 @@ def _goal_hook(uid, day):
         with _db() as c:
             rw = _reward_settings(c, uid)
             target = _settings(c, uid)["target_ml"]
-        if not (rw["enabled"] and rw["amount"] > 0 and rw["to_category"]):
+        if not (rw["enabled"] and rw["amount"] > 0 and rw["to_categories"]):
             return None
-        if _get_day(uid, day)["totals"]["water_ml"] < target:
+        if _get_day(uid, day, True)["water_total_ml"] < target:
             return None
         with _db() as c:
             cur = c.execute("INSERT OR IGNORE INTO reward_days(user_id,day) VALUES(?,?)", (uid, day))
             c.commit()
             if not cur.rowcount:
                 return None
-        res = _premium().pay(uid, day, rw["amount"], rw["to_category"], rw["from_category"])
+        to = rw["to_categories"]
+        res = _premium().pay(uid, day, rw["amount"], to if len(to) > 1 else to[0], rw["from_category"])
         if not res.get("ok"):
             with _db() as c:  # not paid: let a later drink try again
                 c.execute("DELETE FROM reward_days WHERE user_id=? AND day=?", (uid, day))
@@ -469,11 +481,13 @@ class RewardBody(BaseModel):
     enabled: bool = False
     amount: float = 0
     to_category: Optional[str] = None
+    to_categories: Optional[List[str]] = None
     from_category: Optional[str] = None
 
 
 class HealthBody(BaseModel):
-    enabled: bool = False
+    enabled: Optional[bool] = None
+    read_other: Optional[bool] = None
 
 
 class AmountBody(BaseModel):
@@ -686,14 +700,55 @@ def _check_day(day):
     return day
 
 
-def _get_day(uid, day):
+def _read_other_on(uid):
+    with _db() as c:
+        row = c.execute("SELECT read_other FROM health_link WHERE user_id=?", (uid,)).fetchone()
+    return bool(row and row["read_other"])
+
+
+def _other_water(uid, day):
+    """The water other apps sent Health for the day, by app: {"water_ml",
+    "sources": [{"source", "name", "water_ml"}]}, or None when there is none,
+    the person did not switch it on or Health cannot answer. Hydration's own
+    source is left out, so nothing is counted twice, and Health does not say
+    what the water came from, only which app sent it."""
+    hub = _hub()
+    if hub is None or not _read_other_on(uid):
+        return None
+    try:
+        series = hub.call_app_api("health", "get_series", uid, "water", 1, day)
+    except Exception:
+        return None
+    sources, total = [], 0.0
+    for pt in series.get("points") or []:
+        if pt.get("day") != day:
+            continue
+        for src in pt.get("sources") or []:
+            if src.get("source") == APP_ID or not src.get("value"):
+                continue
+            sources.append({"source": src["source"], "name": src.get("name") or src["source"], "water_ml": src["value"]})
+            total += src["value"]
+    return {"water_ml": round(total, 1), "sources": sources} if sources else None
+
+
+def _get_day(uid, day, other=False):
+    """A day's drinks and totals. With other, the water that other apps sent
+    Health is read too: other lists it and water_total_ml / percent count it
+    towards the day's goal; totals stay this app's own drinks."""
     _check_day(day)
     with _db() as c:
         rows = c.execute(
             "SELECT * FROM entries WHERE user_id=? AND day=? ORDER BY recorded_at DESC", (uid, day)
         ).fetchall()
     entries = [_entry_out(r) for r in rows]
-    return {"day": day, "entries": entries, "totals": _totals(entries), "target_ml": _goal_of(uid, day)}
+    totals = _totals(entries)
+    out = {"day": day, "entries": entries, "totals": totals, "target_ml": _goal_of(uid, day)}
+    if other:
+        extra = _other_water(uid, day)
+        out["other"] = extra
+        out["water_total_ml"] = round(totals["water_ml"] + (extra["water_ml"] if extra else 0), 1)
+        out["percent"] = round(out["water_total_ml"] / out["target_ml"] * 100) if out["target_ml"] else None
+    return out
 
 
 def _get_history(uid, end, days):
@@ -1016,7 +1071,8 @@ async def get_health(x_pub_token: str = Header(default=None)):
     me = _me(x_pub_token)
     if not me:
         return _bad("unauthorized", 401)
-    return JSONResponse({"enabled": _health_enabled(me["id"]), "available": _health_available(me["id"])})
+    return JSONResponse({"enabled": _health_enabled(me["id"]), "read_other": _read_other_on(me["id"]),
+                         "available": _health_available(me["id"])})
 
 
 @router.put("/health")
@@ -1024,7 +1080,16 @@ async def put_health(body: HealthBody, x_pub_token: str = Header(default=None)):
     me = _me(x_pub_token)
     if not me:
         return _bad("unauthorized", 401)
-    return JSONResponse(_set_health_link(me["id"], body.enabled))
+    if body.read_other is not None:
+        with _db() as c:
+            c.execute("INSERT INTO health_link(user_id,enabled,read_other) VALUES(?,0,?) "
+                      "ON CONFLICT(user_id) DO UPDATE SET read_other=excluded.read_other",
+                      (me["id"], 1 if body.read_other else 0))
+            c.commit()
+    if body.enabled is not None:
+        return JSONResponse({**_set_health_link(me["id"], body.enabled), "read_other": _read_other_on(me["id"])})
+    return JSONResponse({"enabled": _health_enabled(me["id"]), "read_other": _read_other_on(me["id"]),
+                         "available": _health_available(me["id"])})
 
 
 @router.get("/reward")
@@ -1051,18 +1116,24 @@ async def put_reward(body: RewardBody, x_pub_token: str = Header(default=None)):
     amount = _num(body.amount, 0, 1000000000)
     if amount is None:
         return _bad("invalid_amount")
-    to_cat = (body.to_category or "").strip()[:100] or None
+    raw = body.to_categories if body.to_categories is not None else ([body.to_category] if body.to_category else [])
+    to_cats = []
+    for x in raw[:50]:
+        x = (x or "").strip()[:100]
+        if x and x not in to_cats:
+            to_cats.append(x)
     from_cat = (body.from_category or "").strip()[:100] or None
-    if body.enabled and (not to_cat or amount <= 0):
+    if body.enabled and (not to_cats or amount <= 0):
         return _bad("invalid_reward")
-    if from_cat and from_cat == to_cat:
+    if from_cat and from_cat in to_cats:
         return _bad("same_category")
     with _db() as c:
         c.execute(
-            "INSERT INTO rewards(user_id,enabled,amount,to_category,from_category) VALUES(?,?,?,?,?) "
+            "INSERT INTO rewards(user_id,enabled,amount,to_category,to_categories,from_category) VALUES(?,?,?,?,?,?) "
             "ON CONFLICT(user_id) DO UPDATE SET enabled=excluded.enabled, amount=excluded.amount, "
-            "to_category=excluded.to_category, from_category=excluded.from_category",
-            (me["id"], 1 if body.enabled else 0, amount, to_cat, from_cat),
+            "to_category=excluded.to_category, to_categories=excluded.to_categories, from_category=excluded.from_category",
+            (me["id"], 1 if body.enabled else 0, amount, to_cats[0] if to_cats else None,
+             json.dumps(to_cats), from_cat),
         )
         c.commit()
         return JSONResponse(_reward_settings(c, me["id"]))
@@ -1073,7 +1144,7 @@ async def get_day(day: str, x_pub_token: str = Header(default=None)):
     me = _me(x_pub_token)
     if not me:
         return _bad("unauthorized", 401)
-    return _reply(_get_day, me["id"], day)
+    return _reply(_get_day, me["id"], day, True)
 
 
 @router.get("/history")

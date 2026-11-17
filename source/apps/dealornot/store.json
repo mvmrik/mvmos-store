@@ -1,0 +1,28 @@
+{
+  "tagline": "One board, 36 boxes and a private call from the banker.",
+  "description": "Deal or Not is a box-opening game for Game Hub. Draw a numbered box, open the others and decide whether to accept the banker's offer or keep what you drew. Play alone or share one board with up to six players.\n\nThe board\nAll 36 boxes hold different amounts, from one to one million. Players take turns opening the boxes left on the table. Every revealed amount disappears from the possibilities for everyone, while each player's own box stays closed. The server keeps the amounts hidden until their boxes are opened.\n\nThe banker's call\nAfter each round, every player still playing receives a private offer. The banker can offer money or a box swap. Answers stay private until everyone has replied, then deals and swaps are revealed together. A player who takes the money watches the rest of the game.\n\nScores and progress\nYour winnings and bonuses for reading offers and swaps make up the final score. Game Hub records results, statistics and rankings. Solo has no turn clock and supports Save & exit; in multiplayer the host chooses a turn time from 10 to 60 seconds. Players can join from computers, phones and tablets using a web browser.",
+  "capabilities": [
+    "36 numbered boxes with different amounts up to one million.",
+    "Solo play or one shared board for up to six players.",
+    "Private banker offers, including money and box swaps.",
+    "Answers revealed together after every active player responds.",
+    "Server-controlled boxes, offers and scoring.",
+    "Bonuses for good deals, keeping a valuable box and reading swaps.",
+    "Untimed solo play with Save & exit and multiplayer turn timers.",
+    "Game Hub session history, winnings, bonus statistics and rankings.",
+    "Responsive play board and optional sound effects."
+  ],
+  "requirements": [
+    "Game Hub installed; play through its public page with an Apps Hub account."
+  ],
+  "integrations": [
+    {
+      "app": "gamehub",
+      "name": "Game Hub",
+      "kind": "gamehub",
+      "direction": "consumes",
+      "summary": "Provides player profiles, rooms, invitations, solo saves, session history, statistics and rankings. The desktop app opens the Game Hub play page.",
+      "requires": "Game Hub installed. The desktop launcher offers to install it when it is missing."
+    }
+  ]
+}

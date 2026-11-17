@@ -5,9 +5,9 @@
       "name": "Calendar",
       "icon": "📅",
       "category": "Productivity",
-      "version": "1.3.5",
+      "version": "1.4.0",
       "description": "Calendar with events and reminders, and a public web page for Apps Hub accounts.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/calendar-1.3.5.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/calendar-1.4.0.zip",
       "tags": [
         "calendar",
         "planning",
@@ -83,16 +83,16 @@
       "name": "mvmCloud",
       "icon": "☁️",
       "category": "Productivity",
-      "version": "1.1.2",
+      "version": "1.2.0",
       "description": "A private folder for every Apps Hub profile, with browser file management and administrator-controlled external folder API access.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/mvmcloud-1.1.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/mvmcloud-1.2.0.zip",
       "tags": [
         "files",
         "cloud",
         "storage",
         "encrypted"
       ],
-      "min_core_version": "1.0.0",
+      "min_core_version": "1.23.0",
       "premium": true
     },
     {
@@ -145,7 +145,7 @@
       "name": "Family Tree",
       "icon": "🌳",
       "category": "Productivity",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "description": "Beautiful private family trees with Apps Hub profile links, sharing roles and reviewed contributions.",
       "tags": [
         "family",
@@ -153,7 +153,7 @@
         "collaboration"
       ],
       "min_core_version": "1.17.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/familytree-1.2.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/productivity/familytree-1.3.0.zip",
       "premium": true,
       "name_i18n": {
         "en": "Family Tree",

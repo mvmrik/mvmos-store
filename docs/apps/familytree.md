@@ -74,3 +74,7 @@ Marriage statistics count unique current spouse pairs when both people are recor
 
 
 From a statistics result, person details include **Back to statistics**. This remains available when following relatives, alongside the existing person-history Back button. Returning reloads authorized statistics and restores the selected tree/all-tree scope, birthday period, dashboard scroll position and the birthday list’s own scroll position. The original underlying tree view is restored as well. State lives only in the current navigation; statistics HTML or private report data is not cached for restoration.
+
+## Branch layout and finding relatives
+
+Family Tree 1.3.0 groups a family with its descendants, centres parents over children and increases spacing between separate branches. Existing cyclic relationships retain the fallback layout. Parent, child and partner selectors have a search field; type a name to filter and press Enter or choose a result. Adding a person while a man or woman is selected offers that person in the corresponding parent field. The profile panel keeps its heading aligned while scrolling.

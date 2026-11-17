@@ -5,9 +5,9 @@
       "name": "Health",
       "icon": "❤️",
       "category": "Health & Fitness",
-      "version": "1.2.2",
+      "version": "1.3.0",
       "description": "One place for your health numbers: weight, blood pressure, water, caffeine and alcohol, with charts and statistics. Add values by hand or let other apps send them once you allow it, plus a public web page.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/health-fitness/health-1.2.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/health-fitness/health-1.3.0.zip",
       "tags": [
         "health",
         "weight",
@@ -32,9 +32,9 @@
       "name": "Hydration",
       "icon": "💧",
       "category": "Health & Fitness",
-      "version": "1.3.2",
+      "version": "1.4.0",
       "description": "Log what you drink through the day. Every drink counts only its own water content and also tracks caffeine and alcohol, with ready-made drinks and your own, plus a public web page.",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/health-fitness/hydration-1.3.2.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/health-fitness/hydration-1.4.0.zip",
       "tags": [
         "water",
         "drinks",
@@ -52,6 +52,34 @@
         "pt-BR": "Hidratação",
         "ru": "Водный баланс",
         "zh-CN": "补水"
+      }
+    },
+    {
+      "id": "nutrition",
+      "name": "Nutrition",
+      "icon": "🥗",
+      "category": "Health & Fitness",
+      "version": "1.0.0",
+      "description": "Log what you eat and see calories, protein, carbohydrates, sugar, fat, fibre and salt. Ready-made foods, barcode scanning, your own recipes, allergies and goals, plus a public web page.",
+      "tags": [
+        "food",
+        "calories",
+        "nutrition",
+        "health"
+      ],
+      "min_core_version": "1.17.0",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/health-fitness/nutrition-1.0.0.zip",
+      "premium": true,
+      "name_i18n": {
+        "en": "Nutrition",
+        "bg": "Хранене",
+        "de": "Ernährung",
+        "es": "Alimentación",
+        "fr": "Alimentation",
+        "ja": "食事管理",
+        "pt-BR": "Alimentação",
+        "ru": "Питание",
+        "zh-CN": "饮食"
       }
     }
   ]

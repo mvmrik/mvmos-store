@@ -77,8 +77,42 @@
       for(let i=0;i<ready.length;i++)for(const child of edges.get(ready[i])){generations.set(child,Math.max(generations.get(child)||0,(generations.get(ready[i])||0)+1));incoming.set(child,incoming.get(child)-1);if(!incoming.get(child))ready.push(child)}
       const grouped=ready.length===members.size;
       const rows=[];for(const p of people){const level=(grouped?generations.get(find(p.id)):levels.get(p.id))||0;(rows[level]??=[]).push(p)}
-      const width=Math.max(1,...rows.map(r=>r.length))*238+100;
-      rows.forEach((row,level)=>{
+      let width=Math.max(1,...rows.map(r=>r.length))*238+100;
+      const slot=238;
+      if(grouped){
+        // Branch layout: each family is placed together with everything below it, its parents are centred over its
+        // children, and a branch never slides under a neighbouring branch of the row above.
+        let last=null;const x=new Map(),placed=new Set(),byBirth=(a,b)=>(a.birth_year||9999)-(b.birth_year||9999)||a.name.localeCompare(b.name);
+        const parentsOf=id=>[...new Set(members.get(find(id)).flatMap(m=>m.parents))],grandparentsOf=id=>[...new Set(parentsOf(id).flatMap(parentsOf))];
+        const shares=(a,b)=>a.some(id=>b.includes(id));
+        // Neighbours from different branches get extra room: more when they do not even share a grandparent.
+        const gapBetween=(a,b)=>{let gap=slot;if(find(a.id)!==find(b.id)&&!shares(parentsOf(a.id),parentsOf(b.id))){gap+=70;if(!shares(grandparentsOf(a.id),grandparentsOf(b.id)))gap+=70}return gap};
+        const hasKids=c=>(members.get(find(c.id))||[]).some(m=>(kids.get(m.id)||[]).length);
+        const rowOf=person=>generations.get(find(person.id))||0;
+        const place=unit=>{
+          placed.add(unit);const prior=last;
+          const family=members.get(unit).slice().sort((a,b)=>(b.parents.length>0)-(a.parents.length>0)||a.name.localeCompare(b.name));
+          const direct=family.flatMap(m=>(kids.get(m.id)||[]).map(id=>nodes.get(id))).sort((a,b)=>hasKids(b)-hasKids(a)||byBirth(a,b));
+          const subtree=[...family];
+          [...new Set(direct.map(c=>find(c.id)))].filter(u=>!placed.has(u)).forEach(u=>subtree.push(...place(u)));
+          const below=direct.filter(c=>x.has(c.id));
+          const middle=below.length?(Math.min(...below.map(c=>x.get(c.id)))+Math.max(...below.map(c=>x.get(c.id))))/2:0;
+          family.forEach((m,k)=>x.set(m.id,middle+(k-(family.length-1)/2)*slot));
+          // Slide the whole branch right until it clears everything placed before it, down to its lowest generation.
+          const left=subtree.reduce((a,m)=>x.get(m.id)<x.get(a.id)?m:a);
+          const shift=prior?Math.max(0,x.get(prior.id)+gapBetween(prior,left)-x.get(left.id)):0;
+          subtree.forEach(m=>x.set(m.id,x.get(m.id)+shift));
+          const right=subtree.reduce((a,m)=>x.get(m.id)>x.get(a.id)?m:a);
+          last=!prior||x.get(right.id)>=x.get(prior.id)?right:prior;
+          return subtree;
+        };
+        [...members.keys()].filter(u=>!generations.get(u)).sort((a,b)=>members.get(a)[0].name.localeCompare(members.get(b)[0].name)).forEach(u=>{if(!placed.has(u))place(u)});
+        [...members.keys()].forEach(u=>{if(!placed.has(u))place(u)});
+        const low=Math.min(...x.values()),high=Math.max(...x.values());
+        width=Math.ceil(high-low)+194+100;
+        rows.forEach((row,level)=>row.forEach(person=>positions.set(person.id,{x:Math.round(offset+50+x.get(person.id)-low),y:90+level*270})));
+      }
+      else rows.forEach((row,level)=>{
         const rank=p=>{const family=grouped?members.get(find(p.id)):[p];const parents=family.flatMap(x=>x.parents).filter(id=>positions.has(id));return parents.length?parents.reduce((sum,id)=>sum+positions.get(id).x,0)/parents.length:0};
         const familyName=p=>grouped?members.get(find(p.id)).map(x=>x.name).sort()[0]:p.name;
         row.sort((a,b)=>rank(a)-rank(b)||familyName(a).localeCompare(familyName(b))||a.name.localeCompare(b.name));
@@ -389,7 +423,9 @@
       };draw();
     }
     function editPerson(person=null,parent=null,partner=null){
-      const p=person||{name:'',notes:'',birth_date:'',birth_year:'',profile_id:'',parents:parent?[parent,...(partnerships(tree.people.find(x=>x.id===parent)).length===1?[partnerships(tree.people.find(x=>x.id===parent))[0].person.id]:[])]:[],gender:'unknown',deceased:false,death_date:'',death_year:'',partners:partner?[{person_id:partner,kind:'partner'}]:[]};let profileId=tree.profiles[p.profile_id]?p.profile_id:'';
+      // A man marked on the tree is offered as the father and a woman as the mother; the lists stay fully usable.
+      const marked=!person&&!parent&&!partner&&selected?tree.people.find(x=>x.id===selected&&!x.redacted&&['male','female'].includes(gender(x))):null;
+      const p=person||{name:'',notes:'',birth_date:'',birth_year:'',profile_id:'',parents:marked?[marked.gender==='female'?'':marked.id,marked.gender==='female'?marked.id:'']:parent?[parent,...(partnerships(tree.people.find(x=>x.id===parent)).length===1?[partnerships(tree.people.find(x=>x.id===parent))[0].person.id]:[])]:[],gender:'unknown',deceased:false,death_date:'',death_year:'',partners:partner?[{person_id:partner,kind:'partner'}]:[]};let profileId=tree.profiles[p.profile_id]?p.profile_id:'';
       const links=(p.stored_partners??p.partners??[]).map(x=>({...x}));
       const choices=new Map(tree.people.map(x=>[x.id,x]));
       const selfId=person?.id,par=[p.parents[0]||'',p.parents[1]||''],kids=person?tree.people.filter(x=>x.parents.includes(person.id)&&x.home_tree_id===tree.id).map(x=>x.id):[];
@@ -426,7 +462,21 @@
         };
         run(drawConnections);
       }
-      const setHtml=(sel,html)=>{if(sel)sel.innerHTML=html};
+      // Adds a search box above a long list and keeps only the matching people in it.
+      const searchable=sel=>{
+        if(!sel||sel._src!==undefined)return;
+        const wrap=document.createElement('div'),input=document.createElement('input');wrap.className='ft-ss';input.type='search';input.placeholder=t('search');input.setAttribute('aria-label',t('search'));input.autocomplete='off';
+        sel.before(wrap);wrap.append(input,sel);sel._src=sel.innerHTML;
+        sel._render=()=>{const q=input.value.trim().toLowerCase(),tpl=document.createElement('template');tpl.innerHTML=sel._src;
+          const all=[...tpl.content.children],shown=all.filter(o=>o.value===''||o.selected||o.textContent.toLowerCase().includes(q));
+          sel.replaceChildren(...shown);sel.size=q&&shown.length>1?Math.min(shown.length,7):0;input.disabled=sel.disabled;
+          if(sel.size>0&&!shown.some(o=>o.selected))sel.selectedIndex=-1};
+        input.oninput=sel._render;
+        input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();const o=[...sel.options].find(o=>o.value&&(!input.value.trim()||o.textContent.toLowerCase().includes(input.value.trim().toLowerCase())));if(o){sel.value=o.value;sel.dispatchEvent(new Event('change'))}}};
+        sel.addEventListener('change',()=>{input.value='';sel.size=0});
+        sel._render();
+      };
+      const setHtml=(sel,html)=>{if(!sel)return;if(sel._src!==undefined){sel._src=html;sel._render()}else sel.innerHTML=html};
       const drawFamily=()=>{
         const box_=box.querySelector('[data-kids]');
         box_.innerHTML=kids.map(id=>`<button type="button" data-kid-remove="${esc(id)}" title="${esc(t('unlink'))}">${esc(choices.get(id)?.name||personName(id))} ×</button>`).join('')||esc(t('none'));
@@ -443,6 +493,7 @@
       };
       const showLinks=()=>{
         const container=box.querySelector('[data-partners]');container.innerHTML=links.map((link,i)=>`<div class="ft-partner-edit"><select data-partner-person="${i}" aria-label="${esc(t('partnerPerson'))}" required><option value="">${esc(t('choosePerson'))}</option>${[...choices.values()].filter(x=>x.id===link.person_id||okPartner(x,i)).map(x=>`<option value="${x.id}" ${link.person_id===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select><select data-partner-kind="${i}" aria-label="${esc(t('relationship'))}">${['partner','spouse','former_partner','former_spouse'].map(kind=>`<option value="${kind}" ${kind===link.kind?'selected':''}>${esc(kin(choices.get(link.person_id),kind))}</option>`).join('')}</select><button type="button" data-remove-partner="${i}" aria-label="${esc(t('unlink'))}">×</button></div>`).join('');
+        container.querySelectorAll('[data-partner-person]').forEach(searchable);
         container.querySelectorAll('[data-partner-person]').forEach(el=>el.onchange=()=>{const index=Number(el.dataset.partnerPerson);links[index].person_id=el.value;refresh();container.querySelector(`[data-partner-kind="${index}"]`).querySelectorAll('option').forEach(option=>option.textContent=kin(choices.get(el.value),option.value))});
         container.querySelectorAll('[data-partner-kind]').forEach(el=>el.onchange=()=>links[Number(el.dataset.partnerKind)].kind=el.value);
         container.querySelectorAll('[data-remove-partner]').forEach(el=>el.onclick=()=>{links.splice(Number(el.dataset.removePartner),1);showLinks();refresh()});
@@ -451,6 +502,7 @@
       let choiceSequence=0;
       box.querySelector('[data-choice-tree]').onchange=e=>run(async()=>{const id=e.target.value;if(!id)return;const seq=++choiceSequence;const other=await api('/trees/'+id);if(seq!==choiceSequence||!box.isConnected)return;other.people.filter(x=>!x.redacted&&x.home_tree_id===id).forEach(x=>choices.set(x.id,{...x,in_current_tree:false}));showLinks();refresh()},e.target);
       for(const n of [1,2]){const parentSelect=box.querySelector(`[name=parent${n}]`),check=box.querySelector(`[name=adopted${n}]`);const update=()=>{check.disabled=!parentSelect.value;if(check.disabled)check.checked=false};parentSelect.onchange=()=>{par[n-1]=parentSelect.value;update();refresh()};update()}
+      ['parent1','parent2'].forEach(n=>searchable(box.querySelector(`[name=${n}]`)));searchable(box.querySelector('[data-kid-add]'));
       box.querySelector('[data-kid-add]').onchange=e=>{if(e.target.value){kids.push(e.target.value);refresh()}};drawFamily();
       box.querySelector('[name=gender]').onchange=e=>{box.querySelector('[data-deceased-label]').textContent=personTerm({gender:e.target.value},'deceased')};
       showLinks();box.querySelector('[data-link-partner]').onclick=()=>{links.push({person_id:'',kind:'partner'});showLinks()};

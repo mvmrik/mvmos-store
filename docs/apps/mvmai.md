@@ -142,3 +142,9 @@ In the chat the assistant gets a "make a picture" tool whenever a generator is r
 Through the app API mvmAI answers two things for other apps: `ask` (a one-off question to the public-page AI; the prompt may be up to 200,000 characters when the asker requests it, 20,000 by default) and pictures.
 
 `image_status` says whether a picture can be made, and `image` makes one for a profile (`aspect` is portrait, landscape or square). An asking app never learns which generator answered; the choice is the one made in the Pictures settings (stored as `image_backend`: `auto`, `codex-cli`, `openai`, `gemini` or `off`; `image_model_openai` and `image_model_gemini` change the model). Like `ask`, both functions work only after the administrator switches mvmAI's app API on, and they are marked internal so the assistant never offers them as tools. Pictures are not stored and no chat credits are charged: the asking app decides what a picture costs.
+
+## Conversations from other apps and task status
+
+mvmAI 0.22.0 requires an Apps Hub profile before its desktop window opens. Enabled app integrations can call the internal `start_chat` API with a title and user/assistant messages to create a saved conversation for the profile. No AI request or credit charge is made just by creating it. The desktop can open it through the one-shot `mvmai_open_chat` request and the `mvmai-open-chat` event; ordinary session authorization still applies.
+
+AI review forms use the shared regional date and time picker. Workspace task cards distinguish a pending approval, a reply needed, work in progress and a task waiting to continue. Completed, skipped and cancelled steps are grouped in a collapsible section. Workspace agents use the language of the administrator's own message, with the interface language as a fallback.

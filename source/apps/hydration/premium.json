@@ -4,7 +4,7 @@
     {
       "title": "Budget reward",
       "short": "Get paid in your budget for reaching your water goal",
-      "description": "Turn on the Budget integration on the desktop and every Apps Hub profile can choose an amount to add to a Budget category the moment its daily water goal is reached. A profile can also pick a category to take the amount from, or leave it out to only add money. The reward is paid once per day, right when the goal is reached, the profile is told that the amount was added, and the transaction appears in Budget."
+      "description": "The server owner can enable Budget rewards in the desktop app settings. Each Apps Hub profile chooses an amount, one or more destination categories and an optional funding category.\n\nWhen the daily water goal is reached, each chosen category can receive the full reward once for that day. If the profile includes other apps' water from Health, that water also counts towards the goal. The optional source category funds each destination separately. Existing single-category settings remain supported.\n\nBudget must be installed with its App API enabled in Apps Hub → Settings → App APIs; this switch is off by default. Without the Premium module, the desktop reward control opens the Premium prompt and the public page hides the reward. Drink logging and Health integration remain available."
     }
   ]
 }

@@ -27,15 +27,32 @@ mvmOS.registerApp({
   async renderSettingsExtra(container){
     var live={};
     try{live=await(await fetch('/api/apps/nostradamus/settings')).json()}catch(_){}
-    var enabled=live.deepl_enabled==='1';
-    var lbl=await _nosT('nos_deepl_enable_lbl'),hint=await _nosT('nos_deepl_needs_app');
+    var enabled=live.deepl_enabled==='1',aiOn=live.ai_enabled==='1';
+    var lbl=await _nosT('nos_deepl_enable_lbl'),hint=await _nosT('nos_deepl_needs_app'),aiLbl=await _nosT('nos_ai_enable_lbl'),aiHint=await _nosT('nos_ai_needs_app');
     container.innerHTML='<div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">'+
       '<label id="nos-se-deepl-row" style="display:flex;align-items:center;gap:8px;cursor:pointer">'+
       '<input type="checkbox" id="nos-se-deepl"'+(enabled?' checked':'')+'>'+
       '<span style="font-size:.84rem">'+lbl+'</span></label>'+
-      '<div style="font-size:.72rem;color:var(--text-dim);margin-top:6px;margin-left:24px">'+hint+'</div></div>';
+      '<div style="font-size:.72rem;color:var(--text-dim);margin-top:6px;margin-left:24px">'+hint+'</div>'+
+      '<label id="nos-se-ai-row" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:14px">'+
+      '<input type="checkbox" id="nos-se-ai"'+(aiOn?' checked':'')+'>'+
+      '<span style="font-size:.84rem">'+aiLbl+'</span></label>'+
+      '<div style="font-size:.72rem;color:var(--text-dim);margin-top:6px;margin-left:24px">'+aiHint+'</div></div>';
     var row=container.querySelector('#nos-se-deepl-row'),cb=container.querySelector('#nos-se-deepl');
     window.mvmOS?.premiumGate?.(row,hint);
+    var aiRow=container.querySelector('#nos-se-ai-row'),aiCb=container.querySelector('#nos-se-ai');
+    window.mvmOS?.premiumGate?.(aiRow,aiHint);
+    aiCb.onchange=async function(){
+      var val=aiCb.checked?'1':'0';
+      try{
+        var r=await fetch('/api/apps/nostradamus/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ai_enabled:val})});
+        if(!r.ok)throw new Error(await r.text().catch(function(){return r.statusText}));
+        live.ai_enabled=val;
+      }catch(_){
+        aiCb.checked=!aiCb.checked;
+        window.mvmOS?.notify?.('Nostradamus',await _nosT('nos_translate_error'));
+      }
+    };
     cb.onchange=async function(){
       var val=cb.checked?'1':'0';
       try{

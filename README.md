@@ -1,6 +1,6 @@
 # mvmOS Store
 
-This repository is the official Store of [mvmOS](https://github.com/mvmrik/mvmOS), a web-based desktop OS for your own server. It holds **61 apps, 5 widgets and 4 themes**. mvmOS reads it from the App Store; nothing here has to be installed by hand.
+This repository is the official Store of [mvmOS](https://github.com/mvmrik/mvmOS), a web-based desktop OS for your own server. It holds **64 apps, 5 widgets and 4 themes**. mvmOS reads it from the App Store; nothing here has to be installed by hand.
 
 - **[DEVELOPER.md](DEVELOPER.md)** — the complete guide to writing an app: structure, `manifest.json`, `store.json`, `premium.json`, the `mvmOS` API, server code, Apps Hub, public pages, games, i18n and premium.
 - **[SPEC.md](SPEC.md)** — the short checklist of the rules every app follows.
@@ -317,7 +317,7 @@ The two places get their colours from different variables:
 | Desktop window | `--bg`, `--surface`, `--surface2`, `--border`, `--text`, `--text-dim`, `--accent`, `--accent-hover`, `--danger`, `--font` (see [CSS Variables](#css-variables-reference)) | The OS theme chosen in Settings |
 | Public page | `--pub-bg`, `--pub-surface1`, `--pub-surface2`, `--pub-border`, `--pub-fg`, `--pub-fg2`, `--pub-dim`, `--pub-accent`, `--pub-accent-hover`, `--pub-green`, `--pub-red`, `--pub-yellow` | The Apps Hub theme of the visitor (light, dark or auto) |
 
-The desktop does not define the `--pub-*` variables, and the public page does not define the OS ones. An app whose UI is shared between the two therefore maps both onto its own variables and switches set by where it is mounted:
+From Core 1.26.0, the desktop maps the `--pub-*` variables to its own theme variables, including accent text contrast. Public pages still use the visitor’s Apps Hub theme. Apps supporting earlier Core versions should retain their own desktop mapping; public pages do not define the desktop OS variables. An app whose UI is shared between the two therefore maps both onto its own variables and switches set by where it is mounted:
 
 ```css
 /* Public page: the Apps Hub theme. The fallbacks are the dark palette,

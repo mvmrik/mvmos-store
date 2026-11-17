@@ -1,0 +1,37 @@
+{
+  "id": "nutrition",
+  "name": "Nutrition",
+  "name_i18n": {
+    "en": "Nutrition",
+    "bg": "Хранене",
+    "de": "Ernährung",
+    "es": "Alimentación",
+    "fr": "Alimentation",
+    "ja": "食事管理",
+    "pt-BR": "Alimentação",
+    "ru": "Питание",
+    "zh-CN": "饮食"
+  },
+  "icon": "🥗",
+  "category": "Health & Fitness",
+  "tags": [
+    "food",
+    "calories",
+    "nutrition",
+    "health"
+  ],
+  "version": "1.0.0",
+  "description": "Log what you eat and see calories, protein, carbohydrates, sugar, fat, fibre and salt. Ready-made foods, barcode scanning, your own recipes, allergies and goals, plus a public web page.",
+  "entry": "main.js",
+  "public_url": "/pub/nutrition/",
+  "public_directory": true,
+  "min_core_version": "1.17.0",
+  "settings": [
+    {
+      "key": "budget_reward",
+      "label": "Budget reward for keeping to the daily calorie range",
+      "type": "checkbox",
+      "default": false
+    }
+  ]
+}

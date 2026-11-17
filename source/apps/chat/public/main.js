@@ -43,6 +43,7 @@ function _loadChatWidget() {
 
 mvmOS.registerApp({
   id: 'chat',
+  requires_apphub: true,
   name: _chatt('title'),
   icon: '💬',
   category: 'Communication',

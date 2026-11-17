@@ -60,7 +60,8 @@ def list_metrics():
 def record_daily(user_id: str, day: str, values: dict, source_app: str, source_app_name: str = None,
                  goals: dict = None):
     """Set what one app contributes to a day. values maps a daily metric (water
-    in ml, caffeine in mg, alcohol in g, calories in kcal, sugar and protein in g)
+    in ml, caffeine in mg, alcohol in g, calories in kcal, and sugar, protein, carbs,
+    fat, sat_fat, fiber and salt in g)
     to that app's total for the day. It
     replaces the app's earlier value for that day; 0 removes it. Other sources
     of the same day, such as values typed by hand, are added on top. goals
@@ -76,6 +77,34 @@ def record_weight(user_id: str, weight_kg: float, at: str = None, source_app: st
     from the same app return the earlier entry instead of adding a second."""
     return _pub()._add_reading(user_id, "weight", [weight_kg], at, note, (source_app or "app")[:60],
                                (source_app_name or source_app or "")[:60], idempotency_key)
+
+
+def record_height(user_id: str, height_cm: float, at: str = None, source_app: str = "app",
+                  source_app_name: str = None, idempotency_key: str = None, note: str = ""):
+    """Add a height measurement in centimetres. idempotency_key makes a retry
+    from the same app return the earlier entry instead of adding a second."""
+    return _pub()._add_reading(user_id, "height", [height_cm], at, note, (source_app or "app")[:60],
+                               (source_app_name or source_app or "")[:60], idempotency_key)
+
+
+def get_profile(user_id: str):
+    """The person's profile, for any app that needs to know who it is working
+    for: sex (m, f or empty), birth_date (YYYY-MM-DD or empty), age in whole
+    years (null when no birth date), blood_type (A+, A-, B+, B-, AB+, AB-, O+,
+    O- or empty), conditions and medications (free text the person wrote), and
+    the latest height_cm and weight_kg with the day each was measured (null when
+    never measured). Only read it for what the app really needs."""
+    return _pub()._profile(user_id)
+
+
+def set_profile(user_id: str, sex: str = None, birth_date: str = None, blood_type: str = None,
+                conditions: str = None, medications: str = None):
+    """Change the profile; what is left out stays as it was and an empty value
+    clears it. sex is m or f, birth_date YYYY-MM-DD. Height and weight are not
+    part of it: add them with record_height and record_weight."""
+    data = {k: v for k, v in dict(sex=sex, birth_date=birth_date, blood_type=blood_type,
+                                  conditions=conditions, medications=medications).items() if v is not None}
+    return _pub()._save_profile(user_id, data)
 
 
 def record_blood_pressure(user_id: str, systolic: float, diastolic: float, pulse: float = None,

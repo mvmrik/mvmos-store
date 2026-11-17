@@ -6,63 +6,14 @@
 
   const API = '/pub/calendar';
 
-  const _i18n = {
-    en: {
-      today: 'Today', month: 'Month', week: 'Week', day: 'Day', add: '+ Add',
-      login_needed: 'Log in to Apps Hub to use Calendar',
-      title: 'Title', description: 'Description', date: 'Date', time: 'Time',
-      start_time: 'Start time', end_time: 'End time', all_day: 'All day',
-      save: 'Save', cancel: 'Cancel', delete: 'Delete', more: 'more', edit: 'Edit',
-      confirm_delete: 'Delete this event?', title_required: 'Title is required',
-      date_required: 'A valid date is required', no_events: 'No events',
-      save_failed: 'Could not save. Please try again.',
-      mark_done: 'Mark as done', mark_undone: 'Mark as not done', completed: 'Completed',
-      repeat: 'Repeat', repeat_none: 'Does not repeat', repeat_daily: 'Daily',
-      repeat_weekly: 'Weekly', repeat_monthly: 'Monthly', repeat_until: 'Repeat until',
-      repeat_until_required: 'An end date for the repeat is required',
-      repeat_days_required: 'Choose at least one day of the week',
-      recurring_note: 'This is a recurring event.',
-      recurring: 'Recurring event',
-      scope_title: 'Recurring event',
-      scope_edit_question: 'Apply this change to just this occurrence, this and the following ones, or every upcoming occurrence?',
-      scope_delete_question: 'Delete just this occurrence, this and the following ones, or every upcoming occurrence?',
-      scope_this: 'Only this one',
-      scope_future: 'This and following',
-      scope_all: 'All upcoming',
-    },
-    bg: {
-      today: 'Днес', month: 'Месец', week: 'Седмица', day: 'Ден', add: '+ Добави',
-      login_needed: 'Влез в Apps Hub, за да ползваш календара',
-      title: 'Заглавие', description: 'Описание', date: 'Дата', time: 'Час',
-      start_time: 'Начален час', end_time: 'Краен час', all_day: 'Цял ден',
-      save: 'Запази', cancel: 'Отказ', delete: 'Изтрий', more: 'още', edit: 'Редакция',
-      confirm_delete: 'Да се изтрие ли събитието?', title_required: 'Заглавието е задължително',
-      date_required: 'Нужна е валидна дата', no_events: 'Няма събития',
-      save_failed: 'Неуспешен запис. Опитай отново.',
-      mark_done: 'Отбележи като изпълнено', mark_undone: 'Отбележи като неизпълнено', completed: 'Изпълнено',
-      repeat: 'Повторение', repeat_none: 'Не се повтаря', repeat_daily: 'Всеки ден',
-      repeat_weekly: 'Всяка седмица', repeat_monthly: 'Всеки месец', repeat_until: 'Повтаряй до',
-      repeat_until_required: 'Нужна е крайна дата за повторението',
-      repeat_days_required: 'Избери поне един ден от седмицата',
-      recurring_note: 'Това е повтарящо се събитие.',
-      recurring: 'Повтарящо се събитие',
-      scope_title: 'Повтарящо се събитие',
-      scope_edit_question: 'Промяната да важи само за това събитие, за него и следващите, или за всички предстоящи?',
-      scope_delete_question: 'Да се изтрие ли само това събитие, то и следващите, или всички предстоящи?',
-      scope_this: 'Само това',
-      scope_future: 'Това и следващите',
-      scope_all: 'Всички предстоящи',
-    },
-  };
+  const _i18n = window.CALENDAR_I18N;
+
   function t(key) {
     const lang = window.mvmOS?.lang || 'en';
     return (_i18n[lang] || _i18n.en)[key] || key;
   }
 
-  function monthlyHint(dayNum) {
-    const lang = window.mvmOS?.lang || 'en';
-    return lang === 'bg' ? `Повтаря се на ${dayNum}-о число всеки месец` : `Repeats monthly on day ${dayNum}`;
-  }
+  function monthlyHint(dayNum) { return t('monthly_hint').replace('{n}', dayNum); }
 
   // Asks which occurrences of a recurring series an edit/delete should
   // apply to. Resolves to 'this', 'future', 'all', or null if the user
@@ -98,10 +49,8 @@
     }[c]));
   }
 
-  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const DAY_LABELS_MON = ['Mo','Tu','We','Th','Fr','Sa','Su'];
-  const DAY_LABELS_SUN = ['Su','Mo','Tu','We','Th','Fr','Sa'];
-  const WEEKDAY_NAMES = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  function monthName(d, short) { return new Intl.DateTimeFormat(window.mvmOS?.lang || 'en', {month: short ? 'short' : 'long'}).format(d); }
+  function weekdayName(day, short) { return new Intl.DateTimeFormat(window.mvmOS?.lang || 'en', {weekday: short ? 'short' : 'long'}).format(new Date(2026, 0, 4 + day)); }
 
   function pad2(n) { return String(n).padStart(2, '0'); }
   function fmtDate(d) { return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; }
@@ -256,6 +205,9 @@
     const widgetEl = root.querySelector('.cal-widget');
     const toolbarEl = root.querySelector('.cal-toolbar');
     const bodyEl = root.querySelector('.cal-body');
+    const activePickers = new Set();
+    const pickerObserver = new MutationObserver(() => { activePickers.forEach(wrap => { if (!widgetEl.contains(wrap)) wrap.destroy(); }); });
+    pickerObserver.observe(widgetEl, {childList: true, subtree: true});
 
     async function api(path, o) {
       o = o || {};
@@ -273,16 +225,7 @@
       }).then(() => window.mvmOS?._refreshNotifs?.()).catch(() => {});
     }
 
-    function formatTimeDisplay(hhmm) {
-      if (!hhmm) return '';
-      const [h, m] = hhmm.split(':').map(Number);
-      if (settings.time_format === '12') {
-        const period = h < 12 ? 'AM' : 'PM';
-        let h12 = h % 12; if (h12 === 0) h12 = 12;
-        return `${h12}:${pad2(m)} ${period}`;
-      }
-      return hhmm;
-    }
+    function formatTimeDisplay(hhmm) { return hhmm ? window.mvmOS.dateTimePicker.format(hhmm, {type:'time'}) : ''; }
 
     // Times and dates are chosen with the shared mvmOS calendar and clock, which follow the regional
     // format of mvmOS settings. The element keeps the interface the form already used: value
@@ -298,18 +241,14 @@
       Object.defineProperty(wrap, 'value', { get: () => field.value || '', set: v => field.setValue(v || '') });
       wrap.setDisabled = disabled => { field.button.disabled = !!disabled; };
       wrap.onChange = fn => { listeners.push(fn); };
-      wrap.destroy = () => field.destroy();
+      wrap.destroy = () => { field.destroy(); activePickers.delete(wrap); };
+      activePickers.add(wrap);
       return wrap;
     }
     const makeTimeInput = (initial24, label) => makePicker('time', initial24, label);
     const makeDateInput = (initialISO, label) => makePicker('date', initialISO, label);
 
-    function formatDMY(d) {
-      const dd = pad2(d.getDate()), mm = pad2(d.getMonth() + 1), yyyy = d.getFullYear();
-      if (settings.date_format === 'MM/DD/YYYY') return `${mm}/${dd}/${yyyy}`;
-      if (settings.date_format === 'YYYY-MM-DD') return `${yyyy}-${mm}-${dd}`;
-      return `${dd}/${mm}/${yyyy}`;
-    }
+    function formatDMY(d) { return window.mvmOS.dateTimePicker.format(fmtDate(d), {type:'date'}); }
 
     function rangeForView() {
       if (view === 'month') {
@@ -346,9 +285,9 @@
     function renderToolbar() {
       const [start, end] = rangeForView();
       let titleText;
-      if (view === 'month') titleText = `${MONTH_NAMES[anchor.getMonth()]} ${anchor.getFullYear()}`;
+      if (view === 'month') titleText = `${monthName(anchor)} ${anchor.getFullYear()}`;
       else if (view === 'week') titleText = `${formatDMY(start)} – ${formatDMY(end)}`;
-      else if (view === 'weekday') titleText = `${WEEKDAY_NAMES[weekdayFilter]}s — ${anchor.getFullYear()}`;
+      else if (view === 'weekday') titleText = `${weekdayName(weekdayFilter)} — ${anchor.getFullYear()}`;
       else titleText = formatDMY(anchor);
 
       toolbarEl.innerHTML = `
@@ -388,7 +327,7 @@
     }
 
     function renderMonth() {
-      const dayLabels = settings.week_starts === 'sunday' ? DAY_LABELS_SUN : DAY_LABELS_MON;
+      const dayLabels = weekdayOrder(settings.week_starts).map(d => weekdayName(d, true));
       const order = weekdayOrder(settings.week_starts);
       const [gridStart] = rangeForView();
       const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -461,7 +400,7 @@
         const extra = dayEvents.length - shown.length;
         return `
           <div class="cal-cell cal-weekday-cell${sameDay(dt, today) ? ' cal-today' : ''}" data-date="${fmtDate(dt)}">
-            <div class="cal-cell-num">${dt.getDate()} ${MONTH_NAMES[dt.getMonth()].slice(0, 3)}</div>
+            <div class="cal-cell-num">${dt.getDate()} ${monthName(dt, true)}</div>
             ${shown.map(chipHtml).join('')}
             ${extra > 0 ? `<div class="cal-more">+${extra} ${esc(t('more'))}</div>` : ''}
           </div>`;
@@ -492,7 +431,7 @@
         const dayEvents = eventsOn(d);
         colsHtml += `
           <div class="cal-week-col${sameDay(d, today) ? ' cal-today' : ''}" data-date="${fmtDate(d)}">
-            <div class="cal-week-head">${d.toLocaleDateString(undefined, { weekday: 'short' })} ${d.getDate()}</div>
+            <div class="cal-week-head">${weekdayName(d.getDay(), true)} ${d.getDate()}</div>
             ${dayEvents.map(chipHtml).join('') || ''}
           </div>`;
       }
@@ -654,7 +593,7 @@
       repeatSel.value = existing && existing.recur_type ? existing.recur_type : '';
 
       const order = weekdayOrder(settings.week_starts);
-      const dayLabels = settings.week_starts === 'sunday' ? DAY_LABELS_SUN : DAY_LABELS_MON;
+      const dayLabels = weekdayOrder(settings.week_starts).map(d => weekdayName(d, true));
       const selectedDays = new Set(existing && existing.recur_days ? existing.recur_days : [d.getDay()]);
       const weekdaysEl = overlay.querySelector('#cal-f-weekdays');
       weekdaysEl.innerHTML = dayLabels.map((l, i) => {
@@ -753,6 +692,7 @@
     }
 
     async function start() {
+      await window.mvmOS.dateTimePicker.ready();
       settings = await loadDisplaySettings();
       await refresh();
       if (opts.openEvent) {
@@ -762,7 +702,7 @@
     }
     start();
 
-    return { destroy() { destroyed = true; } };
+    return { destroy() { destroyed = true; pickerObserver.disconnect(); activePickers.forEach(wrap => wrap.destroy()); } };
   }
 
   window.CalendarWidget = { mount };

@@ -57,3 +57,12 @@
 .ft{color-scheme:light dark}
 
 .ft .ft-person-panel.ft-sex-male .ft-age,.ft .ft-person-panel.ft-sex-female .ft-age{color:var(--ink)}
+.ft-ss{display:block;margin-top:6px}.ft-ss input{margin:0 0 5px!important}.ft-ss select{margin-top:0!important}.ft-ss select[size]:not([size="0"]):not([size="1"]){padding:4px}
+.ft-kinship{background:color-mix(in srgb,var(--ft-panel) 55%,transparent);border-color:color-mix(in srgb,var(--line) 70%,transparent);box-shadow:none;pointer-events:auto}.ft-kinship:hover{background:var(--ft-panel)}
+.ft .ft-person .ft-avatar{width:auto;min-width:22px;height:22px;padding:0 5px;box-sizing:border-box;font-size:10.5px;line-height:1;letter-spacing:0;white-space:nowrap;overflow:hidden;font-weight:700}
+/* The sticky title bar of a panel uses the panel's own colour and reaches its edges, so it no longer looks like a dark strip floating inside it. */
+.ft .ft-panel{--pad:26px}
+@container familytree (max-width:760px){.ft .ft-panel{--pad:20px}}
+@container familytree (max-width:600px){.ft .ft-panel{--pad:19px}}
+.ft .ft-panel .ft-panel-top{position:sticky;top:calc(-1 * var(--pad));margin:calc(-1 * var(--pad)) calc(-1 * var(--pad)) 14px;padding:var(--pad) var(--pad) 12px;background:var(--ft-panel);border-radius:20px 20px 0 0;z-index:2}
+.ft .ft-panel .ft-panel-top h2{margin:0}

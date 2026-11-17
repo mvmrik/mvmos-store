@@ -398,6 +398,7 @@ mvmOS.registerApp({
   id: 'mvmai',
   name: _ait('title'),
   icon: '🤖',
+  requires_apphub: true,
   trayable: true,
   settings: [],
   async renderSettingsExtra(wrap, saved) {

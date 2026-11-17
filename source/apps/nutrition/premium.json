@@ -1,0 +1,10 @@
+{
+  "summary": "Adds optional Budget rewards for finished days within your calorie range.",
+  "features": [
+    {
+      "title": "Budget reward",
+      "short": "Reward a completed day within your calorie range in Budget",
+      "description": "The server owner can enable Budget rewards in Nutrition's app settings. Each Apps Hub profile then chooses an amount, one or more destination Budget categories, and an optional source category.\n\nWhen Nutrition is opened, eligible finished days from the last seven days are checked against the profile's daily calorie range. Each chosen destination receives the reward once for an eligible day; an optional source funds each transfer. A day without food logged cannot earn a reward because the calorie range must have a positive lower bound.\n\nBudget must be installed with its App API enabled in Apps Hub → Settings → App APIs; this API is off by default. Without the Premium build, the desktop reward control opens the Premium prompt and the public page hides the feature. Food logging, recipes, goals and restrictions remain available."
+    }
+  ]
+}

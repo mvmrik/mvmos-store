@@ -6,6 +6,7 @@ under an explicit root; it never exposes a shell or a general filesystem API.
 """
 import hashlib
 import hmac
+import importlib
 import json
 import os
 import re
@@ -15,11 +16,14 @@ import sqlite3
 import sys
 import time
 from pathlib import Path
+from types import SimpleNamespace
 from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field
+from starlette.concurrency import run_in_threadpool
+from backend.assets import asset, manifest as assets_manifest
 
 router = APIRouter()
 desktop_router = APIRouter()
@@ -58,6 +62,9 @@ def _db():
     CREATE TABLE IF NOT EXISTS user_api_tokens (id TEXT PRIMARY KEY, user_id TEXT NOT NULL, label TEXT NOT NULL, root_path TEXT NOT NULL, token_hash TEXT NOT NULL UNIQUE, permissions TEXT NOT NULL, enabled INTEGER NOT NULL DEFAULT 1, created_at INTEGER NOT NULL);
     CREATE TABLE IF NOT EXISTS folder_shares (id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, recipient_id TEXT NOT NULL, path TEXT NOT NULL, permissions TEXT NOT NULL, created_at INTEGER NOT NULL, UNIQUE(owner_id,recipient_id,path));
     CREATE TABLE IF NOT EXISTS audit_log (id INTEGER PRIMARY KEY AUTOINCREMENT, actor TEXT NOT NULL, action TEXT NOT NULL, target TEXT NOT NULL, created_at INTEGER NOT NULL);
+    CREATE TABLE IF NOT EXISTS public_links (id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, path TEXT NOT NULL, is_dir INTEGER NOT NULL, pass_salt TEXT, pass_hash TEXT, created_at INTEGER NOT NULL, UNIQUE(owner_id,path));
+    CREATE TABLE IF NOT EXISTS mounts (id TEXT PRIMARY KEY, name TEXT NOT NULL, kind TEXT NOT NULL, linux_user TEXT NOT NULL, path TEXT NOT NULL DEFAULT '', folder_id TEXT, created_at INTEGER NOT NULL);
+    CREATE TABLE IF NOT EXISTS mount_grants (mount_id TEXT NOT NULL, recipient TEXT NOT NULL, permissions TEXT NOT NULL, PRIMARY KEY(mount_id,recipient));
     CREATE UNIQUE INDEX IF NOT EXISTS idx_mvmcloud_vault_user_path ON vaults(user_id,path);
     CREATE UNIQUE INDEX IF NOT EXISTS idx_mvmcloud_token_hash ON external_tokens(token_hash);
     CREATE UNIQUE INDEX IF NOT EXISTS idx_mvmcloud_user_api_token_hash ON user_api_tokens(token_hash);
@@ -135,14 +142,15 @@ def _safe(root: Path, value: str = "") -> Path:
     if "\x00" in value or any(part in ("", ".", "..") for part in value.split("/") if part):
         if value:
             raise HTTPException(400, "Invalid path")
-    path = (root / value).resolve()
-    if path != root and root not in path.parents:
-        raise HTTPException(403, "Path escapes its folder")
+    path = root / value
     probe = root
     for part in path.relative_to(root).parts:
         probe = probe / part
         if probe.is_symlink():
             raise HTTPException(403, "Symlinks are not supported")
+    path = path.resolve()
+    if path != root and root not in path.parents:
+        raise HTTPException(403, "Path escapes its folder")
     return path
 
 
@@ -171,7 +179,7 @@ def _check_write(root: Path, user_id: str, incoming: int = 0):
     if incoming < 0 or incoming > MAX_UPLOAD_BYTES: raise HTTPException(413, "File is too large")
     if shutil.disk_usage(STORAGE).free - incoming < MIN_FREE_BYTES:
         raise HTTPException(507, "Server storage safety limit reached")
-    quota = _policy(user_id)["quota_bytes"]
+    quota = _policy(user_id)["quota_bytes"] if user_id else None
     if quota is not None and _usage(root) + incoming > quota:
         raise HTTPException(413, "Storage quota reached")
 
@@ -208,6 +216,123 @@ def _entries(root: Path, rel: str, thumbs_for: str | None = None, offset: int = 
     end = offset + limit
     rows = [r for r in (_entry_row(folder / k[0], root, known) for k in kids[offset:end]) if r]
     return {"path": rel.strip("/"), "entries": rows, "total": len(kids), "media_total": sum(1 for k in kids if group(k) == 2), "next": end if end < len(kids) else None}
+
+
+# ── Spaces: the places a person can browse ───────────────────────────────────
+# "own" is the private folder.  "s:<id>" is a folder another profile shared,
+# "m:<id>" is a folder the administrator offers (a folder of this server or a
+# folder shared from another mvmOS).  Every request resolves the space again
+# and works with the rights in force at that moment, so taking a right away,
+# or the sharing server lowering its own, applies at once.
+#   view   - browse names and preview pictures and videos
+#   read   - download files        write  - upload, create, rename, move
+#   delete - delete files and folders
+PERMS = ("view", "read", "write", "delete")
+_remote_cache: dict = {}
+
+
+def _fp(): return importlib.import_module("backend.filepicker")
+
+
+def _norm_perms(values) -> set:
+    given = set(values or [])
+    if not given or given - set(PERMS): raise HTTPException(400, "Invalid permissions")
+    return given | {"view"}
+
+
+def _load_perms(raw) -> set:
+    try: given = set(json.loads(raw)) & set(PERMS)
+    except (TypeError, ValueError): return set()
+    return given | {"view"} if given else set()
+
+
+def _remote_ceiling(row) -> set:
+    """The most the sharing server allows on this folder right now (cached for 20 seconds)."""
+    key = (row["linux_user"], row["folder_id"], row["path"])
+    hit = _remote_cache.get(key)
+    if hit and hit[0] > time.time(): return hit[1]
+    try: _entries_, remote = _fp().shared_listing(row["linux_user"], row["folder_id"], row["path"])
+    except HTTPException: remote = None
+    out = set()
+    if remote is not None:
+        out.add("view")
+        if "read" in remote: out.add("read")
+        if "upload" in remote: out.add("write")
+        if "delete" in remote: out.add("delete")
+    _remote_cache[key] = (time.time() + 20, out)
+    return out
+
+
+def _mount_ceiling(row) -> set:
+    return set(PERMS) if row["kind"] == "server" else _remote_ceiling(row)
+
+
+def _mount_home(linux_user: str) -> Path:
+    return Path(os.path.expanduser("~" if linux_user == "root" else "~" + linux_user)).resolve()
+
+
+def _mount_root(row) -> Path:
+    root = Path(row["path"]).resolve(); home = _mount_home(row["linux_user"])
+    if not root.is_dir() or (root != home and home not in root.parents): raise HTTPException(410, "This shared folder is unavailable")
+    return root
+
+
+def _grants(conn, mount_id: str) -> dict:
+    return {g["recipient"]: _load_perms(g["permissions"]) for g in conn.execute("SELECT recipient,permissions FROM mount_grants WHERE mount_id=?", (mount_id,))}
+
+
+def _space(user_id: str, space: str = ""):
+    if not space or space == "own":
+        root = _user_root(user_id)
+        return SimpleNamespace(id="own", kind="local", root=root, perms=set(PERMS), quota_root=root, quota_user=user_id, own=True)
+    kind, _, ident = space.partition(":")
+    with _db() as conn:
+        if kind == "s":
+            row = conn.execute("SELECT * FROM folder_shares WHERE id=? AND recipient_id=?", (ident, user_id)).fetchone()
+            if not row: raise HTTPException(404, "Shared folder not found")
+            owner_root = _user_root(row["owner_id"]); target = _safe(owner_root, row["path"]); perms = _load_perms(row["permissions"])
+            if target.is_file():
+                # One shared file: only that file is visible and it can only be viewed or downloaded.
+                return SimpleNamespace(id=space, kind="local", root=target.parent, perms=perms & {"view", "read"}, quota_root=owner_root, quota_user=row["owner_id"], own=False, only=target.name)
+            if not target.is_dir(): raise HTTPException(410, "This shared folder is unavailable")
+            return SimpleNamespace(id=space, kind="local", root=target, perms=perms, quota_root=owner_root, quota_user=row["owner_id"], own=False)
+        if kind == "m":
+            row = conn.execute("SELECT * FROM mounts WHERE id=?", (ident,)).fetchone()
+            if not row: raise HTTPException(404, "Shared folder not found")
+            grants = _grants(conn, ident)
+            granted = grants[user_id] if user_id in grants else grants.get("*")
+            if granted is None: raise HTTPException(404, "Shared folder not found")
+            perms = granted & _mount_ceiling(row)
+            if row["kind"] == "server":
+                root = _mount_root(row)
+                return SimpleNamespace(id=space, kind="local", root=root, perms=perms, quota_root=None, quota_user=None, own=False)
+            return SimpleNamespace(id=space, kind="remote", root=None, perms=perms, remote=dict(row), quota_root=None, quota_user=None, own=False)
+    raise HTTPException(404, "Shared folder not found")
+
+
+def _need(sp, perm: str, path: str | None = None):
+    if perm not in sp.perms: raise HTTPException(403, "This shared folder does not allow that")
+    only = getattr(sp, "only", None)
+    if only is not None and path is not None and (path or "").strip("/") != only: raise HTTPException(404, "File not found")
+
+
+def _remote_rel(sp, rel: str) -> str:
+    rel = (rel or "").replace("\\", "/").strip("/")
+    if "\x00" in rel or any(part in ("", ".", "..") for part in rel.split("/") if part): raise HTTPException(400, "Invalid path")
+    return "/".join(x for x in (sp.remote["path"], rel) if x)
+
+
+def _remote_entries(sp, rel: str) -> dict:
+    items, _perms = _fp().shared_listing(sp.remote["linux_user"], sp.remote["folder_id"], _remote_rel(sp, rel))
+    rows = []
+    for e in items:
+        name = e.get("name") if isinstance(e, dict) else None
+        if not isinstance(name, str) or not name or "/" in name or name in (".", ".."): continue
+        try: import datetime; modified = int(datetime.datetime.fromisoformat(str(e.get("modified"))).timestamp())
+        except ValueError: modified = 0
+        rows.append({"name": name, "type": "folder" if e.get("type") == "dir" else "file", "size": int(e.get("size") or 0), "modified": modified})
+    rows.sort(key=lambda r: (r["type"] != "folder", r["name"].lower()))
+    return {"path": rel.strip("/"), "entries": rows, "total": len(rows), "media_total": 0, "next": None}
 
 
 def _audit(actor, action, target):
@@ -278,13 +403,20 @@ async def me(x_pub_token: str = Header(default=None)):
     user = _need_public(x_pub_token); root = _user_root(user["id"])
     with _db() as conn:
         vaults = [dict(row) for row in conn.execute("SELECT path,salt FROM vaults WHERE user_id=?", (user["id"],))]
-    return {"id": user["id"], "usage_bytes": _usage(root), "policy": _policy(user["id"]), "vaults": vaults}
+    free = max(0, shutil.disk_usage(STORAGE).free - MIN_FREE_BYTES)
+    return {"id": user["id"], "usage_bytes": _usage(root), "policy": _policy(user["id"]), "vaults": vaults, "free_bytes": free}
 
 
 @router.get("/files")
-async def files(path: str = "", offset: int = 0, limit: int = 0, x_pub_token: str = Header(default=None)):
-    user = _need_public(x_pub_token)
-    return _entries(_user_root(user["id"]), path, user["id"], max(0, offset), min(max(0, limit), 1000))
+async def files(path: str = "", offset: int = 0, limit: int = 0, space: str = "", x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token); sp = _space(user["id"], space); _need(sp, "view")
+    if sp.kind == "remote": return await run_in_threadpool(_remote_entries, sp, path)
+    only = getattr(sp, "only", None)
+    if only is not None:
+        if (path or "").strip("/"): raise HTTPException(404, "Folder not found")
+        row = _entry_row(sp.root / only, sp.root, {})
+        return {"path": "", "entries": [row] if row else [], "total": 1, "media_total": 0, "next": None}
+    return _entries(sp.root, path, user["id"] if sp.own else None, max(0, offset), min(max(0, limit), 1000))
 
 
 @router.get("/credit-features/encrypted_folder")
@@ -387,8 +519,10 @@ def revoke_user_api_key(token_id: str, x_pub_token: str = Header(default=None)):
 
 
 @router.get("/download")
-async def download(path: str, x_pub_token: str = Header(default=None)):
-    user = _need_public(x_pub_token); file = _safe(_user_root(user["id"]), path)
+async def download(path: str, space: str = "", x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token); sp = _space(user["id"], space); _need(sp, "read", path)
+    if sp.kind == "remote": return RedirectResponse(_fp().shared_file_url(sp.remote["linux_user"], sp.remote["folder_id"], _remote_rel(sp, path)) + "&download=1")
+    file = _safe(sp.root, path)
     if not file.is_file(): raise HTTPException(404, "File not found")
     return FileResponse(file, filename=file.name)
 
@@ -440,8 +574,12 @@ async def media_ticket(x_pub_token: str = Header(default=None)):
 
 
 @router.get("/stream")
-async def stream(path: str, t: str, dl: int = 0):
-    file = _safe(_user_root(_media_user(t)), path)
+async def stream(path: str, t: str, dl: int = 0, space: str = ""):
+    sp = _space(_media_user(t), space); _need(sp, "read" if dl else "view", path)
+    if sp.kind == "remote":
+        if not dl and Path(path).suffix.lower() not in INLINE_TYPES: raise HTTPException(415, "This file type cannot be previewed")
+        return RedirectResponse(_fp().shared_file_url(sp.remote["linux_user"], sp.remote["folder_id"], _remote_rel(sp, path)) + ("&download=1" if dl else ""))
+    file = _safe(sp.root, path)
     if not file.is_file(): raise HTTPException(404, "File not found")
     headers = {"X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "Content-Security-Policy": "sandbox"}
     if dl: return FileResponse(file, filename=file.name, headers=headers)
@@ -499,7 +637,8 @@ def _forget_thumbs(target: Path):
 
 
 @router.get("/thumb")
-async def thumb(path: str, t: str):
+async def thumb(path: str, t: str, space: str = ""):
+    if space not in ("", "own"): raise HTTPException(404, "No thumbnail")
     user_id = _media_user(t); root = _user_root(user_id); file = _safe(root, path)
     if not file.is_file(): raise HTTPException(404, "File not found")
     stat = file.stat(); key = (_thumb_hash(file.relative_to(root).as_posix()), int(stat.st_mtime), stat.st_size)
@@ -511,8 +650,10 @@ async def thumb(path: str, t: str):
 
 
 @router.post("/thumb")
-async def put_thumb(path: str = Form(...), dur: int = Form(0), file: UploadFile = File(...), x_pub_token: str = Header(default=None)):
-    user = _need_public(x_pub_token); root = _user_root(user["id"]); target = _safe(root, path)
+async def put_thumb(path: str = Form(...), dur: int = Form(0), file: UploadFile = File(...), space: str = "", x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token)
+    if space not in ("", "own"): return {"ok": True}
+    root = _user_root(user["id"]); target = _safe(root, path)
     if not target.is_file() or target.suffix.lower() not in INLINE_TYPES: raise HTTPException(404, "File not found")
     rel = target.relative_to(root).as_posix()
     with _db() as conn:
@@ -529,50 +670,104 @@ async def put_thumb(path: str = Form(...), dur: int = Form(0), file: UploadFile 
 
 
 @router.post("/folders")
-async def mkdir(body: PathBody, x_pub_token: str = Header(default=None)):
-    user = _need_public(x_pub_token); root = _user_root(user["id"]); _check_write(root, user["id"])
-    target = _safe(root, body.path)
-    target.mkdir(parents=True, exist_ok=False); _audit("hub:"+user["id"], "mkdir", body.path)
+async def mkdir(body: PathBody, space: str = "", x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token); sp = _space(user["id"], space); _need(sp, "write")
+    if sp.kind == "remote":
+        if not await run_in_threadpool(_fp().shared_mkdir, sp.remote["linux_user"], sp.remote["folder_id"], _remote_rel(sp, body.path)): raise HTTPException(400, "The folder could not be created")
+        _audit("hub:"+user["id"], "mkdir", sp.id + ":" + body.path); return {"ok": True}
+    _check_write(sp.root, None)
+    if sp.quota_user: _check_write(sp.quota_root, sp.quota_user)
+    target = _safe(sp.root, body.path)
+    target.mkdir(parents=True, exist_ok=False); _audit("hub:"+user["id"], "mkdir", sp.id + ":" + body.path)
     return {"ok": True}
 
 
 @router.post("/upload")
-async def upload(path: str = Form(""), file: UploadFile = File(...), x_pub_token: str = Header(default=None)):
-    user = _need_public(x_pub_token)
+async def upload(path: str = Form(""), file: UploadFile = File(...), space: str = "", x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token); sp = _space(user["id"], space); _need(sp, "write")
     if not file.filename or os.path.basename(file.filename) != file.filename: raise HTTPException(400, "Invalid filename")
-    root = _user_root(user["id"]); target_dir = _safe(root, path)
+    if sp.kind == "remote": return await _remote_upload(user, sp, path, file)
+    root = sp.root; target_dir = _safe(root, path)
     if not target_dir.is_dir(): raise HTTPException(404, "Folder not found")
     target = _safe(root, str(Path(path) / file.filename)); temp = target.with_name("." + target.name + ".upload")
     written = 0
     try:
         with open(temp, "wb") as handle:
             while chunk := await file.read(1024 * 1024):
-                written += len(chunk); _check_write(root, user["id"], written)
+                written += len(chunk); _check_write(sp.quota_root or root, sp.quota_user, written)
                 handle.write(chunk)
         os.replace(temp, target)
     finally:
         temp.unlink(missing_ok=True)
-    _audit("hub:"+user["id"], "upload", str(Path(path) / file.filename)); return {"ok": True, "size": written}
+    _audit("hub:"+user["id"], "upload", sp.id + ":" + str(Path(path) / file.filename)); return {"ok": True, "size": written}
+
+
+async def _remote_upload(user, sp, path, file):
+    """The file goes through a temporary local copy to the sharing server, which applies its own rules."""
+    tmp = STORAGE / "tmp"; tmp.mkdir(parents=True, exist_ok=True); temp = tmp / secrets.token_hex(12); written = 0
+    try:
+        with open(temp, "wb") as handle:
+            while chunk := await file.read(1024 * 1024):
+                written += len(chunk)
+                if written > MAX_UPLOAD_BYTES: raise HTTPException(413, "File is too large")
+                if shutil.disk_usage(STORAGE).free - written < MIN_FREE_BYTES: raise HTTPException(507, "Server storage safety limit reached")
+                handle.write(chunk)
+        rel = _remote_rel(sp, str(Path(path) / file.filename))
+        await run_in_threadpool(_fp().shared_upload_file, sp.remote["linux_user"], sp.remote["folder_id"], rel, str(temp))
+    finally:
+        temp.unlink(missing_ok=True)
+    _audit("hub:"+user["id"], "upload", sp.id + ":" + str(Path(path) / file.filename)); return {"ok": True, "size": written}
+
+
+class UploadTicketBody(BaseModel):
+    path: str = Field(default="", max_length=800)       # folder the file goes into
+    name: str = Field(min_length=1, max_length=255)
+    size: int = Field(ge=0, le=MAX_UPLOAD_BYTES)
+
+
+@router.post("/upload-ticket")
+async def upload_ticket(body: UploadTicketBody, space: str = "", x_pub_token: str = Header(default=None)):
+    """Lets the browser send one file straight to a folder shared from another mvmOS.
+
+    Only that one file name and size are signed, for a few hours, with the key this
+    server holds; the person never receives the folder key and the bytes do not pass
+    through this server.  Where the sharing server cannot take tickets (an older Core)
+    the answer is 501 and the browser uses the normal upload instead."""
+    user = _need_public(x_pub_token); sp = _space(user["id"], space); _need(sp, "write")
+    if sp.kind != "remote": raise HTTPException(400, "Only for folders shared from another server")
+    if "/" in body.name or body.name in (".", ".."): raise HTTPException(400, "Invalid filename")
+    fp = _fp()
+    if not hasattr(fp, "shared_upload_ticket"): raise HTTPException(501, "Direct upload is not available")
+    rel = _remote_rel(sp, str(Path(body.path) / body.name))
+    info = await run_in_threadpool(fp.shared_upload_ticket, sp.remote["linux_user"], sp.remote["folder_id"], rel, body.size)
+    _audit("hub:" + user["id"], "upload_direct", sp.id + ":" + rel)
+    return info
 
 
 @router.post("/move")
-async def move(body: MoveBody, x_pub_token: str = Header(default=None)):
-    user = _need_public(x_pub_token); root = _user_root(user["id"]); _check_write(root, user["id"])
+async def move(body: MoveBody, space: str = "", x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token); sp = _space(user["id"], space); _need(sp, "write")
+    if sp.kind == "remote": raise HTTPException(400, "Moving is not available in a folder shared from another server")
+    root = sp.root; _check_write(root, None)
     source, dest = _safe(root, body.source), _safe(root, body.destination)
     if not source.exists() or dest.exists(): raise HTTPException(409, "Invalid move")
     if source.is_dir() and source in dest.parents: raise HTTPException(400, "Cannot move a folder into itself")
-    _forget_thumbs(source); source.rename(dest); _audit("hub:"+user["id"], "move", body.source + " -> " + body.destination); return {"ok":True}
+    _forget_thumbs(source); source.rename(dest); _audit("hub:"+user["id"], "move", sp.id + ":" + body.source + " -> " + body.destination); return {"ok":True}
 
 
 @router.delete("/files")
-def delete(path: str, x_pub_token: str = Header(default=None)):
-    user = _need_public(x_pub_token); root = _user_root(user["id"]); _check_write(root, user["id"])
+def delete(path: str, space: str = "", x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token); sp = _space(user["id"], space); _need(sp, "delete")
+    if sp.kind == "remote":
+        if not _fp().shared_delete(sp.remote["linux_user"], sp.remote["folder_id"], _remote_rel(sp, path)): raise HTTPException(400, "It could not be deleted (a folder must be empty)")
+        _audit("hub:"+user["id"], "delete", sp.id + ":" + path); return {"ok": True}
+    root = sp.root; _check_write(root, None)
     target = _safe(root, path)
     if target == root or not target.exists(): raise HTTPException(404, "Not found")
     _forget_thumbs(target)
     if target.is_dir(): shutil.rmtree(target)
     else: target.unlink()
-    _audit("hub:"+user["id"], "delete", path); return {"ok":True}
+    _audit("hub:"+user["id"], "delete", sp.id + ":" + path); return {"ok":True}
 
 
 @router.post("/vaults")
@@ -615,61 +810,252 @@ async def share_users(q: str = "", x_pub_token: str = Header(default=None)):
     return {"users": hub.search_users(q, limit=12) if hub else []}
 
 
+def _profiles(ids):
+    hub = _hub()
+    return {p["id"]: p for p in (hub.get_users_by_ids(list(ids)) if hub and ids else [])}
+
+
 @router.get("/shares")
 async def list_shares(x_pub_token: str = Header(default=None)):
+    """Folders other profiles shared with this person."""
     user = _need_public(x_pub_token)
     with _db() as conn:
         rows = conn.execute("SELECT id,owner_id,path,permissions,created_at FROM folder_shares WHERE recipient_id=?", (user["id"],)).fetchall()
-    profiles = {p["id"]:p for p in (_hub().get_users_by_ids([r["owner_id"] for r in rows]) if _hub() else [])}
-    return {"shares":[{**dict(r),"owner":profiles.get(r["owner_id"],{})} for r in rows]}
+    profiles = _profiles({r["owner_id"] for r in rows})
+    return {"shares": [{**dict(r), "permissions": sorted(_load_perms(r["permissions"])), "owner": profiles.get(r["owner_id"], {})} for r in rows]}
+
+
+@router.get("/shares/mine")
+async def my_shares(x_pub_token: str = Header(default=None)):
+    """Folders this person shared with other profiles."""
+    user = _need_public(x_pub_token)
+    with _db() as conn:
+        rows = conn.execute("SELECT id,recipient_id,path,permissions,created_at FROM folder_shares WHERE owner_id=? ORDER BY created_at", (user["id"],)).fetchall()
+    profiles = _profiles({r["recipient_id"] for r in rows})
+    return {"shares": [{**dict(r), "permissions": sorted(_load_perms(r["permissions"])), "recipient": profiles.get(r["recipient_id"], {})} for r in rows]}
+
+
+@router.get("/spaces")
+async def spaces(x_pub_token: str = Header(default=None)):
+    """Everything this person can browse besides their own folder, with the rights they have there."""
+    user = _need_public(x_pub_token); out = []
+    with _db() as conn:
+        shares = conn.execute("SELECT id,owner_id,path,permissions FROM folder_shares WHERE recipient_id=?", (user["id"],)).fetchall()
+        mounts = conn.execute("SELECT * FROM mounts ORDER BY name").fetchall()
+        mount_grants = {m["id"]: _grants(conn, m["id"]) for m in mounts}
+    profiles = _profiles({r["owner_id"] for r in shares})
+    for r in shares:
+        owner = profiles.get(r["owner_id"], {})
+        out.append({"id": "s:" + r["id"], "kind": "share", "name": (r["path"].rsplit("/", 1)[-1] or owner.get("display_name") or "mvmCloud"),
+                    "owner": owner.get("display_name") or owner.get("username") or "", "permissions": sorted(_load_perms(r["permissions"]))})
+    for m in mounts:
+        grants = mount_grants[m["id"]]
+        granted = grants[user["id"]] if user["id"] in grants else grants.get("*")
+        if granted is None: continue
+        perms = await run_in_threadpool(lambda m=m: granted & _mount_ceiling(m))
+        out.append({"id": "m:" + m["id"], "kind": "mount", "name": m["name"], "owner": "", "remote": m["kind"] == "remote", "permissions": sorted(perms)})
+    return {"spaces": out}
 
 
 @router.post("/shares")
 async def create_share(body: ShareBody, x_pub_token: str = Header(default=None)):
     user = _need_public(x_pub_token); root = _user_root(user["id"]); folder = _safe(root,body.path)
-    if not folder.is_dir() or folder.is_symlink(): raise HTTPException(404,"Folder not found")
-    perms = sorted(set(body.permissions))
-    if not perms or set(perms)-{"read","write","delete"}: raise HTTPException(400,"Invalid permissions")
+    if not folder.exists() or folder.is_symlink(): raise HTTPException(404,"Not found")
+    perms = _norm_perms(body.permissions)
+    if folder.is_file(): perms &= {"view", "read"}
+    perms = sorted(perms)
     hub = _hub(); matches = hub.get_users_by_ids([body.recipient_id]) if hub else []
     if not matches or body.recipient_id == user["id"]: raise HTTPException(404,"Apps Hub user not found")
-    share_id=secrets.token_urlsafe(12)
+    path = body.path.strip("/")
     with _db() as conn:
-        conn.execute("INSERT INTO folder_shares(id,owner_id,recipient_id,path,permissions,created_at) VALUES(?,?,?,?,?,?)",(share_id,user["id"],body.recipient_id,body.path.strip("/"),json.dumps(perms),int(time.time())))
+        found = conn.execute("SELECT id FROM folder_shares WHERE owner_id=? AND recipient_id=? AND path=?", (user["id"], body.recipient_id, path)).fetchone()
+        share_id = found["id"] if found else secrets.token_urlsafe(12)
+        if found: conn.execute("UPDATE folder_shares SET permissions=? WHERE id=?", (json.dumps(perms), share_id))
+        else: conn.execute("INSERT INTO folder_shares(id,owner_id,recipient_id,path,permissions,created_at) VALUES(?,?,?,?,?,?)",(share_id,user["id"],body.recipient_id,path,json.dumps(perms),int(time.time())))
         conn.commit()
-    _audit("hub:"+user["id"],"share",body.path+" -> "+body.recipient_id); return {"id":share_id,"ok":True}
+    _audit("hub:"+user["id"],"share",path+" -> "+body.recipient_id); return {"id":share_id,"ok":True}
 
 
-def _shared(user_id: str, share_id: str):
-    with _db() as conn: row=conn.execute("SELECT * FROM folder_shares WHERE id=? AND recipient_id=?",(share_id,user_id)).fetchone()
-    if not row: raise HTTPException(404,"Shared folder not found")
-    root=_safe(_user_root(row["owner_id"]),row["path"])
-    if not root.is_dir(): raise HTTPException(410,"Shared folder is unavailable")
-    return row,root,set(json.loads(row["permissions"]))
+class SharePermissionsBody(BaseModel): permissions: list[str] = Field(default_factory=list)
 
 
-@router.get("/shares/{share_id}/files")
-async def shared_files(share_id: str, path: str="", x_pub_token: str = Header(default=None)):
-    user=_need_public(x_pub_token); row,root,perms=_shared(user["id"],share_id)
-    if "read" not in perms: raise HTTPException(403,"Read not permitted")
-    return _entries(root,path)
+@router.put("/shares/{share_id}")
+async def update_share(share_id: str, body: SharePermissionsBody, x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token); perms = sorted(_norm_perms(body.permissions))
+    with _db() as conn:
+        if not conn.execute("UPDATE folder_shares SET permissions=? WHERE id=? AND owner_id=?", (json.dumps(perms), share_id, user["id"])).rowcount: raise HTTPException(404, "Share not found")
+        conn.commit()
+    return {"ok": True}
 
 
-@router.post("/shares/{share_id}/upload")
-async def shared_upload(share_id: str, path: str = Form(""), file: UploadFile = File(...), x_pub_token: str = Header(default=None)):
-    user=_need_public(x_pub_token); row,root,perms=_shared(user["id"],share_id)
-    if "write" not in perms or not file.filename or os.path.basename(file.filename)!=file.filename: raise HTTPException(403,"Write not permitted")
-    folder=_safe(root,path)
-    if not folder.is_dir(): raise HTTPException(404,"Folder not found")
-    target=_safe(root,str(Path(path)/file.filename)); temp=target.with_name("."+target.name+".upload"); size=0
-    try:
-        with open(temp,"wb") as handle:
-            while chunk:=await file.read(1024*1024):
-                size+=len(chunk)
-                if size>MAX_UPLOAD_BYTES: raise HTTPException(413,"File is too large")
-                handle.write(chunk)
-        os.replace(temp,target)
-    finally: temp.unlink(missing_ok=True)
-    _audit("hub:"+user["id"],"shared_upload",share_id+":"+str(Path(path)/file.filename)); return {"ok":True}
+@router.delete("/shares/{share_id}")
+async def revoke_share(share_id: str, x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token)
+    with _db() as conn:
+        if not conn.execute("DELETE FROM folder_shares WHERE id=? AND owner_id=?", (share_id, user["id"])).rowcount: raise HTTPException(404, "Share not found")
+        conn.commit()
+    _audit("hub:"+user["id"], "unshare", share_id); return {"ok": True}
+
+
+# ── Public links ─────────────────────────────────────────────────────────────
+# Anyone with the address can open a shared file or folder, optionally behind
+# a password.  The link follows the file: it always shows what is in the
+# owner's folder now, and stops working the moment the owner removes it.
+PL_ROUNDS = 200_000
+PL_TICKET_TTL = 6 * 3600
+_pl_fail: dict = {}
+
+
+class LinkBody(BaseModel):
+    path: str = Field(default="", max_length=800)
+    password: str | None = Field(default=None, max_length=200)
+
+
+class LinkUpdateBody(BaseModel):
+    password: str | None = Field(default=None, max_length=200)   # empty or null removes it
+
+
+def _pl_hash(password: str, salt: str) -> str:
+    return hashlib.pbkdf2_hmac("sha256", password.encode(), bytes.fromhex(salt), PL_ROUNDS).hex()
+
+
+def _pl_row(link_id: str):
+    if not re.fullmatch(r"[A-Za-z0-9_-]{8,64}", link_id or ""): raise HTTPException(404, "This link is not available")
+    with _db() as conn: row = conn.execute("SELECT * FROM public_links WHERE id=?", (link_id,)).fetchone()
+    if not row: raise HTTPException(404, "This link is not available")
+    if not _public_enabled(): raise HTTPException(403, "This link is not available")
+    return row
+
+
+def _pl_target(row):
+    root = _user_root(row["owner_id"]); target = _safe(root, row["path"])
+    if not target.exists(): raise HTTPException(410, "This link is not available")
+    rel = target.relative_to(root).as_posix()
+    if rel == ".": rel = ""
+    with _db() as conn:
+        for vault in conn.execute("SELECT path FROM vaults WHERE user_id=?", (row["owner_id"],)):
+            v = vault["path"]
+            if not rel or rel == v or rel.startswith(v + "/") or v.startswith(rel + "/"):
+                raise HTTPException(403, "Encrypted folders cannot get a public link")
+    return target
+
+
+def _pl_sig(row, expires: int) -> str:
+    return hmac.new(_media_secret().encode(), f"pl:{row['id']}:{expires}:{row['pass_hash'] or ''}".encode(), hashlib.sha256).hexdigest()
+
+
+def _pl_ticket(row) -> str:
+    expires = int(time.time()) + PL_TICKET_TTL
+    return f"{expires}.{_pl_sig(row, expires)}"
+
+
+def _pl_check(row, ticket: str):
+    try: expires, sig = (ticket or "").split(".", 1); expires = int(expires)
+    except ValueError: raise HTTPException(401, "Password required")
+    if expires < time.time() or not hmac.compare_digest(sig, _pl_sig(row, expires)): raise HTTPException(401, "Password required")
+
+
+def _client_ip(request) -> str:
+    peer = request.client.host if request.client else "unknown"
+    if peer in ("127.0.0.1", "::1"):
+        fwd = request.headers.get("x-forwarded-for", "").split(",")[0].strip() or request.headers.get("x-real-ip", "").strip()
+        if fwd: return fwd[:128]
+    return peer[:128]
+
+
+@router.get("/p/{link_id}")
+async def public_link_page(link_id: str):
+    if not _public_enabled(): return await index()
+    return HTMLResponse("""<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>mvmCloud</title><style>html,body{margin:0;min-height:100%;background:#1e1e2e;color:#cdd6f4;font:15px system-ui}</style></head><body><div id="app"></div><script>window.__assets=__ASSET_MAP__</script><script src="__ASSET_HELPER__"></script><script src="__ASSET_BOOT__"></script></body></html>""".replace("__ASSET_MAP__", assets_manifest()).replace("__ASSET_HELPER__", asset("/asset.js")).replace("__ASSET_BOOT__", asset("/apps/mvmcloud/link.js")),
+                        headers={"X-Mvm-No-Public-Chrome": "1", "Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})
+
+
+@router.get("/pl/{link_id}/info")
+async def public_link_info(link_id: str):
+    row = _pl_row(link_id); target = _pl_target(row)
+    return {"name": target.name or "mvmCloud", "is_dir": target.is_dir(), "size": target.stat().st_size if target.is_file() else 0, "needs_password": bool(row["pass_hash"])}
+
+
+@router.post("/pl/{link_id}/unlock")
+async def public_link_unlock(link_id: str, body: LinkUpdateBody, request: Request):
+    row = _pl_row(link_id); key = (link_id, _client_ip(request)); now = time.time()
+    count, first = _pl_fail.get(key, (0, now))
+    if now - first > 600: count, first = 0, now
+    if count >= 8: raise HTTPException(429, "Too many attempts. Try again later.")
+    if row["pass_hash"]:
+        if not body.password or not hmac.compare_digest(_pl_hash(body.password, row["pass_salt"]), row["pass_hash"]):
+            _pl_fail[key] = (count + 1, first); raise HTTPException(403, "Wrong password")
+    _pl_fail.pop(key, None)
+    return {"ticket": _pl_ticket(row)}
+
+
+@router.get("/pl/{link_id}/list")
+async def public_link_list(link_id: str, path: str = "", a: str = ""):
+    row = _pl_row(link_id); _pl_check(row, a); target = _pl_target(row)
+    if not target.is_dir(): raise HTTPException(404, "Folder not found")
+    out = _entries(target, path)
+    out["entries"] = [e for e in out["entries"] if not e["name"].startswith(".")]
+    return out
+
+
+@router.get("/pl/{link_id}/file")
+async def public_link_file(link_id: str, path: str = "", a: str = "", dl: int = 1):
+    row = _pl_row(link_id); _pl_check(row, a); target = _pl_target(row)
+    file = target if target.is_file() else _safe(target, path)
+    if not file.is_file() or file.name.startswith("."): raise HTTPException(404, "File not found")
+    headers = {"X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "Content-Security-Policy": "sandbox"}
+    kind = INLINE_TYPES.get(file.suffix.lower())
+    if dl or not kind: return FileResponse(file, filename=file.name, headers=headers)
+    return FileResponse(file, media_type=kind, filename=file.name, content_disposition_type="inline", headers={**headers, "Cache-Control": "private, max-age=600"})
+
+
+@router.get("/links")
+async def my_links(x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token)
+    with _db() as conn: rows = conn.execute("SELECT id,path,is_dir,pass_hash,created_at FROM public_links WHERE owner_id=? ORDER BY created_at", (user["id"],)).fetchall()
+    return {"enabled": _public_enabled(), "links": [{"id": r["id"], "path": r["path"], "is_dir": bool(r["is_dir"]), "has_password": bool(r["pass_hash"]), "created_at": r["created_at"]} for r in rows]}
+
+
+def _pl_pass_fields(password):
+    if not password: return None, None
+    salt = secrets.token_bytes(16).hex(); return salt, _pl_hash(password, salt)
+
+
+@router.post("/links")
+async def create_link(body: LinkBody, x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token)
+    if not _public_enabled(): raise HTTPException(403, "Public links are turned off for mvmCloud")
+    root = _user_root(user["id"]); target = _safe(root, body.path); rel = body.path.strip("/")
+    if not target.exists() or target.is_symlink(): raise HTTPException(404, "Not found")
+    with _db() as conn:
+        for vault in conn.execute("SELECT path FROM vaults WHERE user_id=?", (user["id"],)):
+            if not rel or rel == vault["path"] or rel.startswith(vault["path"] + "/") or vault["path"].startswith(rel + "/"):
+                raise HTTPException(403, "Encrypted folders cannot get a public link")
+        salt, digest = _pl_pass_fields(body.password)
+        found = conn.execute("SELECT id FROM public_links WHERE owner_id=? AND path=?", (user["id"], rel)).fetchone()
+        link_id = found["id"] if found else secrets.token_urlsafe(16)
+        if found: conn.execute("UPDATE public_links SET pass_salt=?,pass_hash=? WHERE id=?", (salt, digest, link_id))
+        else: conn.execute("INSERT INTO public_links(id,owner_id,path,is_dir,pass_salt,pass_hash,created_at) VALUES(?,?,?,?,?,?,?)", (link_id, user["id"], rel, int(target.is_dir()), salt, digest, int(time.time())))
+        conn.commit()
+    _audit("hub:" + user["id"], "public_link", rel); return {"id": link_id, "ok": True}
+
+
+@router.put("/links/{link_id}")
+async def update_link(link_id: str, body: LinkUpdateBody, x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token); salt, digest = _pl_pass_fields(body.password)
+    with _db() as conn:
+        if not conn.execute("UPDATE public_links SET pass_salt=?,pass_hash=? WHERE id=? AND owner_id=?", (salt, digest, link_id, user["id"])).rowcount: raise HTTPException(404, "Link not found")
+        conn.commit()
+    return {"ok": True}
+
+
+@router.delete("/links/{link_id}")
+async def delete_link(link_id: str, x_pub_token: str = Header(default=None)):
+    user = _need_public(x_pub_token)
+    with _db() as conn:
+        if not conn.execute("DELETE FROM public_links WHERE id=? AND owner_id=?", (link_id, user["id"])).rowcount: raise HTTPException(404, "Link not found")
+        conn.commit()
+    _audit("hub:" + user["id"], "public_link_remove", link_id); return {"ok": True}
 
 
 def _desktop_admin(session):
@@ -725,7 +1111,101 @@ def admin_delete_user(user_id: str, session=Depends(sys.modules["backend.auth"].
     _desktop_admin(session)
     root = _user_root(user_id)
     shutil.rmtree(root); shutil.rmtree(_thumb_dir(user_id), ignore_errors=True); _audit("desktop:root", "delete_user_storage", user_id)
+    with _db() as conn:
+        conn.execute("DELETE FROM folder_shares WHERE owner_id=? OR recipient_id=?", (user_id, user_id)); conn.execute("DELETE FROM public_links WHERE owner_id=?", (user_id,)); conn.execute("DELETE FROM mount_grants WHERE recipient=?", (user_id,)); conn.commit()
     return {"ok":True}
+
+
+class GrantBody(BaseModel):
+    recipient: str = Field(min_length=1, max_length=100)   # "*" means every profile
+    permissions: list[str] = Field(default_factory=lambda: ["view"])
+
+
+class MountBody(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
+    kind: str = Field(pattern="^(server|remote)$")
+    path: str = Field(default="", max_length=1000)          # absolute folder of this server, or the folder inside a shared folder
+    folder_id: str | None = Field(default=None, max_length=100)
+    grants: list[GrantBody] = Field(default_factory=list)
+
+
+class MountGrantsBody(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=80)
+    grants: list[GrantBody] = Field(default_factory=list)
+
+
+def _mount_view(conn, row) -> dict:
+    grants = _grants(conn, row["id"])
+    profiles = _profiles({g for g in grants if g != "*"})
+    ceiling = _mount_ceiling(row)
+    return {"id": row["id"], "name": row["name"], "kind": row["kind"], "path": row["path"], "ceiling": sorted(ceiling),
+            "available": bool(ceiling), "grants": [{"recipient": g, "name": ("*" if g == "*" else (profiles.get(g, {}).get("display_name") or profiles.get(g, {}).get("username") or g)),
+                                                    "permissions": sorted(p)} for g, p in grants.items()]}
+
+
+def _save_grants(conn, mount_id: str, ceiling: set, grants: list):
+    seen = {}
+    for g in grants:
+        perms = _norm_perms(g.permissions)
+        if perms - ceiling: raise HTTPException(400, "A right was chosen that the folder itself does not allow")
+        if g.recipient != "*" and not USER_ID_RE.fullmatch(g.recipient): raise HTTPException(400, "Invalid profile")
+        seen[g.recipient] = sorted(perms)
+    real = {u for u in seen if u != "*"}
+    if real and len(_profiles(real)) != len(real): raise HTTPException(404, "Apps Hub user not found")
+    conn.execute("DELETE FROM mount_grants WHERE mount_id=?", (mount_id,))
+    for who, perms in seen.items(): conn.execute("INSERT INTO mount_grants(mount_id,recipient,permissions) VALUES(?,?,?)", (mount_id, who, json.dumps(perms)))
+
+
+@desktop_router.get("/admin/mounts")
+async def admin_mounts(session=Depends(sys.modules["backend.auth"].get_current_session)):
+    _desktop_admin(session)
+    def build():
+        with _db() as conn: return [_mount_view(conn, r) for r in conn.execute("SELECT * FROM mounts ORDER BY name")]
+    return {"mounts": await run_in_threadpool(build)}
+
+
+@desktop_router.post("/admin/mounts")
+async def admin_mount_create(body: MountBody, session=Depends(sys.modules["backend.auth"].get_current_session)):
+    session = _desktop_admin(session); linux_user = session["effective_user"]; folder_id = None; path = body.path.strip()
+    if body.kind == "server":
+        root = _fp().resolve_server_path(session, path, ["~"], kind="dir"); path = root
+        home = _mount_home(linux_user)
+        if Path(root) != home and home not in Path(root).parents: raise HTTPException(403, "Choose a folder inside the current Linux profile home")
+    else:
+        folder_id = _fp().shared_folder(session, body.folder_id or "")["id"]; path = path.strip("/")
+        _remote_rel(SimpleNamespace(remote={"path": ""}), path)
+    mount_id = secrets.token_urlsafe(10); row = {"id": mount_id, "kind": body.kind, "linux_user": linux_user, "path": path, "folder_id": folder_id}
+    ceiling = await run_in_threadpool(_mount_ceiling, row)
+    if not ceiling: raise HTTPException(400, "This folder cannot be reached")
+    with _db() as conn:
+        _save_grants(conn, mount_id, ceiling, body.grants)
+        conn.execute("INSERT INTO mounts(id,name,kind,linux_user,path,folder_id,created_at) VALUES(?,?,?,?,?,?,?)", (mount_id, body.name.strip(), body.kind, linux_user, path, folder_id, int(time.time())))
+        conn.commit()
+    _audit("desktop:" + linux_user, "mount_create", body.kind + ":" + path)
+    return {"id": mount_id, "ok": True}
+
+
+@desktop_router.put("/admin/mounts/{mount_id}")
+async def admin_mount_update(mount_id: str, body: MountGrantsBody, session=Depends(sys.modules["backend.auth"].get_current_session)):
+    _desktop_admin(session)
+    with _db() as conn:
+        row = conn.execute("SELECT * FROM mounts WHERE id=?", (mount_id,)).fetchone()
+        if not row: raise HTTPException(404, "Not found")
+        ceiling = await run_in_threadpool(_mount_ceiling, row)
+        _save_grants(conn, mount_id, ceiling, body.grants)
+        if body.name: conn.execute("UPDATE mounts SET name=? WHERE id=?", (body.name.strip(), mount_id))
+        conn.commit()
+    return {"ok": True}
+
+
+@desktop_router.delete("/admin/mounts/{mount_id}")
+async def admin_mount_delete(mount_id: str, session=Depends(sys.modules["backend.auth"].get_current_session)):
+    _desktop_admin(session)
+    with _db() as conn:
+        conn.execute("DELETE FROM mount_grants WHERE mount_id=?", (mount_id,))
+        if not conn.execute("DELETE FROM mounts WHERE id=?", (mount_id,)).rowcount: raise HTTPException(404, "Not found")
+        conn.commit()
+    return {"ok": True}
 
 
 @desktop_router.post("/admin/external-tokens")

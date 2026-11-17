@@ -315,6 +315,12 @@ Core 1.22.0 adds `createFolder` to picker options (default enabled for folder an
 
 For in-place libraries, use the Core 1.22.0 server helpers: `folder_files(user, root, extensions, limit)`, `open_server_file(user, root, rel) -> (handle, size)`, `write_beside(user, root, rel, bytes)`, `shared_folder_files(owner, folder_id, base, extensions)`, `shared_read_head(owner, folder_id, path, max_bytes)`, `shared_can_write(owner, folder_id, path)` and `shared_write_beside(owner, folder_id, path, bytes)`. Resolve and authorize a server root first, save its Linux owner, and close each opened handle. Shared files play directly through `shared_file_url`; source permissions are checked again on use. Core 1.23.0 adds `shared_mkdir(owner, folder_id, path)`, `shared_delete(owner, folder_id, path)` (a file or an empty folder) and `shared_upload_file(owner, folder_id, path, local_path)`, which streams a local file in parts; each needs the matching permission on the shared folder. The first two return whether they succeeded; the upload raises when it fails and leaves no partial file behind. From Core 1.23.0, files and folders written into a shared folder are created with modes 644 and 755.
 
+### Direct browser uploads to connected folders
+
+Core 1.26.0 provides `backend.filepicker.shared_upload_ticket(owner, folder_id, path, size, ttl=14400)`. It validates the connected folder’s Linux owner and a relative file path and returns `{base, ticket, path}`. The profile’s browser sends `POST base + '/uploads'` with `{path, size}`, then `PUT base + '/uploads/<id>'` chunks with `X-Upload-Offset`, and can `DELETE` that upload to cancel. Use `X-Upload-Ticket` on every request and omit credentials. The folder secret stays on the server.
+
+The source rechecks upload permission, expiry, recipient origin, exact path and maximum size, including when continuing an existing upload. A ticket cannot list or read other files. Both sides need Core 1.26.0. A guarded optional integration can retain an earlier `min_core_version` when it supplies a working normal-upload fallback for a missing helper or an older sharing server.
+
 ### mvmOS.db(appId)
 
 Returns an object for accessing the app's SQLite database.
@@ -1533,7 +1539,7 @@ The functions in `app_api.py` are also what **Automations** and the **External A
 INTERNAL_ONLY = {"get_code", "get_vault"}
 ```
 
-**Showing what is going on right now.** An app can offer `get_live_activity(user_id)` in `app_api.py` to take part in the strip under the header of the Apps Hub public pages (core 1.13.0 and later). It returns a list of items for what is running for that profile at this moment, each a dict with `title` (required), `id`, `state` (`"running"` or `"paused"`), `elapsed_seconds` for a clock that keeps counting while running, `due_at` for something that falls due later, and up to three `actions`. An action is `{"type": "pause" | "resume" | "stop" | "done", "function": "<name of a function of the same app>", "args": {...}}`; the strip draws the button and can only run an action the app offered a moment before. The strip shows only apps the profile keeps on its shelf, and name the function in `INTERNAL_ONLY` so scripts and Automations do not list it:
+**Showing what is going on right now.** An app can offer `get_live_activity(user_id)` in `app_api.py` to offer live activity on Apps Hub public pages (core 1.13.0 and later). From Core 1.26.0, this appears in the activity button’s panel together with recent actions, and in the desktop taskbar activity panel. It returns a list of items for what is running for that profile at this moment, each a dict with `title` (required), `id`, `state` (`"running"` or `"paused"`), `elapsed_seconds` for a clock that keeps counting while running, `due_at` for something that falls due later, and up to three `actions`. An action is `{"type": "pause" | "resume" | "stop" | "done", "function": "<name of a function of the same app>", "args": {...}}`; the strip draws the button and can only run an action the app offered a moment before. The strip shows only apps the profile keeps on its shelf, and name the function in `INTERNAL_ONLY` so scripts and Automations do not list it:
 
 ```python
 INTERNAL_ONLY = ("get_live_activity",)
@@ -2223,3 +2229,7 @@ Cloudflare terminates SSL itself and talks to your origin over HTTP. Your server
 Configure nginx/Apache as above (HTTP only, port 80). Cloudflare proxies HTTPS → your origin HTTP. Set SSL/TLS mode to **Full** in Cloudflare dashboard (not Full Strict, unless you add a certificate on origin too).
 
 Cloudflare supported HTTP origin ports: `80, 8080, 8880, 2052, 2082, 2086, 2095`
+
+## Desktop theme aliases in Core 1.26.0
+
+Core maps desktop `--pub-bg`, `--pub-surface1`, `--pub-surface2`, `--pub-border`, `--pub-fg`, `--pub-fg2`, `--pub-dim`, `--pub-accent`, `--pub-accent-hover`, `--pub-on-accent` and `--pub-red` to their desktop equivalents. Shared app widgets therefore follow the desktop theme. Keep fallbacks for earlier Core versions; public pages continue to follow Apps Hub appearance settings.

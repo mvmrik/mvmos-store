@@ -50,6 +50,8 @@ MANUAL = "manual"
 METRICS = {
     "weight":   {"kind": "reading", "group": "body", "unit": "kg",
                  "fields": [("value", 20, 500, False)]},
+    "height":   {"kind": "reading", "group": "body", "unit": "cm",
+                 "fields": [("value", 50, 250, False)]},
     "bp":       {"kind": "reading", "group": "body", "unit": "mmHg",
                  "fields": [("sys", 50, 300, False), ("dia", 30, 200, False), ("pulse", 20, 250, True)]},
     "water":    {"kind": "daily", "group": "nutrition", "unit": "ml", "max": 20000},
@@ -58,6 +60,11 @@ METRICS = {
     "calories": {"kind": "daily", "group": "nutrition", "unit": "kcal", "max": 20000},
     "sugar":    {"kind": "daily", "group": "nutrition", "unit": "g", "max": 2000},
     "protein":  {"kind": "daily", "group": "nutrition", "unit": "g", "max": 1000},
+    "carbs":    {"kind": "daily", "group": "nutrition", "unit": "g", "max": 3000},
+    "fat":      {"kind": "daily", "group": "nutrition", "unit": "g", "max": 1500},
+    "sat_fat":  {"kind": "daily", "group": "nutrition", "unit": "g", "max": 800},
+    "fiber":    {"kind": "daily", "group": "nutrition", "unit": "g", "max": 500},
+    "salt":     {"kind": "daily", "group": "nutrition", "unit": "g", "max": 300},
 }
 
 
@@ -110,6 +117,14 @@ def _init_db():
                 user_id TEXT PRIMARY KEY,
                 weight_unit TEXT NOT NULL DEFAULT 'kg',
                 volume_unit TEXT NOT NULL DEFAULT 'ml'
+            );
+            CREATE TABLE IF NOT EXISTS profile (
+                user_id TEXT PRIMARY KEY,
+                sex TEXT NOT NULL DEFAULT '',
+                birth_date TEXT NOT NULL DEFAULT '',
+                blood_type TEXT NOT NULL DEFAULT '',
+                conditions TEXT NOT NULL DEFAULT '',
+                medications TEXT NOT NULL DEFAULT ''
             );
             CREATE TABLE IF NOT EXISTS lab_custom (
                 id TEXT PRIMARY KEY,
@@ -227,6 +242,78 @@ def _set_settings(uid, weight_unit, volume_unit):
             (uid, wu, vu))
         c.commit()
     return {"weight_unit": wu, "volume_unit": vu}
+
+
+# ── Personal profile ─────────────────────────────────────────────
+# What stays true about a person for other apps to use: sex, birth date
+# (the age is worked out from it, so it is always current), blood type and
+# free-text notes. Height and weight are readings, so their history is kept;
+# the profile shows their latest values.
+
+BLOOD_TYPES = ("", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-")
+SEXES = ("", "m", "f")
+
+
+def _age(birth_date, today=None):
+    if not birth_date:
+        return None
+    try:
+        b = datetime.strptime(birth_date, "%Y-%m-%d").date()
+    except ValueError:
+        return None
+    t = datetime.strptime(today, "%Y-%m-%d").date() if today else datetime.now().date()
+    return t.year - b.year - ((t.month, t.day) < (b.month, b.day))
+
+
+def _latest_reading(c, uid, metric):
+    r = c.execute("SELECT * FROM readings WHERE user_id=? AND metric=? ORDER BY at DESC, rowid DESC LIMIT 1",
+                  (uid, metric)).fetchone()
+    return _reading_out(r) if r else None
+
+
+def _profile(uid):
+    with _db() as c:
+        row = c.execute("SELECT * FROM profile WHERE user_id=?", (uid,)).fetchone()
+        w = _latest_reading(c, uid, "weight")
+        h = _latest_reading(c, uid, "height")
+    d = dict(row) if row else {"sex": "", "birth_date": "", "blood_type": "", "conditions": "", "medications": ""}
+    return {"sex": d["sex"], "birth_date": d["birth_date"], "age": _age(d["birth_date"]),
+            "blood_type": d["blood_type"], "conditions": d["conditions"], "medications": d["medications"],
+            "height_cm": h["v"][0] if h else None, "height_day": h["day"] if h else None,
+            "weight_kg": w["v"][0] if w else None, "weight_day": w["day"] if w else None}
+
+
+def _save_profile(uid, data):
+    """data holds any of sex, birth_date, blood_type, conditions, medications;
+    what is left out stays as it was, an empty value clears it."""
+    with _db() as c:
+        row = c.execute("SELECT * FROM profile WHERE user_id=?", (uid,)).fetchone()
+        cur = dict(row) if row else {"user_id": uid, "sex": "", "birth_date": "", "blood_type": "",
+                                     "conditions": "", "medications": ""}
+        if data.get("sex") is not None:
+            if data["sex"] not in SEXES:
+                raise ValueError("invalid_sex")
+            cur["sex"] = data["sex"]
+        if data.get("birth_date") is not None:
+            bd = data["birth_date"]
+            if bd:
+                _check_day(bd)
+                if bd > datetime.now().strftime("%Y-%m-%d") or bd < "1900-01-01":
+                    raise ValueError("invalid_birth_date")
+            cur["birth_date"] = bd
+        if data.get("blood_type") is not None:
+            if data["blood_type"] not in BLOOD_TYPES:
+                raise ValueError("invalid_blood_type")
+            cur["blood_type"] = data["blood_type"]
+        for k in ("conditions", "medications"):
+            if data.get(k) is not None:
+                cur[k] = str(data[k]).strip()[:1000]
+        c.execute("INSERT INTO profile(user_id,sex,birth_date,blood_type,conditions,medications) VALUES(?,?,?,?,?,?) "
+                  "ON CONFLICT(user_id) DO UPDATE SET sex=excluded.sex, birth_date=excluded.birth_date, "
+                  "blood_type=excluded.blood_type, conditions=excluded.conditions, medications=excluded.medications",
+                  (uid, cur["sex"], cur["birth_date"], cur["blood_type"], cur["conditions"], cur["medications"]))
+        c.commit()
+    return _profile(uid)
 
 
 # ── Readings (weight, blood pressure, …) ─────────────────────────
@@ -823,6 +910,30 @@ async def put_settings(body: SettingsBody, x_pub_token: str = Header(default=Non
     if not me:
         return _bad("unauthorized", 401)
     return JSONResponse(_set_settings(me["id"], body.weight_unit, body.volume_unit))
+
+
+class ProfileBody(BaseModel):
+    sex: Optional[str] = None
+    birth_date: Optional[str] = None
+    blood_type: Optional[str] = None
+    conditions: Optional[str] = None
+    medications: Optional[str] = None
+
+
+@router.get("/profile")
+async def get_profile(x_pub_token: str = Header(default=None)):
+    me = _me(x_pub_token)
+    if not me:
+        return _bad("unauthorized", 401)
+    return JSONResponse(_profile(me["id"]))
+
+
+@router.put("/profile")
+async def put_profile(body: ProfileBody, x_pub_token: str = Header(default=None)):
+    me = _me(x_pub_token)
+    if not me:
+        return _bad("unauthorized", 401)
+    return _reply(_save_profile, me["id"], body.dict(exclude_none=True))
 
 
 @router.get("/overview")

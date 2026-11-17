@@ -286,3 +286,9 @@ Its apps appear in the App Store next to the official ones and install like any 
 Folder and destination pickers offer New folder, controlled by `createFolder` and shared upload permission. In-place libraries use the shared `backend.filepicker` folder listing, opened-file and sidecar read/write helpers; resolve the root and retain the Linux owner. See the full developer guide for signatures. Apps using these helpers must require Core 1.22.0.
 
 Desktop Apps Hub app windows show a profile menu containing account, optional app settings and logout. Competing file handlers including a Store app prompt for a choice until the person saves a default.
+
+## Core 1.26.0 interfaces
+
+Desktop widgets using `--pub-*` colours inherit the active desktop theme through Core aliases. Live activities now appear inside the activity panel beside recent actions, in both the public header and desktop taskbar. Apps still provide the same generic `get_live_activity` contract.
+
+For direct browser uploads to a connected shared folder, use the owner-scoped `shared_upload_ticket` helper and `X-Upload-Ticket` on the source upload routes. Tickets name exactly one path and maximum file size, expire and obey the source grant’s current permissions and recipient origin. Both servers need Core 1.26.0; guard the helper and provide an ordinary upload fallback if earlier Core versions remain supported. See the developer guide for the request sequence.

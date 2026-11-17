@@ -176,6 +176,8 @@
   function targetOf(ev){return ev.kind===1?replyTarget(ev):lastETag(ev)}
 
   // ---- relay pool: raw WebSocket per relay, NIP-01 REQ/EVENT/CLOSE ----
+  var CONTACT_RELAYS=['wss://purplepag.es'];
+  var EOSE_GRACE_MS=1500;
   function createPool(){
     var conns={},subs={},okWaiters={},statusListeners=[];
     function notifyStatus(){statusListeners.forEach(function(cb){cb()})}
@@ -217,7 +219,7 @@
     function fireEose(subId){
       var sub=subs[subId];
       if(!sub||sub.eosed)return;
-      sub.eosed=true;clearTimeout(sub.timer);
+      sub.eosed=true;clearTimeout(sub.timer);clearTimeout(sub.grace);
       if(sub.onEose)sub.onEose();
     }
     function handleMessage(url,data){
@@ -227,7 +229,14 @@
         if(sub&&sub.onEvent)sub.onEvent(data[2],url);
       }else if(type==='EOSE'){
         var sub2=subs[data[1]];
-        if(sub2){delete sub2.pending[url];if(!Object.keys(sub2.pending).length)fireEose(data[1])}
+        if(sub2){
+          delete sub2.pending[url];
+          if(!Object.keys(sub2.pending).length)fireEose(data[1]);
+          // A relay that is down never answers, and waiting out the full ceiling
+          // for it held every list on "Loading". Once a relay has answered, the
+          // rest get a short grace period and then the list is drawn without them.
+          else if(!sub2.grace){var sid=data[1];sub2.grace=setTimeout(function(){fireEose(sid)},EOSE_GRACE_MS)}
+        }
       }else if(type==='OK'){
         var waiters=okWaiters[data[1]]||[];
         waiters.slice().forEach(function(fn){fn(url,data[2],data[3])});
@@ -248,7 +257,7 @@
       },
       unsubscribe:function(subId){
         var sub=subs[subId];if(!sub)return;
-        clearTimeout(sub.timer);
+        clearTimeout(sub.timer);clearTimeout(sub.grace);
         sub.urls.forEach(function(url){var c=conns[url];if(c)send(c,['CLOSE',subId])});
         delete subs[subId];
       },
@@ -329,7 +338,14 @@
   function idbDel(id){return idbRun('readwrite',function(store){store.delete(id);return null}).catch(function(){})}
 
   var styled=false;
-  function style(){if(styled)return;styled=true;var s=document.createElement('style');s.textContent='.nos,.nos *,.nos-modal,.nos-modal *{box-sizing:border-box}.nos{height:100%;display:flex;flex-direction:column;position:relative;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif;overflow:hidden}.nos-bar{border-bottom:1px solid var(--pub-border,#45475a);flex:0 0 auto}.nos-bar-head{display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem}.nos-title{font-weight:700;font-size:.88rem;white-space:nowrap}.nos-tabs{display:flex;gap:.25rem;flex:1;overflow-x:auto;scrollbar-width:none}.nos-tabs::-webkit-scrollbar{display:none}.nos-tab{background:transparent;padding:.35rem .6rem;border-radius:.5rem;white-space:nowrap;position:relative}.nos-tab.active{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e))}.nos-badge{display:inline-block;min-width:1.05rem;padding:0 .25rem;margin-left:.25rem;border-radius:.6rem;background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1.05rem;text-align:center}.nos-bar-btn{flex:0 0 auto;padding:.35rem .5rem;display:inline-flex;align-items:center;justify-content:center}.nos-me{flex:0 0 auto;padding:0;background:none!important}.nos-modes{display:flex;gap:.3rem;padding:0 .7rem .55rem;overflow-x:auto;scrollbar-width:none}.nos-modes::-webkit-scrollbar{display:none}.nos-mode{background:var(--pub-surface2,#313244);padding:.28rem .6rem;border-radius:999px;font-size:.74rem;white-space:nowrap}.nos-mode.active{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e))}.nos-body{flex:1;min-height:0;overflow:auto;overflow-anchor:none;padding:.7rem}.nos button,.nos input,.nos textarea,.nos select,.nos-modal button,.nos-modal textarea{font:inherit}.nos button,.nos-modal button{border:0;border-radius:.45rem;padding:.45rem .7rem;cursor:pointer;font-size:.8rem;font-weight:600;background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4);transition:filter .15s,transform .15s}.nos button:hover,.nos-modal button:hover{filter:brightness(1.12)}.nos button:active{transform:translateY(1px)}.nos button:disabled{opacity:.6;cursor:default}.nos .primary,.nos-modal .primary{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e))}.nos input,.nos textarea,.nos select,.nos-modal textarea{width:100%;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;color:var(--pub-fg,#cdd6f4);padding:.55rem .65rem;outline:none;margin:.3rem 0}.nos input:focus,.nos textarea:focus,.nos select:focus,.nos-modal textarea:focus{border-color:var(--pub-accent,#89b4fa)}.nos-error{min-height:1.2rem;color:var(--pub-red,#f38ba8);font-size:.8rem;margin:.3rem 0}.nos-empty{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;padding:1.5rem;color:var(--pub-fg2,#a6adc8);font-size:.85rem}.nos-unlock,.nos-onboard{display:flex;flex:1;align-items:center;justify-content:center;padding:1rem}.nos-unlock>div,.nos-card{width:100%;max-width:24rem;background:var(--pub-surface2,#313244);padding:1.25rem;border-radius:.7rem}.nos-unlock h2,.nos-card h2{font-size:1.05rem;margin:0 0 .4rem}.nos-unlock p,.nos-card p{font-size:.82rem;line-height:1.45;color:var(--pub-fg2,#a6adc8)}.nos-duration-hint{font-size:.72rem;opacity:.75;margin:.2rem 0 .6rem}.nos-warn{font-size:.78rem;line-height:1.45;color:var(--pub-yellow,#f9e2af);border:1px solid var(--pub-yellow,#f9e2af);border-radius:.45rem;padding:.5rem .6rem;margin:.5rem 0}.nos-link{background:none!important;padding:.4rem 0;font-size:.78rem;font-weight:400;color:var(--pub-accent,#89b4fa);text-decoration:underline}.nos-view-value{background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;padding:.55rem .65rem;font-size:.8rem;overflow-wrap:anywhere;margin:.3rem 0}.nos-key-value{font-family:monospace}.nos-check{display:flex!important;align-items:center;gap:.45rem;width:auto;font-size:.8rem;cursor:pointer}.nos-check input{width:auto;margin:0}.nos-note{border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);border-radius:.65rem;padding:.65rem;margin-bottom:.55rem;cursor:pointer;transition:background .3s}.nos-note:hover{filter:brightness(1.05)}.nos-note.nos-flat{border:0;background:none;padding:.55rem 0;border-bottom:1px solid var(--pub-border,#45475a);border-radius:0;margin:0}.nos-boost{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.35rem}.nos-note-head{display:flex;align-items:center;gap:.5rem}.nos-avatar-wrap{position:relative;width:2.1rem;height:2.1rem;flex:0 0 auto;cursor:pointer}.nos-avatar-wrap.nos-lg{width:4rem;height:4rem}.nos-avatar{position:absolute;inset:0;width:100%;height:100%;border-radius:.5rem;object-fit:cover;display:grid;place-items:center;background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e));font-weight:800;overflow:hidden}.nos-avatar-img{background:var(--pub-surface2,#313244)}.nos-note-who{flex:1;min-width:0;cursor:pointer}.nos-note-name{display:block;font-weight:700;font-size:.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nos-note-time{display:block;font-size:.71rem;color:var(--pub-dim,#a6adc8)}.nos-nip05{font-size:.71rem;color:var(--pub-accent,#89b4fa)}.nos-follow-btn{flex:0 0 auto;padding:.28rem .55rem;font-size:.72rem}.nos-reply-of-wrap{margin:.35rem 0}.nos-reply-of-label{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.2rem}.nos-reply-of-wrap .nos-quote{margin:0;padding:.4rem .5rem}.nos-reply-of-wrap .nos-quote .nos-note-content{font-size:.76rem;max-height:5rem}.nos-reply-of-wrap .nos-avatar-wrap{width:1.5rem;height:1.5rem}.nos-reply-of-wrap .nos-note-name{font-size:.76rem}.nos-reply-of-wrap .nos-note-time{font-size:.66rem}.nos-note-content{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.86rem;margin:.4rem 0;overflow:hidden}.nos-note-content a{color:var(--pub-accent,#89b4fa)}.nos-mention{color:var(--pub-accent,#89b4fa);cursor:pointer}.nos-embed-link{display:block;width:100%}.nos-embed-img{display:block;max-width:100%;height:auto;max-height:22rem;border-radius:.5rem;margin-top:.4rem;object-fit:contain}.nos-embed-video{display:block;max-width:100%;height:auto;max-height:22rem;border-radius:.5rem;margin-top:.4rem;background:#000}.nos-embed-audio{display:block;width:100%;margin-top:.4rem}.nos-quote{border:1px solid var(--pub-border,#45475a);border-radius:.5rem;padding:.5rem;margin:.45rem 0;background:var(--pub-bg,#1e1e2e)}.nos-preview-card{display:flex;gap:.6rem;align-items:stretch;border:1px solid var(--pub-border,#45475a);border-radius:.5rem;margin:.45rem 0;background:var(--pub-bg,#1e1e2e);overflow:hidden;text-decoration:none;color:inherit}.nos-preview-card:hover{filter:brightness(1.08)}.nos-preview-img{width:5.5rem;flex:0 0 5.5rem;object-fit:cover;background:var(--pub-surface2,#313244)}.nos-preview-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:.15rem;padding:.5rem .55rem}.nos-preview-site{font-size:.68rem;color:var(--pub-fg2,#a6adc8);text-transform:uppercase;letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nos-preview-title{font-size:.82rem;font-weight:700;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.nos-preview-desc{font-size:.74rem;color:var(--pub-fg2,#a6adc8);line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.nos-compose-preview:empty{display:none}.nos-quote .nos-note-content{font-size:.8rem;max-height:12rem}.nos-note-actions{display:flex;gap:.15rem;flex-wrap:wrap;margin-top:.2rem}.nos-act{background:transparent!important;padding:.3rem .45rem;font-size:.74rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-act:hover{color:var(--pub-fg,#cdd6f4)}.nos-act.on{color:var(--pub-accent,#89b4fa);font-weight:700}.nos-act.nos-a-like.on{color:var(--pub-red,#f38ba8)}.nos-act.nos-a-repost.on{color:var(--pub-green,#a6e3a1)}.nos-note-translation{font-size:.82rem;line-height:1.4;font-style:italic;color:var(--pub-fg2,#a6adc8);border-top:1px dashed var(--pub-border,#45475a);padding-top:.35rem;margin-top:.2rem;overflow-wrap:anywhere;white-space:pre-wrap}.nos-modal{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:1rem;z-index:20;overflow:auto}.nos-modal-card{width:100%;max-width:30rem;background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border-radius:.7rem;padding:.9rem;font-family:system-ui,sans-serif}.nos-modal-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem}.nos-modal-title{flex:1;font-weight:700;font-size:.9rem}.nos-modal-input{min-height:6rem;resize:vertical}.nos-modal-foot{display:flex;gap:.4rem;justify-content:flex-end;align-items:center}.nos-modal-ctx{max-height:11rem;overflow:auto;margin-bottom:.5rem}.nos-user-head{margin-bottom:.7rem}.nos-banner{width:100%;height:6.5rem;object-fit:cover;border-radius:.5rem;background:var(--pub-surface2,#313244)}.nos-user-row{display:flex;align-items:flex-end;gap:.6rem;margin-top:-1.6rem;padding:0 .3rem}.nos-user-meta{flex:1;min-width:0;padding-bottom:.2rem}.nos-user-name{font-weight:800;font-size:1rem}.nos-user-about{font-size:.82rem;line-height:1.45;margin:.5rem 0;white-space:pre-wrap;overflow-wrap:anywhere}.nos-user-stats{font-size:.74rem;color:var(--pub-fg2,#a6adc8);display:flex;gap:.9rem;flex-wrap:wrap}.nos-notif{display:flex;gap:.5rem;align-items:flex-start;border-bottom:1px solid var(--pub-border,#45475a);padding:.55rem .1rem;cursor:pointer}.nos-notif-body{flex:1;min-width:0}.nos-notif-line{font-size:.8rem}.nos-notif-quote{font-size:.76rem;color:var(--pub-fg2,#a6adc8);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-top:.15rem}.nos-notif-time{font-size:.7rem;color:var(--pub-dim,#a6adc8)}.nos-profile-form label{display:block;font-size:.75rem;font-weight:700;color:var(--pub-fg2,#a6adc8);margin:.55rem 0 .15rem}.nos-profile-form textarea{min-height:4rem}.nos-profile-meta{margin-top:1rem;font-size:.76rem;color:var(--pub-fg2,#a6adc8)}.nos-relay-row{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--pub-border,#45475a);font-size:.82rem;flex-wrap:wrap}.nos-relay-dot{width:.6rem;height:.6rem;border-radius:50%;flex:0 0 auto;background:var(--pub-dim,#a6adc8)}.nos-relay-open{background:var(--pub-green,#a6e3a1)}.nos-relay-connecting{background:var(--pub-yellow,#f9e2af)}.nos-relay-closed,.nos-relay-error{background:var(--pub-red,#f38ba8)}.nos-relay-url{flex:1;min-width:9rem;overflow-wrap:anywhere}.nos-relay-del{flex:0 0 auto;padding:.3rem .5rem}.nos-relay-add{display:flex;gap:.4rem;margin-top:.6rem}.nos-relay-add input{flex:1;margin:0}.nos-relay-add button{flex:0 0 auto}.nos-newposts-bar{position:sticky;top:0;z-index:5;height:0;display:flex;justify-content:center;overflow:visible}.nos-newposts{display:flex;align-items:center;gap:.4rem;margin:0;padding:.4rem .8rem .4rem .4rem;border-radius:999px;background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e));font-size:.78rem;font-weight:700;box-shadow:0 .25rem .6rem rgba(0,0,0,.25)}.nos-newposts-avatars{display:flex}.nos-newposts-avatars .nos-avatar-wrap{width:1.6rem;height:1.6rem;margin-left:-.6rem;border:2px solid var(--pub-accent,#89b4fa);border-radius:.6rem}.nos-newposts-avatars .nos-avatar-wrap:first-child{margin-left:0}.nos-newposts-avatars .nos-avatar{font-size:.68rem}.nos-people-stats{display:flex;gap:1rem;margin:.5rem 0}.nos-people-btn{background:none!important;padding:0;font-size:.8rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-people-btn:hover{color:var(--pub-fg,#cdd6f4)}.nos-people-btn b{color:var(--pub-fg,#cdd6f4);font-weight:700}.nos-modal-images{display:flex;gap:.4rem;flex-wrap:wrap;margin:.3rem 0}.nos-modal-image{position:relative;width:4.5rem;height:4.5rem}.nos-modal-image img{width:100%;height:100%;object-fit:cover;border-radius:.45rem}.nos-modal-image-del{position:absolute;top:-.35rem;right:-.35rem;width:1.3rem;height:1.3rem;padding:0;border-radius:50%;background:var(--pub-red,#f38ba8)!important;color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1;display:flex;align-items:center;justify-content:center}.nos-modal-image-btn{background:transparent!important;font-size:1rem;padding:.4rem .5rem}.nos-modal-foot{align-items:center}.nos-identity-row{display:flex;align-items:center;gap:.5rem;padding:.45rem 0;border-bottom:1px solid var(--pub-border,#45475a)}.nos-identity-row[data-npub],.nos-identity-row[data-user]{cursor:pointer}.nos-search-input{margin:0 0 .6rem}.nos-search-results .nos-identity-row{padding:.55rem .1rem}.nos-search-results .nos-avatar-wrap{width:2.1rem;height:2.1rem}.nos-identity-row .nos-avatar-wrap{width:1.8rem;height:1.8rem}.nos-identity-label{flex:1;min-width:0;overflow-wrap:anywhere;font-size:.8rem}.nos-identity-actions{display:flex;gap:.3rem;flex:0 0 auto}.nos-identity-actions button{padding:.25rem .5rem;font-size:.72rem}.nos-identities-title{font-weight:700;font-size:.76rem;margin-top:.7rem}';document.head.appendChild(s)}
+  function style(){if(styled)return;styled=true;var s=document.createElement('style');s.textContent='.nos,.nos *,.nos-modal,.nos-modal *{box-sizing:border-box}.nos{height:100%;display:flex;flex-direction:column;position:relative;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg,#cdd6f4);font-family:system-ui,sans-serif;overflow:hidden}.nos-bar{border-bottom:1px solid var(--pub-border,#45475a);flex:0 0 auto}.nos-bar-head{display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem}.nos-title{font-weight:700;font-size:.88rem;white-space:nowrap}.nos-tabs{display:flex;gap:.25rem;flex:1;overflow-x:auto;scrollbar-width:none}.nos-tabs::-webkit-scrollbar{display:none}.nos-tab{background:transparent;padding:.35rem .6rem;border-radius:.5rem;white-space:nowrap;position:relative}.nos-tab.active{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e))}.nos-badge{display:inline-block;min-width:1.05rem;padding:0 .25rem;margin-left:.25rem;border-radius:.6rem;background:var(--pub-red,#f38ba8);color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1.05rem;text-align:center}.nos-bar-btn{flex:0 0 auto;padding:.35rem .5rem;display:inline-flex;align-items:center;justify-content:center}.nos-me{flex:0 0 auto;padding:0;background:none!important}.nos-modes{display:flex;gap:.3rem;padding:0 .7rem .55rem;overflow-x:auto;scrollbar-width:none}.nos-modes::-webkit-scrollbar{display:none}.nos-mode{background:var(--pub-surface2,#313244);padding:.28rem .6rem;border-radius:999px;font-size:.74rem;white-space:nowrap}.nos-mode.active{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e))}.nos-body{flex:1;min-height:0;overflow:auto;overflow-anchor:none;padding:.7rem}.nos button,.nos input,.nos textarea,.nos select,.nos-modal button,.nos-modal textarea{font:inherit}.nos button,.nos-modal button{border:0;border-radius:.45rem;padding:.45rem .7rem;cursor:pointer;font-size:.8rem;font-weight:600;background:var(--pub-border,#45475a);color:var(--pub-fg,#cdd6f4);transition:filter .15s,transform .15s}.nos button:hover,.nos-modal button:hover{filter:brightness(1.12)}.nos button:active{transform:translateY(1px)}.nos button:disabled{opacity:.6;cursor:default}.nos .primary,.nos-modal .primary{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e))}.nos input,.nos textarea,.nos select,.nos-modal textarea{width:100%;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;color:var(--pub-fg,#cdd6f4);padding:.55rem .65rem;outline:none;margin:.3rem 0}.nos input:focus,.nos textarea:focus,.nos select:focus,.nos-modal textarea:focus{border-color:var(--pub-accent,#89b4fa)}.nos-error{min-height:1.2rem;color:var(--pub-red,#f38ba8);font-size:.8rem;margin:.3rem 0}.nos-empty{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;padding:1.5rem;color:var(--pub-fg2,#a6adc8);font-size:.85rem}.nos-unlock,.nos-onboard{display:flex;flex:1;align-items:center;justify-content:center;padding:1rem}.nos-unlock>div,.nos-card{width:100%;max-width:24rem;background:var(--pub-surface2,#313244);padding:1.25rem;border-radius:.7rem}.nos-unlock h2,.nos-card h2{font-size:1.05rem;margin:0 0 .4rem}.nos-unlock p,.nos-card p{font-size:.82rem;line-height:1.45;color:var(--pub-fg2,#a6adc8)}.nos-duration-hint{font-size:.72rem;opacity:.75;margin:.2rem 0 .6rem}.nos-warn{font-size:.78rem;line-height:1.45;color:var(--pub-yellow,#f9e2af);border:1px solid var(--pub-yellow,#f9e2af);border-radius:.45rem;padding:.5rem .6rem;margin:.5rem 0}.nos-link{background:none!important;padding:.4rem 0;font-size:.78rem;font-weight:400;color:var(--pub-accent,#89b4fa);text-decoration:underline}.nos-view-value{background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a);border-radius:.45rem;padding:.55rem .65rem;font-size:.8rem;overflow-wrap:anywhere;margin:.3rem 0}.nos-key-value{font-family:monospace}.nos-check{display:flex!important;align-items:center;gap:.45rem;width:auto;font-size:.8rem;cursor:pointer}.nos-check input{width:auto;margin:0}.nos-note{border:1px solid var(--pub-border,#45475a);background:var(--pub-surface2,#313244);border-radius:.65rem;padding:.65rem;margin-bottom:.55rem;cursor:pointer;transition:background .3s}.nos-note:hover{filter:brightness(1.05)}.nos-note.nos-flat{border:0;background:none;padding:.55rem 0;border-bottom:1px solid var(--pub-border,#45475a);border-radius:0;margin:0}.nos-boost{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.35rem}.nos-note-head{display:flex;align-items:center;gap:.5rem}.nos-avatar-wrap{position:relative;width:2.1rem;height:2.1rem;flex:0 0 auto;cursor:pointer}.nos-avatar-wrap.nos-lg{width:4rem;height:4rem}.nos-avatar{position:absolute;inset:0;width:100%;height:100%;border-radius:.5rem;object-fit:cover;display:grid;place-items:center;background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e));font-weight:800;overflow:hidden}.nos-avatar-img{background:var(--pub-surface2,#313244)}.nos-note-who{flex:1;min-width:0;cursor:pointer}.nos-note-name{display:block;font-weight:700;font-size:.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nos-note-time{display:block;font-size:.71rem;color:var(--pub-dim,#a6adc8)}.nos-nip05{font-size:.71rem;color:var(--pub-accent,#89b4fa)}.nos-mute-btn{flex:0 0 auto;padding:.28rem .45rem;font-size:.78rem;line-height:1}.nos-mute-btn.on{background:var(--pub-accent,#89b4fa)!important;color:var(--on-accent,var(--pub-bg,#1e1e2e))!important}@media(max-width:520px){.nos-mute-text{display:none}}.nos-follow-btn{flex:0 0 auto;padding:.28rem .55rem;font-size:.72rem}.nos-reply-of-wrap{margin:.35rem 0}.nos-reply-of-label{font-size:.72rem;color:var(--pub-fg2,#a6adc8);margin-bottom:.2rem}.nos-reply-of-wrap .nos-quote{margin:0;padding:.4rem .5rem}.nos-reply-of-wrap .nos-quote .nos-note-content{font-size:.76rem;max-height:5rem}.nos-reply-of-wrap .nos-avatar-wrap{width:1.5rem;height:1.5rem}.nos-reply-of-wrap .nos-note-name{font-size:.76rem}.nos-reply-of-wrap .nos-note-time{font-size:.66rem}.nos-note-content{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.86rem;margin:.4rem 0;overflow:hidden}.nos-note-content a{color:var(--pub-accent,#89b4fa)}.nos-mention{color:var(--pub-accent,#89b4fa);cursor:pointer}.nos-embed-link{display:block;width:100%}.nos-embed-img{display:block;max-width:100%;height:auto;max-height:22rem;border-radius:.5rem;margin-top:.4rem;object-fit:contain}.nos-embed-video{display:block;max-width:100%;height:auto;max-height:22rem;border-radius:.5rem;margin-top:.4rem;background:#000}.nos-embed-audio{display:block;width:100%;margin-top:.4rem}.nos-quote{border:1px solid var(--pub-border,#45475a);border-radius:.5rem;padding:.5rem;margin:.45rem 0;background:var(--pub-bg,#1e1e2e)}.nos-preview-card{display:flex;gap:.6rem;align-items:stretch;border:1px solid var(--pub-border,#45475a);border-radius:.5rem;margin:.45rem 0;background:var(--pub-bg,#1e1e2e);overflow:hidden;text-decoration:none;color:inherit}.nos-preview-card:hover{filter:brightness(1.08)}.nos-preview-img{width:5.5rem;flex:0 0 5.5rem;object-fit:cover;background:var(--pub-surface2,#313244)}.nos-preview-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:.15rem;padding:.5rem .55rem}.nos-preview-site{font-size:.68rem;color:var(--pub-fg2,#a6adc8);text-transform:uppercase;letter-spacing:.03em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nos-preview-title{font-size:.82rem;font-weight:700;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.nos-preview-desc{font-size:.74rem;color:var(--pub-fg2,#a6adc8);line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.nos-compose-preview:empty{display:none}.nos-quote .nos-note-content{font-size:.8rem;max-height:12rem}.nos-menu{position:absolute;z-index:30;min-width:10rem;max-width:calc(100% - 8px);display:flex;flex-direction:column;gap:.1rem;padding:.3rem;background:var(--pub-surface2,#313244);border:1px solid var(--pub-border,#45475a);border-radius:.55rem;box-shadow:0 .4rem 1rem rgba(0,0,0,.35)}.nos-menu button{text-align:left;background:transparent!important;padding:.5rem .6rem}.nos-menu button:hover{background:var(--pub-border,#45475a)!important}.nos-a-more{font-weight:700!important;letter-spacing:.05em}.nos-subtabs{display:flex;border-bottom:1px solid var(--pub-border,#45475a);margin:.4rem 0 .6rem}.nos-subtab{flex:1;background:transparent!important;border-radius:0!important;padding:.6rem .4rem!important;color:var(--pub-fg2,#a6adc8)!important;border-bottom:3px solid transparent!important}.nos-subtab.active{color:var(--pub-fg,#cdd6f4)!important;border-bottom-color:var(--pub-accent,#89b4fa)!important}.nos-ai-card{display:flex;flex-direction:column;max-height:calc(100% - 2rem)}.nos-ai-modal{padding:.5rem}.nos-ai-card .nos-modal-close{flex:0 0 auto}.nos-ai-foot textarea{font-size:1rem;min-height:2.6rem;max-height:7rem}@media(max-width:520px){.nos-ai-modal{padding:0;align-items:stretch}.nos-ai-card{max-width:none;height:100%;max-height:100%;border-radius:0;padding:.7rem}.nos-ai-msg{max-width:96%}}.nos-ai-post{max-height:7rem;overflow:auto;margin:0 0 .5rem}.nos-ai-log{flex:1;min-height:6rem;overflow:auto;display:flex;flex-direction:column;gap:.4rem;margin-bottom:.4rem}.nos-ai-msg{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.84rem;line-height:1.45;padding:.5rem .65rem;border-radius:.6rem;max-width:92%}.nos-ai-user{align-self:flex-end;background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e))}.nos-ai-bot{align-self:flex-start;background:var(--pub-bg,#1e1e2e);border:1px solid var(--pub-border,#45475a)}.nos-ai-wait{color:var(--pub-fg2,#a6adc8);font-style:italic}.nos-ai-discuss{margin-top:.4rem;display:flex}.nos-ai-discuss button{flex:1}.nos-ai-hint{font-size:.78rem;color:var(--pub-fg2,#a6adc8);padding:.3rem 0}.nos-ai-foot{display:flex;gap:.4rem;align-items:flex-end}.nos-ai-foot textarea{margin:0;resize:none;flex:1}.nos-ai-credits{font-size:.74rem;color:var(--pub-fg2,#a6adc8);white-space:nowrap}.nos-ai-item{cursor:pointer}.nos-ai-excerpt{max-height:4.5rem;color:var(--pub-fg2,#a6adc8)}.nos-note-actions{display:flex;gap:.15rem;flex-wrap:wrap;margin-top:.2rem}.nos-act{background:transparent!important;padding:.3rem .45rem;font-size:.74rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-act:hover{color:var(--pub-fg,#cdd6f4)}.nos-act.on{color:var(--pub-accent,#89b4fa);font-weight:700}.nos-act.nos-a-like.on{color:var(--pub-red,#f38ba8)}.nos-act.nos-a-repost.on{color:var(--pub-green,#a6e3a1)}.nos-note-translation{font-size:.82rem;line-height:1.4;font-style:italic;color:var(--pub-fg2,#a6adc8);border-top:1px dashed var(--pub-border,#45475a);padding-top:.35rem;margin-top:.2rem;overflow-wrap:anywhere;white-space:pre-wrap}.nos-modal{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:1rem;z-index:20;overflow:auto}.nos-modal-card{width:100%;max-width:30rem;background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border-radius:.7rem;padding:.9rem;font-family:system-ui,sans-serif}.nos-modal-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem}.nos-modal-title{flex:1;font-weight:700;font-size:.9rem}.nos-modal-input{min-height:6rem;resize:vertical}.nos-modal-foot{display:flex;gap:.4rem;justify-content:flex-end;align-items:center}.nos-modal-ctx{max-height:11rem;overflow:auto;margin-bottom:.5rem}.nos-user-head{margin-bottom:.7rem}.nos-banner{width:100%;height:6.5rem;object-fit:cover;border-radius:.5rem;background:var(--pub-surface2,#313244)}.nos-user-row{display:flex;align-items:flex-end;gap:.6rem;margin-top:-1.6rem;padding:0 .3rem}.nos-user-meta{flex:1;min-width:0;padding-bottom:.2rem}.nos-user-name{font-weight:800;font-size:1rem}.nos-user-about{font-size:.82rem;line-height:1.45;margin:.5rem 0;white-space:pre-wrap;overflow-wrap:anywhere}.nos-user-stats{font-size:.74rem;color:var(--pub-fg2,#a6adc8);display:flex;gap:.9rem;flex-wrap:wrap}.nos-notif{display:flex;gap:.5rem;align-items:flex-start;border-bottom:1px solid var(--pub-border,#45475a);padding:.55rem .1rem;cursor:pointer}.nos-notif-new{background:color-mix(in srgb,var(--pub-accent,#89b4fa) 14%,transparent);box-shadow:inset 3px 0 0 var(--pub-accent,#89b4fa);padding-left:.5rem}.nos-notif-body{flex:1;min-width:0}.nos-notif-line{font-size:.8rem}.nos-notif-quote{font-size:.76rem;color:var(--pub-fg2,#a6adc8);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-top:.15rem}.nos-notif-on{font-size:.74rem;color:var(--pub-fg2,#a6adc8);border-left:2px solid var(--pub-accent,#89b4fa);padding-left:.45rem;margin-top:.25rem;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.nos-notif-on span{font-weight:700}.nos-notif-time{font-size:.7rem;color:var(--pub-dim,#a6adc8)}.nos-profile-form label{display:block;font-size:.75rem;font-weight:700;color:var(--pub-fg2,#a6adc8);margin:.55rem 0 .15rem}.nos-profile-form textarea{min-height:4rem}.nos-profile-meta{margin-top:1rem;font-size:.76rem;color:var(--pub-fg2,#a6adc8)}.nos-relay-row{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--pub-border,#45475a);font-size:.82rem;flex-wrap:wrap}.nos-relay-dot{width:.6rem;height:.6rem;border-radius:50%;flex:0 0 auto;background:var(--pub-dim,#a6adc8)}.nos-relay-open{background:var(--pub-green,#a6e3a1)}.nos-relay-connecting{background:var(--pub-yellow,#f9e2af)}.nos-relay-closed,.nos-relay-error{background:var(--pub-red,#f38ba8)}.nos-relay-url{flex:1;min-width:9rem;overflow-wrap:anywhere}.nos-relay-del{flex:0 0 auto;padding:.3rem .5rem}.nos-relay-add{display:flex;gap:.4rem;margin-top:.6rem}.nos-relay-add input{flex:1;margin:0}.nos-relay-add button{flex:0 0 auto}.nos-newposts-bar{position:sticky;top:0;z-index:5;height:0;display:flex;justify-content:center;overflow:visible}.nos-newposts{display:flex;align-items:center;gap:.4rem;margin:0;padding:.4rem .8rem .4rem .4rem;border-radius:999px;background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e));font-size:.78rem;font-weight:700;box-shadow:0 .25rem .6rem rgba(0,0,0,.25)}.nos-newposts-avatars{display:flex}.nos-newposts-avatars .nos-avatar-wrap{width:1.6rem;height:1.6rem;margin-left:-.6rem;border:2px solid var(--pub-accent,#89b4fa);border-radius:.6rem}.nos-newposts-avatars .nos-avatar-wrap:first-child{margin-left:0}.nos-newposts-avatars .nos-avatar{font-size:.68rem}.nos-people-stats{display:flex;gap:1rem;margin:.5rem 0}.nos-people-btn{background:none!important;padding:0;font-size:.8rem;font-weight:400;color:var(--pub-fg2,#a6adc8)}.nos-people-btn:hover{color:var(--pub-fg,#cdd6f4)}.nos-people-btn b{color:var(--pub-fg,#cdd6f4);font-weight:700}.nos-modal-images{display:flex;gap:.4rem;flex-wrap:wrap;margin:.3rem 0}.nos-modal-image{position:relative;width:4.5rem;height:4.5rem}.nos-modal-image img{width:100%;height:100%;object-fit:cover;border-radius:.45rem}.nos-modal-image-del{position:absolute;top:-.35rem;right:-.35rem;width:1.3rem;height:1.3rem;padding:0;border-radius:50%;background:var(--pub-red,#f38ba8)!important;color:var(--pub-bg,#1e1e2e);font-size:.65rem;line-height:1;display:flex;align-items:center;justify-content:center}.nos-modal-image-btn{background:transparent!important;font-size:1rem;padding:.4rem .5rem}.nos-modal-foot{align-items:center}.nos-identity-row{display:flex;align-items:center;gap:.5rem;padding:.45rem 0;border-bottom:1px solid var(--pub-border,#45475a)}.nos-identity-row[data-npub],.nos-identity-row[data-user]{cursor:pointer}.nos-search-input{margin:0 0 .6rem}.nos-search-results .nos-identity-row{padding:.55rem .1rem}.nos-search-results .nos-avatar-wrap{width:2.1rem;height:2.1rem}.nos-identity-row .nos-avatar-wrap{width:1.8rem;height:1.8rem}.nos-identity-label{flex:1;min-width:0;overflow-wrap:anywhere;font-size:.8rem}.nos-identity-actions{display:flex;gap:.3rem;flex:0 0 auto}.nos-identity-actions button{padding:.25rem .5rem;font-size:.72rem}.nos-identities-title{font-weight:700;font-size:.76rem;margin-top:.7rem}';document.head.appendChild(s);imageViewerStyle()}
+
+  // A native modal keeps focus inside the preview and supports Escape on desktop.
+  function imageViewerStyle(){
+    var s=document.createElement('style');
+    s.textContent='.nos-image-viewer{box-sizing:border-box;position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0;padding:3.5rem 1rem 1rem;background:rgba(0,0,0,.94);color:#fff;overflow:hidden}.nos-image-viewer[open]{display:flex;align-items:center;justify-content:center}.nos-image-viewer::backdrop{background:rgba(0,0,0,.7)}.nos-image-viewer img{display:block;max-width:100%;max-height:100%;object-fit:contain}.nos-image-viewer-close{position:absolute;top:.6rem;right:.6rem;width:2.75rem;height:2.75rem;border:1px solid #888;border-radius:50%;background:#222;color:#fff;font:1.3rem system-ui,sans-serif;cursor:pointer}.nos-image-viewer-close:focus-visible{outline:2px solid #fff;outline-offset:2px}';
+    document.head.appendChild(s);
+  }
 
   function mount(root,opts){
     opts=opts||{};style();
@@ -363,7 +379,6 @@
     var TRENDING_POLL_SUBS=TRENDING_CACHES.map(function(_,i){return 'poll-trending'+i});
     var TRENDING_TTL=300000;
     var PRIMAL_STATS_KIND=10000100;
-    var MAX_STREAK=7;
     var key=null,privBytes=null,pubHex=null,vaultInfo=null,relays=[],autoLockTimer=0,destroyed=false,session=null;
     var _prefs={};
     fetch('/api/pub/apphub/me',{headers:{'X-Pub-Token':token}}).then(function(r){return r.ok?r.json():{}}).then(function(p){_prefs=p||{}}).catch(function(){});
@@ -373,7 +388,7 @@
     // below resolves; translateTargetLang/publishTargetLang fall back to
     // localStorage (pre-migration values from before this moved server-side)
     // until then, and one-time-migrate any such value up to the server.
-    var _langPrefs={};
+    var _langPrefs={},aiPrefsDraft=null,aiPrefsSaving=false;
     fetch(API+'/prefs',{headers:{'X-Pub-Token':token}}).then(function(r){return r.ok?r.json():{}}).then(function(p){
       _langPrefs=p||{};
       var migrate={};
@@ -389,8 +404,15 @@
     // both premium-gated server-side: this flag only says whether the server has
     // turned the integration on, never anything about the viewer's own premium
     // status (the public page must never show premium messaging at all).
-    var deeplEnabled=false;
+    var deeplEnabled=false,aiEnabled=false,aiCredits=null,aiChat=null,aiHistory=null,aiHistoryBusy=false;
     fetch(API+'/deepl-status').then(function(r){return r.ok?r.json():{}}).then(function(d){deeplEnabled=!!d.enabled;renderBody();scheduleRenderShell()}).catch(function(){});
+    function loadAiStatus(){
+      if(!token)return;
+      fetch(API+'/ai/status',{headers:{'X-Pub-Token':token}}).then(function(r){return r.ok?r.json():{}}).then(function(d){
+        aiEnabled=!!d.enabled;aiCredits=d.credits||null;renderBody();scheduleRenderShell();
+      }).catch(function(){});
+    }
+    loadAiStatus();
     var translations={};
     // Values saved before the language list grew to DeepL's full set were the
     // 9 mvmOS UI locale codes (en, bg, zh-CN…) — map anyone's already-saved
@@ -453,11 +475,46 @@
     var modeSeenInit={following:false,trending:false};
     var modePollTimer=0;
     var contactPubkeys=[];
+    // NIP-51 mute list (kind 10000). The newest event is kept whole: its other tags and
+    // its (possibly encrypted) content must survive when this app rewrites the list.
+    var deletedIds={};
+    var mutedPubkeys=[],muteEvent=null,mutesLoaded=false;
+    function isMuted(pk){return mutedPubkeys.indexOf(pk)>=0}
     var profileCache={},noteCache={},stats={},myReactions={},myReposts={},ownProfileRaw={};
-    var notifItems=[],notifKeys={},notifLoaded=false,notifSeen=Number(localStorage.getItem(SEEN_KEY)||0);
+    var notifItems=[],notifKeys={},notifLoaded=false,notifSeen=Number(localStorage.getItem(SEEN_KEY)||0),notifBase=null;
     var threadReplies=[],threadKeys={},threadLoaded=false;
-    var userNotes=[],userKeys={},userLoaded=false;
+    var userNotes=[],userKeys={},userLoaded=false,profileSub='posts';
     var peopleList=[],peopleKeys={},peopleLoaded=false;
+    var imageViewer=null;
+    function closeImagePreview(){
+      if(!imageViewer)return;
+      var dialog=imageViewer;imageViewer=null;
+      dialog.close();dialog.remove();
+    }
+    function openImagePreview(link){
+      closeImagePreview();
+      var dialog=document.createElement('dialog');
+      dialog.className='nos-image-viewer';
+      dialog.setAttribute('aria-label',t('nos_image_preview'));
+      var close=document.createElement('button');
+      close.type='button';close.className='nos-image-viewer-close';
+      close.textContent='✕';close.setAttribute('aria-label',t('nos_close'));
+      close.onclick=closeImagePreview;
+      var img=document.createElement('img');
+      img.alt=t('nos_image_preview');img.referrerPolicy='no-referrer';img.src=link.href;
+      dialog.appendChild(close);dialog.appendChild(img);
+      dialog.onclick=function(e){if(e.target===dialog)closeImagePreview()};
+      dialog.oncancel=function(e){e.preventDefault();closeImagePreview()};
+      document.body.appendChild(dialog);imageViewer=dialog;dialog.showModal();
+    }
+    // Capture before a note/list handler can open its thread, including quoted
+    // notes and composer previews. The anchor remains usable as a normal link.
+    function onImageClick(e){
+      var link=e.target.closest('.nos-embed-link');
+      if(!link||!root.contains(link))return;
+      e.preventDefault();e.stopPropagation();openImagePreview(link);
+    }
+    root.addEventListener('click',onImageClick,true);
     var composer=null;
     var obStep='choose',obPriv=null;
     function blankRecover(){return{nsec:'',pass:'',confirm:'',duration:''}}
@@ -479,14 +536,10 @@
     function encryptPriv(rawBytes){return encryptWithKey(key,rawBytes)}
     async function decryptPriv(ivB64,ctB64){var out=await crypto.subtle.decrypt({name:'AES-GCM',iv:bytes(ivB64)},key,bytes(ctB64));return new Uint8Array(out)}
     function minutesOf(value){return value==='session'?0:Number(value)||0}
-    function dayStamp(){var now=new Date();return now.getFullYear()+'-'+(now.getMonth()+1)+'-'+now.getDate()}
-    // A window that only counts down punishes the habit it should reward: pick 24
-    // hours, open the app every day, and a single skipped day still costs you the
-    // password. Every fresh day the session is actually used adds one more multiple
-    // of the chosen base, up to seven — so a daily user drifts toward a week of
-    // slack and stops being asked, while a vault left alone falls back to its base.
-    function windowMinutes(saved){return saved.minutes*Math.min(Math.max(saved.streak||1,1),MAX_STREAK)}
-    function expiryOf(saved){return saved.minutes?Date.now()+windowMinutes(saved)*60000:0}
+    // Sliding window: every time the vault is used the expiry is pushed out to
+    // now + the chosen duration, so a daily user keeps the same span (7 days stays
+    // 7 days) and only a vault left untouched for that long asks for the password.
+    function expiryOf(saved){return saved.minutes?Date.now()+saved.minutes*60000:0}
     function scheduleAutoLock(expires){clearTimeout(autoLockTimer);if(!expires)return;var remaining=expires-Date.now();if(remaining<=0){lockNow();return}autoLockTimer=setTimeout(lockNow,remaining)}
     // "Until tab is closed" has to outlive nothing at all, but IndexedDB outlives
     // everything — so that mode is tied to a marker that only this tab's
@@ -495,16 +548,12 @@
     function saveSession(saved){idbPut(vaultInfo.npub,saved)}
     function renewSession(saved){
       if(!saved||!saved.minutes)return saved;
-      var today=dayStamp();
-      if(saved.day!==today){saved.streak=Math.min((saved.streak||1)+1,MAX_STREAK);saved.day=today}
       saved.expires=expiryOf(saved);
       saveSession(saved);
       return saved;
     }
-    // A freshly typed password starts the streak over: the window is earned by
-    // uninterrupted use, and this unlock is proof the previous run was interrupted.
     function buildSession(k,value){
-      var minutes=minutesOf(value),saved={key:k,minutes:minutes,streak:1,day:dayStamp(),tab:minutes?null:tabMarker()};
+      var minutes=minutesOf(value),saved={key:k,minutes:minutes,tab:minutes?null:tabMarker()};
       saved.expires=expiryOf(saved);
       return saved;
     }
@@ -552,7 +601,7 @@
       clearTimeout(searchDebounce);searchQuery='';searchResults=[];searchBusy=false;searchSeq++;
       stopModePolling();
       key=null;privBytes=null;pubHex=null;session=null;composer=null;stack=[];activeTab='feed';
-      feedItems=[];feedKeys={};feedLoaded=false;feedToken++;contactPubkeys=[];
+      feedItems=[];feedKeys={};feedLoaded=false;feedToken++;deletedIds={};contactPubkeys=[];mutedPubkeys=[];muteEvent=null;mutesLoaded=false;
       modeCounts={following:0,trending:0,discover:0};quietProfiles={};modeSeenKeys={following:{},trending:{}};modeSeenInit={following:false,trending:false};
       netStats={};trendingFailed=false;
       pendingItems=[];pendingKeys={};
@@ -777,7 +826,12 @@
       renderShell();
       subscribeSelfMeta();
       subscribeContacts();
+      subscribeMutes();
       loadNotifications();
+      // Following is loaded by the arrival of the contact list. Popular and Latest
+      // wait for nothing, but nothing started them either, so reopening the app
+      // on one of them stayed on "Loading" until another mode was clicked.
+      if(activeTab==='feed'&&feedMode!=='following'&&!feedItems.length)loadFeed();
     }
 
     // ---- profiles, notes and counters, fetched in batches ----
@@ -812,7 +866,7 @@
       var batch=profileQueue.splice(0,profileQueue.length);
       if(!batch.length||!readUrls().length)return;
       var subId='meta-'+(++profileSubId);
-      pool.subscribe(readUrls(),subId,[{kinds:[0],authors:batch}],function(ev){
+      pool.subscribe(withIndexers(readUrls()),subId,[{kinds:[0],authors:batch}],function(ev){
         var prev=profileCache[ev.pubkey];
         if(prev&&prev.created_at>=ev.created_at)return;
         profileCache[ev.pubkey]=parseProfile(ev);
@@ -821,6 +875,7 @@
         if(quiet)schedulePill();else scheduleRender();
       },function(){pool.unsubscribe(subId)});
     }
+    var noteMissing={};
     function ensureNote(id){
       if(!id||noteCache[id]!==undefined)return;
       noteCache[id]=null;
@@ -831,10 +886,20 @@
       var batch=noteQueue.splice(0,noteQueue.length);
       if(!batch.length||!readUrls().length)return;
       var subId='note-'+(++noteSubId);
-      pool.subscribe(readUrls(),subId,[{ids:batch}],function(ev){
+      // A note you replied to or that was quoted often lives only on the relay of
+      // its author, so the well-known relays are asked as well as your own.
+      var urls=readUrls().slice();
+      DEFAULT_RELAYS.forEach(function(u){if(urls.indexOf(u)<0)urls.push(u)});
+      pool.subscribe(urls,subId,[{ids:batch}],function(ev){
         noteCache[ev.id]=ev;ensureProfile(ev.pubkey);
         scheduleRender();
-      },function(){pool.unsubscribe(subId)});
+      },function(){
+        pool.unsubscribe(subId);
+        // Not found anywhere: say so instead of showing "Loading" for ever.
+        var gone=false;
+        batch.forEach(function(id){if(!noteCache[id]){noteMissing[id]=true;gone=true}});
+        if(gone)scheduleRender();
+      });
     }
     function statOf(id){return stats[id]||(stats[id]={replies:0,reposts:0,likes:0,seen:{}})}
     // Reply, repost and like counts for whatever is on screen, in one live
@@ -858,7 +923,7 @@
 
     function subscribeSelfMeta(){
       ensureProfile(pubHex);
-      pool.subscribe(readUrls(),'self-meta',[{kinds:[0],authors:[pubHex],limit:1}],function(ev){
+      pool.subscribe(withIndexers(readUrls()),'self-meta',[{kinds:[0],authors:[pubHex],limit:1}],function(ev){
         var prev=profileCache[pubHex];
         if(prev&&prev.created_at>=ev.created_at)return;
         profileCache[pubHex]=parseProfile(ev);
@@ -867,8 +932,32 @@
         scheduleRender();
       },function(){pool.unsubscribe('self-meta')});
     }
+    // Profiles and contact lists are often published only to indexer relays such
+    // as purplepag.es, not to the relays notes are read from.
+    function withIndexers(urls){
+      var all=urls.slice();
+      CONTACT_RELAYS.forEach(function(u){if(all.indexOf(u)<0)all.push(u)});
+      return all;
+    }
+    function subscribeMutes(){
+      var newest=0;
+      pool.subscribe(withIndexers(readUrls()),'mutes',[{kinds:[10000],authors:[pubHex],limit:1}],function(ev){
+        if(ev.created_at<=newest)return;
+        newest=ev.created_at;muteEvent=ev;
+        mutedPubkeys=tagsOf(ev,'p').map(function(tg){return tg[1]}).filter(Boolean);
+        scheduleRender();
+      },function(){pool.unsubscribe('mutes');mutesLoaded=true;scheduleRender()});
+    }
     function subscribeContacts(){
-      pool.subscribe(readUrls(),'contacts',[{kinds:[3],authors:[pubHex],limit:1}],function(ev){
+      // Every relay answers with its own copy of the list, and an old copy can
+      // arrive last. Only the newest one is taken; an older one changes nothing.
+      var newest=0;
+      // The list is often stored only on an indexer relay such as purplepag.es,
+      // which clients publish it to for exactly this lookup, and not on the relays
+      // the user reads notes from. Without it a real list looked empty.
+      pool.subscribe(withIndexers(readUrls()),'contacts',[{kinds:[3],authors:[pubHex],limit:1}],function(ev){
+        if(ev.created_at<=newest)return;
+        newest=ev.created_at;
         contactPubkeys=tagsOf(ev,'p').map(function(tg){return tg[1]}).filter(Boolean);
         if(activeTab==='feed'&&feedMode==='following')loadFeed();
       },function(){pool.unsubscribe('contacts');if(activeTab==='feed'&&feedMode==='following'&&!feedItems.length)loadFeed()});
@@ -937,6 +1026,8 @@
       scheduleRender();
     }
     function addFeedEvent(ev){
+      // Following is the people you follow; your own notes are on your profile.
+      if(feedMode==='following'&&ev.pubkey===pubHex)return;
       // Both modes hold an open subscription now, so anything arriving after the
       // stored batch is genuinely new and belongs behind the pill.
       var live=feedLoaded;
@@ -1076,7 +1167,8 @@
       if(feedMode==='trending'){fetchTrending(token,false);scheduleRender();startModePolling();return}
       if(!readUrls().length){feedLoaded=true;scheduleRender();return}
       if(feedMode==='following'){
-        var authors=[pubHex].concat(contactPubkeys);
+        var authors=contactPubkeys.filter(function(pk){return pk!==pubHex});
+        if(!authors.length){feedLoaded=true;scheduleRender();return}
         pool.subscribe(readUrls(),'feed',[{kinds:[1,6],authors:authors,limit:60}],
           function(ev){if(token===feedToken)addFeedEvent(ev)},
           function(){if(token===feedToken){feedLoaded=true;scheduleRender()}});
@@ -1114,8 +1206,9 @@
       pollFollowingCount();
     }
     function pollFollowingCount(){
-      var authors=[pubHex].concat(contactPubkeys),subId='poll-following',firstRun=!modeSeenInit.following;
+      var authors=contactPubkeys.filter(function(pk){return pk!==pubHex}),subId='poll-following',firstRun=!modeSeenInit.following;
       pool.unsubscribe(subId);
+      if(!authors.length)return;
       pool.subscribe(readUrls(),subId,[{kinds:[1,6],authors:authors,limit:20}],function(ev){
         if(modeSeenKeys.following[ev.id])return;
         modeSeenKeys.following[ev.id]=1;
@@ -1179,7 +1272,7 @@
         scheduleRender();
       },function(){notifLoaded=true;scheduleRender()});
     }
-    function unreadCount(){return notifItems.filter(function(ev){return ev.created_at>notifSeen}).length}
+    function unreadCount(){return notifItems.filter(function(ev){return ev.created_at>notifSeen&&!isMuted(ev.pubkey)}).length}
     function markNotifSeen(){
       if(!notifItems.length)return;
       notifSeen=Math.max(notifSeen,notifItems[0].created_at);
@@ -1333,7 +1426,7 @@
       userNotes=[];userKeys={};userLoaded=false;
       pool.unsubscribe('user');
       if(!readUrls().length){userLoaded=true;return}
-      pool.subscribe(readUrls(),'user',[{kinds:[1],authors:[pk],limit:50}],function(ev){
+      pool.subscribe(readUrls(),'user',[{kinds:[1],authors:[pk],limit:100}],function(ev){
         if(userKeys[ev.id])return;
         userKeys[ev.id]=1;
         noteCache[ev.id]=ev;
@@ -1380,6 +1473,21 @@
       if(!results.some(function(r){return r.ok}))throw new Error('publish_failed');
       return ev;
     }
+    // Rewriting the list before the stored copy has arrived would silently drop
+    // everything already muted from other clients, so wait for it first.
+    async function toggleMute(pk){
+      var waited=0;
+      while(!mutesLoaded&&waited<6000){await new Promise(function(r){setTimeout(r,200)});waited+=200}
+      if(!mutesLoaded)return;
+      var tags=(muteEvent?muteEvent.tags:[]).filter(function(tg){return!(tg[0]==='p'&&tg[1]===pk)});
+      if(!isMuted(pk))tags.push(['p',pk]);
+      mutedPubkeys=tags.filter(function(tg){return tg[0]==='p'}).map(function(tg){return tg[1]});
+      renderBody();
+      try{
+        var ev=await publish({kind:10000,tags:tags,content:muteEvent?muteEvent.content:''});
+        if(ev)muteEvent=ev;
+      }catch(_){}
+    }
     async function toggleFollow(pk){
       var idx=contactPubkeys.indexOf(pk);
       if(idx>=0)contactPubkeys.splice(idx,1);else contactPubkeys.push(pk);
@@ -1416,7 +1524,42 @@
 
     // ---- composer ----
     var composePreviewTimer=0;
-    function openComposer(mode,id){composer={mode:mode,id:id||null,error:'',busy:false,images:[],uploading:false};renderComposer()}
+    function openComposer(mode,id,suggesting){
+      composer={mode:mode,id:id||null,error:'',busy:false,images:[],uploading:false,suggesting:!!suggesting};
+      if(mode==='edit'&&noteCache[id])composer.text=noteCache[id].content;
+      renderComposer();
+    }
+    // Nostr events cannot be changed, so an edit is a fresh note with the same tags
+    // (it stays in its thread) plus a NIP-09 request to drop the old one. Relays
+    // are free to ignore that request, which is why the old note is hidden here
+    // at once rather than waiting for the relays to agree.
+    function retireNote(id){
+      deletedIds[id]=1;
+      feedItems=feedItems.filter(function(item){return item.noteId!==id});
+      threadReplies=threadReplies.filter(function(ev){return ev.id!==id});
+      var top=stack[stack.length-1];
+      if(top&&top.type==='thread'&&top.id===id)stack.pop();
+    }
+    function confirmDelete(){
+      if(window.mvmOS&&window.mvmOS.confirm)return window.mvmOS.confirm(t('nos_delete_confirm'),{ok:t('nos_delete'),cancel:t('nos_cancel'),danger:true});
+      return new Promise(function(resolve){
+        var dialog=document.createElement('dialog');dialog.className='nos-modal-card';
+        dialog.style.margin='auto';dialog.style.border='1px solid var(--pub-border,#45475a)';
+        dialog.innerHTML='<p>'+esc(t('nos_delete_confirm'))+'</p><div class="nos-modal-foot"><button data-cancel>'+esc(t('nos_cancel'))+'</button><button data-delete>'+esc(t('nos_delete'))+'</button></div>';
+        function finish(ok){dialog.close();dialog.remove();resolve(ok)}
+        dialog.querySelector('[data-cancel]').onclick=function(){finish(false)};
+        dialog.querySelector('[data-delete]').onclick=function(){finish(true)};
+        dialog.oncancel=function(e){e.preventDefault();finish(false)};
+        root.appendChild(dialog);dialog.showModal();
+      });
+    }
+    async function deleteNote(id){
+      var note=noteCache[id];
+      if(!note||note.pubkey!==pubHex)return;
+      if(!await confirmDelete())return;
+      retireNote(id);renderShell();
+      try{await publish({kind:5,tags:[['e',id],['k',String(note.kind)]],content:''})}catch(_){}
+    }
     function closeComposer(){clearTimeout(composePreviewTimer);composer=null;renderComposer()}
     // nostr.build's anonymous upload endpoint needs no account or signed auth,
     // unlike NIP-96/Blossom which require per-server discovery and a signed
@@ -1438,23 +1581,23 @@
       var existing=root.querySelector('.nos-modal');
       if(existing)existing.remove();
       if(!composer)return;
-      var target=composer.id?noteCache[composer.id]:null;
-      var title=composer.mode==='reply'?t('nos_reply'):composer.mode==='quote'?t('nos_quote'):t('nos_new_note');
+      var target=composer.id&&composer.mode!=='edit'?noteCache[composer.id]:null;
+      var title=composer.mode==='edit'?t('nos_edit'):composer.mode==='reply'?t('nos_reply'):composer.mode==='quote'?t('nos_quote'):t('nos_new_note');
       var wrap=document.createElement('div');
       wrap.className='nos-modal';
       wrap.innerHTML='<div class="nos-modal-card"><div class="nos-modal-head"><span class="nos-modal-title">'+esc(title)+'</span><button type="button" class="nos-modal-close">✕</button></div>'+
         (target?'<div class="nos-modal-ctx">'+noteCardHtml({key:'ctx',noteId:target.id,boost:null},{flat:true,actions:false,clickable:false})+'</div>':'')+
-        '<textarea class="nos-modal-input" placeholder="'+esc(composer.mode==='reply'?t('nos_reply_placeholder'):t('nos_compose_placeholder'))+'"></textarea>'+
+        '<textarea class="nos-modal-input"'+(composer.suggesting?' disabled':'')+' placeholder="'+esc(composer.mode==='reply'?t('nos_reply_placeholder'):t('nos_compose_placeholder'))+'"></textarea>'+
         '<div class="nos-compose-preview"></div>'+
         (composer.images.length?'<div class="nos-modal-images">'+composer.images.map(function(url,i){
           return'<div class="nos-modal-image"><img src="'+esc(url)+'"><button type="button" class="nos-modal-image-del" data-i="'+i+'">✕</button></div>';
         }).join('')+'</div>':'')+
-        '<div class="nos-error nos-modal-error">'+esc(composer.error||'')+'</div>'+
+        '<div class="nos-error nos-modal-error">'+esc(composer.suggesting?t('nos_ai_thinking'):(composer.error||''))+'</div>'+
         '<div class="nos-modal-foot"><input type="file" accept="image/*" class="nos-modal-file" hidden>'+
-        '<button type="button" class="nos-modal-image-btn" title="'+esc(t('nos_attach_image'))+'"'+(composer.uploading?' disabled':'')+'>'+(composer.uploading?'…':'🖼')+'</button>'+
-        (deeplEnabled?'<button type="button" class="nos-modal-image-btn nos-modal-translate" title="'+esc(t('nos_translate'))+'"'+(composer.translating?' disabled':'')+'>'+(composer.translating?'…':'🌐')+'</button>':'')+
+        '<button type="button" class="nos-modal-image-btn" title="'+esc(t('nos_attach_image'))+'"'+(composer.uploading||composer.suggesting?' disabled':'')+'>'+(composer.uploading?'…':'🖼')+'</button>'+
+        (deeplEnabled?'<button type="button" class="nos-modal-image-btn nos-modal-translate" title="'+esc(t('nos_translate'))+'"'+(composer.translating||composer.suggesting?' disabled':'')+'>'+(composer.translating?'…':'🌐')+'</button>':'')+
         '<span style="flex:1"></span>'+
-        '<button type="button" class="nos-modal-cancel">'+esc(t('nos_cancel'))+'</button><button type="button" class="primary nos-modal-send"'+(composer.busy?' disabled':'')+'>'+esc(composer.busy?t('nos_sending'):t('nos_publish'))+'</button></div></div>';
+        '<button type="button" class="nos-modal-cancel">'+esc(t('nos_cancel'))+'</button><button type="button" class="primary nos-modal-send"'+(composer.busy||composer.suggesting?' disabled':'')+'>'+esc(composer.busy?t('nos_sending'):t('nos_publish'))+'</button></div></div>';
       root.appendChild(wrap);
       var textarea=wrap.querySelector('.nos-modal-input');
       textarea.value=composer.text||'';
@@ -1512,15 +1655,24 @@
         composer.uploading=false;renderComposer();
       };
       wrap.querySelector('.nos-modal-send').onclick=async function(){
+        if(composer.suggesting)return;
         var text=textarea.value.trim();
         if(composer.images.length)text=(text?text+'\n\n':'')+composer.images.join('\n');
         if(!text&&composer.mode!=='quote')return;
         composer.text=textarea.value.trim();composer.busy=true;composer.error='';renderComposer();
         try{
-          var ev=await publish(composeEvent(composer.mode,text,target));
+          var reopen=false,old=composer.mode==='edit'?noteCache[composer.id]:null;
+          var ev=await publish(old?{kind:1,tags:old.tags||[],content:text}:composeEvent(composer.mode,text,target));
+          if(old){
+            var wasOpen=stack.length&&stack[stack.length-1].type==='thread'&&stack[stack.length-1].id===old.id;
+            retireNote(old.id);
+            try{await publish({kind:5,tags:[['e',old.id],['k','1']],content:''})}catch(_){}
+            reopen=wasOpen;
+          }
           if(composer.mode==='reply'&&target)statOf(target.id).replies++;
           noteCache[ev.id]=ev;
-          if(!stack.length&&activeTab==='feed')pushItem({key:ev.id,noteId:ev.id,boost:null,at:ev.created_at});
+          if(reopen)openThread(ev.id);
+          if(!stack.length&&activeTab==='feed'&&feedMode!=='following')pushItem({key:ev.id,noteId:ev.id,boost:null,at:ev.created_at});
           var top=stack[stack.length-1];
           if(top&&top.type==='thread'&&composer.mode==='reply'&&target&&target.id===top.id&&!threadKeys[ev.id]){threadKeys[ev.id]=1;threadReplies.push(ev)}
           composer=null;renderComposer();renderBody();
@@ -1577,7 +1729,7 @@
       var out=esc(text).replace(URL_RE,function(url){
         var plain=url.replace(/&amp;/g,'&').replace(/&#39;/g,"'").replace(/&quot;/g,'"');
         var noQuery=plain.split(/[?#]/)[0];
-        if(IMG_EXT_RE.test(noQuery))return'<a href="'+url+'" target="_blank" rel="noopener noreferrer" class="nos-embed-link"><img class="nos-embed-img" src="'+url+'" loading="lazy" referrerpolicy="no-referrer"></a>';
+        if(IMG_EXT_RE.test(noQuery))return'<a href="'+url+'" class="nos-embed-link"><img class="nos-embed-img" src="'+url+'" loading="lazy" referrerpolicy="no-referrer"></a>';
         if(VID_EXT_RE.test(noQuery))return'<video class="nos-embed-video" src="'+url+'" controls playsinline preload="metadata"></video>';
         if(AUD_EXT_RE.test(noQuery))return'<audio class="nos-embed-audio" src="'+url+'" controls preload="metadata"></audio>';
         return'<a href="'+url+'" target="_blank" rel="noopener noreferrer">'+url+'</a>';
@@ -1649,6 +1801,155 @@
         requestPreview(entry.target.dataset.previewUrl);
       });
     },{rootMargin:'250px'}):null;
+    // ---- Ask AI about a post (premium) ----
+    // A chat is opened per post and lives only in this modal. The server keeps the
+    // transcript for the History tab, but a closed chat is read-only there: every
+    // new chat is a fresh question to mvmAI that carries just that post.
+    function aiBalanceHtml(){
+      return aiCredits&&aiCredits.message>0?'<span class="nos-ai-credits" title="'+esc(t('nos_ai_credits'))+'">💳 '+esc(aiCredits.balance)+'</span>':'';
+    }
+    function aiErrorText(code){
+      return t(code==='no_credits'?'nos_ai_err_credits':code==='mvmai_unavailable'||code==='mvmai_disabled'?'nos_ai_err_unavailable':code==='chat_full'?'nos_ai_err_full':'nos_ai_err');
+    }
+    async function suggestAiComment(id){
+      var note=noteCache[id];if(!note||composer)return;
+      openComposer('reply',id,true);
+      var draft=composer;
+      try{
+        var d=await api('/ai/chat',{method:'POST',body:JSON.stringify({mode:'comment',
+          note:{id:note.id,author:displayName(note.pubkey),content:note.content,created_at:note.created_at},
+          lang:translateTargetLang()})});
+        if(d.error||!d.text)throw new Error(d.error||'error');
+        if(d.balance!=null&&aiCredits)aiCredits.balance=d.balance;
+        if(destroyed||composer!==draft)return;
+        draft.text=d.text;
+      }catch(e){
+        if(destroyed||composer!==draft)return;
+        draft.error=aiErrorText(e.message);
+      }
+      draft.suggesting=false;
+      if(!destroyed&&composer===draft)renderComposer();
+    }
+    function openAiChat(mode,id){
+      var note=noteCache[id];if(!note)return;
+      ensureProfile(note.pubkey);
+      aiChat={mode:mode,note:{id:note.id,author:displayName(note.pubkey),content:note.content,created_at:note.created_at},
+              chatId:null,messages:[],busy:false,error:'',draft:'',readonly:false};
+      renderAiChat();
+      if(mode==='explain')sendAiTurn('');
+    }
+    function openAiHistoryChat(id){
+      fetch(API+'/ai/history/'+encodeURIComponent(id),{headers:{'X-Pub-Token':token}}).then(function(r){return r.ok?r.json():null}).then(function(c){
+        if(!c)return;
+        aiChat={mode:c.mode,note:{id:c.note_id,author:c.author,content:c.note,created_at:c.note_at},chatId:c.id,
+                messages:c.messages,busy:false,error:'',draft:'',readonly:true};
+        renderAiChat();
+      }).catch(function(){});
+    }
+    function closeAiChat(){
+      aiChat=null;aiHistory=null;
+      var m=root.querySelector('.nos-ai-modal');if(m)m.remove();
+      if(activeTab==='profile'&&!stack.length)renderBody();
+    }
+    async function sendAiTurn(text){
+      var chat=aiChat;if(!chat||chat.busy)return;
+      if(text)chat.messages.push({role:'user',content:text});
+      chat.busy=true;chat.error='';renderAiChat();
+      try{
+        var r=await fetch(API+'/ai/chat',{method:'POST',headers:{'X-Pub-Token':token,'Content-Type':'application/json'},
+          body:JSON.stringify({chat_id:chat.chatId,mode:chat.mode,note:chat.note,text:text||null,lang:translateTargetLang()})});
+        var d=await r.json().catch(function(){return{}});
+        if(!r.ok||d.error)throw new Error(d.error||'error');
+        chat.chatId=d.chat_id;
+        chat.messages.push({role:'assistant',content:d.text});
+        if(d.balance!=null&&aiCredits)aiCredits.balance=d.balance;
+      }catch(e){
+        // The question that got no answer goes back into the box to be sent again.
+        if(text){chat.messages.pop();chat.draft=text}
+        chat.error=aiErrorText(e.message);
+      }
+      chat.busy=false;
+      if(aiChat===chat)renderAiChat();
+    }
+    // A chat is short on purpose: one answer, either the explanation or the reply to one question.
+    // Anything more is carried over into a real mvmAI chat.
+    function aiMaxAnswers(mode){return 1}
+    function openMvmai(id){
+      try{localStorage.setItem('mvmai_open_chat',id)}catch(e){}
+      if(opts.isDesktop&&window.mvmOS&&window.mvmOS.openApp){
+        window.mvmOS.openApp('mvmai');
+        window.dispatchEvent(new CustomEvent('mvmai-open-chat',{detail:id}));
+      }else location.href='/pub/mvmai/';
+    }
+    async function discussAi(){
+      var c=aiChat;if(!c||!c.chatId||c.busy)return;
+      c.busy=true;c.error='';renderAiChat();
+      try{
+        var r=await fetch(API+'/ai/discuss',{method:'POST',headers:{'X-Pub-Token':token,'Content-Type':'application/json'},
+          body:JSON.stringify({chat_id:c.chatId,lang:translateTargetLang()})});
+        var d=await r.json().catch(function(){return{}});
+        if(!r.ok||!d.session_id)throw new Error(d.error||'error');
+        closeAiChat();openMvmai(d.session_id);return;
+      }catch(e){c.error=t('nos_ai_discuss_err')}
+      c.busy=false;
+      if(aiChat===c)renderAiChat();
+    }
+    function renderAiChat(){
+      var old=root.querySelector('.nos-ai-modal');
+      if(old)old.remove();
+      if(!aiChat)return;
+      var c=aiChat,n=c.note;
+      var answers=c.messages.filter(function(m){return m.role==='assistant'}).length;
+      var done=c.readonly||answers>=aiMaxAnswers(c.mode);
+      var wrap=document.createElement('div');
+      wrap.className='nos-modal nos-ai-modal';
+      wrap.innerHTML='<div class="nos-modal-card nos-ai-card"><div class="nos-modal-head"><span class="nos-modal-title">✨ '+esc(t(c.mode==='question'?'nos_ai_ask':'nos_ai_explain'))+'</span>'+aiBalanceHtml()+'<button type="button" class="nos-modal-close">✕</button></div>'+
+        '<div class="nos-quote nos-ai-post"><div class="nos-note-name">'+esc(n.author||'')+'</div><div class="nos-note-content">'+esc(n.content)+'</div></div>'+
+        '<div class="nos-ai-log">'+c.messages.map(function(m){
+          return'<div class="nos-ai-msg nos-ai-'+(m.role==='user'?'user':'bot')+'">'+esc(m.content)+'</div>';
+        }).join('')+(c.busy?'<div class="nos-ai-msg nos-ai-bot nos-ai-wait">'+esc(t('nos_ai_thinking'))+'</div>':'')+
+          (!c.messages.length&&!c.busy&&!c.readonly&&c.mode==='question'?'<div class="nos-ai-hint">'+esc(t('nos_ai_ask_hint'))+'</div>':'')+'</div>'+
+        '<div class="nos-error nos-modal-error">'+esc(c.error||'')+'</div>'+
+        (done?''
+          :'<div class="nos-ai-foot"><textarea class="nos-ai-input" rows="2" placeholder="'+esc(t('nos_ai_placeholder'))+'"'+(c.busy?' disabled':'')+'></textarea>'+
+            '<button type="button" class="primary nos-ai-send"'+(c.busy?' disabled':'')+'>'+esc(t('nos_ai_send'))+'</button></div>')+
+        (c.chatId&&answers>0?'<div class="nos-ai-discuss"><button type="button" class="'+(done?'primary ':'')+'nos-ai-discuss-btn"'+(c.busy?' disabled':'')+'>💬 '+esc(t('nos_ai_discuss'))+'</button></div>':'')+
+        '</div>';
+      root.appendChild(wrap);
+      var log=wrap.querySelector('.nos-ai-log');log.scrollTop=log.scrollHeight;
+      wrap.querySelector('.nos-modal-close').onclick=closeAiChat;
+      wrap.onclick=function(e){if(e.target===wrap)closeAiChat()};
+      var dbtn=wrap.querySelector('.nos-ai-discuss-btn');if(dbtn)dbtn.onclick=discussAi;
+      var input=wrap.querySelector('.nos-ai-input');
+      if(input){
+        input.value=c.draft||'';
+        input.oninput=function(){c.draft=input.value};
+        var send=function(){
+          var text=input.value.trim();
+          if(!text||c.busy)return;
+          c.draft='';input.value='';sendAiTurn(text);
+        };
+        wrap.querySelector('.nos-ai-send').onclick=send;
+        input.onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}};
+        if(!c.busy)input.focus();
+      }
+    }
+    function loadAiHistory(){
+      if(aiHistory!==null||aiHistoryBusy)return;
+      aiHistoryBusy=true;
+      fetch(API+'/ai/history',{headers:{'X-Pub-Token':token}}).then(function(r){return r.ok?r.json():{chats:[]}}).then(function(d){
+        aiHistory=d.chats||[];aiHistoryBusy=false;scheduleRender();
+      }).catch(function(){aiHistory=[];aiHistoryBusy=false;scheduleRender()});
+    }
+    function aiHistoryHtml(){
+      if(aiHistory===null)return'<div class="nos-empty">'+esc(t('nos_loading'))+'</div>';
+      if(!aiHistory.length)return'<div class="nos-empty">'+esc(t('nos_ai_history_empty'))+'</div>';
+      return aiHistory.map(function(c){
+        return'<div class="nos-note nos-flat nos-ai-item" data-ai-chat="'+esc(c.id)+'"><div class="nos-note-head"><div class="nos-note-who"><span class="nos-note-name">'+(c.mode==='question'?'❓ ':'💡 ')+esc(c.author||'')+'</span>'+
+          '<span class="nos-note-time">'+esc(formatTime(c.at))+' · '+esc(c.count)+'</span></div></div>'+
+          '<div class="nos-note-content nos-ai-excerpt">'+esc(c.note)+'</div></div>';
+      }).join('');
+    }
     function actionsHtml(id){
       var s=stats[id]||{replies:0,reposts:0,likes:0};
       // A note that trended did so across the whole network, while `stats` only
@@ -1659,19 +1960,21 @@
       if(net)s={replies:Math.max(s.replies,net.replies),reposts:Math.max(s.reposts,net.reposts),
                 likes:Math.max(s.likes,net.likes)};
       var liked=!!myReactions[id],reposted=!!myReposts[id];
+      var own=!!(noteCache[id]&&noteCache[id].pubkey===pubHex&&noteCache[id].kind===1);
       var tr=translations[id];
       var translateLabel=tr&&tr.status==='done'?(tr.shown?t('nos_show_original'):t('nos_translate')):tr&&tr.status==='loading'?t('nos_translating'):t('nos_translate');
       return'<div class="nos-note-actions">'+
         '<button type="button" class="nos-act nos-a-reply" data-act="reply" data-id="'+esc(id)+'">💬 '+(s.replies||'')+'</button>'+
-        '<button type="button" class="nos-act nos-a-repost'+(reposted?' on':'')+'" data-act="repost" data-id="'+esc(id)+'" title="'+esc(t('nos_repost'))+'">🔁 '+(s.reposts||'')+'</button>'+
-        '<button type="button" class="nos-act nos-a-quote" data-act="quote" data-id="'+esc(id)+'" title="'+esc(t('nos_quote'))+'">❝</button>'+
+        '<button type="button" class="nos-act nos-a-repost'+(reposted?' on':'')+'" data-act="repostmenu" data-id="'+esc(id)+'" title="'+esc(t('nos_repost')+' / '+t('nos_quote'))+'">🔁 '+(s.reposts||'')+'</button>'+
         '<button type="button" class="nos-act nos-a-like'+(liked?' on':'')+'" data-act="like" data-id="'+esc(id)+'" title="'+esc(t('nos_like'))+'">'+(liked?'❤️':'🤍')+' '+(s.likes||'')+'</button>'+
-        (deeplEnabled?'<button type="button" class="nos-act nos-a-translate'+(tr&&tr.status==='done'&&tr.shown?' on':'')+'" data-act="translate" data-id="'+esc(id)+'"'+(tr&&tr.status==='loading'?' disabled':'')+'>🌐 '+esc(translateLabel)+'</button>':'')+
+        (aiEnabled?'<button type="button" class="nos-act nos-a-ai" data-act="aimenu" data-id="'+esc(id)+'" title="'+esc(t('nos_ai_btn'))+'" aria-label="'+esc(t('nos_ai_btn'))+'">✨</button>':'')+
+        (deeplEnabled?'<button type="button" class="nos-act nos-a-translate'+(tr&&tr.status==='done'&&tr.shown?' on':'')+'" data-act="translate" data-id="'+esc(id)+'" title="'+esc(translateLabel)+'" aria-label="'+esc(translateLabel)+'"'+(tr&&tr.status==='loading'?' disabled':'')+'>🌐</button>':'')+
+        (own?'<button type="button" class="nos-act nos-a-more" data-act="moremenu" data-id="'+esc(id)+'" title="'+esc(t('nos_more'))+'" aria-label="'+esc(t('nos_more'))+'">⋯</button>':'')+
         '</div>';
     }
     function quoteHtml(id){
       var note=noteCache[id];
-      if(!note){ensureNote(id);return'<div class="nos-quote">'+esc(t('nos_loading'))+'</div>'}
+      if(!note){ensureNote(id);return'<div class="nos-quote">'+esc(t(noteMissing[id]?'nos_note_unavailable':'nos_loading'))+'</div>'}
       ensureProfile(note.pubkey);
       return'<div class="nos-quote" data-note="'+esc(note.id)+'"><div class="nos-note-head">'+avatarHtml(note.pubkey)+
         '<div class="nos-note-who" data-user="'+esc(note.pubkey)+'"><span class="nos-note-name">'+esc(displayName(note.pubkey))+'</span><span class="nos-note-time">'+esc(formatTime(note.created_at))+'</span></div></div>'+
@@ -1691,7 +1994,7 @@
         (item.boost?'<div class="nos-boost">🔁 '+esc(t('nos_reposted_by',{name:displayName(item.boost.pubkey)}))+'</div>':'')+
         '<div class="nos-note-head">'+avatarHtml(note.pubkey)+
           '<div class="nos-note-who" data-user="'+esc(note.pubkey)+'"><span class="nos-note-name">'+esc(displayName(note.pubkey))+'</span><span class="nos-note-time">'+esc(formatTime(note.created_at))+'</span></div>'+
-          (isSelf||options.follow===false?'':'<button type="button" class="nos-follow-btn" data-act="'+(following?'unfollow':'follow')+'" data-pubkey="'+esc(note.pubkey)+'">'+esc(t(following?'nos_unfollow':'nos_follow'))+'</button>')+
+          (isSelf||options.follow===false?'':'<button type="button" class="nos-follow-btn" data-act="'+(following?'unfollow':'follow')+'" data-pubkey="'+esc(note.pubkey)+'">'+esc(t(following?'nos_unfollow':'nos_follow'))+'</button>'+muteBtnHtml(note.pubkey,false))+
         '</div>'+
         (parent&&options.showParent!==false?replyOfHtml(parent):'')+
         '<div class="nos-note-content">'+renderContent(note.content,quoted)+'</div>'+
@@ -1703,13 +2006,21 @@
         (options.actions===false?'':actionsHtml(note.id))+
         '</div>';
     }
-    function listHtml(items,options){return items.map(function(item){return noteCardHtml(item,options)}).join('')}
+    function muteBtnHtml(pk,withText){
+      var on=isMuted(pk),label=t(on?'nos_unmute':'nos_mute');
+      return'<button type="button" class="nos-mute-btn'+(on?' on':'')+'" data-act="mute" data-pubkey="'+esc(pk)+'" title="'+esc(label)+'" aria-label="'+esc(label)+'">'+(on?'🔊':'🔇')+(withText?'<span class="nos-mute-text"> '+esc(label)+'</span>':'')+'</button>';
+    }
+    function listHtml(items,options){
+      if(!options.showMuted)items=items.filter(function(item){
+        var note=noteCache[item.noteId];
+        return!deletedIds[item.noteId]&&!(item.boost&&isMuted(item.boost.pubkey))&&!(note&&isMuted(note.pubkey));
+      });
+      return items.map(function(item){return noteCardHtml(item,options)}).join('')}
 
     function barHtml(){
       var back=stack.length?'<button type="button" class="nos-bar-btn nos-back">←</button>':'';
       var unread=unreadCount();
       return'<div class="nos-bar"><div class="nos-bar-head">'+back+
-        '<span class="nos-title">🔮 '+esc(t('nos_app_title'))+'</span>'+
         '<div class="nos-tabs">'+
           ['feed','notifications','profile','relays'].map(function(id){
             var label=t(id==='feed'?'nos_tab_feed':id==='notifications'?'nos_tab_notifications':id==='profile'?'nos_tab_profile':'nos_tab_relays');
@@ -1756,8 +2067,10 @@
     }
     function switchTab(tab){
       stack=[];
+      var prevTab=activeTab;
       activeTab=tab;
-      if(tab==='notifications')markNotifSeen();
+      if(tab==='notifications'){if(prevTab!=='notifications'||notifBase===null)notifBase=notifSeen;markNotifSeen()}
+      if(tab==='profile'){profileSub='posts';loadUser(pubHex)}
       // Following and Discover keep an open subscription, so they are still
       // current when the reader comes back. Popular has none — the ranking cache
       // answers once and closes. While the feed is on screen the background poll
@@ -1842,6 +2155,24 @@
     // One delegated handler per list beats a listener per button: the lists are
     // re-rendered on every incoming event, and re-binding hundreds of nodes each
     // time is what makes a live feed stutter.
+    // A small popup under the pressed button. It is a child of the widget root so
+    // it survives list re-renders, and any outside click or scroll closes it.
+    function closeActionMenu(){var m=document.querySelector('.nos-menu');if(m)m.remove()}
+    function openActionMenu(btn,id,items){
+      closeActionMenu();
+      var root=btn.closest('.nos');if(!root)return;
+      var m=document.createElement('div');m.className='nos-menu';
+      items.forEach(function(it){
+        var b=document.createElement('button');b.type='button';b.textContent=it[0];
+        b.onclick=function(e){e.stopPropagation();closeActionMenu();it[1]()};
+        m.appendChild(b);
+      });
+      var rr=root.getBoundingClientRect(),br=btn.getBoundingClientRect();
+      m.style.top=(br.bottom-rr.top+4)+'px';
+      m.style.left=Math.max(4,Math.min(br.left-rr.left,rr.width-190))+'px';
+      root.appendChild(m);
+      setTimeout(function(){document.addEventListener('click',closeActionMenu,{once:true})},0);
+    }
     function bindList(container){
       container.onclick=function(e){
         var act=e.target.closest('[data-act]');
@@ -1849,10 +2180,12 @@
           e.stopPropagation();
           var id=act.dataset.id,pk=act.dataset.pubkey;
           if(act.dataset.act==='reply')openComposer('reply',id);
-          else if(act.dataset.act==='quote')openComposer('quote',id);
-          else if(act.dataset.act==='repost')toggleRepost(id);
+          else if(act.dataset.act==='repostmenu')openActionMenu(act,id,[[myReposts[id]?t('nos_unrepost'):t('nos_repost'),function(){toggleRepost(id)}],[t('nos_quote'),function(){openComposer('quote',id)}]]);
+          else if(act.dataset.act==='aimenu')openActionMenu(act,id,[['💡 '+t('nos_ai_explain'),function(){openAiChat('explain',id)}],['❓ '+t('nos_ai_ask'),function(){openAiChat('question',id)}],['✍️ '+t('nos_ai_comment'),function(){suggestAiComment(id)}]]);
+          else if(act.dataset.act==='moremenu')openActionMenu(act,id,[['✏️ '+t('nos_edit'),function(){openComposer('edit',id)}],['🗑 '+t('nos_delete'),function(){deleteNote(id)}]]);
           else if(act.dataset.act==='like')toggleLike(id);
           else if(act.dataset.act==='follow'||act.dataset.act==='unfollow')toggleFollow(pk);
+          else if(act.dataset.act==='mute')toggleMute(pk);
           else if(act.dataset.act==='translate')translateNote(id);
           return;
         }
@@ -1899,17 +2232,20 @@
       refreshStats(feedItems.map(function(item){return item.noteId}));
     }
     function renderNotifications(body){
-      if(!notifItems.length){
+      var shownNotifs=notifItems.filter(function(ev){return!isMuted(ev.pubkey)});
+      if(!shownNotifs.length){
         body.innerHTML='<div class="nos-empty">'+esc(notifLoaded?t('nos_no_notifications'):t('nos_loading'))+'</div>';
         return;
       }
-      body.innerHTML=notifItems.map(function(ev){
+      body.innerHTML=shownNotifs.map(function(ev){
         var target=targetOf(ev),note=target?noteCache[target]:null;
         var what=ev.kind===7?t('nos_notif_like'):ev.kind===6?t('nos_notif_repost'):(target?t('nos_notif_reply'):t('nos_notif_mention'));
-        var preview=ev.kind===1?ev.content:(note?note.content:'');
-        return'<div class="nos-notif"'+(target||ev.kind===1?' data-note="'+esc(ev.kind===1?ev.id:target)+'"':'')+'>'+avatarHtml(ev.pubkey)+
+        var preview=ev.kind===1?ev.content:'';
+        var onPost=note?note.content:'';
+        return'<div class="nos-notif'+(notifBase!==null&&ev.created_at>notifBase?' nos-notif-new':'')+'"'+(target||ev.kind===1?' data-note="'+esc(ev.kind===1?ev.id:target)+'"':'')+'>'+avatarHtml(ev.pubkey)+
           '<div class="nos-notif-body"><div class="nos-notif-line"><b data-user="'+esc(ev.pubkey)+'">'+esc(displayName(ev.pubkey))+'</b> '+esc(what)+'</div>'+
           (preview?'<div class="nos-notif-quote">'+esc(preview.slice(0,180))+'</div>':'')+
+          (target?'<div class="nos-notif-on"><span>'+esc(t('nos_notif_on_post'))+':</span> '+esc(onPost?onPost.slice(0,140):t('nos_loading'))+'</div>':'')+
           '<div class="nos-notif-time">'+esc(formatTime(ev.created_at))+'</div></div></div>';
       }).join('');
       bindList(body);
@@ -1943,14 +2279,14 @@
         '<div class="nos-user-row">'+avatarHtml(pk,true)+
           '<div class="nos-user-meta"><div class="nos-user-name">'+esc(displayName(pk))+'</div>'+
           (p.nip05?'<div class="nos-nip05">'+esc(p.nip05)+'</div>':'')+'</div>'+
-          (isSelf?'':'<button type="button" class="nos-follow-btn primary" data-act="'+(following?'unfollow':'follow')+'" data-pubkey="'+esc(pk)+'">'+esc(t(following?'nos_unfollow':'nos_follow'))+'</button>')+
+          (isSelf?'':'<button type="button" class="nos-follow-btn primary" data-act="'+(following?'unfollow':'follow')+'" data-pubkey="'+esc(pk)+'">'+esc(t(following?'nos_unfollow':'nos_follow'))+'</button>'+muteBtnHtml(pk,true))+
         '</div>'+
         (p.about?'<div class="nos-user-about">'+renderContent(p.about)+'</div>':'')+
         peopleCountsHtml(pk)+
         (p.website?'<div class="nos-user-stats"><a href="'+esc(p.website)+'" target="_blank" rel="noopener noreferrer">'+esc(p.website)+'</a></div>':'')+
         '<div class="nos-view-value nos-key-value">'+esc(npubEncode(pk)||'')+'</div>'+
       '</div>'+
-      (userNotes.length?listHtml(userNotes.map(function(ev){return{key:ev.id,noteId:ev.id,boost:null}}),{follow:false})
+      (userNotes.length?listHtml(userNotes.map(function(ev){return{key:ev.id,noteId:ev.id,boost:null}}),{follow:false,showMuted:true})
         :'<div class="nos-empty">'+esc(userLoaded?t('nos_no_notes'):t('nos_loading'))+'</div>');
       bindList(body);
       bindPeopleButtons(body);
@@ -1960,7 +2296,7 @@
       body.innerHTML=(peopleList.length?peopleList.map(function(pk){
           return'<div class="nos-note nos-flat" data-user="'+esc(pk)+'"><div class="nos-note-head">'+avatarHtml(pk)+
             '<div class="nos-note-who" data-user="'+esc(pk)+'"><span class="nos-note-name">'+esc(displayName(pk))+'</span></div>'+
-            (pk===pubHex?'':'<button type="button" class="nos-follow-btn" data-act="'+(contactPubkeys.indexOf(pk)>=0?'unfollow':'follow')+'" data-pubkey="'+esc(pk)+'">'+esc(t(contactPubkeys.indexOf(pk)>=0?'nos_unfollow':'nos_follow'))+'</button>')+
+            (pk===pubHex?'':'<button type="button" class="nos-follow-btn" data-act="'+(contactPubkeys.indexOf(pk)>=0?'unfollow':'follow')+'" data-pubkey="'+esc(pk)+'">'+esc(t(contactPubkeys.indexOf(pk)>=0?'nos_unfollow':'nos_follow'))+'</button>'+muteBtnHtml(pk,false))+
           '</div></div>';
         }).join('')
         :'<div class="nos-empty">'+esc(peopleLoaded?t('nos_no_people'):t('nos_loading'))+'</div>');
@@ -1971,15 +2307,69 @@
         btn.onclick=function(e){e.stopPropagation();openPeople(btn.dataset.people,btn.dataset.pubkey)};
       });
     }
+    function aiReplyPrefsHtml(){
+      if(!aiEnabled)return '';
+      var prefs=aiPrefsDraft||_langPrefs,lang=prefs.ai_reply_lang||'POST';
+      return '<div class="nos-ai-reply-prefs"><label>'+esc(t('nos_ai_reply_lang'))+
+        '<select class="nos-p-ai-reply-lang"><option value="POST"'+(lang==='POST'?' selected':'')+'>'+esc(t('nos_ai_reply_post_lang'))+'</option>'+
+        NOS_LANGS.map(function(l){return '<option value="'+esc(l.value)+'"'+(l.value===lang?' selected':'')+'>'+esc(l.label)+'</option>'}).join('')+'</select></label>'+
+        '<label>'+esc(t('nos_ai_reply_style'))+'<textarea class="nos-p-ai-reply-style" maxlength="1000" placeholder="'+esc(t('nos_ai_reply_style_hint'))+'">'+esc(prefs.ai_reply_style||'')+'</textarea></label>'+
+        '<button type="button" class="nos-ai-prefs-save"'+(aiPrefsSaving?' disabled':'')+'>'+esc(t('nos_save'))+'</button>'+
+        '<div class="nos-ai-prefs-status" role="status"></div></div>';
+    }
+    function bindAiReplyPrefs(body){
+      var lang=body.querySelector('.nos-p-ai-reply-lang'),style=body.querySelector('.nos-p-ai-reply-style');
+      if(!lang||!style)return;
+      function changed(){
+        aiPrefsDraft={ai_reply_lang:lang.value,ai_reply_style:style.value};
+        body.querySelector('.nos-ai-prefs-status').textContent='';
+      }
+      lang.onchange=changed;style.oninput=changed;
+      body.querySelector('.nos-ai-prefs-save').onclick=async function(){
+        if(aiPrefsSaving)return;
+        changed();var draft=aiPrefsDraft;
+        var btn=body.querySelector('.nos-ai-prefs-save'),status=body.querySelector('.nos-ai-prefs-status');
+        aiPrefsSaving=true;btn.disabled=true;status.textContent='';
+        try{
+          await api('/prefs',{method:'PUT',body:JSON.stringify(draft)});
+          Object.assign(_langPrefs,draft);
+          if(aiPrefsDraft===draft){aiPrefsDraft=null;status.textContent=t('nos_ai_reply_saved')}
+        }catch(_){status.textContent=t('nos_save_error')}
+        aiPrefsSaving=false;btn.disabled=false;
+      };
+    }
     function renderProfileTab(body){
       var p=profileCache[pubHex]||{};
-      body.innerHTML='<div class="nos-profile-form">'+
-        '<div class="nos-user-head">'+
+      var subs=aiEnabled?['posts','replies','ai','settings']:['posts','replies','settings'];
+      if(profileSub==='ai'&&!aiEnabled)profileSub='posts';
+      var subHtml='<div class="nos-subtabs">'+subs.map(function(s){
+        return'<button type="button" class="nos-subtab'+(profileSub===s?' active':'')+'" data-sub="'+s+'">'+esc(t('nos_sub_'+s))+'</button>'}).join('')+'</div>';
+      var headHtml='<div class="nos-user-head">'+
           (p.banner?'<img class="nos-banner" src="'+esc(p.banner)+'" referrerpolicy="no-referrer" alt="">':'<div class="nos-banner"></div>')+
           '<div class="nos-user-row">'+avatarHtml(pubHex,true)+'<div class="nos-user-meta"><div class="nos-user-name">'+esc(displayName(pubHex))+'</div>'+
           (p.nip05?'<div class="nos-nip05">'+esc(p.nip05)+'</div>':'')+'</div></div>'+
+          (p.about?'<div class="nos-user-about">'+renderContent(p.about)+'</div>':'')+
           peopleCountsHtml(pubHex)+
-        '</div>'+
+        '</div>'+subHtml;
+      function bindSubs(){
+        body.querySelectorAll('.nos-subtab').forEach(function(btn){btn.onclick=function(){profileSub=btn.dataset.sub;if(profileSub==='ai')aiHistory=null;scrollReset=false;renderBody()}});
+      }
+      if(profileSub==='ai'){
+        loadAiHistory();
+        body.innerHTML=headHtml+aiHistoryHtml();
+        bindSubs();bindPeopleButtons(body);bindImages(body);
+        body.querySelectorAll('[data-ai-chat]').forEach(function(el){el.onclick=function(){openAiHistoryChat(el.dataset.aiChat)}});
+        return;
+      }
+      if(profileSub!=='settings'){
+        var mine=userNotes.filter(function(ev){return profileSub==='replies'?!!replyTarget(ev):!replyTarget(ev)});
+        body.innerHTML=headHtml+(mine.length?listHtml(mine.map(function(ev){return{key:ev.id,noteId:ev.id,boost:null}}),{follow:false,showMuted:true})
+          :'<div class="nos-empty">'+esc(userLoaded?t('nos_no_notes_here'):t('nos_loading'))+'</div>');
+        bindList(body);bindSubs();bindPeopleButtons(body);bindImages(body);
+        refreshStats(mine.map(function(ev){return ev.id}));
+        return;
+      }
+      body.innerHTML=headHtml+'<div class="nos-profile-form">'+
         '<label>'+esc(t('nos_display_name'))+'</label><input class="nos-p-display" value="'+esc(p.name||'')+'">'+
         '<label>'+esc(t('nos_username'))+'</label><input class="nos-p-name" value="'+esc(p.handle||'')+'">'+
         '<label>'+esc(t('nos_about'))+'</label><textarea class="nos-p-about">'+esc(p.about||'')+'</textarea>'+
@@ -2007,13 +2397,14 @@
         // language the translate button renders a post into, the second the
         // one the composer translates a draft into before publishing. With no
         // integration there is nothing either could apply to.
-        (deeplEnabled?
+        ((deeplEnabled||aiEnabled)?
           '<label>'+esc(t('nos_translate_lang_label'))+'</label>'+
           '<select class="nos-p-translate-lang">'+NOS_LANGS.map(function(l){return'<option value="'+esc(l.value)+'"'+(l.value===translateTargetLang()?' selected':'')+'>'+esc(l.label)+'</option>'}).join('')+'</select>'+
-          '<label>'+esc(t('nos_publish_lang_label'))+'</label>'+
-          '<select class="nos-p-publish-lang">'+NOS_LANGS.map(function(l){return'<option value="'+esc(l.value)+'"'+(l.value===publishTargetLang()?' selected':'')+'>'+esc(l.label)+'</option>'}).join('')+'</select>'
-        :'')+
+          (deeplEnabled?'<label>'+esc(t('nos_publish_lang_label'))+'</label>'+
+          '<select class="nos-p-publish-lang">'+NOS_LANGS.map(function(l){return'<option value="'+esc(l.value)+'"'+(l.value===publishTargetLang()?' selected':'')+'>'+esc(l.label)+'</option>'}).join('')+'</select>':'')
+        :'')+aiReplyPrefsHtml()+
         '</div>';
+      bindAiReplyPrefs(body);
       function saveLangPref(field,value){
         var prev=_langPrefs[field];
         _langPrefs[field]=value;
@@ -2029,7 +2420,7 @@
       body.querySelectorAll('.nos-identity-switch').forEach(function(btn){btn.onclick=function(){switchIdentity(btn.dataset.npub)}});
       body.querySelectorAll('.nos-identity-logout').forEach(function(btn){btn.onclick=function(){logoutIdentity(btn.dataset.npub)}});
       body.querySelectorAll('.nos-identity-remove').forEach(function(btn){btn.onclick=function(){removeIdentity(btn.dataset.npub)}});
-      bindPeopleButtons(body);
+      bindPeopleButtons(body);bindSubs();
       body.querySelector('.nos-profile-save').onclick=async function(){
         var btn=body.querySelector('.nos-profile-save'),err=body.querySelector('.nos-profile-error');
         btn.disabled=true;err.textContent='';
@@ -2087,6 +2478,7 @@
 
     function destroy(){
       destroyed=true;
+      closeImagePreview();root.removeEventListener('click',onImageClick,true);
       clearTimeout(autoLockTimer);clearTimeout(renderTimer);clearTimeout(profileTimer);clearTimeout(noteTimer);
       clearTimeout(searchDebounce);
       stopModePolling();

@@ -1,0 +1,122 @@
+{
+  "id": "dealornot",
+  "name": "Deal or Not",
+  "name_i18n": {
+    "en": "Deal or Not",
+    "bg": "Сделка или не",
+    "de": "Deal oder nicht",
+    "es": "Trato o no",
+    "fr": "Deal ou pas",
+    "ja": "取引する？しない？",
+    "pt-BR": "Acordo ou nada",
+    "ru": "Сделка или нет",
+    "zh-CN": "成交还是不成交"
+  },
+  "icon": "💼",
+  "category": "Games",
+  "tags": [
+    "multiplayer",
+    "cards",
+    "luck",
+    "games"
+  ],
+  "version": "1.0.0",
+  "min_core_version": "1.16.0",
+  "description": "Draw one of 36 numbered boxes, open the others and answer the banker's calls: take his offer or keep your box. Up to six players share one board and the banker calls each of them in private. Amounts go up to one million and bonuses for smart play keep the top score open.",
+  "entry": "main.js",
+  "multiplayer": true,
+  "max_players": 6,
+  "public_directory": false,
+  "gamehub": {
+    "category": "strategy",
+    "description": {
+      "en": "Draw a box, open the others and face the banker: take his offer or keep your box. Everyone plays the same board.",
+      "bg": "Изтегли кутия, отвори останалите и се изправи пред банкера: приеми офертата му или задръж кутията си. Всички играят една и съща дъска.",
+      "de": "Ziehe eine Box, öffne die anderen und stelle dich dem Bankier: nimm sein Angebot an oder behalte deine Box. Alle spielen dasselbe Brett.",
+      "es": "Saca una caja, abre las demás y enfréntate al banquero: acepta su oferta o quédate con tu caja. Todos juegan el mismo tablero.",
+      "fr": "Tire une boîte, ouvre les autres et affronte le banquier : accepte son offre ou garde ta boîte. Tout le monde joue le même plateau.",
+      "ja": "ボックスを引き、残りを開けてバンカーと勝負。オファーを受けるか、自分のボックスを守るか。全員が同じボードで遊びます。",
+      "pt-BR": "Sorteie uma caixa, abra as outras e enfrente o banqueiro: aceite a oferta dele ou fique com a sua caixa. Todos jogam o mesmo tabuleiro.",
+      "ru": "Вытяни коробку, открой остальные и встреться с банкиром: прими его предложение или оставь свою коробку. Все играют на одном поле.",
+      "zh-CN": "抽一个箱子，打开其余的箱子，面对银行家：接受他的报价，或留下自己的箱子。所有人玩同一块棋盘。"
+    },
+    "score": {
+      "label": {
+        "en": "Points",
+        "bg": "Точки",
+        "de": "Punkte",
+        "es": "Puntos",
+        "fr": "Points",
+        "ja": "ポイント",
+        "pt-BR": "Pontos",
+        "ru": "Очки",
+        "zh-CN": "得分"
+      }
+    },
+    "ranking": "score",
+    "metrics": {
+      "winnings": {
+        "label": {
+          "en": "Amount won",
+          "bg": "Спечелена сума",
+          "de": "Gewinn",
+          "es": "Cantidad ganada",
+          "fr": "Somme gagnée",
+          "ja": "獲得額",
+          "pt-BR": "Valor ganho",
+          "ru": "Выигрыш",
+          "zh-CN": "赢得金额"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "bonus_pct": {
+        "label": {
+          "en": "Bonus (%)",
+          "bg": "Бонус (%)",
+          "de": "Bonus (%)",
+          "es": "Bonificación (%)",
+          "fr": "Bonus (%)",
+          "ja": "ボーナス (%)",
+          "pt-BR": "Bônus (%)",
+          "ru": "Бонус (%)",
+          "zh-CN": "奖励 (%)"
+        },
+        "type": "percent",
+        "better": "high",
+        "total": false
+      },
+      "offers_refused": {
+        "label": {
+          "en": "Offers refused",
+          "bg": "Отказани оферти",
+          "de": "Abgelehnte Angebote",
+          "es": "Ofertas rechazadas",
+          "fr": "Offres refusées",
+          "ja": "断ったオファー",
+          "pt-BR": "Ofertas recusadas",
+          "ru": "Отклонённые предложения",
+          "zh-CN": "拒绝的报价"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "boxes": {
+        "label": {
+          "en": "Boxes on the board",
+          "bg": "Кутии на дъската",
+          "de": "Boxen auf dem Brett",
+          "es": "Cajas en el tablero",
+          "fr": "Boîtes sur le plateau",
+          "ja": "ボードのボックス数",
+          "pt-BR": "Caixas no tabuleiro",
+          "ru": "Коробки на поле",
+          "zh-CN": "棋盘上的箱子数"
+        },
+        "type": "number",
+        "better": "high",
+        "total": false
+      }
+    }
+  }
+}
