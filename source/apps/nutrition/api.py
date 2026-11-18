@@ -21,6 +21,7 @@ about to be eaten; the window and the AI both use it, so they always agree.
 A "day" is the client's local calendar date (YYYY-MM-DD); before the hour the
 user chose as the end of their day it is still yesterday.
 """
+import hashlib
 import json
 import os
 import re
@@ -113,7 +114,30 @@ OFF_ALLERGENS = {
     "en:mustard": "mustard", "en:celery": "celery", "en:lupin": "lupin", "en:molluscs": "molluscs",
     "en:sulphur-dioxide-and-sulphites": "sulphites",
 }
-RESTRICTION_KINDS = ("allergy", "intolerance", "avoid")
+# Labels a food can carry, the same in every language: how it was prepared and
+# what kind of food it is. Restrictions and limits are set by these (or by an
+# allergen), never by free words, so they work whatever language a name is in.
+TAGS = ("fried", "grilled", "baked", "boiled", "raw", "smoked", "cured",
+        "processed", "processed_meat", "red_meat", "poultry", "vegetable", "fruit", "citrus", "tomato", "legume",
+        "whole_grain", "nuts_seeds", "sweets", "sugary_drink", "caffeine", "alcohol", "spicy")
+RESTRICTION_KEYS = ALLERGENS + TAGS
+# avoid: do not eat it; good: favour it; limit: at most `amount` g or ml a day.
+RESTRICTION_KINDS = ("allergy", "intolerance", "avoid", "good", "limit")
+# Open Food Facts categories that tell how a product is prepared or what it is.
+OFF_TAGS = {
+    "en:fried-foods": "fried", "en:deep-fried-foods": "fried", "en:french-fries": "fried", "en:crisps": "fried",
+    "en:smoked-foods": "smoked", "en:smoked-meats": "smoked", "en:smoked-fishes": "smoked",
+    "en:processed-meats": "processed_meat", "en:sausages": "processed_meat", "en:hams": "processed_meat",
+    "en:cured-meats": "cured", "en:salted-foods": "cured", "en:poultries": "poultry", "en:chickens": "poultry",
+    "en:red-meats": "red_meat", "en:beef": "red_meat", "en:pork": "red_meat",
+    "en:vegetables": "vegetable", "en:fruits": "fruit", "en:citrus": "citrus", "en:tomatoes": "tomato",
+    "en:legumes": "legume", "en:nuts": "nuts_seeds", "en:seeds": "nuts_seeds",
+    "en:sweet-snacks": "sweets", "en:confectioneries": "sweets", "en:chocolates": "sweets", "en:desserts": "sweets",
+    "en:sodas": "sugary_drink", "en:sweetened-beverages": "sugary_drink", "en:fruit-juices": "sugary_drink",
+    "en:alcoholic-beverages": "alcohol", "en:beers": "alcohol", "en:wines": "alcohol",
+    "en:coffees": "caffeine", "en:energy-drinks": "caffeine", "en:colas": "caffeine",
+    "en:whole-grain-breads": "whole_grain", "en:wholemeal-breads": "whole_grain",
+}
 OFF_UA = "mvmOS-Nutrition/1.0 (https://mvmos.org)"
 
 
@@ -145,6 +169,7 @@ def _init_db():
                 amount REAL NOT NULL,
                 allergens TEXT NOT NULL DEFAULT '[]',
                 ingredients TEXT NOT NULL DEFAULT '',
+                tags TEXT NOT NULL DEFAULT '[]',
                 {nutri_cols}
             );
             CREATE INDEX IF NOT EXISTS idx_nu_entries ON entries(user_id, day);
@@ -158,12 +183,21 @@ def _init_db():
                 ingredients TEXT NOT NULL DEFAULT '',
                 barcode TEXT,
                 brand TEXT,
+                tags TEXT NOT NULL DEFAULT '[]',
                 portion REAL,
                 recipe TEXT,
                 created TEXT NOT NULL,
+                shared INTEGER NOT NULL DEFAULT 0,
                 {nutri_cols}
             );
             CREATE INDEX IF NOT EXISTS idx_nu_foods ON foods(user_id);
+            CREATE TABLE IF NOT EXISTS search_filters (
+                user_id TEXT PRIMARY KEY,
+                mine INTEGER NOT NULL DEFAULT 1,
+                standard INTEGER NOT NULL DEFAULT 1,
+                shared INTEGER NOT NULL DEFAULT 1,
+                share_default INTEGER NOT NULL DEFAULT 0
+            );
             CREATE TABLE IF NOT EXISTS settings (
                 user_id TEXT PRIMARY KEY,
                 day_end_hour INTEGER NOT NULL DEFAULT 0,
@@ -187,7 +221,8 @@ def _init_db():
                 user_id TEXT NOT NULL,
                 kind TEXT NOT NULL,
                 key TEXT NOT NULL DEFAULT '',
-                label TEXT NOT NULL DEFAULT ''
+                label TEXT NOT NULL DEFAULT '',
+                amount REAL NOT NULL DEFAULT 0
             );
             CREATE INDEX IF NOT EXISTS idx_nu_restr ON restrictions(user_id);
             CREATE TABLE IF NOT EXISTS off_cache (
@@ -229,6 +264,27 @@ def _init_db():
             c.execute("ALTER TABLE health_link ADD COLUMN read_profile INTEGER NOT NULL DEFAULT 0")
         if "read_other" not in cols:
             c.execute("ALTER TABLE health_link ADD COLUMN read_other INTEGER NOT NULL DEFAULT 0")
+        if "shared" not in [r[1] for r in c.execute("PRAGMA table_info(foods)")]:
+            c.execute("ALTER TABLE foods ADD COLUMN shared INTEGER NOT NULL DEFAULT 0")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_nu_foods_shared ON foods(shared)")
+        have_f = [r[1] for r in c.execute("PRAGMA table_info(foods)")]
+        for col in ("portions", "total_g"):
+            if col not in have_f:
+                c.execute(f"ALTER TABLE foods ADD COLUMN {col} REAL")
+        if "share_default" not in [r[1] for r in c.execute("PRAGMA table_info(search_filters)")]:
+            c.execute("ALTER TABLE search_filters ADD COLUMN share_default INTEGER NOT NULL DEFAULT 0")
+        have_e = [r[1] for r in c.execute("PRAGMA table_info(entries)")]
+        for col in ("count", "portion_g"):
+            if col not in have_e:
+                c.execute(f"ALTER TABLE entries ADD COLUMN {col} REAL")
+        if "group_id" not in have_e:
+            c.execute("ALTER TABLE entries ADD COLUMN group_id TEXT")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_nu_entries_group ON entries(user_id, group_id)")
+        for table in ("entries", "foods"):
+            if "tags" not in [r[1] for r in c.execute(f"PRAGMA table_info({table})")]:
+                c.execute(f"ALTER TABLE {table} ADD COLUMN tags TEXT NOT NULL DEFAULT '[]'")
+        if "amount" not in [r[1] for r in c.execute("PRAGMA table_info(restrictions)")]:
+            c.execute("ALTER TABLE restrictions ADD COLUMN amount REAL NOT NULL DEFAULT 0")
         for table in ("entries", "foods"):
             have = [r[1] for r in c.execute(f"PRAGMA table_info({table})")]
             for n in NKEYS:
@@ -287,8 +343,8 @@ def _builtin_food(fid, lang="en"):
     f = _builtin().get(fid)
     if not f:
         return None
-    return {"ref": "b:" + fid, "id": fid, "kind": "ready", "name": _builtin_name(fid, lang), "icon": f.get("icon", "🍽️"),
-            "unit": f["unit"], "allergens": list(f.get("allergens") or []), "ingredients": "", "barcode": None,
+    return {"ref": "b:" + fid, "id": fid, "kind": "ready", "origin": "standard", "name": _builtin_name(fid, lang), "icon": f.get("icon", "🍽️"),
+            "unit": f["unit"], "allergens": list(f.get("allergens") or []), "tags": list(f.get("tags") or []), "ingredients": "", "barcode": None,
             "portions": list(f.get("portions") or []), **{k: float(f.get(k) or 0) for k in NKEYS}}
 
 
@@ -338,6 +394,21 @@ def _clean_allergens(v):
         if a in ALLERGENS and a not in out:
             out.append(a)
     return out
+
+
+def _clean_tags(v):
+    out = []
+    for a in (v or []):
+        a = str(a).strip().lower()
+        if a in TAGS and a not in out:
+            out.append(a)
+    return out
+
+
+def _item_of(f):
+    """The food a validated set of columns (from _food_fields) describes."""
+    return {"ref": None, "name": f["name"], "unit": f["unit"], "allergens": json.loads(f["allergens"]),
+            "tags": json.loads(f["tags"]), "ingredients": f["ingredients"], **{k: f[k + "_100"] for k in NKEYS}}
 
 
 def _loads(s, default):
@@ -479,10 +550,17 @@ def suggest_goals(sex, age, height_cm, weight_kg, activity, goal_type, target_we
     cal_max = int(round(cal / 50.0) * 50)
     cal_min = max(1000, cal_max - 300)
     per_kg = {"high_protein": 2.0, "gain_muscle": 2.0, "lose_weight": 1.8}.get(goal_type, 1.2)
+    # Common reference values, scaled to the calories: carbohydrates up to 55%
+    # of the energy (the upper end of the usual 45-55%), free sugars up to 10%
+    # (5% for "healthier"; WHO), fibre 14 g per 1000 kcal (US dietary
+    # reference intake), salt up to 5 g a day (WHO).
+    def _step(v, n):
+        return int(round(v / n) * n)
     out = {"bmr": int(round(bmr)), "tdee": int(round(tdee)), "cal_min": cal_min, "cal_max": cal_max,
-           "protein_min": int(round(weight_kg * per_kg)), "carbs_max": 0, "sugar_max": 0, "fiber_min": 0, "salt_max": 0}
-    if goal_type == "healthier":
-        out.update(sugar_max=50, fiber_min=25, salt_max=5)
+           "protein_min": int(round(weight_kg * per_kg)),
+           "carbs_max": _step(cal_max * 0.55 / 4, 5),
+           "sugar_max": _step(cal_max * (0.05 if goal_type == "healthier" else 0.10) / 4, 5),
+           "fiber_min": int(round(cal_max / 1000.0 * 14)), "salt_max": 5}
     if goal_type == "low_carb":
         out["carbs_max"] = 100
     tw = _num(target_weight_kg, 0, 500, 0)
@@ -495,29 +573,34 @@ def suggest_goals(sex, age, height_cm, weight_kg, activity, goal_type, target_we
 
 def _restrictions(c, uid):
     return [dict(r) for r in c.execute(
-        "SELECT id,kind,key,label FROM restrictions WHERE user_id=? ORDER BY rowid", (uid,))]
+        "SELECT id,kind,key,label,amount FROM restrictions WHERE user_id=? ORDER BY rowid", (uid,))]
 
 
-def _add_restriction(uid, kind, key="", label=""):
+def _add_restriction(uid, kind, key="", label="", amount=None):
+    """key is an allergen or a tag (see TAGS), never a free word. A limit also
+    needs amount: the most, in g or ml, to eat of it in a day."""
     kind = (kind or "").strip().lower()
     key = (key or "").strip().lower()
-    label = (label or "").strip()[:60]
     if kind not in RESTRICTION_KINDS:
         raise ValueError("invalid_kind")
-    if key and key not in ALLERGENS:
-        raise ValueError("invalid_allergen")
-    if not key and not label:
-        raise ValueError("invalid_restriction")
+    if key not in RESTRICTION_KEYS:
+        raise ValueError("invalid_key: use one of " + ", ".join(RESTRICTION_KEYS))
+    if kind == "limit":
+        amount = _num(amount, 0, MAX_AMOUNT)
+        if not amount:
+            raise ValueError("invalid_amount")
+    else:
+        amount = 0
     with _db() as c:
-        dup = c.execute("SELECT id FROM restrictions WHERE user_id=? AND kind=? AND key=? AND lower(label)=?",
-                        (uid, kind, key, label.lower())).fetchone()
+        dup = c.execute("SELECT id FROM restrictions WHERE user_id=? AND kind=? AND key=?", (uid, kind, key)).fetchone()
         if dup:
             rid = dup["id"]
+            c.execute("UPDATE restrictions SET amount=? WHERE id=?", (amount, rid))
         else:
             rid = uuid.uuid4().hex[:12]
-            c.execute("INSERT INTO restrictions(id,user_id,kind,key,label) VALUES(?,?,?,?,?)",
-                      (rid, uid, kind, key, label))
-            c.commit()
+            c.execute("INSERT INTO restrictions(id,user_id,kind,key,label,amount) VALUES(?,?,?,?,?,?)",
+                      (rid, uid, kind, key, "", amount))
+        c.commit()
         return next(r for r in _restrictions(c, uid) if r["id"] == rid)
 
 
@@ -530,31 +613,78 @@ def _delete_restriction(uid, rid):
     return {"ok": True}
 
 
-def _restriction_hits(restrictions, allergens, text):
-    """The restrictions a food runs into: through an allergen it is tagged
-    with, or through a word of its name or ingredient list."""
+def _has_key(key, allergens, tags, low):
+    """Does a food fall under an allergen or a tag: tagged with it, or (for an
+    allergen) giving it away in its name or ingredients."""
+    if key in allergens or key in tags:
+        return True
+    return any(w in low for w in ALLERGEN_WORDS.get(key, ()))
+
+
+def _restriction_hits(restrictions, allergens, text, tags=()):
+    """The restrictions a food runs into: through an allergen or a tag it
+    carries, or through a word of its name or ingredient list."""
     low = " " + (text or "").casefold() + " "
     hits = []
     for r in restrictions:
+        if r["kind"] in ("good", "limit"):  # favoured foods and limits are weighed separately
+            continue
         if r["key"]:
-            if r["key"] in allergens:
-                hits.append({"kind": r["kind"], "key": r["key"], "label": r["label"], "via": "allergen"})
+            if r["key"] in allergens or r["key"] in tags:
+                hits.append({"kind": r["kind"], "key": r["key"], "label": r["label"], "via": "allergen" if r["key"] in ALLERGENS else "tag"})
             elif any(w in low for w in ALLERGEN_WORDS.get(r["key"], ())):
                 hits.append({"kind": r["kind"], "key": r["key"], "label": r["label"], "via": "ingredient"})
-        elif r["label"] and r["label"].casefold() in low:
+        elif r["label"] and r["label"].casefold() in low:  # an older free word
             hits.append({"kind": r["kind"], "key": "", "label": r["label"], "via": "ingredient"})
     return hits
+
+
+def _limit_use(restrictions, entries):
+    """For each limit, how much of what falls under it was eaten in these entries."""
+    out = {}
+    for r in restrictions:
+        if r["kind"] != "limit":
+            continue
+        out[r["id"]] = sum(e["amount"] for e in entries
+                           if _has_key(r["key"], e["allergens"], e.get("tags") or [], " " + (e["name"] + " " + e["ingredients"]).casefold() + " "))
+    return out
 
 
 # ── Foods ────────────────────────────────────────────────────────
 
 def _user_food_out(r):
-    d = {"ref": "u:" + r["id"], "id": r["id"], "kind": r["kind"], "name": r["name"], "icon": "🍲" if r["kind"] == "recipe" else "🍴",
-         "unit": r["unit"], "allergens": _loads(r["allergens"], []), "ingredients": r["ingredients"] or "",
+    d = {"ref": "u:" + r["id"], "id": r["id"], "kind": r["kind"], "origin": "mine", "shared": bool(r["shared"]), "name": r["name"], "icon": "🍲" if r["kind"] == "recipe" else "🍴",
+         "unit": r["unit"], "allergens": _loads(r["allergens"], []), "tags": _loads(r["tags"], []), "ingredients": r["ingredients"] or "",
          "barcode": r["barcode"], "brand": r["brand"], "portion": r["portion"],
          "portions": [r["portion"]] if r["portion"] else [], **{k: r[k + "_100"] for k in NKEYS}}
     if r["kind"] == "recipe":
         d["recipe"] = _loads(r["recipe"], [])
+        # Recipes saved before these were kept: one portion is the whole dish divided by its portions.
+        total = r["total_g"] or sum(x.get("amount") or 0 for x in d["recipe"])
+        d["total_g"] = r["total_g"]
+        d["recipe_portions"] = r["portions"] or (max(1, round(total / r["portion"])) if r["portion"] and total else 1)
+    return d
+
+
+def _owners(ids):
+    """Name and avatar of the Apps Hub profiles that own shared foods."""
+    hub = _hub()
+    ids = [i for i in dict.fromkeys(ids) if i]
+    if not hub or not ids:
+        return {}
+    try:
+        rows = hub.get_users_by_ids(ids)
+    except Exception:
+        return {}
+    return {p["id"]: {"name": p.get("display_name") or p.get("username") or "", "avatar_color": p.get("avatar_color"),
+                      "avatar_svg": p.get("avatar_svg")} for p in rows}
+
+
+def _shared_out(row, owners):
+    """Another profile's shared food or recipe: usable, never editable here."""
+    d = _user_food_out(row)
+    d.update({"ref": "s:" + row["id"], "origin": "shared", "shared": True, "owner": owners.get(row["user_id"])})
+    d.pop("barcode", None)
     return d
 
 
@@ -566,6 +696,13 @@ def _food_by_ref(uid, ref, lang="en"):
         with _db() as c:
             row = c.execute("SELECT * FROM foods WHERE id=? AND user_id=?", (ref[2:], uid)).fetchone()
         f = _user_food_out(row) if row else None
+    elif ref.startswith("s:"):
+        with _db() as c:
+            row = c.execute("SELECT * FROM foods WHERE id=? AND shared=1", (ref[2:],)).fetchone()
+        if row and row["user_id"] == uid:
+            f = _user_food_out(row)
+        else:
+            f = _shared_out(row, _owners([row["user_id"]])) if row else None
     else:
         f = None
     if not f:
@@ -577,7 +714,7 @@ def _find_by_name(uid, name, lang="en"):
     """A food by id (b:/u:), or by its name in any language: the user's own
     foods first, then the ready-made ones."""
     name = (name or "").strip()
-    if name[:2] in ("b:", "u:"):
+    if name[:2] in ("b:", "u:", "s:"):
         return _food_by_ref(uid, name, lang)
     want = name.casefold()
     if not want:
@@ -589,6 +726,9 @@ def _find_by_name(uid, name, lang="en"):
         for r in c.execute("SELECT * FROM foods WHERE user_id=?", (uid,)):
             mine.append((r["name"].casefold(), r))
     ready = [(n.casefold(), fid) for names in _all_names().values() for fid, n in names.items() if fid in _builtin()]
+    with _db() as c:
+        theirs = [(r["name"].casefold(), r) for r in c.execute("SELECT * FROM foods WHERE shared=1 AND user_id<>?", (uid,))]
+    # Own first, then the ready-made ones, and what other profiles share last.
     for test in (lambda n: n == want, lambda n: n.startswith(want), lambda n: want in n):
         hit = sorted((n, r) for n, r in mine if test(n))
         if hit:
@@ -596,6 +736,9 @@ def _find_by_name(uid, name, lang="en"):
         hit = sorted((len(n), n, fid) for n, fid in ready if test(n))
         if hit:
             return _builtin_food(hit[0][2], lang)
+        hit = sorted(((n, r["id"], r) for n, r in theirs if test(n)), key=lambda x: (x[0], x[1]))
+        if hit:
+            return _shared_out(hit[0][2], _owners([hit[0][2]["user_id"]]))
     raise LookupError("not found")
 
 
@@ -603,6 +746,27 @@ def _list_user_foods(uid):
     with _db() as c:
         return [_user_food_out(r) for r in c.execute(
             "SELECT * FROM foods WHERE user_id=? ORDER BY name COLLATE NOCASE", (uid,))]
+
+
+def _attach_last_count(uid, foods):
+    """What was logged the last time: last_amount in g or ml, and last_count when
+    it was counted in pieces, so the next day starts the same."""
+    refs = [f["ref"] for f in foods if f.get("ref")]
+    if not refs:
+        return foods
+    marks = ",".join("?" * len(refs))
+    with _db() as c:
+        # With MAX() SQLite takes the other columns from the row that holds the maximum.
+        rows = c.execute(f"SELECT food_ref, amount, count, MAX(recorded_at) AS last FROM entries WHERE user_id=? "
+                         f"AND food_ref IN ({marks}) GROUP BY food_ref", (uid, *refs)).fetchall()
+    last = {r["food_ref"]: r for r in rows}
+    for f in foods:
+        r = last.get(f.get("ref"))
+        if r:
+            f.setdefault("last_amount", r["amount"])
+            if r["count"]:
+                f["last_count"] = r["count"]
+    return foods
 
 
 def _recent_refs(uid, limit=12, meal=None):
@@ -621,12 +785,55 @@ def _recent_refs(uid, limit=12, meal=None):
             out.append(f)
         except LookupError:
             pass
-    return out
+    return _attach_last_count(uid, out)
 
 
-def _search_foods(uid, query, lang="en", limit=30, meal=None):
-    """The user's own foods and recipes, then ready-made ones, whose name in
-    any language contains the query. An empty query gives what was eaten last."""
+FILTER_KEYS = ("mine", "standard", "shared")
+
+
+def _get_filters(uid):
+    """Which kinds of food the search shows: the person's own, the standard
+    ones and the ones shared by others. All are on until the person turns one off."""
+    with _db() as c:
+        r = c.execute("SELECT mine,standard,shared FROM search_filters WHERE user_id=?", (uid,)).fetchone()
+    return {k: bool(r[k]) if r else True for k in FILTER_KEYS}
+
+
+def _set_filters(uid, data):
+    cur = _get_filters(uid)
+    for k in FILTER_KEYS:
+        if data.get(k) is not None:
+            cur[k] = bool(data[k])
+    with _db() as c:
+        c.execute("INSERT INTO search_filters(user_id,mine,standard,shared) VALUES(?,?,?,?) "
+                  "ON CONFLICT(user_id) DO UPDATE SET mine=excluded.mine, standard=excluded.standard, shared=excluded.shared",
+                  (uid, *(int(cur[k]) for k in FILTER_KEYS)))
+        c.commit()
+    return cur
+
+
+def _share_default(uid):
+    """Whether the person shared the last food or recipe they saved; the next one starts the same."""
+    with _db() as c:
+        r = c.execute("SELECT share_default FROM search_filters WHERE user_id=?", (uid,)).fetchone()
+    return bool(r and r["share_default"])
+
+
+def _remember_share(uid, shared):
+    with _db() as c:
+        c.execute("INSERT INTO search_filters(user_id,share_default) VALUES(?,?) "
+                  "ON CONFLICT(user_id) DO UPDATE SET share_default=excluded.share_default", (uid, 1 if shared else 0))
+        c.commit()
+
+
+def _search_foods(uid, query, lang="en", limit=30, meal=None, filters=None):
+    """The user's own foods and recipes, then ready-made ones, then what other
+    profiles share, whose name in any language contains the query. filters
+    (mine, standard, shared) leave a kind out; None means everything. An empty
+    query gives what was eaten last."""
+    flt = filters or {k: True for k in FILTER_KEYS}
+    flt = {k: flt.get(k, True) for k in FILTER_KEYS}
+    ok_origin = {"mine": flt["mine"], "standard": flt["standard"], "shared": flt["shared"]}
     q = (query or "").strip().casefold()
     if not q:
         if meal:
@@ -634,19 +841,33 @@ def _search_foods(uid, query, lang="en", limit=30, meal=None):
                 meal = _resolve_meal(uid, meal)
             except ValueError:
                 meal = None
-        own = _recent_refs(uid, meal=meal) if meal else []
-        if own:
+        if meal:
+            # Only what was eaten for this meal; anything else is found by searching.
+            own = [f for f in _recent_refs(uid, meal=meal) if ok_origin.get(f.get("origin"), True)]
             return {"foods": own, "recent": True, "for_meal": True}
-        return {"foods": _recent_refs(uid), "recent": True, "for_meal": False}
-    mine = [f for f in _list_user_foods(uid) if q in f["name"].casefold() or q == (f["barcode"] or "")]
+        return {"foods": [f for f in _recent_refs(uid) if ok_origin.get(f.get("origin"), True)], "recent": True, "for_meal": False}
+    mine = [f for f in _list_user_foods(uid) if q in f["name"].casefold() or q == (f["barcode"] or "")] if flt["mine"] else []
     ready = []
-    names = _all_names()
-    for fid in _builtin():
-        hay = [n.get(fid, "") for n in names.values()]
-        if any(q in h.casefold() for h in hay):
-            ready.append(_builtin_food(fid, lang))
-    ready.sort(key=lambda f: (not f["name"].casefold().startswith(q), f["name"].casefold()))
-    return {"foods": (mine + ready)[:limit], "recent": False}
+    if flt["standard"]:
+        names = _all_names()
+        for fid in _builtin():
+            hay = [n.get(fid, "") for n in names.values()]
+            if any(q in h.casefold() for h in hay):
+                ready.append(_builtin_food(fid, lang))
+        ready.sort(key=lambda f: (not f["name"].casefold().startswith(q), f["name"].casefold()))
+    theirs = []
+    if flt["shared"]:
+        with _db() as c:
+            rows = [r for r in c.execute("SELECT * FROM foods WHERE shared=1 AND user_id<>? ORDER BY name COLLATE NOCASE", (uid,))
+                    if q in r["name"].casefold() or q == (r["barcode"] or "")]
+        owners = _owners([r["user_id"] for r in rows])
+        theirs = [_shared_out(r, owners) for r in rows]
+        theirs.sort(key=lambda f: not f["name"].casefold().startswith(q))
+    # Shared foods keep a few places even when many standard ones match.
+    room = max(0, limit - len(mine) - min(len(theirs), 8))
+    out = mine + ready[:room]
+    out += theirs[:max(0, limit - len(out))]
+    return {"foods": _attach_last_count(uid, out[:limit]), "recent": False}
 
 
 def _food_fields(body, existing=None):
@@ -658,6 +879,7 @@ def _food_fields(body, existing=None):
     if unit not in ("g", "ml"):
         raise ValueError("invalid_unit")
     out = {"name": name, "unit": unit, "allergens": json.dumps(_clean_allergens(body.get("allergens"))),
+           "tags": json.dumps(_clean_tags(body.get("tags"))),
            "ingredients": (body.get("ingredients") or "").strip()[:2000],
            "barcode": re.sub(r"\D", "", str(body.get("barcode") or ""))[:20] or None,
            "brand": (body.get("brand") or "").strip()[:60] or None}
@@ -676,8 +898,8 @@ def _food_fields(body, existing=None):
 def _add_food(uid, body):
     f = _food_fields(body)
     fid = uuid.uuid4().hex[:12]
-    cols = ["id", "user_id", "kind", "created", *f.keys()]
-    vals = [fid, uid, "food", datetime.now().isoformat(timespec="seconds"), *f.values()]
+    cols = ["id", "user_id", "kind", "created", "shared", *f.keys()]
+    vals = [fid, uid, "food", datetime.now().isoformat(timespec="seconds"), 1 if body.get("shared") else 0, *f.values()]
     with _db() as c:
         c.execute(f"INSERT INTO foods({','.join(cols)}) VALUES({','.join('?' * len(cols))})", vals)
         c.commit()
@@ -690,9 +912,21 @@ def _edit_food(uid, fid, body):
         row = c.execute("SELECT kind FROM foods WHERE id=? AND user_id=?", (fid, uid)).fetchone()
         if not row:
             raise LookupError("not found")
+        if body.get("shared") is not None:
+            f["shared"] = 1 if body["shared"] else 0
         sets = ", ".join(f"{k}=?" for k in f)
         c.execute(f"UPDATE foods SET {sets} WHERE id=? AND user_id=?", (*f.values(), fid, uid))
         c.commit()
+    return _food_by_ref(uid, "u:" + fid)
+
+
+def _share_food(uid, fid, shared):
+    """Share one of the person's own foods or recipes with the other profiles, or stop."""
+    with _db() as c:
+        cur = c.execute("UPDATE foods SET shared=? WHERE id=? AND user_id=?", (1 if shared else 0, fid, uid))
+        c.commit()
+        if not cur.rowcount:
+            raise LookupError("not found")
     return _food_by_ref(uid, "u:" + fid)
 
 
@@ -713,26 +947,32 @@ def _resolve_item(uid, item, lang="en"):
     if amount is None:
         raise ValueError("invalid_amount")
     if item.get("food"):
-        food = _find_by_name(uid, str(item["food"]), lang)
+        try:
+            food = _find_by_name(uid, str(item["food"]), lang)
+        except LookupError:
+            # An ingredient kept in a recipe may be gone since; its saved values stand in for it.
+            if item.get("kcal") is None:
+                raise
+            food = _item_of(_food_fields({**item, "name": item.get("name") or "-"}))
     else:
-        f = _food_fields({**item, "name": item.get("name") or "-"})
-        food = {"ref": None, "name": f["name"], "unit": f["unit"], "allergens": json.loads(f["allergens"]),
-                "ingredients": f["ingredients"], **{k: f[k + "_100"] for k in NKEYS}}
+        food = _item_of(_food_fields({**item, "name": item.get("name") or "-"}))
     return food, amount
 
 
-def _save_recipe(uid, name, items, portions=1, total_g=None, lang="en"):
+def _save_recipe(uid, name, items, portions=1, total_g=None, lang="en", shared=False, fid=None, tags=None):
     """A recipe from its ingredients: the values per 100 g are worked out from
     the amounts. total_g is the weight of the finished dish (it loses water
     when cooked); without it the ingredients' weights are added up. One portion
-    is total_g divided by portions."""
+    is total_g divided by portions. With fid the person's own recipe is
+    replaced; entries already logged keep their values."""
     if not items or not isinstance(items, list) or len(items) > 60:
         raise ValueError("invalid_ingredients")
     portions = _num(portions, 1, 100, 1)
     if portions is None:
         raise ValueError("invalid_portions")
     sums = {k: 0.0 for k in NKEYS}
-    weight, allergens, names, rows, unit_ml = 0.0, [], [], [], 0.0
+    given_tags = None if tags is None else _clean_tags(tags)
+    weight, allergens, names, rows, unit_ml, tags = 0.0, [], [], [], 0.0, []
     for it in items:
         food, amount = _resolve_item(uid, it, lang)
         weight += amount
@@ -743,21 +983,32 @@ def _save_recipe(uid, name, items, portions=1, total_g=None, lang="en"):
         for a in food["allergens"]:
             if a not in allergens:
                 allergens.append(a)
+        for tg in food.get("tags") or []:
+            if tg not in tags:
+                tags.append(tg)
         names.append(food["name"])
-        rows.append({"name": food["name"], "amount": amount, "unit": food["unit"], "ref": food.get("ref"),
+        rows.append({"name": food["name"], "amount": amount, "unit": food["unit"], "ref": food.get("ref"), "tags": food.get("tags") or [],
                      **{k: food.get(k) or 0 for k in NKEYS}})
     total = _num(total_g, 1, 100000, weight)
     if total is None:
         raise ValueError("invalid_total")
-    body = {"name": name, "unit": "ml" if unit_ml > weight / 2 else "g", "allergens": allergens,
+    body = {"name": name, "unit": "ml" if unit_ml > weight / 2 else "g", "allergens": allergens, "tags": tags if given_tags is None else given_tags,
             "ingredients": ", ".join(names), "portion": total / portions,
             **{k: sums[k] / total * 100.0 for k in NKEYS}}
     f = _food_fields(body)
-    fid = uuid.uuid4().hex[:12]
-    cols = ["id", "user_id", "kind", "recipe", "created", *f.keys()]
-    vals = [fid, uid, "recipe", json.dumps(rows), datetime.now().isoformat(timespec="seconds"), *f.values()]
+    f.update({"recipe": json.dumps(rows), "portions": portions, "total_g": total_g and total})
     with _db() as c:
-        c.execute(f"INSERT INTO foods({','.join(cols)}) VALUES({','.join('?' * len(cols))})", vals)
+        if fid:
+            if not c.execute("SELECT 1 FROM foods WHERE id=? AND user_id=? AND kind='recipe'", (fid, uid)).fetchone():
+                raise LookupError("not found")
+            if shared is not None:
+                f["shared"] = 1 if shared else 0
+            c.execute(f"UPDATE foods SET {', '.join(k + '=?' for k in f)} WHERE id=? AND user_id=?", (*f.values(), fid, uid))
+        else:
+            fid = uuid.uuid4().hex[:12]
+            cols = ["id", "user_id", "kind", "created", "shared", *f.keys()]
+            vals = [fid, uid, "recipe", datetime.now().isoformat(timespec="seconds"), 1 if shared else 0, *f.values()]
+            c.execute(f"INSERT INTO foods({','.join(cols)}) VALUES({','.join('?' * len(cols))})", vals)
         c.commit()
     return _food_by_ref(uid, "u:" + fid)
 
@@ -795,8 +1046,15 @@ def _off_food(p):
         if a and a not in allergens:
             allergens.append(a)
     g = lambda k: max(0.0, float(n.get(k) or 0))
+    tags = []
+    for tag in p.get("categories_tags") or []:
+        a = OFF_TAGS.get(tag)
+        if a and a not in tags:
+            tags.append(a)
+    if str(p.get("nova_group") or "") == "4" and "processed" not in tags:
+        tags.append("processed")
     return {"ref": None, "name": name[:80], "brand": brand[:60] or None, "unit": unit, "kind": "online", "icon": "🏷️",
-            "allergens": allergens, "ingredients": (p.get("ingredients_text") or "")[:2000],
+            "allergens": allergens, "tags": tags, "ingredients": (p.get("ingredients_text") or "")[:2000],
             "barcode": re.sub(r"\D", "", str(p.get("code") or "")) or None, "portions": [],
             "kcal": _r(kcal), "protein": _r(g("proteins_100g")), "carbs": _r(g("carbohydrates_100g")),
             "sugar": _r(g("sugars_100g")), "fat": _r(g("fat_100g")), "sat_fat": _r(g("saturated-fat_100g")),
@@ -819,7 +1077,7 @@ def _barcode(uid, code, lang="en"):
         return json.loads(cached["body"])
     try:
         data = _http_json("https://world.openfoodfacts.org/api/v2/product/" + code + ".json?fields="
-                          "code,product_name,brands,quantity,nutriments,allergens_tags,ingredients_text")
+                          "code,product_name,brands,quantity,nutriments,allergens_tags,ingredients_text,categories_tags,nova_group")
     except urllib.error.HTTPError as e:
         # Open Food Facts answers 404 for a code it does not know: that is
         # "not found", not a broken connection.
@@ -846,7 +1104,7 @@ def _search_online(query, limit=10):
     try:
         data = _http_json("https://search.openfoodfacts.org/search?q=" + urllib.parse.quote(q) +
                           "&page_size=" + str(max(1, min(limit, 20))) +
-                          "&fields=code,product_name,brands,quantity,nutriments,allergens_tags,ingredients_text",
+                          "&fields=code,product_name,brands,quantity,nutriments,allergens_tags,ingredients_text,categories_tags,nova_group",
                           timeout=10)
     except Exception:
         raise RuntimeError("offline")
@@ -961,12 +1219,21 @@ def _resolve_meal(uid, meal):
 
 
 def _default_meal(uid):
-    """The meal that fits the time of day: the latest one whose time has
-    passed, else the first of the day."""
+    """The meal whose time is nearest to now, round the clock (the same rule as
+    the Add button), else the first one when no meal has a time."""
     cur = _list_meals(uid)
-    now = datetime.now().strftime("%H:%M")
-    passed = [m for m in cur if m["time"] and m["time"] <= now]
-    return (passed[-1] if passed else cur[0])["id"]
+    now = datetime.now()
+    here = now.hour * 60 + now.minute
+    best, best_d = None, 1441
+    for m in cur:
+        if not m["time"]:
+            continue
+        hh, mm = m["time"].split(":")[:2]
+        d = abs(int(hh) * 60 + int(mm) - here)
+        d = min(d, 1440 - d)
+        if d < best_d:
+            best, best_d = m, d
+    return (best or cur[0])["id"]
 
 
 # ── Entries ──────────────────────────────────────────────────────
@@ -974,8 +1241,8 @@ def _default_meal(uid):
 def _entry_out(r):
     amount = r["amount"]
     out = {"id": r["id"], "day": r["day"], "recorded_at": r["recorded_at"], "meal": r["meal"], "food_ref": r["food_ref"],
-           "name": r["name"], "unit": r["unit"], "amount": amount, "allergens": _loads(r["allergens"], []),
-           "ingredients": r["ingredients"]}
+           "name": r["name"], "unit": r["unit"], "amount": amount, "allergens": _loads(r["allergens"], []), "tags": _loads(r["tags"], []),
+           "ingredients": r["ingredients"], "count": r["count"], "portion_g": r["portion_g"], "group": r["group_id"]}
     for k in NKEYS:
         out[k + "_100"] = r[k + "_100"]
         out[k] = r[k + "_100"] * amount / 100.0
@@ -1029,8 +1296,15 @@ def _warnings_for(uid, c, entries):
     out = {}
     if not restr:
         return out
+    limits = {r["id"]: r for r in restr if r["kind"] == "limit"}
+    used = _limit_use(restr, entries)
     for e in entries:
-        hits = _restriction_hits(restr, e["allergens"], e["name"] + " " + e["ingredients"])
+        hits = _restriction_hits(restr, e["allergens"], e["name"] + " " + e["ingredients"], e.get("tags") or [])
+        low = " " + (e["name"] + " " + e["ingredients"]).casefold() + " "
+        for rid, r in limits.items():
+            if used[rid] > r["amount"] and _has_key(r["key"], e["allergens"], e.get("tags") or [], low):
+                hits.append({"kind": "over_limit", "key": r["key"], "label": "", "via": "limit",
+                             "over": _r(used[rid] - r["amount"], 0)})
         if hits:
             out[e["id"]] = hits
     return out
@@ -1078,13 +1352,23 @@ def _get_history(uid, end, days):
     return out
 
 
-def _insert_entry(uid, day, food, amount, meal):
+def _piece_g(food):
+    """The weight of one piece (a portion, a slice) of a food, when it has one."""
+    return food.get("portion") or ((food.get("portions") or [None])[0])
+
+
+def _insert_entry(uid, day, food, amount, meal, count=None, group=None):
     meal = _resolve_meal(uid, meal)
     eid = uuid.uuid4().hex[:12]
+    piece = _piece_g(food)
+    if count is not None and piece:
+        amount = round(count * piece, 2)
+    else:
+        count, piece = None, None
     cols = ["id", "user_id", "day", "recorded_at", "meal", "food_ref", "name", "unit", "amount", "allergens",
-            "ingredients", *[k + "_100" for k in NKEYS]]
+            "ingredients", "count", "portion_g", "tags", "group_id", *[k + "_100" for k in NKEYS]]
     vals = [eid, uid, day, datetime.now().isoformat(timespec="seconds"), meal, food.get("ref"), food["name"],
-            food["unit"], amount, json.dumps(food["allergens"]), food.get("ingredients") or "",
+            food["unit"], amount, json.dumps(food["allergens"]), food.get("ingredients") or "", count, piece, json.dumps(_clean_tags(food.get("tags"))), group,
             *[food.get(k) or 0 for k in NKEYS]]
     with _db() as c:
         c.execute(f"INSERT INTO entries({','.join(cols)}) VALUES({','.join('?' * len(cols))})", vals)
@@ -1093,28 +1377,105 @@ def _insert_entry(uid, day, food, amount, meal):
     return _entry_out(row)
 
 
-def _add_entry(uid, day, ref, amount, meal=None, food=None, lang="en"):
+def _add_entry(uid, day, ref, amount, meal=None, food=None, lang="en", count=None, group=None):
     """Log what was eaten: a known food by ref/name, or a food described on the
     spot (food = {name, unit, kcal, protein, ... per 100, allergens,
-    ingredients}). A food found online is kept as the user's own."""
+    ingredients}). A food found online is kept as the user's own. count is how
+    many pieces (portions) of a food that has one were eaten; the amount then
+    follows from it."""
     _check_day(day)
+    if count is not None:
+        count = _num(count, 0.01, 1000)
+        if count is None:
+            raise ValueError("invalid_count")
     amount = _num(amount, 0.1, MAX_AMOUNT)
     if amount is None:
         raise ValueError("invalid_amount")
     if food is not None:
-        f = _food_fields(food)
-        item = {"ref": None, "name": f["name"], "unit": f["unit"], "allergens": json.loads(f["allergens"]),
-                "ingredients": f["ingredients"], **{k: f[k + "_100"] for k in NKEYS}}
+        item = _item_of(_food_fields(food))
         if food.get("save"):
             item["ref"] = _add_food(uid, food)["ref"]
     else:
         item = _find_by_name(uid, ref, lang)
-    out = _insert_entry(uid, day, item, amount, meal)
+    out = _insert_entry(uid, day, item, amount, meal, count, group)
     _push_health(uid, day)
     return out
 
 
-def _edit_entry(uid, eid, amount=None, meal=None):
+def _plate_group(uid, day, label):
+    """One id for the entries that were eaten together, from a label such as the
+    name of the plate, so an assistant adding them one by one marks them as a set."""
+    label = (label or "").strip().lower()
+    if not label:
+        return None
+    return "g" + hashlib.sha1(f"{uid}|{day}|{label}".encode()).hexdigest()[:11]
+
+
+def _add_entries(uid, day, items, meal=None, lang="en"):
+    """Log several foods eaten together in one go, like a basket. Each item is
+    {ref, amount, count}. Two or more share a group id, which is how the app
+    later offers the same combination again."""
+    _check_day(day)
+    if not isinstance(items, list) or not items or len(items) > 40:
+        raise ValueError("invalid_items")
+    meal = _resolve_meal(uid, meal)
+    prepared = []
+    for it in items:
+        it = it or {}
+        amount = _num(it.get("amount"), 0.1, MAX_AMOUNT)
+        if amount is None:
+            raise ValueError("invalid_amount")
+        count = it.get("count")
+        if count is not None:
+            count = _num(count, 0.01, 1000)
+            if count is None:
+                raise ValueError("invalid_count")
+        prepared.append((_find_by_name(uid, it.get("ref"), lang), amount, count))
+    group = uuid.uuid4().hex[:12] if len(prepared) > 1 else None
+    out = [_insert_entry(uid, day, f, a, meal, c, group) for f, a, c in prepared]
+    _push_health(uid, day)
+    return {"entries": out, "group": group}
+
+
+def _combos(uid, ref, lang="en", limit=3):
+    """Sets of foods this person has eaten together with a food: the most often
+    repeated combinations first, each with the amounts of the last time."""
+    ref = (ref or "").strip()
+    with _db() as c:
+        gids = [r["group_id"] for r in c.execute(
+            "SELECT group_id FROM entries WHERE user_id=? AND food_ref=? AND group_id IS NOT NULL "
+            "GROUP BY group_id ORDER BY MAX(recorded_at) DESC LIMIT 60", (uid, ref))]
+        sets = {}
+        for g in gids:
+            rows = c.execute("SELECT food_ref, amount, count, recorded_at FROM entries WHERE user_id=? AND group_id=? "
+                             "AND food_ref IS NOT NULL ORDER BY recorded_at, rowid", (uid, g)).fetchall()
+            key = tuple(sorted({r["food_ref"] for r in rows}))
+            if len(key) < 2:
+                continue
+            e = sets.setdefault(key, {"n": 0, "rows": rows})
+            e["n"] += 1
+    ranked = sorted(sets.values(), key=lambda e: -e["n"])  # stable: newest first among equals
+    out = []
+    for e in ranked:
+        foods = []
+        for r in e["rows"]:
+            try:
+                f = _food_by_ref(uid, r["food_ref"], lang)
+            except LookupError:
+                foods = []
+                break
+            f["last_amount"] = r["amount"]
+            if r["count"]:
+                f["last_count"] = r["count"]
+            foods.append(f)
+        if len(foods) > 1:
+            out.append({"times": e["n"], "foods": foods})
+        if len(out) >= limit:
+            break
+    return out
+
+
+def _edit_entry(uid, eid, amount=None, meal=None, count=None):
     if meal is not None:
         with _db() as c:
             cur = c.execute("SELECT meal FROM entries WHERE id=? AND user_id=?", (eid, uid)).fetchone()
@@ -1124,11 +1485,18 @@ def _edit_entry(uid, eid, amount=None, meal=None):
         row = c.execute("SELECT * FROM entries WHERE id=? AND user_id=?", (eid, uid)).fetchone()
         if not row:
             raise LookupError("not found")
-        if amount is not None:
+        piece = row["portion_g"]
+        if count is not None and piece:
+            count = _num(count, 0.01, 1000)
+            if count is None:
+                raise ValueError("invalid_count")
+            c.execute("UPDATE entries SET amount=?, count=? WHERE id=?", (round(count * piece, 2), count, eid))
+        elif amount is not None:
             amount = _num(amount, 0.1, MAX_AMOUNT)
             if amount is None:
                 raise ValueError("invalid_amount")
-            c.execute("UPDATE entries SET amount=? WHERE id=?", (amount, eid))
+            c.execute("UPDATE entries SET amount=?, count=? WHERE id=?",
+                      (amount, round(amount / piece, 2) if piece else None, eid))
         if meal is not None:
             c.execute("UPDATE entries SET meal=? WHERE id=?", (meal, eid))
         c.commit()
@@ -1159,9 +1527,7 @@ def _check(uid, food, amount, day=None, lang="en"):
     if amount is None:
         raise ValueError("invalid_amount")
     if isinstance(food, dict):
-        f = _food_fields(food)
-        item = {"name": f["name"], "unit": f["unit"], "allergens": json.loads(f["allergens"]),
-                "ingredients": f["ingredients"], **{k: f[k + "_100"] for k in NKEYS}}
+        item = _item_of(_food_fields(food))
     else:
         item = _find_by_name(uid, str(food), lang)
     day = _check_day(day) if day else _today(uid)
@@ -1171,9 +1537,18 @@ def _check(uid, food, amount, day=None, lang="en"):
     current = _get_day(uid, day)["totals"]
     this = {k: (item.get(k) or 0) * amount / 100.0 for k in NKEYS}
     warnings = []
-    for h in _restriction_hits(restr, item["allergens"], item["name"] + " " + item["ingredients"]):
+    tags = item.get("tags") or []
+    text = item["name"] + " " + item["ingredients"]
+    for h in _restriction_hits(restr, item["allergens"], text, tags):
         warnings.append({"type": h["kind"], "key": h["key"], "label": h["label"], "via": h["via"],
-                         "severity": "high" if h["kind"] == "allergy" else "medium" if h["kind"] == "intolerance" else "low"})
+                         "severity": "high" if h["kind"] == "allergy" else "medium"})
+    low = " " + text.casefold() + " "
+    used = _limit_use(restr, _get_day(uid, day)["entries"])
+    for r in restr:
+        if r["kind"] == "limit" and _has_key(r["key"], item["allergens"], tags, low) and used[r["id"]] + amount > r["amount"]:
+            warnings.append({"type": "over_limit", "key": r["key"], "label": "", "limit": _r(r["amount"], 0),
+                             "over": _r(used[r["id"]] + amount - r["amount"], 0), "unit": item["unit"], "severity": "medium"})
+    good = [r["key"] for r in restr if r["kind"] == "good" and r["key"] and _has_key(r["key"], item["allergens"], tags, low)]
     drink = item["unit"] == "ml"
     for k, hi in (("sugar", 11.25 if drink else 22.5), ("sat_fat", 2.5 if drink else 5.0), ("salt", 0.75 if drink else 1.5)):
         if item[k] > hi:
@@ -1186,9 +1561,9 @@ def _check(uid, food, amount, day=None, lang="en"):
             warnings.append({"type": "over_" + k, "over": _r(current[k] + this[k] - st[key]), "severity": "low"})
     if st["goal_type"] == "lose_weight" and item["kcal"] > 400:
         warnings.append({"type": "calorie_dense", "per_100": _r(item["kcal"], 0), "severity": "low"})
-    verdict = "avoid" if any(w["severity"] == "high" or w["type"] == "intolerance" for w in warnings) else \
+    verdict = "avoid" if any(w["severity"] == "high" or w["type"] in ("intolerance", "avoid") for w in warnings) else \
         "caution" if warnings else "ok"
-    return {"verdict": verdict, "warnings": warnings, "name": item["name"], "amount": amount, "unit": item["unit"],
+    return {"verdict": verdict, "warnings": warnings, "good": good, "tags": tags, "name": item["name"], "amount": amount, "unit": item["unit"],
             "this": {k: _r(v) for k, v in this.items()}, "day_before": {k: _r(v) for k, v in current.items()},
             "goals": {k: st[k] for k in ("goal_type", "cal_min", "cal_max", "protein_min", "carbs_max", "sugar_max",
                                           "fiber_min", "salt_max")}}
@@ -1292,6 +1667,58 @@ def _reward_offered():
     return bool(prem and prem.is_available())
 
 
+def _ai_offered():
+    """The owner switched the AI help on and the premium module is here."""
+    with _db() as c:
+        row = c.execute("SELECT value FROM cfg WHERE key='ai_enabled'").fetchone()
+    if not (row and row["value"] == "1"):
+        return None
+    prem = _premium()
+    return prem if prem and prem.is_available() else None
+
+
+def _ai_info(uid):
+    prem = _ai_offered()
+    if not prem:
+        return {"offered": False}
+    return {"offered": True, "ready": bool(prem.ready()), "credits": prem.credits(uid)}
+
+
+def _ai_fail(err):
+    code = str(err or "ai_failed")
+    return _bad(code, 402 if code == "no_credits" else 502)
+
+
+def _clean_ai_goals(d):
+    """What the AI proposed, cut down to values the app accepts."""
+    ranges = {"cal_min": (0, 20000), "cal_max": (0, 20000), "protein_min": (0, 1000), "carbs_max": (0, 3000),
+              "sugar_max": (0, 1000), "fiber_min": (0, 500), "salt_max": (0, 100)}
+    goals = {}
+    for k, (lo, hi) in ranges.items():
+        v = _num(d.get(k), lo, hi)
+        if v is not None:
+            goals[k] = round(v, 1)
+    if goals.get("cal_min") and goals.get("cal_max") and goals["cal_min"] > goals["cal_max"]:
+        goals.pop("cal_min")
+    if d.get("goal_type") in GOAL_TYPES:
+        goals["goal_type"] = d["goal_type"]
+    restrictions, seen = [], set()
+    for r in d.get("restrictions") or []:
+        if not isinstance(r, dict):
+            continue
+        kind, key = str(r.get("kind") or "").lower(), str(r.get("key") or "")
+        if kind not in RESTRICTION_KINDS or key not in RESTRICTION_KEYS or (kind, key) in seen:
+            continue
+        amount = None
+        if kind == "limit":
+            amount = _num(r.get("amount"), 0.1, MAX_AMOUNT)
+            if not amount:
+                continue
+        seen.add((kind, key))
+        restrictions.append({"kind": kind, "key": key, "amount": amount})
+    return {"goals": goals, "restrictions": restrictions[:12], "summary": str(d.get("summary") or "").strip()[:700]}
+
+
 def _reward_settings(c, uid):
     row = c.execute("SELECT enabled,amount,to_categories,from_category FROM rewards WHERE user_id=?", (uid,)).fetchone()
     if not row:
@@ -1381,11 +1808,26 @@ class EntryBody(BaseModel):
     food: Optional[dict] = None
     meal: Optional[str] = None
     lang: str = "en"
+    count: Optional[float] = None
+
+
+class BatchItem(BaseModel):
+    ref: str
+    amount: float
+    count: Optional[float] = None
+
+
+class BatchBody(BaseModel):
+    day: str
+    items: List[BatchItem]
+    meal: Optional[str] = None
+    lang: str = "en"
 
 
 class EntryEdit(BaseModel):
     amount: Optional[float] = None
     meal: Optional[str] = None
+    count: Optional[float] = None
 
 
 class FoodBody(BaseModel):
@@ -1400,10 +1842,22 @@ class FoodBody(BaseModel):
     fiber: float = 0
     salt: float = 0
     allergens: List[str] = []
+    tags: List[str] = []
     ingredients: str = ""
     barcode: Optional[str] = None
     brand: Optional[str] = None
     portion: Optional[float] = None
+    shared: Optional[bool] = None
+
+
+class ShareBody(BaseModel):
+    shared: bool
+
+
+class FilterBody(BaseModel):
+    mine: Optional[bool] = None
+    standard: Optional[bool] = None
+    shared: Optional[bool] = None
 
 
 class RecipeBody(BaseModel):
@@ -1412,12 +1866,15 @@ class RecipeBody(BaseModel):
     portions: float = 1
     total_g: Optional[float] = None
     lang: str = "en"
+    shared: bool = False
+    tags: Optional[List[str]] = None
 
 
 class RestrictionBody(BaseModel):
     kind: str
     key: str = ""
     label: str = ""
+    amount: Optional[float] = None
 
 
 class CheckBody(BaseModel):
@@ -1476,9 +1933,78 @@ async def get_me(x_pub_token: str = Header(default=None)):
     offered = _reward_offered()
     with _db() as c:
         out = {"settings": _settings_view(c, uid), "restrictions": _restrictions(c, uid), "rewarded": rewards,
-               "reward_offered": offered, "allergens": list(ALLERGENS), "meals": _meals(c, uid)}
+               "reward_offered": offered, "allergens": list(ALLERGENS), "meals": _meals(c, uid), "ai": _ai_info(uid)}
         if offered:
             out["reward"] = _reward_settings(c, uid)
+    return JSONResponse(out)
+
+
+class AiFoodBody(BaseModel):
+    text: str
+    lang: str = "en"
+
+
+class AiGoalsBody(BaseModel):
+    note: str = ""
+    lang: str = "en"
+
+
+@router.post("/ai/food")
+async def ai_food(body: AiFoodBody, x_pub_token: str = Header(default=None)):
+    """Asks the AI to describe a food. Nothing is saved: the person reviews the
+    values in the food form and saves it themselves."""
+    uid = _auth(x_pub_token)
+    if not uid:
+        return _bad("unauthorized", 401)
+    prem = _ai_offered()
+    if not prem:
+        return _bad("not_found", 404)
+    text = (body.text or "").strip()
+    if len(text) < 2:
+        return _bad("empty_message")
+    res = await prem.food(uid, text, body.lang, TAGS, ALLERGENS)
+    if res.get("error"):
+        return _ai_fail(res["error"])
+    data = res["data"]
+    if data.get("error"):
+        return _bad("not_food")
+    try:
+        f = _food_fields(data)
+    except ValueError:
+        return _bad("ai_bad_answer", 502)
+    item = _item_of(f)
+    item["portion"] = f["portion"]
+    return JSONResponse({"food": item, "balance": res.get("balance")})
+
+
+@router.post("/ai/goals")
+async def ai_goals(body: AiGoalsBody, x_pub_token: str = Header(default=None)):
+    """Asks the AI for goals and restrictions from the person's data and note.
+    Nothing is saved: the person reviews and applies them."""
+    uid = _auth(x_pub_token)
+    if not uid:
+        return _bad("unauthorized", 401)
+    prem = _ai_offered()
+    if not prem:
+        return _bad("not_found", 404)
+    with _db() as c:
+        st = _settings_view(c, uid)
+        cur = _restrictions(c, uid)
+    profile = {k: st.get(k) for k in ("sex", "age", "height_cm", "weight_kg", "target_weight_kg", "activity", "goal_type") if st.get(k)}
+    profile["current_goals"] = {k: st.get(k) for k in ("cal_min", "cal_max", "protein_min", "carbs_max", "sugar_max", "fiber_min", "salt_max") if st.get(k)}
+    profile["current_restrictions"] = [{"kind": r["kind"], "key": r["key"] or r["label"], "amount": r["amount"]} for r in cur]
+    try:
+        profile["formula_reference"] = suggest_goals(st.get("sex"), st.get("age"), st.get("height_cm"), st.get("weight_kg"),
+                                                     st.get("activity"), st.get("goal_type"), st.get("target_weight_kg"))
+    except ValueError:
+        pass
+    res = await prem.goals(uid, profile, body.note, body.lang, TAGS, ALLERGENS, RESTRICTION_KINDS, GOAL_TYPES)
+    if res.get("error"):
+        return _ai_fail(res["error"])
+    out = _clean_ai_goals(res["data"])
+    if not out["goals"] and not out["restrictions"]:
+        return _bad("ai_bad_answer", 502)
+    out["balance"] = res.get("balance")
     return JSONResponse(out)
 
 
@@ -1519,7 +2045,23 @@ async def add_entry(body: EntryBody, x_pub_token: str = Header(default=None)):
     uid = _auth(x_pub_token)
     if not uid:
         return _bad("unauthorized", 401)
-    return _reply(_add_entry, uid, body.day, body.ref, body.amount, body.meal, body.food, body.lang)
+    return _reply(_add_entry, uid, body.day, body.ref, body.amount, body.meal, body.food, body.lang, body.count)
+
+
+@router.post("/entries/batch")
+async def add_entries(body: BatchBody, x_pub_token: str = Header(default=None)):
+    uid = _auth(x_pub_token)
+    if not uid:
+        return _bad("unauthorized", 401)
+    return _reply(_add_entries, uid, body.day, [i.dict() for i in body.items], body.meal, body.lang)
+
+
+@router.get("/combos")
+async def get_combos(ref: str, lang: str = "en", x_pub_token: str = Header(default=None)):
+    uid = _auth(x_pub_token)
+    if not uid:
+        return _bad("unauthorized", 401)
+    return _reply(lambda u, r, l: {"combos": _combos(u, r, l)}, uid, ref, lang)
 
 
 @router.put("/entries/{entry_id}")
@@ -1527,7 +2069,7 @@ async def edit_entry(entry_id: str, body: EntryEdit, x_pub_token: str = Header(d
     uid = _auth(x_pub_token)
     if not uid:
         return _bad("unauthorized", 401)
-    return _reply(_edit_entry, uid, entry_id, body.amount, body.meal)
+    return _reply(_edit_entry, uid, entry_id, body.amount, body.meal, body.count)
 
 
 @router.delete("/entries/{entry_id}")
@@ -1543,7 +2085,18 @@ async def search(q: str = "", lang: str = "en", meal: str = "", x_pub_token: str
     uid = _auth(x_pub_token)
     if not uid:
         return _bad("unauthorized", 401)
-    return _reply(_search_foods, uid, q, lang, 30, meal or None)
+    def run():
+        flt = _get_filters(uid)
+        return {**_search_foods(uid, q, lang, 30, meal or None, flt), "filters": flt, "share_default": _share_default(uid)}
+    return _reply(run)
+
+
+@router.put("/search-filters")
+async def put_search_filters(body: FilterBody, x_pub_token: str = Header(default=None)):
+    uid = _auth(x_pub_token)
+    if not uid:
+        return _bad("unauthorized", 401)
+    return _reply(_set_filters, uid, body.dict())
 
 
 class MealBody(BaseModel):
@@ -1604,7 +2157,7 @@ async def list_foods(x_pub_token: str = Header(default=None)):
     uid = _auth(x_pub_token)
     if not uid:
         return _bad("unauthorized", 401)
-    return JSONResponse({"foods": _list_user_foods(uid)})
+    return JSONResponse({"foods": _list_user_foods(uid), "share_default": _share_default(uid)})
 
 
 @router.post("/foods")
@@ -1612,6 +2165,8 @@ async def add_food(body: FoodBody, x_pub_token: str = Header(default=None)):
     uid = _auth(x_pub_token)
     if not uid:
         return _bad("unauthorized", 401)
+    if body.shared is not None:
+        _remember_share(uid, body.shared)
     return _reply(_add_food, uid, body.dict())
 
 
@@ -1620,7 +2175,17 @@ async def edit_food(food_id: str, body: FoodBody, x_pub_token: str = Header(defa
     uid = _auth(x_pub_token)
     if not uid:
         return _bad("unauthorized", 401)
+    if body.shared is not None:
+        _remember_share(uid, body.shared)
     return _reply(_edit_food, uid, food_id, body.dict())
+
+
+@router.put("/foods/{food_id}/share")
+async def share_food(food_id: str, body: ShareBody, x_pub_token: str = Header(default=None)):
+    uid = _auth(x_pub_token)
+    if not uid:
+        return _bad("unauthorized", 401)
+    return _reply(_share_food, uid, food_id, body.shared)
 
 
 @router.delete("/foods/{food_id}")
@@ -1640,12 +2205,22 @@ async def remember(body: FoodBody, x_pub_token: str = Header(default=None)):
     return _reply(lambda u, f: _food_by_ref(u, _remember_online(u, f)), uid, body.dict())
 
 
+@router.put("/recipes/{recipe_id}")
+async def edit_recipe(recipe_id: str, body: RecipeBody, x_pub_token: str = Header(default=None)):
+    uid = _auth(x_pub_token)
+    if not uid:
+        return _bad("unauthorized", 401)
+    _remember_share(uid, body.shared)
+    return _reply(_save_recipe, uid, body.name, body.items, body.portions, body.total_g, body.lang, body.shared, recipe_id, body.tags)
+
+
 @router.post("/recipes")
 async def add_recipe(body: RecipeBody, x_pub_token: str = Header(default=None)):
     uid = _auth(x_pub_token)
     if not uid:
         return _bad("unauthorized", 401)
-    return _reply(_save_recipe, uid, body.name, body.items, body.portions, body.total_g, body.lang)
+    _remember_share(uid, body.shared)
+    return _reply(_save_recipe, uid, body.name, body.items, body.portions, body.total_g, body.lang, body.shared, None, body.tags)
 
 
 @router.post("/restrictions")
@@ -1653,7 +2228,7 @@ async def add_restriction(body: RestrictionBody, x_pub_token: str = Header(defau
     uid = _auth(x_pub_token)
     if not uid:
         return _bad("unauthorized", 401)
-    return _reply(_add_restriction, uid, body.kind, body.key, body.label)
+    return _reply(_add_restriction, uid, body.kind, body.key, body.label, body.amount)
 
 
 @router.delete("/restrictions/{rid}")

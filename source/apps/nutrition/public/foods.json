@@ -16,6 +16,10 @@
   "portions": [
    150.0,
    100.0
+  ],
+  "tags": [
+   "fruit",
+   "raw"
   ]
  },
  {
@@ -35,6 +39,10 @@
   "portions": [
    120.0,
    100.0
+  ],
+  "tags": [
+   "fruit",
+   "raw"
   ]
  },
  {
@@ -54,6 +62,11 @@
   "portions": [
    150.0,
    130.0
+  ],
+  "tags": [
+   "fruit",
+   "citrus",
+   "raw"
   ]
  },
  {
@@ -73,6 +86,10 @@
   "portions": [
    150.0,
    100.0
+  ],
+  "tags": [
+   "fruit",
+   "raw"
   ]
  },
  {
@@ -92,6 +109,10 @@
   "portions": [
    100.0,
    150.0
+  ],
+  "tags": [
+   "fruit",
+   "raw"
   ]
  },
  {
@@ -111,6 +132,10 @@
   "portions": [
    200.0,
    300.0
+  ],
+  "tags": [
+   "fruit",
+   "raw"
   ]
  },
  {
@@ -130,6 +155,10 @@
   "portions": [
    170.0,
    120.0
+  ],
+  "tags": [
+   "fruit",
+   "raw"
   ]
  },
  {
@@ -149,6 +178,10 @@
   "portions": [
    150.0,
    120.0
+  ],
+  "tags": [
+   "fruit",
+   "raw"
   ]
  },
  {
@@ -168,6 +201,10 @@
   "portions": [
    100.0,
    150.0
+  ],
+  "tags": [
+   "fruit",
+   "raw"
   ]
  },
  {
@@ -187,6 +224,11 @@
   "portions": [
    120.0,
    80.0
+  ],
+  "tags": [
+   "vegetable",
+   "tomato",
+   "raw"
   ]
  },
  {
@@ -206,6 +248,10 @@
   "portions": [
    100.0,
    150.0
+  ],
+  "tags": [
+   "vegetable",
+   "raw"
   ]
  },
  {
@@ -225,6 +271,10 @@
   "portions": [
    80.0,
    100.0
+  ],
+  "tags": [
+   "vegetable",
+   "raw"
   ]
  },
  {
@@ -244,6 +294,9 @@
   "portions": [
    150.0,
    200.0
+  ],
+  "tags": [
+   "vegetable"
   ]
  },
  {
@@ -263,6 +316,9 @@
   "portions": [
    150.0,
    200.0
+  ],
+  "tags": [
+   "vegetable"
   ]
  },
  {
@@ -282,6 +338,9 @@
   "portions": [
    100.0,
    150.0
+  ],
+  "tags": [
+   "vegetable"
   ]
  },
  {
@@ -301,6 +360,10 @@
   "portions": [
    50.0,
    100.0
+  ],
+  "tags": [
+   "vegetable",
+   "raw"
   ]
  },
  {
@@ -320,6 +383,10 @@
   "portions": [
    50.0,
    100.0
+  ],
+  "tags": [
+   "vegetable",
+   "raw"
   ]
  },
  {
@@ -339,6 +406,10 @@
   "portions": [
    100.0,
    150.0
+  ],
+  "tags": [
+   "vegetable",
+   "raw"
   ]
  },
  {
@@ -358,6 +429,10 @@
   "portions": [
    50.0,
    100.0
+  ],
+  "tags": [
+   "vegetable",
+   "raw"
   ]
  },
  {
@@ -377,6 +452,9 @@
   "portions": [
    100.0,
    150.0
+  ],
+  "tags": [
+   "vegetable"
   ]
  },
  {
@@ -396,6 +474,9 @@
   "portions": [
    100.0,
    150.0
+  ],
+  "tags": [
+   "vegetable"
   ]
  },
  {
@@ -415,6 +496,9 @@
   "portions": [
    150.0,
    200.0
+  ],
+  "tags": [
+   "boiled"
   ]
  },
  {
@@ -436,6 +520,9 @@
   "portions": [
    150.0,
    200.0
+  ],
+  "tags": [
+   "boiled"
   ]
  },
  {
@@ -457,6 +544,9 @@
   "portions": [
    30.0,
    60.0
+  ],
+  "tags": [
+   "baked"
   ]
  },
  {
@@ -478,6 +568,10 @@
   "portions": [
    30.0,
    60.0
+  ],
+  "tags": [
+   "baked",
+   "whole_grain"
   ]
  },
  {
@@ -499,6 +593,9 @@
   "portions": [
    40.0,
    60.0
+  ],
+  "tags": [
+   "whole_grain"
   ]
  },
  {
@@ -520,6 +617,9 @@
   "portions": [
    30.0,
    40.0
+  ],
+  "tags": [
+   "processed"
   ]
  },
  {
@@ -539,6 +639,10 @@
   "portions": [
    150.0,
    185.0
+  ],
+  "tags": [
+   "whole_grain",
+   "boiled"
   ]
  },
  {
@@ -558,6 +662,9 @@
   "portions": [
    120.0,
    150.0
+  ],
+  "tags": [
+   "poultry"
   ]
  },
  {
@@ -577,6 +684,9 @@
   "portions": [
    120.0,
    150.0
+  ],
+  "tags": [
+   "poultry"
   ]
  },
  {
@@ -596,6 +706,9 @@
   "portions": [
    120.0,
    150.0
+  ],
+  "tags": [
+   "red_meat"
   ]
  },
  {
@@ -615,6 +728,9 @@
   "portions": [
    100.0,
    150.0
+  ],
+  "tags": [
+   "red_meat"
   ]
  },
  {
@@ -634,6 +750,9 @@
   "portions": [
    120.0,
    150.0
+  ],
+  "tags": [
+   "red_meat"
   ]
  },
  {
@@ -653,6 +772,12 @@
   "portions": [
    20.0,
    40.0
+  ],
+  "tags": [
+   "red_meat",
+   "processed_meat",
+   "smoked",
+   "cured"
   ]
  },
  {
@@ -672,6 +797,11 @@
   "portions": [
    30.0,
    50.0
+  ],
+  "tags": [
+   "red_meat",
+   "processed_meat",
+   "cured"
   ]
  },
  {
@@ -691,6 +821,10 @@
   "portions": [
    60.0,
    100.0
+  ],
+  "tags": [
+   "red_meat",
+   "processed_meat"
   ]
  },
  {
@@ -1023,6 +1157,9 @@
   "portions": [
    30.0,
    50.0
+  ],
+  "tags": [
+   "nuts_seeds"
   ]
  },
  {
@@ -1044,6 +1181,9 @@
   "portions": [
    30.0,
    50.0
+  ],
+  "tags": [
+   "nuts_seeds"
   ]
  },
  {
@@ -1065,6 +1205,9 @@
   "portions": [
    30.0,
    50.0
+  ],
+  "tags": [
+   "nuts_seeds"
   ]
  },
  {
@@ -1086,6 +1229,9 @@
   "portions": [
    15.0,
    30.0
+  ],
+  "tags": [
+   "nuts_seeds"
   ]
  },
  {
@@ -1105,6 +1251,9 @@
   "portions": [
    150.0,
    200.0
+  ],
+  "tags": [
+   "legume"
   ]
  },
  {
@@ -1124,6 +1273,9 @@
   "portions": [
    150.0,
    200.0
+  ],
+  "tags": [
+   "legume"
   ]
  },
  {
@@ -1143,6 +1295,9 @@
   "portions": [
    150.0,
    200.0
+  ],
+  "tags": [
+   "legume"
   ]
  },
  {
@@ -1164,6 +1319,9 @@
   "portions": [
    100.0,
    150.0
+  ],
+  "tags": [
+   "legume"
   ]
  },
  {
@@ -1183,6 +1341,9 @@
   "portions": [
    5.0,
    10.0
+  ],
+  "tags": [
+   "sweets"
   ]
  },
  {
@@ -1202,6 +1363,9 @@
   "portions": [
    10.0,
    20.0
+  ],
+  "tags": [
+   "sweets"
   ]
  },
  {
@@ -1223,6 +1387,9 @@
   "portions": [
    20.0,
    40.0
+  ],
+  "tags": [
+   "sweets"
   ]
  },
  {
@@ -1244,6 +1411,9 @@
   "portions": [
    20.0,
    40.0
+  ],
+  "tags": [
+   "sweets"
   ]
  },
  {
@@ -1267,6 +1437,11 @@
   "portions": [
    15.0,
    30.0
+  ],
+  "tags": [
+   "sweets",
+   "baked",
+   "processed"
   ]
  },
  {
@@ -1290,6 +1465,10 @@
   "portions": [
    10.0,
    40.0
+  ],
+  "tags": [
+   "sweets",
+   "processed"
   ]
  },
  {
@@ -1311,6 +1490,10 @@
   "portions": [
    60.0,
    100.0
+  ],
+  "tags": [
+   "sweets",
+   "processed"
   ]
  },
  {
@@ -1330,6 +1513,10 @@
   "portions": [
    30.0,
    50.0
+  ],
+  "tags": [
+   "fried",
+   "processed"
   ]
  },
  {
@@ -1349,6 +1536,9 @@
   "portions": [
    100.0,
    150.0
+  ],
+  "tags": [
+   "fried"
   ]
  },
  {
@@ -1371,6 +1561,10 @@
   "portions": [
    100.0,
    150.0
+  ],
+  "tags": [
+   "baked",
+   "processed"
   ]
  },
  {
@@ -1395,6 +1589,11 @@
   "portions": [
    150.0,
    200.0
+  ],
+  "tags": [
+   "red_meat",
+   "processed",
+   "grilled"
   ]
  },
  {
@@ -1418,6 +1617,9 @@
   "portions": [
    120.0,
    150.0
+  ],
+  "tags": [
+   "baked"
   ]
  },
  {
@@ -1440,6 +1642,10 @@
   "portions": [
    250.0,
    300.0
+  ],
+  "tags": [
+   "poultry",
+   "boiled"
   ]
  },
  {
@@ -1459,6 +1665,10 @@
   "portions": [
    250.0,
    300.0
+  ],
+  "tags": [
+   "tomato",
+   "boiled"
   ]
  },
  {
@@ -1478,6 +1688,10 @@
   "portions": [
    15.0,
    30.0
+  ],
+  "tags": [
+   "tomato",
+   "processed"
   ]
  },
  {
@@ -1500,6 +1714,9 @@
   "portions": [
    15.0,
    30.0
+  ],
+  "tags": [
+   "processed"
   ]
  },
  {
@@ -1521,6 +1738,9 @@
   "portions": [
    30.0,
    60.0
+  ],
+  "tags": [
+   "legume"
   ]
  },
  {
@@ -1540,6 +1760,10 @@
   "portions": [
    15.0,
    30.0
+  ],
+  "tags": [
+   "sweets",
+   "fruit"
   ]
  },
  {
@@ -1561,6 +1785,11 @@
   "portions": [
    200.0,
    250.0
+  ],
+  "tags": [
+   "citrus",
+   "fruit",
+   "sugary_drink"
   ]
  },
  {
@@ -1580,6 +1809,10 @@
   "portions": [
    250.0,
    330.0
+  ],
+  "tags": [
+   "sugary_drink",
+   "caffeine"
   ]
  },
  {
@@ -1602,6 +1835,9 @@
   "portions": [
    330.0,
    500.0
+  ],
+  "tags": [
+   "alcohol"
   ]
  },
  {
@@ -1623,6 +1859,9 @@
   "portions": [
    125.0,
    150.0
+  ],
+  "tags": [
+   "alcohol"
   ]
  },
  {
@@ -1688,6 +1927,9 @@
   "portions": [
    40.0,
    60.0
+  ],
+  "tags": [
+   "processed"
   ]
  },
  {

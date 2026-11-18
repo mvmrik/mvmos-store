@@ -1,13 +1,15 @@
 {
-  "tagline": "Your meals, nutrients, recipes and daily goals in one food journal.",
-  "description": "Nutrition is a food journal for each Apps Hub profile. Log meals and portions to follow calories, protein, carbohydrates, sugar, fat, saturated fat, fibre and salt in the desktop app or its public web page.\n\nFoods and recipes\nSearch the built-in food catalogue, create your own foods, or build recipes from ingredients and portions. Search Open Food Facts by name or look up a barcode; supported browsers can scan with the camera. Every journal entry keeps its own copy of the food's nutrient values, so changing a saved food does not rewrite earlier meals.\n\nDaily goals and restrictions\nSet a calorie range and nutrient goals, use the goal suggestion form, and review daily totals and recent history. Keep allergies, intolerances and foods to avoid, and check a food against these restrictions and the day's goals before adding it. Rename meals, set their times and choose when your food day ends. Food data and restriction warnings depend on the information available for each product.\n\nOptional integrations\nWith permission, Nutrition can send daily nutrient totals and goals to Health, use body data from the Health profile, and include contributions recorded by other apps through Health. The Budget reward is a separate Premium feature; food logging, recipes, goals and restrictions work without it. Other apps, Automations and External API clients can use Nutrition's functions when their corresponding access is enabled.",
+  "tagline": "Your meals, nutrients, recipes and daily goals in one food journal, with optional AI help.",
+  "description": "Nutrition is a food journal for each Apps Hub profile. Log meals and portions to follow calories, protein, carbohydrates, sugar, fat, saturated fat, fibre and salt in the desktop app or its public web page.\n\nFoods and recipes\nSearch the built-in food catalogue, create your own foods, or build recipes from ingredients and portions. Search Open Food Facts by name or look up a barcode; the camera scanner also works in browsers without a built-in barcode reader, such as Safari on iPhone. Share foods and recipes with other profiles. Every journal entry keeps its own copy of the food's nutrient values, so changing a saved food does not rewrite earlier meals.\n\nAdding several foods at once\nCollect foods in a list and confirm them together. Foods added together are remembered as a set, so the next time you add one of them Nutrition offers the others with the amounts you used before.\n\nDaily goals and restrictions\nSet a calorie range and nutrient goals, let Nutrition calculate them from your body data, and review daily totals in a monthly History calendar. Describe restrictions with ready-made labels such as fried, processed meat, citrus, nuts or caffeine, as things to avoid, things that are good for you, or a daily limit, besides allergies and intolerances. A food is checked against them before you add it. Food data and restriction warnings depend on the information available for each product.\n\nOptional integrations\nWith permission, Nutrition can send daily nutrient totals and goals to Health, use body data from the Health profile, and include contributions recorded by other apps through Health. The Budget reward and the AI help are separate Premium features; food logging, recipes, goals and restrictions work without them. Other apps, Automations and External API clients, including the mvmAI chat, can use Nutrition's functions when their corresponding access is enabled.",
   "capabilities": [
     "Daily food journal with portions in grams or millilitres and nutrient totals.",
     "Built-in food catalogue with names in all nine interface languages.",
     "Personal foods and recipes calculated from ingredients and portions.",
-    "Open Food Facts search, barcode lookup and camera scanning on supported browsers.",
-    "Calorie ranges, nutrient goals, goal suggestions and history.",
-    "Allergies, intolerances, avoided foods and checks before adding a portion.",
+    "Open Food Facts search, barcode lookup and camera scanning in all modern browsers.",
+    "Calorie ranges, nutrient goals calculated from body data, and a monthly history calendar.",
+    "Allergies, intolerances and label-based restrictions with checks before adding a portion.",
+    "Add several foods at once and get remembered combinations suggested.",
+    "Share foods and recipes with other profiles.",
     "Custom meal names, icons and times, and a configurable end of day.",
     "Edit or delete entries without changing another profile's journal.",
     "Desktop window and public web page using the same Apps Hub profile.",
@@ -41,6 +43,14 @@
       "direction": "provides",
       "summary": "Lets other apps search foods, check portions, read the journal, log and edit entries, and manage foods, recipes, meals, goals and restrictions for the calling profile.",
       "requires": "Nutrition's App API enabled in Apps Hub → Settings → App APIs. The App API is off by default."
+    },
+    {
+      "app": "mvmai",
+      "name": "mvmAI",
+      "kind": "app_api",
+      "direction": "consumes",
+      "summary": "The optional AI help asks mvmAI to describe a new food or to suggest goals and restrictions. The result is shown for review and nothing is saved until you confirm it. It is generated by AI from the data you entered and is not medical information.",
+      "requires": "Nutrition Premium build, the owner's AI help switch, mvmAI installed and its App API enabled in Apps Hub → Settings → App APIs. The App API is off by default."
     }
   ]
 }

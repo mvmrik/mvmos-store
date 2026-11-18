@@ -57,23 +57,34 @@ mvmOS.registerApp({
           <span style="font-size:.84rem">${tt('nu_owner_budget')}</span>
         </label>
         <div style="font-size:.72rem;color:var(--text-dim);margin-top:6px;margin-left:24px">${tt('nu_owner_budget_hint')}</div>
+        <label id="nu-se-ai-row" style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:14px">
+          <input type="checkbox" id="nu-se-ai" ${live.ai_enabled ? 'checked' : ''}>
+          <span style="font-size:.84rem">${tt('nu_owner_ai')}</span>
+        </label>
+        <div style="font-size:.72rem;color:var(--text-dim);margin-top:6px;margin-left:24px">${tt('nu_owner_ai_hint')}</div>
       </div>`;
     const row = container.querySelector('#nu-se-budget-row');
     const cb = container.querySelector('#nu-se-budget');
     window.mvmOS?.premiumGate?.(row, tt('nu_owner_budget_hint'));
-    cb.onchange = async () => {
-      try {
-        const r = await fetch('/api/apps/nutrition/settings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ budget_enabled: cb.checked }),
-        });
-        if (!r.ok) throw new Error(r.statusText);
-      } catch (e) {
-        cb.checked = !cb.checked;
-        window.mvmOS?.notify?.(_nut('title'), tt('nu_owner_error'));
-      }
+    const bind = (box, key) => {
+      box.onchange = async () => {
+        try {
+          const r = await fetch('/api/apps/nutrition/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ [key]: box.checked }),
+          });
+          if (!r.ok) throw new Error(r.statusText);
+        } catch (e) {
+          box.checked = !box.checked;
+          window.mvmOS?.notify?.(_nut('title'), tt('nu_owner_error'));
+        }
+      };
     };
+    bind(cb, 'budget_enabled');
+    const aiRow = container.querySelector('#nu-se-ai-row');
+    window.mvmOS?.premiumGate?.(aiRow, tt('nu_owner_ai_hint'));
+    bind(container.querySelector('#nu-se-ai'), 'ai_enabled');
   },
   launch() {
     mvmOS.createWindow({

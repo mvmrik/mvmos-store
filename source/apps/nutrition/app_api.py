@@ -25,12 +25,13 @@ A good order for an assistant: read get_profile, find or describe the food,
 run check_food, tell the person what it found, and only then add_entry.
 
 When the person describes something new that is not among their foods or
-recipes, such as a dish made of several things ("a beef burger with fries,
-cabbage and ketchup"), log it first, then ask once whether to keep it as a
-recipe for next time (a single new food: whether to keep it among their own
-foods). Only if they say yes, save it with save_recipe (or add_custom_food)
-and say it is saved; never save without that yes, and do not ask again for
-something they already declined or that is already among their foods.
+recipes, log it with add_entry: a single food you describe is kept among their
+own foods automatically (like adding it by hand), so it is there next time. For
+a dish made of several things ("a beef burger with fries, cabbage and
+ketchup") log each part as its own entry with the same plate label, then ask
+once whether to keep the whole dish as a recipe for next time. Only if they say
+yes, save it with save_recipe and say it is saved; never make a recipe without
+that yes, and do not ask again for something they already declined.
 """
 
 import sys
@@ -43,10 +44,10 @@ def _pub():
     return pub
 
 
-def _food_dict(name, unit, kcal, protein, carbs, sugar, fat, sat_fat, fiber, salt, allergens, ingredients, water=0):
+def _food_dict(name, unit, kcal, protein, carbs, sugar, fat, sat_fat, fiber, salt, allergens, ingredients, water=0, tags=None):
     return {"name": name, "unit": unit, "kcal": kcal, "protein": protein, "carbs": carbs, "sugar": sugar,
             "fat": fat, "sat_fat": sat_fat, "fiber": fiber, "salt": salt, "water": water, "allergens": allergens or [],
-            "ingredients": ingredients or ""}
+            "tags": tags or [], "ingredients": ingredients or ""}
 
 
 def get_profile(user_id: str):
@@ -58,17 +59,24 @@ def get_profile(user_id: str):
     activity; when health_read is true, sex, age, height and weight are the
     person's current values from the Health app and cannot be changed here:
     ask them to change it in Health, and use Health's get_profile and
-    record_weight for that), their restrictions (allergy, intolerance or
-    avoid, each with an allergen key or a word) and today with what was eaten
-    so far."""
+    record_weight for that), their restrictions (allergy, intolerance,
+    avoid, good or limit, each with an allergen or tag key and, for a limit, the daily amount in g or ml) and today with what was eaten
+    so far. When health_read is true, health_notes holds the conditions and
+    medications the person wrote in Health (free text, may be empty): take them
+    into account quietly when you suggest goals or foods, and do not repeat
+    them back unless asked."""
     pub = _pub()
     with pub._db() as c:
         st = pub._settings_view(c, user_id)
         restr = pub._restrictions(c, user_id)
     today = pub._today(user_id)
     d = pub._get_day(user_id, today)
-    return {"settings": st, "restrictions": restr, "today": today, "totals": {k: round(v, 1) for k, v in d["totals"].items()},
-            "entries": len(d["entries"])}
+    out = {"settings": st, "restrictions": restr, "today": today, "totals": {k: round(v, 1) for k, v in d["totals"].items()},
+           "entries": len(d["entries"])}
+    if st.get("health_read") and st.get("health_ok"):
+        hp = pub._health_profile(user_id) or {}
+        out["health_notes"] = {"conditions": hp.get("conditions") or "", "medications": hp.get("medications") or ""}
+    return out
 
 
 def search_foods(user_id: str, query: str = "", lang: str = "en", online: bool = False, limit: int = 20,
@@ -79,7 +87,10 @@ def search_foods(user_id: str, query: str = "", lang: str = "en", online: bool =
     last_amount in g or ml). online true also asks Open Food Facts for packaged products. Each
     food has ref (use it as food in add_entry; online results have none until
     they are used), name, unit, kcal, protein, carbs, sugar, fat, sat_fat, fiber
-    salt and water per 100 g or ml, allergens and, for a recipe, portion."""
+    salt and water per 100 g or ml, allergens and, for a recipe, portion. origin
+    says where a food comes from: mine, standard (the app's own list) or shared
+    (another profile's, with owner.name); the person's own come first, then the
+    standard ones, then the shared ones."""
     pub = _pub()
     out = pub._search_foods(user_id, query, lang, max(1, min(int(limit), 50)), meal)
     if online:
@@ -101,53 +112,80 @@ def lookup_barcode(user_id: str, barcode: str):
 def check_food(user_id: str, food: str = None, amount: float = 100, name: str = None, unit: str = "g",
                kcal: float = 0, protein: float = 0, carbs: float = 0, sugar: float = 0, fat: float = 0,
                sat_fat: float = 0, fiber: float = 0, salt: float = 0, water: float = 0, allergens: list = None,
-               ingredients: str = None, day: str = None):
+               ingredients: str = None, day: str = None, tags: list = None):
     """Weigh something that is about to be eaten against the person's allergies,
     intolerances, foods to avoid, goals and the day so far, before it is logged.
     Give food (a ref or a name of a known food) or describe it with name and its
     values per 100 g or ml, plus ingredients as printed on the label so
     allergens can be spotted in the text. amount is in grams or ml. Returns
-    verdict (ok, caution or avoid), warnings (allergy, intolerance, avoid,
+    verdict (ok, caution or avoid), good (the person's "good for me" labels the
+    food has), warnings (allergy, intolerance, avoid, over_limit,
     high_sugar, high_sat_fat, high_salt, over_calories, over_sugar, over_salt,
     over_carbs, calorie_dense) and what this portion and the day so far add up
-    to against the goals."""
+    to against the goals.
+    TAGS are labels a food carries, the same in every language: fried, grilled,
+    baked, boiled, raw, smoked, cured (how it was prepared), processed,
+    processed_meat, red_meat, poultry, vegetable, fruit, citrus, tomato, legume,
+    whole_grain, nuts_seeds, sweets, sugary_drink, caffeine, alcohol, spicy (what
+    kind of food it is). Standard foods already have them; whenever you describe
+    a food yourself (name and values, or add_custom_food), give the tags that
+    fit it, for example fried for French fries or grilled and poultry for a
+    grilled chicken breast. The person's restrictions work by these tags."""
     pub = _pub()
     if food:
         item = food
     else:
-        item = _food_dict(name or "-", unit, kcal, protein, carbs, sugar, fat, sat_fat, fiber, salt, allergens, ingredients, water)
+        item = _food_dict(name or "-", unit, kcal, protein, carbs, sugar, fat, sat_fat, fiber, salt, allergens, ingredients, water, tags)
     return pub._check(user_id, item, amount, day)
 
 
 def add_entry(user_id: str, amount: float, food: str = None, name: str = None, unit: str = "g", kcal: float = 0,
               protein: float = 0, carbs: float = 0, sugar: float = 0, fat: float = 0, sat_fat: float = 0,
               fiber: float = 0, salt: float = 0, water: float = 0, allergens: list = None, ingredients: str = None,
-              meal: str = None, day: str = None, save: bool = False):
+              meal: str = None, day: str = None, save: bool = True, count: float = None, tags: list = None, plate: str = None):
     """Log something eaten. First look the food up with search_foods (the person's own
     foods and recipes come first) and, when it is there, pass its ref as food; only
     when it is not there describe it with name and values. Either food (a ref such as b:apple or u:abc123, or a
     name in any language of a known food or recipe) or name with its values per
     100 g or ml (unit g or ml; kcal, protein, carbs, sugar, fat, sat_fat, fiber
-    in g and salt in g). amount is in grams or millilitres; a recipe's portion
+    in g and salt in g). amount is in grams or millilitres; for a food or recipe
+    that has a portion (a slice, a piece; search_foods shows portion) give count,
+    how many were eaten (2 for two slices), and the amount follows from it; a recipe's portion
     is its weight, which search_foods shows. meal is the id or the name of one
-    of the person's meals (see list_meals; leave it out to use the meal that
-    fits the time of day); day defaults to today. When what was eaten is new
-    (not among the person's foods or recipes), log it and then ask whether to
-    keep it for next time; save it only after a yes (save_recipe for a dish of
-    several ingredients, or save true / add_custom_food for a single food). water is the grams (ml) of
-    water per 100 g or ml of the food, for example 85 for a chicken soup. save
-    true also keeps a described food among the person's own foods. Returns the
+    of the person's meals (see list_meals; leave it out to use the meal whose
+    time is nearest to now, and always tell the person which meal you used, or
+    ask when it is unclear, since they may have missed one); day defaults to today. When what was eaten is new
+    (not among the person's foods or recipes), describe it with name and values:
+    it is kept among the person's own foods automatically (save defaults to
+    true; pass false only if they ask not to keep it), and an own food with the
+    same name is reused instead of duplicated. Say that it was added to their
+    foods. Ask before making a recipe of a dish of several things. water is the grams (ml) of
+    water per 100 g or ml of the food, for example 85 for a chicken soup. Returns the
     entry with what it counts and today, the day's totals (with what other apps
     sent Health when the person takes that into account). When you describe a
     food by name, always fill in your best estimate of kcal, protein, carbs,
     sugar, fat, sat_fat, fiber, salt and water per 100 g or ml (for a chicken
     soup roughly 35 kcal, 3 protein, 3 carbs, 1 fat, 0.5 fiber, 0.6 salt and 90
     water); never leave them all at 0, and give amount in grams or ml (a bowl
-    of soup is about 300)."""
+    of soup is about 300).
+    TAGS are labels a food carries, the same in every language: fried, grilled,
+    baked, boiled, raw, smoked, cured (how it was prepared), processed,
+    processed_meat, red_meat, poultry, vegetable, fruit, citrus, tomato, legume,
+    whole_grain, nuts_seeds, sweets, sugary_drink, caffeine, alcohol, spicy (what
+    kind of food it is). Standard foods already have them; whenever you describe
+    a food yourself (name and values, or add_custom_food), give the tags that
+    fit it, for example fried for French fries or grilled and poultry for a
+    grilled chicken breast. The person's restrictions work by these tags.
+    plate marks foods eaten together: when the person ate several things as one
+    plate or meal ("a pork chop with lutenitsa, baked potatoes and cucumbers"),
+    add each one as its own entry with the same short plate label (for example
+    "pork chop plate") and the same meal and day. The app then offers the whole
+    combination next time. Do not make a recipe of it unless the person asks."""
     pub = _pub()
     day = day or pub._today(user_id)
+    group = pub._plate_group(user_id, day, plate)
     if food:
-        out = pub._add_entry(user_id, day, food, amount, meal)
+        out = pub._add_entry(user_id, day, food, amount, meal, None, "en", count, group)
     else:
         if not name:
             raise ValueError("food or name required")
@@ -158,22 +196,32 @@ def add_entry(user_id: str, amount: float, food: str = None, name: str = None, u
             except Exception:
                 known = None
             if known:
-                out = pub._add_entry(user_id, day, name, amount, meal)
+                out = pub._add_entry(user_id, day, name, amount, meal, None, "en", count, group)
                 out["today"] = {k: round(v, 1) for k, v in pub._get_day(user_id, day)["totals"].items()}
                 return out
             raise ValueError("the values per 100 g are required: give your best estimate of kcal, protein, carbs, "
                              "sugar, fat, sat_fat, fiber, salt and water instead of leaving them all at 0")
-        item = _food_dict(name, unit, kcal, protein, carbs, sugar, fat, sat_fat, fiber, salt, allergens, ingredients, water)
+        try:
+            known = pub._find_by_name(user_id, name, "en")
+        except Exception:
+            known = None
+        if known and str(known.get("ref", "")).startswith("u:"):
+            # Already one of the person's own foods: use it, do not add a duplicate.
+            out = pub._add_entry(user_id, day, known["ref"], amount, meal, None, "en", count, group)
+            out["today"] = {k: round(v, 1) for k, v in pub._get_day(user_id, day)["totals"].items()}
+            return out
+        item = _food_dict(name, unit, kcal, protein, carbs, sugar, fat, sat_fat, fiber, salt, allergens, ingredients, water, tags)
         item["save"] = bool(save)
-        out = pub._add_entry(user_id, day, None, amount, meal, item)
+        out = pub._add_entry(user_id, day, None, amount, meal, item, "en", None, group)
     out["today"] = {k: round(v, 1) for k, v in pub._get_day(user_id, day)["totals"].items()}
     return out
 
 
-def update_entry(user_id: str, entry_id: str, amount: float = None, meal: str = None):
+def update_entry(user_id: str, entry_id: str, amount: float = None, meal: str = None, count: float = None):
     """Change the amount (g or ml) and/or the meal (id or name, see list_meals)
-    of a logged entry."""
-    return _pub()._edit_entry(user_id, entry_id, amount, meal)
+    of a logged entry; for an entry logged by count, count (pieces) changes the
+    amount from it."""
+    return _pub()._edit_entry(user_id, entry_id, amount, meal, count)
 
 
 def delete_entry(user_id: str, entry_id: str):
@@ -211,22 +259,36 @@ def list_foods(user_id: str):
 def add_custom_food(user_id: str, name: str, unit: str = "g", kcal: float = 0, protein: float = 0,
                     carbs: float = 0, sugar: float = 0, fat: float = 0, sat_fat: float = 0, fiber: float = 0,
                     salt: float = 0, water: float = 0, allergens: list = None, ingredients: str = None, barcode: str = None,
-                    portion: float = None):
+                    portion: float = None, shared: bool = None, tags: list = None):
     """Create a food of the person's own with its values per 100 g or ml
-    (unit g or ml), the allergens it holds, its ingredients as text, an optional
-    barcode and an optional usual portion in grams. Returns it with its ref."""
-    item = _food_dict(name, unit, kcal, protein, carbs, sugar, fat, sat_fat, fiber, salt, allergens, ingredients, water)
+    (unit g or ml), the allergens it holds, its tags (see TAGS below), its ingredients as text, an optional
+    barcode and an optional usual portion in grams. shared true lets the other
+    profiles on this server find and use it (they cannot change it), false keeps
+    it private. Unless the person already said, ask whether to share it; if you
+    leave shared out, it follows what they chose last time. Returns it with its ref.
+    TAGS are labels a food carries, the same in every language: fried, grilled,
+    baked, boiled, raw, smoked, cured (how it was prepared), processed,
+    processed_meat, red_meat, poultry, vegetable, fruit, citrus, tomato, legume,
+    whole_grain, nuts_seeds, sweets, sugary_drink, caffeine, alcohol, spicy (what
+    kind of food it is). Standard foods already have them; whenever you describe
+    a food yourself (name and values, or add_custom_food), give the tags that
+    fit it, for example fried for French fries or grilled and poultry for a
+    grilled chicken breast. The person's restrictions work by these tags."""
+    item = _food_dict(name, unit, kcal, protein, carbs, sugar, fat, sat_fat, fiber, salt, allergens, ingredients, water, tags)
     item["barcode"], item["portion"] = barcode, portion
-    return _pub()._add_food(user_id, item)
+    pub = _pub()
+    item["shared"] = pub._share_default(user_id) if shared is None else bool(shared)
+    pub._remember_share(user_id, item["shared"])
+    return pub._add_food(user_id, item)
 
 
 def update_custom_food(user_id: str, food_id: str, name: str, unit: str = "g", kcal: float = 0, protein: float = 0,
                        carbs: float = 0, sugar: float = 0, fat: float = 0, sat_fat: float = 0, fiber: float = 0,
                        salt: float = 0, water: float = 0, allergens: list = None, ingredients: str = None, barcode: str = None,
-                       portion: float = None):
+                       portion: float = None, tags: list = None):
     """Replace the values of one of the person's own foods (food_id is the
     part of its ref after u:). Entries already logged keep their old values."""
-    item = _food_dict(name, unit, kcal, protein, carbs, sugar, fat, sat_fat, fiber, salt, allergens, ingredients, water)
+    item = _food_dict(name, unit, kcal, protein, carbs, sugar, fat, sat_fat, fiber, salt, allergens, ingredients, water, tags)
     item["barcode"], item["portion"] = barcode, portion
     return _pub()._edit_food(user_id, food_id, item)
 
@@ -237,7 +299,8 @@ def delete_custom_food(user_id: str, food_id: str):
     return _pub()._delete_food(user_id, food_id)
 
 
-def save_recipe(user_id: str, name: str, ingredients: list, portions: float = 1, total_g: float = None):
+def save_recipe(user_id: str, name: str, ingredients: list, portions: float = 1, total_g: float = None,
+                shared: bool = None, tags: list = None):
     """Save a dish as a recipe so it can be picked again. ingredients is a list
     of {food, amount} (food a ref or a name of a known food) or {name, amount,
     unit, kcal, protein, carbs, sugar, fat, sat_fat, fiber, salt, allergens}
@@ -247,8 +310,21 @@ def save_recipe(user_id: str, name: str, ingredients: list, portions: float = 1,
     portions it makes; one portion is total_g divided by portions. Returns the
     recipe with its ref; log it with add_entry using that ref and an amount in
     grams. Use it only when the person has agreed to keep the dish; after
-    saving, tell them it is saved and can be picked or logged by name next time."""
-    return _pub()._save_recipe(user_id, name, ingredients, portions, total_g)
+    saving, tell them it is saved and can be picked or logged by name next time.
+    shared true lets the other profiles on this server find and use it (they
+    cannot change it), false keeps it private. Unless the person already said,
+    ask whether to share it; if you leave shared out, it follows what they chose
+    last time. They can change it later in Nutrition, where recipes can also be edited.
+    tags are the labels of the finished dish (fried, grilled, baked, boiled, raw,
+    smoked, cured, processed, processed_meat, red_meat, poultry, vegetable,
+    fruit, citrus, tomato, legume, whole_grain, nuts_seeds, sweets,
+    sugary_drink, caffeine, alcohol, spicy); leave them out to take the labels
+    of the ingredients, but give them when the cooking changes the dish (a dish
+    of potatoes that is fried is fried). The person's restrictions work by them."""
+    pub = _pub()
+    shared = pub._share_default(user_id) if shared is None else bool(shared)
+    pub._remember_share(user_id, shared)
+    return pub._save_recipe(user_id, name, ingredients, portions, total_g, "en", shared, None, tags)
 
 
 def set_goals(user_id: str, goal_type: str = None, cal_min: float = None, cal_max: float = None,
@@ -277,33 +353,43 @@ def suggest_goals(user_id: str, sex: str, age: float, height_cm: float, weight_k
                   activity: float = 1.375, target_weight_kg: float = 0):
     """Work out a starting point for the goals from the body data (Mifflin-St
     Jeor): bmr, tdee, a calorie range cal_min to cal_max, protein_min and the
-    limits that suit goal_type, and for lose_weight roughly how many weeks a
+    limits for carbohydrates, sugars, fibre and salt that suit goal_type, and for lose_weight roughly how many weeks a
     pace of 0.5 kg a week takes. It only returns numbers; set_goals saves
     them, after the person has had a chance to change them."""
     return _pub().suggest_goals(sex, age, height_cm, weight_kg, activity, goal_type, target_weight_kg)
 
 
 def list_restrictions(user_id: str):
-    """The person's allergies, intolerances and foods to avoid: id, kind
-    (allergy, intolerance or avoid), key (an allergen such as gluten or milk,
-    empty for a free word) and label (the word)."""
+    """The person's allergies, intolerances, foods to avoid and foods that are
+    good for them and their daily limits: id, kind (allergy, intolerance, avoid, good or limit), key (an
+    allergen or a food tag) and, for a limit, amount in g or ml a day."""
     pub = _pub()
     with pub._db() as c:
         return {"restrictions": pub._restrictions(c, user_id)}
 
 
-def add_restriction(user_id: str, kind: str, key: str = "", label: str = ""):
-    """Remember that the person is allergic (kind allergy), intolerant
-    (intolerance) or wants to avoid something (avoid). key is one allergen:
-    gluten, milk, eggs, peanuts, tree_nuts, soy, fish, shellfish, sesame,
-    mustard, celery, lupin, molluscs or sulphites; for anything else leave key
-    empty and give the word as label, for example sugar or pork. check_food
-    warns about it from then on."""
-    return _pub()._add_restriction(user_id, kind, key, label)
+def add_restriction(user_id: str, kind: str, key: str, amount: float = None):
+    """Build the person's diet from fixed choices, never free text. kind is
+    allergy, intolerance (both are warned about), avoid (do not eat it), good
+    (favour it; shown as a positive note) or limit (at most amount grams or ml
+    a day of it, for example nuts_seeds 30). key is one allergen (gluten, milk,
+    eggs, peanuts, tree_nuts, soy, fish, shellfish, sesame, mustard, celery,
+    lupin, molluscs, sulphites) or one food tag (fried, grilled, baked, boiled,
+    raw, smoked, cured, processed, processed_meat, red_meat, poultry, vegetable,
+    fruit, citrus, tomato, legume, whole_grain, nuts_seeds, sweets,
+    sugary_drink, caffeine, alcohol, spicy). Every food carries such tags, so
+    when the person adds a food that falls under an avoid or over a limit the
+    app says so. Add one entry per key and give the reasons in the chat, never
+    in the entry. Habits that are not a food or a tag (late meals) are only
+    mentioned in the chat. Daily limits of salt, sugar, carbs and calories are
+    goals: set them with set_goals (salt_max, sugar_max, carbs_max, cal_max).
+    Adding the same kind and key again only updates the amount. To change one
+    otherwise, delete it and add it again."""
+    return _pub()._add_restriction(user_id, kind, key, "", amount)
 
 
 def delete_restriction(user_id: str, restriction_id: str):
-    """Forget one allergy, intolerance or food to avoid."""
+    """Forget one allergy, intolerance, food to avoid or good food."""
     return _pub()._delete_restriction(user_id, restriction_id)
 
 

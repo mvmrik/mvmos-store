@@ -1,4 +1,4 @@
-"""Nutrition's desktop half: the owner's switch for the Budget reward.
+"""Nutrition's desktop half: the owner's switches for the Budget reward and the AI help.
 
 Only the switch lives here. Everything that pays lives in premium/backend.py;
 a profile's amount and categories are its own and are chosen in the public
@@ -8,6 +8,7 @@ page.
 import os
 import sqlite3
 import sys
+from typing import Optional
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -37,15 +38,17 @@ def _available():
 @router.get("/settings")
 async def get_settings(session=Depends(get_current_session)):
     with _conn() as c:
-        row = c.execute("SELECT value FROM cfg WHERE key='budget_enabled'").fetchone()
+        rows = {r["key"]: r["value"] for r in c.execute("SELECT key,value FROM cfg WHERE key IN ('budget_enabled','ai_enabled')")}
     # The owner's choice is reported untouched so it survives a lapsed
     # subscription; whether it can run travels as its own field.
-    return JSONResponse({"budget_enabled": bool(row and row["value"] == "1"),
+    return JSONResponse({"budget_enabled": rows.get("budget_enabled") == "1",
+                         "ai_enabled": rows.get("ai_enabled") == "1",
                          "budget_available": _available()})
 
 
 class SettingsBody(BaseModel):
-    budget_enabled: bool = False
+    budget_enabled: Optional[bool] = None
+    ai_enabled: Optional[bool] = None
 
 
 @router.post("/settings")
@@ -53,7 +56,8 @@ async def save_settings(body: SettingsBody, session=Depends(get_current_session)
     if not _available():
         return JSONResponse({"error": "premium_required"}, status_code=403)
     with _conn() as c:
-        c.execute("INSERT OR REPLACE INTO cfg (key,value) VALUES ('budget_enabled',?)",
-                  ("1" if body.budget_enabled else "0",))
+        for key, val in (("budget_enabled", body.budget_enabled), ("ai_enabled", body.ai_enabled)):
+            if val is not None:
+                c.execute("INSERT OR REPLACE INTO cfg (key,value) VALUES (?,?)", (key, "1" if val else "0"))
         c.commit()
     return JSONResponse({"ok": True})
