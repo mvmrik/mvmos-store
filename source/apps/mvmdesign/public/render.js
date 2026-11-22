@@ -482,6 +482,7 @@ window.MvmDesignRender = (function createRenderer() {
     });
   }
   function drawItem(ctx, it, W, H, local, length, animated) {
+    if (it.hidden) return;
     const a = animated
       ? motion(it, local, length)
       : { alpha: 1, dx: 0, dy: 0, scale: 1, reveal: 1 };
@@ -550,7 +551,7 @@ window.MvmDesignRender = (function createRenderer() {
     ctx.save();
     ctx.translate((W - item.w * p.width * scale) / 2, (H - item.h * p.height * scale) / 2);
     ctx.scale(scale, scale);
-    drawItem(ctx, { ...item, x: 0, y: 0, rotation: 0 }, p.width, p.height, 0, 5, false);
+    drawItem(ctx, { ...item, hidden: false, x: 0, y: 0, rotation: 0 }, p.width, p.height, 0, 5, false);
     ctx.restore();
   }
   function page(ctx, p, pg, W, H, local = 0, length = 5, animated = false) {

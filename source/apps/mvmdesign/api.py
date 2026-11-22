@@ -230,6 +230,40 @@ async def save_shared(project_id: str, request: Request, user=Depends(public_use
     return await _save(project_id, request, user=user)
 
 
+@desktop_router.delete('/projects/{project_id}')
+def delete_project(project_id: str, owner=Depends(desktop_user)):
+    # Removes the whole project: its pages, assets and every share.
+    with _conn() as c:
+        c.execute('BEGIN IMMEDIATE')
+        _project(c, project_id, owner=owner)
+        c.execute('DELETE FROM design_shares WHERE project_id=?', (project_id,))
+        c.execute('DELETE FROM design_projects WHERE id=?', (project_id,))
+    return {'ok': True}
+
+
+@desktop_router.post('/projects/{project_id}/duplicate')
+async def duplicate_project(project_id: str, request: Request, owner=Depends(desktop_user)):
+    # Exact copy of the stored project under a new name; sharing is not copied.
+    try:
+        data = await request.json()
+        name = str(data['name']).strip()[:200]
+    except (ValueError, TypeError, KeyError):
+        raise HTTPException(400, 'invalidProject')
+    if not name:
+        raise HTTPException(400, 'invalidProject')
+    new_id = uuid.uuid4().hex
+    with _conn() as c:
+        c.execute('BEGIN IMMEDIATE')
+        row, _ = _project(c, project_id, owner=owner)
+        body = json.loads(row['body'])
+        body['name'] = name
+        c.execute('INSERT INTO design_projects(id,owner,name,width,height,body) VALUES(?,?,?,?,?,?)',
+                  (new_id, owner, name, row['width'], row['height'],
+                   json.dumps(body, ensure_ascii=False, separators=(',', ':'), allow_nan=False)))
+        new, role = _project(c, new_id, owner=owner)
+    return JSONResponse(_meta(new, role), headers={'Cache-Control': 'no-store'})
+
+
 @desktop_router.get('/profiles')
 def profiles(q: str = '', owner=Depends(desktop_user)):
     hub = _hub()
@@ -351,6 +385,54 @@ async def public_ai_script(user=Depends(public_user)):
     return await _ai_script('public')
 
 
+# Picture generation takes minutes, longer than a proxy keeps one request open,
+# so it runs as a background job that the browser polls. The registry lives here
+# because the premium module is imported again on every request.
+_IMAGE_JOBS = {}
+
+
+def _expire_orphan_requests():
+    # Requests still marked pending at startup belong to a process that is gone.
+    try:
+        with sqlite3.connect(_DB, timeout=30) as c:
+            c.execute("UPDATE design_ai_requests SET state='expired' WHERE state='pending'")
+    except sqlite3.Error:
+        pass
+
+
+_expire_orphan_requests()
+
+
+def _start_image_job(module, user_id, body, surface):
+    import asyncio, time, uuid
+    now = time.time()
+    for key in [k for k, j in _IMAGE_JOBS.items() if now - j['created'] > 1800]:
+        _IMAGE_JOBS.pop(key, None)
+    job = {'user': user_id, 'created': now, 'state': 'pending', 'result': None}
+    job_id = uuid.uuid4().hex
+    _IMAGE_JOBS[job_id] = job
+    async def run():
+        try:
+            job['result'] = await module.image(user_id, body, surface)
+        except ValueError as exc:
+            job['result'] = {'error': str(exc) if str(exc) in ('invalidProject','aiContextTooLarge','aiInvalidActions','aiUnavailable') else 'aiInvalidActions'}
+        except Exception:
+            job['result'] = {'error': 'aiUnavailable'}
+        job['state'] = 'done'
+    job['task'] = asyncio.get_running_loop().create_task(run())
+    return job_id
+
+
+def _image_job(user_id, job_id):
+    job = _IMAGE_JOBS.get(job_id)
+    if not job or job['user'] != user_id:
+        return None
+    if job['state'] != 'done':
+        return {'state': 'pending'}
+    _IMAGE_JOBS.pop(job_id, None)
+    return {'state': 'done', 'result': job['result']}
+
+
 async def _ai_call(request, surface, user, kind):
     module = _ai_module()
     if not module:
@@ -368,18 +450,45 @@ async def _ai_call(request, surface, user, kind):
             raise ValueError()
     except (ValueError,UnicodeDecodeError):
         raise HTTPException(400,'invalidProject')
+    if kind=='image':
+        return JSONResponse({'job':_start_image_job(module,user['id'],body,surface)},headers={'Cache-Control':'private, no-store'})
     try:
         result=await getattr(module,kind)(user['id'],body,surface)
     except ValueError as exc:
         return JSONResponse({'error':str(exc) if str(exc) in ('invalidProject','aiContextTooLarge','aiInvalidActions','aiUnavailable') else 'aiInvalidActions'},status_code=400,headers={'Cache-Control':'no-store'})
     except Exception:
         return JSONResponse({'error':'aiUnavailable'},status_code=502,headers={'Cache-Control':'no-store'})
+    return _ai_reply(module,user,result)
+
+
+def _ai_reply(module,user,result):
     if result.get('error'):
-        status=402 if result['error']=='aiNoCredits' else 429 if result['error']=='aiBusy' else 502
+        status=402 if result['error']=='aiNoCredits' else 429 if result['error']=='aiBusy' else 400 if result['error'] in ('invalidProject','aiContextTooLarge','aiInvalidActions') else 502
     else:
         status=200
     result['credits']=module.credits(user['id'])
     return JSONResponse(result,status_code=status,headers={'Cache-Control':'private, no-store'})
+
+
+def _ai_job(module,user,job_id):
+    if not module or not module.images_enabled('desktop') and not module.images_enabled('public'):
+        raise HTTPException(404,'aiUnavailable')
+    state=_image_job(user['id'],job_id)
+    if state is None:
+        raise HTTPException(404,'aiUnavailable')
+    if state['state']=='pending':
+        return JSONResponse(state,headers={'Cache-Control':'private, no-store'})
+    return _ai_reply(module,user,state['result'])
+
+
+@desktop_router.get('/ai/job/{job_id}')
+async def desktop_ai_job(job_id: str, request: Request, owner=Depends(desktop_user)):
+    return _ai_job(_ai_module(),_ai_profile(request),job_id)
+
+
+@router.get('/ai/job/{job_id}')
+async def public_ai_job(job_id: str, user=Depends(public_user)):
+    return _ai_job(_ai_module(),user,job_id)
 
 
 @desktop_router.post('/ai/{kind}')

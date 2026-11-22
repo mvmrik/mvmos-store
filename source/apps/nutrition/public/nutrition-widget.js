@@ -71,13 +71,17 @@
       .nu-widget *{box-sizing:border-box}
       .nu-login{display:flex;align-items:center;justify-content:center;height:100%;color:var(--pub-fg2,#a6adc8)}
       .nu-bar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--pub-surface2,#313244);flex-shrink:0}
-      .nu-tabs{display:flex;gap:4px;flex:1;flex-wrap:wrap}
+      .nu-tabs{display:flex;gap:4px;flex:1;flex-wrap:nowrap;overflow-x:auto;min-width:0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+      .nu-tabs::-webkit-scrollbar{display:none}
+      .nu-tabs .nu-btn{flex:0 0 auto;white-space:nowrap}
+      .nu-bar>.nu-btn{flex-shrink:0}
       .nu-btn{background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border:none;border-radius:6px;padding:7px 12px;cursor:pointer;font-size:.85rem;min-height:34px}
       .nu-btn:hover{background:var(--pub-border,#45475a)}
       .nu-btn:disabled{opacity:.4;cursor:default}
       .nu-btn.on,.nu-btn.main{background:var(--pub-accent,#89b4fa);color:var(--on-accent,var(--pub-bg,#1e1e2e));font-weight:600}
       .nu-btn.danger{color:var(--pub-red,#f38ba8)}
       .nu-body{flex:1;overflow-y:auto;padding:14px 14px 28px;display:flex;flex-direction:column;gap:14px}
+      .nu-body>*{flex-shrink:0}
       .nu-days{display:flex;align-items:center;justify-content:center;gap:12px}
       .nu-daylabel{min-width:130px;text-align:center;font-weight:600}
       .nu-card{background:var(--pub-surface2,#313244);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:10px}
@@ -112,18 +116,29 @@
       .nu-fields{display:flex;flex-wrap:wrap;gap:8px}
       .nu-fields .nu-field{flex:1 1 90px}
       .nu-chips{display:flex;flex-wrap:wrap;gap:6px}
+      .nu-mealscroll{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;margin:0 -14px;padding:2px 14px}
+      .nu-mealscroll::-webkit-scrollbar{display:none}
+      .nu-mealscroll .nu-chip{flex:0 0 auto;white-space:nowrap;scroll-snap-align:center}
+      .nu-tools{display:flex;gap:8px;align-items:center}
+      .nu-ibtn{display:inline-flex;align-items:center;justify-content:center;width:46px;min-height:42px;padding:0}
+      .nu-ibtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+      .nu-ibtn.on svg{stroke:currentColor}
+      .nu-adddate{display:flex;align-items:center;gap:8px}
+      .nu-adddate .nu-hint{white-space:nowrap}
+      .nu-adddate .mvm-picker-trigger{flex:1}
       .nu-chip{background:var(--pub-surface2,#313244);color:var(--pub-fg,#cdd6f4);border:2px solid transparent;border-radius:20px;padding:7px 13px;min-height:38px;cursor:pointer;font-size:.85rem;display:inline-flex;align-items:center;gap:6px}
       .nu-chip:hover{background:var(--pub-border,#45475a)}
       .nu-chip.sel{border-color:var(--pub-accent,#89b4fa)}
       .nu-card .nu-chip{background:var(--pub-bg,#1e1e2e)}
       .nu-origin{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;line-height:1.3;padding:1px 8px;border-radius:9px;background:var(--pub-bg,#1e1e2e);color:var(--pub-fg2,#a6adc8);vertical-align:middle}
       .nu-origin svg,.nu-origin .nu-av{width:16px;height:16px;flex-shrink:0}
-      .nu-filters{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center}
+      .nu-filters{display:flex;flex-wrap:nowrap;gap:4px 12px;align-items:center;overflow-x:auto;scrollbar-width:none}
+      .nu-filters .nu-check{white-space:nowrap;gap:6px}
       .nu-filters .nu-check{min-height:30px;font-size:.84rem}
       .nu-filters .nu-check input{width:17px;height:17px}
       .nu-check{display:flex;align-items:center;gap:10px;font-size:.9rem;min-height:38px;cursor:pointer}
       .nu-check input{width:20px;height:20px}
-      .nu-food{display:flex;align-items:center;gap:10px;background:var(--pub-surface2,#313244);border-radius:8px;padding:9px 11px;cursor:pointer;min-height:48px;width:100%;text-align:left;border:none;color:inherit;font:inherit}
+      .nu-food{display:flex;align-items:center;gap:10px;background:var(--pub-surface2,#313244);border-radius:8px;padding:9px 11px;cursor:pointer;min-height:48px;width:100%;text-align:left;border:none;color:inherit;font:inherit;line-height:1.35;flex-shrink:0;height:auto}
       .nu-food:hover{background:var(--pub-border,#45475a)}
       .nu-ico{font-size:1.4rem;width:34px;text-align:center;flex-shrink:0}
       .nu-verdict{border-radius:8px;padding:10px 12px;font-size:.88rem;display:flex;flex-direction:column;gap:6px;border-left:4px solid var(--pub-green,#a6e3a1);background:var(--pub-surface2,#313244)}
@@ -137,11 +152,14 @@
       .nu-ing .nu-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       .nu-ing .nu-input{width:84px}
       .nu-ringwrap{display:flex;justify-content:center}
+      .nu-ringbox{position:relative;width:min(270px,74vw);flex-shrink:0}
+      .nu-ringbox .nu-ring{width:100%}
+      .nu-ringadd{position:absolute;left:50%;bottom:21%;transform:translateX(-50%);min-height:36px;padding:6px 16px;border-radius:18px;white-space:nowrap;font-size:.95rem}
       .nu-ring{position:relative;width:min(270px,74vw);aspect-ratio:1;flex-shrink:0;cursor:pointer;border:none;background:none;padding:0;color:inherit;font:inherit;border-radius:50%}
       .nu-ring:focus-visible{outline:2px solid var(--pub-accent,#89b4fa);outline-offset:4px}
       .nu-ring svg{width:100%;height:100%;transform:rotate(-90deg);display:block}
       .nu-ring-track{stroke:var(--pub-surface2,#313244)}
-      .nu-ring-txt{position:absolute;inset:22%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px}
+      .nu-ring-txt{position:absolute;inset:19% 22% 33% 22%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px}
       .nu-ring-pct{font-size:2.5rem;font-weight:700;line-height:1.1}
       .nu-ring-sub{font-size:.82rem;color:var(--pub-fg2,#a6adc8)}
       .nu-ring-left{font-size:.82rem;font-weight:600;color:var(--pub-accent,#89b4fa)}
@@ -209,7 +227,7 @@
       cats: { loaded: false, available: false, categories: [], currency: null }, rewardMsg: '',
       scan: null, meals: [], mealForm: null, ai: { offered: false }, aiFood: null, aiGoals: null,
     };
-    let mealPicker = null;
+    let mealPicker = null, addPicker = null;
     // Meals are the person's own: renamed, re-timed, added or removed in Settings.
     function mealLabel(m) { return m.name || t('nu_meal_' + m.id); }
     function mealById(id) { return st.meals.find(m => m.id === id) || null; }
@@ -316,12 +334,14 @@
         ? `<span class="nu-ring-pct">${Math.round(kcal / hi * 100)}%</span><span class="nu-ring-sub">${rnd(kcal)} / ${rnd(hi)} kcal</span>
           <span class="nu-ring-left${done ? ' done' : ''}">${esc(done ? '✓ ' + t('nu_goal_done') : t('nu_left', { v: rnd(hi - kcal) }))}</span>`
         : `<span class="nu-ring-pct">${rnd(kcal)}</span><span class="nu-ring-sub">kcal</span>`;
-      return `<div class="nu-ringwrap"><button class="nu-ring" data-act="details" title="${esc(t('nu_ring_title'))}" aria-label="${esc(t('nu_ring_title'))}">
+      const qm = st.meals.find(x => x.id === nearestMealId());
+      const addBtn = st.meals.length ? `<button class="nu-btn main nu-ringadd" data-act="add" data-meal="${esc(nearestMealId())}" title="${esc(t('nu_add') + (qm ? ' · ' + mealLabel(qm) : ''))}" aria-label="${esc(t('nu_add') + (qm ? ' · ' + mealLabel(qm) : ''))}">＋${qm ? ' ' + esc(qm.icon) : ''}</button>` : '';
+      return `<div class="nu-ringwrap"><div class="nu-ringbox"><button class="nu-ring" data-act="details" title="${esc(t('nu_ring_title'))}" aria-label="${esc(t('nu_ring_title'))}">
         <svg viewBox="0 0 200 200" aria-hidden="true">
           <circle class="nu-ring-track" cx="100" cy="100" r="${R}" fill="none" stroke-width="${W}"/>
           <circle class="nu-ring-track" cx="100" cy="100" r="${R2}" fill="none" stroke-width="${W2}" opacity=".6"/>
           ${outer}${inner}</svg>
-        <span class="nu-ring-txt">${txt}</span></button></div>`;
+        <span class="nu-ring-txt">${txt}</span></button>${addBtn}</div></div>`;
     }
     // Everything the ring sums up.
     function detailsDialog() {
@@ -427,13 +447,9 @@
       });
       return best || defaultMealId();
     }
-    function quickAddBtn() {
-      const m = st.meals.find(x => x.id === nearestMealId());
-      return st.meals.length ? `<button class="nu-btn main" data-act="add" data-meal="${esc(nearestMealId())}">＋ ${esc(t('nu_add'))}${m ? ' · ' + esc(m.icon) + ' ' + esc(mealLabel(m)) : ''}</button>` : '';
-    }
     function weekChart() {
       const h = st.hist || [], g = st.goals || {};
-      if (!h.length || !h.some(d => d.kcal > 0)) return `<div class="nu-card" style="display:flex;justify-content:flex-end">${quickAddBtn()}</div>`;
+      if (!h.length || !h.some(d => d.kcal > 0)) return '';
       const hi = g.cal_max || 0;
       const max = Math.max(hi, ...h.map(d => d.kcal), 1) * 1.08;
       const bars = h.map(d => {
@@ -444,7 +460,7 @@
           <i class="nu-cbar" style="height:${(d.kcal / max * 100).toFixed(1)}%;background:${c}"></i><span class="nu-d">${esc(wd)}</span></button>`;
       }).join('');
       const lines = hi ? `<div class="nu-line" style="bottom:calc(${(hi / max * 100).toFixed(1)}% * .86 + 18px)"></div>` : '';
-      return `<div class="nu-card"><div class="nu-fields" style="align-items:center;justify-content:space-between"><div class="nu-h" style="margin:0">${esc(t('nu_chart_title'))}</div>${quickAddBtn()}</div><div class="nu-chart">${lines}${bars}</div></div>`;
+      return `<div class="nu-card"><div class="nu-h" style="margin:0">${esc(t('nu_chart_title'))}</div><div class="nu-chart">${lines}${bars}</div></div>`;
     }
     function entryRow(e) {
       const wn = st.warnings[e.id];
@@ -489,7 +505,8 @@
 
     // ── Add food ─────────────────────────────────────────────────
     function openAdd(meal) {
-      st.add = { meal: meal || defaultMealId(), forMeal: false, q: '', foods: [], recent: true, online: [], onlineMsg: '', pick: null, amount: '', check: null, busy: false, msg: '', cart: [], combos: [] };
+      st.recenter = true;
+      st.add = { day: st.today, tool: null, meal: meal || defaultMealId(), forMeal: false, q: '', foods: [], recent: true, online: [], onlineMsg: '', pick: null, amount: '', check: null, busy: false, msg: '', cart: [], combos: [] };
       st.view = 'add'; render(); runSearch();
     }
     async function runSearch() {
@@ -567,15 +584,15 @@
     function comboView() {
       const a = st.add; if (!a.combos || !a.combos.length) return '';
       return `<div class="nu-card"><div class="nu-h">${esc(t('nu_combo_title'))}</div>${a.combos.map((c, i) =>
-        `<button class="nu-food" data-act="combo" data-i="${i}"><span class="nu-ico">🧺</span><span style="flex:1;min-width:0"><div>${esc(c.foods.map(foodName).join(' + '))}</div>
-        <div class="nu-sub nu-hint">${esc(t('nu_combo_use', { n: c.foods.length }))}${c.times > 1 ? ' · ' + esc(t('nu_combo_times', { n: c.times })) : ''}</div></span></button>`).join('')}</div>`;
+        `<div class="nu-food" role="button" tabindex="0" data-act="combo" data-i="${i}"><div class="nu-ico">🧺</div><div style="flex:1;min-width:0"><div>${esc(c.foods.map(foodName).join(' + '))}</div>
+        <div class="nu-sub nu-hint">${esc(t('nu_combo_use', { n: c.foods.length }))}${c.times > 1 ? ' · ' + esc(t('nu_combo_times', { n: c.times })) : ''}</div></div></div>`).join('')}</div>`;
     }
     async function runCheck() {
       const a = st.add; if (!a || !a.pick) return;
       const amt = Number(a.amount);
       if (!(amt > 0)) { a.check = null; render(true); return; }
       const f = a.pick;
-      const body = { amount: amt, day: st.day, lang: lang() };
+      const body = { amount: amt, day: a.day || st.day, lang: lang() };
       if (f.ref) body.ref = f.ref; else body.food = foodBody(f);
       try { const c = await api('/check', { method: 'POST', body: JSON.stringify(body) }); if (st.add && st.add.pick === f) { a.check = c; render(true); } } catch (e) {}
     }
@@ -599,7 +616,8 @@
           const o = { ref, amount: x.amount }; if (x.count) o.count = x.count;
           items.push(o);
         }
-        await api('/entries/batch', { method: 'POST', body: JSON.stringify({ day: st.day, items, meal: a.meal, lang: lang() }) });
+        await api('/entries/batch', { method: 'POST', body: JSON.stringify({ day: a.day || st.day, items, meal: a.meal, lang: lang() }) });
+        if (a.day) st.day = a.day;
         st.add = null; st.view = 'main'; st.tab = 'today'; st.myFoods = null;
         await loadDay(); st.error = '';
       } catch (e) { a.busy = false; a.msg = t('nu_error'); }
@@ -621,11 +639,11 @@
     function foodLine(f, act, i) {
       const sub = (f.brand ? f.brand + ' · ' : '') + rnd(f.kcal) + ' kcal / 100 ' + unitOf(f.unit)
         + ((f.tags || []).length ? ' · ' + f.tags.map(k => t('nu_tag_' + k)).join(', ') : '');
-      return `<button class="nu-food" data-act="${act}" data-i="${i}"><span class="nu-ico">${esc(f.icon || '🍽️')}</span>
-        <span style="flex:1;min-width:0"><div>${esc(foodName(f))} ${originBadge(f)}</div><div class="nu-sub nu-hint">${esc(sub)}</div></span></button>`;
+      return `<div class="nu-food" role="button" tabindex="0" data-act="${act}" data-i="${i}"><div class="nu-ico">${esc(f.icon || '🍽️')}</div>
+        <div style="flex:1;min-width:0"><div>${esc(foodName(f))} ${originBadge(f)}</div><div class="nu-sub nu-hint">${esc(sub)}</div></div></div>`;
     }
     function filterBar() {
-      return `<div class="nu-filters"><span class="nu-hint">${esc(t('nu_filter_show'))}</span>${['mine', 'standard', 'shared'].map(k =>
+      return `<div class="nu-filters">${['mine', 'standard', 'shared'].map(k =>
         `<label class="nu-check"><input type="checkbox" data-filter="${k}"${st.filters[k] ? ' checked' : ''}> ${esc(t('nu_origin_' + k))}</label>`).join('')}</div>`;
     }
     function verdictBox(c) {
@@ -658,8 +676,7 @@
         ${verdictBox(a.check)}
         ${a.msg ? `<div class="nu-err">${esc(a.msg)}</div>` : ''}
         ${comboView()}
-        <button class="nu-btn main" data-act="confirm-add"${a.busy || !(amt > 0) ? ' disabled' : ''}>${esc(a.cart.length ? t('nu_cart_confirm', { n: a.cart.length + 1, m: mealName(a.meal) }) : t('nu_add_to', { m: mealName(a.meal) }))}</button>
-        <button class="nu-btn" data-act="cart-add"${a.busy || !(amt > 0) ? ' disabled' : ''}>＋ ${esc(t('nu_add_to_list'))}${a.cart.length ? ' (' + a.cart.length + ')' : ''}</button>`;
+        <button class="nu-btn main" data-act="cart-add"${a.busy || !(amt > 0) ? ' disabled' : ''}>＋ ${esc(t('nu_add_to_list'))}${a.cart.length ? ' (' + a.cart.length + ')' : ''}</button>`;
     }
     function addView() {
       const a = st.add;
@@ -667,12 +684,16 @@
       const list = a.foods.map((f, i) => foodLine(f, 'pick', i)).join('');
       const online = a.online.map((f, i) => foodLine(f, 'pick-online', i)).join('');
       return `<div class="nu-top"><button class="nu-btn" data-act="add-back">‹</button><div class="nu-title">${esc(t('nu_add_food'))}</div></div>
-        <div class="nu-chips">${st.meals.map(m => `<button class="nu-chip${a.meal === m.id ? ' sel' : ''}" data-act="set-meal" data-m="${esc(m.id)}">${esc(m.icon)} ${esc(mealLabel(m))}</button>`).join('')}</div>
+        <div class="nu-adddate"><span class="nu-hint">${esc(t('nu_date'))}</span><div id="nu-add-day" style="flex:1;display:flex"></div></div>
+        <div class="nu-mealscroll">${st.meals.map(m => `<button class="nu-chip${a.meal === m.id ? ' sel' : ''}" data-act="set-meal" data-m="${esc(m.id)}">${esc(m.icon)} ${esc(mealLabel(m))}</button>`).join('')}</div>
         ${cartView()}
         ${a.cart.length ? `<button class="nu-btn main" data-act="confirm-add"${a.busy ? ' disabled' : ''}>${esc(t('nu_cart_confirm', { n: a.cart.length, m: mealName(a.meal) }))}</button>` : ''}
-        <div class="nu-fields" style="flex-wrap:nowrap"><input class="nu-input" id="nu-q" type="search" placeholder="${esc(t('nu_search_ph'))}" value="${esc(a.q)}" autocomplete="off">
-          <button class="nu-btn" data-act="scan" title="${esc(t('nu_scan'))}">📷</button></div>
-        <div class="nu-fields" style="flex-wrap:nowrap"><input class="nu-input" id="nu-code" inputmode="numeric" placeholder="${esc(t('nu_code_ph'))}"><button class="nu-btn" data-act="code-go">${esc(t('nu_find'))}</button></div>
+        <div class="nu-tools">
+          <button class="nu-btn nu-ibtn${a.tool === 'search' ? ' on' : ''}" data-act="tool" data-tool="search" title="${esc(t('nu_search_ph'))}" aria-label="${esc(t('nu_search_ph'))}"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+          <button class="nu-btn nu-ibtn${a.tool === 'code' ? ' on' : ''}" data-act="tool" data-tool="code" title="${esc(t('nu_scan'))}" aria-label="${esc(t('nu_scan'))}"><svg viewBox="0 0 24 24"><path d="M4 5v14M8 5v14M12 5v14M16 5v14M20 5v14"/><path d="M6 5v14M14 5v14" stroke-width="1" opacity=".5"/></svg></button>
+        </div>
+        ${a.tool === 'search' ? `<input class="nu-input" id="nu-q" type="search" placeholder="${esc(t('nu_search_ph'))}" value="${esc(a.q)}" autocomplete="off">` : ''}
+        ${a.tool === 'code' ? `<div class="nu-fields" style="flex-wrap:nowrap"><input class="nu-input" id="nu-code" inputmode="numeric" placeholder="${esc(t('nu_code_ph'))}"><button class="nu-btn" data-act="code-go">${esc(t('nu_find'))}</button><button class="nu-btn" data-act="scan" title="${esc(t('nu_scan'))}">📷</button></div>` : ''}
         ${a.msg ? `<div class="nu-hint">${esc(a.msg)}</div>` : ''}
         ${filterBar()}
         <div class="nu-h">${esc(a.recent ? (a.forMeal ? t('nu_recent_meal', { m: mealName(a.meal) }) : t('nu_recent')) : t('nu_results'))}</div>
@@ -1050,6 +1071,12 @@
         <div class="nu-card"><div class="nu-hint">${esc(t('nu_meals_hint'))}</div>${list}
           ${f ? '' : (st.meals.length < 12 ? `<button class="nu-btn main" data-act="meal-new">＋ ${esc(t('nu_meal_add'))}</button>` : `<div class="nu-hint">${esc(t('nu_meal_limit'))}</div>`)}</div>${form}`;
     }
+    function mountAddDay() {
+      const P = window.mvmOS && window.mvmOS.dateTimePicker, host = w.querySelector('#nu-add-day'), a = st.add;
+      if (!P || !host || !a) return;
+      addPicker = P.create(host, { type: 'date', required: true, label: t('nu_date'), max: st.today, value: a.day || st.today,
+        onChange: v => { if (v && st.add === a) { a.day = v; if (a.pick) runCheck(); } } });
+    }
     function mountMealPicker() {
       const P = window.mvmOS && window.mvmOS.dateTimePicker, host = w.querySelector('#nu-mf-time');
       if (!P || !host || !st.mealForm) return;
@@ -1086,6 +1113,8 @@
     // ── Shell ────────────────────────────────────────────────────
     function render(keepFocus) {
       if (mealPicker) { if (st.mealForm) st.mealForm.time = mealPicker.input.value || ''; mealPicker.destroy(); mealPicker = null; }
+      if (addPicker) { addPicker.destroy(); addPicker = null; }
+      const ms = w.querySelector('.nu-mealscroll'), msl = ms ? ms.scrollLeft : null;
       const active = keepFocus ? document.activeElement : null;
       const aid = active && active.id && w.contains(active) ? active.id : null;
       const pos = aid && active.selectionStart != null ? [active.selectionStart, active.selectionEnd] : null;
@@ -1104,12 +1133,21 @@
       w.innerHTML = `${bar}<div class="nu-body">${st.error && st.ready ? `<div class="nu-err">${esc(st.error)}</div>` : ''}${body}</div>${scanOverlay()}${st.details && st.view === 'main' ? detailsDialog() : ''}`;
       const nb = w.querySelector('.nu-body'); if (nb) nb.scrollTop = sc;
       if (st.view === 'settings' && st.mealForm) mountMealPicker();
+      if (st.view === 'add' && st.add && !st.add.pick) mountAddDay();
+      const ms2 = w.querySelector('.nu-mealscroll');
+      if (ms2) {
+        const sel = ms2.querySelector('.sel');
+        if (msl != null && !st.recenter) ms2.scrollLeft = msl;
+        else if (sel) ms2.scrollTo({ left: sel.offsetLeft - (ms2.clientWidth - sel.offsetWidth) / 2, behavior: msl != null ? 'smooth' : 'auto' });
+        st.recenter = false;
+      }
       if (aid) {
         const el = w.querySelector('#' + aid);
         if (el) { el.focus(); if (pos && el.setSelectionRange) try { el.setSelectionRange(pos[0], pos[1]); } catch (e) {} }
       }
     }
 
+    w.addEventListener('keydown', ev => { const el = ev.target.closest && ev.target.closest('.nu-food[role=button]'); if (el && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); el.click(); } });
     w.addEventListener('click', async ev => {
       const el = ev.target.closest('[data-act]'); if (!el) return;
       const act = el.dataset.act;
@@ -1131,6 +1169,7 @@
       else if (act === 'add') openAdd(el.dataset.meal);
       else if (act === 'add-back') { stopScan(); st.add = null; st.view = 'main'; render(); }
       else if (act === 'pick-back') { st.add.pick = null; st.add.check = null; render(); }
+      else if (act === 'tool') { st.add.tool = st.add.tool === el.dataset.tool ? null : el.dataset.tool; render(); const f = w.querySelector(st.add.tool === 'code' ? '#nu-code' : '#nu-q'); if (f) f.focus(); }
       else if (act === 'set-meal') { st.add.meal = el.dataset.m; render(true); if (!st.add.q.trim()) runSearch(); }
       else if (act === 'pick') pickFood(st.add.foods[Number(el.dataset.i)]);
       else if (act === 'pick-online') pickFood(st.add.online[Number(el.dataset.i)]);
@@ -1324,7 +1363,7 @@
       api('/health').then(h => { st.health = Object.assign(st.health, h, { loaded: true }); if (st.view === 'settings') render(); }).catch(() => {});
     })();
 
-    return { destroy() { if (mealPicker) { mealPicker.destroy(); mealPicker = null; } stopScan(); clearTimeout(searchTimer); document.removeEventListener('visibilitychange', onVisible); } };
+    return { destroy() { if (mealPicker) { mealPicker.destroy(); mealPicker = null; } if (addPicker) { addPicker.destroy(); addPicker = null; } stopScan(); clearTimeout(searchTimer); document.removeEventListener('visibilitychange', onVisible); } };
   }
 
   window.NutritionWidget = { mount };

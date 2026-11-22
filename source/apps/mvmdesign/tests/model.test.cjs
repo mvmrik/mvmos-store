@@ -394,3 +394,47 @@ test('resize snaps page edges softly without moving the anchored corner', () => 
   assert.equal(minimum.box.h, 0.02);
   assert.equal(minimum.guides.length, 0);
 });
+
+test('automatic caption style rules follow numbering after add, delete and move', () => {
+  const p = M.project();
+  p.captionStyles = ['a', 'b', 'c', 'd'].map((id) => ({ id, name: id, style: {} }));
+  p.captionRules = [1, 2, 3, 4].map((n) => ({ styleId: 'abcd'[n - 1], start: n, every: 4 }));
+  const cue = (text, start) => ({ id: M.uid(), text, start, end: start + 1, style: {} });
+  p.captions = [0, 1, 2, 3, 4, 5].map((i) => cue('c' + i, i * 2));
+  assert.equal(M.applyCaptionRules(p), true);
+  const order = () => p.captions.slice().sort((x, y) => x.start - y.start).map((c) => c.styleId).join('');
+  assert.equal(order(), 'abcdab');
+  assert.equal(M.applyCaptionRules(p), false);
+  p.captions.splice(1, 1); // delete the second one: styles shift
+  M.applyCaptionRules(p);
+  assert.equal(order(), 'abcda');
+  p.captions.push(cue('new', 0.5)); // inserted at position 2
+  M.applyCaptionRules(p);
+  assert.equal(order(), 'abcdab');
+  p.captionStyles = p.captionStyles.filter((s) => s.id !== 'b'); // deleted style drops its rule
+  M.applyCaptionRules(p);
+  assert.equal(p.captionRules.some((r) => r.styleId === 'b'), false);
+  const n = M.normalize(JSON.parse(JSON.stringify(p)));
+  assert.equal(n.captionRules.length, 3);
+});
+
+test('hold rule keeps a group on screen until the chosen subtitle ends and follows changes', () => {
+  const p = M.project();
+  p.captionStyles = ['a', 'b', 'c', 'd'].map((id) => ({ id, name: id, style: {} }));
+  p.captionRules = [1, 2, 3, 4].map((n) => ({ styleId: 'abcd'[n - 1], start: n, every: 4, hold: 4 }));
+  const cue = (i) => ({ id: M.uid(), text: 'c' + i, start: i * 2, end: i * 2 + 1, style: {} });
+  p.captions = Array.from({ length: 10 }, (_, i) => cue(i));
+  M.applyCaptionRules(p);
+  const ends = () => p.captions.slice().sort((a, b) => a.start - b.start).map((c) => c.end);
+  // Group 1 (cues 0-3) ends with cue 3 (end 7); group 2 (4-7) ends at 15; incomplete group (8,9) ends at 19.
+  assert.deepEqual(ends(), [7, 7, 7, 7, 15, 15, 15, 15, 19, 19]);
+  assert.equal(M.applyCaptionRules(p), false);
+  p.captions.find((c) => c.text === 'c3').end = 9; // drag the last one longer: the group follows
+  M.applyCaptionRules(p);
+  assert.deepEqual(ends().slice(0, 4), [9, 9, 9, 9]);
+  assert.equal(M.normalize(JSON.parse(JSON.stringify(p))).captionRules[0].hold, 1);
+  p.captionRules.forEach((r) => (r.every = 3)); // a group is as long as the rule's period
+  p.captions.forEach((c) => (c.end = c.start + 1));
+  M.applyCaptionRules(p);
+  assert.deepEqual(ends().slice(0, 6), [5, 5, 5, 11, 11, 11]);
+});

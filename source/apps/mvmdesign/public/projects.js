@@ -149,12 +149,12 @@
       this.e.toast(t('projectUnavailable'));
       await this.e.projectDialog();
     }
-    async askName() {
+    async askName(initial, title = 'saveServerProject', hint = 'serverSaveHint', button = 'save') {
       return new Promise((resolve) => {
         let value = null;
         const box = this.e.modal(
-          'saveServerProject',
-          `<p class="md-note">${esc(t('serverSaveHint'))}</p><label class="md-field"><span>${esc(t('projectName'))}</span><input data-server-name maxlength="200" required value="${esc(this.e.p.name || t('untitled'))}"></label>`,
+          title,
+          `<p class="md-note">${esc(t(hint))}</p><label class="md-field"><span>${esc(t('projectName'))}</span><input data-server-name maxlength="200" required value="${esc(initial ?? (this.e.p.name || t('untitled')))}"></label>`,
           () => {
             const input = box.querySelector('[data-server-name]');
             if (!input.value.trim()) {
@@ -164,7 +164,7 @@
             }
             value = input.value.trim();
           },
-          'save',
+          button,
         );
         box.cleanup = () => resolve(value);
         const input = box.querySelector('[data-server-name]');
@@ -266,7 +266,7 @@
       try {
         const entries = await this.request('/projects');
         if (!box.isConnected) return;
-        area.innerHTML = `<h4>${esc(t(this.public ? 'sharedWithMe' : 'myServerProjects'))}</h4><div class="md-server-list">${entries.length ? entries.map((p, i) => `<button type="button" data-server-project="${i}"><div class="md-project-cover" aria-hidden="true"><span>▧</span></div><strong>${esc(p.name || t('untitled'))}</strong><span>${esc(t(p.role === 'owner' ? 'serverProject' : p.role === 'editor' ? 'editorAccess' : 'viewerAccess'))} · ${p.width} × ${p.height} px</span></button>`).join('') : `<p class="md-note">${esc(t('noServerProjects'))}</p>`}</div>`;
+        area.innerHTML = `<h4>${esc(t(this.public ? 'sharedWithMe' : 'myServerProjects'))}</h4><div class="md-server-list">${entries.length ? entries.map((p, i) => `<div class="md-server-row"><button type="button" data-server-project="${i}"><div class="md-project-cover" aria-hidden="true"><span>▧</span></div><strong>${esc(p.name || t('untitled'))}</strong><span>${esc(t(p.role === 'owner' ? 'serverProject' : p.role === 'editor' ? 'editorAccess' : 'viewerAccess'))} · ${p.width} × ${p.height} px</span></button>${p.role === 'owner' && !this.public ? `<div class="md-card-tools"><button type="button" data-server-copy="${i}" aria-label="${esc(t('duplicateProject'))}" title="${esc(t('duplicateProject'))}">⧉</button><button type="button" data-server-delete="${i}" aria-label="${esc(t('deleteProject'))}" title="${esc(t('deleteProject'))}">🗑</button></div>` : ''}</div>`).join('') : `<p class="md-note">${esc(t('noServerProjects'))}</p>`}</div>`;
         e.previewCards(box, entries, 'data-server-project', async entry => {
           const data = await this.request('/projects/' + encodeURIComponent(entry.id) + '/preview');
           return data.project;
@@ -284,12 +284,64 @@
               }
             }),
         );
+        area.querySelectorAll('[data-server-copy]').forEach(
+          (b) =>
+            (b.onclick = async () => {
+              const entry = entries[+b.dataset.serverCopy];
+              const name = await this.askName(
+                t('copyName').replace('{name}', entry.name || t('untitled')),
+                'duplicateProject',
+                'duplicateHint',
+                'duplicateProject',
+              );
+              if (name === null || !box.isConnected) return;
+              b.disabled = true;
+              try {
+                await this.request(
+                  '/projects/' + encodeURIComponent(entry.id) + '/duplicate',
+                  { method: 'POST', body: JSON.stringify({ name }) },
+                );
+                e.toast(t('projectDuplicated'));
+                this.refreshDialog(box);
+              } catch (error) {
+                e.error(error);
+                b.disabled = false;
+              }
+            }),
+        );
+        area.querySelectorAll('[data-server-delete]').forEach(
+          (b) =>
+            (b.onclick = async () => {
+              const entry = entries[+b.dataset.serverDelete];
+              if (!confirm(t('deleteProjectConfirm').replace('{name}', entry.name || t('untitled')))) return;
+              b.disabled = true;
+              try {
+                await this.request('/projects/' + encodeURIComponent(entry.id), { method: 'DELETE' });
+                if (this.current?.id === entry.id) {
+                  this.current = null;
+                  this.e.dirty = true;
+                  this.e.renderState();
+                }
+                e.toast(t('projectDeleted'));
+                this.refreshDialog(box);
+              } catch (error) {
+                e.error(error);
+                b.disabled = false;
+              }
+            }),
+        );
       } catch (error) {
         if (box.isConnected)
           area.querySelector('p').textContent = t(
             window.MvmDesignI18n.en[error.message] ? error.message : 'failed',
           );
       }
+    }
+    refreshDialog(box) {
+      // Rebuild the project dialog so the list reflects the change.
+      if (!box.isConnected) return;
+      box.querySelector('[data-cancel]')?.click();
+      this.e.projectDialog().catch((error) => this.e.error(error));
     }
     async share() {
       if (this.public) return;

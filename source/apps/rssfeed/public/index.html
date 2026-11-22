@@ -39,7 +39,6 @@ input{font-family:inherit}
 .art-item.read .art-title{opacity:.5;font-weight:400}
 .art-body{flex:1;min-width:0}
 .art-title{font-size:.87rem;font-weight:600;line-height:1.4}
-.art-excerpt{font-size:.78rem;color:var(--fg2);margin-top:3px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .art-meta{font-size:.72rem;color:var(--border);margin-top:5px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .art-feed{color:var(--accent)}
 .star-btn{background:none;border:none;font-size:1rem;padding:0 2px;flex-shrink:0;line-height:1}
@@ -54,6 +53,10 @@ input{font-family:inherit}
 .reader-feed{font-size:.72rem;color:var(--accent);margin-bottom:4px}
 .reader-title{font-size:1.1rem;font-weight:700;line-height:1.45;margin-bottom:16px}
 .reader-content{font-size:.9rem;line-height:1.8;color:var(--fg2);word-break:break-word}
+.reader-content a,.reader-content a *{color:var(--fg) !important}
+.reader-content a{text-decoration:underline;text-underline-offset:.15em}
+.reader-content a:hover{text-decoration-thickness:2px}
+.reader-content a:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 .reader-content img{max-width:100%;height:auto;border-radius:6px;margin:8px 0}
 .reader-link{margin-top:20px}
 .reader-link a{color:var(--accent);font-size:.84rem;text-decoration:none}
@@ -266,7 +269,6 @@ function renderArticles() {
     return;
   }
   wrap.innerHTML = _articles.map(a => {
-    const exc = stripHtml(a.description||'').slice(0,140);
     const trBtnHtml = _deeplEnabled
       ? `<button class="tr-lb" data-id="${a.id}" onclick="event.stopPropagation()"
         style="border:1px solid var(--border);background:none;border-radius:3px;padding:1px 7px;font-size:.7rem;cursor:pointer;color:var(--fg2);font-family:inherit">${t('rss_pub_translate')}</button>`
@@ -275,7 +277,6 @@ function renderArticles() {
       ${!a.is_read?`<div class="unread-dot"></div>`:`<div style="width:7px;flex-shrink:0"></div>`}
       <div class="art-body">
         <div class="art-title">${esc(a.title||'(no title)')}</div>
-        ${exc?`<div class="art-excerpt">${esc(exc)}</div>`:''}
         <div class="art-meta">
           ${_activeFeed===0?`<span class="art-feed">${esc(a.feed_name)}</span>`:''}
           ${relTime(a.pub_date)?`<span>${relTime(a.pub_date)}</span>`:''}
@@ -310,7 +311,7 @@ function renderArticles() {
       const orig=btn.textContent; btn.disabled=true; btn.textContent=t('rss_pub_translating');
       const res=wrap.querySelector(`.tr-lr[data-id="${id}"]`);
       try {
-        const text = await translate(`${a.title||''}\n\n${stripHtml(a.description||'').slice(0,1200)}`);
+        const text = await translate(a.title||'');
         if(res){res.textContent=text;res.style.display='';}
       } catch(err){ if(res){res.textContent=t('rss_pub_translate_error');res.style.display='';} }
       btn.disabled=false; btn.textContent=orig;
@@ -353,7 +354,7 @@ function openArticle(id) {
     const orig=trBtn.textContent; trBtn.disabled=true; trBtn.textContent=t('rss_pub_translating');
     const res=document.getElementById('tr-rr');
     try {
-      const text = await translate(`${a.title||''}\n\n${stripHtml(a.description||'').slice(0,1200)}`);
+      const text = await translate(`${a.title||''}\n\n${stripHtml(a.description||'')}`);
       if(res){res.textContent=text;res.style.display='';}
     } catch(err){ if(res){res.textContent=t('rss_pub_translate_error');res.style.display='';} }
     trBtn.disabled=false; trBtn.textContent=orig;
@@ -426,7 +427,7 @@ function showFeedsModal() {
 function _loadScript(src) {
   return new Promise((ok, bad) => {
     const s = document.createElement('script');
-    s.src = src + '?_=' + Date.now();
+    s.src = window.asset(src);
     s.onload = ok; s.onerror = bad;
     document.head.appendChild(s);
   });

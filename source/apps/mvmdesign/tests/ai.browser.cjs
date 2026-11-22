@@ -3,12 +3,12 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
 const app=path.resolve(__dirname,'..');
 (async()=>{
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||undefined,args:['--no-sandbox']});
  try{
   const page=await browser.newPage({viewport:{width:1440,height:950}}),errors=[];
   page.on('pageerror',e=>errors.push(e.stack));
   let info={premium:true,enabled:true,images_enabled:true,ready:true,signed_in:true,images:true};
-  let chatMode='edit',imageData='',chatBody,imageBody,images=0,scripts=0;
+  let chatMode='edit',imageData='',chatBody,imageBody,images=0,polls=0,scripts=0;
   let settings={premium:true,assistant:false,images:false,public:false};
   await page.route('https://design.test/**',async route=>{
    const u=new URL(route.request().url()),name=u.pathname;
@@ -26,7 +26,8 @@ const app=path.resolve(__dirname,'..');
     ]:chatMode==='image'?[{op:'generate_image',pageId:pg.id,placement:'background',prompt:'A quiet sea at sunset, no text'}]:[{op:'run_shell'}];
     return route.fulfill({json:{text:'Proposed the requested changes.',actions}});
    }
-   if(name.endsWith('/ai/image')){imageBody=route.request().postDataJSON();images++;return route.fulfill({json:{mime:'image/png',data:imageData}});}
+   if(name.endsWith('/ai/image')){imageBody=route.request().postDataJSON();images++;return route.fulfill({json:{job:'j1'}});}
+   if(name.endsWith('/ai/job/j1')){polls++;return route.fulfill({json:polls===1?{state:'pending'}:{mime:'image/png',data:imageData}});}
    if(name.startsWith('/apps/mvmdesign/'))return route.fulfill({path:path.join(app,'public',name.slice('/apps/mvmdesign/'.length)),contentType:name.endsWith('.css')?'text/css':'text/javascript'});
    if(name==='/api/auth/whoami')return route.fulfill({json:{effective_user:'fixture'}});
    if(name==='/pub/mvmfonts/client.js')return route.fulfill({contentType:'text/javascript',body:'window.MvmFontsClient={families:[],load:async()=>[],ready:async()=>{},has:()=>false};'});
@@ -63,13 +64,34 @@ const app=path.resolve(__dirname,'..');
   assert.equal(await page.evaluate(()=>editor.p.pages[0].items[0].color),'#ffffff');assert.match(await page.locator('.md-toast').textContent(),/project changed/i);
   // Dedicated image action sends context, reviews pixels and inserts in one Undo.
   await page.locator('[data-action=ai-image]').click();
-  const modal=page.locator('.md-modal');await modal.locator('textarea').fill('Warm light, a calm sea');
+  const modal=page.locator('.md-modal');
+  // Defaults: no title, no style sent.
+  assert.equal(await modal.locator('select').first().inputValue(),'none');assert.equal(await modal.locator('input[type=text]').isVisible(),false);
+  await modal.locator('textarea').last().fill('Warm light, a calm sea');
   await modal.locator('[data-apply]').click();await modal.locator('img').waitFor();
   fs.mkdirSync('/tmp/mvmdesign-check',{recursive:true});await page.screenshot({path:'/tmp/mvmdesign-check/ai-image-preview.png'});
-  assert.equal(images,1);assert.equal(imageBody.project.width,1920);assert.equal(imageBody.prompt,'Warm light, a calm sea');
+  assert.equal(images,1);assert.equal(imageBody.project.width,1920);assert.equal(imageBody.prompt,'Warm light, a calm sea');assert.equal(imageBody.title,undefined);assert.equal(imageBody.imageStyle,undefined);
   assert.equal(await page.evaluate(()=>editor.p.pages[0].items.length),1);
   await modal.locator('[data-apply]').click();await page.waitForFunction(()=>!document.querySelector('.md-modal'));
   assert.equal(await page.evaluate(()=>editor.p.pages[0].items[0].type),'image');
+  // Title, title style and image style are sent separately; earlier images stay as layers.
+  await page.locator('[data-action=ai-image]').click();
+  await modal.locator('select').first().selectOption('title');
+  const projectName=await page.evaluate(()=>editor.p.name);
+  assert.equal(await modal.locator('input[type=text]').inputValue(),projectName);
+  await modal.locator('input[type=text]').fill('My Title');
+  await modal.locator('textarea').nth(0).fill('gold letters');await modal.locator('textarea').nth(1).fill('watercolor');
+  await modal.locator('[data-apply]').click();await modal.locator('img').waitFor();
+  assert.deepEqual(imageBody.title,{text:'My Title',style:'gold letters'});assert.equal(imageBody.imageStyle,'watercolor');
+  await modal.locator('[data-apply]').click();await page.waitForFunction(()=>!document.querySelector('.md-modal'));
+  assert.equal(await page.evaluate(()=>editor.p.pages[0].items.filter(i=>i.type==='image').length),2);
+  assert.equal(await page.evaluate(()=>Object.values(editor.p.assets).some(a=>a.name==='My Title')),true);
+  const layerId=await page.evaluate(()=>editor.p.pages[0].items[0].id);
+  await page.evaluate(id=>editor.action('toggle-layer-'+id),layerId);
+  assert.equal(await page.evaluate(()=>editor.p.pages[0].items[0].hidden),true);
+  await page.evaluate(id=>editor.action('toggle-layer-'+id),layerId);
+  assert.equal(await page.evaluate(()=>editor.p.pages[0].items[0].hidden),false);
+  for(let i=0;i<3;i++)await page.evaluate(()=>editor.action('undo'));
   assert.equal(await page.evaluate(()=>editor.p.pages[0].items[0].w),1);
   assert.equal(await page.evaluate(()=>Object.keys(editor.p.assets).length),1);
   await page.evaluate(()=>editor.action('undo'));assert.equal(await page.evaluate(()=>editor.p.pages[0].items.length),1);
@@ -84,8 +106,8 @@ const app=path.resolve(__dirname,'..');
   assert.deepEqual(await page.evaluate(()=>backgroundOrder),['old','new','text']);
   chatMode='image';await page.locator('.md-ai-panel').getByRole('button',{name:'Clear chat',exact:true}).click();
   await ask('Generate a background inspired by the subtitles');
-  await page.locator('.md-ai-panel').getByRole('button',{name:'Apply',exact:true}).click();await modal.waitFor();assert.equal(images,1);
-  assert.match(await modal.locator('textarea').inputValue(),/quiet sea/);await modal.locator('[data-cancel]').click();
+  await page.locator('.md-ai-panel').getByRole('button',{name:'Apply',exact:true}).click();await modal.waitFor();assert.equal(images,2);
+  assert.match(await modal.locator('textarea').last().inputValue(),/quiet sea/);await modal.locator('[data-cancel]').click();
   // Invalid/locked plans are atomic; no IDs, timing or unrelated fields drift.
   const atomic=await page.evaluate(()=>{
    const A=MvmDesignAssistant,p=editor.p,pg=p.pages[0],it=pg.items[0],before=JSON.stringify(p);let rejected=0;

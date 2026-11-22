@@ -13,14 +13,13 @@ import os
 import sys
 import sqlite3
 import json
-import urllib.request
-import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
-from email.utils import parsedate_to_datetime
 from fastapi import APIRouter, Header
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel
 from typing import Optional
+
+from apps.rssfeed.feed_parser import _fetch_and_parse
 
 router = APIRouter(tags=["rssfeed-public"])
 

@@ -48,7 +48,7 @@
       "name": "mvmDesign",
       "icon": "✨",
       "category": "Creative",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Design reusable pages with styled text, pictures and shapes, then time them to music and export images or an animated video.",
       "tags": [
         "design",
@@ -59,7 +59,7 @@
         "subtitles"
       ],
       "min_core_version": "1.22.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/creative/mvmdesign-1.0.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/creative/mvmdesign-1.1.0.zip",
       "premium": true
     }
   ]

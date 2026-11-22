@@ -1284,6 +1284,34 @@ async def agent_api(request: Request, path: str, x_pub_token: str = Header(defau
                                            x_mvmai_surface, os_session)
 
 
+_FORWARDED = ("x-forwarded-for", "x-real-ip", "forwarded", "cf-connecting-ip", "true-client-ip", "cf-ray")
+
+
+@router.post("/bot/{project_id}/{bot_id}")
+async def bot_message(project_id: str, bot_id: str, request: Request, x_bot_key: str = Header(default=None)):
+    """Ask one bot of an agent project for a reply (see mvmAgent bots). Local only: a request that came through
+    a proxy or from another machine is refused, and the bot's own key is required. The bot can only answer."""
+    host = request.client.host if request.client else ""
+    if host not in ("127.0.0.1", "::1") or any(h in request.headers for h in _FORWARDED):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    prem = _premium()
+    if not prem or not hasattr(prem, "agents_module"):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    try:
+        if int(request.headers.get("content-length", "0")) > 20000:
+            return JSONResponse({"error": "invalid_message"}, status_code=413)
+        body = await request.json()
+        agent = prem.agents_module()
+        result = await agent.workspaces().bot_message(sys.modules[__name__], agent, project_id, bot_id, x_bot_key, body)
+        return JSONResponse(result, headers={"Cache-Control": "no-store"})
+    except PermissionError:
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    except ValueError as exc:
+        return JSONResponse({"error": str(exc)}, status_code=429 if str(exc) in ("rate_limited", "queue_full") else 400)
+    except Exception:
+        return JSONResponse({"error": "bot_failed"}, status_code=500)
+
+
 @router.get("/sessions")
 async def list_sessions(x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
@@ -1826,7 +1854,10 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
         # Internal context is set only by the Premium worker; HTTP clients cannot supply it.
         if not is_admin or not prem or not hasattr(prem, "agents_enabled") or not prem.agents_enabled(cfg):
             return JSONResponse({"error": "not_available"}, status_code=403)
-        exec_enabled = False  # Native CLI execution must never bypass the agent's review queue.
+        # Native CLI execution never bypasses the review queue, except for the owner's own project
+        # conversation in auto mode: there the administrator chose full rights and the agent gets them.
+        # Saved scripts run separately; bot tasks never receive full access.
+        exec_enabled = bool(agent_context.get("full_access") and exec_enabled and cfg.get(f"{exec_prefix}exec_auto"))
         tools = agent_context["tools"]
         app_prompt = agent_context["prompt"]
     # A confirmed model applies only to an admin's first turn in a new chat.
@@ -1896,7 +1927,7 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
             r = await desk._run_cli_chat(
                 desk.CliChatRequest(provider_id=cli_provider["id"], messages=flat, model=cfg.get("model") or ""),
                 tools=tools,
-                is_admin=is_admin,
+                is_admin=is_admin and not bool(agent_context and agent_context.get("limited_bot")),
                 exec_enabled=exec_enabled,
                 exec_auto=bool(cfg.get(f"{exec_prefix}exec_auto")),
                 identity_prompt=public_identity,

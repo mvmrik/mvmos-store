@@ -2,7 +2,7 @@
 
 Nostr events themselves never pass through this service — the browser talks to
 relays directly over WebSocket. This service only stores the encrypted nsec
-(so the same identity works across devices) and the user's relay list. The
+(so the same identity works across devices). The
 server never sees a plaintext private key or a master password.
 """
 
@@ -80,13 +80,6 @@ def _init_db():
         else:
             conn.executescript(_VAULTS_SCHEMA)
         conn.executescript("""
-            CREATE TABLE IF NOT EXISTS relay_prefs (
-                owner_id TEXT NOT NULL,
-                url TEXT NOT NULL,
-                read INTEGER NOT NULL DEFAULT 1,
-                write INTEGER NOT NULL DEFAULT 1,
-                PRIMARY KEY (owner_id, url)
-            );
             CREATE TABLE IF NOT EXISTS lang_prefs (
                 owner_id TEXT NOT NULL PRIMARY KEY,
                 translate_lang TEXT,
@@ -104,14 +97,6 @@ def _init_db():
 
 _init_db()
 
-_DEFAULT_RELAYS = [
-    "wss://relay.damus.io",
-    "wss://nos.lol",
-    "wss://relay.nostr.band",
-    "wss://relay.primal.net",
-]
-
-
 class VaultIn(BaseModel):
     npub: str
     salt: str
@@ -128,16 +113,6 @@ class VaultUpdate(BaseModel):
     # Only sent when the owner unlocks with a key that is not the stored one and
     # confirms the swap — a re-encryption with the same key leaves this out.
     npub: Optional[str] = None
-
-
-class RelayItem(BaseModel):
-    url: str
-    read: bool = True
-    write: bool = True
-
-
-class RelaysIn(BaseModel):
-    relays: List[RelayItem]
 
 
 class PrefsIn(BaseModel):
@@ -635,10 +610,6 @@ async def create_vault(data: VaultIn, x_pub_token: str = Header(default=None)):
             "INSERT INTO vaults(owner_id,npub,salt,iterations,iv,ciphertext) VALUES(?,?,?,?,?,?)",
             (me["id"], data.npub.strip(), data.salt.strip(), data.iterations, data.iv.strip(), data.ciphertext.strip()),
         )
-        conn.executemany(
-            "INSERT OR IGNORE INTO relay_prefs(owner_id,url,read,write) VALUES(?,?,1,1)",
-            [(me["id"], url) for url in _DEFAULT_RELAYS],
-        )
         conn.commit()
     return {"ok": True}
 
@@ -707,42 +678,6 @@ async def delete_vault(npub: str, x_pub_token: str = Header(default=None)):
         conn.commit()
     if not result.rowcount:
         return JSONResponse({"error": "vault_missing"}, status_code=409)
-    return {"ok": True}
-
-
-@router.get("/relays")
-async def get_relays(x_pub_token: str = Header(default=None)):
-    me = _user(x_pub_token)
-    if not me:
-        return _private_response()
-    with _conn() as conn:
-        rows = conn.execute(
-            "SELECT url,read,write FROM relay_prefs WHERE owner_id=? ORDER BY rowid",
-            (me["id"],),
-        ).fetchall()
-    return {"relays": [dict(row) for row in rows]}
-
-
-@router.put("/relays")
-async def put_relays(data: RelaysIn, x_pub_token: str = Header(default=None)):
-    me = _user(x_pub_token)
-    if not me:
-        return _private_response()
-    urls = set()
-    for relay in data.relays:
-        url = relay.url.strip()
-        if not (url.startswith("wss://") or url.startswith("ws://")) or len(url) > 200:
-            return JSONResponse({"error": "invalid_relay_url"}, status_code=400)
-        urls.add(url)
-    if len(urls) > 30:
-        return JSONResponse({"error": "too_many_relays"}, status_code=400)
-    with _conn() as conn:
-        conn.execute("DELETE FROM relay_prefs WHERE owner_id=?", (me["id"],))
-        conn.executemany(
-            "INSERT INTO relay_prefs(owner_id,url,read,write) VALUES(?,?,?,?)",
-            [(me["id"], relay.url.strip(), int(relay.read), int(relay.write)) for relay in data.relays],
-        )
-        conn.commit()
     return {"ok": True}
 
 

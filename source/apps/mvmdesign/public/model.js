@@ -168,6 +168,7 @@
       rotation: 0,
       opacity: 1,
       locked: false,
+      hidden: false,
       text: '',
       font: 'sans-serif',
       size: 0.065,
@@ -227,6 +228,9 @@
       audio: null,
       captions: [],
       captionDrafts: [],
+      captionText: '',
+      captionRules: [],
+      captionAutoStyle: false,
       captionStyles: [],
       captionStyle: {
         preset: 'outline',
@@ -446,6 +450,60 @@
       (_, i) => i + 1 >= start && i + 1 <= end && (i + 1 - start) % every === 0,
     );
   }
+  // Hold: a matched subtitle stays until the end of the last subtitle of its group
+  // (groups are blocks of `every` placed subtitles). The last subtitle of an
+  // incomplete group closes it. Returns true when an end time changed.
+  function holdCaptions(p, rule) {
+    if (!rule.hold) return false;
+    const start = Math.max(1, Math.floor(+rule.start) || 1),
+      every = Math.max(1, Math.floor(+rule.every) || 1);
+    const placed = captionTargets(p, 'placed').map((t) => t.cue);
+    let changed = false;
+    placed.forEach((cue, i) => {
+      const n = i + 1;
+      if (n < start || (n - start) % every) return;
+      const block = Math.floor((n - 1) / every);
+      const endPos = Math.min(placed.length, (block + 1) * every);
+      if (endPos <= n) return;
+      const end = Math.max(cue.start + 0.01, placed[endPos - 1].end);
+      if (Math.abs(cue.end - end) > 1e-6) {
+        cue.end = end;
+        changed = true;
+      }
+    });
+    return changed;
+  }
+  // Automatic style rules: numbering follows captionTargets order, so adding,
+  // deleting or moving subtitles reassigns styles. Returns true when anything changed.
+  function applyCaptionRules(p) {
+    const rules = p.captionRules || [];
+    if (!rules.length) return false;
+    const known = new Set((p.captionStyles || []).map((s) => s.id));
+    const live = rules.filter((r) => r.styleId === '' || known.has(r.styleId));
+    if (live.length !== rules.length) p.captionRules = live;
+    let changed = live.length !== rules.length;
+    const targets = captionTargets(p, 'all');
+    const linked = new Map();
+    for (const c of [...p.captions, ...(p.captionDrafts || [])]) {
+      if (!c.timingKey) continue;
+      if (!linked.has(c.timingKey)) linked.set(c.timingKey, []);
+      linked.get(c.timingKey).push(c);
+    }
+    targets.forEach(({ cue }, i) => {
+      const n = i + 1;
+      let rule = null;
+      for (const r of live) if (n >= r.start && (n - r.start) % r.every === 0) rule = r;
+      if (!rule) return;
+      for (const c of new Set([cue, ...(linked.get(cue.timingKey) || [])])) {
+        if ((c.styleId || '') === rule.styleId) continue;
+        if (rule.styleId) c.styleId = rule.styleId;
+        else delete c.styleId;
+        changed = true;
+      }
+    });
+    for (const r of live) if (holdCaptions(p, r)) changed = true;
+    return changed;
+  }
   // Use pixel tolerances at the current zoom; all geometry stays resolution independent.
   function snapResizeBox(box, tolerance = { x: 0.008, y: 0.008 }) {
     const out = { ...box }, guides = [];
@@ -588,7 +646,7 @@
             'imageTintColor',
           ])
             v[key] = color(o[key], v[key]);
-          for (const key of ['locked', 'italic', 'gradient', 'panel', 'imageTint'])
+          for (const key of ['locked', 'hidden', 'italic', 'gradient', 'panel', 'imageTint'])
             v[key] = !!o[key];
           for (const [key, lo, hi] of [
             ['x', -2, 2],
@@ -671,6 +729,18 @@
           : {}),
       }));
     p.captionStyle = cleanCaptionStyle(raw.captionStyle);
+    p.captionRules = (Array.isArray(raw.captionRules) ? raw.captionRules : [])
+      .slice(0, 50)
+      .filter((r) => r && typeof r.styleId === 'string' && (r.styleId === '' || styleIds.has(r.styleId)))
+      .map((r) => ({
+        styleId: r.styleId,
+        start: Math.max(1, Math.min(100000, Math.floor(+r.start) || 1)),
+        every: Math.max(1, Math.min(100000, Math.floor(+r.every) || 1)),
+        hold: r.hold ? 1 : 0,
+      }));
+    p.captionAutoStyle = raw.captionAutoStyle === true;
+    p.captionText =
+      typeof raw.captionText === 'string' ? raw.captionText.slice(0, 200000) : '';
     p.captionDrafts = (
       Array.isArray(raw.captionDrafts) ? raw.captionDrafts : []
     )
@@ -754,6 +824,8 @@
     captionStyle,
     captionTargets,
     captionPattern,
+    applyCaptionRules,
+    holdCaptions,
     captionBox,
     snapBox,
     snapResizeBox,

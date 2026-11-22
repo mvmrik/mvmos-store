@@ -5,6 +5,7 @@ import importlib.util
 import json
 import pathlib
 import sys
+import time
 import tempfile
 import types
 import unittest
@@ -48,7 +49,7 @@ class AITests(unittest.TestCase):
         self.mod=types.ModuleType('design_api_ai_fixture');self.mod.__file__=str(pathlib.Path(self.temp.name)/'api.py')
         exec(compile((ROOT/'api.py').read_text(),str(ROOT/'api.py'),'exec'),self.mod.__dict__)
         app=FastAPI();app.include_router(self.mod.desktop_router,prefix='/api/apps/mvmdesign');app.include_router(self.mod.router,prefix='/pub/mvmdesign')
-        self.client=TestClient(app)
+        self.client=TestClient(app);self.client.__enter__();self.addCleanup(self.client.__exit__,None,None,None)
         self.headers={'X-MvmDesign':'1','X-Pub-Token':'u'}
         self.body={'project':{'name':'Sea and solitude','width':1920,'height':1080,'pages':[{'id':'p','items':[{'type':'text','text':'A quiet coast'}]}],'captions':[{'id':'c','text':'Waves at sunset','start':0,'end':4}]},'messages':[{'role':'user','content':'Make title green'}],'prompt':'Soft evening light','lang':'bg'}
 
@@ -95,12 +96,21 @@ class AITests(unittest.TestCase):
         self.public=False
         self.assertEqual(self.client.get('/pub/mvmdesign/ai/status',headers=self.headers).status_code,403)
 
+    def image_call(self):
+        r=self.client.post('/pub/mvmdesign/ai/image',json=self.body,headers=self.headers)
+        self.assertEqual(r.status_code,200,r.text);job=r.json()['job']
+        for _ in range(100):
+            r=self.client.get('/pub/mvmdesign/ai/job/'+job,headers=self.headers)
+            if r.status_code!=200 or r.json().get('state')!='pending':return r
+            time.sleep(.05)
+        self.assertTrue(False,'job did not finish')
+
     def test_images_context_aspect_one_charge_and_refund(self):
         self.enable();self.fail=True
-        r=self.client.post('/pub/mvmdesign/ai/image',json=self.body,headers=self.headers)
+        r=self.image_call()
         self.assertEqual(r.status_code,502);self.assertEqual(self.balance['u'],100)
         self.fail=False
-        r=self.client.post('/pub/mvmdesign/ai/image',json=self.body,headers=self.headers)
+        r=self.image_call()
         self.assertEqual(r.status_code,200,r.text);self.assertEqual(self.balance['u'],93)
         image=[kw for method,kw in self.calls if method=='image'][0];self.assertEqual(image['aspect'],'landscape')
         prompt=[kw['prompt'] for method,kw in self.calls if method=='ask'][-1]

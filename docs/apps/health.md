@@ -6,4 +6,6 @@ Health plots supplied daily goals, shows only recorded metrics in its overview, 
 
 Health 1.3.0 adds a Profile tab for sex, birth date, calculated age, blood type, conditions and medication notes. Height and weight remain measurements with history; their latest recorded values appear in the profile. Use the shared regional picker for the birth date, and the measurement buttons to add height or weight.
 
+Health 1.4.0 also accepts two daily activity measurements, workout minutes and workout kilocalories, from apps that record workouts through the Health API.
+
 Daily charts and the enabled App API now also accept carbohydrates, fat, saturated fat, fibre and salt. Other apps may read or update the profile and record height through the Health App API. Enable it under Apps Hub → Settings → App APIs only for integrations you intend to use; it is off by default. Each profile's records stay separate.

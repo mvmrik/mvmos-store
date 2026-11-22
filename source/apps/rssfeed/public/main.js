@@ -806,7 +806,6 @@ const RSS = (() => {
 
     const items = _articles.map(a => {
       const unread  = !a.is_read;
-      const excerpt = _stripHtml(a.description || '');
       const rel     = _relTime(a.pub_date || a.fetched_at);
       const showFeed = _selFeed === 0;
       return `
@@ -817,7 +816,6 @@ const RSS = (() => {
             <span style="width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:6px;display:inline-block;${unread?'background:var(--accent)':''}"></span>
             <div style="flex:1;min-width:0">
               <div style="font-size:.86rem;font-weight:${unread?'600':'400'};color:${unread?'var(--text)':'var(--text-dim)'};line-height:1.4;word-break:break-word">${_esc(a.title || '(no title)')}</div>
-              ${excerpt ? `<div style="font-size:.75rem;color:var(--text-dim);margin-top:3px;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${_esc(excerpt)}</div>` : ''}
               <div style="font-size:.7rem;color:var(--text-dim);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
                 ${showFeed ? `<span style="color:var(--accent)">${_esc(a.feed_name)}</span>` : ''}
                 ${rel ? `<span>${rel}</span>` : ''}
@@ -894,7 +892,7 @@ const RSS = (() => {
         btn.textContent = _t('deepl_translating');
         const resultEl = w.querySelector(`.rss-list-tr-result[data-aid="${aid}"]`);
         try {
-          const text = await _translate(`${a.title || ''}\n\n${_stripHtml(a.description || '').slice(0, 1200)}`);
+          const text = await _translate(a.title || '');
           if (resultEl) { resultEl.textContent = text; resultEl.style.display = ''; }
         } catch (err) {
           if (resultEl) { resultEl.textContent = _t('deepl_error'); resultEl.style.display = ''; }
@@ -963,7 +961,7 @@ const RSS = (() => {
       trBtn.textContent = _t('deepl_translating');
       try {
         const a = _selArticle;
-        const text = await _translate(`${a.title || ''}\n\n${_stripHtml(a.description || '').slice(0, 1200)}`);
+        const text = await _translate(`${a.title || ''}\n\n${_stripHtml(a.description || '')}`);
         w.querySelector('#rss-tr-result-text').textContent = text;
         w.querySelector('#rss-tr-result').style.display = '';
       } catch (e) {
@@ -1000,7 +998,12 @@ const RSS = (() => {
 
   function mount(root) {
     _root = root;
-    root.innerHTML = `<div id="rss-wrap" style="display:flex;flex-direction:column;height:100%;background:var(--bg);color:var(--text);font-family:inherit;overflow:hidden"></div>`;
+    root.innerHTML = `<style>
+      #rss-wrap #rss-content a, #rss-wrap #rss-content a * { color: var(--text) !important; }
+      #rss-wrap #rss-content a { text-decoration: underline; text-underline-offset: .15em; }
+      #rss-wrap #rss-content a:hover { text-decoration-thickness: 2px; }
+      #rss-wrap #rss-content a:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+    </style><div id="rss-wrap" style="display:flex;flex-direction:column;height:100%;background:var(--bg);color:var(--text);font-family:inherit;overflow:hidden"></div>`;
 
     const _start = async () => {
       if (typeof AppHub !== 'undefined') {

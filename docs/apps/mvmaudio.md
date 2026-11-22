@@ -22,7 +22,7 @@ On the desktop, **Library** opens source management. Choose a folder on this ser
 
 The folder manager also offers uploads into the chosen source through the shared uploader. Library records cannot delete or reorder source files: make those changes in the folder and scan again. Existing uploaded records remain playable. Open an audio file from File Manager to play it in the same window without adding it to the library.
 
-Radio entries require a direct HTTPS audio stream. Station websites and M3U/PLS playlist files are not resolved. HTTP streams are not proxied; secure pages would block them as mixed content. Codec support and station-side restrictions depend on the browser. Radio is live and has no saved seek position.
+Radio entries require a direct HTTPS audio stream. Station websites and M3U/PLS playlist files are not resolved; an HLS stream address ending in .m3u8 is played directly. Anyone with access can add their own radio stations, while personal music and audiobook uploads still need Premium. HTTP streams are not proxied; secure pages would block them as mixed content. Codec support and station-side restrictions depend on the browser. Radio is live and has no saved seek position.
 
 ## Personal library and Premium
 

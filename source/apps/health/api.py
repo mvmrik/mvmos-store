@@ -65,6 +65,8 @@ METRICS = {
     "sat_fat":  {"kind": "daily", "group": "nutrition", "unit": "g", "max": 800},
     "fiber":    {"kind": "daily", "group": "nutrition", "unit": "g", "max": 500},
     "salt":     {"kind": "daily", "group": "nutrition", "unit": "g", "max": 300},
+    "workout_min":  {"kind": "daily", "group": "activity", "unit": "min", "max": 1440},
+    "workout_kcal": {"kind": "daily", "group": "activity", "unit": "kcal", "max": 20000},
 }
 
 

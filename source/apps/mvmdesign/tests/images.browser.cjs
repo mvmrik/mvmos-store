@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const app = path.resolve(__dirname, '..');
 (async () => {
-  const browser = await chromium.launch({headless:true,args:['--no-sandbox']});
+  const browser = await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||undefined,args:['--no-sandbox']});
   try {
     const page = await browser.newPage({viewport:{width:1440,height:1000}});
     const errors = [];

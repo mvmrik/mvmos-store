@@ -350,6 +350,56 @@ const app = path.resolve(__dirname, '..');
       await page.evaluate(() => editor.p.captions[7].styleId),
       ids[3],
     );
+    // Automatic rotation: every style repeats every 4; changes renumber and restyle.
+    await click('undo');
+    await click('apply-caption-styles');
+    for (let i = 0; i < 4; i++) {
+      await page.locator(`[data-saved-caption-style="${ids[i]}"]`).click();
+      await prop('batchStart').fill(String(i + 1));
+      await prop('batchEvery').fill('4');
+      await page.locator('[data-prop=batchAuto]').check();
+      await page.locator('[data-prop=batchHold]').check();
+    }
+    await apply();
+    assert.equal(await page.evaluate(() => editor.p.captionRules.length), 4);
+    assert.deepEqual(await page.evaluate(() => editor.p.captionRules.map((r) => r.hold)), [1, 1, 1, 1]);
+    // The first subtitle of each group now lasts until the end of the fourth.
+    assert.equal(
+      await page.evaluate(() => {
+        const c = editor.p.captions.slice().sort((a, b) => a.start - b.start);
+        return c[0].end === c[3].end && c[1].end === c[3].end && c[4].end === c[7].end;
+      }),
+      true,
+    );
+    const seq = () => page.evaluate(() => MvmDesignModel.captionTargets(editor.p).map((t) => t.cue.styleId));
+    const expected = (n) => Array.from({ length: n }, (_, i) => ids[i % 4]);
+    let targetsNow = await seq();
+    assert.deepEqual(targetsNow, expected(targetsNow.length));
+    await page.evaluate(() => editor.commit(() => { editor.p.captions.splice(0, 1); }));
+    targetsNow = await seq();
+    assert.deepEqual(targetsNow, expected(targetsNow.length));
+    await page.evaluate(() => editor.commit(() => { editor.p.captionDrafts.push({ id: 'auto-new', text: 'added later', style: {} }); }));
+    targetsNow = await seq();
+    assert.deepEqual(targetsNow, expected(targetsNow.length));
+    // Switching it off keeps the current styles but stops following changes.
+    await click('apply-caption-styles');
+    for (let i = 0; i < 4; i++) {
+      await page.locator(`[data-saved-caption-style="${ids[i]}"]`).click();
+      assert.equal(await page.locator('[data-prop=batchAuto]').isChecked(), true);
+      await page.locator('[data-prop=batchAuto]').uncheck();
+    }
+    await apply();
+    assert.equal(await page.evaluate(() => editor.p.captionRules.length), 0);
+    await page.evaluate(() => editor.commit(() => { editor.p.captions.splice(0, 1); }));
+    assert.notDeepEqual(await seq(), expected(targetsNow.length - 1));
+    for (let i = 0; i < 5; i++) await click('undo');
+    // Restore the state the following checks expect: four one-off rules applied.
+    await click('apply-caption-styles');
+    for (let i = 0; i < 4; i++) {
+      await page.locator(`[data-saved-caption-style="${ids[i]}"]`).click();
+      await prop('batchStart').fill(String(i + 1));
+    }
+    await apply();
     // Changing the selected cue leaves the previous saved-style editing context.
     await prop('styleScope').selectOption('saved:' + ids[0]);
     await page.evaluate(() => editor.selectCue('c2'));

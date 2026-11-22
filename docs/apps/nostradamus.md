@@ -1,6 +1,6 @@
 # Nostradamus
 
-Nostradamus 1.3.0 is a Nostr client with encrypted identity storage and browser connections to your relays. The master password unlocks the private key in the browser. A selected unlock duration is renewed when used; leaving the vault unused for that period requires unlocking again.
+Nostradamus 1.4.0 is a Nostr client with encrypted identity storage and browser connections to your relays. The master password unlocks the private key in the browser. A selected unlock duration is renewed when used; leaving the vault unused for that period requires unlocking again.
 
 ## Reading and posting
 

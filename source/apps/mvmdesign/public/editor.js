@@ -45,6 +45,7 @@
     sequence: M.clone(p.sequence),
     captions: M.clone(p.captions),
     captionDrafts: M.clone(p.captionDrafts || []),
+    captionRules: M.clone(p.captionRules || []),
     captionStyle: { ...p.captionStyle },
     captionStyles: M.clone(p.captionStyles || []),
     assets: { ...p.assets },
@@ -466,6 +467,7 @@
       this.changed();
     }
     changed() {
+      M.applyCaptionRules(this.p);
       for (const d of this.p.captionDrafts)
         if (
           d.timingKey &&
@@ -523,7 +525,7 @@
         if (cue)
           this.modal(
             'editSubtitle',
-            `<textarea data-draft-text maxlength="5000" aria-label="${esc(t('pasteLyrics'))}">${esc(cue.text)}</textarea>`,
+            `<textarea data-draft-text maxlength="5000" aria-label="${esc(t('subtitleText'))}">${esc(cue.text)}</textarea>`,
             (box) => {
               this.property(
                 'draft:' + id,
@@ -918,8 +920,21 @@
             (this.p.name || 'design') + '.srt',
           );
           break;
+        case 'auto-style-info': {
+          const box = this.modal(
+            'captionAutoStyle',
+            `<p class="md-note">${esc(t('captionAutoStyleHint'))}</p>`,
+            () => {},
+          );
+          box.querySelector('[data-apply]').hidden = true;
+          box.querySelector('[data-cancel]').textContent = t('close');
+          break;
+        }
         case 'paste-lyrics':
           this.lyricsDialog();
+          break;
+        case 'open-lyrics':
+          this.lyricsDialog(true);
           break;
         case 'template':
           this.templates();
@@ -934,7 +949,15 @@
           if (a.startsWith('caption-style-'))
             this.applyCaptionPreset(a.slice(14));
           else if (a.startsWith('style-')) this.textPreset(a.slice(6));
-          else if (a.startsWith('layer-')) {
+          else if (a.startsWith('toggle-layer-')) {
+            const id = a.slice(13);
+            this.commit(() => {
+              const layer = this.pg.items.find((i) => i.id === id);
+              if (layer) layer.hidden = !layer.hidden;
+            });
+            this.renderInspector();
+            this.draw();
+          } else if (a.startsWith('layer-')) {
             this.itemId = a.slice(6);
             this.inspectorTabs ||= {};
             if (this.it) this.inspectorTabs[this.it.type] = 'layers';
@@ -993,6 +1016,20 @@
       )
         return this.styleScope;
       return 'global';
+    }
+    autoStyle() {
+      return !!this.p.captionAutoStyle;
+    }
+    // Cues that share the style currently being edited.
+    captionScopeCues() {
+      const scope = this.captionScope(),
+        known = new Set((this.p.captionStyles || []).map((x) => x.id));
+      return [...this.p.captions, ...this.p.captionDrafts].filter((c) =>
+        scope === 'all' ||
+        (scope.startsWith('saved:')
+          ? c.styleId === scope.slice(6)
+          : !known.has(c.styleId)),
+      );
     }
     captionBaseStyle() {
       if (this.captionScope() === 'all') {
@@ -1113,7 +1150,20 @@
         checked = new Set(),
         previewTarget;
       const pending = new Map(),
-        selections = new Map();
+        selections = new Map(),
+        autoState = new Map(),
+        holdState = new Map();
+      const ruleOf = (id) => (project.captionRules || []).find((r) => r.styleId === id);
+      const holdOf = (id) => {
+        const saved = ruleOf(id)?.hold || 0;
+        const st = holdState.get(id);
+        return { on: st ? st.on : saved > 0 };
+      };
+      const holdDirty = (id) => {
+        const h = holdOf(id), saved = ruleOf(id)?.hold || 0;
+        return holdState.has(id) && (h.on ? (isAuto(id) ? !saved : true) : saved > 0);
+      };
+      const isAuto = (id) => (autoState.has(id) ? autoState.get(id) : !!ruleOf(id));
       this.root.scrollTop = 0;
       const box = this.modal(
         'applyCaptionStyles',
@@ -1130,15 +1180,38 @@
             <div class="md-caption-rule">${field('batchStart', 'captionRuleStart', 1, 'number', 'min="1" step="1"')}${field('batchEvery', 'captionRuleEvery', 4, 'number', 'min="1" step="1"')}${field('batchEnd', 'captionRuleEnd', M.captionTargets(project).length, 'number', 'min="1" step="1"')}</div>
             <div class="md-row"><button type="button" data-batch-rule>${esc(t('selectCaptionRule'))}</button><button type="button" data-batch-all>${esc(t('selectAllCaptions'))}</button><button type="button" data-batch-none>${esc(t('clearCaptionSelection'))}</button></div>
             ${field('batchKeep', 'keepCaptionOverrides', false, 'checkbox')}
+            <div class="md-field-info">${field('batchHold', 'captionHold', false, 'checkbox')}<button type="button" class="md-icon" data-hold-info aria-label="${esc(t('info'))}" title="${esc(t('info'))}">ⓘ</button></div>
+            ${field('batchAuto', 'captionAutoApply', false, 'checkbox')}<p class="md-note" data-auto-hint>${esc(t('captionAutoHint'))}</p>
             <output class="md-caption-batch-count" aria-live="polite"></output>
             <div class="md-caption-batch-list"></div>
           </div>
         </div>`,
         async () => {
           stageSelection();
-          if (this.p !== project || !pending.size) return false;
+          const autoChanged = [...autoState].some(([id, on]) => on !== !!ruleOf(id)) || [...holdState.keys()].some(holdDirty);
+          if (this.p !== project || (!pending.size && !autoChanged)) return false;
           const keep = box.querySelector('[data-prop=batchKeep]').checked;
+          const holdOnce = [];
           this.commit(() => {
+            // Saved rules: pattern from the "all subtitles" view of each style.
+            const ids = new Set([...autoState.keys(), ...holdState.keys()]);
+            for (const id of ids) {
+              const on = isAuto(id), h = holdOf(id);
+              const sel = selections.get(JSON.stringify([id, 'all']));
+              const every = Math.max(1, Math.floor(+sel?.every) || ruleOf(id)?.every || 1);
+              const rule = {
+                styleId: id,
+                start: Math.max(1, Math.floor(+sel?.start) || ruleOf(id)?.start || 1),
+                every,
+                hold: h.on ? 1 : 0,
+              };
+              if (autoState.has(id) || ruleOf(id)) {
+                project.captionRules = (project.captionRules || []).filter((r) => r.styleId !== id);
+                if (on && (sel || ruleOf(id))) project.captionRules.push(rule);
+              }
+              // One-time hold when the rule is not automatic.
+              if (!on && rule.hold) holdOnce.push(rule);
+            }
             const linkedByKey = new Map();
             for (const c of [...project.captions, ...project.captionDrafts]) {
               if (!c.timingKey) continue;
@@ -1154,6 +1227,7 @@
                 if (!keep) c.style = {};
               }
             }
+            for (const rule of holdOnce) M.holdCaptions(project, rule);
           });
         },
       );
@@ -1202,8 +1276,18 @@
       const update = () => {
         box.querySelector('.md-caption-batch-count').textContent =
           `${t('selectedCaptions')}: ${new Set([...pending.keys(), ...checked]).size} / ${M.captionTargets(project).length}`;
+        const scopeAll = box.querySelector('[data-prop=batchScope]').value === 'all';
+        const auto = box.querySelector('[data-prop=batchAuto]');
+        auto.disabled = !scopeAll;
+        auto.checked = scopeAll && isAuto(styleId);
+        box.querySelector('[data-auto-hint]').textContent = t(scopeAll ? 'captionAutoHint' : 'captionAutoNeedsAll');
+        const holdBox = box.querySelector('[data-prop=batchHold]');
+        const h = holdOf(styleId);
+        holdBox.checked = h.on;
+        holdBox.disabled = !scopeAll;
+        const autoChanged = [...autoState].some(([id, on]) => on !== !!ruleOf(id)) || [...holdState.keys()].some(holdDirty);
         box.querySelector('[data-apply]').disabled =
-          !checked.size && !pending.size;
+          !checked.size && !pending.size && !autoChanged;
         for (const row of list.children) {
           const entry = targets[+row.dataset.batchIndex],
             selected = checked.has(entry.cue);
@@ -1267,13 +1351,14 @@
         previewTarget = null;
         const previous = selections.get(scopeKey());
         const first = targets.findIndex((t) => t.cue.styleId === styleId);
+        const savedRule = ruleOf(styleId);
         box.querySelector('[data-prop=batchStart]').value =
-          previous?.start ||
+          previous?.start || savedRule?.start ||
           (first >= 0
             ? first + 1
             : Math.max(1, profiles.findIndex((s) => s.id === styleId) + 1));
         box.querySelector('[data-prop=batchEvery]').value =
-          previous?.every || 4;
+          previous?.every || savedRule?.every || 4;
         box.querySelector('[data-prop=batchEnd]').value =
           previous?.end ?? targets.length;
         checked = previous
@@ -1321,6 +1406,24 @@
       box.querySelector('[data-batch-rule]').onclick = rule;
       box.querySelector('[data-prop=batchScope]').onchange = render;
       box.querySelector('[data-prop=batchKeep]').onchange = update;
+      box.querySelector('[data-prop=batchHold]').onchange = (ev) => {
+        holdState.set(styleId, { on: ev.target.checked });
+        update();
+      };
+      box.querySelector('[data-hold-info]').onclick = () => {
+        const info = this.modal('captionHold', `<p class="md-note">${esc(t('captionHoldHint'))}</p>`, () => {});
+        info.querySelector('[data-apply]').hidden = true;
+        info.querySelector('[data-cancel]').textContent = t('close');
+      };
+      box.querySelector('[data-prop=batchAuto]').onchange = (ev) => {
+        autoState.set(styleId, ev.target.checked);
+        if (ev.target.checked) {
+          // Turning it on selects exactly what the rule covers.
+          if (box.querySelector('[data-prop=batchScope]').value === 'all') rule();
+        }
+        stageSelection();
+        update();
+      };
       box.querySelector('[data-batch-all]').onclick = () => {
         checked = new Set(targets.map((t) => t.cue));
         stageSelection();
@@ -1794,6 +1897,12 @@
     }
     property(key, value, previewElement = null) {
       if (this.exporting || this.recording || this.cueDrag) return;
+      if (key === 'captionAutoStyle') {
+        this.finishPropertyEdit();
+        this.commit(() => (this.p.captionAutoStyle = !!value));
+        this.renderInspector();
+        return;
+      }
       if (key === 'styleScope') {
         this.finishPropertyEdit();
         this.styleScope = value;
@@ -1847,6 +1956,10 @@
               : ['x', 'y', 'w', 'h'].includes(k) ? +value / 100 : value,
           }, true);
           for (const target of targets) Object.assign(target, patch);
+          // Automatic saving: personal overrides of the edited property no longer hide it.
+          if (parts[0] === 'caption' && this.autoStyle() && this.captionScope() !== 'individual')
+            for (const cue of this.captionScopeCues())
+              for (const key of Object.keys(patch)) if (cue.style) delete cue.style[key];
           if (k === 'font') this.ensureFont(value);
           return;
         }
@@ -1983,7 +2096,7 @@
       const menu = document.createElement('div');
       menu.className = 'md-draft-menu';
       menu.setAttribute('role', 'menu');
-      menu.setAttribute('aria-label', t('pasteLyrics'));
+      menu.setAttribute('aria-label', t('subtitleText'));
       menu.innerHTML =
         btn('draft-edit-' + id, 'editSubtitle', 'role="menuitem"') +
         btn('draft-delete-' + id, 'delete', 'role="menuitem"');
@@ -2076,7 +2189,7 @@
       this.closeDraftMenu();
       this.pages.classList.toggle('md-library', this.mode === 'subtitles');
       if (this.mode === 'subtitles') {
-        this.pages.innerHTML = `<strong>${esc(t('unplaced'))}</strong><div class="md-row">${btn('add-cue', 'addCue')}${btn('paste-lyrics', 'pasteLyrics')}</div><p class="md-note">${esc(t('draftHint'))}</p>${(this.p.captionDrafts || []).map((c) => `<div class="md-draft ${c.timingKey ? 'md-timing' : ''}" data-draft="${esc(c.id)}"><span class="md-draft-grip" draggable="true" aria-hidden="true" title="${esc(t('draftHint'))}">⠿</span><button type="button" class="md-draft-text" aria-pressed="${!!c.timingKey}" data-action="draft-place-${esc(c.id)}" title="${esc(c.text)}">${esc(c.text)}</button></div>`).join('')}<div class="md-row">${btn('import-srt', 'importSrt')}${btn('export-srt', 'exportSrt')}</div>`;
+        this.pages.innerHTML = `<strong>${esc(t('unplaced'))}</strong><div class="md-row">${btn('add-cue', 'addCue')}${btn('paste-lyrics', 'pasteLyrics')}</div>${this.p.captionText ? `<div class="md-row">${btn('open-lyrics', 'openSubtitleText')}</div>` : ''}<p class="md-note">${esc(t('draftHint'))}</p>${(this.p.captionDrafts || []).map((c) => `<div class="md-draft ${c.timingKey ? 'md-timing' : ''}" data-draft="${esc(c.id)}"><span class="md-draft-grip" draggable="true" aria-hidden="true" title="${esc(t('draftHint'))}">⠿</span><button type="button" class="md-draft-text" aria-pressed="${!!c.timingKey}" data-action="draft-place-${esc(c.id)}" title="${esc(c.text)}">${esc(c.text)}</button></div>`).join('')}<div class="md-row">${btn('import-srt', 'importSrt')}${btn('export-srt', 'exportSrt')}</div>`;
         return;
       }
       this.pages.innerHTML = `<strong>${esc(t('pages'))}</strong>${this.p.pages.map((pg) => `<div class="md-page-entry"><button class="md-page ${pg.id === this.pageId ? 'md-selected' : ''}" data-page="${esc(pg.id)}" title="${esc(this.pageName(pg))}"><canvas width="240" height="${Math.round((240 * this.p.height) / this.p.width)}"></canvas><span>${esc(this.pageName(pg))}</span></button>${btn('rename-page-' + pg.id, 'renamePage')}</div>`).join('')}<div class="md-row">${btn('add-page', 'addPage')}</div><div class="md-row">${btn('duplicate-page', 'duplicate')}${btn('delete-page', 'delete', this.p.pages.length < 2 ? 'disabled' : '')}</div><div class="md-row">${btn('page-up', 'up')}${btn('page-down', 'down')}</div>`;
@@ -2231,7 +2344,7 @@
       return `<p class="md-note">${esc(t('layerOrderHint'))}</p><div class="md-layer-order">${control('raise-layer', 'bringForward', '↑', !movable || index === this.pg.items.length - 1)}${control('lower-layer', 'sendBackward', '↓', !movable || index <= 0)}${control('front', 'front', '⇈', !movable || index === this.pg.items.length - 1)}${control('back', 'back', '⇊', !movable || index <= 0)}</div><div class="md-layer-list">${this.pg.items.slice().reverse().map(item => {
         const name = item.type === 'image' ? this.p.assets[item.assetId]?.name || t('image')
           : item.type === 'text' ? item.text || t('text') : t(item.shape || 'shape');
-        return `<button type="button" class="md-layer-row" data-action="layer-${esc(item.id)}" aria-pressed="${item.id === this.itemId}" title="${esc(name)}"><canvas width="144" height="104" data-layer-preview="${esc(item.id)}" aria-hidden="true"></canvas><span><strong>${esc(name)}</strong><small>${esc(t(item.type))}${item.locked ? ' 🔒' : ''}</small></span></button>`;
+        return `<div class="md-layer-line ${item.hidden ? 'md-layer-off' : ''}"><button type="button" class="md-layer-row" data-action="layer-${esc(item.id)}" aria-pressed="${item.id === this.itemId}" title="${esc(name)}"><canvas width="144" height="104" data-layer-preview="${esc(item.id)}" aria-hidden="true"></canvas><span><strong>${esc(name)}</strong><small>${esc(t(item.type))}${item.locked ? ' 🔒' : ''}${item.hidden ? ' · ' + esc(t('layerHidden')) : ''}</small></span></button><button type="button" class="md-layer-eye" data-action="toggle-layer-${esc(item.id)}" aria-pressed="${!item.hidden}" aria-label="${esc(t(item.hidden ? 'showLayer' : 'hideLayer'))}" title="${esc(t(item.hidden ? 'showLayer' : 'hideLayer'))}">${item.hidden ? '🚫' : '👁'}</button></div>`;
       }).join('') || `<p class="md-note">${esc(t('noLayers'))}</p>`}</div>`;
     }
     drawLayerPreviews() {
@@ -2326,7 +2439,7 @@
           ['individual', t('thisSubtitle')],
           ...(this.p.captionStyles || []).map((s) => ['saved:' + s.id, s.name]),
         ],
-      )}<p class="md-note">${esc(t(this.captionScope() === 'all' ? 'allCaptionStylesHint' : this.styleScope === 'individual' && cue ? 'captionInheritanceHint' : this.captionScope().startsWith('saved:') ? 'savedStyleEditHint' : 'globalHint'))}</p>${this.styleScope === 'individual' && cue ? btn('reset-cue-style', 'resetStyle') : ''}${cue ? select('cueStyleId', 'subtitleStyle', cue.styleId || '', [['', t('globalStyle')], ...(this.p.captionStyles || []).map((s) => [s.id, s.name])]) : ''}<div class="md-caption-style-actions">${this.captionScope() === 'all' ? '' : btn('save-caption-style', 'saveCaptionStyle')}${btn('apply-caption-styles', 'applyCaptionStyles')}</div>${section('content', 'text')}${edit}${cue ? btn('cue-unplace', 'unplace') : ''}${this.captionAppearance(cue)}${section('onTimeline')}<div class="md-caption-list">${this.p.captions.map((c) => `<button class="md-cue-link ${c.id === this.cueId ? 'md-selected' : ''}" data-action="cue-select-${esc(c.id)}" data-cue-card="${esc(c.id)}"><span>${esc(c.text)}</span><small>${clock(c.start)}–${clock(c.end)}</small></button>`).join('')}</div>`;
+      )}<div class="md-field-info">${field('captionAutoStyle', 'captionAutoStyle', this.autoStyle(), 'checkbox')}<button type="button" class="md-icon" data-action="auto-style-info" aria-label="${esc(t('info'))}" title="${esc(t('info'))}">ⓘ</button></div><p class="md-note">${esc(t(this.captionScope() === 'all' ? 'allCaptionStylesHint' : this.styleScope === 'individual' && cue ? 'captionInheritanceHint' : this.captionScope().startsWith('saved:') ? 'savedStyleEditHint' : 'globalHint'))}</p>${this.styleScope === 'individual' && cue ? btn('reset-cue-style', 'resetStyle') : ''}${cue ? select('cueStyleId', 'subtitleStyle', cue.styleId || '', [['', t('globalStyle')], ...(this.p.captionStyles || []).map((s) => [s.id, s.name])]) : ''}<div class="md-caption-style-actions">${this.captionScope() === 'all' ? '' : btn('save-caption-style', 'saveCaptionStyle')}${btn('apply-caption-styles', 'applyCaptionStyles')}</div>${section('content', 'text')}${edit}${cue ? btn('cue-unplace', 'unplace') : ''}${this.captionAppearance(cue)}${section('onTimeline')}<div class="md-caption-list">${this.p.captions.map((c) => `<button class="md-cue-link ${c.id === this.cueId ? 'md-selected' : ''}" data-action="cue-select-${esc(c.id)}" data-cue-card="${esc(c.id)}"><span>${esc(c.text)}</span><small>${clock(c.start)}–${clock(c.end)}</small></button>`).join('')}</div>`;
       this.drawStylePreviews();
       this.drawLayerPreviews();
     }
@@ -3073,7 +3186,12 @@
         this.pause();
         this.cueId = c.id;
         this.mode = 'subtitles';
-        if (
+        if (this.autoStyle()) {
+          // Automatic style saving: dragging edits the shared style (unless this
+          // subtitle was explicitly chosen for individual edits).
+          if (this.styleScope !== 'individual')
+            this.styleScope = this.defaultCaptionScope(c);
+        } else if (
           resize ||
           this.captionScope() === 'all' ||
           active.length > 1 ||
@@ -3135,6 +3253,7 @@
       }
       if (!found)
         for (const i of this.pg.items.slice().reverse()) {
+          if (i.hidden) continue;
           const q = this.localPoint(p, i);
           if (q.x >= 0 && q.x <= i.w && q.y >= 0 && q.y <= i.h) {
             found = i;
@@ -3232,8 +3351,11 @@
           this.styleScope === 'individual'
             ? (cue.style ||= {})
             : this.captionBaseStyle();
-        for (const k of d.resize ? ['w', 'h'] : ['x', 'y'])
-          style[k] = target[k];
+        const keys = d.resize ? ['w', 'h'] : ['x', 'y'];
+        for (const k of keys) style[k] = target[k];
+        if (this.styleScope !== 'individual' && this.autoStyle())
+          for (const c of this.captionScopeCues())
+            for (const k of keys) if (c.style) delete c.style[k];
       }
       this.draw();
     }
@@ -3686,24 +3808,51 @@
       });
       if (playing) this.play().catch((e) => this.error(e));
     }
-    lyricsDialog() {
-      this.modal(
-        'pasteLyrics',
-        `<p class="md-note">${esc(t('lyricsHint'))}</p><textarea data-lyrics aria-label="${esc(t('pasteLyrics'))}"></textarea>`,
+    linesOf(text) {
+      return String(text)
+        .split(/\n/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map((text) => ({ id: M.uid(), text, style: {} }));
+    }
+    lyricsDialog(edit = false) {
+      // add: new text is appended to the stored full text and to the library.
+      // edit: the whole stored text is shown; it can be saved or turned into subtitles again.
+      const full = this.p.captionText || '';
+      const box = this.modal(
+        edit ? 'subtitleText' : 'pasteLyrics',
+        `<p class="md-note">${esc(t(edit ? 'subtitleTextHint' : 'lyricsHint'))}</p><textarea data-lyrics maxlength="200000" aria-label="${esc(t('subtitleText'))}">${edit ? esc(full) : ''}</textarea>`,
         async (box) => {
-          const lines = box
-            .querySelector('[data-lyrics]')
-            .value.split(/\n/)
-            .map((s) => s.trim())
-            .filter(Boolean);
-          if (!lines.length) return false;
-          this.commit(() =>
-            this.p.captionDrafts.push(
-              ...lines.map((text) => ({ id: M.uid(), text, style: {} })),
-            ),
-          );
+          const text = box.querySelector('[data-lyrics]').value;
+          const lines = this.linesOf(text);
+          if (!edit && !lines.length) return false;
+          this.commit(() => {
+            if (edit) this.p.captionText = text.trim();
+            else {
+              this.p.captionText = [this.p.captionText, text.trim()]
+                .filter(Boolean)
+                .join('\n');
+              this.p.captionDrafts.push(...lines);
+            }
+          });
         },
+        edit ? 'save' : 'apply',
       );
+      if (!edit) return;
+      const again = document.createElement('button');
+      again.type = 'button';
+      again.textContent = t('regenerateSubtitles');
+      again.title = t('regenerateHint');
+      again.onclick = () => {
+        const lines = this.linesOf(box.querySelector('[data-lyrics]').value);
+        if (!lines.length) return;
+        this.commit(() => {
+          this.p.captionText = box.querySelector('[data-lyrics]').value.trim();
+          this.p.captionDrafts = lines;
+        });
+        box.querySelector('[data-cancel]').click();
+      };
+      box.querySelector('[data-apply]').before(again);
     }
     templates() {
       this.modal(
@@ -3937,9 +4086,22 @@
     }
     exportDialog() {
       this.pause();
+      const p = this.p,
+        isMovie =
+          !!p.audio ||
+          p.captions?.length > 0 ||
+          p.sequence.length > 1 ||
+          p.pages.some((pg) =>
+            pg.items.some(
+              (it) =>
+                (it.enter && it.enter !== 'none') ||
+                (it.exit && it.exit !== 'none'),
+            ),
+          ),
+        defaultKind = isMovie ? 'movie' : p.pages.length > 1 ? 'allPages' : 'page';
       const box = this.modal(
         'export',
-        `${select('kind', 'output', 'page', ['page', 'allPages', 'movie'])}${select(
+        `${select('kind', 'output', defaultKind, ['page', 'allPages', 'movie'])}${select(
           'imageType',
           'imageFormat',
           'png',
@@ -3954,7 +4116,7 @@
             `${Math.round(this.p.width / 2)} × ${Math.round(this.p.height / 2)}`,
           ],
           ['1', `${this.p.width} × ${this.p.height}`],
-        ])}${select('quality', 'quality', 'high', ['standard', 'high', 'max'])}${select(
+        ])}${select('quality', 'quality', 'max', ['standard', 'high', 'max'])}${select(
           'fps',
           'fps',
           30,

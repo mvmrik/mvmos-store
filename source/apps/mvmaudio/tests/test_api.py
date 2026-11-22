@@ -683,6 +683,20 @@ class AudioTests(unittest.TestCase):
         self.assertEqual(self.pub('GET','/library').json()['upload_limit_mb'],0)
         self.assertEqual(self.upload(self.create(),personal=False).status_code,200)
         self.assertEqual(self.pub('DELETE','/media/'+mid).status_code,200)
+    def test_personal_radio_without_uploads(self):
+        self.enabled['module'] = False
+        body = {'kind': 'radio', 'title': 'Personal station', 'url': 'https://example.com/live'}
+        self.assertEqual(self.pub('POST', '/media', user='', json=body).status_code, 401)
+        self.assertEqual(self.pub('POST', '/media', json={**body, 'url': 'http://example.com/live'}).status_code, 400)
+        mid = self.pub('POST', '/media', json=body).json()['id']
+        self.assertTrue(self.items('a')[0]['mine'])
+        self.assertEqual(self.items('b'), [])
+        self.assertEqual(self.pub('PUT', '/media/'+mid, user='b', json=body).status_code, 404)
+        self.assertEqual(self.pub('DELETE', '/media/'+mid, user='b').status_code, 404)
+        self.assertEqual(self.pub('PUT', '/media/'+mid, json={**body, 'title': 'Updated'}).status_code, 200)
+        self.assertEqual(self.pub('POST', '/media', json={'kind': 'music', 'title': 'No upload'}).status_code, 403)
+        self.assertEqual(self.pub('DELETE', '/media/'+mid).status_code, 200)
+
     def test_bookmarks_and_radio_validation(self):
         mid=self.create();tid=self.upload(mid).json()['id']
         r=self.pub('POST','/media/'+mid+'/bookmarks',json={'track_id':tid,'seconds':3,'title':'My note'})

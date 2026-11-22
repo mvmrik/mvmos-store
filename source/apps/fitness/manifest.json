@@ -1,0 +1,38 @@
+{
+  "id": "fitness",
+  "name": "Fitness",
+  "name_i18n": {
+    "en": "Fitness",
+    "bg": "Фитнес",
+    "de": "Fitness",
+    "es": "Fitness",
+    "fr": "Fitness",
+    "ja": "フィットネス",
+    "pt-BR": "Fitness",
+    "ru": "Фитнес",
+    "zh-CN": "健身"
+  },
+  "icon": "🏋️",
+  "category": "Health & Fitness",
+  "tags": [
+    "workout",
+    "gym",
+    "training",
+    "health"
+  ],
+  "version": "1.0.0",
+  "beta": true,
+  "description": "Build your own workouts and log every set. Weights and reps, holds, runs and rides, with records, charts, estimated calories, a link to Health and a public web page.",
+  "entry": "main.js",
+  "public_url": "/pub/fitness/",
+  "public_directory": true,
+  "min_core_version": "1.17.0",
+  "credit_features": [
+    {
+      "id": "ai_message",
+      "name": "AI suggestion",
+      "description": "Charged once for each workout plan or progress review the AI makes inside Fitness; given back when it cannot answer.",
+      "unit": "request"
+    }
+  ]
+}

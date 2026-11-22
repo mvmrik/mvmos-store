@@ -85,9 +85,9 @@ Polling preserves the selected tab, the chat draft and input focus. Status, task
 
 ### Deleting a project
 
-The **Delete project** action in the header’s additional-actions menu, after an in-app confirmation, removes the project together with everything it stores: its tasks and their history, the conversation, the agent's private model sessions, notes, resources, saved tools and views, and the files you attached. A file that another project or chat still uses is kept until its last user is deleted. A project cannot be deleted while a task is running or waits for approval; pause or finish it first. Nothing is removed automatically with time.
+The **Delete project** action in the header’s additional-actions menu, after an in-app confirmation, removes the project together with everything it stores: its tasks and their history, the conversation, the agent's private model sessions, notes, resources, saved tools, bots, schedules and views, and the files you attached. A file that another project or chat still uses is kept until its last user is deleted. A project cannot be deleted while a task is running or waits for approval; pause or finish it first. Nothing is removed automatically with time.
 
-Files, folders or applications the agent created elsewhere on the server (for example a site or app you asked it to build) are never deleted with the project, because they belong to you, not to the project.
+Bots, schedules and the keys of the project go with it. Files, folders or applications the agent created elsewhere on the server (for example a site or app you asked it to build) are never deleted with the project, because they belong to you, not to the project. That is why the agent is told to keep repeated work inside the project, as a schedule, and to record anything it must create outside it as a project resource.
 
 ### Approval levels
 
@@ -124,9 +124,21 @@ The same saved form and execution path serve both human invocations and the agen
 
 Saved-tool invocations execute without an AI request in a separate Python subprocess, never by importing generated code into the application server or interpolating field values into shell text. Existing administrator server-execution permission is still required. Activated Python has that account's host privileges; this is not an operating-system sandbox, and a preview phase is a program contract rather than a security boundary. Input/output are bounded and invocations time out after two minutes. Pause cancels the process group. A restart or cancellation with an uncertain outcome does not automatically replay the action. The interface retains the result and returns it to the project's conversation.
 
-The stable mvmAI implementation provides storage, rendering, ownership, approvals and execution. Generated project code remains in versioned extension records rather than rewriting mvmAI's own implementation. All workspace endpoints remain behind the existing Premium module, enabled setting and administrator checks. An encrypted account vault, general browser-session manager, scheduled monitoring and a complete autonomous software-maintenance policy remain future extensions.
+The stable mvmAI implementation provides storage, rendering, ownership, approvals and execution. Generated project code remains in versioned extension records rather than rewriting mvmAI's own implementation. All workspace endpoints remain behind the existing Premium module, enabled setting and administrator checks. An encrypted account vault, general browser-session manager, a complete autonomous software-maintenance policy remain future extensions.
 
 Execution traces retain the latest 80 bounded public operation records per task, with start, completion, error or waiting state and a board-item reference where known. They exclude private model reasoning and full tool payloads. Older tasks without traces use only available journal facts and current activity; missing records appear as no activity.
+
+## Bots and schedules
+
+The agent keeps full access when you write to it, but what it builds for unattended work is limited, and you see all of it in the project's **Tools** tab.
+
+• **Bots.** A bot answers people from outside, such as the visitors of a forum. It can only reply. When it is created you choose whether it may also read the project notes and which apps it may read (never change). The agent creates it as a draft; after you activate it, it has an address and a key for a script on this server. Every person gets a separate conversation, the person's words are treated as data to answer and never as instructions, and the server checks the bot's rights on every call. The bot shows its rights, how often it was asked and a log of recent questions and answers. You can change its key, switch it off or delete it.
+
+• **Schedules.** A schedule runs one saved tool at fixed times through the mvmOS Scheduler, so the agent never creates a system cron job. It is set as daily times in server time or as an interval of 15 to 1440 minutes. The agent proposes it and you activate it, after seeing the tool and its rights. A run uses exactly the version that was approved, inside the tool's sandbox and with only its declared rights, and no AI is used in a run, so the tool does the whole job itself. If the tool changes, is archived or the project's resources change, the schedule stops running and records why. Each schedule shows its last result and recent runs, and can be run now, switched off or deleted. The tool card lists its schedules.
+
+A forum helper is built from these parts: a tool that reads new posts, asks the bot for each reply and writes it back, a schedule that runs it two or three times a day, and a bot with only the right to reply. Nothing runs between the scheduled times and no model is asked when there is nothing new.
+
+Everything the agent sets up this way is stored in the project, so deleting the project deletes it too. Only mvmAI Premium with agents enabled runs schedules.
 
 Workspace regression checks are in `test_workspaces.py`. `test_activity_graph_model.cjs` checks factual graph states, and `test_activity_graph.cjs` verifies directed requests/results, no repeated history animation, inspectable nodes and steps, waiting decisions, focus, mobile chat sizing, both host themes and reduced motion. `test_workspaces_browser.cjs` runs a disposable local backend with deterministic model replies and verifies real workspace forms, persisted knowledge, version activation, reviewed previews and executions, keeping the ordinary chat draft, and running saved operations without further AI requests at desktop and phone widths. No live project, personal chat or external publication is modified. The fixture is `workspace_server.py`; Playwright can be supplied with `MVMAI_PLAYWRIGHT_MODULE`. `test_agents_settings.cjs` verifies Premium settings and free-install locking.
 
@@ -145,6 +157,6 @@ Through the app API mvmAI answers two things for other apps: `ask` (a one-off qu
 
 ## Conversations from other apps and task status
 
-mvmAI 0.22.0 requires an Apps Hub profile before its desktop window opens. Enabled app integrations can call the internal `start_chat` API with a title and user/assistant messages to create a saved conversation for the profile. No AI request or credit charge is made just by creating it. The desktop can open it through the one-shot `mvmai_open_chat` request and the `mvmai-open-chat` event; ordinary session authorization still applies.
+mvmAI 0.23.0 requires an Apps Hub profile before its desktop window opens. Enabled app integrations can call the internal `start_chat` API with a title and user/assistant messages to create a saved conversation for the profile. No AI request or credit charge is made just by creating it. The desktop can open it through the one-shot `mvmai_open_chat` request and the `mvmai-open-chat` event; ordinary session authorization still applies.
 
 AI review forms use the shared regional date and time picker. Workspace task cards distinguish a pending approval, a reply needed, work in progress and a task waiting to continue. Completed, skipped and cancelled steps are grouped in a collapsible section. Workspace agents use the language of the administrator's own message, with the interface language as a fallback.

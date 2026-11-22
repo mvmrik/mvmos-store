@@ -1,0 +1,762 @@
+[
+{
+"id": "bench_press",
+"type": "weight_reps",
+"muscle": "chest",
+"equip": "barbell",
+"met": 5.0,
+"name": "Bench press"
+},
+{
+"id": "incline_bench_press",
+"type": "weight_reps",
+"muscle": "chest",
+"equip": "barbell",
+"met": 5.0,
+"name": "Incline bench press"
+},
+{
+"id": "dumbbell_bench_press",
+"type": "weight_reps",
+"muscle": "chest",
+"equip": "dumbbell",
+"met": 5.0,
+"name": "Dumbbell bench press"
+},
+{
+"id": "incline_dumbbell_press",
+"type": "weight_reps",
+"muscle": "chest",
+"equip": "dumbbell",
+"met": 5.0,
+"name": "Incline dumbbell press"
+},
+{
+"id": "dumbbell_fly",
+"type": "weight_reps",
+"muscle": "chest",
+"equip": "dumbbell",
+"met": 3.5,
+"name": "Dumbbell fly"
+},
+{
+"id": "cable_crossover",
+"type": "weight_reps",
+"muscle": "chest",
+"equip": "cable",
+"met": 3.5,
+"name": "Cable crossover"
+},
+{
+"id": "chest_press_machine",
+"type": "weight_reps",
+"muscle": "chest",
+"equip": "machine",
+"met": 4.0,
+"name": "Chest press machine"
+},
+{
+"id": "pec_deck",
+"type": "weight_reps",
+"muscle": "chest",
+"equip": "machine",
+"met": 3.5,
+"name": "Pec deck"
+},
+{
+"id": "push_up",
+"type": "reps",
+"muscle": "chest",
+"equip": "bodyweight",
+"met": 3.8,
+"name": "Push-up"
+},
+{
+"id": "dips",
+"type": "reps",
+"muscle": "chest",
+"equip": "bodyweight",
+"met": 4.0,
+"name": "Dips"
+},
+{
+"id": "deadlift",
+"type": "weight_reps",
+"muscle": "back",
+"equip": "barbell",
+"met": 6.0,
+"name": "Deadlift"
+},
+{
+"id": "sumo_deadlift",
+"type": "weight_reps",
+"muscle": "back",
+"equip": "barbell",
+"met": 6.0,
+"name": "Sumo deadlift"
+},
+{
+"id": "pull_up",
+"type": "reps",
+"muscle": "back",
+"equip": "bodyweight",
+"met": 4.5,
+"name": "Pull-up"
+},
+{
+"id": "chin_up",
+"type": "reps",
+"muscle": "back",
+"equip": "bodyweight",
+"met": 4.5,
+"name": "Chin-up"
+},
+{
+"id": "lat_pulldown",
+"type": "weight_reps",
+"muscle": "back",
+"equip": "cable",
+"met": 4.0,
+"name": "Lat pulldown"
+},
+{
+"id": "barbell_row",
+"type": "weight_reps",
+"muscle": "back",
+"equip": "barbell",
+"met": 5.0,
+"name": "Barbell row"
+},
+{
+"id": "dumbbell_row",
+"type": "weight_reps",
+"muscle": "back",
+"equip": "dumbbell",
+"met": 4.5,
+"name": "Dumbbell row"
+},
+{
+"id": "seated_cable_row",
+"type": "weight_reps",
+"muscle": "back",
+"equip": "cable",
+"met": 4.0,
+"name": "Seated cable row"
+},
+{
+"id": "t_bar_row",
+"type": "weight_reps",
+"muscle": "back",
+"equip": "barbell",
+"met": 5.0,
+"name": "T-bar row"
+},
+{
+"id": "inverted_row",
+"type": "reps",
+"muscle": "back",
+"equip": "bodyweight",
+"met": 4.0,
+"name": "Inverted row"
+},
+{
+"id": "back_extension",
+"type": "reps",
+"muscle": "back",
+"equip": "bodyweight",
+"met": 3.5,
+"name": "Back extension"
+},
+{
+"id": "overhead_press",
+"type": "weight_reps",
+"muscle": "shoulders",
+"equip": "barbell",
+"met": 5.0,
+"name": "Overhead press"
+},
+{
+"id": "dumbbell_shoulder_press",
+"type": "weight_reps",
+"muscle": "shoulders",
+"equip": "dumbbell",
+"met": 4.5,
+"name": "Dumbbell shoulder press"
+},
+{
+"id": "arnold_press",
+"type": "weight_reps",
+"muscle": "shoulders",
+"equip": "dumbbell",
+"met": 4.5,
+"name": "Arnold press"
+},
+{
+"id": "lateral_raise",
+"type": "weight_reps",
+"muscle": "shoulders",
+"equip": "dumbbell",
+"met": 3.5,
+"name": "Lateral raise"
+},
+{
+"id": "front_raise",
+"type": "weight_reps",
+"muscle": "shoulders",
+"equip": "dumbbell",
+"met": 3.5,
+"name": "Front raise"
+},
+{
+"id": "rear_delt_fly",
+"type": "weight_reps",
+"muscle": "shoulders",
+"equip": "dumbbell",
+"met": 3.5,
+"name": "Rear delt fly"
+},
+{
+"id": "face_pull",
+"type": "weight_reps",
+"muscle": "shoulders",
+"equip": "cable",
+"met": 3.5,
+"name": "Face pull"
+},
+{
+"id": "upright_row",
+"type": "weight_reps",
+"muscle": "shoulders",
+"equip": "barbell",
+"met": 4.0,
+"name": "Upright row"
+},
+{
+"id": "shrug",
+"type": "weight_reps",
+"muscle": "shoulders",
+"equip": "dumbbell",
+"met": 3.5,
+"name": "Shrug"
+},
+{
+"id": "barbell_curl",
+"type": "weight_reps",
+"muscle": "biceps",
+"equip": "barbell",
+"met": 3.8,
+"name": "Barbell curl"
+},
+{
+"id": "dumbbell_curl",
+"type": "weight_reps",
+"muscle": "biceps",
+"equip": "dumbbell",
+"met": 3.8,
+"name": "Dumbbell curl"
+},
+{
+"id": "hammer_curl",
+"type": "weight_reps",
+"muscle": "biceps",
+"equip": "dumbbell",
+"met": 3.8,
+"name": "Hammer curl"
+},
+{
+"id": "preacher_curl",
+"type": "weight_reps",
+"muscle": "biceps",
+"equip": "barbell",
+"met": 3.5,
+"name": "Preacher curl"
+},
+{
+"id": "cable_curl",
+"type": "weight_reps",
+"muscle": "biceps",
+"equip": "cable",
+"met": 3.5,
+"name": "Cable curl"
+},
+{
+"id": "triceps_pushdown",
+"type": "weight_reps",
+"muscle": "triceps",
+"equip": "cable",
+"met": 3.5,
+"name": "Triceps pushdown"
+},
+{
+"id": "skull_crusher",
+"type": "weight_reps",
+"muscle": "triceps",
+"equip": "barbell",
+"met": 3.8,
+"name": "Skull crusher"
+},
+{
+"id": "overhead_triceps_extension",
+"type": "weight_reps",
+"muscle": "triceps",
+"equip": "dumbbell",
+"met": 3.5,
+"name": "Overhead triceps extension"
+},
+{
+"id": "close_grip_bench_press",
+"type": "weight_reps",
+"muscle": "triceps",
+"equip": "barbell",
+"met": 5.0,
+"name": "Close-grip bench press"
+},
+{
+"id": "bench_dip",
+"type": "reps",
+"muscle": "triceps",
+"equip": "bodyweight",
+"met": 3.8,
+"name": "Bench dip"
+},
+{
+"id": "wrist_curl",
+"type": "weight_reps",
+"muscle": "forearms",
+"equip": "dumbbell",
+"met": 2.8,
+"name": "Wrist curl"
+},
+{
+"id": "crunch",
+"type": "reps",
+"muscle": "abs",
+"equip": "bodyweight",
+"met": 3.0,
+"name": "Crunch"
+},
+{
+"id": "sit_up",
+"type": "reps",
+"muscle": "abs",
+"equip": "bodyweight",
+"met": 3.5,
+"name": "Sit-up"
+},
+{
+"id": "leg_raise",
+"type": "reps",
+"muscle": "abs",
+"equip": "bodyweight",
+"met": 3.2,
+"name": "Leg raise"
+},
+{
+"id": "hanging_leg_raise",
+"type": "reps",
+"muscle": "abs",
+"equip": "bodyweight",
+"met": 4.0,
+"name": "Hanging leg raise"
+},
+{
+"id": "plank",
+"type": "time",
+"muscle": "abs",
+"equip": "bodyweight",
+"met": 3.3,
+"name": "Plank"
+},
+{
+"id": "side_plank",
+"type": "time",
+"muscle": "abs",
+"equip": "bodyweight",
+"met": 3.3,
+"name": "Side plank"
+},
+{
+"id": "russian_twist",
+"type": "reps",
+"muscle": "abs",
+"equip": "bodyweight",
+"met": 3.5,
+"name": "Russian twist"
+},
+{
+"id": "ab_wheel",
+"type": "reps",
+"muscle": "abs",
+"equip": "bodyweight",
+"met": 4.0,
+"name": "Ab wheel rollout"
+},
+{
+"id": "mountain_climber",
+"type": "reps",
+"muscle": "abs",
+"equip": "bodyweight",
+"met": 8.0,
+"name": "Mountain climber"
+},
+{
+"id": "cable_crunch",
+"type": "weight_reps",
+"muscle": "abs",
+"equip": "cable",
+"met": 3.5,
+"name": "Cable crunch"
+},
+{
+"id": "bicycle_crunch",
+"type": "reps",
+"muscle": "abs",
+"equip": "bodyweight",
+"met": 3.8,
+"name": "Bicycle crunch"
+},
+{
+"id": "hollow_hold",
+"type": "time",
+"muscle": "abs",
+"equip": "bodyweight",
+"met": 3.3,
+"name": "Hollow hold"
+},
+{
+"id": "squat",
+"type": "weight_reps",
+"muscle": "quads",
+"equip": "barbell",
+"met": 5.5,
+"name": "Squat"
+},
+{
+"id": "front_squat",
+"type": "weight_reps",
+"muscle": "quads",
+"equip": "barbell",
+"met": 5.5,
+"name": "Front squat"
+},
+{
+"id": "goblet_squat",
+"type": "weight_reps",
+"muscle": "quads",
+"equip": "dumbbell",
+"met": 5.0,
+"name": "Goblet squat"
+},
+{
+"id": "bodyweight_squat",
+"type": "reps",
+"muscle": "quads",
+"equip": "bodyweight",
+"met": 5.0,
+"name": "Bodyweight squat"
+},
+{
+"id": "jump_squat",
+"type": "reps",
+"muscle": "quads",
+"equip": "bodyweight",
+"met": 8.0,
+"name": "Jump squat"
+},
+{
+"id": "hack_squat",
+"type": "weight_reps",
+"muscle": "quads",
+"equip": "machine",
+"met": 5.0,
+"name": "Hack squat"
+},
+{
+"id": "leg_press",
+"type": "weight_reps",
+"muscle": "quads",
+"equip": "machine",
+"met": 5.0,
+"name": "Leg press"
+},
+{
+"id": "leg_extension",
+"type": "weight_reps",
+"muscle": "quads",
+"equip": "machine",
+"met": 3.8,
+"name": "Leg extension"
+},
+{
+"id": "lunge",
+"type": "weight_reps",
+"muscle": "quads",
+"equip": "dumbbell",
+"met": 4.5,
+"name": "Lunge"
+},
+{
+"id": "walking_lunge",
+"type": "weight_reps",
+"muscle": "quads",
+"equip": "dumbbell",
+"met": 5.0,
+"name": "Walking lunge"
+},
+{
+"id": "bulgarian_split_squat",
+"type": "weight_reps",
+"muscle": "quads",
+"equip": "dumbbell",
+"met": 5.0,
+"name": "Bulgarian split squat"
+},
+{
+"id": "step_up",
+"type": "weight_reps",
+"muscle": "quads",
+"equip": "dumbbell",
+"met": 4.5,
+"name": "Step-up"
+},
+{
+"id": "wall_sit",
+"type": "time",
+"muscle": "quads",
+"equip": "bodyweight",
+"met": 3.5,
+"name": "Wall sit"
+},
+{
+"id": "romanian_deadlift",
+"type": "weight_reps",
+"muscle": "hamstrings",
+"equip": "barbell",
+"met": 5.0,
+"name": "Romanian deadlift"
+},
+{
+"id": "leg_curl",
+"type": "weight_reps",
+"muscle": "hamstrings",
+"equip": "machine",
+"met": 3.8,
+"name": "Leg curl"
+},
+{
+"id": "good_morning",
+"type": "weight_reps",
+"muscle": "hamstrings",
+"equip": "barbell",
+"met": 4.0,
+"name": "Good morning"
+},
+{
+"id": "hip_thrust",
+"type": "weight_reps",
+"muscle": "glutes",
+"equip": "barbell",
+"met": 4.5,
+"name": "Hip thrust"
+},
+{
+"id": "glute_bridge",
+"type": "reps",
+"muscle": "glutes",
+"equip": "bodyweight",
+"met": 3.5,
+"name": "Glute bridge"
+},
+{
+"id": "calf_raise",
+"type": "weight_reps",
+"muscle": "calves",
+"equip": "machine",
+"met": 3.0,
+"name": "Calf raise"
+},
+{
+"id": "seated_calf_raise",
+"type": "weight_reps",
+"muscle": "calves",
+"equip": "machine",
+"met": 3.0,
+"name": "Seated calf raise"
+},
+{
+"id": "burpee",
+"type": "reps",
+"muscle": "full_body",
+"equip": "bodyweight",
+"met": 8.0,
+"name": "Burpee"
+},
+{
+"id": "kettlebell_swing",
+"type": "weight_reps",
+"muscle": "full_body",
+"equip": "kettlebell",
+"met": 9.8,
+"name": "Kettlebell swing"
+},
+{
+"id": "thruster",
+"type": "weight_reps",
+"muscle": "full_body",
+"equip": "barbell",
+"met": 7.0,
+"name": "Thruster"
+},
+{
+"id": "clean_and_press",
+"type": "weight_reps",
+"muscle": "full_body",
+"equip": "barbell",
+"met": 7.0,
+"name": "Clean and press"
+},
+{
+"id": "jumping_jack",
+"type": "reps",
+"muscle": "full_body",
+"equip": "bodyweight",
+"met": 8.0,
+"name": "Jumping jack"
+},
+{
+"id": "box_jump",
+"type": "reps",
+"muscle": "full_body",
+"equip": "bodyweight",
+"met": 8.0,
+"name": "Box jump"
+},
+{
+"id": "battle_ropes",
+"type": "time",
+"muscle": "full_body",
+"equip": "none",
+"met": 10.0,
+"name": "Battle ropes"
+},
+{
+"id": "dead_hang",
+"type": "time",
+"muscle": "back",
+"equip": "bodyweight",
+"met": 3.0,
+"name": "Dead hang"
+},
+{
+"id": "running",
+"type": "distance",
+"muscle": "cardio",
+"equip": "none",
+"met": 9.8,
+"name": "Running"
+},
+{
+"id": "treadmill",
+"type": "distance",
+"muscle": "cardio",
+"equip": "cardio_machine",
+"met": 9.0,
+"name": "Treadmill"
+},
+{
+"id": "walking",
+"type": "distance",
+"muscle": "cardio",
+"equip": "none",
+"met": 3.8,
+"name": "Walking"
+},
+{
+"id": "hiking",
+"type": "distance",
+"muscle": "cardio",
+"equip": "none",
+"met": 6.0,
+"name": "Hiking"
+},
+{
+"id": "cycling",
+"type": "distance",
+"muscle": "cardio",
+"equip": "none",
+"met": 8.0,
+"name": "Cycling"
+},
+{
+"id": "stationary_bike",
+"type": "cardio",
+"muscle": "cardio",
+"equip": "cardio_machine",
+"met": 7.0,
+"name": "Stationary bike"
+},
+{
+"id": "swimming",
+"type": "distance",
+"muscle": "cardio",
+"equip": "none",
+"met": 8.0,
+"name": "Swimming"
+},
+{
+"id": "rowing_machine",
+"type": "distance",
+"muscle": "cardio",
+"equip": "cardio_machine",
+"met": 7.0,
+"name": "Rowing machine"
+},
+{
+"id": "elliptical",
+"type": "cardio",
+"muscle": "cardio",
+"equip": "cardio_machine",
+"met": 5.0,
+"name": "Elliptical"
+},
+{
+"id": "stair_climber",
+"type": "cardio",
+"muscle": "cardio",
+"equip": "cardio_machine",
+"met": 9.0,
+"name": "Stair climber"
+},
+{
+"id": "jump_rope",
+"type": "cardio",
+"muscle": "cardio",
+"equip": "none",
+"met": 11.0,
+"name": "Jump rope"
+},
+{
+"id": "hiit",
+"type": "cardio",
+"muscle": "cardio",
+"equip": "none",
+"met": 8.0,
+"name": "HIIT"
+},
+{
+"id": "yoga",
+"type": "cardio",
+"muscle": "cardio",
+"equip": "none",
+"met": 2.8,
+"name": "Yoga"
+},
+{
+"id": "stretching",
+"type": "time",
+"muscle": "cardio",
+"equip": "none",
+"met": 2.3,
+"name": "Stretching"
+}
+]

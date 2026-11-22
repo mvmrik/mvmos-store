@@ -47,6 +47,18 @@ class AgentTests(unittest.IsolatedAsyncioTestCase):
         self.prem = types.SimpleNamespace(agents_enabled=lambda cfg:self.premium and cfg.get('agents_enabled'),resolve_pub_cfg=lambda cfg:cfg,is_available=lambda:self.premium)
         self.desk = types.SimpleNamespace(CHAT_TURN=contextvars.ContextVar('turn',default=None),_read_cfg=lambda:dict(self.cfg),PROVIDERS={'fake':{},'other':{}},CLI_PROVIDERS=[],_get_project=lambda pid:{'id':pid} if pid=='project' else None,kill_process=lambda proc:None,_wrap_as_user=lambda argv,user:argv,resolve_project_cwd=lambda pid:self.folder.name,_home_for=lambda user:self.folder.name)
         self.api = types.SimpleNamespace(_sdb=db,_DB_PATH=path,_resolve=lambda token:self.users.get(token),_premium=lambda:self.prem,_desktop=lambda:self.desk,_LANG_NAMES={'en':'English'},_AGENT_CONTEXT=contextvars.ContextVar('agent',default=None),ChatRequest=lambda **kw:types.SimpleNamespace(**kw),_forget_cli_sessions=lambda rows:None,_label_from_cfg=lambda desk,cfg,used='':(cfg.get('provider') or '')+(' · '+cfg['model'] if cfg.get('model') else ''))
+        with db() as conn:
+            conn.execute("CREATE TABLE public_users (id TEXT PRIMARY KEY, username TEXT, display_name TEXT, is_admin INTEGER NOT NULL DEFAULT 0)")
+            conn.executemany("INSERT INTO public_users VALUES (?,?,?,?)",[('a','admin','Admin',1),('b','other','Other',1),('c','member','Member',0),('bot','bot','Support bot',1)])
+            conn.execute("CREATE TABLE pub_tokens (token TEXT PRIMARY KEY, user_id TEXT NOT NULL, created_at TEXT NOT NULL, expires_at TEXT NOT NULL)")
+        self.api._hub=lambda:types.SimpleNamespace(_db=db)
+        base_resolve=self.api._resolve
+        def resolve(token):
+            known=base_resolve(token)
+            if known:return known
+            with db() as c:row=c.execute("SELECT u.id FROM public_users u JOIN pub_tokens t ON t.user_id=u.id WHERE t.token=?",(token,)).fetchone()
+            return {'id':row['id'],'is_admin':True} if row else None
+        self.api._resolve=resolve
         self.outputs = []
         async def model(body,*args):
             self.assertIsNotNone(self.api._AGENT_CONTEXT.get())

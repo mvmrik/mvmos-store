@@ -1,0 +1,15 @@
+{
+  "summary": "Adds optional AI help for building workout plans and reviewing your progress.",
+  "features": [
+    {
+      "title": "Create workouts with AI",
+      "short": "Describe your goal and get a weekly plan",
+      "description": "The server owner can enable AI help in Fitness' app settings. A profile then picks a goal, how many days a week, how long each workout may take, its level and equipment, and can add a note such as a sore knee.\n\nThe AI builds the workouts only from the exercises that exist in Fitness, with sets, reps or times, rest and the days of the week. You review the plan, choose the workouts you like and save only those; nothing is saved without your confirmation.\n\nmvmAI must be installed with its App API enabled in Apps Hub → Settings → App APIs. Each request can use credits, and they are given back when the AI cannot answer."
+    },
+    {
+      "title": "Progress review with AI",
+      "short": "What is improving, what is missing and what to do next",
+      "description": "The AI reads the last 90 days of your workouts, records and weekly totals and tells you in plain words what is improving, what needs attention and which next steps make sense, for example which exercise is ready for more weight.\n\nIt uses only your own numbers and says so when there is too little data. The review is general guidance and not medical advice."
+    }
+  ]
+}

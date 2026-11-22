@@ -251,6 +251,32 @@ const app = path.resolve(__dirname, '..');
       timedCount,
     );
     assert.equal(await page.locator('[data-draft]').count(), 3);
+    // The full text is remembered and can be reopened and regenerated.
+    assert.equal(
+      await page.evaluate(() => editor.p.captionText),
+      'First segment\nSecond segment\nThird segment',
+    );
+    await page.locator('[data-action=open-lyrics]').click();
+    assert.equal(
+      await page.locator('[data-lyrics]').inputValue(),
+      'First segment\nSecond segment\nThird segment',
+    );
+    await page.locator('[data-lyrics]').fill('One\nTwo');
+    await page.getByRole('button', { name: 'Generate subtitles again' }).click();
+    assert.equal(await page.locator('[data-draft]').count(), 2);
+    assert.equal(await page.evaluate(() => editor.p.captionText), 'One\nTwo');
+    await page.locator('[data-action=paste-lyrics]').click();
+    await page
+      .locator('[data-lyrics]')
+      .fill('First segment\nSecond segment\nThird segment');
+    await page.locator('[data-apply]').click();
+    assert.equal(await page.locator('[data-draft]').count(), 5);
+    await page.locator('[data-action=open-lyrics]').click();
+    await page
+      .locator('[data-lyrics]')
+      .fill('First segment\nSecond segment\nThird segment');
+    await page.getByRole('button', { name: 'Generate subtitles again' }).click();
+    assert.equal(await page.locator('[data-draft]').count(), 3);
     // Library rows contain only a left drag handle and a placement button.
     assert.equal(await page.locator('[data-draft] textarea').count(), 0);
     assert.equal(await page.locator('[data-draft] button').count(), 3);
@@ -443,6 +469,8 @@ const app = path.resolve(__dirname, '..');
       await page.mouse.up();
       await page.keyboard.up('Alt');
     };
+    // The per-subtitle behaviour is the opt-out of whole-style dragging.
+    await page.evaluate(() => { editor.p.captionAutoStyle = false; });
     const globalY = await page.evaluate(() => editor.p.captionStyle.y);
     await dragPreview(0, -0.2);
     own = await page.evaluate(
@@ -467,6 +495,34 @@ const app = path.resolve(__dirname, '..');
         (await page.evaluate(() => editor.p.captionStyle.y)) - (globalY - 0.1),
       ) < 0.02,
     );
+    // Whole-style dragging: the shared style moves and personal positions are cleared.
+    await page.evaluate(() => {
+      editor.p.captionAutoStyle = true;
+      for (const c of editor.p.captions) (c.style ||= {}).y = 0.1;
+    });
+    await dragPreview(0, -0.05);
+    assert.ok(
+      Math.abs((await page.evaluate(() => editor.p.captionStyle.y)) - 0.05) < 0.02,
+    );
+    assert.equal(
+      await page.evaluate(() => editor.p.captions.some((c) => Object.hasOwn(c.style || {}, 'y'))),
+      false,
+    );
+    // The long explanation lives behind the info button.
+    assert.equal(await page.locator('[data-action=auto-style-info]').count(), 1);
+    await page.locator('[data-action=auto-style-info]').click();
+    assert.match(await page.locator('.md-modal .md-note').textContent(), /style/i);
+    await page.locator('.md-modal [data-cancel]').click();
+    // Property edits also reach every subtitle with a personal override.
+    await page.evaluate(() => {
+      for (const c of editor.p.captions) (c.style ||= {}).color = '#00ff00';
+      editor.property('caption:color', '#123456');
+    });
+    assert.equal(
+      await page.evaluate(() => editor.p.captions.some((c) => Object.hasOwn(c.style || {}, 'color'))),
+      false,
+    );
+    await page.evaluate(() => { editor.p.captionAutoStyle = false; });
     // Returning a segment to the library retains its text and personal appearance.
     await tab('content');
     await page.locator('[data-action=cue-unplace]').click();

@@ -17,8 +17,8 @@ function _nosVersion(){
 // Reloads a script when the build it came from is not the one now on the server.
 function _nosScript(file,global){
   return _nosVersion().then(function(v){
-    if(window[global]&&window._nosBuild===v)return;
-    return _nosLoad('/apps/nostradamus/'+file+'?v='+v).then(function(){window._nosBuild=v});
+    if(window[global]&&window._nosBuilds&&window._nosBuilds[file]===v)return;
+    return _nosLoad('/apps/nostradamus/'+file+'?v='+v).then(function(){(window._nosBuilds||(window._nosBuilds={}))[file]=v});
   });
 }
 function _nosT(k){return _nosScript('i18n.js','NOSTRADAMUS_I18N').then(function(){return(window.t||function(x){return x})(k)})}
@@ -65,5 +65,5 @@ mvmOS.registerApp({
       }
     };
   },
-  launch:function(){mvmOS.createWindow({id:'nostradamus',title:'🔮 Nostradamus',width:520,height:700,appSettings:true,onAppSettings:function(){AppStore.openWindow({section:'my-apps',appId:'nostradamus'})},onMount:function(body){body.style.padding='0';var root=document.createElement('div');root.style.height='100%';body.appendChild(root);_nosScript('i18n.js','NOSTRADAMUS_I18N').then(function(){return _nosScript('vendor/noble-secp256k1.js','NostrCrypto')}).then(function(){return _nosScript('nostr-widget.js','NostradamusWidget')}).then(function(){NostradamusWidget.mount(root,{isDesktop:true})})}})}
+  launch:function(){_nosVer=null;mvmOS.createWindow({id:'nostradamus',title:'🔮 Nostradamus',width:520,height:700,appSettings:true,onAppSettings:function(){AppStore.openWindow({section:'my-apps',appId:'nostradamus'})},onMount:function(body){body.style.padding='0';var root=document.createElement('div');root.style.height='100%';body.appendChild(root);_nosScript('i18n.js','NOSTRADAMUS_I18N').then(function(){return _nosScript('vendor/noble-secp256k1.js','NostrCrypto')}).then(function(){return _nosScript('nostr-widget.js','NostradamusWidget')}).then(function(){NostradamusWidget.mount(root,{isDesktop:true})})}})}
 });

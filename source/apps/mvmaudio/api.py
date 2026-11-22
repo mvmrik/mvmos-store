@@ -443,6 +443,8 @@ def admin_create(body: MediaBody):
 
 @router.post("/media")
 def personal_create(body: MediaBody, user=Depends(me)):
+    if body.kind == "radio":
+        return create_media(user["id"], body)
     p = premium()
     if not p:
         fail("uploads_disabled", 403)
