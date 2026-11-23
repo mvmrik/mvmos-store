@@ -20,5 +20,175 @@
       "summary": "Authorized apps can search and manage the current Apps Hub profile's cards, codes, vouchers, tickets and contacts, including optional images supplied as base64 data, usage tracking and sorting preferences.",
       "requires": "The Cardbox App API must be enabled in Apps Hub → Settings → App APIs. It is off by default."
     }
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Eine persönliche Sammlung von Kundenkarten, Rabattcodes, Gutscheinen, Tickets und Visitenkarten für jedes Apps Hub-Profil.",
+      "tagline": "Alle wichtigen Karten und Codes immer dabei.",
+      "description": "Cardbox vereint Kunden- und Mitgliedskarten, Rabattcodes, Geschenkgutscheine, Tickets, Visitenkarten und andere nützliche Ausweise an einem Ort. Jedes Apps Hub-Profil hat seine eigene private Sammlung, die auf dem mvmOS-Desktop und auf einer öffentlichen Webseite verfügbar ist. Speichere eine Kartennummer oder einen scanbaren Code, füge Fotos der Vorder- und Rückseite hinzu, markiere Favoriten und behalte Ablaufdaten im Blick. Eine Visitenkarte kann einfach als Foto gespeichert werden oder auf Wunsch auch Kontaktdaten enthalten.\n\nÜber die App-API können mvmAI und andere autorisierte Apps Einträge im selben Profil suchen, hinzufügen, aktualisieren und entfernen. Angehängte Bilder sind privat und nur mit einer aktiven Sitzung des Besitzers zugänglich.",
+      "capabilities": [
+        "Eine eigene private Sammlung für jedes Apps Hub-Profil.",
+        "Kundenkarten, Rabattcodes, Gutscheine, Tickets, Visitenkarten und individuelle Einträge.",
+        "Optionale Fotos der Vorder- und Rückseite mit privatem Zugriff.",
+        "Scanbare Codes in den Formaten QR und Code 128 mit einer kompakten, anklickbaren Codevorschau auf jeder Karte.",
+        "Optionale geschäftliche Kontaktdaten und direkter Zugriff auf E-Mail, Anruf oder Website mit einem Tippen.",
+        "Suche, Filter nach Typ, Favoriten, Ablaufdaten und Archiv.",
+        "Allgemeine Sortierung pro Profil und separate Sortierung je Kategorie nach Favoriten, letzter Nutzung, Nutzungshäufigkeit oder bevorstehendem Ablauf.",
+        "Responsive Darstellung auf dem Desktop und auf einer öffentlichen Webseite mit derselben Sammlung."
+      ],
+      "integrations": [
+        {
+          "summary": "Autorisierte Apps können Karten, Codes, Gutscheine, Tickets und Kontakte des aktuellen Apps Hub-Profils durchsuchen und verwalten – einschließlich optionaler Bilder als base64-Daten, Nutzungsverfolgung und Sortiereinstellungen.",
+          "requires": "Die Cardbox-App-API muss unter Apps Hub → Einstellungen → App-APIs aktiviert werden. Sie ist standardmäßig deaktiviert."
+        }
+      ]
+    },
+    "bg": {
+      "short_description": "Лична колекция от карти за лоялност, кодове за отстъпка, ваучери, билети и визитки за всеки профил в Apps Hub.",
+      "tagline": "Всички полезни карти и кодове в един джоб.",
+      "description": "Cardbox събира на едно място карти за лоялност и членство, кодове за отстъпка, подаръчни ваучери, билети, визитки и други полезни пропуски. Всеки профил в Apps Hub има собствена лична колекция, достъпна в настолната среда на mvmOS и на публична уеб страница. Запазвайте номера на карти или кодове за сканиране, добавяйте снимки на лицевата и обратната страна, отбелязвайте любими и следете сроковете на валидност. Визитката може да остане само снимка или да включва и данни за контакт по желание.\n\nAPI на приложението позволява на mvmAI и други упълномощени приложения да намират, добавят, актуализират и премахват елементи в рамките на същия профил. Прикачените изображения са лични и достъпът до тях изисква активна сесия на собственика.",
+      "capabilities": [
+        "Отделна лична колекция за всеки профил в Apps Hub.",
+        "Карти за лоялност, кодове за отстъпка, ваучери, билети, визитки и персонализирани елементи.",
+        "Снимки на лицевата и обратната страна по желание, с личен достъп.",
+        "Кодове за сканиране във формат QR и Code 128 с компактен преглед на кода във всяка карта, който се отваря с щракване.",
+        "Служебни данни за контакт по желание и изпращане на имейл, обаждане или отваряне на уебсайт с едно докосване.",
+        "Търсене, филтри по тип, любими, срокове на валидност и архив.",
+        "Общо сортиране за всеки профил и отделно сортиране по категории според любимите, последното използване, честотата на използване или наближаващото изтичане на валидността.",
+        "Адаптивен интерфейс за настолни устройства и публична уеб страница, които използват една и съща колекция."
+      ],
+      "integrations": [
+        {
+          "summary": "Упълномощените приложения могат да търсят и управляват картите, кодовете, ваучерите, билетите и контактите в текущия профил в Apps Hub, включително изображения по желание, предоставени като base64 данни, проследяване на използването и предпочитания за сортиране.",
+          "requires": "API на приложението Cardbox трябва да бъде включен в Apps Hub → Настройки → API на приложенията. По подразбиране е изключен."
+        }
+      ]
+    },
+    "es": {
+      "short_description": "Una colección personal de tarjetas de fidelización, códigos de descuento, vales, entradas y tarjetas de visita para cada perfil de Apps Hub.",
+      "tagline": "Todas tus tarjetas y códigos útiles en un solo bolsillo.",
+      "description": "Cardbox reúne tarjetas de fidelización y de socio, códigos de descuento, vales regalo, entradas, tarjetas de visita y otros pases útiles. Cada perfil de Apps Hub tiene su propia colección privada, disponible en el escritorio de mvmOS y en una página web pública. Guarda un número de tarjeta o un código escaneable, añade fotos del anverso y el reverso, marca favoritos y lleva un control de las fechas de caducidad. Una tarjeta de visita puede ser solo una foto o incluir datos de contacto opcionales.\n\nLa API de la app permite a mvmAI y a otras apps autorizadas buscar, añadir, actualizar y eliminar elementos del mismo perfil. Las imágenes adjuntas son privadas y requieren una sesión del propietario.",
+      "capabilities": [
+        "Una colección privada independiente para cada perfil de Apps Hub.",
+        "Tarjetas de fidelización, códigos de descuento, vales, entradas, tarjetas de visita y elementos personalizados.",
+        "Fotos opcionales del anverso y el reverso, con acceso privado.",
+        "Formatos QR y Code 128 escaneables, con una vista previa compacta del código en cada tarjeta que se puede pulsar.",
+        "Datos de contacto profesionales opcionales y acciones para enviar un correo, llamar o abrir una web con un solo toque.",
+        "Búsqueda, filtros por tipo, favoritos, fechas de caducidad y archivo.",
+        "Ordenación general por perfil y ordenación independiente por categoría según los favoritos, el uso reciente, la frecuencia de uso o la proximidad de la fecha de caducidad.",
+        "Escritorio y página web pública con diseño adaptable que utilizan la misma colección."
+      ],
+      "integrations": [
+        {
+          "summary": "Las apps autorizadas pueden buscar y gestionar las tarjetas, los códigos, los vales, las entradas y los contactos del perfil actual de Apps Hub, incluidas las imágenes opcionales proporcionadas como datos base64, el seguimiento del uso y las preferencias de ordenación.",
+          "requires": "La API de la app Cardbox debe estar activada en Apps Hub → Ajustes → API de apps. Está desactivada de forma predeterminada."
+        }
+      ]
+    },
+    "fr": {
+      "short_description": "Une collection personnelle de cartes de fidélité, de codes de réduction, de bons, de billets et de cartes de visite pour chaque profil Apps Hub.",
+      "tagline": "Toutes vos cartes et tous vos codes utiles dans une seule poche.",
+      "description": "Cardbox réunit vos cartes de fidélité et d’adhérent, codes de réduction, chèques-cadeaux, billets, cartes de visite et autres titres utiles. Chaque profil Apps Hub dispose de sa propre collection privée, accessible sur le bureau mvmOS et sur une page web publique. Enregistrez un numéro de carte ou un code à scanner, ajoutez des photos du recto et du verso, définissez vos favoris et suivez les dates d’expiration. Une carte de visite peut se limiter à une photo ou inclure des coordonnées facultatives.\n\nL’API de l’application permet à mvmAI et aux autres applications autorisées de rechercher, d’ajouter, de modifier et de supprimer des éléments au sein du même profil. Les images jointes sont privées et nécessitent une session ouverte par leur propriétaire.",
+      "capabilities": [
+        "Une collection privée distincte pour chaque profil Apps Hub.",
+        "Cartes de fidélité, codes de réduction, bons, billets, cartes de visite et éléments personnalisés.",
+        "Photos facultatives du recto et du verso, avec accès privé.",
+        "Formats QR et Code 128 à scanner, avec un aperçu compact et cliquable du code sur chaque carte.",
+        "Coordonnées professionnelles facultatives et actions en un geste pour envoyer un e-mail, passer un appel ou ouvrir un site web.",
+        "Recherche, filtres par type, favoris, dates d’expiration et archives.",
+        "Tri général propre à chaque profil et tri distinct par catégorie, selon les favoris, l’utilisation récente, la fréquence d’utilisation ou les prochaines dates d’expiration.",
+        "Interface adaptative sur le bureau et sur une page web publique, donnant accès à la même collection."
+      ],
+      "integrations": [
+        {
+          "summary": "Les applications autorisées peuvent rechercher et gérer les cartes, codes, bons, billets et contacts du profil Apps Hub actif, ainsi que les images facultatives fournies sous forme de données base64, le suivi de l’utilisation et les préférences de tri.",
+          "requires": "L’API de l’application Cardbox doit être activée dans Apps Hub → Paramètres → API des applications. Elle est désactivée par défaut."
+        }
+      ]
+    },
+    "ja": {
+      "short_description": "ポイントカード、割引コード、クーポン、チケット、名刺を、Apps Hubのプロフィールごとに自分専用のコレクションに。",
+      "tagline": "便利なカードもコードも、ひとつのポケットに。",
+      "description": "Cardboxは、ポイントカードや会員証、割引コード、ギフト券、チケット、名刺など、さまざまなカードやパスをひとつにまとめます。Apps Hubのプロフィールごとに専用の非公開コレクションがあり、mvmOSのデスクトップと公開ウェブページで利用できます。カード番号や読み取り可能なコードを保存し、表面と裏面の写真を追加して、お気に入りの登録や有効期限の管理もできます。名刺は写真だけで保存することも、必要に応じて連絡先情報を追加することもできます。\n\nApp APIを使うと、mvmAIやその他の認可されたアプリが、同じプロフィール内のアイテムを検索、追加、更新、削除できます。添付画像は非公開で、アクセスには所有者のログインセッションが必要です。",
+      "capabilities": [
+        "Apps Hubのプロフィールごとに、独立した非公開コレクションを作成。",
+        "ポイントカード、割引コード、クーポン、チケット、名刺、独自のアイテムに対応。",
+        "必要に応じて表面と裏面の写真を追加でき、アクセスは非公開。",
+        "読み取り可能なQRおよびCode 128形式に対応し、各カードにクリックできるコンパクトなコードプレビューを表示。",
+        "必要に応じて仕事用の連絡先情報を追加でき、ワンタップでメールの送信、電話の発信、ウェブサイトへのアクセスが可能。",
+        "検索、種類別フィルター、お気に入り、有効期限、アーカイブに対応。",
+        "お気に入り、最近の使用、使用頻度、有効期限が近い順で、プロフィールごとの全体の並び順とカテゴリーごとの並び順を個別に設定可能。",
+        "画面サイズに合わせて表示が調整されるデスクトップ画面と公開ウェブページで、同じコレクションを利用。"
+      ],
+      "integrations": [
+        {
+          "summary": "認可されたアプリは、現在のApps Hubプロフィールにあるカード、コード、クーポン、チケット、連絡先を検索・管理できます。必要に応じてbase64データで提供される画像や、使用状況の記録、並び順の設定も扱えます。",
+          "requires": "Apps Hub → 設定 → App APIで、Cardbox App APIを有効にする必要があります。初期設定では無効になっています。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Uma coleção pessoal de cartões de fidelidade, códigos de desconto, vales, ingressos e cartões de visita para cada perfil do Apps Hub.",
+      "tagline": "Todos os cartões e códigos úteis em um só bolso.",
+      "description": "O Cardbox reúne cartões de fidelidade e de associado, códigos de desconto, vales-presente, ingressos, cartões de visita e outros passes úteis. Cada perfil do Apps Hub tem sua própria coleção privada, disponível na área de trabalho do mvmOS e em uma página web pública. Salve um número de cartão ou um código para leitura, adicione fotos da frente e do verso, marque favoritos e acompanhe as datas de validade. Um cartão de visita pode ser apenas uma foto ou incluir dados de contato opcionais.\n\nA API do app permite que o mvmAI e outros apps autorizados encontrem, adicionem, atualizem e removam itens do mesmo perfil. As imagens anexadas são privadas e exigem uma sessão do proprietário.",
+      "capabilities": [
+        "Coleção privada e independente para cada perfil do Apps Hub.",
+        "Cartões de fidelidade, códigos de desconto, vales, ingressos, cartões de visita e itens personalizados.",
+        "Fotos opcionais da frente e do verso, com acesso privado.",
+        "Códigos nos formatos QR e Code 128 para leitura, com uma prévia compacta e clicável do código em cada cartão.",
+        "Dados de contato profissionais opcionais e ações para enviar e-mail, ligar ou acessar um site com um toque.",
+        "Busca, filtros por tipo, favoritos, datas de validade e arquivo.",
+        "Ordenação geral por perfil e ordenação independente por categoria, por favoritos, uso recente, frequência de uso ou vencimentos mais próximos.",
+        "Interface responsiva na área de trabalho e em uma página web pública, usando a mesma coleção."
+      ],
+      "integrations": [
+        {
+          "summary": "Apps autorizados podem buscar e gerenciar os cartões, códigos, vales, ingressos e contatos do perfil atual do Apps Hub, incluindo imagens opcionais fornecidas como dados em base64, acompanhamento de uso e preferências de ordenação.",
+          "requires": "A API do app Cardbox precisa ser ativada em Apps Hub → Configurações → APIs de apps. Ela vem desativada por padrão."
+        }
+      ]
+    },
+    "zh-CN": {
+      "short_description": "为每个 Apps Hub 个人资料打造专属卡包，集中收纳会员卡、优惠码、代金券、门票和名片。",
+      "tagline": "实用卡片与优惠码，一袋尽收。",
+      "description": "Cardbox 将积分卡、会员卡、优惠码、礼品券、门票、名片及其他实用凭证集中收纳。每个 Apps Hub 个人资料都有独立的私密收藏，可在 mvmOS 桌面和公开网页上使用。保存卡号或可扫描的码，添加卡片正反面照片，标记收藏，并掌握到期时间。名片可以只保留照片，也可以按需添加联系信息。\n\n通过 App API，mvmAI 和其他已授权的应用可以查找、添加、更新和删除同一个人资料下的条目。图片附件仅限本人访问，需要通过所有者的登录会话进行验证。",
+      "capabilities": [
+        "每个 Apps Hub 个人资料均有独立的私密收藏。",
+        "支持积分卡、优惠码、代金券、门票、名片和自定义条目。",
+        "可按需添加正反面照片，仅限本人访问。",
+        "支持可扫描的 QR 码和 Code 128 条形码，每张卡片上均有小巧的码预览，点击即可查看。",
+        "可按需添加商务联系信息，一键发送邮件、拨打电话或访问网站。",
+        "支持搜索、类型筛选、收藏、到期日期和归档。",
+        "每个个人资料均可设置整体排序，也可为各类别单独设置排序，按收藏、最近使用、使用频率或即将到期排列。",
+        "自适应布局的桌面界面和公开网页，共用同一套收藏。"
+      ],
+      "integrations": [
+        {
+          "summary": "已授权的应用可以搜索和管理当前 Apps Hub 个人资料中的卡片、优惠码、代金券、门票和联系人，并支持按需以 base64 数据提供图片、跟踪使用情况及设置排序偏好。",
+          "requires": "必须在 Apps Hub → 设置 → App API 中启用 Cardbox App API。此功能默认关闭。"
+        }
+      ]
+    },
+    "ru": {
+      "short_description": "Личная коллекция карт лояльности, промокодов, подарочных сертификатов, билетов и визиток для каждого профиля Apps Hub.",
+      "tagline": "Все нужные карты и коды в одном кармане.",
+      "description": "Cardbox объединяет карты лояльности и клубные карты, промокоды, подарочные сертификаты, билеты, визитки и другие полезные пропуска. У каждого профиля Apps Hub есть собственная закрытая коллекция, доступная на рабочем столе mvmOS и на общедоступной веб-странице. Сохраняйте номера карт или сканируемые коды, добавляйте фотографии лицевой и оборотной стороны, отмечайте избранное и следите за сроками действия. Визитку можно сохранить просто как фотографию или дополнить контактными данными.\n\nAPI приложения позволяет mvmAI и другим авторизованным приложениям находить, добавлять, обновлять и удалять элементы в рамках того же профиля. Прикреплённые изображения доступны только владельцу при активном сеансе.",
+      "capabilities": [
+        "Отдельная закрытая коллекция для каждого профиля Apps Hub.",
+        "Карты лояльности, промокоды, сертификаты, билеты, визитки и любые другие элементы.",
+        "Возможность добавлять фотографии лицевой и оборотной стороны с доступом только для владельца.",
+        "Сканируемые коды в форматах QR и Code 128 с компактным предпросмотром кода на каждой карточке, который можно открыть нажатием.",
+        "Возможность добавлять деловые контактные данные, отправлять письма, звонить и открывать сайты одним нажатием.",
+        "Поиск, фильтры по типу, избранное, сроки действия и архив.",
+        "Общая сортировка для каждого профиля и отдельная сортировка по категориям: по избранному, последнему использованию, частоте использования или ближайшему сроку окончания действия.",
+        "Адаптивный интерфейс на рабочем столе и общедоступная веб-страница с одной и той же коллекцией."
+      ],
+      "integrations": [
+        {
+          "summary": "Авторизованные приложения могут искать карты, коды, сертификаты, билеты и контакты текущего профиля Apps Hub и управлять ими, в том числе добавлять изображения в формате base64, отслеживать использование и настраивать сортировку.",
+          "requires": "API приложения Cardbox необходимо включить в Apps Hub → Настройки → API приложений. По умолчанию он отключён."
+        }
+      ]
+    }
+  }
 }

@@ -27,5 +27,231 @@
       "summary": "Rooms, turns and players run on Game Hub accounts: your profile and avatar, invitations to other players, and your sessions, statistics and rating recorded in Game Hub.",
       "requires": "Game Hub installed."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Преливайте течностите, докато във всяка колба остане само един цвят. Играта преминава през 100 все по-трудни нива — от два цвята в малки колби до двадесет цвята във високи колби. Играйте сами или се състезавайте с приятели на едни и същи нива.",
+      "tagline": "Преливайте цветовете, запълвайте колбите, преминете всичките 100 нива.",
+      "description": "Flask Sort е пъзел за сортиране на течности в Game Hub: преливайте цветни слоеве от колба в колба, докато във всяка колба остане само един цвят.\n\nИграта преминава през 100 нива, всяко по-трудно от предишното. Първото е с два цвята в малки колби с вместимост три дози. С напредването се появяват нови цветове, а колбите постепенно побират повече дози, докато в последните нива достигнат двадесет цвята в колби с вместимост осем дози. Цветовете са подбрани така, че лесно да се различават. Всички колби от нивото винаги са на екрана, върху рафтове, които се пренареждат според това дали играете на телефон, или на компютър. Можете да изберете следващото преливане, докато текущото още тече. Всяка доза може временно да се постави върху друг цвят, за да се освободи място, така че никое ниво не остава блокирано, а отмяната на ход винаги е достъпна.\n\nТочките идват основно от дозите, които преливате на правилното място — по 10 за всяка, еднакво за всички на дадено ниво. Има и бонус за бързина от една точка за всяка оставаща секунда, както и бонус по подобие на голфа, изчислен в колби, ако завършите с целевия брой ходове или с по-малко. Превишаването на целевия брой не отнема точки. Между нивата резултатът остава на екрана, докато изберете Следващо ниво или Завършване на играта. Играта приключва, когато преминете ниво 100 или я завършите сами, и едва тогава резултатът ви се записва в Game Hub. Запазване и изход запазва точното състояние, без да записва резултат, а следващата игра започва от ниво 1.\n\nКогато играете с приятели, всички преминават едни и същи нива със собствено темпо на компютри, телефони и таблети през уеб браузър. Домакинът избира колко нива да се играят — до 100. Всички играят до избраното ниво, като точките се изчисляват по същия начин, както при самостоятелна игра. Когато всички приключат, печели играчът с най-много точки общо. Сървърът създава всяко ниво и проверява всяко преливане.\n\nGame Hub записва достигнатото ниво, преминатите нива, ходовете и личния ви рекорд.",
+      "capabilities": [
+        "Преливайте течност между стъклени колби в 3D, докато във всяка колба остане само един цвят.",
+        "Игра със 100 нива, всяко по-трудно от предишното: от два цвята в колби с вместимост три дози до двадесет цвята в колби с вместимост осем дози.",
+        "Всички колби от нивото винаги са на екрана, върху рафтове, които се пренареждат според това дали играете на телефон, или на компютър.",
+        "Внимателно подбрани, ясно различими цветове, така че никои два да не си приличат.",
+        "Всяка доза може временно да се постави върху друг цвят, за да се освободи място, така че никое ниво не остава блокирано. Отменяйте ходове и започвайте нивото отначало; преливайте бързо по една доза или по-бавно по няколко наведнъж.",
+        "Бутонът за подсказка показва следващия ход от едно решение срещу точки, равни на стойността на една колба, дори ако точките ви паднат под нулата.",
+        "Точки за всяка доза, така че стойността на колбата е равна на точките за дозите в нея, бонус за бързина от една точка за всяка оставаща секунда и бонус по подобие на голфа, изчислен в колби, ако завършите с по-малко от целевия брой ходове. Можете да изберете следващото преливане, докато текущото още тече.",
+        "Резултатът от всяко ниво остава на екрана, докато продължите; едва тогава започва да тече времето за следващото ниво.",
+        "Игра с до шестима играчи: всеки играе до избраното ниво (до 100) със собствено темпо и когато всички приключат, печели играчът с най-много точки общо. Така по-бързият играч получава бонус за бързина, но това само по себе си не му носи победата.",
+        "Сървърът подготвя всяко ниво, доказва, че то има решение, и проверява всяко преливане.",
+        "Завършете играта след което и да е ниво или преминете ниво 100: тогава резултатът се записва. Запазване и изход запазва точното състояние, без да записва резултат.",
+        "Статистика в Game Hub за достигнатото ниво, преминатите нива, ходовете, отменените ходове и цветовете, както и рейтинг за играта с други играчи."
+      ],
+      "requirements": [
+        "WebGL за колбите в 3D."
+      ],
+      "integrations": [
+        {
+          "summary": "Стаите, редуването на ходовете и играчите използват акаунти в Game Hub: профилът и аватарът ви, поканите към други играчи, както и сесиите, статистиката и рейтингът ви се записват в Game Hub.",
+          "requires": "Инсталиран Game Hub."
+        }
+      ]
+    },
+    "de": {
+      "short_description": "Gieße die Flüssigkeiten um, bis jeder Kolben nur eine Farbe enthält. Eine Partie führt durch 100 immer schwierigere Level – von zwei Farben in kleinen Kolben bis zu zwanzig Farben in hohen Kolben. Spiele allein oder tritt gegen Freunde in denselben Leveln an.",
+      "tagline": "Gieße die Farben um, fülle die Kolben und meistere alle 100 Level.",
+      "description": "Flask Sort ist ein Flüssigkeitssortierpuzzle für Game Hub: Gieße Farbschichten von einem Kolben in den anderen, bis jeder Kolben nur eine Farbe enthält.\n\nEine Partie führt durch 100 Level, und jedes ist schwieriger als das vorherige. Das erste beginnt mit zwei Farben in kleinen Kolben, die drei Portionen fassen. Im weiteren Verlauf kommen neue Farben hinzu, und die Kolben fassen nach und nach mehr Portionen, bis die letzten Level zwanzig Farben in Kolben mit acht Portionen enthalten. Die Farben sind so gewählt, dass sie sich leicht unterscheiden lassen. Alle Kolben eines Levels sind immer auf dem Bildschirm zu sehen, auf Regalen, die sich an ein Smartphone oder einen Computer anpassen. Du kannst den nächsten Gießvorgang schon auswählen, während der aktuelle noch läuft. Jede Portion kann vorübergehend auf einer anderen Farbe abgelegt werden, um Platz zu schaffen. So gerät kein Level in eine Sackgasse, und du kannst jederzeit Züge rückgängig machen.\n\nPunkte erhältst du hauptsächlich für die Portionen, die du an ihren Platz gießt: jeweils 10 Punkte, für alle im selben Level gleich. Dazu kommen ein Zeitbonus von einem Punkt pro verbleibender Sekunde und ein Bonus nach dem Golfprinzip, der in Kolbenwerten vergeben wird, wenn du das Level mit Par oder weniger Zügen abschließt. Mehr Züge als Par kosten keine Punkte. Zwischen den Leveln bleibt das Ergebnis auf dem Bildschirm, bis du „Nächstes Level“ oder „Partie beenden“ wählst. Eine Partie endet, wenn du Level 100 schaffst oder sie beendest. Erst dann wird dein Punktestand in Game Hub gespeichert. „Speichern und verlassen“ bewahrt den genauen Spielstand, ohne ein Ergebnis einzutragen. Die nächste Partie beginnt bei Level 1.\n\nMit Freunden spielen alle dieselben Level in ihrem eigenen Tempo im Webbrowser auf Computern, Smartphones und Tablets. Der Gastgeber legt fest, wie viele Level gespielt werden, bis zu 100. Alle spielen bis zu diesem Level und erhalten nach denselben Regeln wie im Einzelspiel Punkte. Wenn alle fertig sind, gewinnt, wer insgesamt die meisten Punkte hat. Der Server erstellt jedes Level und überprüft jeden Gießvorgang.\n\nGame Hub erfasst das erreichte Level, die abgeschlossenen Level, die Züge und deinen Rekord.",
+      "capabilities": [
+        "Gieße Flüssigkeit zwischen Glaskolben in 3D um, bis jeder Kolben nur eine Farbe enthält.",
+        "Eine Partie mit 100 Leveln, jedes schwieriger als das vorherige: von zwei Farben in Kolben mit drei Portionen bis zu zwanzig Farben in Kolben mit acht Portionen.",
+        "Alle Kolben eines Levels sind immer auf dem Bildschirm zu sehen, auf Regalen, die sich an ein Smartphone oder einen Computer anpassen.",
+        "Sorgfältig aufeinander abgestimmte Farben, damit keine zwei gleich aussehen.",
+        "Jede Portion kann vorübergehend auf einer anderen Farbe abgelegt werden, um Platz zu schaffen. So gerät kein Level in eine Sackgasse. Mache Züge rückgängig oder starte ein Level neu. Gieße einzelne Portionen schnell oder mehrere auf einmal langsamer um.",
+        "Eine Hinweisschaltfläche zeigt den nächsten Zug eines Lösungswegs an. Das kostet den Punktewert eines Kolbens, auch wenn dein Punktestand dadurch unter null fällt.",
+        "Punkte für jede Portion, sodass der Wert eines Kolbens seinen Portionen entspricht, dazu ein Zeitbonus von einem Punkt pro verbleibender Sekunde und ein Bonus nach dem Golfprinzip in Kolbenwerten, wenn du unter Par bleibst. Du kannst den nächsten Gießvorgang schon auswählen, während der aktuelle noch läuft.",
+        "Das Ergebnis jedes Levels bleibt auf dem Bildschirm, bis du weitermachst. Erst dann beginnt die Zeit für das nächste Level zu laufen.",
+        "Mehrspielermodus für bis zu sechs Spieler: Alle spielen in ihrem eigenen Tempo bis zum gewählten Level (bis zu 100). Wenn alle fertig sind, gewinnt, wer insgesamt die meisten Punkte hat. Wer schneller ist, erhält also einen Zeitbonus, gewinnt dadurch aber noch nicht.",
+        "Der Server stellt jedes Level zusammen, prüft seine Lösbarkeit und überprüft jeden Gießvorgang.",
+        "Beende eine Partie nach einem beliebigen Level oder meistere Level 100: Dann wird der Punktestand eingetragen. „Speichern und verlassen“ bewahrt den genauen Spielstand, ohne ein Ergebnis einzutragen.",
+        "Game Hub bietet Statistiken zum erreichten Level, zu abgeschlossenen Leveln, Zügen, rückgängig gemachten Zügen und Farben sowie eine Wertung für den Mehrspielermodus."
+      ],
+      "requirements": [
+        "WebGL für die 3D-Kolben."
+      ],
+      "integrations": [
+        {
+          "summary": "Räume, Spielzüge und Spieler werden über Game Hub-Konten verwaltet: dein Profil und Avatar, Einladungen an andere Spieler sowie deine Partien, Statistiken und Wertung, die in Game Hub gespeichert werden.",
+          "requires": "Game Hub muss installiert sein."
+        }
+      ]
+    },
+    "es": {
+      "short_description": "Vierte los líquidos hasta que cada matraz contenga un solo color. Cada partida consta de 100 niveles de dificultad creciente, desde dos colores en matraces pequeños hasta veinte colores en matraces altos. Juega en solitario o compite con tus amigos en los mismos niveles.",
+      "tagline": "Vierte los colores, llena los matraces y supera los 100 niveles.",
+      "description": "Flask Sort es un juego de puzles de clasificación de líquidos para Game Hub: vierte capas de color de un matraz a otro hasta que cada matraz contenga un solo color.\n\nCada partida consta de 100 niveles, y cada uno es más difícil que el anterior. El primero tiene dos colores en matraces pequeños de tres dosis; a medida que avanzas, aparecen nuevos colores y los matraces aumentan gradualmente su capacidad, hasta llegar a los últimos niveles, con veinte colores en matraces de ocho dosis. Los colores se eligen para que sean fáciles de distinguir. Todos los matraces de un nivel están siempre en pantalla, en estantes que se reorganizan para adaptarse al móvil o al ordenador, y puedes elegir el siguiente vertido mientras el actual sigue en curso. Puedes colocar cualquier dosis sobre otro color para liberar espacio, así que ningún nivel se queda bloqueado, y siempre puedes deshacer.\n\nLos puntos se obtienen principalmente al colocar las dosis en su sitio: 10 por cada una, los mismos para todos en un mismo nivel. Además, recibes una bonificación por rapidez de un punto por cada segundo restante y una bonificación al estilo del golf, equivalente al valor en puntos de varios matraces, por terminar con un número de movimientos igual o inferior al par. Superar el par no penaliza. Entre niveles, el resultado permanece en pantalla hasta que eliges Siguiente nivel o Terminar partida. La partida termina cuando superas el nivel 100 o decides finalizarla, y solo entonces se registra tu puntuación en Game Hub; Guardar y salir conserva el estado exacto de la partida sin registrar nada, y la siguiente partida empieza en el nivel 1.\n\nCon amigos, todos juegan los mismos niveles a su propio ritmo desde el navegador de un ordenador, móvil o tableta. El anfitrión elige cuántos niveles jugar, hasta un máximo de 100. Todos juegan hasta ese nivel, con el mismo sistema de puntuación que en solitario, y cuando todos terminan, gana quien haya sumado más puntos. El servidor genera cada nivel y comprueba cada vertido.\n\nGame Hub registra el nivel alcanzado, los niveles superados, los movimientos y tu récord.",
+      "capabilities": [
+        "Vierte líquido entre matraces de vidrio en 3D hasta que cada uno contenga un solo color.",
+        "Una partida de 100 niveles, cada uno más difícil que el anterior: desde dos colores en matraces de tres dosis hasta veinte colores en matraces de ocho.",
+        "Todos los matraces de un nivel están siempre en pantalla, en estantes que se reorganizan para adaptarse al móvil o al ordenador.",
+        "Colores cuidadosamente elegidos para que no haya dos que se parezcan.",
+        "Puedes colocar cualquier dosis sobre otro color para liberar espacio, así que ningún nivel se queda bloqueado. Deshaz movimientos y reinicia el nivel; vierte las dosis de una en una rápidamente, o varias a la vez más despacio.",
+        "El botón de pista muestra el siguiente movimiento de una solución a cambio del valor de un matraz en puntos, incluso si tu puntuación queda por debajo de cero.",
+        "Puntos por cada dosis, de modo que cada matraz vale tantos puntos como las dosis que contiene, una bonificación por rapidez de un punto por cada segundo restante y una bonificación al estilo del golf, equivalente al valor en puntos de varios matraces, por terminar por debajo del par; puedes elegir el siguiente vertido mientras el actual sigue en curso.",
+        "El resultado de cada nivel permanece en pantalla hasta que decides continuar; el cronómetro del siguiente nivel solo empieza entonces.",
+        "Multijugador para hasta seis jugadores: todos juegan hasta el nivel elegido (hasta el 100) a su propio ritmo y, cuando todos terminan, gana quien haya sumado más puntos. Así, jugar más rápido da una bonificación por rapidez, pero no garantiza la victoria.",
+        "El servidor genera cada nivel, comprueba que tenga solución y verifica cada vertido.",
+        "Termina la partida después de cualquier nivel o supera el nivel 100: la puntuación se registra en ese momento. Guardar y salir conserva el estado exacto de la partida sin registrar la puntuación.",
+        "Estadísticas de Game Hub sobre el nivel alcanzado, los niveles superados, los movimientos, los movimientos deshechos y los colores, con una valoración para el multijugador."
+      ],
+      "requirements": [
+        "WebGL para los matraces en 3D."
+      ],
+      "integrations": [
+        {
+          "summary": "Las salas, los turnos y los jugadores funcionan con cuentas de Game Hub: tu perfil y avatar, las invitaciones a otros jugadores y tus sesiones, estadísticas y valoración quedan registrados en Game Hub.",
+          "requires": "Game Hub instalado."
+        }
+      ]
+    },
+    "fr": {
+      "short_description": "Versez les liquides jusqu’à ce que chaque fiole ne contienne qu’une seule couleur. Une partie compte 100 niveaux de difficulté croissante, de deux couleurs dans de petites fioles à vingt couleurs dans de grandes fioles. Jouez en solo ou affrontez vos amis sur les mêmes niveaux.",
+      "tagline": "Triez les couleurs, remplissez les fioles, terminez les 100 niveaux.",
+      "description": "Flask Sort est un jeu de réflexion et de tri de liquides pour Game Hub : versez des couches de couleur d’une fiole à l’autre jusqu’à ce que chaque fiole ne contienne qu’une seule couleur.\n\nUne partie compte 100 niveaux, chacun plus difficile que le précédent. Le premier propose deux couleurs dans de petites fioles de trois doses ; à mesure que vous progressez, de nouvelles couleurs apparaissent et la capacité des fioles augmente progressivement, jusqu’aux derniers niveaux qui proposent vingt couleurs dans des fioles de huit doses. Les couleurs sont choisies pour être faciles à distinguer. Toutes les fioles d’un niveau restent visibles à l’écran, sur des étagères qui se réorganisent selon que vous jouez sur téléphone ou sur ordinateur. Vous pouvez choisir votre prochain versement avant même que le précédent soit terminé. Vous pouvez placer temporairement n’importe quelle dose sur une autre couleur pour libérer de la place : aucun niveau ne se retrouve donc bloqué, et vous pouvez toujours annuler un coup.\n\nLes points proviennent surtout des doses que vous versez à leur place : 10 par dose, soit le même total pour tout le monde sur un niveau. S’y ajoutent un bonus de vitesse d’un point par seconde restante et un bonus inspiré du golf, calculé en fioles, si vous terminez en respectant le par ou en faisant mieux. Dépasser le par ne coûte aucun point. Entre les niveaux, le résultat reste à l’écran jusqu’à ce que vous choisissiez Niveau suivant ou Terminer la partie. Une partie se termine lorsque vous réussissez le niveau 100 ou que vous décidez d’y mettre fin. Votre score est alors enregistré dans Game Hub, et seulement à ce moment-là. Enregistrer et quitter conserve votre position exacte sans rien enregistrer dans Game Hub, et la partie suivante commence au niveau 1.\n\nAvec vos amis, tout le monde joue aux mêmes niveaux à son rythme, sur ordinateur, téléphone ou tablette, dans un navigateur web. L’hôte choisit le nombre de niveaux à jouer, jusqu’à 100. Chaque joueur progresse jusqu’à ce niveau, avec le même calcul des points qu’en solo. Une fois que tout le monde a terminé, le plus grand total de points l’emporte. Le serveur génère chaque niveau et vérifie chaque versement.\n\nGame Hub enregistre le niveau atteint, les niveaux réussis, les coups joués et votre record.",
+      "capabilities": [
+        "Versez du liquide entre des fioles en verre en 3D jusqu’à ce que chaque fiole ne contienne qu’une seule couleur.",
+        "Une partie de 100 niveaux, chacun plus difficile que le précédent : de deux couleurs dans des fioles de trois doses à vingt couleurs dans des fioles de huit doses.",
+        "Toutes les fioles d’un niveau restent visibles à l’écran, sur des étagères qui se réorganisent selon que vous jouez sur téléphone ou sur ordinateur.",
+        "Des couleurs soigneusement différenciées pour qu’aucune ne se confonde avec une autre.",
+        "Vous pouvez placer temporairement n’importe quelle dose sur une autre couleur pour libérer de la place : aucun niveau ne se retrouve donc bloqué. Annulez un coup ou recommencez un niveau ; versez rapidement une dose à la fois, ou plusieurs à la fois plus lentement.",
+        "Un bouton d’indice indique le prochain coup d’une solution en échange de l’équivalent d’une fiole en points, même si votre score devient négatif.",
+        "Chaque dose rapporte des points : une fiole vaut donc le total de ses doses. Profitez d’un bonus de vitesse d’un point par seconde restante et d’un bonus inspiré du golf, calculé en fioles, si vous faites mieux que le par. Vous pouvez choisir votre prochain versement avant même que le précédent soit terminé.",
+        "Le résultat de chaque niveau reste à l’écran jusqu’à ce que vous passiez à la suite ; le chronomètre du niveau suivant ne démarre qu’à ce moment-là.",
+        "Un mode multijoueur pour six joueurs maximum : chacun progresse à son rythme jusqu’au niveau choisi (jusqu’à 100). Une fois que tout le monde a terminé, le plus grand total de points l’emporte. Un joueur plus rapide obtient donc un bonus de vitesse, mais pas forcément la victoire.",
+        "Le serveur génère chaque niveau, vérifie qu’il existe une solution et contrôle chaque versement.",
+        "Terminez une partie après n’importe quel niveau ou réussissez le niveau 100 : votre score est alors enregistré. Enregistrer et quitter conserve votre position exacte sans enregistrer le score.",
+        "Des statistiques dans Game Hub sur le niveau atteint, les niveaux réussis, les coups joués, les annulations et les couleurs, avec une cote en multijoueur."
+      ],
+      "requirements": [
+        "WebGL pour les fioles en 3D."
+      ],
+      "integrations": [
+        {
+          "summary": "Les salons, les tours de jeu et les joueurs reposent sur les comptes Game Hub : retrouvez votre profil et votre avatar, invitez d’autres joueurs et conservez vos sessions, vos statistiques et votre cote dans Game Hub.",
+          "requires": "Game Hub doit être installé."
+        }
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Despeje os líquidos até que cada frasco contenha uma única cor. Cada partida tem 100 níveis de dificuldade crescente, de duas cores em frascos pequenos a vinte cores em frascos altos. Jogue sozinho ou dispute com amigos nos mesmos níveis.",
+      "tagline": "Despeje as cores, encha os frascos e vença todos os 100 níveis.",
+      "description": "Flask Sort é um quebra-cabeça de organização de líquidos para o Game Hub: despeje camadas de cor de um frasco para outro até que cada frasco contenha uma única cor.\n\nCada partida tem 100 níveis, e cada um é mais difícil que o anterior. O primeiro tem duas cores em frascos pequenos com capacidade para três doses; conforme você avança, surgem novas cores e a capacidade dos frascos aumenta aos poucos, até chegar aos últimos níveis, com vinte cores em frascos de oito doses. As cores são escolhidas para serem fáceis de distinguir. Todos os frascos de um nível ficam sempre na tela, em prateleiras que se reorganizam para celulares ou computadores, e você pode escolher o próximo líquido a despejar enquanto o atual ainda está em movimento. É possível colocar qualquer dose sobre uma cor diferente para liberar espaço, então nenhum nível fica sem saída, e a opção de desfazer está sempre disponível.\n\nOs pontos vêm principalmente das doses que você coloca no lugar certo: 10 por dose, com a mesma pontuação para todos em cada nível. Há também um bônus de velocidade de um ponto por segundo restante e um bônus no estilo do golfe, calculado em frascos, por concluir o nível dentro do par ou abaixo dele. Ultrapassar o par não custa nada. Entre os níveis, o resultado permanece na tela até você escolher Próximo nível ou Encerrar partida. A partida termina quando você vence o nível 100 ou decide encerrá-la, e só então sua pontuação é registrada no Game Hub; Salvar e sair mantém o estado exato da partida sem registrar nada, e a próxima partida começa no nível 1.\n\nCom amigos, todos jogam os mesmos níveis no próprio ritmo, em computadores, celulares e tablets, pelo navegador. Quem cria a sala escolhe quantos níveis jogar, até 100. Todos jogam até esse nível, com a mesma forma de pontuar do modo solo, e, quando todos terminam, vence quem tiver mais pontos no total. O servidor cria cada nível e verifica cada transferência de líquido.\n\nO Game Hub registra o nível alcançado, os níveis concluídos, as jogadas e seu recorde.",
+      "capabilities": [
+        "Despeje líquido entre frascos de vidro em 3D até que cada frasco contenha uma única cor.",
+        "Uma partida de 100 níveis, cada um mais difícil que o anterior: de duas cores em frascos de três doses a vinte cores em frascos de oito doses.",
+        "Todos os frascos de um nível ficam sempre na tela, em prateleiras que se reorganizam para celulares ou computadores.",
+        "Cores escolhidas com cuidado para que nenhuma se pareça com outra.",
+        "É possível colocar qualquer dose sobre uma cor diferente para liberar espaço, então nenhum nível fica sem saída. Desfaça jogadas e reinicie o nível; despeje uma dose por vez rapidamente ou várias de uma vez, mais devagar.",
+        "O botão de dica mostra a próxima jogada de uma solução pelo custo, em pontos, de um frasco, mesmo que sua pontuação fique abaixo de zero.",
+        "Ganhe pontos por dose, com cada frasco valendo a soma de suas doses, um bônus de velocidade de um ponto por segundo restante e um bônus no estilo do golfe, calculado em frascos, por ficar abaixo do par; você pode escolher o próximo líquido a despejar enquanto o atual ainda está em movimento.",
+        "O resultado de cada nível permanece na tela até você avançar; só então o cronômetro do próximo nível começa.",
+        "Modo multijogador para até seis pessoas: todos jogam até o nível escolhido (até 100) no próprio ritmo e, quando todos terminam, vence quem tiver mais pontos no total. Assim, quem joga mais rápido ganha um bônus de velocidade, mas isso não garante a vitória.",
+        "O servidor prepara cada nível, comprova que ele tem solução e verifica cada transferência de líquido.",
+        "Encerre a partida após qualquer nível ou vença o nível 100: a pontuação é registrada nesse momento. Salvar e sair mantém o estado exato da partida sem registrar a pontuação.",
+        "Estatísticas no Game Hub de nível alcançado, níveis concluídos, jogadas, ações desfeitas e cores, com uma classificação para o modo multijogador."
+      ],
+      "requirements": [
+        "WebGL para os frascos em 3D."
+      ],
+      "integrations": [
+        {
+          "summary": "Salas, turnos e jogadores usam as contas do Game Hub: seu perfil e avatar, convites para outros jogadores e suas sessões, estatísticas e classificação ficam registrados no Game Hub.",
+          "requires": "Game Hub instalado."
+        }
+      ]
+    },
+    "ja": {
+      "short_description": "液体を注ぎ分けて、すべてのフラスコをそれぞれ1色にそろえましょう。1ゲームは、難易度が上がっていく全100レベル。小さなフラスコの2色から始まり、背の高いフラスコの20色へと進みます。1人でじっくり楽しむことも、同じレベルに挑む友達と競い合うこともできます。",
+      "tagline": "色を注ぎ分け、フラスコを満たして、全100レベルをクリア。",
+      "description": "Flask Sortは、Game Hubで遊べる液体の色分けパズルです。フラスコからフラスコへ色の層を注ぎ移し、すべてのフラスコをそれぞれ1色にそろえましょう。\n\n1ゲームは全100レベルで、進むたびに難しくなります。最初は、液体が3単位入る小さなフラスコと2色からスタート。レベルが上がるにつれて新しい色が加わり、フラスコに入る量も少しずつ増えて、最後のほうでは8単位入るフラスコで20色に挑みます。色は見分けやすいものを選んでいます。各レベルのフラスコは常にすべて画面内に表示され、スマートフォンやパソコンに合わせて棚の配置が変わります。液体を注いでいる途中でも、次にどこへ注ぐか選べます。空きを作るために、どの単位の液体も別の色の上へ一時的に移せるので、手詰まりになることはありません。いつでも操作を取り消せます。\n\n得点の中心は、正しい位置に注いだ液体1単位につき10ポイント。同じレベルなら、誰でも同じ条件です。さらに、残り時間1秒につき1ポイントのスピードボーナスと、ゴルフのようにパー以下の手数でクリアするとフラスコの本数に応じたボーナスが加わります。パーを超えても減点はありません。レベルの結果は、「次のレベル」または「ゲームを終了」を選ぶまで画面に残ります。レベル100をクリアするか、ゲームを終了すると1ゲームが終わり、その時点で初めてGame Hubにスコアが記録されます。「保存して退出」では何も記録せず、現在の状態をそのまま保存します。次の新しいゲームはレベル1から始まります。\n\n友達と遊ぶときは、パソコン、スマートフォン、タブレットのウェブブラウザーで、全員が同じレベルに自分のペースで挑戦します。ホストは、最大100までの範囲で何レベルまで遊ぶかを選びます。全員がそのレベルまでプレイし、1人で遊ぶときと同じルールで得点を獲得します。全員が終わった時点で、合計得点が最も高い人の勝ちです。サーバーが各レベルを生成し、液体を注ぐ操作を毎回チェックします。\n\nGame Hubには、到達レベル、クリアしたレベル数、手数、自己記録が保存されます。",
+      "capabilities": [
+        "3Dのガラス製フラスコの間で液体を注ぎ移し、すべてのフラスコをそれぞれ1色にそろえましょう。",
+        "1ゲームは、進むたびに難しくなる全100レベル。3単位入るフラスコの2色から始まり、8単位入るフラスコの20色へと進みます。",
+        "各レベルのフラスコは常にすべて画面内に表示。スマートフォンやパソコンに合わせて棚の配置が変わります。",
+        "どの2色も見間違えないよう、色の違いをはっきりさせています。",
+        "空きを作るために、どの単位の液体も別の色の上へ一時的に移せるので、手詰まりになることはありません。操作の取り消しやレベルのやり直しも可能。1単位ずつすばやく注ぐことも、複数単位をまとめてゆっくり注ぐこともできます。",
+        "ヒントボタンを押すと、フラスコ1本分のポイントと引き換えに、解法の次の一手が表示されます。ポイントがマイナスになっても利用できます。",
+        "液体1単位ごとに得点が入り、フラスコ1本分の得点はその容量に応じて決まります。残り時間1秒につき1ポイントのスピードボーナスに加え、パーより少ない手数でクリアすると、ゴルフのようにフラスコの本数に応じたボーナスも獲得。液体を注いでいる途中でも、次にどこへ注ぐか選べます。",
+        "各レベルの結果は、先に進むまで画面に残ります。次のレベルのタイマーが動き出すのは、進んでからです。",
+        "最大6人でのマルチプレイに対応。全員が選ばれたレベル（最大100）まで自分のペースでプレイし、全員が終わった時点で合計得点が最も高い人の勝ちです。速く進めればスピードボーナスは得られますが、それだけで勝敗が決まるわけではありません。",
+        "サーバーが各レベルを用意し、解けることを確認したうえで、液体を注ぐ操作を毎回チェックします。",
+        "どのレベルの終了後でもゲームを終えられます。レベル100をクリアした場合も、その時点でスコアが記録されます。保存して退出すると、記録を付けずに現在の状態をそのまま保存します。",
+        "Game Hubで、到達レベル、クリアしたレベル数、手数、取り消し回数、色数の統計を確認できます。マルチプレイのレーティングも記録されます。"
+      ],
+      "requirements": [
+        "3Dのフラスコの表示にはWebGLが必要です。"
+      ],
+      "integrations": [
+        {
+          "summary": "ルーム、ターン、プレイヤーはGame Hubアカウントで管理されます。プロフィールやアバターの利用、ほかのプレイヤーへの招待に対応し、セッション、統計、レーティングがGame Hubに記録されます。",
+          "requires": "Game Hubがインストールされていること。"
+        }
+      ]
+    },
+    "ru": {
+      "short_description": "Переливайте жидкости, пока в каждой колбе не останется только один цвет. В игре 100 всё более сложных уровней: от двух цветов в маленьких колбах до двадцати в высоких. Играйте в одиночку или соревнуйтесь с друзьями, проходя одни и те же уровни.",
+      "tagline": "Переливайте цвета, заполняйте колбы, пройдите все 100 уровней.",
+      "description": "Flask Sort — головоломка с сортировкой жидкостей для Game Hub: переливайте цветные слои из колбы в колбу, пока в каждой не останется только один цвет.\n\nВ игре 100 уровней, и каждый сложнее предыдущего. На первом — два цвета в маленьких колбах по три порции; по мере прохождения появляются новые цвета, а вместимость колб постепенно растёт, пока на последних уровнях не достигнет восьми порций при двадцати цветах. Цвета подобраны так, чтобы их было легко различать. Все колбы уровня всегда видны на экране: они стоят на полках, расположение которых подстраивается под телефон или компьютер. Следующее переливание можно выбрать, пока предыдущее ещё продолжается. Любую порцию можно временно перелить поверх другого цвета, чтобы освободить место, поэтому на уровне невозможно зайти в тупик. А ещё всегда можно отменить ход.\n\nОсновные очки начисляются за порции, перелитые на своё место: по 10 за каждую, одинаково для всех игроков на уровне. К ним добавляются бонус за скорость — одно очко за каждую оставшуюся секунду — и бонус по принципу гольфа: за прохождение с числом ходов в пределах пара или меньше начисляются очки, эквивалентные стоимости колб. Превышение пара ничем не наказывается. Между уровнями результат остаётся на экране, пока вы не выберете «Следующий уровень» или «Завершить игру». Игра заканчивается после прохождения уровня 100 или по вашему решению, и только тогда счёт записывается в Game Hub. «Сохранить и выйти» сохраняет точное состояние игры без записи результата, а следующая игра начинается с уровня 1.\n\nВ игре с друзьями все проходят одинаковые уровни в своём темпе — в браузере на компьютерах, телефонах и планшетах. Организатор выбирает количество уровней, до 100. Все играют до выбранного уровня, получая очки по тем же правилам, что и в одиночной игре. Когда все закончат, победит тот, кто наберёт больше всего очков в сумме. Сервер создаёт каждый уровень и проверяет каждое переливание.\n\nGame Hub сохраняет достигнутый уровень, число пройденных уровней, ходы и ваш рекорд.",
+      "capabilities": [
+        "Переливайте жидкость между стеклянными колбами в 3D, пока в каждой не останется только один цвет.",
+        "100 уровней, каждый сложнее предыдущего: от двух цветов в колбах по три порции до двадцати цветов в колбах по восемь.",
+        "Все колбы уровня всегда видны на экране: они стоят на полках, расположение которых подстраивается под телефон или компьютер.",
+        "Тщательно подобранные цвета, которые легко отличить друг от друга.",
+        "Любую порцию можно временно перелить поверх другого цвета, чтобы освободить место, поэтому ни на одном уровне невозможно зайти в тупик. Отменяйте ходы и начинайте уровень заново; быстро переливайте по одной порции или медленнее — сразу по несколько.",
+        "Кнопка подсказки показывает следующий ход решения за очки, равные стоимости одной колбы, даже если ваш счёт уйдёт в минус.",
+        "Очки за каждую порцию, так что стоимость колбы определяется числом порций в ней; бонус за скорость — одно очко за каждую оставшуюся секунду; бонус по принципу гольфа, начисляемый в эквиваленте колб, за прохождение с числом ходов меньше пара. Следующее переливание можно выбрать, пока предыдущее ещё продолжается.",
+        "Результат каждого уровня остаётся на экране, пока вы не продолжите; только после этого запускается таймер следующего уровня.",
+        "Сетевая игра до шести игроков: все проходят уровни до выбранного (до 100) в своём темпе. Когда все закончат, победит тот, кто наберёт больше всего очков в сумме. Быстрый игрок получает бонус за скорость, но сама по себе скорость не гарантирует победу.",
+        "Сервер создаёт каждый уровень, проверяет, что его можно пройти, и контролирует каждое переливание.",
+        "Завершите игру после любого уровня или пройдите уровень 100 — в этот момент счёт будет записан. Сохранение с выходом сохраняет точное состояние игры без записи результата.",
+        "Статистика Game Hub: достигнутый уровень, пройденные уровни, ходы, отмены и цвета, а также рейтинг для сетевой игры."
+      ],
+      "requirements": [
+        "WebGL для отображения колб в 3D."
+      ],
+      "integrations": [
+        {
+          "summary": "Комнаты, ходы и игроки используют учётные записи Game Hub: ваш профиль и аватар, приглашения другим игрокам, а также игровые сеансы, статистика и рейтинг, сохраняемые в Game Hub.",
+          "requires": "Установленный Game Hub."
+        }
+      ]
+    },
+    "zh-CN": {
+      "short_description": "在烧瓶之间倾倒液体，直到每个烧瓶中都只剩一种颜色。一局游戏包含 100 个关卡，难度逐步提升，从小烧瓶中的两种颜色，到高烧瓶中的二十种颜色。你可以独自挑战，也可以与好友在相同关卡中一较高下。",
+      "tagline": "倾倒缤纷液体，装满烧瓶，闯过全部 100 关。",
+      "description": "Flask Sort 是一款适用于 Game Hub 的液体分类益智游戏：将一层层彩色液体从一个烧瓶倒入另一个，直到每个烧瓶中都只剩一种颜色。\n\n一局游戏包含 100 个关卡，每一关都比上一关更难。第一关只有两种颜色，使用可容纳三份液体的小烧瓶；随着关卡推进，新的颜色陆续加入，烧瓶的容量也逐渐增大，直到最后几个关卡出现二十种颜色，烧瓶可容纳八份液体。各种颜色都经过精心挑选，易于区分。每关的所有烧瓶始终完整呈现在屏幕上，摆放烧瓶的架子会根据手机或电脑屏幕自动调整布局。当前倾倒尚未结束时，你就可以选择下一次倾倒。任何一份液体都可以暂时倒在其他颜色上方来腾出空间，因此关卡不会陷入僵局，而且随时可以撤销操作。\n\n积分主要来自正确归位的液体，每份获得 10 分，同一关中每位玩家可获得的这部分积分相同。此外，每剩余一秒可获得一分速度奖励，在标准步数内完成关卡，还可获得按整瓶积分计算的高尔夫式奖励。超过标准步数不会扣分。每关结束后，成绩会一直显示，直到你选择“下一关”或“结束游戏”。通关第 100 关或主动结束游戏后，本局才会结束，分数也只有在此时才会记录到 Game Hub；“保存并退出”会完整保留当前进度，不记录分数，而下一局游戏会从第 1 关开始。\n\n与好友游玩时，大家可以在电脑、手机和平板电脑的网页浏览器中，以各自的节奏挑战相同的关卡。房主决定本局挑战多少关，最多 100 关。每位玩家都要玩到指定关卡，计分方式与单人模式相同，待所有人完成后，总分最高者获胜。服务器负责生成每一关，并校验每一次倾倒操作。\n\nGame Hub 会记录你到达的关卡、通关数、操作步数和最高纪录。",
+      "capabilities": [
+        "在 3D 玻璃烧瓶之间倾倒液体，直到每个烧瓶中都只剩一种颜色。",
+        "一局游戏共有 100 关，难度逐关提升：从可容纳三份液体的烧瓶、两种颜色，逐步增加到可容纳八份液体的烧瓶、二十种颜色。",
+        "每关的所有烧瓶始终完整呈现在屏幕上，摆放烧瓶的架子会根据手机或电脑屏幕自动调整布局。",
+        "颜色经过精心挑选，彼此分明，易于区分。",
+        "任何一份液体都可以暂时倒在其他颜色上方来腾出空间，因此关卡不会陷入僵局。你可以撤销操作或重新开始当前关卡；既可以每次快速倾倒一份，也可以放慢速度一次倾倒多份。",
+        "点击提示按钮，即可查看通关解法的下一步，代价是扣除一整瓶液体对应的积分，即使积分因此变为负数也能使用。",
+        "每份液体都能得分，因此一瓶液体的分值取决于其中的份数；每剩余一秒可获得一分速度奖励，少于标准步数完成关卡还可获得按整瓶积分计算的高尔夫式奖励。当前倾倒尚未结束时，你就可以选择下一次倾倒。",
+        "每关成绩会一直显示，直到你选择继续；下一关的计时也在此时才开始。",
+        "多人模式最多支持六位玩家：每人以各自的节奏玩到指定关卡，最多 100 关。待所有人完成后，总分最高者获胜，因此速度更快可以获得速度奖励，但并不意味着一定获胜。",
+        "服务器负责生成每一关，验证关卡可解，并校验每一次倾倒操作。",
+        "你可以在任意一关结束后结束本局，也可以一路通关第 100 关，分数会在此时记录。保存并退出则会完整保留当前进度，不记录分数。",
+        "Game Hub 提供到达关卡、通关数、操作步数、撤销次数及颜色的统计数据，并为多人模式提供评级。"
+      ],
+      "requirements": [
+        "3D 烧瓶显示需要 WebGL 支持。"
+      ],
+      "integrations": [
+        {
+          "summary": "房间、回合和玩家管理均通过 Game Hub 账户进行：使用你的个人资料和头像，邀请其他玩家，并在 Game Hub 中记录游戏场次、统计数据和评级。",
+          "requires": "需要安装 Game Hub。"
+        }
+      ]
+    }
+  }
 }

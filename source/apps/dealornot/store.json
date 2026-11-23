@@ -24,5 +24,207 @@
       "summary": "Provides player profiles, rooms, invitations, solo saves, session history, statistics and rankings. The desktop app opens the Game Hub play page.",
       "requires": "Game Hub installed. The desktop launcher offers to install it when it is missing."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Изтеглете една от 36 номерирани кутии, отваряйте останалите и отговаряйте на обажданията на банкера: приемете офертата му или запазете кутията си. До шестима играчи играят на общо поле, а банкерът се обажда на всеки от тях насаме. Сумите достигат един милион, а бонусите за умна игра дават на всеки шанс за най-висок резултат.",
+      "tagline": "Едно игрално поле, 36 кутии и лично обаждане от банкера.",
+      "description": "Deal or Not е игра с отваряне на кутии за Game Hub. Изтеглете номерирана кутия, отваряйте останалите и решете дали да приемете офертата на банкера, или да запазите изтеглената кутия. Играйте сами или на общо поле с до шестима играчи.\n\nИгралното поле\nВсичките 36 кутии съдържат различни суми — от едно до един милион. Играчите се редуват да отварят останалите на масата кутии. Всяка разкрита сума отпада от възможностите за всички, а собствената кутия на всеки играч остава затворена. Сървърът пази сумите в тайна, докато съответните кутии не бъдат отворени.\n\nОбаждането на банкера\nСлед всеки кръг всеки играч, който продължава да играе, получава лична оферта. Банкерът може да предложи пари или размяна на кутии. Отговорите остават тайни, докато всички не отговорят, след което сделките и размените се разкриват едновременно. Играчът, който приеме парите, наблюдава остатъка от играта.\n\nРезултати и напредък\nПечалбата ви и бонусите за правилна преценка на офертите и размените формират крайния ви резултат. Game Hub записва резултатите, статистиката и класиранията. В самостоятелната игра няма ограничение на времето за ход и е налична опцията „Запазване и изход“; в играта с други играчи домакинът избира време за ход от 10 до 60 секунди. Играчите могат да се включват от компютри, телефони и таблети чрез уеб браузър.",
+      "capabilities": [
+        "36 номерирани кутии с различни суми до един милион.",
+        "Самостоятелна игра или общо игрално поле за до шестима играчи.",
+        "Лични оферти от банкера, включително пари и размяна на кутии.",
+        "Едновременно разкриване на отговорите, след като всички активни играчи отговорят.",
+        "Управление на кутиите, офертите и точкуването от сървъра.",
+        "Бонуси за добри сделки, запазване на кутия с висока стойност и правилна преценка на размените.",
+        "Самостоятелна игра без ограничение във времето с опция „Запазване и изход“ и таймери за ходовете в играта с други играчи.",
+        "История на игровите сесии, печалби, статистика за бонусите и класирания в Game Hub.",
+        "Игрално поле, което се адаптира към екрана, и звукови ефекти по избор."
+      ],
+      "requirements": [
+        "Инсталиран Game Hub; играта се отваря през публичната му страница с акаунт в Apps Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Осигурява профили на играчите, стаи, покани, запазване на самостоятелни игри, история на игровите сесии, статистика и класирания. Настолното приложение отваря страницата за игра в Game Hub.",
+          "requires": "Инсталиран Game Hub. Програмата за стартиране на настолното приложение предлага да го инсталира, ако липсва."
+        }
+      ]
+    },
+    "es": {
+      "short_description": "Elige al azar una de las 36 cajas numeradas, abre las demás y responde a las llamadas del banquero: acepta su oferta o quédate con tu caja. Hasta seis jugadores comparten un tablero y el banquero llama a cada uno en privado. Los importes llegan hasta un millón y las bonificaciones por jugar con astucia mantienen la disputa por la máxima puntuación.",
+      "tagline": "Un tablero, 36 cajas y una llamada privada del banquero.",
+      "description": "Deal or Not es un juego de abrir cajas para Game Hub. Elige al azar una caja numerada, abre las demás y decide si aceptas la oferta del banquero o te quedas con la caja que te ha tocado. Juega en solitario o comparte un tablero con hasta seis jugadores.\n\nEl tablero\nLas 36 cajas contienen importes distintos, desde uno hasta un millón. Los jugadores se turnan para abrir las cajas que quedan sobre la mesa. Cada importe revelado se elimina de las posibilidades de todos, mientras que la caja de cada jugador permanece cerrada. El servidor mantiene los importes ocultos hasta que se abren las cajas que los contienen.\n\nLa llamada del banquero\nDespués de cada ronda, todos los jugadores que siguen en juego reciben una oferta privada. El banquero puede ofrecer dinero o un intercambio de cajas. Las respuestas se mantienen en privado hasta que todos hayan contestado; entonces, los acuerdos y los intercambios se revelan a la vez. Quien acepta el dinero pasa a ser espectador durante el resto de la partida.\n\nPuntuación y progreso\nTus ganancias y las bonificaciones por valorar bien las ofertas y los intercambios determinan tu puntuación final. Game Hub registra los resultados, las estadísticas y las clasificaciones. En solitario no hay límite de tiempo por turno y puedes usar Guardar y salir; en multijugador, el anfitrión elige una duración de turno de entre 10 y 60 segundos. Los jugadores pueden unirse desde ordenadores, teléfonos y tabletas mediante un navegador web.",
+      "capabilities": [
+        "36 cajas numeradas con distintos importes de hasta un millón.",
+        "Juego en solitario o un tablero compartido para hasta seis jugadores.",
+        "Ofertas privadas del banquero, tanto de dinero como de intercambios de cajas.",
+        "Las respuestas se revelan a la vez cuando todos los jugadores que siguen en juego han contestado.",
+        "Cajas, ofertas y puntuación controladas por el servidor.",
+        "Bonificaciones por cerrar buenos acuerdos, conservar una caja de gran valor y valorar bien los intercambios.",
+        "Juego en solitario sin límite de tiempo con la opción Guardar y salir, y temporizadores por turno en multijugador.",
+        "Historial de partidas, ganancias, estadísticas de bonificaciones y clasificaciones en Game Hub.",
+        "Tablero adaptable a la pantalla y efectos de sonido opcionales."
+      ],
+      "requirements": [
+        "Game Hub instalado; juega desde su página pública con una cuenta de Apps Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Ofrece perfiles de jugador, salas, invitaciones, partidas guardadas en solitario, historial de partidas, estadísticas y clasificaciones. La aplicación de escritorio abre la página de juego de Game Hub.",
+          "requires": "Game Hub instalado. El lanzador de escritorio ofrece instalarlo si no está disponible."
+        }
+      ]
+    },
+    "fr": {
+      "short_description": "Tirez au sort l'une des 36 boîtes numérotées, ouvrez les autres et répondez aux appels du banquier : acceptez son offre ou gardez votre boîte. Jusqu'à six joueurs partagent un même plateau et le banquier appelle chacun en privé. Les montants atteignent un million et les bonus récompensant les bonnes décisions entretiennent la course au meilleur score.",
+      "tagline": "Un plateau, 36 boîtes et un appel privé du banquier.",
+      "description": "Deal or Not est un jeu d'ouverture de boîtes pour Game Hub. Tirez au sort une boîte numérotée, ouvrez les autres et décidez d'accepter l'offre du banquier ou de garder votre boîte. Jouez en solo ou partagez un même plateau avec jusqu'à six joueurs.\n\nLe plateau\nLes 36 boîtes contiennent toutes des montants différents, allant de un à un million. Les joueurs ouvrent à tour de rôle les boîtes restantes sur la table. Chaque montant révélé est éliminé des possibilités pour tout le monde, tandis que la boîte de chaque joueur reste fermée. Le serveur garde les montants secrets jusqu'à l'ouverture des boîtes correspondantes.\n\nL'appel du banquier\nAprès chaque manche, chaque joueur encore en lice reçoit une offre privée. Le banquier peut proposer de l'argent ou un échange de boîtes. Les réponses restent secrètes jusqu'à ce que tout le monde ait répondu, puis les accords et les échanges sont révélés en même temps. Un joueur qui accepte l'argent assiste à la suite de la partie en tant que spectateur.\n\nScores et progression\nVos gains et les bonus récompensant votre capacité à évaluer les offres et les échanges composent votre score final. Game Hub enregistre les résultats, les statistiques et les classements. En solo, les tours ne sont pas chronométrés et vous pouvez sauvegarder et quitter ; en multijoueur, l'hôte choisit une durée de 10 à 60 secondes par tour. Les joueurs peuvent rejoindre la partie depuis un ordinateur, un téléphone ou une tablette à l'aide d'un navigateur web.",
+      "capabilities": [
+        "36 boîtes numérotées contenant des montants différents allant jusqu'à un million.",
+        "Jeu en solo ou sur un plateau partagé par un maximum de six joueurs.",
+        "Offres privées du banquier proposant de l'argent ou des échanges de boîtes.",
+        "Réponses révélées en même temps une fois que tous les joueurs encore en lice ont répondu.",
+        "Boîtes, offres et calcul des scores gérés par le serveur.",
+        "Bonus pour les bonnes affaires, la conservation d'une boîte de grande valeur et la bonne évaluation des échanges.",
+        "Jeu en solo sans limite de temps avec sauvegarde avant de quitter, et tours chronométrés en multijoueur.",
+        "Historique des parties, gains, statistiques des bonus et classements dans Game Hub.",
+        "Plateau de jeu adapté à toutes les tailles d'écran et effets sonores facultatifs."
+      ],
+      "requirements": [
+        "Game Hub doit être installé ; jouez depuis sa page publique avec un compte Apps Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Fournit les profils des joueurs, les salons, les invitations, les sauvegardes solo, l'historique des parties, les statistiques et les classements. L'application de bureau ouvre la page de jeu de Game Hub.",
+          "requires": "Game Hub doit être installé. Le lanceur de bureau propose de l'installer s'il est absent."
+        }
+      ]
+    },
+    "de": {
+      "short_description": "Ziehe eine von 36 nummerierten Boxen, öffne die anderen und nimm die Anrufe des Bankiers entgegen: Nimm sein Angebot an oder behalte deine Box. Bis zu sechs Spieler teilen sich ein Spielfeld, und der Bankier ruft jeden von ihnen persönlich an. Die Beträge reichen bis zu einer Million, und dank Boni für kluges Spielen bleibt das Rennen um die höchste Punktzahl offen.",
+      "tagline": "Ein Spielfeld, 36 Boxen und ein persönlicher Anruf vom Bankier.",
+      "description": "Deal or Not ist ein Spiel für Game Hub, bei dem du Boxen öffnest. Ziehe eine nummerierte Box, öffne die anderen und entscheide, ob du das Angebot des Bankiers annimmst oder deine gezogene Box behältst. Spiele allein oder teile dir ein Spielfeld mit bis zu sechs Spielern.\n\nDas Spielfeld\nAlle 36 Boxen enthalten unterschiedliche Beträge von eins bis zu einer Million. Die Spieler öffnen reihum die Boxen, die noch auf dem Tisch stehen. Jeder aufgedeckte Betrag scheidet für alle als möglicher Gewinn aus, während die eigene Box jedes Spielers geschlossen bleibt. Der Server hält die Beträge verborgen, bis die jeweiligen Boxen geöffnet werden.\n\nDer Anruf des Bankiers\nNach jeder Runde erhält jeder Spieler, der noch im Spiel ist, ein persönliches Angebot. Der Bankier kann Geld oder einen Boxentausch anbieten. Die Antworten bleiben geheim, bis alle geantwortet haben. Dann werden alle Deals und Tauschentscheidungen gemeinsam aufgedeckt. Wer das Geld annimmt, verfolgt den Rest des Spiels als Zuschauer.\n\nPunkte und Fortschritt\nDein Gewinn und die Boni für das richtige Einschätzen von Angeboten und Tauschmöglichkeiten ergeben deine Gesamtpunktzahl. Game Hub erfasst Ergebnisse, Statistiken und Ranglisten. Im Solomodus gibt es kein Zeitlimit für deine Züge, und du kannst speichern und das Spiel verlassen. Im Mehrspielermodus legt der Gastgeber eine Zugdauer von 10 bis 60 Sekunden fest. Spieler können über einen Webbrowser auf Computern, Smartphones und Tablets teilnehmen.",
+      "capabilities": [
+        "36 nummerierte Boxen mit unterschiedlichen Beträgen bis zu einer Million.",
+        "Allein spielen oder ein gemeinsames Spielfeld für bis zu sechs Spieler nutzen.",
+        "Persönliche Angebote des Bankiers mit Geld oder einem Boxentausch.",
+        "Gemeinsames Aufdecken der Antworten, sobald alle aktiven Spieler geantwortet haben.",
+        "Boxen, Angebote und Punktevergabe werden vom Server gesteuert.",
+        "Boni für gute Deals, das Behalten einer wertvollen Box und das richtige Einschätzen von Tauschmöglichkeiten.",
+        "Solomodus ohne Zeitlimit mit Speichern und Verlassen sowie Zeitlimits pro Zug im Mehrspielermodus.",
+        "Spielverlauf, Gewinne, Bonusstatistiken und Ranglisten in Game Hub.",
+        "Spielfeld, das sich an die Bildschirmgröße anpasst, und optionale Soundeffekte."
+      ],
+      "requirements": [
+        "Game Hub muss installiert sein; gespielt wird über dessen öffentliche Seite mit einem Apps Hub-Konto."
+      ],
+      "integrations": [
+        {
+          "summary": "Bietet Spielerprofile, Räume, Einladungen, Solospielstände, Spielverlauf, Statistiken und Ranglisten. Die Desktop-App öffnet die Spielseite von Game Hub.",
+          "requires": "Game Hub muss installiert sein. Das Desktop-Startprogramm bietet die Installation an, falls Game Hub fehlt."
+        }
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Sorteie uma das 36 caixas numeradas, abra as outras e atenda às ligações do banqueiro: aceite a oferta dele ou fique com sua caixa. Até seis jogadores compartilham o mesmo tabuleiro, e o banqueiro liga para cada um em particular. Os valores chegam a um milhão, e os bônus por boas jogadas mantêm a disputa pela maior pontuação em aberto.",
+      "tagline": "Um tabuleiro, 36 caixas e uma ligação particular do banqueiro.",
+      "description": "Deal or Not é um jogo de abrir caixas para o Game Hub. Sorteie uma caixa numerada, abra as outras e decida se aceita a oferta do banqueiro ou fica com a caixa que sorteou. Jogue sozinho ou compartilhe o mesmo tabuleiro com até seis jogadores.\n\nO tabuleiro\nAs 36 caixas contêm valores diferentes, de um a um milhão. Os jogadores se revezam para abrir as caixas que restam na mesa. Cada valor revelado deixa de ser uma possibilidade para todos, enquanto a caixa de cada jogador permanece fechada. O servidor mantém os valores ocultos até que as respectivas caixas sejam abertas.\n\nA ligação do banqueiro\nApós cada rodada, todos os jogadores que continuam na partida recebem uma oferta em particular. O banqueiro pode oferecer dinheiro ou uma troca de caixas. As respostas permanecem em sigilo até que todos tenham respondido; então, os acordos e as trocas são revelados ao mesmo tempo. Quem aceita o dinheiro acompanha o restante da partida como espectador.\n\nPontuação e progresso\nSeus ganhos e os bônus por avaliar bem as ofertas e as trocas compõem a pontuação final. O Game Hub registra resultados, estatísticas e classificações. No modo solo, não há limite de tempo por turno, e você pode usar Salvar e sair; no multijogador, o anfitrião escolhe um tempo por turno de 10 a 60 segundos. Os jogadores podem participar pelo navegador em computadores, celulares e tablets.",
+      "capabilities": [
+        "36 caixas numeradas com valores diferentes de até um milhão.",
+        "Modo solo ou um tabuleiro compartilhado por até seis jogadores.",
+        "Ofertas particulares do banqueiro, incluindo dinheiro e trocas de caixas.",
+        "Respostas reveladas ao mesmo tempo, depois que todos os jogadores ativos respondem.",
+        "Caixas, ofertas e pontuação controladas pelo servidor.",
+        "Bônus por bons acordos, por manter uma caixa valiosa e por avaliar bem as trocas.",
+        "Modo solo sem limite de tempo, com a opção Salvar e sair, e cronômetros por turno no multijogador.",
+        "Histórico de partidas, ganhos, estatísticas de bônus e classificações no Game Hub.",
+        "Tabuleiro que se adapta à tela e efeitos sonoros opcionais."
+      ],
+      "requirements": [
+        "Game Hub instalado; jogue pela página pública dele com uma conta do Apps Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Oferece perfis de jogadores, salas, convites, partidas solo salvas, histórico de partidas, estatísticas e classificações. O aplicativo para computador abre a página de jogo do Game Hub.",
+          "requires": "Game Hub instalado. O inicializador para computador oferece a instalação caso ele não esteja instalado."
+        }
+      ]
+    },
+    "ja": {
+      "short_description": "番号付きの36個の箱から1つを引き、残りの箱を開けながらバンカーからの電話に応じましょう。提示額を受け取るか、自分の箱を守り抜くかはあなた次第。最大6人で1つの盤面を共有し、バンカーは各プレイヤーに個別に電話をかけます。金額は最大100万。賢い判断でボーナスを獲得すれば、誰にでもトップスコアを狙うチャンスがあります。",
+      "tagline": "1つの盤面、36個の箱、そしてバンカーからあなただけへの電話。",
+      "description": "Deal or Notは、Game Hubで遊べる箱開けゲームです。番号付きの箱を1つ引き、残りの箱を開けながら、バンカーの提案を受け入れるか、引いた箱を手元に残すかを決めましょう。1人でも、最大6人で1つの盤面を共有しても遊べます。\n\n盤面\n36個の箱には、1から100万まで、それぞれ異なる金額が入っています。プレイヤーは順番に、テーブルに残っている箱を開けていきます。明らかになった金額は全員の候補から消えますが、各プレイヤーの持ち箱は閉じたままです。箱が開くまで、サーバーは中の金額を隠しておきます。\n\nバンカーからの電話\n各ラウンドの終了後、ゲームを続けているプレイヤー全員に個別の提案が届きます。バンカーが提示するのは、現金の受け取り、または箱の交換です。全員が回答するまで返答は非公開となり、その後、取引と交換の結果が一斉に公開されます。現金を受け取ったプレイヤーは、残りのゲームを観戦します。\n\nスコアとプレイ記録\n最終スコアは、獲得賞金と、提示額や箱の交換を見極めて得たボーナスの合計です。Game Hubには、結果、統計、ランキングが記録されます。ソロプレイには手番の制限時間がなく、保存して終了できます。マルチプレイでは、ホストが手番の制限時間を10〜60秒の範囲で設定します。パソコン、スマートフォン、タブレットのウェブブラウザーから参加できます。",
+      "capabilities": [
+        "番号付きの36個の箱に、それぞれ異なる最大100万の金額。",
+        "ソロプレイにも、最大6人で1つの盤面を共有するプレイにも対応。",
+        "現金の受け取りや箱の交換など、バンカーからの個別の提案。",
+        "ゲームを続けている全員が回答した後、返答を一斉に公開。",
+        "箱、提案、スコアをサーバーで管理。",
+        "有利な取引、高額の箱の保持、箱の交換の見極めでボーナスを獲得。",
+        "時間制限なしで保存して終了できるソロプレイと、手番の制限時間を設定できるマルチプレイ。",
+        "Game Hubでプレイ履歴、獲得賞金、ボーナスの統計、ランキングを記録。",
+        "画面サイズに合わせて表示される盤面と、オン・オフを選べる効果音。"
+      ],
+      "requirements": [
+        "Game Hubのインストールが必要です。Apps Hubアカウントを使い、Game Hubの公開ページからプレイします。"
+      ],
+      "integrations": [
+        {
+          "summary": "プレイヤープロフィール、ルーム、招待、ソロプレイのセーブ、プレイ履歴、統計、ランキングを提供します。デスクトップアプリからGame Hubのプレイページを開きます。",
+          "requires": "Game Hubのインストールが必要です。未インストールの場合は、デスクトップランチャーがインストールを案内します。"
+        }
+      ]
+    },
+    "zh-CN": {
+      "short_description": "从 36 个编号箱子中抽取一个，打开其余箱子，接听银行家的来电：接受报价，还是保留自己的箱子？最多六名玩家共用一个游戏盘，银行家会分别向每位玩家私下报价。箱内金额最高达一百万，明智决策还能赢取加分，让最高分的争夺始终充满悬念。",
+      "tagline": "一个游戏盘，36 个箱子，还有银行家专为你打来的电话。",
+      "description": "Deal or Not 是一款适用于 Game Hub 的开箱游戏。抽取一个编号箱子，打开其他箱子，再决定是接受银行家的报价，还是保留自己抽中的箱子。你可以独自游玩，也可以与最多六名玩家共用一个游戏盘。\n\n游戏盘\n全部 36 个箱子各自装有不同金额，从一到一百万不等。玩家轮流打开桌上剩余的箱子。每揭晓一个金额，所有玩家的可能金额中都会排除这一项，而每位玩家自己的箱子则保持关闭。服务器会将金额保密，直到对应的箱子被打开。\n\n银行家的来电\n每轮结束后，所有仍在游戏中的玩家都会收到一份私密报价。银行家可能提出现金报价，也可能提议交换箱子。每个人的答复都会保密，直到所有人都作出回应，再统一揭晓交易和换箱结果。接受现金报价的玩家将转为旁观，观看余下的游戏。\n\n得分与进度\n最终得分由你赢得的金额，以及准确判断报价和换箱提议所获得的加分组成。Game Hub 会记录游戏结果、统计数据和排名。单人模式没有回合时限，并支持保存并退出；多人模式由房主设置回合时限，可选范围为 10 至 60 秒。玩家可以通过电脑、手机或平板上的网页浏览器加入游戏。",
+      "capabilities": [
+        "36 个编号箱子，内含各不相同的金额，最高达一百万。",
+        "支持单人游玩，或最多六名玩家共用一个游戏盘。",
+        "银行家私下报价，包括现金报价和换箱提议。",
+        "所有仍在游戏中的玩家作出回应后，统一揭晓答复。",
+        "箱子、报价和计分均由服务器控制。",
+        "达成划算交易、保留高额箱子或准确判断换箱提议，均可获得加分。",
+        "单人模式不限时，支持保存并退出；多人模式设有回合计时。",
+        "通过 Game Hub 查看对局历史、赢取金额、加分统计和排名。",
+        "自适应游戏盘界面，音效可自由开关。"
+      ],
+      "requirements": [
+        "需安装 Game Hub，并使用 Apps Hub 账号通过其公开页面游玩。"
+      ],
+      "integrations": [
+        {
+          "summary": "提供玩家资料、房间、邀请、单人存档、对局历史、统计数据和排名。桌面应用会打开 Game Hub 游戏页面。",
+          "requires": "需安装 Game Hub。若尚未安装，桌面启动器会提示安装。"
+        }
+      ]
+    },
+    "ru": {
+      "short_description": "Вытяните один из 36 пронумерованных ящиков, открывайте остальные и отвечайте на звонки банкира: принять его предложение или оставить свой ящик? На одном поле могут играть до шести человек, и каждому банкир звонит лично. Суммы достигают миллиона, а бонусы за продуманные решения дают шанс вырваться вперёд по очкам.",
+      "tagline": "Одно поле, 36 ящиков и личный звонок банкира.",
+      "description": "Deal or Not — игра с открыванием ящиков для Game Hub. Вытяните ящик с номером, открывайте остальные и решайте, принять ли предложение банкира или оставить то, что вам досталось. Играйте в одиночку или соберите до шести игроков на одном поле.\n\nИгровое поле\nВо всех 36 ящиках спрятаны разные суммы: от единицы до миллиона. Игроки по очереди открывают оставшиеся на столе ящики. Каждая раскрытая сумма исключается из возможных выигрышей для всех, а собственный ящик каждого игрока остаётся закрытым. Сервер скрывает суммы до открытия соответствующих ящиков.\n\nЗвонок банкира\nПосле каждого раунда каждый игрок, продолжающий игру, получает личное предложение. Банкир может предложить деньги или обмен ящиками. Ответы остаются в тайне, пока не ответят все, после чего все сделки и обмены раскрываются одновременно. Игрок, принявший деньги, наблюдает за оставшейся частью игры.\n\nОчки и прогресс\nИтоговый счёт складывается из выигрыша и бонусов за верную оценку предложений и обменов. Game Hub сохраняет результаты, статистику и рейтинги. В одиночной игре нет ограничения времени на ход и можно сохранить игру и выйти; в сетевой игре ведущий задаёт время на ход от 10 до 60 секунд. Игроки могут присоединяться с компьютеров, телефонов и планшетов через браузер.",
+      "capabilities": [
+        "36 пронумерованных ящиков с разными суммами до миллиона.",
+        "Одиночная игра или общее поле для компании до шести игроков.",
+        "Личные предложения банкира: деньги или обмен ящиками.",
+        "Одновременное раскрытие ответов после того, как ответят все участники, продолжающие игру.",
+        "Управление ящиками, предложениями и подсчётом очков на сервере.",
+        "Бонусы за выгодные сделки, сохранение ценного ящика и верную оценку обменов.",
+        "Одиночная игра без ограничения времени с возможностью сохранить игру и выйти, а также таймеры ходов в сетевой игре.",
+        "История игр, выигрыши, статистика бонусов и рейтинги в Game Hub.",
+        "Игровое поле, адаптированное к размеру экрана, и звуковые эффекты, которые можно отключить."
+      ],
+      "requirements": [
+        "Требуется установленный Game Hub; игра доступна на его публичной странице с учётной записью Apps Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Предоставляет профили игроков, комнаты, приглашения, сохранения одиночной игры, историю игр, статистику и рейтинги. Приложение для компьютера открывает игровую страницу Game Hub.",
+          "requires": "Требуется установленный Game Hub. Если он отсутствует, приложение запуска для компьютера предложит его установить."
+        }
+      ]
+    }
+  }
 }

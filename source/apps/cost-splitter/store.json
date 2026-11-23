@@ -15,5 +15,167 @@
   ],
   "requirements": [
     "A Mailjet or Brevo account and API key, if you want the automatic monthly emails. Everything else works without one."
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Teile wiederkehrende Kosten unter Mitgliedern auf. Behalte Kontostände im Blick, erfasse Zahlungen und versende automatisch monatliche E-Mail-Übersichten.",
+      "tagline": "Eine wiederkehrende Rechnung, mehrere Personen und für jeden ein laufender Kontostand.",
+      "description": "Cost Splitter ist für Kosten gedacht, die jeden Monat anfallen und gemeinsam getragen werden – etwa für einen Server, eine Wohnung oder ein Familienabo. Du legst den Gesamtbetrag fest, fügst die Mitglieder hinzu und die App berechnet den Anteil jeder Person.\n\nDie monatliche Belastung erfolgt mit einem Klick: Mit „Alle belasten“ wird jedem Mitglied der Anteil für diesen Monat berechnet. Zahlungen erfasst du, sobald sie eingehen. Für jedes Mitglied wird ein laufender Kontostand geführt, der dir auf einen Blick zeigt, wer Guthaben hat, wer noch etwas schuldet und wie viel.\n\nAuch das Erinnern kann die App für dich übernehmen. An einem von dir gewählten Tag und zu einer von dir festgelegten Uhrzeit erhält jedes Mitglied mit hinterlegter E-Mail-Adresse eine Monatsübersicht: den Gesamtbetrag, den bisherigen Kontostand, den aktuell fälligen Betrag, den neuen Kontostand und den Transaktionsverlauf. Mailjet und Brevo werden unterstützt. Die E-Mail kann auf Englisch oder Bulgarisch versendet werden, und ein Protokoll zeigt, welche E-Mails versendet wurden und bei welchen der Versand fehlgeschlagen ist.",
+      "capabilities": [
+        "Mitglieder mit optionaler E-Mail-Adresse und optionalem individuellem Anteil – andernfalls wird der Gesamtbetrag gleichmäßig aufgeteilt.",
+        "Alle belasten: Jedem Mitglied mit einer einzigen Aktion den Anteil für diesen Monat berechnen.",
+        "Zahlungen und einmalige Belastungen mit Notizen erfassen.",
+        "Laufender Kontostand für jedes Mitglied und vollständiger Transaktionsverlauf.",
+        "Automatische monatliche E-Mail-Übersicht an einem Tag sowie zu einer Stunde und Minute deiner Wahl.",
+        "Mailjet oder Brevo als Versandanbieter, mit einer Schaltfläche zum Senden einer Test-E-Mail.",
+        "Wähle aus, welche Spalten die E-Mail-Übersicht anzeigt – Gesamtbetrag, bisheriger Kontostand, fälliger Betrag, aktueller Kontostand, Verlauf.",
+        "E-Mails auf Englisch oder Bulgarisch, unabhängig von der Sprache der Desktop-Oberfläche.",
+        "Protokoll der versendeten E-Mails und fehlgeschlagenen Versandversuche.",
+        "Währung deiner Wahl oder die Standardeinstellung des Systems."
+      ],
+      "requirements": [
+        "Ein Mailjet- oder Brevo-Konto und ein API-Schlüssel, wenn du die automatischen monatlichen E-Mails nutzen möchtest. Alle anderen Funktionen sind auch ohne diese verfügbar."
+      ]
+    },
+    "bg": {
+      "short_description": "Разпределяйте периодични разходи между участниците. Следете салдата, записвайте плащания и изпращайте автоматично месечни обобщения по имейл.",
+      "tagline": "Една периодична сметка, няколко души, отделно текущо салдо за всеки.",
+      "description": "Cost Splitter е за споделени разходи, които се повтарят всеки месец — за сървър, жилище или семеен абонамент. Задавате общата сума, добавяте участниците и приложението изчислява дела на всеки.\n\nНачисляването става с едно щракване: „Начисляване на всички“ записва месечния дял като задължение на всеки участник. Записвате плащанията при получаването им, а текущото салдо на всеки участник ви показва с един поглед кой е надплатил, кой дължи пари и колко.\n\nПриложението може да поеме и напомнянията вместо вас. В избраните от вас ден и час то изпраща на всеки участник с имейл адрес обобщение за месеца: общата сума, предишното му салдо, сумата, която дължи сега, новото му салдо и историята на трансакциите му. Поддържат се Mailjet и Brevo, имейлът може да бъде на английски или български, а в дневника се отразяват успешните и неуспешните изпращания.",
+      "capabilities": [
+        "Участници с имейл адрес и индивидуален дял по избор — в противен случай общата сума се разпределя поравно.",
+        "Начисляване на всички: запишете месечния дял като задължение на всеки участник с едно действие.",
+        "Записвайте плащания и еднократни начисления с бележки.",
+        "Текущо салдо за всеки участник и пълна история на трансакциите.",
+        "Автоматично месечно обобщение по имейл в избрани от вас ден, час и минута.",
+        "Изпращане чрез Mailjet или Brevo с бутон за тестов имейл.",
+        "Изберете кои колони да се показват в обобщението по имейл — обща сума, предишно салдо, дължима сума, текущо салдо, история.",
+        "Имейл на английски или български, независимо от езика на настолния интерфейс.",
+        "Дневник на успешните и неуспешните изпращания на имейли.",
+        "Валута по ваш избор или зададената по подразбиране в системата."
+      ],
+      "requirements": [
+        "Акаунт в Mailjet или Brevo и API ключ, ако искате автоматични месечни имейли. Всичко останало работи и без тях."
+      ]
+    },
+    "fr": {
+      "short_description": "Répartissez les frais récurrents entre les membres. Suivez les soldes, enregistrez les paiements et envoyez automatiquement des récapitulatifs mensuels par e-mail.",
+      "tagline": "Une facture récurrente, plusieurs personnes, un solde actualisé pour chacune.",
+      "description": "Cost Splitter vous permet de partager des frais qui reviennent chaque mois : un serveur, un appartement, un abonnement familial. Vous définissez le montant total, ajoutez les membres et l’application calcule la part de chacun.\n\nLa facturation se fait en un clic : Tout facturer inscrit la part du mois au compte de chaque membre. Enregistrez les paiements au fil de leur réception et consultez en un coup d’œil le solde actualisé de chacun : qui a de l’avance, qui doit encore payer et combien.\n\nL’application peut aussi se charger des relances. Au jour et à l’heure de votre choix, elle envoie à chaque membre disposant d’une adresse e-mail un récapitulatif du mois : le montant total, son solde précédent, le montant à régler, son nouveau solde et l’historique de ses transactions. Mailjet et Brevo sont pris en charge, les e-mails peuvent être envoyés en anglais ou en bulgare, et un journal recense les envois réussis et les échecs.",
+      "capabilities": [
+        "Ajoutez des membres avec, si vous le souhaitez, une adresse e-mail et une part personnalisée. Sinon, le montant total est réparti à parts égales.",
+        "Tout facturer : inscrivez la part du mois au compte de chaque membre en une seule action.",
+        "Enregistrez les paiements et les frais ponctuels avec des notes.",
+        "Consultez le solde actualisé de chaque membre et l’historique complet des transactions.",
+        "Envoyez automatiquement un récapitulatif mensuel par e-mail au jour, à l’heure et à la minute de votre choix.",
+        "Utilisez Mailjet ou Brevo pour les envois, avec un bouton pour envoyer un e-mail de test.",
+        "Choisissez les colonnes à afficher dans le récapitulatif par e-mail : total, solde précédent, montant dû, solde actuel, historique.",
+        "Envoyez les e-mails en anglais ou en bulgare, indépendamment de la langue de l’interface de bureau.",
+        "Consultez le journal des e-mails envoyés et des échecs d’envoi.",
+        "Utilisez la devise de votre choix ou celle définie par défaut dans le système."
+      ],
+      "requirements": [
+        "Un compte Mailjet ou Brevo et une clé API sont nécessaires pour les e-mails mensuels automatiques. Toutes les autres fonctionnalités sont disponibles sans cela."
+      ]
+    },
+    "es": {
+      "short_description": "Reparte los gastos recurrentes entre los miembros. Lleva el control de los saldos, registra pagos y envía resúmenes mensuales por correo electrónico automáticamente.",
+      "tagline": "Una factura recurrente, varias personas y un saldo actualizado para cada una.",
+      "description": "Cost Splitter está pensado para esos gastos que se repiten cada mes y se comparten: un servidor, un piso o una suscripción familiar. Indica el importe total, añade a los miembros y la aplicación calcula la parte que le corresponde a cada uno.\n\nRegistrar los cargos solo requiere un clic: Cargar a todos anota la parte de este mes en la cuenta de cada miembro. Los pagos se registran a medida que llegan, y cada miembro tiene un saldo actualizado que puedes consultar de un vistazo: quién tiene saldo a favor, quién debe dinero y cuánto.\n\nTambién puede encargarse de los recordatorios. El día y a la hora que elijas, envía a cada miembro que tenga una dirección de correo electrónico un resumen del mes: el importe total, su saldo anterior, lo que debe ahora, su nuevo saldo y su historial de movimientos. Es compatible con Mailjet y Brevo, permite enviar el correo en inglés o búlgaro y mantiene un registro de los envíos realizados y los fallidos.",
+      "capabilities": [
+        "Miembros con dirección de correo electrónico y cuota personalizada opcionales; si no se especifica una cuota, el total se reparte a partes iguales.",
+        "Cargar a todos: registra la parte de este mes de cada miembro en una sola acción.",
+        "Registra pagos y cargos puntuales con notas.",
+        "Saldo actualizado de cada miembro e historial completo de movimientos.",
+        "Resumen mensual automático por correo electrónico el día, a la hora y en el minuto que elijas.",
+        "Mailjet o Brevo como proveedor de envío, con un botón para enviar un correo de prueba.",
+        "Elige qué columnas aparecen en el resumen por correo electrónico: total, saldo anterior, importe pendiente, saldo actual e historial.",
+        "Correos en inglés o búlgaro, independientemente del idioma del escritorio.",
+        "Registro de correos enviados y fallidos.",
+        "La moneda que elijas o la predeterminada del sistema."
+      ],
+      "requirements": [
+        "Una cuenta de Mailjet o Brevo y una clave de API si quieres enviar los correos mensuales automáticos. El resto de las funciones no las necesitan."
+      ]
+    },
+    "ru": {
+      "short_description": "Делите регулярные расходы между участниками. Отслеживайте баланс, отмечайте платежи и автоматически отправляйте ежемесячные сводки по электронной почте.",
+      "tagline": "Один регулярный счёт на всех — и отдельный баланс для каждого.",
+      "description": "Cost Splitter помогает делить регулярные ежемесячные расходы — на сервер, квартиру или семейную подписку. Укажите общую сумму, добавьте участников, и приложение рассчитает долю каждого.\n\nНачисления — в один клик: кнопка «Начислить всем» добавит долю за текущий месяц на счёт каждого участника. Отмечайте платежи по мере поступления и следите за балансом каждого — сразу видно, у кого переплата, кто должен и сколько.\n\nПриложение также может взять на себя напоминания об оплате. В выбранный вами день и время оно отправит каждому участнику с указанным адресом электронной почты сводку за месяц: общую сумму, предыдущий баланс, сумму к оплате, новый баланс и историю операций. Поддерживаются Mailjet и Brevo, письма можно отправлять на английском или болгарском языке, а в журнале видны успешные и неудачные отправки.",
+      "capabilities": [
+        "Добавляйте участников и при желании указывайте адрес электронной почты и индивидуальную долю — иначе общая сумма делится поровну.",
+        "«Начислить всем»: добавьте долю за текущий месяц на счёт каждого участника одним действием.",
+        "Записывайте платежи и разовые начисления с примечаниями.",
+        "Текущий баланс каждого участника и полная история операций.",
+        "Автоматическая ежемесячная сводка по электронной почте в выбранный вами день, час и минуту.",
+        "Отправка через Mailjet или Brevo с кнопкой для отправки тестового письма.",
+        "Выбирайте столбцы для сводки в письме: общая сумма, предыдущий баланс, сумма к оплате, текущий баланс, история операций.",
+        "Письма на английском или болгарском языке независимо от языка интерфейса приложения.",
+        "Журнал успешных и неудачных отправок писем.",
+        "Валюта на ваш выбор или валюта по умолчанию в системе."
+      ],
+      "requirements": [
+        "Для автоматической ежемесячной рассылки нужны учётная запись Mailjet или Brevo и ключ API. Все остальные функции работают и без них."
+      ]
+    },
+    "ja": {
+      "short_description": "毎月の費用をメンバーで分担。残高の確認、入金の記録、月次サマリーメールの自動送信まで、まとめて管理できます。",
+      "tagline": "毎月の支払いをみんなで分担。一人ひとりの残高もひと目で。",
+      "description": "Cost Splitterは、サーバー代、家賃、家族のサブスクリプションなど、毎月発生する費用をみんなで分担するためのアプリです。総額を設定してメンバーを追加するだけで、一人ひとりの負担額を自動で計算します。\n\n請求はワンクリック。「全員に請求」で、全メンバーに今月の負担額を一括で計上できます。入金があればその都度記録。各メンバーの残高は繰り越されるので、誰がいくら前払いしているか、誰にいくら未払いがあるかをひと目で把握できます。\n\n支払いの案内もアプリにお任せ。指定した日時に、メールアドレスを登録している全メンバーへ、その月のサマリーをメールで自動送信します。総額、前回の残高、今回の請求額、更新後の残高、取引履歴をまとめてお知らせできます。MailjetとBrevoに対応し、メールの言語は英語またはブルガリア語から選択可能。送信に成功したメールも失敗したメールも、ログで確認できます。",
+      "capabilities": [
+        "メンバーごとにメールアドレスや個別の負担額を任意で設定できます。負担額を指定しない場合は、総額を均等に分割します。",
+        "「全員に請求」：一度の操作で、全メンバーに今月の負担額を計上できます。",
+        "入金や単発の請求を、メモ付きで記録できます。",
+        "メンバーごとの繰越残高と、すべての取引履歴を確認できます。",
+        "指定した日・時・分に、月次サマリーをメールで自動送信できます。",
+        "送信サービスはMailjetまたはBrevoから選択可能。テストメールの送信ボタンも備えています。",
+        "サマリーメールに表示する項目を選べます。総額、前回の残高、請求額、現在の残高、取引履歴に対応しています。",
+        "デスクトップの言語設定にかかわらず、メールは英語またはブルガリア語で送信できます。",
+        "メールの送信成功・失敗をログで確認できます。",
+        "お好みの通貨、またはシステムの既定の通貨を使用できます。"
+      ],
+      "requirements": [
+        "月次メールの自動送信を利用するには、MailjetまたはBrevoのアカウントとAPIキーが必要です。それ以外の機能は、アカウントやAPIキーがなくても利用できます。"
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Divida custos recorrentes entre os participantes. Acompanhe saldos, registre pagamentos e envie resumos mensais por e-mail automaticamente.",
+      "tagline": "Uma conta recorrente, várias pessoas e um saldo atualizado para cada uma.",
+      "description": "Cost Splitter é para despesas que se repetem todo mês e são compartilhadas — um servidor, um apartamento, uma assinatura familiar. Você define o valor total, adiciona os participantes e o app calcula a parte de cada um.\n\nBasta um clique para lançar as cobranças: Cobrar de todos registra a parte de cada participante referente ao mês. Os pagamentos são registrados à medida que chegam, e cada participante tem um saldo atualizado que você pode consultar de relance — quem tem crédito, quem está devendo e quanto.\n\nO app também pode cuidar dos lembretes para você. No dia e horário que você escolher, ele envia um resumo do mês a cada participante que tenha um endereço de e-mail: o valor total, o saldo anterior, o valor devido agora, o novo saldo e o histórico de transações. Há suporte para Mailjet e Brevo, o e-mail pode ser enviado em inglês ou búlgaro, e um registro mostra os envios bem-sucedidos e as falhas.",
+      "capabilities": [
+        "Participantes com endereço de e-mail e valor individual opcionais — caso nenhum valor seja definido, o total é dividido igualmente.",
+        "Cobrar de todos: registre a parte de cada participante referente ao mês em uma única ação.",
+        "Registre pagamentos e cobranças avulsas com observações.",
+        "Saldo atualizado por participante e histórico completo de transações.",
+        "Resumo mensal automático por e-mail no dia, hora e minuto que você escolher.",
+        "Mailjet ou Brevo como provedor de envio, com um botão para enviar um e-mail de teste.",
+        "Escolha quais colunas aparecem no resumo por e-mail — total, saldo anterior, valor devido, saldo atual e histórico.",
+        "E-mail em inglês ou búlgaro, independentemente do idioma do aplicativo para desktop.",
+        "Registro dos e-mails enviados e das falhas de envio.",
+        "Moeda de sua escolha ou a padrão do sistema."
+      ],
+      "requirements": [
+        "Uma conta no Mailjet ou no Brevo e uma chave de API, caso queira os e-mails mensais automáticos. Todos os outros recursos funcionam sem isso."
+      ]
+    },
+    "zh-CN": {
+      "short_description": "与成员分摊定期费用。跟踪余额、记录付款，并自动发送每月邮件汇总。",
+      "tagline": "一笔定期账单，多人共同分摊，每人余额清晰在目。",
+      "description": "Cost Splitter 专为每月定期产生、由多人共同承担的费用而设计，例如服务器、合租住房或家庭订阅。只需设置总金额、添加成员，应用就会算出每个人应分摊的金额。\n\n一键即可记账：点击“全员记账”，即可将本月应分摊的金额计入每位成员的账目。收到付款后随时记录，每位成员的余额都会持续更新，谁有结余、谁还欠款、金额多少，一目了然。\n\n它还能帮你跟进催款。在你指定的日期和时间，应用会向每位已填写邮箱地址的成员发送当月汇总，包含总金额、上期余额、当前应付金额、最新余额及交易记录。支持通过 Mailjet 和 Brevo 发送邮件，邮件语言可选英语或保加利亚语，并提供发送成功和失败的日志。",
+      "capabilities": [
+        "添加成员时，可选填邮箱地址和自定义分摊金额；未设置自定义金额时，默认平均分摊总费用。",
+        "全员记账：一键将本月应分摊的金额计入每位成员的账目。",
+        "记录付款和一次性费用，并添加备注。",
+        "查看每位成员的实时余额和完整交易记录。",
+        "按你指定的日期、小时和分钟，自动发送每月邮件汇总。",
+        "通过 Mailjet 或 Brevo 发送邮件，并提供测试邮件按钮。",
+        "选择邮件汇总中显示的栏目：总金额、上期余额、应付金额、当前余额、交易记录。",
+        "邮件可使用英语或保加利亚语，不受桌面语言设置影响。",
+        "查看邮件发送成功和失败的日志。",
+        "自由选择货币，或使用系统默认货币。"
+      ],
+      "requirements": [
+        "如需自动发送每月邮件，需要 Mailjet 或 Brevo 账户及 API 密钥。其他所有功能均无需这些配置即可使用。"
+      ]
+    }
+  }
 }

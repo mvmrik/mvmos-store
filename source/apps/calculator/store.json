@@ -5,5 +5,87 @@
     "Addition, subtraction, multiplication, division and percentages.",
     "Full keyboard input, including Enter to evaluate, Backspace to correct and Escape to clear.",
     "Compact window that fits next to whatever else you have open."
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Лесен за използване калкулатор с основни аритметични операции. Поддържа въвеждане от клавиатурата.",
+      "tagline": "Калкулатор, който не ви пречи.",
+      "description": "Малък и бърз калкулатор за сметките, които правите, докато работите по нещо друго. Отваря се в компактен прозорец, извършва четирите аритметични действия и изчислява проценти. Приема въвеждане от клавиатурата — цифри, знаци за операции, Enter, Backspace и Escape — така че изобщо не се налага да посягате към мишката.",
+      "capabilities": [
+        "Събиране, изваждане, умножение, деление и изчисляване на проценти.",
+        "Пълна поддръжка на въвеждане от клавиатурата, включително Enter за изчисляване на резултата, Backspace за корекция и Escape за изчистване.",
+        "Компактен прозорец, който се побира до всичко останало, което сте отворили."
+      ]
+    },
+    "de": {
+      "short_description": "Einfacher Rechner für die Grundrechenarten. Unterstützt Tastatureingaben.",
+      "tagline": "Ein Rechner, der sich im Hintergrund hält.",
+      "description": "Ein kleiner, schneller Rechner für die Berechnungen, die nebenbei bei der Arbeit anfallen. Er öffnet sich in einem kompakten Fenster, beherrscht die vier Grundrechenarten sowie Prozentrechnung und lässt sich per Tastatur bedienen — mit Ziffern, Rechenzeichen, Eingabetaste, Rücktaste und Escape — damit du nie zur Maus greifen musst.",
+      "capabilities": [
+        "Addition, Subtraktion, Multiplikation, Division und Prozentrechnung.",
+        "Vollständig per Tastatur bedienbar: Eingabetaste zum Berechnen, Rücktaste zum Korrigieren und Escape zum Zurücksetzen.",
+        "Kompaktes Fenster, das neben deinen anderen geöffneten Fenstern Platz findet."
+      ]
+    },
+    "fr": {
+      "short_description": "Calculatrice simple pour les opérations arithmétiques de base. Prend en charge la saisie au clavier.",
+      "tagline": "Une calculatrice qui sait se faire discrète.",
+      "description": "Une calculatrice légère et rapide pour les calculs que vous faites tout en travaillant sur autre chose. Elle s’ouvre dans une fenêtre compacte, effectue les quatre opérations et les calculs de pourcentage, et accepte la saisie au clavier — chiffres, opérateurs, Entrée, Retour arrière et Échap — pour que vous n’ayez jamais à utiliser la souris.",
+      "capabilities": [
+        "Addition, soustraction, multiplication, division et calculs de pourcentage.",
+        "Saisie entièrement au clavier : Entrée pour calculer, Retour arrière pour corriger et Échap pour effacer.",
+        "Une fenêtre compacte qui trouve sa place à côté de vos autres fenêtres ouvertes."
+      ]
+    },
+    "es": {
+      "short_description": "Calculadora sencilla con operaciones aritméticas básicas. Admite la entrada de datos con el teclado.",
+      "tagline": "Una calculadora que no estorba.",
+      "description": "Una calculadora pequeña y rápida para hacer cuentas mientras trabajas en otra cosa. Se abre en una ventana compacta, realiza las cuatro operaciones y calcula porcentajes, y permite usar el teclado —números, operadores, Intro, Retroceso y Escape— para que no tengas que recurrir al ratón.",
+      "capabilities": [
+        "Suma, resta, multiplicación, división y porcentajes.",
+        "Control completo con el teclado: Intro para calcular, Retroceso para corregir y Escape para borrar.",
+        "Ventana compacta que cabe junto a cualquier otra ventana que tengas abierta."
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Calculadora simples com operações aritméticas básicas. Aceita entrada pelo teclado.",
+      "tagline": "Uma calculadora que não atrapalha.",
+      "description": "Uma calculadora pequena e rápida para as contas que você faz enquanto trabalha em outra coisa. Ela abre em uma janela compacta, faz as quatro operações e calcula porcentagens, além de aceitar entrada pelo teclado — números, operadores, Enter, Backspace e Escape — para você não precisar usar o mouse.",
+      "capabilities": [
+        "Adição, subtração, multiplicação, divisão e porcentagens.",
+        "Controle completo pelo teclado, com Enter para calcular, Backspace para corrigir e Escape para limpar.",
+        "Janela compacta que cabe ao lado de qualquer outra coisa que você tenha aberta."
+      ]
+    },
+    "ja": {
+      "short_description": "基本的な四則演算ができるシンプルな電卓。キーボード入力にも対応。",
+      "tagline": "作業の邪魔をしない電卓。",
+      "description": "ほかの作業の合間に必要な計算を、手軽にすばやくこなせる小さな電卓です。コンパクトなウィンドウで開き、四則演算やパーセント計算に対応。数字や演算子の入力から、Enter、Backspace、Escapeによる操作までキーボードで完結するので、マウスに手を伸ばす必要はありません。",
+      "capabilities": [
+        "足し算、引き算、掛け算、割り算、パーセント計算に対応。",
+        "すべての操作をキーボードで。Enterで計算、Backspaceで修正、Escapeでクリアできます。",
+        "ほかのウィンドウの横にも収まるコンパクトなサイズ。"
+      ]
+    },
+    "ru": {
+      "short_description": "Простой калькулятор с основными арифметическими операциями. Поддерживает ввод с клавиатуры.",
+      "tagline": "Калькулятор, который всегда под рукой и не мешает работе.",
+      "description": "Небольшой и быстрый калькулятор для вычислений, которые нужны по ходу работы. Он открывается в компактном окне, выполняет четыре арифметических действия и вычисляет проценты, а также поддерживает ввод с клавиатуры — цифры, знаки операций, Enter, Backspace и Escape, — так что вам не придётся тянуться к мыши.",
+      "capabilities": [
+        "Сложение, вычитание, умножение, деление и вычисление процентов.",
+        "Полное управление с клавиатуры: Enter для вычисления результата, Backspace для исправления и Escape для очистки.",
+        "Компактное окно, которое легко разместить рядом с другими открытыми окнами."
+      ]
+    },
+    "zh-CN": {
+      "short_description": "简洁易用的计算器，支持基本四则运算和键盘输入。",
+      "tagline": "随手计算，不打扰工作。",
+      "description": "小巧快捷的计算器，方便你在处理其他工作时随手计算。它以紧凑的窗口打开，支持四则运算和百分比计算，也支持通过键盘输入数字、运算符，以及使用 Enter、Backspace 和 Escape 键，让你无需伸手操作鼠标。",
+      "capabilities": [
+        "支持加、减、乘、除和百分比计算。",
+        "支持全键盘操作，包括按 Enter 计算结果、按 Backspace 修改输入、按 Escape 清空。",
+        "窗口小巧紧凑，可轻松放在其他已打开的窗口旁边。"
+      ]
+    }
+  }
 }

@@ -24,5 +24,207 @@
       "summary": "Multiplayer runs on Game Hub accounts: your profile and avatar, invitations to other players, and your sessions and scores recorded in the Game Hub leaderboards.",
       "requires": "Game Hub installed. Single player works without it."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Озовете се на случайно място в Street View и познайте къде сте на картата. Колко добре познавате света?",
+      "tagline": "Някъде на Земята сте. Но къде?",
+      "description": "FindYourself ви отвежда на случайно място в Street View без други подсказки освен това, което виждате, и ви предизвиква да посочите на картата къде мислите, че се намирате. Колкото по-близо е предположението ви до истинското място, толкова повече точки печелите, с бонус за бърз отговор.\n\nИграйте самостоятелно с избран от вас брой рундове и в избран от вас регион — целия свят или една от двадесет държави. Или играйте с до осем души: създайте стая, споделете връзката или поканете играчи от Game Hub и всички ще отгатвате едно и също място едновременно, с класиране след всеки рунд и окончателно класиране накрая.",
+      "capabilities": [
+        "Случайни места в Street View с карта, на която да отбележите предположението си.",
+        "Точки според разстоянието и бонус за бързина.",
+        "1–10 рунда на игра и времеви лимит за всеки рунд по ваш избор (или без лимит).",
+        "Избор на регион: целият свят или една от двадесет държави.",
+        "Стаи за игра с до осем играчи, с присъединяване чрез споделена връзка или покана от Game Hub.",
+        "Актуално класиране между рундовете и окончателна ранглиста.",
+        "Резултат от рунда, който показва предположението ви и истинското място едно до друго.",
+        "Запазете самостоятелната си игра и излезте по всяко време, а след това я продължете дори след дни.",
+        "Статистика в Game Hub за точките на рунд, най-добрия рунд, рундовете с даден отговор и средното или най-малкото разстояние между предположението и истинското място."
+      ],
+      "requirements": [
+        "API ключ за Google Maps с активирани Maps JavaScript и Street View API, добавен в Apps Hub → Настройки → API ключове или споделен с вас от администратора. Без такъв ключ играта не може да зареди място."
+      ],
+      "integrations": [
+        {
+          "summary": "Играта с други играчи използва акаунти в Game Hub: вашия профил и аватар, поканите към други играчи и записването на игровите ви сесии и резултати в ранглистите на Game Hub.",
+          "requires": "Необходимо е да е инсталиран Game Hub. Самостоятелната игра работи и без него."
+        }
+      ]
+    },
+    "de": {
+      "short_description": "Lande an einem zufälligen Street View-Ort und rate, wo du auf der Karte bist. Wie gut kennst du die Welt?",
+      "tagline": "Irgendwo auf der Erde gelandet. Wo bist du?",
+      "description": "FindYourself versetzt dich an einen zufälligen Street View-Ort. Deine einzigen Anhaltspunkte sind das, was du siehst. Markiere auf der Karte, wo du dich vermutest. Je näher du dem tatsächlichen Ort kommst, desto mehr Punkte erhältst du. Für schnelle Antworten gibt es einen Bonus.\n\nSpiele allein und wähle selbst die Rundenzahl und die Region – die ganze Welt oder eines von zwanzig Ländern. Oder spiele im Mehrspielermodus mit bis zu acht Personen: Erstelle einen Raum, teile den Link oder lade Spieler aus Game Hub ein. Alle erraten gleichzeitig denselben Ort. Nach jeder Runde siehst du den Zwischenstand, am Ende die Abschlusstabelle.",
+      "capabilities": [
+        "Zufällige Street View-Orte mit einer Karte, auf der du deinen Tipp abgibst.",
+        "Punkte nach Entfernung, mit einem Zeitbonus.",
+        "1–10 Runden pro Spiel und ein selbst festgelegtes Zeitlimit pro Runde (oder keines).",
+        "Regionsauswahl: die ganze Welt oder eines von zwanzig Ländern.",
+        "Mehrspielerräume für bis zu acht Spieler, mit Beitritt über einen geteilten Link oder eine Einladung aus Game Hub.",
+        "Aktuelle Spielstände zwischen den Runden und eine abschließende Rangliste.",
+        "Rundenergebnis mit deinem Tipp und dem tatsächlichen Ort nebeneinander.",
+        "Speichere und beende ein Einzelspiel jederzeit und setze es auch Tage später fort.",
+        "Game Hub-Statistiken zu Punkten pro Runde, bester Runde, beantworteten Runden sowie durchschnittlicher oder geringster Entfernung deiner Tipps zum tatsächlichen Ort."
+      ],
+      "requirements": [
+        "Ein Google Maps-API-Schlüssel mit aktivierten Maps JavaScript- und Street View-APIs, den du unter Apps Hub → Einstellungen → API-Schlüssel hinzufügst oder den der Administrator mit dir teilt. Ohne diesen Schlüssel kann das Spiel keinen Ort laden."
+      ],
+      "integrations": [
+        {
+          "summary": "Der Mehrspielermodus nutzt Game Hub-Konten: dein Profil und deinen Avatar, Einladungen an andere Spieler sowie deine Spielsitzungen und Punktzahlen, die in den Game Hub-Ranglisten erfasst werden.",
+          "requires": "Game Hub muss installiert sein. Der Einzelspielermodus funktioniert auch ohne Game Hub."
+        }
+      ]
+    },
+    "ru": {
+      "short_description": "Окажитесь в случайном месте в Street View и угадайте, где вы на карте. Насколько хорошо вы знаете мир?",
+      "tagline": "Вы оказались где-то на Земле. Где именно?",
+      "description": "FindYourself переносит вас в случайное место в Street View и предлагает отметить на карте, где, по вашему мнению, вы находитесь. Единственные подсказки — то, что вы видите вокруг. Чем точнее ваш ответ, тем больше очков вы получаете, а за быстрый ответ полагается бонус.\n\nИграйте в одиночку, выбирая число раундов и регион — весь мир или одну из двадцати стран. Или играйте в компании до восьми человек: создайте комнату, поделитесь ссылкой или пригласите игроков из Game Hub. Все одновременно угадывают одно и то же место, после каждого раунда обновляется таблица результатов, а в конце подводятся итоги.",
+      "capabilities": [
+        "Случайные места в Street View и карта, на которой можно отметить свой ответ.",
+        "Начисление очков за точность ответа и бонус за скорость.",
+        "1–10 раундов за игру и настраиваемое ограничение времени на раунд (или игра без ограничения).",
+        "Выбор региона: весь мир или одна из двадцати стран.",
+        "Комнаты для совместной игры до восьми человек со входом по ссылке или приглашению из Game Hub.",
+        "Обновляемая таблица результатов между раундами и итоговая таблица лидеров.",
+        "Результаты раунда с наглядным сравнением вашего ответа и настоящего местоположения.",
+        "Возможность сохранить одиночную игру и выйти в любой момент, а затем продолжить даже спустя несколько дней.",
+        "Статистика в Game Hub: очки за раунд, лучший раунд, раунды с ответом, а также среднее или минимальное расстояние от отмеченной точки до настоящего местоположения."
+      ],
+      "requirements": [
+        "Ключ Google Maps API с включёнными Maps JavaScript и Street View API, добавленный в Apps Hub → Настройки → Ключи API или предоставленный вам администратором. Без него игра не сможет загрузить местоположение."
+      ],
+      "integrations": [
+        {
+          "summary": "Совместная игра использует учётные записи Game Hub: ваш профиль и аватар, приглашения другим игрокам, а также запись ваших игровых сессий и результатов в таблицах лидеров Game Hub.",
+          "requires": "Требуется установленный Game Hub. Одиночная игра работает и без него."
+        }
+      ]
+    },
+    "zh-CN": {
+      "short_description": "随机置身一处 Street View 街景，在地图上猜出你的位置。你对这个世界有多了解？",
+      "tagline": "置身地球上的某个角落。你在哪里？",
+      "description": "FindYourself 将你随机带到一处 Street View 街景中，眼前所见就是你仅有的线索。你需要在地图上标出自己所在的位置。猜得越近，得分越高，快速作答还能获得额外加分。\n\n单人游玩时，你可以自选回合数和区域，探索整个世界，或选择二十个国家之一。也可以与最多八人一起联机：创建房间，分享链接或邀请 Game Hub 玩家，所有人同时猜测同一个地点。每回合结束后都会更新排名，游戏结束时还会显示最终排行榜。",
+      "capabilities": [
+        "随机呈现 Street View 街景，让你在地图上标出猜测的位置。",
+        "根据距离计分，快速作答可获得额外加分。",
+        "每局可设为 1–10 回合，每回合的作答时限由你设定，也可不限时。",
+        "自由选择区域：整个世界，或二十个国家之一。",
+        "多人房间最多支持八名玩家，可通过分享链接或 Game Hub 邀请加入。",
+        "回合之间实时更新排名，游戏结束后显示最终排行榜。",
+        "回合结果并排展示你猜测的位置与实际位置，方便对照。",
+        "单人游戏随时可以保存并退出，几天后也能接着玩。",
+        "在 Game Hub 中查看每回合得分、最佳回合、已作答回合数，以及猜测距离的平均值或最短值等统计数据。"
+      ],
+      "requirements": [
+        "需要一个已启用 Maps JavaScript 和 Street View API 的 Google Maps API 密钥。你可以在 Apps Hub → 设置 → API 密钥中添加，也可以使用管理员共享给你的密钥。没有密钥，游戏将无法加载地点。"
+      ],
+      "integrations": [
+        {
+          "summary": "多人游戏使用 Game Hub 账号：展示你的个人资料和头像，向其他玩家发送邀请，并将你的对局和得分记录在 Game Hub 排行榜中。",
+          "requires": "需安装 Game Hub。单人游戏无需安装。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Vá parar em um local aleatório do Street View e tente adivinhar onde você está no mapa. Você conhece bem o mundo?",
+      "tagline": "Você foi parar em algum lugar da Terra. Onde está?",
+      "description": "FindYourself leva você a um local aleatório do Street View, sem nenhuma pista além do que está à sua vista, e desafia você a marcar no mapa onde acha que está. Quanto mais perto sua resposta chegar do local real, mais pontos você ganha, com um bônus por responder rápido.\n\nJogue no modo solo com o número de rodadas e a região que você escolher — o mundo inteiro ou um entre vinte países. Ou jogue no modo multijogador com até oito pessoas: crie uma sala, compartilhe o link ou convide jogadores do Game Hub, e todos tentam adivinhar o mesmo local ao mesmo tempo, com a classificação após cada rodada e uma tabela final ao término da partida.",
+      "capabilities": [
+        "Locais aleatórios do Street View com um mapa para marcar seu palpite.",
+        "Pontuação por distância, com bônus por tempo.",
+        "De 1 a 10 rodadas por partida e um limite de tempo por rodada definido por você (ou sem limite).",
+        "Seleção de região: o mundo inteiro ou um entre vinte países.",
+        "Salas multijogador para até oito jogadores, com acesso por link compartilhado ou convite do Game Hub.",
+        "Classificação em tempo real entre as rodadas e um ranking final.",
+        "Resultado da rodada mostrando seu palpite e o local real lado a lado.",
+        "Salve e saia de uma partida solo a qualquer momento e retome de onde parou dias depois.",
+        "Estatísticas no Game Hub com pontos por rodada, melhor rodada, rodadas respondidas e distância média ou menor distância entre os palpites e os locais reais."
+      ],
+      "requirements": [
+        "Uma chave de API do Google Maps com as APIs Maps JavaScript e Street View ativadas, adicionada em Apps Hub → Configurações → Chaves de API ou compartilhada com você pelo administrador. Sem uma chave, o jogo não consegue carregar um local."
+      ],
+      "integrations": [
+        {
+          "summary": "O modo multijogador usa contas do Game Hub: seu perfil e avatar, convites para outros jogadores e suas sessões e pontuações registradas nos rankings do Game Hub.",
+          "requires": "É necessário ter o Game Hub instalado. O modo solo funciona sem ele."
+        }
+      ]
+    },
+    "es": {
+      "short_description": "Aparece en un lugar aleatorio de Street View y adivina dónde estás en el mapa. ¿Cuánto conoces el mundo?",
+      "tagline": "Estás en algún lugar de la Tierra. ¿Dónde?",
+      "description": "FindYourself te sitúa en un lugar aleatorio de Street View sin más pistas que lo que ves y te reta a señalar en el mapa dónde crees que estás. Cuanto más te acerques, más puntos conseguirás, con una bonificación por responder rápido.\n\nJuega en solitario y elige el número de rondas y la región: el mundo entero o uno de veinte países. También puedes jugar en modo multijugador con hasta ocho personas: crea una sala, comparte el enlace o invita a jugadores de Game Hub. Todos intentan adivinar la misma ubicación al mismo tiempo, con una clasificación después de cada ronda y una tabla de resultados al final.",
+      "capabilities": [
+        "Ubicaciones aleatorias de Street View con un mapa para marcar dónde crees que estás.",
+        "Puntuación según la distancia, con una bonificación por rapidez.",
+        "1–10 rondas por partida y un límite de tiempo por ronda que tú eliges (o sin límite).",
+        "Selector de región: el mundo entero o uno de veinte países.",
+        "Salas multijugador para hasta ocho jugadores, con acceso mediante un enlace compartido o una invitación de Game Hub.",
+        "Clasificación en tiempo real entre rondas y una clasificación final.",
+        "Resultados de cada ronda con la ubicación que has marcado y la real, una junto a la otra.",
+        "Guarda y sal de una partida en solitario en cualquier momento, y retómala incluso días después.",
+        "Estadísticas de Game Hub con los puntos por ronda, la mejor ronda, las rondas respondidas y la distancia media o mínima entre tus respuestas y las ubicaciones reales."
+      ],
+      "requirements": [
+        "Una clave de API de Google Maps con las API de Maps JavaScript y Street View habilitadas, añadida en Apps Hub → Ajustes → Claves de API o compartida contigo por el administrador. Sin ella, el juego no puede cargar ninguna ubicación."
+      ],
+      "integrations": [
+        {
+          "summary": "El modo multijugador utiliza cuentas de Game Hub: tu perfil y avatar, las invitaciones a otros jugadores y el registro de tus sesiones y puntuaciones en las clasificaciones de Game Hub.",
+          "requires": "Game Hub debe estar instalado. El modo para un jugador funciona sin él."
+        }
+      ]
+    },
+    "fr": {
+      "short_description": "Retrouvez-vous dans un lieu Street View au hasard et devinez où vous êtes sur la carte. Connaissez-vous bien le monde ?",
+      "tagline": "Quelque part sur Terre. Où êtes-vous ?",
+      "description": "FindYourself vous place dans un lieu Street View au hasard, avec pour seuls indices ce que vous voyez, et vous demande d'indiquer sur la carte où vous pensez être. Plus vous visez juste, plus vous marquez de points, avec un bonus si vous répondez rapidement.\n\nJouez en solo en choisissant le nombre de manches et la zone de jeu : le monde entier ou l'un des vingt pays proposés. Ou jouez à plusieurs, jusqu'à huit personnes : créez un salon, partagez le lien ou invitez des joueurs de Game Hub. Tout le monde doit retrouver le même lieu en même temps, avec un classement après chaque manche et un classement final à la fin de la partie.",
+      "capabilities": [
+        "Des lieux Street View choisis au hasard et une carte pour indiquer votre réponse.",
+        "Des points calculés selon la distance, avec un bonus de rapidité.",
+        "1–10 manches par partie et une limite de temps par manche à définir selon vos envies, ou aucune.",
+        "Choix de la zone de jeu : le monde entier ou l'un des vingt pays proposés.",
+        "Des salons multijoueurs pouvant accueillir jusqu'à huit joueurs, accessibles par un lien partagé ou une invitation Game Hub.",
+        "Un classement en direct entre les manches et un classement final.",
+        "Le résultat de chaque manche, avec votre réponse et le lieu réel affichés côte à côte.",
+        "Enregistrez et quittez une partie en solo à tout moment, puis reprenez-la plusieurs jours plus tard.",
+        "Des statistiques dans Game Hub : points par manche, meilleure manche, manches jouées et distance moyenne ou minimale entre vos réponses et les lieux réels."
+      ],
+      "requirements": [
+        "Une clé API Google Maps avec les API Maps JavaScript et Street View activées, ajoutée dans Apps Hub → Paramètres → Clés API ou partagée avec vous par l'administrateur. Sans cette clé, le jeu ne peut pas charger de lieu."
+      ],
+      "integrations": [
+        {
+          "summary": "Le mode multijoueur utilise les comptes Game Hub : votre profil et votre avatar, les invitations à d'autres joueurs, ainsi que vos parties et vos scores enregistrés dans les classements Game Hub.",
+          "requires": "Game Hub doit être installé. Le mode solo fonctionne sans."
+        }
+      ]
+    },
+    "ja": {
+      "short_description": "ランダムなStreet Viewの場所に降り立ち、今いる場所を地図で当てよう。あなたは世界をどれだけ知っていますか？",
+      "tagline": "地球のどこかに降り立ったあなた。ここはどこ？",
+      "description": "FindYourselfは、ランダムなStreet Viewの場所に降り立ち、目に映る景色だけを手がかりに、今いると思う場所を地図上で指し示すゲームです。実際の場所に近いほど高得点。素早く答えるとボーナスも加算されます。\n\nひとりで遊ぶなら、ラウンド数も地域も自由に選択。全世界、または20か国のうちの1か国を舞台に挑戦できます。最大8人でのマルチプレイも可能。ルームを作成してリンクを共有するか、Game Hubのプレイヤーを招待すれば、全員が同時に同じ場所の推測に挑みます。各ラウンドの終了後に順位を確認でき、ゲーム終了時には最終順位表が表示されます。",
+      "capabilities": [
+        "ランダムなStreet Viewの場所を見て、地図上で現在地を推測。",
+        "実際の場所までの距離に応じた得点と、回答時間に応じたボーナス。",
+        "1ゲームあたり1–10ラウンド。各ラウンドの制限時間も自由に設定でき、時間制限なしも選択可能。",
+        "地域を選択：全世界、または20か国のうちの1か国。",
+        "最大8人で遊べるマルチプレイルーム。共有リンクやGame Hubの招待から参加可能。",
+        "ラウンド間に更新される順位表と、ゲーム終了時の最終ランキング。",
+        "各ラウンドの結果では、推測した場所と実際の場所を並べて表示。",
+        "ひとり用ゲームはいつでも保存して終了でき、数日後でも続きから再開可能。",
+        "Game Hubで、ラウンドごとの得点、最高得点のラウンド、回答済みラウンド数、推測地点から実際の場所までの平均距離や最短距離を確認。"
+      ],
+      "requirements": [
+        "Maps JavaScript APIとStreet View APIを有効にしたGoogle Maps APIキーが必要です。Apps Hub → 設定 → APIキーで追加するか、管理者から共有してもらってください。APIキーがないと、ゲームで場所を読み込めません。"
+      ],
+      "integrations": [
+        {
+          "summary": "マルチプレイはGame Hubのアカウントを使用します。プロフィールやアバターの利用、ほかのプレイヤーの招待ができ、プレイ履歴とスコアはGame Hubのランキングに記録されます。",
+          "requires": "Game Hubのインストールが必要です。ひとり用モードはGame Hubがなくても遊べます。"
+        }
+      ]
+    }
+  }
 }

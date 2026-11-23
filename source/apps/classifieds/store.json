@@ -38,5 +38,319 @@
       "summary": "Classifieds exposes an app-to-app API: other apps can list the categories and your own listings, and add, edit, bump, activate, deactivate or delete a listing on your behalf, under the same rules, bans and verifications as the public page.",
       "requires": "The Classifieds App API has to be switched on in Apps Hub → Settings → App APIs. It is off by default."
     }
-  ]
+  ],
+  "i18n": {
+    "es": {
+      "short_description": "Anuncios clasificados de la comunidad con fotos, categorías, artículos gratis, perfiles de Apps Hub y renovación de anuncios.",
+      "tagline": "Un mercado comunitario con perfiles de Apps Hub.",
+      "description": "Publica anuncios clasificados con fotos, descripciones, categorías, precios o artículos gratis. Explora un catálogo público y gestiona tus propios anuncios con tu cuenta de Apps Hub. Sigue los anuncios que te interesen, consulta estadísticas de visitas y seguidores visibles solo para el propietario e inicia conversaciones privadas tanto si vendes como si te interesa un anuncio, con fotos que pueden desaparecer unos segundos después de que la otra persona las abra. Los ajustes del escritorio permiten configurar las categorías, las subcategorías y la vigencia de los anuncios. Un panel de Moderación gratuito permite al administrador gestionar todos los anuncios, leer y eliminar cualquier conversación con su estado de entrega y lectura, ver solo los mensajes nuevos para él con un contador y prohibir que un perfil publique. Cada persona afectada recibe información sobre los cambios en su propio idioma. Premium añade paquetes VIP que se pagan con créditos y sitúan los anuncios promocionados en primer lugar, además de la verificación de usuarios mediante foto antes de que puedan publicar en determinadas categorías.",
+      "capabilities": [
+        "Catálogo público con búsqueda y filtros por categoría y precio.",
+        "Los usuarios de Apps Hub son los propietarios de sus anuncios y los gestionan desde sus cuentas.",
+        "Hasta diez fotos por anuncio.",
+        "Artículos gratis, ubicación y datos de contacto públicos opcionales.",
+        "Edita, activa, desactiva y elimina tus anuncios.",
+        "Caducidad automática y reactivación de anuncios caducados.",
+        "Vuelve a colocar un anuncio activo al principio de la lista una vez cada 24 horas.",
+        "Ajustes de categorías, subcategorías y vigencia en el escritorio.",
+        "Interfaz traducida a nueve idiomas.",
+        "Conversaciones privadas vinculadas a los anuncios, con contadores de mensajes sin leer e identidades de Apps Hub.",
+        "Monedas por anuncio según la Configuración regional, con filtros de precio específicos para cada moneda.",
+        "Sigue anuncios y vuelve a consultarlos más tarde en la vista Anuncios seguidos.",
+        "Recuentos diarios de visitas únicas y estadísticas de seguidores visibles solo para el propietario.",
+        "Los vendedores pueden iniciar una conversación privada con alguien que siga su anuncio.",
+        "Anuncios VIP de Premium pagados mediante paquetes de créditos de Apps Hub definidos por el administrador.",
+        "Panel de Moderación que muestra todos los anuncios, con búsqueda y filtros por categoría, estado y propietario, para editar, mover, activar, desactivar, colocar al principio de la lista sin esperar un día, finalizar la promoción VIP o eliminar un anuncio o toda una selección.",
+        "Prohíbe que un perfil publique en Classifieds, con un motivo opcional y sin modificar su cuenta de Apps Hub.",
+        "Moderación de mensajes que muestra todas las conversaciones, quién escribió a quién y cuándo se envió, se entregó y se leyó cada mensaje, y permite eliminar un mensaje o una conversación completa sin editar su contenido.",
+        "Mensajes del sistema que informan a las personas, en su propio idioma, de los cambios que la moderación ha realizado en sus anuncios.",
+        "Verificación de usuarios de Premium que solicita una foto antes de publicar en determinadas categorías y se activa tras el registro, al cabo de un número de días o después de publicar un número de anuncios.",
+        "Abre el anuncio desde su conversación sin cerrar el chat, con información clara del vendedor y desplazamiento dentro de las ventanas del escritorio en dispositivos móviles.",
+        "Cada anuncio tiene un enlace directo, que también se devuelve a los scripts y las aplicaciones que utilizan la API externa.",
+        "Envía una foto en un mensaje, con un texto opcional, para intercambiar imágenes de un artículo.",
+        "Las fotos de los mensajes pueden desaparecer 10 segundos, 30 segundos, 1 minuto o 5 minutos después de que la otra persona las abra, y el archivo se elimina del servidor.",
+        "La moderación de mensajes se abre mostrando solo los mensajes nuevos, con filtros para los mensajes vistos y los avisos del sistema, y un botón para marcar todo como visto que solo actualiza la marca de lectura del propio administrador.",
+        "Contador de mensajes nuevos en el botón Moderación y en su pestaña Mensajes."
+      ],
+      "integrations": [
+        {
+          "summary": "Classifieds ofrece una API entre aplicaciones: otras aplicaciones pueden consultar las categorías y tus propios anuncios, así como añadir, editar, volver a colocar al principio de la lista, activar, desactivar o eliminar un anuncio en tu nombre, con las mismas reglas, prohibiciones y verificaciones que en la página pública.",
+          "requires": "La API de la aplicación Classifieds debe activarse en Apps Hub → Ajustes → API de aplicaciones. Está desactivada de forma predeterminada."
+        }
+      ]
+    },
+    "bg": {
+      "short_description": "Обяви за общността със снимки, категории, безплатни вещи, профили в Apps Hub и подновяване на обявите.",
+      "tagline": "Пазар за общността с профили от Apps Hub.",
+      "description": "Публикувайте обяви със снимки, описания, категории, цени или вещи, които подарявате. Разглеждайте публичния каталог и управлявайте собствените си обяви със съществуващия си акаунт в Apps Hub. Следете интересни обяви, преглеждайте достъпна само за собственика статистика за преглежданията и следящите потребители и започвайте лични разговори както като продавач, така и като заинтересован потребител, включително със снимки, които могат да изчезват няколко секунди след отварянето им от получателя. Настройките на работния плот определят категориите, подкатегориите и срока на валидност на обявите. Безплатният панел за модериране позволява на администратора да управлява всички обяви, да чете и изтрива всички разговори със статуса на доставяне и прочитане на съобщенията, да вижда само новите за него съобщения с индикатор за броя им и да забранява на профили да публикуват, като всеки засегнат потребител получава известие за промените на собствения си език. Premium добавя VIP пакети, платими с кредити, които поставят промотираните обяви на първо място, както и проверка на потребителите със снимка, преди да могат да публикуват в избрани категории.",
+      "capabilities": [
+        "Публичен каталог с търсене и филтри по категория и цена.",
+        "Потребителите притежават и управляват обявите си чрез своите акаунти в Apps Hub.",
+        "До десет снимки на обява.",
+        "Вещи за подаряване, местоположение и незадължителни публични данни за контакт.",
+        "Редактиране, активиране, деактивиране и изтриване на собствените обяви.",
+        "Автоматично изтичане на срока и повторно активиране на изтекли обяви.",
+        "Извеждане на активна обява в началото на списъка веднъж на всеки 24 часа.",
+        "Настройки за категории, подкатегории и срок на валидност от работния плот.",
+        "Интерфейс, преведен на девет езика.",
+        "Лични разговори, свързани с обявите, с брой непрочетени съобщения и профили от Apps Hub.",
+        "Валута за всяка обява според регионалните настройки и филтри за цена според валутата.",
+        "Следене на обяви и преглеждането им по-късно в отделен изглед „Следени“.",
+        "Дневен брой уникални преглеждания и статистика за следящите потребители, видими само за собственика.",
+        "Продавачите могат да започнат личен разговор с потребител, който следи обявата.",
+        "VIP обяви с Premium, платими чрез пакети с кредити в Apps Hub, определени от администратора.",
+        "Панел за модериране с всички обяви, търсене и филтриране по категория, статус и собственик, с възможност за редактиране, преместване, активиране, деактивиране, извеждане в началото на списъка без изчакване от един ден, прекратяване на VIP статуса или изтриване на една обява или на всички избрани обяви.",
+        "Забрана на профил да публикува в Classifieds, с незадължително посочване на причина, без промяна на акаунта му в Apps Hub.",
+        "Модериране на съобщенията с преглед на всички разговори, информация кой на кого е писал и кога всяко съобщение е изпратено, доставено и прочетено, както и изтриване на съобщение или цял разговор без възможност за редактиране на съдържанието.",
+        "Системни съобщения, които уведомяват потребителите на собствения им език какви промени са направени по обявите им при модериране.",
+        "Проверка на потребителите с Premium, която изисква снимка преди публикуване в избрани категории и се задейства след регистрация, след определен брой дни или след определен брой обяви.",
+        "Отваряне на обявата от разговора за нея, без затваряне на чата, с ясно представени данни за продавача и превъртане в прозорците на работния плот на мобилни устройства.",
+        "Всяка обява има директна връзка, която се предоставя и на скриптове и приложения, използващи външния API.",
+        "Изпращане на снимка в съобщение с незадължителен надпис, за да могат потребителите да обменят снимки на дадена вещ.",
+        "Снимките в съобщенията могат да изчезват 10 секунди, 30 секунди, 1 минута или 5 минути след отварянето им от получателя, а файлът се изтрива от сървъра.",
+        "Модерирането на съобщенията се отваря само с новите съобщения, с филтри за прегледани съобщения и системни известия и бутон за отбелязване на всички като прегледани, който актуализира единствено личния маркер на администратора.",
+        "Брой нови съобщения върху бутона „Модериране“ и в раздела му „Съобщения“."
+      ],
+      "integrations": [
+        {
+          "summary": "Classifieds предоставя API за взаимодействие между приложения: други приложения могат да извличат списък с категориите и собствените ви обяви, както и да добавят, редактират, извеждат в началото на списъка, активират, деактивират или изтриват обява от ваше име при същите правила, забрани и проверки като в публичната страница.",
+          "requires": "API на приложението Classifieds трябва да бъде включен от Apps Hub → Настройки → API на приложенията. По подразбиране е изключен."
+        }
+      ]
+    },
+    "de": {
+      "short_description": "Kleinanzeigen für die Community mit Fotos, Kategorien, Gratisartikeln, Apps Hub-Profilen und Anzeigenerneuerung.",
+      "tagline": "Ein Marktplatz für die Community mit Apps Hub-Profilen.",
+      "description": "Veröffentliche Kleinanzeigen mit Fotos, Beschreibungen, Kategorien und Preisen oder verschenke Artikel. Stöbere im öffentlichen Katalog und verwalte deine eigenen Anzeigen mit deinem bestehenden Apps Hub-Konto. Merke dir interessante Anzeigen, sieh dir die nur für Anzeigeninhaber sichtbaren Statistiken zu Aufrufen und Merklisten an und starte als Anbieter oder Interessent private Unterhaltungen. Dabei kannst du auch Fotos senden, die wenige Sekunden nach dem Öffnen durch die andere Person verschwinden. In den Desktop-Einstellungen lassen sich Kategorien, Unterkategorien und die Gültigkeitsdauer von Anzeigen festlegen. Im kostenlosen Moderationsbereich kann der Administrator alle Anzeigen verwalten, sämtliche Unterhaltungen samt Zustell- und Lesestatus lesen und löschen, nur die für ihn neuen Nachrichten mit einem Zähler anzeigen und Profile für die Veröffentlichung sperren. Jede betroffene Person wird in ihrer eigenen Sprache über die Änderungen informiert. Premium ergänzt VIP-Pakete, die mit Guthaben bezahlt werden und beworbene Anzeigen ganz oben platzieren, sowie eine Fotoverifizierung, die Nutzer vor dem Veröffentlichen in ausgewählten Kategorien durchlaufen müssen.",
+      "capabilities": [
+        "Öffentlicher Katalog mit Suche sowie Kategorie- und Preisfiltern.",
+        "Anzeigen sind Apps Hub-Konten zugeordnet und werden über diese verwaltet.",
+        "Bis zu zehn Fotos pro Anzeige.",
+        "Artikel zum Verschenken, Standort und optionale öffentliche Kontaktdaten.",
+        "Eigene Anzeigen bearbeiten, aktivieren, deaktivieren und löschen.",
+        "Automatischer Ablauf und erneute Aktivierung abgelaufener Anzeigen.",
+        "Aktive Anzeigen einmal alle 24 Stunden nach oben verschieben.",
+        "Desktop-Einstellungen für Kategorien, Unterkategorien und Gültigkeitsdauer.",
+        "In neun Sprachen übersetzte Benutzeroberfläche.",
+        "Private Unterhaltungen zu Anzeigen mit Zählern für ungelesene Nachrichten und Apps Hub-Identitäten.",
+        "Währung je Anzeige passend zu den Regionaleinstellungen und währungsspezifische Preisfilter.",
+        "Anzeigen merken und später in einer eigenen Merkliste wiederfinden.",
+        "Nur für Anzeigeninhaber sichtbare Statistiken zu täglichen eindeutigen Aufrufen und zur Anzahl der Personen, die sich die Anzeige gemerkt haben.",
+        "Verkäufer können eine private Unterhaltung mit Personen starten, die sich ihre Anzeige gemerkt haben.",
+        "VIP-Anzeigen mit Premium, bezahlt über vom Administrator festgelegte Apps Hub-Guthabenpakete.",
+        "Moderationsbereich mit allen Anzeigen, durchsuchbar und nach Kategorie, Status und Inhaber filterbar. Einzelne oder mehrere ausgewählte Anzeigen lassen sich bearbeiten, in andere Kategorien verschieben, aktivieren, deaktivieren, ohne einen Tag Wartezeit ganz nach oben verschieben, aus der VIP-Platzierung nehmen oder löschen.",
+        "Profile mit optionaler Begründung für das Veröffentlichen in Classifieds sperren, ohne ihr Apps Hub-Konto zu verändern.",
+        "Nachrichtenmoderation mit allen Unterhaltungen: Sie zeigt, wer wem geschrieben hat und wann jede Nachricht gesendet, zugestellt und angesehen wurde. Einzelne Nachrichten oder ganze Unterhaltungen lassen sich löschen, ohne Inhalte zu bearbeiten.",
+        "Systemnachrichten informieren Betroffene in ihrer eigenen Sprache darüber, was die Moderation an ihren Anzeigen geändert hat.",
+        "Nutzerverifizierung mit Premium, die vor dem Veröffentlichen in ausgewählten Kategorien ein Foto verlangt und nach der Registrierung, nach einer bestimmten Anzahl von Tagen oder nach einer bestimmten Anzahl von Anzeigen ausgelöst wird.",
+        "Anzeigen direkt aus der zugehörigen Unterhaltung öffnen, ohne den Chat zu schließen, mit übersichtlichen Verkäuferangaben und Scrollfunktion in mobilen Desktop-Fenstern.",
+        "Jede Anzeige hat einen direkten Link, der auch an Skripte und Apps zurückgegeben wird, die die externe API nutzen.",
+        "Fotos mit optionaler Bildunterschrift als Nachricht senden, um Bilder eines Artikels auszutauschen.",
+        "Fotos in Nachrichten können 10 Sekunden, 30 Sekunden, 1 Minute oder 5 Minuten nach dem Öffnen durch die andere Person verschwinden. Dabei wird die Datei vom Server gelöscht.",
+        "Die Nachrichtenmoderation zeigt beim Öffnen nur neue Nachrichten an und bietet Filter für angesehene Nachrichten und Systemhinweise. Über eine Schaltfläche lassen sich alle Nachrichten als angesehen markieren, wobei nur die persönliche Lesemarkierung des Administrators aktualisiert wird.",
+        "Zähler für neue Nachrichten auf der Schaltfläche „Moderation“ und im zugehörigen Tab „Nachrichten“."
+      ],
+      "integrations": [
+        {
+          "summary": "Classifieds bietet eine API für die Kommunikation zwischen Apps: Andere Apps können die Kategorien und deine eigenen Anzeigen auflisten sowie in deinem Namen Anzeigen hinzufügen, bearbeiten, nach oben verschieben, aktivieren, deaktivieren oder löschen. Dabei gelten dieselben Regeln, Sperren und Verifizierungen wie auf der öffentlichen Seite.",
+          "requires": "Die App-API von Classifieds muss unter Apps Hub → Einstellungen → App-APIs aktiviert werden. Sie ist standardmäßig deaktiviert."
+        }
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Classificados da comunidade com fotos, categorias, itens grátis, perfis do Apps Hub e renovação de anúncios.",
+      "tagline": "Um espaço de compra e venda da comunidade integrado aos perfis do Apps Hub.",
+      "description": "Publique anúncios classificados com fotos, descrições, categorias, preços ou itens grátis. Explore um catálogo público e gerencie seus próprios anúncios com sua conta do Apps Hub. Acompanhe anúncios do seu interesse, veja estatísticas de visualizações e de pessoas que acompanham seus anúncios, disponíveis apenas para o proprietário, e inicie conversas privadas como anunciante ou interessado, inclusive com fotos que podem desaparecer alguns segundos depois de a outra pessoa abri-las. As configurações do desktop controlam categorias, subcategorias e validade dos anúncios. Um painel de Moderação gratuito permite ao administrador gerenciar todos os anúncios, ler e excluir qualquer conversa com seus status de entrega e leitura, ver apenas as mensagens novas para ele com um indicador de contagem e impedir um perfil de publicar. Cada pessoa afetada é informada sobre as alterações no próprio idioma. O Premium adiciona pacotes VIP pagos com créditos, que colocam os anúncios promovidos em primeiro lugar, e verificação de usuários por foto antes de poderem publicar em categorias selecionadas.",
+      "capabilities": [
+        "Catálogo público com busca e filtros por categoria e preço.",
+        "Os anúncios pertencem às contas do Apps Hub e são gerenciados por elas.",
+        "Até dez fotos por anúncio.",
+        "Itens grátis, localização e dados de contato públicos opcionais.",
+        "Edição, ativação, desativação e exclusão dos próprios anúncios.",
+        "Expiração automática e reativação de anúncios expirados.",
+        "Reposicionamento de um anúncio ativo no topo da lista uma vez a cada 24 horas.",
+        "Configurações de categorias, subcategorias e validade no desktop.",
+        "Interface traduzida para nove idiomas.",
+        "Conversas privadas vinculadas aos anúncios, com contagem de mensagens não lidas e identificação pelos perfis do Apps Hub.",
+        "Moeda por anúncio de acordo com as Configurações regionais, com filtros de preço específicos para cada moeda.",
+        "Acompanhe anúncios e consulte-os depois na seção Anúncios acompanhados.",
+        "Contagens diárias de visualizações únicas e estatísticas de pessoas que acompanham o anúncio, disponíveis apenas para o proprietário.",
+        "Os vendedores podem iniciar uma conversa privada com quem acompanha o anúncio.",
+        "Anúncios VIP do Premium pagos por meio de pacotes de créditos do Apps Hub definidos pelo administrador.",
+        "Painel de Moderação que exibe todos os anúncios, com busca e filtros por categoria, status e proprietário, para editar, mover, ativar, desativar, colocar no topo da lista sem esperar um dia, encerrar o VIP ou excluir um anúncio ou uma seleção inteira.",
+        "Impeça um perfil de publicar no Classifieds, com um motivo opcional, sem alterar sua conta do Apps Hub.",
+        "Moderação de mensagens que exibe todas as conversas, mostrando quem escreveu para quem e quando cada mensagem foi enviada, entregue e visualizada, e permite excluir uma mensagem ou uma conversa inteira sem editar nenhum conteúdo.",
+        "Mensagens do sistema que informam às pessoas, no próprio idioma, o que a moderação alterou em seus anúncios.",
+        "Verificação de usuários do Premium que solicita uma foto antes da publicação em categorias selecionadas, acionada após o cadastro, após um determinado número de dias ou após um determinado número de anúncios.",
+        "Abra o anúncio a partir da conversa sem fechar o chat, com informações claras sobre o vendedor e rolagem nas janelas do desktop em dispositivos móveis.",
+        "Cada anúncio tem um link direto, também retornado aos scripts e aplicativos que usam a API externa.",
+        "Envie uma foto em uma mensagem, com legenda opcional, para trocar imagens de um item.",
+        "As fotos nas mensagens podem desaparecer 10 segundos, 30 segundos, 1 minuto ou 5 minutos depois de a outra pessoa abri-las, e o arquivo é excluído do servidor.",
+        "A moderação de mensagens abre exibindo apenas as mensagens novas, com filtros para mensagens visualizadas e avisos do sistema, além de um botão para marcar todas como visualizadas que atualiza apenas o indicador de leitura do próprio administrador.",
+        "Contagem de mensagens novas no botão Moderação e na aba Mensagens."
+      ],
+      "integrations": [
+        {
+          "summary": "O Classifieds disponibiliza uma API de comunicação entre aplicativos: outros aplicativos podem listar as categorias e seus próprios anúncios, além de adicionar, editar, reposicionar no topo, ativar, desativar ou excluir um anúncio em seu nome, seguindo as mesmas regras, proibições de publicação e verificações da página pública.",
+          "requires": "A API de aplicativo do Classifieds precisa ser ativada em Apps Hub → Configurações → APIs de aplicativos. Ela vem desativada por padrão."
+        }
+      ]
+    },
+    "fr": {
+      "short_description": "Petites annonces communautaires avec photos, catégories, dons, profils Apps Hub et renouvellement des annonces.",
+      "tagline": "Un espace de petites annonces communautaire avec les profils Apps Hub.",
+      "description": "Publiez des petites annonces avec photos, descriptions, catégories et prix, ou proposez des objets à donner. Parcourez un catalogue public et gérez vos propres annonces avec votre compte Apps Hub existant. Suivez les annonces qui vous intéressent, consultez les statistiques de vues et de suivi réservées au propriétaire et engagez des conversations privées, que vous soyez vendeur ou personne intéressée. Vous pouvez même échanger des photos qui disparaissent quelques secondes après leur ouverture par votre interlocuteur. Les paramètres du bureau permettent de définir les catégories, les sous-catégories et la durée de validité des annonces. Un panneau de modération gratuit permet à l’administrateur de gérer toutes les annonces, de lire et de supprimer toutes les conversations avec leurs statuts de réception et de lecture, de n’afficher que les messages nouveaux pour lui avec une pastille indiquant leur nombre, et d’interdire à un profil de publier. Chaque personne concernée est informée des changements dans sa propre langue. Premium ajoute des forfaits VIP payables en crédits qui placent les annonces mises en avant en tête des résultats, ainsi que la vérification des utilisateurs par photo avant de pouvoir publier dans certaines catégories.",
+      "capabilities": [
+        "Catalogue public avec recherche et filtres par catégorie et par prix.",
+        "Les titulaires de comptes Apps Hub sont propriétaires de leurs annonces et les gèrent.",
+        "Jusqu’à dix photos par annonce.",
+        "Objets à donner, localisation et coordonnées publiques facultatives.",
+        "Modification, activation, désactivation et suppression de vos annonces.",
+        "Expiration automatique et réactivation des annonces expirées.",
+        "Remontée d’une annonce active en tête de liste une fois toutes les 24 heures.",
+        "Paramètres du bureau pour les catégories, les sous-catégories et la durée de validité.",
+        "Interface traduite en neuf langues.",
+        "Conversations privées liées aux annonces, avec compteur de messages non lus et identités Apps Hub.",
+        "Devise de chaque annonce conforme aux paramètres régionaux, avec des filtres de prix propres à chaque devise.",
+        "Suivi des annonces pour les retrouver plus tard dans une vue dédiée aux annonces suivies.",
+        "Nombre quotidien de vues uniques et statistiques de suivi pour chaque annonce, réservés à son propriétaire.",
+        "Possibilité pour les vendeurs d’engager une conversation privée avec une personne qui suit leur annonce.",
+        "Annonces VIP Premium payables avec des forfaits en crédits Apps Hub définis par l’administrateur.",
+        "Panneau de modération affichant toutes les annonces, avec recherche et filtres par catégorie, statut et propriétaire, pour modifier, déplacer, activer, désactiver, remonter en tête de liste sans attendre un jour, mettre fin au statut VIP ou supprimer une annonce ou toute une sélection.",
+        "Interdiction pour un profil de publier dans Classifieds, avec un motif facultatif, sans toucher à son compte Apps Hub.",
+        "Modération des messages affichant toutes les conversations, les correspondants et les dates d’envoi, de réception et de lecture de chaque message, avec suppression d’un message ou d’une conversation entière, sans possibilité de modification.",
+        "Messages système informant les personnes, dans leur propre langue, des modifications apportées à leurs annonces par la modération.",
+        "Vérification des utilisateurs avec Premium demandant une photo avant de publier dans certaines catégories, déclenchée après l’inscription, après un certain nombre de jours ou après un certain nombre d’annonces.",
+        "Ouverture de l’annonce depuis sa conversation sans fermer la discussion, avec des informations claires sur le vendeur et le défilement dans les fenêtres du bureau sur mobile.",
+        "Lien direct pour chaque annonce, également renvoyé aux scripts et aux applications qui utilisent l’API externe.",
+        "Envoi de photos dans les messages, avec une légende facultative, pour échanger des images d’un objet.",
+        "Possibilité de faire disparaître les photos des messages 10 secondes, 30 secondes, 1 minute ou 5 minutes après leur ouverture par l’interlocuteur, avec suppression du fichier sur le serveur.",
+        "Modération des messages affichant uniquement les nouveaux messages à l’ouverture, avec des filtres pour les messages vus et les notifications système, ainsi qu’un bouton pour tout marquer comme vu qui ne met à jour que le repère de lecture de l’administrateur.",
+        "Compteur de nouveaux messages sur le bouton Modération et son onglet Messages."
+      ],
+      "integrations": [
+        {
+          "summary": "Classifieds propose une API entre applications : les autres applications peuvent consulter la liste des catégories et de vos annonces, ainsi qu’ajouter, modifier, remonter en tête de liste, activer, désactiver ou supprimer une annonce en votre nom, selon les mêmes règles, interdictions et vérifications que sur la page publique.",
+          "requires": "L’API d’application de Classifieds doit être activée dans Apps Hub → Paramètres → API des applications. Elle est désactivée par défaut."
+        }
+      ]
+    },
+    "ja": {
+      "short_description": "写真、カテゴリー、無料の品、Apps Hubプロフィール、掲載更新に対応した、コミュニティ向けの個人売買掲示板。",
+      "tagline": "Apps Hubプロフィールでつながる、コミュニティのマーケットプレイス。",
+      "description": "写真、説明、カテゴリー、価格を添えて個人売買の広告を掲載でき、無料で譲る品も出品できます。公開カタログを閲覧し、既存のApps Hubアカウントで自分の掲載を管理できます。気になる掲載をウォッチしたり、掲載者だけが見られる閲覧数やウォッチの統計を確認したり、どちらからでもプライベートな会話を始めたりできます。相手が開いてから数秒後に消える写真も送信できます。デスクトップの設定では、カテゴリー、サブカテゴリー、掲載の有効期間を指定できます。無料のモデレーションパネルでは、管理者がすべての掲載を管理し、すべての会話を配信状況や既読状況とともに閲覧・削除できます。自分にとって未確認のメッセージだけを件数バッジ付きで表示したり、特定のプロフィールによる投稿を禁止したりすることも可能です。変更の影響を受ける各ユーザーには、その内容がそれぞれの言語で通知されます。Premiumでは、クレジットで購入できるVIPパッケージによる掲載の優先表示と、指定したカテゴリーへの投稿前に行うユーザーの写真認証が追加されます。",
+      "capabilities": [
+        "検索、カテゴリー、価格による絞り込みができる公開カタログ。",
+        "Apps Hubアカウントで自分の掲載を所有・管理。",
+        "1件の掲載につき写真を最大10枚まで追加可能。",
+        "無料の品、所在地、任意で公開できる連絡先に対応。",
+        "自分の掲載を編集、公開、非公開、削除。",
+        "掲載期間が終了すると自動的に期限切れになり、再公開も可能。",
+        "公開中の掲載を24時間に1回、一覧の上位に再表示。",
+        "デスクトップでカテゴリー、サブカテゴリー、有効期間を設定。",
+        "9言語に翻訳されたインターフェース。",
+        "掲載に紐づくプライベートな会話。未読件数とApps Hubのユーザー情報を表示。",
+        "地域設定に合わせて掲載ごとに通貨を設定でき、通貨別の価格フィルターにも対応。",
+        "掲載をウォッチして、専用のウォッチリストで後から確認。",
+        "掲載者だけが確認できる、日別のユニーク閲覧数とウォッチの統計。",
+        "出品者からウォッチ中のユーザーにプライベートな会話を開始可能。",
+        "管理者が設定したApps Hubクレジットパッケージで購入できる、PremiumのVIP掲載。",
+        "すべての掲載を表示するモデレーションパネル。検索やカテゴリー、状態、掲載者による絞り込みができ、1件または複数の掲載をまとめて編集、移動、公開、非公開、1日待たずに一覧の先頭へ移動、VIPの終了、削除が可能。",
+        "Apps Hubアカウントに影響を与えず、特定のプロフィールによるClassifiedsへの投稿を禁止。必要に応じて理由も指定可能。",
+        "すべての会話で、誰が誰に送信したか、各メッセージがいつ送信・配信・閲覧されたかを確認できるメッセージのモデレーション機能。内容を編集することなく、メッセージ単位または会話全体を削除可能。",
+        "モデレーションによって掲載に加えられた変更を、各ユーザーの言語で伝えるシステムメッセージ。",
+        "指定したカテゴリーへの投稿前に写真の提出を求める、Premiumのユーザー認証。登録直後、指定日数の経過後、または指定件数の掲載後に実施可能。",
+        "チャットを閉じずに会話から掲載を開き、出品者の情報をわかりやすく確認。モバイル端末のデスクトップウィンドウ内でもスクロール可能。",
+        "すべての掲載に直接リンクを用意。外部APIを使用するスクリプトやアプリにもリンクを返却。",
+        "メッセージで写真を送信し、品物の画像をやり取り可能。キャプションも任意で追加。",
+        "メッセージ内の写真は、相手が開いてから10秒、30秒、1分、5分後に消えるよう設定でき、ファイルはサーバーからも削除。",
+        "メッセージのモデレーション画面は、未確認のメッセージのみを表示した状態で開始。確認済みメッセージやシステム通知のフィルターに加え、管理者自身の確認位置だけを更新する「すべて確認済みにする」ボタンを用意。",
+        "モデレーションボタンとそのメッセージタブに、未確認メッセージの件数を表示。"
+      ],
+      "integrations": [
+        {
+          "summary": "Classifiedsはアプリ間APIを提供しています。他のアプリからカテゴリーや自分の掲載を一覧表示でき、ユーザーに代わって掲載の追加、編集、上位への再表示、公開、非公開、削除を実行できます。公開ページと同じルール、投稿禁止措置、認証要件が適用されます。",
+          "requires": "ClassifiedsのアプリAPIは、Apps Hub → 設定 → アプリAPIで有効にする必要があります。初期設定では無効です。"
+        }
+      ]
+    },
+    "zh-CN": {
+      "short_description": "社区分类信息平台，支持照片、分类、免费物品、Apps Hub 个人资料和信息续期。",
+      "tagline": "依托 Apps Hub 个人资料的社区交易平台。",
+      "description": "发布分类信息，添加照片、描述、分类和价格，也可发布免费物品。使用现有的 Apps Hub 账号浏览公开目录并管理自己发布的信息。关注感兴趣的信息，查看仅发布者可见的浏览量和关注人数统计，买卖双方均可发起私聊，还能发送在对方打开几秒后自动消失的照片。桌面设置可管理分类、子分类和信息有效期。免费的内容管理面板让管理员能够管理所有信息，查看和删除所有对话及其送达和已读状态，通过数量角标查看对您而言尚未读过的消息，以及禁止某个个人资料发布信息；所有受影响的用户都会收到以各自语言显示的变更通知。Premium 还提供可用积分购买的 VIP 套餐，让推广信息优先展示，并支持要求用户通过照片验证后才能在指定分类中发布信息。",
+      "capabilities": [
+        "公开目录支持搜索，以及按分类和价格筛选。",
+        "通过 Apps Hub 账号拥有并管理自己发布的信息。",
+        "每条信息最多可添加十张照片。",
+        "支持免费物品、位置和可选的公开联系方式。",
+        "编辑、启用、停用和删除自己发布的信息。",
+        "信息到期自动失效，并可重新启用已到期的信息。",
+        "每隔 24 小时可为已启用的信息顶帖一次。",
+        "在桌面中设置分类、子分类和有效期。",
+        "界面提供九种语言版本。",
+        "与信息关联的私聊，显示未读数量和 Apps Hub 身份。",
+        "每条信息均可使用符合区域设置的币种，并支持按相应币种筛选价格。",
+        "关注信息，稍后可在专门的“已关注”视图中查看。",
+        "仅发布者可查看每日独立访客数和关注人数统计。",
+        "卖家可向关注者发起私聊。",
+        "Premium VIP 信息推广可通过管理员设定的 Apps Hub 积分套餐付费。",
+        "内容管理面板展示所有信息，支持搜索以及按分类、状态和发布者筛选；可对单条或多条选中的信息进行编辑、移动、启用、停用、立即置顶而无需等待一天、结束 VIP 推广或删除。",
+        "禁止某个个人资料在 Classifieds 中发布信息，可选择填写原因，且不会影响其 Apps Hub 账号。",
+        "消息管理功能展示所有对话，包括发送者和接收者，以及每条消息的发送、送达和查看时间；可删除单条消息或整个对话，无需编辑任何内容。",
+        "系统消息会使用用户各自的语言，告知内容管理操作对其发布的信息作了哪些更改。",
+        "Premium 用户验证功能可要求用户先提交照片，才能在指定分类中发布信息；可在注册后立即触发，也可在经过指定天数或发布指定数量的信息后触发。",
+        "可在不关闭聊天的情况下，从对话中打开关联信息，清晰查看卖家详情，并支持在移动端桌面窗口中滚动浏览。",
+        "每条信息都有直达链接，使用外部 API 的脚本和应用也能获取该链接。",
+        "可在消息中发送照片并选择添加说明，方便双方交流物品图片。",
+        "消息中的照片可在对方打开 10 秒、30 秒、1 分钟或 5 分钟后自动消失，文件也会从服务器中删除。",
+        "消息管理默认仅显示新消息，可筛选已查看的消息和系统通知，并提供“全部标为已查看”按钮，仅更新管理员自己的查看标记。",
+        "内容管理按钮及其“消息”选项卡上会显示新消息数量。"
+      ],
+      "integrations": [
+        {
+          "summary": "Classifieds 提供应用间 API：其他应用可以列出分类和您发布的信息，并代表您添加、编辑、顶帖、启用、停用或删除信息，且须遵守与公开页面相同的规则、发布禁令和验证要求。",
+          "requires": "需要在 Apps Hub → 设置 → 应用 API 中开启 Classifieds 应用 API。此功能默认关闭。"
+        }
+      ]
+    },
+    "ru": {
+      "short_description": "Доска объявлений сообщества: фотографии, категории, бесплатные вещи, профили Apps Hub и продление объявлений.",
+      "tagline": "Торговая площадка сообщества на основе профилей Apps Hub.",
+      "description": "Публикуйте объявления с фотографиями, описаниями, категориями и ценами или отдавайте вещи бесплатно. Просматривайте общедоступный каталог и управляйте своими объявлениями через существующую учётную запись Apps Hub. Следите за интересными объявлениями, смотрите доступную только владельцу статистику просмотров и отслеживаний и начинайте личную переписку как продавец или заинтересованный пользователь. В сообщениях можно отправлять фотографии, которые исчезают через несколько секунд после того, как собеседник их откроет. В настройках рабочего стола можно задать категории, подкатегории и срок действия объявлений. Бесплатная панель модерации позволяет администратору управлять всеми объявлениями, читать и удалять любые переписки со статусами доставки и прочтения, просматривать только новые для него сообщения со счётчиком на значке и запрещать профилям публиковать объявления. Все затронутые пользователи получают уведомления об изменениях на своём языке. Premium добавляет VIP-пакеты с оплатой кредитами для размещения продвигаемых объявлений в начале списка, а также проверку пользователей по фотографии перед публикацией в выбранных категориях.",
+      "capabilities": [
+        "Общедоступный каталог с поиском и фильтрами по категориям и цене.",
+        "Объявления принадлежат учётным записям Apps Hub и управляются через них.",
+        "До десяти фотографий в каждом объявлении.",
+        "Бесплатные вещи, местоположение и необязательные общедоступные контактные данные.",
+        "Редактирование, активация, деактивация и удаление своих объявлений.",
+        "Автоматическое истечение срока действия объявлений и повторная активация просроченных.",
+        "Поднятие активного объявления раз в 24 часа.",
+        "Настройки категорий, подкатегорий и срока действия объявлений на рабочем столе.",
+        "Интерфейс переведён на девять языков.",
+        "Личные переписки по объявлениям со счётчиками непрочитанных сообщений и профилями Apps Hub.",
+        "Валюта для каждого объявления в соответствии с региональными настройками и фильтры цен с учётом валюты.",
+        "Отслеживание объявлений с возможностью вернуться к ним позже в отдельном разделе отслеживаемых.",
+        "Ежедневная статистика уникальных просмотров и отслеживаний, доступная только владельцу объявления.",
+        "Продавцы могут начать личную переписку с пользователем, отслеживающим объявление.",
+        "VIP-объявления в Premium с оплатой через пакеты кредитов Apps Hub, настроенные администратором.",
+        "Панель модерации со всеми объявлениями, поиском и фильтрами по категории, статусу и владельцу. Можно редактировать, перемещать, активировать и деактивировать объявления, поднимать их в начало списка без ожидания в течение суток, снимать VIP-статус и удалять одно или сразу несколько объявлений.",
+        "Запрет публикации объявлений в Classifieds для отдельного профиля с возможностью указать причину, без изменения его учётной записи Apps Hub.",
+        "Модерация сообщений с просмотром всех переписок: кто кому написал, когда каждое сообщение было отправлено, доставлено и прочитано. Можно удалить отдельное сообщение или всю переписку без возможности редактирования.",
+        "Системные сообщения на языке пользователя об изменениях, внесённых модератором в его объявления.",
+        "Проверка пользователей в Premium с запросом фотографии перед публикацией в выбранных категориях: сразу после регистрации, через заданное число дней или после заданного числа объявлений.",
+        "Открытие объявления из переписки без закрытия чата, с понятной информацией о продавце и прокруткой в окнах рабочего стола на мобильных устройствах.",
+        "Прямая ссылка на каждое объявление, которая также передаётся скриптам и приложениям, использующим внешний API.",
+        "Отправка фотографий в сообщениях с необязательной подписью для обмена снимками товара.",
+        "Фотографии в сообщениях могут исчезать через 10 секунд, 30 секунд, 1 минуту или 5 минут после того, как собеседник их откроет. При этом файл удаляется с сервера.",
+        "При открытии раздела модерации сообщений отображаются только новые сообщения. Есть фильтры для просмотренных сообщений и системных уведомлений, а также кнопка, позволяющая отметить всё как просмотренное, которая изменяет только личную отметку администратора.",
+        "Счётчик новых сообщений на кнопке модерации и вкладке сообщений."
+      ],
+      "integrations": [
+        {
+          "summary": "Classifieds предоставляет API для взаимодействия между приложениями: другие приложения могут получать список категорий и ваших объявлений, а также добавлять, редактировать, поднимать, активировать, деактивировать и удалять объявления от вашего имени. При этом действуют те же правила, запреты и проверки, что и на общедоступной странице.",
+          "requires": "API приложения Classifieds необходимо включить в Apps Hub → Настройки → API приложений. По умолчанию он отключён."
+        }
+      ]
+    }
+  }
 }

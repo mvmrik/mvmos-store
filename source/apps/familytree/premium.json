@@ -11,5 +11,127 @@
       "short": "See upcoming birthdays for living relatives",
       "description": "Browse the next 30 days, 90 days or 12 months using known exact birth dates. See upcoming ages and open the original person record. February 29 birthdays are observed on February 28 in non-leap years for this calendar."
     }
-  ]
+  ],
+  "i18n": {
+    "es": {
+      "summary": "Estadísticas familiares detalladas de un árbol o de todos los árboles a los que un perfil tiene acceso.",
+      "features": [
+        {
+          "title": "Estadísticas y clasificaciones familiares",
+          "short": "Explora edades, longevidad, hijos, parejas y generaciones",
+          "description": "Compara a las personas vivas de mayor y menor edad, las vidas más largas, las familias más numerosas y las relaciones de pareja registradas. Consulta promedios, grupos de edad, décadas de nacimiento y el grado de detalle de los datos de un árbol o de todos los árboles accesibles. Las personas vinculadas se cuentan una sola vez y se respetan los permisos de acceso a los árboles privados. Incluye los matrimonios actuales y anteriores registrados, las personas vivas con o sin un matrimonio actual registrado, los hijos adoptados y los padres adoptivos. Los hijos adoptados se incluyen en las clasificaciones por tamaño de familia, mientras que las relaciones adoptivas se excluyen del cálculo de la edad de los progenitores al nacer sus hijos."
+        },
+        {
+          "title": "Próximos cumpleaños familiares",
+          "short": "Consulta los próximos cumpleaños de tus familiares vivos",
+          "description": "Consulta los próximos 30 días, 90 días o 12 meses a partir de las fechas de nacimiento exactas conocidas. Descubre cuántos años cumplirán y abre la ficha original de cada persona. En este calendario, los cumpleaños del 29 de febrero se celebran el 28 de febrero en los años no bisiestos."
+        }
+      ]
+    },
+    "bg": {
+      "summary": "Подробна семейна статистика за едно дърво или за всички дървета, до които профилът има достъп.",
+      "features": [
+        {
+          "title": "Семейна статистика и класации",
+          "short": "Разгледайте данни за възраст, дълголетие, деца, партньори и поколения",
+          "description": "Сравнявайте най-възрастните и най-младите живи хора, най-дълголетните хора, най-големите семейства и записаните партньорства. Преглеждайте средни стойности, възрастови групи, десетилетия на раждане и пълнота на данните за едно дърво или за всички достъпни дървета. Свързаните хора се броят само веднъж и се спазват правата за достъп до частните дървета. Включва записани настоящи и предишни бракове, живи хора със или без записан настоящ брак, осиновени деца и осиновители. Осиновените деца се включват в класациите по размер на семейството, а връзките чрез осиновяване се изключват при изчисляване на възрастта на родителите при раждане на дете."
+        },
+        {
+          "title": "Предстоящи семейни рождени дни",
+          "short": "Вижте предстоящите рождени дни на живите роднини",
+          "description": "Разглеждайте следващите 30 дни, 90 дни или 12 месеца въз основа на известните точни дати на раждане. Вижте каква възраст предстои да навършат и отворете оригиналния запис за човека. В този календар рождените дни на 29 февруари се отбелязват на 28 февруари през невисокосните години."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Detaillierte Familienstatistiken für einen Stammbaum oder alle Stammbäume, auf die ein Profil zugreifen kann.",
+      "features": [
+        {
+          "title": "Familienstatistiken und Ranglisten",
+          "short": "Entdecke Auswertungen zu Alter, Lebensdauer, Kindern, Partnern und Generationen",
+          "description": "Vergleiche die ältesten und jüngsten lebenden Personen, die längsten Lebensspannen, die größten Familien und die erfassten Partnerschaften. Sieh dir Durchschnittswerte, Altersgruppen, Geburtsjahrzehnte und die Vollständigkeit der Daten für einen Stammbaum oder alle zugänglichen Stammbäume an. Verknüpfte Personen werden nur einmal gezählt, und die Zugriffsberechtigungen für private Stammbäume werden berücksichtigt. Einbezogen werden erfasste aktuelle und frühere Ehen, lebende Personen mit oder ohne erfasste aktuelle Ehe sowie Adoptivkinder und Adoptiveltern. Adoptivkinder werden in den Ranglisten zur Familiengröße mitgezählt; bei der Berechnung des Alters der Eltern bei der Geburt eines Kindes bleiben Adoptivbeziehungen unberücksichtigt."
+        },
+        {
+          "title": "Anstehende Geburtstage in der Familie",
+          "short": "Sieh dir die nächsten Geburtstage lebender Verwandter an",
+          "description": "Durchsuche anhand bekannter genauer Geburtsdaten die nächsten 30 Tage, 90 Tage oder 12 Monate. Sieh, wie alt die Personen werden, und öffne ihren ursprünglichen Personeneintrag. Geburtstage am 29. Februar werden in diesem Kalender in Jahren ohne Schalttag am 28. Februar berücksichtigt."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Des statistiques familiales détaillées sur un arbre ou sur tous les arbres auxquels un profil a accès.",
+      "features": [
+        {
+          "title": "Statistiques et classements familiaux",
+          "short": "Explorez les âges, la longévité, les enfants, les partenaires et les générations",
+          "description": "Comparez les personnes en vie les plus âgées et les plus jeunes, les plus longues vies, les familles les plus nombreuses et les unions enregistrées. Consultez les moyennes, les tranches d’âge, les décennies de naissance et le niveau de complétude des données pour un arbre ou pour tous les arbres accessibles. Les personnes liées ne sont comptées qu’une fois et les autorisations d’accès aux arbres privés sont respectées. Comprend les mariages actuels et passés enregistrés, les personnes en vie avec ou sans mariage actuel enregistré, les enfants adoptés et les parents adoptifs. Les enfants adoptés restent inclus dans les classements par taille de famille, tandis que les liens adoptifs sont exclus du calcul de l’âge des parents à la naissance d’un enfant."
+        },
+        {
+          "title": "Anniversaires à venir dans la famille",
+          "short": "Consultez les prochains anniversaires de vos proches en vie",
+          "description": "Parcourez les 30 prochains jours, les 90 prochains jours ou les 12 prochains mois à partir des dates de naissance exactes connues. Découvrez les âges à venir et ouvrez la fiche d’origine de chaque personne. Dans ce calendrier, les anniversaires du 29 février sont célébrés le 28 février les années non bissextiles."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "1つの家系図から、プロフィールがアクセスできるすべての家系図まで、家族の詳しい統計を確認。",
+      "features": [
+        {
+          "title": "家族の統計とランキング",
+          "short": "年齢、寿命、子ども、パートナー、世代を詳しく見る",
+          "description": "存命者の最年長・最年少、長寿、子どもの多い家族、記録されたパートナー関係を比較できます。1つの家系図、またはアクセス可能なすべての家系図について、平均値、年齢層、出生年代、データの充足度を確認できます。リンクされた同一人物は1人として数え、非公開の家系図へのアクセス権限も適用されます。記録された現在および過去の婚姻、現在の婚姻の記録がある存命者とない存命者、養子と養親も対象です。養子は子どもの人数ランキングに含まれますが、子の出生時の親の年齢の集計では、養子縁組による親子関係は対象外となります。"
+        },
+        {
+          "title": "もうすぐ迎える家族の誕生日",
+          "short": "存命の親族の、これからの誕生日を確認",
+          "description": "正確な生年月日がわかっている人物について、今後30日、90日、12か月の誕生日を確認できます。次の誕生日に迎える年齢を確認し、元の人物記録を開くこともできます。このカレンダーでは、うるう年以外の年は2月29日生まれの誕生日を2月28日として扱います。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Estatísticas familiares detalhadas de uma árvore ou de todas as árvores às quais um perfil tem acesso.",
+      "features": [
+        {
+          "title": "Estatísticas e rankings familiares",
+          "short": "Explore idade, longevidade, filhos, parceiros e gerações",
+          "description": "Compare as pessoas vivas mais velhas e mais jovens, as vidas mais longas, as maiores famílias e os relacionamentos registrados. Confira médias, faixas etárias, décadas de nascimento e o nível de preenchimento dos dados de uma árvore ou de todas as árvores acessíveis. Pessoas vinculadas são contadas uma única vez, e as permissões de acesso às árvores privadas são respeitadas. Inclui casamentos atuais e anteriores registrados, pessoas vivas com ou sem casamento atual registrado, filhos adotivos e pais adotivos. Os filhos adotivos continuam incluídos nos rankings de tamanho da família, enquanto os vínculos de adoção são excluídos do cálculo da idade dos pais no nascimento dos filhos."
+        },
+        {
+          "title": "Próximos aniversários da família",
+          "short": "Veja os próximos aniversários de parentes vivos",
+          "description": "Consulte os próximos 30 dias, 90 dias ou 12 meses com base nas datas exatas de nascimento conhecidas. Veja as idades que serão completadas e abra o cadastro original da pessoa. Neste calendário, os aniversários de 29 de fevereiro são celebrados em 28 de fevereiro nos anos não bissextos."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Подробная семейная статистика по одному дереву или всем деревьям, доступным профилю.",
+      "features": [
+        {
+          "title": "Семейная статистика и рейтинги",
+          "short": "Изучайте возраст, долголетие, число детей, партнёров и поколений",
+          "description": "Сравнивайте самых старших и младших из ныне живущих, долгожителей, самые большие семьи и записанные партнёрские отношения. Изучайте средние показатели, возрастные группы, десятилетия рождения и полноту данных по одному дереву или всем доступным деревьям. Люди, связанные между деревьями, учитываются один раз, а права доступа к приватным деревьям соблюдаются. Статистика включает записанные текущие и бывшие браки, живущих людей с указанным текущим браком или без него, приёмных детей и приёмных родителей. Приёмные дети учитываются в рейтингах по размеру семьи, а приёмные родственные связи исключаются из расчёта возраста родителей при рождении ребёнка."
+        },
+        {
+          "title": "Ближайшие дни рождения в семье",
+          "short": "Следите за ближайшими днями рождения живущих родственников",
+          "description": "Просматривайте дни рождения на ближайшие 30 дней, 90 дней или 12 месяцев на основе известных точных дат рождения. Узнавайте, сколько лет исполнится человеку, и открывайте его исходную запись. В этом календаре дни рождения 29 февраля в невисокосные годы отмечаются 28 февраля."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "查看单棵家谱或当前个人资料有权访问的所有家谱的详细家族统计。",
+      "features": [
+        {
+          "title": "家族统计与排行",
+          "short": "探索年龄、寿命、子女、伴侣和世代数据",
+          "description": "比较在世成员中的最年长者与最年轻者、最长寿者、子女最多的家庭，以及已记录的伴侣关系。查看单棵家谱或所有可访问家谱的平均值、年龄分布、出生年代和资料完整度。关联到多棵家谱的同一成员仅计入一次，并严格遵循私密家谱的访问权限。统计涵盖已记录的现有及过往婚姻、有或无已记录现有婚姻的在世成员、养子女和养父母。养子女仍计入家庭子女数量排行，但计算父母生育时的年龄时不计入收养关系。"
+        },
+        {
+          "title": "即将到来的家人生日",
+          "short": "查看在世亲属即将到来的生日",
+          "description": "根据已知的确切出生日期，浏览未来 30 天、90 天或 12 个月内的生日。查看即将满多少岁，并打开原始人物记录。在此生日历中，非闰年会将 二月 29 日出生者的生日安排在 二月 28 日。"
+        }
+      ]
+    }
+  }
 }

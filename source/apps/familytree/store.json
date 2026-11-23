@@ -18,5 +18,191 @@
     "Searchable parent, child and partner selectors.",
     "Branch layout that keeps families together and separates unrelated branches.",
     "Offers a selected person as the appropriate parent when adding someone new."
-  ]
+  ],
+  "i18n": {
+    "es": {
+      "short_description": "Bonitos árboles genealógicos privados con enlaces a perfiles de Apps Hub, roles de acceso y aportaciones revisadas.",
+      "tagline": "La historia de tu familia, conectada con encanto.",
+      "description": "Family Tree es un espacio privado donde cada perfil de Apps Hub puede crear y explorar árboles genealógicos. Conecta a padres e hijos en un lienzo de diseño cuidado por el que puedes desplazarte, abre la historia de cada persona y registra los años o las fechas exactas de nacimiento y fallecimiento. Registra múltiples parejas, cónyuges y relaciones anteriores sin necesidad de que haya matrimonio, e identifica a padres, madres, hijos e hijas según el sexo registrado. Los enlaces opcionales a perfiles de Apps Hub permiten identificar a los miembros de la familia sin concederles acceso al árbol.\n\nComparte cada árbol con lectores, editores o administradores. Los editores envían cambios para su revisión; el propietario o un administrador compara las versiones anterior y posterior y los aprueba o rechaza. Los administradores pueden editar, revisar, compartir y eliminar el árbol completo, mientras que el rol del propietario permanece protegido. El servidor comprueba las ediciones simultáneas y los vínculos de ascendencia no válidos.\n\nBuscar y organizar personas\nBusca en los selectores de padres, hijos y parejas sin tener que recorrer una lista larga. Al añadir a alguien mientras hay un hombre o una mujer seleccionados en el árbol, esa persona se propone en el campo de progenitor correspondiente. La distribución de las ramas mantiene juntas a las familias y sus descendientes, con una separación más clara entre las ramas sin parentesco, y los encabezados de los paneles permanecen alineados al desplazarte.",
+      "capabilities": [
+        "Varios árboles privados por perfil de Apps Hub, con los árboles propios y compartidos reunidos en un mismo lugar.",
+        "Lienzo familiar interactivo con fichas de personas conectadas, desplazamiento, zoom, búsqueda y ajuste a la vista.",
+        "Nombres, sexo, historias personales, años o fechas exactas de nacimiento y fallecimiento, periodos de vida y hasta dos progenitores.",
+        "Múltiples relaciones recíprocas de pareja y matrimonio, incluidas las exparejas, con hijos en común y términos de parentesco según el sexo.",
+        "Identificación opcional mediante perfiles de Apps Hub, independiente de los permisos de acceso compartido.",
+        "Roles de lector, editor y administrador para compartir cada árbol.",
+        "Propuestas de los editores con comparación de las versiones anterior y posterior, aprobación, rechazo y comentarios.",
+        "Historial de cambios, detección de conflictos y prevención de ciclos de ascendencia.",
+        "Vistas web de Apps Hub para escritorio y adaptables a distintos tamaños de pantalla, con traducciones a nueve idiomas.",
+        "Fichas de personas azules y rosas, navegación hacia atrás por los familiares, edad actual o al fallecer y comparaciones de edad a partir de las fechas de nacimiento, con los valores aproximados claramente indicados.",
+        "Referencias que se mantienen actualizadas a personas ya existentes en árboles propios o compartidos, progenitores y parejas de distintos árboles, y vistas filtradas en paralelo con una sola ficha por persona compartida y permisos independientes.",
+        "Comparte eligiendo un rol y haciendo clic en un nombre; el panel muestra a todas las personas con acceso y sus roles, sin ofrecer nunca a una misma persona dos veces.",
+        "Términos de parentesco para bisabuelos, bisnietos, primos segundos y terceros, primos con una o dos generaciones de diferencia, parientes políticos y familiares como padrastros e hijastros, usando únicamente términos bien establecidos en cada idioma.",
+        "Selectores de padres, hijos y parejas con función de búsqueda.",
+        "Distribución de ramas que mantiene juntas a las familias y separa las ramas sin parentesco.",
+        "Propone a la persona seleccionada como el progenitor correspondiente al añadir a alguien nuevo."
+      ]
+    },
+    "bg": {
+      "short_description": "Красиви частни родословни дървета с връзки към профили в Apps Hub, роли за споделяне и преглед на предложените промени.",
+      "tagline": "Историята на вашето семейство, красиво свързана.",
+      "description": "Family Tree предоставя лично пространство за всеки профил в Apps Hub за създаване и разглеждане на родословни дървета. Свързвайте родители и деца върху красиво оформено платно, което можете да местите, отваряйте историята на всеки човек и записвайте години или точни дати на раждане и смърт. Отбелязвайте множество партньори, съпрузи и предишни връзки без изискване за брак и разпознавайте бащи, майки, синове и дъщери според записания пол. Връзките към профили в Apps Hub са по избор и служат за идентифициране на членовете на семейството, без да дават достъп до дървото.\n\nСподеляйте отделни дървета с читатели, редактори или администратори. Редакторите изпращат промени за преглед; собственикът или администратор сравнява версиите преди и след промените и ги одобрява или отхвърля. Администраторите могат да редактират, преглеждат, споделят и изтриват цялото дърво, а ролята на собственика остава защитена. Сървърът проверява за едновременни редакции и невалидни връзки с предци.\n\nНамиране и подреждане на хора\nТърсете в полетата за избор на родител, дете и партньор, вместо да превъртате дълъг списък. Когато добавяте човек, докато в дървото е избран мъж или жена, избраният човек се предлага в съответното поле за родител. Подредбата на клоните държи семействата и потомците заедно, с по-ясно разстояние между несвързаните клони, а заглавията на панелите остават подравнени при превъртане.",
+      "capabilities": [
+        "Множество частни дървета за всеки профил в Apps Hub, като собствените и споделените дървета са на едно място.",
+        "Интерактивно родословно платно със свързани карти на хората, преместване, мащабиране, търсене и побиране в изгледа.",
+        "Имена, пол, лични истории, години или точни дати на раждане и смърт, периоди на живот и до двама родители.",
+        "Множество взаимни партньорски и брачни връзки, включително с бивши партньори, с общи деца и роднински обозначения според пола.",
+        "Идентифициране чрез профил в Apps Hub по избор, независимо от правата за споделяне.",
+        "Роли на читател, редактор и администратор за споделяне на всяко дърво.",
+        "Предложения от редактори с преглед на версиите преди и след промените, одобряване, отхвърляне и коментари.",
+        "История на промените, откриване на конфликти и предотвратяване на циклични връзки с предци.",
+        "Настолни и адаптивни уеб изгледи в Apps Hub с преводи на девет езика.",
+        "Сини и розови карти на хората, навигация „Назад“ през роднините, текуща възраст или възраст при смъртта и сравнения на възрастта според датата на раждане с ясно обозначени приблизителни стойности.",
+        "Динамични препратки към съществуващи хора от собствени или споделени дървета, родители и партньори от различни дървета и филтрирани изгледи един до друг с по една карта за всеки общ човек и независими права за достъп.",
+        "Споделяйте, като изберете роля и щракнете върху име; панелът показва всички с достъп и тяхната роля, без да предлага един и същ човек два пъти.",
+        "Роднински обозначения за прадядовци и прабаби, правнуци и правнучки, втори и трети братовчеди, братовчеди с едно или две поколения разлика, роднини по сватовство и доведени роднини, като се използват само утвърдени термини за съответния език.",
+        "Полета за избор на родител, дете и партньор с възможност за търсене.",
+        "Подредба на клоните, която държи семействата заедно и отделя несвързаните клони.",
+        "Предлага избрания човек като съответния родител при добавяне на нов човек."
+      ]
+    },
+    "de": {
+      "short_description": "Schöne, private Stammbäume mit Apps Hub-Profilverknüpfungen, Zugriffsrollen und geprüften Beiträgen.",
+      "tagline": "Deine Familiengeschichte, wunderbar verbunden.",
+      "description": "Family Tree bietet jedem Apps Hub-Profil einen privaten Raum, um Stammbäume zu erstellen und zu erkunden. Verbinde Eltern und Kinder auf einer liebevoll gestalteten, verschiebbaren Arbeitsfläche, öffne die Lebensgeschichte jeder Person und halte Geburts- und Sterbejahre oder genaue Daten fest. Erfasse mehrere Partnerschaften, Ehen und frühere Beziehungen, ohne dass eine Ehe vorausgesetzt wird. Väter, Mütter, Söhne und Töchter werden anhand des eingetragenen Geschlechts bezeichnet. Optionale Verknüpfungen mit Apps Hub-Profilen helfen dabei, Familienmitglieder zuzuordnen, ohne ihnen Zugriff auf den Stammbaum zu gewähren.\n\nTeile einzelne Stammbäume mit Betrachtern, Bearbeitern oder Administratoren. Bearbeiter reichen Änderungen zur Prüfung ein; der Eigentümer oder ein Administrator vergleicht die vorherige mit der neuen Fassung und nimmt die Änderungen an oder lehnt sie ab. Administratoren können den gesamten Stammbaum bearbeiten, Änderungen prüfen, ihn teilen und löschen. Die Rolle des Eigentümers bleibt dabei geschützt. Gleichzeitige Änderungen und ungültige Abstammungsverknüpfungen werden auf dem Server geprüft.\n\nPersonen finden und anordnen\nSuche direkt in den Auswahlfeldern für Eltern, Kinder und Partner, statt durch lange Listen zu scrollen. Wenn du eine Person hinzufügst und im Stammbaum ein Mann oder eine Frau ausgewählt ist, wird diese Person im passenden Elternfeld vorgeschlagen. Die Anordnung der Zweige hält Familien und ihre Nachkommen zusammen und schafft mehr Abstand zwischen nicht verwandten Zweigen. Die Überschriften der Seitenbereiche bleiben beim Scrollen ausgerichtet.",
+      "capabilities": [
+        "Mehrere private Stammbäume pro Apps Hub-Profil, mit eigenen und geteilten Stammbäumen an einem Ort.",
+        "Interaktive Stammbaumansicht mit verbundenen Personenkarten, Verschieben, Zoomen, Suche und Anpassung an den sichtbaren Bereich.",
+        "Namen, Geschlecht, persönliche Lebensgeschichten, Geburts- und Sterbejahre oder genaue Daten, Lebenszeiträume und bis zu zwei Elternteile.",
+        "Mehrere wechselseitige Partner- und Ehebeziehungen, einschließlich früherer Partnerschaften, mit gemeinsamen Kindern und geschlechtsspezifischen Verwandtschaftsbezeichnungen.",
+        "Optionale Zuordnung zu Apps Hub-Profilen, unabhängig von den Zugriffsberechtigungen.",
+        "Zugriffsrollen als Betrachter, Bearbeiter oder Administrator für jeden einzelnen Stammbaum.",
+        "Änderungsvorschläge von Bearbeitern mit Vorher-Nachher-Vergleich, Annahme, Ablehnung und Kommentaren.",
+        "Änderungsverlauf, Erkennung von Konflikten und Vermeidung von Zirkelschlüssen in der Abstammung.",
+        "Desktopansichten und responsive Webansichten in Apps Hub mit Übersetzungen in neun Sprachen.",
+        "Blaue und rosa Personenkarten, Zurücknavigation durch Verwandte, aktuelles Alter oder Sterbealter sowie Altersvergleiche anhand der Geburtsdaten mit klar gekennzeichneten Näherungswerten.",
+        "Dynamische Verweise auf vorhandene Personen aus eigenen oder geteilten Stammbäumen, stammbaumübergreifende Eltern- und Partnerverknüpfungen sowie gefilterte Ansichten nebeneinander mit einer Karte pro gemeinsam erfasster Person und unabhängigen Berechtigungen.",
+        "Teile einen Stammbaum, indem du eine Rolle auswählst und auf einen Namen klickst. Der Seitenbereich zeigt alle Personen mit Zugriff und ihre jeweilige Rolle an und bietet keine Person doppelt zur Auswahl an.",
+        "Verwandtschaftsbezeichnungen für Urgroßeltern, Urenkel, Cousins und Cousinen zweiten und dritten Grades, um eine oder zwei Generationen versetzte Cousin-Verwandtschaften, angeheiratete Verwandte und Stiefverwandte – mit Begriffen, die in der jeweiligen Sprache eindeutig gebräuchlich sind.",
+        "Durchsuchbare Auswahlfelder für Eltern, Kinder und Partner.",
+        "Anordnung der Zweige, die Familien zusammenhält und nicht verwandte Zweige voneinander trennt.",
+        "Schlägt beim Hinzufügen einer neuen Person die ausgewählte Person als passenden Elternteil vor."
+      ]
+    },
+    "fr": {
+      "short_description": "De beaux arbres généalogiques privés avec des liens vers les profils Apps Hub, des rôles de partage et des contributions soumises à validation.",
+      "tagline": "L’histoire de votre famille, des liens qui prennent vie.",
+      "description": "Family Tree offre à chaque profil Apps Hub un espace privé pour créer et explorer des arbres généalogiques. Reliez parents et enfants sur un espace de travail soigné que vous pouvez déplacer librement, découvrez l’histoire de chaque personne et consignez les années ou les dates exactes de naissance et de décès. Renseignez plusieurs partenaires, conjoints et anciennes relations, sans qu’un mariage soit nécessaire, et identifiez les pères, mères, fils et filles selon le sexe renseigné. Des liens facultatifs vers les profils Apps Hub permettent d’identifier les membres de la famille sans leur donner accès à l’arbre.\n\nPartagez chaque arbre en attribuant des rôles de lecteur, de contributeur ou d’administrateur. Les contributeurs soumettent leurs modifications pour validation ; le propriétaire ou un administrateur compare les versions avant et après, puis les approuve ou les rejette. Les administrateurs peuvent modifier, valider, partager et supprimer l’arbre entier, tandis que le rôle du propriétaire reste protégé. Les modifications simultanées et les liens de filiation non valides sont contrôlés sur le serveur.\n\nRechercher et organiser les personnes\nEffectuez une recherche dans les sélecteurs de parents, d’enfants et de partenaires au lieu de faire défiler une longue liste. Lorsque vous ajoutez une personne alors qu’un homme ou une femme est sélectionné dans l’arbre, la personne sélectionnée est proposée dans le champ du parent correspondant. La disposition des branches regroupe les familles et leurs descendants tout en espaçant davantage les branches sans lien entre elles, et les titres des panneaux restent alignés pendant le défilement.",
+      "capabilities": [
+        "Plusieurs arbres privés par profil Apps Hub, avec vos propres arbres et les arbres partagés réunis au même endroit.",
+        "Espace généalogique interactif avec des fiches de personnes reliées entre elles, déplacement, zoom, recherche et ajustement à la vue.",
+        "Noms, sexe, histoires personnelles, années ou dates exactes de naissance et de décès, périodes de vie et jusqu’à deux parents.",
+        "Plusieurs liens réciproques entre partenaires et conjoints, y compris d’anciens partenaires, avec leurs enfants communs et des termes de parenté adaptés au sexe.",
+        "Identification facultative par profil Apps Hub, indépendante des autorisations de partage.",
+        "Rôles de lecteur, de contributeur et d’administrateur pour le partage de chaque arbre.",
+        "Propositions des contributeurs avec comparaison avant et après, approbation, rejet et commentaires.",
+        "Historique des modifications, détection des conflits et prévention des liens de filiation circulaires.",
+        "Vues web Apps Hub pour ordinateur et adaptées aux différentes tailles d’écran, traduites en neuf langues.",
+        "Fiches de personnes bleues et roses, navigation de retour parmi les proches, âge actuel ou au décès et comparaisons d’âge d’après les dates de naissance, avec des valeurs approximatives clairement signalées.",
+        "Références actualisées vers des personnes déjà présentes dans vos arbres ou dans des arbres partagés, parents et partenaires issus d’autres arbres, et vues filtrées côte à côte avec une seule fiche par personne commune et des autorisations indépendantes.",
+        "Partagez en choisissant un rôle puis en cliquant sur un nom ; le panneau répertorie toutes les personnes ayant accès à l’arbre et leur rôle, sans jamais proposer deux fois la même personne.",
+        "Termes de parenté pour les arrière-grands-parents, arrière-petits-enfants, cousins au deuxième et au troisième degré, cousins avec une ou deux générations d’écart, parents par alliance et membres de familles recomposées, en utilisant uniquement les termes bien établis dans chaque langue.",
+        "Sélecteurs de parents, d’enfants et de partenaires avec fonction de recherche.",
+        "Disposition des branches qui regroupe les familles et sépare les branches sans lien entre elles.",
+        "Propose la personne sélectionnée comme parent correspondant lors de l’ajout d’une nouvelle personne."
+      ]
+    },
+    "ja": {
+      "short_description": "Apps Hubプロフィールへのリンク、役割に応じた共有、変更のレビューに対応した、美しくプライベートな家系図。",
+      "tagline": "家族の物語を、美しくつなぐ。",
+      "description": "Family Treeは、Apps Hubの各プロフィールで家系図を作成し、たどることができるプライベートな空間です。美しいデザインのキャンバスを自由に動かしながら親子をつなぎ、一人ひとりの物語を開いて、生年・没年や正確な日付を記録できます。婚姻の有無を問わず、複数のパートナーや配偶者、過去の関係を記録でき、登録された性別に基づいて父・母・息子・娘を区別できます。任意でApps Hubプロフィールにリンクすれば、家系図へのアクセス権を与えずに家族を識別できます。\n\n家系図ごとに、閲覧者・編集者・管理者の役割を指定して共有できます。編集者は変更案をレビューに提出し、所有者または管理者が変更前後を比較して承認または却下します。管理者は編集、レビュー、共有、家系図全体の削除を行えますが、所有者の役割は保護されます。同時編集による競合や不正な親子関係は、サーバー側でチェックされます。\n\n人物の検索と配置\n親・子・パートナーの選択欄では、長いリストをスクロールする代わりに検索できます。家系図で男性または女性を選択した状態で新しい人物を追加すると、選択中の人物が該当する親の欄に候補として表示されます。枝のレイアウトは家族と子孫をまとめ、つながりのない枝の間には十分な間隔を設けます。パネルの見出しは、スクロール中も位置がずれません。",
+      "capabilities": [
+        "Apps Hubプロフィールごとに複数のプライベートな家系図を作成でき、所有する家系図と共有された家系図をまとめて表示。",
+        "人物カードをつないだインタラクティブな家系図キャンバス。移動、ズーム、検索、全体表示に対応。",
+        "名前、性別、個人の物語、生年・没年または正確な日付、生存期間、最大2人の親を記録。",
+        "元パートナーを含む複数のパートナー・配偶者関係を相互に記録し、2人の間の子どもや性別に応じた続柄を表示。",
+        "共有権限とは独立して、任意でApps Hubプロフィールにリンクし、人物を識別。",
+        "家系図ごとに閲覧者・編集者・管理者の共有役割を設定。",
+        "編集者による変更案の提出と、変更前後のレビュー、承認、却下、コメント。",
+        "変更履歴、競合の検出、祖先関係の循環防止。",
+        "デスクトップ表示と、画面サイズに合わせて表示されるApps Hubのウェブ画面。9言語の翻訳に対応。",
+        "青とピンクの人物カード、親族をたどった履歴を戻るナビゲーション、現在の年齢または享年の表示、生年月日に基づく年齢比較に対応。概算値は明確に表示。",
+        "所有または共有された家系図の既存人物を最新情報と連動して参照し、家系図をまたぐ親・パートナー関係を設定可能。表示対象を絞って家系図を並べて表示でき、共通する人物のカードは1枚にまとめ、権限は個別に管理。",
+        "役割を選んで名前をクリックするだけで共有。パネルにはアクセス権を持つ全員とその役割が表示され、同じ人物が重複して候補に表示されることはありません。",
+        "曽祖父母、ひ孫、はとこ、みいとこ、世代が1つまたは2つ離れたいとこ関係、婚姻による親族、再婚による親族の続柄を表示。各言語で確実に表現できる呼称のみを使用。",
+        "検索できる親・子・パートナーの選択欄。",
+        "家族をまとめ、つながりのない枝を離して配置するレイアウト。",
+        "新しい人物を追加する際、選択中の人物を該当する親の候補として表示。"
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Belas árvores genealógicas privadas com links para perfis do Apps Hub, funções de compartilhamento e contribuições revisadas.",
+      "tagline": "A história da sua família, conectada com beleza.",
+      "description": "Family Tree é um espaço privado para cada perfil do Apps Hub criar e explorar árvores genealógicas. Conecte pais e filhos em uma área visual com um belo design que você pode mover livremente, abra a história de cada pessoa e registre os anos ou as datas exatas de nascimento e falecimento. Registre múltiplos parceiros, cônjuges e relacionamentos anteriores sem exigir casamento e identifique pais, mães, filhos e filhas com base no sexo registrado. Links opcionais para perfis do Apps Hub identificam os familiares sem conceder acesso à árvore.\n\nCompartilhe árvores individuais com visualizadores, editores ou administradores. Os editores enviam alterações para revisão; o proprietário ou um administrador compara as versões anterior e posterior e aprova ou rejeita as alterações. Os administradores podem editar, revisar, compartilhar e excluir a árvore inteira, enquanto a função do proprietário permanece protegida. Edições simultâneas e vínculos de ascendência inválidos são verificados no servidor.\n\nComo encontrar e organizar pessoas\nPesquise nos seletores de pais, filhos e parceiros em vez de percorrer uma lista longa. Ao adicionar uma pessoa com um homem ou uma mulher selecionado na árvore, a pessoa selecionada é sugerida no campo correspondente de pai ou mãe. A organização dos ramos mantém famílias e descendentes juntos, com uma separação mais clara entre ramos sem parentesco, e os títulos dos painéis permanecem alinhados durante a rolagem.",
+      "capabilities": [
+        "Várias árvores privadas por perfil do Apps Hub, reunindo árvores próprias e compartilhadas.",
+        "Área interativa da árvore genealógica com cartões de pessoas conectados, deslocamento, zoom, pesquisa e ajuste à área visível.",
+        "Nomes, sexo, histórias pessoais, anos ou datas exatas de nascimento e falecimento, períodos de vida e até dois pais.",
+        "Múltiplas relações recíprocas entre parceiros e cônjuges, incluindo ex-parceiros, com filhos em comum e termos de parentesco de acordo com o sexo.",
+        "Identificação opcional por perfil do Apps Hub, independente das permissões de compartilhamento.",
+        "Funções de visualizador, editor e administrador para o compartilhamento de cada árvore.",
+        "Propostas de editores com revisão das versões anterior e posterior, aprovação, rejeição e comentários.",
+        "Histórico de alterações, detecção de conflitos e prevenção de ciclos na ascendência.",
+        "Visualizações web do Apps Hub para computador e com layout responsivo, com traduções em nove idiomas.",
+        "Cartões de pessoas em azul e rosa, navegação de volta pelos parentes, idade atual ou ao falecer e comparações de idade com base na data de nascimento, com valores aproximados claramente indicados.",
+        "Referências dinâmicas a pessoas existentes em árvores próprias ou compartilhadas, pais e parceiros de outras árvores e visualizações filtradas lado a lado, com um cartão por pessoa em comum e permissões independentes.",
+        "Compartilhe escolhendo uma função e clicando em um nome; o painel lista todas as pessoas com acesso e suas respectivas funções, sem nunca sugerir a mesma pessoa duas vezes.",
+        "Termos de parentesco para bisavós, bisnetos, primos de segundo e terceiro grau, primos com uma ou duas gerações de diferença, parentes por afinidade e parentes de famílias reconstituídas, usando apenas termos bem estabelecidos em cada idioma.",
+        "Seletores de pais, filhos e parceiros com pesquisa.",
+        "Organização dos ramos que mantém as famílias juntas e separa os ramos sem parentesco.",
+        "Sugere a pessoa selecionada no campo apropriado de pai ou mãe ao adicionar alguém novo."
+      ]
+    },
+    "ru": {
+      "short_description": "Красивые семейные деревья с приватным доступом, ссылками на профили Apps Hub, ролями участников и проверкой изменений.",
+      "tagline": "История вашей семьи в красивом переплетении связей.",
+      "description": "Family Tree — личное пространство, где каждый профиль Apps Hub может создавать и изучать семейные деревья. Связывайте родителей и детей на красиво оформленном полотне, которое можно свободно перемещать, открывайте историю каждого человека и указывайте годы или точные даты рождения и смерти. Добавляйте нескольких партнёров, супругов и бывшие отношения без обязательной регистрации брака. Обозначения отцов, матерей, сыновей и дочерей определяются по указанному полу. Необязательные ссылки на профили Apps Hub позволяют идентифицировать членов семьи, не предоставляя им доступ к дереву.\n\nДелитесь отдельными деревьями, назначая роли наблюдателя, редактора или администратора. Редакторы отправляют изменения на проверку, а владелец или администратор сравнивает версии до и после изменений и принимает или отклоняет их. Администраторы могут редактировать дерево, проверять изменения, предоставлять доступ и удалять всё дерево, при этом роль владельца остаётся защищённой. Одновременные изменения и недопустимые родственные связи проверяются на сервере.\n\nПоиск и расположение людей\nНаходите нужных людей прямо в полях выбора родителей, детей и партнёров, не прокручивая длинные списки. Если при добавлении нового человека на дереве выбран мужчина или женщина, этот человек будет предложен в соответствующем поле родителя. Расположение ветвей объединяет семьи и потомков и чётче отделяет ветви без родственных связей, а заголовки панелей сохраняют выравнивание при прокрутке.",
+      "capabilities": [
+        "Несколько приватных деревьев для каждого профиля Apps Hub: собственные деревья и деревья с предоставленным доступом в одном месте.",
+        "Интерактивное семейное дерево со связанными карточками людей, перемещением, масштабированием, поиском и подгонкой под размер экрана.",
+        "Имена, пол, личные истории, годы или точные даты рождения и смерти, периоды жизни и до двух родителей.",
+        "Несколько взаимных связей между партнёрами и супругами, включая бывших партнёров, с общими детьми и обозначениями родства с учётом пола.",
+        "Необязательная привязка к профилю Apps Hub, независимая от прав доступа.",
+        "Роли наблюдателя, редактора и администратора для каждого дерева.",
+        "Предложения редакторов со сравнением версий до и после изменений, принятием, отклонением и комментариями.",
+        "История изменений, обнаружение конфликтов и предотвращение циклических связей между предками и потомками.",
+        "Версии для компьютера и адаптивные веб-страницы Apps Hub с переводом на девять языков.",
+        "Голубые и розовые карточки людей, переход назад по просмотренным родственникам, текущий возраст или возраст на момент смерти, а также сравнение возраста по датам рождения с явным обозначением приблизительных значений.",
+        "Актуальные ссылки на уже добавленных людей из собственных деревьев или деревьев с предоставленным доступом, родители и партнёры из разных деревьев, а также просмотр деревьев рядом с фильтрацией, одной карточкой для каждого общего человека и независимыми правами доступа.",
+        "Чтобы предоставить доступ, выберите роль и нажмите на имя. Панель показывает всех участников с доступом и их роли и никогда не предлагает одного человека дважды.",
+        "Обозначения родства для прадедушек и прабабушек, правнуков и правнучек, троюродных и четвероюродных братьев и сестёр, двоюродных родственников с разницей в одно или два поколения, родственников по браку и членов сводной семьи — только с использованием общепринятых терминов соответствующего языка.",
+        "Поля выбора родителей, детей и партнёров с поиском.",
+        "Расположение ветвей, которое объединяет семьи и отделяет ветви без родственных связей.",
+        "При добавлении нового человека выбранный на дереве человек предлагается в соответствующем поле родителя."
+      ]
+    },
+    "zh-CN": {
+      "short_description": "精美的私密家谱，支持关联 Apps Hub 个人资料、按角色共享，以及审核协作修改。",
+      "tagline": "让家族故事，紧密相连。",
+      "description": "Family Tree 为每个 Apps Hub 个人资料提供专属私密空间，供您创建和探索家谱。在精美且可自由移动的画布上连接父母与子女，打开每个人的故事，记录出生和去世年份或确切日期。记录多位伴侣、配偶及过往关系，无需以婚姻为前提，并根据记录的性别区分父亲、母亲、儿子和女儿。您还可以选择关联 Apps Hub 个人资料，以标识家庭成员，而不会因此授予家谱访问权限。\n\n为每棵家谱单独设置查看者、编辑者或管理员共享角色。编辑者提交的修改需经过审核；所有者或管理员可对比修改前后的版本，批准或拒绝修改。管理员可以编辑、审核、共享和删除整棵家谱，而所有者的角色始终受到保护。服务器会检查并发编辑和无效的祖先关系连接。\n\n查找与排列家族成员\n在父母、子女和伴侣选择器中直接搜索，无需滚动浏览冗长列表。在家谱上选中一位男性或女性后添加新成员时，系统会在相应的父亲或母亲字段中推荐该人。分支布局让家庭及其后代聚在一起，同时在互不相关的分支之间留出更清晰的间隔；滚动时，面板标题始终保持对齐。",
+      "capabilities": [
+        "每个 Apps Hub 个人资料均可拥有多棵私密家谱，自己拥有的家谱和他人共享的家谱集中呈现。",
+        "交互式家谱画布，以连线连接人物卡片，支持平移、缩放、搜索和自动适配视图。",
+        "记录姓名、性别、个人故事、出生和去世年份或确切日期、生卒时间，以及最多两位父母。",
+        "支持多组双向关联的伴侣及配偶关系，包括前任伴侣，并可记录共同子女，按性别显示亲属称谓。",
+        "可选择关联 Apps Hub 个人资料以标识身份，与共享权限相互独立。",
+        "为每棵家谱分别设置查看者、编辑者和管理员共享角色。",
+        "编辑者可提交修改提案，支持对比修改前后内容、批准、拒绝和评论。",
+        "保留修改历史，检测编辑冲突，并防止祖先关系形成循环。",
+        "提供桌面视图及自适应布局的 Apps Hub 网页视图，支持九种语言。",
+        "蓝色和粉色人物卡片，支持返回此前浏览的亲属，显示当前年龄或享年，并根据出生日期比较年龄，清晰标注估算值。",
+        "可实时引用自己拥有或他人共享的家谱中的现有成员，跨家谱关联父母和伴侣，并通过筛选视图并排查看；同一成员仅显示一张卡片，各家谱权限独立。",
+        "选择角色并点击姓名即可共享；面板会列出所有有权访问的人员及其角色，已添加的人员不会重复出现在可选名单中。",
+        "支持曾祖辈、曾孙辈、再从及三从兄弟姐妹、相差一代或两代的堂表亲、姻亲和继亲等亲属称谓，仅使用各语言中确有对应且含义准确的称谓。",
+        "父母、子女和伴侣选择器均支持搜索。",
+        "分支布局让同一家庭的成员聚在一起，并将互不相关的分支分开。",
+        "添加新成员时，会在相应的父母字段中推荐当前选中的人物。"
+      ]
+    }
+  }
 }

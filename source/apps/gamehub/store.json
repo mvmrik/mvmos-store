@@ -28,5 +28,239 @@
       "summary": "Games use Game Hub for player identity, for recording sessions and scores, and for multiplayer rooms and invitations. FindYourself and Sudofall both do.",
       "requires": "Game Hub installed. Games built around the public Game Hub play page require it; older games may offer independent single player."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Общ център за профили на играчи и игрова статистика. Следи сесиите, резултатите и класиранията във всички игри.",
+      "tagline": "Един профил, всяка игра, всички резултати.",
+      "description": "Game Hub е общата система за акаунти и статистика на игрите в mvmOS. Играчите получават профил с показвано име, цвят и аватар, който създават в приложението, и от този момент всяка изиграна от тях игра се записва в него.\n\nПриложението съхранява сесиите, резултатите, продължителността и победителите и ги превръща в статистика: всяка игра определя кои показатели измерва, а Game Hub създава класации, диаграми, рейтинги и рекорди за нея, отделно за самостоятелна игра и мултиплейър, както и общо класиране за всички игри и статистика за преките двубои между двама играчи. С любимите играчи хората, с които играете, са винаги подръка — оттам изпращате и покани за мултиплейър.\n\nGame Hub има собствена публична страница, на която играчите могат да проверяват класирането без акаунт за работния плот. Страницата е преведена на всичките девет езика на mvmOS и използва езика, избран в акаунта в Apps Hub, така че всеки играч я вижда на своя език още от първия екран.\n\nОбщ каталог с имена\nGame Hub включва каталог с лични имена от девет държави и английски думи и изрази за съставяне на отборни имена. Разглеждайте имената по държава и пол, вижте как се изписват на оригиналната азбука и на латиница и добавяйте свои записи като администратор. Игрите използват едни и същи имена, като избират четлив вариант на изписване за всеки, който ги вижда.",
+      "capabilities": [
+        "Профили на играчи с потребителско име, показвано име, цвят и парола.",
+        "Редактор на аватари, вграден в приложението.",
+        "Дневник на сесиите: игра, резултат, продължителност и победител.",
+        "Любими играчи, до които можете да изпращате покани за мултиплейър.",
+        "Търсене на играчи по име или потребителско име.",
+        "Публична страница с пряка връзка, без нужда от свързване на домейн.",
+        "Пълен превод на всичките девет езика на mvmOS според езика, зададен в акаунта в Apps Hub.",
+        "Страница със статистика за всяка игра, съставена от показателите, които самата игра отчита: класации по всеки показател, диаграми на вашите резултати спрямо тези на всички останали, рекорди и сравнение с всеки играч.",
+        "Отделни изгледи за самостоятелна игра и мултиплейър, с рейтинг Elo за мултиплейър.",
+        "Общо класиране за всички игри с точки според позицията на играча в класирането на всяка игра.",
+        "Магазин в Game Hub, подобен на този в Apps Hub: всеки профил избира кои игри да се показват на собствената му страница, с категории и търсене, а при премахване на игра не се изтриват данни.",
+        "Можете да филтрирате игрите си по категория и да ги подреждате от A до Z, по най-често играни или по наскоро играни.",
+        "Профил с действителни обобщени данни от цялата ви история: общо място и точки, брой самостоятелни и мултиплейър игри, победи и процент победи в мултиплейър и таблица по игри.",
+        "Играч срещу играч: статистика за преките двубои с извод кой има предимство, представяне в последните игри и поредици от резултати, вероятност за победа в следващата игра, разбивка по игри и съпоставка на всеки показател с диаграма на рейтинга. Историята на игрите се зарежда едва когато я отворите.",
+        "Игрите със собствена графична икона я показват в библиотеката, страниците на игрите, историята и статистиката, а за игрите без зададено изображение се използват емоджита.",
+        "Общ каталог с лични и отборни имена, с изписване на оригиналната азбука и на латиница, фамилии според пола, добавяне на записи от администратор, търсене и предварителен преглед."
+      ],
+      "integrations": [
+        {
+          "summary": "Игрите използват Game Hub за идентифициране на играчите, за записване на сесии и резултати, както и за мултиплейър стаи и покани. Това важи както за FindYourself, така и за Sudofall.",
+          "requires": "Инсталиран Game Hub. Той е необходим за игрите, създадени за публичната страница за игра на Game Hub; по-старите игри може да предлагат самостоятелен режим, независим от него."
+        }
+      ]
+    },
+    "de": {
+      "short_description": "Zentrale Anlaufstelle für Spielerprofile und Spielstatistiken. Erfasst Spielsitzungen, Punktestände und Ranglisten über alle Spiele hinweg.",
+      "tagline": "Ein Profil, jedes Spiel, alle Punktestände.",
+      "description": "Game Hub ist die gemeinsame Profil- und Statistikzentrale der mvmOS-Spiele. Spieler erhalten ein Profil mit einem Anzeigenamen, einer Farbe und einem Avatar, den sie in der App selbst gestalten. Von da an wird jedes gespielte Spiel diesem Profil zugeordnet.\n\nGame Hub erfasst Spielsitzungen, Punktestände, Spieldauer und Gewinner und erstellt daraus Statistiken: Jedes Spiel legt fest, welche Werte es misst, und Game Hub erstellt dazu Ranglisten, Diagramme, Wertungen und Rekorde – getrennt für Einzelspieler und Mehrspieler. Dazu kommen eine spielübergreifende Gesamtrangliste und direkte Vergleiche zwischen zwei Spielern. Über die Favoriten hast du die Personen, mit denen du spielst, immer griffbereit und kannst sie zu Mehrspielerpartien einladen.\n\nGame Hub hat eine eigene öffentliche Seite, auf der Spieler die Ranglisten auch ohne Desktop-Konto einsehen können. Die Seite ist in alle neun Sprachen von mvmOS übersetzt und übernimmt die im Apps Hub-Konto gewählte Sprache. So sehen Spieler sie vom ersten Bildschirm an in ihrer eigenen Sprache.\n\nGemeinsamer Namenskatalog\nGame Hub enthält einen Katalog mit Personennamen aus neun Ländern und englischen Bausteinen für Teamnamen. Durchsuche Namen nach Land und Geschlecht, sieh dir die ursprüngliche und die lateinische Schreibweise an und füge als Administrator eigene Einträge hinzu. Alle Spiele verwenden dieselben Identitäten und wählen für jeden Betrachter eine gut lesbare Schreibweise.",
+      "capabilities": [
+        "Spielerprofile mit Benutzernamen, Anzeigenamen, Farbe und Passwort.",
+        "Direkt in die App integrierter Avatar-Editor.",
+        "Sitzungsprotokoll mit Spiel, Punktestand, Dauer und Gewinner.",
+        "Spielerfavoriten für Einladungen zu Mehrspielerpartien.",
+        "Spielersuche nach Name oder Benutzername.",
+        "Öffentliche Seite mit direktem Link, ohne dass eine Domain zugeordnet werden muss.",
+        "Vollständig in alle neun Sprachen von mvmOS übersetzt und auf die im Apps Hub-Konto eingestellte Sprache abgestimmt.",
+        "Statistikseite für jedes Spiel auf Grundlage der vom Spiel selbst gemeldeten Werte: Ranglisten für jede Kennzahl, Diagramme zum Vergleich deiner Ergebnisse mit allen anderen, Rekorde und ein Vergleich mit einem beliebigen Spieler.",
+        "Getrennte Ansichten für Einzelspieler und Mehrspieler, mit Elo-Wertung für Mehrspielerpartien.",
+        "Gesamtrangliste über alle Spiele hinweg, mit Punkten entsprechend der Platzierung eines Spielers in den einzelnen Spielranglisten.",
+        "Ein Store direkt in Game Hub, wie in Apps Hub: Jedes Profil wählt mithilfe von Kategorien und Suche aus, welche Spiele auf seiner eigenen Seite erscheinen. Beim Entfernen eines Spiels gehen keine Daten verloren.",
+        "Deine Spiele lassen sich nach Kategorie filtern und von A–Z, nach Spielhäufigkeit oder nach zuletzt gespielt sortieren.",
+        "Profil mit tatsächlichen Gesamtwerten aus deinem gesamten Spielverlauf: Gesamtplatzierung und Punkte, Einzelspieler- und Mehrspielerpartien, Mehrspielersiege und Siegquote sowie eine Tabelle nach Spiel.",
+        "Spieler gegen Spieler: Direkter Vergleich mit einer Einschätzung, aktueller Form und Serien, der Gewinnchance für die nächste Partie, einer Aufschlüsselung nach Spiel und einer Gegenüberstellung aller Kennzahlen mit Wertungsdiagramm. Der Spielverlauf wird erst beim Öffnen geladen.",
+        "Spiele mit eigenem Bildsymbol zeigen es in der Bibliothek, auf Spielseiten, im Verlauf und in den Statistiken. Für Spiele ohne eigenes Bild werden Emojis verwendet.",
+        "Gemeinsamer Katalog für Personen- und Teamnamen mit ursprünglichen und lateinischen Schreibweisen, geschlechtsspezifischen Nachnamen, Ergänzungen durch Administratoren, Suche und Vorschau."
+      ],
+      "integrations": [
+        {
+          "summary": "Spiele nutzen Game Hub für Spieleridentitäten, zum Erfassen von Spielsitzungen und Punkteständen sowie für Mehrspielerräume und Einladungen. FindYourself und Sudofall nutzen diese Funktionen bereits.",
+          "requires": "Game Hub muss installiert sein. Spiele, die auf der öffentlichen Spielseite von Game Hub aufbauen, setzen es voraus. Ältere Spiele bieten möglicherweise einen unabhängigen Einzelspielermodus."
+        }
+      ]
+    },
+    "es": {
+      "short_description": "El punto de encuentro para los perfiles de jugadores y las estadísticas de juego. Registra sesiones, puntuaciones y clasificaciones de todos los juegos.",
+      "tagline": "Un perfil, todos los juegos, todas las puntuaciones.",
+      "description": "Game Hub es el sistema de cuentas y estadísticas que comparten los juegos de mvmOS. Cada jugador tiene un perfil con un nombre para mostrar, un color y un avatar que crea en la aplicación. A partir de ese momento, todas sus partidas quedan registradas en él.\n\nGuarda sesiones, puntuaciones, duraciones y ganadores, y los convierte en estadísticas: cada juego define qué mide y Game Hub genera clasificaciones, gráficos, valoraciones y récords a partir de esos datos, por separado para las partidas individuales y multijugador. También ofrece una clasificación general de todos los juegos y un historial de enfrentamientos entre dos jugadores. Los favoritos te permiten tener a mano a las personas con las que juegas y enviarles invitaciones para partidas multijugador.\n\nGame Hub tiene su propia página pública para que los jugadores puedan consultar las clasificaciones sin una cuenta de escritorio. La página está traducida a los nueve idiomas de mvmOS y utiliza el idioma elegido en la cuenta de Apps Hub, de modo que cada jugador la ve en su idioma desde la primera pantalla.\n\nNombres compartidos\nGame Hub incluye un catálogo de nombres de personas de nueve países y elementos en inglés para formar nombres de equipos. Explora los nombres por país y género, consulta cómo se escriben en su alfabeto original y en el latino, y añade tus propias entradas como administrador. Los juegos utilizan las mismas identidades y eligen una escritura legible para cada usuario.",
+      "capabilities": [
+        "Perfiles de jugadores con nombre de usuario, nombre para mostrar, color y contraseña.",
+        "Editor de avatares integrado en la aplicación.",
+        "Registro de sesiones: juego, puntuación, duración y ganador.",
+        "Jugadores favoritos a los que enviar invitaciones para partidas multijugador.",
+        "Búsqueda de jugadores por nombre o nombre de usuario.",
+        "Página pública con enlace directo, sin necesidad de asociar un dominio.",
+        "Traducción completa a los nueve idiomas de mvmOS, con el idioma configurado en la cuenta de Apps Hub.",
+        "Página de estadísticas para cada juego, elaborada a partir de los datos que comunica el propio juego: clasificaciones por cada métrica, gráficos de tus resultados frente a los de los demás, récords y una comparación con cualquier jugador.",
+        "Vistas separadas para partidas individuales y multijugador, con una puntuación Elo para las partidas multijugador.",
+        "Clasificación general de todos los juegos, con puntos según la posición de cada jugador en la clasificación de cada juego.",
+        "Una tienda dentro de Game Hub, como la de Apps Hub: cada perfil elige qué juegos aparecen en su propia página, con categorías y búsqueda, y no se borra ningún dato al quitar un juego.",
+        "Puedes filtrar tus juegos por categoría y ordenarlos de la A a la Z, por los más jugados o por los jugados recientemente.",
+        "Perfil con los totales reales de todo tu historial: posición y puntos en la clasificación general, partidas individuales y multijugador, victorias y porcentaje de victorias en multijugador, y una tabla por juego.",
+        "Jugador contra jugador: historial de enfrentamientos con un balance, rendimiento reciente y rachas, probabilidad de ganar la próxima partida, desglose por juego y comparación de todas las métricas en paralelo con un gráfico de puntuaciones. El historial de partidas solo se carga al abrirlo.",
+        "Los juegos que tienen un icono de imagen propio lo muestran en la biblioteca, las páginas de los juegos, el historial y las estadísticas. Los que no especifican una imagen utilizan un emoji.",
+        "Catálogo compartido de nombres de personas y equipos, con escritura en el alfabeto original y en el latino, apellidos adaptados al género, entradas añadidas por administradores, búsqueda y vistas previas."
+      ],
+      "integrations": [
+        {
+          "summary": "Los juegos utilizan Game Hub para identificar a los jugadores, registrar sesiones y puntuaciones, y gestionar salas e invitaciones multijugador. Tanto FindYourself como Sudofall lo utilizan.",
+          "requires": "Game Hub instalado. Es necesario para los juegos diseñados en torno a la página pública de Game Hub para jugar; los juegos más antiguos pueden ofrecer un modo individual independiente."
+        }
+      ]
+    },
+    "ru": {
+      "short_description": "Единый центр профилей игроков и игровой статистики. Отслеживает игровые сеансы, результаты и таблицы лидеров во всех играх.",
+      "tagline": "Один профиль, все игры, все результаты.",
+      "description": "Game Hub — общая система учётных записей и статистики для игр mvmOS. Игроки создают профиль с отображаемым именем, цветом и аватаром, который можно настроить прямо в приложении. С этого момента все сыгранные партии сохраняются в их профиле.\n\nПриложение хранит игровые сеансы, результаты, продолжительность партий и победителей, превращая эти данные в статистику. Каждая игра сообщает, какие показатели она отслеживает, а Game Hub строит по ним таблицы лидеров, графики, рейтинги и списки рекордов — отдельно для одиночного и многопользовательского режимов. Также доступны общий рейтинг по всем играм и статистика личных встреч двух игроков. Добавляйте тех, с кем играете, в избранное, чтобы они всегда были под рукой: из этого же списка можно отправлять приглашения в многопользовательские игры.\n\nУ Game Hub есть собственная общедоступная страница, где можно посмотреть положение игроков в рейтинге без учётной записи рабочего стола. Страница переведена на все девять языков mvmOS и использует язык, выбранный в учётной записи Apps Hub, поэтому с первого экрана игрок видит её на своём языке.\n\nОбщий каталог имён\nGame Hub включает каталог личных имён из девяти стран и элементов названий команд на английском языке. Просматривайте имена по стране и полу, сравнивайте написание на языке оригинала и латиницей, а с правами администратора добавляйте собственные варианты. Игры используют единые имена, подбирая для каждого пользователя удобное для чтения написание.",
+      "capabilities": [
+        "Профили игроков с именем пользователя, отображаемым именем, цветом и паролем.",
+        "Встроенный редактор аватаров.",
+        "Журнал игровых сеансов: игра, результат, продолжительность и победитель.",
+        "Избранные игроки, которым можно отправлять приглашения в многопользовательские игры.",
+        "Поиск игроков по имени или имени пользователя.",
+        "Общедоступная страница с прямой ссылкой без необходимости привязывать домен.",
+        "Полный перевод на все девять языков mvmOS с использованием языка, выбранного в учётной записи Apps Hub.",
+        "Страница статистики для каждой игры на основе показателей, которые сообщает сама игра: таблицы лидеров по каждому показателю, графики ваших результатов на фоне остальных игроков, рекорды и сравнение с любым игроком.",
+        "Отдельные представления для одиночного и многопользовательского режимов, с рейтингом Эло для многопользовательских игр.",
+        "Общий рейтинг по всем играм: очки начисляются в зависимости от места игрока в рейтинге каждой игры.",
+        "Магазин внутри Game Hub, как в Apps Hub: каждый профиль сам выбирает, какие игры показывать на своей странице. Есть категории и поиск, а при удалении игры со страницы её данные сохраняются.",
+        "Ваши игры можно фильтровать по категориям и сортировать по алфавиту, частоте запусков или времени последней игры.",
+        "Профиль с итогами за всю историю игр: общее место и очки, количество одиночных и многопользовательских партий, победы в многопользовательском режиме и их доля, а также таблица по играм.",
+        "Игрок против игрока: статистика личных встреч с итоговым выводом, результаты последних партий и серии побед и поражений, вероятность победы в следующей партии, разбивка по играм и сопоставление всех показателей с графиком рейтинга. История игр загружается только при её открытии.",
+        "Собственные значки игр отображаются в библиотеке, на страницах игр, в истории и статистике. Для игр без значка используются эмодзи.",
+        "Общий каталог личных имён и названий команд: написание на языке оригинала и латиницей, формы фамилий с учётом пола, добавление записей администратором, поиск и предварительный просмотр."
+      ],
+      "integrations": [
+        {
+          "summary": "Игры используют Game Hub для идентификации игроков, записи игровых сеансов и результатов, а также для многопользовательских комнат и приглашений. Такая интеграция есть в FindYourself и Sudofall.",
+          "requires": "Необходим установленный Game Hub. Для игр, использующих общедоступную игровую страницу Game Hub, он обязателен; в более старых играх может быть доступен независимый одиночный режим."
+        }
+      ]
+    },
+    "ja": {
+      "short_description": "プレイヤープロフィールとゲーム統計を一か所に。すべてのゲームのプレイ記録、スコア、ランキングをまとめて管理します。",
+      "tagline": "ひとつのプロフィールに、すべてのゲームとスコアを。",
+      "description": "Game Hubは、mvmOSのゲームで共通して使うアカウントと統計の基盤です。プレイヤーはアプリ内で表示名、カラー、アバターを設定してプロフィールを作成できます。それ以降、プレイしたすべてのゲームがそのプロフィールに記録されます。\n\nプレイ記録、スコア、プレイ時間、勝者を保存し、統計としてまとめます。各ゲームが定義する測定項目に応じて、Game Hubがランキング、グラフ、レーティング、記録を表示。ソロプレイとマルチプレイを分けて確認できるほか、全ゲームを通じた総合ランキングや、2人のプレイヤー間の対戦成績も見られます。よく一緒に遊ぶ相手をお気に入りに登録すれば、すぐに見つけてマルチプレイに招待できます。\n\nGame Hubには専用の公開ページがあり、デスクトップのアカウントがなくても順位を確認できます。このページはmvmOSが対応する全9言語に翻訳されており、Apps Hubアカウントで選択した言語で表示されるため、最初の画面から自分の言語で利用できます。\n\n共通の名前カタログ\nGame Hubには、9か国の人名と、英語のチーム名を組み立てるための語句を収録したカタログがあります。国や性別で名前を探し、現地の文字とラテン文字での表記をプレビューできるほか、管理者は独自の項目も追加できます。ゲーム間で同じ名前を共有しながら、見る人に合わせて読みやすい表記で表示します。",
+      "capabilities": [
+        "ユーザー名、表示名、カラー、パスワードを設定できるプレイヤープロフィール。",
+        "アプリ内蔵のアバターエディター。",
+        "ゲーム、スコア、プレイ時間、勝者を残せるプレイ履歴。",
+        "プレイヤーをお気に入りに登録し、マルチプレイに招待。",
+        "名前やユーザー名でプレイヤーを検索。",
+        "直接リンクでアクセスできる公開ページ。ドメインの割り当ては不要です。",
+        "mvmOSが対応する全9言語に完全対応。Apps Hubアカウントで設定した言語で表示します。",
+        "各ゲームが報告する数値をもとに、そのゲーム専用の統計ページを表示。各指標のランキング、ほかの全プレイヤーと自分の成績を比べるグラフ、記録、任意のプレイヤーとの比較を確認できます。",
+        "ソロプレイとマルチプレイを分けて表示。マルチプレイにはEloレーティングを採用。",
+        "全ゲームを通じた総合ランキング。各ゲームの順位に応じてポイントが付与されます。",
+        "Apps Hubと同様のストアをGame Hubにも搭載。カテゴリや検索を使って、プロフィールごとに自分のページに表示するゲームを選べます。ゲームを一覧から外しても、データは一切削除されません。",
+        "自分のゲームをカテゴリで絞り込み、A–Z順、プレイ回数順、最近プレイした順に並べ替え。",
+        "全履歴を集計した実際の数値をプロフィールに表示。総合順位とポイント、ソロプレイとマルチプレイのプレイ回数、マルチプレイの勝利数と勝率、ゲーム別の集計表を確認できます。",
+        "プレイヤー同士を比較。直接対決の成績と優劣の判定、直近の調子と連勝・連敗、次の対戦で勝つ確率、ゲーム別の内訳、すべての数値を並べた比較とレーティングのグラフを確認できます。対戦履歴は開いたときだけ読み込みます。",
+        "独自の画像アイコンがあるゲームは、ライブラリ、ゲームページ、履歴、統計にそのアイコンを表示。画像が設定されていないゲームには絵文字を表示します。",
+        "人名とチーム名の共通カタログ。現地の文字とラテン文字での表記、性別に応じた姓の表記、管理者による追加、検索、プレビューに対応。"
+      ],
+      "integrations": [
+        {
+          "summary": "ゲームはGame Hubを利用して、プレイヤーの識別、プレイ記録とスコアの保存、マルチプレイルームと招待を管理します。FindYourselfとSudofallも利用しています。",
+          "requires": "Game Hubのインストールが必要です。Game Hubの公開プレイページを中心に構築されたゲームでは必須となります。旧来のゲームには、単独でシングルプレイを楽しめるものもあります。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Central de perfis de jogadores e estatísticas de jogos. Registra partidas, pontuações e classificações de todos os jogos.",
+      "tagline": "Um perfil, todos os jogos, todas as pontuações.",
+      "description": "Game Hub é o sistema de contas e estatísticas compartilhado pelos jogos do mvmOS. Cada jogador tem um perfil com nome de exibição, cor e um avatar criado no app. A partir daí, todos os jogos que ele joga ficam registrados nesse perfil.\n\nEle registra partidas, pontuações, durações e vencedores e transforma tudo em estatísticas: cada jogo informa o que mede, e o Game Hub cria tabelas de classificação, gráficos, avaliações e recordes, separadamente para os modos individual e multijogador. Também oferece uma classificação geral de todos os jogos e históricos de confrontos diretos entre dois jogadores. Os favoritos deixam sempre à mão as pessoas com quem você joga, e é por eles que você envia convites para partidas multijogador.\n\nGame Hub tem sua própria página pública, para que os jogadores possam consultar as classificações sem uma conta no desktop. A página está traduzida para os nove idiomas do mvmOS e segue o idioma escolhido na conta do Apps Hub, para que cada jogador veja tudo no seu idioma desde a primeira tela.\n\nNomes compartilhados\nGame Hub inclui um catálogo de nomes de pessoas de nove países e elementos em inglês para compor nomes de equipes. Explore os nomes por país e gênero, visualize as grafias no alfabeto original e no alfabeto latino e adicione suas próprias entradas como administrador. Os jogos usam as mesmas identidades e escolhem uma grafia legível para cada pessoa que as visualiza.",
+      "capabilities": [
+        "Perfis de jogadores com nome de usuário, nome de exibição, cor e senha.",
+        "Editor de avatares integrado ao app.",
+        "Histórico de partidas: jogo, pontuação, duração e vencedor.",
+        "Jogadores favoritos para enviar convites para partidas multijogador.",
+        "Busca de jogadores por nome ou nome de usuário.",
+        "Página pública com link direto, sem necessidade de configurar um domínio.",
+        "Totalmente traduzido para os nove idiomas do mvmOS, seguindo o idioma definido na conta do Apps Hub.",
+        "Página de estatísticas para cada jogo, gerada a partir dos dados que o próprio jogo informa: classificações por indicador, gráficos dos seus resultados em relação aos demais jogadores, recordes e comparação com qualquer jogador.",
+        "Visualizações separadas para os modos individual e multijogador, com uma pontuação Elo para o modo multijogador.",
+        "Classificação geral de todos os jogos, com pontos de acordo com a posição de cada jogador na classificação de cada jogo.",
+        "Uma loja dentro do Game Hub, como a do Apps Hub: cada perfil escolhe quais jogos aparecem na sua própria página, com categorias e busca, e nada é apagado quando um jogo é removido.",
+        "Seus jogos podem ser filtrados por categoria e ordenados de A–Z, pelos mais jogados ou pelos jogados recentemente.",
+        "Perfil com totais reais de todo o seu histórico: posição e pontuação gerais, partidas individuais e multijogador, vitórias e taxa de vitórias no modo multijogador, além de uma tabela por jogo.",
+        "Jogador contra jogador: histórico de confrontos diretos com indicação de quem leva a melhor, desempenho recente e sequências de resultados, chance de vencer a próxima partida, detalhamento por jogo e comparação de cada indicador lado a lado, com um gráfico de pontuação. O histórico de partidas só é carregado quando você o abre.",
+        "Jogos com um ícone próprio em imagem o exibem na biblioteca, nas páginas dos jogos, no histórico e nas estatísticas. Jogos que não fornecem uma imagem usam emojis.",
+        "Catálogo compartilhado de nomes de pessoas e equipes, com grafias no alfabeto original e no alfabeto latino, sobrenomes adaptados ao gênero, entradas adicionadas por administradores, busca e pré-visualizações."
+      ],
+      "integrations": [
+        {
+          "summary": "Os jogos usam o Game Hub para identificar jogadores, registrar partidas e pontuações e gerenciar salas e convites multijogador. FindYourself e Sudofall usam esses recursos.",
+          "requires": "Game Hub instalado. Ele é obrigatório para jogos desenvolvidos em torno da página pública de jogos do Game Hub; jogos mais antigos podem oferecer um modo individual independente."
+        }
+      ]
+    },
+    "zh-CN": {
+      "short_description": "集中管理玩家档案和游戏统计。记录所有游戏的对局、得分和排行榜。",
+      "tagline": "一个档案，畅玩所有游戏，记录每次得分。",
+      "description": "Game Hub 为 mvmOS 中的游戏提供共用的账号与统计功能。玩家可以在应用中创建档案，设置显示名称、颜色，并制作自己的头像。此后，每一场游戏都会记录在这个档案下。\n\n它会保存对局、得分、时长和获胜者，并将这些记录转化为统计数据：每款游戏自行定义统计指标，Game Hub 据此生成排行榜、图表、评分和纪录，分别呈现单人和多人游戏数据，还提供跨游戏的综合排名，以及两名玩家之间的交锋记录。收藏功能让你随时找到常一起玩的伙伴，多人游戏邀请也通过这里发起。\n\nGame Hub 拥有独立的公开页面，玩家无需桌面账号即可查看排名。该页面已完整翻译为 mvmOS 支持的全部九种语言，并随 Apps Hub 账号的语言设置自动切换，让玩家从打开页面的那一刻起就能使用自己的语言。\n\n共用姓名库\nGame Hub 内置来自九个国家的人名库，以及用于组合英文队名的词语。你可以按国家和性别浏览姓名，预览原文和拉丁字母拼写，管理员还可添加自定义条目。各款游戏共用这些身份信息，同时为每位查看者选择便于阅读的拼写形式。",
+      "capabilities": [
+        "玩家档案包含用户名、显示名称、颜色和密码。",
+        "应用内置头像编辑器。",
+        "对局日志：记录游戏、得分、时长和获胜者。",
+        "收藏玩家，方便发送多人游戏邀请。",
+        "按名称或用户名搜索玩家。",
+        "公开页面提供直达链接，无需配置域名映射。",
+        "已完整翻译为 mvmOS 支持的全部九种语言，并随 Apps Hub 账号的语言设置自动切换。",
+        "每款游戏都有专属统计页面，依据游戏自身上报的数据生成：各项指标的排行榜、展示你与其他所有玩家成绩对比的图表、纪录，以及与任意玩家的比较。",
+        "单人和多人游戏数据分开展示，多人游戏还提供 Elo 评分。",
+        "跨游戏综合排名，根据玩家在各款游戏排行榜中的位置计算积分。",
+        "Game Hub 内置与 Apps Hub 类似的商店：每个档案都能自行选择要在个人页面上显示的游戏，支持分类浏览和搜索，移除游戏时也不会删除任何数据。",
+        "你的游戏可按类别筛选，并按 A–Z、游玩次数或最近游玩时间排序。",
+        "个人档案汇总完整历史记录中的真实数据：综合排名与积分、单人和多人游戏场次、多人游戏获胜场次与胜率，以及按游戏分类的统计表。",
+        "玩家对决：查看双方交锋记录及优劣势结论、近期表现与连胜连败走势、下一局的获胜概率、各款游戏的详细数据，以及各项指标的并排对比和评分图表。对局历史仅在打开时加载。",
+        "拥有专属图片图标的游戏会在游戏库、游戏页面、历史记录和统计中显示该图标；未提供图片的游戏则使用表情符号。",
+        "共用人名与队名库，支持原文和拉丁字母拼写、符合性别规则的姓氏形式、管理员添加条目，以及搜索和预览。"
+      ],
+      "integrations": [
+        {
+          "summary": "游戏通过 Game Hub 管理玩家身份、记录对局与得分，并提供多人房间和邀请功能。FindYourself 和 Sudofall 均已接入。",
+          "requires": "需安装 Game Hub。基于 Game Hub 公开游戏页面构建的游戏必须依赖它；较早的游戏可能提供独立的单人模式。"
+        }
+      ]
+    },
+    "fr": {
+      "short_description": "Un espace central pour les profils des joueurs et les statistiques de jeu. Retrouvez les sessions, les scores et les classements de tous les jeux.",
+      "tagline": "Un seul profil, tous les jeux, tous les scores.",
+      "description": "Game Hub centralise les comptes et les statistiques des jeux mvmOS. Chaque joueur dispose d’un profil avec un nom d’affichage, une couleur et un avatar qu’il crée dans l’application. Dès lors, toutes ses parties sont enregistrées sur ce profil.\n\nGame Hub conserve les sessions, les scores, les durées et les vainqueurs pour en tirer des statistiques : chaque jeu indique ce qu’il mesure, et Game Hub génère les classements, graphiques, évaluations et records correspondants, séparément pour le solo et le multijoueur. À cela s’ajoutent un classement général regroupant tous les jeux et le bilan des confrontations entre deux joueurs. Les favoris vous permettent de retrouver facilement vos partenaires de jeu et de leur envoyer des invitations multijoueurs.\n\nGame Hub dispose de sa propre page publique : les joueurs peuvent ainsi consulter les classements sans compte sur le bureau. Cette page est traduite dans les neuf langues de mvmOS et reprend la langue choisie sur le compte Apps Hub. Chaque joueur la découvre donc dans sa langue dès le premier écran.\n\nDes noms partagés\nGame Hub comprend un catalogue de noms de personnes de neuf pays et d’éléments en anglais pour composer des noms d’équipe. Parcourez les noms par pays et par genre, prévisualisez leur écriture d’origine et leur transcription latine, et ajoutez vos propres entrées en tant qu’administrateur. Les jeux utilisent les mêmes identités tout en choisissant une écriture lisible pour chaque personne qui les consulte.",
+      "capabilities": [
+        "Profils de joueurs avec nom d’utilisateur, nom d’affichage, couleur et mot de passe.",
+        "Éditeur d’avatar intégré à l’application.",
+        "Historique des sessions : jeu, score, durée et vainqueur.",
+        "Joueurs favoris pour les invitations multijoueurs.",
+        "Recherche de joueurs par nom ou nom d’utilisateur.",
+        "Page publique accessible par un lien direct, sans configuration de domaine.",
+        "Traduction intégrale dans les neuf langues de mvmOS, selon la langue définie sur le compte Apps Hub.",
+        "Une page de statistiques pour chaque jeu, créée à partir des données chiffrées fournies par le jeu lui-même : classements pour chaque indicateur, graphiques comparant vos résultats à ceux des autres joueurs, records et comparaison avec le joueur de votre choix.",
+        "Vues distinctes pour le solo et le multijoueur, avec un classement Elo en multijoueur.",
+        "Classement général regroupant tous les jeux, avec des points attribués selon la position de chaque joueur dans le classement de chaque jeu.",
+        "Une boutique intégrée à Game Hub, comme celle d’Apps Hub : chaque profil choisit les jeux qui apparaissent sur sa page, avec des catégories et une recherche. Aucune donnée n’est supprimée lorsqu’un jeu est retiré.",
+        "Filtrez vos jeux par catégorie et triez-les de A à Z, par fréquence de jeu ou par date de dernière partie.",
+        "Un profil avec des totaux calculés sur l’ensemble de votre historique : place et points au classement général, parties en solo et en multijoueur, victoires et taux de victoire en multijoueur, ainsi qu’un tableau par jeu.",
+        "Joueur contre joueur : bilan des confrontations avec un verdict, forme récente et séries de résultats, probabilité de remporter la prochaine partie, détail par jeu et comparaison côte à côte de chaque indicateur, avec un graphique d’évolution du classement. L’historique des parties ne se charge que lorsque vous l’ouvrez.",
+        "Les jeux disposant de leur propre icône illustrée l’affichent dans la bibliothèque, les pages des jeux, l’historique et les statistiques. Des émojis sont utilisés pour les jeux qui ne fournissent pas d’image.",
+        "Catalogue partagé de noms de personnes et d’équipes, avec écriture d’origine et transcription latine, noms de famille adaptés au genre, ajouts par les administrateurs, recherche et aperçus."
+      ],
+      "integrations": [
+        {
+          "summary": "Les jeux utilisent Game Hub pour l’identité des joueurs, l’enregistrement des sessions et des scores, ainsi que les salons et les invitations multijoueurs. C’est le cas de FindYourself et de Sudofall.",
+          "requires": "Game Hub doit être installé. Il est indispensable aux jeux conçus autour de sa page publique de jeu ; les jeux plus anciens peuvent proposer un mode solo indépendant."
+        }
+      ]
+    }
+  }
 }

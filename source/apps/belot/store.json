@@ -31,5 +31,231 @@
   ],
   "requirements": [
     "Game Hub 1.21.1 or later, installed and updated before using this version."
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Играйте български белот или класически френски белот с приятели или самостоятелни ботове и запазвайте собствени правила за всеки от двата варианта.",
+      "tagline": "Вашата маса. Вашите правила.",
+      "description": "Играйте български белот за четирима или класически френски белот с приятели или самостоятелни ботове. Стандартният набор от правила за български белот позволява по избор наддаване на без коз, обявяване на анонсите преди първата карта, балансирано точкуване и продължаване на играта след капо.\n\nДомакинът може да избере дали при анонс играчите назовават комбинациите си, или само заявяват, че имат анонс, както и да настрои други спорни правила за наддаване, игра с картите и точкуване, а след това да запази настройките под избрано име. Изберете дали бонусът за капо се удвоява при раздавания на без коз.\n\nПри наддаване ботовете вземат предвид предишните обяви и боите на партньора, а последователните анимации на масата и незабавната обратна връзка при изиграване на карта и наддаване правят всеки ход ясен. Game Hub записва завършените мачове, победите и резултатите от преките двубои.\n\nИмена и самоличности\nБотовете получават от Game Hub имена, характерни за съответната държава. Те се изписват по разбираем начин за всеки участник и се запазват при продължаване на запазена игра.",
+      "capabilities": [
+        "Отборна игра за четирима с от един до четирима реални играчи и ботове на свободните места.",
+        "Собствени правила и набори от настройки с избрани имена за всеки играч на това устройство.",
+        "Проверка от сървъра на наддаването, позволените карти, взятките и резултатите.",
+        "Профили, покани, история на мачовете и класации в Game Hub.",
+        "Маса за карти, която се адаптира към компютри и телефони.",
+        "Premium: ботове с наставник с изкуствен интелект, който ги съветва при трудни решения и понякога коментира.",
+        "Статистика в Game Hub за изиграни и спечелени раздавания, поети и изпълнени договори, успеваемост при изпълнението на договорите и точки на раздаване.",
+        "Ботовете получават от Game Hub имена, характерни за съответната държава. Те се изписват по разбираем начин за всеки участник и се запазват при продължаване на запазена игра."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 или по-нова версия, инсталирана и актуализирана преди използването на тази версия."
+      ],
+      "integrations": [
+        {
+          "summary": "Осигурява профили, стаи, покани, запазени игри и записани резултати от мачове.",
+          "requires": "Инсталиран Game Hub."
+        },
+        {
+          "summary": "Premium: изкуственият интелект на публичната страница на mvmAI напътства ботовете на масата.",
+          "requires": "Инсталиран mvmAI с активиран App API в Apps Hub → Настройки → API на приложенията. Тази настройка е изключена по подразбиране."
+        }
+      ]
+    },
+    "de": {
+      "short_description": "Spiele bulgarisches Belot oder klassisches französisches Belote mit Freunden oder eigenständig spielenden Bots und speichere eigene Regeln für beide Varianten.",
+      "tagline": "Dein Tisch. Deine Regeln.",
+      "description": "Spiele bulgarisches Belot oder klassisches französisches Belote zu viert mit Freunden oder eigenständig spielenden Bots. Die Standardvorlage für bulgarisches Belot bietet optionales Kontrieren bei Spielen ohne Trumpf, Ansagen vor der ersten Karte, eine ausgewogene Wertung und die Fortsetzung des Spiels nach einem Durchmarsch.\n\nDer Gastgeber kann festlegen, ob Spieler bei Ansagen während des Spiels ihre Kombinationen nennen oder nur ankündigen, dass sie eine haben. Auch weitere unterschiedlich gehandhabte Regeln für Reizen, Kartenspiel und Wertung lassen sich anpassen und als benannte Vorlagen speichern. Entscheide, ob der Bonus für einen Durchmarsch bei Spielen ohne Trumpf verdoppelt wird.\n\nBeim Reizen berücksichtigen Bots bisherige Gebote und die Farben ihres Partners. Geordnete Animationen am Spieltisch und sofortige Rückmeldungen zu Karten und Geboten machen jeden Zug nachvollziehbar. Game Hub erfasst abgeschlossene Partien, Siege und Ergebnisse direkter Begegnungen.\n\nNamen und Identitäten\nBots erhalten von Game Hub landestypische Namen, die für jeden Betrachter in einer lesbaren Schreibweise angezeigt werden und beim Fortsetzen eines gespeicherten Spiels erhalten bleiben.",
+      "capabilities": [
+        "Teamspiel zu viert mit ein bis vier menschlichen Spielern und Bots auf den freien Plätzen.",
+        "Eigene Regeln und benannte Vorlagen für jeden Spieler auf diesem Gerät.",
+        "Serverseitige Prüfung von Geboten, erlaubten Karten, Stichen und Punkteständen.",
+        "Profile, Einladungen, Spielverlauf und Ranglisten in Game Hub.",
+        "Anpassungsfähiger Kartentisch für Desktop und Smartphone.",
+        "Premium: Bots mit einem KI-Mentor, der sie bei knappen Entscheidungen berät und gelegentlich kommentiert.",
+        "Game Hub-Statistiken zu gespielten und gewonnenen Runden, übernommenen und erfüllten Kontrakten, Erfolgsquote bei Kontrakten und Punkten pro Runde.",
+        "Bots erhalten von Game Hub landestypische Namen, die für jeden Betrachter in einer lesbaren Schreibweise angezeigt werden und beim Fortsetzen eines gespeicherten Spiels erhalten bleiben."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 oder neuer muss vor der Nutzung dieser Version installiert und aktualisiert sein."
+      ],
+      "integrations": [
+        {
+          "summary": "Stellt Profile, Räume, Einladungen, Spielstände und gespeicherte Spielergebnisse bereit.",
+          "requires": "Game Hub muss installiert sein."
+        },
+        {
+          "summary": "Premium: Die KI der öffentlichen Seite von mvmAI betreut die Bots an einem Tisch als Mentor.",
+          "requires": "mvmAI muss installiert und seine App-API unter Apps Hub → Einstellungen → App-APIs aktiviert sein. Dieser Schalter ist standardmäßig ausgeschaltet."
+        }
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Jogue Belot búlgaro ou Belote francês clássico com amigos ou bots autônomos e salve regras personalizadas para cada modalidade.",
+      "tagline": "Sua mesa. Suas regras.",
+      "description": "Jogue Belot búlgaro ou Belote francês clássico em mesas para quatro participantes, com amigos ou bots autônomos. A configuração padrão búlgara oferece aumentos opcionais nas apostas sem trunfo, declarações antes da primeira carta, pontuação equilibrada e continuidade da partida após um capot.\n\nO anfitrião pode escolher se os jogadores revelam suas combinações ao fazer declarações durante o jogo ou apenas anunciam que têm uma, além de definir outras regras de leilão, cartas e pontuação que variam entre jogadores, e salvar configurações com nomes próprios. Escolha se o bônus de capot é dobrado nas rodadas sem trunfo.\n\nAo fazer lances, os bots consideram os lances anteriores e os naipes do parceiro, enquanto animações sequenciais na mesa e respostas imediatas às cartas e aos lances deixam cada jogada clara. O Game Hub registra partidas concluídas, vitórias e resultados de confrontos diretos.\n\nNomes e identidades\nOs bots recebem do Game Hub nomes típicos de cada país, exibidos com uma grafia de fácil leitura para cada pessoa e mantidos ao retomar um jogo salvo.",
+      "capabilities": [
+        "Jogo em equipes para quatro participantes, com um a quatro jogadores humanos e bots nas vagas restantes.",
+        "Regras personalizadas e configurações salvas com nomes próprios para cada jogador neste dispositivo.",
+        "Validação de lances, cartas permitidas, vazas e pontuações pelo servidor.",
+        "Perfis, convites, histórico de partidas e rankings do Game Hub.",
+        "Mesa de cartas com layout adaptável para computador e celular.",
+        "Premium: bots com um mentor de IA que os orienta em decisões difíceis e às vezes faz comentários.",
+        "Estatísticas do Game Hub sobre rodadas disputadas e vencidas, contratos assumidos e cumpridos, taxa de sucesso nos contratos e pontos por rodada.",
+        "Os bots recebem do Game Hub nomes típicos de cada país, exibidos com uma grafia de fácil leitura para cada pessoa e mantidos ao retomar um jogo salvo."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 ou posterior, instalado e atualizado antes de usar esta versão."
+      ],
+      "integrations": [
+        {
+          "summary": "Oferece perfis, salas, convites, jogos salvos e registro dos resultados das partidas.",
+          "requires": "Game Hub instalado."
+        },
+        {
+          "summary": "Premium: a IA da página pública do mvmAI orienta os bots de uma mesa.",
+          "requires": "mvmAI instalado com sua API de aplicativo ativada em Apps Hub → Configurações → APIs de aplicativos. Essa opção vem desativada por padrão."
+        }
+      ]
+    },
+    "es": {
+      "short_description": "Juega al Belot búlgaro o al Belote francés clásico con amigos o bots autónomos y guarda reglas personalizadas para cada modalidad.",
+      "tagline": "Tu mesa. Tus reglas.",
+      "description": "Juega al Belot búlgaro o al Belote francés clásico en mesas de cuatro jugadores, con amigos o bots autónomos. La configuración búlgara estándar incluye la opción de doblar en los contratos sin triunfo, anuncios antes de jugar la primera carta, una puntuación equilibrada y la continuación del juego tras un capote.\n\nEl anfitrión puede elegir si, durante la partida, los jugadores especifican las combinaciones que anuncian o solo indican que tienen una, además de configurar otras reglas de subasta, juego de cartas y puntuación que suelen generar debate, y guardar configuraciones con nombre. Elige si la bonificación por capote se duplica en las manos sin triunfo.\n\nAl pujar, los bots tienen en cuenta las pujas anteriores y los palos del compañero, mientras que las animaciones ordenadas de la mesa y la respuesta inmediata al jugar cartas y realizar pujas permiten seguir cada jugada con claridad. Game Hub registra las partidas completadas, las victorias y los resultados de los enfrentamientos directos.\n\nNombres e identidades\nLos bots reciben de Game Hub nombres propios de cada país, que se muestran con una grafía legible para cada usuario y se conservan al reanudar una partida guardada.",
+      "capabilities": [
+        "Juego por equipos en mesas de cuatro, con entre uno y cuatro jugadores humanos y bots en los puestos vacíos.",
+        "Reglas personalizadas y configuraciones con nombre para cada jugador de este dispositivo.",
+        "Validación de subastas, cartas permitidas, bazas y puntuaciones por parte del servidor.",
+        "Perfiles, invitaciones, historial de partidas y clasificaciones de Game Hub.",
+        "Mesa de cartas adaptable a ordenadores y teléfonos.",
+        "Premium: bots con un mentor de IA que les aconseja en las decisiones difíciles y a veces hace comentarios.",
+        "Estadísticas de Game Hub sobre manos jugadas y ganadas, contratos asumidos y cumplidos, porcentaje de éxito de los contratos y puntos por mano.",
+        "Los bots reciben de Game Hub nombres propios de cada país, que se muestran con una grafía legible para cada usuario y se conservan al reanudar una partida guardada."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 o posterior, instalado y actualizado antes de usar esta versión."
+      ],
+      "integrations": [
+        {
+          "summary": "Ofrece perfiles, salas, invitaciones, partidas guardadas y un registro de resultados de las partidas.",
+          "requires": "Game Hub instalado."
+        },
+        {
+          "summary": "Premium: la IA de la página pública de mvmAI actúa como mentora de los bots de una mesa.",
+          "requires": "mvmAI instalado con su API de aplicación activada en Apps Hub → Ajustes → API de aplicaciones. Esta opción está desactivada de forma predeterminada."
+        }
+      ]
+    },
+    "fr": {
+      "short_description": "Jouez au Belot bulgare ou à la belote française classique avec des amis ou des bots autonomes, et enregistrez vos règles personnalisées pour chaque variante.",
+      "tagline": "Votre table. Vos règles.",
+      "description": "Jouez à quatre au Belot bulgare ou à la belote française classique, avec des amis ou des bots autonomes. Le préréglage bulgare standard propose la surenchère facultative à sans-atout, les annonces avant la première carte, un décompte équilibré des points et la poursuite de la partie après un capot.\n\nL’hôte peut choisir si les joueurs doivent préciser leurs combinaisons lors des annonces ou simplement signaler qu’ils en ont une, ainsi que régler d’autres points de désaccord concernant les enchères, le jeu de la carte et le décompte des points, puis enregistrer des préréglages nommés. Choisissez également si la prime de capot est doublée dans les donnes à sans-atout.\n\nLes enchères des bots tiennent compte des enchères précédentes et des couleurs du partenaire, tandis que les animations successives à la table et les indications immédiates sur les cartes jouées et les enchères rendent chaque action facile à suivre. Game Hub enregistre les parties terminées, les victoires et les résultats des confrontations.\n\nNoms et identités\nGame Hub attribue aux bots des noms propres à chaque pays, affichés dans une graphie lisible pour chaque personne et conservés lors de la reprise d’une partie sauvegardée.",
+      "capabilities": [
+        "Jeu en équipes à quatre, avec un à quatre joueurs humains et des bots aux places libres.",
+        "Règles personnalisées et préréglages nommés pour chaque joueur sur cet appareil.",
+        "Validation par le serveur des enchères, des cartes autorisées, des plis et des scores.",
+        "Profils, invitations, historique des parties et classements dans Game Hub.",
+        "Table de jeu adaptée aux ordinateurs et aux téléphones.",
+        "Premium : des bots accompagnés d’un mentor IA qui les conseille dans les décisions délicates et fait parfois des commentaires.",
+        "Statistiques Game Hub sur les donnes jouées et remportées, les contrats pris et réalisés, le taux de réussite des contrats et les points par donne.",
+        "Game Hub attribue aux bots des noms propres à chaque pays, affichés dans une graphie lisible pour chaque personne et conservés lors de la reprise d’une partie sauvegardée."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 ou version ultérieure, installé et mis à jour avant d’utiliser cette version."
+      ],
+      "integrations": [
+        {
+          "summary": "Fournit les profils, les salons, les invitations, les sauvegardes et l’enregistrement des résultats des parties.",
+          "requires": "Game Hub doit être installé."
+        },
+        {
+          "summary": "Premium : l’IA de la page publique de mvmAI accompagne les bots d’une table en tant que mentor.",
+          "requires": "mvmAI doit être installé et son API d’application activée dans Apps Hub → Paramètres → API des applications. Cette option est désactivée par défaut."
+        }
+      ]
+    },
+    "ru": {
+      "short_description": "Играйте в болгарский Belot или классический французский Belote с друзьями или самостоятельными ботами и сохраняйте свои правила для обоих вариантов.",
+      "tagline": "Ваш стол. Ваши правила.",
+      "description": "Играйте в болгарский Belot или классический французский Belote вчетвером с друзьями или самостоятельными ботами. Стандартный набор болгарских правил предусматривает возможность повышать ставки при игре без козыря, объявления до первой карты, сбалансированный подсчёт очков и продолжение игры после капота.\n\nСоздатель игры может выбрать, будут ли игроки при объявлении называть свои комбинации или лишь сообщать об их наличии, настроить другие спорные правила торговли, розыгрыша и подсчёта очков, а затем сохранить набор правил под своим названием. Также можно выбрать, удваивается ли премия за капот в раздачах без козыря.\n\nПри торговле боты учитывают предыдущие заявки и масти партнёра, а последовательная анимация за столом и мгновенный отклик на розыгрыш карт и заявки позволяют легко следить за каждым ходом. Game Hub сохраняет завершённые матчи, победы и результаты личных встреч.\n\nИмена и узнаваемость\nБоты получают от Game Hub имена, характерные для своей страны. Каждому игроку они показываются в удобном для чтения написании и сохраняются при возобновлении сохранённой игры.",
+      "capabilities": [
+        "Командная игра вчетвером: от одного до четырёх игроков, свободные места занимают боты.",
+        "Собственные правила и именованные наборы настроек для каждого игрока на этом устройстве.",
+        "Проверка заявок, допустимости разыгрываемых карт, взяток и очков на сервере.",
+        "Профили Game Hub, приглашения, история матчей и таблицы лидеров.",
+        "Игровой стол, адаптированный для компьютера и телефона.",
+        "Premium: боты с ИИ-наставником, который помогает им в неоднозначных ситуациях и иногда комментирует игру.",
+        "Статистика Game Hub: сыгранные и выигранные раздачи, взятые и выполненные контракты, доля успешных контрактов и очки за раздачу.",
+        "Боты получают от Game Hub имена, характерные для своей страны. Каждому игроку они показываются в удобном для чтения написании и сохраняются при возобновлении сохранённой игры."
+      ],
+      "requirements": [
+        "Game Hub версии 1.21.1 или новее. Установите и обновите его перед использованием этой версии."
+      ],
+      "integrations": [
+        {
+          "summary": "Обеспечивает профили, комнаты, приглашения, сохранения и запись результатов матчей.",
+          "requires": "Требуется установленный Game Hub."
+        },
+        {
+          "summary": "Premium: ИИ публичной страницы mvmAI выступает наставником для ботов за столом.",
+          "requires": "Требуется установленный mvmAI с включённым API приложения в Apps Hub → Настройки → API приложений. По умолчанию этот переключатель выключен."
+        }
+      ]
+    },
+    "zh-CN": {
+      "short_description": "与好友或自主决策的机器人一起畅玩保加利亚 Belot 或经典法式 Belote，并为两种玩法保存自定义规则。",
+      "tagline": "你的牌桌，你的规则。",
+      "description": "与好友或自主决策的机器人一起畅玩四人保加利亚 Belot 或经典法式 Belote。标准保加利亚规则预设允许选择是否在无将牌局中加倍，在打出第一张牌前报牌，采用均衡计分方式，并在一方全取所有墩后继续游戏。\n\n房主可以选择报牌时是否说出具体牌型，或只声明有可报牌型，还能调整其他存在不同约定的叫牌、出牌和计分规则，并将这些设置保存为带名称的预设。你也可以选择在无将牌局中是否将全取奖励翻倍。\n\n机器人叫牌时会考虑此前的叫牌情况和搭档的花色；有序呈现的牌桌动画与即时出牌、叫牌反馈，让每一步都清晰明了。Game Hub 会记录已完成的对局、胜场和双方交手战绩。\n\n名称与身份\n机器人会从 Game Hub 获得符合其所属国家习惯的名字，以便于每位玩家阅读的拼写形式显示，并在恢复存档对局时保留原名。",
+      "capabilities": [
+        "四人组队玩法，支持一至四名真人玩家，空位由机器人补齐。",
+        "此设备上的每位玩家都可自定义规则并保存带名称的预设。",
+        "由服务器校验叫牌、出牌合法性、各墩结果和得分。",
+        "支持 Game Hub 个人资料、邀请、对局历史和排行榜。",
+        "自适应牌桌布局，适合桌面和手机。",
+        "Premium：为机器人配备 AI 导师，在难以抉择时提供建议，偶尔还会发表点评。",
+        "Game Hub 统计数据涵盖已玩和获胜的牌局数、承接和完成的定约数、定约成功率以及每局得分。",
+        "机器人会从 Game Hub 获得符合其所属国家习惯的名字，以便于每位玩家阅读的拼写形式显示，并在恢复存档对局时保留原名。"
+      ],
+      "requirements": [
+        "使用此版本前，须先安装 Game Hub 并更新至 1.21.1 或更高版本。"
+      ],
+      "integrations": [
+        {
+          "summary": "提供个人资料、房间、邀请、存档和对局结果记录。",
+          "requires": "需安装 Game Hub。"
+        },
+        {
+          "summary": "Premium：由 mvmAI 公共页面的 AI 为牌桌上的机器人提供指导。",
+          "requires": "需安装 mvmAI，并在 Apps Hub → 设置 → 应用 API 中启用其应用 API。此开关默认关闭。"
+        }
+      ]
+    },
+    "ja": {
+      "short_description": "ブルガリア式Belotやクラシックなフランス式Beloteを、友達や自律的に判断するボットとプレイ。どちらのスタイルでも、独自のルールを保存できます。",
+      "tagline": "あなたのテーブル。あなたのルール。",
+      "description": "4人で楽しむブルガリア式Belotやクラシックなフランス式Beloteを、友達や自律的に判断するボットとプレイできます。ブルガリア式の標準プリセットでは、ノートランプでのレイズを任意で認め、最初のカードを出す前に役を宣言します。バランスの取れた得点方式を採用し、カポ（全トリック獲得）後もプレイを続けられます。\n\nホストは、プレイ中の役の宣言で組み合わせの種類まで明かすか、役があることだけを伝えるかを選べます。地域やグループによって解釈が分かれるビッド、カードの出し方、得点のルールも設定し、名前を付けたプリセットとして保存できます。ノートランプのディールでカポのボーナスを2倍にするかどうかも選べます。\n\nボットは、それまでのビッドやパートナーが示したスートを考慮してビッドします。テーブル上のアニメーションが順序よく進み、カードやビッドへの反応もすぐに表示されるので、すべての手を明確に把握できます。Game Hubには、完了した対戦、勝利、直接対決の結果が記録されます。\n\n名前と識別情報\nボットにはGame Hubから国ごとの名前が割り当てられ、見る人それぞれに読みやすい表記で表示されます。保存したゲームを再開しても、同じ名前が使われます。",
+      "capabilities": [
+        "1〜4人のプレイヤーが参加する4人制のチーム戦。空いた席にはボットが入ります。",
+        "このデバイスのプレイヤーごとに、独自のルールと名前付きプリセットを保存できます。",
+        "ビッド、出せるカード、トリック、得点をサーバー側で検証します。",
+        "Game Hubのプロフィール、招待、対戦履歴、ランキングに対応。",
+        "デスクトップでもスマートフォンでも快適に使えるカードテーブル。",
+        "Premium：判断が難しい場面で助言し、ときにはコメントもするAIメンター付きのボット。",
+        "プレイしたディール数と勝利したディール数、獲得したコントラクト数と達成したコントラクト数、コントラクトの達成率、ディールあたりの得点をGame Hubで確認できます。",
+        "ボットにはGame Hubから国ごとの名前が割り当てられ、見る人それぞれに読みやすい表記で表示されます。保存したゲームを再開しても、同じ名前が使われます。"
+      ],
+      "requirements": [
+        "Game Hub 1.21.1以降が必要です。このバージョンを使う前に、インストールとアップデートを済ませてください。"
+      ],
+      "integrations": [
+        {
+          "summary": "プロフィール、ルーム、招待、ゲームの保存、対戦結果の記録を提供します。",
+          "requires": "Game Hubのインストールが必要です。"
+        },
+        {
+          "summary": "Premium：mvmAIの公開ページのAIが、テーブルのボットに助言します。",
+          "requires": "mvmAIをインストールし、Apps Hub → 設定 → App APIでmvmAIのApp APIを有効にする必要があります。このスイッチは初期設定ではオフです。"
+        }
+      ]
+    }
+  }
 }

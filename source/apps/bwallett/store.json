@@ -12,5 +12,143 @@
     "Wallet password changes without replacing the recovery phrase.",
     "The same data in the desktop app and Apps Hub public page.",
     "When the public payment range is set, the send form shows it and checks the amount while you type."
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Eine private Bitcoin-Testnet-Wallet mit verschlüsselten Schlüsseln, Zahlungen, Transaktionsverlauf und integriertem Explorer. Verwendet ausschließlich Testnet-Coins – echte Bitcoin können weder gesendet noch empfangen oder aufbewahrt werden.",
+      "tagline": "Deine private Bitcoin-Testnet-Wallet – überall verfügbar, wo du dich anmeldest.",
+      "description": "BwalletT bietet jedem Apps Hub-Profil eine unabhängige Bitcoin-Wallet im Testnetzwerk (testnet3) – echte Bitcoin können mit dieser Wallet weder gesendet noch empfangen oder darin aufbewahrt werden, und Testnet-Coins haben keinen Geldwert. Sie eignet sich zum Ausprobieren von Wallet-Funktionen, zum Entwickeln auf Basis von Bitcoin oder zum sicheren Testen von Zahlungen. Erstelle eine Wallet oder stelle sie wieder her, empfange Guthaben über neue Adressen, sende Zahlungen, verfolge Bestätigungen und prüfe Adressen oder Transaktionen, ohne mvmOS zu verlassen.\n\nDas Wallet-Passwort und die Wiederherstellungsphrase verlassen den Browser niemals in lesbarer Form. Der gesamte Wallet-Zustand wird vor dem Speichern verschlüsselt, und jedes Apps Hub-Profil kann nur auf seinen eigenen verschlüsselten Datensatz zugreifen.\n\nDieselbe Wallet ist auf dem mvmOS-Desktop und auf ihrer öffentlichen Apps Hub-Seite verfügbar. Die Entsperrung gilt nur für die aktuelle App-Sitzung. Beim Sperren wird die entschlüsselte Wallet aus dem Arbeitsspeicher entfernt.",
+      "capabilities": [
+        "Eine separate verschlüsselte Wallet für jedes Apps Hub-Profil.",
+        "Erstelle eine neue Wallet oder stelle eine Wallet mithilfe einer Wiederherstellungsphrase wieder her.",
+        "Native SegWit-Empfangsadressen mit QR-Codes.",
+        "Guthaben, unbestätigte Beträge und Transaktionsverlauf.",
+        "Lokale Signierung von Transaktionen vor der Übertragung an das Netzwerk.",
+        "Wählbare Netzwerkgebühr mit einer vollständigen Übersicht zur Bestätigung.",
+        "Ein integrierter Explorer für Adressen und Transaktionen.",
+        "Änderung des Wallet-Passworts ohne Austausch der Wiederherstellungsphrase.",
+        "Dieselben Daten in der Desktop-App und auf der öffentlichen Apps Hub-Seite.",
+        "Wenn ein Betragsrahmen für öffentliche Zahlungen festgelegt ist, zeigt das Sendeformular ihn an und prüft den Betrag während der Eingabe."
+      ]
+    },
+    "bg": {
+      "short_description": "Поверителен портфейл за тестовата мрежа на Bitcoin с криптирани ключове, плащания, история на трансакциите и вграден обозревател. Използва само тестови монети — не може да изпраща, получава или съхранява реални Bitcoin.",
+      "tagline": "Вашият портфейл за тестовата мрежа на Bitcoin — поверителен и достъпен навсякъде, където влезете в профила си.",
+      "description": "BwalletT предоставя на всеки профил в Apps Hub самостоятелен Bitcoin портфейл в тестовата мрежа (testnet3) — този портфейл не може да изпраща, получава или съхранява реални Bitcoin, а тестовите монети нямат парична стойност. Той е предназначен за изпробване на функциите на портфейла, разработване на решения върху Bitcoin или безопасно тестване на плащания. Създайте или възстановете портфейл, получавайте средства чрез нови адреси, изпращайте плащания, следете потвържденията и преглеждайте адреси или трансакции, без да напускате mvmOS.\n\nПаролата на портфейла и фразата за възстановяване никога не напускат браузъра в четим вид. Цялото състояние на портфейла се криптира, преди да бъде съхранено, а всеки профил в Apps Hub има достъп само до собствения си криптиран запис.\n\nСъщият портфейл е достъпен както в работната среда на mvmOS, така и на публичната му страница в Apps Hub. Отключването е валидно само за текущата сесия на приложението, а заключването премахва декриптирания портфейл от паметта.",
+      "capabilities": [
+        "Отделен криптиран портфейл за всеки профил в Apps Hub.",
+        "Създаване на нов портфейл или възстановяване чрез фраза за възстановяване.",
+        "Адреси от тип Native SegWit за получаване на средства с QR кодове.",
+        "Баланс, непотвърдени средства и история на трансакциите.",
+        "Локално подписване на трансакциите преди изпращането им към мрежата.",
+        "Избор на мрежова такса с пълно обобщение преди потвърждаване.",
+        "Вграден обозревател на адреси и трансакции.",
+        "Смяна на паролата на портфейла без подмяна на фразата за възстановяване.",
+        "Едни и същи данни в настолното приложение и на публичната страница в Apps Hub.",
+        "Когато е зададен диапазон за сумите на публичните плащания, формулярът за изпращане го показва и проверява сумата, докато я въвеждате."
+      ]
+    },
+    "fr": {
+      "short_description": "Un portefeuille Bitcoin privé sur le réseau de test, avec clés chiffrées, paiements, historique des transactions et explorateur intégré. Il utilise uniquement des bitcoins de test et ne peut ni envoyer, ni recevoir, ni détenir de vrais bitcoins.",
+      "tagline": "Votre portefeuille Bitcoin sur le réseau de test, privé et accessible partout où vous vous connectez.",
+      "description": "BwalletT offre à chaque profil Apps Hub un portefeuille Bitcoin indépendant sur le réseau de test (testnet3). Ce portefeuille ne peut ni envoyer, ni recevoir, ni détenir de vrais bitcoins, et les bitcoins de test n'ont aucune valeur monétaire. Il permet de découvrir les fonctionnalités d'un portefeuille, de développer des applications basées sur Bitcoin ou de tester des paiements en toute sécurité. Créez ou restaurez un portefeuille, recevez des fonds sur de nouvelles adresses, envoyez des paiements, suivez les confirmations et consultez les adresses ou les transactions sans quitter mvmOS.\n\nLe mot de passe du portefeuille et la phrase de récupération ne quittent jamais le navigateur en clair. L'ensemble des données du portefeuille est chiffré avant d'être enregistré, et chaque profil Apps Hub ne peut accéder qu'à ses propres données chiffrées.\n\nLe même portefeuille est accessible sur le bureau mvmOS et sur sa page publique Apps Hub. Le déverrouillage ne dure que le temps de la session en cours dans l'application, et le verrouillage efface de la mémoire les données déchiffrées du portefeuille.",
+      "capabilities": [
+        "Un portefeuille chiffré distinct pour chaque profil Apps Hub.",
+        "Créez un nouveau portefeuille ou restaurez-en un à l'aide d'une phrase de récupération.",
+        "Des adresses de réception SegWit natives avec codes QR.",
+        "Le solde, les fonds non confirmés et l'historique des transactions.",
+        "La signature locale des transactions avant leur diffusion.",
+        "Des frais de réseau au choix et un récapitulatif complet avant confirmation.",
+        "Un explorateur d'adresses et de transactions intégré.",
+        "Modifiez le mot de passe du portefeuille sans remplacer la phrase de récupération.",
+        "Les mêmes données dans l'application de bureau et sur la page publique Apps Hub.",
+        "Lorsque des limites de paiement sont définies pour les utilisateurs publics, le formulaire d'envoi les affiche et vérifie le montant au fil de la saisie."
+      ]
+    },
+    "es": {
+      "short_description": "Una cartera privada de Bitcoin para la red de pruebas, con claves cifradas, pagos, historial de transacciones y un explorador integrado. Solo utiliza monedas de prueba: no permite enviar, recibir ni almacenar Bitcoin reales.",
+      "tagline": "Tu cartera de Bitcoin para la red de pruebas, privada y disponible donde inicies sesión.",
+      "description": "BwalletT ofrece a cada perfil de Apps Hub una cartera de Bitcoin independiente en la red de pruebas (testnet3): esta cartera no permite enviar, recibir ni almacenar Bitcoin reales, y las monedas de prueba no tienen valor monetario. Está pensada para probar las funciones de una cartera, desarrollar sobre Bitcoin o probar pagos de forma segura. Crea o restaura una cartera, recibe fondos mediante direcciones nuevas, envía pagos, sigue las confirmaciones y consulta direcciones o transacciones sin salir de mvmOS.\n\nLa contraseña de la cartera y la frase de recuperación nunca salen del navegador en un formato legible. El estado completo de la cartera se cifra antes de almacenarse, y cada perfil de Apps Hub solo puede acceder a su propio registro cifrado.\n\nLa misma cartera está disponible en el escritorio de mvmOS y en su página pública de Apps Hub. La cartera solo permanece desbloqueada durante la sesión actual de la aplicación y, al bloquearla, se elimina de la memoria su contenido descifrado.",
+      "capabilities": [
+        "Una cartera cifrada independiente para cada perfil de Apps Hub.",
+        "Crea una cartera nueva o restaura una mediante una frase de recuperación.",
+        "Direcciones de recepción SegWit nativas con códigos QR.",
+        "Saldo, fondos sin confirmar e historial de transacciones.",
+        "Firma local de las transacciones antes de transmitirlas a la red.",
+        "Comisión de red configurable con un resumen completo de confirmación.",
+        "Un explorador de direcciones y transacciones integrado.",
+        "Cambia la contraseña de la cartera sin sustituir la frase de recuperación.",
+        "Los mismos datos en la aplicación de escritorio y en la página pública de Apps Hub.",
+        "Cuando se establece un intervalo de importes para los pagos públicos, el formulario de envío lo muestra y comprueba el importe mientras lo escribes."
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Uma carteira privada para a rede de testes do Bitcoin, com chaves criptografadas, pagamentos, histórico de transações e explorador integrado. Usa apenas moedas de teste — não pode enviar, receber nem armazenar Bitcoin real.",
+      "tagline": "Sua carteira para a rede de testes do Bitcoin, com privacidade e disponível onde quer que você faça login.",
+      "description": "O BwalletT oferece a cada perfil do Apps Hub uma carteira Bitcoin independente na rede de testes (testnet3) — esta carteira não pode enviar, receber nem armazenar Bitcoin real, e as moedas de teste não têm valor monetário. Ela é ideal para experimentar recursos de carteira, desenvolver soluções com Bitcoin ou testar pagamentos com segurança. Crie ou restaure uma carteira, receba fundos em novos endereços, envie pagamentos, acompanhe confirmações e consulte endereços ou transações sem sair do mvmOS.\n\nA senha da carteira e a frase de recuperação nunca saem do navegador em formato legível. Todos os dados da carteira são criptografados antes de serem armazenados, e cada perfil do Apps Hub só pode acessar seu próprio registro criptografado.\n\nA mesma carteira está disponível no desktop do mvmOS e em sua página pública no Apps Hub. O desbloqueio dura apenas durante a sessão atual do aplicativo, e o bloqueio remove a carteira descriptografada da memória.",
+      "capabilities": [
+        "Uma carteira criptografada independente para cada perfil do Apps Hub.",
+        "Crie uma nova carteira ou restaure uma usando uma frase de recuperação.",
+        "Endereços de recebimento SegWit nativo com códigos QR.",
+        "Saldo, fundos não confirmados e histórico de transações.",
+        "Assinatura local das transações antes da transmissão.",
+        "Taxa de rede selecionável com um resumo completo para confirmação.",
+        "Um explorador integrado de endereços e transações.",
+        "Alteração da senha da carteira sem substituir a frase de recuperação.",
+        "Os mesmos dados no aplicativo para desktop e na página pública do Apps Hub.",
+        "Quando os limites de pagamento para usuários públicos estão definidos, o formulário de envio os exibe e verifica o valor enquanto você digita."
+      ]
+    },
+    "ja": {
+      "short_description": "暗号化された鍵、送金、取引履歴、内蔵エクスプローラーを備えた、プライバシーを守るBitcoinテストネット用ウォレット。テストネットのコイン専用で、実際のBitcoinの送受信や保管はできません。",
+      "tagline": "どこからサインインしても使える、プライバシーを守るBitcoinテストネット用ウォレット。",
+      "description": "BwalletTは、Apps Hubのプロフィールごとに、テストネットワーク（testnet3）上の独立したBitcoinウォレットを提供します。このウォレットでは実際のBitcoinの送受信や保管はできず、テストネットのコインに金銭的な価値はありません。ウォレットの機能を試したり、Bitcoinを活用した開発を行ったり、安全に送金をテストしたりするためのアプリです。mvmOSを離れることなく、ウォレットの作成や復元、新しいアドレスでの受け取り、送金、承認状況の確認、アドレスや取引の詳細の閲覧ができます。\n\nウォレットのパスワードとリカバリーフレーズが、読み取れる状態でブラウザーの外に出ることはありません。ウォレットの状態を構成するすべてのデータは保存前に暗号化され、各Apps Hubプロフィールは自分の暗号化されたデータにのみアクセスできます。\n\n同じウォレットを、mvmOSデスクトップでもApps Hubの公開ページでも利用できます。ロック解除は現在のアプリセッション中のみ有効で、ロックすると復号されたウォレットはメモリーから削除されます。",
+      "capabilities": [
+        "Apps Hubのプロフィールごとに、独立した暗号化ウォレットを利用できます。",
+        "新しいウォレットを作成したり、リカバリーフレーズから復元したりできます。",
+        "QRコード付きのNative SegWit受け取りアドレスに対応しています。",
+        "残高、未承認の資金、取引履歴を確認できます。",
+        "取引はブロードキャスト前にローカルで署名されます。",
+        "ネットワーク手数料を選択でき、送金内容を確認画面で詳しく確認できます。",
+        "アドレスと取引を調べられるエクスプローラーを内蔵しています。",
+        "リカバリーフレーズを変更せずに、ウォレットのパスワードを変更できます。",
+        "デスクトップアプリとApps Hubの公開ページで、同じデータを利用できます。",
+        "公開プロフィール向けの送金額の範囲が設定されている場合、送金フォームにその範囲が表示され、入力中に金額がチェックされます。"
+      ]
+    },
+    "ru": {
+      "short_description": "Приватный кошелёк для тестовой сети Bitcoin с зашифрованными ключами, платежами, историей транзакций и встроенным обозревателем. Работает только с тестовыми монетами — отправлять, получать или хранить настоящие Bitcoin в нём нельзя.",
+      "tagline": "Ваш приватный кошелёк для тестовой сети Bitcoin — доступен везде, где вы входите в свой профиль.",
+      "description": "BwalletT предоставляет каждому профилю Apps Hub отдельный кошелёк Bitcoin в тестовой сети (testnet3) — отправлять, получать или хранить настоящие Bitcoin в этом кошельке нельзя, а тестовые монеты не имеют денежной ценности. Он подходит для знакомства с возможностями кошелька, разработки на базе Bitcoin и безопасного тестирования платежей. Создайте или восстановите кошелёк, получайте средства на новые адреса, отправляйте платежи, отслеживайте подтверждения и просматривайте адреса и транзакции, не выходя из mvmOS.\n\nПароль кошелька и фраза восстановления никогда не покидают браузер в открытом виде. Все данные кошелька шифруются перед сохранением, и каждый профиль Apps Hub имеет доступ только к собственной зашифрованной записи.\n\nОдин и тот же кошелёк доступен на рабочем столе mvmOS и на его публичной странице в Apps Hub. Разблокировка действует только в течение текущего сеанса приложения, а при блокировке расшифрованный кошелёк удаляется из памяти.",
+      "capabilities": [
+        "Отдельный зашифрованный кошелёк для каждого профиля Apps Hub.",
+        "Создание нового кошелька или восстановление по фразе восстановления.",
+        "Адреса Native SegWit для получения средств с QR-кодами.",
+        "Баланс, неподтверждённые средства и история транзакций.",
+        "Локальное подписание транзакций перед отправкой в сеть.",
+        "Выбор сетевой комиссии и полная сводка перед подтверждением.",
+        "Встроенный обозреватель адресов и транзакций.",
+        "Смена пароля кошелька без замены фразы восстановления.",
+        "Одни и те же данные в настольном приложении и на публичной странице Apps Hub.",
+        "Если для публичных платежей задан диапазон сумм, форма отправки показывает его и проверяет сумму по мере ввода."
+      ]
+    },
+    "zh-CN": {
+      "short_description": "一款注重隐私的 Bitcoin 测试网钱包，提供密钥加密、付款、交易记录及内置浏览器。仅使用测试网代币，无法发送、接收或持有真正的 Bitcoin。",
+      "tagline": "你的私密 Bitcoin 测试网钱包，随时随地登录即可使用。",
+      "description": "BwalletT 为每个 Apps Hub 个人资料提供独立的 Bitcoin 测试网络（testnet3）钱包。此钱包无法发送、接收或持有真正的 Bitcoin，测试网代币也不具备任何货币价值。无论是体验钱包功能、基于 Bitcoin 进行开发，还是安全地测试付款，都能轻松上手。创建或恢复钱包，使用新地址接收资金，发送付款、跟踪交易确认，或查询地址和交易，全程无需离开 mvmOS。\n\n钱包密码和助记词绝不会以可读形式离开浏览器。完整的钱包状态会在存储前加密，每个 Apps Hub 个人资料只能访问属于自己的加密记录。\n\n同一个钱包既可在 mvmOS 桌面中使用，也可通过其 Apps Hub 公开页面访问。解锁状态仅在当前应用会话内有效，锁定后，已解密的钱包将从内存中移除。",
+      "capabilities": [
+        "每个 Apps Hub 个人资料均拥有独立的加密钱包。",
+        "创建新钱包，或通过助记词恢复钱包。",
+        "支持原生 SegWit 收款地址，并提供二维码。",
+        "查看余额、未确认资金和交易记录。",
+        "交易在广播前于本地完成签名。",
+        "可选择网络手续费，并在确认前查看完整交易摘要。",
+        "内置地址与交易浏览器。",
+        "更改钱包密码，无需更换助记词。",
+        "桌面应用与 Apps Hub 公开页面中的数据保持一致。",
+        "设置公开付款金额范围后，发送表单会显示该范围，并在你输入时检查金额。"
+      ]
+    }
+  }
 }

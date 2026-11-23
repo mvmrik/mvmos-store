@@ -13,5 +13,143 @@
     "Available in nine languages.",
     "Apps Hub sign-in before the desktop chat opens."
   ],
-  "integrations": []
+  "integrations": [],
+  "i18n": {
+    "de": {
+      "short_description": "Chat zwischen mvmOS-Nutzern, mit einer öffentlichen Webseite für Apps Hub-Konten.",
+      "tagline": "Direkt- und Gruppennachrichten zwischen den Menschen, die dein mvmOS nutzen.",
+      "description": "Mit mvmOS Chat tauschen sich Nutzer von Apps Hub-Konten direkt oder in Gruppen aus. Finde jemanden über den Namen, starte eine Unterhaltung und behalte sie in deiner Liste. Deine Kontakte stammen aus deinen Apps Hub-Favoriten, damit die Menschen, mit denen du am häufigsten sprichst, immer ganz oben stehen.\n\nErstelle eine Gruppe mit bis zu 50 Personen, gib ihr einen Namen und füge später Mitglieder hinzu oder entferne sie. Gruppenadministratoren verwalten die Mitglieder und den Gruppennamen. Alle können die Gruppe jederzeit verlassen, und neue Mitglieder sehen nur, was nach ihrem Beitritt geschrieben wird. Bei jeder Nachricht ist erkennbar, wer sie geschrieben hat. Die Unterhaltungsliste zeigt für Einzel- und Gruppenchats die Anzahl ungelesener Nachrichten an.\n\nNachrichten kommen in Echtzeit über einen WebSocket an. Tippanzeigen zeigen, wenn jemand schreibt. Nachrichten lassen sich bearbeiten und löschen – entweder nur für dich oder, wenn du sie selbst geschrieben hast, für alle. Dieselben Unterhaltungen sind auch über eine öffentliche Webseite für dein Apps Hub-Konto erreichbar, damit du auch abseits des Desktops weiterschreiben kannst. Die gesamte Oberfläche ist in neun Sprachen verfügbar.\n\nDesktop-Profil\nWenn du Chat auf dem Desktop öffnest, wirst du zuerst bei Apps Hub angemeldet. Deine Unterhaltungen verwenden dadurch das angemeldete Profil.",
+      "capabilities": [
+        "Direkte Unterhaltungen zwischen Apps Hub-Konten.",
+        "Gruppenchats mit bis zu 50 Mitgliedern und Administratoren, die die Gruppe umbenennen sowie Personen hinzufügen oder entfernen können.",
+        "Zustellung in Echtzeit über einen WebSocket, mit Tippanzeigen.",
+        "Personensuche und eine Kontaktliste aus deinen Apps Hub-Favoriten.",
+        "Gesendete Nachrichten bearbeiten, mit Kennzeichnung als bearbeitet.",
+        "Nachrichten für dich selbst oder für alle löschen.",
+        "Anzeige ungelesener Nachrichten und Benachrichtigungen für Einzel- und Gruppenchats.",
+        "Öffentliche Webseite für dein Apps Hub-Konto.",
+        "In neun Sprachen verfügbar.",
+        "Anmeldung bei Apps Hub, bevor sich der Desktop-Chat öffnet."
+      ]
+    },
+    "es": {
+      "short_description": "Chat entre usuarios de mvmOS, con una página web pública para las cuentas de Apps Hub.",
+      "tagline": "Mensajes directos y en grupo entre las personas que usan tu mvmOS.",
+      "description": "mvmOS Chat permite intercambiar mensajes entre cuentas de Apps Hub, de forma individual o en grupo. Busca a alguien por su nombre, inicia una conversación y quedará en tu lista. Los contactos proceden de tus favoritos de Apps Hub, así que las personas con las que más hablas siempre aparecen al principio.\n\nCrea un grupo de hasta 50 personas, ponle un nombre y añade o elimina miembros más adelante. Los administradores del grupo gestionan los miembros y el nombre, cualquiera puede salir en cualquier momento y los nuevos miembros solo ven lo que se escribe después de unirse. Cada mensaje muestra quién lo ha escrito y la lista de conversaciones indica el número de mensajes sin leer tanto en los chats individuales como en los grupos.\n\nLos mensajes llegan en tiempo real a través de un WebSocket, con indicadores de escritura y opciones para editarlos y eliminarlos, ya sea solo para ti o para todos si los has escrito tú. También puedes acceder a las mismas conversaciones desde una página web pública de tu cuenta de Apps Hub para seguir hablando cuando estés lejos del escritorio. Toda la interfaz está disponible en nueve idiomas.\n\nPerfil del escritorio\nAl abrir Chat en el escritorio, primero se inicia sesión en Apps Hub, de modo que las conversaciones usan el perfil de la sesión iniciada.",
+      "capabilities": [
+        "Conversaciones individuales entre cuentas de Apps Hub.",
+        "Chats de grupo de hasta 50 miembros, con administradores que pueden cambiar el nombre del grupo y añadir o eliminar personas.",
+        "Entrega en tiempo real a través de un WebSocket, con indicadores de escritura.",
+        "Búsqueda de personas y una lista de contactos creada a partir de tus favoritos de Apps Hub.",
+        "Edición de mensajes enviados, que quedan marcados como editados.",
+        "Eliminación de mensajes solo para ti o para todos.",
+        "Recuento de mensajes sin leer y notificaciones para chats y grupos.",
+        "Página web pública para tu cuenta de Apps Hub.",
+        "Disponible en nueve idiomas.",
+        "Inicio de sesión en Apps Hub antes de abrir el chat del escritorio."
+      ]
+    },
+    "fr": {
+      "short_description": "Discutez entre utilisateurs de mvmOS, avec une page web publique pour les comptes Apps Hub.",
+      "tagline": "Une messagerie individuelle et de groupe pour les personnes qui utilisent votre mvmOS.",
+      "description": "mvmOS Chat est une messagerie entre comptes Apps Hub, en tête-à-tête ou en groupe. Recherchez une personne par son nom, lancez une conversation et retrouvez-la ensuite dans votre liste. Vos contacts proviennent de vos favoris Apps Hub : les personnes avec qui vous échangez le plus restent ainsi toujours en tête de liste.\n\nCréez un groupe réunissant jusqu’à 50 personnes, donnez-lui un nom, puis ajoutez ou retirez des membres à tout moment. Les administrateurs du groupe gèrent ses membres et son nom, chacun peut le quitter quand il le souhaite, et les nouveaux membres ne voient que les messages écrits après leur arrivée. Chaque message indique son auteur, et la liste des conversations affiche le nombre de messages non lus pour les conversations individuelles comme pour les groupes.\n\nLes messages arrivent en temps réel via une connexion WebSocket, avec des indicateurs de saisie et la possibilité de les modifier ou de les supprimer, uniquement pour vous ou pour tout le monde si vous en êtes l’auteur. Ces mêmes conversations sont accessibles depuis une page web publique associée à votre compte Apps Hub, pour continuer à échanger même loin de votre bureau. Toute l’interface est disponible en neuf langues.\n\nProfil sur le bureau\nLorsque vous ouvrez Chat sur le bureau, vous vous connectez d’abord à Apps Hub : les conversations utilisent donc le profil connecté.",
+      "capabilities": [
+        "Conversations individuelles entre comptes Apps Hub.",
+        "Conversations de groupe réunissant jusqu’à 50 membres, avec des administrateurs pouvant renommer le groupe et ajouter ou retirer des personnes.",
+        "Réception en temps réel via une connexion WebSocket, avec des indicateurs de saisie.",
+        "Recherche de personnes et liste de contacts constituée à partir de vos favoris Apps Hub.",
+        "Modification des messages envoyés, signalés comme modifiés.",
+        "Suppression d’un message pour vous uniquement ou pour tout le monde.",
+        "Nombre de messages non lus et notifications pour les conversations individuelles et les groupes.",
+        "Page web publique pour votre compte Apps Hub.",
+        "Disponible en neuf langues.",
+        "Connexion à Apps Hub avant l’ouverture de la messagerie sur le bureau."
+      ]
+    },
+    "bg": {
+      "short_description": "Чат между потребители на mvmOS с публична уеб страница за акаунти в Apps Hub.",
+      "tagline": "Лични и групови разговори между хората, които използват вашата mvmOS.",
+      "description": "mvmOS Chat позволява обмен на съобщения между акаунти в Apps Hub — лично или в групи. Намерете някого по име, започнете разговор и той ще остане в списъка ви. Контактите се вземат от любимите ви в Apps Hub, така че хората, с които общувате най-често, винаги са най-отгоре.\n\nСъздайте група с до 50 души, дайте ѝ име и добавяйте или премахвайте участници по-късно. Администраторите на групата управляват участниците и името, всеки може да напусне по всяко време, а новите участници виждат само написаното след присъединяването си. Всяко съобщение показва кой го е написал, а списъкът с разговори показва броя на непрочетените съобщения както в личните чатове, така и в групите.\n\nСъобщенията пристигат в реално време чрез WebSocket, с индикатори за писане и възможност за редактиране и изтриване — само за вас или за всички, ако сте авторът. Същите разговори са достъпни и от публична уеб страница за вашия акаунт в Apps Hub, за да можете да продължите общуването и извън работния плот. Целият интерфейс е достъпен на девет езика.\n\nПрофил на работния плот\nПри отваряне на Chat на работния плот първо влизате в Apps Hub, така че разговорите използват профила, с който сте влезли.",
+      "capabilities": [
+        "Лични разговори между акаунти в Apps Hub.",
+        "Групови чатове с до 50 участници и администратори, които могат да преименуват групата и да добавят или премахват хора.",
+        "Доставка в реално време чрез WebSocket с индикатори за писане.",
+        "Търсене на хора и списък с контакти от любимите ви в Apps Hub.",
+        "Редактиране на изпратено съобщение с обозначение, че е редактирано.",
+        "Изтриване на съобщение само за вас или за всички.",
+        "Брой непрочетени съобщения и известия за лични чатове и групи.",
+        "Публична уеб страница за вашия акаунт в Apps Hub.",
+        "Достъпно на девет езика.",
+        "Влизане в Apps Hub преди отваряне на чата на работния плот."
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Converse com usuários do mvmOS, com uma página web pública para contas do Apps Hub.",
+      "tagline": "Mensagens diretas e em grupo entre as pessoas que usam seu mvmOS.",
+      "description": "O mvmOS Chat permite trocar mensagens entre contas do Apps Hub, em conversas individuais ou em grupo. Encontre alguém pelo nome, inicie uma conversa e ela ficará na sua lista. Os contatos vêm dos seus favoritos do Apps Hub, para que as pessoas com quem você mais conversa estejam sempre no topo.\n\nCrie um grupo com até 50 pessoas, dê um nome a ele e adicione ou remova membros depois. Os administradores do grupo gerenciam os membros e o nome, todos podem sair a qualquer momento e os novos membros só veem o que é escrito após entrarem. Cada mensagem mostra quem a escreveu, e a lista de conversas mostra a contagem de mensagens não lidas tanto nas conversas individuais quanto nos grupos.\n\nAs mensagens chegam em tempo real por WebSocket, com indicadores de digitação e opções para editar e excluir mensagens — apenas para você ou, se você for o autor, para todos. As mesmas conversas podem ser acessadas em uma página web pública da sua conta do Apps Hub, para você continuar conversando longe do desktop. Toda a interface está disponível em nove idiomas.\n\nPerfil do desktop\nAo abrir o Chat no desktop, primeiro você entra no Apps Hub, para que as conversas usem o perfil conectado.",
+      "capabilities": [
+        "Conversas individuais entre contas do Apps Hub.",
+        "Conversas em grupo com até 50 membros, com administradores que podem renomear o grupo e adicionar ou remover pessoas.",
+        "Entrega em tempo real por WebSocket, com indicadores de digitação.",
+        "Busca de pessoas e uma lista de contatos criada a partir dos seus favoritos do Apps Hub.",
+        "Edição de mensagens enviadas, com indicação de que foram editadas.",
+        "Exclusão de mensagens apenas para você ou para todos.",
+        "Contagem de mensagens não lidas e notificações para conversas individuais e grupos.",
+        "Página web pública da sua conta do Apps Hub.",
+        "Disponível em nove idiomas.",
+        "Login no Apps Hub antes de abrir o chat no desktop."
+      ]
+    },
+    "ja": {
+      "short_description": "mvmOSユーザー同士でチャット。Apps Hubアカウントの公開ウェブページからも利用できます。",
+      "tagline": "同じmvmOSを使う人たちと、個別のメッセージやグループチャットでつながりましょう。",
+      "description": "mvmOS Chatは、Apps Hubアカウント同士で1対1やグループのメッセージをやり取りできるアプリです。名前で相手を見つけて会話を始めると、その会話がリストに残ります。連絡先にはApps Hubのお気に入りが反映されるので、よく話す相手がいつもリストの上部に表示されます。\n\n最大50人のグループを作成して名前を付け、あとからメンバーを追加・削除できます。グループの管理者はメンバーとグループ名を管理でき、誰でもいつでも退出できます。新しいメンバーが読めるのは、参加後に送信されたメッセージだけです。すべてのメッセージに送信者が表示され、会話リストでは個別チャットとグループの未読件数を確認できます。\n\nメッセージはWebSocket経由でリアルタイムに届き、相手が入力中かどうかもわかります。メッセージの編集や削除にも対応。削除は自分の画面だけで行うことも、自分が送信したメッセージなら全員の画面から行うこともできます。Apps Hubアカウントの公開ウェブページからも同じ会話にアクセスできるので、デスクトップを離れていてもやり取りを続けられます。インターフェース全体が9言語に対応しています。\n\nデスクトップのプロフィール\nデスクトップでChatを開くと、まずApps Hubにサインインするため、サインイン中のプロフィールで会話を行えます。",
+      "capabilities": [
+        "Apps Hubアカウント同士での1対1の会話。",
+        "最大50人のグループチャット。管理者はグループ名の変更やメンバーの追加・削除ができます。",
+        "WebSocket経由のリアルタイム配信と入力中の表示。",
+        "ユーザー検索と、Apps Hubのお気に入りを反映した連絡先リスト。",
+        "送信済みメッセージの編集と、編集済みであることの表示。",
+        "自分の画面だけ、または全員の画面からメッセージを削除。",
+        "個別チャットとグループの未読件数表示と通知。",
+        "Apps Hubアカウントの公開ウェブページ。",
+        "9言語に対応。",
+        "デスクトップのチャットを開く前にApps Hubにサインイン。"
+      ]
+    },
+    "zh-CN": {
+      "short_description": "供 mvmOS 用户聊天交流，并为 Apps Hub 账户提供公共网页。",
+      "tagline": "让使用你这台 mvmOS 的人随时私聊或群聊。",
+      "description": "mvmOS Chat 支持 Apps Hub 账户之间的一对一聊天和群聊。按姓名查找联系人，即可开始对话，对话会一直保留在列表中。联系人来自你的 Apps Hub 收藏，最常交流的人始终排在前面。\n\n创建最多容纳 50 人的群组，为其命名，之后还可随时添加或移除成员。群管理员负责管理成员和群名称，每个人都可以随时退群，新成员只能看到加入后发送的内容。每条消息都会显示发送者，对话列表则会显示私聊和群聊的未读消息数。\n\n消息通过 WebSocket 实时送达，并支持正在输入提示、消息编辑和删除。你可以仅为自己删除消息，也可以为所有人删除自己发送的消息。通过 Apps Hub 账户的公共网页，也能访问同样的对话，离开桌面后依然可以继续畅聊。整个界面支持九种语言。\n\n桌面个人资料\n在桌面端打开 Chat 时，会先登录 Apps Hub，对话将使用当前登录的个人资料。",
+      "capabilities": [
+        "支持 Apps Hub 账户之间的一对一聊天。",
+        "群聊最多可容纳 50 名成员，管理员可修改群名称、添加或移除成员。",
+        "通过 WebSocket 实时传递消息，并提供正在输入提示。",
+        "支持搜索用户，并根据你的 Apps Hub 收藏生成联系人列表。",
+        "可编辑已发送的消息，并标注为已编辑。",
+        "可仅为自己删除消息，也可为所有人删除消息。",
+        "提供私聊和群聊的未读消息数及通知。",
+        "为你的 Apps Hub 账户提供公共网页。",
+        "支持九种语言。",
+        "打开桌面端聊天前先登录 Apps Hub。"
+      ]
+    },
+    "ru": {
+      "short_description": "Общение между пользователями mvmOS с общедоступной веб-страницей для учётных записей Apps Hub.",
+      "tagline": "Личные и групповые сообщения для тех, кто пользуется вашей mvmOS.",
+      "description": "mvmOS Chat — это личные и групповые переписки между пользователями Apps Hub. Найдите человека по имени, начните разговор — и он останется в вашем списке. Контакты формируются из избранного в Apps Hub, поэтому те, с кем вы общаетесь чаще всего, всегда будут вверху.\n\nСоздайте группу до 50 человек, дайте ей название и добавляйте или удаляйте участников в любое время. Администраторы группы управляют составом участников и названием, каждый может выйти в любой момент, а новые участники видят только то, что написано после их вступления. У каждого сообщения указан автор, а в списке переписок отображается количество непрочитанных сообщений как в личных чатах, так и в группах.\n\nСообщения доставляются в реальном времени через WebSocket. Есть индикаторы набора текста, редактирование и удаление сообщений — только у себя или у всех, если сообщение написали вы. Те же переписки доступны на общедоступной веб-странице вашей учётной записи Apps Hub, так что общаться можно и вне рабочего стола. Весь интерфейс доступен на девяти языках.\n\nПрофиль на рабочем столе\nПри открытии Chat на рабочем столе сначала выполняется вход в Apps Hub, поэтому для переписок используется профиль, под которым вы вошли.",
+      "capabilities": [
+        "Личные переписки между пользователями Apps Hub.",
+        "Групповые чаты до 50 участников с администраторами, которые могут менять название группы, добавлять и удалять участников.",
+        "Доставка сообщений в реальном времени через WebSocket с индикаторами набора текста.",
+        "Поиск людей и список контактов на основе избранного в Apps Hub.",
+        "Редактирование отправленных сообщений с отметкой об изменении.",
+        "Удаление сообщений у себя или у всех.",
+        "Счётчики непрочитанных сообщений и уведомления для личных чатов и групп.",
+        "Общедоступная веб-страница вашей учётной записи Apps Hub.",
+        "Доступно на девяти языках.",
+        "Вход в Apps Hub перед открытием чата на рабочем столе."
+      ]
+    }
+  }
 }

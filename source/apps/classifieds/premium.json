@@ -26,5 +26,247 @@
       "short": "Require a verification photo before users can post",
       "description": "The administrator can create any number of verifications with their own instructions, triggered right after registration, after a number of days or after a number of listings, and optionally limited to chosen categories. Users keep browsing and managing their listings and are only stopped from posting new ones where a verification applies, until an administrator approves the photo they sent. Photos are deleted as soon as they are reviewed."
     }
-  ]
+  ],
+  "i18n": {
+    "es": {
+      "summary": "Anuncios VIP pagados con créditos que ocupan posiciones destacadas en el mercado público, además de la verificación de usuarios mediante foto antes de que puedan publicar en determinadas categorías.",
+      "features": [
+        {
+          "title": "Paquetes VIP configurables",
+          "short": "Define la duración y el precio en créditos de los anuncios promocionados",
+          "description": "El administrador puede crear y eliminar paquetes VIP con un nombre personalizado, una duración en días y un precio en créditos de Apps Hub."
+        },
+        {
+          "title": "Posicionamiento de anuncios VIP",
+          "short": "Sitúa los anuncios promocionados por delante de los resultados normales",
+          "description": "Un anuncio VIP activo recibe una insignia VIP visible y aparece antes que los anuncios normales tanto en la lista principal como dentro de su categoría."
+        },
+        {
+          "title": "Pagos con créditos de Apps Hub",
+          "short": "Permite a los propietarios de los anuncios comprar promociones con créditos",
+          "description": "Los propietarios de los anuncios pueden seleccionar un paquete activo al crear o editar un anuncio. El cobro se procesa de forma segura mediante créditos de Apps Hub y los reintentos no pueden cobrar dos veces la misma compra."
+        },
+        {
+          "title": "Tiempo de promoción acumulable",
+          "short": "Amplía un periodo VIP existente sin perder los días restantes",
+          "description": "Al comprar otro paquete VIP antes de que caduque el periodo actual, su duración se suma al tiempo de promoción restante en lugar de reiniciarlo."
+        },
+        {
+          "title": "Verificación de usuarios",
+          "short": "Exige una foto de verificación antes de que los usuarios puedan publicar",
+          "description": "El administrador puede crear tantas verificaciones como necesite, cada una con sus propias instrucciones, que se activen justo después del registro, al cabo de un número de días o después de publicar un número de anuncios, y limitarlas opcionalmente a determinadas categorías. Los usuarios pueden seguir explorando y gestionando sus anuncios; solo se les impide publicar anuncios nuevos donde se aplique una verificación hasta que un administrador apruebe la foto que hayan enviado. Las fotos se eliminan en cuanto se revisan."
+        }
+      ]
+    },
+    "bg": {
+      "summary": "VIP обяви, платими с кредити, с приоритетно показване в публичния пазар, както и проверка на потребителите със снимка, преди да могат да публикуват в избрани категории.",
+      "features": [
+        {
+          "title": "Настройваеми VIP пакети",
+          "short": "Задайте срок и цена в кредити за промотираните обяви",
+          "description": "Администраторът може да създава и премахва VIP пакети с избрано име, срок в дни и цена в кредити на Apps Hub."
+        },
+        {
+          "title": "Приоритетно показване на VIP обяви",
+          "short": "Показвайте промотираните обяви преди обикновените резултати",
+          "description": "Активната VIP обява получава видим знак VIP и се показва преди обикновените обяви в основния списък и в своята категория."
+        },
+        {
+          "title": "Плащания с кредити на Apps Hub",
+          "short": "Дайте възможност на собствениците да промотират обявите си с кредити",
+          "description": "Собствениците на обяви могат да изберат активен пакет при създаване или редактиране на обява. Плащането се обработва сигурно чрез кредитите на Apps Hub, а повторните опити не водят до двойно таксуване за една и съща покупка."
+        },
+        {
+          "title": "Натрупване на време за промотиране",
+          "short": "Удължете текущия VIP период, без да губите оставащите дни",
+          "description": "При покупка на друг VIP пакет преди изтичането на текущия период срокът му се добавя към оставащото време за промотиране, вместо периодът да започва отначало."
+        },
+        {
+          "title": "Проверка на потребителите",
+          "short": "Изисквайте снимка за проверка, преди потребителите да могат да публикуват",
+          "description": "Администраторът може да създава неограничен брой проверки със собствени инструкции, които се задействат веднага след регистрация, след определен брой дни или след определен брой обяви и по избор важат само за избрани категории. Потребителите продължават да разглеждат и управляват обявите си, като единствено публикуването на нови обяви там, където се изисква проверка, е ограничено, докато администратор не одобри изпратената от тях снимка. Снимките се изтриват веднага след прегледа им."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Mit Guthaben bezahlte VIP-Anzeigen mit bevorzugter Platzierung auf dem öffentlichen Marktplatz sowie Fotoverifizierung von Nutzern vor dem Veröffentlichen in ausgewählten Kategorien.",
+      "features": [
+        {
+          "title": "Konfigurierbare VIP-Pakete",
+          "short": "Laufzeit und Guthabenpreis für beworbene Anzeigen festlegen",
+          "description": "Der Administrator kann VIP-Pakete mit einem eigenen Namen, einer Laufzeit in Tagen und einem Preis in Apps Hub-Guthaben erstellen und entfernen."
+        },
+        {
+          "title": "Platzierung von VIP-Anzeigen",
+          "short": "Beworbene Anzeigen vor regulären Ergebnissen platzieren",
+          "description": "Aktive VIP-Anzeigen erhalten ein sichtbares VIP-Abzeichen und erscheinen in der Hauptübersicht sowie in ihrer Kategorie vor regulären Anzeigen."
+        },
+        {
+          "title": "Zahlungen mit Apps Hub-Guthaben",
+          "short": "Anzeigeninhaber können Werbung mit Guthaben bezahlen",
+          "description": "Anzeigeninhaber können beim Erstellen oder Bearbeiten einer Anzeige ein aktives Paket auswählen. Die Zahlung wird sicher über Apps Hub-Guthaben abgewickelt. Auch bei erneuten Versuchen wird derselbe Kauf nicht doppelt berechnet."
+        },
+        {
+          "title": "Addierbare Werbelaufzeit",
+          "short": "Einen laufenden VIP-Zeitraum verlängern, ohne verbleibende Tage zu verlieren",
+          "description": "Wird vor Ablauf des aktuellen Zeitraums ein weiteres VIP-Paket gekauft, wird dessen Laufzeit zur verbleibenden Werbezeit addiert, statt diese neu zu starten."
+        },
+        {
+          "title": "Nutzerverifizierung",
+          "short": "Vor dem Veröffentlichen ein Foto zur Verifizierung verlangen",
+          "description": "Der Administrator kann beliebig viele Verifizierungen mit eigenen Anweisungen erstellen. Sie werden direkt nach der Registrierung, nach einer bestimmten Anzahl von Tagen oder nach einer bestimmten Anzahl von Anzeigen ausgelöst und können optional auf ausgewählte Kategorien beschränkt werden. Nutzer können weiterhin stöbern und ihre Anzeigen verwalten. Nur das Veröffentlichen neuer Anzeigen dort, wo eine Verifizierung erforderlich ist, bleibt gesperrt, bis ein Administrator das eingereichte Foto genehmigt hat. Fotos werden gelöscht, sobald sie geprüft wurden."
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Anúncios VIP pagos com créditos e com posição de destaque no espaço público de compra e venda, além de verificação de usuários por foto antes de poderem publicar em categorias selecionadas.",
+      "features": [
+        {
+          "title": "Pacotes VIP configuráveis",
+          "short": "Defina a duração e o preço em créditos dos anúncios promovidos",
+          "description": "O administrador pode criar e remover pacotes VIP com nome personalizado, duração em dias e preço em créditos do Apps Hub."
+        },
+        {
+          "title": "Posicionamento de anúncios VIP",
+          "short": "Coloque anúncios promovidos antes dos resultados comuns",
+          "description": "Um anúncio VIP ativo recebe um selo VIP visível e aparece antes dos anúncios comuns no feed principal e em sua categoria."
+        },
+        {
+          "title": "Pagamentos com créditos do Apps Hub",
+          "short": "Permita que os anunciantes comprem destaque com créditos",
+          "description": "Os anunciantes podem selecionar um pacote ativo ao criar ou editar um anúncio. A cobrança é processada com segurança por meio de créditos do Apps Hub, e novas tentativas não geram cobranças duplicadas pela mesma compra."
+        },
+        {
+          "title": "Tempo de destaque acumulável",
+          "short": "Prolongue um período VIP existente sem perder os dias restantes",
+          "description": "Comprar outro pacote VIP antes de o período atual expirar soma sua duração ao tempo de destaque restante, em vez de reiniciar o período."
+        },
+        {
+          "title": "Verificação de usuários",
+          "short": "Exija uma foto de verificação antes de os usuários poderem publicar",
+          "description": "O administrador pode criar quantas verificações quiser, com instruções próprias, acionadas logo após o cadastro, após um determinado número de dias ou após um determinado número de anúncios, e opcionalmente restritas a categorias selecionadas. Os usuários continuam navegando e gerenciando seus anúncios e ficam impedidos apenas de publicar novos anúncios nos casos em que uma verificação se aplica, até que um administrador aprove a foto enviada. As fotos são excluídas assim que são analisadas."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Annonces VIP payables en crédits et mises en avant dans l’espace public de petites annonces, avec vérification des utilisateurs par photo avant de pouvoir publier dans certaines catégories.",
+      "features": [
+        {
+          "title": "Forfaits VIP configurables",
+          "short": "Définissez la durée et le prix en crédits des annonces mises en avant",
+          "description": "L’administrateur peut créer et supprimer des forfaits VIP avec un nom personnalisé, une durée en jours et un prix en crédits Apps Hub."
+        },
+        {
+          "title": "Placement des annonces VIP",
+          "short": "Placez les annonces mises en avant avant les résultats habituels",
+          "description": "Une annonce VIP active reçoit un badge VIP visible et apparaît avant les annonces classiques dans le fil principal et dans sa catégorie."
+        },
+        {
+          "title": "Paiement en crédits Apps Hub",
+          "short": "Permettez aux propriétaires d’annonces d’acheter une mise en avant avec des crédits",
+          "description": "Les propriétaires d’annonces peuvent sélectionner un forfait actif lors de la création ou de la modification d’une annonce. Le paiement est traité de manière sécurisée avec les crédits Apps Hub, et toute nouvelle tentative ne peut pas débiter deux fois le même achat."
+        },
+        {
+          "title": "Durée de mise en avant cumulable",
+          "short": "Prolongez une période VIP en cours sans perdre les jours restants",
+          "description": "L’achat d’un autre forfait VIP avant l’expiration de la période en cours ajoute sa durée au temps de mise en avant restant, au lieu de faire repartir la période à zéro."
+        },
+        {
+          "title": "Vérification des utilisateurs",
+          "short": "Exigez une photo de vérification avant d’autoriser la publication",
+          "description": "L’administrateur peut créer autant de vérifications qu’il le souhaite, chacune avec ses propres consignes, déclenchées juste après l’inscription, après un certain nombre de jours ou après un certain nombre d’annonces, et éventuellement limitées à certaines catégories. Les utilisateurs peuvent continuer à parcourir le catalogue et à gérer leurs annonces. Seule la publication de nouvelles annonces dans les catégories soumises à vérification est bloquée, jusqu’à ce qu’un administrateur approuve la photo envoyée. Les photos sont supprimées dès qu’elles ont été examinées."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "クレジットで利用できるVIP掲載で、公開マーケットプレイス内の優先表示を実現。指定したカテゴリーへの投稿前に、ユーザーの写真認証も行えます。",
+      "features": [
+        {
+          "title": "カスタマイズ可能なVIPパッケージ",
+          "short": "優先表示する掲載の期間とクレジット価格を設定",
+          "description": "管理者は、任意の名前、日数、Apps Hubクレジットでの価格を指定してVIPパッケージを作成・削除できます。"
+        },
+        {
+          "title": "VIP掲載の優先表示",
+          "short": "通常の検索結果よりも優先して掲載を表示",
+          "description": "有効なVIP掲載には目立つVIPバッジが付き、メインフィードと該当カテゴリー内で通常の掲載より先に表示されます。"
+        },
+        {
+          "title": "Apps Hubクレジットでの支払い",
+          "short": "掲載者がクレジットで優先表示を購入可能に",
+          "description": "掲載者は広告の作成時や編集時に、有効なパッケージを選択できます。支払いはApps Hubクレジットで安全に処理され、再試行しても同じ購入に対して二重に請求されることはありません。"
+        },
+        {
+          "title": "優先表示期間の追加延長",
+          "short": "残りの日数を失わずに、現在のVIP期間を延長",
+          "description": "現在の期間が終了する前に別のVIPパッケージを購入すると、期間が最初から数え直されることなく、残りの優先表示期間に購入分の日数が加算されます。"
+        },
+        {
+          "title": "ユーザー認証",
+          "short": "投稿前に認証用の写真の提出を必須に",
+          "description": "管理者は、それぞれに独自の案内を設定した認証を、必要な数だけ作成できます。認証は登録直後、指定日数の経過後、または指定件数の掲載後に実施でき、必要に応じて対象を特定のカテゴリーに限定することも可能です。ユーザーは引き続き閲覧や自分の掲載の管理を行えますが、認証の対象となる場所への新規投稿は、送信した写真を管理者が承認するまで制限されます。写真は確認が完了するとすぐに削除されます。"
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "使用积分为 VIP 信息购买公开交易平台中的优先展示位置，并要求用户通过照片验证后才能在指定分类中发布信息。",
+      "features": [
+        {
+          "title": "可自定义的 VIP 套餐",
+          "short": "设置信息推广的时长和积分价格",
+          "description": "管理员可以创建和移除 VIP 套餐，自定义名称、以天为单位的时长以及 Apps Hub 积分价格。"
+        },
+        {
+          "title": "VIP 信息优先展示",
+          "short": "让推广信息排在普通结果之前",
+          "description": "生效中的 VIP 信息会显示醒目的 VIP 标识，并在主信息流及其所属分类中排在普通信息之前。"
+        },
+        {
+          "title": "Apps Hub 积分支付",
+          "short": "让信息发布者使用积分购买推广",
+          "description": "信息发布者可在创建或编辑信息时选择可用套餐。费用通过 Apps Hub 积分安全扣除，重试也不会对同一笔购买重复扣费。"
+        },
+        {
+          "title": "推广时长可叠加",
+          "short": "延长现有 VIP 有效期，保留剩余天数",
+          "description": "在当前 VIP 有效期结束前购买另一份 VIP 套餐，新套餐的时长会叠加到剩余推广时间上，而不会重新计时。"
+        },
+        {
+          "title": "用户验证",
+          "short": "要求用户提交验证照片后才能发布信息",
+          "description": "管理员可创建任意数量的验证要求，并分别设置说明，在用户注册后立即触发，或在经过指定天数、发布指定数量的信息后触发，也可选择仅适用于指定分类。用户仍可浏览和管理自己发布的信息，但在管理员批准其提交的照片之前，无法在需要验证的分类中发布新信息。照片在审核完成后立即删除。"
+        }
+      ]
+    },
+    "ru": {
+      "summary": "VIP-объявления с оплатой кредитами и приоритетным размещением на общедоступной торговой площадке, а также проверка пользователей по фотографии перед публикацией в выбранных категориях.",
+      "features": [
+        {
+          "title": "Настраиваемые VIP-пакеты",
+          "short": "Задавайте срок продвижения объявлений и стоимость в кредитах",
+          "description": "Администратор может создавать и удалять VIP-пакеты, задавая собственное название, срок действия в днях и стоимость в кредитах Apps Hub."
+        },
+        {
+          "title": "Приоритетное размещение VIP-объявлений",
+          "short": "Размещайте продвигаемые объявления перед обычными результатами",
+          "description": "Активное VIP-объявление получает заметный значок VIP и отображается перед обычными объявлениями в основной ленте и в своей категории."
+        },
+        {
+          "title": "Оплата кредитами Apps Hub",
+          "short": "Позвольте владельцам объявлений оплачивать продвижение кредитами",
+          "description": "Владельцы объявлений могут выбрать действующий пакет при создании или редактировании объявления. Оплата безопасно проводится кредитами Apps Hub, а повторные попытки не приводят к повторному списанию за одну и ту же покупку."
+        },
+        {
+          "title": "Накопление срока продвижения",
+          "short": "Продлевайте текущий срок VIP без потери оставшихся дней",
+          "description": "При покупке ещё одного VIP-пакета до истечения текущего срока его длительность добавляется к оставшемуся времени продвижения, а отсчёт не начинается заново."
+        },
+        {
+          "title": "Проверка пользователей",
+          "short": "Запрашивайте фотографию для проверки перед публикацией объявлений",
+          "description": "Администратор может создать любое количество проверок со своими инструкциями: сразу после регистрации, через заданное число дней или после заданного числа объявлений. При необходимости проверки можно ограничить выбранными категориями. Пользователи могут по-прежнему просматривать объявления и управлять своими, но не смогут публиковать новые там, где требуется проверка, пока администратор не одобрит отправленную фотографию. Фотографии удаляются сразу после рассмотрения."
+        }
+      ]
+    }
+  }
 }

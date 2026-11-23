@@ -22,5 +22,191 @@
       "summary": "Calendar exposes an app-to-app API: other apps can list your events for a period, add timed, all-day or repeating events, edit or delete them and mark them done, always only in your own calendar.",
       "requires": "The Calendar App API has to be switched on in Apps Hub → Settings → App APIs. It is off by default."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Календар със събития и напомняния и публична уеб страница за акаунти в Apps Hub.",
+      "tagline": "Събития, напомняния и уиджет за календар на работния ви плот.",
+      "description": "Calendar подрежда събитията ви в месечен, седмичен и дневен изглед и заменя вградения уиджет за календар на работния плот, за да виждате следващите няколко дни, без да отваряте нищо.\n\nСъбитията могат да бъдат с определен час или целодневни, да се повтарят ежедневно, ежеседмично или ежемесечно до избрана от вас дата и да се отбелязват като изпълнени. Когато редактирате повтарящо се събитие, приложението ви пита за кои събития да приложи промяната — само за това, за това и всички след него или за всички.\n\nПланировчик работи във фонов режим и ви изпраща известие, когато настъпи часът за напомняне, независимо дали прозорецът е отворен. Същият календар е достъпен и от публична уеб страница за вашия акаунт в Apps Hub.\n\nПрофил и език\nПри отваряне на Calendar на работния плот първо влизате в Apps Hub, за да се използва правилният профил за събитията. Всички текстове в интерфейса, имената на месеците и обозначенията на дните от седмицата са достъпни на деветте езика на mvmOS.",
+      "capabilities": [
+        "Месечен, седмичен и дневен изглед, както и пряк път към днешния ден.",
+        "Събития с определен час и целодневни събития със заглавие и описание.",
+        "Ежедневно, ежеседмично и ежемесечно повторение с крайна дата; при ежеседмично повторение можете да избирате дните.",
+        "Редактирането на повтарящо се събитие се прилага само за него, за него и следващите или за всички предстоящи събития.",
+        "Отбелязване на събития като изпълнени или неизпълнени.",
+        "Известия за напомняния, изпращани от планировчика на mvmOS дори когато приложението е затворено.",
+        "Заменя вградения уиджет за календар на работния плот.",
+        "Публична уеб страница за вашия акаунт в Apps Hub.",
+        "Вход в Apps Hub преди отваряне на календара на работния плот.",
+        "Изцяло преведен интерфейс на всичките девет езика на mvmOS."
+      ],
+      "integrations": [
+        {
+          "summary": "Calendar предоставя API за взаимодействие между приложения: други приложения могат да извеждат списък със събитията ви за даден период, да добавят събития с определен час, целодневни или повтарящи се събития, да ги редактират или изтриват и да ги отбелязват като изпълнени — винаги само в собствения ви календар.",
+          "requires": "API на приложението Calendar трябва да бъде включен от Apps Hub → Настройки → API на приложенията. По подразбиране е изключен."
+        }
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Calendário com eventos e lembretes, além de uma página pública na web para contas do Apps Hub.",
+      "tagline": "Eventos, lembretes e um widget de calendário na sua área de trabalho.",
+      "description": "O Calendar organiza seus eventos em visualizações de mês, semana e dia e substitui o widget de calendário padrão da área de trabalho para que você veja os próximos dias sem precisar abrir nada.\n\nOs eventos podem ter horário definido ou durar o dia inteiro, repetir diariamente, semanalmente ou mensalmente até uma data escolhida por você e ser marcados como concluídos. Ao editar um evento recorrente, o app pergunta a quais ocorrências a alteração se aplica — apenas a esta, a esta e às seguintes ou a todas.\n\nUm agendador funciona em segundo plano e envia uma notificação na hora de cada lembrete, mesmo que a janela esteja fechada. O mesmo calendário também pode ser acessado por uma página pública na web vinculada à sua conta do Apps Hub.\n\nPerfil e idioma\nAo abrir o Calendar na área de trabalho, você primeiro entra no Apps Hub para que os eventos usem o perfil correto. Todos os textos da interface, nomes dos meses e nomes dos dias da semana estão disponíveis nos nove idiomas do mvmOS.",
+      "capabilities": [
+        "Visualizações de mês, semana e dia, além de um atalho para Hoje.",
+        "Eventos com horário definido ou de dia inteiro, com título e descrição.",
+        "Repetição diária, semanal e mensal com data de término; na repetição semanal, você escolhe os dias.",
+        "A edição de um evento recorrente pode ser aplicada apenas a esta ocorrência, a esta e às seguintes ou a todas as próximas.",
+        "Marque eventos como concluídos ou não concluídos.",
+        "Notificações de lembretes enviadas pelo agendador do mvmOS mesmo com o app fechado.",
+        "Substitui o widget de calendário padrão da área de trabalho.",
+        "Página pública na web para sua conta do Apps Hub.",
+        "Login no Apps Hub antes de abrir o calendário na área de trabalho.",
+        "Interface totalmente traduzida para os nove idiomas do mvmOS."
+      ],
+      "integrations": [
+        {
+          "summary": "O Calendar disponibiliza uma API de comunicação entre apps: outros apps podem listar seus eventos de um período, adicionar eventos com horário definido, de dia inteiro ou recorrentes, editá-los, excluí-los e marcá-los como concluídos, sempre apenas no seu próprio calendário.",
+          "requires": "A API do app Calendar precisa ser ativada em Apps Hub → Configurações → APIs de apps. Ela vem desativada por padrão."
+        }
+      ]
+    },
+    "de": {
+      "short_description": "Kalender mit Terminen und Erinnerungen sowie einer öffentlichen Webseite für Apps Hub-Konten.",
+      "tagline": "Termine, Erinnerungen und ein Kalender-Widget auf deinem Desktop.",
+      "description": "Calendar zeigt deine Termine in Monats-, Wochen- und Tagesansichten an und ersetzt das standardmäßige Kalender-Widget auf dem Desktop. So hast du die nächsten Tage im Blick, ohne etwas öffnen zu müssen.\n\nTermine können eine feste Uhrzeit haben oder ganztägig sein, sich täglich, wöchentlich oder monatlich bis zu einem von dir festgelegten Datum wiederholen und als erledigt abgehakt werden. Wenn du einen wiederkehrenden Termin bearbeitest, fragt Calendar nach, ob du nur diesen Termin, diesen und alle folgenden oder alle Termine der Serie ändern möchtest.\n\nEin Zeitplanungsdienst läuft im Hintergrund und schickt dir eine Benachrichtigung, wenn eine Erinnerung fällig ist – unabhängig davon, ob das Fenster geöffnet ist. Derselbe Kalender ist auch über eine öffentliche Webseite für dein Apps Hub-Konto erreichbar.\n\nProfil und Sprache\nWenn du Calendar auf dem Desktop öffnest, wirst du zuerst bei Apps Hub angemeldet, damit deine Termine dem richtigen Profil zugeordnet werden. Alle Oberflächentexte, Monatsnamen und Wochentagsbezeichnungen sind in den neun mvmOS-Sprachen verfügbar.",
+      "capabilities": [
+        "Monats-, Wochen- und Tagesansichten sowie eine Schaltfläche zum direkten Wechsel zu Heute.",
+        "Termine mit fester Uhrzeit und ganztägige Termine mit Titel und Beschreibung.",
+        "Tägliche, wöchentliche und monatliche Wiederholungen mit Enddatum; bei wöchentlichen Wiederholungen lassen sich die Wochentage individuell auswählen.",
+        "Änderungen an einem wiederkehrenden Termin gelten wahlweise nur für diesen Termin, für diesen und die folgenden oder für alle zukünftigen Termine der Serie.",
+        "Termine als erledigt oder nicht erledigt markieren.",
+        "Erinnerungsbenachrichtigungen durch den mvmOS-Zeitplanungsdienst, auch bei geschlossener App.",
+        "Ersetzt das standardmäßige Kalender-Widget auf dem Desktop.",
+        "Öffentliche Webseite für dein Apps Hub-Konto.",
+        "Anmeldung bei Apps Hub vor dem Öffnen des Desktop-Kalenders.",
+        "Vollständig übersetzte Oberfläche in allen neun mvmOS-Sprachen."
+      ],
+      "integrations": [
+        {
+          "summary": "Calendar bietet eine API für die Kommunikation zwischen Apps: Andere Apps können deine Termine für einen bestimmten Zeitraum auflisten, Termine mit fester Uhrzeit, ganztägige oder wiederkehrende Termine hinzufügen, sie bearbeiten oder löschen und als erledigt markieren – immer nur in deinem eigenen Kalender.",
+          "requires": "Die Calendar-App-API muss unter Apps Hub → Einstellungen → App-APIs aktiviert werden. Sie ist standardmäßig deaktiviert."
+        }
+      ]
+    },
+    "zh-CN": {
+      "short_description": "支持日程和提醒的日历，并为 Apps Hub 账户提供公开网页。",
+      "tagline": "在桌面上轻松查看日程、接收提醒，使用日历小组件。",
+      "description": "Calendar 以月、周、日视图呈现你的日程，并替换桌面内置的日历小组件，无需打开任何窗口，就能查看未来几天的安排。\n\n日程可设为指定时间或全天，也可按天、周或月重复，直到你设置的结束日期，还能勾选标记为已完成。编辑重复日程时，应用会询问你要修改哪一部分：仅本次、本次及之后的所有日程，还是全部日程。\n\n调度程序在后台运行，无论窗口是否打开，都会在提醒到期时发送通知。你也可以通过 Apps Hub 账户的公开网页访问同一份日历。\n\n个人资料与语言\n在桌面上打开 Calendar 时，应用会先让你登录 Apps Hub，确保日程归属于正确的个人资料。所有界面文本、月份名称和星期标签均支持 mvmOS 的全部九种语言。",
+      "capabilities": [
+        "提供月、周、日视图，以及快速跳转至今天的快捷入口。",
+        "支持指定时间和全天日程，可添加标题和描述。",
+        "支持按天、周、月重复，并可设置结束日期；按周重复时可自行选择每周的具体日期。",
+        "编辑重复日程时，可选择仅修改本次、本次及之后的日程，或所有尚未发生的日程。",
+        "可将日程标记为已完成或未完成。",
+        "即使应用已关闭，mvmOS 调度程序也会发送提醒通知。",
+        "替换桌面内置的日历小组件。",
+        "为你的 Apps Hub 账户提供公开网页。",
+        "打开桌面日历前先登录 Apps Hub。",
+        "界面完整支持 mvmOS 的全部九种语言。"
+      ],
+      "integrations": [
+        {
+          "summary": "Calendar 提供应用间 API：其他应用可以列出指定时段内的日程，添加指定时间、全天或重复日程，编辑或删除日程，以及将其标记为已完成；所有操作始终仅限于你自己的日历。",
+          "requires": "需在 Apps Hub → 设置 → 应用 API 中开启 Calendar 应用 API。此功能默认关闭。"
+        }
+      ]
+    },
+    "ja": {
+      "short_description": "予定やリマインダーを管理でき、Apps Hubアカウント用の公開ウェブページでも使えるカレンダー。",
+      "tagline": "予定、リマインダー、カレンダーウィジェットをデスクトップに。",
+      "description": "Calendarは、月・週・日表示で予定を管理できるアプリです。デスクトップの標準カレンダーウィジェットを置き換えるので、アプリを開かなくても数日先までの予定を確認できます。\n\n予定は時間指定や終日で登録でき、指定した日付まで毎日・毎週・毎月の繰り返しを設定したり、完了済みにチェックを付けたりできます。繰り返しの予定を編集するときは、今回のみ、今回以降すべて、すべての予定のどれに変更を適用するかを選べます。\n\nスケジューラーがバックグラウンドで動作し、ウィンドウを開いていなくても、リマインダーの時刻になると通知を届けます。Apps Hubアカウント用の公開ウェブページからも、同じカレンダーにアクセスできます。\n\nプロフィールと言語\nデスクトップでCalendarを開くと、まずApps Hubにサインインするため、予定が適切なプロフィールに紐づきます。画面上のすべてのテキスト、月名、曜日名は、mvmOSの9言語すべてに対応しています。",
+      "capabilities": [
+        "月・週・日表示と、「今日」に移動するショートカット。",
+        "タイトルと説明を付けて、時間指定や終日の予定を登録。",
+        "終了日を指定して毎日・毎週・毎月の繰り返しを設定。毎週の繰り返しでは曜日も選択可能。",
+        "繰り返しの予定の編集は、今回のみ、今回以降、今後すべての予定に適用可能。",
+        "予定を完了済み・未完了に切り替え。",
+        "アプリを閉じていても、mvmOSスケジューラーがリマインダー通知を配信。",
+        "デスクトップの標準カレンダーウィジェットを置き換え。",
+        "Apps Hubアカウント用の公開ウェブページ。",
+        "デスクトップのカレンダーを開く前にApps Hubにサインイン。",
+        "画面全体をmvmOSの9言語すべてに翻訳。"
+      ],
+      "integrations": [
+        {
+          "summary": "Calendarはアプリ間連携用のAPIを提供しています。他のアプリから、指定期間の予定の一覧取得、時間指定・終日・繰り返しの予定の追加、編集、削除、完了済みへの変更ができます。いずれの操作も、自分のカレンダー内に限られます。",
+          "requires": "Apps Hub → 設定 → アプリAPIで、CalendarのアプリAPIを有効にする必要があります。初期設定では無効になっています。"
+        }
+      ]
+    },
+    "ru": {
+      "short_description": "Календарь с событиями и напоминаниями, а также общедоступной веб-страницей для учётных записей Apps Hub.",
+      "tagline": "События, напоминания и виджет календаря на рабочем столе.",
+      "description": "Calendar позволяет просматривать события за месяц, неделю или день и заменяет стандартный виджет календаря на рабочем столе, чтобы вы могли видеть ближайшие дни, ничего не открывая.\n\nДля событий можно задать время или запланировать их на весь день, настроить ежедневное, еженедельное или ежемесячное повторение до выбранной даты и отмечать их как выполненные. При редактировании повторяющегося события приложение уточнит, что нужно изменить: только это событие, это и все последующие или все события серии.\n\nПланировщик работает в фоновом режиме и отправляет уведомления, когда наступает время напоминания, независимо от того, открыто ли окно приложения. Этот же календарь доступен на общедоступной веб-странице вашей учётной записи Apps Hub.\n\nПрофиль и язык\nПри открытии Calendar на рабочем столе сначала выполняется вход в Apps Hub, чтобы события были привязаны к нужному профилю. Все тексты интерфейса, названия месяцев и дней недели доступны на девяти языках mvmOS.",
+      "capabilities": [
+        "Просмотр по месяцам, неделям и дням, а также быстрый переход к сегодняшней дате.",
+        "События на определённое время или на весь день с названием и описанием.",
+        "Ежедневное, еженедельное и ежемесячное повторение с датой окончания; для еженедельного повторения можно выбрать дни недели.",
+        "Изменения повторяющегося события можно применить только к нему, к нему и последующим событиям или ко всем предстоящим событиям серии.",
+        "Возможность отмечать события как выполненные или невыполненные.",
+        "Уведомления о напоминаниях от планировщика mvmOS, даже когда приложение закрыто.",
+        "Замена стандартного виджета календаря на рабочем столе.",
+        "Общедоступная веб-страница для вашей учётной записи Apps Hub.",
+        "Вход в Apps Hub перед открытием календаря на рабочем столе.",
+        "Полный перевод интерфейса на все девять языков mvmOS."
+      ],
+      "integrations": [
+        {
+          "summary": "Calendar предоставляет API для взаимодействия между приложениями: другие приложения могут получать список ваших событий за определённый период, добавлять события на определённое время, на весь день или с повторением, изменять и удалять их, а также отмечать как выполненные — всегда только в вашем календаре.",
+          "requires": "API приложения Calendar необходимо включить в Apps Hub → Настройки → API приложений. По умолчанию он отключён."
+        }
+      ]
+    },
+    "fr": {
+      "short_description": "Un calendrier avec événements et rappels, et une page web publique pour les comptes Apps Hub.",
+      "tagline": "Événements, rappels et widget de calendrier sur votre bureau.",
+      "description": "Calendar organise vos événements dans des vues par mois, semaine et jour, et remplace le widget de calendrier intégré au bureau pour vous permettre de voir les jours à venir sans rien ouvrir.\n\nLes événements peuvent avoir un horaire précis ou durer toute la journée, se répéter chaque jour, chaque semaine ou chaque mois jusqu’à la date de votre choix, et être cochés comme terminés. Lorsque vous modifiez un événement récurrent, l’application vous demande à quelles occurrences appliquer les modifications : celle-ci uniquement, celle-ci et toutes les suivantes, ou toutes les occurrences.\n\nUn planificateur fonctionne en arrière-plan et vous envoie une notification à l’heure prévue pour un rappel, que la fenêtre soit ouverte ou non. Ce même calendrier est accessible depuis une page web publique associée à votre compte Apps Hub.\n\nProfil et langue\nLorsque vous ouvrez Calendar sur le bureau, l’application vous connecte d’abord à Apps Hub pour associer les événements au bon profil. Tous les textes de l’interface, les noms des mois et les libellés des jours de la semaine sont disponibles dans les neuf langues de mvmOS.",
+      "capabilities": [
+        "Vues par mois, semaine et jour, avec un raccourci Aujourd’hui.",
+        "Événements à horaire précis ou sur toute la journée, avec un titre et une description.",
+        "Récurrence quotidienne, hebdomadaire ou mensuelle avec une date de fin ; choix des jours pour la récurrence hebdomadaire.",
+        "Modification d’un événement récurrent applicable à cette occurrence uniquement, à celle-ci et aux suivantes, ou à toutes les occurrences à venir.",
+        "Possibilité de marquer les événements comme terminés ou non terminés.",
+        "Notifications de rappel envoyées par le planificateur de mvmOS, même lorsque l’application est fermée.",
+        "Remplacement du widget de calendrier intégré au bureau.",
+        "Page web publique associée à votre compte Apps Hub.",
+        "Connexion à Apps Hub avant l’ouverture du calendrier sur le bureau.",
+        "Interface entièrement traduite dans les neuf langues de mvmOS."
+      ],
+      "integrations": [
+        {
+          "summary": "Calendar propose une API de communication entre applications : d’autres applications peuvent lister vos événements sur une période donnée, ajouter des événements à horaire précis, sur toute la journée ou récurrents, les modifier ou les supprimer et les marquer comme terminés, toujours et uniquement dans votre propre calendrier.",
+          "requires": "L’API de l’application Calendar doit être activée dans Apps Hub → Paramètres → API des applications. Elle est désactivée par défaut."
+        }
+      ]
+    },
+    "es": {
+      "short_description": "Calendario con eventos y recordatorios, y una página web pública para cuentas de Apps Hub.",
+      "tagline": "Eventos, recordatorios y un widget de calendario en tu escritorio.",
+      "description": "Calendar organiza tus eventos en vistas de mes, semana y día, y sustituye el widget de calendario del sistema en el escritorio para que puedas ver los próximos días sin abrir nada.\n\nLos eventos pueden tener una hora concreta o durar todo el día, repetirse a diario, cada semana o cada mes hasta la fecha que elijas, y marcarse como completados. Al editar un evento recurrente, te pregunta a cuáles quieres aplicar los cambios: solo a este, a este y a todos los siguientes, o a todos.\n\nUn programador de tareas se ejecuta en segundo plano y te envía una notificación cuando llega la hora de un recordatorio, tanto si la ventana está abierta como si no. También puedes acceder al mismo calendario desde una página web pública de tu cuenta de Apps Hub.\n\nPerfil e idioma\nAl abrir Calendar en el escritorio, primero se inicia sesión en Apps Hub para que los eventos se asocien al perfil correcto. Todos los textos de la interfaz, los nombres de los meses y los días de la semana están disponibles en los nueve idiomas de mvmOS.",
+      "capabilities": [
+        "Vistas de mes, semana y día, además de un acceso directo a Hoy.",
+        "Eventos con hora concreta o de todo el día, con título y descripción.",
+        "Repetición diaria, semanal y mensual con fecha de finalización; la repetición semanal permite elegir los días.",
+        "Al editar un evento recurrente, los cambios se aplican solo a ese evento, a ese y a los siguientes, o a todos los próximos eventos.",
+        "Marca los eventos como completados o pendientes.",
+        "Notificaciones de recordatorios enviadas por el programador de tareas de mvmOS incluso con la aplicación cerrada.",
+        "Sustituye el widget de calendario del sistema en el escritorio.",
+        "Página web pública para tu cuenta de Apps Hub.",
+        "Inicio de sesión en Apps Hub antes de abrir el calendario de escritorio.",
+        "Interfaz totalmente traducida a los nueve idiomas de mvmOS."
+      ],
+      "integrations": [
+        {
+          "summary": "Calendar ofrece una API de comunicación entre aplicaciones: otras aplicaciones pueden consultar tus eventos de un periodo, añadir eventos con hora concreta, de todo el día o recurrentes, editarlos o eliminarlos y marcarlos como completados, siempre dentro de tu propio calendario.",
+          "requires": "La API de la aplicación Calendar debe activarse en Apps Hub → Ajustes → API de aplicaciones. Está desactivada de forma predeterminada."
+        }
+      ]
+    }
+  }
 }

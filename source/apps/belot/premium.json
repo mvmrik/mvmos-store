@@ -6,5 +6,87 @@
       "short": "A bot with an AI mentor that advises it and sometimes comments",
       "description": "When a game is set up, the host can give any bot an AI mentor. The bot still reads the table, remembers every card and works out the best move; for a close call it shows its ranking to the AI of mvmAI's public page, which approves the move, picks a better one, and now and then adds a short, light-hearted remark in the language of the host's Apps Hub profile. Obvious moves are played by the bot alone, so the AI is asked only when it matters. Players simply see a bot with a brain on its avatar and an occasional comment; if the AI cannot be reached, the bot plays on by itself. The server owner switches AI bots on in Belot's settings on the desktop, needs mvmAI installed with its app API enabled in Apps Hub, and can limit use with a price per AI bot in Apps Hub credits, charged once for each AI bot when a game starts. Without a subscription the AI bots setting is shown locked and opens the Premium dialog, and players on the public pages never see the option."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "summary": "Дайте на ботовете на вашата маса наставник с изкуствен интелект.",
+      "features": [
+        {
+          "title": "Ботове с изкуствен интелект",
+          "short": "Бот с наставник с изкуствен интелект, който го съветва и понякога коментира",
+          "description": "При настройване на играта домакинът може да даде на всеки бот наставник с изкуствен интелект. Ботът продължава да следи играта на масата, да помни всяка карта и да изчислява най-добрия ход. При трудно решение той показва подредените си по предпочитание ходове на изкуствения интелект на публичната страница на mvmAI, който одобрява хода или избира по-добър и от време на време добавя кратка закачлива забележка на езика на профила на домакина в Apps Hub. Очевидните ходове се изпълняват самостоятелно от бота, така че изкуственият интелект се включва само когато има значение. Играчите просто виждат бот с мозък върху аватара и коментар от време на време. Ако няма връзка с изкуствения интелект, ботът продължава да играе самостоятелно. Собственикът на сървъра включва ботовете с изкуствен интелект от настройките на Belot на компютъра. За целта трябва да е инсталиран mvmAI и неговият API за приложения да е активиран в Apps Hub. Собственикът може да ограничи използването им, като зададе цена за всеки бот с изкуствен интелект в кредити на Apps Hub, която се начислява еднократно за всеки такъв бот при започване на игра. Без абонамент настройката за ботове с изкуствен интелект се показва заключена и отваря диалоговия прозорец на Premium, а играчите на публичните страници изобщо не виждат тази опция."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Gib den Bots an deinem Tisch einen KI-Mentor.",
+      "features": [
+        {
+          "title": "KI-Bots",
+          "short": "Ein Bot mit einem KI-Mentor, der ihn berät und gelegentlich kommentiert",
+          "description": "Beim Einrichten eines Spiels kann der Gastgeber jedem Bot einen KI-Mentor zur Seite stellen. Der Bot analysiert weiterhin das Spielgeschehen, merkt sich jede Karte und berechnet den besten Zug. Bei knappen Entscheidungen zeigt er seine Rangfolge möglicher Züge der KI der öffentlichen Seite von mvmAI. Diese bestätigt den Zug, wählt einen besseren und ergänzt hin und wieder eine kurze, humorvolle Bemerkung in der Sprache des Apps Hub-Profils des Gastgebers. Eindeutige Züge spielt der Bot allein, sodass die KI nur dann gefragt wird, wenn es darauf ankommt. Die Spieler sehen einfach einen Bot mit einem Gehirn auf seinem Avatar und gelegentlich einen Kommentar. Ist die KI nicht erreichbar, spielt der Bot selbstständig weiter. Der Serverbetreiber aktiviert KI-Bots in den Einstellungen von Belot auf dem Desktop. Dafür muss mvmAI installiert und seine App-API in Apps Hub aktiviert sein. Er kann die Nutzung durch einen Preis pro KI-Bot in Apps Hub-Credits begrenzen, der beim Spielstart einmal pro KI-Bot berechnet wird. Ohne Abonnement wird die Einstellung für KI-Bots als gesperrt angezeigt und öffnet den Premium-Dialog. Spielern auf den öffentlichen Seiten wird diese Option nie angezeigt."
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Dê aos bots da sua mesa um mentor de IA.",
+      "features": [
+        {
+          "title": "Bots com IA",
+          "short": "Um bot com um mentor de IA que o orienta e às vezes faz comentários",
+          "description": "Ao configurar um jogo, o anfitrião pode dar a qualquer bot um mentor de IA. O bot continua analisando a mesa, lembrando de cada carta e calculando a melhor jogada; quando a decisão é difícil, ele apresenta sua classificação das jogadas à IA da página pública do mvmAI, que aprova a jogada ou escolhe uma melhor e, de vez em quando, acrescenta um comentário curto e descontraído no idioma do perfil do anfitrião no Apps Hub. As jogadas óbvias são feitas pelo bot sozinho, então a IA só é consultada quando faz diferença. Os jogadores veem apenas um bot com um cérebro no avatar e um comentário ocasional; se não for possível acessar a IA, o bot continua jogando sozinho. O proprietário do servidor ativa os bots com IA nas configurações do Belot no computador, precisa ter o mvmAI instalado com sua API de aplicativo ativada no Apps Hub e pode limitar o uso definindo um preço por bot com IA em créditos do Apps Hub, cobrado uma única vez por bot com IA no início de cada jogo. Sem uma assinatura, a configuração de bots com IA aparece bloqueada e abre a janela do Premium, e os jogadores nas páginas públicas nunca veem essa opção."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Dales a los bots de tu mesa un mentor de IA.",
+      "features": [
+        {
+          "title": "Bots con IA",
+          "short": "Un bot con un mentor de IA que le aconseja y a veces hace comentarios",
+          "description": "Al configurar una partida, el anfitrión puede asignar un mentor de IA a cualquier bot. El bot sigue analizando la mesa, recordando cada carta y calculando la mejor jugada; cuando la decisión es difícil, muestra su clasificación de jugadas a la IA de la página pública de mvmAI, que aprueba la jugada, elige una mejor y, de vez en cuando, añade un comentario breve y desenfadado en el idioma del perfil de Apps Hub del anfitrión. El bot realiza por sí solo las jugadas evidentes, de modo que solo consulta a la IA cuando merece la pena. Los jugadores simplemente ven un bot con un cerebro en su avatar y algún comentario ocasional; si no se puede contactar con la IA, el bot sigue jugando por su cuenta. El propietario del servidor activa los bots con IA en los ajustes de Belot desde el ordenador, necesita tener mvmAI instalado con su API de aplicación activada en Apps Hub y puede limitar su uso fijando un precio por bot con IA en créditos de Apps Hub, que se cobra una sola vez por cada bot con IA al comenzar una partida. Sin una suscripción, el ajuste de bots con IA aparece bloqueado y abre el cuadro de diálogo de Premium, y los jugadores de las páginas públicas nunca ven esta opción."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Offrez un mentor IA aux bots de votre table.",
+      "features": [
+        {
+          "title": "Bots IA",
+          "short": "Un bot accompagné d’un mentor IA qui le conseille et fait parfois des commentaires",
+          "description": "Lors de la configuration d’une partie, l’hôte peut attribuer un mentor IA à n’importe quel bot. Le bot continue d’analyser le jeu, de mémoriser chaque carte et de calculer le meilleur coup ; lorsqu’une décision est délicate, il présente son classement des coups à l’IA de la page publique de mvmAI, qui valide le coup, en choisit un meilleur et ajoute de temps à autre une brève remarque pleine d’humour dans la langue du profil Apps Hub de l’hôte. Le bot joue seul les coups évidents : l’IA n’est donc sollicitée que lorsque son aide compte. Les joueurs voient simplement un bot dont l’avatar porte un cerveau, accompagné d’un commentaire occasionnel ; si l’IA est injoignable, le bot continue de jouer seul. Le propriétaire du serveur active les bots IA dans les paramètres de Belot sur ordinateur. Il doit avoir installé mvmAI et activé son API d’application dans Apps Hub. Il peut aussi limiter leur utilisation en fixant un prix par bot IA en crédits Apps Hub, facturé une seule fois pour chaque bot IA au démarrage d’une partie. Sans abonnement, le réglage des bots IA apparaît verrouillé et ouvre la fenêtre Premium ; les joueurs sur les pages publiques ne voient jamais cette option."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Дайте ботам за вашим столом ИИ-наставника.",
+      "features": [
+        {
+          "title": "Боты с ИИ",
+          "short": "Бот с ИИ-наставником, который даёт ему советы и иногда комментирует игру",
+          "description": "При настройке игры её создатель может назначить любому боту ИИ-наставника. Бот по-прежнему следит за игрой, помнит каждую карту и рассчитывает лучший ход. В неоднозначной ситуации он передаёт свой рейтинг ходов ИИ публичной страницы mvmAI, который одобряет предложенный ход или выбирает более удачный и время от времени добавляет короткую шутливую реплику на языке профиля создателя игры в Apps Hub. Очевидные ходы бот делает самостоятельно, поэтому ИИ подключается только тогда, когда это имеет значение. Игроки видят бота со значком мозга на аватаре и его редкие комментарии. Если ИИ недоступен, бот продолжает играть самостоятельно. Владелец сервера включает ботов с ИИ в настройках Belot на компьютере. Для этого нужен установленный mvmAI с включённым API приложения в Apps Hub. Владелец также может ограничить использование, назначив плату за каждого бота с ИИ в кредитах Apps Hub: она списывается однократно за каждого такого бота при запуске игры. Без подписки настройка ботов с ИИ отображается с замком и открывает окно Premium, а игрокам на публичных страницах эта возможность не показывается."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "为牌桌上的机器人配备 AI 导师。",
+      "features": [
+        {
+          "title": "AI 机器人",
+          "short": "配有 AI 导师的机器人，可获得建议，偶尔还会发表点评",
+          "description": "创建对局时，房主可以为任意机器人配备 AI 导师。机器人仍会自行分析牌桌局势、记住每一张牌并计算最佳走法；遇到难以抉择的情况时，它会将候选走法的排序提交给 mvmAI 公共页面的 AI，由 AI 认可当前走法或选择更好的走法，并偶尔使用房主在 Apps Hub 个人资料中设置的语言，附上一句简短轻松的点评。走法明确时，机器人会自行出牌，只在关键时刻征询 AI。玩家看到的只是头像上带有大脑标记的机器人，以及偶尔出现的点评；如果无法连接 AI，机器人会继续独立游戏。服务器所有者需在桌面端 Belot 的设置中开启 AI 机器人，并安装 mvmAI、在 Apps Hub 中启用其应用 API；还可为每个 AI 机器人设置以 Apps Hub 积分计价的费用，以此限制使用。每局游戏开始时，每个 AI 机器人收取一次费用。未订阅时，AI 机器人设置会显示为锁定状态，点击后打开 Premium 对话框；公共页面上的玩家不会看到此选项。"
+        }
+      ]
+    },
+    "ja": {
+      "summary": "テーブルのボットにAIメンターを付けましょう。",
+      "features": [
+        {
+          "title": "AIボット",
+          "short": "助言や、ときにはコメントもしてくれるAIメンター付きのボット",
+          "description": "ゲームの設定時に、ホストは任意のボットにAIメンターを付けられます。ボットは引き続き、場の状況を読み、すべてのカードを記憶し、最善の手を計算します。判断が難しい場面では、候補の順位をmvmAIの公開ページのAIに提示します。AIはその手を承認したり、より良い手を選んだりし、ときにはホストのApps Hubプロフィールの言語で、短く軽妙なひと言を添えます。明らかな手はボットだけでプレイするため、AIに相談するのは必要な場面だけです。プレイヤーには、アバターに脳のマークが付いたボットと、ときどき表示されるコメントが見えます。AIに接続できない場合も、ボットは自力でプレイを続けます。サーバーの所有者は、デスクトップのBelotの設定でAIボットを有効にします。mvmAIをインストールし、Apps HubでmvmAIのApp APIを有効にする必要があります。また、AIボット1体あたりの料金をApps Hubクレジットで設定し、利用を制限できます。料金はゲーム開始時に、AIボット1体につき1回請求されます。サブスクリプション未加入の場合、AIボットの設定はロックされた状態で表示され、選択するとPremiumダイアログが開きます。公開ページのプレイヤーには、このオプションは表示されません。"
+        }
+      ]
+    }
+  }
 }

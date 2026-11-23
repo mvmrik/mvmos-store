@@ -12,5 +12,143 @@
     "Cutting plan from your stock bar length — how many bars to buy and what to cut from each.",
     "Optional floor grid for scale.",
     "Save, reload and delete named projects."
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "3D-Konstruktionsplaner. Zeichne Balken und Profile im 3D-Raum, verbinde sie, drehe und zoome frei und erhalte eine vollständige Materialliste.",
+      "tagline": "Zeichne ein Gestell in 3D und erhalte die Zuschnittliste.",
+      "description": "Beam Builder ist ein 3D-Planer für alles, was sich aus geraden Profilen bauen lässt — ein Holztragwerk, eine Pergola, ein Stahlregal, ein Gewächshaus oder ein Bettgestell. Du zeichnest Balken direkt im 3D-Raum, lässt ihre Enden aneinander einrasten und kannst das wachsende Modell aus allen Richtungen betrachten und stufenlos zoomen.\n\nJedem Balken ist ein Material zugeordnet: mit Namen, Querschnitt in Millimetern, Farbe und Preis. Daraus erstellt die App eine laufend aktualisierte Materialübersicht — mit der Gesamtlänge je Material und den zugehörigen Kosten. Wenn du die Länge der Stangen angibst, die du kaufst, erhältst du außerdem einen Zuschnittplan, der zeigt, wie viele Stangen du brauchst und welche Teile aus jeder Stange geschnitten werden.\n\nProjekte werden auf dem Server gespeichert. Du kannst das Fenster also schließen und später am Modell weiterarbeiten.",
+      "capabilities": [
+        "Zeichne Balken von Punkt zu Punkt in einer 3D-Szene und drehe, verschiebe und zoome die Ansicht.",
+        "Lass neue Balken an den Enden vorhandener Balken einrasten, damit die Verbindungen exakt passen.",
+        "Verschiebe und drehe einen ausgewählten Balken durch Ziehen bei gedrückten Zusatztasten — in Schritten von 45° oder 1°, mit horizontaler oder vertikaler Neigung und Verschiebungen um 50 cm oder 1 cm.",
+        "Ändere die Länge eines Balkens durch Eingabe eines Zahlenwerts, dupliziere ihn oder lösche ihn.",
+        "Definiere eigene Materialien: Name, Breite und Höhe in Millimetern, Farbe sowie Preis pro Meter oder Quadratmeter.",
+        "Nutze Vorlagen für gängige Profile als Ausgangspunkt — Balken und Pfosten, Bretter und Plattenmaterialien.",
+        "Laufend aktualisierte Materialübersicht: Gesamtlänge und Kosten je Material.",
+        "Zuschnittplan auf Basis der Länge deiner Ausgangsstangen — wie viele Stangen du kaufen musst und welche Teile du aus jeder schneidest.",
+        "Optionales Bodenraster zur Orientierung bei den Größenverhältnissen.",
+        "Speichere Projekte unter einem Namen, lade sie erneut oder lösche sie."
+      ]
+    },
+    "zh-CN": {
+      "short_description": "3D 结构设计工具。在 3D 空间中绘制梁和型材并将其连接，自由旋转、缩放视图，获取完整的材料清单。",
+      "tagline": "在 3D 空间中绘制框架，自动生成下料清单。",
+      "description": "Beam Builder 是一款 3D 设计工具，适用于任何由直线型材搭建的结构——木构架、凉棚、钢制置物架、温室或床架。你可以直接在 3D 空间中绘制梁，将它们吸附到彼此的端点，并在模型逐步成形的过程中随时旋转和缩放视图。\n\n每根梁都有对应的材料信息：名称、以毫米为单位的横截面尺寸、颜色和价格。应用会据此实时汇总每种材料的总长度和费用。如果你输入所购原材料的定尺长度，还能生成下料方案，列明需要多少根原材料，以及每根应切出哪些部件。\n\n项目保存在服务器上，即使关闭窗口，也能稍后重新打开模型，继续设计。",
+      "capabilities": [
+        "在 3D 场景中通过指定起点和终点绘制梁，支持环绕查看、平移和缩放。",
+        "将新梁吸附到现有梁的端点，确保连接处精确对齐。",
+        "配合键盘修饰键拖动，即可移动和旋转选中的梁——以 45° 或 1° 为步进旋转、沿水平或垂直方向倾斜，或以 50 cm 或 1 cm 为步进移动。",
+        "输入数值调整梁的长度，或复制、删除梁。",
+        "自定义材料：设置名称、以毫米为单位的宽度和高度、颜色，以及每米或每平方米的价格。",
+        "从常用型材模板开始设计，涵盖梁柱、木板和板材。",
+        "实时材料汇总：查看每种材料的总长度和费用。",
+        "根据原材料的定尺长度生成下料方案，明确需要购买多少根，以及每根应如何切割。",
+        "可选择显示地面网格，方便把握尺寸。",
+        "为项目命名，并保存、重新加载或删除项目。"
+      ]
+    },
+    "bg": {
+      "short_description": "Планирайте конструкции в 3D. Чертаете греди и профили в 3D пространството, свързвате ги, завъртате и мащабирате свободно и получавате пълен списък с материали.",
+      "tagline": "Начертайте конструкция в 3D и получете списък за разкрой.",
+      "description": "Beam Builder е 3D инструмент за планиране на всичко, изградено от прави профили — дървена конструкция, пергола, стоманен стелаж, оранжерия, рамка за легло. Чертаете греди директно в 3D пространството, прилепвате краищата им един към друг и завъртате и мащабирате изгледа около модела, докато го изграждате.\n\nНа всяка греда се задава материал с име, размери на напречното сечение в милиметри, цвят и цена. Въз основа на тези данни приложението непрекъснато актуализира справка за материалите — общата дължина и стойността на всеки материал. Ако зададете и дължината на заготовките, които купувате, получавате план за разкрой, показващ колко заготовки са ви нужни и кои детайли се изрязват от всяка.\n\nПроектите се запазват на сървъра, така че можете да затворите прозореца и да продължите работата по модела по-късно.",
+      "capabilities": [
+        "Чертаете греди от точка до точка в 3D сцена, със завъртане, преместване и мащабиране на изгледа.",
+        "Прилепвате нови греди към краищата на съществуващите, така че връзките да съвпадат точно.",
+        "Местите и завъртате избрана греда чрез плъзгане със задържани клавиши — на стъпки от 45° или 1°, с хоризонтален или вертикален наклон и преместване с 50 cm или 1 cm.",
+        "Редактирате дължината на греда чрез въвеждане на стойност, дублирате я или я изтривате.",
+        "Задавате собствени материали: име, ширина и височина в милиметри, цвят и цена на метър или на квадратен метър.",
+        "Започвате с шаблони за често използвани профили — греди и колони, дъски, листови материали.",
+        "Справка за материалите в реално време: обща дължина и стойност за всеки материал.",
+        "План за разкрой според дължината на заготовките — колко да купите и какво да изрежете от всяка.",
+        "Мрежа на пода по избор за ориентация в мащаба.",
+        "Запазвате, зареждате отново и изтривате проекти с имена."
+      ]
+    },
+    "fr": {
+      "short_description": "Outil de conception de structures en 3D. Dessinez des poutres et des profilés dans l’espace 3D, assemblez-les, faites pivoter la vue et zoomez librement, puis obtenez la liste complète des matériaux.",
+      "tagline": "Dessinez une ossature en 3D et obtenez la liste des pièces à découper.",
+      "description": "Beam Builder est un outil de conception en 3D pour tout ce qui se construit à partir de profilés droits : une ossature en bois, une pergola, un rayonnage en acier, une serre, un cadre de lit. Dessinez des poutres directement dans l’espace 3D, accrochez leurs extrémités les unes aux autres et faites pivoter la vue ou zoomez autour du modèle à mesure qu’il prend forme.\n\nChaque poutre est associée à un matériau : un nom, une section en millimètres, une couleur et un prix. À partir de ces données, l’application tient à jour un récapitulatif des matériaux, avec la longueur totale et le coût de chacun. Si vous indiquez la longueur des barres que vous achetez, elle génère aussi un plan de découpe précisant le nombre de barres nécessaires et les pièces à découper dans chacune.\n\nLes projets sont enregistrés sur le serveur : vous pouvez fermer la fenêtre et reprendre votre modèle plus tard.",
+      "capabilities": [
+        "Dessinez des poutres d’un point à un autre dans une scène 3D, avec rotation de la vue, déplacement panoramique et zoom.",
+        "Accrochez les nouvelles poutres aux extrémités des poutres existantes pour aligner parfaitement les assemblages.",
+        "Déplacez et faites pivoter une poutre sélectionnée par glisser-déposer en maintenant certaines touches du clavier : rotations par pas de 45° ou de 1°, inclinaison horizontale ou verticale, déplacements de 50 cm ou de 1 cm.",
+        "Modifiez la longueur d’une poutre en saisissant une valeur, dupliquez-la ou supprimez-la.",
+        "Définissez vos propres matériaux : nom, largeur et hauteur en millimètres, couleur et prix au mètre ou au mètre carré.",
+        "Partez de modèles de profilés courants : poutres et poteaux, planches, panneaux.",
+        "Récapitulatif des matériaux en temps réel : longueur totale et coût par matériau.",
+        "Plan de découpe calculé à partir de la longueur de vos barres : combien en acheter et quelles pièces découper dans chacune.",
+        "Affichez une grille au sol pour mieux apprécier l’échelle.",
+        "Enregistrez, rechargez et supprimez vos projets nommés."
+      ]
+    },
+    "ru": {
+      "short_description": "Планировщик конструкций в 3D. Создавайте балки и профили в трёхмерном пространстве, соединяйте их, свободно вращайте модель и меняйте масштаб, получайте полный список материалов.",
+      "tagline": "Спроектируйте каркас в 3D и получите список деталей для раскроя.",
+      "description": "Beam Builder — это 3D-планировщик любых конструкций из прямых профилей: деревянного каркаса, перголы, стального стеллажа, теплицы или каркаса кровати. Создавайте балки прямо в трёхмерном пространстве, соединяйте их концы с помощью привязки, вращайте модель и меняйте масштаб по мере работы над проектом.\n\nУ каждой балки есть материал с названием, размерами поперечного сечения в миллиметрах, цветом и ценой. На основе этих данных приложение постоянно обновляет сводку материалов: общую длину и стоимость для каждого материала. А если указать длину покупаемых заготовок, оно составит план раскроя: сколько заготовок понадобится и какие детали нужно вырезать из каждой.\n\nПроекты сохраняются на сервере, поэтому можно закрыть окно и вернуться к работе над моделью позже.",
+      "capabilities": [
+        "Создавайте балки между двумя точками в 3D-сцене, вращайте вид, перемещайте его и меняйте масштаб.",
+        "Привязывайте новые балки к концам существующих, чтобы точно совмещать стыки.",
+        "Перемещайте и поворачивайте выбранную балку перетаскиванием с зажатыми клавишами-модификаторами: поворот с шагом 45° или 1°, наклон по горизонтали или вертикали, перемещение с шагом 50 см или 1 см.",
+        "Задавайте длину балки числом, создавайте её копию или удаляйте её.",
+        "Создавайте собственные материалы: указывайте название, ширину и высоту в миллиметрах, цвет и цену за метр или квадратный метр.",
+        "Начните с готовых шаблонов распространённых профилей: балок и стоек, досок, листовых материалов.",
+        "Следите за сводкой материалов, которая обновляется в реальном времени: общая длина и стоимость для каждого материала.",
+        "Получайте план раскроя по длине исходной заготовки: сколько заготовок купить и какие детали вырезать из каждой.",
+        "Включайте сетку на плоскости основания, чтобы ориентироваться в масштабе.",
+        "Сохраняйте проекты под выбранными именами, загружайте их снова и удаляйте."
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Planejador de construções em 3D. Desenhe vigas e perfis no espaço 3D, conecte-os, gire e ajuste o zoom livremente e obtenha uma lista completa de materiais.",
+      "tagline": "Desenhe uma estrutura em 3D e obtenha a lista de cortes.",
+      "description": "Beam Builder é um planejador 3D para tudo o que é construído com perfis retos — uma estrutura de madeira, um pergolado, uma estante de aço, uma estufa ou uma estrutura de cama. Desenhe vigas diretamente no espaço 3D, encaixe suas extremidades e gire a visualização e ajuste o zoom ao redor do modelo à medida que ele ganha forma.\n\nCada viga tem um material com nome, seção transversal em milímetros, cor e preço. Com esses dados, o aplicativo mantém um resumo atualizado dos materiais — comprimento total por material e seu custo — e, se você informar o comprimento das barras que compra, gera um plano de corte que mostra quantas barras são necessárias e quais peças cortar de cada uma.\n\nOs projetos ficam salvos no servidor, para que você possa fechar a janela e retomar o modelo mais tarde.",
+      "capabilities": [
+        "Desenhe vigas de ponto a ponto em uma cena 3D, com controles para orbitar, deslocar a visualização e ajustar o zoom.",
+        "Encaixe novas vigas nas extremidades das existentes para alinhar as junções com precisão.",
+        "Mova e gire uma viga selecionada arrastando-a com teclas modificadoras — em incrementos de 45° ou 1°, com inclinação horizontal ou vertical e deslocamentos de 50 cm ou 1 cm.",
+        "Edite o comprimento de uma viga inserindo um valor numérico, duplique-a ou exclua-a.",
+        "Defina seus próprios materiais: nome, largura e altura em milímetros, cor e preço por metro ou por metro quadrado.",
+        "Comece com modelos de perfis comuns — vigas e pilares, tábuas e materiais em chapas.",
+        "Resumo de materiais atualizado em tempo real: comprimento total e custo por material.",
+        "Plano de corte com base no comprimento das barras disponíveis para compra — quantas barras comprar e o que cortar de cada uma.",
+        "Grade de piso opcional como referência de escala.",
+        "Salve, recarregue e exclua projetos com nome."
+      ]
+    },
+    "ja": {
+      "short_description": "3Dで構造物を設計。3D空間に梁や各種部材を描いて接合し、自由に回転・ズームしながら、必要な材料を一覧で確認できます。",
+      "tagline": "3Dでフレームを描けば、切り出しリストが完成。",
+      "description": "Beam Builderは、木造フレーム、パーゴラ、スチールラック、温室、ベッドフレームなど、まっすぐな部材で作るあらゆる構造物のための3D設計アプリです。3D空間に部材を直接描き、端同士をぴったり合わせて接合。組み上がっていくモデルを、自由に回転・ズームしながら確認できます。\n\n各部材には、名前、ミリメートル単位の断面寸法、色、価格を設定した材料を割り当てます。アプリはその情報をもとに、材料ごとの合計長さと費用を随時集計。購入する定尺材の長さを指定すれば、必要な本数と、それぞれの定尺材からどの部品を切り出すかを示す切断計画も作成できます。\n\nプロジェクトはサーバーに保存されるので、ウィンドウを閉じても、後で続きから設計を再開できます。",
+      "capabilities": [
+        "3D空間で2点を結んで部材を描画。視点の回転、平行移動、ズームに対応。",
+        "新しい部材を既存の部材の端に吸着させ、接合部を正確に位置合わせ。",
+        "キーを押しながらドラッグして、選択した部材を移動・回転。45°または1°刻みの回転、水平方向・垂直方向への傾き調整、50 cmまたは1 cm刻みの移動が可能。",
+        "部材の長さを数値で編集したり、複製・削除したりできます。",
+        "独自の材料を定義。名前、ミリメートル単位の幅と高さ、色、1メートルあたりまたは1平方メートルあたりの価格を設定できます。",
+        "梁・柱、板材、シート材など、よく使う部材のテンプレートから始められます。",
+        "材料の集計をリアルタイムに表示。材料ごとの合計長さと費用を確認できます。",
+        "定尺材の長さから切断計画を作成。購入する本数と、それぞれから切り出す部品がわかります。",
+        "大きさの目安になる床面グリッドを必要に応じて表示。",
+        "名前を付けたプロジェクトを保存・再読み込み・削除。"
+      ]
+    },
+    "es": {
+      "short_description": "Planificador de construcciones en 3D. Dibuja vigas y perfiles en el espacio 3D, conéctalos, gira y ajusta el zoom libremente y obtén una lista completa de materiales.",
+      "tagline": "Dibuja una estructura en 3D y obtén la lista de cortes.",
+      "description": "Beam Builder es un planificador 3D para cualquier construcción hecha con perfiles rectos: una estructura de madera, una pérgola, una estantería de acero, un invernadero o un somier. Dibuja vigas directamente en el espacio 3D, encaja sus extremos y gira la vista y ajusta el zoom alrededor del modelo a medida que toma forma.\n\nCada viga tiene un material asignado: un nombre, una sección transversal en milímetros, un color y un precio. Con estos datos, la aplicación mantiene actualizado un resumen de materiales con la longitud total de cada material y su coste. Si indicas la longitud de las barras que compras, también genera un plan de corte que muestra cuántas barras necesitas y qué piezas se obtienen de cada una.\n\nLos proyectos se guardan en el servidor, así que puedes cerrar la ventana y retomar el modelo más adelante.",
+      "capabilities": [
+        "Dibuja vigas de un punto a otro en una escena 3D con controles para orbitar, desplazar la vista y ajustar el zoom.",
+        "Encaja las vigas nuevas en los extremos de las existentes para que las uniones queden perfectamente alineadas.",
+        "Mueve y gira la viga seleccionada arrastrándola mientras mantienes pulsadas teclas modificadoras: giros en pasos de 45° o 1°, inclinación horizontal o vertical y desplazamientos de 50 cm o 1 cm.",
+        "Edita la longitud de una viga introduciendo un valor numérico, duplícala o elimínala.",
+        "Define tus propios materiales: nombre, anchura y altura en milímetros, color y precio por metro o por metro cuadrado.",
+        "Empieza con plantillas de perfiles habituales: vigas y postes, tablas y paneles.",
+        "Resumen de materiales en tiempo real: longitud total y coste de cada material.",
+        "Plan de corte según la longitud de las barras que compras: cuántas barras comprar y qué cortar de cada una.",
+        "Cuadrícula opcional en el suelo como referencia de escala.",
+        "Guarda, vuelve a cargar y elimina proyectos con nombre."
+      ]
+    }
+  }
 }

@@ -27,5 +27,231 @@
       "summary": "Budget exposes an app-to-app API: other apps can read your category list and the currency you use, and add or subtract an amount in a category on your behalf. Every entry created that way records which app made it, and you can hide any app's entries from the list.",
       "requires": "The Budget App API has to be switched on in Apps Hub → Settings → App APIs. It is off by default."
     }
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Budgetverwaltung nach Kategorien mit gemeinsamen Kategorien, Zielen, Sammelerfassung und einstellbarer Sichtbarkeit für Einträge anderer Apps sowie einer öffentlichen Webseite.",
+      "tagline": "Teile dein Geld in Kategorien auf und sieh, wohin es fließt.",
+      "description": "Budget teilt dein Geld in Kategorien auf — Miete, Lebensmittel, Ersparnisse, Urlaub — und erfasst jede Einzahlung und Auszahlung in der jeweiligen Kategorie. Einer Kategorie kannst du einen festen Betrag oder einen Prozentsatz des Gesamtbetrags zuweisen. Sie kann Unterkategorien enthalten und ein Ziel haben, auf das du hinarbeitest.\n\nKategorien lassen sich mit anderen Apps Hub-Konten teilen. So kann ein Haushalt gemeinsam planen, und alle sehen dieselben Kontostände und denselben Verlauf. Bei jedem Eintrag steht, wer ihn hinzugefügt hat.\n\nIn Budget können auch andere Apps Geld verbuchen. Tasks kann eine Belohnung in eine Kategorie einzahlen, wenn du etwas erledigst; Shopping List kann die Kosten von Artikeln abziehen, die du als gekauft markiert hast. Solche Einträge sind mit der App gekennzeichnet, aus der sie stammen. Für jede App entscheidest du, ob ihre Einträge überhaupt angezeigt werden.\n\nAuf dasselbe Budget kannst du sowohl im Desktopfenster als auch über eine öffentliche Webseite für dein Apps Hub-Konto zugreifen.",
+      "capabilities": [
+        "Kategorien mit einem festen zugewiesenen Betrag oder einem Prozentsatz deines Gesamtbetrags.",
+        "Unterkategorien innerhalb einer Hauptkategorie, die selbst keine Beträge enthält.",
+        "Einzahlungen und Auszahlungen mit Notizen und einem vollständigen Verlauf pro Kategorie.",
+        "Optionales Ziel pro Kategorie mit Fortschrittsanzeige.",
+        "Sammelerfassung — Beträge für mehrere Kategorien gleichzeitig eingeben und in einem Schritt speichern.",
+        "Teile eine Kategorie mit anderen Apps Hub-Konten, füge Mitglieder aus deinen Favoriten hinzu, entferne Mitglieder oder verlasse eine gemeinsame Kategorie.",
+        "Statistiken nach Tag, Woche, Monat und Jahr mit frei wählbarem Zeitraum und Kategoriefilter, einschließlich Einnahmen, Ausgaben, Saldo, Anzahl der Buchungen, Aufschlüsselung nach Kategorien und der größten Einträge.",
+        "Klicke auf einen beliebigen Balken im Statistikdiagramm, um die Summen, Kategorien und größten Einträge nur für diesen Tag, diese Woche, diesen Monat oder dieses Jahr zu sehen. Klicke erneut darauf, um zum gesamten Zeitraum zurückzukehren.",
+        "Wiederkehrende Notizen werden anhand deiner bisherigen Einträge in derselben Kategorie vorgeschlagen.",
+        "Gesamtsaldo über alle Kategorien einschließlich Unterkategorien.",
+        "Wähle die Währung oder übernimm die Systemeinstellung.",
+        "Lege das Standardvorzeichen für neue Beträge fest, damit du in einer Ausgabenkategorie nicht jedes Mal ein Minus eingeben musst.",
+        "Lege für jede App fest, ob die von ihr hinzugefügten Einträge sichtbar sind.",
+        "Öffentliche Webseite für dein Apps Hub-Konto mit denselben Daten.",
+        "Wenn du auf der öffentlichen Seite einen Betrag für eine Kategorie speicherst, schließt sich der Dialog und eine kurze Bestätigung erscheint. Doppeltes Tippen kann den Betrag nicht zweimal übermitteln."
+      ],
+      "integrations": [
+        {
+          "summary": "Budget bietet eine API für die Kommunikation zwischen Apps: Andere Apps können deine Kategorienliste und die verwendete Währung auslesen und in deinem Auftrag einen Betrag zu einer Kategorie hinzufügen oder davon abziehen. Jeder so erstellte Eintrag hält fest, welche App ihn angelegt hat. Du kannst die Einträge jeder App in der Liste ausblenden.",
+          "requires": "Die Budget App API muss unter Apps Hub → Einstellungen → App APIs aktiviert werden. Sie ist standardmäßig deaktiviert."
+        }
+      ]
+    },
+    "bg": {
+      "short_description": "Проследяване на бюджета по категории със споделени категории, цели, групово добавяне и избор дали да се виждат записите от всяко друго приложение, плюс публична уеб страница.",
+      "tagline": "Разпределете парите си по категории и вижте за какво ги харчите.",
+      "description": "Budget разпределя парите ви по категории — наем, храна, спестявания, почивка — и проследява всяко постъпление и теглене в тях. За всяка категория можете да заделите фиксирана сума или процент от общата сума, да добавите подкатегории и да зададете цел, към която се стремите.\n\nКатегориите могат да се споделят с други акаунти в Apps Hub, така че цялото домакинство да планира бюджета заедно и всеки да вижда едни и същи наличности и история, като за всеки запис е отбелязано кой го е добавил.\n\nBudget е и мястото, където други приложения добавят пари. Tasks може да внася награда в категория, когато завършите задача; Shopping List може да приспада стойността на артикулите, които сте отбелязали като купени. Добавените по този начин записи са обозначени с приложението, от което идват, а вие избирате за всяко приложение дали изобщо да ги виждате.\n\nСъщият бюджет е достъпен както от прозореца на настолното приложение, така и от публична уеб страница за вашия акаунт в Apps Hub.",
+      "capabilities": [
+        "Категории с фиксирана заделена сума или процент от общата сума.",
+        "Подкатегории към основна категория, като основната категория няма собствени суми.",
+        "Постъпления и тегления с бележки и пълна история за всяка категория.",
+        "Възможност за задаване на цел за всяка категория и проследяване на напредъка към нея.",
+        "Групово добавяне — въведете суми за няколко категории наведнъж и ги запазете с едно действие.",
+        "Споделяйте категория с други акаунти в Apps Hub, добавяйте участници от любимите си, премахвайте участници или напускайте споделена категория.",
+        "Статистика по дни, седмици, месеци и години с избран период и филтър по категории, включваща приходи, разходи, нетна сума, брой операции, разбивка по категории и най-големите записи.",
+        "Щракнете върху произволна колона в статистическата диаграма, за да видите общите суми, категориите и най-големите записи само за съответния ден, седмица, месец или година, и щракнете отново върху нея, за да се върнете към целия период.",
+        "Предложения за повтарящи се бележки от предишните ви записи в същата категория.",
+        "Обща наличност във всички категории, включително подкатегориите.",
+        "Изберете валута или използвайте зададената по подразбиране в системата.",
+        "Задайте знак по подразбиране за новите суми, за да не се налага да въвеждате минус всеки път в категория за разходи.",
+        "Избирайте поотделно за всяко приложение дали да се виждат добавените от него записи.",
+        "Публична уеб страница за вашия акаунт в Apps Hub, която използва същите данни.",
+        "При запазване на сума от категория на публичната страница диалоговият прозорец се затваря и се показва кратко потвърждение, а двойното докосване не може да изпрати сумата два пъти."
+      ],
+      "integrations": [
+        {
+          "summary": "Budget предоставя API за връзка между приложения: други приложения могат да четат списъка ви с категории и използваната валута, както и да добавят или изваждат сума в категория от ваше име. За всеки създаден по този начин запис се отбелязва кое приложение го е добавило, а вие можете да скриете от списъка записите на което и да е приложение.",
+          "requires": "API на приложението Budget трябва да бъде включен от Apps Hub → Настройки → API на приложенията. По подразбиране е изключен."
+        }
+      ]
+    },
+    "es": {
+      "short_description": "Control del presupuesto por categorías, con categorías compartidas, objetivos, registro de varios importes a la vez e identificación y visibilidad por aplicación de los movimientos añadidos por otras apps, además de una página web pública.",
+      "tagline": "Distribuye tu dinero por categorías y descubre en qué lo gastas.",
+      "description": "Budget distribuye tu dinero por categorías —alquiler, comida, ahorros, vacaciones— y registra cada ingreso y retirada en la categoría correspondiente. Puedes asignar a cada categoría un importe fijo o un porcentaje del total, crear subcategorías y establecer un objetivo que quieras alcanzar.\n\nPuedes compartir categorías con otras cuentas de Apps Hub para gestionar el presupuesto del hogar en conjunto. Todos ven los mismos saldos y el mismo historial, y cada movimiento indica quién lo ha añadido.\n\nBudget también es el lugar donde otras apps ingresan dinero. Tasks puede ingresar una recompensa en una categoría cuando terminas una tarea; Shopping List puede descontar el coste de los artículos que has marcado como comprados. Los movimientos que llegan de esta forma llevan una etiqueta con la app de origen, y tú decides si quieres verlos o no para cada app.\n\nPuedes acceder al mismo presupuesto desde la ventana de escritorio y desde una página web pública de tu cuenta de Apps Hub.",
+      "capabilities": [
+        "Categorías con una asignación fija o un porcentaje del total.",
+        "Subcategorías dentro de una categoría principal, sin importes propios en la categoría principal.",
+        "Ingresos y retiradas con notas e historial completo por categoría.",
+        "Objetivo opcional para cada categoría con seguimiento del progreso.",
+        "Registro de varios importes a la vez: introduce importes para varias categorías y guárdalos todos de una sola vez.",
+        "Comparte una categoría con otras cuentas de Apps Hub, añade miembros desde tus favoritos, elimina miembros o abandona una categoría compartida.",
+        "Estadísticas por día, semana, mes y año con un intervalo de fechas a tu elección y un filtro por categoría, que incluyen ingresos, gastos, balance neto, número de movimientos, desglose por categoría y los movimientos de mayor importe.",
+        "Haz clic en cualquier columna del gráfico de estadísticas para ver los totales, las categorías y los movimientos de mayor importe de ese día, semana, mes o año, y vuelve a hacer clic para regresar al intervalo completo.",
+        "Sugerencias de notas recurrentes basadas en tus movimientos anteriores de la misma categoría.",
+        "Saldo total de todas las categorías, incluidas las subcategorías.",
+        "Elige la moneda o usa la predeterminada del sistema.",
+        "Configura el signo predeterminado de los nuevos importes para no tener que introducir un signo menos cada vez en una categoría de gastos.",
+        "Control de la visibilidad por app de los movimientos añadidos por otras apps.",
+        "Página web pública de tu cuenta de Apps Hub con los mismos datos.",
+        "Al guardar un importe de una categoría en la página pública, se cierra el cuadro de diálogo y se muestra una breve confirmación. Un doble toque no puede enviarlo dos veces."
+      ],
+      "integrations": [
+        {
+          "summary": "Budget ofrece una API de comunicación entre apps: otras apps pueden leer tu lista de categorías y la moneda que usas, y sumar o restar un importe en una categoría en tu nombre. Cada movimiento creado de esta forma registra qué app lo ha generado, y puedes ocultar los movimientos de cualquier app de la lista.",
+          "requires": "La API de la app Budget debe activarse en Apps Hub → Ajustes → API de aplicaciones. Está desactivada de forma predeterminada."
+        }
+      ]
+    },
+    "fr": {
+      "short_description": "Suivi du budget par catégorie avec catégories partagées, objectifs, saisie groupée et affichage des opérations par application d’origine, ainsi qu’une page web publique.",
+      "tagline": "Répartissez votre argent par catégorie et voyez où il va.",
+      "description": "Budget répartit votre argent par catégorie — loyer, alimentation, épargne, vacances — et suit chaque dépôt et chaque retrait. Chaque catégorie peut recevoir un montant fixe ou un pourcentage du total, contenir des sous-catégories et avoir un objectif à atteindre.\n\nLes catégories peuvent être partagées avec d’autres comptes Apps Hub : tout le foyer gère ainsi son budget ensemble et chacun voit les mêmes soldes et le même historique. Chaque opération indique qui l’a ajoutée.\n\nBudget accueille aussi les opérations provenant d’autres applications. Tasks peut verser une récompense dans une catégorie lorsque vous terminez une tâche ; Shopping List peut déduire le coût des articles que vous avez marqués comme achetés. Ces opérations portent le nom de l’application dont elles proviennent, et vous choisissez, pour chaque application, de les afficher ou de les masquer.\n\nLe même budget est accessible depuis la fenêtre de l’application sur votre ordinateur et depuis une page web publique associée à votre compte Apps Hub.",
+      "capabilities": [
+        "Catégories avec une allocation fixe ou un pourcentage du total.",
+        "Sous-catégories regroupées dans une catégorie principale, sans montant propre à cette dernière.",
+        "Dépôts et retraits accompagnés de notes, avec un historique complet pour chaque catégorie.",
+        "Objectif facultatif pour chaque catégorie, avec suivi de la progression.",
+        "Saisie groupée — saisissez des montants pour plusieurs catégories et enregistrez-les en une seule fois.",
+        "Partagez une catégorie avec d’autres comptes Apps Hub, ajoutez des membres depuis vos favoris, retirez des membres ou quittez une catégorie partagée.",
+        "Statistiques par jour, semaine, mois et année, avec choix de la période et filtre par catégorie : revenus, dépenses, solde net, nombre d’opérations, répartition par catégorie et opérations les plus importantes.",
+        "Cliquez sur une colonne du graphique des statistiques pour afficher les totaux, les catégories et les opérations les plus importantes du jour, de la semaine, du mois ou de l’année correspondants, puis cliquez à nouveau pour revenir à la période complète.",
+        "Suggestions de notes récurrentes tirées de vos opérations précédentes dans la même catégorie.",
+        "Solde total de toutes les catégories, sous-catégories comprises.",
+        "Choisissez la devise ou utilisez celle définie par défaut dans le système.",
+        "Définissez le signe par défaut des nouveaux montants pour ne pas avoir à saisir un signe moins à chaque fois dans une catégorie de dépenses.",
+        "Affichez ou masquez les opérations ajoutées par d’autres applications, application par application.",
+        "Page web publique associée à votre compte Apps Hub et donnant accès aux mêmes données.",
+        "Sur la page publique, l’enregistrement d’un montant dans une catégorie ferme la boîte de dialogue et affiche une brève confirmation ; un double appui ne peut pas l’envoyer deux fois."
+      ],
+      "integrations": [
+        {
+          "summary": "Budget propose une API de communication entre applications : d’autres applications peuvent consulter votre liste de catégories et la devise utilisée, ainsi qu’ajouter ou soustraire un montant dans une catégorie en votre nom. Chaque opération créée de cette façon conserve le nom de l’application qui l’a effectuée, et vous pouvez masquer dans la liste les opérations de n’importe quelle application.",
+          "requires": "L’API de l’application Budget doit être activée dans Apps Hub → Paramètres → API des applications. Elle est désactivée par défaut."
+        }
+      ]
+    },
+    "ru": {
+      "short_description": "Учёт бюджета по категориям: общие категории, цели, массовое добавление, настройка видимости записей из других приложений и общедоступная веб-страница.",
+      "tagline": "Распределяйте деньги по категориям и следите за тем, куда они уходят.",
+      "description": "Budget распределяет ваши деньги по категориям — аренда, продукты, сбережения, отпуск — и учитывает каждое пополнение и списание в соответствующей категории. На категорию можно выделить фиксированную сумму или процент от общей суммы, добавить в неё подкатегории и задать цель, к которой вы стремитесь.\n\nКатегориями можно делиться с другими пользователями Apps Hub, чтобы вести семейный бюджет вместе. Все участники видят одни и те же остатки и историю, а у каждой записи указано, кто её добавил.\n\nВ Budget деньги могут поступать и из других приложений. Tasks может зачислить вознаграждение в категорию за выполненное дело, а Shopping List — списать стоимость товаров, которые вы отметили как купленные. У таких записей указано приложение, из которого они поступили, и для каждого приложения можно выбрать, показывать ли его записи вообще.\n\nОдин и тот же бюджет доступен в окне приложения на компьютере и на общедоступной веб-странице вашей учётной записи Apps Hub.",
+      "capabilities": [
+        "Категории с выделением фиксированной суммы или процента от общей суммы.",
+        "Подкатегории внутри основной категории, у которой нет собственных сумм.",
+        "Пополнения и списания с заметками и полная история по каждой категории.",
+        "Возможность задать цель для каждой категории и отслеживать прогресс.",
+        "Массовое добавление — вводите суммы сразу для нескольких категорий и сохраняйте их одним действием.",
+        "Делитесь категорией с другими пользователями Apps Hub, добавляйте участников из избранного, удаляйте их или выходите из общей категории.",
+        "Статистика по дням, неделям, месяцам и годам с выбором периода и фильтром по категориям: доходы, расходы, разница между ними, количество операций, разбивка по категориям и самые крупные записи.",
+        "Нажмите на любой столбец диаграммы статистики, чтобы увидеть итоги, категории и самые крупные записи только за этот день, неделю, месяц или год. Нажмите ещё раз, чтобы вернуться ко всему периоду.",
+        "Подсказки повторяющихся заметок из ваших предыдущих записей в той же категории.",
+        "Общий остаток по всем категориям, включая подкатегории.",
+        "Выбирайте валюту или используйте валюту системы по умолчанию.",
+        "Задайте знак по умолчанию для новых сумм, чтобы не вводить минус каждый раз в категории расходов.",
+        "Настраивайте видимость записей, добавленных другими приложениями, отдельно для каждого приложения.",
+        "Общедоступная веб-страница вашей учётной записи Apps Hub с теми же данными.",
+        "При сохранении суммы в категории на общедоступной странице диалог закрывается и появляется краткое подтверждение. Двойное нажатие не приводит к повторной отправке."
+      ],
+      "integrations": [
+        {
+          "summary": "Budget предоставляет API для взаимодействия между приложениями: другие приложения могут читать список ваших категорий и выбранную валюту, а также добавлять или списывать суммы в категориях от вашего имени. В каждой созданной таким образом записи сохраняется название приложения, которое её добавило. Записи любого приложения можно скрыть из списка.",
+          "requires": "API приложения Budget нужно включить в Apps Hub → Настройки → API приложений. По умолчанию он выключен."
+        }
+      ]
+    },
+    "zh-CN": {
+      "short_description": "按类别管理预算，支持共享类别、设定目标、批量记账，还可按应用控制其他应用所添加记录的显示，并提供公开网页。",
+      "tagline": "将资金分门别类，清楚掌握每一笔去向。",
+      "description": "Budget 将资金分配到房租、餐饮、储蓄、度假等类别，并记录各类别的每一笔存入和支出。每个类别都可以按固定金额或总额的百分比分配资金，添加子类别，还能设定目标，一步步实现。\n\n你可以与其他 Apps Hub 账户共享类别，让全家一起管理预算。每个人都能看到相同的余额和历史记录，每笔记录也会标明由谁添加。\n\nBudget 还能接收其他应用记入的款项。完成任务后，Tasks 可以将奖励存入指定类别；在 Shopping List 中将商品标记为已购买后，它可以从类别中扣除相应费用。通过这些方式添加的记录会标明来源应用，你也可以单独设置各应用的记录是否显示。\n\n无论是在桌面窗口，还是在你的 Apps Hub 账户的公开网页上，都能访问同一份预算。",
+      "capabilities": [
+        "按固定金额或总额的百分比为各类别分配资金。",
+        "在主类别下添加子类别，主类别本身不单独存放资金。",
+        "为存入和支出添加备注，并查看各类别的完整历史记录。",
+        "按需为各类别设定目标，随时查看完成进度。",
+        "批量记账，一次输入多个类别的金额，一并保存。",
+        "与其他 Apps Hub 账户共享类别，从收藏夹中添加成员、移除成员，或退出共享类别。",
+        "按日、周、月、年查看统计，自选日期范围并按类别筛选，涵盖收入、支出、净额、记录笔数、各类别明细和金额最大的记录。",
+        "点击统计图表中的任意柱形，即可查看对应日、周、月或年的总额、类别和金额最大的记录；再次点击即可返回整个日期范围的统计。",
+        "根据你在同一类别中的历史记录，推荐曾用过的备注。",
+        "查看所有类别（包括子类别）的总余额。",
+        "自行选择货币，或使用系统默认货币。",
+        "设置新输入金额的默认正负号，为支出类别记账时，无需每次都输入负号。",
+        "按来源应用控制其他应用所添加记录的显示。",
+        "通过你的 Apps Hub 账户的公开网页访问同一份数据。",
+        "在公开网页上保存某个类别的金额后，对话框会关闭，并短暂显示确认提示；连续点击两次也不会重复提交。"
+      ],
+      "integrations": [
+        {
+          "summary": "Budget 提供应用间 API：其他应用可以读取你的类别列表和所用货币，并代你在某个类别中增加或扣除金额。通过这种方式创建的每笔记录都会标明来源应用，你可以在列表中隐藏任意应用添加的记录。",
+          "requires": "需要在 Apps Hub → 设置 → 应用 API 中开启 Budget 应用 API。此功能默认关闭。"
+        }
+      ]
+    },
+    "ja": {
+      "short_description": "カテゴリー別に予算を管理。カテゴリーの共有、目標設定、金額の一括入力に対応し、ほかのアプリから追加された記録はアプリごとに表示を切り替えられます。公開ウェブページからも利用できます。",
+      "tagline": "お金をカテゴリーに分けて、使い道をひと目で把握。",
+      "description": "Budgetは、家賃、食費、貯金、旅行などのカテゴリーにお金を振り分け、カテゴリーごとにすべての入出金を記録します。各カテゴリーには、固定額または総額に対する割合を割り当てられます。サブカテゴリーを設けたり、達成したい目標を設定したりすることもできます。\n\nカテゴリーはほかのApps Hubアカウントと共有できるので、家族で一緒に予算を管理できます。全員が同じ残高と履歴を確認でき、それぞれの記録には追加した人が表示されます。\n\nBudgetは、ほかのアプリからの入出金も受け付けます。Tasksではタスクを完了すると報酬をカテゴリーに入金でき、Shopping Listでは購入済みにした商品の代金を差し引くことができます。こうした記録には追加元のアプリ名が表示され、表示するかどうかをアプリごとに選べます。\n\n同じ予算データに、デスクトップのウィンドウからも、Apps Hubアカウントの公開ウェブページからもアクセスできます。",
+      "capabilities": [
+        "カテゴリーごとに固定額、または総額に対する割合を割り当てられます。",
+        "メインカテゴリーの下にサブカテゴリーを作成できます。親カテゴリー自体には金額を持たせません。",
+        "入出金にメモを添えられ、カテゴリーごとの全履歴を確認できます。",
+        "カテゴリーごとに任意で目標を設定し、達成状況を確認できます。",
+        "一括入力で、複数のカテゴリーに金額を入力し、まとめて保存できます。",
+        "ほかのApps Hubアカウントとカテゴリーを共有し、お気に入りからメンバーを追加できます。メンバーの削除や共有カテゴリーからの退出も可能です。",
+        "期間とカテゴリーを指定して、日別・週別・月別・年別の統計を確認できます。収入、支出、収支、取引件数、カテゴリー別の内訳、金額の大きい記録を表示します。",
+        "統計グラフの棒をクリックすると、その日・週・月・年だけの合計、カテゴリー、金額の大きい記録を確認できます。もう一度クリックすると、期間全体の表示に戻ります。",
+        "同じカテゴリーに過去に入力した自分の記録から、よく使うメモを候補として表示します。",
+        "サブカテゴリーを含む、すべてのカテゴリーの合計残高を確認できます。",
+        "通貨を選択するか、システムの標準設定に合わせられます。",
+        "新しく入力する金額の標準の符号を設定できます。支出用のカテゴリーで毎回マイナスを入力する必要がなくなります。",
+        "ほかのアプリから追加された記録の表示を、アプリごとに切り替えられます。",
+        "Apps Hubアカウントの公開ウェブページでも、同じデータを利用できます。",
+        "公開ページでカテゴリーの金額を保存すると、ダイアログが閉じて短い確認メッセージが表示されます。ダブルタップによる二重送信も防ぎます。"
+      ],
+      "integrations": [
+        {
+          "summary": "Budgetはアプリ間連携用のAPIを提供しています。ほかのアプリは、カテゴリーの一覧や使用中の通貨を読み取ったり、ユーザーに代わってカテゴリーの金額を増減させたりできます。この方法で作成された記録には、作成元のアプリが記録されます。特定のアプリによる記録を一覧から非表示にすることもできます。",
+          "requires": "Apps Hub → 設定 → アプリAPIで、Budget App APIを有効にする必要があります。初期設定では無効です。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Controle do orçamento por categorias, com categorias compartilhadas, metas, adição em lote e controle de exibição por app dos lançamentos adicionados por outros apps, além de uma página pública na web.",
+      "tagline": "Divida seu dinheiro em categorias e veja para onde ele vai.",
+      "description": "O Budget divide seu dinheiro em categorias — aluguel, alimentação, economias, uma viagem de férias — e acompanha cada depósito e retirada em cada uma delas. Uma categoria pode receber um valor fixo ou uma porcentagem do total, conter subcategorias e ter uma meta que você quer alcançar.\n\nAs categorias podem ser compartilhadas com outras contas do Apps Hub, para que todos em casa planejem o orçamento juntos e vejam os mesmos saldos e o mesmo histórico, com a identificação de quem adicionou cada lançamento.\n\nO Budget também é onde outros apps movimentam dinheiro. O Tasks pode depositar uma recompensa em uma categoria quando você conclui algo; o Shopping List pode descontar o custo dos itens que você marcou como comprados. Os lançamentos feitos dessa forma são identificados com o app de origem, e você escolhe, para cada app, se quer exibi-los.\n\nO mesmo orçamento pode ser acessado pela janela do aplicativo no computador e por uma página pública na web da sua conta do Apps Hub.",
+      "capabilities": [
+        "Categorias com uma alocação de valor fixo ou de uma porcentagem do seu total.",
+        "Subcategorias dentro de uma categoria principal, que não armazena valores próprios.",
+        "Depósitos e retiradas com observações e um histórico completo por categoria.",
+        "Meta opcional por categoria, com acompanhamento do progresso.",
+        "Adição em lote — insira valores para várias categorias ao mesmo tempo e salve tudo de uma vez.",
+        "Compartilhe uma categoria com outras contas do Apps Hub, adicione membros a partir dos seus favoritos, remova membros ou saia de uma categoria compartilhada.",
+        "Estatísticas por dia, semana, mês e ano, com período e filtro de categorias à sua escolha, incluindo receitas, despesas, saldo líquido, quantidade de movimentações, detalhamento por categoria e os maiores lançamentos.",
+        "Clique em qualquer coluna do gráfico de estatísticas para ver os totais, as categorias e os maiores lançamentos apenas daquele dia, semana, mês ou ano, e clique novamente para voltar ao período completo.",
+        "Sugestões de observações recorrentes com base nos seus lançamentos anteriores na mesma categoria.",
+        "Saldo total de todas as categorias, incluindo as subcategorias.",
+        "Escolha a moeda ou use o padrão do sistema.",
+        "Defina o sinal padrão para novos valores, para não precisar inserir um sinal de menos a cada lançamento em uma categoria de despesas.",
+        "Controle de exibição por app dos lançamentos adicionados por outros apps.",
+        "Página pública na web da sua conta do Apps Hub com os mesmos dados.",
+        "Ao salvar um valor de uma categoria na página pública, a janela de diálogo é fechada e uma breve confirmação é exibida, sem permitir o envio duplicado por um toque duplo."
+      ],
+      "integrations": [
+        {
+          "summary": "O Budget disponibiliza uma API de comunicação entre apps: outros apps podem consultar sua lista de categorias e a moeda que você usa, além de adicionar ou subtrair um valor em uma categoria em seu nome. Cada lançamento criado dessa forma registra qual app o fez, e você pode ocultar da lista os lançamentos de qualquer app.",
+          "requires": "A API do app Budget precisa ser ativada em Apps Hub → Configurações → APIs de apps. Ela vem desativada por padrão."
+        }
+      ]
+    }
+  }
 }

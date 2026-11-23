@@ -6,5 +6,87 @@
       "short": "Set minimum and maximum public payment amounts",
       "description": "The server administrator can set an optional minimum, maximum, or both for payments sent by public Apps Hub profiles. A zero value leaves that side of the range unrestricted, and the policy is enforced by the application backend before broadcast."
     }
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "summary": "Lege den Betragsrahmen für Zahlungen öffentlicher BwalletT-Nutzer fest.",
+      "features": [
+        {
+          "title": "Limits für öffentliche Zahlungen",
+          "short": "Mindest- und Höchstbeträge für öffentliche Zahlungen festlegen",
+          "description": "Der Serveradministrator kann für Zahlungen, die von öffentlichen Apps Hub-Profilen gesendet werden, optional einen Mindestbetrag, einen Höchstbetrag oder beides festlegen. Der Wert null lässt die jeweilige Grenze offen. Die Vorgabe wird vom Anwendungs-Backend vor der Übertragung an das Netzwerk durchgesetzt."
+        }
+      ]
+    },
+    "bg": {
+      "summary": "Управлявайте диапазона за сумите на плащанията, достъпен за публичните потребители на BwalletT.",
+      "features": [
+        {
+          "title": "Лимити за публични плащания",
+          "short": "Задайте минимална и максимална сума за публичните плащания",
+          "description": "Администраторът на сървъра може по желание да зададе минимална сума, максимална сума или и двете за плащанията, изпращани от публични профили в Apps Hub. Нулева стойност оставя съответната граница на диапазона без ограничение, а правилото се прилага от сървърната част на приложението преди изпращането на трансакцията към мрежата."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Définissez les limites de paiement des utilisateurs publics de BwalletT.",
+      "features": [
+        {
+          "title": "Limites de paiement pour les utilisateurs publics",
+          "short": "Définissez les montants minimum et maximum des paiements des utilisateurs publics",
+          "description": "L'administrateur du serveur peut définir un montant minimum, un montant maximum ou les deux pour les paiements envoyés par les profils publics Apps Hub. Ces limites sont facultatives : une valeur de zéro désactive la limite correspondante. Les règles sont appliquées par le serveur de l'application avant la diffusion de la transaction."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Controla el intervalo de importes de pago disponible para los usuarios públicos de BwalletT.",
+      "features": [
+        {
+          "title": "Límites de pagos públicos",
+          "short": "Establece importes mínimos y máximos para los pagos públicos",
+          "description": "El administrador del servidor puede establecer un importe mínimo, máximo o ambos de forma opcional para los pagos enviados por perfiles públicos de Apps Hub. Un valor de cero deja ese extremo del intervalo sin restricciones, y el servidor de la aplicación aplica estos límites antes de transmitir el pago a la red."
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Controle os limites de pagamento disponíveis para usuários públicos do BwalletT.",
+      "features": [
+        {
+          "title": "Limites de pagamento para usuários públicos",
+          "short": "Defina os valores mínimo e máximo dos pagamentos de usuários públicos",
+          "description": "O administrador do servidor pode definir um valor mínimo, máximo ou ambos, de forma opcional, para pagamentos enviados por perfis públicos do Apps Hub. Um valor zero deixa o respectivo limite sem restrição, e as regras são aplicadas pelo backend do aplicativo antes da transmissão."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "公開プロフィールでBwalletTを利用するユーザーの送金額の範囲を管理できます。",
+      "features": [
+        {
+          "title": "公開プロフィールの送金額制限",
+          "short": "公開プロフィールの送金額に下限と上限を設定",
+          "description": "サーバー管理者は、Apps Hubの公開プロフィールからの送金に、任意で下限額、上限額、またはその両方を設定できます。値をゼロにすると、その側の制限はなくなります。この制限は、ブロードキャスト前にアプリケーションのバックエンドで適用されます。"
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Настраивайте допустимый диапазон сумм платежей для пользователей публичной версии BwalletT.",
+      "features": [
+        {
+          "title": "Лимиты публичных платежей",
+          "short": "Задавайте минимальную и максимальную сумму публичных платежей",
+          "description": "Администратор сервера может задать минимальную, максимальную или обе границы суммы платежей, отправляемых из публичных профилей Apps Hub. Нулевое значение снимает ограничение с соответствующей стороны диапазона, а серверная часть приложения проверяет соблюдение этих правил перед отправкой транзакции в сеть."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "控制 BwalletT 公开页面用户可使用的付款金额范围。",
+      "features": [
+        {
+          "title": "公开付款限额",
+          "short": "设置公开付款的最低和最高金额",
+          "description": "服务器管理员可为 Apps Hub 公开页面个人资料发起的付款设置最低金额、最高金额，或同时设置两者。任一限额设为零，即表示不限制该端的金额；应用后端会在广播交易前执行此规则。"
+        }
+      ]
+    }
+  }
 }

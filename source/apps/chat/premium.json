@@ -31,5 +31,287 @@
       "short": "Switch it on or off in the app settings",
       "description": "The administrator turns encryption on or off from the settings button in the Chat window. When it is off, people simply do not see the option, and chats that are already encrypted stay locked until it is switched back on. Regular chats are never affected."
     }
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "summary": "Ende-zu-Ende-verschlüsselte Unterhaltungen, damit weder eine offengelegte Datenbank noch ein neugieriger Administrator Einblick erhält.",
+      "features": [
+        {
+          "title": "Ende-zu-Ende-verschlüsselte Chats",
+          "short": "Nachrichten, die selbst der Server nicht lesen kann",
+          "description": "Sobald der Administrator die Verschlüsselung aktiviert, können alle, die Chat über Apps Hub nutzen, für jeden Einzel- und Gruppenchat entscheiden, ob er verschlüsselt wird. Nachrichten werden vor dem Senden im Browser verschlüsselt und ausschließlich als verschlüsselte Daten gespeichert. So lässt sich weder über den Server noch über eine gestohlene Datenbank herausfinden, was geschrieben wurde."
+        },
+        {
+          "title": "Jeden neuen Chat verschlüsseln",
+          "short": "Eine persönliche Einstellung statt einer Entscheidung bei jedem Chat",
+          "description": "Jede Person kann festlegen, dass alle ihre neuen Chats verschlüsselt beginnen, und diese Einstellung für einzelne Unterhaltungen dennoch ändern. Reguläre und verschlüsselte Chats bestehen nebeneinander, und vorhandene Chats bleiben genau so, wie sie waren."
+        },
+        {
+          "title": "Persönliche Passphrase und Wiederherstellungscode",
+          "short": "Jede Person schützt ihre eigenen Schlüssel",
+          "description": "Jede Person schützt ihre Schlüssel mit einer eigenen Passphrase, die das Gerät niemals verlässt, und erhält einen Wiederherstellungscode zum sicheren Aufbewahren. Beides lässt sich später ändern. Geht alles verloren, können die Schlüssel zurückgesetzt werden. Ältere verschlüsselte Nachrichten sind dann nicht mehr lesbar."
+        },
+        {
+          "title": "Automatischer Schlüsselwechsel für Gruppen",
+          "short": "Bei Ein- und Austritten bleiben bisherige Schlüssel geschützt",
+          "description": "Wenn jemand einer verschlüsselten Gruppe hinzugefügt oder daraus entfernt wird oder die eigenen Schlüssel zurücksetzt, wechselt die Unterhaltung automatisch zu einem neuen Schlüssel. Neue Mitglieder können nur lesen, was nach ihrem Beitritt geschrieben wird. Wer die Gruppe verlassen hat, kann keine neuen Nachrichten mehr lesen."
+        },
+        {
+          "title": "Sicherheitscodes",
+          "short": "Identitätstäuschung frühzeitig erkennen",
+          "description": "Jede Person hat einen kurzen Sicherheitscode, der über einen anderen Kanal, etwa bei einem Telefonat, verglichen werden kann. Ändert sich der Code eines Kontakts, fragt Chat nach, bevor weitere Nachrichten gesendet werden. Benachrichtigungen für verschlüsselte Chats zeigen niemals den Nachrichtentext an."
+        },
+        {
+          "title": "Kontrolle durch den Administrator",
+          "short": "In den App-Einstellungen ein- oder ausschalten",
+          "description": "Der Administrator schaltet die Verschlüsselung über die Einstellungsschaltfläche im Chat-Fenster ein oder aus. Ist sie ausgeschaltet, wird die Option den Nutzern nicht angezeigt. Bereits verschlüsselte Chats bleiben gesperrt, bis sie wieder eingeschaltet wird. Reguläre Chats sind davon nie betroffen."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Conversaciones cifradas de extremo a extremo para que ni una filtración de la base de datos ni un administrador curioso puedan revelar su contenido.",
+      "features": [
+        {
+          "title": "Chats cifrados de extremo a extremo",
+          "short": "Mensajes que ni el propio servidor puede leer",
+          "description": "Una vez que el administrador activa el cifrado, quienes usan Chat a través de Apps Hub pueden elegir si quieren cifrar cada chat individual y cada grupo. Los mensajes se cifran en el navegador antes de enviarse y se almacenan únicamente como texto cifrado, por lo que ni el servidor ni una base de datos robada pueden revelar lo que se ha escrito."
+        },
+        {
+          "title": "Cifra cada nuevo chat",
+          "short": "Un ajuste personal para no tener que elegir cada vez",
+          "description": "Cada persona puede decidir que todos sus nuevos chats se inicien cifrados y seguir cambiando esa opción para una conversación concreta. Los chats normales y los cifrados conviven, y los chats existentes se mantienen exactamente como estaban."
+        },
+        {
+          "title": "Frase de contraseña personal y código de recuperación",
+          "short": "Cada persona protege sus propias claves",
+          "description": "Cada persona protege sus claves con una frase de contraseña propia que nunca sale del dispositivo y recibe un código de recuperación que debe guardar. Ambos se pueden cambiar más adelante y, si se pierde todo, es posible restablecer las claves, lo que impide leer los mensajes cifrados anteriores."
+        },
+        {
+          "title": "Cambio automático de claves en los grupos",
+          "short": "Quienes se unen o salen nunca comparten claves anteriores",
+          "description": "Cuando se añade o elimina a alguien de un grupo cifrado, o cuando alguien restablece sus propias claves, la conversación pasa automáticamente a usar una clave nueva. Los nuevos miembros solo leen lo que se escribe después de unirse y quienes han salido no pueden leer nada nuevo."
+        },
+        {
+          "title": "Códigos de seguridad",
+          "short": "Detecta las suplantaciones de identidad a tiempo",
+          "description": "Cada persona tiene un código de seguridad corto que se puede comparar a través de otro canal, como una llamada telefónica. Si el código de un contacto cambia en algún momento, Chat pide confirmación antes de enviar nada más, y las notificaciones de los chats cifrados nunca revelan el texto de los mensajes."
+        },
+        {
+          "title": "Control del administrador",
+          "short": "Actívalo o desactívalo en los ajustes de la aplicación",
+          "description": "El administrador activa o desactiva el cifrado desde el botón de ajustes de la ventana de Chat. Cuando está desactivado, la opción simplemente no aparece para los usuarios y los chats que ya están cifrados permanecen bloqueados hasta que se vuelve a activar. Los chats normales nunca se ven afectados."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Des conversations chiffrées de bout en bout, pour qu’une fuite de la base de données ou un administrateur curieux ne puisse rien révéler.",
+      "features": [
+        {
+          "title": "Conversations chiffrées de bout en bout",
+          "short": "Des messages que le serveur lui-même ne peut pas lire",
+          "description": "Une fois le chiffrement activé par l’administrateur, les personnes qui utilisent Chat via Apps Hub peuvent choisir de chiffrer ou non chaque conversation individuelle et chaque groupe. Les messages sont chiffrés dans le navigateur avant leur envoi et ne sont stockés que sous forme chiffrée : ni le serveur ni une base de données dérobée ne peuvent donc révéler leur contenu."
+        },
+        {
+          "title": "Chiffrez chaque nouvelle conversation",
+          "short": "Un réglage personnel pour éviter de choisir à chaque fois",
+          "description": "Chaque personne peut décider que toutes ses nouvelles conversations seront chiffrées dès leur création, tout en gardant la possibilité de faire une exception pour une conversation donnée. Les conversations classiques et chiffrées coexistent, et les conversations existantes restent exactement telles qu’elles étaient."
+        },
+        {
+          "title": "Phrase secrète personnelle et code de récupération",
+          "short": "Chacun garde le contrôle de ses propres clés",
+          "description": "Chaque personne protège ses clés à l’aide d’une phrase secrète personnelle qui ne quitte jamais son appareil et reçoit un code de récupération à conserver. Tous deux peuvent être modifiés par la suite, et les clés peuvent être réinitialisées si tout est perdu, ce qui rend les anciens messages chiffrés illisibles."
+        },
+        {
+          "title": "Renouvellement automatique des clés des groupes",
+          "short": "Aucun accès aux anciennes clés pour les membres qui arrivent ou partent",
+          "description": "Lorsqu’une personne est ajoutée à un groupe chiffré, en est retirée ou réinitialise ses propres clés, la conversation passe automatiquement à une nouvelle clé. Les nouveaux membres ne peuvent lire que les messages écrits après leur arrivée, et les personnes ayant quitté le groupe ne peuvent lire aucun nouveau message."
+        },
+        {
+          "title": "Codes de sécurité",
+          "short": "Repérez une usurpation d’identité avant qu’elle ne porte à conséquence",
+          "description": "Chaque personne dispose d’un code de sécurité court qui peut être comparé par un autre moyen de communication, comme un appel téléphonique. Si le code d’un contact change, Chat demande confirmation avant tout nouvel envoi, et les notifications des conversations chiffrées ne révèlent jamais le texte des messages."
+        },
+        {
+          "title": "Contrôle par l’administrateur",
+          "short": "Activez ou désactivez le chiffrement dans les paramètres de l’application",
+          "description": "L’administrateur active ou désactive le chiffrement à l’aide du bouton des paramètres dans la fenêtre Chat. Lorsqu’il est désactivé, l’option n’est tout simplement plus visible pour les utilisateurs, et les conversations déjà chiffrées restent verrouillées jusqu’à sa réactivation. Les conversations classiques ne sont jamais affectées."
+        }
+      ]
+    },
+    "bg": {
+      "summary": "Разговори с криптиране от край до край, така че изтекла база данни или любопитен администратор да не могат да разкрият нищо.",
+      "features": [
+        {
+          "title": "Чатове с криптиране от край до край",
+          "short": "Съобщения, които дори сървърът не може да прочете",
+          "description": "След като администраторът включи криптирането, хората, които използват Chat през Apps Hub, могат да избират за всеки личен чат и всяка група дали да бъдат криптирани. Съобщенията се криптират в браузъра преди изпращане и се съхраняват само в криптиран вид, така че нито сървърът, нито открадната база данни могат да разкрият написаното."
+        },
+        {
+          "title": "Криптиране на всеки нов чат",
+          "short": "Една лична настройка вместо избор всеки път",
+          "description": "Всеки може да избере всички негови нови чатове да започват с включено криптиране и въпреки това да промени избора си за отделен разговор. Обикновените и криптираните чатове съществуват заедно, а съществуващите чатове остават точно такива, каквито са били."
+        },
+        {
+          "title": "Лична парола и код за възстановяване",
+          "short": "Всеки пази собствените си ключове",
+          "description": "Всеки защитава ключовете си със собствена парола, която никога не напуска устройството, и получава код за възстановяване, който да запази. И двете могат да бъдат променени по-късно, а ако всичко бъде изгубено, ключовете могат да бъдат нулирани, което прави по-старите криптирани съобщения нечетими."
+        },
+        {
+          "title": "Автоматична смяна на ключовете за групи",
+          "short": "Присъединяващите се и напускащите участници никога не споделят стари ключове",
+          "description": "Когато някой бъде добавен в криптирана група, бъде премахнат от нея или нулира собствените си ключове, разговорът автоматично преминава към нов ключ. Новите участници четат само написаното след присъединяването си, а напусналите не могат да четат нищо ново."
+        },
+        {
+          "title": "Кодове за сигурност",
+          "short": "Разпознайте опитите за представяне за друг човек навреме",
+          "description": "Всеки има кратък код за сигурност, който може да бъде сравнен по друг канал, например чрез телефонен разговор. Ако кодът на контакт се промени, Chat иска потвърждение, преди да изпрати каквото и да било друго, а известията за криптирани чатове никога не разкриват текста на съобщението."
+        },
+        {
+          "title": "Контрол от администратора",
+          "short": "Включване или изключване от настройките на приложението",
+          "description": "Администраторът включва или изключва криптирането чрез бутона за настройки в прозореца на Chat. Когато е изключено, хората просто не виждат тази възможност, а вече криптираните чатове остават заключени, докато не бъде включено отново. Обикновените чатове никога не се засягат."
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Conversas com criptografia de ponta a ponta, para que nem um banco de dados vazado nem um administrador curioso revelem o conteúdo.",
+      "features": [
+        {
+          "title": "Conversas com criptografia de ponta a ponta",
+          "short": "Mensagens que nem o próprio servidor consegue ler",
+          "description": "Depois que o administrador ativa a criptografia, quem usa o Chat pelo Apps Hub pode escolher se cada conversa individual ou em grupo será criptografada. As mensagens são criptografadas no navegador antes do envio e armazenadas apenas como texto cifrado, para que nem o servidor nem um banco de dados roubado revelem o que foi escrito."
+        },
+        {
+          "title": "Criptografe cada nova conversa",
+          "short": "Uma configuração pessoal em vez de uma escolha a cada vez",
+          "description": "Cada pessoa pode definir que todas as suas novas conversas comecem criptografadas e ainda alterar essa opção para uma conversa específica. Conversas comuns e criptografadas convivem lado a lado, e as conversas existentes continuam exatamente como estavam."
+        },
+        {
+          "title": "Frase secreta pessoal e código de recuperação",
+          "short": "Cada pessoa protege suas próprias chaves",
+          "description": "Cada pessoa protege suas chaves com uma frase secreta própria que nunca sai do dispositivo e recebe um código de recuperação para guardar. Ambos podem ser alterados depois, e as chaves podem ser redefinidas se tudo for perdido, o que torna ilegíveis as mensagens criptografadas anteriores."
+        },
+        {
+          "title": "Troca automática de chaves para grupos",
+          "short": "Quem entra ou sai do grupo nunca compartilha chaves antigas",
+          "description": "Quando alguém é adicionado ou removido de um grupo criptografado, ou redefine suas próprias chaves, a conversa passa a usar uma nova chave automaticamente. Novos membros leem apenas o que é escrito após entrarem, e quem saiu não consegue ler nada novo."
+        },
+        {
+          "title": "Códigos de segurança",
+          "short": "Identifique quem se passa por outra pessoa antes que isso cause problemas",
+          "description": "Cada pessoa tem um código de segurança curto que pode ser comparado por outro canal, como uma ligação telefônica. Se o código de um contato mudar, o Chat pede confirmação antes de enviar qualquer outra mensagem, e as notificações de conversas criptografadas nunca revelam o texto das mensagens."
+        },
+        {
+          "title": "Controle do administrador",
+          "short": "Ative ou desative nas configurações do aplicativo",
+          "description": "O administrador ativa ou desativa a criptografia pelo botão de configurações na janela do Chat. Quando ela está desativada, as pessoas simplesmente não veem a opção, e as conversas já criptografadas permanecem bloqueadas até que ela seja ativada novamente. As conversas comuns nunca são afetadas."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "会話をエンドツーエンドで暗号化。データベースが流出しても、管理者が内容をのぞこうとしても、会話の内容は読み取れません。",
+      "features": [
+        {
+          "title": "エンドツーエンド暗号化チャット",
+          "short": "サーバーにも読めないメッセージ",
+          "description": "管理者が暗号化を有効にすると、Apps HubからChatを使うユーザーは、個別チャットやグループごとに暗号化するかどうかを選べます。メッセージは送信前にブラウザー内で暗号化され、暗号文としてのみ保存されるため、サーバー側でも、盗まれたデータベースからでも、書かれた内容を読み取ることはできません。"
+        },
+        {
+          "title": "新しいチャットをすべて暗号化",
+          "short": "毎回選ばず、自分の設定ひとつで暗号化",
+          "description": "新しく始めるチャットをすべて暗号化するよう、ユーザーごとに設定できます。会話ごとに別の設定を選ぶこともできます。通常のチャットと暗号化されたチャットは併用でき、既存のチャットはそのまま変わりません。"
+        },
+        {
+          "title": "自分専用のパスフレーズと復旧コード",
+          "short": "自分の鍵は自分で守る",
+          "description": "各ユーザーは、デバイスの外に送信されることのない自分専用のパスフレーズで鍵を保護し、保管用の復旧コードを受け取ります。どちらもあとから変更できます。両方を失った場合は鍵をリセットできますが、それまでの暗号化されたメッセージは読めなくなります。"
+        },
+        {
+          "title": "グループの鍵を自動で更新",
+          "short": "メンバーの参加・退出時には鍵を更新",
+          "description": "暗号化されたグループでメンバーが追加・削除されたときや、メンバーが自分の鍵をリセットしたときは、会話に使う鍵が自動的に新しくなります。新しいメンバーが読めるのは参加後に送信されたメッセージだけで、退出したメンバーは退出後のメッセージを読むことができません。"
+        },
+        {
+          "title": "セキュリティコード",
+          "short": "被害が起こる前になりすましを発見",
+          "description": "各ユーザーには短いセキュリティコードがあり、電話など別の手段で照合できます。連絡先の相手のコードが変わると、Chatは次のメッセージを送信する前に確認を求めます。また、暗号化されたチャットの通知にメッセージ本文が表示されることはありません。"
+        },
+        {
+          "title": "管理者による設定",
+          "short": "アプリの設定で有効・無効を切り替え",
+          "description": "管理者はChatウィンドウの設定ボタンから暗号化の有効・無効を切り替えられます。無効にすると、ユーザーには暗号化の選択肢が表示されなくなり、すでに暗号化されているチャットは再び有効になるまでロックされます。通常のチャットには影響しません。"
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "对话采用端到端加密，即使数据库泄露，或管理员想查看内容，也无法读取。",
+      "features": [
+        {
+          "title": "端到端加密聊天",
+          "short": "连服务器也无法读取的消息",
+          "description": "管理员启用加密后，通过 Apps Hub 使用 Chat 的用户可以为每个私聊和群聊选择是否加密。消息在发送前就在浏览器中完成加密，并且只以密文形式存储，因此无论是服务器还是被盗的数据库，都无法泄露消息内容。"
+        },
+        {
+          "title": "为所有新聊天启用加密",
+          "short": "一个个人开关，无需每次单独选择",
+          "description": "每个人都可以选择让自己的所有新聊天默认启用加密，同时仍可针对单个对话调整设置。普通聊天与加密聊天可以并存，已有聊天保持原样。"
+        },
+        {
+          "title": "个人密码短语与恢复码",
+          "short": "每个人自行守护自己的密钥",
+          "description": "每个人都使用自己设置的密码短语保护密钥，该密码短语始终保留在设备上，同时还会获得一个需要妥善保存的恢复码。密码短语和恢复码之后都可以更改。如果两者都丢失，也可以重置密钥，但此前的加密消息将无法再读取。"
+        },
+        {
+          "title": "自动更换群组密钥",
+          "short": "成员加入或退出时，自动更新密钥",
+          "description": "当加密群组添加或移除成员，或成员重置自己的密钥时，对话会自动改用新的密钥。新成员只能读取加入后发送的内容，已退出的成员则无法读取任何新消息。"
+        },
+        {
+          "title": "安全码",
+          "short": "及时识别身份冒用",
+          "description": "每个人都有一个简短的安全码，可以通过电话等其他渠道进行比对。如果联系人的安全码发生变化，Chat 会在继续发送任何内容前请求确认，而且加密聊天的通知绝不会显示消息正文。"
+        },
+        {
+          "title": "管理员控制",
+          "short": "在应用设置中开启或关闭",
+          "description": "管理员可通过 Chat 窗口中的设置按钮开启或关闭加密。关闭后，用户将看不到加密选项，已加密的聊天会保持锁定，直到重新开启加密。普通聊天始终不受影响。"
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Переписки со сквозным шифрованием: ни утечка базы данных, ни любопытный администратор не раскроют их содержимое.",
+      "features": [
+        {
+          "title": "Чаты со сквозным шифрованием",
+          "short": "Сообщения, которые не может прочитать даже сервер",
+          "description": "После того как администратор включит шифрование, пользователи Chat в Apps Hub смогут выбирать, шифровать ли каждый личный чат и каждую группу. Сообщения шифруются в браузере ещё до отправки и хранятся только в зашифрованном виде, поэтому ни сервер, ни украденная база данных не раскроют написанное."
+        },
+        {
+          "title": "Шифрование всех новых чатов",
+          "short": "Одна личная настройка вместо выбора каждый раз",
+          "description": "Каждый пользователь может включить шифрование для всех своих новых чатов и при необходимости изменить этот выбор для отдельной переписки. Обычные и зашифрованные чаты доступны одновременно, а существующие переписки остаются без изменений."
+        },
+        {
+          "title": "Личная парольная фраза и код восстановления",
+          "short": "Каждый сам защищает свои ключи",
+          "description": "Каждый пользователь защищает свои ключи собственной парольной фразой, которая никогда не покидает устройство, и получает код восстановления, который нужно сохранить. И фразу, и код можно изменить позднее. Если всё потеряно, ключи можно сбросить, но после этого старые зашифрованные сообщения станут недоступны для чтения."
+        },
+        {
+          "title": "Автоматическая смена ключей в группах",
+          "short": "При изменении состава группы старые ключи не передаются",
+          "description": "Когда в зашифрованную группу добавляют участника, удаляют его или кто-то из участников сбрасывает свои ключи, переписка автоматически переходит на новый ключ. Новые участники читают только то, что написано после их вступления, а покинувшие группу не могут читать новые сообщения."
+        },
+        {
+          "title": "Коды безопасности",
+          "short": "Распознайте подмену собеседника заранее",
+          "description": "У каждого пользователя есть короткий код безопасности, который можно сверить по другому каналу, например по телефону. Если код контакта изменится, Chat запросит подтверждение перед отправкой следующих сообщений. Уведомления зашифрованных чатов никогда не показывают текст сообщений."
+        },
+        {
+          "title": "Управление для администратора",
+          "short": "Включение и отключение в настройках приложения",
+          "description": "Администратор включает или отключает шифрование через кнопку настроек в окне Chat. Когда шифрование отключено, пользователи просто не видят эту возможность, а уже зашифрованные чаты остаются заблокированными до повторного включения. На обычные чаты это никак не влияет."
+        }
+      ]
+    }
+  }
 }

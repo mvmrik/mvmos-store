@@ -25,5 +25,183 @@
       "summary": "When Nostradamus's administrator enables the DeepL integration (Premium), a translate button appears under posts and in the composer, using the reader's own DeepL key entered here.",
       "requires": "A DeepL API key entered in DeepL Translator's own settings."
     }
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Übersetze Texte mit deinem eigenen DeepL-API-Schlüssel und behalte den Überblick über deine bisherigen Übersetzungen.",
+      "tagline": "Übersetze alles mit deinem eigenen DeepL-Schlüssel und finde frühere Übersetzungen im durchsuchbaren Verlauf wieder.",
+      "description": "DeepL Translator ist eine kostenlose App: Füge Text ein, wähle die Ausgangs- und Zielsprache (oder lass DeepL die Ausgangssprache automatisch erkennen) und übersetze. Jede Übersetzung wird in einem Verlauf gespeichert, auf den du jederzeit zurückgreifen kannst.\n\nDie App funktioniert auf dem Desktop und als öffentliche Seite für dein Apps Hub-Konto. Dein DeepL-API-Schlüssel gehört dir allein – er wird niemals mit dem Serverbetreiber oder anderen Apps Hub-Nutzern geteilt, und du musst nicht überall denselben Schlüssel verwenden. Hol dir auf deepl.com einen kostenlosen Schlüssel und füge ihn in den Einstellungen ein, um mit dem Übersetzen zu beginnen.\n\nAndere Apps wie RSS Reader und Nostradamus können eine Schaltfläche zum Übersetzen anbieten, die denselben Schlüssel von dir verwendet – allerdings nur, wenn ihr Administrator diese Integration aktiviert hat.",
+      "capabilities": [
+        "Übersetze Texte zwischen allen von DeepL unterstützten Sprachen – mit automatischer Erkennung der Ausgangssprache.",
+        "Vollständiger Übersetzungsverlauf, der für jedes Apps Hub-Konto separat gespeichert wird und sich nach Text durchsuchen lässt.",
+        "Eigenständig nutzbar – dauerhaft kostenlos, mit deinem eigenen DeepL-API-Schlüssel.",
+        "Funktioniert auf dem mvmOS-Desktop genauso wie auf einer öffentlichen Seite für ein beliebiges Apps Hub-Konto.",
+        "Andere Apps können Übersetzungen mit einem Klick über denselben DeepL-Schlüssel von dir anbieten, wenn ihr Administrator die Funktion aktiviert."
+      ],
+      "integrations": [
+        {
+          "summary": "Wenn der Administrator von RSS Reader die DeepL-Integration (Premium) aktiviert, können Leser jeden Artikel mit ihrem eigenen, hier hinterlegten DeepL-Schlüssel übersetzen.",
+          "requires": "Ein DeepL-API-Schlüssel, der in den eigenen Einstellungen von DeepL Translator hinterlegt ist."
+        },
+        {
+          "summary": "Wenn der Administrator von Nostradamus die DeepL-Integration (Premium) aktiviert, erscheint unter Beiträgen und im Beitragseditor eine Schaltfläche zum Übersetzen, die den eigenen, hier hinterlegten DeepL-Schlüssel des Lesers verwendet.",
+          "requires": "Ein DeepL-API-Schlüssel, der in den eigenen Einstellungen von DeepL Translator hinterlegt ist."
+        }
+      ]
+    },
+    "bg": {
+      "short_description": "Превеждайте текст със собствен API ключ за DeepL и пазете история на преводите си.",
+      "tagline": "Превеждайте всичко със собствен ключ за DeepL и лесно намирайте предишни преводи в историята.",
+      "description": "DeepL Translator е безплатно приложение: поставете текст, изберете изходен и целеви език (или оставете DeepL да разпознае изходния език автоматично) и превеждайте. Всеки превод се запазва в историята, за да можете да се върнете към него по всяко време.\n\nПриложението работи както на работния плот, така и като публична страница за вашия акаунт в Apps Hub. Вашият API ключ за DeepL си е само ваш — той никога не се споделя със собственика на сървъра или с други потребители на Apps Hub и не е необходимо да използвате един и същ ключ навсякъде. Вземете безплатен ключ от deepl.com и го поставете в настройките, за да започнете да превеждате.\n\nДруги приложения, като RSS Reader и Nostradamus, могат да предлагат бутон за превод, който използва същия ваш ключ, но само ако администраторът им е активирал тази интеграция.",
+      "capabilities": [
+        "Превеждайте текст между всички езици, поддържани от DeepL, с автоматично разпознаване на изходния език.",
+        "Пълна история на преводите, която се съхранява отделно за всеки акаунт в Apps Hub и позволява търсене по текст.",
+        "Работи самостоятелно — безплатно завинаги, със собствен API ключ за DeepL.",
+        "Работи по един и същ начин на работния плот на mvmOS и на публична страница за всеки акаунт в Apps Hub.",
+        "Други приложения могат да предлагат превод с едно щракване чрез същия ваш ключ за DeepL, когато администраторът им активира тази възможност."
+      ],
+      "integrations": [
+        {
+          "summary": "Когато администраторът на RSS Reader активира интеграцията с DeepL (Premium), читателите могат да превеждат всяка статия със собствения си ключ за DeepL, въведен тук.",
+          "requires": "API ключ за DeepL, въведен в настройките на самото приложение DeepL Translator."
+        },
+        {
+          "summary": "Когато администраторът на Nostradamus активира интеграцията с DeepL (Premium), под публикациите и в редактора за създаването им се появява бутон за превод, който използва собствения ключ за DeepL на читателя, въведен тук.",
+          "requires": "API ключ за DeepL, въведен в настройките на самото приложение DeepL Translator."
+        }
+      ]
+    },
+    "es": {
+      "short_description": "Traduce textos con tu propia clave de API de DeepL y guarda un historial de tus traducciones.",
+      "tagline": "Traduce cualquier texto con tu propia clave de DeepL y consulta tus traducciones anteriores en un historial con función de búsqueda.",
+      "description": "DeepL Translator es una aplicación gratuita: pega un texto, elige el idioma de origen y el de destino (o deja que DeepL detecte automáticamente el idioma de origen) y traduce. Todas las traducciones se guardan en un historial que puedes consultar cuando quieras.\n\nFunciona tanto en el escritorio como en una página pública de tu cuenta de Apps Hub. Tu clave de API de DeepL es solo tuya: nunca se comparte con el propietario del servidor ni con otros usuarios de Apps Hub, y puedes usar una clave distinta en cada lugar. Consigue una clave gratuita en deepl.com y pégala en Ajustes para empezar a traducir.\n\nOtras aplicaciones, como RSS Reader y Nostradamus, pueden ofrecer un botón para traducir con esa misma clave, siempre que su administrador haya activado la integración.",
+      "capabilities": [
+        "Traduce textos entre cualquiera de los idiomas compatibles con DeepL, con detección automática del idioma de origen.",
+        "Historial completo de traducciones, guardado por cuenta de Apps Hub y con búsqueda por texto.",
+        "Funciona de forma independiente: gratis para siempre, con tu propia clave de API de DeepL.",
+        "Funciona de la misma manera en el escritorio de mvmOS y en una página pública de cualquier cuenta de Apps Hub.",
+        "Otras aplicaciones pueden ofrecer traducciones con un solo clic mediante tu misma clave de DeepL cuando su administrador lo habilite."
+      ],
+      "integrations": [
+        {
+          "summary": "Cuando el administrador de RSS Reader activa la integración con DeepL (Premium), los lectores pueden traducir cualquier artículo con su propia clave de DeepL introducida aquí.",
+          "requires": "Una clave de API de DeepL introducida en los ajustes de DeepL Translator."
+        },
+        {
+          "summary": "Cuando el administrador de Nostradamus activa la integración con DeepL (Premium), aparece un botón para traducir debajo de las publicaciones y en el editor, que utiliza la clave de DeepL del propio lector introducida aquí.",
+          "requires": "Una clave de API de DeepL introducida en los ajustes de DeepL Translator."
+        }
+      ]
+    },
+    "fr": {
+      "short_description": "Traduisez du texte avec votre propre clé API DeepL et conservez un historique de vos traductions.",
+      "tagline": "Traduisez tout ce que vous voulez avec votre propre clé DeepL et retrouvez vos traductions grâce à un historique consultable par recherche.",
+      "description": "DeepL Translator est une application gratuite : collez du texte, choisissez la langue source et la langue cible (ou laissez DeepL détecter automatiquement la langue source), puis lancez la traduction. Chaque traduction est conservée dans un historique que vous pouvez consulter à tout moment.\n\nL’application fonctionne sur le bureau et sous forme de page publique pour votre compte Apps Hub. Votre clé API DeepL vous appartient : elle n’est jamais partagée avec le propriétaire du serveur ni avec les autres utilisateurs d’Apps Hub, et vous n’avez pas besoin d’utiliser la même clé partout. Obtenez une clé gratuite sur deepl.com et collez-la dans les paramètres pour commencer à traduire.\n\nD’autres applications, comme RSS Reader et Nostradamus, peuvent proposer un bouton de traduction qui utilise cette même clé personnelle, mais uniquement si leur administrateur a activé cette intégration.",
+      "capabilities": [
+        "Traduisez du texte entre toutes les langues prises en charge par DeepL, avec détection automatique de la langue source.",
+        "Historique complet des traductions, conservé pour chaque compte Apps Hub et consultable par recherche textuelle.",
+        "Fonctionne de manière autonome : gratuit pour toujours, avec votre propre clé API DeepL.",
+        "Fonctionne de la même manière sur le bureau mvmOS et sur une page publique pour n’importe quel compte Apps Hub.",
+        "D’autres applications peuvent proposer la traduction en un clic avec votre même clé DeepL, lorsque leur administrateur l’active."
+      ],
+      "integrations": [
+        {
+          "summary": "Lorsque l’administrateur de RSS Reader active l’intégration DeepL (Premium), les lecteurs peuvent traduire n’importe quel article à l’aide de leur propre clé DeepL renseignée ici.",
+          "requires": "Une clé API DeepL renseignée dans les paramètres de DeepL Translator."
+        },
+        {
+          "summary": "Lorsque l’administrateur de Nostradamus active l’intégration DeepL (Premium), un bouton de traduction apparaît sous les publications et dans l’éditeur de publications. Il utilise la clé DeepL personnelle du lecteur, renseignée ici.",
+          "requires": "Une clé API DeepL renseignée dans les paramètres de DeepL Translator."
+        }
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Traduza textos com sua própria chave de API do DeepL e mantenha um histórico das suas traduções.",
+      "tagline": "Traduza qualquer conteúdo com sua própria chave do DeepL e consulte seu histórico sempre que precisar.",
+      "description": "DeepL Translator é um app gratuito: cole um texto, escolha os idiomas de origem e de destino (ou deixe o DeepL detectar o idioma de origem automaticamente) e traduza. Todas as traduções ficam salvas em um histórico que você pode consultar quando quiser.\n\nFunciona no desktop e como uma página pública da sua conta do Apps Hub. Sua chave de API do DeepL é só sua — ela nunca é compartilhada com o proprietário do servidor nem com outros usuários do Apps Hub, e você não precisa usar a mesma chave em todos os lugares. Obtenha uma chave gratuita em deepl.com e cole-a nas Configurações para começar a traduzir.\n\nOutros apps, como RSS Reader e Nostradamus, podem oferecer um botão de tradução que usa essa mesma chave, mas somente se o administrador desses apps tiver ativado a integração.",
+      "capabilities": [
+        "Traduza textos entre quaisquer idiomas compatíveis com o DeepL, com detecção automática do idioma de origem.",
+        "Histórico completo de traduções, salvo por conta do Apps Hub e com busca por texto.",
+        "Funciona de forma independente — grátis para sempre, com sua própria chave de API do DeepL.",
+        "Funciona da mesma forma no desktop do mvmOS e em uma página pública de qualquer conta do Apps Hub.",
+        "Outros apps podem oferecer tradução com um clique usando sua mesma chave do DeepL, quando o administrador deles ativa essa opção."
+      ],
+      "integrations": [
+        {
+          "summary": "Quando o administrador do RSS Reader ativa a integração com o DeepL (Premium), os leitores podem traduzir qualquer artigo usando sua própria chave do DeepL informada aqui.",
+          "requires": "Uma chave de API do DeepL informada nas configurações do próprio DeepL Translator."
+        },
+        {
+          "summary": "Quando o administrador do Nostradamus ativa a integração com o DeepL (Premium), um botão de tradução aparece abaixo das publicações e no editor de publicações, usando a própria chave do DeepL do leitor informada aqui.",
+          "requires": "Uma chave de API do DeepL informada nas configurações do próprio DeepL Translator."
+        }
+      ]
+    },
+    "ja": {
+      "short_description": "自分のDeepL APIキーでテキストを翻訳し、翻訳履歴を保存できます。",
+      "tagline": "自分のDeepLキーでさまざまなテキストを翻訳。過去の翻訳も履歴から検索できます。",
+      "description": "DeepL Translatorは無料のアプリです。テキストを貼り付け、翻訳元と翻訳先の言語を選択するだけで翻訳できます。翻訳元の言語はDeepLによる自動検出も可能です。すべての翻訳は履歴に保存され、いつでも見返せます。\n\nデスクトップでも、Apps Hubアカウントの公開ページでも利用できます。DeepL APIキーは自分専用です。サーバーの所有者やほかのApps Hubユーザーと共有されることはなく、すべての場所で同じキーを使う必要もありません。deepl.comで無料のキーを取得し、設定に貼り付ければ、すぐに翻訳を始められます。\n\nRSS ReaderやNostradamusなどのほかのアプリでも、同じ自分のキーを使う翻訳ボタンを利用できます。ただし、各アプリの管理者が連携を有効にしている場合に限ります。",
+      "capabilities": [
+        "DeepLが対応するすべての言語間でテキストを翻訳。翻訳元の言語は自動で検出できます。",
+        "すべての翻訳履歴をApps Hubアカウントごとに保存し、テキストで検索できます。",
+        "単独でも利用可能。自分のDeepL APIキーを使って、ずっと無料で利用できます。",
+        "mvmOSのデスクトップでも、どのApps Hubアカウントの公開ページでも、同じように利用できます。",
+        "管理者が連携を有効にすると、ほかのアプリでも同じ自分のDeepLキーを使ってワンクリックで翻訳できます。"
+      ],
+      "integrations": [
+        {
+          "summary": "RSS Readerの管理者がDeepL連携（Premium）を有効にすると、読者はここで入力した自分のDeepLキーを使って、どの記事でも翻訳できます。",
+          "requires": "DeepL Translator自体の設定でDeepL APIキーを入力する必要があります。"
+        },
+        {
+          "summary": "Nostradamusの管理者がDeepL連携（Premium）を有効にすると、投稿の下や投稿作成画面に翻訳ボタンが表示され、読者がここで入力した自分のDeepLキーで翻訳できます。",
+          "requires": "DeepL Translator自体の設定でDeepL APIキーを入力する必要があります。"
+        }
+      ]
+    },
+    "ru": {
+      "short_description": "Переводите тексты с собственным API-ключом DeepL и сохраняйте историю переводов.",
+      "tagline": "Переводите любые тексты с собственным ключом DeepL и находите нужное в истории переводов.",
+      "description": "DeepL Translator — бесплатное приложение: вставьте текст, выберите исходный язык и язык перевода (или позвольте DeepL автоматически определить исходный язык) и переведите. Каждый перевод сохраняется в истории, к которой можно вернуться в любой момент.\n\nПриложение работает на рабочем столе и как общедоступная страница вашей учётной записи Apps Hub. Ваш API-ключ DeepL принадлежит только вам: он никогда не передаётся владельцу сервера или другим пользователям Apps Hub, и вам не обязательно использовать один и тот же ключ везде. Получите бесплатный ключ на deepl.com и вставьте его в настройках, чтобы начать переводить.\n\nДругие приложения, например RSS Reader и Nostradamus, могут предлагать кнопку перевода, использующую тот же ваш ключ, но только если их администратор включил эту интеграцию.",
+      "capabilities": [
+        "Перевод текстов между любыми языками, которые поддерживает DeepL, с автоматическим определением исходного языка.",
+        "Полная история переводов с поиском по тексту, которая хранится отдельно для каждой учётной записи Apps Hub.",
+        "Работает самостоятельно — всегда бесплатно, с вашим собственным API-ключом DeepL.",
+        "Одинаково работает на рабочем столе mvmOS и на общедоступной странице любой учётной записи Apps Hub.",
+        "Другие приложения могут предлагать перевод одним нажатием с помощью того же вашего ключа DeepL, если их администратор включит эту возможность."
+      ],
+      "integrations": [
+        {
+          "summary": "Когда администратор RSS Reader включает интеграцию с DeepL (Premium), читатели могут переводить любые статьи с помощью собственного ключа DeepL, указанного здесь.",
+          "requires": "API-ключ DeepL, указанный в настройках самого приложения DeepL Translator."
+        },
+        {
+          "summary": "Когда администратор Nostradamus включает интеграцию с DeepL (Premium), под публикациями и в редакторе появляется кнопка перевода, использующая собственный ключ DeepL читателя, указанный здесь.",
+          "requires": "API-ключ DeepL, указанный в настройках самого приложения DeepL Translator."
+        }
+      ]
+    },
+    "zh-CN": {
+      "short_description": "使用你自己的 DeepL API 密钥翻译文本，并保留翻译历史记录。",
+      "tagline": "使用你自己的 DeepL 密钥，随心翻译，随时搜索和回顾翻译历史。",
+      "description": "DeepL Translator 是一款免费应用：粘贴文本，选择源语言和目标语言（也可让 DeepL 自动检测源语言），即可翻译。每次翻译都会保存到历史记录中，方便你随时回顾。\n\n你既可以在桌面上使用，也可以通过 Apps Hub 账户的公开页面使用。你的 DeepL API 密钥由你自己掌握，绝不会与服务器所有者或其他 Apps Hub 用户共享，而且你无需在所有地方使用同一个密钥。前往 deepl.com 获取免费密钥，将其粘贴到设置中，即可开始翻译。\n\nRSS Reader 和 Nostradamus 等其他应用也可以提供翻译按钮，使用你的同一个密钥进行翻译，但前提是相应应用的管理员已启用此集成。",
+      "capabilities": [
+        "在 DeepL 支持的任意语言之间翻译文本，并自动检测源语言。",
+        "按 Apps Hub 账户分别保存完整的翻译历史记录，支持按文本搜索。",
+        "可独立使用，自备 DeepL API 密钥，即可永久免费使用。",
+        "在 mvmOS 桌面和任意 Apps Hub 账户的公开页面上，均可获得一致的使用体验。",
+        "管理员启用后，其他应用也可通过你的同一个 DeepL 密钥提供一键翻译功能。"
+      ],
+      "integrations": [
+        {
+          "summary": "当 RSS Reader 的管理员启用 DeepL 集成（Premium）后，读者即可使用在此处输入的个人 DeepL 密钥翻译任意文章。",
+          "requires": "需要在 DeepL Translator 自身的设置中输入 DeepL API 密钥。"
+        },
+        {
+          "summary": "当 Nostradamus 的管理员启用 DeepL 集成（Premium）后，帖子下方和编辑器中会出现翻译按钮，使用读者在此处输入的个人 DeepL 密钥进行翻译。",
+          "requires": "需要在 DeepL Translator 自身的设置中输入 DeepL API 密钥。"
+        }
+      ]
+    }
+  }
 }

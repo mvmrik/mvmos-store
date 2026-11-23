@@ -17,5 +17,183 @@
     "A domain added to a free Cloudflare account.",
     "An internet connection on the server.",
     "A Linux user allowed to use sudo."
-  ]
+  ],
+  "i18n": {
+    "es": {
+      "short_description": "Accede a mvmOS, Apps Hub o una única aplicación pública desde tus propios dominios a través de un Cloudflare Tunnel. Introduce un dominio, inicia sesión en Cloudflare una sola vez y la aplicación descarga el conector, crea el túnel, añade el registro DNS y mantiene la conexión activa, sin configurar el router ni gestionar certificados.",
+      "tagline": "Usa tu propio dominio con mvmOS en unos pocos clics.",
+      "description": "Domains es para quienes quieren acceder a mvmOS y sus páginas públicas desde su propia dirección web, como mycompany.com, sin tener que aprender sobre túneles, registros DNS o certificados. Introduce el dominio, inicia sesión en Cloudflare una sola vez desde el navegador y la aplicación se encarga del resto en el servidor.\n\nDescarga el conector de código abierto de Cloudflare en su propia carpeta, crea un túnel seguro, añade el registro DNS de cada dominio y mantiene la conexión activa como servicio del sistema. Puedes conectar varios dominios, comprobar que cada uno se abre correctamente y eliminar cualquiera de ellos cuando quieras. No se abre ningún puerto en el router ni hay que gestionar certificados.\n\nSi ya has creado un túnel en Cloudflare, puedes pegar su token y la aplicación se limitará a instalar y ejecutar el conector. Al desinstalar la aplicación, también se eliminan el servicio, el túnel, los registros DNS que haya creado y sus archivos.",
+      "capabilities": [
+        "Conecta tu propio dominio o subdominio a mvmOS a través de un Cloudflare Tunnel.",
+        "Inicia sesión en Cloudflare mediante el proceso oficial de inicio de sesión en el navegador, sin necesidad de crear ni copiar ninguna clave.",
+        "Descarga y ejecuta el conector automáticamente y lo mantiene activo como servicio del sistema.",
+        "Te permite elegir qué se abre desde cada dominio: toda la instalación, solo Apps Hub o una única aplicación pública, para que los visitantes nunca vean el resto del servidor.",
+        "Conecta varios dominios a través del mismo túnel y te permite comprobar o eliminar cada uno.",
+        "También permite ejecutar un túnel de Cloudflare existente a partir de su token.",
+        "No modifica ninguna instancia de cloudflared que ya tengas en ejecución en el servidor.",
+        "Elimina el servicio, el túnel, los registros DNS y los archivos al desconectar o desinstalar la aplicación.",
+        "Solicita tu contraseña de sudo para cada cambio."
+      ],
+      "requirements": [
+        "Un servidor Linux con systemd.",
+        "Un dominio añadido a una cuenta gratuita de Cloudflare.",
+        "Una conexión a internet en el servidor.",
+        "Un usuario de Linux con permiso para usar sudo."
+      ]
+    },
+    "de": {
+      "short_description": "Macht mvmOS, Apps Hub oder eine einzelne öffentliche App über einen Cloudflare Tunnel unter deinen eigenen Domains erreichbar. Gib eine Domain ein und melde dich einmal bei Cloudflare an. Die App lädt den Konnektor herunter, erstellt den Tunnel, fügt den DNS-Eintrag hinzu und hält die Verbindung aufrecht – ohne Routereinstellungen oder Zertifikate.",
+      "tagline": "Mit wenigen Klicks zur eigenen Domain für mvmOS.",
+      "description": "Domains ist für alle, die mvmOS und seine öffentlichen Seiten unter ihrer eigenen Webadresse wie mycompany.com erreichbar machen möchten, ohne sich mit Tunneln, DNS-Einträgen oder Zertifikaten beschäftigen zu müssen. Du gibst die Domain ein und meldest dich einmal im Browser bei Cloudflare an. Den Rest erledigt die App auf dem Server.\n\nSie lädt den quelloffenen Cloudflare-Konnektor in einen eigenen Ordner herunter, erstellt einen sicheren Tunnel, fügt für jede Domain den DNS-Eintrag hinzu und hält die Verbindung als Systemdienst aufrecht. Du kannst mehrere Domains verbinden, prüfen, ob jede davon erreichbar ist, und sie jederzeit wieder entfernen. An deinem Router werden keine Ports geöffnet, und du musst kein Zertifikat verwalten.\n\nWenn du bereits einen Tunnel in Cloudflare erstellt hast, kannst du stattdessen dessen Token einfügen. Die App installiert und startet dann nur den Konnektor. Beim Entfernen der App werden auch der Dienst, der Tunnel, die von ihr erstellten DNS-Einträge und ihre Dateien wieder entfernt.",
+      "capabilities": [
+        "Verbindet deine eigene Domain oder Subdomain über einen Cloudflare Tunnel mit mvmOS.",
+        "Verwendet die offizielle Cloudflare-Anmeldung im Browser, sodass du keinen Schlüssel erstellen oder kopieren musst.",
+        "Lädt den Konnektor selbstständig herunter, startet ihn und hält ihn als Systemdienst am Laufen.",
+        "Lässt dich für jede Domain wählen, was darüber erreichbar ist: die gesamte Installation, nur Apps Hub oder eine einzelne öffentliche App. So bekommen Besucher den Rest des Servers nie zu sehen.",
+        "Verbindet mehrere Domains über denselben Tunnel und lässt dich jede einzeln prüfen oder entfernen.",
+        "Betreibt alternativ einen bestehenden Cloudflare-Tunnel mithilfe seines Tokens.",
+        "Lässt eine bereits auf dem Server laufende cloudflared-Instanz unverändert.",
+        "Entfernt den Dienst, den Tunnel, die DNS-Einträge und die Dateien, wenn du die Verbindung trennst oder die App entfernst.",
+        "Fragt bei jeder Änderung nach deinem sudo-Passwort."
+      ],
+      "requirements": [
+        "Ein Linux-Server mit systemd.",
+        "Eine Domain, die einem kostenlosen Cloudflare-Konto hinzugefügt wurde.",
+        "Eine Internetverbindung auf dem Server.",
+        "Ein Linux-Benutzer mit sudo-Berechtigung."
+      ]
+    },
+    "bg": {
+      "short_description": "Осигурява достъп до mvmOS, Apps Hub или едно публично приложение на собствени домейни чрез Cloudflare Tunnel. Въведете домейн, влезте веднъж в Cloudflare и приложението ще изтегли конектора, ще създаде тунела, ще добави DNS записа и ще поддържа връзката — без настройки на рутера и без сертификати.",
+      "tagline": "Свържете собствен домейн с mvmOS с няколко щраквания.",
+      "description": "Domains е за всеки, който иска да отваря mvmOS и публичните му страници на собствен уеб адрес, например mycompany.com, без да се налага да изучава тунели, DNS записи или сертификати. Въвеждате домейна, влизате веднъж в Cloudflare през браузъра и приложението се грижи за останалото на сървъра.\n\nТо изтегля конектора на Cloudflare с отворен код в собствена папка, създава един защитен тунел, добавя DNS запис за всеки домейн и поддържа връзката като системна услуга. Можете да свържете няколко домейна, да проверите дали всеки от тях се отваря и да премахнете който пожелаете. На рутера не се отварят портове и няма нужда да управлявате сертификати.\n\nАко вече сте създали тунел в Cloudflare, можете вместо това да поставите неговия токен и приложението само ще инсталира и стартира конектора. При премахване на приложението се премахват и услугата, тунелът, създадените от него DNS записи и файловете му.",
+      "capabilities": [
+        "Свързва ваш собствен домейн или поддомейн с mvmOS чрез Cloudflare Tunnel.",
+        "Използва официалния начин за вход в Cloudflare през браузъра, така че не е нужно да създавате или копирате ключ.",
+        "Самостоятелно изтегля и стартира конектора и го поддържа работещ като системна услуга.",
+        "Позволява ви да избирате за всеки домейн какво да отваря: цялата инсталация, само Apps Hub или едно публично приложение, така че посетителите никога да не виждат останалата част от сървъра.",
+        "Свързва няколко домейна през един и същ тунел и ви позволява да проверявате или премахвате всеки от тях.",
+        "Като алтернатива стартира съществуващ тунел на Cloudflare чрез неговия токен.",
+        "Оставя без промени вече работещия на сървъра cloudflared.",
+        "Премахва услугата, тунела, DNS записите и файловете, когато прекъснете връзката или премахнете приложението.",
+        "При всяка промяна се изисква вашата парола за sudo."
+      ],
+      "requirements": [
+        "Linux сървър със systemd.",
+        "Домейн, добавен към безплатен акаунт в Cloudflare.",
+        "Интернет връзка на сървъра.",
+        "Потребител в Linux с право да използва sudo."
+      ]
+    },
+    "fr": {
+      "short_description": "Accédez à mvmOS, à Apps Hub ou à une seule application publique depuis vos propres domaines via un tunnel Cloudflare. Saisissez un domaine, connectez-vous une seule fois à Cloudflare, et l’application télécharge le connecteur, crée le tunnel, ajoute l’enregistrement DNS et maintient la connexion, sans configuration du routeur ni gestion de certificats.",
+      "tagline": "Associez votre propre domaine à mvmOS en quelques clics.",
+      "description": "Domains s’adresse à tous ceux qui souhaitent accéder à mvmOS et à ses pages publiques depuis leur propre adresse web, comme mycompany.com, sans avoir à comprendre les tunnels, les enregistrements DNS ou les certificats. Saisissez le domaine, connectez-vous une seule fois à Cloudflare dans votre navigateur, et l’application s’occupe du reste sur le serveur.\n\nElle télécharge le connecteur open source de Cloudflare dans son propre dossier, crée un tunnel sécurisé, ajoute l’enregistrement DNS de chaque domaine et maintient la connexion à l’aide d’un service système. Vous pouvez connecter plusieurs domaines, vérifier que chacun est accessible et les supprimer à tout moment. Aucun port n’est ouvert sur votre routeur et vous n’avez aucun certificat à gérer.\n\nSi vous avez déjà créé un tunnel dans Cloudflare, vous pouvez simplement coller son jeton : l’application se contente alors d’installer et d’exécuter le connecteur. La désinstallation de l’application supprime le service, le tunnel, les enregistrements DNS qu’elle a créés ainsi que ses fichiers.",
+      "capabilities": [
+        "Connecte votre propre domaine ou sous-domaine à mvmOS via un tunnel Cloudflare.",
+        "Vous connecte à Cloudflare au moyen de la procédure officielle de connexion dans le navigateur, sans avoir à créer ni à copier de clé.",
+        "Télécharge et exécute automatiquement le connecteur, puis le maintient en fonctionnement en tant que service système.",
+        "Vous permet de choisir, pour chaque domaine, ce qui est accessible : toute l’installation, uniquement Apps Hub ou une seule application publique, afin que les visiteurs ne voient jamais le reste du serveur.",
+        "Connecte plusieurs domaines au même tunnel et vous permet de vérifier ou de supprimer chacun d’eux.",
+        "Permet également d’utiliser un tunnel Cloudflare existant à partir de son jeton.",
+        "Préserve toute instance de cloudflared déjà en cours d’exécution sur le serveur.",
+        "Supprime le service, le tunnel, les enregistrements DNS et les fichiers lorsque vous vous déconnectez ou désinstallez l’application.",
+        "Vous demande votre mot de passe sudo à chaque modification."
+      ],
+      "requirements": [
+        "Un serveur Linux avec systemd.",
+        "Un domaine ajouté à un compte Cloudflare gratuit.",
+        "Une connexion Internet sur le serveur.",
+        "Un utilisateur Linux autorisé à utiliser sudo."
+      ]
+    },
+    "ja": {
+      "short_description": "Cloudflare Tunnelを通じて、独自ドメインでmvmOS、Apps Hub、または単一の公開アプリにアクセスできるようにします。ドメインを入力してCloudflareに一度ログインするだけで、コネクターのダウンロード、トンネルの作成、DNSレコードの追加、接続の維持までアプリが行います。ルーターの設定も証明書も不要です。",
+      "tagline": "数回のクリックで、mvmOSを独自ドメインに。",
+      "description": "Domainsは、トンネルやDNSレコード、証明書について学ぶことなく、mycompany.comなどの独自のウェブアドレスでmvmOSとその公開ページにアクセスしたい方のためのアプリです。ドメインを入力し、ブラウザーでCloudflareに一度ログインするだけで、あとはアプリがサーバー上で処理します。\n\nオープンソースのCloudflareコネクターを専用フォルダーにダウンロードし、安全なトンネルを1つ作成して、各ドメインのDNSレコードを追加します。接続はシステムサービスとして維持されます。複数のドメインを接続し、それぞれにアクセスできるかを確認したり、不要になったドメインを削除したりできます。ルーターのポートを開放する必要はなく、証明書の管理も不要です。\n\nCloudflareですでにトンネルを作成している場合は、そのトークンを貼り付けることもできます。その場合、アプリはコネクターのインストールと実行のみを行います。アプリを削除すると、サービス、トンネル、アプリが作成したDNSレコード、およびアプリのファイルも削除されます。",
+      "capabilities": [
+        "Cloudflare Tunnelを通じて、独自ドメインやサブドメインをmvmOSに接続します。",
+        "ブラウザーでCloudflareの公式ログインを利用するため、キーの作成やコピーは不要です。",
+        "コネクターを自動でダウンロードして実行し、システムサービスとして稼働を維持します。",
+        "ドメインごとに、mvmOS全体、Apps Hubのみ、単一の公開アプリのいずれを表示するか選べます。訪問者にサーバーのほかの部分が見えることはありません。",
+        "同じトンネルに複数のドメインを接続し、それぞれの確認や削除ができます。",
+        "既存のCloudflareトンネルのトークンを使って、そのトンネルを稼働させることもできます。",
+        "サーバーですでに稼働しているcloudflaredには変更を加えません。",
+        "接続を解除するかアプリを削除すると、サービス、トンネル、DNSレコード、ファイルも削除します。",
+        "変更のたびにsudoパスワードの入力を求めます。"
+      ],
+      "requirements": [
+        "systemdを搭載したLinuxサーバー。",
+        "無料のCloudflareアカウントに追加済みのドメイン。",
+        "サーバーのインターネット接続。",
+        "sudoの使用が許可されたLinuxユーザー。"
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Permite acessar o mvmOS, o Apps Hub ou um único app público pelos seus próprios domínios por meio de um Cloudflare Tunnel. Basta informar um domínio e entrar na sua conta Cloudflare uma vez para que o app baixe o conector, crie o túnel, adicione o registro DNS e mantenha tudo funcionando, sem configurar o roteador nem gerenciar certificados.",
+      "tagline": "Use seu próprio domínio no mvmOS com poucos cliques.",
+      "description": "Domains é para quem quer acessar o mvmOS e suas páginas públicas pelo próprio endereço na web, como mycompany.com, sem precisar aprender sobre túneis, registros DNS ou certificados. Você digita o domínio, entra na sua conta Cloudflare uma vez pelo navegador e o app faz o resto no servidor.\n\nEle baixa o conector de código aberto da Cloudflare em uma pasta própria, cria um túnel seguro, adiciona o registro DNS de cada domínio e mantém a conexão ativa como um serviço do sistema. Você pode conectar vários domínios, verificar se cada um abre corretamente e remover qualquer um deles quando quiser. Nenhuma porta é aberta no roteador e não é preciso gerenciar certificados.\n\nSe você já criou um túnel na Cloudflare, pode colar o token dele para que o app apenas instale e execute o conector. Ao remover o app, o serviço, o túnel, os registros DNS criados por ele e seus arquivos também são removidos.",
+      "capabilities": [
+        "Conecta seu próprio domínio ou subdomínio ao mvmOS por meio de um Cloudflare Tunnel.",
+        "Usa o login oficial da Cloudflare pelo navegador, sem precisar criar ou copiar uma chave.",
+        "Baixa e executa o conector automaticamente e o mantém em execução como um serviço do sistema.",
+        "Permite escolher o que cada domínio abre: toda a instalação, apenas o Apps Hub ou um único app público, para que os visitantes nunca vejam o restante do servidor.",
+        "Conecta vários domínios pelo mesmo túnel e permite verificar ou remover cada um deles.",
+        "Também permite executar um túnel da Cloudflare já existente usando o token dele.",
+        "Preserva qualquer instância do cloudflared que você já execute no servidor.",
+        "Remove o serviço, o túnel, os registros DNS e os arquivos quando você desconecta ou remove o app.",
+        "Solicita sua senha do sudo a cada alteração."
+      ],
+      "requirements": [
+        "Um servidor Linux com systemd.",
+        "Um domínio adicionado a uma conta gratuita da Cloudflare.",
+        "Uma conexão com a internet no servidor.",
+        "Um usuário Linux com permissão para usar sudo."
+      ]
+    },
+    "ru": {
+      "short_description": "Открывает доступ к mvmOS, Apps Hub или отдельному публичному приложению на ваших доменах через Cloudflare Tunnel. Введите домен и один раз войдите в Cloudflare — приложение само скачает коннектор, создаст туннель, добавит DNS-запись и будет поддерживать соединение. Без настройки роутера и сертификатов.",
+      "tagline": "Подключите свой домен к mvmOS в несколько кликов.",
+      "description": "Domains — для всех, кто хочет открывать mvmOS и его публичные страницы по собственному веб-адресу, например mycompany.com, не разбираясь в туннелях, DNS-записях и сертификатах. Вы вводите домен, один раз входите в Cloudflare через браузер, а всё остальное приложение делает на сервере само.\n\nОно скачивает коннектор Cloudflare с открытым исходным кодом в свою папку, создаёт один защищённый туннель, добавляет DNS-запись для каждого домена и поддерживает соединение с помощью системной службы. Вы можете подключить несколько доменов, проверить, открывается ли каждый из них, и удалить любой из них. На роутере не открываются порты, а управлять сертификатами не требуется.\n\nЕсли вы уже создали туннель в Cloudflare, можно просто вставить его токен — тогда приложение лишь установит и запустит коннектор. При удалении приложения также удаляются служба, туннель, созданные им DNS-записи и его файлы.",
+      "capabilities": [
+        "Подключает ваш домен или поддомен к mvmOS через Cloudflare Tunnel.",
+        "Использует официальный вход в Cloudflare через браузер, поэтому создавать или копировать ключ не нужно.",
+        "Самостоятельно скачивает и запускает коннектор, обеспечивая его работу в качестве системной службы.",
+        "Позволяет выбрать для каждого домена, что он открывает: всю установленную систему, только Apps Hub или отдельное публичное приложение, чтобы посетители не видели остальную часть сервера.",
+        "Подключает несколько доменов через один туннель и позволяет проверить или удалить каждый из них.",
+        "Также позволяет запустить существующий туннель Cloudflare с помощью его токена.",
+        "Не затрагивает экземпляр cloudflared, который уже работает на сервере.",
+        "Удаляет службу, туннель, DNS-записи и файлы при отключении или удалении приложения.",
+        "При каждом изменении запрашивает ваш пароль sudo."
+      ],
+      "requirements": [
+        "Сервер на Linux с systemd.",
+        "Домен, добавленный в бесплатную учётную запись Cloudflare.",
+        "Подключение сервера к интернету.",
+        "Пользователь Linux с правом использовать sudo."
+      ]
+    },
+    "zh-CN": {
+      "short_description": "通过 Cloudflare Tunnel，让你使用自己的域名访问 mvmOS、Apps Hub 或单个公开应用。输入域名，只需登录一次 Cloudflare，应用便会下载连接器、创建隧道、添加 DNS 记录并保持连接运行，无需配置路由器，也无需管理证书。",
+      "tagline": "只需点击几下，即可为 mvmOS 绑定自己的域名。",
+      "description": "Domains 适合所有希望通过自己的网址（例如 mycompany.com）访问 mvmOS 及其公开页面的用户，无需了解隧道、DNS 记录或证书。输入域名，在浏览器中登录一次 Cloudflare，应用便会在服务器上完成其余操作。\n\n应用会将开源 Cloudflare 连接器下载到独立文件夹中，创建一条安全隧道，为每个域名添加 DNS 记录，并以系统服务的形式保持连接运行。你可以连接多个域名，检查每个域名能否访问，也可以随时移除任意域名。无需在路由器上开放任何端口，也无需管理证书。\n\n如果你已在 Cloudflare 中创建了隧道，也可以直接粘贴该隧道的令牌，应用便只会安装并运行连接器。卸载应用时，系统服务、隧道、应用创建的 DNS 记录及其文件也会一并移除。",
+      "capabilities": [
+        "通过 Cloudflare Tunnel 将你自己的域名或子域名连接到 mvmOS。",
+        "通过官方浏览器登录流程登录 Cloudflare，无需创建或复制密钥。",
+        "自动下载并运行连接器，以系统服务的形式保持其运行。",
+        "为每个域名单独选择访问内容：整个 mvmOS 实例、仅 Apps Hub，或单个公开应用，让访客无法看到服务器上的其他内容。",
+        "通过同一条隧道连接多个域名，并可逐一检查或移除。",
+        "也可使用令牌运行现有的 Cloudflare 隧道。",
+        "不会改动服务器上已在运行的 cloudflared。",
+        "断开连接或卸载应用时，移除系统服务、隧道、DNS 记录和文件。",
+        "每次更改都需要输入你的 sudo 密码。"
+      ],
+      "requirements": [
+        "一台使用 systemd 的 Linux 服务器。",
+        "一个已添加到免费 Cloudflare 账户的域名。",
+        "服务器可连接互联网。",
+        "一个具有 sudo 权限的 Linux 用户账户。"
+      ]
+    }
+  }
 }
