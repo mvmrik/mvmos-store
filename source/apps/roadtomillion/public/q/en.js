@@ -1,0 +1,11873 @@
+{
+ "q0001": {
+  "q": "In which country is Mount Fuji located?",
+  "a": [
+   "Japan",
+   "China",
+   "South Korea",
+   "Thailand"
+  ]
+ },
+ "q0002": {
+  "q": "Which country is home to the Inca ruins of Machu Picchu?",
+  "a": [
+   "Peru",
+   "Mexico",
+   "Bolivia",
+   "Chile"
+  ]
+ },
+ "q0003": {
+  "q": "Which river flows through Cairo in Egypt?",
+  "a": [
+   "Nile",
+   "Tigris",
+   "Euphrates",
+   "Jordan"
+  ]
+ },
+ "q0004": {
+  "q": "In which city was the composer Wolfgang Amadeus Mozart born in 1756?",
+  "a": [
+   "Salzburg",
+   "Vienna",
+   "Prague",
+   "Munich"
+  ]
+ },
+ "q0005": {
+  "q": "On which continent is Brazil located?",
+  "a": [
+   "South America",
+   "North America",
+   "Africa",
+   "Europe"
+  ]
+ },
+ "q0006": {
+  "q": "Into which sea does the Danube River empty?",
+  "a": [
+   "Black Sea",
+   "Baltic Sea",
+   "Adriatic Sea",
+   "North Sea"
+  ]
+ },
+ "q0007": {
+  "q": "Which strait separates the Japanese island of Hokkaido from the Russian island of Sakhalin?",
+  "a": [
+   "La Pérouse Strait",
+   "Tsugaru Strait",
+   "Strait of Tartary",
+   "Korea Strait"
+  ]
+ },
+ "q0008": {
+  "q": "On which island of Cabo Verde is Cidade Velha, formerly called Ribeira Grande, located?",
+  "a": [
+   "Santiago",
+   "São Vicente",
+   "Santo Antão",
+   "Fogo"
+  ]
+ },
+ "q0009": {
+  "q": "In which Chilean city was the poet Gabriela Mistral born in 1889?",
+  "a": [
+   "Vicuña",
+   "La Serena",
+   "Temuco",
+   "Chillán"
+  ]
+ },
+ "q0010": {
+  "q": "The axolotl is native to lakes in which country?",
+  "a": [
+   "Mexico",
+   "Brazil",
+   "Peru",
+   "Costa Rica"
+  ]
+ },
+ "q0011": {
+  "q": "Which country is the native home of the ginkgo tree?",
+  "a": [
+   "China",
+   "Japan",
+   "India",
+   "South Korea"
+  ]
+ },
+ "q0012": {
+  "q": "What do reef-building corals expel from their tissues during heat-induced bleaching?",
+  "a": [
+   "Symbiotic algae",
+   "Calcium carbonate crystals",
+   "Reproductive eggs",
+   "Stinging cells"
+  ]
+ },
+ "q0013": {
+  "q": "Who became the first person to walk on the Moon in 1969?",
+  "a": [
+   "Neil Armstrong",
+   "Yuri Gagarin",
+   "Buzz Aldrin",
+   "John Glenn"
+  ]
+ },
+ "q0014": {
+  "q": "In which country did ancient rulers build the pyramids at Giza?",
+  "a": [
+   "Egypt",
+   "Greece",
+   "Mexico",
+   "Iraq"
+  ]
+ },
+ "q0015": {
+  "q": "Napoleon Bonaparte became emperor of which country in 1804?",
+  "a": [
+   "France",
+   "Spain",
+   "Germany",
+   "Russia"
+  ]
+ },
+ "q0016": {
+  "q": "What Japanese term names the family register used to record births, marriages and deaths?",
+  "a": [
+   "Koseki",
+   "Juminhyo",
+   "Hanko",
+   "Nenkin"
+  ]
+ },
+ "q0017": {
+  "q": "What term denotes the traditional communal work contributed for public benefit in Indigenous communities of Oaxaca, Mexico?",
+  "a": [
+   "Tequio",
+   "Ejido",
+   "Cabildo",
+   "Mayordomia"
+  ]
+ },
+ "q0018": {
+  "q": "Among the Akan of Ghana, what term denotes a clan whose membership is inherited through the mother?",
+  "a": [
+   "Abusua",
+   "Ntoro",
+   "Asafo",
+   "Oman"
+  ]
+ },
+ "q0019": {
+  "q": "Which ancient kingdom was ruled by the pharaoh Tutankhamun?",
+  "a": [
+   "Egypt",
+   "Persia",
+   "Babylonia",
+   "Macedonia"
+  ]
+ },
+ "q0020": {
+  "q": "What were the members of Japan's hereditary warrior class called?",
+  "a": [
+   "Samurai",
+   "Mandarins",
+   "Janissaries",
+   "Cossacks"
+  ]
+ },
+ "q0021": {
+  "q": "From which European country did Brazil declare independence in 1822?",
+  "a": [
+   "Portugal",
+   "Spain",
+   "France",
+   "Britain"
+  ]
+ },
+ "q0022": {
+  "q": "Which revolt began in Brazil’s Maranhão province in 1838 after an armed group attacked the jail at Vila da Manga?",
+  "a": [
+   "Balaiada",
+   "Cabanagem",
+   "Sabinada",
+   "Praieira Revolt"
+  ]
+ },
+ "q0023": {
+  "q": "Which Japanese shogun relaxed the Book Ban Order in 1720 to permit the import of books on secular subjects?",
+  "a": [
+   "Tokugawa Yoshimune",
+   "Tokugawa Tsunayoshi",
+   "Tokugawa Ienobu",
+   "Tokugawa Ieshige"
+  ]
+ },
+ "q0024": {
+  "q": "Which language was used for most inscriptions on the gold coins of ancient Aksum in the region of Ethiopia and Eritrea?",
+  "a": [
+   "Greek",
+   "Latin",
+   "Ge’ez",
+   "Sabaean"
+  ]
+ },
+ "q0025": {
+  "q": "Which Japanese artist created the woodblock print The Great Wave off Kanagawa?",
+  "a": [
+   "Katsushika Hokusai",
+   "Utagawa Hiroshige",
+   "Kitagawa Utamaro",
+   "Ogata Kōrin"
+  ]
+ },
+ "q0026": {
+  "q": "Which instrument was Indian musician Ravi Shankar best known for playing?",
+  "a": [
+   "Sitar",
+   "Tabla",
+   "Sarod",
+   "Bansuri"
+  ]
+ },
+ "q0027": {
+  "q": "Which architect remodeled Casa Batlló in Barcelona between 1904 and 1906?",
+  "a": [
+   "Antoni Gaudí",
+   "Lluís Domènech i Montaner",
+   "Josep Puig i Cadafalch",
+   "Santiago Calatrava"
+  ]
+ },
+ "q0028": {
+  "q": "On which Canadian island are the Norse settlement remains at L'Anse aux Meadows located?",
+  "a": [
+   "Newfoundland",
+   "Baffin Island",
+   "Prince Edward Island",
+   "Cape Breton Island"
+  ]
+ },
+ "q0029": {
+  "q": "Which mountain range in Bulgaria contains the peak Musala?",
+  "a": [
+   "Rila",
+   "Pirin",
+   "Rhodope Mountains",
+   "Balkan Mountains"
+  ]
+ },
+ "q0030": {
+  "q": "In which Chilean valley is Vicuña, the birthplace of poet Gabriela Mistral?",
+  "a": [
+   "Elqui Valley",
+   "Limarí Valley",
+   "Maipo Valley",
+   "Aconcagua Valley"
+  ]
+ },
+ "q0031": {
+  "q": "Which animals did Russian physiologist Ivan Pavlov famously use to study conditioned salivation?",
+  "a": [
+   "Dogs",
+   "Cats",
+   "Rabbits",
+   "Monkeys"
+  ]
+ },
+ "q0032": {
+  "q": "Which phenomenon did Indian physicist C. V. Raman study in the work that earned him the 1930 Nobel Prize in Physics?",
+  "a": [
+   "Scattering of light",
+   "Radioactive decay",
+   "Nuclear fission",
+   "Superconductivity"
+  ]
+ },
+ "q0033": {
+  "q": "Which major layer of Earth's interior consists of liquid metal?",
+  "a": [
+   "Outer core",
+   "Inner core",
+   "Mantle",
+   "Crust"
+  ]
+ },
+ "q0034": {
+  "q": "Which Polish-born scientist shared the 1903 Nobel Prize in Physics for research on radioactivity?",
+  "a": [
+   "Marie Curie",
+   "Albert Einstein",
+   "Isaac Newton",
+   "Charles Darwin"
+  ]
+ },
+ "q0035": {
+  "q": "Which organ pumps blood around the human body?",
+  "a": [
+   "Heart",
+   "Liver",
+   "Lung",
+   "Kidney"
+  ]
+ },
+ "q0036": {
+  "q": "Which planet is 6th from the Sun?",
+  "a": [
+   "Saturn",
+   "Jupiter",
+   "Uranus",
+   "Neptune"
+  ]
+ },
+ "q0037": {
+  "q": "Which desert in Namibia and Angola is the natural home of Welwitschia mirabilis, a plant with 2 continuously growing leaves?",
+  "a": [
+   "Namib",
+   "Kalahari",
+   "Danakil",
+   "Sahara"
+  ]
+ },
+ "q0038": {
+  "q": "Mass fruiting of which tree helps trigger breeding in kākāpō in southern New Zealand?",
+  "a": [
+   "Rimu",
+   "Kauri",
+   "Tōtara",
+   "Pōhutukawa"
+  ]
+ },
+ "q0039": {
+  "q": "Which Vienna-born scientist deciphered how honeybees communicate food locations through dances?",
+  "a": [
+   "Karl von Frisch",
+   "Konrad Lorenz",
+   "Nikolaas Tinbergen",
+   "Ivan Pavlov"
+  ]
+ },
+ "q0040": {
+  "q": "Who became Ghana's first prime minister when it gained independence in 1957?",
+  "a": [
+   "Kwame Nkrumah",
+   "Julius Nyerere",
+   "Jomo Kenyatta",
+   "Patrice Lumumba"
+  ]
+ },
+ "q0041": {
+  "q": "In which German city did Johannes Gutenberg print his Bible around 1455?",
+  "a": [
+   "Mainz",
+   "Nuremberg",
+   "Augsburg",
+   "Cologne"
+  ]
+ },
+ "q0042": {
+  "q": "Which Inca ruler was captured by Francisco Pizarro's forces at Cajamarca in 1532?",
+  "a": [
+   "Atahualpa",
+   "Huayna Capac",
+   "Pachacuti",
+   "Tupac Inca Yupanqui"
+  ]
+ },
+ "q0043": {
+  "q": "Which 2 Japanese instruments are the soloists in Tōru Takemitsu's 1967 orchestral work November Steps?",
+  "a": [
+   "Biwa and shakuhachi",
+   "Koto and shō",
+   "Shamisen and taiko",
+   "Hichiriki and tsuzumi"
+  ]
+ },
+ "q0044": {
+  "q": "Which Brazilian sculptor created the 12 soapstone prophets at the Sanctuary of Bom Jesus in Congonhas?",
+  "a": [
+   "Aleijadinho",
+   "Mestre Valentim",
+   "Victor Brecheret",
+   "Bruno Giorgi"
+  ]
+ },
+ "q0045": {
+  "q": "Which architect designed the pilgrimage church of St John of Nepomuk at Zelená Hora in Czechia with a ground plan shaped like a 5-pointed star?",
+  "a": [
+   "Jan Blažej Santini Aichel",
+   "Johann Bernhard Fischer von Erlach",
+   "Kilian Ignaz Dientzenhofer",
+   "Johann Lucas von Hildebrandt"
+  ]
+ },
+ "q0046": {
+  "q": "Which plateau in India lies between the Western Ghats and the Eastern Ghats?",
+  "a": [
+   "Deccan Plateau",
+   "Malwa Plateau",
+   "Chota Nagpur Plateau",
+   "Shillong Plateau"
+  ]
+ },
+ "q0047": {
+  "q": "In which country is Lamu Old Town, a historic Swahili trading settlement built with coral stone and mangrove timber?",
+  "a": [
+   "Kenya",
+   "Tanzania",
+   "Mozambique",
+   "Somalia"
+  ]
+ },
+ "q0048": {
+  "q": "In which German town was the novelist Hermann Hesse born in 1877?",
+  "a": [
+   "Calw",
+   "Tübingen",
+   "Marbach am Neckar",
+   "Weimar"
+  ]
+ },
+ "q0049": {
+  "q": "Which Swiss humanitarian wrote A Memory of Solferino, helping inspire the creation of the Red Cross?",
+  "a": [
+   "Henry Dunant",
+   "Gustave Moynier",
+   "Albert Schweitzer",
+   "Frédéric Passy"
+  ]
+ },
+ "q0050": {
+  "q": "What is the traditional cooperative irrigation system organized around water temples in Bali, Indonesia, called?",
+  "a": [
+   "Subak",
+   "Banjar",
+   "Adat",
+   "Gotong royong"
+  ]
+ },
+ "q0051": {
+  "q": "What is the Korean first-birthday ritual in which a child selects an object believed to predict their future called?",
+  "a": [
+   "Doljabi",
+   "Baekil",
+   "Pyebaek",
+   "Jesa"
+  ]
+ },
+ "q0052": {
+  "q": "In which country was fairy-tale writer Hans Christian Andersen born?",
+  "a": [
+   "Denmark",
+   "Sweden",
+   "Norway",
+   "Germany"
+  ]
+ },
+ "q0053": {
+  "q": "What is the name of the boy raised by wolves in the Indian jungle in Rudyard Kipling's The Jungle Book?",
+  "a": [
+   "Mowgli",
+   "Tarzan",
+   "Peter Pan",
+   "Pinocchio"
+  ]
+ },
+ "q0054": {
+  "q": "Which Spanish writer created Don Quixote?",
+  "a": [
+   "Miguel de Cervantes",
+   "Federico García Lorca",
+   "Gabriel García Márquez",
+   "Pablo Neruda"
+  ]
+ },
+ "q0055": {
+  "q": "Which city in Angola served as the political and spiritual capital of the Kingdom of Kongo?",
+  "a": [
+   "Mbanza Kongo",
+   "Luanda",
+   "Benguela",
+   "Cabinda"
+  ]
+ },
+ "q0056": {
+  "q": "Which Korean king created the Hangul alphabet in 1443?",
+  "a": [
+   "Sejong",
+   "Taejo",
+   "Jeongjo",
+   "Gojong"
+  ]
+ },
+ "q0057": {
+  "q": "Which Mexican port was the American terminus of the Manila galleon trade that operated from 1565 to 1815?",
+  "a": [
+   "Acapulco",
+   "Veracruz",
+   "Mazatlán",
+   "Campeche"
+  ]
+ },
+ "q0058": {
+  "q": "In the traditional Gada system of the Oromo people of Ethiopia, how many years does each ruling class hold authority before the next takes over?",
+  "a": [
+   "8",
+   "6",
+   "10",
+   "12"
+  ]
+ },
+ "q0059": {
+  "q": "Which Brazilian advocate of women’s education published Direitos das Mulheres e Injustiça dos Homens in 1832?",
+  "a": [
+   "Nísia Floresta",
+   "Júlia Lopes de Almeida",
+   "Josefina Álvares de Azevedo",
+   "Francisca Senhorinha da Motta Diniz"
+  ]
+ },
+ "q0060": {
+  "q": "Among the Parsis of India, what is the sacred white undershirt first donned during the navjote initiation ceremony called?",
+  "a": [
+   "Sudreh",
+   "Kameez",
+   "Angarkha",
+   "Jama"
+  ]
+ },
+ "q0061": {
+  "q": "Which German inventor developed a paper coffee filter in Dresden in 1908?",
+  "a": [
+   "Melitta Bentz",
+   "Josephine Cochrane",
+   "Mary Anderson",
+   "Maria Telkes"
+  ]
+ },
+ "q0062": {
+  "q": "Which oil is traditionally combined with olive oil to make Aleppo soap in Syria?",
+  "a": [
+   "Laurel oil",
+   "Sesame oil",
+   "Almond oil",
+   "Castor oil"
+  ]
+ },
+ "q0063": {
+  "q": "What is the traditional Korean name for a cloth used to wrap gifts and carry household belongings?",
+  "a": [
+   "Bojagi",
+   "Furoshiki",
+   "Khata",
+   "Futa"
+  ]
+ },
+ "q0064": {
+  "q": "Which Japanese court writer composed the essay collection The Pillow Book?",
+  "a": [
+   "Sei Shōnagon",
+   "Murasaki Shikibu",
+   "Izumi Shikibu",
+   "Ono no Komachi"
+  ]
+ },
+ "q0065": {
+  "q": "In Juan Rulfo's Mexican novel Pedro Páramo, which town does Juan Preciado visit in search of his father?",
+  "a": [
+   "Comala",
+   "Macondo",
+   "Santa María",
+   "Yoknapatawpha"
+  ]
+ },
+ "q0066": {
+  "q": "Which Bulgarian author wrote the novel Under the Yoke?",
+  "a": [
+   "Ivan Vazov",
+   "Aleko Konstantinov",
+   "Elin Pelin",
+   "Yordan Yovkov"
+  ]
+ },
+ "q0067": {
+  "q": "Which grain forms the base of traditional Japanese sushi?",
+  "a": [
+   "Rice",
+   "Wheat",
+   "Barley",
+   "Corn"
+  ]
+ },
+ "q0068": {
+  "q": "What does the French greeting 'bonjour' mean?",
+  "a": [
+   "Good day",
+   "Goodbye",
+   "Thank you",
+   "Please"
+  ]
+ },
+ "q0069": {
+  "q": "Which household appliance is designed to keep food frozen?",
+  "a": [
+   "Freezer",
+   "Oven",
+   "Dishwasher",
+   "Toaster"
+  ]
+ },
+ "q0070": {
+  "q": "Which lake in the Andes lies on the border between Peru and Bolivia?",
+  "a": [
+   "Lake Titicaca",
+   "Lake Maracaibo",
+   "Lake Chapala",
+   "Lake Nicaragua"
+  ]
+ },
+ "q0071": {
+  "q": "Which Japanese city became the imperial capital in 794 under the name Heian-kyo?",
+  "a": [
+   "Kyoto",
+   "Osaka",
+   "Nara",
+   "Kamakura"
+  ]
+ },
+ "q0072": {
+  "q": "In which country is Żelazowa Wola, the birthplace of composer Frédéric Chopin?",
+  "a": [
+   "Poland",
+   "France",
+   "Austria",
+   "Hungary"
+  ]
+ },
+ "q0073": {
+  "q": "Counting outward from the Sun, which planet has number 1?",
+  "a": [
+   "Mercury",
+   "Mars",
+   "Earth",
+   "Jupiter"
+  ]
+ },
+ "q0074": {
+  "q": "Counting outward from the Sun, what number is Mercury?",
+  "a": [
+   "1",
+   "7",
+   "2",
+   "8"
+  ]
+ },
+ "q0075": {
+  "q": "Counting outward from the Sun, which planet has number 2?",
+  "a": [
+   "Venus",
+   "Neptune",
+   "Saturn",
+   "Mercury"
+  ]
+ },
+ "q0076": {
+  "q": "Counting outward from the Sun, what number is Venus?",
+  "a": [
+   "2",
+   "4",
+   "6",
+   "1"
+  ]
+ },
+ "q0077": {
+  "q": "Counting outward from the Sun, which planet has number 3?",
+  "a": [
+   "Earth",
+   "Saturn",
+   "Venus",
+   "Mercury"
+  ]
+ },
+ "q0078": {
+  "q": "Counting outward from the Sun, what number is Earth?",
+  "a": [
+   "3",
+   "1",
+   "5",
+   "7"
+  ]
+ },
+ "q0079": {
+  "q": "Counting outward from the Sun, which planet has number 4?",
+  "a": [
+   "Mars",
+   "Mercury",
+   "Venus",
+   "Neptune"
+  ]
+ },
+ "q0080": {
+  "q": "Counting outward from the Sun, what number is Mars?",
+  "a": [
+   "4",
+   "6",
+   "5",
+   "1"
+  ]
+ },
+ "q0081": {
+  "q": "Counting outward from the Sun, which planet has number 5?",
+  "a": [
+   "Jupiter",
+   "Neptune",
+   "Saturn",
+   "Mercury"
+  ]
+ },
+ "q0082": {
+  "q": "Counting outward from the Sun, what number is Jupiter?",
+  "a": [
+   "5",
+   "2",
+   "7",
+   "6"
+  ]
+ },
+ "q0083": {
+  "q": "Counting outward from the Sun, which planet has number 6?",
+  "a": [
+   "Saturn",
+   "Mercury",
+   "Jupiter",
+   "Uranus"
+  ]
+ },
+ "q0084": {
+  "q": "Counting outward from the Sun, what number is Saturn?",
+  "a": [
+   "6",
+   "4",
+   "1",
+   "2"
+  ]
+ },
+ "q0085": {
+  "q": "Counting outward from the Sun, which planet has number 7?",
+  "a": [
+   "Uranus",
+   "Mercury",
+   "Jupiter",
+   "Venus"
+  ]
+ },
+ "q0086": {
+  "q": "Counting outward from the Sun, what number is Uranus?",
+  "a": [
+   "7",
+   "3",
+   "4",
+   "2"
+  ]
+ },
+ "q0087": {
+  "q": "Counting outward from the Sun, which planet has number 8?",
+  "a": [
+   "Neptune",
+   "Jupiter",
+   "Mercury",
+   "Uranus"
+  ]
+ },
+ "q0088": {
+  "q": "Counting outward from the Sun, what number is Neptune?",
+  "a": [
+   "8",
+   "3",
+   "5",
+   "2"
+  ]
+ },
+ "q0089": {
+  "q": "Which month is number 1 of the year?",
+  "a": [
+   "January",
+   "March",
+   "November",
+   "May"
+  ]
+ },
+ "q0090": {
+  "q": "What number is January among the twelve months of the year?",
+  "a": [
+   "1",
+   "7",
+   "3",
+   "10"
+  ]
+ },
+ "q0091": {
+  "q": "Which month is number 2 of the year?",
+  "a": [
+   "February",
+   "March",
+   "November",
+   "January"
+  ]
+ },
+ "q0092": {
+  "q": "What number is February among the twelve months of the year?",
+  "a": [
+   "2",
+   "11",
+   "5",
+   "9"
+  ]
+ },
+ "q0093": {
+  "q": "Which month is number 3 of the year?",
+  "a": [
+   "March",
+   "December",
+   "October",
+   "August"
+  ]
+ },
+ "q0094": {
+  "q": "What number is March among the twelve months of the year?",
+  "a": [
+   "3",
+   "7",
+   "9",
+   "11"
+  ]
+ },
+ "q0095": {
+  "q": "Which month is number 4 of the year?",
+  "a": [
+   "April",
+   "July",
+   "June",
+   "May"
+  ]
+ },
+ "q0096": {
+  "q": "What number is April among the twelve months of the year?",
+  "a": [
+   "4",
+   "3",
+   "5",
+   "2"
+  ]
+ },
+ "q0097": {
+  "q": "Which month is number 5 of the year?",
+  "a": [
+   "May",
+   "November",
+   "June",
+   "October"
+  ]
+ },
+ "q0098": {
+  "q": "What number is May among the twelve months of the year?",
+  "a": [
+   "5",
+   "9",
+   "7",
+   "12"
+  ]
+ },
+ "q0099": {
+  "q": "Which month is number 6 of the year?",
+  "a": [
+   "June",
+   "May",
+   "November",
+   "February"
+  ]
+ },
+ "q0100": {
+  "q": "What number is June among the twelve months of the year?",
+  "a": [
+   "6",
+   "2",
+   "10",
+   "8"
+  ]
+ },
+ "q0101": {
+  "q": "Which month is number 7 of the year?",
+  "a": [
+   "July",
+   "March",
+   "June",
+   "December"
+  ]
+ },
+ "q0102": {
+  "q": "What number is July among the twelve months of the year?",
+  "a": [
+   "7",
+   "9",
+   "8",
+   "1"
+  ]
+ },
+ "q0103": {
+  "q": "Which month is number 8 of the year?",
+  "a": [
+   "August",
+   "December",
+   "February",
+   "October"
+  ]
+ },
+ "q0104": {
+  "q": "What number is August among the twelve months of the year?",
+  "a": [
+   "8",
+   "11",
+   "6",
+   "12"
+  ]
+ },
+ "q0105": {
+  "q": "Which month is number 9 of the year?",
+  "a": [
+   "September",
+   "June",
+   "November",
+   "August"
+  ]
+ },
+ "q0106": {
+  "q": "What number is September among the twelve months of the year?",
+  "a": [
+   "9",
+   "11",
+   "8",
+   "2"
+  ]
+ },
+ "q0107": {
+  "q": "Which month is number 10 of the year?",
+  "a": [
+   "October",
+   "February",
+   "May",
+   "August"
+  ]
+ },
+ "q0108": {
+  "q": "What number is October among the twelve months of the year?",
+  "a": [
+   "10",
+   "12",
+   "2",
+   "1"
+  ]
+ },
+ "q0109": {
+  "q": "Which month is number 11 of the year?",
+  "a": [
+   "November",
+   "May",
+   "October",
+   "August"
+  ]
+ },
+ "q0110": {
+  "q": "What number is November among the twelve months of the year?",
+  "a": [
+   "11",
+   "5",
+   "7",
+   "6"
+  ]
+ },
+ "q0111": {
+  "q": "Which month is number 12 of the year?",
+  "a": [
+   "December",
+   "January",
+   "August",
+   "June"
+  ]
+ },
+ "q0112": {
+  "q": "What number is December among the twelve months of the year?",
+  "a": [
+   "12",
+   "3",
+   "10",
+   "2"
+  ]
+ },
+ "q0113": {
+  "q": "Counting the week from Monday as day 1, which day is number 1?",
+  "a": [
+   "Monday",
+   "Friday",
+   "Tuesday",
+   "Wednesday"
+  ]
+ },
+ "q0114": {
+  "q": "Counting the week from Monday as day 1, which day is number 2?",
+  "a": [
+   "Tuesday",
+   "Thursday",
+   "Wednesday",
+   "Saturday"
+  ]
+ },
+ "q0115": {
+  "q": "Counting the week from Monday as day 1, which day is number 3?",
+  "a": [
+   "Wednesday",
+   "Friday",
+   "Sunday",
+   "Saturday"
+  ]
+ },
+ "q0116": {
+  "q": "Counting the week from Monday as day 1, which day is number 4?",
+  "a": [
+   "Thursday",
+   "Monday",
+   "Tuesday",
+   "Friday"
+  ]
+ },
+ "q0117": {
+  "q": "Counting the week from Monday as day 1, which day is number 5?",
+  "a": [
+   "Friday",
+   "Thursday",
+   "Saturday",
+   "Wednesday"
+  ]
+ },
+ "q0118": {
+  "q": "Counting the week from Monday as day 1, which day is number 6?",
+  "a": [
+   "Saturday",
+   "Tuesday",
+   "Thursday",
+   "Wednesday"
+  ]
+ },
+ "q0119": {
+  "q": "Counting the week from Monday as day 1, which day is number 7?",
+  "a": [
+   "Sunday",
+   "Saturday",
+   "Thursday",
+   "Wednesday"
+  ]
+ },
+ "q0120": {
+  "q": "How many sides does a triangle have?",
+  "a": [
+   "3",
+   "10",
+   "5",
+   "12"
+  ]
+ },
+ "q0121": {
+  "q": "Which shape has exactly 3 sides?",
+  "a": [
+   "triangle",
+   "pentagon",
+   "dodecagon",
+   "decagon"
+  ]
+ },
+ "q0122": {
+  "q": "How many sides does a quadrilateral have?",
+  "a": [
+   "4",
+   "7",
+   "9",
+   "5"
+  ]
+ },
+ "q0123": {
+  "q": "Which shape has exactly 4 sides?",
+  "a": [
+   "quadrilateral",
+   "triangle",
+   "heptagon",
+   "octagon"
+  ]
+ },
+ "q0124": {
+  "q": "How many sides does a pentagon have?",
+  "a": [
+   "5",
+   "6",
+   "12",
+   "10"
+  ]
+ },
+ "q0125": {
+  "q": "Which shape has exactly 5 sides?",
+  "a": [
+   "pentagon",
+   "triangle",
+   "quadrilateral",
+   "heptagon"
+  ]
+ },
+ "q0126": {
+  "q": "How many sides does a hexagon have?",
+  "a": [
+   "6",
+   "9",
+   "8",
+   "10"
+  ]
+ },
+ "q0127": {
+  "q": "Which shape has exactly 6 sides?",
+  "a": [
+   "hexagon",
+   "nonagon",
+   "quadrilateral",
+   "dodecagon"
+  ]
+ },
+ "q0128": {
+  "q": "How many sides does a heptagon have?",
+  "a": [
+   "7",
+   "3",
+   "6",
+   "9"
+  ]
+ },
+ "q0129": {
+  "q": "Which shape has exactly 7 sides?",
+  "a": [
+   "heptagon",
+   "decagon",
+   "hexagon",
+   "dodecagon"
+  ]
+ },
+ "q0130": {
+  "q": "How many sides does a octagon have?",
+  "a": [
+   "8",
+   "10",
+   "3",
+   "6"
+  ]
+ },
+ "q0131": {
+  "q": "Which shape has exactly 8 sides?",
+  "a": [
+   "octagon",
+   "decagon",
+   "triangle",
+   "quadrilateral"
+  ]
+ },
+ "q0132": {
+  "q": "How many sides does a nonagon have?",
+  "a": [
+   "9",
+   "4",
+   "12",
+   "6"
+  ]
+ },
+ "q0133": {
+  "q": "Which shape has exactly 9 sides?",
+  "a": [
+   "nonagon",
+   "pentagon",
+   "triangle",
+   "dodecagon"
+  ]
+ },
+ "q0134": {
+  "q": "How many sides does a decagon have?",
+  "a": [
+   "10",
+   "3",
+   "12",
+   "9"
+  ]
+ },
+ "q0135": {
+  "q": "Which shape has exactly 10 sides?",
+  "a": [
+   "decagon",
+   "pentagon",
+   "heptagon",
+   "triangle"
+  ]
+ },
+ "q0136": {
+  "q": "How many sides does a dodecagon have?",
+  "a": [
+   "12",
+   "8",
+   "7",
+   "3"
+  ]
+ },
+ "q0137": {
+  "q": "Which shape has exactly 12 sides?",
+  "a": [
+   "dodecagon",
+   "quadrilateral",
+   "nonagon",
+   "decagon"
+  ]
+ },
+ "q0138": {
+  "q": "Which number does the Roman numeral IV stand for?",
+  "a": [
+   "4",
+   "14",
+   "10",
+   "5"
+  ]
+ },
+ "q0139": {
+  "q": "Which number does the Roman numeral VI stand for?",
+  "a": [
+   "6",
+   "12",
+   "7",
+   "106"
+  ]
+ },
+ "q0140": {
+  "q": "Which number does the Roman numeral IX stand for?",
+  "a": [
+   "9",
+   "19",
+   "13",
+   "5"
+  ]
+ },
+ "q0141": {
+  "q": "Which number does the Roman numeral XII stand for?",
+  "a": [
+   "12",
+   "8",
+   "32",
+   "13"
+  ]
+ },
+ "q0142": {
+  "q": "Which number does the Roman numeral XIV stand for?",
+  "a": [
+   "14",
+   "34",
+   "114",
+   "13"
+  ]
+ },
+ "q0143": {
+  "q": "Which number does the Roman numeral XIX stand for?",
+  "a": [
+   "19",
+   "15",
+   "18",
+   "9"
+  ]
+ },
+ "q0144": {
+  "q": "Which number does the Roman numeral XL stand for?",
+  "a": [
+   "40",
+   "44",
+   "41",
+   "50"
+  ]
+ },
+ "q0145": {
+  "q": "Which number does the Roman numeral XLIV stand for?",
+  "a": [
+   "44",
+   "40",
+   "64",
+   "24"
+  ]
+ },
+ "q0146": {
+  "q": "Which number does the Roman numeral LXX stand for?",
+  "a": [
+   "70",
+   "69",
+   "90",
+   "74"
+  ]
+ },
+ "q0147": {
+  "q": "Which number does the Roman numeral XC stand for?",
+  "a": [
+   "90",
+   "86",
+   "110",
+   "70"
+  ]
+ },
+ "q0148": {
+  "q": "Which number does the Roman numeral CD stand for?",
+  "a": [
+   "400",
+   "410",
+   "399",
+   "380"
+  ]
+ },
+ "q0149": {
+  "q": "Which number does the Roman numeral CM stand for?",
+  "a": [
+   "900",
+   "899",
+   "910",
+   "901"
+  ]
+ },
+ "q0150": {
+  "q": "Which number does the Roman numeral MCM stand for?",
+  "a": [
+   "1900",
+   "1890",
+   "1901",
+   "1896"
+  ]
+ },
+ "q0151": {
+  "q": "Which number does the Roman numeral MMXX stand for?",
+  "a": [
+   "2020",
+   "2030",
+   "2120",
+   "2040"
+  ]
+ },
+ "q0152": {
+  "q": "Which number does the Roman numeral DCCC stand for?",
+  "a": [
+   "800",
+   "801",
+   "796",
+   "820"
+  ]
+ },
+ "q0153": {
+  "q": "What is the chemical symbol of hydrogen?",
+  "a": [
+   "H",
+   "Hg",
+   "O",
+   "Ca"
+  ]
+ },
+ "q0154": {
+  "q": "Which element has the chemical symbol H?",
+  "a": [
+   "hydrogen",
+   "gold",
+   "mercury (the metal)",
+   "oxygen"
+  ]
+ },
+ "q0155": {
+  "q": "What is the chemical symbol of helium?",
+  "a": [
+   "He",
+   "O",
+   "Fe",
+   "Cl"
+  ]
+ },
+ "q0156": {
+  "q": "Which element has the chemical symbol He?",
+  "a": [
+   "helium",
+   "potassium",
+   "gold",
+   "hydrogen"
+  ]
+ },
+ "q0157": {
+  "q": "What is the chemical symbol of carbon?",
+  "a": [
+   "C",
+   "H",
+   "Hg",
+   "Na"
+  ]
+ },
+ "q0158": {
+  "q": "Which element has the chemical symbol C?",
+  "a": [
+   "carbon",
+   "chlorine",
+   "sodium",
+   "oxygen"
+  ]
+ },
+ "q0159": {
+  "q": "What is the chemical symbol of nitrogen?",
+  "a": [
+   "N",
+   "Au",
+   "Cu",
+   "K"
+  ]
+ },
+ "q0160": {
+  "q": "Which element has the chemical symbol N?",
+  "a": [
+   "nitrogen",
+   "chlorine",
+   "mercury (the metal)",
+   "gold"
+  ]
+ },
+ "q0161": {
+  "q": "What is the chemical symbol of oxygen?",
+  "a": [
+   "O",
+   "K",
+   "Sn",
+   "He"
+  ]
+ },
+ "q0162": {
+  "q": "Which element has the chemical symbol O?",
+  "a": [
+   "oxygen",
+   "nitrogen",
+   "helium",
+   "tin"
+  ]
+ },
+ "q0163": {
+  "q": "What is the chemical symbol of sodium?",
+  "a": [
+   "Na",
+   "Cl",
+   "N",
+   "K"
+  ]
+ },
+ "q0164": {
+  "q": "Which element has the chemical symbol Na?",
+  "a": [
+   "sodium",
+   "nitrogen",
+   "chlorine",
+   "copper"
+  ]
+ },
+ "q0165": {
+  "q": "What is the chemical symbol of potassium?",
+  "a": [
+   "K",
+   "Sn",
+   "Cu",
+   "H"
+  ]
+ },
+ "q0166": {
+  "q": "Which element has the chemical symbol K?",
+  "a": [
+   "potassium",
+   "chlorine",
+   "silver",
+   "sodium"
+  ]
+ },
+ "q0167": {
+  "q": "What is the chemical symbol of calcium?",
+  "a": [
+   "Ca",
+   "Hg",
+   "Ag",
+   "He"
+  ]
+ },
+ "q0168": {
+  "q": "Which element has the chemical symbol Ca?",
+  "a": [
+   "calcium",
+   "lead",
+   "silver",
+   "helium"
+  ]
+ },
+ "q0169": {
+  "q": "What is the chemical symbol of chlorine?",
+  "a": [
+   "Cl",
+   "Sn",
+   "K",
+   "Hg"
+  ]
+ },
+ "q0170": {
+  "q": "Which element has the chemical symbol Cl?",
+  "a": [
+   "chlorine",
+   "gold",
+   "mercury (the metal)",
+   "nitrogen"
+  ]
+ },
+ "q0171": {
+  "q": "What is the chemical symbol of iron?",
+  "a": [
+   "Fe",
+   "Ca",
+   "C",
+   "K"
+  ]
+ },
+ "q0172": {
+  "q": "Which element has the chemical symbol Fe?",
+  "a": [
+   "iron",
+   "mercury (the metal)",
+   "silver",
+   "sodium"
+  ]
+ },
+ "q0173": {
+  "q": "What is the chemical symbol of copper?",
+  "a": [
+   "Cu",
+   "He",
+   "Hg",
+   "Au"
+  ]
+ },
+ "q0174": {
+  "q": "Which element has the chemical symbol Cu?",
+  "a": [
+   "copper",
+   "potassium",
+   "calcium",
+   "tin"
+  ]
+ },
+ "q0175": {
+  "q": "What is the chemical symbol of silver?",
+  "a": [
+   "Ag",
+   "Au",
+   "He",
+   "Sn"
+  ]
+ },
+ "q0176": {
+  "q": "Which element has the chemical symbol Ag?",
+  "a": [
+   "silver",
+   "carbon",
+   "tin",
+   "lead"
+  ]
+ },
+ "q0177": {
+  "q": "What is the chemical symbol of gold?",
+  "a": [
+   "Au",
+   "H",
+   "C",
+   "Fe"
+  ]
+ },
+ "q0178": {
+  "q": "Which element has the chemical symbol Au?",
+  "a": [
+   "gold",
+   "tin",
+   "calcium",
+   "mercury (the metal)"
+  ]
+ },
+ "q0179": {
+  "q": "What is the chemical symbol of mercury (the metal)?",
+  "a": [
+   "Hg",
+   "Cu",
+   "C",
+   "Fe"
+  ]
+ },
+ "q0180": {
+  "q": "Which element has the chemical symbol Hg?",
+  "a": [
+   "mercury (the metal)",
+   "lead",
+   "iron",
+   "calcium"
+  ]
+ },
+ "q0181": {
+  "q": "What is the chemical symbol of lead?",
+  "a": [
+   "Pb",
+   "Cu",
+   "Na",
+   "C"
+  ]
+ },
+ "q0182": {
+  "q": "Which element has the chemical symbol Pb?",
+  "a": [
+   "lead",
+   "chlorine",
+   "tin",
+   "carbon"
+  ]
+ },
+ "q0183": {
+  "q": "What is the chemical symbol of tin?",
+  "a": [
+   "Sn",
+   "H",
+   "Pb",
+   "Au"
+  ]
+ },
+ "q0184": {
+  "q": "Which element has the chemical symbol Sn?",
+  "a": [
+   "tin",
+   "silver",
+   "copper",
+   "helium"
+  ]
+ },
+ "q0185": {
+  "q": "Which part of the human body contains the heart?",
+  "a": [
+   "Chest",
+   "Stomach",
+   "Skull",
+   "Pelvis"
+  ]
+ },
+ "q0186": {
+  "q": "Which organ in the human body produces bile?",
+  "a": [
+   "Liver",
+   "Spleen",
+   "Thyroid",
+   "Pancreas"
+  ]
+ },
+ "q0187": {
+  "q": "Which protein in red blood cells carries oxygen from the lungs to tissues?",
+  "a": [
+   "Hemoglobin",
+   "Insulin",
+   "Keratin",
+   "Collagen"
+  ]
+ },
+ "q0188": {
+  "q": "Which Scottish bacteriologist discovered penicillin in 1928?",
+  "a": [
+   "Alexander Fleming",
+   "Robert Koch",
+   "Louis Pasteur",
+   "Paul Ehrlich"
+  ]
+ },
+ "q0189": {
+  "q": "Which hormone produced by the pancreas lowers blood glucose levels?",
+  "a": [
+   "Insulin",
+   "Cortisol",
+   "Adrenaline",
+   "Melatonin"
+  ]
+ },
+ "q0190": {
+  "q": "Which cranial nerve is the primary parasympathetic nerve supplying the heart and digestive tract?",
+  "a": [
+   "Vagus nerve",
+   "Optic nerve",
+   "Olfactory nerve",
+   "Trigeminal nerve"
+  ]
+ },
+ "q0191": {
+  "q": "Which blood vessel carries oxygenated blood from the lungs to the left atrium of the heart?",
+  "a": [
+   "Pulmonary vein",
+   "Pulmonary artery",
+   "Superior vena cava",
+   "Aorta"
+  ]
+ },
+ "q0192": {
+  "q": "Which valve lies between the left atrium and the left ventricle of the human heart?",
+  "a": [
+   "Mitral valve",
+   "Tricuspid valve",
+   "Pulmonary valve",
+   "Aortic valve"
+  ]
+ },
+ "q0193": {
+  "q": "Which functional unit of the kidney filters blood to form urine?",
+  "a": [
+   "Nephron",
+   "Neuron",
+   "Alveolus",
+   "Sarcomere"
+  ]
+ },
+ "q0194": {
+  "q": "Which cells in the stomach lining secrete intrinsic factor needed for vitamin B12 absorption?",
+  "a": [
+   "Parietal cells",
+   "Chief cells",
+   "Goblet cells",
+   "Paneth cells"
+  ]
+ },
+ "q0195": {
+  "q": "Which city is the capital of Bulgaria?",
+  "a": [
+   "Sofia",
+   "Plovdiv",
+   "Varna",
+   "Burgas"
+  ]
+ },
+ "q0196": {
+  "q": "Which ruler led the Bulgars across the Danube in 681 to establish the First Bulgarian Empire?",
+  "a": [
+   "Asparuh",
+   "Krum",
+   "Boris I",
+   "Kaloyan"
+  ]
+ },
+ "q0197": {
+  "q": "Which city served as the first capital of the First Bulgarian Empire from 681 to 893?",
+  "a": [
+   "Pliska",
+   "Veliko Tarnovo",
+   "Ohrid",
+   "Vidin"
+  ]
+ },
+ "q0198": {
+  "q": "Which Bulgarian ruler adopted Christianity as the state religion in the 860s?",
+  "a": [
+   "Boris I",
+   "Simeon I",
+   "Samuel",
+   "Ivan Asen II"
+  ]
+ },
+ "q0199": {
+  "q": "Which city served as the capital of the Second Bulgarian Empire from 1185 until 1393?",
+  "a": [
+   "Veliko Tarnovo",
+   "Sofia",
+   "Preslav",
+   "Silistra"
+  ]
+ },
+ "q0200": {
+  "q": "Which rock relief carved into a cliff near Shumen depicts a mounted knight triumphing over a lion?",
+  "a": [
+   "Madara Rider",
+   "Ivanovo Churches",
+   "Boyana Church",
+   "Thracian Tomb of Kazanlak"
+  ]
+ },
+ "q0201": {
+  "q": "Which Bulgarian khan defeated Byzantine Emperor Nicephorus I in the mountain passes in 811?",
+  "a": [
+   "Krum",
+   "Tervel",
+   "Omurtag",
+   "Kaloyan"
+  ]
+ },
+ "q0202": {
+  "q": "In which year did the Unification of the Principality of Bulgaria and Eastern Rumelia take place?",
+  "a": [
+   "1885",
+   "1878",
+   "1908",
+   "1912"
+  ]
+ },
+ "q0203": {
+  "q": "In which year did Prince Ferdinand proclaim Bulgaria's full independence in Veliko Tarnovo?",
+  "a": [
+   "1908",
+   "1879",
+   "1885",
+   "1913"
+  ]
+ },
+ "q0204": {
+  "q": "Which medieval Bulgarian ruler won a decisive victory over the Byzantine Empire at the Battle of Achelous in 917?",
+  "a": [
+   "Simeon I",
+   "Krum",
+   "Tervel",
+   "Peter I"
+  ]
+ },
+ "q0205": {
+  "q": "Which anti-Ottoman revolt broke out in Bulgarian lands in April 1876?",
+  "a": [
+   "April Uprising",
+   "Chiprovtsi Uprising",
+   "Kresna-Razlog Uprising",
+   "Uprising of Asen and Peter"
+  ]
+ },
+ "q0206": {
+  "q": "Which peace treaty ended the Russo-Turkish War of 1877–1878 on March 3, 1878?",
+  "a": [
+   "Treaty of San Stefano",
+   "Treaty of Neuilly",
+   "Treaty of Craiova",
+   "Treaty of Bucharest"
+  ]
+ },
+ "q0207": {
+  "q": "Which Bulgarian tsar defeated Theodore Komnenos Doukas at the Battle of Klokotnitsa in 1230?",
+  "a": [
+   "Ivan Asen II",
+   "Kaloyan",
+   "Ivaylo",
+   "Ivan Alexander"
+  ]
+ },
+ "q0208": {
+  "q": "In which city was Bulgaria's first constitution, the Tarnovo Constitution, adopted in 1879?",
+  "a": [
+   "Veliko Tarnovo",
+   "Sofia",
+   "Plovdiv",
+   "Ruse"
+  ]
+ },
+ "q0209": {
+  "q": "Which Bulgarian tsar defeated Latin Emperor Baldwin I at the Battle of Adrianople in 1205?",
+  "a": [
+   "Kaloyan",
+   "Ivan Asen II",
+   "Simeon I",
+   "Samuel"
+  ]
+ },
+ "q0210": {
+  "q": "Which treaty signed on September 7, 1940 returned Southern Dobruja to Bulgaria?",
+  "a": [
+   "Treaty of Craiova",
+   "Treaty of Neuilly",
+   "Treaty of Bucharest",
+   "Treaty of London"
+  ]
+ },
+ "q0211": {
+  "q": "Which peace treaty signed on November 27, 1919 required Bulgaria to cede Western Thrace?",
+  "a": [
+   "Treaty of Neuilly",
+   "Treaty of San Stefano",
+   "Treaty of Craiova",
+   "Treaty of Bucharest"
+  ]
+ },
+ "q0212": {
+  "q": "Which Bulgarian statesman served as prime minister from 1887 to 1894 during the reign of Prince Ferdinand?",
+  "a": [
+   "Stefan Stambolov",
+   "Aleksandar Malinov",
+   "Aleksandar Stamboliyski",
+   "Konstantin Stoilov"
+  ]
+ },
+ "q0213": {
+  "q": "Which peasant leader rose to become Tsar of Bulgaria from 1278 to 1279 after fighting Mongol raids?",
+  "a": [
+   "Ivaylo",
+   "Smilets",
+   "George Terter I",
+   "Michael Asen I"
+  ]
+ },
+ "q0214": {
+  "q": "Which Bulgarian khan signed a 30-year peace treaty with Byzantine Emperor Leo V in 815?",
+  "a": [
+   "Omurtag",
+   "Krum",
+   "Tervel",
+   "Malamir"
+  ]
+ },
+ "q0215": {
+  "q": "In which year did Usain Bolt set the 100-meter sprint world record of 9.58 seconds in Berlin?",
+  "a": [
+   "2009",
+   "2008",
+   "2012",
+   "2016"
+  ]
+ },
+ "q0216": {
+  "q": "In which year did swimmer Michael Phelps win a record eight gold medals at a single Olympic Games in Beijing?",
+  "a": [
+   "2008",
+   "2004",
+   "2012",
+   "2016"
+  ]
+ },
+ "q0217": {
+  "q": "In which year did Lionel Messi set a calendar-year football record by scoring 91 official goals?",
+  "a": [
+   "2012",
+   "2010",
+   "2015",
+   "2019"
+  ]
+ },
+ "q0218": {
+  "q": "In which year did Jesse Owens win a record-setting four track and field gold medals at the Berlin Olympics?",
+  "a": [
+   "1936",
+   "1932",
+   "1948",
+   "1952"
+  ]
+ },
+ "q0219": {
+  "q": "In which year did Romanian gymnast Nadia Comăneci score the first perfect 10 in Olympic gymnastics history?",
+  "a": [
+   "1976",
+   "1972",
+   "1980",
+   "1984"
+  ]
+ },
+ "q0220": {
+  "q": "In which year did Kenyan runner Eliud Kipchoge become the first person to run a marathon distance under two hours in Vienna?",
+  "a": [
+   "2019",
+   "2017",
+   "2021",
+   "2023"
+  ]
+ },
+ "q0221": {
+  "q": "In which year did basketball legend Wilt Chamberlain score his NBA-record 100 points in a single game?",
+  "a": [
+   "1962",
+   "1959",
+   "1968",
+   "1971"
+  ]
+ },
+ "q0222": {
+  "q": "In which year did American sprinter Florence Griffith-Joyner set the women's 100-meter world record of 10.49 seconds?",
+  "a": [
+   "1988",
+   "1984",
+   "1991",
+   "1996"
+  ]
+ },
+ "q0223": {
+  "q": "In which year did British runner Roger Bannister break the four-minute mile barrier for the first time?",
+  "a": [
+   "1954",
+   "1948",
+   "1958",
+   "1960"
+  ]
+ },
+ "q0224": {
+  "q": "In which year did Bob Beamon leap his legendary 8.90-meter long jump world record at the Mexico City Olympics?",
+  "a": [
+   "1968",
+   "1964",
+   "1972",
+   "1976"
+  ]
+ },
+ "q0225": {
+  "q": "In which year did pole vaulter Sergey Bubka become the first athlete to clear six meters in Paris?",
+  "a": [
+   "1985",
+   "1983",
+   "1988",
+   "1991"
+  ]
+ },
+ "q0226": {
+  "q": "In which year did Bulgarian high jumper Stefka Kostadinova set the women's world record of 2.09 meters in Rome?",
+  "a": [
+   "1987",
+   "1985",
+   "1988",
+   "1992"
+  ]
+ },
+ "q0227": {
+  "q": "In which year did American athlete Mike Powell break Bob Beamon's long jump world record by leaping 8.95 meters in Tokyo?",
+  "a": [
+   "1991",
+   "1988",
+   "1992",
+   "1995"
+  ]
+ },
+ "q0228": {
+  "q": "In which year did ice hockey great Wayne Gretzky score an NHL-record 92 goals in a single regular season?",
+  "a": [
+   "1982",
+   "1979",
+   "1985",
+   "1988"
+  ]
+ },
+ "q0229": {
+  "q": "In which year did Cuban athlete Javier Sotomayor set the men's high jump world record of 2.45 meters in Salamanca?",
+  "a": [
+   "1993",
+   "1989",
+   "1996",
+   "2000"
+  ]
+ },
+ "q0230": {
+  "q": "In which year did British triple jumper Jonathan Edwards set the men's world record of 18.29 meters in Gothenburg?",
+  "a": [
+   "1995",
+   "1992",
+   "1998",
+   "2000"
+  ]
+ },
+ "q0231": {
+  "q": "In which year did Ukrainian high jumper Yaroslava Mahuchikh break Stefka Kostadinova's 37-year-old world record by clearing 2.10 meters in Paris?",
+  "a": [
+   "2024",
+   "2021",
+   "2022",
+   "2025"
+  ]
+ },
+ "q0232": {
+  "q": "In which year did Kenyan marathoner Kelvin Kiptum run an official world-record time of 2:00:35 at the Chicago Marathon?",
+  "a": [
+   "2023",
+   "2021",
+   "2022",
+   "2024"
+  ]
+ },
+ "q0233": {
+  "q": "In which year did East German sprinter Marita Koch set the women's 400-meter world record of 47.60 seconds in Canberra?",
+  "a": [
+   "1985",
+   "1980",
+   "1982",
+   "1988"
+  ]
+ },
+ "q0234": {
+  "q": "In which year did New York Yankees outfielder Roger Maris hit 61 home runs to break Babe Ruth's single-season Major League Baseball record?",
+  "a": [
+   "1961",
+   "1956",
+   "1964",
+   "1969"
+  ]
+ },
+ "q0235": {
+  "q": "How many sides does a regular hexagon have?",
+  "a": [
+   "6",
+   "5",
+   "8",
+   "10"
+  ]
+ },
+ "q0236": {
+  "q": "What is the sum of the interior angles of a triangle in degrees?",
+  "a": [
+   "180",
+   "90",
+   "270",
+   "360"
+  ]
+ },
+ "q0237": {
+  "q": "What is the value of 12 squared?",
+  "a": [
+   "144",
+   "124",
+   "132",
+   "164"
+  ]
+ },
+ "q0238": {
+  "q": "What is the smallest prime number?",
+  "a": [
+   "2",
+   "1",
+   "0",
+   "3"
+  ]
+ },
+ "q0239": {
+  "q": "How many faces does a standard cube have?",
+  "a": [
+   "6",
+   "8",
+   "12",
+   "4"
+  ]
+ },
+ "q0240": {
+  "q": "What is the square root of 225?",
+  "a": [
+   "15",
+   "12",
+   "14",
+   "16"
+  ]
+ },
+ "q0241": {
+  "q": "What is the value of 5 factorial (5!)?",
+  "a": [
+   "120",
+   "25",
+   "60",
+   "720"
+  ]
+ },
+ "q0242": {
+  "q": "Which Greek letter commonly denotes the golden ratio?",
+  "a": [
+   "Phi",
+   "Pi",
+   "Sigma",
+   "Omega"
+  ]
+ },
+ "q0243": {
+  "q": "In a right-angled triangle, what is the side opposite the right angle called?",
+  "a": [
+   "Hypotenuse",
+   "Adjacent",
+   "Median",
+   "Altitude"
+  ]
+ },
+ "q0244": {
+  "q": "How many prime numbers are less than 20?",
+  "a": [
+   "8",
+   "7",
+   "9",
+   "10"
+  ]
+ },
+ "q0245": {
+  "q": "Which mathematician published \"Disquisitiones Arithmeticae\" in 1801?",
+  "a": [
+   "Carl Friedrich Gauss",
+   "Leonhard Euler",
+   "Pierre-Simon Laplace",
+   "Joseph-Louis Lagrange"
+  ]
+ },
+ "q0246": {
+  "q": "What is the sum of the first 10 positive integers?",
+  "a": [
+   "55",
+   "45",
+   "50",
+   "65"
+  ]
+ },
+ "q0247": {
+  "q": "How many Platonic solids exist in three-dimensional Euclidean space?",
+  "a": [
+   "5",
+   "4",
+   "6",
+   "8"
+  ]
+ },
+ "q0248": {
+  "q": "Which mathematician formulated the incompleteness theorems in 1931?",
+  "a": [
+   "Kurt Gödel",
+   "Alan Turing",
+   "Bertrand Russell",
+   "John von Neumann"
+  ]
+ },
+ "q0249": {
+  "q": "How many edges does a dodecahedron have?",
+  "a": [
+   "30",
+   "20",
+   "12",
+   "24"
+  ]
+ },
+ "q0250": {
+  "q": "Which mathematician proved Fermat's Last Theorem in 1995?",
+  "a": [
+   "Andrew Wiles",
+   "Grigori Perelman",
+   "Terence Tao",
+   "Pierre Deligne"
+  ]
+ },
+ "q0251": {
+  "q": "What is the Euler characteristic of a sphere?",
+  "a": [
+   "2",
+   "0",
+   "1",
+   "-2"
+  ]
+ },
+ "q0252": {
+  "q": "Which mathematician introduced set theory in the late 19th century?",
+  "a": [
+   "Georg Cantor",
+   "Augustin-Louis Cauchy",
+   "Évariste Galois",
+   "Bernhard Riemann"
+  ]
+ },
+ "q0253": {
+  "q": "Which theorem states that every non-constant single-variable polynomial has a complex root?",
+  "a": [
+   "Fundamental theorem of algebra",
+   "Binomial theorem",
+   "Remainder theorem",
+   "Green's theorem"
+  ]
+ },
+ "q0254": {
+  "q": "Which mathematician proved the independence of the continuum hypothesis from ZFC in 1963?",
+  "a": [
+   "Paul Cohen",
+   "Saharon Shelah",
+   "Emil Post",
+   "Alfred Tarski"
+  ]
+ },
+ "q0255": {
+  "q": "How many legs does an adult insect have?",
+  "a": [
+   "6",
+   "8",
+   "4",
+   "10"
+  ]
+ },
+ "q0256": {
+  "q": "Into what winged insect does a caterpillar transform?",
+  "a": [
+   "Butterfly",
+   "Dragonfly",
+   "Grasshopper",
+   "Ladybug"
+  ]
+ },
+ "q0257": {
+  "q": "Which insect collects nectar from flowers to produce honey?",
+  "a": [
+   "Honeybee",
+   "Wasp",
+   "Hornet",
+   "Bumblebee"
+  ]
+ },
+ "q0258": {
+  "q": "What are the three main body segments of an adult insect?",
+  "a": [
+   "Head, thorax, and abdomen",
+   "Head, neck, and tail",
+   "Head, shell, and tail",
+   "Head, chest, and legs"
+  ]
+ },
+ "q0259": {
+  "q": "Which insect produces light from its abdomen through bioluminescence?",
+  "a": [
+   "Firefly",
+   "Cicada",
+   "Cricket",
+   "Termite"
+  ]
+ },
+ "q0260": {
+  "q": "The caterpillar of which moth spins cocoons used to make natural silk?",
+  "a": [
+   "Bombyx mori",
+   "Atlas moth",
+   "Luna moth",
+   "Death's-head hawkmoth"
+  ]
+ },
+ "q0261": {
+  "q": "Which blood-feeding insect transmits the parasites that cause malaria?",
+  "a": [
+   "Mosquito",
+   "Flea",
+   "Tsetse fly",
+   "Bedbug"
+  ]
+ },
+ "q0262": {
+  "q": "Which carnivorous insect is known for holding its front legs folded as if in prayer?",
+  "a": [
+   "Praying mantis",
+   "Stick insect",
+   "Earwig",
+   "Cockroach"
+  ]
+ },
+ "q0263": {
+  "q": "Which order of insects contains the greatest number of described species on Earth?",
+  "a": [
+   "Beetles",
+   "Butterflies and moths",
+   "Flies",
+   "Bees, wasps, and ants"
+  ]
+ },
+ "q0264": {
+  "q": "Which social insects feed primarily on cellulose from wood and dead plant matter?",
+  "a": [
+   "Termites",
+   "Dragonflies",
+   "Ladybugs",
+   "Mayflies"
+  ]
+ },
+ "q0265": {
+  "q": "What are the specialized sense organs on an insect's head used primarily for smell and touch?",
+  "a": [
+   "Antennae",
+   "Mandibles",
+   "Spiracles",
+   "Tarsi"
+  ]
+ },
+ "q0266": {
+  "q": "What is the hardened outer skeleton that supports and protects an insect's body?",
+  "a": [
+   "Exoskeleton",
+   "Endoskeleton",
+   "Carapace",
+   "Notochord"
+  ]
+ },
+ "q0267": {
+  "q": "What is the four-stage insect life cycle consisting of egg, larva, pupa, and adult called?",
+  "a": [
+   "Complete metamorphosis",
+   "Incomplete metamorphosis",
+   "Parthenogenesis",
+   "Molting"
+  ]
+ },
+ "q0268": {
+  "q": "Which predatory beetles are widely used in agriculture to control aphids?",
+  "a": [
+   "Ladybugs",
+   "Weevils",
+   "Click beetles",
+   "June beetles"
+  ]
+ },
+ "q0269": {
+  "q": "What is the tough nitrogen-containing polysaccharide that forms the main component of an insect's exoskeleton?",
+  "a": [
+   "Chitin",
+   "Keratin",
+   "Cellulose",
+   "Collagen"
+  ]
+ },
+ "q0270": {
+  "q": "How do honeybees communicate the direction and distance of food sources to other members of the hive?",
+  "a": [
+   "Waggle dance",
+   "Tail-flicking",
+   "Antenna tapping",
+   "Wing drumming"
+  ]
+ },
+ "q0271": {
+  "q": "Which blood-sucking fly found in sub-Saharan Africa transmits the parasites responsible for sleeping sickness?",
+  "a": [
+   "Tsetse fly",
+   "Horsefly",
+   "Botfly",
+   "Sandfly"
+  ]
+ },
+ "q0272": {
+  "q": "What are the external openings along an insect's thorax and abdomen through which air enters its respiratory system?",
+  "a": [
+   "Spiracles",
+   "Malpighian tubules",
+   "Ocelli",
+   "Tympana"
+  ]
+ },
+ "q0273": {
+  "q": "Which modified hindwings act as gyroscopic balance organs in true flies of the order Diptera?",
+  "a": [
+   "Halteres",
+   "Elytra",
+   "Tegmina",
+   "Cerci"
+  ]
+ },
+ "q0274": {
+  "q": "Which excretory and osmoregulatory tubules branch off the digestive tract of insects?",
+  "a": [
+   "Malpighian tubules",
+   "Nephridia",
+   "Seminiferous tubules",
+   "Lacteals"
+  ]
+ },
+ "q0275": {
+  "q": "Which herbivorous dinosaur had three horns on its face and a large bony frill?",
+  "a": [
+   "Triceratops",
+   "Velociraptor",
+   "Allosaurus",
+   "Spinosaurus"
+  ]
+ },
+ "q0276": {
+  "q": "Which dinosaur had a double row of large bony plates along its back and spikes on its tail?",
+  "a": [
+   "Stegosaurus",
+   "Tyrannosaurus",
+   "Brachiosaurus",
+   "Diplodocus"
+  ]
+ },
+ "q0277": {
+  "q": "How did non-avian dinosaurs reproduce?",
+  "a": [
+   "By laying eggs",
+   "By giving birth to live young",
+   "By budding",
+   "By dividing in two"
+  ]
+ },
+ "q0278": {
+  "q": "Which herbivorous dinosaur had a heavy, club-like mass of bone at the end of its tail for defense?",
+  "a": [
+   "Ankylosaurus",
+   "Iguanodon",
+   "Compsognathus",
+   "Deinonychus"
+  ]
+ },
+ "q0279": {
+  "q": "Which theropod dinosaur is famous for having a tall, sail-like structure formed by spines on its back?",
+  "a": [
+   "Spinosaurus",
+   "Carnotaurus",
+   "Giganotosaurus",
+   "Ceratosaurus"
+  ]
+ },
+ "q0280": {
+  "q": "What are gastroliths, which have been found inside the fossilized skeletons of many sauropod dinosaurs?",
+  "a": [
+   "Stones swallowed to help grind plant food",
+   "Fossilized remains of unhatched eggs",
+   "Calcified parasites in the lungs",
+   "Bony armor plates under the skin"
+  ]
+ },
+ "q0281": {
+  "q": "Which bipedal herbivorous dinosaur had a sharp, enlarged thumb spike on each hand?",
+  "a": [
+   "Iguanodon",
+   "Allosaurus",
+   "Carnotaurus",
+   "Corythosaurus"
+  ]
+ },
+ "q0282": {
+  "q": "Which duck-billed dinosaur had a long, hollow, backward-curving crest on its head thought to amplify calls?",
+  "a": [
+   "Parasaurolophus",
+   "Pachycephalosaurus",
+   "Protoceratops",
+   "Plateosaurus"
+  ]
+ },
+ "q0283": {
+  "q": "Which bipedal dinosaur had a thick, dome-shaped skull roof up to 25 centimeters thick?",
+  "a": [
+   "Pachycephalosaurus",
+   "Microraptor",
+   "Therizinosaurus",
+   "Oviraptor"
+  ]
+ },
+ "q0284": {
+  "q": "Which herbivorous theropod dinosaur possessed the longest known claws of any land animal, reaching up to one meter in length?",
+  "a": [
+   "Therizinosaurus",
+   "Baryonyx",
+   "Megalosaurus",
+   "Coelophysis"
+  ]
+ },
+ "q0285": {
+  "q": "Which school of witchcraft and wizardry does Harry Potter attend in J. K. Rowling's novels?",
+  "a": [
+   "Hogwarts",
+   "Beauxbatons",
+   "Durmstrang",
+   "Ilvermorny"
+  ]
+ },
+ "q0286": {
+  "q": "Into which volcano must the One Ring be cast to be destroyed in J. R. R. Tolkien's 'The Lord of the Rings'?",
+  "a": [
+   "Mount Doom",
+   "Lonely Mountain",
+   "Mount Gundabad",
+   "Caradhras"
+  ]
+ },
+ "q0287": {
+  "q": "Which asteroid does the title character come from in Antoine de Saint-Exupéry's novella 'The Little Prince'?",
+  "a": [
+   "B 612",
+   "A 113",
+   "C 418",
+   "D 904"
+  ]
+ },
+ "q0288": {
+  "q": "In which museum does Robert Langdon find the murdered curator Jacques Saunière at the beginning of Dan Brown's 'The Da Vinci Code'?",
+  "a": [
+   "The Louvre",
+   "Musée d'Orsay",
+   "The British Museum",
+   "Vatican Museums"
+  ]
+ },
+ "q0289": {
+  "q": "In Paulo Coelho's novel 'The Alchemist', near which famous landmark does Santiago dream his treasure is buried?",
+  "a": [
+   "The Egyptian Pyramids",
+   "The Hanging Gardens of Babylon",
+   "The Colosseum in Rome",
+   "The Lighthouse of Alexandria"
+  ]
+ },
+ "q0290": {
+  "q": "What is the name of the loyal squire who rides a donkey alongside Miguel de Cervantes's Don Quixote?",
+  "a": [
+   "Sancho Panza",
+   "Rocinante",
+   "Samson Carrasco",
+   "Ginés de Pasamonte"
+  ]
+ },
+ "q0291": {
+  "q": "What is the name of the totalitarian dictator who rules Oceania in George Orwell's novel 'Nineteen Eighty-Four'?",
+  "a": [
+   "Big Brother",
+   "Emmanuel Goldstein",
+   "O'Brien",
+   "Napoleon"
+  ]
+ },
+ "q0292": {
+  "q": "Which mockingjay pin does Katniss Everdeen wear as a symbol of rebellion in Suzanne Collins's 'The Hunger Games'?",
+  "a": [
+   "A gold mockingjay pin",
+   "A silver wolf brooch",
+   "A bronze owl medallion",
+   "A copper falcon ring"
+  ]
+ },
+ "q0293": {
+  "q": "What is the name of the ten-year-old murder mystery novel by Agatha Christie in which ten strangers are invited to an isolated island?",
+  "a": [
+   "And Then There Were None",
+   "Murder on the Orient Express",
+   "Death on the Nile",
+   "The Murder of Roger Ackroyd"
+  ]
+ },
+ "q0294": {
+  "q": "What is the name of the desert planet that is the sole source of the spice melange in Frank Herbert's novel 'Dune'?",
+  "a": [
+   "Arrakis",
+   "Caladan",
+   "Giedi Prime",
+   "Salusa Secundus"
+  ]
+ },
+ "q0295": {
+  "q": "What is the name of the fictional town founded by José Arcadio Buendía in Gabriel García Márquez's 'One Hundred Years of Solitude'?",
+  "a": [
+   "Macondo",
+   "Comala",
+   "Santa María",
+   "Ollantaytambo"
+  ]
+ },
+ "q0296": {
+  "q": "What is the first name of Raskolnikov, the impoverished former student in Fyodor Dostoevsky's 'Crime and Punishment'?",
+  "a": [
+   "Rodion",
+   "Alexei",
+   "Dmitri",
+   "Ivan"
+  ]
+ },
+ "q0297": {
+  "q": "In Umberto Eco's historical mystery 'The Name of the Rose', who is the Franciscan friar investigating murders at a 14th-century abbey?",
+  "a": [
+   "William of Baskerville",
+   "Adso of Melk",
+   "Jorge of Burgos",
+   "Bernard Gui"
+  ]
+ },
+ "q0298": {
+  "q": "In Liu Cixin's science fiction novel 'The Three-Body Problem', what is the name of the alien civilization from a three-sun star system?",
+  "a": [
+   "Trisolarans",
+   "Singer's Civilization",
+   "Zero-Homers",
+   "Sophons"
+  ]
+ },
+ "q0299": {
+  "q": "What is the name of the whaling ship commanded by Captain Ahab in Herman Melville's novel 'Moby-Dick'?",
+  "a": [
+   "Pequod",
+   "Nautilus",
+   "Hispaniola",
+   "Beagle"
+  ]
+ },
+ "q0300": {
+  "q": "What is the name of the giant black talking cat who belongs to Woland's retinue in Mikhail Bulgakov's 'The Master and Margarita'?",
+  "a": [
+   "Behemoth",
+   "Azazello",
+   "Koroviev",
+   "Abaddon"
+  ]
+ },
+ "q0301": {
+  "q": "Which Beatles song gives its name to Haruki Murakami's 1987 bestselling coming-of-age novel?",
+  "a": [
+   "Norwegian Wood",
+   "Strawberry Fields Forever",
+   "Yesterday",
+   "Across the Universe"
+  ]
+ },
+ "q0302": {
+  "q": "Who is the author of the 1960 Pulitzer Prize-winning novel 'To Kill a Mockingbird'?",
+  "a": [
+   "Harper Lee",
+   "Toni Morrison",
+   "John Steinbeck",
+   "Truman Capote"
+  ]
+ },
+ "q0303": {
+  "q": "What is the name of the tattooed computer hacker heroine in Stieg Larsson's Millennium series?",
+  "a": [
+   "Lisbeth Salander",
+   "Erika Berger",
+   "Harriet Vanger",
+   "Saga Norén"
+  ]
+ },
+ "q0304": {
+  "q": "What is the name of the totalitarian republic in Margaret Atwood's dystopian novel 'The Handmaid's Tale'?",
+  "a": [
+   "Gilead",
+   "Panem",
+   "Oceania",
+   "Airstrip One"
+  ]
+ },
+ "q0305": {
+  "q": "In Khaled Hosseini's 'The Kite Runner', what is the name of Amir's loyal childhood friend and servant boy in Kabul?",
+  "a": [
+   "Hassan",
+   "Sohrab",
+   "Assef",
+   "Rahim"
+  ]
+ },
+ "q0306": {
+  "q": "In which Spanish city is Carlos Ruiz Zafón's bestselling 2001 novel 'The Shadow of the Wind' set?",
+  "a": [
+   "Barcelona",
+   "Madrid",
+   "Seville",
+   "Valencia"
+  ]
+ },
+ "q0307": {
+  "q": "Approximately how many months does an African elephant's pregnancy last?",
+  "a": [
+   "22 months",
+   "9 months",
+   "12 months",
+   "36 months"
+  ]
+ },
+ "q0308": {
+  "q": "Approximately how many days does a domestic dog's pregnancy last?",
+  "a": [
+   "63 days",
+   "21 days",
+   "120 days",
+   "280 days"
+  ]
+ },
+ "q0309": {
+  "q": "Approximately how many days does a domestic cat's pregnancy last?",
+  "a": [
+   "65 days",
+   "30 days",
+   "150 days",
+   "270 days"
+  ]
+ },
+ "q0310": {
+  "q": "Approximately how many months does a giraffe's pregnancy last?",
+  "a": [
+   "15 months",
+   "6 months",
+   "9 months",
+   "24 months"
+  ]
+ },
+ "q0311": {
+  "q": "Approximately how many days does a red kangaroo's gestation last before the joey enters the pouch?",
+  "a": [
+   "33 days",
+   "5 days",
+   "120 days",
+   "250 days"
+  ]
+ },
+ "q0312": {
+  "q": "Approximately how many months does a domestic horse's pregnancy last?",
+  "a": [
+   "11 months",
+   "5 months",
+   "18 months",
+   "24 months"
+  ]
+ },
+ "q0313": {
+  "q": "How many cubs does a giant panda usually give birth to at one time?",
+  "a": [
+   "1 or 2",
+   "5 or 6",
+   "8 to 10",
+   "12 to 15"
+  ]
+ },
+ "q0314": {
+  "q": "How many identical offspring does a nine-banded armadillo typically give birth to in every litter?",
+  "a": [
+   "4",
+   "2",
+   "6",
+   "8"
+  ]
+ },
+ "q0315": {
+  "q": "Approximately how many months does a domestic cow's pregnancy last?",
+  "a": [
+   "9 months",
+   "3 months",
+   "15 months",
+   "22 months"
+  ]
+ },
+ "q0316": {
+  "q": "Approximately how many months does a blue whale's pregnancy last?",
+  "a": [
+   "11 months",
+   "4 months",
+   "24 months",
+   "36 months"
+  ]
+ },
+ "q0317": {
+  "q": "Approximately how many days does a domestic rabbit's pregnancy last?",
+  "a": [
+   "31 days",
+   "7 days",
+   "90 days",
+   "180 days"
+  ]
+ },
+ "q0318": {
+  "q": "Approximately how many days does a house mouse's pregnancy last?",
+  "a": [
+   "20 days",
+   "5 days",
+   "60 days",
+   "120 days"
+  ]
+ },
+ "q0319": {
+  "q": "Approximately how many months does a bottlenose dolphin's pregnancy last?",
+  "a": [
+   "12 months",
+   "4 months",
+   "22 months",
+   "30 months"
+  ]
+ },
+ "q0320": {
+  "q": "Approximately how many days does a Virginia opossum's pregnancy last?",
+  "a": [
+   "12 days",
+   "45 days",
+   "90 days",
+   "150 days"
+  ]
+ },
+ "q0321": {
+  "q": "Approximately how many days does a domestic pig's pregnancy last?",
+  "a": [
+   "114 days",
+   "45 days",
+   "210 days",
+   "330 days"
+  ]
+ },
+ "q0322": {
+  "q": "Approximately how many months does a black rhinoceros's pregnancy last?",
+  "a": [
+   "15 months",
+   "6 months",
+   "9 months",
+   "28 months"
+  ]
+ },
+ "q0323": {
+  "q": "Approximately how many days does a domestic guinea pig's pregnancy last?",
+  "a": [
+   "65 days",
+   "20 days",
+   "120 days",
+   "200 days"
+  ]
+ },
+ "q0324": {
+  "q": "Approximately how many months does a walrus's total gestation period last, including delayed implantation?",
+  "a": [
+   "15 months",
+   "6 months",
+   "9 months",
+   "28 months"
+  ]
+ },
+ "q0325": {
+  "q": "Approximately how many days does a golden hamster's pregnancy last?",
+  "a": [
+   "16 days",
+   "45 days",
+   "90 days",
+   "140 days"
+  ]
+ },
+ "q0326": {
+  "q": "Approximately how many months does a frilled shark's gestation last, one of the longest among vertebrates?",
+  "a": [
+   "42 months",
+   "9 months",
+   "18 months",
+   "24 months"
+  ]
+ },
+ "q0327": {
+  "q": "Which explorer led the 1492 expedition across the Atlantic Ocean that reached the Americas?",
+  "a": [
+   "Christopher Columbus",
+   "Vasco da Gama",
+   "Ferdinand Magellan",
+   "James Cook"
+  ]
+ },
+ "q0328": {
+  "q": "Which Portuguese explorer led the first expedition to sail around the world between 1519 and 1522?",
+  "a": [
+   "Ferdinand Magellan",
+   "Vasco da Gama",
+   "Bartolomeu Dias",
+   "Amerigo Vespucci"
+  ]
+ },
+ "q0329": {
+  "q": "Which Portuguese navigator became the first European to reach India by sea in 1498?",
+  "a": [
+   "Vasco da Gama",
+   "Pedro Álvares Cabral",
+   "Henry the Navigator",
+   "Diogo Cão"
+  ]
+ },
+ "q0330": {
+  "q": "After which Italian navigator were the continents of North and South America named?",
+  "a": [
+   "Amerigo Vespucci",
+   "John Cabot",
+   "Giovanni da Verrazzano",
+   "Marco Polo"
+  ]
+ },
+ "q0331": {
+  "q": "Which British naval captain mapped the eastern coast of Australia and the Hawaiian Islands in the 18th century?",
+  "a": [
+   "James Cook",
+   "Francis Drake",
+   "Henry Hudson",
+   "William Bligh"
+  ]
+ },
+ "q0332": {
+  "q": "Which Chinese admiral commanded seven treasure voyages across the Indian Ocean during the early Ming dynasty?",
+  "a": [
+   "Zheng He",
+   "Kublai Khan",
+   "Ban Chao",
+   "Gan Ying"
+  ]
+ },
+ "q0333": {
+  "q": "Which Norse explorer is credited with leading the first European expedition to reach North America around 1000 AD?",
+  "a": [
+   "Leif Erikson",
+   "Erik the Red",
+   "Harald Hardrada",
+   "Rollo"
+  ]
+ },
+ "q0334": {
+  "q": "Which Portuguese navigator commanded the fleet that landed on the coast of present-day Brazil in April 1500?",
+  "a": [
+   "Pedro Álvares Cabral",
+   "Bartolomeu Dias",
+   "Afonso de Albuquerque",
+   "Gil Eanes"
+  ]
+ },
+ "q0335": {
+  "q": "Which Portuguese explorer became the first European to sail around the southern tip of Africa in 1488?",
+  "a": [
+   "Bartolomeu Dias",
+   "Vasco da Gama",
+   "Diogo Cão",
+   "Nuno Tristão"
+  ]
+ },
+ "q0336": {
+  "q": "Which English sea captain completed the second circumnavigation of the world between 1577 and 1580 aboard the Golden Hind?",
+  "a": [
+   "Francis Drake",
+   "Walter Raleigh",
+   "Martin Frobisher",
+   "John Hawkins"
+  ]
+ },
+ "q0337": {
+  "q": "Which Danish-born navigator led Russian expeditions that explored the strait separating Asia and North America in 1728 and 1741?",
+  "a": [
+   "Vitus Bering",
+   "Aleksei Chirikov",
+   "Semyon Dezhnev",
+   "Ivan Krusenstern"
+  ]
+ },
+ "q0338": {
+  "q": "Which Basque navigator took command after Ferdinand Magellan's death and brought the surviving ship Victoria back to Spain in 1522?",
+  "a": [
+   "Juan Sebastián Elcano",
+   "Andrés de Urdaneta",
+   "Alonso de Salazar",
+   "Miguel López de Legazpi"
+  ]
+ },
+ "q0339": {
+  "q": "Which Dutch seafarer became the first known European to reach Tasmania and New Zealand in 1642?",
+  "a": [
+   "Abel Tasman",
+   "Willem Barentsz",
+   "Willem Janszoon",
+   "Cornelis de Houtman"
+  ]
+ },
+ "q0340": {
+  "q": "Which French navigator led the first French circumnavigation of the world between 1766 and 1769?",
+  "a": [
+   "Louis Antoine de Bougainville",
+   "Jean-François de La Pérouse",
+   "Jacques Cartier",
+   "Samuel de Champlain"
+  ]
+ },
+ "q0341": {
+  "q": "Which English navigator explored the river and bay in North America that now bear his name during voyages in 1609 and 1610?",
+  "a": [
+   "Henry Hudson",
+   "John Cabot",
+   "Martin Frobisher",
+   "William Baffin"
+  ]
+ },
+ "q0342": {
+  "q": "Which French navigator claimed the St. Lawrence River region for France in 1534 and named the territory Canada?",
+  "a": [
+   "Jacques Cartier",
+   "Samuel de Champlain",
+   "René-Robert Cavelier",
+   "Jacques Marquette"
+  ]
+ },
+ "q0343": {
+  "q": "Which Dutch navigator led three expeditions to search for a Northeast Passage in the 1590s and has an Arctic sea named after him?",
+  "a": [
+   "Willem Barentsz",
+   "Abel Tasman",
+   "Jacob Roggeveen",
+   "Dirk Hartog"
+  ]
+ },
+ "q0344": {
+  "q": "Which Baltic German admiral commanded the first Russian circumnavigation of the globe between 1803 and 1806?",
+  "a": [
+   "Adam Johann von Krusenstern",
+   "Fabian Gottlieb von Bellingshausen",
+   "Otto von Kotzebue",
+   "Ferdinand von Wrangel"
+  ]
+ },
+ "q0345": {
+  "q": "Which Dutch navigator led the 1721–1722 expedition that made the first recorded European sighting of Easter Island?",
+  "a": [
+   "Jacob Roggeveen",
+   "Willem Janszoon",
+   "Dirk Hartog",
+   "Frederick de Houtman"
+  ]
+ },
+ "q0346": {
+  "q": "Which Spanish navigator charted the west-to-east return route across the Pacific Ocean from the Philippines to Mexico in 1565?",
+  "a": [
+   "Andrés de Urdaneta",
+   "Ruy López de Villalobos",
+   "Álvaro de Mendaña",
+   "Pedro Fernández de Quirós"
+  ]
+ },
+ "q0347": {
+  "q": "Which explorer led the expedition that reached the Americas in 1492?",
+  "a": [
+   "Christopher Columbus",
+   "Jack Sparrow",
+   "Santa Claus",
+   "Harry Potter"
+  ]
+ },
+ "q0348": {
+  "q": "Which medical instrument do doctors place on the chest to listen to the heart and lungs?",
+  "a": [
+   "Stethoscope",
+   "A bucket of cold spaghetti",
+   "A singing toaster",
+   "A tiny inflatable sofa"
+  ]
+ },
+ "q0349": {
+  "q": "Who invented the stethoscope in 1816?",
+  "a": [
+   "René Laennec",
+   "Louis Pasteur",
+   "Alexander Fleming",
+   "Edward Jenner"
+  ]
+ },
+ "q0350": {
+  "q": "Which medical instrument is used to measure body temperature?",
+  "a": [
+   "Thermometer",
+   "Barometer",
+   "Hygrometer",
+   "Anemometer"
+  ]
+ },
+ "q0351": {
+  "q": "Which surgical instrument has a sharp blade for cutting tissue during operations?",
+  "a": [
+   "Scalpel",
+   "Forceps",
+   "Speculum",
+   "Curette"
+  ]
+ },
+ "q0352": {
+  "q": "Which medical device delivers a controlled electric shock to restore a normal heart rhythm?",
+  "a": [
+   "Defibrillator",
+   "Pacemaker",
+   "Nebulizer",
+   "Dialyzer"
+  ]
+ },
+ "q0353": {
+  "q": "Which medical instrument do doctors use to look inside the ear canal and eardrum?",
+  "a": [
+   "Otoscope",
+   "Ophthalmoscope",
+   "Laryngoscope",
+   "Endoscope"
+  ]
+ },
+ "q0354": {
+  "q": "Which medical instrument is used to examine the interior of the eye, including the retina?",
+  "a": [
+   "Ophthalmoscope",
+   "Otoscope",
+   "Spirometer",
+   "Tonometer"
+  ]
+ },
+ "q0355": {
+  "q": "Which medical device measures arterial blood pressure using an inflatable cuff?",
+  "a": [
+   "Sphygmomanometer",
+   "Pulse oximeter",
+   "Glucometer",
+   "Electrocardiograph"
+  ]
+ },
+ "q0356": {
+  "q": "Which medical instrument measures the volume of air a person inhales and exhales?",
+  "a": [
+   "Spirometer",
+   "Audiometer",
+   "Oximeter",
+   "Capnograph"
+  ]
+ },
+ "q0357": {
+  "q": "Which hollow needle-and-plunger instrument is used to inject liquids or draw blood?",
+  "a": [
+   "Syringe",
+   "Catheter",
+   "Cannula",
+   "Trocar"
+  ]
+ },
+ "q0358": {
+  "q": "What is the Sun?",
+  "a": [
+   "A star",
+   "A giant glowing marshmallow",
+   "A cosmic disco ball",
+   "A giant space potato"
+  ]
+ },
+ "q0359": {
+  "q": "Which celestial body orbits Earth as its natural satellite?",
+  "a": [
+   "The Moon",
+   "Mars",
+   "Venus",
+   "Sirius"
+  ]
+ },
+ "q0360": {
+  "q": "In which year did Apollo 11 land the first humans on the Moon?",
+  "a": [
+   "1969",
+   "1957",
+   "1975",
+   "1986"
+  ]
+ },
+ "q0361": {
+  "q": "Who became the first human to travel into space in 1961?",
+  "a": [
+   "Yuri Gagarin",
+   "Neil Armstrong",
+   "Buzz Aldrin",
+   "John Glenn"
+  ]
+ },
+ "q0362": {
+  "q": "Which galaxy contains the Solar System?",
+  "a": [
+   "Milky Way",
+   "Andromeda",
+   "Triangulum",
+   "Sombrero"
+  ]
+ },
+ "q0363": {
+  "q": "What force keeps moons in orbit around planets?",
+  "a": [
+   "Gravity",
+   "Magnetism",
+   "Friction",
+   "Inertia"
+  ]
+ },
+ "q0364": {
+  "q": "Which star is closest to Earth after the Sun?",
+  "a": [
+   "Proxima Centauri",
+   "Polaris",
+   "Betelgeuse",
+   "Vega"
+  ]
+ },
+ "q0365": {
+  "q": "Which spacecraft carried the first American to orbit Earth in 1962?",
+  "a": [
+   "Friendship 7",
+   "Apollo 8",
+   "Gemini 4",
+   "Skylab"
+  ]
+ },
+ "q0366": {
+  "q": "What is the name of the space telescope launched in 1990?",
+  "a": [
+   "Hubble Space Telescope",
+   "Spitzer Space Telescope",
+   "Kepler Space Telescope",
+   "Chandra X-ray Observatory"
+  ]
+ },
+ "q0367": {
+  "q": "Which moon of Saturn has a dense atmosphere and liquid methane lakes?",
+  "a": [
+   "Titan",
+   "Europa",
+   "Ganymede",
+   "Io"
+  ]
+ },
+ "q0368": {
+  "q": "What is the name of the icy region beyond Neptune where Pluto orbits?",
+  "a": [
+   "Kuiper belt",
+   "Asteroid belt",
+   "Oort cloud",
+   "Van Allen belt"
+  ]
+ },
+ "q0369": {
+  "q": "Which spacecraft became the first human-made object to enter interstellar space?",
+  "a": [
+   "Voyager 1",
+   "Pioneer 10",
+   "New Horizons",
+   "Cassini"
+  ]
+ },
+ "q0370": {
+  "q": "What term names the boundary around a black hole beyond which nothing can escape?",
+  "a": [
+   "Event horizon",
+   "Photosphere",
+   "Roche limit",
+   "Lagrange point"
+  ]
+ },
+ "q0371": {
+  "q": "Which astronomer formulated the three laws of planetary motion in the early 17th century?",
+  "a": [
+   "Johannes Kepler",
+   "Tycho Brahe",
+   "Edmond Halley",
+   "Christiaan Huygens"
+  ]
+ },
+ "q0372": {
+  "q": "What is the name of the closest major spiral galaxy to the Milky Way?",
+  "a": [
+   "Andromeda Galaxy",
+   "Whirlpool Galaxy",
+   "Pinwheel Galaxy",
+   "Cigar Galaxy"
+  ]
+ },
+ "q0373": {
+  "q": "Which space probe returned samples from the asteroid Ryugu in 2020?",
+  "a": [
+   "Hayabusa2",
+   "OSIRIS-REx",
+   "Stardust",
+   "Dawn"
+  ]
+ },
+ "q0374": {
+  "q": "What is the approximate age of the universe in standard cosmology?",
+  "a": [
+   "13.8 billion years",
+   "4.5 billion years",
+   "9.2 billion years",
+   "22.4 billion years"
+  ]
+ },
+ "q0375": {
+  "q": "Which rotating neutron star emits beams of electromagnetic radiation as pulses?",
+  "a": [
+   "Pulsar",
+   "Magnetar",
+   "White dwarf",
+   "Brown dwarf"
+  ]
+ },
+ "q0376": {
+  "q": "What limit sets the distance within which tidal forces break up a body held by gravity?",
+  "a": [
+   "Roche limit",
+   "Schwarzschild radius",
+   "Chandrasekhar limit",
+   "Jeans mass"
+  ]
+ },
+ "q0377": {
+  "q": "Which spacecraft became the first to return samples from an asteroid surface in 2010?",
+  "a": [
+   "Hayabusa",
+   "Akatsuki",
+   "Kaguya",
+   "Hinode"
+  ]
+ },
+ "q0378": {
+  "q": "What is the Moon?",
+  "a": [
+   "Earth's natural satellite",
+   "A giant cheese wheel",
+   "A flying pizza",
+   "A lost boomerang"
+  ]
+ },
+ "q0379": {
+  "q": "Which star is at the center of the Solar System?",
+  "a": [
+   "The Sun",
+   "Sirius",
+   "Polaris",
+   "Aldebaran"
+  ]
+ },
+ "q0380": {
+  "q": "Which gas makes up most of the Sun's mass?",
+  "a": [
+   "Hydrogen",
+   "Oxygen",
+   "Nitrogen",
+   "Carbon dioxide"
+  ]
+ },
+ "q0381": {
+  "q": "Which of Jupiter's moons is the largest moon in the Solar System?",
+  "a": [
+   "Ganymede",
+   "Europa",
+   "Io",
+   "Callisto"
+  ]
+ },
+ "q0382": {
+  "q": "Between which two planets does the main asteroid belt lie?",
+  "a": [
+   "Mars and Jupiter",
+   "Earth and Mars",
+   "Jupiter and Saturn",
+   "Saturn and Uranus"
+  ]
+ },
+ "q0383": {
+  "q": "Which space company did Elon Musk found in 2002?",
+  "a": [
+   "SpaceX",
+   "A flock of trained pigeons",
+   "A giant cardboard box",
+   "A trampoline to the Moon"
+  ]
+ },
+ "q0384": {
+  "q": "Which electric car company is closely associated with Elon Musk?",
+  "a": [
+   "Tesla",
+   "A fleet of pedal-powered scooters",
+   "A giant hamster wheel on wheels",
+   "A car made of melted cheese"
+  ]
+ },
+ "q0385": {
+  "q": "In which city was Elon Musk born in 1971?",
+  "a": [
+   "Pretoria",
+   "Cape Town",
+   "Johannesburg",
+   "Durban"
+  ]
+ },
+ "q0386": {
+  "q": "Which software startup did Elon Musk co-found in 1995?",
+  "a": [
+   "Zip2",
+   "Stripe",
+   "Dropbox",
+   "Airbnb"
+  ]
+ },
+ "q0387": {
+  "q": "Which company acquired Zip2 in 1999?",
+  "a": [
+   "Compaq",
+   "Oracle",
+   "Cisco",
+   "Dell"
+  ]
+ },
+ "q0388": {
+  "q": "Which online payment company grew out of Elon Musk's X.com merger in 2000?",
+  "a": [
+   "PayPal",
+   "Venmo",
+   "Square",
+   "Alipay"
+  ]
+ },
+ "q0389": {
+  "q": "In which year did Elon Musk become CEO of Tesla?",
+  "a": [
+   "2008",
+   "2004",
+   "2006",
+   "2012"
+  ]
+ },
+ "q0390": {
+  "q": "In which year did SpaceX's Falcon 1 first reach Earth orbit?",
+  "a": [
+   "2008",
+   "2006",
+   "2010",
+   "2012"
+  ]
+ },
+ "q0391": {
+  "q": "Which brain-computer interface company did Elon Musk co-found in 2016?",
+  "a": [
+   "Neuralink",
+   "Cerebras",
+   "Synchron",
+   "Kernel"
+  ]
+ },
+ "q0392": {
+  "q": "Which tunnel construction company did Elon Musk found in 2017?",
+  "a": [
+   "The Boring Company",
+   "Bechtel",
+   "Skanska",
+   "Fluor"
+  ]
+ },
+ "q0393": {
+  "q": "Which artificial intelligence company did Elon Musk found in 2023?",
+  "a": [
+   "xAI",
+   "Anthropic",
+   "Mistral AI",
+   "Cohere"
+  ]
+ },
+ "q0394": {
+  "q": "Which social media platform did Elon Musk acquire in 2022?",
+  "a": [
+   "Twitter",
+   "Reddit",
+   "Snapchat",
+   "Pinterest"
+  ]
+ },
+ "q0395": {
+  "q": "Which SpaceX spacecraft is designed to carry astronauts to the International Space Station?",
+  "a": [
+   "Dragon",
+   "Orion",
+   "Shenzhou",
+   "Dream Chaser"
+  ]
+ },
+ "q0396": {
+  "q": "Which SpaceX satellite constellation provides global broadband internet?",
+  "a": [
+   "Starlink",
+   "OneWeb",
+   "Iridium",
+   "Globalstar"
+  ]
+ },
+ "q0397": {
+  "q": "In which year did Elon Musk become a naturalized citizen of the United States?",
+  "a": [
+   "2002",
+   "1995",
+   "1999",
+   "2008"
+  ]
+ },
+ "q0398": {
+  "q": "Which AI chatbot was created by Elon Musk's company xAI?",
+  "a": [
+   "Grok",
+   "Claude",
+   "Gemini",
+   "Llama"
+  ]
+ },
+ "q0399": {
+  "q": "Which university awarded Elon Musk his bachelor's degrees in 1997?",
+  "a": [
+   "University of Pennsylvania",
+   "Stanford University",
+   "Harvard University",
+   "Cornell University"
+  ]
+ },
+ "q0400": {
+  "q": "Which engine family powers SpaceX's Falcon 9 rocket?",
+  "a": [
+   "Merlin",
+   "Raptor",
+   "Vulcain",
+   "RD-180"
+  ]
+ },
+ "q0401": {
+  "q": "Which dummy payload did SpaceX's Falcon 1 carry on its first orbital flight in 2008?",
+  "a": [
+   "RatSat",
+   "Starman",
+   "Snoopy",
+   "Redstone"
+  ]
+ },
+ "q0402": {
+  "q": "In which year did Elon Musk step down as CEO of X.com after a leadership dispute?",
+  "a": [
+   "2000",
+   "1998",
+   "2002",
+   "2004"
+  ]
+ },
+ "q0403": {
+  "q": "What kind of currency is Bitcoin?",
+  "a": [
+   "Digital cryptocurrency",
+   "Physical chocolate coins",
+   "Monopoly board game money",
+   "Ancient Roman gold coins"
+  ]
+ },
+ "q0404": {
+  "q": "What is the pseudonym of Bitcoin's creator?",
+  "a": [
+   "Satoshi Nakamoto",
+   "Vitalik Buterin",
+   "Elon Musk",
+   "Charlie Lee"
+  ]
+ },
+ "q0405": {
+  "q": "What is the maximum total supply of bitcoins that can ever be mined?",
+  "a": [
+   "21 million",
+   "100 million",
+   "1 billion",
+   "50 million"
+  ]
+ },
+ "q0406": {
+  "q": "What is the name of the distributed ledger technology underlying Bitcoin?",
+  "a": [
+   "Blockchain",
+   "Cloud storage",
+   "Neural network",
+   "Relational database"
+  ]
+ },
+ "q0407": {
+  "q": "In which year was the Bitcoin network launched?",
+  "a": [
+   "2009",
+   "2005",
+   "2013",
+   "2017"
+  ]
+ },
+ "q0408": {
+  "q": "What food item was famously bought in the first commercial Bitcoin transaction in 2010 for 10,000 BTC?",
+  "a": [
+   "Two pizzas",
+   "A cup of coffee",
+   "A cheeseburger",
+   "A dozen donuts"
+  ]
+ },
+ "q0409": {
+  "q": "Which country became the first in the world to adopt Bitcoin as legal tender in 2021?",
+  "a": [
+   "El Salvador",
+   "Switzerland",
+   "Estonia",
+   "Malta"
+  ]
+ },
+ "q0410": {
+  "q": "What term describes the process of validating Bitcoin transactions and creating new bitcoins?",
+  "a": [
+   "Mining",
+   "Smelting",
+   "Forging",
+   "Refining"
+  ]
+ },
+ "q0411": {
+  "q": "What is the name of the smallest unit of a bitcoin, equal to 0.00000001 BTC?",
+  "a": [
+   "Satoshi",
+   "Finney",
+   "Gwei",
+   "Wei"
+  ]
+ },
+ "q0412": {
+  "q": "How often does the Bitcoin reward for mining a new block get cut in half, an event known as the halving?",
+  "a": [
+   "Every 4 years",
+   "Every year",
+   "Every 2 years",
+   "Every 10 years"
+  ]
+ },
+ "q0413": {
+  "q": "Which consensus mechanism does the Bitcoin network use to validate transactions?",
+  "a": [
+   "Proof of Work",
+   "Proof of Stake",
+   "Proof of Authority",
+   "Proof of Burn"
+  ]
+ },
+ "q0414": {
+  "q": "What is the target average time between the creation of two consecutive blocks on the Bitcoin blockchain?",
+  "a": [
+   "10 minutes",
+   "1 minute",
+   "1 hour",
+   "15 seconds"
+  ]
+ },
+ "q0415": {
+  "q": "Which cryptographic hash function is used in Bitcoin's Proof of Work algorithm?",
+  "a": [
+   "SHA-256",
+   "MD5",
+   "SHA-1",
+   "AES-128"
+  ]
+ },
+ "q0416": {
+  "q": "What is the name of the very first block ever mined on the Bitcoin blockchain?",
+  "a": [
+   "Genesis Block",
+   "Alpha Block",
+   "Prime Block",
+   "Origin Block"
+  ]
+ },
+ "q0417": {
+  "q": "Who was the recipient of the very first Bitcoin transaction sent by Satoshi Nakamoto in January 2009?",
+  "a": [
+   "Hal Finney",
+   "Nick Szabo",
+   "Gavin Andresen",
+   "Adam Back"
+  ]
+ },
+ "q0418": {
+  "q": "What is the name of the Layer-2 payment protocol built on top of Bitcoin to enable fast, low-fee transactions?",
+  "a": [
+   "Lightning Network",
+   "Polygon Network",
+   "Optimism Network",
+   "Avalanche Network"
+  ]
+ },
+ "q0419": {
+  "q": "In which month and year did Satoshi Nakamoto publish the Bitcoin whitepaper?",
+  "a": [
+   "October 2008",
+   "January 2009",
+   "May 2010",
+   "August 2007"
+  ]
+ },
+ "q0420": {
+  "q": "After how many mined blocks does the Bitcoin network automatically adjust its mining difficulty?",
+  "a": [
+   "2,016 blocks",
+   "1,000 blocks",
+   "210,000 blocks",
+   "4,096 blocks"
+  ]
+ },
+ "q0421": {
+  "q": "Which newspaper headline from January 3, 2009 did Satoshi Nakamoto embed inside Bitcoin's Genesis Block?",
+  "a": [
+   "The Times: Chancellor on brink of second bailout for banks",
+   "The Wall Street Journal: Global markets plunge to new lows",
+   "Financial Times: Central banks cut interest rates to zero",
+   "The New York Times: Banking crisis deepens worldwide"
+  ]
+ },
+ "q0422": {
+  "q": "What was the exact block reward in bitcoins when the Bitcoin network first launched in 2009?",
+  "a": [
+   "50 BTC",
+   "25 BTC",
+   "100 BTC",
+   "10 BTC"
+  ]
+ },
+ "q0423": {
+  "q": "What is the capital of this country: Andorra?",
+  "a": [
+   "Andorra la Vella",
+   "Nicosia",
+   "Vatican City",
+   "Rome"
+  ]
+ },
+ "q0424": {
+  "q": "What is the capital of this country: United Arab Emirates?",
+  "a": [
+   "Abu Dhabi",
+   "Manama",
+   "Kuwait City",
+   "Tbilisi"
+  ]
+ },
+ "q0425": {
+  "q": "What is the capital of this country: Afghanistan?",
+  "a": [
+   "Kabul",
+   "Malé",
+   "Tehran",
+   "Kathmandu"
+  ]
+ },
+ "q0426": {
+  "q": "What is the capital of this country: Antigua and Barbuda?",
+  "a": [
+   "Saint John's",
+   "Port of Spain",
+   "Nassau",
+   "Kingstown"
+  ]
+ },
+ "q0427": {
+  "q": "What is the capital of this country: Albania?",
+  "a": [
+   "Tirana",
+   "Skopje",
+   "Bucharest",
+   "Podgorica"
+  ]
+ },
+ "q0428": {
+  "q": "What is the capital of this country: Armenia?",
+  "a": [
+   "Yerevan",
+   "Damascus",
+   "Tbilisi",
+   "Manama"
+  ]
+ },
+ "q0429": {
+  "q": "What is the capital of this country: Angola?",
+  "a": [
+   "Luanda",
+   "N'Djamena",
+   "Juba",
+   "Kinshasa"
+  ]
+ },
+ "q0430": {
+  "q": "What is the capital of this country: Argentina?",
+  "a": [
+   "Buenos Aires",
+   "Quito",
+   "Georgetown",
+   "Bogotá"
+  ]
+ },
+ "q0431": {
+  "q": "What is the capital of this country: Austria?",
+  "a": [
+   "Vienna",
+   "Warsaw",
+   "Ljubljana",
+   "Bratislava"
+  ]
+ },
+ "q0432": {
+  "q": "What is the capital of this country: Australia?",
+  "a": [
+   "Canberra",
+   "Wellington",
+   "Funafuti",
+   "South Tarawa"
+  ]
+ },
+ "q0433": {
+  "q": "What is the capital of this country: Azerbaijan?",
+  "a": [
+   "Baku",
+   "Abu Dhabi",
+   "Ramallah",
+   "Jerusalem"
+  ]
+ },
+ "q0434": {
+  "q": "What is the capital of this country: Bosnia and Herzegovina?",
+  "a": [
+   "Sarajevo",
+   "Sofia",
+   "Belgrade",
+   "Podgorica"
+  ]
+ },
+ "q0435": {
+  "q": "What is the capital of this country: Barbados?",
+  "a": [
+   "Bridgetown",
+   "Port of Spain",
+   "Castries",
+   "Saint John's"
+  ]
+ },
+ "q0436": {
+  "q": "What is the capital of this country: Bangladesh?",
+  "a": [
+   "Dhaka",
+   "New Delhi",
+   "Kabul",
+   "Islamabad"
+  ]
+ },
+ "q0437": {
+  "q": "What is the capital of this country: Belgium?",
+  "a": [
+   "Brussels",
+   "Berlin",
+   "Bern",
+   "Monaco"
+  ]
+ },
+ "q0438": {
+  "q": "What is the capital of this country: Burkina Faso?",
+  "a": [
+   "Ouagadougou",
+   "Accra",
+   "Freetown",
+   "Bamako"
+  ]
+ },
+ "q0439": {
+  "q": "What is the capital of this country: Bahrain?",
+  "a": [
+   "Manama",
+   "Kuwait City",
+   "Abu Dhabi",
+   "Muscat"
+  ]
+ },
+ "q0440": {
+  "q": "What is the capital of this country: Burundi?",
+  "a": [
+   "Gitega",
+   "Port Louis",
+   "Dodoma",
+   "Maputo"
+  ]
+ },
+ "q0441": {
+  "q": "What is the capital of this country: Benin?",
+  "a": [
+   "Porto-Novo",
+   "Monrovia",
+   "Banjul",
+   "Accra"
+  ]
+ },
+ "q0442": {
+  "q": "What is the capital of this country: Brunei?",
+  "a": [
+   "Bandar Seri Begawan",
+   "Phnom Penh",
+   "Bangkok",
+   "Vientiane"
+  ]
+ },
+ "q0443": {
+  "q": "Which city is the constitutional capital of Bolivia?",
+  "a": [
+   "Sucre",
+   "Lima",
+   "Buenos Aires",
+   "Santiago"
+  ]
+ },
+ "q0444": {
+  "q": "What is the capital of this country: Brazil?",
+  "a": [
+   "Brasília",
+   "Paramaribo",
+   "Buenos Aires",
+   "Santiago"
+  ]
+ },
+ "q0445": {
+  "q": "What is the capital of this country: The Bahamas?",
+  "a": [
+   "Nassau",
+   "Port of Spain",
+   "Kingston",
+   "Santo Domingo"
+  ]
+ },
+ "q0446": {
+  "q": "What is the capital of this country: Bhutan?",
+  "a": [
+   "Thimphu",
+   "Malé",
+   "Tehran",
+   "Dhaka"
+  ]
+ },
+ "q0447": {
+  "q": "What is the capital of this country: Botswana?",
+  "a": [
+   "Gaborone",
+   "Pretoria",
+   "Maseru",
+   "Windhoek"
+  ]
+ },
+ "q0448": {
+  "q": "What is the capital of this country: Belarus?",
+  "a": [
+   "Minsk",
+   "Kyiv",
+   "Chișinău",
+   "Moscow"
+  ]
+ },
+ "q0449": {
+  "q": "What is the capital of this country: Belize?",
+  "a": [
+   "Belmopan",
+   "Guatemala City",
+   "Tegucigalpa",
+   "San Salvador"
+  ]
+ },
+ "q0450": {
+  "q": "What is the capital of this country: Canada?",
+  "a": [
+   "Ottawa",
+   "Mexico City",
+   "Washington, D.C.",
+   "Port-au-Prince"
+  ]
+ },
+ "q0451": {
+  "q": "What is the capital of this country: Democratic Republic of the Congo?",
+  "a": [
+   "Kinshasa",
+   "Luanda",
+   "N'Djamena",
+   "Juba"
+  ]
+ },
+ "q0452": {
+  "q": "What is the capital of this country: Central African Republic?",
+  "a": [
+   "Bangui",
+   "N'Djamena",
+   "Yaoundé",
+   "São Tomé"
+  ]
+ },
+ "q0453": {
+  "q": "What is the capital of this country: Republic of the Congo?",
+  "a": [
+   "Brazzaville",
+   "Juba",
+   "N'Djamena",
+   "Luanda"
+  ]
+ },
+ "q0454": {
+  "q": "Which city is Switzerland’s federal city and seat of government?",
+  "a": [
+   "Bern",
+   "Berlin",
+   "Vaduz",
+   "Monaco"
+  ]
+ },
+ "q0455": {
+  "q": "What is the capital of this country: Ivory Coast?",
+  "a": [
+   "Yamoussoukro",
+   "Praia",
+   "Abuja",
+   "Porto-Novo"
+  ]
+ },
+ "q0456": {
+  "q": "What is the capital of this country: Chile?",
+  "a": [
+   "Santiago",
+   "Paramaribo",
+   "Montevideo",
+   "Quito"
+  ]
+ },
+ "q0457": {
+  "q": "What is the capital of this country: Cameroon?",
+  "a": [
+   "Yaoundé",
+   "São Tomé",
+   "Bangui",
+   "N'Djamena"
+  ]
+ },
+ "q0458": {
+  "q": "What is the capital of this country: People's Republic of China?",
+  "a": [
+   "Beijing",
+   "Pyongyang",
+   "Seoul",
+   "Tokyo"
+  ]
+ },
+ "q0459": {
+  "q": "What is the capital of this country: Colombia?",
+  "a": [
+   "Bogotá",
+   "Asunción",
+   "Buenos Aires",
+   "Sucre"
+  ]
+ },
+ "q0460": {
+  "q": "What is the capital of this country: Costa Rica?",
+  "a": [
+   "San José",
+   "San Salvador",
+   "Belmopan",
+   "Managua"
+  ]
+ },
+ "q0461": {
+  "q": "What is the capital of this country: Cuba?",
+  "a": [
+   "Havana",
+   "Santo Domingo",
+   "Roseau",
+   "Port of Spain"
+  ]
+ },
+ "q0462": {
+  "q": "What is the capital of this country: Cape Verde?",
+  "a": [
+   "Praia",
+   "Accra",
+   "Ouagadougou",
+   "Conakry"
+  ]
+ },
+ "q0463": {
+  "q": "What is the capital of this country: Cyprus?",
+  "a": [
+   "Nicosia",
+   "Andorra la Vella",
+   "Madrid",
+   "Valletta"
+  ]
+ },
+ "q0464": {
+  "q": "What is the capital of this country: Czech Republic?",
+  "a": [
+   "Prague",
+   "Budapest",
+   "Ljubljana",
+   "Warsaw"
+  ]
+ },
+ "q0465": {
+  "q": "What is the capital of this country: Germany?",
+  "a": [
+   "Berlin",
+   "Luxembourg",
+   "Amsterdam",
+   "Monaco"
+  ]
+ },
+ "q0466": {
+  "q": "What is the capital of this country: Djibouti?",
+  "a": [
+   "Djibouti",
+   "Harare",
+   "Port Louis",
+   "Nairobi"
+  ]
+ },
+ "q0467": {
+  "q": "What is the capital of this country: Denmark?",
+  "a": [
+   "Copenhagen",
+   "Reykjavík",
+   "Oslo",
+   "Helsinki"
+  ]
+ },
+ "q0468": {
+  "q": "What is the capital of this country: Dominica?",
+  "a": [
+   "Roseau",
+   "Castries",
+   "St. George's",
+   "Saint John's"
+  ]
+ },
+ "q0469": {
+  "q": "What is the capital of this country: Dominican Republic?",
+  "a": [
+   "Santo Domingo",
+   "Port of Spain",
+   "Kingston",
+   "Nassau"
+  ]
+ },
+ "q0470": {
+  "q": "What is the capital of this country: Algeria?",
+  "a": [
+   "Algiers",
+   "Tripoli",
+   "Rabat",
+   "Tunis"
+  ]
+ },
+ "q0471": {
+  "q": "What is the capital of this country: Ecuador?",
+  "a": [
+   "Quito",
+   "Paramaribo",
+   "Brasília",
+   "Caracas"
+  ]
+ },
+ "q0472": {
+  "q": "What is the capital of this country: Estonia?",
+  "a": [
+   "Tallinn",
+   "London",
+   "Reykjavík",
+   "Stockholm"
+  ]
+ },
+ "q0473": {
+  "q": "What is the capital of this country: Egypt?",
+  "a": [
+   "Cairo",
+   "Rabat",
+   "Khartoum",
+   "Tunis"
+  ]
+ },
+ "q0474": {
+  "q": "What is the capital of this country: Eritrea?",
+  "a": [
+   "Asmara",
+   "Lilongwe",
+   "Addis Ababa",
+   "Lusaka"
+  ]
+ },
+ "q0475": {
+  "q": "What is the capital of this country: Spain?",
+  "a": [
+   "Madrid",
+   "Rome",
+   "Andorra la Vella",
+   "San Marino"
+  ]
+ },
+ "q0476": {
+  "q": "What is the capital of this country: Ethiopia?",
+  "a": [
+   "Addis Ababa",
+   "Moroni",
+   "Maputo",
+   "Mogadishu"
+  ]
+ },
+ "q0477": {
+  "q": "What is the capital of this country: Finland?",
+  "a": [
+   "Helsinki",
+   "Riga",
+   "Reykjavík",
+   "Stockholm"
+  ]
+ },
+ "q0478": {
+  "q": "What is the capital of this country: Fiji?",
+  "a": [
+   "Suva",
+   "Honiara",
+   "Port Vila",
+   "Port Moresby"
+  ]
+ },
+ "q0479": {
+  "q": "What is the capital of this country: Federated States of Micronesia?",
+  "a": [
+   "Palikir",
+   "South Tarawa",
+   "Majuro",
+   "Yaren District"
+  ]
+ },
+ "q0480": {
+  "q": "What is the capital of this country: France?",
+  "a": [
+   "Paris",
+   "Brussels",
+   "Luxembourg",
+   "Berlin"
+  ]
+ },
+ "q0481": {
+  "q": "What is the capital of this country: Gabon?",
+  "a": [
+   "Libreville",
+   "Luanda",
+   "São Tomé",
+   "Juba"
+  ]
+ },
+ "q0482": {
+  "q": "What is the capital of this country: United Kingdom?",
+  "a": [
+   "London",
+   "Riga",
+   "Copenhagen",
+   "Helsinki"
+  ]
+ },
+ "q0483": {
+  "q": "What is the capital of this country: Grenada?",
+  "a": [
+   "St. George's",
+   "Kingston",
+   "Havana",
+   "Port of Spain"
+  ]
+ },
+ "q0484": {
+  "q": "What is the capital of this country: Georgia?",
+  "a": [
+   "Tbilisi",
+   "Damascus",
+   "Jerusalem",
+   "Baku"
+  ]
+ },
+ "q0485": {
+  "q": "What is the capital of this country: Ghana?",
+  "a": [
+   "Accra",
+   "Ouagadougou",
+   "Freetown",
+   "Monrovia"
+  ]
+ },
+ "q0486": {
+  "q": "What is the capital of this country: The Gambia?",
+  "a": [
+   "Banjul",
+   "Porto-Novo",
+   "Praia",
+   "Monrovia"
+  ]
+ },
+ "q0487": {
+  "q": "What is the capital of this country: Guinea?",
+  "a": [
+   "Conakry",
+   "Nouakchott",
+   "Yamoussoukro",
+   "Freetown"
+  ]
+ },
+ "q0488": {
+  "q": "What is the capital of this country: Equatorial Guinea?",
+  "a": [
+   "Ciudad de la Paz",
+   "São Tomé",
+   "N'Djamena",
+   "Yaoundé"
+  ]
+ },
+ "q0489": {
+  "q": "What is the capital of this country: Greece?",
+  "a": [
+   "Athens",
+   "Rome",
+   "Madrid",
+   "Andorra la Vella"
+  ]
+ },
+ "q0490": {
+  "q": "What is the capital of this country: Guatemala?",
+  "a": [
+   "Guatemala City",
+   "Managua",
+   "Belmopan",
+   "San Salvador"
+  ]
+ },
+ "q0491": {
+  "q": "What is the capital of this country: Guinea-Bissau?",
+  "a": [
+   "Bissau",
+   "Lomé",
+   "Niamey",
+   "Dakar"
+  ]
+ },
+ "q0492": {
+  "q": "What is the capital of this country: Guyana?",
+  "a": [
+   "Georgetown",
+   "Caracas",
+   "Montevideo",
+   "Brasília"
+  ]
+ },
+ "q0493": {
+  "q": "What is the capital of this country: Honduras?",
+  "a": [
+   "Tegucigalpa",
+   "Managua",
+   "Panama City",
+   "San Salvador"
+  ]
+ },
+ "q0494": {
+  "q": "What is the capital of this country: Croatia?",
+  "a": [
+   "Zagreb",
+   "Belgrade",
+   "Skopje",
+   "Tirana"
+  ]
+ },
+ "q0495": {
+  "q": "What is the capital of this country: Haiti?",
+  "a": [
+   "Port-au-Prince",
+   "Roseau",
+   "Kingston",
+   "Havana"
+  ]
+ },
+ "q0496": {
+  "q": "What is the capital of this country: Hungary?",
+  "a": [
+   "Budapest",
+   "Ljubljana",
+   "Vienna",
+   "Prague"
+  ]
+ },
+ "q0497": {
+  "q": "What is the capital of this country: Indonesia?",
+  "a": [
+   "Jakarta",
+   "Naypyidaw",
+   "Kuala Lumpur",
+   "Manila"
+  ]
+ },
+ "q0498": {
+  "q": "What is the capital of this country: Ireland?",
+  "a": [
+   "Dublin",
+   "Vilnius",
+   "Riga",
+   "Reykjavík"
+  ]
+ },
+ "q0499": {
+  "q": "What is the capital of this country: Israel?",
+  "a": [
+   "Jerusalem",
+   "Damascus",
+   "Riyadh",
+   "Manama"
+  ]
+ },
+ "q0500": {
+  "q": "What is the capital of this country: India?",
+  "a": [
+   "New Delhi",
+   "Kabul",
+   "Dhaka",
+   "Tehran"
+  ]
+ },
+ "q0501": {
+  "q": "What is the capital of this country: Iraq?",
+  "a": [
+   "Baghdad",
+   "Tbilisi",
+   "Manama",
+   "Riyadh"
+  ]
+ },
+ "q0502": {
+  "q": "What is the capital of this country: Iran?",
+  "a": [
+   "Tehran",
+   "New Delhi",
+   "Islamabad",
+   "Kabul"
+  ]
+ },
+ "q0503": {
+  "q": "What is the capital of this country: Iceland?",
+  "a": [
+   "Reykjavík",
+   "Copenhagen",
+   "Vilnius",
+   "London"
+  ]
+ },
+ "q0504": {
+  "q": "What is the capital of this country: Italy?",
+  "a": [
+   "Rome",
+   "Madrid",
+   "Nicosia",
+   "Andorra la Vella"
+  ]
+ },
+ "q0505": {
+  "q": "What is the capital of this country: Jamaica?",
+  "a": [
+   "Kingston",
+   "Nassau",
+   "Santo Domingo",
+   "Bridgetown"
+  ]
+ },
+ "q0506": {
+  "q": "What is the capital of this country: Jordan?",
+  "a": [
+   "Amman",
+   "Tbilisi",
+   "Muscat",
+   "Beirut"
+  ]
+ },
+ "q0507": {
+  "q": "What is the capital of this country: Japan?",
+  "a": [
+   "Tokyo",
+   "Seoul",
+   "Beijing",
+   "Pyongyang"
+  ]
+ },
+ "q0508": {
+  "q": "What is the capital of this country: Kenya?",
+  "a": [
+   "Nairobi",
+   "Djibouti",
+   "Maputo",
+   "Asmara"
+  ]
+ },
+ "q0509": {
+  "q": "What is the capital of this country: Kyrgyzstan?",
+  "a": [
+   "Bishkek",
+   "Dushanbe",
+   "Astana",
+   "Tashkent"
+  ]
+ },
+ "q0510": {
+  "q": "What is the capital of this country: Cambodia?",
+  "a": [
+   "Phnom Penh",
+   "Hanoi",
+   "Bandar Seri Begawan",
+   "Bangkok"
+  ]
+ },
+ "q0511": {
+  "q": "What is the capital of this country: Kiribati?",
+  "a": [
+   "South Tarawa",
+   "Yaren District",
+   "Palikir",
+   "Ngerulmud"
+  ]
+ },
+ "q0512": {
+  "q": "What is the capital of this country: Comoros?",
+  "a": [
+   "Moroni",
+   "Asmara",
+   "Addis Ababa",
+   "Nairobi"
+  ]
+ },
+ "q0513": {
+  "q": "What is the capital of this country: Saint Kitts and Nevis?",
+  "a": [
+   "Basseterre",
+   "Saint John's",
+   "Roseau",
+   "Nassau"
+  ]
+ },
+ "q0514": {
+  "q": "What is the capital of this country: North Korea?",
+  "a": [
+   "Pyongyang",
+   "Tokyo",
+   "Seoul",
+   "Ulaanbaatar"
+  ]
+ },
+ "q0515": {
+  "q": "What is the capital of this country: South Korea?",
+  "a": [
+   "Seoul",
+   "Tokyo",
+   "Pyongyang",
+   "Ulaanbaatar"
+  ]
+ },
+ "q0516": {
+  "q": "What is the capital of this country: Kuwait?",
+  "a": [
+   "Kuwait City",
+   "Yerevan",
+   "Baghdad",
+   "Jerusalem"
+  ]
+ },
+ "q0517": {
+  "q": "What is the capital of this country: Kazakhstan?",
+  "a": [
+   "Astana",
+   "Bishkek",
+   "Ashgabat",
+   "Dushanbe"
+  ]
+ },
+ "q0518": {
+  "q": "What is the capital of this country: Laos?",
+  "a": [
+   "Vientiane",
+   "Bangkok",
+   "Kuala Lumpur",
+   "Singapore"
+  ]
+ },
+ "q0519": {
+  "q": "What is the capital of this country: Lebanon?",
+  "a": [
+   "Beirut",
+   "Riyadh",
+   "Ramallah",
+   "Baku"
+  ]
+ },
+ "q0520": {
+  "q": "What is the capital of this country: Saint Lucia?",
+  "a": [
+   "Castries",
+   "Roseau",
+   "Nassau",
+   "Havana"
+  ]
+ },
+ "q0521": {
+  "q": "What is the capital of this country: Liechtenstein?",
+  "a": [
+   "Vaduz",
+   "Monaco",
+   "Brussels",
+   "Berlin"
+  ]
+ },
+ "q0522": {
+  "q": "Which city is the legislative capital of Sri Lanka?",
+  "a": [
+   "Sri Jayawardenepura Kotte",
+   "Dhaka",
+   "Kabul",
+   "Islamabad"
+  ]
+ },
+ "q0523": {
+  "q": "What is the capital of this country: Liberia?",
+  "a": [
+   "Monrovia",
+   "Freetown",
+   "Yamoussoukro",
+   "Abuja"
+  ]
+ },
+ "q0524": {
+  "q": "What is the capital of this country: Lesotho?",
+  "a": [
+   "Maseru",
+   "Windhoek",
+   "Mbabane",
+   "Gaborone"
+  ]
+ },
+ "q0525": {
+  "q": "What is the capital of this country: Lithuania?",
+  "a": [
+   "Vilnius",
+   "Oslo",
+   "Copenhagen",
+   "Reykjavík"
+  ]
+ },
+ "q0526": {
+  "q": "What is the capital of this country: Luxembourg?",
+  "a": [
+   "Luxembourg",
+   "Paris",
+   "Vaduz",
+   "Bern"
+  ]
+ },
+ "q0527": {
+  "q": "What is the capital of this country: Latvia?",
+  "a": [
+   "Riga",
+   "Stockholm",
+   "Oslo",
+   "Dublin"
+  ]
+ },
+ "q0528": {
+  "q": "What is the capital of this country: Libya?",
+  "a": [
+   "Tripoli",
+   "Khartoum",
+   "Cairo",
+   "Algiers"
+  ]
+ },
+ "q0529": {
+  "q": "What is the capital of this country: Morocco?",
+  "a": [
+   "Rabat",
+   "Cairo",
+   "Khartoum",
+   "Algiers"
+  ]
+ },
+ "q0530": {
+  "q": "What is the capital of this country: Monaco?",
+  "a": [
+   "Monaco",
+   "Brussels",
+   "Paris",
+   "Bern"
+  ]
+ },
+ "q0531": {
+  "q": "What is the capital of this country: Moldova?",
+  "a": [
+   "Chișinău",
+   "Kyiv",
+   "Minsk",
+   "Moscow"
+  ]
+ },
+ "q0532": {
+  "q": "What is the capital of this country: Montenegro?",
+  "a": [
+   "Podgorica",
+   "Belgrade",
+   "Zagreb",
+   "Bucharest"
+  ]
+ },
+ "q0533": {
+  "q": "What is the capital of this country: Madagascar?",
+  "a": [
+   "Antananarivo",
+   "Djibouti",
+   "Nairobi",
+   "Lusaka"
+  ]
+ },
+ "q0534": {
+  "q": "What is the capital of this country: Marshall Islands?",
+  "a": [
+   "Majuro",
+   "South Tarawa",
+   "Ngerulmud",
+   "Yaren District"
+  ]
+ },
+ "q0535": {
+  "q": "What is the capital of this country: North Macedonia?",
+  "a": [
+   "Skopje",
+   "Bucharest",
+   "Zagreb",
+   "Sarajevo"
+  ]
+ },
+ "q0536": {
+  "q": "What is the capital of this country: Mali?",
+  "a": [
+   "Bamako",
+   "Abuja",
+   "Nouakchott",
+   "Bissau"
+  ]
+ },
+ "q0537": {
+  "q": "What is the capital of this country: Myanmar?",
+  "a": [
+   "Naypyidaw",
+   "Kuala Lumpur",
+   "Hanoi",
+   "Singapore"
+  ]
+ },
+ "q0538": {
+  "q": "What is the capital of this country: Mongolia?",
+  "a": [
+   "Ulaanbaatar",
+   "Tokyo",
+   "Pyongyang",
+   "Seoul"
+  ]
+ },
+ "q0539": {
+  "q": "What is the capital of this country: Mauritania?",
+  "a": [
+   "Nouakchott",
+   "Lomé",
+   "Freetown",
+   "Yamoussoukro"
+  ]
+ },
+ "q0540": {
+  "q": "What is the capital of this country: Malta?",
+  "a": [
+   "Valletta",
+   "Madrid",
+   "Rome",
+   "Andorra la Vella"
+  ]
+ },
+ "q0541": {
+  "q": "What is the capital of this country: Mauritius?",
+  "a": [
+   "Port Louis",
+   "Victoria",
+   "Kampala",
+   "Asmara"
+  ]
+ },
+ "q0542": {
+  "q": "What is the capital of this country: Maldives?",
+  "a": [
+   "Malé",
+   "Kabul",
+   "Tehran",
+   "Kathmandu"
+  ]
+ },
+ "q0543": {
+  "q": "What is the capital of this country: Malawi?",
+  "a": [
+   "Lilongwe",
+   "Kigali",
+   "Nairobi",
+   "Moroni"
+  ]
+ },
+ "q0544": {
+  "q": "What is the capital of this country: Mexico?",
+  "a": [
+   "Mexico City",
+   "Ottawa",
+   "Washington, D.C.",
+   "Bridgetown"
+  ]
+ },
+ "q0545": {
+  "q": "What is the capital of this country: Malaysia?",
+  "a": [
+   "Kuala Lumpur",
+   "Phnom Penh",
+   "Naypyidaw",
+   "Hanoi"
+  ]
+ },
+ "q0546": {
+  "q": "What is the capital of this country: Mozambique?",
+  "a": [
+   "Maputo",
+   "Asmara",
+   "Harare",
+   "Addis Ababa"
+  ]
+ },
+ "q0547": {
+  "q": "What is the capital of this country: Namibia?",
+  "a": [
+   "Windhoek",
+   "Pretoria",
+   "Mbabane",
+   "Gaborone"
+  ]
+ },
+ "q0548": {
+  "q": "What is the capital of this country: Niger?",
+  "a": [
+   "Niamey",
+   "Monrovia",
+   "Dakar",
+   "Nouakchott"
+  ]
+ },
+ "q0549": {
+  "q": "What is the capital of this country: Nigeria?",
+  "a": [
+   "Abuja",
+   "Yamoussoukro",
+   "Porto-Novo",
+   "Lomé"
+  ]
+ },
+ "q0550": {
+  "q": "What is the capital of this country: Nicaragua?",
+  "a": [
+   "Managua",
+   "Belmopan",
+   "Tegucigalpa",
+   "San Salvador"
+  ]
+ },
+ "q0551": {
+  "q": "What is the capital of this country: Kingdom of the Netherlands?",
+  "a": [
+   "Amsterdam",
+   "Brussels",
+   "Luxembourg",
+   "Berlin"
+  ]
+ },
+ "q0552": {
+  "q": "What is the capital of this country: Norway?",
+  "a": [
+   "Oslo",
+   "Reykjavík",
+   "Stockholm",
+   "Copenhagen"
+  ]
+ },
+ "q0553": {
+  "q": "What is the capital of this country: Nepal?",
+  "a": [
+   "Kathmandu",
+   "Kabul",
+   "Dhaka",
+   "Tehran"
+  ]
+ },
+ "q0554": {
+  "q": "In which district of Nauru are the government offices located, given that the country has no official capital?",
+  "a": [
+   "Yaren District",
+   "Ngerulmud",
+   "Palikir",
+   "South Tarawa"
+  ]
+ },
+ "q0555": {
+  "q": "What is the capital of this country: New Zealand?",
+  "a": [
+   "Wellington",
+   "Canberra",
+   "Suva",
+   "Majuro"
+  ]
+ },
+ "q0556": {
+  "q": "What is the capital of this country: Oman?",
+  "a": [
+   "Muscat",
+   "Baghdad",
+   "Ankara",
+   "Amman"
+  ]
+ },
+ "q0557": {
+  "q": "What is the capital of this country: Panama?",
+  "a": [
+   "Panama City",
+   "Managua",
+   "Tegucigalpa",
+   "San Salvador"
+  ]
+ },
+ "q0558": {
+  "q": "What is the capital of this country: Peru?",
+  "a": [
+   "Lima",
+   "Buenos Aires",
+   "Paramaribo",
+   "Georgetown"
+  ]
+ },
+ "q0559": {
+  "q": "What is the capital of this country: Papua New Guinea?",
+  "a": [
+   "Port Moresby",
+   "Honiara",
+   "Suva",
+   "Port Vila"
+  ]
+ },
+ "q0560": {
+  "q": "What is the capital of this country: Philippines?",
+  "a": [
+   "Manila",
+   "Bandar Seri Begawan",
+   "Singapore",
+   "Vientiane"
+  ]
+ },
+ "q0561": {
+  "q": "What is the capital of this country: Pakistan?",
+  "a": [
+   "Islamabad",
+   "Kabul",
+   "Sri Jayawardenepura Kotte",
+   "Dhaka"
+  ]
+ },
+ "q0562": {
+  "q": "What is the capital of this country: Poland?",
+  "a": [
+   "Warsaw",
+   "Prague",
+   "Bratislava",
+   "Budapest"
+  ]
+ },
+ "q0563": {
+  "q": "Which city is the administrative centre of the Palestinian Authority?",
+  "a": [
+   "Ramallah",
+   "Kuwait City",
+   "Yerevan",
+   "Baghdad"
+  ]
+ },
+ "q0564": {
+  "q": "What is the capital of this country: Portugal?",
+  "a": [
+   "Lisbon",
+   "Nicosia",
+   "Valletta",
+   "Rome"
+  ]
+ },
+ "q0565": {
+  "q": "What is the capital of this country: Palau?",
+  "a": [
+   "Ngerulmud",
+   "South Tarawa",
+   "Majuro",
+   "Yaren District"
+  ]
+ },
+ "q0566": {
+  "q": "What is the capital of this country: Paraguay?",
+  "a": [
+   "Asunción",
+   "Bogotá",
+   "Brasília",
+   "Quito"
+  ]
+ },
+ "q0567": {
+  "q": "What is the capital of this country: Qatar?",
+  "a": [
+   "Doha",
+   "Ramallah",
+   "Baku",
+   "Muscat"
+  ]
+ },
+ "q0568": {
+  "q": "What is the capital of this country: Romania?",
+  "a": [
+   "Bucharest",
+   "Zagreb",
+   "Sarajevo",
+   "Podgorica"
+  ]
+ },
+ "q0569": {
+  "q": "What is the capital of this country: Serbia?",
+  "a": [
+   "Belgrade",
+   "Tirana",
+   "Zagreb",
+   "Sofia"
+  ]
+ },
+ "q0570": {
+  "q": "What is the capital of this country: Russia?",
+  "a": [
+   "Moscow",
+   "Kyiv",
+   "Chișinău",
+   "Minsk"
+  ]
+ },
+ "q0571": {
+  "q": "What is the capital of this country: Rwanda?",
+  "a": [
+   "Kigali",
+   "Moroni",
+   "Gitega",
+   "Maputo"
+  ]
+ },
+ "q0572": {
+  "q": "What is the capital of this country: Saudi Arabia?",
+  "a": [
+   "Riyadh",
+   "Baghdad",
+   "Kuwait City",
+   "Damascus"
+  ]
+ },
+ "q0573": {
+  "q": "What is the capital of this country: Solomon Islands?",
+  "a": [
+   "Honiara",
+   "Suva",
+   "Port Vila",
+   "Port Moresby"
+  ]
+ },
+ "q0574": {
+  "q": "What is the capital of this country: Seychelles?",
+  "a": [
+   "Victoria",
+   "Asmara",
+   "Lilongwe",
+   "Dodoma"
+  ]
+ },
+ "q0575": {
+  "q": "What is the capital of this country: Sudan?",
+  "a": [
+   "Khartoum",
+   "Rabat",
+   "Tunis",
+   "Tripoli"
+  ]
+ },
+ "q0576": {
+  "q": "What is the capital of this country: Sweden?",
+  "a": [
+   "Stockholm",
+   "Oslo",
+   "Helsinki",
+   "Dublin"
+  ]
+ },
+ "q0577": {
+  "q": "What is the capital of this country: Singapore?",
+  "a": [
+   "Singapore",
+   "Vientiane",
+   "Jakarta",
+   "Bandar Seri Begawan"
+  ]
+ },
+ "q0578": {
+  "q": "What is the capital of this country: Slovenia?",
+  "a": [
+   "Ljubljana",
+   "Bratislava",
+   "Warsaw",
+   "Prague"
+  ]
+ },
+ "q0579": {
+  "q": "What is the capital of this country: Slovakia?",
+  "a": [
+   "Bratislava",
+   "Prague",
+   "Warsaw",
+   "Vienna"
+  ]
+ },
+ "q0580": {
+  "q": "What is the capital of this country: Sierra Leone?",
+  "a": [
+   "Freetown",
+   "Monrovia",
+   "Yamoussoukro",
+   "Porto-Novo"
+  ]
+ },
+ "q0581": {
+  "q": "What is the capital of this country: San Marino?",
+  "a": [
+   "San Marino",
+   "Lisbon",
+   "Madrid",
+   "Nicosia"
+  ]
+ },
+ "q0582": {
+  "q": "What is the capital of this country: Senegal?",
+  "a": [
+   "Dakar",
+   "Monrovia",
+   "Banjul",
+   "Bissau"
+  ]
+ },
+ "q0583": {
+  "q": "What is the capital of this country: Somalia?",
+  "a": [
+   "Mogadishu",
+   "Lilongwe",
+   "Addis Ababa",
+   "Nairobi"
+  ]
+ },
+ "q0584": {
+  "q": "What is the capital of this country: Suriname?",
+  "a": [
+   "Paramaribo",
+   "Lima",
+   "Sucre",
+   "Brasília"
+  ]
+ },
+ "q0585": {
+  "q": "What is the capital of this country: South Sudan?",
+  "a": [
+   "Juba",
+   "Luanda",
+   "Kinshasa",
+   "Bangui"
+  ]
+ },
+ "q0586": {
+  "q": "What is the capital of this country: São Tomé and Príncipe?",
+  "a": [
+   "São Tomé",
+   "Libreville",
+   "Kinshasa",
+   "Bangui"
+  ]
+ },
+ "q0587": {
+  "q": "What is the capital of this country: El Salvador?",
+  "a": [
+   "San Salvador",
+   "San José",
+   "Managua",
+   "Guatemala City"
+  ]
+ },
+ "q0588": {
+  "q": "What is the capital of this country: Syria?",
+  "a": [
+   "Damascus",
+   "Manama",
+   "Doha",
+   "Amman"
+  ]
+ },
+ "q0589": {
+  "q": "Which city is the administrative capital of Eswatini?",
+  "a": [
+   "Mbabane",
+   "Windhoek",
+   "Gaborone",
+   "Pretoria"
+  ]
+ },
+ "q0590": {
+  "q": "What is the capital of this country: Chad?",
+  "a": [
+   "N'Djamena",
+   "Juba",
+   "Brazzaville",
+   "Kinshasa"
+  ]
+ },
+ "q0591": {
+  "q": "What is the capital of this country: Togo?",
+  "a": [
+   "Lomé",
+   "Porto-Novo",
+   "Abuja",
+   "Bamako"
+  ]
+ },
+ "q0592": {
+  "q": "What is the capital of this country: Thailand?",
+  "a": [
+   "Bangkok",
+   "Bandar Seri Begawan",
+   "Naypyidaw",
+   "Manila"
+  ]
+ },
+ "q0593": {
+  "q": "What is the capital of this country: Tajikistan?",
+  "a": [
+   "Dushanbe",
+   "Tashkent",
+   "Astana",
+   "Ashgabat"
+  ]
+ },
+ "q0594": {
+  "q": "What is the capital of this country: Timor-Leste?",
+  "a": [
+   "Dili",
+   "Kuala Lumpur",
+   "Vientiane",
+   "Bandar Seri Begawan"
+  ]
+ },
+ "q0595": {
+  "q": "What is the capital of this country: Turkmenistan?",
+  "a": [
+   "Ashgabat",
+   "Astana",
+   "Bishkek",
+   "Tashkent"
+  ]
+ },
+ "q0596": {
+  "q": "What is the capital of this country: Tunisia?",
+  "a": [
+   "Tunis",
+   "Tripoli",
+   "Khartoum",
+   "Algiers"
+  ]
+ },
+ "q0597": {
+  "q": "What is the capital of this country: Tonga?",
+  "a": [
+   "Nukuʻalofa",
+   "Apia",
+   "Funafuti",
+   "Port Moresby"
+  ]
+ },
+ "q0598": {
+  "q": "What is the capital of this country: Turkey?",
+  "a": [
+   "Ankara",
+   "Yerevan",
+   "Manama",
+   "Kuwait City"
+  ]
+ },
+ "q0599": {
+  "q": "What is the capital of this country: Trinidad and Tobago?",
+  "a": [
+   "Port of Spain",
+   "Basseterre",
+   "Roseau",
+   "Port-au-Prince"
+  ]
+ },
+ "q0600": {
+  "q": "What is the capital of this country: Tuvalu?",
+  "a": [
+   "Funafuti",
+   "Nukuʻalofa",
+   "Apia",
+   "Yaren District"
+  ]
+ },
+ "q0601": {
+  "q": "What is the capital of this country: Tanzania?",
+  "a": [
+   "Dodoma",
+   "Victoria",
+   "Lilongwe",
+   "Nairobi"
+  ]
+ },
+ "q0602": {
+  "q": "What is the capital of this country: Ukraine?",
+  "a": [
+   "Kyiv",
+   "Chișinău",
+   "Minsk",
+   "Moscow"
+  ]
+ },
+ "q0603": {
+  "q": "What is the capital of this country: Uganda?",
+  "a": [
+   "Kampala",
+   "Gitega",
+   "Victoria",
+   "Dodoma"
+  ]
+ },
+ "q0604": {
+  "q": "What is the capital of this country: United States?",
+  "a": [
+   "Washington, D.C.",
+   "Ottawa",
+   "Mexico City",
+   "Belmopan"
+  ]
+ },
+ "q0605": {
+  "q": "What is the capital of this country: Uruguay?",
+  "a": [
+   "Montevideo",
+   "Lima",
+   "Sucre",
+   "Caracas"
+  ]
+ },
+ "q0606": {
+  "q": "What is the capital of this country: Uzbekistan?",
+  "a": [
+   "Tashkent",
+   "Astana",
+   "Bishkek",
+   "Ashgabat"
+  ]
+ },
+ "q0607": {
+  "q": "What is the capital of this country: Vatican City?",
+  "a": [
+   "Vatican City",
+   "Valletta",
+   "Athens",
+   "Nicosia"
+  ]
+ },
+ "q0608": {
+  "q": "What is the capital of this country: Saint Vincent and the Grenadines?",
+  "a": [
+   "Kingstown",
+   "Castries",
+   "Havana",
+   "Roseau"
+  ]
+ },
+ "q0609": {
+  "q": "What is the capital of this country: Venezuela?",
+  "a": [
+   "Caracas",
+   "Bogotá",
+   "Lima",
+   "Sucre"
+  ]
+ },
+ "q0610": {
+  "q": "What is the capital of this country: Vietnam?",
+  "a": [
+   "Hanoi",
+   "Bangkok",
+   "Dili",
+   "Manila"
+  ]
+ },
+ "q0611": {
+  "q": "What is the capital of this country: Vanuatu?",
+  "a": [
+   "Port Vila",
+   "Suva",
+   "Port Moresby",
+   "Honiara"
+  ]
+ },
+ "q0612": {
+  "q": "What is the capital of this country: Samoa?",
+  "a": [
+   "Apia",
+   "Funafuti",
+   "Nukuʻalofa",
+   "Ngerulmud"
+  ]
+ },
+ "q0613": {
+  "q": "Which city is the constitutional capital of Yemen?",
+  "a": [
+   "Sanaa",
+   "Baku",
+   "Ramallah",
+   "Abu Dhabi"
+  ]
+ },
+ "q0614": {
+  "q": "Which city is the administrative capital of South Africa?",
+  "a": [
+   "Pretoria",
+   "Mbabane",
+   "Windhoek",
+   "Gaborone"
+  ]
+ },
+ "q0615": {
+  "q": "What is the capital of this country: Zambia?",
+  "a": [
+   "Lusaka",
+   "Victoria",
+   "Djibouti",
+   "Kigali"
+  ]
+ },
+ "q0616": {
+  "q": "What is the capital of this country: Zimbabwe?",
+  "a": [
+   "Harare",
+   "Kigali",
+   "Mogadishu",
+   "Djibouti"
+  ]
+ },
+ "q0617": {
+  "q": "Which chemical element combines with hydrogen to form water?",
+  "a": [
+   "Oxygen",
+   "Nitrogen",
+   "Carbon",
+   "Helium"
+  ]
+ },
+ "q0618": {
+  "q": "Which chemical element is found in ordinary table salt alongside sodium?",
+  "a": [
+   "Chlorine",
+   "Neon",
+   "Helium",
+   "Silicon"
+  ]
+ },
+ "q0619": {
+  "q": "Which light gas is commonly used to make party balloons float because it is less dense than air?",
+  "a": [
+   "Helium",
+   "Oxygen",
+   "Nitrogen",
+   "Argon"
+  ]
+ },
+ "q0620": {
+  "q": "Which chemical element forms the basis of diamonds and graphite?",
+  "a": [
+   "Carbon",
+   "Iron",
+   "Copper",
+   "Sulfur"
+  ]
+ },
+ "q0621": {
+  "q": "Which reddish-brown metal has been used for thousands of years for electrical wires and coins?",
+  "a": [
+   "Copper",
+   "Zinc",
+   "Lead",
+   "Tin"
+  ]
+ },
+ "q0622": {
+  "q": "Which metallic chemical element carries oxygen in human red blood cells?",
+  "a": [
+   "Iron",
+   "Silver",
+   "Calcium",
+   "Magnesium"
+  ]
+ },
+ "q0623": {
+  "q": "Which chemical element is most famous for strengthening human bones and teeth?",
+  "a": [
+   "Calcium",
+   "Potassium",
+   "Sodium",
+   "Barium"
+  ]
+ },
+ "q0624": {
+  "q": "Which chemical element is the main material used in computer microchips and solar cells?",
+  "a": [
+   "Silicon",
+   "Mercury",
+   "Cobalt",
+   "Nickel"
+  ]
+ },
+ "q0625": {
+  "q": "Which metal is liquid at ordinary room temperature and was once common in glass thermometers?",
+  "a": [
+   "Mercury",
+   "Gallium",
+   "Bismuth",
+   "Indium"
+  ]
+ },
+ "q0626": {
+  "q": "Which chemical element makes up roughly 78 percent of Earth dry air by volume?",
+  "a": [
+   "Nitrogen",
+   "Oxygen",
+   "Argon",
+   "Carbon dioxide"
+  ]
+ },
+ "q0627": {
+  "q": "Which chemical element is the most abundant in the observable universe?",
+  "a": [
+   "Hydrogen",
+   "Helium",
+   "Oxygen",
+   "Carbon"
+  ]
+ },
+ "q0628": {
+  "q": "Which chemical element has the symbol Au on the periodic table?",
+  "a": [
+   "Gold",
+   "Silver",
+   "Aluminum",
+   "Argon"
+  ]
+ },
+ "q0629": {
+  "q": "Which light, silvery metal is named after the aluminum ore bauxite from which it is extracted?",
+  "a": [
+   "Aluminum",
+   "Titanium",
+   "Beryllium",
+   "Magnesium"
+  ]
+ },
+ "q0630": {
+  "q": "Which chemical element has the atomic number 1 on the periodic table?",
+  "a": [
+   "Hydrogen",
+   "Helium",
+   "Lithium",
+   "Carbon"
+  ]
+ },
+ "q0631": {
+  "q": "Which chemical element is widely used in rechargeable batteries for smartphones and electric cars?",
+  "a": [
+   "Lithium",
+   "Tungsten",
+   "Iodine",
+   "Phosphorus"
+  ]
+ },
+ "q0632": {
+  "q": "Which chemical element has the symbol Fe on the periodic table?",
+  "a": [
+   "Iron",
+   "Fluorine",
+   "Francium",
+   "Fermium"
+  ]
+ },
+ "q0633": {
+  "q": "Which chemical element has the highest melting point of all pure metals?",
+  "a": [
+   "Tungsten",
+   "Platinum",
+   "Osmium",
+   "Chromium"
+  ]
+ },
+ "q0634": {
+  "q": "Which noble gas has the chemical symbol Ne on the periodic table?",
+  "a": [
+   "Neon",
+   "Nickel",
+   "Niobium",
+   "Neodymium"
+  ]
+ },
+ "q0635": {
+  "q": "Which dense metal has the highest natural density of any element at standard pressure?",
+  "a": [
+   "Osmium",
+   "Uranium",
+   "Thorium",
+   "Rhenium"
+  ]
+ },
+ "q0636": {
+  "q": "Which chemical element has the symbol W on the periodic table?",
+  "a": [
+   "Tungsten",
+   "Bismuth",
+   "Vanadium",
+   "Zirconium"
+  ]
+ },
+ "q0637": {
+  "q": "What is the capital of this country: Andorra?",
+  "a": [
+   "Andorra la Vella",
+   "Nicosia",
+   "Vatican City",
+   "Rome"
+  ]
+ },
+ "q0638": {
+  "q": "What is the capital of this country: United Arab Emirates?",
+  "a": [
+   "Abu Dhabi",
+   "Manama",
+   "Kuwait City",
+   "Tbilisi"
+  ]
+ },
+ "q0639": {
+  "q": "What is the capital of this country: Afghanistan?",
+  "a": [
+   "Kabul",
+   "Malé",
+   "Tehran",
+   "Kathmandu"
+  ]
+ },
+ "q0640": {
+  "q": "What is the capital of this country: Antigua and Barbuda?",
+  "a": [
+   "Saint John's",
+   "Port of Spain",
+   "Nassau",
+   "Kingstown"
+  ]
+ },
+ "q0641": {
+  "q": "What is the capital of this country: Albania?",
+  "a": [
+   "Tirana",
+   "Skopje",
+   "Bucharest",
+   "Podgorica"
+  ]
+ },
+ "q0642": {
+  "q": "What is the capital of this country: Armenia?",
+  "a": [
+   "Yerevan",
+   "Damascus",
+   "Tbilisi",
+   "Manama"
+  ]
+ },
+ "q0643": {
+  "q": "What is the capital of this country: Angola?",
+  "a": [
+   "Luanda",
+   "N'Djamena",
+   "Juba",
+   "Kinshasa"
+  ]
+ },
+ "q0644": {
+  "q": "What is the capital of this country: Argentina?",
+  "a": [
+   "Buenos Aires",
+   "Quito",
+   "Georgetown",
+   "Bogotá"
+  ]
+ },
+ "q0645": {
+  "q": "What is the capital of this country: Austria?",
+  "a": [
+   "Vienna",
+   "Warsaw",
+   "Ljubljana",
+   "Bratislava"
+  ]
+ },
+ "q0646": {
+  "q": "What is the capital of this country: Australia?",
+  "a": [
+   "Canberra",
+   "Wellington",
+   "Funafuti",
+   "South Tarawa"
+  ]
+ },
+ "q0647": {
+  "q": "What is the capital of this country: Azerbaijan?",
+  "a": [
+   "Baku",
+   "Abu Dhabi",
+   "Ramallah",
+   "Jerusalem"
+  ]
+ },
+ "q0648": {
+  "q": "What is the capital of this country: Bosnia and Herzegovina?",
+  "a": [
+   "Sarajevo",
+   "Sofia",
+   "Belgrade",
+   "Podgorica"
+  ]
+ },
+ "q0649": {
+  "q": "What is the capital of this country: Barbados?",
+  "a": [
+   "Bridgetown",
+   "Port of Spain",
+   "Castries",
+   "Saint John's"
+  ]
+ },
+ "q0650": {
+  "q": "What is the capital of this country: Bangladesh?",
+  "a": [
+   "Dhaka",
+   "New Delhi",
+   "Kabul",
+   "Islamabad"
+  ]
+ },
+ "q0651": {
+  "q": "What is the capital of this country: Belgium?",
+  "a": [
+   "Brussels",
+   "Berlin",
+   "Bern",
+   "Monaco"
+  ]
+ },
+ "q0652": {
+  "q": "What is the capital of this country: Burkina Faso?",
+  "a": [
+   "Ouagadougou",
+   "Accra",
+   "Freetown",
+   "Bamako"
+  ]
+ },
+ "q0653": {
+  "q": "What is the capital of this country: Bahrain?",
+  "a": [
+   "Manama",
+   "Kuwait City",
+   "Abu Dhabi",
+   "Muscat"
+  ]
+ },
+ "q0654": {
+  "q": "What is the capital of this country: Burundi?",
+  "a": [
+   "Gitega",
+   "Port Louis",
+   "Dodoma",
+   "Maputo"
+  ]
+ },
+ "q0655": {
+  "q": "What is the capital of this country: Benin?",
+  "a": [
+   "Porto-Novo",
+   "Monrovia",
+   "Banjul",
+   "Accra"
+  ]
+ },
+ "q0656": {
+  "q": "What is the capital of this country: Brunei?",
+  "a": [
+   "Bandar Seri Begawan",
+   "Phnom Penh",
+   "Bangkok",
+   "Vientiane"
+  ]
+ },
+ "q0657": {
+  "q": "Which city is the constitutional capital of Bolivia?",
+  "a": [
+   "Sucre",
+   "Lima",
+   "Buenos Aires",
+   "Santiago"
+  ]
+ },
+ "q0658": {
+  "q": "What is the capital of this country: Brazil?",
+  "a": [
+   "Brasília",
+   "Paramaribo",
+   "Buenos Aires",
+   "Santiago"
+  ]
+ },
+ "q0659": {
+  "q": "What is the capital of this country: The Bahamas?",
+  "a": [
+   "Nassau",
+   "Port of Spain",
+   "Kingston",
+   "Santo Domingo"
+  ]
+ },
+ "q0660": {
+  "q": "What is the capital of this country: Bhutan?",
+  "a": [
+   "Thimphu",
+   "Malé",
+   "Tehran",
+   "Dhaka"
+  ]
+ },
+ "q0661": {
+  "q": "What is the capital of this country: Botswana?",
+  "a": [
+   "Gaborone",
+   "Pretoria",
+   "Maseru",
+   "Windhoek"
+  ]
+ },
+ "q0662": {
+  "q": "What is the capital of this country: Belarus?",
+  "a": [
+   "Minsk",
+   "Kyiv",
+   "Chișinău",
+   "Moscow"
+  ]
+ },
+ "q0663": {
+  "q": "What is the capital of this country: Belize?",
+  "a": [
+   "Belmopan",
+   "Guatemala City",
+   "Tegucigalpa",
+   "San Salvador"
+  ]
+ },
+ "q0664": {
+  "q": "What is the capital of this country: Canada?",
+  "a": [
+   "Ottawa",
+   "Mexico City",
+   "Washington, D.C.",
+   "Port-au-Prince"
+  ]
+ },
+ "q0665": {
+  "q": "What is the capital of this country: Democratic Republic of the Congo?",
+  "a": [
+   "Kinshasa",
+   "Luanda",
+   "N'Djamena",
+   "Juba"
+  ]
+ },
+ "q0666": {
+  "q": "What is the capital of this country: Central African Republic?",
+  "a": [
+   "Bangui",
+   "N'Djamena",
+   "Yaoundé",
+   "São Tomé"
+  ]
+ },
+ "q0667": {
+  "q": "What is the capital of this country: Republic of the Congo?",
+  "a": [
+   "Brazzaville",
+   "Juba",
+   "N'Djamena",
+   "Luanda"
+  ]
+ },
+ "q0668": {
+  "q": "Which city is Switzerland’s federal city and seat of government?",
+  "a": [
+   "Bern",
+   "Berlin",
+   "Vaduz",
+   "Monaco"
+  ]
+ },
+ "q0669": {
+  "q": "What is the capital of this country: Ivory Coast?",
+  "a": [
+   "Yamoussoukro",
+   "Praia",
+   "Abuja",
+   "Porto-Novo"
+  ]
+ },
+ "q0670": {
+  "q": "What is the capital of this country: Chile?",
+  "a": [
+   "Santiago",
+   "Paramaribo",
+   "Montevideo",
+   "Quito"
+  ]
+ },
+ "q0671": {
+  "q": "What is the capital of this country: Cameroon?",
+  "a": [
+   "Yaoundé",
+   "São Tomé",
+   "Bangui",
+   "N'Djamena"
+  ]
+ },
+ "q0672": {
+  "q": "What is the capital of this country: People's Republic of China?",
+  "a": [
+   "Beijing",
+   "Pyongyang",
+   "Seoul",
+   "Tokyo"
+  ]
+ },
+ "q0673": {
+  "q": "What is the capital of this country: Colombia?",
+  "a": [
+   "Bogotá",
+   "Asunción",
+   "Buenos Aires",
+   "Sucre"
+  ]
+ },
+ "q0674": {
+  "q": "What is the capital of this country: Costa Rica?",
+  "a": [
+   "San José",
+   "San Salvador",
+   "Belmopan",
+   "Managua"
+  ]
+ },
+ "q0675": {
+  "q": "What is the capital of this country: Cuba?",
+  "a": [
+   "Havana",
+   "Santo Domingo",
+   "Roseau",
+   "Port of Spain"
+  ]
+ },
+ "q0676": {
+  "q": "What is the capital of this country: Cape Verde?",
+  "a": [
+   "Praia",
+   "Accra",
+   "Ouagadougou",
+   "Conakry"
+  ]
+ },
+ "q0677": {
+  "q": "What is the capital of this country: Cyprus?",
+  "a": [
+   "Nicosia",
+   "Andorra la Vella",
+   "Madrid",
+   "Valletta"
+  ]
+ },
+ "q0678": {
+  "q": "What is the capital of this country: Czech Republic?",
+  "a": [
+   "Prague",
+   "Budapest",
+   "Ljubljana",
+   "Warsaw"
+  ]
+ },
+ "q0679": {
+  "q": "What is the capital of this country: Germany?",
+  "a": [
+   "Berlin",
+   "Luxembourg",
+   "Amsterdam",
+   "Monaco"
+  ]
+ },
+ "q0680": {
+  "q": "What is the capital of this country: Djibouti?",
+  "a": [
+   "Djibouti",
+   "Harare",
+   "Port Louis",
+   "Nairobi"
+  ]
+ },
+ "q0681": {
+  "q": "What is the capital of this country: Denmark?",
+  "a": [
+   "Copenhagen",
+   "Reykjavík",
+   "Oslo",
+   "Helsinki"
+  ]
+ },
+ "q0682": {
+  "q": "What is the capital of this country: Dominica?",
+  "a": [
+   "Roseau",
+   "Castries",
+   "St. George's",
+   "Saint John's"
+  ]
+ },
+ "q0683": {
+  "q": "What is the capital of this country: Dominican Republic?",
+  "a": [
+   "Santo Domingo",
+   "Port of Spain",
+   "Kingston",
+   "Nassau"
+  ]
+ },
+ "q0684": {
+  "q": "What is the capital of this country: Algeria?",
+  "a": [
+   "Algiers",
+   "Tripoli",
+   "Rabat",
+   "Tunis"
+  ]
+ },
+ "q0685": {
+  "q": "What is the capital of this country: Ecuador?",
+  "a": [
+   "Quito",
+   "Paramaribo",
+   "Brasília",
+   "Caracas"
+  ]
+ },
+ "q0686": {
+  "q": "What is the capital of this country: Estonia?",
+  "a": [
+   "Tallinn",
+   "London",
+   "Reykjavík",
+   "Stockholm"
+  ]
+ },
+ "q0687": {
+  "q": "What is the capital of this country: Egypt?",
+  "a": [
+   "Cairo",
+   "Rabat",
+   "Khartoum",
+   "Tunis"
+  ]
+ },
+ "q0688": {
+  "q": "What is the capital of this country: Eritrea?",
+  "a": [
+   "Asmara",
+   "Lilongwe",
+   "Addis Ababa",
+   "Lusaka"
+  ]
+ },
+ "q0689": {
+  "q": "What is the capital of this country: Spain?",
+  "a": [
+   "Madrid",
+   "Rome",
+   "Andorra la Vella",
+   "San Marino"
+  ]
+ },
+ "q0690": {
+  "q": "What is the capital of this country: Ethiopia?",
+  "a": [
+   "Addis Ababa",
+   "Moroni",
+   "Maputo",
+   "Mogadishu"
+  ]
+ },
+ "q0691": {
+  "q": "What is the capital of this country: Finland?",
+  "a": [
+   "Helsinki",
+   "Riga",
+   "Reykjavík",
+   "Stockholm"
+  ]
+ },
+ "q0692": {
+  "q": "What is the capital of this country: Fiji?",
+  "a": [
+   "Suva",
+   "Honiara",
+   "Port Vila",
+   "Port Moresby"
+  ]
+ },
+ "q0693": {
+  "q": "What is the capital of this country: Federated States of Micronesia?",
+  "a": [
+   "Palikir",
+   "South Tarawa",
+   "Majuro",
+   "Yaren District"
+  ]
+ },
+ "q0694": {
+  "q": "What is the capital of this country: France?",
+  "a": [
+   "Paris",
+   "Brussels",
+   "Luxembourg",
+   "Berlin"
+  ]
+ },
+ "q0695": {
+  "q": "What is the capital of this country: Gabon?",
+  "a": [
+   "Libreville",
+   "Luanda",
+   "São Tomé",
+   "Juba"
+  ]
+ },
+ "q0696": {
+  "q": "What is the capital of this country: United Kingdom?",
+  "a": [
+   "London",
+   "Riga",
+   "Copenhagen",
+   "Helsinki"
+  ]
+ },
+ "q0697": {
+  "q": "What is the capital of this country: Grenada?",
+  "a": [
+   "St. George's",
+   "Kingston",
+   "Havana",
+   "Port of Spain"
+  ]
+ },
+ "q0698": {
+  "q": "What is the capital of this country: Georgia?",
+  "a": [
+   "Tbilisi",
+   "Damascus",
+   "Jerusalem",
+   "Baku"
+  ]
+ },
+ "q0699": {
+  "q": "What is the capital of this country: Ghana?",
+  "a": [
+   "Accra",
+   "Ouagadougou",
+   "Freetown",
+   "Monrovia"
+  ]
+ },
+ "q0700": {
+  "q": "What is the capital of this country: The Gambia?",
+  "a": [
+   "Banjul",
+   "Porto-Novo",
+   "Praia",
+   "Monrovia"
+  ]
+ },
+ "q0701": {
+  "q": "What is the capital of this country: Guinea?",
+  "a": [
+   "Conakry",
+   "Nouakchott",
+   "Yamoussoukro",
+   "Freetown"
+  ]
+ },
+ "q0702": {
+  "q": "What is the capital of this country: Equatorial Guinea?",
+  "a": [
+   "Ciudad de la Paz",
+   "São Tomé",
+   "N'Djamena",
+   "Yaoundé"
+  ]
+ },
+ "q0703": {
+  "q": "What is the capital of this country: Greece?",
+  "a": [
+   "Athens",
+   "Rome",
+   "Madrid",
+   "Andorra la Vella"
+  ]
+ },
+ "q0704": {
+  "q": "What is the capital of this country: Guatemala?",
+  "a": [
+   "Guatemala City",
+   "Managua",
+   "Belmopan",
+   "San Salvador"
+  ]
+ },
+ "q0705": {
+  "q": "What is the capital of this country: Guinea-Bissau?",
+  "a": [
+   "Bissau",
+   "Lomé",
+   "Niamey",
+   "Dakar"
+  ]
+ },
+ "q0706": {
+  "q": "What is the capital of this country: Guyana?",
+  "a": [
+   "Georgetown",
+   "Caracas",
+   "Montevideo",
+   "Brasília"
+  ]
+ },
+ "q0707": {
+  "q": "What is the capital of this country: Honduras?",
+  "a": [
+   "Tegucigalpa",
+   "Managua",
+   "Panama City",
+   "San Salvador"
+  ]
+ },
+ "q0708": {
+  "q": "What is the capital of this country: Croatia?",
+  "a": [
+   "Zagreb",
+   "Belgrade",
+   "Skopje",
+   "Tirana"
+  ]
+ },
+ "q0709": {
+  "q": "What is the capital of this country: Haiti?",
+  "a": [
+   "Port-au-Prince",
+   "Roseau",
+   "Kingston",
+   "Havana"
+  ]
+ },
+ "q0710": {
+  "q": "What is the capital of this country: Hungary?",
+  "a": [
+   "Budapest",
+   "Ljubljana",
+   "Vienna",
+   "Prague"
+  ]
+ },
+ "q0711": {
+  "q": "What is the capital of this country: Indonesia?",
+  "a": [
+   "Jakarta",
+   "Naypyidaw",
+   "Kuala Lumpur",
+   "Manila"
+  ]
+ },
+ "q0712": {
+  "q": "What is the capital of this country: Ireland?",
+  "a": [
+   "Dublin",
+   "Vilnius",
+   "Riga",
+   "Reykjavík"
+  ]
+ },
+ "q0713": {
+  "q": "What is the capital of this country: Israel?",
+  "a": [
+   "Jerusalem",
+   "Damascus",
+   "Riyadh",
+   "Manama"
+  ]
+ },
+ "q0714": {
+  "q": "What is the capital of this country: India?",
+  "a": [
+   "New Delhi",
+   "Kabul",
+   "Dhaka",
+   "Tehran"
+  ]
+ },
+ "q0715": {
+  "q": "What is the capital of this country: Iraq?",
+  "a": [
+   "Baghdad",
+   "Tbilisi",
+   "Manama",
+   "Riyadh"
+  ]
+ },
+ "q0716": {
+  "q": "What is the capital of this country: Iran?",
+  "a": [
+   "Tehran",
+   "New Delhi",
+   "Islamabad",
+   "Kabul"
+  ]
+ },
+ "q0717": {
+  "q": "What is the capital of this country: Iceland?",
+  "a": [
+   "Reykjavík",
+   "Copenhagen",
+   "Vilnius",
+   "London"
+  ]
+ },
+ "q0718": {
+  "q": "What is the capital of this country: Italy?",
+  "a": [
+   "Rome",
+   "Madrid",
+   "Nicosia",
+   "Andorra la Vella"
+  ]
+ },
+ "q0719": {
+  "q": "What is the capital of this country: Jamaica?",
+  "a": [
+   "Kingston",
+   "Nassau",
+   "Santo Domingo",
+   "Bridgetown"
+  ]
+ },
+ "q0720": {
+  "q": "What is the capital of this country: Jordan?",
+  "a": [
+   "Amman",
+   "Tbilisi",
+   "Muscat",
+   "Beirut"
+  ]
+ },
+ "q0721": {
+  "q": "What is the capital of this country: Japan?",
+  "a": [
+   "Tokyo",
+   "Seoul",
+   "Beijing",
+   "Pyongyang"
+  ]
+ },
+ "q0722": {
+  "q": "What is the capital of this country: Kenya?",
+  "a": [
+   "Nairobi",
+   "Djibouti",
+   "Maputo",
+   "Asmara"
+  ]
+ },
+ "q0723": {
+  "q": "What is the capital of this country: Kyrgyzstan?",
+  "a": [
+   "Bishkek",
+   "Dushanbe",
+   "Astana",
+   "Tashkent"
+  ]
+ },
+ "q0724": {
+  "q": "What is the capital of this country: Cambodia?",
+  "a": [
+   "Phnom Penh",
+   "Hanoi",
+   "Bandar Seri Begawan",
+   "Bangkok"
+  ]
+ },
+ "q0725": {
+  "q": "What is the capital of this country: Kiribati?",
+  "a": [
+   "South Tarawa",
+   "Yaren District",
+   "Palikir",
+   "Ngerulmud"
+  ]
+ },
+ "q0726": {
+  "q": "What is the capital of this country: Comoros?",
+  "a": [
+   "Moroni",
+   "Asmara",
+   "Addis Ababa",
+   "Nairobi"
+  ]
+ },
+ "q0727": {
+  "q": "What is the capital of this country: Saint Kitts and Nevis?",
+  "a": [
+   "Basseterre",
+   "Saint John's",
+   "Roseau",
+   "Nassau"
+  ]
+ },
+ "q0728": {
+  "q": "What is the capital of this country: North Korea?",
+  "a": [
+   "Pyongyang",
+   "Tokyo",
+   "Seoul",
+   "Ulaanbaatar"
+  ]
+ },
+ "q0729": {
+  "q": "What is the capital of this country: South Korea?",
+  "a": [
+   "Seoul",
+   "Tokyo",
+   "Pyongyang",
+   "Ulaanbaatar"
+  ]
+ },
+ "q0730": {
+  "q": "What is the capital of this country: Kuwait?",
+  "a": [
+   "Kuwait City",
+   "Yerevan",
+   "Baghdad",
+   "Jerusalem"
+  ]
+ },
+ "q0731": {
+  "q": "What is the capital of this country: Kazakhstan?",
+  "a": [
+   "Astana",
+   "Bishkek",
+   "Ashgabat",
+   "Dushanbe"
+  ]
+ },
+ "q0732": {
+  "q": "What is the capital of this country: Laos?",
+  "a": [
+   "Vientiane",
+   "Bangkok",
+   "Kuala Lumpur",
+   "Singapore"
+  ]
+ },
+ "q0733": {
+  "q": "What is the capital of this country: Lebanon?",
+  "a": [
+   "Beirut",
+   "Riyadh",
+   "Ramallah",
+   "Baku"
+  ]
+ },
+ "q0734": {
+  "q": "What is the capital of this country: Saint Lucia?",
+  "a": [
+   "Castries",
+   "Roseau",
+   "Nassau",
+   "Havana"
+  ]
+ },
+ "q0735": {
+  "q": "What is the capital of this country: Liechtenstein?",
+  "a": [
+   "Vaduz",
+   "Monaco",
+   "Brussels",
+   "Berlin"
+  ]
+ },
+ "q0736": {
+  "q": "Which city is the legislative capital of Sri Lanka?",
+  "a": [
+   "Sri Jayawardenepura Kotte",
+   "Dhaka",
+   "Kabul",
+   "Islamabad"
+  ]
+ },
+ "q0737": {
+  "q": "What is the capital of this country: Liberia?",
+  "a": [
+   "Monrovia",
+   "Freetown",
+   "Yamoussoukro",
+   "Abuja"
+  ]
+ },
+ "q0738": {
+  "q": "What is the capital of this country: Lesotho?",
+  "a": [
+   "Maseru",
+   "Windhoek",
+   "Mbabane",
+   "Gaborone"
+  ]
+ },
+ "q0739": {
+  "q": "What is the capital of this country: Lithuania?",
+  "a": [
+   "Vilnius",
+   "Oslo",
+   "Copenhagen",
+   "Reykjavík"
+  ]
+ },
+ "q0740": {
+  "q": "What is the capital of this country: Luxembourg?",
+  "a": [
+   "Luxembourg",
+   "Paris",
+   "Vaduz",
+   "Bern"
+  ]
+ },
+ "q0741": {
+  "q": "What is the capital of this country: Latvia?",
+  "a": [
+   "Riga",
+   "Stockholm",
+   "Oslo",
+   "Dublin"
+  ]
+ },
+ "q0742": {
+  "q": "What is the capital of this country: Libya?",
+  "a": [
+   "Tripoli",
+   "Khartoum",
+   "Cairo",
+   "Algiers"
+  ]
+ },
+ "q0743": {
+  "q": "What is the capital of this country: Morocco?",
+  "a": [
+   "Rabat",
+   "Cairo",
+   "Khartoum",
+   "Algiers"
+  ]
+ },
+ "q0744": {
+  "q": "What is the capital of this country: Monaco?",
+  "a": [
+   "Monaco",
+   "Brussels",
+   "Paris",
+   "Bern"
+  ]
+ },
+ "q0745": {
+  "q": "What is the capital of this country: Moldova?",
+  "a": [
+   "Chișinău",
+   "Kyiv",
+   "Minsk",
+   "Moscow"
+  ]
+ },
+ "q0746": {
+  "q": "What is the capital of this country: Montenegro?",
+  "a": [
+   "Podgorica",
+   "Belgrade",
+   "Zagreb",
+   "Bucharest"
+  ]
+ },
+ "q0747": {
+  "q": "What is the capital of this country: Madagascar?",
+  "a": [
+   "Antananarivo",
+   "Djibouti",
+   "Nairobi",
+   "Lusaka"
+  ]
+ },
+ "q0748": {
+  "q": "What is the capital of this country: Marshall Islands?",
+  "a": [
+   "Majuro",
+   "South Tarawa",
+   "Ngerulmud",
+   "Yaren District"
+  ]
+ },
+ "q0749": {
+  "q": "What is the capital of this country: North Macedonia?",
+  "a": [
+   "Skopje",
+   "Bucharest",
+   "Zagreb",
+   "Sarajevo"
+  ]
+ },
+ "q0750": {
+  "q": "What is the capital of this country: Mali?",
+  "a": [
+   "Bamako",
+   "Abuja",
+   "Nouakchott",
+   "Bissau"
+  ]
+ },
+ "q0751": {
+  "q": "What is the capital of this country: Myanmar?",
+  "a": [
+   "Naypyidaw",
+   "Kuala Lumpur",
+   "Hanoi",
+   "Singapore"
+  ]
+ },
+ "q0752": {
+  "q": "What is the capital of this country: Mongolia?",
+  "a": [
+   "Ulaanbaatar",
+   "Tokyo",
+   "Pyongyang",
+   "Seoul"
+  ]
+ },
+ "q0753": {
+  "q": "What is the capital of this country: Mauritania?",
+  "a": [
+   "Nouakchott",
+   "Lomé",
+   "Freetown",
+   "Yamoussoukro"
+  ]
+ },
+ "q0754": {
+  "q": "What is the capital of this country: Malta?",
+  "a": [
+   "Valletta",
+   "Madrid",
+   "Rome",
+   "Andorra la Vella"
+  ]
+ },
+ "q0755": {
+  "q": "What is the capital of this country: Mauritius?",
+  "a": [
+   "Port Louis",
+   "Victoria",
+   "Kampala",
+   "Asmara"
+  ]
+ },
+ "q0756": {
+  "q": "What is the capital of this country: Maldives?",
+  "a": [
+   "Malé",
+   "Kabul",
+   "Tehran",
+   "Kathmandu"
+  ]
+ },
+ "q0757": {
+  "q": "What is the capital of this country: Malawi?",
+  "a": [
+   "Lilongwe",
+   "Kigali",
+   "Nairobi",
+   "Moroni"
+  ]
+ },
+ "q0758": {
+  "q": "What is the capital of this country: Mexico?",
+  "a": [
+   "Mexico City",
+   "Ottawa",
+   "Washington, D.C.",
+   "Bridgetown"
+  ]
+ },
+ "q0759": {
+  "q": "What is the capital of this country: Malaysia?",
+  "a": [
+   "Kuala Lumpur",
+   "Phnom Penh",
+   "Naypyidaw",
+   "Hanoi"
+  ]
+ },
+ "q0760": {
+  "q": "What is the capital of this country: Mozambique?",
+  "a": [
+   "Maputo",
+   "Asmara",
+   "Harare",
+   "Addis Ababa"
+  ]
+ },
+ "q0761": {
+  "q": "What is the capital of this country: Namibia?",
+  "a": [
+   "Windhoek",
+   "Pretoria",
+   "Mbabane",
+   "Gaborone"
+  ]
+ },
+ "q0762": {
+  "q": "What is the capital of this country: Niger?",
+  "a": [
+   "Niamey",
+   "Monrovia",
+   "Dakar",
+   "Nouakchott"
+  ]
+ },
+ "q0763": {
+  "q": "What is the capital of this country: Nigeria?",
+  "a": [
+   "Abuja",
+   "Yamoussoukro",
+   "Porto-Novo",
+   "Lomé"
+  ]
+ },
+ "q0764": {
+  "q": "What is the capital of this country: Nicaragua?",
+  "a": [
+   "Managua",
+   "Belmopan",
+   "Tegucigalpa",
+   "San Salvador"
+  ]
+ },
+ "q0765": {
+  "q": "What is the capital of this country: Kingdom of the Netherlands?",
+  "a": [
+   "Amsterdam",
+   "Brussels",
+   "Luxembourg",
+   "Berlin"
+  ]
+ },
+ "q0766": {
+  "q": "What is the capital of this country: Norway?",
+  "a": [
+   "Oslo",
+   "Reykjavík",
+   "Stockholm",
+   "Copenhagen"
+  ]
+ },
+ "q0767": {
+  "q": "What is the capital of this country: Nepal?",
+  "a": [
+   "Kathmandu",
+   "Kabul",
+   "Dhaka",
+   "Tehran"
+  ]
+ },
+ "q0768": {
+  "q": "In which district of Nauru are the government offices located, given that the country has no official capital?",
+  "a": [
+   "Yaren District",
+   "Ngerulmud",
+   "Palikir",
+   "South Tarawa"
+  ]
+ },
+ "q0769": {
+  "q": "What is the capital of this country: New Zealand?",
+  "a": [
+   "Wellington",
+   "Canberra",
+   "Suva",
+   "Majuro"
+  ]
+ },
+ "q0770": {
+  "q": "What is the capital of this country: Oman?",
+  "a": [
+   "Muscat",
+   "Baghdad",
+   "Ankara",
+   "Amman"
+  ]
+ },
+ "q0771": {
+  "q": "What is the capital of this country: Panama?",
+  "a": [
+   "Panama City",
+   "Managua",
+   "Tegucigalpa",
+   "San Salvador"
+  ]
+ },
+ "q0772": {
+  "q": "What is the capital of this country: Peru?",
+  "a": [
+   "Lima",
+   "Buenos Aires",
+   "Paramaribo",
+   "Georgetown"
+  ]
+ },
+ "q0773": {
+  "q": "What is the capital of this country: Papua New Guinea?",
+  "a": [
+   "Port Moresby",
+   "Honiara",
+   "Suva",
+   "Port Vila"
+  ]
+ },
+ "q0774": {
+  "q": "What is the capital of this country: Philippines?",
+  "a": [
+   "Manila",
+   "Bandar Seri Begawan",
+   "Singapore",
+   "Vientiane"
+  ]
+ },
+ "q0775": {
+  "q": "What is the capital of this country: Pakistan?",
+  "a": [
+   "Islamabad",
+   "Kabul",
+   "Sri Jayawardenepura Kotte",
+   "Dhaka"
+  ]
+ },
+ "q0776": {
+  "q": "What is the capital of this country: Poland?",
+  "a": [
+   "Warsaw",
+   "Prague",
+   "Bratislava",
+   "Budapest"
+  ]
+ },
+ "q0777": {
+  "q": "Which city is the administrative centre of the Palestinian Authority?",
+  "a": [
+   "Ramallah",
+   "Kuwait City",
+   "Yerevan",
+   "Baghdad"
+  ]
+ },
+ "q0778": {
+  "q": "What is the capital of this country: Portugal?",
+  "a": [
+   "Lisbon",
+   "Nicosia",
+   "Valletta",
+   "Rome"
+  ]
+ },
+ "q0779": {
+  "q": "What is the capital of this country: Palau?",
+  "a": [
+   "Ngerulmud",
+   "South Tarawa",
+   "Majuro",
+   "Yaren District"
+  ]
+ },
+ "q0780": {
+  "q": "What is the capital of this country: Paraguay?",
+  "a": [
+   "Asunción",
+   "Bogotá",
+   "Brasília",
+   "Quito"
+  ]
+ },
+ "q0781": {
+  "q": "What is the capital of this country: Qatar?",
+  "a": [
+   "Doha",
+   "Ramallah",
+   "Baku",
+   "Muscat"
+  ]
+ },
+ "q0782": {
+  "q": "What is the capital of this country: Romania?",
+  "a": [
+   "Bucharest",
+   "Zagreb",
+   "Sarajevo",
+   "Podgorica"
+  ]
+ },
+ "q0783": {
+  "q": "What is the capital of this country: Serbia?",
+  "a": [
+   "Belgrade",
+   "Tirana",
+   "Zagreb",
+   "Sofia"
+  ]
+ },
+ "q0784": {
+  "q": "What is the capital of this country: Russia?",
+  "a": [
+   "Moscow",
+   "Kyiv",
+   "Chișinău",
+   "Minsk"
+  ]
+ },
+ "q0785": {
+  "q": "What is the capital of this country: Rwanda?",
+  "a": [
+   "Kigali",
+   "Moroni",
+   "Gitega",
+   "Maputo"
+  ]
+ },
+ "q0786": {
+  "q": "What is the capital of this country: Saudi Arabia?",
+  "a": [
+   "Riyadh",
+   "Baghdad",
+   "Kuwait City",
+   "Damascus"
+  ]
+ },
+ "q0787": {
+  "q": "What is the capital of this country: Solomon Islands?",
+  "a": [
+   "Honiara",
+   "Suva",
+   "Port Vila",
+   "Port Moresby"
+  ]
+ },
+ "q0788": {
+  "q": "What is the capital of this country: Seychelles?",
+  "a": [
+   "Victoria",
+   "Asmara",
+   "Lilongwe",
+   "Dodoma"
+  ]
+ },
+ "q0789": {
+  "q": "What is the capital of this country: Sudan?",
+  "a": [
+   "Khartoum",
+   "Rabat",
+   "Tunis",
+   "Tripoli"
+  ]
+ },
+ "q0790": {
+  "q": "What is the capital of this country: Sweden?",
+  "a": [
+   "Stockholm",
+   "Oslo",
+   "Helsinki",
+   "Dublin"
+  ]
+ },
+ "q0791": {
+  "q": "What is the capital of this country: Singapore?",
+  "a": [
+   "Singapore",
+   "Vientiane",
+   "Jakarta",
+   "Bandar Seri Begawan"
+  ]
+ },
+ "q0792": {
+  "q": "What is the capital of this country: Slovenia?",
+  "a": [
+   "Ljubljana",
+   "Bratislava",
+   "Warsaw",
+   "Prague"
+  ]
+ },
+ "q0793": {
+  "q": "What is the capital of this country: Slovakia?",
+  "a": [
+   "Bratislava",
+   "Prague",
+   "Warsaw",
+   "Vienna"
+  ]
+ },
+ "q0794": {
+  "q": "What is the capital of this country: Sierra Leone?",
+  "a": [
+   "Freetown",
+   "Monrovia",
+   "Yamoussoukro",
+   "Porto-Novo"
+  ]
+ },
+ "q0795": {
+  "q": "What is the capital of this country: San Marino?",
+  "a": [
+   "San Marino",
+   "Lisbon",
+   "Madrid",
+   "Nicosia"
+  ]
+ },
+ "q0796": {
+  "q": "What is the capital of this country: Senegal?",
+  "a": [
+   "Dakar",
+   "Monrovia",
+   "Banjul",
+   "Bissau"
+  ]
+ },
+ "q0797": {
+  "q": "What is the capital of this country: Somalia?",
+  "a": [
+   "Mogadishu",
+   "Lilongwe",
+   "Addis Ababa",
+   "Nairobi"
+  ]
+ },
+ "q0798": {
+  "q": "What is the capital of this country: Suriname?",
+  "a": [
+   "Paramaribo",
+   "Lima",
+   "Sucre",
+   "Brasília"
+  ]
+ },
+ "q0799": {
+  "q": "What is the capital of this country: South Sudan?",
+  "a": [
+   "Juba",
+   "Luanda",
+   "Kinshasa",
+   "Bangui"
+  ]
+ },
+ "q0800": {
+  "q": "What is the capital of this country: São Tomé and Príncipe?",
+  "a": [
+   "São Tomé",
+   "Libreville",
+   "Kinshasa",
+   "Bangui"
+  ]
+ },
+ "q0801": {
+  "q": "What is the capital of this country: El Salvador?",
+  "a": [
+   "San Salvador",
+   "San José",
+   "Managua",
+   "Guatemala City"
+  ]
+ },
+ "q0802": {
+  "q": "What is the capital of this country: Syria?",
+  "a": [
+   "Damascus",
+   "Manama",
+   "Doha",
+   "Amman"
+  ]
+ },
+ "q0803": {
+  "q": "Which city is the administrative capital of Eswatini?",
+  "a": [
+   "Mbabane",
+   "Windhoek",
+   "Gaborone",
+   "Pretoria"
+  ]
+ },
+ "q0804": {
+  "q": "What is the capital of this country: Chad?",
+  "a": [
+   "N'Djamena",
+   "Juba",
+   "Brazzaville",
+   "Kinshasa"
+  ]
+ },
+ "q0805": {
+  "q": "What is the capital of this country: Togo?",
+  "a": [
+   "Lomé",
+   "Porto-Novo",
+   "Abuja",
+   "Bamako"
+  ]
+ },
+ "q0806": {
+  "q": "What is the capital of this country: Thailand?",
+  "a": [
+   "Bangkok",
+   "Bandar Seri Begawan",
+   "Naypyidaw",
+   "Manila"
+  ]
+ },
+ "q0807": {
+  "q": "What is the capital of this country: Tajikistan?",
+  "a": [
+   "Dushanbe",
+   "Tashkent",
+   "Astana",
+   "Ashgabat"
+  ]
+ },
+ "q0808": {
+  "q": "What is the capital of this country: Timor-Leste?",
+  "a": [
+   "Dili",
+   "Kuala Lumpur",
+   "Vientiane",
+   "Bandar Seri Begawan"
+  ]
+ },
+ "q0809": {
+  "q": "What is the capital of this country: Turkmenistan?",
+  "a": [
+   "Ashgabat",
+   "Astana",
+   "Bishkek",
+   "Tashkent"
+  ]
+ },
+ "q0810": {
+  "q": "What is the capital of this country: Tunisia?",
+  "a": [
+   "Tunis",
+   "Tripoli",
+   "Khartoum",
+   "Algiers"
+  ]
+ },
+ "q0811": {
+  "q": "What is the capital of this country: Tonga?",
+  "a": [
+   "Nukuʻalofa",
+   "Apia",
+   "Funafuti",
+   "Port Moresby"
+  ]
+ },
+ "q0812": {
+  "q": "What is the capital of this country: Turkey?",
+  "a": [
+   "Ankara",
+   "Yerevan",
+   "Manama",
+   "Kuwait City"
+  ]
+ },
+ "q0813": {
+  "q": "What is the capital of this country: Trinidad and Tobago?",
+  "a": [
+   "Port of Spain",
+   "Basseterre",
+   "Roseau",
+   "Port-au-Prince"
+  ]
+ },
+ "q0814": {
+  "q": "What is the capital of this country: Tuvalu?",
+  "a": [
+   "Funafuti",
+   "Nukuʻalofa",
+   "Apia",
+   "Yaren District"
+  ]
+ },
+ "q0815": {
+  "q": "What is the capital of this country: Tanzania?",
+  "a": [
+   "Dodoma",
+   "Victoria",
+   "Lilongwe",
+   "Nairobi"
+  ]
+ },
+ "q0816": {
+  "q": "What is the capital of this country: Ukraine?",
+  "a": [
+   "Kyiv",
+   "Chișinău",
+   "Minsk",
+   "Moscow"
+  ]
+ },
+ "q0817": {
+  "q": "What is the capital of this country: Uganda?",
+  "a": [
+   "Kampala",
+   "Gitega",
+   "Victoria",
+   "Dodoma"
+  ]
+ },
+ "q0818": {
+  "q": "What is the capital of this country: United States?",
+  "a": [
+   "Washington, D.C.",
+   "Ottawa",
+   "Mexico City",
+   "Belmopan"
+  ]
+ },
+ "q0819": {
+  "q": "What is the capital of this country: Uruguay?",
+  "a": [
+   "Montevideo",
+   "Lima",
+   "Sucre",
+   "Caracas"
+  ]
+ },
+ "q0820": {
+  "q": "What is the capital of this country: Uzbekistan?",
+  "a": [
+   "Tashkent",
+   "Astana",
+   "Bishkek",
+   "Ashgabat"
+  ]
+ },
+ "q0821": {
+  "q": "What is the capital of this country: Vatican City?",
+  "a": [
+   "Vatican City",
+   "Valletta",
+   "Athens",
+   "Nicosia"
+  ]
+ },
+ "q0822": {
+  "q": "What is the capital of this country: Saint Vincent and the Grenadines?",
+  "a": [
+   "Kingstown",
+   "Castries",
+   "Havana",
+   "Roseau"
+  ]
+ },
+ "q0823": {
+  "q": "What is the capital of this country: Venezuela?",
+  "a": [
+   "Caracas",
+   "Bogotá",
+   "Lima",
+   "Sucre"
+  ]
+ },
+ "q0824": {
+  "q": "What is the capital of this country: Vietnam?",
+  "a": [
+   "Hanoi",
+   "Bangkok",
+   "Dili",
+   "Manila"
+  ]
+ },
+ "q0825": {
+  "q": "What is the capital of this country: Vanuatu?",
+  "a": [
+   "Port Vila",
+   "Suva",
+   "Port Moresby",
+   "Honiara"
+  ]
+ },
+ "q0826": {
+  "q": "What is the capital of this country: Samoa?",
+  "a": [
+   "Apia",
+   "Funafuti",
+   "Nukuʻalofa",
+   "Ngerulmud"
+  ]
+ },
+ "q0827": {
+  "q": "Which city is the constitutional capital of Yemen?",
+  "a": [
+   "Sanaa",
+   "Baku",
+   "Ramallah",
+   "Abu Dhabi"
+  ]
+ },
+ "q0828": {
+  "q": "Which city is the administrative capital of South Africa?",
+  "a": [
+   "Pretoria",
+   "Mbabane",
+   "Windhoek",
+   "Gaborone"
+  ]
+ },
+ "q0829": {
+  "q": "What is the capital of this country: Zambia?",
+  "a": [
+   "Lusaka",
+   "Victoria",
+   "Djibouti",
+   "Kigali"
+  ]
+ },
+ "q0830": {
+  "q": "What is the capital of this country: Zimbabwe?",
+  "a": [
+   "Harare",
+   "Kigali",
+   "Mogadishu",
+   "Djibouti"
+  ]
+ },
+ "q0831": {
+  "q": "Which country’s flag has a white field and a red circle?",
+  "a": [
+   "Japan",
+   "Marshall Islands",
+   "Jordan",
+   "Botswana"
+  ]
+ },
+ "q0832": {
+  "q": "Which country’s flag has a red maple leaf?",
+  "a": [
+   "Canada",
+   "South Sudan",
+   "Guinea",
+   "Uganda"
+  ]
+ },
+ "q0833": {
+  "q": "Which country’s flag has a green field, yellow diamond and blue circle?",
+  "a": [
+   "Brazil",
+   "Eritrea",
+   "Guyana",
+   "Kyrgyzstan"
+  ]
+ },
+ "q0834": {
+  "q": "Which country’s flag has a white cross on a red field?",
+  "a": [
+   "Switzerland",
+   "Kazakhstan",
+   "Libya",
+   "Mauritania"
+  ]
+ },
+ "q0835": {
+  "q": "Which country’s flag has combined red and white crosses on a blue field?",
+  "a": [
+   "United Kingdom",
+   "Uzbekistan",
+   "Kyrgyzstan",
+   "Suriname"
+  ]
+ },
+ "q0836": {
+  "q": "Which country’s flag has stars and red and white stripes?",
+  "a": [
+   "United States",
+   "The Gambia",
+   "Timor-Leste",
+   "Comoros"
+  ]
+ },
+ "q0837": {
+  "q": "Which country’s flag has a white crescent and star on a red field?",
+  "a": [
+   "Turkey",
+   "Myanmar",
+   "North Macedonia",
+   "Nauru"
+  ]
+ },
+ "q0838": {
+  "q": "Which country’s flag has five yellow stars on a red field?",
+  "a": [
+   "People's Republic of China",
+   "Tuvalu",
+   "Honduras",
+   "Sri Lanka"
+  ]
+ },
+ "q0839": {
+  "q": "Which country’s flag has orange, white and green stripes and a blue wheel?",
+  "a": [
+   "India",
+   "Trinidad and Tobago",
+   "Malawi",
+   "Nicaragua"
+  ]
+ },
+ "q0840": {
+  "q": "Which country’s flag has a red and blue circle and black trigrams on a white field?",
+  "a": [
+   "South Korea",
+   "Vanuatu",
+   "Nicaragua",
+   "Senegal"
+  ]
+ },
+ "q0841": {
+  "q": "Which country’s flag has a blue six-pointed star between two blue stripes?",
+  "a": [
+   "Israel",
+   "Papua New Guinea",
+   "Malta",
+   "São Tomé and Príncipe"
+  ]
+ },
+ "q0842": {
+  "q": "Which country’s flag has blue and white stripes and a white cross in a blue square?",
+  "a": [
+   "Greece",
+   "Malta",
+   "Burundi",
+   "Nigeria"
+  ]
+ },
+ "q0843": {
+  "q": "Which country’s flag has one large yellow star on a red field?",
+  "a": [
+   "Vietnam",
+   "Cape Verde",
+   "Belize",
+   "Saudi Arabia"
+  ]
+ },
+ "q0844": {
+  "q": "Which country’s flag has a green five-pointed star on a red field?",
+  "a": [
+   "Morocco",
+   "El Salvador",
+   "The Bahamas",
+   "Tuvalu"
+  ]
+ },
+ "q0845": {
+  "q": "Which country’s flag has two horizontal stripes: blue above yellow?",
+  "a": [
+   "Ukraine",
+   "Cape Verde",
+   "Nauru",
+   "Sudan"
+  ]
+ },
+ "q0846": {
+  "q": "Which country’s flag has three vertical stripes: blue, white and red from left to right?",
+  "a": [
+   "France",
+   "Mauritius",
+   "Costa Rica",
+   "Federated States of Micronesia"
+  ]
+ },
+ "q0847": {
+  "q": "Which country’s flag has three vertical stripes: green, white and red from left to right?",
+  "a": [
+   "Italy",
+   "Somalia",
+   "Moldova",
+   "Nigeria"
+  ]
+ },
+ "q0848": {
+  "q": "Which country’s flag has three horizontal stripes: white, green and red from top to bottom?",
+  "a": [
+   "Bulgaria",
+   "Democratic Republic of the Congo",
+   "Lebanon",
+   "Dominica"
+  ]
+ },
+ "q0849": {
+  "q": "Which country’s flag has three horizontal stripes: black, red and gold from top to bottom?",
+  "a": [
+   "Germany",
+   "Nepal",
+   "Austria",
+   "The Bahamas"
+  ]
+ },
+ "q0850": {
+  "q": "Which country’s flag has light blue and white horizontal stripes and a sun?",
+  "a": [
+   "Argentina",
+   "Paraguay",
+   "Costa Rica",
+   "Nepal"
+  ]
+ },
+ "q0851": {
+  "q": "Approximately what is the population of Canada? (2024)",
+  "a": [
+   "41 000 000",
+   "4 100 000",
+   "12 000 000",
+   "120 000 000"
+  ]
+ },
+ "q0852": {
+  "q": "Approximately what is the population of Japan? (2024)",
+  "a": [
+   "120 000 000",
+   "12 000 000",
+   "37 000 000",
+   "370 000 000"
+  ]
+ },
+ "q0853": {
+  "q": "Approximately what is the population of Norway? (2024)",
+  "a": [
+   "5 600 000",
+   "560 000",
+   "1 700 000",
+   "17 000 000"
+  ]
+ },
+ "q0854": {
+  "q": "Approximately what is the population of Ireland? (2024)",
+  "a": [
+   "5 400 000",
+   "540 000",
+   "1 600 000",
+   "16 000 000"
+  ]
+ },
+ "q0855": {
+  "q": "Approximately what is the population of Hungary? (2024)",
+  "a": [
+   "9 600 000",
+   "960 000",
+   "2 900 000",
+   "29 000 000"
+  ]
+ },
+ "q0856": {
+  "q": "Approximately what is the population of Spain? (2024)",
+  "a": [
+   "49 000 000",
+   "4 900 000",
+   "15 000 000",
+   "150 000 000"
+  ]
+ },
+ "q0857": {
+  "q": "Approximately what is the population of United States? (2024)",
+  "a": [
+   "340 000 000",
+   "34 000 000",
+   "100 000 000",
+   "1 000 000 000"
+  ]
+ },
+ "q0858": {
+  "q": "Approximately what is the population of Belgium? (2024)",
+  "a": [
+   "12 000 000",
+   "1 200 000",
+   "3 600 000",
+   "36 000 000"
+  ]
+ },
+ "q0859": {
+  "q": "Approximately what is the population of Luxembourg? (2024)",
+  "a": [
+   "680 000",
+   "68 000",
+   "200 000",
+   "2 000 000"
+  ]
+ },
+ "q0860": {
+  "q": "Approximately what is the population of Finland? (2024)",
+  "a": [
+   "5 600 000",
+   "560 000",
+   "1 700 000",
+   "17 000 000"
+  ]
+ },
+ "q0861": {
+  "q": "Approximately what is the population of Sweden? (2024)",
+  "a": [
+   "11 000 000",
+   "1 100 000",
+   "3 200 000",
+   "32 000 000"
+  ]
+ },
+ "q0862": {
+  "q": "Approximately what is the population of Poland? (2024)",
+  "a": [
+   "37 000 000",
+   "3 700 000",
+   "11 000 000",
+   "110 000 000"
+  ]
+ },
+ "q0863": {
+  "q": "Approximately what is the population of Lithuania? (2024)",
+  "a": [
+   "2 900 000",
+   "290 000",
+   "870 000",
+   "8 700 000"
+  ]
+ },
+ "q0864": {
+  "q": "Approximately what is the population of Italy? (2024)",
+  "a": [
+   "59 000 000",
+   "5 900 000",
+   "18 000 000",
+   "180 000 000"
+  ]
+ },
+ "q0865": {
+  "q": "Approximately what is the population of Switzerland? (2024)",
+  "a": [
+   "9 000 000",
+   "900 000",
+   "2 700 000",
+   "27 000 000"
+  ]
+ },
+ "q0866": {
+  "q": "Approximately what is the population of Austria? (2024)",
+  "a": [
+   "9 200 000",
+   "920 000",
+   "2 800 000",
+   "28 000 000"
+  ]
+ },
+ "q0867": {
+  "q": "Approximately what is the population of Greece? (2024)",
+  "a": [
+   "10 000 000",
+   "1 000 000",
+   "3 100 000",
+   "31 000 000"
+  ]
+ },
+ "q0868": {
+  "q": "Approximately what is the population of Turkey? (2024)",
+  "a": [
+   "86 000 000",
+   "8 600 000",
+   "26 000 000",
+   "260 000 000"
+  ]
+ },
+ "q0869": {
+  "q": "Approximately what is the population of Portugal? (2024)",
+  "a": [
+   "11 000 000",
+   "1 100 000",
+   "3 200 000",
+   "32 000 000"
+  ]
+ },
+ "q0870": {
+  "q": "Approximately what is the population of Uruguay? (2024)",
+  "a": [
+   "3 400 000",
+   "340 000",
+   "1 000 000",
+   "10 000 000"
+  ]
+ },
+ "q0871": {
+  "q": "Approximately what is the population of Egypt? (2024)",
+  "a": [
+   "120 000 000",
+   "12 000 000",
+   "35 000 000",
+   "350 000 000"
+  ]
+ },
+ "q0872": {
+  "q": "Approximately what is the population of Mexico? (2024)",
+  "a": [
+   "130 000 000",
+   "13 000 000",
+   "39 000 000",
+   "390 000 000"
+  ]
+ },
+ "q0873": {
+  "q": "Approximately what is the population of Kenya? (2024)",
+  "a": [
+   "56 000 000",
+   "5 600 000",
+   "17 000 000",
+   "170 000 000"
+  ]
+ },
+ "q0874": {
+  "q": "Approximately what is the population of Ethiopia? (2024)",
+  "a": [
+   "130 000 000",
+   "13 000 000",
+   "40 000 000",
+   "400 000 000"
+  ]
+ },
+ "q0875": {
+  "q": "Approximately what is the population of Ghana? (2024)",
+  "a": [
+   "34 000 000",
+   "3 400 000",
+   "10 000 000",
+   "100 000 000"
+  ]
+ },
+ "q0876": {
+  "q": "Approximately what is the population of France? (2024)",
+  "a": [
+   "69 000 000",
+   "6 900 000",
+   "21 000 000",
+   "210 000 000"
+  ]
+ },
+ "q0877": {
+  "q": "Approximately what is the population of United Kingdom? (2024)",
+  "a": [
+   "69 000 000",
+   "6 900 000",
+   "21 000 000",
+   "210 000 000"
+  ]
+ },
+ "q0878": {
+  "q": "Approximately what is the population of People's Republic of China? (2024)",
+  "a": [
+   "1 400 000 000",
+   "140 000 000",
+   "420 000 000",
+   "4 200 000 000"
+  ]
+ },
+ "q0879": {
+  "q": "Approximately what is the population of Brazil? (2024)",
+  "a": [
+   "210 000 000",
+   "21 000 000",
+   "64 000 000",
+   "640 000 000"
+  ]
+ },
+ "q0880": {
+  "q": "Approximately what is the population of Russia? (2024)",
+  "a": [
+   "140 000 000",
+   "14 000 000",
+   "43 000 000",
+   "430 000 000"
+  ]
+ },
+ "q0881": {
+  "q": "Approximately what is the population of Germany? (2024)",
+  "a": [
+   "84 000 000",
+   "8 400 000",
+   "25 000 000",
+   "250 000 000"
+  ]
+ },
+ "q0882": {
+  "q": "Approximately what is the population of Belarus? (2024)",
+  "a": [
+   "9 100 000",
+   "910 000",
+   "2 700 000",
+   "27 000 000"
+  ]
+ },
+ "q0883": {
+  "q": "Approximately what is the population of Iceland? (2024)",
+  "a": [
+   "390 000",
+   "39 000",
+   "120 000",
+   "1 200 000"
+  ]
+ },
+ "q0884": {
+  "q": "Approximately what is the population of Estonia? (2024)",
+  "a": [
+   "1 400 000",
+   "140 000",
+   "410 000",
+   "4 100 000"
+  ]
+ },
+ "q0885": {
+  "q": "Approximately what is the population of Latvia? (2024)",
+  "a": [
+   "1 900 000",
+   "190 000",
+   "560 000",
+   "5 600 000"
+  ]
+ },
+ "q0886": {
+  "q": "Approximately what is the population of Ukraine? (2024)",
+  "a": [
+   "38 000 000",
+   "3 800 000",
+   "11 000 000",
+   "110 000 000"
+  ]
+ },
+ "q0887": {
+  "q": "Approximately what is the population of Czech Republic? (2024)",
+  "a": [
+   "11 000 000",
+   "1 100 000",
+   "3 300 000",
+   "33 000 000"
+  ]
+ },
+ "q0888": {
+  "q": "Approximately what is the population of Slovakia? (2024)",
+  "a": [
+   "5 400 000",
+   "540 000",
+   "1 600 000",
+   "16 000 000"
+  ]
+ },
+ "q0889": {
+  "q": "Approximately what is the population of Slovenia? (2024)",
+  "a": [
+   "2 100 000",
+   "210 000",
+   "640 000",
+   "6 400 000"
+  ]
+ },
+ "q0890": {
+  "q": "Approximately what is the population of Moldova? (2024)",
+  "a": [
+   "2 400 000",
+   "240 000",
+   "720 000",
+   "7 200 000"
+  ]
+ },
+ "q0891": {
+  "q": "Approximately what is the population of Romania? (2024)",
+  "a": [
+   "19 000 000",
+   "1 900 000",
+   "5 700 000",
+   "57 000 000"
+  ]
+ },
+ "q0892": {
+  "q": "Approximately what is the population of Bulgaria? (2024)",
+  "a": [
+   "6 400 000",
+   "640 000",
+   "1 900 000",
+   "19 000 000"
+  ]
+ },
+ "q0893": {
+  "q": "Approximately what is the population of North Macedonia? (2024)",
+  "a": [
+   "1 800 000",
+   "180 000",
+   "550 000",
+   "5 500 000"
+  ]
+ },
+ "q0894": {
+  "q": "Approximately what is the population of Albania? (2024)",
+  "a": [
+   "2 400 000",
+   "240 000",
+   "710 000",
+   "7 100 000"
+  ]
+ },
+ "q0895": {
+  "q": "Approximately what is the population of Croatia? (2024)",
+  "a": [
+   "3 900 000",
+   "390 000",
+   "1 200 000",
+   "12 000 000"
+  ]
+ },
+ "q0896": {
+  "q": "Approximately what is the population of Bosnia and Herzegovina? (2024)",
+  "a": [
+   "3 200 000",
+   "320 000",
+   "950 000",
+   "9 500 000"
+  ]
+ },
+ "q0897": {
+  "q": "Approximately what is the population of Azerbaijan? (2024)",
+  "a": [
+   "10 000 000",
+   "1 000 000",
+   "3 100 000",
+   "31 000 000"
+  ]
+ },
+ "q0898": {
+  "q": "Approximately what is the population of Andorra? (2024)",
+  "a": [
+   "82 000",
+   "8 200",
+   "25 000",
+   "250 000"
+  ]
+ },
+ "q0899": {
+  "q": "Approximately what is the population of Cyprus? (2024)",
+  "a": [
+   "1 400 000",
+   "140 000",
+   "410 000",
+   "4 100 000"
+  ]
+ },
+ "q0900": {
+  "q": "Approximately what is the population of Georgia? (2024)",
+  "a": [
+   "3 800 000",
+   "380 000",
+   "1 100 000",
+   "11 000 000"
+  ]
+ },
+ "q0901": {
+  "q": "Approximately what is the population of Kazakhstan? (2024)",
+  "a": [
+   "21 000 000",
+   "2 100 000",
+   "6 200 000",
+   "62 000 000"
+  ]
+ },
+ "q0902": {
+  "q": "Approximately what is the population of Malta? (2024)",
+  "a": [
+   "570 000",
+   "57 000",
+   "170 000",
+   "1 700 000"
+  ]
+ },
+ "q0903": {
+  "q": "Approximately what is the population of Monaco? (2024)",
+  "a": [
+   "39 000",
+   "3 900",
+   "12 000",
+   "120 000"
+  ]
+ },
+ "q0904": {
+  "q": "Approximately what is the population of Montenegro? (2024)",
+  "a": [
+   "620 000",
+   "62 000",
+   "190 000",
+   "1 900 000"
+  ]
+ },
+ "q0905": {
+  "q": "Approximately what is the population of San Marino? (2024)",
+  "a": [
+   "34 000",
+   "3 400",
+   "10 000",
+   "100 000"
+  ]
+ },
+ "q0906": {
+  "q": "Approximately what is the population of Cuba? (2024)",
+  "a": [
+   "11 000 000",
+   "1 100 000",
+   "3 300 000",
+   "33 000 000"
+  ]
+ },
+ "q0907": {
+  "q": "Approximately what is the population of Belize? (2024)",
+  "a": [
+   "420 000",
+   "42 000",
+   "130 000",
+   "1 300 000"
+  ]
+ },
+ "q0908": {
+  "q": "Approximately what is the population of Barbados? (2024)",
+  "a": [
+   "280 000",
+   "28 000",
+   "85 000",
+   "850 000"
+  ]
+ },
+ "q0909": {
+  "q": "Approximately what is the population of Indonesia? (2024)",
+  "a": [
+   "280 000 000",
+   "28 000 000",
+   "85 000 000",
+   "850 000 000"
+  ]
+ },
+ "q0910": {
+  "q": "Approximately what is the population of South Africa? (2024)",
+  "a": [
+   "64 000 000",
+   "6 400 000",
+   "19 000 000",
+   "190 000 000"
+  ]
+ },
+ "q0911": {
+  "q": "Approximately what is the population of Algeria? (2024)",
+  "a": [
+   "47 000 000",
+   "4 700 000",
+   "14 000 000",
+   "140 000 000"
+  ]
+ },
+ "q0912": {
+  "q": "Approximately what is the population of Uzbekistan? (2024)",
+  "a": [
+   "36 000 000",
+   "3 600 000",
+   "11 000 000",
+   "110 000 000"
+  ]
+ },
+ "q0913": {
+  "q": "Approximately what is the population of Chile? (2024)",
+  "a": [
+   "20 000 000",
+   "2 000 000",
+   "5 900 000",
+   "59 000 000"
+  ]
+ },
+ "q0914": {
+  "q": "Approximately what is the population of Singapore? (2024)",
+  "a": [
+   "6 000 000",
+   "600 000",
+   "1 800 000",
+   "18 000 000"
+  ]
+ },
+ "q0915": {
+  "q": "Approximately what is the population of Liechtenstein? (2024)",
+  "a": [
+   "40 000",
+   "4 000",
+   "12 000",
+   "120 000"
+  ]
+ },
+ "q0916": {
+  "q": "Approximately what is the population of Bahrain? (2024)",
+  "a": [
+   "1 600 000",
+   "160 000",
+   "480 000",
+   "4 800 000"
+  ]
+ },
+ "q0917": {
+  "q": "Approximately what is the population of Armenia? (2024)",
+  "a": [
+   "3 000 000",
+   "300 000",
+   "910 000",
+   "9 100 000"
+  ]
+ },
+ "q0918": {
+  "q": "Approximately what is the population of Serbia? (2024)",
+  "a": [
+   "6 600 000",
+   "660 000",
+   "2 000 000",
+   "20 000 000"
+  ]
+ },
+ "q0919": {
+  "q": "Approximately what is the population of Australia? (2024)",
+  "a": [
+   "27 000 000",
+   "2 700 000",
+   "8 200 000",
+   "82 000 000"
+  ]
+ },
+ "q0920": {
+  "q": "Approximately what is the population of Argentina? (2024)",
+  "a": [
+   "46 000 000",
+   "4 600 000",
+   "14 000 000",
+   "140 000 000"
+  ]
+ },
+ "q0921": {
+  "q": "Approximately what is the population of Peru? (2024)",
+  "a": [
+   "34 000 000",
+   "3 400 000",
+   "10 000 000",
+   "100 000 000"
+  ]
+ },
+ "q0922": {
+  "q": "Approximately what is the population of North Korea? (2024)",
+  "a": [
+   "26 000 000",
+   "2 600 000",
+   "7 900 000",
+   "79 000 000"
+  ]
+ },
+ "q0923": {
+  "q": "Approximately what is the population of Cambodia? (2024)",
+  "a": [
+   "18 000 000",
+   "1 800 000",
+   "5 300 000",
+   "53 000 000"
+  ]
+ },
+ "q0924": {
+  "q": "Approximately what is the population of Timor-Leste? (2024)",
+  "a": [
+   "1 400 000",
+   "140 000",
+   "420 000",
+   "4 200 000"
+  ]
+ },
+ "q0925": {
+  "q": "Approximately what is the population of Chad? (2024)",
+  "a": [
+   "20 000 000",
+   "2 000 000",
+   "6 100 000",
+   "61 000 000"
+  ]
+ },
+ "q0926": {
+  "q": "Approximately what is the population of New Zealand? (2024)",
+  "a": [
+   "5 300 000",
+   "530 000",
+   "1 600 000",
+   "16 000 000"
+  ]
+ },
+ "q0927": {
+  "q": "Approximately what is the population of India? (2024)",
+  "a": [
+   "1 500 000 000",
+   "150 000 000",
+   "440 000 000",
+   "4 400 000 000"
+  ]
+ },
+ "q0928": {
+  "q": "Approximately what is the population of Tuvalu? (2024)",
+  "a": [
+   "9 600",
+   "960",
+   "2 900",
+   "29 000"
+  ]
+ },
+ "q0929": {
+  "q": "Approximately what is the population of Tonga? (2024)",
+  "a": [
+   "100 000",
+   "10 000",
+   "31 000",
+   "310 000"
+  ]
+ },
+ "q0930": {
+  "q": "Approximately what is the population of Samoa? (2024)",
+  "a": [
+   "220 000",
+   "22 000",
+   "65 000",
+   "650 000"
+  ]
+ },
+ "q0931": {
+  "q": "Approximately what is the population of Solomon Islands? (2024)",
+  "a": [
+   "820 000",
+   "82 000",
+   "250 000",
+   "2 500 000"
+  ]
+ },
+ "q0932": {
+  "q": "Approximately what is the population of Vanuatu? (2024)",
+  "a": [
+   "330 000",
+   "33 000",
+   "98 000",
+   "980 000"
+  ]
+ },
+ "q0933": {
+  "q": "Approximately what is the population of Papua New Guinea? (2024)",
+  "a": [
+   "11 000 000",
+   "1 100 000",
+   "3 200 000",
+   "32 000 000"
+  ]
+ },
+ "q0934": {
+  "q": "Approximately what is the population of Palau? (2024)",
+  "a": [
+   "18 000",
+   "1 800",
+   "5 300",
+   "53 000"
+  ]
+ },
+ "q0935": {
+  "q": "Approximately what is the population of Nauru? (2024)",
+  "a": [
+   "12 000",
+   "1 200",
+   "3 600",
+   "36 000"
+  ]
+ },
+ "q0936": {
+  "q": "Approximately what is the population of Federated States of Micronesia? (2024)",
+  "a": [
+   "110 000",
+   "11 000",
+   "34 000",
+   "340 000"
+  ]
+ },
+ "q0937": {
+  "q": "Approximately what is the population of Marshall Islands? (2024)",
+  "a": [
+   "38 000",
+   "3 800",
+   "11 000",
+   "110 000"
+  ]
+ },
+ "q0938": {
+  "q": "Approximately what is the population of Kiribati? (2024)",
+  "a": [
+   "130 000",
+   "13 000",
+   "40 000",
+   "400 000"
+  ]
+ },
+ "q0939": {
+  "q": "Approximately what is the population of Mongolia? (2024)",
+  "a": [
+   "3 500 000",
+   "350 000",
+   "1 100 000",
+   "11 000 000"
+  ]
+ },
+ "q0940": {
+  "q": "Approximately what is the population of Fiji? (2024)",
+  "a": [
+   "930 000",
+   "93 000",
+   "280 000",
+   "2 800 000"
+  ]
+ },
+ "q0941": {
+  "q": "Approximately what is the population of Venezuela? (2024)",
+  "a": [
+   "28 000 000",
+   "2 800 000",
+   "8 500 000",
+   "85 000 000"
+  ]
+ },
+ "q0942": {
+  "q": "Approximately what is the population of Suriname? (2024)",
+  "a": [
+   "630 000",
+   "63 000",
+   "190 000",
+   "1 900 000"
+  ]
+ },
+ "q0943": {
+  "q": "Approximately what is the population of Paraguay? (2024)",
+  "a": [
+   "6 900 000",
+   "690 000",
+   "2 100 000",
+   "21 000 000"
+  ]
+ },
+ "q0944": {
+  "q": "Approximately what is the population of Guyana? (2024)",
+  "a": [
+   "830 000",
+   "83 000",
+   "250 000",
+   "2 500 000"
+  ]
+ },
+ "q0945": {
+  "q": "Approximately what is the population of Ecuador? (2024)",
+  "a": [
+   "18 000 000",
+   "1 800 000",
+   "5 400 000",
+   "54 000 000"
+  ]
+ },
+ "q0946": {
+  "q": "Approximately what is the population of Colombia? (2024)",
+  "a": [
+   "53 000 000",
+   "5 300 000",
+   "16 000 000",
+   "160 000 000"
+  ]
+ },
+ "q0947": {
+  "q": "Approximately what is the population of Bolivia? (2024)",
+  "a": [
+   "12 000 000",
+   "1 200 000",
+   "3 700 000",
+   "37 000 000"
+  ]
+ },
+ "q0948": {
+  "q": "Approximately what is the population of Saint Kitts and Nevis? (2024)",
+  "a": [
+   "47 000",
+   "4 700",
+   "14 000",
+   "140 000"
+  ]
+ },
+ "q0949": {
+  "q": "Approximately what is the population of Jamaica? (2024)",
+  "a": [
+   "2 800 000",
+   "280 000",
+   "850 000",
+   "8 500 000"
+  ]
+ },
+ "q0950": {
+  "q": "Approximately what is the population of Grenada? (2024)",
+  "a": [
+   "120 000",
+   "12 000",
+   "35 000",
+   "350 000"
+  ]
+ },
+ "q0951": {
+  "q": "Approximately what is the population of Guatemala? (2024)",
+  "a": [
+   "18 000 000",
+   "1 800 000",
+   "5 500 000",
+   "55 000 000"
+  ]
+ },
+ "q0952": {
+  "q": "Approximately what is the population of The Bahamas? (2024)",
+  "a": [
+   "400 000",
+   "40 000",
+   "120 000",
+   "1 200 000"
+  ]
+ },
+ "q0953": {
+  "q": "Approximately what is the population of Antigua and Barbuda? (2024)",
+  "a": [
+   "94 000",
+   "9 400",
+   "28 000",
+   "280 000"
+  ]
+ },
+ "q0954": {
+  "q": "Approximately what is the population of Honduras? (2024)",
+  "a": [
+   "11 000 000",
+   "1 100 000",
+   "3 200 000",
+   "32 000 000"
+  ]
+ },
+ "q0955": {
+  "q": "Approximately what is the population of Dominica? (2024)",
+  "a": [
+   "66 000",
+   "6 600",
+   "20 000",
+   "200 000"
+  ]
+ },
+ "q0956": {
+  "q": "Approximately what is the population of Dominican Republic? (2024)",
+  "a": [
+   "11 000 000",
+   "1 100 000",
+   "3 400 000",
+   "34 000 000"
+  ]
+ },
+ "q0957": {
+  "q": "Approximately what is the population of Haiti? (2024)",
+  "a": [
+   "12 000 000",
+   "1 200 000",
+   "3 500 000",
+   "35 000 000"
+  ]
+ },
+ "q0958": {
+  "q": "Approximately what is the population of El Salvador? (2024)",
+  "a": [
+   "6 300 000",
+   "630 000",
+   "1 900 000",
+   "19 000 000"
+  ]
+ },
+ "q0959": {
+  "q": "Approximately what is the population of Iran? (2024)",
+  "a": [
+   "92 000 000",
+   "9 200 000",
+   "27 000 000",
+   "270 000 000"
+  ]
+ },
+ "q0960": {
+  "q": "Approximately what is the population of Iraq? (2024)",
+  "a": [
+   "46 000 000",
+   "4 600 000",
+   "14 000 000",
+   "140 000 000"
+  ]
+ },
+ "q0961": {
+  "q": "Approximately what is the population of Costa Rica? (2024)",
+  "a": [
+   "5 100 000",
+   "510 000",
+   "1 500 000",
+   "15 000 000"
+  ]
+ },
+ "q0962": {
+  "q": "Approximately what is the population of Israel? (2024)",
+  "a": [
+   "10 000 000",
+   "1 000 000",
+   "3 000 000",
+   "30 000 000"
+  ]
+ },
+ "q0963": {
+  "q": "Approximately what is the population of Panama? (2024)",
+  "a": [
+   "4 500 000",
+   "450 000",
+   "1 400 000",
+   "14 000 000"
+  ]
+ },
+ "q0964": {
+  "q": "Approximately what is the population of Yemen? (2024)",
+  "a": [
+   "41 000 000",
+   "4 100 000",
+   "12 000 000",
+   "120 000 000"
+  ]
+ },
+ "q0965": {
+  "q": "Approximately what is the population of Jordan? (2024)",
+  "a": [
+   "12 000 000",
+   "1 200 000",
+   "3 500 000",
+   "35 000 000"
+  ]
+ },
+ "q0966": {
+  "q": "Approximately what is the population of Nicaragua? (2024)",
+  "a": [
+   "6 900 000",
+   "690 000",
+   "2 100 000",
+   "21 000 000"
+  ]
+ },
+ "q0967": {
+  "q": "Approximately what is the population of Kyrgyzstan? (2024)",
+  "a": [
+   "7 200 000",
+   "720 000",
+   "2 200 000",
+   "22 000 000"
+  ]
+ },
+ "q0968": {
+  "q": "Approximately what is the population of Kuwait? (2024)",
+  "a": [
+   "4 900 000",
+   "490 000",
+   "1 500 000",
+   "15 000 000"
+  ]
+ },
+ "q0969": {
+  "q": "Approximately what is the population of Laos? (2024)",
+  "a": [
+   "7 800 000",
+   "780 000",
+   "2 300 000",
+   "23 000 000"
+  ]
+ },
+ "q0970": {
+  "q": "Approximately what is the population of Lebanon? (2024)",
+  "a": [
+   "5 800 000",
+   "580 000",
+   "1 700 000",
+   "17 000 000"
+  ]
+ },
+ "q0971": {
+  "q": "Approximately what is the population of Maldives? (2024)",
+  "a": [
+   "530 000",
+   "53 000",
+   "160 000",
+   "1 600 000"
+  ]
+ },
+ "q0972": {
+  "q": "Approximately what is the population of Malaysia? (2024)",
+  "a": [
+   "36 000 000",
+   "3 600 000",
+   "11 000 000",
+   "110 000 000"
+  ]
+ },
+ "q0973": {
+  "q": "Approximately what is the population of Myanmar? (2024)",
+  "a": [
+   "55 000 000",
+   "5 500 000",
+   "16 000 000",
+   "160 000 000"
+  ]
+ },
+ "q0974": {
+  "q": "Approximately what is the population of Nepal? (2024)",
+  "a": [
+   "30 000 000",
+   "3 000 000",
+   "8 900 000",
+   "89 000 000"
+  ]
+ },
+ "q0975": {
+  "q": "Approximately what is the population of Oman? (2024)",
+  "a": [
+   "5 300 000",
+   "530 000",
+   "1 600 000",
+   "16 000 000"
+  ]
+ },
+ "q0976": {
+  "q": "Approximately what is the population of Pakistan? (2024)",
+  "a": [
+   "250 000 000",
+   "25 000 000",
+   "75 000 000",
+   "750 000 000"
+  ]
+ },
+ "q0977": {
+  "q": "Approximately what is the population of Qatar? (2024)",
+  "a": [
+   "2 900 000",
+   "290 000",
+   "860 000",
+   "8 600 000"
+  ]
+ },
+ "q0978": {
+  "q": "Approximately what is the population of Saudi Arabia? (2024)",
+  "a": [
+   "35 000 000",
+   "3 500 000",
+   "11 000 000",
+   "110 000 000"
+  ]
+ },
+ "q0979": {
+  "q": "Approximately what is the population of Sri Lanka? (2024)",
+  "a": [
+   "22 000 000",
+   "2 200 000",
+   "6 600 000",
+   "66 000 000"
+  ]
+ },
+ "q0980": {
+  "q": "Approximately what is the population of Syria? (2024)",
+  "a": [
+   "25 000 000",
+   "2 500 000",
+   "7 400 000",
+   "74 000 000"
+  ]
+ },
+ "q0981": {
+  "q": "Approximately what is the population of Tajikistan? (2024)",
+  "a": [
+   "11 000 000",
+   "1 100 000",
+   "3 200 000",
+   "32 000 000"
+  ]
+ },
+ "q0982": {
+  "q": "Approximately what is the population of Thailand? (2024)",
+  "a": [
+   "72 000 000",
+   "7 200 000",
+   "22 000 000",
+   "220 000 000"
+  ]
+ },
+ "q0983": {
+  "q": "Approximately what is the population of Turkmenistan? (2024)",
+  "a": [
+   "7 500 000",
+   "750 000",
+   "2 200 000",
+   "22 000 000"
+  ]
+ },
+ "q0984": {
+  "q": "Approximately what is the population of United Arab Emirates? (2024)",
+  "a": [
+   "11 000 000",
+   "1 100 000",
+   "3 300 000",
+   "33 000 000"
+  ]
+ },
+ "q0985": {
+  "q": "Approximately what is the population of Vietnam? (2024)",
+  "a": [
+   "100 000 000",
+   "10 000 000",
+   "30 000 000",
+   "300 000 000"
+  ]
+ },
+ "q0986": {
+  "q": "Approximately what is the population of South Korea? (2024)",
+  "a": [
+   "52 000 000",
+   "5 200 000",
+   "16 000 000",
+   "160 000 000"
+  ]
+ },
+ "q0987": {
+  "q": "Approximately what is the population of Afghanistan? (2024)",
+  "a": [
+   "43 000 000",
+   "4 300 000",
+   "13 000 000",
+   "130 000 000"
+  ]
+ },
+ "q0988": {
+  "q": "Approximately what is the population of Bangladesh? (2024)",
+  "a": [
+   "170 000 000",
+   "17 000 000",
+   "52 000 000",
+   "520 000 000"
+  ]
+ },
+ "q0989": {
+  "q": "Approximately what is the population of Mali? (2024)",
+  "a": [
+   "24 000 000",
+   "2 400 000",
+   "7 300 000",
+   "73 000 000"
+  ]
+ },
+ "q0990": {
+  "q": "Approximately what is the population of Angola? (2024)",
+  "a": [
+   "38 000 000",
+   "3 800 000",
+   "11 000 000",
+   "110 000 000"
+  ]
+ },
+ "q0991": {
+  "q": "Approximately what is the population of Bhutan? (2024)",
+  "a": [
+   "790 000",
+   "79 000",
+   "240 000",
+   "2 400 000"
+  ]
+ },
+ "q0992": {
+  "q": "Approximately what is the population of Brunei? (2024)",
+  "a": [
+   "460 000",
+   "46 000",
+   "140 000",
+   "1 400 000"
+  ]
+ },
+ "q0993": {
+  "q": "Approximately what is the population of Tanzania? (2024)",
+  "a": [
+   "69 000 000",
+   "6 900 000",
+   "21 000 000",
+   "210 000 000"
+  ]
+ },
+ "q0994": {
+  "q": "Approximately what is the population of Philippines? (2024)",
+  "a": [
+   "120 000 000",
+   "12 000 000",
+   "35 000 000",
+   "350 000 000"
+  ]
+ },
+ "q0995": {
+  "q": "Approximately what is the population of Central African Republic? (2024)",
+  "a": [
+   "5 300 000",
+   "530 000",
+   "1 600 000",
+   "16 000 000"
+  ]
+ },
+ "q0996": {
+  "q": "Approximately what is the population of Togo? (2024)",
+  "a": [
+   "8 400 000",
+   "840 000",
+   "2 500 000",
+   "25 000 000"
+  ]
+ },
+ "q0997": {
+  "q": "Approximately what is the population of Tunisia? (2024)",
+  "a": [
+   "12 000 000",
+   "1 200 000",
+   "3 700 000",
+   "37 000 000"
+  ]
+ },
+ "q0998": {
+  "q": "Approximately what is the population of Zambia? (2024)",
+  "a": [
+   "21 000 000",
+   "2 100 000",
+   "6 400 000",
+   "64 000 000"
+  ]
+ },
+ "q0999": {
+  "q": "Approximately what is the population of Zimbabwe? (2024)",
+  "a": [
+   "17 000 000",
+   "1 700 000",
+   "5 000 000",
+   "50 000 000"
+  ]
+ },
+ "q1000": {
+  "q": "Approximately what is the population of South Sudan? (2024)",
+  "a": [
+   "12 000 000",
+   "1 200 000",
+   "3 600 000",
+   "36 000 000"
+  ]
+ },
+ "q1001": {
+  "q": "Approximately what is the population of Benin? (2024)",
+  "a": [
+   "14 000 000",
+   "1 400 000",
+   "4 300 000",
+   "43 000 000"
+  ]
+ },
+ "q1002": {
+  "q": "Approximately what is the population of Botswana? (2024)",
+  "a": [
+   "2 500 000",
+   "250 000",
+   "760 000",
+   "7 600 000"
+  ]
+ },
+ "q1003": {
+  "q": "Approximately what is the population of Burkina Faso? (2024)",
+  "a": [
+   "24 000 000",
+   "2 400 000",
+   "7 100 000",
+   "71 000 000"
+  ]
+ },
+ "q1004": {
+  "q": "Approximately what is the population of Burundi? (2024)",
+  "a": [
+   "14 000 000",
+   "1 400 000",
+   "4 200 000",
+   "42 000 000"
+  ]
+ },
+ "q1005": {
+  "q": "Approximately what is the population of Comoros? (2024)",
+  "a": [
+   "870 000",
+   "87 000",
+   "260 000",
+   "2 600 000"
+  ]
+ },
+ "q1006": {
+  "q": "Approximately what is the population of Republic of the Congo? (2024)",
+  "a": [
+   "6 300 000",
+   "630 000",
+   "1 900 000",
+   "19 000 000"
+  ]
+ },
+ "q1007": {
+  "q": "Approximately what is the population of Democratic Republic of the Congo? (2024)",
+  "a": [
+   "110 000 000",
+   "11 000 000",
+   "33 000 000",
+   "330 000 000"
+  ]
+ },
+ "q1008": {
+  "q": "Approximately what is the population of Djibouti? (2024)",
+  "a": [
+   "1 200 000",
+   "120 000",
+   "350 000",
+   "3 500 000"
+  ]
+ },
+ "q1009": {
+  "q": "Approximately what is the population of Equatorial Guinea? (2024)",
+  "a": [
+   "1 900 000",
+   "190 000",
+   "570 000",
+   "5 700 000"
+  ]
+ },
+ "q1010": {
+  "q": "Approximately what is the population of Eritrea? (2024)",
+  "a": [
+   "3 500 000",
+   "350 000",
+   "1 100 000",
+   "11 000 000"
+  ]
+ },
+ "q1011": {
+  "q": "Approximately what is the population of Gabon? (2024)",
+  "a": [
+   "2 500 000",
+   "250 000",
+   "760 000",
+   "7 600 000"
+  ]
+ },
+ "q1012": {
+  "q": "Approximately what is the population of The Gambia? (2024)",
+  "a": [
+   "2 800 000",
+   "280 000",
+   "830 000",
+   "8 300 000"
+  ]
+ },
+ "q1013": {
+  "q": "Approximately what is the population of Guinea? (2024)",
+  "a": [
+   "15 000 000",
+   "1 500 000",
+   "4 400 000",
+   "44 000 000"
+  ]
+ },
+ "q1014": {
+  "q": "Approximately what is the population of Guinea-Bissau? (2024)",
+  "a": [
+   "2 200 000",
+   "220 000",
+   "660 000",
+   "6 600 000"
+  ]
+ },
+ "q1015": {
+  "q": "Approximately what is the population of Ivory Coast? (2024)",
+  "a": [
+   "32 000 000",
+   "3 200 000",
+   "9 600 000",
+   "96 000 000"
+  ]
+ },
+ "q1016": {
+  "q": "Approximately what is the population of Cameroon? (2024)",
+  "a": [
+   "29 000 000",
+   "2 900 000",
+   "8 700 000",
+   "87 000 000"
+  ]
+ },
+ "q1017": {
+  "q": "Approximately what is the population of Cape Verde? (2024)",
+  "a": [
+   "520 000",
+   "52 000",
+   "160 000",
+   "1 600 000"
+  ]
+ },
+ "q1018": {
+  "q": "Approximately what is the population of Lesotho? (2024)",
+  "a": [
+   "2 300 000",
+   "230 000",
+   "700 000",
+   "7 000 000"
+  ]
+ },
+ "q1019": {
+  "q": "Approximately what is the population of Liberia? (2024)",
+  "a": [
+   "5 600 000",
+   "560 000",
+   "1 700 000",
+   "17 000 000"
+  ]
+ },
+ "q1020": {
+  "q": "Approximately what is the population of Libya? (2024)",
+  "a": [
+   "7 400 000",
+   "740 000",
+   "2 200 000",
+   "22 000 000"
+  ]
+ },
+ "q1021": {
+  "q": "Approximately what is the population of Madagascar? (2024)",
+  "a": [
+   "32 000 000",
+   "3 200 000",
+   "9 600 000",
+   "96 000 000"
+  ]
+ },
+ "q1022": {
+  "q": "Approximately what is the population of Malawi? (2024)",
+  "a": [
+   "22 000 000",
+   "2 200 000",
+   "6 500 000",
+   "65 000 000"
+  ]
+ },
+ "q1023": {
+  "q": "Approximately what is the population of Mauritania? (2024)",
+  "a": [
+   "5 200 000",
+   "520 000",
+   "1 600 000",
+   "16 000 000"
+  ]
+ },
+ "q1024": {
+  "q": "Approximately what is the population of Mauritius? (2024)",
+  "a": [
+   "1 200 000",
+   "120 000",
+   "370 000",
+   "3 700 000"
+  ]
+ },
+ "q1025": {
+  "q": "Approximately what is the population of Morocco? (2024)",
+  "a": [
+   "38 000 000",
+   "3 800 000",
+   "11 000 000",
+   "110 000 000"
+  ]
+ },
+ "q1026": {
+  "q": "Approximately what is the population of Mozambique? (2024)",
+  "a": [
+   "35 000 000",
+   "3 500 000",
+   "10 000 000",
+   "100 000 000"
+  ]
+ },
+ "q1027": {
+  "q": "Approximately what is the population of Namibia? (2024)",
+  "a": [
+   "3 000 000",
+   "300 000",
+   "910 000",
+   "9 100 000"
+  ]
+ },
+ "q1028": {
+  "q": "Approximately what is the population of Niger? (2024)",
+  "a": [
+   "27 000 000",
+   "2 700 000",
+   "8 100 000",
+   "81 000 000"
+  ]
+ },
+ "q1029": {
+  "q": "Approximately what is the population of Nigeria? (2024)",
+  "a": [
+   "230 000 000",
+   "23 000 000",
+   "70 000 000",
+   "700 000 000"
+  ]
+ },
+ "q1030": {
+  "q": "Approximately what is the population of Uganda? (2024)",
+  "a": [
+   "50 000 000",
+   "5 000 000",
+   "15 000 000",
+   "150 000 000"
+  ]
+ },
+ "q1031": {
+  "q": "Approximately what is the population of Rwanda? (2024)",
+  "a": [
+   "14 000 000",
+   "1 400 000",
+   "4 300 000",
+   "43 000 000"
+  ]
+ },
+ "q1032": {
+  "q": "Approximately what is the population of São Tomé and Príncipe? (2024)",
+  "a": [
+   "240 000",
+   "24 000",
+   "71 000",
+   "710 000"
+  ]
+ },
+ "q1033": {
+  "q": "Approximately what is the population of Senegal? (2024)",
+  "a": [
+   "19 000 000",
+   "1 900 000",
+   "5 600 000",
+   "56 000 000"
+  ]
+ },
+ "q1034": {
+  "q": "Approximately what is the population of Seychelles? (2024)",
+  "a": [
+   "120 000",
+   "12 000",
+   "36 000",
+   "360 000"
+  ]
+ },
+ "q1035": {
+  "q": "Approximately what is the population of Sierra Leone? (2024)",
+  "a": [
+   "8 600 000",
+   "860 000",
+   "2 600 000",
+   "26 000 000"
+  ]
+ },
+ "q1036": {
+  "q": "Approximately what is the population of Somalia? (2024)",
+  "a": [
+   "19 000 000",
+   "1 900 000",
+   "5 700 000",
+   "57 000 000"
+  ]
+ },
+ "q1037": {
+  "q": "Approximately what is the population of Sudan? (2024)",
+  "a": [
+   "50 000 000",
+   "5 000 000",
+   "15 000 000",
+   "150 000 000"
+  ]
+ },
+ "q1038": {
+  "q": "Approximately what is the population of Eswatini? (2024)",
+  "a": [
+   "1 200 000",
+   "120 000",
+   "370 000",
+   "3 700 000"
+  ]
+ },
+ "q1039": {
+  "q": "Approximately what is the population of Kingdom of the Netherlands? (2024)",
+  "a": [
+   "18 000 000",
+   "1 800 000",
+   "5 400 000",
+   "54 000 000"
+  ]
+ },
+ "q1040": {
+  "q": "Approximately what is the population of Trinidad and Tobago? (2024)",
+  "a": [
+   "1 400 000",
+   "140 000",
+   "410 000",
+   "4 100 000"
+  ]
+ },
+ "q1041": {
+  "q": "Approximately what is the population of Saint Vincent and the Grenadines? (2024)",
+  "a": [
+   "100 000",
+   "10 000",
+   "30 000",
+   "300 000"
+  ]
+ },
+ "q1042": {
+  "q": "Approximately what is the population of Saint Lucia? (2024)",
+  "a": [
+   "180 000",
+   "18 000",
+   "54 000",
+   "540 000"
+  ]
+ },
+ "q1043": {
+  "q": "Approximately what is the population of Denmark? (2024)",
+  "a": [
+   "6 000 000",
+   "600 000",
+   "1 800 000",
+   "18 000 000"
+  ]
+ },
+ "q1044": {
+  "q": "Approximately what is the population of Palestine? (2024)",
+  "a": [
+   "5 300 000",
+   "530 000",
+   "1 600 000",
+   "16 000 000"
+  ]
+ },
+ "q1045": {
+  "q": "Approximately what is the total area of Canada?",
+  "a": [
+   "10 000 000 km²",
+   "1 000 000 km²",
+   "3 000 000 km²",
+   "30 000 000 km²"
+  ]
+ },
+ "q1046": {
+  "q": "Approximately what is the total area of Japan?",
+  "a": [
+   "380 000 km²",
+   "38 000 km²",
+   "110 000 km²",
+   "1 100 000 km²"
+  ]
+ },
+ "q1047": {
+  "q": "Approximately what is the total area of Norway?",
+  "a": [
+   "320 000 km²",
+   "32 000 km²",
+   "97 000 km²",
+   "970 000 km²"
+  ]
+ },
+ "q1048": {
+  "q": "Approximately what is the total area of Ireland?",
+  "a": [
+   "70 000 km²",
+   "7 000 km²",
+   "21 000 km²",
+   "210 000 km²"
+  ]
+ },
+ "q1049": {
+  "q": "Approximately what is the total area of Hungary?",
+  "a": [
+   "93 000 km²",
+   "9 300 km²",
+   "28 000 km²",
+   "280 000 km²"
+  ]
+ },
+ "q1050": {
+  "q": "Approximately what is the total area of Spain?",
+  "a": [
+   "510 000 km²",
+   "51 000 km²",
+   "150 000 km²",
+   "1 500 000 km²"
+  ]
+ },
+ "q1051": {
+  "q": "Approximately what is the total area of United States?",
+  "a": [
+   "9 400 000 km²",
+   "940 000 km²",
+   "2 800 000 km²",
+   "28 000 000 km²"
+  ]
+ },
+ "q1052": {
+  "q": "Approximately what is the total area of Belgium?",
+  "a": [
+   "31 000 km²",
+   "3 100 km²",
+   "9 200 km²",
+   "92 000 km²"
+  ]
+ },
+ "q1053": {
+  "q": "Approximately what is the total area of Luxembourg?",
+  "a": [
+   "2 600 km²",
+   "260 km²",
+   "780 km²",
+   "7 800 km²"
+  ]
+ },
+ "q1054": {
+  "q": "Approximately what is the total area of Finland?",
+  "a": [
+   "340 000 km²",
+   "34 000 km²",
+   "100 000 km²",
+   "1 000 000 km²"
+  ]
+ },
+ "q1055": {
+  "q": "Approximately what is the total area of Sweden?",
+  "a": [
+   "450 000 km²",
+   "45 000 km²",
+   "140 000 km²",
+   "1 400 000 km²"
+  ]
+ },
+ "q1056": {
+  "q": "Approximately what is the total area of Poland?",
+  "a": [
+   "310 000 km²",
+   "31 000 km²",
+   "94 000 km²",
+   "940 000 km²"
+  ]
+ },
+ "q1057": {
+  "q": "Approximately what is the total area of Lithuania?",
+  "a": [
+   "65 000 km²",
+   "6 500 km²",
+   "20 000 km²",
+   "200 000 km²"
+  ]
+ },
+ "q1058": {
+  "q": "Approximately what is the total area of Italy?",
+  "a": [
+   "300 000 km²",
+   "30 000 km²",
+   "90 000 km²",
+   "900 000 km²"
+  ]
+ },
+ "q1059": {
+  "q": "Approximately what is the total area of Switzerland?",
+  "a": [
+   "41 000 km²",
+   "4 100 km²",
+   "12 000 km²",
+   "120 000 km²"
+  ]
+ },
+ "q1060": {
+  "q": "Approximately what is the total area of Austria?",
+  "a": [
+   "84 000 km²",
+   "8 400 km²",
+   "25 000 km²",
+   "250 000 km²"
+  ]
+ },
+ "q1061": {
+  "q": "Approximately what is the total area of Greece?",
+  "a": [
+   "130 000 km²",
+   "13 000 km²",
+   "40 000 km²",
+   "400 000 km²"
+  ]
+ },
+ "q1062": {
+  "q": "Approximately what is the total area of Turkey?",
+  "a": [
+   "780 000 km²",
+   "78 000 km²",
+   "240 000 km²",
+   "2 400 000 km²"
+  ]
+ },
+ "q1063": {
+  "q": "Approximately what is the total area of Portugal?",
+  "a": [
+   "92 000 km²",
+   "9 200 km²",
+   "28 000 km²",
+   "280 000 km²"
+  ]
+ },
+ "q1064": {
+  "q": "Approximately what is the total area of Uruguay?",
+  "a": [
+   "180 000 km²",
+   "18 000 km²",
+   "54 000 km²",
+   "540 000 km²"
+  ]
+ },
+ "q1065": {
+  "q": "Approximately what is the total area of Egypt?",
+  "a": [
+   "1 000 000 km²",
+   "100 000 km²",
+   "300 000 km²",
+   "3 000 000 km²"
+  ]
+ },
+ "q1066": {
+  "q": "Approximately what is the total area of Mexico?",
+  "a": [
+   "2 000 000 km²",
+   "200 000 km²",
+   "590 000 km²",
+   "5 900 000 km²"
+  ]
+ },
+ "q1067": {
+  "q": "Approximately what is the total area of Kenya?",
+  "a": [
+   "580 000 km²",
+   "58 000 km²",
+   "170 000 km²",
+   "1 700 000 km²"
+  ]
+ },
+ "q1068": {
+  "q": "Approximately what is the total area of Ethiopia?",
+  "a": [
+   "1 100 000 km²",
+   "110 000 km²",
+   "330 000 km²",
+   "3 300 000 km²"
+  ]
+ },
+ "q1069": {
+  "q": "Approximately what is the total area of Ghana?",
+  "a": [
+   "240 000 km²",
+   "24 000 km²",
+   "72 000 km²",
+   "720 000 km²"
+  ]
+ },
+ "q1070": {
+  "q": "Approximately what is the total area of France?",
+  "a": [
+   "550 000 km²",
+   "55 000 km²",
+   "170 000 km²",
+   "1 700 000 km²"
+  ]
+ },
+ "q1071": {
+  "q": "Approximately what is the total area of United Kingdom?",
+  "a": [
+   "240 000 km²",
+   "24 000 km²",
+   "73 000 km²",
+   "730 000 km²"
+  ]
+ },
+ "q1072": {
+  "q": "Approximately what is the total area of People's Republic of China?",
+  "a": [
+   "9 700 000 km²",
+   "970 000 km²",
+   "2 900 000 km²",
+   "29 000 000 km²"
+  ]
+ },
+ "q1073": {
+  "q": "Approximately what is the total area of Brazil?",
+  "a": [
+   "8 500 000 km²",
+   "850 000 km²",
+   "2 600 000 km²",
+   "26 000 000 km²"
+  ]
+ },
+ "q1074": {
+  "q": "Approximately what is the total area of Russia?",
+  "a": [
+   "17 000 000 km²",
+   "1 700 000 km²",
+   "5 100 000 km²",
+   "51 000 000 km²"
+  ]
+ },
+ "q1075": {
+  "q": "Approximately what is the total area of Germany?",
+  "a": [
+   "360 000 km²",
+   "36 000 km²",
+   "110 000 km²",
+   "1 100 000 km²"
+  ]
+ },
+ "q1076": {
+  "q": "Approximately what is the total area of Belarus?",
+  "a": [
+   "210 000 km²",
+   "21 000 km²",
+   "62 000 km²",
+   "620 000 km²"
+  ]
+ },
+ "q1077": {
+  "q": "Approximately what is the total area of Iceland?",
+  "a": [
+   "100 000 km²",
+   "10 000 km²",
+   "31 000 km²",
+   "310 000 km²"
+  ]
+ },
+ "q1078": {
+  "q": "Approximately what is the total area of Estonia?",
+  "a": [
+   "45 000 km²",
+   "4 500 km²",
+   "14 000 km²",
+   "140 000 km²"
+  ]
+ },
+ "q1079": {
+  "q": "Approximately what is the total area of Latvia?",
+  "a": [
+   "65 000 km²",
+   "6 500 km²",
+   "19 000 km²",
+   "190 000 km²"
+  ]
+ },
+ "q1080": {
+  "q": "Approximately what is the total area of Ukraine?",
+  "a": [
+   "600 000 km²",
+   "60 000 km²",
+   "180 000 km²",
+   "1 800 000 km²"
+  ]
+ },
+ "q1081": {
+  "q": "Approximately what is the total area of Czech Republic?",
+  "a": [
+   "79 000 km²",
+   "7 900 km²",
+   "24 000 km²",
+   "240 000 km²"
+  ]
+ },
+ "q1082": {
+  "q": "Approximately what is the total area of Slovakia?",
+  "a": [
+   "49 000 km²",
+   "4 900 km²",
+   "15 000 km²",
+   "150 000 km²"
+  ]
+ },
+ "q1083": {
+  "q": "Approximately what is the total area of Slovenia?",
+  "a": [
+   "20 000 km²",
+   "2 000 km²",
+   "6 100 km²",
+   "61 000 km²"
+  ]
+ },
+ "q1084": {
+  "q": "Approximately what is the total area of Moldova?",
+  "a": [
+   "34 000 km²",
+   "3 400 km²",
+   "10 000 km²",
+   "100 000 km²"
+  ]
+ },
+ "q1085": {
+  "q": "Approximately what is the total area of Romania?",
+  "a": [
+   "240 000 km²",
+   "24 000 km²",
+   "72 000 km²",
+   "720 000 km²"
+  ]
+ },
+ "q1086": {
+  "q": "Approximately what is the total area of Bulgaria?",
+  "a": [
+   "110 000 km²",
+   "11 000 km²",
+   "33 000 km²",
+   "330 000 km²"
+  ]
+ },
+ "q1087": {
+  "q": "Approximately what is the total area of North Macedonia?",
+  "a": [
+   "26 000 km²",
+   "2 600 km²",
+   "7 700 km²",
+   "77 000 km²"
+  ]
+ },
+ "q1088": {
+  "q": "Approximately what is the total area of Albania?",
+  "a": [
+   "29 000 km²",
+   "2 900 km²",
+   "8 600 km²",
+   "86 000 km²"
+  ]
+ },
+ "q1089": {
+  "q": "Approximately what is the total area of Croatia?",
+  "a": [
+   "57 000 km²",
+   "5 700 km²",
+   "17 000 km²",
+   "170 000 km²"
+  ]
+ },
+ "q1090": {
+  "q": "Approximately what is the total area of Bosnia and Herzegovina?",
+  "a": [
+   "51 000 km²",
+   "5 100 km²",
+   "15 000 km²",
+   "150 000 km²"
+  ]
+ },
+ "q1091": {
+  "q": "Approximately what is the total area of Azerbaijan?",
+  "a": [
+   "87 000 km²",
+   "8 700 km²",
+   "26 000 km²",
+   "260 000 km²"
+  ]
+ },
+ "q1092": {
+  "q": "Approximately what is the total area of Andorra?",
+  "a": [
+   "470 km²",
+   "47 km²",
+   "140 km²",
+   "1 400 km²"
+  ]
+ },
+ "q1093": {
+  "q": "Approximately what is the total area of Cyprus?",
+  "a": [
+   "9 300 km²",
+   "930 km²",
+   "2 800 km²",
+   "28 000 km²"
+  ]
+ },
+ "q1094": {
+  "q": "Approximately what is the total area of Georgia?",
+  "a": [
+   "70 000 km²",
+   "7 000 km²",
+   "21 000 km²",
+   "210 000 km²"
+  ]
+ },
+ "q1095": {
+  "q": "Approximately what is the total area of Kazakhstan?",
+  "a": [
+   "2 700 000 km²",
+   "270 000 km²",
+   "820 000 km²",
+   "8 200 000 km²"
+  ]
+ },
+ "q1096": {
+  "q": "Approximately what is the total area of Malta?",
+  "a": [
+   "320 km²",
+   "32 km²",
+   "95 km²",
+   "950 km²"
+  ]
+ },
+ "q1097": {
+  "q": "Approximately what is the total area of Montenegro?",
+  "a": [
+   "14 000 km²",
+   "1 400 km²",
+   "4 100 km²",
+   "41 000 km²"
+  ]
+ },
+ "q1098": {
+  "q": "Approximately what is the total area of San Marino?",
+  "a": [
+   "61 km²",
+   "6 km²",
+   "18 km²",
+   "180 km²"
+  ]
+ },
+ "q1099": {
+  "q": "Approximately what is the total area of Cuba?",
+  "a": [
+   "110 000 km²",
+   "11 000 km²",
+   "33 000 km²",
+   "330 000 km²"
+  ]
+ },
+ "q1100": {
+  "q": "Approximately what is the total area of Belize?",
+  "a": [
+   "23 000 km²",
+   "2 300 km²",
+   "6 900 km²",
+   "69 000 km²"
+  ]
+ },
+ "q1101": {
+  "q": "Approximately what is the total area of Barbados?",
+  "a": [
+   "430 km²",
+   "43 km²",
+   "130 km²",
+   "1 300 km²"
+  ]
+ },
+ "q1102": {
+  "q": "Approximately what is the total area of Indonesia?",
+  "a": [
+   "1 900 000 km²",
+   "190 000 km²",
+   "570 000 km²",
+   "5 700 000 km²"
+  ]
+ },
+ "q1103": {
+  "q": "Approximately what is the total area of South Africa?",
+  "a": [
+   "1 200 000 km²",
+   "120 000 km²",
+   "370 000 km²",
+   "3 700 000 km²"
+  ]
+ },
+ "q1104": {
+  "q": "Approximately what is the total area of Algeria?",
+  "a": [
+   "2 400 000 km²",
+   "240 000 km²",
+   "710 000 km²",
+   "7 100 000 km²"
+  ]
+ },
+ "q1105": {
+  "q": "Approximately what is the total area of Uzbekistan?",
+  "a": [
+   "450 000 km²",
+   "45 000 km²",
+   "130 000 km²",
+   "1 300 000 km²"
+  ]
+ },
+ "q1106": {
+  "q": "Approximately what is the total area of Chile?",
+  "a": [
+   "760 000 km²",
+   "76 000 km²",
+   "230 000 km²",
+   "2 300 000 km²"
+  ]
+ },
+ "q1107": {
+  "q": "Approximately what is the total area of Singapore?",
+  "a": [
+   "710 km²",
+   "71 km²",
+   "210 km²",
+   "2 100 km²"
+  ]
+ },
+ "q1108": {
+  "q": "Approximately what is the total area of Liechtenstein?",
+  "a": [
+   "160 km²",
+   "16 km²",
+   "48 km²",
+   "480 km²"
+  ]
+ },
+ "q1109": {
+  "q": "Approximately what is the total area of Bahrain?",
+  "a": [
+   "760 km²",
+   "76 km²",
+   "230 km²",
+   "2 300 km²"
+  ]
+ },
+ "q1110": {
+  "q": "Approximately what is the total area of Armenia?",
+  "a": [
+   "30 000 km²",
+   "3 000 km²",
+   "8 900 km²",
+   "89 000 km²"
+  ]
+ },
+ "q1111": {
+  "q": "Approximately what is the total area of Serbia?",
+  "a": [
+   "88 000 km²",
+   "8 800 km²",
+   "27 000 km²",
+   "270 000 km²"
+  ]
+ },
+ "q1112": {
+  "q": "Approximately what is the total area of Australia?",
+  "a": [
+   "7 700 000 km²",
+   "770 000 km²",
+   "2 300 000 km²",
+   "23 000 000 km²"
+  ]
+ },
+ "q1113": {
+  "q": "Approximately what is the total area of Argentina?",
+  "a": [
+   "2 800 000 km²",
+   "280 000 km²",
+   "830 000 km²",
+   "8 300 000 km²"
+  ]
+ },
+ "q1114": {
+  "q": "Approximately what is the total area of Peru?",
+  "a": [
+   "1 300 000 km²",
+   "130 000 km²",
+   "390 000 km²",
+   "3 900 000 km²"
+  ]
+ },
+ "q1115": {
+  "q": "Approximately what is the total area of North Korea?",
+  "a": [
+   "120 000 km²",
+   "12 000 km²",
+   "36 000 km²",
+   "360 000 km²"
+  ]
+ },
+ "q1116": {
+  "q": "Approximately what is the total area of Cambodia?",
+  "a": [
+   "180 000 km²",
+   "18 000 km²",
+   "54 000 km²",
+   "540 000 km²"
+  ]
+ },
+ "q1117": {
+  "q": "Approximately what is the total area of Timor-Leste?",
+  "a": [
+   "15 000 km²",
+   "1 500 km²",
+   "4 500 km²",
+   "45 000 km²"
+  ]
+ },
+ "q1118": {
+  "q": "Approximately what is the total area of Chad?",
+  "a": [
+   "1 300 000 km²",
+   "130 000 km²",
+   "390 000 km²",
+   "3 900 000 km²"
+  ]
+ },
+ "q1119": {
+  "q": "Approximately what is the total area of New Zealand?",
+  "a": [
+   "270 000 km²",
+   "27 000 km²",
+   "81 000 km²",
+   "810 000 km²"
+  ]
+ },
+ "q1120": {
+  "q": "Approximately what is the total area of India?",
+  "a": [
+   "3 300 000 km²",
+   "330 000 km²",
+   "990 000 km²",
+   "9 900 000 km²"
+  ]
+ },
+ "q1121": {
+  "q": "Approximately what is the total area of Tuvalu?",
+  "a": [
+   "26 km²",
+   "2 km²",
+   "7 km²",
+   "78 km²"
+  ]
+ },
+ "q1122": {
+  "q": "Approximately what is the total area of Tonga?",
+  "a": [
+   "750 km²",
+   "75 km²",
+   "220 km²",
+   "2 200 km²"
+  ]
+ },
+ "q1123": {
+  "q": "Approximately what is the total area of Samoa?",
+  "a": [
+   "2 800 km²",
+   "280 km²",
+   "850 km²",
+   "8 500 km²"
+  ]
+ },
+ "q1124": {
+  "q": "Approximately what is the total area of Solomon Islands?",
+  "a": [
+   "29 000 km²",
+   "2 900 km²",
+   "8 700 km²",
+   "87 000 km²"
+  ]
+ },
+ "q1125": {
+  "q": "Approximately what is the total area of Vanuatu?",
+  "a": [
+   "12 000 km²",
+   "1 200 km²",
+   "3 700 km²",
+   "37 000 km²"
+  ]
+ },
+ "q1126": {
+  "q": "Approximately what is the total area of Papua New Guinea?",
+  "a": [
+   "460 000 km²",
+   "46 000 km²",
+   "140 000 km²",
+   "1 400 000 km²"
+  ]
+ },
+ "q1127": {
+  "q": "Approximately what is the total area of Palau?",
+  "a": [
+   "460 km²",
+   "46 km²",
+   "140 km²",
+   "1 400 km²"
+  ]
+ },
+ "q1128": {
+  "q": "Approximately what is the total area of Nauru?",
+  "a": [
+   "21 km²",
+   "2 km²",
+   "6 km²",
+   "63 km²"
+  ]
+ },
+ "q1129": {
+  "q": "Approximately what is the total area of Federated States of Micronesia?",
+  "a": [
+   "700 km²",
+   "70 km²",
+   "210 km²",
+   "2 100 km²"
+  ]
+ },
+ "q1130": {
+  "q": "Approximately what is the total area of Marshall Islands?",
+  "a": [
+   "180 km²",
+   "18 km²",
+   "54 km²",
+   "540 km²"
+  ]
+ },
+ "q1131": {
+  "q": "Approximately what is the total area of Kiribati?",
+  "a": [
+   "810 km²",
+   "81 km²",
+   "240 km²",
+   "2 400 km²"
+  ]
+ },
+ "q1132": {
+  "q": "Approximately what is the total area of Mongolia?",
+  "a": [
+   "1 600 000 km²",
+   "160 000 km²",
+   "470 000 km²",
+   "4 700 000 km²"
+  ]
+ },
+ "q1133": {
+  "q": "Approximately what is the total area of Fiji?",
+  "a": [
+   "18 000 km²",
+   "1 800 km²",
+   "5 500 km²",
+   "55 000 km²"
+  ]
+ },
+ "q1134": {
+  "q": "Approximately what is the total area of Venezuela?",
+  "a": [
+   "920 000 km²",
+   "92 000 km²",
+   "270 000 km²",
+   "2 700 000 km²"
+  ]
+ },
+ "q1135": {
+  "q": "Approximately what is the total area of Suriname?",
+  "a": [
+   "160 000 km²",
+   "16 000 km²",
+   "49 000 km²",
+   "490 000 km²"
+  ]
+ },
+ "q1136": {
+  "q": "Approximately what is the total area of Paraguay?",
+  "a": [
+   "410 000 km²",
+   "41 000 km²",
+   "120 000 km²",
+   "1 200 000 km²"
+  ]
+ },
+ "q1137": {
+  "q": "Approximately what is the total area of Guyana?",
+  "a": [
+   "210 000 km²",
+   "21 000 km²",
+   "64 000 km²",
+   "640 000 km²"
+  ]
+ },
+ "q1138": {
+  "q": "Approximately what is the total area of Ecuador?",
+  "a": [
+   "280 000 km²",
+   "28 000 km²",
+   "83 000 km²",
+   "830 000 km²"
+  ]
+ },
+ "q1139": {
+  "q": "Approximately what is the total area of Colombia?",
+  "a": [
+   "1 100 000 km²",
+   "110 000 km²",
+   "340 000 km²",
+   "3 400 000 km²"
+  ]
+ },
+ "q1140": {
+  "q": "Approximately what is the total area of Bolivia?",
+  "a": [
+   "1 100 000 km²",
+   "110 000 km²",
+   "330 000 km²",
+   "3 300 000 km²"
+  ]
+ },
+ "q1141": {
+  "q": "Approximately what is the total area of Saint Kitts and Nevis?",
+  "a": [
+   "260 km²",
+   "26 km²",
+   "78 km²",
+   "780 km²"
+  ]
+ },
+ "q1142": {
+  "q": "Approximately what is the total area of Jamaica?",
+  "a": [
+   "11 000 km²",
+   "1 100 km²",
+   "3 300 km²",
+   "33 000 km²"
+  ]
+ },
+ "q1143": {
+  "q": "Approximately what is the total area of Grenada?",
+  "a": [
+   "340 km²",
+   "34 km²",
+   "100 km²",
+   "1 000 km²"
+  ]
+ },
+ "q1144": {
+  "q": "Approximately what is the total area of Guatemala?",
+  "a": [
+   "110 000 km²",
+   "11 000 km²",
+   "33 000 km²",
+   "330 000 km²"
+  ]
+ },
+ "q1145": {
+  "q": "Approximately what is the total area of The Bahamas?",
+  "a": [
+   "14 000 km²",
+   "1 400 km²",
+   "4 200 km²",
+   "42 000 km²"
+  ]
+ },
+ "q1146": {
+  "q": "Approximately what is the total area of Antigua and Barbuda?",
+  "a": [
+   "440 km²",
+   "44 km²",
+   "130 km²",
+   "1 300 km²"
+  ]
+ },
+ "q1147": {
+  "q": "Approximately what is the total area of Honduras?",
+  "a": [
+   "110 000 km²",
+   "11 000 km²",
+   "34 000 km²",
+   "340 000 km²"
+  ]
+ },
+ "q1148": {
+  "q": "Approximately what is the total area of Dominica?",
+  "a": [
+   "750 km²",
+   "75 km²",
+   "230 km²",
+   "2 300 km²"
+  ]
+ },
+ "q1149": {
+  "q": "Approximately what is the total area of Dominican Republic?",
+  "a": [
+   "49 000 km²",
+   "4 900 km²",
+   "15 000 km²",
+   "150 000 km²"
+  ]
+ },
+ "q1150": {
+  "q": "Approximately what is the total area of Haiti?",
+  "a": [
+   "28 000 km²",
+   "2 800 km²",
+   "8 300 km²",
+   "83 000 km²"
+  ]
+ },
+ "q1151": {
+  "q": "Approximately what is the total area of El Salvador?",
+  "a": [
+   "21 000 km²",
+   "2 100 km²",
+   "6 300 km²",
+   "63 000 km²"
+  ]
+ },
+ "q1152": {
+  "q": "Approximately what is the total area of Iran?",
+  "a": [
+   "1 600 000 km²",
+   "160 000 km²",
+   "490 000 km²",
+   "4 900 000 km²"
+  ]
+ },
+ "q1153": {
+  "q": "Approximately what is the total area of Iraq?",
+  "a": [
+   "440 000 km²",
+   "44 000 km²",
+   "130 000 km²",
+   "1 300 000 km²"
+  ]
+ },
+ "q1154": {
+  "q": "Approximately what is the total area of Costa Rica?",
+  "a": [
+   "51 000 km²",
+   "5 100 km²",
+   "15 000 km²",
+   "150 000 km²"
+  ]
+ },
+ "q1155": {
+  "q": "Approximately what is the total area of Israel?",
+  "a": [
+   "21 000 km²",
+   "2 100 km²",
+   "6 200 km²",
+   "62 000 km²"
+  ]
+ },
+ "q1156": {
+  "q": "Approximately what is the total area of Panama?",
+  "a": [
+   "75 000 km²",
+   "7 500 km²",
+   "23 000 km²",
+   "230 000 km²"
+  ]
+ },
+ "q1157": {
+  "q": "Approximately what is the total area of Yemen?",
+  "a": [
+   "530 000 km²",
+   "53 000 km²",
+   "160 000 km²",
+   "1 600 000 km²"
+  ]
+ },
+ "q1158": {
+  "q": "Approximately what is the total area of Jordan?",
+  "a": [
+   "89 000 km²",
+   "8 900 km²",
+   "27 000 km²",
+   "270 000 km²"
+  ]
+ },
+ "q1159": {
+  "q": "Approximately what is the total area of Nicaragua?",
+  "a": [
+   "130 000 km²",
+   "13 000 km²",
+   "39 000 km²",
+   "390 000 km²"
+  ]
+ },
+ "q1160": {
+  "q": "Approximately what is the total area of Kyrgyzstan?",
+  "a": [
+   "200 000 km²",
+   "20 000 km²",
+   "60 000 km²",
+   "600 000 km²"
+  ]
+ },
+ "q1161": {
+  "q": "Approximately what is the total area of Kuwait?",
+  "a": [
+   "18 000 km²",
+   "1 800 km²",
+   "5 300 km²",
+   "53 000 km²"
+  ]
+ },
+ "q1162": {
+  "q": "Approximately what is the total area of Laos?",
+  "a": [
+   "240 000 km²",
+   "24 000 km²",
+   "71 000 km²",
+   "710 000 km²"
+  ]
+ },
+ "q1163": {
+  "q": "Approximately what is the total area of Lebanon?",
+  "a": [
+   "10 000 km²",
+   "1 000 km²",
+   "3 100 km²",
+   "31 000 km²"
+  ]
+ },
+ "q1164": {
+  "q": "Approximately what is the total area of Maldives?",
+  "a": [
+   "300 km²",
+   "30 km²",
+   "90 km²",
+   "900 km²"
+  ]
+ },
+ "q1165": {
+  "q": "Approximately what is the total area of Malaysia?",
+  "a": [
+   "330 000 km²",
+   "33 000 km²",
+   "99 000 km²",
+   "990 000 km²"
+  ]
+ },
+ "q1166": {
+  "q": "Approximately what is the total area of Myanmar?",
+  "a": [
+   "680 000 km²",
+   "68 000 km²",
+   "200 000 km²",
+   "2 000 000 km²"
+  ]
+ },
+ "q1167": {
+  "q": "Approximately what is the total area of Nepal?",
+  "a": [
+   "150 000 km²",
+   "15 000 km²",
+   "44 000 km²",
+   "440 000 km²"
+  ]
+ },
+ "q1168": {
+  "q": "Approximately what is the total area of Oman?",
+  "a": [
+   "310 000 km²",
+   "31 000 km²",
+   "93 000 km²",
+   "930 000 km²"
+  ]
+ },
+ "q1169": {
+  "q": "Approximately what is the total area of Pakistan?",
+  "a": [
+   "880 000 km²",
+   "88 000 km²",
+   "260 000 km²",
+   "2 600 000 km²"
+  ]
+ },
+ "q1170": {
+  "q": "Approximately what is the total area of Qatar?",
+  "a": [
+   "12 000 km²",
+   "1 200 km²",
+   "3 500 km²",
+   "35 000 km²"
+  ]
+ },
+ "q1171": {
+  "q": "Approximately what is the total area of Saudi Arabia?",
+  "a": [
+   "2 100 000 km²",
+   "210 000 km²",
+   "640 000 km²",
+   "6 400 000 km²"
+  ]
+ },
+ "q1172": {
+  "q": "Approximately what is the total area of Sri Lanka?",
+  "a": [
+   "66 000 km²",
+   "6 600 km²",
+   "20 000 km²",
+   "200 000 km²"
+  ]
+ },
+ "q1173": {
+  "q": "Approximately what is the total area of Syria?",
+  "a": [
+   "190 000 km²",
+   "19 000 km²",
+   "56 000 km²",
+   "560 000 km²"
+  ]
+ },
+ "q1174": {
+  "q": "Approximately what is the total area of Tajikistan?",
+  "a": [
+   "140 000 km²",
+   "14 000 km²",
+   "43 000 km²",
+   "430 000 km²"
+  ]
+ },
+ "q1175": {
+  "q": "Approximately what is the total area of Thailand?",
+  "a": [
+   "510 000 km²",
+   "51 000 km²",
+   "150 000 km²",
+   "1 500 000 km²"
+  ]
+ },
+ "q1176": {
+  "q": "Approximately what is the total area of Turkmenistan?",
+  "a": [
+   "490 000 km²",
+   "49 000 km²",
+   "150 000 km²",
+   "1 500 000 km²"
+  ]
+ },
+ "q1177": {
+  "q": "Approximately what is the total area of United Arab Emirates?",
+  "a": [
+   "84 000 km²",
+   "8 400 km²",
+   "25 000 km²",
+   "250 000 km²"
+  ]
+ },
+ "q1178": {
+  "q": "Approximately what is the total area of Vietnam?",
+  "a": [
+   "330 000 km²",
+   "33 000 km²",
+   "99 000 km²",
+   "990 000 km²"
+  ]
+ },
+ "q1179": {
+  "q": "Approximately what is the total area of South Korea?",
+  "a": [
+   "100 000 km²",
+   "10 000 km²",
+   "30 000 km²",
+   "300 000 km²"
+  ]
+ },
+ "q1180": {
+  "q": "Approximately what is the total area of Afghanistan?",
+  "a": [
+   "650 000 km²",
+   "65 000 km²",
+   "200 000 km²",
+   "2 000 000 km²"
+  ]
+ },
+ "q1181": {
+  "q": "Approximately what is the total area of Bangladesh?",
+  "a": [
+   "150 000 km²",
+   "15 000 km²",
+   "44 000 km²",
+   "440 000 km²"
+  ]
+ },
+ "q1182": {
+  "q": "Approximately what is the total area of Mali?",
+  "a": [
+   "1 200 000 km²",
+   "120 000 km²",
+   "370 000 km²",
+   "3 700 000 km²"
+  ]
+ },
+ "q1183": {
+  "q": "Approximately what is the total area of Angola?",
+  "a": [
+   "1 200 000 km²",
+   "120 000 km²",
+   "370 000 km²",
+   "3 700 000 km²"
+  ]
+ },
+ "q1184": {
+  "q": "Approximately what is the total area of Bhutan?",
+  "a": [
+   "38 000 km²",
+   "3 800 km²",
+   "12 000 km²",
+   "120 000 km²"
+  ]
+ },
+ "q1185": {
+  "q": "Approximately what is the total area of Brunei?",
+  "a": [
+   "5 800 km²",
+   "580 km²",
+   "1 700 km²",
+   "17 000 km²"
+  ]
+ },
+ "q1186": {
+  "q": "Approximately what is the total area of Tanzania?",
+  "a": [
+   "950 000 km²",
+   "95 000 km²",
+   "280 000 km²",
+   "2 800 000 km²"
+  ]
+ },
+ "q1187": {
+  "q": "Approximately what is the total area of Philippines?",
+  "a": [
+   "340 000 km²",
+   "34 000 km²",
+   "100 000 km²",
+   "1 000 000 km²"
+  ]
+ },
+ "q1188": {
+  "q": "Approximately what is the total area of Central African Republic?",
+  "a": [
+   "620 000 km²",
+   "62 000 km²",
+   "190 000 km²",
+   "1 900 000 km²"
+  ]
+ },
+ "q1189": {
+  "q": "Approximately what is the total area of Togo?",
+  "a": [
+   "57 000 km²",
+   "5 700 km²",
+   "17 000 km²",
+   "170 000 km²"
+  ]
+ },
+ "q1190": {
+  "q": "Approximately what is the total area of Tunisia?",
+  "a": [
+   "160 000 km²",
+   "16 000 km²",
+   "49 000 km²",
+   "490 000 km²"
+  ]
+ },
+ "q1191": {
+  "q": "Approximately what is the total area of Zambia?",
+  "a": [
+   "750 000 km²",
+   "75 000 km²",
+   "230 000 km²",
+   "2 300 000 km²"
+  ]
+ },
+ "q1192": {
+  "q": "Approximately what is the total area of Zimbabwe?",
+  "a": [
+   "390 000 km²",
+   "39 000 km²",
+   "120 000 km²",
+   "1 200 000 km²"
+  ]
+ },
+ "q1193": {
+  "q": "Approximately what is the total area of South Sudan?",
+  "a": [
+   "620 000 km²",
+   "62 000 km²",
+   "190 000 km²",
+   "1 900 000 km²"
+  ]
+ },
+ "q1194": {
+  "q": "Approximately what is the total area of Benin?",
+  "a": [
+   "110 000 km²",
+   "11 000 km²",
+   "34 000 km²",
+   "340 000 km²"
+  ]
+ },
+ "q1195": {
+  "q": "Approximately what is the total area of Botswana?",
+  "a": [
+   "580 000 km²",
+   "58 000 km²",
+   "170 000 km²",
+   "1 700 000 km²"
+  ]
+ },
+ "q1196": {
+  "q": "Approximately what is the total area of Burkina Faso?",
+  "a": [
+   "270 000 km²",
+   "27 000 km²",
+   "82 000 km²",
+   "820 000 km²"
+  ]
+ },
+ "q1197": {
+  "q": "Approximately what is the total area of Burundi?",
+  "a": [
+   "28 000 km²",
+   "2 800 km²",
+   "8 400 km²",
+   "84 000 km²"
+  ]
+ },
+ "q1198": {
+  "q": "Approximately what is the total area of Comoros?",
+  "a": [
+   "1 900 km²",
+   "190 km²",
+   "560 km²",
+   "5 600 km²"
+  ]
+ },
+ "q1199": {
+  "q": "Approximately what is the total area of Republic of the Congo?",
+  "a": [
+   "340 000 km²",
+   "34 000 km²",
+   "100 000 km²",
+   "1 000 000 km²"
+  ]
+ },
+ "q1200": {
+  "q": "Approximately what is the total area of Democratic Republic of the Congo?",
+  "a": [
+   "2 300 000 km²",
+   "230 000 km²",
+   "700 000 km²",
+   "7 000 000 km²"
+  ]
+ },
+ "q1201": {
+  "q": "Approximately what is the total area of Djibouti?",
+  "a": [
+   "23 000 km²",
+   "2 300 km²",
+   "7 000 km²",
+   "70 000 km²"
+  ]
+ },
+ "q1202": {
+  "q": "Approximately what is the total area of Equatorial Guinea?",
+  "a": [
+   "28 000 km²",
+   "2 800 km²",
+   "8 400 km²",
+   "84 000 km²"
+  ]
+ },
+ "q1203": {
+  "q": "Approximately what is the total area of Eritrea?",
+  "a": [
+   "120 000 km²",
+   "12 000 km²",
+   "35 000 km²",
+   "350 000 km²"
+  ]
+ },
+ "q1204": {
+  "q": "Approximately what is the total area of Gabon?",
+  "a": [
+   "270 000 km²",
+   "27 000 km²",
+   "80 000 km²",
+   "800 000 km²"
+  ]
+ },
+ "q1205": {
+  "q": "Approximately what is the total area of The Gambia?",
+  "a": [
+   "11 000 km²",
+   "1 100 km²",
+   "3 200 km²",
+   "32 000 km²"
+  ]
+ },
+ "q1206": {
+  "q": "Approximately what is the total area of Guinea?",
+  "a": [
+   "250 000 km²",
+   "25 000 km²",
+   "74 000 km²",
+   "740 000 km²"
+  ]
+ },
+ "q1207": {
+  "q": "Approximately what is the total area of Guinea-Bissau?",
+  "a": [
+   "36 000 km²",
+   "3 600 km²",
+   "11 000 km²",
+   "110 000 km²"
+  ]
+ },
+ "q1208": {
+  "q": "Approximately what is the total area of Ivory Coast?",
+  "a": [
+   "320 000 km²",
+   "32 000 km²",
+   "97 000 km²",
+   "970 000 km²"
+  ]
+ },
+ "q1209": {
+  "q": "Approximately what is the total area of Cameroon?",
+  "a": [
+   "480 000 km²",
+   "48 000 km²",
+   "140 000 km²",
+   "1 400 000 km²"
+  ]
+ },
+ "q1210": {
+  "q": "Approximately what is the total area of Cape Verde?",
+  "a": [
+   "4 000 km²",
+   "400 km²",
+   "1 200 km²",
+   "12 000 km²"
+  ]
+ },
+ "q1211": {
+  "q": "Approximately what is the total area of Lesotho?",
+  "a": [
+   "30 000 km²",
+   "3 000 km²",
+   "9 100 km²",
+   "91 000 km²"
+  ]
+ },
+ "q1212": {
+  "q": "Approximately what is the total area of Liberia?",
+  "a": [
+   "110 000 km²",
+   "11 000 km²",
+   "33 000 km²",
+   "330 000 km²"
+  ]
+ },
+ "q1213": {
+  "q": "Approximately what is the total area of Libya?",
+  "a": [
+   "1 800 000 km²",
+   "180 000 km²",
+   "530 000 km²",
+   "5 300 000 km²"
+  ]
+ },
+ "q1214": {
+  "q": "Approximately what is the total area of Madagascar?",
+  "a": [
+   "590 000 km²",
+   "59 000 km²",
+   "180 000 km²",
+   "1 800 000 km²"
+  ]
+ },
+ "q1215": {
+  "q": "Approximately what is the total area of Malawi?",
+  "a": [
+   "120 000 km²",
+   "12 000 km²",
+   "36 000 km²",
+   "360 000 km²"
+  ]
+ },
+ "q1216": {
+  "q": "Approximately what is the total area of Mauritania?",
+  "a": [
+   "1 000 000 km²",
+   "100 000 km²",
+   "310 000 km²",
+   "3 100 000 km²"
+  ]
+ },
+ "q1217": {
+  "q": "Approximately what is the total area of Mauritius?",
+  "a": [
+   "2 000 km²",
+   "200 km²",
+   "610 km²",
+   "6 100 km²"
+  ]
+ },
+ "q1218": {
+  "q": "Approximately what is the total area of Morocco?",
+  "a": [
+   "450 000 km²",
+   "45 000 km²",
+   "130 000 km²",
+   "1 300 000 km²"
+  ]
+ },
+ "q1219": {
+  "q": "Approximately what is the total area of Mozambique?",
+  "a": [
+   "800 000 km²",
+   "80 000 km²",
+   "240 000 km²",
+   "2 400 000 km²"
+  ]
+ },
+ "q1220": {
+  "q": "Approximately what is the total area of Namibia?",
+  "a": [
+   "830 000 km²",
+   "83 000 km²",
+   "250 000 km²",
+   "2 500 000 km²"
+  ]
+ },
+ "q1221": {
+  "q": "Approximately what is the total area of Niger?",
+  "a": [
+   "1 300 000 km²",
+   "130 000 km²",
+   "380 000 km²",
+   "3 800 000 km²"
+  ]
+ },
+ "q1222": {
+  "q": "Approximately what is the total area of Nigeria?",
+  "a": [
+   "920 000 km²",
+   "92 000 km²",
+   "280 000 km²",
+   "2 800 000 km²"
+  ]
+ },
+ "q1223": {
+  "q": "Approximately what is the total area of Uganda?",
+  "a": [
+   "240 000 km²",
+   "24 000 km²",
+   "72 000 km²",
+   "720 000 km²"
+  ]
+ },
+ "q1224": {
+  "q": "Approximately what is the total area of Rwanda?",
+  "a": [
+   "26 000 km²",
+   "2 600 km²",
+   "7 900 km²",
+   "79 000 km²"
+  ]
+ },
+ "q1225": {
+  "q": "Approximately what is the total area of São Tomé and Príncipe?",
+  "a": [
+   "960 km²",
+   "96 km²",
+   "290 km²",
+   "2 900 km²"
+  ]
+ },
+ "q1226": {
+  "q": "Approximately what is the total area of Senegal?",
+  "a": [
+   "200 000 km²",
+   "20 000 km²",
+   "59 000 km²",
+   "590 000 km²"
+  ]
+ },
+ "q1227": {
+  "q": "Approximately what is the total area of Seychelles?",
+  "a": [
+   "450 km²",
+   "45 km²",
+   "140 km²",
+   "1 400 km²"
+  ]
+ },
+ "q1228": {
+  "q": "Approximately what is the total area of Sierra Leone?",
+  "a": [
+   "72 000 km²",
+   "7 200 km²",
+   "22 000 km²",
+   "220 000 km²"
+  ]
+ },
+ "q1229": {
+  "q": "Approximately what is the total area of Somalia?",
+  "a": [
+   "640 000 km²",
+   "64 000 km²",
+   "190 000 km²",
+   "1 900 000 km²"
+  ]
+ },
+ "q1230": {
+  "q": "Approximately what is the total area of Sudan?",
+  "a": [
+   "1 900 000 km²",
+   "190 000 km²",
+   "570 000 km²",
+   "5 700 000 km²"
+  ]
+ },
+ "q1231": {
+  "q": "Approximately what is the total area of Eswatini?",
+  "a": [
+   "17 000 km²",
+   "1 700 km²",
+   "5 200 km²",
+   "52 000 km²"
+  ]
+ },
+ "q1232": {
+  "q": "Approximately what is the total area of Kingdom of the Netherlands?",
+  "a": [
+   "42 000 km²",
+   "4 200 km²",
+   "13 000 km²",
+   "130 000 km²"
+  ]
+ },
+ "q1233": {
+  "q": "Approximately what is the total area of Trinidad and Tobago?",
+  "a": [
+   "5 100 km²",
+   "510 km²",
+   "1 500 km²",
+   "15 000 km²"
+  ]
+ },
+ "q1234": {
+  "q": "Approximately what is the total area of Saint Vincent and the Grenadines?",
+  "a": [
+   "390 km²",
+   "39 km²",
+   "120 km²",
+   "1 200 km²"
+  ]
+ },
+ "q1235": {
+  "q": "Approximately what is the total area of Saint Lucia?",
+  "a": [
+   "620 km²",
+   "62 km²",
+   "180 km²",
+   "1 800 km²"
+  ]
+ },
+ "q1236": {
+  "q": "Approximately what is the total area of Denmark?",
+  "a": [
+   "43 000 km²",
+   "4 300 km²",
+   "13 000 km²",
+   "130 000 km²"
+  ]
+ },
+ "q1237": {
+  "q": "Approximately what is the total area of Palestine?",
+  "a": [
+   "6 200 km²",
+   "620 km²",
+   "1 900 km²",
+   "19 000 km²"
+  ]
+ },
+ "q1238": {
+  "q": "Which frozen substance is most commonly used in cocktails to chill the drink?",
+  "a": [
+   "Ice cubes",
+   "Dry lava",
+   "Frozen socks",
+   "Snowballs from Mars"
+  ]
+ },
+ "q1239": {
+  "q": "Which fresh herb is an essential ingredient in a classic Mojito cocktail?",
+  "a": [
+   "Mint",
+   "Rosemary",
+   "Basil",
+   "Thyme"
+  ]
+ },
+ "q1240": {
+  "q": "Which vegetable juice forms the base of a classic Bloody Mary cocktail?",
+  "a": [
+   "Tomato juice",
+   "Carrot juice",
+   "Beetroot juice",
+   "Celery juice"
+  ]
+ },
+ "q1241": {
+  "q": "Which tropical fruit flavor is combined with coconut in a classic Piña Colada?",
+  "a": [
+   "Pineapple",
+   "Mango",
+   "Papaya",
+   "Passion fruit"
+  ]
+ },
+ "q1242": {
+  "q": "Which Mexican distilled spirit is the primary alcoholic ingredient in a Margarita?",
+  "a": [
+   "Tequila",
+   "Rum",
+   "Vodka",
+   "Gin"
+  ]
+ },
+ "q1243": {
+  "q": "Which ingredient is traditionally used to coat the rim of a classic Margarita glass?",
+  "a": [
+   "Salt",
+   "Cinnamon",
+   "Cocoa powder",
+   "Crushed nuts"
+  ]
+ },
+ "q1244": {
+  "q": "Of which country is the Caipirinha considered the national cocktail?",
+  "a": [
+   "Brazil",
+   "Argentina",
+   "Peru",
+   "Colombia"
+  ]
+ },
+ "q1245": {
+  "q": "Which two main ingredients make up a classic Black Russian cocktail?",
+  "a": [
+   "Vodka and coffee liqueur",
+   "Gin and dry vermouth",
+   "Rum and cola",
+   "Whiskey and sweet vermouth"
+  ]
+ },
+ "q1246": {
+  "q": "How does fictional spy James Bond famously request his vodka martini to be prepared?",
+  "a": [
+   "Shaken, not stirred",
+   "Blended, not poured",
+   "Warm, not chilled",
+   "Neat, without ice"
+  ]
+ },
+ "q1247": {
+  "q": "Which sparkling wine is mixed with peach purée to make a classic Bellini cocktail?",
+  "a": [
+   "Prosecco",
+   "Cider",
+   "Sherry",
+   "Port wine"
+  ]
+ },
+ "q1248": {
+  "q": "Which three spirits or liqueurs are mixed in equal parts to make a classic Negroni?",
+  "a": [
+   "Gin, Campari, sweet vermouth",
+   "Vodka, triple sec, lime juice",
+   "Rum, amaretto, dry vermouth",
+   "Tequila, Aperol, white wine"
+  ]
+ },
+ "q1249": {
+  "q": "In which type of mug is a classic Moscow Mule cocktail traditionally served?",
+  "a": [
+   "Copper mug",
+   "Wooden tankard",
+   "Clay bowl",
+   "Paper cup"
+  ]
+ },
+ "q1250": {
+  "q": "Which bartending tool is used to crush herbs, fruit, or sugar cubes at the bottom of a glass?",
+  "a": [
+   "Muddler",
+   "Jigger",
+   "Strainer",
+   "Bar spoon"
+  ]
+ },
+ "q1251": {
+  "q": "Which ingredient gives a classic Whiskey Sour its signature velvety foam topping?",
+  "a": [
+   "Egg white",
+   "Heavy cream",
+   "Whipped butter",
+   "Coconut milk"
+  ]
+ },
+ "q1252": {
+  "q": "At which famous Raffles Hotel bar was the Singapore Sling cocktail created in the early 20th century?",
+  "a": [
+   "Long Bar",
+   "Blue Bar",
+   "Harry's Bar",
+   "American Bar"
+  ]
+ },
+ "q1253": {
+  "q": "Which style of shaker consists of a large metal tin paired with a smaller metal tin or mixing glass?",
+  "a": [
+   "Boston shaker",
+   "Cobbler shaker",
+   "Parisian shaker",
+   "Viennese shaker"
+  ]
+ },
+ "q1254": {
+  "q": "Which 19th-century American bartender published the first known cocktail recipe book in 1862?",
+  "a": [
+   "Jerry Thomas",
+   "Harry Craddock",
+   "Ada Coleman",
+   "Dale DeGroff"
+  ]
+ },
+ "q1255": {
+  "q": "In which 1806 New York publication did the earliest known printed definition of the word cocktail appear?",
+  "a": [
+   "The Balance and Columbian Repository",
+   "The New York Times",
+   "Harper's Weekly",
+   "The Saturday Evening Post"
+  ]
+ },
+ "q1256": {
+  "q": "Which plant-derived compound causes the cloudy white louche effect when cold water is added to absinthe or pastis?",
+  "a": [
+   "Anethole",
+   "Capsaicin",
+   "Quinine",
+   "Tannin"
+  ]
+ },
+ "q1257": {
+  "q": "Which legendary head bartender of London's Savoy American Bar created the Hanky Panky cocktail in the early 20th century?",
+  "a": [
+   "Ada Coleman",
+   "Harry Craddock",
+   "Dick Bradsell",
+   "Peter Dorelli"
+  ]
+ },
+ "q1258": {
+  "q": "In which 19th-century New Orleans apothecary shop did Antoine Amédée Peychaud invent his famous aromatic bitters?",
+  "a": [
+   "Pharmacie Peychaud",
+   "Apothecary Lafitte",
+   "Carondelet Dispensary",
+   "Royal Street Chemist"
+  ]
+ },
+ "q1259": {
+  "q": "Which organ pumps blood throughout the human body?",
+  "a": [
+   "The heart",
+   "A garden hose",
+   "A bicycle pump",
+   "A kitchen blender"
+  ]
+ },
+ "q1260": {
+  "q": "How many fingers and thumbs does a person normally have on both hands combined?",
+  "a": [
+   "10",
+   "42",
+   "100",
+   "3"
+  ]
+ },
+ "q1261": {
+  "q": "Which organs allow humans to breathe and take in oxygen from the air?",
+  "a": [
+   "Lungs",
+   "Kidneys",
+   "Liver",
+   "Stomach"
+  ]
+ },
+ "q1262": {
+  "q": "What is the largest external organ of the human body?",
+  "a": [
+   "The skin",
+   "The liver",
+   "The brain",
+   "The heart"
+  ]
+ },
+ "q1263": {
+  "q": "How many permanent teeth does a typical adult human have?",
+  "a": [
+   "32",
+   "20",
+   "24",
+   "40"
+  ]
+ },
+ "q1264": {
+  "q": "Which part of the human eye gives it its color and controls the size of the pupil?",
+  "a": [
+   "The iris",
+   "The retina",
+   "The cornea",
+   "The optic nerve"
+  ]
+ },
+ "q1265": {
+  "q": "Which substance gives human red blood cells their color and carries oxygen?",
+  "a": [
+   "Hemoglobin",
+   "Insulin",
+   "Melanin",
+   "Keratin"
+  ]
+ },
+ "q1266": {
+  "q": "Which bone is the longest and strongest in the human body?",
+  "a": [
+   "The femur",
+   "The humerus",
+   "The tibia",
+   "The clavicle"
+  ]
+ },
+ "q1267": {
+  "q": "What is the name of the muscular tube that carries food from the throat to the stomach?",
+  "a": [
+   "The esophagus",
+   "The trachea",
+   "The duodenum",
+   "The aorta"
+  ]
+ },
+ "q1268": {
+  "q": "How many chambers make up the human heart?",
+  "a": [
+   "4",
+   "2",
+   "3",
+   "6"
+  ]
+ },
+ "q1269": {
+  "q": "Which organ in the human body produces insulin to regulate blood sugar?",
+  "a": [
+   "The pancreas",
+   "The spleen",
+   "The gallbladder",
+   "The thyroid"
+  ]
+ },
+ "q1270": {
+  "q": "How many bones are in a typical adult human skeleton?",
+  "a": [
+   "206",
+   "186",
+   "226",
+   "256"
+  ]
+ },
+ "q1271": {
+  "q": "Which pigment gives human skin, hair, and eyes their color?",
+  "a": [
+   "Melanin",
+   "Keratin",
+   "Collagen",
+   "Bilirubin"
+  ]
+ },
+ "q1272": {
+  "q": "Where in the human body are the smallest bones located?",
+  "a": [
+   "In the middle ear",
+   "In the tip of the nose",
+   "In the little toe",
+   "In the wrist"
+  ]
+ },
+ "q1273": {
+  "q": "Which blood type is known as the universal red blood cell donor?",
+  "a": [
+   "O negative",
+   "AB positive",
+   "A positive",
+   "B negative"
+  ]
+ },
+ "q1274": {
+  "q": "Which part of the human brain is primarily responsible for balance and motor coordination?",
+  "a": [
+   "The cerebellum",
+   "The hypothalamus",
+   "The amygdala",
+   "The hippocampus"
+  ]
+ },
+ "q1275": {
+  "q": "Which dome-shaped muscle below the lungs is the main muscle used in breathing?",
+  "a": [
+   "The diaphragm",
+   "The trapezius",
+   "The deltoid",
+   "The sartorius"
+  ]
+ },
+ "q1276": {
+  "q": "Which organ produces bile to help digest fats in the small intestine?",
+  "a": [
+   "The liver",
+   "The pancreas",
+   "The stomach",
+   "The spleen"
+  ]
+ },
+ "q1277": {
+  "q": "How many pairs of chromosomes are normally found in a human body cell?",
+  "a": [
+   "23",
+   "21",
+   "24",
+   "46"
+  ]
+ },
+ "q1278": {
+  "q": "Which is the largest artery in the human body?",
+  "a": [
+   "The aorta",
+   "The carotid artery",
+   "The pulmonary artery",
+   "The femoral artery"
+  ]
+ },
+ "q1279": {
+  "q": "How many pairs of ribs does a typical human rib cage have?",
+  "a": [
+   "12",
+   "10",
+   "14",
+   "16"
+  ]
+ },
+ "q1280": {
+  "q": "Which tough fibrous band connects a muscle to a bone?",
+  "a": [
+   "A tendon",
+   "A ligament",
+   "Cartilage",
+   "Fascia"
+  ]
+ },
+ "q1281": {
+  "q": "Which is the hardest substance in the human body?",
+  "a": [
+   "Tooth enamel",
+   "Femur bone",
+   "Dentin",
+   "Nail keratin"
+  ]
+ },
+ "q1282": {
+  "q": "Which hormone produced by the pineal gland helps regulate the human sleep-wake cycle?",
+  "a": [
+   "Melatonin",
+   "Cortisol",
+   "Adrenaline",
+   "Oxytocin"
+  ]
+ },
+ "q1283": {
+  "q": "What is the name of the tiny air sacs in the lungs where oxygen and carbon dioxide are exchanged?",
+  "a": [
+   "Alveoli",
+   "Nephrons",
+   "Villi",
+   "Bronchioles"
+  ]
+ },
+ "q1284": {
+  "q": "Which of the three tiny bones in the human middle ear is the smallest bone in the entire body?",
+  "a": [
+   "The stapes",
+   "The malleus",
+   "The incus",
+   "The hyoid"
+  ]
+ },
+ "q1285": {
+  "q": "Which is the only bone in the human body that is not directly connected to any other bone?",
+  "a": [
+   "The hyoid bone",
+   "The patella",
+   "The coccyx",
+   "The vomer"
+  ]
+ },
+ "q1286": {
+  "q": "How many cervical vertebrae are in a typical human neck?",
+  "a": [
+   "7",
+   "5",
+   "9",
+   "12"
+  ]
+ },
+ "q1287": {
+  "q": "Which region of the human cerebral cortex contains the primary visual cortex?",
+  "a": [
+   "The occipital lobe",
+   "The frontal lobe",
+   "The parietal lobe",
+   "The temporal lobe"
+  ]
+ },
+ "q1288": {
+  "q": "What is the name of the functional filtering unit of the human kidney?",
+  "a": [
+   "The nephron",
+   "The hepatocyte",
+   "The osteon",
+   "The sarcomere"
+  ]
+ },
+ "q1289": {
+  "q": "In which European city does the famous Eiffel Tower stand?",
+  "a": [
+   "Paris",
+   "Lyon",
+   "Brussels",
+   "Madrid"
+  ]
+ },
+ "q1290": {
+  "q": "In which country are the ancient Pyramids of Giza located?",
+  "a": [
+   "Egypt",
+   "Narnia",
+   "A giant sandbox in space",
+   "Penguin Island"
+  ]
+ },
+ "q1291": {
+  "q": "Which country gifted the Statue of Liberty to the United States in 1886?",
+  "a": [
+   "France",
+   "United Kingdom",
+   "Spain",
+   "Italy"
+  ]
+ },
+ "q1292": {
+  "q": "In which Italian city does the famous Leaning Tower stand?",
+  "a": [
+   "Pisa",
+   "Venice",
+   "Milan",
+   "Naples"
+  ]
+ },
+ "q1293": {
+  "q": "In which Indian city is the Taj Mahal located?",
+  "a": [
+   "Agra",
+   "Mumbai",
+   "Kolkata",
+   "Chennai"
+  ]
+ },
+ "q1294": {
+  "q": "In which South American country are the ancient Inca ruins of Machu Picchu located?",
+  "a": [
+   "Peru",
+   "Chile",
+   "Colombia",
+   "Argentina"
+  ]
+ },
+ "q1295": {
+  "q": "Which Australian landmark features a roof made of distinctive sail-shaped shells?",
+  "a": [
+   "Sydney Opera House",
+   "Melbourne Cricket Ground",
+   "Parliament House",
+   "Royal Exhibition Building"
+  ]
+ },
+ "q1296": {
+  "q": "Who was the chief architect of Barcelona's famous Sagrada Família basilica?",
+  "a": [
+   "Antoni Gaudí",
+   "Salvador Dalí",
+   "Pablo Picasso",
+   "Joan Miró"
+  ]
+ },
+ "q1297": {
+  "q": "Atop which mountain in Rio de Janeiro does the statue of Christ the Redeemer stand?",
+  "a": [
+   "Corcovado",
+   "Sugarloaf Mountain",
+   "Mount Roraima",
+   "Pico da Neblina"
+  ]
+ },
+ "q1298": {
+  "q": "In which country is the ancient rock-cut city of Petra located?",
+  "a": [
+   "Jordan",
+   "Lebanon",
+   "Syria",
+   "Oman"
+  ]
+ },
+ "q1299": {
+  "q": "In which Southeast Asian country is the temple complex of Angkor Wat located?",
+  "a": [
+   "Cambodia",
+   "Thailand",
+   "Laos",
+   "Vietnam"
+  ]
+ },
+ "q1300": {
+  "q": "In which city does the Burj Khalifa, the world's tallest skyscraper, stand?",
+  "a": [
+   "Dubai",
+   "Abu Dhabi",
+   "Doha",
+   "Riyadh"
+  ]
+ },
+ "q1301": {
+  "q": "Which country administers Easter Island, famous for its monumental Moai statues?",
+  "a": [
+   "Chile",
+   "Peru",
+   "Ecuador",
+   "New Zealand"
+  ]
+ },
+ "q1302": {
+  "q": "For which sixth-century Byzantine emperor was Istanbul's Hagia Sophia cathedral built?",
+  "a": [
+   "Justinian I",
+   "Constantine the Great",
+   "Theodosius I",
+   "Basil II"
+  ]
+ },
+ "q1303": {
+  "q": "In which European mountain range is Bulgaria's UNESCO-listed Rila Monastery located?",
+  "a": [
+   "Rila",
+   "Pirin",
+   "Rhodope",
+   "Vitosha"
+  ]
+ },
+ "q1304": {
+  "q": "In which German federal state does the fairytale Neuschwanstein Castle stand?",
+  "a": [
+   "Bavaria",
+   "Baden-Württemberg",
+   "Hesse",
+   "Saxony"
+  ]
+ },
+ "q1305": {
+  "q": "In which U.S. state is the Mount Rushmore National Memorial carved?",
+  "a": [
+   "South Dakota",
+   "North Dakota",
+   "Montana",
+   "Wyoming"
+  ]
+ },
+ "q1306": {
+  "q": "Between which two African countries does Victoria Falls lie on the Zambezi River?",
+  "a": [
+   "Zambia and Zimbabwe",
+   "Kenya and Tanzania",
+   "Namibia and Botswana",
+   "Mozambique and Malawi"
+  ]
+ },
+ "q1307": {
+  "q": "Which Chinese emperor commissioned the Terracotta Army buried near Xi'an?",
+  "a": [
+   "Qin Shi Huang",
+   "Emperor Wu of Han",
+   "Kublai Khan",
+   "Emperor Taizong of Tang"
+  ]
+ },
+ "q1308": {
+  "q": "On which Indonesian island is the ninth-century Buddhist temple of Borobudur located?",
+  "a": [
+   "Java",
+   "Bali",
+   "Sumatra",
+   "Sulawesi"
+  ]
+ },
+ "q1309": {
+  "q": "In which Japanese city does the famous golden-leaf pavilion Kinkaku-ji stand?",
+  "a": [
+   "Kyoto",
+   "Nara",
+   "Osaka",
+   "Kamakura"
+  ]
+ },
+ "q1310": {
+  "q": "In which Spanish city does the Moorish palace and fortress complex of the Alhambra stand?",
+  "a": [
+   "Granada",
+   "Seville",
+   "Córdoba",
+   "Toledo"
+  ]
+ },
+ "q1311": {
+  "q": "Which sixteenth-century Russian tsar commissioned Saint Basil's Cathedral on Moscow's Red Square?",
+  "a": [
+   "Ivan the Terrible",
+   "Boris Godunov",
+   "Peter the Great",
+   "Vasili III"
+  ]
+ },
+ "q1312": {
+  "q": "In which Turkish province does the ancient Neolithic site of Göbekli Tepe lie?",
+  "a": [
+   "Şanlıurfa",
+   "Konya",
+   "Nevşehir",
+   "Antalya"
+  ]
+ },
+ "q1313": {
+  "q": "In which African country are the medieval rock-hewn churches of Lalibela located?",
+  "a": [
+   "Ethiopia",
+   "Eritrea",
+   "Sudan",
+   "Kenya"
+  ]
+ },
+ "q1314": {
+  "q": "In which Indian state are the UNESCO-listed Ajanta and Ellora rock-cut caves located?",
+  "a": [
+   "Maharashtra",
+   "Karnataka",
+   "Madhya Pradesh",
+   "Gujarat"
+  ]
+ },
+ "q1315": {
+  "q": "Near which Bulgarian village is the early medieval Madara Rider rock relief carved?",
+  "a": [
+   "Madara",
+   "Pliska",
+   "Preslav",
+   "Sveshtari"
+  ]
+ },
+ "q1316": {
+  "q": "Which fourth-century Sasanian king commissioned the Taq Kasra arch at Ctesiphon in Iraq?",
+  "a": [
+   "Khosrow I",
+   "Shapur I",
+   "Ardashir I",
+   "Yazdegerd III"
+  ]
+ },
+ "q1317": {
+  "q": "Who was the chief architect of Sydney Opera House who resigned in 1966 before its completion?",
+  "a": [
+   "Jørn Utzon",
+   "Eero Saarinen",
+   "Alvar Aalto",
+   "Arne Jacobsen"
+  ]
+ },
+ "q1318": {
+  "q": "Which twelfth-century Khmer king commissioned the construction of Angkor Wat?",
+  "a": [
+   "Suryavarman II",
+   "Jayavarman VII",
+   "Indravarman I",
+   "Yasovarman I"
+  ]
+ },
+ "q1319": {
+  "q": "Who was the chief court architect of the Mughal Empire credited with designing the Taj Mahal?",
+  "a": [
+   "Ustad Ahmad Lahori",
+   "Mirak Mirza Ghiyas",
+   "Ustad Isa",
+   "Mimar Sinan"
+  ]
+ }
+}

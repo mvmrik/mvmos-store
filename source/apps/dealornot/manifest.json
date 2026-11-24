@@ -20,7 +20,7 @@
     "luck",
     "games"
   ],
-  "version": "1.0.0",
+  "version": "1.1.0",
   "min_core_version": "1.16.0",
   "description": "Draw one of 36 numbered boxes, open the others and answer the banker's calls: take his offer or keep your box. Up to six players share one board and the banker calls each of them in private. Amounts go up to one million and bonuses for smart play keep the top score open.",
   "entry": "main.js",

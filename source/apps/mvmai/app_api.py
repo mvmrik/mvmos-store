@@ -12,11 +12,17 @@ import sys
 INTERNAL_ONLY = {"ask", "image", "image_status", "start_chat"}
 
 
-def ask(user_id: str, prompt: str, lang: str = None, timeout: int = 60, max_chars: int = 20000):
+def ask(user_id: str, prompt: str, lang: str = None, timeout: int = 60, max_chars: int = 20000,
+        app: str = None, intro: str = ""):
     """Ask the public-page AI one question on behalf of an Apps Hub user.
 
     max_chars is how much of the prompt is used (20000 by default, at most
     200000): an app that sends a whole chapter asks for more.
+
+    app: the asking app's id. With it the AI keeps one session per user and app,
+    like a chat: requests within an hour continue it and send only the new text,
+    after an hour a new session starts. intro is the app's standing instructions;
+    it is sent only when a session starts. Without app every question stands alone.
 
     Returns {"text": "..."} or {"error": "..."} (unknown_user, empty_prompt,
     mvmai_unavailable, timeout, or the provider's own message).
@@ -26,7 +32,7 @@ def ask(user_id: str, prompt: str, lang: str = None, timeout: int = 60, max_char
         return {"error": "mvmai_unavailable"}
 
     def run():
-        return asyncio.run(asyncio.wait_for(api.ask_once(user_id, prompt, lang, max_chars), timeout))
+        return asyncio.run(asyncio.wait_for(api.ask_once(user_id, prompt, lang, max_chars, app, intro), timeout))
 
     # Always in a worker thread: the caller may already be inside an event loop.
     with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:

@@ -19,6 +19,11 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import zlib
+import importlib.util
+
+_bh = importlib.util.spec_from_file_location("_tesla_battery_health_engine", os.path.join(os.path.dirname(os.path.abspath(__file__)), "battery_health.py"))
+battery_health = importlib.util.module_from_spec(_bh)
+_bh.loader.exec_module(battery_health)
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(DIR, "data.db")
@@ -41,8 +46,8 @@ SITUATIONS = ("drive", "charge_ac", "charge_dc", "idle", "parked", "parked_check
 DEFAULTS = {
     "drive": 60,           # driving
     "charge_ac": 300,      # charging on AC
-    "charge_dc": 60,       # fast charging
-    "idle": 60,            # just after the car was used: catch the end of the trip, settle
+    "charge_dc": 120,       # fast charging
+    "idle": 120,            # just after the car was used: catch the end of the trip, settle
     "parked": 1200,        # awake but unused, left alone so that it can fall asleep
     "parked_check": 300,   # ... meanwhile only the vehicle list (which does not wake it) is read
     "asleep": 900,         # asleep or offline: look at the list to see if it woke up
@@ -175,6 +180,8 @@ def db():
     for name, typ in SAMPLE_COLUMNS:
         if name not in have:
             c.execute("ALTER TABLE samples ADD COLUMN %s %s" % (name, typ))
+    if "base_kwh" not in {r[1] for r in c.execute("PRAGMA table_info(charges)")}:
+        c.execute("ALTER TABLE charges ADD COLUMN base_kwh REAL DEFAULT 0")
     return c
 
 
@@ -618,6 +625,46 @@ def trip_update(c, p, v, s, ts, prev):
     return False
 
 
+_PACK = {}
+
+
+def pack_kwh(c, vid):
+    hit = _PACK.get(vid)
+    if hit and time.time() - hit[0] < 30:
+        return hit[1]
+    val = _pack_kwh(c, vid)
+    _PACK[vid] = (time.time(), val)
+    return val
+
+
+def _pack_kwh(c, vid):
+    """Size of the battery: the owner's own figure, else what the charging sessions say."""
+    row = c.execute("SELECT user_id FROM vehicles WHERE id=?", (vid,)).fetchone()
+    if row:
+        pref = c.execute("SELECT value FROM prefs WHERE user_id=? AND key='capacity_kwh'", (row["user_id"],)).fetchone()
+        try:
+            if pref and pref["value"] not in (None, "") and float(pref["value"]) > 0:
+                return float(pref["value"])
+        except ValueError:
+            pass
+    rows = [dict(r) for r in c.execute("SELECT * FROM charges WHERE vehicle=? AND open=0 ORDER BY start_ts", (vid,)).fetchall()]
+    return battery_health.capacity(rows).get("current_kwh")
+
+
+def trip_energy(c, t):
+    """Display-only estimate of what a drive used: the drop in battery level times the size of the
+    battery. The stored readings are never changed; the summed power is only the fallback."""
+    cap = pack_kwh(c, t["vehicle"])
+    if cap and t["start_batt"] is not None and t["end_batt"] is not None and t["start_batt"] > t["end_batt"]:
+        return round((t["start_batt"] - t["end_batt"]) / 100.0 * cap, 2)
+    return t["energy_kwh"]
+
+
+def trip_kwh_sql(cap):
+    """SQL expression with the same estimate, for sums over trips; needs one parameter, the capacity."""
+    return "(CASE WHEN ? > 0 AND start_batt IS NOT NULL AND end_batt IS NOT NULL AND start_batt > end_batt THEN (start_batt - end_batt) / 100.0 * ? ELSE energy_kwh END)"
+
+
 def close_trip(c, p, tid):
     t = c.execute("SELECT * FROM trips WHERE id=?", (tid,)).fetchone()
     c.execute("UPDATE poll SET trip_id=NULL WHERE vehicle=?", (p["vehicle"],))
@@ -634,6 +681,22 @@ def close_trip(c, p, tid):
         reverse_geocode("trips", tid, t["end_lat"], t["end_lng"], "end_addr")
 
 
+def _driven_since(c, vid, ts):
+    return c.execute("SELECT 1 FROM trips WHERE vehicle=? AND (end_ts IS NULL OR end_ts>?) LIMIT 1", (vid, ts)).fetchone() is not None
+
+
+def bridge_charge_end(c, v, s, ts, prev):
+    """A session can stop between two readings. The first reading after it shows where the
+    battery really ended up, provided the car was not driven in between."""
+    if prev is None or s["charging_state"] in ("Charging", "Starting") or s["battery"] is None:
+        return
+    ch = c.execute("SELECT * FROM charges WHERE vehicle=? AND open=0 ORDER BY start_ts DESC LIMIT 1", (v["id"],)).fetchone()
+    if (not ch or ch["end_batt"] is None or s["battery"] <= ch["end_batt"] or prev["ts"] > (ch["end_ts"] or 0)
+            or _driven_since(c, v["id"], ch["end_ts"] or 0)):
+        return
+    c.execute("UPDATE charges SET end_batt=?, end_range=COALESCE(?, end_range) WHERE id=?", (s["battery"], s["range_km"], ch["id"]))
+
+
 # ── Charges ─────────────────────────────────────────────────────────────────
 def charge_update(c, p, v, s, ts, prev):
     charging = s["charging_state"] in ("Charging", "Starting")
@@ -646,19 +709,34 @@ def charge_update(c, p, v, s, ts, prev):
             if lat is None:
                 row = c.execute("SELECT lat, lng FROM samples WHERE vehicle=? AND lat IS NOT NULL ORDER BY ts DESC LIMIT 1", (v["id"],)).fetchone()
                 lat, lng = (row["lat"], row["lng"]) if row else (None, None)
-            c.execute("""INSERT INTO charges (vehicle, start_ts, start_batt, start_range, lat, lng, dc, temp_out)
-                         VALUES (?,?,?,?,?,?,?,?)""", (v["id"], ts, s["battery"], s["range_km"], lat, lng, s["dc"], s["outside_temp"]))
+            # Readings are far apart, so the car may already have been charging since the
+            # previous reading: when it was lower and nothing was driven in between, the
+            # session began from that level.
+            sb, sr = s["battery"], s["range_km"]
+            if (prev is not None and prev["battery"] is not None and sb is not None and prev["battery"] < sb
+                    and not _driven_since(c, v["id"], prev["ts"])):
+                sb, sr = prev["battery"], prev["range_km"] if prev["range_km"] is not None else sr
+            # The car's energy counter runs from the moment the cable went in, not from the
+            # start of this session, so it already holds what earlier sessions added. The
+            # level just before this session is what the session's own energy is counted from.
+            base = 0.0
+            if (prev is not None and prev["energy_added"] is not None and s["energy_added"] is not None
+                    and prev["charging_state"] != "Disconnected" and prev["energy_added"] <= s["energy_added"] + 0.5):
+                # The counter drifts down a little while parked, hence the small margin.
+                base = min(prev["energy_added"], s["energy_added"])
+            c.execute("""INSERT INTO charges (vehicle, start_ts, start_batt, start_range, lat, lng, dc, temp_out, base_kwh)
+                         VALUES (?,?,?,?,?,?,?,?,?)""", (v["id"], ts, sb, sr, lat, lng, s["dc"], s["outside_temp"], base))
             cid = c.execute("SELECT last_insert_rowid()").fetchone()[0]
             c.execute("UPDATE poll SET charge_id=? WHERE vehicle=?", (cid, v["id"]))
         c.execute("INSERT INTO charge_points (charge, ts, power, battery, voltage, current, energy) VALUES (?,?,?,?,?,?,?)",
                   (cid, ts, s["charger_power"], s["battery"], s["voltage"], s["current"], s["energy_added"]))
-        c.execute("""UPDATE charges SET end_ts=?, end_batt=?, end_range=?, kwh=MAX(kwh, COALESCE(?,0)),
+        c.execute("""UPDATE charges SET end_ts=?, end_batt=?, end_range=?, kwh=MAX(kwh, COALESCE(? - base_kwh,0)),
                      max_power=MAX(max_power, COALESCE(?,0)), dc=MAX(dc, ?) WHERE id=?""",
                   (ts, s["battery"], s["range_km"], s["energy_added"], s["charger_power"], s["dc"], cid))
         return True
     if cid is not None:
         # The last reading of a session still carries the final energy figure.
-        c.execute("""UPDATE charges SET end_ts=?, end_batt=?, end_range=?, kwh=MAX(kwh, COALESCE(?,0)) WHERE id=?""",
+        c.execute("""UPDATE charges SET end_ts=?, end_batt=?, end_range=?, kwh=MAX(kwh, COALESCE(? - base_kwh,0)) WHERE id=?""",
                   (ts, s["battery"], s["range_km"], s["energy_added"], cid))
         close_charge(c, p, cid)
     return False
@@ -725,6 +803,7 @@ def sample_vehicle(c, cfg, acct, v, factor):
             sm = store_sample(c, v, d, ts, "online")
             hot_drive = trip_update(c, p, v, sm, ts, prev)
             p = get_poll(c, vid)
+            bridge_charge_end(c, v, sm, ts, prev)
             hot_charge = charge_update(c, p, v, sm, ts, prev)
             p = get_poll(c, vid)
             set_state(c, vid, "driving" if hot_drive else "charging" if hot_charge else "online", ts)

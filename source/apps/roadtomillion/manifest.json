@@ -1,0 +1,138 @@
+{
+  "id": "roadtomillion",
+  "name": "The Road to Millions",
+  "name_i18n": {
+    "en": "The Road to Millions",
+    "bg": "Пътят към милионите",
+    "de": "Der Weg zu den Millionen",
+    "es": "El camino a los millones",
+    "fr": "La route des millions",
+    "ja": "ミリオンズへの道",
+    "pt-BR": "O Caminho dos Milhões",
+    "ru": "Путь к миллионам",
+    "zh-CN": "通往百万之路"
+  },
+  "icon": "💎",
+  "category": "Games",
+  "tags": [
+    "multiplayer",
+    "quiz",
+    "trivia",
+    "games"
+  ],
+  "version": "1.0.0",
+  "min_core_version": "1.16.0",
+  "description": "Answer questions, use your lifelines and decide when to take your winnings. Play on past the million solo, or face 20 questions with friends.",
+  "entry": "main.js",
+  "multiplayer": true,
+  "max_players": 6,
+  "public_directory": false,
+  "gamehub": {
+    "category": "puzzle",
+    "description": {
+      "bg": "Отговаряй на въпроси, използвай жокерите разумно и реши кога да вземеш спечеленото. Сам можеш да продължиш след милиона; с приятели играта е до 20 въпроса.",
+      "de": "Beantworte Fragen, nutze deine Joker und entscheide, wann du aussteigst. Allein geht es nach der Million weiter; mit Freunden endet das Spiel nach 20 Fragen.",
+      "es": "Responde preguntas, usa tus comodines y decide cuándo retirarte. En solitario puedes seguir después del millón; con amigos hay 20 preguntas.",
+      "fr": "Réponds aux questions, utilise tes jokers et choisis quand partir. En solo, continue après le million ; entre amis, la partie compte 20 questions.",
+      "ja": "問題に答え、ライフラインを使い、賞金を持ち帰るタイミングを決めよう。一人なら100万の後も続き、友達とは20問で終了します。",
+      "pt-BR": "Responda às perguntas, use as ajudas e escolha quando parar. Sozinho, continue após o milhão; com amigos, são 20 perguntas.",
+      "ru": "Отвечайте на вопросы, используйте подсказки и решайте, когда забрать выигрыш. В одиночку можно продолжить после миллиона, с друзьями игра длится 20 вопросов.",
+      "zh-CN": "回答问题，使用求助，决定何时带走奖金。单人模式可在百万之后继续，和朋友一起玩则共20题。",
+      "en": "Answer questions, use your lifelines and decide when to take your winnings. Play on past the million solo, or face 20 questions with friends."
+    },
+    "score": {
+      "label": {
+        "en": "Points",
+        "bg": "Точки",
+        "de": "Punkte",
+        "es": "Puntos",
+        "fr": "Points",
+        "ja": "ポイント",
+        "pt-BR": "Pontos",
+        "ru": "Очки",
+        "zh-CN": "得分"
+      }
+    },
+    "ranking": "score",
+    "metrics": {
+      "winnings": {
+        "label": {
+          "en": "Amount won",
+          "bg": "Спечелена сума",
+          "de": "Gewinn",
+          "es": "Cantidad ganada",
+          "fr": "Somme gagnée",
+          "ja": "獲得額",
+          "pt-BR": "Valor ganho",
+          "ru": "Выигрыш",
+          "zh-CN": "赢得金额"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "bonus_pct": {
+        "label": {
+          "en": "Bonus (%)",
+          "bg": "Бонус (%)",
+          "de": "Bonus (%)",
+          "es": "Bonificación (%)",
+          "fr": "Bonus (%)",
+          "ja": "ボーナス (%)",
+          "pt-BR": "Bônus (%)",
+          "ru": "Бонус (%)",
+          "zh-CN": "奖励 (%)"
+        },
+        "type": "percent",
+        "better": "high",
+        "total": false
+      },
+      "questions": {
+        "label": {
+          "en": "Questions answered",
+          "bg": "Отговорени въпроси",
+          "de": "Beantwortete Fragen",
+          "es": "Preguntas respondidas",
+          "fr": "Questions répondues",
+          "ja": "正解した問題",
+          "pt-BR": "Perguntas respondidas",
+          "ru": "Отвеченные вопросы",
+          "zh-CN": "答对的题目"
+        },
+        "type": "number",
+        "better": "high"
+      },
+      "jokers": {
+        "label": {
+          "en": "Lifelines used",
+          "bg": "Използвани жокери",
+          "de": "Genutzte Joker",
+          "es": "Comodines usados",
+          "fr": "Jokers utilisés",
+          "ja": "使ったライフライン",
+          "pt-BR": "Ajudas usadas",
+          "ru": "Использовано подсказок",
+          "zh-CN": "使用的求助"
+        },
+        "type": "number",
+        "better": "low"
+      },
+      "bank": {
+        "label": {
+          "en": "Questions in the bank",
+          "bg": "Въпроси в банката",
+          "de": "Fragen im Pool",
+          "es": "Preguntas en el banco",
+          "fr": "Questions dans la banque",
+          "ja": "問題バンクの数",
+          "pt-BR": "Perguntas no banco",
+          "ru": "Вопросов в банке",
+          "zh-CN": "题库题数"
+        },
+        "type": "number",
+        "better": "high",
+        "total": false
+      }
+    }
+  },
+  "icon_image": "icon.svg"
+}

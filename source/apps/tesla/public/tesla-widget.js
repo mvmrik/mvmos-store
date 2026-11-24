@@ -63,9 +63,10 @@
 
   .tsl{container-type:inline-size;height:100%;overflow-y:auto;background:var(--pub-bg,#0f1320);color:var(--pub-fg,#e6e9f2);font-family:system-ui,sans-serif;-webkit-overflow-scrolling:touch}
   .tsl *{box-sizing:border-box}
-  .tsl-wrap{max-width:1100px;margin:0 auto;padding:12px 14px 40px}
+  .tsl-wrap{max-width:1280px;margin:0 auto;padding:12px 14px 40px}
   .tsl-bar{position:sticky;top:0;z-index:5;background:linear-gradient(var(--pub-bg,#0f1320) 80%,transparent);padding:10px 0 8px}
-  .tsl-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .tsl-tabs{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:2px}
+  @media(max-width:700px){.tsl-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}}
   .tsl-tab{flex:0 0 auto;border:0;border-radius:999px;background:var(--pub-surface1,#1b2133);color:var(--pub-fg2,#9aa4bd);padding:10px 16px;font-size:.95rem;cursor:pointer;white-space:nowrap;min-height:42px}
   .tsl-tab.on{background:var(--pub-accent,var(--tsl-blue,#60a5fa));color:#0b1020;font-weight:700}
   .tsl-card{background:var(--pub-surface1,#1b2133);border-radius:18px;padding:16px;margin-top:12px;box-shadow:0 2px 14px #0004}
@@ -1547,7 +1548,7 @@
       p.innerHTML = `<div class="tsl-head"><div class="tsl-seg">${['week', 'month', 'year'].map(k => `<button data-per="${k}" class="${st.period === k ? 'on' : ''}">${esc(t('tsl_stats_' + k))}</button>`).join('')}</div></div>
         <div class="tsl-card"><div class="tsl-grid">
         ${tile(t('tsl_stats_total_km'), fmt.dist(km, 0), nf(sum('trips')) + ' ' + esc(t('tsl_tab_trips').toLowerCase()))}
-        ${tile(t('tsl_stats_avg'), km > 5 && kwh > 0 ? fmt.eff(kwh * 1000 / km) : '–')}
+        ${tile(t('tsl_stats_avg'), km > 5 && kwh > 0 ? nf(kwh * 100 / km * (U.imperial ? 1.609344 : 1), 1) + ' ' + t(U.imperial ? 'tsl_u_kwh_100mi' : 'tsl_u_kwh_100km') : '–')}
         ${tile(t('tsl_stats_charged'), fmt.kwh(sum('charged_kwh')))}
         ${tile(t('tsl_stats_cost'), costText||'–')}
         ${tile(t('tsl_stats_cost100', { u: U.distU() }), codes.length===1&&km>5&&pricedKwh>0&&!sum('unpriced_sessions') ? money(costTotals[codes[0]] / sum('charged_kwh') * (kwh / km) * 100 * (U.imperial ? 1.609344 : 1),codes[0]) : '–')}</div></div>

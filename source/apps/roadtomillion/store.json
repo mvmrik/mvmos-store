@@ -1,0 +1,288 @@
+{
+  "tagline": "Twenty questions, four lifelines and one big decision: keep going or take the money.",
+  "description": "The Road to Millions is a quiz game for Game Hub. Answer questions that grow harder from the first to the twentieth, use your lifelines wisely and decide when to take your winnings. Play alone or share the same questions with up to six players.\n\nThe ladder\nThe game has twenty questions and the last one is worth 1,000,000. Safe sums wait after questions 5, 10 and 15: a wrong answer drops you to the last safe sum you passed, while walking away keeps the sum you have reached. Playing alone, you can go on past the million with further questions.\n\nFour lifelines\nBefore the game starts, you choose three of ten specialists, such as a historian, a doctor or an engineer, and three of nine countries other than your own. During the game you can remove two wrong answers, ask one of your specialists, poll a country, or check one answer with the compass, which tells you without risk whether it is right. Each lifeline can be used once, and the advice you get is only as reliable as the person asked.\n\nPlaying together\nIn multiplayer, everyone still in the game answers the same question against a turn clock chosen by the host. Others see who used a lifeline, but not what it told them. Players can join from computers, phones and tablets using a web browser.\n\nScores and the question bank\nYour winnings and percentage bonuses make up your score. Bonuses reward using few or no lifelines, trusting your own answer when the advice was wrong, and answering several questions in a row without any help. Game Hub records results, statistics and rankings. The app ships with a bank of more than 1,300 questions in all nine mvmOS languages, and the owner can browse, edit and add questions in a manager, optionally with help from mvmAI.",
+  "capabilities": [
+    "Twenty questions from easy to hard, with 1,000,000 at the top.",
+    "Safe sums after questions 5, 10 and 15, and the choice to take your winnings at any moment.",
+    "Four lifelines: remove two wrong answers, ask a specialist, poll a country or check an answer with the compass.",
+    "Choose three of ten specialists and three of nine countries before the game starts.",
+    "Solo play that can continue past the million, or multiplayer for up to six players on the same questions.",
+    "Host-selected turn clock in multiplayer; other players see who used a lifeline.",
+    "Percentage bonuses for using few lifelines, trusting your own answer and answering without help.",
+    "Game Hub session history, winnings, bonus statistics and rankings.",
+    "More than 1,300 questions with answers in all nine mvmOS languages.",
+    "Question manager for the owner to browse, edit, import and add questions, with optional mvmAI help."
+  ],
+  "requirements": [
+    "Game Hub installed; play through its public page with an Apps Hub account.",
+    "mvmAI is optional and only used by the owner's question manager."
+  ],
+  "integrations": [
+    {
+      "app": "gamehub",
+      "name": "Game Hub",
+      "kind": "gamehub",
+      "direction": "consumes",
+      "summary": "Provides player profiles, rooms, invitations, solo saves, session history, statistics and rankings. The desktop app opens the Game Hub play page.",
+      "requires": "Game Hub installed. The desktop launcher offers to install it when it is missing."
+    },
+    {
+      "app": "mvmai",
+      "name": "mvmAI",
+      "kind": "app_api",
+      "direction": "consumes",
+      "summary": "Helps the owner fill in, review and suggest questions in the question manager. The game itself never needs it.",
+      "requires": "Optional: mvmAI installed, set up with an AI provider and with its App API enabled in Apps Hub → Settings → App APIs."
+    }
+  ],
+  "i18n": {
+    "zh-CN": {
+      "short_description": "回答问题，善用求助机会，自由决定何时带走奖金。单人模式可继续挑战百万以上的奖金，也可与好友一起闯过20道题。",
+      "tagline": "二十道题，四种求助方式，一个关键抉择：继续挑战，还是带走奖金。",
+      "description": "The Road to Millions 是一款在 Game Hub 中游玩的知识问答游戏。从第一题到第二十题，难度逐步提升。善用求助机会，并决定何时带走奖金。你可以独自挑战，也可以与最多六名玩家一起回答相同的问题。\n\n奖金阶梯\n游戏共有二十道题，最后一题的奖金为1,000,000。第5、10和15题后设有保底奖金：答错后，奖金会降至你已通过的最近一档保底金额；主动退出则可保留当前已赢得的奖金。单人模式下，赢得百万后还可以继续答题挑战。\n\n四种求助方式\n游戏开始前，你需要从十位专家中选出三位，例如历史学家、医生或工程师，并从本国以外的九个国家中选出三个。游戏过程中，你可以排除两个错误答案、向一位选定的专家求助、征询某个国家的意见，或使用指南针验证一个答案，无风险地确认它是否正确。每种求助方式只能使用一次，而建议是否可靠，取决于你求助的对象。\n\n一起游玩\n多人模式下，所有尚未出局的玩家都需在房主设定的每轮答题时限内回答同一道题。其他玩家可以看到谁使用了求助机会，但看不到获得的提示。玩家可以通过电脑、手机或平板电脑上的网页浏览器加入游戏。\n\n得分与题库\n你的得分由所赢奖金和按百分比计算的加分组成。少用或不用求助机会、在建议有误时坚持自己的答案，以及连续多题不借助任何帮助作答，都能获得加分。Game Hub 会记录游戏结果、统计数据和排名。应用内置超过1,300道题，支持 mvmOS 的全部九种语言。应用所有者可以在题目管理器中浏览、编辑和添加题目，也可选择借助 mvmAI。",
+      "capabilities": [
+        "二十道题由易到难，最高奖金为1,000,000。",
+        "第5、10和15题后设有保底奖金，你也可以随时选择带走已赢得的奖金。",
+        "四种求助方式：排除两个错误答案、向专家求助、征询某个国家的意见，或使用指南针验证答案。",
+        "游戏开始前，从十位专家中选出三位，并从九个国家中选出三个。",
+        "单人模式可在赢得百万后继续挑战，多人模式支持最多六名玩家回答相同的问题。",
+        "多人模式的每轮答题时限由房主设定，其他玩家可以看到谁使用了求助机会。",
+        "少用求助机会、坚持自己的答案，以及不借助帮助作答，均可获得按百分比计算的加分。",
+        "通过 Game Hub 查看对局历史、所赢奖金、加分统计和排名。",
+        "超过1,300道题及其答案，支持 mvmOS 的全部九种语言。",
+        "题目管理器支持应用所有者浏览、编辑、导入和添加题目，也可选择借助 mvmAI。"
+      ],
+      "requirements": [
+        "需安装 Game Hub，并使用 Apps Hub 账户通过 Game Hub 的公开页面游玩。",
+        "mvmAI 为可选组件，仅供应用所有者的题目管理器使用。"
+      ],
+      "integrations": [
+        {
+          "summary": "提供玩家档案、房间、邀请、单人存档、对局历史、统计数据和排名。桌面应用会打开 Game Hub 的游戏页面。",
+          "requires": "需安装 Game Hub。若尚未安装，桌面启动器会提示安装。"
+        },
+        {
+          "summary": "帮助应用所有者在题目管理器中补全、审核题目并获取题目建议。游戏本身无需使用此功能。",
+          "requires": "可选：安装 mvmAI，配置 AI 服务提供商，并在 Apps Hub → 设置 → 应用 API 中启用其 App API。"
+        }
+      ]
+    },
+    "es": {
+      "short_description": "Responde preguntas, usa tus comodines y decide cuándo retirarte con tu premio. Supera el millón en solitario o enfréntate a 20 preguntas con amigos.",
+      "tagline": "Veinte preguntas, cuatro comodines y una gran decisión: seguir jugando o llevarte el dinero.",
+      "description": "The Road to Millions es un juego de preguntas para Game Hub. Responde preguntas de dificultad creciente, desde la primera hasta la vigésima, usa tus comodines con cabeza y decide cuándo retirarte con tu premio. Juega en solitario o comparte las mismas preguntas con hasta seis jugadores.\n\nLa escalera de premios\nEl juego consta de veinte preguntas y la última tiene un valor de 1,000,000. Tras las preguntas 5, 10 y 15 hay premios asegurados: si fallas, bajas al último premio asegurado que hayas superado; si te retiras, conservas la cantidad alcanzada. En solitario, puedes seguir más allá del millón con preguntas adicionales.\n\nCuatro comodines\nAntes de empezar la partida, eliges a tres de diez especialistas, como un historiador, un médico o un ingeniero, y tres de nueve países distintos del tuyo. Durante la partida puedes eliminar dos respuestas incorrectas, consultar a uno de tus especialistas, hacer una encuesta en un país o comprobar una respuesta con la brújula, que te indica sin riesgo si es correcta. Cada comodín solo se puede usar una vez, y la fiabilidad de los consejos depende de la persona a la que consultes.\n\nJugar en compañía\nEn el modo multijugador, todos los que siguen en la partida responden a la misma pregunta con un límite de tiempo por turno elegido por el anfitrión. Los demás ven quién ha usado un comodín, pero no la información que ha recibido. Los jugadores pueden unirse desde ordenadores, teléfonos y tabletas mediante un navegador web.\n\nPuntuaciones y banco de preguntas\nTu premio y las bonificaciones porcentuales determinan tu puntuación. Las bonificaciones premian el uso de pocos comodines o ninguno, confiar en tu propia respuesta cuando el consejo era incorrecto y responder varias preguntas seguidas sin ayuda. Game Hub registra los resultados, las estadísticas y las clasificaciones. La aplicación incluye un banco de más de 1,300 preguntas en los nueve idiomas de mvmOS, y el propietario puede explorar, editar y añadir preguntas en un gestor, con la ayuda opcional de mvmAI.",
+      "capabilities": [
+        "Veinte preguntas de dificultad creciente, con 1,000,000 como premio final.",
+        "Premios asegurados tras las preguntas 5, 10 y 15, y la opción de retirarte con tu premio en cualquier momento.",
+        "Cuatro comodines: elimina dos respuestas incorrectas, consulta a un especialista, haz una encuesta en un país o comprueba una respuesta con la brújula.",
+        "Elige a tres de diez especialistas y tres de nueve países antes de empezar la partida.",
+        "Modo en solitario para seguir más allá del millón, o multijugador para hasta seis jugadores con las mismas preguntas.",
+        "Límite de tiempo por turno elegido por el anfitrión en el modo multijugador; los demás jugadores ven quién ha usado un comodín.",
+        "Bonificaciones porcentuales por usar pocos comodines, confiar en tu propia respuesta y responder sin ayuda.",
+        "Historial de partidas, premios, estadísticas de bonificaciones y clasificaciones en Game Hub.",
+        "Más de 1,300 preguntas con respuestas en los nueve idiomas de mvmOS.",
+        "Gestor de preguntas para que el propietario pueda explorar, editar, importar y añadir preguntas, con la ayuda opcional de mvmAI."
+      ],
+      "requirements": [
+        "Game Hub instalado; juega desde su página pública con una cuenta de Apps Hub.",
+        "mvmAI es opcional y solo se utiliza en el gestor de preguntas del propietario."
+      ],
+      "integrations": [
+        {
+          "summary": "Ofrece perfiles de jugadores, salas, invitaciones, partidas guardadas en solitario, historial de partidas, estadísticas y clasificaciones. La aplicación de escritorio abre la página de juego de Game Hub.",
+          "requires": "Game Hub instalado. El lanzador de escritorio ofrece instalarlo si no está disponible."
+        },
+        {
+          "summary": "Ayuda al propietario a completar y revisar preguntas, y le sugiere otras en el gestor de preguntas. El juego en sí nunca lo necesita.",
+          "requires": "Opcional: mvmAI instalado, configurado con un proveedor de IA y con su API de aplicación habilitada en Apps Hub → Ajustes → API de aplicaciones."
+        }
+      ]
+    },
+    "ja": {
+      "short_description": "問題に答え、ライフラインを使い、賞金を確保するタイミングを見極めましょう。1人で1,000,000の先に挑むことも、友達と20問に挑戦することもできます。",
+      "tagline": "20の問題、4つのライフライン、そして運命の決断。挑戦を続けるか、賞金を手にするか。",
+      "description": "The Road to Millionsは、Game Hubで遊べるクイズゲームです。1問目から20問目まで徐々に難しくなる問題に答え、ライフラインを賢く使いながら、賞金を確保するタイミングを見極めましょう。1人でも、最大6人で同じ問題に挑戦しても楽しめます。\n\n賞金のステップ\n問題は全部で20問。最後の問題の賞金は1,000,000です。5問目、10問目、15問目をクリアすると、その時点の賞金額が保証されます。不正解の場合は、最後に通過した保証額まで賞金が下がりますが、途中で挑戦を終えれば、その時点の賞金をそのまま獲得できます。1人プレイでは、1,000,000を超えてさらに問題に挑戦できます。\n\n4つのライフライン\nゲーム開始前に、歴史家、医師、エンジニアなど10人の専門家から3人と、自国以外の9か国から3か国を選びます。ゲーム中は、不正解の選択肢を2つ消す、選んだ専門家の1人に聞く、選んだ国でアンケートを取る、コンパスで選択肢を1つ確認する、という支援を受けられます。コンパスなら、リスクなしでその選択肢が正解かどうかを確認できます。各ライフラインは1回だけ使用でき、助言の信頼性は相手次第です。\n\nみんなでプレイ\nマルチプレイでは、ゲームに残っている全員が、ホストの設定した制限時間内に同じ問題に答えます。他のプレイヤーには誰がライフラインを使ったかはわかりますが、得られた情報は見えません。パソコン、スマートフォン、タブレットのウェブブラウザーから参加できます。\n\nスコアと問題集\n獲得賞金に、割合で加算されるボーナスを合わせたものがスコアになります。ライフラインを使わない、または使用を少なく抑える、誤った助言に流されず自分の答えを信じる、助けを借りずに何問も続けて答えると、ボーナスを獲得できます。Game Hubには結果、統計、ランキングが記録されます。アプリには、mvmOSの全9言語に対応した1,300問以上の問題が収録されています。オーナーは問題管理機能で問題を閲覧、編集、追加でき、必要に応じてmvmAIの支援も利用できます。",
+      "capabilities": [
+        "やさしい問題から難問まで全20問。最高賞金は1,000,000。",
+        "5問目、10問目、15問目をクリアすると賞金額を保証。いつでも挑戦を終えて、その時点の賞金を獲得できます。",
+        "4つのライフライン：不正解の選択肢を2つ消す、専門家に聞く、国でアンケートを取る、コンパスで選択肢を確認する。",
+        "ゲーム開始前に、10人の専門家から3人、9か国から3か国を選択。",
+        "1,000,000の先まで挑戦できる1人プレイと、最大6人で同じ問題に挑むマルチプレイ。",
+        "マルチプレイの制限時間はホストが設定。他のプレイヤーにも、誰がライフラインを使ったかが表示されます。",
+        "ライフラインの使用を抑える、自分の答えを信じる、助けを借りずに答えることで、割合に応じたボーナスを獲得。",
+        "Game Hubでプレイ履歴、獲得賞金、ボーナス統計、ランキングを確認。",
+        "mvmOSの全9言語に対応した、解答付きの1,300問以上の問題。",
+        "オーナー向けの問題管理機能で、問題の閲覧、編集、インポート、追加が可能。必要に応じてmvmAIの支援も利用できます。"
+      ],
+      "requirements": [
+        "Game Hubのインストールが必要です。Apps HubアカウントでGame Hubの公開ページからプレイできます。",
+        "mvmAIの利用は任意で、オーナー向けの問題管理機能でのみ使用します。"
+      ],
+      "integrations": [
+        {
+          "summary": "プレイヤープロフィール、ルーム、招待、1人プレイのセーブ、プレイ履歴、統計、ランキングを提供します。デスクトップアプリからGame Hubのプレイページを開きます。",
+          "requires": "Game Hubのインストールが必要です。未インストールの場合は、デスクトップランチャーがインストールを案内します。"
+        },
+        {
+          "summary": "問題管理機能で、オーナーによる問題の入力や見直しを支援し、問題を提案します。ゲームのプレイ自体には必要ありません。",
+          "requires": "任意：mvmAIをインストールしてAIプロバイダーを設定し、Apps Hub → 設定 → App APIでmvmAIのApp APIを有効にしてください。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "short_description": "Responda às perguntas, use suas ajudas e decida quando levar o prêmio. Continue além do milhão jogando sozinho ou encare 20 perguntas com amigos.",
+      "tagline": "Vinte perguntas, quatro ajudas e uma grande decisão: continuar ou levar o dinheiro.",
+      "description": "The Road to Millions é um jogo de perguntas e respostas para o Game Hub. Responda a perguntas cada vez mais difíceis, da primeira à vigésima, use suas ajudas com sabedoria e decida quando levar o prêmio. Jogue sozinho ou responda às mesmas perguntas em um grupo de até seis jogadores.\n\nA escala de prêmios\nO jogo tem vinte perguntas, e a última vale 1,000,000. Há prêmios garantidos após as perguntas 5, 10 e 15: se você errar, volta ao último valor garantido que alcançou; se decidir parar, leva o valor da etapa em que está. Jogando sozinho, você pode continuar além do milhão com mais perguntas.\n\nQuatro ajudas\nAntes de começar, você escolhe três entre dez especialistas, como um historiador, um médico ou um engenheiro, e três entre nove países além do seu. Durante o jogo, você pode eliminar duas respostas erradas, consultar um dos seus especialistas, pedir a opinião de um país ou conferir uma resposta com a bússola, que informa sem risco se ela está certa. Cada ajuda pode ser usada uma vez, e a confiabilidade da orientação depende de quem você consulta.\n\nJogando em grupo\nNo modo multijogador, todos que ainda estão na partida respondem à mesma pergunta dentro do tempo definido pelo anfitrião. Os demais veem quem usou uma ajuda, mas não o que ela revelou. Os jogadores podem participar pelo navegador em computadores, celulares e tablets.\n\nPontuação e banco de perguntas\nSua pontuação é a soma do prêmio com os bônus percentuais. Você ganha bônus por usar poucas ajudas ou nenhuma, confiar na própria resposta quando a orientação recebida estiver errada e responder a várias perguntas seguidas sem ajuda. O Game Hub registra resultados, estatísticas e classificações. O aplicativo inclui um banco com mais de 1,300 perguntas em todos os nove idiomas do mvmOS, e o proprietário pode consultar, editar e adicionar perguntas em um gerenciador, com ajuda opcional do mvmAI.",
+      "capabilities": [
+        "Vinte perguntas, das mais fáceis às mais difíceis, com 1,000,000 no topo da escala de prêmios.",
+        "Prêmios garantidos após as perguntas 5, 10 e 15, com a opção de levar o prêmio a qualquer momento.",
+        "Quatro ajudas: elimine duas respostas erradas, consulte um especialista, peça a opinião de um país ou confira uma resposta com a bússola.",
+        "Escolha três entre dez especialistas e três entre nove países antes de começar o jogo.",
+        "Modo solo que permite continuar além do milhão ou modo multijogador para até seis pessoas respondendo às mesmas perguntas.",
+        "Tempo de resposta definido pelo anfitrião no modo multijogador; os outros jogadores veem quem usou uma ajuda.",
+        "Bônus percentuais por usar poucas ajudas, confiar na própria resposta e responder sem ajuda.",
+        "Histórico de partidas, prêmios, estatísticas de bônus e classificações no Game Hub.",
+        "Mais de 1,300 perguntas com respostas em todos os nove idiomas do mvmOS.",
+        "Gerenciador de perguntas para o proprietário consultar, editar, importar e adicionar perguntas, com ajuda opcional do mvmAI."
+      ],
+      "requirements": [
+        "Game Hub instalado; jogue pela página pública dele com uma conta do Apps Hub.",
+        "O mvmAI é opcional e usado apenas pelo gerenciador de perguntas do proprietário."
+      ],
+      "integrations": [
+        {
+          "summary": "Oferece perfis de jogadores, salas, convites, partidas solo salvas, histórico de partidas, estatísticas e classificações. O aplicativo para computador abre a página de jogo do Game Hub.",
+          "requires": "Game Hub instalado. O inicializador para computador oferece a instalação caso ele não esteja instalado."
+        },
+        {
+          "summary": "Ajuda o proprietário a preencher e revisar perguntas, além de sugerir novas perguntas no gerenciador. O jogo em si nunca precisa dele.",
+          "requires": "Opcional: mvmAI instalado, configurado com um provedor de IA e com sua API de aplicativo ativada em Apps Hub → Configurações → APIs de aplicativos."
+        }
+      ]
+    },
+    "fr": {
+      "short_description": "Répondez aux questions, utilisez vos jokers et décidez quand repartir avec vos gains. Dépassez le million en solo ou affrontez 20 questions entre amis.",
+      "tagline": "Vingt questions, quatre jokers et une grande décision : continuer ou repartir avec vos gains.",
+      "description": "The Road to Millions est un jeu de quiz pour Game Hub. Répondez à des questions de plus en plus difficiles, de la première à la vingtième, utilisez vos jokers à bon escient et décidez quand repartir avec vos gains. Jouez en solo ou répondez aux mêmes questions à plusieurs, jusqu’à six joueurs.\n\nL’échelle des gains\nLe jeu compte vingt questions et la dernière vaut 1,000,000. Des paliers de sécurité vous attendent après les questions 5, 10 et 15 : une mauvaise réponse vous ramène au dernier palier franchi, tandis que vous arrêter vous permet de conserver la somme atteinte. En solo, vous pouvez continuer au-delà du million avec des questions supplémentaires.\n\nQuatre jokers\nAvant le début de la partie, vous choisissez trois spécialistes parmi dix, par exemple un historien, un médecin ou un ingénieur, ainsi que trois pays parmi neuf autres que le vôtre. Pendant la partie, vous pouvez éliminer deux mauvaises réponses, consulter l’un de vos spécialistes, sonder un pays ou vérifier une réponse avec la boussole, qui vous indique sans risque si elle est correcte. Chaque joker ne peut être utilisé qu’une seule fois, et la fiabilité des conseils dépend de la personne interrogée.\n\nJouer ensemble\nEn multijoueur, tous les joueurs encore en lice répondent à la même question dans le temps imparti par l’hôte. Les autres voient qui a utilisé un joker, mais pas ce qu’il lui a révélé. Les joueurs peuvent rejoindre la partie depuis un ordinateur, un téléphone ou une tablette à l’aide d’un navigateur web.\n\nLes scores et la banque de questions\nVotre score se compose de vos gains et de bonus en pourcentage. Ces bonus récompensent l’utilisation de peu de jokers, voire d’aucun, le fait de vous fier à votre propre réponse lorsque les conseils reçus étaient erronés et les séries de bonnes réponses sans aucune aide. Game Hub enregistre les résultats, les statistiques et les classements. L’application comprend une banque de plus de 1,300 questions dans les neuf langues de mvmOS. Le propriétaire peut parcourir, modifier et ajouter des questions dans un gestionnaire, avec l’aide de mvmAI s’il le souhaite.",
+      "capabilities": [
+        "Vingt questions de difficulté croissante, avec 1,000,000 à la clé.",
+        "Des paliers de sécurité après les questions 5, 10 et 15, et la possibilité de repartir avec vos gains à tout moment.",
+        "Quatre jokers : éliminer deux mauvaises réponses, consulter un spécialiste, sonder un pays ou vérifier une réponse avec la boussole.",
+        "Choisissez trois spécialistes parmi dix et trois pays parmi neuf avant le début de la partie.",
+        "Jouez en solo et continuez au-delà du million, ou en multijoueur jusqu’à six sur les mêmes questions.",
+        "En multijoueur, l’hôte fixe le temps de réponse ; les autres joueurs voient qui a utilisé un joker.",
+        "Des bonus en pourcentage pour l’utilisation de peu de jokers, la confiance en votre propre réponse et les réponses sans aide.",
+        "Historique des parties, gains, statistiques des bonus et classements dans Game Hub.",
+        "Plus de 1,300 questions avec leurs réponses dans les neuf langues de mvmOS.",
+        "Un gestionnaire de questions permettant au propriétaire de parcourir, modifier, importer et ajouter des questions, avec l’aide facultative de mvmAI."
+      ],
+      "requirements": [
+        "Game Hub doit être installé ; jouez depuis sa page publique avec un compte Apps Hub.",
+        "mvmAI est facultatif et utilisé uniquement par le gestionnaire de questions du propriétaire."
+      ],
+      "integrations": [
+        {
+          "summary": "Fournit les profils des joueurs, les salons, les invitations, les sauvegardes en solo, l’historique des parties, les statistiques et les classements. L’application de bureau ouvre la page de jeu de Game Hub.",
+          "requires": "Game Hub doit être installé. Le lanceur de bureau propose de l’installer s’il est absent."
+        },
+        {
+          "summary": "Aide le propriétaire à compléter, réviser et suggérer des questions dans le gestionnaire de questions. Le jeu lui-même n’en a jamais besoin.",
+          "requires": "Facultatif : mvmAI doit être installé, configuré avec un fournisseur d’IA et son API d’application doit être activée dans Apps Hub → Paramètres → API des applications."
+        }
+      ]
+    },
+    "ru": {
+      "short_description": "Отвечайте на вопросы, пользуйтесь подсказками и решайте, когда забрать выигрыш. Играйте в одиночку и продолжайте после миллиона или пройдите 20 вопросов с друзьями.",
+      "tagline": "Двадцать вопросов, четыре подсказки и одно важное решение: продолжить игру или забрать деньги.",
+      "description": "The Road to Millions — викторина для Game Hub. Отвечайте на вопросы, которые становятся сложнее от первого к двадцатому, с умом используйте подсказки и решайте, когда забрать выигрыш. Играйте в одиночку или отвечайте на одни и те же вопросы в компании до шести игроков.\n\nЛестница выигрышей\nВ игре двадцать вопросов, а последний стоит 1,000,000. После вопросов 5, 10 и 15 вас ждут несгораемые суммы: неверный ответ возвращает выигрыш к последней пройденной несгораемой сумме, а при выходе из игры вы забираете всю набранную сумму. В одиночной игре можно продолжить отвечать на вопросы и после миллиона.\n\nЧетыре подсказки\nПеред началом игры вы выбираете троих из десяти специалистов, например историка, врача или инженера, и три из девяти стран, кроме своей. Во время игры можно убрать два неверных ответа, обратиться к одному из выбранных специалистов, провести опрос в одной из стран или проверить ответ с помощью компаса, который без риска подскажет, верен ли он. Каждую подсказку можно использовать один раз, а надёжность совета зависит от того, к кому вы обратились.\n\nИгра вместе\nВ многопользовательском режиме все, кто ещё в игре, отвечают на один и тот же вопрос за время, заданное организатором. Остальные видят, кто воспользовался подсказкой, но не знают, что она подсказала. Игроки могут присоединяться с компьютеров, телефонов и планшетов через веб-браузер.\n\nОчки и база вопросов\nВаш результат складывается из выигрыша и процентных бонусов. Бонусы начисляются за редкое использование подсказок или полный отказ от них, за верность собственному ответу вопреки ошибочному совету и за несколько ответов подряд без какой-либо помощи. Game Hub сохраняет результаты, статистику и рейтинги. В приложении есть база из более чем 1,300 вопросов на всех девяти языках mvmOS. Владелец может просматривать, редактировать и добавлять вопросы в менеджере вопросов, при желании используя помощь mvmAI.",
+      "capabilities": [
+        "Двадцать вопросов от простых к сложным и 1,000,000 на вершине лестницы выигрышей.",
+        "Несгораемые суммы после вопросов 5, 10 и 15 и возможность забрать выигрыш в любой момент.",
+        "Четыре подсказки: убрать два неверных ответа, спросить специалиста, провести опрос в стране или проверить ответ с помощью компаса.",
+        "Выбор троих из десяти специалистов и трёх из девяти стран перед началом игры.",
+        "Одиночная игра с возможностью продолжить после миллиона или многопользовательский режим с одинаковыми вопросами для компании до шести игроков.",
+        "В многопользовательском режиме время на ответ задаёт организатор, а остальные игроки видят, кто воспользовался подсказкой.",
+        "Процентные бонусы за редкое использование подсказок, доверие собственному ответу и ответы без помощи.",
+        "История игр, выигрыши, статистика бонусов и рейтинги в Game Hub.",
+        "Более 1,300 вопросов с ответами на всех девяти языках mvmOS.",
+        "Менеджер вопросов, в котором владелец может просматривать, редактировать, импортировать и добавлять вопросы, при желании используя помощь mvmAI."
+      ],
+      "requirements": [
+        "Установленный Game Hub; игра доступна на его публичной странице с учётной записью Apps Hub.",
+        "mvmAI необязателен и используется только в менеджере вопросов владельца."
+      ],
+      "integrations": [
+        {
+          "summary": "Предоставляет профили игроков, комнаты, приглашения, сохранения одиночной игры, историю игр, статистику и рейтинги. Настольное приложение открывает игровую страницу Game Hub.",
+          "requires": "Установленный Game Hub. Если он отсутствует, программа запуска для компьютера предложит его установить."
+        },
+        {
+          "summary": "Помогает владельцу заполнять и проверять вопросы, а также предлагает новые в менеджере вопросов. Для самой игры он не требуется.",
+          "requires": "Необязательно: установленный mvmAI с настроенным поставщиком ИИ и включённым App API в Apps Hub → Настройки → API приложений."
+        }
+      ]
+    },
+    "de": {
+      "short_description": "Beantworte Fragen, nutze deine Joker und entscheide, wann du deinen Gewinn mitnimmst. Spiele allein über die Million hinaus oder stelle dich mit Freunden 20 Fragen.",
+      "tagline": "Zwanzig Fragen, vier Joker und eine große Entscheidung: weiterspielen oder den Gewinn mitnehmen.",
+      "description": "The Road to Millions ist ein Quizspiel für Game Hub. Beantworte Fragen, die von der ersten bis zur zwanzigsten immer schwieriger werden, setze deine Joker klug ein und entscheide, wann du deinen Gewinn mitnimmst. Spiele allein oder beantworte mit bis zu sechs Spielern dieselben Fragen.\n\nDie Gewinnleiter\nDas Spiel umfasst zwanzig Fragen, und die letzte ist 1,000,000 wert. Nach den Fragen 5, 10 und 15 warten Sicherheitsstufen: Bei einer falschen Antwort fällst du auf die letzte erreichte Sicherheitsstufe zurück. Steigst du aus, behältst du die erreichte Gewinnsumme. Im Einzelspiel kannst du mit weiteren Fragen über die Million hinaus weiterspielen.\n\nVier Joker\nVor Spielbeginn wählst du drei von zehn Experten aus, etwa einen Historiker, einen Arzt oder einen Ingenieur, sowie drei von neun Ländern außer deinem eigenen. Während des Spiels kannst du zwei falsche Antworten streichen, einen deiner Experten fragen, ein Land befragen oder eine Antwort mit dem Kompass prüfen, der dir ohne Risiko sagt, ob sie richtig ist. Jeden Joker kannst du einmal einsetzen. Die erhaltenen Ratschläge sind dabei nur so zuverlässig wie die befragte Person.\n\nGemeinsam spielen\nIm Mehrspielermodus beantworten alle, die noch im Spiel sind, dieselbe Frage innerhalb eines vom Gastgeber festgelegten Zeitlimits. Die anderen sehen, wer einen Joker eingesetzt hat, erfahren aber nicht, welchen Hinweis er gegeben hat. Spieler können über einen Webbrowser auf Computern, Smartphones und Tablets teilnehmen.\n\nPunkte und Fragenkatalog\nDein Gewinn und prozentuale Boni ergeben deine Punktzahl. Boni erhältst du, wenn du wenige oder keine Joker einsetzt, trotz eines falschen Ratschlags deiner eigenen Antwort vertraust oder mehrere Fragen hintereinander ohne Hilfe beantwortest. Game Hub speichert Ergebnisse, Statistiken und Ranglisten. Die App enthält einen Katalog mit mehr als 1,300 Fragen in allen neun mvmOS-Sprachen. Der Eigentümer kann die Fragen in einer Fragenverwaltung durchsehen, bearbeiten und neue hinzufügen – auf Wunsch mit Unterstützung von mvmAI.",
+      "capabilities": [
+        "Zwanzig Fragen von leicht bis schwer, mit 1,000,000 als höchstem Gewinn.",
+        "Sicherheitsstufen nach den Fragen 5, 10 und 15 sowie die Möglichkeit, deinen Gewinn jederzeit mitzunehmen.",
+        "Vier Joker: zwei falsche Antworten streichen, einen Experten fragen, ein Land befragen oder eine Antwort mit dem Kompass prüfen.",
+        "Wähle vor Spielbeginn drei von zehn Experten und drei von neun Ländern aus.",
+        "Spiele allein über die Million hinaus oder mit bis zu sechs Spielern, die dieselben Fragen beantworten.",
+        "Vom Gastgeber festgelegtes Zeitlimit im Mehrspielermodus; andere Spieler sehen, wer einen Joker eingesetzt hat.",
+        "Prozentuale Boni, wenn du wenige Joker einsetzt, deiner eigenen Antwort vertraust und ohne Hilfe antwortest.",
+        "Spielverlauf, Gewinne, Bonusstatistiken und Ranglisten in Game Hub.",
+        "Mehr als 1,300 Fragen mit Antworten in allen neun mvmOS-Sprachen.",
+        "Fragenverwaltung, in der der Eigentümer Fragen durchsehen, bearbeiten, importieren und hinzufügen kann, auf Wunsch mit Unterstützung von mvmAI."
+      ],
+      "requirements": [
+        "Game Hub muss installiert sein; gespielt wird über dessen öffentliche Seite mit einem Apps Hub-Konto.",
+        "mvmAI ist optional und wird nur in der Fragenverwaltung des Eigentümers verwendet."
+      ],
+      "integrations": [
+        {
+          "summary": "Stellt Spielerprofile, Räume, Einladungen, Einzelspielstände, Spielverlauf, Statistiken und Ranglisten bereit. Die Desktop-App öffnet die Spielseite von Game Hub.",
+          "requires": "Game Hub muss installiert sein. Falls es fehlt, bietet das Desktop-Startprogramm die Installation an."
+        },
+        {
+          "summary": "Hilft dem Eigentümer, Fragen in der Fragenverwaltung zu vervollständigen und zu prüfen, und schlägt neue Fragen vor. Für das Spiel selbst wird es nie benötigt.",
+          "requires": "Optional: mvmAI muss installiert, mit einem KI-Anbieter eingerichtet und seine App-API unter Apps Hub → Einstellungen → App-APIs aktiviert sein."
+        }
+      ]
+    },
+    "bg": {
+      "short_description": "Отговаряйте на въпроси, използвайте жокерите си и решавайте кога да приберете печалбата. Продължете отвъд милиона сами или се изправете пред 20 въпроса с приятели.",
+      "tagline": "Двадесет въпроса, четири жокера и едно голямо решение: да продължите или да вземете парите.",
+      "description": "The Road to Millions е игра с въпроси за Game Hub. Отговаряйте на въпроси с нарастваща трудност от първия до двадесетия, използвайте разумно жокерите си и решавайте кога да приберете печалбата. Играйте сами или отговаряйте на едни и същи въпроси в компания от до шестима играчи.\n\nСтълбицата на печалбите\nИграта има двадесет въпроса, а последният е на стойност 1,000,000. След въпроси 5, 10 и 15 ви очакват сигурни суми: при грешен отговор падате до последната достигната сигурна сума, а ако се откажете, запазвате сумата, до която сте стигнали. Когато играете сами, можете да продължите отвъд милиона с още въпроси.\n\nЧетири жокера\nПреди началото на играта избирате трима от десет специалисти, например историк, лекар или инженер, и три от девет държави, различни от вашата. По време на играта можете да премахнете два грешни отговора, да попитате някой от специалистите си, да се допитате до държава или да проверите отговор с компаса, който ви казва без риск дали той е верен. Всеки жокер може да се използва веднъж, а надеждността на съвета зависи от човека, когото питате.\n\nИгра заедно\nВ режима с няколко играчи всички, които още са в играта, отговарят на един и същ въпрос в рамките на време, зададено от домакина. Останалите виждат кой е използвал жокер, но не и каква информация е получил. Играчите могат да се включват от компютри, телефони и таблети чрез уеб браузър.\n\nРезултати и банка с въпроси\nПечалбата и процентните бонуси формират резултата ви. Получавате бонуси, когато използвате малко или никакви жокери, доверите се на собствения си отговор при грешен съвет или отговорите на няколко поредни въпроса без помощ. Game Hub записва резултатите, статистиките и класиранията. Приложението включва банка с над 1,300 въпроса на всичките девет езика на mvmOS, а собственикът може да разглежда, редактира и добавя въпроси чрез инструмент за управление, по желание с помощта на mvmAI.",
+      "capabilities": [
+        "Двадесет въпроса с нарастваща трудност и 1,000,000 на върха.",
+        "Сигурни суми след въпроси 5, 10 и 15 и възможност да приберете печалбата си по всяко време.",
+        "Четири жокера: премахнете два грешни отговора, попитайте специалист, допитайте се до държава или проверете отговор с компаса.",
+        "Изберете трима от десет специалисти и три от девет държави преди началото на играта.",
+        "Самостоятелна игра с възможност да продължите отвъд милиона или игра за до шестима участници с едни и същи въпроси.",
+        "Време за отговор, зададено от домакина в режима с няколко играчи; останалите виждат кой е използвал жокер.",
+        "Процентни бонуси за използване на малко жокери, доверие в собствения отговор и отговори без помощ.",
+        "История на игровите сесии, печалби, статистика за бонусите и класирания в Game Hub.",
+        "Над 1,300 въпроса с отговори на всичките девет езика на mvmOS.",
+        "Инструмент за управление на въпросите, с който собственикът може да разглежда, редактира, импортира и добавя въпроси, по желание с помощта на mvmAI."
+      ],
+      "requirements": [
+        "Инсталиран Game Hub; играйте през публичната му страница с профил в Apps Hub.",
+        "mvmAI е по желание и се използва само в инструмента за управление на въпросите на собственика."
+      ],
+      "integrations": [
+        {
+          "summary": "Осигурява профили на играчите, стаи, покани, запазени самостоятелни игри, история на сесиите, статистики и класирания. Настолното приложение отваря страницата за игра на Game Hub.",
+          "requires": "Инсталиран Game Hub. Програмата за стартиране от работния плот предлага да го инсталира, ако липсва."
+        },
+        {
+          "summary": "Помага на собственика да попълва и преглежда въпроси и предлага нови в инструмента за управление на въпросите. Самата игра не се нуждае от него.",
+          "requires": "По желание: инсталиран mvmAI, настроен с доставчик на AI и с активиран App API в Apps Hub → Настройки → API на приложенията."
+        }
+      ]
+    }
+  }
+}

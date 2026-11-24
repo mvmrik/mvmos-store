@@ -161,6 +161,10 @@ def _charge_out(ch, places, prefs):
     return prefs["_billing"].decorate(d) if "_billing" in prefs else d
 
 
+def _cap(c, vid):
+    return eng.pack_kwh(c, vid) or 0
+
+
 def _trip_out(t, places):
     d = dict(t)
     for side in ("start", "end"):
@@ -170,6 +174,10 @@ def _trip_out(t, places):
     d["duration"] = max(0, secs)
     d["avg_speed"] = round(t["distance_km"] / (secs / 3600), 1) if secs > 60 and t["distance_km"] else 0
     d["wh_km"] = round(t["energy_kwh"] * 1000 / t["distance_km"]) if t["distance_km"] and t["distance_km"] > 0.5 and t["energy_kwh"] is not None and t["energy_kwh"] > 0 else None
+    if not t["open"]:
+        with eng.db() as c:
+            d["energy_kwh"] = eng.trip_energy(c, t)
+        d["wh_km"] = round(d["energy_kwh"] * 1000 / t["distance_km"]) if t["distance_km"] and t["distance_km"] > 0.5 and d["energy_kwh"] and d["energy_kwh"] > 0 else None
     d.pop("last_power", None)
     d.pop("last_pts", None)
     return d
@@ -432,7 +440,7 @@ def now(vid: str, x_pub_token: Optional[str] = Header(default=None)):
         s = eng.last_sample(c, vid)
         st = c.execute("SELECT * FROM states WHERE vehicle=? AND end_ts IS NULL ORDER BY id DESC LIMIT 1", (vid,)).fetchone()
         d0 = _day_start()
-        today = c.execute("SELECT COUNT(*) n, COALESCE(SUM(distance_km),0) km, COALESCE(SUM(energy_kwh),0) kwh FROM trips WHERE vehicle=? AND start_ts>=?", (vid, d0)).fetchone()
+        today = c.execute("SELECT COUNT(*) n, COALESCE(SUM(distance_km),0) km, COALESCE(SUM(%s),0) kwh FROM trips WHERE vehicle=? AND start_ts>=?" % eng.trip_kwh_sql(0), (_cap(c, vid), _cap(c, vid), vid, d0)).fetchone()
         tch = c.execute("SELECT * FROM charges WHERE vehicle=? AND start_ts>=?", (vid, d0)).fetchall()
         open_trip = c.execute("SELECT * FROM trips WHERE vehicle=? AND open=1 ORDER BY id DESC LIMIT 1", (vid,)).fetchone()
         open_charge = c.execute("SELECT * FROM charges WHERE vehicle=? AND open=1 ORDER BY id DESC LIMIT 1", (vid,)).fetchone()
@@ -561,8 +569,8 @@ def stats(vid: str, group: str = "day", days: int = 30, x_pub_token: Optional[st
         def b(k):
             return buckets.setdefault(k, {"key": k, "trips": 0, "km": 0.0, "drive_kwh": 0.0, "charges": 0,
                                           "charged_kwh": 0.0, "cost": 0.0, "priced_kwh": 0.0, "cost_totals": {}, "unpriced_sessions": 0})
-        for r in c.execute("""SELECT strftime(?, start_ts,'unixepoch','localtime') k, COUNT(*) n, SUM(distance_km) km, SUM(energy_kwh) kwh
-                              FROM trips WHERE vehicle=? AND open=0 AND start_ts>=? GROUP BY k""", (fmt, vid, since)).fetchall():
+        for r in c.execute("""SELECT strftime(?, start_ts,'unixepoch','localtime') k, COUNT(*) n, SUM(distance_km) km, SUM(""" + eng.trip_kwh_sql(0) + """) kwh
+                              FROM trips WHERE vehicle=? AND open=0 AND start_ts>=? GROUP BY k""", (fmt, _cap(c, vid), _cap(c, vid), vid, since)).fetchall():
             x = b(r["k"])
             x["trips"], x["km"], x["drive_kwh"] = r["n"], r["km"] or 0, r["kwh"] or 0
         for r in c.execute("SELECT * FROM charges WHERE vehicle=? AND open=0 AND start_ts>=?", (vid, since)).fetchall():
@@ -577,9 +585,9 @@ def stats(vid: str, group: str = "day", days: int = 30, x_pub_token: Optional[st
                 x["cost_totals"][cell["currency"]]=x["cost_totals"].get(cell["currency"],0)+cell["cost"]
             x["cost"]=next(iter(x["cost_totals"].values())) if len(x["cost_totals"])==1 else None
         rows = [buckets[k] for k in sorted(buckets)]
-        eff = c.execute("""SELECT temp_out t, distance_km km, energy_kwh kwh FROM trips
-                           WHERE vehicle=? AND open=0 AND start_ts>=? AND distance_km>=3 AND energy_kwh>0 AND temp_out IS NOT NULL""",
-                        (vid, since)).fetchall()
+        eff = c.execute("""SELECT temp_out t, distance_km km, """ + eng.trip_kwh_sql(0) + """ kwh FROM trips
+                           WHERE vehicle=? AND open=0 AND start_ts>=? AND distance_km>=3 AND """ + eng.trip_kwh_sql(0) + """>0 AND temp_out IS NOT NULL""",
+                        (_cap(c, vid), _cap(c, vid), vid, since, _cap(c, vid), _cap(c, vid))).fetchall()
     return JSONResponse({"rows": rows, "efficiency": [{"t": r["t"], "wh_km": round(r["kwh"] * 1000 / r["km"])} for r in eff]})
 
 
@@ -781,7 +789,7 @@ def car_history(vid: str, start: int = 0, end: int = 0, x_pub_token: Optional[st
                 if session is not None:
                     # Session totals/end battery describe the future; use only
                     # the energy actually recorded at this point in the charge.
-                    frame["charge"] = {"id": session["id"], "start_ts": session["start_ts"], "start_batt": session["start_batt"], "dc": bool(session["dc"]), "kwh": sample["energy_added"]}
+                    frame["charge"] = {"id": session["id"], "start_ts": session["start_ts"], "start_batt": session["start_batt"], "dc": bool(session["dc"]), "kwh": (None if sample["energy_added"] is None else max(0, sample["energy_added"] - (session["base_kwh"] or 0)))}
                 if sample["ts"] in electrical:
                     point = electrical[sample["ts"]]
                     sample.update(voltage=point["voltage"], current=point["current"])

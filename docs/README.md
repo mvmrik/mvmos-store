@@ -32,6 +32,7 @@ Documentation for individual Store applications lives in this repository. Update
 - [qBit Dashboard](apps/qbit-dashboard.md)
 - [Racelandia](apps/racelandia.md)
 - [Remember the Pairs](apps/memorypairs.md)
+- [The Road to Millions](apps/roadtomillion.md)
 - [Flask Sort](apps/flasksort.md)
 - [Sudoku](apps/sudoku.md)
 - [Tasks](apps/tasks.md)

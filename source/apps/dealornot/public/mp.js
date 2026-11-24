@@ -192,6 +192,7 @@
     };
     for (let n = 1; n <= sm.total; n++) S.box[n] = { st: 'closed', v: null };
     (sm.gone || []).forEach(g => { S.box[g[0]] = { st: 'gone', v: g[1] }; S.out.add(g[1]); });
+    (sm.sold || []).forEach(n => { S.box[n] = { st: 'sold', v: null }; });
     sm.players.forEach(p => {
       S.players[p.pid] = { status: p.status, amount: p.amount, round: p.round, box: p.box, ready: !!p.ready };
       if (p.box != null) S.box[p.box] = { st: 'held', v: null, by: p.pid };
@@ -275,7 +276,7 @@
     if (!st) { el.mine.innerHTML = ''; return; }
     const has = st.status === 'playing' && st.box != null;
     let txt = '';
-    if (st.status === 'dealt') txt = '<b>' + _esc(_t('dn_took', { amount: fmt(st.amount) })) + '</b>';
+    if (st.status === 'dealt') txt = '<div class="dn-mine-chq' + (st.landed === false ? ' hold' : '') + '">' + chequeHtml(playerOf(me).display_name, st.amount) + '</div>';
     else if (has) txt = '<b>' + _esc(_t('dn_box_n', { n: st.box })) + '</b>';
     el.mine.innerHTML =
       '<div class="dn-mine-box"><div class="dn-slot' + (has ? '' : ' empty') + '">' +
@@ -406,28 +407,102 @@
     }, at + 260);
   }
 
-  function onOpened(m) {
-    sfx.open();
-    const b = boxOf(m.box);
-    b.classList.add('opening');
-    const kind = m.value >= BIG ? 'bad' : (m.value <= SMALL ? 'good' : '');
-    const pop = document.createElement('div');
-    const top = m.value >= TOP;
-    pop.className = 'dn-pop ' + kind + (top ? ' top' : '');
-    pop.innerHTML = '<small>' + _esc(_t('dn_box_n', { n: m.box })) + '</small><b>' + fmt(m.value) + '</b>';
-    el.wrap.appendChild(pop);
-    later(() => { if (top) sfx.jackpot(); else if (kind === 'bad') sfx.bad(); else sfx.good(); }, 450);
-    if (top) { el.wrap.classList.add('shake'); later(() => el.wrap.classList.remove('shake'), 2000); }
-    later(() => pop.remove(), top ? 3600 : 2500);
+  // A cheque for the amount the banker paid: the deal, written on paper.
+  function chequeHtml(name, amount) {
+    return '<div class="dn-chq"><div class="dn-chq-in">' +
+      '<div class="dn-chq-h"><span>' + _esc(_t('dn_chq_title')) + '</span></div>' +
+      '<div class="dn-chq-l">' + _esc(_t('dn_chq_pay')) + '</div>' +
+      '<div class="dn-chq-who">' + _esc(name) + '</div>' +
+      '<div class="dn-chq-amt">' + fmt(amount) + '</div>' +
+      '<div class="dn-chq-sig">' + _esc(_t('dn_banker')) + '</div></div></div>';
+  }
+
+  // The cheque appears in front of the board, stays long enough to be read and
+  // then travels to where the player is (their box area, or their name tag).
+  function chequeFly(name, amount, held, target, done) {
+    const wr = el.wrap.getBoundingClientRect();
+    const w = Math.min(wr.width * .86, 340);
+    const f = document.createElement('div');
+    f.className = 'dn-chq-fly';
+    f.style.cssText = 'left:' + (wr.left + wr.width / 2 - w / 2) + 'px;top:' + (wr.top + wr.height * .3) + 'px;width:' + w + 'px';
+    f.innerHTML = chequeHtml(name, amount) + (held == null ? '' : '<small>' + _esc(_t('dn_held_event', { amount: fmt(held) })) + '</small>');
+    document.body.appendChild(f);
     later(() => {
-      b.classList.remove('opening');
-      S.box[m.box] = { st: 'gone', v: m.value };
-      markOut(m.value);
-      paintBoxes();
-    }, 1450);
+      const a = f.firstChild.getBoundingClientRect();
+      const b = target && target.getBoundingClientRect();
+      f.classList.add('go');
+      if (b && b.width) {
+        const dx = (b.left + b.width / 2) - (a.left + a.width / 2), dy = (b.top + b.height / 2) - (a.top + a.height / 2);
+        f.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + (b.width / a.width) + ')';
+      } else f.style.opacity = '0';
+    }, 1900);
+    later(() => { f.remove(); done && done(); }, 2750);
+  }
+
+  function onOpened(m) {
     S.turn = null;
+    S.box[m.box] = { st: 'opening', v: null };
     paintBoxes(); paintStatus(); paintPlayers();
     S.toOpen = Math.max(0, S.toOpen - 1);
+    openStage(m.box, m.value, {}, () => {
+      S.box[m.box] = { st: 'gone', v: m.value };
+      paintBoxes();
+    });
+  }
+
+  // Where a box is now: its place on the board, or with the player who holds it.
+  function srcOf(n) {
+    const b = S.box[n];
+    if (b && b.st === 'held' && b.by) {
+      const e = b.by === meId() ? el.mine.querySelector('.dn-mine-box') : chipOf(b.by);
+      if (e) return e;
+    }
+    return slotOf(n);
+  }
+
+  // A box comes out in front of the board, its lid lifts and the amount rises
+  // out of it. Used for every box that is opened, in the game and at the end.
+  let _stageCur = null;
+  function openStage(n, value, o, done) {
+    // a new box opening takes over at once: the previous one is finished now
+    if (_stageCur) _stageCur();
+    const k = Math.max(.06, Math.min(1, (o && o.k) || 1));   // 1 = full pace, less = faster
+    const kind = value >= BIG ? 'bad' : (value <= SMALL ? 'good' : '');
+    const top = value >= TOP;
+    const ov = document.createElement('div');
+    ov.className = 'dn-st ' + kind + (top ? ' top' : '');
+    ov.style.setProperty('--k', k);
+    ov.innerHTML =
+      '<div class="dn-st-box"><div class="dn-st-in"></div><div class="dn-st-val">' + fmt(value) + '</div>' +
+      '<div class="dn-st-body"><span class="dn-st-num">' + n + '</span></div><div class="dn-st-lid"></div></div>';
+    el.wrap.appendChild(ov);
+    const bx = ov.querySelector('.dn-st-box');
+    // start where the box is on the screen, then travel to the middle
+    const src = srcOf(n);
+    if (src) {
+      const a = src.getBoundingClientRect(), r = bx.getBoundingClientRect();
+      if (a.width && r.width) {
+        const dx = (a.left + a.width / 2) - (r.left + r.width / 2), dy = (a.top + a.height / 2) - (r.top + r.height / 2);
+        bx.style.setProperty('--from', 'translate(' + dx + 'px,' + dy + 'px) scale(' + Math.max(.1, a.width / r.width) + ')');
+      }
+    }
+    sfx.tick();
+    let dead = false;
+    const guard = fn => () => { if (!dead) fn(); };
+    const finish = () => { if (dead) return; dead = true; _stageCur = null; ov.remove(); done && done(); };
+    _stageCur = finish;
+    const T = k >= 1 ? { open: 500, show: 850, out: 2250, end: 2600 }
+      : { open: 700 * k, show: 1150 * k, out: 1150 * k + 80 + 1500 * k, end: 1150 * k + 80 + 1500 * k + 250 * Math.max(.4, k) };
+    later(guard(() => ov.classList.add('go')), 30);
+    later(guard(() => { ov.classList.add('open'); sfx.open(); }), T.open);
+    later(guard(() => {
+      ov.classList.add('show');
+      if (top) sfx.jackpot(); else if (kind === 'bad') sfx.bad(); else sfx.good();
+      if (top) { el.wrap.classList.add('shake'); later(() => el.wrap.classList.remove('shake'), 900); }
+      markOut(value);
+    }), T.show);
+    later(guard(() => ov.classList.add('out')), T.out);
+    later(finish, T.end);
   }
 
   function markOut(v) {
@@ -563,14 +638,16 @@
     (m.deals || []).forEach(d => {
       later(() => {
         const name = playerOf(d.pid).display_name;
-        toast('🤝 ' + _esc(_t('dn_deal_event', { name: '§N§', amount: '§A§' })).replace('§N§', _esc(name)).replace('§A§', '<b>' + fmt(d.amount) + '</b>') +
-          '<small>' + _esc(_t('dn_held_event', { amount: fmt(d.value) })) + '</small>', 3000);
-        sfx.deal();
+        const mine = d.pid === meId();
         const p = S.players[d.pid];
-        p.status = 'dealt'; p.amount = d.amount; p.round = m.round; p.box = null;
-        S.box[d.box] = { st: 'gone', v: d.value };
-        markOut(d.value);
+        p.status = 'dealt'; p.amount = d.amount; p.round = m.round; p.box = null; p.landed = !mine;
+        S.box[d.box] = { st: 'sold', v: null };      // what it held is not shown until the end
         paintBoxes(); paintPlayers(); paintMine();
+        sfx.deal();
+        chequeFly(name, d.amount, null, mine ? el.mine.querySelector('.dn-mine-chq') : chipOf(d.pid), () => {
+          p.landed = true;
+          if (mine) paintMine();
+        });
       }, 700 + i * 3200);
       i++;
     });
@@ -598,48 +675,100 @@
     dropBanker();
     paintStatus(); paintAct();
     const mineRow = (m.results || []).find(r => r.player_id === meId());
-    // Whoever still holds a box opens it by hand, full screen, before anything
-    // else is shown: nothing of the end happens on its own.
-    if (mineRow && mineRow.status === 'playing') showOwnBox(mineRow, () => revealRest(m, mineRow));
-    else revealRest(m, null);
+    revealRest(m, mineRow || null);
   }
 
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+  // The end: the boxes that are still closed open one after another in a
+  // random order, quickly at first and slower towards the end. Two are always
+  // left, the player's own and one more; the player opens them, the other one
+  // first and their own last. A player without a box of their own sees all open.
   function revealRest(m, mineRow) {
-    const reveal = (m.reveal || []).filter(r => !mineRow || r[0] !== mineRow.box);
-    if (mineRow) markOut(mineRow.box_value);
-    reveal.forEach((r, i) => {
-      later(() => {
-        const b = boxOf(r[0]);
-        b.classList.add('opening'); sfx.tick();
-        later(() => { S.box[r[0]] = { st: 'gone', v: r[1] }; markOut(r[1]); paintBoxes(); }, 700);
-      }, i * 260);
-    });
-    later(() => showOver(m.results), reveal.length * 260 + 1800);
+    const all = shuffle((m.reveal || []).filter(r => !mineRow || r[0] !== mineRow.box));
+    const partner = mineRow && all.length ? all.pop() : null;
+    const reveal = all;
+    const finish = () => {
+      const end = () => later(() => showOver(m.results), 500);
+      if (!mineRow) end();
+      else if (partner) showOtherBox(partner, () => showOwnBox(mineRow, end));
+      else showOwnBox(mineRow, end);
+    };
+    let i = 0;
+    const next = () => {
+      if (i >= reveal.length) { later(finish, 250); return; }
+      const r = reveal[i++];
+      const n = r[0], v = r[1];
+      const left = reveal.length - i;            // 0 = this is the last one of this series
+      const slow = [1, .8, .6];
+      const k = left < 3 ? slow[left] : .07 + .4 * ((i - 1) / Math.max(1, reveal.length - 4));
+      openStage(n, v, { k: k }, () => {
+        S.box[n] = { st: 'gone', v: v };
+        paintBoxes();
+        later(next, 60 * k);
+      });
+      S.box[n] = { st: 'opening', v: null };
+      paintBoxes();
+    };
+    next();
   }
 
-  // The last thing in the game: the player's own box, opened by the player.
+  // The last two boxes: the player opens the other one first, and it is said
+  // plainly that it is not their own.
+  function showOtherBox(partner, done) {
+    const pn = partner[0], pv = partner[1];
+    const marks = [boxOf(pn), el.mine && el.mine.querySelector('.dn-mine-box .dn-box')].filter(Boolean);
+    marks.forEach(b => b.classList.add('last2'));
+    const ov = document.createElement('div');
+    ov.className = 'dn-pickbar';
+    ov.innerHTML = '<div>' + _esc(_t('dn_two_left', { n: pn })) + '</div>' +
+      '<button class="dn-btn" data-go>' + _esc(_t('dn_open_box', { n: pn })) + '</button>';
+    el.wrap.appendChild(ov);
+    ov.querySelector('[data-go]').onclick = e => {
+      e.currentTarget.disabled = true;
+      ov.remove();
+      marks.forEach(b => b.classList.remove('last2'));
+      S.box[pn] = { st: 'opening', v: null };
+      paintBoxes();
+      openStage(pn, pv, { k: 1 }, () => {
+        S.box[pn] = { st: 'gone', v: pv };
+        paintBoxes();
+        later(done, 300);
+      });
+    };
+  }
+
+  // The player's own box, opened by the player. Someone who took the deal sees the amount in the
+  // box first; it then gives way to the cheque they were paid.
   function showOwnBox(row, done) {
+    const dealt = row.status === 'dealt';
     const ov = document.createElement('div');
     ov.className = 'dn-over dn-own';
     ov.innerHTML =
       '<div class="dn-own-in"><div class="dn-own-t">' + _esc(_t('dn_your_box')) + ' <b>#' + row.box + '</b></div>' +
-      '<div class="dn-own-box"><div class="dn-own-lid"></div><div class="dn-own-num">' + row.box + '</div>' +
+      '<div class="dn-own-stage"><div class="dn-own-box"><div class="dn-own-lid"></div><div class="dn-own-num">' + row.box + '</div>' +
       '<div class="dn-own-val">' + fmt(row.box_value) + '</div></div>' +
+      (dealt ? '<div class="dn-own-chq">' + chequeHtml(playerOf(row.player_id).display_name || row.display_name, row.amount) + '</div>' : '') + '</div>' +
+      (dealt ? '<div class="dn-own-sub ' + (row.amount >= row.box_value ? 'good' : 'bad') + '">' +
+        _esc(_t('dn_took_vs_box', { a: '§A§', b: '§B§' })).replace('§A§', '<b>' + fmt(row.amount) + '</b>').replace('§B§', '<b>' + fmt(row.box_value) + '</b>') + '</div>' : '') +
       '<div class="dn-acts"><button class="dn-btn" data-go>' + _esc(_t('dn_open_mine')) + '</button></div></div>';
     el.wrap.appendChild(ov);
     const btn = ov.querySelector('[data-go]');
-    let opened = false;
+    let finished = false;
+    const openMine = () => {
+      ov.classList.add('opened');
+      if (row.box_value >= TOP) sfx.jackpot(); else if (row.box_value >= BIG) sfx.win(); else sfx.open();
+      if (!S.out.has(row.box_value)) markOut(row.box_value);
+      const ready = () => { btn.disabled = false; btn.textContent = _t('dn_continue'); finished = true; };
+      if (dealt) {
+        later(() => { ov.classList.add('chq'); sfx.deal(); }, 2300);
+        later(ready, 3400);
+      } else later(ready, 1800);
+    };
     btn.onclick = () => {
-      if (!opened) {
-        opened = true;
-        ov.classList.add('opened');
-        btn.disabled = true;
-        if (row.box_value >= TOP) sfx.jackpot(); else if (row.box_value >= BIG) sfx.win(); else sfx.open();
-        later(() => { btn.disabled = false; btn.textContent = _t('dn_continue'); }, 1800);
-      } else {
-        ov.remove();
-        done();
-      }
+      if (finished) { ov.remove(); done(); return; }
+      btn.disabled = true;
+      openMine();
     };
   }
 

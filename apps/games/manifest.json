@@ -350,7 +350,7 @@
       "name": "Deal or Not",
       "icon": "💼",
       "category": "Games",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Draw one of 36 numbered boxes, open the others and answer the banker's calls: take his offer or keep your box. Up to six players share one board and the banker calls each of them in private. Amounts go up to one million and bonuses for smart play keep the top score open.",
       "tags": [
         "multiplayer",
@@ -359,7 +359,7 @@
         "games"
       ],
       "min_core_version": "1.16.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/dealornot-1.0.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/dealornot-1.1.0.zip",
       "name_i18n": {
         "en": "Deal or Not",
         "bg": "Сделка или не",
@@ -370,6 +370,33 @@
         "pt-BR": "Acordo ou nada",
         "ru": "Сделка или нет",
         "zh-CN": "成交还是不成交"
+      }
+    },
+    {
+      "id": "roadtomillion",
+      "name": "The Road to Millions",
+      "icon": "💎",
+      "category": "Games",
+      "version": "1.0.0",
+      "description": "Answer questions, use your lifelines and decide when to take your winnings. Play on past the million solo, or face 20 questions with friends.",
+      "tags": [
+        "multiplayer",
+        "quiz",
+        "trivia",
+        "games"
+      ],
+      "min_core_version": "1.16.0",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/roadtomillion-1.0.0.zip",
+      "name_i18n": {
+        "en": "The Road to Millions",
+        "bg": "Пътят към милионите",
+        "de": "Der Weg zu den Millionen",
+        "es": "El camino a los millones",
+        "fr": "La route des millions",
+        "ja": "ミリオンズへの道",
+        "pt-BR": "O Caminho dos Milhões",
+        "ru": "Путь к миллионам",
+        "zh-CN": "通往百万之路"
       }
     }
   ]

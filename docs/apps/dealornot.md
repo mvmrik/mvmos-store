@@ -1,6 +1,6 @@
 # Deal or Not
 
-Deal or Not 1.0.0 is a Game Hub game for one to six players. Everyone shares a board of 36 boxes, with different amounts up to one million.
+Deal or Not 1.1.0 is a Game Hub game for one to six players. Everyone shares a board of 36 boxes, with different amounts up to one million.
 
 ## Open the game
 
@@ -12,7 +12,9 @@ In multiplayer, the host chooses a turn time of 10, 15, 20, 30, 45 or 60 seconds
 
 Each player draws a random numbered box. Players then take turns opening boxes left on the table. The server keeps every amount hidden until its box is opened; a revealed amount is removed from the possibilities for everyone.
 
-After each round, the banker calls all players who are still playing, with a private offer of money or a swap. Accept or refuse your offer. When accepting a swap, choose an available box. Everyone's decisions are revealed together when the answers are in. Taking money ends your own play, while you can watch the others finish. Refusing every offer leaves you with the amount in your final box.
+After each round, the banker calls all players who are still playing, with a private offer of money or a swap. Accept or refuse your offer. When accepting a swap, choose an available box. Everyone's decisions are revealed together when the answers are in. Taking money ends your own play, while you can watch the others finish. A deal is paid out on a cheque written to the player, which travels to where that player is. The box of a player who took money stays closed and keeps its amount secret until the end.
+
+At the end, the boxes that are still closed open one after another in a random order, quickly at first and more slowly towards the last ones. Each box comes out in front of the board and shows its amount. Two boxes are always left for a player who is still in the game: first the other one, then their own. Refusing every offer leaves you with the amount in your final box.
 
 ## Scores and saves
 

@@ -62,7 +62,8 @@ DEFAULT_TIME = 60
 ROUND_BASE = (6, 5, 5, 4, 4, 3, 3, 2, 2)
 
 DRAW_PAUSE = 2.2          # the box travels to its player
-OPEN_PAUSE = 2.6          # the amount is shown and crossed out
+OPEN_PAUSE = 0.1          # between two boxes: the next one can be opened at once
+OPEN_PAUSE_LAST = 3.0     # after the last box of a round: the amount is shown before the banker calls
 CALL_PAUSE = 1.6          # before the banker's answers are shown
 EVENT_PAUSE = 3.2         # for every deal or swap that is revealed
 IDLE_SKIP = 3             # turns in a row without a move before a player is passed over
@@ -124,7 +125,8 @@ class Game:
         self.phase = "draw"          # draw | open | offer | over
         self.turn_time = DEFAULT_TIME
         self.box_val = {}            # box number -> amount
-        self.gone = set()            # boxes that are out: opened, or revealed by a deal
+        self.gone = set()            # boxes that are out: opened, and shown to everybody
+        self.sold = set()            # boxes of players who took a deal: out of play, but kept closed until the end
         self.order = []              # player ids, in turn order
         self.st = {}                 # pid -> player state
         self.draw_idx = 0
@@ -274,7 +276,7 @@ class Game:
     def _closed(self):
         """Boxes on the board: not opened, not in anybody's hands."""
         held = self._held()
-        return [n for n in self.box_val if n not in self.gone and n not in held]
+        return [n for n in self.box_val if n not in self.gone and n not in self.sold and n not in held]
 
     def _solo(self):
         return len(self.order) < 2
@@ -385,7 +387,7 @@ class Game:
         self.opened_count += 1
         self.left_in_round -= 1
         await self.ctx.broadcast({"type": "dn_opened", "box": box, "value": self.box_val[box], "pid": pid})
-        self.ctx.schedule(OPEN_PAUSE, self._after_open)
+        self.ctx.schedule(OPEN_PAUSE if self.left_in_round > 0 else OPEN_PAUSE_LAST, self._after_open)
 
     async def _after_open(self):
         if self.over:
@@ -455,7 +457,7 @@ class Game:
         """
         s = self.st[pid]
         mine = self.box_val[s["box"]]
-        remaining = [v for n, v in self.box_val.items() if n not in self.gone]
+        remaining = [v for n, v in self.box_val.items() if n not in self.gone and n not in self.sold]
         closed = self._closed()
         rnd = self.round_idx + 1
         # Every game offers at least one swap: a player is never made to play
@@ -552,8 +554,8 @@ class Game:
                 s["status"] = "dealt"
                 s["amount"] = o["amount"]
                 s["round"] = rnd
-                self.gone.add(box)
-                deals.append({"pid": pid, "amount": o["amount"], "box": box, "value": self.box_val[box]})
+                self.sold.add(box)       # what it held stays a secret until the end
+                deals.append({"pid": pid, "amount": o["amount"], "box": box})
             elif s["answer"] and o["kind"] == "swap":
                 give, take = s["box"], s.get("swap_to")
                 if take in self._closed():
@@ -672,6 +674,7 @@ class Game:
             "time": self.turn_time, "order": self.order, "phase": self.phase,
             "turn": self.turn_pid, "left": self._left(),
             "gone": [[n, self.box_val[n]] for n in sorted(self.gone)],
+            "sold": sorted(self.sold),
             "players": players,
             "round": self.round_idx + 1 if self.phase in ("open", "offer") else 0,
             "rounds": len(self.sizes), "to_open": self.left_in_round,
