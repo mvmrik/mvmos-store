@@ -14,7 +14,7 @@ On a game's page, **Start games in full screen** controls whether that game open
 
 ## Statistics and rankings
 
-Open a game and choose Statistics. Solo and multiplayer have separate views. Each game declares the numbers it reports: choose a board, then best, average or total where that sum makes sense. Filters cover all time, the last 7 or 30 days, or the last year, and everyone, favourites or players you played with.
+Open a game and choose Statistics. Solo and multiplayer have separate views. Each game declares the numbers it reports: choose a board, then average, best or total where that sum makes sense. Filters cover all time, the last 7 or 30 days, or the last year, and everyone, favourites or players you played with.
 
 The page shows your position, a distribution of results, your progress against the field, records, direct comparisons and activity. Multiplayer adds an Elo rating starting at 1000; beating a stronger player earns more. Games whose scores cannot be compared between sessions can choose a win rate ranking instead.
 
@@ -57,3 +57,5 @@ Latin-script names preserve their accents. Adding names does not rename identiti
 already stored by an application.
 
 Belot, Living Town, Score Arena and Racelandia consume this service. Their new name features require Game Hub 1.21.1 or later; update the hub before using those consumer versions.
+
+Game Hub 1.22.0 opens game statistics on the average by default. At the end of a game the standings can say how the result moved your average and whether it beat your best, using your numbers from before that game.

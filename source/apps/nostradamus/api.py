@@ -85,6 +85,16 @@ def _init_db():
                 translate_lang TEXT,
                 publish_lang TEXT
             );
+            CREATE TABLE IF NOT EXISTS zap_prefs (
+                owner_id TEXT NOT NULL PRIMARY KEY,
+                presets TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS notif_seen (
+                owner_id TEXT NOT NULL,
+                pubkey TEXT NOT NULL,
+                seen INTEGER NOT NULL,
+                PRIMARY KEY (owner_id, pubkey)
+            );
             CREATE TABLE IF NOT EXISTS link_previews (
                 url_hash TEXT NOT NULL PRIMARY KEY,
                 url TEXT NOT NULL,
@@ -115,9 +125,15 @@ class VaultUpdate(BaseModel):
     npub: Optional[str] = None
 
 
+class ZapPresetIn(BaseModel):
+    sats: int = Field(ge=1, le=100_000_000)
+    msg: str = Field(default="", max_length=100)
+
+
 class PrefsIn(BaseModel):
     translate_lang: Optional[str] = None
     publish_lang: Optional[str] = None
+    zap_presets: Optional[list[ZapPresetIn]] = Field(default=None, max_length=10)
     ai_reply_lang: Optional[str] = None
     ai_reply_style: Optional[str] = Field(default=None, max_length=1000)
 
@@ -681,6 +697,51 @@ async def delete_vault(npub: str, x_pub_token: str = Header(default=None)):
     return {"ok": True}
 
 
+_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
+
+
+class NotifSeenIn(BaseModel):
+    pubkey: str
+    seen: int = Field(ge=0, le=4102444800)
+
+
+@router.get("/notif-seen")
+async def get_notif_seen(pubkey: str, x_pub_token: str = Header(default=None)):
+    """Time of the newest notification this account has looked at, per Nostr
+    identity, so read state is the same on every device."""
+    me = _user(x_pub_token)
+    if not me:
+        return _private_response()
+    if not _HEX_RE.fullmatch(pubkey):
+        return JSONResponse({"error": "invalid_pubkey"}, status_code=400)
+    with _conn() as conn:
+        row = conn.execute(
+            "SELECT seen FROM notif_seen WHERE owner_id=? AND pubkey=?", (me["id"], pubkey)
+        ).fetchone()
+    return {"seen": row["seen"] if row else None}
+
+
+@router.put("/notif-seen")
+async def put_notif_seen(data: NotifSeenIn, x_pub_token: str = Header(default=None)):
+    """Only ever moves forward: a device that is behind cannot un-read."""
+    me = _user(x_pub_token)
+    if not me:
+        return _private_response()
+    if not _HEX_RE.fullmatch(data.pubkey):
+        return JSONResponse({"error": "invalid_pubkey"}, status_code=400)
+    with _conn() as conn:
+        conn.execute(
+            "INSERT INTO notif_seen(owner_id,pubkey,seen) VALUES(?,?,?) "
+            "ON CONFLICT(owner_id,pubkey) DO UPDATE SET seen=MAX(seen,excluded.seen)",
+            (me["id"], data.pubkey, data.seen),
+        )
+        conn.commit()
+        row = conn.execute(
+            "SELECT seen FROM notif_seen WHERE owner_id=? AND pubkey=?", (me["id"], data.pubkey)
+        ).fetchone()
+    return {"seen": row["seen"]}
+
+
 @router.get("/prefs")
 async def get_prefs(x_pub_token: str = Header(default=None)):
     """The translate/publish target language, saved per Apps Hub account (not
@@ -694,6 +755,12 @@ async def get_prefs(x_pub_token: str = Header(default=None)):
             "SELECT translate_lang,publish_lang FROM lang_prefs WHERE owner_id=?", (me["id"],)
         ).fetchone()
     out = {"translate_lang": row["translate_lang"] if row else None, "publish_lang": row["publish_lang"] if row else None}
+    with _conn() as conn:
+        zap = conn.execute("SELECT presets FROM zap_prefs WHERE owner_id=?", (me["id"],)).fetchone()
+    try:
+        out["zap_presets"] = json.loads(zap["presets"]) if zap else None
+    except ValueError:
+        out["zap_presets"] = None
     if _ai_offered():
         out.update(_premium().comment_prefs(me["id"]))
     return out
@@ -714,6 +781,14 @@ async def put_prefs(data: PrefsIn, x_pub_token: str = Header(default=None)):
         result = _premium().save_comment_prefs(me["id"], data.ai_reply_lang, data.ai_reply_style)
         if result.get("error"):
             return JSONResponse(result, status_code=400)
+    if data.zap_presets is not None:
+        with _conn() as conn:
+            conn.execute(
+                "INSERT INTO zap_prefs(owner_id,presets) VALUES(?,?) "
+                "ON CONFLICT(owner_id) DO UPDATE SET presets=excluded.presets",
+                (me["id"], json.dumps([p.model_dump() for p in data.zap_presets])),
+            )
+            conn.commit()
     with _conn() as conn:
         conn.execute(
             "INSERT INTO lang_prefs(owner_id,translate_lang,publish_lang) VALUES(?,?,?) "

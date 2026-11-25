@@ -1,6 +1,6 @@
 # Nostradamus
 
-Nostradamus 1.4.0 is a Nostr client with encrypted identity storage and browser connections to your relays. The master password unlocks the private key in the browser. A selected unlock duration is renewed when used; leaving the vault unused for that period requires unlocking again.
+Nostradamus 1.5.0 is a Nostr client with encrypted identity storage and browser connections to your relays. The master password unlocks the private key in the browser. A selected unlock duration is renewed when used; leaving the vault unused for that period requires unlocking again.
 
 ## Reading and posting
 
@@ -15,3 +15,9 @@ The administrator can enable DeepL translation and the AI helper in the app's se
 DeepL uses the reader's own key configured in DeepL Translator. AI explanations, questions and comment drafts require mvmAI with a usable AI provider and its App API enabled in Apps Hub → Settings → App APIs; this switch is off by default. The administrator can set a credit price for answered messages; failed requests are refunded.
 
 Use the sparkle menu to explain a post, ask one question or suggest a comment. Review and edit a comment draft before publishing. Each profile can choose its comment language and style. Explanations and questions appear in read-only AI history; Start a discussion creates a saved conversation in mvmAI where you can continue. Comment drafts are not stored in that history.
+
+## Zaps and notifications in 1.5.0
+
+The ⚡ button under a post sends a Lightning zap: pick one of your saved amounts or type your own, optionally add a message, and pay the invoice with any Lightning wallet by scanning it, opening it in a wallet app or copying it. The app waits for the payment and confirms it. Each profile can edit its own list of zap amounts and their messages. A Zaps view shows the zaps you received and sent, and received zaps also appear in notifications.
+
+Which notifications you have already read is saved per Nostr identity on the server, so it is the same on every device and a device that is behind never marks anything unread again.

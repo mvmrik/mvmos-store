@@ -1,6 +1,6 @@
 # The Road to Millions
 
-The Road to Millions 1.1.0 is a quiz game for Game Hub. Twenty questions grow harder from the first to the last, which is worth 1,000,000. Play alone, or share the same questions with up to six players.
+The Road to Millions 1.2.0 is a quiz game for Game Hub. Twenty questions grow harder from the first to the last, which is worth 1,000,000. Play alone, or share the same questions with up to six players.
 
 ## Open the game
 
@@ -40,3 +40,7 @@ Requires mvmOS Core 1.16.0 or later and Game Hub. The desktop app is a launcher;
 The AI editor accepts an optional instruction for an individual question and checks that its wording includes enough context to stand alone in every language. Import can repair malformed question JSON before review; no repaired questions are added until the administrator accepts them. Editing pasted import text clears the previous review.
 
 The bundled question bank is expanded in all nine languages. In multiplayer, questions with difficulty 1 are used only for the first question.
+
+## Question bank in 1.2.0
+
+The bundled bank grows with many more questions in all nine languages, and the difficulty of several geography questions was corrected so each question sits at the right step of the ladder.

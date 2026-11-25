@@ -208,7 +208,7 @@
   // ── Per-game statistics ─────────────────────────────────────────────────
   function renderGame(el, opts) {
     injectStyle();
-    const S = { mode: 'auto', period: 'all', scope: 'all', board: null, agg: 'best', data: null, expanded: false, cmp: null };
+    const S = { mode: 'auto', period: 'all', scope: 'all', board: null, agg: 'avg', data: null, expanded: false, cmp: null };
     const root = document.createElement('div');
     root.className = 'ghs';
     el.innerHTML = '';
@@ -280,8 +280,8 @@
       const { list, def } = boardsOf(d);
       if (!S.board || !list.find(b => b.id === S.board)) S.board = def;
       const board = list.find(b => b.id === S.board);
-      if (!board.noAgg && board.metric && S.agg === 'total' && !board.metric.total) S.agg = 'best';
-      const agg = board.noAgg ? 'best' : S.agg;
+      if (!board.noAgg && board.metric && S.agg === 'total' && !board.metric.total) S.agg = 'avg';
+      const agg = board.noAgg ? 'avg' : S.agg;
 
       const rows = scopedRows(d);
       const items = rank(rows, board, agg);
@@ -338,7 +338,7 @@
       // ── Board picker ──
       h += `<div class="ghs-box"><h4>${esc(tr('gs_board'))}</h4><div class="ghs-chips" data-k="board">${list.map(b => `<button class="ghs-chip${b.id === S.board ? ' on' : ''}" data-v="${esc(b.id)}">${esc(b.label)}</button>`).join('')}</div>`;
       if (!board.noAgg) {
-        const aggs = ['best', 'avg'].concat(board.metric && board.metric.total ? ['total'] : []);
+        const aggs = ['avg', 'best'].concat(board.metric && board.metric.total ? ['total'] : []);
         h += `<div class="ghs-seg" data-k="agg" style="margin-top:8px">${aggs.map(a => `<button data-v="${a}" class="${agg === a ? 'on' : ''}">${esc(tr('gs_' + a + (board.better === 'low' && a === 'best' ? '_low' : '')))}</button>`).join('')}</div>`;
       }
       if (board.hint) h += `<div class="ghs-muted" style="margin-top:8px">${esc(board.hint)}</div>`;

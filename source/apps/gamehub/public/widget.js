@@ -250,7 +250,10 @@
         .gh-result-row>span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
         .gh-result-row b{font-variant-numeric:tabular-nums;color:inherit}
         .gh-result-row.own{background:color-mix(in srgb,var(--accent,#89b4fa) 16%,var(--surface,var(--surface1,#1e1e2e)));font-weight:700}
-        .gh-result-separator{border-top:1px dashed var(--border,#45475a);margin-top:6px;padding-top:6px}
+        .gh-result-val{display:flex;flex-direction:column;align-items:flex-end;min-width:0;text-align:right}
+        .gh-result-val small{font-size:11px;font-weight:400;color:var(--fg2,var(--text-dim,#a6adc8));white-space:nowrap}
+        .gh-result-summary{margin:2px 0 8px;padding:8px 10px;border-radius:8px;background:color-mix(in srgb,var(--accent,#89b4fa) 12%,transparent);font-size:13px;display:flex;flex-direction:column;gap:3px}
+                .gh-result-separator{border-top:1px dashed var(--border,#45475a);margin-top:6px;padding-top:6px}
         .gh-result-retry{font:inherit;color:var(--fg,var(--text,#cdd6f4));background:var(--surface2,#313244);border:1px solid var(--border,#45475a);border-radius:6px;padding:6px 12px;cursor:pointer}
         .gh-stage-records{padding:7px 10px;margin:6px 0;font-size:11px}
         .gh-stage-title{font-weight:600;margin-bottom:4px}
@@ -297,22 +300,61 @@
     }
     function _paintResults(host, data, you = _you) {
       const multi = data.mode === 'multi', key = data.decl.ranking || 'score';
-      const placeKey = multi ? 'rating_place' : 'place';
-      const rows = data.players.filter(r => r[placeKey] != null).sort((a,b) => a[placeKey] - b[placeKey] || String(a.player_id).localeCompare(String(b.player_id)));
-      const me = rows.find(r => r.player_id === you), top = rows.slice(0,10);
       const spec = (data.decl.metrics || []).find(m => m.key === key);
+      // A solo game that ranks by a number is ordered by each player's average,
+      // so a weak game still counts for something once a record is out of reach.
+      // The best result stays on every row and in the line above the table.
+      const byAvg = !multi && !!spec;
+      const low = !!spec && spec.better === 'low';
+      const placeKey = multi ? 'rating_place' : 'place';
+      const avgOf = r => (r.avg || {})[key], bestOf = r => (r.best || {})[key];
+      let rows;
+      if (byAvg) {
+        rows = data.players.filter(r => avgOf(r) != null).sort((a, b) => (low ? avgOf(a) - avgOf(b) : avgOf(b) - avgOf(a)) ||
+          (low ? bestOf(a) - bestOf(b) : bestOf(b) - bestOf(a)) || String(a.player_id).localeCompare(String(b.player_id)));
+        rows.forEach((r, i) => { r._pl = i && avgOf(rows[i - 1]) === avgOf(r) ? rows[i - 1]._pl : i + 1; });
+      } else {
+        rows = data.players.filter(r => r[placeKey] != null).sort((a,b) => a[placeKey] - b[placeKey] || String(a.player_id).localeCompare(String(b.player_id)));
+        rows.forEach(r => { r._pl = r[placeKey]; });
+      }
+      const me = rows.find(r => r.player_id === you), top = rows.slice(0,10);
       const lang = (window.mvmOS && window.mvmOS.lang) || document.documentElement.lang || 'en';
       const label = multi ? _t('gs_rating','Rating') : key === 'wins' ? _t('gh_wins','Wins') : key === 'played' ? _t('gh_played','Played') : key === 'win_rate' ? _t('gh_win_rate','Win rate') : ((spec || {}).label || {})[lang] || ((spec || {}).label || {}).en || _t('gh_stage_score','Score');
-      function value(r) {
-        const v = multi ? r.rating : key === 'wins' || key === 'played' || key === 'win_rate' ? r[key] : r.best[key];
+      function fmt(v) {
         if (!multi && spec && spec.type === 'duration' && v != null) return Math.floor(v / 60) + ':' + String(Math.round(v % 60)).padStart(2,'0');
         return _number(v) + (!multi && spec && spec.type === 'percent' || key === 'win_rate' ? '%' : '');
       }
-      function row(r) {
-        return '<div class="gh-result-row' + (r.player_id === you ? ' own' : '') + '"><b>#' + r[placeKey] + '</b><span>' + _esc(r.display_name || r.username || '?') + (r.player_id === you ? ' · ' + _esc(_t('gh_you','you')) : '') + '</span><b>' + _esc(value(r)) + '</b></div>';
+      function value(r) {
+        const v = multi ? r.rating : byAvg ? avgOf(r) : key === 'wins' || key === 'played' || key === 'win_rate' ? r[key] : r.best[key];
+        return fmt(v);
       }
-      host.innerHTML = '<h3>' + _esc(_label('gh_finish_title')) + '</h3><div>' + _esc(me ? _label('gh_finish_position', { rank: me[placeKey], total: _number(rows.length) }) : _label('gh_finish_none')) + '</div>' +
-        '<div class="gh-result-sub">' + _esc(_label('gh_finish_top')) + ' · ' + _esc(multi ? _t('gh_multiplayer_full','Multiplayer') : _t('gh_single_player_full','Single player')) + ' · ' + _esc(label) + '</div>' +
+      function row(r) {
+        const own = r.player_id === you;
+        return '<div class="gh-result-row' + (own ? ' own' : '') + '"><b>#' + r._pl + '</b><span>' + _esc(r.display_name || r.username || '?') + (own ? ' · ' + _esc(_t('gh_you','you')) : '') + '</span>' +
+          '<span class="gh-result-val"><b>' + _esc(value(r)) + '</b>' + (byAvg ? '<small>' + _esc(_label('gh_finish_row_best', { v: fmt(bestOf(r)) })) + '</small>' : '') + '</span></div>';
+      }
+      // How this game moved the player's own numbers.
+      let summary = '';
+      if (byAvg && me && data.me && data.me.timeline && data.me.timeline.length) {
+        const last = data.me.timeline[data.me.timeline.length - 1].m[key], prev = data.me.before;
+        const better = (x, y) => low ? x < y : x > y;
+        const lines = [];
+        if (last != null) {
+          if (!prev || prev.avg[key] == null) {
+            lines.push('<div>' + _esc(_label('gh_finish_first', { v: fmt(last) })) + '</div>');
+          } else {
+            const pa = prev.avg[key], na = avgOf(me), pb = prev.best[key];
+            const d = Math.abs(na - pa);
+            lines.push('<div>' + _esc(_label(d < 0.005 ? 'gh_finish_avg_same' : better(na, pa) ? 'gh_finish_avg_up' : 'gh_finish_avg_down',
+              { d: fmt(d), a: fmt(na) })) + '</div>');
+            lines.push('<div>' + _esc(_label(better(last, pb) ? 'gh_finish_rec_new' : last === pb ? 'gh_finish_rec_tie' : 'gh_finish_rec_miss',
+              { r: fmt(better(last, pb) ? last : pb), p: fmt(pb) })) + '</div>');
+          }
+        }
+        if (lines.length) summary = '<div class="gh-result-summary">' + lines.join('') + '</div>';
+      }
+      host.innerHTML = '<h3>' + _esc(_label('gh_finish_title')) + '</h3>' + summary + '<div>' + _esc(me ? _label('gh_finish_position', { rank: me._pl, total: _number(rows.length) }) : _label('gh_finish_none')) + '</div>' +
+        '<div class="gh-result-sub">' + _esc(_label('gh_finish_top')) + ' · ' + _esc(multi ? _t('gh_multiplayer_full','Multiplayer') : _t('gh_single_player_full','Single player')) + ' · ' + _esc(label) + (byAvg ? ' · ' + _esc(_label('gh_finish_by_avg')) : '') + '</div>' +
         '<div class="gh-result-scroll">' + top.map(row).join('') + '</div>' +
         (me && !top.includes(me) ? '<div class="gh-result-separator">' + row(me) + '</div>' : '');
     }

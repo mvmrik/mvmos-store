@@ -485,8 +485,16 @@ def game_insights(conn, game_id, mode, period, me_id):
             timeline.append({"id": s["id"], "t": s["t"], "win": mp["win"], "rank": mp["rank"], "dur": s["dur"],
                              "players": len(s["players"]), "m": mp["m"]})
         e = elo.get(me_id)
+        # What the player's numbers were before the latest game, so the end of
+        # a game can say how it moved the average and whether it beat the best.
+        before = None
+        if len(mine) > 1:
+            prev = _player_table(mine[:-1], decl).get(me_id)
+            if prev:
+                before = {"played": prev["played"], "best": prev["best"], "avg": prev["avg"]}
         me = {
             "player_id": me_id,
+            "before": before,
             "timeline": timeline[-60:],
             "played_with": sorted(played_with),
             "versus": sorted(versus.values(), key=lambda v: -(v["w"] + v["l"] + v["d"]))[:30],

@@ -14659,5 +14659,1958 @@
    "Astéropée",
    "Antinoé"
   ]
+ },
+ "q1630": {
+  "q": "Quel objet les joueurs frappent-ils dans le but pour marquer au football ?",
+  "a": [
+   "Un ballon",
+   "Une pastèque",
+   "Un chat endormi",
+   "Une quille de bowling"
+  ]
+ },
+ "q1631": {
+  "q": "Dans quel sport les athlètes font-ils la course dans l'eau en nage libre ou en papillon ?",
+  "a": [
+   "La natation",
+   "Le hockey sur glace",
+   "Le tir à l'arc",
+   "Les échecs"
+  ]
+ },
+ "q1632": {
+  "q": "Combien d'anneaux entrelacés figurent sur le drapeau olympique officiel ?",
+  "a": [
+   "5",
+   "4",
+   "6",
+   "7"
+  ]
+ },
+ "q1633": {
+  "q": "Combien de joueurs d'une même équipe sont autorisés simultanément sur le terrain lors d'un match standard de basket-ball ?",
+  "a": [
+   "5",
+   "6",
+   "7",
+   "11"
+  ]
+ },
+ "q1634": {
+  "q": "Dans quel sport se déroule le prestigieux tournoi de Wimbledon ?",
+  "a": [
+   "Le tennis",
+   "Le golf",
+   "Le badminton",
+   "Le cricket"
+  ]
+ },
+ "q1635": {
+  "q": "Quelles trois disciplines composent une épreuve standard de triathlon ?",
+  "a": [
+   "Natation, cyclisme et course à pied",
+   "Course à pied, aviron et cyclisme",
+   "Natation, ski de fond et tir",
+   "Cyclisme, gymnastique et natation"
+  ]
+ },
+ "q1636": {
+  "q": "De quelle couleur est le maillot porté par le leader du classement général lors du Tour de France cycliste ?",
+  "a": [
+   "Jaune",
+   "Rose",
+   "Vert",
+   "Rouge"
+  ]
+ },
+ "q1637": {
+  "q": "Quelle est la distance officielle d'une course de marathon moderne ?",
+  "a": [
+   "42,195 km",
+   "40,000 km",
+   "45,500 km",
+   "50,000 km"
+  ]
+ },
+ "q1638": {
+  "q": "Dans quel pays l'art martial du judo est-il né ?",
+  "a": [
+   "Le Japon",
+   "La Corée du Sud",
+   "La Chine",
+   "La Thaïlande"
+  ]
+ },
+ "q1639": {
+  "q": "Comment appelle-t-on le projectile à plumes frappé au-dessus du filet au badminton ?",
+  "a": [
+   "Un volant",
+   "Un palet",
+   "Un souafle",
+   "Un guichet"
+  ]
+ },
+ "q1640": {
+  "q": "Quels deux sports sont combinés dans l'épreuve olympique d'hiver du biathlon ?",
+  "a": [
+   "Le ski de fond et le tir à la carabine",
+   "Le saut à ski et le ski de fond",
+   "Le ski alpin et le patinage artistique",
+   "Le patinage de vitesse et le tir à l'arc"
+  ]
+ },
+ "q1641": {
+  "q": "Quelles sont les trois armes utilisées dans l'escrime olympique moderne ?",
+  "a": [
+   "Le fleuret, l'épée et le sabre",
+   "La rapière, le glaive et la dague",
+   "Le katana, le fleuret et la lance",
+   "Le sabre, la claymore et l'épée"
+  ]
+ },
+ "q1642": {
+  "q": "Depuis le changement de règle de 2001, combien de points un joueur doit-il atteindre pour gagner une manche standard au tennis de table ?",
+  "a": [
+   "11",
+   "21",
+   "15",
+   "25"
+  ]
+ },
+ "q1643": {
+  "q": "Au bowling à dix quilles, quel est le score maximal possible dans une seule partie standard ?",
+  "a": [
+   "300",
+   "200",
+   "250",
+   "360"
+  ]
+ },
+ "q1644": {
+  "q": "En volley-ball en salle, comment appelle-t-on le joueur portant un maillot de couleur différente et spécialisé en défense ?",
+  "a": [
+   "Le libéro",
+   "Le passeur",
+   "Le pointu",
+   "Le balayeur"
+  ]
+ },
+ "q1645": {
+  "q": "Au golf, quel terme désigne le fait de terminer un trou en deux coups sous le par ?",
+  "a": [
+   "Eagle",
+   "Birdie",
+   "Albatros",
+   "Bogey"
+  ]
+ },
+ "q1646": {
+  "q": "En Formule 1, que signifie l'agitation du drapeau à damier ?",
+  "a": [
+   "La fin de la course ou de la séance",
+   "L'interruption immédiate de la course",
+   "La disqualification d'un pilote",
+   "Une piste glissante devant"
+  ]
+ },
+ "q1647": {
+  "q": "Dans le sport d'hiver du curling, quel type de roche est traditionnellement utilisé pour fabriquer les pierres olympiques ?",
+  "a": [
+   "Le granit",
+   "Le marbre",
+   "Le basalte",
+   "Le grès"
+  ]
+ },
+ "q1648": {
+  "q": "Au polo, combien de joueurs compte chaque équipe sur le terrain lors d'un match standard en extérieur ?",
+  "a": [
+   "4",
+   "5",
+   "6",
+   "7"
+  ]
+ },
+ "q1649": {
+  "q": "En tir à l'arc de compétition, combien de points rapporte un tir dans le cercle central le plus intérieur d'une cible olympique ?",
+  "a": [
+   "10",
+   "9",
+   "12",
+   "50"
+  ]
+ },
+ "q1650": {
+  "q": "Combien de billes rouges sont placées sur la table au début d'une manche standard de snooker ?",
+  "a": [
+   "15",
+   "10",
+   "21",
+   "12"
+  ]
+ },
+ "q1651": {
+  "q": "Quel agrès est disputé par les femmes mais pas par les hommes en gymnastique artistique olympique ?",
+  "a": [
+   "La poutre",
+   "Le saut de cheval",
+   "Le sol",
+   "Le cheval d'arçons"
+  ]
+ },
+ "q1652": {
+  "q": "Combien de joueurs de chaque équipe sont dans le bassin en même temps lors d'un match standard de water-polo ?",
+  "a": [
+   "7",
+   "6",
+   "8",
+   "5"
+  ]
+ },
+ "q1653": {
+  "q": "Quelles cinq disciplines composent le pentathlon moderne aux Jeux olympiques ?",
+  "a": [
+   "Escrime, natation, parcours d'obstacles, tir au pistolet et course à pied",
+   "Escrime, aviron, cyclisme, tir au pistolet et course à pied",
+   "Tir à l'arc, natation, saut d'obstacles, cyclisme et course à pied",
+   "Escrime, natation, haltérophilie, tir à la carabine et course à pied"
+  ]
+ },
+ "q1654": {
+  "q": "Selon les règles du golf, quel est le nombre maximal de clubs qu'un joueur est autorisé à transporter dans son sac lors d'un tour conventionnel ?",
+  "a": [
+   "14",
+   "12",
+   "16",
+   "18"
+  ]
+ },
+ "q1655": {
+  "q": "Au rugby à XV, combien de points sont attribués pour un essai ?",
+  "a": [
+   "5",
+   "4",
+   "6",
+   "7"
+  ]
+ },
+ "q1656": {
+  "q": "En aviron olympique, quel est le nom du membre léger assis à la poupe qui dirige le bateau et commande l'équipage ?",
+  "a": [
+   "Le barreur",
+   "Le nageur de pointe",
+   "Le chef de nage",
+   "Le bosco"
+  ]
+ },
+ "q1657": {
+  "q": "En athlétisme, quelle est la hauteur réglementaire des haies utilisées dans l'épreuve masculine du 110 mètres haies ?",
+  "a": [
+   "1,067 m",
+   "0,914 m",
+   "0,840 m",
+   "1,200 m"
+  ]
+ },
+ "q1658": {
+  "q": "Quel est le poids réglementaire du boulet utilisé dans les compétitions masculines seniors de lancer du poids ?",
+  "a": [
+   "7,26 kg",
+   "6,00 kg",
+   "8,00 kg",
+   "5,45 kg"
+  ]
+ },
+ "q1659": {
+  "q": "Au racquetball standard, combien de murs du court fermé constituent des surfaces de jeu réglementaires ?",
+  "a": [
+   "4",
+   "3",
+   "2",
+   "1"
+  ]
+ },
+ "q1660": {
+  "q": "Selon les règles de la Fédération mondiale de squash, à combien de millimètres du sol se situe le bord supérieur de la plaque métallique du mur frontal en simple ?",
+  "a": [
+   "480 mm",
+   "430 mm",
+   "530 mm",
+   "380 mm"
+  ]
+ },
+ "q1661": {
+  "q": "Dans quel sanctuaire de la Grèce antique se déroulaient les Jeux olympiques antiques ?",
+  "a": [
+   "Olympie",
+   "Delphes",
+   "Sparte",
+   "Corinthe"
+  ]
+ },
+ "q1662": {
+  "q": "Combien d'épreuves sont disputées dans un décathlon masculin standard d'athlétisme ?",
+  "a": [
+   "10",
+   "7",
+   "8",
+   "12"
+  ]
+ },
+ "q1663": {
+  "q": "Quelle est la longueur officielle d'une piscine de dimension olympique ?",
+  "a": [
+   "50 m",
+   "25 m",
+   "100 m",
+   "40 m"
+  ]
+ },
+ "q1664": {
+  "q": "En dressage équestre de compétition, quel est le score maximal exprimé en pourcentage ?",
+  "a": [
+   "100%",
+   "10%",
+   "50%",
+   "200%"
+  ]
+ },
+ "q1665": {
+  "q": "En haltérophilie olympique, quels deux mouvements composent le total de la compétition ?",
+  "a": [
+   "L'arraché et l'épaulé-jeté",
+   "Le soulevé de terre et le développé couché",
+   "Le squat et l'arraché",
+   "L'épaulé-jeté et le développé militaire"
+  ]
+ },
+ "q1666": {
+  "q": "Quel phénomène naturel lors d'un orage produit un vif éclair lumineux dans le ciel ?",
+  "a": [
+   "L'éclair",
+   "Une photo prise avec un appareil d'une autre planète",
+   "Une boule à facettes",
+   "Un troupeau de lucioles"
+  ]
+ },
+ "q1667": {
+  "q": "Quel son est provoqué par la dilatation et l'échauffement rapides de l'air le long d'un canal de foudre ?",
+  "a": [
+   "Le tonnerre",
+   "Les gouttes de pluie",
+   "Les grêlons",
+   "Les rafales de vent"
+  ]
+ },
+ "q1668": {
+  "q": "Quelle règle aide à estimer la distance en kilomètres d'un éclair visible à l'aide des secondes avant le tonnerre ?",
+  "a": [
+   "Diviser les secondes par 3",
+   "Multiplier les secondes par 3",
+   "Diviser les secondes par 10",
+   "Multiplier les secondes par 10"
+  ]
+ },
+ "q1669": {
+  "q": "Quelle invention de Benjamin Franklin en 1752 a montré la nature électrique de la foudre ?",
+  "a": [
+   "Le paratonnerre",
+   "La pile voltaïque",
+   "La bouteille de Leyde",
+   "L'électroscope"
+  ]
+ },
+ "q1670": {
+  "q": "Quel état de la matière compose le canal chaud et ionisé d'une décharge de foudre typique ?",
+  "a": [
+   "Le plasma",
+   "Le superfluide",
+   "Le condensat de Bose-Einstein",
+   "Le solide amorphe"
+  ]
+ },
+ "q1671": {
+  "q": "Quel type de nuage produit presque tous les éclairs naturels sur Terre ?",
+  "a": [
+   "Cumulonimbus",
+   "Cirrus",
+   "Altostratus",
+   "Stratus"
+  ]
+ },
+ "q1672": {
+  "q": "Lors d'un éclair nuage-sol, quel est le canal faible et par paliers de charge qui descend en premier ?",
+  "a": [
+   "Traceur par bonds",
+   "Arc en retour",
+   "Traceur en flèche",
+   "Streamer"
+  ]
+ },
+ "q1673": {
+  "q": "Dans un coup de foudre, quelle vive remontée de courant parcourt le canal ionisé après la jonction du traceur descendant et du streamer ?",
+  "a": [
+   "Arc en retour",
+   "Traceur par bonds",
+   "Décharge couronne",
+   "Tension de pas"
+  ]
+ },
+ "q1674": {
+  "q": "Quel bassin lacustre d'Amérique du Sud est réputé pour ses fréquents orages nocturnes durables appelés éclairs du Catatumbo ?",
+  "a": [
+   "Lac Maracaibo",
+   "Lac Titicaca",
+   "Lac Poopó",
+   "Lac de Valencia"
+  ]
+ },
+ "q1675": {
+  "q": "Quel terme désigne la différence de potentiel au sol entre les deux pieds lorsqu'une foudre tombe à proximité ?",
+  "a": [
+   "Tension de pas",
+   "Tension de toucher",
+   "Tension de Hall",
+   "Tension de claquage"
+  ]
+ },
+ "q1676": {
+  "q": "Quel type d'éclair de haute atmosphère apparaît comme une brève colonne rouge-orangé au-dessus des nuages d'orage ?",
+  "a": [
+   "Farfadet rouge",
+   "Jet bleu",
+   "Elfe",
+   "Feu de Saint-Elme"
+  ]
+ },
+ "q1677": {
+  "q": "Quel phénomène lumineux apparaît sur des objets pointus lors d'orages par décharge couronne silencieuse ?",
+  "a": [
+   "Feu de Saint-Elme",
+   "Farfadet rouge",
+   "Foudre en boule",
+   "Rayon vert"
+  ]
+ },
+ "q1678": {
+  "q": "Quel processus sépare les charges électriques dans un nuage d'orage lors de collisions entre graupel et cristaux de glace ?",
+  "a": [
+   "Charge non inductive",
+   "Photo-ionisation",
+   "Émission thermoïonique",
+   "Piézoélectricité"
+  ]
+ },
+ "q1679": {
+  "q": "Quel tube minéral vitreux et fondu se forme lorsque la foudre fait fondre un sol sableux le long d'une décharge ?",
+  "a": [
+   "Fulgurite",
+   "Obsidienne",
+   "Pierre ponce",
+   "Scorie"
+  ]
+ },
+ "q1680": {
+  "q": "Quel bref anneau en expansion de lumière ultraviolette et optique apparaît au-dessus des nuages d'orage avec les elfes ?",
+  "a": [
+   "Anneau d'émission d'elfe",
+   "Démarreur bleu",
+   "Jet géant",
+   "Troll"
+  ]
+ },
+ "q1681": {
+  "q": "Quelles brèves bouffées de photons de haute énergie sont produites par de forts champs électriques dans les nuages d'orage ?",
+  "a": [
+   "Flashs gamma terrestres",
+   "Impulsions synchrotron",
+   "Flashs Tcherenkov",
+   "Rayonnement kilométrique auroral"
+  ]
+ },
+ "q1682": {
+  "q": "Quel mécanisme accélère des électrons à des vitesses relativistes dans les nuages d'orage pour déclencher foudre et flashs gamma ?",
+  "a": [
+   "Claquage incontrôlé",
+   "Effet Joule",
+   "Diffusion Thomson",
+   "Effet Zeeman"
+  ]
+ },
+ "q1683": {
+  "q": "Quelle onde d'ionisation rapide et fine progresse devant la pointe d'un traceur de foudre pour allonger le canal ?",
+  "a": [
+   "Streamer",
+   "Siffleur",
+   "Halo de farfadet",
+   "Perle de farfadet"
+  ]
+ },
+ "q1684": {
+  "q": "Quelle onde radio à très basse fréquence suit les lignes du champ magnétique terrestre après un éclair ?",
+  "a": [
+   "Onde siffleuse",
+   "Résonance de Schumann",
+   "Onde d'Alfvén",
+   "Onde de Langmuir"
+  ]
+ },
+ "q1685": {
+  "q": "Quelle brève impulsion de courant ascendante précède un jet bleu au-dessus d'un nuage d'orage ?",
+  "a": [
+   "Démarreur bleu",
+   "Farfadet rouge",
+   "Halo de farfadet",
+   "Couronne"
+  ]
+ },
+ "q1686": {
+  "q": "Quel phénomène radiofréquence dans les nuages d'orage produit des impulsions micro-ondes et VHF sans vif éclair optique ?",
+  "a": [
+   "Événement bipolaire étroit",
+   "Traceur par bonds",
+   "Arc en retour",
+   "Jet bleu"
+  ]
+ },
+ "q1687": {
+  "q": "Parmi les phénomènes de la haute atmosphère liés à la foudre au-dessus des orages, quelle faible lueur précède un farfadet rouge et s'étend sur des dizaines de kilomètres vers 75 à 85 km d'altitude ?",
+  "a": [
+   "Halo de farfadet",
+   "Démarreur bleu",
+   "Elfe",
+   "Streamer"
+  ]
+ },
+ "q1688": {
+  "q": "Quel animal est célèbre pour dormir debout et avoir des rayures noires et blanches ?",
+  "a": [
+   "Zèbre",
+   "Tigre",
+   "Panda géant",
+   "Cheval"
+  ]
+ },
+ "q1689": {
+  "q": "Quel est le seul mammifère capable d'un vol véritable et soutenu ?",
+  "a": [
+   "Chauve-souris",
+   "Écureuil volant",
+   "Phalanger volant",
+   "Galéopithèque"
+  ]
+ },
+ "q1690": {
+  "q": "Combien de cœurs possède une pieuvre ?",
+  "a": [
+   "3",
+   "1",
+   "2",
+   "5"
+  ]
+ },
+ "q1691": {
+  "q": "Quel aliment naturel conservé dans des récipients hermétiques ne se périme jamais, même après des milliers d'années ?",
+  "a": [
+   "Miel",
+   "Huile d'olive",
+   "Sirop d'érable",
+   "Beurre de cacahuète"
+  ]
+ },
+ "q1692": {
+  "q": "Quel élément donne au sang du homard une couleur bleue lorsqu'il est oxygéné ?",
+  "a": [
+   "Cuivre",
+   "Fer",
+   "Cobalt",
+   "Magnésium"
+  ]
+ },
+ "q1693": {
+  "q": "Sur quelle planète du Système solaire un seul jour dure-t-il plus longtemps que toute son année ?",
+  "a": [
+   "Vénus",
+   "Mercure",
+   "Mars",
+   "Uranus"
+  ]
+ },
+ "q1694": {
+  "q": "Quelle reine de l'Égypte antique a vécu plus près dans le temps de l'alunissage de 1969 que de la construction de la grande pyramide de Gizeh ?",
+  "a": [
+   "Cléopâtre VII",
+   "Néfertiti",
+   "Hatchepsout",
+   "Néfertari"
+  ]
+ },
+ "q1695": {
+  "q": "Quel animal produit des excréments en forme de cube pour les empêcher de rouler ?",
+  "a": [
+   "Wombat",
+   "Ornithorynque",
+   "Koala",
+   "Diable de Tasmanie"
+  ]
+ },
+ "q1696": {
+  "q": "Dans quel pays se trouve le lac Hillier, célèbre pour son eau naturellement rose vif ?",
+  "a": [
+   "Australie",
+   "Chili",
+   "Sénégal",
+   "Kazakhstan"
+  ]
+ },
+ "q1697": {
+  "q": "Quel appareil de cuisine a été inventé après que Percy Spencer a remarqué qu'une barre chocolatée fondait dans sa poche près d'un magnétron radar en 1945 ?",
+  "a": [
+   "Four à micro-ondes",
+   "Grille-pain",
+   "Bouilloire électrique",
+   "Plaque à induction"
+  ]
+ },
+ "q1698": {
+  "q": "Comment appelle-t-on le point unique de température et de pression auquel une substance coexiste simultanément à l'état gazeux, liquide et solide ?",
+  "a": [
+   "Point triple",
+   "Point critique",
+   "Point de Curie",
+   "Point de rosée"
+  ]
+ },
+ "q1699": {
+  "q": "Sur quel célèbre tableau de Léonard de Vinci le modèle n'a-t-il ni sourcils ni cils visibles ?",
+  "a": [
+   "La Joconde",
+   "La Dame à l'hermine",
+   "La Belle Ferronnière",
+   "Ginevra de' Benci"
+  ]
+ },
+ "q1700": {
+  "q": "Contre quels grands oiseaux incapables de voler l'armée australienne a-t-elle mené une opération d'abattage infructueuse en 1932 ?",
+  "a": [
+   "Émeus",
+   "Casoars",
+   "Autruches",
+   "Nandous"
+  ]
+ },
+ "q1701": {
+  "q": "Quelle mer sur Terre n'a aucune côte terrestre et est uniquement délimitée par des courants océaniques ?",
+  "a": [
+   "Mer des Sargasses",
+   "Mer Blanche",
+   "Mer de Béring",
+   "Mer d'Aral"
+  ]
+ },
+ "q1702": {
+  "q": "Dans quel pays a été fondé en 705 apr. J.-C. le plus ancien hôtel au monde encore en activité, le Nishiyama Onsen Keiunkan ?",
+  "a": [
+   "Japon",
+   "Chine",
+   "Corée du Sud",
+   "Suisse"
+  ]
+ },
+ "q1703": {
+  "q": "Quelle est la seule espèce connue d'oiseau capable de voler à reculons ?",
+  "a": [
+   "Colibri",
+   "Martin-pêcheur",
+   "Hirondelle",
+   "Martinet"
+  ]
+ },
+ "q1704": {
+  "q": "Quel sport l'astronaute Alan Shepard a-t-il pratiqué sur la Lune lors de la mission Apollo 14 en 1971 ?",
+  "a": [
+   "Golf",
+   "Baseball",
+   "Tennis",
+   "Fléchettes"
+  ]
+ },
+ "q1705": {
+  "q": "Quel roman d'Ernest Vincent Wright paru en 1939 a été écrit entièrement sans utiliser la lettre E ?",
+  "a": [
+   "Gadsby",
+   "Finnegans Wake",
+   "Si par une nuit d'hiver un voyageur",
+   "Feu pâle"
+  ]
+ },
+ "q1706": {
+  "q": "Quel fruit contient une enzyme appelée bromélaïne qui décompose les protéines et peut picoter la langue ?",
+  "a": [
+   "Ananas",
+   "Kiwi",
+   "Papaye",
+   "Mangue"
+  ]
+ },
+ "q1707": {
+  "q": "Quel dirigeant français du XIXe siècle a été attaqué par une horde de lapins domestiques lors d'une chasse en 1807 ?",
+  "a": [
+   "Napoléon Ier",
+   "Louis XVIII",
+   "Charles X",
+   "Napoléon III"
+  ]
+ },
+ "q1708": {
+  "q": "De quelles couleurs les carottes étaient-elles principalement cultivées avant que les producteurs néerlandais ne popularisent les variétés oranges au XVIIe siècle ?",
+  "a": [
+   "Violet et jaune",
+   "Bleu et vert",
+   "Blanc pur",
+   "Rose vif"
+  ]
+ },
+ "q1709": {
+  "q": "Quelle espèce de méduse immortelle peut ramener ses cellules adultes à un stade juvénile de polype pour échapper à la mort ?",
+  "a": [
+   "Turritopsis dohrnii",
+   "Chironex fleckeri",
+   "Physalia physalis",
+   "Aurelia aurita"
+  ]
+ },
+ "q1710": {
+  "q": "Autour de quelle planète orbite la lune Titan, qui possède une atmosphère dense riche en azote et des lacs de méthane liquide ?",
+  "a": [
+   "Saturne",
+   "Jupiter",
+   "Uranus",
+   "Neptune"
+  ]
+ },
+ "q1711": {
+  "q": "Quel insecte a été trouvé dans un relais de l'ordinateur Harvard Mark II en 1947, inspirant à l'équipe de Grace Hopper la note sur le premier vrai « bug » informatique ?",
+  "a": [
+   "Papillon de nuit",
+   "Cafard",
+   "Scarabée",
+   "Fourmi"
+  ]
+ },
+ "q1712": {
+  "q": "Entre quels deux pays se trouve l'île des Faisans, une île fluviale qui change de souveraineté tous les six mois selon le traité des Pyrénées de 1659 ?",
+  "a": [
+   "France et Espagne",
+   "Allemagne et Pologne",
+   "Autriche et Suisse",
+   "Italie et Slovénie"
+  ]
+ },
+ "q1713": {
+  "q": "Quel phénomène décrit le fait que l'eau chaude gèle plus vite que l'eau froide dans certaines conditions expérimentales ?",
+  "a": [
+   "Effet Mpemba",
+   "Effet Leidenfrost",
+   "Effet Marangoni",
+   "Effet Magnus"
+  ]
+ },
+ "q1714": {
+  "q": "Combien de temps dure l'exécution complète de la composition avant-gardiste de John Cage « As Slow as Possible » à Halberstadt, en Allemagne ?",
+  "a": [
+   "639 ans",
+   "100 ans",
+   "250 ans",
+   "1 000 ans"
+  ]
+ },
+ "q1715": {
+  "q": "En quelle année a eu lieu la guerre anglo-zanzibarite, la plus courte guerre enregistrée de l'histoire avec environ 38 minutes ?",
+  "a": [
+   "1896",
+   "1879",
+   "1902",
+   "1914"
+  ]
+ },
+ "q1716": {
+  "q": "Combien de temps a-t-il fallu pour que la première goutte tombe dans la célèbre expérience de la goutte de poix de l'université du Queensland, lancée en 1927 ?",
+  "a": [
+   "8 ans",
+   "2 ans",
+   "15 ans",
+   "24 ans"
+  ]
+ },
+ "q1717": {
+  "q": "Quel excentrique commerçant du XVIIIe siècle a publié en 1802 le livre « A Pickle for the Knowing Ones » sans aucune ponctuation avant d'ajouter une page de signes pour que les lecteurs les placent eux-mêmes ?",
+  "a": [
+   "Timothy Dexter",
+   "William Beckford",
+   "John Mytton",
+   "Beau Brummell"
+  ]
+ },
+ "q1718": {
+  "q": "Quelle espèce de limace de mer vole des chloroplastes fonctionnels aux algues qu'elle mange, lui permettant de survivre des mois grâce à la photosynthèse ?",
+  "a": [
+   "Elysia chlorotica",
+   "Glaucus atlanticus",
+   "Chromodoris willani",
+   "Aplysia californica"
+  ]
+ },
+ "q1719": {
+  "q": "Quel grand mammifère porte son petit dans une poche et saute sur deux pattes ?",
+  "a": [
+   "Kangourou",
+   "Koala",
+   "Wombat",
+   "Diable de Tasmanie"
+  ]
+ },
+ "q1720": {
+  "q": "Quel célèbre monument de Paris est une haute tour de fer construite pour l'Exposition universelle de 1889 ?",
+  "a": [
+   "Tour Eiffel",
+   "Arc de triomphe",
+   "Cathédrale Notre-Dame",
+   "Pyramide du Louvre"
+  ]
+ },
+ "q1721": {
+  "q": "Quel oiseau incapable de voler originaire de l'Antarctique nage à plus de 30 km/h et porte un plumage noir et blanc ?",
+  "a": [
+   "Manchot empereur",
+   "Autruche",
+   "Kiwi",
+   "Dodo"
+  ]
+ },
+ "q1722": {
+  "q": "Quel grand animal marin possède une langue pouvant peser autant qu'un éléphant adulte ?",
+  "a": [
+   "Baleine bleue",
+   "Grand requin blanc",
+   "Calmar géant",
+   "Morse"
+  ]
+ },
+ "q1723": {
+  "q": "De quelle couleur est la peau d'un ours polaire sous sa fourrure blanche translucide ?",
+  "a": [
+   "Noire",
+   "Rose",
+   "Jaune pâle",
+   "Bleu clair"
+  ]
+ },
+ "q1724": {
+  "q": "Quelle planète de notre Système solaire tourne dans le sens horaire sur son axe vue au-dessus de son pôle Nord ?",
+  "a": [
+   "Vénus",
+   "Mars",
+   "Jupiter",
+   "Mercure"
+  ]
+ },
+ "q1725": {
+  "q": "Quel fruit tropical est classé en botanique comme une baie à graine unique plutôt que comme un fruit à noyau ?",
+  "a": [
+   "Avocat",
+   "Pêche",
+   "Cerise",
+   "Prune"
+  ]
+ },
+ "q1726": {
+  "q": "Quel micro-État européen enclavé en Italie est reconnu comme la plus ancienne république encore existante au monde, fondée en 301 apr. J.-C. ?",
+  "a": [
+   "Saint-Marin",
+   "Monaco",
+   "Liechtenstein",
+   "Andorre"
+  ]
+ },
+ "q1727": {
+  "q": "Quel marsupial australien produit des excréments distinctifs en forme de cube qui les empêchent de rouler ?",
+  "a": [
+   "Wombat",
+   "Koala",
+   "Diable de Tasmanie",
+   "Ornithorynque"
+  ]
+ },
+ "q1728": {
+  "q": "Avec quel pays d'Amérique du Sud la France partage-t-elle sa plus longue frontière terrestre grâce à la Guyane ?",
+  "a": [
+   "Brésil",
+   "Suriname",
+   "Venezuela",
+   "Colombie"
+  ]
+ },
+ "q1729": {
+  "q": "Dans l'Europe du XVIIIe siècle, pourquoi les aristocrates croyaient-ils à tort que les tomates étaient toxiques après avoir mangé dans des assiettes en étain ?",
+  "a": [
+   "L'acidité de la tomate libérait le plomb du plat",
+   "La peau de tomate contenait du cyanure",
+   "La tomate crue causait un choc allergique",
+   "Des bactéries proliféraient sur les assiettes"
+  ]
+ },
+ "q1730": {
+  "q": "Quel élément chimique constitue environ 90 pour cent des atomes de l'univers observable ?",
+  "a": [
+   "Hydrogène",
+   "Hélium",
+   "Oxygène",
+   "Carbone"
+  ]
+ },
+ "q1731": {
+  "q": "Quel pays africain compte plus de pyramides antiques que l'Égypte, avec plus de 200 édifiées par le royaume de Koush ?",
+  "a": [
+   "Soudan",
+   "Libye",
+   "Éthiopie",
+   "Maroc"
+  ]
+ },
+ "q1732": {
+  "q": "Quel grand mammifère semi-aquatique africain sécrète un liquide huileux rose rougeâtre agissant comme écran solaire naturel et antibiotique ?",
+  "a": [
+   "Hippopotame",
+   "Éléphant d'Afrique",
+   "Crocodile du Nil",
+   "Rhinocéros blanc"
+  ]
+ },
+ "q1733": {
+  "q": "Quel métal se trouve à près de 99 pour cent de son stock terrestre dans le noyau de la Terre, de quoi recouvrir la surface sur 45 cm ?",
+  "a": [
+   "Or",
+   "Argent",
+   "Platine",
+   "Cuivre"
+  ]
+ },
+ "q1734": {
+  "q": "Quel célèbre jeu de société fut initialement breveté en 1904 par Elizabeth Magie sous le nom The Landlord's Game pour dénoncer les monopoles fonciers ?",
+  "a": [
+   "Monopoly",
+   "Risk",
+   "Scrabble",
+   "Cluedo"
+  ]
+ },
+ "q1735": {
+  "q": "Quelle nuance blanc beige les astronomes ont-ils nommée en 2002 comme couleur moyenne de toute la lumière des galaxies de l'univers ?",
+  "a": [
+   "Latte cosmique",
+   "Crème galactique",
+   "Ivoire stellaire",
+   "Perle nébulaire"
+  ]
+ },
+ "q1736": {
+  "q": "Quel mammifère arboricole très lent possède huit ou neuf vertèbres cervicales, soit plus que les sept de la girafe ?",
+  "a": [
+   "Paresseux tridactyle",
+   "Koala",
+   "Petit panda",
+   "Caméléon"
+  ]
+ },
+ "q1737": {
+  "q": "Dans la vallée de la Mort en Californie, quel mécanisme naturel fait glisser de lourds rochers sur le sol de Racetrack Playa ?",
+  "a": [
+   "De fines plaques de glace poussées par le vent",
+   "Des séismes faisant vibrer l'argile sèche",
+   "Des courants minéraux magnétiques souterrains",
+   "Des crues soudaines soulevant les pierres"
+  ]
+ },
+ "q1738": {
+  "q": "Quel athlète américain a battu en 1991 le record du monde du saut en longueur vieux de 23 ans de Bob Beamon avec un bond de 8,95 mètres ?",
+  "a": [
+   "Mike Powell",
+   "Carl Lewis",
+   "Jesse Owens",
+   "Iván Pedroso"
+  ]
+ },
+ "q1739": {
+  "q": "Sur quelle île de l'Arctique une petite population isolée de mammouths laineux a-t-elle survécu jusqu'vers 2000 av. J.-C., après la construction des pyramides ?",
+  "a": [
+   "Île Wrangel",
+   "Svalbard",
+   "Île de Baffin",
+   "Nouvelle-Zemble"
+  ]
+ },
+ "q1740": {
+  "q": "Qu'est-ce qui donne aux chutes de Sang en Antarctique leur couleur rouge vif lorsque l'eau salée jaillit sous le glacier Taylor ?",
+  "a": [
+   "Une saumure riche en fer oxydé",
+   "Une prolifération d'algues rouges",
+   "Des dépôts volcaniques de cinabre",
+   "De fortes concentrations de brome"
+  ]
+ },
+ "q1741": {
+  "q": "Quelle commune espagnole des Pyrénées est une enclave entièrement entourée par le territoire français depuis le traité des Pyrénées de 1659 ?",
+  "a": [
+   "Llívia",
+   "Puigcerdà",
+   "Olivenza",
+   "Ceuta"
+  ]
+ },
+ "q1742": {
+  "q": "Quelle roche volcanique mélangée à la chaux permettait au béton maritime romain de colmater ses fissures au contact de l'eau de mer ?",
+  "a": [
+   "Pouzzolane",
+   "Obsidienne",
+   "Basalte",
+   "Granit"
+  ]
+ },
+ "q1743": {
+  "q": "Au-dessus de quel archipel du Territoire du Nord en Australie se forme presque chaque après-midi en saison humide l'orage surnommé Hector ?",
+  "a": [
+   "Îles Tiwi",
+   "Îles Whitsunday",
+   "Îles du détroit de Torrès",
+   "Archipel Furneaux"
+  ]
+ },
+ "q1744": {
+  "q": "Quel site archéologique néolithique du sud-est de la Turquie possède des piliers en T érigés vers 9500 av. J.-C., avant l'agriculture et la poterie ?",
+  "a": [
+   "Göbekli Tepe",
+   "Çatalhöyük",
+   "Hattusa",
+   "Troie"
+  ]
+ },
+ "q1745": {
+  "q": "Dans quelle localité arctique norvégienne du Svalbard les inhumations sont-elles interdites parce que le pergélisol empêche la décomposition des corps ?",
+  "a": [
+   "Longyearbyen",
+   "Tromsø",
+   "Hammerfest",
+   "Narvik"
+  ]
+ },
+ "q1746": {
+  "q": "Quelle planète tellurique de notre Système solaire est triaxiale, possédant trois rayons distincts le long de ses axes plutôt qu'un sphéroïde oblat ?",
+  "a": [
+   "Mars",
+   "Vénus",
+   "Mercure",
+   "Terre"
+  ]
+ },
+ "q1747": {
+  "q": "Dans quel pays d'Afrique de l'Est une épidémie de rire contagieux a-t-elle éclaté en 1962 dans un pensionnat de filles, fermant temporairement 14 écoles ?",
+  "a": [
+   "Tanganyika (Tanzanie)",
+   "Kenya",
+   "Ouganda",
+   "Malawi"
+  ]
+ },
+ "q1748": {
+  "q": "Quelle forme cristalline de l'eau à haute pression, surnommée glace brûlante, reste solide même au-dessus de 400 °C dans les exoplanètes géantes ?",
+  "a": [
+   "Glace VII",
+   "Glace Ih",
+   "Glace III",
+   "Glace V"
+  ]
+ },
+ "q1749": {
+  "q": "La momie de quel pharaon égyptien de la XXe dynastie fut découverte au XIXe siècle avec de petits oignons dans les orbites oculaires en symbole de vie éternelle ?",
+  "a": [
+   "Ramsès IV",
+   "Toutânkhamon",
+   "Ramsès II",
+   "Séthi Ier"
+  ]
+ },
+ "q1750": {
+  "q": "Quel rapace nocturne peut tourner la tête jusqu'à 270 degrés pour regarder derrière lui sans bouger le corps ?",
+  "a": [
+   "Hibou",
+   "Aigle",
+   "Flamant rose",
+   "Pélican"
+  ]
+ },
+ "q1751": {
+  "q": "Quel mollusque marin à huit bras possède trois cœurs et un sang bleu à base de cuivre ?",
+  "a": [
+   "Poulpe",
+   "Tortue marine",
+   "Murène",
+   "Hippocampe"
+  ]
+ },
+ "q1752": {
+  "q": "Quelle célèbre légumineuse mûrit sous terre dans des gousses plutôt que sur des arbres, bien qu'on la consomme comme une noix ?",
+  "a": [
+   "Arachide",
+   "Amande",
+   "Noix",
+   "Noisette"
+  ]
+ },
+ "q1753": {
+  "q": "Combien de fuseaux horaires un voyageur traverse-t-il en parcourant l'intégralité des 9 289 kilomètres du Transsibérien en Russie ?",
+  "a": [
+   "8",
+   "3",
+   "15",
+   "24"
+  ]
+ },
+ "q1754": {
+  "q": "Pourquoi les vrais jumeaux ont-ils des empreintes digitales différentes malgré un ADN quasi identique ?",
+  "a": [
+   "Des facteurs aléatoires dans l'utérus",
+   "Des différences d'alimentation infantile",
+   "L'exposition au soleil après la naissance",
+   "Des mutations aléatoires de la peau"
+  ]
+ },
+ "q1755": {
+  "q": "Quelle saveur de base les chats domestiques et autres félins sont-ils totalement incapables de percevoir en raison d'une délétion génétique ?",
+  "a": [
+   "Sucré",
+   "Salé",
+   "Amer",
+   "Acide"
+  ]
+ },
+ "q1756": {
+  "q": "Combien de marches en pierre compte chacun des quatre côtés de la pyramide El Castillo à Chichén Itzá au Mexique, formant 365 avec la plateforme ?",
+  "a": [
+   "91",
+   "73",
+   "100",
+   "120"
+  ]
+ },
+ "q1757": {
+  "q": "D'environ combien de secondes par siècle la durée moyenne d'un jour terrestre augmente-t-elle en raison de la friction des marées lunaires ?",
+  "a": [
+   "1,8 seconde",
+   "15 secondes",
+   "45 secondes",
+   "2 minutes"
+  ]
+ },
+ "q1758": {
+  "q": "Quel céphalopode des grands fonds possède les plus grands yeux du règne animal, mesurant jusqu'à 27 centimètres de diamètre ?",
+  "a": [
+   "Calmar colossal",
+   "Vampire des abysses",
+   "Pieuvre géante du Pacifique",
+   "Nautile"
+  ]
+ },
+ "q1759": {
+  "q": "Quel type d'eau remplit les océans de la Terre ?",
+  "a": [
+   "De l'eau salée",
+   "De la limonade pétillante",
+   "De la glace à la vanille fondue",
+   "De la soupe au poulet chaude"
+  ]
+ },
+ "q1760": {
+  "q": "Quel est l'océan le plus grand et le plus profond de la Terre ?",
+  "a": [
+   "L'océan Pacifique",
+   "L'océan Atlantique",
+   "L'océan Indien",
+   "L'océan Arctique"
+  ]
+ },
+ "q1761": {
+  "q": "Dans quel océan se trouve la fosse des Mariannes, la fosse océanique la plus profonde connue sur Terre ?",
+  "a": [
+   "L'océan Pacifique",
+   "L'océan Atlantique",
+   "L'océan Indien",
+   "L'océan Austral"
+  ]
+ },
+ "q1762": {
+  "q": "Quel lac hypersalin bordant la Jordanie et Israël est célèbre parce que les baigneurs flottent sans effort à sa surface ?",
+  "a": [
+   "La mer Morte",
+   "La mer Caspienne",
+   "La mer d'Aral",
+   "La mer Rouge"
+  ]
+ },
+ "q1763": {
+  "q": "Au large de quel pays se trouve la Grande Barrière de corail, le plus grand ensemble corallien du monde ?",
+  "a": [
+   "L'Australie",
+   "Le Brésil",
+   "L'Indonésie",
+   "Le Mexique"
+  ]
+ },
+ "q1764": {
+  "q": "Quel courant chaud de l'océan Atlantique s'écoule du golfe du Mexique vers l'Europe de l'Ouest et adoucit son climat ?",
+  "a": [
+   "Le Gulf Stream",
+   "Le courant de Humboldt",
+   "Le courant de Kuroshio",
+   "Le courant de Benguela"
+  ]
+ },
+ "q1765": {
+  "q": "L'attraction gravitationnelle de quel astre est la cause principale des marées océaniques sur Terre ?",
+  "a": [
+   "La Lune",
+   "Mars",
+   "Vénus",
+   "Jupiter"
+  ]
+ },
+ "q1766": {
+  "q": "Quel détroit sépare l'Europe et l'Afrique à l'entrée occidentale de la mer Méditerranée ?",
+  "a": [
+   "Le détroit de Gibraltar",
+   "Le détroit d'Ormuz",
+   "Le détroit de Béring",
+   "Le détroit de Malacca"
+  ]
+ },
+ "q1767": {
+  "q": "Quelle mer sépare la péninsule Arabique de l'Afrique du Nord-Est et rejoint la Méditerranée par le canal de Suez ?",
+  "a": [
+   "La mer Rouge",
+   "La mer Noire",
+   "La mer d'Arabie",
+   "La mer Égée"
+  ]
+ },
+ "q1768": {
+  "q": "Quelle étendue d'eau fermée entre l'Europe et l'Asie est la plus grande mer intérieure du monde par sa superficie ?",
+  "a": [
+   "La mer Caspienne",
+   "La mer d'Aral",
+   "La mer Morte",
+   "La mer d'Azov"
+  ]
+ },
+ "q1769": {
+  "q": "Combien de grammes de sel dissous environ contient 1 kilogramme d'eau de mer moyenne ?",
+  "a": [
+   "35 grammes",
+   "5 grammes",
+   "120 grammes",
+   "250 grammes"
+  ]
+ },
+ "q1770": {
+  "q": "Quelle région de l'Atlantique Nord est la seule mer sur Terre délimitée uniquement par des courants marins plutôt que par des côtes ?",
+  "a": [
+   "La mer des Sargasses",
+   "La mer de Béring",
+   "La mer de Barents",
+   "La mer de Corail"
+  ]
+ },
+ "q1771": {
+  "q": "Dans quelle mer les eaux situées au-delà d'environ 200 mètres de profondeur sont-elles dépourvues d'oxygène et riches en sulfure d'hydrogène toxique ?",
+  "a": [
+   "La mer Noire",
+   "La mer Baltique",
+   "La mer du Nord",
+   "La mer Adriatique"
+  ]
+ },
+ "q1772": {
+  "q": "Quelle est la profondeur maximale approximative de la fosse Challenger dans la fosse des Mariannes ?",
+  "a": [
+   "11 000 mètres",
+   "4 500 mètres",
+   "7 200 mètres",
+   "18 500 mètres"
+  ]
+ },
+ "q1773": {
+  "q": "Quel océan couvre environ 46 pour cent de la surface aquatique de la Terre et est plus vaste que toutes les terres émergées réunies ?",
+  "a": [
+   "L'océan Pacifique",
+   "L'océan Atlantique",
+   "L'océan Indien",
+   "L'océan Austral"
+  ]
+ },
+ "q1774": {
+  "q": "Quelle couche océanique, située sous environ 200 mètres, reçoit trop peu de lumière solaire pour la photosynthèse et est appelée zone crépusculaire ?",
+  "a": [
+   "La zone mésopélagique",
+   "La zone épipélagique",
+   "La zone abyssopélagique",
+   "La zone hadopélagique"
+  ]
+ },
+ "q1775": {
+  "q": "Comment s'appelle le point isolé de l'océan Pacifique Sud qui est le plus éloigné de toute terre émergée sur Terre ?",
+  "a": [
+   "Le point Nemo",
+   "Le cap Horn",
+   "Tristan da Cunha",
+   "L'île Bouvet"
+  ]
+ },
+ "q1776": {
+  "q": "Dans quelle baie située entre les provinces canadiennes du Nouveau-Brunswick et de la Nouvelle-Écosse observe-t-on les plus fortes marées du monde ?",
+  "a": [
+   "La baie de Fundy",
+   "La baie d'Hudson",
+   "La baie de Chesapeake",
+   "Le golfe de Gascogne"
+  ]
+ },
+ "q1777": {
+  "q": "Quelle est la plus longue chaîne de montagnes continue sur Terre, s'étendant sur environ 65 000 kilomètres sous les océans du monde ?",
+  "a": [
+   "La dorsale médio-océanique",
+   "La cordillère des Andes",
+   "L'Himalaya",
+   "La Cordillère australienne"
+  ]
+ },
+ "q1778": {
+  "q": "Quelles sources hydrothermales sous-marines, découvertes en 1977 près du rift des Galápagos, rejettent une eau surchauffée riche en minéraux ressemblant à de la fumée noire ?",
+  "a": [
+   "Les fumeurs noirs",
+   "Les trous bleus",
+   "Les lacs de saumure",
+   "Les volcans de boue"
+  ]
+ },
+ "q1779": {
+  "q": "Quel océan est le seul sur Terre à faire complètement le tour du globe sans être bloqué par un continent ?",
+  "a": [
+   "L'océan Austral",
+   "L'océan Arctique",
+   "L'océan Indien",
+   "L'océan Atlantique"
+  ]
+ },
+ "q1780": {
+  "q": "Quel océan est à la fois le plus petit et le moins profond des cinq océans de la Terre ?",
+  "a": [
+   "L'océan Arctique",
+   "L'océan Austral",
+   "L'océan Indien",
+   "L'océan Atlantique"
+  ]
+ },
+ "q1781": {
+  "q": "Comment appelle-t-on la couche limite de l'océan sous laquelle la température chute rapidement avec la profondeur par rapport à la couche de surface chaude ?",
+  "a": [
+   "La thermocline",
+   "L'halocline",
+   "La pycnocline",
+   "La chimiocline"
+  ]
+ },
+ "q1782": {
+  "q": "Quels deux explorateurs ont effectué la première plongée habitée au fond de la fosse des Mariannes à bord du bathyscaphe Trieste en 1960 ?",
+  "a": [
+   "Jacques Piccard et Don Walsh",
+   "Jacques Cousteau et Sylvia Earle",
+   "James Cameron et Victor Vescovo",
+   "Robert Ballard et Auguste Piccard"
+  ]
+ },
+ "q1783": {
+  "q": "Comment s'appelle la couche horizontale des grands fonds océaniques où les ondes sonores se propagent à vitesse minimale et peuvent parcourir des milliers de kilomètres ?",
+  "a": [
+   "Le canal SOFAR",
+   "La couche d'Ekman",
+   "La zone benthique",
+   "La zone littorale"
+  ]
+ },
+ "q1784": {
+  "q": "Quel grand courant marin, poussé par de forts vents d'ouest autour de l'Antarctique, est le plus puissant de la Terre par le volume d'eau transporté ?",
+  "a": [
+   "Le courant circumpolaire antarctique",
+   "Le courant des Aiguilles",
+   "Le courant du Labrador",
+   "Le courant des Canaries"
+  ]
+ },
+ "q1785": {
+  "q": "Quelle fosse sous-marine de l'Atlantique Sud constitue le point le plus profond de l'Atlantique, atteignant environ 8 264 mètres dans la fosse Meteor ?",
+  "a": [
+   "La fosse des Sandwich du Sud",
+   "La fosse de Porto Rico",
+   "La fosse de Java",
+   "La fosse des Kermadec"
+  ]
+ },
+ "q1786": {
+  "q": "Quel effet océanographique provoque la déviation des courants marins de surface de l'hémisphère Nord d'environ 45 degrés vers la droite par rapport à la direction du vent ?",
+  "a": [
+   "La spirale d'Ekman",
+   "L'effet Venturi",
+   "L'effet Magnus",
+   "L'effet Marangoni"
+  ]
+ },
+ "q1787": {
+  "q": "Quel volcan sous-marin situé au large de la côte sud-est de l'île d'Hawaï est le plus jeune volcan de la chaîne sous-marine Hawaï-Empereur ?",
+  "a": [
+   "Kamaʻehuakanaloa",
+   "Mauna Loa",
+   "Kīlauea",
+   "Hualālai"
+  ]
+ },
+ "q1788": {
+  "q": "En océanographie, quelle unité est utilisée pour mesurer le débit volumique des courants marins et équivaut à un million de mètres cubes par seconde ?",
+  "a": [
+   "Le sverdrup",
+   "Le nansen",
+   "Le beaufort",
+   "La brasse"
+  ]
+ },
+ "q1789": {
+  "q": "Quel champ hydrothermal sous-marin de l'océan Atlantique, découvert en 2000, possède des cheminées carbonatées atteignant 60 mètres de haut alimentées par serpentinisation plutôt que par le magma ?",
+  "a": [
+   "Le champ hydrothermal Lost City",
+   "Le champ hydrothermal TAG",
+   "Le champ hydrothermal Rainbow",
+   "Les sources hydrothermales Endeavour"
+  ]
+ },
+ "q1790": {
+  "q": "Comment appelle-t-on la profondeur océanique sous laquelle le carbonate de calcium se dissout plus vite qu'il ne s'accumule, empêchant la conservation des coquilles calcaires sur le fond marin ?",
+  "a": [
+   "La profondeur de compensation des carbonates",
+   "L'horizon de saturation de l'aragonite",
+   "La profondeur de compensation euphotique",
+   "La limite isopycne"
+  ]
+ },
+ "q1791": {
+  "q": "Quelle créature marine possède huit bras et projette de l'encre noire pour fuir ses prédateurs ?",
+  "a": [
+   "Pieuvre",
+   "Étoile de mer",
+   "Concombre de mer",
+   "Hippocampe"
+  ]
+ },
+ "q1792": {
+  "q": "Quel reptile peut changer la couleur de sa peau et bouger ses deux yeux indépendamment ?",
+  "a": [
+   "Caméléon",
+   "Crocodile",
+   "Dragon de Komodo",
+   "Tortue terrestre"
+  ]
+ },
+ "q1793": {
+  "q": "Quel mammifère australien ovipare possède un bec semblable à celui d'un canard et des pattes palmées ?",
+  "a": [
+   "Ornithorynque",
+   "Wombat",
+   "Koala",
+   "Diable de Tasmanie"
+  ]
+ },
+ "q1794": {
+  "q": "Chez quel poisson marin les mâles portent-ils les œufs fécondés dans une poche incubatrice jusqu'à l'éclosion ?",
+  "a": [
+   "Hippocampe",
+   "Poisson-clown",
+   "Poisson-globe",
+   "Espadon"
+  ]
+ },
+ "q1795": {
+  "q": "Quelle salamandre mexicaine conserve ses branchies externes à l'âge adulte et peut régénérer des membres entiers ?",
+  "a": [
+   "Axolotl",
+   "Ménopome",
+   "Protée anguillard",
+   "Salamandre tachetée"
+  ]
+ },
+ "q1796": {
+  "q": "Quel animal microscopique à huit pattes peut survivre à des températures extrêmes, au vide et aux radiations en état de dormance ?",
+  "a": [
+   "Tardigrade",
+   "Rotifère",
+   "Daphnie",
+   "Hydre"
+  ]
+ },
+ "q1797": {
+  "q": "Quel rongeur fouisseur presque glabre d'Afrique de l'Est vit en colonies de type insecte dirigées par une seule reine ?",
+  "a": [
+   "Rat-taupe nu",
+   "Condylure étoilé",
+   "Gaufre",
+   "Marmotte"
+  ]
+ },
+ "q1798": {
+  "q": "Quel crustacé marin frappe ses proies avec des pattes ravisseuses accélérant comme une balle et créant des bulles de cavitation ?",
+  "a": [
+   "Crevette-mante",
+   "Crevette-pistolet",
+   "Crabe violoniste",
+   "Limule"
+  ]
+ },
+ "q1799": {
+  "q": "De quoi la longue défense spiralée d'un narval mâle est-elle réellement constituée ?",
+  "a": [
+   "D'une dent hypertrophiée",
+   "D'une corne nasale",
+   "D'une côte modifiée",
+   "De cartilage durci"
+  ]
+ },
+ "q1800": {
+  "q": "Quelle espèce d'hydrozoaire, Turritopsis dohrnii, peut revenir du stade de méduse adulte à celui de polype juvénile ?",
+  "a": [
+   "Méduse immortelle",
+   "Physalie",
+   "Guêpe de mer",
+   "Méduse à crinière de lion"
+  ]
+ },
+ "q1801": {
+  "q": "Quel poisson à nageoires charnues, cru éteint depuis 66 millions d'années, fut redécouvert vivant au large de l'Afrique du Sud en 1938 ?",
+  "a": [
+   "Cœlacanthe",
+   "Dipneuste",
+   "Esturgeon",
+   "Polyptère"
+  ]
+ },
+ "q1802": {
+  "q": "Quel reptile nord-américain peut projeter du sang par le coin de ses yeux pour repousser les prédateurs ?",
+  "a": [
+   "Lézard cornu",
+   "Monstre de Gila",
+   "Chuckwalla",
+   "Ophisaure"
+  ]
+ },
+ "q1803": {
+  "q": "Chez quel amphibien sud-américain les œufs fécondés s'enfoncent-ils dans des cavités sur le dos de la mère jusqu'à l'éclosion ?",
+  "a": [
+   "Pipa américain",
+   "Alyte accoucheur",
+   "Grenouille de verre",
+   "Grenouille cornue"
+  ]
+ },
+ "q1804": {
+  "q": "Chez quel grand oiseau sud-américain les poussins possèdent-ils deux griffes fonctionnelles à chaque aile pour grimper aux branches ?",
+  "a": [
+   "Hoazin huppé",
+   "Casoar",
+   "Bec-en-sabot du Nil",
+   "Messager sagittaire"
+  ]
+ },
+ "q1805": {
+  "q": "Quel requin des grands fonds est le vertébré le plus longévif connu, pouvant atteindre environ 400 ans ?",
+  "a": [
+   "Requin du Groenland",
+   "Requin-lutin",
+   "Requin-lézard",
+   "Requin grande-gueule"
+  ]
+ },
+ "q1806": {
+  "q": "Quel rongeur d'Afrique de l'Est mâche l'écorce toxique d'Acokanthera et enduit sa fourrure de poison pour se défendre ?",
+  "a": [
+   "Rat à crête",
+   "Cricétome des savanes",
+   "Lièvre sauteur",
+   "Aulacode"
+  ]
+ },
+ "q1807": {
+  "q": "Quel escargot des grands fonds développe sur son pied des écailles renforcées de sulfures de fer près des sources hydrothermales ?",
+  "a": [
+   "Gastéropode à pied écailleux",
+   "Cône",
+   "Nautile",
+   "Ange de mer"
+  ]
+ },
+ "q1808": {
+  "q": "Quel insecte goûte la nourriture grâce à des chimiorécepteurs situés sur ses pattes ?",
+  "a": [
+   "Papillon",
+   "Mante religieuse",
+   "Libellule",
+   "Phasme"
+  ]
+ },
+ "q1809": {
+  "q": "Quel marsupial australien possède des empreintes digitales presque indiscernables de celles de l'humain ?",
+  "a": [
+   "Koala",
+   "Ornithorynque",
+   "Échidné",
+   "Quokka"
+  ]
+ },
+ "q1810": {
+  "q": "Quel poisson d'eau douce sud-américain peut produire des décharges électriques dépassant 600 volts pour étourdir ses proies ?",
+  "a": [
+   "Anguille électrique",
+   "Piranha",
+   "Arapaïma",
+   "Pacu"
+  ]
+ },
+ "q1811": {
+  "q": "Quel grand oiseau australien incapable de voler possède à son doigt interne une griffe en poignard pouvant infliger des blessures mortelles ?",
+  "a": [
+   "Casoar",
+   "Émeu",
+   "Kookaburra",
+   "Ménure"
+  ]
+ },
+ "q1812": {
+  "q": "Quelle espèce de céphalopode, Thaumoctopus mimicus, imite les serpents marins, les poissons-lions et les poissons plats pour fuir ses prédateurs ?",
+  "a": [
+   "Pieuvre mimétique",
+   "Pieuvre à anneaux bleus",
+   "Pieuvre Dumbo",
+   "Vampire des abysses"
+  ]
+ },
+ "q1813": {
+  "q": "Quel primate nocturne de Madagascar utilise un majeur très long et fin pour tapoter le bois et extraire des larves ?",
+  "a": [
+   "Aye-aye",
+   "Tarsier",
+   "Loris lent",
+   "Galago"
+  ]
+ },
+ "q1814": {
+  "q": "Quel mammifère écailleux d'Afrique et d'Asie se roule en une boule couverte d'écailles de kératine lorsqu'il est menacé ?",
+  "a": [
+   "Pangolin",
+   "Tatou",
+   "Échidné",
+   "Oryctérope"
+  ]
+ },
+ "q1815": {
+  "q": "Quel grand échassier des marais d'Afrique de l'Est possède un bec massif en forme de sabot et reste immobile des heures ?",
+  "a": [
+   "Bec-en-sabot du Nil",
+   "Marabout",
+   "Grand Héron",
+   "Spatule"
+  ]
+ },
+ "q1816": {
+  "q": "Quelle espèce de taupe nord-américaine possède 22 appendices charnus roses autour du museau servant d'organe tactile ultra-sensible ?",
+  "a": [
+   "Condylure étoilé",
+   "Taupe dorée",
+   "Desman",
+   "Taupe-musaraigne"
+  ]
+ },
+ "q1817": {
+  "q": "Quel céphalopode abyssal au corps gélatineux et aux yeux immenses se retourne sur lui-même pour exposer des épines s'il est menacé ?",
+  "a": [
+   "Vampire des abysses",
+   "Calmar colossal",
+   "Seiche",
+   "Argonaute"
+  ]
+ },
+ "q1818": {
+  "q": "Quel rongeur arctique peut surfondre sa température corporelle interne sous zéro, jusqu'à environ -2,9 °C, durant l'hibernation ?",
+  "a": [
+   "Spermophile arctique",
+   "Lemming à collier",
+   "Lièvre arctique",
+   "Marmotte"
+  ]
+ },
+ "q1819": {
+  "q": "Quel poisson abyssal possède un dôme transparent sur la tête à travers lequel ses yeux tubulaires peuvent regarder vers le haut ?",
+  "a": [
+   "Revenants",
+   "Baudroie abyssale",
+   "Poisson-vipère",
+   "Régalec"
+  ]
+ },
+ "q1820": {
+  "q": "Quel grand animal terrestre a des pattes structurées de telle sorte qu'il ne peut pas sauter les quatre pieds décollés du sol ?",
+  "a": [
+   "Éléphant",
+   "Rhinocéros",
+   "Hippopotame",
+   "Girafe"
+  ]
+ },
+ "q1821": {
+  "q": "Quel grand mammifère marin dort en position verticale près de la surface de l'océan ?",
+  "a": [
+   "Cachalot",
+   "Loutre de mer",
+   "Lamantin",
+   "Morse"
+  ]
+ },
+ "q1822": {
+  "q": "Quel grand mammifère arctique est dépourvu d'incisives supérieures et écrase ses aliments contre un bourrelet dentaire supérieur ?",
+  "a": [
+   "Bœuf musqué",
+   "Ours blanc",
+   "Morse",
+   "Narval"
+  ]
+ },
+ "q1823": {
+  "q": "Quel amphibien planeur d'Asie du Sud-Est utilise d'immenses doigts palmés et des replis de peau pour se diriger dans la canopée ?",
+  "a": [
+   "Rhacophore de Wallace",
+   "Dendrobate",
+   "Grenouille goliath",
+   "Axolotl"
+  ]
+ },
+ "q1824": {
+  "q": "Quel suidé sauvage d'Indonésie possède des canines supérieures qui percent la peau du museau et se recourbent vers le front ?",
+  "a": [
+   "Babiroussa",
+   "Phacochère",
+   "Pécari",
+   "Potamochère roux"
+  ]
+ },
+ "q1825": {
+  "q": "Quel instrument est traditionnellement l'instrument principal des orchestres roms de Hongrie et de Roumanie ?",
+  "a": [
+   "Violon",
+   "Harpe",
+   "Banjo",
+   "Orgue d'église"
+  ]
+ },
+ "q1826": {
+  "q": "Les données linguistiques montrent que le berceau ancestral du peuple rom se situe dans quelle région ?",
+  "a": [
+   "L'Inde du Nord",
+   "L'Asie centrale",
+   "Les Balkans",
+   "L'Anatolie"
+  ]
+ },
+ "q1827": {
+  "q": "Dans les lois sociales et coutumes traditionnelles roms, quel terme désigne le système de règles morales et de notions de pureté ?",
+  "a": [
+   "Romaniya",
+   "Banya",
+   "Kumpanya",
+   "Chavale"
+  ]
+ },
+ "q1828": {
+  "q": "Dans les coutumes traditionnelles roms, quel terme désigne la notion d'impureté rituelle ou de souillure ?",
+  "a": [
+   "Marime",
+   "Phral",
+   "Gadjo",
+   "Kalo"
+  ]
+ },
+ "q1829": {
+  "q": "Quel art musical et dansé andalou en Espagne a été profondément façonné par les Gitans (Roms d'Espagne) ?",
+  "a": [
+   "Flamenco",
+   "Sardana",
+   "Jota",
+   "Fado"
+  ]
+ },
+ "q1830": {
+  "q": "Dans la tradition flamenca espagnole, comment appelle-t-on une fête animée mêlant chant, claquements de mains et danse ?",
+  "a": [
+   "Juerga",
+   "Corrida",
+   "Romería",
+   "Tertulia"
+  ]
+ },
+ "q1831": {
+  "q": "Dans les communautés roms traditionnelles, quel terme désigne un ancien ou un conseil d'anciens qui règle les litiges et fait respecter les coutumes ?",
+  "a": [
+   "Kris",
+   "Voïvode",
+   "Caftan",
+   "Saraf"
+  ]
+ },
+ "q1832": {
+  "q": "Dans les principautés médiévales de Valachie et de Moldavie, à quel statut juridique la majorité des Roms ont-ils été soumis pendant des siècles jusqu'à leur émancipation au XIXe siècle ?",
+  "a": [
+   "Esclavage",
+   "Chevalerie féodale",
+   "Citoyenneté corporative",
+   "Exemption monastique"
+  ]
+ },
+ "q1833": {
+  "q": "Quel artisanat traditionnel étroitement associé aux artisans roms consiste à façonner le fer et le métal chauds en outils, fers à cheval et pièces décoratives ?",
+  "a": [
+   "Forge",
+   "Soufflage du verre",
+   "Peinture sur porcelaine",
+   "Horlogerie"
+  ]
+ },
+ "q1834": {
+  "q": "Quel hymne rom, composé par Jarko Jovanović, est largement reconnu comme l'hymne international des Roms ?",
+  "a": [
+   "Gelem, Gelem",
+   "O Sole Mio",
+   "Bella Ciao",
+   "Greensleeves"
+  ]
+ },
+ "q1835": {
+  "q": "Sur le drapeau rom international adopté en 1971, quel symbole apparaît au centre au-dessus des bandes bleue et verte ?",
+  "a": [
+   "Une roue chakra rouge",
+   "Un croissant doré",
+   "Une colombe blanche",
+   "Une ancre d'argent"
+  ]
+ },
+ "q1836": {
+  "q": "Sur le drapeau rom international adopté en 1971, que symbolisent les moitiés verte et bleue ?",
+  "a": [
+   "La terre et le ciel",
+   "Les forêts et les rivières",
+   "Le printemps et l'hiver",
+   "La terre et la mer"
+  ]
+ },
+ "q1837": {
+  "q": "Dans quelle ville britannique s'est tenu le premier Congrès mondial rom en 1971 ?",
+  "a": [
+   "Londres",
+   "Manchester",
+   "Édimbourg",
+   "Bristol"
+  ]
+ },
+ "q1838": {
+  "q": "Par le terme rom Porajmos (aussi appelé Samudaripen), quelle tragédie historique de la Seconde Guerre mondiale commémore-t-on ?",
+  "a": [
+   "Le génocide nazi des Roms",
+   "La partition du Bengale",
+   "Le siège de Vienne",
+   "La famine des Balkans"
+  ]
+ },
+ "q1839": {
+  "q": "Quel compositeur et pianiste hongrois a composé les dix-neuf Rhapsodies hongroises, fortement inspirées par la musique rom ?",
+  "a": [
+   "Franz Liszt",
+   "Béla Bartók",
+   "Zoltán Kodály",
+   "György Ligeti"
+  ]
+ },
+ "q1840": {
+  "q": "Fondé à Moscou en 1931, quel est le nom du premier et plus ancien théâtre professionnel rom permanent au monde ?",
+  "a": [
+   "Théâtre Romen",
+   "Teatro Gitano",
+   "Scène Kalo",
+   "Rideau des Balkans"
+  ]
+ },
+ "q1841": {
+  "q": "Quel poète et militant rom de Slovaquie a écrit le célèbre poème « Opre Roma » ?",
+  "a": [
+   "Jozef Ravasz",
+   "Matei Vișniec",
+   "Bronisława Wajs",
+   "Rajko Đurić"
+  ]
+ },
+ "q1842": {
+  "q": "Sous quel nom poétique rom la poétesse rom polonaise Bronisława Wajs était-elle largement connue ?",
+  "a": [
+   "Papusza",
+   "Nadia",
+   "Zaïra",
+   "Esméralda"
+  ]
+ },
+ "q1843": {
+  "q": "Quel guitariste de jazz français d'origine manouche (rom) a cofondé le Quintette du Hot Club de France avec le violoniste Stéphane Grappelli ?",
+  "a": [
+   "Django Reinhardt",
+   "Bireli Lagrène",
+   "Angelo Debarre",
+   "Stochelo Rosenberg"
+  ]
+ },
+ "q1844": {
+  "q": "Dans le folklore et les croyances traditionnels roms, quel terme désigne une personne réputée posséder une intuition surnaturelle, un don de divination ou un pouvoir spirituel ?",
+  "a": [
+   "Drabarni",
+   "Khar",
+   "Vesh",
+   "Kher"
+  ]
+ },
+ "q1845": {
+  "q": "En quel mois célèbre-t-on chaque année dans le monde la Journée internationale des Roms ?",
+  "a": [
+   "Avril",
+   "Janvier",
+   "Juillet",
+   "Novembre"
+  ]
+ },
+ "q1846": {
+  "q": "Dans les mariages roms traditionnels de nombreuses communautés, quel objet symbolique brise-t-on pour marquer l'union et la chance du couple ?",
+  "a": [
+   "Une assiette ou un récipient en terre",
+   "Une boussole en argent",
+   "Une cloche en laiton",
+   "Une rame en bois"
+  ]
  }
 }

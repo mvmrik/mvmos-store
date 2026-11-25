@@ -14659,5 +14659,1958 @@
    "Asteropeia",
    "Antinoe"
   ]
+ },
+ "q1630": {
+  "q": "What object do players kick into a goal to score in association football?",
+  "a": [
+   "A ball",
+   "A watermelon",
+   "A sleeping cat",
+   "A bowling pin"
+  ]
+ },
+ "q1631": {
+  "q": "In which sport do athletes race in water using strokes like freestyle and butterfly?",
+  "a": [
+   "Swimming",
+   "Ice hockey",
+   "Archery",
+   "Chess"
+  ]
+ },
+ "q1632": {
+  "q": "How many interlocking rings appear on the official Olympic flag?",
+  "a": [
+   "5",
+   "4",
+   "6",
+   "7"
+  ]
+ },
+ "q1633": {
+  "q": "How many players from one team are allowed on the court at the same time during a standard basketball game?",
+  "a": [
+   "5",
+   "6",
+   "7",
+   "11"
+  ]
+ },
+ "q1634": {
+  "q": "In which sport is the prestigious Wimbledon tournament played?",
+  "a": [
+   "Tennis",
+   "Golf",
+   "Badminton",
+   "Cricket"
+  ]
+ },
+ "q1635": {
+  "q": "Which three disciplines make up a standard triathlon race?",
+  "a": [
+   "Swimming, cycling, and running",
+   "Running, rowing, and cycling",
+   "Swimming, skiing, and shooting",
+   "Cycling, gymnastics, and swimming"
+  ]
+ },
+ "q1636": {
+  "q": "What color jersey does the overall race leader wear during the Tour de France cycling race?",
+  "a": [
+   "Yellow",
+   "Pink",
+   "Green",
+   "Red"
+  ]
+ },
+ "q1637": {
+  "q": "What is the official distance of a modern marathon race?",
+  "a": [
+   "42.195 km",
+   "40.000 km",
+   "45.500 km",
+   "50.000 km"
+  ]
+ },
+ "q1638": {
+  "q": "In which country did the martial art of judo originate?",
+  "a": [
+   "Japan",
+   "South Korea",
+   "China",
+   "Thailand"
+  ]
+ },
+ "q1639": {
+  "q": "What is the feathered projectile hit back and forth over the net in badminton called?",
+  "a": [
+   "Shuttlecock",
+   "Puck",
+   "Quaffle",
+   "Wicket"
+  ]
+ },
+ "q1640": {
+  "q": "Which two sports are combined in the Winter Olympic event of biathlon?",
+  "a": [
+   "Cross-country skiing and rifle shooting",
+   "Ski jumping and cross-country skiing",
+   "Alpine skiing and ice skating",
+   "Speed skating and archery"
+  ]
+ },
+ "q1641": {
+  "q": "Which three weapons are used in modern Olympic fencing?",
+  "a": [
+   "Foil, épée, and sabre",
+   "Rapier, broadsword, and dagger",
+   "Katana, foil, and lance",
+   "Sabre, claymore, and épée"
+  ]
+ },
+ "q1642": {
+  "q": "Since the 2001 rule change, how many points must a player reach to win a standard game in table tennis?",
+  "a": [
+   "11",
+   "21",
+   "15",
+   "25"
+  ]
+ },
+ "q1643": {
+  "q": "In bowling, what is the maximum possible score in a single standard ten-pin game?",
+  "a": [
+   "300",
+   "200",
+   "250",
+   "360"
+  ]
+ },
+ "q1644": {
+  "q": "In indoor volleyball, what is the role of the player wearing a different-colored jersey who specializes in defensive skills?",
+  "a": [
+   "Libero",
+   "Setter",
+   "Opposite hitter",
+   "Sweeper"
+  ]
+ },
+ "q1645": {
+  "q": "In golf scoring, what term describes completing a hole in two strokes under par?",
+  "a": [
+   "Eagle",
+   "Birdie",
+   "Albatross",
+   "Bogey"
+  ]
+ },
+ "q1646": {
+  "q": "In Formula One auto racing, what does waving a checkered flag signify?",
+  "a": [
+   "The end of the race or session",
+   "An immediate suspension of the race",
+   "A driver disqualification",
+   "Slippery track conditions ahead"
+  ]
+ },
+ "q1647": {
+  "q": "In the winter sport of curling, what type of rock is traditionally used to craft Olympic-grade curling stones?",
+  "a": [
+   "Granite",
+   "Marble",
+   "Basalt",
+   "Sandstone"
+  ]
+ },
+ "q1648": {
+  "q": "In the sport of polo, how many players are on each team on the field during a standard outdoor match?",
+  "a": [
+   "4",
+   "5",
+   "6",
+   "7"
+  ]
+ },
+ "q1649": {
+  "q": "In competitive archery, how many points does hitting the innermost center ring of an Olympic target score?",
+  "a": [
+   "10",
+   "9",
+   "12",
+   "50"
+  ]
+ },
+ "q1650": {
+  "q": "How many red balls are placed on the table at the start of a standard frame of snooker?",
+  "a": [
+   "15",
+   "10",
+   "21",
+   "12"
+  ]
+ },
+ "q1651": {
+  "q": "Which apparatus is contested by women but NOT by men in Olympic artistic gymnastics?",
+  "a": [
+   "Balance beam",
+   "Vault",
+   "Floor exercise",
+   "Pommel horse"
+  ]
+ },
+ "q1652": {
+  "q": "How many players from each team are in the pool at the same time during a standard water polo match?",
+  "a": [
+   "7",
+   "6",
+   "8",
+   "5"
+  ]
+ },
+ "q1653": {
+  "q": "Which five disciplines make up the modern pentathlon at the Olympic Games?",
+  "a": [
+   "Fencing, swimming, obstacle course, pistol shooting, and running",
+   "Fencing, rowing, cycling, pistol shooting, and running",
+   "Archery, swimming, equestrian jumping, cycling, and running",
+   "Fencing, swimming, weightlifting, rifle shooting, and running"
+  ]
+ },
+ "q1654": {
+  "q": "In golf rules, what is the maximum number of clubs a player is allowed to carry in their bag during a stipulated round?",
+  "a": [
+   "14",
+   "12",
+   "16",
+   "18"
+  ]
+ },
+ "q1655": {
+  "q": "In rugby union, how many points are awarded for scoring a try?",
+  "a": [
+   "5",
+   "4",
+   "6",
+   "7"
+  ]
+ },
+ "q1656": {
+  "q": "In Olympic rowing, what is the traditional name for the lightweight member who sits at the stern steering the boat and directing the crew?",
+  "a": [
+   "Coxswain",
+   "Bowman",
+   "Strokesman",
+   "Helmsman"
+  ]
+ },
+ "q1657": {
+  "q": "In track and field, what is the standard height of the hurdles used in the men's 110 meters hurdles event?",
+  "a": [
+   "1.067 m",
+   "0.914 m",
+   "0.840 m",
+   "1.200 m"
+  ]
+ },
+ "q1658": {
+  "q": "What is the official weight of the shot put ball used in senior men's track and field competitions?",
+  "a": [
+   "7.26 kg",
+   "6.00 kg",
+   "8.00 kg",
+   "5.45 kg"
+  ]
+ },
+ "q1659": {
+  "q": "In standard racquetball, how many walls of the enclosed court are legal playing surfaces?",
+  "a": [
+   "4",
+   "3",
+   "2",
+   "1"
+  ]
+ },
+ "q1660": {
+  "q": "According to World Squash Federation rules, how many millimeters above the floor is the top edge of the front wall tin on a singles court?",
+  "a": [
+   "480 mm",
+   "430 mm",
+   "530 mm",
+   "380 mm"
+  ]
+ },
+ "q1661": {
+  "q": "In which ancient Greek sanctuary were the ancient Olympic Games held?",
+  "a": [
+   "Olympia",
+   "Delphi",
+   "Sparta",
+   "Corinth"
+  ]
+ },
+ "q1662": {
+  "q": "How many events are contested in a standard men's track and field decathlon?",
+  "a": [
+   "10",
+   "7",
+   "8",
+   "12"
+  ]
+ },
+ "q1663": {
+  "q": "What is the official length of an Olympic-size swimming pool?",
+  "a": [
+   "50 m",
+   "25 m",
+   "100 m",
+   "40 m"
+  ]
+ },
+ "q1664": {
+  "q": "In competitive equestrian dressage, what is the maximum score expressed as a percentage?",
+  "a": [
+   "100%",
+   "10%",
+   "50%",
+   "200%"
+  ]
+ },
+ "q1665": {
+  "q": "In Olympic weightlifting, which two lifts make up the total competition score?",
+  "a": [
+   "Snatch and clean and jerk",
+   "Deadlift and bench press",
+   "Squat and snatch",
+   "Clean and jerk and overhead press"
+  ]
+ },
+ "q1666": {
+  "q": "Which natural phenomenon during a thunderstorm produces a bright flash of light in the sky?",
+  "a": [
+   "Lightning",
+   "Taking a photo with a camera from another planet",
+   "A disco ball",
+   "A herd of fireflies"
+  ]
+ },
+ "q1667": {
+  "q": "Which sound is caused by the rapid expansion and heating of air along a lightning channel?",
+  "a": [
+   "Thunder",
+   "Raindrops",
+   "Hailstones",
+   "Wind gusts"
+  ]
+ },
+ "q1668": {
+  "q": "Which safety rule helps estimate the distance in kilometers to a visible lightning flash using seconds before thunder?",
+  "a": [
+   "Divide seconds by 3",
+   "Multiply seconds by 3",
+   "Divide seconds by 10",
+   "Multiply seconds by 10"
+  ]
+ },
+ "q1669": {
+  "q": "Which invention of Benjamin Franklin in 1752 demonstrated the electrical nature of lightning?",
+  "a": [
+   "Lightning rod",
+   "Voltaic pile",
+   "Leyden jar",
+   "Electroscope"
+  ]
+ },
+ "q1670": {
+  "q": "Which state of matter makes up the hot, ionized channel of a typical lightning discharge?",
+  "a": [
+   "Plasma",
+   "Superfluid",
+   "Bose-Einstein condensate",
+   "Amorphous solid"
+  ]
+ },
+ "q1671": {
+  "q": "Which type of cloud produces almost all natural lightning on Earth?",
+  "a": [
+   "Cumulonimbus",
+   "Cirrus",
+   "Altostratus",
+   "Stratus"
+  ]
+ },
+ "q1672": {
+  "q": "In a cloud-to-ground lightning flash, what is the faint, stepped path of charge that travels downward first?",
+  "a": [
+   "Stepped leader",
+   "Return stroke",
+   "Dart leader",
+   "Streamer"
+  ]
+ },
+ "q1673": {
+  "q": "In a lightning strike, which bright upward surge of current travels along the ionized channel after a downward leader meets an upward streamer?",
+  "a": [
+   "Return stroke",
+   "Stepped leader",
+   "Corona discharge",
+   "Step potential"
+  ]
+ },
+ "q1674": {
+  "q": "Which lake basin in South America is renowned for frequent, long-lasting nocturnal lightning storms known as Catatumbo lightning?",
+  "a": [
+   "Lake Maracaibo",
+   "Lake Titicaca",
+   "Lake Poopo",
+   "Lake Valencia"
+  ]
+ },
+ "q1675": {
+  "q": "Which term describes the voltage difference along the ground between a person's two feet when lightning strikes nearby?",
+  "a": [
+   "Step potential",
+   "Touch potential",
+   "Hall voltage",
+   "Breakdown voltage"
+  ]
+ },
+ "q1676": {
+  "q": "Which type of upper-atmospheric lightning appears as a brief reddish-orange column above active thunderclouds?",
+  "a": [
+   "Red sprite",
+   "Blue jet",
+   "Elf",
+   "St. Elmo's fire"
+  ]
+ },
+ "q1677": {
+  "q": "Which glowing luminous phenomenon occurs on pointed objects during thunderstorms due to silent corona discharge?",
+  "a": [
+   "St. Elmo's fire",
+   "Red sprite",
+   "Ball lightning",
+   "Green flash"
+  ]
+ },
+ "q1678": {
+  "q": "Which process separates electric charges inside a storm cloud as graupel and ice crystals collide in updrafts?",
+  "a": [
+   "Non-inductive charging",
+   "Photoionization",
+   "Thermionic emission",
+   "Piezoelectricity"
+  ]
+ },
+ "q1679": {
+  "q": "Which glassy, fused mineral tube forms when lightning melts sandy soil along a discharge path?",
+  "a": [
+   "Fulgurite",
+   "Obsidian",
+   "Pumice",
+   "Scoria"
+  ]
+ },
+ "q1680": {
+  "q": "Which brief, expanding ring of ultraviolet and optical light occurs high above thunderclouds alongside elves?",
+  "a": [
+   "Elves emission ring",
+   "Blue starter",
+   "Gigantic jet",
+   "Troll"
+  ]
+ },
+ "q1681": {
+  "q": "Which brief bursts of high-energy photons are produced by strong electric fields inside thunderclouds?",
+  "a": [
+   "Terrestrial gamma-ray flashes",
+   "Synchrotron pulses",
+   "Cherenkov bursts",
+   "Auroral kilometric radiation"
+  ]
+ },
+ "q1682": {
+  "q": "Which mechanism accelerates electrons to relativistic speeds in thunderclouds to trigger lightning and gamma-ray flashes?",
+  "a": [
+   "Runaway breakdown",
+   "Joule heating",
+   "Thomson scattering",
+   "Zeeman splitting"
+  ]
+ },
+ "q1683": {
+  "q": "Which fast, thin ionization wave moves ahead of a lightning leader tip to extend the conductive channel?",
+  "a": [
+   "Streamer",
+   "Whistler",
+   "Sprite halo",
+   "Sprite bead"
+  ]
+ },
+ "q1684": {
+  "q": "Which very low-frequency radio wave travels along Earth's magnetic field lines after being generated by a lightning flash?",
+  "a": [
+   "Whistler wave",
+   "Schumann resonance",
+   "Alfven wave",
+   "Langmuir wave"
+  ]
+ },
+ "q1685": {
+  "q": "Which short-lived, upward-propagating current pulse precedes a blue jet above a thundercloud?",
+  "a": [
+   "Blue starter",
+   "Red sprite",
+   "Sprite halo",
+   "Corona"
+  ]
+ },
+ "q1686": {
+  "q": "Which radio-frequency discharge phenomenon in thunderclouds produces bursts of microwave and VHF radiation without a bright optical flash?",
+  "a": [
+   "Narrow bipolar event",
+   "Stepped leader",
+   "Return stroke",
+   "Blue jet"
+  ]
+ },
+ "q1687": {
+  "q": "Among the upper-atmosphere phenomena linked to lightning above thunderstorms, which faint glow precedes a red sprite and spans tens of kilometers horizontally at around 75 to 85 km altitude?",
+  "a": [
+   "Sprite halo",
+   "Blue starter",
+   "Elf",
+   "Streamer"
+  ]
+ },
+ "q1688": {
+  "q": "Which animal is famous for sleeping standing up and having black and white stripes?",
+  "a": [
+   "Zebra",
+   "Tiger",
+   "Giant panda",
+   "Horse"
+  ]
+ },
+ "q1689": {
+  "q": "Which is the only mammal capable of true sustained flight?",
+  "a": [
+   "Bat",
+   "Flying squirrel",
+   "Sugar glider",
+   "Colugo"
+  ]
+ },
+ "q1690": {
+  "q": "How many hearts does an octopus have?",
+  "a": [
+   "3",
+   "1",
+   "2",
+   "5"
+  ]
+ },
+ "q1691": {
+  "q": "Which natural food stored in sealed jars never spoils even after thousands of years?",
+  "a": [
+   "Honey",
+   "Olive oil",
+   "Maple syrup",
+   "Peanut butter"
+  ]
+ },
+ "q1692": {
+  "q": "Which element makes lobster blood appear blue when oxygenated?",
+  "a": [
+   "Copper",
+   "Iron",
+   "Cobalt",
+   "Magnesium"
+  ]
+ },
+ "q1693": {
+  "q": "On which planet of the Solar System is a single day longer than its entire year?",
+  "a": [
+   "Venus",
+   "Mercury",
+   "Mars",
+   "Uranus"
+  ]
+ },
+ "q1694": {
+  "q": "Which ancient Egyptian queen lived closer in time to the 1969 Moon landing than to the building of the Great Pyramid of Giza?",
+  "a": [
+   "Cleopatra VII",
+   "Nefertiti",
+   "Hatshepsut",
+   "Nefertari"
+  ]
+ },
+ "q1695": {
+  "q": "Which animal produces cube-shaped droppings to stop them from rolling away?",
+  "a": [
+   "Wombat",
+   "Platypus",
+   "Koala",
+   "Tasmanian devil"
+  ]
+ },
+ "q1696": {
+  "q": "In which country is Lake Hillier, famous for its naturally bright pink water, located?",
+  "a": [
+   "Australia",
+   "Chile",
+   "Senegal",
+   "Kazakhstan"
+  ]
+ },
+ "q1697": {
+  "q": "Which kitchen appliance was invented after Percy Spencer noticed a chocolate bar melting in his pocket near a radar magnetron in 1945?",
+  "a": [
+   "Microwave oven",
+   "Toaster",
+   "Electric kettle",
+   "Induction cooktop"
+  ]
+ },
+ "q1698": {
+  "q": "What is the name of the unique temperature and pressure point at which a substance exists simultaneously as a gas, liquid, and solid?",
+  "a": [
+   "Triple point",
+   "Critical point",
+   "Curie point",
+   "Dew point"
+  ]
+ },
+ "q1699": {
+  "q": "Which famous painting by Leonardo da Vinci has no visible eyebrows or eyelashes on its subject?",
+  "a": [
+   "Mona Lisa",
+   "Lady with an Ermine",
+   "La Belle Ferronnière",
+   "Ginevra de' Benci"
+  ]
+ },
+ "q1700": {
+  "q": "Against which large flightless birds did the Australian military conduct an unsuccessful culling operation in 1932?",
+  "a": [
+   "Emus",
+   "Cassowaries",
+   "Ostriches",
+   "Rheas"
+  ]
+ },
+ "q1701": {
+  "q": "Which sea on Earth has no land coastline at all and is bounded only by ocean currents?",
+  "a": [
+   "Sargasso Sea",
+   "White Sea",
+   "Bering Sea",
+   "Aral Sea"
+  ]
+ },
+ "q1702": {
+  "q": "In which country was the world's first continuously operating hotel, Nishiyama Onsen Keiunkan, founded in 705 AD?",
+  "a": [
+   "Japan",
+   "China",
+   "South Korea",
+   "Switzerland"
+  ]
+ },
+ "q1703": {
+  "q": "Which is the only known species of bird that can fly backward?",
+  "a": [
+   "Hummingbird",
+   "Kingfisher",
+   "Swallow",
+   "Swift"
+  ]
+ },
+ "q1704": {
+  "q": "Which sport did astronaut Alan Shepard play on the Moon during the Apollo 14 mission in 1971?",
+  "a": [
+   "Golf",
+   "Baseball",
+   "Tennis",
+   "Dart throwing"
+  ]
+ },
+ "q1705": {
+  "q": "Which 1939 novel by Ernest Vincent Wright was written completely without using the letter E?",
+  "a": [
+   "Gadsby",
+   "Finnegans Wake",
+   "If on a winter's night a traveler",
+   "Pale Fire"
+  ]
+ },
+ "q1706": {
+  "q": "Which fruit contains an enzyme called bromelain that breaks down proteins and can make your tongue tingle?",
+  "a": [
+   "Pineapple",
+   "Kiwi",
+   "Papaya",
+   "Mango"
+  ]
+ },
+ "q1707": {
+  "q": "Which 19th-century French ruler was famously attacked by a flock of domestic rabbits during a celebratory hunt in 1807?",
+  "a": [
+   "Napoleon Bonaparte",
+   "Louis XVIII",
+   "Charles X",
+   "Napoleon III"
+  ]
+ },
+ "q1708": {
+  "q": "Which color were carrots predominantly cultivated in before Dutch growers popularized orange varieties in the 17th century?",
+  "a": [
+   "Purple and yellow",
+   "Blue and green",
+   "Pure white",
+   "Bright pink"
+  ]
+ },
+ "q1709": {
+  "q": "Which immortal jellyfish species can revert its adult cells back into a youthful polyp stage to escape death?",
+  "a": [
+   "Turritopsis dohrnii",
+   "Chironex fleckeri",
+   "Physalia physalis",
+   "Aurelia aurita"
+  ]
+ },
+ "q1710": {
+  "q": "Around which planet does Saturn's largest moon, Titan, orbit while possessing dense nitrogen-rich atmosphere and liquid methane lakes?",
+  "a": [
+   "Saturn",
+   "Jupiter",
+   "Uranus",
+   "Neptune"
+  ]
+ },
+ "q1711": {
+  "q": "Which insect was found inside a Harvard Mark II relay in 1947, inspiring Grace Hopper's team to log the first actual computer \"bug\"?",
+  "a": [
+   "Moth",
+   "Cockroach",
+   "Beetle",
+   "Ant"
+  ]
+ },
+ "q1712": {
+  "q": "Between which two countries is Pheasant Island, a river island that switches sovereignty every six months under the 1659 Treaty of the Pyrenees?",
+  "a": [
+   "France and Spain",
+   "Germany and Poland",
+   "Austria and Switzerland",
+   "Italy and Slovenia"
+  ]
+ },
+ "q1713": {
+  "q": "Which phenomenon describes hot water freezing faster than cold water under certain experimental conditions?",
+  "a": [
+   "Mpemba effect",
+   "Leidenfrost effect",
+   "Marangoni effect",
+   "Magnus effect"
+  ]
+ },
+ "q1714": {
+  "q": "How long is the full performance of John Cage's avant-garde musical composition \"As Slow as Possible\" being played in Halberstadt, Germany?",
+  "a": [
+   "639 years",
+   "100 years",
+   "250 years",
+   "1,000 years"
+  ]
+ },
+ "q1715": {
+  "q": "In which year did the Anglo-Zanzibar War, the shortest recorded war in history lasting about 38 minutes, take place?",
+  "a": [
+   "1896",
+   "1879",
+   "1902",
+   "1914"
+  ]
+ },
+ "q1716": {
+  "q": "How long did it take for the first drop to fall in the University of Queensland's famous Pitch Drop Experiment, started in 1927?",
+  "a": [
+   "8 years",
+   "2 years",
+   "15 years",
+   "24 years"
+  ]
+ },
+ "q1717": {
+  "q": "Which 18th-century Scottish eccentric published the self-glorifying book \"A Pickle for the Knowing Ones\" in 1802 without any punctuation, later adding a page of punctuation marks for readers to insert themselves?",
+  "a": [
+   "Timothy Dexter",
+   "William Beckford",
+   "John Mytton",
+   "Beau Brummell"
+  ]
+ },
+ "q1718": {
+  "q": "Which sea slug species steals functional chloroplasts from the algae it eats, allowing it to survive for months using solar photosynthesis?",
+  "a": [
+   "Elysia chlorotica",
+   "Glaucus atlanticus",
+   "Chromodoris willani",
+   "Aplysia californica"
+  ]
+ },
+ "q1719": {
+  "q": "Which large mammal carries its baby in a pouch and hops on two legs?",
+  "a": [
+   "Kangaroo",
+   "Koala",
+   "Wombat",
+   "Tasmanian devil"
+  ]
+ },
+ "q1720": {
+  "q": "Which famous landmark in Paris is a tall iron lattice tower built for the 1889 World's Fair?",
+  "a": [
+   "Eiffel Tower",
+   "Arc de Triomphe",
+   "Notre-Dame Cathedral",
+   "Louvre Pyramid"
+  ]
+ },
+ "q1721": {
+  "q": "Which flightless bird native to Antarctica can swim at speeds over 30 km/h and wears natural black-and-white plumage?",
+  "a": [
+   "Emperor penguin",
+   "Ostrich",
+   "Kiwi",
+   "Dodo"
+  ]
+ },
+ "q1722": {
+  "q": "Which large marine animal has a tongue that can weigh as much as an adult elephant?",
+  "a": [
+   "Blue whale",
+   "Great white shark",
+   "Giant squid",
+   "Walrus"
+  ]
+ },
+ "q1723": {
+  "q": "What color is the skin of a polar bear beneath its translucent white fur?",
+  "a": [
+   "Black",
+   "Pink",
+   "Pale yellow",
+   "Light blue"
+  ]
+ },
+ "q1724": {
+  "q": "Which planet in our Solar System rotates clockwise on its axis when viewed from above its north pole?",
+  "a": [
+   "Venus",
+   "Mars",
+   "Jupiter",
+   "Mercury"
+  ]
+ },
+ "q1725": {
+  "q": "Which tropical fruit is botanically classified as a single-seeded berry rather than a stone fruit?",
+  "a": [
+   "Avocado",
+   "Peach",
+   "Cherry",
+   "Plum"
+  ]
+ },
+ "q1726": {
+  "q": "Which European microstate surrounded by Italy is widely recognized as the world's oldest surviving republic, founded in 301 AD?",
+  "a": [
+   "San Marino",
+   "Monaco",
+   "Liechtenstein",
+   "Andorra"
+  ]
+ },
+ "q1727": {
+  "q": "Which Australian marsupial produces distinctive cube-shaped droppings that prevent them from rolling away?",
+  "a": [
+   "Wombat",
+   "Koala",
+   "Tasmanian devil",
+   "Platypus"
+  ]
+ },
+ "q1728": {
+  "q": "With which South American country does France share its longest land border, via French Guiana?",
+  "a": [
+   "Brazil",
+   "Suriname",
+   "Venezuela",
+   "Colombia"
+  ]
+ },
+ "q1729": {
+  "q": "In 18th-century Europe, why did wealthy aristocrats mistakenly believe tomatoes were poisonous after eating off pewter plates?",
+  "a": [
+   "Tomato acid leached lead from the plates",
+   "Tomatoes contained cyanide in their skins",
+   "Raw tomatoes triggered severe allergic shock",
+   "Bacteria grew rapidly on unwashed plates"
+  ]
+ },
+ "q1730": {
+  "q": "Which chemical element makes up roughly 90 percent of the atoms in the observable universe?",
+  "a": [
+   "Hydrogen",
+   "Helium",
+   "Oxygen",
+   "Carbon"
+  ]
+ },
+ "q1731": {
+  "q": "Which African country contains more ancient pyramids than Egypt, with over 200 built by the Kingdom of Kush?",
+  "a": [
+   "Sudan",
+   "Libya",
+   "Ethiopia",
+   "Morocco"
+  ]
+ },
+ "q1732": {
+  "q": "Which large semi-aquatic African mammal secretes a reddish-pink oily fluid that acts as a natural sunscreen and antibiotic?",
+  "a": [
+   "Hippopotamus",
+   "African elephant",
+   "Nile crocodile",
+   "White rhinoceros"
+  ]
+ },
+ "q1733": {
+  "q": "Which metallic element makes up nearly 99 percent of Earth's total supply inside the planet's core, enough to coat the surface 45 cm thick?",
+  "a": [
+   "Gold",
+   "Silver",
+   "Platinum",
+   "Copper"
+  ]
+ },
+ "q1734": {
+  "q": "Which famous board game was originally patented in 1904 by Elizabeth Magie as The Landlord's Game to demonstrate the dangers of land monopolies?",
+  "a": [
+   "Monopoly",
+   "Risk",
+   "Scrabble",
+   "Clue"
+  ]
+ },
+ "q1735": {
+  "q": "What beige-white shade did astronomers name in 2002 as the average color of all light emitted by galaxies in the universe?",
+  "a": [
+   "Cosmic latte",
+   "Galactic cream",
+   "Stellar ivory",
+   "Nebula pearl"
+  ]
+ },
+ "q1736": {
+  "q": "Which slow-moving tree-dwelling mammal has eight or nine neck vertebrae, more than a giraffe's seven?",
+  "a": [
+   "Three-toed sloth",
+   "Koala",
+   "Red panda",
+   "Chameleon"
+  ]
+ },
+ "q1737": {
+  "q": "In California's Death Valley, what natural mechanism causes heavy boulders on Racetrack Playa to glide across the desert floor?",
+  "a": [
+   "Thin ice sheets pushed by light winds",
+   "Earthquakes vibrating the dry clay",
+   "Underground magnetic mineral currents",
+   "Flash floods floating the rocks"
+  ]
+ },
+ "q1738": {
+  "q": "Which American athlete broke Bob Beamon's 23-year-old men's long jump world record in 1991 with a leap of 8.95 meters?",
+  "a": [
+   "Mike Powell",
+   "Carl Lewis",
+   "Jesse Owens",
+   "Ivan Pedroso"
+  ]
+ },
+ "q1739": {
+  "q": "On which Arctic island did a small isolated population of woolly mammoths survive until around 2000 BC, after Egypt's Great Pyramids were built?",
+  "a": [
+   "Wrangel Island",
+   "Svalbard",
+   "Baffin Island",
+   "Novaya Zemlya"
+  ]
+ },
+ "q1740": {
+  "q": "What gives Antarctica's Blood Falls its bright red color as saltwater emerges from beneath Taylor Glacier?",
+  "a": [
+   "Oxidized iron-rich brine",
+   "Red snow algae blooms",
+   "Volcanic cinnabar deposits",
+   "High concentrations of bromine"
+  ]
+ },
+ "q1741": {
+  "q": "Which Spanish town in the Pyrenees is a geographical exclave completely surrounded by French territory since the 1659 Treaty of the Pyrenees?",
+  "a": [
+   "Llívia",
+   "Puigcerdà",
+   "Olivenza",
+   "Ceuta"
+  ]
+ },
+ "q1742": {
+  "q": "Which volcanic rock mixed with lime enabled ancient Roman marine concrete to form interlocking crystals and self-heal cracks in seawater?",
+  "a": [
+   "Pozzolana",
+   "Obsidian",
+   "Basalt",
+   "Granite"
+  ]
+ },
+ "q1743": {
+  "q": "In which Northern Territory island group of Australia does a towering thunderstorm nicknamed Hector the Convector form nearly every afternoon in wet season?",
+  "a": [
+   "Tiwi Islands",
+   "Whitsunday Islands",
+   "Torres Strait Islands",
+   "Furneaux Group"
+  ]
+ },
+ "q1744": {
+  "q": "Which Neolithic archaeological site in southeastern Turkey features massive T-shaped stone pillars erected around 9500 BC, predating pottery and agriculture?",
+  "a": [
+   "Göbekli Tepe",
+   "Çatalhöyük",
+   "Hattusa",
+   "Troy"
+  ]
+ },
+ "q1745": {
+  "q": "In which Arctic Norwegian settlement in Svalbard are burials prohibited because the permafrost prevents bodies from decomposing?",
+  "a": [
+   "Longyearbyen",
+   "Tromsø",
+   "Hammerfest",
+   "Narvik"
+  ]
+ },
+ "q1746": {
+  "q": "Which rocky planet in our Solar System is triaxial, meaning it has three distinct radii along its axes rather than being a simple oblate spheroid?",
+  "a": [
+   "Mars",
+   "Venus",
+   "Mercury",
+   "Earth"
+  ]
+ },
+ "q1747": {
+  "q": "In which East African country did a contagious laughter epidemic break out in a girls' boarding school in 1962, temporarily closing 14 schools?",
+  "a": [
+   "Tanganyika (Tanzania)",
+   "Kenya",
+   "Uganda",
+   "Malawi"
+  ]
+ },
+ "q1748": {
+  "q": "Which high-pressure crystalline form of water, known as burning ice, remains solid even at temperatures above 400 °C inside giant exoplanets?",
+  "a": [
+   "Ice VII",
+   "Ice Ih",
+   "Ice III",
+   "Ice V"
+  ]
+ },
+ "q1749": {
+  "q": "In the 19th century, which 20th-dynasty Egyptian pharaoh's mummy was discovered with small onions placed inside its eye sockets as symbols of eternal life?",
+  "a": [
+   "Ramesses IV",
+   "Tutankhamun",
+   "Ramesses II",
+   "Seti I"
+  ]
+ },
+ "q1750": {
+  "q": "Which nocturnal bird of prey can rotate its head up to 270 degrees to look behind itself without moving its body?",
+  "a": [
+   "Owl",
+   "Eagle",
+   "Flamingo",
+   "Pelican"
+  ]
+ },
+ "q1751": {
+  "q": "Which eight-armed marine mollusk has three hearts and blue copper-based blood?",
+  "a": [
+   "Octopus",
+   "Sea turtle",
+   "Moray eel",
+   "Seahorse"
+  ]
+ },
+ "q1752": {
+  "q": "Which common legume grows underground in pods rather than on trees, despite having the word nut in its English name?",
+  "a": [
+   "Peanut",
+   "Almond",
+   "Walnut",
+   "Hazelnut"
+  ]
+ },
+ "q1753": {
+  "q": "How many time zones does a passenger cross when traveling the full 9,289-kilometer length of Russia's Trans-Siberian Railway?",
+  "a": [
+   "8",
+   "3",
+   "15",
+   "24"
+  ]
+ },
+ "q1754": {
+  "q": "Why do identical twins have different fingerprints despite sharing virtually identical DNA?",
+  "a": [
+   "Random conditions inside the womb",
+   "Differences in childhood diet",
+   "Exposure to sunlight after birth",
+   "Random mutations in skin cells"
+  ]
+ },
+ "q1755": {
+  "q": "Which sweet taste receptor is completely nonfunctional in domestic cats and other felines due to a genetic deletion?",
+  "a": [
+   "Sweetness",
+   "Saltiness",
+   "Bitterness",
+   "Sourness"
+  ]
+ },
+ "q1756": {
+  "q": "How many stone steps lead up each of the four sides of El Castillo, the main step pyramid at Chichén Itzá in Mexico, totaling 365 with the top platform?",
+  "a": [
+   "91",
+   "73",
+   "100",
+   "120"
+  ]
+ },
+ "q1757": {
+  "q": "By approximately how many seconds per century is the average length of an Earth day increasing due to tidal friction from the Moon?",
+  "a": [
+   "1.8 seconds",
+   "15 seconds",
+   "45 seconds",
+   "2 minutes"
+  ]
+ },
+ "q1758": {
+  "q": "Which deep-sea cephalopod has the largest eyes in the animal kingdom, measuring up to 27 centimeters across to detect faint light in ocean depths?",
+  "a": [
+   "Colossal squid",
+   "Vampire squid",
+   "Giant Pacific octopus",
+   "Chambered nautilus"
+  ]
+ },
+ "q1759": {
+  "q": "What kind of water fills Earth's oceans?",
+  "a": [
+   "Saltwater",
+   "Sparkling lemonade",
+   "Melted vanilla ice cream",
+   "Hot chicken soup"
+  ]
+ },
+ "q1760": {
+  "q": "Which is the largest and deepest ocean on Earth?",
+  "a": [
+   "Pacific Ocean",
+   "Atlantic Ocean",
+   "Indian Ocean",
+   "Arctic Ocean"
+  ]
+ },
+ "q1761": {
+  "q": "In which ocean is the Mariana Trench, the deepest known oceanic trench on Earth, located?",
+  "a": [
+   "Pacific Ocean",
+   "Atlantic Ocean",
+   "Indian Ocean",
+   "Southern Ocean"
+  ]
+ },
+ "q1762": {
+  "q": "Which hypersaline lake bordering Jordan and Israel is famous for letting swimmers float effortlessly on its surface?",
+  "a": [
+   "Dead Sea",
+   "Caspian Sea",
+   "Aral Sea",
+   "Red Sea"
+  ]
+ },
+ "q1763": {
+  "q": "Off the coast of which country is the Great Barrier Reef, the world's largest coral reef system, located?",
+  "a": [
+   "Australia",
+   "Brazil",
+   "Indonesia",
+   "Mexico"
+  ]
+ },
+ "q1764": {
+  "q": "Which warm Atlantic Ocean current flows from the Gulf of Mexico toward Western Europe and moderates its climate?",
+  "a": [
+   "Gulf Stream",
+   "Humboldt Current",
+   "Kuroshio Current",
+   "Benguela Current"
+  ]
+ },
+ "q1765": {
+  "q": "Which celestial body's gravitational pull is the primary cause of ocean tides on Earth?",
+  "a": [
+   "The Moon",
+   "Mars",
+   "Venus",
+   "Jupiter"
+  ]
+ },
+ "q1766": {
+  "q": "Which narrow strait separates Europe and Africa at the western entrance to the Mediterranean Sea?",
+  "a": [
+   "Strait of Gibraltar",
+   "Strait of Hormuz",
+   "Bering Strait",
+   "Strait of Malacca"
+  ]
+ },
+ "q1767": {
+  "q": "Which sea separates the Arabian Peninsula from northeastern Africa and connects to the Mediterranean via the Suez Canal?",
+  "a": [
+   "Red Sea",
+   "Black Sea",
+   "Arabian Sea",
+   "Aegean Sea"
+  ]
+ },
+ "q1768": {
+  "q": "Which landlocked body of water between Europe and Asia is the largest inland sea in the world by surface area?",
+  "a": [
+   "Caspian Sea",
+   "Aral Sea",
+   "Dead Sea",
+   "Sea of Azov"
+  ]
+ },
+ "q1769": {
+  "q": "Approximately how many grams of dissolved salt are contained in 1 kilogram of average ocean water?",
+  "a": [
+   "35 grams",
+   "5 grams",
+   "120 grams",
+   "250 grams"
+  ]
+ },
+ "q1770": {
+  "q": "Which region of the North Atlantic Ocean is the only sea on Earth defined solely by ocean currents rather than land boundaries?",
+  "a": [
+   "Sargasso Sea",
+   "Bering Sea",
+   "Barents Sea",
+   "Coral Sea"
+  ]
+ },
+ "q1771": {
+  "q": "In which sea are waters deeper than about 200 meters completely devoid of oxygen and rich in toxic hydrogen sulfide?",
+  "a": [
+   "Black Sea",
+   "Baltic Sea",
+   "North Sea",
+   "Adriatic Sea"
+  ]
+ },
+ "q1772": {
+  "q": "What is the approximate maximum depth of the Challenger Deep in the Mariana Trench?",
+  "a": [
+   "11,000 meters",
+   "4,500 meters",
+   "7,200 meters",
+   "18,500 meters"
+  ]
+ },
+ "q1773": {
+  "q": "Which ocean covers roughly 46 percent of Earth's water surface and is larger than all of Earth's landmasses combined?",
+  "a": [
+   "Pacific Ocean",
+   "Atlantic Ocean",
+   "Indian Ocean",
+   "Southern Ocean"
+  ]
+ },
+ "q1774": {
+  "q": "Which ocean layer, located below about 200 meters, receives too little sunlight for photosynthesis and is often called the twilight zone?",
+  "a": [
+   "Mesopelagic zone",
+   "Epipelagic zone",
+   "Abyssopelagic zone",
+   "Hadalpelagic zone"
+  ]
+ },
+ "q1775": {
+  "q": "What is the name of the remote point in the South Pacific Ocean that lies farthest from any landmass on Earth?",
+  "a": [
+   "Point Nemo",
+   "Cape Horn",
+   "Tristan da Cunha",
+   "Bouvet Island"
+  ]
+ },
+ "q1776": {
+  "q": "Which bay between the Canadian provinces of New Brunswick and Nova Scotia experiences the highest tidal range in the world?",
+  "a": [
+   "Bay of Fundy",
+   "Hudson Bay",
+   "Chesapeake Bay",
+   "Bay of Biscay"
+  ]
+ },
+ "q1777": {
+  "q": "What is the longest continuous mountain range on Earth, stretching about 65,000 kilometers beneath the world's oceans?",
+  "a": [
+   "Mid-ocean ridge",
+   "Andes",
+   "Himalayas",
+   "Great Dividing Range"
+  ]
+ },
+ "q1778": {
+  "q": "Which deep-sea hydrothermal vents, discovered in 1977 near the Galápagos Rift, release superheated mineral-rich water that looks like dark smoke?",
+  "a": [
+   "Black smokers",
+   "Blue holes",
+   "Brine pools",
+   "Mud volcanoes"
+  ]
+ },
+ "q1779": {
+  "q": "Which ocean is the only one on Earth that flows completely around the globe without being blocked by a continent?",
+  "a": [
+   "Southern Ocean",
+   "Arctic Ocean",
+   "Indian Ocean",
+   "Atlantic Ocean"
+  ]
+ },
+ "q1780": {
+  "q": "Which ocean is both the smallest and the shallowest of Earth's five oceans?",
+  "a": [
+   "Arctic Ocean",
+   "Southern Ocean",
+   "Indian Ocean",
+   "Atlantic Ocean"
+  ]
+ },
+ "q1781": {
+  "q": "What is the name of the ocean depth boundary below which temperature decreases rapidly with depth compared to the warm surface layer?",
+  "a": [
+   "Thermocline",
+   "Halocline",
+   "Pycnocline",
+   "Chemocline"
+  ]
+ },
+ "q1782": {
+  "q": "Who were the two explorers who made the first crewed descent to the bottom of the Mariana Trench aboard the bathyscaphe Trieste in 1960?",
+  "a": [
+   "Jacques Piccard and Don Walsh",
+   "Jacques Cousteau and Sylvia Earle",
+   "James Cameron and Victor Vescovo",
+   "Robert Ballard and Auguste Piccard"
+  ]
+ },
+ "q1783": {
+  "q": "What is the name of the deep-ocean horizontal layer where sound waves travel at minimum speed and can carry over thousands of kilometers?",
+  "a": [
+   "SOFAR channel",
+   "Ekman layer",
+   "Benthic zone",
+   "Littoral zone"
+  ]
+ },
+ "q1784": {
+  "q": "Which large oceanic current, driven by strong westerly winds around Antarctica, is the strongest ocean current on Earth by volume transport?",
+  "a": [
+   "Antarctic Circumpolar Current",
+   "Agulhas Current",
+   "Labrador Current",
+   "Canary Current"
+  ]
+ },
+ "q1785": {
+  "q": "Which deep-sea trench in the South Atlantic Ocean is the deepest point in the Atlantic, reaching about 8,264 meters in the Meteor Deep?",
+  "a": [
+   "South Sandwich Trench",
+   "Puerto Rico Trench",
+   "Java Trench",
+   "Kermadec Trench"
+  ]
+ },
+ "q1786": {
+  "q": "Which oceanographic effect causes surface ocean currents in the Northern Hemisphere to deflect about 45 degrees to the right of the prevailing wind direction?",
+  "a": [
+   "Ekman spiral",
+   "Venturi effect",
+   "Magnus effect",
+   "Marangoni effect"
+  ]
+ },
+ "q1787": {
+  "q": "Which submarine volcano off the southeastern coast of the Island of Hawaii is the youngest volcano in the Hawaiian-Emperor seamount chain?",
+  "a": [
+   "Kamaʻehuakanaloa",
+   "Mauna Loa",
+   "Kīlauea",
+   "Hualālai"
+  ]
+ },
+ "q1788": {
+  "q": "In oceanography, what is the standard SI-derived unit used to measure the volume transport of ocean currents, equal to one million cubic meters per second?",
+  "a": [
+   "Sverdrup",
+   "Nansen",
+   "Beaufort",
+   "Fathom"
+  ]
+ },
+ "q1789": {
+  "q": "Which underwater hydrothermal field in the Atlantic Ocean, discovered in 2000, features carbonate chimneys up to 60 meters tall fueled by serpentinization rather than magma?",
+  "a": [
+   "Lost City hydrothermal field",
+   "TAG hydrothermal field",
+   "Rainbow hydrothermal field",
+   "Endeavour hydrothermal vents"
+  ]
+ },
+ "q1790": {
+  "q": "What is the name of the ocean depth boundary below which calcium carbonate dissolves faster than it accumulates, preventing calcareous shells from preserving on the seafloor?",
+  "a": [
+   "Carbonate compensation depth",
+   "Aragonite saturation horizon",
+   "Euphotic compensation depth",
+   "Isopycnal boundary"
+  ]
+ },
+ "q1791": {
+  "q": "Which large sea creature has eight arms and can squirt dark ink to escape predators?",
+  "a": [
+   "Octopus",
+   "Starfish",
+   "Sea cucumber",
+   "Seahorse"
+  ]
+ },
+ "q1792": {
+  "q": "Which reptile can change the color of its skin and move its two eyes independently?",
+  "a": [
+   "Chameleon",
+   "Crocodile",
+   "Komodo dragon",
+   "Tortoise"
+  ]
+ },
+ "q1793": {
+  "q": "Which Australian egg-laying mammal has a duck-like bill and webbed feet?",
+  "a": [
+   "Platypus",
+   "Wombat",
+   "Koala",
+   "Tasmanian devil"
+  ]
+ },
+ "q1794": {
+  "q": "In which marine fish do the males carry the fertilized eggs in a brood pouch until they hatch?",
+  "a": [
+   "Seahorse",
+   "Clownfish",
+   "Pufferfish",
+   "Swordfish"
+  ]
+ },
+ "q1795": {
+  "q": "Which Mexican salamander keeps its feathery external gills throughout adulthood and can regenerate whole limbs?",
+  "a": [
+   "Axolotl",
+   "Hellbender",
+   "Olm",
+   "Fire salamander"
+  ]
+ },
+ "q1796": {
+  "q": "Which microscopic eight-legged animal can survive extreme temperatures, vacuum, and radiation in a dormant state?",
+  "a": [
+   "Tardigrade",
+   "Rotifer",
+   "Daphnia",
+   "Hydra"
+  ]
+ },
+ "q1797": {
+  "q": "Which nearly hairless East African burrowing rodent lives in insect-like colonies ruled by a single breeding queen?",
+  "a": [
+   "Naked mole-rat",
+   "Star-nosed mole",
+   "Gopher",
+   "Marmot"
+  ]
+ },
+ "q1798": {
+  "q": "Which marine crustacean strikes prey with raptorial appendages that accelerate like a bullet and create cavitation bubbles?",
+  "a": [
+   "Mantis shrimp",
+   "Pistol shrimp",
+   "Fiddler crab",
+   "Horseshoe crab"
+  ]
+ },
+ "q1799": {
+  "q": "What is the long spiral tusk of a male narwhal actually made from?",
+  "a": [
+   "An overgrown tooth",
+   "A nasal horn",
+   "A modified rib",
+   "Hardened cartilage"
+  ]
+ },
+ "q1800": {
+  "q": "Which hydrozoan species, Turritopsis dohrnii, can revert from its adult medusa stage back into a juvenile polyp?",
+  "a": [
+   "Immortal jellyfish",
+   "Portuguese man o' war",
+   "Sea wasp",
+   "Lion's mane jellyfish"
+  ]
+ },
+ "q1801": {
+  "q": "Which lobe-finned fish, thought extinct for 66 million years, was rediscovered alive off South Africa in 1938?",
+  "a": [
+   "Coelacanth",
+   "Lungfish",
+   "Sturgeon",
+   "Bichir"
+  ]
+ },
+ "q1802": {
+  "q": "Which North American reptile can squirt foul-tasting blood from the corners of its eyes to deter predators?",
+  "a": [
+   "Horned lizard",
+   "Gila monster",
+   "Chuckwalla",
+   "Glass lizard"
+  ]
+ },
+ "q1803": {
+  "q": "In which South American amphibian do fertilized eggs sink into spongy pockets on the mother's back until toadlets emerge?",
+  "a": [
+   "Surinam toad",
+   "Midwife toad",
+   "Glass frog",
+   "Pac-Man frog"
+  ]
+ },
+ "q1804": {
+  "q": "Which large South American bird has chicks with two functional claws on each wing to help them climb branches?",
+  "a": [
+   "Hoatzin",
+   "Cassowary",
+   "Shoebill",
+   "Secretarybird"
+  ]
+ },
+ "q1805": {
+  "q": "Which deep-sea shark is the longest-living known vertebrate, capable of reaching an age of around 400 years?",
+  "a": [
+   "Greenland shark",
+   "Goblin shark",
+   "Frilled shark",
+   "Megamouth shark"
+  ]
+ },
+ "q1806": {
+  "q": "Which East African rodent chews poisonous Acokanthera bark and coats its fur with the toxin to deter predators?",
+  "a": [
+   "African crested rat",
+   "Giant pouched rat",
+   "Springhare",
+   "Cane rat"
+  ]
+ },
+ "q1807": {
+  "q": "Which deep-sea snail builds armor scales reinforced with iron sulfides on its foot near hydrothermal vents?",
+  "a": [
+   "Scaly-foot gastropod",
+   "Cone snail",
+   "Nautilus",
+   "Sea angel"
+  ]
+ },
+ "q1808": {
+  "q": "Which insect tastes food using chemoreceptors located on its feet?",
+  "a": [
+   "Butterfly",
+   "Praying mantis",
+   "Dragonfly",
+   "Stick insect"
+  ]
+ },
+ "q1809": {
+  "q": "Which Australian marsupial has fingerprints nearly indistinguishable from human fingerprints?",
+  "a": [
+   "Koala",
+   "Platypus",
+   "Echidna",
+   "Quokka"
+  ]
+ },
+ "q1810": {
+  "q": "Which South American freshwater fish can generate electric shocks exceeding 600 volts to stun prey?",
+  "a": [
+   "Electric eel",
+   "Piranha",
+   "Arapaima",
+   "Pacu"
+  ]
+ },
+ "q1811": {
+  "q": "Which large flightless Australian bird possesses a sharp dagger-like inner toe claw capable of inflicting fatal wounds?",
+  "a": [
+   "Cassowary",
+   "Emu",
+   "Kookaburra",
+   "Lyrebird"
+  ]
+ },
+ "q1812": {
+  "q": "Which cephalopod species, Thaumoctopus mimicus, impersonates sea snakes, lionfish, and flatfish to deter predators?",
+  "a": [
+   "Mimic octopus",
+   "Blue-ringed octopus",
+   "Dumbo octopus",
+   "Vampire squid"
+  ]
+ },
+ "q1813": {
+  "q": "Which nocturnal primate from Madagascar uses an elongated, thin middle finger to tap on wood and extract grubs?",
+  "a": [
+   "Aye-aye",
+   "Tarsier",
+   "Slow loris",
+   "Galago"
+  ]
+ },
+ "q1814": {
+  "q": "Which scaly anteater found in Africa and Asia rolls into a tight keratin-plated ball when threatened?",
+  "a": [
+   "Pangolin",
+   "Armadillo",
+   "Echidna",
+   "Aardvark"
+  ]
+ },
+ "q1815": {
+  "q": "Which large wading bird of East African swamps has a massive shoe-shaped bill and can stand motionless for hours?",
+  "a": [
+   "Shoebill",
+   "Marabou stork",
+   "Great blue heron",
+   "Spoonbill"
+  ]
+ },
+ "q1816": {
+  "q": "Which North American mole species has 22 fleshy pink appendages around its snout that serve as an ultra-sensitive touch organ?",
+  "a": [
+   "Star-nosed mole",
+   "Golden mole",
+   "Desman",
+   "Shrew mole"
+  ]
+ },
+ "q1817": {
+  "q": "Which deep-sea cephalopod has a gelatinous body, huge eyes, and turns inside out to expose spiny filaments when threatened?",
+  "a": [
+   "Vampire squid",
+   "Colossal squid",
+   "Cuttlefish",
+   "Paper nautilus"
+  ]
+ },
+ "q1818": {
+  "q": "Which Arctic rodent can supercool its core body temperature below freezing, down to about -2.9 °C, during hibernation?",
+  "a": [
+   "Arctic ground squirrel",
+   "Collared lemming",
+   "Arctic hare",
+   "Marmot"
+  ]
+ },
+ "q1819": {
+  "q": "Which deep-sea fish has a transparent, fluid-filled dome on its head through which its tubular eyes can look upward?",
+  "a": [
+   "Barreleye fish",
+   "Anglerfish",
+   "Viperfish",
+   "Oarfish"
+  ]
+ },
+ "q1820": {
+  "q": "Which large land animal has legs structured in a way that prevents it from jumping with all four feet off the ground?",
+  "a": [
+   "Elephant",
+   "Rhinoceros",
+   "Hippopotamus",
+   "Giraffe"
+  ]
+ },
+ "q1821": {
+  "q": "Which large sea mammal sleeps vertically while bobbing upright near the ocean surface?",
+  "a": [
+   "Sperm whale",
+   "Sea otter",
+   "Manatee",
+   "Walrus"
+  ]
+ },
+ "q1822": {
+  "q": "Which large Arctic mammal has no upper incisors and instead presses food against a tough dental pad on its upper gum?",
+  "a": [
+   "Muskox",
+   "Polar bear",
+   "Walrus",
+   "Narwhal"
+  ]
+ },
+ "q1823": {
+  "q": "Which Southeast Asian gliding amphibian uses oversized webbed toes and skin flaps to steer through the rainforest canopy?",
+  "a": [
+   "Wallace's flying frog",
+   "Poison dart frog",
+   "Goliath frog",
+   "Axolotl"
+  ]
+ },
+ "q1824": {
+  "q": "Which Indonesian wild pig has upper canine teeth that curve upward through the skin of its snout toward its forehead?",
+  "a": [
+   "Babirusa",
+   "Warthog",
+   "Peccary",
+   "Red river hog"
+  ]
+ },
+ "q1825": {
+  "q": "Which instrument is traditionally the lead instrument of Romani ensembles in Hungary and Romania?",
+  "a": [
+   "Violin",
+   "Harp",
+   "Banjo",
+   "Pipe organ"
+  ]
+ },
+ "q1826": {
+  "q": "Linguistic evidence shows that the ancestral homeland of the Romani people lies in which region?",
+  "a": [
+   "Northern India",
+   "Central Asia",
+   "The Balkans",
+   "Anatolia"
+  ]
+ },
+ "q1827": {
+  "q": "In traditional Romani social law and customs, what term refers to the system of moral rules and purity concepts?",
+  "a": [
+   "Romaniya",
+   "Banya",
+   "Kumpanya",
+   "Chavale"
+  ]
+ },
+ "q1828": {
+  "q": "In traditional Romani customs, what term refers to the concept of ritual uncleanness or defilement?",
+  "a": [
+   "Marime",
+   "Phral",
+   "Gadjo",
+   "Kalo"
+  ]
+ },
+ "q1829": {
+  "q": "Which Andalusian musical and dance art form in Spain was heavily shaped by Gitanos (Spanish Romani people)?",
+  "a": [
+   "Flamenco",
+   "Sardana",
+   "Jota",
+   "Fado"
+  ]
+ },
+ "q1830": {
+  "q": "In Spanish flamenco tradition, what is a lively, celebratory party or gathering filled with singing, clapping, and dancing called?",
+  "a": [
+   "Juerga",
+   "Corrida",
+   "Romería",
+   "Tertulia"
+  ]
+ },
+ "q1831": {
+  "q": "In traditional Romani communities, what term denotes an elder or council of elders who resolve disputes and uphold customs?",
+  "a": [
+   "Kris",
+   "Voivode",
+   "Kaftan",
+   "Saraf"
+  ]
+ },
+ "q1832": {
+  "q": "In the medieval principalities of Wallachia and Moldavia, what legal status were most Romani people subjected to for centuries until emancipation in the 19th century?",
+  "a": [
+   "Slavery",
+   "Feudal knighthood",
+   "Guild citizenship",
+   "Monastic exemption"
+  ]
+ },
+ "q1833": {
+  "q": "Which traditional craft closely associated with Romani artisans involves shaping hot iron and metal into tools, horseshoes, and decorative work?",
+  "a": [
+   "Blacksmithing",
+   "Glassblowing",
+   "Porcelain painting",
+   "Watchmaking"
+  ]
+ },
+ "q1834": {
+  "q": "Which Romani hymn, composed by Jarko Jovanović, is widely recognized as the international Romani anthem?",
+  "a": [
+   "Gelem, Gelem",
+   "O Sole Mio",
+   "Bella Ciao",
+   "Greensleeves"
+  ]
+ },
+ "q1835": {
+  "q": "In the international Romani flag adopted in 1971, which symbol appears at the center over the blue and green bands?",
+  "a": [
+   "A red chakra wheel",
+   "A golden crescent",
+   "A white dove",
+   "A silver anchor"
+  ]
+ },
+ "q1836": {
+  "q": "On the international Romani flag adopted in 1971, what do the green and blue halves symbolize?",
+  "a": [
+   "Earth and sky",
+   "Forests and rivers",
+   "Spring and winter",
+   "Land and sea"
+  ]
+ },
+ "q1837": {
+  "q": "In which British city was the first World Romani Congress held in 1971?",
+  "a": [
+   "London",
+   "Manchester",
+   "Edinburgh",
+   "Bristol"
+  ]
+ },
+ "q1838": {
+  "q": "In the Romani term Porajmos (also called Samudaripen), what historical tragedy during World War II is remembered?",
+  "a": [
+   "The Nazi genocide of Romani people",
+   "The partition of Bengal",
+   "The siege of Vienna",
+   "The Balkan famine"
+  ]
+ },
+ "q1839": {
+  "q": "Which Hungarian composer and pianist of Romani-affiliated or Romani-influenced musical heritage wrote the nineteen Hungarian Rhapsodies?",
+  "a": [
+   "Franz Liszt",
+   "Béla Bartók",
+   "Zoltán Kodály",
+   "György Ligeti"
+  ]
+ },
+ "q1840": {
+  "q": "Founded in Moscow in 1931, what is the name of the world's first and oldest permanent professional Romani theater?",
+  "a": [
+   "Romen Theatre",
+   "Teatro Gitano",
+   "Kalo Stage",
+   "Balkan Curtain"
+  ]
+ },
+ "q1841": {
+  "q": "Which Romani poet and civil rights activist from Slovakia wrote the renowned poem „Opre Roma“?",
+  "a": [
+   "Jozefani / Jozef Ravasz",
+   "Matei Vișniec",
+   "Bronisława Wajs",
+   "Rajko Đurić"
+  ]
+ },
+ "q1842": {
+  "q": "By what Romani poetic name was Polish Romani poet Bronisława Wajs widely known?",
+  "a": [
+   "Papusza",
+   "Nadia",
+   "Zaira",
+   "Esmeralda"
+  ]
+ },
+ "q1843": {
+  "q": "Which French jazz guitarist of Manouche (Romani) heritage co-founded the Quintette du Hot Club de France with violinist Stéphane Grappelli?",
+  "a": [
+   "Django Reinhardt",
+   "Bireli Lagrène",
+   "Angelo Debarre",
+   "Stochelo Rosenberg"
+  ]
+ },
+ "q1844": {
+  "q": "In Romani traditional folklore and beliefs, what term refers to a person believed to possess supernatural insight, fortune-telling skill, or spiritual power?",
+  "a": [
+   "Drabarni",
+   "Khar",
+   "Vesh",
+   "Kher"
+  ]
+ },
+ "q1845": {
+  "q": "In which month is International Romani Day celebrated globally each year?",
+  "a": [
+   "April",
+   "January",
+   "July",
+   "November"
+  ]
+ },
+ "q1846": {
+  "q": "In traditional Romani weddings across many communities, what symbolic item is traditionally broken to mark the couple's union and fortune?",
+  "a": [
+   "An earthen plate or vessel",
+   "A silver compass",
+   "A brass bell",
+   "A wooden oar"
+  ]
  }
 }
